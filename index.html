@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone Total Sport — Ressources ÉPS pour enseignants au primaire</title>
+    <meta name="description" content="Plateforme gamifiée de ressources en éducation physique : jeux, SAÉ, gestion de classe et plus pour les enseignants au primaire.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: { electric: '#00E5FF' },
+                        yellow: { sun: '#FFD700' },
+                        pink: { fuchsia: '#FF2A7A' },
+                        violet: { pop: '#8B5CF6' },
+                        dark: '#0F0F2E',
+                    },
+                    fontFamily: {
+                        bangers: ['"Luckiest Guy"', 'cursive'],
+                        boogaloo: ['Boogaloo', 'cursive'],
+                        baloo: ['"Patrick Hand"', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+
+        body {
+            font-family: 'Patrick Hand', cursive;
+            background-color: #ffffff;
+            color: #1a1a2e;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ========== BODY WATERMARK ========== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 120%;
+            background-image: url('gym-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
+            will-change: transform;
+            transform: translateY(var(--gym-y, 0));
+        }
+        body > * { position: relative; z-index: 1; }
+
+        /* ========== SECTION BACKGROUNDS ========== */
+        .section-cyan { background: #00E5FF; }
+        .section-pink { background: #FF2A7A; color: #fff; }
+        .section-violet { background: #8B5CF6; color: #fff; }
+        .section-yellow { background: #FFD700; }
+        .section-gray { background: #F5F5F5; }
+        .section-dark { background: #0F0F2E; color: #fff; }
+
+        /* ========== WAVE DIVIDERS ========== */
+        .wave-divider { width: 100%; overflow: hidden; line-height: 0; position: relative; z-index: 2; }
+        .wave-divider svg { display: block; width: 100%; height: 70px; }
+        @media (max-width: 768px) { .wave-divider svg { height: 40px; } }
+
+        /* ========== HERO ========== */
+        .hero-title {
+            font-family: 'Luckiest Guy', cursive;
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: 0.04em;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #FF2A7A, #8B5CF6);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .floating-emoji {
+            position: absolute;
+            font-size: 2.5rem;
+            pointer-events: none;
+            will-change: transform;
+            z-index: 1;
+        }
+        @media (max-width: 768px) { .floating-emoji { font-size: 1.5rem; } }
+
+        /* ========== BUTTONS ========== */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive;
+            font-weight: 400;
+            font-size: 1.15rem;
+            letter-spacing: 0.03em;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+
+        .btn-primary.btn-cyan { background: linear-gradient(135deg, #00E5FF, #00B8D4); color: #0F0F2E; box-shadow: 0 8px 30px rgba(0,229,255,0.3); }
+        .btn-primary.btn-pink { background: linear-gradient(135deg, #FF2A7A, #E91E63); color: #fff; box-shadow: 0 8px 30px rgba(255,42,122,0.3); }
+        .btn-primary.btn-yellow { background: linear-gradient(135deg, #FFD700, #FFA000); color: #0F0F2E; box-shadow: 0 8px 30px rgba(255,215,0,0.3); }
+        .btn-primary.btn-violet { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: #fff; box-shadow: 0 8px 30px rgba(139,92,246,0.3); }
+        .btn-primary.btn-dark { background: #0F0F2E; color: #fff; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+
+        .btn-outline-dark {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive; font-weight: 400; font-size: 1.15rem; letter-spacing: 0.03em;
+            background: transparent; border: 2px solid #0F0F2E; color: #0F0F2E; cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+        }
+        .btn-outline-dark:hover { background: #0F0F2E; color: #fff; }
+
+        .magnetic-wrap { display: inline-block; position: relative; }
+
+        /* ========== SECTION TAG ========== */
+        .section-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 16px; border-radius: 8px;
+            font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+        }
+
+        /* ========== STAGGER GRID ========== */
+        @media (min-width: 1024px) {
+            .stagger-grid > :nth-child(even) { transform: translateY(40px); }
+        }
+
+        /* ========== SERVICE CARDS (solid colored) ========== */
+        .service-card {
+            border-radius: 24px;
+            padding: 40px 28px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s ease-out, box-shadow 0.3s;
+            min-height: 320px;
+        }
+        .service-card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .service-card .card-number {
+            position: absolute; top: -10px; right: -5px;
+            font-family: 'Luckiest Guy', cursive; font-size: 8rem; line-height: 1;
+            opacity: 0.12; pointer-events: none;
+        }
+
+        /* ========== SLOT MACHINE ========== */
+        .slot-window { height: 80px; overflow: hidden; position: relative; border-radius: 16px; }
+        .slot-strip { position: absolute; top: 0; left: 0; width: 100%; will-change: transform; }
+        .slot-item {
+            height: 80px; display: flex; align-items: center; justify-content: center;
+            font-family: 'Luckiest Guy', cursive; font-weight: 900; font-size: 1.4rem; white-space: nowrap;
+            color: #1a1a2e;
+        }
+
+        /* ========== TILT CARD ========== */
+        .tilt-card { transform-style: preserve-3d; perspective: 800px; }
+        .tilt-card-inner { transform-style: preserve-3d; transition: transform 0.1s ease-out; }
+        .tilt-card-inner .tilt-icon { transform: translateZ(40px); }
+        .tilt-card-inner .tilt-title { transform: translateZ(30px); }
+        .tilt-card-inner .tilt-desc { transform: translateZ(20px); }
+
+        /* ========== PHYSICS CANVAS ========== */
+        #physics-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+
+        /* ========== STATS ========== */
+        .stat-number { font-family: 'Luckiest Guy', cursive; font-weight: 900; font-size: 3rem; line-height: 1; }
+        @media (max-width: 768px) { .stat-number { font-size: 2rem; } }
+
+        /* ========== NAV ========== */
+        .nav-fixed {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .nav-fixed.scrolled {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .nav-fixed.scrolled .nav-link { color: #1a1a2e !important; }
+        .nav-fixed.scrolled .nav-link:hover { color: #FF2A7A !important; }
+        .nav-fixed.scrolled .hamburger span { background: #1a1a2e; }
+
+        /* ========== MARQUEE ========== */
+        .marquee-track { display: flex; animation: marquee 40s linear infinite; width: max-content; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        .marquee-big .marquee-track { animation-duration: 20s; }
+
+        /* ========== CONFETTI ========== */
+        .confetti-piece { position: fixed; pointer-events: none; z-index: 99990; font-size: 1.6rem; will-change: transform, opacity; }
+        .explosion-ring { position: absolute; border-radius: 50%; border: 3px solid; pointer-events: none; will-change: transform, opacity; }
+
+        /* ========== SCROLL PROGRESS ========== */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 4px;
+            background: linear-gradient(90deg, #00E5FF, #FFD700, #FF2A7A, #8B5CF6);
+            z-index: 10000; transform-origin: left; will-change: transform;
+        }
+
+        /* ========== MOBILE MENU ========== */
+        .mobile-menu {
+            position: fixed; inset: 0;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(30px);
+            z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .mobile-menu.open { opacity: 1; pointer-events: all; }
+        .mobile-menu a { font-family: 'Luckiest Guy', cursive; font-size: 1.8rem; color: #1a1a2e; text-decoration: none; letter-spacing: 0.04em; }
+        .mobile-menu a:hover { color: #FF2A7A; }
+
+        /* ========== HAMBURGER ========== */
+        .hamburger { width: 32px; height: 24px; position: relative; cursor: pointer; display: none; }
+        .hamburger span { display: block; position: absolute; height: 3px; width: 100%; background: #fff; border-radius: 3px; transition: 0.3s; }
+        .hamburger span:nth-child(1) { top: 0; }
+        .hamburger span:nth-child(2) { top: 10px; }
+        .hamburger span:nth-child(3) { top: 20px; }
+        .hamburger.active span:nth-child(1) { top: 10px; transform: rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { top: 10px; transform: rotate(-45deg); }
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            .nav-links { display: none !important; }
+        }
+
+        /* ========== GLOW PULSE ========== */
+        @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.3); } 50% { box-shadow: 0 0 40px rgba(255,215,0,0.6); } }
+        .glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
+
+        /* ========== TESTIMONIAL CARD ========== */
+        .testimonial-card {
+            background: #fff; border-radius: 24px; padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 4px solid;
+        }
+        .testimonial-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+
+        /* ========== MISC ========== */
+        .icon-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: #00E5FF; color: #0F0F2E; }
+        .reveal { opacity: 0; transform: translateY(60px); }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.4rem !important; }
+        }
+
+        /* ========== PROFIL JOEY POPUP ========== */
+        #profile-popup { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #FFFC00; z-index: 9990; display: none; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        #profile-popup.show { display: block; animation: profileSlideUp 0.3s ease-out; }
+        @keyframes profileSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .profile-popup-header { background: #18181b; color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #fff; position: sticky; top: 0; z-index: 100; }
+        .profile-popup-close { background: #00E5FF; padding: 8px 16px; font-family: 'Luckiest Guy', cursive; border: 2px solid #fff; cursor: pointer; color: #18181b; font-size: 1rem; border-radius: 8px; letter-spacing: 0.03em; }
+        .profile-popup-close:hover { background: #FFD700; }
+        .profile-bio-box { background: #fff; border: 4px solid #18181b; padding: 24px; box-shadow: 8px 8px 0 #18181b; text-align: left; border-radius: 16px; margin-bottom: 30px; }
+        .profile-bio-title { font-family: 'Luckiest Guy', cursive; font-size: 1.4rem; margin-top: 20px; color: #18181b; border-bottom: 3px dashed #18181b; padding-bottom: 5px; margin-bottom: 10px; letter-spacing: 0.03em; }
+        .profile-bio-title:first-child { margin-top: 0; }
+        .profile-bio-text { margin-bottom: 15px; line-height: 1.6; font-size: 1.1rem; font-family: 'Patrick Hand', cursive; }
+        /* ========== LANGUAGE SELECTOR ========== */
+        .lang-btn {
+            font-family: 'Luckiest Guy', cursive; font-size: 0.75rem; letter-spacing: 0.03em;
+            border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7);
+            padding: 3px 8px; cursor: pointer; border-radius: 6px; transition: all 0.2s;
+        }
+        .lang-btn.active { background: #FFD700; color: #18181b; border-color: #FFD700; }
+        .lang-btn:hover:not(.active) { border-color: #fff; color: #fff; }
+        .nav-fixed.scrolled .lang-btn { border-color: rgba(0,0,0,0.2); color: rgba(0,0,0,0.5); }
+        .nav-fixed.scrolled .lang-btn.active { background: #FFD700; color: #18181b; border-color: #FFD700; }
+
+        .profile-tag { border: 2px solid #18181b; padding: 8px 14px; font-weight: bold; font-size: 1rem; background: #fff; box-shadow: 3px 3px 0 #18181b; border-radius: 8px; font-family: 'Luckiest Guy', cursive; letter-spacing: 0.03em; }
+
+        /* ========== SUBSCRIBE POPUP (Comic Style) ========== */
+        .subscribe-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            z-index: 9980; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .subscribe-overlay.show { display: flex; }
+        .subscribe-box {
+            background: #FFD700; border: 6px solid #18181b; border-radius: 20px;
+            box-shadow: 12px 12px 0 #18181b; max-width: 460px; width: 100%;
+            padding: 0; overflow: visible; animation: comicPopIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+            position: relative; transform: rotate(-1deg);
+        }
+        .subscribe-header {
+            background: #18181b; padding: 20px 24px; text-align: center; position: relative;
+            border-radius: 14px 14px 0 0; border-bottom: 4px solid #FFD700;
+        }
+        .subscribe-body {
+            padding: 24px 28px 28px; text-align: center;
+        }
+        .subscribe-perk {
+            background: #fff; border: 3px solid #18181b; border-radius: 12px;
+            padding: 10px 14px; box-shadow: 4px 4px 0 #18181b;
+            display: flex; align-items: center; gap: 10px; text-align: left;
+            transform: rotate(0.5deg); transition: transform 0.15s;
+        }
+        .subscribe-perk:nth-child(even) { transform: rotate(-0.5deg); }
+        .subscribe-perk:hover { transform: scale(1.03) rotate(0deg); }
+        .subscribe-close {
+            position: absolute; top: -14px; right: -14px; width: 40px; height: 40px;
+            background: #EF4444; border: 3px solid #18181b; border-radius: 50%; color: #fff;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            font-family: 'Luckiest Guy', cursive; font-size: 1.1rem; z-index: 10;
+            box-shadow: 3px 3px 0 #18181b; transition: transform 0.1s;
+        }
+        .subscribe-close:hover { transform: scale(1.15) rotate(5deg); }
+
+        /* ========== VISIT COUNTER ========== */
+        .visit-counter {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px; padding: 4px 14px;
+        }
+        .counter-digit {
+            background: rgba(255,255,255,0.12); border-radius: 4px; padding: 2px 6px;
+            font-family: 'Luckiest Guy', cursive; font-size: 0.9rem; color: #00E5FF; letter-spacing: 0.05em;
+        }
+
+        /* ========== DIGITAL CLOCK ========== */
+        .digital-clock {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.1rem;
+            letter-spacing: 0.08em;
+            background: #18181b;
+            color: #00E5FF;
+            padding: 6px 14px;
+            border-radius: 10px;
+            border: 2px solid rgba(0,229,255,0.3);
+            text-shadow: 0 0 10px rgba(0,229,255,0.5);
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 130px;
+            justify-content: center;
+        }
+        #clockTime { font-variant-numeric: tabular-nums; display: inline-block; min-width: 95px; text-align: center; }
+        .digital-clock .clock-dot { }
+        .nav-fixed.scrolled .digital-clock { border-color: rgba(0,229,255,0.15); }
+
+        /* ========== SPORTS TICKER (Live ESPN) ========== */
+        .sports-ticker-wrap {
+            background: #18181b; border-top: 3px solid #00E5FF; position: relative;
+        }
+        .sports-tabs {
+            display: flex; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;
+            border-bottom: 2px solid rgba(255,255,255,0.08); background: #111;
+        }
+        .sports-tabs::-webkit-scrollbar { display: none; }
+        .sport-tab {
+            padding: 8px 18px; font-family: 'Luckiest Guy', cursive; font-size: 0.75rem;
+            letter-spacing: 0.06em; color: rgba(255,255,255,0.4); cursor: pointer;
+            white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s;
+            background: none; border-top: none; border-left: none; border-right: none;
+        }
+        .sport-tab:hover { color: rgba(255,255,255,0.7); }
+        .sport-tab.active { color: #00E5FF; border-bottom-color: #00E5FF; }
+        .scores-container {
+            display: flex; overflow-x: auto; scrollbar-width: none; gap: 0; padding: 0;
+        }
+        .scores-container::-webkit-scrollbar { display: none; }
+        .game-card {
+            min-width: 200px; padding: 12px 16px; border-right: 1px solid rgba(255,255,255,0.06);
+            display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+        }
+        .game-card:hover { background: rgba(255,255,255,0.03); }
+        .game-team-row {
+            display: flex; align-items: center; gap: 8px; font-family: 'Patrick Hand', cursive;
+            font-size: 0.9rem; color: #fff;
+        }
+        .game-team-logo { width: 22px; height: 22px; object-fit: contain; }
+        .game-team-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .game-team-score { font-family: 'Luckiest Guy', cursive; font-size: 1rem; min-width: 24px; text-align: right; letter-spacing: 0.04em; }
+        .game-team-row.winner .game-team-score { color: #00E5FF; }
+        .game-status {
+            font-family: 'Luckiest Guy', cursive; font-size: 0.6rem; letter-spacing: 0.06em;
+            text-align: center; color: rgba(255,255,255,0.35); padding-top: 2px;
+        }
+        .game-status.live { color: #EF4444; animation: livePulse 1.5s infinite; }
+        @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .scores-loading { color: rgba(255,255,255,0.3); font-family: 'Patrick Hand', cursive; padding: 16px 20px; font-size: 0.9rem; }
+        .scores-date-nav {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            padding: 6px 0; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .scores-nav-btn {
+            width: 32px; height: 32px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.15);
+            background: transparent; color: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .scores-nav-btn:hover { background: rgba(0,229,255,0.2); border-color: #00E5FF; color: #00E5FF; }
+        .scores-nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        .scores-nav-btn:disabled:hover { background: transparent; border-color: rgba(255,255,255,0.15); color: #fff; }
+        .scores-date-label {
+            font-family: 'Luckiest Guy', cursive; font-size: 0.8rem; letter-spacing: 0.06em;
+            color: #00E5FF; min-width: 160px; text-align: center;
+        }
+
+        /* ========== COMIC TOOLS DOCK ========== */
+        .nav-dock {
+            position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 1rem; z-index: 900; padding: 10px;
+        }
+        .nav-icon-box {
+            background: #fff; width: 3.2rem; height: 3.2rem; border: 3px solid #18181b;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s cubic-bezier(0.175,0.885,0.32,1.275);
+            box-shadow: 4px 4px 0px #18181b; border-radius: 10px;
+        }
+        .nav-item:hover .nav-icon-box { transform: scale(1.2) rotate(-5deg); background: #22D3EE; z-index: 60; }
+        .nav-item.active .nav-icon-box { background: #FACC15; transform: scale(1.1); }
+        .nav-label {
+            transition: all 0.2s; opacity: 0; transform: translateX(10px) scale(0.8);
+            pointer-events: none; position: absolute; right: 100%; top: 50%;
+            margin-right: 12px; margin-top: -14px; z-index: 60;
+            background: #18181b; color: #fff; padding: 4px 12px; border: 2px solid #fff;
+            box-shadow: -4px 4px 0px rgba(0,0,0,0.2);
+            font-family: 'Luckiest Guy', cursive; font-size: 0.9rem; white-space: nowrap; border-radius: 6px;
+        }
+        .nav-item:hover .nav-label { opacity: 1; transform: translateX(0) scale(1); }
+
+        .comic-popup {
+            background: #fff; border: 5px solid #18181b; box-shadow: 10px 10px 0px rgba(0,0,0,0.8);
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(1); z-index: 950;
+            padding: 4rem 2rem 2rem; width: 90vw; max-width: 550px; height: auto; max-height: 90vh;
+            overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: comicPopIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275); border-radius: 16px;
+        }
+        @keyframes comicPopIn { from { transform: translate(-50%,-50%) scale(0.5); opacity: 0; } to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
+        .comic-popup.hidden { display: none !important; }
+
+        .comic-btn { transition: transform 0.1s, box-shadow 0.1s; cursor: pointer; border: 3px solid #18181b; box-shadow: 4px 4px 0px #18181b; border-radius: 8px; }
+        .comic-btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0px #18181b; }
+
+        .close-btn {
+            position: absolute; top: 15px; right: 15px; width: 44px; height: 44px;
+            background: #EF4444; border: 3px solid #18181b; border-radius: 50%; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Luckiest Guy', cursive; font-size: 1.3rem; cursor: pointer;
+            box-shadow: 3px 3px 0px #18181b; transition: transform 0.1s; z-index: 60;
+        }
+        .close-btn:hover { transform: scale(1.1); }
+
+        .comic-input { border: 3px solid #18181b; outline: none; font-family: 'Patrick Hand', cursive; padding: 0.5rem; font-size: 1.2rem; width: 100%; border-radius: 8px; }
+        .comic-input:focus { background: #FEF08A; }
+
+        /* Dice */
+        .dice-container { perspective: 1000px; margin: 1rem 0 2rem; }
+        .dice { width: 130px; height: 130px; position: relative; transform-style: preserve-3d; transition: transform 1s ease-out; cursor: pointer; }
+        .face { position: absolute; width: 130px; height: 130px; background: #fff; border: 4px solid #18181b; display: flex; justify-content: center; align-items: center; font-size: 3.5rem; font-family: 'Luckiest Guy', cursive; border-radius: 12px; }
+        .face:nth-child(1) { transform: translateZ(65px); }
+        .face:nth-child(2) { transform: rotateY(180deg) translateZ(65px); }
+        .face:nth-child(3) { transform: rotateY(90deg) translateZ(65px); }
+        .face:nth-child(4) { transform: rotateY(-90deg) translateZ(65px); }
+        .face:nth-child(5) { transform: rotateX(90deg) translateZ(65px); }
+        .face:nth-child(6) { transform: rotateX(-90deg) translateZ(65px); }
+
+        /* Period window controls */
+        .window-controls { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; z-index: 60; }
+        .win-btn { width: 36px; height: 36px; border: 3px solid #18181b; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 3px 3px 0px #18181b; transition: transform 0.1s; background: #fff; }
+        .win-btn:hover { transform: scale(1.1); }
+
+        .comic-popup.fullscreen { width: 100vw!important; height: 100vh!important; max-width: none!important; max-height: none!important; top: 0!important; left: 0!important; transform: none!important; border: none; border-radius: 0; z-index: 9990; padding: 0; background: #FACC15; }
+        .comic-popup.fullscreen #period-countdown { font-size: 13vw!important; line-height: 1; font-family: 'Luckiest Guy', cursive!important; background: #fff; color: #18181b!important; border: 8px solid #18181b; padding: 3rem 5rem!important; box-shadow: 15px 15px 0px #18181b; transform: rotate(-2deg); max-width: 90vw; white-space: nowrap; }
+        .comic-popup.fullscreen h2 { font-size: 4.5vw!important; margin-bottom: 3rem; background: #fff; color: #18181b; border: 4px solid #18181b; padding: 0.5rem 2rem; transform: rotate(1deg); white-space: nowrap; }
+        .comic-popup.fullscreen .hide-fs { display: none; }
+        .comic-popup.fullscreen .window-controls { top: 20px; right: 20px; }
+
+        .comic-popup.mini { width: auto!important; max-width: none!important; height: auto!important; padding: 15px!important; top: 20px!important; right: 20px!important; left: auto!important; transform: none!important; box-shadow: 4px 4px 0px rgba(0,0,0,0.5); border-width: 3px; display: flex; align-items: center; justify-content: center; min-width: 150px; overflow: visible!important; border-radius: 12px; }
+        .comic-popup.mini h2, .comic-popup.mini label, .comic-popup.mini input, .comic-popup.mini p, .comic-popup.mini .flex.gap-2, .comic-popup.mini .flex.gap-3 { display: none!important; }
+        .comic-popup.mini .bg-cyan-200 { background: transparent!important; border: none!important; box-shadow: none!important; padding: 0!important; margin: 0!important; width: auto!important; }
+        .comic-popup.mini .bg-black.text-green-400 { background: transparent!important; border: none!important; padding: 0!important; }
+        .comic-popup.mini #period-countdown { font-size: 2.5rem!important; border: none; background: transparent; color: #18181b!important; padding: 0; display: block!important; line-height: 1; font-family: 'Luckiest Guy', cursive; }
+        .comic-popup.mini .window-controls { top: -10px; right: -10px; transform: scale(0.5); transform-origin: top right; }
+
+        @media (max-width: 768px) {
+            .nav-dock { right: 10px; gap: 0.8rem; }
+            .nav-icon-box { width: 2.8rem; height: 2.8rem; }
+            .nav-label { display: none; }
+            .comic-popup { width: 95vw; padding: 3rem 1.5rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCROLL PROGRESS -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- PHYSICS CANVAS -->
+    <canvas id="physics-canvas"></canvas>
+
+    <!-- ========== NAVIGATION ========== -->
+    <nav class="nav-fixed py-3 px-6 md:px-10" id="mainNav">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#" class="flex items-center shrink-0">
+                <img src="logo-zts.png" alt="Zone Total Sport" class="h-12 md:h-16 w-auto">
+            </a>
+            <div class="nav-links flex items-center gap-6">
+                <a href="#jeux" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navJeux">Jeux</a>
+                <a href="#services" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navRessources">Ressources</a>
+                <a href="#generateur" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navGenerateur">Générateur</a>
+                <a href="#temoignages" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navAvis">Avis</a>
+                <!-- Digital Clock -->
+                <div class="digital-clock hidden md:inline-flex" id="navClock">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-cyan-electric/60"></i>
+                    <span id="clockTime">00<span class="clock-dot">:</span>00<span class="clock-dot">:</span>00</span>
+                </div>
+                <!-- Language Selector -->
+                <div class="flex gap-1 ml-2">
+                    <button onclick="setLang('fr')" class="lang-btn active" id="lang-fr" title="Français">FR</button>
+                    <button onclick="setLang('en')" class="lang-btn" id="lang-en" title="English">EN</button>
+                    <button onclick="setLang('zh')" class="lang-btn" id="lang-zh" title="中文">中</button>
+                </div>
+                <div class="magnetic-wrap">
+                    <a href="#don" class="btn-primary btn-yellow text-sm !py-3 !px-6 magnetic-btn" data-i18n="navDon">
+                        <i data-lucide="heart" class="w-4 h-4"></i> Faire un don
+                    </a>
+                </div>
+            </div>
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#jeux" onclick="closeMobile()" data-i18n="mobileJeux">Jeux</a>
+        <a href="#services" onclick="closeMobile()" data-i18n="mobileRes">Ressources</a>
+        <a href="#generateur" onclick="closeMobile()" data-i18n="mobileGen">Générateur</a>
+        <a href="#temoignages" onclick="closeMobile()" data-i18n="mobileAvis">Avis</a>
+        <a href="#don" onclick="closeMobile()" style="color:#FF2A7A" data-i18n="mobileDon">Faire un don</a>
+    </div>
+
+    <!-- ========== SECTION 1: HERO (Cyan) ========== -->
+    <section class="section-cyan min-h-screen relative flex items-center" id="hero">
+        <!-- Floating Emojis -->
+        <span class="floating-emoji" style="top:18%;left:5%">⚽</span>
+        <span class="floating-emoji" style="top:12%;right:35%">🏸</span>
+        <span class="floating-emoji" style="top:65%;left:8%">🎾</span>
+        <span class="floating-emoji" style="top:75%;right:5%">🏈</span>
+        <span class="floating-emoji" style="top:30%;right:8%">🏀</span>
+        <span class="floating-emoji" style="top:85%;left:30%">🥎</span>
+        <span class="floating-emoji" style="top:45%;left:2%">🏐</span>
+        <span class="floating-emoji" style="top:55%;right:30%">🏓</span>
+
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center px-6 md:px-10 pt-32 pb-24 relative z-10 gap-10">
+            <!-- Left: Text -->
+            <div class="lg:w-1/2 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 text-dark font-baloo font-semibold text-sm mb-6 reveal">
+                    <span class="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span>
+                    <span data-i18n="heroBadge">+500 ressources gratuites pour l'ÉPS</span>
+                </div>
+
+                <h1 class="hero-title text-5xl md:text-7xl lg:text-8xl mb-6 text-dark reveal" data-i18n="heroTitle">
+                    Ton gym,<br>
+                    <span style="color:#FF2A7A">tes règles.</span>
+                </h1>
+
+                <p class="text-lg md:text-xl text-dark/70 max-w-lg mb-10 font-baloo font-medium reveal" data-i18n="heroSub">
+                    La plateforme <strong class="text-dark">100% gratuite</strong> qui transforme tes cours d'éducation physique en expériences épiques.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 mb-12 justify-center lg:justify-start reveal">
+                    <div class="magnetic-wrap">
+                        <a href="#generateur" class="btn-primary btn-dark magnetic-btn">
+                            <i data-lucide="zap" class="w-5 h-5"></i> Générer un jeu
+                        </a>
+                    </div>
+                    <div class="magnetic-wrap">
+                        <a href="#services" class="btn-outline-dark magnetic-btn">
+                            <i data-lucide="compass" class="w-5 h-5"></i> Explorer
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 reveal">
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="547">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statJeux">Jeux</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="128">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statSae">SAÉ</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="2300">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statEns">Enseignants</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="100">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statGratuit">% Gratuit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Mascot (hover swap) -->
+            <div class="lg:w-1/2 relative flex justify-center reveal">
+                <div class="relative cursor-pointer" id="mascotSwap"
+                     onmouseenter="this.querySelector('.mascot-default').style.opacity='0';this.querySelector('.mascot-hover').style.opacity='1'"
+                     onmouseleave="this.querySelector('.mascot-default').style.opacity='1';this.querySelector('.mascot-hover').style.opacity='0'">
+                    <img src="mascot-badminton.png" alt="Mascotte Zone Total Sport" class="mascot-default w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300">
+                    <img src="mascot-pingpong.jpg" alt="Mascotte Smash!" class="mascot-hover w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300 absolute inset-0 opacity-0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Wave: Cyan → White -->
+        <div class="wave-divider absolute bottom-0 left-0">
+            <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+                <path d="M0,35 C240,70 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="#ffffff"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 2: SERVICE CARDS (White) ========== -->
+    <section class="py-24 px-6 md:px-10" id="services">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="section-tag bg-pink-fuchsia/10 text-pink-fuchsia mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="layers" class="w-4 h-4"></i> <span data-i18n="resTag">RESSOURCES</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="resTitle">
+                    Tout ce qu'il te faut,<br>
+                    <span style="color:#FF2A7A">au même endroit.</span>
+                </h2>
+                <p class="text-dark/50 font-baloo text-lg max-w-xl mx-auto reveal" data-i18n="resSub">
+                    Des centaines de ressources pensées par et pour les profs d'ÉPS du primaire.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 stagger-grid" id="jeux">
+                <!-- Card 1 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-cyan-electric text-dark h-full">
+                        <div class="card-number">1</div>
+                        <div class="tilt-icon icon-circle bg-white/30 text-dark mb-6">
+                            <i data-lucide="gamepad-2" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card1">Banque de Jeux</h3>
+                        <p class="tilt-desc text-dark/60 font-baloo text-sm mb-6" data-i18n="card1d">+500 jeux classés par catégorie, âge et compétence. Trouve le jeu parfait en secondes.</p>
+                        <a href="#" class="inline-flex items-center gap-2 text-dark font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card1a">
+                            Explorer <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-yellow-sun text-dark h-full">
+                        <div class="card-number">2</div>
+                        <div class="tilt-icon icon-circle bg-white/30 text-dark mb-6">
+                            <i data-lucide="book-open" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card2">SAÉ Complètes</h3>
+                        <p class="tilt-desc text-dark/60 font-baloo text-sm mb-6" data-i18n="card2d">Situations d'apprentissage clés en main alignées avec le PFEQ. Prêtes à utiliser demain.</p>
+                        <a href="#" class="inline-flex items-center gap-2 text-dark font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card2a">
+                            Découvrir <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-pink-fuchsia text-white h-full">
+                        <div class="card-number">3</div>
+                        <div class="tilt-icon icon-circle bg-white/20 text-white mb-6">
+                            <i data-lucide="pen-tool" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card3">Blogue ÉPS</h3>
+                        <p class="tilt-desc text-white/70 font-baloo text-sm mb-6" data-i18n="card3d">Articles, stratégies et réflexions sur l'enseignement de l'éducation physique au Québec.</p>
+                        <a href="#" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card3a">
+                            Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-violet-pop text-white h-full">
+                        <div class="card-number">4</div>
+                        <div class="tilt-icon icon-circle bg-white/20 text-white mb-6">
+                            <i data-lucide="clipboard-check" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card4">Gestion de Classe</h3>
+                        <p class="tilt-desc text-white/70 font-baloo text-sm mb-6" data-i18n="card4d">Outils, routines et systèmes pour un gymnase organisé et motivant. Fini le chaos!</p>
+                        <a href="#" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card4a">
+                            Organiser <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 3: TEASER BANNER (White) ========== -->
+    <section class="py-12 px-6 md:px-10">
+        <div class="max-w-5xl mx-auto bg-cyan-electric/10 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 reveal">
+            <img src="mascot-tablet.png" alt="Mascotte" class="w-32 md:w-48 shrink-0">
+            <div class="text-center md:text-left">
+                <h3 class="font-bangers text-2xl md:text-3xl text-dark tracking-wide mb-2" data-i18n="teaserTitle">Découvre le générateur de jeux!</h3>
+                <p class="text-dark/60 font-baloo mb-4" data-i18n="teaserSub">50 jeux au hasard avec règles complètes. Parfait quand t'es en panne d'idées.</p>
+                <a href="#generateur" class="btn-primary btn-cyan magnetic-btn" data-i18n="teaserBtn">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i> Essayer le générateur
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 4: MARQUEE BIG + MISSION (White) ========== -->
+    <section class="py-16 overflow-hidden">
+        <div class="marquee-big mb-12">
+            <div class="marquee-track">
+                <div class="flex items-center gap-8 px-4 whitespace-nowrap">
+                    <span class="font-bangers text-5xl md:text-7xl text-pink-fuchsia tracking-wide">JEUX</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-yellow-sun tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-dark tracking-wide">ON PREND TON ÉPS</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-cyan-electric tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-pink-fuchsia tracking-wide">AU SÉRIEUX!</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-yellow-sun tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-violet-pop tracking-wide">SAÉ</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-cyan-electric tracking-wide">●</span>
+                </div>
+                <div class="flex items-center gap-8 px-4 whitespace-nowrap">
+                    <span class="font-bangers text-5xl md:text-7xl text-pink-fuchsia tracking-wide">JEUX</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-yellow-sun tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-dark tracking-wide">ON PREND TON ÉPS</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-cyan-electric tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-pink-fuchsia tracking-wide">AU SÉRIEUX!</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-yellow-sun tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-violet-pop tracking-wide">SAÉ</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-cyan-electric tracking-wide">●</span>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-3xl mx-auto text-center px-6 reveal">
+            <p class="text-dark/60 font-baloo text-lg leading-relaxed" data-i18n="mission">
+                Zone Total Sport, c'est une plateforme créée par <strong class="text-dark">des enseignants d'ÉPS du Québec</strong>, pour les enseignants d'ÉPS. Chaque jeu, chaque SAÉ et chaque outil a été testé sur le terrain. Notre mission : te simplifier la vie et rendre tes cours inoubliables.
+            </p>
+        </div>
+    </section>
+
+    <!-- Wave: White → Pink -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C360,70 720,0 1080,35 C1260,55 1440,25 1440,25 L1440,70 L0,70 Z" fill="#FF2A7A"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 5: WHY US (Pink) ========== -->
+    <section class="section-pink py-20 px-6 md:px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-14">
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal" data-i18n="whyTitle">
+                    Ce qui rend la Zone<br>
+                    <span style="color:#FFD700">différente.</span>
+                </h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-3xl p-8 text-center text-dark reveal">
+                    <div class="text-5xl mb-4">🚀</div>
+                    <h3 class="font-bangers text-xl mb-3 tracking-wide" data-i18n="why1">Gratuit. Pour vrai.</h3>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="why1d">Pas de freemium, pas de paywall. Toutes les ressources sont accessibles à 100% sans créer de compte.</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 text-center text-dark reveal">
+                    <div class="text-5xl mb-4">🎯</div>
+                    <h3 class="font-bangers text-xl mb-3 tracking-wide" data-i18n="why2">Par des profs, pour des profs</h3>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="why2d">Chaque jeu et SAÉ est créé et testé par des enseignants du Québec. Du terrain, pas du bureau.</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 text-center text-dark reveal">
+                    <div class="text-5xl mb-4">⚡</div>
+                    <h3 class="font-bangers text-xl mb-3 tracking-wide" data-i18n="why3">Prêt en 2 minutes</h3>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="why3d">Trouve un jeu, lis les règles, c'est parti. Toutes les ressources sont conçues pour être utilisables immédiatement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: Pink → Gray -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C240,0 480,70 720,35 C960,0 1200,70 1440,35 L1440,70 L0,70 Z" fill="#F5F5F5"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 6: SLOT MACHINE (Gray) ========== -->
+    <section class="section-gray py-24 px-6 md:px-10 relative overflow-hidden" id="generateur">
+        <!-- Gym parallax background -->
+        <div id="gymSlotBg" class="absolute inset-0 z-0 pointer-events-none" style="background:url('gym-bg.jpg') center/cover no-repeat;opacity:0.07;will-change:transform;height:140%"></div>
+        <div class="max-w-4xl mx-auto relative z-10">
+            <div class="text-center mb-12">
+                <div class="section-tag bg-yellow-sun/20 text-dark mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> <span data-i18n="slotTag">GÉNÉRATEUR</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="slotTitle">
+                    Pas d'idée?<br>
+                    <span style="color:#FF2A7A">On s'en occupe.</span>
+                </h2>
+                <p class="text-dark/50 font-baloo text-lg max-w-xl mx-auto reveal" data-i18n="slotSub">
+                    Clique sur GO et laisse la magie opérer. Un jeu au hasard, parfait pour ta prochaine période!
+                </p>
+            </div>
+
+            <div class="bg-white rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-lg reveal" id="slotBox">
+                <div class="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-cyan-electric/30 rounded-tl-lg"></div>
+                <div class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-cyan-electric/30 rounded-tr-lg"></div>
+                <div class="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-cyan-electric/30 rounded-bl-lg"></div>
+                <div class="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-cyan-electric/30 rounded-br-lg"></div>
+
+                <div class="text-6xl mb-6">🎰</div>
+
+                <div class="slot-window bg-gray-100 rounded-2xl mb-8 max-w-lg mx-auto border border-gray-200" id="slotWindow">
+                    <div class="slot-strip" id="slotStrip"></div>
+                </div>
+
+                <div class="hidden mb-6" id="slotResult">
+                    <div class="text-sm text-dark/40 font-baloo mb-2" data-i18n="slotResult">Ton jeu du moment :</div>
+                    <div class="font-bangers text-2xl md:text-3xl text-pink-fuchsia mb-4" id="slotResultText"></div>
+                    <div class="bg-cyan-electric/10 rounded-2xl p-5 max-w-lg mx-auto text-left" id="slotResultDesc">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i data-lucide="info" class="w-4 h-4 text-cyan-electric"></i>
+                            <span class="font-bangers text-sm text-cyan-electric tracking-wide" data-i18n="slotHow">Comment jouer</span>
+                        </div>
+                        <p class="text-dark/70 font-baloo text-sm leading-relaxed" id="slotResultDescText"></p>
+                        <div class="flex flex-wrap gap-3 mt-3" id="slotResultTags"></div>
+                    </div>
+                </div>
+
+                <div class="magnetic-wrap">
+                    <button class="btn-primary btn-yellow text-xl !py-5 !px-14 magnetic-btn glow-pulse" id="slotGoBtn" onclick="spinSlot()">
+                        <i data-lucide="zap" class="w-6 h-6"></i> GO !
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 7: TESTIMONIALS (Gray → White) ========== -->
+    <section class="section-gray pt-8 pb-24 px-6 md:px-10" id="temoignages">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="section-tag bg-violet-pop/10 text-violet-pop mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> <span data-i18n="testTag">TÉMOIGNAGES</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="testTitle">
+                    Ce qu'ils en<br>
+                    <span style="color:#8B5CF6">pensent.</span>
+                </h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="testimonial-card reveal" style="border-color:#00E5FF">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-electric to-violet-pop flex items-center justify-center font-bangers text-lg text-white">MC</div>
+                        <div>
+                            <div class="font-bangers tracking-wide">Marie-Claude</div>
+                            <div class="text-dark/40 font-baloo text-sm" data-i18n="test1role">Enseignante ÉPS, Laval</div>
+                        </div>
+                    </div>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="test1">"J'utilise Zone Total Sport chaque semaine pour planifier mes cours. La banque de jeux est une mine d'or! Mes élèves adorent les nouveaux jeux."</p>
+                    <div class="flex gap-1 mt-4 text-yellow-sun">★★★★★</div>
+                </div>
+                <div class="testimonial-card reveal" style="border-color:#FFD700">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-sun to-pink-fuchsia flex items-center justify-center font-bangers text-lg text-dark">PL</div>
+                        <div>
+                            <div class="font-bangers tracking-wide">Pierre-Luc</div>
+                            <div class="text-dark/40 font-baloo text-sm" data-i18n="test2role">Enseignant ÉPS, Québec</div>
+                        </div>
+                    </div>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="test2">"Le générateur de jeux est génial quand je suis en panne d'inspiration. En un clic, j'ai une activité prête à lancer. Merci pour cette ressource!"</p>
+                    <div class="flex gap-1 mt-4 text-yellow-sun">★★★★★</div>
+                </div>
+                <div class="testimonial-card reveal" style="border-color:#FF2A7A">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-fuchsia to-cyan-electric flex items-center justify-center font-bangers text-lg text-white">SK</div>
+                        <div>
+                            <div class="font-bangers tracking-wide">Sarah K.</div>
+                            <div class="text-dark/40 font-baloo text-sm" data-i18n="test3role">Étudiante BÉPEP, Montréal</div>
+                        </div>
+                    </div>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="test3">"Indispensable pour mes stages! Les SAÉ sont alignées avec le programme et faciles à adapter. Le site est devenu ma référence numéro un."</p>
+                    <div class="flex gap-1 mt-4 text-yellow-sun">★★★★★</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 8: GAME NAMES MARQUEE (White) ========== -->
+    <section class="py-10 overflow-hidden bg-white">
+        <div class="text-center mb-6">
+            <span class="font-bangers text-sm text-dark/30 tracking-widest uppercase" data-i18n="marqueeLabel">Nos jeux populaires</span>
+        </div>
+        <div class="marquee-track">
+            <div class="flex items-center gap-8 px-4 text-dark/40 font-baloo font-medium text-sm whitespace-nowrap">
+                <span>⚽ Ballon-Chasseur</span><span class="text-cyan-electric">●</span>
+                <span>🏀 Basketball Spatial</span><span class="text-yellow-sun">●</span>
+                <span>🎾 Tennis-Relais</span><span class="text-pink-fuchsia">●</span>
+                <span>🏈 Flag Football</span><span class="text-violet-pop">●</span>
+                <span>🏐 Volley-Mousse</span><span class="text-cyan-electric">●</span>
+                <span>🥎 Balle Molle</span><span class="text-yellow-sun">●</span>
+                <span>🏸 Badminton Fun</span><span class="text-pink-fuchsia">●</span>
+                <span>🏓 Ping Pong Relais</span><span class="text-violet-pop">●</span>
+                <span>⚽ Loup Glacé</span><span class="text-cyan-electric">●</span>
+                <span>🏀 Dodgeball Cosmique</span><span class="text-yellow-sun">●</span>
+            </div>
+            <div class="flex items-center gap-8 px-4 text-dark/40 font-baloo font-medium text-sm whitespace-nowrap">
+                <span>⚽ Ballon-Chasseur</span><span class="text-cyan-electric">●</span>
+                <span>🏀 Basketball Spatial</span><span class="text-yellow-sun">●</span>
+                <span>🎾 Tennis-Relais</span><span class="text-pink-fuchsia">●</span>
+                <span>🏈 Flag Football</span><span class="text-violet-pop">●</span>
+                <span>🏐 Volley-Mousse</span><span class="text-cyan-electric">●</span>
+                <span>🥎 Balle Molle</span><span class="text-yellow-sun">●</span>
+                <span>🏸 Badminton Fun</span><span class="text-pink-fuchsia">●</span>
+                <span>🏓 Ping Pong Relais</span><span class="text-violet-pop">●</span>
+                <span>⚽ Loup Glacé</span><span class="text-cyan-electric">●</span>
+                <span>🏀 Dodgeball Cosmique</span><span class="text-yellow-sun">●</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: White → Violet -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C360,70 720,0 1080,35 C1260,55 1440,20 1440,20 L1440,70 L0,70 Z" fill="#8B5CF6"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 9: DONATION CTA (Violet) ========== -->
+    <section class="section-violet py-24 px-6 md:px-10 relative" id="don">
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <div class="text-6xl mb-6">💛</div>
+            <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal" data-i18n="donTitle">
+                Soutiens la<br>
+                <span style="color:#FFD700">Zone!</span>
+            </h2>
+            <p class="text-white/70 font-baloo text-lg max-w-xl mx-auto mb-10 reveal" data-i18n="donSub">
+                Zone Total Sport est 100% gratuit et le restera. Un petit don nous aide à continuer de créer du contenu de qualité pour les profs d'ÉPS.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center reveal">
+                <div class="magnetic-wrap">
+                    <button class="btn-primary btn-pink magnetic-btn physics-trigger" data-emoji-set="sports" data-i18n="donBtn1">
+                        <i data-lucide="heart" class="w-5 h-5"></i> Faire un don
+                    </button>
+                </div>
+                <div class="magnetic-wrap">
+                    <button class="btn-primary btn-yellow magnetic-btn physics-trigger" data-emoji-set="stars" data-i18n="donBtn2">
+                        <i data-lucide="share-2" class="w-5 h-5"></i> Partager le site
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: Violet → Yellow -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,0 L1440,50 L1440,70 L0,70 Z" fill="#FFD700"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 10: FOOTER (Yellow) ========== -->
+    <footer class="section-yellow py-16 px-6 md:px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-10 mb-12">
+                <div class="md:col-span-2">
+                    <img src="logo-zts.png" alt="Zone Total Sport" class="h-14 w-auto mb-4">
+                    <p class="text-dark/60 font-baloo text-sm max-w-sm mb-6" data-i18n="footerDesc">
+                        La plateforme gratuite de ressources en éducation physique pour les enseignants du primaire au Québec.
+                    </p>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                            <i data-lucide="youtube" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bangers text-sm text-dark/50 uppercase tracking-widest mb-4" data-i18n="footerNav">Navigation</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fAccueil">Accueil</a></li>
+                        <li><a href="#jeux" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fJeux">Banque de jeux</a></li>
+                        <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fSae">SAÉ</a></li>
+                        <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fBlogue">Blogue</a></li>
+                        <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fContact">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bangers text-sm text-dark/50 uppercase tracking-widest mb-4" data-i18n="footerInfos">Infos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" onclick="openProfilePopup();return false" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fAbout">À propos</a></li>
+                        <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fPrivacy">Politique de confidentialité</a></li>
+                        <li><a href="#don" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fDon">Faire un don</a></li>
+                        <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fTerms">Conditions d'utilisation</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-dark/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-dark/40 font-baloo text-sm" data-i18n="copyright">© 2026 Zone Total Sport. Tous droits réservés.</p>
+                <p class="text-dark/40 font-baloo text-sm" data-i18n="madeWith">Fait avec 💛 au Québec</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== MÉTÉO PLEINE LARGEUR ========== -->
+    <div class="w-full">
+        <a class="weatherwidget-io" href="https://forecast7.com/fr/45d31n73d25/saint-jean-sur-richelieu/" data-label_1="SAINT-JEAN-SUR-RICHELIEU" data-label_2="PRÉVISIONS 5 JOURS" data-font="Roboto" data-icons="Climacons Animated" data-days="5" data-theme="pure">SAINT-JEAN MÉTÉO</a>
+    </div>
+
+    <!-- ========== SPORTS SCORES (Live ESPN) ========== -->
+    <div class="sports-ticker-wrap">
+        <div class="sports-tabs" id="sportsTabs">
+            <button class="sport-tab active" data-sport="hockey/nhl">🏒 NHL</button>
+            <button class="sport-tab" data-sport="basketball/nba">🏀 NBA</button>
+            <button class="sport-tab" data-sport="football/nfl">🏈 NFL</button>
+            <button class="sport-tab" data-sport="baseball/mlb">⚾ MLB</button>
+            <button class="sport-tab" data-sport="soccer/usa.1">⚽ MLS</button>
+            <button class="sport-tab" data-sport="football/college-football">🏈 NCAA</button>
+            <button class="sport-tab" data-sport="basketball/mens-college-basketball">🏀 NCAAB</button>
+        </div>
+        <div class="scores-date-nav">
+            <button class="scores-nav-btn" id="scoresPrev" onclick="changeScoresDate(-1)" title="Jour précédent">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+            </button>
+            <span class="scores-date-label" id="scoresDateLabel">Aujourd'hui</span>
+            <button class="scores-nav-btn" id="scoresNext" onclick="changeScoresDate(1)" title="Jour suivant">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="scores-container" id="scoresContainer">
+            <div class="scores-loading">Chargement des scores...</div>
+        </div>
+    </div>
+
+    <!-- ========== SECTION 11: SUB-FOOTER (Dark) ========== -->
+    <div class="section-dark py-4 px-6 flex flex-col md:flex-row items-center justify-between gap-3">
+        <p class="text-white/30 font-baloo text-xs">zonetotalsport.ca — Ressources ÉPS pour enseignants au primaire</p>
+        <div class="visit-counter">
+            <i data-lucide="eye" class="w-3.5 h-3.5 text-white/30"></i>
+            <span class="text-white/30 font-baloo text-xs" data-i18n="visitLabel">Visiteurs :</span>
+            <span class="counter-digit" id="visitCount">0</span>
+        </div>
+    </div>
+
+    <!-- ========== SUBSCRIBE POPUP (Comic Style) ========== -->
+    <div class="subscribe-overlay" id="subscribeOverlay">
+        <div class="subscribe-box">
+            <button onclick="closeSubscribe()" class="subscribe-close">X</button>
+
+            <!-- Header noir -->
+            <div class="subscribe-header">
+                <div class="text-5xl mb-2">🏆</div>
+                <h2 style="font-family:'Luckiest Guy',cursive;font-size:1.7rem;color:#FFD700;letter-spacing:0.05em;margin:0;text-shadow:2px 2px 0 rgba(0,0,0,0.3)" data-i18n="subTitle">DEVIENS MEMBRE VIP!</h2>
+                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.7);font-size:0.95rem;margin-top:4px" data-i18n="subDesc">Débloque tout le contenu de la Zone!</p>
+            </div>
+
+            <!-- Body jaune -->
+            <div class="subscribe-body">
+                <div class="flex flex-col gap-3 mb-6">
+                    <div class="subscribe-perk">
+                        <span class="text-2xl">⚽</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="subPerk1"><strong>+500 jeux</strong> avec fiches détaillées</span>
+                    </div>
+                    <div class="subscribe-perk">
+                        <span class="text-2xl">📋</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="subPerk2"><strong>SAÉ complètes</strong> alignées PFEQ</span>
+                    </div>
+                    <div class="subscribe-perk">
+                        <span class="text-2xl">🧰</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="subPerk3"><strong>Outils exclusifs</strong> de gestion de classe</span>
+                    </div>
+                    <div class="subscribe-perk">
+                        <span class="text-2xl">🆕</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="subPerk4"><strong>Nouveautés</strong> chaque semaine</span>
+                    </div>
+                </div>
+
+                <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="comic-btn bg-pink-fuchsia text-white font-bangers text-xl px-8 py-4 w-full flex items-center justify-center gap-2 hover:bg-pink-600 tracking-wide" style="border-radius:12px;display:flex" data-i18n="subBtn">
+                    <i data-lucide="crown" class="w-5 h-5"></i> JE M'ABONNE!
+                </a>
+                <button onclick="closeSubscribe()" class="mt-4 font-baloo text-sm text-dark/30 hover:text-dark/50 transition-colors cursor-pointer bg-transparent border-none" data-i18n="subLater">Non merci, plus tard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== PROFIL JOEY POPUP ========== -->
+    <div id="profile-popup">
+        <div class="profile-popup-header">
+            <span style="font-family:'Luckiest Guy',cursive;font-size:1.4rem;letter-spacing:0.04em">MON PROFIL</span>
+            <button onclick="closeProfilePopup()" class="profile-popup-close">FERMER X</button>
+        </div>
+        <div style="padding:20px;text-align:center;max-width:600px;margin:0 auto">
+            <h1 style="font-family:'Luckiest Guy',cursive;font-size:2.8rem;margin:10px 0 5px;line-height:1;letter-spacing:0.04em;color:#18181b">JOEY RACINE</h1>
+            <p style="font-size:1.15rem;margin-bottom:25px;font-family:'Patrick Hand',cursive;color:#333">Enseignant & Créateur de Zone Total Sport</p>
+            <img src="https://static.wixstatic.com/media/692b77_db70931c1a904d32bffb8495b081a317~mv2.png" style="width:130px;border:4px solid #18181b;border-radius:50%;margin:0 auto 25px;box-shadow:6px 6px 0 #18181b;background:#fff;display:block" alt="Joey Racine">
+            <div class="profile-bio-box">
+                <h3 class="profile-bio-title">🚀 MON PARCOURS</h3>
+                <p class="profile-bio-text">Enseignant en éducation physique depuis plus de <strong>20 ans</strong>, j'ai parcouru les gymnases du Québec avec une seule idée en tête : faire bouger les jeunes avec le sourire. J'ai enseigné à tous les niveaux, du primaire au secondaire.</p>
+                <h3 class="profile-bio-title">💡 POURQUOI ZONE TOTAL SPORT ?</h3>
+                <p class="profile-bio-text">J'ai fondé <strong>Zone Total Sport</strong> parce que je ne trouvais pas d'outils adaptés à notre réalité. Trop de théorie, pas assez de visuel. Ici, on parle <strong>concret</strong> : des fiches claires et des applications qui marchent.</p>
+                <h3 class="profile-bio-title">🎯 MA MISSION</h3>
+                <p class="profile-bio-text">Simplifier votre planification pour que vous puissiez vous concentrer sur l'essentiel : <strong>la relation avec vos élèves</strong>. Fini les fichiers Excel brisés ! Mon but est de vous faire sauver du temps précieux.</p>
+                <h3 class="profile-bio-title">🌟 LE PETIT PLUS</h3>
+                <p class="profile-bio-text" style="font-style:italic">"Je suis convaincu qu'un prof bien outillé est un prof heureux, et un prof heureux fait des élèves actifs pour la vie !"</p>
+            </div>
+            <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:40px">
+                <span class="profile-tag" style="background:#00E5FF;transform:rotate(-2deg)">#PassionÉPS</span>
+                <span class="profile-tag" style="background:#FF2A7A;color:#fff;transform:rotate(2deg)">#Innovation</span>
+                <span class="profile-tag" style="background:#18181b;color:#fff;transform:rotate(-1deg)">#Communauté</span>
+                <span class="profile-tag" style="transform:rotate(1deg)">#OutilsVisuels</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== COMIC TOOLS DOCK ========== -->
+    <nav class="nav-dock">
+        <button onclick="openToolPopup('dice')" class="nav-item group relative outline-none">
+            <div class="nav-icon-box"><i data-lucide="dice-5" class="w-7 h-7 text-black stroke-[2.5px]"></i></div>
+            <div class="nav-label rotate-1">DÉ / DICE</div>
+        </button>
+        <button onclick="openToolPopup('wheel')" class="nav-item group relative outline-none">
+            <div class="nav-icon-box"><i data-lucide="aperture" class="w-7 h-7 text-black stroke-[2.5px]"></i></div>
+            <div class="nav-label -rotate-2" style="background:#F472B6">ROUE / WHEEL</div>
+        </button>
+        <button onclick="openToolPopup('stopwatch')" class="nav-item group relative outline-none">
+            <div class="nav-icon-box"><i data-lucide="timer" class="w-7 h-7 text-black stroke-[2.5px]"></i></div>
+            <div class="nav-label rotate-2" style="background:#22C55E">CHRONO</div>
+        </button>
+        <button onclick="openToolPopup('timer')" class="nav-item group relative outline-none">
+            <div class="nav-icon-box"><i data-lucide="hourglass" class="w-7 h-7 text-black stroke-[2.5px]"></i></div>
+            <div class="nav-label -rotate-1" style="background:#FACC15;color:#18181b">TIMER</div>
+        </button>
+        <button onclick="openToolPopup('period')" class="nav-item group relative outline-none">
+            <div class="nav-icon-box"><i data-lucide="school" class="w-7 h-7 text-black stroke-[2.5px]"></i></div>
+            <div class="nav-label rotate-3" style="background:#22D3EE;color:#18181b">CLASSE</div>
+        </button>
+    </nav>
+
+    <!-- POPUP DÉ -->
+    <div id="popup-dice" class="comic-popup hidden">
+        <button onclick="closeToolPopup('dice')" class="close-btn">X</button>
+        <div class="flex flex-col items-center space-y-4 w-full">
+            <h2 class="text-3xl font-bangers text-center tracking-wide">DÉ / DICE</h2>
+            <div class="dice-container w-[130px] h-[130px]">
+                <div id="dice" class="dice" onclick="rollDice()">
+                    <div class="face bg-red-500 text-white">1</div>
+                    <div class="face bg-blue-500 text-white">6</div>
+                    <div class="face bg-yellow-400 text-black">3</div>
+                    <div class="face bg-green-500 text-white">4</div>
+                    <div class="face bg-purple-500 text-white">5</div>
+                    <div class="face bg-orange-500 text-white">2</div>
+                </div>
+            </div>
+            <div id="dice-result" class="opacity-0 transition-opacity text-6xl font-bangers text-red-600 drop-shadow-[2px_2px_0px_black] h-16">--</div>
+            <p class="text-sm text-gray-400 font-baloo">Clique le cube!</p>
+        </div>
+    </div>
+
+    <!-- POPUP ROUE -->
+    <div id="popup-wheel" class="comic-popup hidden">
+        <button onclick="closeToolPopup('wheel')" class="close-btn">X</button>
+        <div class="flex flex-col items-center w-full">
+            <h2 class="text-3xl font-bangers mb-4 tracking-wide">ROUE / WHEEL</h2>
+            <div class="relative w-[280px] h-[280px] mb-4">
+                <canvas id="wheelCanvas" width="280" height="280" class="w-full h-full"></canvas>
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 -mt-2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[25px] border-t-black z-10"></div>
+            </div>
+            <button onclick="spinWheel()" class="comic-btn bg-red-500 text-white font-bangers text-xl px-8 py-2 mb-4 hover:bg-red-400">TOURNER!</button>
+            <div class="w-full max-w-sm">
+                <label class="font-bangers text-sm tracking-wide">NOMS / NAMES:</label>
+                <textarea id="wheel-names" class="comic-input h-20 text-sm" oninput="drawWheel()">Léa, Thomas, Sarah, Lucas</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP CHRONO -->
+    <div id="popup-stopwatch" class="comic-popup hidden">
+        <button onclick="closeToolPopup('stopwatch')" class="close-btn">X</button>
+        <div class="flex flex-col items-center w-full max-w-md">
+            <h2 class="text-3xl font-bangers mb-6 tracking-wide">CHRONO</h2>
+            <div class="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_black] rotate-1 mb-8 w-full rounded-xl">
+                <div id="stopwatch-display" class="font-bangers text-5xl tracking-widest text-center">00:00:00</div>
+            </div>
+            <div class="flex gap-4 w-full justify-center">
+                <button onclick="toggleStopwatch()" id="sw-btn" class="comic-btn bg-green-400 text-black font-bangers text-xl px-6 py-3 flex-1">START</button>
+                <button onclick="resetStopwatch()" class="comic-btn bg-red-400 text-black font-bangers text-xl px-6 py-3 flex-1">RESET</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP TIMER -->
+    <div id="popup-timer" class="comic-popup hidden">
+        <button onclick="closeToolPopup('timer')" class="close-btn">X</button>
+        <div class="flex flex-col items-center w-full max-w-md">
+            <h2 class="text-3xl font-bangers mb-6 tracking-wide">MINUTEUR / TIMER</h2>
+            <div class="relative flex items-center justify-center w-48 h-48 mb-6">
+                <div class="absolute inset-0 bg-red-500 rounded-full animate-pulse opacity-20"></div>
+                <div class="relative z-10 bg-white border-4 border-black rounded-full w-44 h-44 flex items-center justify-center shadow-[6px_6px_0px_black]">
+                    <span id="timer-display" class="font-bangers text-4xl">00:00</span>
+                </div>
+            </div>
+            <div class="flex gap-2 mb-6 items-end">
+                <div class="text-center"><label class="text-xs font-bold block">MIN</label><input type="number" id="timer-min" value="5" class="comic-input w-20 text-center text-2xl" min="0"></div>
+                <span class="font-bangers text-3xl pb-1">:</span>
+                <div class="text-center"><label class="text-xs font-bold block">SEC</label><input type="number" id="timer-sec" value="0" class="comic-input w-20 text-center text-2xl" min="0" max="59"></div>
+            </div>
+            <div class="flex gap-4 w-full">
+                <button onclick="startTimer()" id="tm-btn" class="comic-btn bg-yellow-400 text-black font-bangers text-lg px-4 py-3 flex-1">GO!</button>
+                <button onclick="resetTimer()" class="comic-btn bg-gray-300 text-black font-bangers text-lg px-4 py-3 flex-1">STOP</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP CLASSE -->
+    <div id="popup-period" class="comic-popup hidden transition-all duration-300">
+        <div class="window-controls">
+            <button onclick="toggleMode('period','mini')" class="win-btn bg-blue-300" title="Mini"><i data-lucide="minimize-2" class="w-4 h-4 stroke-[3px]"></i></button>
+            <button onclick="toggleMode('period','fullscreen')" class="win-btn bg-yellow-300" title="Plein écran"><i data-lucide="maximize" class="w-4 h-4 stroke-[3px]"></i></button>
+            <button onclick="closeToolPopup('period')" class="win-btn bg-red-500 text-white font-bangers text-lg">X</button>
+        </div>
+        <div class="flex flex-col items-center w-full max-w-lg">
+            <h2 class="text-2xl font-bangers mb-2 bg-black text-white w-full text-center py-2 -rotate-1 shadow-[4px_4px_0px_rgba(0,0,0,0.2)] rounded-lg tracking-wide">FIN DU COURS / END OF CLASS</h2>
+            <div class="w-full mt-4 p-4 bg-cyan-200 border-4 border-black shadow-[6px_6px_0px_black] flex flex-col items-center rounded-xl">
+                <label class="block font-bangers text-lg mb-1 hide-fs tracking-wide">HEURE DE FIN</label>
+                <div class="flex gap-2 mb-3 w-full justify-center hide-fs flex-wrap">
+                    <button onclick="addMinutesToPeriod(30)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers hover:bg-cyan-100 shadow-[2px_2px_0px_black] active:translate-y-1 transition-all">+30m</button>
+                    <button onclick="addMinutesToPeriod(45)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers hover:bg-cyan-100 shadow-[2px_2px_0px_black] active:translate-y-1 transition-all">+45m</button>
+                    <button onclick="addMinutesToPeriod(50)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers hover:bg-cyan-100 shadow-[2px_2px_0px_black] active:translate-y-1 transition-all">+50m</button>
+                    <button onclick="addMinutesToPeriod(60)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers hover:bg-cyan-100 shadow-[2px_2px_0px_black] active:translate-y-1 transition-all">+60m</button>
+                </div>
+                <input type="time" id="period-end" class="comic-input w-full text-center text-3xl mb-4 hide-fs cursor-pointer bg-white">
+                <div class="flex gap-3 w-full mb-4 hide-fs">
+                    <button onclick="startPeriodTimer()" id="period-btn" class="comic-btn bg-green-400 text-black font-bangers text-lg px-2 py-2 flex-1">DÉMARRER</button>
+                    <button onclick="stopPeriodTimer()" class="comic-btn bg-red-400 text-white font-bangers text-lg px-2 py-2 flex-1">ARRÊT</button>
+                </div>
+                <div class="bg-black text-green-400 font-mono text-center p-4 border-2 border-white rounded transition-all duration-300 w-full">
+                    <span id="period-countdown" class="text-5xl font-bold block">--:--:--</span>
+                </div>
+            </div>
+            <p class="text-xs text-center mt-3 font-bold hide-fs text-gray-400">Le temps s'écoule même fermé!</p>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ============ JAVASCRIPT ================== -->
+    <!-- ========================================== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ============ INIT LUCIDE ============
+        lucide.createIcons();
+
+        // ============ MAGNETIC BUTTONS ============
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', e => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: 'power2.out' });
+            });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+            });
+        });
+
+        // ============ NAV SCROLL ============
+        const nav = document.getElementById('mainNav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // ============ HAMBURGER ============
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('open');
+        });
+        window.closeMobile = function() {
+            hamburger.classList.remove('active');
+            mobileMenu.classList.remove('open');
+        };
+
+        // ============ SCROLL PROGRESS ============
+        const progressBar = document.getElementById('scrollProgress');
+        window.addEventListener('scroll', () => {
+            const progress = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+            progressBar.style.transform = `scaleX(${progress})`;
+        });
+
+        // ============ FLOATING EMOJIS ============
+        document.querySelectorAll('.floating-emoji').forEach((emoji, i) => {
+            gsap.to(emoji, {
+                y: gsap.utils.random(-30, 30), x: gsap.utils.random(-20, 20),
+                rotation: gsap.utils.random(-15, 15),
+                duration: gsap.utils.random(3, 6), repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.3
+            });
+        });
+
+        // ============ GSAP SCROLL REVEALS ============
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.utils.toArray('.reveal').forEach((el, i) => {
+            gsap.fromTo(el, { opacity: 0, y: 60 }, {
+                opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+                scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+                delay: i % 4 * 0.1
+            });
+        });
+
+        // ============ STAT COUNTERS ============
+        document.querySelectorAll('.counter').forEach(counter => {
+            const target = +counter.dataset.target;
+            ScrollTrigger.create({
+                trigger: counter, start: 'top 85%',
+                onEnter: () => {
+                    gsap.to(counter, {
+                        innerText: target, duration: 2, ease: 'power2.out', snap: { innerText: 1 },
+                        onUpdate() { counter.textContent = Math.round(parseFloat(counter.textContent)).toLocaleString('fr-CA'); }
+                    });
+                }, once: true
+            });
+        });
+
+        // ============ 3D TILT CARDS ============
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            const inner = card.querySelector('.tilt-card-inner');
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                gsap.to(inner, { rotateY: x * 20, rotateX: -y * 20, duration: 0.3, ease: 'power2.out', transformPerspective: 800 });
+            });
+            card.addEventListener('mouseleave', () => {
+                gsap.to(inner, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+            });
+        });
+
+        // ============ SLOT MACHINE (50 GAMES) ============
+        const gamesI18n = {
+            fr: [
+                { name: '⚽ Dodgeball Spatial', desc: 'Deux équipes s\'affrontent dans un jeu d\'esquive. Les joueurs lancent des ballons en mousse pour éliminer les adversaires. Un joueur touché s\'assoit et peut revenir si un coéquipier attrape un ballon au vol.', tags: ['Équipe', '2e-3e cycle', 'Ballons mousse'] },
+                { name: '🏀 Loup Glacé', desc: 'Un ou deux loups tentent de toucher les autres joueurs. Le joueur touché gèle sur place, jambes écartées. Un coéquipier passe entre ses jambes pour le libérer.', tags: ['Course', 'Tous âges', 'Sans matériel'] },
+                { name: '🎾 La Course aux Trésors', desc: 'Rapporter le plus d\'objets de la zone centrale vers sa base. On peut voler dans la base adverse. L\'équipe avec le plus de trésors gagne!', tags: ['Vitesse', '1er-2e cycle', 'Dossards'] },
+                { name: '🏈 Ballon Chasseur Cosmique', desc: 'Variante du ballon chasseur en zones spatiales. Les joueurs éliminés vont dans la "zone lunaire" derrière l\'adversaire et peuvent encore lancer.', tags: ['Lancer', '2e-3e cycle', 'Ballons mousse'] },
+                { name: '🏐 Le Drapeau Enchanté', desc: 'Capturer le drapeau adverse et le ramener dans sa zone sans se faire toucher. Un joueur touché en zone adverse va en prison.', tags: ['Stratégie', '2e-3e cycle', 'Dossards + drapeaux'] },
+                { name: '🥎 Zombies vs Survivants', desc: 'Deux zombies touchent les survivants qui deviennent zombies. Zones refuges temporaires (max 10s). Le dernier survivant gagne!', tags: ['Course', 'Tous âges', 'Dossards'] },
+                { name: '🏸 La Rivière aux Crocodiles', desc: 'Traverser la "rivière" sans se faire toucher par les crocodiles (au sol). Un joueur touché devient crocodile.', tags: ['Esquive', '1er cycle', 'Sans matériel'] },
+                { name: '🏓 Capture l\'Étoile', desc: 'Quatre équipes dans quatre coins. Au centre, des balles. Courir en chercher une à la fois. On peut voler dans les coins adverses!', tags: ['Vitesse', 'Tous âges', 'Balles'] },
+                { name: '⚽ Le Volcan en Éruption', desc: 'Une équipe renverse les cônes, l\'autre les replace. Après 2 min, on compte. Les équipes changent de rôle.', tags: ['Cardio', '1er-2e cycle', 'Cônes'] },
+                { name: '🏀 Ninja Ball', desc: 'En cercle, chacun fait un geste ninja pour toucher la main du voisin. Main touchée = perdue. Deux mains perdues = éliminé!', tags: ['Réflexes', 'Tous âges', 'Sans matériel'] },
+                { name: '🎾 La Guerre des Étoiles', desc: 'Deux équipes lancent des ballons par-dessus la ligne. Au sifflet, l\'équipe avec le moins de ballons gagne la manche.', tags: ['Lancer', '1er-2e cycle', 'Ballons mousse'] },
+                { name: '🏈 Les Aventuriers du Gym', desc: 'Parcours d\'obstacles à stations : ramper, sauter, slalomer, lancer. Course-relais par équipes avec chrono!', tags: ['Parcours', 'Tous âges', 'Matériel varié'] },
+                { name: '🏐 Hockey Spatial', desc: 'Hockey modifié avec bâtons en mousse et balle légère. Pas de contact, bâton sous la taille, changements aux 2 min.', tags: ['Coopération', '2e-3e cycle', 'Bâtons mousse'] },
+                { name: '🥎 Le Roi du Château', desc: 'Le roi protège son cône. Les attaquants lancent pour le renverser. Le roi bloque. Celui qui renverse devient roi.', tags: ['Lancer', '1er-2e cycle', 'Cônes + ballons'] },
+                { name: '🏸 Ultimate Frisbee Modifié', desc: 'Se passer un frisbee pour atteindre la zone de but. Pas de déplacement avec le frisbee! Si il tombe, l\'autre équipe récupère.', tags: ['Équipe', '3e cycle', 'Frisbee'] },
+                { name: '🏓 La Chasse au Trésor', desc: 'Objets cachés dans le gym. Chaque équipe a une liste. Rapporter un objet à la fois. Première équipe complète gagne!', tags: ['Recherche', '1er cycle', 'Objets variés'] },
+                { name: '⚽ Poule-Renard-Vipère', desc: 'Trois équipes en boucle : renards→poules→vipères→renards. Joueur attrapé = prison. Libérer ses prisonniers en les touchant.', tags: ['Stratégie', '2e-3e cycle', 'Dossards 3 couleurs'] },
+                { name: '🏀 Les Quatre Coins Extrêmes', desc: 'Quatre coins numérotés. Le meneur dit un chiffre les yeux fermés. Joueurs dans ce coin = éliminés!', tags: ['Hasard', 'Tous âges', 'Sans matériel'] },
+                { name: '🎾 Kinball Simplifié', desc: 'Trois équipes de 4. Une nomme une couleur et frappe le gros ballon. L\'équipe nommée doit l\'attraper avant le sol.', tags: ['Coopération', '3e cycle', 'Ballon Kinball'] },
+                { name: '🏈 Le Grand Défi', desc: 'Circuit de 6 défis chronométrés : corde à sauter, précision, navette, équilibre, slalom, saut. Battre ses records!', tags: ['Défis', 'Tous âges', 'Matériel varié'] },
+                { name: '⚽ La Queue du Dragon', desc: 'Lignes de 5-6 joueurs. La tête attrape la queue d\'un autre dragon. Le dernier dragon complet gagne!', tags: ['Agilité', '1er-2e cycle', 'Dossards'] },
+                { name: '🏀 Balle au Mur', desc: 'Lancer une balle contre le mur. Les autres attrapent au rebond. Échappée? Cours toucher le mur!', tags: ['Lancer', '2e-3e cycle', 'Balle de tennis'] },
+                { name: '🎾 La Pieuvre', desc: 'La pieuvre au centre touche les coureurs. Joueur touché = tentacule assis qui attrape les passants.', tags: ['Course', 'Tous âges', 'Sans matériel'] },
+                { name: '🏈 Le Facteur', desc: 'En cercle, le facteur dépose un foulard derrière un joueur qui doit le poursuivre.', tags: ['Réaction', '1er cycle', 'Foulard'] },
+                { name: '🏐 Bataille Navale Sportive', desc: 'Deux équipes cachent 5 quilles. Lancer des ballons par-dessus les tapis pour les renverser.', tags: ['Lancer', '2e-3e cycle', 'Quilles + ballons'] },
+                { name: '🥎 Le Fermier', desc: 'Fermiers protègent 10 cônes. Les renards volent les cônes. Touché = remettre le cône.', tags: ['Stratégie', '1er-2e cycle', 'Cônes'] },
+                { name: '🏸 Balle Brûlante', desc: 'Passer le ballon en cercle pendant la musique. Musique arrête = défi physique pour le porteur!', tags: ['Cardio', 'Tous âges', 'Ballon + musique'] },
+                { name: '🏓 L\'Horloge', desc: 'Équipe A fait des passes en cercle. Équipe B court un relais. On compte les passes puis on inverse.', tags: ['Relais', '2e-3e cycle', 'Ballon'] },
+                { name: '⚽ Le Parachute Arc-en-ciel', desc: 'Vagues, champignons, cacher des joueurs, faire rebondir des balles. Parfait pour la coopération!', tags: ['Coopération', '1er cycle', 'Parachute'] },
+                { name: '🏀 Kickball', desc: 'Baseball mais on botte un ballon de soccer. Le lanceur roule, le botteur frappe du pied et court.', tags: ['Équipe', '2e-3e cycle', 'Ballon soccer + bases'] },
+                { name: '🎾 Le Labyrinthe Humain', desc: 'Rangées pivotent de 90° au signal pour créer un nouveau chemin. Un chat poursuit une souris!', tags: ['Réaction', 'Tous âges', 'Sans matériel'] },
+                { name: '🏈 Course Ninja', desc: 'Parcours Ninja Warrior : espaliers, poutres, corde, haies, sprint. Chronométré!', tags: ['Parcours', '3e cycle', 'Matériel varié'] },
+                { name: '🏐 Le Cercle Infernal', desc: '3 ballons circulent en cercle simultanément. Échappé = tour du cercle en courant. On accélère!', tags: ['Coordination', 'Tous âges', '3 ballons'] },
+                { name: '🥎 Sardines', desc: 'Un seul se cache, tous cherchent. Trouvé? Cache-toi avec! Le dernier commence le prochain tour.', tags: ['Recherche', '1er-2e cycle', 'Sans matériel'] },
+                { name: '🏸 Le Trésor du Pirate', desc: 'Le pirate dos au trésor. Les autres avancent. Il se retourne, tout le monde gèle. Vu = retour!', tags: ['Contrôle', '1er cycle', 'Cône + foulard'] },
+                { name: '🏓 Tchoukball', desc: 'Lancer le ballon sur un trampoline-cadre. Si il rebondit au sol sans être attrapé = point!', tags: ['Équipe', '3e cycle', 'Cadre tchoukball'] },
+                { name: '⚽ La Traversée du Désert', desc: 'Traverser le gym avec des tapis seulement. Toucher le sol = recommencer en équipe!', tags: ['Coopération', '2e-3e cycle', 'Tapis'] },
+                { name: '🏀 Ballon-Prison', desc: 'Lancer des ballons pour toucher les adversaires. Touché = prison. Attraper un ballon pour revenir.', tags: ['Lancer', 'Tous âges', 'Ballons mousse'] },
+                { name: '🎾 Le Déménageur', desc: 'Transporter un coéquipier sur un tapis. Première équipe à faire traverser tout le monde gagne!', tags: ['Force', '2e-3e cycle', 'Tapis'] },
+                { name: '🏈 Chat Perché', desc: 'Le chat touche les souris. Se percher (pieds décollés) pour être safe. Max 5 secondes!', tags: ['Course', '1er cycle', 'Bancs'] },
+                { name: '🏐 Le Ballon Chrono', desc: 'Passes en cercle le plus vite possible. Battre le record de la classe! Variante : 2e ballon inverse.', tags: ['Coopération', 'Tous âges', 'Ballon'] },
+                { name: '🥎 Roi de la Montagne', desc: 'Le roi debout sur un tapis. Les challengers montent. Pas de pousser! Le dernier debout est roi.', tags: ['Équilibre', '2e-3e cycle', 'Tapis épais'] },
+                { name: '🏸 Le Tunnel', desc: 'File jambes écartées. Le dernier rampe et se place en premier. Première équipe à la ligne gagne!', tags: ['Relais', '1er-2e cycle', 'Sans matériel'] },
+                { name: '🏓 Handball Modifié', desc: 'Passer le ballon à la main pour marquer (2 cônes). Max 3 pas, pas de dribble, sans contact.', tags: ['Équipe', '2e-3e cycle', 'Ballon + cônes'] },
+                { name: '⚽ La Statue Musicale', desc: 'Danser pendant la musique. Musique arrête = geler! Variante : position d\'un sport nommé.', tags: ['Écoute', '1er cycle', 'Musique'] },
+                { name: '🏀 Le Bowling Humain', desc: 'Un joueur sur scooter board poussé vers des quilles. 2 essais par manche par équipe!', tags: ['Précision', '2e-3e cycle', 'Scooters + quilles'] },
+                { name: '🎾 Course des Kangourous', desc: 'Relais : sauter avec un ballon entre les genoux. Tombe = recommence!', tags: ['Relais', '1er-2e cycle', 'Ballons'] },
+                { name: '🏈 La Toile d\'Araignée', desc: 'Élastiques à différentes hauteurs. Traverser sans toucher les fils. Travail d\'équipe!', tags: ['Agilité', 'Tous âges', 'Élastiques'] },
+                { name: '🏐 Le Jeu des Couleurs', desc: 'L\'enseignant nomme une couleur. Courir toucher un objet de cette couleur. Le dernier = défi!', tags: ['Réaction', '1er cycle', 'Sans matériel'] },
+                { name: '🥎 Frisbee Golf', desc: '9 cibles dans le gym. Lancer un frisbee vers chaque cible. Le moins de lancers gagne!', tags: ['Précision', '2e-3e cycle', 'Frisbees + cibles'] },
+            ],
+            en: [
+                { name: '⚽ Space Dodgeball', desc: 'Two teams face off in a dodge game. Players throw foam balls to eliminate opponents. Hit player sits out but returns if a teammate catches a ball.', tags: ['Team', 'Grades 3-6', 'Foam balls'] },
+                { name: '🏀 Freeze Tag', desc: 'One or two taggers try to touch other players. Tagged player freezes with legs apart. A teammate crawls through to free them.', tags: ['Running', 'All ages', 'No equipment'] },
+                { name: '🎾 Treasure Hunt Race', desc: 'Bring back as many objects from the center to your base, one at a time. You can steal from the other team. Most treasures wins!', tags: ['Speed', 'Grades 1-4', 'Pinnies'] },
+                { name: '🏈 Cosmic Dodgeball', desc: 'Dodgeball variant with space zones. Eliminated players go to the "moon zone" behind the opposing team and can still throw.', tags: ['Throwing', 'Grades 3-6', 'Foam balls'] },
+                { name: '🏐 Enchanted Flag', desc: 'Capture the opposing flag and bring it back without being tagged. Tagged in enemy zone = jail.', tags: ['Strategy', 'Grades 3-6', 'Pinnies + flags'] },
+                { name: '🥎 Zombies vs Survivors', desc: 'Two zombies tag survivors who become zombies. Temporary safe zones (max 10s). Last survivor wins!', tags: ['Running', 'All ages', 'Pinnies'] },
+                { name: '🏸 Crocodile River', desc: 'Cross the "river" without being touched by crocodiles (on the ground). Tagged = become a crocodile.', tags: ['Dodging', 'Grades 1-2', 'No equipment'] },
+                { name: '🏓 Capture the Star', desc: 'Four teams in four corners. Balls in the center. Run to grab one at a time. You can steal from other corners!', tags: ['Speed', 'All ages', 'Balls'] },
+                { name: '⚽ Erupting Volcano', desc: 'One team knocks down cones, the other sets them up. Count after 2 min. Switch roles.', tags: ['Cardio', 'Grades 1-4', 'Cones'] },
+                { name: '🏀 Ninja Ball', desc: 'In a circle, each player makes one ninja move to hit a neighbor\'s hand. Hand hit = lost. Two hands lost = out!', tags: ['Reflexes', 'All ages', 'No equipment'] },
+                { name: '🎾 Star Wars', desc: 'Two teams throw foam balls over the center line. At the whistle, team with fewer balls on their side wins.', tags: ['Throwing', 'Grades 1-4', 'Foam balls'] },
+                { name: '🏈 Gym Adventurers', desc: 'Obstacle course stations: crawl, jump, slalom, throw. Team relay race with timer!', tags: ['Obstacle', 'All ages', 'Various'] },
+                { name: '🏐 Space Hockey', desc: 'Modified hockey with foam sticks and light ball. No contact, stick below waist, player changes every 2 min.', tags: ['Cooperation', 'Grades 3-6', 'Foam sticks'] },
+                { name: '🥎 King of the Castle', desc: 'The king protects their cone. Attackers throw to knock it down. The king blocks. Knocker becomes king.', tags: ['Throwing', 'Grades 1-4', 'Cones + balls'] },
+                { name: '🏸 Modified Ultimate Frisbee', desc: 'Pass a frisbee to reach the end zone. No moving with the frisbee! If dropped, other team gets it.', tags: ['Team', 'Grade 6', 'Frisbee'] },
+                { name: '🏓 Treasure Hunt', desc: 'Colored objects hidden in the gym. Each team has a list. Bring back one at a time. First team done wins!', tags: ['Search', 'Grades 1-2', 'Various objects'] },
+                { name: '⚽ Chicken-Fox-Snake', desc: 'Three teams in a loop: foxes→chickens→snakes→foxes. Caught = jail. Free prisoners by tagging them.', tags: ['Strategy', 'Grades 3-6', '3-color pinnies'] },
+                { name: '🏀 Four Corners Extreme', desc: 'Four numbered corners. Leader calls a number eyes closed. Players in that corner = eliminated!', tags: ['Luck', 'All ages', 'No equipment'] },
+                { name: '🎾 Simplified Kinball', desc: 'Three teams of 4. One names a color and hits the big ball. Named team must catch it before it hits the floor.', tags: ['Cooperation', 'Grade 6', 'Kinball'] },
+                { name: '🏈 The Grand Challenge', desc: '6 timed challenges: jump rope, accuracy throw, shuttle run, balance, slalom, long jump. Beat your records!', tags: ['Challenges', 'All ages', 'Various'] },
+                { name: '⚽ Dragon\'s Tail', desc: 'Lines of 5-6 players. The head grabs the tail of another dragon. Last complete dragon wins!', tags: ['Agility', 'Grades 1-4', 'Pinnies'] },
+                { name: '🏀 Wall Ball', desc: 'Throw a tennis ball against the wall. Others catch the rebound. Dropped? Run and touch the wall!', tags: ['Throwing', 'Grades 3-6', 'Tennis ball'] },
+                { name: '🎾 The Octopus', desc: 'The octopus in the center tags runners. Tagged = sit down and become a tentacle catching passers-by.', tags: ['Running', 'All ages', 'No equipment'] },
+                { name: '🏈 The Mailman', desc: 'Sitting in a circle, the mailman drops a scarf behind a player who must chase them.', tags: ['Reaction', 'Grades 1-2', 'Scarf'] },
+                { name: '🏐 Battleship Sport', desc: 'Two teams hide 5 pins. Throw balls over standing mats to knock down the other team\'s pins.', tags: ['Throwing', 'Grades 3-6', 'Pins + balls'] },
+                { name: '🥎 The Farmer', desc: 'Farmers protect 10 cones. Foxes steal cones. Tagged = return the cone.', tags: ['Strategy', 'Grades 1-4', 'Cones'] },
+                { name: '🏸 Hot Potato', desc: 'Pass the ball in a circle during music. Music stops = physical challenge for the holder!', tags: ['Cardio', 'All ages', 'Ball + music'] },
+                { name: '🏓 The Clock', desc: 'Team A passes in a circle. Team B runs a relay. Count passes then switch. Fewest passes wins!', tags: ['Relay', 'Grades 3-6', 'Ball'] },
+                { name: '⚽ Rainbow Parachute', desc: 'Waves, mushrooms, hide players, bounce balls. Perfect for cooperation!', tags: ['Cooperation', 'Grades 1-2', 'Parachute'] },
+                { name: '🏀 Kickball', desc: 'Like baseball but kick a soccer ball. Pitcher rolls, kicker kicks and runs the bases.', tags: ['Team', 'Grades 3-6', 'Soccer ball + bases'] },
+                { name: '🎾 Human Maze', desc: 'Rows pivot 90° on signal to create new paths. A cat chases a mouse through the changing maze!', tags: ['Reaction', 'All ages', 'No equipment'] },
+                { name: '🏈 Ninja Course', desc: 'Ninja Warrior style: wall bars, balance beams, rope, hurdles, sprint. Individually timed!', tags: ['Obstacle', 'Grade 6', 'Various'] },
+                { name: '🏐 The Infernal Circle', desc: '3 balls circulate in a circle at once. Drop one = run around the circle. Speed increases!', tags: ['Coordination', 'All ages', '3 balls'] },
+                { name: '🥎 Sardines', desc: 'One hides, all seek. Found them? Hide with them! Last to find starts the next round.', tags: ['Search', 'Grades 1-4', 'No equipment'] },
+                { name: '🏸 Pirate\'s Treasure', desc: 'Pirate sits with back to treasure. Others creep forward. Pirate turns, everyone freezes. Caught moving = back to start.', tags: ['Control', 'Grades 1-2', 'Cone + scarf'] },
+                { name: '🏓 Tchoukball', desc: 'Throw the ball at a rebound frame. If it bounces on the floor uncaught = point!', tags: ['Team', 'Grade 6', 'Tchoukball frame'] },
+                { name: '⚽ Desert Crossing', desc: 'Cross the gym using only mats (islands). Touch the floor = whole team starts over!', tags: ['Cooperation', 'Grades 3-6', 'Mats'] },
+                { name: '🏀 Prison Ball', desc: 'Throw balls to hit opponents. Hit = go to prison behind the other team. Catch a ball to return.', tags: ['Throwing', 'All ages', 'Foam balls'] },
+                { name: '🎾 The Mover', desc: 'Team of 4 carries a teammate on a mat across the gym. First team to move everyone wins!', tags: ['Strength', 'Grades 3-6', 'Mats'] },
+                { name: '🏈 Perch Tag', desc: 'The cat tags mice. Perch (feet off ground) to be safe. Max 5 seconds!', tags: ['Running', 'Grades 1-2', 'Benches'] },
+                { name: '🏐 Chrono Ball', desc: 'Pass in a circle as fast as possible. Beat the class record! Variant: 2nd ball in reverse.', tags: ['Cooperation', 'All ages', 'Ball'] },
+                { name: '🥎 King of the Hill', desc: 'King stands on a thick mat. Challengers try to get on. No pushing! Last standing is king.', tags: ['Balance', 'Grades 3-6', 'Thick mat'] },
+                { name: '🏸 The Tunnel', desc: 'Line up with legs apart. Last person crawls through and goes to front. First team to finish line wins!', tags: ['Relay', 'Grades 1-4', 'No equipment'] },
+                { name: '🏓 Modified Handball', desc: 'Pass the ball by hand to score (2 cones). Max 3 steps, no dribble, no contact.', tags: ['Team', 'Grades 3-6', 'Ball + cones'] },
+                { name: '⚽ Musical Statues', desc: 'Dance during music. Music stops = freeze! Variant: freeze in a named sport position.', tags: ['Listening', 'Grades 1-2', 'Music'] },
+                { name: '🏀 Human Bowling', desc: 'Player on scooter board pushed toward foam pins. 2 tries per round per team!', tags: ['Accuracy', 'Grades 3-6', 'Scooters + pins'] },
+                { name: '🎾 Kangaroo Race', desc: 'Relay: jump with a ball between knees to the cone and back. Drop = restart!', tags: ['Relay', 'Grades 1-4', 'Balls'] },
+                { name: '🏈 The Spider Web', desc: 'Elastics at different heights. Cross without touching the strings. Teamwork!', tags: ['Agility', 'All ages', 'Elastics'] },
+                { name: '🏐 Color Game', desc: 'Teacher names a color. Students run to touch an object of that color. Last one = challenge!', tags: ['Reaction', 'Grades 1-2', 'No equipment'] },
+                { name: '🥎 Frisbee Golf', desc: '9 targets in the gym. Throw a frisbee at each target counting throws. Fewest throws wins!', tags: ['Accuracy', 'Grades 3-6', 'Frisbees + targets'] },
+            ],
+            zh: [
+                { name: '⚽ 太空躲避球', desc: '两队用泡沫球互相投掷。被击中的人坐下，队友接住球可以回来。', tags: ['团队', '3-6年级', '泡沫球'] },
+                { name: '🏀 冰冻标签', desc: '一两个追逐者标记其他玩家。被标记的人张开腿冻住。队友从腿下爬过来解冻。', tags: ['跑步', '所有年龄', '无器材'] },
+                { name: '🎾 寻宝赛跑', desc: '从中央区域尽可能多地将物品带回基地。可以从对方基地偷取！', tags: ['速度', '1-4年级', '背心'] },
+                { name: '🏈 宇宙猎球', desc: '太空区域躲避球。被淘汰的去对方后面的"月球区"仍可投掷。', tags: ['投掷', '3-6年级', '泡沫球'] },
+                { name: '🏐 魔法旗帜', desc: '夺取对方旗帜并带回。在敌区被触碰=入狱。', tags: ['策略', '3-6年级', '背心+旗帜'] },
+                { name: '🥎 僵尸大战', desc: '两个僵尸标记幸存者。临时安全区(最多10秒)。最后幸存者获胜！', tags: ['跑步', '所有年龄', '背心'] },
+                { name: '🏸 鳄鱼河', desc: '穿越"河流"不被地上的鳄鱼触碰。被触碰=变成鳄鱼。', tags: ['躲避', '1-2年级', '无器材'] },
+                { name: '🏓 夺星大战', desc: '四队四角。中间有球。每次跑去拿一个。可以从其他角偷！', tags: ['速度', '所有年龄', '球'] },
+                { name: '⚽ 火山爆发', desc: '一队推倒锥筒，另一队竖起来。2分钟后计数。交换角色。', tags: ['有氧', '1-4年级', '锥筒'] },
+                { name: '🏀 忍者球', desc: '围成圈，每人做一个忍者动作触碰邻居的手。被触碰=失去一只手。', tags: ['反应', '所有年龄', '无器材'] },
+                { name: '🎾 星球大战', desc: '两队向中线对面扔泡沫球。哨声响时球少的一方获胜。', tags: ['投掷', '1-4年级', '泡沫球'] },
+                { name: '🏈 体育馆冒险', desc: '障碍赛站：爬、跳、绕桩、投掷。团队接力计时！', tags: ['障碍赛', '所有年龄', '各种器材'] },
+                { name: '🏐 太空曲棍球', desc: '泡沫棍和轻球。无接触，棍在腰以下，每2分钟换人。', tags: ['合作', '3-6年级', '泡沫棍'] },
+                { name: '🥎 城堡之王', desc: '国王保护锥筒。攻击者投掷推倒它。推倒者成为新国王。', tags: ['投掷', '1-4年级', '锥筒+球'] },
+                { name: '🏸 改良飞盘', desc: '传飞盘到对方端区得分。拿着飞盘不能移动！落地换队。', tags: ['团队', '6年级', '飞盘'] },
+                { name: '🏓 寻宝游戏', desc: '彩色物品藏在体育馆。每队有清单。每次带回一个。先完成的获胜！', tags: ['搜索', '1-2年级', '各种物品'] },
+                { name: '⚽ 鸡-狐-蛇', desc: '三队循环：狐→鸡→蛇→狐。被抓=入狱。触碰可释放囚犯。', tags: ['策略', '3-6年级', '三色背心'] },
+                { name: '🏀 极限四角', desc: '四个编号角落。领队闭眼说数字。该角落的玩家被淘汰！', tags: ['运气', '所有年龄', '无器材'] },
+                { name: '🎾 简化健球', desc: '三队各4人。一队喊颜色并击球。被喊队必须在球落地前接住。', tags: ['合作', '6年级', '健球'] },
+                { name: '🏈 大挑战', desc: '6个计时挑战：跳绳、精准投、折返跑、平衡、绕桩、跳远。破纪录！', tags: ['挑战', '所有年龄', '各种器材'] },
+                { name: '⚽ 龙尾巴', desc: '5-6人一排。龙头抓另一条龙的尾巴。最后完整的龙获胜！', tags: ['灵活', '1-4年级', '背心'] },
+                { name: '🏀 墙球', desc: '向墙扔网球。其他人接反弹。没接住？跑去摸墙！', tags: ['投掷', '3-6年级', '网球'] },
+                { name: '🎾 章鱼', desc: '章鱼在中间标记跑者。被标记=坐下变成触手抓路过的人。', tags: ['跑步', '所有年龄', '无器材'] },
+                { name: '🏈 邮递员', desc: '围坐成圈。邮递员在一个玩家身后放围巾，被放的人要追他。', tags: ['反应', '1-2年级', '围巾'] },
+                { name: '🏐 运动战舰', desc: '两队藏5个瓶。向立着的垫子对面扔球推倒对方的瓶。', tags: ['投掷', '3-6年级', '瓶+球'] },
+                { name: '🥎 农夫', desc: '农夫保护10个锥筒。狐狸偷锥筒。被触碰=归还锥筒。', tags: ['策略', '1-4年级', '锥筒'] },
+                { name: '🏸 烫手球', desc: '音乐播放时传球。音乐停=持球者做体能挑战！', tags: ['有氧', '所有年龄', '球+音乐'] },
+                { name: '🏓 时钟', desc: 'A队围圈传球。B队跑接力。完成后数传球次数。交换。少的赢！', tags: ['接力', '3-6年级', '球'] },
+                { name: '⚽ 彩虹降落伞', desc: '做波浪、蘑菇、藏人、弹球。完美的合作游戏！', tags: ['合作', '1-2年级', '降落伞'] },
+                { name: '🏀 踢球', desc: '像棒球但用脚踢足球。投手滚球，踢球者踢并跑垒。', tags: ['团队', '3-6年级', '足球+垒'] },
+                { name: '🎾 人体迷宫', desc: '排排站手拉手。信号时旋转90度创造新路径。猫追老鼠！', tags: ['反应', '所有年龄', '无器材'] },
+                { name: '🏈 忍者障碍赛', desc: '忍者勇士风格：肋木、平衡木、绳索、栏架、冲刺。个人计时！', tags: ['障碍赛', '6年级', '各种器材'] },
+                { name: '🏐 地狱之圈', desc: '3个球同时在圈中传递。掉球=绕圈跑。逐渐加速！', tags: ['协调', '所有年龄', '3个球'] },
+                { name: '🥎 沙丁鱼', desc: '一人藏，所有人找。找到了？一起藏！最后找到的开始下一轮。', tags: ['搜索', '1-4年级', '无器材'] },
+                { name: '🏸 海盗宝藏', desc: '海盗背对宝藏。其他人慢慢靠近。海盗转身，所有人冻住。被看到动=回起点。', tags: ['控制', '1-2年级', '锥筒+围巾'] },
+                { name: '🏓 巧固球', desc: '向反弹架投球。如果球弹到地上没被接住=得分！', tags: ['团队', '6年级', '巧固球架'] },
+                { name: '⚽ 穿越沙漠', desc: '只用垫子穿越体育馆。碰到地面=全队重来！', tags: ['合作', '3-6年级', '垫子'] },
+                { name: '🏀 囚球', desc: '投球击中对手。被击中=去对方后面的监狱。接住球可回来。', tags: ['投掷', '所有年龄', '泡沫球'] },
+                { name: '🎾 搬运工', desc: '4人队用垫子搬运队友穿越体育馆。先搬完所有人的获胜！', tags: ['力量', '3-6年级', '垫子'] },
+                { name: '🏈 高架标签', desc: '猫标记老鼠。脚离地(栖息)安全。最多5秒！', tags: ['跑步', '1-2年级', '长凳'] },
+                { name: '🏐 计时球', desc: '围圈尽快传球。打破班级记录！变体：反向第2个球。', tags: ['合作', '所有年龄', '球'] },
+                { name: '🥎 山丘之王', desc: '国王站在厚垫上。挑战者尝试上去。不能推！最后站着的是王。', tags: ['平衡', '3-6年级', '厚垫'] },
+                { name: '🏸 隧道', desc: '排队张开腿。最后一个爬过去站到最前面。先到终点线的获胜！', tags: ['接力', '1-4年级', '无器材'] },
+                { name: '🏓 改良手球', desc: '用手传球射门(2个锥筒)。最多3步，不能运球，无接触。', tags: ['团队', '3-6年级', '球+锥筒'] },
+                { name: '⚽ 音乐雕像', desc: '音乐播放时跳舞。音乐停=冻住！变体：摆出指定运动姿势。', tags: ['听觉', '1-2年级', '音乐'] },
+                { name: '🏀 人体保龄球', desc: '玩家坐在滑板车上被推向泡沫瓶。每队每轮2次机会！', tags: ['精准', '3-6年级', '滑板车+瓶'] },
+                { name: '🎾 袋鼠赛跑', desc: '接力：双膝夹球跳到锥筒再跳回来。掉了=重来！', tags: ['接力', '1-4年级', '球'] },
+                { name: '🏈 蜘蛛网', desc: '不同高度的弹力绳。穿越不碰线。团队合作！', tags: ['灵活', '所有年龄', '弹力绳'] },
+                { name: '🏐 颜色游戏', desc: '老师说一个颜色。学生跑去触碰该颜色的物品。最后一个=挑战！', tags: ['反应', '1-2年级', '无器材'] },
+                { name: '🥎 飞盘高尔夫', desc: '体育馆9个目标。向每个目标投飞盘计数。最少投掷次数获胜！', tags: ['精准', '3-6年级', '飞盘+目标'] },
+            ]
+        };
+
+        window.currentLang = window.currentLang || 'fr';
+
+        const strip = document.getElementById('slotStrip');
+        let slotSpinning = false;
+
+        function getGames() { return gamesI18n[window.currentLang || 'fr'] || gamesI18n.fr; }
+        function populateSlot() {
+            strip.innerHTML = '';
+            const g = getGames();
+            for (let r = 0; r < 5; r++) {
+                g.forEach(game => {
+                    const div = document.createElement('div');
+                    div.className = 'slot-item';
+                    div.textContent = game.name;
+                    strip.appendChild(div);
+                });
+            }
+        }
+        populateSlot();
+        window.populateSlot = populateSlot;
+        window.currentLang = 'fr';
+
+        window.spinSlot = function() {
+            if (slotSpinning) return;
+            slotSpinning = true;
+            const btn = document.getElementById('slotGoBtn');
+            const resultDiv = document.getElementById('slotResult');
+            const resultText = document.getElementById('slotResultText');
+            btn.disabled = true;
+            resultDiv.classList.add('hidden');
+            populateSlot();
+            gsap.set(strip, { y: 0 });
+
+            const g = getGames();
+            const finalIndex = Math.floor(Math.random() * g.length);
+            const itemHeight = 80;
+            const totalScroll = -(g.length * 3 + finalIndex) * itemHeight;
+
+            gsap.to(strip, {
+                y: totalScroll, duration: 3.5, ease: 'power4.out',
+                onComplete: () => {
+                    slotSpinning = false;
+                    btn.disabled = false;
+                    const game = g[finalIndex];
+                    resultText.textContent = game.name;
+                    document.getElementById('slotResultDescText').textContent = game.desc;
+                    const tagsEl = document.getElementById('slotResultTags');
+                    tagsEl.innerHTML = '';
+                    game.tags.forEach(tag => {
+                        const span = document.createElement('span');
+                        span.className = 'inline-block px-3 py-1 rounded-lg text-xs font-baloo font-semibold bg-dark/5 text-dark/60';
+                        span.textContent = tag;
+                        tagsEl.appendChild(span);
+                    });
+                    resultDiv.classList.remove('hidden');
+                    gsap.fromTo('#slotResultDesc', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, delay: 0.3 });
+                    createSlotExplosion();
+                    spawnConfetti(window.innerWidth / 2, window.innerHeight / 2, 25);
+                }
+            });
+            gsap.to('#slotBox', { x: 3, duration: 0.05, repeat: 40, yoyo: true, onComplete: () => gsap.set('#slotBox', { x: 0 }) });
+        };
+
+        function createSlotExplosion() {
+            const box = document.getElementById('slotBox');
+            const colors = ['#00E5FF', '#FFD700', '#FF2A7A', '#8B5CF6'];
+            for (let i = 0; i < 4; i++) {
+                const ring = document.createElement('div');
+                ring.className = 'explosion-ring';
+                ring.style.borderColor = colors[i];
+                ring.style.width = '20px'; ring.style.height = '20px';
+                ring.style.top = '50%'; ring.style.left = '50%';
+                ring.style.transform = 'translate(-50%, -50%)';
+                box.appendChild(ring);
+                gsap.to(ring, { width: 300 + i * 80, height: 300 + i * 80, opacity: 0, duration: 0.8, delay: i * 0.1, ease: 'power2.out', onComplete: () => ring.remove() });
+            }
+        }
+
+        // ============ CONFETTI ============
+        function spawnConfetti(x, y, count = 20) {
+            const emojis = ['🎉', '⭐', '🔥', '💥', '✨', '🏆', '🎊', '⚡'];
+            for (let i = 0; i < count; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                piece.style.left = x + 'px'; piece.style.top = y + 'px';
+                document.body.appendChild(piece);
+                const angle = (Math.PI * 2 * i) / count;
+                const velocity = gsap.utils.random(100, 300);
+                gsap.to(piece, { x: Math.cos(angle) * velocity, y: Math.sin(angle) * velocity - 100, rotation: gsap.utils.random(-360, 360), scale: gsap.utils.random(0.5, 1.5), opacity: 0, duration: gsap.utils.random(1, 2), ease: 'power3.out', onComplete: () => piece.remove() });
+            }
+        }
+
+        // ============ PHYSICS ENGINE ============
+        const canvas = document.getElementById('physics-canvas');
+        const ctx = canvas.getContext('2d');
+        let balls = [];
+        const gravity = 0.4, bounce = 0.65, friction = 0.99;
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const sportEmojis = { sports: ['⚽','🏀','🎾','🏈','🏐','🥎','🏸','🏓'], stars: ['⭐','🌟','✨','💫','🔥','💥','🎉','🎊'] };
+
+        class PhysicsBall {
+            constructor(x, y, emojiSet = 'sports') {
+                this.x = x; this.y = y;
+                const emojis = sportEmojis[emojiSet] || sportEmojis.sports;
+                this.emoji = emojis[Math.floor(Math.random() * emojis.length)];
+                this.vx = (Math.random() - 0.5) * 20; this.vy = -(Math.random() * 15 + 8);
+                this.size = 24 + Math.random() * 16; this.rotation = 0;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.3;
+                this.life = 1; this.decay = 0.003 + Math.random() * 0.005;
+            }
+            update() {
+                this.vy += gravity; this.x += this.vx; this.y += this.vy;
+                this.vx *= friction; this.rotation += this.rotationSpeed; this.life -= this.decay;
+                if (this.y + this.size > canvas.height) { this.y = canvas.height - this.size; this.vy *= -bounce; this.vx *= 0.9; }
+                if (this.x < 0 || this.x + this.size > canvas.width) { this.vx *= -1; this.x = Math.max(0, Math.min(this.x, canvas.width - this.size)); }
+            }
+            draw() {
+                ctx.save(); ctx.globalAlpha = Math.max(0, this.life);
+                ctx.translate(this.x + this.size / 2, this.y + this.size / 2); ctx.rotate(this.rotation);
+                ctx.font = `${this.size}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(this.emoji, 0, 0); ctx.restore();
+            }
+            isDead() { return this.life <= 0; }
+        }
+
+        function spawnBalls(x, y, count = 15, emojiSet = 'sports') { for (let i = 0; i < count; i++) balls.push(new PhysicsBall(x, y, emojiSet)); }
+        function physicsLoop() { ctx.clearRect(0, 0, canvas.width, canvas.height); balls = balls.filter(b => !b.isDead()); balls.forEach(b => { b.update(); b.draw(); }); requestAnimationFrame(physicsLoop); }
+        physicsLoop();
+
+        document.querySelectorAll('.physics-trigger').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const rect = btn.getBoundingClientRect();
+                spawnBalls(rect.left + rect.width / 2, rect.top + rect.height / 2, 18, btn.dataset.emojiSet || 'sports');
+            });
+        });
+
+        // ============ SMOOTH SCROLL ============
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', e => {
+                const target = document.querySelector(anchor.getAttribute('href'));
+                if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            });
+        });
+
+        // ============ GYM PARALLAX ============
+        // Body gym parallax
+        window.addEventListener('scroll', () => {
+            const y = window.scrollY * -0.3;
+            document.body.style.setProperty('--gym-y', y + 'px');
+
+            // Slot section gym parallax
+            const slotBg = document.getElementById('gymSlotBg');
+            if (slotBg) {
+                const rect = slotBg.parentElement.getBoundingClientRect();
+                const offset = (rect.top * -0.25);
+                slotBg.style.transform = `translateY(${offset}px)`;
+            }
+        });
+
+        // ============ EASTER EGG ============
+        document.addEventListener('click', e => {
+            if (e.target.closest('.physics-trigger') || e.target.closest('#slotGoBtn')) return;
+            const dot = document.createElement('div');
+            dot.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:8px;height:8px;border-radius:50%;background:rgba(0,229,255,0.5);pointer-events:none;z-index:99990;`;
+            document.body.appendChild(dot);
+            gsap.to(dot, { scale: 3, opacity: 0, duration: 0.5, onComplete: () => dot.remove() });
+        });
+
+    });
+
+    // ============================================================
+    // ============ COMIC TOOLS (Dé, Roue, Chrono, Timer, Classe)
+    // ============================================================
+
+    const alarmSound = new Audio("https://static.wixstatic.com/mp3/692b77_1862ffbf28ff4a6a863045f716cddfa6.mp3");
+    function playAlarm() { alarmSound.currentTime = 0; alarmSound.play().catch(e => {}); }
+
+    function openToolPopup(id) {
+        document.querySelectorAll('.comic-popup').forEach(p => p.classList.add('hidden'));
+        const popup = document.getElementById(`popup-${id}`);
+        if (popup) { popup.classList.remove('hidden'); if (id === 'wheel') drawWheel(); }
+        lucide.createIcons();
+    }
+    function closeToolPopup(id) {
+        const popup = document.getElementById(`popup-${id}`);
+        if (popup) { popup.classList.add('hidden'); popup.classList.remove('fullscreen', 'mini'); }
+    }
+    function toggleMode(id, mode) {
+        const popup = document.getElementById(`popup-${id}`);
+        if (popup.classList.contains(mode)) { popup.classList.remove(mode); }
+        else { popup.classList.remove('fullscreen', 'mini'); popup.classList.add(mode); }
+    }
+
+    // DICE
+    function rollDice() {
+        const dice = document.getElementById('dice');
+        const resultDisplay = document.getElementById('dice-result');
+        resultDisplay.style.opacity = '0';
+        const result = Math.floor(Math.random() * 6) + 1;
+        let xBase = 0, yBase = 0;
+        switch (result) {
+            case 1: xBase = 0; yBase = 0; break;
+            case 6: xBase = 0; yBase = 180; break;
+            case 3: xBase = 0; yBase = -90; break;
+            case 4: xBase = 0; yBase = 90; break;
+            case 5: xBase = -90; yBase = 0; break;
+            case 2: xBase = 90; yBase = 0; break;
+        }
+        const xF = xBase + (Math.floor(Math.random() * 3) + 2) * 360;
+        const yF = yBase + (Math.floor(Math.random() * 3) + 2) * 360;
+        dice.style.transform = `rotateX(${xF}deg) rotateY(${yF}deg)`;
+        setTimeout(() => { resultDisplay.innerText = result; resultDisplay.style.opacity = '1'; resultDisplay.style.transform = "scale(1.5)"; setTimeout(() => resultDisplay.style.transform = "scale(1)", 200); }, 1000);
+    }
+    window.rollDice = rollDice;
+
+    // WHEEL
+    let wheelCanvas = document.getElementById('wheelCanvas');
+    let wheelCtx = wheelCanvas ? wheelCanvas.getContext('2d') : null;
+    let wheelNames = []; let wheelRotation = 0; let wheelSpinning = false;
+    const wheelColors = ['#FACC15', '#22D3EE', '#F472B6', '#A7F3D0', '#C4B5FD', '#FCA5A5'];
+
+    function drawWheel() {
+        if (!wheelCtx || !wheelCanvas) return;
+        const text = document.getElementById('wheel-names').value;
+        wheelNames = text.split(',').map(n => n.trim()).filter(n => n.length > 0);
+        if (wheelNames.length === 0) wheelNames = ['?'];
+        const cx = wheelCanvas.width / 2, cy = wheelCanvas.height / 2, r = 110;
+        const step = (2 * Math.PI) / wheelNames.length;
+        wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+        wheelCtx.beginPath(); wheelCtx.arc(cx, cy, r + 5, 0, 2 * Math.PI); wheelCtx.fillStyle = '#18181b'; wheelCtx.fill();
+        wheelCtx.save(); wheelCtx.translate(cx, cy); wheelCtx.rotate(wheelRotation);
+        for (let i = 0; i < wheelNames.length; i++) {
+            wheelCtx.beginPath(); wheelCtx.moveTo(0, 0); wheelCtx.arc(0, 0, r, i * step, (i + 1) * step); wheelCtx.closePath();
+            wheelCtx.fillStyle = wheelColors[i % wheelColors.length]; wheelCtx.fill(); wheelCtx.stroke();
+            wheelCtx.save(); wheelCtx.rotate(i * step + step / 2); wheelCtx.textAlign = 'right';
+            wheelCtx.fillStyle = '#18181b'; wheelCtx.font = 'bold 13px Patrick Hand'; wheelCtx.fillText(wheelNames[i], r - 10, 5);
+            wheelCtx.restore();
+        }
+        wheelCtx.restore();
+    }
+    function spinWheel() {
+        if (wheelSpinning || wheelNames.length < 1) return;
+        wheelSpinning = true;
+        let vel = 0.5 + Math.random() * 0.5, fric = 0.99;
+        function anim() {
+            if (vel < 0.002) { wheelSpinning = false; return; }
+            vel *= fric; wheelRotation += vel; drawWheel(); requestAnimationFrame(anim);
+        }
+        anim();
+    }
+    window.drawWheel = drawWheel; window.spinWheel = spinWheel;
+    if (wheelCanvas) drawWheel();
+
+    // STOPWATCH
+    let swInterval, swTime = 0, swRunning = false;
+    function updateSWDisplay() {
+        const h = Math.floor(swTime / 360000), m = Math.floor((swTime % 360000) / 6000), s = Math.floor((swTime % 6000) / 100);
+        const f = n => n.toString().padStart(2, '0');
+        document.getElementById('stopwatch-display').innerText = `${f(h)}:${f(m)}:${f(s)}`;
+    }
+    function toggleStopwatch() {
+        const btn = document.getElementById('sw-btn');
+        if (swRunning) { clearInterval(swInterval); swRunning = false; btn.innerText = "START"; btn.className = btn.className.replace('bg-yellow-400', 'bg-green-400'); }
+        else { swInterval = setInterval(() => { swTime += 10; updateSWDisplay(); }, 10); swRunning = true; btn.innerText = "PAUSE"; btn.className = btn.className.replace('bg-green-400', 'bg-yellow-400'); }
+    }
+    function resetStopwatch() { clearInterval(swInterval); swRunning = false; swTime = 0; updateSWDisplay(); document.getElementById('sw-btn').innerText = "START"; }
+    window.toggleStopwatch = toggleStopwatch; window.resetStopwatch = resetStopwatch;
+
+    // TIMER
+    let tmInterval, tmTotal = 0, tmRunning = false;
+    function updateTmDisplay(s) { if (s < 0) s = 0; document.getElementById('timer-display').innerText = `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
+    function startTimer() {
+        if (tmInterval) clearInterval(tmInterval);
+        tmTotal = (parseInt(document.getElementById('timer-min').value)||0)*60 + (parseInt(document.getElementById('timer-sec').value)||0);
+        if (tmTotal <= 0) return; tmRunning = true; document.getElementById('tm-btn').innerText = "..."; updateTmDisplay(tmTotal);
+        tmInterval = setInterval(() => { tmTotal--; updateTmDisplay(tmTotal); if (tmTotal <= 0) { clearInterval(tmInterval); tmRunning = false; document.getElementById('tm-btn').innerText = "GO!"; document.getElementById('timer-display').innerText = "FINI!"; playAlarm(); } }, 1000);
+    }
+    function resetTimer() { if (tmInterval) clearInterval(tmInterval); tmRunning = false; document.getElementById('tm-btn').innerText = "GO!"; updateTmDisplay((parseInt(document.getElementById('timer-min').value)||0)*60+(parseInt(document.getElementById('timer-sec').value)||0)); }
+    window.startTimer = startTimer; window.resetTimer = resetTimer;
+
+    // PERIOD
+    let periodInterval;
+    function addMinutesToPeriod(min) {
+        const now = new Date(); now.setMinutes(now.getMinutes() + min);
+        document.getElementById('period-end').value = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        stopPeriodTimer();
+    }
+    function startPeriodTimer() {
+        const timeInput = document.getElementById('period-end').value; if (!timeInput) return;
+        const btn = document.getElementById('period-btn'); btn.innerText = "EN COURS..."; btn.className = btn.className.replace('bg-green-400', 'bg-yellow-400');
+        if (periodInterval) clearInterval(periodInterval);
+        periodInterval = setInterval(() => {
+            const now = new Date(), [tH, tM] = timeInput.split(':').map(Number), target = new Date();
+            target.setHours(tH, tM, 0, 0); let diff = target - now;
+            if (diff <= 0) { clearInterval(periodInterval); document.getElementById('period-countdown').innerText = "00:00:00"; btn.innerText = "TERMINÉ!"; btn.className = btn.className.replace('bg-yellow-400', 'bg-green-400'); playAlarm(); return; }
+            const h = Math.floor((diff/3600000)%24), m = Math.floor((diff/60000)%60), s = Math.floor((diff/1000)%60);
+            document.getElementById('period-countdown').innerText = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }, 1000);
+    }
+    function stopPeriodTimer() {
+        if (periodInterval) clearInterval(periodInterval); document.getElementById('period-countdown').innerText = "--:--:--";
+        const btn = document.getElementById('period-btn'); btn.innerText = "DÉMARRER"; if (btn.className.includes('bg-yellow-400')) btn.className = btn.className.replace('bg-yellow-400', 'bg-green-400');
+    }
+    window.addMinutesToPeriod = addMinutesToPeriod; window.startPeriodTimer = startPeriodTimer; window.stopPeriodTimer = stopPeriodTimer;
+    window.openToolPopup = openToolPopup; window.closeToolPopup = closeToolPopup; window.toggleMode = toggleMode;
+
+    // PROFIL JOEY
+    function openProfilePopup() { document.getElementById('profile-popup').classList.add('show'); document.body.style.overflow = 'hidden'; }
+    function closeProfilePopup() { document.getElementById('profile-popup').classList.remove('show'); document.body.style.overflow = ''; }
+    window.openProfilePopup = openProfilePopup; window.closeProfilePopup = closeProfilePopup;
+
+    // ============ DIGITAL CLOCK ============
+    function updateClock() {
+        const now = new Date();
+        const h = now.getHours().toString().padStart(2, '0');
+        const m = now.getMinutes().toString().padStart(2, '0');
+        const s = now.getSeconds().toString().padStart(2, '0');
+        const el = document.getElementById('clockTime');
+        if (el) el.innerHTML = `${h}<span class="clock-dot">:</span>${m}<span class="clock-dot">:</span>${s}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ============ LIVE SPORTS SCORES (ESPN API) ============
+    (function() {
+        const container = document.getElementById('scoresContainer');
+        const tabs = document.getElementById('sportsTabs');
+        if (!container || !tabs) return;
+
+        let activeSport = 'hockey/nhl';
+        let scoreDateOffset = 0; // 0 = today, -1 = yesterday, etc.
+
+        function getScoreDate() {
+            const d = new Date();
+            d.setDate(d.getDate() + scoreDateOffset);
+            return d;
+        }
+
+        function updateDateLabel() {
+            const label = document.getElementById('scoresDateLabel');
+            const nextBtn = document.getElementById('scoresNext');
+            if (!label) return;
+            if (scoreDateOffset === 0) {
+                label.textContent = "Aujourd'hui";
+            } else if (scoreDateOffset === -1) {
+                label.textContent = "Hier";
+            } else {
+                const d = getScoreDate();
+                const opts = { weekday: 'short', day: 'numeric', month: 'short' };
+                label.textContent = d.toLocaleDateString('fr-CA', opts);
+            }
+            // Disable next button if already at today
+            if (nextBtn) nextBtn.disabled = (scoreDateOffset >= 0);
+            // Disable prev button if 30 days back
+            const prevBtn = document.getElementById('scoresPrev');
+            if (prevBtn) prevBtn.disabled = (scoreDateOffset <= -30);
+        }
+
+        window.changeScoresDate = function(dir) {
+            const newOffset = scoreDateOffset + dir;
+            if (newOffset > 0 || newOffset < -30) return;
+            scoreDateOffset = newOffset;
+            updateDateLabel();
+            fetchScores(activeSport);
+        };
+
+        async function fetchScores(sport) {
+            container.innerHTML = '<div class="scores-loading">⏳ Chargement...</div>';
+            updateDateLabel();
+            try {
+                const targetDate = getScoreDate();
+                const dateStr = targetDate.toISOString().slice(0, 10).replace(/-/g, '');
+                const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sport}/scoreboard?dates=${dateStr}`);
+                const data = await res.json();
+                let events = data.events || [];
+
+                if (events.length === 0) {
+                    container.innerHTML = '<div class="scores-loading">Aucun match ce jour</div>';
+                    return;
+                }
+                const today = new Date().toISOString().slice(0, 10);
+                let html = '';
+                events.forEach(ev => {
+                    const comp = ev.competitions?.[0];
+                    if (!comp) return;
+                    const away = comp.competitors?.find(c => c.homeAway === 'away');
+                    const home = comp.competitors?.find(c => c.homeAway === 'home');
+                    if (!away || !home) return;
+
+                    const gameDate = ev.date ? ev.date.slice(0, 10) : '';
+                    const isYesterday = gameDate && gameDate !== today;
+
+                    const status = ev.status || {};
+                    const statusType = status.type?.name || '';
+                    const statusDetail = status.type?.shortDetail || status.type?.detail || '';
+                    const isLive = statusType === 'STATUS_IN_PROGRESS' || statusType === 'STATUS_HALFTIME' || statusType === 'STATUS_END_PERIOD';
+                    const isFinal = statusType === 'STATUS_FINAL';
+                    const isScheduled = statusType === 'STATUS_SCHEDULED';
+                    const period = status.period || 0;
+                    const clock = status.displayClock || '';
+
+                    let statusHtml = '';
+                    if (isLive) {
+                        let detail = '';
+                        if (clock && clock !== '0:00') detail = clock + ' - ';
+                        if (sport.includes('hockey')) detail += 'P' + period;
+                        else if (sport.includes('basketball')) detail += 'Q' + period;
+                        else if (sport.includes('football')) detail += 'Q' + period;
+                        else if (sport.includes('baseball')) detail += period > 9 ? period + 'th' : ['','1st','2nd','3rd','4th','5th','6th','7th','8th','9th'][period];
+                        else if (sport.includes('soccer')) detail += period === 1 ? '1H' : '2H';
+                        statusHtml = `<div class="game-status live">🔴 LIVE ${detail}</div>`;
+                    } else if (isFinal) {
+                        statusHtml = `<div class="game-status">FINAL</div>`;
+                    } else if (isScheduled) {
+                        statusHtml = `<div class="game-status">${statusDetail}</div>`;
+                    } else {
+                        statusHtml = `<div class="game-status">${statusDetail}</div>`;
+                    }
+
+                    const awayScore = parseInt(away.score) || 0;
+                    const homeScore = parseInt(home.score) || 0;
+                    const awayWin = isFinal && awayScore > homeScore;
+                    const homeWin = isFinal && homeScore > awayScore;
+
+                    const awayLogo = away.team?.logo || '';
+                    const homeLogo = home.team?.logo || '';
+                    const awayName = away.team?.abbreviation || away.team?.shortDisplayName || '?';
+                    const homeName = home.team?.abbreviation || home.team?.shortDisplayName || '?';
+
+                    html += `<div class="game-card">
+                        <div class="game-team-row ${awayWin ? 'winner' : ''}">
+                            <img src="${awayLogo}" class="game-team-logo" alt="${awayName}" onerror="this.style.display='none'">
+                            <span class="game-team-name">${awayName}</span>
+                            <span class="game-team-score">${isScheduled ? '' : awayScore}</span>
+                        </div>
+                        <div class="game-team-row ${homeWin ? 'winner' : ''}">
+                            <img src="${homeLogo}" class="game-team-logo" alt="${homeName}" onerror="this.style.display='none'">
+                            <span class="game-team-name">${homeName}</span>
+                            <span class="game-team-score">${isScheduled ? '' : homeScore}</span>
+                        </div>
+                        ${statusHtml}
+                    </div>`;
+                });
+                container.innerHTML = html;
+            } catch(e) {
+                container.innerHTML = '<div class="scores-loading">Impossible de charger les scores</div>';
+            }
+        }
+
+        // Tab clicks — reset date to today when switching league
+        tabs.querySelectorAll('.sport-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.querySelectorAll('.sport-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                activeSport = tab.dataset.sport;
+                scoreDateOffset = 0;
+                fetchScores(activeSport);
+            });
+        });
+
+        // Initial load
+        updateDateLabel();
+        fetchScores(activeSport);
+        // Auto-refresh every 30s
+        setInterval(() => fetchScores(activeSport), 30000);
+    })();
+
+    // VISIT COUNTER (localStorage)
+    (function() {
+        let count = parseInt(localStorage.getItem('zts-visits') || '0') + 1;
+        localStorage.setItem('zts-visits', count);
+        const el = document.getElementById('visitCount');
+        if (el) el.textContent = count.toLocaleString('fr-CA');
+    })();
+
+    // SUBSCRIBE POPUP (appears once per session after scroll 60% or 30s)
+    let subscribeShown = false;
+    function showSubscribe() {
+        if (subscribeShown || sessionStorage.getItem('zts-sub-closed')) return;
+        subscribeShown = true;
+        document.getElementById('subscribeOverlay').classList.add('show');
+        lucide.createIcons();
+    }
+    function closeSubscribe() {
+        document.getElementById('subscribeOverlay').classList.remove('show');
+        sessionStorage.setItem('zts-sub-closed', '1');
+    }
+    window.closeSubscribe = closeSubscribe;
+
+    // Trigger: after 30s
+    setTimeout(showSubscribe, 30000);
+    // Trigger: scroll 60%
+    window.addEventListener('scroll', function onScrollSub() {
+        const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+        if (pct > 0.6) { showSubscribe(); window.removeEventListener('scroll', onScrollSub); }
+    });
+
+    </script>
+
+    <!-- ========== i18n FULL TRANSLATION SYSTEM ========== -->
+    <script>
+    // Mapping: CSS selector → translation key (applies to ALL text on the page)
+    const i18nMap = [
+        // Nav
+        ['[data-i18n="navJeux"]', 'navJeux'],
+        ['[data-i18n="navRessources"]', 'navRes'],
+        ['[data-i18n="navGenerateur"]', 'navGen'],
+        ['[data-i18n="navAvis"]', 'navAvis'],
+        ['[data-i18n="navDon"]', 'navDon'],
+        // Mobile menu
+        ['[data-i18n="mobileJeux"]', 'navJeux'],
+        ['[data-i18n="mobileRes"]', 'navRes'],
+        ['[data-i18n="mobileGen"]', 'navGen'],
+        ['[data-i18n="mobileAvis"]', 'navAvis'],
+        ['[data-i18n="mobileDon"]', 'mobileDon'],
+        // Hero
+        ['[data-i18n="heroBadge"]', 'heroBadge'],
+        ['[data-i18n="heroTitle"]', 'heroTitle'],
+        ['[data-i18n="heroSub"]', 'heroSub'],
+        ['[data-i18n="heroBtn1"]', 'heroBtn1'],
+        ['[data-i18n="heroBtn2"]', 'heroBtn2'],
+        ['[data-i18n="statJeux"]', 'statJeux'],
+        ['[data-i18n="statSae"]', 'statSae'],
+        ['[data-i18n="statEns"]', 'statEns'],
+        ['[data-i18n="statGratuit"]', 'statGratuit'],
+        // Services
+        ['[data-i18n="resTag"]', 'resTag'],
+        ['[data-i18n="resTitle"]', 'resTitle'],
+        ['[data-i18n="resSub"]', 'resSub'],
+        ['[data-i18n="card1"]', 'card1'], ['[data-i18n="card1d"]', 'card1d'], ['[data-i18n="card1a"]', 'card1a'],
+        ['[data-i18n="card2"]', 'card2'], ['[data-i18n="card2d"]', 'card2d'], ['[data-i18n="card2a"]', 'card2a'],
+        ['[data-i18n="card3"]', 'card3'], ['[data-i18n="card3d"]', 'card3d'], ['[data-i18n="card3a"]', 'card3a'],
+        ['[data-i18n="card4"]', 'card4'], ['[data-i18n="card4d"]', 'card4d'], ['[data-i18n="card4a"]', 'card4a'],
+        // Teaser
+        ['[data-i18n="teaserTitle"]', 'teaserTitle'],
+        ['[data-i18n="teaserSub"]', 'teaserSub'],
+        ['[data-i18n="teaserBtn"]', 'teaserBtn'],
+        // Mission
+        ['[data-i18n="mission"]', 'mission'],
+        // Why us
+        ['[data-i18n="whyTitle"]', 'whyTitle'],
+        ['[data-i18n="why1"]', 'why1'], ['[data-i18n="why1d"]', 'why1d'],
+        ['[data-i18n="why2"]', 'why2'], ['[data-i18n="why2d"]', 'why2d'],
+        ['[data-i18n="why3"]', 'why3'], ['[data-i18n="why3d"]', 'why3d'],
+        // Slot machine
+        ['[data-i18n="slotTag"]', 'slotTag'],
+        ['[data-i18n="slotTitle"]', 'slotTitle'],
+        ['[data-i18n="slotSub"]', 'slotSub'],
+        ['[data-i18n="slotResult"]', 'slotResult'],
+        ['[data-i18n="slotHow"]', 'slotHow'],
+        // Testimonials
+        ['[data-i18n="testTag"]', 'testTag'],
+        ['[data-i18n="testTitle"]', 'testTitle'],
+        ['[data-i18n="test1role"]', 'test1role'], ['[data-i18n="test1"]', 'test1'],
+        ['[data-i18n="test2role"]', 'test2role'], ['[data-i18n="test2"]', 'test2'],
+        ['[data-i18n="test3role"]', 'test3role'], ['[data-i18n="test3"]', 'test3'],
+        // Marquee
+        ['[data-i18n="marqueeLabel"]', 'marqueeLabel'],
+        // Donation
+        ['[data-i18n="donTitle"]', 'donTitle'],
+        ['[data-i18n="donSub"]', 'donSub'],
+        ['[data-i18n="donBtn1"]', 'donBtn1'],
+        ['[data-i18n="donBtn2"]', 'donBtn2'],
+        // Footer
+        ['[data-i18n="footerDesc"]', 'footerDesc'],
+        ['[data-i18n="footerNav"]', 'footerNav'],
+        ['[data-i18n="footerInfos"]', 'footerInfos'],
+        ['[data-i18n="copyright"]', 'copyright'],
+        ['[data-i18n="madeWith"]', 'madeWith'],
+        ['[data-i18n="fAccueil"]', 'fAccueil'], ['[data-i18n="fJeux"]', 'fJeux'],
+        ['[data-i18n="fSae"]', 'fSae'], ['[data-i18n="fBlogue"]', 'fBlogue'], ['[data-i18n="fContact"]', 'fContact'],
+        ['[data-i18n="fAbout"]', 'fAbout'], ['[data-i18n="fPrivacy"]', 'fPrivacy'],
+        ['[data-i18n="fDon"]', 'fDon'], ['[data-i18n="fTerms"]', 'fTerms'],
+        ['[data-i18n="visitLabel"]', 'visitLabel'],
+        // Subscribe popup
+        ['[data-i18n="subTitle"]', 'subTitle'],
+        ['[data-i18n="subDesc"]', 'subDesc'],
+        ['[data-i18n="subPerk1"]', 'subPerk1'], ['[data-i18n="subPerk2"]', 'subPerk2'],
+        ['[data-i18n="subPerk3"]', 'subPerk3'], ['[data-i18n="subPerk4"]', 'subPerk4'],
+        ['[data-i18n="subBtn"]', 'subBtn'],
+        ['[data-i18n="subLater"]', 'subLater'],
+    ];
+
+    const i18n = {
+        fr: {
+            navJeux:'Jeux', navRes:'Ressources', navGen:'Générateur', navAvis:'Avis',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> Faire un don', mobileDon:'Faire un don',
+            heroBadge:'+500 ressources gratuites pour l\'ÉPS',
+            heroTitle:'Ton gym,<br><span style="color:#FF2A7A">tes règles.</span>',
+            heroSub:'La plateforme <strong class="text-dark">100% gratuite</strong> qui transforme tes cours d\'éducation physique en expériences épiques.',
+            heroBtn1:'<i data-lucide="zap" class="w-5 h-5"></i> Générer un jeu',
+            heroBtn2:'<i data-lucide="compass" class="w-5 h-5"></i> Explorer',
+            statJeux:'Jeux', statSae:'SAÉ', statEns:'Enseignants', statGratuit:'% Gratuit',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> RESSOURCES',
+            resTitle:'Tout ce qu\'il te faut,<br><span style="color:#FF2A7A">au même endroit.</span>',
+            resSub:'Des centaines de ressources pensées par et pour les profs d\'ÉPS du primaire.',
+            card1:'Banque de Jeux', card1d:'+500 jeux classés par catégorie, âge et compétence. Trouve le jeu parfait en secondes.', card1a:'Explorer <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'SAÉ Complètes', card2d:'Situations d\'apprentissage clés en main alignées avec le PFEQ. Prêtes à utiliser demain.', card2a:'Découvrir <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'Blogue ÉPS', card3d:'Articles, stratégies et réflexions sur l\'enseignement de l\'éducation physique au Québec.', card3a:'Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'Gestion de Classe', card4d:'Outils, routines et systèmes pour un gymnase organisé et motivant. Fini le chaos!', card4a:'Organiser <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'Découvre le générateur de jeux!', teaserSub:'50 jeux au hasard avec règles complètes. Parfait quand t\'es en panne d\'idées.',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> Essayer le générateur',
+            mission:'Zone Total Sport, c\'est une plateforme créée par <strong class="text-dark">des enseignants d\'ÉPS du Québec</strong>, pour les enseignants d\'ÉPS. Chaque jeu, chaque SAÉ et chaque outil a été testé sur le terrain. Notre mission : te simplifier la vie et rendre tes cours inoubliables.',
+            whyTitle:'Ce qui rend la Zone<br><span style="color:#FFD700">différente.</span>',
+            why1:'Gratuit. Pour vrai.', why1d:'Pas de freemium, pas de paywall. Toutes les ressources sont accessibles à 100% sans créer de compte.',
+            why2:'Par des profs, pour des profs', why2d:'Chaque jeu et SAÉ est créé et testé par des enseignants du Québec. Du terrain, pas du bureau.',
+            why3:'Prêt en 2 minutes', why3d:'Trouve un jeu, lis les règles, c\'est parti. Toutes les ressources sont conçues pour être utilisables immédiatement.',
+            slotTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> GÉNÉRATEUR',
+            slotTitle:'Pas d\'idée?<br><span style="color:#FF2A7A">On s\'en occupe.</span>',
+            slotSub:'Clique sur GO et laisse la magie opérer. Un jeu au hasard, parfait pour ta prochaine période!',
+            slotResult:'Ton jeu du moment :', slotHow:'Comment jouer',
+            testTag:'<i data-lucide="message-circle" class="w-4 h-4"></i> TÉMOIGNAGES',
+            testTitle:'Ce qu\'ils en<br><span style="color:#8B5CF6">pensent.</span>',
+            test1role:'Enseignante ÉPS, Laval', test1:'"J\'utilise Zone Total Sport chaque semaine pour planifier mes cours. La banque de jeux est une mine d\'or! Mes élèves adorent les nouveaux jeux."',
+            test2role:'Enseignant ÉPS, Québec', test2:'"Le générateur de jeux est génial quand je suis en panne d\'inspiration. En un clic, j\'ai une activité prête à lancer. Merci pour cette ressource!"',
+            test3role:'Étudiante BÉPEP, Montréal', test3:'"Indispensable pour mes stages! Les SAÉ sont alignées avec le programme et faciles à adapter. Le site est devenu ma référence numéro un."',
+            marqueeLabel:'Nos jeux populaires',
+            donTitle:'Soutiens la<br><span style="color:#FFD700">Zone!</span>',
+            donSub:'Zone Total Sport est 100% gratuit et le restera. Un petit don nous aide à continuer de créer du contenu de qualité pour les profs d\'ÉPS.',
+            donBtn1:'<i data-lucide="heart" class="w-5 h-5"></i> Faire un don',
+            donBtn2:'<i data-lucide="share-2" class="w-5 h-5"></i> Partager le site',
+            footerDesc:'La plateforme gratuite de ressources en éducation physique pour les enseignants du primaire au Québec.',
+            footerNav:'Navigation', footerInfos:'Infos',
+            fAccueil:'Accueil', fJeux:'Banque de jeux', fSae:'SAÉ', fBlogue:'Blogue', fContact:'Contact',
+            fAbout:'À propos', fPrivacy:'Politique de confidentialité', fDon:'Faire un don', fTerms:'Conditions d\'utilisation',
+            copyright:'© 2026 Zone Total Sport. Tous droits réservés.', madeWith:'Fait avec 💛 au Québec',
+            visitLabel:'Visiteurs :',
+            subTitle:'DEVIENS MEMBRE VIP!', subDesc:'Débloque tout le contenu de la Zone!',
+            subPerk1:'<span class="text-2xl">⚽</span><span class="font-baloo text-sm text-dark"><strong>+500 jeux</strong> avec fiches détaillées</span>',
+            subPerk2:'<span class="text-2xl">📋</span><span class="font-baloo text-sm text-dark"><strong>SAÉ complètes</strong> alignées PFEQ</span>',
+            subPerk3:'<span class="text-2xl">🧰</span><span class="font-baloo text-sm text-dark"><strong>Outils exclusifs</strong> de gestion de classe</span>',
+            subPerk4:'<span class="text-2xl">🆕</span><span class="font-baloo text-sm text-dark"><strong>Nouveautés</strong> chaque semaine</span>',
+            subBtn:'<i data-lucide="crown" class="w-5 h-5"></i> JE M\'ABONNE!', subLater:'Non merci, plus tard',
+        },
+        en: {
+            navJeux:'Games', navRes:'Resources', navGen:'Generator', navAvis:'Reviews',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> Donate', mobileDon:'Donate',
+            heroBadge:'+500 free resources for PE teachers',
+            heroTitle:'Your gym,<br><span style="color:#FF2A7A">your rules.</span>',
+            heroSub:'The <strong class="text-dark">100% free</strong> platform that transforms your physical education classes into epic experiences.',
+            heroBtn1:'<i data-lucide="zap" class="w-5 h-5"></i> Generate a game',
+            heroBtn2:'<i data-lucide="compass" class="w-5 h-5"></i> Explore',
+            statJeux:'Games', statSae:'Units', statEns:'Teachers', statGratuit:'% Free',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> RESOURCES',
+            resTitle:'Everything you need,<br><span style="color:#FF2A7A">in one place.</span>',
+            resSub:'Hundreds of resources designed by and for elementary PE teachers.',
+            card1:'Game Bank', card1d:'+500 games sorted by category, age and skill. Find the perfect game in seconds.', card1a:'Explore <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'Full Units', card2d:'Ready-to-use learning situations aligned with the curriculum. Ready for tomorrow.', card2a:'Discover <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'PE Blog', card3d:'Articles, strategies and reflections on teaching physical education in Quebec.', card3a:'Read <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'Class Management', card4d:'Tools, routines and systems for an organized and motivating gymnasium. No more chaos!', card4a:'Organize <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'Discover the game generator!', teaserSub:'50 random games with full rules. Perfect when you\'re out of ideas.',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> Try the generator',
+            mission:'Zone Total Sport is a platform created by <strong class="text-dark">Quebec PE teachers</strong>, for PE teachers. Every game, every unit and every tool has been field-tested. Our mission: simplify your life and make your classes unforgettable.',
+            whyTitle:'What makes the Zone<br><span style="color:#FFD700">different.</span>',
+            why1:'Free. For real.', why1d:'No freemium, no paywall. All resources are 100% accessible without creating an account.',
+            why2:'By teachers, for teachers', why2d:'Every game and unit is created and tested by Quebec teachers. From the field, not the desk.',
+            why3:'Ready in 2 minutes', why3d:'Find a game, read the rules, let\'s go. All resources are designed to be usable immediately.',
+            slotTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> GENERATOR',
+            slotTitle:'No ideas?<br><span style="color:#FF2A7A">We got you.</span>',
+            slotSub:'Click GO and let the magic happen. A random game, perfect for your next period!',
+            slotResult:'Your game of the moment:', slotHow:'How to play',
+            testTag:'<i data-lucide="message-circle" class="w-4 h-4"></i> TESTIMONIALS',
+            testTitle:'What they<br><span style="color:#8B5CF6">think.</span>',
+            test1role:'PE Teacher, Laval', test1:'"I use Zone Total Sport every week to plan my classes. The game bank is a gold mine! My students love the new games."',
+            test2role:'PE Teacher, Quebec City', test2:'"The game generator is amazing when I\'m out of inspiration. One click, and I have an activity ready to go. Thanks for this resource!"',
+            test3role:'Student Teacher, Montreal', test3:'"Essential for my internships! The units are aligned with the curriculum and easy to adapt. The site has become my number one reference."',
+            marqueeLabel:'Our popular games',
+            donTitle:'Support the<br><span style="color:#FFD700">Zone!</span>',
+            donSub:'Zone Total Sport is 100% free and always will be. A small donation helps us keep creating quality content for PE teachers.',
+            donBtn1:'<i data-lucide="heart" class="w-5 h-5"></i> Donate',
+            donBtn2:'<i data-lucide="share-2" class="w-5 h-5"></i> Share the site',
+            footerDesc:'The free physical education resource platform for elementary teachers in Quebec.',
+            footerNav:'Navigation', footerInfos:'Info',
+            fAccueil:'Home', fJeux:'Game bank', fSae:'Units', fBlogue:'Blog', fContact:'Contact',
+            fAbout:'About', fPrivacy:'Privacy policy', fDon:'Donate', fTerms:'Terms of use',
+            copyright:'© 2026 Zone Total Sport. All rights reserved.', madeWith:'Made with 💛 in Quebec',
+            visitLabel:'Visitors:',
+            subTitle:'BECOME A VIP MEMBER!', subDesc:'Unlock all the Zone\'s content!',
+            subPerk1:'<span class="text-2xl">⚽</span><span class="font-baloo text-sm text-dark"><strong>+500 games</strong> with detailed sheets</span>',
+            subPerk2:'<span class="text-2xl">📋</span><span class="font-baloo text-sm text-dark"><strong>Full units</strong> aligned with curriculum</span>',
+            subPerk3:'<span class="text-2xl">🧰</span><span class="font-baloo text-sm text-dark"><strong>Exclusive tools</strong> for class management</span>',
+            subPerk4:'<span class="text-2xl">🆕</span><span class="font-baloo text-sm text-dark"><strong>New content</strong> every week</span>',
+            subBtn:'<i data-lucide="crown" class="w-5 h-5"></i> SUBSCRIBE!', subLater:'No thanks, maybe later',
+        },
+        zh: {
+            navJeux:'游戏', navRes:'资源', navGen:'生成器', navAvis:'评价',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> 捐赠', mobileDon:'捐赠',
+            heroBadge:'+500个免费体育教学资源',
+            heroTitle:'你的体育馆，<br><span style="color:#FF2A7A">你的规则。</span>',
+            heroSub:'<strong class="text-dark">100%免费</strong>的平台，让你的体育课变成史诗般的体验。',
+            heroBtn1:'<i data-lucide="zap" class="w-5 h-5"></i> 生成游戏',
+            heroBtn2:'<i data-lucide="compass" class="w-5 h-5"></i> 探索',
+            statJeux:'游戏', statSae:'教学单元', statEns:'教师', statGratuit:'% 免费',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> 资源',
+            resTitle:'你需要的一切，<br><span style="color:#FF2A7A">都在这里。</span>',
+            resSub:'数百种专为小学体育教师设计的资源。',
+            card1:'游戏库', card1d:'+500个按类别、年龄和技能分类的游戏。', card1a:'探索 <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'完整教学单元', card2d:'与课程标准对齐的即用型学习情境。', card2a:'发现 <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'体育博客', card3d:'关于魁北克体育教学的文章和策略。', card3a:'阅读 <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'课堂管理', card4d:'让体育馆井然有序的工具和系统。', card4a:'组织 <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'发现游戏生成器！', teaserSub:'50个随机游戏，附完整规则。',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> 试试生成器',
+            mission:'Zone Total Sport是由<strong class="text-dark">魁北克体育教师</strong>创建的平台。每个游戏和工具都经过实地测试。我们的使命：简化你的生活，让你的课程难以忘怀。',
+            whyTitle:'是什么让Zone<br><span style="color:#FFD700">与众不同。</span>',
+            why1:'真正免费。', why1d:'没有付费墙。所有资源100%免费。',
+            why2:'教师为教师打造', why2d:'每个游戏都由魁北克教师创建和测试。',
+            why3:'2分钟准备就绪', why3d:'找到游戏，阅读规则，开始吧。',
+            slotTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> 生成器',
+            slotTitle:'没有想法？<br><span style="color:#FF2A7A">我们来帮你。</span>',
+            slotSub:'点击GO，让魔法发生。完美适合你的下一节课！',
+            slotResult:'你的当前游戏：', slotHow:'如何玩',
+            testTag:'<i data-lucide="message-circle" class="w-4 h-4"></i> 评价',
+            testTitle:'他们怎么<br><span style="color:#8B5CF6">说。</span>',
+            test1role:'体育教师, 拉瓦尔', test1:'"我每周都用Zone Total Sport来计划我的课程。游戏库是一座金矿！"',
+            test2role:'体育教师, 魁北克市', test2:'"当我没有灵感时，游戏生成器太棒了。一键就有一个活动准备好了！"',
+            test3role:'实习教师, 蒙特利尔', test3:'"对我的实习来说不可或缺！教学单元与课程对齐，易于调整。"',
+            marqueeLabel:'热门游戏',
+            donTitle:'支持<br><span style="color:#FFD700">Zone！</span>',
+            donSub:'Zone Total Sport是100%免费的。小额捐赠帮助我们继续创造优质内容。',
+            donBtn1:'<i data-lucide="heart" class="w-5 h-5"></i> 捐赠',
+            donBtn2:'<i data-lucide="share-2" class="w-5 h-5"></i> 分享网站',
+            footerDesc:'魁北克小学体育教师的免费资源平台。',
+            footerNav:'导航', footerInfos:'信息',
+            fAccueil:'首页', fJeux:'游戏库', fSae:'教学单元', fBlogue:'博客', fContact:'联系',
+            fAbout:'关于', fPrivacy:'隐私政策', fDon:'捐赠', fTerms:'使用条款',
+            copyright:'© 2026 Zone Total Sport. 版权所有。', madeWith:'用 💛 在魁北克制作',
+            visitLabel:'访客：',
+            subTitle:'成为VIP会员！', subDesc:'解锁Zone的所有内容！',
+            subPerk1:'<span class="text-2xl">⚽</span><span class="font-baloo text-sm text-dark"><strong>+500游戏</strong>附详细说明</span>',
+            subPerk2:'<span class="text-2xl">📋</span><span class="font-baloo text-sm text-dark"><strong>完整教学单元</strong>对齐课标</span>',
+            subPerk3:'<span class="text-2xl">🧰</span><span class="font-baloo text-sm text-dark"><strong>独家工具</strong>课堂管理</span>',
+            subPerk4:'<span class="text-2xl">🆕</span><span class="font-baloo text-sm text-dark"><strong>每周更新</strong></span>',
+            subBtn:'<i data-lucide="crown" class="w-5 h-5"></i> 我要订阅！', subLater:'不了，以后再说',
+        }
+    };
+
+    function setLang(lang) {
+        const t = i18n[lang]; if (!t) return;
+        window.currentLang = lang;
+        i18nMap.forEach(([sel, key]) => {
+            document.querySelectorAll(sel).forEach(el => { if (t[key]) el.innerHTML = t[key]; });
+        });
+        // Update slot machine games
+        if (window.populateSlot) window.populateSlot();
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('lang-' + lang);
+        if (btn) btn.classList.add('active');
+        lucide.createIcons();
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang === 'en' ? 'en' : 'fr-CA';
+    }
+    window.setLang = setLang;
+    </script>
+
+    <!-- Weather Widget -->
+    <script>
+    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- ========== WIX VELO BRIDGE (postMessage) =================== -->
+    <!-- ============================================================ -->
+    <script>
+    (function() {
+        'use strict';
+
+        // ── RÉCEPTION depuis Wix Velo ──────────────────────────────
+        //   { type: 'updateGames', games: [...] }  → Remplace les jeux de la slot
+        //   { type: 'setLang', lang: 'fr'|'en'|'zh' } → Change la langue
+        //   { type: 'scrollTo', section: 'generateur' } → Scroll vers section
+        window.addEventListener('message', function(event) {
+            var data = event.data;
+            if (!data || !data.type) return;
+
+            switch (data.type) {
+                case 'updateGames':
+                    if (data.games && Array.isArray(data.games) && window.gamesI18n) {
+                        window.gamesI18n.fr = data.games;
+                        if (window.populateSlot) window.populateSlot();
+                    }
+                    break;
+                case 'setLang':
+                    if (window.setLang && data.lang) window.setLang(data.lang);
+                    break;
+                case 'scrollTo':
+                    if (data.section) {
+                        var el = document.getElementById(data.section);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    break;
+            }
+        });
+
+        // ── ENVOI vers Wix Velo ────────────────────────────────────
+        // Auto-resize : envoie la hauteur du document au parent
+        function sendHeight() {
+            var h = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: 'resize', height: h }, '*');
+        }
+
+        var _ro = new ResizeObserver(function() { sendHeight(); });
+        _ro.observe(document.body);
+        window.addEventListener('load', function() {
+            setTimeout(sendHeight, 500);
+            setTimeout(sendHeight, 2000);
+        });
+
+        // Notifier Wix quand un jeu est pigé dans la Slot Machine
+        // On patche spinSlot pour intercepter le résultat
+        var _origSpin = window.spinSlot;
+        window.spinSlot = function() {
+            if (_origSpin) _origSpin();
+            // Observer le résultat après l'animation (3.5s)
+            setTimeout(function() {
+                var resultEl = document.getElementById('slotResultText');
+                var descEl = document.getElementById('slotResultDescText');
+                if (resultEl && resultEl.textContent) {
+                    window.parent.postMessage({
+                        type: 'gameSelected',
+                        game: {
+                            name: resultEl.textContent,
+                            description: descEl ? descEl.textContent : ''
+                        }
+                    }, '*');
+                }
+            }, 4000);
+        };
+
+        // Notifier Wix des clics sur liens externes
+        document.addEventListener('click', function(e) {
+            var link = e.target.closest('a[href^="http"]');
+            if (link && link.href.indexOf(window.location.hostname) === -1) {
+                window.parent.postMessage({ type: 'externalLink', href: link.href }, '*');
+            }
+        });
+
+    })();
+    </script>
+
+</body>
+</html>
