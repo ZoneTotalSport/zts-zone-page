@@ -504,19 +504,23 @@
             border: 7px solid #18181b;
             border-radius: 28px;
             box-shadow: 16px 16px 0 #18181b;
-            max-width: 520px;
+            max-width: 960px;
             width: 100%;
             overflow: visible;
             position: relative;
-            transform: rotate(-1.5deg);
+            transform: rotate(-0.5deg);
+            display: flex; flex-direction: row;
         }
         .ia-popup-header {
             background: #18181b;
-            padding: 24px 28px;
+            padding: 28px 32px;
             text-align: center;
-            border-radius: 21px 21px 0 0;
-            border-bottom: 5px solid #FFD700;
+            border-radius: 21px 0 0 21px;
+            border-right: 5px solid #FFD700;
+            border-bottom: none;
             position: relative;
+            flex: 0 0 38%;
+            display: flex; flex-direction: column; justify-content: center;
         }
         .ia-popup-crown {
             position: absolute;
@@ -527,6 +531,7 @@
         }
         .ia-popup-body {
             padding: 28px;
+            flex: 1;
         }
         .ia-popup-perk {
             background: #fff;
@@ -610,8 +615,8 @@
             50% { transform: translateY(-12px) rotate(5deg); }
         }
         @media (max-width: 768px) {
-            .ia-popup-box { border-radius: 20px; border-width: 5px; box-shadow: 10px 10px 0 #18181b; }
-            .ia-popup-header { padding: 20px; }
+            .ia-popup-box { flex-direction: column; border-radius: 20px; border-width: 5px; box-shadow: 10px 10px 0 #18181b; max-width: 95vw; }
+            .ia-popup-header { border-radius: 15px 15px 0 0; border-right: none; border-bottom: 5px solid #FFD700; padding: 20px; flex: none; }
             .ia-popup-body { padding: 20px; }
             .ia-teaser-card { padding: 28px 20px; }
         }
@@ -1620,7 +1625,7 @@
 
             <!-- Header camp de jour cyan -->
             <div class="subscribe-header">
-                <img src="mascot-tablet.png" alt="Mascotte Zone" style="width:120px;height:auto;margin:0 auto 8px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.25))">
+                <img src="mascot-tablet.png" alt="Mascotte Zone" style="width:156px;height:auto;margin:0 auto 8px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.25))">
                 <h2 style="font-family:'Fredoka One',cursive;font-size:2.6rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.1" data-i18n="subTitle">DEVIENS MEMBRE VIP!</h2>
                 <p style="font-family:'Fredoka One',cursive;color:rgba(255,255,255,0.85);font-size:1.2rem;margin-top:8px" data-i18n="subDesc">Accède au plein potentiel de la Zone!</p>
 
