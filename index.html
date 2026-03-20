@@ -303,41 +303,117 @@
 
         .profile-tag { border: 2px solid #18181b; padding: 8px 14px; font-weight: bold; font-size: 1rem; background: #fff; box-shadow: 3px 3px 0 #18181b; border-radius: 8px; font-family: 'Luckiest Guy', cursive; letter-spacing: 0.03em; }
 
-        /* ========== SUBSCRIBE POPUP (Comic Style) ========== */
+        /* ========== SUBSCRIBE POPUP (VIP Vivid) ========== */
         .subscribe-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
             z-index: 9980; display: none; align-items: center; justify-content: center; padding: 20px;
         }
         .subscribe-overlay.show { display: flex; }
         .subscribe-box {
-            background: #FFD700; border: 6px solid #18181b; border-radius: 20px;
-            box-shadow: 12px 12px 0 #18181b; max-width: 460px; width: 100%;
-            padding: 0; overflow: visible; animation: comicPopIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
-            position: relative; transform: rotate(-1deg);
+            background: linear-gradient(160deg, #8B5CF6 0%, #6D28D9 25%, #4C1D95 50%, #1E1B4B 100%);
+            border: 5px solid rgba(255,255,255,0.15);
+            border-radius: 28px;
+            max-width: 500px; width: 100%;
+            padding: 0; overflow: visible;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(139,92,246,0.4), 0 0 120px rgba(0,229,255,0.1);
         }
         .subscribe-header {
-            background: #18181b; padding: 20px 24px; text-align: center; position: relative;
-            border-radius: 14px 14px 0 0; border-bottom: 4px solid #FFD700;
+            padding: 32px 28px 20px; text-align: center; position: relative;
+        }
+        .subscribe-header::after {
+            content: ''; position: absolute; bottom: 0; left: 15%; right: 15%; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.4), transparent);
         }
         .subscribe-body {
-            padding: 24px 28px 28px; text-align: center;
+            padding: 20px 28px 32px; text-align: center;
         }
         .subscribe-perk {
-            background: #fff; border: 3px solid #18181b; border-radius: 12px;
-            padding: 10px 14px; box-shadow: 4px 4px 0 #18181b;
-            display: flex; align-items: center; gap: 10px; text-align: left;
-            transform: rotate(0.5deg); transition: transform 0.15s;
+            background: rgba(255,255,255,0.08);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex; align-items: center; gap: 14px; text-align: left;
+            transition: all 0.25s;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
-        .subscribe-perk:nth-child(even) { transform: rotate(-0.5deg); }
-        .subscribe-perk:hover { transform: scale(1.03) rotate(0deg); }
+        .subscribe-perk:hover {
+            background: rgba(255,255,255,0.14);
+            border-color: rgba(255,215,0,0.3);
+            transform: translateX(4px);
+        }
+        .subscribe-perk-icon {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 1.5rem;
+        }
         .subscribe-close {
-            position: absolute; top: -14px; right: -14px; width: 40px; height: 40px;
-            background: #EF4444; border: 3px solid #18181b; border-radius: 50%; color: #fff;
+            position: absolute; top: 16px; right: 16px; width: 36px; height: 36px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%; color: rgba(255,255,255,0.5);
             display: flex; align-items: center; justify-content: center; cursor: pointer;
-            font-family: 'Luckiest Guy', cursive; font-size: 1.1rem; z-index: 10;
-            box-shadow: 3px 3px 0 #18181b; transition: transform 0.1s;
+            font-family: 'Luckiest Guy', cursive; font-size: 0.9rem; z-index: 10;
+            transition: all 0.2s;
         }
-        .subscribe-close:hover { transform: scale(1.15) rotate(5deg); }
+        .subscribe-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .sub-btn-cta {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 18px; border-radius: 16px; border: none;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #18181b; font-family: 'Boogaloo', cursive; font-size: 1.4rem;
+            cursor: pointer; transition: all 0.25s; text-decoration: none;
+            box-shadow: 0 6px 30px rgba(255,215,0,0.35);
+            letter-spacing: 0.03em;
+        }
+        .sub-btn-cta:hover {
+            transform: translateY(-3px); box-shadow: 0 12px 40px rgba(255,215,0,0.5);
+            background: linear-gradient(135deg, #FFE44D, #FFB733);
+        }
+        .sub-stats-band {
+            display: flex; gap: 0; margin: 16px 0 20px; background: rgba(0,0,0,0.2);
+            border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);
+        }
+        .sub-stat {
+            flex: 1; padding: 12px 8px; text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.06);
+        }
+        .sub-stat:last-child { border-right: none; }
+        .sub-floating { position: absolute; pointer-events: none; z-index: 0; }
+        @keyframes subFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        @media (max-width: 768px) {
+            .subscribe-box { border-radius: 22px; }
+            .subscribe-header { padding: 24px 20px 16px; }
+            .subscribe-body { padding: 16px 20px 24px; }
+        }
+
+        /* ========== À LA UNE SECTION ========== */
+        .alaune-card {
+            background: #fff;
+            border: 4px solid #18181b;
+            border-radius: 20px;
+            box-shadow: 8px 8px 0 #18181b;
+            overflow: hidden;
+            transition: transform 0.25s, box-shadow 0.25s;
+            cursor: pointer;
+        }
+        .alaune-card:hover {
+            transform: translateY(-6px) rotate(-0.5deg);
+            box-shadow: 12px 16px 0 #18181b;
+        }
+        .alaune-card-img {
+            width: 100%; height: 160px; object-fit: cover;
+            border-bottom: 3px solid #18181b;
+        }
+        .alaune-card-body { padding: 18px 20px 20px; }
+        .alaune-tag {
+            display: inline-block; font-family: 'Luckiest Guy', cursive;
+            font-size: 0.55rem; letter-spacing: 0.12em; padding: 3px 10px;
+            border-radius: 20px; border: 2px solid #18181b; margin-bottom: 10px;
+        }
 
         /* ========== TEASER IA SECTION ========== */
         .ia-teaser-wrap {
@@ -1206,6 +1282,84 @@
         </div>
     </section>
 
+    <!-- ========== SECTION 7.5: À LA UNE (White) ========== -->
+    <section class="py-20 px-6 md:px-10 bg-white" id="alaune">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-14">
+                <div class="section-tag bg-pink-fuchsia/10 text-pink-fuchsia mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="flame" class="w-4 h-4"></i> <span data-i18n="aluneTag">À LA UNE</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="aluneTitle">
+                    Quoi de neuf<br>
+                    <span class="gradient-text">dans la Zone?</span>
+                </h2>
+                <p class="text-dark/50 font-baloo text-lg max-w-xl mx-auto reveal" data-i18n="aluneSub">
+                    Les dernières nouveautés, outils et contenus pour tes cours d'ÉPS.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <!-- Card 1: Générateur IA -->
+                <div class="alaune-card reveal" onclick="openIaPopup()">
+                    <div style="height:160px;background:linear-gradient(135deg,#00E5FF,#0099CC);display:flex;align-items:center;justify-content:center;border-bottom:3px solid #18181b">
+                        <span style="font-size:4rem;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.15))">🤖</span>
+                    </div>
+                    <div class="alaune-card-body">
+                        <span class="alaune-tag" style="background:#00E5FF;color:#18181b" data-i18n="aluneTag1">NOUVEAU</span>
+                        <h3 class="font-bangers text-lg text-dark mb-2 tracking-wide" data-i18n="aluneC1">Générateur de Jeux IA</h3>
+                        <p class="font-baloo text-sm text-dark/50" data-i18n="aluneC1d">L'IA crée des jeux adaptés à ton groupe en 10 secondes!</p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Blog -->
+                <div class="alaune-card reveal" onclick="openGatePopup('https://www.zonetotalsport.ca/blog')">
+                    <div style="height:160px;background:linear-gradient(135deg,#FF2A7A,#D61F69);display:flex;align-items:center;justify-content:center;border-bottom:3px solid #18181b">
+                        <span style="font-size:4rem;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.15))">📝</span>
+                    </div>
+                    <div class="alaune-card-body">
+                        <span class="alaune-tag" style="background:#FF2A7A;color:#fff" data-i18n="aluneTag2">BLOGUE</span>
+                        <h3 class="font-bangers text-lg text-dark mb-2 tracking-wide" data-i18n="aluneC2">5 jeux pour la rentrée</h3>
+                        <p class="font-baloo text-sm text-dark/50" data-i18n="aluneC2d">Les meilleurs jeux pour briser la glace avec tes nouveaux groupes.</p>
+                    </div>
+                </div>
+
+                <!-- Card 3: Vidéo -->
+                <div class="alaune-card reveal" onclick="openGatePopup('https://www.youtube.com/@zonetotalsportparMrRoots')">
+                    <div style="height:160px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center;border-bottom:3px solid #18181b">
+                        <span style="font-size:4rem;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.15))">🎬</span>
+                    </div>
+                    <div class="alaune-card-body">
+                        <span class="alaune-tag" style="background:#8B5CF6;color:#fff" data-i18n="aluneTag3">VIDÉO</span>
+                        <h3 class="font-bangers text-lg text-dark mb-2 tracking-wide" data-i18n="aluneC3">Tutos ÉPS en vidéo</h3>
+                        <p class="font-baloo text-sm text-dark/50" data-i18n="aluneC3d">Des démonstrations visuelles pour chaque jeu et SAÉ.</p>
+                    </div>
+                </div>
+
+                <!-- Card 4: App Mobile -->
+                <div class="alaune-card reveal" onclick="openGatePopup('https://www.zonetotalsport.ca')">
+                    <div style="height:160px;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center;border-bottom:3px solid #18181b">
+                        <span style="font-size:4rem;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.15))">📱</span>
+                    </div>
+                    <div class="alaune-card-body">
+                        <span class="alaune-tag" style="background:#FFD700;color:#18181b" data-i18n="aluneTag4">BIENTÔT</span>
+                        <h3 class="font-bangers text-lg text-dark mb-2 tracking-wide" data-i18n="aluneC4">Application Mobile</h3>
+                        <p class="font-baloo text-sm text-dark/50" data-i18n="aluneC4d">Accède à tout depuis ton téléphone, même au gymnase!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA to become member -->
+            <div class="text-center reveal">
+                <p class="font-baloo text-dark/40 text-sm mb-4" data-i18n="aluneCta">Tu veux accéder à tout ça et bien plus?</p>
+                <div class="magnetic-wrap inline-block">
+                    <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="btn-primary btn-pink magnetic-btn" data-i18n="aluneBtn">
+                        <i data-lucide="crown" class="w-5 h-5"></i> Devenir membre gratuitement
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ========== SECTION 8: GAME NAMES MARQUEE (White) ========== -->
     <section class="py-10 overflow-hidden bg-white">
         <div class="text-center mb-6">
@@ -1419,43 +1573,94 @@
         </div>
     </div>
 
-    <!-- ========== SUBSCRIBE POPUP (Comic Style) ========== -->
+    <!-- ========== SUBSCRIBE POPUP (VIP Vivid) ========== -->
     <div class="subscribe-overlay" id="subscribeOverlay">
-        <div class="subscribe-box">
+        <div class="subscribe-box" id="subscribeBox">
             <button onclick="closeSubscribe()" class="subscribe-close">X</button>
 
-            <!-- Header noir -->
+            <!-- Floating decorations -->
+            <div class="sub-floating" style="top:-24px;left:-16px;font-size:1.8rem;animation:subFloat 2.5s ease-in-out infinite">⚡</div>
+            <div class="sub-floating" style="top:30%;right:-20px;font-size:1.6rem;animation:subFloat 2.8s ease-in-out infinite 0.4s">🏀</div>
+            <div class="sub-floating" style="bottom:10%;left:-18px;font-size:1.5rem;animation:subFloat 2.2s ease-in-out infinite 0.8s">⚽</div>
+            <div class="sub-floating" style="bottom:-16px;right:30px;font-size:1.3rem;animation:subFloat 3s ease-in-out infinite 0.6s">🎾</div>
+
+            <!-- Header gradient violet -->
             <div class="subscribe-header">
-                <div class="text-5xl mb-2">🏆</div>
-                <h2 style="font-family:'Luckiest Guy',cursive;font-size:1.7rem;color:#FFD700;letter-spacing:0.05em;margin:0;text-shadow:2px 2px 0 rgba(0,0,0,0.3)" data-i18n="subTitle">DEVIENS MEMBRE VIP!</h2>
-                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.7);font-size:0.95rem;margin-top:4px" data-i18n="subDesc">Débloque tout le contenu de la Zone!</p>
+                <div style="font-size:3.5rem;margin-bottom:8px;filter:drop-shadow(0 4px 20px rgba(255,215,0,0.4))">👑</div>
+                <h2 style="font-family:'Boogaloo',cursive;font-size:2.1rem;margin:0;background:linear-gradient(135deg,#FFD700,#FF2A7A,#00E5FF);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 4s ease infinite" data-i18n="subTitle">DEVIENS MEMBRE VIP!</h2>
+                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.6);font-size:1rem;margin-top:6px" data-i18n="subDesc">Accède au plein potentiel de la Zone!</p>
+
+                <!-- Stats band -->
+                <div class="sub-stats-band">
+                    <div class="sub-stat">
+                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#FFD700">500+</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.65rem;color:rgba(255,255,255,0.4)">jeux</div>
+                    </div>
+                    <div class="sub-stat">
+                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#00E5FF">128</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.65rem;color:rgba(255,255,255,0.4)">SAÉ</div>
+                    </div>
+                    <div class="sub-stat">
+                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#FF2A7A">IA</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.65rem;color:rgba(255,255,255,0.4)">générateur</div>
+                    </div>
+                    <div class="sub-stat">
+                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#4ADE80">0$</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.65rem;color:rgba(255,255,255,0.4)">gratuit!</div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Body jaune -->
+            <!-- Body -->
             <div class="subscribe-body">
-                <div class="flex flex-col gap-3 mb-6">
+                <div class="flex flex-col gap-3 mb-5">
                     <div class="subscribe-perk">
-                        <span class="text-2xl">⚽</span>
-                        <span class="font-baloo text-sm text-dark" data-i18n="subPerk1"><strong>+500 jeux</strong> avec fiches détaillées</span>
+                        <div class="subscribe-perk-icon" style="background:rgba(255,215,0,0.15)">⚽</div>
+                        <div>
+                            <div style="font-family:'Boogaloo',cursive;font-size:1rem;color:#FFD700" data-i18n="subPerkT1">+500 jeux sportifs</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subPerk1">Fiches détaillées, règles et variantes</div>
+                        </div>
                     </div>
                     <div class="subscribe-perk">
-                        <span class="text-2xl">📋</span>
-                        <span class="font-baloo text-sm text-dark" data-i18n="subPerk2"><strong>SAÉ complètes</strong> alignées PFEQ</span>
+                        <div class="subscribe-perk-icon" style="background:rgba(0,229,255,0.15)">🤖</div>
+                        <div>
+                            <div style="font-family:'Boogaloo',cursive;font-size:1rem;color:#00E5FF" data-i18n="subPerkT2">Générateur IA</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subPerk2">Crée un jeu sur mesure en 10 secondes</div>
+                        </div>
                     </div>
                     <div class="subscribe-perk">
-                        <span class="text-2xl">🧰</span>
-                        <span class="font-baloo text-sm text-dark" data-i18n="subPerk3"><strong>Outils exclusifs</strong> de gestion de classe</span>
+                        <div class="subscribe-perk-icon" style="background:rgba(255,42,122,0.15)">📋</div>
+                        <div>
+                            <div style="font-family:'Boogaloo',cursive;font-size:1rem;color:#FF2A7A" data-i18n="subPerkT3">SAÉ + Outils</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subPerk3">Situations d'apprentissage et gestion de classe</div>
+                        </div>
                     </div>
                     <div class="subscribe-perk">
-                        <span class="text-2xl">🆕</span>
-                        <span class="font-baloo text-sm text-dark" data-i18n="subPerk4"><strong>Nouveautés</strong> chaque semaine</span>
+                        <div class="subscribe-perk-icon" style="background:rgba(74,222,128,0.15)">🆓</div>
+                        <div>
+                            <div style="font-family:'Boogaloo',cursive;font-size:1rem;color:#4ADE80" data-i18n="subPerkT4">100% gratuit</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subPerk4">Sans abonnement ni carte de crédit</div>
+                        </div>
                     </div>
                 </div>
 
-                <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="comic-btn bg-pink-fuchsia text-white font-bangers text-xl px-8 py-4 w-full flex items-center justify-center gap-2 hover:bg-pink-600 tracking-wide" style="border-radius:12px;display:flex" data-i18n="subBtn">
-                    <i data-lucide="crown" class="w-5 h-5"></i> JE M'ABONNE!
+                <!-- Social proof -->
+                <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
+                    <div style="display:flex">
+                        <div style="width:28px;height:28px;border-radius:50%;background:#00E5FF;border:2px solid rgba(255,255,255,0.2);margin-right:-8px;z-index:3;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#fff">MC</div>
+                        <div style="width:28px;height:28px;border-radius:50%;background:#FF2A7A;border:2px solid rgba(255,255,255,0.2);margin-right:-8px;z-index:2;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#fff">JR</div>
+                        <div style="width:28px;height:28px;border-radius:50%;background:#FFD700;border:2px solid rgba(255,255,255,0.2);z-index:1;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#18181b">SL</div>
+                    </div>
+                    <span style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subSocial">2 295 enseignants utilisent la Zone!</span>
+                </div>
+
+                <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="sub-btn-cta" data-i18n="subBtn">
+                    <i data-lucide="crown" class="w-6 h-6"></i> REJOINDRE LA ZONE GRATUITEMENT!
                 </a>
-                <button onclick="closeSubscribe()" class="mt-4 font-baloo text-sm text-dark/30 hover:text-dark/50 transition-colors cursor-pointer bg-transparent border-none" data-i18n="subLater">Non merci, plus tard</button>
+                <div style="margin-top:8px">
+                    <span style="font-family:'Patrick Hand',cursive;font-size:0.75rem;color:rgba(255,255,255,0.3)">Aucune carte de crédit. Aucun abonnement.</span>
+                </div>
+                <button onclick="closeSubscribe()" class="mt-3 font-baloo text-sm cursor-pointer bg-transparent border-none" style="color:rgba(255,255,255,0.2)" data-i18n="subLater">Non merci, plus tard</button>
             </div>
         </div>
     </div>
@@ -2695,6 +2900,19 @@
         ['[data-i18n="iaStat3Num"]', 'iaStat3Num'], ['[data-i18n="iaStat3Label"]', 'iaStat3Label'],
         ['[data-i18n="iaSocialProof"]', 'iaSocialProof'],
         ['[data-i18n="iaGuarantee"]', 'iaGuarantee'],
+        // Subscribe VIP (new keys)
+        ['[data-i18n="subPerkT1"]', 'subPerkT1'], ['[data-i18n="subPerkT2"]', 'subPerkT2'],
+        ['[data-i18n="subPerkT3"]', 'subPerkT3'], ['[data-i18n="subPerkT4"]', 'subPerkT4'],
+        ['[data-i18n="subSocial"]', 'subSocial'],
+        // À la une
+        ['[data-i18n="aluneTag"]', 'aluneTag'],
+        ['[data-i18n="aluneTitle"]', 'aluneTitle'],
+        ['[data-i18n="aluneSub"]', 'aluneSub'],
+        ['[data-i18n="aluneTag1"]', 'aluneTag1'], ['[data-i18n="aluneC1"]', 'aluneC1'], ['[data-i18n="aluneC1d"]', 'aluneC1d'],
+        ['[data-i18n="aluneTag2"]', 'aluneTag2'], ['[data-i18n="aluneC2"]', 'aluneC2'], ['[data-i18n="aluneC2d"]', 'aluneC2d'],
+        ['[data-i18n="aluneTag3"]', 'aluneTag3'], ['[data-i18n="aluneC3"]', 'aluneC3'], ['[data-i18n="aluneC3d"]', 'aluneC3d'],
+        ['[data-i18n="aluneTag4"]', 'aluneTag4'], ['[data-i18n="aluneC4"]', 'aluneC4'], ['[data-i18n="aluneC4d"]', 'aluneC4d'],
+        ['[data-i18n="aluneCta"]', 'aluneCta'], ['[data-i18n="aluneBtn"]', 'aluneBtn'],
         // Gate popup
         ['[data-i18n="gateTitle"]', 'gateTitle'],
         ['[data-i18n="gateDesc"]', 'gateDesc'],
@@ -2752,11 +2970,13 @@
             copyright:'© 2026 Zone Total Sport. Tous droits réservés.', madeWith:'Fait avec 💛 au Québec',
             visitLabel:'Visiteurs :',
             subTitle:'DEVIENS MEMBRE VIP!', subDesc:'Débloque tout le contenu de la Zone!',
-            subPerk1:'<span class="text-2xl">⚽</span><span class="font-baloo text-sm text-dark"><strong>+500 jeux</strong> avec fiches détaillées</span>',
-            subPerk2:'<span class="text-2xl">📋</span><span class="font-baloo text-sm text-dark"><strong>SAÉ complètes</strong> alignées PFEQ</span>',
-            subPerk3:'<span class="text-2xl">🧰</span><span class="font-baloo text-sm text-dark"><strong>Outils exclusifs</strong> de gestion de classe</span>',
-            subPerk4:'<span class="text-2xl">🆕</span><span class="font-baloo text-sm text-dark"><strong>Nouveautés</strong> chaque semaine</span>',
-            subBtn:'<i data-lucide="crown" class="w-5 h-5"></i> JE M\'ABONNE!', subLater:'Non merci, plus tard',
+            subPerk1:'Fiches détaillées, règles et variantes',
+            subPerk2:'Crée un jeu sur mesure en 10 secondes',
+            subPerk3:'Situations d\'apprentissage et gestion de classe',
+            subPerk4:'Sans abonnement ni carte de crédit',
+            subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> REJOINDRE LA ZONE GRATUITEMENT!', subLater:'Non merci, plus tard',
+            subPerkT1:'+500 jeux sportifs', subPerkT2:'Générateur IA', subPerkT3:'SAÉ + Outils', subPerkT4:'100% gratuit',
+            subSocial:'2 295 enseignants utilisent la Zone!',
             iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NOUVEAUTÉ',
             iaTitle:'Le futur de l\'ÉPS<br><span style="color:#FF2A7A">est arrivé!</span>',
             iaSub:'L\'intelligence artificielle débarque dans la Zone. Prépare-toi!',
@@ -2787,6 +3007,15 @@
             gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> INSCRIPTION GRATUITE',
             gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> Continuer sans inscription',
             gateFooter:'Aucun abonnement requis. Accès gratuit et sans engagement.',
+            aluneTag:'<i data-lucide="flame" class="w-4 h-4"></i> À LA UNE',
+            aluneTitle:'Quoi de neuf<br><span class="gradient-text">dans la Zone?</span>',
+            aluneSub:'Les dernières nouveautés, outils et contenus pour tes cours d\'ÉPS.',
+            aluneTag1:'NOUVEAU', aluneC1:'Générateur de Jeux IA', aluneC1d:'L\'IA crée des jeux adaptés à ton groupe en 10 secondes!',
+            aluneTag2:'BLOGUE', aluneC2:'5 jeux pour la rentrée', aluneC2d:'Les meilleurs jeux pour briser la glace avec tes nouveaux groupes.',
+            aluneTag3:'VIDÉO', aluneC3:'Tutos ÉPS en vidéo', aluneC3d:'Des démonstrations visuelles pour chaque jeu et SAÉ.',
+            aluneTag4:'BIENTÔT', aluneC4:'Application Mobile', aluneC4d:'Accède à tout depuis ton téléphone, même au gymnase!',
+            aluneCta:'Tu veux accéder à tout ça et bien plus?',
+            aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> Devenir membre gratuitement',
         },
         en: {
             navJeux:'Games', navRes:'Resources', navGen:'Generator', navAvis:'Reviews',
@@ -2832,11 +3061,13 @@
             copyright:'© 2026 Zone Total Sport. All rights reserved.', madeWith:'Made with 💛 in Quebec',
             visitLabel:'Visitors:',
             subTitle:'BECOME A VIP MEMBER!', subDesc:'Unlock all the Zone\'s content!',
-            subPerk1:'<span class="text-2xl">⚽</span><span class="font-baloo text-sm text-dark"><strong>+500 games</strong> with detailed sheets</span>',
-            subPerk2:'<span class="text-2xl">📋</span><span class="font-baloo text-sm text-dark"><strong>Full units</strong> aligned with curriculum</span>',
-            subPerk3:'<span class="text-2xl">🧰</span><span class="font-baloo text-sm text-dark"><strong>Exclusive tools</strong> for class management</span>',
-            subPerk4:'<span class="text-2xl">🆕</span><span class="font-baloo text-sm text-dark"><strong>New content</strong> every week</span>',
-            subBtn:'<i data-lucide="crown" class="w-5 h-5"></i> SUBSCRIBE!', subLater:'No thanks, maybe later',
+            subPerk1:'Detailed sheets, rules and variations',
+            subPerk2:'Create a custom game in 10 seconds',
+            subPerk3:'Learning situations and class management',
+            subPerk4:'No subscription, no credit card',
+            subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> JOIN THE ZONE FOR FREE!', subLater:'No thanks, maybe later',
+            subPerkT1:'+500 sports games', subPerkT2:'AI Generator', subPerkT3:'Units + Tools', subPerkT4:'100% free',
+            subSocial:'2,295 teachers use the Zone!',
             iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NEW FEATURE',
             iaTitle:'The future of PE<br><span style="color:#FF2A7A">is here!</span>',
             iaSub:'Artificial intelligence arrives in the Zone. Get ready!',
@@ -2867,6 +3098,15 @@
             gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> FREE SIGN UP',
             gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> Continue without signing up',
             gateFooter:'No subscription required. Free access, no commitment.',
+            aluneTag:'<i data-lucide="flame" class="w-4 h-4"></i> FEATURED',
+            aluneTitle:'What\'s new<br><span class="gradient-text">in the Zone?</span>',
+            aluneSub:'The latest features, tools and content for your PE classes.',
+            aluneTag1:'NEW', aluneC1:'AI Game Generator', aluneC1d:'AI creates games adapted to your group in 10 seconds!',
+            aluneTag2:'BLOG', aluneC2:'5 games for back-to-school', aluneC2d:'The best games to break the ice with your new groups.',
+            aluneTag3:'VIDEO', aluneC3:'PE video tutorials', aluneC3d:'Visual demonstrations for every game and unit.',
+            aluneTag4:'COMING SOON', aluneC4:'Mobile App', aluneC4d:'Access everything from your phone, even in the gym!',
+            aluneCta:'Want access to all this and more?',
+            aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> Become a free member',
         },
         zh: {
             navJeux:'游戏', navRes:'资源', navGen:'生成器', navAvis:'评价',
@@ -2912,11 +3152,13 @@
             copyright:'© 2026 Zone Total Sport. 版权所有。', madeWith:'用 💛 在魁北克制作',
             visitLabel:'访客：',
             subTitle:'成为VIP会员！', subDesc:'解锁Zone的所有内容！',
-            subPerk1:'<span class="text-2xl">⚽</span><span class="font-baloo text-sm text-dark"><strong>+500游戏</strong>附详细说明</span>',
-            subPerk2:'<span class="text-2xl">📋</span><span class="font-baloo text-sm text-dark"><strong>完整教学单元</strong>对齐课标</span>',
-            subPerk3:'<span class="text-2xl">🧰</span><span class="font-baloo text-sm text-dark"><strong>独家工具</strong>课堂管理</span>',
-            subPerk4:'<span class="text-2xl">🆕</span><span class="font-baloo text-sm text-dark"><strong>每周更新</strong></span>',
-            subBtn:'<i data-lucide="crown" class="w-5 h-5"></i> 我要订阅！', subLater:'不了，以后再说',
+            subPerk1:'详细说明、规则和变体',
+            subPerk2:'10秒创建定制游戏',
+            subPerk3:'学习情境和课堂管理',
+            subPerk4:'无需订阅，无需信用卡',
+            subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> 免费加入Zone！', subLater:'不了，以后再说',
+            subPerkT1:'+500体育游戏', subPerkT2:'AI生成器', subPerkT3:'教学单元+工具', subPerkT4:'100%免费',
+            subSocial:'2295名教师在使用Zone！',
             iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> 新功能',
             iaTitle:'体育教育的未来<br><span style="color:#FF2A7A">已经到来！</span>',
             iaSub:'人工智能登陆Zone。准备好了吗！',
@@ -2947,6 +3189,15 @@
             gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> 免费注册',
             gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> 不注册继续',
             gateFooter:'无需订阅。免费访问，无承诺。',
+            aluneTag:'<i data-lucide="flame" class="w-4 h-4"></i> 热门',
+            aluneTitle:'Zone<br><span class="gradient-text">有什么新内容？</span>',
+            aluneSub:'最新功能、工具和体育教学内容。',
+            aluneTag1:'新功能', aluneC1:'AI游戏生成器', aluneC1d:'AI在10秒内创建适合你班级的游戏！',
+            aluneTag2:'博客', aluneC2:'开学5个游戏', aluneC2d:'与新班级破冰的最佳游戏。',
+            aluneTag3:'视频', aluneC3:'体育教学视频', aluneC3d:'每个游戏和教学单元的视觉演示。',
+            aluneTag4:'即将推出', aluneC4:'移动应用', aluneC4d:'随时随地访问所有内容，即使在体育馆！',
+            aluneCta:'想要访问所有这些和更多？',
+            aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> 免费成为会员',
         }
     };
 
