@@ -339,6 +339,294 @@
         }
         .subscribe-close:hover { transform: scale(1.15) rotate(5deg); }
 
+        /* ========== TEASER IA SECTION ========== */
+        .ia-teaser-wrap {
+            background: #00E5FF;
+            position: relative;
+            overflow: hidden;
+        }
+        .ia-teaser-card {
+            background: #fff;
+            border: 6px solid #18181b;
+            border-radius: 24px;
+            box-shadow: 10px 10px 0 #18181b;
+            padding: 40px 32px;
+            text-align: center;
+            transform: rotate(-1deg);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: visible;
+        }
+        .ia-teaser-card:hover {
+            transform: rotate(0deg) scale(1.03);
+            box-shadow: 14px 14px 0 #18181b;
+        }
+        .ia-teaser-sticker {
+            position: absolute;
+            top: -18px; right: -12px;
+            background: #FF2A7A;
+            color: #fff;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 3px solid #18181b;
+            box-shadow: 3px 3px 0 #18181b;
+            transform: rotate(8deg);
+            z-index: 5;
+        }
+        .ia-teaser-emoji {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 16px;
+            filter: drop-shadow(3px 3px 0 rgba(0,0,0,0.15));
+        }
+
+        /* ========== POPUP IA (Style Zone/YOUHOU) ========== */
+        .ia-popup-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75);
+            z-index: 9985;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .ia-popup-overlay.show { display: flex; }
+        .ia-popup-box {
+            background: #FFD700;
+            border: 7px solid #18181b;
+            border-radius: 28px;
+            box-shadow: 16px 16px 0 #18181b;
+            max-width: 520px;
+            width: 100%;
+            overflow: visible;
+            position: relative;
+            transform: rotate(-1.5deg);
+        }
+        .ia-popup-header {
+            background: #18181b;
+            padding: 24px 28px;
+            text-align: center;
+            border-radius: 21px 21px 0 0;
+            border-bottom: 5px solid #FFD700;
+            position: relative;
+        }
+        .ia-popup-crown {
+            position: absolute;
+            top: -35px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 3rem;
+            filter: drop-shadow(3px 3px 0 rgba(0,0,0,0.3));
+        }
+        .ia-popup-body {
+            padding: 28px;
+        }
+        .ia-popup-perk {
+            background: #fff;
+            border: 3px solid #18181b;
+            border-radius: 16px;
+            padding: 14px 18px;
+            box-shadow: 5px 5px 0 #18181b;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+            transform: rotate(0.6deg);
+            transition: transform 0.15s;
+        }
+        .ia-popup-perk:nth-child(even) { transform: rotate(-0.6deg); }
+        .ia-popup-perk:hover { transform: scale(1.04) rotate(0deg); }
+        .ia-popup-perk-emoji {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+        .ia-popup-btn-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 18px;
+            border-radius: 16px;
+            border: 4px solid #18181b;
+            background: #FF2A7A;
+            color: #fff;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.3rem;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            box-shadow: 6px 6px 0 #18181b;
+            transition: all 0.15s;
+            text-decoration: none;
+            margin-bottom: 14px;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+        }
+        .ia-popup-btn-cta:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 9px 9px 0 #18181b;
+        }
+        .ia-popup-dismiss {
+            display: block;
+            margin: 0 auto;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.95rem;
+            color: rgba(0,0,0,0.3);
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .ia-popup-dismiss:hover { color: rgba(0,0,0,0.6); }
+        .ia-popup-close {
+            position: absolute;
+            top: -16px; right: -16px;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: #EF4444;
+            border: 3px solid #18181b;
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.2rem;
+            z-index: 10;
+            box-shadow: 3px 3px 0 #18181b;
+            transition: transform 0.1s;
+        }
+        .ia-popup-close:hover { transform: scale(1.15) rotate(8deg); }
+        .ia-popup-sparkles {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes iaFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(5deg); }
+        }
+        @media (max-width: 768px) {
+            .ia-popup-box { border-radius: 20px; border-width: 5px; box-shadow: 10px 10px 0 #18181b; }
+            .ia-popup-header { padding: 20px; }
+            .ia-popup-body { padding: 20px; }
+            .ia-teaser-card { padding: 28px 20px; }
+        }
+
+        /* ========== GATE POPUP (Inscription) ========== */
+        .gate-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 9988;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .gate-overlay.show { display: flex; }
+        .gate-box {
+            background: #fff;
+            border: 6px solid #18181b;
+            border-radius: 24px;
+            box-shadow: 14px 14px 0 #18181b;
+            max-width: 480px;
+            width: 100%;
+            overflow: visible;
+            position: relative;
+            transform: rotate(0.8deg);
+        }
+        .gate-header {
+            background: linear-gradient(135deg, #00E5FF, #0099CC);
+            padding: 28px 28px 22px;
+            text-align: center;
+            border-radius: 18px 18px 0 0;
+            border-bottom: 5px solid #18181b;
+            position: relative;
+        }
+        .gate-body {
+            padding: 24px 28px 28px;
+            text-align: center;
+        }
+        .gate-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            padding: 10px 14px;
+            background: #f8f8f8;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: transform 0.15s;
+        }
+        .gate-feature:hover { transform: translateX(3px); }
+        .gate-btn-main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: 4px solid #18181b;
+            background: #FFD700;
+            color: #18181b;
+            font-family: 'Boogaloo', cursive;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 6px 6px 0 #18181b;
+            transition: all 0.15s;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+        .gate-btn-main:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 9px 9px 0 #18181b;
+            background: #FFE44D;
+        }
+        .gate-btn-secondary {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            border: 3px solid #18181b;
+            background: #fff;
+            color: #18181b;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.05rem;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #18181b;
+            transition: all 0.15s;
+            text-decoration: none;
+            margin-bottom: 12px;
+        }
+        .gate-btn-secondary:hover {
+            background: #f0f0f0;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #18181b;
+        }
+        .gate-close {
+            position: absolute;
+            top: -14px; right: -14px;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: #EF4444;
+            border: 3px solid #18181b;
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.1rem;
+            z-index: 10;
+            box-shadow: 3px 3px 0 #18181b;
+            transition: transform 0.1s;
+        }
+        .gate-close:hover { transform: scale(1.15) rotate(5deg); }
+        @media (max-width: 768px) {
+            .gate-box { border-width: 5px; box-shadow: 10px 10px 0 #18181b; }
+        }
+
         /* ========== VISIT COUNTER ========== */
         .visit-counter {
             display: inline-flex; align-items: center; gap: 8px;
@@ -951,7 +1239,51 @@
         </div>
     </section>
 
-    <!-- Wave: White → Violet -->
+    <!-- Wave: White → Cyan (Teaser IA) -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,25 C360,60 720,0 1080,40 C1260,55 1440,15 1440,15 L1440,70 L0,70 Z" fill="#00E5FF"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 8.5: TEASER GÉNÉRATEUR IA (Cyan) ========== -->
+    <section class="ia-teaser-wrap py-24 px-6 md:px-10">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-14">
+                <div class="section-tag bg-white/20 text-dark mb-4 reveal mx-auto w-fit" style="border:3px solid #18181b;box-shadow:3px 3px 0 #18181b;background:#FFD700">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> <span data-i18n="iaTag">NOUVEAUTÉ</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="iaTitle">
+                    Le futur de l'ÉPS<br>
+                    <span style="color:#FF2A7A">est arrivé!</span>
+                </h2>
+                <p class="text-dark/60 font-baloo text-lg max-w-xl mx-auto reveal" data-i18n="iaSub">
+                    L'intelligence artificielle débarque dans la Zone. Prépare-toi!
+                </p>
+            </div>
+
+            <div class="ia-teaser-card reveal" onclick="openIaPopup()" id="iaTeaser">
+                <div class="ia-teaser-sticker" data-i18n="iaBadge">YOUHOU!</div>
+                <div class="ia-teaser-emoji">🤖</div>
+                <h3 class="font-bangers text-2xl md:text-3xl text-dark tracking-wide mb-3" data-i18n="iaCardTitle">Générateur de Jeux IA</h3>
+                <p class="text-dark/60 font-baloo text-base mb-6 max-w-md mx-auto" data-i18n="iaCardDesc">
+                    Décris ton contexte, ton groupe et tes objectifs — l'IA crée un jeu sur mesure en quelques secondes. C'est magique!
+                </p>
+                <div class="magnetic-wrap inline-block">
+                    <button class="btn-primary btn-pink magnetic-btn" onclick="openIaPopup()" data-i18n="iaCardBtn">
+                        <i data-lucide="zap" class="w-5 h-5"></i> Découvrir le Générateur IA
+                    </button>
+                </div>
+                <!-- Floating emojis decoration -->
+                <div style="position:absolute;top:12px;left:16px;font-size:1.8rem;opacity:0.15;transform:rotate(-15deg);pointer-events:none">⚽</div>
+                <div style="position:absolute;bottom:12px;right:16px;font-size:1.8rem;opacity:0.15;transform:rotate(10deg);pointer-events:none">🏀</div>
+                <div style="position:absolute;top:50%;left:-8px;font-size:1.3rem;opacity:0.12;transform:rotate(-25deg);pointer-events:none">🎾</div>
+                <div style="position:absolute;top:30%;right:8px;font-size:1.3rem;opacity:0.12;transform:rotate(20deg);pointer-events:none">🏐</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: Cyan → Violet -->
     <div class="wave-divider">
         <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
             <path d="M0,35 C360,70 720,0 1080,35 C1260,55 1440,20 1440,20 L1440,70 L0,70 Z" fill="#8B5CF6"/>
@@ -1124,6 +1456,134 @@
                     <i data-lucide="crown" class="w-5 h-5"></i> JE M'ABONNE!
                 </a>
                 <button onclick="closeSubscribe()" class="mt-4 font-baloo text-sm text-dark/30 hover:text-dark/50 transition-colors cursor-pointer bg-transparent border-none" data-i18n="subLater">Non merci, plus tard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== POPUP GÉNÉRATEUR IA (Style Zone/YOUHOU) ========== -->
+    <div class="ia-popup-overlay" id="iaPopupOverlay">
+        <div class="ia-popup-box" id="iaPopupBox">
+            <button onclick="closeIaPopup()" class="ia-popup-close">X</button>
+
+            <!-- Floating emojis around box -->
+            <div class="ia-popup-sparkles" style="top:-30px;left:-20px;font-size:2rem;animation:iaFloat 2s ease-in-out infinite">⚡</div>
+            <div class="ia-popup-sparkles" style="top:40%;right:-25px;font-size:1.8rem;animation:iaFloat 2.5s ease-in-out infinite 0.3s">🏀</div>
+            <div class="ia-popup-sparkles" style="bottom:-20px;left:30px;font-size:1.6rem;animation:iaFloat 2.2s ease-in-out infinite 0.6s">⚽</div>
+            <div class="ia-popup-sparkles" style="top:20%;left:-18px;font-size:1.4rem;animation:iaFloat 2.8s ease-in-out infinite 0.9s">🎾</div>
+
+            <!-- Header noir avec gradient -->
+            <div class="ia-popup-header" style="background:linear-gradient(135deg,#18181b 0%,#2d1b4e 100%);border-bottom:5px solid #00E5FF">
+                <div style="font-size:3.5rem;margin-bottom:8px;filter:drop-shadow(3px 3px 0 rgba(0,0,0,0.4))">🤖</div>
+                <h2 style="font-family:'Boogaloo',cursive;font-size:2.2rem;color:#00E5FF;letter-spacing:0.03em;margin:0;text-shadow:2px 2px 0 rgba(0,229,255,0.3)" data-i18n="iaPopupTitle">GÉNÉRATEUR DE JEUX IA</h2>
+                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.7);font-size:1.05rem;margin-top:6px" data-i18n="iaPopupDesc">Le futur de la planification en ÉPS!</p>
+
+                <!-- Stats band -->
+                <div style="display:flex;gap:0;margin-top:16px;background:rgba(255,255,255,0.08);border-radius:14px;overflow:hidden;border:2px solid rgba(255,255,255,0.1)">
+                    <div style="flex:1;padding:10px 8px;text-align:center;border-right:1px solid rgba(255,255,255,0.08)">
+                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#FFD700" data-i18n="iaStat1Num">10 sec</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.7rem;color:rgba(255,255,255,0.5)" data-i18n="iaStat1Label">par jeu</div>
+                    </div>
+                    <div style="flex:1;padding:10px 8px;text-align:center;border-right:1px solid rgba(255,255,255,0.08)">
+                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#FF2A7A" data-i18n="iaStat2Num">500+</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.7rem;color:rgba(255,255,255,0.5)" data-i18n="iaStat2Label">profs actifs</div>
+                    </div>
+                    <div style="flex:1;padding:10px 8px;text-align:center">
+                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#8B5CF6" data-i18n="iaStat3Num">100%</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.7rem;color:rgba(255,255,255,0.5)" data-i18n="iaStat3Label">gratuit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body jaune -->
+            <div class="ia-popup-body">
+                <!-- Tagline -->
+                <p style="font-family:'Boogaloo',cursive;font-size:1.2rem;color:#18181b;text-align:center;margin-bottom:18px;opacity:0.8" data-i18n="iaPopupTagline">Plus jamais en panne d'idées!</p>
+
+                <div class="flex flex-col gap-0">
+                    <div class="ia-popup-perk">
+                        <span class="ia-popup-perk-emoji">🧠</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="iaPerk1"><strong style="color:#FF2A7A">IA intelligente</strong> — Crée des jeux adaptés à TON groupe, ton gymnase et tes objectifs</span>
+                    </div>
+                    <div class="ia-popup-perk">
+                        <span class="ia-popup-perk-emoji">⚡</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="iaPerk2"><strong style="color:#8B5CF6">En 10 secondes</strong> — Un jeu complet avec règles, variantes et matériel</span>
+                    </div>
+                    <div class="ia-popup-perk">
+                        <span class="ia-popup-perk-emoji">🎯</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="iaPerk3"><strong style="color:#00B4D8">Aligné PFEQ</strong> — Respecte les compétences du programme québécois</span>
+                    </div>
+                    <div class="ia-popup-perk">
+                        <span class="ia-popup-perk-emoji">🏆</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="iaPerk4"><strong style="color:#FF8C00">Rejoins 500+ profs</strong> — qui utilisent déjà la Zone chaque semaine!</span>
+                    </div>
+                </div>
+
+                <!-- Social proof -->
+                <div style="background:#fff;border:3px solid #18181b;border-radius:14px;padding:12px 16px;margin-bottom:18px;box-shadow:4px 4px 0 #18181b;display:flex;align-items:center;gap:12px">
+                    <div style="display:flex;flex-shrink:0">
+                        <div style="width:32px;height:32px;border-radius:50%;background:#00E5FF;border:2px solid #18181b;display:flex;align-items:center;justify-content:center;font-size:0.8rem;margin-right:-10px;z-index:3">MC</div>
+                        <div style="width:32px;height:32px;border-radius:50%;background:#FF2A7A;border:2px solid #18181b;display:flex;align-items:center;justify-content:center;font-size:0.8rem;color:#fff;margin-right:-10px;z-index:2">JR</div>
+                        <div style="width:32px;height:32px;border-radius:50%;background:#FFD700;border:2px solid #18181b;display:flex;align-items:center;justify-content:center;font-size:0.8rem;z-index:1">SL</div>
+                    </div>
+                    <p style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:#18181b;margin:0;line-height:1.3" data-i18n="iaSocialProof"><strong>Marie-Claude</strong> et <strong>47 autres profs</strong> ont généré un jeu cette semaine!</p>
+                </div>
+
+                <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="ia-popup-btn-cta" style="background:linear-gradient(135deg,#FF2A7A,#FF6B35);font-family:'Boogaloo',cursive;font-size:1.4rem;letter-spacing:0.04em" data-i18n="iaPopupBtn">
+                    <i data-lucide="sparkles" class="w-6 h-6"></i> JE M'INSCRIS GRATUITEMENT!
+                </a>
+
+                <!-- Guarantee -->
+                <div style="text-align:center;margin-bottom:10px">
+                    <span style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(0,0,0,0.4)" data-i18n="iaGuarantee">Aucune carte de crédit requise. C'est vraiment gratuit.</span>
+                </div>
+
+                <button onclick="closeIaPopup()" class="ia-popup-dismiss" data-i18n="iaPopupLater">Je regarderai plus tard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== GATE POPUP (Inscription pour accès complet) ========== -->
+    <div class="gate-overlay" id="gateOverlay">
+        <div class="gate-box" id="gateBox">
+            <button onclick="closeGatePopup()" class="gate-close">X</button>
+
+            <!-- Header cyan -->
+            <div class="gate-header">
+                <div style="font-size:3rem;margin-bottom:8px;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.2))">🔓</div>
+                <h2 style="font-family:'Boogaloo',cursive;font-size:1.9rem;color:#fff;margin:0;text-shadow:2px 2px 0 rgba(0,0,0,0.15)" data-i18n="gateTitle">Accède à TOUT le contenu!</h2>
+                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.85);font-size:1rem;margin-top:4px" data-i18n="gateDesc">Inscris-toi gratuitement pour débloquer la Zone au complet.</p>
+            </div>
+
+            <!-- Body -->
+            <div class="gate-body">
+                <div style="margin-bottom:18px">
+                    <div class="gate-feature">
+                        <span style="font-size:1.5rem">🎮</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="gateFeat1"><strong>+500 jeux</strong> avec fiches et règles complètes</span>
+                    </div>
+                    <div class="gate-feature">
+                        <span style="font-size:1.5rem">🤖</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="gateFeat2"><strong>Générateur IA</strong> — crée des jeux en 10 secondes</span>
+                    </div>
+                    <div class="gate-feature">
+                        <span style="font-size:1.5rem">📋</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="gateFeat3"><strong>SAÉ complètes</strong> prêtes à utiliser demain</span>
+                    </div>
+                    <div class="gate-feature">
+                        <span style="font-size:1.5rem">🆓</span>
+                        <span class="font-baloo text-sm text-dark" data-i18n="gateFeat4"><strong>100% gratuit</strong> — sans carte de crédit ni abonnement</span>
+                    </div>
+                </div>
+
+                <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="gate-btn-main" data-i18n="gateBtn">
+                    <i data-lucide="user-plus" class="w-6 h-6"></i> INSCRIPTION GRATUITE
+                </a>
+
+                <a id="gateContinueLink" href="#" target="_blank" class="gate-btn-secondary" data-i18n="gateContinue">
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i> Continuer sans inscription
+                </a>
+
+                <p style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(0,0,0,0.3);margin:0" data-i18n="gateFooter">Aucun abonnement requis. Accès gratuit et sans engagement.</p>
             </div>
         </div>
     </div>
@@ -2042,6 +2502,93 @@
         if (pct > 0.6) { showSubscribe(); window.removeEventListener('scroll', onScrollSub); }
     });
 
+    // IA POPUP (Style Zone / YOUHOU)
+    function openIaPopup() {
+        const overlay = document.getElementById('iaPopupOverlay');
+        const box = document.getElementById('iaPopupBox');
+        overlay.classList.add('show');
+        // Animate in with GSAP
+        gsap.fromTo(overlay, { backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'rgba(0,0,0,0.75)', duration: 0.3 });
+        gsap.fromTo(box,
+            { scale: 0.5, rotation: -8, opacity: 0, y: 60 },
+            { scale: 1, rotation: -1.5, opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.7)' }
+        );
+        // Animate perks stagger
+        gsap.fromTo('.ia-popup-perk',
+            { x: -30, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.35, stagger: 0.08, delay: 0.3, ease: 'power2.out' }
+        );
+        // Crown bounce
+        gsap.fromTo('.ia-popup-crown',
+            { y: -60, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.6, delay: 0.2, ease: 'bounce.out' }
+        );
+        lucide.createIcons();
+    }
+    function closeIaPopup() {
+        const overlay = document.getElementById('iaPopupOverlay');
+        const box = document.getElementById('iaPopupBox');
+        gsap.to(box, { scale: 0.7, opacity: 0, y: 40, rotation: 3, duration: 0.25, ease: 'power2.in' });
+        gsap.to(overlay, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.3, delay: 0.1, onComplete: () => overlay.classList.remove('show') });
+    }
+    window.openIaPopup = openIaPopup;
+    window.closeIaPopup = closeIaPopup;
+
+    // GATE POPUP — intercept links to encourage registration
+    function openGatePopup(destinationUrl) {
+        const overlay = document.getElementById('gateOverlay');
+        const box = document.getElementById('gateBox');
+        // Set the "continue" link
+        const continueLink = document.getElementById('gateContinueLink');
+        if (destinationUrl && destinationUrl !== '#') {
+            continueLink.href = destinationUrl;
+            continueLink.style.display = 'flex';
+        } else {
+            continueLink.style.display = 'none';
+        }
+        overlay.classList.add('show');
+        gsap.fromTo(overlay, { backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'rgba(0,0,0,0.8)', duration: 0.3 });
+        gsap.fromTo(box,
+            { scale: 0.5, rotation: -5, opacity: 0, y: 50 },
+            { scale: 1, rotation: 0.8, opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.7)' }
+        );
+        gsap.fromTo('.gate-feature',
+            { x: -20, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.3, stagger: 0.07, delay: 0.25, ease: 'power2.out' }
+        );
+        lucide.createIcons();
+    }
+    function closeGatePopup() {
+        const overlay = document.getElementById('gateOverlay');
+        const box = document.getElementById('gateBox');
+        gsap.to(box, { scale: 0.8, opacity: 0, y: 30, duration: 0.2, ease: 'power2.in' });
+        gsap.to(overlay, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.25, delay: 0.1, onComplete: () => overlay.classList.remove('show') });
+    }
+    window.openGatePopup = openGatePopup;
+    window.closeGatePopup = closeGatePopup;
+
+    // Attach gate popup to service card links & footer nav links
+    document.addEventListener('DOMContentLoaded', function() {
+        // Service card action links (Explorer, Découvrir, Lire, Organiser)
+        const gatedSelectors = [
+            '[data-i18n="card1a"]', '[data-i18n="card2a"]',
+            '[data-i18n="card3a"]', '[data-i18n="card4a"]',
+            '[data-i18n="fAccueil"]', '[data-i18n="fSae"]',
+            '[data-i18n="fBlogue"]', '[data-i18n="fContact"]',
+            '[data-i18n="fPrivacy"]', '[data-i18n="fTerms"]'
+        ];
+        gatedSelectors.forEach(sel => {
+            document.querySelectorAll(sel).forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('href');
+                    const realUrl = (url && url !== '#') ? url : 'https://www.zonetotalsport.ca';
+                    openGatePopup(realUrl);
+                });
+            });
+        });
+    });
+
     </script>
 
     <!-- ========== i18n FULL TRANSLATION SYSTEM ========== -->
@@ -2126,6 +2673,38 @@
         ['[data-i18n="subPerk3"]', 'subPerk3'], ['[data-i18n="subPerk4"]', 'subPerk4'],
         ['[data-i18n="subBtn"]', 'subBtn'],
         ['[data-i18n="subLater"]', 'subLater'],
+        // IA Teaser + Popup
+        ['[data-i18n="iaTag"]', 'iaTag'],
+        ['[data-i18n="iaTitle"]', 'iaTitle'],
+        ['[data-i18n="iaSub"]', 'iaSub'],
+        ['[data-i18n="iaBadge"]', 'iaBadge'],
+        ['[data-i18n="iaCardTitle"]', 'iaCardTitle'],
+        ['[data-i18n="iaCardDesc"]', 'iaCardDesc'],
+        ['[data-i18n="iaCardBtn"]', 'iaCardBtn'],
+        ['[data-i18n="iaPopupTitle"]', 'iaPopupTitle'],
+        ['[data-i18n="iaPopupDesc"]', 'iaPopupDesc'],
+        ['[data-i18n="iaPerk1"]', 'iaPerk1'],
+        ['[data-i18n="iaPerk2"]', 'iaPerk2'],
+        ['[data-i18n="iaPerk3"]', 'iaPerk3'],
+        ['[data-i18n="iaPerk4"]', 'iaPerk4'],
+        ['[data-i18n="iaPopupBtn"]', 'iaPopupBtn'],
+        ['[data-i18n="iaPopupLater"]', 'iaPopupLater'],
+        ['[data-i18n="iaPopupTagline"]', 'iaPopupTagline'],
+        ['[data-i18n="iaStat1Num"]', 'iaStat1Num'], ['[data-i18n="iaStat1Label"]', 'iaStat1Label'],
+        ['[data-i18n="iaStat2Num"]', 'iaStat2Num'], ['[data-i18n="iaStat2Label"]', 'iaStat2Label'],
+        ['[data-i18n="iaStat3Num"]', 'iaStat3Num'], ['[data-i18n="iaStat3Label"]', 'iaStat3Label'],
+        ['[data-i18n="iaSocialProof"]', 'iaSocialProof'],
+        ['[data-i18n="iaGuarantee"]', 'iaGuarantee'],
+        // Gate popup
+        ['[data-i18n="gateTitle"]', 'gateTitle'],
+        ['[data-i18n="gateDesc"]', 'gateDesc'],
+        ['[data-i18n="gateFeat1"]', 'gateFeat1'],
+        ['[data-i18n="gateFeat2"]', 'gateFeat2'],
+        ['[data-i18n="gateFeat3"]', 'gateFeat3'],
+        ['[data-i18n="gateFeat4"]', 'gateFeat4'],
+        ['[data-i18n="gateBtn"]', 'gateBtn'],
+        ['[data-i18n="gateContinue"]', 'gateContinue'],
+        ['[data-i18n="gateFooter"]', 'gateFooter'],
     ];
 
     const i18n = {
@@ -2178,6 +2757,36 @@
             subPerk3:'<span class="text-2xl">🧰</span><span class="font-baloo text-sm text-dark"><strong>Outils exclusifs</strong> de gestion de classe</span>',
             subPerk4:'<span class="text-2xl">🆕</span><span class="font-baloo text-sm text-dark"><strong>Nouveautés</strong> chaque semaine</span>',
             subBtn:'<i data-lucide="crown" class="w-5 h-5"></i> JE M\'ABONNE!', subLater:'Non merci, plus tard',
+            iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NOUVEAUTÉ',
+            iaTitle:'Le futur de l\'ÉPS<br><span style="color:#FF2A7A">est arrivé!</span>',
+            iaSub:'L\'intelligence artificielle débarque dans la Zone. Prépare-toi!',
+            iaBadge:'YOUHOU!',
+            iaCardTitle:'Générateur de Jeux IA',
+            iaCardDesc:'Décris ton contexte, ton groupe et tes objectifs — l\'IA crée un jeu sur mesure en quelques secondes. C\'est magique!',
+            iaCardBtn:'<i data-lucide="zap" class="w-5 h-5"></i> Découvrir le Générateur IA',
+            iaPopupTitle:'GÉNÉRATEUR DE JEUX IA',
+            iaPopupDesc:'Le futur de la planification en ÉPS!',
+            iaPerk1:'<strong>IA intelligente</strong> — Crée des jeux adaptés à TON groupe, ton gymnase et tes objectifs',
+            iaPerk2:'<strong>En 10 secondes</strong> — Un jeu complet avec règles, variantes et matériel nécessaire',
+            iaPerk3:'<strong>Aligné PFEQ</strong> — Chaque jeu respecte les compétences du programme québécois',
+            iaPerk4:'<strong>Illimité & gratuit</strong> — Génère autant de jeux que tu veux, sans limite!',
+            iaPopupBtn:'<i data-lucide="sparkles" class="w-6 h-6"></i> JE M\'INSCRIS GRATUITEMENT!',
+            iaPopupLater:'Je regarderai plus tard',
+            iaPopupTagline:'Plus jamais en panne d\'idées!',
+            iaStat1Num:'10 sec', iaStat1Label:'par jeu',
+            iaStat2Num:'500+', iaStat2Label:'profs actifs',
+            iaStat3Num:'100%', iaStat3Label:'gratuit',
+            iaSocialProof:'<strong>Marie-Claude</strong> et <strong>47 autres profs</strong> ont généré un jeu cette semaine!',
+            iaGuarantee:'Aucune carte de crédit requise. C\'est vraiment gratuit.',
+            gateTitle:'Accède à TOUT le contenu!',
+            gateDesc:'Inscris-toi gratuitement pour débloquer la Zone au complet.',
+            gateFeat1:'<strong>+500 jeux</strong> avec fiches et règles complètes',
+            gateFeat2:'<strong>Générateur IA</strong> — crée des jeux en 10 secondes',
+            gateFeat3:'<strong>SAÉ complètes</strong> prêtes à utiliser demain',
+            gateFeat4:'<strong>100% gratuit</strong> — sans carte de crédit ni abonnement',
+            gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> INSCRIPTION GRATUITE',
+            gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> Continuer sans inscription',
+            gateFooter:'Aucun abonnement requis. Accès gratuit et sans engagement.',
         },
         en: {
             navJeux:'Games', navRes:'Resources', navGen:'Generator', navAvis:'Reviews',
@@ -2228,6 +2837,36 @@
             subPerk3:'<span class="text-2xl">🧰</span><span class="font-baloo text-sm text-dark"><strong>Exclusive tools</strong> for class management</span>',
             subPerk4:'<span class="text-2xl">🆕</span><span class="font-baloo text-sm text-dark"><strong>New content</strong> every week</span>',
             subBtn:'<i data-lucide="crown" class="w-5 h-5"></i> SUBSCRIBE!', subLater:'No thanks, maybe later',
+            iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NEW FEATURE',
+            iaTitle:'The future of PE<br><span style="color:#FF2A7A">is here!</span>',
+            iaSub:'Artificial intelligence arrives in the Zone. Get ready!',
+            iaBadge:'WOOHOO!',
+            iaCardTitle:'AI Game Generator',
+            iaCardDesc:'Describe your context, group and goals — AI creates a custom game in seconds. It\'s magic!',
+            iaCardBtn:'<i data-lucide="zap" class="w-5 h-5"></i> Discover the AI Generator',
+            iaPopupTitle:'AI GAME GENERATOR',
+            iaPopupDesc:'The future of PE planning!',
+            iaPerk1:'<strong>Smart AI</strong> — Creates games adapted to YOUR group, gym and objectives',
+            iaPerk2:'<strong>In 10 seconds</strong> — A complete game with rules, variations and required equipment',
+            iaPerk3:'<strong>Curriculum-aligned</strong> — Every game respects Quebec\'s curriculum competencies',
+            iaPerk4:'<strong>Unlimited & free</strong> — Generate as many games as you want, no limits!',
+            iaPopupBtn:'<i data-lucide="sparkles" class="w-6 h-6"></i> SIGN UP FOR FREE!',
+            iaPopupLater:'I\'ll check it out later',
+            iaPopupTagline:'Never run out of ideas again!',
+            iaStat1Num:'10 sec', iaStat1Label:'per game',
+            iaStat2Num:'500+', iaStat2Label:'active teachers',
+            iaStat3Num:'100%', iaStat3Label:'free',
+            iaSocialProof:'<strong>Marie-Claude</strong> and <strong>47 other teachers</strong> generated a game this week!',
+            iaGuarantee:'No credit card required. It\'s truly free.',
+            gateTitle:'Access ALL the content!',
+            gateDesc:'Sign up for free to unlock the full Zone.',
+            gateFeat1:'<strong>+500 games</strong> with detailed rules and sheets',
+            gateFeat2:'<strong>AI Generator</strong> — creates games in 10 seconds',
+            gateFeat3:'<strong>Full units</strong> ready to use tomorrow',
+            gateFeat4:'<strong>100% free</strong> — no credit card, no subscription',
+            gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> FREE SIGN UP',
+            gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> Continue without signing up',
+            gateFooter:'No subscription required. Free access, no commitment.',
         },
         zh: {
             navJeux:'游戏', navRes:'资源', navGen:'生成器', navAvis:'评价',
@@ -2278,6 +2917,36 @@
             subPerk3:'<span class="text-2xl">🧰</span><span class="font-baloo text-sm text-dark"><strong>独家工具</strong>课堂管理</span>',
             subPerk4:'<span class="text-2xl">🆕</span><span class="font-baloo text-sm text-dark"><strong>每周更新</strong></span>',
             subBtn:'<i data-lucide="crown" class="w-5 h-5"></i> 我要订阅！', subLater:'不了，以后再说',
+            iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> 新功能',
+            iaTitle:'体育教育的未来<br><span style="color:#FF2A7A">已经到来！</span>',
+            iaSub:'人工智能登陆Zone。准备好了吗！',
+            iaBadge:'太棒了！',
+            iaCardTitle:'AI游戏生成器',
+            iaCardDesc:'描述你的情境、班级和目标——AI在几秒钟内创建定制游戏。太神奇了！',
+            iaCardBtn:'<i data-lucide="zap" class="w-5 h-5"></i> 发现AI生成器',
+            iaPopupTitle:'AI游戏生成器',
+            iaPopupDesc:'体育教学规划的未来！',
+            iaPerk1:'<strong>智能AI</strong> — 创建适合你的班级、体育馆和目标的游戏',
+            iaPerk2:'<strong>10秒内</strong> — 包含规则、变体和所需器材的完整游戏',
+            iaPerk3:'<strong>对齐课标</strong> — 每个游戏都符合魁北克课程标准',
+            iaPerk4:'<strong>无限免费</strong> — 想生成多少游戏就生成多少，没有限制！',
+            iaPopupBtn:'<i data-lucide="sparkles" class="w-6 h-6"></i> 免费注册！',
+            iaPopupLater:'以后再看',
+            iaPopupTagline:'再也不会缺少创意！',
+            iaStat1Num:'10秒', iaStat1Label:'每个游戏',
+            iaStat2Num:'500+', iaStat2Label:'活跃教师',
+            iaStat3Num:'100%', iaStat3Label:'免费',
+            iaSocialProof:'<strong>Marie-Claude</strong>和<strong>47位其他教师</strong>本周生成了游戏！',
+            iaGuarantee:'无需信用卡。真正免费。',
+            gateTitle:'访问所有内容！',
+            gateDesc:'免费注册，解锁完整Zone。',
+            gateFeat1:'<strong>+500个游戏</strong>附详细规则和说明',
+            gateFeat2:'<strong>AI生成器</strong> — 10秒创建游戏',
+            gateFeat3:'<strong>完整教学单元</strong>明天就能用',
+            gateFeat4:'<strong>100%免费</strong> — 无需信用卡，无需订阅',
+            gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> 免费注册',
+            gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> 不注册继续',
+            gateFooter:'无需订阅。免费访问，无承诺。',
         }
     };
 
