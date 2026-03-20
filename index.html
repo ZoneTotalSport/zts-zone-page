@@ -9,7 +9,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -28,6 +28,7 @@
                         bangers: ['"Luckiest Guy"', 'cursive'],
                         boogaloo: ['Boogaloo', 'cursive'],
                         baloo: ['"Patrick Hand"', 'cursive'],
+                        fredoka: ['"Fredoka One"', 'cursive'],
                     },
                 }
             }
@@ -47,6 +48,7 @@
 
         body {
             font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
             background-color: #ffffff;
             color: #1a1a2e;
             overflow-x: hidden;
@@ -152,8 +154,8 @@
         /* ========== SECTION TAG ========== */
         .section-tag {
             display: inline-flex; align-items: center; gap: 6px;
-            padding: 6px 16px; border-radius: 8px;
-            font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+            padding: 8px 18px; border-radius: 8px;
+            font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
         }
 
         /* ========== STAGGER GRID ========== */
@@ -303,116 +305,143 @@
 
         .profile-tag { border: 2px solid #18181b; padding: 8px 14px; font-weight: bold; font-size: 1rem; background: #fff; box-shadow: 3px 3px 0 #18181b; border-radius: 8px; font-family: 'Luckiest Guy', cursive; letter-spacing: 0.03em; }
 
-        /* ========== SUBSCRIBE POPUP (VIP Vivid) ========== */
+        /* ========== SUBSCRIBE POPUP (Camp de Jour Cyan) ========== */
         .subscribe-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
             z-index: 9980; display: none; align-items: center; justify-content: center; padding: 20px;
         }
         .subscribe-overlay.show { display: flex; }
         .subscribe-box {
-            background: linear-gradient(160deg, #8B5CF6 0%, #6D28D9 25%, #4C1D95 50%, #1E1B4B 100%);
-            border: 5px solid rgba(255,255,255,0.15);
-            border-radius: 28px;
-            max-width: 500px; width: 100%;
+            background: linear-gradient(160deg, #00E5FF 0%, #00B8D4 30%, #0097A7 60%, #006064 100%);
+            border: 6px solid #FFD700;
+            border-radius: 32px;
+            max-width: 540px; width: 100%;
             padding: 0; overflow: visible;
             position: relative;
-            box-shadow: 0 30px 80px rgba(139,92,246,0.4), 0 0 120px rgba(0,229,255,0.1);
+            box-shadow: 0 30px 80px rgba(0,229,255,0.35), 0 0 0 8px rgba(255,215,0,0.15);
         }
         .subscribe-header {
-            padding: 32px 28px 20px; text-align: center; position: relative;
+            padding: 36px 32px 22px; text-align: center; position: relative;
         }
         .subscribe-header::after {
-            content: ''; position: absolute; bottom: 0; left: 15%; right: 15%; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.4), transparent);
+            content: ''; position: absolute; bottom: 0; left: 10%; right: 10%; height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.6), transparent);
+            border-radius: 2px;
         }
         .subscribe-body {
-            padding: 20px 28px 32px; text-align: center;
+            padding: 22px 32px 36px; text-align: center;
         }
         .subscribe-perk {
-            background: rgba(255,255,255,0.08);
-            border: 1.5px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 14px 18px;
-            display: flex; align-items: center; gap: 14px; text-align: left;
+            background: rgba(255,255,255,0.18);
+            border: 2.5px solid rgba(255,255,255,0.25);
+            border-radius: 18px;
+            padding: 16px 20px;
+            display: flex; align-items: center; gap: 16px; text-align: left;
             transition: all 0.25s;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
         .subscribe-perk:hover {
-            background: rgba(255,255,255,0.14);
-            border-color: rgba(255,215,0,0.3);
-            transform: translateX(4px);
+            background: rgba(255,255,255,0.28);
+            border-color: #FFD700;
+            transform: translateX(6px) scale(1.02);
         }
         .subscribe-perk-icon {
-            width: 48px; height: 48px; border-radius: 14px;
+            width: 54px; height: 54px; border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0; font-size: 1.5rem;
+            flex-shrink: 0; font-size: 1.8rem;
+            background: rgba(255,255,255,0.2) !important;
+            border: 2px solid rgba(255,255,255,0.2);
         }
         .subscribe-close {
-            position: absolute; top: 16px; right: 16px; width: 36px; height: 36px;
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 50%; color: rgba(255,255,255,0.5);
+            position: absolute; top: 16px; right: 16px; width: 40px; height: 40px;
+            background: rgba(0,0,0,0.15); border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%; color: #fff;
             display: flex; align-items: center; justify-content: center; cursor: pointer;
-            font-family: 'Luckiest Guy', cursive; font-size: 0.9rem; z-index: 10;
+            font-family: 'Fredoka One', cursive; font-size: 1.1rem; z-index: 10;
             transition: all 0.2s;
         }
-        .subscribe-close:hover { background: rgba(255,255,255,0.15); color: #fff; }
+        .subscribe-close:hover { background: rgba(0,0,0,0.3); transform: rotate(90deg); }
         .sub-btn-cta {
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; padding: 18px; border-radius: 16px; border: none;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 20px; border-radius: 18px; border: 4px solid #18181b;
             background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #18181b; font-family: 'Boogaloo', cursive; font-size: 1.4rem;
+            color: #18181b; font-family: 'Fredoka One', cursive; font-size: 1.6rem;
             cursor: pointer; transition: all 0.25s; text-decoration: none;
-            box-shadow: 0 6px 30px rgba(255,215,0,0.35);
+            box-shadow: 6px 6px 0 #18181b;
             letter-spacing: 0.03em;
         }
         .sub-btn-cta:hover {
-            transform: translateY(-3px); box-shadow: 0 12px 40px rgba(255,215,0,0.5);
+            transform: translateY(-4px); box-shadow: 8px 10px 0 #18181b;
             background: linear-gradient(135deg, #FFE44D, #FFB733);
         }
         .sub-stats-band {
-            display: flex; gap: 0; margin: 16px 0 20px; background: rgba(0,0,0,0.2);
-            border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);
+            display: flex; gap: 0; margin: 18px 0 22px; background: rgba(0,0,0,0.15);
+            border-radius: 18px; overflow: hidden; border: 2px solid rgba(255,255,255,0.15);
         }
         .sub-stat {
-            flex: 1; padding: 12px 8px; text-align: center;
-            border-right: 1px solid rgba(255,255,255,0.06);
+            flex: 1; padding: 14px 8px; text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.1);
         }
         .sub-stat:last-child { border-right: none; }
         .sub-floating { position: absolute; pointer-events: none; z-index: 0; }
         @keyframes subFloat {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
+            50% { transform: translateY(-12px) rotate(8deg); }
         }
         @media (max-width: 768px) {
-            .subscribe-box { border-radius: 22px; }
-            .subscribe-header { padding: 24px 20px 16px; }
-            .subscribe-body { padding: 16px 20px 24px; }
+            .subscribe-box { border-radius: 24px; max-width: 95vw; }
+            .subscribe-header { padding: 28px 22px 18px; }
+            .subscribe-body { padding: 18px 22px 28px; }
+            .sub-btn-cta { font-size: 1.3rem; }
         }
 
         /* ========== À LA UNE SECTION ========== */
+        .alaune-scroll {
+            display: flex; gap: 24px; overflow-x: auto; padding: 10px 4px 20px;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .alaune-scroll::-webkit-scrollbar { display: none; }
         .alaune-card {
             background: #fff;
-            border: 4px solid #18181b;
-            border-radius: 20px;
-            box-shadow: 8px 8px 0 #18181b;
+            border-radius: 24px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1);
             overflow: hidden;
             transition: transform 0.25s, box-shadow 0.25s;
             cursor: pointer;
+            min-width: 300px; max-width: 320px; flex-shrink: 0;
+            scroll-snap-align: start;
         }
         .alaune-card:hover {
-            transform: translateY(-6px) rotate(-0.5deg);
-            box-shadow: 12px 16px 0 #18181b;
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.15);
         }
         .alaune-card-img {
-            width: 100%; height: 160px; object-fit: cover;
-            border-bottom: 3px solid #18181b;
+            width: 100%; height: 200px; object-fit: cover;
         }
-        .alaune-card-body { padding: 18px 20px 20px; }
-        .alaune-tag {
-            display: inline-block; font-family: 'Luckiest Guy', cursive;
-            font-size: 0.55rem; letter-spacing: 0.12em; padding: 3px 10px;
-            border-radius: 20px; border: 2px solid #18181b; margin-bottom: 10px;
+        .alaune-card-body { padding: 22px 24px 24px; }
+        .alaune-card-title {
+            font-family: 'Fredoka One', cursive; font-size: 1.35rem;
+            color: #18181b; margin-bottom: 6px; line-height: 1.2;
+        }
+        .alaune-card-date {
+            font-family: 'Patrick Hand', cursive; font-size: 0.95rem;
+            color: #999; margin-bottom: 10px;
+        }
+        .alaune-card-desc {
+            font-family: 'Patrick Hand', cursive; font-size: 1.05rem;
+            color: #555; line-height: 1.4; margin-bottom: 14px;
+        }
+        .alaune-card-link {
+            font-family: 'Fredoka One', cursive; font-size: 1.05rem;
+            color: #18181b; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+            transition: gap 0.2s;
+        }
+        .alaune-card-link:hover { gap: 12px; }
+        @media (max-width: 768px) {
+            .alaune-card { min-width: 270px; max-width: 280px; }
+            .alaune-card-img { height: 160px; }
         }
 
         /* ========== TEASER IA SECTION ========== */
@@ -1282,75 +1311,80 @@
         </div>
     </section>
 
-    <!-- ========== SECTION 7.5: À LA UNE (White) ========== -->
-    <section class="py-20 px-6 md:px-10 bg-white" id="alaune">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-14">
+    <!-- ========== SECTION 7.5: À LA UNE (Gym parallax) ========== -->
+    <section class="py-20 px-6 md:px-10" id="alaune" style="position:relative;overflow:hidden;background:#f5f5f5">
+        <div style="position:absolute;inset:0;background-image:url('gym-bg.jpg');background-size:cover;background-position:center;background-attachment:fixed;opacity:0.12;pointer-events:none;z-index:0"></div>
+        <div class="max-w-7xl mx-auto" style="position:relative;z-index:1">
+            <div class="text-center mb-12">
                 <div class="section-tag bg-pink-fuchsia/10 text-pink-fuchsia mb-4 reveal mx-auto w-fit">
-                    <i data-lucide="flame" class="w-4 h-4"></i> <span data-i18n="aluneTag">À LA UNE</span>
+                    <i data-lucide="flame" class="w-5 h-5"></i> <span data-i18n="aluneTag">À LA UNE</span>
                 </div>
-                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="aluneTitle">
+                <h2 style="font-family:'Fredoka One',cursive;font-size:clamp(2rem,5vw,3.5rem);line-height:1.1;color:#18181b" class="mb-4 reveal" data-i18n="aluneTitle">
                     Quoi de neuf<br>
                     <span class="gradient-text">dans la Zone?</span>
                 </h2>
-                <p class="text-dark/50 font-baloo text-lg max-w-xl mx-auto reveal" data-i18n="aluneSub">
+                <p class="font-baloo text-xl text-dark/50 max-w-xl mx-auto reveal" data-i18n="aluneSub">
                     Les dernières nouveautés, outils et contenus pour tes cours d'ÉPS.
                 </p>
             </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <!-- Card 1: Générateur IA -->
-                <div class="alaune-card reveal" onclick="openIaPopup()">
-                    <div style="height:160px;background:linear-gradient(135deg,#00E5FF,#0099CC);display:flex;align-items:center;justify-content:center;border-bottom:3px solid #18181b">
-                        <span style="font-size:4rem;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.15))">🤖</span>
-                    </div>
-                    <div class="alaune-card-body">
-                        <span class="alaune-tag" style="background:#00E5FF;color:#18181b" data-i18n="aluneTag1">NOUVEAU</span>
-                        <h3 class="font-bangers text-lg text-dark mb-2 tracking-wide" data-i18n="aluneC1">Générateur de Jeux IA</h3>
-                        <p class="font-baloo text-sm text-dark/50" data-i18n="aluneC1d">L'IA crée des jeux adaptés à ton groupe en 10 secondes!</p>
-                    </div>
-                </div>
-
-                <!-- Card 2: Blog -->
-                <div class="alaune-card reveal" onclick="openGatePopup('https://www.zonetotalsport.ca/blog')">
-                    <div style="height:160px;background:linear-gradient(135deg,#FF2A7A,#D61F69);display:flex;align-items:center;justify-content:center;border-bottom:3px solid #18181b">
-                        <span style="font-size:4rem;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.15))">📝</span>
-                    </div>
-                    <div class="alaune-card-body">
-                        <span class="alaune-tag" style="background:#FF2A7A;color:#fff" data-i18n="aluneTag2">BLOGUE</span>
-                        <h3 class="font-bangers text-lg text-dark mb-2 tracking-wide" data-i18n="aluneC2">5 jeux pour la rentrée</h3>
-                        <p class="font-baloo text-sm text-dark/50" data-i18n="aluneC2d">Les meilleurs jeux pour briser la glace avec tes nouveaux groupes.</p>
-                    </div>
-                </div>
-
-                <!-- Card 3: Vidéo -->
-                <div class="alaune-card reveal" onclick="openGatePopup('https://www.youtube.com/@zonetotalsportparMrRoots')">
-                    <div style="height:160px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center;border-bottom:3px solid #18181b">
-                        <span style="font-size:4rem;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.15))">🎬</span>
-                    </div>
-                    <div class="alaune-card-body">
-                        <span class="alaune-tag" style="background:#8B5CF6;color:#fff" data-i18n="aluneTag3">VIDÉO</span>
-                        <h3 class="font-bangers text-lg text-dark mb-2 tracking-wide" data-i18n="aluneC3">Tutos ÉPS en vidéo</h3>
-                        <p class="font-baloo text-sm text-dark/50" data-i18n="aluneC3d">Des démonstrations visuelles pour chaque jeu et SAÉ.</p>
-                    </div>
-                </div>
-
-                <!-- Card 4: App Mobile -->
+            <div class="alaune-scroll">
+                <!-- Card 1: Recrutement -->
                 <div class="alaune-card reveal" onclick="openGatePopup('https://www.zonetotalsport.ca')">
-                    <div style="height:160px;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center;border-bottom:3px solid #18181b">
-                        <span style="font-size:4rem;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.15))">📱</span>
+                    <div style="height:200px;background:linear-gradient(135deg,#34D399,#059669);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:5rem;filter:drop-shadow(3px 3px 0 rgba(0,0,0,0.15))">🤪</span>
                     </div>
                     <div class="alaune-card-body">
-                        <span class="alaune-tag" style="background:#FFD700;color:#18181b" data-i18n="aluneTag4">BIENTÔT</span>
-                        <h3 class="font-bangers text-lg text-dark mb-2 tracking-wide" data-i18n="aluneC4">Application Mobile</h3>
-                        <p class="font-baloo text-sm text-dark/50" data-i18n="aluneC4d">Accède à tout depuis ton téléphone, même au gymnase!</p>
+                        <div class="alaune-card-title" data-i18n="aluneC1">La Zone Youhou! recrute</div>
+                        <div class="alaune-card-date" data-i18n="aluneD1">14 février 2026</div>
+                        <p class="alaune-card-desc" data-i18n="aluneC1d">Si tu es intense ou weird, La Zone Youhou! a une place pour toi dans son équipe d'animation!</p>
+                        <span class="alaune-card-link">Lire plus <span>→</span></span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Programme accompagnement -->
+                <div class="alaune-card reveal" onclick="openGatePopup('https://www.zonetotalsport.ca/blog')">
+                    <div style="height:200px;background:linear-gradient(135deg,#00B8D4,#0097A7);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:5rem;filter:drop-shadow(3px 3px 0 rgba(0,0,0,0.15))">👫</span>
+                    </div>
+                    <div class="alaune-card-body">
+                        <div class="alaune-card-title" data-i18n="aluneC2">Programme d'accompagnement</div>
+                        <div class="alaune-card-date" data-i18n="aluneD2">9 février 2026</div>
+                        <p class="alaune-card-desc" data-i18n="aluneC2d">Certains des camps de jour de La Zone Youhou! proposent le programme d'accompagnement.</p>
+                        <span class="alaune-card-link">Lire plus <span>→</span></span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Générateur IA -->
+                <div class="alaune-card reveal" onclick="openIaPopup()">
+                    <div style="height:200px;background:linear-gradient(135deg,#00E5FF,#0099CC);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:5rem;filter:drop-shadow(3px 3px 0 rgba(0,0,0,0.15))">🤖</span>
+                    </div>
+                    <div class="alaune-card-body">
+                        <div class="alaune-card-title" data-i18n="aluneC3">Générateur de Jeux IA</div>
+                        <div class="alaune-card-date" data-i18n="aluneD3">7 février 2026</div>
+                        <p class="alaune-card-desc" data-i18n="aluneC3d">L'IA crée des jeux adaptés à ton groupe en 10 secondes!</p>
+                        <span class="alaune-card-link">Lire plus <span>→</span></span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Camp de la relâche -->
+                <div class="alaune-card reveal" onclick="openGatePopup('https://www.zonetotalsport.ca')">
+                    <div style="height:200px;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center">
+                        <span style="font-size:5rem;filter:drop-shadow(3px 3px 0 rgba(0,0,0,0.15))">🏕️</span>
+                    </div>
+                    <div class="alaune-card-body">
+                        <div class="alaune-card-title" data-i18n="aluneC4">Camp de la relâche</div>
+                        <div class="alaune-card-date" data-i18n="aluneD4">5 février 2026</div>
+                        <p class="alaune-card-desc" data-i18n="aluneC4d">Il est encore possible d'inscrire votre enfant à un camp de la relâche de La Zone!</p>
+                        <span class="alaune-card-link">Lire plus <span>→</span></span>
                     </div>
                 </div>
             </div>
 
-            <!-- CTA to become member -->
-            <div class="text-center reveal">
-                <p class="font-baloo text-dark/40 text-sm mb-4" data-i18n="aluneCta">Tu veux accéder à tout ça et bien plus?</p>
+            <!-- CTA -->
+            <div class="text-center mt-10 reveal">
+                <p class="font-baloo text-dark/40 text-lg mb-4" data-i18n="aluneCta">Tu veux accéder à tout ça et bien plus?</p>
                 <div class="magnetic-wrap inline-block">
                     <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="btn-primary btn-pink magnetic-btn" data-i18n="aluneBtn">
                         <i data-lucide="crown" class="w-5 h-5"></i> Devenir membre gratuitement
@@ -1584,29 +1618,29 @@
             <div class="sub-floating" style="bottom:10%;left:-18px;font-size:1.5rem;animation:subFloat 2.2s ease-in-out infinite 0.8s">⚽</div>
             <div class="sub-floating" style="bottom:-16px;right:30px;font-size:1.3rem;animation:subFloat 3s ease-in-out infinite 0.6s">🎾</div>
 
-            <!-- Header gradient violet -->
+            <!-- Header camp de jour cyan -->
             <div class="subscribe-header">
-                <div style="font-size:3.5rem;margin-bottom:8px;filter:drop-shadow(0 4px 20px rgba(255,215,0,0.4))">👑</div>
-                <h2 style="font-family:'Boogaloo',cursive;font-size:2.1rem;margin:0;background:linear-gradient(135deg,#FFD700,#FF2A7A,#00E5FF);background-size:300% 300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientShift 4s ease infinite" data-i18n="subTitle">DEVIENS MEMBRE VIP!</h2>
-                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.6);font-size:1rem;margin-top:6px" data-i18n="subDesc">Accède au plein potentiel de la Zone!</p>
+                <div style="font-size:4rem;margin-bottom:6px;filter:drop-shadow(3px 3px 0 rgba(0,0,0,0.2))">🏕️</div>
+                <h2 style="font-family:'Fredoka One',cursive;font-size:2.6rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.1" data-i18n="subTitle">DEVIENS MEMBRE VIP!</h2>
+                <p style="font-family:'Fredoka One',cursive;color:rgba(255,255,255,0.85);font-size:1.2rem;margin-top:8px" data-i18n="subDesc">Accède au plein potentiel de la Zone!</p>
 
                 <!-- Stats band -->
                 <div class="sub-stats-band">
                     <div class="sub-stat">
-                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#FFD700">500+</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.65rem;color:rgba(255,255,255,0.4)">jeux</div>
+                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#FFD700;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">500+</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)">jeux</div>
                     </div>
                     <div class="sub-stat">
-                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#00E5FF">128</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.65rem;color:rgba(255,255,255,0.4)">SAÉ</div>
+                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">128</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)">SAÉ</div>
                     </div>
                     <div class="sub-stat">
-                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#FF2A7A">IA</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.65rem;color:rgba(255,255,255,0.4)">générateur</div>
+                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#FF2A7A;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">IA</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)">générateur</div>
                     </div>
                     <div class="sub-stat">
-                        <div style="font-family:'Boogaloo',cursive;font-size:1.5rem;color:#4ADE80">0$</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.65rem;color:rgba(255,255,255,0.4)">gratuit!</div>
+                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#4ADE80;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">0$</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)">gratuit!</div>
                     </div>
                 </div>
             </div>
@@ -1615,52 +1649,52 @@
             <div class="subscribe-body">
                 <div class="flex flex-col gap-3 mb-5">
                     <div class="subscribe-perk">
-                        <div class="subscribe-perk-icon" style="background:rgba(255,215,0,0.15)">⚽</div>
+                        <div class="subscribe-perk-icon">⚽</div>
                         <div>
-                            <div style="font-family:'Boogaloo',cursive;font-size:1rem;color:#FFD700" data-i18n="subPerkT1">+500 jeux sportifs</div>
-                            <div style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subPerk1">Fiches détaillées, règles et variantes</div>
+                            <div style="font-family:'Fredoka One',cursive;font-size:1.25rem;color:#FFD700;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT1">+500 jeux sportifs</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk1">Fiches détaillées, règles et variantes</div>
                         </div>
                     </div>
                     <div class="subscribe-perk">
-                        <div class="subscribe-perk-icon" style="background:rgba(0,229,255,0.15)">🤖</div>
+                        <div class="subscribe-perk-icon">🤖</div>
                         <div>
-                            <div style="font-family:'Boogaloo',cursive;font-size:1rem;color:#00E5FF" data-i18n="subPerkT2">Générateur IA</div>
-                            <div style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subPerk2">Crée un jeu sur mesure en 10 secondes</div>
+                            <div style="font-family:'Fredoka One',cursive;font-size:1.25rem;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT2">Générateur IA</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk2">Crée un jeu sur mesure en 10 secondes</div>
                         </div>
                     </div>
                     <div class="subscribe-perk">
-                        <div class="subscribe-perk-icon" style="background:rgba(255,42,122,0.15)">📋</div>
+                        <div class="subscribe-perk-icon">📋</div>
                         <div>
-                            <div style="font-family:'Boogaloo',cursive;font-size:1rem;color:#FF2A7A" data-i18n="subPerkT3">SAÉ + Outils</div>
-                            <div style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subPerk3">Situations d'apprentissage et gestion de classe</div>
+                            <div style="font-family:'Fredoka One',cursive;font-size:1.25rem;color:#FF2A7A;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT3">SAÉ + Outils</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk3">Situations d'apprentissage et gestion de classe</div>
                         </div>
                     </div>
                     <div class="subscribe-perk">
-                        <div class="subscribe-perk-icon" style="background:rgba(74,222,128,0.15)">🆓</div>
+                        <div class="subscribe-perk-icon">🆓</div>
                         <div>
-                            <div style="font-family:'Boogaloo',cursive;font-size:1rem;color:#4ADE80" data-i18n="subPerkT4">100% gratuit</div>
-                            <div style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subPerk4">Sans abonnement ni carte de crédit</div>
+                            <div style="font-family:'Fredoka One',cursive;font-size:1.25rem;color:#4ADE80;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT4">100% gratuit</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk4">Sans abonnement ni carte de crédit</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Social proof -->
-                <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
+                <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px">
                     <div style="display:flex">
-                        <div style="width:28px;height:28px;border-radius:50%;background:#00E5FF;border:2px solid rgba(255,255,255,0.2);margin-right:-8px;z-index:3;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#fff">MC</div>
-                        <div style="width:28px;height:28px;border-radius:50%;background:#FF2A7A;border:2px solid rgba(255,255,255,0.2);margin-right:-8px;z-index:2;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#fff">JR</div>
-                        <div style="width:28px;height:28px;border-radius:50%;background:#FFD700;border:2px solid rgba(255,255,255,0.2);z-index:1;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#18181b">SL</div>
+                        <div style="width:34px;height:34px;border-radius:50%;background:#FFD700;border:3px solid #fff;margin-right:-10px;z-index:3;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#18181b;font-family:'Fredoka One',cursive">MC</div>
+                        <div style="width:34px;height:34px;border-radius:50%;background:#FF2A7A;border:3px solid #fff;margin-right:-10px;z-index:2;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#fff;font-family:'Fredoka One',cursive">JR</div>
+                        <div style="width:34px;height:34px;border-radius:50%;background:#8B5CF6;border:3px solid #fff;z-index:1;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#fff;font-family:'Fredoka One',cursive">SL</div>
                     </div>
-                    <span style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.45)" data-i18n="subSocial">2 295 enseignants utilisent la Zone!</span>
+                    <span style="font-family:'Patrick Hand',cursive;font-size:1.05rem;color:rgba(255,255,255,0.8)" data-i18n="subSocial">2 295 enseignants utilisent la Zone!</span>
                 </div>
 
                 <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="sub-btn-cta" data-i18n="subBtn">
-                    <i data-lucide="crown" class="w-6 h-6"></i> REJOINDRE LA ZONE GRATUITEMENT!
+                    🏆 REJOINDRE LA ZONE GRATUITEMENT!
                 </a>
-                <div style="margin-top:8px">
-                    <span style="font-family:'Patrick Hand',cursive;font-size:0.75rem;color:rgba(255,255,255,0.3)">Aucune carte de crédit. Aucun abonnement.</span>
+                <div style="margin-top:10px">
+                    <span style="font-family:'Patrick Hand',cursive;font-size:0.95rem;color:rgba(255,255,255,0.6)">Aucune carte de crédit. Aucun abonnement. 🎉</span>
                 </div>
-                <button onclick="closeSubscribe()" class="mt-3 font-baloo text-sm cursor-pointer bg-transparent border-none" style="color:rgba(255,255,255,0.2)" data-i18n="subLater">Non merci, plus tard</button>
+                <button onclick="closeSubscribe()" class="mt-3 font-baloo cursor-pointer bg-transparent border-none" style="color:rgba(255,255,255,0.35);font-size:1rem" data-i18n="subLater">Non merci, plus tard</button>
             </div>
         </div>
     </div>
@@ -2908,10 +2942,10 @@
         ['[data-i18n="aluneTag"]', 'aluneTag'],
         ['[data-i18n="aluneTitle"]', 'aluneTitle'],
         ['[data-i18n="aluneSub"]', 'aluneSub'],
-        ['[data-i18n="aluneTag1"]', 'aluneTag1'], ['[data-i18n="aluneC1"]', 'aluneC1'], ['[data-i18n="aluneC1d"]', 'aluneC1d'],
-        ['[data-i18n="aluneTag2"]', 'aluneTag2'], ['[data-i18n="aluneC2"]', 'aluneC2'], ['[data-i18n="aluneC2d"]', 'aluneC2d'],
-        ['[data-i18n="aluneTag3"]', 'aluneTag3'], ['[data-i18n="aluneC3"]', 'aluneC3'], ['[data-i18n="aluneC3d"]', 'aluneC3d'],
-        ['[data-i18n="aluneTag4"]', 'aluneTag4'], ['[data-i18n="aluneC4"]', 'aluneC4'], ['[data-i18n="aluneC4d"]', 'aluneC4d'],
+        ['[data-i18n="aluneC1"]', 'aluneC1'], ['[data-i18n="aluneD1"]', 'aluneD1'], ['[data-i18n="aluneC1d"]', 'aluneC1d'],
+        ['[data-i18n="aluneC2"]', 'aluneC2'], ['[data-i18n="aluneD2"]', 'aluneD2'], ['[data-i18n="aluneC2d"]', 'aluneC2d'],
+        ['[data-i18n="aluneC3"]', 'aluneC3'], ['[data-i18n="aluneD3"]', 'aluneD3'], ['[data-i18n="aluneC3d"]', 'aluneC3d'],
+        ['[data-i18n="aluneC4"]', 'aluneC4'], ['[data-i18n="aluneD4"]', 'aluneD4'], ['[data-i18n="aluneC4d"]', 'aluneC4d'],
         ['[data-i18n="aluneCta"]', 'aluneCta'], ['[data-i18n="aluneBtn"]', 'aluneBtn'],
         // Gate popup
         ['[data-i18n="gateTitle"]', 'gateTitle'],
@@ -3010,10 +3044,10 @@
             aluneTag:'<i data-lucide="flame" class="w-4 h-4"></i> À LA UNE',
             aluneTitle:'Quoi de neuf<br><span class="gradient-text">dans la Zone?</span>',
             aluneSub:'Les dernières nouveautés, outils et contenus pour tes cours d\'ÉPS.',
-            aluneTag1:'NOUVEAU', aluneC1:'Générateur de Jeux IA', aluneC1d:'L\'IA crée des jeux adaptés à ton groupe en 10 secondes!',
-            aluneTag2:'BLOGUE', aluneC2:'5 jeux pour la rentrée', aluneC2d:'Les meilleurs jeux pour briser la glace avec tes nouveaux groupes.',
-            aluneTag3:'VIDÉO', aluneC3:'Tutos ÉPS en vidéo', aluneC3d:'Des démonstrations visuelles pour chaque jeu et SAÉ.',
-            aluneTag4:'BIENTÔT', aluneC4:'Application Mobile', aluneC4d:'Accède à tout depuis ton téléphone, même au gymnase!',
+            aluneC1:'La Zone Youhou! recrute', aluneD1:'14 février 2026', aluneC1d:'Si tu es intense ou weird, La Zone Youhou! a une place pour toi dans son équipe d\'animation!',
+            aluneC2:'Programme d\'accompagnement', aluneD2:'9 février 2026', aluneC2d:'Certains des camps de jour de La Zone Youhou! proposent le programme d\'accompagnement.',
+            aluneC3:'Générateur de Jeux IA', aluneD3:'7 février 2026', aluneC3d:'L\'IA crée des jeux adaptés à ton groupe en 10 secondes!',
+            aluneC4:'Camp de la relâche', aluneD4:'5 février 2026', aluneC4d:'Il est encore possible d\'inscrire votre enfant à un camp de la relâche de La Zone!',
             aluneCta:'Tu veux accéder à tout ça et bien plus?',
             aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> Devenir membre gratuitement',
         },
@@ -3101,10 +3135,10 @@
             aluneTag:'<i data-lucide="flame" class="w-4 h-4"></i> FEATURED',
             aluneTitle:'What\'s new<br><span class="gradient-text">in the Zone?</span>',
             aluneSub:'The latest features, tools and content for your PE classes.',
-            aluneTag1:'NEW', aluneC1:'AI Game Generator', aluneC1d:'AI creates games adapted to your group in 10 seconds!',
-            aluneTag2:'BLOG', aluneC2:'5 games for back-to-school', aluneC2d:'The best games to break the ice with your new groups.',
-            aluneTag3:'VIDEO', aluneC3:'PE video tutorials', aluneC3d:'Visual demonstrations for every game and unit.',
-            aluneTag4:'COMING SOON', aluneC4:'Mobile App', aluneC4d:'Access everything from your phone, even in the gym!',
+            aluneC1:'La Zone Youhou! is hiring', aluneD1:'February 14, 2026', aluneC1d:'If you\'re intense or weird, La Zone Youhou! has a spot for you on its animation team!',
+            aluneC2:'Accompaniment Program', aluneD2:'February 9, 2026', aluneC2d:'Some of La Zone Youhou! day camps offer the accompaniment program.',
+            aluneC3:'AI Game Generator', aluneD3:'February 7, 2026', aluneC3d:'AI creates games adapted to your group in 10 seconds!',
+            aluneC4:'March Break Camp', aluneD4:'February 5, 2026', aluneC4d:'You can still register your child for a La Zone march break camp!',
             aluneCta:'Want access to all this and more?',
             aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> Become a free member',
         },
@@ -3192,10 +3226,10 @@
             aluneTag:'<i data-lucide="flame" class="w-4 h-4"></i> 热门',
             aluneTitle:'Zone<br><span class="gradient-text">有什么新内容？</span>',
             aluneSub:'最新功能、工具和体育教学内容。',
-            aluneTag1:'新功能', aluneC1:'AI游戏生成器', aluneC1d:'AI在10秒内创建适合你班级的游戏！',
-            aluneTag2:'博客', aluneC2:'开学5个游戏', aluneC2d:'与新班级破冰的最佳游戏。',
-            aluneTag3:'视频', aluneC3:'体育教学视频', aluneC3d:'每个游戏和教学单元的视觉演示。',
-            aluneTag4:'即将推出', aluneC4:'移动应用', aluneC4d:'随时随地访问所有内容，即使在体育馆！',
+            aluneC1:'La Zone Youhou! 招聘中', aluneD1:'2026年2月14日', aluneC1d:'如果你是一个充满激情的人，La Zone Youhou! 欢迎你加入动画团队！',
+            aluneC2:'陪伴计划', aluneD2:'2026年2月9日', aluneC2d:'La Zone Youhou! 的一些日间营地提供陪伴计划。',
+            aluneC3:'AI游戏生成器', aluneD3:'2026年2月7日', aluneC3d:'AI在10秒内创建适合你班级的游戏！',
+            aluneC4:'春假营地', aluneD4:'2026年2月5日', aluneC4d:'您仍然可以为您的孩子注册La Zone的春假营地！',
             aluneCta:'想要访问所有这些和更多？',
             aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> 免费成为会员',
         }
