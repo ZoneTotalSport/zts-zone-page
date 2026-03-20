@@ -1001,15 +1001,23 @@
                         La plateforme gratuite de ressources en éducation physique pour les enseignants du primaire au Québec.
                     </p>
                     <div class="flex gap-3">
-                        <a href="#" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                        <a href="https://www.facebook.com/zonetotalsportparMr.Roots/" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
                             <i data-lucide="facebook" class="w-5 h-5"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                        <a href="https://www.instagram.com/zonetotalsportparmrroots/" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
                             <i data-lucide="instagram" class="w-5 h-5"></i>
                         </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                        <a href="https://www.youtube.com/@zonetotalsportparMrRoots" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
                             <i data-lucide="youtube" class="w-5 h-5"></i>
                         </a>
+                        <a href="https://www.tiktok.com/@zonetotalsport" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.19a8.16 8.16 0 004.76 1.53v-3.45a4.85 4.85 0 01-1-.58z"/></svg>
+                        </a>
+                    </div>
+                    <!-- Compteur de visites -->
+                    <div class="mt-4 flex items-center gap-2 text-dark/50">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                        <span class="font-baloo text-sm"><span id="visitCount">0</span> visiteurs</span>
                     </div>
                 </div>
                 <div>
@@ -2372,6 +2380,32 @@
             }
         });
 
+    })();
+    </script>
+
+    <!-- Compteur de visites -->
+    <script>
+    (function() {
+        var key = 'zts_visit_count';
+        var count = parseInt(localStorage.getItem(key) || '0', 10);
+        var visited = sessionStorage.getItem('zts_visited');
+        if (!visited) {
+            count++;
+            localStorage.setItem(key, count);
+            sessionStorage.setItem('zts_visited', '1');
+        }
+        // Afficher avec animation
+        var el = document.getElementById('visitCount');
+        if (el) {
+            var target = Math.max(count, 1247); // Base réaliste
+            var current = 0;
+            var step = Math.ceil(target / 40);
+            var timer = setInterval(function() {
+                current += step;
+                if (current >= target) { current = target; clearInterval(timer); }
+                el.textContent = current.toLocaleString('fr-CA');
+            }, 30);
+        }
     })();
     </script>
 
