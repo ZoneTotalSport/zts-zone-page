@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone Total Sport &#8212; Hero Block</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: { electric: '#00E5FF' },
+                        yellow: { sun: '#FFD700' },
+                        pink: { fuchsia: '#FF2A7A' },
+                        violet: { pop: '#8B5CF6' },
+                        dark: '#0F0F2E',
+                    },
+                    fontFamily: {
+                        bangers: ['"Luckiest Guy"', 'cursive'],
+                        boogaloo: ['Boogaloo', 'cursive'],
+                        baloo: ['"Patrick Hand"', 'cursive'],
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+
+        body {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
+            background-color: #ffffff;
+            color: #1a1a2e;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ========== SECTION BACKGROUNDS ========== */
+        .section-cyan { background: #00E5FF; }
+
+        /* ========== WAVE DIVIDERS ========== */
+        .wave-divider { width: 100%; overflow: hidden; line-height: 0; position: relative; z-index: 2; }
+        .wave-divider svg { display: block; width: 100%; height: 70px; }
+        @media (max-width: 768px) { .wave-divider svg { height: 40px; } }
+
+        /* ========== HERO ========== */
+        .hero-title {
+            font-family: 'Luckiest Guy', cursive;
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: 0.04em;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #FF2A7A, #8B5CF6);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .floating-emoji {
+            position: absolute;
+            font-size: 2.5rem;
+            pointer-events: none;
+            will-change: transform;
+            z-index: 1;
+        }
+        @media (max-width: 768px) { .floating-emoji { font-size: 1.5rem; } }
+
+        /* ========== BUTTONS ========== */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive;
+            font-weight: 400;
+            font-size: 1.15rem;
+            letter-spacing: 0.03em;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+
+        .btn-primary.btn-cyan { background: linear-gradient(135deg, #00E5FF, #00B8D4); color: #0F0F2E; box-shadow: 0 8px 30px rgba(0,229,255,0.3); }
+        .btn-primary.btn-dark { background: #0F0F2E; color: #fff; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+        .btn-primary.btn-yellow { background: linear-gradient(135deg, #FFD700, #FFA000); color: #0F0F2E; box-shadow: 0 8px 30px rgba(255,215,0,0.3); }
+
+        .btn-outline-dark {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive; font-weight: 400; font-size: 1.15rem; letter-spacing: 0.03em;
+            background: transparent; border: 2px solid #0F0F2E; color: #0F0F2E; cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+        }
+        .btn-outline-dark:hover { background: #0F0F2E; color: #fff; }
+
+        .magnetic-wrap { display: inline-block; position: relative; }
+
+        /* ========== SECTION TAG ========== */
+        .section-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; border-radius: 8px;
+            font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+        }
+
+        /* ========== STAGGER GRID ========== */
+        @media (min-width: 1024px) {
+            .stagger-grid > :nth-child(even) { transform: translateY(40px); }
+        }
+
+        /* ========== SERVICE CARDS (solid colored) ========== */
+        .service-card {
+            border-radius: 24px;
+            padding: 40px 28px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s ease-out, box-shadow 0.3s;
+            min-height: 320px;
+        }
+        .service-card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .service-card .card-number {
+            position: absolute; top: -10px; right: -5px;
+            font-family: 'Luckiest Guy', cursive; font-size: 8rem; line-height: 1;
+            opacity: 0.12; pointer-events: none;
+        }
+
+        /* ========== TILT CARD ========== */
+        .tilt-card { transform-style: preserve-3d; perspective: 800px; }
+        .tilt-card-inner { transform-style: preserve-3d; transition: transform 0.1s ease-out; }
+        .tilt-card-inner .tilt-icon { transform: translateZ(40px); }
+        .tilt-card-inner .tilt-title { transform: translateZ(30px); }
+        .tilt-card-inner .tilt-desc { transform: translateZ(20px); }
+
+        /* ========== STATS ========== */
+        .stat-number { font-family: 'Luckiest Guy', cursive; font-weight: 900; font-size: 3rem; line-height: 1; }
+        @media (max-width: 768px) { .stat-number { font-size: 2rem; } }
+
+        /* ========== NAV ========== */
+        .nav-fixed {
+            position: sticky; top: 0; left: 0; right: 0; z-index: 1000;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .nav-fixed.scrolled {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .nav-fixed.scrolled .nav-link { color: #1a1a2e !important; }
+        .nav-fixed.scrolled .nav-link:hover { color: #FF2A7A !important; }
+        .nav-fixed.scrolled .hamburger span { background: #1a1a2e; }
+
+        /* ========== LANGUAGE SELECTOR ========== */
+        .lang-btn {
+            font-family: 'Luckiest Guy', cursive; font-size: 0.75rem; letter-spacing: 0.03em;
+            border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7);
+            padding: 3px 8px; cursor: pointer; border-radius: 6px; transition: all 0.2s;
+        }
+        .lang-btn.active { background: #FFD700; color: #18181b; border-color: #FFD700; }
+        .lang-btn:hover:not(.active) { border-color: #fff; color: #fff; }
+        .nav-fixed.scrolled .lang-btn { border-color: rgba(0,0,0,0.2); color: rgba(0,0,0,0.5); }
+        .nav-fixed.scrolled .lang-btn.active { background: #FFD700; color: #18181b; border-color: #FFD700; }
+
+        /* ========== DIGITAL CLOCK ========== */
+        .digital-clock {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.1rem;
+            letter-spacing: 0.08em;
+            background: #18181b;
+            color: #00E5FF;
+            padding: 6px 14px;
+            border-radius: 10px;
+            border: 2px solid rgba(0,229,255,0.3);
+            text-shadow: 0 0 10px rgba(0,229,255,0.5);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 130px;
+            justify-content: center;
+        }
+        #clockTime { font-variant-numeric: tabular-nums; display: inline-block; min-width: 95px; text-align: center; }
+
+        /* ========== MOBILE MENU ========== */
+        .mobile-menu {
+            position: fixed; inset: 0;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(30px);
+            z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .mobile-menu.open { opacity: 1; pointer-events: all; }
+        .mobile-menu a { font-family: 'Luckiest Guy', cursive; font-size: 1.8rem; color: #1a1a2e; text-decoration: none; letter-spacing: 0.04em; }
+        .mobile-menu a:hover { color: #FF2A7A; }
+
+        /* ========== HAMBURGER ========== */
+        .hamburger { width: 32px; height: 24px; position: relative; cursor: pointer; display: none; }
+        .hamburger span { display: block; position: absolute; height: 3px; width: 100%; background: #fff; border-radius: 3px; transition: 0.3s; }
+        .hamburger span:nth-child(1) { top: 0; }
+        .hamburger span:nth-child(2) { top: 10px; }
+        .hamburger span:nth-child(3) { top: 20px; }
+        .hamburger.active span:nth-child(1) { top: 10px; transform: rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { top: 10px; transform: rotate(-45deg); }
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            .nav-links { display: none !important; }
+        }
+
+        /* ========== MISC ========== */
+        .icon-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: #00E5FF; color: #0F0F2E; }
+        .reveal { opacity: 0; transform: translateY(60px); }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.4rem !important; }
+        }
+
+        /* ========== STAR PARTICLES (bonus attractivit&#233;) ========== */
+        .star-burst { position: absolute; pointer-events: none; z-index: 20; }
+        @keyframes starFloat {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== NAVIGATION ========== -->
+    <nav class="nav-fixed py-3 px-6 md:px-10" id="mainNav">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="https://www.zonetotalsport.ca" class="flex items-center shrink-0" target="_top">
+                <!-- REMPLACER PAR URL WIX MEDIA: logo-zts.png -->
+                <img src="https://zone.zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-12 md:h-16 w-auto">
+            </a>
+            <div class="nav-links flex items-center gap-6">
+                <a href="#" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navJeux" data-nav="jeux">Jeux</a>
+                <a href="#services" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navRessources">Ressources</a>
+                <a href="#" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navGenerateur" data-nav="generateur">G&#233;n&#233;rateur</a>
+                <a href="#" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navAvis" data-nav="temoignages">Avis</a>
+                <!-- Digital Clock -->
+                <div class="digital-clock hidden md:inline-flex" id="navClock">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-cyan-electric/60"></i>
+                    <span id="clockTime">00<span class="clock-dot">:</span>00<span class="clock-dot">:</span>00</span>
+                </div>
+                <!-- Language Selector -->
+                <div class="flex gap-1 ml-2">
+                    <button onclick="setLang('fr')" class="lang-btn active" id="lang-fr" title="Fran&#231;ais">FR</button>
+                    <button onclick="setLang('en')" class="lang-btn" id="lang-en" title="English">EN</button>
+                    <button onclick="setLang('zh')" class="lang-btn" id="lang-zh" title="&#20013;&#25991;">&#20013;</button>
+                </div>
+                <div class="magnetic-wrap">
+                    <a href="#" class="btn-primary btn-yellow text-sm !py-3 !px-6 magnetic-btn" data-i18n="navDon" data-nav="don">
+                        <i data-lucide="heart" class="w-4 h-4"></i> Faire un don
+                    </a>
+                </div>
+            </div>
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#" data-nav="jeux" onclick="closeMobile()" data-i18n="mobileJeux">Jeux</a>
+        <a href="#services" onclick="closeMobile()" data-i18n="mobileRes">Ressources</a>
+        <a href="#" data-nav="generateur" onclick="closeMobile()" data-i18n="mobileGen">G&#233;n&#233;rateur</a>
+        <a href="#" data-nav="temoignages" onclick="closeMobile()" data-i18n="mobileAvis">Avis</a>
+        <a href="#" data-nav="don" onclick="closeMobile()" style="color:#FF2A7A" data-i18n="mobileDon">Faire un don</a>
+    </div>
+
+    <!-- ========== SECTION 1: HERO (Cyan) ========== -->
+    <section class="section-cyan min-h-[80vh] relative flex items-center" id="hero">
+        <!-- Floating Emojis -->
+        <span class="floating-emoji" style="top:18%;left:5%">&#9917;</span>
+        <span class="floating-emoji" style="top:12%;right:35%">&#127992;</span>
+        <span class="floating-emoji" style="top:65%;left:8%">&#127934;</span>
+        <span class="floating-emoji" style="top:75%;right:5%">&#127944;</span>
+        <span class="floating-emoji" style="top:30%;right:8%">&#127936;</span>
+        <span class="floating-emoji" style="top:85%;left:30%">&#129358;</span>
+        <span class="floating-emoji" style="top:45%;left:2%">&#127952;</span>
+        <span class="floating-emoji" style="top:55%;right:30%">&#127955;</span>
+
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center px-6 md:px-10 pt-28 pb-24 relative z-10 gap-10">
+            <!-- Left: Text -->
+            <div class="lg:w-1/2 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 text-dark font-baloo font-semibold text-sm mb-6 reveal">
+                    <span class="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span>
+                    <span data-i18n="heroBadge">+500 ressources gratuites pour l'&#201;PS</span>
+                </div>
+
+                <h1 class="hero-title text-5xl md:text-7xl lg:text-8xl mb-6 text-dark reveal" data-i18n="heroTitle">
+                    Ton gym,<br>
+                    <span style="color:#FF2A7A">tes r&#232;gles.</span>
+                </h1>
+
+                <p class="text-lg md:text-xl text-dark/70 max-w-lg mb-10 font-baloo font-medium reveal" data-i18n="heroSub">
+                    La plateforme <strong class="text-dark">100% gratuite</strong> qui transforme tes cours d'&#233;ducation physique en exp&#233;riences &#233;piques.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 mb-12 justify-center lg:justify-start reveal">
+                    <div class="magnetic-wrap">
+                        <a href="#" class="btn-primary btn-dark magnetic-btn" data-nav="generateur">
+                            <i data-lucide="zap" class="w-5 h-5"></i> <span data-i18n="heroBtn1">G&#233;n&#233;rer un jeu</span>
+                        </a>
+                    </div>
+                    <div class="magnetic-wrap">
+                        <a href="#services" class="btn-outline-dark magnetic-btn">
+                            <i data-lucide="compass" class="w-5 h-5"></i> <span data-i18n="heroBtn2">Explorer</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 reveal">
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="547">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statJeux">Jeux</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="128">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statSae">SA&#201;</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="2300">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statEns">Enseignants</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="100">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statGratuit">% Gratuit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Mascot (hover swap) -->
+            <div class="lg:w-1/2 relative flex justify-center reveal">
+                <div class="relative cursor-pointer" id="mascotSwap"
+                     onmouseenter="this.querySelector('.mascot-default').style.opacity='0';this.querySelector('.mascot-hover').style.opacity='1'"
+                     onmouseleave="this.querySelector('.mascot-default').style.opacity='1';this.querySelector('.mascot-hover').style.opacity='0'">
+                    <!-- REMPLACER PAR URL WIX MEDIA -->
+                    <img src="https://zone.zonetotalsport.ca/mascot-badminton.png" alt="Mascotte Zone Total Sport" class="mascot-default w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300">
+                    <img src="https://zone.zonetotalsport.ca/mascot-pingpong.png" alt="Mascotte Smash!" class="mascot-hover w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300 absolute inset-0 opacity-0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Wave: Cyan &#8594; White -->
+        <div class="wave-divider absolute bottom-0 left-0">
+            <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+                <path d="M0,35 C240,70 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="#ffffff"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 2: SERVICE CARDS (White) ========== -->
+    <section class="py-24 px-6 md:px-10" id="services">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="section-tag bg-pink-fuchsia/10 text-pink-fuchsia mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="layers" class="w-4 h-4"></i> <span data-i18n="resTag">RESSOURCES</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="resTitle">
+                    Tout ce qu'il te faut,<br>
+                    <span style="color:#FF2A7A">au m&#234;me endroit.</span>
+                </h2>
+                <p class="text-dark/50 font-baloo text-lg max-w-xl mx-auto reveal" data-i18n="resSub">
+                    Des centaines de ressources pens&#233;es par et pour les profs d'&#201;PS du primaire.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 stagger-grid" id="jeux">
+                <!-- Card 1 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-cyan-electric text-dark h-full">
+                        <div class="card-number">1</div>
+                        <div class="tilt-icon icon-circle bg-white/30 text-dark mb-6">
+                            <i data-lucide="gamepad-2" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card1">Banque de Jeux</h3>
+                        <p class="tilt-desc text-dark/60 font-baloo text-sm mb-6" data-i18n="card1d">+500 jeux class&#233;s par cat&#233;gorie, &#226;ge et comp&#233;tence. Trouve le jeu parfait en secondes.</p>
+                        <a href="https://www.zonetotalsport.ca" target="_top" class="inline-flex items-center gap-2 text-dark font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card1a">
+                            Explorer <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-yellow-sun text-dark h-full">
+                        <div class="card-number">2</div>
+                        <div class="tilt-icon icon-circle bg-white/30 text-dark mb-6">
+                            <i data-lucide="book-open" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card2">SA&#201; Compl&#232;tes</h3>
+                        <p class="tilt-desc text-dark/60 font-baloo text-sm mb-6" data-i18n="card2d">Situations d'apprentissage cl&#233;s en main align&#233;es avec le PFEQ. Pr&#234;tes &#224; utiliser demain.</p>
+                        <a href="https://www.zonetotalsport.ca" target="_top" class="inline-flex items-center gap-2 text-dark font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card2a">
+                            D&#233;couvrir <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-pink-fuchsia text-white h-full">
+                        <div class="card-number">3</div>
+                        <div class="tilt-icon icon-circle bg-white/20 text-white mb-6">
+                            <i data-lucide="pen-tool" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card3">Blogue &#201;PS</h3>
+                        <p class="tilt-desc text-white/70 font-baloo text-sm mb-6" data-i18n="card3d">Articles, strat&#233;gies et r&#233;flexions sur l'enseignement de l'&#233;ducation physique au Qu&#233;bec.</p>
+                        <a href="https://www.zonetotalsport.ca/blog" target="_top" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card3a">
+                            Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-violet-pop text-white h-full">
+                        <div class="card-number">4</div>
+                        <div class="tilt-icon icon-circle bg-white/20 text-white mb-6">
+                            <i data-lucide="clipboard-check" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card4">Gestion de Classe</h3>
+                        <p class="tilt-desc text-white/70 font-baloo text-sm mb-6" data-i18n="card4d">Outils, routines et syst&#232;mes pour un gymnase organis&#233; et motivant. Fini le chaos!</p>
+                        <a href="https://www.zonetotalsport.ca" target="_top" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card4a">
+                            Organiser <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 3: TEASER BANNER ========== -->
+    <section class="py-12 px-6 md:px-10">
+        <div class="max-w-5xl mx-auto bg-cyan-electric/10 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 reveal">
+            <!-- REMPLACER PAR URL WIX MEDIA -->
+            <img src="https://zone.zonetotalsport.ca/mascot-tablet.png" alt="Mascotte" class="w-32 md:w-48 shrink-0">
+            <div class="text-center md:text-left">
+                <h3 class="font-bangers text-2xl md:text-3xl text-dark tracking-wide mb-2" data-i18n="teaserTitle">D&#233;couvre le g&#233;n&#233;rateur de jeux!</h3>
+                <p class="text-dark/60 font-baloo mb-4" data-i18n="teaserSub">50 jeux au hasard avec r&#232;gles compl&#232;tes. Parfait quand t'es en panne d'id&#233;es.</p>
+                <a href="#" class="btn-primary btn-cyan magnetic-btn" data-nav="generateur" data-i18n="teaserBtn">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i> Essayer le g&#233;n&#233;rateur
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ============ JAVASCRIPT ================== -->
+    <!-- ========================================== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ============ INIT LUCIDE ============
+        lucide.createIcons();
+
+        // ============ MAGNETIC BUTTONS ============
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', e => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: 'power2.out' });
+            });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+            });
+        });
+
+        // ============ NAV SCROLL ============
+        const nav = document.getElementById('mainNav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // ============ HAMBURGER ============
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('open');
+        });
+        window.closeMobile = function() {
+            hamburger.classList.remove('active');
+            mobileMenu.classList.remove('open');
+        };
+
+        // ============ DIGITAL CLOCK ============
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const el = document.getElementById('clockTime');
+            if (el) el.innerHTML = h + '<span class="clock-dot">:</span>' + m + '<span class="clock-dot">:</span>' + s;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // ============ FLOATING EMOJIS ============
+        document.querySelectorAll('.floating-emoji').forEach((emoji, i) => {
+            gsap.to(emoji, {
+                y: gsap.utils.random(-30, 30), x: gsap.utils.random(-20, 20),
+                rotation: gsap.utils.random(-15, 15),
+                duration: gsap.utils.random(3, 6), repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.3
+            });
+        });
+
+        // ============ GSAP SCROLL REVEALS ============
+        // In iframe context, use IntersectionObserver instead of ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.utils.toArray('.reveal').forEach((el, i) => {
+            gsap.fromTo(el, { opacity: 0, y: 60 }, {
+                opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+                scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+                delay: i % 4 * 0.1
+            });
+        });
+
+        // Fallback: if no scroll inside iframe, trigger reveals after delay
+        setTimeout(() => {
+            document.querySelectorAll('.reveal').forEach((el, i) => {
+                if (parseFloat(getComputedStyle(el).opacity) < 0.5) {
+                    gsap.to(el, { opacity: 1, y: 0, duration: 0.6, delay: i * 0.08, ease: 'power3.out' });
+                }
+            });
+        }, 800);
+
+        // ============ STAT COUNTERS ============
+        document.querySelectorAll('.counter').forEach(counter => {
+            const target = +counter.dataset.target;
+            // Start counting after a short delay (works in iframe)
+            setTimeout(() => {
+                gsap.to(counter, {
+                    innerText: target, duration: 2, ease: 'power2.out', snap: { innerText: 1 },
+                    onUpdate() { counter.textContent = Math.round(parseFloat(counter.textContent)).toLocaleString('fr-CA'); }
+                });
+            }, 600);
+        });
+
+        // ============ 3D TILT CARDS ============
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            const inner = card.querySelector('.tilt-card-inner');
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                gsap.to(inner, { rotateY: x * 20, rotateX: -y * 20, duration: 0.3, ease: 'power2.out', transformPerspective: 800 });
+            });
+            card.addEventListener('mouseleave', () => {
+                gsap.to(inner, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+            });
+        });
+
+        // ============ STAR PARTICLES ON CTA HOVER (Bonus) ============
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                for (let i = 0; i < 6; i++) {
+                    const star = document.createElement('span');
+                    star.className = 'star-burst';
+                    star.textContent = ['&#10024;', '&#11088;', '&#128171;', '&#127775;'][Math.floor(Math.random() * 4)];
+                    star.style.cssText = `
+                        position: absolute; font-size: ${12 + Math.random() * 14}px;
+                        left: ${Math.random() * 100}%; top: ${Math.random() * 100}%;
+                        --sx: ${(Math.random() - 0.5) * 80}px; --sy: ${-20 - Math.random() * 40}px;
+                        animation: starFloat 0.8s ease-out forwards;
+                        pointer-events: none; z-index: 20;
+                    `;
+                    btn.appendChild(star);
+                    setTimeout(() => star.remove(), 900);
+                }
+            });
+        });
+
+        // ============ NAVIGATION &#8594; PARENT (cross-iframe) ============
+        document.querySelectorAll('[data-nav]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.dataset.nav;
+                closeMobile();
+                // Tell Wix parent to scroll to this section (may be in another iframe)
+                window.parent.postMessage({ type: 'navigateTo', section: section }, '*');
+            });
+        });
+
+    }); // end DOMContentLoaded
+
+    // ========== i18n TRANSLATIONS (Group A keys only) ==========
+    const i18nMap = [
+        ['[data-i18n="navJeux"]', 'navJeux'], ['[data-i18n="navRessources"]', 'navRes'],
+        ['[data-i18n="navGenerateur"]', 'navGen'], ['[data-i18n="navAvis"]', 'navAvis'],
+        ['[data-i18n="navDon"]', 'navDon'], ['[data-i18n="mobileDon"]', 'mobileDon'],
+        ['[data-i18n="mobileJeux"]', 'navJeux'], ['[data-i18n="mobileRes"]', 'navRes'],
+        ['[data-i18n="mobileGen"]', 'navGen'], ['[data-i18n="mobileAvis"]', 'navAvis'],
+        ['[data-i18n="heroBadge"]', 'heroBadge'], ['[data-i18n="heroTitle"]', 'heroTitle'],
+        ['[data-i18n="heroSub"]', 'heroSub'], ['[data-i18n="heroBtn1"]', 'heroBtn1'],
+        ['[data-i18n="heroBtn2"]', 'heroBtn2'],
+        ['[data-i18n="statJeux"]', 'statJeux'], ['[data-i18n="statSae"]', 'statSae'],
+        ['[data-i18n="statEns"]', 'statEns'], ['[data-i18n="statGratuit"]', 'statGratuit'],
+        ['[data-i18n="resTag"]', 'resTag'], ['[data-i18n="resTitle"]', 'resTitle'],
+        ['[data-i18n="resSub"]', 'resSub'],
+        ['[data-i18n="card1"]', 'card1'], ['[data-i18n="card1d"]', 'card1d'], ['[data-i18n="card1a"]', 'card1a'],
+        ['[data-i18n="card2"]', 'card2'], ['[data-i18n="card2d"]', 'card2d'], ['[data-i18n="card2a"]', 'card2a'],
+        ['[data-i18n="card3"]', 'card3'], ['[data-i18n="card3d"]', 'card3d'], ['[data-i18n="card3a"]', 'card3a'],
+        ['[data-i18n="card4"]', 'card4'], ['[data-i18n="card4d"]', 'card4d'], ['[data-i18n="card4a"]', 'card4a'],
+        ['[data-i18n="teaserTitle"]', 'teaserTitle'], ['[data-i18n="teaserSub"]', 'teaserSub'],
+        ['[data-i18n="teaserBtn"]', 'teaserBtn'],
+    ];
+
+    const i18n = {
+        fr: {
+            navJeux:'Jeux', navRes:'Ressources', navGen:'G&#233;n&#233;rateur', navAvis:'Avis',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> Faire un don', mobileDon:'Faire un don',
+            heroBadge:'+500 ressources gratuites pour l\'&#201;PS',
+            heroTitle:'Ton gym,<br><span style="color:#FF2A7A">tes r&#232;gles.</span>',
+            heroSub:'La plateforme <strong class="text-dark">100% gratuite</strong> qui transforme tes cours d\'&#233;ducation physique en exp&#233;riences &#233;piques.',
+            heroBtn1:'G&#233;n&#233;rer un jeu', heroBtn2:'Explorer',
+            statJeux:'Jeux', statSae:'SA&#201;', statEns:'Enseignants', statGratuit:'% Gratuit',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> RESSOURCES',
+            resTitle:'Tout ce qu\'il te faut,<br><span style="color:#FF2A7A">au m&#234;me endroit.</span>',
+            resSub:'Des centaines de ressources pens&#233;es par et pour les profs d\'&#201;PS du primaire.',
+            card1:'Banque de Jeux', card1d:'+500 jeux class&#233;s par cat&#233;gorie, &#226;ge et comp&#233;tence. Trouve le jeu parfait en secondes.', card1a:'Explorer <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'SA&#201; Compl&#232;tes', card2d:'Situations d\'apprentissage cl&#233;s en main align&#233;es avec le PFEQ. Pr&#234;tes &#224; utiliser demain.', card2a:'D&#233;couvrir <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'Blogue &#201;PS', card3d:'Articles, strat&#233;gies et r&#233;flexions sur l\'enseignement de l\'&#233;ducation physique au Qu&#233;bec.', card3a:'Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'Gestion de Classe', card4d:'Outils, routines et syst&#232;mes pour un gymnase organis&#233; et motivant. Fini le chaos!', card4a:'Organiser <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'D&#233;couvre le g&#233;n&#233;rateur de jeux!', teaserSub:'50 jeux au hasard avec r&#232;gles compl&#232;tes. Parfait quand t\'es en panne d\'id&#233;es.',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> Essayer le g&#233;n&#233;rateur',
+        },
+        en: {
+            navJeux:'Games', navRes:'Resources', navGen:'Generator', navAvis:'Reviews',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> Donate', mobileDon:'Donate',
+            heroBadge:'+500 free resources for PE teachers',
+            heroTitle:'Your gym,<br><span style="color:#FF2A7A">your rules.</span>',
+            heroSub:'The <strong class="text-dark">100% free</strong> platform that transforms your physical education classes into epic experiences.',
+            heroBtn1:'Generate a game', heroBtn2:'Explore',
+            statJeux:'Games', statSae:'Units', statEns:'Teachers', statGratuit:'% Free',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> RESOURCES',
+            resTitle:'Everything you need,<br><span style="color:#FF2A7A">in one place.</span>',
+            resSub:'Hundreds of resources designed by and for elementary PE teachers.',
+            card1:'Game Bank', card1d:'+500 games sorted by category, age and skill. Find the perfect game in seconds.', card1a:'Explore <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'Full Units', card2d:'Ready-to-use learning situations aligned with the curriculum. Ready for tomorrow.', card2a:'Discover <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'PE Blog', card3d:'Articles, strategies and reflections on teaching physical education in Quebec.', card3a:'Read <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'Class Management', card4d:'Tools, routines and systems for an organized and motivating gymnasium. No more chaos!', card4a:'Organize <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'Discover the game generator!', teaserSub:'50 random games with full rules. Perfect when you\'re out of ideas.',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> Try the generator',
+        },
+        zh: {
+            navJeux:'&#28216;&#25103;', navRes:'&#36164;&#28304;', navGen:'&#29983;&#25104;&#22120;', navAvis:'&#35780;&#20215;',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> &#25424;&#36192;', mobileDon:'&#25424;&#36192;',
+            heroBadge:'+500&#20010;&#20813;&#36153;&#20307;&#32946;&#25945;&#23398;&#36164;&#28304;',
+            heroTitle:'&#20320;&#30340;&#20307;&#32946;&#39302;&#65292;<br><span style="color:#FF2A7A">&#20320;&#30340;&#35268;&#21017;&#12290;</span>',
+            heroSub:'<strong class="text-dark">100%&#20813;&#36153;</strong>&#30340;&#24179;&#21488;&#65292;&#35753;&#20320;&#30340;&#20307;&#32946;&#35838;&#21464;&#25104;&#21490;&#35799;&#33324;&#30340;&#20307;&#39564;&#12290;',
+            heroBtn1:'&#29983;&#25104;&#28216;&#25103;', heroBtn2:'&#25506;&#32034;',
+            statJeux:'&#28216;&#25103;', statSae:'&#25945;&#23398;&#21333;&#20803;', statEns:'&#25945;&#24072;', statGratuit:'% &#20813;&#36153;',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> &#36164;&#28304;',
+            resTitle:'&#20320;&#38656;&#35201;&#30340;&#19968;&#20999;&#65292;<br><span style="color:#FF2A7A">&#37117;&#22312;&#36825;&#37324;&#12290;</span>',
+            resSub:'&#25968;&#30334;&#31181;&#19987;&#20026;&#23567;&#23398;&#20307;&#32946;&#25945;&#24072;&#35774;&#35745;&#30340;&#36164;&#28304;&#12290;',
+            card1:'&#28216;&#25103;&#24211;', card1d:'+500&#20010;&#25353;&#31867;&#21035;&#12289;&#24180;&#40836;&#21644;&#25216;&#33021;&#20998;&#31867;&#30340;&#28216;&#25103;&#12290;', card1a:'&#25506;&#32034; <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'&#23436;&#25972;&#25945;&#23398;&#21333;&#20803;', card2d:'&#19982;&#35838;&#31243;&#26631;&#20934;&#23545;&#40784;&#30340;&#21363;&#29992;&#22411;&#23398;&#20064;&#24773;&#22659;&#12290;', card2a:'&#21457;&#29616; <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'&#20307;&#32946;&#21338;&#23458;', card3d:'&#20851;&#20110;&#39745;&#21271;&#20811;&#20307;&#32946;&#25945;&#23398;&#30340;&#25991;&#31456;&#21644;&#31574;&#30053;&#12290;', card3a:'&#38405;&#35835; <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'&#35838;&#22530;&#31649;&#29702;', card4d:'&#35753;&#20307;&#32946;&#39302;&#20117;&#28982;&#26377;&#24207;&#30340;&#24037;&#20855;&#21644;&#31995;&#32479;&#12290;', card4a:'&#32452;&#32455; <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'&#21457;&#29616;&#28216;&#25103;&#29983;&#25104;&#22120;&#65281;', teaserSub:'50&#20010;&#38543;&#26426;&#28216;&#25103;&#65292;&#38468;&#23436;&#25972;&#35268;&#21017;&#12290;',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> &#35797;&#35797;&#29983;&#25104;&#22120;',
+        }
+    };
+
+    function setLang(lang) {
+        const t = i18n[lang]; if (!t) return;
+        window.currentLang = lang;
+        i18nMap.forEach(([sel, key]) => {
+            document.querySelectorAll(sel).forEach(el => { if (t[key]) el.innerHTML = t[key]; });
+        });
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('lang-' + lang);
+        if (btn) btn.classList.add('active');
+        lucide.createIcons();
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang === 'en' ? 'en' : 'fr-CA';
+        // Notify parent of language change (broadcast to other iframes)
+        window.parent.postMessage({ type: 'langChanged', lang: lang }, '*');
+    }
+    window.setLang = setLang;
+    </script>
+
+    <!-- ========== WIX VELO BRIDGE (postMessage) ========== -->
+    <script>
+    (function() {
+        'use strict';
+        var GROUP_ID = 'groupA';
+
+        // Receive messages from Wix Velo
+        window.addEventListener('message', function(event) {
+            var data = event.data;
+            if (!data || !data.type) return;
+            switch (data.type) {
+                case 'setLang':
+                    if (window.setLang && data.lang) window.setLang(data.lang);
+                    break;
+                case 'scrollTo':
+                    if (data.section) {
+                        var el = document.getElementById(data.section);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    break;
+            }
+        });
+
+        // Auto-resize: send height to Wix parent
+        function sendHeight() {
+            var h = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: 'resize', group: GROUP_ID, height: h }, '*');
+        }
+
+        var _ro = new ResizeObserver(function() { sendHeight(); });
+        _ro.observe(document.body);
+        window.addEventListener('load', function() {
+            setTimeout(sendHeight, 500);
+            setTimeout(sendHeight, 2000);
+        });
+
+        // Notify Wix of external link clicks
+        document.addEventListener('click', function(e) {
+            var link = e.target.closest('a[href^="http"]');
+            if (link && link.getAttribute('target') === '_top') return; // Let _top links work naturally
+            if (link && link.href.indexOf(window.location.hostname) === -1) {
+                window.parent.postMessage({ type: 'externalLink', href: link.href, group: GROUP_ID }, '*');
+            }
+        });
+    })();
+    </script>
+
+</body>
+</html>
