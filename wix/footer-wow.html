@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone Total Sport &#8212; Footer WOW</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: { electric: '#00E5FF' },
+                        yellow: { sun: '#FFD700' },
+                        pink: { fuchsia: '#FF2A7A' },
+                        violet: { pop: '#8B5CF6' },
+                        dark: '#0F0F2E',
+                    },
+                    fontFamily: {
+                        bangers: ['"Luckiest Guy"', 'cursive'],
+                        boogaloo: ['Boogaloo', 'cursive'],
+                        baloo: ['"Patrick Hand"', 'cursive'],
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+
+        body {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
+            background-color: #0F0F2E;
+            color: #1a1a2e;
+            overflow-x: hidden;
+        }
+
+        /* ========== MARQUEE ========== */
+        .marquee-track { display: flex; animation: marquee 25s linear infinite; width: max-content; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .marquee-reverse .marquee-track { animation-direction: reverse; }
+
+        /* ========== WAVE DIVIDERS ========== */
+        .wave-divider { width: 100%; overflow: hidden; line-height: 0; position: relative; z-index: 2; }
+        .wave-divider svg { display: block; width: 100%; height: 70px; }
+        @media (max-width: 768px) { .wave-divider svg { height: 40px; } }
+
+        /* ========== AURORA FOOTER ========== */
+        @keyframes aurora {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .aurora-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #00E5FF, #FFD700, #FF2A7A, #8B5CF6, #00E5FF);
+            background-size: 300% 100%;
+            animation: aurora 6s linear infinite;
+        }
+
+        /* ========== SECTION BACKGROUNDS ========== */
+        .section-yellow { background: #FFD700; }
+        .section-dark { background: #0F0F2E; color: #fff; }
+
+        /* ========== SPORTS TICKER ========== */
+        .sports-ticker-wrap { background: #18181b; border-top: 3px solid #00E5FF; }
+        .sports-tabs {
+            display: flex; overflow-x: auto; scrollbar-width: none;
+            border-bottom: 2px solid rgba(255,255,255,0.08); background: #111;
+        }
+        .sports-tabs::-webkit-scrollbar { display: none; }
+        .sport-tab {
+            padding: 10px 20px; font-family: 'Luckiest Guy', cursive; font-size: 0.95rem;
+            letter-spacing: 0.06em; color: rgba(255,255,255,0.4); cursor: pointer;
+            white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s;
+            background: none; border-top: none; border-left: none; border-right: none;
+        }
+        .sport-tab:hover { color: rgba(255,255,255,0.7); }
+        .sport-tab.active { color: #00E5FF; border-bottom-color: #00E5FF; }
+        .scores-container { display: flex; overflow-x: auto; scrollbar-width: none; gap: 0; padding: 0; }
+        .scores-container::-webkit-scrollbar { display: none; }
+        .game-card {
+            min-width: 200px; padding: 12px 16px; border-right: 1px solid rgba(255,255,255,0.06);
+            display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+        }
+        .game-card:hover { background: rgba(255,255,255,0.03); }
+        .game-team-row {
+            display: flex; align-items: center; gap: 8px; font-family: 'Patrick Hand', cursive;
+            font-size: 1.1rem; color: #fff;
+        }
+        .game-team-logo { width: 22px; height: 22px; object-fit: contain; }
+        .game-team-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .game-team-score { font-family: 'Luckiest Guy', cursive; font-size: 1.2rem; min-width: 24px; text-align: right; letter-spacing: 0.04em; }
+        .game-team-row.winner .game-team-score { color: #00E5FF; }
+        .game-status {
+            font-family: 'Luckiest Guy', cursive; font-size: 0.8rem; letter-spacing: 0.06em;
+            text-align: center; color: rgba(255,255,255,0.35); padding-top: 2px;
+        }
+        .game-status.live { color: #EF4444; animation: livePulse 1.5s infinite; }
+        @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .scores-loading { color: rgba(255,255,255,0.3); font-family: 'Patrick Hand', cursive; padding: 16px 20px; font-size: 0.9rem; }
+        .scores-date-nav {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            padding: 6px 0; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .scores-nav-btn {
+            width: 32px; height: 32px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.15);
+            background: transparent; color: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .scores-nav-btn:hover { background: rgba(0,229,255,0.2); border-color: #00E5FF; color: #00E5FF; }
+        .scores-nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        .scores-date-label {
+            font-family: 'Luckiest Guy', cursive; font-size: 1rem; letter-spacing: 0.06em;
+            color: #00E5FF; min-width: 160px; text-align: center;
+        }
+
+        /* ========== VISIT COUNTER ========== */
+        .visit-counter {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px; padding: 4px 14px;
+        }
+        .counter-digit {
+            background: rgba(255,255,255,0.12); border-radius: 4px; padding: 2px 6px;
+            font-family: 'Luckiest Guy', cursive; font-size: 0.9rem; color: #00E5FF; letter-spacing: 0.05em;
+        }
+
+        /* ========== SOCIAL ICON ========== */
+        .social-icon {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s; color: #0F0F2E;
+        }
+        .social-icon:hover { transform: translateY(-3px) scale(1.1); }
+        .social-icon.fb:hover { background: #1877F2; color: #fff; }
+        .social-icon.ig:hover { background: linear-gradient(135deg, #833AB4, #FD1D1D, #F77737); color: #fff; }
+        .social-icon.yt:hover { background: #FF0000; color: #fff; }
+        .social-icon.tt:hover { background: #000; color: #fff; }
+
+        /* ========== FOOTER LINK HOVER ========== */
+        .footer-link {
+            color: rgba(15,15,46,0.6); font-family: 'Patrick Hand', cursive; font-size: 1.05rem;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .footer-link:hover { color: #0F0F2E; transform: translateX(4px); }
+
+        /* ========== NEWSLETTER INPUT ========== */
+        .newsletter-input {
+            background: rgba(0,0,0,0.08); border: 2px solid rgba(0,0,0,0.1);
+            border-radius: 12px; padding: 12px 16px;
+            font-family: 'Patrick Hand', cursive; font-size: 1rem;
+            color: #0F0F2E; outline: none; transition: border-color 0.2s;
+        }
+        .newsletter-input:focus { border-color: #00E5FF; background: rgba(0,229,255,0.08); }
+        .newsletter-input::placeholder { color: rgba(0,0,0,0.3); }
+
+        /* ========== MISC ========== */
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: #00E5FF; color: #0F0F2E; }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 1. WAVE TRANSITION (Dark &#8594; Yellow) ========== -->
+    <div class="wave-divider" style="background:#0F0F2E;">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C240,70 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="#FFD700"/>
+        </svg>
+    </div>
+
+    <!-- ========== 2. MARQUEE BAND (Sports Terms) ========== -->
+    <section class="section-yellow py-5 overflow-hidden">
+        <div class="marquee-track">
+            <div class="flex items-center gap-8 px-4 whitespace-nowrap">
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">&#201;VALUATION</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">JEUX</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">TOURNOIS</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">&#201;QUIPES</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">PLANIFICATION</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">RENFORCEMENT</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">COOP&#201;RATION</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">SA&#201;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">LOCOMOTION</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">AGILIT&#201;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+            </div>
+            <div class="flex items-center gap-8 px-4 whitespace-nowrap">
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">&#201;VALUATION</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">JEUX</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">TOURNOIS</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">&#201;QUIPES</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">PLANIFICATION</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">RENFORCEMENT</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">COOP&#201;RATION</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">SA&#201;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">LOCOMOTION</span>
+                <span class="font-bangers text-3xl md:text-5xl text-pink-fuchsia tracking-wide">&#183;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-dark tracking-wide">AGILIT&#201;</span>
+                <span class="font-bangers text-3xl md:text-5xl text-cyan-electric tracking-wide">&#183;</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 3. AURORA BAR ========== -->
+    <div class="aurora-bar"></div>
+
+    <!-- ========== 4. FOOTER JAUNE (Logo, Nav, Socials, Newsletter) ========== -->
+    <footer class="section-yellow py-16 px-6 md:px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-12 gap-10 mb-12">
+                <!-- Col 1: Logo + Desc + Socials -->
+                <div class="md:col-span-5">
+                    <img src="https://zone.zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-14 w-auto mb-4">
+                    <p class="text-dark/60 font-baloo text-lg max-w-sm mb-6">
+                        La plateforme gratuite de ressources en &#233;ducation physique pour les enseignants du primaire au Qu&#233;bec.
+                    </p>
+                    <div class="flex gap-3 mb-8">
+                        <a href="https://www.facebook.com/zonetotalsportparMr.Roots/" target="_blank" rel="noopener" class="social-icon fb">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="https://www.instagram.com/zonetotalsportparmrroots/" target="_blank" rel="noopener" class="social-icon ig">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="https://www.youtube.com/@zonetotalsportparMrRoots" target="_blank" rel="noopener" class="social-icon yt">
+                            <i data-lucide="youtube" class="w-5 h-5"></i>
+                        </a>
+                        <a href="https://www.tiktok.com/@zonetotalsport" target="_blank" rel="noopener" class="social-icon tt">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.19a8.16 8.16 0 004.76 1.53v-3.45a4.85 4.85 0 01-1-.58z"/></svg>
+                        </a>
+                    </div>
+
+                    <!-- Newsletter mini -->
+                    <div>
+                        <p class="font-bangers text-sm text-dark/50 uppercase tracking-widest mb-3">Reste branch&#233;!</p>
+                        <div class="flex gap-2">
+                            <input type="email" placeholder="ton@courriel.ca" class="newsletter-input flex-1" id="newsletterEmail">
+                            <button onclick="subscribeNewsletter()" class="font-bangers text-sm tracking-wide bg-dark text-white px-5 py-3 rounded-xl hover:bg-dark/80 transition-colors" style="border:none;cursor:pointer;">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <p class="text-dark/30 font-baloo text-xs mt-2" id="newsletterMsg">Aucun spam, promis! &#128588;</p>
+                    </div>
+                </div>
+
+                <!-- Col 2: Navigation -->
+                <div class="md:col-span-3">
+                    <h4 class="font-bangers text-base text-dark/50 uppercase tracking-widest mb-4">Navigation</h4>
+                    <ul class="space-y-3">
+                        <li><a href="https://www.zonetotalsport.ca" target="_top" class="footer-link"><i data-lucide="home" class="w-4 h-4"></i> Accueil</a></li>
+                        <li><a href="https://www.zonetotalsport.ca/banque-de-jeux" target="_top" class="footer-link"><i data-lucide="gamepad-2" class="w-4 h-4"></i> Banque de jeux</a></li>
+                        <li><a href="https://www.zonetotalsport.ca/sae" target="_top" class="footer-link"><i data-lucide="book-open" class="w-4 h-4"></i> SA&#201;</a></li>
+                        <li><a href="https://www.zonetotalsport.ca/blog" target="_top" class="footer-link"><i data-lucide="pen-tool" class="w-4 h-4"></i> Blogue</a></li>
+                        <li><a href="https://www.zonetotalsport.ca/boite-a-outils" target="_top" class="footer-link"><i data-lucide="wrench" class="w-4 h-4"></i> Bo&#238;te &#224; outils</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Infos -->
+                <div class="md:col-span-2">
+                    <h4 class="font-bangers text-base text-dark/50 uppercase tracking-widest mb-4">Infos</h4>
+                    <ul class="space-y-3">
+                        <li><a href="https://www.zonetotalsport.ca/about" target="_top" class="footer-link">&#192; propos</a></li>
+                        <li><a href="https://www.zonetotalsport.ca/contact" target="_top" class="footer-link">Contact</a></li>
+                        <li><a href="https://www.zonetotalsport.ca/privacy" target="_top" class="footer-link">Confidentialit&#233;</a></li>
+                        <li><a href="https://www.zonetotalsport.ca/terms" target="_top" class="footer-link">Conditions</a></li>
+                        <li><a href="https://square.link/u/hAuTPCOT?src=embed" target="_top" class="footer-link" style="color:#FF2A7A"><i data-lucide="heart" class="w-4 h-4"></i> Faire un don</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Stats rapides -->
+                <div class="md:col-span-2">
+                    <h4 class="font-bangers text-base text-dark/50 uppercase tracking-widest mb-4">En chiffres</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="font-bangers text-3xl text-dark tracking-wide">547+</div>
+                            <div class="text-dark/40 font-baloo text-sm">Jeux sportifs</div>
+                        </div>
+                        <div>
+                            <div class="font-bangers text-3xl text-dark tracking-wide">128</div>
+                            <div class="text-dark/40 font-baloo text-sm">SA&#201; compl&#232;tes</div>
+                        </div>
+                        <div>
+                            <div class="font-bangers text-3xl text-dark tracking-wide">2 300+</div>
+                            <div class="text-dark/40 font-baloo text-sm">Enseignants actifs</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Separator -->
+            <div class="border-t border-dark/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-dark/40 font-baloo text-base">&#169; 2026 Zone Total Sport. Tous droits r&#233;serv&#233;s.</p>
+                <p class="text-dark/40 font-baloo text-base">Fait avec &#128155; au Qu&#233;bec</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========== 5. M&#201;T&#201;O WIDGET ========== -->
+    <div class="w-full">
+        <a class="weatherwidget-io" href="https://forecast7.com/fr/45d31n73d25/saint-jean-sur-richelieu/" data-label_1="SAINT-JEAN-SUR-RICHELIEU" data-label_2="PR&#201;VISIONS 5 JOURS" data-font="Roboto" data-icons="Climacons Animated" data-days="5" data-theme="pure">SAINT-JEAN M&#201;T&#201;O</a>
+    </div>
+
+    <!-- ========== 6. SPORTS SCORES (Live ESPN) ========== -->
+    <div class="sports-ticker-wrap">
+        <div class="sports-tabs" id="sportsTabs">
+            <button class="sport-tab active" data-sport="hockey/nhl">&#127954; NHL</button>
+            <button class="sport-tab" data-sport="basketball/nba">&#127936; NBA</button>
+            <button class="sport-tab" data-sport="football/nfl">&#127944; NFL</button>
+            <button class="sport-tab" data-sport="baseball/mlb">&#9918; MLB</button>
+            <button class="sport-tab" data-sport="soccer/usa.1">&#9917; MLS</button>
+            <button class="sport-tab" data-sport="football/college-football">&#127944; NCAA</button>
+            <button class="sport-tab" data-sport="basketball/mens-college-basketball">&#127936; NCAAB</button>
+        </div>
+        <div class="scores-date-nav">
+            <button class="scores-nav-btn" id="scoresPrev" onclick="changeScoresDate(-1)" title="Jour pr&#233;c&#233;dent">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+            </button>
+            <span class="scores-date-label" id="scoresDateLabel">Aujourd'hui</span>
+            <button class="scores-nav-btn" id="scoresNext" onclick="changeScoresDate(1)" title="Jour suivant">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="scores-container" id="scoresContainer">
+            <div class="scores-loading">Chargement des scores...</div>
+        </div>
+    </div>
+
+    <!-- ========== 7. SUB-FOOTER (Dark) ========== -->
+    <div class="section-dark py-4 px-6 flex flex-col md:flex-row items-center justify-between gap-3">
+        <p class="text-white/30 font-baloo text-xs">zonetotalsport.ca &#8212; Ressources &#201;PS pour enseignants au primaire</p>
+        <div class="visit-counter">
+            <i data-lucide="eye" class="w-3.5 h-3.5 text-white/30"></i>
+            <span class="text-white/30 font-baloo text-xs">Visiteurs :</span>
+            <span class="counter-digit" id="visitCount">0</span>
+        </div>
+    </div>
+
+    <!-- ========== JAVASCRIPT ========== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+
+    // ============ NEWSLETTER ============
+    function subscribeNewsletter() {
+        var email = document.getElementById('newsletterEmail');
+        var msg = document.getElementById('newsletterMsg');
+        if (!email || !email.value || !email.value.includes('@')) {
+            msg.textContent = 'Entre un courriel valide!';
+            msg.style.color = '#EF4444';
+            return;
+        }
+        msg.textContent = 'Merci! Tu es inscrit(e)! \u2705';
+        msg.style.color = '#16A34A';
+        email.value = '';
+        // Send to parent (Wix Velo can handle this)
+        window.parent.postMessage({ type: 'newsletter', email: email.value, group: 'footerWow' }, '*');
+    }
+
+    // ============ LIVE SPORTS SCORES (ESPN API) ============
+    (function() {
+        var container = document.getElementById('scoresContainer');
+        var tabs = document.getElementById('sportsTabs');
+        if (!container || !tabs) return;
+
+        var activeSport = 'hockey/nhl';
+        var scoreDateOffset = 0;
+
+        function getScoreDate() {
+            var d = new Date();
+            d.setDate(d.getDate() + scoreDateOffset);
+            return d;
+        }
+
+        function updateDateLabel() {
+            var label = document.getElementById('scoresDateLabel');
+            var nextBtn = document.getElementById('scoresNext');
+            var prevBtn = document.getElementById('scoresPrev');
+            if (!label) return;
+            if (scoreDateOffset === 0) label.textContent = "Aujourd'hui";
+            else if (scoreDateOffset === -1) label.textContent = "Hier";
+            else {
+                var d = getScoreDate();
+                label.textContent = d.toLocaleDateString('fr-CA', { weekday: 'short', day: 'numeric', month: 'short' });
+            }
+            if (nextBtn) nextBtn.disabled = (scoreDateOffset >= 0);
+            if (prevBtn) prevBtn.disabled = (scoreDateOffset <= -30);
+        }
+
+        window.changeScoresDate = function(dir) {
+            var newOffset = scoreDateOffset + dir;
+            if (newOffset > 0 || newOffset < -30) return;
+            scoreDateOffset = newOffset;
+            updateDateLabel();
+            fetchScores(activeSport);
+        };
+
+        function fetchScores(sport) {
+            container.innerHTML = '<div class="scores-loading">&#9203; Chargement...</div>';
+            updateDateLabel();
+            var targetDate = getScoreDate();
+            var dateStr = targetDate.toISOString().slice(0, 10).replace(/-/g, '');
+            fetch('https://site.api.espn.com/apis/site/v2/sports/' + sport + '/scoreboard?dates=' + dateStr)
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    var events = data.events || [];
+                    if (events.length === 0) { container.innerHTML = '<div class="scores-loading">Aucun match ce jour</div>'; return; }
+
+                    var html = '';
+                    events.forEach(function(ev) {
+                        var comp = ev.competitions && ev.competitions[0];
+                        if (!comp) return;
+                        var away = comp.competitors && comp.competitors.find(function(c) { return c.homeAway === 'away'; });
+                        var home = comp.competitors && comp.competitors.find(function(c) { return c.homeAway === 'home'; });
+                        if (!away || !home) return;
+
+                        var status = ev.status || {};
+                        var statusType = status.type && status.type.name || '';
+                        var statusDetail = status.type && (status.type.shortDetail || status.type.detail) || '';
+                        var isLive = statusType === 'STATUS_IN_PROGRESS' || statusType === 'STATUS_HALFTIME' || statusType === 'STATUS_END_PERIOD';
+                        var isFinal = statusType === 'STATUS_FINAL';
+                        var isScheduled = statusType === 'STATUS_SCHEDULED';
+                        var period = status.period || 0;
+                        var clock = status.displayClock || '';
+
+                        var statusHtml = '';
+                        if (isLive) {
+                            var detail = '';
+                            if (clock && clock !== '0:00') detail = clock + ' - ';
+                            if (sport.indexOf('hockey') !== -1) detail += 'P' + period;
+                            else if (sport.indexOf('basketball') !== -1) detail += 'Q' + period;
+                            else if (sport.indexOf('football') !== -1) detail += 'Q' + period;
+                            else if (sport.indexOf('baseball') !== -1) detail += period > 9 ? period + 'th' : ['','1st','2nd','3rd','4th','5th','6th','7th','8th','9th'][period];
+                            else if (sport.indexOf('soccer') !== -1) detail += period === 1 ? '1H' : '2H';
+                            statusHtml = '<div class="game-status live">&#128308; LIVE ' + detail + '</div>';
+                        } else if (isFinal) {
+                            statusHtml = '<div class="game-status">FINAL</div>';
+                        } else {
+                            statusHtml = '<div class="game-status">' + statusDetail + '</div>';
+                        }
+
+                        var awayScore = parseInt(away.score) || 0;
+                        var homeScore = parseInt(home.score) || 0;
+                        var awayWin = isFinal && awayScore > homeScore;
+                        var homeWin = isFinal && homeScore > awayScore;
+                        var awayLogo = away.team && away.team.logo || '';
+                        var homeLogo = home.team && home.team.logo || '';
+                        var awayName = away.team && (away.team.abbreviation || away.team.shortDisplayName) || '?';
+                        var homeName = home.team && (home.team.abbreviation || home.team.shortDisplayName) || '?';
+
+                        html += '<div class="game-card">' +
+                            '<div class="game-team-row ' + (awayWin ? 'winner' : '') + '">' +
+                                '<img src="' + awayLogo + '" class="game-team-logo" alt="' + awayName + '" onerror="this.style.display=\'none\'">' +
+                                '<span class="game-team-name">' + awayName + '</span>' +
+                                '<span class="game-team-score">' + (isScheduled ? '' : awayScore) + '</span>' +
+                            '</div>' +
+                            '<div class="game-team-row ' + (homeWin ? 'winner' : '') + '">' +
+                                '<img src="' + homeLogo + '" class="game-team-logo" alt="' + homeName + '" onerror="this.style.display=\'none\'">' +
+                                '<span class="game-team-name">' + homeName + '</span>' +
+                                '<span class="game-team-score">' + (isScheduled ? '' : homeScore) + '</span>' +
+                            '</div>' +
+                            statusHtml +
+                        '</div>';
+                    });
+                    container.innerHTML = html;
+                })
+                .catch(function() {
+                    container.innerHTML = '<div class="scores-loading">Impossible de charger les scores</div>';
+                });
+        }
+
+        tabs.querySelectorAll('.sport-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                tabs.querySelectorAll('.sport-tab').forEach(function(t) { t.classList.remove('active'); });
+                tab.classList.add('active');
+                activeSport = tab.dataset.sport;
+                scoreDateOffset = 0;
+                fetchScores(activeSport);
+            });
+        });
+
+        updateDateLabel();
+        fetchScores(activeSport);
+        setInterval(function() { fetchScores(activeSport); }, 30000);
+    })();
+
+    // ============ VISIT COUNTER ============
+    (function() {
+        var key = 'zts_visit_count';
+        var count = parseInt(localStorage.getItem(key) || '0', 10);
+        var visited = sessionStorage.getItem('zts_visited');
+        if (!visited) { count++; localStorage.setItem(key, count); sessionStorage.setItem('zts_visited', '1'); }
+        var el = document.getElementById('visitCount');
+        if (el) el.textContent = count.toLocaleString('fr-CA');
+    })();
+    </script>
+
+    <!-- Weather Widget -->
+    <script>
+    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+    </script>
+
+    <!-- ========== WIX VELO BRIDGE ========== -->
+    <script>
+    (function() {
+        'use strict';
+        var GROUP_ID = 'footerWow';
+
+        window.addEventListener('message', function(event) {
+            var data = event.data;
+            if (!data || !data.type) return;
+            if (data.type === 'setLang' && window.setLang && data.lang) window.setLang(data.lang);
+        });
+
+        function sendHeight() {
+            var h = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: 'resize', group: GROUP_ID, height: h }, '*');
+        }
+
+        var _ro = new ResizeObserver(function() { sendHeight(); });
+        _ro.observe(document.body);
+        window.addEventListener('load', function() {
+            setTimeout(sendHeight, 500);
+            setTimeout(sendHeight, 2000);
+            setTimeout(sendHeight, 5000);
+        });
+
+        document.addEventListener('click', function(e) {
+            var link = e.target.closest('a[href^="http"]');
+            if (link && link.getAttribute('target') === '_top') return;
+            if (link && link.href.indexOf(window.location.hostname) === -1) {
+                window.parent.postMessage({ type: 'externalLink', href: link.href, group: GROUP_ID }, '*');
+            }
+        });
+    })();
+    </script>
+
+</body>
+</html>

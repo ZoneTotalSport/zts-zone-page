@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone Total Sport — Page Principale</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: { electric: '#00E5FF' },
+                        yellow: { sun: '#FFD700' },
+                        pink: { fuchsia: '#FF2A7A' },
+                        violet: { pop: '#8B5CF6' },
+                        dark: '#0F0F2E',
+                    },
+                    fontFamily: {
+                        bangers: ['"Luckiest Guy"', 'cursive'],
+                        boogaloo: ['Boogaloo', 'cursive'],
+                        baloo: ['"Patrick Hand"', 'cursive'],
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+
+        body {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
+            background-color: #ffffff;
+            color: #1a1a2e;
+            overflow-x: hidden;
+        }
+
+        /* ========== WAVE DIVIDERS ========== */
+        .wave-divider { width: 100%; overflow: hidden; line-height: 0; position: relative; z-index: 2; }
+        .wave-divider svg { display: block; width: 100%; height: 70px; }
+        @media (max-width: 768px) { .wave-divider svg { height: 40px; } }
+
+        /* ========== TITLES ========== */
+        .hero-title {
+            font-family: 'Luckiest Guy', cursive;
+            font-weight: 400; line-height: 1.1;
+            letter-spacing: 0.04em;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #FF2A7A, #8B5CF6);
+            background-size: 300% 300%;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+        /* ========== SECTION BACKGROUNDS ========== */
+        .section-cyan { background: #00E5FF; }
+        .section-pink { background: #FF2A7A; color: #fff; }
+        .section-violet { background: #8B5CF6; color: #fff; }
+        .section-yellow { background: #FFD700; }
+        .section-gray { background: #F5F5F5; }
+        .section-dark { background: #0F0F2E; color: #fff; }
+
+        /* ========== SECTION TAG ========== */
+        .section-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; border-radius: 8px;
+            font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive; font-weight: 400; font-size: 1.15rem;
+            letter-spacing: 0.03em; border: none; cursor: pointer;
+            position: relative; overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.3s; text-decoration: none;
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary.btn-cyan { background: linear-gradient(135deg, #00E5FF, #00B8D4); color: #0F0F2E; box-shadow: 0 8px 30px rgba(0,229,255,0.3); }
+        .btn-primary.btn-pink { background: linear-gradient(135deg, #FF2A7A, #E91E63); color: #fff; box-shadow: 0 8px 30px rgba(255,42,122,0.3); }
+        .btn-primary.btn-yellow { background: linear-gradient(135deg, #FFD700, #FFA000); color: #0F0F2E; box-shadow: 0 8px 30px rgba(255,215,0,0.3); }
+        .btn-primary.btn-violet { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: #fff; box-shadow: 0 8px 30px rgba(139,92,246,0.3); }
+        .btn-primary.btn-dark { background: #0F0F2E; color: #fff; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+
+        .btn-outline-dark {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive; font-weight: 400; font-size: 1.15rem; letter-spacing: 0.03em;
+            background: transparent; border: 2px solid #0F0F2E; color: #0F0F2E; cursor: pointer;
+            transition: background 0.3s, color 0.3s; text-decoration: none;
+        }
+        .btn-outline-dark:hover { background: #0F0F2E; color: #fff; }
+
+        /* ========== SERVICE CARDS ========== */
+        .service-card {
+            border-radius: 24px; padding: 40px 28px;
+            position: relative; overflow: hidden;
+            transition: transform 0.1s ease-out, box-shadow 0.3s;
+            min-height: 320px;
+        }
+        .service-card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .service-card .card-number {
+            position: absolute; top: -10px; right: -5px;
+            font-family: 'Luckiest Guy', cursive; font-size: 8rem; line-height: 1;
+            opacity: 0.12; pointer-events: none;
+        }
+
+        /* ========== TILT CARD ========== */
+        .tilt-card { transform-style: preserve-3d; perspective: 800px; }
+        .tilt-card-inner { transform-style: preserve-3d; transition: transform 0.1s ease-out; }
+        .tilt-card-inner .tilt-icon { transform: translateZ(40px); }
+        .tilt-card-inner .tilt-title { transform: translateZ(30px); }
+        .tilt-card-inner .tilt-desc { transform: translateZ(20px); }
+
+        /* ========== STAGGER GRID ========== */
+        @media (min-width: 1024px) {
+            .stagger-grid > :nth-child(even) { transform: translateY(40px); }
+        }
+
+        /* ========== ICON CIRCLE ========== */
+        .icon-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+
+        /* ========== TESTIMONIAL CARD ========== */
+        .testimonial-card {
+            background: #fff; border-radius: 24px; padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 4px solid;
+        }
+        .testimonial-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+
+        /* ========== IA TEASER ========== */
+        .ia-teaser-card {
+            background: #fff; border: 6px solid #18181b; border-radius: 24px;
+            box-shadow: 10px 10px 0 #18181b; padding: 40px 32px;
+            text-align: center; transform: rotate(-1deg);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative; overflow: visible; cursor: pointer;
+        }
+        .ia-teaser-card:hover { transform: rotate(0deg) scale(1.03); box-shadow: 14px 14px 0 #18181b; }
+        .ia-teaser-sticker {
+            position: absolute; top: -18px; right: -12px;
+            background: #FF2A7A; color: #fff;
+            font-family: 'Luckiest Guy', cursive; font-size: 0.7rem; letter-spacing: 0.1em;
+            padding: 6px 16px; border-radius: 20px;
+            border: 3px solid #18181b; box-shadow: 3px 3px 0 #18181b;
+            transform: rotate(8deg); z-index: 5;
+        }
+
+        /* ========== &#192; LA UNE ========== */
+        .alaune-scroll {
+            display: flex; gap: 24px; overflow-x: auto; padding: 10px 4px 20px;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+        }
+        .alaune-scroll::-webkit-scrollbar { display: none; }
+        .alaune-card {
+            background: #fff; border-radius: 24px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1); overflow: hidden;
+            transition: transform 0.25s, box-shadow 0.25s; cursor: pointer;
+            min-width: 300px; max-width: 320px; flex-shrink: 0; scroll-snap-align: start;
+        }
+        .alaune-card:hover { transform: translateY(-8px); box-shadow: 0 16px 40px rgba(0,0,0,0.15); }
+
+        /* ========== MARQUEE ========== */
+        .marquee-track { display: flex; animation: marquee 30s linear infinite; width: max-content; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* ========== GLOW PULSE ========== */
+        @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.3); } 50% { box-shadow: 0 0 40px rgba(255,215,0,0.6); } }
+        .glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
+
+        /* ========== FLOATING ANIMATION ========== */
+        @keyframes floatUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* ========== REVEAL ========== */
+        .reveal { opacity: 0; transform: translateY(60px); }
+
+        /* ========== STAT NUMBER ========== */
+        .stat-number { font-family: 'Luckiest Guy', cursive; font-weight: 900; font-size: 3rem; line-height: 1; }
+        @media (max-width: 768px) { .stat-number { font-size: 2rem; } }
+
+        /* ========== WHY CARD ========== */
+        .why-card {
+            background: #fff; border-radius: 20px; padding: 32px;
+            border: 3px solid #f0f0f0;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .why-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+        }
+        .why-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,0,0,0.1); border-color: var(--accent); }
+
+        /* ========== PULSE DOT ========== */
+        @keyframes pulseDot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.5; } }
+        .pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
+
+        /* ========== CONFETTI BURST ========== */
+        .confetti-piece { position: fixed; pointer-events: none; z-index: 99990; font-size: 1.6rem; will-change: transform, opacity; }
+
+        /* ========== MISC ========== */
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: #00E5FF; color: #0F0F2E; }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.4rem !important; }
+            .alaune-card { min-width: 270px; max-width: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== SECTION 1: SERVICE CARDS ========== -->
+    <section class="py-24 px-6 md:px-10" id="services">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="section-tag bg-pink-fuchsia/10 text-pink-fuchsia mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="layers" class="w-4 h-4"></i> RESSOURCES
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark">
+                    Tout ce qu'il te faut,<br>
+                    <span style="color:#FF2A7A">au m&#234;me endroit.</span>
+                </h2>
+                <p class="text-dark/50 font-baloo text-lg max-w-xl mx-auto reveal">
+                    Des centaines de ressources pens&#233;es par et pour les profs d'&#201;PS du primaire.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 stagger-grid">
+                <!-- Card 1 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-cyan-electric text-dark h-full">
+                        <div class="card-number">1</div>
+                        <div class="tilt-icon icon-circle bg-white/30 text-dark mb-6">
+                            <i data-lucide="gamepad-2" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide">Banque de Jeux</h3>
+                        <p class="tilt-desc text-dark/60 font-baloo text-sm mb-6">+500 jeux class&#233;s par cat&#233;gorie, &#226;ge et comp&#233;tence. Trouve le jeu parfait en secondes.</p>
+                        <a href="https://www.zonetotalsport.ca/banque-de-jeux" target="_top" class="inline-flex items-center gap-2 text-dark font-bangers text-sm hover:gap-3 transition-all tracking-wide">
+                            Explorer <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-yellow-sun text-dark h-full">
+                        <div class="card-number">2</div>
+                        <div class="tilt-icon icon-circle bg-white/30 text-dark mb-6">
+                            <i data-lucide="book-open" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide">SA&#201; Compl&#232;tes</h3>
+                        <p class="tilt-desc text-dark/60 font-baloo text-sm mb-6">Situations d'apprentissage cl&#233;s en main align&#233;es avec le PFEQ. Pr&#234;tes &#224; utiliser demain.</p>
+                        <a href="https://www.zonetotalsport.ca/sae" target="_top" class="inline-flex items-center gap-2 text-dark font-bangers text-sm hover:gap-3 transition-all tracking-wide">
+                            D&#233;couvrir <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-pink-fuchsia text-white h-full">
+                        <div class="card-number">3</div>
+                        <div class="tilt-icon icon-circle bg-white/20 text-white mb-6">
+                            <i data-lucide="pen-tool" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide">Blogue &#201;PS</h3>
+                        <p class="tilt-desc text-white/70 font-baloo text-sm mb-6">Articles, strat&#233;gies et r&#233;flexions sur l'enseignement de l'&#233;ducation physique au Qu&#233;bec.</p>
+                        <a href="https://www.zonetotalsport.ca/blog" target="_top" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide">
+                            Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-violet-pop text-white h-full">
+                        <div class="card-number">4</div>
+                        <div class="tilt-icon icon-circle bg-white/20 text-white mb-6">
+                            <i data-lucide="clipboard-list" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide">Gestion de Classe</h3>
+                        <p class="tilt-desc text-white/70 font-baloo text-sm mb-6">Outils, routines et syst&#232;mes pour un gymnase organis&#233; et motivant. Fini le chaos!</p>
+                        <a href="https://www.zonetotalsport.ca/boite-a-outils" target="_top" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide">
+                            Organiser <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: White &#8594; Gray -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C240,70 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="#F5F5F5"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 2: WHY DIFFERENT (Gray) ========== -->
+    <section class="section-gray py-24 px-6 md:px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark">
+                    Ce qui rend la Zone<br>
+                    <span style="color:#FFD700">diff&#233;rente.</span>
+                </h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="why-card reveal" style="--accent: #00E5FF;">
+                    <div class="icon-circle bg-cyan-electric/15 text-cyan-electric mb-5">
+                        <i data-lucide="badge-check" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="font-bangers text-2xl mb-3 tracking-wide text-dark">Gratuit. Pour vrai.</h3>
+                    <p class="text-dark/50 font-baloo">Pas de freemium, pas de paywall. Toutes les ressources sont accessibles &#224; 100% sans cr&#233;er de compte.</p>
+                </div>
+                <div class="why-card reveal" style="--accent: #FF2A7A;">
+                    <div class="icon-circle bg-pink-fuchsia/15 text-pink-fuchsia mb-5">
+                        <i data-lucide="users" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="font-bangers text-2xl mb-3 tracking-wide text-dark">Par des profs, pour des profs</h3>
+                    <p class="text-dark/50 font-baloo">Chaque jeu et SA&#201; est cr&#233;&#233; et test&#233; par des enseignants du Qu&#233;bec. Du terrain, pas du bureau.</p>
+                </div>
+                <div class="why-card reveal" style="--accent: #8B5CF6;">
+                    <div class="icon-circle bg-violet-pop/15 text-violet-pop mb-5">
+                        <i data-lucide="timer" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="font-bangers text-2xl mb-3 tracking-wide text-dark">Pr&#234;t en 2 minutes</h3>
+                    <p class="text-dark/50 font-baloo">Trouve un jeu, lis les r&#232;gles, c'est parti. Toutes les ressources sont con&#231;ues pour &#234;tre utilisables imm&#233;diatement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: Gray &#8594; Cyan -->
+    <div class="wave-divider" style="background:#F5F5F5">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C240,70 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="#00E5FF"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 3: IA TEASER (Cyan) ========== -->
+    <section class="section-cyan py-24 px-6 md:px-10 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-10">
+                <div class="section-tag bg-white/20 text-dark mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> NOUVEAUT&#201;
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark">
+                    Le futur de l'&#201;PS<br>
+                    <span style="color:#FF2A7A">est arriv&#233;!</span>
+                </h2>
+                <p class="text-dark/60 font-baloo text-lg max-w-xl mx-auto reveal">
+                    L'intelligence artificielle d&#233;barque dans la Zone. Pr&#233;pare-toi!
+                </p>
+            </div>
+
+            <div class="max-w-md mx-auto reveal">
+                <div class="ia-teaser-card" onclick="window.parent.postMessage({type:'navigate',url:'https://www.zonetotalsport.ca/generateur-ia'},'*')">
+                    <div class="ia-teaser-sticker">YOUHOU!</div>
+                    <div style="font-size:4rem; margin-bottom:16px; filter: drop-shadow(3px 3px 0 rgba(0,0,0,0.15));">&#129302;</div>
+                    <h3 class="font-bangers text-2xl mb-3 text-dark tracking-wide">G&#233;n&#233;rateur de Jeux IA</h3>
+                    <p class="text-dark/50 font-baloo text-sm mb-6">D&#233;cris ton contexte, ton groupe et tes objectifs &#8212; l'IA cr&#233;e un jeu sur mesure en quelques secondes. C'est magique!</p>
+                    <span class="btn-primary btn-dark text-sm !py-3 !px-6">
+                        <i data-lucide="zap" class="w-5 h-5"></i> D&#233;couvrir le G&#233;n&#233;rateur IA
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating decorations -->
+        <div style="position:absolute; top:10%; left:5%; font-size:2.5rem; animation: floatUp 4s ease-in-out infinite; pointer-events:none; opacity:0.4;">&#9889;</div>
+        <div style="position:absolute; top:20%; right:8%; font-size:2rem; animation: floatUp 5s ease-in-out infinite 1s; pointer-events:none; opacity:0.3;">&#129302;</div>
+        <div style="position:absolute; bottom:15%; left:10%; font-size:2rem; animation: floatUp 3.5s ease-in-out infinite 0.5s; pointer-events:none; opacity:0.3;">&#10024;</div>
+    </section>
+
+    <!-- Wave: Cyan &#8594; White -->
+    <div class="wave-divider" style="background:#00E5FF">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C240,70 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="#ffffff"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 4: MISSION (White) ========== -->
+    <section class="py-20 px-6 md:px-10">
+        <div class="max-w-4xl mx-auto text-center reveal">
+            <div class="text-5xl mb-6">&#127941;</div>
+            <p class="font-baloo text-xl md:text-2xl text-dark/70 leading-relaxed">
+                Zone Total Sport, c'est une plateforme cr&#233;&#233;e par <strong class="text-dark">des enseignants d'&#201;PS du Qu&#233;bec</strong>, pour les enseignants d'&#201;PS. Chaque jeu, chaque SA&#201; et chaque outil a &#233;t&#233; test&#233; sur le terrain. Notre mission : te simplifier la vie et rendre tes cours inoubliables.
+            </p>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 5: TESTIMONIALS ========== -->
+    <section class="py-24 px-6 md:px-10 section-gray" id="temoignages">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="section-tag bg-violet-pop/10 text-violet-pop mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> T&#201;MOIGNAGES
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark">
+                    Ce qu'ils en<br>
+                    <span style="color:#8B5CF6">pensent.</span>
+                </h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="testimonial-card reveal" style="border-top-color: #00E5FF;">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-cyan-electric/20 flex items-center justify-center font-bangers text-cyan-electric text-lg">MJ</div>
+                        <div>
+                            <div class="font-bangers text-sm tracking-wide text-dark">Marie-Josée</div>
+                            <div class="text-dark/40 font-baloo text-xs">Enseignante &#201;PS, Laval</div>
+                        </div>
+                    </div>
+                    <p class="text-dark/60 font-baloo">"J'utilise Zone Total Sport chaque semaine pour planifier mes cours. La banque de jeux est une mine d'or! Mes &#233;l&#232;ves adorent les nouveaux jeux."</p>
+                    <div class="flex gap-1 mt-4 text-yellow-sun">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                </div>
+
+                <div class="testimonial-card reveal" style="border-top-color: #FFD700;">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-yellow-sun/20 flex items-center justify-center font-bangers text-dark text-lg">PL</div>
+                        <div>
+                            <div class="font-bangers text-sm tracking-wide text-dark">Pierre-Luc</div>
+                            <div class="text-dark/40 font-baloo text-xs">Enseignant &#201;PS, Qu&#233;bec</div>
+                        </div>
+                    </div>
+                    <p class="text-dark/60 font-baloo">"Le g&#233;n&#233;rateur de jeux est g&#233;nial quand je suis en panne d'inspiration. En un clic, j'ai une activit&#233; pr&#234;te &#224; lancer. Merci pour cette ressource!"</p>
+                    <div class="flex gap-1 mt-4 text-yellow-sun">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                </div>
+
+                <div class="testimonial-card reveal" style="border-top-color: #FF2A7A;">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-pink-fuchsia/20 flex items-center justify-center font-bangers text-pink-fuchsia text-lg">SB</div>
+                        <div>
+                            <div class="font-bangers text-sm tracking-wide text-dark">Sarah B.</div>
+                            <div class="text-dark/40 font-baloo text-xs">&#201;tudiante B&#201;PEP, Montr&#233;al</div>
+                        </div>
+                    </div>
+                    <p class="text-dark/60 font-baloo">"Indispensable pour mes stages! Les SA&#201; sont align&#233;es avec le programme et faciles &#224; adapter. Le site est devenu ma r&#233;f&#233;rence num&#233;ro un."</p>
+                    <div class="flex gap-1 mt-4 text-yellow-sun">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: Gray &#8594; White -->
+    <div class="wave-divider" style="background:#F5F5F5">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C240,70 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="#ffffff"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 6: &#192; LA UNE ========== -->
+    <section class="py-24 px-6 md:px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <div class="section-tag bg-cyan-electric/10 text-dark mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="rocket" class="w-4 h-4"></i> &#192; VENIR
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark">
+                    Ce qui s'en vient<br>
+                    <span class="gradient-text">dans la Zone!</span>
+                </h2>
+                <p class="text-dark/50 font-baloo text-lg max-w-xl mx-auto reveal">
+                    Des nouveaut&#233;s excitantes arrivent bient&#244;t pour tes cours d'&#201;PS!
+                </p>
+            </div>
+
+            <div class="alaune-scroll reveal">
+                <!-- Card 1 -->
+                <div class="alaune-card">
+                    <div style="width:100%; height:200px; background: linear-gradient(135deg, #00E5FF 0%, #0097A7 100%); display:flex; align-items:center; justify-content:center;">
+                        <span style="font-size:4rem;">&#129302;</span>
+                    </div>
+                    <div style="padding:22px 24px 24px;">
+                        <div style="font-family:'Fredoka One',cursive; font-size:1.35rem; color:#18181b; margin-bottom:6px; line-height:1.2;">G&#233;n&#233;rateur IA v2</div>
+                        <div style="font-family:'Patrick Hand',cursive; font-size:0.95rem; color:#999; margin-bottom:10px;">Printemps 2026</div>
+                        <p style="font-family:'Patrick Hand',cursive; font-size:1.05rem; color:#555; line-height:1.4;">La version 2 du g&#233;n&#233;rateur avec encore plus d'options et de personnalisation!</p>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="alaune-card">
+                    <div style="width:100%; height:200px; background: linear-gradient(135deg, #FF2A7A 0%, #E91E63 100%); display:flex; align-items:center; justify-content:center;">
+                        <span style="font-size:4rem;">&#128241;</span>
+                    </div>
+                    <div style="padding:22px 24px 24px;">
+                        <div style="font-family:'Fredoka One',cursive; font-size:1.35rem; color:#18181b; margin-bottom:6px; line-height:1.2;">Application Mobile</div>
+                        <div style="font-family:'Patrick Hand',cursive; font-size:0.95rem; color:#999; margin-bottom:10px;">&#201;t&#233; 2026</div>
+                        <p style="font-family:'Patrick Hand',cursive; font-size:1.05rem; color:#555; line-height:1.4;">Acc&#232;de &#224; toutes les ressources directement depuis ton t&#233;l&#233;phone, m&#234;me au gymnase!</p>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="alaune-card">
+                    <div style="width:100%; height:200px; background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); display:flex; align-items:center; justify-content:center;">
+                        <span style="font-size:4rem;">&#129309;</span>
+                    </div>
+                    <div style="padding:22px 24px 24px;">
+                        <div style="font-family:'Fredoka One',cursive; font-size:1.35rem; color:#18181b; margin-bottom:6px; line-height:1.2;">Mode Collaboratif</div>
+                        <div style="font-family:'Patrick Hand',cursive; font-size:0.95rem; color:#999; margin-bottom:10px;">Automne 2026</div>
+                        <p style="font-family:'Patrick Hand',cursive; font-size:1.05rem; color:#555; line-height:1.4;">Partage et co-cr&#233;e des jeux avec d'autres enseignants d'&#201;PS partout au Qu&#233;bec!</p>
+                    </div>
+                </div>
+                <!-- Card 4 -->
+                <div class="alaune-card">
+                    <div style="width:100%; height:200px; background: linear-gradient(135deg, #FFD700 0%, #FFA000 100%); display:flex; align-items:center; justify-content:center;">
+                        <span style="font-size:4rem;">&#128202;</span>
+                    </div>
+                    <div style="padding:22px 24px 24px;">
+                        <div style="font-family:'Fredoka One',cursive; font-size:1.35rem; color:#18181b; margin-bottom:6px; line-height:1.2;">Tableau de Bord</div>
+                        <div style="font-family:'Patrick Hand',cursive; font-size:0.95rem; color:#999; margin-bottom:10px;">Hiver 2027</div>
+                        <p style="font-family:'Patrick Hand',cursive; font-size:1.05rem; color:#555; line-height:1.4;">Suis ta progression, tes jeux favoris et tes stats de cours en un coup d'oeil!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="text-center mt-12 reveal">
+                <p class="font-baloo text-lg text-dark/50 mb-6">Tu veux acc&#233;der &#224; tout &#231;a et bien plus?</p>
+                <a href="https://www.zonetotalsport.ca" target="_top" class="btn-primary btn-yellow glow-pulse">
+                    <i data-lucide="crown" class="w-5 h-5"></i> Devenir membre gratuitement
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: White &#8594; Dark -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C240,70 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="#0F0F2E"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 7: DONATION (Dark) ========== -->
+    <section class="section-dark py-24 px-6 md:px-10" id="don">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="hero-title text-4xl md:text-6xl mb-6 reveal">
+                Soutiens la<br>
+                <span style="color:#FFD700">Zone!</span>
+            </h2>
+            <p class="text-white/50 font-baloo text-lg max-w-xl mx-auto mb-10 reveal">
+                Zone Total Sport est 100% gratuit et le restera. Un petit don nous aide &#224; continuer de cr&#233;er du contenu de qualit&#233; pour les profs d'&#201;PS.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center reveal">
+                <a href="https://square.link/u/hAuTPCOT?src=embed" target="_top" class="btn-primary btn-pink">
+                    <i data-lucide="heart" class="w-5 h-5"></i> Faire un don
+                </a>
+                <button class="btn-outline-dark !border-white/30 !text-white/70 hover:!bg-white/10 hover:!text-white" onclick="if(navigator.share)navigator.share({title:'Zone Total Sport',url:'https://www.zonetotalsport.ca'})">
+                    <i data-lucide="share-2" class="w-5 h-5"></i> Partager le site
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== JAVASCRIPT ========== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Init Lucide icons
+        lucide.createIcons();
+
+        // GSAP ScrollTrigger Reveals
+        gsap.registerPlugin(ScrollTrigger);
+
+        document.querySelectorAll('.reveal').forEach(function(el) {
+            gsap.fromTo(el,
+                { y: 60, opacity: 0 },
+                {
+                    y: 0, opacity: 1, duration: 0.8, ease: 'power2.out',
+                    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
+                }
+            );
+        });
+
+        // Tilt cards
+        document.querySelectorAll('.tilt-card').forEach(function(card) {
+            var inner = card.querySelector('.tilt-card-inner');
+            if (!inner) return;
+            card.addEventListener('mousemove', function(e) {
+                var rect = card.getBoundingClientRect();
+                var x = (e.clientX - rect.left) / rect.width - 0.5;
+                var y = (e.clientY - rect.top) / rect.height - 0.5;
+                inner.style.transform = 'rotateY(' + (x * 12) + 'deg) rotateX(' + (-y * 12) + 'deg)';
+            });
+            card.addEventListener('mouseleave', function() {
+                inner.style.transform = 'rotateY(0) rotateX(0)';
+            });
+        });
+    });
+    </script>
+
+    <!-- ========== WIX VELO BRIDGE ========== -->
+    <script>
+    (function() {
+        'use strict';
+        var GROUP_ID = 'pageContent';
+
+        function sendHeight() {
+            var h = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: 'resize', group: GROUP_ID, height: h }, '*');
+        }
+
+        var _ro = new ResizeObserver(function() { sendHeight(); });
+        _ro.observe(document.body);
+        window.addEventListener('load', function() {
+            setTimeout(sendHeight, 500);
+            setTimeout(sendHeight, 2000);
+            setTimeout(sendHeight, 5000);
+        });
+
+        document.addEventListener('click', function(e) {
+            var link = e.target.closest('a[href^="http"]');
+            if (link && link.getAttribute('target') === '_top') return;
+            if (link && link.href.indexOf(window.location.hostname) === -1) {
+                window.parent.postMessage({ type: 'externalLink', href: link.href, group: GROUP_ID }, '*');
+            }
+        });
+    })();
+    </script>
+
+</body>
+</html>
