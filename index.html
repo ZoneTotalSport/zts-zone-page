@@ -923,29 +923,29 @@
 
     <!-- ========== NAVIGATION ========== -->
     <nav class="nav-fixed py-3 px-6 md:px-10" id="mainNav">
+        <!-- Horloge centr&#233;e en haut -->
+        <div class="flex justify-center mb-2">
+            <div class="digital-clock" id="navClock" style="font-size:1.55rem; padding:8px 20px; min-width:180px;">
+                <i data-lucide="clock" class="w-5 h-5 text-cyan-electric/60"></i>
+                <span id="clockTime" style="min-width:130px;">00<span class="clock-dot">:</span>00<span class="clock-dot">:</span>00</span>
+            </div>
+        </div>
         <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Logo 50% plus gros -->
             <a href="#" class="flex items-center shrink-0">
-                <img src="logo-zts.png" alt="Zone Total Sport" class="h-12 md:h-16 w-auto">
+                <img src="logo-zts.png" alt="Zone Total Sport" class="h-[72px] md:h-24 w-auto">
             </a>
             <div class="nav-links flex items-center gap-6">
-                <a href="#jeux" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navJeux">Jeux</a>
-                <a href="#services" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navRessources">Ressources</a>
-                <a href="#generateur" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navGenerateur">Générateur</a>
-                <a href="#temoignages" class="nav-link font-boogaloo text-lg text-white/90 hover:text-white transition-colors" data-i18n="navAvis">Avis</a>
-                <!-- Digital Clock -->
-                <div class="digital-clock hidden md:inline-flex" id="navClock">
-                    <i data-lucide="clock" class="w-3.5 h-3.5 text-cyan-electric/60"></i>
-                    <span id="clockTime">00<span class="clock-dot">:</span>00<span class="clock-dot">:</span>00</span>
-                </div>
                 <!-- Language Selector -->
-                <div class="flex gap-1 ml-2">
-                    <button onclick="setLang('fr')" class="lang-btn active" id="lang-fr" title="Français">FR</button>
+                <div class="flex gap-1">
+                    <button onclick="setLang('fr')" class="lang-btn active" id="lang-fr" title="Fran&#231;ais">FR</button>
                     <button onclick="setLang('en')" class="lang-btn" id="lang-en" title="English">EN</button>
-                    <button onclick="setLang('zh')" class="lang-btn" id="lang-zh" title="中文">中</button>
+                    <button onclick="setLang('zh')" class="lang-btn" id="lang-zh" title="&#20013;&#25991;">&#20013;</button>
                 </div>
+                <!-- Faire un don 40% plus gros -->
                 <div class="magnetic-wrap">
-                    <a href="#don" class="btn-primary btn-yellow text-sm !py-3 !px-6 magnetic-btn" data-i18n="navDon">
-                        <i data-lucide="heart" class="w-4 h-4"></i> Faire un don
+                    <a href="#don" class="btn-primary btn-yellow magnetic-btn" data-i18n="navDon" style="font-size:1.6rem; padding:20px 48px;">
+                        <i data-lucide="heart" class="w-6 h-6"></i> Faire un don
                     </a>
                 </div>
             </div>
@@ -955,10 +955,6 @@
 
     <!-- MOBILE MENU -->
     <div class="mobile-menu" id="mobileMenu">
-        <a href="#jeux" onclick="closeMobile()" data-i18n="mobileJeux">Jeux</a>
-        <a href="#services" onclick="closeMobile()" data-i18n="mobileRes">Ressources</a>
-        <a href="#generateur" onclick="closeMobile()" data-i18n="mobileGen">Générateur</a>
-        <a href="#temoignages" onclick="closeMobile()" data-i18n="mobileAvis">Avis</a>
         <a href="#don" onclick="closeMobile()" style="color:#FF2A7A" data-i18n="mobileDon">Faire un don</a>
     </div>
 
@@ -1100,7 +1096,7 @@
                         </div>
                         <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card3">Blogue ÉPS</h3>
                         <p class="tilt-desc text-white/70 font-baloo text-sm mb-6" data-i18n="card3d">Articles, stratégies et réflexions sur l'enseignement de l'éducation physique au Québec.</p>
-                        <a href="#" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card3a">
+                        <a href="https://www.zonetotalsport.ca/blog" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card3a">
                             Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
@@ -1551,7 +1547,7 @@
                         <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fAccueil">Accueil</a></li>
                         <li><a href="#jeux" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fJeux">Banque de jeux</a></li>
                         <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fSae">SAÉ</a></li>
-                        <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fBlogue">Blogue</a></li>
+                        <li><a href="https://www.zonetotalsport.ca/blog" target="_blank" rel="noopener" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fBlogue">Blogue</a></li>
                         <li><a href="#" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fContact">Contact</a></li>
                     </ul>
                 </div>
