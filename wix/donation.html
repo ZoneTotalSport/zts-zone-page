@@ -292,7 +292,7 @@
 
                 <div class="flex items-center justify-center gap-4 mt-6">
                     <div class="secure-badge"><i data-lucide="lock" class="w-3.5 h-3.5"></i> Paiement s&#233;curis&#233;</div>
-                    <div class="secure-badge"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Stripe</div>
+                    <div class="secure-badge"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> PayPal</div>
                 </div>
                 <p class="text-center font-baloo text-xs mt-3" style="color:#bbb;">En CAD$ &#183; Aucune donn&#233;e bancaire n'est stock&#233;e sur notre serveur</p>
             </div>
@@ -405,10 +405,7 @@
 
     var selectedAmount = 10;
     var donationType = 'once';
-    var STRIPE_LINKS = {
-        once: { 5:'https://buy.stripe.com/test_PLACEHOLDER_5_once', 10:'https://buy.stripe.com/test_PLACEHOLDER_10_once', 25:'https://buy.stripe.com/test_PLACEHOLDER_25_once', 50:'https://buy.stripe.com/test_PLACEHOLDER_50_once', 100:'https://buy.stripe.com/test_PLACEHOLDER_100_once' },
-        monthly: { 5:'https://buy.stripe.com/test_PLACEHOLDER_5_monthly', 10:'https://buy.stripe.com/test_PLACEHOLDER_10_monthly', 25:'https://buy.stripe.com/test_PLACEHOLDER_25_monthly', 50:'https://buy.stripe.com/test_PLACEHOLDER_50_monthly', 100:'https://buy.stripe.com/test_PLACEHOLDER_100_monthly' }
-    };
+    var PAYPAL_BASE = 'https://paypal.me/zonetotalsport/';
 
     function setDonationType(type) {
         donationType = type;
@@ -450,10 +447,13 @@
     function processDonation() {
         if (selectedAmount <= 0) return;
         var btn = document.getElementById('donateBtn'); btn.disabled = true;
-        document.getElementById('donateBtnText').textContent = 'Redirection...';
-        var link = STRIPE_LINKS[donationType][selectedAmount];
-        if (link && !link.includes('PLACEHOLDER')) { window.open(link, '_blank'); setTimeout(function() { btn.disabled = false; updateButtonText(); }, 2000); }
-        else { setTimeout(function() { showThankYou(); btn.disabled = false; updateButtonText(); }, 800); }
+        document.getElementById('donateBtnText').textContent = 'Redirection vers PayPal...';
+        var paypalUrl = PAYPAL_BASE + selectedAmount + 'CAD';
+        setTimeout(function() {
+            window.open(paypalUrl, '_blank');
+            btn.disabled = false;
+            updateButtonText();
+        }, 400);
     }
 
     function showThankYou() {
