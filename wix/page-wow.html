@@ -222,6 +222,52 @@
         /* ========== CONFETTI BURST ========== */
         .confetti-piece { position: fixed; pointer-events: none; z-index: 99990; font-size: 1.6rem; will-change: transform, opacity; }
 
+        /* ========== COMIC TOOLS DOCK ========== */
+        .nav-icon-box {
+            background: #fff; width: 3.2rem; height: 3.2rem; border: 3px solid #18181b;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s cubic-bezier(0.175,0.885,0.32,1.275);
+            box-shadow: 4px 4px 0px #18181b; border-radius: 10px;
+        }
+        .nav-item:hover .nav-icon-box { transform: scale(1.2) rotate(-5deg); background: #22D3EE; z-index: 60; }
+        .nav-label {
+            transition: all 0.2s; opacity: 0; transform: translateX(10px) scale(0.8);
+            pointer-events: none; position: absolute; right: 100%; top: 50%;
+            margin-right: 12px; margin-top: -14px; z-index: 60;
+            background: #18181b; color: #fff; padding: 4px 12px; border: 2px solid #fff;
+            box-shadow: -4px 4px 0px rgba(0,0,0,0.2);
+            font-family: 'Luckiest Guy', cursive; font-size: 0.9rem; white-space: nowrap; border-radius: 6px;
+        }
+        .nav-item:hover .nav-label { opacity: 1; transform: translateX(0) scale(1); }
+
+        .comic-popup {
+            background: #fff; border: 5px solid #18181b; box-shadow: 10px 10px 0px rgba(0,0,0,0.8);
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(1); z-index: 950;
+            padding: 4rem 2rem 2rem; width: 90vw; max-width: 550px; height: auto; max-height: 90vh;
+            overflow-y: auto; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: comicPopIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275); border-radius: 16px;
+        }
+        @keyframes comicPopIn { from { transform: translate(-50%,-50%) scale(0.5); opacity: 0; } to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
+        .comic-popup.hidden { display: none !important; }
+
+        .close-btn {
+            position: absolute; top: 15px; right: 15px; width: 44px; height: 44px;
+            background: #EF4444; border: 3px solid #18181b; border-radius: 50%; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Luckiest Guy', cursive; font-size: 1.3rem; cursor: pointer;
+            box-shadow: 3px 3px 0px #18181b; transition: transform 0.1s; z-index: 60;
+        }
+        .close-btn:hover { transform: scale(1.1); }
+
+        @keyframes pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.4; } }
+
+        @media (max-width: 768px) {
+            .nav-dock { right: 10px !important; gap: 0.8rem !important; }
+            .nav-icon-box { width: 2.8rem; height: 2.8rem; }
+            .nav-label { display: none; }
+            .comic-popup { width: 95vw; padding: 3rem 1.5rem 1.5rem; }
+        }
+
         /* ========== MISC ========== */
         a { text-decoration: none; color: inherit; }
         ::selection { background: #00E5FF; color: #0F0F2E; }
@@ -573,6 +619,136 @@
         </div>
     </section>
 
+    <!-- ========== COMIC TOOLS DOCK ========== -->
+    <nav class="nav-dock" style="position:fixed; right:20px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:1rem; z-index:900; padding:10px;">
+        <button onclick="openToolPopup('dice')" class="nav-item group relative" style="outline:none;background:none;border:none;cursor:pointer;">
+            <div class="nav-icon-box"><i data-lucide="dice-5" class="w-7 h-7 text-black" style="stroke-width:2.5px"></i></div>
+            <div class="nav-label" style="transform:rotate(1deg)">D&#201; / DICE</div>
+        </button>
+        <button onclick="openToolPopup('wheel')" class="nav-item group relative" style="outline:none;background:none;border:none;cursor:pointer;">
+            <div class="nav-icon-box"><i data-lucide="aperture" class="w-7 h-7 text-black" style="stroke-width:2.5px"></i></div>
+            <div class="nav-label" style="transform:rotate(-2deg);background:#F472B6">ROUE / WHEEL</div>
+        </button>
+        <button onclick="openToolPopup('stopwatch')" class="nav-item group relative" style="outline:none;background:none;border:none;cursor:pointer;">
+            <div class="nav-icon-box"><i data-lucide="timer" class="w-7 h-7 text-black" style="stroke-width:2.5px"></i></div>
+            <div class="nav-label" style="transform:rotate(2deg);background:#22C55E">CHRONO</div>
+        </button>
+        <button onclick="openToolPopup('timer')" class="nav-item group relative" style="outline:none;background:none;border:none;cursor:pointer;">
+            <div class="nav-icon-box"><i data-lucide="hourglass" class="w-7 h-7 text-black" style="stroke-width:2.5px"></i></div>
+            <div class="nav-label" style="transform:rotate(-1deg);background:#FACC15;color:#18181b">TIMER</div>
+        </button>
+        <button onclick="openToolPopup('period')" class="nav-item group relative" style="outline:none;background:none;border:none;cursor:pointer;">
+            <div class="nav-icon-box"><i data-lucide="school" class="w-7 h-7 text-black" style="stroke-width:2.5px"></i></div>
+            <div class="nav-label" style="transform:rotate(3deg);background:#22D3EE;color:#18181b">CLASSE</div>
+        </button>
+    </nav>
+
+    <!-- Overlay -->
+    <div id="popup-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:940;" onclick="closeAllPopups()"></div>
+
+    <!-- POPUP D&#201; -->
+    <div id="popup-dice" class="comic-popup hidden">
+        <button onclick="closeToolPopup('dice')" class="close-btn">X</button>
+        <div class="flex flex-col items-center space-y-4 w-full">
+            <h2 class="text-3xl font-bangers text-center tracking-wide">D&#201; / DICE</h2>
+            <div class="dice-container" style="perspective:1000px;width:130px;height:130px;margin:1rem 0 2rem;">
+                <div id="dice" class="dice" onclick="rollDice()" style="width:130px;height:130px;position:relative;transform-style:preserve-3d;transition:transform 1s ease-out;cursor:pointer;">
+                    <div class="face bg-red-500 text-white" style="position:absolute;width:130px;height:130px;border:4px solid #18181b;display:flex;justify-content:center;align-items:center;font-size:3.5rem;font-family:'Luckiest Guy',cursive;border-radius:12px;transform:translateZ(65px);">1</div>
+                    <div class="face bg-blue-500 text-white" style="position:absolute;width:130px;height:130px;border:4px solid #18181b;display:flex;justify-content:center;align-items:center;font-size:3.5rem;font-family:'Luckiest Guy',cursive;border-radius:12px;transform:rotateY(180deg) translateZ(65px);">6</div>
+                    <div class="face bg-yellow-400 text-black" style="position:absolute;width:130px;height:130px;border:4px solid #18181b;display:flex;justify-content:center;align-items:center;font-size:3.5rem;font-family:'Luckiest Guy',cursive;border-radius:12px;transform:rotateY(90deg) translateZ(65px);">3</div>
+                    <div class="face bg-green-500 text-white" style="position:absolute;width:130px;height:130px;border:4px solid #18181b;display:flex;justify-content:center;align-items:center;font-size:3.5rem;font-family:'Luckiest Guy',cursive;border-radius:12px;transform:rotateY(-90deg) translateZ(65px);">4</div>
+                    <div class="face bg-purple-500 text-white" style="position:absolute;width:130px;height:130px;border:4px solid #18181b;display:flex;justify-content:center;align-items:center;font-size:3.5rem;font-family:'Luckiest Guy',cursive;border-radius:12px;transform:rotateX(90deg) translateZ(65px);">5</div>
+                    <div class="face bg-orange-500 text-white" style="position:absolute;width:130px;height:130px;border:4px solid #18181b;display:flex;justify-content:center;align-items:center;font-size:3.5rem;font-family:'Luckiest Guy',cursive;border-radius:12px;transform:rotateX(-90deg) translateZ(65px);">2</div>
+                </div>
+            </div>
+            <div id="dice-result" class="text-6xl font-bangers text-red-600 h-16" style="opacity:0;transition:opacity 0.3s;filter:drop-shadow(2px 2px 0px black);">--</div>
+            <p class="text-sm text-gray-400 font-baloo">Clique le cube!</p>
+        </div>
+    </div>
+
+    <!-- POPUP ROUE -->
+    <div id="popup-wheel" class="comic-popup hidden">
+        <button onclick="closeToolPopup('wheel')" class="close-btn">X</button>
+        <div class="flex flex-col items-center w-full">
+            <h2 class="text-3xl font-bangers mb-4 tracking-wide">ROUE / WHEEL</h2>
+            <div class="relative" style="width:280px;height:280px;margin-bottom:1rem;">
+                <canvas id="wheelCanvas" width="280" height="280" style="width:100%;height:100%;"></canvas>
+                <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);margin-top:-8px;width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:25px solid black;z-index:10;"></div>
+            </div>
+            <button onclick="spinWheel()" class="comic-btn bg-red-500 text-white font-bangers text-xl px-8 py-2 mb-4" style="border:3px solid #18181b;box-shadow:4px 4px 0px #18181b;border-radius:8px;cursor:pointer;">TOURNER!</button>
+            <div class="w-full max-w-sm">
+                <label class="font-bangers text-sm tracking-wide">NOMS / NAMES:</label>
+                <textarea id="wheel-names" class="comic-input h-20 text-sm" oninput="drawWheel()" style="border:3px solid #18181b;outline:none;font-family:'Patrick Hand',cursive;padding:0.5rem;font-size:0.9rem;width:100%;border-radius:8px;">L&#233;a, Thomas, Sarah, Lucas</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP CHRONO -->
+    <div id="popup-stopwatch" class="comic-popup hidden">
+        <button onclick="closeToolPopup('stopwatch')" class="close-btn">X</button>
+        <div class="flex flex-col items-center w-full max-w-md">
+            <h2 class="text-3xl font-bangers mb-6 tracking-wide">CHRONO</h2>
+            <div class="bg-white border-4 border-black p-6 mb-8 w-full rounded-xl" style="box-shadow:6px 6px 0px black;transform:rotate(1deg);">
+                <div id="stopwatch-display" class="font-bangers text-5xl tracking-widest text-center">00:00:00</div>
+            </div>
+            <div class="flex gap-4 w-full justify-center">
+                <button onclick="toggleStopwatch()" id="sw-btn" class="comic-btn bg-green-400 text-black font-bangers text-xl px-6 py-3 flex-1" style="border:3px solid #18181b;box-shadow:4px 4px 0px #18181b;border-radius:8px;cursor:pointer;">START</button>
+                <button onclick="resetStopwatch()" class="comic-btn bg-red-400 text-black font-bangers text-xl px-6 py-3 flex-1" style="border:3px solid #18181b;box-shadow:4px 4px 0px #18181b;border-radius:8px;cursor:pointer;">RESET</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP TIMER -->
+    <div id="popup-timer" class="comic-popup hidden">
+        <button onclick="closeToolPopup('timer')" class="close-btn">X</button>
+        <div class="flex flex-col items-center w-full max-w-md">
+            <h2 class="text-3xl font-bangers mb-6 tracking-wide">MINUTEUR / TIMER</h2>
+            <div class="relative flex items-center justify-center" style="width:192px;height:192px;margin-bottom:1.5rem;">
+                <div style="position:absolute;inset:0;background:#EF4444;border-radius:50%;animation:pulse 2s infinite;opacity:0.2;"></div>
+                <div style="position:relative;z-index:10;background:#fff;border:4px solid #18181b;border-radius:50%;width:176px;height:176px;display:flex;align-items:center;justify-content:center;box-shadow:6px 6px 0px black;">
+                    <span id="timer-display" class="font-bangers text-4xl">00:00</span>
+                </div>
+            </div>
+            <div class="flex gap-2 mb-6 items-end">
+                <div class="text-center"><label class="text-xs font-bold block">MIN</label><input type="number" id="timer-min" value="5" style="border:3px solid #18181b;outline:none;font-family:'Patrick Hand',cursive;padding:0.5rem;font-size:1.5rem;width:5rem;text-align:center;border-radius:8px;" min="0"></div>
+                <span class="font-bangers text-3xl pb-1">:</span>
+                <div class="text-center"><label class="text-xs font-bold block">SEC</label><input type="number" id="timer-sec" value="0" style="border:3px solid #18181b;outline:none;font-family:'Patrick Hand',cursive;padding:0.5rem;font-size:1.5rem;width:5rem;text-align:center;border-radius:8px;" min="0" max="59"></div>
+            </div>
+            <div class="flex gap-4 w-full">
+                <button onclick="startTimer()" id="tm-btn" class="comic-btn bg-yellow-400 text-black font-bangers text-lg px-4 py-3 flex-1" style="border:3px solid #18181b;box-shadow:4px 4px 0px #18181b;border-radius:8px;cursor:pointer;">GO!</button>
+                <button onclick="resetTimer()" class="comic-btn bg-gray-300 text-black font-bangers text-lg px-4 py-3 flex-1" style="border:3px solid #18181b;box-shadow:4px 4px 0px #18181b;border-radius:8px;cursor:pointer;">STOP</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP CLASSE / PERIOD -->
+    <div id="popup-period" class="comic-popup hidden" style="transition:all 0.3s;">
+        <div style="position:absolute;top:15px;right:15px;display:flex;gap:8px;z-index:60;">
+            <button onclick="closeToolPopup('period')" style="width:44px;height:44px;background:#EF4444;border:3px solid #18181b;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Luckiest Guy',cursive;font-size:1.3rem;cursor:pointer;box-shadow:3px 3px 0px #18181b;">X</button>
+        </div>
+        <div class="flex flex-col items-center w-full max-w-lg">
+            <h2 class="text-2xl font-bangers mb-2 bg-black text-white w-full text-center py-2 rounded-lg tracking-wide" style="transform:rotate(-1deg);box-shadow:4px 4px 0px rgba(0,0,0,0.2);">FIN DU COURS / END OF CLASS</h2>
+            <div class="w-full mt-4 p-4 bg-cyan-200 border-4 border-black flex flex-col items-center rounded-xl" style="box-shadow:6px 6px 0px black;">
+                <label class="block font-bangers text-lg mb-1 tracking-wide">HEURE DE FIN</label>
+                <div class="flex gap-2 mb-3 w-full justify-center flex-wrap">
+                    <button onclick="addMinutesToPeriod(30)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers" style="box-shadow:2px 2px 0px black;cursor:pointer;">+30m</button>
+                    <button onclick="addMinutesToPeriod(45)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers" style="box-shadow:2px 2px 0px black;cursor:pointer;">+45m</button>
+                    <button onclick="addMinutesToPeriod(50)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers" style="box-shadow:2px 2px 0px black;cursor:pointer;">+50m</button>
+                    <button onclick="addMinutesToPeriod(60)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers" style="box-shadow:2px 2px 0px black;cursor:pointer;">+60m</button>
+                </div>
+                <input type="time" id="period-end" style="border:3px solid #18181b;outline:none;font-family:'Patrick Hand',cursive;padding:0.5rem;font-size:1.8rem;width:100%;text-align:center;border-radius:8px;margin-bottom:1rem;background:#fff;cursor:pointer;">
+                <div class="flex gap-3 w-full mb-4">
+                    <button onclick="startPeriodTimer()" id="period-btn" class="comic-btn bg-green-400 text-black font-bangers text-lg px-2 py-2 flex-1" style="border:3px solid #18181b;box-shadow:4px 4px 0px #18181b;border-radius:8px;cursor:pointer;">D&#201;MARRER</button>
+                    <button onclick="stopPeriodTimer()" class="comic-btn bg-red-400 text-white font-bangers text-lg px-2 py-2 flex-1" style="border:3px solid #18181b;box-shadow:4px 4px 0px #18181b;border-radius:8px;cursor:pointer;">ARR&#202;T</button>
+                </div>
+                <div class="bg-black text-green-400 text-center p-4 border-2 border-white rounded w-full" style="font-family:monospace;">
+                    <span id="period-countdown" class="text-5xl font-bold block">--:--:--</span>
+                </div>
+            </div>
+            <p class="text-xs text-center mt-3 font-bold text-gray-400">Le temps s'&#233;coule m&#234;me ferm&#233;!</p>
+        </div>
+    </div>
+
     <!-- ========== JAVASCRIPT ========== -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -592,6 +768,9 @@
             );
         });
 
+        // Init wheel
+        if (document.getElementById('wheelCanvas')) drawWheel();
+
         // Tilt cards
         document.querySelectorAll('.tilt-card').forEach(function(card) {
             var inner = card.querySelector('.tilt-card-inner');
@@ -607,6 +786,149 @@
             });
         });
     });
+
+    // ============ COMIC TOOLS JS ============
+    var alarmSound = new Audio("https://static.wixstatic.com/mp3/692b77_1862ffbf28ff4a6a863045f716cddfa6.mp3");
+    function playAlarm() { alarmSound.currentTime = 0; alarmSound.play().catch(function(){}); }
+
+    function openToolPopup(id) {
+        document.querySelectorAll('.comic-popup').forEach(function(p) { p.classList.add('hidden'); });
+        var popup = document.getElementById('popup-' + id);
+        if (popup) { popup.classList.remove('hidden'); if (id === 'wheel') drawWheel(); }
+        document.getElementById('popup-overlay').style.display = 'block';
+        lucide.createIcons();
+    }
+    function closeToolPopup(id) {
+        var popup = document.getElementById('popup-' + id);
+        if (popup) popup.classList.add('hidden');
+        var anyOpen = document.querySelectorAll('.comic-popup:not(.hidden)');
+        if (anyOpen.length === 0) document.getElementById('popup-overlay').style.display = 'none';
+    }
+    function closeAllPopups() {
+        document.querySelectorAll('.comic-popup').forEach(function(p) { p.classList.add('hidden'); });
+        document.getElementById('popup-overlay').style.display = 'none';
+    }
+    window.openToolPopup = openToolPopup;
+    window.closeToolPopup = closeToolPopup;
+    window.closeAllPopups = closeAllPopups;
+
+    // DICE
+    function rollDice() {
+        var dice = document.getElementById('dice');
+        var resultDisplay = document.getElementById('dice-result');
+        resultDisplay.style.opacity = '0';
+        var result = Math.floor(Math.random() * 6) + 1;
+        var xBase = 0, yBase = 0;
+        switch (result) {
+            case 1: xBase = 0; yBase = 0; break; case 6: xBase = 0; yBase = 180; break;
+            case 3: xBase = 0; yBase = -90; break; case 4: xBase = 0; yBase = 90; break;
+            case 5: xBase = -90; yBase = 0; break; case 2: xBase = 90; yBase = 0; break;
+        }
+        var xF = xBase + (Math.floor(Math.random() * 3) + 2) * 360;
+        var yF = yBase + (Math.floor(Math.random() * 3) + 2) * 360;
+        dice.style.transform = 'rotateX(' + xF + 'deg) rotateY(' + yF + 'deg)';
+        setTimeout(function() {
+            resultDisplay.innerText = result;
+            resultDisplay.style.opacity = '1';
+            resultDisplay.style.transform = 'scale(1.5)';
+            setTimeout(function() { resultDisplay.style.transform = 'scale(1)'; }, 200);
+        }, 1000);
+    }
+    window.rollDice = rollDice;
+
+    // WHEEL
+    var wheelCanvas = document.getElementById('wheelCanvas');
+    var wheelCtx = wheelCanvas ? wheelCanvas.getContext('2d') : null;
+    var wheelNames = []; var wheelRotation = 0; var wheelSpinning = false;
+    var wheelColors = ['#FACC15', '#22D3EE', '#F472B6', '#A7F3D0', '#C4B5FD', '#FCA5A5'];
+
+    function drawWheel() {
+        if (!wheelCtx || !wheelCanvas) return;
+        var text = document.getElementById('wheel-names').value;
+        wheelNames = text.split(',').map(function(n) { return n.trim(); }).filter(function(n) { return n.length > 0; });
+        if (wheelNames.length === 0) wheelNames = ['?'];
+        var cx = wheelCanvas.width / 2, cy = wheelCanvas.height / 2, r = 110;
+        var step = (2 * Math.PI) / wheelNames.length;
+        wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+        wheelCtx.beginPath(); wheelCtx.arc(cx, cy, r + 5, 0, 2 * Math.PI); wheelCtx.fillStyle = '#18181b'; wheelCtx.fill();
+        wheelCtx.save(); wheelCtx.translate(cx, cy); wheelCtx.rotate(wheelRotation);
+        for (var i = 0; i < wheelNames.length; i++) {
+            wheelCtx.beginPath(); wheelCtx.moveTo(0, 0); wheelCtx.arc(0, 0, r, i * step, (i + 1) * step); wheelCtx.closePath();
+            wheelCtx.fillStyle = wheelColors[i % wheelColors.length]; wheelCtx.fill(); wheelCtx.stroke();
+            wheelCtx.save(); wheelCtx.rotate(i * step + step / 2); wheelCtx.textAlign = 'right';
+            wheelCtx.fillStyle = '#18181b'; wheelCtx.font = 'bold 13px Patrick Hand'; wheelCtx.fillText(wheelNames[i], r - 10, 5);
+            wheelCtx.restore();
+        }
+        wheelCtx.restore();
+    }
+    function spinWheel() {
+        if (wheelSpinning || wheelNames.length < 1) return;
+        wheelSpinning = true;
+        var vel = 0.5 + Math.random() * 0.5, fric = 0.99;
+        function anim() {
+            if (vel < 0.002) { wheelSpinning = false; return; }
+            vel *= fric; wheelRotation += vel; drawWheel(); requestAnimationFrame(anim);
+        }
+        anim();
+    }
+    window.drawWheel = drawWheel;
+    window.spinWheel = spinWheel;
+
+    // STOPWATCH
+    var swInterval, swTime = 0, swRunning = false;
+    function updateSWDisplay() {
+        var h = Math.floor(swTime / 360000), m = Math.floor((swTime % 360000) / 6000), s = Math.floor((swTime % 6000) / 100);
+        var f = function(n) { return n.toString().padStart(2, '0'); };
+        document.getElementById('stopwatch-display').innerText = f(h) + ':' + f(m) + ':' + f(s);
+    }
+    function toggleStopwatch() {
+        var btn = document.getElementById('sw-btn');
+        if (swRunning) { clearInterval(swInterval); swRunning = false; btn.innerText = 'START'; btn.className = btn.className.replace('bg-yellow-400', 'bg-green-400'); }
+        else { swInterval = setInterval(function() { swTime += 10; updateSWDisplay(); }, 10); swRunning = true; btn.innerText = 'PAUSE'; btn.className = btn.className.replace('bg-green-400', 'bg-yellow-400'); }
+    }
+    function resetStopwatch() { clearInterval(swInterval); swRunning = false; swTime = 0; updateSWDisplay(); document.getElementById('sw-btn').innerText = 'START'; }
+    window.toggleStopwatch = toggleStopwatch;
+    window.resetStopwatch = resetStopwatch;
+
+    // TIMER
+    var tmInterval, tmTotal = 0, tmRunning = false;
+    function updateTmDisplay(s) { if (s < 0) s = 0; document.getElementById('timer-display').innerText = Math.floor(s/60).toString().padStart(2,'0') + ':' + (s%60).toString().padStart(2,'0'); }
+    function startTimer() {
+        if (tmInterval) clearInterval(tmInterval);
+        tmTotal = (parseInt(document.getElementById('timer-min').value)||0)*60 + (parseInt(document.getElementById('timer-sec').value)||0);
+        if (tmTotal <= 0) return; tmRunning = true; document.getElementById('tm-btn').innerText = '...'; updateTmDisplay(tmTotal);
+        tmInterval = setInterval(function() { tmTotal--; updateTmDisplay(tmTotal); if (tmTotal <= 0) { clearInterval(tmInterval); tmRunning = false; document.getElementById('tm-btn').innerText = 'GO!'; document.getElementById('timer-display').innerText = 'FINI!'; playAlarm(); } }, 1000);
+    }
+    function resetTimer() { if (tmInterval) clearInterval(tmInterval); tmRunning = false; document.getElementById('tm-btn').innerText = 'GO!'; updateTmDisplay((parseInt(document.getElementById('timer-min').value)||0)*60+(parseInt(document.getElementById('timer-sec').value)||0)); }
+    window.startTimer = startTimer;
+    window.resetTimer = resetTimer;
+
+    // PERIOD
+    var periodInterval;
+    function addMinutesToPeriod(min) {
+        var now = new Date(); now.setMinutes(now.getMinutes() + min);
+        document.getElementById('period-end').value = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+        stopPeriodTimer();
+    }
+    function startPeriodTimer() {
+        var timeInput = document.getElementById('period-end').value; if (!timeInput) return;
+        var btn = document.getElementById('period-btn'); btn.innerText = 'EN COURS...'; btn.className = btn.className.replace('bg-green-400', 'bg-yellow-400');
+        if (periodInterval) clearInterval(periodInterval);
+        periodInterval = setInterval(function() {
+            var now = new Date(), parts = timeInput.split(':'), tH = parseInt(parts[0]), tM = parseInt(parts[1]), target = new Date();
+            target.setHours(tH, tM, 0, 0); var diff = target - now;
+            if (diff <= 0) { clearInterval(periodInterval); document.getElementById('period-countdown').innerText = '00:00:00'; btn.innerText = 'TERMIN\u00c9!'; btn.className = btn.className.replace('bg-yellow-400', 'bg-green-400'); playAlarm(); return; }
+            var h = Math.floor((diff/3600000)%24), m = Math.floor((diff/60000)%60), s = Math.floor((diff/1000)%60);
+            document.getElementById('period-countdown').innerText = h.toString().padStart(2,'0') + ':' + m.toString().padStart(2,'0') + ':' + s.toString().padStart(2,'0');
+        }, 1000);
+    }
+    function stopPeriodTimer() {
+        if (periodInterval) clearInterval(periodInterval); document.getElementById('period-countdown').innerText = '--:--:--';
+        var btn = document.getElementById('period-btn'); btn.innerText = 'D\u00c9MARRER'; if (btn.className.includes('bg-yellow-400')) btn.className = btn.className.replace('bg-yellow-400', 'bg-green-400');
+    }
+    window.addMinutesToPeriod = addMinutesToPeriod;
+    window.startPeriodTimer = startPeriodTimer;
+    window.stopPeriodTimer = stopPeriodTimer;
     </script>
 
     <!-- ========== WIX VELO BRIDGE ========== -->
