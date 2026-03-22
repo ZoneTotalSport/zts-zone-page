@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone Total Sport &#8212; Politique de confidentialit&#233;</title>
+    <meta name="description" content="Politique de confidentialité de Zone Total Sport. Découvrez comment nous protégeons vos données personnelles.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: { electric: '#00E5FF', green: '#00E5A0', rose: '#FF2A7A' },
+                        yellow: { sun: '#FFD700' },
+                        pink: { fuchsia: '#FF2A7A' },
+                        violet: { pop: '#8B5CF6' },
+                        dark: '#0F0F2E',
+                    },
+                    fontFamily: {
+                        bangers: ['"Luckiest Guy"', 'cursive'],
+                        boogaloo: ['Boogaloo', 'cursive'],
+                        baloo: ['"Patrick Hand"', 'cursive'],
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
+            background: #ffffff;
+            color: #1a1a2e;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========== HERO ========== */
+        .hero-bg {
+            background: linear-gradient(135deg, #00E5A0 0%, #00C880 50%, #00B070 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(0,229,255,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,215,0,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .hero-bg::after {
+            content: '';
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
+            background: #fff;
+            clip-path: ellipse(55% 100% at 50% 100%);
+        }
+
+        /* ========== CONTENT CARD ========== */
+        .content-card {
+            background: #fff;
+            border: 3px solid #e5e5e5;
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+        .content-card:hover {
+            border-color: #00E5A0;
+            box-shadow: 0 4px 20px rgba(0,229,160,0.1);
+        }
+
+        .section-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #00E5A0, #00C853);
+            border-radius: 10px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 0.9rem;
+            color: #fff;
+            flex-shrink: 0;
+            border: 2px solid #18181b;
+        }
+
+        .content-card h3 {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.1rem;
+            letter-spacing: 0.03em;
+            color: #0F0F2E;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .content-card p, .content-card li {
+            font-family: 'Patrick Hand', cursive;
+            color: rgba(26,26,46,0.6);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+        .content-card ul { list-style: none; padding: 0; }
+        .content-card ul li { padding-left: 24px; position: relative; margin-bottom: 6px; }
+        .content-card ul li::before { content: '\2713'; position: absolute; left: 0; color: #00E5A0; font-weight: bold; }
+
+        /* ========== TOC ========== */
+        .toc-card {
+            background: linear-gradient(135deg, #F0FDFF, #E8FFF5);
+            border: 3px solid #18181b;
+            border-radius: 24px;
+            box-shadow: 6px 6px 0 #18181b;
+            padding: 32px;
+        }
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.95rem;
+            color: rgba(26,26,46,0.5);
+            transition: all 0.2s;
+        }
+        .toc-link:hover { background: rgba(0,229,160,0.1); color: #0F0F2E; }
+        .toc-link .toc-num {
+            width: 26px; height: 26px;
+            border-radius: 8px;
+            background: #00E5A0;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 0.7rem; color: #fff; flex-shrink: 0;
+        }
+
+        /* ========== UPDATE BADGE ========== */
+        .update-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 10px; padding: 8px 16px;
+            font-size: 0.8rem; color: #0F0F2E;
+        }
+
+        /* ========== FOOTER ========== */
+        .footer-section { background: #0F0F2E; color: #fff; }
+
+        @keyframes floatSlow { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(3deg); } }
+
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: #00E5A0; color: #fff; }
+
+        @media (max-width: 640px) { .content-card { padding: 24px 20px; } }
+    </style>
+</head>
+<body>
+
+    <!-- Floating decorations -->
+    <div style="position:fixed; top:10%; left:4%; font-size:2.5rem; animation: floatSlow 6s ease-in-out infinite; pointer-events:none; opacity:0.1;">&#128274;</div>
+    <div style="position:fixed; top:35%; right:6%; font-size:2rem; animation: floatSlow 5s ease-in-out infinite 1s; pointer-events:none; opacity:0.08;">&#128737;</div>
+    <div style="position:fixed; bottom:20%; left:6%; font-size:2rem; animation: floatSlow 7s ease-in-out infinite 2s; pointer-events:none; opacity:0.08;">&#9989;</div>
+
+    <!-- ========== HERO ========== -->
+    <section class="hero-bg pt-12 pb-28 px-4 text-center relative z-10">
+        <div class="gsap-hero">
+            <a href="https://zone.zonetotalsport.ca/">
+                <img src="https://zone.zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-20 w-auto mx-auto mb-6" style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));">
+            </a>
+            <div class="flex justify-center mb-4">
+                <div class="update-badge">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                    Derni&#232;re mise &#224; jour : 22 mars 2026
+                </div>
+            </div>
+            <h1 class="font-bangers text-4xl md:text-6xl tracking-wide mb-4" style="text-shadow: 4px 4px 0 rgba(0,0,0,0.1); color:#0F0F2E;">
+                Politique de <span style="color:#fff;">confidentialit&#233;</span>
+            </h1>
+            <p class="font-baloo text-dark/60 text-lg max-w-lg mx-auto">
+                Ta vie priv&#233;e, c'est sacr&#233;. Voici comment on prot&#232;ge tes donn&#233;es.
+            </p>
+        </div>
+    </section>
+
+    <!-- ========== TABLE OF CONTENTS ========== -->
+    <section class="py-10 px-4 relative z-10">
+        <div class="max-w-2xl mx-auto">
+            <div class="toc-card gsap-section">
+                <h3 style="font-family:'Luckiest Guy',cursive; font-size:1.1rem; margin-bottom:16px; display:flex; align-items:center; gap:8px;"><i data-lucide="list" class="w-5 h-5" style="color:#00E5A0;"></i> Table des mati&#232;res</h3>
+                <div class="space-y-1">
+                    <a href="#s1" class="toc-link"><span class="toc-num">1</span> Responsable du site</a>
+                    <a href="#s2" class="toc-link"><span class="toc-num">2</span> Donn&#233;es collect&#233;es</a>
+                    <a href="#s3" class="toc-link"><span class="toc-num">3</span> Finalit&#233; de la collecte</a>
+                    <a href="#s4" class="toc-link"><span class="toc-num">4</span> Cookies et technologies</a>
+                    <a href="#s5" class="toc-link"><span class="toc-num">5</span> Partage des donn&#233;es</a>
+                    <a href="#s6" class="toc-link"><span class="toc-num">6</span> S&#233;curit&#233;</a>
+                    <a href="#s7" class="toc-link"><span class="toc-num">7</span> Conservation</a>
+                    <a href="#s8" class="toc-link"><span class="toc-num">8</span> Tes droits</a>
+                    <a href="#s9" class="toc-link"><span class="toc-num">9</span> Mineurs</a>
+                    <a href="#s10" class="toc-link"><span class="toc-num">10</span> Modifications</a>
+                    <a href="#s11" class="toc-link"><span class="toc-num">11</span> Contact</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CONTENT ========== -->
+    <section class="pb-16 px-4 relative z-10">
+        <div class="max-w-2xl mx-auto space-y-4">
+            <div class="content-card gsap-section" id="s1">
+                <h3><span class="section-number">1</span> Responsable du site</h3>
+                <p>Le site <strong style="color:#00E5FF">zonetotalsport.ca</strong> (incluant le sous-domaine zone.zonetotalsport.ca) est exploit&#233; par Joey Roots, enseignant en &#233;ducation physique et &#224; la sant&#233; (&#201;PS) au Qu&#233;bec, Canada.</p>
+                <p style="margin-top:8px;">Zone Total Sport est un projet &#233;ducatif &#224; but non lucratif offrant des ressources gratuites aux enseignants d'&#201;PS du primaire.</p>
+            </div>
+            <div class="content-card gsap-section" id="s2">
+                <h3><span class="section-number">2</span> Donn&#233;es collect&#233;es</h3>
+                <p style="margin-bottom:12px;">Nous collectons uniquement les donn&#233;es minimales n&#233;cessaires :</p>
+                <ul>
+                    <li><strong>Avis et t&#233;moignages :</strong> pr&#233;nom, ville, r&#244;le professionnel, note et message (soumission volontaire)</li>
+                    <li><strong>Dons :</strong> les informations de paiement sont trait&#233;es directement par Stripe/Square. Nous ne stockons aucune donn&#233;e bancaire</li>
+                    <li><strong>Donn&#233;es de navigation :</strong> adresse IP, type de navigateur, pages visit&#233;es (via les analytiques Wix)</li>
+                    <li><strong>Stockage local :</strong> pr&#233;f&#233;rences de langue et compteur de visites (localStorage, jamais transmis &#224; un serveur)</li>
+                </ul>
+                <div style="margin-top:14px; background: #F0FDFF; border: 2px solid #B2EBF2; border-radius: 12px; padding: 14px 16px; display:flex; gap:10px; align-items:flex-start;">
+                    <i data-lucide="info" class="w-4 h-4 flex-shrink-0 mt-1" style="color:#00B8D4; min-width:16px"></i>
+                    <span class="font-baloo text-sm" style="color:#0097A7;">Nous ne demandons jamais ton adresse courriel, ton num&#233;ro de t&#233;l&#233;phone, ni aucun identifiant personnel sensible.</span>
+                </div>
+            </div>
+            <div class="content-card gsap-section" id="s3">
+                <h3><span class="section-number">3</span> Finalit&#233; de la collecte</h3>
+                <p style="margin-bottom:12px;">Les donn&#233;es collect&#233;es servent exclusivement &#224; :</p>
+                <ul>
+                    <li>Am&#233;liorer le contenu et l'exp&#233;rience utilisateur du site</li>
+                    <li>Afficher les t&#233;moignages apr&#232;s mod&#233;ration</li>
+                    <li>Traiter les dons de mani&#232;re s&#233;curis&#233;e via nos partenaires de paiement</li>
+                    <li>Comprendre les statistiques d'utilisation (pages les plus visit&#233;es, etc.)</li>
+                </ul>
+                <p style="margin-top:10px;"><strong style="color:#FF2A7A">Nous ne faisons aucune publicit&#233; cibl&#233;e</strong> et ne vendons jamais tes donn&#233;es.</p>
+            </div>
+            <div class="content-card gsap-section" id="s4">
+                <h3><span class="section-number">4</span> Cookies et technologies</h3>
+                <p style="margin-bottom:12px;">Le site utilise :</p>
+                <ul>
+                    <li><strong>Cookies essentiels Wix :</strong> n&#233;cessaires au fonctionnement du site (session, s&#233;curit&#233;)</li>
+                    <li><strong>Cookies analytiques :</strong> Wix Analytics pour mesurer la fr&#233;quentation de mani&#232;re anonyme</li>
+                    <li><strong>localStorage :</strong> pr&#233;f&#233;rences de langue, compteur de visites, avis soumis (stock&#233;s localement)</li>
+                    <li><strong>API externes :</strong> ESPN (scores sportifs en direct), Google Fonts (typographies)</li>
+                </ul>
+                <p style="margin-top:10px;">Tu peux g&#233;rer les cookies via les param&#232;tres de ton navigateur &#224; tout moment.</p>
+            </div>
+            <div class="content-card gsap-section" id="s5">
+                <h3><span class="section-number">5</span> Partage des donn&#233;es</h3>
+                <p style="margin-bottom:12px;">Nous ne vendons, ne louons et ne partageons pas tes donn&#233;es personnelles, sauf avec :</p>
+                <ul>
+                    <li><strong>Wix.com :</strong> h&#233;bergement du site principal</li>
+                    <li><strong>GitHub Pages :</strong> h&#233;bergement du sous-domaine zone.zonetotalsport.ca</li>
+                    <li><strong>Stripe / Square :</strong> traitement s&#233;curis&#233; des paiements pour les dons</li>
+                </ul>
+            </div>
+            <div class="content-card gsap-section" id="s6">
+                <h3><span class="section-number">6</span> S&#233;curit&#233;</h3>
+                <p style="margin-bottom:12px;">Nous prenons la s&#233;curit&#233; au s&#233;rieux :</p>
+                <ul>
+                    <li>Connexion HTTPS (SSL/TLS) sur l'ensemble du site</li>
+                    <li>Aucun stockage de donn&#233;es bancaires sur nos serveurs</li>
+                    <li>Paiements trait&#233;s par Stripe (certifi&#233; PCI DSS Niveau 1)</li>
+                    <li>Acc&#232;s restreint aux donn&#233;es administratives</li>
+                </ul>
+            </div>
+            <div class="content-card gsap-section" id="s7">
+                <h3><span class="section-number">7</span> Conservation des donn&#233;es</h3>
+                <ul>
+                    <li><strong>T&#233;moignages :</strong> conserv&#233;s aussi longtemps qu'ils sont affich&#233;s sur le site</li>
+                    <li><strong>Donn&#233;es analytiques :</strong> conserv&#233;es conform&#233;ment aux politiques de Wix (24 mois)</li>
+                    <li><strong>Donn&#233;es localStorage :</strong> stock&#233;es dans ton navigateur, tu peux les supprimer &#224; tout moment</li>
+                </ul>
+            </div>
+            <div class="content-card gsap-section" id="s8">
+                <h3><span class="section-number">8</span> Tes droits</h3>
+                <p style="margin-bottom:12px;">Conform&#233;ment &#224; la Loi 25 du Qu&#233;bec sur la protection des renseignements personnels, tu as le droit de :</p>
+                <ul>
+                    <li>Acc&#233;der aux donn&#233;es que nous d&#233;tenons &#224; ton sujet</li>
+                    <li>Demander la correction de tes donn&#233;es</li>
+                    <li>Demander la suppression de tes donn&#233;es (incluant ton t&#233;moignage)</li>
+                    <li>Retirer ton consentement &#224; tout moment</li>
+                    <li>D&#233;poser une plainte aupr&#232;s de la Commission d'acc&#232;s &#224; l'information du Qu&#233;bec (CAI)</li>
+                </ul>
+                <div style="margin-top:14px; background: #FFFDE7; border: 2px solid #FFE082; border-radius: 12px; padding: 14px 16px; display:flex; gap:10px; align-items:flex-start;">
+                    <i data-lucide="mail" class="w-4 h-4 flex-shrink-0 mt-1" style="color:#FFA000; min-width:16px"></i>
+                    <span class="font-baloo text-sm" style="color:#E65100;">Pour exercer tes droits, contacte-nous &#224; l'adresse indiqu&#233;e dans la section Contact ci-dessous.</span>
+                </div>
+            </div>
+            <div class="content-card gsap-section" id="s9">
+                <h3><span class="section-number">9</span> Mineurs</h3>
+                <p>Zone Total Sport est destin&#233; aux enseignants et professionnels de l'&#233;ducation. Nous ne collectons pas sciemment de donn&#233;es personnelles de mineurs de moins de 14 ans.</p>
+            </div>
+            <div class="content-card gsap-section" id="s10">
+                <h3><span class="section-number">10</span> Modifications</h3>
+                <p>Nous nous r&#233;servons le droit de modifier cette politique &#224; tout moment. La date de derni&#232;re mise &#224; jour en haut de page sera actualis&#233;e.</p>
+            </div>
+            <div class="content-card gsap-section" id="s11" style="border-color: #00E5A0; background: linear-gradient(135deg, #F0FFF8, #E8FFF5);">
+                <h3><span class="section-number">11</span> Contact</h3>
+                <p style="margin-bottom:14px;">Pour toute question ou pour exercer tes droits :</p>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i data-lucide="globe" class="w-4 h-4" style="color:#00E5A0;"></i>
+                        <span class="font-baloo text-sm" style="color:rgba(26,26,46,0.6);">zonetotalsport.ca</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i data-lucide="map-pin" class="w-4 h-4" style="color:#00E5A0;"></i>
+                        <span class="font-baloo text-sm" style="color:rgba(26,26,46,0.6);">Qu&#233;bec, Canada</span>
+                    </div>
+                </div>
+                <p style="margin-top:14px; font-size:0.9rem; color:rgba(26,26,46,0.35);">Nous nous engageons &#224; r&#233;pondre dans un d&#233;lai raisonnable de 30 jours.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== BACK CTA ========== -->
+    <section class="py-8 px-4 text-center relative z-10">
+        <a href="https://zone.zonetotalsport.ca/" class="inline-flex items-center gap-2 font-bangers text-dark/30 text-sm tracking-wide hover:text-dark/60 transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Retour &#224; la Zone
+        </a>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer-section py-10 px-4 relative z-10">
+        <div class="max-w-4xl mx-auto text-center">
+            <a href="https://zone.zonetotalsport.ca/"><img src="https://zone.zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-10 w-auto mx-auto mb-4 opacity-40 hover:opacity-70 transition-opacity"></a>
+            <div class="flex flex-wrap justify-center gap-6 mb-6">
+                <a href="https://zone.zonetotalsport.ca/" class="font-baloo text-white/30 text-sm hover:text-cyan-electric transition-colors">&#127968; Accueil</a>
+                <a href="https://zone.zonetotalsport.ca/donation.html" class="font-baloo text-white/30 text-sm hover:text-yellow-sun transition-colors">&#128155; Faire un don</a>
+                <a href="https://zone.zonetotalsport.ca/avis.html" class="font-baloo text-white/30 text-sm hover:text-pink-fuchsia transition-colors">&#128172; Avis</a>
+            </div>
+            <div class="mb-4"><a href="https://zone.zonetotalsport.ca/politique.html" class="font-baloo text-white/20 text-xs hover:text-white/40 transition-colors"><i data-lucide="shield" class="w-3 h-3 inline-block mr-1" style="vertical-align: -2px;"></i>Politique de confidentialit&#233;</a></div>
+            <p class="font-baloo text-white/15 text-xs">&copy; 2026 Zone Total Sport &#183; Fait avec &#128155; au Qu&#233;bec</p>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() { lucide.createIcons(); initGSAP(); });
+    function initGSAP() {
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.from('.gsap-hero', { y: 40, opacity: 0, duration: 1, ease: 'power3.out' });
+        gsap.utils.toArray('.gsap-section').forEach(function(el, i) {
+            gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 88%' }, y: 40, opacity: 0, duration: 0.6, delay: i * 0.05, ease: 'power2.out' });
+        });
+    }
+    </script>
+    <script>
+    (function() {
+        'use strict';
+        function sendHeight() { window.parent.postMessage({ type: 'resize', group: 'politique', height: document.documentElement.scrollHeight }, '*'); }
+        var _ro = new ResizeObserver(function() { sendHeight(); }); _ro.observe(document.body);
+        window.addEventListener('load', function() { setTimeout(sendHeight, 500); setTimeout(sendHeight, 2000); });
+    })();
+    </script>
+</body>
+</html>
