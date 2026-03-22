@@ -2044,26 +2044,56 @@
 
         // ============ GSAP SCROLL REVEALS ============
         gsap.registerPlugin(ScrollTrigger);
+        const isInIframe = window.self !== window.top;
+
         gsap.utils.toArray('.reveal').forEach((el, i) => {
-            gsap.fromTo(el, { opacity: 0, y: 60 }, {
-                opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
-                scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
-                delay: i % 4 * 0.1
-            });
+            if (isInIframe) {
+                // In iframe (Wix): animate immediately, no scroll dependency
+                gsap.fromTo(el, { opacity: 0, y: 30 }, {
+                    opacity: 1, y: 0, duration: 0.6, ease: 'power3.out',
+                    delay: i * 0.05
+                });
+            } else {
+                // Standalone: scroll-triggered reveal
+                gsap.fromTo(el, { opacity: 0, y: 60 }, {
+                    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+                    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+                    delay: i % 4 * 0.1
+                });
+            }
         });
+
+        // Fallback: force-show after 3s if still hidden
+        setTimeout(() => {
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (getComputedStyle(el).opacity === '0') {
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                }
+            });
+        }, 3000);
 
         // ============ STAT COUNTERS ============
         document.querySelectorAll('.counter').forEach(counter => {
             const target = +counter.dataset.target;
-            ScrollTrigger.create({
-                trigger: counter, start: 'top 85%',
-                onEnter: () => {
-                    gsap.to(counter, {
-                        innerText: target, duration: 2, ease: 'power2.out', snap: { innerText: 1 },
-                        onUpdate() { counter.textContent = Math.round(parseFloat(counter.textContent)).toLocaleString('fr-CA'); }
-                    });
-                }, once: true
-            });
+            if (isInIframe) {
+                // In iframe: animate counters immediately
+                gsap.to(counter, {
+                    innerText: target, duration: 2, ease: 'power2.out', snap: { innerText: 1 },
+                    delay: 0.5,
+                    onUpdate() { counter.textContent = Math.round(parseFloat(counter.textContent)).toLocaleString('fr-CA'); }
+                });
+            } else {
+                ScrollTrigger.create({
+                    trigger: counter, start: 'top 85%',
+                    onEnter: () => {
+                        gsap.to(counter, {
+                            innerText: target, duration: 2, ease: 'power2.out', snap: { innerText: 1 },
+                            onUpdate() { counter.textContent = Math.round(parseFloat(counter.textContent)).toLocaleString('fr-CA'); }
+                        });
+                    }, once: true
+                });
+            }
         });
 
         // ============ 3D TILT CARDS ============
