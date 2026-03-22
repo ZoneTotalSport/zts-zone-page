@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone Total Sport &#8212; Faire un don</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: { electric: '#00E5FF' },
+                        yellow: { sun: '#FFD700' },
+                        pink: { fuchsia: '#FF2A7A' },
+                        violet: { pop: '#8B5CF6' },
+                        dark: '#0F0F2E',
+                    },
+                    fontFamily: {
+                        bangers: ['"Luckiest Guy"', 'cursive'],
+                        boogaloo: ['Boogaloo', 'cursive'],
+                        baloo: ['"Patrick Hand"', 'cursive'],
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+
+        body {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
+            background: linear-gradient(135deg, #0F0F2E 0%, #1a1a3e 50%, #0F0F2E 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========== DONATION CARD ========== */
+        .donation-card {
+            background: #fff;
+            border-radius: 32px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .donation-header {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA000 100%);
+            padding: 40px 32px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .donation-header::after {
+            content: '';
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 30px;
+            background: #fff;
+            border-radius: 30px 30px 0 0;
+        }
+
+        .donation-body {
+            padding: 20px 32px 36px;
+            color: #1a1a2e;
+        }
+
+        /* ========== TOGGLE ========== */
+        .toggle-wrap {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 16px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+        .toggle-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 0.95rem;
+            letter-spacing: 0.03em;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+            color: #999;
+        }
+        .toggle-btn.active {
+            background: #fff;
+            color: #0F0F2E;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .toggle-btn:hover:not(.active) { color: #555; }
+
+        /* ========== AMOUNT GRID ========== */
+        .amount-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .amount-btn {
+            padding: 16px 8px;
+            border-radius: 14px;
+            border: 3px solid #e5e5e5;
+            background: #fff;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.3rem;
+            color: #0F0F2E;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            letter-spacing: 0.03em;
+        }
+        .amount-btn:hover {
+            border-color: #FFD700;
+            background: #FFFDE7;
+            transform: translateY(-2px);
+        }
+        .amount-btn.selected {
+            border-color: #FFD700;
+            background: #FFD700;
+            color: #0F0F2E;
+            box-shadow: 0 6px 20px rgba(255,215,0,0.3);
+            transform: translateY(-2px);
+        }
+        .amount-btn.popular {
+            position: relative;
+        }
+        .amount-btn.popular::after {
+            content: 'POPULAIRE';
+            position: absolute;
+            top: -8px; right: -8px;
+            background: #FF2A7A;
+            color: #fff;
+            font-size: 0.45rem;
+            padding: 2px 6px;
+            border-radius: 6px;
+            letter-spacing: 0.08em;
+        }
+
+        /* ========== CUSTOM AMOUNT ========== */
+        .custom-amount-wrap {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .custom-amount-wrap .currency {
+            position: absolute;
+            left: 16px; top: 50%; transform: translateY(-50%);
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.2rem;
+            color: #999;
+        }
+        .custom-amount-input {
+            width: 100%;
+            padding: 14px 16px 14px 36px;
+            border: 3px solid #e5e5e5;
+            border-radius: 14px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.2rem;
+            color: #0F0F2E;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .custom-amount-input:focus {
+            border-color: #FFD700;
+        }
+        .custom-amount-input::placeholder { color: #ccc; }
+
+        /* ========== CTA BUTTON ========== */
+        .donate-btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 18px;
+            border: 4px solid #0F0F2E;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #0F0F2E;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.3rem;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            box-shadow: 6px 6px 0 #0F0F2E;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .donate-btn:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 9px 9px 0 #0F0F2E;
+            background: linear-gradient(135deg, #FFE44D, #FFB733);
+        }
+        .donate-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #0F0F2E;
+        }
+        .donate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ========== IMPACT CARDS ========== */
+        .impact-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .impact-card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,215,0,0.3);
+            transform: translateY(-4px);
+        }
+
+        /* ========== SECURE BADGE ========== */
+        .secure-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0,229,255,0.08);
+            border: 1px solid rgba(0,229,255,0.2);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            color: #00E5FF;
+        }
+
+        /* ========== CONFETTI ========== */
+        .confetti-piece {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99990;
+            font-size: 1.6rem;
+            will-change: transform, opacity;
+        }
+
+        /* ========== THANK YOU ========== */
+        .thank-you-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .thank-you-overlay.show { display: flex; }
+        .thank-you-box {
+            background: #FFD700;
+            border: 6px solid #0F0F2E;
+            border-radius: 28px;
+            box-shadow: 14px 14px 0 #0F0F2E;
+            max-width: 500px;
+            width: 100%;
+            padding: 48px 32px;
+            text-align: center;
+            transform: rotate(-1deg);
+        }
+
+        /* ========== RECURRING BADGE ========== */
+        .recurring-info {
+            background: #EEF2FF;
+            border: 2px solid #C7D2FE;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .recurring-info.show { display: flex; }
+
+        /* ========== FLOATING ELEMENTS ========== */
+        @keyframes floatSlow { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+
+        /* ========== MISC ========== */
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: #FFD700; color: #0F0F2E; }
+
+        @media (max-width: 640px) {
+            .donation-body { padding: 16px 20px 28px; }
+            .donation-header { padding: 28px 20px 24px; }
+            .amount-btn { font-size: 1.1rem; padding: 12px 6px; }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-start min-h-screen py-10 px-4">
+
+    <!-- Floating decorations -->
+    <div style="position:fixed; top:10%; left:5%; font-size:3rem; animation: floatSlow 6s ease-in-out infinite; pointer-events:none; opacity:0.15;">&#128155;</div>
+    <div style="position:fixed; top:30%; right:8%; font-size:2.5rem; animation: floatSlow 5s ease-in-out infinite 1s; pointer-events:none; opacity:0.1;">&#9917;</div>
+    <div style="position:fixed; bottom:20%; left:8%; font-size:2rem; animation: floatSlow 7s ease-in-out infinite 2s; pointer-events:none; opacity:0.1;">&#127941;</div>
+    <div style="position:fixed; bottom:10%; right:5%; font-size:2.5rem; animation: floatSlow 4s ease-in-out infinite 0.5s; pointer-events:none; opacity:0.12;">&#128170;</div>
+
+    <!-- ========== HEADER ========== -->
+    <div class="text-center mb-8 max-w-lg relative z-10">
+        <img src="https://zone.zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-16 w-auto mx-auto mb-4">
+        <h1 class="font-bangers text-4xl md:text-5xl tracking-wide mb-3" style="text-shadow: 3px 3px 0 rgba(0,0,0,0.3);">
+            Soutiens la <span style="color:#FFD700">Zone!</span>
+        </h1>
+        <p class="font-baloo text-white/60 text-lg">
+            Zone Total Sport est 100% gratuit. Ton don nous aide &#224; cr&#233;er encore plus de contenu pour les profs d'&#201;PS.
+        </p>
+    </div>
+
+    <!-- ========== DONATION CARD ========== -->
+    <div class="donation-card max-w-md w-full relative z-10">
+        <!-- Header -->
+        <div class="donation-header">
+            <div style="font-size:3rem; margin-bottom:8px;">&#128155;</div>
+            <h2 class="font-bangers text-2xl text-dark tracking-wide">Faire un don</h2>
+            <p class="font-baloo text-dark/60 text-sm">Chaque dollar compte!</p>
+        </div>
+
+        <!-- Body -->
+        <div class="donation-body">
+            <!-- Toggle: Unique / R&#233;current -->
+            <div class="toggle-wrap">
+                <button class="toggle-btn active" id="toggleOnce" onclick="setDonationType('once')">
+                    &#128147; Don unique
+                </button>
+                <button class="toggle-btn" id="toggleMonthly" onclick="setDonationType('monthly')">
+                    &#128260; Mensuel
+                </button>
+            </div>
+
+            <!-- Recurring info -->
+            <div class="recurring-info" id="recurringInfo">
+                <i data-lucide="info" class="w-4 h-4 text-indigo-500 flex-shrink-0 mt-0.5" style="min-width:16px"></i>
+                <span class="font-baloo text-sm text-indigo-700 ml-2">
+                    Ton don sera d&#233;bit&#233; <strong>chaque mois</strong>. Tu peux annuler &#224; tout moment.
+                </span>
+            </div>
+
+            <!-- Amount Grid -->
+            <div class="amount-grid" id="amountGrid">
+                <button class="amount-btn" data-amount="5" onclick="selectAmount(5)">5$</button>
+                <button class="amount-btn popular" data-amount="10" onclick="selectAmount(10)">10$</button>
+                <button class="amount-btn" data-amount="25" onclick="selectAmount(25)">25$</button>
+                <button class="amount-btn" data-amount="50" onclick="selectAmount(50)">50$</button>
+                <button class="amount-btn" data-amount="100" onclick="selectAmount(100)">100$</button>
+                <button class="amount-btn" data-amount="custom" onclick="selectCustom()">Autre</button>
+            </div>
+
+            <!-- Custom Amount -->
+            <div class="custom-amount-wrap" id="customWrap" style="display:none;">
+                <span class="currency">$</span>
+                <input type="number" class="custom-amount-input" id="customAmount" placeholder="Montant personnalis&#233;" min="1" step="1" oninput="updateCustomAmount()">
+            </div>
+
+            <!-- Message (optional) -->
+            <div class="mb-5">
+                <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block">Message (optionnel)</label>
+                <textarea id="donorMessage" rows="2" placeholder="Un mot d'encouragement? &#128522;" style="width:100%; padding:10px 14px; border:2px solid #e5e5e5; border-radius:12px; font-family:'Patrick Hand',cursive; font-size:1rem; color:#0F0F2E; outline:none; resize:none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#FFD700'" onblur="this.style.borderColor='#e5e5e5'"></textarea>
+            </div>
+
+            <!-- CTA Button -->
+            <button class="donate-btn" id="donateBtn" onclick="processDonation()">
+                <i data-lucide="heart" class="w-5 h-5"></i>
+                <span id="donateBtnText">Donner 10$</span>
+            </button>
+
+            <!-- Security -->
+            <div class="flex items-center justify-center gap-4 mt-5">
+                <div class="secure-badge">
+                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                    Paiement s&#233;curis&#233;
+                </div>
+                <div class="secure-badge">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                    Stripe
+                </div>
+            </div>
+
+            <p class="text-center text-dark/30 font-baloo text-xs mt-3">
+                En CAD$ &#183; Aucune donn&#233;e bancaire n'est stock&#233;e sur notre serveur
+            </p>
+        </div>
+    </div>
+
+    <!-- ========== IMPACT SECTION ========== -->
+    <div class="max-w-lg w-full mt-10 relative z-10">
+        <h3 class="font-bangers text-xl text-center text-white/80 tracking-wide mb-6">
+            L'impact de ton don &#127775;
+        </h3>
+        <div class="grid grid-cols-3 gap-4">
+            <div class="impact-card">
+                <div style="font-size:2rem; margin-bottom:8px;">&#9917;</div>
+                <div class="font-bangers text-lg text-yellow-sun">5$</div>
+                <p class="font-baloo text-white/50 text-xs mt-1">1 nouveau jeu cr&#233;&#233;</p>
+            </div>
+            <div class="impact-card">
+                <div style="font-size:2rem; margin-bottom:8px;">&#128218;</div>
+                <div class="font-bangers text-lg text-yellow-sun">25$</div>
+                <p class="font-baloo text-white/50 text-xs mt-1">1 SA&#201; compl&#232;te</p>
+            </div>
+            <div class="impact-card">
+                <div style="font-size:2rem; margin-bottom:8px;">&#127775;</div>
+                <div class="font-bangers text-lg text-yellow-sun">100$</div>
+                <p class="font-baloo text-white/50 text-xs mt-1">1 mois de serveur</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SOCIAL PROOF ========== -->
+    <div class="max-w-md w-full mt-8 text-center relative z-10">
+        <div class="flex items-center justify-center gap-2 mb-2">
+            <div class="flex -space-x-2">
+                <div class="w-8 h-8 rounded-full bg-cyan-electric flex items-center justify-center font-bangers text-xs text-dark border-2 border-dark">MJ</div>
+                <div class="w-8 h-8 rounded-full bg-yellow-sun flex items-center justify-center font-bangers text-xs text-dark border-2 border-dark">PL</div>
+                <div class="w-8 h-8 rounded-full bg-pink-fuchsia flex items-center justify-center font-bangers text-xs text-white border-2 border-dark">SB</div>
+                <div class="w-8 h-8 rounded-full bg-violet-pop flex items-center justify-center font-bangers text-xs text-white border-2 border-dark">+12</div>
+            </div>
+            <span class="font-baloo text-white/40 text-sm">15 donateurs ce mois-ci</span>
+        </div>
+        <p class="font-baloo text-white/25 text-xs">Fait avec &#128155; au Qu&#233;bec &#183; zonetotalsport.ca</p>
+    </div>
+
+    <!-- ========== THANK YOU POPUP ========== -->
+    <div class="thank-you-overlay" id="thankYouOverlay">
+        <div class="thank-you-box">
+            <div style="font-size:4rem; margin-bottom:16px;">&#127881;</div>
+            <h2 class="font-bangers text-3xl text-dark tracking-wide mb-3">MERCI!</h2>
+            <p class="font-baloo text-dark/70 text-lg mb-2" id="thankYouText">Ton don de 10$ fait une vraie diff&#233;rence!</p>
+            <p class="font-baloo text-dark/50 text-sm mb-6">Gr&#226;ce &#224; toi, on peut continuer &#224; cr&#233;er des ressources gratuites pour les profs d'&#201;PS.</p>
+            <button onclick="closeThankYou()" style="background:#0F0F2E; color:#fff; font-family:'Luckiest Guy',cursive; font-size:1rem; padding:12px 28px; border-radius:12px; border:3px solid #0F0F2E; cursor:pointer; letter-spacing:0.03em;">
+                &#128588; Super!
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== JAVASCRIPT ========== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        // Default selection
+        selectAmount(10);
+    });
+
+    var selectedAmount = 10;
+    var donationType = 'once'; // 'once' or 'monthly'
+
+    // ============ STRIPE CONFIG ============
+    // TODO: Remplacer par ta vraie cl&#233; Stripe publique
+    var STRIPE_PUBLIC_KEY = 'pk_test_XXXXXXXXXXXXXXXXXXXXXXXX';
+
+    // Stripe Payment Links (&#224; cr&#233;er dans ton dashboard Stripe)
+    // Tu peux cr&#233;er des Payment Links pour chaque montant dans Stripe Dashboard > Payment Links
+    var STRIPE_LINKS = {
+        once: {
+            5: 'https://buy.stripe.com/test_PLACEHOLDER_5_once',
+            10: 'https://buy.stripe.com/test_PLACEHOLDER_10_once',
+            25: 'https://buy.stripe.com/test_PLACEHOLDER_25_once',
+            50: 'https://buy.stripe.com/test_PLACEHOLDER_50_once',
+            100: 'https://buy.stripe.com/test_PLACEHOLDER_100_once',
+        },
+        monthly: {
+            5: 'https://buy.stripe.com/test_PLACEHOLDER_5_monthly',
+            10: 'https://buy.stripe.com/test_PLACEHOLDER_10_monthly',
+            25: 'https://buy.stripe.com/test_PLACEHOLDER_25_monthly',
+            50: 'https://buy.stripe.com/test_PLACEHOLDER_50_monthly',
+            100: 'https://buy.stripe.com/test_PLACEHOLDER_100_monthly',
+        }
+    };
+
+    function setDonationType(type) {
+        donationType = type;
+        document.getElementById('toggleOnce').classList.toggle('active', type === 'once');
+        document.getElementById('toggleMonthly').classList.toggle('active', type === 'monthly');
+        document.getElementById('recurringInfo').classList.toggle('show', type === 'monthly');
+        updateButtonText();
+    }
+
+    function selectAmount(amount) {
+        selectedAmount = amount;
+        document.getElementById('customWrap').style.display = 'none';
+        document.querySelectorAll('.amount-btn').forEach(function(btn) {
+            btn.classList.remove('selected');
+            if (parseInt(btn.dataset.amount) === amount) btn.classList.add('selected');
+        });
+        updateButtonText();
+    }
+
+    function selectCustom() {
+        document.querySelectorAll('.amount-btn').forEach(function(btn) { btn.classList.remove('selected'); });
+        document.querySelector('[data-amount="custom"]').classList.add('selected');
+        document.getElementById('customWrap').style.display = 'block';
+        document.getElementById('customAmount').focus();
+        selectedAmount = 0;
+        updateButtonText();
+    }
+
+    function updateCustomAmount() {
+        var val = parseInt(document.getElementById('customAmount').value) || 0;
+        selectedAmount = val;
+        updateButtonText();
+    }
+
+    function updateButtonText() {
+        var text = document.getElementById('donateBtnText');
+        if (selectedAmount <= 0) {
+            text.textContent = 'Entrer un montant';
+            return;
+        }
+        if (donationType === 'monthly') {
+            text.textContent = 'Donner ' + selectedAmount + '$/mois';
+        } else {
+            text.textContent = 'Donner ' + selectedAmount + '$';
+        }
+    }
+
+    function processDonation() {
+        if (selectedAmount <= 0) return;
+
+        var btn = document.getElementById('donateBtn');
+        btn.disabled = true;
+        btn.querySelector('span').textContent = 'Redirection...';
+
+        // Check if we have a Stripe Payment Link for this amount
+        var links = STRIPE_LINKS[donationType];
+        var link = links[selectedAmount];
+
+        if (link && !link.includes('PLACEHOLDER')) {
+            // Redirect to Stripe Payment Link
+            window.open(link, '_blank');
+            setTimeout(function() {
+                btn.disabled = false;
+                updateButtonText();
+            }, 2000);
+        } else {
+            // Fallback: Square link or demo mode
+            // En attendant la config Stripe, on utilise Square
+            var squareLink = 'https://square.link/u/hAuTPCOT?src=embed';
+
+            // Show thank you (demo mode)
+            setTimeout(function() {
+                showThankYou();
+                btn.disabled = false;
+                updateButtonText();
+            }, 800);
+
+            // In production, uncomment this to redirect to Square:
+            // window.open(squareLink, '_blank');
+        }
+    }
+
+    function showThankYou() {
+        var overlay = document.getElementById('thankYouOverlay');
+        var text = document.getElementById('thankYouText');
+        if (donationType === 'monthly') {
+            text.textContent = 'Ton don mensuel de ' + selectedAmount + '$/mois fait une vraie diff\u00e9rence!';
+        } else {
+            text.textContent = 'Ton don de ' + selectedAmount + '$ fait une vraie diff\u00e9rence!';
+        }
+        overlay.classList.add('show');
+        burstConfetti();
+    }
+
+    function closeThankYou() {
+        document.getElementById('thankYouOverlay').classList.remove('show');
+    }
+
+    // ============ CONFETTI ============
+    function burstConfetti() {
+        var emojis = ['\u2764\uFE0F', '\uD83D\uDC9B', '\u2B50', '\uD83C\uDF89', '\uD83C\uDFC6', '\u26BD', '\uD83C\uDFC0', '\uD83C\uDFD0'];
+        for (var i = 0; i < 20; i++) {
+            var el = document.createElement('div');
+            el.className = 'confetti-piece';
+            el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            el.style.left = (30 + Math.random() * 40) + 'vw';
+            el.style.top = '50vh';
+            document.body.appendChild(el);
+
+            gsap.to(el, {
+                x: (Math.random() - 0.5) * 400,
+                y: -(200 + Math.random() * 300),
+                rotation: Math.random() * 720 - 360,
+                opacity: 0,
+                duration: 1.5 + Math.random(),
+                ease: 'power2.out',
+                onComplete: function() { if (el.parentNode) el.parentNode.removeChild(el); }
+            });
+        }
+    }
+    </script>
+
+    <!-- ========== WIX VELO BRIDGE ========== -->
+    <script>
+    (function() {
+        'use strict';
+        var GROUP_ID = 'donation';
+
+        function sendHeight() {
+            var h = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: 'resize', group: GROUP_ID, height: h }, '*');
+        }
+
+        var _ro = new ResizeObserver(function() { sendHeight(); });
+        _ro.observe(document.body);
+        window.addEventListener('load', function() {
+            setTimeout(sendHeight, 500);
+            setTimeout(sendHeight, 2000);
+        });
+    })();
+    </script>
+
+</body>
+</html>
