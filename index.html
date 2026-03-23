@@ -911,6 +911,61 @@
             .nav-label { display: none; }
             .comic-popup { width: 95vw; padding: 3rem 1.5rem 1.5rem; }
         }
+        /* ========== WIX NAV BAR ========== */
+        .wix-nav-bar { background: rgba(0,0,0,0.15); border-radius: 12px; padding: 6px 12px; backdrop-filter: blur(8px); }
+        .wix-nav-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-family: 'Fredoka One', cursive; font-size: 0.75rem;
+            padding: 5px 12px; border-radius: 20px;
+            background: rgba(255,255,255,0.15); color: #fff;
+            text-decoration: none; transition: all 0.2s;
+            white-space: nowrap; border: 1.5px solid transparent;
+        }
+        .wix-nav-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-1px); }
+        .wix-nav-btn.active { background: #00E5FF; color: #0F0F2E; border-color: #00E5FF; }
+        .wix-nav-btn.btn-donate-nav { background: linear-gradient(135deg, #FF2A7A, #FF6B9D); color: #fff; border-color: #FF2A7A; }
+        .wix-nav-btn.btn-donate-nav:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 4px 15px rgba(255,42,122,0.4); }
+        @media (max-width: 768px) {
+            .wix-nav-btn span { display: none; }
+            .wix-nav-btn { padding: 6px 8px; }
+            .wix-nav-bar { gap: 4px; }
+        }
+
+        /* ========== NOUVEAUTES CARDS ========== */
+        .news-card {
+            display: flex; align-items: center; gap: 16px;
+            background: #fff; border: 2px solid #e5e7eb;
+            border-radius: 16px; padding: 16px 20px;
+            transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .news-card:hover { border-color: #00E5FF; transform: translateX(6px); box-shadow: 0 4px 20px rgba(0,229,255,0.15); }
+        .news-date {
+            font-family: 'Fredoka One', cursive; font-size: 0.7rem;
+            background: linear-gradient(135deg, #00E5FF, #00B8D4);
+            color: #fff; padding: 6px 12px; border-radius: 10px;
+            white-space: nowrap; min-width: 100px; text-align: center;
+        }
+        .news-content { flex: 1; }
+        .news-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-family: 'Fredoka One', cursive; font-size: 0.8rem;
+            padding: 8px 18px; border-radius: 12px;
+            background: #00E5FF; color: #0F0F2E;
+            text-decoration: none; transition: all 0.2s;
+            white-space: nowrap; border: 2px solid #00E5FF;
+        }
+        .news-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,229,255,0.3); }
+        .news-btn.btn-yellow-outline { background: #FFD700; border-color: #FFD700; color: #0F0F2E; }
+        .news-btn.btn-yellow-outline:hover { box-shadow: 0 4px 12px rgba(255,215,0,0.4); }
+        .news-btn.btn-pink-outline { background: #FF2A7A; border-color: #FF2A7A; color: #fff; }
+        .news-btn.btn-pink-outline:hover { box-shadow: 0 4px 12px rgba(255,42,122,0.4); }
+        .news-btn.btn-violet-outline { background: #8B5CF6; border-color: #8B5CF6; color: #fff; }
+        .news-btn.btn-violet-outline:hover { box-shadow: 0 4px 12px rgba(139,92,246,0.4); }
+        @media (max-width: 768px) {
+            .news-card { flex-direction: column; align-items: flex-start; text-align: left; }
+            .news-date { min-width: auto; }
+        }
+
     </style>
 </head>
 <body>
@@ -922,7 +977,34 @@
     <canvas id="physics-canvas"></canvas>
 
     <!-- ========== NAVIGATION ========== -->
-    <nav class="nav-fixed py-3 px-6 md:px-10" id="mainNav">
+    <nav class="nav-fixed py-2 px-6 md:px-10" id="mainNav">
+        <!-- BARRE WIX - Boutons de navigation vers les pages du site -->
+        <div class="wix-nav-bar flex items-center justify-center gap-2 md:gap-3 flex-wrap mb-2 py-2 border-b border-white/10">
+            <a href="https://www.zonetotalsport.ca/" class="wix-nav-btn active">
+                <i data-lucide="home" class="w-3.5 h-3.5"></i> <span>Accueil</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/bo%C3%AEte-%C3%A0-outils" class="wix-nav-btn">
+                <i data-lucide="wrench" class="w-3.5 h-3.5"></i> <span>Outils</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/sa%C3%A9" class="wix-nav-btn">
+                <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> <span>S.A.E</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/banque-de-jeux" class="wix-nav-btn">
+                <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> <span>Jeux</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/blog" class="wix-nav-btn">
+                <i data-lucide="pen-line" class="w-3.5 h-3.5"></i> <span>Blog</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/sports-news" class="wix-nav-btn">
+                <i data-lucide="newspaper" class="w-3.5 h-3.5"></i> <span>Sports News</span>
+            </a>
+            <a href="avis.html" class="wix-nav-btn">
+                <i data-lucide="star" class="w-3.5 h-3.5"></i> <span>Avis</span>
+            </a>
+            <a href="wix/donation.html" class="wix-nav-btn btn-donate-nav">
+                <i data-lucide="heart" class="w-3.5 h-3.5"></i> <span>Dons</span>
+            </a>
+        </div>
         <!-- Horloge centr&#233;e en haut -->
         <div class="flex justify-center mb-2">
             <div class="digital-clock" id="navClock" style="font-size:1.55rem; padding:8px 20px; min-width:180px;">
@@ -1510,6 +1592,92 @@
         <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
             <path d="M0,0 L1440,50 L1440,70 L0,70 Z" fill="#FFD700"/>
         </svg>
+    </div>
+
+    <!-- ========== SECTION 9.5: NOUVEAUTES (White) ========== -->
+    <section class="py-16 px-6 md:px-10 bg-white" id="nouveautes">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-10">
+                <span class="inline-block bg-pink-fuchsia/10 text-pink-fuchsia font-fredoka text-sm px-4 py-1 rounded-full mb-3">
+                    <i data-lucide="sparkles" class="w-4 h-4 inline-block mr-1"></i> QUOI DE NEUF?
+                </span>
+                <h2 class="hero-title text-4xl md:text-5xl text-dark" data-i18n="newsTitle">Nouveautes</h2>
+                <p class="font-baloo text-dark/60 mt-2" data-i18n="newsDesc">Les dernieres mises a jour du site</p>
+            </div>
+            <div class="space-y-4" id="newsList">
+                <!-- Item 1 -->
+                <div class="news-card">
+                    <div class="news-date">23 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">150 nouveaux jeux dans le generateur!</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Zombie, Ninja, Minecraft, Battle Royale, Superheros et plus — des jeux ultra cool pour le gym.</p>
+                    </div>
+                    <a href="#jeux" class="news-btn">
+                        <i data-lucide="gamepad-2" class="w-4 h-4"></i> Essayer
+                    </a>
+                </div>
+                <!-- Item 2 -->
+                <div class="news-card">
+                    <div class="news-date">22 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Page de dons avec PayPal</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Dons uniques ou mensuels pour supporter la Zone. Paiement securise via PayPal.</p>
+                    </div>
+                    <a href="wix/donation.html" class="news-btn btn-yellow-outline">
+                        <i data-lucide="heart" class="w-4 h-4"></i> Voir
+                    </a>
+                </div>
+                <!-- Item 3 -->
+                <div class="news-card">
+                    <div class="news-date">21 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Page d'avis en ligne</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Les enseignants peuvent maintenant laisser un avis et une note sur la plateforme.</p>
+                    </div>
+                    <a href="avis.html" class="news-btn btn-pink-outline">
+                        <i data-lucide="star" class="w-4 h-4"></i> Voir
+                    </a>
+                </div>
+                <!-- Item 4 -->
+                <div class="news-card">
+                    <div class="news-date">20 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Politique de confidentialite</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Transparence sur l'utilisation des donnees et la protection de la vie privee.</p>
+                    </div>
+                    <a href="politique.html" class="news-btn btn-violet-outline">
+                        <i data-lucide="shield" class="w-4 h-4"></i> Lire
+                    </a>
+                </div>
+                <!-- Item 5 -->
+                <div class="news-card">
+                    <div class="news-date">19 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Site multilingue FR / EN / ZH</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Le site est maintenant disponible en francais, anglais et chinois simplifie.</p>
+                    </div>
+                    <a href="#" class="news-btn">
+                        <i data-lucide="globe" class="w-4 h-4"></i> Top!
+                    </a>
+                </div>
+                <!-- Item 6 -->
+                <div class="news-card">
+                    <div class="news-date">18 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Scores sportifs en direct</h3>
+                        <p class="font-baloo text-dark/60 text-sm">NHL, NBA, NFL, MLB, MLS — scores en temps reel directement sur le site.</p>
+                    </div>
+                    <a href="#" onclick="document.querySelector('.sports-ticker-wrap').scrollIntoView({behavior:'smooth'});return false" class="news-btn btn-yellow-outline">
+                        <i data-lucide="trophy" class="w-4 h-4"></i> Voir
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave before footer -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" fill="none"><path d="M0 40 C 360 0, 720 70, 1440 30 L1440 70 L0 70Z" fill="#FFD700"/></svg>
     </div>
 
     <!-- ========== SECTION 10: FOOTER (Yellow) ========== -->
