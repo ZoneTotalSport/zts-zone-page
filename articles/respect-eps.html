@@ -93,6 +93,8 @@
     .wix-nav-btn.active { background: #00E5FF; color: #0F0F2E; border-color: #00E5FF; box-shadow: 0 2px 10px rgba(0,229,255,0.3); }
     .wix-nav-btn.btn-donate-nav { background: linear-gradient(135deg, #FF2A7A, #FF6B9D); color: #fff; border-color: #FF2A7A; animation: donPulse 2s ease-in-out infinite; }
     .wix-nav-btn.btn-donate-nav:hover { transform: translateY(-2px) scale(1.08); box-shadow: 0 4px 20px rgba(255,42,122,0.5); }
+        .wix-nav-btn.btn-login-nav { background: linear-gradient(135deg, #00E5FF, #8B5CF6); color: #fff; border-color: #8B5CF6; }
+        .wix-nav-btn.btn-login-nav:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 4px 20px rgba(139,92,246,0.4); }
     @keyframes donPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,42,122,0.4); } 50% { box-shadow: 0 0 15px 3px rgba(255,42,122,0.2); } }
     @media (max-width: 768px) {
       .wix-nav-btn span { display: none; }
@@ -295,6 +297,10 @@
       <a href="wix/donation.html" class="wix-nav-btn btn-donate-nav">
         <i data-lucide="heart" class="w-3.5 h-3.5"></i> <span>Dons</span>
       </a>
+
+            <button data-auth="login" class="wix-nav-btn btn-login-nav" style="background: linear-gradient(135deg, #00E5FF, #8B5CF6); color: white; border: none;">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> <span>Connexion</span>
+            </button>
     </div>
   </nav>
 
@@ -849,5 +855,6 @@
     }
   </script>
 
+<script type="module" src="../wix-auth.js"></script>
 </body>
 </html>
