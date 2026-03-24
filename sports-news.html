@@ -1258,20 +1258,19 @@
   // FETCH NEWS (RSS via CORS proxy)
   // ============================================================
   async function fetchNews() {
-    const rss = CONFIG[currentLeague].rss;
+    const cfg = CONFIG[currentLeague];
     try {
-      const url = CORS_PROXY + encodeURIComponent(rss);
-      const resp = await fetch(url);
-      const data = await resp.json();
-      const xml = new DOMParser().parseFromString(data.contents, 'text/xml');
-      const items = Array.from(xml.querySelectorAll('item')).slice(0, 9);
-      return items.map(item => {
-        const title = item.querySelector('title')?.textContent || '';
-        const link = item.querySelector('link')?.textContent || '#';
-        const desc = item.querySelector('description')?.textContent?.replace(/<[^>]+>/g, '').trim() || '';
-        const pubDate = item.querySelector('pubDate')?.textContent || '';
-        const mediaUrl = item.querySelector('media\\:thumbnail, thumbnail')?.getAttribute('url') || null;
-        return { title, link, desc, pubDate, mediaUrl };
+      // Use ESPN news API (has images) instead of RSS (no images)
+      const sport = cfg.endpoint;
+      const apiUrl = `https://site.api.espn.com/apis/site/v2/sports/${sport}/news?limit=9`;
+      const data = await fetchWithProxy(apiUrl);
+      const articles = data.articles || [];
+      return articles.map(a => {
+        const imgUrl = a.images?.[0]?.url || null;
+        const link = a.links?.web?.href || a.links?.api?.self?.href || '#';
+        const desc = a.description || a.story?.replace(/<[^>]+>/g, '').substring(0, 200) || '';
+        const pubDate = a.published || '';
+        return { title: a.headline || '', link, desc, pubDate, mediaUrl: imgUrl };
       });
     } catch (err) {
       console.error('fetchNews error:', err);
