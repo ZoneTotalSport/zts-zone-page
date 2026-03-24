@@ -794,7 +794,22 @@
     MLB_STATS: 'https://statsapi.mlb.com/api/v1',
   };
 
+  const CORS_PROXIES = [
+    (u) => u, // try direct first
+    (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+  ];
   const CORS_PROXY = 'https://api.allorigins.win/get?url=';
+
+  async function fetchWithProxy(url) {
+    for (const proxyFn of CORS_PROXIES) {
+      try {
+        const resp = await fetch(proxyFn(url));
+        if (resp.ok) return await resp.json();
+      } catch (_) { continue; }
+    }
+    throw new Error('All fetch attempts failed for: ' + url);
+  }
 
   const CONFIG = {
     NHL: {
@@ -1008,20 +1023,17 @@
     try {
       if (currentLeague === 'NHL') {
         const url = `${API_ENDPOINTS.NHL_BASE}/score/${dateStr}`;
-        const resp = await fetch(url);
-        const data = await resp.json();
+        const data = await fetchWithProxy(url);
         return parseNHLScores(data);
       } else if (currentLeague === 'MLB') {
         const url = `${API_ENDPOINTS.MLB_STATS}/schedule?sportId=1&date=${dateStr}&hydrate=team,linescore`;
-        const resp = await fetch(url);
-        const data = await resp.json();
+        const data = await fetchWithProxy(url);
         return parseMLBScores(data);
       } else {
         // ESPN
         const sport = cfg.endpoint;
         const url = `${API_ENDPOINTS.ESPN_BASE}/${sport}/scoreboard?dates=${dateStr.replace(/-/g, '')}`;
-        const resp = await fetch(url);
-        const data = await resp.json();
+        const data = await fetchWithProxy(url);
         return parseESPNScores(data, cfg);
       }
     } catch (err) {
@@ -1256,14 +1268,14 @@
     }
 
     container.innerHTML = articles.map((a, i) => {
-      const imgSrc = a.mediaUrl
-        ? a.mediaUrl
-        : `https://source.unsplash.com/600x300/?${encodeURIComponent(cfg.name + ' sport')}`;
+      const leagueFallbacks = { NHL: "https://cms.nhl.bamgrid.com/images/photos/317487612/1024x576/cut.jpg", NBA: "https://cdn.nba.com/manage/2024/10/GettyImages-2180580369-scaled-e1729620713498-1536x864.jpg", NFL: "https://static.www.nfl.com/image/private/t_editorial_landscape_12_desktop/league/ra7gdl6eabza2yqsyp2e", MLB: "https://img.mlbstatic.com/mlb-images/image/private/t_16x9/t_w1536/mlb/h2bjb6jjsvmrwlo3wfbm", UFC: "https://dmxg5wxfqgb4u.cloudfront.net/styles/background_image_xl/s3/2024-10/UFC-309-TILE.png", MLS: "https://images.mlssoccer.com/image/private/t_keep-aspect-ratio-e-mobile/f_auto/mls-mls-prd/xkwmjjtszoekz3hgxoxo" };
+      const fallbackImg = leagueFallbacks[currentLeague] || leagueFallbacks.NHL;
+      const imgSrc = a.mediaUrl || fallbackImg;
       const date = a.pubDate ? new Date(a.pubDate).toLocaleDateString(currentLang === 'zh' ? 'zh-CN' : currentLang === 'en' ? 'en-CA' : 'fr-CA', { month: 'short', day: 'numeric' }) : '';
       const shortDesc = a.desc.length > 120 ? a.desc.substring(0, 120) + '…' : a.desc;
 
       return `<article class="news-card">
-        <img src="${imgSrc}" alt="${a.title}" loading="lazy" onerror="this.src='https://picsum.photos/600/300?random=${i}'">
+        <img src="${imgSrc}" alt="${a.title}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackImg}';">
         <div class="news-body">
           <span class="news-tag font-fredoka" style="background:${cfg.dotColor}22;color:${cfg.color};">${cfg.emoji} ${cfg.name}</span>
           <h3 class="font-fredoka text-dark text-base leading-snug mb-2">${a.title}</h3>
@@ -1292,17 +1304,14 @@
     try {
       let html = '';
       if (league === 'NHL') {
-        const resp = await fetch(`${API_ENDPOINTS.NHL_BASE}/gamecenter/${gameId}/boxscore`);
-        const data = await resp.json();
+        const data = await fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/gamecenter/${gameId}/boxscore`);
         html = renderNHLGameDetail(data);
       } else if (league === 'MLB') {
-        const resp = await fetch(`${API_ENDPOINTS.MLB_STATS}/game/${gameId}/linescore`);
-        const data = await resp.json();
+        const data = await fetchWithProxy(`${API_ENDPOINTS.MLB_STATS}/game/${gameId}/linescore`);
         html = renderMLBGameDetail(data);
       } else {
         const sport = CONFIG[league].endpoint;
-        const resp = await fetch(`${API_ENDPOINTS.ESPN_BASE}/${sport}/summary?event=${gameId}`);
-        const data = await resp.json();
+        const data = await fetchWithProxy(`${API_ENDPOINTS.ESPN_BASE}/${sport}/summary?event=${gameId}`);
         html = renderESPNGameDetail(data, league);
       }
       document.getElementById('modalGameContent').innerHTML = html;
@@ -1487,17 +1496,14 @@
     try {
       let html = '';
       if (currentLeague === 'NHL') {
-        const resp = await fetch(`${API_ENDPOINTS.NHL_BASE}/standings/now`);
-        const data = await resp.json();
+        const data = await fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/standings/now`);
         html = renderNHLStandings(data);
       } else if (currentLeague === 'MLB') {
-        const resp = await fetch(`${API_ENDPOINTS.MLB_STATS}/standings?leagueId=103,104&season=2025`);
-        const data = await resp.json();
+        const data = await fetchWithProxy(`${API_ENDPOINTS.MLB_STATS}/standings?leagueId=103,104&season=2025`);
         html = renderMLBStandings(data);
       } else {
         const sport = CONFIG[currentLeague].endpoint;
-        const resp = await fetch(`${API_ENDPOINTS.ESPN_BASE}/${sport}/standings`);
-        const data = await resp.json();
+        const data = await fetchWithProxy(`${API_ENDPOINTS.ESPN_BASE}/${sport}/standings`);
         html = renderESPNStandings(data);
       }
       document.getElementById('modalStandingsContent').innerHTML = html;
@@ -1629,20 +1635,18 @@
       let html = '';
       if (currentLeague === 'NHL') {
         const [scorersResp, goaliesResp] = await Promise.all([
-          fetch(`${API_ENDPOINTS.NHL_BASE}/skater-stats-leaders/current?categories=points&limit=10`),
-          fetch(`${API_ENDPOINTS.NHL_BASE}/goalie-stats-leaders/current?categories=wins&limit=5`),
+          fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/skater-stats-leaders/current?categories=points&limit=10`),
+          fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/goalie-stats-leaders/current?categories=wins&limit=5`),
         ]);
         const scorers = await scorersResp.json();
         const goalies = await goaliesResp.json();
         html = renderNHLLeaders(scorers, goalies);
       } else if (currentLeague === 'MLB') {
-        const resp = await fetch(`${API_ENDPOINTS.MLB_STATS}/stats/leaders?leaderCategories=homeRuns,battingAverage,wins&season=2025&limit=10`);
-        const data = await resp.json();
+        const data = await fetchWithProxy(`${API_ENDPOINTS.MLB_STATS}/stats/leaders?leaderCategories=homeRuns,battingAverage,wins&season=2025&limit=10`);
         html = renderMLBLeaders(data);
       } else {
         const sport = CONFIG[currentLeague].endpoint;
-        const resp = await fetch(`${API_ENDPOINTS.ESPN_BASE}/${sport}/leaders`);
-        const data = await resp.json();
+        const data = await fetchWithProxy(`${API_ENDPOINTS.ESPN_BASE}/${sport}/leaders`);
         html = renderESPNLeaders(data);
       }
       document.getElementById('modalLeadersContent').innerHTML = html;
