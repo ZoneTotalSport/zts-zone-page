@@ -100,7 +100,8 @@
 
     /* ========== HERO ========== */
     .hero-gradient {
-      background: linear-gradient(135deg, #0F0F2E 0%, #1a1a4e 40%, #0d2744 70%, #0F0F2E 100%);
+      background: linear-gradient(135deg, rgba(15,15,46,0.82) 0%, rgba(26,26,78,0.78) 40%, rgba(13,39,68,0.82) 70%, rgba(15,15,46,0.88) 100%),
+                  url('https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Centre_Bell_2012-10-13.jpg/1280px-Centre_Bell_2012-10-13.jpg') center/cover no-repeat;
       position: relative; overflow: hidden;
     }
     .hero-gradient::before {
@@ -794,21 +795,20 @@
     MLB_STATS: 'https://statsapi.mlb.com/api/v1',
   };
 
-  const CORS_PROXIES = [
-    (u) => u, // try direct first
-    (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-    (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
-  ];
   const CORS_PROXY = 'https://api.allorigins.win/get?url=';
 
   async function fetchWithProxy(url) {
-    for (const proxyFn of CORS_PROXIES) {
-      try {
-        const resp = await fetch(proxyFn(url));
-        if (resp.ok) return await resp.json();
-      } catch (_) { continue; }
-    }
-    throw new Error('All fetch attempts failed for: ' + url);
+    // Try direct fetch first (works for some APIs that allow CORS)
+    try {
+      const resp = await fetch(url);
+      if (resp.ok) return await resp.json();
+    } catch (_) { /* CORS blocked, use proxy */ }
+
+    // Fallback: allorigins.win /get endpoint (wraps response in {contents: "..."})
+    const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
+    if (!resp.ok) throw new Error('Proxy failed: ' + resp.status);
+    const wrapper = await resp.json();
+    return JSON.parse(wrapper.contents);
   }
 
   const CONFIG = {
