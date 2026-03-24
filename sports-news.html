@@ -1634,12 +1634,10 @@
     try {
       let html = '';
       if (currentLeague === 'NHL') {
-        const [scorersResp, goaliesResp] = await Promise.all([
+        const [scorers, goalies] = await Promise.all([
           fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/skater-stats-leaders/current?categories=points&limit=10`),
           fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/goalie-stats-leaders/current?categories=wins&limit=5`),
         ]);
-        const scorers = await scorersResp.json();
-        const goalies = await goaliesResp.json();
         html = renderNHLLeaders(scorers, goalies);
       } else if (currentLeague === 'MLB') {
         const data = await fetchWithProxy(`${API_ENDPOINTS.MLB_STATS}/stats/leaders?leaderCategories=homeRuns,battingAverage,wins&season=2025&limit=10`);
