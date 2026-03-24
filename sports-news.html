@@ -795,6 +795,11 @@
     MLB_STATS: 'https://statsapi.mlb.com/api/v1',
   };
 
+  const CORS_PROXIES = [
+    { url: (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, parse: (r) => JSON.parse(r.contents) },
+    { url: (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`, parse: (r) => r },
+    { url: (u) => `https://thingproxy.freeboard.io/fetch/${u}`, parse: (r) => r },
+  ];
   const CORS_PROXY = 'https://api.allorigins.win/get?url=';
 
   async function fetchWithProxy(url) {
@@ -804,11 +809,17 @@
       if (resp.ok) return await resp.json();
     } catch (_) { /* CORS blocked, use proxy */ }
 
-    // Fallback: allorigins.win /get endpoint (wraps response in {contents: "..."})
-    const resp = await fetch(CORS_PROXY + encodeURIComponent(url));
-    if (!resp.ok) throw new Error('Proxy failed: ' + resp.status);
-    const wrapper = await resp.json();
-    return JSON.parse(wrapper.contents);
+    // Try each proxy in order
+    for (const proxy of CORS_PROXIES) {
+      try {
+        const resp = await fetch(proxy.url(url));
+        if (resp.ok) {
+          const data = await resp.json();
+          return proxy.parse(data);
+        }
+      } catch (_) { continue; }
+    }
+    throw new Error('All proxies failed for: ' + url);
   }
 
   const CONFIG = {
