@@ -710,6 +710,7 @@
       status_live: 'EN DIRECT', status_final: 'FINAL', status_scheduled: 'À VENIR',
       period: 'Période', overtime: 'Prolongation', shootout: 'Tirs de barrage',
       no_scores: 'Aucun match prévu pour cette journée.',
+      no_data: 'Données non disponibles.',
       no_news: 'Actualités non disponibles.',
       load_error: 'Erreur de chargement. Vérifiez votre connexion.',
       read_more: 'Lire la suite',
@@ -734,6 +735,7 @@
       status_live: 'LIVE', status_final: 'FINAL', status_scheduled: 'UPCOMING',
       period: 'Period', overtime: 'Overtime', shootout: 'Shootout',
       no_scores: 'No games scheduled for this day.',
+      no_data: 'Data not available.',
       no_news: 'News not available.',
       load_error: 'Loading error. Check your connection.',
       read_more: 'Read more',
@@ -758,6 +760,7 @@
       status_live: '直播', status_final: '结束', status_scheduled: '即将开始',
       period: '节', overtime: '加时赛', shootout: '点球决胜',
       no_scores: '今天没有安排比赛。',
+      no_data: '数据不可用。',
       no_news: '新闻不可用。',
       load_error: '加载错误。请检查您的网络连接。',
       read_more: '阅读更多',
@@ -803,19 +806,34 @@
   const CORS_PROXY = 'https://api.allorigins.win/get?url=';
 
   async function fetchWithProxy(url) {
+    const TIMEOUT_MS = 8000;
+
+    function fetchWithTimeout(fetchUrl, ms) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ms);
+      return fetch(fetchUrl, { signal: controller.signal }).finally(() => clearTimeout(timer));
+    }
+
     // Try direct fetch first (works for some APIs that allow CORS)
     try {
-      const resp = await fetch(url);
-      if (resp.ok) return await resp.json();
-    } catch (_) { /* CORS blocked, use proxy */ }
+      const resp = await fetchWithTimeout(url, TIMEOUT_MS);
+      if (resp.ok) {
+        const text = await resp.text();
+        try { return JSON.parse(text); } catch (_) { /* not valid JSON */ }
+      }
+    } catch (_) { /* CORS blocked or timeout, use proxy */ }
 
-    // Try each proxy in order
-    for (const proxy of CORS_PROXIES) {
+    // Try each proxy in order with a small delay between attempts
+    for (let i = 0; i < CORS_PROXIES.length; i++) {
+      const proxy = CORS_PROXIES[i];
+      if (i > 0) await new Promise(r => setTimeout(r, 300)); // delay between proxy attempts
       try {
-        const resp = await fetch(proxy.url(url));
+        const resp = await fetchWithTimeout(proxy.url(url), TIMEOUT_MS);
         if (resp.ok) {
-          const data = await resp.json();
-          return proxy.parse(data);
+          const text = await resp.text();
+          let data;
+          try { data = JSON.parse(text); } catch (_) { continue; }
+          try { return proxy.parse(data); } catch (_) { continue; }
         }
       } catch (_) { continue; }
     }
@@ -1526,7 +1544,7 @@
 
   function renderNHLStandings(data) {
     const standings = data.standings || [];
-    if (standings.length === 0) return `<p class="font-fredoka text-center text-dark/50">${t('no_scores')}</p>`;
+    if (standings.length === 0) return `<p class="font-fredoka text-center text-dark/50">${t('no_data')}</p>`;
 
     // Group by division
     const byDiv = {};
@@ -1588,47 +1606,58 @@
           </table>
         </div>
       </div>`;
-    }).join('') || `<p class="font-fredoka text-center text-dark/50">${t('no_scores')}</p>`;
+    }).join('') || `<p class="font-fredoka text-center text-dark/50">${t('no_data')}</p>`;
   }
 
   function renderESPNStandings(data) {
     const children = data.children || [];
     let html = '';
-    children.forEach(conf => {
-      const confName = conf.name || '';
-      (conf.children || [conf]).forEach(div => {
-        const divName = div.name || confName;
-        const entries = div.standings?.entries || [];
-        if (!entries.length) return;
-        const cols = div.standings?.displayName ? [div.standings.displayName] : [];
-        const statNames = entries[0]?.stats?.map(s => s.shortDisplayName || s.name) || [];
 
-        html += `<div class="mb-6">
-          <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-violet-400 pb-1">${divName}</h4>
-          <div class="overflow-x-auto">
-            <table class="standings-table">
-              <thead><tr>
-                <th>#</th><th>Équipe</th>
-                ${statNames.slice(0, 5).map(n => `<th>${n}</th>`).join('')}
-              </tr></thead>
-              <tbody>
-                ${entries.map((entry, i) => `<tr>
-                  <td><span class="rank-badge ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${i + 1}</span></td>
-                  <td>
-                    <div class="flex items-center gap-2">
-                      ${entry.team?.logos?.[0]?.href ? `<img src="${entry.team.logos[0].href}" class="w-5 h-5 object-contain">` : ''}
-                      <span class="font-fredoka">${entry.team?.abbreviation || '?'}</span>
-                    </div>
-                  </td>
-                  ${(entry.stats || []).slice(0, 5).map((s, si) => `<td class="${si === 0 ? 'pts-cell' : ''}">${s.displayValue}</td>`).join('')}
-                </tr>`).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>`;
+    // Helper to render a group of standings entries
+    function renderGroup(groupName, entries) {
+      if (!entries || !entries.length) return;
+      const statNames = entries[0]?.stats?.map(s => s.shortDisplayName || s.name) || [];
+      html += `<div class="mb-6">
+        <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-violet-400 pb-1">${groupName}</h4>
+        <div class="overflow-x-auto">
+          <table class="standings-table">
+            <thead><tr>
+              <th>#</th><th>Équipe</th>
+              ${statNames.slice(0, 5).map(n => `<th>${n}</th>`).join('')}
+            </tr></thead>
+            <tbody>
+              ${entries.map((entry, i) => `<tr>
+                <td><span class="rank-badge ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${i + 1}</span></td>
+                <td>
+                  <div class="flex items-center gap-2">
+                    ${entry.team?.logos?.[0]?.href ? `<img src="${entry.team.logos[0].href}" class="w-5 h-5 object-contain">` : ''}
+                    <span class="font-fredoka">${entry.team?.abbreviation || entry.team?.displayName || '?'}</span>
+                  </div>
+                </td>
+                ${(entry.stats || []).slice(0, 5).map((s, si) => `<td class="${si === 0 ? 'pts-cell' : ''}">${s.displayValue ?? '-'}</td>`).join('')}
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+
+    if (children.length) {
+      // Standard nested structure: children > children > standings > entries
+      children.forEach(conf => {
+        const confName = conf.name || '';
+        (conf.children || [conf]).forEach(div => {
+          const divName = div.name || confName;
+          const entries = div.standings?.entries || [];
+          renderGroup(divName, entries);
+        });
       });
-    });
-    return html || `<p class="font-fredoka text-center text-dark/50">${t('no_scores')}</p>`;
+    } else if (data.standings?.entries) {
+      // Flat structure: standings.entries directly on data
+      renderGroup(data.name || data.abbreviation || 'Standings', data.standings.entries);
+    }
+
+    return html || `<p class="font-fredoka text-center text-dark/50">${t('no_data')}</p>`;
   }
 
   // ============================================================
@@ -1728,7 +1757,7 @@
       </div>`;
     }
 
-    return html || `<p class="font-fredoka text-center text-dark/50">${t('no_scores')}</p>`;
+    return html || `<p class="font-fredoka text-center text-dark/50">${t('no_data')}</p>`;
   }
 
   function renderMLBLeaders(data) {
@@ -1749,37 +1778,41 @@
           </tbody>
         </table>
       </div>`;
-    }).join('') || `<p class="font-fredoka text-center text-dark/50">${t('no_scores')}</p>`;
+    }).join('') || `<p class="font-fredoka text-center text-dark/50">${t('no_data')}</p>`;
   }
 
   function renderESPNLeaders(data) {
-    const categories = data.categories || [];
+    // ESPN leaders API can return data.categories or data.leaders depending on the sport/endpoint
+    const categories = data.categories || data.leaders || [];
+    if (!categories.length) return `<p class="font-fredoka text-center text-dark/50">${t('no_data')}</p>`;
     return categories.slice(0, 4).map(cat => {
-      const leaders = cat.leaders || [];
+      const leaders = cat.leaders || cat.entries || [];
+      const catName = cat.displayName || cat.name || '?';
       return `<div class="mb-6">
-        <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-violet-400 pb-1">${cat.displayName}</h4>
+        <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-violet-400 pb-1">${catName}</h4>
         <table class="leaders-table">
           <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Valeur</th></tr></thead>
           <tbody>
             ${leaders.slice(0, 10).map((l, i) => {
               const ath = l.athlete || {};
               const team = l.team || ath.team || {};
+              const headshotUrl = ath.headshot?.href || ath.headshot || '';
               return `<tr>
                 <td><span class="rank-badge ${rankBadgeClass(i)}">${i + 1}</span></td>
                 <td class="font-franch">
                   <div class="flex items-center gap-2">
-                    ${ath.headshot?.href ? `<img src="${ath.headshot.href}" class="w-7 h-7 rounded-full object-cover">` : ''}
-                    <span class="font-fredoka">${ath.displayName || '?'}</span>
+                    ${headshotUrl ? `<img src="${headshotUrl}" class="w-7 h-7 rounded-full object-cover">` : ''}
+                    <span class="font-fredoka">${ath.displayName || ath.fullName || '?'}</span>
                   </div>
                 </td>
                 <td>${team.abbreviation || '?'}</td>
-                <td class="pts-cell">${l.displayValue}</td>
+                <td class="pts-cell">${l.displayValue || l.value || '-'}</td>
               </tr>`;
             }).join('')}
           </tbody>
         </table>
       </div>`;
-    }).join('') || `<p class="font-fredoka text-center text-dark/50">${t('no_scores')}</p>`;
+    }).join('') || `<p class="font-fredoka text-center text-dark/50">${t('no_data')}</p>`;
   }
 
   // ============================================================
