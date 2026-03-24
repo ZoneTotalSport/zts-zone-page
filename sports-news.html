@@ -1666,16 +1666,23 @@
       html += `<div class="mb-6">
         <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-yellow-400 pb-1">🏒 Points Leaders</h4>
         <table class="leaders-table">
-          <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>PJ</th><th>B</th><th>A</th><th>PTS</th></tr></thead>
+          <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>PTS</th></tr></thead>
           <tbody>
             ${pts.map((p, i) => `<tr>
               <td><span class="rank-badge ${rankBadgeClass(i)}">${i + 1}</span></td>
-              <td class="font-fredoka">${p.firstName?.default || ''} ${p.lastName?.default || ''}</td>
-              <td>${p.teamAbbrevs || ''}</td>
-              <td>${p.gamesPlayed ?? '-'}</td>
-              <td>${p.goals ?? '-'}</td>
-              <td>${p.assists ?? '-'}</td>
-              <td class="pts-cell">${p.points ?? '-'}</td>
+              <td class="font-fredoka">
+                <div class="flex items-center gap-2">
+                  ${p.headshot ? `<img src="${p.headshot}" class="w-7 h-7 rounded-full object-cover">` : ''}
+                  ${p.firstName?.default || ''} ${p.lastName?.default || ''}
+                </div>
+              </td>
+              <td>
+                <div class="flex items-center gap-1">
+                  ${p.teamLogo ? `<img src="${p.teamLogo}" class="w-5 h-5 object-contain">` : ''}
+                  ${p.teamAbbrev || ''}
+                </div>
+              </td>
+              <td class="pts-cell">${p.value ?? '-'}</td>
             </tr>`).join('')}
           </tbody>
         </table>
@@ -1687,14 +1694,23 @@
       html += `<div class="mb-6">
         <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-cyan-400 pb-1">🥅 Victoires (Gardiens)</h4>
         <table class="leaders-table">
-          <thead><tr><th>#</th><th>Gardien</th><th>Équipe</th><th>V</th><th>%A</th></tr></thead>
+          <thead><tr><th>#</th><th>Gardien</th><th>Équipe</th><th>V</th></tr></thead>
           <tbody>
             ${wins.map((p, i) => `<tr>
               <td><span class="rank-badge ${rankBadgeClass(i)}">${i + 1}</span></td>
-              <td class="font-fredoka">${p.firstName?.default || ''} ${p.lastName?.default || ''}</td>
-              <td>${p.teamAbbrevs || ''}</td>
-              <td class="pts-cell">${p.wins ?? '-'}</td>
-              <td>${p.savePctg ? (p.savePctg * 100).toFixed(1) + '%' : '-'}</td>
+              <td class="font-fredoka">
+                <div class="flex items-center gap-2">
+                  ${p.headshot ? `<img src="${p.headshot}" class="w-7 h-7 rounded-full object-cover">` : ''}
+                  ${p.firstName?.default || ''} ${p.lastName?.default || ''}
+                </div>
+              </td>
+              <td>
+                <div class="flex items-center gap-1">
+                  ${p.teamLogo ? `<img src="${p.teamLogo}" class="w-5 h-5 object-contain">` : ''}
+                  ${p.teamAbbrev || ''}
+                </div>
+              </td>
+              <td class="pts-cell">${p.value ?? '-'}</td>
             </tr>`).join('')}
           </tbody>
         </table>
