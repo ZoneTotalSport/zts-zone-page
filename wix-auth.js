@@ -1263,13 +1263,11 @@ async function handleLogin() {
     setSpinner(false);
     console.error('[ZTS Auth] Login error:', err);
 
-    // If SDK completely failed, offer OAuth redirect as fallback
-    if (!sdkReady) {
-      showMessage('ztsLoginMsg', 'Connexion directe indisponible. Redirection...', 'info');
-      setTimeout(() => startOAuthRedirect(), 1500);
-    } else {
-      showMessage('ztsLoginMsg', 'Erreur inattendue. Reessaie plus tard.', 'error');
-    }
+    // SDK login failed (400 error) — redirect to Wix managed login page
+    showMessage('ztsLoginMsg', 'Redirection vers la page de connexion securisee...', 'info');
+    setTimeout(() => {
+      window.location.href = 'https://www.zonetotalsport.ca/account/login';
+    }, 1000);
   } finally {
     loginBtn.disabled = false;
   }
@@ -1365,12 +1363,11 @@ async function handleRegister() {
     setSpinner(false);
     console.error('[ZTS Auth] Register error:', err);
 
-    if (!sdkReady) {
-      showMessage('ztsRegisterMsg', 'Service indisponible. Redirection...', 'info');
-      setTimeout(() => startOAuthRedirect(), 1500);
-    } else {
-      showMessage('ztsRegisterMsg', 'Erreur inattendue. Reessaie plus tard.', 'error');
-    }
+    // SDK register failed — redirect to Wix managed signup page
+    showMessage('ztsRegisterMsg', 'Redirection vers la page d\'inscription securisee...', 'info');
+    setTimeout(() => {
+      window.location.href = 'https://www.zonetotalsport.ca/account/sign-up';
+    }, 1000);
   } finally {
     registerBtn.disabled = false;
   }
