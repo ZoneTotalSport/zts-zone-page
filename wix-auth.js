@@ -827,136 +827,42 @@ function createPopupHTML() {
           <p class="zts-auth-banner-sub">Ta zone sport et education physique!</p>
         </div>
 
-        <!-- Tabs -->
-        <div class="zts-auth-tabs" role="tablist">
-          <button class="zts-auth-tab active" role="tab" aria-selected="true" data-tab="login" id="ztsTabLogin">Se connecter</button>
-          <button class="zts-auth-tab" role="tab" aria-selected="false" data-tab="register" id="ztsTabRegister">S'inscrire</button>
-        </div>
-
         <!-- Spinner (shared) -->
         <div class="zts-auth-spinner" id="ztsSpinner" aria-label="Chargement">
           <div class="zts-auth-spinner-circle"></div>
         </div>
 
-        <!-- Form Body -->
+        <!-- Simple Body — Direct redirect to Wix -->
         <div class="zts-auth-body">
+          <div id="ztsLoginMsg"></div>
+          <div id="ztsRegisterMsg"></div>
 
-          <!-- Login Panel -->
-          <div class="zts-auth-panel active" id="ztsPanelLogin" role="tabpanel" aria-labelledby="ztsTabLogin">
-            <div id="ztsLoginMsg"></div>
-
-            <div class="zts-auth-field">
-              <label class="zts-auth-label" for="ztsLoginEmail">Courriel</label>
-              <div class="zts-auth-input-wrap">
-                <input class="zts-auth-input" type="email" id="ztsLoginEmail"
-                       placeholder="ton@courriel.ca" autocomplete="email" required
-                       aria-label="Adresse courriel">
-                <span class="zts-auth-input-icon" aria-hidden="true">&#9993;</span>
-              </div>
-            </div>
-
-            <div class="zts-auth-field">
-              <label class="zts-auth-label" for="ztsLoginPw">Mot de passe</label>
-              <div class="zts-auth-input-wrap">
-                <input class="zts-auth-input" type="password" id="ztsLoginPw"
-                       placeholder="Ton mot de passe" autocomplete="current-password" required
-                       aria-label="Mot de passe" style="padding-right: 44px;">
-                <span class="zts-auth-input-icon" aria-hidden="true">&#128274;</span>
-                <button class="zts-auth-pw-toggle" type="button" data-target="ztsLoginPw" aria-label="Afficher le mot de passe">&#128065;</button>
-              </div>
-            </div>
-
-            <div class="zts-auth-forgot">
-              <button class="zts-auth-link" id="ztsForgotPw" type="button">Mot de passe oublie?</button>
-            </div>
-
-            <button class="zts-auth-btn zts-auth-btn-login" id="ztsLoginBtn" type="button">
-              Se connecter
-            </button>
-
-            <div class="zts-auth-divider"><span>ou</span></div>
-
-            <p style="text-align:center; margin:0;">
-              <button class="zts-auth-link" id="ztsGoRegister" type="button">Creer un compte</button>
+          <div style="text-align:center; padding: 8px 0 4px;">
+            <p style="font-family:'Patrick Hand',cursive; font-size:1.15rem; color:#444; margin:0 0 6px;">
+              Accede a toutes les ressources gratuites!
+            </p>
+            <p style="font-family:'Patrick Hand',cursive; font-size:0.95rem; color:#888; margin:0 0 20px;">
+              &#127942; +500 outils, jeux, SAE et plus encore
             </p>
           </div>
 
-          <!-- Register Panel -->
-          <div class="zts-auth-panel" id="ztsPanelRegister" role="tabpanel" aria-labelledby="ztsTabRegister">
-            <div id="ztsRegisterMsg"></div>
+          <button class="zts-auth-btn zts-auth-btn-login" id="ztsLoginBtn" type="button" style="margin-bottom:12px;">
+            &#128274; Se connecter
+          </button>
 
-            <div class="zts-auth-row">
-              <div class="zts-auth-field">
-                <label class="zts-auth-label" for="ztsRegFirst">Prenom</label>
-                <div class="zts-auth-input-wrap">
-                  <input class="zts-auth-input" type="text" id="ztsRegFirst"
-                         placeholder="Prenom" autocomplete="given-name" required
-                         aria-label="Prenom">
-                  <span class="zts-auth-input-icon" aria-hidden="true">&#128100;</span>
-                </div>
-              </div>
-              <div class="zts-auth-field">
-                <label class="zts-auth-label" for="ztsRegLast">Nom</label>
-                <div class="zts-auth-input-wrap">
-                  <input class="zts-auth-input" type="text" id="ztsRegLast"
-                         placeholder="Nom" autocomplete="family-name" required
-                         aria-label="Nom de famille">
-                  <span class="zts-auth-input-icon" aria-hidden="true">&#128100;</span>
-                </div>
-              </div>
-            </div>
+          <button class="zts-auth-btn zts-auth-btn-register" id="ztsRegisterBtn" type="button">
+            &#9997; Creer un compte gratuit
+          </button>
 
-            <div class="zts-auth-field">
-              <label class="zts-auth-label" for="ztsRegEmail">Courriel</label>
-              <div class="zts-auth-input-wrap">
-                <input class="zts-auth-input" type="email" id="ztsRegEmail"
-                       placeholder="ton@courriel.ca" autocomplete="email" required
-                       aria-label="Adresse courriel">
-                <span class="zts-auth-input-icon" aria-hidden="true">&#9993;</span>
-              </div>
-            </div>
+          <div class="zts-auth-divider"><span>ou</span></div>
 
-            <div class="zts-auth-field">
-              <label class="zts-auth-label" for="ztsRegPw">Mot de passe</label>
-              <div class="zts-auth-input-wrap">
-                <input class="zts-auth-input" type="password" id="ztsRegPw"
-                       placeholder="Min. 8 caracteres" autocomplete="new-password" required
-                       aria-label="Mot de passe" style="padding-right: 44px;">
-                <span class="zts-auth-input-icon" aria-hidden="true">&#128274;</span>
-                <button class="zts-auth-pw-toggle" type="button" data-target="ztsRegPw" aria-label="Afficher le mot de passe">&#128065;</button>
-              </div>
-            </div>
-
-            <div class="zts-auth-field">
-              <label class="zts-auth-label" for="ztsRegPwConfirm">Confirmer le mot de passe</label>
-              <div class="zts-auth-input-wrap">
-                <input class="zts-auth-input" type="password" id="ztsRegPwConfirm"
-                       placeholder="Repete ton mot de passe" autocomplete="new-password" required
-                       aria-label="Confirmer le mot de passe" style="padding-right: 44px;">
-                <span class="zts-auth-input-icon" aria-hidden="true">&#128274;</span>
-                <button class="zts-auth-pw-toggle" type="button" data-target="ztsRegPwConfirm" aria-label="Afficher le mot de passe">&#128065;</button>
-              </div>
-            </div>
-
-            <div class="zts-auth-checkbox-wrap">
-              <input class="zts-auth-checkbox" type="checkbox" id="ztsRegTerms" aria-label="Accepter les conditions">
-              <label class="zts-auth-checkbox-label" for="ztsRegTerms">
-                J'accepte les <a href="/politique.html" target="_blank" style="color:#00E5FF;">conditions d'utilisation</a>
-              </label>
-            </div>
-
-            <button class="zts-auth-btn zts-auth-btn-register" id="ztsRegisterBtn" type="button">
-              S'inscrire
-            </button>
-
-            <div class="zts-auth-divider"><span>ou</span></div>
-
-            <p style="text-align:center; margin:0;">
-              <button class="zts-auth-link" id="ztsGoLogin" type="button">Deja membre? Se connecter</button>
-            </p>
-          </div>
-
+          <p style="text-align:center; margin:0;">
+            <a href="https://www.zonetotalsport.ca/account/login" style="font-family:'Fredoka One',cursive; font-size:0.85rem; color:#FF6B00; text-decoration:none;">
+              Mot de passe oublie?
+            </a>
+          </p>
         </div><!-- .zts-auth-body -->
+
       </div><!-- .zts-auth-modal -->
     </div><!-- .zts-auth-overlay -->
   `;
@@ -1002,12 +908,10 @@ function openPopup(tab = 'login') {
     overlay.classList.add('active');
   });
 
-  // Focus first input after animation
+  // Focus login button after animation
   setTimeout(() => {
-    const firstInput = tab === 'login'
-      ? document.getElementById('ztsLoginEmail')
-      : document.getElementById('ztsRegFirst');
-    if (firstInput) firstInput.focus();
+    const loginBtn = document.getElementById('ztsLoginBtn');
+    if (loginBtn) loginBtn.focus();
   }, 350);
 }
 
@@ -1024,26 +928,7 @@ function closePopup() {
  * Switch between login and register tabs.
  */
 function switchTab(tab) {
-  const tabLogin = document.getElementById('ztsTabLogin');
-  const tabRegister = document.getElementById('ztsTabRegister');
-  const panelLogin = document.getElementById('ztsPanelLogin');
-  const panelRegister = document.getElementById('ztsPanelRegister');
-
-  if (tab === 'login') {
-    tabLogin.classList.add('active');
-    tabLogin.setAttribute('aria-selected', 'true');
-    tabRegister.classList.remove('active');
-    tabRegister.setAttribute('aria-selected', 'false');
-    panelLogin.classList.add('active');
-    panelRegister.classList.remove('active');
-  } else {
-    tabRegister.classList.add('active');
-    tabRegister.setAttribute('aria-selected', 'true');
-    tabLogin.classList.remove('active');
-    tabLogin.setAttribute('aria-selected', 'false');
-    panelRegister.classList.add('active');
-    panelLogin.classList.remove('active');
-  }
+  // Simplified — no tabs in the new popup layout
 }
 
 /**
@@ -1134,13 +1019,8 @@ function validatePassword(pw) {
 function bindPopupEvents() {
   const overlay = document.getElementById('ztsAuthOverlay');
   const closeBtn = document.getElementById('ztsAuthClose');
-  const tabLogin = document.getElementById('ztsTabLogin');
-  const tabRegister = document.getElementById('ztsTabRegister');
-  const goRegister = document.getElementById('ztsGoRegister');
-  const goLogin = document.getElementById('ztsGoLogin');
   const loginBtn = document.getElementById('ztsLoginBtn');
   const registerBtn = document.getElementById('ztsRegisterBtn');
-  const forgotBtn = document.getElementById('ztsForgotPw');
 
   // Close button
   closeBtn.addEventListener('click', closePopup);
@@ -1157,53 +1037,11 @@ function bindPopupEvents() {
     }
   });
 
-  // Tab switching via tab buttons
-  tabLogin.addEventListener('click', () => switchTab('login'));
-  tabRegister.addEventListener('click', () => switchTab('register'));
+  // Login button → redirect to Wix login
+  if (loginBtn) loginBtn.addEventListener('click', handleLogin);
 
-  // In-form links to switch tabs
-  goRegister.addEventListener('click', () => switchTab('register'));
-  goLogin.addEventListener('click', () => switchTab('login'));
-
-  // Password visibility toggles
-  document.querySelectorAll('.zts-auth-pw-toggle').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.getAttribute('data-target');
-      const input = document.getElementById(targetId);
-      if (!input) return;
-      if (input.type === 'password') {
-        input.type = 'text';
-        btn.textContent = '\u{1F648}'; // see-no-evil monkey
-        btn.setAttribute('aria-label', 'Masquer le mot de passe');
-      } else {
-        input.type = 'password';
-        btn.textContent = '\u{1F441}'; // eye
-        btn.setAttribute('aria-label', 'Afficher le mot de passe');
-      }
-    });
-  });
-
-  // Login submit
-  loginBtn.addEventListener('click', handleLogin);
-
-  // Enter key navigation in login form
-  document.getElementById('ztsLoginEmail').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') document.getElementById('ztsLoginPw').focus();
-  });
-  document.getElementById('ztsLoginPw').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleLogin();
-  });
-
-  // Register submit
-  registerBtn.addEventListener('click', handleRegister);
-
-  // Enter key in last register field triggers submit
-  document.getElementById('ztsRegPwConfirm').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleRegister();
-  });
-
-  // Forgot password
-  forgotBtn.addEventListener('click', handleForgotPassword);
+  // Register button → redirect to Wix signup
+  if (registerBtn) registerBtn.addEventListener('click', handleRegister);
 }
 
 // ---------------------------------------------------------------------------
@@ -1211,63 +1049,14 @@ function bindPopupEvents() {
 // ---------------------------------------------------------------------------
 
 async function handleLogin() {
-  const emailInput = document.getElementById('ztsLoginEmail');
-  const pwInput = document.getElementById('ztsLoginPw');
-  const loginBtn = document.getElementById('ztsLoginBtn');
-
-  const email = emailInput.value.trim();
-  const password = pwInput.value;
-
-  // Client-side validation
-  if (!email) {
-    showMessage('ztsLoginMsg', 'Entre ton adresse courriel.', 'error');
-    emailInput.focus();
-    return;
-  }
-  if (!validateEmail(email)) {
-    showMessage('ztsLoginMsg', 'Adresse courriel invalide.', 'error');
-    emailInput.focus();
-    return;
-  }
-  if (!password) {
-    showMessage('ztsLoginMsg', 'Entre ton mot de passe.', 'error');
-    pwInput.focus();
-    return;
-  }
-
-  // Enter loading state
-  loginBtn.disabled = true;
+  // Redirect directly to Wix managed login page
+  // The Wix SDK via CDN does not support direct auth.login() reliably,
+  // so we use Wix's hosted login page which handles everything.
   setSpinner(true);
-  clearMessages();
-
-  try {
-    const result = await loginWithEmail(email, password);
-
-    setSpinner(false);
-
-    if (result.success) {
-      showMessage('ztsLoginMsg', 'Connexion reussie! Bienvenue!', 'success');
-      showConfetti();
-      updateNavUI(result.member);
-
-      // Close popup after a brief success display
-      setTimeout(() => {
-        closePopup();
-        emailInput.value = '';
-        pwInput.value = '';
-      }, 1500);
-    } else {
-      showMessage('ztsLoginMsg', result.error || 'Erreur de connexion.', 'error');
-    }
-  } catch (err) {
-    setSpinner(false);
-    console.error('[ZTS Auth] Login error:', err);
-
-    // SDK login failed (400 error) — redirect to Wix managed login page
-    showMessage('ztsLoginMsg', 'Redirection vers la page de connexion securisee...', 'info');
-    setTimeout(() => {
-      window.location.href = 'https://www.zonetotalsport.ca/account/login';
-    }, 1000);
+  showMessage('ztsLoginMsg', 'Redirection vers la connexion securisee...', 'info');
+  setTimeout(() => {
+    window.location.href = 'https://www.zonetotalsport.ca/account/login';
+  }, 800);
   } finally {
     loginBtn.disabled = false;
   }
@@ -1278,99 +1067,12 @@ async function handleLogin() {
 // ---------------------------------------------------------------------------
 
 async function handleRegister() {
-  const firstInput = document.getElementById('ztsRegFirst');
-  const lastInput = document.getElementById('ztsRegLast');
-  const emailInput = document.getElementById('ztsRegEmail');
-  const pwInput = document.getElementById('ztsRegPw');
-  const pwConfirmInput = document.getElementById('ztsRegPwConfirm');
-  const termsCheckbox = document.getElementById('ztsRegTerms');
-  const registerBtn = document.getElementById('ztsRegisterBtn');
-
-  const firstName = firstInput.value.trim();
-  const lastName = lastInput.value.trim();
-  const email = emailInput.value.trim();
-  const password = pwInput.value;
-  const passwordConfirm = pwConfirmInput.value;
-
-  // Client-side validation chain
-  if (!firstName) {
-    showMessage('ztsRegisterMsg', 'Entre ton prenom.', 'error');
-    firstInput.focus();
-    return;
-  }
-  if (!lastName) {
-    showMessage('ztsRegisterMsg', 'Entre ton nom de famille.', 'error');
-    lastInput.focus();
-    return;
-  }
-  if (!email) {
-    showMessage('ztsRegisterMsg', 'Entre ton adresse courriel.', 'error');
-    emailInput.focus();
-    return;
-  }
-  if (!validateEmail(email)) {
-    showMessage('ztsRegisterMsg', 'Adresse courriel invalide.', 'error');
-    emailInput.focus();
-    return;
-  }
-  if (!validatePassword(password)) {
-    showMessage('ztsRegisterMsg', 'Le mot de passe doit contenir au moins 8 caracteres.', 'error');
-    pwInput.focus();
-    return;
-  }
-  if (password !== passwordConfirm) {
-    showMessage('ztsRegisterMsg', 'Les mots de passe ne correspondent pas.', 'error');
-    pwConfirmInput.focus();
-    return;
-  }
-  if (!termsCheckbox.checked) {
-    showMessage('ztsRegisterMsg', 'Tu dois accepter les conditions d\'utilisation.', 'error');
-    return;
-  }
-
-  // Enter loading state
-  registerBtn.disabled = true;
+  // Redirect directly to Wix managed signup page
   setSpinner(true);
-  clearMessages();
-
-  try {
-    const result = await registerWithEmail(email, password, firstName, lastName);
-
-    setSpinner(false);
-
-    if (result.success && result.status === 'ACTIVE') {
-      showMessage('ztsRegisterMsg', 'Inscription reussie! Bienvenue!', 'success');
-      showConfetti();
-      updateNavUI(result.member);
-
-      setTimeout(() => {
-        closePopup();
-        // Reset all register fields
-        firstInput.value = '';
-        lastInput.value = '';
-        emailInput.value = '';
-        pwInput.value = '';
-        pwConfirmInput.value = '';
-        termsCheckbox.checked = false;
-      }, 1500);
-    } else if (result.success) {
-      // Account created but pending verification or approval
-      showMessage('ztsRegisterMsg', result.error, 'info');
-    } else {
-      showMessage('ztsRegisterMsg', result.error || 'Erreur lors de l\'inscription.', 'error');
-    }
-  } catch (err) {
-    setSpinner(false);
-    console.error('[ZTS Auth] Register error:', err);
-
-    // SDK register failed — redirect to Wix managed signup page
-    showMessage('ztsRegisterMsg', 'Redirection vers la page d\'inscription securisee...', 'info');
-    setTimeout(() => {
-      window.location.href = 'https://www.zonetotalsport.ca/account/sign-up';
-    }, 1000);
-  } finally {
-    registerBtn.disabled = false;
-  }
+  showMessage('ztsRegisterMsg', 'Redirection vers l\'inscription securisee...', 'info');
+  setTimeout(() => {
+    window.location.href = 'https://www.zonetotalsport.ca/account/sign-up';
+  }, 800);
 }
 
 // ---------------------------------------------------------------------------
