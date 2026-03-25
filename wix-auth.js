@@ -360,10 +360,10 @@ function injectStyles() {
     .zts-auth-modal {
       position: relative;
       width: 100%;
-      max-width: 440px;
+      max-width: 560px;
       background: #fff;
-      border-radius: 1.25rem;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 229, 255, 0.15);
+      border-radius: 1.5rem;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(0, 229, 255, 0.2);
       overflow: hidden;
       transform: translateY(30px) scale(0.96);
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -375,41 +375,41 @@ function injectStyles() {
     /* ===== Top Banner ===== */
     .zts-auth-banner {
       background: linear-gradient(135deg, #00E5FF 0%, #00FF85 50%, #FF6B00 100%);
-      padding: 24px 24px 20px;
+      padding: 36px 32px 28px;
       text-align: center;
       position: relative;
     }
     .zts-auth-banner-logo {
       font-family: 'Luckiest Guy', cursive;
-      font-size: 1.75rem;
+      font-size: 2.8rem;
       color: #0F0F2E;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.12);
+      text-shadow: 0 3px 6px rgba(0,0,0,0.15);
       margin: 0;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
     }
     .zts-auth-banner-sub {
       font-family: 'Patrick Hand', cursive;
-      font-size: 0.95rem;
+      font-size: 1.25rem;
       color: #0F0F2E;
-      margin: 4px 0 0;
-      opacity: 0.8;
+      margin: 6px 0 0;
+      opacity: 0.85;
     }
 
     /* ===== Close Button ===== */
     .zts-auth-close {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 32px;
-      height: 32px;
+      top: 14px;
+      right: 14px;
+      width: 40px;
+      height: 40px;
       border: none;
-      background: rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.3);
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
+      font-size: 1.5rem;
       color: #0F0F2E;
       transition: background 0.2s;
       z-index: 2;
@@ -456,7 +456,7 @@ function injectStyles() {
 
     /* ===== Form Body ===== */
     .zts-auth-body {
-      padding: 24px;
+      padding: 32px 36px;
     }
     .zts-auth-panel {
       display: none;
@@ -567,11 +567,11 @@ function injectStyles() {
     /* ===== Primary Buttons ===== */
     .zts-auth-btn {
       width: 100%;
-      padding: 14px 20px;
+      padding: 20px 28px;
       border: none;
-      border-radius: 14px;
+      border-radius: 16px;
       font-family: 'Fredoka One', cursive;
-      font-size: 1rem;
+      font-size: 1.35rem;
       color: #0F0F2E;
       cursor: pointer;
       transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
@@ -837,11 +837,11 @@ function createPopupHTML() {
           <div id="ztsLoginMsg"></div>
           <div id="ztsRegisterMsg"></div>
 
-          <div style="text-align:center; padding: 8px 0 4px;">
-            <p style="font-family:'Patrick Hand',cursive; font-size:1.15rem; color:#444; margin:0 0 6px;">
+          <div style="text-align:center; padding: 12px 0 8px;">
+            <p style="font-family:'Fredoka One',cursive; font-size:1.5rem; color:#0F0F2E; margin:0 0 8px;">
               Accede a toutes les ressources gratuites!
             </p>
-            <p style="font-family:'Patrick Hand',cursive; font-size:0.95rem; color:#888; margin:0 0 20px;">
+            <p style="font-family:'Patrick Hand',cursive; font-size:1.2rem; color:#666; margin:0 0 28px;">
               &#127942; +500 outils, jeux, SAE et plus encore
             </p>
           </div>
@@ -857,7 +857,7 @@ function createPopupHTML() {
           <div class="zts-auth-divider"><span>ou</span></div>
 
           <p style="text-align:center; margin:0;">
-            <a href="https://www.zonetotalsport.ca/account/login" style="font-family:'Fredoka One',cursive; font-size:0.85rem; color:#FF6B00; text-decoration:none;">
+            <a href="https://www.zonetotalsport.ca/account/login" style="font-family:'Fredoka One',cursive; font-size:1.05rem; color:#FF6B00; text-decoration:none;">
               Mot de passe oublie?
             </a>
           </p>
