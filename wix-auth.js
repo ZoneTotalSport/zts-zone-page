@@ -73,7 +73,8 @@ function saveMember(m) {
 // ---------------------------------------------------------------------------
 async function doLogin(email, password) {
     if (!sdkAvailable) {
-        window.location.href = WIX_LOGIN_URL;
+        // SDK unavailable — use Wix OAuth redirect flow
+        await startOAuthFlow('login');
         return;
     }
     const response = await wixClient.auth.login({ loginId: email, password });
@@ -91,7 +92,8 @@ async function doLogin(email, password) {
 
 async function doRegister(email, password, firstName, lastName) {
     if (!sdkAvailable) {
-        window.location.href = WIX_SIGNUP_URL;
+        // SDK unavailable — use Wix OAuth redirect flow
+        await startOAuthFlow('signup');
         return;
     }
     const response = await wixClient.auth.register({
@@ -113,10 +115,19 @@ async function doRegister(email, password, firstName, lastName) {
     }
 }
 
+/**
+ * Start Wix OAuth redirect flow when SDK is unavailable.
+ * Redirects user to Wix's managed login/signup page, then back to our site.
+ */
+async function startOAuthFlow(mode) {
+    const redirectUri = window.location.origin + '/';
+    const authUrl = `https://www.wix.com/oauth/authorize?client_id=${WIX_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=offline_access&prompt=${mode === 'signup' ? 'signup' : 'login'}`;
+    window.location.href = authUrl;
+}
+
 async function doPasswordReset(email) {
     if (!sdkAvailable) {
-        window.location.href = WIX_LOGIN_URL;
-        return;
+        throw new Error('La reinitialisation par courriel n\'est pas disponible pour le moment. Contactez-nous a info@zonetotalsport.ca');
     }
     await wixClient.auth.sendPasswordResetEmail(email, window.location.href);
 }
@@ -634,6 +645,9 @@ async function checkAuthState() {
 // 7. Auto-init
 // ---------------------------------------------------------------------------
 async function init() {
+    // Handle OAuth callback (user returning from Wix login)
+    await handleOAuthCallback();
+
     // Bind click handlers to data-auth elements
     document.querySelectorAll('[data-auth="login"]').forEach(el => {
         el.addEventListener('click', (e) => { e.preventDefault(); showLoginPopup(); });
@@ -647,6 +661,46 @@ async function init() {
 
     // Check auth state
     await checkAuthState();
+}
+
+/**
+ * Handle OAuth callback when user returns from Wix login.
+ * Looks for ?code= in the URL and exchanges it for tokens.
+ */
+async function handleOAuthCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (!code) return;
+
+    try {
+        // Exchange code for tokens via Wix OAuth
+        const redirectUri = window.location.origin + '/';
+        const resp = await fetch('https://www.wixapis.com/oauth/access', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                grant_type: 'authorization_code',
+                client_id: WIX_CLIENT_ID,
+                code: code,
+                redirect_uri: redirectUri,
+            })
+        });
+
+        if (resp.ok) {
+            const tokens = await resp.json();
+            saveTokens(tokens);
+            saveMember({ firstName: 'Membre', email: '' });
+            // Clean URL
+            window.history.replaceState({}, '', window.location.pathname);
+            console.log('[ZTS Auth] OAuth login successful.');
+        }
+    } catch (err) {
+        console.warn('[ZTS Auth] OAuth callback error:', err);
+    }
+    // Clean URL params regardless
+    if (window.location.search) {
+        window.history.replaceState({}, '', window.location.pathname);
+    }
 }
 
 // Run init when DOM is ready
