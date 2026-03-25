@@ -20,6 +20,8 @@
           colors: {
             cyan: { electric: '#00E5FF' },
             yellow: { sun: '#FFD700' },
+            green: { flash: '#00FF85' },
+            orange: { fluo: '#FF6B00' },
             pink: { fuchsia: '#FF2A7A' },
             violet: { pop: '#8B5CF6' },
             dark: '#0F0F2E',
@@ -56,7 +58,7 @@
     /* ========== SCROLL PROGRESS ========== */
     .scroll-progress {
       position: fixed; top: 0; left: 0; height: 4px;
-      background: linear-gradient(90deg, #00E5FF, #FFD700, #FF2A7A, #8B5CF6);
+      background: linear-gradient(90deg, #00E5FF, #FFD700, #00FF85, #FF6B00);
       z-index: 10000; transform-origin: left; will-change: transform;
     }
 
@@ -107,8 +109,9 @@
     .hero-gradient::before {
       content: '';
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 30% 50%, rgba(0,229,255,0.15) 0%, transparent 60%),
-                  radial-gradient(ellipse at 70% 50%, rgba(139,92,246,0.15) 0%, transparent 60%);
+      background: radial-gradient(ellipse at 20% 50%, rgba(0,229,255,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 50% 50%, rgba(0,255,133,0.10) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 50%, rgba(255,107,0,0.12) 0%, transparent 60%);
       pointer-events: none;
     }
     .hero-particles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
@@ -178,7 +181,7 @@
     }
     .score-card::before {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, #00E5FF, #8B5CF6);
+      background: linear-gradient(90deg, #00E5FF, #00FF85, #FF6B00);
       opacity: 0; transition: opacity 0.25s;
     }
     .score-card:hover::before { opacity: 1; }
@@ -481,8 +484,8 @@
       </div>
       <h1 class="font-bangers text-5xl md:text-7xl mb-4 leading-none" style="letter-spacing: 0.03em;">
         <span style="color:#00E5FF;" data-i18n="hero_sports">SPORTS</span>
-        <span class="text-white mx-3">NEWS</span>
-        <span style="color:#FFD700;" data-i18n="hero_live">EN DIRECT</span>
+        <span style="color:#00FF85;" class="mx-3">NEWS</span>
+        <span style="color:#FF6B00;" data-i18n="hero_live">EN DIRECT</span>
       </h1>
       <p class="font-baloo text-white/70 text-lg md:text-xl max-w-2xl mx-auto mb-8" data-i18n="hero_desc">
         Scores, actualités et classements des grandes ligues professionnelles — NHL, NBA, NFL, MLB, UFC et MLS. Tout ce qu'il te faut pour suivre le sport!
@@ -715,6 +718,7 @@
       load_error: 'Erreur de chargement. Vérifiez votre connexion.',
       read_more: 'Lire la suite',
       pts: 'PTS', gp: 'PJ', w: 'V', l: 'D', otl: 'DPr',
+      rankings: 'Classement UFC',
     },
     en: {
       nav_home: 'Home', nav_tools: 'Tools', nav_sae: 'S.A.E', nav_games: 'Games',
@@ -740,6 +744,7 @@
       load_error: 'Loading error. Check your connection.',
       read_more: 'Read more',
       pts: 'PTS', gp: 'GP', w: 'W', l: 'L', otl: 'OTL',
+      rankings: 'UFC Rankings',
     },
     zh: {
       nav_home: '首页', nav_tools: '工具', nav_sae: 'SAÉ', nav_games: '游戏',
@@ -765,6 +770,7 @@
       load_error: '加载错误。请检查您的网络连接。',
       read_more: '阅读更多',
       pts: '分', gp: '场', w: '胜', l: '负', otl: '超时负',
+      rankings: 'UFC 排名',
     }
   };
 
@@ -952,7 +958,7 @@
   // ============================================================
   function initParticles() {
     const container = document.getElementById('heroParticles');
-    const colors = ['#00E5FF', '#FFD700', '#FF2A7A', '#8B5CF6'];
+    const colors = ['#00E5FF', '#FFD700', '#00FF85', '#FF6B00'];
     for (let i = 0; i < 20; i++) {
       const p = document.createElement('div');
       p.className = 'hero-particle';
@@ -1130,7 +1136,9 @@
         homeTeam: homeName, awayTeam: awayName,
         homeScore, awayScore,
         homeLogo: homeId ? `https://www.mlbstatic.com/team-logos/${homeId}.svg` : null,
+        homeLogoFallback: homeId ? `https://a.espncdn.com/i/teamlogos/mlb/500/${homeName.toLowerCase()}.png` : null,
         awayLogo: awayId ? `https://www.mlbstatic.com/team-logos/${awayId}.svg` : null,
+        awayLogoFallback: awayId ? `https://a.espncdn.com/i/teamlogos/mlb/500/${awayName.toLowerCase()}.png` : null,
         isLive, isFinal,
         status: isLive ? `${inningHalf} ${inning}` : isFinal ? t('status_final') : formatGameTime(g.gameDate),
         statusType: isLive ? 'live' : isFinal ? 'final' : 'scheduled',
@@ -1159,8 +1167,8 @@
         awayTeam: away?.team?.abbreviation || '?',
         homeScore: home?.score != null ? parseInt(home.score) : null,
         awayScore: away?.score != null ? parseInt(away.score) : null,
-        homeLogo: home?.team?.logo || null,
-        awayLogo: away?.team?.logo || null,
+        homeLogo: home?.team?.logo || home?.team?.logos?.[0]?.href || null,
+        awayLogo: away?.team?.logo || away?.team?.logos?.[0]?.href || null,
         isLive, isFinal,
         status: isLive ? (status?.type?.shortDetail || t('status_live')) : isFinal ? t('status_final') : formatGameTime(comp.date),
         statusType: isLive ? 'live' : isFinal ? 'final' : 'scheduled',
@@ -1205,9 +1213,9 @@
     container.innerHTML = games.map(g => {
       const homeWin = g.isFinal && g.homeScore > g.awayScore;
       const awayWin = g.isFinal && g.awayScore > g.homeScore;
-      const homeLogo = g.homeLogo ? `<img src="${g.homeLogo}" alt="${g.homeTeam}" class="team-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      const homeLogo = g.homeLogo ? `<img src="${g.homeLogo}" alt="${g.homeTeam}" class="team-logo" onerror="if(this.dataset.tried){this.style.display='none';this.nextElementSibling.style.display='flex';}else{this.dataset.tried='1';this.src='${g.homeLogoFallback || ''}'||this.src;}">
         <div class="team-logo-placeholder" style="display:none;">${g.homeTeam}</div>` : `<div class="team-logo-placeholder">${g.homeTeam}</div>`;
-      const awayLogo = g.awayLogo ? `<img src="${g.awayLogo}" alt="${g.awayTeam}" class="team-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      const awayLogo = g.awayLogo ? `<img src="${g.awayLogo}" alt="${g.awayTeam}" class="team-logo" onerror="if(this.dataset.tried){this.style.display='none';this.nextElementSibling.style.display='flex';}else{this.dataset.tried='1';this.src='${g.awayLogoFallback || ''}'||this.src;}">
         <div class="team-logo-placeholder" style="display:none;">${g.awayTeam}</div>` : `<div class="team-logo-placeholder">${g.awayTeam}</div>`;
 
       let badge = '';
@@ -1527,8 +1535,12 @@
         const data = await fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/standings/now`);
         html = renderNHLStandings(data);
       } else if (currentLeague === 'MLB') {
-        const data = await fetchWithProxy(`${API_ENDPOINTS.MLB_STATS}/standings?leagueId=103,104&season=2025`);
+        const data = await fetchWithProxy(`${API_ENDPOINTS.MLB_STATS}/standings?leagueId=103,104&season=2026`);
         html = renderMLBStandings(data);
+      } else if (currentLeague === 'UFC') {
+        // UFC/MMA doesn't have standings - show rankings instead
+        const data = await fetchWithProxy(`${API_ENDPOINTS.ESPN_BASE}/mma/ufc/rankings`);
+        html = renderUFCRankings(data);
       } else {
         const sport = CONFIG[currentLeague].endpoint;
         const data = await fetchWithProxy(`${API_ENDPOINTS.ESPN_BASE}/${sport}/standings`);
@@ -1536,9 +1548,41 @@
       }
       document.getElementById('modalStandingsContent').innerHTML = html;
     } catch (err) {
+      console.error('showStandings error:', err);
       document.getElementById('modalStandingsContent').innerHTML = `
         <div class="empty-state"><div class="empty-icon">⚠️</div><p class="font-fredoka">${t('load_error')}</p></div>`;
     }
+  }
+
+  function renderUFCRankings(data) {
+    const rankings = data.rankings || [];
+    if (!rankings.length) return `<p class="font-fredoka text-center text-dark/50">${t('no_data')}</p>`;
+    return rankings.slice(0, 8).map(cat => {
+      const name = cat.name || cat.displayName || 'Division';
+      const athletes = cat.ranks || cat.athletes || [];
+      return `<div class="mb-6">
+        <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-red-400 pb-1">🥊 ${name}</h4>
+        <table class="leaders-table">
+          <thead><tr><th>#</th><th>Fighter</th><th>Record</th></tr></thead>
+          <tbody>
+            ${athletes.slice(0, 10).map((a, i) => {
+              const ath = a.athlete || a;
+              const record = a.recordSummary || ath.record || '';
+              return `<tr>
+                <td><span class="rank-badge ${rankBadgeClass(i)}">${a.current || i + 1}</span></td>
+                <td class="font-fredoka">
+                  <div class="flex items-center gap-2">
+                    ${ath.headshot?.href ? `<img src="${ath.headshot.href}" class="w-7 h-7 rounded-full object-cover">` : ''}
+                    ${ath.displayName || ath.name || '?'}
+                  </div>
+                </td>
+                <td>${record}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+    }).join('');
   }
 
   function renderNHLStandings(data) {
@@ -1615,25 +1659,25 @@
     // Helper to render a group of standings entries
     function renderGroup(groupName, entries) {
       if (!entries || !entries.length) return;
-      const statNames = entries[0]?.stats?.map(s => s.shortDisplayName || s.name) || [];
+      const statNames = entries[0]?.stats?.map(s => s.shortDisplayName || s.abbreviation || s.name) || [];
       html += `<div class="mb-6">
         <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-violet-400 pb-1">${groupName}</h4>
         <div class="overflow-x-auto">
           <table class="standings-table">
             <thead><tr>
               <th>#</th><th>Équipe</th>
-              ${statNames.slice(0, 5).map(n => `<th>${n}</th>`).join('')}
+              ${statNames.slice(0, 6).map(n => `<th>${n}</th>`).join('')}
             </tr></thead>
             <tbody>
               ${entries.map((entry, i) => `<tr>
                 <td><span class="rank-badge ${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : ''}">${i + 1}</span></td>
                 <td>
                   <div class="flex items-center gap-2">
-                    ${entry.team?.logos?.[0]?.href ? `<img src="${entry.team.logos[0].href}" class="w-5 h-5 object-contain">` : ''}
-                    <span class="font-fredoka">${entry.team?.abbreviation || entry.team?.displayName || '?'}</span>
+                    ${(entry.team?.logos?.[0]?.href || entry.team?.logo) ? `<img src="${entry.team.logos?.[0]?.href || entry.team.logo}" class="w-5 h-5 object-contain" onerror="this.style.display='none'">` : ''}
+                    <span class="font-fredoka">${entry.team?.abbreviation || entry.team?.shortDisplayName || entry.team?.displayName || '?'}</span>
                   </div>
                 </td>
-                ${(entry.stats || []).slice(0, 5).map((s, si) => `<td class="${si === 0 ? 'pts-cell' : ''}">${s.displayValue ?? '-'}</td>`).join('')}
+                ${(entry.stats || []).slice(0, 6).map((s, si) => `<td class="${si === 0 ? 'pts-cell' : ''}">${s.displayValue ?? s.value ?? '-'}</td>`).join('')}
               </tr>`).join('')}
             </tbody>
           </table>
@@ -1644,12 +1688,19 @@
     if (children.length) {
       // Standard nested structure: children > children > standings > entries
       children.forEach(conf => {
-        const confName = conf.name || '';
-        (conf.children || [conf]).forEach(div => {
-          const divName = div.name || confName;
-          const entries = div.standings?.entries || [];
-          renderGroup(divName, entries);
-        });
+        const confName = conf.name || conf.abbreviation || '';
+        const subChildren = conf.children || [];
+        if (subChildren.length) {
+          subChildren.forEach(div => {
+            const divName = div.name || div.abbreviation || confName;
+            const entries = div.standings?.entries || [];
+            renderGroup(divName, entries);
+          });
+        } else {
+          // Conference-level entries directly
+          const entries = conf.standings?.entries || [];
+          renderGroup(confName, entries);
+        }
       });
     } else if (data.standings?.entries) {
       // Flat structure: standings.entries directly on data
@@ -1674,13 +1725,17 @@
       let html = '';
       if (currentLeague === 'NHL') {
         const [scorers, goalies] = await Promise.all([
-          fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/skater-stats-leaders/current?categories=points&limit=10`),
+          fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/skater-stats-leaders/current?categories=points,goals,assists&limit=10`),
           fetchWithProxy(`${API_ENDPOINTS.NHL_BASE}/goalie-stats-leaders/current?categories=wins&limit=5`),
         ]);
         html = renderNHLLeaders(scorers, goalies);
       } else if (currentLeague === 'MLB') {
-        const data = await fetchWithProxy(`${API_ENDPOINTS.MLB_STATS}/stats/leaders?leaderCategories=homeRuns,battingAverage,wins&season=2025&limit=10`);
+        const data = await fetchWithProxy(`${API_ENDPOINTS.MLB_STATS}/stats/leaders?leaderCategories=homeRuns,battingAverage,wins&season=2026&limit=10`);
         html = renderMLBLeaders(data);
+      } else if (currentLeague === 'UFC') {
+        // UFC/MMA doesn't have traditional leaders - show rankings by weight class
+        const data = await fetchWithProxy(`${API_ENDPOINTS.ESPN_BASE}/mma/ufc/rankings`);
+        html = renderUFCRankings(data);
       } else {
         const sport = CONFIG[currentLeague].endpoint;
         const data = await fetchWithProxy(`${API_ENDPOINTS.ESPN_BASE}/${sport}/leaders`);
@@ -1698,16 +1753,16 @@
   }
 
   function renderNHLLeaders(scorers, goalies) {
-    const pts = scorers.points || [];
     let html = '';
 
-    if (pts.length > 0) {
-      html += `<div class="mb-6">
-        <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-yellow-400 pb-1">🏒 Points Leaders</h4>
+    function renderNHLCategory(catData, catLabel, emoji) {
+      if (!catData || !catData.length) return '';
+      return `<div class="mb-6">
+        <h4 class="font-fredoka text-base text-dark mb-3 border-b-2 border-yellow-400 pb-1">${emoji} ${catLabel}</h4>
         <table class="leaders-table">
-          <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>PTS</th></tr></thead>
+          <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Valeur</th></tr></thead>
           <tbody>
-            ${pts.map((p, i) => `<tr>
+            ${catData.map((p, i) => `<tr>
               <td><span class="rank-badge ${rankBadgeClass(i)}">${i + 1}</span></td>
               <td class="font-fredoka">
                 <div class="flex items-center gap-2">
@@ -1727,6 +1782,10 @@
         </table>
       </div>`;
     }
+
+    html += renderNHLCategory(scorers.points || [], 'Points Leaders', '🏒');
+    html += renderNHLCategory(scorers.goals || [], 'Goals Leaders', '🥅');
+    html += renderNHLCategory(scorers.assists || [], 'Assists Leaders', '🎯');
 
     const wins = goalies.wins || [];
     if (wins.length > 0) {
@@ -1782,9 +1841,13 @@
 
   function renderESPNLeaders(data) {
     // ESPN leaders API can return data.categories or data.leaders depending on the sport/endpoint
-    const categories = data.categories || data.leaders || [];
+    let categories = data.categories || data.leaders || [];
+    // Some ESPN endpoints nest leaders inside children array
+    if (!categories.length && data.children) {
+      categories = data.children.flatMap(c => c.categories || c.leaders || []);
+    }
     if (!categories.length) return `<p class="font-fredoka text-center text-dark/50">${t('no_data')}</p>`;
-    return categories.slice(0, 4).map(cat => {
+    return categories.slice(0, 5).map(cat => {
       const leaders = cat.leaders || cat.entries || [];
       const catName = cat.displayName || cat.name || '?';
       return `<div class="mb-6">
@@ -1793,18 +1856,18 @@
           <thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Valeur</th></tr></thead>
           <tbody>
             ${leaders.slice(0, 10).map((l, i) => {
-              const ath = l.athlete || {};
+              const ath = l.athlete || l || {};
               const team = l.team || ath.team || {};
               const headshotUrl = ath.headshot?.href || ath.headshot || '';
               return `<tr>
                 <td><span class="rank-badge ${rankBadgeClass(i)}">${i + 1}</span></td>
-                <td class="font-franch">
+                <td>
                   <div class="flex items-center gap-2">
-                    ${headshotUrl ? `<img src="${headshotUrl}" class="w-7 h-7 rounded-full object-cover">` : ''}
-                    <span class="font-fredoka">${ath.displayName || ath.fullName || '?'}</span>
+                    ${headshotUrl ? `<img src="${headshotUrl}" class="w-7 h-7 rounded-full object-cover" onerror="this.style.display='none'">` : ''}
+                    <span class="font-fredoka">${ath.displayName || ath.fullName || ath.name || '?'}</span>
                   </div>
                 </td>
-                <td>${team.abbreviation || '?'}</td>
+                <td>${team.abbreviation || team.shortDisplayName || '?'}</td>
                 <td class="pts-cell">${l.displayValue || l.value || '-'}</td>
               </tr>`;
             }).join('')}
@@ -1878,6 +1941,11 @@
   }
 
   async function loadAll() {
+    // Clear any existing live refresh interval to prevent stacking
+    if (liveRefreshInterval) {
+      clearInterval(liveRefreshInterval);
+      liveRefreshInterval = null;
+    }
     showScoreSkeletons();
     showNewsSkeletons();
     await Promise.all([loadScores(), loadNews()]);
