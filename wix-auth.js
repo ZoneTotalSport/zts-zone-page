@@ -1,716 +1,1649 @@
 /**
- * ZTS Zone Total Sport — Wix Headless Authentication Module
- * Self-contained ES module for login/register/logout with Wix OAuth.
- * Uses @wix/sdk + @wix/members via CDN ESM, with OAuth redirect fallback.
+ * =============================================================================
+ * ZTS Zone - Wix Headless Authentication System
+ * =============================================================================
+ * Complete auth module for a static GitHub Pages site.
+ * Handles login, registration, session management, and UI via injected popup.
+ *
+ * Wix OAuth Client ID: d6e226b9-1557-4267-89ba-120b62e1ac57
+ * Site: https://zone.zonetotalsport.ca
+ *
+ * Usage:
+ *   <script type="module" src="wix-auth.js"></script>
+ *   Or: import { showLoginPopup, showRegisterPopup, checkAuthState, logout } from './wix-auth.js';
+ *
+ * Auto-binds elements with data-auth="login" or data-auth="register".
+ * =============================================================================
  */
 
-const WIX_CLIENT_ID = 'd6e226b9-1557-4267-89ba-120b62e1ac57';
-const WIX_LOGIN_URL = 'https://www.zonetotalsport.ca/account/login';
-const WIX_SIGNUP_URL = 'https://www.zonetotalsport.ca/account/sign-up';
-const TOKEN_KEY = 'zts_wix_tokens';
-const MEMBER_KEY = 'zts_wix_member';
+// ---------------------------------------------------------------------------
+// Configuration
+// ---------------------------------------------------------------------------
+const CONFIG = {
+  clientId: 'd6e226b9-1557-4267-89ba-120b62e1ac57',
+  siteUrl: 'https://zone.zonetotalsport.ca',
+  tokensKey: 'zts_wix_tokens',
+  memberKey: 'zts_wix_member',
+  oauthStateKey: 'zts_oauth_state',
+  oauthCodeVerifierKey: 'zts_oauth_verifier',
+};
 
+// ---------------------------------------------------------------------------
+// Module-level state
+// ---------------------------------------------------------------------------
 let wixClient = null;
-let sdkAvailable = false;
+let sdkReady = false;
+let sdkLoadPromise = null;
+let currentMember = null;
+let popupRoot = null;
 
 // ---------------------------------------------------------------------------
-// 1. SDK Loader
+// 1. Wix SDK Initialization
 // ---------------------------------------------------------------------------
-async function loadWixSDK() {
-    try {
-        const [sdkMod, membersMod] = await Promise.all([
-            import('https://cdn.jsdelivr.net/npm/@wix/sdk/+esm'),
-            import('https://cdn.jsdelivr.net/npm/@wix/members/+esm')
-        ]);
 
-        const { createClient, OAuthStrategy } = sdkMod;
-        const { members } = membersMod;
+/**
+ * Dynamically import the Wix SDK from the CDN and create the client.
+ * Returns the wixClient instance.
+ */
+async function initWixSDK() {
+  if (wixClient) return wixClient;
 
-        wixClient = createClient({
-            modules: { members },
-            auth: OAuthStrategy({ clientId: WIX_CLIENT_ID })
-        });
+  try {
+    const [{ createClient, OAuthStrategy }, membersModule] = await Promise.all([
+      import('https://cdn.jsdelivr.net/npm/@wix/sdk@1/+esm'),
+      import('https://cdn.jsdelivr.net/npm/@wix/members@1/+esm'),
+    ]);
 
-        // Restore tokens if available
-        const saved = localStorage.getItem(TOKEN_KEY);
-        if (saved) {
-            try {
-                wixClient.auth.setTokens(JSON.parse(saved));
-            } catch (_) { /* ignore bad data */ }
-        }
+    const tokens = loadTokens();
 
-        sdkAvailable = true;
-        return true;
-    } catch (err) {
-        console.warn('[ZTS Auth] SDK load failed, using redirect fallback:', err);
-        sdkAvailable = false;
-        return false;
+    wixClient = createClient({
+      modules: { members: membersModule.members },
+      auth: OAuthStrategy({
+        clientId: CONFIG.clientId,
+        tokens: tokens || undefined,
+      }),
+    });
+
+    // If no tokens saved, generate visitor tokens
+    if (!tokens) {
+      const visitorTokens = await wixClient.auth.generateVisitorTokens();
+      wixClient.auth.setTokens(visitorTokens);
+      saveTokens(visitorTokens);
     }
+
+    sdkReady = true;
+    return wixClient;
+  } catch (err) {
+    console.warn('[ZTS Auth] SDK CDN import failed, OAuth redirect fallback available.', err);
+    sdkReady = false;
+    throw err;
+  }
 }
 
+// Start loading the SDK immediately in background
+sdkLoadPromise = initWixSDK().catch(() => null);
+
 // ---------------------------------------------------------------------------
-// 2. Token helpers
+// 2. Token / Member persistence helpers
 // ---------------------------------------------------------------------------
+
+function loadTokens() {
+  try {
+    const raw = localStorage.getItem(CONFIG.tokensKey);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
 function saveTokens(tokens) {
-    localStorage.setItem(TOKEN_KEY, JSON.stringify(tokens));
+  try {
+    localStorage.setItem(CONFIG.tokensKey, JSON.stringify(tokens));
+  } catch (e) {
+    console.error('[ZTS Auth] Could not save tokens', e);
+  }
 }
 
 function clearTokens() {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(MEMBER_KEY);
+  localStorage.removeItem(CONFIG.tokensKey);
+  localStorage.removeItem(CONFIG.memberKey);
+  currentMember = null;
 }
 
-function getSavedMember() {
-    try { return JSON.parse(localStorage.getItem(MEMBER_KEY)); } catch { return null; }
+function loadMember() {
+  try {
+    const raw = localStorage.getItem(CONFIG.memberKey);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
 }
 
-function saveMember(m) {
-    localStorage.setItem(MEMBER_KEY, JSON.stringify(m));
+function saveMember(member) {
+  try {
+    localStorage.setItem(CONFIG.memberKey, JSON.stringify(member));
+  } catch (e) {
+    console.error('[ZTS Auth] Could not save member', e);
+  }
 }
 
 // ---------------------------------------------------------------------------
-// 3. Auth actions
+// 3. Fetch current member info from Wix
 // ---------------------------------------------------------------------------
-async function doLogin(email, password) {
-    if (!sdkAvailable) {
-        // SDK unavailable — use Wix OAuth redirect flow
-        await startOAuthFlow('login');
-        return;
+
+async function fetchCurrentMember() {
+  if (!wixClient) return null;
+  try {
+    const { member } = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
+    if (member) {
+      const info = {
+        id: member._id,
+        firstName: member.contact?.firstName || '',
+        lastName: member.contact?.lastName || '',
+        email: member.loginEmail || '',
+        nickname: member.profile?.nickname || '',
+        slug: member.profile?.slug || '',
+      };
+      saveMember(info);
+      currentMember = info;
+      return info;
     }
-    const response = await wixClient.auth.login({ loginId: email, password });
-    if (response.loginState === 'SUCCESS') {
-        saveTokens(wixClient.auth.getTokens());
-        await fetchAndSaveMember();
-        closePopup();
-        renderAuthUI();
-    } else if (response.loginState === 'FAILURE' && response.errorCode === 'resetPassword') {
-        throw new Error('Vous devez reinitialiser votre mot de passe.');
-    } else {
-        throw new Error(response.error || 'Identifiants incorrects.');
-    }
+  } catch (e) {
+    console.warn('[ZTS Auth] Could not fetch member info', e);
+  }
+  return null;
 }
 
-async function doRegister(email, password, firstName, lastName) {
-    if (!sdkAvailable) {
-        // SDK unavailable — use Wix OAuth redirect flow
-        await startOAuthFlow('signup');
-        return;
-    }
-    const response = await wixClient.auth.register({
-        loginId: email,
-        password,
-        profile: { firstName, lastName }
-    });
-    if (response.loginState === 'SUCCESS') {
-        saveTokens(wixClient.auth.getTokens());
-        await fetchAndSaveMember();
-        closePopup();
-        renderAuthUI();
-    } else if (response.loginState === 'EMAIL_VERIFICATION_REQUIRED') {
-        throw new Error('Un courriel de verification a ete envoye. Verifiez votre boite de reception.');
-    } else if (response.loginState === 'OWNER_APPROVAL_REQUIRED') {
-        throw new Error('Votre inscription est en attente d\'approbation.');
-    } else {
-        throw new Error(response.error || 'Erreur lors de l\'inscription.');
-    }
+// ---------------------------------------------------------------------------
+// 4. Auth Actions: Login, Register, Logout
+// ---------------------------------------------------------------------------
+
+/**
+ * Login with email + password via Wix SDK.
+ * Returns { success, member?, error? }
+ */
+async function loginWithEmail(email, password) {
+  await sdkLoadPromise;
+  if (!wixClient) throw new Error('SDK non disponible');
+
+  const response = await wixClient.auth.login({ email, password });
+
+  if (response.loginState === 'SUCCESS') {
+    const tokens = await wixClient.auth.getMemberTokensForDirectLogin(
+      response.data.sessionToken
+    );
+    wixClient.auth.setTokens(tokens);
+    saveTokens(tokens);
+    const member = await fetchCurrentMember();
+    return { success: true, member };
+  }
+
+  // Handle other states
+  if (response.loginState === 'FAILURE') {
+    const reason = response.errorCode || 'UNKNOWN';
+    const messages = {
+      invalidEmail: 'Adresse courriel invalide.',
+      invalidPassword: 'Mot de passe incorrect.',
+      emailAlreadyExists: 'Un compte avec ce courriel existe deja.',
+      resetPassword: 'Vous devez reinitialiser votre mot de passe.',
+    };
+    return { success: false, error: messages[reason] || 'Connexion echouee. Verifiez vos identifiants.' };
+  }
+
+  if (response.loginState === 'EMAIL_VERIFICATION_REQUIRED') {
+    return { success: false, error: 'Verifiez votre courriel pour confirmer votre compte.' };
+  }
+
+  if (response.loginState === 'OWNER_APPROVAL_REQUIRED') {
+    return { success: false, error: 'Votre compte doit etre approuve par un administrateur.' };
+  }
+
+  return { success: false, error: 'Etat de connexion inconnu.' };
 }
 
 /**
- * Start Wix OAuth redirect flow when SDK is unavailable.
- * Redirects user to Wix's managed login/signup page, then back to our site.
+ * Register a new member.
+ * Returns { success, status?, member?, error? }
  */
-async function startOAuthFlow(mode) {
-    const redirectUri = window.location.origin + '/';
-    const authUrl = `https://www.wix.com/oauth/authorize?client_id=${WIX_CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&scope=offline_access&prompt=${mode === 'signup' ? 'signup' : 'login'}`;
-    window.location.href = authUrl;
-}
+async function registerWithEmail(email, password, firstName, lastName) {
+  await sdkLoadPromise;
+  if (!wixClient) throw new Error('SDK non disponible');
 
-async function doPasswordReset(email) {
-    if (!sdkAvailable) {
-        throw new Error('La reinitialisation par courriel n\'est pas disponible pour le moment. Contactez-nous a info@zonetotalsport.ca');
+  const response = await wixClient.auth.register({
+    email,
+    password,
+    profile: { nickname: firstName + ' ' + lastName },
+  });
+
+  const state = response.loginState;
+
+  if (state === 'SUCCESS') {
+    const tokens = await wixClient.auth.getMemberTokensForDirectLogin(
+      response.data.sessionToken
+    );
+    wixClient.auth.setTokens(tokens);
+    saveTokens(tokens);
+    const member = await fetchCurrentMember();
+    return { success: true, status: 'ACTIVE', member };
+  }
+
+  if (state === 'EMAIL_VERIFICATION_REQUIRED') {
+    return {
+      success: true,
+      status: 'EMAIL_VERIFICATION',
+      error: 'Un courriel de verification vous a ete envoye. Verifiez votre boite de reception!',
+    };
+  }
+
+  if (state === 'OWNER_APPROVAL_REQUIRED') {
+    return {
+      success: true,
+      status: 'PENDING',
+      error: 'Votre inscription est en attente d\'approbation par un administrateur.',
+    };
+  }
+
+  if (state === 'FAILURE') {
+    const reason = response.errorCode || '';
+    if (reason === 'emailAlreadyExists') {
+      return { success: false, error: 'Un compte avec ce courriel existe deja.' };
     }
-    await wixClient.auth.sendPasswordResetEmail(email, window.location.href);
+    return { success: false, error: 'L\'inscription a echoue. Reessayez.' };
+  }
+
+  return { success: false, error: 'Etat d\'inscription inconnu.' };
 }
 
-async function fetchAndSaveMember() {
-    try {
-        const member = await wixClient.members.getCurrentMember({ fieldsets: ['FULL'] });
-        if (member?.member) {
-            saveMember({
-                id: member.member._id,
-                firstName: member.member.contact?.firstName || '',
-                lastName: member.member.contact?.lastName || '',
-                email: member.member.loginEmail || ''
-            });
-        }
-    } catch (_) { /* member fetch may fail on some plans */ }
-}
-
+/**
+ * Logout the current member and reload.
+ */
 async function logout() {
-    clearTokens();
-    if (sdkAvailable && wixClient) {
-        try { await wixClient.auth.logout(window.location.href); } catch (_) {}
+  try {
+    if (wixClient) {
+      const { logoutUrl } = await wixClient.auth.logout(window.location.href);
+      clearTokens();
+      updateNavUI(null);
+      window.location.href = logoutUrl || window.location.href;
+      return;
     }
-    renderAuthUI();
+  } catch (e) {
+    console.warn('[ZTS Auth] Logout error', e);
+  }
+  clearTokens();
+  updateNavUI(null);
+  window.location.reload();
 }
 
 // ---------------------------------------------------------------------------
-// 4. UI State
+// 5. OAuth Redirect Fallback (if CDN fails)
 // ---------------------------------------------------------------------------
-function isLoggedIn() {
-    return !!localStorage.getItem(TOKEN_KEY);
+
+async function startOAuthRedirect() {
+  if (!wixClient) {
+    // Minimal fallback: redirect to Wix OAuth manually
+    const redirectUri = CONFIG.siteUrl;
+    const url = `https://www.wix.com/oauth/authorize?client_id=${CONFIG.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=offline_access`;
+    window.location.href = url;
+    return;
+  }
+
+  try {
+    const data = wixClient.auth.generateOAuthData(CONFIG.siteUrl);
+    localStorage.setItem(CONFIG.oauthStateKey, JSON.stringify(data));
+    const { authUrl } = await wixClient.auth.getAuthUrl(data);
+    window.location.href = authUrl;
+  } catch (e) {
+    console.error('[ZTS Auth] OAuth redirect failed', e);
+  }
 }
 
-function renderAuthUI() {
-    const member = getSavedMember();
-    const logged = isLoggedIn();
+async function handleOAuthCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const state = params.get('state');
 
-    document.querySelectorAll('[data-auth="login"]').forEach(el => {
-        if (logged && member) {
-            const name = member.firstName || member.email || 'Membre';
-            el.innerHTML = `<i data-lucide="user-check" class="w-3.5 h-3.5"></i> <span>Salut, ${name}!</span>`;
-            el.removeAttribute('data-auth');
-            el.setAttribute('data-auth', 'user-menu');
-            el.onclick = (e) => { e.preventDefault(); toggleUserMenu(el); };
-        } else {
-            el.innerHTML = `<i data-lucide="user" class="w-3.5 h-3.5"></i> <span>Connexion</span>`;
-            el.setAttribute('data-auth', 'login');
-            el.onclick = (e) => { e.preventDefault(); showLoginPopup(); };
-        }
-    });
+  if (!code || !state) return false;
 
-    document.querySelectorAll('[data-auth="user-menu"]').forEach(el => {
-        if (!logged) {
-            el.innerHTML = `<i data-lucide="user" class="w-3.5 h-3.5"></i> <span>Connexion</span>`;
-            el.setAttribute('data-auth', 'login');
-            el.onclick = (e) => { e.preventDefault(); showLoginPopup(); };
-        }
-    });
+  try {
+    await sdkLoadPromise;
+    if (!wixClient) return false;
 
-    // Re-init lucide icons
-    if (window.lucide) lucide.createIcons();
-}
+    const savedData = JSON.parse(localStorage.getItem(CONFIG.oauthStateKey) || 'null');
+    if (!savedData) return false;
 
-function toggleUserMenu(anchor) {
-    const existing = document.getElementById('zts-user-dropdown');
-    if (existing) { existing.remove(); return; }
+    const tokens = await wixClient.auth.getMemberTokens(code, state, savedData);
+    wixClient.auth.setTokens(tokens);
+    saveTokens(tokens);
+    localStorage.removeItem(CONFIG.oauthStateKey);
 
-    const dd = document.createElement('div');
-    dd.id = 'zts-user-dropdown';
-    dd.innerHTML = `
-        <div style="position:absolute;top:100%;right:0;margin-top:8px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);padding:8px 0;min-width:180px;z-index:100001;border:2px solid #e0e0e0;">
-            <button id="zts-logout-btn" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 20px;background:none;border:none;font-family:'Patrick Hand',cursive;font-size:1rem;color:#FF2A7A;cursor:pointer;transition:background 0.2s;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                Deconnexion
-            </button>
-        </div>`;
-    anchor.style.position = 'relative';
-    anchor.appendChild(dd);
-    dd.querySelector('#zts-logout-btn').onclick = (e) => { e.stopPropagation(); logout(); dd.remove(); };
+    await fetchCurrentMember();
 
-    setTimeout(() => {
-        const handler = (e) => { if (!dd.contains(e.target) && e.target !== anchor) { dd.remove(); document.removeEventListener('click', handler); } };
-        document.addEventListener('click', handler);
-    }, 10);
+    // Clean URL params
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, '', cleanUrl);
+
+    return true;
+  } catch (e) {
+    console.error('[ZTS Auth] OAuth callback error', e);
+    return false;
+  }
 }
 
 // ---------------------------------------------------------------------------
-// 5. Popup Modal
+// 6. Inject Styles
 // ---------------------------------------------------------------------------
-let popupEl = null;
 
 function injectStyles() {
-    if (document.getElementById('zts-auth-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'zts-auth-styles';
-    style.textContent = `
-        @keyframes ztsSlideIn { from { opacity:0; transform:translateY(30px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
-        @keyframes ztsOverlayIn { from { opacity:0; } to { opacity:1; } }
-        @keyframes ztsShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+  if (document.getElementById('zts-auth-styles')) return;
 
-        .zts-overlay {
-            position:fixed;inset:0;z-index:100000;
-            background:rgba(15,15,46,0.55);
-            backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-            display:flex;align-items:center;justify-content:center;
-            animation:ztsOverlayIn 0.25s ease-out;
-            padding:20px;
-        }
+  const style = document.createElement('style');
+  style.id = 'zts-auth-styles';
+  style.textContent = `
+    /* ===== Overlay ===== */
+    .zts-auth-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 15, 46, 0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      padding: 16px;
+    }
+    .zts-auth-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
 
-        .zts-popup {
-            background:#fff;border-radius:24px;
-            width:100%;max-width:420px;
-            box-shadow:0 20px 60px rgba(0,0,0,0.25),0 0 0 2px rgba(0,229,255,0.15);
-            animation:ztsSlideIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
-            overflow:hidden;position:relative;
-        }
+    /* ===== Modal Card ===== */
+    .zts-auth-modal {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      background: #fff;
+      border-radius: 1.25rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 229, 255, 0.15);
+      overflow: hidden;
+      transform: translateY(30px) scale(0.96);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .zts-auth-overlay.active .zts-auth-modal {
+      transform: translateY(0) scale(1);
+    }
 
-        .zts-popup-header {
-            background:linear-gradient(135deg,#0F0F2E 0%,#1a1a3e 100%);
-            padding:28px 28px 18px;text-align:center;position:relative;
-            border-bottom:3px solid #00E5FF;
-        }
-        .zts-popup-header h2 {
-            font-family:'Luckiest Guy',cursive;font-size:1.6rem;color:#fff;margin:0 0 4px;
-            text-shadow:0 2px 8px rgba(0,229,255,0.3);
-        }
-        .zts-popup-header p { font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.6);font-size:0.95rem;margin:0; }
+    /* ===== Top Banner ===== */
+    .zts-auth-banner {
+      background: linear-gradient(135deg, #00E5FF 0%, #00FF85 50%, #FF6B00 100%);
+      padding: 24px 24px 20px;
+      text-align: center;
+      position: relative;
+    }
+    .zts-auth-banner-logo {
+      font-family: 'Luckiest Guy', cursive;
+      font-size: 1.75rem;
+      color: #0F0F2E;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.12);
+      margin: 0;
+      letter-spacing: 1px;
+    }
+    .zts-auth-banner-sub {
+      font-family: 'Patrick Hand', cursive;
+      font-size: 0.95rem;
+      color: #0F0F2E;
+      margin: 4px 0 0;
+      opacity: 0.8;
+    }
 
-        .zts-close-btn {
-            position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;
-            background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:1.2rem;
-            cursor:pointer;display:flex;align-items:center;justify-content:center;
-            transition:all 0.2s;
-        }
-        .zts-close-btn:hover { background:#FF2A7A;transform:rotate(90deg); }
+    /* ===== Close Button ===== */
+    .zts-auth-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255,255,255,0.25);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: #0F0F2E;
+      transition: background 0.2s;
+      z-index: 2;
+    }
+    .zts-auth-close:hover,
+    .zts-auth-close:focus-visible {
+      background: rgba(255,255,255,0.5);
+    }
 
-        .zts-tabs {
-            display:flex;border-bottom:2px solid #f0f0f0;
-        }
-        .zts-tab {
-            flex:1;padding:14px;text-align:center;font-family:'Luckiest Guy',cursive;
-            font-size:1rem;background:none;border:none;cursor:pointer;
-            color:#aaa;position:relative;transition:color 0.2s;
-        }
-        .zts-tab.active { color:#0F0F2E; }
-        .zts-tab.active::after {
-            content:'';position:absolute;bottom:-2px;left:20%;right:20%;height:3px;
-            border-radius:3px;
-            background:linear-gradient(90deg,#00E5FF,#8B5CF6);
-        }
-        .zts-tab:hover:not(.active) { color:#8B5CF6; }
+    /* ===== Tabs ===== */
+    .zts-auth-tabs {
+      display: flex;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .zts-auth-tab {
+      flex: 1;
+      padding: 14px 8px;
+      text-align: center;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.95rem;
+      color: #999;
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.25s;
+    }
+    .zts-auth-tab.active {
+      color: #0F0F2E;
+    }
+    .zts-auth-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 20%;
+      right: 20%;
+      height: 3px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #00E5FF, #00FF85);
+    }
+    .zts-auth-tab:hover:not(.active) {
+      color: #555;
+    }
 
-        .zts-form { padding:24px 28px 28px;display:none; }
-        .zts-form.active { display:block; }
+    /* ===== Form Body ===== */
+    .zts-auth-body {
+      padding: 24px;
+    }
+    .zts-auth-panel {
+      display: none;
+    }
+    .zts-auth-panel.active {
+      display: block;
+      animation: ztsSlideIn 0.3s ease;
+    }
+    @keyframes ztsSlideIn {
+      from { opacity: 0; transform: translateX(12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
 
-        .zts-input-group { margin-bottom:14px;position:relative; }
-        .zts-input-group label {
-            display:block;font-family:'Patrick Hand',cursive;font-size:0.9rem;
-            color:#666;margin-bottom:4px;
-        }
-        .zts-input-group input {
-            width:100%;padding:12px 16px;border:2px solid #e8e8e8;border-radius:14px;
-            font-family:'Patrick Hand',cursive;font-size:1.05rem;color:#1a1a2e;
-            background:#fafafa;transition:all 0.25s;outline:none;
-        }
-        .zts-input-group input:focus {
-            border-color:#00E5FF;background:#fff;
-            box-shadow:0 0 0 3px rgba(0,229,255,0.15);
-        }
-        .zts-input-group input.error {
-            border-color:#FF2A7A;box-shadow:0 0 0 3px rgba(255,42,122,0.15);
-            animation:ztsShake 0.4s ease;
-        }
+    /* ===== Input Groups ===== */
+    .zts-auth-field {
+      margin-bottom: 16px;
+    }
+    .zts-auth-row {
+      display: flex;
+      gap: 12px;
+    }
+    .zts-auth-row .zts-auth-field {
+      flex: 1;
+    }
+    .zts-auth-label {
+      display: block;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.8rem;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    .zts-auth-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .zts-auth-input-icon {
+      position: absolute;
+      left: 12px;
+      font-size: 1rem;
+      color: #aaa;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+    .zts-auth-input {
+      width: 100%;
+      padding: 12px 12px 12px 40px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 1rem;
+      color: #0F0F2E;
+      background: #fafafa;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .zts-auth-input:focus {
+      border-color: #00E5FF;
+      box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15);
+      background: #fff;
+    }
+    .zts-auth-input:focus ~ .zts-auth-input-icon {
+      color: #00E5FF;
+    }
+    .zts-auth-input::placeholder {
+      color: #bbb;
+    }
 
-        .zts-row { display:flex;gap:12px; }
-        .zts-row .zts-input-group { flex:1; }
+    /* ===== Password Toggle ===== */
+    .zts-auth-pw-toggle {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: #aaa;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .zts-auth-pw-toggle:hover {
+      color: #555;
+    }
 
-        .zts-pw-toggle {
-            position:absolute;right:14px;top:34px;background:none;border:none;
-            color:#aaa;cursor:pointer;font-size:0.85rem;font-family:'Patrick Hand',cursive;
-            transition:color 0.2s;
-        }
-        .zts-pw-toggle:hover { color:#8B5CF6; }
+    /* ===== Checkbox ===== */
+    .zts-auth-checkbox-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .zts-auth-checkbox {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      accent-color: #00FF85;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .zts-auth-checkbox-label {
+      font-family: 'Patrick Hand', cursive;
+      font-size: 0.9rem;
+      color: #555;
+      cursor: pointer;
+    }
 
-        .zts-submit-btn {
-            width:100%;padding:14px;border:none;border-radius:16px;
-            font-family:'Luckiest Guy',cursive;font-size:1.15rem;color:#fff;
-            cursor:pointer;transition:all 0.25s;margin-top:6px;
-            position:relative;overflow:hidden;
-        }
-        .zts-submit-btn.login-btn { background:linear-gradient(135deg,#00E5FF,#8B5CF6); }
-        .zts-submit-btn.register-btn { background:linear-gradient(135deg,#FF2A7A,#FF6B9D); }
-        .zts-submit-btn:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.2); }
-        .zts-submit-btn:active { transform:translateY(0); }
-        .zts-submit-btn:disabled { opacity:0.6;cursor:not-allowed;transform:none; }
+    /* ===== Primary Buttons ===== */
+    .zts-auth-btn {
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 14px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      color: #0F0F2E;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .zts-auth-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+    }
+    .zts-auth-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    .zts-auth-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .zts-auth-btn-login {
+      background: linear-gradient(135deg, #00E5FF, #00FF85);
+    }
+    .zts-auth-btn-register {
+      background: linear-gradient(135deg, #00FF85, #FF6B00);
+    }
 
-        .zts-submit-btn .zts-spinner {
-            display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);
-            border-top-color:#fff;border-radius:50%;animation:ztsSpin 0.6s linear infinite;
-            vertical-align:middle;margin-right:8px;
-        }
-        @keyframes ztsSpin { to { transform:rotate(360deg); } }
+    /* ===== Links ===== */
+    .zts-auth-link {
+      background: none;
+      border: none;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 0.9rem;
+      color: #00E5FF;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+      transition: color 0.2s;
+    }
+    .zts-auth-link:hover {
+      color: #00b8d4;
+    }
 
-        .zts-link {
-            display:block;text-align:center;margin-top:14px;font-family:'Patrick Hand',cursive;
-            font-size:0.95rem;color:#8B5CF6;cursor:pointer;border:none;background:none;
-            transition:color 0.2s;text-decoration:none;width:100%;
-        }
-        .zts-link:hover { color:#FF2A7A;text-decoration:underline; }
+    /* ===== Divider ===== */
+    .zts-auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .zts-auth-divider::before,
+    .zts-auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e0e0e0;
+    }
+    .zts-auth-divider span {
+      font-family: 'Patrick Hand', cursive;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
 
-        .zts-forgot {
-            display:block;text-align:right;font-family:'Patrick Hand',cursive;font-size:0.85rem;
-            color:#aaa;cursor:pointer;background:none;border:none;margin:-4px 0 10px;
-            transition:color 0.2s;
-        }
-        .zts-forgot:hover { color:#00E5FF; }
+    /* ===== Forgot password ===== */
+    .zts-auth-forgot {
+      text-align: right;
+      margin-top: -8px;
+      margin-bottom: 16px;
+    }
 
-        .zts-error-msg {
-            background:#FFF0F3;border:1px solid #FF2A7A;border-radius:10px;padding:10px 14px;
-            font-family:'Patrick Hand',cursive;font-size:0.9rem;color:#FF2A7A;
-            margin-bottom:14px;display:none;text-align:center;
-        }
-        .zts-success-msg {
-            background:#F0FFF4;border:1px solid #34D399;border-radius:10px;padding:10px 14px;
-            font-family:'Patrick Hand',cursive;font-size:0.9rem;color:#059669;
-            margin-bottom:14px;display:none;text-align:center;
-        }
+    /* ===== Messages ===== */
+    .zts-auth-msg {
+      padding: 10px 16px;
+      border-radius: 50px;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 16px;
+      animation: ztsSlideIn 0.3s ease;
+    }
+    .zts-auth-msg.error {
+      background: #ff3b3b;
+      color: #fff;
+    }
+    .zts-auth-msg.success {
+      background: #00FF85;
+      color: #0F0F2E;
+    }
+    .zts-auth-msg.info {
+      background: #00E5FF;
+      color: #0F0F2E;
+    }
 
-        .zts-popup-decor {
-            position:absolute;width:60px;height:60px;border-radius:50%;opacity:0.08;pointer-events:none;
-        }
-        .zts-popup-decor.d1 { top:-20px;left:-20px;background:#FFD700; }
-        .zts-popup-decor.d2 { bottom:-15px;right:-15px;background:#FF2A7A;width:45px;height:45px; }
+    /* ===== Loading Spinner ===== */
+    .zts-auth-spinner {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .zts-auth-spinner.active {
+      display: flex;
+    }
+    .zts-auth-spinner-circle {
+      width: 36px;
+      height: 36px;
+      border: 4px solid #e0e0e0;
+      border-top-color: #00E5FF;
+      border-right-color: #00FF85;
+      border-radius: 50%;
+      animation: ztsSpinnerRotate 0.8s linear infinite;
+    }
+    @keyframes ztsSpinnerRotate {
+      to { transform: rotate(360deg); }
+    }
 
-        /* Reset password sub-view */
-        .zts-reset-view { display:none;padding:24px 28px 28px; }
-        .zts-reset-view.active { display:block; }
-    `;
-    document.head.appendChild(style);
+    /* ===== Success Confetti ===== */
+    .zts-auth-confetti-wrap {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 3;
+    }
+    .zts-auth-confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      animation: ztsConfettiFall 1.2s ease-out forwards;
+    }
+    @keyframes ztsConfettiFall {
+      0%   { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translateY(350px) rotate(720deg) scale(0.3); opacity: 0; }
+    }
+
+    /* ===== Nav User Dropdown ===== */
+    .zts-user-menu {
+      position: relative;
+      display: inline-block;
+    }
+    .zts-user-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.08);
+      border: 1.5px solid rgba(0, 229, 255, 0.3);
+      border-radius: 50px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 0.9rem;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+    .zts-user-btn:hover {
+      background: rgba(0, 229, 255, 0.12);
+      border-color: #00E5FF;
+    }
+    .zts-user-avatar {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #00E5FF, #00FF85);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Luckiest Guy', cursive;
+      font-size: 0.85rem;
+      color: #0F0F2E;
+    }
+    .zts-user-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 180px;
+      background: #1a1a3e;
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 14px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      padding: 8px 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+      z-index: 10000;
+    }
+    .zts-user-dropdown.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .zts-user-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      font-family: 'Patrick Hand', cursive;
+      font-size: 0.95rem;
+      color: #ddd;
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .zts-user-dropdown-item:hover {
+      background: rgba(0, 229, 255, 0.1);
+      color: #00E5FF;
+    }
+    .zts-user-dropdown-sep {
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+      margin: 4px 12px;
+    }
+
+    /* ===== Mobile Responsive ===== */
+    @media (max-width: 500px) {
+      .zts-auth-modal {
+        max-width: 100%;
+        border-radius: 1rem;
+      }
+      .zts-auth-body {
+        padding: 18px;
+      }
+      .zts-auth-row {
+        flex-direction: column;
+        gap: 0;
+      }
+      .zts-auth-banner-logo {
+        font-size: 1.4rem;
+      }
+      .zts-user-dropdown {
+        right: -10px;
+      }
+    }
+  `;
+  document.head.appendChild(style);
 }
 
-function buildPopupHTML() {
-    return `
-    <div class="zts-overlay" id="zts-auth-overlay">
-        <div class="zts-popup">
-            <div class="zts-popup-decor d1"></div>
-            <div class="zts-popup-decor d2"></div>
+// ---------------------------------------------------------------------------
+// 7. Popup HTML generation
+// ---------------------------------------------------------------------------
 
-            <div class="zts-popup-header">
-                <button class="zts-close-btn" id="zts-close" aria-label="Fermer">&times;</button>
-                <h2 id="zts-popup-title">Bienvenue!</h2>
-                <p>Zone Total Sport</p>
-            </div>
+function createPopupHTML() {
+  return `
+    <div class="zts-auth-overlay" id="ztsAuthOverlay" role="dialog" aria-modal="true" aria-label="Connexion ZTS Zone">
 
-            <div class="zts-tabs" id="zts-tabs">
-                <button class="zts-tab active" data-tab="login">Se connecter</button>
-                <button class="zts-tab" data-tab="register">S'inscrire</button>
-            </div>
-
-            <!-- LOGIN FORM -->
-            <form class="zts-form active" id="zts-login-form" autocomplete="on">
-                <div class="zts-error-msg" id="zts-login-error"></div>
-                <div class="zts-success-msg" id="zts-login-success"></div>
-
-                <div class="zts-input-group">
-                    <label for="zts-login-email">Courriel</label>
-                    <input type="email" id="zts-login-email" placeholder="votre@courriel.com" required autocomplete="email">
-                </div>
-                <div class="zts-input-group">
-                    <label for="zts-login-pw">Mot de passe</label>
-                    <input type="password" id="zts-login-pw" placeholder="Votre mot de passe" required autocomplete="current-password">
-                    <button type="button" class="zts-pw-toggle" data-target="zts-login-pw">Voir</button>
-                </div>
-                <button type="button" class="zts-forgot" id="zts-forgot-link">Mot de passe oublie?</button>
-                <button type="submit" class="zts-submit-btn login-btn">Se connecter</button>
-                <button type="button" class="zts-link" id="zts-goto-register">Pas encore membre? <strong>S'inscrire</strong></button>
-            </form>
-
-            <!-- REGISTER FORM -->
-            <form class="zts-form" id="zts-register-form" autocomplete="on">
-                <div class="zts-error-msg" id="zts-register-error"></div>
-
-                <div class="zts-row">
-                    <div class="zts-input-group">
-                        <label for="zts-reg-fname">Prenom</label>
-                        <input type="text" id="zts-reg-fname" placeholder="Prenom" required autocomplete="given-name">
-                    </div>
-                    <div class="zts-input-group">
-                        <label for="zts-reg-lname">Nom</label>
-                        <input type="text" id="zts-reg-lname" placeholder="Nom" required autocomplete="family-name">
-                    </div>
-                </div>
-                <div class="zts-input-group">
-                    <label for="zts-reg-email">Courriel</label>
-                    <input type="email" id="zts-reg-email" placeholder="votre@courriel.com" required autocomplete="email">
-                </div>
-                <div class="zts-input-group">
-                    <label for="zts-reg-pw">Mot de passe</label>
-                    <input type="password" id="zts-reg-pw" placeholder="Minimum 8 caracteres" required minlength="8" autocomplete="new-password">
-                    <button type="button" class="zts-pw-toggle" data-target="zts-reg-pw">Voir</button>
-                </div>
-                <div class="zts-input-group">
-                    <label for="zts-reg-pw2">Confirmer le mot de passe</label>
-                    <input type="password" id="zts-reg-pw2" placeholder="Retapez votre mot de passe" required minlength="8" autocomplete="new-password">
-                </div>
-                <button type="submit" class="zts-submit-btn register-btn">S'inscrire</button>
-                <button type="button" class="zts-link" id="zts-goto-login">Deja membre? <strong>Se connecter</strong></button>
-            </form>
-
-            <!-- PASSWORD RESET VIEW -->
-            <div class="zts-reset-view" id="zts-reset-view">
-                <div class="zts-error-msg" id="zts-reset-error"></div>
-                <div class="zts-success-msg" id="zts-reset-success"></div>
-                <div class="zts-input-group">
-                    <label for="zts-reset-email">Entrez votre courriel</label>
-                    <input type="email" id="zts-reset-email" placeholder="votre@courriel.com" required>
-                </div>
-                <button type="button" class="zts-submit-btn login-btn" id="zts-reset-btn">Envoyer le lien</button>
-                <button type="button" class="zts-link" id="zts-back-login">Retour a la connexion</button>
-            </div>
+      <div class="zts-auth-modal">
+        <!-- Banner -->
+        <div class="zts-auth-banner">
+          <button class="zts-auth-close" id="ztsAuthClose" aria-label="Fermer">&times;</button>
+          <p class="zts-auth-banner-logo">ZTS Zone</p>
+          <p class="zts-auth-banner-sub">Ta zone sport et education physique!</p>
         </div>
-    </div>`;
-}
 
-function showTab(tab) {
-    const tabs = document.querySelectorAll('#zts-tabs .zts-tab');
-    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-    document.getElementById('zts-login-form').classList.toggle('active', tab === 'login');
-    document.getElementById('zts-register-form').classList.toggle('active', tab === 'register');
-    document.getElementById('zts-reset-view').classList.remove('active');
-    document.getElementById('zts-tabs').style.display = 'flex';
+        <!-- Tabs -->
+        <div class="zts-auth-tabs" role="tablist">
+          <button class="zts-auth-tab active" role="tab" aria-selected="true" data-tab="login" id="ztsTabLogin">Se connecter</button>
+          <button class="zts-auth-tab" role="tab" aria-selected="false" data-tab="register" id="ztsTabRegister">S'inscrire</button>
+        </div>
 
-    const title = document.getElementById('zts-popup-title');
-    title.textContent = tab === 'login' ? 'Content de te revoir!' : 'Rejoins la Zone!';
+        <!-- Spinner (shared) -->
+        <div class="zts-auth-spinner" id="ztsSpinner" aria-label="Chargement">
+          <div class="zts-auth-spinner-circle"></div>
+        </div>
 
-    // Clear errors
-    document.querySelectorAll('.zts-error-msg, .zts-success-msg').forEach(el => { el.style.display = 'none'; el.textContent = ''; });
-    document.querySelectorAll('.zts-popup input.error').forEach(el => el.classList.remove('error'));
-}
+        <!-- Form Body -->
+        <div class="zts-auth-body">
 
-function showResetView() {
-    document.getElementById('zts-login-form').classList.remove('active');
-    document.getElementById('zts-register-form').classList.remove('active');
-    document.getElementById('zts-reset-view').classList.add('active');
-    document.getElementById('zts-tabs').style.display = 'none';
-    document.getElementById('zts-popup-title').textContent = 'Mot de passe oublie?';
-}
+          <!-- Login Panel -->
+          <div class="zts-auth-panel active" id="ztsPanelLogin" role="tabpanel" aria-labelledby="ztsTabLogin">
+            <div id="ztsLoginMsg"></div>
 
-function showLoginPopup() {
-    openPopup('login');
-}
+            <div class="zts-auth-field">
+              <label class="zts-auth-label" for="ztsLoginEmail">Courriel</label>
+              <div class="zts-auth-input-wrap">
+                <input class="zts-auth-input" type="email" id="ztsLoginEmail"
+                       placeholder="ton@courriel.ca" autocomplete="email" required
+                       aria-label="Adresse courriel">
+                <span class="zts-auth-input-icon" aria-hidden="true">&#9993;</span>
+              </div>
+            </div>
 
-function showRegisterPopup() {
-    openPopup('register');
-}
+            <div class="zts-auth-field">
+              <label class="zts-auth-label" for="ztsLoginPw">Mot de passe</label>
+              <div class="zts-auth-input-wrap">
+                <input class="zts-auth-input" type="password" id="ztsLoginPw"
+                       placeholder="Ton mot de passe" autocomplete="current-password" required
+                       aria-label="Mot de passe" style="padding-right: 44px;">
+                <span class="zts-auth-input-icon" aria-hidden="true">&#128274;</span>
+                <button class="zts-auth-pw-toggle" type="button" data-target="ztsLoginPw" aria-label="Afficher le mot de passe">&#128065;</button>
+              </div>
+            </div>
 
-function openPopup(tab = 'login') {
-    if (popupEl) popupEl.remove();
-    injectStyles();
+            <div class="zts-auth-forgot">
+              <button class="zts-auth-link" id="ztsForgotPw" type="button">Mot de passe oublie?</button>
+            </div>
 
-    const container = document.createElement('div');
-    container.innerHTML = buildPopupHTML();
-    popupEl = container.firstElementChild;
-    document.body.appendChild(popupEl);
+            <button class="zts-auth-btn zts-auth-btn-login" id="ztsLoginBtn" type="button">
+              Se connecter
+            </button>
 
-    // Bind events
-    document.getElementById('zts-close').onclick = closePopup;
-    popupEl.addEventListener('click', (e) => { if (e.target === popupEl) closePopup(); });
-    document.addEventListener('keydown', onEscKey);
+            <div class="zts-auth-divider"><span>ou</span></div>
 
-    // Tab switching
-    document.querySelectorAll('#zts-tabs .zts-tab').forEach(t => {
-        t.onclick = () => showTab(t.dataset.tab);
-    });
-    document.getElementById('zts-goto-register').onclick = () => showTab('register');
-    document.getElementById('zts-goto-login').onclick = () => showTab('login');
-    document.getElementById('zts-forgot-link').onclick = () => showResetView();
-    document.getElementById('zts-back-login').onclick = () => showTab('login');
+            <p style="text-align:center; margin:0;">
+              <button class="zts-auth-link" id="ztsGoRegister" type="button">Creer un compte</button>
+            </p>
+          </div>
 
-    // Password toggles
-    document.querySelectorAll('.zts-pw-toggle').forEach(btn => {
-        btn.onclick = () => {
-            const inp = document.getElementById(btn.dataset.target);
-            const show = inp.type === 'password';
-            inp.type = show ? 'text' : 'password';
-            btn.textContent = show ? 'Cacher' : 'Voir';
-        };
-    });
+          <!-- Register Panel -->
+          <div class="zts-auth-panel" id="ztsPanelRegister" role="tabpanel" aria-labelledby="ztsTabRegister">
+            <div id="ztsRegisterMsg"></div>
 
-    // Login submit
-    document.getElementById('zts-login-form').onsubmit = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('zts-login-email').value.trim();
-        const pw = document.getElementById('zts-login-pw').value;
-        const errEl = document.getElementById('zts-login-error');
-        const btn = e.target.querySelector('.zts-submit-btn');
+            <div class="zts-auth-row">
+              <div class="zts-auth-field">
+                <label class="zts-auth-label" for="ztsRegFirst">Prenom</label>
+                <div class="zts-auth-input-wrap">
+                  <input class="zts-auth-input" type="text" id="ztsRegFirst"
+                         placeholder="Prenom" autocomplete="given-name" required
+                         aria-label="Prenom">
+                  <span class="zts-auth-input-icon" aria-hidden="true">&#128100;</span>
+                </div>
+              </div>
+              <div class="zts-auth-field">
+                <label class="zts-auth-label" for="ztsRegLast">Nom</label>
+                <div class="zts-auth-input-wrap">
+                  <input class="zts-auth-input" type="text" id="ztsRegLast"
+                         placeholder="Nom" autocomplete="family-name" required
+                         aria-label="Nom de famille">
+                  <span class="zts-auth-input-icon" aria-hidden="true">&#128100;</span>
+                </div>
+              </div>
+            </div>
 
-        errEl.style.display = 'none';
-        btn.disabled = true;
-        btn.innerHTML = '<span class="zts-spinner"></span>Connexion...';
+            <div class="zts-auth-field">
+              <label class="zts-auth-label" for="ztsRegEmail">Courriel</label>
+              <div class="zts-auth-input-wrap">
+                <input class="zts-auth-input" type="email" id="ztsRegEmail"
+                       placeholder="ton@courriel.ca" autocomplete="email" required
+                       aria-label="Adresse courriel">
+                <span class="zts-auth-input-icon" aria-hidden="true">&#9993;</span>
+              </div>
+            </div>
 
-        try {
-            await doLogin(email, pw);
-        } catch (err) {
-            errEl.textContent = err.message;
-            errEl.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Se connecter';
-        }
-    };
+            <div class="zts-auth-field">
+              <label class="zts-auth-label" for="ztsRegPw">Mot de passe</label>
+              <div class="zts-auth-input-wrap">
+                <input class="zts-auth-input" type="password" id="ztsRegPw"
+                       placeholder="Min. 8 caracteres" autocomplete="new-password" required
+                       aria-label="Mot de passe" style="padding-right: 44px;">
+                <span class="zts-auth-input-icon" aria-hidden="true">&#128274;</span>
+                <button class="zts-auth-pw-toggle" type="button" data-target="ztsRegPw" aria-label="Afficher le mot de passe">&#128065;</button>
+              </div>
+            </div>
 
-    // Register submit
-    document.getElementById('zts-register-form').onsubmit = async (e) => {
-        e.preventDefault();
-        const fname = document.getElementById('zts-reg-fname').value.trim();
-        const lname = document.getElementById('zts-reg-lname').value.trim();
-        const email = document.getElementById('zts-reg-email').value.trim();
-        const pw = document.getElementById('zts-reg-pw').value;
-        const pw2 = document.getElementById('zts-reg-pw2').value;
-        const errEl = document.getElementById('zts-register-error');
-        const btn = e.target.querySelector('.zts-submit-btn');
+            <div class="zts-auth-field">
+              <label class="zts-auth-label" for="ztsRegPwConfirm">Confirmer le mot de passe</label>
+              <div class="zts-auth-input-wrap">
+                <input class="zts-auth-input" type="password" id="ztsRegPwConfirm"
+                       placeholder="Repete ton mot de passe" autocomplete="new-password" required
+                       aria-label="Confirmer le mot de passe" style="padding-right: 44px;">
+                <span class="zts-auth-input-icon" aria-hidden="true">&#128274;</span>
+                <button class="zts-auth-pw-toggle" type="button" data-target="ztsRegPwConfirm" aria-label="Afficher le mot de passe">&#128065;</button>
+              </div>
+            </div>
 
-        errEl.style.display = 'none';
+            <div class="zts-auth-checkbox-wrap">
+              <input class="zts-auth-checkbox" type="checkbox" id="ztsRegTerms" aria-label="Accepter les conditions">
+              <label class="zts-auth-checkbox-label" for="ztsRegTerms">
+                J'accepte les <a href="/politique.html" target="_blank" style="color:#00E5FF;">conditions d'utilisation</a>
+              </label>
+            </div>
 
-        if (pw !== pw2) {
-            errEl.textContent = 'Les mots de passe ne correspondent pas.';
-            errEl.style.display = 'block';
-            document.getElementById('zts-reg-pw2').classList.add('error');
-            return;
-        }
-        if (pw.length < 8) {
-            errEl.textContent = 'Le mot de passe doit contenir au moins 8 caracteres.';
-            errEl.style.display = 'block';
-            return;
-        }
+            <button class="zts-auth-btn zts-auth-btn-register" id="ztsRegisterBtn" type="button">
+              S'inscrire
+            </button>
 
-        btn.disabled = true;
-        btn.innerHTML = '<span class="zts-spinner"></span>Inscription...';
+            <div class="zts-auth-divider"><span>ou</span></div>
 
-        try {
-            await doRegister(email, pw, fname, lname);
-        } catch (err) {
-            errEl.textContent = err.message;
-            errEl.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "S'inscrire";
-        }
-    };
+            <p style="text-align:center; margin:0;">
+              <button class="zts-auth-link" id="ztsGoLogin" type="button">Deja membre? Se connecter</button>
+            </p>
+          </div>
 
-    // Reset password
-    document.getElementById('zts-reset-btn').onclick = async () => {
-        const email = document.getElementById('zts-reset-email').value.trim();
-        const errEl = document.getElementById('zts-reset-error');
-        const succEl = document.getElementById('zts-reset-success');
-        const btn = document.getElementById('zts-reset-btn');
-
-        errEl.style.display = 'none';
-        succEl.style.display = 'none';
-
-        if (!email) {
-            errEl.textContent = 'Veuillez entrer votre courriel.';
-            errEl.style.display = 'block';
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerHTML = '<span class="zts-spinner"></span>Envoi...';
-
-        try {
-            await doPasswordReset(email);
-            succEl.textContent = 'Un lien de reinitialisation a ete envoye a votre courriel.';
-            succEl.style.display = 'block';
-        } catch (err) {
-            errEl.textContent = err.message || 'Erreur lors de l\'envoi.';
-            errEl.style.display = 'block';
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Envoyer le lien';
-        }
-    };
-
-    showTab(tab);
-}
-
-function closePopup() {
-    if (popupEl) {
-        popupEl.style.animation = 'ztsOverlayIn 0.2s ease-out reverse';
-        setTimeout(() => { popupEl?.remove(); popupEl = null; }, 180);
-    }
-    document.removeEventListener('keydown', onEscKey);
-}
-
-function onEscKey(e) {
-    if (e.key === 'Escape') closePopup();
+        </div><!-- .zts-auth-body -->
+      </div><!-- .zts-auth-modal -->
+    </div><!-- .zts-auth-overlay -->
+  `;
 }
 
 // ---------------------------------------------------------------------------
-// 6. Check auth state on load
+// 8. Popup Management
 // ---------------------------------------------------------------------------
-async function checkAuthState() {
-    if (isLoggedIn() && sdkAvailable && wixClient) {
-        try {
-            const loggedIn = wixClient.auth.loggedIn();
-            if (!loggedIn) {
-                clearTokens();
-            }
-        } catch (_) { /* token validation may fail silently */ }
-    }
-    renderAuthUI();
-}
 
-// ---------------------------------------------------------------------------
-// 7. Auto-init
-// ---------------------------------------------------------------------------
-async function init() {
-    // Handle OAuth callback (user returning from Wix login)
-    await handleOAuthCallback();
+/**
+ * Ensure the popup DOM is in the page. Creates it once, reuses thereafter.
+ */
+function ensurePopup() {
+  if (popupRoot) return popupRoot;
 
-    // Bind click handlers to data-auth elements
-    document.querySelectorAll('[data-auth="login"]').forEach(el => {
-        el.addEventListener('click', (e) => { e.preventDefault(); showLoginPopup(); });
-    });
-    document.querySelectorAll('[data-auth="register"]').forEach(el => {
-        el.addEventListener('click', (e) => { e.preventDefault(); showRegisterPopup(); });
-    });
+  injectStyles();
 
-    // Load SDK in background
-    await loadWixSDK();
+  const wrapper = document.createElement('div');
+  wrapper.id = 'zts-auth-root';
+  wrapper.innerHTML = createPopupHTML();
+  document.body.appendChild(wrapper);
+  popupRoot = wrapper;
 
-    // Check auth state
-    await checkAuthState();
+  bindPopupEvents();
+  return popupRoot;
 }
 
 /**
- * Handle OAuth callback when user returns from Wix login.
- * Looks for ?code= in the URL and exchanges it for tokens.
+ * Open the popup on a specific tab ('login' or 'register').
  */
-async function handleOAuthCallback() {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    if (!code) return;
+function openPopup(tab = 'login') {
+  ensurePopup();
+  const overlay = document.getElementById('ztsAuthOverlay');
 
-    try {
-        // Exchange code for tokens via Wix OAuth
-        const redirectUri = window.location.origin + '/';
-        const resp = await fetch('https://www.wixapis.com/oauth/access', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                grant_type: 'authorization_code',
-                client_id: WIX_CLIENT_ID,
-                code: code,
-                redirect_uri: redirectUri,
-            })
-        });
+  // Switch to correct tab
+  switchTab(tab);
 
-        if (resp.ok) {
-            const tokens = await resp.json();
-            saveTokens(tokens);
-            saveMember({ firstName: 'Membre', email: '' });
-            // Clean URL
-            window.history.replaceState({}, '', window.location.pathname);
-            console.log('[ZTS Auth] OAuth login successful.');
+  // Clear previous messages
+  clearMessages();
+
+  // Show overlay with a slight delay so CSS transition fires
+  requestAnimationFrame(() => {
+    overlay.classList.add('active');
+  });
+
+  // Focus first input after animation
+  setTimeout(() => {
+    const firstInput = tab === 'login'
+      ? document.getElementById('ztsLoginEmail')
+      : document.getElementById('ztsRegFirst');
+    if (firstInput) firstInput.focus();
+  }, 350);
+}
+
+/**
+ * Close the popup.
+ */
+function closePopup() {
+  const overlay = document.getElementById('ztsAuthOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('active');
+}
+
+/**
+ * Switch between login and register tabs.
+ */
+function switchTab(tab) {
+  const tabLogin = document.getElementById('ztsTabLogin');
+  const tabRegister = document.getElementById('ztsTabRegister');
+  const panelLogin = document.getElementById('ztsPanelLogin');
+  const panelRegister = document.getElementById('ztsPanelRegister');
+
+  if (tab === 'login') {
+    tabLogin.classList.add('active');
+    tabLogin.setAttribute('aria-selected', 'true');
+    tabRegister.classList.remove('active');
+    tabRegister.setAttribute('aria-selected', 'false');
+    panelLogin.classList.add('active');
+    panelRegister.classList.remove('active');
+  } else {
+    tabRegister.classList.add('active');
+    tabRegister.setAttribute('aria-selected', 'true');
+    tabLogin.classList.remove('active');
+    tabLogin.setAttribute('aria-selected', 'false');
+    panelRegister.classList.add('active');
+    panelLogin.classList.remove('active');
+  }
+}
+
+/**
+ * Show a message in the given container.
+ */
+function showMessage(containerId, text, type = 'error') {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = `<div class="zts-auth-msg ${type}">${escapeHtml(text)}</div>`;
+}
+
+/**
+ * Clear all message containers.
+ */
+function clearMessages() {
+  const loginMsg = document.getElementById('ztsLoginMsg');
+  const regMsg = document.getElementById('ztsRegisterMsg');
+  if (loginMsg) loginMsg.innerHTML = '';
+  if (regMsg) regMsg.innerHTML = '';
+}
+
+/**
+ * Simple HTML escape to prevent XSS in user-displayed strings.
+ */
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/**
+ * Show or hide the loading spinner.
+ */
+function setSpinner(visible) {
+  const spinner = document.getElementById('ztsSpinner');
+  if (!spinner) return;
+  if (visible) {
+    spinner.classList.add('active');
+  } else {
+    spinner.classList.remove('active');
+  }
+}
+
+/**
+ * Spawn confetti particles inside the modal for success feedback.
+ */
+function showConfetti() {
+  const modal = document.querySelector('.zts-auth-modal');
+  if (!modal) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'zts-auth-confetti-wrap';
+  modal.appendChild(wrap);
+
+  const colors = ['#00E5FF', '#FFD700', '#00FF85', '#FF6B00', '#ff3b9a'];
+
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'zts-auth-confetti';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.top = '-10px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    piece.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+    wrap.appendChild(piece);
+  }
+
+  // Clean up confetti elements after animation completes
+  setTimeout(() => wrap.remove(), 2500);
+}
+
+// ---------------------------------------------------------------------------
+// 9. Input Validation
+// ---------------------------------------------------------------------------
+
+function validateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validatePassword(pw) {
+  return pw.length >= 8;
+}
+
+// ---------------------------------------------------------------------------
+// 10. Bind Popup Events
+// ---------------------------------------------------------------------------
+
+function bindPopupEvents() {
+  const overlay = document.getElementById('ztsAuthOverlay');
+  const closeBtn = document.getElementById('ztsAuthClose');
+  const tabLogin = document.getElementById('ztsTabLogin');
+  const tabRegister = document.getElementById('ztsTabRegister');
+  const goRegister = document.getElementById('ztsGoRegister');
+  const goLogin = document.getElementById('ztsGoLogin');
+  const loginBtn = document.getElementById('ztsLoginBtn');
+  const registerBtn = document.getElementById('ztsRegisterBtn');
+  const forgotBtn = document.getElementById('ztsForgotPw');
+
+  // Close button
+  closeBtn.addEventListener('click', closePopup);
+
+  // Click on backdrop closes the popup
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closePopup();
+  });
+
+  // Escape key closes the popup
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+      closePopup();
+    }
+  });
+
+  // Tab switching via tab buttons
+  tabLogin.addEventListener('click', () => switchTab('login'));
+  tabRegister.addEventListener('click', () => switchTab('register'));
+
+  // In-form links to switch tabs
+  goRegister.addEventListener('click', () => switchTab('register'));
+  goLogin.addEventListener('click', () => switchTab('login'));
+
+  // Password visibility toggles
+  document.querySelectorAll('.zts-auth-pw-toggle').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.textContent = '\u{1F648}'; // see-no-evil monkey
+        btn.setAttribute('aria-label', 'Masquer le mot de passe');
+      } else {
+        input.type = 'password';
+        btn.textContent = '\u{1F441}'; // eye
+        btn.setAttribute('aria-label', 'Afficher le mot de passe');
+      }
+    });
+  });
+
+  // Login submit
+  loginBtn.addEventListener('click', handleLogin);
+
+  // Enter key navigation in login form
+  document.getElementById('ztsLoginEmail').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('ztsLoginPw').focus();
+  });
+  document.getElementById('ztsLoginPw').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLogin();
+  });
+
+  // Register submit
+  registerBtn.addEventListener('click', handleRegister);
+
+  // Enter key in last register field triggers submit
+  document.getElementById('ztsRegPwConfirm').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleRegister();
+  });
+
+  // Forgot password
+  forgotBtn.addEventListener('click', handleForgotPassword);
+}
+
+// ---------------------------------------------------------------------------
+// 11. Login Handler
+// ---------------------------------------------------------------------------
+
+async function handleLogin() {
+  const emailInput = document.getElementById('ztsLoginEmail');
+  const pwInput = document.getElementById('ztsLoginPw');
+  const loginBtn = document.getElementById('ztsLoginBtn');
+
+  const email = emailInput.value.trim();
+  const password = pwInput.value;
+
+  // Client-side validation
+  if (!email) {
+    showMessage('ztsLoginMsg', 'Entre ton adresse courriel.', 'error');
+    emailInput.focus();
+    return;
+  }
+  if (!validateEmail(email)) {
+    showMessage('ztsLoginMsg', 'Adresse courriel invalide.', 'error');
+    emailInput.focus();
+    return;
+  }
+  if (!password) {
+    showMessage('ztsLoginMsg', 'Entre ton mot de passe.', 'error');
+    pwInput.focus();
+    return;
+  }
+
+  // Enter loading state
+  loginBtn.disabled = true;
+  setSpinner(true);
+  clearMessages();
+
+  try {
+    const result = await loginWithEmail(email, password);
+
+    setSpinner(false);
+
+    if (result.success) {
+      showMessage('ztsLoginMsg', 'Connexion reussie! Bienvenue!', 'success');
+      showConfetti();
+      updateNavUI(result.member);
+
+      // Close popup after a brief success display
+      setTimeout(() => {
+        closePopup();
+        emailInput.value = '';
+        pwInput.value = '';
+      }, 1500);
+    } else {
+      showMessage('ztsLoginMsg', result.error || 'Erreur de connexion.', 'error');
+    }
+  } catch (err) {
+    setSpinner(false);
+    console.error('[ZTS Auth] Login error:', err);
+
+    // If SDK completely failed, offer OAuth redirect as fallback
+    if (!sdkReady) {
+      showMessage('ztsLoginMsg', 'Connexion directe indisponible. Redirection...', 'info');
+      setTimeout(() => startOAuthRedirect(), 1500);
+    } else {
+      showMessage('ztsLoginMsg', 'Erreur inattendue. Reessaie plus tard.', 'error');
+    }
+  } finally {
+    loginBtn.disabled = false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 12. Register Handler
+// ---------------------------------------------------------------------------
+
+async function handleRegister() {
+  const firstInput = document.getElementById('ztsRegFirst');
+  const lastInput = document.getElementById('ztsRegLast');
+  const emailInput = document.getElementById('ztsRegEmail');
+  const pwInput = document.getElementById('ztsRegPw');
+  const pwConfirmInput = document.getElementById('ztsRegPwConfirm');
+  const termsCheckbox = document.getElementById('ztsRegTerms');
+  const registerBtn = document.getElementById('ztsRegisterBtn');
+
+  const firstName = firstInput.value.trim();
+  const lastName = lastInput.value.trim();
+  const email = emailInput.value.trim();
+  const password = pwInput.value;
+  const passwordConfirm = pwConfirmInput.value;
+
+  // Client-side validation chain
+  if (!firstName) {
+    showMessage('ztsRegisterMsg', 'Entre ton prenom.', 'error');
+    firstInput.focus();
+    return;
+  }
+  if (!lastName) {
+    showMessage('ztsRegisterMsg', 'Entre ton nom de famille.', 'error');
+    lastInput.focus();
+    return;
+  }
+  if (!email) {
+    showMessage('ztsRegisterMsg', 'Entre ton adresse courriel.', 'error');
+    emailInput.focus();
+    return;
+  }
+  if (!validateEmail(email)) {
+    showMessage('ztsRegisterMsg', 'Adresse courriel invalide.', 'error');
+    emailInput.focus();
+    return;
+  }
+  if (!validatePassword(password)) {
+    showMessage('ztsRegisterMsg', 'Le mot de passe doit contenir au moins 8 caracteres.', 'error');
+    pwInput.focus();
+    return;
+  }
+  if (password !== passwordConfirm) {
+    showMessage('ztsRegisterMsg', 'Les mots de passe ne correspondent pas.', 'error');
+    pwConfirmInput.focus();
+    return;
+  }
+  if (!termsCheckbox.checked) {
+    showMessage('ztsRegisterMsg', 'Tu dois accepter les conditions d\'utilisation.', 'error');
+    return;
+  }
+
+  // Enter loading state
+  registerBtn.disabled = true;
+  setSpinner(true);
+  clearMessages();
+
+  try {
+    const result = await registerWithEmail(email, password, firstName, lastName);
+
+    setSpinner(false);
+
+    if (result.success && result.status === 'ACTIVE') {
+      showMessage('ztsRegisterMsg', 'Inscription reussie! Bienvenue!', 'success');
+      showConfetti();
+      updateNavUI(result.member);
+
+      setTimeout(() => {
+        closePopup();
+        // Reset all register fields
+        firstInput.value = '';
+        lastInput.value = '';
+        emailInput.value = '';
+        pwInput.value = '';
+        pwConfirmInput.value = '';
+        termsCheckbox.checked = false;
+      }, 1500);
+    } else if (result.success) {
+      // Account created but pending verification or approval
+      showMessage('ztsRegisterMsg', result.error, 'info');
+    } else {
+      showMessage('ztsRegisterMsg', result.error || 'Erreur lors de l\'inscription.', 'error');
+    }
+  } catch (err) {
+    setSpinner(false);
+    console.error('[ZTS Auth] Register error:', err);
+
+    if (!sdkReady) {
+      showMessage('ztsRegisterMsg', 'Service indisponible. Redirection...', 'info');
+      setTimeout(() => startOAuthRedirect(), 1500);
+    } else {
+      showMessage('ztsRegisterMsg', 'Erreur inattendue. Reessaie plus tard.', 'error');
+    }
+  } finally {
+    registerBtn.disabled = false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 13. Forgot Password Handler
+// ---------------------------------------------------------------------------
+
+async function handleForgotPassword() {
+  const emailInput = document.getElementById('ztsLoginEmail');
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    showMessage('ztsLoginMsg', 'Entre ton courriel pour reinitialiser ton mot de passe.', 'info');
+    emailInput.focus();
+    return;
+  }
+
+  if (!validateEmail(email)) {
+    showMessage('ztsLoginMsg', 'Adresse courriel invalide.', 'error');
+    emailInput.focus();
+    return;
+  }
+
+  setSpinner(true);
+  clearMessages();
+
+  try {
+    await sdkLoadPromise;
+    if (wixClient) {
+      await wixClient.auth.sendPasswordResetEmail(email, CONFIG.siteUrl);
+      setSpinner(false);
+      showMessage('ztsLoginMsg', 'Courriel de reinitialisation envoye! Verifie ta boite de reception.', 'success');
+    } else {
+      setSpinner(false);
+      showMessage('ztsLoginMsg', 'Service indisponible. Contacte-nous pour de l\'aide.', 'error');
+    }
+  } catch (err) {
+    setSpinner(false);
+    console.error('[ZTS Auth] Password reset error:', err);
+    // Always show a neutral message (don't reveal whether email exists)
+    showMessage('ztsLoginMsg', 'Si ce courriel existe, un lien de reinitialisation a ete envoye.', 'info');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 14. Nav UI Update (user menu / login button)
+// ---------------------------------------------------------------------------
+
+/**
+ * Update the navigation bar to reflect the current auth state.
+ * When logged in, replaces data-auth="login" elements with a user dropdown.
+ * When logged out, restores the original login buttons.
+ */
+function updateNavUI(member) {
+  const loginTriggers = document.querySelectorAll('[data-auth="login"]');
+
+  if (member) {
+    // --- Logged-in state ---
+    currentMember = member;
+    const firstName = member.firstName || member.nickname || 'Membre';
+    const initial = firstName.charAt(0).toUpperCase();
+
+    loginTriggers.forEach((trigger) => {
+      // Avoid double-replacing
+      if (trigger.closest('.zts-user-menu')) return;
+
+      const menu = document.createElement('div');
+      menu.className = 'zts-user-menu';
+      menu.setAttribute('data-auth-replaced', 'true');
+      menu.innerHTML = `
+        <button class="zts-user-btn" aria-haspopup="true" aria-expanded="false" aria-label="Menu utilisateur">
+          <span class="zts-user-avatar">${escapeHtml(initial)}</span>
+          <span>Salut, ${escapeHtml(firstName)}!</span>
+          <span style="font-size:0.7em;">&#9660;</span>
+        </button>
+        <div class="zts-user-dropdown" role="menu">
+          <button class="zts-user-dropdown-item" role="menuitem" data-action="profile">
+            <span>&#128100;</span> Mon profil
+          </button>
+          <div class="zts-user-dropdown-sep"></div>
+          <button class="zts-user-dropdown-item" role="menuitem" data-action="logout">
+            <span>&#128682;</span> Deconnexion
+          </button>
+        </div>
+      `;
+
+      trigger.replaceWith(menu);
+
+      // Dropdown toggle
+      const btn = menu.querySelector('.zts-user-btn');
+      const dropdown = menu.querySelector('.zts-user-dropdown');
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.contains('open');
+        // Close any other open dropdowns first
+        document.querySelectorAll('.zts-user-dropdown.open').forEach((d) => d.classList.remove('open'));
+        if (!isOpen) {
+          dropdown.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        } else {
+          btn.setAttribute('aria-expanded', 'false');
         }
-    } catch (err) {
-        console.warn('[ZTS Auth] OAuth callback error:', err);
-    }
-    // Clean URL params regardless
-    if (window.location.search) {
-        window.history.replaceState({}, '', window.location.pathname);
-    }
+      });
+
+      // Profile action
+      menu.querySelector('[data-action="profile"]').addEventListener('click', () => {
+        dropdown.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        window.location.href = '/profil.html';
+      });
+
+      // Logout action
+      menu.querySelector('[data-action="logout"]').addEventListener('click', () => {
+        dropdown.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        logout();
+      });
+    });
+
+    // Close dropdown when clicking elsewhere on the page
+    document.addEventListener('click', closeAllDropdowns);
+
+  } else {
+    // --- Logged-out state: restore login buttons ---
+    document.removeEventListener('click', closeAllDropdowns);
+    document.querySelectorAll('[data-auth-replaced]').forEach((menu) => {
+      const btn = document.createElement('button');
+      btn.setAttribute('data-auth', 'login');
+      btn.className = 'nav-link';
+      btn.textContent = 'Se connecter';
+      btn.addEventListener('click', () => showLoginPopup());
+      menu.replaceWith(btn);
+    });
+  }
 }
 
-// Run init when DOM is ready
+/**
+ * Helper to close all user dropdowns (used on document click).
+ */
+function closeAllDropdowns() {
+  document.querySelectorAll('.zts-user-dropdown.open').forEach((d) => {
+    d.classList.remove('open');
+    const parentBtn = d.parentElement?.querySelector('.zts-user-btn');
+    if (parentBtn) parentBtn.setAttribute('aria-expanded', 'false');
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 15. Check Auth State
+// ---------------------------------------------------------------------------
+
+/**
+ * Check if the user is logged in and update the UI accordingly.
+ * Handles OAuth callback, saved tokens, and member fetch.
+ * Called automatically on page load.
+ */
+async function checkAuthState() {
+  injectStyles();
+
+  // Step 1: Handle OAuth callback if URL has code+state params
+  const wasCallback = await handleOAuthCallback();
+  if (wasCallback) {
+    const member = loadMember() || currentMember;
+    updateNavUI(member);
+    return member;
+  }
+
+  // Step 2: Check for saved tokens
+  const tokens = loadTokens();
+  if (!tokens) {
+    updateNavUI(null);
+    return null;
+  }
+
+  // Step 3: Use cached member info immediately (fast UI paint)
+  const savedMember = loadMember();
+  if (savedMember) {
+    currentMember = savedMember;
+    updateNavUI(savedMember);
+  }
+
+  // Step 4: Validate tokens by fetching member from Wix (background)
+  try {
+    await sdkLoadPromise;
+    if (wixClient) {
+      const member = await fetchCurrentMember();
+      if (member) {
+        updateNavUI(member);
+        return member;
+      } else {
+        // Tokens are expired or invalid
+        clearTokens();
+        updateNavUI(null);
+        return null;
+      }
+    }
+  } catch (e) {
+    console.warn('[ZTS Auth] Token validation failed', e);
+    // Keep cached member if available (offline-tolerant)
+    if (savedMember) return savedMember;
+  }
+
+  return savedMember || null;
+}
+
+// ---------------------------------------------------------------------------
+// 16. Public API
+// ---------------------------------------------------------------------------
+
+/**
+ * Show the login popup modal.
+ */
+function showLoginPopup() {
+  openPopup('login');
+}
+
+/**
+ * Show the register popup modal.
+ */
+function showRegisterPopup() {
+  openPopup('register');
+}
+
+// ---------------------------------------------------------------------------
+// 17. Auto-bind triggers and DOMContentLoaded initialization
+// ---------------------------------------------------------------------------
+
+/**
+ * Find and bind all data-auth trigger elements on the page.
+ */
+function bindAuthTriggers() {
+  // Bind data-auth="login" elements
+  document.querySelectorAll('[data-auth="login"]').forEach((el) => {
+    if (el.dataset.authBound) return; // avoid re-binding
+    el.dataset.authBound = 'true';
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      showLoginPopup();
+    });
+  });
+
+  // Bind data-auth="register" elements
+  document.querySelectorAll('[data-auth="register"]').forEach((el) => {
+    if (el.dataset.authBound) return;
+    el.dataset.authBound = 'true';
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      showRegisterPopup();
+    });
+  });
+}
+
+/**
+ * Main initialization routine.
+ * Binds triggers and checks authentication state.
+ */
+function init() {
+  bindAuthTriggers();
+  checkAuthState();
+}
+
+// Run init when the DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', init);
 } else {
-    init();
+  init();
 }
 
 // ---------------------------------------------------------------------------
-// 8. Exports
+// 18. Exports
 // ---------------------------------------------------------------------------
+
 export { showLoginPopup, showRegisterPopup, checkAuthState, logout };
