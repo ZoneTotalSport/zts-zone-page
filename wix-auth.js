@@ -5,7 +5,7 @@
  */
 (function (root) {
 
-  var LUMBERJACK_IMG = 'https://static.wixstatic.com/media/692b77_03932649151440d9a1951e988412c76a~mv2.png';
+  var LUMBERJACK_IMG = 'bucheron-basketball.png';
 
   // ── Inject styles ─────────────────────────────────────────────────────────
   function injectStyles() {
@@ -55,7 +55,7 @@
 
 /* ── Left ── */
 .zts-vip-left{padding:40px 30px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.zts-vip-mascot{width:220px;height:auto;margin-bottom:16px;filter:drop-shadow(4px 6px 12px rgba(0,0,0,.3))}
+.zts-vip-mascot{width:240px;height:auto;margin-bottom:-10px;filter:drop-shadow(4px 6px 12px rgba(0,0,0,.3));position:relative;z-index:2}
 .zts-vip-title{
   font-family:'Bangers',cursive;font-size:2.6rem;color:#fff;
   text-shadow:3px 3px 0 rgba(0,0,0,.2);margin:0 0 8px;line-height:1.1;
