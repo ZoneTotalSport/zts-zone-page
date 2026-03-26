@@ -260,13 +260,9 @@
   // ── Redirect to Wix member area (forces login if not authenticated) ──────
 
   function redirectToWixAuth(mode) {
-    // Wix automatically prompts login when accessing member pages
-    // /account/my-account works, /account/login gives 500
-    if (mode === 'register') {
-      window.location.href = 'https://www.zonetotalsport.ca/account/sign-up';
-    } else {
-      window.location.href = 'https://www.zonetotalsport.ca/account/my-account';
-    }
+    // Redirect to Wix member page - forces login/signup if not authenticated
+    // Only /account/my-account works (login and sign-up pages give 500)
+    window.location.href = 'https://www.zonetotalsport.ca/account/my-account';
   }
 
   // ── Show / hide popup ──────────────────────────────────────────────────────
