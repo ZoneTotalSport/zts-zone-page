@@ -12,7 +12,7 @@
     if (document.getElementById('zts-vip-styles')) return;
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Patrick+Hand&family=Fredoka+One&family=Boogaloo&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=Bangers&family=Schoolbell&family=Fredoka+One&family=Boogaloo&display=swap';
     document.head.appendChild(link);
 
     var s = document.createElement('style');
@@ -57,10 +57,10 @@
 .zts-vip-left{padding:40px 30px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .zts-vip-mascot{width:220px;height:auto;margin-bottom:16px;filter:drop-shadow(4px 6px 12px rgba(0,0,0,.3))}
 .zts-vip-title{
-  font-family:'Luckiest Guy',cursive;font-size:2.6rem;color:#fff;
+  font-family:'Bangers',cursive;font-size:2.6rem;color:#fff;
   text-shadow:3px 3px 0 rgba(0,0,0,.2);margin:0 0 8px;line-height:1.1;
 }
-.zts-vip-subtitle{font-family:'Patrick Hand',cursive;font-size:1.3rem;color:rgba(255,255,255,.9);margin:0 0 20px}
+.zts-vip-subtitle{font-family:'Schoolbell',cursive;font-size:1.3rem;color:rgba(255,255,255,.9);margin:0 0 20px}
 
 /* ── Stats ── */
 .zts-vip-stats{
@@ -68,8 +68,8 @@
   background:rgba(0,0,0,.15);border-radius:16px;padding:14px 10px;width:100%;
 }
 .zts-vip-stat{text-align:center}
-.zts-vip-stat-num{font-family:'Luckiest Guy',cursive;font-size:1.6rem;line-height:1.2}
-.zts-vip-stat-label{font-family:'Patrick Hand',cursive;font-size:.95rem;color:rgba(255,255,255,.8)}
+.zts-vip-stat-num{font-family:'Bangers',cursive;font-size:1.6rem;line-height:1.2}
+.zts-vip-stat-label{font-family:'Schoolbell',cursive;font-size:.95rem;color:rgba(255,255,255,.8)}
 .zts-stat-pink{color:#FF2A7A}
 .zts-stat-white{color:#fff}
 .zts-stat-green{color:#39FF14}
@@ -91,7 +91,7 @@
   font-size:1.6rem;background:rgba(255,255,255,.25);flex-shrink:0;
 }
 .zts-vip-card h3{font-family:'Fredoka One',cursive;font-size:1.15rem;margin:0 0 2px;color:#fff}
-.zts-vip-card p{font-family:'Patrick Hand',cursive;font-size:1rem;margin:0;color:rgba(255,255,255,.85)}
+.zts-vip-card p{font-family:'Schoolbell',cursive;font-size:1rem;margin:0;color:rgba(255,255,255,.85)}
 
 /* Card colors - FLUO */
 .zts-card-blue{background:linear-gradient(135deg,#00BFFF,#1E90FF);border:2px solid rgba(255,255,255,.2)}
@@ -113,13 +113,13 @@
   border:2px solid #00C8E8;margin-left:-8px;
 }
 .zts-vip-avatars span:first-child{margin-left:0}
-.zts-vip-proof-text{font-family:'Patrick Hand',cursive;font-size:1.05rem;color:rgba(255,255,255,.9)}
+.zts-vip-proof-text{font-family:'Schoolbell',cursive;font-size:1.05rem;color:rgba(255,255,255,.9)}
 
 /* ── CTA ── */
 .zts-vip-cta{
   display:block;width:100%;padding:22px 20px;border:none;border-radius:18px;
   background:linear-gradient(135deg,#FFD700,#FFA500);
-  font-family:'Luckiest Guy',cursive;font-size:1.6rem;color:#0a0a2e;
+  font-family:'Bangers',cursive;font-size:1.6rem;color:#0a0a2e;
   cursor:pointer;text-align:center;text-decoration:none;
   box-shadow:0 6px 30px rgba(255,215,0,.4);
   transition:transform .2s,box-shadow .2s;
@@ -131,7 +131,7 @@
 /* ── Login link ── */
 .zts-vip-login-link{
   display:block;text-align:center;padding:8px;
-  font-family:'Patrick Hand',cursive;font-size:1.1rem;
+  font-family:'Schoolbell',cursive;font-size:1.1rem;
   color:rgba(255,255,255,.7);text-decoration:underline;cursor:pointer;
   background:none;border:none;width:100%;
   transition:color .2s;
@@ -139,14 +139,14 @@
 .zts-vip-login-link:hover{color:#fff}
 
 .zts-vip-small{
-  text-align:center;font-family:'Patrick Hand',cursive;
+  text-align:center;font-family:'Schoolbell',cursive;
   font-size:.95rem;color:rgba(255,255,255,.5);margin:0;
 }
 
 /* ── Close text ── */
 .zts-vip-skip{
   display:block;text-align:center;padding:10px;
-  font-family:'Patrick Hand',cursive;font-size:1rem;
+  font-family:'Schoolbell',cursive;font-size:1rem;
   color:rgba(255,255,255,.4);cursor:pointer;background:none;border:none;width:100%;
   transition:color .2s;
 }
