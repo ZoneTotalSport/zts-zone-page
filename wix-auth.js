@@ -249,101 +249,15 @@
     return div;
   }
 
-  // ── PKCE helpers ────────────────────────────────────────────────────────────
+  // ── Redirect to Wix member area (forces login if not authenticated) ──────
 
-  function generateCodeVerifier() {
-    var array = new Uint8Array(32);
-    crypto.getRandomValues(array);
-    return btoa(String.fromCharCode.apply(null, array))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-
-  function sha256(plain) {
-    var encoder = new TextEncoder();
-    return crypto.subtle.digest('SHA-256', encoder.encode(plain));
-  }
-
-  function base64urlencode(buf) {
-    var str = '';
-    var bytes = new Uint8Array(buf);
-    for (var i = 0; i < bytes.byteLength; i++) {
-      str += String.fromCharCode(bytes[i]);
-    }
-    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-
-  // ── OAuth redirect (Wix Headless PKCE flow) ──────────────────────────────
-
-  async function redirectToWixAuth(mode) {
-    try {
-      // Show loading state on buttons
-      var btns = document.querySelectorAll('#zts-btn-login, #zts-btn-register');
-      btns.forEach(function(b) { b.style.opacity = '0.6'; b.style.pointerEvents = 'none'; });
-
-      // Step 1: Generate PKCE code verifier & challenge
-      var codeVerifier = generateCodeVerifier();
-      store('zts_code_verifier', codeVerifier);
-      var hashed = await sha256(codeVerifier);
-      var codeChallenge = base64urlencode(hashed);
-
-      var state = generateState();
-      store(CONFIG.storageKeys.oauthState, state);
-
-      // Step 2: Get anonymous visitor tokens
-      var anonResponse = await fetch(CONFIG.proxyPrefix + encodeURIComponent(CONFIG.tokenUrl), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientId: CONFIG.clientId,
-          grantType: 'anonymous'
-        })
-      });
-      var anonTokens = await anonResponse.json();
-      var visitorToken = anonTokens.access_token;
-
-      // Step 3: Create redirect session to get login URL
-      var sessionBody = {
-        auth: {
-          authRequest: {
-            redirectUri: CONFIG.redirectUri,
-            clientId: CONFIG.clientId,
-            codeChallenge: codeChallenge,
-            codeChallengeMethod: 'S256',
-            responseMode: 'query',
-            responseType: 'code',
-            scope: 'offline_access',
-            state: state
-          }
-        }
-      };
-
-      // Add login/signup preference
-      if (mode === 'register') {
-        sessionBody.auth.prompt = 'signup';
-      }
-
-      var sessionResponse = await fetch(CONFIG.proxyPrefix + encodeURIComponent('https://www.wixapis.com/_api/redirects-api/v1/redirect-session'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': visitorToken
-        },
-        body: JSON.stringify(sessionBody)
-      });
-
-      var sessionData = await sessionResponse.json();
-
-      if (sessionData && sessionData.redirectSession && sessionData.redirectSession.fullUrl) {
-        window.location.href = sessionData.redirectSession.fullUrl;
-      } else {
-        console.error('[ZTS Auth] Redirect session failed:', sessionData);
-        // Fallback: redirect to Wix login page directly
-        window.location.href = 'https://www.zonetotalsport.ca/account/login';
-      }
-    } catch (err) {
-      console.error('[ZTS Auth] OAuth redirect error:', err);
-      // Fallback
-      window.location.href = 'https://www.zonetotalsport.ca/account/login';
+  function redirectToWixAuth(mode) {
+    // Wix automatically prompts login when accessing member pages
+    // /account/my-account works, /account/login gives 500
+    if (mode === 'register') {
+      window.location.href = 'https://www.zonetotalsport.ca/account/sign-up';
+    } else {
+      window.location.href = 'https://www.zonetotalsport.ca/account/my-account';
     }
   }
 
