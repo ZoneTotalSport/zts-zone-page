@@ -1,0 +1,77 @@
+    <!-- SCROLL PROGRESS -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- PHYSICS CANVAS -->
+    <canvas id="physics-canvas"></canvas>
+
+    <!-- ========== NAVIGATION ========== -->
+    <nav class="nav-fixed py-3 px-6 md:px-10" id="mainNav">
+        <!-- BARRE WIX - Boutons de navigation vers les pages du site -->
+        <div class="wix-nav-bar flex items-center justify-center gap-2 md:gap-3 flex-wrap">
+            <a href="https://www.zonetotalsport.ca/" class="wix-nav-btn active">
+                <i data-lucide="home" class="w-3.5 h-3.5"></i> <span>Accueil</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/boite-a-outils-eps" class="wix-nav-btn">
+                <i data-lucide="wrench" class="w-3.5 h-3.5"></i> <span>Outils</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/sae-eps-primaire" class="wix-nav-btn">
+                <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> <span>S.A.E</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/banque-de-jeux-eps" class="wix-nav-btn">
+                <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> <span>Jeux</span>
+            </a>
+            <a href="blog.html" class="wix-nav-btn">
+                <i data-lucide="pen-line" class="w-3.5 h-3.5"></i> <span>Blog</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/musique-ambiance-gym" class="wix-nav-btn">
+                <i data-lucide="music" class="w-3.5 h-3.5"></i> <span>Musique</span>
+            </a>
+            <a href="sports-news.html" class="wix-nav-btn">
+                <i data-lucide="newspaper" class="w-3.5 h-3.5"></i> <span>Sports News</span>
+            </a>
+            <a href="https://evaluation.zonetotalsport.ca" class="wix-nav-btn">
+                <i data-lucide="book-open" class="w-3.5 h-3.5"></i> <span>Carnet</span>
+            </a>
+            <a href="avis.html" class="wix-nav-btn">
+                <i data-lucide="star" class="w-3.5 h-3.5"></i> <span>Avis</span>
+            </a>
+            <a href="wix/donation.html" class="wix-nav-btn btn-donate-nav">
+                <i data-lucide="heart" class="w-3.5 h-3.5"></i> <span>Dons</span>
+            </a>
+
+            <a href="#" onclick="event.preventDefault(); if(window.ZTSAuth) ZTSAuth.showAuthPopup();" class="wix-nav-btn btn-login-nav" id="zts-login-btn" style="background: linear-gradient(135deg, #FF6B00, #FF9500); color: white; border: none;">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> <span>Connexion</span>
+            </button>
+        </div>
+        <div class="max-w-7xl mx-auto flex items-center justify-between mt-3">
+            <!-- Logo -->
+            <a href="#" class="flex items-center shrink-0">
+                <img src="logo-zts.png" alt="Zone Total Sport" class="h-[72px] md:h-24 w-auto">
+            </a>
+            <!-- Horloge centr&#233;e - m&#234;me ligne que logo et don -->
+            <div class="digital-clock" id="navClock" style="font-size:1.6rem; padding:18px 36px; min-width:220px;">
+                <i data-lucide="clock" class="w-6 h-6 text-cyan-electric/60"></i>
+                <span id="clockTime" style="min-width:150px;">00<span class="clock-dot">:</span>00<span class="clock-dot">:</span>00</span>
+            </div>
+            <div class="nav-links flex items-center gap-6">
+                <!-- Language Selector -->
+                <div class="flex gap-1">
+                    <button onclick="setLang('fr')" class="lang-btn active" id="lang-fr" title="Fran&#231;ais">FR</button>
+                    <button onclick="setLang('en')" class="lang-btn" id="lang-en" title="English">EN</button>
+                    <button onclick="setLang('zh')" class="lang-btn" id="lang-zh" title="&#20013;&#25991;">&#20013;</button>
+                </div>
+                <!-- Faire un don 40% plus gros -->
+                <div class="magnetic-wrap">
+                    <a href="wix/donation.html" class="btn-primary btn-yellow magnetic-btn" data-i18n="navDon" style="font-size:1.6rem; padding:20px 48px;">
+                        <i data-lucide="heart" class="w-6 h-6"></i> Faire un don
+                    </a>
+                </div>
+            </div>
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="wix/donation.html" onclick="closeMobile()" style="color:#FF2A7A" data-i18n="mobileDon">Faire un don</a>
+    </div>
