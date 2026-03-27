@@ -43,7 +43,7 @@
 
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; overflow-x: hidden; }
+        html { scroll-behavior: smooth; overflow-x: hidden; height: auto !important; }
         body {
             font-family: 'Patrick Hand', cursive;
             font-size: 1.15rem;
@@ -51,6 +51,8 @@
             color: #1a1a2e;
             overflow-x: hidden;
             position: relative;
+            height: auto !important;
+            min-height: auto !important;
         }
 
         /* ========== BODY WATERMARK ========== */
@@ -312,7 +314,7 @@
     <canvas id="physics-canvas"></canvas>
 
     <!-- ========== SECTION 1: HERO (Cyan) ========== -->
-    <section class="section-cyan min-h-screen relative flex items-center pt-[160px] md:pt-[140px]" id="hero">
+    <section class="section-cyan relative flex items-center pt-[160px] md:pt-[140px] pb-20" id="hero" style="min-height:800px;">
         <!-- Floating Emojis -->
         <span class="floating-emoji" style="top:18%;left:5%">⚽</span>
         <span class="floating-emoji" style="top:12%;right:35%">🏸</span>
@@ -2050,13 +2052,22 @@
     });
 
     // ============ AUTO-RESIZE ============
-    const _ro = new ResizeObserver(() => {
-        window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
-    });
+    function sendBodyHeight() {
+        const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+        window.parent.postMessage({ type: 'resize', height: h }, '*');
+    }
+    const _ro = new ResizeObserver(sendBodyHeight);
     _ro.observe(document.body);
     window.addEventListener('load', () => {
-        setTimeout(() => window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*'), 500);
-        setTimeout(() => window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*'), 2000);
+        sendBodyHeight();
+        setTimeout(sendBodyHeight, 500);
+        setTimeout(sendBodyHeight, 1500);
+        setTimeout(sendBodyHeight, 3000);
+        setTimeout(sendBodyHeight, 5000);
+    });
+    // Re-send on any image load
+    document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('load', sendBodyHeight);
     });
 
     // ============ LISTEN FOR LANG CHANGES FROM HEADER ============
