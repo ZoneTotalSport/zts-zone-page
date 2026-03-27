@@ -1,0 +1,2083 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTS Body</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: { electric: '#00E5FF' },
+                        yellow: { sun: '#FFD700' },
+                        pink: { fuchsia: '#FF2A7A' },
+                        violet: { pop: '#8B5CF6' },
+                        dark: '#0F0F2E',
+                    },
+                    fontFamily: {
+                        bangers: ['"Luckiest Guy"', 'cursive'],
+                        boogaloo: ['Boogaloo', 'cursive'],
+                        baloo: ['"Patrick Hand"', 'cursive'],
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
+            background-color: #ffffff;
+            color: #1a1a2e;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ========== BODY WATERMARK ========== */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 120%;
+            background-image: url('https://zone.zonetotalsport.ca/gym-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.08;
+            z-index: 0;
+            pointer-events: none;
+            will-change: transform;
+            transform: translateY(var(--gym-y, 0));
+        }
+        body > * { position: relative; z-index: 1; }
+
+        /* ========== SECTION BACKGROUNDS ========== */
+        .section-cyan { background: #00E5FF; }
+        .section-pink { background: #FF2A7A; color: #fff; }
+        .section-violet { background: #8B5CF6; color: #fff; }
+        .section-yellow { background: #FFD700; }
+        .section-gray { background: #F5F5F5; }
+        .section-dark { background: #0F0F2E; color: #fff; }
+
+        /* ========== WAVE DIVIDERS ========== */
+        .wave-divider { width: 100%; overflow: hidden; line-height: 0; position: relative; z-index: 2; }
+        .wave-divider svg { display: block; width: 100%; height: 70px; }
+        @media (max-width: 768px) { .wave-divider svg { height: 40px; } }
+
+        /* ========== HERO ========== */
+        .hero-title {
+            font-family: 'Luckiest Guy', cursive;
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: 0.04em;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #FFD700, #FF2A7A, #8B5CF6);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .floating-emoji {
+            position: absolute;
+            font-size: 2.5rem;
+            pointer-events: none;
+            will-change: transform;
+            z-index: 1;
+        }
+        @media (max-width: 768px) { .floating-emoji { font-size: 1.5rem; } }
+
+        /* ========== BUTTONS ========== */
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive; font-weight: 400; font-size: 1.15rem;
+            letter-spacing: 0.03em; border: none; cursor: pointer;
+            position: relative; overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary.btn-cyan { background: linear-gradient(135deg, #00E5FF, #00B8D4); color: #0F0F2E; box-shadow: 0 8px 30px rgba(0,229,255,0.3); }
+        .btn-primary.btn-pink { background: linear-gradient(135deg, #FF2A7A, #E91E63); color: #fff; box-shadow: 0 8px 30px rgba(255,42,122,0.3); }
+        .btn-primary.btn-yellow { background: linear-gradient(135deg, #FFD700, #FFA000); color: #0F0F2E; box-shadow: 0 8px 30px rgba(255,215,0,0.3); }
+        .btn-primary.btn-violet { background: linear-gradient(135deg, #8B5CF6, #7C3AED); color: #fff; box-shadow: 0 8px 30px rgba(139,92,246,0.3); }
+        .btn-primary.btn-dark { background: #0F0F2E; color: #fff; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+
+        .btn-outline-dark {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive; font-weight: 400; font-size: 1.15rem; letter-spacing: 0.03em;
+            background: transparent; border: 2px solid #0F0F2E; color: #0F0F2E; cursor: pointer;
+            transition: background 0.3s, color 0.3s;
+        }
+        .btn-outline-dark:hover { background: #0F0F2E; color: #fff; }
+
+        .magnetic-wrap { display: inline-block; position: relative; }
+
+        /* ========== SECTION TAG ========== */
+        .section-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 18px; border-radius: 8px;
+            font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+        }
+
+        /* ========== STAGGER GRID ========== */
+        @media (min-width: 1024px) {
+            .stagger-grid > :nth-child(even) { transform: translateY(40px); }
+        }
+
+        /* ========== SERVICE CARDS ========== */
+        .service-card {
+            border-radius: 24px; padding: 40px 28px;
+            position: relative; overflow: hidden;
+            transition: transform 0.1s ease-out, box-shadow 0.3s;
+            min-height: 320px;
+        }
+        .service-card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        .service-card .card-number {
+            position: absolute; top: -10px; right: -5px;
+            font-family: 'Luckiest Guy', cursive; font-size: 8rem; line-height: 1;
+            opacity: 0.12; pointer-events: none;
+        }
+
+        /* ========== SLOT MACHINE ========== */
+        .slot-window { height: 80px; overflow: hidden; position: relative; border-radius: 16px; }
+        .slot-strip { position: absolute; top: 0; left: 0; width: 100%; will-change: transform; }
+        .slot-item {
+            height: 80px; display: flex; align-items: center; justify-content: center;
+            font-family: 'Luckiest Guy', cursive; font-weight: 900; font-size: 1.4rem; white-space: nowrap;
+            color: #1a1a2e;
+        }
+
+        /* ========== TILT CARD ========== */
+        .tilt-card { transform-style: preserve-3d; perspective: 800px; }
+        .tilt-card-inner { transform-style: preserve-3d; transition: transform 0.1s ease-out; }
+        .tilt-card-inner .tilt-icon { transform: translateZ(40px); }
+        .tilt-card-inner .tilt-title { transform: translateZ(30px); }
+        .tilt-card-inner .tilt-desc { transform: translateZ(20px); }
+
+        /* ========== STATS ========== */
+        .stat-number { font-family: 'Luckiest Guy', cursive; font-weight: 900; font-size: 3rem; line-height: 1; }
+        @media (max-width: 768px) { .stat-number { font-size: 2rem; } }
+
+        /* ========== MARQUEE ========== */
+        .marquee-track { display: flex; animation: marquee 40s linear infinite; width: max-content; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .marquee-big .marquee-track { animation-duration: 20s; }
+
+        /* ========== CONFETTI ========== */
+        .confetti-piece { position: fixed; pointer-events: none; z-index: 99990; font-size: 1.6rem; will-change: transform, opacity; }
+        .explosion-ring { position: absolute; border-radius: 50%; border: 3px solid; pointer-events: none; will-change: transform, opacity; }
+
+        /* ========== GLOW PULSE ========== */
+        @keyframes glowPulse { 0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.3); } 50% { box-shadow: 0 0 40px rgba(255,215,0,0.6); } }
+        .glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
+
+        /* ========== TESTIMONIAL CARD ========== */
+        .testimonial-card {
+            background: #fff; border-radius: 24px; padding: 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 4px solid;
+        }
+        .testimonial-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+
+        /* ========== MISC ========== */
+        .icon-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: #00E5FF; color: #0F0F2E; }
+        .reveal { opacity: 0; transform: translateY(60px); }
+        @media (max-width: 768px) { .hero-title { font-size: 2.4rem !important; } }
+
+        /* ========== À LA UNE SECTION ========== */
+        .alaune-scroll {
+            display: flex; gap: 24px; overflow-x: auto; padding: 10px 4px 20px;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .alaune-scroll::-webkit-scrollbar { display: none; }
+        .alaune-card {
+            background: #fff; border-radius: 24px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+            overflow: hidden; transition: transform 0.25s, box-shadow 0.25s;
+            cursor: pointer; min-width: 300px; max-width: 320px; flex-shrink: 0;
+            scroll-snap-align: start;
+        }
+        .alaune-card:hover { transform: translateY(-8px); box-shadow: 0 16px 40px rgba(0,0,0,0.15); }
+        .alaune-card-img { width: 100%; height: 200px; object-fit: cover; }
+        .alaune-card-body { padding: 22px 24px 24px; }
+        .alaune-card-title { font-family: 'Fredoka One', cursive; font-size: 1.35rem; color: #18181b; margin-bottom: 6px; line-height: 1.2; }
+        .alaune-card-date { font-family: 'Patrick Hand', cursive; font-size: 0.95rem; color: #999; margin-bottom: 10px; }
+        .alaune-card-desc { font-family: 'Patrick Hand', cursive; font-size: 1.05rem; color: #555; line-height: 1.4; margin-bottom: 14px; }
+        .alaune-card-link {
+            font-family: 'Fredoka One', cursive; font-size: 1.05rem;
+            color: #18181b; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+            transition: gap 0.2s;
+        }
+        .alaune-card-link:hover { gap: 12px; }
+        @media (max-width: 768px) {
+            .alaune-card { min-width: 270px; max-width: 280px; }
+            .alaune-card-img { height: 160px; }
+        }
+
+        /* ========== TEASER IA SECTION ========== */
+        .ia-teaser-wrap { background: #00E5FF; position: relative; overflow: hidden; }
+        .ia-teaser-card {
+            background: #fff; border: 6px solid #18181b; border-radius: 24px;
+            box-shadow: 10px 10px 0 #18181b; padding: 40px 32px;
+            text-align: center; transform: rotate(-1deg);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative; overflow: visible;
+        }
+        .ia-teaser-card:hover { transform: rotate(0deg) scale(1.03); box-shadow: 14px 14px 0 #18181b; }
+        .ia-teaser-sticker {
+            position: absolute; top: -18px; right: -12px;
+            background: #FF2A7A; color: #fff;
+            font-family: 'Luckiest Guy', cursive; font-size: 0.7rem; letter-spacing: 0.1em;
+            padding: 6px 16px; border-radius: 20px;
+            border: 3px solid #18181b; box-shadow: 3px 3px 0 #18181b;
+            transform: rotate(8deg); z-index: 5;
+        }
+        .ia-teaser-emoji { font-size: 4rem; display: block; margin-bottom: 16px; filter: drop-shadow(3px 3px 0 rgba(0,0,0,0.15)); }
+        @media (max-width: 768px) { .ia-teaser-card { padding: 28px 20px; } }
+
+        /* ========== NOUVEAUTES CARDS ========== */
+        .news-card {
+            display: flex; align-items: center; gap: 16px;
+            background: #fff; border: 2px solid #e5e7eb;
+            border-radius: 16px; padding: 16px 20px;
+            transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .news-card:hover { border-color: #00E5FF; transform: translateX(6px); box-shadow: 0 4px 20px rgba(0,229,255,0.15); }
+        .news-date {
+            font-family: 'Fredoka One', cursive; font-size: 0.7rem;
+            background: linear-gradient(135deg, #00E5FF, #00B8D4);
+            color: #fff; padding: 6px 12px; border-radius: 10px;
+            white-space: nowrap; min-width: 100px; text-align: center;
+        }
+        .news-content { flex: 1; }
+        .news-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-family: 'Fredoka One', cursive; font-size: 0.8rem;
+            padding: 8px 18px; border-radius: 12px;
+            background: #00E5FF; color: #0F0F2E;
+            text-decoration: none; transition: all 0.2s;
+            white-space: nowrap; border: 2px solid #00E5FF;
+        }
+        .news-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,229,255,0.3); }
+        .news-btn.btn-yellow-outline { background: #FFD700; border-color: #FFD700; color: #0F0F2E; }
+        .news-btn.btn-yellow-outline:hover { box-shadow: 0 4px 12px rgba(255,215,0,0.4); }
+        .news-btn.btn-pink-outline { background: #FF2A7A; border-color: #FF2A7A; color: #fff; }
+        .news-btn.btn-pink-outline:hover { box-shadow: 0 4px 12px rgba(255,42,122,0.4); }
+        .news-btn.btn-violet-outline { background: #8B5CF6; border-color: #8B5CF6; color: #fff; }
+        .news-btn.btn-violet-outline:hover { box-shadow: 0 4px 12px rgba(139,92,246,0.4); }
+        @media (max-width: 768px) {
+            .news-card { flex-direction: column; align-items: flex-start; text-align: left; }
+            .news-date { min-width: auto; }
+        }
+
+        /* ========== PHYSICS CANVAS ========== */
+        #physics-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+    </style>
+</head>
+<body>
+
+    <!-- PHYSICS CANVAS -->
+    <canvas id="physics-canvas"></canvas>
+
+    <!-- ========== SECTION 1: HERO (Cyan) ========== -->
+    <section class="section-cyan min-h-screen relative flex items-center pt-[160px] md:pt-[140px]" id="hero">
+        <!-- Floating Emojis -->
+        <span class="floating-emoji" style="top:18%;left:5%">⚽</span>
+        <span class="floating-emoji" style="top:12%;right:35%">🏸</span>
+        <span class="floating-emoji" style="top:65%;left:8%">🎾</span>
+        <span class="floating-emoji" style="top:75%;right:5%">🏈</span>
+        <span class="floating-emoji" style="top:30%;right:8%">🏀</span>
+        <span class="floating-emoji" style="top:85%;left:30%">🥎</span>
+        <span class="floating-emoji" style="top:45%;left:2%">🏐</span>
+        <span class="floating-emoji" style="top:55%;right:30%">🏓</span>
+
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center px-6 md:px-10 pt-32 pb-24 relative z-10 gap-10">
+            <!-- Left: Text -->
+            <div class="lg:w-1/2 text-center lg:text-left">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 text-dark font-baloo font-semibold text-sm mb-6 reveal">
+                    <span class="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span>
+                    <span data-i18n="heroBadge">+500 ressources gratuites pour l'ÉPS</span>
+                </div>
+
+                <h1 class="hero-title text-5xl md:text-7xl lg:text-8xl mb-6 text-dark reveal" data-i18n="heroTitle">
+                    Ton gym,<br>
+                    <span style="color:#FF2A7A">tes règles.</span>
+                </h1>
+
+                <p class="text-lg md:text-xl text-dark/70 max-w-lg mb-10 font-baloo font-medium reveal" data-i18n="heroSub">
+                    La plateforme <strong class="text-dark">100% gratuite</strong> qui transforme tes cours d'éducation physique en expériences épiques.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 mb-12 justify-center lg:justify-start reveal">
+                    <div class="magnetic-wrap">
+                        <a href="#generateur" class="btn-primary btn-dark magnetic-btn">
+                            <i data-lucide="zap" class="w-5 h-5"></i> Générer un jeu
+                        </a>
+                    </div>
+                    <div class="magnetic-wrap">
+                        <a href="#services" class="btn-outline-dark magnetic-btn">
+                            <i data-lucide="compass" class="w-5 h-5"></i> Explorer
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 reveal">
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="547">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statJeux">Jeux</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="128">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statSae">SAÉ</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="2300">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statEns">Enseignants</div>
+                    </div>
+                    <div class="text-center lg:text-left">
+                        <div class="stat-number text-dark counter" data-target="100">0</div>
+                        <div class="text-dark/50 font-baloo text-sm" data-i18n="statGratuit">% Gratuit</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Mascot (hover swap) -->
+            <div class="lg:w-1/2 relative flex justify-center reveal">
+                <div class="relative cursor-pointer" id="mascotSwap"
+                     onmouseenter="this.querySelector('.mascot-default').style.opacity='0';this.querySelector('.mascot-hover').style.opacity='1'"
+                     onmouseleave="this.querySelector('.mascot-default').style.opacity='1';this.querySelector('.mascot-hover').style.opacity='0'">
+                    <img src="https://zone.zonetotalsport.ca/mascot-badminton.png" alt="Mascotte Zone Total Sport" class="mascot-default w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300">
+                    <img src="https://zone.zonetotalsport.ca/mascot-pingpong.png" alt="Mascotte Smash!" class="mascot-hover w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300 absolute inset-0 opacity-0">
+                </div>
+            </div>
+        </div>
+
+        <!-- Wave: Cyan → White -->
+        <div class="wave-divider absolute bottom-0 left-0">
+            <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+                <path d="M0,35 C240,70 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="#ffffff"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 2: SERVICE CARDS (White) ========== -->
+    <section class="py-24 px-6 md:px-10" id="services">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="section-tag bg-pink-fuchsia/10 text-pink-fuchsia mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="layers" class="w-4 h-4"></i> <span data-i18n="resTag">RESSOURCES</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="resTitle">
+                    Tout ce qu'il te faut,<br>
+                    <span style="color:#FF2A7A">au même endroit.</span>
+                </h2>
+                <p class="text-dark/50 font-baloo text-lg max-w-xl mx-auto reveal" data-i18n="resSub">
+                    Des centaines de ressources pensées par et pour les profs d'ÉPS du primaire.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 stagger-grid" id="jeux">
+                <!-- Card 1 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-cyan-electric text-dark h-full">
+                        <div class="card-number">1</div>
+                        <div class="tilt-icon icon-circle bg-white/30 text-dark mb-6">
+                            <i data-lucide="gamepad-2" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card1">Banque de Jeux</h3>
+                        <p class="tilt-desc text-dark/60 font-baloo text-sm mb-6" data-i18n="card1d">+500 jeux classés par catégorie, âge et compétence. Trouve le jeu parfait en secondes.</p>
+                        <a href="#" class="inline-flex items-center gap-2 text-dark font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card1a">
+                            Explorer <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-yellow-sun text-dark h-full">
+                        <div class="card-number">2</div>
+                        <div class="tilt-icon icon-circle bg-white/30 text-dark mb-6">
+                            <i data-lucide="book-open" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card2">SAÉ Complètes</h3>
+                        <p class="tilt-desc text-dark/60 font-baloo text-sm mb-6" data-i18n="card2d">Situations d'apprentissage clés en main alignées avec le PFEQ. Prêtes à utiliser demain.</p>
+                        <a href="#" class="inline-flex items-center gap-2 text-dark font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card2a">
+                            Découvrir <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-pink-fuchsia text-white h-full">
+                        <div class="card-number">3</div>
+                        <div class="tilt-icon icon-circle bg-white/20 text-white mb-6">
+                            <i data-lucide="pen-tool" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card3">Blogue ÉPS</h3>
+                        <p class="tilt-desc text-white/70 font-baloo text-sm mb-6" data-i18n="card3d">Articles, stratégies et réflexions sur l'enseignement de l'éducation physique au Québec.</p>
+                        <a href="https://zone.zonetotalsport.ca/blog.html" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card3a">
+                            Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="tilt-card reveal">
+                    <div class="tilt-card-inner service-card bg-violet-pop text-white h-full">
+                        <div class="card-number">4</div>
+                        <div class="tilt-icon icon-circle bg-white/20 text-white mb-6">
+                            <i data-lucide="clipboard-check" class="w-7 h-7"></i>
+                        </div>
+                        <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" data-i18n="card4">Gestion de Classe</h3>
+                        <p class="tilt-desc text-white/70 font-baloo text-sm mb-6" data-i18n="card4d">Outils, routines et systèmes pour un gymnase organisé et motivant. Fini le chaos!</p>
+                        <a href="#" class="inline-flex items-center gap-2 text-white font-bangers text-sm hover:gap-3 transition-all tracking-wide" data-i18n="card4a">
+                            Organiser <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 3: TEASER BANNER (White) ========== -->
+    <section class="py-12 px-6 md:px-10">
+        <div class="max-w-5xl mx-auto bg-cyan-electric/10 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 reveal">
+            <img src="https://zone.zonetotalsport.ca/mascot-tablet.png" alt="Mascotte" class="w-32 md:w-48 shrink-0">
+            <div class="text-center md:text-left">
+                <h3 class="font-bangers text-2xl md:text-3xl text-dark tracking-wide mb-2" data-i18n="teaserTitle">Découvre le générateur de jeux!</h3>
+                <p class="text-dark/60 font-baloo mb-4" data-i18n="teaserSub">50 jeux au hasard avec règles complètes. Parfait quand t'es en panne d'idées.</p>
+                <a href="#generateur" class="btn-primary btn-cyan magnetic-btn" data-i18n="teaserBtn">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i> Essayer le générateur
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 4: MARQUEE BIG + MISSION (White) ========== -->
+    <section class="py-16 overflow-hidden">
+        <div class="marquee-big mb-12">
+            <div class="marquee-track">
+                <div class="flex items-center gap-8 px-4 whitespace-nowrap">
+                    <span class="font-bangers text-5xl md:text-7xl text-pink-fuchsia tracking-wide">JEUX</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-yellow-sun tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-dark tracking-wide">ON PREND TON ÉPS</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-cyan-electric tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-pink-fuchsia tracking-wide">AU SÉRIEUX!</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-yellow-sun tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-violet-pop tracking-wide">SAÉ</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-cyan-electric tracking-wide">●</span>
+                </div>
+                <div class="flex items-center gap-8 px-4 whitespace-nowrap">
+                    <span class="font-bangers text-5xl md:text-7xl text-pink-fuchsia tracking-wide">JEUX</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-yellow-sun tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-dark tracking-wide">ON PREND TON ÉPS</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-cyan-electric tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-pink-fuchsia tracking-wide">AU SÉRIEUX!</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-yellow-sun tracking-wide">●</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-violet-pop tracking-wide">SAÉ</span>
+                    <span class="font-bangers text-5xl md:text-7xl text-cyan-electric tracking-wide">●</span>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-3xl mx-auto text-center px-6 reveal">
+            <p class="text-dark/60 font-baloo text-lg leading-relaxed" data-i18n="mission">
+                Zone Total Sport, c'est une plateforme créée par <strong class="text-dark">des enseignants d'ÉPS du Québec</strong>, pour les enseignants d'ÉPS. Chaque jeu, chaque SAÉ et chaque outil a été testé sur le terrain. Notre mission : te simplifier la vie et rendre tes cours inoubliables.
+            </p>
+        </div>
+    </section>
+
+    <!-- Wave: White → Pink -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C360,70 720,0 1080,35 C1260,55 1440,25 1440,25 L1440,70 L0,70 Z" fill="#FF2A7A"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 5: WHY US (Pink) ========== -->
+    <section class="section-pink py-20 px-6 md:px-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-14">
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal" data-i18n="whyTitle">
+                    Ce qui rend la Zone<br>
+                    <span style="color:#FFD700">différente.</span>
+                </h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-3xl p-8 text-center text-dark reveal">
+                    <div class="text-5xl mb-4">🚀</div>
+                    <h3 class="font-bangers text-xl mb-3 tracking-wide" data-i18n="why1">Gratuit. Pour vrai.</h3>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="why1d">Pas de freemium, pas de paywall. Toutes les ressources sont accessibles à 100% sans créer de compte.</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 text-center text-dark reveal">
+                    <div class="text-5xl mb-4">🎯</div>
+                    <h3 class="font-bangers text-xl mb-3 tracking-wide" data-i18n="why2">Par des profs, pour des profs</h3>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="why2d">Chaque jeu et SAÉ est créé et testé par des enseignants du Québec. Du terrain, pas du bureau.</p>
+                </div>
+                <div class="bg-white rounded-3xl p-8 text-center text-dark reveal">
+                    <div class="text-5xl mb-4">⚡</div>
+                    <h3 class="font-bangers text-xl mb-3 tracking-wide" data-i18n="why3">Prêt en 2 minutes</h3>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="why3d">Trouve un jeu, lis les règles, c'est parti. Toutes les ressources sont conçues pour être utilisables immédiatement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: Pink → Gray -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C240,0 480,70 720,35 C960,0 1200,70 1440,35 L1440,70 L0,70 Z" fill="#F5F5F5"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 6: SLOT MACHINE (Gray) ========== -->
+    <section class="section-gray py-24 px-6 md:px-10 relative overflow-hidden" id="generateur">
+        <!-- Gym parallax background -->
+        <div id="gymSlotBg" class="absolute inset-0 z-0 pointer-events-none" style="background:url('https://zone.zonetotalsport.ca/gym-bg.jpg') center/cover no-repeat;opacity:0.07;will-change:transform;height:140%"></div>
+        <div class="max-w-4xl mx-auto relative z-10">
+            <div class="text-center mb-12">
+                <div class="section-tag bg-yellow-sun/20 text-dark mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> <span data-i18n="slotTag">GÉNÉRATEUR</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="slotTitle">
+                    Pas d'idée?<br>
+                    <span style="color:#FF2A7A">On s'en occupe.</span>
+                </h2>
+                <p class="text-dark/50 font-baloo text-lg max-w-xl mx-auto reveal" data-i18n="slotSub">
+                    Clique sur GO et laisse la magie opérer. Un jeu au hasard, parfait pour ta prochaine période!
+                </p>
+            </div>
+
+            <div class="bg-white rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-lg reveal" id="slotBox">
+                <div class="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-cyan-electric/30 rounded-tl-lg"></div>
+                <div class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-cyan-electric/30 rounded-tr-lg"></div>
+                <div class="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-cyan-electric/30 rounded-bl-lg"></div>
+                <div class="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-cyan-electric/30 rounded-br-lg"></div>
+
+                <div class="text-6xl mb-6">🎰</div>
+
+                <div class="slot-window bg-gray-100 rounded-2xl mb-8 max-w-lg mx-auto border border-gray-200" id="slotWindow">
+                    <div class="slot-strip" id="slotStrip"></div>
+                </div>
+
+                <div class="hidden mb-6" id="slotResult">
+                    <div class="text-sm text-dark/40 font-baloo mb-2" data-i18n="slotResult">Ton jeu du moment :</div>
+                    <div class="font-bangers text-2xl md:text-3xl text-pink-fuchsia mb-4" id="slotResultText"></div>
+                    <div class="bg-cyan-electric/10 rounded-2xl p-5 max-w-lg mx-auto text-left" id="slotResultDesc">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i data-lucide="info" class="w-4 h-4 text-cyan-electric"></i>
+                            <span class="font-bangers text-sm text-cyan-electric tracking-wide" data-i18n="slotHow">Comment jouer</span>
+                        </div>
+                        <p class="text-dark/70 font-baloo text-sm leading-relaxed" id="slotResultDescText"></p>
+                        <div class="flex flex-wrap gap-3 mt-3" id="slotResultTags"></div>
+                    </div>
+                </div>
+
+                <div class="magnetic-wrap">
+                    <button class="btn-primary btn-yellow text-xl !py-5 !px-14 magnetic-btn glow-pulse" id="slotGoBtn" onclick="spinSlot()">
+                        <i data-lucide="zap" class="w-6 h-6"></i> GO !
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 7: TESTIMONIALS (Gray → White) ========== -->
+    <section class="section-gray pt-8 pb-24 px-6 md:px-10" id="temoignages">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="section-tag bg-violet-pop/10 text-violet-pop mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i> <span data-i18n="testTag">TÉMOIGNAGES</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="testTitle">
+                    Ce qu'ils en<br>
+                    <span style="color:#8B5CF6">pensent.</span>
+                </h2>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="testimonial-card reveal" style="border-color:#00E5FF">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-electric to-violet-pop flex items-center justify-center font-bangers text-lg text-white">MC</div>
+                        <div>
+                            <div class="font-bangers tracking-wide">Marie-Claude</div>
+                            <div class="text-dark/40 font-baloo text-sm" data-i18n="test1role">Enseignante ÉPS, Laval</div>
+                        </div>
+                    </div>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="test1">"J'utilise Zone Total Sport chaque semaine pour planifier mes cours. La banque de jeux est une mine d'or! Mes élèves adorent les nouveaux jeux."</p>
+                    <div class="flex gap-1 mt-4 text-yellow-sun">★★★★★</div>
+                </div>
+                <div class="testimonial-card reveal" style="border-color:#FFD700">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-sun to-pink-fuchsia flex items-center justify-center font-bangers text-lg text-dark">PL</div>
+                        <div>
+                            <div class="font-bangers tracking-wide">Pierre-Luc</div>
+                            <div class="text-dark/40 font-baloo text-sm" data-i18n="test2role">Enseignant ÉPS, Québec</div>
+                        </div>
+                    </div>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="test2">"Le générateur de jeux est génial quand je suis en panne d'inspiration. En un clic, j'ai une activité prête à lancer. Merci pour cette ressource!"</p>
+                    <div class="flex gap-1 mt-4 text-yellow-sun">★★★★★</div>
+                </div>
+                <div class="testimonial-card reveal" style="border-color:#FF2A7A">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-fuchsia to-cyan-electric flex items-center justify-center font-bangers text-lg text-white">SK</div>
+                        <div>
+                            <div class="font-bangers tracking-wide">Sarah K.</div>
+                            <div class="text-dark/40 font-baloo text-sm" data-i18n="test3role">Étudiante BÉPEP, Montréal</div>
+                        </div>
+                    </div>
+                    <p class="text-dark/60 font-baloo text-sm" data-i18n="test3">"Indispensable pour mes stages! Les SAÉ sont alignées avec le programme et faciles à adapter. Le site est devenu ma référence numéro un."</p>
+                    <div class="flex gap-1 mt-4 text-yellow-sun">★★★★★</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 7.5: À LA UNE (Gym parallax) ========== -->
+    <section class="py-20 px-6 md:px-10" id="alaune" style="position:relative;overflow:hidden;background:#f5f5f5">
+        <div style="position:absolute;inset:0;background-image:url('https://zone.zonetotalsport.ca/gym-bg.jpg');background-size:cover;background-position:center;background-attachment:fixed;opacity:0.12;pointer-events:none;z-index:0"></div>
+        <div class="max-w-7xl mx-auto" style="position:relative;z-index:1">
+            <div class="text-center mb-12">
+                <div class="section-tag bg-pink-fuchsia/10 text-pink-fuchsia mb-4 reveal mx-auto w-fit">
+                    <i data-lucide="rocket" class="w-5 h-5"></i> <span data-i18n="aluneTag">À VENIR</span>
+                </div>
+                <h2 style="font-family:'Fredoka One',cursive;font-size:clamp(2rem,5vw,3.5rem);line-height:1.1;color:#18181b" class="mb-4 reveal" data-i18n="aluneTitle">
+                    Ce qui s'en vient<br>
+                    <span class="gradient-text">dans la Zone!</span>
+                </h2>
+                <p class="font-baloo text-xl text-dark/50 max-w-xl mx-auto reveal" data-i18n="aluneSub">
+                    Des nouveautés excitantes arrivent bientôt pour tes cours d'ÉPS!
+                </p>
+            </div>
+
+            <div class="alaune-scroll">
+                <!-- Card 1: Générateur IA v2 -->
+                <div class="alaune-card reveal" onclick="openIaPopup()">
+                    <div style="height:200px;background:linear-gradient(135deg,#00E5FF,#0099CC);display:flex;align-items:center;justify-content:center">
+                        <img src="https://zone.zonetotalsport.ca/mascot-tablet.png" alt="Mascotte" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2))">
+                    </div>
+                    <div class="alaune-card-body">
+                        <div class="alaune-card-title" data-i18n="aluneC1">Générateur IA v2</div>
+                        <div class="alaune-card-date" data-i18n="aluneD1">Printemps 2026</div>
+                        <p class="alaune-card-desc" data-i18n="aluneC1d">La version 2 du générateur avec encore plus d'options et de personnalisation!</p>
+                        <span class="alaune-card-link">En savoir plus <span>→</span></span>
+                    </div>
+                </div>
+
+                <!-- Card 2: App Mobile -->
+                <div class="alaune-card reveal" onclick="openGatePopup('https://www.zonetotalsport.ca')">
+                    <div style="height:200px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center">
+                        <img src="https://zone.zonetotalsport.ca/mascot-pingpong.png" alt="Mascotte" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2))">
+                    </div>
+                    <div class="alaune-card-body">
+                        <div class="alaune-card-title" data-i18n="aluneC2">Application Mobile</div>
+                        <div class="alaune-card-date" data-i18n="aluneD2">Été 2026</div>
+                        <p class="alaune-card-desc" data-i18n="aluneC2d">Accède à toutes les ressources directement depuis ton téléphone, même au gymnase!</p>
+                        <span class="alaune-card-link">En savoir plus <span>→</span></span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Mode collaboratif -->
+                <div class="alaune-card reveal" onclick="openGatePopup('https://www.zonetotalsport.ca')">
+                    <div style="height:200px;background:linear-gradient(135deg,#34D399,#059669);display:flex;align-items:center;justify-content:center">
+                        <img src="https://zone.zonetotalsport.ca/mascot-badminton.png" alt="Mascotte" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2))">
+                    </div>
+                    <div class="alaune-card-body">
+                        <div class="alaune-card-title" data-i18n="aluneC3">Mode Collaboratif</div>
+                        <div class="alaune-card-date" data-i18n="aluneD3">Automne 2026</div>
+                        <p class="alaune-card-desc" data-i18n="aluneC3d">Partage et co-crée des jeux avec d'autres enseignants d'ÉPS partout au Québec!</p>
+                        <span class="alaune-card-link">En savoir plus <span>→</span></span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Tableau de bord -->
+                <div class="alaune-card reveal" onclick="openGatePopup('https://www.zonetotalsport.ca')">
+                    <div style="height:200px;background:linear-gradient(135deg,#FFD700,#FFA500);display:flex;align-items:center;justify-content:center">
+                        <img src="https://zone.zonetotalsport.ca/mascot-badminton.png" alt="Mascotte" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2));transform:scaleX(-1)">
+                    </div>
+                    <div class="alaune-card-body">
+                        <div class="alaune-card-title" data-i18n="aluneC4">Tableau de Bord</div>
+                        <div class="alaune-card-date" data-i18n="aluneD4">Hiver 2027</div>
+                        <p class="alaune-card-desc" data-i18n="aluneC4d">Suis ta progression, tes jeux favoris et tes stats de cours en un coup d'oeil!</p>
+                        <span class="alaune-card-link">En savoir plus <span>→</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="text-center mt-10 reveal">
+                <p class="font-baloo text-dark/40 text-lg mb-4" data-i18n="aluneCta">Tu veux accéder à tout ça et bien plus?</p>
+                <div class="magnetic-wrap inline-block">
+                    <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="btn-primary btn-pink magnetic-btn" data-i18n="aluneBtn">
+                        <i data-lucide="crown" class="w-5 h-5"></i> Devenir membre gratuitement
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== SECTION 8: GAME NAMES MARQUEE (White) ========== -->
+    <section class="py-10 overflow-hidden bg-white">
+        <div class="text-center mb-6">
+            <span class="font-bangers text-sm text-dark/30 tracking-widest uppercase" data-i18n="marqueeLabel">Nos jeux populaires</span>
+        </div>
+        <div class="marquee-track">
+            <div class="flex items-center gap-8 px-4 text-dark/40 font-baloo font-medium text-sm whitespace-nowrap">
+                <span>⚽ Ballon-Chasseur</span><span class="text-cyan-electric">●</span>
+                <span>🏀 Basketball Spatial</span><span class="text-yellow-sun">●</span>
+                <span>🎾 Tennis-Relais</span><span class="text-pink-fuchsia">●</span>
+                <span>🏈 Flag Football</span><span class="text-violet-pop">●</span>
+                <span>🏐 Volley-Mousse</span><span class="text-cyan-electric">●</span>
+                <span>🥎 Balle Molle</span><span class="text-yellow-sun">●</span>
+                <span>🏸 Badminton Fun</span><span class="text-pink-fuchsia">●</span>
+                <span>🏓 Ping Pong Relais</span><span class="text-violet-pop">●</span>
+                <span>⚽ Loup Glacé</span><span class="text-cyan-electric">●</span>
+                <span>🏀 Dodgeball Cosmique</span><span class="text-yellow-sun">●</span>
+            </div>
+            <div class="flex items-center gap-8 px-4 text-dark/40 font-baloo font-medium text-sm whitespace-nowrap">
+                <span>⚽ Ballon-Chasseur</span><span class="text-cyan-electric">●</span>
+                <span>🏀 Basketball Spatial</span><span class="text-yellow-sun">●</span>
+                <span>🎾 Tennis-Relais</span><span class="text-pink-fuchsia">●</span>
+                <span>🏈 Flag Football</span><span class="text-violet-pop">●</span>
+                <span>🏐 Volley-Mousse</span><span class="text-cyan-electric">●</span>
+                <span>🥎 Balle Molle</span><span class="text-yellow-sun">●</span>
+                <span>🏸 Badminton Fun</span><span class="text-pink-fuchsia">●</span>
+                <span>🏓 Ping Pong Relais</span><span class="text-violet-pop">●</span>
+                <span>⚽ Loup Glacé</span><span class="text-cyan-electric">●</span>
+                <span>🏀 Dodgeball Cosmique</span><span class="text-yellow-sun">●</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: White → Cyan (Teaser IA) -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,25 C360,60 720,0 1080,40 C1260,55 1440,15 1440,15 L1440,70 L0,70 Z" fill="#00E5FF"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 8.5: TEASER GÉNÉRATEUR IA (Cyan) ========== -->
+    <section class="ia-teaser-wrap py-24 px-6 md:px-10">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-14">
+                <div class="section-tag bg-white/20 text-dark mb-4 reveal mx-auto w-fit" style="border:3px solid #18181b;box-shadow:3px 3px 0 #18181b;background:#FFD700">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> <span data-i18n="iaTag">NOUVEAUTÉ</span>
+                </div>
+                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="iaTitle">
+                    Le futur de l'ÉPS<br>
+                    <span style="color:#FF2A7A">est arrivé!</span>
+                </h2>
+                <p class="text-dark/60 font-baloo text-2xl md:text-3xl max-w-2xl mx-auto reveal" data-i18n="iaSub">
+                    L'intelligence artificielle débarque dans la Zone. Prépare-toi!
+                </p>
+            </div>
+
+            <div class="ia-teaser-card reveal" onclick="openIaPopup()" id="iaTeaser">
+                <div class="ia-teaser-sticker" data-i18n="iaBadge">YOUHOU!</div>
+                <div class="ia-teaser-emoji">🤖</div>
+                <h3 class="font-bangers text-2xl md:text-3xl text-dark tracking-wide mb-3" data-i18n="iaCardTitle">Générateur de Jeux IA</h3>
+                <p class="text-dark/60 font-baloo text-base mb-6 max-w-md mx-auto" data-i18n="iaCardDesc">
+                    Décris ton contexte, ton groupe et tes objectifs — l'IA crée un jeu sur mesure en quelques secondes. C'est magique!
+                </p>
+                <div class="magnetic-wrap inline-block">
+                    <button class="btn-primary btn-pink magnetic-btn" onclick="openIaPopup()" data-i18n="iaCardBtn">
+                        <i data-lucide="zap" class="w-5 h-5"></i> Découvrir le Générateur IA
+                    </button>
+                </div>
+                <!-- Floating emojis decoration -->
+                <div style="position:absolute;top:12px;left:16px;font-size:1.8rem;opacity:0.15;transform:rotate(-15deg);pointer-events:none">⚽</div>
+                <div style="position:absolute;bottom:12px;right:16px;font-size:1.8rem;opacity:0.15;transform:rotate(10deg);pointer-events:none">🏀</div>
+                <div style="position:absolute;top:50%;left:-8px;font-size:1.3rem;opacity:0.12;transform:rotate(-25deg);pointer-events:none">🎾</div>
+                <div style="position:absolute;top:30%;right:8px;font-size:1.3rem;opacity:0.12;transform:rotate(20deg);pointer-events:none">🏐</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: Cyan → Violet -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,35 C360,70 720,0 1080,35 C1260,55 1440,20 1440,20 L1440,70 L0,70 Z" fill="#8B5CF6"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 9: DONATION CTA (Violet) ========== -->
+    <section class="section-violet py-24 px-6 md:px-10 relative" id="don">
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <div class="text-6xl mb-6">💛</div>
+            <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal" data-i18n="donTitle">
+                Soutiens la<br>
+                <span style="color:#FFD700">Zone!</span>
+            </h2>
+            <p class="text-white/70 font-baloo text-lg max-w-xl mx-auto mb-10 reveal" data-i18n="donSub">
+                Zone Total Sport est 100% gratuit et le restera. Un petit don nous aide à continuer de créer du contenu de qualité pour les profs d'ÉPS.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center reveal">
+                <div class="magnetic-wrap">
+                    <a href="https://zone.zonetotalsport.ca/wix/donation.html" class="btn-primary btn-pink magnetic-btn physics-trigger" data-emoji-set="sports" data-i18n="donBtn1" style="display:inline-flex;text-decoration:none;">
+                        <i data-lucide="heart" class="w-5 h-5"></i> Faire un don
+                    </a>
+                </div>
+                <div class="magnetic-wrap">
+                    <button class="btn-primary btn-yellow magnetic-btn physics-trigger" data-emoji-set="stars" data-i18n="donBtn2">
+                        <i data-lucide="share-2" class="w-5 h-5"></i> Partager le site
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave: Violet → Yellow -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" preserveAspectRatio="none">
+            <path d="M0,0 L1440,50 L1440,70 L0,70 Z" fill="#FFD700"/>
+        </svg>
+    </div>
+
+    <!-- ========== SECTION 9.5: NOUVEAUTES (White) ========== -->
+    <section class="py-16 px-6 md:px-10 bg-white" id="nouveautes">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-10">
+                <span class="inline-block bg-pink-fuchsia/10 text-pink-fuchsia font-fredoka text-sm px-4 py-1 rounded-full mb-3">
+                    <i data-lucide="sparkles" class="w-4 h-4 inline-block mr-1"></i> QUOI DE NEUF?
+                </span>
+                <h2 class="hero-title text-4xl md:text-5xl text-dark" data-i18n="newsTitle">Nouveautes</h2>
+                <p class="font-baloo text-dark/60 mt-2" data-i18n="newsDesc">Les dernieres mises a jour du site</p>
+            </div>
+            <div class="space-y-4" id="newsList">
+                <!-- Item 1 -->
+                <div class="news-card">
+                    <div class="news-date">23 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">150 nouveaux jeux dans le generateur!</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Zombie, Ninja, Minecraft, Battle Royale, Superheros et plus — des jeux ultra cool pour le gym.</p>
+                    </div>
+                    <a href="#jeux" class="news-btn">
+                        <i data-lucide="gamepad-2" class="w-4 h-4"></i> Essayer
+                    </a>
+                </div>
+                <!-- Item 2 -->
+                <div class="news-card">
+                    <div class="news-date">22 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Page de dons avec PayPal</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Dons uniques ou mensuels pour supporter la Zone. Paiement securise via PayPal.</p>
+                    </div>
+                    <a href="https://zone.zonetotalsport.ca/wix/donation.html" class="news-btn btn-yellow-outline">
+                        <i data-lucide="heart" class="w-4 h-4"></i> Voir
+                    </a>
+                </div>
+                <!-- Item 3 -->
+                <div class="news-card">
+                    <div class="news-date">21 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Page d'avis en ligne</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Les enseignants peuvent maintenant laisser un avis et une note sur la plateforme.</p>
+                    </div>
+                    <a href="https://zone.zonetotalsport.ca/avis.html" class="news-btn btn-pink-outline">
+                        <i data-lucide="star" class="w-4 h-4"></i> Voir
+                    </a>
+                </div>
+                <!-- Item 4 -->
+                <div class="news-card">
+                    <div class="news-date">20 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Politique de confidentialite</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Transparence sur l'utilisation des donnees et la protection de la vie privee.</p>
+                    </div>
+                    <a href="https://zone.zonetotalsport.ca/politique.html" class="news-btn btn-violet-outline">
+                        <i data-lucide="shield" class="w-4 h-4"></i> Lire
+                    </a>
+                </div>
+                <!-- Item 5 -->
+                <div class="news-card">
+                    <div class="news-date">19 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Site multilingue FR / EN / ZH</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Le site est maintenant disponible en francais, anglais et chinois simplifie.</p>
+                    </div>
+                    <a href="#" class="news-btn">
+                        <i data-lucide="globe" class="w-4 h-4"></i> Top!
+                    </a>
+                </div>
+                <!-- Item 6 -->
+                <div class="news-card">
+                    <div class="news-date">18 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Scores sportifs en direct</h3>
+                        <p class="font-baloo text-dark/60 text-sm">NHL, NBA, NFL, MLB, MLS — scores en temps reel directement sur le site.</p>
+                    </div>
+                    <a href="#" onclick="document.querySelector('.sports-ticker-wrap').scrollIntoView({behavior:'smooth'});return false" class="news-btn btn-yellow-outline">
+                        <i data-lucide="trophy" class="w-4 h-4"></i> Voir
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wave before footer -->
+    <div class="wave-divider">
+        <svg viewBox="0 0 1440 70" fill="none"><path d="M0 40 C 360 0, 720 70, 1440 30 L1440 70 L0 70Z" fill="#FFD700"/></svg>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ============ JAVASCRIPT ================== -->
+    <!-- ========================================== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ============ INIT LUCIDE ============
+        lucide.createIcons();
+
+        // ============ MAGNETIC BUTTONS ============
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', e => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: 'power2.out' });
+            });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+            });
+        });
+
+        // ============ FLOATING EMOJIS ============
+        document.querySelectorAll('.floating-emoji').forEach((emoji, i) => {
+            gsap.to(emoji, {
+                y: gsap.utils.random(-30, 30), x: gsap.utils.random(-20, 20),
+                rotation: gsap.utils.random(-15, 15),
+                duration: gsap.utils.random(3, 6), repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.3
+            });
+        });
+
+        // ============ GSAP SCROLL REVEALS ============
+        gsap.registerPlugin(ScrollTrigger);
+        const isInIframe = window.self !== window.top;
+
+        gsap.utils.toArray('.reveal').forEach((el, i) => {
+            if (isInIframe) {
+                gsap.fromTo(el, { opacity: 0, y: 30 }, {
+                    opacity: 1, y: 0, duration: 0.6, ease: 'power3.out',
+                    delay: i * 0.05
+                });
+            } else {
+                gsap.fromTo(el, { opacity: 0, y: 60 }, {
+                    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+                    scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' },
+                    delay: i % 4 * 0.1
+                });
+            }
+        });
+
+        // Fallback: force-show after 3s
+        setTimeout(() => {
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (getComputedStyle(el).opacity === '0') {
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                }
+            });
+        }, 3000);
+
+        // ============ STAT COUNTERS ============
+        document.querySelectorAll('.counter').forEach(counter => {
+            const target = +counter.dataset.target;
+            if (isInIframe) {
+                gsap.to(counter, {
+                    innerText: target, duration: 2, ease: 'power2.out', snap: { innerText: 1 },
+                    delay: 0.5,
+                    onUpdate() { counter.textContent = Math.round(parseFloat(counter.textContent)).toLocaleString('fr-CA'); }
+                });
+            } else {
+                ScrollTrigger.create({
+                    trigger: counter, start: 'top 85%',
+                    onEnter: () => {
+                        gsap.to(counter, {
+                            innerText: target, duration: 2, ease: 'power2.out', snap: { innerText: 1 },
+                            onUpdate() { counter.textContent = Math.round(parseFloat(counter.textContent)).toLocaleString('fr-CA'); }
+                        });
+                    }, once: true
+                });
+            }
+        });
+
+        // ============ 3D TILT CARDS ============
+        document.querySelectorAll('.tilt-card').forEach(card => {
+            const inner = card.querySelector('.tilt-card-inner');
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                gsap.to(inner, { rotateY: x * 20, rotateX: -y * 20, duration: 0.3, ease: 'power2.out', transformPerspective: 800 });
+            });
+            card.addEventListener('mouseleave', () => {
+                gsap.to(inner, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+            });
+        });
+
+        // ============ SLOT MACHINE (150 GAMES) ============
+        const gamesI18n = {
+    fr: [
+        { name: '🧟 Invasion Zombie', desc: 'Un zombie (dossard) touche les joueurs qui deviennent zombies. Les survivants doivent atteindre la zone securitaire avant la fin du temps.', tags: ['Esquive', 'Tous ages', 'Dossards'] },
+        { name: '🥷 Ninja Furtif', desc: 'Les ninjas doivent traverser le gym sans se faire reperer par les gardiens. Si un gardien te pointe, tu geles sur place 5 secondes.', tags: ['Strategie', ' 2e-3e cycle', 'Sans materiel'] },
+        { name: '⚽ Foot-Bowling', desc: 'Botter un ballon mousse pour faire tomber des quilles placees en triangle. Chaque equipe a 3 essais par manche.', tags: ['Precision', 'Tous ages', 'Ballons mousse'] },
+        { name: '🏀 Basketball Cosmique', desc: 'Match de basketball ou chaque panier marque vaut le numero de la zone (1-2-3 pts). Les zones changent a chaque sifflet.', tags: ['Equipe', '3e cycle', 'Ballons'] },
+        { name: '🦖 Chasse aux Dinosaures', desc: 'Les chasseurs lancent des balles mousse sur les dinosaures (porteurs de dossards). Les dinos touches vont au "musee" et peuvent etre liberes par un coequipier.', tags: ['Lancer', '1er-2e cycle', 'Ballons mousse'] },
+        { name: '🏴‍☠️ Tresor des Pirates', desc: 'Deux equipes de pirates protegent leur tresor (ballon) tout en essayant de voler celui de l\'adversaire. Pas de contact!', tags: ['Strategie', '2e-3e cycle', 'Ballons'] },
+        { name: '🚀 Course Spatiale', desc: 'Relais en equipe ou chaque coureur transporte un "asteroide" (ballon mousse) a travers un parcours d\'obstacles pour le deposer sur la "planete" (cerceau).', tags: ['Relais', '1er-2e cycle', 'Cerceaux'] },
+        { name: '🤸 Parcours Superheros', desc: 'Circuit de 8 stations inspirees de superheros: saut de Spider-Man, roulade de Flash, planche de Superman, etc.', tags: ['Parcours', 'Tous ages', 'Tapis'] },
+        { name: '🎯 Dodgeball Royale', desc: 'Chacun pour soi! Derniere personne debout gagne. Les joueurs touches s\'assoient mais peuvent attraper un ballon au sol pour revenir.', tags: ['Esquive', '2e-3e cycle', 'Ballons mousse'] },
+        { name: '🏈 Flag Football Simplifie', desc: 'Match de flag football adapte: 4 contre 4, terrain reduit, pas de placages. Arracher le dossard du porteur pour l\'arreter.', tags: ['Equipe', '3e cycle', 'Dossards'] },
+        { name: '🏐 Volley-Ballon Geant', desc: 'Volleyball avec un ballon de plage geant. L\'equipe au complet doit toucher le ballon avant de le renvoyer.', tags: ['Cooperation', '2e-3e cycle', 'Ballon geant'] },
+        { name: '🧊 Freeze Dance Battle', desc: 'Quand la musique joue, tout le monde danse. A l\'arret, on gele! Le dernier a s\'immobiliser fait 5 jumping jacks.', tags: ['Danse', '1er cycle', 'Musique'] },
+        { name: '🕵️ Espions en Mission', desc: 'Les espions rampent sous les "lasers" (cordes tendues) et roulent par-dessus les obstacles pour recuperer le document secret.', tags: ['Parcours', '2e-3e cycle', 'Cordes'] },
+        { name: '⛏️ Minecraft Builders', desc: 'Les equipes ramassent des "blocs" (sacs de feves) pour construire la plus haute tour dans leur zone. Attention aux Creepers qui peuvent les voler!', tags: ['Strategie', '1er-2e cycle', 'Sacs de feves'] },
+        { name: '🏃 Sprint des Elements', desc: 'L\'enseignant crie Feu, Eau, Terre ou Air. Chaque element correspond a une action: courir, nager au sol, ramper, sauter.', tags: ['Cardio', '1er cycle', 'Sans materiel'] },
+        { name: '🤾 Handball Express', desc: 'Match de handball 5 contre 5 avec regles simplifiees: 3 pas max, pas de dribble, but en lancer.', tags: ['Equipe', '3e cycle', 'Ballons mousse'] },
+        { name: '🎭 Miroir Magique', desc: 'En duo, un meneur fait des mouvements que le miroir doit copier en simultane. On change de role toutes les 30 secondes.', tags: ['Coordination', '1er cycle', 'Sans materiel'] },
+        { name: '🏋️ Defi des Titans', desc: 'Circuit de force: pompes araignee, squats sautes, planche 20 sec, burpees, mountain climbers. Qui finit le premier?', tags: ['Force', '3e cycle', 'Tapis'] },
+        { name: '🧗 Escalade Imaginaire', desc: 'Les enfants grimpent un "mur" imaginaire en suivant les instructions: main droite haute, pied gauche a droite. Travail d\'ecoute et coordination.', tags: ['Coordination', '1er cycle', 'Espalier'] },
+        { name: '🎪 Cirque du Gym', desc: 'Ateliers rotatifs: jonglerie (foulards), equilibre (poutre basse), acrobaties (roulades), funambule (ligne au sol).', tags: ['Equilibre', '2e cycle', 'Foulards'] },
+        { name: '🏸 Badminton Ballon', desc: 'Badminton adapte avec des ballons de baudruche. Plus facile a frapper et ca ralentit le jeu pour les debutants.', tags: ['Precision', '1er-2e cycle', 'Ballons baudruche'] },
+        { name: '🐉 Queue du Dragon', desc: 'Chaque equipe forme une file en se tenant par les epaules. La tete du dragon doit attraper la queue de l\'autre dragon.', tags: ['Equipe', 'Tous ages', 'Dossards'] },
+        { name: '🏊 Natation sur Terre', desc: 'Les eleves imitent differentes nages sur des tapis: crawl, dos, brasse, papillon. Course de "natation" a relais!', tags: ['Cardio', '1er cycle', 'Tapis'] },
+        { name: '🤺 Duel de Chevaliers', desc: 'Deux joueurs sur une poutre basse tentent de desequilibrer l\'adversaire avec un coussin mousse. Le premier a poser le pied au sol perd.', tags: ['Equilibre', '2e-3e cycle', 'Poutre basse'] },
+        { name: '🎯 Frisbee Golf', desc: 'Parcours de 6 trous avec des cerceaux comme cibles. Lancer le frisbee en un minimum de lancers pour toucher chaque cible.', tags: ['Precision', '2e-3e cycle', 'Frisbees'] },
+        { name: '🦸 Capture du Drapeau Extreme', desc: 'Capture classique mais avec des super-pouvoirs: un bouclier (cerceau) qui bloque un tagger, une invisibilite (5 sec par partie).', tags: ['Strategie', '2e-3e cycle', 'Dossards'] },
+        { name: '🏓 Tennis de Table Geant', desc: 'Ping-pong version gym: grande table (tapis empiles), raquettes de plage, balle mousse. En double obligatoirement.', tags: ['Reflexes', '2e-3e cycle', 'Raquettes'] },
+        { name: '🧘 Yoga des Animaux', desc: 'L\'enseignant nomme un animal et les eleves font la posture correspondante: chat, chien tete en bas, cobra, aigle, arbre.', tags: ['Yoga', '1er cycle', 'Tapis'] },
+        { name: '🌪️ Tornade Humaine', desc: 'En cercle de 6, tout le monde se tient les mains. Il faut se demeler sans lacher prise pour former un grand cercle.', tags: ['Cooperation', '2e cycle', 'Sans materiel'] },
+        { name: '🎮 Battle Royale Gym', desc: 'Tous dans le gym, l\'aire de jeu retrecit chaque minute (cones). Les joueurs touches sortent. Dernier survivant gagne!', tags: ['Esquive', '2e-3e cycle', 'Cones'] },
+        { name: '🏒 Hockey Mousse', desc: 'Hockey en salle avec batons mousse et balle legere. Petits buts, equipes de 4. Pas de lancers frappes!', tags: ['Equipe', '2e-3e cycle', 'Batons mousse'] },
+        { name: '🐒 Jungle Aventure', desc: 'Parcours ou les enfants sont des singes: se balancer, grimper, sauter de liane en liane (cordes), traverser le marais (tapis).', tags: ['Parcours', '1er-2e cycle', 'Cordes'] },
+        { name: '🎵 Chaises Musicales Sportives', desc: 'Chaises musicales mais au lieu de s\'asseoir, il faut faire un exercice (10 sauts, 5 pompes, etc.) dans le cerceau libre.', tags: ['Cardio', 'Tous ages', 'Cerceaux'] },
+        { name: '🥊 Boxe a l\'Ombre', desc: 'Circuit de boxe sans contact: jab-cross-uppercut sur commande, esquives, jeu de jambes. Avec musique energique!', tags: ['Cardio', '3e cycle', 'Sans materiel'] },
+        { name: '🌊 Traversee de l\'Ocean', desc: 'Le gym est l\'ocean. Les "requins" (tagueurs) essaient d\'attraper les "poissons" qui traversent d\'un mur a l\'autre.', tags: ['Course', '1er cycle', 'Dossards'] },
+        { name: '🤖 Robots Programmes', desc: 'En duo: un programmeur donne des commandes (avance, tourne, saute) et le robot execute. Le robot a les yeux fermes!', tags: ['Cooperation', '2e cycle', 'Sans materiel'] },
+        { name: '🏇 Course de Chevaux', desc: 'Course a relais ou les coureurs galopent avec un balai entre les jambes a travers un parcours de cones. Yeehaw!', tags: ['Relais', '1er-2e cycle', 'Cones'] },
+        { name: '⛷️ Biathlon du Gym', desc: 'Courir 2 tours du gym puis lancer 3 balles mousse sur des cibles. Chaque cible manquee = 1 tour supplementaire.', tags: ['Cardio', '2e-3e cycle', 'Ballons mousse'] },
+        { name: '🏄 Surf Gym', desc: 'Sur un tapis de gym, les eleves font des exercices d\'equilibre en "surfant": position surf, squats, virages en flexion.', tags: ['Equilibre', '2e cycle', 'Tapis'] },
+        { name: '🐺 Loups-Garous Actifs', desc: 'Adaptation du jeu de societe: les villageois courent, les loups-garous chassent la nuit (yeux fermes). Le village vote en marchant vers un suspect.', tags: ['Strategie', '2e-3e cycle', 'Dossards'] },
+        { name: '🎯 Quilles Humaines', desc: 'Un joueur "boule" roule sur un scooter pour faire tomber les "quilles" (coequipiers debout dans des cerceaux). Touch seulement!', tags: ['Precision', '2e-3e cycle', 'Scooters'] },
+        { name: '🥋 Sumo des Coussins', desc: 'Deux joueurs dans un cercle de cerceaux, chacun avec un coussin. Pousser l\'adversaire hors du cercle sans frapper!', tags: ['Combat', '2e-3e cycle', 'Coussins'] },
+        { name: '🧊 Ringuette-Balai', desc: 'Ringuette adaptee: on pousse un anneau avec un balai sur le sol. Equipes de 5, pas de contact.', tags: ['Equipe', '2e-3e cycle', 'Anneaux'] },
+        { name: '💎 Chasse aux Gemmes', desc: 'Des sacs de feves colores sont caches partout. Chaque couleur vaut des points differents. Ramasser le plus possible en 3 minutes!', tags: ['Vitesse', '1er cycle', 'Sacs de feves'] },
+        { name: '🤼 Tir a la Corde Creatif', desc: 'Tir a la corde classique mais sur une ligne: les joueurs s\'ajoutent un par un en alternance. La strategie de l\'ordre compte!', tags: ['Force', '2e-3e cycle', 'Corde'] },
+        { name: '🎪 Acrobaties Duo', desc: 'En paire, realiser des figures d\'acrogym: avion, chaise, pyramide a 2. L\'enseignant valide la securite de chaque figure.', tags: ['Equilibre', '3e cycle', 'Tapis'] },
+        { name: '🏐 Quatre Coins Ballon', desc: 'Le gym est divise en 4 zones. Chaque equipe defend sa zone et lance des ballons mousse dans les zones adverses. La zone avec le moins de ballons gagne.', tags: ['Lancer', 'Tous ages', 'Ballons mousse'] },
+        { name: '🦈 Requin-Requin', desc: 'Un requin au centre tague les nageurs qui traversent. Les touches deviennent des algues (bras tendus) qui bloquent le passage sans bouger.', tags: ['Esquive', '1er cycle', 'Sans materiel'] },
+        { name: '🧩 Puzzle Relay', desc: 'Course a relais ou chaque coureur rapporte une piece de puzzle geant. L\'equipe doit assembler le puzzle pour gagner.', tags: ['Relais', '2e cycle', 'Puzzle geant'] },
+        { name: '🚴 Velo Imaginaire', desc: 'Circuit de "cyclisme" sur place: pedaler couche sur le dos, sprint debout, cote (genoux hauts), descente (bras en l\'air). Sur musique!', tags: ['Cardio', '1er-2e cycle', 'Tapis'] },
+        { name: '🎭 Statues Sportives', desc: 'Musique on: bouger en imitant un sport nomme. Musique off: geler dans une posture de ce sport. Les meilleures statues gagnent!', tags: ['Danse', '1er cycle', 'Musique'] },
+        { name: '⚡ Flash Tag', desc: 'Tag ultra-rapide: le tagueur change a chaque touche. Quand tu es tague, fais 3 sauts etoile puis tu deviens tagueur a ton tour.', tags: ['Vitesse', 'Tous ages', 'Sans materiel'] },
+        { name: '🏀 KnockOut Adapte', desc: 'File de tir au panier. Si le 2e joueur marque avant le 1er, le 1er est elimine. Dernier joueur gagne!', tags: ['Precision', '2e-3e cycle', 'Ballons'] },
+        { name: '🐸 Grenouilles et Mouches', desc: 'Les grenouilles (accroupies) sautent pour attraper les mouches (debout, qui esquivent). Touche? Tu deviens grenouille!', tags: ['Agilite', '1er cycle', 'Sans materiel'] },
+        { name: '🏗️ Constructeurs Fous', desc: 'Chaque equipe empile des boites de carton pour faire la plus haute tour. Attention: il faut la transporter sur 10 metres sans qu\'elle tombe!', tags: ['Cooperation', '2e cycle', 'Boites'] },
+        { name: '🎯 Archerie Mousse', desc: 'Tir sur cibles (cerceaux au mur) avec des fusils Nerf ou lance-balles. Points differents selon la zone atteinte.', tags: ['Precision', '2e-3e cycle', 'Cibles'] },
+        { name: '🏃‍♂️ Fartlek Aventure', desc: 'Course fractionnee deguisee: sprint quand l\'enseignant dit "lave!", jogging a "riviere!", marche a "foret!". Histoire interactive.', tags: ['Cardio', '2e-3e cycle', 'Sans materiel'] },
+        { name: '🤸‍♀️ Gymnastique Freestyle', desc: 'Les eleves creent une sequence de 4 mouvements: roulade, roue, saut, equilibre. Presentation devant la classe.', tags: ['Agilite', '2e-3e cycle', 'Tapis'] },
+        { name: '🐝 Essaim d\'Abeilles', desc: 'Les abeilles (coureurs) ramassent du pollen (sacs de feves) fleur par fleur et le ramenent a la ruche. L\'ours (tagueur) protege les fleurs.', tags: ['Course', '1er-2e cycle', 'Sacs de feves'] },
+        { name: '🧲 Aimant Geant', desc: 'Un joueur est l\'aimant: tous ceux qu\'il touche se collent a lui main dans la main. Le groupe grossit et doit coordonner ses mouvements pour en attraper d\'autres.', tags: ['Cooperation', '1er cycle', 'Sans materiel'] },
+        { name: '🏐 Smashball', desc: 'Comme le volleyball mais on peut attraper le ballon et le relancer. Le ballon ne doit pas toucher le sol de ton cote.', tags: ['Equipe', '2e cycle', 'Ballons mousse'] },
+        { name: '🎩 Chapeau Musical', desc: 'Passer le chapeau en cercle pendant la musique. Quand ca arrete, celui avec le chapeau fait un defi physique choisi par le groupe.', tags: ['Defis', 'Tous ages', 'Chapeau'] },
+        { name: '🌋 Le Sol est de la Lave', desc: 'Se deplacer dans le gym sans toucher le sol: marcher sur des tapis, cerceaux, bancs. Si tu touches le sol, recommence!', tags: ['Parcours', '1er-2e cycle', 'Tapis'] },
+        { name: '🤽 Waterpolo Terrestre', desc: 'Regles du waterpolo mais au gym: lancer le ballon mousse dans un petit but en passant a ses coequipiers. Pas de dribble, 3 pas max.', tags: ['Equipe', '3e cycle', 'Ballons mousse'] },
+        { name: '🧗‍♂️ Traversee du Mur', desc: 'En equipe, aider chaque membre a passer par-dessus un empilement de tapis (le "mur"). Travail d\'equipe et securite!', tags: ['Cooperation', '3e cycle', 'Tapis'] },
+        { name: '🎪 Jonglerie Progressive', desc: 'Apprendre a jongler: 1 foulard, puis 2, puis 3. Defis chronometres. Les experts tentent avec des balles de tennis.', tags: ['Coordination', '2e-3e cycle', 'Foulards'] },
+        { name: '🏌️ Mini-Golf Gym', desc: 'Parcours de mini-golf avec des batons de hockey et des balles de tennis. Obstacles faits de cones, chaises, cerceaux.', tags: ['Precision', '2e cycle', 'Batons hockey'] },
+        { name: '🤾‍♂️ Tchoukball', desc: 'Lancer un ballon sur un trampoline incline pour qu\'il rebondisse au sol dans la zone adverse. L\'equipe defensive essaie de l\'attraper.', tags: ['Equipe', '3e cycle', 'Trampoline cadre'] },
+        { name: '🧘‍♀️ Yoga Defi', desc: 'Jeu de cartes yoga: piger une carte et tenir la posture 20 secondes. Bonus si tu reussis une posture difficile (corbeau, poirier aide).', tags: ['Yoga', '2e-3e cycle', 'Cartes yoga'] },
+        { name: '🏹 Tir aux Canards', desc: 'Les canards traversent le gym en zigzaguant. Les chasseurs (sur les cotes) lancent des balles mousse. Un canard touche fait 5 squats et repart.', tags: ['Lancer', '1er-2e cycle', 'Ballons mousse'] },
+        { name: '🐍 Serpent Geant', desc: 'En file indienne, se tenir par la taille. La tete doit attraper la queue! Si le serpent se brise, on recommence.', tags: ['Cooperation', '1er cycle', 'Sans materiel'] },
+        { name: '🏃‍♀️ Course aux Indices', desc: 'Chasse au tresor sportive: chaque indice oblige a faire un exercice (20 sauts, 10 pompes) avant de reveler l\'emplacement du prochain.', tags: ['Cardio', '2e cycle', 'Cartes indices'] },
+        { name: '🎾 Tennis-Ballon', desc: 'Tennis adapte: terrain reduit, raquettes de plage, ballon mousse. Le ballon peut rebondir 2 fois. En simple ou en double.', tags: ['Reflexes', '2e-3e cycle', 'Raquettes plage'] },
+        { name: '🏰 Attaque du Chateau', desc: 'Une equipe defend son chateau (pile de boites) tandis que l\'autre lance des balles mousse pour le demolir. Roles inverses apres 3 minutes.', tags: ['Lancer', '1er-2e cycle', 'Boites'] },
+        { name: '🤸‍♂️ Simon Dit Extreme', desc: 'Simon dit version sportive: les commandes sont des exercices de plus en plus intenses. Ceux qui se trompent font 1 tour du gym.', tags: ['Reflexes', 'Tous ages', 'Sans materiel'] },
+        { name: '🎪 Course en Sac 2.0', desc: 'Course en sac mais par equipe de 2 dans le meme sac geant! Coordination et fous rires garantis.', tags: ['Relais', '1er-2e cycle', 'Sacs'] },
+        { name: '⛹️ Dribble Tag', desc: 'Tout le monde dribble un ballon. Tagger les autres tout en dribblant. Si tu arretes de dribbler ou te fais tagger, 5 pompes!', tags: ['Agilite', '2e-3e cycle', 'Ballons'] },
+        { name: '🧱 Mur Humain', desc: 'Une equipe forme un mur (bras tendus). L\'autre equipe doit trouver un moyen de faire passer un ballon a travers sans contact.', tags: ['Strategie', '2e cycle', 'Ballons mousse'] },
+        { name: '🏊‍♂️ Relais Aquatique Sec', desc: 'Relais ou chaque etape imite une nage differente au sol. Brasse a plat ventre, dos crawle sur le dos, papillon avec ondulations.', tags: ['Relais', '1er cycle', 'Tapis'] },
+        { name: '🎯 Kan Jam Gym', desc: 'En equipe de 2: un lanceur et un deflecteur. Lancer le frisbee vers la poubelle, le partenaire peut le devier dedans.', tags: ['Precision', '2e-3e cycle', 'Frisbees'] },
+        { name: '🦁 Roi de la Jungle', desc: 'Le roi (au centre) commande des exercices. Pour le detroner, reussir son defi. Le gagnant devient roi.', tags: ['Defis', '1er-2e cycle', 'Sans materiel'] },
+        { name: '🎵 Zumba Kids', desc: 'Routine de danse fitness adaptee aux enfants. Mouvements simples et repetitifs sur de la musique populaire.', tags: ['Danse', '1er-2e cycle', 'Musique'] },
+        { name: '🏀 Horse Adapte', desc: 'Chaque joueur invente un lancer creatif (entre les jambes, yeux fermes, dos au panier). Les autres doivent le reproduire.', tags: ['Precision', '2e-3e cycle', 'Ballons'] },
+        { name: '🐕 Promenade du Chien', desc: 'En duo: le "chien" (a quatre pattes) est guide par le "maitre" a travers un parcours d\'obstacles. On alterne les roles.', tags: ['Parcours', '1er cycle', 'Cones'] },
+        { name: '🌀 Tornado Ball', desc: 'Tout le monde en cercle. Lancer autant de balles mousse que possible au centre pour toucher la quille. Chaos organise!', tags: ['Lancer', 'Tous ages', 'Ballons mousse'] },
+        { name: '🤺 Escrime-Mousse', desc: 'Duel avec des nouilles de piscine. Toucher les pieds de l\'adversaire seulement. Touche = 1 point. Premier a 5 gagne.', tags: ['Combat', '2e-3e cycle', 'Nouilles piscine'] },
+        { name: '🧊 Hockey-Balai', desc: 'Hockey avec des balais et une balle legere. Equipes de 4, mini-buts. Simple et efficace!', tags: ['Equipe', '2e-3e cycle', 'Balais'] },
+        { name: '🌈 Arc-en-Ciel Tag', desc: '6 zones de couleur au sol. L\'enseignant crie une couleur: tous doivent y courir. Les 3 derniers arrives font un exercice.', tags: ['Vitesse', '1er cycle', 'Cones couleur'] },
+        { name: '🤸 Roue de la Fortune Sportive', desc: 'Tourner la roue et executer le defi: 15 burpees, 30 sec de planche, 20 squats sautes, etc. En equipe, cumuler les points.', tags: ['Defis', '2e-3e cycle', 'Roue'] },
+        { name: '🎪 Equilibre sur Poutre', desc: 'Plusieurs poutres basses alignees. Traverser en marchant, a reculons, sur un pied, en transportant un sac de feves sur la tete.', tags: ['Equilibre', '1er-2e cycle', 'Poutre basse'] },
+        { name: '🏐 Newcomb', desc: 'Variante du volleyball ou on attrape et relance le ballon au lieu de le frapper. Parfait pour les debutants.', tags: ['Equipe', '1er-2e cycle', 'Ballons mousse'] },
+        { name: '🧗 Traverse du Gymnase', desc: 'Se deplacer d\'un bout a l\'autre du gym en utilisant uniquement les espaliers, bancs et equipements fixes. Sans toucher le sol!', tags: ['Force', '2e-3e cycle', 'Espalier'] },
+        { name: '🎲 De Fitness', desc: 'Lancer un gros de en mousse: chaque face = un exercice different. Faire le nombre de repetitions indique par un 2e de.', tags: ['Cardio', 'Tous ages', 'Des mousse'] },
+        { name: '🏈 Ultimate Frisbee Mini', desc: 'Ultimate frisbee sur terrain reduit. Pas de course avec le frisbee, passes seulement. Marquer dans la zone des buts.', tags: ['Equipe', '2e-3e cycle', 'Frisbees'] },
+        { name: '🦆 Canards-Chasseurs-Poules', desc: 'Roche-papier-ciseaux version course. Les perdants courent vers leur mur, les gagnants les chassent. Version geante en equipe!', tags: ['Course', '1er-2e cycle', 'Sans materiel'] },
+        { name: '🎯 Curling Gym', desc: 'Glisser des sacs de feves sur le plancher vers une cible (cerceaux concentriques). Points differents selon la zone.', tags: ['Precision', '2e cycle', 'Sacs de feves'] },
+        { name: '🐙 Pieuvre Tag', desc: 'La pieuvre (au centre) tague les poissons qui traversent. Les poissons tagues s\'assoient et deviennent des tentacules: ils peuvent tagger assis!', tags: ['Esquive', '1er cycle', 'Sans materiel'] },
+        { name: '🏋️‍♀️ CrossFit Junior', desc: 'Mini WOD adapte: 5 pompes, 10 squats, 15 jumping jacks, course 1 tour. 3 rondes, chrono!', tags: ['Force', '3e cycle', 'Sans materiel'] },
+        { name: '🎵 Danse des Continents', desc: 'Apprendre un pas de danse de 5 continents: samba (Amerique), danse africaine, bollywood, hip-hop, valse europeenne.', tags: ['Danse', '2e-3e cycle', 'Musique'] },
+        { name: '🐊 Marais aux Crocodiles', desc: 'Traverser le marais (gym) en sautant de nenuphars en nenuphars (cerceaux). Les crocodiles (tagueurs) rampent au sol.', tags: ['Parcours', '1er cycle', 'Cerceaux'] },
+        { name: '🏀 Basket Musical', desc: 'Dribler autour du gym en musique. A l\'arret: tirer au panier le plus proche. Panier reussi = 1 point. Qui a le plus de points?', tags: ['Precision', '2e-3e cycle', 'Ballons'] },
+        { name: '🦅 Vol de l\'Aigle', desc: 'Exercice de gainage: position avion (a plat ventre, bras et jambes leves). Qui tient le plus longtemps? Chronos individuels.', tags: ['Force', '2e cycle', 'Tapis'] },
+        { name: '🎮 Pac-Man Gym', desc: 'Se deplacer uniquement sur les lignes du gym. Pac-Man mange les fantomes (balle au toucher). Les fantomes touches s\'assoient 10 sec.', tags: ['Vitesse', 'Tous ages', 'Ballons mousse'] },
+        { name: '🏓 Pingpong Relay', desc: 'Relais en equipe: porter une balle de ping-pong sur une raquette a travers un parcours. Si elle tombe, recommencer l\'obstacle!', tags: ['Relais', '2e cycle', 'Raquettes'] },
+        { name: '🐻 Marche de l\'Ours', desc: 'Course en marche d\'ours (4 pattes, hanches hautes). Relais en equipe. Plus difficile qu\'on pense!', tags: ['Force', '2e-3e cycle', 'Sans materiel'] },
+        { name: '🎪 Lancer de Precision Triple', desc: 'Trois stations: lancer de sacs de feves dans un cerceau, lancer de balles sur des quilles, lancer de frisbee dans un panier.', tags: ['Precision', '2e cycle', 'Sacs de feves'] },
+        { name: '🤸‍♀️ Parkour Debutant', desc: 'Initiation au parkour: sauter par-dessus des bancs, rouler sur des tapis, escalader des espaliers. Securitaire et supervise.', tags: ['Agilite', '2e-3e cycle', 'Tapis'] },
+        { name: '🧊 Broom-Ball', desc: 'Hockey avec des balais et un ballon mousse. Pas de patins mais des bas sur le plancher de gym. Ca glisse!', tags: ['Equipe', '2e-3e cycle', 'Balais'] },
+        { name: '🏃 Relais des Heros', desc: 'Chaque coureur imite un heros: Superman (bras devant), Flash (sprint), Hulk (gros pas), Spider-Man (ramper).', tags: ['Relais', '1er cycle', 'Sans materiel'] },
+        { name: '🎯 Bocce Gym', desc: 'Petanque interieure avec des balles mousse. Lancer le plus pres du cochonnet. Equipes de 3.', tags: ['Precision', 'Tous ages', 'Ballons mousse'] },
+        { name: '⚡ Defi des 60 Secondes', desc: 'Stations de 60 secondes chacune: max de pompes, max de sauts, max d\'abdos, max de burpees. Battre son propre record!', tags: ['Defis', '2e-3e cycle', 'Chronometre'] },
+        { name: '🦋 Metamorphose', desc: 'Les eleves commencent en oeuf (accroupis), evoluent en chenille (ramper), cocon (roulade), puis papillon (courir bras ouverts). Le cycle continue!', tags: ['Cardio', '1er cycle', 'Sans materiel'] },
+        { name: '🏐 Volleyball Assis', desc: 'Match de volleyball en position assise. Le filet est bas (corde ou banc). Decouverte du parasport!', tags: ['Equipe', '2e-3e cycle', 'Ballons mousse'] },
+        { name: '🎭 Improvisation Sportive', desc: 'Piger 2 cartes: un sport + un style (au ralenti, en robot, en geant). Mimer devant les autres qui devinent.', tags: ['Danse', '2e cycle', 'Cartes'] },
+        { name: '🏋️ Bras de Fer Debout', desc: 'En duo, face a face sur une ligne. Se tenir une main. Tirer l\'adversaire pour qu\'il deplace ses pieds. Meilleur de 3.', tags: ['Force', '2e-3e cycle', 'Sans materiel'] },
+        { name: '🐾 Relais Animal', desc: 'Chaque section du relais est une demarche animale: saut de lapin, marche du crabe, galop du cheval, rampement du serpent.', tags: ['Relais', '1er cycle', 'Sans materiel'] },
+        { name: '🎯 Lancers de Siege', desc: 'Comme une catapulte: mettre un ballon mousse sur une cuillere geante et le lancer le plus loin possible. Mesurer la distance!', tags: ['Lancer', '2e cycle', 'Ballons mousse'] },
+        { name: '🧊 Patinage en Bas', desc: 'En bas de laine sur le plancher du gym, glisser et faire des courses. Bonus: mouvements de patinage artistique!', tags: ['Equilibre', '1er-2e cycle', 'Sans materiel'] },
+        { name: '🏸 Indiaca', desc: 'Jeu de volant bresilien: frapper un indiaca (coussin a plumes) par-dessus un filet avec la main. Pas de raquette!', tags: ['Reflexes', '2e-3e cycle', 'Indiaca'] },
+        { name: '🤸 Defi d\'Obstacles Chronos', desc: 'Parcours de 10 obstacles. Chaque eleve est chrono. Afficher le tableau des meilleurs temps. Battre son record chaque semaine.', tags: ['Parcours', '2e-3e cycle', 'Cones'] },
+        { name: '🎪 Ski de Fond Gym', desc: 'Avec des assiettes en carton sous les pieds, glisser sur le plancher en imitant le ski de fond. Course en relais!', tags: ['Cardio', '2e cycle', 'Assiettes carton'] },
+        { name: '🏀 Ballon Prisonnier Ameliore', desc: 'Ballon prisonnier classique avec ajouts: docteur qui guerit, bouclier (1 par equipe), zone VIP pour les as du lancer.', tags: ['Esquive', 'Tous ages', 'Ballons mousse'] },
+        { name: '🦎 Cameleon Tag', desc: 'Les tagueurs portent des dossards. Quand ils taguent quelqu\'un, ils echangent le dossard. Personne ne sait qui va tagger!', tags: ['Vitesse', '1er-2e cycle', 'Dossards'] },
+        { name: '🧘 Defi de la Planche', desc: 'Qui tient la planche le plus longtemps? Variantes: planche laterale, planche avec un bras, planche avec tapes d\'epaules.', tags: ['Force', '2e-3e cycle', 'Tapis'] },
+        { name: '🏒 Unihockey', desc: 'Hockey interieur avec batons d\'unihockey et balle perforee. Match 5 contre 5 avec gardien. Pas de lever le baton!', tags: ['Equipe', '2e-3e cycle', 'Batons unihockey'] },
+        { name: '🎵 Aerobic Retro', desc: 'Routine d\'aerobic style annees 80: grapevine, V-step, step-touch, jumping jacks. Avec musique disco!', tags: ['Cardio', '2e-3e cycle', 'Musique'] },
+        { name: '🧊 Glissade de Pengouins', desc: 'Courir puis glisser sur le ventre sur un tapis de gym. Qui glisse le plus loin? Mesurer avec des cones!', tags: ['Defis', '1er-2e cycle', 'Tapis'] },
+        { name: '🏃‍♂️ Mission Impossible', desc: 'Parcours furtif avec lasers (elastiques tendus), alarmes (clochettes), cameras (enseignant). Traverser sans se faire detecter!', tags: ['Parcours', '2e-3e cycle', 'Elastiques'] },
+        { name: '🤾 Poull Ball', desc: 'Sport collectif avec un ballon geant. Frapper le ballon avec les mains pour atteindre la cible adverse. Pas de contact!', tags: ['Equipe', '2e-3e cycle', 'Ballon geant'] },
+        { name: '🎯 Passe et Tire', desc: 'En equipe de 4, se faire 3 passes minimum avant de tirer au but. Si le ballon tombe, il va a l\'autre equipe.', tags: ['Cooperation', '2e cycle', 'Ballons mousse'] },
+        { name: '🐧 Course de Pingouins', desc: 'Courir avec un ballon entre les genoux. Relais en equipe. Si le ballon tombe, recommencer du debut de ta section!', tags: ['Relais', '1er cycle', 'Ballons'] },
+        { name: '🌊 Vagues Humaines', desc: 'En cercle: un meneur lance un mouvement (saut, squat, clap) qui se propage comme une vague. De plus en plus vite!', tags: ['Coordination', '1er-2e cycle', 'Sans materiel'] },
+        { name: '🤖 Dance Dance Revolution Live', desc: 'Quatre cerceaux en croix. L\'enseignant crie les directions et les eleves sautent dans le bon cerceau. De plus en plus rapide!', tags: ['Reflexes', '2e cycle', 'Cerceaux'] },
+        { name: '🏐 9-Square', desc: 'Grille de 9 cases. Le roi au centre sert. Frapper le ballon dans la case d\'un autre. Si ca touche le sol dans ta case, tu sors.', tags: ['Reflexes', '2e-3e cycle', 'Ballons mousse'] },
+        { name: '🎪 Cirque Cooperatif', desc: 'En groupe de 4, creer un numero de cirque de 1 minute: pyramide humaine, jonglerie, acrobatie. Presentation a la classe.', tags: ['Cooperation', '2e-3e cycle', 'Foulards'] },
+        { name: '🧊 Bobsleigh du Gym', desc: 'Un eleve assis sur un scooter, un autre le pousse. Course en equipe de 2 a travers un parcours de cones.', tags: ['Relais', '2e cycle', 'Scooters'] },
+        { name: '🦸‍♂️ Academie des Superheros', desc: 'Chaque station developpe un super-pouvoir: vitesse (sprints), force (pompes), agilite (echelle), vol (sauts en longueur).', tags: ['Parcours', '1er-2e cycle', 'Echelle agilite'] },
+        { name: '🏀 Around the World', desc: 'Tir au panier depuis 5 positions autour de la zone. Reussir chaque position pour avancer. Premier a faire le tour gagne.', tags: ['Precision', '2e-3e cycle', 'Ballons'] },
+        { name: '🎪 Equilibre Jedi', desc: 'Debout sur un pied, fermer les yeux. Utiliser la "Force" pour tenir. Ajout: tenir un baton en equilibre sur la main.', tags: ['Equilibre', '2e cycle', 'Batons'] },
+        { name: '🐱 Chat Perche Extreme', desc: 'Chat perche classique mais les perchoirs changent: un coup c\'est les bancs, un coup les cerceaux, un coup il faut etre en duo.', tags: ['Esquive', '1er-2e cycle', 'Cerceaux'] },
+        { name: '🏃 Interval Training Fun', desc: 'Stations de 40 sec travail / 20 sec repos: jumping jacks, squat jumps, high knees, burpees, mountain climbers. Musique energique!', tags: ['Cardio', '3e cycle', 'Musique'] },
+        { name: '🎯 Golf Frisbee', desc: 'Parcours de 9 "trous" autour du gym. Lancer le frisbee vers chaque cible en un minimum de lancers. Carte de pointage fournie.', tags: ['Precision', '2e-3e cycle', 'Frisbees'] },
+        { name: '🦘 Kangourou Relay', desc: 'Relais avec ballon de stabilite: s\'asseoir dessus et rebondir jusqu\'au cone et revenir. Fous rires assures!', tags: ['Relais', '1er-2e cycle', 'Ballons stabilite'] },
+        { name: '🧠 Sport-Cerveau', desc: 'Courir d\'un mur a l\'autre. A chaque arrivee, repondre a une question de maths. Bonne reponse = avancer, mauvaise = retour!', tags: ['Cardio', '2e cycle', 'Cartes questions'] },
+        { name: '🏐 Kinball', desc: 'Trois equipes de 4 joueurs avec un ballon geant. Une equipe nomme une couleur et frappe le ballon. L\'equipe nommee doit l\'attraper avant qu\'il touche le sol.', tags: ['Equipe', '2e-3e cycle', 'Ballon geant'] },
+        { name: '🎪 Limbo Sportif', desc: 'Limbo classique avec barre qui descend. Variante: passer en roulade, en crabe, a reculons. Musique des Caraibes!', tags: ['Agilite', 'Tous ages', 'Barre limbo'] },
+        { name: '🐲 Chasseurs de Dragons', desc: 'Les dragons (avec un dossard-queue) protegent leurs oeufs (ballons). Les chasseurs doivent voler les oeufs sans se faire arracher leur propre drapeau.', tags: ['Strategie', '2e-3e cycle', 'Dossards'] },
+        { name: '🏋️ Brouette Humaine', desc: 'Course en brouette humaine: un tient les pieds, l\'autre marche sur les mains. Relais en equipe de 4 (2 paires).', tags: ['Force', '2e-3e cycle', 'Sans materiel'] },
+        { name: '🎵 Freeze Fitness', desc: 'Faire un exercice pendant que la musique joue. Quand ca arrete, geler et ecouter le prochain exercice. Enchainement sans arret!', tags: ['Cardio', '1er-2e cycle', 'Musique'] },
+        { name: '🥎 Kickball', desc: 'Baseball mais on botte un ballon mousse au lieu de frapper. Memes regles de base: courir les buts, 3 retraits par manche.', tags: ['Equipe', '2e-3e cycle', 'Ballons mousse'] }
+    ],
+    en: [
+        { name: '🧟 Zombie Invasion', desc: 'One zombie (wearing a pinny) tags players who become zombies. Survivors must reach the safe zone before time runs out.', tags: ['Dodging', 'All ages', 'Pinnies'] },
+        { name: '🥷 Stealth Ninja', desc: 'Ninjas must cross the gym without being spotted by guards. If a guard points at you, freeze for 5 seconds.', tags: ['Strategy', 'Grades 4-6', 'No equipment'] },
+        { name: '⚽ Soccer Bowling', desc: 'Kick a foam ball to knock down pins arranged in a triangle. Each team gets 3 attempts per round.', tags: ['Accuracy', 'All ages', 'Foam balls'] },
+        { name: '🏀 Cosmic Basketball', desc: 'Basketball game where each basket is worth zone points (1-2-3 pts). Zones change at every whistle.', tags: ['Team', 'Grades 5-6', 'Basketballs'] },
+        { name: '🦖 Dinosaur Hunt', desc: 'Hunters throw foam balls at dinosaurs (wearing pinnies). Tagged dinos go to the "museum" and can be freed by a teammate.', tags: ['Throwing', 'Grades 1-4', 'Foam balls'] },
+        { name: '🏴‍☠️ Pirate Treasure', desc: 'Two pirate crews guard their treasure (ball) while trying to steal the opponent\'s. No contact allowed!', tags: ['Strategy', 'Grades 4-6', 'Balls'] },
+        { name: '🚀 Space Race', desc: 'Team relay where each runner carries an "asteroid" (foam ball) through an obstacle course to place it on the "planet" (hoop).', tags: ['Relay', 'Grades 1-4', 'Hoops'] },
+        { name: '🤸 Superhero Obstacle Course', desc: '8-station circuit inspired by superheroes: Spider-Man jump, Flash roll, Superman plank, and more.', tags: ['Obstacle course', 'All ages', 'Mats'] },
+        { name: '🎯 Dodgeball Royale', desc: 'Free-for-all! Last one standing wins. Tagged players sit but can grab a ground ball to get back in.', tags: ['Dodging', 'Grades 4-6', 'Foam balls'] },
+        { name: '🏈 Simple Flag Football', desc: 'Adapted flag football: 4v4, small field, no tackling. Pull the ball carrier\'s pinny to stop them.', tags: ['Team', 'Grades 5-6', 'Pinnies'] },
+        { name: '🏐 Giant Ball Volleyball', desc: 'Volleyball with a giant beach ball. The entire team must touch the ball before sending it over.', tags: ['Cooperation', 'Grades 4-6', 'Giant ball'] },
+        { name: '🧊 Freeze Dance Battle', desc: 'Dance when music plays. When it stops, freeze! Last one to stop moving does 5 jumping jacks.', tags: ['Dance', 'Grades 1-2', 'Music'] },
+        { name: '🕵️ Spy Mission', desc: 'Spies crawl under "lasers" (stretched ropes) and roll over obstacles to retrieve the secret document.', tags: ['Obstacle course', 'Grades 4-6', 'Ropes'] },
+        { name: '⛏️ Minecraft Builders', desc: 'Teams collect "blocks" (beanbags) to build the tallest tower in their zone. Watch out for Creepers who can steal them!', tags: ['Strategy', 'Grades 1-4', 'Beanbags'] },
+        { name: '🏃 Elemental Sprint', desc: 'Teacher calls Fire, Water, Earth or Air. Each element triggers a different move: run, swim on floor, crawl, jump.', tags: ['Cardio', 'Grades 1-2', 'No equipment'] },
+        { name: '🤾 Handball Express', desc: '5v5 handball with simplified rules: 3 steps max, no dribbling, throw to score.', tags: ['Team', 'Grades 5-6', 'Foam balls'] },
+        { name: '🎭 Magic Mirror', desc: 'In pairs, one leader moves and the mirror copies in real time. Switch roles every 30 seconds.', tags: ['Coordination', 'Grades 1-2', 'No equipment'] },
+        { name: '🏋️ Titan Challenge', desc: 'Strength circuit: spider push-ups, jump squats, 20-sec plank, burpees, mountain climbers. Who finishes first?', tags: ['Strength', 'Grades 5-6', 'Mats'] },
+        { name: '🧗 Imaginary Climbing', desc: 'Kids "climb" an imaginary wall following instructions: right hand high, left foot right. Listening and coordination workout.', tags: ['Coordination', 'Grades 1-2', 'Wall bars'] },
+        { name: '🎪 Gym Circus', desc: 'Rotating stations: juggling (scarves), balance (low beam), acrobatics (rolls), tightrope (floor line).', tags: ['Balance', 'Grades 3-4', 'Scarves'] },
+        { name: '🏸 Balloon Badminton', desc: 'Badminton using balloons instead of birdies. Easier to hit and slower, perfect for beginners.', tags: ['Accuracy', 'Grades 1-4', 'Balloons'] },
+        { name: '🐉 Dragon Tail', desc: 'Each team forms a line holding shoulders. The head of one dragon must catch the tail of the other dragon.', tags: ['Team', 'All ages', 'Pinnies'] },
+        { name: '🏊 Land Swimming', desc: 'Students mimic different swimming strokes on mats: front crawl, backstroke, breaststroke, butterfly. Swimming relay race!', tags: ['Cardio', 'Grades 1-2', 'Mats'] },
+        { name: '🤺 Knight Duel', desc: 'Two players on a low beam try to knock each other off balance with a foam pad. First to step off loses.', tags: ['Balance', 'Grades 4-6', 'Low beam'] },
+        { name: '🎯 Frisbee Golf', desc: '6-hole course using hoops as targets. Throw the frisbee in as few throws as possible to hit each target.', tags: ['Accuracy', 'Grades 4-6', 'Frisbees'] },
+        { name: '🦸 Extreme Capture the Flag', desc: 'Classic capture with superpowers: a shield (hoop) blocks one tagger, invisibility (5 sec per game).', tags: ['Strategy', 'Grades 4-6', 'Pinnies'] },
+        { name: '🏓 Giant Table Tennis', desc: 'Gym-sized ping-pong: stacked mats as table, beach paddles, foam ball. Doubles only.', tags: ['Reflexes', 'Grades 4-6', 'Paddles'] },
+        { name: '🧘 Animal Yoga', desc: 'Teacher names an animal and students hold the matching pose: cat, downward dog, cobra, eagle, tree.', tags: ['Yoga', 'Grades 1-2', 'Mats'] },
+        { name: '🌪️ Human Tornado', desc: 'In a circle of 6, everyone holds hands in a tangle. Untangle without letting go to form a big circle.', tags: ['Cooperation', 'Grades 3-4', 'No equipment'] },
+        { name: '🎮 Battle Royale Gym', desc: 'Everyone in the gym, the play area shrinks every minute (cones). Tagged players are out. Last survivor wins!', tags: ['Dodging', 'Grades 4-6', 'Cones'] },
+        { name: '🏒 Foam Hockey', desc: 'Indoor hockey with foam sticks and a light ball. Small goals, teams of 4. No slapshots!', tags: ['Team', 'Grades 4-6', 'Foam sticks'] },
+        { name: '🐒 Jungle Adventure', desc: 'Obstacle course where kids are monkeys: swing, climb, jump from vine to vine (ropes), cross the swamp (mats).', tags: ['Obstacle course', 'Grades 1-4', 'Ropes'] },
+        { name: '🎵 Sporty Musical Chairs', desc: 'Musical chairs but instead of sitting, do an exercise (10 jumps, 5 push-ups, etc.) in the open hoop.', tags: ['Cardio', 'All ages', 'Hoops'] },
+        { name: '🥊 Shadow Boxing', desc: 'No-contact boxing circuit: jab-cross-uppercut on command, dodges, footwork. With high-energy music!', tags: ['Cardio', 'Grades 5-6', 'No equipment'] },
+        { name: '🌊 Ocean Crossing', desc: 'The gym is the ocean. "Sharks" (taggers) try to catch "fish" crossing from wall to wall.', tags: ['Running', 'Grades 1-2', 'Pinnies'] },
+        { name: '🤖 Programmed Robots', desc: 'In pairs: a programmer gives commands (forward, turn, jump) and the robot executes. The robot\'s eyes are closed!', tags: ['Cooperation', 'Grades 3-4', 'No equipment'] },
+        { name: '🏇 Horse Race', desc: 'Relay race where runners gallop with a broom between their legs through a cone course. Yeehaw!', tags: ['Relay', 'Grades 1-4', 'Cones'] },
+        { name: '⛷️ Gym Biathlon', desc: 'Run 2 laps around the gym, then throw 3 foam balls at targets. Each miss equals 1 extra lap.', tags: ['Cardio', 'Grades 4-6', 'Foam balls'] },
+        { name: '🏄 Gym Surfing', desc: 'On a gym mat, students do balance exercises while "surfing": surf stance, squats, turning lunges.', tags: ['Balance', 'Grades 3-4', 'Mats'] },
+        { name: '🐺 Active Werewolf', desc: 'Adaptation of the board game: villagers run, werewolves hunt at night (eyes closed). Village votes by walking toward a suspect.', tags: ['Strategy', 'Grades 4-6', 'Pinnies'] },
+        { name: '🎯 Human Bowling', desc: 'A "ball" player rolls on a scooter to tap the "pins" (teammates standing in hoops). Touch only!', tags: ['Accuracy', 'Grades 4-6', 'Scooters'] },
+        { name: '🥋 Cushion Sumo', desc: 'Two players in a circle of hoops, each with a cushion. Push your opponent out of the circle without hitting!', tags: ['Combat', 'Grades 4-6', 'Cushions'] },
+        { name: '🧊 Broom Ringette', desc: 'Adapted ringette: push a ring with a broom on the floor. Teams of 5, no contact.', tags: ['Team', 'Grades 4-6', 'Rings'] },
+        { name: '💎 Gem Hunt', desc: 'Colored beanbags hidden everywhere. Each color is worth different points. Collect as many as possible in 3 minutes!', tags: ['Speed', 'Grades 1-2', 'Beanbags'] },
+        { name: '🤼 Creative Tug of War', desc: 'Classic tug of war on a line: players add one at a time alternating sides. The order strategy matters!', tags: ['Strength', 'Grades 4-6', 'Rope'] },
+        { name: '🎪 Partner Acrobatics', desc: 'In pairs, perform acro-gym poses: airplane, chair, 2-person pyramid. Teacher checks safety for each figure.', tags: ['Balance', 'Grades 5-6', 'Mats'] },
+        { name: '🏐 Four Corners Ball', desc: 'Gym divided into 4 zones. Each team defends their zone and throws foam balls into other zones. Zone with fewest balls wins.', tags: ['Throwing', 'All ages', 'Foam balls'] },
+        { name: '🦈 Shark Attack', desc: 'A shark at center tags swimmers crossing. Tagged players become seaweed (arms out) blocking the path without moving.', tags: ['Dodging', 'Grades 1-2', 'No equipment'] },
+        { name: '🧩 Puzzle Relay', desc: 'Relay race where each runner brings back a piece of a giant puzzle. The team must assemble it to win.', tags: ['Relay', 'Grades 3-4', 'Giant puzzle'] },
+        { name: '🚴 Imaginary Cycling', desc: 'Cycling workout on the floor: pedal lying on your back, standing sprint, hill climb (high knees), downhill (arms up). With music!', tags: ['Cardio', 'Grades 1-4', 'Mats'] },
+        { name: '🎭 Sports Statues', desc: 'Music on: move while mimicking a named sport. Music off: freeze in that sport\'s pose. Best statues win!', tags: ['Dance', 'Grades 1-2', 'Music'] },
+        { name: '⚡ Flash Tag', desc: 'Ultra-fast tag: tagger changes every touch. When tagged, do 3 star jumps then you become the tagger.', tags: ['Speed', 'All ages', 'No equipment'] },
+        { name: '🏀 Adapted KnockOut', desc: 'Shooting line at the basket. If the 2nd player scores before the 1st, the 1st is eliminated. Last player wins!', tags: ['Accuracy', 'Grades 4-6', 'Basketballs'] },
+        { name: '🐸 Frogs and Flies', desc: 'Frogs (crouching) jump to catch flies (standing, dodging). Tagged? You become a frog!', tags: ['Agility', 'Grades 1-2', 'No equipment'] },
+        { name: '🏗️ Crazy Builders', desc: 'Each team stacks cardboard boxes to build the tallest tower. Catch: you must carry it 10 meters without it falling!', tags: ['Cooperation', 'Grades 3-4', 'Boxes'] },
+        { name: '🎯 Foam Archery', desc: 'Shoot at targets (hoops on wall) with Nerf guns or ball launchers. Different points for different zones.', tags: ['Accuracy', 'Grades 4-6', 'Targets'] },
+        { name: '🏃‍♂️ Adventure Fartlek', desc: 'Disguised interval running: sprint when teacher says "lava!", jog at "river!", walk at "forest!" Interactive story.', tags: ['Cardio', 'Grades 4-6', 'No equipment'] },
+        { name: '🤸‍♀️ Freestyle Gymnastics', desc: 'Students create a 4-move sequence: roll, cartwheel, jump, balance. Presentation to the class.', tags: ['Agility', 'Grades 4-6', 'Mats'] },
+        { name: '🐝 Bee Swarm', desc: 'Bees (runners) collect pollen (beanbags) flower by flower and bring it to the hive. The bear (tagger) guards the flowers.', tags: ['Running', 'Grades 1-4', 'Beanbags'] },
+        { name: '🧲 Giant Magnet', desc: 'One player is the magnet: everyone tagged joins hand-in-hand. The group grows and must coordinate to catch others.', tags: ['Cooperation', 'Grades 1-2', 'No equipment'] },
+        { name: '🏐 Smashball', desc: 'Like volleyball but you can catch and re-throw the ball. The ball must not touch the ground on your side.', tags: ['Team', 'Grades 3-4', 'Foam balls'] },
+        { name: '🎩 Musical Hat', desc: 'Pass the hat in a circle during music. When it stops, the one with the hat does a physical challenge chosen by the group.', tags: ['Challenges', 'All ages', 'Hat'] },
+        { name: '🌋 The Floor is Lava', desc: 'Move across the gym without touching the floor: walk on mats, hoops, benches. Touch the floor? Start over!', tags: ['Obstacle course', 'Grades 1-4', 'Mats'] },
+        { name: '🤽 Land Water Polo', desc: 'Water polo rules but in the gym: throw foam ball into a small goal while passing to teammates. No dribbling, 3 steps max.', tags: ['Team', 'Grades 5-6', 'Foam balls'] },
+        { name: '🧗‍♂️ Wall Crossing', desc: 'As a team, help each member get over a stack of mats (the "wall"). Teamwork and safety first!', tags: ['Cooperation', 'Grades 5-6', 'Mats'] },
+        { name: '🎪 Progressive Juggling', desc: 'Learn to juggle: 1 scarf, then 2, then 3. Timed challenges. Experts try with tennis balls.', tags: ['Coordination', 'Grades 4-6', 'Scarves'] },
+        { name: '🏌️ Gym Mini-Golf', desc: 'Mini-golf course with hockey sticks and tennis balls. Obstacles made of cones, chairs, hoops.', tags: ['Accuracy', 'Grades 3-4', 'Hockey sticks'] },
+        { name: '🤾‍♂️ Tchoukball', desc: 'Throw a ball at an angled trampoline so it bounces into the opposing zone. Defense tries to catch it.', tags: ['Team', 'Grades 5-6', 'Frame trampoline'] },
+        { name: '🧘‍♀️ Yoga Challenge', desc: 'Yoga card game: draw a card and hold the pose for 20 seconds. Bonus for difficult poses (crow, assisted headstand).', tags: ['Yoga', 'Grades 4-6', 'Yoga cards'] },
+        { name: '🏹 Duck Shoot', desc: 'Ducks zigzag across the gym. Hunters on the sides throw foam balls. A hit duck does 5 squats and restarts.', tags: ['Throwing', 'Grades 1-4', 'Foam balls'] },
+        { name: '🐍 Giant Snake', desc: 'In single file, hold each other\'s waists. The head must catch the tail! If the snake breaks, start over.', tags: ['Cooperation', 'Grades 1-2', 'No equipment'] },
+        { name: '🏃‍♀️ Clue Chase', desc: 'Sporty treasure hunt: each clue requires an exercise (20 jumps, 10 push-ups) before revealing the next location.', tags: ['Cardio', 'Grades 3-4', 'Clue cards'] },
+        { name: '🎾 Balloon Tennis', desc: 'Adapted tennis: small court, beach paddles, foam ball. Ball can bounce twice. Singles or doubles.', tags: ['Reflexes', 'Grades 4-6', 'Beach paddles'] },
+        { name: '🏰 Castle Attack', desc: 'One team defends their castle (stacked boxes) while the other throws foam balls to demolish it. Switch after 3 minutes.', tags: ['Throwing', 'Grades 1-4', 'Boxes'] },
+        { name: '🤸‍♂️ Extreme Simon Says', desc: 'Simon Says with sports moves: commands get increasingly intense. Those who mess up run 1 lap.', tags: ['Reflexes', 'All ages', 'No equipment'] },
+        { name: '🎪 Sack Race 2.0', desc: 'Sack race but teams of 2 in the same giant sack! Coordination and laughter guaranteed.', tags: ['Relay', 'Grades 1-4', 'Sacks'] },
+        { name: '⛹️ Dribble Tag', desc: 'Everyone dribbles a ball. Tag others while dribbling. Stop dribbling or get tagged? 5 push-ups!', tags: ['Agility', 'Grades 4-6', 'Basketballs'] },
+        { name: '🧱 Human Wall', desc: 'One team forms a wall (arms out). The other team must find a way to pass a ball through without contact.', tags: ['Strategy', 'Grades 3-4', 'Foam balls'] },
+        { name: '🏊‍♂️ Dry Swim Relay', desc: 'Relay where each leg mimics a different stroke on the floor. Breaststroke on belly, backstroke on back, butterfly with waves.', tags: ['Relay', 'Grades 1-2', 'Mats'] },
+        { name: '🎯 Gym Kan Jam', desc: 'Teams of 2: one thrower, one deflector. Throw the frisbee at the bin, partner can deflect it in.', tags: ['Accuracy', 'Grades 4-6', 'Frisbees'] },
+        { name: '🦁 King of the Jungle', desc: 'The king (at center) commands exercises. To dethrone them, beat their challenge. Winner becomes king.', tags: ['Challenges', 'Grades 1-4', 'No equipment'] },
+        { name: '🎵 Kids Zumba', desc: 'Kid-friendly dance fitness routine. Simple, repetitive moves set to popular music.', tags: ['Dance', 'Grades 1-4', 'Music'] },
+        { name: '🏀 Adapted Horse', desc: 'Each player invents a creative shot (between legs, eyes closed, back to basket). Others must copy it.', tags: ['Accuracy', 'Grades 4-6', 'Basketballs'] },
+        { name: '🐕 Dog Walk', desc: 'In pairs: the "dog" (on all fours) is guided by the "owner" through an obstacle course. Switch roles.', tags: ['Obstacle course', 'Grades 1-2', 'Cones'] },
+        { name: '🌀 Tornado Ball', desc: 'Everyone in a circle. Throw as many foam balls as possible at the center pin. Organized chaos!', tags: ['Throwing', 'All ages', 'Foam balls'] },
+        { name: '🤺 Noodle Fencing', desc: 'Duel with pool noodles. Only foot touches count. Touch a foot = 1 point. First to 5 wins.', tags: ['Combat', 'Grades 4-6', 'Pool noodles'] },
+        { name: '🧊 Broom Hockey', desc: 'Hockey with brooms and a light ball. Teams of 4, mini goals. Simple and effective!', tags: ['Team', 'Grades 4-6', 'Brooms'] },
+        { name: '🌈 Rainbow Tag', desc: '6 colored zones on the floor. Teacher calls a color: everyone runs there. Last 3 to arrive do an exercise.', tags: ['Speed', 'Grades 1-2', 'Colored cones'] },
+        { name: '🤸 Spin the Fitness Wheel', desc: 'Spin the wheel and do the challenge: 15 burpees, 30-sec plank, 20 jump squats, etc. Teams accumulate points.', tags: ['Challenges', 'Grades 4-6', 'Wheel'] },
+        { name: '🎪 Beam Balance', desc: 'Multiple low beams in a row. Walk across forward, backward, on one foot, carrying a beanbag on your head.', tags: ['Balance', 'Grades 1-4', 'Low beam'] },
+        { name: '🏐 Newcomb', desc: 'Volleyball variation where you catch and throw instead of hitting. Perfect for beginners.', tags: ['Team', 'Grades 1-4', 'Foam balls'] },
+        { name: '🧗 Gym Traverse', desc: 'Move from one end of the gym to the other using only wall bars, benches, and fixed equipment. No floor!', tags: ['Strength', 'Grades 4-6', 'Wall bars'] },
+        { name: '🎲 Fitness Dice', desc: 'Roll a big foam die: each face = a different exercise. Roll a 2nd die for the number of reps.', tags: ['Cardio', 'All ages', 'Foam dice'] },
+        { name: '🏈 Mini Ultimate Frisbee', desc: 'Ultimate frisbee on a small field. No running with the frisbee, passes only. Score in the end zone.', tags: ['Team', 'Grades 4-6', 'Frisbees'] },
+        { name: '🦆 Ducks-Hunters-Hens', desc: 'Rock-paper-scissors as a chase game. Losers run to their wall, winners chase. Giant team version!', tags: ['Running', 'Grades 1-4', 'No equipment'] },
+        { name: '🎯 Gym Curling', desc: 'Slide beanbags on the floor toward a target (concentric hoops). Different points for different zones.', tags: ['Accuracy', 'Grades 3-4', 'Beanbags'] },
+        { name: '🐙 Octopus Tag', desc: 'Octopus at center tags fish crossing. Tagged fish sit and become tentacles: they can tag while seated!', tags: ['Dodging', 'Grades 1-2', 'No equipment'] },
+        { name: '🏋️‍♀️ Junior CrossFit', desc: 'Mini adapted WOD: 5 push-ups, 10 squats, 15 jumping jacks, run 1 lap. 3 rounds, timed!', tags: ['Strength', 'Grades 5-6', 'No equipment'] },
+        { name: '🎵 Continents Dance', desc: 'Learn a dance step from 5 continents: samba (Americas), African dance, Bollywood, hip-hop, European waltz.', tags: ['Dance', 'Grades 4-6', 'Music'] },
+        { name: '🐊 Crocodile Swamp', desc: 'Cross the swamp (gym) by jumping lily pad to lily pad (hoops). Crocodiles (taggers) crawl on the ground.', tags: ['Obstacle course', 'Grades 1-2', 'Hoops'] },
+        { name: '🏀 Musical Basketball', desc: 'Dribble around the gym to music. When it stops: shoot at the nearest basket. Scored basket = 1 point. Who has the most?', tags: ['Accuracy', 'Grades 4-6', 'Basketballs'] },
+        { name: '🦅 Eagle Flight', desc: 'Core exercise: airplane position (lying face down, arms and legs lifted). Who holds the longest? Individual timers.', tags: ['Strength', 'Grades 3-4', 'Mats'] },
+        { name: '🎮 Pac-Man Gym', desc: 'Move only on gym floor lines. Pac-Man chases ghosts (ball tag). Tagged ghosts sit for 10 seconds.', tags: ['Speed', 'All ages', 'Foam balls'] },
+        { name: '🏓 Ping-Pong Relay', desc: 'Team relay: carry a ping-pong ball on a paddle through a course. If it falls, restart the obstacle!', tags: ['Relay', 'Grades 3-4', 'Paddles'] },
+        { name: '🐻 Bear Walk', desc: 'Bear-walk race (all fours, hips high). Team relay. Harder than it looks!', tags: ['Strength', 'Grades 4-6', 'No equipment'] },
+        { name: '🎪 Triple Accuracy Challenge', desc: 'Three stations: toss beanbags into a hoop, throw balls at pins, frisbee into a basket.', tags: ['Accuracy', 'Grades 3-4', 'Beanbags'] },
+        { name: '🤸‍♀️ Beginner Parkour', desc: 'Parkour intro: jump over benches, roll on mats, climb wall bars. Safe and supervised.', tags: ['Agility', 'Grades 4-6', 'Mats'] },
+        { name: '🧊 Broomball', desc: 'Hockey with brooms and a foam ball. No skates but socks on the gym floor. It slides!', tags: ['Team', 'Grades 4-6', 'Brooms'] },
+        { name: '🏃 Hero Relay', desc: 'Each runner mimics a hero: Superman (arms forward), Flash (sprint), Hulk (big steps), Spider-Man (crawl).', tags: ['Relay', 'Grades 1-2', 'No equipment'] },
+        { name: '🎯 Gym Bocce', desc: 'Indoor bocce with foam balls. Throw closest to the target ball. Teams of 3.', tags: ['Accuracy', 'All ages', 'Foam balls'] },
+        { name: '⚡ 60-Second Challenge', desc: 'Stations of 60 seconds each: max push-ups, max jumps, max sit-ups, max burpees. Beat your own record!', tags: ['Challenges', 'Grades 4-6', 'Timer'] },
+        { name: '🦋 Metamorphosis', desc: 'Students start as eggs (crouching), become caterpillars (crawl), cocoons (roll), then butterflies (run with arms open). Repeat!', tags: ['Cardio', 'Grades 1-2', 'No equipment'] },
+        { name: '🏐 Seated Volleyball', desc: 'Volleyball match in seated position. Low net (rope or bench). Parasport discovery!', tags: ['Team', 'Grades 4-6', 'Foam balls'] },
+        { name: '🎭 Sports Improv', desc: 'Draw 2 cards: a sport + a style (slow motion, robot, giant). Act it out while others guess.', tags: ['Dance', 'Grades 3-4', 'Cards'] },
+        { name: '🏋️ Standing Arm Wrestling', desc: 'Face to face on a line, hold one hand. Pull your opponent to make them move their feet. Best of 3.', tags: ['Strength', 'Grades 4-6', 'No equipment'] },
+        { name: '🐾 Animal Relay', desc: 'Each relay section is an animal walk: bunny hop, crab walk, horse gallop, snake crawl.', tags: ['Relay', 'Grades 1-2', 'No equipment'] },
+        { name: '🎯 Siege Throw', desc: 'Like a catapult: place a foam ball on a giant spoon and launch it as far as possible. Measure the distance!', tags: ['Throwing', 'Grades 3-4', 'Foam balls'] },
+        { name: '🧊 Sock Skating', desc: 'In socks on the gym floor, slide and race. Bonus: figure skating moves!', tags: ['Balance', 'Grades 1-4', 'No equipment'] },
+        { name: '🏸 Indiaca', desc: 'Brazilian shuttle game: hit an indiaca (feathered cushion) over a net with your hand. No rackets!', tags: ['Reflexes', 'Grades 4-6', 'Indiaca'] },
+        { name: '🤸 Timed Obstacle Challenge', desc: '10-obstacle course. Each student is timed. Post the leaderboard. Beat your record each week.', tags: ['Obstacle course', 'Grades 4-6', 'Cones'] },
+        { name: '🎪 Gym Cross-Country Skiing', desc: 'With cardboard plates under feet, slide on the gym floor like cross-country skiing. Relay race!', tags: ['Cardio', 'Grades 3-4', 'Cardboard plates'] },
+        { name: '🏀 Upgraded Dodgeball', desc: 'Classic dodgeball with add-ons: a doctor who heals, a shield (1 per team), VIP zone for ace throwers.', tags: ['Dodging', 'All ages', 'Foam balls'] },
+        { name: '🦎 Chameleon Tag', desc: 'Taggers wear pinnies. When they tag someone, they swap the pinny. Nobody knows who\'ll tag next!', tags: ['Speed', 'Grades 1-4', 'Pinnies'] },
+        { name: '🧘 Plank Challenge', desc: 'Who holds a plank the longest? Variations: side plank, one-arm plank, plank with shoulder taps.', tags: ['Strength', 'Grades 4-6', 'Mats'] },
+        { name: '🏒 Floorball', desc: 'Indoor hockey with floorball sticks and a perforated ball. 5v5 with goalie. No raising the stick!', tags: ['Team', 'Grades 4-6', 'Floorball sticks'] },
+        { name: '🎵 Retro Aerobics', desc: '80s-style aerobics routine: grapevine, V-step, step-touch, jumping jacks. Disco music!', tags: ['Cardio', 'Grades 4-6', 'Music'] },
+        { name: '🧊 Penguin Slide', desc: 'Run then slide on your belly on a gym mat. Who slides the farthest? Mark with cones!', tags: ['Challenges', 'Grades 1-4', 'Mats'] },
+        { name: '🏃‍♂️ Mission Impossible', desc: 'Stealth course with lasers (elastic bands), alarms (bells), cameras (teacher). Cross without being detected!', tags: ['Obstacle course', 'Grades 4-6', 'Elastic bands'] },
+        { name: '🤾 Poull Ball', desc: 'Team sport with a giant ball. Hit the ball with your hands toward the opposing target. No contact!', tags: ['Team', 'Grades 4-6', 'Giant ball'] },
+        { name: '🎯 Pass and Shoot', desc: 'Teams of 4 must make 3 passes minimum before shooting at the goal. Drop the ball? Turnover.', tags: ['Cooperation', 'Grades 3-4', 'Foam balls'] },
+        { name: '🐧 Penguin Race', desc: 'Run with a ball between your knees. Team relay. If the ball drops, go back to the start of your section!', tags: ['Relay', 'Grades 1-2', 'Balls'] },
+        { name: '🌊 Human Waves', desc: 'In a circle: a leader starts a move (jump, squat, clap) that ripples around like a wave. Faster and faster!', tags: ['Coordination', 'Grades 1-4', 'No equipment'] },
+        { name: '🤖 Live Dance Dance Revolution', desc: 'Four hoops in a cross pattern. Teacher calls directions and students jump into the right hoop. Speed up!', tags: ['Reflexes', 'Grades 3-4', 'Hoops'] },
+        { name: '🏐 9-Square', desc: 'Grid of 9 squares. King in center serves. Hit the ball into someone\'s square. If it lands in yours, you\'re out.', tags: ['Reflexes', 'Grades 4-6', 'Foam balls'] },
+        { name: '🎪 Cooperative Circus', desc: 'Groups of 4 create a 1-minute circus act: human pyramid, juggling, acrobatics. Class performance.', tags: ['Cooperation', 'Grades 4-6', 'Scarves'] },
+        { name: '🧊 Gym Bobsled', desc: 'One student sits on a scooter, another pushes. Team of 2 race through a cone course.', tags: ['Relay', 'Grades 3-4', 'Scooters'] },
+        { name: '🦸‍♂️ Superhero Academy', desc: 'Each station builds a superpower: speed (sprints), strength (push-ups), agility (ladder), flight (long jumps).', tags: ['Obstacle course', 'Grades 1-4', 'Agility ladder'] },
+        { name: '🏀 Around the World', desc: 'Shoot from 5 spots around the key. Make each one to advance. First to complete the circuit wins.', tags: ['Accuracy', 'Grades 4-6', 'Basketballs'] },
+        { name: '🎪 Jedi Balance', desc: 'Stand on one foot, close your eyes. Use the "Force" to balance. Add: balance a stick on your hand.', tags: ['Balance', 'Grades 3-4', 'Sticks'] },
+        { name: '🐱 Extreme Freeze Tag', desc: 'Classic freeze tag but safe spots change: benches one round, hoops the next, partner link-ups another.', tags: ['Dodging', 'Grades 1-4', 'Hoops'] },
+        { name: '🏃 Fun Interval Training', desc: '40-sec work / 20-sec rest stations: jumping jacks, squat jumps, high knees, burpees, mountain climbers. Upbeat music!', tags: ['Cardio', 'Grades 5-6', 'Music'] },
+        { name: '🎯 Frisbee Golf', desc: '9-hole course around the gym. Throw frisbee at each target in fewest throws. Scorecard provided.', tags: ['Accuracy', 'Grades 4-6', 'Frisbees'] },
+        { name: '🦘 Kangaroo Relay', desc: 'Relay on stability balls: sit and bounce through a cone course and back. Guaranteed laughs!', tags: ['Relay', 'Grades 1-4', 'Stability balls'] },
+        { name: '🧠 Brain-Sport', desc: 'Run wall to wall. At each end, answer a math question. Right answer = advance, wrong = go back!', tags: ['Cardio', 'Grades 3-4', 'Question cards'] },
+        { name: '🏐 Kin-Ball', desc: 'Three teams of 4 with a giant ball. One team calls a color and hits the ball. The named team must catch it before it lands.', tags: ['Team', 'Grades 4-6', 'Giant ball'] },
+        { name: '🎪 Sport Limbo', desc: 'Classic limbo with a descending bar. Variations: go under rolling, crab-style, backwards. Caribbean music!', tags: ['Agility', 'All ages', 'Limbo bar'] },
+        { name: '🐲 Dragon Hunters', desc: 'Dragons (with pinny tails) guard their eggs (balls). Hunters must steal eggs without losing their own flag.', tags: ['Strategy', 'Grades 4-6', 'Pinnies'] },
+        { name: '🏋️ Human Wheelbarrow', desc: 'Wheelbarrow race: one holds the feet, the other walks on hands. Relay with teams of 4 (2 pairs).', tags: ['Strength', 'Grades 4-6', 'No equipment'] },
+        { name: '🎵 Freeze Fitness', desc: 'Do an exercise while music plays. When it stops, freeze and listen for the next exercise. Non-stop flow!', tags: ['Cardio', 'Grades 1-4', 'Music'] },
+        { name: '🥎 Kickball', desc: 'Baseball but kick a foam ball instead of batting. Same basic rules: run the bases, 3 outs per inning.', tags: ['Team', 'Grades 4-6', 'Foam balls'] }
+    ],
+    zh: [
+        { name: '🧟 僵尸入侵', desc: '一个僵尸（穿背心）触碰其他玩家使其变成僵尸。幸存者必须在时间结束前到达安全区。', tags: ['闪避', '所有年龄', '背心'] },
+        { name: '🥷 忍者潜行', desc: '忍者必须穿过体育馆而不被守卫发现。如果守卫指向你，冻结5秒。', tags: ['策略', '高年级', '无器材'] },
+        { name: '⚽ 足球保龄球', desc: '用泡沫球踢倒三角形排列的球瓶。每队每轮有3次机会。', tags: ['精准', '所有年龄', '泡沫球'] },
+        { name: '🏀 宇宙篮球', desc: '篮球比赛中每个进球根据区域得分（1-2-3分）。每次哨响区域会改变。', tags: ['团队', '高年级', '篮球'] },
+        { name: '🦖 恐龙狩猎', desc: '猎人用泡沫球投掷恐龙（穿背心的）。被击中的恐龙去"博物馆"，队友可以解救。', tags: ['投掷', '低中年级', '泡沫球'] },
+        { name: '🏴‍☠️ 海盗宝藏', desc: '两支海盗队保护自己的宝藏（球）同时试图偷走对方的。不允许身体接触！', tags: ['策略', '中高年级', '球'] },
+        { name: '🚀 太空竞赛', desc: '团队接力赛，每个跑者携带一颗"小行星"（泡沫球）通过障碍物放到"行星"（呼啦圈）上。', tags: ['接力', '低中年级', '呼啦圈'] },
+        { name: '🤸 超级英雄障碍赛', desc: '8站循环赛灵感来自超级英雄：蜘蛛侠跳跃、闪电侠翻滚、超人平板支撑等。', tags: ['障碍赛', '所有年龄', '垫子'] },
+        { name: '🎯 皇家躲避球', desc: '自由对战！最后站立的人获胜。被击中的玩家坐下但可以抓地上的球重新加入。', tags: ['闪避', '中高年级', '泡沫球'] },
+        { name: '🏈 简易腰旗橄榄球', desc: '改编腰旗橄榄球：4对4，小场地，无擒抱。拉下持球者的背心即可阻止。', tags: ['团队', '高年级', '背心'] },
+        { name: '🏐 巨型气球排球', desc: '用巨型沙滩球打排球。整个团队必须在传球前都触碰到球。', tags: ['合作', '中高年级', '巨型球'] },
+        { name: '🧊 冰冻舞蹈大战', desc: '音乐响起时跳舞。音乐停止时冻结！最后一个停下的做5个开合跳。', tags: ['舞蹈', '低年级', '音乐'] },
+        { name: '🕵️ 间谍任务', desc: '间谍们在"激光"（拉紧的绳子）下匍匐前进，翻越障碍物取回秘密文件。', tags: ['障碍赛', '中高年级', '绳子'] },
+        { name: '⛏️ 我的世界建造者', desc: '团队收集"方块"（沙包）建造最高的塔。小心苦力怕会来偷！', tags: ['策略', '低中年级', '沙包'] },
+        { name: '🏃 元素冲刺', desc: '老师喊火、水、土或风。每个元素对应一个动作：跑、地上游泳、爬行、跳跃。', tags: ['有氧', '低年级', '无器材'] },
+        { name: '🤾 快速手球', desc: '5对5简化规则手球：最多3步，不能运球，投球得分。', tags: ['团队', '高年级', '泡沫球'] },
+        { name: '🎭 魔法镜子', desc: '两人一组，一个做动作，镜子实时模仿。每30秒交换角色。', tags: ['协调', '低年级', '无器材'] },
+        { name: '🏋️ 泰坦挑战', desc: '力量循环训练：蜘蛛俯卧撑、深蹲跳、20秒平板、波比跳、登山者。谁先完成？', tags: ['力量', '高年级', '垫子'] },
+        { name: '🧗 想象攀岩', desc: '孩子们"攀登"一面想象中的墙，跟随指令：右手高举，左脚向右。训练听力和协调。', tags: ['协调', '低年级', '肋木'] },
+        { name: '🎪 体育馆马戏团', desc: '轮换站点：抛接（丝巾）、平衡（低平衡木）、翻滚、走钢丝（地面线条）。', tags: ['平衡', '中年级', '丝巾'] },
+        { name: '🏸 气球羽毛球', desc: '用气球代替羽毛球。更容易击打且速度更慢，非常适合初学者。', tags: ['精准', '低中年级', '气球'] },
+        { name: '🐉 龙尾巴', desc: '每队排成一列抓住前人的肩膀。一条龙的头必须抓住另一条龙的尾巴。', tags: ['团队', '所有年龄', '背心'] },
+        { name: '🏊 陆地游泳', desc: '学生在垫子上模仿不同泳姿：自由泳、仰泳、蛙泳、蝶泳。游泳接力赛！', tags: ['有氧', '低年级', '垫子'] },
+        { name: '🤺 骑士决斗', desc: '两名玩家站在低平衡木上用泡沫垫试图让对方失去平衡。先踩到地面的输。', tags: ['平衡', '中高年级', '低平衡木'] },
+        { name: '🎯 飞盘高尔夫', desc: '6洞球场用呼啦圈作为目标。尽量用最少的投掷次数击中每个目标。', tags: ['精准', '中高年级', '飞盘'] },
+        { name: '🦸 极限夺旗赛', desc: '经典夺旗加超能力：盾牌（呼啦圈）挡住一个追逐者，隐身（每局5秒）。', tags: ['策略', '中高年级', '背心'] },
+        { name: '🏓 巨型乒乓球', desc: '体育馆版乒乓球：叠放的垫子当桌子，沙滩拍，泡沫球。必须双打。', tags: ['反应', '中高年级', '球拍'] },
+        { name: '🧘 动物瑜伽', desc: '老师说出一种动物，学生做对应的姿势：猫式、下犬式、眼镜蛇式、鹰式、树式。', tags: ['瑜伽', '低年级', '垫子'] },
+        { name: '🌪️ 人体龙卷风', desc: '6人一圈，所有人双手交叉握住。不松手的情况下解开结形成大圈。', tags: ['合作', '中年级', '无器材'] },
+        { name: '🎮 吃鸡体育馆', desc: '所有人在体育馆内，每分钟游戏区域缩小（锥形桶）。被触碰的出局。最后幸存者获胜！', tags: ['闪避', '中高年级', '锥形桶'] },
+        { name: '🏒 泡沫曲棍球', desc: '室内曲棍球用泡沫球杆和轻球。小球门，4人一队。不许大力击球！', tags: ['团队', '中高年级', '泡沫球杆'] },
+        { name: '🐒 丛林冒险', desc: '障碍赛中孩子们扮演猴子：荡秋千、攀爬、从藤蔓跳到藤蔓（绳子）、穿越沼泽（垫子）。', tags: ['障碍赛', '低中年级', '绳子'] },
+        { name: '🎵 运动音乐椅', desc: '音乐椅但不是坐下，而是在空呼啦圈中做运动（10次跳跃、5个俯卧撑等）。', tags: ['有氧', '所有年龄', '呼啦圈'] },
+        { name: '🥊 影子拳击', desc: '无接触拳击循环：听口令出拳、闪避、步法练习。配合劲爆音乐！', tags: ['有氧', '高年级', '无器材'] },
+        { name: '🌊 穿越海洋', desc: '体育馆是大海。"鲨鱼"（追逐者）试图抓住从一面墙跑到另一面的"鱼"。', tags: ['跑步', '低年级', '背心'] },
+        { name: '🤖 编程机器人', desc: '两人一组：程序员发出指令（前进、转弯、跳跃），机器人执行。机器人闭着眼睛！', tags: ['合作', '中年级', '无器材'] },
+        { name: '🏇 赛马', desc: '接力赛中跑者骑着扫帚通过锥形桶赛道。驾！', tags: ['接力', '低中年级', '锥形桶'] },
+        { name: '⛷️ 体育馆冬季两项', desc: '跑体育馆2圈然后投3个泡沫球击中目标。每个未击中的目标等于多跑1圈。', tags: ['有氧', '中高年级', '泡沫球'] },
+        { name: '🏄 体育馆冲浪', desc: '在体育垫上做平衡练习"冲浪"：冲浪姿势、深蹲、转弯弓步。', tags: ['平衡', '中年级', '垫子'] },
+        { name: '🐺 活力狼人杀', desc: '桌游改编：村民跑步，狼人在夜间（闭眼）狩猎。村庄通过走向嫌疑人投票。', tags: ['策略', '中高年级', '背心'] },
+        { name: '🎯 人体保龄球', desc: '一个"球"玩家坐在滑板车上滚向"球瓶"（站在呼啦圈里的队友）。只能触碰！', tags: ['精准', '中高年级', '滑板车'] },
+        { name: '🥋 坐垫相扑', desc: '两名玩家在呼啦圈圈内，各持一个坐垫。把对手推出圈外，不能打！', tags: ['格斗', '中高年级', '坐垫'] },
+        { name: '🧊 扫帚冰球', desc: '改编冰球：用扫帚在地板上推圆环。5人一队，无身体接触。', tags: ['团队', '中高年级', '圆环'] },
+        { name: '💎 宝石猎人', desc: '彩色沙包藏在各处。每种颜色值不同分数。3分钟内收集尽可能多的！', tags: ['速度', '低年级', '沙包'] },
+        { name: '🤼 创意拔河', desc: '经典拔河但在一条线上：玩家交替一个一个加入。顺序策略很重要！', tags: ['力量', '中高年级', '绳子'] },
+        { name: '🎪 双人杂技', desc: '两人一组完成技巧体操造型：飞机、椅子、2人金字塔。老师检查每个造型的安全性。', tags: ['平衡', '高年级', '垫子'] },
+        { name: '🏐 四角球', desc: '体育馆分成4个区域。每队防守自己的区域并向其他区域投泡沫球。球最少的区域获胜。', tags: ['投掷', '所有年龄', '泡沫球'] },
+        { name: '🦈 鲨鱼来了', desc: '一只鲨鱼在中间触碰过路的游泳者。被触碰的变成海草（伸展双臂）站着不动挡路。', tags: ['闪避', '低年级', '无器材'] },
+        { name: '🧩 拼图接力', desc: '接力赛中每个跑者带回一块巨型拼图。团队必须拼好才能获胜。', tags: ['接力', '中年级', '巨型拼图'] },
+        { name: '🚴 想象骑车', desc: '地面骑车训练：仰卧蹬车、站立冲刺、爬坡（高抬腿）、下坡（举手）。配音乐！', tags: ['有氧', '低中年级', '垫子'] },
+        { name: '🎭 运动雕像', desc: '音乐响起时模仿指定运动。音乐停时定格成该运动姿势。最佳雕像获奖！', tags: ['舞蹈', '低年级', '音乐'] },
+        { name: '⚡ 闪电追逐', desc: '超快追逐游戏：每次触碰后追逐者改变。被追到后做3个星形跳然后变成追逐者。', tags: ['速度', '所有年龄', '无器材'] },
+        { name: '🏀 改编淘汰赛', desc: '排队投篮。如果第二个玩家比第一个先进球，第一个被淘汰。最后的玩家获胜！', tags: ['精准', '中高年级', '篮球'] },
+        { name: '🐸 青蛙抓苍蝇', desc: '青蛙（蹲着）跳起来抓苍蝇（站着闪避的）。被抓到了？你变成青蛙！', tags: ['敏捷', '低年级', '无器材'] },
+        { name: '🏗️ 疯狂建筑师', desc: '每队叠纸板箱建最高的塔。难点：必须搬运10米不能倒！', tags: ['合作', '中年级', '箱子'] },
+        { name: '🎯 泡沫射箭', desc: '用软弹枪或球发射器射击墙上的目标（呼啦圈）。不同区域不同分数。', tags: ['精准', '中高年级', '目标'] },
+        { name: '🏃‍♂️ 冒险变速跑', desc: '伪装的间歇跑：老师喊"岩浆！"就冲刺，"河流！"就慢跑，"森林！"就走路。互动故事。', tags: ['有氧', '中高年级', '无器材'] },
+        { name: '🤸‍♀️ 自由体操', desc: '学生创编4个动作序列：翻滚、侧手翻、跳跃、平衡。在全班面前展示。', tags: ['敏捷', '中高年级', '垫子'] },
+        { name: '🐝 蜜蜂群', desc: '蜜蜂（跑者）逐朵花收集花粉（沙包）并带回蜂巢。熊（追逐者）守护花朵。', tags: ['跑步', '低中年级', '沙包'] },
+        { name: '🧲 巨型磁铁', desc: '一个玩家是磁铁：被吸到的人手拉手加入。团体越来越大，必须协调才能抓到其他人。', tags: ['合作', '低年级', '无器材'] },
+        { name: '🏐 扣球', desc: '像排球但可以接住球再扔。球不能落在你这边的地上。', tags: ['团队', '中年级', '泡沫球'] },
+        { name: '🎩 音乐帽子', desc: '围成圈在音乐中传帽子。音乐停时拿帽子的人做一个全组选定的体能挑战。', tags: ['挑战', '所有年龄', '帽子'] },
+        { name: '🌋 地板是岩浆', desc: '在体育馆中移动但不能碰地板：踩垫子、呼啦圈、长凳。碰到地板就重来！', tags: ['障碍赛', '低中年级', '垫子'] },
+        { name: '🤽 陆地水球', desc: '水球规则但在体育馆里：把泡沫球扔进小球门并传球给队友。不能运球，最多3步。', tags: ['团队', '高年级', '泡沫球'] },
+        { name: '🧗‍♂️ 翻墙行动', desc: '团队合作帮助每个成员翻过垫子堆成的"墙"。团队合作和安全第一！', tags: ['合作', '高年级', '垫子'] },
+        { name: '🎪 渐进式抛接', desc: '学习抛接：1条丝巾，然后2条，然后3条。计时挑战。高手尝试网球。', tags: ['协调', '中高年级', '丝巾'] },
+        { name: '🏌️ 体育馆迷你高尔夫', desc: '用曲棍球杆和网球的迷你高尔夫球场。障碍物由锥形桶、椅子、呼啦圈组成。', tags: ['精准', '中年级', '曲棍球杆'] },
+        { name: '🤾‍♂️ 巧固球', desc: '将球投向倾斜的蹦床使其弹入对方区域。防守方试图接住。', tags: ['团队', '高年级', '框架蹦床'] },
+        { name: '🧘‍♀️ 瑜伽挑战', desc: '瑜伽卡片游戏：抽一张卡保持姿势20秒。高难度姿势（乌鸦式、辅助倒立）有额外加分。', tags: ['瑜伽', '中高年级', '瑜伽卡'] },
+        { name: '🏹 射鸭子', desc: '鸭子在体育馆里曲折前进。两侧的猎人扔泡沫球。被击中的鸭子做5个深蹲后重新开始。', tags: ['投掷', '低中年级', '泡沫球'] },
+        { name: '🐍 巨蛇', desc: '排成一列，抓住前面人的腰。蛇头必须抓到蛇尾！蛇断了就重来。', tags: ['合作', '低年级', '无器材'] },
+        { name: '🏃‍♀️ 线索追踪', desc: '运动寻宝：每条线索要求做运动（20次跳跃、10个俯卧撑）才能揭示下一个地点。', tags: ['有氧', '中年级', '线索卡'] },
+        { name: '🎾 气球网球', desc: '改编网球：小场地，沙滩拍，泡沫球。球可以弹两次。单打或双打。', tags: ['反应', '中高年级', '沙滩拍'] },
+        { name: '🏰 攻城战', desc: '一队防守城堡（叠放的箱子），另一队用泡沫球攻击。3分钟后交换角色。', tags: ['投掷', '低中年级', '箱子'] },
+        { name: '🤸‍♂️ 极限西蒙说', desc: '运动版西蒙说：指令越来越激烈。做错的跑1圈。', tags: ['反应', '所有年龄', '无器材'] },
+        { name: '🎪 袋鼠赛跑2.0', desc: '袋鼠赛跑但两人一组在同一个大袋子里！协调和欢笑保证。', tags: ['接力', '低中年级', '麻袋'] },
+        { name: '⛹️ 运球追逐', desc: '所有人运球。运球的同时追逐别人。停止运球或被追到？做5个俯卧撑！', tags: ['敏捷', '中高年级', '篮球'] },
+        { name: '🧱 人墙', desc: '一队组成人墙（手臂伸展）。另一队必须想办法让球通过而不接触。', tags: ['策略', '中年级', '泡沫球'] },
+        { name: '🏊‍♂️ 旱地游泳接力', desc: '接力赛每段模仿不同泳姿。俯卧蛙泳、仰卧背泳、蝶泳波浪动作。', tags: ['接力', '低年级', '垫子'] },
+        { name: '🎯 飞盘入桶', desc: '2人一组：一个投掷者，一个偏转者。把飞盘扔向垃圾桶，搭档可以把它拍进去。', tags: ['精准', '中高年级', '飞盘'] },
+        { name: '🦁 丛林之王', desc: '国王（在中间）命令做运动。要推翻国王就要完成他的挑战。赢家成为新国王。', tags: ['挑战', '低中年级', '无器材'] },
+        { name: '🎵 儿童尊巴', desc: '适合儿童的舞蹈健身。简单重复的动作配流行音乐。', tags: ['舞蹈', '低中年级', '音乐'] },
+        { name: '🏀 花式投篮', desc: '每个玩家发明一个创意投篮（从腿间、闭眼、背对篮筐）。其他人必须模仿。', tags: ['精准', '中高年级', '篮球'] },
+        { name: '🐕 遛狗', desc: '两人一组："狗"（四肢着地）被"主人"引导通过障碍赛道。交换角色。', tags: ['障碍赛', '低年级', '锥形桶'] },
+        { name: '🌀 龙卷风球', desc: '所有人围成圈。向中间的球瓶投尽可能多的泡沫球。有组织的混乱！', tags: ['投掷', '所有年龄', '泡沫球'] },
+        { name: '🤺 泡沫剑术', desc: '用泳池面条对决。只有碰到脚才算数。碰到脚=1分。先到5分获胜。', tags: ['格斗', '中高年级', '泳池面条'] },
+        { name: '🧊 扫帚曲棍球', desc: '用扫帚和轻球打曲棍球。4人一队，迷你球门。简单有效！', tags: ['团队', '中高年级', '扫帚'] },
+        { name: '🌈 彩虹追逐', desc: '地面上6个彩色区域。老师喊一个颜色：所有人跑向那里。最后3个到的做运动。', tags: ['速度', '低年级', '彩色锥桶'] },
+        { name: '🤸 体能幸运轮', desc: '转动轮盘执行挑战：15个波比跳、30秒平板支撑、20个深蹲跳等。团队累积积分。', tags: ['挑战', '中高年级', '轮盘'] },
+        { name: '🎪 平衡木行走', desc: '多根低平衡木排成一排。向前走、向后走、单脚走、头顶沙包走。', tags: ['平衡', '低中年级', '低平衡木'] },
+        { name: '🏐 新人球', desc: '排球变体，接住球后再扔而不是击打。非常适合初学者。', tags: ['团队', '低中年级', '泡沫球'] },
+        { name: '🧗 体育馆横移', desc: '只用肋木、长凳和固定设备从体育馆一端移到另一端。不碰地板！', tags: ['力量', '中高年级', '肋木'] },
+        { name: '🎲 健身骰子', desc: '掷一个大泡沫骰子：每面对应不同运动。再掷第二个骰子决定次数。', tags: ['有氧', '所有年龄', '泡沫骰子'] },
+        { name: '🏈 迷你极限飞盘', desc: '小场地极限飞盘。不能拿着飞盘跑，只能传。在得分区得分。', tags: ['团队', '中高年级', '飞盘'] },
+        { name: '🦆 鸭子猎人母鸡', desc: '石头剪刀布追逐版。输的跑向自己的墙，赢的追。团队巨型版！', tags: ['跑步', '低中年级', '无器材'] },
+        { name: '🎯 体育馆冰壶', desc: '在地板上滑沙包到目标（同心呼啦圈）。不同区域不同分数。', tags: ['精准', '中年级', '沙包'] },
+        { name: '🐙 章鱼追逐', desc: '章鱼在中间触碰过路的鱼。被碰到的鱼坐下变成触手：坐着也能碰人！', tags: ['闪避', '低年级', '无器材'] },
+        { name: '🏋️‍♀️ 少年CrossFit', desc: '迷你改编训练：5个俯卧撑、10个深蹲、15个开合跳、跑1圈。3轮计时！', tags: ['力量', '高年级', '无器材'] },
+        { name: '🎵 五大洲之舞', desc: '学习5个大洲的舞步：桑巴（美洲）、非洲舞、宝莱坞、嘻哈、欧洲华尔兹。', tags: ['舞蹈', '中高年级', '音乐'] },
+        { name: '🐊 鳄鱼沼泽', desc: '跳过荷叶（呼啦圈）穿越沼泽（体育馆）。鳄鱼（追逐者）在地上爬。', tags: ['障碍赛', '低年级', '呼啦圈'] },
+        { name: '🏀 音乐篮球', desc: '随音乐在体育馆运球。音乐停：投最近的篮筐。进球=1分。谁得分最多？', tags: ['精准', '中高年级', '篮球'] },
+        { name: '🦅 鹰的飞翔', desc: '核心训练：飞机姿势（俯卧，手臂和腿抬起）。谁坚持最久？个人计时。', tags: ['力量', '中年级', '垫子'] },
+        { name: '🎮 吃豆人体育馆', desc: '只能在体育馆地板线上移动。吃豆人用球追幽灵。被碰到的幽灵坐10秒。', tags: ['速度', '所有年龄', '泡沫球'] },
+        { name: '🏓 乒乓接力', desc: '团队接力：用球拍托乒乓球通过赛道。球掉了就重新开始该障碍！', tags: ['接力', '中年级', '球拍'] },
+        { name: '🐻 熊爬', desc: '熊爬赛跑（四肢着地，臀部抬高）。团队接力。比想象中难！', tags: ['力量', '中高年级', '无器材'] },
+        { name: '🎪 三重精准挑战', desc: '三个站点：沙包投呼啦圈、球击球瓶、飞盘投篮筐。', tags: ['精准', '中年级', '沙包'] },
+        { name: '🤸‍♀️ 初级跑酷', desc: '跑酷入门：跳过长凳、在垫子上翻滚、攀爬肋木。安全有监督。', tags: ['敏捷', '中高年级', '垫子'] },
+        { name: '🧊 扫帚球', desc: '用扫帚和泡沫球打曲棍球。不穿鞋只穿袜子在体育馆地板上。很滑！', tags: ['团队', '中高年级', '扫帚'] },
+        { name: '🏃 英雄接力', desc: '每个跑者模仿一个英雄：超人（手臂向前）、闪电侠（冲刺）、绿巨人（大步走）、蜘蛛侠（爬行）。', tags: ['接力', '低年级', '无器材'] },
+        { name: '🎯 体育馆地滚球', desc: '室内地滚球用泡沫球。扔得最接近目标球。3人一队。', tags: ['精准', '所有年龄', '泡沫球'] },
+        { name: '⚡ 60秒挑战', desc: '每站60秒：最多俯卧撑、最多跳跃、最多仰卧起坐、最多波比跳。打破自己的纪录！', tags: ['挑战', '中高年级', '计时器'] },
+        { name: '🦋 变形记', desc: '学生从蛋开始（蹲下），变成毛毛虫（爬行），蛹（翻滚），然后蝴蝶（张开手臂跑）。循环！', tags: ['有氧', '低年级', '无器材'] },
+        { name: '🏐 坐式排球', desc: '坐着打排球。低网（绳子或长凳）。残奥运动体验！', tags: ['团队', '中高年级', '泡沫球'] },
+        { name: '🎭 运动即兴', desc: '抽2张卡：一种运动+一种风格（慢动作、机器人、巨人）。表演给其他人猜。', tags: ['舞蹈', '中年级', '卡片'] },
+        { name: '🏋️ 站立掰手腕', desc: '面对面站在线上，握住一只手。拉对手让他移动脚。三局两胜。', tags: ['力量', '中高年级', '无器材'] },
+        { name: '🐾 动物接力', desc: '每段接力是一种动物步态：兔子跳、螃蟹走、马跑、蛇爬。', tags: ['接力', '低年级', '无器材'] },
+        { name: '🎯 攻城投掷', desc: '像弹射器：把泡沫球放在大勺上发射到尽可能远。测量距离！', tags: ['投掷', '中年级', '泡沫球'] },
+        { name: '🧊 袜子溜冰', desc: '穿袜子在体育馆地板上滑行比赛。加分项：花样滑冰动作！', tags: ['平衡', '低中年级', '无器材'] },
+        { name: '🏸 毽子球', desc: '巴西毽子运动：用手把羽毛垫子打过网。不用球拍！', tags: ['反应', '中高年级', '毽子'] },
+        { name: '🤸 计时障碍挑战', desc: '10个障碍的赛道。每个学生计时。公布排行榜。每周打破自己的纪录。', tags: ['障碍赛', '中高年级', '锥形桶'] },
+        { name: '🎪 体育馆越野滑雪', desc: '脚下踩纸板在体育馆地板上滑行模仿越野滑雪。接力赛！', tags: ['有氧', '中年级', '纸板'] },
+        { name: '🏀 升级版躲避球', desc: '经典躲避球加强版：有医生可以治疗、一个盾牌（每队1个）、王牌投手VIP区。', tags: ['闪避', '所有年龄', '泡沫球'] },
+        { name: '🦎 变色龙追逐', desc: '追逐者穿背心。碰到人后交换背心。没人知道下一个谁来追！', tags: ['速度', '低中年级', '背心'] },
+        { name: '🧘 平板支撑挑战', desc: '谁的平板支撑坚持最久？变体：侧平板、单臂平板、平板拍肩。', tags: ['力量', '中高年级', '垫子'] },
+        { name: '🏒 地板球', desc: '室内曲棍球用地板球杆和穿孔球。5对5有守门员。不能举杆！', tags: ['团队', '中高年级', '地板球杆'] },
+        { name: '🎵 复古有氧操', desc: '80年代风格有氧操：葡萄藤步、V字步、踏步触碰、开合跳。迪斯科音乐！', tags: ['有氧', '中高年级', '音乐'] },
+        { name: '🧊 企鹅滑行', desc: '跑起来然后趴在体育垫上滑行。谁滑得最远？用锥桶标记！', tags: ['挑战', '低中年级', '垫子'] },
+        { name: '🏃‍♂️ 不可能的任务', desc: '隐身赛道有激光（弹力绳）、警报（铃铛）、摄像头（老师）。不被发现地通过！', tags: ['障碍赛', '中高年级', '弹力绳'] },
+        { name: '🤾 大球运动', desc: '团队运动用巨型球。用手击球攻向对方目标。无身体接触！', tags: ['团队', '中高年级', '巨型球'] },
+        { name: '🎯 传球射门', desc: '4人一组必须至少传3次才能射门。球掉了？球权转换。', tags: ['合作', '中年级', '泡沫球'] },
+        { name: '🐧 企鹅赛跑', desc: '两膝夹球跑步。团队接力。球掉了就从你那段的起点重来！', tags: ['接力', '低年级', '球'] },
+        { name: '🌊 人浪', desc: '围成圈：一个领头人发起动作（跳、蹲、拍手）像波浪一样传开。越来越快！', tags: ['协调', '低中年级', '无器材'] },
+        { name: '🤖 真人跳舞机', desc: '四个呼啦圈排成十字。老师喊方向，学生跳进正确的圈。加速！', tags: ['反应', '中年级', '呼啦圈'] },
+        { name: '🏐 九宫格', desc: '9个方格。中间的王发球。把球打进别人的格子。球落在你的格子里你就出局。', tags: ['反应', '中高年级', '泡沫球'] },
+        { name: '🎪 合作马戏团', desc: '4人一组创作1分钟马戏表演：人体金字塔、抛接、杂技。全班展示。', tags: ['合作', '中高年级', '丝巾'] },
+        { name: '🧊 体育馆雪橇', desc: '一个学生坐在滑板车上，另一个推。2人一组通过锥桶赛道比赛。', tags: ['接力', '中年级', '滑板车'] },
+        { name: '🦸‍♂️ 超级英雄学院', desc: '每个站点培养一种超能力：速度（冲刺）、力量（俯卧撑）、敏捷（梯子）、飞行（跳远）。', tags: ['障碍赛', '低中年级', '敏捷梯'] },
+        { name: '🏀 环游世界', desc: '从罚球区周围5个位置投篮。每个位置都投中才能前进。先完成一圈的获胜。', tags: ['精准', '中高年级', '篮球'] },
+        { name: '🎪 绝地平衡', desc: '单脚站立，闭上眼睛。用"原力"保持平衡。加难度：手上平衡一根棍子。', tags: ['平衡', '中年级', '棍子'] },
+        { name: '🐱 极限冰冻追逐', desc: '经典冰冻追逐但安全点每轮改变：一轮是长凳，一轮是呼啦圈，一轮要两人搭档。', tags: ['闪避', '低中年级', '呼啦圈'] },
+        { name: '🏃 趣味间歇训练', desc: '40秒练习/20秒休息站点：开合跳、深蹲跳、高抬腿、波比跳、登山者。劲爆音乐！', tags: ['有氧', '高年级', '音乐'] },
+        { name: '🎯 飞盘高尔夫赛', desc: '体育馆周围9洞球场。每个目标用最少的投掷完成。提供计分卡。', tags: ['精准', '中高年级', '飞盘'] },
+        { name: '🦘 袋鼠接力', desc: '坐在稳定球上弹跳通过锥桶赛道再弹回来的接力。保证笑声！', tags: ['接力', '低中年级', '稳定球'] },
+        { name: '🧠 体脑结合', desc: '从一面墙跑到另一面。每到一端回答一道数学题。答对前进，答错返回！', tags: ['有氧', '中年级', '题卡'] },
+        { name: '🏐 健球', desc: '三队各4人用巨型球。一队喊颜色并击球。被喊到的队必须在球落地前接住。', tags: ['团队', '中高年级', '巨型球'] },
+        { name: '🎪 运动林波舞', desc: '经典林波舞配下降的横杆。变体：翻滚过去、螃蟹式、倒退走。加勒比音乐！', tags: ['敏捷', '所有年龄', '林波杆'] },
+        { name: '🐲 猎龙者', desc: '龙（带背心尾巴）保护龙蛋（球）。猎人必须偷蛋同时保护自己的旗帜。', tags: ['策略', '中高年级', '背心'] },
+        { name: '🏋️ 人体独轮车', desc: '独轮车赛跑：一人抓脚，另一人用手走。4人一组接力（2对）。', tags: ['力量', '中高年级', '无器材'] },
+        { name: '🎵 冰冻健身', desc: '音乐响时做运动。音乐停时冻结并听下一个运动指令。不间断流动！', tags: ['有氧', '低中年级', '音乐'] },
+        { name: '🥎 踢球', desc: '棒球但用脚踢泡沫球而不是击打。相同基本规则：跑垒、每局3出局。', tags: ['团队', '中高年级', '泡沫球'] }
+    ]
+};
+        window.currentLang = window.currentLang || 'fr';
+
+        const strip = document.getElementById('slotStrip');
+        let slotSpinning = false;
+
+        function getGames() { return gamesI18n[window.currentLang || 'fr'] || gamesI18n.fr; }
+        function populateSlot() {
+            strip.innerHTML = '';
+            const g = getGames();
+            for (let r = 0; r < 5; r++) {
+                g.forEach(game => {
+                    const div = document.createElement('div');
+                    div.className = 'slot-item';
+                    div.textContent = game.name;
+                    strip.appendChild(div);
+                });
+            }
+        }
+        populateSlot();
+        window.populateSlot = populateSlot;
+        window.currentLang = 'fr';
+
+        window.spinSlot = function() {
+            if (slotSpinning) return;
+            slotSpinning = true;
+            const btn = document.getElementById('slotGoBtn');
+            const resultDiv = document.getElementById('slotResult');
+            const resultText = document.getElementById('slotResultText');
+            btn.disabled = true;
+            resultDiv.classList.add('hidden');
+            populateSlot();
+            gsap.set(strip, { y: 0 });
+
+            const g = getGames();
+            const finalIndex = Math.floor(Math.random() * g.length);
+            const itemHeight = 80;
+            const totalScroll = -(g.length * 3 + finalIndex) * itemHeight;
+
+            gsap.to(strip, {
+                y: totalScroll, duration: 3.5, ease: 'power4.out',
+                onComplete: () => {
+                    slotSpinning = false;
+                    btn.disabled = false;
+                    const game = g[finalIndex];
+                    resultText.textContent = game.name;
+                    document.getElementById('slotResultDescText').textContent = game.desc;
+                    const tagsEl = document.getElementById('slotResultTags');
+                    tagsEl.innerHTML = '';
+                    game.tags.forEach(tag => {
+                        const span = document.createElement('span');
+                        span.className = 'inline-block px-3 py-1 rounded-lg text-xs font-baloo font-semibold bg-dark/5 text-dark/60';
+                        span.textContent = tag;
+                        tagsEl.appendChild(span);
+                    });
+                    resultDiv.classList.remove('hidden');
+                    gsap.fromTo('#slotResultDesc', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, delay: 0.3 });
+                    createSlotExplosion();
+                    spawnConfetti(window.innerWidth / 2, window.innerHeight / 2, 25);
+                }
+            });
+            gsap.to('#slotBox', { x: 3, duration: 0.05, repeat: 40, yoyo: true, onComplete: () => gsap.set('#slotBox', { x: 0 }) });
+        };
+
+        function createSlotExplosion() {
+            const box = document.getElementById('slotBox');
+            const colors = ['#00E5FF', '#FFD700', '#FF2A7A', '#8B5CF6'];
+            for (let i = 0; i < 4; i++) {
+                const ring = document.createElement('div');
+                ring.className = 'explosion-ring';
+                ring.style.borderColor = colors[i];
+                ring.style.width = '20px'; ring.style.height = '20px';
+                ring.style.top = '50%'; ring.style.left = '50%';
+                ring.style.transform = 'translate(-50%, -50%)';
+                box.appendChild(ring);
+                gsap.to(ring, { width: 300 + i * 80, height: 300 + i * 80, opacity: 0, duration: 0.8, delay: i * 0.1, ease: 'power2.out', onComplete: () => ring.remove() });
+            }
+        }
+
+        // ============ CONFETTI ============
+        function spawnConfetti(x, y, count = 20) {
+            const emojis = ['🎉', '⭐', '🔥', '💥', '✨', '🏆', '🎊', '⚡'];
+            for (let i = 0; i < count; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                piece.style.left = x + 'px'; piece.style.top = y + 'px';
+                document.body.appendChild(piece);
+                const angle = (Math.PI * 2 * i) / count;
+                const velocity = gsap.utils.random(100, 300);
+                gsap.to(piece, { x: Math.cos(angle) * velocity, y: Math.sin(angle) * velocity - 100, rotation: gsap.utils.random(-360, 360), scale: gsap.utils.random(0.5, 1.5), opacity: 0, duration: gsap.utils.random(1, 2), ease: 'power3.out', onComplete: () => piece.remove() });
+            }
+        }
+
+        // ============ CONFETTI ============
+        function spawnConfetti(x, y, count = 20) {
+            const emojis = ['🎉', '⭐', '🔥', '💥', '✨', '🏆', '🎊', '⚡'];
+            for (let i = 0; i < count; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                piece.style.left = x + 'px'; piece.style.top = y + 'px';
+                document.body.appendChild(piece);
+                const angle = (Math.PI * 2 * i) / count;
+                const velocity = gsap.utils.random(100, 300);
+                gsap.to(piece, { x: Math.cos(angle) * velocity, y: Math.sin(angle) * velocity - 100, rotation: gsap.utils.random(-360, 360), scale: gsap.utils.random(0.5, 1.5), opacity: 0, duration: gsap.utils.random(1, 2), ease: 'power3.out', onComplete: () => piece.remove() });
+            }
+        }
+
+        // ============ PHYSICS ENGINE ============
+        const canvas = document.getElementById('physics-canvas');
+        const ctx = canvas.getContext('2d');
+        let balls = [];
+        const gravity = 0.4, bounce = 0.65, friction = 0.99;
+
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const sportEmojis = { sports: ['⚽','🏀','🎾','🏈','🏐','🥎','🏸','🏓'], stars: ['⭐','🌟','✨','💫','🔥','💥','🎉','🎊'] };
+
+        class PhysicsBall {
+            constructor(x, y, emojiSet = 'sports') {
+                this.x = x; this.y = y;
+                const emojis = sportEmojis[emojiSet] || sportEmojis.sports;
+                this.emoji = emojis[Math.floor(Math.random() * emojis.length)];
+                this.vx = (Math.random() - 0.5) * 20; this.vy = -(Math.random() * 15 + 8);
+                this.size = 24 + Math.random() * 16; this.rotation = 0;
+                this.rotationSpeed = (Math.random() - 0.5) * 0.3;
+                this.life = 1; this.decay = 0.003 + Math.random() * 0.005;
+            }
+            update() {
+                this.vy += gravity; this.x += this.vx; this.y += this.vy;
+                this.vx *= friction; this.rotation += this.rotationSpeed; this.life -= this.decay;
+                if (this.y + this.size > canvas.height) { this.y = canvas.height - this.size; this.vy *= -bounce; this.vx *= 0.9; }
+                if (this.x < 0 || this.x + this.size > canvas.width) { this.vx *= -1; this.x = Math.max(0, Math.min(this.x, canvas.width - this.size)); }
+            }
+            draw() {
+                ctx.save(); ctx.globalAlpha = Math.max(0, this.life);
+                ctx.translate(this.x + this.size / 2, this.y + this.size / 2); ctx.rotate(this.rotation);
+                ctx.font = `${this.size}px serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(this.emoji, 0, 0); ctx.restore();
+            }
+            isDead() { return this.life <= 0; }
+        }
+
+        function spawnBalls(x, y, count = 15, emojiSet = 'sports') { for (let i = 0; i < count; i++) balls.push(new PhysicsBall(x, y, emojiSet)); }
+        function physicsLoop() { ctx.clearRect(0, 0, canvas.width, canvas.height); balls = balls.filter(b => !b.isDead()); balls.forEach(b => { b.update(); b.draw(); }); requestAnimationFrame(physicsLoop); }
+        physicsLoop();
+
+        document.querySelectorAll('.physics-trigger').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const rect = btn.getBoundingClientRect();
+                spawnBalls(rect.left + rect.width / 2, rect.top + rect.height / 2, 18, btn.dataset.emojiSet || 'sports');
+            });
+        });
+
+        // ============ SMOOTH SCROLL ============
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', e => {
+                const target = document.querySelector(anchor.getAttribute('href'));
+                if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+            });
+        });
+
+        // ============ GYM PARALLAX ============
+        window.addEventListener('scroll', () => {
+            const y = window.scrollY * -0.3;
+            document.body.style.setProperty('--gym-y', y + 'px');
+            const slotBg = document.getElementById('gymSlotBg');
+            if (slotBg) {
+                const rect = slotBg.parentElement.getBoundingClientRect();
+                const offset = (rect.top * -0.25);
+                slotBg.style.transform = `translateY(${offset}px)`;
+            }
+        });
+
+        // ============ CLICK RIPPLE ============
+        document.addEventListener('click', e => {
+            if (e.target.closest('.physics-trigger') || e.target.closest('#slotGoBtn')) return;
+            const dot = document.createElement('div');
+            dot.style.cssText = `position:fixed;left:${e.clientX}px;top:${e.clientY}px;width:8px;height:8px;border-radius:50%;background:rgba(0,229,255,0.5);pointer-events:none;z-index:99990;`;
+            document.body.appendChild(dot);
+            gsap.to(dot, { scale: 3, opacity: 0, duration: 0.5, onComplete: () => dot.remove() });
+        });
+
+    });
+
+    // ============ i18n SYSTEM ============
+    const i18nMap = [
+        ['[data-i18n="navDon"]', 'navDon'],
+        ['[data-i18n="mobileDon"]', 'mobileDon'],
+        ['[data-i18n="heroBadge"]', 'heroBadge'],
+        ['[data-i18n="heroTitle"]', 'heroTitle'],
+        ['[data-i18n="heroSub"]', 'heroSub'],
+        ['[data-i18n="statJeux"]', 'statJeux'],
+        ['[data-i18n="statSae"]', 'statSae'],
+        ['[data-i18n="statEns"]', 'statEns'],
+        ['[data-i18n="statGratuit"]', 'statGratuit'],
+        ['[data-i18n="resTag"]', 'resTag'],
+        ['[data-i18n="resTitle"]', 'resTitle'],
+        ['[data-i18n="resSub"]', 'resSub'],
+        ['[data-i18n="card1"]', 'card1'], ['[data-i18n="card1d"]', 'card1d'], ['[data-i18n="card1a"]', 'card1a'],
+        ['[data-i18n="card2"]', 'card2'], ['[data-i18n="card2d"]', 'card2d'], ['[data-i18n="card2a"]', 'card2a'],
+        ['[data-i18n="card3"]', 'card3'], ['[data-i18n="card3d"]', 'card3d'], ['[data-i18n="card3a"]', 'card3a'],
+        ['[data-i18n="card4"]', 'card4'], ['[data-i18n="card4d"]', 'card4d'], ['[data-i18n="card4a"]', 'card4a'],
+        ['[data-i18n="teaserTitle"]', 'teaserTitle'],
+        ['[data-i18n="teaserSub"]', 'teaserSub'],
+        ['[data-i18n="teaserBtn"]', 'teaserBtn'],
+        ['[data-i18n="mission"]', 'mission'],
+        ['[data-i18n="whyTitle"]', 'whyTitle'],
+        ['[data-i18n="why1"]', 'why1'], ['[data-i18n="why1d"]', 'why1d'],
+        ['[data-i18n="why2"]', 'why2'], ['[data-i18n="why2d"]', 'why2d'],
+        ['[data-i18n="why3"]', 'why3'], ['[data-i18n="why3d"]', 'why3d'],
+        ['[data-i18n="slotTag"]', 'slotTag'],
+        ['[data-i18n="slotTitle"]', 'slotTitle'],
+        ['[data-i18n="slotSub"]', 'slotSub'],
+        ['[data-i18n="slotResult"]', 'slotResult'],
+        ['[data-i18n="slotHow"]', 'slotHow'],
+        ['[data-i18n="testTag"]', 'testTag'],
+        ['[data-i18n="testTitle"]', 'testTitle'],
+        ['[data-i18n="test1role"]', 'test1role'], ['[data-i18n="test1"]', 'test1'],
+        ['[data-i18n="test2role"]', 'test2role'], ['[data-i18n="test2"]', 'test2'],
+        ['[data-i18n="test3role"]', 'test3role'], ['[data-i18n="test3"]', 'test3'],
+        ['[data-i18n="marqueeLabel"]', 'marqueeLabel'],
+        ['[data-i18n="donTitle"]', 'donTitle'],
+        ['[data-i18n="donSub"]', 'donSub'],
+        ['[data-i18n="donBtn1"]', 'donBtn1'],
+        ['[data-i18n="donBtn2"]', 'donBtn2'],
+        ['[data-i18n="iaTag"]', 'iaTag'],
+        ['[data-i18n="iaTitle"]', 'iaTitle'],
+        ['[data-i18n="iaSub"]', 'iaSub'],
+        ['[data-i18n="iaBadge"]', 'iaBadge'],
+        ['[data-i18n="iaCardTitle"]', 'iaCardTitle'],
+        ['[data-i18n="iaCardDesc"]', 'iaCardDesc'],
+        ['[data-i18n="iaCardBtn"]', 'iaCardBtn'],
+        ['[data-i18n="newsTitle"]', 'newsTitle'],
+        ['[data-i18n="newsDesc"]', 'newsDesc'],
+        ['[data-i18n="aluneTag"]', 'aluneTag'],
+        ['[data-i18n="aluneTitle"]', 'aluneTitle'],
+        ['[data-i18n="aluneSub"]', 'aluneSub'],
+        ['[data-i18n="aluneC1"]', 'aluneC1'], ['[data-i18n="aluneD1"]', 'aluneD1'], ['[data-i18n="aluneC1d"]', 'aluneC1d'],
+        ['[data-i18n="aluneC2"]', 'aluneC2'], ['[data-i18n="aluneD2"]', 'aluneD2'], ['[data-i18n="aluneC2d"]', 'aluneC2d'],
+        ['[data-i18n="aluneC3"]', 'aluneC3'], ['[data-i18n="aluneD3"]', 'aluneD3'], ['[data-i18n="aluneC3d"]', 'aluneC3d'],
+        ['[data-i18n="aluneC4"]', 'aluneC4'], ['[data-i18n="aluneD4"]', 'aluneD4'], ['[data-i18n="aluneC4d"]', 'aluneC4d'],
+        ['[data-i18n="aluneCta"]', 'aluneCta'], ['[data-i18n="aluneBtn"]', 'aluneBtn'],
+    ];
+    const i18n = {
+        fr: {
+            navJeux:'Jeux', navRes:'Ressources', navGen:'Générateur', navAvis:'Avis',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> Faire un don', mobileDon:'Faire un don',
+            heroBadge:'+500 ressources gratuites pour l\'ÉPS',
+            heroTitle:'Ton gym,<br><span style="color:#FF2A7A">tes règles.</span>',
+            heroSub:'La plateforme <strong class="text-dark">100% gratuite</strong> qui transforme tes cours d\'éducation physique en expériences épiques.',
+            heroBtn1:'<i data-lucide="zap" class="w-5 h-5"></i> Générer un jeu',
+            heroBtn2:'<i data-lucide="compass" class="w-5 h-5"></i> Explorer',
+            statJeux:'Jeux', statSae:'SAÉ', statEns:'Enseignants', statGratuit:'% Gratuit',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> RESSOURCES',
+            resTitle:'Tout ce qu\'il te faut,<br><span style="color:#FF2A7A">au même endroit.</span>',
+            resSub:'Des centaines de ressources pensées par et pour les profs d\'ÉPS du primaire.',
+            card1:'Banque de Jeux', card1d:'+500 jeux classés par catégorie, âge et compétence. Trouve le jeu parfait en secondes.', card1a:'Explorer <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'SAÉ Complètes', card2d:'Situations d\'apprentissage clés en main alignées avec le PFEQ. Prêtes à utiliser demain.', card2a:'Découvrir <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'Blogue ÉPS', card3d:'Articles, stratégies et réflexions sur l\'enseignement de l\'éducation physique au Québec.', card3a:'Lire <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'Gestion de Classe', card4d:'Outils, routines et systèmes pour un gymnase organisé et motivant. Fini le chaos!', card4a:'Organiser <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'Découvre le générateur de jeux!', teaserSub:'50 jeux au hasard avec règles complètes. Parfait quand t\'es en panne d\'idées.',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> Essayer le générateur',
+            mission:'Zone Total Sport, c\'est une plateforme créée par <strong class="text-dark">des enseignants d\'ÉPS du Québec</strong>, pour les enseignants d\'ÉPS. Chaque jeu, chaque SAÉ et chaque outil a été testé sur le terrain. Notre mission : te simplifier la vie et rendre tes cours inoubliables.',
+            whyTitle:'Ce qui rend la Zone<br><span style="color:#FFD700">différente.</span>',
+            why1:'Gratuit. Pour vrai.', why1d:'Pas de freemium, pas de paywall. Toutes les ressources sont accessibles à 100% sans créer de compte.',
+            why2:'Par des profs, pour des profs', why2d:'Chaque jeu et SAÉ est créé et testé par des enseignants du Québec. Du terrain, pas du bureau.',
+            why3:'Prêt en 2 minutes', why3d:'Trouve un jeu, lis les règles, c\'est parti. Toutes les ressources sont conçues pour être utilisables immédiatement.',
+            slotTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> GÉNÉRATEUR',
+            slotTitle:'Pas d\'idée?<br><span style="color:#FF2A7A">On s\'en occupe.</span>',
+            slotSub:'Clique sur GO et laisse la magie opérer. Un jeu au hasard, parfait pour ta prochaine période!',
+            slotResult:'Ton jeu du moment :', slotHow:'Comment jouer',
+            testTag:'<i data-lucide="message-circle" class="w-4 h-4"></i> TÉMOIGNAGES',
+            testTitle:'Ce qu\'ils en<br><span style="color:#8B5CF6">pensent.</span>',
+            test1role:'Enseignante ÉPS, Laval', test1:'"J\'utilise Zone Total Sport chaque semaine pour planifier mes cours. La banque de jeux est une mine d\'or! Mes élèves adorent les nouveaux jeux."',
+            test2role:'Enseignant ÉPS, Québec', test2:'"Le générateur de jeux est génial quand je suis en panne d\'inspiration. En un clic, j\'ai une activité prête à lancer. Merci pour cette ressource!"',
+            test3role:'Étudiante BÉPEP, Montréal', test3:'"Indispensable pour mes stages! Les SAÉ sont alignées avec le programme et faciles à adapter. Le site est devenu ma référence numéro un."',
+            marqueeLabel:'Nos jeux populaires',
+            donTitle:'Soutiens la<br><span style="color:#FFD700">Zone!</span>',
+            donSub:'Zone Total Sport est 100% gratuit et le restera. Un petit don nous aide à continuer de créer du contenu de qualité pour les profs d\'ÉPS.',
+            donBtn1:'<i data-lucide="heart" class="w-5 h-5"></i> Faire un don',
+            donBtn2:'<i data-lucide="share-2" class="w-5 h-5"></i> Partager le site',
+            footerDesc:'La plateforme gratuite de ressources en éducation physique pour les enseignants du primaire au Québec.',
+            footerNav:'Navigation', footerInfos:'Infos',
+            fAccueil:'Accueil', fJeux:'Banque de jeux', fSae:'SAÉ', fBlogue:'Blogue', fContact:'Contact',
+            fAbout:'À propos', fPrivacy:'Politique de confidentialité', fDon:'Faire un don', fTerms:'Conditions d\'utilisation',
+            copyright:'© 2026 Zone Total Sport. Tous droits réservés.', madeWith:'Fait avec 💛 au Québec',
+            visitLabel:'Visiteurs :',
+            subTitle:'DEVIENS MEMBRE VIP!', subDesc:'Débloque tout le contenu de la Zone!',
+            subPerk1:'Fiches détaillées, règles et variantes',
+            subPerk2:'Crée un jeu sur mesure en 10 secondes',
+            subPerk3:'Situations d\'apprentissage et gestion de classe',
+            subPerk4:'Sans abonnement ni carte de crédit',
+            subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> REJOINDRE LA ZONE GRATUITEMENT!', subLater:'Non merci, plus tard',
+            subPerkT1:'+500 jeux sportifs', subPerkT2:'Générateur IA', subPerkT3:'SAÉ + Outils', subPerkT4:'100% gratuit',
+            subSocial:'2 295 enseignants utilisent la Zone!',
+            iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NOUVEAUTÉ',
+            iaTitle:'Le futur de l\'ÉPS<br><span style="color:#FF2A7A">est arrivé!</span>',
+            iaSub:'L\'intelligence artificielle débarque dans la Zone. Prépare-toi!',
+            iaBadge:'YOUHOU!',
+            iaCardTitle:'Générateur de Jeux IA',
+            iaCardDesc:'Décris ton contexte, ton groupe et tes objectifs — l\'IA crée un jeu sur mesure en quelques secondes. C\'est magique!',
+            iaCardBtn:'<i data-lucide="zap" class="w-5 h-5"></i> Découvrir le Générateur IA',
+            iaPopupTitle:'GÉNÉRATEUR DE JEUX IA',
+            iaPopupDesc:'Le futur de la planification en ÉPS!',
+            iaPerk1:'<strong>IA intelligente</strong> — Crée des jeux adaptés à TON groupe, ton gymnase et tes objectifs',
+            iaPerk2:'<strong>En 10 secondes</strong> — Un jeu complet avec règles, variantes et matériel nécessaire',
+            iaPerk3:'<strong>Aligné PFEQ</strong> — Chaque jeu respecte les compétences du programme québécois',
+            iaPerk4:'<strong>Illimité & gratuit</strong> — Génère autant de jeux que tu veux, sans limite!',
+            iaPopupBtn:'<i data-lucide="sparkles" class="w-6 h-6"></i> JE M\'INSCRIS GRATUITEMENT!',
+            iaPopupLater:'Je regarderai plus tard',
+            iaPopupTagline:'Plus jamais en panne d\'idées!',
+            iaStat1Num:'10 sec', iaStat1Label:'par jeu',
+            iaStat2Num:'500+', iaStat2Label:'profs actifs',
+            iaStat3Num:'100%', iaStat3Label:'gratuit',
+            iaSocialProof:'<strong>Marie-Claude</strong> et <strong>47 autres profs</strong> ont généré un jeu cette semaine!',
+            iaGuarantee:'Aucune carte de crédit requise. C\'est vraiment gratuit.',
+            gateTitle:'Accède à TOUT le contenu!',
+            gateDesc:'Inscris-toi gratuitement pour débloquer la Zone au complet.',
+            gateFeat1:'<strong>+500 jeux</strong> avec fiches et règles complètes',
+            gateFeat2:'<strong>Générateur IA</strong> — crée des jeux en 10 secondes',
+            gateFeat3:'<strong>SAÉ complètes</strong> prêtes à utiliser demain',
+            gateFeat4:'<strong>100% gratuit</strong> — sans carte de crédit ni abonnement',
+            gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> INSCRIPTION GRATUITE',
+            gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> Continuer sans inscription',
+            gateFooter:'Aucun abonnement requis. Accès gratuit et sans engagement.',
+            aluneTag:'<i data-lucide="rocket" class="w-4 h-4"></i> À VENIR',
+            aluneTitle:'Ce qui s\'en vient<br><span class="gradient-text">dans la Zone!</span>',
+            aluneSub:'Des nouveautés excitantes arrivent bientôt pour tes cours d\'ÉPS!',
+            aluneC1:'Générateur IA v2', aluneD1:'Printemps 2026', aluneC1d:'La version 2 du générateur avec encore plus d\'options et de personnalisation!',
+            aluneC2:'Application Mobile', aluneD2:'Été 2026', aluneC2d:'Accède à toutes les ressources directement depuis ton téléphone, même au gymnase!',
+            aluneC3:'Mode Collaboratif', aluneD3:'Automne 2026', aluneC3d:'Partage et co-crée des jeux avec d\'autres enseignants d\'ÉPS partout au Québec!',
+            aluneC4:'Tableau de Bord', aluneD4:'Hiver 2027', aluneC4d:'Suis ta progression, tes jeux favoris et tes stats de cours en un coup d\'oeil!',
+            aluneCta:'Tu veux accéder à tout ça et bien plus?',
+            aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> Devenir membre gratuitement',
+        },
+        en: {
+            navJeux:'Games', navRes:'Resources', navGen:'Generator', navAvis:'Reviews',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> Donate', mobileDon:'Donate',
+            heroBadge:'+500 free resources for PE teachers',
+            heroTitle:'Your gym,<br><span style="color:#FF2A7A">your rules.</span>',
+            heroSub:'The <strong class="text-dark">100% free</strong> platform that transforms your physical education classes into epic experiences.',
+            heroBtn1:'<i data-lucide="zap" class="w-5 h-5"></i> Generate a game',
+            heroBtn2:'<i data-lucide="compass" class="w-5 h-5"></i> Explore',
+            statJeux:'Games', statSae:'Units', statEns:'Teachers', statGratuit:'% Free',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> RESOURCES',
+            resTitle:'Everything you need,<br><span style="color:#FF2A7A">in one place.</span>',
+            resSub:'Hundreds of resources designed by and for elementary PE teachers.',
+            card1:'Game Bank', card1d:'+500 games sorted by category, age and skill. Find the perfect game in seconds.', card1a:'Explore <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'Full Units', card2d:'Ready-to-use learning situations aligned with the curriculum. Ready for tomorrow.', card2a:'Discover <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'PE Blog', card3d:'Articles, strategies and reflections on teaching physical education in Quebec.', card3a:'Read <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'Class Management', card4d:'Tools, routines and systems for an organized and motivating gymnasium. No more chaos!', card4a:'Organize <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'Discover the game generator!', teaserSub:'50 random games with full rules. Perfect when you\'re out of ideas.',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> Try the generator',
+            mission:'Zone Total Sport is a platform created by <strong class="text-dark">Quebec PE teachers</strong>, for PE teachers. Every game, every unit and every tool has been field-tested. Our mission: simplify your life and make your classes unforgettable.',
+            whyTitle:'What makes the Zone<br><span style="color:#FFD700">different.</span>',
+            why1:'Free. For real.', why1d:'No freemium, no paywall. All resources are 100% accessible without creating an account.',
+            why2:'By teachers, for teachers', why2d:'Every game and unit is created and tested by Quebec teachers. From the field, not the desk.',
+            why3:'Ready in 2 minutes', why3d:'Find a game, read the rules, let\'s go. All resources are designed to be usable immediately.',
+            slotTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> GENERATOR',
+            slotTitle:'No ideas?<br><span style="color:#FF2A7A">We got you.</span>',
+            slotSub:'Click GO and let the magic happen. A random game, perfect for your next period!',
+            slotResult:'Your game of the moment:', slotHow:'How to play',
+            testTag:'<i data-lucide="message-circle" class="w-4 h-4"></i> TESTIMONIALS',
+            testTitle:'What they<br><span style="color:#8B5CF6">think.</span>',
+            test1role:'PE Teacher, Laval', test1:'"I use Zone Total Sport every week to plan my classes. The game bank is a gold mine! My students love the new games."',
+            test2role:'PE Teacher, Quebec City', test2:'"The game generator is amazing when I\'m out of inspiration. One click, and I have an activity ready to go. Thanks for this resource!"',
+            test3role:'Student Teacher, Montreal', test3:'"Essential for my internships! The units are aligned with the curriculum and easy to adapt. The site has become my number one reference."',
+            marqueeLabel:'Our popular games',
+            donTitle:'Support the<br><span style="color:#FFD700">Zone!</span>',
+            donSub:'Zone Total Sport is 100% free and always will be. A small donation helps us keep creating quality content for PE teachers.',
+            donBtn1:'<i data-lucide="heart" class="w-5 h-5"></i> Donate',
+            donBtn2:'<i data-lucide="share-2" class="w-5 h-5"></i> Share the site',
+            footerDesc:'The free physical education resource platform for elementary teachers in Quebec.',
+            footerNav:'Navigation', footerInfos:'Info',
+            fAccueil:'Home', fJeux:'Game bank', fSae:'Units', fBlogue:'Blog', fContact:'Contact',
+            fAbout:'About', fPrivacy:'Privacy policy', fDon:'Donate', fTerms:'Terms of use',
+            copyright:'© 2026 Zone Total Sport. All rights reserved.', madeWith:'Made with 💛 in Quebec',
+            visitLabel:'Visitors:',
+            subTitle:'BECOME A VIP MEMBER!', subDesc:'Unlock all the Zone\'s content!',
+            subPerk1:'Detailed sheets, rules and variations',
+            subPerk2:'Create a custom game in 10 seconds',
+            subPerk3:'Learning situations and class management',
+            subPerk4:'No subscription, no credit card',
+            subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> JOIN THE ZONE FOR FREE!', subLater:'No thanks, maybe later',
+            subPerkT1:'+500 sports games', subPerkT2:'AI Generator', subPerkT3:'Units + Tools', subPerkT4:'100% free',
+            subSocial:'2,295 teachers use the Zone!',
+            iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NEW FEATURE',
+            iaTitle:'The future of PE<br><span style="color:#FF2A7A">is here!</span>',
+            iaSub:'Artificial intelligence arrives in the Zone. Get ready!',
+            iaBadge:'WOOHOO!',
+            iaCardTitle:'AI Game Generator',
+            iaCardDesc:'Describe your context, group and goals — AI creates a custom game in seconds. It\'s magic!',
+            iaCardBtn:'<i data-lucide="zap" class="w-5 h-5"></i> Discover the AI Generator',
+            iaPopupTitle:'AI GAME GENERATOR',
+            iaPopupDesc:'The future of PE planning!',
+            iaPerk1:'<strong>Smart AI</strong> — Creates games adapted to YOUR group, gym and objectives',
+            iaPerk2:'<strong>In 10 seconds</strong> — A complete game with rules, variations and required equipment',
+            iaPerk3:'<strong>Curriculum-aligned</strong> — Every game respects Quebec\'s curriculum competencies',
+            iaPerk4:'<strong>Unlimited & free</strong> — Generate as many games as you want, no limits!',
+            iaPopupBtn:'<i data-lucide="sparkles" class="w-6 h-6"></i> SIGN UP FOR FREE!',
+            iaPopupLater:'I\'ll check it out later',
+            iaPopupTagline:'Never run out of ideas again!',
+            iaStat1Num:'10 sec', iaStat1Label:'per game',
+            iaStat2Num:'500+', iaStat2Label:'active teachers',
+            iaStat3Num:'100%', iaStat3Label:'free',
+            iaSocialProof:'<strong>Marie-Claude</strong> and <strong>47 other teachers</strong> generated a game this week!',
+            iaGuarantee:'No credit card required. It\'s truly free.',
+            gateTitle:'Access ALL the content!',
+            gateDesc:'Sign up for free to unlock the full Zone.',
+            gateFeat1:'<strong>+500 games</strong> with detailed rules and sheets',
+            gateFeat2:'<strong>AI Generator</strong> — creates games in 10 seconds',
+            gateFeat3:'<strong>Full units</strong> ready to use tomorrow',
+            gateFeat4:'<strong>100% free</strong> — no credit card, no subscription',
+            gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> FREE SIGN UP',
+            gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> Continue without signing up',
+            gateFooter:'No subscription required. Free access, no commitment.',
+            aluneTag:'<i data-lucide="rocket" class="w-4 h-4"></i> COMING SOON',
+            aluneTitle:'What\'s coming<br><span class="gradient-text">to the Zone!</span>',
+            aluneSub:'Exciting new features are coming soon for your PE classes!',
+            aluneC1:'AI Generator v2', aluneD1:'Spring 2026', aluneC1d:'Version 2 of the generator with even more options and customization!',
+            aluneC2:'Mobile App', aluneD2:'Summer 2026', aluneC2d:'Access all resources directly from your phone, even in the gym!',
+            aluneC3:'Collaborative Mode', aluneD3:'Fall 2026', aluneC3d:'Share and co-create games with other PE teachers across Quebec!',
+            aluneC4:'Dashboard', aluneD4:'Winter 2027', aluneC4d:'Track your progress, favorite games and class stats at a glance!',
+            aluneCta:'Want access to all this and more?',
+            aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> Become a free member',
+        },
+        zh: {
+            navJeux:'游戏', navRes:'资源', navGen:'生成器', navAvis:'评价',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> 捐赠', mobileDon:'捐赠',
+            heroBadge:'+500个免费体育教学资源',
+            heroTitle:'你的体育馆，<br><span style="color:#FF2A7A">你的规则。</span>',
+            heroSub:'<strong class="text-dark">100%免费</strong>的平台，让你的体育课变成史诗般的体验。',
+            heroBtn1:'<i data-lucide="zap" class="w-5 h-5"></i> 生成游戏',
+            heroBtn2:'<i data-lucide="compass" class="w-5 h-5"></i> 探索',
+            statJeux:'游戏', statSae:'教学单元', statEns:'教师', statGratuit:'% 免费',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> 资源',
+            resTitle:'你需要的一切，<br><span style="color:#FF2A7A">都在这里。</span>',
+            resSub:'数百种专为小学体育教师设计的资源。',
+            card1:'游戏库', card1d:'+500个按类别、年龄和技能分类的游戏。', card1a:'探索 <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'完整教学单元', card2d:'与课程标准对齐的即用型学习情境。', card2a:'发现 <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'体育博客', card3d:'关于魁北克体育教学的文章和策略。', card3a:'阅读 <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'课堂管理', card4d:'让体育馆井然有序的工具和系统。', card4a:'组织 <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'发现游戏生成器！', teaserSub:'50个随机游戏，附完整规则。',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> 试试生成器',
+            mission:'Zone Total Sport是由<strong class="text-dark">魁北克体育教师</strong>创建的平台。每个游戏和工具都经过实地测试。我们的使命：简化你的生活，让你的课程难以忘怀。',
+            whyTitle:'是什么让Zone<br><span style="color:#FFD700">与众不同。</span>',
+            why1:'真正免费。', why1d:'没有付费墙。所有资源100%免费。',
+            why2:'教师为教师打造', why2d:'每个游戏都由魁北克教师创建和测试。',
+            why3:'2分钟准备就绪', why3d:'找到游戏，阅读规则，开始吧。',
+            slotTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> 生成器',
+            slotTitle:'没有想法？<br><span style="color:#FF2A7A">我们来帮你。</span>',
+            slotSub:'点击GO，让魔法发生。完美适合你的下一节课！',
+            slotResult:'你的当前游戏：', slotHow:'如何玩',
+            testTag:'<i data-lucide="message-circle" class="w-4 h-4"></i> 评价',
+            testTitle:'他们怎么<br><span style="color:#8B5CF6">说。</span>',
+            test1role:'体育教师, 拉瓦尔', test1:'"我每周都用Zone Total Sport来计划我的课程。游戏库是一座金矿！"',
+            test2role:'体育教师, 魁北克市', test2:'"当我没有灵感时，游戏生成器太棒了。一键就有一个活动准备好了！"',
+            test3role:'实习教师, 蒙特利尔', test3:'"对我的实习来说不可或缺！教学单元与课程对齐，易于调整。"',
+            marqueeLabel:'热门游戏',
+            donTitle:'支持<br><span style="color:#FFD700">Zone！</span>',
+            donSub:'Zone Total Sport是100%免费的。小额捐赠帮助我们继续创造优质内容。',
+            donBtn1:'<i data-lucide="heart" class="w-5 h-5"></i> 捐赠',
+            donBtn2:'<i data-lucide="share-2" class="w-5 h-5"></i> 分享网站',
+            footerDesc:'魁北克小学体育教师的免费资源平台。',
+            footerNav:'导航', footerInfos:'信息',
+            fAccueil:'首页', fJeux:'游戏库', fSae:'教学单元', fBlogue:'博客', fContact:'联系',
+            fAbout:'关于', fPrivacy:'隐私政策', fDon:'捐赠', fTerms:'使用条款',
+            copyright:'© 2026 Zone Total Sport. 版权所有。', madeWith:'用 💛 在魁北克制作',
+            visitLabel:'访客：',
+            subTitle:'成为VIP会员！', subDesc:'解锁Zone的所有内容！',
+            subPerk1:'详细说明、规则和变体',
+            subPerk2:'10秒创建定制游戏',
+            subPerk3:'学习情境和课堂管理',
+            subPerk4:'无需订阅，无需信用卡',
+            subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> 免费加入Zone！', subLater:'不了，以后再说',
+            subPerkT1:'+500体育游戏', subPerkT2:'AI生成器', subPerkT3:'教学单元+工具', subPerkT4:'100%免费',
+            subSocial:'2295名教师在使用Zone！',
+            iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> 新功能',
+            iaTitle:'体育教育的未来<br><span style="color:#FF2A7A">已经到来！</span>',
+            iaSub:'人工智能登陆Zone。准备好了吗！',
+            iaBadge:'太棒了！',
+            iaCardTitle:'AI游戏生成器',
+            iaCardDesc:'描述你的情境、班级和目标——AI在几秒钟内创建定制游戏。太神奇了！',
+            iaCardBtn:'<i data-lucide="zap" class="w-5 h-5"></i> 发现AI生成器',
+            iaPopupTitle:'AI游戏生成器',
+            iaPopupDesc:'体育教学规划的未来！',
+            iaPerk1:'<strong>智能AI</strong> — 创建适合你的班级、体育馆和目标的游戏',
+            iaPerk2:'<strong>10秒内</strong> — 包含规则、变体和所需器材的完整游戏',
+            iaPerk3:'<strong>对齐课标</strong> — 每个游戏都符合魁北克课程标准',
+            iaPerk4:'<strong>无限免费</strong> — 想生成多少游戏就生成多少，没有限制！',
+            iaPopupBtn:'<i data-lucide="sparkles" class="w-6 h-6"></i> 免费注册！',
+            iaPopupLater:'以后再看',
+            iaPopupTagline:'再也不会缺少创意！',
+            iaStat1Num:'10秒', iaStat1Label:'每个游戏',
+            iaStat2Num:'500+', iaStat2Label:'活跃教师',
+            iaStat3Num:'100%', iaStat3Label:'免费',
+            iaSocialProof:'<strong>Marie-Claude</strong>和<strong>47位其他教师</strong>本周生成了游戏！',
+            iaGuarantee:'无需信用卡。真正免费。',
+            gateTitle:'访问所有内容！',
+            gateDesc:'免费注册，解锁完整Zone。',
+            gateFeat1:'<strong>+500个游戏</strong>附详细规则和说明',
+            gateFeat2:'<strong>AI生成器</strong> — 10秒创建游戏',
+            gateFeat3:'<strong>完整教学单元</strong>明天就能用',
+            gateFeat4:'<strong>100%免费</strong> — 无需信用卡，无需订阅',
+            gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> 免费注册',
+            gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> 不注册继续',
+            gateFooter:'无需订阅。免费访问，无承诺。',
+            aluneTag:'<i data-lucide="rocket" class="w-4 h-4"></i> 即将推出',
+            aluneTitle:'即将到来<br><span class="gradient-text">Zone新功能!</span>',
+            aluneSub:'令人兴奋的新功能即将推出！',
+            aluneC1:'AI生成器 v2', aluneD1:'2026年春季', aluneC1d:'第二版生成器，更多选项和个性化功能！',
+            aluneC2:'移动应用', aluneD2:'2026年夏季', aluneC2d:'直接从手机访问所有资源，即使在体育馆！',
+            aluneC3:'协作模式', aluneD3:'2026年秋季', aluneC3d:'与魁北克各地的体育教师分享和共创游戏！',
+            aluneC4:'控制面板', aluneD4:'2027年冬季', aluneC4d:'一目了然地跟踪你的进度、最爱游戏和课程统计！',
+            aluneCta:'想要访问所有这些和更多？',
+            aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> 免费成为会员',
+        }
+    };
+
+    function setLang(lang) {
+        const t = i18n[lang]; if (!t) return;
+        window.currentLang = lang;
+        i18nMap.forEach(([sel, key]) => {
+            document.querySelectorAll(sel).forEach(el => { if (t[key]) el.innerHTML = t[key]; });
+        });
+        // Update slot machine games
+        if (window.populateSlot) window.populateSlot();
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('lang-' + lang);
+        if (btn) btn.classList.add('active');
+        lucide.createIcons();
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang === 'en' ? 'en' : 'fr-CA';
+    }
+    window.setLang = setLang;
+
+    // ============ SCROLL POSITION TO PARENT ============
+    window.addEventListener('scroll', () => {
+        window.parent.postMessage({ type: 'bodyScroll', scrollY: window.scrollY }, '*');
+    });
+
+    // ============ AUTO-RESIZE ============
+    const _ro = new ResizeObserver(() => {
+        window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*');
+    });
+    _ro.observe(document.body);
+    window.addEventListener('load', () => {
+        setTimeout(() => window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*'), 500);
+        setTimeout(() => window.parent.postMessage({ type: 'resize', height: document.body.scrollHeight }, '*'), 2000);
+    });
+
+    // ============ LISTEN FOR LANG CHANGES FROM HEADER ============
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'setLang' && e.data.lang) {
+            if (window.setLang) window.setLang(e.data.lang);
+        }
+    });
+
+    // IA Popup stub (opens in parent)
+    function openIaPopup() {
+        window.parent.postMessage({ type: 'openIaPopup' }, '*');
+    }
+    window.openIaPopup = openIaPopup;
+
+    // Gate Popup stub (opens in parent)
+    function openGatePopup(url) {
+        window.parent.postMessage({ type: 'openGatePopup', url: url }, '*');
+    }
+    window.openGatePopup = openGatePopup;
+    </script>
+
+</body>
+</html>

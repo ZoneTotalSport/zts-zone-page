@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZTS Header</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: { electric: '#00E5FF' },
+                        yellow: { sun: '#FFD700' },
+                        pink: { fuchsia: '#FF2A7A' },
+                        violet: { pop: '#8B5CF6' },
+                        dark: '#0F0F2E',
+                    },
+                    fontFamily: {
+                        bangers: ['"Luckiest Guy"', 'cursive'],
+                        boogaloo: ['Boogaloo', 'cursive'],
+                        baloo: ['"Patrick Hand"', 'cursive'],
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
+            background: transparent;
+            color: #1a1a2e;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        a { text-decoration: none; color: inherit; }
+
+        /* ========== NAV ========== */
+        .nav-fixed {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            background: linear-gradient(135deg, #0f0f2e, #1a1a3e);
+            transition: transform 0.3s ease, background 0.3s, box-shadow 0.3s;
+        }
+        .nav-fixed.scrolled {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .nav-fixed.scrolled .nav-link { color: #1a1a2e !important; }
+        .nav-fixed.scrolled .nav-link:hover { color: #FF2A7A !important; }
+        .nav-fixed.scrolled .hamburger span { background: #1a1a2e; }
+
+        /* ========== WIX NAV BAR ========== */
+        .wix-nav-bar {
+            background: linear-gradient(135deg, rgba(15,15,46,0.85), rgba(15,15,46,0.95));
+            border-radius: 16px; padding: 10px 20px;
+            backdrop-filter: blur(12px);
+            max-width: 900px; margin: 0 auto 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            border: 1px solid rgba(0,229,255,0.2);
+        }
+        .wix-nav-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-family: 'Fredoka One', cursive; font-size: 0.8rem;
+            padding: 8px 16px; border-radius: 25px;
+            background: rgba(255,255,255,0.08); color: #fff;
+            text-decoration: none; transition: all 0.25s;
+            white-space: nowrap; border: 2px solid rgba(255,255,255,0.1);
+        }
+        .wix-nav-btn:hover { background: #00E5FF; color: #0F0F2E; border-color: #00E5FF; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,229,255,0.3); }
+        .wix-nav-btn.active { background: #00E5FF; color: #0F0F2E; border-color: #00E5FF; box-shadow: 0 2px 10px rgba(0,229,255,0.3); }
+        .wix-nav-btn.btn-donate-nav { background: linear-gradient(135deg, #FF2A7A, #FF6B9D); color: #fff; border-color: #FF2A7A; animation: donPulse 2s ease-in-out infinite; }
+        .wix-nav-btn.btn-donate-nav:hover { transform: translateY(-2px) scale(1.08); box-shadow: 0 4px 20px rgba(255,42,122,0.5); }
+        .wix-nav-btn.btn-login-nav { background: linear-gradient(135deg, #FF6B00, #FF9500); color: #fff; border-color: #FF6B00; }
+        .wix-nav-btn.btn-login-nav:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 4px 20px rgba(255,107,0,0.4); }
+        @keyframes donPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,42,122,0.4); } 50% { box-shadow: 0 0 15px 3px rgba(255,42,122,0.2); } }
+        @media (max-width: 768px) {
+            .wix-nav-btn span { display: none; }
+            .wix-nav-btn { padding: 8px 10px; font-size: 0.9rem; }
+            .wix-nav-bar { gap: 6px; padding: 8px 12px; border-radius: 12px; }
+        }
+
+        /* ========== BUTTONS ========== */
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 16px 36px; border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive; font-weight: 400; font-size: 1.15rem;
+            letter-spacing: 0.03em; border: none; cursor: pointer;
+            position: relative; overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary.btn-yellow { background: linear-gradient(135deg, #FFD700, #FFA000); color: #0F0F2E; box-shadow: 0 8px 30px rgba(255,215,0,0.3); }
+
+        .magnetic-wrap { display: inline-block; position: relative; }
+
+        /* ========== LANGUAGE SELECTOR ========== */
+        .lang-btn {
+            font-family: 'Luckiest Guy', cursive; font-size: 0.75rem; letter-spacing: 0.03em;
+            border: 2px solid rgba(255,255,255,0.3); background: transparent; color: rgba(255,255,255,0.7);
+            padding: 3px 8px; cursor: pointer; border-radius: 6px; transition: all 0.2s;
+        }
+        .lang-btn.active { background: #FFD700; color: #18181b; border-color: #FFD700; }
+        .lang-btn:hover:not(.active) { border-color: #fff; color: #fff; }
+        .nav-fixed.scrolled .lang-btn { border-color: rgba(0,0,0,0.2); color: rgba(0,0,0,0.5); }
+        .nav-fixed.scrolled .lang-btn.active { background: #FFD700; color: #18181b; border-color: #FFD700; }
+
+        /* ========== DIGITAL CLOCK ========== */
+        .digital-clock {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.1rem; letter-spacing: 0.08em;
+            background: #18181b; color: #00E5FF;
+            padding: 6px 14px; border-radius: 10px;
+            border: 2px solid rgba(0,229,255,0.3);
+            text-shadow: 0 0 10px rgba(0,229,255,0.5);
+            position: relative; display: inline-flex; align-items: center; gap: 8px;
+            min-width: 130px; justify-content: center;
+        }
+        #clockTime { font-variant-numeric: tabular-nums; display: inline-block; min-width: 95px; text-align: center; }
+        .nav-fixed.scrolled .digital-clock { border-color: rgba(0,229,255,0.15); }
+
+        /* ========== HAMBURGER ========== */
+        .hamburger { width: 32px; height: 24px; position: relative; cursor: pointer; display: none; }
+        .hamburger span { display: block; position: absolute; height: 3px; width: 100%; background: #fff; border-radius: 3px; transition: 0.3s; }
+        .hamburger span:nth-child(1) { top: 0; }
+        .hamburger span:nth-child(2) { top: 10px; }
+        .hamburger span:nth-child(3) { top: 20px; }
+        .hamburger.active span:nth-child(1) { top: 10px; transform: rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { top: 10px; transform: rotate(-45deg); }
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            .nav-links { display: none !important; }
+        }
+
+        /* ========== MOBILE MENU ========== */
+        .mobile-menu {
+            position: fixed; inset: 0;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(30px);
+            z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .mobile-menu.open { opacity: 1; pointer-events: all; }
+        .mobile-menu a { font-family: 'Luckiest Guy', cursive; font-size: 1.8rem; color: #1a1a2e; text-decoration: none; letter-spacing: 0.04em; }
+        .mobile-menu a:hover { color: #FF2A7A; }
+
+        /* ========== SCROLL PROGRESS ========== */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0; height: 4px;
+            background: linear-gradient(90deg, #00E5FF, #FFD700, #FF2A7A, #8B5CF6);
+            z-index: 10000; transform-origin: left; will-change: transform;
+        }
+
+        /* ========== MEMBER BAR ========== */
+        .member-bar {
+            background: rgba(0,229,255,0.1);
+            border-bottom: 1px solid rgba(0,229,255,0.2);
+            padding: 4px 20px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCROLL PROGRESS -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- ========== NAVIGATION ========== -->
+    <nav class="nav-fixed py-3 px-6 md:px-10" id="mainNav">
+        <!-- BARRE WIX - Boutons de navigation vers les pages du site -->
+        <div class="wix-nav-bar flex items-center justify-center gap-2 md:gap-3 flex-wrap">
+            <a href="https://www.zonetotalsport.ca/" class="wix-nav-btn active">
+                <i data-lucide="home" class="w-3.5 h-3.5"></i> <span>Accueil</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/boite-a-outils-eps" class="wix-nav-btn">
+                <i data-lucide="wrench" class="w-3.5 h-3.5"></i> <span>Outils</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/sae-eps-primaire" class="wix-nav-btn">
+                <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> <span>S.A.E</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/banque-de-jeux-eps" class="wix-nav-btn">
+                <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> <span>Jeux</span>
+            </a>
+            <a href="https://zone.zonetotalsport.ca/blog.html" class="wix-nav-btn">
+                <i data-lucide="pen-line" class="w-3.5 h-3.5"></i> <span>Blog</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/musique-ambiance-gym" class="wix-nav-btn">
+                <i data-lucide="music" class="w-3.5 h-3.5"></i> <span>Musique</span>
+            </a>
+            <a href="https://zone.zonetotalsport.ca/sports-news.html" class="wix-nav-btn">
+                <i data-lucide="newspaper" class="w-3.5 h-3.5"></i> <span>Sports News</span>
+            </a>
+            <a href="https://evaluation.zonetotalsport.ca" class="wix-nav-btn">
+                <i data-lucide="book-open" class="w-3.5 h-3.5"></i> <span>Carnet</span>
+            </a>
+            <a href="https://zone.zonetotalsport.ca/avis.html" class="wix-nav-btn">
+                <i data-lucide="star" class="w-3.5 h-3.5"></i> <span>Avis</span>
+            </a>
+            <a href="https://zone.zonetotalsport.ca/wix/donation.html" class="wix-nav-btn btn-donate-nav">
+                <i data-lucide="heart" class="w-3.5 h-3.5"></i> <span>Dons</span>
+            </a>
+            <a href="https://www.zonetotalsport.ca/boite-a-outils-eps" class="wix-nav-btn btn-login-nav" id="zts-login-btn">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> <span>Connexion</span>
+            </a>
+        </div>
+        <div class="max-w-7xl mx-auto flex items-center justify-between mt-3">
+            <!-- Logo -->
+            <a href="https://zone.zonetotalsport.ca/" class="flex items-center shrink-0">
+                <img src="https://zone.zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-[72px] md:h-24 w-auto">
+            </a>
+            <!-- Horloge -->
+            <div class="digital-clock" id="navClock" style="font-size:1.6rem; padding:18px 36px; min-width:220px;">
+                <i data-lucide="clock" class="w-6 h-6 text-cyan-electric/60"></i>
+                <span id="clockTime" style="min-width:150px;">00<span class="clock-dot">:</span>00<span class="clock-dot">:</span>00</span>
+            </div>
+            <div class="nav-links flex items-center gap-6">
+                <!-- Language Selector -->
+                <div class="flex gap-1">
+                    <button onclick="setLang('fr')" class="lang-btn active" id="lang-fr" title="Fran&#231;ais">FR</button>
+                    <button onclick="setLang('en')" class="lang-btn" id="lang-en" title="English">EN</button>
+                    <button onclick="setLang('zh')" class="lang-btn" id="lang-zh" title="&#20013;&#25991;">&#20013;</button>
+                </div>
+                <!-- Faire un don -->
+                <div class="magnetic-wrap">
+                    <a href="https://zone.zonetotalsport.ca/wix/donation.html" class="btn-primary btn-yellow magnetic-btn" data-i18n="navDon" style="font-size:1.6rem; padding:20px 48px;">
+                        <i data-lucide="heart" class="w-6 h-6"></i> Faire un don
+                    </a>
+                </div>
+            </div>
+            <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="https://zone.zonetotalsport.ca/wix/donation.html" onclick="closeMobile()" style="color:#FF2A7A" data-i18n="mobileDon">Faire un don</a>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // ============ INIT LUCIDE ============
+        lucide.createIcons();
+
+        // ============ HAMBURGER ============
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            mobileMenu.classList.toggle('open');
+        });
+        window.closeMobile = function() {
+            hamburger.classList.remove('active');
+            mobileMenu.classList.remove('open');
+        };
+
+        // ============ DIGITAL CLOCK ============
+        function updateClock() {
+            const now = new Date();
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            const s = now.getSeconds().toString().padStart(2, '0');
+            const el = document.getElementById('clockTime');
+            if (el) el.innerHTML = `${h}<span class="clock-dot">:</span>${m}<span class="clock-dot">:</span>${s}`;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // ============ SEND HEIGHT TO PARENT ============
+        function sendHeight() {
+            const h = document.documentElement.scrollHeight;
+            window.parent.postMessage({ type: 'headerResize', height: h }, '*');
+        }
+        const ro = new ResizeObserver(() => { sendHeight(); });
+        ro.observe(document.body);
+        setTimeout(sendHeight, 500);
+        setTimeout(sendHeight, 2000);
+
+        // ============ LANGUAGE SELECTOR ============
+        window.setLang = function(lang) {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('lang-' + lang);
+            if (btn) btn.classList.add('active');
+            // Forward to parent so body/footer can update too
+            window.parent.postMessage({ type: 'setLang', lang: lang }, '*');
+        };
+    });
+
+    // ============ AUTO-HIDE HEADER ON SCROLL ============
+    let lastScrollY = 0;
+    let headerVisible = true;
+    const nav = document.getElementById('mainNav');
+
+    // Listen for scroll from parent (Wix)
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'parentScroll') {
+            const currentY = e.data.scrollY;
+            if (currentY > lastScrollY && currentY > 100) {
+                // Scrolling down - hide
+                nav.style.transform = 'translateY(-100%)';
+                headerVisible = false;
+            } else {
+                // Scrolling up - show
+                nav.style.transform = 'translateY(0)';
+                headerVisible = true;
+            }
+            lastScrollY = currentY;
+        }
+        // Listen for body scroll to sync header hide/show
+        if (e.data && e.data.type === 'bodyScroll') {
+            const currentY = e.data.scrollY;
+            if (currentY > lastScrollY && currentY > 100) {
+                nav.style.transform = 'translateY(-100%)';
+                headerVisible = false;
+            } else {
+                nav.style.transform = 'translateY(0)';
+                headerVisible = true;
+            }
+            lastScrollY = currentY;
+        }
+    });
+
+    // Also handle own scroll
+    window.addEventListener('scroll', () => {
+        const currentY = window.scrollY;
+        if (currentY > lastScrollY && currentY > 100) {
+            nav.style.transform = 'translateY(-100%)';
+        } else {
+            nav.style.transform = 'translateY(0)';
+        }
+        lastScrollY = currentY;
+    });
+    </script>
+</body>
+</html>
