@@ -51,29 +51,52 @@
         }
         a { text-decoration: none; color: inherit; }
 
+        /* ========== ANIMATED CYAN BACKGROUND ========== */
+        @keyframes cyanWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes shimmer {
+            0% { opacity: 0.3; transform: translateX(-100%); }
+            50% { opacity: 0.6; }
+            100% { opacity: 0.3; transform: translateX(100%); }
+        }
+
         /* ========== NAV ========== */
         .nav-fixed {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            background: linear-gradient(135deg, #0f0f2e, #1a1a3e);
-            transition: transform 0.3s ease, background 0.3s, box-shadow 0.3s;
+            background: linear-gradient(135deg, #00B4D8, #00E5FF, #0096C7, #00CFFF, #00E5FF);
+            background-size: 300% 300%;
+            animation: cyanWave 8s ease infinite;
+            transition: transform 0.3s ease, box-shadow 0.3s;
+            overflow: hidden;
+        }
+        .nav-fixed::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            animation: shimmer 4s ease-in-out infinite;
+            pointer-events: none;
         }
         .nav-fixed.scrolled {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            background: linear-gradient(135deg, #0096C7, #00B4D8, #00E5FF);
+            background-size: 300% 300%;
+            animation: cyanWave 6s ease infinite;
+            box-shadow: 0 4px 30px rgba(0,229,255,0.3);
         }
-        .nav-fixed.scrolled .nav-link { color: #1a1a2e !important; }
-        .nav-fixed.scrolled .nav-link:hover { color: #FF2A7A !important; }
-        .nav-fixed.scrolled .hamburger span { background: #1a1a2e; }
+        .nav-fixed.scrolled .nav-link { color: #fff !important; }
+        .nav-fixed.scrolled .nav-link:hover { color: #FFD700 !important; }
+        .nav-fixed.scrolled .hamburger span { background: #fff; }
 
         /* ========== WIX NAV BAR ========== */
         .wix-nav-bar {
-            background: linear-gradient(135deg, rgba(15,15,46,0.85), rgba(15,15,46,0.95));
+            background: linear-gradient(135deg, rgba(0,150,199,0.4), rgba(0,180,216,0.5));
             border-radius: 16px; padding: 10px 20px;
             backdrop-filter: blur(12px);
             max-width: 900px; margin: 0 auto 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            border: 1px solid rgba(0,229,255,0.2);
+            box-shadow: 0 4px 20px rgba(0,229,255,0.25);
+            border: 1px solid rgba(255,255,255,0.3);
         }
         .wix-nav-btn {
             display: inline-flex; align-items: center; gap: 5px;
