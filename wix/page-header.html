@@ -371,6 +371,19 @@
         }
         lastScrollY = currentY;
     });
+
+    // Listen for member info from parent (Wix)
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'memberInfo') {
+            const btn = document.getElementById('zts-login-btn');
+            if (btn && e.data.name) {
+                btn.innerHTML = '<i data-lucide="user-check" class="w-3.5 h-3.5"></i> <span>Salut, ' + e.data.name + '!</span>';
+                btn.style.background = 'linear-gradient(135deg, #39FF14, #00E676)';
+                btn.style.color = '#18181b';
+                lucide.createIcons();
+            }
+        }
+    });
     </script>
 
     <!-- POPUP DON -->
