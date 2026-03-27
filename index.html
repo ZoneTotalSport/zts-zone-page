@@ -205,7 +205,10 @@
         /* ========== NAV ========== */
         .nav-fixed {
             position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            transition: background 0.3s, box-shadow 0.3s;
+            transition: transform 0.3s ease, background 0.3s, box-shadow 0.3s;
+        }
+        .nav-fixed.nav-hidden {
+            transform: translateY(-100%);
         }
         .nav-fixed.scrolled {
             background: rgba(255,255,255,0.95);
@@ -2194,10 +2197,19 @@
             });
         });
 
-        // ============ NAV SCROLL ============
+        // ============ NAV SCROLL + AUTO-HIDE ============
         const nav = document.getElementById('mainNav');
+        let lastScrollY = 0;
         window.addEventListener('scroll', () => {
-            nav.classList.toggle('scrolled', window.scrollY > 50);
+            const currentY = window.scrollY;
+            nav.classList.toggle('scrolled', currentY > 50);
+            // Auto-hide: cache au scroll down, montre au scroll up
+            if (currentY > lastScrollY && currentY > 150) {
+                nav.classList.add('nav-hidden');
+            } else {
+                nav.classList.remove('nav-hidden');
+            }
+            lastScrollY = currentY;
         });
 
         // ============ HAMBURGER ============
