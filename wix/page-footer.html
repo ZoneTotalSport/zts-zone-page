@@ -51,9 +51,69 @@
         }
         a { text-decoration: none; color: inherit; }
 
+        /* ========== ANIMATIONS ========== */
+        @keyframes yellowWave {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes shimmerGold {
+            0% { opacity: 0.2; transform: translateX(-100%) rotate(-5deg); }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.2; transform: translateX(100%) rotate(-5deg); }
+        }
+        @keyframes floatSoft {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-12px) rotate(5deg); }
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounceIcon {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+        }
+
         /* ========== SECTION BACKGROUNDS ========== */
-        .section-yellow { background: #FFD700; }
+        .section-yellow {
+            background: linear-gradient(135deg, #FFD700, #FFC107, #FFB300, #FFD700, #FFE44D);
+            background-size: 300% 300%;
+            animation: yellowWave 10s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+        .section-yellow::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmerGold 5s ease-in-out infinite;
+            pointer-events: none;
+        }
         .section-dark { background: #0F0F2E; color: #fff; }
+
+        /* Footer floating emojis */
+        .footer-emoji {
+            position: absolute;
+            font-size: 1.6rem;
+            opacity: 0.15;
+            pointer-events: none;
+            animation: floatSoft 3s ease-in-out infinite;
+        }
+
+        /* Slide-in elements */
+        .slide-in {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        .slide-in.visible {
+            animation: slideInUp 0.6s ease forwards;
+        }
+
+        /* Social icons bounce on hover */
+        .social-icon:hover {
+            animation: bounceIcon 0.4s ease;
+        }
 
         /* ========== HERO TITLE ========== */
         .hero-title {
@@ -136,25 +196,32 @@
 <body>
 
     <!-- ========== SECTION 10: FOOTER (Yellow) ========== -->
-    <footer class="section-yellow py-16 px-6 md:px-10">
+    <footer class="section-yellow py-16 px-6 md:px-10" style="position:relative;">
+        <!-- Floating emojis -->
+        <span class="footer-emoji" style="top:10%;left:5%;animation-delay:0s">⚽</span>
+        <span class="footer-emoji" style="top:20%;right:8%;animation-delay:0.5s;font-size:1.8rem">🏀</span>
+        <span class="footer-emoji" style="top:60%;left:3%;animation-delay:1s">🎾</span>
+        <span class="footer-emoji" style="top:40%;right:4%;animation-delay:1.5s;font-size:1.4rem">🏈</span>
+        <span class="footer-emoji" style="bottom:15%;left:15%;animation-delay:0.8s">🏐</span>
+        <span class="footer-emoji" style="bottom:30%;right:12%;animation-delay:1.2s;font-size:1.3rem">⚾</span>
         <div class="max-w-7xl mx-auto">
-            <div class="grid md:grid-cols-4 gap-10 mb-12">
+            <div class="grid md:grid-cols-4 gap-10 mb-12 slide-in">
                 <div class="md:col-span-2">
                     <img src="https://zone.zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-14 w-auto mb-4">
                     <p class="text-dark/60 font-baloo text-sm max-w-sm mb-6" data-i18n="footerDesc">
                         La plateforme gratuite de ressources en education physique pour les enseignants du primaire au Quebec.
                     </p>
                     <div class="flex gap-3">
-                        <a href="https://www.facebook.com/zonetotalsportparMr.Roots/" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                        <a href="https://www.facebook.com/zonetotalsportparMr.Roots/" target="_blank" rel="noopener" class="social-icon w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
                             <i data-lucide="facebook" class="w-5 h-5"></i>
                         </a>
-                        <a href="https://www.instagram.com/zonetotalsportparmrroots/" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                        <a href="https://www.instagram.com/zonetotalsportparmrroots/" target="_blank" rel="noopener" class="social-icon w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
                             <i data-lucide="instagram" class="w-5 h-5"></i>
                         </a>
-                        <a href="https://www.youtube.com/@zonetotalsportparMrRoots" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                        <a href="https://www.youtube.com/@zonetotalsportparMrRoots" target="_blank" rel="noopener" class="social-icon w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
                             <i data-lucide="youtube" class="w-5 h-5"></i>
                         </a>
-                        <a href="https://www.tiktok.com/@zonetotalsport" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
+                        <a href="https://www.tiktok.com/@zonetotalsport" target="_blank" rel="noopener" class="social-icon w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
                             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.19a8.16 8.16 0 004.76 1.53v-3.45a4.85 4.85 0 01-1-.58z"/></svg>
                         </a>
                     </div>
@@ -235,6 +302,20 @@
     document.addEventListener('DOMContentLoaded', () => {
         // ============ INIT LUCIDE ============
         lucide.createIcons();
+
+        // ============ SLIDE-IN ON SCROLL ============
+        const slideEls = document.querySelectorAll('.slide-in');
+        if (slideEls.length) {
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach((e, i) => {
+                    if (e.isIntersecting) {
+                        setTimeout(() => e.target.classList.add('visible'), i * 100);
+                        obs.unobserve(e.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            slideEls.forEach(el => obs.observe(el));
+        }
 
         // ============ LIVE SPORTS SCORES (ESPN API) ============
         (function() {
