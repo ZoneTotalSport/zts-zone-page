@@ -470,17 +470,28 @@
 
   function openTimer() {
     var presets = [
+      { label: '30s', sec: 30 },
       { label: '1 min', sec: 60 },
       { label: '3 min', sec: 180 },
       { label: '5 min', sec: 300 },
-      { label: '10 min', sec: 600 }
+      { label: '10 min', sec: 600 },
+      { label: '15 min', sec: 900 },
+      { label: '20 min', sec: 1200 }
     ];
+    var curMin = Math.floor(_timerRemaining / 60);
+    var curSec = _timerRemaining % 60;
     var html = '\
       <h3 class="zts-dock-panel-title">&#x23F2;&#xFE0F; Minuterie</h3>\
       <div class="zts-dock-mode-btns" id="ztsTimerPresets">\
         ' + presets.map(function(p) {
           return '<button class="zts-dock-mode-btn' + (_timerTotal === p.sec ? ' active' : '') + '" data-sec="' + p.sec + '">' + p.label + '</button>';
         }).join('') + '\
+      </div>\
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0;">\
+        <input type="number" id="ztsTimerInputMin" value="' + curMin + '" min="0" max="120" style="width:70px;text-align:center;font-family:Bangers,cursive;font-size:2rem;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:12px;color:#FF2A7A;padding:8px;" />\
+        <span style="font-family:Bangers,cursive;font-size:2rem;color:#fff;">:</span>\
+        <input type="number" id="ztsTimerInputSec" value="' + (curSec < 10 ? '0' + curSec : curSec) + '" min="0" max="59" style="width:70px;text-align:center;font-family:Bangers,cursive;font-size:2rem;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:12px;color:#FF2A7A;padding:8px;" />\
+        <button id="ztsTimerSetCustom" style="padding:8px 16px;border-radius:12px;border:2px solid #39FF14;background:rgba(57,255,20,.15);color:#39FF14;font-family:Bangers,cursive;font-size:1.1rem;cursor:pointer;">OK</button>\
       </div>\
       <div class="zts-time-display" id="ztsTimerDisplay" style="color:#FF2A7A;text-shadow:0 0 30px rgba(255,42,122,.5);">' + formatTimerTime(_timerRemaining) + '</div>\
       <div style="width:100%;height:8px;border-radius:4px;background:rgba(255,255,255,.1);margin-bottom:16px;overflow:hidden;">\
@@ -543,6 +554,21 @@
         display.style.animation = '';
         bar.style.width = '100%';
       });
+    });
+
+    // Bouton OK - temps personnalisé
+    panel.querySelector('#ztsTimerSetCustom').addEventListener('click', function() {
+      if (_timerRunning) return;
+      var m = parseInt(document.getElementById('ztsTimerInputMin').value) || 0;
+      var s = parseInt(document.getElementById('ztsTimerInputSec').value) || 0;
+      var total = m * 60 + s;
+      if (total <= 0) return;
+      _timerTotal = total;
+      _timerRemaining = total;
+      panel.querySelectorAll('[data-sec]').forEach(function(b) { b.classList.remove('active'); });
+      display.textContent = formatTimerTime(total);
+      display.style.animation = '';
+      bar.style.width = '100%';
     });
 
     panel.querySelector('#ztsTimerStart').addEventListener('click', function() {
@@ -676,6 +702,140 @@
   }
 
   // ── Build Dock ──
+  // ══════════════════════════════════════════════════════
+  // 7. PÉRIODE (temps restant à la période)
+  // ══════════════════════════════════════════════════════
+  var _periodTotal = 3600, _periodRemaining = 3600, _periodRunning = false, _periodEnd = 0, _periodInterval = null;
+
+  function openPeriod() {
+    var curMin = Math.floor(_periodRemaining / 60);
+    var html = '\
+      <h3 class="zts-dock-panel-title">&#x1F3EB; Temps de periode</h3>\
+      <p style="text-align:center;font-size:1.1rem;color:rgba(255,255,255,.6);margin-bottom:16px;">Configure le temps total de ta periode</p>\
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;">\
+        <input type="number" id="ztsPeriodInput" value="' + curMin + '" min="1" max="120" style="width:90px;text-align:center;font-family:Bangers,cursive;font-size:2.5rem;background:rgba(255,255,255,.1);border:2px solid rgba(139,92,246,.4);border-radius:14px;color:#A78BFA;padding:10px;" />\
+        <span style="font-family:Bangers,cursive;font-size:1.8rem;color:#A78BFA;">min</span>\
+        <button id="ztsPeriodSet" style="padding:10px 20px;border-radius:12px;border:2px solid #8B5CF6;background:rgba(139,92,246,.2);color:#A78BFA;font-family:Bangers,cursive;font-size:1.2rem;cursor:pointer;">OK</button>\
+      </div>\
+      <div class="zts-dock-mode-btns">\
+        <button class="zts-dock-mode-btn" data-pmin="30">30 min</button>\
+        <button class="zts-dock-mode-btn" data-pmin="45">45 min</button>\
+        <button class="zts-dock-mode-btn active" data-pmin="60">60 min</button>\
+        <button class="zts-dock-mode-btn" data-pmin="75">75 min</button>\
+        <button class="zts-dock-mode-btn" data-pmin="90">90 min</button>\
+      </div>\
+      <div class="zts-time-display" id="ztsPeriodDisplay" style="color:#A78BFA;text-shadow:0 0 30px rgba(139,92,246,.5);font-size:5rem;">' + formatTimerTime(_periodRemaining) + '</div>\
+      <div style="width:100%;height:10px;border-radius:5px;background:rgba(255,255,255,.1);margin-bottom:16px;overflow:hidden;">\
+        <div id="ztsPeriodBar" style="height:100%;border-radius:5px;background:linear-gradient(90deg,#8B5CF6,#A78BFA,#C4B5FD);width:' + (_periodTotal > 0 ? (_periodRemaining / _periodTotal * 100) : 100) + '%;transition:width 1s;"></div>\
+      </div>\
+      <div class="zts-time-controls">\
+        <button class="zts-dock-action-btn zts-dock-btn-green" id="ztsPeriodStart">' + (_periodRunning ? '&#x23F8; Pause' : '&#x25B6;&#xFE0F; Partir') + '</button>\
+        <button class="zts-dock-action-btn zts-dock-btn-pink" id="ztsPeriodReset">&#x1F504; Reset</button>\
+      </div>';
+
+    var panel = openPanel('ztsPeriodPanel', 400, html);
+    var display = document.getElementById('ztsPeriodDisplay');
+    var bar = document.getElementById('ztsPeriodBar');
+
+    function updatePeriod() {
+      if (!document.getElementById('ztsPeriodDisplay')) return;
+      if (_periodRunning) {
+        _periodRemaining = Math.max(0, Math.ceil((_periodEnd - Date.now()) / 1000));
+      }
+      display.textContent = formatTimerTime(_periodRemaining);
+      bar.style.width = (_periodTotal > 0 ? (_periodRemaining / _periodTotal * 100) : 0) + '%';
+      // Couleur change quand il reste peu de temps
+      if (_periodRemaining <= 300 && _periodRemaining > 60) {
+        display.style.color = '#FFD700';
+      } else if (_periodRemaining <= 60) {
+        display.style.color = '#FF2A7A';
+        display.style.animation = 'ztsBlink 1s infinite';
+      } else {
+        display.style.color = '#A78BFA';
+        display.style.animation = '';
+      }
+      if (_periodRemaining <= 0 && _periodRunning) {
+        _periodRunning = false;
+        clearInterval(_periodInterval);
+        display.textContent = '00:00';
+        try {
+          var actx = new (window.AudioContext || window.webkitAudioContext)();
+          [0, 300, 600, 900].forEach(function(delay) {
+            var osc = actx.createOscillator();
+            var gain = actx.createGain();
+            osc.connect(gain); gain.connect(actx.destination);
+            osc.frequency.value = 660;
+            osc.type = 'square';
+            gain.gain.value = 0.2;
+            osc.start(actx.currentTime + delay / 1000);
+            osc.stop(actx.currentTime + delay / 1000 + 0.2);
+          });
+        } catch(e) {}
+      }
+    }
+
+    if (_periodRunning) {
+      _periodInterval = setInterval(updatePeriod, 500);
+    }
+
+    // Presets
+    panel.querySelectorAll('[data-pmin]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (_periodRunning) return;
+        var sec = parseInt(btn.dataset.pmin) * 60;
+        _periodTotal = sec;
+        _periodRemaining = sec;
+        document.getElementById('ztsPeriodInput').value = btn.dataset.pmin;
+        panel.querySelectorAll('[data-pmin]').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        display.textContent = formatTimerTime(sec);
+        display.style.color = '#A78BFA';
+        display.style.animation = '';
+        bar.style.width = '100%';
+      });
+    });
+
+    // Bouton OK personnalisé
+    panel.querySelector('#ztsPeriodSet').addEventListener('click', function() {
+      if (_periodRunning) return;
+      var m = parseInt(document.getElementById('ztsPeriodInput').value) || 60;
+      _periodTotal = m * 60;
+      _periodRemaining = m * 60;
+      panel.querySelectorAll('[data-pmin]').forEach(function(b) { b.classList.remove('active'); });
+      display.textContent = formatTimerTime(_periodTotal);
+      display.style.color = '#A78BFA';
+      display.style.animation = '';
+      bar.style.width = '100%';
+    });
+
+    panel.querySelector('#ztsPeriodStart').addEventListener('click', function() {
+      if (_periodRunning) {
+        _periodRemaining = Math.max(0, Math.ceil((_periodEnd - Date.now()) / 1000));
+        _periodRunning = false;
+        clearInterval(_periodInterval);
+        this.innerHTML = '&#x25B6;&#xFE0F; Partir';
+      } else {
+        if (_periodRemaining <= 0) return;
+        _periodEnd = Date.now() + _periodRemaining * 1000;
+        _periodRunning = true;
+        display.style.animation = '';
+        _periodInterval = setInterval(updatePeriod, 500);
+        this.innerHTML = '&#x23F8; Pause';
+      }
+    });
+
+    panel.querySelector('#ztsPeriodReset').addEventListener('click', function() {
+      _periodRunning = false;
+      clearInterval(_periodInterval);
+      _periodRemaining = _periodTotal;
+      display.textContent = formatTimerTime(_periodTotal);
+      display.style.color = '#A78BFA';
+      display.style.animation = '';
+      bar.style.width = '100%';
+      panel.querySelector('#ztsPeriodStart').innerHTML = '&#x25B6;&#xFE0F; Partir';
+    });
+  }
+
   function buildDock() {
     if (document.getElementById('ztsDock')) return;
     var dock = document.createElement('div');
@@ -687,7 +847,8 @@
       <button class="zts-dock-btn zts-dock-btn-chrono" id="ztsDockChrono"><span class="zts-dock-tooltip">Chronometre</span>&#x23F1;&#xFE0F;</button>\
       <button class="zts-dock-btn zts-dock-btn-timer" id="ztsDockTimer"><span class="zts-dock-tooltip">Minuterie</span>&#x23F2;&#xFE0F;</button>\
       <button class="zts-dock-btn zts-dock-btn-teams" id="ztsDockTeams"><span class="zts-dock-tooltip">Equipes</span>&#x1F465;</button>\
-      <button class="zts-dock-btn zts-dock-btn-postit" id="ztsDockPostit"><span class="zts-dock-tooltip">Post-it</span>&#x1F4DD;</button>';
+      <button class="zts-dock-btn zts-dock-btn-postit" id="ztsDockPostit"><span class="zts-dock-tooltip">Post-it</span>&#x1F4DD;</button>\
+      <button class="zts-dock-btn" id="ztsDockPeriod" style="background:linear-gradient(135deg,#8B5CF6,#A78BFA);"><span class="zts-dock-tooltip">Periode</span>&#x1F3EB;</button>';
     document.body.appendChild(dock);
 
     document.getElementById('ztsDockDice').addEventListener('click', openDice);
@@ -696,6 +857,7 @@
     document.getElementById('ztsDockTimer').addEventListener('click', openTimer);
     document.getElementById('ztsDockTeams').addEventListener('click', openTeams);
     document.getElementById('ztsDockPostit').addEventListener('click', openPostit);
+    document.getElementById('ztsDockPeriod').addEventListener('click', openPeriod);
 
     // Close panel on click outside
     document.addEventListener('click', function(e) {
