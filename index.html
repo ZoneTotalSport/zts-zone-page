@@ -4022,5 +4022,45 @@ window.ztsOpenDonation = function() {
 <script src="firebase-auth.js"></script>
 <!-- Dock Outils -->
 <script src="dock.js"></script>
+
+<!-- Compteur de visites Firebase Realtime Database -->
+<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
+<script>
+(function(){
+    const db = firebase.database();
+    const counterRef = db.ref('pageViews/home');
+
+    // Vérifier si déjà compté cette session
+    if (!sessionStorage.getItem('zts_counted')) {
+        counterRef.transaction(function(current) {
+            return (current || 0) + 1;
+        });
+        sessionStorage.setItem('zts_counted', 'true');
+    }
+
+    // Écouter en temps réel
+    counterRef.on('value', function(snapshot) {
+        const count = snapshot.val() || 0;
+        const el = document.getElementById('visitCount');
+        if (el) {
+            // Animation du compteur
+            const target = count;
+            const current = parseInt(el.textContent) || 0;
+            if (current !== target) {
+                let start = current;
+                const step = Math.max(1, Math.floor((target - start) / 30));
+                const timer = setInterval(() => {
+                    start += step;
+                    if (start >= target) {
+                        start = target;
+                        clearInterval(timer);
+                    }
+                    el.textContent = start.toLocaleString('fr-CA');
+                }, 30);
+            }
+        }
+    });
+})();
+</script>
 </body>
 </html>
