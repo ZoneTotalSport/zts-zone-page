@@ -14,16 +14,16 @@
 /* ── Dock Container ── */\
 .zts-dock{\
   position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:99990;\
-  display:flex;flex-direction:column;gap:8px;\
+  display:flex;flex-direction:column;gap:12px;\
 }\
 .zts-dock-btn{\
-  width:52px;height:52px;border-radius:16px;border:2px solid rgba(255,255,255,.3);\
+  width:68px;height:68px;border-radius:18px;border:3px solid rgba(255,255,255,.4);\
   display:flex;align-items:center;justify-content:center;\
-  font-size:1.5rem;cursor:pointer;\
+  font-size:2rem;cursor:pointer;\
   box-shadow:0 4px 20px rgba(0,0,0,.2);transition:all .3s;\
   position:relative;\
 }\
-.zts-dock-btn:hover{transform:scale(1.15);box-shadow:0 6px 30px rgba(0,0,0,.3)}\
+.zts-dock-btn:hover{transform:scale(1.2);box-shadow:0 8px 35px rgba(0,0,0,.4)}\
 .zts-dock-btn:active{transform:scale(.95)}\
 .zts-dock-btn .zts-dock-tooltip{\
   position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%);\
