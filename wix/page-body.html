@@ -2090,6 +2090,22 @@
     window.openGatePopup = openGatePopup;
     </script>
 
+    <!-- ========== POPUP DON (pleine page) ========== -->
+    <div id="donPopup" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;">
+        <div style="position:relative;width:95%;max-width:600px;max-height:90vh;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4);border:3px solid #FFD700;">
+            <button onclick="document.getElementById('donPopup').style.display='none'" style="position:absolute;top:12px;right:12px;z-index:10;width:44px;height:44px;border-radius:50%;border:none;background:rgba(0,0,0,0.3);color:#fff;font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+            <iframe src="https://zone.zonetotalsport.ca/wix/donation.html" style="width:100%;height:80vh;border:none;"></iframe>
+        </div>
+    </div>
+    <script>
+    // Écouter le message du header pour ouvrir le popup don
+    window.addEventListener('message', function(e) {
+        if (e.data && e.data.type === 'openDonPopup') {
+            document.getElementById('donPopup').style.display = 'flex';
+        }
+    });
+    </script>
+
     <!-- ========== DOCK FLOTTANT (Comic Tools) ========== -->
     <iframe id="comic-tools-dock"
             src="https://zone.zonetotalsport.ca/wix/comic-tools.html"
