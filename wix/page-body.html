@@ -2090,5 +2090,25 @@
     window.openGatePopup = openGatePopup;
     </script>
 
+    <!-- ========== DOCK FLOTTANT (Comic Tools) ========== -->
+    <iframe id="comic-tools-dock"
+            src="https://zone.zonetotalsport.ca/wix/comic-tools.html"
+            style="position:fixed;right:0;top:0;width:120px;height:100vh;border:none;z-index:9000;pointer-events:none;background:transparent;"
+            scrolling="no"
+            allowtransparency="true">
+    </iframe>
+    <style>
+        #comic-tools-dock { pointer-events: none; }
+    </style>
+    <script>
+        // Permettre les clics sur le dock mais pas sur le reste de l'iframe
+        const dockFrame = document.getElementById('comic-tools-dock');
+        if (dockFrame) {
+            dockFrame.addEventListener('load', () => {
+                dockFrame.style.pointerEvents = 'auto';
+            });
+        }
+    </script>
+
 </body>
 </html>
