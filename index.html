@@ -1020,13 +1020,13 @@
             <a href="avis.html" class="wix-nav-btn">
                 <i data-lucide="star" class="w-3.5 h-3.5"></i> <span>Avis</span>
             </a>
-            <a href="wix/donation.html" class="wix-nav-btn btn-donate-nav">
+            <a href="#" onclick="event.preventDefault();ztsOpenDonation()" class="wix-nav-btn btn-donate-nav">
                 <i data-lucide="heart" class="w-3.5 h-3.5"></i> <span>Dons</span>
             </a>
 
-            <a href="https://www.zonetotalsport.ca/boite-a-outils-eps" class="wix-nav-btn btn-login-nav" id="zts-login-btn" style="background: linear-gradient(135deg, #FF6B00, #FF9500); color: white; border: none;">
+            <a href="#" class="wix-nav-btn btn-login-nav" id="zts-login-btn" data-auth="login" style="background: linear-gradient(135deg, #FF6B00, #FF9500); color: white; border: none;">
                 <i data-lucide="user" class="w-3.5 h-3.5"></i> <span>Connexion</span>
-            </button>
+            </a>
         </div>
         <div class="max-w-7xl mx-auto flex items-center justify-between mt-3">
             <!-- Logo -->
@@ -1047,7 +1047,7 @@
                 </div>
                 <!-- Faire un don 40% plus gros -->
                 <div class="magnetic-wrap">
-                    <a href="wix/donation.html" class="btn-primary btn-yellow magnetic-btn" data-i18n="navDon" style="font-size:1.6rem; padding:20px 48px;">
+                    <a href="#" onclick="event.preventDefault();ztsOpenDonation()" class="btn-primary btn-yellow magnetic-btn" data-i18n="navDon" style="font-size:1.6rem; padding:20px 48px;">
                         <i data-lucide="heart" class="w-6 h-6"></i> Faire un don
                     </a>
                 </div>
@@ -1058,7 +1058,7 @@
 
     <!-- MOBILE MENU -->
     <div class="mobile-menu" id="mobileMenu">
-        <a href="wix/donation.html" onclick="closeMobile()" style="color:#FF2A7A" data-i18n="mobileDon">Faire un don</a>
+        <a href="#" onclick="event.preventDefault();ztsOpenDonation()" onclick="closeMobile()" style="color:#FF2A7A" data-i18n="mobileDon">Faire un don</a>
     </div>
 
     <!-- ========== SECTION 1: HERO (Cyan) ========== -->
@@ -1595,7 +1595,7 @@
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center reveal">
                 <div class="magnetic-wrap">
-                    <a href="wix/donation.html" class="btn-primary btn-pink magnetic-btn physics-trigger" data-emoji-set="sports" data-i18n="donBtn1" style="display:inline-flex;text-decoration:none;">
+                    <a href="#" onclick="event.preventDefault();ztsOpenDonation()" class="btn-primary btn-pink magnetic-btn physics-trigger" data-emoji-set="sports" data-i18n="donBtn1" style="display:inline-flex;text-decoration:none;">
                         <i data-lucide="heart" class="w-5 h-5"></i> Faire un don
                     </a>
                 </div>
@@ -1644,7 +1644,7 @@
                         <h3 class="font-fredoka text-lg text-dark">Page de dons avec PayPal</h3>
                         <p class="font-baloo text-dark/60 text-sm">Dons uniques ou mensuels pour supporter la Zone. Paiement securise via PayPal.</p>
                     </div>
-                    <a href="wix/donation.html" class="news-btn btn-yellow-outline">
+                    <a href="#" onclick="event.preventDefault();ztsOpenDonation()" class="news-btn btn-yellow-outline">
                         <i data-lucide="heart" class="w-4 h-4"></i> Voir
                     </a>
                 </div>
@@ -1745,7 +1745,7 @@
                     <ul class="space-y-2">
                         <li><a href="#" onclick="openProfilePopup();return false" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fAbout">À propos</a></li>
                         <li><a href="politique.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fPrivacy">Politique de confidentialité</a></li>
-                        <li><a href="wix/donation.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fDon">Faire un don</a></li>
+                        <li><a href="#" onclick="event.preventDefault();ztsOpenDonation()" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fDon">Faire un don</a></li>
                         <li><a href="avis.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fAvis">Laisser un avis</a></li>
                     </ul>
                 </div>
@@ -3992,6 +3992,35 @@
     })();
     </script>
 
-<script type="module" src="wix-auth.js"></script>
+<!-- Donation Popup -->
+<style>
+.zts-donation-overlay{position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;visibility:hidden;transition:all .4s;padding:20px;}
+.zts-donation-overlay.open{opacity:1;visibility:visible}
+.zts-donation-modal{position:relative;width:100%;max-width:600px;height:80vh;max-height:700px;border-radius:24px;overflow:hidden;border:4px solid #FFD700;box-shadow:0 25px 60px rgba(0,0,0,.5);transform:scale(.9);transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+.zts-donation-overlay.open .zts-donation-modal{transform:scale(1)}
+.zts-donation-modal iframe{width:100%;height:100%;border:none;}
+.zts-donation-close{position:absolute;top:12px;right:12px;z-index:10;width:42px;height:42px;border-radius:50%;border:3px solid rgba(255,255,255,.3);background:rgba(0,0,0,.5);color:#fff;font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:sans-serif;}
+.zts-donation-close:hover{background:rgba(255,42,122,.7);transform:scale(1.1)}
+</style>
+<script>
+// Donation popup
+window.ztsOpenDonation = function() {
+  var existing = document.getElementById('ztsDonationOverlay');
+  if (existing) { existing.classList.add('open'); return; }
+  var overlay = document.createElement('div');
+  overlay.className = 'zts-donation-overlay';
+  overlay.id = 'ztsDonationOverlay';
+  overlay.innerHTML = '<div class="zts-donation-modal"><button class="zts-donation-close">&times;</button><iframe src="wix/donation.html" title="Faire un don"></iframe></div>';
+  document.body.appendChild(overlay);
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ overlay.classList.add('open'); }); });
+  overlay.querySelector('.zts-donation-close').addEventListener('click', function(){ overlay.classList.remove('open'); });
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.classList.remove('open'); });
+};
+</script>
+
+<!-- Firebase Auth -->
+<script src="firebase-auth.js"></script>
+<!-- Dock Outils -->
+<script src="dock.js"></script>
 </body>
 </html>
