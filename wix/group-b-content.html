@@ -990,7 +990,7 @@
 
 <!-- ========== DOCK FLOTTANT INTÉGRÉ ========== -->
 <style>
-.zts-dock{position:fixed;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:9000;padding:8px}
+.zts-dock{position:absolute;right:12px;top:300px;display:flex;flex-direction:column;gap:10px;z-index:9000;padding:8px}
 .zts-dock-btn{width:48px;height:48px;border-radius:12px;border:3px solid #18181b;background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;box-shadow:3px 3px 0 #18181b;transition:all .2s}
 .zts-dock-btn:hover{transform:scale(1.15) rotate(-5deg);background:#00E5FF}
 .zts-dock-btn.active{background:#FFD700;transform:scale(1.1)}
@@ -1192,6 +1192,14 @@ window.addEventListener('message', function(e) {
         document.getElementById('donPopup').style.display = 'flex';
     }
 });
+
+// Dock suit le scroll (position:fixed ne marche pas dans iframe)
+const dock = document.getElementById('ztsDock');
+if (dock) {
+    window.addEventListener('scroll', function() {
+        dock.style.top = (window.scrollY + window.innerHeight / 2 - dock.offsetHeight / 2) + 'px';
+    });
+}
 </script>
 
 <script type="module" src="../wix-auth.js"></script>
