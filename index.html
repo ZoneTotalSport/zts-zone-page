@@ -954,7 +954,7 @@
             animation: dropIn 0.25s ease;
         }
         @keyframes dropIn { 0% { opacity: 0; transform: translateX(-50%) translateY(-10px); } 100% { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+        .nav-dropdown.open .nav-dropdown-menu { display: block; }
         .nav-dropdown-menu a {
             display: flex; align-items: center; gap: 10px;
             padding: 12px 18px; border-radius: 10px;
@@ -964,7 +964,7 @@
         .nav-dropdown-menu a:hover { background: rgba(0,229,255,0.15); color: #00E5FF; transform: translateX(4px); }
         .nav-dropdown-menu a i { width: 16px; height: 16px; flex-shrink: 0; }
         .nav-dropdown-arrow { font-size: 0.6rem; margin-left: 2px; transition: transform 0.3s; }
-        .nav-dropdown:hover .nav-dropdown-arrow { transform: rotate(180deg); }
+        .nav-dropdown.open .nav-dropdown-arrow { transform: rotate(180deg); }
         /* Special buttons */
         .wix-nav-btn.btn-donate-nav { background: linear-gradient(135deg, #FF2A7A, #FF6B9D); color: #fff; border-color: #FF2A7A; animation: donPulse 2s ease-in-out infinite; }
         .wix-nav-btn.btn-donate-nav:hover { transform: translateY(-3px) scale(1.1); box-shadow: 0 6px 25px rgba(255,42,122,0.5); }
@@ -4073,6 +4073,25 @@ window.ztsOpenDonation = function() {
 </script>
 
 <!-- Firebase Auth -->
+<!-- Dropdown menus par clic -->
+<script>
+document.querySelectorAll('.nav-dropdown > .wix-nav-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const dropdown = btn.parentElement;
+        const wasOpen = dropdown.classList.contains('open');
+        // Fermer tous les autres
+        document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+        // Toggle celui-ci
+        if (!wasOpen) dropdown.classList.add('open');
+    });
+});
+// Fermer au clic ailleurs
+document.addEventListener('click', () => {
+    document.querySelectorAll('.nav-dropdown.open').forEach(d => d.classList.remove('open'));
+});
+</script>
 <script src="firebase-auth.js"></script>
 <!-- Dock Outils -->
 <script src="dock.js"></script>
