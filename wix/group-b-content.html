@@ -981,23 +981,212 @@
     </script>
 
 <!-- ========== POPUP DON (pleine page) ========== -->
-<div id="donPopup" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:99999;align-items:center;justify-content:center;">
-    <div style="position:relative;width:95%;max-width:600px;max-height:90vh;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4);border:3px solid #FFD700;">
-        <button onclick="document.getElementById('donPopup').style.display='none'" style="position:absolute;top:12px;right:12px;z-index:10;width:44px;height:44px;border-radius:50%;border:none;background:rgba(0,0,0,0.3);color:#fff;font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+<div id="donPopup" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);z-index:99999;align-items:center;justify-content:center;">
+    <div style="position:relative;width:95%;max-width:600px;max-height:90vh;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:3px solid #FFD700;">
+        <button onclick="document.getElementById('donPopup').style.display='none'" style="position:absolute;top:12px;right:12px;z-index:10;width:44px;height:44px;border-radius:50%;border:none;background:rgba(0,0,0,0.4);color:#fff;font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
         <iframe src="https://zone.zonetotalsport.ca/wix/donation.html" style="width:100%;height:80vh;border:none;"></iframe>
     </div>
 </div>
 
-<!-- ========== DOCK FLOTTANT (Comic Tools) ========== -->
-<iframe id="comic-tools-dock"
-        src="https://zone.zonetotalsport.ca/wix/comic-tools.html"
-        style="position:fixed;right:0;top:0;width:120px;height:100vh;border:none;z-index:9000;pointer-events:auto;background:transparent;"
-        scrolling="no"
-        allowtransparency="true">
-</iframe>
+<!-- ========== DOCK FLOTTANT INTÉGRÉ ========== -->
+<style>
+.zts-dock{position:fixed;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px;z-index:9000;padding:8px}
+.zts-dock-btn{width:48px;height:48px;border-radius:12px;border:3px solid #18181b;background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;box-shadow:3px 3px 0 #18181b;transition:all .2s}
+.zts-dock-btn:hover{transform:scale(1.15) rotate(-5deg);background:#00E5FF}
+.zts-dock-btn.active{background:#FFD700;transform:scale(1.1)}
+.zts-dock-label{position:absolute;right:60px;top:50%;transform:translateY(-50%);background:#18181b;color:#fff;padding:4px 12px;border-radius:8px;font-size:.85rem;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;font-family:'Patrick Hand',cursive}
+.zts-dock-item:hover .zts-dock-label{opacity:1}
+.zts-dock-item{position:relative}
+
+/* Panels */
+.zts-tool-panel{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:500px;max-height:85vh;background:#fff;border-radius:20px;border:4px solid #18181b;box-shadow:8px 8px 0 #18181b;z-index:99998;overflow:auto;padding:24px}
+.zts-tool-panel.open{display:block}
+.zts-tool-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:99997}
+.zts-tool-overlay.open{display:block}
+.zts-panel-close{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:2px solid #18181b;background:#FF2A7A;color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.zts-panel-title{font-family:'Luckiest Guy',cursive;font-size:1.5rem;color:#18181b;margin-bottom:16px;text-align:center}
+</style>
+
+<nav class="zts-dock" id="ztsDock">
+    <div class="zts-dock-item"><button class="zts-dock-btn" onclick="openTool('dice')">🎲</button><span class="zts-dock-label">Dés</span></div>
+    <div class="zts-dock-item"><button class="zts-dock-btn" onclick="openTool('wheel')">🎡</button><span class="zts-dock-label">Roue</span></div>
+    <div class="zts-dock-item"><button class="zts-dock-btn" onclick="openTool('stopwatch')">⏱️</button><span class="zts-dock-label">Chronomètre</span></div>
+    <div class="zts-dock-item"><button class="zts-dock-btn" onclick="openTool('timer')">⏲️</button><span class="zts-dock-label">Timer</span></div>
+    <div class="zts-dock-item"><button class="zts-dock-btn" onclick="openTool('teams')">👥</button><span class="zts-dock-label">Équipes</span></div>
+    <div class="zts-dock-item"><button class="zts-dock-btn" onclick="openTool('postit')">📝</button><span class="zts-dock-label">Post-it</span></div>
+</nav>
+
+<!-- Overlay pour fermer -->
+<div class="zts-tool-overlay" id="toolOverlay" onclick="closeTool()"></div>
+
+<!-- Panel Dés -->
+<div class="zts-tool-panel" id="panel-dice">
+    <button class="zts-panel-close" onclick="closeTool()">&times;</button>
+    <div class="zts-panel-title">🎲 Lancer les dés</div>
+    <div style="text-align:center;padding:20px">
+        <div id="diceResult" style="font-family:'Luckiest Guy',cursive;font-size:5rem;color:#00E5FF">?</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap">
+            <button onclick="rollDice(1,6)" style="padding:10px 20px;border-radius:10px;border:3px solid #18181b;background:#FFD700;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">1 dé (1-6)</button>
+            <button onclick="rollDice(2,6)" style="padding:10px 20px;border-radius:10px;border:3px solid #18181b;background:#00E5FF;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">2 dés</button>
+            <button onclick="rollDice(1,20)" style="padding:10px 20px;border-radius:10px;border:3px solid #18181b;background:#FF2A7A;color:#fff;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">1-20</button>
+        </div>
+    </div>
+</div>
+
+<!-- Panel Roue -->
+<div class="zts-tool-panel" id="panel-wheel">
+    <button class="zts-panel-close" onclick="closeTool()">&times;</button>
+    <div class="zts-panel-title">🎡 Roue aléatoire</div>
+    <div style="text-align:center;padding:20px">
+        <textarea id="wheelItems" rows="5" placeholder="Un nom par ligne..." style="width:100%;border:3px solid #18181b;border-radius:10px;padding:10px;font-family:'Patrick Hand',cursive;font-size:1.1rem;resize:vertical"></textarea>
+        <div id="wheelResult" style="font-family:'Luckiest Guy',cursive;font-size:2.5rem;color:#FF2A7A;margin:16px 0;min-height:50px"></div>
+        <button onclick="spinWheel()" style="padding:12px 30px;border-radius:10px;border:3px solid #18181b;background:#39FF14;font-family:'Luckiest Guy',cursive;font-size:1.2rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">TOURNER!</button>
+    </div>
+</div>
+
+<!-- Panel Chronomètre -->
+<div class="zts-tool-panel" id="panel-stopwatch">
+    <button class="zts-panel-close" onclick="closeTool()">&times;</button>
+    <div class="zts-panel-title">⏱️ Chronomètre</div>
+    <div style="text-align:center;padding:20px">
+        <div id="stopwatchDisplay" style="font-family:'Luckiest Guy',cursive;font-size:4rem;color:#00E5FF">00:00.0</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
+            <button id="swStart" onclick="swToggle()" style="padding:12px 24px;border-radius:10px;border:3px solid #18181b;background:#39FF14;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">▶ Start</button>
+            <button onclick="swReset()" style="padding:12px 24px;border-radius:10px;border:3px solid #18181b;background:#FF2A7A;color:#fff;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">↺ Reset</button>
+        </div>
+    </div>
+</div>
+
+<!-- Panel Timer -->
+<div class="zts-tool-panel" id="panel-timer">
+    <button class="zts-panel-close" onclick="closeTool()">&times;</button>
+    <div class="zts-panel-title">⏲️ Timer</div>
+    <div style="text-align:center;padding:20px">
+        <div id="timerDisplay" style="font-family:'Luckiest Guy',cursive;font-size:4rem;color:#FF6B00">5:00</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin:16px 0;flex-wrap:wrap">
+            <button onclick="setTimer(60)" style="padding:8px 16px;border-radius:8px;border:2px solid #18181b;background:#FFD700;font-family:'Patrick Hand',cursive;cursor:pointer">1 min</button>
+            <button onclick="setTimer(180)" style="padding:8px 16px;border-radius:8px;border:2px solid #18181b;background:#00E5FF;font-family:'Patrick Hand',cursive;cursor:pointer">3 min</button>
+            <button onclick="setTimer(300)" style="padding:8px 16px;border-radius:8px;border:2px solid #18181b;background:#39FF14;font-family:'Patrick Hand',cursive;cursor:pointer">5 min</button>
+            <button onclick="setTimer(600)" style="padding:8px 16px;border-radius:8px;border:2px solid #18181b;background:#FF2A7A;color:#fff;font-family:'Patrick Hand',cursive;cursor:pointer">10 min</button>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center">
+            <button id="tmStart" onclick="tmToggle()" style="padding:12px 24px;border-radius:10px;border:3px solid #18181b;background:#39FF14;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">▶ Start</button>
+            <button onclick="tmReset()" style="padding:12px 24px;border-radius:10px;border:3px solid #18181b;background:#FF2A7A;color:#fff;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">↺ Reset</button>
+        </div>
+    </div>
+</div>
+
+<!-- Panel Équipes -->
+<div class="zts-tool-panel" id="panel-teams">
+    <button class="zts-panel-close" onclick="closeTool()">&times;</button>
+    <div class="zts-panel-title">👥 Générateur d'équipes</div>
+    <div style="padding:10px">
+        <textarea id="teamNames" rows="5" placeholder="Un nom par ligne..." style="width:100%;border:3px solid #18181b;border-radius:10px;padding:10px;font-family:'Patrick Hand',cursive;font-size:1.1rem;resize:vertical"></textarea>
+        <div style="display:flex;align-items:center;gap:10px;margin:12px 0">
+            <label style="font-family:'Patrick Hand',cursive;font-size:1.1rem">Nombre d'équipes:</label>
+            <select id="teamCount" style="padding:6px 12px;border:2px solid #18181b;border-radius:8px;font-family:'Patrick Hand',cursive;font-size:1.1rem">
+                <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option>
+            </select>
+        </div>
+        <button onclick="generateTeams()" style="width:100%;padding:12px;border-radius:10px;border:3px solid #18181b;background:#FFD700;font-family:'Luckiest Guy',cursive;font-size:1.2rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">GÉNÉRER!</button>
+        <div id="teamsResult" style="margin-top:16px"></div>
+    </div>
+</div>
+
+<!-- Panel Post-it -->
+<div class="zts-tool-panel" id="panel-postit">
+    <button class="zts-panel-close" onclick="closeTool()">&times;</button>
+    <div class="zts-panel-title">📝 Message du jour</div>
+    <div style="padding:10px;text-align:center">
+        <div style="background:#FFD700;border:3px solid #18181b;border-radius:4px;padding:30px;box-shadow:4px 4px 0 #18181b;transform:rotate(-1deg);max-width:350px;margin:0 auto">
+            <textarea id="postitText" rows="4" placeholder="Écris ton message ici..." style="width:100%;border:none;background:transparent;font-family:'Patrick Hand',cursive;font-size:1.4rem;text-align:center;resize:none;outline:none"></textarea>
+        </div>
+        <p style="margin-top:12px;font-family:'Patrick Hand',cursive;color:#888;font-size:.9rem">Affiche en plein écran pour le montrer à ta classe!</p>
+        <button onclick="fullscreenPostit()" style="margin-top:8px;padding:10px 24px;border-radius:10px;border:3px solid #18181b;background:#8B5CF6;color:#fff;font-family:'Patrick Hand',cursive;font-size:1.1rem;cursor:pointer;box-shadow:3px 3px 0 #18181b">🖥️ Plein écran</button>
+    </div>
+</div>
 
 <script>
-// Écouter les messages du parent (Wix) ou du header pour le popup don
+// ===== DOCK TOOLS LOGIC =====
+let currentTool = null;
+
+function openTool(tool) {
+    closeTool();
+    currentTool = tool;
+    document.getElementById('toolOverlay').classList.add('open');
+    document.getElementById('panel-' + tool).classList.add('open');
+}
+function closeTool() {
+    document.getElementById('toolOverlay').classList.remove('open');
+    document.querySelectorAll('.zts-tool-panel').forEach(p => p.classList.remove('open'));
+    currentTool = null;
+}
+
+// Dés
+function rollDice(count, max) {
+    let results = [];
+    for(let i=0;i<count;i++) results.push(Math.floor(Math.random()*max)+1);
+    const el = document.getElementById('diceResult');
+    el.style.transform='scale(1.3)';
+    el.textContent = results.join(' + ');
+    setTimeout(()=>{el.style.transform='scale(1)'},200);
+}
+
+// Roue
+function spinWheel() {
+    const items = document.getElementById('wheelItems').value.split('\n').filter(s=>s.trim());
+    if(!items.length) return;
+    const el = document.getElementById('wheelResult');
+    let i=0, speed=50;
+    const spin = setInterval(()=>{
+        el.textContent = items[i%items.length];
+        i++;
+        if(i>20){clearInterval(spin);el.textContent='🎉 '+items[Math.floor(Math.random()*items.length)]+'!';}
+    },speed);
+}
+
+// Chronomètre
+let swRunning=false, swTime=0, swInterval;
+function swToggle(){
+    if(swRunning){clearInterval(swInterval);swRunning=false;document.getElementById('swStart').textContent='▶ Start';}
+    else{swRunning=true;document.getElementById('swStart').textContent='⏸ Pause';swInterval=setInterval(()=>{swTime+=100;updateSW();},100);}
+}
+function swReset(){clearInterval(swInterval);swRunning=false;swTime=0;updateSW();document.getElementById('swStart').textContent='▶ Start';}
+function updateSW(){
+    const m=Math.floor(swTime/60000),s=Math.floor((swTime%60000)/1000),ms=Math.floor((swTime%1000)/100);
+    document.getElementById('stopwatchDisplay').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+ms;
+}
+
+// Timer
+let tmRunning=false,tmTime=300,tmInterval,tmSet=300;
+function setTimer(s){tmSet=s;tmTime=s;tmRunning=false;clearInterval(tmInterval);updateTM();document.getElementById('tmStart').textContent='▶ Start';}
+function tmToggle(){
+    if(tmRunning){clearInterval(tmInterval);tmRunning=false;document.getElementById('tmStart').textContent='▶ Start';}
+    else{tmRunning=true;document.getElementById('tmStart').textContent='⏸ Pause';tmInterval=setInterval(()=>{tmTime--;updateTM();if(tmTime<=0){clearInterval(tmInterval);tmRunning=false;document.getElementById('tmStart').textContent='▶ Start';alert('⏰ Temps écoulé!');}},1000);}
+}
+function tmReset(){clearInterval(tmInterval);tmRunning=false;tmTime=tmSet;updateTM();document.getElementById('tmStart').textContent='▶ Start';}
+function updateTM(){const m=Math.floor(tmTime/60),s=tmTime%60;document.getElementById('timerDisplay').textContent=m+':'+String(s).padStart(2,'0');}
+
+// Équipes
+function generateTeams(){
+    const names=document.getElementById('teamNames').value.split('\n').filter(s=>s.trim());
+    const count=parseInt(document.getElementById('teamCount').value);
+    if(!names.length)return;
+    const shuffled=[...names].sort(()=>Math.random()-.5);
+    const teams=Array.from({length:count},()=>[]);
+    shuffled.forEach((n,i)=>teams[i%count].push(n));
+    const colors=['#00E5FF','#FFD700','#39FF14','#FF2A7A','#FF6B00','#8B5CF6'];
+    document.getElementById('teamsResult').innerHTML=teams.map((t,i)=>`<div style="background:${colors[i%6]};border:2px solid #18181b;border-radius:10px;padding:10px;margin-bottom:8px"><strong style="font-family:'Luckiest Guy',cursive">Équipe ${i+1}</strong><br><span style="font-family:'Patrick Hand',cursive">${t.join(', ')}</span></div>`).join('');
+}
+
+// Post-it plein écran
+function fullscreenPostit(){
+    const text=document.getElementById('postitText').value||'Message du jour!';
+    const w=window.open('','_blank');
+    w.document.write(`<html><head><link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet"><style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#FFD700;font-family:'Patrick Hand',cursive;}</style></head><body><div style="font-size:5vw;text-align:center;padding:40px;max-width:80%">${text}</div></body></html>`);
+}
+
+// Écouter messages du parent pour popup don
 window.addEventListener('message', function(e) {
     if (e.data && e.data.type === 'openDonPopup') {
         document.getElementById('donPopup').style.display = 'flex';
