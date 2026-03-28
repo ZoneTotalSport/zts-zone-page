@@ -43,17 +43,17 @@
 /* ── Panel Base ── */\
 .zts-dock-panel{\
   position:fixed;z-index:99995;\
-  background:rgba(15,15,46,.97);border-radius:24px;\
-  border:3px solid rgba(255,215,0,.3);backdrop-filter:blur(16px);\
+  background:rgba(15,15,46,.97);border-radius:28px;\
+  border:4px solid rgba(255,215,0,.4);backdrop-filter:blur(16px);\
   box-shadow:0 25px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05);\
-  padding:24px;color:#fff;font-family:"Schoolbell",cursive;\
+  padding:36px;color:#fff;font-family:"Schoolbell",cursive;\
   opacity:0;visibility:hidden;transform:scale(.9) translateX(20px);\
   transition:all .4s cubic-bezier(.34,1.56,.64,1);\
-  max-height:90vh;overflow-y:auto;\
+  width:85vw;max-width:700px;min-height:50vh;max-height:92vh;overflow-y:auto;\
 }\
 .zts-dock-panel.open{opacity:1;visibility:visible;transform:scale(1) translateX(0)}\
 .zts-dock-panel-title{\
-  font-family:"Bangers",cursive;font-size:1.5rem;color:#FFD700;\
+  font-family:"Bangers",cursive;font-size:2.5rem;color:#FFD700;\
   text-shadow:2px 2px 0 rgba(0,0,0,.3);margin:0 0 16px;text-align:center;\
   letter-spacing:2px;\
 }\
@@ -70,7 +70,7 @@
   display:flex;justify-content:center;gap:20px;margin:20px 0;\
 }\
 .zts-dice{\
-  width:90px;height:90px;border-radius:18px;\
+  width:120px;height:120px;border-radius:22px;\
   background:linear-gradient(145deg,#fff,#f0f0f0);\
   display:flex;align-items:center;justify-content:center;\
   font-size:3rem;color:#1a1a2e;font-family:"Bangers",cursive;\
@@ -116,10 +116,10 @@
 \
 /* ── Wheel ── */\
 .zts-wheel-canvas-wrap{\
-  position:relative;width:280px;height:280px;margin:0 auto 16px;\
+  position:relative;width:380px;height:380px;margin:0 auto 20px;\
 }\
 .zts-wheel-canvas{\
-  width:280px;height:280px;border-radius:50%;\
+  width:380px;height:380px;border-radius:50%;\
   box-shadow:0 0 40px rgba(255,215,0,.3);border:4px solid #FFD700;\
 }\
 .zts-wheel-pointer{\
