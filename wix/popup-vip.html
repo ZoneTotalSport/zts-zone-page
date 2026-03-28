@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zone Total Sport — VIP</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Schoolbell&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ===== FOND ANIMÉ FONCÉ ===== */
+body{
+  font-family:'Schoolbell',cursive;
+  min-height:100vh;
+  background:linear-gradient(135deg,#0a0a2e 0%,#0d1b3e 25%,#0a2540 50%,#0d1b3e 75%,#0a0a2e 100%);
+  background-size:400% 400%;
+  animation:gradientShift 8s ease infinite;
+  color:#fff;
+  overflow-x:hidden;
+  position:relative;
+}
+@keyframes gradientShift{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* Particules flottantes */
+body::before{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:radial-gradient(2px 2px at 20% 30%,rgba(0,229,255,.3),transparent),
+             radial-gradient(2px 2px at 80% 20%,rgba(255,215,0,.3),transparent),
+             radial-gradient(2px 2px at 40% 80%,rgba(57,255,20,.3),transparent),
+             radial-gradient(2px 2px at 70% 60%,rgba(255,42,122,.2),transparent),
+             radial-gradient(3px 3px at 10% 70%,rgba(0,229,255,.2),transparent),
+             radial-gradient(3px 3px at 90% 40%,rgba(255,215,0,.2),transparent);
+  animation:sparkle 4s ease-in-out infinite alternate;
+  pointer-events:none;z-index:0;
+}
+@keyframes sparkle{0%{opacity:.5}100%{opacity:1}}
+
+/* Emojis flottants */
+.float-emoji{position:absolute;font-size:1.6rem;opacity:.25;animation:floatEmoji 6s ease-in-out infinite;pointer-events:none;z-index:0}
+.float-emoji:nth-child(2){animation-delay:.8s}
+.float-emoji:nth-child(3){animation-delay:1.6s}
+.float-emoji:nth-child(4){animation-delay:2.4s}
+.float-emoji:nth-child(5){animation-delay:3.2s}
+@keyframes floatEmoji{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-15px) rotate(10deg)}}
+
+/* ===== CONTENU ===== */
+.popup-container{
+  position:relative;z-index:1;
+  max-width:520px;margin:0 auto;padding:30px 24px;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+/* Badge */
+.badge{
+  display:inline-block;padding:6px 20px;border:2px solid rgba(0,229,255,.4);
+  border-radius:50px;font-family:'Bangers',cursive;font-size:.95rem;
+  letter-spacing:2px;color:#00E5FF;text-transform:uppercase;
+  background:rgba(0,229,255,.08);margin-bottom:12px;
+}
+
+/* Mascotte */
+.mascot{width:200px;height:auto;filter:drop-shadow(0 8px 24px rgba(0,229,255,.3));margin-bottom:-8px;animation:mascotBounce 3s ease-in-out infinite}
+@keyframes mascotBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* Titre */
+h1{font-family:'Bangers',cursive;font-size:2.2rem;text-align:center;line-height:1.1;letter-spacing:3px;margin-bottom:8px;text-shadow:0 0 30px rgba(0,229,255,.3)}
+h1 .cyan{color:#00E5FF}
+h1 .yellow{color:#FFD700}
+
+/* Sous-titre */
+.subtitle{font-size:1.15rem;text-align:center;color:rgba(255,255,255,.75);margin-bottom:20px;line-height:1.4}
+.subtitle .highlight{color:#00E5FF;font-weight:700}
+.subtitle .name{color:#FFD700;font-weight:700}
+
+/* Stats */
+.stats{display:flex;gap:16px;margin-bottom:20px;width:100%}
+.stat{flex:1;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 6px}
+.stat-num{font-family:'Bangers',cursive;font-size:1.5rem;line-height:1}
+.stat-num.pink{color:#FF2A7A}
+.stat-num.white{color:#fff}
+.stat-num.green{color:#39FF14}
+.stat-num.yellow{color:#FFD700}
+.stat-label{font-size:.85rem;color:rgba(255,255,255,.5);margin-top:2px}
+
+/* Cards */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:16px}
+.card{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.15)}
+.card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;background:rgba(255,255,255,.15)}
+.card h3{font-family:'Bangers',cursive;font-size:.95rem;letter-spacing:1px;margin-bottom:1px}
+.card p{font-size:.8rem;opacity:.75;line-height:1.2}
+.card-blue{background:linear-gradient(135deg,rgba(0,191,255,.25),rgba(30,144,255,.25))}
+.card-green{background:linear-gradient(135deg,rgba(57,255,20,.2),rgba(0,230,118,.2))}
+.card-orange{background:linear-gradient(135deg,rgba(255,107,0,.25),rgba(255,149,0,.25))}
+.card-pink{background:linear-gradient(135deg,rgba(255,42,122,.25),rgba(255,105,180,.25))}
+
+/* Preuve sociale */
+.social-proof{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
+.avatar-stack{display:flex}
+.avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bangers',cursive;font-size:.6rem;border:2px solid #0a0a2e}
+.avatar+.avatar{margin-left:-8px}
+.social-proof span{font-size:.95rem;color:rgba(255,255,255,.7)}
+
+/* CTA */
+.cta-btn{
+  display:block;width:100%;padding:18px;border:none;border-radius:16px;
+  background:linear-gradient(135deg,#FFD700,#FFA500);
+  font-family:'Bangers',cursive;font-size:1.4rem;color:#0a0a2e;
+  cursor:pointer;text-align:center;text-decoration:none;
+  letter-spacing:2px;position:relative;overflow:hidden;
+  box-shadow:0 6px 30px rgba(255,215,0,.3);
+  transition:transform .2s,box-shadow .2s;
+}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(255,215,0,.5)}
+.cta-btn::after{
+  content:'';position:absolute;top:-50%;left:-60%;width:200%;height:200%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
+  transform:rotate(25deg);animation:shine 3s ease-in-out infinite;
+}
+@keyframes shine{0%{left:-60%}100%{left:120%}}
+
+.sub-text{text-align:center;font-size:.85rem;color:rgba(255,255,255,.35);margin-top:8px}
+.login-link{display:block;text-align:center;padding:8px;font-size:1rem;color:rgba(255,255,255,.5);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Schoolbell',cursive;margin-top:4px}
+.login-link:hover{color:#00E5FF}
+.close-link{display:block;text-align:center;padding:6px;font-size:.9rem;color:rgba(255,255,255,.25);cursor:pointer;background:none;border:none;font-family:'Schoolbell',cursive}
+.close-link:hover{color:rgba(255,255,255,.5)}
+
+/* Close X */
+.close-x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;transition:all .2s}
+.close-x:hover{background:rgba(255,42,122,.4);border-color:#FF2A7A}
+
+/* Mobile */
+@media(max-width:520px){
+  .popup-container{padding:20px 16px}
+  .mascot{width:150px}
+  h1{font-size:1.8rem}
+  .stats{gap:8px}
+  .stat-num{font-size:1.2rem}
+  .cards{grid-template-columns:1fr}
+  .cta-btn{font-size:1.2rem;padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- Emojis flottants -->
+<span class="float-emoji" style="top:5%;left:5%">⚽</span>
+<span class="float-emoji" style="top:8%;right:8%">🏀</span>
+<span class="float-emoji" style="bottom:15%;left:8%">🎾</span>
+<span class="float-emoji" style="bottom:10%;right:6%">🏈</span>
+<span class="float-emoji" style="top:50%;left:3%">🏐</span>
+
+<div class="popup-container">
+
+  <!-- Close X -->
+  <button class="close-x" onclick="window.parent.postMessage('closePopup','*')">&times;</button>
+
+  <!-- Badge -->
+  <div class="badge">Zone Total Sport</div>
+
+  <!-- Mascotte -->
+  <img src="https://zonetotalsport.github.io/app-jeux/bucheron-basketball.png" alt="Mr. Roots" class="mascot" onerror="this.src='https://static.wixstatic.com/media/692b77_03932649151440d9a1951e988412c76a~mv2.png'">
+
+  <!-- Titre -->
+  <h1>REJOINS LA <span class="cyan">ZONE</span> <span class="yellow">VIP</span><br>DES PROFS D'ÉDUC!</h1>
+
+  <!-- Sous-titre -->
+  <p class="subtitle">Rejoins plus de <span class="highlight">2 300 profs d'Éduc</span> qui révolutionnent leurs cours avec <span class="name">Mr. Roots</span>.<br>C'est gratuit, c'est pro, c'est la Zone!</p>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat"><div class="stat-num pink">500+</div><div class="stat-label">jeux</div></div>
+    <div class="stat"><div class="stat-num white">128</div><div class="stat-label">SAÉ</div></div>
+    <div class="stat"><div class="stat-num green">IA</div><div class="stat-label">générateur</div></div>
+    <div class="stat"><div class="stat-num yellow">0$</div><div class="stat-label">gratuit!</div></div>
+  </div>
+
+  <!-- Cards -->
+  <div class="cards">
+    <div class="card card-blue">
+      <div class="card-icon">⚽</div>
+      <div><h3>+500 jeux sportifs</h3><p>Fiches, règles et variantes</p></div>
+    </div>
+    <div class="card card-green">
+      <div class="card-icon">🤖</div>
+      <div><h3>Générateur IA</h3><p>Un jeu en 10 secondes</p></div>
+    </div>
+    <div class="card card-orange">
+      <div class="card-icon">📋</div>
+      <div><h3>SAÉ + Outils</h3><p>Apprentissage et gestion</p></div>
+    </div>
+    <div class="card card-pink">
+      <div class="card-icon">🆓</div>
+      <div><h3>100% gratuit</h3><p>Aucun abonnement</p></div>
+    </div>
+  </div>
+
+  <!-- Preuve sociale -->
+  <div class="social-proof">
+    <div class="avatar-stack">
+      <div class="avatar" style="background:#8B5CF6;color:#fff">MC</div>
+      <div class="avatar" style="background:#FF2A7A;color:#fff">JR</div>
+      <div class="avatar" style="background:#39FF14;color:#0a3d0a">SL</div>
+    </div>
+    <span>2 295 enseignants utilisent la Zone!</span>
+  </div>
+
+  <!-- CTA -->
+  <button class="cta-btn" onclick="window.parent.postMessage('triggerSignup','*')">🏆 INSCRIPTION GRATUITE</button>
+
+  <p class="sub-text">Aucune carte de crédit. Aucun abonnement. 🎉</p>
+
+  <!-- Login -->
+  <button class="login-link" onclick="window.parent.postMessage('triggerLogin','*')">Déjà membre? Connecte-toi ici</button>
+
+  <!-- Skip -->
+  <button class="close-link" onclick="window.parent.postMessage('closePopup','*')">Non merci, plus tard</button>
+
+</div>
+</body>
+</html>
