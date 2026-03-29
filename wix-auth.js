@@ -30,13 +30,18 @@
 /* ── Modal ── */
 .zts-vip-modal{
   position:relative;width:95%;max-width:960px;
-  background:linear-gradient(145deg,#00C8E8 0%,#00B4D8 50%,#0096C7 100%);
+  background:url('/gym-bg.jpg') center/cover no-repeat;
   border-radius:28px;overflow:hidden;
-  border:5px solid #FFD700;
-  box-shadow:0 0 60px rgba(0,200,232,.4),0 0 0 8px rgba(255,215,0,.2);
+  border:5px solid #00E5FF;
+  box-shadow:0 0 60px rgba(0,229,255,.3),0 0 0 8px rgba(0,229,255,.15);
   transform:scale(.9) translateY(30px);
   transition:transform .5s cubic-bezier(.34,1.56,.64,1);
 }
+.zts-vip-modal::before{
+  content:"";position:absolute;inset:0;
+  background:rgba(15,15,46,.78);backdrop-filter:blur(3px);z-index:0;
+}
+.zts-vip-modal>*{position:relative;z-index:1;}
 .zts-vip-overlay.zts-open .zts-vip-modal{transform:scale(1) translateY(0)}
 
 /* ── Close ── */
