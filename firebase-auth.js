@@ -380,7 +380,8 @@
   };
 
   function getErrorMsg(code) {
-    return ERROR_MESSAGES[code] || 'Une erreur est survenue. Reessaie!';
+    console.log('[ZTS Auth] Error code:', code);
+    return ERROR_MESSAGES[code] || 'Erreur: ' + code;
   }
 
   // ── Current mode tracking ──
