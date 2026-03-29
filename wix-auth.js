@@ -247,7 +247,7 @@
         <span class="zts-vip-proof-text">2 295 enseignants utilisent la Zone!</span>
       </div>
 
-      <a href="https://www.zonetotalsport.ca?action=signup" class="zts-vip-cta" id="zts-vip-cta">
+      <a href="https://zonetotalsport.ca?action=signup" class="zts-vip-cta" id="zts-vip-cta">
         \uD83C\uDFC6 REJOINDRE LA ZONE GRATUITEMENT!
       </a>
 
@@ -274,11 +274,11 @@
 
     div.querySelector('#zts-vip-cta').addEventListener('click', function(e) {
       e.preventDefault();
-      window.location.href = 'https://www.zonetotalsport.ca?action=signup';
+      window.location.href = 'https://zonetotalsport.ca?action=signup';
     });
 
     div.querySelector('#zts-vip-login').addEventListener('click', function() {
-      window.location.href = 'https://www.zonetotalsport.ca?action=login';
+      window.location.href = 'https://zonetotalsport.ca?action=login';
     });
 
     return div;
