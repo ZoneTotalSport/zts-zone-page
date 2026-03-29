@@ -101,8 +101,15 @@
         var screen = window.screen ? window.screen.width + 'x' + window.screen.height : 'inconnu';
         var mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? '📱 Mobile' : '💻 Desktop';
 
+        // Vérifier si l'utilisateur est connecté (Firebase Auth)
+        var user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+        var userLine = user
+          ? '👤 ' + (user.displayName || 'Membre') + ' | 📧 ' + (user.email || '?')
+          : '👤 Visiteur anonyme';
+
         sendTelegram(
           '📊 <b>Nouveau visiteur!</b>\n' +
+          userLine + '\n' +
           '📄 Page: <code>' + page + '</code>\n' +
           '🔗 Source: ' + ref + '\n' +
           mobile + ' | 🖥 ' + screen + '\n' +
