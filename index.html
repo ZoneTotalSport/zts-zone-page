@@ -1221,7 +1221,7 @@
           <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px;">⚾ MLB</span>
         </div>
         <!-- CTA button -->
-        <button onclick="document.getElementById('sportsNewsModal').style.display='flex'" style="background:linear-gradient(135deg,#00E5FF,#8B5CF6);color:#fff;font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;padding:10px 24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 20px rgba(0,229,255,.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+        <button onclick="document.getElementById('sportsNewsModal').style.display='flex';document.getElementById('sportsNewsFrame').src='https://zonetotalsport.ca/sports-news.html'" style="background:linear-gradient(135deg,#00E5FF,#8B5CF6);color:#fff;font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;padding:10px 24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 20px rgba(0,229,255,.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
           Je veux voir! ⚡
         </button>
       </div>
@@ -4198,20 +4198,10 @@ document.addEventListener('click', () => {
   </div>
 </div>
 <script>
-// Charger l'iframe seulement quand le modal s'ouvre
+// Fermer le modal en cliquant à l'extérieur
 document.getElementById('sportsNewsModal').addEventListener('click', function(e) {
   if (e.target === this) { this.style.display='none'; document.getElementById('sportsNewsFrame').src=''; }
 });
-(function(){
-  var obs = new MutationObserver(function() {
-    var modal = document.getElementById('sportsNewsModal');
-    if (modal.style.display === 'flex') {
-      var frame = document.getElementById('sportsNewsFrame');
-      if (!frame.src || frame.src === '') frame.src = 'sports-news.html';
-    }
-  });
-  obs.observe(document.getElementById('sportsNewsModal'), { attributes: true, attributeFilter: ['style'] });
-})();
 // ESC to close
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { var m = document.getElementById('sportsNewsModal'); if (m.style.display === 'flex') { m.style.display='none'; document.getElementById('sportsNewsFrame').src=''; } }
