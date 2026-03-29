@@ -38,12 +38,18 @@
     var now = new Date();
     var time = now.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
     var date = now.toLocaleDateString('fr-CA');
+    var lang = navigator.language || 'inconnu';
+    var platform = navigator.platform || 'inconnu';
+    var screen = window.screen ? window.screen.width + 'x' + window.screen.height : 'inconnu';
+    var mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? '📱 Mobile' : '💻 Desktop';
 
     sendTelegram(
       '📊 <b>Nouveau visiteur!</b>\n' +
       '📄 Page: <code>' + page + '</code>\n' +
       '🔗 Source: ' + ref + '\n' +
-      '🕐 ' + date + ' à ' + time
+      mobile + ' | 🖥 ' + screen + '\n' +
+      '🌐 Langue: ' + lang + ' | ' + platform + '\n' +
+      '🕐 ' + date + ' a ' + time
     );
   }
 
@@ -77,11 +83,46 @@
     );
   };
 
+  // ── Enrichir avec géolocalisation (IP) ──
+  function notifyVisitWithGeo() {
+    if (sessionStorage.getItem('zts_visit_notif')) return;
+
+    fetch('https://ipapi.co/json/')
+      .then(function(r) { return r.json(); })
+      .then(function(geo) {
+        sessionStorage.setItem('zts_visit_notif', '1');
+
+        var page = window.location.pathname || '/';
+        var ref = document.referrer || 'Direct';
+        var now = new Date();
+        var time = now.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
+        var date = now.toLocaleDateString('fr-CA');
+        var lang = navigator.language || 'inconnu';
+        var screen = window.screen ? window.screen.width + 'x' + window.screen.height : 'inconnu';
+        var mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? '📱 Mobile' : '💻 Desktop';
+
+        sendTelegram(
+          '📊 <b>Nouveau visiteur!</b>\n' +
+          '📄 Page: <code>' + page + '</code>\n' +
+          '🔗 Source: ' + ref + '\n' +
+          mobile + ' | 🖥 ' + screen + '\n' +
+          '🌐 Langue: ' + lang + '\n' +
+          '📍 ' + (geo.city || '?') + ', ' + (geo.region || '?') + ', ' + (geo.country_name || '?') + '\n' +
+          '🏢 FAI: ' + (geo.org || '?') + '\n' +
+          '🕐 ' + date + ' a ' + time
+        );
+      })
+      .catch(function() {
+        // Fallback sans géo
+        notifyVisit();
+      });
+  }
+
   // Envoyer la notification de visite au chargement
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', notifyVisit);
+    document.addEventListener('DOMContentLoaded', notifyVisitWithGeo);
   } else {
-    notifyVisit();
+    notifyVisitWithGeo();
   }
 
 })();
