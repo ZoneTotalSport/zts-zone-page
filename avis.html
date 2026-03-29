@@ -565,6 +565,23 @@
         </div>
     </div>
 
+    <!-- ========== FIREBASE ========== -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+    <script>
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA",
+        authDomain: "zone-total-sport.firebaseapp.com",
+        projectId: "zone-total-sport",
+        storageBucket: "zone-total-sport.firebasestorage.app",
+        messagingSenderId: "681359040455",
+        appId: "1:681359040455:web:80c9f584583824cc8cc3e2"
+      });
+    }
+    var db = firebase.firestore();
+    </script>
+
     <!-- ========== JAVASCRIPT ========== -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -606,11 +623,20 @@
         var btn = document.getElementById('submitBtn');
         btn.disabled = true;
 
-        var reviews = JSON.parse(localStorage.getItem('zts_reviews') || '[]');
-        reviews.push({ name: name, role: selectedRole || 'Autre', city: city || 'Qu\u00e9bec', rating: selectedRating, message: message, date: new Date().toISOString() });
-        localStorage.setItem('zts_reviews', JSON.stringify(reviews));
-
-        window.parent.postMessage({ type: 'newReview', group: 'avis', data: { name: name, role: selectedRole, city: city, rating: selectedRating, message: message } }, '*');
+        // Sauvegarder dans Firestore
+        db.collection('reviews').add({
+            name: name,
+            role: selectedRole || 'Autre',
+            city: city || 'Quebec',
+            rating: selectedRating,
+            message: message,
+            date: firebase.firestore.FieldValue.serverTimestamp(),
+            approved: false
+        }).then(function() {
+            console.log('[ZTS] Avis sauvegarde dans Firestore');
+        }).catch(function(err) {
+            console.error('[ZTS] Erreur Firestore:', err);
+        });
 
         setTimeout(function() {
             burstConfetti();
@@ -644,23 +670,74 @@
         gsap.from('.gsap-form', { scrollTrigger: { trigger: '.gsap-form', start: 'top 85%' }, y: 60, opacity: 0, rotation: 2, duration: 0.8, ease: 'power3.out' });
     }
 
-    // Load stored reviews
+    // Charger les avis approuves depuis Firestore
+    var REVIEW_COLORS = ['#00E5FF', '#FFD700', '#FF2A7A', '#00E5A0', '#8B5CF6', '#FF6B00'];
+
+    function buildReviewCard(r, index) {
+        var initials = r.name.split(' ').map(function(w) { return w[0]; }).join('').toUpperCase().substring(0, 2);
+        if (initials.length < 2) initials = r.name.substring(0, 2).toUpperCase();
+        var stars = '';
+        for (var s = 0; s < r.rating; s++) stars += '\u2605';
+        for (var s = r.rating; s < 5; s++) stars += '\u2606';
+        var card = document.createElement('div');
+        card.className = 'review-card gsap-review';
+        card.style.transform = 'rotate(' + ((Math.random() - 0.5) * 1.5) + 'deg)';
+        card.innerHTML = '<div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 rounded-full flex items-center justify-center font-bangers text-white text-lg border-3 border-black shadow-lg" style="background:' + REVIEW_COLORS[index % REVIEW_COLORS.length] + '">' + initials + '</div><div><div class="font-bangers text-sm tracking-wide">' + r.name + '</div><div class="text-dark/40 font-baloo text-xs">' + r.role + ', ' + r.city + '</div></div></div><div style="color:#FFD700;" class="text-lg mb-3">' + stars + '</div><p class="text-dark/60 font-baloo text-sm leading-relaxed">"' + r.message + '"</p><div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2"><svg class="w-3.5 h-3.5" style="color:#00E5A0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="font-baloo text-xs text-dark/25">Avis v\u00e9rifi\u00e9</span></div>';
+        return card;
+    }
+
+    function updateStats(reviews) {
+        if (!reviews.length) return;
+        // Note moyenne
+        var total = reviews.reduce(function(s, r) { return s + r.rating; }, 0);
+        var avg = (total / reviews.length).toFixed(1);
+        var scoreEl = document.querySelector('.avg-score-value');
+        var ringEl = document.querySelector('.avg-score-ring');
+        if (scoreEl) scoreEl.textContent = avg;
+        if (ringEl) ringEl.style.setProperty('--score', avg);
+        // Nombre d'avis
+        var countEl = document.querySelector('[style*="color:#00E5FF"]');
+        if (countEl && countEl.closest('.gsap-stat')) countEl.textContent = reviews.length;
+        // Barres de pourcentage
+        var starCounts = [0, 0, 0, 0, 0];
+        reviews.forEach(function(r) { if (r.rating >= 1 && r.rating <= 5) starCounts[r.rating - 1]++; });
+        var bars = document.querySelectorAll('.gsap-stat.space-y-2 .flex.items-center.gap-3');
+        for (var i = 4; i >= 0; i--) {
+            var pct = Math.round((starCounts[i] / reviews.length) * 100);
+            var barRow = bars[4 - i];
+            if (barRow) {
+                var fill = barRow.querySelector('.h-full');
+                var label = barRow.querySelector('.text-right');
+                if (fill) fill.style.width = pct + '%';
+                if (label) label.textContent = pct + '%';
+            }
+        }
+    }
+
+    // Charger depuis Firestore
     (function() {
-        var reviews = JSON.parse(localStorage.getItem('zts_reviews') || '[]');
         var list = document.getElementById('reviewsList');
-        var colors = ['#00E5FF', '#FFD700', '#FF2A7A', '#00E5A0'];
-        reviews.forEach(function(r, i) {
-            var initials = r.name.split(' ').map(function(w) { return w[0]; }).join('').toUpperCase().substring(0, 2);
-            if (initials.length < 2) initials = r.name.substring(0, 2).toUpperCase();
-            var stars = '';
-            for (var s = 0; s < r.rating; s++) stars += '\u2605';
-            for (var s = r.rating; s < 5; s++) stars += '\u2606';
-            var card = document.createElement('div');
-            card.className = 'review-card gsap-review';
-            card.style.transform = 'rotate(' + ((Math.random() - 0.5) * 1.5) + 'deg)';
-            card.innerHTML = '<div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 rounded-full flex items-center justify-center font-bangers text-white text-lg border-3 border-black shadow-lg" style="background:' + colors[i % colors.length] + '">' + initials + '</div><div><div class="font-bangers text-sm tracking-wide">' + r.name + '</div><div class="text-dark/40 font-baloo text-xs">' + r.role + ', ' + r.city + '</div></div></div><div style="color:#FFD700;" class="text-lg mb-3">' + stars + '</div><p class="text-dark/60 font-baloo text-sm leading-relaxed">"' + r.message + '"</p><div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2"><svg class="w-3.5 h-3.5" style="color:#00E5A0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="font-baloo text-xs text-dark/25">Avis v\u00e9rifi\u00e9</span></div>';
-            list.appendChild(card);
-        });
+        db.collection('reviews').where('approved', '==', true).orderBy('date', 'desc').get()
+          .then(function(snapshot) {
+            if (snapshot.empty) {
+                console.log('[ZTS] Aucun avis Firestore, on garde les avis par defaut');
+                return;
+            }
+            // Vider les avis codes en dur
+            list.innerHTML = '';
+            var allReviews = [];
+            snapshot.forEach(function(doc) {
+                var r = doc.data();
+                allReviews.push(r);
+                list.appendChild(buildReviewCard(r, allReviews.length - 1));
+            });
+            updateStats(allReviews);
+            // Re-animer
+            gsap.from('.review-card', { y: 50, opacity: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' });
+          })
+          .catch(function(err) {
+            console.log('[ZTS] Erreur chargement avis Firestore:', err.message, '- on garde les avis par defaut');
+          });
     })();
     </script>
 
