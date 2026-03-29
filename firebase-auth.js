@@ -68,15 +68,21 @@
 \
 /* ── Modal Container ── */\
 .zts-auth-modal{\
-  position:relative;width:100%;max-width:520px;\
-  background:linear-gradient(145deg,#FF6B00 0%,#FF8C00 40%,#FF5500 100%);\
+  position:relative;width:100%;max-width:600px;\
+  background:url("/gym-bg.jpg") center/cover no-repeat;\
   border-radius:28px;overflow:hidden;overflow-y:auto;max-height:95vh;\
-  border:4px solid #FFD700;\
-  box-shadow:0 0 80px rgba(255,107,0,.5),0 0 0 8px rgba(255,215,0,.15),0 25px 60px rgba(0,0,0,.4);\
+  border:4px solid #00E5FF;\
+  box-shadow:0 0 80px rgba(0,229,255,.3),0 0 0 8px rgba(0,229,255,.1),0 25px 60px rgba(0,0,0,.5);\
   transform:scale(.85) translateY(40px);opacity:0;\
   transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;\
   font-family:"Schoolbell",cursive;\
 }\
+.zts-auth-modal::before{\
+  content:"";position:absolute;inset:0;\
+  background:rgba(15,15,46,.82);backdrop-filter:blur(4px);\
+  z-index:0;\
+}\
+.zts-auth-modal>*{position:relative;z-index:1;}\
 .zts-auth-overlay.zts-open .zts-auth-modal{transform:scale(1) translateY(0);opacity:1}\
 \
 /* ── Close Button ── */\
@@ -94,17 +100,17 @@
   text-align:center;padding:30px 30px 10px;\
 }\
 .zts-auth-mascot{\
-  width:100px;height:100px;border-radius:50%;object-fit:cover;\
-  border:4px solid #FFD700;box-shadow:0 0 30px rgba(255,215,0,.4);\
+  width:180px;height:auto;border-radius:0;object-fit:contain;\
+  border:none;box-shadow:none;filter:drop-shadow(0 4px 20px rgba(0,0,0,.5));\
   margin-bottom:12px;\
 }\
 .zts-auth-title{\
-  font-family:"Bangers",cursive;font-size:2rem;color:#fff;\
-  text-shadow:3px 3px 0 rgba(0,0,0,.2);margin:0;letter-spacing:2px;\
+  font-family:"Bangers",cursive;font-size:2.8rem;color:#00E5FF;\
+  text-shadow:3px 3px 0 rgba(0,0,0,.4);margin:0;letter-spacing:3px;\
 }\
 .zts-auth-subtitle{\
-  font-family:"Schoolbell",cursive;font-size:1.1rem;color:rgba(255,255,255,.9);\
-  margin:6px 0 0;\
+  font-family:"Schoolbell",cursive;font-size:1.4rem;color:rgba(255,255,255,.9);\
+  margin:8px 0 0;\
 }\
 \
 /* ── Stats Row ── */\
@@ -116,7 +122,7 @@
   text-align:center;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.2);\
 }\
 .zts-auth-stat-num{\
-  font-family:"Bangers",cursive;font-size:1.3rem;color:#FFD700;\
+  font-family:"Bangers",cursive;font-size:1.6rem;color:#00E5FF;\
   display:block;text-shadow:1px 1px 0 rgba(0,0,0,.3);\
 }\
 .zts-auth-stat-label{\
@@ -137,33 +143,33 @@
   margin-bottom:14px;\
 }\
 .zts-auth-field label{\
-  display:block;font-family:"Schoolbell",cursive;font-size:.95rem;\
-  color:#fff;margin-bottom:4px;text-shadow:1px 1px 0 rgba(0,0,0,.15);\
+  display:block;font-family:"Schoolbell",cursive;font-size:1.2rem;\
+  color:#fff;margin-bottom:6px;text-shadow:1px 1px 0 rgba(0,0,0,.15);\
 }\
 .zts-auth-field input{\
-  width:100%;padding:12px 16px;border-radius:14px;border:2px solid rgba(255,255,255,.3);\
-  background:rgba(255,255,255,.15);color:#fff;font-family:"Schoolbell",cursive;\
-  font-size:1rem;outline:none;transition:all .3s;\
+  width:100%;padding:16px 20px;border-radius:14px;border:2px solid rgba(0,229,255,.3);\
+  background:rgba(255,255,255,.1);color:#fff;font-family:"Schoolbell",cursive;\
+  font-size:1.15rem;outline:none;transition:all .3s;\
 }\
 .zts-auth-field input::placeholder{color:rgba(255,255,255,.5)}\
-.zts-auth-field input:focus{border-color:#FFD700;background:rgba(255,255,255,.25);box-shadow:0 0 15px rgba(255,215,0,.3)}\
+.zts-auth-field input:focus{border-color:#00E5FF;background:rgba(255,255,255,.2);box-shadow:0 0 15px rgba(0,229,255,.3)}\
 \
 /* ── Buttons ── */\
 .zts-auth-btn{\
-  width:100%;padding:14px;border-radius:16px;border:none;cursor:pointer;\
-  font-family:"Bangers",cursive;font-size:1.2rem;letter-spacing:1.5px;\
-  transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px;\
+  width:100%;padding:18px;border-radius:16px;border:none;cursor:pointer;\
+  font-family:"Bangers",cursive;font-size:1.4rem;letter-spacing:2px;\
+  transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;\
 }\
 .zts-auth-btn-primary{\
-  background:linear-gradient(135deg,#FFD700,#FFA500);color:#1a1a2e;\
-  box-shadow:0 4px 20px rgba(255,215,0,.4);\
+  background:linear-gradient(135deg,#00E5FF,#8B5CF6);color:#fff;\
+  box-shadow:0 4px 20px rgba(0,229,255,.4);\
 }\
-.zts-auth-btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(255,215,0,.6)}\
+.zts-auth-btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(0,229,255,.6)}\
 .zts-auth-btn-primary:active{transform:translateY(0)}\
 \
 .zts-auth-btn-google{\
-  background:rgba(255,255,255,.95);color:#333;margin-top:10px;\
-  font-family:"Fredoka One",cursive;font-size:1rem;letter-spacing:0;\
+  background:rgba(255,255,255,.95);color:#333;margin-top:12px;\
+  font-family:"Fredoka One",cursive;font-size:1.15rem;letter-spacing:0;\
 }\
 .zts-auth-btn-google:hover{background:#fff;transform:translateY(-2px);box-shadow:0 4px 20px rgba(255,255,255,.4)}\
 .zts-auth-btn-google svg{width:20px;height:20px;}\
@@ -174,7 +180,7 @@
   padding:0 8px;margin-top:12px;\
 }\
 .zts-auth-link{\
-  color:#FFD700;font-size:.9rem;cursor:pointer;text-decoration:underline;\
+  color:#00E5FF;font-size:1.05rem;cursor:pointer;text-decoration:underline;\
   background:none;border:none;font-family:"Schoolbell",cursive;\
   transition:color .2s;\
 }\
@@ -216,9 +222,9 @@
 \
 /* ── Social Proof ── */\
 .zts-auth-proof{\
-  text-align:center;padding:10px 30px 20px;\
-  font-family:"Bangers",cursive;font-size:1rem;color:#FFD700;\
-  text-shadow:1px 1px 0 rgba(0,0,0,.2);letter-spacing:1px;\
+  text-align:center;padding:12px 30px 24px;\
+  font-family:"Bangers",cursive;font-size:1.2rem;color:#FFD700;\
+  text-shadow:1px 1px 0 rgba(0,0,0,.3);letter-spacing:1.5px;\
 }\
 \
 /* ── Spinner ── */\
@@ -260,15 +266,19 @@
 /* ── Responsive ── */\
 @media(max-width:600px){\
   .zts-auth-modal{max-width:100%;border-radius:20px;}\
-  .zts-auth-title{font-size:1.5rem;}\
+  .zts-auth-title{font-size:2rem;}\
+  .zts-auth-subtitle{font-size:1.1rem;}\
   .zts-auth-stats{gap:6px;}\
   .zts-auth-stat{padding:6px 10px;}\
-  .zts-auth-stat-num{font-size:1rem;}\
+  .zts-auth-stat-num{font-size:1.2rem;}\
   .zts-auth-form-wrap{padding:8px 18px 16px;}\
   .zts-auth-form-card{padding:16px;}\
   .zts-auth-features{gap:6px;padding:0 18px 8px;}\
-  .zts-auth-mascot{width:72px;height:72px;}\
+  .zts-auth-mascot{width:140px;}\
   .zts-auth-row{flex-direction:column;gap:0;}\
+  .zts-auth-btn{font-size:1.2rem;padding:16px;}\
+  .zts-auth-field label{font-size:1.05rem;}\
+  .zts-auth-field input{font-size:1rem;padding:14px 16px;}\
 }';
     document.head.appendChild(s);
   }
@@ -285,7 +295,7 @@
     <button class="zts-auth-close" id="ztsAuthClose" aria-label="Fermer">&times;</button>\
     \
     <div class="zts-auth-header">\
-      <img src="https://static.wixstatic.com/media/692b77_06ea5cd35c184f11b5ea3d3f09150016~mv2.png" alt="ZTS Mascotte" class="zts-auth-mascot">\
+      <img src="/bucheron-basketball.png" alt="ZTS Mascotte" class="zts-auth-mascot">\
       <h2 class="zts-auth-title">' + (isLogin ? 'Content de te revoir!' : 'Rejoins la Zone!') + '</h2>\
       <p class="zts-auth-subtitle">' + (isLogin ? 'Connecte-toi pour acceder a toutes les ressources' : 'Cree ton compte gratuit en quelques secondes') + '</p>\
     </div>\
