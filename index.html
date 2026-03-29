@@ -1203,6 +1203,31 @@
         </div>
     </section>
 
+    <!-- ========== WIDGET SCORES TEASER ========== -->
+    <div id="scoresWidget" style="position:relative;z-index:20;margin-top:-40px;padding:0 20px;">
+      <div style="max-width:800px;margin:0 auto;background:linear-gradient(135deg,#0F0F2E,#1a237e);border-radius:20px;border:3px solid #00E5FF;box-shadow:0 8px 40px rgba(0,229,255,.2);padding:20px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;">
+        <!-- Close button -->
+        <button onclick="document.getElementById('scoresWidget').style.display='none'" style="position:absolute;top:10px;right:14px;background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">&times;</button>
+        <!-- Live dot + text -->
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#39FF14;display:inline-block;animation:pulse 1.5s infinite;"></span>
+          <span style="font-family:'Bangers',cursive;font-size:1.1rem;color:#00E5FF;letter-spacing:1px;">SCORES EN DIRECT</span>
+        </div>
+        <!-- Mini scores preview -->
+        <div id="miniScores" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;">
+          <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px;">🏒 NHL</span>
+          <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px;">🏀 NBA</span>
+          <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px;">🏈 NFL</span>
+          <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px;">⚾ MLB</span>
+        </div>
+        <!-- CTA button -->
+        <button onclick="document.querySelector('.sports-ticker-wrap').scrollIntoView({behavior:'smooth'})" style="background:linear-gradient(135deg,#00E5FF,#8B5CF6);color:#fff;font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;padding:10px 24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 20px rgba(0,229,255,.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
+          Je veux voir! ⚡
+        </button>
+      </div>
+    </div>
+    <style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}</style>
+
     <!-- ========== SECTION 2: SERVICE CARDS (White) ========== -->
     <section class="py-24 px-6 md:px-10" id="services">
         <div class="max-w-7xl mx-auto">
