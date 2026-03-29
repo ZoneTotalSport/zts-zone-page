@@ -509,9 +509,9 @@
       .then(function(result) {
         return result.user.updateProfile({
           displayName: firstName.trim() + ' ' + lastName.trim()
-        });
+        }).then(function() { return result; });
       })
-      .then(function() { closeModal(); })
+      .then(function(result) { if (window.ztsNotifySignup) window.ztsNotifySignup(result.user); closeModal(); })
       .catch(function(err) { showError(getErrorMsg(err.code)); setLoading(false); });
   }
 
@@ -520,7 +520,7 @@
     provider.setCustomParameters({ prompt: 'select_account' });
     setLoading(true);
     firebase.auth().signInWithPopup(provider)
-      .then(function() { closeModal(); })
+      .then(function(result) { if (result.additionalUserInfo && result.additionalUserInfo.isNewUser && window.ztsNotifySignup) window.ztsNotifySignup(result.user); closeModal(); })
       .catch(function(err) { console.error('[ZTS Auth] Google error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
   }
 

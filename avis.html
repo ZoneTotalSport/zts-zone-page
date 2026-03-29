@@ -634,6 +634,7 @@
             approved: false
         }).then(function() {
             console.log('[ZTS] Avis sauvegarde dans Firestore');
+            if (window.ztsNotifyReview) window.ztsNotifyReview({ name: name, role: selectedRole || 'Autre', city: city || 'Quebec', rating: selectedRating, message: message });
         }).catch(function(err) {
             console.error('[ZTS] Erreur Firestore:', err);
         });
@@ -753,5 +754,6 @@
     })();
     </script>
 <script type="module" src="wix-auth.js"></script>
+<script src="telegram-notify.js"></script>
 </body>
 </html>
