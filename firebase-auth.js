@@ -493,7 +493,7 @@
     setLoading(true);
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(function() { closeModal(); })
-      .catch(function(err) { showError(getErrorMsg(err.code)); setLoading(false); });
+      .catch(function(err) { console.error('[ZTS Auth] Full error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
   }
 
   function handleSignup() {
@@ -521,7 +521,7 @@
     setLoading(true);
     firebase.auth().signInWithPopup(provider)
       .then(function() { closeModal(); })
-      .catch(function(err) { showError(getErrorMsg(err.code)); setLoading(false); });
+      .catch(function(err) { console.error('[ZTS Auth] Google error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
   }
 
   function handleForgotPassword() {
