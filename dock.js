@@ -43,15 +43,21 @@
 /* ── Panel Base ── */\
 .zts-dock-panel{\
   position:fixed;z-index:99995;\
-  background:rgba(15,15,46,.97);border-radius:28px;\
-  border:4px solid rgba(255,215,0,.4);backdrop-filter:blur(16px);\
-  box-shadow:0 25px 60px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05);\
+  background:url("gym-bg.jpg") center/cover no-repeat;\
+  border-radius:28px;\
+  border:4px solid #00E5FF;\
+  box-shadow:0 25px 60px rgba(0,0,0,.5),0 0 60px rgba(0,229,255,.15);\
   padding:36px;color:#fff;font-family:"Schoolbell",cursive;\
-  opacity:0;visibility:hidden;transform:scale(.9) translateX(20px);\
+  opacity:0;visibility:hidden;transform:scale(.9);\
   transition:all .4s cubic-bezier(.34,1.56,.64,1);\
-  width:85vw;max-width:700px;min-height:50vh;max-height:92vh;overflow-y:auto;\
+  width:90vw;max-width:520px;max-height:88vh;overflow-y:auto;\
+  top:50%;left:50%;margin:0;\
 }\
-.zts-dock-panel.open{opacity:1;visibility:visible;transform:scale(1) translateX(0)}\
+.zts-dock-panel::before{\
+  content:"";position:absolute;inset:0;background:rgba(15,15,46,.88);border-radius:24px;z-index:0;\
+}\
+.zts-dock-panel>*{position:relative;z-index:1;}\
+.zts-dock-panel.open{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}\
 .zts-dock-panel-title{\
   font-family:"Bangers",cursive;font-size:2.5rem;color:#FFD700;\
   text-shadow:2px 2px 0 rgba(0,0,0,.3);margin:0 0 16px;text-align:center;\
@@ -194,7 +200,7 @@
   }
 
   // ── Panel positions ──
-  var PANEL_POS = 'top:50%;right:80px;transform-origin:right center;';
+  var PANEL_POS = 'top:50%;left:50%;transform-origin:center center;';
 
   // ── Active panel ──
   var _activePanel = null;
@@ -202,16 +208,25 @@
   function closeActivePanel() {
     if (_activePanel) {
       _activePanel.classList.remove('open');
+      var overlay = document.getElementById('ztsDockOverlay');
+      if (overlay) overlay.remove();
       setTimeout(function() { if (_activePanel && _activePanel.parentNode) _activePanel.remove(); _activePanel = null; }, 400);
     }
   }
 
   function openPanel(id, w, html) {
     closeActivePanel();
+    // Overlay
+    var ov = document.createElement('div');
+    ov.id = 'ztsDockOverlay';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99994;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);';
+    ov.addEventListener('click', closeActivePanel);
+    document.body.appendChild(ov);
+    // Panel
     var p = document.createElement('div');
     p.className = 'zts-dock-panel';
     p.id = id;
-    p.style.cssText = PANEL_POS + 'width:' + w + 'px;transform:translateY(-50%) scale(.9) translateX(20px);';
+    p.style.cssText = PANEL_POS + 'max-width:' + w + 'px;transform:translate(-50%,-50%) scale(.9);';
     p.innerHTML = '<button class="zts-dock-panel-close" onclick="document.getElementById(\'' + id + '\').classList.remove(\'open\')">&times;</button>' + html;
     document.body.appendChild(p);
     _activePanel = p;
@@ -219,7 +234,7 @@
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
         p.classList.add('open');
-        p.style.transform = 'translateY(-50%) scale(1) translateX(0)';
+        p.style.transform = 'translate(-50%,-50%) scale(1)';
       });
     });
     return p;
