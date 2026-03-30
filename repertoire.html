@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Répertoire mondial de jeux EPS | Zone Total Sport</title>
+  <meta name="description" content="Méga répertoire de liens vers des sites de jeux d'éducation physique, camps de jour et services de garde à travers le monde en 5 langues.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>tailwind.config={theme:{extend:{colors:{cyan:'#00E5FF',yellow:'#FFD700',pink:'#FF2A7A',violet:'#8B5CF6',dark:'#0F0F2E'},fontFamily:{lucky:['Luckiest Guy'],hand:['Patrick Hand'],fredoka:['Fredoka One']}}}}</script>
+  <style>
+    body{font-family:'Patrick Hand',cursive;background:url('gym-bg.jpg') center/cover fixed;background-color:#0F0F2E;}
+    body::before{content:"";position:fixed;inset:0;background:rgba(15,15,46,.85);z-index:0;}
+    body>*{position:relative;z-index:1;}
+    .site-card{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.1);border-radius:16px;padding:20px;transition:all .3s;cursor:pointer;display:flex;flex-direction:column;gap:8px;}
+    .site-card:hover{transform:translateY(-4px);background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.3);box-shadow:0 8px 30px rgba(0,229,255,.15);}
+    .site-card.hidden-card{display:none;}
+    .lang-flag{font-size:1.4rem;cursor:pointer;opacity:.4;transition:all .2s;padding:4px 8px;border-radius:8px;}
+    .lang-flag:hover,.lang-flag.active{opacity:1;background:rgba(255,255,255,.1);}
+    .cat-pill{padding:6px 16px;border-radius:20px;font-family:'Fredoka One',cursive;font-size:.8rem;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.1);}
+    .cat-pill:hover{background:rgba(0,229,255,.15);color:#fff;}
+    .cat-pill.active{background:#00E5FF;color:#0F0F2E;border-color:#00E5FF;}
+    .tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.7rem;font-family:'Fredoka One',cursive;}
+    .tag-fr{background:rgba(0,100,255,.2);color:#4FC3F7;}
+    .tag-en{background:rgba(255,42,122,.2);color:#FF6B9D;}
+    .tag-es{background:rgba(255,165,0,.2);color:#FFB74D;}
+    .tag-de{background:rgba(139,92,246,.2);color:#A78BFA;}
+    .tag-zh{background:rgba(255,215,0,.2);color:#FFD700;}
+    .tag-free{background:rgba(57,255,20,.15);color:#39FF14;}
+    .tag-paid{background:rgba(255,42,122,.15);color:#FF2A7A;}
+  </style>
+</head>
+<body class="text-white">
+
+  <!-- Nav -->
+  <nav class="backdrop-blur sticky top-0 z-50 px-4 py-3" style="background:rgba(15,15,46,.95);">
+    <div class="max-w-6xl mx-auto flex items-center justify-center gap-2 flex-wrap">
+      <a href="https://zonetotalsport.ca/" class="px-4 py-2 rounded-full text-sm font-fredoka text-white flex items-center gap-1.5 hover:bg-white/10 transition">
+        <i data-lucide="home" class="w-4 h-4"></i> Accueil
+      </a>
+      <a href="https://zonetotalsport.ca/blog.html" class="px-4 py-2 rounded-full text-sm font-fredoka text-white flex items-center gap-1.5 hover:bg-white/10 transition">
+        <i data-lucide="pen-line" class="w-4 h-4"></i> Blog
+      </a>
+      <a href="https://zonetotalsport.ca/avis.html" class="px-4 py-2 rounded-full text-sm font-fredoka text-white flex items-center gap-1.5 hover:bg-white/10 transition">
+        <i data-lucide="star" class="w-4 h-4"></i> Avis
+      </a>
+      <span class="px-4 py-2 rounded-full text-sm font-fredoka flex items-center gap-1.5" style="background:#00E5FF;color:#0F0F2E;">
+        <i data-lucide="globe" class="w-4 h-4"></i> Répertoire
+      </span>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="text-center py-12 px-4">
+    <h1 class="font-lucky text-4xl md:text-6xl text-cyan drop-shadow-lg tracking-wide mb-3">RÉPERTOIRE MONDIAL</h1>
+    <p class="font-lucky text-xl md:text-2xl text-yellow mb-2">Jeux EPS • Camps de jour • Services de garde</p>
+    <p class="font-hand text-lg text-white/60 max-w-2xl mx-auto mb-8">+50 sites vérifiés à travers le monde en 5 langues — clique et explore!</p>
+
+    <!-- Search -->
+    <div class="max-w-lg mx-auto relative mb-6">
+      <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30"></i>
+      <input id="searchBar" type="text" placeholder="Rechercher un site..." class="w-full pl-12 pr-4 py-3 rounded-full text-lg font-hand bg-white/10 border border-white/20 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan/50">
+    </div>
+
+    <!-- Language Filters -->
+    <div class="flex justify-center gap-3 mb-4" id="langFilters">
+      <span class="lang-flag active" data-lang="all" title="Tous">🌍</span>
+      <span class="lang-flag" data-lang="fr" title="Français">🇫🇷</span>
+      <span class="lang-flag" data-lang="en" title="English">🇬🇧</span>
+      <span class="lang-flag" data-lang="es" title="Español">🇪🇸</span>
+      <span class="lang-flag" data-lang="de" title="Deutsch">🇩🇪</span>
+      <span class="lang-flag" data-lang="zh" title="中文">🇨🇳</span>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="flex flex-wrap justify-center gap-2" id="catFilters">
+      <button class="cat-pill active" data-cat="all">Tous</button>
+      <button class="cat-pill" data-cat="eps">EPS / Éducation physique</button>
+      <button class="cat-pill" data-cat="camp">Camps de jour</button>
+      <button class="cat-pill" data-cat="garde">Service de garde</button>
+      <button class="cat-pill" data-cat="curriculum">Curriculum / Programme</button>
+      <button class="cat-pill" data-cat="recreation">Récréation / Loisirs</button>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="flex justify-center gap-8 py-4 mb-6">
+    <div class="text-center"><span class="font-lucky text-3xl text-cyan" id="totalCount">0</span><br><span class="text-white/40 text-sm font-fredoka">sites</span></div>
+    <div class="text-center"><span class="font-lucky text-3xl text-yellow">5</span><br><span class="text-white/40 text-sm font-fredoka">langues</span></div>
+    <div class="text-center"><span class="font-lucky text-3xl text-pink">15+</span><br><span class="text-white/40 text-sm font-fredoka">pays</span></div>
+  </div>
+
+  <!-- Grid -->
+  <main class="max-w-7xl mx-auto px-4 pb-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="sitesGrid"></div>
+    <p id="noResults" class="hidden text-center py-12 text-xl font-fredoka text-white/30">Aucun site trouvé</p>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-8 text-center" style="background:#FFD700;">
+    <p class="font-lucky text-2xl text-dark mb-2">ZONE TOTAL SPORT</p>
+    <p class="font-hand text-dark/70">zonetotalsport.ca — Ressources pour enseignants EPS</p>
+  </footer>
+
+<script>
+const SITES = [
+  // ==================== FRANÇAIS - QUÉBEC ====================
+  {name:"RÉCIT DP — ÉPS",url:"https://eps.recitdp.qc.ca/",desc:"Ressources numériques pour enseignants EPS au Québec. Fiches sur tchoukball, soccer, jeux de lutte.",lang:"fr",cat:"eps",country:"Québec",free:true},
+  {name:"Cybersavoir CSSDM",url:"https://cybersavoir.cssdm.gouv.qc.ca/ephyssante/banque-de-jeux-5/",desc:"Banque de jeux EPS du Centre de services scolaire de Montréal.",lang:"fr",cat:"eps",country:"Québec",free:true},
+  {name:"Sports Laval — 100+ jeux",url:"https://sportslaval.qc.ca/ressources/",desc:"Répertoire de jeux pour la cour d'école en collaboration avec Kino-Québec.",lang:"fr",cat:"eps",country:"Québec",free:true},
+  {name:"100 degrés — Pauses actives",url:"https://centdegres.ca/",desc:"150 idées d'activités physiques à faire en classe. Pauses actives, yoga, danse.",lang:"fr",cat:"eps",country:"Québec",free:true},
+  {name:"Zone Total Sport",url:"https://zonetotalsport.ca",desc:"500+ jeux et ressources EPS gratuites, générateur de jeux IA, outils pédagogiques.",lang:"fr",cat:"eps",country:"Québec",free:true},
+
+  // ==================== FRANÇAIS - FRANCE ====================
+  {name:"Actibloom",url:"https://www.actibloom.com/",desc:"400+ tutoriels gratuits (vidéos + fiches) pour enseignants EPS, enfants 3-12 ans.",lang:"fr",cat:"eps",country:"France",free:true},
+  {name:"Edumoov — Fiches EPS",url:"https://www.edumoov.com/fiches-de-preparation-sequences/cycle2/Education-physique-et-sportive/47",desc:"Fiches de préparation et séquences EPS partagées par des enseignants.",lang:"fr",cat:"eps",country:"France",free:true},
+  {name:"Eduscol — EPS officiel",url:"https://eduscol.education.fr/4434/education-physique-et-sportive",desc:"Portail officiel du ministère. Programmes, ressources, vidéos pour tous les cycles.",lang:"fr",cat:"curriculum",country:"France",free:true},
+  {name:"Dessine-moi une histoire — Jeux sportifs",url:"https://dessinemoiunehistoire.net/jeux-sportifs-maternelle/",desc:"68 jeux sportifs pour travailler la motricité en maternelle.",lang:"fr",cat:"eps",country:"France",free:true},
+  {name:"Izeedor — Jeux sportifs PDF",url:"https://izeedor.fr/fiches-jeux/jeux-sportifs-exterieur.pdf",desc:"10 jeux sportifs rapides pour se défouler en colo et centre de loisirs.",lang:"fr",cat:"camp",country:"France",free:true},
+  {name:"USEP — Jeux traditionnels",url:"https://usep.org/",desc:"Union Sportive de l'Enseignement du Premier degré. Rencontres sportives, jeux coopératifs.",lang:"fr",cat:"eps",country:"France",free:true},
+  {name:"Planet'Anim — Animateurs",url:"https://www.planetanim.com/",desc:"Forum et ressources pour animateurs. Grands jeux, activités sportives, veillées.",lang:"fr",cat:"camp",country:"France",free:true},
+
+  // ==================== FRANÇAIS - SUISSE/BELGIQUE ====================
+  {name:"mobilesport.ch (FR)",url:"https://www.mobilesport.ch/fr/",desc:"Plateforme suisse officielle. 400+ idées de jeux filtrables par âge et matériel.",lang:"fr",cat:"eps",country:"Suisse",free:true},
+
+  // ==================== ENGLISH - USA ====================
+  {name:"PhysEdGames",url:"https://physedgames.com/",desc:"Hundreds of PE game descriptions organized by category. Concrete rules and setups.",lang:"en",cat:"eps",country:"USA",free:true},
+  {name:"The PE Specialist",url:"https://www.thepespecialist.com/",desc:"PE lesson plans, game descriptions, technology tips, and a free PE Games e-book.",lang:"en",cat:"eps",country:"USA",free:true},
+  {name:"PE Games (pegames.org)",url:"https://www.pegames.org/",desc:"Daily-updated collection of activities, warm-ups, games, and challenges.",lang:"en",cat:"eps",country:"USA",free:true},
+  {name:"PE Central",url:"https://www.pecentral.org/",desc:"Lesson plan database searchable by grade level (PreK-12). One of the oldest PE sites.",lang:"en",cat:"curriculum",country:"USA",free:true},
+  {name:"OPEN PhysEd",url:"https://openphysed.org/",desc:"100% FREE K-12 PE curriculum. Research-based modules with lesson plans and assessments.",lang:"en",cat:"curriculum",country:"USA",free:true},
+  {name:"SPARK PE",url:"https://sparkpe.org/",desc:"Evidence-based PE programs (K-12) backed by NIH research. Includes curriculum.",lang:"en",cat:"curriculum",country:"USA",free:false},
+  {name:"Cap'n Pete's Power PE",url:"https://www.capnpetespowerpe.com/",desc:"700+ PE resources: games, field day activities, fitness stations, visual posters.",lang:"en",cat:"eps",country:"USA",free:false},
+  {name:"PLT4M — 150+ PE Games",url:"https://plt4m.com/blog/pe-games-for-elementary/",desc:"150+ PE games for elementary teachers covering popular units and activities.",lang:"en",cat:"eps",country:"USA",free:true},
+  {name:"Gopher Sport Blog",url:"https://blog.gophersport.com/",desc:"Free PE lesson plans, activity ideas, and professional development content.",lang:"en",cat:"eps",country:"USA",free:true},
+  {name:"Playworks — Recess Games",url:"https://www.playworks.org/",desc:"Recess game guides and play-based resources for schools. National nonprofit.",lang:"en",cat:"garde",country:"USA",free:true},
+  {name:"Ultimate Camp Resource",url:"https://ultimatecampresource.com/",desc:"Thousands of camp activities: large group games, campfire activities, skits, songs.",lang:"en",cat:"camp",country:"USA",free:true},
+  {name:"EGAD Ideas — 1800+ Games",url:"https://egadideas.com/",desc:"1,800+ youth group games, team-building activities, outdoor games. Tested by real youth workers.",lang:"en",cat:"recreation",country:"USA",free:true},
+  {name:"AfterSchool HQ",url:"https://go.afterschoolhq.com/fun-activities-for-after-school-programs/",desc:"Activity ideas for after-school program leaders. Physical games, STEAM, creative.",lang:"en",cat:"garde",country:"USA",free:true},
+
+  // ==================== ENGLISH - UK/CANADA ====================
+  {name:"The PE Shed",url:"https://www.thepeshed.com/",desc:"Free PE game tutorials and guides for primary and lower secondary.",lang:"en",cat:"eps",country:"UK",free:true},
+  {name:"Youth Sport Trust",url:"https://www.youthsporttrust.org/",desc:"Free PE resources for primary-level. Physical activity, sport and wellbeing.",lang:"en",cat:"eps",country:"UK",free:true},
+  {name:"ThePhysicalEducator.com",url:"https://www.thephysicaleducator.com/",desc:"PE best practices, visual resources, professional development. 100K+ followers.",lang:"en",cat:"eps",country:"Canada",free:true},
+
+  // ==================== ESPAÑOL ====================
+  {name:"EFDeportes.com",url:"https://www.efdeportes.com/",desc:"Revista digital de educación física y deportes. Cientos de artículos sobre juegos.",lang:"es",cat:"eps",country:"Argentina",free:true},
+  {name:"Educación Física en Primaria",url:"https://www.educacionfisicaenprimaria.es/",desc:"Proyecto LUDOS: juegos interactivos multimedia, juegos perceptivos, motores.",lang:"es",cat:"eps",country:"España",free:true},
+  {name:"EFCompetencial",url:"https://efcompetencial.com/",desc:"60+ juegos secuenciados, calentamientos, coordinación y agilidad para primaria.",lang:"es",cat:"eps",country:"España",free:true},
+  {name:"Víctor Arufe — Deportes Alternativos",url:"https://victorarufe.es/deportesalternativos/",desc:"26 deportes alternativos para EF incluyendo PINFUVOTE (deporte inclusivo).",lang:"es",cat:"eps",country:"España",free:true},
+  {name:"Deportes y Educación Física",url:"https://deportesyeducacionfisica.com/",desc:"Portal de currículo EF, deportes, actividades recreativas y métodos de enseñanza.",lang:"es",cat:"eps",country:"España",free:true},
+  {name:"Educación 3.0 — Juegos EF",url:"https://www.educaciontrespuntocero.com/recursos/juegos-asignatura-educacion-fisica/",desc:"Compilación de los mejores juegos para clases de educación física.",lang:"es",cat:"eps",country:"España",free:true},
+  {name:"Deportes Recreativos",url:"https://deportesrecreativos.com/",desc:"Deportes y juegos recreativos para jóvenes y adultos con reglas y categorías.",lang:"es",cat:"recreation",country:"Latam",free:true},
+  {name:"Juegos Motores EF Blog",url:"http://juegosmotoresef.blogspot.com/",desc:"Sesiones de juegos motores, actividades de calentamiento y desplazamiento.",lang:"es",cat:"eps",country:"España",free:true},
+
+  // ==================== DEUTSCH ====================
+  {name:"mobilesport.ch",url:"https://www.mobilesport.ch/",desc:"Offizielle Schweizer Plattform. 400+ Bewegungsspiele filterbar nach Alter und Material.",lang:"de",cat:"eps",country:"Suisse",free:true},
+  {name:"Sportunterricht.de",url:"http://sportunterricht.de/",desc:"Deutsches Portal mit Materialien und Informationen für den Sportunterricht.",lang:"de",cat:"eps",country:"Allemagne",free:true},
+  {name:"Sportpädagogik Online",url:"https://www.sportpaedagogik-online.de/",desc:"Fachdidaktik, Unterrichtsentwürfe, Spiele und Übungen für den Schulsport.",lang:"de",cat:"curriculum",country:"Allemagne",free:true},
+  {name:"DTB Kinderturnen",url:"https://www.dtb.de/kinderturnen",desc:"Deutscher Turner-Bund: Bewegungsspiele, Turnstunden und Materialien für Kinder.",lang:"de",cat:"eps",country:"Allemagne",free:true},
+  {name:"DGUV Lernen — Sportunterricht",url:"https://www.dguv-lug.de/",desc:"Unfallkasse: sichere Spiele und Übungen für den Sportunterricht.",lang:"de",cat:"curriculum",country:"Allemagne",free:true},
+
+  // ==================== 中文 (CHINESE) ====================
+  {name:"体育教学网",url:"http://www.tyjx.net.cn/",desc:"中国体育教学资源网。体育课游戏、教学设计、课程标准。",lang:"zh",cat:"eps",country:"Chine",free:true},
+  {name:"21世纪教育网 — 体育",url:"https://www.21cnjy.com/",desc:"中小学体育课件、教案、游戏活动资源下载。",lang:"zh",cat:"curriculum",country:"Chine",free:false},
+  {name:"学科网 — 体育",url:"https://www.zxxk.com/",desc:"海量体育教学资源：游戏设计、体能训练、运动技能。",lang:"zh",cat:"eps",country:"Chine",free:false},
+  {name:"国家体育总局",url:"https://www.sport.gov.cn/",desc:"官方体育资源门户。青少年体育活动指南和游戏。",lang:"zh",cat:"curriculum",country:"Chine",free:true},
+  {name:"校园体育网",url:"http://www.campussports.cn/",desc:"校园体育活动、趣味运动会游戏、大课间活动方案。",lang:"zh",cat:"eps",country:"Chine",free:true}
+];
+
+const grid = document.getElementById('sitesGrid');
+const noRes = document.getElementById('noResults');
+let activeLang = 'all';
+let activeCat = 'all';
+
+document.getElementById('totalCount').textContent = SITES.length;
+
+function renderSites() {
+  const q = document.getElementById('searchBar').value.toLowerCase();
+  grid.innerHTML = '';
+  let count = 0;
+
+  SITES.forEach(function(s) {
+    const matchLang = activeLang === 'all' || s.lang === activeLang;
+    const matchCat = activeCat === 'all' || s.cat === activeCat;
+    const matchSearch = !q || s.name.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q) || s.country.toLowerCase().includes(q);
+
+    if (!matchLang || !matchCat || !matchSearch) return;
+    count++;
+
+    const langTags = {fr:'🇫🇷 FR',en:'🇬🇧 EN',es:'🇪🇸 ES',de:'🇩🇪 DE',zh:'🇨🇳 ZH'};
+    const freeTag = s.free ? '<span class="tag tag-free">GRATUIT</span>' : '<span class="tag tag-paid">PAYANT</span>';
+
+    grid.insertAdjacentHTML('beforeend',
+      '<a href="' + s.url + '" target="_blank" rel="noopener" class="site-card">' +
+        '<div class="flex items-center justify-between gap-2">' +
+          '<span class="tag tag-' + s.lang + '">' + langTags[s.lang] + '</span>' +
+          freeTag +
+        '</div>' +
+        '<h3 class="font-fredoka text-lg text-white leading-snug">' + s.name + '</h3>' +
+        '<p class="font-hand text-white/50 text-sm leading-relaxed">' + s.desc + '</p>' +
+        '<div class="flex items-center justify-between mt-auto pt-2">' +
+          '<span class="font-hand text-white/30 text-xs">📍 ' + s.country + '</span>' +
+          '<span class="font-fredoka text-cyan text-xs flex items-center gap-1">Visiter →</span>' +
+        '</div>' +
+      '</a>'
+    );
+  });
+
+  noRes.classList.toggle('hidden', count > 0);
+  document.getElementById('totalCount').textContent = count;
+}
+
+// Language filters
+document.getElementById('langFilters').addEventListener('click', function(e) {
+  const flag = e.target.closest('.lang-flag');
+  if (!flag) return;
+  document.querySelectorAll('.lang-flag').forEach(f => f.classList.remove('active'));
+  flag.classList.add('active');
+  activeLang = flag.dataset.lang;
+  renderSites();
+});
+
+// Category filters
+document.getElementById('catFilters').addEventListener('click', function(e) {
+  const pill = e.target.closest('.cat-pill');
+  if (!pill) return;
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  activeCat = pill.dataset.cat;
+  renderSites();
+});
+
+// Search
+document.getElementById('searchBar').addEventListener('input', renderSites);
+
+// Init
+renderSites();
+lucide.createIcons();
+</script>
+<script src="telegram-notify.js"></script>
+</body>
+</html>
