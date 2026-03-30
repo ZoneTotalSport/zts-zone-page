@@ -34,6 +34,7 @@
   function initFirebase() {
     loadScript('https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js', function() {
       loadScript('https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js', function() {
+        loadScript('https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js', function() {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
         firebase.auth().onAuthStateChanged(function(user) {
@@ -41,6 +42,7 @@
           _authReady = true;
           updateUI(user);
           _onAuthCallbacks.forEach(function(cb) { cb(user); });
+        });
         });
       });
     });
