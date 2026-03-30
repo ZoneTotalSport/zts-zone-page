@@ -1804,7 +1804,7 @@
                     <!-- Compteur de visites -->
                     <div class="mt-4 flex items-center gap-2 text-dark/50">
                         <i data-lucide="eye" class="w-4 h-4"></i>
-                        <span class="font-baloo text-sm"><span id="visitCount">0</span> visiteurs</span>
+                        <span class="font-baloo text-sm"><span class="zts-visit-count">0</span> visiteurs</span>
                     </div>
                 </div>
                 <div>
@@ -1866,10 +1866,14 @@
 
     <!-- ========== SECTION 11: SUB-FOOTER (Dark) ========== -->
     <div class="section-dark py-6 px-6 flex flex-col items-center gap-4">
-        <div class="visit-counter" style="display:flex;align-items:center;gap:12px;justify-content:center;">
+        <div class="visit-counter" style="display:flex;align-items:center;gap:12px;justify-content:center;flex-wrap:wrap;">
             <i data-lucide="eye" class="w-6 h-6 text-cyan-electric/60"></i>
             <span class="text-white/70 font-bangers text-xl tracking-wider" data-i18n="visitLabel">Visiteurs :</span>
-            <span class="counter-digit font-bangers text-3xl text-cyan-electric" id="visitCount" style="min-width:60px;text-align:center;">0</span>
+            <span class="counter-digit font-bangers text-3xl text-cyan-electric zts-visit-count" style="min-width:60px;text-align:center;">0</span>
+        </div>
+        <div id="visitorLocation" style="display:none;align-items:center;gap:8px;justify-content:center;">
+            <i data-lucide="map-pin" class="w-4 h-4 text-pink-fuchsia/70"></i>
+            <span class="font-baloo text-sm text-white/50">Dernier visiteur : <span id="visitorCity" class="text-cyan-electric/80">—</span></span>
         </div>
         <p class="text-white/30 font-baloo text-xs">zonetotalsport.ca — Ressources ÉPS pour enseignants au primaire</p>
     </div>
@@ -3417,13 +3421,7 @@
         setInterval(() => fetchScores(activeSport), 30000);
     })();
 
-    // VISIT COUNTER (localStorage)
-    (function() {
-        let count = parseInt(localStorage.getItem('zts-visits') || '0') + 1;
-        localStorage.setItem('zts-visits', count);
-        const el = document.getElementById('visitCount');
-        if (el) el.textContent = count.toLocaleString('fr-CA');
-    })();
+    // VISIT COUNTER — géré par Firebase Realtime Database (voir script en bas)
 
     // SUBSCRIBE POPUP (appears once per session after scroll 60% or 30s)
     let subscribeShown = false;
@@ -4043,31 +4041,7 @@
     })();
     </script>
 
-    <!-- Compteur de visites -->
-    <script>
-    (function() {
-        var key = 'zts_visit_count';
-        var count = parseInt(localStorage.getItem(key) || '0', 10);
-        var visited = sessionStorage.getItem('zts_visited');
-        if (!visited) {
-            count++;
-            localStorage.setItem(key, count);
-            sessionStorage.setItem('zts_visited', '1');
-        }
-        // Afficher avec animation
-        var el = document.getElementById('visitCount');
-        if (el) {
-            var target = Math.max(count, 1247); // Base réaliste
-            var current = 0;
-            var step = Math.ceil(target / 40);
-            var timer = setInterval(function() {
-                current += step;
-                if (current >= target) { current = target; clearInterval(timer); }
-                el.textContent = current.toLocaleString('fr-CA');
-            }, 30);
-        }
-    })();
-    </script>
+    <!-- Ancien compteur localStorage supprimé — Firebase gère tout -->
 
 <!-- Donation Popup -->
 <style>
@@ -4120,41 +4094,70 @@ document.addEventListener('click', () => {
 <!-- Dock Outils -->
 <script src="dock.js"></script>
 
-<!-- Compteur de visites Firebase Realtime Database -->
+<!-- Compteur de visites Firebase Realtime Database + Géolocalisation -->
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
 <script>
 (function(){
     const db = firebase.database();
     const counterRef = db.ref('pageViews/home');
+    const locationRef = db.ref('lastVisitor');
 
-    // Vérifier si déjà compté cette session
+    // Animer tous les éléments .zts-visit-count
+    function animateCount(target) {
+        document.querySelectorAll('.zts-visit-count').forEach(function(el) {
+            const current = parseInt(el.textContent.replace(/\s/g,'')) || 0;
+            if (current !== target) {
+                let start = current;
+                const step = Math.max(1, Math.floor((target - start) / 30));
+                const timer = setInterval(function() {
+                    start += step;
+                    if (start >= target) { start = target; clearInterval(timer); }
+                    el.textContent = start.toLocaleString('fr-CA');
+                }, 30);
+            }
+        });
+    }
+
+    // Compter la visite (1x par session)
     if (!sessionStorage.getItem('zts_counted')) {
         counterRef.transaction(function(current) {
             return (current || 0) + 1;
         });
         sessionStorage.setItem('zts_counted', 'true');
+
+        // Géolocalisation du visiteur via ip-api (gratuit, pas de clé)
+        fetch('https://ip-api.com/json/?fields=city,regionName,country,countryCode')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data && data.city) {
+                    locationRef.set({
+                        city: data.city,
+                        region: data.regionName || '',
+                        country: data.country || '',
+                        countryCode: data.countryCode || '',
+                        timestamp: Date.now()
+                    });
+                }
+            })
+            .catch(function() {});
     }
 
-    // Écouter en temps réel
+    // Écouter le compteur en temps réel
     counterRef.on('value', function(snapshot) {
-        const count = snapshot.val() || 0;
-        const el = document.getElementById('visitCount');
-        if (el) {
-            // Animation du compteur
-            const target = count;
-            const current = parseInt(el.textContent) || 0;
-            if (current !== target) {
-                let start = current;
-                const step = Math.max(1, Math.floor((target - start) / 30));
-                const timer = setInterval(() => {
-                    start += step;
-                    if (start >= target) {
-                        start = target;
-                        clearInterval(timer);
-                    }
-                    el.textContent = start.toLocaleString('fr-CA');
-                }, 30);
-            }
+        animateCount(snapshot.val() || 0);
+    });
+
+    // Écouter le dernier visiteur en temps réel
+    locationRef.on('value', function(snapshot) {
+        const data = snapshot.val();
+        if (data && data.city) {
+            var flag = '';
+            try { flag = String.fromCodePoint(...[...data.countryCode.toUpperCase()].map(c => 0x1F1E6 - 65 + c.charCodeAt(0))); } catch(e) {}
+            var locText = flag + ' ' + data.city + ', ' + data.country;
+            var cityEl = document.getElementById('visitorCity');
+            var locDiv = document.getElementById('visitorLocation');
+            if (cityEl) cityEl.textContent = locText;
+            if (locDiv) locDiv.style.display = 'flex';
         }
     });
 })();
@@ -4163,7 +4166,7 @@ document.addEventListener('click', () => {
 <style>
 .apps-overlay{position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:20px;}
 .apps-modal{position:relative;width:100%;max-width:1100px;max-height:92vh;overflow-y:auto;background:url('gym-bg.jpg') center/cover no-repeat;border-radius:28px;border:4px solid #00E5FF;box-shadow:0 0 80px rgba(0,229,255,.25);}
-.apps-modal::before{content:"";position:absolute;inset:0;background:rgba(15,15,46,.85);border-radius:24px;z-index:0;}
+.apps-modal::before{content:"";position:absolute;inset:0;background:rgba(15,15,46,.90);border-radius:24px;z-index:0;}
 .apps-modal>*{position:relative;z-index:1;}
 .apps-close{position:absolute;top:16px;right:16px;z-index:10;width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.3);background:rgba(0,0,0,.4);color:#fff;font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .apps-close:hover{background:rgba(255,0,0,.5);border-color:#ff4444;transform:scale(1.1)}
