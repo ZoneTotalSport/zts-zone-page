@@ -315,15 +315,20 @@
         }
         .subscribe-overlay.show { display: flex; }
         .subscribe-box {
-            background: linear-gradient(135deg, #00E5FF 0%, #00B8D4 30%, #0097A7 60%, #006064 100%);
-            border: 6px solid #FFD700;
+            background: url('gym-bg.jpg') center/cover no-repeat;
+            border: 6px solid #00E5FF;
             border-radius: 32px;
             max-width: 960px; width: 100%;
             padding: 0; overflow: visible;
             position: relative;
             display: flex; flex-direction: row;
-            box-shadow: 0 30px 80px rgba(0,229,255,0.35), 0 0 0 8px rgba(255,215,0,0.15);
+            box-shadow: 0 30px 80px rgba(0,229,255,0.25), 0 0 0 8px rgba(0,229,255,0.1);
         }
+        .subscribe-box::before {
+            content: ""; position: absolute; inset: 0;
+            background: rgba(15,15,46,0.82); border-radius: 26px; z-index: 0;
+        }
+        .subscribe-box > * { position: relative; z-index: 1; }
         .subscribe-header {
             flex: 1; padding: 36px 32px; text-align: center; position: relative;
             display: flex; flex-direction: column; justify-content: center;
@@ -1882,7 +1887,7 @@
 
             <!-- Header camp de jour cyan -->
             <div class="subscribe-header">
-                <img src="mascot-tablet.png" alt="Mascotte Zone" style="width:203px;height:auto;margin:0 auto 8px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.25))">
+                <img src="bucheron-basketball.png" alt="Le Bucheron Sportif" style="width:220px;height:auto;margin:0 auto 8px;filter:drop-shadow(3px 6px 12px rgba(0,0,0,0.4))">
                 <h2 style="font-family:'Fredoka One',cursive;font-size:2.6rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.1" data-i18n="subTitle">DEVIENS MEMBRE VIP!</h2>
                 <p style="font-family:'Fredoka One',cursive;color:rgba(255,255,255,0.85);font-size:1.2rem;margin-top:8px" data-i18n="subDesc">Accède au plein potentiel de la Zone!</p>
 
