@@ -756,6 +756,8 @@
             font-family: 'Luckiest Guy', cursive; font-size: 0.9rem; color: #00E5FF; letter-spacing: 0.05em;
         }
 
+        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
         /* ========== DIGITAL CLOCK ========== */
         .digital-clock {
             font-family: 'Luckiest Guy', cursive;
@@ -1870,6 +1872,10 @@
             <i data-lucide="eye" class="w-6 h-6 text-cyan-electric/60"></i>
             <span class="text-white/70 font-bangers text-xl tracking-wider" data-i18n="visitLabel">Visiteurs :</span>
             <span class="counter-digit font-bangers text-3xl text-cyan-electric zts-visit-count" style="min-width:60px;text-align:center;">0</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+            <span class="zts-online-dot" style="width:10px;height:10px;border-radius:50%;background:#00E5FF;display:inline-block;animation:pulse-dot 1.5s infinite;"></span>
+            <span class="font-baloo text-sm text-white/50"><span id="onlineCount" class="text-cyan-electric font-bangers text-lg">0</span> en ligne</span>
         </div>
         <div id="visitorLocation" style="display:none;align-items:center;gap:8px;justify-content:center;">
             <i data-lucide="map-pin" class="w-4 h-4 text-pink-fuchsia/70"></i>
@@ -4163,6 +4169,25 @@ function ztsInitVisitCounter() {
             if (cityEl) cityEl.textContent = locText;
             if (locDiv) locDiv.style.display = 'flex';
         }
+    });
+
+    // ── Présence en ligne (Firebase Realtime) ──
+    var onlineRef = db.ref('presence');
+    var connectedRef = db.ref('.info/connected');
+    var myPresenceRef = onlineRef.push();
+
+    connectedRef.on('value', function(snap) {
+        if (snap.val() === true) {
+            myPresenceRef.set(true);
+            myPresenceRef.onDisconnect().remove();
+        }
+    });
+
+    // Écouter le nombre en ligne en temps réel
+    onlineRef.on('value', function(snap) {
+        var count = snap.numChildren();
+        var el = document.getElementById('onlineCount');
+        if (el) el.textContent = count;
     });
 }
 ztsInitVisitCounter();
