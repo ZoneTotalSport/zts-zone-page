@@ -4097,7 +4097,12 @@ document.addEventListener('click', () => {
 <!-- Compteur de visites Firebase Realtime Database + Géolocalisation -->
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
 <script>
-(function(){
+// Attendre que Firebase soit initialisé (firebase-auth.js le fait de façon asynchrone)
+function ztsInitVisitCounter() {
+    if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length || typeof firebase.database !== 'function') {
+        setTimeout(ztsInitVisitCounter, 200);
+        return;
+    }
     const db = firebase.database();
     const counterRef = db.ref('pageViews/home');
     const locationRef = db.ref('lastVisitor');
@@ -4160,7 +4165,8 @@ document.addEventListener('click', () => {
             if (locDiv) locDiv.style.display = 'flex';
         }
     });
-})();
+}
+ztsInitVisitCounter();
 </script>
 <!-- ========== APPS MODAL (Ressources popup) ========== -->
 <style>

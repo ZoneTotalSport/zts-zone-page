@@ -10,6 +10,7 @@
   var firebaseConfig = {
     apiKey: "AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA",
     authDomain: "zone-total-sport.firebaseapp.com",
+    databaseURL: "https://zone-total-sport-default-rtdb.firebaseio.com",
     projectId: "zone-total-sport",
     storageBucket: "zone-total-sport.firebasestorage.app",
     messagingSenderId: "681359040455",
