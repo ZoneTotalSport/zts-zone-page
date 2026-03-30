@@ -47,7 +47,7 @@
   border-radius:28px;\
   border:4px solid #00E5FF;\
   box-shadow:0 25px 60px rgba(0,0,0,.5),0 0 60px rgba(0,229,255,.15);\
-  padding:36px;color:#fff;font-family:"Schoolbell",cursive;\
+  padding:24px;color:#fff;font-family:"Schoolbell",cursive;\
   opacity:0;visibility:hidden;transform:scale(.9);\
   transition:all .4s cubic-bezier(.34,1.56,.64,1);\
   width:90vw;max-width:520px;max-height:88vh;overflow-y:auto;\
@@ -59,8 +59,8 @@
 .zts-dock-panel>*{position:relative;z-index:1;}\
 .zts-dock-panel.open{opacity:1;visibility:visible;transform:translate(-50%,-50%) scale(1)}\
 .zts-dock-panel-title{\
-  font-family:"Bangers",cursive;font-size:2.5rem;color:#FFD700;\
-  text-shadow:2px 2px 0 rgba(0,0,0,.3);margin:0 0 16px;text-align:center;\
+  font-family:"Bangers",cursive;font-size:2rem;color:#FFD700;\
+  text-shadow:2px 2px 0 rgba(0,0,0,.3);margin:0 0 12px;text-align:center;\
   letter-spacing:2px;\
 }\
 .zts-dock-panel-close{\
@@ -122,10 +122,10 @@
 \
 /* ── Wheel ── */\
 .zts-wheel-canvas-wrap{\
-  position:relative;width:380px;height:380px;margin:0 auto 20px;\
+  position:relative;width:280px;height:280px;margin:0 auto 16px;\
 }\
 .zts-wheel-canvas{\
-  width:380px;height:380px;border-radius:50%;\
+  width:280px;height:280px;border-radius:50%;\
   box-shadow:0 0 40px rgba(255,215,0,.3);border:4px solid #FFD700;\
 }\
 .zts-wheel-pointer{\
@@ -138,9 +138,9 @@
   color:#39FF14;min-height:2.2rem;margin:8px 0;\
 }\
 .zts-wheel-textarea{\
-  width:100%;height:100px;border-radius:14px;border:2px solid rgba(255,255,255,.2);\
-  background:rgba(255,255,255,.1);color:#fff;padding:12px;\
-  font-family:"Schoolbell",cursive;font-size:1rem;resize:vertical;\
+  width:100%;height:80px;border-radius:14px;border:2px solid rgba(255,255,255,.2);\
+  background:rgba(255,255,255,.1);color:#fff;padding:10px;\
+  font-family:"Schoolbell",cursive;font-size:.95rem;resize:vertical;\
 }\
 .zts-wheel-textarea::placeholder{color:rgba(255,255,255,.4)}\
 \
@@ -191,7 +191,7 @@
   .zts-dock-panel.open{transform:translateY(-50%) scale(1) !important}\
   .zts-dice{width:70px;height:70px;font-size:2.2rem;}\
   .zts-time-display{font-size:2.8rem;}\
-  .zts-wheel-canvas-wrap,.zts-wheel-canvas{width:220px;height:220px;}\
+  .zts-wheel-canvas-wrap,.zts-wheel-canvas{width:200px;height:200px;}\
   .zts-postit-fullscreen-text{font-size:8vw;}\
   .zts-teams-result{grid-template-columns:1fr;}\
 }\
