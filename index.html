@@ -4130,16 +4130,16 @@ function ztsInitVisitCounter() {
         });
         sessionStorage.setItem('zts_counted', 'true');
 
-        // Géolocalisation du visiteur via ip-api (gratuit, pas de clé)
-        fetch('https://ip-api.com/json/?fields=city,regionName,country,countryCode')
+        // Géolocalisation du visiteur via ipapi.co (HTTPS gratuit, 1000 req/jour)
+        fetch('https://ipapi.co/json/')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data && data.city) {
                     locationRef.set({
                         city: data.city,
-                        region: data.regionName || '',
-                        country: data.country || '',
-                        countryCode: data.countryCode || '',
+                        region: data.region || '',
+                        country: data.country_name || '',
+                        countryCode: data.country_code || '',
                         timestamp: Date.now()
                     });
                 }
