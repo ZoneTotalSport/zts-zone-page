@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boite a Outils — Transitions | Zone Total Sport</title>
+<meta name="description" content="Outils de transition pour enseignants d'education physique au primaire. Signaux, chrono, zones, capitaines, trame sonore et plan du gymnase.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Luckiest+Guy&family=Patrick+Hand&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+:root{--bg:#0F0F2E;--cyan:#00E5FF;--yellow:#FFD700;--pink:#FF2A7A;--violet:#8B5CF6;--dark2:#1a1a3e;--dark3:#24244a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Patrick Hand',cursive;background:var(--bg);color:#e0e0e0;min-height:100vh;overflow-x:hidden;position:relative}
+body::before{content:'';position:fixed;inset:0;background:url('../../gym-bg.jpg') center/cover no-repeat;opacity:0.08;pointer-events:none;z-index:0}
+h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
+.btn-font{font-family:'Fredoka One',cursive}
+.nav-pill{transition:all .25s}
+.nav-pill:hover{background:rgba(0,229,255,.15)}
+.nav-pill.active{background:var(--cyan);color:var(--bg);box-shadow:0 0 18px rgba(0,229,255,.35)}
+.card-shadow{box-shadow:0 4px 20px rgba(0,0,0,.35)}
+.glow-cyan{box-shadow:0 0 20px rgba(0,229,255,.25)}
+.glow-pink{box-shadow:0 0 20px rgba(255,42,122,.25)}
+.tab-section{display:none}
+.tab-section.active{display:block}
+.signal-card{cursor:pointer;transition:transform .2s,box-shadow .2s}
+.signal-card:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#lightbox{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);align-items:center;justify-content:center;flex-direction:column;cursor:pointer}
+#lightbox.show{display:flex}
+#lightbox img{max-width:90vw;max-height:70vh;border-radius:16px;box-shadow:0 0 40px rgba(0,229,255,.3)}
+.chrono-display{font-family:'Courier New',monospace;font-size:clamp(4rem,15vw,10rem);line-height:1;text-shadow:0 0 30px rgba(0,229,255,.4)}
+.chrono-display.warning{color:#FF2A7A;animation:blink .5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.preset-btn{transition:all .2s}
+.preset-btn:hover{transform:scale(1.08)}
+.preset-btn.selected{outline:3px solid var(--cyan);outline-offset:2px}
+.zone-card{transition:transform .2s}
+.zone-card:hover{transform:scale(1.02)}
+.captain-card{transition:all .3s}
+.captain-card.pop{animation:popIn .4s ease}
+@keyframes popIn{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.audio-bar{animation:audioBar .6s ease-in-out infinite alternate}
+@keyframes audioBar{0%{height:10%}100%{height:100%}}
+.gym-floor{background:#d4a373;position:relative;border:3px solid #a0784c;border-radius:12px;overflow:hidden;touch-action:none}
+.gym-floor::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 38px,rgba(255,255,255,.08) 38px,rgba(255,255,255,.08) 40px),repeating-linear-gradient(90deg,transparent,transparent 38px,rgba(255,255,255,.08) 38px,rgba(255,255,255,.08) 40px);pointer-events:none}
+.gym-item{position:absolute;cursor:grab;user-select:none;display:flex;flex-direction:column;align-items:center;z-index:10}
+.gym-item:active{cursor:grabbing}
+.gym-item .delete-btn{display:none;position:absolute;top:-8px;right:-8px;width:20px;height:20px;background:var(--pink);border-radius:50%;color:#fff;font-size:12px;line-height:20px;text-align:center;cursor:pointer}
+.gym-item:hover .delete-btn{display:block}
+.inv-btn{transition:all .2s;cursor:pointer}
+.inv-btn:hover{transform:scale(1.1)}
+.inv-btn.selected{outline:3px solid var(--cyan);outline-offset:2px;background:rgba(0,229,255,.15)!important}
+.record-toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2000;background:rgba(15,15,46,.95);border:2px solid var(--yellow);border-radius:20px;padding:2rem 3rem;text-align:center;display:none}
+.record-toast.show{display:block;animation:popIn .5s ease}
+.progress-bar-track{background:var(--dark3);border-radius:99px;overflow:hidden;height:8px}
+.progress-bar-fill{height:100%;border-radius:99px;transition:width .3s linear}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--violet);border-radius:3px}
+</style>
+</head>
+<body class="relative z-10">
+
+<!-- HEADER -->
+<header class="relative z-20 bg-gradient-to-r from-[#0F0F2E] via-[#1a1a3e] to-[#0F0F2E] border-b border-cyan-900/40 px-4 py-3">
+  <div class="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-2">
+    <a href="https://zonetotalsport.ca" class="flex items-center gap-2 no-underline">
+      <span class="text-2xl">&#9917;</span>
+      <span class="text-lg md:text-xl font-bold text-[#00E5FF]" style="font-family:'Luckiest Guy',cursive">Zone Total Sport</span>
+    </a>
+    <h1 class="text-xl md:text-2xl text-white text-center flex-1" data-i18n="mainTitle">Boite a Outils — Transitions</h1>
+    <div class="flex gap-1">
+      <button onclick="setLang('fr')" id="btn-fr" class="btn-font px-3 py-1 rounded-full text-sm bg-[#00E5FF] text-[#0F0F2E] font-bold">FR</button>
+      <button onclick="setLang('en')" id="btn-en" class="btn-font px-3 py-1 rounded-full text-sm bg-[#24244a] text-gray-300 font-bold">EN</button>
+    </div>
+  </div>
+</header>
+
+<!-- NAV STICKY -->
+<nav class="sticky top-0 z-50 bg-[#0F0F2E]/95 backdrop-blur border-b border-cyan-900/30 px-2 py-2 overflow-x-auto">
+  <div class="max-w-6xl mx-auto flex gap-2 justify-center flex-nowrap min-w-max">
+    <button onclick="switchTab('signaux')" class="nav-pill active px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="signaux" data-i18n="tabSignaux">Signaux</button>
+    <button onclick="switchTab('chrono')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="chrono" data-i18n="tabChrono">Chrono</button>
+    <button onclick="switchTab('zones')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="zones" data-i18n="tabZones">Zones</button>
+    <button onclick="switchTab('capitaines')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="capitaines" data-i18n="tabCapitaines">Capitaines</button>
+    <button onclick="switchTab('trame')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="trame" data-i18n="tabTrame">Trame</button>
+    <button onclick="switchTab('plangym')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="plangym" data-i18n="tabPlanGym">Plan Gym</button>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-4 py-6 relative z-10">
+
+<!-- ================= ONGLET 1 : SIGNAUX ================= -->
+<section id="tab-signaux" class="tab-section active">
+  <h2 class="tab-title text-3xl text-center text-[#00E5FF] mb-6" data-i18n="signaux_title">Signaux Visuels</h2>
+  <p class="text-center text-gray-400 mb-8 text-lg" data-i18n="signaux_desc">Cliquez sur un signal pour l'afficher en plein ecran</p>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5" id="signals-grid"></div>
+</section>
+
+<!-- ================= ONGLET 2 : CHRONO ================= -->
+<section id="tab-chrono" class="tab-section">
+  <h2 class="tab-title text-3xl text-center text-[#FFD700] mb-6" data-i18n="chrono_title">Chrono Transition</h2>
+  <div class="max-w-lg mx-auto text-center">
+    <div id="chrono-display" class="chrono-display text-[#00E5FF] mb-6">0:00</div>
+    <div class="flex flex-wrap justify-center gap-3 mb-6" id="chrono-presets"></div>
+    <div class="flex items-center justify-center gap-3 mb-4">
+      <label class="text-gray-400" data-i18n="chrono_custom">Personnalise :</label>
+      <input type="number" id="chrono-custom" min="1" max="600" value="60" class="w-20 bg-[#24244a] border border-cyan-800 rounded-lg px-3 py-2 text-center text-white text-lg">
+      <span class="text-gray-500">sec</span>
+      <button onclick="chronoSetCustom()" class="btn-font bg-[#8B5CF6] text-white px-4 py-2 rounded-xl hover:brightness-110" data-i18n="chrono_set">OK</button>
+    </div>
+    <div class="flex justify-center gap-4 mb-6">
+      <button onclick="chronoToggle()" id="chrono-start-btn" class="btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-cyan" data-i18n="chrono_start">Demarrer</button>
+      <button onclick="chronoReset()" class="btn-font bg-[#FF2A7A] text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-pink" data-i18n="chrono_reset">Reset</button>
+    </div>
+    <div id="chrono-record" class="text-gray-500 text-lg"></div>
+  </div>
+</section>
+
+<!-- ================= ONGLET 3 : ZONES ================= -->
+<section id="tab-zones" class="tab-section">
+  <h2 class="tab-title text-3xl text-center text-[#FF2A7A] mb-6" data-i18n="zones_title">Zones Materiel</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="zones-grid"></div>
+  <div class="flex justify-center gap-4 mt-6">
+    <button onclick="zonesUncheckAll()" class="btn-font bg-[#8B5CF6] text-white px-6 py-2 rounded-xl hover:brightness-110" data-i18n="zones_uncheck">Tout decocher</button>
+    <button onclick="zonesPrint()" class="btn-font bg-[#00E5FF] text-[#0F0F2E] px-6 py-2 rounded-xl hover:brightness-110" data-i18n="zones_print">Imprimer</button>
+  </div>
+</section>
+
+<!-- ================= ONGLET 4 : CAPITAINES ================= -->
+<section id="tab-capitaines" class="tab-section">
+  <h2 class="tab-title text-3xl text-center text-[#8B5CF6] mb-6" data-i18n="cap_title">Capitaines de Transition</h2>
+  <div class="max-w-2xl mx-auto">
+    <textarea id="cap-names" rows="5" class="w-full bg-[#1a1a3e] border border-violet-800 rounded-xl p-4 text-white text-lg mb-4 resize-none" data-i18n-placeholder="cap_placeholder" placeholder="Entrez les noms (un par ligne)..."></textarea>
+    <div class="flex justify-center gap-3 mb-6">
+      <button onclick="capAssign()" class="btn-font bg-[#00E5FF] text-[#0F0F2E] px-6 py-2 rounded-xl hover:brightness-110" data-i18n="cap_assign">Assigner</button>
+      <button onclick="capShuffle()" class="btn-font bg-[#FFD700] text-[#0F0F2E] px-6 py-2 rounded-xl hover:brightness-110" data-i18n="cap_shuffle">Melanger</button>
+      <button onclick="capClear()" class="btn-font bg-[#FF2A7A] text-white px-6 py-2 rounded-xl hover:brightness-110" data-i18n="cap_clear">Effacer</button>
+    </div>
+    <div id="cap-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </div>
+</section>
+
+<!-- ================= ONGLET 5 : TRAME SONORE ================= -->
+<section id="tab-trame" class="tab-section">
+  <h2 class="tab-title text-3xl text-center text-[#FFD700] mb-6" data-i18n="trame_title">Trame Sonore</h2>
+  <div class="max-w-lg mx-auto text-center">
+    <div class="flex justify-center items-end gap-1 mb-6 h-24" id="audio-visualizer"></div>
+    <div id="trame-display" class="chrono-display text-[#FFD700] mb-4">0:00</div>
+    <div class="progress-bar-track mb-6"><div id="trame-progress" class="progress-bar-fill bg-[#FFD700]" style="width:0%"></div></div>
+    <div class="flex flex-wrap justify-center gap-3 mb-6" id="trame-presets"></div>
+    <div class="flex justify-center gap-4">
+      <button onclick="trameToggle()" id="trame-start-btn" class="btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110" data-i18n="trame_start">Demarrer</button>
+      <button onclick="trameReset()" class="btn-font bg-[#FF2A7A] text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110" data-i18n="trame_reset">Reset</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ONGLET 6 : PLAN GYM ================= -->
+<section id="tab-plangym" class="tab-section">
+  <h2 class="tab-title text-3xl text-center text-[#00E5FF] mb-4" data-i18n="gym_title">Plan du Gymnase</h2>
+  <div class="flex flex-wrap justify-center gap-2 mb-4" id="gym-inventory"></div>
+  <button onclick="gymClearAll()" class="btn-font bg-[#FF2A7A] text-white px-5 py-2 rounded-xl hover:brightness-110 block mx-auto mb-4" data-i18n="gym_clearall">Effacer tout</button>
+  <div id="gym-floor" class="gym-floor w-full mx-auto" style="height:500px;max-width:900px"></div>
+</section>
+
+</main>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()">
+  <img id="lb-img" src="" alt="">
+  <h3 id="lb-title" class="text-3xl text-white mt-4" style="font-family:'Luckiest Guy',cursive"></h3>
+  <p id="lb-desc" class="text-gray-300 text-xl mt-2 max-w-md text-center px-4"></p>
+  <p class="text-gray-500 mt-4 text-sm" data-i18n="lb_close">Cliquez ou ESC pour fermer</p>
+</div>
+
+<!-- RECORD TOAST -->
+<div id="record-toast" class="record-toast">
+  <div class="text-5xl mb-2">&#127942;</div>
+  <div class="text-2xl text-[#FFD700]" style="font-family:'Luckiest Guy',cursive" data-i18n="record_new">Nouveau Record!</div>
+  <div id="record-toast-time" class="text-4xl text-white mt-2" style="font-family:'Courier New',monospace"></div>
+</div>
+
+<script>
+// ======================== i18n ========================
+const i18n = {
+  fr: {
+    mainTitle: "Boite a Outils — Transitions",
+    tabSignaux: "Signaux", tabChrono: "Chrono", tabZones: "Zones",
+    tabCapitaines: "Capitaines", tabTrame: "Trame", tabPlanGym: "Plan Gym",
+    signaux_title: "Signaux Visuels",
+    signaux_desc: "Cliquez sur un signal pour l'afficher en plein ecran",
+    chrono_title: "Chrono Transition",
+    chrono_custom: "Personnalise :",
+    chrono_set: "OK",
+    chrono_start: "Demarrer", chrono_pause: "Pause", chrono_reset: "Reset",
+    chrono_record_label: "Meilleur temps :",
+    record_new: "Nouveau Record!",
+    zones_title: "Zones Materiel",
+    zones_uncheck: "Tout decocher", zones_print: "Imprimer",
+    cap_title: "Capitaines de Transition",
+    cap_placeholder: "Entrez les noms (un par ligne)...",
+    cap_assign: "Assigner", cap_shuffle: "Melanger", cap_clear: "Effacer",
+    trame_title: "Trame Sonore",
+    trame_start: "Demarrer", trame_pause: "Pause", trame_reset: "Reset",
+    gym_title: "Plan du Gymnase",
+    gym_clearall: "Effacer tout",
+    lb_close: "Cliquez ou ESC pour fermer",
+    sig_timeout: "Time Out", sig_timeout_d: "Arretez-vous immediatement et ecoutez les consignes.",
+    sig_halte: "Halte La", sig_halte_d: "Arretez le mouvement, deposez le materiel au sol.",
+    sig_rangement: "Rangement", sig_rangement_d: "Rangez le materiel dans les bacs designes.",
+    sig_repere: "Point Repere Assis", sig_repere_d: "Assoyez-vous a votre point repere.",
+    sig_repere_deb: "Point Repere Debout", sig_repere_deb_d: "Tenez-vous debout a votre point repere.",
+    sig_parti: "C'est Parti", sig_parti_d: "L'activite commence! Allez-y!",
+    sig_jeu: "Au Jeu", sig_jeu_d: "Rejoignez votre zone de jeu et commencez.",
+    zone_manip: "Manipulation", zone_manip_items: "Ballons,Cerceaux,Frisbees,Sacs de feves,Balles mousses,Anneaux",
+    zone_loco: "Locomotion", zone_loco_items: "Cones,Marqueurs,Haies,Dossards,Echelles agilite,Lattes",
+    zone_coop: "Cooperation", zone_coop_items: "Cordes a sauter,Parachute,Tapis,Elastiques,Foulards,Rubans",
+    zone_prec: "Precision", zone_prec_items: "Cibles,Quilles,Raquettes,Batons,Volants,Balles de tennis",
+    role_bacs: "Capitaine des Bacs", role_silence: "Capitaine du Silence",
+    role_zones: "Capitaine des Zones", role_chrono: "Capitaine du Chrono",
+    role_verif: "Capitaine de la Verif",
+    gym_texte: "Texte", gym_ballon: "Ballon", gym_cone: "Cone", gym_cerceau: "Cerceau",
+    gym_corde: "Corde", gym_pastille: "Pastille", gym_balle: "Balle",
+    gym_banc: "Banc", gym_raquette: "Raquette", gym_baton: "Baton"
+  },
+  en: {
+    mainTitle: "Toolbox — Transitions",
+    tabSignaux: "Signals", tabChrono: "Timer", tabZones: "Zones",
+    tabCapitaines: "Captains", tabTrame: "Soundtrack", tabPlanGym: "Gym Map",
+    signaux_title: "Visual Signals",
+    signaux_desc: "Click a signal to display it full screen",
+    chrono_title: "Transition Timer",
+    chrono_custom: "Custom:",
+    chrono_set: "OK",
+    chrono_start: "Start", chrono_pause: "Pause", chrono_reset: "Reset",
+    chrono_record_label: "Best time:",
+    record_new: "New Record!",
+    zones_title: "Equipment Zones",
+    zones_uncheck: "Uncheck all", zones_print: "Print",
+    cap_title: "Transition Captains",
+    cap_placeholder: "Enter names (one per line)...",
+    cap_assign: "Assign", cap_shuffle: "Shuffle", cap_clear: "Clear",
+    trame_title: "Soundtrack",
+    trame_start: "Start", trame_pause: "Pause", trame_reset: "Reset",
+    gym_title: "Gym Floor Plan",
+    gym_clearall: "Clear all",
+    lb_close: "Click or ESC to close",
+    sig_timeout: "Time Out", sig_timeout_d: "Stop immediately and listen to instructions.",
+    sig_halte: "Halt", sig_halte_d: "Stop moving, put equipment on the floor.",
+    sig_rangement: "Clean Up", sig_rangement_d: "Put equipment back in the bins.",
+    sig_repere: "Spot Sit", sig_repere_d: "Sit down at your designated spot.",
+    sig_repere_deb: "Spot Stand", sig_repere_deb_d: "Stand at your designated spot.",
+    sig_parti: "Let's Go", sig_parti_d: "The activity starts! Go!",
+    sig_jeu: "Game On", sig_jeu_d: "Go to your play zone and begin.",
+    zone_manip: "Manipulation", zone_manip_items: "Balls,Hoops,Frisbees,Bean bags,Foam balls,Rings",
+    zone_loco: "Locomotion", zone_loco_items: "Cones,Markers,Hurdles,Pinnies,Agility ladders,Slats",
+    zone_coop: "Cooperation", zone_coop_items: "Jump ropes,Parachute,Mats,Elastics,Scarves,Ribbons",
+    zone_prec: "Precision", zone_prec_items: "Targets,Pins,Rackets,Sticks,Shuttlecocks,Tennis balls",
+    role_bacs: "Bin Captain", role_silence: "Silence Captain",
+    role_zones: "Zone Captain", role_chrono: "Timer Captain",
+    role_verif: "Check Captain",
+    gym_texte: "Text", gym_ballon: "Ball", gym_cone: "Cone", gym_cerceau: "Hoop",
+    gym_corde: "Rope", gym_pastille: "Dot", gym_balle: "Ball",
+    gym_banc: "Bench", gym_raquette: "Racket", gym_baton: "Stick"
+  }
+};
+let lang = 'fr';
+function t(key){ return (i18n[lang]||i18n.fr)[key] || key; }
+function setLang(l){
+  lang = l;
+  document.getElementById('btn-fr').className = 'btn-font px-3 py-1 rounded-full text-sm font-bold ' + (l==='fr'?'bg-[#00E5FF] text-[#0F0F2E]':'bg-[#24244a] text-gray-300');
+  document.getElementById('btn-en').className = 'btn-font px-3 py-1 rounded-full text-sm font-bold ' + (l==='en'?'bg-[#00E5FF] text-[#0F0F2E]':'bg-[#24244a] text-gray-300');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.getAttribute('data-i18n');
+    if(i18n[lang][k]) el.textContent = i18n[lang][k];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    const k = el.getAttribute('data-i18n-placeholder');
+    if(i18n[lang][k]) el.placeholder = i18n[lang][k];
+  });
+  renderSignals();
+  renderZones();
+  renderChronoRecord();
+  renderGymInventory();
+}
+
+// ======================== TAB SWITCHING ========================
+function switchTab(id){
+  document.querySelectorAll('.tab-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelector(`.nav-pill[data-tab="${id}"]`).classList.add('active');
+  gsap.from('#tab-'+id, {opacity:0, y:20, duration:0.35, ease:'power2.out'});
+}
+
+// ======================== SIGNAUX ========================
+const signals = [
+  {img:'images/signal-timeout.png', name:'sig_timeout', desc:'sig_timeout_d', bg:'#2563eb'},
+  {img:'images/signal-halte-la.png', name:'sig_halte', desc:'sig_halte_d', bg:'#eab308'},
+  {img:'images/signal-rangement.png', name:'sig_rangement', desc:'sig_rangement_d', bg:'#84cc16'},
+  {img:'images/signal-point-repere.png', name:'sig_repere', desc:'sig_repere_d', bg:'#f97316'},
+  {img:'images/signal-point-repere-debout.png', name:'sig_repere_deb', desc:'sig_repere_deb_d', bg:'#f97316'},
+  {img:'images/signal-cest-parti.png', name:'sig_parti', desc:'sig_parti_d', bg:'#dc2626'},
+  {img:'images/signal-au-jeu.png', name:'sig_jeu', desc:'sig_jeu_d', bg:'#16a34a'}
+];
+function renderSignals(){
+  const g = document.getElementById('signals-grid');
+  g.innerHTML = signals.map((s,i)=>`
+    <div class="signal-card card-shadow rounded-2xl overflow-hidden" onclick="openLightbox(${i})" style="background:${s.bg}">
+      <img src="${s.img}" alt="${t(s.name)}" class="w-full aspect-square object-contain p-4" loading="lazy">
+      <div class="bg-black/40 px-3 py-2 text-center">
+        <span class="text-white font-bold text-lg" style="font-family:'Fredoka One',cursive">${t(s.name)}</span>
+      </div>
+    </div>
+  `).join('');
+  gsap.from('.signal-card',{scale:0.8,opacity:0,stagger:0.06,duration:0.4,ease:'back.out(1.5)'});
+}
+function openLightbox(i){
+  const s = signals[i];
+  document.getElementById('lb-img').src = s.img;
+  document.getElementById('lb-title').textContent = t(s.name);
+  document.getElementById('lb-desc').textContent = t(s.desc);
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('show'); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
+
+// ======================== CHRONO ========================
+let chronoInterval=null, chronoTime=0, chronoTotal=0, chronoRunning=false;
+const chronoPresets = [30,45,75,90,120];
+function renderChronoPresets(){
+  document.getElementById('chrono-presets').innerHTML = chronoPresets.map(s=>{
+    const label = s>=60 ? Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60 : s+'s';
+    return `<button onclick="chronoSet(${s})" class="preset-btn btn-font bg-[#1a1a3e] border border-cyan-800 text-[#00E5FF] px-5 py-2 rounded-xl text-lg" data-preset="${s}">${label}</button>`;
+  }).join('');
+}
+function chronoSet(s){
+  chronoStop();
+  chronoTime = s; chronoTotal = s;
+  updateChronoDisplay();
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('selected', parseInt(b.dataset.preset)===s));
+}
+function chronoSetCustom(){
+  const v = parseInt(document.getElementById('chrono-custom').value);
+  if(v>0) chronoSet(v);
+}
+function chronoToggle(){
+  if(chronoRunning){ chronoPause(); } else { chronoStart(); }
+}
+function chronoStart(){
+  if(chronoTime<=0) return;
+  chronoRunning = true;
+  const btn = document.getElementById('chrono-start-btn');
+  btn.textContent = t('chrono_pause');
+  btn.className = 'btn-font bg-[#00E5FF] text-[#0F0F2E] px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-cyan';
+  chronoInterval = setInterval(()=>{
+    chronoTime--;
+    updateChronoDisplay();
+    if(chronoTime<=0){ chronoFinish(); }
+  },1000);
+}
+function chronoPause(){
+  chronoRunning = false;
+  clearInterval(chronoInterval);
+  const btn = document.getElementById('chrono-start-btn');
+  btn.textContent = t('chrono_start');
+  btn.className = 'btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-cyan';
+}
+function chronoStop(){
+  chronoRunning = false;
+  clearInterval(chronoInterval);
+  const btn = document.getElementById('chrono-start-btn');
+  btn.textContent = t('chrono_start');
+  btn.className = 'btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-cyan';
+}
+function chronoReset(){
+  chronoStop();
+  chronoTime = chronoTotal;
+  updateChronoDisplay();
+}
+function updateChronoDisplay(){
+  const d = document.getElementById('chrono-display');
+  const m = Math.floor(chronoTime/60), s = chronoTime%60;
+  d.textContent = m+':'+(s<10?'0':'')+s;
+  d.classList.toggle('warning', chronoTime<=15 && chronoTime>0 && chronoRunning);
+  if(chronoTime>15 || !chronoRunning) d.classList.remove('warning');
+}
+function chronoFinish(){
+  chronoStop();
+  playEndSound();
+  const elapsed = chronoTotal;
+  const record = localStorage.getItem('zts_chrono_record');
+  if(!record || elapsed < parseInt(record)){
+    localStorage.setItem('zts_chrono_record', elapsed);
+    showRecordToast(elapsed);
+  }
+  renderChronoRecord();
+}
+function renderChronoRecord(){
+  const r = localStorage.getItem('zts_chrono_record');
+  const el = document.getElementById('chrono-record');
+  if(r){
+    const m = Math.floor(r/60), s = r%60;
+    el.textContent = t('chrono_record_label')+' '+m+':'+(s<10?'0':'')+s;
+  } else { el.textContent = ''; }
+}
+function showRecordToast(sec){
+  const m = Math.floor(sec/60), s = sec%60;
+  document.getElementById('record-toast-time').textContent = m+':'+(s<10?'0':'')+s;
+  const toast = document.getElementById('record-toast');
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2500);
+}
+function playEndSound(){
+  try{
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    [523.25,659.25,783.99,1046.5].forEach((f,i)=>{
+      const osc = ac.createOscillator(), gain = ac.createGain();
+      osc.type='sine'; osc.frequency.value=f;
+      gain.gain.setValueAtTime(0.3,ac.currentTime+i*0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+i*0.15+0.4);
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.start(ac.currentTime+i*0.15);
+      osc.stop(ac.currentTime+i*0.15+0.4);
+    });
+  }catch(e){}
+}
+
+// ======================== ZONES ========================
+const zones = [
+  {key:'manip', emoji:'&#127952;', color:'#00E5FF', nameKey:'zone_manip', itemsKey:'zone_manip_items'},
+  {key:'loco', emoji:'&#127939;', color:'#dc2626', nameKey:'zone_loco', itemsKey:'zone_loco_items'},
+  {key:'coop', emoji:'&#129309;', color:'#84cc16', nameKey:'zone_coop', itemsKey:'zone_coop_items'},
+  {key:'prec', emoji:'&#127919;', color:'#f97316', nameKey:'zone_prec', itemsKey:'zone_prec_items'}
+];
+function renderZones(){
+  document.getElementById('zones-grid').innerHTML = zones.map(z=>{
+    const items = t(z.itemsKey).split(',');
+    return `<div class="zone-card card-shadow rounded-2xl p-5" style="background:${z.color}15;border:2px solid ${z.color}40">
+      <h3 class="text-2xl mb-3" style="font-family:'Luckiest Guy',cursive;color:${z.color}">${z.emoji} ${t(z.nameKey)}</h3>
+      <div class="space-y-2">
+        ${items.map((it,i)=>`<label class="flex items-center gap-3 cursor-pointer text-lg">
+          <input type="checkbox" class="w-5 h-5 accent-[${z.color}] rounded" data-zone="${z.key}" data-item="${i}">
+          <span>${it.trim()}</span>
+        </label>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function zonesUncheckAll(){
+  document.querySelectorAll('#zones-grid input[type=checkbox]').forEach(cb=>cb.checked=false);
+}
+function zonesPrint(){
+  const lines = [];
+  zones.forEach(z=>{
+    const checked = [];
+    document.querySelectorAll(`input[data-zone="${z.key}"]:checked`).forEach(cb=>{
+      const items = t(z.itemsKey).split(',');
+      checked.push(items[parseInt(cb.dataset.item)].trim());
+    });
+    if(checked.length) lines.push(t(z.nameKey)+': '+checked.join(', '));
+  });
+  if(lines.length){
+    const w = window.open('','','width=400,height=300');
+    w.document.write('<html><head><title>Zones</title><style>body{font-family:sans-serif;padding:20px}h2{margin-bottom:10px}</style></head><body>');
+    w.document.write('<h2>'+t('zones_title')+'</h2>');
+    lines.forEach(l=>w.document.write('<p>'+l+'</p>'));
+    w.document.write('</body></html>');
+    w.document.close();
+    w.print();
+  }
+}
+
+// ======================== CAPITAINES ========================
+const roles = [
+  {key:'role_bacs', emoji:'\u{1F9E2}', color:'#00E5FF'},
+  {key:'role_silence', emoji:'\u{1F4E3}', color:'#dc2626'},
+  {key:'role_zones', emoji:'\u{1F5FA}', color:'#84cc16'},
+  {key:'role_chrono', emoji:'\u23F1\uFE0F', color:'#f97316'},
+  {key:'role_verif', emoji:'\u2705', color:'#FFD700'}
+];
+function capAssign(){
+  const names = document.getElementById('cap-names').value.trim().split('\n').filter(n=>n.trim());
+  if(!names.length) return;
+  const shuffled = [...names].sort(()=>Math.random()-0.5);
+  const res = document.getElementById('cap-results');
+  res.innerHTML = roles.map((r,i)=>{
+    const name = shuffled[i % shuffled.length] || '—';
+    return `<div class="captain-card pop card-shadow rounded-2xl p-4 text-center" style="background:${r.color}15;border:2px solid ${r.color}50">
+      <div class="text-4xl mb-2">${r.emoji}</div>
+      <div class="text-lg font-bold" style="color:${r.color};font-family:'Fredoka One',cursive">${t(r.key)}</div>
+      <div class="text-2xl text-white mt-2" style="font-family:'Luckiest Guy',cursive">${name.trim()}</div>
+    </div>`;
+  }).join('');
+  gsap.from('.captain-card',{scale:0,rotation:15,stagger:0.1,duration:0.4,ease:'back.out(2)'});
+}
+function capShuffle(){ capAssign(); }
+function capClear(){
+  document.getElementById('cap-names').value = '';
+  document.getElementById('cap-results').innerHTML = '';
+}
+
+// ======================== TRAME SONORE ========================
+let trameInterval=null, trameTime=0, trameTotal=0, trameRunning=false, trameAC=null, trameOsc=null, trameGain=null;
+const tramePresets = [45,75,90];
+function renderTramePresets(){
+  document.getElementById('trame-presets').innerHTML = tramePresets.map(s=>{
+    const label = s>=60 ? Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60 : s+'s';
+    return `<button onclick="trameSet(${s})" class="preset-btn btn-font bg-[#1a1a3e] border border-yellow-700 text-[#FFD700] px-5 py-2 rounded-xl text-lg" data-tpreset="${s}">${label}</button>`;
+  }).join('');
+}
+function trameSet(s){
+  trameStop();
+  trameTime = s; trameTotal = s;
+  updateTrameDisplay();
+  document.querySelectorAll('[data-tpreset]').forEach(b=>b.classList.toggle('selected', parseInt(b.dataset.tpreset)===s));
+}
+function trameToggle(){
+  if(trameRunning){ tramePause(); } else { trameStart(); }
+}
+function trameStart(){
+  if(trameTime<=0) return;
+  trameRunning = true;
+  const btn = document.getElementById('trame-start-btn');
+  btn.textContent = t('trame_pause');
+  btn.className = 'btn-font bg-[#FFD700] text-[#0F0F2E] px-8 py-3 rounded-2xl text-xl hover:brightness-110';
+  startPercussion();
+  trameInterval = setInterval(()=>{
+    trameTime--;
+    updateTrameDisplay();
+    updatePercussionTempo();
+    if(trameTime<=0){ trameFinish(); }
+  },1000);
+}
+function tramePause(){
+  trameRunning = false;
+  clearInterval(trameInterval);
+  stopPercussion();
+  const btn = document.getElementById('trame-start-btn');
+  btn.textContent = t('trame_start');
+  btn.className = 'btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110';
+}
+function trameStop(){
+  trameRunning = false;
+  clearInterval(trameInterval);
+  stopPercussion();
+  const btn = document.getElementById('trame-start-btn');
+  btn.textContent = t('trame_start');
+  btn.className = 'btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110';
+}
+function trameReset(){
+  trameStop();
+  trameTime = trameTotal;
+  updateTrameDisplay();
+  document.getElementById('trame-progress').style.width = '0%';
+}
+function updateTrameDisplay(){
+  const d = document.getElementById('trame-display');
+  const m = Math.floor(trameTime/60), s = trameTime%60;
+  d.textContent = m+':'+(s<10?'0':'')+s;
+  d.classList.toggle('warning', trameTime<=15 && trameTime>0 && trameRunning);
+  if(trameTime>15 || !trameRunning) d.classList.remove('warning');
+  if(trameTotal>0){
+    const pct = ((trameTotal - trameTime)/trameTotal)*100;
+    document.getElementById('trame-progress').style.width = pct+'%';
+  }
+}
+function trameFinish(){
+  trameStop();
+  playEndSound();
+  document.getElementById('trame-progress').style.width = '100%';
+}
+
+// Percussion
+let percInterval = null;
+function startPercussion(){
+  try{
+    trameAC = new (window.AudioContext||window.webkitAudioContext)();
+    scheduleBeats();
+  }catch(e){}
+}
+function scheduleBeats(){
+  if(!trameRunning || !trameAC) return;
+  const bpm = trameTime<=15 ? 240 : 120;
+  const interval = 60000/bpm;
+  playBeat();
+  percInterval = setTimeout(()=>scheduleBeats(), interval);
+}
+function playBeat(){
+  if(!trameAC) return;
+  const osc = trameAC.createOscillator();
+  const g = trameAC.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = trameTime<=15 ? 300 : 200;
+  g.gain.setValueAtTime(0.15, trameAC.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001, trameAC.currentTime+0.08);
+  osc.connect(g); g.connect(trameAC.destination);
+  osc.start(); osc.stop(trameAC.currentTime+0.08);
+}
+function updatePercussionTempo(){}
+function stopPercussion(){
+  clearTimeout(percInterval);
+  if(trameAC){ try{trameAC.close();}catch(e){} trameAC=null; }
+}
+
+// Audio visualizer
+function renderVisualizer(){
+  const v = document.getElementById('audio-visualizer');
+  let bars = '';
+  for(let i=0;i<20;i++){
+    const delay = (Math.random()*0.5).toFixed(2);
+    const color = i%4===0?'#00E5FF':i%4===1?'#FFD700':i%4===2?'#FF2A7A':'#8B5CF6';
+    bars += `<div class="rounded-full" style="width:8px;background:${color};animation:audioBar ${(0.3+Math.random()*0.5).toFixed(2)}s ease-in-out ${delay}s infinite alternate;min-height:6px"></div>`;
+  }
+  v.innerHTML = bars;
+}
+
+// ======================== PLAN GYMNASE ========================
+let gymSelected = null;
+const gymItems = [
+  {key:'gym_texte', emoji:'\u{1F4DD}', id:'texte'},
+  {key:'gym_ballon', emoji:'\u26BD', id:'ballon'},
+  {key:'gym_cone', emoji:'\u{1F536}', id:'cone'},
+  {key:'gym_cerceau', emoji:'\u2B55', id:'cerceau'},
+  {key:'gym_corde', emoji:'\u3030\uFE0F', id:'corde'},
+  {key:'gym_pastille', emoji:'\u{1F7E1}', id:'pastille'},
+  {key:'gym_balle', emoji:'\u{1F3BE}', id:'balle'},
+  {key:'gym_banc', emoji:'\u{1FA91}', id:'banc'},
+  {key:'gym_raquette', emoji:'\u{1F3F8}', id:'raquette'},
+  {key:'gym_baton', emoji:'\u{1F3D2}', id:'baton'}
+];
+let gymPlaced = [];
+let gymDragging = null, gymOffsetX=0, gymOffsetY=0;
+
+function renderGymInventory(){
+  document.getElementById('gym-inventory').innerHTML = gymItems.map(it=>
+    `<button onclick="gymSelectItem('${it.id}')" data-ginv="${it.id}" class="inv-btn btn-font bg-[#1a1a3e] border border-cyan-900 px-4 py-2 rounded-xl text-lg flex items-center gap-1">
+      <span class="text-xl">${it.emoji}</span> <span class="text-sm">${t(it.key)}</span>
+    </button>`
+  ).join('');
+}
+function gymSelectItem(id){
+  gymSelected = id;
+  document.querySelectorAll('[data-ginv]').forEach(b=>b.classList.toggle('selected',b.dataset.ginv===id));
+}
+function gymPlaceItem(x, y){
+  if(!gymSelected) return;
+  const item = gymItems.find(it=>it.id===gymSelected);
+  if(!item) return;
+  let label = item.emoji;
+  if(item.id==='texte'){
+    const txt = prompt(lang==='fr'?'Entrez le texte:':'Enter text:');
+    if(!txt) return;
+    label = txt;
+  }
+  const uid = 'gi_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+  gymPlaced.push({uid, id:item.id, label, x, y});
+  renderGymItems();
+}
+function renderGymItems(){
+  const floor = document.getElementById('gym-floor');
+  floor.querySelectorAll('.gym-item').forEach(el=>el.remove());
+  gymPlaced.forEach(p=>{
+    const div = document.createElement('div');
+    div.className = 'gym-item';
+    div.style.left = p.x+'px';
+    div.style.top = p.y+'px';
+    div.dataset.uid = p.uid;
+    const item = gymItems.find(it=>it.id===p.id);
+    const isText = p.id==='texte';
+    div.innerHTML = `<span class="text-2xl ${isText?'bg-white/90 text-black px-2 py-0.5 rounded text-base':''}">${isText?p.label:item.emoji}</span>
+      ${!isText?'<span class="text-[10px] text-white/80">'+p.label+'</span>':''}
+      <span class="delete-btn" onclick="event.stopPropagation();gymRemoveItem('${p.uid}')">&times;</span>`;
+    div.addEventListener('pointerdown', e=>gymDragStart(e, p.uid));
+    floor.appendChild(div);
+  });
+}
+function gymRemoveItem(uid){
+  gymPlaced = gymPlaced.filter(p=>p.uid!==uid);
+  renderGymItems();
+}
+function gymClearAll(){
+  gymPlaced = [];
+  renderGymItems();
+}
+function gymDragStart(e, uid){
+  e.preventDefault();
+  gymDragging = uid;
+  const el = document.querySelector(`.gym-item[data-uid="${uid}"]`);
+  const rect = el.getBoundingClientRect();
+  gymOffsetX = e.clientX - rect.left;
+  gymOffsetY = e.clientY - rect.top;
+}
+document.addEventListener('pointermove', e=>{
+  if(!gymDragging) return;
+  const floor = document.getElementById('gym-floor');
+  const rect = floor.getBoundingClientRect();
+  const x = e.clientX - rect.left - gymOffsetX;
+  const y = e.clientY - rect.top - gymOffsetY;
+  const el = document.querySelector(`.gym-item[data-uid="${gymDragging}"]`);
+  if(el){ el.style.left = Math.max(0,Math.min(x,rect.width-30))+'px'; el.style.top = Math.max(0,Math.min(y,rect.height-30))+'px'; }
+});
+document.addEventListener('pointerup', e=>{
+  if(!gymDragging) return;
+  const floor = document.getElementById('gym-floor');
+  const rect = floor.getBoundingClientRect();
+  const item = gymPlaced.find(p=>p.uid===gymDragging);
+  if(item){
+    const el = document.querySelector(`.gym-item[data-uid="${gymDragging}"]`);
+    if(el){ item.x = parseFloat(el.style.left); item.y = parseFloat(el.style.top); }
+  }
+  gymDragging = null;
+});
+
+document.getElementById('gym-floor').addEventListener('click', e=>{
+  if(gymDragging) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = e.clientX - rect.left - 15;
+  const y = e.clientY - rect.top - 15;
+  if(e.target === e.currentTarget || e.target.tagName==='DIV' && !e.target.classList.contains('gym-item')){
+    gymPlaceItem(Math.max(0,x), Math.max(0,y));
+  }
+});
+
+// ======================== INIT ========================
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderSignals();
+  renderChronoPresets();
+  renderChronoRecord();
+  renderZones();
+  renderTramePresets();
+  renderVisualizer();
+  renderGymInventory();
+  chronoSet(45);
+  trameSet(45);
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>
