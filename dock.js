@@ -195,6 +195,7 @@
   .zts-postit-fullscreen-text{font-size:8vw;}\
   .zts-teams-result{grid-template-columns:1fr;}\
 }\
+@media(max-width:480px){.zts-dock-btn{width:40px!important;height:40px!important;font-size:1rem!important;}.zts-dock{right:8px!important;}}\
 ';
     document.head.appendChild(s);
   }

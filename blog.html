@@ -73,9 +73,9 @@
   <!-- Header avec logo Mr Root -->
   <header class="bg-gradient-to-r from-[#1a237e] via-[#283593] to-[#1a237e] py-5 px-4">
     <div class="max-w-6xl mx-auto flex items-center justify-center gap-6">
-      <img src="mr-root-bureau.png" alt="Mr Root au bureau" class="h-24 md:h-32 w-auto drop-shadow-lg">
+      <img src="mr-root-bureau.png" alt="Mr Root au bureau" class="h-16 md:h-24 lg:h-32 w-auto drop-shadow-lg">
       <div class="text-center">
-        <h1 class="font-lucky text-3xl md:text-5xl text-white drop-shadow-lg tracking-wide">BLOG EPS</h1>
+        <h1 class="font-lucky text-2xl md:text-3xl lg:text-5xl text-white drop-shadow-lg tracking-wide">BLOG EPS</h1>
         <p class="font-hand text-lg md:text-xl text-cyan/90 mt-1">Zone Total Sport</p>
       </div>
     </div>
@@ -197,7 +197,7 @@ function renderCards(){
     if(!visible)return;
     count++;
     const imgHTML=p.img
-      ?`<img src="${p.img}" alt="${p.title}" class="w-full h-52 object-cover" loading="lazy">`
+      ?`<img src="${p.img}" alt="${p.title}" class="w-full h-40 sm:h-52 object-cover" loading="lazy">`
       :`<div class="w-full h-52 flex items-center justify-center text-6xl" style="background:linear-gradient(135deg,${p.color}33,${p.color}88)">${p.emoji}</div>`;
     grid.insertAdjacentHTML('beforeend',`
       <article class="card bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100" data-i="${i}">
