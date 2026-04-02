@@ -2156,49 +2156,81 @@
         </div>
     </div>
 
-    <!-- ========== GATE POPUP (Inscription pour accès complet) ========== -->
-    <div class="gate-overlay" id="gateOverlay">
-        <div class="gate-box" id="gateBox">
-            <button onclick="closeGatePopup()" class="gate-close">X</button>
+    <!-- ========== GATE POPUP (Inscription — SUPER ATTRAYANT) ========== -->
+    <div class="gate-overlay" id="gateOverlay" style="background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
+        <div class="gate-box" id="gateBox" style="max-width:560px;border:none;box-shadow:0 0 60px rgba(0,229,255,0.3),0 0 120px rgba(255,42,122,0.15);border-radius:28px;transform:rotate(0deg);overflow:hidden">
 
-            <!-- Header cyan -->
-            <div class="gate-header">
-                <div style="font-size:3rem;margin-bottom:8px;filter:drop-shadow(2px 2px 0 rgba(0,0,0,0.2))">🔓</div>
-                <h2 style="font-family:'Boogaloo',cursive;font-size:1.9rem;color:#fff;margin:0;text-shadow:2px 2px 0 rgba(0,0,0,0.15)" data-i18n="gateTitle">Accède à TOUT le contenu!</h2>
-                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.85);font-size:1rem;margin-top:4px" data-i18n="gateDesc">Inscris-toi gratuitement pour débloquer la Zone au complet.</p>
-            </div>
+            <!-- GYMNASE BACKGROUND + OVERLAY -->
+            <div style="position:absolute;inset:0;background:url('gym-bg.jpg') center/cover;opacity:0.25;z-index:0;border-radius:28px"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,229,255,0.15),rgba(15,15,46,0.95));z-index:1;border-radius:28px"></div>
 
-            <!-- Body -->
-            <div class="gate-body">
-                <div style="margin-bottom:18px">
-                    <div class="gate-feature">
-                        <span style="font-size:1.5rem">🎮</span>
-                        <span class="font-baloo text-sm text-dark" data-i18n="gateFeat1"><strong>+500 jeux</strong> avec fiches et règles complètes</span>
+            <!-- FLOATING EMOJIS -->
+            <div style="position:absolute;top:8%;left:6%;font-size:2rem;z-index:2;animation:float1 3s ease-in-out infinite;opacity:0.6">⚽</div>
+            <div style="position:absolute;top:12%;right:8%;font-size:1.8rem;z-index:2;animation:float2 4s ease-in-out infinite;opacity:0.5">🏀</div>
+            <div style="position:absolute;bottom:15%;left:10%;font-size:1.6rem;z-index:2;animation:float1 3.5s ease-in-out infinite;opacity:0.4">🏐</div>
+            <div style="position:absolute;bottom:10%;right:6%;font-size:1.5rem;z-index:2;animation:float2 2.5s ease-in-out infinite;opacity:0.5">🎯</div>
+
+            <!-- CONTENT (z-index above bg) -->
+            <div style="position:relative;z-index:3;padding:0">
+
+                <!-- MASCOTTE + TITRE -->
+                <div style="text-align:center;padding:32px 24px 16px">
+                    <img src="bucheron-basketball.png" alt="Mr. Root" style="height:100px;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.5));margin-bottom:12px">
+                    <h2 style="font-family:'Luckiest Guy',cursive;font-size:2.2rem;color:#fff;margin:0;text-shadow:3px 3px 0 rgba(0,0,0,0.3);line-height:1.1" data-i18n="gateTitle">REJOINS LA ZONE!</h2>
+                    <p style="font-family:'Patrick Hand',cursive;color:#00E5FF;font-size:1.15rem;margin-top:6px" data-i18n="gateDesc">+1000 enseignants nous font déjà confiance</p>
+                </div>
+
+                <!-- FEATURE CARDS COLORÉES -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 16px">
+                    <div class="gate-feature" style="background:linear-gradient(135deg,#00E5FF,#0097A7);border:3px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;text-align:center;color:#fff">
+                        <div style="font-size:2rem;margin-bottom:4px">🎮</div>
+                        <div style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;line-height:1">500+</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat1">Jeux avec fiches</div>
                     </div>
-                    <div class="gate-feature">
-                        <span style="font-size:1.5rem">🤖</span>
-                        <span class="font-baloo text-sm text-dark" data-i18n="gateFeat2"><strong>Générateur IA</strong> — crée des jeux en 10 secondes</span>
+                    <div class="gate-feature" style="background:linear-gradient(135deg,#FF2A7A,#C2185B);border:3px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;text-align:center;color:#fff">
+                        <div style="font-size:2rem;margin-bottom:4px">🤖</div>
+                        <div style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;line-height:1">IA</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat2">Générateur de jeux</div>
                     </div>
-                    <div class="gate-feature">
-                        <span style="font-size:1.5rem">📋</span>
-                        <span class="font-baloo text-sm text-dark" data-i18n="gateFeat3"><strong>SAÉ complètes</strong> prêtes à utiliser demain</span>
+                    <div class="gate-feature" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);border:3px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;text-align:center;color:#fff">
+                        <div style="font-size:2rem;margin-bottom:4px">📋</div>
+                        <div style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;line-height:1">128</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat3">SAÉ complètes</div>
                     </div>
-                    <div class="gate-feature">
-                        <span style="font-size:1.5rem">🆓</span>
-                        <span class="font-baloo text-sm text-dark" data-i18n="gateFeat4"><strong>100% gratuit</strong> — sans carte de crédit ni abonnement</span>
+                    <div class="gate-feature" style="background:linear-gradient(135deg,#FFD700,#F59E0B);border:3px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;text-align:center;color:#1a1a2e">
+                        <div style="font-size:2rem;margin-bottom:4px">🆓</div>
+                        <div style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;line-height:1">100%</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat4">Gratuit pour toujours</div>
                     </div>
                 </div>
 
-                <a href="#" onclick="event.preventDefault();window.ztsShowSignup()" class="gate-btn-main" data-i18n="gateBtn">
-                    <i data-lucide="user-plus" class="w-6 h-6"></i> INSCRIPTION GRATUITE
-                </a>
+                <!-- CTA BUTTON (GROS + GLOWING) -->
+                <div style="padding:0 20px 12px">
+                    <a href="#" onclick="event.preventDefault();window.ztsShowSignup()" class="gate-btn-main" style="background:linear-gradient(135deg,#FFD700,#FF8C00);border:4px solid #fff;box-shadow:0 0 30px rgba(255,215,0,0.5),6px 6px 0 rgba(0,0,0,0.3);font-family:'Luckiest Guy',cursive;font-size:1.4rem;border-radius:18px;padding:18px;color:#1a1a2e;letter-spacing:1px;animation:glow-pulse 2s ease-in-out infinite" data-i18n="gateBtn">
+                        <i data-lucide="zap" class="w-7 h-7"></i> INSCRIPTION GRATUITE
+                    </a>
+                </div>
 
-                <!-- Bouton "Continuer sans inscription" SUPPRIMÉ pour forcer l'inscription -->
+                <!-- TRUST BADGES -->
+                <div style="display:flex;justify-content:center;gap:16px;padding:0 20px 8px;flex-wrap:wrap">
+                    <span style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:4px">✅ Sans carte de crédit</span>
+                    <span style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:4px">🔒 Données protégées</span>
+                    <span style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(255,255,255,0.6);display:flex;align-items:center;gap:4px">⚡ Accès instantané</span>
+                </div>
 
-                <p style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(0,0,0,0.3);margin:0" data-i18n="gateFooter">Inscription gratuite et sans engagement. 100% gratuit!</p>
+                <!-- ALREADY MEMBER -->
+                <div style="text-align:center;padding:8px 20px 20px">
+                    <a href="#" onclick="event.preventDefault();window.ztsShowLogin()" style="font-family:'Patrick Hand',cursive;font-size:0.95rem;color:#00E5FF;text-decoration:underline;cursor:pointer" data-i18n="gateLogin">Déjà membre? Se connecter</a>
+                </div>
             </div>
         </div>
     </div>
+
+    <style>
+    @keyframes float1 { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-15px) rotate(10deg)} }
+    @keyframes float2 { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-12px) rotate(-8deg)} }
+    @keyframes glow-pulse { 0%,100%{box-shadow:0 0 20px rgba(255,215,0,0.4),6px 6px 0 rgba(0,0,0,0.3)} 50%{box-shadow:0 0 40px rgba(255,215,0,0.7),6px 6px 0 rgba(0,0,0,0.3)} }
+    </style>
 
     <!-- ========== PROFIL JOEY POPUP ========== -->
     <div id="profile-popup">
