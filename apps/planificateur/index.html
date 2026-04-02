@@ -87,9 +87,63 @@ body{font-family:'Schoolbell',cursive;font-size:1.15rem;min-height:100vh;overflo
   </div>
 </header>
 
-<!-- MR ROOT HERO -->
-<div class="text-center py-4 no-print">
-  <img src="mr-root-thumbup.png" alt="Mr. Root" class="mx-auto drop-shadow-2xl" style="height:180px;max-height:25vh;filter:drop-shadow(4px 4px 8px rgba(0,0,0,0.4))">
+<!-- HERO LANDING / PRESENTATION -->
+<div class="no-print max-w-5xl mx-auto px-4 pt-6 pb-4" id="heroLanding">
+  <div class="detail-glass rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center gap-6">
+    <!-- Mascotte -->
+    <img src="mr-root-thumbup.png" alt="Mr. Root" class="w-32 sm:w-40 md:w-52 drop-shadow-2xl flex-shrink-0" style="filter:drop-shadow(4px 4px 12px rgba(0,0,0,0.35))">
+    <!-- Texte -->
+    <div class="text-center md:text-left">
+      <h2 class="font-lucky text-2xl sm:text-3xl md:text-4xl text-gray-900 mb-3 leading-tight" data-hero="title">TON PLANIFICATEUR EPS<br>SUR MESURE!</h2>
+      <p class="font-schoolbell text-base sm:text-lg text-gray-700 mb-4 leading-relaxed" data-hero="desc">Planifie ton annee scolaire complete en quelques clics. Organise tes periodes, tes groupes, tes activites, tes gardes et tes extras — le tout sauvegarde automatiquement et exportable en PDF, Excel et CSV.</p>
+      <div class="flex flex-wrap gap-3 justify-center md:justify-start mb-4">
+        <span class="inline-flex items-center gap-1 bg-cyan-100 text-cyan-800 px-3 py-1 rounded-full font-bangers text-sm">📅 Aout → Juin</span>
+        <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-bangers text-sm">⚙️ 3 a 7 periodes</span>
+        <span class="inline-flex items-center gap-1 bg-pink-100 text-pink-800 px-3 py-1 rounded-full font-bangers text-sm">🌍 4 langues</span>
+        <span class="inline-flex items-center gap-1 bg-violet-100 text-violet-800 px-3 py-1 rounded-full font-bangers text-sm">📤 PDF / Excel / CSV</span>
+      </div>
+      <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+        <button class="btn-pill btn-cyan text-base px-6 py-2" onclick="document.getElementById('heroLanding').style.display='none'">🚀 <span data-hero="start">Commencer!</span></button>
+        <button class="btn-pill btn-yellow text-base px-6 py-2" onclick="toggleGuide()">📖 <span data-hero="guide">Comment utiliser</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUIDE D'UTILISATION (collapsible) -->
+  <div id="guideSection" class="hidden mt-4 detail-glass rounded-3xl p-6 sm:p-8">
+    <h3 class="font-lucky text-2xl sm:text-3xl text-gray-900 mb-4" data-hero="guideTitle">📖 COMMENT UTILISER LE PLANIFICATEUR</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-schoolbell text-base text-gray-800">
+      <div class="bg-cyan-50 rounded-2xl p-4 border-2 border-cyan-200">
+        <h4 class="font-lucky text-xl text-cyan-700 mb-2">1. CONFIGURE TES PERIODES</h4>
+        <p>Clique sur une case du calendrier → le modal s'ouvre → clique sur ⚙️ Configuration → choisis le nombre de periodes (3 a 7), les heures, les recreations et le diner → "Appliquer a tout le calendrier".</p>
+      </div>
+      <div class="bg-yellow-50 rounded-2xl p-4 border-2 border-yellow-200">
+        <h4 class="font-lucky text-xl text-yellow-700 mb-2">2. PLANIFIE CHAQUE JOUR</h4>
+        <p>Clique sur un jour → remplis les groupes (ex: 204B), les activites (ex: Basketball) et les details pour chaque periode. Ajoute tes gardes de transition entre les periodes.</p>
+      </div>
+      <div class="bg-pink-50 rounded-2xl p-4 border-2 border-pink-200">
+        <h4 class="font-lucky text-xl text-pink-700 mb-2">3. AJOUTE CONGES & EVENTS</h4>
+        <p>Utilise les boutons en bas du calendrier pour ajouter des conges (sur plusieurs jours!), des journees pedagogiques, des sorties scolaires. Les conges feries du Quebec sont deja la!</p>
+      </div>
+      <div class="bg-violet-50 rounded-2xl p-4 border-2 border-violet-200">
+        <h4 class="font-lucky text-xl text-violet-700 mb-2">4. EXPORTE & IMPRIME</h4>
+        <p>Exporte ta planification en PDF, Excel ou CSV — par jour ou par mois complet. Imprime pour afficher au gymnase ou partager avec la direction!</p>
+      </div>
+    </div>
+    <div class="mt-4 bg-gray-100 rounded-2xl p-4 border-2 border-gray-300">
+      <h4 class="font-lucky text-xl text-gray-700 mb-2">💡 ASTUCES</h4>
+      <ul class="font-schoolbell text-base text-gray-700 list-disc pl-5 space-y-1">
+        <li>Les <strong>points colores</strong> (vert/bleu/violet) apparaissent quand tu ecris "cycle 1", "c2", etc. dans les groupes</li>
+        <li>Le bouton <strong>"📋 Planif"</strong> apparait dans la case quand tu as sauvegarde une planification</li>
+        <li>Tout est <strong>sauvegarde automatiquement</strong> dans ton navigateur (localStorage)</li>
+        <li><strong>4 langues</strong> disponibles : francais, anglais, espagnol et chinois mandarin</li>
+        <li>Ajoute tes <strong>extras du jour</strong> : parascolaire, comite, et autre dans le modal</li>
+      </ul>
+    </div>
+    <div class="text-center mt-4">
+      <button class="btn-pill btn-cyan text-lg px-8 py-3" onclick="document.getElementById('heroLanding').style.display='none'">🚀 <span data-hero="start">Commencer!</span></button>
+    </div>
+  </div>
 </div>
 
 <!-- CONTROLS -->
@@ -309,6 +363,10 @@ function saveLang(){localStorage.setItem('zts-planif-lang',lang);}
 function dateKey(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
 
 // ===================== INIT =====================
+function toggleGuide(){
+  document.getElementById('guideSection').classList.toggle('hidden');
+}
+
 function init(){
   const now=new Date();
   curYear=now.getFullYear();curMonth=now.getMonth();
