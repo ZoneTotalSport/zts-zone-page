@@ -219,6 +219,11 @@ let lang = localStorage.getItem('zts-planif-lang') || 'fr';
 let curYear, curMonth;
 let data = JSON.parse(localStorage.getItem('zts-planificateur') || '{}');
 let config = JSON.parse(localStorage.getItem('zts-planif-config') || 'null') || defaultConfig();
+// Migrate old config format
+if(!config.recess1 || !config.recess2 || !config.lunch || !config.periods || !config.nbPeriods){
+  config = defaultConfig();
+  localStorage.setItem('zts-planif-config',JSON.stringify(config));
+}
 let selectedDate = null;
 
 function defaultConfig(){
