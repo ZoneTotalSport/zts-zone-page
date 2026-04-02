@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Planificateur Pedagogique — Zone Total Sport</title>
-<meta name="description" content="Planificateur pedagogique pour enseignants EPS au Quebec. Calendrier scolaire, cycles, planifications et notes.">
+<title>Planificateur Pédagogique — Zone Total Sport</title>
+<meta name="description" content="Planificateur pédagogique pour enseignants EPS au Québec. Calendrier scolaire, cycles, planifications et notes.">
 <link rel="icon" type="image/png" href="/logo-zts.png">
 <link rel="apple-touch-icon" href="/logo-zts.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,49 +17,49 @@ tailwind.config={theme:{extend:{colors:{cyan:{electric:'#00E5FF'},yellow:{sun:'#
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
-body{margin:0;font-family:'Schoolbell',cursive;font-size:1.2rem;min-height:100vh}
-.bg-gym{position:fixed;inset:0;z-index:-1;background:url('/gym-bg.jpg') center/cover no-repeat}
-.cell-glass{background:rgba(15,15,50,0.8);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);color:#fff}
-.detail-glass{background:rgba(255,255,255,0.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.cell-conge{background:rgba(0,180,255,0.6)!important}
-.cell-ped{background:rgba(255,215,0,0.5)!important;color:#333!important}
-.cell-ped .cell-input{color:#333!important}
-.cell-tournoi{background:rgba(255,42,122,0.5)!important}
-.cell-input{background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,0.3);font-family:'Schoolbell',cursive;font-size:0.85rem;width:100%;outline:none;padding:1px 2px;color:rgba(255,255,255,0.9)}
-.cell-input:focus{border-bottom-color:#00E5FF}
-.cell-input::placeholder{color:rgba(255,255,255,0.4);font-style:italic}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Schoolbell',cursive;font-size:1.1rem;min-height:100vh}
+.bg-gym{position:fixed;inset:0;z-index:-1;background:url('/gym-bg.jpg') center/cover no-repeat fixed}
 .header-gradient{background:linear-gradient(135deg,#00E5FF,#00B8D4)}
-.lang-pill{font-family:'Fredoka One',cursive;padding:2px 10px;border-radius:9999px;cursor:pointer;font-size:.85rem;background:rgba(255,255,255,0.35);color:#fff;transition:all .2s}
+.cell-glass{background:rgba(15,15,50,0.8);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);color:#fff;transition:all .2s}
+.cell-glass:hover{background:rgba(15,15,50,0.92);transform:scale(1.02);z-index:2}
+.day-header{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff;font-family:'Fredoka One',cursive;text-align:center;padding:6px 0;font-size:.85rem}
+.week-col{background:rgba(0,229,255,0.5);font-family:'Fredoka One',cursive;font-size:.75rem;display:flex;align-items:center;justify-content:center;min-width:32px;border-radius:6px 0 0 6px;color:#fff}
+.lang-pill{font-family:'Fredoka One',cursive;padding:2px 10px;border-radius:9999px;cursor:pointer;font-size:.8rem;background:rgba(255,255,255,0.35);color:#fff;transition:all .2s;border:none}
 .lang-pill.active{background:#fff;color:#00B8D4}
-.btn-pill{font-family:'Fredoka One',cursive;border-radius:9999px;padding:6px 18px;font-size:.9rem;cursor:pointer;transition:all .15s;border:none}
+.btn-pill{font-family:'Fredoka One',cursive;border-radius:9999px;padding:6px 18px;font-size:.85rem;cursor:pointer;transition:all .15s;border:none}
 .btn-cyan{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff}
 .btn-yellow{background:linear-gradient(135deg,#FFD700,#FFC107);color:#333}
 .btn-pink{background:linear-gradient(135deg,#FF2A7A,#E91E63);color:#fff}
 .btn-violet{background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff}
-.week-col{background:rgba(0,229,255,0.5);font-family:'Fredoka One',cursive;font-size:.8rem;display:flex;align-items:center;justify-content:center;min-width:36px;border-radius:6px 0 0 6px}
-.day-header{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff;font-family:'Fredoka One',cursive;text-align:center;padding:6px 0;font-size:.9rem;border-radius:6px 6px 0 0}
-.badge{display:inline-flex;align-items:center;gap:2px;font-size:.7rem;padding:1px 6px;border-radius:9999px;font-family:'Fredoka One',cursive;cursor:default}
+.btn-pill:hover{opacity:.85;transform:scale(1.04)}
+.cycle-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:.7rem;padding:2px 8px;border-radius:9999px;font-family:'Fredoka One',cursive;cursor:default;white-space:nowrap}
 .badge-ped{background:#FFD700;color:#333}
 .badge-conge{background:#00B8D4;color:#fff}
 .badge-tournoi{background:#FF2A7A;color:#fff}
 .badge-photo{background:#8B5CF6;color:#fff}
 .badge-sortie{background:#10B981;color:#fff}
 .badge-custom{background:#6B7280;color:#fff}
-.cycle-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.detail-glass{background:rgba(255,255,255,0.92);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:16px;border:2px solid rgba(0,229,255,0.3)}
 .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.6);display:flex;align-items:start;justify-content:center;overflow-y:auto;padding:20px 10px}
-.modal-content{width:100%;max-width:800px;border-radius:16px;overflow:hidden;margin:auto}
-.period-cyan{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff;font-family:'Luckiest Guy',cursive;border-radius:12px;min-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;text-align:center}
+.modal-content{width:100%;max-width:820px;border-radius:16px;overflow:hidden;margin:20px auto;background:#fff}
+.period-cyan{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff;font-family:'Luckiest Guy',cursive;border-radius:12px;min-width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;text-align:center}
 .period-yellow{background:linear-gradient(135deg,#FFD700,#FFC107);border:2px solid #333;border-radius:12px;padding:10px 14px;flex:1}
 .period-input{background:#fff;border:1.5px solid #ccc;border-radius:8px;padding:4px 8px;font-family:'Schoolbell',cursive;font-size:1rem;width:100%;outline:none}
-.period-input:focus{border-color:#00E5FF}
-.separator{font-family:'Schoolbell',cursive;font-style:italic;text-align:center;padding:6px 0;font-size:1.1rem;color:#555;background:rgba(255,255,255,0.5);border-radius:8px;margin:4px 0}
-.config-panel{background:rgba(255,255,255,0.92);border-radius:12px;margin:8px;padding:12px;border:2px dashed #00B8D4}
+.period-input:focus{border-color:#00E5FF;box-shadow:0 0 0 2px rgba(0,229,255,0.2)}
+.separator{font-family:'Schoolbell',cursive;font-style:italic;text-align:center;padding:6px 0;font-size:1.05rem;color:#555;background:rgba(0,229,255,0.1);border-radius:8px;margin:4px 0}
+.config-panel{background:rgba(255,255,255,0.95);border-radius:12px;margin:8px;padding:12px;border:2px dashed #00B8D4}
 .config-toggle{cursor:pointer;font-family:'Fredoka One',cursive;font-size:1rem;color:#00B8D4;background:none;border:none;padding:8px 16px;width:100%;text-align:left}
 .config-toggle:hover{color:#FF2A7A}
-.config-row{display:flex;gap:8px;align-items:center;margin:4px 0;flex-wrap:wrap}
-.config-row label{font-family:'Fredoka One',cursive;font-size:.85rem;color:#333;min-width:90px}
-.config-row input,.config-row select{font-family:'Schoolbell',cursive;border:1.5px solid #ccc;border-radius:8px;padding:3px 6px;font-size:.9rem}
+.config-row{display:flex;gap:8px;align-items:center;margin:6px 0;flex-wrap:wrap}
+.config-row label{font-family:'Fredoka One',cursive;font-size:.85rem;color:#333;min-width:100px}
+.config-row input,.config-row select{font-family:'Schoolbell',cursive;border:1.5px solid #ccc;border-radius:8px;padding:3px 8px;font-size:.9rem}
 .config-row input:focus,.config-row select:focus{border-color:#00E5FF;outline:none}
+.planif-btn{font-family:'Fredoka One',cursive;font-size:.6rem;background:rgba(0,229,255,0.8);color:#fff;border:none;border-radius:6px;padding:1px 6px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.planif-btn:hover{background:#00E5FF;transform:scale(1.1)}
+.cell-today{box-shadow:0 0 0 3px #00E5FF,0 0 12px rgba(0,229,255,0.4)}
+@media(max-width:640px){.cal-cell{min-height:52px!important;padding:3px!important}.cal-cell .day-num{font-size:1rem!important}.planif-btn{font-size:.55rem!important}}
 @media print{.no-print{display:none!important}.print-only{display:block!important}body{background:#fff!important}.bg-gym{display:none}}
 </style>
 </head>
@@ -70,24 +70,24 @@ body{margin:0;font-family:'Schoolbell',cursive;font-size:1.2rem;min-height:100vh
 <header class="header-gradient sticky top-0 z-50 shadow-lg no-print">
   <div class="max-w-7xl mx-auto flex items-center justify-between px-3 py-2">
     <div class="flex items-center gap-2">
-      <img src="/bucheron-basketball.png" alt="Mascotte" class="h-12 sm:h-16">
+      <img src="/bucheron-basketball.png" alt="Mascotte" class="h-12 sm:h-16 drop-shadow-lg">
       <span class="text-white font-bangers text-sm sm:text-base hidden sm:inline drop-shadow">Zone Total Sport</span>
     </div>
-    <h1 class="font-bangers text-white text-lg sm:text-2xl md:text-3xl drop-shadow-lg text-center flex-1" id="headerTitle">PLANIFICATEUR PEDAGOGIQUE</h1>
+    <h1 class="font-bangers text-white text-lg sm:text-2xl md:text-3xl drop-shadow-lg text-center flex-1" id="headerTitle">PLANIFICATEUR PÉDAGOGIQUE</h1>
     <div class="flex gap-1" id="langPills"></div>
   </div>
 </header>
 
 <!-- CONTROLS -->
 <div class="max-w-7xl mx-auto px-3 py-3 flex flex-wrap items-center gap-2 justify-center no-print">
-  <button class="btn-pill btn-cyan" onclick="changeMonth(-1)" id="btnPrev">&lt;</button>
+  <button class="btn-pill btn-cyan" onclick="changeMonth(-1)">&lt;</button>
   <select id="monthSelect" class="btn-pill bg-white text-gray-800 border font-fredoka text-sm" onchange="goToMonth(this.value)"></select>
-  <button class="btn-pill btn-cyan" onclick="changeMonth(1)" id="btnNext">&gt;</button>
+  <button class="btn-pill btn-cyan" onclick="changeMonth(1)">&gt;</button>
   <button class="btn-pill btn-yellow" onclick="goToday()" id="btnToday">Aujourd'hui</button>
 </div>
 
 <!-- MONTH TITLE -->
-<div class="text-center py-2">
+<div class="text-center py-1">
   <h2 id="monthTitle" class="font-bangers text-4xl sm:text-5xl md:text-6xl text-white drop-shadow-lg"></h2>
 </div>
 
@@ -97,637 +97,892 @@ body{margin:0;font-family:'Schoolbell',cursive;font-size:1.2rem;min-height:100vh
 </div>
 
 <!-- DETAIL PANEL -->
-<div id="detailPanel" class="max-w-7xl mx-auto px-3 pb-6 hidden no-print">
-  <div class="detail-glass rounded-2xl p-4 shadow-xl">
-    <h3 id="detailTitle" class="font-bangers text-2xl text-cyan-700 mb-3"></h3>
-    <div class="flex flex-wrap gap-2 mb-3" id="badgeButtons"></div>
-    <div id="badgeList" class="flex flex-wrap gap-1 mb-3"></div>
-    <textarea id="detailNotes" class="w-full h-24 p-3 rounded-xl border font-schoolbell text-base resize-y" placeholder="Notes..."></textarea>
-    <div class="flex flex-wrap gap-2 mt-3">
-      <button class="btn-pill btn-cyan" onclick="saveDetail()">&#128190; <span data-i18n="save">Sauvegarder</span></button>
-      <button class="btn-pill btn-yellow" onclick="printDay()">&#128424; <span data-i18n="print">Imprimer</span></button>
-      <button class="btn-pill btn-pink" onclick="exportPDF()">PDF</button>
-      <button class="btn-pill btn-violet" onclick="exportXLS()">Excel</button>
-      <button class="btn-pill" style="background:linear-gradient(135deg,#10B981,#059669);color:#fff" onclick="exportCSV()">CSV</button>
-    </div>
-  </div>
-</div>
+<div id="detailPanel" class="max-w-7xl mx-auto px-3 pb-6 hidden no-print"></div>
 
 <!-- EXPORT BAR -->
-<div class="max-w-7xl mx-auto px-3 pb-8 no-print">
-  <div class="detail-glass rounded-2xl p-3 text-center shadow-lg">
-    <span class="font-fredoka text-gray-700 mr-2" data-i18n="exportMonth">Exporter le mois complet</span>
-    <button class="btn-pill btn-pink" onclick="exportMonthPDF()">PDF</button>
-    <button class="btn-pill btn-violet" onclick="exportMonthXLS()">XLS</button>
-    <button class="btn-pill btn-cyan" onclick="exportMonthCSV()">CSV</button>
+<div id="exportBar" class="max-w-7xl mx-auto px-3 pb-8 no-print">
+  <div class="detail-glass p-4 flex flex-wrap items-center gap-3 justify-center">
+    <span class="font-fredoka text-gray-700 text-sm" id="exportLabel">Exporter le mois complet :</span>
+    <button class="btn-pill btn-pink text-sm" onclick="exportMonthPDF()">PDF</button>
+    <button class="btn-pill btn-violet text-sm" onclick="exportMonthXLS()">Excel</button>
+    <button class="btn-pill btn-cyan text-sm" onclick="exportMonthCSV()">CSV</button>
   </div>
 </div>
 
-<!-- DAILY MODAL -->
-<div id="dailyModal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
-  <div class="modal-content detail-glass shadow-2xl">
-    <div id="modalHeader" class="p-4 text-center" style="background:linear-gradient(135deg,#FFD700,#FFC107)">
-      <h2 id="modalDayName" class="font-bangers text-3xl sm:text-4xl text-gray-800 drop-shadow"></h2>
-      <p id="modalDate" class="font-schoolbell text-lg text-gray-700"></p>
-    </div>
-    <div id="modalPeriods" class="p-4 flex flex-col gap-2"></div>
-    <div class="p-4 flex flex-wrap gap-2 justify-center border-t">
-      <button class="btn-pill btn-cyan" onclick="saveModal()">&#128190; <span data-i18n="save">Sauvegarder</span></button>
-      <button class="btn-pill btn-yellow" onclick="printModal()">&#128424; <span data-i18n="printDay">Imprimer cette journee</span></button>
-      <button class="btn-pill btn-pink" onclick="closeModal()">&#10005; <span data-i18n="close">Fermer</span></button>
-    </div>
-  </div>
+<!-- MODAL -->
+<div id="modalOverlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content shadow-2xl" id="modalContent"></div>
 </div>
 
 <script>
-/* ====== i18n ====== */
-const T={
-fr:{
-  headerTitle:'PLANIFICATEUR PEDAGOGIQUE',today:'Aujourd\'hui',
-  days:['Lundi','Mardi','Mercredi','Jeudi','Vendredi'],
-  months:['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'],
-  week:'Sem',day:'Jour',groups:'Groupes',planif:'Planif',period:'Periode',
-  schedule:'Horaire',group:'Groupe',activity:'Activite',details:'Details',
-  recess:'Recreation',lunch:'Diner',free:'LIBRE',
-  save:'Sauvegarder',print:'Imprimer',printDay:'Imprimer cette journee',close:'Fermer',
-  exportMonth:'Exporter le mois complet',notes:'Notes...',
-  ped:'Pedagogique',conge:'Conge',tournoi:'Tournoi',photo:'Photo',sortie:'Sortie',custom:'Personnalise',
-  addBadge:'Ajouter un badge',promptCustom:'Nom du badge personnalise:',
-  defHoraires:['8:10 a 9:10','9:10 a 10:10','10:30 a 11:30','12:45 a 13:45','14:05 a 15:05'],
-  config:'Configuration',nbPeriodes:'Nombre de periodes',hours:'Heures',
-  recessAfter:'Recreation apres P',diner:'Diner',parascolaire:'Parascolaire',
-  applyAll:'Appliquer a tout le calendrier',start:'Debut',end:'Fin',
-  configApplied:'Configuration appliquee a tout le calendrier!',afterSchool:'Parascolaire'
-},
-en:{
-  headerTitle:'TEACHING PLANNER',today:'Today',
-  days:['Monday','Tuesday','Wednesday','Thursday','Friday'],
-  months:['January','February','March','April','May','June','July','August','September','October','November','December'],
-  week:'Wk',day:'Day',groups:'Groups',planif:'Plan',period:'Period',
-  schedule:'Schedule',group:'Group',activity:'Activity',details:'Details',
-  recess:'Recess',lunch:'Lunch',free:'FREE',
-  save:'Save',print:'Print',printDay:'Print this day',close:'Close',
-  exportMonth:'Export full month',notes:'Notes...',
-  ped:'Pedagogical',conge:'Holiday',tournoi:'Tournament',photo:'Photo',sortie:'Field Trip',custom:'Custom',
-  addBadge:'Add badge',promptCustom:'Custom badge name:',
-  defHoraires:['8:10 to 9:10','9:10 to 10:10','10:30 to 11:30','12:45 to 1:45','2:05 to 3:05'],
-  config:'Configuration',nbPeriodes:'Number of periods',hours:'Hours',
-  recessAfter:'Recess after P',diner:'Lunch',parascolaire:'After-school',
-  applyAll:'Apply to all calendar',start:'Start',end:'End',
-  configApplied:'Configuration applied to all calendar!',afterSchool:'After-school'
-},
-es:{
-  headerTitle:'PLANIFICADOR PEDAGOGICO',today:'Hoy',
-  days:['Lunes','Martes','Miercoles','Jueves','Viernes'],
-  months:['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
-  week:'Sem',day:'Dia',groups:'Grupos',planif:'Plan',period:'Periodo',
-  schedule:'Horario',group:'Grupo',activity:'Actividad',details:'Detalles',
-  recess:'Recreo',lunch:'Almuerzo',free:'LIBRE',
-  save:'Guardar',print:'Imprimir',printDay:'Imprimir este dia',close:'Cerrar',
-  exportMonth:'Exportar mes completo',notes:'Notas...',
-  ped:'Pedagogico',conge:'Feriado',tournoi:'Torneo',photo:'Foto',sortie:'Salida',custom:'Personalizado',
-  addBadge:'Agregar etiqueta',promptCustom:'Nombre de etiqueta personalizada:',
-  defHoraires:['8:10 a 9:10','9:10 a 10:10','10:30 a 11:30','12:45 a 13:45','14:05 a 15:05'],
-  config:'Configuracion',nbPeriodes:'Numero de periodos',hours:'Horarios',
-  recessAfter:'Recreo despues de P',diner:'Almuerzo',parascolaire:'Extracurricular',
-  applyAll:'Aplicar a todo el calendario',start:'Inicio',end:'Fin',
-  configApplied:'Configuracion aplicada a todo el calendario!',afterSchool:'Extracurricular'
-},
-zh:{
-  headerTitle:'教学计划器',today:'今天',
-  days:['周一','周二','周三','周四','周五'],
-  months:['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
-  week:'周',day:'天',groups:'班级',planif:'计划',period:'课时',
-  schedule:'时间',group:'班级',activity:'活动',details:'详情',
-  recess:'课间休息',lunch:'午餐',free:'空闲',
-  save:'保存',print:'打印',printDay:'打印当天',close:'关闭',
-  exportMonth:'导出整月',notes:'备注...',
-  ped:'教研',conge:'假期',tournoi:'比赛',photo:'照片',sortie:'外出',custom:'自定义',
-  addBadge:'添加标签',promptCustom:'自定义标签名称:',
-  defHoraires:['8:10-9:10','9:10-10:10','10:30-11:30','12:45-13:45','14:05-15:05'],
-  config:'设置',nbPeriodes:'课时数',hours:'时间',
-  recessAfter:'P后休息',diner:'午餐',parascolaire:'课后活动',
-  applyAll:'应用到所有日历',start:'开始',end:'结束',
-  configApplied:'设置已应用到所有日历!',afterSchool:'课后活动'
-}
+/* ============================================================
+   i18n
+   ============================================================ */
+const T = {
+  fr: {
+    headerTitle: 'PLANIFICATEUR PÉDAGOGIQUE',
+    today: "Aujourd'hui",
+    months: ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'],
+    days: ['LUN','MAR','MER','JEU','VEN','SAM','DIM'],
+    daysFull: ['LUNDI','MARDI','MERCREDI','JEUDI','VENDREDI','SAMEDI','DIMANCHE'],
+    week: 'Sem',
+    planif: 'Planif',
+    period: 'PÉRIODE',
+    group: 'Groupe',
+    activity: 'Activité',
+    details: 'Détails',
+    save: 'Sauvegarder',
+    print: 'Imprimer',
+    close: 'Fermer',
+    config: 'Configuration horaire',
+    nbPeriods: 'Périodes',
+    start: 'Début',
+    end: 'Fin',
+    recess: 'Récréation',
+    lunch: 'Dîner',
+    afterSchool: 'Parascolaire',
+    applyAll: 'APPLIQUER À TOUT LE CALENDRIER',
+    after: 'après P',
+    tags: {Ped:'Pédagogique',Conge:'Congé',Tournoi:'Tournoi',Photo:'Photo',Sortie:'Sortie',Custom:'Personnalisé'},
+    tagEmojis: {Ped:'📚',Conge:'🏖️',Tournoi:'🏆',Photo:'📸',Sortie:'🚌',Custom:'➕'},
+    notes: 'Notes',
+    exportMonth: 'Exporter le mois complet :',
+    addTag: 'Ajouter un badge :',
+    detailTitle: 'Détails du jour',
+    pdf: 'PDF', excel: 'Excel', csv: 'CSV'
+  },
+  en: {
+    headerTitle: 'PEDAGOGICAL PLANNER',
+    today: 'Today',
+    months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    days: ['MON','TUE','WED','THU','FRI','SAT','SUN'],
+    daysFull: ['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'],
+    week: 'Wk',
+    planif: 'Plan',
+    period: 'PERIOD',
+    group: 'Group',
+    activity: 'Activity',
+    details: 'Details',
+    save: 'Save',
+    print: 'Print',
+    close: 'Close',
+    config: 'Schedule configuration',
+    nbPeriods: 'Periods',
+    start: 'Start',
+    end: 'End',
+    recess: 'Recess',
+    lunch: 'Lunch',
+    afterSchool: 'After school',
+    applyAll: 'APPLY TO WHOLE CALENDAR',
+    after: 'after P',
+    tags: {Ped:'Pedagogical',Conge:'Day off',Tournoi:'Tournament',Photo:'Photo',Sortie:'Field trip',Custom:'Custom'},
+    tagEmojis: {Ped:'📚',Conge:'🏖️',Tournoi:'🏆',Photo:'📸',Sortie:'🚌',Custom:'➕'},
+    notes: 'Notes',
+    exportMonth: 'Export full month:',
+    addTag: 'Add badge:',
+    detailTitle: 'Day details',
+    pdf: 'PDF', excel: 'Excel', csv: 'CSV'
+  },
+  es: {
+    headerTitle: 'PLANIFICADOR PEDAGÓGICO',
+    today: 'Hoy',
+    months: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+    days: ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'],
+    daysFull: ['LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO','DOMINGO'],
+    week: 'Sem',
+    planif: 'Plan',
+    period: 'PERÍODO',
+    group: 'Grupo',
+    activity: 'Actividad',
+    details: 'Detalles',
+    save: 'Guardar',
+    print: 'Imprimir',
+    close: 'Cerrar',
+    config: 'Configuración horaria',
+    nbPeriods: 'Períodos',
+    start: 'Inicio',
+    end: 'Fin',
+    recess: 'Recreo',
+    lunch: 'Almuerzo',
+    afterSchool: 'Extraescolar',
+    applyAll: 'APLICAR A TODO EL CALENDARIO',
+    after: 'después P',
+    tags: {Ped:'Pedagógico',Conge:'Feriado',Tournoi:'Torneo',Photo:'Foto',Sortie:'Salida',Custom:'Personalizado'},
+    tagEmojis: {Ped:'📚',Conge:'🏖️',Tournoi:'🏆',Photo:'📸',Sortie:'🚌',Custom:'➕'},
+    notes: 'Notas',
+    exportMonth: 'Exportar mes completo:',
+    addTag: 'Agregar insignia:',
+    detailTitle: 'Detalles del día',
+    pdf: 'PDF', excel: 'Excel', csv: 'CSV'
+  },
+  zh: {
+    headerTitle: '教学计划器',
+    today: '今天',
+    months: ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
+    days: ['周一','周二','周三','周四','周五','周六','周日'],
+    daysFull: ['星期一','星期二','星期三','星期四','星期五','星期六','星期日'],
+    week: '周',
+    planif: '计划',
+    period: '课时',
+    group: '组别',
+    activity: '活动',
+    details: '详情',
+    save: '保存',
+    print: '打印',
+    close: '关闭',
+    config: '时间配置',
+    nbPeriods: '课时数',
+    start: '开始',
+    end: '结束',
+    recess: '课间休息',
+    lunch: '午餐',
+    afterSchool: '课后活动',
+    applyAll: '应用到整个日历',
+    after: 'P之后',
+    tags: {Ped:'教学日',Conge:'假期',Tournoi:'锦标赛',Photo:'拍照日',Sortie:'外出',Custom:'自定义'},
+    tagEmojis: {Ped:'📚',Conge:'🏖️',Tournoi:'🏆',Photo:'📸',Sortie:'🚌',Custom:'➕'},
+    notes: '备注',
+    exportMonth: '导出整月：',
+    addTag: '添加标签：',
+    detailTitle: '日期详情',
+    pdf: 'PDF', excel: 'Excel', csv: 'CSV'
+  }
+};
+let lang = localStorage.getItem('zts-planif-lang') || 'fr';
+function t(key) { return T[lang]?.[key] || T.fr[key] || key; }
+
+/* ============================================================
+   HOLIDAYS (Quebec 2025-2026)
+   ============================================================ */
+const HOLIDAYS = {};
+function addH(dateStr, emoji, label, bg) { HOLIDAYS[dateStr] = { emoji, label, bg }; }
+addH('2025-09-01','💼','Fête du travail','rgba(100,180,255,0.6)');
+addH('2025-10-13','🍂','Action de grâce','rgba(255,165,0,0.6)');
+// Christmas break
+for (let d = 22; d <= 31; d++) addH(`2025-12-${String(d).padStart(2,'0')}`,'🎄','Vacances de Noël','rgba(200,50,50,0.45)');
+addH('2025-12-25','🎅','Noël','rgba(220,30,30,0.6)');
+addH('2026-01-01','🎉',"Jour de l'an",'rgba(218,165,32,0.6)');
+addH('2026-01-02','🎄','Vacances de Noël','rgba(200,50,50,0.45)');
+addH('2026-02-14','❤️','St-Valentin','rgba(255,105,180,0.5)');
+for (let d = 2; d <= 6; d++) addH(`2026-03-0${d}`,'🌴','Relâche','rgba(0,200,200,0.45)');
+addH('2026-04-03','🕊️','Vendredi saint','rgba(180,150,220,0.5)');
+addH('2026-04-06','🐰','Lundi de Pâques','rgba(255,235,130,0.55)');
+addH('2026-05-18','⚜️','Journée des patriotes','rgba(30,80,200,0.55)');
+addH('2026-06-24','⚜️','Saint-Jean-Baptiste','rgba(20,50,180,0.6)');
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentYear = 2025, currentMonth = 8; // August 2025
+let selectedDate = null;
+let data = JSON.parse(localStorage.getItem('zts-planificateur') || '{"cells":{}}');
+let config = JSON.parse(localStorage.getItem('zts-planif-config') || 'null') || {
+  nbPeriodes: 5,
+  horaires: [
+    {debut:'8:10',fin:'9:10'},{debut:'9:10',fin:'10:10'},{debut:'10:30',fin:'11:30'},
+    {debut:'12:45',fin:'13:45'},{debut:'14:05',fin:'15:05'}
+  ],
+  recreations: [{after:2,enabled:true},{after:4,enabled:true}],
+  diner: {after:3,enabled:true,debut:'11:30',fin:'12:45'},
+  parascolaire: {enabled:false,debut:'15:15',fin:'16:15'}
 };
 
-let lang='fr', currentYear=2025, currentMonth=8, selectedDate=null;
-const STORE_KEY='zts-planificateur';
-const CONFIG_KEY='zts-planif-config';
+function saveData() { localStorage.setItem('zts-planificateur', JSON.stringify(data)); }
+function saveConfig() { localStorage.setItem('zts-planif-config', JSON.stringify(config)); }
+function getCell(ds) { return data.cells[ds] || null; }
+function ensureCell(ds) { if (!data.cells[ds]) data.cells[ds] = {tags:[],notes:'',periodes:[]}; return data.cells[ds]; }
 
-function defaultConfig(){return{nbPeriodes:5,horaires:[{debut:'8:10',fin:'9:10'},{debut:'9:10',fin:'10:10'},{debut:'10:30',fin:'11:30'},{debut:'12:45',fin:'13:45'},{debut:'14:05',fin:'15:05'}],recreations:[{after:2,enabled:true},{after:4,enabled:true}],diner:{after:3,enabled:true,debut:'11:30',fin:'12:45'},parascolaire:{enabled:false,debut:'15:15',fin:'16:15'}}}
-function loadConfig(){try{return JSON.parse(localStorage.getItem(CONFIG_KEY))||defaultConfig()}catch(e){return defaultConfig()}}
-function saveConfig(c){localStorage.setItem(CONFIG_KEY,JSON.stringify(c))}
+function dateStr(y,m,d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function isWeekend(y,m,d) { const dow = new Date(y,m,d).getDay(); return dow===0||dow===6; }
+function getWeekNumber(y,m,d) {
+  const date = new Date(y,m,d);
+  const jan1 = new Date(date.getFullYear(),0,1);
+  return Math.ceil(((date - jan1)/86400000 + jan1.getDay() + 1) / 7);
+}
 
-function t(k){return T[lang][k]||T.fr[k]||k}
-function loadStore(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{lang:'fr',cells:{}}}catch(e){return{lang:'fr',cells:{}}}}
-function saveStore(s){localStorage.setItem(STORE_KEY,JSON.stringify(s))}
-function getCell(dateStr){const s=loadStore();return s.cells[dateStr]||null}
-function setCell(dateStr,data){const s=loadStore();s.cells[dateStr]={...(s.cells[dateStr]||{}), ...data};saveStore(s)}
-
-function dateStr(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
-function dayOfWeek(y,m,d){const dow=new Date(y,m,d).getDay();return dow===0?7:dow}
-
-/* ====== LANG ====== */
-function initLangs(){
-  const c=document.getElementById('langPills');c.innerHTML='';
-  ['fr','en','es','zh'].forEach(l=>{
-    const p=document.createElement('span');
-    p.className='lang-pill'+(l===lang?' active':'');
-    p.textContent=l.toUpperCase();
-    p.onclick=()=>{lang=l;const s=loadStore();s.lang=l;saveStore(s);initLangs();renderAll()};
-    c.appendChild(p);
+/* ============================================================
+   CYCLE DOTS
+   ============================================================ */
+function getCycleDots(ds) {
+  const cell = getCell(ds);
+  if (!cell || !cell.periodes || !cell.periodes.length) return [];
+  const dots = new Set();
+  cell.periodes.forEach(p => {
+    const g = (p.groupe||'').toLowerCase();
+    if (/cycle\s*1|c1|1er\s*cycle|premier\s*cycle/.test(g)) dots.add('c1');
+    if (/cycle\s*2|c2|2e\s*cycle|deuxi[eè]me\s*cycle/.test(g)) dots.add('c2');
+    if (/cycle\s*3|c3|3e\s*cycle|troisi[eè]me\s*cycle/.test(g)) dots.add('c3');
   });
+  return [...dots];
 }
 
-/* ====== MONTH SELECT ====== */
-function populateMonthSelect(){
-  const sel=document.getElementById('monthSelect');sel.innerHTML='';
-  for(let y=2025;y<=2026;y++){
-    const mStart=y===2025?7:0, mEnd=y===2026?6:11;
-    for(let m=mStart;m<=mEnd;m++){
-      const o=document.createElement('option');
-      o.value=`${y}-${m}`;
-      o.textContent=`${t('months')[m]} ${y}`;
-      if(y===currentYear&&m===currentMonth)o.selected=true;
-      sel.appendChild(o);
-    }
-  }
+function hasPlanif(ds) {
+  const cell = getCell(ds);
+  if (!cell || !cell.periodes || !cell.periodes.length) return false;
+  return cell.periodes.some(p => (p.groupe||'').trim() || (p.activite||'').trim());
 }
 
-function goToMonth(v){const[y,m]=v.split('-').map(Number);currentYear=y;currentMonth=m;renderAll()}
-function changeMonth(dir){
-  let y=currentYear,m=currentMonth+dir;
-  if(m>11){m=0;y++}if(m<0){m=11;y--}
-  if(y<2025||(y===2025&&m<7))return;if(y>2026||(y===2026&&m>5))return;
-  currentYear=y;currentMonth=m;renderAll();
-}
-function goToday(){
-  const now=new Date();currentYear=now.getFullYear();currentMonth=now.getMonth();renderAll();
-}
-
-/* ====== CALENDAR ====== */
-function getWeekNumber(d){const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));date.setUTCDate(date.getUTCDate()+4-(date.getUTCDay()||7));const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));return Math.ceil(((date-yearStart)/86400000+1)/7)}
-
-function renderCalendar(){
-  const grid=document.getElementById('calendarGrid');grid.innerHTML='';
-  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-  const todayStr=dateStr(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
-
-  // Header row
-  let headerHTML='<div class="grid gap-1 mb-1" style="grid-template-columns:36px repeat(5,1fr)">';
-  headerHTML+=`<div class="week-col rounded-tl-lg">${t('week')}</div>`;
-  t('days').forEach((d,i)=>{headerHTML+=`<div class="day-header${i===4?' rounded-tr-lg':''}">${d}</div>`});
-  headerHTML+='</div>';
-  grid.innerHTML+=headerHTML;
-
-  // Collect days into weeks (Mon-Fri)
-  let weeks=[];let currentWeek=[];
-  for(let d=1;d<=daysInMonth;d++){
-    const dow=dayOfWeek(currentYear,currentMonth,d);
-    if(dow>=1&&dow<=5){
-      if(dow===1&&currentWeek.length>0){weeks.push(currentWeek);currentWeek=[]}
-      while(currentWeek.length<dow-1)currentWeek.push(null);
-      currentWeek.push(d);
-    }
-  }
-  if(currentWeek.length>0){while(currentWeek.length<5)currentWeek.push(null);weeks.push(currentWeek)}
-
-  weeks.forEach(week=>{
-    let rowHTML='<div class="grid gap-1 mb-1" style="grid-template-columns:36px repeat(5,1fr)">';
-    const firstDay=week.find(d=>d!==null);
-    const wn=firstDay?getWeekNumber(new Date(currentYear,currentMonth,firstDay)):'';
-    rowHTML+=`<div class="week-col">${wn}</div>`;
-
-    week.forEach((d,i)=>{
-      if(d===null){rowHTML+=`<div class="cell-glass rounded-lg p-1 min-h-[90px] opacity-40"></div>`;return}
-      const ds=dateStr(currentYear,currentMonth,d);
-      const cell=getCell(ds)||{};
-      const tags=cell.tags||[];
-      let extraClass='cell-glass';
-      if(tags.includes('Conge'))extraClass='cell-conge';
-      else if(tags.includes('Ped'))extraClass='cell-ped';
-      else if(tags.includes('Tournoi'))extraClass='cell-tournoi';
-      const isToday=ds===todayStr;
-      const isSel=ds===selectedDate;
-
-      rowHTML+=`<div class="${extraClass} rounded-lg p-1.5 min-h-[90px] cursor-pointer transition hover:ring-2 hover:ring-cyan-400 ${isToday?'ring-2 ring-yellow-400':''} ${isSel?'ring-2 ring-pink-500':''}" onclick="onCellClick(event,'${ds}',${d})">`;
-      rowHTML+=`<div class="flex justify-between items-start mb-0.5"><span class="font-bold text-sm text-white">${d}</span>`;
-      // Cycle dots
-      const grp=(cell.groupes||'').toLowerCase();
-      if(/cycle1|c1/.test(grp))rowHTML+=`<span class="cycle-dot bg-green-500"></span>`;
-      if(/cycle2|c2/.test(grp))rowHTML+=`<span class="cycle-dot bg-blue-500 ml-0.5"></span>`;
-      if(/cycle3|c3/.test(grp))rowHTML+=`<span class="cycle-dot bg-violet-500 ml-0.5"></span>`;
-      rowHTML+=`</div>`;
-      rowHTML+=`<input class="cell-input" placeholder="${t('day')} #" value="${cell.jour||''}" onclick="event.stopPropagation()" onchange="onCellInput('${ds}','jour',this.value)">`;
-      rowHTML+=`<input class="cell-input" placeholder="${t('groups')}" value="${cell.groupes||''}" onclick="event.stopPropagation()" onchange="onCellInput('${ds}','groupes',this.value)">`;
-      rowHTML+=`<input class="cell-input" placeholder="${t('planif')}" value="${cell.planif||''}" onclick="event.stopPropagation()" onchange="onCellInput('${ds}','planif',this.value)">`;
-      if(tags.length){
-        rowHTML+=`<div class="flex flex-wrap gap-0.5 mt-0.5">`;
-        tags.forEach(tg=>{
-          const cls=tg==='Ped'?'badge-ped':tg==='Conge'?'badge-conge':tg==='Tournoi'?'badge-tournoi':tg==='Photo'?'badge-photo':tg==='Sortie'?'badge-sortie':'badge-custom';
-          rowHTML+=`<span class="badge ${cls}">${tg}</span>`;
-        });
-        rowHTML+=`</div>`;
-      }
-      rowHTML+=`</div>`;
-    });
-    rowHTML+='</div>';
-    grid.innerHTML+=rowHTML;
-  });
-}
-
-function onCellInput(ds,field,val){
-  const cell=getCell(ds)||{};
-  cell[field]=val;
-  setCell(ds,cell);
-  renderCalendar();
-}
-
-function onCellClick(e,ds,d){
-  if(e.target.tagName==='INPUT')return;
-  selectedDate=ds;
-  showDetail(ds,d);
-  openModal(ds,d);
-  renderCalendar();
-}
-
-/* ====== DETAIL PANEL ====== */
-function showDetail(ds,d){
-  const panel=document.getElementById('detailPanel');panel.classList.remove('hidden');
-  const cell=getCell(ds)||{};
-  const dayName=t('days')[(dayOfWeek(currentYear,currentMonth,d)-1)%5];
-  document.getElementById('detailTitle').textContent=`${dayName} ${d} ${t('months')[currentMonth]} ${currentYear}`;
-  document.getElementById('detailNotes').value=cell.notes||'';
-  document.getElementById('detailNotes').placeholder=t('notes');
-  document.getElementById('detailNotes').onchange=function(){setCell(ds,{notes:this.value})};
-  renderBadges(ds);
-  renderBadgeButtons(ds);
-}
-
-const badgeTypes=[
-  {key:'Ped',icon:'📚',i18n:'ped'},
-  {key:'Conge',icon:'🏖️',i18n:'conge'},
-  {key:'Tournoi',icon:'🏆',i18n:'tournoi'},
-  {key:'Photo',icon:'📸',i18n:'photo'},
-  {key:'Sortie',icon:'🚌',i18n:'sortie'},
-  {key:'Custom',icon:'➕',i18n:'custom'}
-];
-
-function renderBadgeButtons(ds){
-  const c=document.getElementById('badgeButtons');c.innerHTML='';
-  badgeTypes.forEach(bt=>{
-    const b=document.createElement('button');
-    b.className='btn-pill text-sm '+(bt.key==='Custom'?'bg-gray-400 text-white':'btn-cyan');
-    b.innerHTML=`${bt.icon} ${t(bt.i18n)}`;
-    b.onclick=()=>{
-      let tag=bt.key;
-      if(bt.key==='Custom'){tag=prompt(t('promptCustom'));if(!tag)return}
-      const cell=getCell(ds)||{};
-      const tags=cell.tags||[];
-      if(!tags.includes(tag)){tags.push(tag);setCell(ds,{tags});renderBadges(ds);renderCalendar()}
-    };
+/* ============================================================
+   LANG PILLS
+   ============================================================ */
+function renderLangPills() {
+  const c = document.getElementById('langPills');
+  c.innerHTML = '';
+  ['fr','en','es','zh'].forEach(l => {
+    const b = document.createElement('button');
+    b.className = 'lang-pill' + (l===lang?' active':'');
+    b.textContent = l.toUpperCase();
+    b.onclick = () => { lang=l; localStorage.setItem('zts-planif-lang',l); renderAll(); };
     c.appendChild(b);
   });
 }
 
-function renderBadges(ds){
-  const c=document.getElementById('badgeList');c.innerHTML='';
-  const cell=getCell(ds)||{};
-  (cell.tags||[]).forEach(tg=>{
-    const cls=tg==='Ped'?'badge-ped':tg==='Conge'?'badge-conge':tg==='Tournoi'?'badge-tournoi':tg==='Photo'?'badge-photo':tg==='Sortie'?'badge-sortie':'badge-custom';
-    const s=document.createElement('span');s.className=`badge ${cls} text-sm`;
-    s.innerHTML=`${tg} <span style="cursor:pointer;margin-left:3px" onclick="removeBadge('${ds}','${tg}')">&times;</span>`;
-    c.appendChild(s);
-  });
-}
-
-function removeBadge(ds,tag){
-  const cell=getCell(ds)||{};
-  cell.tags=(cell.tags||[]).filter(t=>t!==tag);
-  setCell(ds,cell);
-  renderBadges(ds);
-  renderCalendar();
-}
-
-function saveDetail(){
-  if(!selectedDate)return;
-  const notes=document.getElementById('detailNotes').value;
-  setCell(selectedDate,{notes});
-  alert(lang==='fr'?'Sauvegarde!':lang==='en'?'Saved!':lang==='es'?'Guardado!':'已保存!');
-}
-
-/* ====== CONFIG PANEL ====== */
-function buildConfigPanel(){
-  const cfg=loadConfig();
-  let html=`<div class="config-panel no-print">
-  <button class="config-toggle" onclick="document.getElementById('configBody').classList.toggle('hidden')">⚙️ ${t('config')}</button>
-  <div id="configBody" class="hidden" style="margin-top:8px">
-    <div class="config-row"><label>${t('nbPeriodes')}:</label>
-      <select id="cfgNbPeriodes" onchange="onConfigNbChange(this.value)">`;
-  for(let n=3;n<=7;n++) html+=`<option value="${n}"${n===cfg.nbPeriodes?' selected':''}>${n}</option>`;
-  html+=`</select></div>
-    <div style="margin:8px 0"><label class="font-fredoka text-sm text-gray-700" style="font-weight:bold">${t('hours')}:</label>
-    <div id="cfgHoraires">`;
-  cfg.horaires.forEach((h,i)=>{
-    html+=`<div class="config-row"><label>P${i+1} ${t('start')}:</label><input type="text" class="cfg-debut" value="${h.debut}" style="width:70px">
-      <label>${t('end')}:</label><input type="text" class="cfg-fin" value="${h.fin}" style="width:70px"></div>`;
-  });
-  html+=`</div></div>
-    <div style="margin:8px 0"><label class="font-fredoka text-sm text-gray-700" style="font-weight:bold">${t('recessAfter')}:</label>`;
-  cfg.recreations.forEach((r,i)=>{
-    html+=`<div class="config-row"><label><input type="checkbox" class="cfg-rec-chk" data-idx="${i}" ${r.enabled?'checked':''}> ${t('recessAfter')}${r.after}</label></div>`;
-  });
-  html+=`</div>
-    <div class="config-row"><label><input type="checkbox" id="cfgDinerEnabled" ${cfg.diner.enabled?'checked':''}> ${t('diner')}</label>
-      <input type="text" id="cfgDinerDebut" value="${cfg.diner.debut}" style="width:70px"> - <input type="text" id="cfgDinerFin" value="${cfg.diner.fin}" style="width:70px"></div>
-    <div class="config-row"><label><input type="checkbox" id="cfgParaEnabled" ${cfg.parascolaire.enabled?'checked':''}> ${t('parascolaire')}</label>
-      <input type="text" id="cfgParaDebut" value="${cfg.parascolaire.debut}" style="width:70px"> - <input type="text" id="cfgParaFin" value="${cfg.parascolaire.fin}" style="width:70px"></div>
-    <div style="margin-top:12px;text-align:center">
-      <button class="btn-pill btn-pink" style="font-size:1rem;padding:10px 28px" onclick="applyConfigToCalendar()">🔄 ${t('applyAll')}</button>
-    </div>
-  </div></div>`;
-  return html;
-}
-
-function onConfigNbChange(val){
-  const n=parseInt(val);const cfg=loadConfig();
-  while(cfg.horaires.length<n)cfg.horaires.push({debut:'',fin:''});
-  cfg.horaires=cfg.horaires.slice(0,n);cfg.nbPeriodes=n;saveConfig(cfg);
-  const container=document.getElementById('cfgHoraires');container.innerHTML='';
-  cfg.horaires.forEach((h,i)=>{
-    container.innerHTML+=`<div class="config-row"><label>P${i+1} ${t('start')}:</label><input type="text" class="cfg-debut" value="${h.debut}" style="width:70px">
-      <label>${t('end')}:</label><input type="text" class="cfg-fin" value="${h.fin}" style="width:70px"></div>`;
-  });
-}
-
-function readConfigFromUI(){
-  const cfg=loadConfig();
-  cfg.nbPeriodes=parseInt(document.getElementById('cfgNbPeriodes').value);
-  const debuts=document.querySelectorAll('.cfg-debut');
-  const fins=document.querySelectorAll('.cfg-fin');
-  cfg.horaires=[];
-  for(let i=0;i<cfg.nbPeriodes;i++){
-    cfg.horaires.push({debut:debuts[i]?debuts[i].value:'',fin:fins[i]?fins[i].value:''});
-  }
-  const recChks=document.querySelectorAll('.cfg-rec-chk');
-  recChks.forEach((chk,i)=>{if(cfg.recreations[i])cfg.recreations[i].enabled=chk.checked});
-  cfg.diner.enabled=document.getElementById('cfgDinerEnabled').checked;
-  cfg.diner.debut=document.getElementById('cfgDinerDebut').value;
-  cfg.diner.fin=document.getElementById('cfgDinerFin').value;
-  cfg.parascolaire.enabled=document.getElementById('cfgParaEnabled').checked;
-  cfg.parascolaire.debut=document.getElementById('cfgParaDebut').value;
-  cfg.parascolaire.fin=document.getElementById('cfgParaFin').value;
-  saveConfig(cfg);return cfg;
-}
-
-function applyConfigToCalendar(){
-  const cfg=readConfigFromUI();
-  const store=loadStore();
-  for(let y=2025;y<=2026;y++){
-    const mStart=y===2025?7:0,mEnd=y===2025?11:5;
-    for(let m=mStart;m<=mEnd;m++){
-      const dim=new Date(y,m+1,0).getDate();
-      for(let d=1;d<=dim;d++){
-        const dow=new Date(y,m,d).getDay();
-        if(dow===0||dow===6)continue;
-        const ds=dateStr(y,m,d);
-        const existing=store.cells[ds]||{};
-        const hasData=existing.periodes&&existing.periodes.some(p=>p.groupe||p.activite||p.details);
-        if(hasData)continue;
-        const periodes=cfg.horaires.map(h=>({horaire:`${h.debut} - ${h.fin}`,groupe:'',activite:'',details:''}));
-        if(cfg.parascolaire.enabled){
-          periodes.push({horaire:`${cfg.parascolaire.debut} - ${cfg.parascolaire.fin}`,groupe:'',activite:'',details:'',isParascolaire:true});
-        }
-        store.cells[ds]={...existing,periodes};
-      }
+/* ============================================================
+   MONTH SELECT
+   ============================================================ */
+function renderMonthSelect() {
+  const sel = document.getElementById('monthSelect');
+  sel.innerHTML = '';
+  for (let y=2025; y<=2026; y++) {
+    const startM = y===2025?7:0, endM = y===2025?11:5;
+    for (let m=startM; m<=endM; m++) {
+      const opt = document.createElement('option');
+      opt.value = `${y}-${m}`;
+      opt.textContent = `${t('months')[m]} ${y}`;
+      if (y===currentYear && m===currentMonth) opt.selected = true;
+      sel.appendChild(opt);
     }
   }
-  saveStore(store);
-  alert(t('configApplied'));
-  renderAll();
 }
 
-function configSeparatorsForIndex(cfg,i){
-  for(let r=0;r<cfg.recreations.length;r++){
-    if(cfg.recreations[r].enabled&&cfg.recreations[r].after===i) return 'recess';
-  }
-  if(cfg.diner.enabled&&cfg.diner.after===i) return 'lunch';
-  return null;
+function goToMonth(v) { const [y,m]=v.split('-').map(Number); currentYear=y; currentMonth=m; renderCalendar(); updateMonthTitle(); }
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth=0; currentYear++; }
+  if (currentMonth < 0) { currentMonth=11; currentYear--; }
+  renderMonthSelect(); renderCalendar(); updateMonthTitle();
+}
+function goToday() {
+  const now = new Date(); currentYear=now.getFullYear(); currentMonth=now.getMonth();
+  renderMonthSelect(); renderCalendar(); updateMonthTitle();
+}
+function updateMonthTitle() {
+  document.getElementById('monthTitle').textContent = `${t('months')[currentMonth]} ${currentYear}`;
 }
 
-/* ====== DAILY MODAL ====== */
-function openModal(ds,d){
-  const modal=document.getElementById('dailyModal');modal.classList.remove('hidden');
-  document.body.style.overflow='hidden';
-  const dow=dayOfWeek(currentYear,currentMonth,d);
-  const dayName=t('days')[(dow-1)%5];
-  document.getElementById('modalDayName').textContent=dayName.toUpperCase();
-  document.getElementById('modalDate').textContent=`${d} ${t('months')[currentMonth]} ${currentYear}`;
-  const cfg=loadConfig();
-  const cell=getCell(ds)||{};
-  const defPeriodes=cfg.horaires.map(h=>({horaire:`${h.debut} - ${h.fin}`,groupe:'',activite:'',details:''}));
-  if(cfg.parascolaire.enabled) defPeriodes.push({horaire:`${cfg.parascolaire.debut} - ${cfg.parascolaire.fin}`,groupe:'',activite:'',details:'',isParascolaire:true});
-  const periodes=cell.periodes||defPeriodes;
+/* ============================================================
+   CALENDAR GRID
+   ============================================================ */
+function renderCalendar() {
+  const grid = document.getElementById('calendarGrid');
+  const firstDay = new Date(currentYear, currentMonth, 1);
+  const lastDay = new Date(currentYear, currentMonth+1, 0).getDate();
+  let startDow = firstDay.getDay(); // 0=Sun
+  startDow = startDow === 0 ? 6 : startDow - 1; // 0=Mon
 
-  const container=document.getElementById('modalPeriods');container.innerHTML='';
-  container.innerHTML=buildConfigPanel();
+  const today = new Date();
+  const todayStr = dateStr(today.getFullYear(), today.getMonth(), today.getDate());
 
-  let periodIdx=0;
-  periodes.forEach((p,i)=>{
-    const isParasco=p.isParascolaire||false;
-    if(!isParasco){
-      periodIdx++;
-      const sep=configSeparatorsForIndex(cfg,periodIdx-1);
-      if(sep&&periodIdx>1){
-        const sepDiv=document.createElement('div');sepDiv.className='separator';
-        if(sep==='recess') sepDiv.textContent=`** ${t('recess')} **`;
-        else if(sep==='lunch') sepDiv.textContent=`** ${t('lunch')} (${cfg.diner.debut} - ${cfg.diner.fin}) **`;
-        container.appendChild(sepDiv);
-      }
+  // Header row
+  let html = '<div style="display:grid;grid-template-columns:32px repeat(7,1fr);gap:2px;margin-bottom:2px">';
+  html += `<div class="week-col" style="border-radius:6px;font-size:.7rem">${t('week')}</div>`;
+  for (let i=0;i<7;i++) html += `<div class="day-header">${t('days')[i]}</div>`;
+  html += '</div>';
+
+  // Weeks
+  html += '<div style="display:grid;grid-template-columns:32px repeat(7,1fr);gap:2px">';
+
+  let dayCount = 1;
+  const totalSlots = Math.ceil((startDow + lastDay) / 7) * 7;
+
+  for (let i=0; i<totalSlots; i++) {
+    // Week number column
+    if (i % 7 === 0) {
+      const wd = (i < startDow) ? 1 : Math.min(dayCount, lastDay);
+      const wn = getWeekNumber(currentYear, currentMonth, wd);
+      html += `<div class="week-col">${wn}</div>`;
+    }
+
+    if (i < startDow || dayCount > lastDay) {
+      html += '<div></div>';
     } else {
-      const sepDiv=document.createElement('div');sepDiv.className='separator';
-      sepDiv.textContent=`** ${t('afterSchool')} **`;
-      container.appendChild(sepDiv);
+      const d = dayCount;
+      const ds = dateStr(currentYear, currentMonth, d);
+      const isToday = ds === todayStr;
+      const weekend = isWeekend(currentYear, currentMonth, d);
+      const holiday = HOLIDAYS[ds];
+      const cell = getCell(ds);
+      const hasTags = cell && cell.tags && cell.tags.length;
+      const isPed = hasTags && cell.tags.includes('Ped');
+      const isConge = hasTags && cell.tags.includes('Conge');
+      const isTournoi = hasTags && cell.tags.includes('Tournoi');
+
+      let bgStyle = '';
+      let extraClass = 'cell-glass';
+      if (holiday) {
+        bgStyle = `background:${holiday.bg}!important;`;
+      } else if (isPed) {
+        bgStyle = 'background:rgba(255,215,0,0.55)!important;';
+      } else if (isConge) {
+        bgStyle = 'background:rgba(100,180,255,0.55)!important;';
+      } else if (isTournoi) {
+        bgStyle = 'background:rgba(255,42,122,0.45)!important;';
+      }
+      if (weekend) bgStyle += 'opacity:0.4;';
+
+      const dots = getCycleDots(ds);
+      const showPlanif = hasPlanif(ds);
+
+      html += `<div class="cal-cell ${extraClass}${isToday?' cell-today':''}"
+        style="border-radius:8px;padding:4px 5px;min-height:62px;cursor:pointer;position:relative;display:flex;flex-direction:column;${bgStyle}"
+        onclick="selectDay('${ds}')" ondblclick="openModal('${ds}')">`;
+
+      // Day number
+      html += `<div class="day-num" style="font-family:'Luckiest Guy',cursive;font-size:1.3rem;line-height:1;opacity:0.95">${d}</div>`;
+
+      // Holiday emoji + label
+      if (holiday) {
+        html += `<div style="font-size:1.1rem;text-align:center;margin-top:auto">${holiday.emoji}</div>`;
+        html += `<div style="font-size:.5rem;font-family:'Fredoka One',cursive;text-align:center;opacity:0.9;line-height:1">${holiday.label}</div>`;
+      }
+
+      // Ped tag display
+      if (isPed && !holiday) {
+        html += `<div style="font-size:1rem;text-align:center;margin-top:auto">📚</div>`;
+      }
+
+      // Planif button (only if has planning data)
+      if (showPlanif) {
+        html += `<button class="planif-btn" onclick="event.stopPropagation();openModal('${ds}')" style="position:absolute;top:3px;right:3px">📋 ${t('planif')}</button>`;
+      }
+
+      // Cycle dots
+      if (dots.length) {
+        html += '<div style="display:flex;gap:3px;margin-top:auto;justify-content:center;padding-top:2px">';
+        dots.forEach(c => {
+          const color = c==='c1'?'#22c55e':c==='c2'?'#3b82f6':'#8b5cf6';
+          html += `<span class="cycle-dot" style="background:${color}" title="Cycle ${c.slice(1)}"></span>`;
+        });
+        html += '</div>';
+      }
+
+      html += '</div>';
+      dayCount++;
+    }
+  }
+  html += '</div>';
+  grid.innerHTML = html;
+}
+
+/* ============================================================
+   SELECT DAY -> DETAIL PANEL
+   ============================================================ */
+function selectDay(ds) {
+  selectedDate = ds;
+  renderDetailPanel(ds);
+}
+
+function renderDetailPanel(ds) {
+  const panel = document.getElementById('detailPanel');
+  if (!ds) { panel.classList.add('hidden'); return; }
+  panel.classList.remove('hidden');
+
+  const d = new Date(ds+'T12:00:00');
+  const dow = d.getDay();
+  const dowIdx = dow===0?6:dow-1;
+  const dayName = t('daysFull')[dowIdx];
+  const monthName = t('months')[d.getMonth()];
+  const cell = getCell(ds) || {tags:[],notes:'',periodes:[]};
+
+  const allTags = ['Ped','Conge','Tournoi','Photo','Sortie','Custom'];
+
+  let html = `<div class="detail-glass p-4 mt-2">`;
+  html += `<h3 class="font-bangers text-2xl text-gray-800 mb-3">${dayName} ${d.getDate()} ${monthName} ${d.getFullYear()}</h3>`;
+
+  // Current badges
+  html += '<div class="flex flex-wrap gap-2 mb-3">';
+  if (cell.tags && cell.tags.length) {
+    cell.tags.forEach(tag => {
+      const emoji = T.fr.tagEmojis[tag] || '🏷️';
+      const label = t('tags')[tag] || tag;
+      html += `<span class="badge badge-${tag.toLowerCase()}">${emoji} ${label} <button onclick="removeTag('${ds}','${tag}')" style="margin-left:3px;cursor:pointer;font-size:.8rem;background:none;border:none;color:inherit">✕</button></span>`;
+    });
+  }
+  html += '</div>';
+
+  // Add badge buttons
+  html += `<div class="mb-3"><span class="font-fredoka text-sm text-gray-600">${t('addTag')}</span><div class="flex flex-wrap gap-1 mt-1">`;
+  allTags.forEach(tag => {
+    const emoji = T.fr.tagEmojis[tag];
+    const label = t('tags')[tag];
+    html += `<button class="btn-pill text-xs" style="padding:3px 10px;background:rgba(0,0,0,0.08)" onclick="addTag('${ds}','${tag}')">${emoji} ${label}</button>`;
+  });
+  html += '</div></div>';
+
+  // Notes
+  html += `<div class="mb-3"><label class="font-fredoka text-sm text-gray-600">${t('notes')}</label>`;
+  html += `<textarea id="detailNotes" class="w-full mt-1 p-2 border rounded-lg font-schoolbell" rows="3" style="border-color:#ccc;font-size:.95rem">${cell.notes||''}</textarea></div>`;
+
+  // Buttons
+  html += '<div class="flex flex-wrap gap-2">';
+  html += `<button class="btn-pill btn-cyan text-sm" onclick="saveDetail('${ds}')">💾 ${t('save')}</button>`;
+  html += `<button class="btn-pill btn-yellow text-sm" onclick="openModal('${ds}')">📋 ${t('planif')}</button>`;
+  html += `<button class="btn-pill btn-violet text-sm" onclick="printDay('${ds}')">🖨️ ${t('print')}</button>`;
+  html += `<button class="btn-pill btn-pink text-sm" onclick="exportDayPDF('${ds}')">PDF</button>`;
+  html += `<button class="btn-pill text-sm" style="background:#059669;color:#fff" onclick="exportDayXLS('${ds}')">Excel</button>`;
+  html += `<button class="btn-pill text-sm" style="background:#6B7280;color:#fff" onclick="exportDayCSV('${ds}')">CSV</button>`;
+  html += '</div>';
+
+  html += '</div>';
+  panel.innerHTML = html;
+}
+
+function addTag(ds, tag) {
+  const cell = ensureCell(ds);
+  if (!cell.tags.includes(tag)) { cell.tags.push(tag); saveData(); }
+  renderCalendar(); renderDetailPanel(ds);
+}
+function removeTag(ds, tag) {
+  const cell = getCell(ds);
+  if (cell) { cell.tags = cell.tags.filter(t=>t!==tag); saveData(); }
+  renderCalendar(); renderDetailPanel(ds);
+}
+function saveDetail(ds) {
+  const cell = ensureCell(ds);
+  cell.notes = document.getElementById('detailNotes').value;
+  saveData();
+  renderCalendar();
+  showToast('✅');
+}
+
+/* ============================================================
+   MODAL - PLANIFICATION
+   ============================================================ */
+function openModal(ds) {
+  selectedDate = ds;
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  overlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  const d = new Date(ds+'T12:00:00');
+  const dow = d.getDay();
+  const dowIdx = dow===0?6:dow-1;
+  const dayName = t('daysFull')[dowIdx];
+  const monthName = t('months')[d.getMonth()];
+  const cell = getCell(ds) || {tags:[],notes:'',periodes:[]};
+
+  let html = '';
+
+  // Yellow header
+  html += `<div style="background:linear-gradient(135deg,#FFD700,#FFC107);padding:16px 20px">`;
+  html += `<h2 class="font-bangers text-3xl text-gray-800" style="margin:0">${dayName}</h2>`;
+  html += `<p class="font-fredoka text-gray-700" style="margin:4px 0 0">${d.getDate()} ${monthName} ${d.getFullYear()}</p>`;
+  html += '</div>';
+
+  // Config panel (collapsible)
+  html += '<div class="config-panel m-3">';
+  html += `<button class="config-toggle" onclick="toggleConfig()">⚙️ ${t('config')} ▼</button>`;
+  html += '<div id="configBody" class="hidden p-2">';
+
+  // Nb periods
+  html += `<div class="config-row"><label>${t('nbPeriods')}</label><select id="cfgNbP" onchange="updateConfigPreview()" style="width:60px">`;
+  for (let i=3;i<=7;i++) html += `<option value="${i}"${config.nbPeriodes===i?' selected':''}>${i}</option>`;
+  html += '</select></div>';
+
+  // Period times
+  html += '<div id="cfgTimes"></div>';
+
+  // Recreations
+  html += `<div class="config-row mt-2"><label>${t('recess')}</label><div id="cfgRec"></div></div>`;
+
+  // Lunch
+  html += `<div class="config-row"><label>${t('lunch')}</label>`;
+  html += `<input type="checkbox" id="cfgLunchOn" ${config.diner.enabled?'checked':''}> `;
+  html += `${t('after')} <select id="cfgLunchAfter" style="width:50px">`;
+  for (let i=1;i<=7;i++) html += `<option value="${i}"${config.diner.after===i?' selected':''}>${i}</option>`;
+  html += `</select> `;
+  html += `<input type="time" id="cfgLunchStart" value="${config.diner.debut||'11:30'}" style="width:100px">`;
+  html += `<input type="time" id="cfgLunchEnd" value="${config.diner.fin||'12:45'}" style="width:100px">`;
+  html += '</div>';
+
+  // After school
+  html += `<div class="config-row"><label>${t('afterSchool')}</label>`;
+  html += `<input type="checkbox" id="cfgParaOn" ${config.parascolaire.enabled?'checked':''}> `;
+  html += `<input type="time" id="cfgParaStart" value="${config.parascolaire.debut||'15:15'}" style="width:100px">`;
+  html += `<input type="time" id="cfgParaEnd" value="${config.parascolaire.fin||'16:15'}" style="width:100px">`;
+  html += '</div>';
+
+  // Apply all button
+  html += `<div class="mt-3 text-center"><button class="btn-pill btn-pink text-sm" onclick="applyConfigAll()">🔄 ${t('applyAll')}</button></div>`;
+
+  html += '</div></div>';
+
+  // Periods
+  html += '<div id="modalPeriods" class="px-3 pb-2"></div>';
+
+  // Footer buttons
+  html += '<div class="flex flex-wrap gap-2 justify-center p-4 bg-gray-50">';
+  html += `<button class="btn-pill btn-cyan" onclick="saveModal('${ds}')">💾 ${t('save')}</button>`;
+  html += `<button class="btn-pill btn-violet" onclick="printDay('${ds}')">🖨️ ${t('print')}</button>`;
+  html += `<button class="btn-pill btn-yellow" onclick="closeModal()">✕ ${t('close')}</button>`;
+  html += '</div>';
+
+  content.innerHTML = html;
+  renderConfigTimes();
+  renderConfigRec();
+  renderModalPeriods(ds);
+}
+
+function toggleConfig() {
+  const body = document.getElementById('configBody');
+  body.classList.toggle('hidden');
+}
+
+function renderConfigTimes() {
+  const n = parseInt(document.getElementById('cfgNbP').value);
+  const c = document.getElementById('cfgTimes');
+  let html = '';
+  for (let i=0;i<n;i++) {
+    const h = config.horaires[i] || {debut:'',fin:''};
+    html += `<div class="config-row"><label>P${i+1}</label>`;
+    html += `<input type="time" class="cfg-time-start" value="${h.debut}" style="width:100px">`;
+    html += `<span>→</span>`;
+    html += `<input type="time" class="cfg-time-end" value="${h.fin}" style="width:100px">`;
+    html += '</div>';
+  }
+  c.innerHTML = html;
+}
+
+function renderConfigRec() {
+  const n = parseInt(document.getElementById('cfgNbP').value);
+  const c = document.getElementById('cfgRec');
+  let html = '';
+  for (let i=1;i<n;i++) {
+    const rec = config.recreations.find(r=>r.after===i);
+    const checked = rec && rec.enabled;
+    html += `<label style="font-size:.8rem;margin-right:8px"><input type="checkbox" class="cfg-rec-cb" data-after="${i}" ${checked?'checked':''}> ${t('after')}${i}</label>`;
+  }
+  c.innerHTML = html;
+}
+
+function updateConfigPreview() {
+  renderConfigTimes();
+  renderConfigRec();
+}
+
+function readConfigFromModal() {
+  const n = parseInt(document.getElementById('cfgNbP').value);
+  const starts = document.querySelectorAll('.cfg-time-start');
+  const ends = document.querySelectorAll('.cfg-time-end');
+  const horaires = [];
+  for (let i=0;i<n;i++) {
+    horaires.push({debut: starts[i]?.value||'', fin: ends[i]?.value||''});
+  }
+  const recreations = [];
+  document.querySelectorAll('.cfg-rec-cb').forEach(cb => {
+    recreations.push({after: parseInt(cb.dataset.after), enabled: cb.checked});
+  });
+  const diner = {
+    after: parseInt(document.getElementById('cfgLunchAfter').value),
+    enabled: document.getElementById('cfgLunchOn').checked,
+    debut: document.getElementById('cfgLunchStart').value,
+    fin: document.getElementById('cfgLunchEnd').value
+  };
+  const parascolaire = {
+    enabled: document.getElementById('cfgParaOn').checked,
+    debut: document.getElementById('cfgParaStart').value,
+    fin: document.getElementById('cfgParaEnd').value
+  };
+  config = {nbPeriodes:n, horaires, recreations, diner, parascolaire};
+  saveConfig();
+}
+
+function applyConfigAll() {
+  readConfigFromModal();
+  // Apply empty period structures to all weekdays Aug 2025 - Jun 2026
+  for (let y=2025;y<=2026;y++) {
+    const sM = y===2025?7:0, eM = y===2025?11:5;
+    for (let m=sM;m<=eM;m++) {
+      const last = new Date(y,m+1,0).getDate();
+      for (let d=1;d<=last;d++) {
+        if (isWeekend(y,m,d)) continue;
+        const ds = dateStr(y,m,d);
+        const cell = ensureCell(ds);
+        // Only set periods if none exist
+        if (!cell.periodes || !cell.periodes.length) {
+          cell.periodes = [];
+          for (let p=0;p<config.nbPeriodes;p++) {
+            const h = config.horaires[p]||{debut:'',fin:''};
+            cell.periodes.push({horaire:`${h.debut}-${h.fin}`,groupe:'',activite:'',details:''});
+          }
+        }
+      }
+    }
+  }
+  saveData();
+  showToast('✅ ' + t('applyAll'));
+}
+
+function renderModalPeriods(ds) {
+  const container = document.getElementById('modalPeriods');
+  const cell = getCell(ds) || {periodes:[]};
+  const n = config.nbPeriodes;
+
+  // Ensure we have enough periods
+  while (cell.periodes && cell.periodes.length < n) {
+    const h = config.horaires[cell.periodes.length]||{debut:'',fin:''};
+    cell.periodes.push({horaire:`${h.debut}-${h.fin}`,groupe:'',activite:'',details:''});
+  }
+  const periodes = cell.periodes || [];
+
+  let html = '';
+  for (let i=0;i<n;i++) {
+    const p = periodes[i] || {horaire:'',groupe:'',activite:'',details:''};
+    const h = config.horaires[i]||{debut:'',fin:''};
+    const horaire = p.horaire || `${h.debut}-${h.fin}`;
+
+    // Check for recess before this period
+    if (i > 0) {
+      const rec = config.recreations.find(r=>r.after===i && r.enabled);
+      if (rec) {
+        html += `<div class="separator">☕ ${t('recess')}</div>`;
+      }
+    }
+    // Check for lunch before this period
+    if (config.diner.enabled && config.diner.after === i) {
+      html += `<div class="separator">🍽️ ${t('lunch')} (${config.diner.debut} - ${config.diner.fin})</div>`;
     }
 
-    const row=document.createElement('div');row.className='flex gap-2 items-stretch';
-    const label=isParasco?t('afterSchool'):`${t('period')} ${periodIdx}`;
-    row.innerHTML=`
-      <div class="period-cyan" style="min-width:110px">
-        <div class="text-lg">${label}</div>
-        <input class="period-input text-center text-sm mt-1" style="background:rgba(255,255,255,0.3);color:#fff;border-color:rgba(255,255,255,0.5);max-width:130px" value="${p.horaire}" data-period="${i}" data-field="horaire" onchange="onModalInput(this,'${ds}')">
-      </div>
-      <div class="period-yellow flex-1">
-        <div class="flex flex-col sm:flex-row gap-2 mb-2">
-          <div class="flex-1"><label class="font-fredoka text-sm text-gray-700">${t('group')}:</label>
-            <input class="period-input" value="${p.groupe}" placeholder="${t('free')}" data-period="${i}" data-field="groupe" onchange="onModalInput(this,'${ds}')">
-          </div>
-          <div class="flex-1"><label class="font-fredoka text-sm text-gray-700">${t('activity')}:</label>
-            <input class="period-input" value="${p.activite}" data-period="${i}" data-field="activite" onchange="onModalInput(this,'${ds}')">
-          </div>
-        </div>
-        <label class="font-fredoka text-sm text-gray-700">${t('details')}:</label>
-        <textarea class="period-input" rows="2" style="resize:vertical" data-period="${i}" data-field="details" onchange="onModalInput(this,'${ds}')">${p.details}</textarea>
-      </div>`;
-    container.appendChild(row);
+    html += `<div class="flex gap-3 mb-2" style="align-items:stretch">`;
+    // Cyan box
+    html += `<div class="period-cyan" style="min-width:100px">`;
+    html += `<div style="font-size:1rem">${t('period')} ${i+1}</div>`;
+    html += `<input type="text" class="modal-horaire" data-idx="${i}" value="${horaire}" style="background:rgba(255,255,255,0.25);border:none;border-radius:6px;padding:2px 6px;font-family:'Schoolbell',cursive;font-size:.85rem;color:#fff;text-align:center;width:90%;margin-top:4px" placeholder="8:10-9:10">`;
+    html += '</div>';
+    // Yellow box
+    html += '<div class="period-yellow">';
+    html += `<div class="mb-1"><label class="font-fredoka text-xs text-gray-700">${t('group')}</label>`;
+    html += `<input type="text" class="period-input modal-groupe" data-idx="${i}" value="${escHTML(p.groupe||'')}" placeholder="ex: 204B (cycle 1)"></div>`;
+    html += `<div class="mb-1"><label class="font-fredoka text-xs text-gray-700">${t('activity')}</label>`;
+    html += `<input type="text" class="period-input modal-activite" data-idx="${i}" value="${escHTML(p.activite||'')}" placeholder="ex: Basketball"></div>`;
+    html += `<div><label class="font-fredoka text-xs text-gray-700">${t('details')}</label>`;
+    html += `<textarea class="period-input modal-details" data-idx="${i}" rows="2" placeholder="ex: - Test bip&#10;- 6 min jogging" style="resize:vertical">${escHTML(p.details||'')}</textarea></div>`;
+    html += '</div></div>';
+  }
+
+  // After school
+  if (config.parascolaire.enabled) {
+    html += `<div class="separator">🎒 ${t('afterSchool')} (${config.parascolaire.debut} - ${config.parascolaire.fin})</div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function saveModal(ds) {
+  readConfigFromModal();
+  const cell = ensureCell(ds);
+  const periodes = [];
+  const n = config.nbPeriodes;
+  for (let i=0;i<n;i++) {
+    const horaire = document.querySelector(`.modal-horaire[data-idx="${i}"]`)?.value || '';
+    const groupe = document.querySelector(`.modal-groupe[data-idx="${i}"]`)?.value || '';
+    const activite = document.querySelector(`.modal-activite[data-idx="${i}"]`)?.value || '';
+    const details = document.querySelector(`.modal-details[data-idx="${i}"]`)?.value || '';
+    periodes.push({horaire, groupe, activite, details});
+  }
+  cell.periodes = periodes;
+  saveData();
+  renderCalendar();
+  renderDetailPanel(ds);
+  showToast('✅');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+/* ============================================================
+   EXPORT FUNCTIONS
+   ============================================================ */
+function printDay(ds) {
+  const d = new Date(ds+'T12:00:00');
+  const cell = getCell(ds) || {periodes:[],tags:[],notes:''};
+  const dow = d.getDay(); const dowIdx = dow===0?6:dow-1;
+  let html = `<html><head><style>body{font-family:Arial,sans-serif;padding:20px}h1{color:#00B8D4}table{width:100%;border-collapse:collapse;margin:10px 0}td,th{border:1px solid #ccc;padding:8px;text-align:left}th{background:#00B8D4;color:#fff}.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.8rem;margin:2px}</style></head><body>`;
+  html += `<h1>${t('daysFull')[dowIdx]} ${d.getDate()} ${t('months')[d.getMonth()]} ${d.getFullYear()}</h1>`;
+  if (cell.tags.length) {
+    html += '<p>';
+    cell.tags.forEach(tag => { html += `<span class="tag" style="background:#eee">${T.fr.tagEmojis[tag]||''} ${t('tags')[tag]||tag}</span> `; });
+    html += '</p>';
+  }
+  if (cell.periodes && cell.periodes.length) {
+    html += `<table><tr><th>#</th><th>${t('period')}</th><th>${t('group')}</th><th>${t('activity')}</th><th>${t('details')}</th></tr>`;
+    cell.periodes.forEach((p,i) => {
+      html += `<tr><td>${i+1}</td><td>${escHTML(p.horaire||'')}</td><td>${escHTML(p.groupe||'')}</td><td>${escHTML(p.activite||'')}</td><td>${escHTML(p.details||'').replace(/\n/g,'<br>')}</td></tr>`;
+    });
+    html += '</table>';
+  }
+  if (cell.notes) html += `<h3>${t('notes')}</h3><p>${escHTML(cell.notes).replace(/\n/g,'<br>')}</p>`;
+  html += '</body></html>';
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  w.print();
+}
+
+function exportDayPDF(ds) {
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF();
+  const d = new Date(ds+'T12:00:00');
+  const cell = getCell(ds) || {periodes:[],tags:[],notes:''};
+  const dow = d.getDay(); const dowIdx = dow===0?6:dow-1;
+  const title = `${t('daysFull')[dowIdx]} ${d.getDate()} ${t('months')[d.getMonth()]} ${d.getFullYear()}`;
+  doc.setFontSize(18); doc.text(title, 14, 20);
+  let y = 35;
+  if (cell.tags.length) { doc.setFontSize(10); doc.text('Tags: ' + cell.tags.map(t2=>T.fr.tagEmojis[t2]+' '+(T[lang].tags[t2]||t2)).join(', '), 14, y); y+=10; }
+  if (cell.periodes) {
+    doc.setFontSize(10);
+    cell.periodes.forEach((p,i) => {
+      doc.text(`P${i+1} (${p.horaire||''}) | ${p.groupe||''} | ${p.activite||''} | ${p.details||''}`, 14, y);
+      y += 7; if (y>270){doc.addPage();y=20;}
+    });
+  }
+  if (cell.notes) { y+=5; doc.text(t('notes')+': '+cell.notes, 14, y); }
+  doc.save(`planif-${ds}.pdf`);
+}
+
+function exportDayXLS(ds) {
+  const cell = getCell(ds) || {periodes:[],tags:[],notes:''};
+  const rows = [['#',t('period'),t('group'),t('activity'),t('details')]];
+  (cell.periodes||[]).forEach((p,i) => rows.push([i+1, p.horaire||'', p.groupe||'', p.activite||'', p.details||'']));
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, ds);
+  XLSX.writeFile(wb, `planif-${ds}.xlsx`);
+}
+
+function exportDayCSV(ds) {
+  const cell = getCell(ds) || {periodes:[],tags:[],notes:''};
+  let csv = '#,Horaire,Groupe,Activite,Details\n';
+  (cell.periodes||[]).forEach((p,i) => {
+    csv += `${i+1},"${(p.horaire||'')}","${(p.groupe||'')}","${(p.activite||'')}","${(p.details||'').replace(/"/g,'""')}"\n`;
   });
-
-  modal.dataset.ds=ds;
-  modal.dataset.day=d;
+  downloadText(csv, `planif-${ds}.csv`, 'text/csv');
 }
 
-function onModalInput(el,ds){
-  const idx=parseInt(el.dataset.period);
-  const field=el.dataset.field;
-  const cell=getCell(ds)||{};
-  const cfg=loadConfig();
-  const defPeriodes=cfg.horaires.map(h=>({horaire:`${h.debut} - ${h.fin}`,groupe:'',activite:'',details:''}));
-  if(cfg.parascolaire.enabled) defPeriodes.push({horaire:`${cfg.parascolaire.debut} - ${cfg.parascolaire.fin}`,groupe:'',activite:'',details:'',isParascolaire:true});
-  const periodes=cell.periodes||defPeriodes;
-  periodes[idx][field]=el.value;
-  setCell(ds,{periodes});
-}
-
-function saveModal(){
-  const modal=document.getElementById('dailyModal');
-  const ds=modal.dataset.ds;
-  // All already auto-saved via onchange
-  alert(lang==='fr'?'Journee sauvegardee!':lang==='en'?'Day saved!':lang==='es'?'Dia guardado!':'日程已保存!');
-}
-
-function closeModal(){
-  document.getElementById('dailyModal').classList.add('hidden');
-  document.body.style.overflow='';
-}
-
-function printModal(){
-  window.print();
-}
-
-/* ====== PRINT ====== */
-function printDay(){window.print()}
-
-/* ====== EXPORTS ====== */
-function exportPDF(){
-  if(!selectedDate)return;
-  const{jsPDF}=window.jspdf;const doc=new jsPDF();
-  const cell=getCell(selectedDate)||{};
-  doc.setFontSize(18);doc.text(`${selectedDate}`,10,15);
-  doc.setFontSize(12);
-  let y=25;
-  doc.text(`${t('day')}: ${cell.jour||''}`,10,y);y+=8;
-  doc.text(`${t('groups')}: ${cell.groupes||''}`,10,y);y+=8;
-  doc.text(`${t('planif')}: ${cell.planif||''}`,10,y);y+=8;
-  doc.text(`Tags: ${(cell.tags||[]).join(', ')}`,10,y);y+=8;
-  doc.text(`Notes: ${cell.notes||''}`,10,y);y+=12;
-  if(cell.periodes){
-    cell.periodes.forEach((p,i)=>{
-      doc.text(`${t('period')} ${i+1} (${p.horaire}): ${p.groupe} - ${p.activite}`,10,y);y+=7;
-      if(p.details){doc.setFontSize(10);doc.text(`  ${p.details.replace(/\n/g,', ')}`,10,y);y+=7;doc.setFontSize(12)}
+function exportMonthPDF() {
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text(`${t('months')[currentMonth]} ${currentYear}`, 14, 18);
+  let y = 30;
+  const last = new Date(currentYear,currentMonth+1,0).getDate();
+  for (let d=1;d<=last;d++) {
+    const ds = dateStr(currentYear,currentMonth,d);
+    const cell = getCell(ds);
+    if (!cell || !cell.periodes || !cell.periodes.length) continue;
+    if (!cell.periodes.some(p=>(p.groupe||'').trim()||(p.activite||'').trim())) continue;
+    const dt = new Date(ds+'T12:00:00');
+    const dowIdx = dt.getDay()===0?6:dt.getDay()-1;
+    doc.setFontSize(12); doc.text(`${t('daysFull')[dowIdx]} ${d}`, 14, y); y+=6;
+    doc.setFontSize(9);
+    cell.periodes.forEach((p,i) => {
+      if ((p.groupe||'').trim()||(p.activite||'').trim()) {
+        doc.text(`  P${i+1} ${p.horaire||''} | ${p.groupe||''} | ${p.activite||''} | ${p.details||''}`, 14, y);
+        y+=5;
+      }
     });
-  }
-  doc.save(`planif-${selectedDate}.pdf`);
-}
-
-function exportXLS(){
-  if(!selectedDate)return;
-  const cell=getCell(selectedDate)||{};
-  const data=[{Date:selectedDate,Jour:cell.jour||'',Groupes:cell.groupes||'',Planif:cell.planif||'',Tags:(cell.tags||[]).join(', '),Notes:cell.notes||''}];
-  if(cell.periodes){
-    cell.periodes.forEach((p,i)=>{
-      data.push({Date:'',Jour:`${t('period')} ${i+1}`,Groupes:p.groupe,Planif:p.activite,Tags:p.horaire,Notes:p.details});
-    });
-  }
-  const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Planif');
-  XLSX.writeFile(wb,`planif-${selectedDate}.xlsx`);
-}
-
-function exportCSV(){
-  if(!selectedDate)return;
-  const cell=getCell(selectedDate)||{};
-  let csv=`Date,Jour,Groupes,Planif,Tags,Notes\n`;
-  csv+=`${selectedDate},"${cell.jour||''}","${cell.groupes||''}","${cell.planif||''}","${(cell.tags||[]).join(', ')}","${cell.notes||''}"\n`;
-  if(cell.periodes){
-    cell.periodes.forEach((p,i)=>{
-      csv+=`,"${t('period')} ${i+1}","${p.groupe}","${p.activite}","${p.horaire}","${p.details?.replace(/\n/g,' ')||''}"\n`;
-    });
-  }
-  downloadFile(`planif-${selectedDate}.csv`,csv,'text/csv');
-}
-
-function exportMonthPDF(){
-  const{jsPDF}=window.jspdf;const doc=new jsPDF();
-  doc.setFontSize(16);doc.text(`${t('months')[currentMonth]} ${currentYear}`,10,15);
-  const s=loadStore();let y=25;doc.setFontSize(10);
-  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-  for(let d=1;d<=daysInMonth;d++){
-    const ds=dateStr(currentYear,currentMonth,d);
-    const cell=s.cells[ds];if(!cell)continue;
-    if(y>270){doc.addPage();y=15}
-    doc.text(`${ds}: ${cell.jour||''} | ${cell.groupes||''} | ${cell.planif||''} | ${(cell.tags||[]).join(',')}`,10,y);y+=6;
+    y+=3;
+    if(y>270){doc.addPage();y=20;}
   }
   doc.save(`planif-${t('months')[currentMonth]}-${currentYear}.pdf`);
 }
 
-function exportMonthXLS(){
-  const s=loadStore();const data=[];
-  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-  for(let d=1;d<=daysInMonth;d++){
-    const ds=dateStr(currentYear,currentMonth,d);
-    const cell=s.cells[ds];if(!cell)continue;
-    data.push({Date:ds,Jour:cell.jour||'',Groupes:cell.groupes||'',Planif:cell.planif||'',Tags:(cell.tags||[]).join(', '),Notes:cell.notes||''});
+function exportMonthXLS() {
+  const rows = [[t('months')[currentMonth]+' '+currentYear], ['Date','P#',t('period'),t('group'),t('activity'),t('details')]];
+  const last = new Date(currentYear,currentMonth+1,0).getDate();
+  for (let d=1;d<=last;d++) {
+    const ds = dateStr(currentYear,currentMonth,d);
+    const cell = getCell(ds);
+    if (!cell||!cell.periodes) continue;
+    cell.periodes.forEach((p,i) => {
+      if ((p.groupe||'').trim()||(p.activite||'').trim()) rows.push([ds,i+1,p.horaire||'',p.groupe||'',p.activite||'',p.details||'']);
+    });
   }
-  if(!data.length)return;
-  const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,t('months')[currentMonth]);
-  XLSX.writeFile(wb,`planif-${t('months')[currentMonth]}-${currentYear}.xlsx`);
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, t('months')[currentMonth]);
+  XLSX.writeFile(wb, `planif-${t('months')[currentMonth]}-${currentYear}.xlsx`);
 }
 
-function exportMonthCSV(){
-  const s=loadStore();let csv=`Date,Jour,Groupes,Planif,Tags,Notes\n`;
-  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-  for(let d=1;d<=daysInMonth;d++){
-    const ds=dateStr(currentYear,currentMonth,d);
-    const cell=s.cells[ds];if(!cell)continue;
-    csv+=`${ds},"${cell.jour||''}","${cell.groupes||''}","${cell.planif||''}","${(cell.tags||[]).join(', ')}","${cell.notes||''}"\n`;
+function exportMonthCSV() {
+  let csv = 'Date,Period,Horaire,Groupe,Activite,Details\n';
+  const last = new Date(currentYear,currentMonth+1,0).getDate();
+  for (let d=1;d<=last;d++) {
+    const ds = dateStr(currentYear,currentMonth,d);
+    const cell = getCell(ds);
+    if (!cell||!cell.periodes) continue;
+    cell.periodes.forEach((p,i) => {
+      if ((p.groupe||'').trim()||(p.activite||'').trim()) {
+        csv += `"${ds}",${i+1},"${p.horaire||''}","${(p.groupe||'')}","${(p.activite||'')}","${(p.details||'').replace(/"/g,'""')}"\n`;
+      }
+    });
   }
-  downloadFile(`planif-${t('months')[currentMonth]}-${currentYear}.csv`,csv,'text/csv');
+  downloadText(csv, `planif-${t('months')[currentMonth]}-${currentYear}.csv`, 'text/csv');
 }
 
-function downloadFile(name,content,type){
-  const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);
+function downloadText(text, filename, mime) {
+  const blob = new Blob([text], {type:mime});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
 }
 
-/* ====== i18n UPDATE ====== */
-function updateI18n(){
-  document.getElementById('headerTitle').textContent=t('headerTitle');
-  document.getElementById('btnToday').textContent=t('today');
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    const k=el.dataset.i18n;if(T[lang][k])el.textContent=T[lang][k];
-  });
+/* ============================================================
+   UTILS
+   ============================================================ */
+function escHTML(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:10px 20px;border-radius:12px;font-family:"Fredoka One",cursive;z-index:9999;animation:fadeout 1.5s forwards';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 1600);
 }
 
-/* ====== RENDER ALL ====== */
-function renderAll(){
-  populateMonthSelect();
-  document.getElementById('monthTitle').textContent=`${t('months')[currentMonth]} ${currentYear}`;
-  updateI18n();
+// Fadeout animation
+const styleAnim = document.createElement('style');
+styleAnim.textContent = '@keyframes fadeout{0%{opacity:1}70%{opacity:1}100%{opacity:0}}';
+document.head.appendChild(styleAnim);
+
+/* ============================================================
+   RENDER ALL
+   ============================================================ */
+function renderAll() {
+  renderLangPills();
+  renderMonthSelect();
+  updateMonthTitle();
   renderCalendar();
-  if(selectedDate){
-    const d=parseInt(selectedDate.split('-')[2]);
-    showDetail(selectedDate,d);
-  }
+  document.getElementById('headerTitle').textContent = t('headerTitle');
+  document.getElementById('btnToday').textContent = t('today');
+  document.getElementById('exportLabel').textContent = t('exportMonth');
+  if (selectedDate) renderDetailPanel(selectedDate);
 }
 
-/* ====== INIT ====== */
-(function init(){
-  const s=loadStore();
-  lang=s.lang||'fr';
-  const now=new Date();
-  // Default to current month, but stay in school year range
-  currentYear=now.getFullYear();currentMonth=now.getMonth();
-  initLangs();
+/* ============================================================
+   INIT
+   ============================================================ */
+(function init() {
+  // Start at current month if within school year
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  if ((y===2025 && m>=7) || (y===2026 && m<=6)) {
+    currentYear = y; currentMonth = m;
+  }
   renderAll();
 })();
 </script>
