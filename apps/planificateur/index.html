@@ -149,7 +149,16 @@ const T = {
     exportMonth: 'Exporter le mois complet :',
     addTag: 'Ajouter un badge :',
     detailTitle: 'Détails du jour',
-    pdf: 'PDF', excel: 'Excel', csv: 'CSV'
+    pdf: 'PDF', excel: 'Excel', csv: 'CSV',
+    garde: 'Garde / Surveillance',
+    extras: 'Extras du jour',
+    comite: 'Comité',
+    autre: 'Autre',
+    quoi: 'Quoi',
+    heure: 'Heure',
+    recessTime: 'Heure récréation',
+    rec1: 'Récréation 1',
+    rec2: 'Récréation 2'
   },
   en: {
     headerTitle: 'PEDAGOGICAL PLANNER',
@@ -181,7 +190,16 @@ const T = {
     exportMonth: 'Export full month:',
     addTag: 'Add badge:',
     detailTitle: 'Day details',
-    pdf: 'PDF', excel: 'Excel', csv: 'CSV'
+    pdf: 'PDF', excel: 'Excel', csv: 'CSV',
+    garde: 'Supervision',
+    extras: 'Day extras',
+    comite: 'Committee',
+    autre: 'Other',
+    quoi: 'What',
+    heure: 'Time',
+    recessTime: 'Recess time',
+    rec1: 'Recess 1',
+    rec2: 'Recess 2'
   },
   es: {
     headerTitle: 'PLANIFICADOR PEDAGÓGICO',
@@ -213,7 +231,16 @@ const T = {
     exportMonth: 'Exportar mes completo:',
     addTag: 'Agregar insignia:',
     detailTitle: 'Detalles del día',
-    pdf: 'PDF', excel: 'Excel', csv: 'CSV'
+    pdf: 'PDF', excel: 'Excel', csv: 'CSV',
+    garde: 'Vigilancia',
+    extras: 'Extras del día',
+    comite: 'Comité',
+    autre: 'Otro',
+    quoi: 'Qué',
+    heure: 'Hora',
+    recessTime: 'Hora recreo',
+    rec1: 'Recreo 1',
+    rec2: 'Recreo 2'
   },
   zh: {
     headerTitle: '教学计划器',
@@ -245,7 +272,16 @@ const T = {
     exportMonth: '导出整月：',
     addTag: '添加标签：',
     detailTitle: '日期详情',
-    pdf: 'PDF', excel: 'Excel', csv: 'CSV'
+    pdf: 'PDF', excel: 'Excel', csv: 'CSV',
+    garde: '值班',
+    extras: '当日额外',
+    comite: '委员会',
+    autre: '其他',
+    quoi: '什么',
+    heure: '时间',
+    recessTime: '休息时间',
+    rec1: '休息1',
+    rec2: '休息2'
   }
 };
 let lang = localStorage.getItem('zts-planif-lang') || 'fr';
@@ -282,7 +318,7 @@ let config = JSON.parse(localStorage.getItem('zts-planif-config') || 'null') || 
     {debut:'8:10',fin:'9:10'},{debut:'9:10',fin:'10:10'},{debut:'10:30',fin:'11:30'},
     {debut:'12:45',fin:'13:45'},{debut:'14:05',fin:'15:05'}
   ],
-  recreations: [{after:2,enabled:true},{after:4,enabled:true}],
+  recreations: [{after:2,enabled:true,debut:'10:10',fin:'10:30'},{after:4,enabled:true,debut:'13:45',fin:'14:05'}],
   diner: {after:3,enabled:true,debut:'11:30',fin:'12:45'},
   parascolaire: {enabled:false,debut:'15:15',fin:'16:15'}
 };
@@ -593,18 +629,11 @@ function openModal(ds) {
   // Period times
   html += '<div id="cfgTimes"></div>';
 
-  // Recreations
-  html += `<div class="config-row mt-2"><label>${t('recess')}</label><div id="cfgRec"></div></div>`;
+  // Recreations (flexible selectors)
+  html += '<div id="cfgRec"></div>';
 
   // Lunch
-  html += `<div class="config-row"><label>${t('lunch')}</label>`;
-  html += `<input type="checkbox" id="cfgLunchOn" ${config.diner.enabled?'checked':''}> `;
-  html += `${t('after')} <select id="cfgLunchAfter" style="width:50px">`;
-  for (let i=1;i<=7;i++) html += `<option value="${i}"${config.diner.after===i?' selected':''}>${i}</option>`;
-  html += `</select> `;
-  html += `<input type="time" id="cfgLunchStart" value="${config.diner.debut||'11:30'}" style="width:100px">`;
-  html += `<input type="time" id="cfgLunchEnd" value="${config.diner.fin||'12:45'}" style="width:100px">`;
-  html += '</div>';
+  html += '<div id="cfgLunch"></div>';
 
   // After school
   html += `<div class="config-row"><label>${t('afterSchool')}</label>`;
@@ -658,12 +687,38 @@ function renderConfigRec() {
   const n = parseInt(document.getElementById('cfgNbP').value);
   const c = document.getElementById('cfgRec');
   let html = '';
-  for (let i=1;i<n;i++) {
-    const rec = config.recreations.find(r=>r.after===i);
-    const checked = rec && rec.enabled;
-    html += `<label style="font-size:.8rem;margin-right:8px"><input type="checkbox" class="cfg-rec-cb" data-after="${i}" ${checked?'checked':''}> ${t('after')}${i}</label>`;
-  }
+  // Rec 1
+  const r1 = config.recreations[0] || {after:2,enabled:true,debut:'10:10',fin:'10:30'};
+  html += `<div class="config-row mt-2"><label>☕ ${t('rec1')}</label>`;
+  html += `<input type="checkbox" id="cfgRec1On" ${r1.enabled?'checked':''}> `;
+  html += `${t('after')} <select id="cfgRec1After" style="width:50px">`;
+  for (let i=1;i<n;i++) html += `<option value="${i}"${r1.after===i?' selected':''}>${i}</option>`;
+  html += `</select> `;
+  html += `<input type="time" id="cfgRec1Start" value="${r1.debut||''}" style="width:100px">`;
+  html += `<input type="time" id="cfgRec1End" value="${r1.fin||''}" style="width:100px">`;
+  html += '</div>';
+  // Rec 2
+  const r2 = config.recreations[1] || {after:4,enabled:true,debut:'13:45',fin:'14:05'};
+  html += `<div class="config-row"><label>☕ ${t('rec2')}</label>`;
+  html += `<input type="checkbox" id="cfgRec2On" ${r2.enabled?'checked':''}> `;
+  html += `${t('after')} <select id="cfgRec2After" style="width:50px">`;
+  for (let i=1;i<n;i++) html += `<option value="${i}"${r2.after===i?' selected':''}>${i}</option>`;
+  html += `</select> `;
+  html += `<input type="time" id="cfgRec2Start" value="${r2.debut||''}" style="width:100px">`;
+  html += `<input type="time" id="cfgRec2End" value="${r2.fin||''}" style="width:100px">`;
+  html += '</div>';
   c.innerHTML = html;
+  // Lunch
+  const lc = document.getElementById('cfgLunch');
+  let lhtml = `<div class="config-row"><label>🍽️ ${t('lunch')}</label>`;
+  lhtml += `<input type="checkbox" id="cfgLunchOn" ${config.diner.enabled?'checked':''}> `;
+  lhtml += `${t('after')} <select id="cfgLunchAfter" style="width:50px">`;
+  for (let i=1;i<=n;i++) lhtml += `<option value="${i}"${config.diner.after===i?' selected':''}>${i}</option>`;
+  lhtml += `</select> `;
+  lhtml += `<input type="time" id="cfgLunchStart" value="${config.diner.debut||'11:30'}" style="width:100px">`;
+  lhtml += `<input type="time" id="cfgLunchEnd" value="${config.diner.fin||'12:45'}" style="width:100px">`;
+  lhtml += '</div>';
+  lc.innerHTML = lhtml;
 }
 
 function updateConfigPreview() {
@@ -679,10 +734,10 @@ function readConfigFromModal() {
   for (let i=0;i<n;i++) {
     horaires.push({debut: starts[i]?.value||'', fin: ends[i]?.value||''});
   }
-  const recreations = [];
-  document.querySelectorAll('.cfg-rec-cb').forEach(cb => {
-    recreations.push({after: parseInt(cb.dataset.after), enabled: cb.checked});
-  });
+  const recreations = [
+    {after: parseInt(document.getElementById('cfgRec1After')?.value||2), enabled: document.getElementById('cfgRec1On')?.checked||false, debut: document.getElementById('cfgRec1Start')?.value||'', fin: document.getElementById('cfgRec1End')?.value||''},
+    {after: parseInt(document.getElementById('cfgRec2After')?.value||4), enabled: document.getElementById('cfgRec2On')?.checked||false, debut: document.getElementById('cfgRec2Start')?.value||'', fin: document.getElementById('cfgRec2End')?.value||''}
+  ];
   const diner = {
     after: parseInt(document.getElementById('cfgLunchAfter').value),
     enabled: document.getElementById('cfgLunchOn').checked,
@@ -726,7 +781,7 @@ function applyConfigAll() {
 
 function renderModalPeriods(ds) {
   const container = document.getElementById('modalPeriods');
-  const cell = getCell(ds) || {periodes:[]};
+  const cell = getCell(ds) || {periodes:[],gardes:[],extras:{}};
   const n = config.nbPeriodes;
 
   // Ensure we have enough periods
@@ -735,6 +790,8 @@ function renderModalPeriods(ds) {
     cell.periodes.push({horaire:`${h.debut}-${h.fin}`,groupe:'',activite:'',details:''});
   }
   const periodes = cell.periodes || [];
+  const gardes = cell.gardes || [];
+  const extras = cell.extras || {parascolaire:{enabled:false,heure:'',desc:''},comite:{enabled:false,heure:'',desc:''},autre:{enabled:false,quoi:'',heure:''}};
 
   let html = '';
   for (let i=0;i<n;i++) {
@@ -746,12 +803,21 @@ function renderModalPeriods(ds) {
     if (i > 0) {
       const rec = config.recreations.find(r=>r.after===i && r.enabled);
       if (rec) {
-        html += `<div class="separator">☕ ${t('recess')}</div>`;
+        html += `<div class="separator">☕ ${rec===config.recreations[0]?t('rec1'):t('rec2')} (${rec.debut||''} - ${rec.fin||''})</div>`;
       }
     }
     // Check for lunch before this period
     if (config.diner.enabled && config.diner.after === i) {
       html += `<div class="separator">🍽️ ${t('lunch')} (${config.diner.debut} - ${config.diner.fin})</div>`;
+    }
+
+    // Garde between periods (before period i, so transition i-1 -> i)
+    if (i > 0) {
+      const gIdx = i-1;
+      html += `<div style="display:flex;align-items:center;gap:6px;margin:2px 8px;padding:2px 8px;background:rgba(255,165,0,0.1);border-radius:8px;border-left:3px solid #f97316">`;
+      html += `<span style="font-size:.75rem;color:#f97316">\u{1F512}</span>`;
+      html += `<input type="text" class="period-input modal-garde" data-idx="${gIdx}" value="${escHTML(gardes[gIdx]||'')}" placeholder="${t('garde')}..." style="font-size:.85rem;flex:1">`;
+      html += `</div>`;
     }
 
     html += `<div class="flex gap-3 mb-2" style="align-items:stretch">`;
@@ -773,8 +839,31 @@ function renderModalPeriods(ds) {
 
   // After school
   if (config.parascolaire.enabled) {
-    html += `<div class="separator">🎒 ${t('afterSchool')} (${config.parascolaire.debut} - ${config.parascolaire.fin})</div>`;
+    html += `<div class="separator">\u{1F392} ${t('afterSchool')} (${config.parascolaire.debut} - ${config.parascolaire.fin})</div>`;
   }
+
+  // Extras du jour
+  html += `<div style="background:rgba(0,0,0,0.04);border-radius:12px;padding:12px;margin:10px 0">`;
+  html += `<div class="font-fredoka" style="font-size:.95rem;color:#333;margin-bottom:8px">\u{1F4CC} ${t('extras')}</div>`;
+  // Parascolaire
+  const ep = extras.parascolaire||{enabled:false,heure:'',desc:''};
+  html += `<div class="config-row"><input type="checkbox" id="extParaOn" ${ep.enabled?'checked':''}> <span style="font-size:.9rem">\u{1F392} ${t('afterSchool')}</span>`;
+  html += ` <label style="font-size:.8rem;min-width:auto">${t('heure')}:</label><input type="time" id="extParaHeure" value="${ep.heure||''}" style="width:100px">`;
+  html += ` <input type="text" id="extParaDesc" class="period-input" value="${escHTML(ep.desc||'')}" placeholder="Description..." style="flex:1;font-size:.85rem">`;
+  html += `</div>`;
+  // Comite
+  const ec = extras.comite||{enabled:false,heure:'',desc:''};
+  html += `<div class="config-row"><input type="checkbox" id="extComOn" ${ec.enabled?'checked':''}> <span style="font-size:.9rem">\u{1F465} ${t('comite')}</span>`;
+  html += ` <label style="font-size:.8rem;min-width:auto">${t('heure')}:</label><input type="time" id="extComHeure" value="${ec.heure||''}" style="width:100px">`;
+  html += ` <input type="text" id="extComDesc" class="period-input" value="${escHTML(ec.desc||'')}" placeholder="Description..." style="flex:1;font-size:.85rem">`;
+  html += `</div>`;
+  // Autre
+  const ea = extras.autre||{enabled:false,quoi:'',heure:''};
+  html += `<div class="config-row"><input type="checkbox" id="extAutreOn" ${ea.enabled?'checked':''}> <span style="font-size:.9rem">\u{2795} ${t('autre')}</span>`;
+  html += ` <label style="font-size:.8rem;min-width:auto">${t('quoi')}:</label><input type="text" id="extAutreQuoi" class="period-input" value="${escHTML(ea.quoi||'')}" placeholder="${t('quoi')}..." style="width:140px;font-size:.85rem">`;
+  html += ` <label style="font-size:.8rem;min-width:auto">${t('heure')}:</label><input type="time" id="extAutreHeure" value="${ea.heure||''}" style="width:100px">`;
+  html += `</div>`;
+  html += `</div>`;
 
   container.innerHTML = html;
 }
@@ -792,6 +881,30 @@ function saveModal(ds) {
     periodes.push({horaire, groupe, activite, details});
   }
   cell.periodes = periodes;
+  // Save gardes
+  const gardes = [];
+  for (let i=0;i<n-1;i++) {
+    gardes.push(document.querySelector(`.modal-garde[data-idx="${i}"]`)?.value || '');
+  }
+  cell.gardes = gardes;
+  // Save extras
+  cell.extras = {
+    parascolaire: {
+      enabled: document.getElementById('extParaOn')?.checked||false,
+      heure: document.getElementById('extParaHeure')?.value||'',
+      desc: document.getElementById('extParaDesc')?.value||''
+    },
+    comite: {
+      enabled: document.getElementById('extComOn')?.checked||false,
+      heure: document.getElementById('extComHeure')?.value||'',
+      desc: document.getElementById('extComDesc')?.value||''
+    },
+    autre: {
+      enabled: document.getElementById('extAutreOn')?.checked||false,
+      quoi: document.getElementById('extAutreQuoi')?.value||'',
+      heure: document.getElementById('extAutreHeure')?.value||''
+    }
+  };
   saveData();
   renderCalendar();
   renderDetailPanel(ds);
