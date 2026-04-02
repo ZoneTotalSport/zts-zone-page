@@ -110,6 +110,54 @@ body{font-family:'Schoolbell',cursive;font-size:1.15rem;min-height:100vh;overflo
 <!-- DETAIL PANEL (badges + notes) -->
 <div id="detailPanel" class="max-w-7xl mx-auto px-3 pb-6 hidden no-print"></div>
 
+<!-- QUICK ADD BAR -->
+<div class="max-w-7xl mx-auto px-4 pb-4 no-print">
+  <div class="detail-glass p-4 flex flex-wrap items-center gap-3 justify-center">
+    <span class="font-lucky text-lg text-gray-700" id="quickAddLabel">Ajouter :</span>
+    <button class="btn-pill btn-cyan text-base" onclick="openQuickAdd('conge')">🏖️ <span data-qi18n="addConge">Congé</span></button>
+    <button class="btn-pill btn-yellow text-base" onclick="openQuickAdd('ped')">📚 <span data-qi18n="addPed">Pédagogique</span></button>
+    <button class="btn-pill btn-violet text-base" onclick="openQuickAdd('sortie')">🚌 <span data-qi18n="addSortie">Sortie scolaire</span></button>
+    <button class="btn-pill btn-pink text-base" onclick="openQuickAdd('edit')">✏️ <span data-qi18n="editDay">Éditer un jour</span></button>
+  </div>
+</div>
+
+<!-- QUICK ADD POPUP -->
+<div id="quickAddPopup" class="modal-overlay hidden" onclick="if(event.target===this)closeQuickAdd()">
+  <div class="modal-content" style="max-width:500px;margin:auto;border-radius:20px;overflow:hidden">
+    <div id="quickAddHeader" class="p-5 text-center" style="background:linear-gradient(135deg,#00E5FF,#00B8D4)">
+      <h2 id="quickAddTitle" class="font-lucky text-3xl text-white drop-shadow-lg"></h2>
+    </div>
+    <div class="p-6 bg-white">
+      <!-- Type indicator -->
+      <div id="quickAddEmoji" class="text-center text-5xl mb-4"></div>
+
+      <!-- Date picker -->
+      <div class="mb-4">
+        <label class="font-bangers text-lg text-gray-700 block mb-1" id="quickAddDateLabel">Date :</label>
+        <input type="date" id="quickAddDate" class="w-full p-3 border-2 border-gray-300 rounded-xl font-schoolbell text-lg focus:border-cyan-500 focus:outline-none" min="2025-08-25" max="2026-06-30">
+      </div>
+
+      <!-- Description (optional) -->
+      <div class="mb-4">
+        <label class="font-bangers text-lg text-gray-700 block mb-1" id="quickAddDescLabel">Description :</label>
+        <input type="text" id="quickAddDesc" class="w-full p-3 border-2 border-gray-300 rounded-xl font-schoolbell text-lg focus:border-cyan-500 focus:outline-none" placeholder="">
+      </div>
+
+      <!-- End date for multi-day -->
+      <div class="mb-4" id="quickAddEndRow">
+        <label class="font-bangers text-lg text-gray-700 block mb-1" id="quickAddEndLabel">Date de fin (optionnel) :</label>
+        <input type="date" id="quickAddEndDate" class="w-full p-3 border-2 border-gray-300 rounded-xl font-schoolbell text-lg focus:border-cyan-500 focus:outline-none" min="2025-08-25" max="2026-06-30">
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex gap-3 mt-6">
+        <button class="btn-pill btn-cyan flex-1 text-lg py-3" onclick="confirmQuickAdd()">✅ <span data-qi18n="confirm">Confirmer</span></button>
+        <button class="btn-pill btn-pink flex-1 text-lg py-3" onclick="closeQuickAdd()">✕ <span data-qi18n="cancel">Annuler</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- EXPORT BAR -->
 <div id="exportBar" class="max-w-7xl mx-auto px-4 pb-8 no-print">
   <div class="detail-glass p-4 flex flex-wrap items-center gap-3 justify-center">
@@ -1015,8 +1063,155 @@ function downloadText(text,filename,mime){
   a.download=filename;a.click();
 }
 
+// ===================== QUICK ADD =====================
+const quickAddI18n = {
+  fr:{addConge:'Congé',addPed:'Pédagogique',addSortie:'Sortie scolaire',editDay:'Éditer un jour',
+      confirm:'Confirmer',cancel:'Annuler',quickAdd:'Ajouter :',date:'Date :',desc:'Description :',
+      endDate:'Date de fin (optionnel) :',
+      titles:{conge:'🏖️ AJOUTER UN CONGÉ',ped:'📚 JOURNÉE PÉDAGOGIQUE',sortie:'🚌 SORTIE SCOLAIRE',edit:'✏️ ÉDITER UN JOUR'},
+      emojis:{conge:'🏖️',ped:'📚',sortie:'🚌',edit:'✏️'},
+      descs:{conge:'Nom du congé...',ped:'Objet de la journée...',sortie:'Destination / activité...',edit:''},
+      added:'Ajouté avec succès!',edited:'Ouverture de la planification...'},
+  en:{addConge:'Holiday',addPed:'Pedagogical',addSortie:'Field trip',editDay:'Edit a day',
+      confirm:'Confirm',cancel:'Cancel',quickAdd:'Add:',date:'Date:',desc:'Description:',
+      endDate:'End date (optional):',
+      titles:{conge:'🏖️ ADD A HOLIDAY',ped:'📚 PEDAGOGICAL DAY',sortie:'🚌 FIELD TRIP',edit:'✏️ EDIT A DAY'},
+      emojis:{conge:'🏖️',ped:'📚',sortie:'🚌',edit:'✏️'},
+      descs:{conge:'Holiday name...',ped:'Purpose...',sortie:'Destination / activity...',edit:''},
+      added:'Added successfully!',edited:'Opening planner...'},
+  es:{addConge:'Feriado',addPed:'Pedagógico',addSortie:'Salida escolar',editDay:'Editar un día',
+      confirm:'Confirmar',cancel:'Cancelar',quickAdd:'Agregar:',date:'Fecha:',desc:'Descripción:',
+      endDate:'Fecha de fin (opcional):',
+      titles:{conge:'🏖️ AGREGAR FERIADO',ped:'📚 DÍA PEDAGÓGICO',sortie:'🚌 SALIDA ESCOLAR',edit:'✏️ EDITAR UN DÍA'},
+      emojis:{conge:'🏖️',ped:'📚',sortie:'🚌',edit:'✏️'},
+      descs:{conge:'Nombre del feriado...',ped:'Objetivo...',sortie:'Destino / actividad...',edit:''},
+      added:'Agregado con éxito!',edited:'Abriendo planificador...'},
+  zh:{addConge:'假日',addPed:'教学日',addSortie:'校外活动',editDay:'编辑日期',
+      confirm:'确认',cancel:'取消',quickAdd:'添加：',date:'日期：',desc:'描述：',
+      endDate:'结束日期（可选）：',
+      titles:{conge:'🏖️ 添加假日',ped:'📚 教学日',sortie:'🚌 校外活动',edit:'✏️ 编辑日期'},
+      emojis:{conge:'🏖️',ped:'📚',sortie:'🚌',edit:'✏️'},
+      descs:{conge:'假日名称...',ped:'目的...',sortie:'目的地/活动...',edit:''},
+      added:'添加成功！',edited:'正在打开计划...'}
+};
+
+let quickAddType = '';
+
+function tq(key){return quickAddI18n[lang]?.[key]||quickAddI18n.fr[key]||key;}
+
+function updateQuickAddI18n(){
+  document.getElementById('quickAddLabel').textContent = tq('quickAdd');
+  document.querySelectorAll('[data-qi18n]').forEach(el=>{
+    el.textContent = tq(el.dataset.qi18n);
+  });
+}
+
+function openQuickAdd(type){
+  quickAddType = type;
+  const popup = document.getElementById('quickAddPopup');
+  const qi = quickAddI18n[lang]||quickAddI18n.fr;
+
+  document.getElementById('quickAddTitle').textContent = qi.titles[type];
+  document.getElementById('quickAddEmoji').textContent = qi.emojis[type];
+  document.getElementById('quickAddDateLabel').textContent = qi.date;
+  document.getElementById('quickAddDescLabel').textContent = qi.desc;
+  document.getElementById('quickAddEndLabel').textContent = qi.endDate;
+  document.getElementById('quickAddDesc').placeholder = qi.descs[type];
+
+  // Set today as default
+  const today = new Date();
+  document.getElementById('quickAddDate').value = today.toISOString().split('T')[0];
+  document.getElementById('quickAddEndDate').value = '';
+  document.getElementById('quickAddDesc').value = '';
+
+  // Show/hide fields based on type
+  if(type === 'edit'){
+    document.getElementById('quickAddDescLabel').parentElement.style.display = 'none';
+    document.getElementById('quickAddEndRow').style.display = 'none';
+  } else {
+    document.getElementById('quickAddDescLabel').parentElement.style.display = '';
+    document.getElementById('quickAddEndRow').style.display = type === 'conge' ? '' : 'none';
+  }
+
+  // Header color
+  const colors = {conge:'linear-gradient(135deg,#00B8D4,#0097A7)',ped:'linear-gradient(135deg,#FFD700,#FFC107)',sortie:'linear-gradient(135deg,#8B5CF6,#7C3AED)',edit:'linear-gradient(135deg,#FF2A7A,#E91E63)'};
+  document.getElementById('quickAddHeader').style.background = colors[type];
+
+  popup.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeQuickAdd(){
+  document.getElementById('quickAddPopup').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function confirmQuickAdd(){
+  const dateStr = document.getElementById('quickAddDate').value;
+  if(!dateStr) return;
+
+  const desc = document.getElementById('quickAddDesc').value;
+  const endStr = document.getElementById('quickAddEndDate').value;
+
+  if(quickAddType === 'edit'){
+    // Open modal for that date
+    closeQuickAdd();
+    // Navigate to the right month
+    const d = new Date(dateStr+'T12:00:00');
+    curYear = d.getFullYear();
+    curMonth = d.getMonth();
+    populateMonthSelect();
+    renderCalendar();
+    setTimeout(()=>openModal(dateStr), 200);
+    return;
+  }
+
+  // Badge type mapping
+  const badgeMap = {conge:'conge',ped:'ped',sortie:'sortie'};
+  const badgeType = badgeMap[quickAddType];
+
+  // Get date range
+  const startDate = new Date(dateStr+'T12:00:00');
+  const endDate = endStr ? new Date(endStr+'T12:00:00') : startDate;
+  const current = new Date(startDate);
+
+  while(current <= endDate){
+    const dk = current.toISOString().split('T')[0];
+    if(!data[dk]) data[dk] = {badges:[],notes:'',planif:{},extras:{}};
+
+    // Add badge if not already there
+    const existingBadge = data[dk].badges.find(b=>b.type===badgeType);
+    if(!existingBadge){
+      const label = desc || (quickAddI18n[lang].titles[quickAddType].replace(/^[^\s]+\s/,''));
+      data[dk].badges.push({type:badgeType, label:label});
+    }
+
+    // Add to notes if description provided
+    if(desc && !data[dk].notes.includes(desc)){
+      data[dk].notes = data[dk].notes ? data[dk].notes + '\n' + desc : desc;
+    }
+
+    current.setDate(current.getDate()+1);
+  }
+
+  saveData();
+  renderCalendar();
+  closeQuickAdd();
+
+  const qi = quickAddI18n[lang]||quickAddI18n.fr;
+  showToast('✅ ' + qi.added);
+}
+
+// Update quick add labels on language change
+const originalSetLang = setLang;
+setLang = function(l){
+  originalSetLang(l);
+  updateQuickAddI18n();
+};
+
 // ===================== START =====================
 init();
+updateQuickAddI18n();
 </script>
 </body>
 </html>
