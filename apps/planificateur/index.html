@@ -19,13 +19,15 @@ tailwind.config={theme:{extend:{colors:{cyan:{electric:'#00E5FF'},yellow:{sun:'#
 <style>
 body{margin:0;font-family:'Schoolbell',cursive;font-size:1.2rem;min-height:100vh}
 .bg-gym{position:fixed;inset:0;z-index:-1;background:url('/gym-bg.jpg') center/cover no-repeat}
-.cell-glass{background:rgba(255,255,255,0.82);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.cell-glass{background:rgba(15,15,50,0.8);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);color:#fff}
 .detail-glass{background:rgba(255,255,255,0.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.cell-conge{background:rgba(0,180,255,0.35)!important}
-.cell-ped{background:rgba(255,215,0,0.35)!important}
-.cell-tournoi{background:rgba(255,42,122,0.25)!important}
-.cell-input{background:transparent;border:none;border-bottom:1px dashed rgba(0,0,0,0.3);font-family:'Schoolbell',cursive;font-size:0.85rem;width:100%;outline:none;padding:1px 2px}
+.cell-conge{background:rgba(0,180,255,0.6)!important}
+.cell-ped{background:rgba(255,215,0,0.5)!important;color:#333!important}
+.cell-ped .cell-input{color:#333!important}
+.cell-tournoi{background:rgba(255,42,122,0.5)!important}
+.cell-input{background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,0.3);font-family:'Schoolbell',cursive;font-size:0.85rem;width:100%;outline:none;padding:1px 2px;color:rgba(255,255,255,0.9)}
 .cell-input:focus{border-bottom-color:#00E5FF}
+.cell-input::placeholder{color:rgba(255,255,255,0.4);font-style:italic}
 .header-gradient{background:linear-gradient(135deg,#00E5FF,#00B8D4)}
 .lang-pill{font-family:'Fredoka One',cursive;padding:2px 10px;border-radius:9999px;cursor:pointer;font-size:.85rem;background:rgba(255,255,255,0.35);color:#fff;transition:all .2s}
 .lang-pill.active{background:#fff;color:#00B8D4}
@@ -51,6 +53,13 @@ body{margin:0;font-family:'Schoolbell',cursive;font-size:1.2rem;min-height:100vh
 .period-input{background:#fff;border:1.5px solid #ccc;border-radius:8px;padding:4px 8px;font-family:'Schoolbell',cursive;font-size:1rem;width:100%;outline:none}
 .period-input:focus{border-color:#00E5FF}
 .separator{font-family:'Schoolbell',cursive;font-style:italic;text-align:center;padding:6px 0;font-size:1.1rem;color:#555;background:rgba(255,255,255,0.5);border-radius:8px;margin:4px 0}
+.config-panel{background:rgba(255,255,255,0.92);border-radius:12px;margin:8px;padding:12px;border:2px dashed #00B8D4}
+.config-toggle{cursor:pointer;font-family:'Fredoka One',cursive;font-size:1rem;color:#00B8D4;background:none;border:none;padding:8px 16px;width:100%;text-align:left}
+.config-toggle:hover{color:#FF2A7A}
+.config-row{display:flex;gap:8px;align-items:center;margin:4px 0;flex-wrap:wrap}
+.config-row label{font-family:'Fredoka One',cursive;font-size:.85rem;color:#333;min-width:90px}
+.config-row input,.config-row select{font-family:'Schoolbell',cursive;border:1.5px solid #ccc;border-radius:8px;padding:3px 6px;font-size:.9rem}
+.config-row input:focus,.config-row select:focus{border-color:#00E5FF;outline:none}
 @media print{.no-print{display:none!important}.print-only{display:block!important}body{background:#fff!important}.bg-gym{display:none}}
 </style>
 </head>
@@ -144,7 +153,11 @@ fr:{
   exportMonth:'Exporter le mois complet',notes:'Notes...',
   ped:'Pedagogique',conge:'Conge',tournoi:'Tournoi',photo:'Photo',sortie:'Sortie',custom:'Personnalise',
   addBadge:'Ajouter un badge',promptCustom:'Nom du badge personnalise:',
-  defHoraires:['8:10 a 9:10','9:10 a 10:10','10:30 a 11:30','12:45 a 13:45','14:05 a 15:05']
+  defHoraires:['8:10 a 9:10','9:10 a 10:10','10:30 a 11:30','12:45 a 13:45','14:05 a 15:05'],
+  config:'Configuration',nbPeriodes:'Nombre de periodes',hours:'Heures',
+  recessAfter:'Recreation apres P',diner:'Diner',parascolaire:'Parascolaire',
+  applyAll:'Appliquer a tout le calendrier',start:'Debut',end:'Fin',
+  configApplied:'Configuration appliquee a tout le calendrier!',afterSchool:'Parascolaire'
 },
 en:{
   headerTitle:'TEACHING PLANNER',today:'Today',
@@ -157,7 +170,11 @@ en:{
   exportMonth:'Export full month',notes:'Notes...',
   ped:'Pedagogical',conge:'Holiday',tournoi:'Tournament',photo:'Photo',sortie:'Field Trip',custom:'Custom',
   addBadge:'Add badge',promptCustom:'Custom badge name:',
-  defHoraires:['8:10 to 9:10','9:10 to 10:10','10:30 to 11:30','12:45 to 1:45','2:05 to 3:05']
+  defHoraires:['8:10 to 9:10','9:10 to 10:10','10:30 to 11:30','12:45 to 1:45','2:05 to 3:05'],
+  config:'Configuration',nbPeriodes:'Number of periods',hours:'Hours',
+  recessAfter:'Recess after P',diner:'Lunch',parascolaire:'After-school',
+  applyAll:'Apply to all calendar',start:'Start',end:'End',
+  configApplied:'Configuration applied to all calendar!',afterSchool:'After-school'
 },
 es:{
   headerTitle:'PLANIFICADOR PEDAGOGICO',today:'Hoy',
@@ -170,7 +187,11 @@ es:{
   exportMonth:'Exportar mes completo',notes:'Notas...',
   ped:'Pedagogico',conge:'Feriado',tournoi:'Torneo',photo:'Foto',sortie:'Salida',custom:'Personalizado',
   addBadge:'Agregar etiqueta',promptCustom:'Nombre de etiqueta personalizada:',
-  defHoraires:['8:10 a 9:10','9:10 a 10:10','10:30 a 11:30','12:45 a 13:45','14:05 a 15:05']
+  defHoraires:['8:10 a 9:10','9:10 a 10:10','10:30 a 11:30','12:45 a 13:45','14:05 a 15:05'],
+  config:'Configuracion',nbPeriodes:'Numero de periodos',hours:'Horarios',
+  recessAfter:'Recreo despues de P',diner:'Almuerzo',parascolaire:'Extracurricular',
+  applyAll:'Aplicar a todo el calendario',start:'Inicio',end:'Fin',
+  configApplied:'Configuracion aplicada a todo el calendario!',afterSchool:'Extracurricular'
 },
 zh:{
   headerTitle:'教学计划器',today:'今天',
@@ -183,12 +204,21 @@ zh:{
   exportMonth:'导出整月',notes:'备注...',
   ped:'教研',conge:'假期',tournoi:'比赛',photo:'照片',sortie:'外出',custom:'自定义',
   addBadge:'添加标签',promptCustom:'自定义标签名称:',
-  defHoraires:['8:10-9:10','9:10-10:10','10:30-11:30','12:45-13:45','14:05-15:05']
+  defHoraires:['8:10-9:10','9:10-10:10','10:30-11:30','12:45-13:45','14:05-15:05'],
+  config:'设置',nbPeriodes:'课时数',hours:'时间',
+  recessAfter:'P后休息',diner:'午餐',parascolaire:'课后活动',
+  applyAll:'应用到所有日历',start:'开始',end:'结束',
+  configApplied:'设置已应用到所有日历!',afterSchool:'课后活动'
 }
 };
 
 let lang='fr', currentYear=2025, currentMonth=8, selectedDate=null;
 const STORE_KEY='zts-planificateur';
+const CONFIG_KEY='zts-planif-config';
+
+function defaultConfig(){return{nbPeriodes:5,horaires:[{debut:'8:10',fin:'9:10'},{debut:'9:10',fin:'10:10'},{debut:'10:30',fin:'11:30'},{debut:'12:45',fin:'13:45'},{debut:'14:05',fin:'15:05'}],recreations:[{after:2,enabled:true},{after:4,enabled:true}],diner:{after:3,enabled:true,debut:'11:30',fin:'12:45'},parascolaire:{enabled:false,debut:'15:15',fin:'16:15'}}}
+function loadConfig(){try{return JSON.parse(localStorage.getItem(CONFIG_KEY))||defaultConfig()}catch(e){return defaultConfig()}}
+function saveConfig(c){localStorage.setItem(CONFIG_KEY,JSON.stringify(c))}
 
 function t(k){return T[lang][k]||T.fr[k]||k}
 function loadStore(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{lang:'fr',cells:{}}}catch(e){return{lang:'fr',cells:{}}}}
@@ -283,7 +313,7 @@ function renderCalendar(){
       const isSel=ds===selectedDate;
 
       rowHTML+=`<div class="${extraClass} rounded-lg p-1.5 min-h-[90px] cursor-pointer transition hover:ring-2 hover:ring-cyan-400 ${isToday?'ring-2 ring-yellow-400':''} ${isSel?'ring-2 ring-pink-500':''}" onclick="onCellClick(event,'${ds}',${d})">`;
-      rowHTML+=`<div class="flex justify-between items-start mb-0.5"><span class="font-bold text-sm text-gray-700">${d}</span>`;
+      rowHTML+=`<div class="flex justify-between items-start mb-0.5"><span class="font-bold text-sm text-white">${d}</span>`;
       // Cycle dots
       const grp=(cell.groupes||'').toLowerCase();
       if(/cycle1|c1/.test(grp))rowHTML+=`<span class="cycle-dot bg-green-500"></span>`;
@@ -388,6 +418,105 @@ function saveDetail(){
   alert(lang==='fr'?'Sauvegarde!':lang==='en'?'Saved!':lang==='es'?'Guardado!':'已保存!');
 }
 
+/* ====== CONFIG PANEL ====== */
+function buildConfigPanel(){
+  const cfg=loadConfig();
+  let html=`<div class="config-panel no-print">
+  <button class="config-toggle" onclick="document.getElementById('configBody').classList.toggle('hidden')">⚙️ ${t('config')}</button>
+  <div id="configBody" class="hidden" style="margin-top:8px">
+    <div class="config-row"><label>${t('nbPeriodes')}:</label>
+      <select id="cfgNbPeriodes" onchange="onConfigNbChange(this.value)">`;
+  for(let n=3;n<=7;n++) html+=`<option value="${n}"${n===cfg.nbPeriodes?' selected':''}>${n}</option>`;
+  html+=`</select></div>
+    <div style="margin:8px 0"><label class="font-fredoka text-sm text-gray-700" style="font-weight:bold">${t('hours')}:</label>
+    <div id="cfgHoraires">`;
+  cfg.horaires.forEach((h,i)=>{
+    html+=`<div class="config-row"><label>P${i+1} ${t('start')}:</label><input type="text" class="cfg-debut" value="${h.debut}" style="width:70px">
+      <label>${t('end')}:</label><input type="text" class="cfg-fin" value="${h.fin}" style="width:70px"></div>`;
+  });
+  html+=`</div></div>
+    <div style="margin:8px 0"><label class="font-fredoka text-sm text-gray-700" style="font-weight:bold">${t('recessAfter')}:</label>`;
+  cfg.recreations.forEach((r,i)=>{
+    html+=`<div class="config-row"><label><input type="checkbox" class="cfg-rec-chk" data-idx="${i}" ${r.enabled?'checked':''}> ${t('recessAfter')}${r.after}</label></div>`;
+  });
+  html+=`</div>
+    <div class="config-row"><label><input type="checkbox" id="cfgDinerEnabled" ${cfg.diner.enabled?'checked':''}> ${t('diner')}</label>
+      <input type="text" id="cfgDinerDebut" value="${cfg.diner.debut}" style="width:70px"> - <input type="text" id="cfgDinerFin" value="${cfg.diner.fin}" style="width:70px"></div>
+    <div class="config-row"><label><input type="checkbox" id="cfgParaEnabled" ${cfg.parascolaire.enabled?'checked':''}> ${t('parascolaire')}</label>
+      <input type="text" id="cfgParaDebut" value="${cfg.parascolaire.debut}" style="width:70px"> - <input type="text" id="cfgParaFin" value="${cfg.parascolaire.fin}" style="width:70px"></div>
+    <div style="margin-top:12px;text-align:center">
+      <button class="btn-pill btn-pink" style="font-size:1rem;padding:10px 28px" onclick="applyConfigToCalendar()">🔄 ${t('applyAll')}</button>
+    </div>
+  </div></div>`;
+  return html;
+}
+
+function onConfigNbChange(val){
+  const n=parseInt(val);const cfg=loadConfig();
+  while(cfg.horaires.length<n)cfg.horaires.push({debut:'',fin:''});
+  cfg.horaires=cfg.horaires.slice(0,n);cfg.nbPeriodes=n;saveConfig(cfg);
+  const container=document.getElementById('cfgHoraires');container.innerHTML='';
+  cfg.horaires.forEach((h,i)=>{
+    container.innerHTML+=`<div class="config-row"><label>P${i+1} ${t('start')}:</label><input type="text" class="cfg-debut" value="${h.debut}" style="width:70px">
+      <label>${t('end')}:</label><input type="text" class="cfg-fin" value="${h.fin}" style="width:70px"></div>`;
+  });
+}
+
+function readConfigFromUI(){
+  const cfg=loadConfig();
+  cfg.nbPeriodes=parseInt(document.getElementById('cfgNbPeriodes').value);
+  const debuts=document.querySelectorAll('.cfg-debut');
+  const fins=document.querySelectorAll('.cfg-fin');
+  cfg.horaires=[];
+  for(let i=0;i<cfg.nbPeriodes;i++){
+    cfg.horaires.push({debut:debuts[i]?debuts[i].value:'',fin:fins[i]?fins[i].value:''});
+  }
+  const recChks=document.querySelectorAll('.cfg-rec-chk');
+  recChks.forEach((chk,i)=>{if(cfg.recreations[i])cfg.recreations[i].enabled=chk.checked});
+  cfg.diner.enabled=document.getElementById('cfgDinerEnabled').checked;
+  cfg.diner.debut=document.getElementById('cfgDinerDebut').value;
+  cfg.diner.fin=document.getElementById('cfgDinerFin').value;
+  cfg.parascolaire.enabled=document.getElementById('cfgParaEnabled').checked;
+  cfg.parascolaire.debut=document.getElementById('cfgParaDebut').value;
+  cfg.parascolaire.fin=document.getElementById('cfgParaFin').value;
+  saveConfig(cfg);return cfg;
+}
+
+function applyConfigToCalendar(){
+  const cfg=readConfigFromUI();
+  const store=loadStore();
+  for(let y=2025;y<=2026;y++){
+    const mStart=y===2025?7:0,mEnd=y===2025?11:5;
+    for(let m=mStart;m<=mEnd;m++){
+      const dim=new Date(y,m+1,0).getDate();
+      for(let d=1;d<=dim;d++){
+        const dow=new Date(y,m,d).getDay();
+        if(dow===0||dow===6)continue;
+        const ds=dateStr(y,m,d);
+        const existing=store.cells[ds]||{};
+        const hasData=existing.periodes&&existing.periodes.some(p=>p.groupe||p.activite||p.details);
+        if(hasData)continue;
+        const periodes=cfg.horaires.map(h=>({horaire:`${h.debut} - ${h.fin}`,groupe:'',activite:'',details:''}));
+        if(cfg.parascolaire.enabled){
+          periodes.push({horaire:`${cfg.parascolaire.debut} - ${cfg.parascolaire.fin}`,groupe:'',activite:'',details:'',isParascolaire:true});
+        }
+        store.cells[ds]={...existing,periodes};
+      }
+    }
+  }
+  saveStore(store);
+  alert(t('configApplied'));
+  renderAll();
+}
+
+function configSeparatorsForIndex(cfg,i){
+  for(let r=0;r<cfg.recreations.length;r++){
+    if(cfg.recreations[r].enabled&&cfg.recreations[r].after===i) return 'recess';
+  }
+  if(cfg.diner.enabled&&cfg.diner.after===i) return 'lunch';
+  return null;
+}
+
 /* ====== DAILY MODAL ====== */
 function openModal(ds,d){
   const modal=document.getElementById('dailyModal');modal.classList.remove('hidden');
@@ -396,28 +525,38 @@ function openModal(ds,d){
   const dayName=t('days')[(dow-1)%5];
   document.getElementById('modalDayName').textContent=dayName.toUpperCase();
   document.getElementById('modalDate').textContent=`${d} ${t('months')[currentMonth]} ${currentYear}`;
-
+  const cfg=loadConfig();
   const cell=getCell(ds)||{};
-  const periodes=cell.periodes||t('defHoraires').map(h=>({horaire:h,groupe:'',activite:'',details:''}));
+  const defPeriodes=cfg.horaires.map(h=>({horaire:`${h.debut} - ${h.fin}`,groupe:'',activite:'',details:''}));
+  if(cfg.parascolaire.enabled) defPeriodes.push({horaire:`${cfg.parascolaire.debut} - ${cfg.parascolaire.fin}`,groupe:'',activite:'',details:'',isParascolaire:true});
+  const periodes=cell.periodes||defPeriodes;
 
   const container=document.getElementById('modalPeriods');container.innerHTML='';
-  const separators=[null,null,'recess','lunch','recess'];
+  container.innerHTML=buildConfigPanel();
 
+  let periodIdx=0;
   periodes.forEach((p,i)=>{
-    if(i>0&&separators[i]){
-      const sep=document.createElement('div');
-      sep.className='separator';
-      sep.textContent=`** ${separators[i]==='recess'?t('recess'):t('lunch')} **`;
-      container.appendChild(sep);
+    const isParasco=p.isParascolaire||false;
+    if(!isParasco){
+      periodIdx++;
+      const sep=configSeparatorsForIndex(cfg,periodIdx-1);
+      if(sep&&periodIdx>1){
+        const sepDiv=document.createElement('div');sepDiv.className='separator';
+        if(sep==='recess') sepDiv.textContent=`** ${t('recess')} **`;
+        else if(sep==='lunch') sepDiv.textContent=`** ${t('lunch')} (${cfg.diner.debut} - ${cfg.diner.fin}) **`;
+        container.appendChild(sepDiv);
+      }
+    } else {
+      const sepDiv=document.createElement('div');sepDiv.className='separator';
+      sepDiv.textContent=`** ${t('afterSchool')} **`;
+      container.appendChild(sepDiv);
     }
 
-    const row=document.createElement('div');
-    row.className='flex gap-2 items-stretch';
-
-    // Cyan period box
+    const row=document.createElement('div');row.className='flex gap-2 items-stretch';
+    const label=isParasco?t('afterSchool'):`${t('period')} ${periodIdx}`;
     row.innerHTML=`
       <div class="period-cyan" style="min-width:110px">
-        <div class="text-lg">${t('period')} ${i+1}</div>
+        <div class="text-lg">${label}</div>
         <input class="period-input text-center text-sm mt-1" style="background:rgba(255,255,255,0.3);color:#fff;border-color:rgba(255,255,255,0.5);max-width:130px" value="${p.horaire}" data-period="${i}" data-field="horaire" onchange="onModalInput(this,'${ds}')">
       </div>
       <div class="period-yellow flex-1">
@@ -435,7 +574,6 @@ function openModal(ds,d){
     container.appendChild(row);
   });
 
-  // Store current ds for saving
   modal.dataset.ds=ds;
   modal.dataset.day=d;
 }
@@ -444,7 +582,10 @@ function onModalInput(el,ds){
   const idx=parseInt(el.dataset.period);
   const field=el.dataset.field;
   const cell=getCell(ds)||{};
-  const periodes=cell.periodes||t('defHoraires').map(h=>({horaire:h,groupe:'',activite:'',details:''}));
+  const cfg=loadConfig();
+  const defPeriodes=cfg.horaires.map(h=>({horaire:`${h.debut} - ${h.fin}`,groupe:'',activite:'',details:''}));
+  if(cfg.parascolaire.enabled) defPeriodes.push({horaire:`${cfg.parascolaire.debut} - ${cfg.parascolaire.fin}`,groupe:'',activite:'',details:'',isParascolaire:true});
+  const periodes=cell.periodes||defPeriodes;
   periodes[idx][field]=el.value;
   setCell(ds,{periodes});
 }
