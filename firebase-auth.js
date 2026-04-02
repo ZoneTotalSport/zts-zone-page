@@ -411,14 +411,23 @@
       });
     });
 
-    // Close button
-    document.getElementById('ztsAuthClose').addEventListener('click', closeModal);
+    // Close button (disabled in protected mode)
+    document.getElementById('ztsAuthClose').addEventListener('click', function() {
+      if (!_protectedMode) closeModal();
+    });
     overlay.addEventListener('click', function(e) {
-      if (e.target === overlay) closeModal();
+      if (e.target === overlay && !_protectedMode) closeModal();
     });
 
-    // ESC key
-    document.addEventListener('keydown', _escHandler);
+    // ESC key (disabled in protected mode)
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && !_protectedMode) closeModal();
+    });
+
+    // Hide close button in protected mode
+    if (_protectedMode) {
+      document.getElementById('ztsAuthClose').style.display = 'none';
+    }
 
     // Toggle mode
     var toggleBtn = document.getElementById('ztsToggleMode');
@@ -448,6 +457,16 @@
   function closeModal() {
     var overlay = document.getElementById('ztsAuthOverlay');
     if (!overlay) return;
+    // If protected mode and user just logged in, redirect to resource
+    if (_protectedMode && _user && _protectedHref) {
+      var href = _protectedHref;
+      _protectedMode = false;
+      _protectedHref = null;
+      window.location.href = href;
+      return;
+    }
+    _protectedMode = false;
+    _protectedHref = null;
     overlay.classList.remove('zts-open');
     document.removeEventListener('keydown', _escHandler);
     setTimeout(function() { if (overlay.parentNode) overlay.remove(); }, 500);
@@ -586,12 +605,18 @@
     }
   }
 
-  // ── Protected links ──
+  // ── Protected links (non-closeable modal) ──
+  var _protectedMode = false;
+  var _protectedHref = null;
+
   function bindProtectedLinks() {
     document.querySelectorAll('[data-protected="true"]').forEach(function(el) {
       el.addEventListener('click', function(e) {
         if (!_user) {
           e.preventDefault();
+          e.stopPropagation();
+          _protectedMode = true;
+          _protectedHref = el.getAttribute('href') || el.dataset.href || null;
           showModal('signup');
         }
       });
