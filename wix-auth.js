@@ -260,7 +260,7 @@
 
       <button class="zts-vip-login-link" id="zts-vip-login">Deja membre? Se connecter</button>
 
-      <button class="zts-vip-skip" id="zts-vip-skip">Non merci, plus tard</button>
+      <!-- Skip button supprimé: inscription obligatoire -->
 
     </div>
   </div>
@@ -270,20 +270,27 @@
     overlay = div;
 
     // Events
-    div.querySelector('#zts-vip-close').addEventListener('click', hidePopup);
-    div.querySelector('#zts-vip-skip').addEventListener('click', hidePopup);
-    div.addEventListener('click', function(e) { if (e.target === div) hidePopup(); });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && div.classList.contains('zts-open')) hidePopup();
-    });
+    // Popup NON-FERMABLE: inscription obligatoire
+    div.querySelector('#zts-vip-close').style.display = 'none';
+    // Pas de fermeture au clic extérieur ni ESC
 
     div.querySelector('#zts-vip-cta').addEventListener('click', function(e) {
       e.preventDefault();
-      window.location.href = 'https://zonetotalsport.ca?action=signup';
+      if (window.ztsShowSignup) {
+        hidePopup();
+        window.ztsShowSignup();
+      } else {
+        window.location.href = 'https://zonetotalsport.ca?action=signup';
+      }
     });
 
     div.querySelector('#zts-vip-login').addEventListener('click', function() {
-      window.location.href = 'https://zonetotalsport.ca?action=login';
+      if (window.ztsShowLogin) {
+        hidePopup();
+        window.ztsShowLogin();
+      } else {
+        window.location.href = 'https://zonetotalsport.ca?action=login';
+      }
     });
 
     return div;
