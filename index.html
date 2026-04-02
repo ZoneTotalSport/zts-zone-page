@@ -2193,11 +2193,9 @@
                     <i data-lucide="user-plus" class="w-6 h-6"></i> INSCRIPTION GRATUITE
                 </a>
 
-                <a id="gateContinueLink" href="#" target="_blank" class="gate-btn-secondary" data-i18n="gateContinue">
-                    <i data-lucide="arrow-right" class="w-5 h-5"></i> Continuer sans inscription
-                </a>
+                <!-- Bouton "Continuer sans inscription" SUPPRIMÉ pour forcer l'inscription -->
 
-                <p style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(0,0,0,0.3);margin:0" data-i18n="gateFooter">Aucun abonnement requis. Accès gratuit et sans engagement.</p>
+                <p style="font-family:'Patrick Hand',cursive;font-size:0.8rem;color:rgba(0,0,0,0.3);margin:0" data-i18n="gateFooter">Inscription gratuite et sans engagement. 100% gratuit!</p>
             </div>
         </div>
     </div>
@@ -3582,19 +3580,21 @@
     window.closeIaPopup = closeIaPopup;
 
     // GATE POPUP — intercept links to encourage registration
+    var _gateDestination = null;
+
     function openGatePopup(destinationUrl) {
+        // Si déjà connecté, aller directement à la destination
+        if (window.ztsGetUser && window.ztsGetUser()) {
+            if (destinationUrl && destinationUrl !== '#') {
+                window.location.href = destinationUrl;
+            }
+            return;
+        }
+        _gateDestination = destinationUrl;
         const overlay = document.getElementById('gateOverlay');
         const box = document.getElementById('gateBox');
-        // Set the "continue" link
-        const continueLink = document.getElementById('gateContinueLink');
-        if (destinationUrl && destinationUrl !== '#') {
-            continueLink.href = destinationUrl;
-            continueLink.style.display = 'flex';
-        } else {
-            continueLink.style.display = 'none';
-        }
         overlay.classList.add('show');
-        gsap.fromTo(overlay, { backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'rgba(0,0,0,0.8)', duration: 0.3 });
+        gsap.fromTo(overlay, { backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'rgba(0,0,0,0.9)', duration: 0.3 });
         gsap.fromTo(box,
             { scale: 0.5, rotation: -5, opacity: 0, y: 50 },
             { scale: 1, rotation: 0.8, opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.7)' }
@@ -3606,17 +3606,29 @@
         lucide.createIcons();
     }
     function closeGatePopup() {
-        const overlay = document.getElementById('gateOverlay');
-        const box = document.getElementById('gateBox');
-        gsap.to(box, { scale: 0.8, opacity: 0, y: 30, duration: 0.2, ease: 'power2.in' });
-        gsap.to(overlay, { backgroundColor: 'rgba(0,0,0,0)', duration: 0.25, delay: 0.1, onComplete: () => overlay.classList.remove('show') });
+        // Le gate popup ne peut PAS être fermé — l'utilisateur DOIT s'inscrire
+        // Seule la connexion réussie permet de fermer
     }
     window.openGatePopup = openGatePopup;
     window.closeGatePopup = closeGatePopup;
 
+    // Après connexion réussie, fermer le gate popup et rediriger
+    if (window.ztsOnAuth) {
+        window.ztsOnAuth(function(user) {
+            if (user) {
+                const overlay = document.getElementById('gateOverlay');
+                if (overlay && overlay.classList.contains('show')) {
+                    overlay.classList.remove('show');
+                    if (_gateDestination && _gateDestination !== '#') {
+                        window.location.href = _gateDestination;
+                    }
+                }
+            }
+        });
+    }
+
     // Attach gate popup to service card links & footer nav links
     document.addEventListener('DOMContentLoaded', function() {
-        // Service card action links (Explorer, Découvrir, Lire, Organiser)
         const gatedSelectors = [
             '[data-i18n="card1a"]', '[data-i18n="card2a"]',
             '[data-i18n="card3a"]', '[data-i18n="card4a"]',
@@ -3627,6 +3639,8 @@
         gatedSelectors.forEach(sel => {
             document.querySelectorAll(sel).forEach(link => {
                 link.addEventListener('click', function(e) {
+                    // Si connecté, laisser passer
+                    if (window.ztsGetUser && window.ztsGetUser()) return;
                     e.preventDefault();
                     const url = this.getAttribute('href');
                     const realUrl = (url && url !== '#') ? url : 'https://zonetotalsport.ca';
