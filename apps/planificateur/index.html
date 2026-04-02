@@ -1,1271 +1,594 @@
 <!DOCTYPE html>
 <html lang="fr-CA">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planificateur Pedagogique — Zone Total Sport</title>
-    <meta name="description" content="Planificateur pedagogique pour enseignants EPS au Quebec. Calendrier scolaire, cycles, planifications et notes.">
-    <link rel="icon" type="image/png" href="/logo-zts.png">
-    <link rel="apple-touch-icon" href="/logo-zts.png">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&family=Fredoka+One&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        cyan: { electric: '#00E5FF' },
-                        yellow: { sun: '#FFD700' },
-                        pink: { fuchsia: '#FF2A7A' },
-                        violet: { pop: '#8B5CF6' },
-                    },
-                    fontFamily: {
-                        bangers: ['"Luckiest Guy"', 'cursive'],
-                        schoolbell: ['"Schoolbell"', 'cursive'],
-                        fredoka: ['"Fredoka One"', 'cursive'],
-                    },
-                }
-            }
-        }
-    </script>
-
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <!-- SheetJS -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-
-    <style>
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; overflow-x: hidden; }
-
-        body {
-            font-family: 'Schoolbell', cursive;
-            font-size: 1.2rem;
-            background-color: #1a1a2e;
-            color: #fff;
-            overflow-x: hidden;
-            position: relative;
-            min-height: 100vh;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('/gym-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            opacity: 1;
-            z-index: 0;
-            pointer-events: none;
-        }
-        body > * { position: relative; z-index: 1; }
-
-        /* Calendar grid */
-        .cal-grid {
-            display: grid;
-            grid-template-columns: 44px repeat(5, 1fr);
-            gap: 3px;
-        }
-        @media (max-width: 640px) {
-            .cal-grid { grid-template-columns: 28px repeat(5, 1fr); gap: 1px; }
-        }
-
-        .cal-cell {
-            background: rgba(255,255,255,0.82);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 2px solid rgba(0,0,0,0.08);
-            padding: 4px;
-            min-height: 110px;
-            border-radius: 10px;
-            transition: all 0.2s;
-            cursor: pointer;
-            position: relative;
-            color: #1a1a2e;
-        }
-        @media (max-width: 640px) {
-            .cal-cell { min-height: 80px; padding: 2px; border-radius: 6px; }
-        }
-        .cal-cell:hover { border-color: #00E5FF; background: rgba(255,255,255,0.92); box-shadow: 0 2px 12px rgba(0,229,255,0.18); }
-        .cal-cell.other-month { opacity: 0.32; background: rgba(180,180,180,0.35); pointer-events: none; }
-        .cal-cell.selected { border-color: #00E5FF; box-shadow: 0 0 16px rgba(0,229,255,0.45); background: rgba(255,255,255,0.97); }
-        .cal-cell.today { border-color: #FFD700; box-shadow: 0 0 10px rgba(255,215,0,0.5); }
-
-        .cal-cell .cell-input {
-            display: block;
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px dashed rgba(0,0,0,0.18);
-            font-family: 'Schoolbell', cursive;
-            font-size: 0.72rem;
-            color: #1a1a2e;
-            outline: none;
-            padding: 1px 2px;
-            margin-bottom: 1px;
-            transition: border-color 0.2s;
-        }
-        .cal-cell .cell-input:focus {
-            border-bottom-color: #00E5FF;
-            background: rgba(0,229,255,0.06);
-        }
-        .cal-cell .cell-input::placeholder {
-            color: rgba(0,0,0,0.28);
-            font-style: italic;
-        }
-        @media (max-width: 640px) {
-            .cal-cell .cell-input { font-size: 0.6rem; }
-        }
-
-        .week-num {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Fredoka One', cursive;
-            font-size: 0.75rem;
-            color: #fff;
-            background: rgba(0,229,255,0.5);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            border-radius: 6px;
-            min-height: 110px;
-        }
-        @media (max-width: 640px) {
-            .week-num { font-size: 0.6rem; min-height: 80px; }
-        }
-
-        .day-header {
-            text-align: center;
-            font-family: 'Fredoka One', cursive;
-            font-size: 0.85rem;
-            padding: 6px 2px;
-            background: linear-gradient(135deg, #00E5FF, #00B8D4);
-            color: #fff;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            border-radius: 8px;
-            backdrop-filter: blur(4px);
-        }
-        @media (max-width: 640px) {
-            .day-header { font-size: 0.65rem; padding: 4px 1px; border-radius: 5px; }
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 2px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 0.55rem;
-            padding: 1px 5px;
-            border-radius: 999px;
-            color: #fff;
-            cursor: default;
-            white-space: nowrap;
-            margin: 1px;
-            line-height: 1.4;
-        }
-        .badge .badge-x {
-            cursor: pointer;
-            margin-left: 2px;
-            font-weight: bold;
-            opacity: 0.7;
-            font-size: 0.6rem;
-        }
-        .badge .badge-x:hover { opacity: 1; }
-
-        .badge-ped { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .badge-conge { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        .badge-tournoi { background: linear-gradient(135deg, #ec4899, #db2777); }
-        .badge-photo { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-        .badge-sortie { background: linear-gradient(135deg, #10b981, #059669); }
-        .badge-custom { background: linear-gradient(135deg, #6b7280, #4b5563); }
-
-        .cycle-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 2px;
-        }
-        .cycle-dot.c1 { background: #22c55e; }
-        .cycle-dot.c2 { background: #3b82f6; }
-        .cycle-dot.c3 { background: #8b5cf6; }
-
-        /* Detail panel */
-        .detail-panel {
-            background: rgba(255,255,255,0.88);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 16px;
-            border: 2px solid rgba(0,229,255,0.4);
-            color: #1a1a2e;
-            box-shadow: 0 4px 20px rgba(0,229,255,0.15);
-        }
-
-        .btn-action {
-            font-family: 'Fredoka One', cursive;
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-size: 0.85rem;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.15s, box-shadow 0.15s;
-            color: #fff;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .btn-action:hover { transform: scale(1.05); }
-        .btn-action:active { transform: scale(0.97); }
-
-        .btn-cyan { background: linear-gradient(135deg, #00E5FF, #0097A7); }
-        .btn-pink { background: linear-gradient(135deg, #FF2A7A, #C2185B); }
-        .btn-yellow { background: linear-gradient(135deg, #FFD700, #F9A825); color: #1a1a2e; }
-        .btn-green { background: linear-gradient(135deg, #22c55e, #16a34a); }
-        .btn-violet { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
-        .btn-gray { background: linear-gradient(135deg, #6b7280, #4b5563); }
-
-        .detail-textarea {
-            width: 100%;
-            background: rgba(255,255,255,0.7);
-            border: 1px solid rgba(0,0,0,0.15);
-            border-radius: 10px;
-            padding: 10px;
-            color: #1a1a2e;
-            font-family: 'Schoolbell', cursive;
-            font-size: 1rem;
-            resize: vertical;
-            min-height: 80px;
-            outline: none;
-        }
-        .detail-textarea:focus { border-color: #00E5FF; box-shadow: 0 0 8px rgba(0,229,255,0.2); }
-        .detail-textarea::placeholder { color: rgba(0,0,0,0.35); }
-
-        /* Lang pills */
-        .lang-pill {
-            font-family: 'Fredoka One', cursive;
-            padding: 4px 12px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            border: 2px solid rgba(255,255,255,0.5);
-            background: rgba(255,255,255,0.25);
-            color: #fff;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            transition: all 0.2s;
-        }
-        .lang-pill:hover { background: rgba(255,255,255,0.2); }
-        .lang-pill.active { background: #fff; color: #00838F; border-color: #fff; text-shadow: none; font-weight: bold; }
-
-        /* Print styles */
-        @media print {
-            body::before { display: none; }
-            body { background: #fff; color: #000; font-size: 10pt; }
-            .no-print { display: none !important; }
-            .cal-cell { background: #fff !important; border: 1px solid #ccc !important; color: #000 !important; min-height: 60px !important; }
-            .cal-cell .cell-input { border-bottom: 1px solid #ddd; color: #000; }
-            .day-header { background: #333 !important; color: #fff !important; }
-            .week-num { background: #eee !important; color: #333 !important; }
-            .detail-panel { background: #f5f5f5 !important; color: #000 !important; border: 1px solid #ccc !important; }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,229,255,0.3); border-radius: 4px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Planificateur Pedagogique — Zone Total Sport</title>
+<meta name="description" content="Planificateur pedagogique pour enseignants EPS au Quebec. Calendrier scolaire, cycles, planifications et notes.">
+<link rel="icon" type="image/png" href="/logo-zts.png">
+<link rel="apple-touch-icon" href="/logo-zts.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&family=Fredoka+One&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={theme:{extend:{colors:{cyan:{electric:'#00E5FF'},yellow:{sun:'#FFD700'},pink:{fuchsia:'#FF2A7A'},violet:{pop:'#8B5CF6'}},fontFamily:{bangers:['"Luckiest Guy"','cursive'],schoolbell:['"Schoolbell"','cursive'],fredoka:['"Fredoka One"','cursive']}}}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<style>
+body{margin:0;font-family:'Schoolbell',cursive;font-size:1.2rem;min-height:100vh}
+.bg-gym{position:fixed;inset:0;z-index:-1;background:url('/gym-bg.jpg') center/cover no-repeat}
+.cell-glass{background:rgba(255,255,255,0.82);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.detail-glass{background:rgba(255,255,255,0.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.cell-conge{background:rgba(0,180,255,0.35)!important}
+.cell-ped{background:rgba(255,215,0,0.35)!important}
+.cell-tournoi{background:rgba(255,42,122,0.25)!important}
+.cell-input{background:transparent;border:none;border-bottom:1px dashed rgba(0,0,0,0.3);font-family:'Schoolbell',cursive;font-size:0.85rem;width:100%;outline:none;padding:1px 2px}
+.cell-input:focus{border-bottom-color:#00E5FF}
+.header-gradient{background:linear-gradient(135deg,#00E5FF,#00B8D4)}
+.lang-pill{font-family:'Fredoka One',cursive;padding:2px 10px;border-radius:9999px;cursor:pointer;font-size:.85rem;background:rgba(255,255,255,0.35);color:#fff;transition:all .2s}
+.lang-pill.active{background:#fff;color:#00B8D4}
+.btn-pill{font-family:'Fredoka One',cursive;border-radius:9999px;padding:6px 18px;font-size:.9rem;cursor:pointer;transition:all .15s;border:none}
+.btn-cyan{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff}
+.btn-yellow{background:linear-gradient(135deg,#FFD700,#FFC107);color:#333}
+.btn-pink{background:linear-gradient(135deg,#FF2A7A,#E91E63);color:#fff}
+.btn-violet{background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff}
+.week-col{background:rgba(0,229,255,0.5);font-family:'Fredoka One',cursive;font-size:.8rem;display:flex;align-items:center;justify-content:center;min-width:36px;border-radius:6px 0 0 6px}
+.day-header{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff;font-family:'Fredoka One',cursive;text-align:center;padding:6px 0;font-size:.9rem;border-radius:6px 6px 0 0}
+.badge{display:inline-flex;align-items:center;gap:2px;font-size:.7rem;padding:1px 6px;border-radius:9999px;font-family:'Fredoka One',cursive;cursor:default}
+.badge-ped{background:#FFD700;color:#333}
+.badge-conge{background:#00B8D4;color:#fff}
+.badge-tournoi{background:#FF2A7A;color:#fff}
+.badge-photo{background:#8B5CF6;color:#fff}
+.badge-sortie{background:#10B981;color:#fff}
+.badge-custom{background:#6B7280;color:#fff}
+.cycle-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.6);display:flex;align-items:start;justify-content:center;overflow-y:auto;padding:20px 10px}
+.modal-content{width:100%;max-width:800px;border-radius:16px;overflow:hidden;margin:auto}
+.period-cyan{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff;font-family:'Luckiest Guy',cursive;border-radius:12px;min-width:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px 8px;text-align:center}
+.period-yellow{background:linear-gradient(135deg,#FFD700,#FFC107);border:2px solid #333;border-radius:12px;padding:10px 14px;flex:1}
+.period-input{background:#fff;border:1.5px solid #ccc;border-radius:8px;padding:4px 8px;font-family:'Schoolbell',cursive;font-size:1rem;width:100%;outline:none}
+.period-input:focus{border-color:#00E5FF}
+.separator{font-family:'Schoolbell',cursive;font-style:italic;text-align:center;padding:6px 0;font-size:1.1rem;color:#555;background:rgba(255,255,255,0.5);border-radius:8px;margin:4px 0}
+@media print{.no-print{display:none!important}.print-only{display:block!important}body{background:#fff!important}.bg-gym{display:none}}
+</style>
 </head>
-<body class="min-h-screen">
+<body>
+<div class="bg-gym"></div>
 
-    <!-- ==================== HEADER ==================== -->
-    <header class="no-print sticky top-0 z-50" style="background: linear-gradient(135deg, #00E5FF, #00B8D4); border-bottom: 3px solid rgba(0,0,0,0.15);">
-        <div class="max-w-7xl mx-auto px-3 py-2 flex flex-wrap items-center justify-between gap-2">
-            <!-- Logo + Mascotte -->
-            <a href="/" class="flex items-center gap-2 hover:opacity-80 transition shrink-0">
-                <img src="/bucheron-basketball.png" alt="Mr Root" class="h-12 sm:h-16 drop-shadow-lg" style="filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));">
-                <span class="font-bangers text-base sm:text-lg text-white" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.3);">Zone Total Sport</span>
-            </a>
-            <!-- Title -->
-            <h1 class="font-bangers text-xl sm:text-2xl md:text-4xl text-white text-center flex-1 tracking-wide" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
-                <span data-i18n="title">PLANIFICATEUR P&Eacute;DAGOGIQUE</span>
-            </h1>
-            <!-- Lang pills -->
-            <div class="flex gap-1 shrink-0">
-                <button class="lang-pill active" onclick="setLang('fr')">FR</button>
-                <button class="lang-pill" onclick="setLang('en')">EN</button>
-                <button class="lang-pill" onclick="setLang('es')">ES</button>
-                <button class="lang-pill" onclick="setLang('zh')">ZH</button>
-            </div>
+<!-- HEADER -->
+<header class="header-gradient sticky top-0 z-50 shadow-lg no-print">
+  <div class="max-w-7xl mx-auto flex items-center justify-between px-3 py-2">
+    <div class="flex items-center gap-2">
+      <img src="/bucheron-basketball.png" alt="Mascotte" class="h-12 sm:h-16">
+      <span class="text-white font-bangers text-sm sm:text-base hidden sm:inline drop-shadow">Zone Total Sport</span>
+    </div>
+    <h1 class="font-bangers text-white text-lg sm:text-2xl md:text-3xl drop-shadow-lg text-center flex-1" id="headerTitle">PLANIFICATEUR PEDAGOGIQUE</h1>
+    <div class="flex gap-1" id="langPills"></div>
+  </div>
+</header>
+
+<!-- CONTROLS -->
+<div class="max-w-7xl mx-auto px-3 py-3 flex flex-wrap items-center gap-2 justify-center no-print">
+  <button class="btn-pill btn-cyan" onclick="changeMonth(-1)" id="btnPrev">&lt;</button>
+  <select id="monthSelect" class="btn-pill bg-white text-gray-800 border font-fredoka text-sm" onchange="goToMonth(this.value)"></select>
+  <button class="btn-pill btn-cyan" onclick="changeMonth(1)" id="btnNext">&gt;</button>
+  <button class="btn-pill btn-yellow" onclick="goToday()" id="btnToday">Aujourd'hui</button>
+</div>
+
+<!-- MONTH TITLE -->
+<div class="text-center py-2">
+  <h2 id="monthTitle" class="font-bangers text-4xl sm:text-5xl md:text-6xl text-white drop-shadow-lg"></h2>
+</div>
+
+<!-- CALENDAR GRID -->
+<div class="max-w-7xl mx-auto px-2 pb-4">
+  <div id="calendarGrid"></div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div id="detailPanel" class="max-w-7xl mx-auto px-3 pb-6 hidden no-print">
+  <div class="detail-glass rounded-2xl p-4 shadow-xl">
+    <h3 id="detailTitle" class="font-bangers text-2xl text-cyan-700 mb-3"></h3>
+    <div class="flex flex-wrap gap-2 mb-3" id="badgeButtons"></div>
+    <div id="badgeList" class="flex flex-wrap gap-1 mb-3"></div>
+    <textarea id="detailNotes" class="w-full h-24 p-3 rounded-xl border font-schoolbell text-base resize-y" placeholder="Notes..."></textarea>
+    <div class="flex flex-wrap gap-2 mt-3">
+      <button class="btn-pill btn-cyan" onclick="saveDetail()">&#128190; <span data-i18n="save">Sauvegarder</span></button>
+      <button class="btn-pill btn-yellow" onclick="printDay()">&#128424; <span data-i18n="print">Imprimer</span></button>
+      <button class="btn-pill btn-pink" onclick="exportPDF()">PDF</button>
+      <button class="btn-pill btn-violet" onclick="exportXLS()">Excel</button>
+      <button class="btn-pill" style="background:linear-gradient(135deg,#10B981,#059669);color:#fff" onclick="exportCSV()">CSV</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT BAR -->
+<div class="max-w-7xl mx-auto px-3 pb-8 no-print">
+  <div class="detail-glass rounded-2xl p-3 text-center shadow-lg">
+    <span class="font-fredoka text-gray-700 mr-2" data-i18n="exportMonth">Exporter le mois complet</span>
+    <button class="btn-pill btn-pink" onclick="exportMonthPDF()">PDF</button>
+    <button class="btn-pill btn-violet" onclick="exportMonthXLS()">XLS</button>
+    <button class="btn-pill btn-cyan" onclick="exportMonthCSV()">CSV</button>
+  </div>
+</div>
+
+<!-- DAILY MODAL -->
+<div id="dailyModal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content detail-glass shadow-2xl">
+    <div id="modalHeader" class="p-4 text-center" style="background:linear-gradient(135deg,#FFD700,#FFC107)">
+      <h2 id="modalDayName" class="font-bangers text-3xl sm:text-4xl text-gray-800 drop-shadow"></h2>
+      <p id="modalDate" class="font-schoolbell text-lg text-gray-700"></p>
+    </div>
+    <div id="modalPeriods" class="p-4 flex flex-col gap-2"></div>
+    <div class="p-4 flex flex-wrap gap-2 justify-center border-t">
+      <button class="btn-pill btn-cyan" onclick="saveModal()">&#128190; <span data-i18n="save">Sauvegarder</span></button>
+      <button class="btn-pill btn-yellow" onclick="printModal()">&#128424; <span data-i18n="printDay">Imprimer cette journee</span></button>
+      <button class="btn-pill btn-pink" onclick="closeModal()">&#10005; <span data-i18n="close">Fermer</span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====== i18n ====== */
+const T={
+fr:{
+  headerTitle:'PLANIFICATEUR PEDAGOGIQUE',today:'Aujourd\'hui',
+  days:['Lundi','Mardi','Mercredi','Jeudi','Vendredi'],
+  months:['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'],
+  week:'Sem',day:'Jour',groups:'Groupes',planif:'Planif',period:'Periode',
+  schedule:'Horaire',group:'Groupe',activity:'Activite',details:'Details',
+  recess:'Recreation',lunch:'Diner',free:'LIBRE',
+  save:'Sauvegarder',print:'Imprimer',printDay:'Imprimer cette journee',close:'Fermer',
+  exportMonth:'Exporter le mois complet',notes:'Notes...',
+  ped:'Pedagogique',conge:'Conge',tournoi:'Tournoi',photo:'Photo',sortie:'Sortie',custom:'Personnalise',
+  addBadge:'Ajouter un badge',promptCustom:'Nom du badge personnalise:',
+  defHoraires:['8:10 a 9:10','9:10 a 10:10','10:30 a 11:30','12:45 a 13:45','14:05 a 15:05']
+},
+en:{
+  headerTitle:'TEACHING PLANNER',today:'Today',
+  days:['Monday','Tuesday','Wednesday','Thursday','Friday'],
+  months:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  week:'Wk',day:'Day',groups:'Groups',planif:'Plan',period:'Period',
+  schedule:'Schedule',group:'Group',activity:'Activity',details:'Details',
+  recess:'Recess',lunch:'Lunch',free:'FREE',
+  save:'Save',print:'Print',printDay:'Print this day',close:'Close',
+  exportMonth:'Export full month',notes:'Notes...',
+  ped:'Pedagogical',conge:'Holiday',tournoi:'Tournament',photo:'Photo',sortie:'Field Trip',custom:'Custom',
+  addBadge:'Add badge',promptCustom:'Custom badge name:',
+  defHoraires:['8:10 to 9:10','9:10 to 10:10','10:30 to 11:30','12:45 to 1:45','2:05 to 3:05']
+},
+es:{
+  headerTitle:'PLANIFICADOR PEDAGOGICO',today:'Hoy',
+  days:['Lunes','Martes','Miercoles','Jueves','Viernes'],
+  months:['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+  week:'Sem',day:'Dia',groups:'Grupos',planif:'Plan',period:'Periodo',
+  schedule:'Horario',group:'Grupo',activity:'Actividad',details:'Detalles',
+  recess:'Recreo',lunch:'Almuerzo',free:'LIBRE',
+  save:'Guardar',print:'Imprimir',printDay:'Imprimir este dia',close:'Cerrar',
+  exportMonth:'Exportar mes completo',notes:'Notas...',
+  ped:'Pedagogico',conge:'Feriado',tournoi:'Torneo',photo:'Foto',sortie:'Salida',custom:'Personalizado',
+  addBadge:'Agregar etiqueta',promptCustom:'Nombre de etiqueta personalizada:',
+  defHoraires:['8:10 a 9:10','9:10 a 10:10','10:30 a 11:30','12:45 a 13:45','14:05 a 15:05']
+},
+zh:{
+  headerTitle:'教学计划器',today:'今天',
+  days:['周一','周二','周三','周四','周五'],
+  months:['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'],
+  week:'周',day:'天',groups:'班级',planif:'计划',period:'课时',
+  schedule:'时间',group:'班级',activity:'活动',details:'详情',
+  recess:'课间休息',lunch:'午餐',free:'空闲',
+  save:'保存',print:'打印',printDay:'打印当天',close:'关闭',
+  exportMonth:'导出整月',notes:'备注...',
+  ped:'教研',conge:'假期',tournoi:'比赛',photo:'照片',sortie:'外出',custom:'自定义',
+  addBadge:'添加标签',promptCustom:'自定义标签名称:',
+  defHoraires:['8:10-9:10','9:10-10:10','10:30-11:30','12:45-13:45','14:05-15:05']
+}
+};
+
+let lang='fr', currentYear=2025, currentMonth=8, selectedDate=null;
+const STORE_KEY='zts-planificateur';
+
+function t(k){return T[lang][k]||T.fr[k]||k}
+function loadStore(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{lang:'fr',cells:{}}}catch(e){return{lang:'fr',cells:{}}}}
+function saveStore(s){localStorage.setItem(STORE_KEY,JSON.stringify(s))}
+function getCell(dateStr){const s=loadStore();return s.cells[dateStr]||null}
+function setCell(dateStr,data){const s=loadStore();s.cells[dateStr]={...(s.cells[dateStr]||{}), ...data};saveStore(s)}
+
+function dateStr(y,m,d){return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`}
+function dayOfWeek(y,m,d){const dow=new Date(y,m,d).getDay();return dow===0?7:dow}
+
+/* ====== LANG ====== */
+function initLangs(){
+  const c=document.getElementById('langPills');c.innerHTML='';
+  ['fr','en','es','zh'].forEach(l=>{
+    const p=document.createElement('span');
+    p.className='lang-pill'+(l===lang?' active':'');
+    p.textContent=l.toUpperCase();
+    p.onclick=()=>{lang=l;const s=loadStore();s.lang=l;saveStore(s);initLangs();renderAll()};
+    c.appendChild(p);
+  });
+}
+
+/* ====== MONTH SELECT ====== */
+function populateMonthSelect(){
+  const sel=document.getElementById('monthSelect');sel.innerHTML='';
+  for(let y=2025;y<=2026;y++){
+    const mStart=y===2025?7:0, mEnd=y===2026?6:11;
+    for(let m=mStart;m<=mEnd;m++){
+      const o=document.createElement('option');
+      o.value=`${y}-${m}`;
+      o.textContent=`${t('months')[m]} ${y}`;
+      if(y===currentYear&&m===currentMonth)o.selected=true;
+      sel.appendChild(o);
+    }
+  }
+}
+
+function goToMonth(v){const[y,m]=v.split('-').map(Number);currentYear=y;currentMonth=m;renderAll()}
+function changeMonth(dir){
+  let y=currentYear,m=currentMonth+dir;
+  if(m>11){m=0;y++}if(m<0){m=11;y--}
+  if(y<2025||(y===2025&&m<7))return;if(y>2026||(y===2026&&m>5))return;
+  currentYear=y;currentMonth=m;renderAll();
+}
+function goToday(){
+  const now=new Date();currentYear=now.getFullYear();currentMonth=now.getMonth();renderAll();
+}
+
+/* ====== CALENDAR ====== */
+function getWeekNumber(d){const date=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));date.setUTCDate(date.getUTCDate()+4-(date.getUTCDay()||7));const yearStart=new Date(Date.UTC(date.getUTCFullYear(),0,1));return Math.ceil(((date-yearStart)/86400000+1)/7)}
+
+function renderCalendar(){
+  const grid=document.getElementById('calendarGrid');grid.innerHTML='';
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+  const todayStr=dateStr(new Date().getFullYear(),new Date().getMonth(),new Date().getDate());
+
+  // Header row
+  let headerHTML='<div class="grid gap-1 mb-1" style="grid-template-columns:36px repeat(5,1fr)">';
+  headerHTML+=`<div class="week-col rounded-tl-lg">${t('week')}</div>`;
+  t('days').forEach((d,i)=>{headerHTML+=`<div class="day-header${i===4?' rounded-tr-lg':''}">${d}</div>`});
+  headerHTML+='</div>';
+  grid.innerHTML+=headerHTML;
+
+  // Collect days into weeks (Mon-Fri)
+  let weeks=[];let currentWeek=[];
+  for(let d=1;d<=daysInMonth;d++){
+    const dow=dayOfWeek(currentYear,currentMonth,d);
+    if(dow>=1&&dow<=5){
+      if(dow===1&&currentWeek.length>0){weeks.push(currentWeek);currentWeek=[]}
+      while(currentWeek.length<dow-1)currentWeek.push(null);
+      currentWeek.push(d);
+    }
+  }
+  if(currentWeek.length>0){while(currentWeek.length<5)currentWeek.push(null);weeks.push(currentWeek)}
+
+  weeks.forEach(week=>{
+    let rowHTML='<div class="grid gap-1 mb-1" style="grid-template-columns:36px repeat(5,1fr)">';
+    const firstDay=week.find(d=>d!==null);
+    const wn=firstDay?getWeekNumber(new Date(currentYear,currentMonth,firstDay)):'';
+    rowHTML+=`<div class="week-col">${wn}</div>`;
+
+    week.forEach((d,i)=>{
+      if(d===null){rowHTML+=`<div class="cell-glass rounded-lg p-1 min-h-[90px] opacity-40"></div>`;return}
+      const ds=dateStr(currentYear,currentMonth,d);
+      const cell=getCell(ds)||{};
+      const tags=cell.tags||[];
+      let extraClass='cell-glass';
+      if(tags.includes('Conge'))extraClass='cell-conge';
+      else if(tags.includes('Ped'))extraClass='cell-ped';
+      else if(tags.includes('Tournoi'))extraClass='cell-tournoi';
+      const isToday=ds===todayStr;
+      const isSel=ds===selectedDate;
+
+      rowHTML+=`<div class="${extraClass} rounded-lg p-1.5 min-h-[90px] cursor-pointer transition hover:ring-2 hover:ring-cyan-400 ${isToday?'ring-2 ring-yellow-400':''} ${isSel?'ring-2 ring-pink-500':''}" onclick="onCellClick(event,'${ds}',${d})">`;
+      rowHTML+=`<div class="flex justify-between items-start mb-0.5"><span class="font-bold text-sm text-gray-700">${d}</span>`;
+      // Cycle dots
+      const grp=(cell.groupes||'').toLowerCase();
+      if(/cycle1|c1/.test(grp))rowHTML+=`<span class="cycle-dot bg-green-500"></span>`;
+      if(/cycle2|c2/.test(grp))rowHTML+=`<span class="cycle-dot bg-blue-500 ml-0.5"></span>`;
+      if(/cycle3|c3/.test(grp))rowHTML+=`<span class="cycle-dot bg-violet-500 ml-0.5"></span>`;
+      rowHTML+=`</div>`;
+      rowHTML+=`<input class="cell-input" placeholder="${t('day')} #" value="${cell.jour||''}" onclick="event.stopPropagation()" onchange="onCellInput('${ds}','jour',this.value)">`;
+      rowHTML+=`<input class="cell-input" placeholder="${t('groups')}" value="${cell.groupes||''}" onclick="event.stopPropagation()" onchange="onCellInput('${ds}','groupes',this.value)">`;
+      rowHTML+=`<input class="cell-input" placeholder="${t('planif')}" value="${cell.planif||''}" onclick="event.stopPropagation()" onchange="onCellInput('${ds}','planif',this.value)">`;
+      if(tags.length){
+        rowHTML+=`<div class="flex flex-wrap gap-0.5 mt-0.5">`;
+        tags.forEach(tg=>{
+          const cls=tg==='Ped'?'badge-ped':tg==='Conge'?'badge-conge':tg==='Tournoi'?'badge-tournoi':tg==='Photo'?'badge-photo':tg==='Sortie'?'badge-sortie':'badge-custom';
+          rowHTML+=`<span class="badge ${cls}">${tg}</span>`;
+        });
+        rowHTML+=`</div>`;
+      }
+      rowHTML+=`</div>`;
+    });
+    rowHTML+='</div>';
+    grid.innerHTML+=rowHTML;
+  });
+}
+
+function onCellInput(ds,field,val){
+  const cell=getCell(ds)||{};
+  cell[field]=val;
+  setCell(ds,cell);
+  renderCalendar();
+}
+
+function onCellClick(e,ds,d){
+  if(e.target.tagName==='INPUT')return;
+  selectedDate=ds;
+  showDetail(ds,d);
+  openModal(ds,d);
+  renderCalendar();
+}
+
+/* ====== DETAIL PANEL ====== */
+function showDetail(ds,d){
+  const panel=document.getElementById('detailPanel');panel.classList.remove('hidden');
+  const cell=getCell(ds)||{};
+  const dayName=t('days')[(dayOfWeek(currentYear,currentMonth,d)-1)%5];
+  document.getElementById('detailTitle').textContent=`${dayName} ${d} ${t('months')[currentMonth]} ${currentYear}`;
+  document.getElementById('detailNotes').value=cell.notes||'';
+  document.getElementById('detailNotes').placeholder=t('notes');
+  document.getElementById('detailNotes').onchange=function(){setCell(ds,{notes:this.value})};
+  renderBadges(ds);
+  renderBadgeButtons(ds);
+}
+
+const badgeTypes=[
+  {key:'Ped',icon:'📚',i18n:'ped'},
+  {key:'Conge',icon:'🏖️',i18n:'conge'},
+  {key:'Tournoi',icon:'🏆',i18n:'tournoi'},
+  {key:'Photo',icon:'📸',i18n:'photo'},
+  {key:'Sortie',icon:'🚌',i18n:'sortie'},
+  {key:'Custom',icon:'➕',i18n:'custom'}
+];
+
+function renderBadgeButtons(ds){
+  const c=document.getElementById('badgeButtons');c.innerHTML='';
+  badgeTypes.forEach(bt=>{
+    const b=document.createElement('button');
+    b.className='btn-pill text-sm '+(bt.key==='Custom'?'bg-gray-400 text-white':'btn-cyan');
+    b.innerHTML=`${bt.icon} ${t(bt.i18n)}`;
+    b.onclick=()=>{
+      let tag=bt.key;
+      if(bt.key==='Custom'){tag=prompt(t('promptCustom'));if(!tag)return}
+      const cell=getCell(ds)||{};
+      const tags=cell.tags||[];
+      if(!tags.includes(tag)){tags.push(tag);setCell(ds,{tags});renderBadges(ds);renderCalendar()}
+    };
+    c.appendChild(b);
+  });
+}
+
+function renderBadges(ds){
+  const c=document.getElementById('badgeList');c.innerHTML='';
+  const cell=getCell(ds)||{};
+  (cell.tags||[]).forEach(tg=>{
+    const cls=tg==='Ped'?'badge-ped':tg==='Conge'?'badge-conge':tg==='Tournoi'?'badge-tournoi':tg==='Photo'?'badge-photo':tg==='Sortie'?'badge-sortie':'badge-custom';
+    const s=document.createElement('span');s.className=`badge ${cls} text-sm`;
+    s.innerHTML=`${tg} <span style="cursor:pointer;margin-left:3px" onclick="removeBadge('${ds}','${tg}')">&times;</span>`;
+    c.appendChild(s);
+  });
+}
+
+function removeBadge(ds,tag){
+  const cell=getCell(ds)||{};
+  cell.tags=(cell.tags||[]).filter(t=>t!==tag);
+  setCell(ds,cell);
+  renderBadges(ds);
+  renderCalendar();
+}
+
+function saveDetail(){
+  if(!selectedDate)return;
+  const notes=document.getElementById('detailNotes').value;
+  setCell(selectedDate,{notes});
+  alert(lang==='fr'?'Sauvegarde!':lang==='en'?'Saved!':lang==='es'?'Guardado!':'已保存!');
+}
+
+/* ====== DAILY MODAL ====== */
+function openModal(ds,d){
+  const modal=document.getElementById('dailyModal');modal.classList.remove('hidden');
+  document.body.style.overflow='hidden';
+  const dow=dayOfWeek(currentYear,currentMonth,d);
+  const dayName=t('days')[(dow-1)%5];
+  document.getElementById('modalDayName').textContent=dayName.toUpperCase();
+  document.getElementById('modalDate').textContent=`${d} ${t('months')[currentMonth]} ${currentYear}`;
+
+  const cell=getCell(ds)||{};
+  const periodes=cell.periodes||t('defHoraires').map(h=>({horaire:h,groupe:'',activite:'',details:''}));
+
+  const container=document.getElementById('modalPeriods');container.innerHTML='';
+  const separators=[null,null,'recess','lunch','recess'];
+
+  periodes.forEach((p,i)=>{
+    if(i>0&&separators[i]){
+      const sep=document.createElement('div');
+      sep.className='separator';
+      sep.textContent=`** ${separators[i]==='recess'?t('recess'):t('lunch')} **`;
+      container.appendChild(sep);
+    }
+
+    const row=document.createElement('div');
+    row.className='flex gap-2 items-stretch';
+
+    // Cyan period box
+    row.innerHTML=`
+      <div class="period-cyan" style="min-width:110px">
+        <div class="text-lg">${t('period')} ${i+1}</div>
+        <input class="period-input text-center text-sm mt-1" style="background:rgba(255,255,255,0.3);color:#fff;border-color:rgba(255,255,255,0.5);max-width:130px" value="${p.horaire}" data-period="${i}" data-field="horaire" onchange="onModalInput(this,'${ds}')">
+      </div>
+      <div class="period-yellow flex-1">
+        <div class="flex flex-col sm:flex-row gap-2 mb-2">
+          <div class="flex-1"><label class="font-fredoka text-sm text-gray-700">${t('group')}:</label>
+            <input class="period-input" value="${p.groupe}" placeholder="${t('free')}" data-period="${i}" data-field="groupe" onchange="onModalInput(this,'${ds}')">
+          </div>
+          <div class="flex-1"><label class="font-fredoka text-sm text-gray-700">${t('activity')}:</label>
+            <input class="period-input" value="${p.activite}" data-period="${i}" data-field="activite" onchange="onModalInput(this,'${ds}')">
+          </div>
         </div>
-    </header>
-
-    <!-- ==================== CONTROLS ==================== -->
-    <div class="no-print max-w-7xl mx-auto px-3 py-3 flex flex-wrap items-center justify-center gap-2">
-        <button onclick="prevMonth()" class="btn-action btn-cyan" aria-label="Previous month">
-            <i data-lucide="chevron-left" class="w-5 h-5"></i>
-        </button>
-        <select id="monthSelect" onchange="jumpToMonth(this.value)" class="bg-black/50 text-white border border-white/20 rounded-full px-3 py-1.5 font-fredoka text-sm outline-none cursor-pointer">
-        </select>
-        <button onclick="nextMonth()" class="btn-action btn-cyan" aria-label="Next month">
-            <i data-lucide="chevron-right" class="w-5 h-5"></i>
-        </button>
-        <button onclick="goToday()" class="btn-action btn-yellow text-sm">
-            <i data-lucide="calendar" class="w-4 h-4"></i>
-            <span data-i18n="today">Aujourd'hui</span>
-        </button>
-    </div>
-
-    <!-- ==================== MONTH TITLE ==================== -->
-    <div class="max-w-7xl mx-auto px-3 pb-2 text-center">
-        <h2 id="monthTitle" class="font-bangers text-4xl sm:text-5xl md:text-6xl text-white drop-shadow-lg" style="text-shadow: 3px 3px 8px rgba(0,0,0,0.7);"></h2>
-    </div>
-
-    <!-- ==================== CALENDAR ==================== -->
-    <div class="max-w-7xl mx-auto px-2 sm:px-3 pb-4">
-        <div id="calendarGrid" class="cal-grid"></div>
-    </div>
-
-    <!-- ==================== DETAIL PANEL ==================== -->
-    <div id="detailPanel" class="hidden max-w-7xl mx-auto px-3 pb-6">
-        <div class="detail-panel p-4 sm:p-6">
-            <!-- Date title -->
-            <h3 id="detailDate" class="font-bangers text-2xl sm:text-3xl text-cyan-electric mb-4"></h3>
-
-            <!-- Quick-add badges -->
-            <div class="flex flex-wrap gap-2 mb-4">
-                <button onclick="addTag('ped')" class="btn-action btn-yellow text-xs">
-                    <span>&#x1F4DA;</span> <span data-i18n="pedagogical">P&eacute;dagogique</span>
-                </button>
-                <button onclick="addTag('conge')" class="btn-action btn-cyan text-xs">
-                    <span>&#x1F3D6;&#xFE0F;</span> <span data-i18n="holiday">Cong&eacute;</span>
-                </button>
-                <button onclick="addTag('tournoi')" class="btn-action btn-pink text-xs">
-                    <span>&#x1F3C6;</span> <span data-i18n="tournament">Tournoi</span>
-                </button>
-                <button onclick="addTag('photo')" class="btn-action btn-violet text-xs">
-                    <span>&#x1F4F8;</span> <span data-i18n="photo">Photo</span>
-                </button>
-                <button onclick="addTag('sortie')" class="btn-action btn-green text-xs">
-                    <span>&#x1F68C;</span> <span data-i18n="outing">Sortie</span>
-                </button>
-                <button onclick="showCustomTagInput()" class="btn-action btn-gray text-xs" id="btnCustomTag">
-                    <span>&#x2795;</span> <span data-i18n="custom">Personnalis&eacute;</span>
-                </button>
-            </div>
-
-            <!-- Custom tag input (hidden by default) -->
-            <div id="customTagRow" class="hidden flex gap-2 mb-4 items-center">
-                <input id="customTagInput" type="text" placeholder="Nom du badge..." class="bg-white/10 border border-white/20 rounded-full px-3 py-1 text-white font-schoolbell text-sm outline-none flex-1 max-w-xs" onkeydown="if(event.key==='Enter')addCustomTag()">
-                <button onclick="addCustomTag()" class="btn-action btn-cyan text-xs" data-i18n="add">Ajouter</button>
-                <button onclick="hideCustomTagInput()" class="btn-action btn-gray text-xs">X</button>
-            </div>
-
-            <!-- Current tags -->
-            <div id="detailTags" class="flex flex-wrap gap-1 mb-4"></div>
-
-            <!-- Notes -->
-            <div class="mb-3">
-                <label class="font-fredoka text-sm text-white/70 mb-1 block"><span data-i18n="detailedNotes">Notes d&eacute;taill&eacute;es</span></label>
-                <textarea id="detailNotes" class="detail-textarea" rows="4" data-placeholder-i18n="notesPlaceholder" placeholder="Notes pour cette journ&eacute;e..."></textarea>
-            </div>
-
-            <!-- Weekend notes (shown conditionally) -->
-            <div id="weekendNotesWrap" class="hidden mb-3">
-                <label class="font-fredoka text-sm text-white/70 mb-1 block"><span data-i18n="weekendNotes">Notes fin de semaine</span></label>
-                <textarea id="weekendNotes" class="detail-textarea" rows="3" data-placeholder-i18n="weekendPlaceholder" placeholder="Notes pour la fin de semaine..."></textarea>
-            </div>
-
-            <!-- Action buttons -->
-            <div class="flex flex-wrap gap-2 mt-4">
-                <button onclick="saveAll()" class="btn-action btn-green text-sm">
-                    <span>&#x1F4BE;</span> <span data-i18n="save">Sauvegarder</span>
-                </button>
-                <button onclick="printCal()" class="btn-action btn-gray text-sm">
-                    <span>&#x1F5A8;&#xFE0F;</span> <span data-i18n="print">Imprimer</span>
-                </button>
-                <button onclick="exportPDF()" class="btn-action btn-pink text-sm">
-                    <span>&#x1F4C4;</span> PDF
-                </button>
-                <button onclick="exportXLS()" class="btn-action btn-cyan text-sm">
-                    <span>&#x1F4CA;</span> Excel
-                </button>
-                <button onclick="exportCSV()" class="btn-action btn-violet text-sm">
-                    <span>&#x1F4CB;</span> CSV
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== GLOBAL EXPORT BAR ==================== -->
-    <div class="no-print max-w-7xl mx-auto px-3 pb-8">
-        <div class="bg-black/50 backdrop-blur-md rounded-2xl p-4 flex flex-wrap items-center justify-center gap-3 border border-white/10">
-            <span class="font-fredoka text-white/70 text-sm" data-i18n="exportMonth">Exporter le mois complet :</span>
-            <button onclick="exportMonthPDF()" class="btn-action btn-pink text-sm">
-                <span>&#x1F4C4;</span> PDF
-            </button>
-            <button onclick="exportMonthXLS()" class="btn-action btn-cyan text-sm">
-                <span>&#x1F4CA;</span> Excel
-            </button>
-            <button onclick="exportMonthCSV()" class="btn-action btn-violet text-sm">
-                <span>&#x1F4CB;</span> CSV
-            </button>
-        </div>
-    </div>
-
-    <!-- ==================== JAVASCRIPT ==================== -->
-    <script>
-    (function() {
-        'use strict';
-
-        // ===== i18n =====
-        const I18N = {
-            fr: {
-                title: 'PLANIFICATEUR P\u00c9DAGOGIQUE',
-                today: "Aujourd'hui",
-                days: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'],
-                daysFull: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'],
-                months: ['Janvier', 'F\u00e9vrier', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Ao\u00fbt', 'Septembre', 'Octobre', 'Novembre', 'D\u00e9cembre'],
-                week: 'Sem',
-                periods: 'P\u00e9riodes',
-                groups: 'Groupes',
-                plan: 'Planif',
-                day: 'Jour',
-                holiday: 'Cong\u00e9',
-                pedagogical: 'P\u00e9dagogique',
-                tournament: 'Tournoi',
-                photo: 'Photo',
-                outing: 'Sortie',
-                custom: 'Personnalis\u00e9',
-                detailedNotes: 'Notes d\u00e9taill\u00e9es',
-                weekendNotes: 'Notes fin de semaine',
-                notesPlaceholder: 'Notes pour cette journ\u00e9e...',
-                weekendPlaceholder: 'Notes pour la fin de semaine...',
-                save: 'Sauvegarder',
-                print: 'Imprimer',
-                exportMonth: 'Exporter le mois complet :',
-                add: 'Ajouter',
-                saved: 'Sauvegard\u00e9 !',
-                tagNames: { ped: 'P\u00e9d', conge: 'Cong\u00e9', tournoi: 'Tournoi', photo: 'Photo', sortie: 'Sortie' }
-            },
-            en: {
-                title: 'PEDAGOGICAL PLANNER',
-                today: 'Today',
-                days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-                daysFull: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-                months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                week: 'Wk',
-                periods: 'Periods',
-                groups: 'Groups',
-                plan: 'Plan',
-                day: 'Day',
-                holiday: 'Holiday',
-                pedagogical: 'Pedagogical',
-                tournament: 'Tournament',
-                photo: 'Photo',
-                outing: 'Outing',
-                custom: 'Custom',
-                detailedNotes: 'Detailed notes',
-                weekendNotes: 'Weekend notes',
-                notesPlaceholder: 'Notes for this day...',
-                weekendPlaceholder: 'Weekend notes...',
-                save: 'Save',
-                print: 'Print',
-                exportMonth: 'Export full month:',
-                add: 'Add',
-                saved: 'Saved!',
-                tagNames: { ped: 'Ped', conge: 'Holiday', tournoi: 'Tournament', photo: 'Photo', sortie: 'Outing' }
-            },
-            es: {
-                title: 'PLANIFICADOR PEDAG\u00d3GICO',
-                today: 'Hoy',
-                days: ['Lun', 'Mar', 'Mi\u00e9', 'Jue', 'Vie'],
-                daysFull: ['Lunes', 'Martes', 'Mi\u00e9rcoles', 'Jueves', 'Viernes'],
-                months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-                week: 'Sem',
-                periods: 'Per\u00edodos',
-                groups: 'Grupos',
-                plan: 'Planif',
-                day: 'D\u00eda',
-                holiday: 'Vacaciones',
-                pedagogical: 'Pedag\u00f3gico',
-                tournament: 'Torneo',
-                photo: 'Foto',
-                outing: 'Salida',
-                custom: 'Personalizado',
-                detailedNotes: 'Notas detalladas',
-                weekendNotes: 'Notas fin de semana',
-                notesPlaceholder: 'Notas para este d\u00eda...',
-                weekendPlaceholder: 'Notas del fin de semana...',
-                save: 'Guardar',
-                print: 'Imprimir',
-                exportMonth: 'Exportar mes completo:',
-                add: 'Agregar',
-                saved: '\u00a1Guardado!',
-                tagNames: { ped: 'Ped', conge: 'Vacaciones', tournoi: 'Torneo', photo: 'Foto', sortie: 'Salida' }
-            },
-            zh: {
-                title: '\u6559\u5B66\u8BA1\u5212\u8868',
-                today: '\u4ECA\u5929',
-                days: ['\u5468\u4E00', '\u5468\u4E8C', '\u5468\u4E09', '\u5468\u56DB', '\u5468\u4E94'],
-                daysFull: ['\u661F\u671F\u4E00', '\u661F\u671F\u4E8C', '\u661F\u671F\u4E09', '\u661F\u671F\u56DB', '\u661F\u671F\u4E94'],
-                months: ['\u4E00\u6708', '\u4E8C\u6708', '\u4E09\u6708', '\u56DB\u6708', '\u4E94\u6708', '\u516D\u6708', '\u4E03\u6708', '\u516B\u6708', '\u4E5D\u6708', '\u5341\u6708', '\u5341\u4E00\u6708', '\u5341\u4E8C\u6708'],
-                week: '\u5468',
-                periods: '\u8BFE\u65F6',
-                groups: '\u73ED\u7EA7',
-                plan: '\u8BA1\u5212',
-                day: '\u5929',
-                holiday: '\u5047\u671F',
-                pedagogical: '\u6559\u5B66\u65E5',
-                tournament: '\u6BD4\u8D5B',
-                photo: '\u7167\u7247',
-                outing: '\u90CA\u6E38',
-                custom: '\u81EA\u5B9A\u4E49',
-                detailedNotes: '\u8BE6\u7EC6\u7B14\u8BB0',
-                weekendNotes: '\u5468\u672B\u7B14\u8BB0',
-                notesPlaceholder: '\u4ECA\u5929\u7684\u7B14\u8BB0...',
-                weekendPlaceholder: '\u5468\u672B\u7B14\u8BB0...',
-                save: '\u4FDD\u5B58',
-                print: '\u6253\u5370',
-                exportMonth: '\u5BFC\u51FA\u6574\u6708\uFF1A',
-                add: '\u6DFB\u52A0',
-                saved: '\u5DF2\u4FDD\u5B58\uFF01',
-                tagNames: { ped: '\u6559\u5B66', conge: '\u5047\u671F', tournoi: '\u6BD4\u8D5B', photo: '\u7167\u7247', sortie: '\u90CA\u6E38' }
-            }
-        };
-
-        // ===== State =====
-        const STORAGE_KEY = 'zts-planificateur';
-        let currentLang = 'fr';
-        let currentYear = 2025;
-        let currentMonth = 7; // 0-indexed: 7 = August
-        let selectedDate = null;
-        let data = { lang: 'fr', cells: {} };
-
-        // ===== Init =====
-        function init() {
-            loadData();
-            currentLang = data.lang || 'fr';
-            // Start at current month
-            const now = new Date();
-            currentYear = now.getFullYear();
-            currentMonth = now.getMonth();
-            // Clamp to school year range (Aug prev year - June next year)
-            buildMonthSelect();
-            renderCalendar();
-            updateLangUI();
-            lucide.createIcons();
-        }
-
-        // ===== localStorage =====
-        function loadData() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) data = JSON.parse(raw);
-            } catch(e) {
-                data = { lang: 'fr', cells: {} };
-            }
-            if (!data.cells) data.cells = {};
-        }
-
-        function saveData() {
-            data.lang = currentLang;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-        }
-
-        function getCellData(dateStr) {
-            if (!data.cells[dateStr]) {
-                data.cells[dateStr] = { jour: '', periodes: '', groupes: '', planif: '', tags: [], notes: '', weekend: '' };
-            }
-            return data.cells[dateStr];
-        }
-
-        // ===== Language =====
-        window.setLang = function(lang) {
-            currentLang = lang;
-            data.lang = lang;
-            saveData();
-            updateLangUI();
-            buildMonthSelect();
-            renderCalendar();
-            if (selectedDate) renderDetail();
-        };
-
-        function t(key) {
-            return (I18N[currentLang] && I18N[currentLang][key]) || (I18N.fr[key]) || key;
-        }
-
-        function updateLangUI() {
-            // Update lang pills
-            document.querySelectorAll('.lang-pill').forEach(function(btn) {
-                btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === currentLang);
-            });
-            // Update data-i18n elements
-            document.querySelectorAll('[data-i18n]').forEach(function(el) {
-                const key = el.getAttribute('data-i18n');
-                if (I18N[currentLang] && I18N[currentLang][key] !== undefined) {
-                    el.textContent = I18N[currentLang][key];
-                }
-            });
-            // Update placeholders
-            document.querySelectorAll('[data-placeholder-i18n]').forEach(function(el) {
-                const key = el.getAttribute('data-placeholder-i18n');
-                if (I18N[currentLang] && I18N[currentLang][key]) {
-                    el.placeholder = I18N[currentLang][key];
-                }
-            });
-        }
-
-        // ===== Month navigation =====
-        function buildMonthSelect() {
-            const sel = document.getElementById('monthSelect');
-            sel.innerHTML = '';
-            // School year: August 2025 to June 2026
-            const ranges = [
-                [2025, 7], [2025, 8], [2025, 9], [2025, 10], [2025, 11],
-                [2026, 0], [2026, 1], [2026, 2], [2026, 3], [2026, 4], [2026, 5]
-            ];
-            const months = t('months');
-            ranges.forEach(function(r) {
-                const opt = document.createElement('option');
-                opt.value = r[0] + '-' + r[1];
-                const mName = (typeof months === 'object' && months[r[1]]) ? months[r[1]] : (I18N.fr.months[r[1]]);
-                opt.textContent = mName + ' ' + r[0];
-                if (r[0] === currentYear && r[1] === currentMonth) opt.selected = true;
-                sel.appendChild(opt);
-            });
-        }
-
-        window.jumpToMonth = function(val) {
-            const parts = val.split('-');
-            currentYear = parseInt(parts[0]);
-            currentMonth = parseInt(parts[1]);
-            renderCalendar();
-        };
-
-        window.prevMonth = function() {
-            currentMonth--;
-            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-            document.getElementById('monthSelect').value = currentYear + '-' + currentMonth;
-            renderCalendar();
-        };
-
-        window.nextMonth = function() {
-            currentMonth++;
-            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-            document.getElementById('monthSelect').value = currentYear + '-' + currentMonth;
-            renderCalendar();
-        };
-
-        window.goToday = function() {
-            const now = new Date();
-            currentYear = now.getFullYear();
-            currentMonth = now.getMonth();
-            document.getElementById('monthSelect').value = currentYear + '-' + currentMonth;
-            renderCalendar();
-        };
-
-        // ===== Calendar rendering =====
-        function getWeekNumber(d) {
-            var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
-            var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-            return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-        }
-
-        function formatDateStr(y, m, d) {
-            return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-        }
-
-        function renderCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-
-            // Month title
-            const monthNames = I18N[currentLang] ? I18N[currentLang].months : I18N.fr.months;
-            document.getElementById('monthTitle').textContent = monthNames[currentMonth] + ' ' + currentYear;
-
-            // Day headers: week col + 5 days
-            const dayNames = t('days');
-            // Week header
-            var wh = document.createElement('div');
-            wh.className = 'day-header';
-            wh.textContent = t('week');
-            grid.appendChild(wh);
-            for (var di = 0; di < 5; di++) {
-                var dh = document.createElement('div');
-                dh.className = 'day-header';
-                dh.textContent = (typeof dayNames === 'object') ? dayNames[di] : dayNames;
-                grid.appendChild(dh);
-            }
-
-            // Find first day of month
-            var firstDay = new Date(currentYear, currentMonth, 1);
-            var lastDay = new Date(currentYear, currentMonth + 1, 0);
-            var daysInMonth = lastDay.getDate();
-
-            // Day of week (0=Sun, 1=Mon, ...). We want Mon=0
-            var startDow = firstDay.getDay(); // 0=Sun
-            startDow = (startDow === 0) ? 6 : startDow - 1; // Convert: Mon=0, Tue=1, ..., Sun=6
-
-            // We only show Mon-Fri, so startDow capped to 0-4
-            // Fill weeks
-            var today = new Date();
-            var todayStr = formatDateStr(today.getFullYear(), today.getMonth(), today.getDate());
-
-            // Calculate prev month days for padding
-            var prevMonthLast = new Date(currentYear, currentMonth, 0).getDate();
-
-            // Build array of weeks
-            var weeks = [];
-            var dayNum = 1;
-            var prevDayNum = prevMonthLast - startDow + 1; // If startDow > 4, we handle
-            var nextDayNum = 1;
-            var done = false;
-
-            // We need rows. Start from the Monday of the week containing day 1
-            // If startDow > 4 (Sat or Sun), first weekday is next Monday
-            var actualStart = 1;
-            if (startDow > 4) {
-                // Month starts on Sat(5) or Sun(6), first Mon is day (8 - startDow)
-                actualStart = 8 - startDow;
-                startDow = 0;
-            }
-
-            // Build week rows
-            dayNum = actualStart - startDow; // Could be negative for prev month days
-
-            while (!done) {
-                var week = [];
-                for (var wd = 0; wd < 5; wd++) { // Mon-Fri only
-                    if (dayNum < 1) {
-                        // Previous month
-                        week.push({ day: prevMonthLast + dayNum, inMonth: false, dateStr: null });
-                    } else if (dayNum > daysInMonth) {
-                        // Next month
-                        week.push({ day: nextDayNum, inMonth: false, dateStr: null });
-                        nextDayNum++;
-                    } else {
-                        var ds = formatDateStr(currentYear, currentMonth, dayNum);
-                        week.push({ day: dayNum, inMonth: true, dateStr: ds });
-                    }
-                    dayNum++;
-                }
-                weeks.push(week);
-                // Skip weekend
-                dayNum += 2;
-                if (dayNum > daysInMonth + 7) done = true;
-                if (weeks.length >= 6) done = true;
-                // Check if all in-month days are accounted for
-                var hasInMonth = false;
-                for (var c = 0; c < week.length; c++) {
-                    if (week[c].inMonth) hasInMonth = true;
-                }
-                if (!hasInMonth && dayNum > daysInMonth) done = true;
-            }
-
-            // Remove trailing weeks that are all out-of-month
-            while (weeks.length > 0) {
-                var lastWeek = weeks[weeks.length - 1];
-                var anyIn = false;
-                for (var j = 0; j < lastWeek.length; j++) {
-                    if (lastWeek[j].inMonth) anyIn = true;
-                }
-                if (!anyIn) weeks.pop();
-                else break;
-            }
-
-            // Render weeks
-            for (var wi = 0; wi < weeks.length; wi++) {
-                var weekRow = weeks[wi];
-                // Find a valid in-month date for week number
-                var weekDate = null;
-                for (var k = 0; k < weekRow.length; k++) {
-                    if (weekRow[k].inMonth) {
-                        weekDate = new Date(currentYear, currentMonth, weekRow[k].day);
-                        break;
-                    }
-                }
-                // Week number cell
-                var wnCell = document.createElement('div');
-                wnCell.className = 'week-num';
-                wnCell.textContent = weekDate ? getWeekNumber(weekDate) : '';
-                grid.appendChild(wnCell);
-
-                // Day cells
-                for (var ci = 0; ci < 5; ci++) {
-                    var info = weekRow[ci];
-                    var cell = document.createElement('div');
-                    cell.className = 'cal-cell';
-
-                    if (!info.inMonth) {
-                        cell.classList.add('other-month');
-                        cell.innerHTML = '<div class="font-bold text-xs opacity-50">' + info.day + '</div>';
-                        grid.appendChild(cell);
-                        continue;
-                    }
-
-                    var ds = info.dateStr;
-                    var cellData = getCellData(ds);
-
-                    // Today highlight
-                    if (ds === todayStr) cell.classList.add('today');
-                    // Selected highlight
-                    if (ds === selectedDate) cell.classList.add('selected');
-
-                    // Build cell content
-                    var html = '';
-                    // Day number + cycle dots
-                    html += '<div class="flex items-center justify-between mb-0.5">';
-                    html += '<span class="font-bold text-sm leading-none">' + info.day + '</span>';
-                    html += '<span class="cycle-dots" data-date="' + ds + '"></span>';
-                    html += '</div>';
-
-                    // Jour input
-                    html += '<input type="text" class="cell-input" data-field="jour" data-date="' + ds + '" value="' + escHtml(cellData.jour) + '" placeholder="' + t('day') + ' #">';
-                    // Periodes input
-                    html += '<input type="text" class="cell-input" data-field="periodes" data-date="' + ds + '" value="' + escHtml(cellData.periodes) + '" placeholder="' + t('periods') + '">';
-                    // Groupes input
-                    html += '<input type="text" class="cell-input" data-field="groupes" data-date="' + ds + '" value="' + escHtml(cellData.groupes) + '" placeholder="' + t('groups') + '">';
-                    // Planif input
-                    html += '<input type="text" class="cell-input" data-field="planif" data-date="' + ds + '" value="' + escHtml(cellData.planif) + '" placeholder="' + t('plan') + '">';
-
-                    // Tags / badges
-                    html += '<div class="tags-container flex flex-wrap gap-0.5 mt-0.5" data-date="' + ds + '">';
-                    if (cellData.tags && cellData.tags.length > 0) {
-                        cellData.tags.forEach(function(tag, idx) {
-                            html += renderBadgeHtml(tag, ds, idx);
-                        });
-                    }
-                    html += '</div>';
-
-                    cell.innerHTML = html;
-
-                    // Click handler on cell (select day)
-                    cell.addEventListener('click', (function(dateStr) {
-                        return function(e) {
-                            // Don't select if clicking inside an input
-                            if (e.target.tagName === 'INPUT' || e.target.classList.contains('badge-x')) return;
-                            selectDay(dateStr);
-                        };
-                    })(ds));
-
-                    grid.appendChild(cell);
-                }
-            }
-
-            // Bind input events
-            grid.querySelectorAll('.cell-input').forEach(function(inp) {
-                inp.addEventListener('input', function(e) {
-                    var dateStr = this.getAttribute('data-date');
-                    var field = this.getAttribute('data-field');
-                    var cd = getCellData(dateStr);
-                    cd[field] = this.value;
-                    saveData();
-                    // Update cycle dots if groupes changed
-                    if (field === 'groupes') {
-                        updateCycleDots(dateStr, this.value);
-                    }
-                });
-                inp.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-                inp.addEventListener('focus', function(e) {
-                    e.stopPropagation();
-                });
-            });
-
-            // Render cycle dots
-            grid.querySelectorAll('.cycle-dots').forEach(function(span) {
-                var dateStr = span.getAttribute('data-date');
-                var cd = getCellData(dateStr);
-                updateCycleDots(dateStr, cd.groupes);
-            });
-
-            // Re-init lucide
-            lucide.createIcons();
-        }
-
-        function updateCycleDots(dateStr, groupes) {
-            var span = document.querySelector('.cycle-dots[data-date="' + dateStr + '"]');
-            if (!span) return;
-            var html = '';
-            var g = (groupes || '').toLowerCase();
-            if (g.indexOf('cycle 1') !== -1 || g.indexOf('c1') !== -1) html += '<span class="cycle-dot c1"></span>';
-            if (g.indexOf('cycle 2') !== -1 || g.indexOf('c2') !== -1) html += '<span class="cycle-dot c2"></span>';
-            if (g.indexOf('cycle 3') !== -1 || g.indexOf('c3') !== -1) html += '<span class="cycle-dot c3"></span>';
-            span.innerHTML = html;
-        }
-
-        function escHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        }
-
-        function renderBadgeHtml(tag, dateStr, idx) {
-            var cls = 'badge-custom';
-            var label = tag;
-            var knownTags = { ped: 'badge-ped', conge: 'badge-conge', tournoi: 'badge-tournoi', photo: 'badge-photo', sortie: 'badge-sortie' };
-            var tagKey = tag.toLowerCase().replace(/[^a-z]/g, '');
-            // Check known tags by key
-            var tagNames = I18N[currentLang] ? I18N[currentLang].tagNames : I18N.fr.tagNames;
-            for (var k in knownTags) {
-                if (tagKey === k || tag === tagNames[k]) {
-                    cls = knownTags[k];
-                    label = tagNames[k];
-                    break;
-                }
-            }
-            return '<span class="badge ' + cls + '">' + escHtml(label) + '<span class="badge-x" onclick="event.stopPropagation(); removeTag(\'' + dateStr + '\',' + idx + ')">x</span></span>';
-        }
-
-        // ===== Day selection =====
-        function selectDay(dateStr) {
-            selectedDate = dateStr;
-            // Update selected class
-            document.querySelectorAll('.cal-cell.selected').forEach(function(c) { c.classList.remove('selected'); });
-            // Find the cell
-            document.querySelectorAll('.cell-input[data-date="' + dateStr + '"]').forEach(function(inp) {
-                inp.closest('.cal-cell').classList.add('selected');
-            });
-            renderDetail();
-            // Scroll to detail
-            document.getElementById('detailPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        function renderDetail() {
-            if (!selectedDate) return;
-            var panel = document.getElementById('detailPanel');
-            panel.classList.remove('hidden');
-
-            var d = new Date(selectedDate + 'T12:00:00');
-            var dayNames = I18N[currentLang] ? I18N[currentLang].daysFull : I18N.fr.daysFull;
-            var monthNames = I18N[currentLang] ? I18N[currentLang].months : I18N.fr.months;
-            var dow = d.getDay(); // 0=Sun
-            var dowIdx = (dow === 0) ? 6 : dow - 1;
-            var dayName = (dowIdx >= 0 && dowIdx < 5) ? dayNames[dowIdx] : '';
-            document.getElementById('detailDate').textContent = dayName + ' ' + d.getDate() + ' ' + monthNames[d.getMonth()] + ' ' + d.getFullYear();
-
-            var cd = getCellData(selectedDate);
-
-            // Tags
-            var tagsHtml = '';
-            if (cd.tags && cd.tags.length > 0) {
-                cd.tags.forEach(function(tag, idx) {
-                    tagsHtml += renderBadgeHtml(tag, selectedDate, idx);
-                });
-            }
-            document.getElementById('detailTags').innerHTML = tagsHtml;
-
-            // Notes
-            document.getElementById('detailNotes').value = cd.notes || '';
-
-            // Weekend notes (show if Friday, dow=5)
-            var isFriday = (dow === 5);
-            var weekendWrap = document.getElementById('weekendNotesWrap');
-            if (isFriday) {
-                weekendWrap.classList.remove('hidden');
-                document.getElementById('weekendNotes').value = cd.weekend || '';
-            } else {
-                weekendWrap.classList.add('hidden');
-            }
-
-            // Bind note saving
-            document.getElementById('detailNotes').oninput = function() {
-                cd.notes = this.value;
-                saveData();
-            };
-            document.getElementById('weekendNotes').oninput = function() {
-                cd.weekend = this.value;
-                saveData();
-            };
-
-            hideCustomTagInput();
-        }
-
-        // ===== Tags =====
-        window.addTag = function(type) {
-            if (!selectedDate) return;
-            var cd = getCellData(selectedDate);
-            if (!cd.tags) cd.tags = [];
-            var tagNames = I18N[currentLang] ? I18N[currentLang].tagNames : I18N.fr.tagNames;
-            var label = tagNames[type] || type;
-            cd.tags.push(label);
-            saveData();
-            renderCalendar();
-            renderDetail();
-        };
-
-        window.removeTag = function(dateStr, idx) {
-            var cd = getCellData(dateStr);
-            if (cd.tags && cd.tags.length > idx) {
-                cd.tags.splice(idx, 1);
-                saveData();
-                renderCalendar();
-                if (selectedDate === dateStr) renderDetail();
-            }
-        };
-
-        window.showCustomTagInput = function() {
-            document.getElementById('customTagRow').classList.remove('hidden');
-            document.getElementById('customTagInput').focus();
-        };
-
-        window.hideCustomTagInput = function() {
-            document.getElementById('customTagRow').classList.add('hidden');
-            document.getElementById('customTagInput').value = '';
-        };
-
-        window.addCustomTag = function() {
-            var input = document.getElementById('customTagInput');
-            var val = input.value.trim();
-            if (!val || !selectedDate) return;
-            var cd = getCellData(selectedDate);
-            if (!cd.tags) cd.tags = [];
-            cd.tags.push(val);
-            saveData();
-            input.value = '';
-            renderCalendar();
-            renderDetail();
-        };
-
-        // ===== Save =====
-        window.saveAll = function() {
-            saveData();
-            // Flash feedback
-            var btn = event.target.closest('.btn-action');
-            if (btn) {
-                var original = btn.innerHTML;
-                btn.innerHTML = '<span>&#x2705;</span> ' + t('saved');
-                setTimeout(function() { btn.innerHTML = original; }, 1500);
-            }
-        };
-
-        // ===== Print =====
-        window.printCal = function() {
-            window.print();
-        };
-
-        // ===== PDF Export (single day) =====
-        window.exportPDF = function() {
-            if (!selectedDate) return;
-            var jsPDF = window.jspdf.jsPDF;
-            var doc = new jsPDF();
-            var cd = getCellData(selectedDate);
-            var d = new Date(selectedDate + 'T12:00:00');
-            var monthNames = I18N[currentLang] ? I18N[currentLang].months : I18N.fr.months;
-
-            doc.setFontSize(20);
-            doc.text(t('title'), 105, 20, { align: 'center' });
-            doc.setFontSize(14);
-            doc.text(d.getDate() + ' ' + monthNames[d.getMonth()] + ' ' + d.getFullYear(), 105, 32, { align: 'center' });
-
-            var y = 45;
-            doc.setFontSize(11);
-            doc.text(t('day') + ': ' + (cd.jour || '-'), 20, y); y += 8;
-            doc.text(t('periods') + ': ' + (cd.periodes || '-'), 20, y); y += 8;
-            doc.text(t('groups') + ': ' + (cd.groupes || '-'), 20, y); y += 8;
-            doc.text(t('plan') + ': ' + (cd.planif || '-'), 20, y); y += 8;
-
-            if (cd.tags && cd.tags.length > 0) {
-                doc.text('Tags: ' + cd.tags.join(', '), 20, y); y += 8;
-            }
-
-            if (cd.notes) {
-                doc.text(t('detailedNotes') + ':', 20, y); y += 6;
-                var lines = doc.splitTextToSize(cd.notes, 170);
-                doc.setFontSize(10);
-                doc.text(lines, 20, y);
-                y += lines.length * 5;
-            }
-
-            if (cd.weekend) {
-                y += 4;
-                doc.setFontSize(11);
-                doc.text(t('weekendNotes') + ':', 20, y); y += 6;
-                var wlines = doc.splitTextToSize(cd.weekend, 170);
-                doc.setFontSize(10);
-                doc.text(wlines, 20, y);
-            }
-
-            doc.save('planificateur-' + selectedDate + '.pdf');
-        };
-
-        // ===== XLS Export (single day) =====
-        window.exportXLS = function() {
-            if (!selectedDate) return;
-            var cd = getCellData(selectedDate);
-            var ws_data = [
-                [t('day'), t('periods'), t('groups'), t('plan'), 'Tags', t('detailedNotes'), t('weekendNotes')],
-                [cd.jour || '', cd.periodes || '', cd.groupes || '', cd.planif || '', (cd.tags || []).join(', '), cd.notes || '', cd.weekend || '']
-            ];
-            var wb = XLSX.utils.book_new();
-            var ws = XLSX.utils.aoa_to_sheet(ws_data);
-            XLSX.utils.book_append_sheet(wb, ws, selectedDate);
-            XLSX.writeFile(wb, 'planificateur-' + selectedDate + '.xlsx');
-        };
-
-        // ===== CSV Export (single day) =====
-        window.exportCSV = function() {
-            if (!selectedDate) return;
-            var cd = getCellData(selectedDate);
-            var header = [t('day'), t('periods'), t('groups'), t('plan'), 'Tags', t('detailedNotes'), t('weekendNotes')];
-            var row = [cd.jour || '', cd.periodes || '', cd.groupes || '', cd.planif || '', (cd.tags || []).join('; '), cd.notes || '', cd.weekend || ''];
-            var csv = header.map(csvEsc).join(',') + '\n' + row.map(csvEsc).join(',') + '\n';
-            downloadFile('planificateur-' + selectedDate + '.csv', csv, 'text/csv');
-        };
-
-        // ===== Month export: PDF =====
-        window.exportMonthPDF = function() {
-            var jsPDF = window.jspdf.jsPDF;
-            var doc = new jsPDF('landscape');
-            var monthNames = I18N[currentLang] ? I18N[currentLang].months : I18N.fr.months;
-            var dayNames = I18N[currentLang] ? I18N[currentLang].daysFull : I18N.fr.daysFull;
-
-            doc.setFontSize(18);
-            doc.text(t('title') + ' - ' + monthNames[currentMonth] + ' ' + currentYear, 148, 15, { align: 'center' });
-
-            // Table header
-            var headers = ['Date', t('day'), t('periods'), t('groups'), t('plan'), 'Tags', t('detailedNotes')];
-            var colWidths = [30, 20, 22, 35, 40, 45, 80];
-            var x = 5;
-            var y = 28;
-
-            doc.setFontSize(9);
-            doc.setFillColor(0, 100, 120);
-            doc.setTextColor(255, 255, 255);
-            for (var h = 0; h < headers.length; h++) {
-                doc.rect(x, y - 5, colWidths[h], 8, 'F');
-                doc.text(headers[h], x + 2, y);
-                x += colWidths[h];
-            }
-            doc.setTextColor(0, 0, 0);
-            y += 6;
-
-            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            doc.setFontSize(8);
-            for (var d = 1; d <= daysInMonth; d++) {
-                var dateObj = new Date(currentYear, currentMonth, d);
-                var dow = dateObj.getDay();
-                if (dow === 0 || dow === 6) continue; // Skip weekends
-
-                var ds = formatDateStr(currentYear, currentMonth, d);
-                var cd = getCellData(ds);
-                var dowIdx = dow - 1;
-                var dayLabel = (dayNames[dowIdx] || '') + ' ' + d;
-
-                if (y > 190) {
-                    doc.addPage();
-                    y = 20;
-                }
-
-                x = 5;
-                var rowData = [dayLabel, cd.jour || '', cd.periodes || '', cd.groupes || '', cd.planif || '', (cd.tags || []).join(', '), (cd.notes || '').substring(0, 60)];
-                for (var c = 0; c < rowData.length; c++) {
-                    doc.text(String(rowData[c]).substring(0, Math.floor(colWidths[c] / 2)), x + 2, y);
-                    x += colWidths[c];
-                }
-                y += 6;
-            }
-
-            doc.save('planificateur-' + monthNames[currentMonth] + '-' + currentYear + '.pdf');
-        };
-
-        // ===== Month export: XLS =====
-        window.exportMonthXLS = function() {
-            var monthNames = I18N[currentLang] ? I18N[currentLang].months : I18N.fr.months;
-            var dayNames = I18N[currentLang] ? I18N[currentLang].daysFull : I18N.fr.daysFull;
-
-            var headers = ['Date', t('day'), t('periods'), t('groups'), t('plan'), 'Tags', t('detailedNotes'), t('weekendNotes')];
-            var rows = [headers];
-            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-            for (var d = 1; d <= daysInMonth; d++) {
-                var dateObj = new Date(currentYear, currentMonth, d);
-                var dow = dateObj.getDay();
-                if (dow === 0 || dow === 6) continue;
-
-                var ds = formatDateStr(currentYear, currentMonth, d);
-                var cd = getCellData(ds);
-                var dowIdx = dow - 1;
-                var dayLabel = (dayNames[dowIdx] || '') + ' ' + d + ' ' + monthNames[currentMonth];
-
-                rows.push([
-                    dayLabel,
-                    cd.jour || '',
-                    cd.periodes || '',
-                    cd.groupes || '',
-                    cd.planif || '',
-                    (cd.tags || []).join(', '),
-                    cd.notes || '',
-                    cd.weekend || ''
-                ]);
-            }
-
-            var wb = XLSX.utils.book_new();
-            var ws = XLSX.utils.aoa_to_sheet(rows);
-            // Set column widths
-            ws['!cols'] = [{ wch: 25 }, { wch: 10 }, { wch: 12 }, { wch: 20 }, { wch: 20 }, { wch: 25 }, { wch: 40 }, { wch: 30 }];
-            XLSX.utils.book_append_sheet(wb, ws, monthNames[currentMonth] + ' ' + currentYear);
-            XLSX.writeFile(wb, 'planificateur-' + monthNames[currentMonth] + '-' + currentYear + '.xlsx');
-        };
-
-        // ===== Month export: CSV =====
-        window.exportMonthCSV = function() {
-            var monthNames = I18N[currentLang] ? I18N[currentLang].months : I18N.fr.months;
-            var dayNames = I18N[currentLang] ? I18N[currentLang].daysFull : I18N.fr.daysFull;
-
-            var headers = ['Date', t('day'), t('periods'), t('groups'), t('plan'), 'Tags', t('detailedNotes'), t('weekendNotes')];
-            var csv = headers.map(csvEsc).join(',') + '\n';
-            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-            for (var d = 1; d <= daysInMonth; d++) {
-                var dateObj = new Date(currentYear, currentMonth, d);
-                var dow = dateObj.getDay();
-                if (dow === 0 || dow === 6) continue;
-
-                var ds = formatDateStr(currentYear, currentMonth, d);
-                var cd = getCellData(ds);
-                var dowIdx = dow - 1;
-                var dayLabel = (dayNames[dowIdx] || '') + ' ' + d + ' ' + monthNames[currentMonth];
-
-                var row = [dayLabel, cd.jour || '', cd.periodes || '', cd.groupes || '', cd.planif || '', (cd.tags || []).join('; '), cd.notes || '', cd.weekend || ''];
-                csv += row.map(csvEsc).join(',') + '\n';
-            }
-
-            downloadFile('planificateur-' + monthNames[currentMonth] + '-' + currentYear + '.csv', csv, 'text/csv');
-        };
-
-        // ===== Helpers =====
-        function csvEsc(val) {
-            var s = String(val);
-            if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
-                return '"' + s.replace(/"/g, '""') + '"';
-            }
-            return s;
-        }
-
-        function downloadFile(name, content, type) {
-            var blob = new Blob(['\uFEFF' + content], { type: type + ';charset=utf-8;' });
-            var link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = name;
-            link.click();
-            URL.revokeObjectURL(link.href);
-        }
-
-        // ===== Boot =====
-        document.addEventListener('DOMContentLoaded', init);
-
-    })();
-    </script>
+        <label class="font-fredoka text-sm text-gray-700">${t('details')}:</label>
+        <textarea class="period-input" rows="2" style="resize:vertical" data-period="${i}" data-field="details" onchange="onModalInput(this,'${ds}')">${p.details}</textarea>
+      </div>`;
+    container.appendChild(row);
+  });
+
+  // Store current ds for saving
+  modal.dataset.ds=ds;
+  modal.dataset.day=d;
+}
+
+function onModalInput(el,ds){
+  const idx=parseInt(el.dataset.period);
+  const field=el.dataset.field;
+  const cell=getCell(ds)||{};
+  const periodes=cell.periodes||t('defHoraires').map(h=>({horaire:h,groupe:'',activite:'',details:''}));
+  periodes[idx][field]=el.value;
+  setCell(ds,{periodes});
+}
+
+function saveModal(){
+  const modal=document.getElementById('dailyModal');
+  const ds=modal.dataset.ds;
+  // All already auto-saved via onchange
+  alert(lang==='fr'?'Journee sauvegardee!':lang==='en'?'Day saved!':lang==='es'?'Dia guardado!':'日程已保存!');
+}
+
+function closeModal(){
+  document.getElementById('dailyModal').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function printModal(){
+  window.print();
+}
+
+/* ====== PRINT ====== */
+function printDay(){window.print()}
+
+/* ====== EXPORTS ====== */
+function exportPDF(){
+  if(!selectedDate)return;
+  const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  const cell=getCell(selectedDate)||{};
+  doc.setFontSize(18);doc.text(`${selectedDate}`,10,15);
+  doc.setFontSize(12);
+  let y=25;
+  doc.text(`${t('day')}: ${cell.jour||''}`,10,y);y+=8;
+  doc.text(`${t('groups')}: ${cell.groupes||''}`,10,y);y+=8;
+  doc.text(`${t('planif')}: ${cell.planif||''}`,10,y);y+=8;
+  doc.text(`Tags: ${(cell.tags||[]).join(', ')}`,10,y);y+=8;
+  doc.text(`Notes: ${cell.notes||''}`,10,y);y+=12;
+  if(cell.periodes){
+    cell.periodes.forEach((p,i)=>{
+      doc.text(`${t('period')} ${i+1} (${p.horaire}): ${p.groupe} - ${p.activite}`,10,y);y+=7;
+      if(p.details){doc.setFontSize(10);doc.text(`  ${p.details.replace(/\n/g,', ')}`,10,y);y+=7;doc.setFontSize(12)}
+    });
+  }
+  doc.save(`planif-${selectedDate}.pdf`);
+}
+
+function exportXLS(){
+  if(!selectedDate)return;
+  const cell=getCell(selectedDate)||{};
+  const data=[{Date:selectedDate,Jour:cell.jour||'',Groupes:cell.groupes||'',Planif:cell.planif||'',Tags:(cell.tags||[]).join(', '),Notes:cell.notes||''}];
+  if(cell.periodes){
+    cell.periodes.forEach((p,i)=>{
+      data.push({Date:'',Jour:`${t('period')} ${i+1}`,Groupes:p.groupe,Planif:p.activite,Tags:p.horaire,Notes:p.details});
+    });
+  }
+  const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Planif');
+  XLSX.writeFile(wb,`planif-${selectedDate}.xlsx`);
+}
+
+function exportCSV(){
+  if(!selectedDate)return;
+  const cell=getCell(selectedDate)||{};
+  let csv=`Date,Jour,Groupes,Planif,Tags,Notes\n`;
+  csv+=`${selectedDate},"${cell.jour||''}","${cell.groupes||''}","${cell.planif||''}","${(cell.tags||[]).join(', ')}","${cell.notes||''}"\n`;
+  if(cell.periodes){
+    cell.periodes.forEach((p,i)=>{
+      csv+=`,"${t('period')} ${i+1}","${p.groupe}","${p.activite}","${p.horaire}","${p.details?.replace(/\n/g,' ')||''}"\n`;
+    });
+  }
+  downloadFile(`planif-${selectedDate}.csv`,csv,'text/csv');
+}
+
+function exportMonthPDF(){
+  const{jsPDF}=window.jspdf;const doc=new jsPDF();
+  doc.setFontSize(16);doc.text(`${t('months')[currentMonth]} ${currentYear}`,10,15);
+  const s=loadStore();let y=25;doc.setFontSize(10);
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=dateStr(currentYear,currentMonth,d);
+    const cell=s.cells[ds];if(!cell)continue;
+    if(y>270){doc.addPage();y=15}
+    doc.text(`${ds}: ${cell.jour||''} | ${cell.groupes||''} | ${cell.planif||''} | ${(cell.tags||[]).join(',')}`,10,y);y+=6;
+  }
+  doc.save(`planif-${t('months')[currentMonth]}-${currentYear}.pdf`);
+}
+
+function exportMonthXLS(){
+  const s=loadStore();const data=[];
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=dateStr(currentYear,currentMonth,d);
+    const cell=s.cells[ds];if(!cell)continue;
+    data.push({Date:ds,Jour:cell.jour||'',Groupes:cell.groupes||'',Planif:cell.planif||'',Tags:(cell.tags||[]).join(', '),Notes:cell.notes||''});
+  }
+  if(!data.length)return;
+  const ws=XLSX.utils.json_to_sheet(data);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,t('months')[currentMonth]);
+  XLSX.writeFile(wb,`planif-${t('months')[currentMonth]}-${currentYear}.xlsx`);
+}
+
+function exportMonthCSV(){
+  const s=loadStore();let csv=`Date,Jour,Groupes,Planif,Tags,Notes\n`;
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=dateStr(currentYear,currentMonth,d);
+    const cell=s.cells[ds];if(!cell)continue;
+    csv+=`${ds},"${cell.jour||''}","${cell.groupes||''}","${cell.planif||''}","${(cell.tags||[]).join(', ')}","${cell.notes||''}"\n`;
+  }
+  downloadFile(`planif-${t('months')[currentMonth]}-${currentYear}.csv`,csv,'text/csv');
+}
+
+function downloadFile(name,content,type){
+  const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);
+}
+
+/* ====== i18n UPDATE ====== */
+function updateI18n(){
+  document.getElementById('headerTitle').textContent=t('headerTitle');
+  document.getElementById('btnToday').textContent=t('today');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.dataset.i18n;if(T[lang][k])el.textContent=T[lang][k];
+  });
+}
+
+/* ====== RENDER ALL ====== */
+function renderAll(){
+  populateMonthSelect();
+  document.getElementById('monthTitle').textContent=`${t('months')[currentMonth]} ${currentYear}`;
+  updateI18n();
+  renderCalendar();
+  if(selectedDate){
+    const d=parseInt(selectedDate.split('-')[2]);
+    showDetail(selectedDate,d);
+  }
+}
+
+/* ====== INIT ====== */
+(function init(){
+  const s=loadStore();
+  lang=s.lang||'fr';
+  const now=new Date();
+  // Default to current month, but stay in school year range
+  currentYear=now.getFullYear();currentMonth=now.getMonth();
+  initLangs();
+  renderAll();
+})();
+</script>
 </body>
 </html>
