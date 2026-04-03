@@ -90,6 +90,7 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
     <button onclick="switchTab('capitaines')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="capitaines" data-i18n="tabCapitaines">Capitaines</button>
     <button onclick="switchTab('trame')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="trame" data-i18n="tabTrame">Trame</button>
     <button onclick="switchTab('plangym')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="plangym" data-i18n="tabPlanGym">Plan Gym</button>
+    <button onclick="toggleAmbiance()" id="ambianceBtn" class="px-3 py-2 rounded-full text-sm" style="background:rgba(255,215,0,0.2);color:#FFD700;border:1px solid rgba(255,215,0,0.3);font-family:'Bangers',cursive;cursor:pointer" title="Ambiance gymnase">🔊 Gym</button>
   </div>
 </nav>
 
@@ -474,13 +475,44 @@ function getAudioCtx(){
   if(_audioCtx.state==='suspended') _audioCtx.resume();
   return _audioCtx;
 }
-// Unlock audio on first user interaction (iOS requirement)
+// Unlock audio on first user interaction (iOS requirement) + start gym ambiance
+let _gymAmbiance = null;
+let _ambiancePlaying = false;
 ['click','touchstart','keydown'].forEach(evt=>{
   document.addEventListener(evt, function unlockAudio(){
     getAudioCtx();
+    // Start gym ambiance sound on first interaction
+    if(!_ambiancePlaying){
+      _gymAmbiance = new Audio('images/gym-ambiance.mp3');
+      _gymAmbiance.loop = true;
+      _gymAmbiance.volume = 0.15;
+      _gymAmbiance.play().catch(()=>{});
+      _ambiancePlaying = true;
+    }
     document.removeEventListener(evt, unlockAudio);
   }, {once:true});
 });
+
+function toggleAmbiance(){
+  if(!_gymAmbiance){
+    _gymAmbiance = new Audio('images/gym-ambiance.mp3');
+    _gymAmbiance.loop = true;
+    _gymAmbiance.volume = 0.15;
+  }
+  if(_ambiancePlaying){
+    _gymAmbiance.pause();
+    _ambiancePlaying = false;
+    document.getElementById('ambianceBtn').textContent = '🔇 Gym';
+    document.getElementById('ambianceBtn').style.background = 'rgba(255,255,255,0.1)';
+    document.getElementById('ambianceBtn').style.color = '#999';
+  } else {
+    _gymAmbiance.play().catch(()=>{});
+    _ambiancePlaying = true;
+    document.getElementById('ambianceBtn').textContent = '🔊 Gym';
+    document.getElementById('ambianceBtn').style.background = 'rgba(255,215,0,0.2)';
+    document.getElementById('ambianceBtn').style.color = '#FFD700';
+  }
+}
 
 function playTone(freq, duration, type, vol, delay){
   const ac = getAudioCtx();
