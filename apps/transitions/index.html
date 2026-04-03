@@ -344,13 +344,13 @@ function switchTab(id){
 
 // ======================== SIGNAUX ========================
 const signals = [
-  {img:'images/signal-timeout.png', name:'sig_timeout', desc:'sig_timeout_d', bg:'#2563eb'},
-  {img:'images/signal-halte-la.png', name:'sig_halte', desc:'sig_halte_d', bg:'#eab308'},
-  {img:'images/signal-rangement.png', name:'sig_rangement', desc:'sig_rangement_d', bg:'#84cc16'},
-  {img:'images/signal-point-repere.png', name:'sig_repere', desc:'sig_repere_d', bg:'#f97316'},
-  {img:'images/signal-point-repere-debout.png', name:'sig_repere_deb', desc:'sig_repere_deb_d', bg:'#f97316'},
-  {img:'images/signal-cest-parti.png', name:'sig_parti', desc:'sig_parti_d', bg:'#dc2626'},
-  {img:'images/signal-au-jeu.png', name:'sig_jeu', desc:'sig_jeu_d', bg:'#16a34a'}
+  {img:'images/signal-timeout.png', name:'sig_timeout', desc:'sig_timeout_d', bg:'#2563eb', sound:'images/timeout.mp3'},
+  {img:'images/signal-halte-la.png', name:'sig_halte', desc:'sig_halte_d', bg:'#eab308', sound:'images/cocus.mp3'},
+  {img:'images/signal-rangement.png', name:'sig_rangement', desc:'sig_rangement_d', bg:'#84cc16', sound:'images/ranger.mp3'},
+  {img:'images/signal-point-repere.png', name:'sig_repere', desc:'sig_repere_d', bg:'#f97316', sound:'images/assis.mp3'},
+  {img:'images/signal-point-repere-debout.png', name:'sig_repere_deb', desc:'sig_repere_deb_d', bg:'#f97316', sound:'images/stop.mp3'},
+  {img:'images/signal-cest-parti.png', name:'sig_parti', desc:'sig_parti_d', bg:'#dc2626', sound:'images/gameon.mp3'},
+  {img:'images/signal-au-jeu.png', name:'sig_jeu', desc:'sig_jeu_d', bg:'#16a34a', sound:'images/gameon.mp3'}
 ];
 function renderSignals(){
   const g = document.getElementById('signals-grid');
@@ -370,7 +370,12 @@ function openLightbox(i){
   document.getElementById('lb-title').textContent = t(s.name);
   document.getElementById('lb-desc').textContent = t(s.desc);
   document.getElementById('lightbox').classList.add('show');
-  playSignalSound();
+  // Jouer le son MP3 du signal
+  if(s.sound){
+    const audio = new Audio(s.sound);
+    audio.volume = 1.0;
+    audio.play().catch(()=>{});
+  }
 }
 function closeLightbox(){ document.getElementById('lightbox').classList.remove('show'); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
