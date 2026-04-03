@@ -370,6 +370,7 @@ function openLightbox(i){
   document.getElementById('lb-title').textContent = t(s.name);
   document.getElementById('lb-desc').textContent = t(s.desc);
   document.getElementById('lightbox').classList.add('show');
+  playSignalSound();
 }
 function closeLightbox(){ document.getElementById('lightbox').classList.remove('show'); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
@@ -405,6 +406,7 @@ function chronoStart(){
   chronoInterval = setInterval(()=>{
     chronoTime--;
     updateChronoDisplay();
+    if(chronoTime<=15 && chronoTime>0) playTickSound();
     if(chronoTime<=0){ chronoFinish(); }
   },1000);
 }
@@ -460,19 +462,45 @@ function showRecordToast(sec){
   toast.classList.add('show');
   setTimeout(()=>toast.classList.remove('show'), 2500);
 }
+// ── AUDIO ENGINE (compatible iOS/Safari) ──
+let _audioCtx = null;
+function getAudioCtx(){
+  if(!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(_audioCtx.state==='suspended') _audioCtx.resume();
+  return _audioCtx;
+}
+// Unlock audio on first user interaction (iOS requirement)
+['click','touchstart','keydown'].forEach(evt=>{
+  document.addEventListener(evt, function unlockAudio(){
+    getAudioCtx();
+    document.removeEventListener(evt, unlockAudio);
+  }, {once:true});
+});
+
+function playTone(freq, duration, type, vol, delay){
+  const ac = getAudioCtx();
+  const osc = ac.createOscillator(), g = ac.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(vol||0.3, ac.currentTime+(delay||0));
+  g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime+(delay||0)+(duration||0.3));
+  osc.connect(g); g.connect(ac.destination);
+  osc.start(ac.currentTime+(delay||0));
+  osc.stop(ac.currentTime+(delay||0)+(duration||0.3));
+}
+
 function playEndSound(){
-  try{
-    const ac = new (window.AudioContext||window.webkitAudioContext)();
-    [523.25,659.25,783.99,1046.5].forEach((f,i)=>{
-      const osc = ac.createOscillator(), gain = ac.createGain();
-      osc.type='sine'; osc.frequency.value=f;
-      gain.gain.setValueAtTime(0.3,ac.currentTime+i*0.15);
-      gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+i*0.15+0.4);
-      osc.connect(gain); gain.connect(ac.destination);
-      osc.start(ac.currentTime+i*0.15);
-      osc.stop(ac.currentTime+i*0.15+0.4);
-    });
-  }catch(e){}
+  // 4 notes montantes (victoire!)
+  [523.25,659.25,783.99,1046.5].forEach((f,i)=> playTone(f, 0.4, 'sine', 0.35, i*0.15));
+}
+function playSignalSound(){
+  // Son court pour les signaux visuels
+  playTone(880, 0.15, 'square', 0.2, 0);
+  playTone(1100, 0.2, 'square', 0.25, 0.15);
+}
+function playTickSound(){
+  // Tick pour les 15 dernières secondes
+  playTone(660, 0.05, 'square', 0.15, 0);
 }
 
 // ======================== ZONES ========================
@@ -620,36 +648,27 @@ function trameFinish(){
   document.getElementById('trame-progress').style.width = '100%';
 }
 
-// Percussion
+// Percussion (uses shared AudioContext)
 let percInterval = null;
 function startPercussion(){
-  try{
-    trameAC = new (window.AudioContext||window.webkitAudioContext)();
-    scheduleBeats();
-  }catch(e){}
+  getAudioCtx(); // ensure audio is unlocked
+  scheduleBeats();
 }
 function scheduleBeats(){
-  if(!trameRunning || !trameAC) return;
+  if(!trameRunning) return;
   const bpm = trameTime<=15 ? 240 : 120;
   const interval = 60000/bpm;
   playBeat();
   percInterval = setTimeout(()=>scheduleBeats(), interval);
 }
 function playBeat(){
-  if(!trameAC) return;
-  const osc = trameAC.createOscillator();
-  const g = trameAC.createGain();
-  osc.type = 'triangle';
-  osc.frequency.value = trameTime<=15 ? 300 : 200;
-  g.gain.setValueAtTime(0.15, trameAC.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.001, trameAC.currentTime+0.08);
-  osc.connect(g); g.connect(trameAC.destination);
-  osc.start(); osc.stop(trameAC.currentTime+0.08);
+  const urgent = trameTime<=15;
+  playTone(urgent?300:150, 0.08, 'triangle', urgent?0.25:0.15, 0);
+  if(urgent) playTone(600, 0.05, 'square', 0.1, 0.04);
 }
 function updatePercussionTempo(){}
 function stopPercussion(){
   clearTimeout(percInterval);
-  if(trameAC){ try{trameAC.close();}catch(e){} trameAC=null; }
 }
 
 // Audio visualizer
