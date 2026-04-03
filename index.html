@@ -1985,7 +1985,7 @@
     <!-- ========== SUBSCRIBE POPUP (VIP Vivid) ========== -->
     <div class="subscribe-overlay" id="subscribeOverlay">
         <div class="subscribe-box" id="subscribeBox">
-            <button onclick="closeSubscribe()" class="subscribe-close">X</button>
+            <!-- Bouton X supprimé — inscription obligatoire -->
 
             <!-- Floating decorations -->
             <div class="sub-floating" style="top:-24px;left:-16px;font-size:1.8rem;animation:subFloat 2.5s ease-in-out infinite">⚡</div>
@@ -2002,11 +2002,11 @@
                 <!-- Stats band -->
                 <div class="sub-stats-band">
                     <div class="sub-stat">
-                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#FFD700;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">500+</div>
+                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#FFD700;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">1000+</div>
                         <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)">jeux</div>
                     </div>
                     <div class="sub-stat">
-                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">128</div>
+                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">1000+</div>
                         <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)">SAÉ</div>
                     </div>
                     <div class="sub-stat">
@@ -2069,7 +2069,7 @@
                 <div style="margin-top:10px">
                     <span style="font-family:'Patrick Hand',cursive;font-size:0.95rem;color:rgba(255,255,255,0.6)">Aucune carte de crédit. Aucun abonnement. 🎉</span>
                 </div>
-                <button onclick="closeSubscribe()" class="mt-3 font-baloo cursor-pointer bg-transparent border-none" style="color:rgba(255,255,255,0.35);font-size:1rem" data-i18n="subLater">Non merci, plus tard</button>
+                <!-- "Non merci" supprimé — inscription obligatoire -->
             </div>
         </div>
     </div>
@@ -3566,10 +3566,25 @@
         lucide.createIcons();
     }
     function closeSubscribe() {
-        document.getElementById('subscribeOverlay').classList.remove('show');
-        sessionStorage.setItem('zts-sub-closed', '1');
+        // Non-fermable sauf si connecté
+        if (window.ztsGetUser && window.ztsGetUser()) {
+            document.getElementById('subscribeOverlay').classList.remove('show');
+            sessionStorage.setItem('zts-sub-closed', '1');
+        }
     }
     window.closeSubscribe = closeSubscribe;
+    // Fermer le subscribe popup automatiquement quand l'utilisateur se connecte
+    if (window.ztsOnAuth) {
+        window.ztsOnAuth(function(user) {
+            if (user) {
+                var subOverlay = document.getElementById('subscribeOverlay');
+                if (subOverlay && subOverlay.classList.contains('show')) {
+                    subOverlay.classList.remove('show');
+                    sessionStorage.setItem('zts-sub-closed', '1');
+                }
+            }
+        });
+    }
 
     // Trigger: after 30s
     setTimeout(showSubscribe, 30000);
