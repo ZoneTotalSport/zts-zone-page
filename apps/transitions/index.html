@@ -13,7 +13,7 @@
 <style>
 :root{--bg:#0F0F2E;--cyan:#00E5FF;--yellow:#FFD700;--pink:#FF2A7A;--violet:#8B5CF6;--dark2:#1a1a3e;--dark3:#24244a}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Schoolbell',cursive;background:var(--bg);color:#e0e0e0;min-height:100vh;overflow-x:hidden;position:relative}
+body{font-family:'Schoolbell',cursive;font-size:1.25rem;background:var(--bg);color:#e0e0e0;min-height:100vh;overflow-x:hidden;position:relative}
 body::before{content:'';position:fixed;inset:0;background:url('/gym-bg.jpg') center/cover no-repeat;opacity:1;pointer-events:none;z-index:0}
 h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 .btn-font{font-family:'Bangers',cursive}
@@ -43,8 +43,8 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 @keyframes popIn{0%{transform:scale(.3);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 .audio-bar{animation:audioBar .6s ease-in-out infinite alternate}
 @keyframes audioBar{0%{height:10%}100%{height:100%}}
-.gym-floor{background:#d4a373;position:relative;border:3px solid #a0784c;border-radius:12px;overflow:hidden;touch-action:none}
-.gym-floor::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 38px,rgba(255,255,255,.08) 38px,rgba(255,255,255,.08) 40px),repeating-linear-gradient(90deg,transparent,transparent 38px,rgba(255,255,255,.08) 38px,rgba(255,255,255,.08) 40px);pointer-events:none}
+.gym-floor{background:url('images/gym-floor.png') center/contain no-repeat #111;position:relative;border:3px solid #a0784c;border-radius:12px;overflow:hidden;touch-action:none}
+.gym-floor::before{content:'';position:absolute;inset:0;pointer-events:none}
 .gym-item{position:absolute;cursor:grab;user-select:none;display:flex;flex-direction:column;align-items:center;z-index:10}
 .gym-item:active{cursor:grabbing}
 .gym-item .delete-btn{display:none;position:absolute;top:-8px;right:-8px;width:20px;height:20px;background:var(--pink);border-radius:50%;color:#fff;font-size:12px;line-height:20px;text-align:center;cursor:pointer}
@@ -84,13 +84,13 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 <!-- NAV STICKY -->
 <nav class="z-40 backdrop-blur border-b border-white/20 px-2 py-2 overflow-x-auto" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px)">
   <div class="max-w-6xl mx-auto flex gap-2 justify-center flex-nowrap min-w-max">
-    <button onclick="switchTab('signaux')" class="nav-pill active px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="signaux" data-i18n="tabSignaux">Signaux</button>
-    <button onclick="switchTab('chrono')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="chrono" data-i18n="tabChrono">Chrono</button>
-    <button onclick="switchTab('zones')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="zones" data-i18n="tabZones">Zones</button>
-    <button onclick="switchTab('capitaines')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="capitaines" data-i18n="tabCapitaines">Capitaines</button>
-    <button onclick="switchTab('trame')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="trame" data-i18n="tabTrame">Trame</button>
-    <button onclick="switchTab('plangym')" class="nav-pill px-4 py-2 rounded-full text-sm btn-font whitespace-nowrap" data-tab="plangym" data-i18n="tabPlanGym">Plan Gym</button>
-    <button onclick="toggleAmbiance()" id="ambianceBtn" class="px-3 py-2 rounded-full text-sm" style="background:rgba(255,215,0,0.2);color:#FFD700;border:1px solid rgba(255,215,0,0.3);font-family:'Bangers',cursive;cursor:pointer" title="Ambiance gymnase">🔊 Gym</button>
+    <button onclick="switchTab('signaux')" class="nav-pill active px-5 py-3 rounded-full text-lg sm:text-xl btn-font whitespace-nowrap" data-tab="signaux" data-i18n="tabSignaux">Signaux</button>
+    <button onclick="switchTab('chrono')" class="nav-pill px-5 py-3 rounded-full text-lg sm:text-xl btn-font whitespace-nowrap" data-tab="chrono" data-i18n="tabChrono">Chrono</button>
+    <button onclick="switchTab('zones')" class="nav-pill px-5 py-3 rounded-full text-lg sm:text-xl btn-font whitespace-nowrap" data-tab="zones" data-i18n="tabZones">Zones</button>
+    <button onclick="switchTab('capitaines')" class="nav-pill px-5 py-3 rounded-full text-lg sm:text-xl btn-font whitespace-nowrap" data-tab="capitaines" data-i18n="tabCapitaines">Capitaines</button>
+    <button onclick="switchTab('trame')" class="nav-pill px-5 py-3 rounded-full text-lg sm:text-xl btn-font whitespace-nowrap" data-tab="trame" data-i18n="tabTrame">Trame</button>
+    <button onclick="switchTab('plangym')" class="nav-pill px-5 py-3 rounded-full text-lg sm:text-xl btn-font whitespace-nowrap" data-tab="plangym" data-i18n="tabPlanGym">Plan Gym</button>
+    <button onclick="toggleAmbiance()" id="ambianceBtn" class="px-4 py-3 rounded-full text-lg" style="background:rgba(255,215,0,0.2);color:#FFD700;border:1px solid rgba(255,215,0,0.3);font-family:'Bangers',cursive;cursor:pointer" title="Ambiance gymnase">🔊 Gym</button>
   </div>
 </nav>
 
@@ -141,14 +141,14 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 
 <!-- ================= ONGLET 1 : SIGNAUX ================= -->
 <section id="tab-signaux" class="tab-section active">
-  <h2 class="tab-title text-3xl text-center text-[#00E5FF] mb-6" data-i18n="signaux_title">Signaux Visuels</h2>
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#00E5FF] mb-6" data-i18n="signaux_title">Signaux Visuels</h2>
   <p class="text-center text-gray-400 mb-8 text-lg" data-i18n="signaux_desc">Cliquez sur un signal pour l'afficher en plein écran</p>
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5" id="signals-grid"></div>
 </section>
 
 <!-- ================= ONGLET 2 : CHRONO ================= -->
 <section id="tab-chrono" class="tab-section">
-  <h2 class="tab-title text-3xl text-center text-[#FFD700] mb-6" data-i18n="chrono_title">Chrono Transition</h2>
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#FFD700] mb-6" data-i18n="chrono_title">Chrono Transition</h2>
   <div class="max-w-lg mx-auto text-center">
     <div id="chrono-display" class="chrono-display text-[#00E5FF] mb-6">0:00</div>
     <div class="flex flex-wrap justify-center gap-3 mb-6" id="chrono-presets"></div>
@@ -168,7 +168,7 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 
 <!-- ================= ONGLET 3 : ZONES ================= -->
 <section id="tab-zones" class="tab-section">
-  <h2 class="tab-title text-3xl text-center text-[#FF2A7A] mb-6" data-i18n="zones_title">Zones Matériel</h2>
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#FF2A7A] mb-6" data-i18n="zones_title">Zones Matériel</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="zones-grid"></div>
   <div class="flex justify-center gap-4 mt-6">
     <button onclick="zonesUncheckAll()" class="btn-font bg-[#8B5CF6] text-white px-6 py-2 rounded-xl hover:brightness-110" data-i18n="zones_uncheck">Tout décocher</button>
@@ -178,7 +178,7 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 
 <!-- ================= ONGLET 4 : CAPITAINES ================= -->
 <section id="tab-capitaines" class="tab-section">
-  <h2 class="tab-title text-3xl text-center text-[#8B5CF6] mb-6" data-i18n="cap_title">Capitaines de Transition</h2>
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#8B5CF6] mb-6" data-i18n="cap_title">Capitaines de Transition</h2>
   <div class="max-w-2xl mx-auto">
     <textarea id="cap-names" rows="5" class="w-full bg-[#1a1a3e] border border-violet-800 rounded-xl p-4 text-white text-lg mb-4 resize-none" data-i18n-placeholder="cap_placeholder" placeholder="Entrez les noms (un par ligne)..."></textarea>
     <div class="flex justify-center gap-3 mb-6">
@@ -192,7 +192,7 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 
 <!-- ================= ONGLET 5 : TRAME SONORE ================= -->
 <section id="tab-trame" class="tab-section">
-  <h2 class="tab-title text-3xl text-center text-[#FFD700] mb-6" data-i18n="trame_title">Trame Sonore</h2>
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#FFD700] mb-6" data-i18n="trame_title">Trame Sonore</h2>
   <div class="max-w-lg mx-auto text-center">
     <div class="flex justify-center items-end gap-1 mb-6 h-24" id="audio-visualizer"></div>
     <div id="trame-display" class="chrono-display text-[#FFD700] mb-4">0:00</div>
@@ -207,7 +207,7 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 
 <!-- ================= ONGLET 6 : PLAN GYM ================= -->
 <section id="tab-plangym" class="tab-section">
-  <h2 class="tab-title text-3xl text-center text-[#00E5FF] mb-4" data-i18n="gym_title">Plan du Gymnase</h2>
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#00E5FF] mb-4" data-i18n="gym_title">Plan du Gymnase</h2>
   <div class="flex flex-wrap justify-center gap-2 mb-4" id="gym-inventory"></div>
   <button onclick="gymClearAll()" class="btn-font bg-[#FF2A7A] text-white px-5 py-2 rounded-xl hover:brightness-110 block mx-auto mb-4" data-i18n="gym_clearall">Effacer tout</button>
   <div id="gym-floor" class="gym-floor w-full mx-auto" style="height:500px;max-width:900px"></div>
