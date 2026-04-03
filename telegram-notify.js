@@ -69,6 +69,38 @@
     );
   };
 
+  // ── Notification de connexion ──
+  window.ztsNotifyLogin = function(user) {
+    var name = user.displayName || 'Inconnu';
+    var email = user.email || 'N/A';
+    var mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? '📱 Mobile' : '💻 Desktop';
+    var now = new Date();
+    var time = now.toLocaleString('fr-CA');
+
+    // Enrichir avec géolocalisation
+    fetch('https://ipapi.co/json/')
+      .then(function(r) { return r.json(); })
+      .then(function(geo) {
+        sendTelegram(
+          '🔑 <b>Connexion!</b>\n' +
+          '👤 ' + name + '\n' +
+          '📧 ' + email + '\n' +
+          mobile + '\n' +
+          '📍 ' + (geo.city || '?') + ', ' + (geo.region || '?') + ', ' + (geo.country_name || '?') + '\n' +
+          '🕐 ' + time
+        );
+      })
+      .catch(function() {
+        sendTelegram(
+          '🔑 <b>Connexion!</b>\n' +
+          '👤 ' + name + '\n' +
+          '📧 ' + email + '\n' +
+          mobile + '\n' +
+          '🕐 ' + time
+        );
+      });
+  };
+
   // ── Notification d'avis ──
   window.ztsNotifyReview = function(data) {
     var stars = '';

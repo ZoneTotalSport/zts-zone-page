@@ -3561,6 +3561,11 @@
     let subscribeShown = false;
     function showSubscribe() {
         if (subscribeShown || sessionStorage.getItem('zts-sub-closed')) return;
+        // NE PAS montrer si l'utilisateur est déjà connecté
+        if (window.ztsGetUser && window.ztsGetUser()) {
+            sessionStorage.setItem('zts-sub-closed', '1');
+            return;
+        }
         subscribeShown = true;
         document.getElementById('subscribeOverlay').classList.add('show');
         lucide.createIcons();

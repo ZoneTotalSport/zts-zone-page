@@ -514,7 +514,7 @@
     if (!email || !password) { showError('Remplis tous les champs!'); return; }
     setLoading(true);
     firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(function() { closeModal(); })
+      .then(function(result) { if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user); closeModal(); })
       .catch(function(err) { console.error('[ZTS Auth] Full error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
   }
 
@@ -542,7 +542,14 @@
     provider.setCustomParameters({ prompt: 'select_account' });
     setLoading(true);
     firebase.auth().signInWithPopup(provider)
-      .then(function(result) { if (result.additionalUserInfo && result.additionalUserInfo.isNewUser && window.ztsNotifySignup) window.ztsNotifySignup(result.user); closeModal(); })
+      .then(function(result) {
+        if (result.additionalUserInfo && result.additionalUserInfo.isNewUser && window.ztsNotifySignup) {
+          window.ztsNotifySignup(result.user);
+        } else if (window.ztsNotifyLogin) {
+          window.ztsNotifyLogin(result.user);
+        }
+        closeModal();
+      })
       .catch(function(err) { console.error('[ZTS Auth] Google error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
   }
 
