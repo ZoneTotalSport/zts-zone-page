@@ -350,6 +350,12 @@
       </div>
 
       <!-- Article Body -->
+      <!-- Donation Banner -->
+      <div style="background:linear-gradient(135deg,#FF2A7A,#FF6B9D);border-radius:16px;padding:16px 24px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center">
+        <span style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:1.3rem">❤️ Tu aimes Zone Total Sport?</span>
+        <a href="../wix/donation.html" style="font-family:'Bangers',cursive;background:#FFD700;color:#333;padding:10px 24px;border-radius:999px;font-size:1.1rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2)">💛 Faire un don</a>
+      </div>
+
       <div class="article-body">
         <h2>Rappel et mise en contexte</h2>
         <p>Dans notre précédent article, nous avons exploré les stratégies de gestion de classe efficaces pour faire face aux comportements difficiles. Nous avons souligné l&#x27;importance de comprendre les défis auxquels les enseignants sont confrontés et d&#x27;adopter des approches préventives pour réduire les comportements perturbateurs. Dans cette suite d&#x27;articles, nous allons approfondir notre analyse en examinant d&#x27;autres aspects essentiels de la gestion de classe pour créer un environnement d&#x27;apprentissage positif et inclusif.</p>
@@ -701,6 +707,35 @@
       </div>
     </div>
 
+
+      <!-- WhatsApp + Copy Link -->
+      <div class="flex flex-wrap gap-3 mb-8">
+        <a href="https://wa.me/?text=https://zonetotalsport.ca/articles/classes-difficiles-partie-2.html" target="_blank" rel="noopener" class="share-btn" style="background:#25D366;color:#fff;border-color:#25D366">
+          <span>📱</span> WhatsApp
+        </a>
+        <button onclick="navigator.clipboard.writeText(window.location.href);this.textContent='\u2705 Copi\u00e9!';setTimeout(()=>this.textContent='\U0001F517 Copier le lien',2000)" class="share-btn" style="background:#6B7280;color:#fff;border-color:#6B7280;cursor:pointer">
+          🔗 Copier le lien
+        </button>
+      </div>
+
+      <!-- Like Button -->
+      <div class="text-center mb-8">
+        <button onclick="likeArticle(this)" class="like-btn" style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;background:none;border:3px solid #FF2A7A;color:#FF2A7A;padding:12px 32px;border-radius:999px;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px">
+          <span class="like-heart">🤍</span> <span>J'aime cet article</span> <span class="like-count" style="background:#FF2A7A;color:#fff;padding:2px 10px;border-radius:999px;font-size:1rem">0</span>
+        </button>
+      </div>
+
+      <!-- Comments Section -->
+      <div style="background:rgba(255,255,255,0.9);border-radius:20px;padding:24px;border:2px solid #e5e7eb;margin-bottom:24px">
+        <h3 style="font-family:'Luckiest Guy',cursive;font-size:1.8rem;color:#0F0F2E;margin:0 0 16px">💬 Commentaires</h3>
+        <div id="comments-list" style="margin-bottom:16px"></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <input type="text" id="comment-name" placeholder="Ton pr\u00e9nom..." style="font-family:'Schoolbell',cursive;padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none" onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'">
+          <textarea id="comment-text" placeholder="\u00c9cris ton commentaire..." rows="3" style="font-family:'Schoolbell',cursive;padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none;resize:vertical" onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+          <button onclick="postComment()" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;padding:12px 24px;border:none;border-radius:999px;font-size:1.2rem;cursor:pointer;align-self:flex-start;transition:all 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">📤 Publier</button>
+        </div>
+      </div>
+
     <!-- Back to Blog CTA -->
     <div class="text-center py-8 mb-8">
       <a href="../blog.html" class="inline-flex items-center gap-3 bg-dark text-white font-fredoka text-lg px-8 py-4 rounded-full hover:bg-cyan-electric hover:text-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
@@ -792,5 +827,68 @@
   </script>
 
 <script src="../telegram-notify.js"></script>
+<script>
+// Like functionality (localStorage)
+function likeArticle(btn) {
+  var slug = window.location.pathname.split('/').pop().replace('.html','');
+  var key = 'zts_like_' + slug;
+  var liked = localStorage.getItem(key);
+  if (liked) return;
+  localStorage.setItem(key, '1');
+  var heart = btn.querySelector('.like-heart');
+  var count = btn.querySelector('.like-count');
+  heart.textContent = '\u2764\uFE0F';
+  btn.style.background = '#FF2A7A';
+  btn.style.color = '#fff';
+  btn.style.borderColor = '#FF2A7A';
+  count.textContent = parseInt(count.textContent) + 1;
+}
+// Init like state
+(function(){
+  var slug = window.location.pathname.split('/').pop().replace('.html','');
+  var key = 'zts_like_' + slug;
+  if (localStorage.getItem(key)) {
+    var btn = document.querySelector('.like-btn');
+    if (btn) {
+      btn.querySelector('.like-heart').textContent = '\u2764\uFE0F';
+      btn.style.background = '#FF2A7A';
+      btn.style.color = '#fff';
+      btn.style.borderColor = '#FF2A7A';
+    }
+  }
+})();
+
+// Comments (localStorage-based for simplicity)
+function postComment() {
+  var name = document.getElementById('comment-name').value.trim();
+  var text = document.getElementById('comment-text').value.trim();
+  if (!name || !text) return alert('Remplis ton pr\u00e9nom et ton commentaire!');
+  var slug = window.location.pathname.split('/').pop().replace('.html','');
+  var key = 'zts_comments_' + slug;
+  var comments = JSON.parse(localStorage.getItem(key) || '[]');
+  comments.push({name: name, text: text, date: new Date().toLocaleDateString('fr-CA')});
+  localStorage.setItem(key, JSON.stringify(comments));
+  document.getElementById('comment-name').value = '';
+  document.getElementById('comment-text').value = '';
+  renderComments();
+}
+function renderComments() {
+  var slug = window.location.pathname.split('/').pop().replace('.html','');
+  var key = 'zts_comments_' + slug;
+  var comments = JSON.parse(localStorage.getItem(key) || '[]');
+  var list = document.getElementById('comments-list');
+  if (!list) return;
+  if (comments.length === 0) {
+    list.innerHTML = '<p style="color:#999;font-family:Schoolbell,cursive;font-style:italic">Aucun commentaire encore. Sois le premier!</p>';
+    return;
+  }
+  list.innerHTML = comments.map(function(c) {
+    return '<div style="background:#f3f4f6;border-radius:12px;padding:12px 16px;margin-bottom:10px">' +
+      '<div style="font-family:Bangers,cursive;color:#0F0F2E;font-size:1.1rem">' + c.name + ' <span style="font-family:Schoolbell,cursive;color:#999;font-size:0.85rem">' + c.date + '</span></div>' +
+      '<p style="font-family:Schoolbell,cursive;color:#333;margin:4px 0 0;font-size:1.05rem">' + c.text + '</p></div>';
+  }).join('');
+}
+renderComments();
+</script>
 </body>
 </html>
