@@ -13,7 +13,7 @@
 <style>
 :root{--bg:#0F0F2E;--cyan:#00E5FF;--yellow:#FFD700;--pink:#FF2A7A;--violet:#8B5CF6;--dark2:#1a1a3e;--dark3:#24244a}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Schoolbell',cursive;font-size:1.5rem;background:var(--bg);color:#e0e0e0;min-height:100vh;overflow-x:hidden;position:relative}
+body{font-family:'Schoolbell',cursive;font-size:1.8rem;background:var(--bg);color:#e0e0e0;min-height:100vh;overflow-x:hidden;position:relative}
 body::before{content:'';position:fixed;inset:0;background:url('/gym-bg.jpg') center/cover no-repeat;opacity:1;pointer-events:none;z-index:0}
 h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 .btn-font{font-family:'Bangers',cursive}
@@ -25,6 +25,8 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 .glow-pink{box-shadow:0 0 20px rgba(255,42,122,.25)}
 .tab-section{display:none}
 .tab-section.active{display:block}
+.tab-section.active>*{position:relative}
+.content-box{background:rgba(255,255,255,0.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:24px;padding:24px;margin-bottom:20px;color:#1a1a2e;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
 .signal-card{cursor:pointer;transition:transform .2s,box-shadow .2s}
 .signal-card:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 8px 30px rgba(0,0,0,.5)}
 #lightbox{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);align-items:center;justify-content:center;flex-direction:column;cursor:pointer}
@@ -100,16 +102,16 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
     <img src="images/signal-timeout.png" alt="Signal Time Out" class="w-28 sm:w-36 md:w-44 rounded-2xl shadow-xl flex-shrink-0" style="box-shadow:0 0 30px rgba(0,229,255,0.3)">
     <div class="text-center md:text-left">
       <h2 class="text-2xl sm:text-3xl md:text-4xl text-white mb-3 leading-tight" style="font-family:'Luckiest Guy',cursive">TA BOÎTE À OUTILS<br><span style="color:#00E5FF">TRANSITIONS DE PRO!</span></h2>
-      <p class="text-gray-300 text-base sm:text-lg mb-4 leading-relaxed" style="font-family:'Schoolbell',cursive">6 outils puissants pour gérer tes transitions comme un chef. Signaux visuels plein écran sur ton TNI, chrono avec records, zones de matériel, assignation de capitaines, trame sonore motivante et plan interactif de ton gymnase. Tout ce dont tu as besoin pour des transitions de 30 secondes au lieu de 5 minutes!</p>
+      <p class="text-gray-300 text-lg sm:text-xl md:text-2xl mb-4 leading-relaxed" style="font-family:'Schoolbell',cursive">6 outils puissants pour gérer tes transitions comme un chef. Signaux visuels plein écran sur ton TNI, chrono avec records, zones de matériel, assignation de capitaines, trame sonore motivante et plan interactif de ton gymnase. Tout ce dont tu as besoin pour des transitions de 30 secondes au lieu de 5 minutes!</p>
       <div class="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
-        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm" style="background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive">🎨 7 Signaux visuels</span>
-        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm" style="background:rgba(255,215,0,0.15);color:#FFD700;font-family:'Bangers',cursive">⏱️ Chrono + Records</span>
-        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm" style="background:rgba(255,42,122,0.15);color:#FF2A7A;font-family:'Bangers',cursive">🧢 5 Rôles capitaines</span>
-        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm" style="background:rgba(139,92,246,0.15);color:#8B5CF6;font-family:'Bangers',cursive">🎵 Trame sonore</span>
+        <span class="inline-flex items-center gap-1 px-4 py-2 rounded-full text-base sm:text-lg" style="background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive">🎨 7 Signaux visuels</span>
+        <span class="inline-flex items-center gap-1 px-4 py-2 rounded-full text-base sm:text-lg" style="background:rgba(255,215,0,0.15);color:#FFD700;font-family:'Bangers',cursive">⏱️ Chrono + Records</span>
+        <span class="inline-flex items-center gap-1 px-4 py-2 rounded-full text-base sm:text-lg" style="background:rgba(255,42,122,0.15);color:#FF2A7A;font-family:'Bangers',cursive">🧢 5 Rôles capitaines</span>
+        <span class="inline-flex items-center gap-1 px-4 py-2 rounded-full text-base sm:text-lg" style="background:rgba(139,92,246,0.15);color:#8B5CF6;font-family:'Bangers',cursive">🎵 Trame sonore</span>
       </div>
       <div class="flex flex-wrap gap-3 justify-center md:justify-start">
-        <button onclick="document.getElementById('heroTransitions').style.display='none'" class="px-6 py-2 rounded-full text-base" style="background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;font-family:'Bangers',cursive;border:none;cursor:pointer">🚀 Commencer!</button>
-        <button onclick="document.getElementById('guideTransitions').classList.toggle('hidden')" class="px-6 py-2 rounded-full text-base" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);font-family:'Bangers',cursive;cursor:pointer">📖 Comment utiliser</button>
+        <button onclick="document.getElementById('heroTransitions').style.display='none'" class="px-8 py-3 rounded-full text-lg sm:text-xl" style="background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;font-family:'Bangers',cursive;border:none;cursor:pointer">🚀 Commencer!</button>
+        <button onclick="document.getElementById('guideTransitions').classList.toggle('hidden')" class="px-8 py-3 rounded-full text-lg sm:text-xl" style="background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2);font-family:'Bangers',cursive;cursor:pointer">📖 Comment utiliser</button>
       </div>
     </div>
   </div>
@@ -119,16 +121,16 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
     <h3 class="text-2xl text-white mb-4" style="font-family:'Luckiest Guy',cursive">📖 COMMENT UTILISER</h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4" style="font-family:'Schoolbell',cursive">
       <div class="rounded-2xl p-4" style="background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.2)">
-        <h4 class="text-lg text-[#00E5FF] mb-2" style="font-family:'Luckiest Guy',cursive">🎨 SIGNAUX</h4>
-        <p class="text-gray-300 text-sm">Projette cette page sur ton TNI. Clique sur un signal → le bûcheron s'affiche en PLEIN ÉCRAN. Tes élèves reconnaissent le signal instantanément. Fini les "HEILLE ARRÊTEZ!"</p>
+        <h4 class="text-xl sm:text-2xl text-[#00E5FF] mb-2" style="font-family:'Luckiest Guy',cursive">🎨 SIGNAUX</h4>
+        <p class="text-gray-300 text-base sm:text-lg">Projette cette page sur ton TNI. Clique sur un signal → le bûcheron s'affiche en PLEIN ÉCRAN. Tes élèves reconnaissent le signal instantanément. Fini les "HEILLE ARRÊTEZ!"</p>
       </div>
       <div class="rounded-2xl p-4" style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2)">
-        <h4 class="text-lg text-[#FFD700] mb-2" style="font-family:'Luckiest Guy',cursive">⏱️ CHRONO</h4>
-        <p class="text-gray-300 text-sm">Lance le défi chrono pour les transitions. Tes élèves adorent battre leur record! Le chrono clignote rouge dans les 15 dernières secondes. Un signal sonore marque la fin.</p>
+        <h4 class="text-xl sm:text-2xl text-[#FFD700] mb-2" style="font-family:'Luckiest Guy',cursive">⏱️ CHRONO</h4>
+        <p class="text-gray-300 text-base sm:text-lg">Lance le défi chrono pour les transitions. Tes élèves adorent battre leur record! Le chrono clignote rouge dans les 15 dernières secondes. Un signal sonore marque la fin.</p>
       </div>
       <div class="rounded-2xl p-4" style="background:rgba(255,42,122,0.1);border:1px solid rgba(255,42,122,0.2)">
-        <h4 class="text-lg text-[#FF2A7A] mb-2" style="font-family:'Luckiest Guy',cursive">🧢 CAPITAINES</h4>
-        <p class="text-gray-300 text-sm">Entre les noms de ton groupe → clique Assigner → 5 rôles distribués aléatoirement. Le Capitaine des Bacs, du Silence, des Zones, du Chrono et de la Vérif. Tes élèves deviennent autonomes!</p>
+        <h4 class="text-xl sm:text-2xl text-[#FF2A7A] mb-2" style="font-family:'Luckiest Guy',cursive">🧢 CAPITAINES</h4>
+        <p class="text-gray-300 text-base sm:text-lg">Entre les noms de ton groupe → clique Assigner → 5 rôles distribués aléatoirement. Le Capitaine des Bacs, du Silence, des Zones, du Chrono et de la Vérif. Tes élèves deviennent autonomes!</p>
       </div>
     </div>
     <div class="text-center mt-4">
@@ -141,16 +143,19 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 
 <!-- ================= ONGLET 1 : SIGNAUX ================= -->
 <section id="tab-signaux" class="tab-section active">
-  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#00E5FF] mb-6" data-i18n="signaux_title">Signaux Visuels</h2>
-  <p class="text-center text-gray-400 mb-8 text-lg" data-i18n="signaux_desc">Cliquez sur un signal pour l'afficher en plein écran</p>
+  <div class="content-box">
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#0097A7] mb-6" data-i18n="signaux_title">Signaux Visuels</h2>
+  <p class="text-center text-gray-600 mb-8 text-xl" data-i18n="signaux_desc">Cliquez sur un signal pour l'afficher en plein écran</p>
   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5" id="signals-grid"></div>
+  </div>
 </section>
 
 <!-- ================= ONGLET 2 : CHRONO ================= -->
 <section id="tab-chrono" class="tab-section">
-  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#FFD700] mb-6" data-i18n="chrono_title">Chrono Transition</h2>
-  <div class="max-w-lg mx-auto text-center">
-    <div id="chrono-display" class="chrono-display text-[#00E5FF] mb-6">0:00</div>
+  <div class="content-box max-w-2xl mx-auto">
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#0097A7] mb-6" data-i18n="chrono_title">Chrono Transition</h2>
+  <div class="text-center">
+    <div id="chrono-display" class="chrono-display text-[#0097A7] mb-6">0:00</div>
     <div class="flex flex-wrap justify-center gap-3 mb-6" id="chrono-presets"></div>
     <div class="flex items-center justify-center gap-3 mb-4">
       <label class="text-gray-400" data-i18n="chrono_custom">Personnalisé :</label>
@@ -162,25 +167,28 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
       <button onclick="chronoToggle()" id="chrono-start-btn" class="btn-font bg-green-600 text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110 glow-cyan" data-i18n="chrono_start">Démarrer</button>
       <button onclick="chronoReset()" class="btn-font bg-[#FF2A7A] text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110 glow-pink" data-i18n="chrono_reset">Reset</button>
     </div>
-    <div id="chrono-record" class="text-gray-500 text-lg"></div>
+    <div id="chrono-record" class="text-gray-600 text-lg font-bold"></div>
+  </div>
   </div>
 </section>
 
 <!-- ================= ONGLET 3 : ZONES ================= -->
 <section id="tab-zones" class="tab-section">
-  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#FF2A7A] mb-6" data-i18n="zones_title">Zones Matériel</h2>
+  <div class="content-box">
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#d02060] mb-6" data-i18n="zones_title">Zones Matériel</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="zones-grid"></div>
   <div class="flex justify-center gap-4 mt-6">
     <button onclick="zonesUncheckAll()" class="btn-font bg-[#8B5CF6] text-white px-8 py-3 rounded-xl text-xl hover:brightness-110" data-i18n="zones_uncheck">Tout décocher</button>
     <button onclick="zonesPrint()" class="btn-font bg-[#00E5FF] text-[#0F0F2E] px-8 py-3 rounded-xl text-xl hover:brightness-110" data-i18n="zones_print">Imprimer</button>
   </div>
+  </div>
 </section>
 
 <!-- ================= ONGLET 4 : CAPITAINES ================= -->
 <section id="tab-capitaines" class="tab-section">
-  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#8B5CF6] mb-6" data-i18n="cap_title">Capitaines de Transition</h2>
-  <div class="max-w-2xl mx-auto">
-    <textarea id="cap-names" rows="5" class="w-full bg-[#1a1a3e] border border-violet-800 rounded-xl p-4 text-white text-xl sm:text-2xl mb-4 resize-none" data-i18n-placeholder="cap_placeholder" placeholder="Entrez les noms (un par ligne)..."></textarea>
+  <div class="content-box max-w-3xl mx-auto">
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#7C3AED] mb-6" data-i18n="cap_title">Capitaines de Transition</h2>
+    <textarea id="cap-names" rows="5" class="w-full bg-white border-2 border-violet-300 rounded-xl p-4 text-gray-800 text-xl sm:text-2xl mb-4 resize-none" data-i18n-placeholder="cap_placeholder" placeholder="Entrez les noms (un par ligne)..."></textarea>
     <div class="flex justify-center gap-3 mb-6">
       <button onclick="capAssign()" class="btn-font bg-[#00E5FF] text-[#0F0F2E] px-8 py-3 rounded-xl text-xl hover:brightness-110" data-i18n="cap_assign">Assigner</button>
       <button onclick="capShuffle()" class="btn-font bg-[#FFD700] text-[#0F0F2E] px-8 py-3 rounded-xl text-xl hover:brightness-110" data-i18n="cap_shuffle">Mélanger</button>
@@ -192,10 +200,11 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 
 <!-- ================= ONGLET 5 : TRAME SONORE ================= -->
 <section id="tab-trame" class="tab-section">
-  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#FFD700] mb-6" data-i18n="trame_title">Trame Sonore</h2>
-  <div class="max-w-lg mx-auto text-center">
+  <div class="content-box max-w-2xl mx-auto">
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#b8960a] mb-6" data-i18n="trame_title">Trame Sonore</h2>
+  <div class="text-center">
     <div class="flex justify-center items-end gap-1 mb-6 h-24" id="audio-visualizer"></div>
-    <div id="trame-display" class="chrono-display text-[#FFD700] mb-4">0:00</div>
+    <div id="trame-display" class="chrono-display text-[#b8960a] mb-4">0:00</div>
     <div class="progress-bar-track mb-6"><div id="trame-progress" class="progress-bar-fill bg-[#FFD700]" style="width:0%"></div></div>
     <div class="flex flex-wrap justify-center gap-3 mb-6" id="trame-presets"></div>
     <div class="flex justify-center gap-4">
@@ -203,14 +212,17 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
       <button onclick="trameReset()" class="btn-font bg-[#FF2A7A] text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110" data-i18n="trame_reset">Reset</button>
     </div>
   </div>
+  </div>
 </section>
 
 <!-- ================= ONGLET 6 : PLAN GYM ================= -->
 <section id="tab-plangym" class="tab-section">
-  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#00E5FF] mb-4" data-i18n="gym_title">Plan du Gymnase</h2>
+  <div class="content-box">
+  <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#0097A7] mb-4" data-i18n="gym_title">Plan du Gymnase</h2>
   <div class="flex flex-wrap justify-center gap-2 mb-4" id="gym-inventory"></div>
-  <button onclick="gymClearAll()" class="btn-font bg-[#FF2A7A] text-white px-5 py-2 rounded-xl hover:brightness-110 block mx-auto mb-4" data-i18n="gym_clearall">Effacer tout</button>
+  <button onclick="gymClearAll()" class="btn-font bg-[#FF2A7A] text-white px-6 py-3 rounded-xl text-xl hover:brightness-110 block mx-auto mb-4" data-i18n="gym_clearall">Effacer tout</button>
   <div id="gym-floor" class="gym-floor w-full mx-auto" style="height:500px;max-width:900px"></div>
+  </div>
 </section>
 
 </main>
