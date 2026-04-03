@@ -220,7 +220,10 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
   <img id="lb-img" src="" alt="">
   <h3 id="lb-title" class="text-3xl text-white mt-4" style="font-family:'Luckiest Guy',cursive"></h3>
   <p id="lb-desc" class="text-gray-300 text-xl mt-2 max-w-md text-center px-4"></p>
-  <p class="text-gray-500 mt-4 text-sm" data-i18n="lb_close">Cliquez ou ESC pour fermer</p>
+  <div style="display:flex;gap:12px;margin-top:20px">
+    <button onclick="event.stopPropagation();stopSignalSound()" style="font-family:'Bangers',cursive;background:#FF2A7A;color:#fff;border:none;border-radius:999px;padding:12px 32px;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 15px rgba(255,42,122,0.4)">⏹️ STOP</button>
+    <button onclick="closeLightbox()" style="font-family:'Bangers',cursive;background:rgba(255,255,255,0.2);color:#fff;border:2px solid rgba(255,255,255,0.3);border-radius:999px;padding:12px 32px;font-size:1.2rem;cursor:pointer">✕ FERMER</button>
+  </div>
 </div>
 
 <!-- RECORD TOAST -->
@@ -365,20 +368,36 @@ function renderSignals(){
   `).join('');
   gsap.from('.signal-card',{scale:0.8,opacity:0,stagger:0.06,duration:0.4,ease:'back.out(1.5)'});
 }
+let _currentSignalAudio = null;
 function openLightbox(i){
   const s = signals[i];
   document.getElementById('lb-img').src = s.img;
   document.getElementById('lb-title').textContent = t(s.name);
   document.getElementById('lb-desc').textContent = t(s.desc);
   document.getElementById('lightbox').classList.add('show');
+  // Pause ambiance pendant le signal
+  if(_gymAmbiance && _ambiancePlaying) _gymAmbiance.pause();
   // Jouer le son MP3 du signal
+  stopSignalSound();
   if(s.sound){
-    const audio = new Audio(s.sound);
-    audio.volume = 1.0;
-    audio.play().catch(()=>{});
+    _currentSignalAudio = new Audio(s.sound);
+    _currentSignalAudio.volume = 1.0;
+    _currentSignalAudio.play().catch(()=>{});
   }
 }
-function closeLightbox(){ document.getElementById('lightbox').classList.remove('show'); }
+function stopSignalSound(){
+  if(_currentSignalAudio){
+    _currentSignalAudio.pause();
+    _currentSignalAudio.currentTime = 0;
+    _currentSignalAudio = null;
+  }
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
+  stopSignalSound();
+  // Reprendre ambiance
+  if(_gymAmbiance && _ambiancePlaying) _gymAmbiance.play().catch(()=>{});
+}
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
 
 // ======================== CHRONO ========================
@@ -550,12 +569,12 @@ const zones = [
 function renderZones(){
   document.getElementById('zones-grid').innerHTML = zones.map(z=>{
     const items = t(z.itemsKey).split(',');
-    return `<div class="zone-card card-shadow rounded-2xl p-5" style="background:${z.color}15;border:2px solid ${z.color}40">
+    return `<div class="zone-card card-shadow rounded-2xl p-5" style="background:rgba(15,15,46,0.85);border:3px solid ${z.color};backdrop-filter:blur(4px)">
       <h3 class="text-2xl mb-3" style="font-family:'Luckiest Guy',cursive;color:${z.color}">${z.emoji} ${t(z.nameKey)}</h3>
       <div class="space-y-2">
         ${items.map((it,i)=>`<label class="flex items-center gap-3 cursor-pointer text-lg">
           <input type="checkbox" class="w-5 h-5 accent-[${z.color}] rounded" data-zone="${z.key}" data-item="${i}">
-          <span>${it.trim()}</span>
+          <span style="color:#e0e0e0">${it.trim()}</span>
         </label>`).join('')}
       </div>
     </div>`;
