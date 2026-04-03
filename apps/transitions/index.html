@@ -13,7 +13,7 @@
 <style>
 :root{--bg:#0F0F2E;--cyan:#00E5FF;--yellow:#FFD700;--pink:#FF2A7A;--violet:#8B5CF6;--dark2:#1a1a3e;--dark3:#24244a}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Schoolbell',cursive;font-size:1.25rem;background:var(--bg);color:#e0e0e0;min-height:100vh;overflow-x:hidden;position:relative}
+body{font-family:'Schoolbell',cursive;font-size:1.5rem;background:var(--bg);color:#e0e0e0;min-height:100vh;overflow-x:hidden;position:relative}
 body::before{content:'';position:fixed;inset:0;background:url('/gym-bg.jpg') center/cover no-repeat;opacity:1;pointer-events:none;z-index:0}
 h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 .btn-font{font-family:'Bangers',cursive}
@@ -30,7 +30,7 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 #lightbox{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.92);align-items:center;justify-content:center;flex-direction:column;cursor:pointer}
 #lightbox.show{display:flex}
 #lightbox img{max-width:90vw;max-height:70vh;border-radius:16px;box-shadow:0 0 40px rgba(0,229,255,.3)}
-.chrono-display{font-family:'Courier New',monospace;font-size:clamp(4rem,15vw,10rem);line-height:1;text-shadow:0 0 30px rgba(0,229,255,.4)}
+.chrono-display{font-family:'Courier New',monospace;font-size:clamp(5rem,20vw,14rem);line-height:1;text-shadow:0 0 30px rgba(0,229,255,.4)}
 .chrono-display.warning{color:#FF2A7A;animation:blink .5s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .preset-btn{transition:all .2s}
@@ -44,7 +44,7 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 .audio-bar{animation:audioBar .6s ease-in-out infinite alternate}
 @keyframes audioBar{0%{height:10%}100%{height:100%}}
 .gym-floor{background:url('images/gym-floor.png') center/cover no-repeat #c4956a;position:relative;border:3px solid #a0784c;border-radius:12px;overflow:hidden;touch-action:none}
-.gym-floor::before{content:'';position:absolute;inset:0;pointer-events:none}
+.gym-floor::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.25);pointer-events:none}
 .gym-item{position:absolute;cursor:grab;user-select:none;display:flex;flex-direction:column;align-items:center;z-index:10}
 .gym-item:active{cursor:grabbing}
 .gym-item .delete-btn{display:none;position:absolute;top:-8px;right:-8px;width:20px;height:20px;background:var(--pink);border-radius:50%;color:#fff;font-size:12px;line-height:20px;text-align:center;cursor:pointer}
@@ -72,7 +72,7 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
     </a>
     <div class="flex items-center justify-center gap-3 flex-1">
       <img src="images/signal-timeout.png" alt="Signal" class="h-12 sm:h-16 rounded-xl drop-shadow-lg">
-      <h1 class="text-xl sm:text-2xl md:text-3xl text-white text-center drop-shadow-lg tracking-wide" style="font-family:'Luckiest Guy',cursive" data-i18n="mainTitle">BOÎTE À OUTILS</h1>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl text-white text-center drop-shadow-lg tracking-wide" style="font-family:'Luckiest Guy',cursive" data-i18n="mainTitle">BOÎTE À OUTILS</h1>
     </div>
     <div class="flex gap-1">
       <button onclick="setLang('fr')" id="btn-fr" class="btn-font px-3 py-1 rounded-full text-sm font-bold" style="background:#fff;color:#00B8D4;border:2px solid rgba(255,255,255,0.5)">FR</button>
@@ -159,8 +159,8 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
       <button onclick="chronoSetCustom()" class="btn-font bg-[#8B5CF6] text-white px-4 py-2 rounded-xl hover:brightness-110" data-i18n="chrono_set">OK</button>
     </div>
     <div class="flex justify-center gap-4 mb-6">
-      <button onclick="chronoToggle()" id="chrono-start-btn" class="btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-cyan" data-i18n="chrono_start">Démarrer</button>
-      <button onclick="chronoReset()" class="btn-font bg-[#FF2A7A] text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-pink" data-i18n="chrono_reset">Reset</button>
+      <button onclick="chronoToggle()" id="chrono-start-btn" class="btn-font bg-green-600 text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110 glow-cyan" data-i18n="chrono_start">Démarrer</button>
+      <button onclick="chronoReset()" class="btn-font bg-[#FF2A7A] text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110 glow-pink" data-i18n="chrono_reset">Reset</button>
     </div>
     <div id="chrono-record" class="text-gray-500 text-lg"></div>
   </div>
@@ -171,8 +171,8 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
   <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#FF2A7A] mb-6" data-i18n="zones_title">Zones Matériel</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="zones-grid"></div>
   <div class="flex justify-center gap-4 mt-6">
-    <button onclick="zonesUncheckAll()" class="btn-font bg-[#8B5CF6] text-white px-6 py-2 rounded-xl hover:brightness-110" data-i18n="zones_uncheck">Tout décocher</button>
-    <button onclick="zonesPrint()" class="btn-font bg-[#00E5FF] text-[#0F0F2E] px-6 py-2 rounded-xl hover:brightness-110" data-i18n="zones_print">Imprimer</button>
+    <button onclick="zonesUncheckAll()" class="btn-font bg-[#8B5CF6] text-white px-8 py-3 rounded-xl text-xl hover:brightness-110" data-i18n="zones_uncheck">Tout décocher</button>
+    <button onclick="zonesPrint()" class="btn-font bg-[#00E5FF] text-[#0F0F2E] px-8 py-3 rounded-xl text-xl hover:brightness-110" data-i18n="zones_print">Imprimer</button>
   </div>
 </section>
 
@@ -180,11 +180,11 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 <section id="tab-capitaines" class="tab-section">
   <h2 class="tab-title text-4xl sm:text-5xl text-center text-[#8B5CF6] mb-6" data-i18n="cap_title">Capitaines de Transition</h2>
   <div class="max-w-2xl mx-auto">
-    <textarea id="cap-names" rows="5" class="w-full bg-[#1a1a3e] border border-violet-800 rounded-xl p-4 text-white text-lg mb-4 resize-none" data-i18n-placeholder="cap_placeholder" placeholder="Entrez les noms (un par ligne)..."></textarea>
+    <textarea id="cap-names" rows="5" class="w-full bg-[#1a1a3e] border border-violet-800 rounded-xl p-4 text-white text-xl sm:text-2xl mb-4 resize-none" data-i18n-placeholder="cap_placeholder" placeholder="Entrez les noms (un par ligne)..."></textarea>
     <div class="flex justify-center gap-3 mb-6">
-      <button onclick="capAssign()" class="btn-font bg-[#00E5FF] text-[#0F0F2E] px-6 py-2 rounded-xl hover:brightness-110" data-i18n="cap_assign">Assigner</button>
-      <button onclick="capShuffle()" class="btn-font bg-[#FFD700] text-[#0F0F2E] px-6 py-2 rounded-xl hover:brightness-110" data-i18n="cap_shuffle">Mélanger</button>
-      <button onclick="capClear()" class="btn-font bg-[#FF2A7A] text-white px-6 py-2 rounded-xl hover:brightness-110" data-i18n="cap_clear">Effacer</button>
+      <button onclick="capAssign()" class="btn-font bg-[#00E5FF] text-[#0F0F2E] px-8 py-3 rounded-xl text-xl hover:brightness-110" data-i18n="cap_assign">Assigner</button>
+      <button onclick="capShuffle()" class="btn-font bg-[#FFD700] text-[#0F0F2E] px-8 py-3 rounded-xl text-xl hover:brightness-110" data-i18n="cap_shuffle">Mélanger</button>
+      <button onclick="capClear()" class="btn-font bg-[#FF2A7A] text-white px-8 py-3 rounded-xl text-xl hover:brightness-110" data-i18n="cap_clear">Effacer</button>
     </div>
     <div id="cap-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
   </div>
@@ -199,8 +199,8 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
     <div class="progress-bar-track mb-6"><div id="trame-progress" class="progress-bar-fill bg-[#FFD700]" style="width:0%"></div></div>
     <div class="flex flex-wrap justify-center gap-3 mb-6" id="trame-presets"></div>
     <div class="flex justify-center gap-4">
-      <button onclick="trameToggle()" id="trame-start-btn" class="btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110" data-i18n="trame_start">Démarrer</button>
-      <button onclick="trameReset()" class="btn-font bg-[#FF2A7A] text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110" data-i18n="trame_reset">Reset</button>
+      <button onclick="trameToggle()" id="trame-start-btn" class="btn-font bg-green-600 text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110" data-i18n="trame_start">Démarrer</button>
+      <button onclick="trameReset()" class="btn-font bg-[#FF2A7A] text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110" data-i18n="trame_reset">Reset</button>
     </div>
   </div>
 </section>
@@ -362,7 +362,7 @@ function renderSignals(){
     <div class="signal-card card-shadow rounded-2xl overflow-hidden" onclick="openLightbox(${i})" style="background:${s.bg}">
       <img src="${s.img}" alt="${t(s.name)}" class="w-full aspect-square object-contain p-4" loading="lazy">
       <div class="bg-black/40 px-3 py-2 text-center">
-        <span class="text-white font-bold text-lg" style="font-family:'Bangers',cursive">${t(s.name)}</span>
+        <span class="text-white font-bold text-xl sm:text-2xl" style="font-family:'Bangers',cursive">${t(s.name)}</span>
       </div>
     </div>
   `).join('');
@@ -406,7 +406,7 @@ const chronoPresets = [30,45,75,90,120];
 function renderChronoPresets(){
   document.getElementById('chrono-presets').innerHTML = chronoPresets.map(s=>{
     const label = s>=60 ? Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60 : s+'s';
-    return `<button onclick="chronoSet(${s})" class="preset-btn btn-font bg-[#1a1a3e] border border-cyan-800 text-[#00E5FF] px-5 py-2 rounded-xl text-lg" data-preset="${s}">${label}</button>`;
+    return `<button onclick="chronoSet(${s})" class="preset-btn btn-font bg-[#1a1a3e] border border-cyan-800 text-[#00E5FF] px-6 py-3 rounded-xl text-xl sm:text-2xl" data-preset="${s}">${label}</button>`;
   }).join('');
 }
 function chronoSet(s){
@@ -427,7 +427,7 @@ function chronoStart(){
   chronoRunning = true;
   const btn = document.getElementById('chrono-start-btn');
   btn.textContent = t('chrono_pause');
-  btn.className = 'btn-font bg-[#00E5FF] text-[#0F0F2E] px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-cyan';
+  btn.className = 'btn-font bg-[#00E5FF] text-[#0F0F2E] px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110 glow-cyan';
   chronoInterval = setInterval(()=>{
     chronoTime--;
     updateChronoDisplay();
@@ -440,14 +440,14 @@ function chronoPause(){
   clearInterval(chronoInterval);
   const btn = document.getElementById('chrono-start-btn');
   btn.textContent = t('chrono_start');
-  btn.className = 'btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-cyan';
+  btn.className = 'btn-font bg-green-600 text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110 glow-cyan';
 }
 function chronoStop(){
   chronoRunning = false;
   clearInterval(chronoInterval);
   const btn = document.getElementById('chrono-start-btn');
   btn.textContent = t('chrono_start');
-  btn.className = 'btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110 glow-cyan';
+  btn.className = 'btn-font bg-green-600 text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110 glow-cyan';
 }
 function chronoReset(){
   chronoStop();
@@ -570,10 +570,10 @@ function renderZones(){
   document.getElementById('zones-grid').innerHTML = zones.map(z=>{
     const items = t(z.itemsKey).split(',');
     return `<div class="zone-card card-shadow rounded-2xl p-5" style="background:rgba(15,15,46,0.85);border:3px solid ${z.color};backdrop-filter:blur(4px)">
-      <h3 class="text-2xl mb-3" style="font-family:'Luckiest Guy',cursive;color:${z.color}">${z.emoji} ${t(z.nameKey)}</h3>
-      <div class="space-y-2">
-        ${items.map((it,i)=>`<label class="flex items-center gap-3 cursor-pointer text-lg">
-          <input type="checkbox" class="w-5 h-5 accent-[${z.color}] rounded" data-zone="${z.key}" data-item="${i}">
+      <h3 class="text-3xl sm:text-4xl mb-4" style="font-family:'Luckiest Guy',cursive;color:${z.color}">${z.emoji} ${t(z.nameKey)}</h3>
+      <div class="space-y-3">
+        ${items.map((it,i)=>`<label class="flex items-center gap-4 cursor-pointer text-xl sm:text-2xl">
+          <input type="checkbox" class="w-7 h-7 accent-[${z.color}] rounded" data-zone="${z.key}" data-item="${i}">
           <span style="color:#e0e0e0">${it.trim()}</span>
         </label>`).join('')}
       </div>
@@ -621,7 +621,7 @@ function capAssign(){
     const name = shuffled[i % shuffled.length] || '—';
     return `<div class="captain-card pop card-shadow rounded-2xl p-4 text-center" style="background:${r.color}15;border:2px solid ${r.color}50">
       <div class="text-4xl mb-2">${r.emoji}</div>
-      <div class="text-lg font-bold" style="color:${r.color};font-family:'Bangers',cursive">${t(r.key)}</div>
+      <div class="text-xl sm:text-2xl font-bold" style="color:${r.color};font-family:'Bangers',cursive">${t(r.key)}</div>
       <div class="text-2xl text-white mt-2" style="font-family:'Luckiest Guy',cursive">${name.trim()}</div>
     </div>`;
   }).join('');
@@ -639,7 +639,7 @@ const tramePresets = [45,75,90];
 function renderTramePresets(){
   document.getElementById('trame-presets').innerHTML = tramePresets.map(s=>{
     const label = s>=60 ? Math.floor(s/60)+':'+(s%60<10?'0':'')+s%60 : s+'s';
-    return `<button onclick="trameSet(${s})" class="preset-btn btn-font bg-[#1a1a3e] border border-yellow-700 text-[#FFD700] px-5 py-2 rounded-xl text-lg" data-tpreset="${s}">${label}</button>`;
+    return `<button onclick="trameSet(${s})" class="preset-btn btn-font bg-[#1a1a3e] border border-yellow-700 text-[#FFD700] px-6 py-3 rounded-xl text-xl sm:text-2xl" data-tpreset="${s}">${label}</button>`;
   }).join('');
 }
 function trameSet(s){
@@ -656,7 +656,7 @@ function trameStart(){
   trameRunning = true;
   const btn = document.getElementById('trame-start-btn');
   btn.textContent = t('trame_pause');
-  btn.className = 'btn-font bg-[#FFD700] text-[#0F0F2E] px-8 py-3 rounded-2xl text-xl hover:brightness-110';
+  btn.className = 'btn-font bg-[#FFD700] text-[#0F0F2E] px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110';
   startPercussion();
   trameInterval = setInterval(()=>{
     trameTime--;
@@ -671,7 +671,7 @@ function tramePause(){
   stopPercussion();
   const btn = document.getElementById('trame-start-btn');
   btn.textContent = t('trame_start');
-  btn.className = 'btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110';
+  btn.className = 'btn-font bg-green-600 text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110';
 }
 function trameStop(){
   trameRunning = false;
@@ -679,7 +679,7 @@ function trameStop(){
   stopPercussion();
   const btn = document.getElementById('trame-start-btn');
   btn.textContent = t('trame_start');
-  btn.className = 'btn-font bg-green-600 text-white px-8 py-3 rounded-2xl text-xl hover:brightness-110';
+  btn.className = 'btn-font bg-green-600 text-white px-10 py-4 rounded-2xl text-2xl sm:text-3xl hover:brightness-110';
 }
 function trameReset(){
   trameStop();
@@ -758,7 +758,7 @@ let gymDragging = null, gymOffsetX=0, gymOffsetY=0;
 
 function renderGymInventory(){
   document.getElementById('gym-inventory').innerHTML = gymItems.map(it=>
-    `<button onclick="gymSelectItem('${it.id}')" data-ginv="${it.id}" class="inv-btn btn-font bg-[#1a1a3e] border border-cyan-900 px-4 py-2 rounded-xl text-lg flex items-center gap-1">
+    `<button onclick="gymSelectItem('${it.id}')" data-ginv="${it.id}" class="inv-btn btn-font bg-[#1a1a3e] border border-cyan-900 px-5 py-3 rounded-xl text-xl sm:text-2xl flex items-center gap-2">
       <span class="text-xl">${it.emoji}</span> <span class="text-sm">${t(it.key)}</span>
     </button>`
   ).join('');
