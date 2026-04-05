@@ -77,41 +77,43 @@
     </div>
   </div>
 
-  <!-- ===== SEARCH & FILTERS ===== -->
-  <header class="text-center py-8 px-4" id="sites">
+  <!-- ===== SEARCH & FILTERS (encadre sombre) ===== -->
+  <div class="max-w-5xl mx-auto px-6 mb-8" id="sites">
+    <div style="background:rgba(10,10,30,.85);backdrop-filter:blur(10px);border-radius:20px;padding:28px 32px;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 30px rgba(0,0,0,.4);">
 
-    <!-- Search -->
-    <div class="max-w-lg mx-auto relative mb-6">
-      <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30"></i>
-      <input id="searchBar" type="text" placeholder="Rechercher un site..." class="w-full pl-12 pr-4 py-3 rounded-full text-lg font-hand bg-white/10 border border-white/20 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan/50">
+      <!-- Search -->
+      <div class="max-w-lg mx-auto relative mb-5">
+        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30"></i>
+        <input id="searchBar" type="text" placeholder="Rechercher un site..." class="w-full pl-12 pr-4 py-3 rounded-full text-lg font-hand bg-white/10 border border-white/20 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan/50">
+      </div>
+
+      <!-- Language Filters -->
+      <div class="flex justify-center gap-3 mb-4" id="langFilters">
+        <span class="lang-flag active" data-lang="all" title="Tous">🌍</span>
+        <span class="lang-flag" data-lang="fr" title="Français">🇫🇷</span>
+        <span class="lang-flag" data-lang="en" title="English">🇬🇧</span>
+        <span class="lang-flag" data-lang="es" title="Español">🇪🇸</span>
+        <span class="lang-flag" data-lang="de" title="Deutsch">🇩🇪</span>
+        <span class="lang-flag" data-lang="zh" title="中文">🇨🇳</span>
+      </div>
+
+      <!-- Category Filters -->
+      <div class="flex flex-wrap justify-center gap-2 mb-5" id="catFilters">
+        <button class="cat-pill active" data-cat="all">Tous</button>
+        <button class="cat-pill" data-cat="eps">EPS / Éducation physique</button>
+        <button class="cat-pill" data-cat="camp">Camps de jour</button>
+        <button class="cat-pill" data-cat="garde">Service de garde</button>
+        <button class="cat-pill" data-cat="curriculum">Curriculum / Programme</button>
+        <button class="cat-pill" data-cat="recreation">Récréation / Loisirs</button>
+      </div>
+
+      <!-- Stats -->
+      <div class="flex justify-center gap-8 pt-4 border-t border-white/10">
+        <div class="text-center"><span class="font-lucky text-3xl text-cyan" id="totalCount">0</span><br><span class="text-white/50 text-sm font-fredoka">sites</span></div>
+        <div class="text-center"><span class="font-lucky text-3xl text-yellow">5</span><br><span class="text-white/50 text-sm font-fredoka">langues</span></div>
+        <div class="text-center"><span class="font-lucky text-3xl text-pink">15+</span><br><span class="text-white/50 text-sm font-fredoka">pays</span></div>
+      </div>
     </div>
-
-    <!-- Language Filters -->
-    <div class="flex justify-center gap-3 mb-4" id="langFilters">
-      <span class="lang-flag active" data-lang="all" title="Tous">🌍</span>
-      <span class="lang-flag" data-lang="fr" title="Français">🇫🇷</span>
-      <span class="lang-flag" data-lang="en" title="English">🇬🇧</span>
-      <span class="lang-flag" data-lang="es" title="Español">🇪🇸</span>
-      <span class="lang-flag" data-lang="de" title="Deutsch">🇩🇪</span>
-      <span class="lang-flag" data-lang="zh" title="中文">🇨🇳</span>
-    </div>
-
-    <!-- Category Filters -->
-    <div class="flex flex-wrap justify-center gap-2" id="catFilters">
-      <button class="cat-pill active" data-cat="all">Tous</button>
-      <button class="cat-pill" data-cat="eps">EPS / Éducation physique</button>
-      <button class="cat-pill" data-cat="camp">Camps de jour</button>
-      <button class="cat-pill" data-cat="garde">Service de garde</button>
-      <button class="cat-pill" data-cat="curriculum">Curriculum / Programme</button>
-      <button class="cat-pill" data-cat="recreation">Récréation / Loisirs</button>
-    </div>
-  </header>
-
-  <!-- Stats -->
-  <div class="flex justify-center gap-8 py-4 mb-6">
-    <div class="text-center"><span class="font-lucky text-3xl text-cyan" id="totalCount">0</span><br><span class="text-white/40 text-sm font-fredoka">sites</span></div>
-    <div class="text-center"><span class="font-lucky text-3xl text-yellow">5</span><br><span class="text-white/40 text-sm font-fredoka">langues</span></div>
-    <div class="text-center"><span class="font-lucky text-3xl text-pink">15+</span><br><span class="text-white/40 text-sm font-fredoka">pays</span></div>
   </div>
 
   <!-- Grid -->
