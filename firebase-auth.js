@@ -653,6 +653,10 @@
     if (typeof firebase !== 'undefined') firebase.auth().signOut();
   };
   root.ztsGetUser = function() { return _user; };
+  root.ztsSetProtected = function(url) {
+    _protectedMode = true;
+    _protectedHref = url;
+  };
   root.ztsOnAuth = function(cb) {
     _onAuthCallbacks.push(cb);
     if (_authReady) cb(_user);

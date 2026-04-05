@@ -4475,9 +4475,10 @@ function ztsOpenApp(url) {
   if (window.ztsGetUser && window.ztsGetUser()) {
     window.location.href = url;
   } else if (window.ztsShowSignup) {
-    // Protected mode: must sign up, then redirect to app
-    window._protectedMode = true;
-    window._protectedHref = url;
+    // Use ztsSetProtected to set the closure-scoped variables correctly
+    if (window.ztsSetProtected) {
+      window.ztsSetProtected(url);
+    }
     window.ztsShowSignup();
   }
 }
