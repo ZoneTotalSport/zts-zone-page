@@ -3701,8 +3701,9 @@
         window.ztsOnAuth(function(user) {
             if (user) {
                 const overlay = document.getElementById('gateOverlay');
-                if (overlay && overlay.classList.contains('show')) {
+                if (overlay && (overlay.classList.contains('show') || overlay.style.display === 'flex')) {
                     overlay.classList.remove('show');
+                    overlay.style.display = 'none';
                     if (_gateDestination && _gateDestination !== '#') {
                         window.location.href = _gateDestination;
                     }
@@ -3710,6 +3711,23 @@
             }
         });
     }
+
+    // Also close gate popup when firebase-auth modal closes after successful login
+    // Poll check: if user becomes authenticated while gate is showing, close it
+    setInterval(function() {
+        if (window.ztsGetUser && window.ztsGetUser()) {
+            const overlay = document.getElementById('gateOverlay');
+            if (overlay && (overlay.classList.contains('show') || getComputedStyle(overlay).opacity > 0.5)) {
+                overlay.classList.remove('show');
+                overlay.style.display = 'none';
+                if (_gateDestination && _gateDestination !== '#') {
+                    var dest = _gateDestination;
+                    _gateDestination = null;
+                    window.location.href = dest;
+                }
+            }
+        }
+    }, 500);
 
     // Attach gate popup to service card links & footer nav links
     document.addEventListener('DOMContentLoaded', function() {
