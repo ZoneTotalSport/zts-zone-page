@@ -254,7 +254,7 @@
         }
 
         /* ========== TILT CARD ========== */
-        .tilt-card { transform-style: preserve-3d; perspective: 800px; }
+        .tilt-card { transform-style: preserve-3d; perspective: 800px; cursor: pointer; }
         .tilt-card-inner { transform-style: preserve-3d; transition: transform 0.1s ease-out; }
         .tilt-card-inner .tilt-icon { transform: translateZ(40px); }
         .tilt-card-inner .tilt-title { transform: translateZ(30px); }
@@ -2607,6 +2607,12 @@
             });
             card.addEventListener('mouseleave', () => {
                 gsap.to(inner, { rotateY: 0, rotateX: 0, duration: 0.6, ease: 'elastic.out(1, 0.5)' });
+            });
+            // Make entire card clickable — trigger the link inside
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('a') || e.target.closest('input')) return; // already clicking a link
+                const link = card.querySelector('a');
+                if (link) link.click();
             });
         });
 
