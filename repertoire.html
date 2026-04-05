@@ -11,10 +11,10 @@
   <script>tailwind.config={theme:{extend:{colors:{cyan:'#00E5FF',yellow:'#FFD700',pink:'#FF2A7A',violet:'#8B5CF6',dark:'#0F0F2E'},fontFamily:{lucky:['Luckiest Guy'],hand:['Patrick Hand'],fredoka:['Fredoka One']}}}}</script>
   <style>
     body{font-family:'Patrick Hand',cursive;background:url('gym-bg.jpg') center/cover fixed;background-color:#0F0F2E;}
-    body::before{content:"";position:fixed;inset:0;background:rgba(15,15,46,.85);z-index:0;}
+    body::before{content:"";position:fixed;inset:0;background:rgba(15,15,46,.45);z-index:0;}
     body>*{position:relative;z-index:1;}
-    .site-card{background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.1);border-radius:16px;padding:20px;transition:all .3s;cursor:pointer;display:flex;flex-direction:column;gap:8px;}
-    .site-card:hover{transform:translateY(-4px);background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.3);box-shadow:0 8px 30px rgba(0,229,255,.15);}
+    .site-card{background:rgba(10,10,30,.82);border:2px solid rgba(255,255,255,.15);border-radius:16px;padding:20px;transition:all .3s;cursor:pointer;display:flex;flex-direction:column;gap:8px;backdrop-filter:blur(6px);}
+    .site-card:hover{transform:translateY(-4px);background:rgba(0,150,167,.25);border-color:rgba(0,188,212,.5);box-shadow:0 8px 30px rgba(0,188,212,.2);}
     .site-card.hidden-card{display:none;}
     .lang-flag{font-size:1.4rem;cursor:pointer;opacity:.4;transition:all .2s;padding:4px 8px;border-radius:8px;}
     .lang-flag:hover,.lang-flag.active{opacity:1;background:rgba(255,255,255,.1);}
@@ -34,7 +34,7 @@
 <body class="text-white">
 
   <!-- ===== HEADER CYAN (style Planificateur) ===== -->
-  <div style="background:linear-gradient(135deg,#00BCD4 0%,#0097A7 40%,#00838F 100%);position:relative;overflow:hidden;z-index:2;">
+  <div style="background:linear-gradient(135deg,#4DD0E1 0%,#00BCD4 30%,#0097A7 70%,#00838F 100%);position:relative;overflow:hidden;z-index:2;">
     <!-- Decorative circles -->
     <div style="position:absolute;top:-60px;right:-60px;width:300px;height:300px;background:rgba(255,255,255,.08);border-radius:50%"></div>
     <div style="position:absolute;bottom:-40px;left:-40px;width:200px;height:200px;background:rgba(255,255,255,.05);border-radius:50%"></div>
@@ -61,12 +61,12 @@
 
     <!-- Hero content -->
     <div class="max-w-6xl mx-auto px-6 py-10 md:py-14 relative z-10">
-      <div style="background:rgba(15,15,46,.75);backdrop-filter:blur(12px);border-radius:24px;padding:32px 40px;max-width:900px;margin:0 auto;display:flex;align-items:center;gap:32px;" class="flex-col md:flex-row">
+      <div style="background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-radius:24px;padding:32px 40px;max-width:900px;margin:0 auto;display:flex;align-items:center;gap:32px;color:#0F0F2E;" class="flex-col md:flex-row">
         <img src="bucheron-sports.png" alt="Mr. Root" style="width:160px;height:160px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 5px 20px rgba(0,0,0,.4));">
         <div>
-          <h1 class="font-lucky text-3xl md:text-5xl text-white tracking-wide mb-2" style="text-shadow:0 3px 8px rgba(0,0,0,.3);">REPERTOIRE MONDIAL</h1>
-          <p class="font-lucky text-lg md:text-xl mb-3" style="color:#FFD700;">Jeux EPS • Camps de jour • Services de garde</p>
-          <p class="font-hand text-base md:text-lg text-white/80 leading-relaxed mb-5">Le plus grand repertoire de sites d'education physique au monde! Plus de 50 sites verifies dans 15+ pays et 5 langues. Filtre par categorie, langue ou pays. Chaque site est decrit avec son contenu et un lien direct. Parfait pour decouvrir de nouvelles idees partout sur la planete!</p>
+          <h1 class="font-lucky text-3xl md:text-5xl tracking-wide mb-2" style="color:#0F0F2E;">REPERTOIRE MONDIAL</h1>
+          <p class="font-lucky text-lg md:text-xl mb-3" style="color:#00BCD4;">Jeux EPS • Camps de jour • Services de garde</p>
+          <p class="font-hand text-base md:text-lg leading-relaxed mb-5" style="color:rgba(15,15,46,.7);">Le plus grand repertoire de sites d'education physique au monde! Plus de 50 sites verifies dans 15+ pays et 5 langues. Filtre par categorie, langue ou pays. Chaque site est decrit avec son contenu et un lien direct. Parfait pour decouvrir de nouvelles idees partout sur la planete!</p>
           <div class="flex flex-wrap gap-3 mb-5">
             <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(0,229,255,.2);color:#00E5FF;border:1px solid rgba(0,229,255,.3);">🌍 53+ sites</span>
             <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(255,215,0,.2);color:#FFD700;border:1px solid rgba(255,215,0,.3);">🗣️ 5 langues</span>
@@ -77,7 +77,7 @@
             <a href="#sites" class="font-fredoka text-sm px-6 py-2.5 rounded-full flex items-center gap-2 transition hover:brightness-110" style="background:#00E5FF;color:#0F0F2E;">
               🚀 Explorer les sites
             </a>
-            <a href="#howto" class="font-fredoka text-sm px-6 py-2.5 rounded-full flex items-center gap-2 transition border border-white/30 hover:bg-white/10 text-white">
+            <a href="#howto" class="font-fredoka text-sm px-6 py-2.5 rounded-full flex items-center gap-2 transition border-2 border-gray-300 hover:bg-gray-100" style="color:#0F0F2E;">
               🎬 Comment utiliser
             </a>
           </div>
