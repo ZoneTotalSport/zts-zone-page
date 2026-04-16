@@ -104,8 +104,8 @@
     </script>
 
     <!-- GSAP + ScrollTrigger -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -868,9 +868,18 @@
         .sport-tab:hover { color: rgba(255,255,255,0.7); }
         .sport-tab.active { color: #00E5FF; border-bottom-color: #00E5FF; }
         .scores-container {
-            display: flex; overflow-x: auto; scrollbar-width: none; gap: 0; padding: 0;
+            display: flex; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; gap: 0; padding: 0;
+            -webkit-overflow-scrolling: touch; touch-action: pan-x;
+            scroll-snap-type: x proximity; position: relative;
         }
         .scores-container::-webkit-scrollbar { display: none; }
+        .scores-container::after {
+            content: ''; position: sticky; right: 0; top: 0; bottom: 0;
+            width: 40px; min-width: 40px; pointer-events: none;
+            background: linear-gradient(to right, transparent, #18181b);
+            flex-shrink: 0; margin-left: -40px;
+        }
+        .game-card { scroll-snap-align: start; }
         .game-card {
             min-width: 200px; padding: 12px 16px; border-right: 1px solid rgba(255,255,255,0.06);
             display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
@@ -1143,14 +1152,19 @@
             <!-- Horloge à gauche -->
             <div class="digital-clock" id="navClock" style="font-size:1.6rem; padding:20px 36px; min-width:220px;"><style>
                 @media (max-width: 640px) {
-                    #mainNav .digital-clock { min-width: auto !important; font-size: .8rem !important; padding: 6px 10px !important; gap: 4px !important; }
-                    #mainNav .digital-clock i { width: 14px !important; height: 14px !important; }
+                    /* Horloge compacte */
+                    #mainNav .digital-clock { min-width: auto !important; font-size: .75rem !important; padding: 5px 9px !important; gap: 4px !important; }
+                    #mainNav .digital-clock i { width: 12px !important; height: 12px !important; }
                     #mainNav .digital-clock #clockTime { min-width: auto !important; }
-                    #mainNav .nav-logo-link img { height: 52px !important; }
+                    /* Logo plus petit, non-overlappant (passe en flex normal) */
+                    #mainNav .nav-logo-link { position: static !important; transform: none !important; left: auto !important; }
+                    #mainNav .nav-logo-link img { height: 44px !important; }
+                    /* Cache les liens nav droite sur mobile */
+                    #mainNav .nav-links { display: none !important; }
                 }
                 @media (max-width: 420px) {
-                    #mainNav .digital-clock { font-size: .7rem !important; padding: 5px 8px !important; }
-                    #mainNav .nav-logo-link img { height: 44px !important; }
+                    #mainNav .digital-clock { font-size: .65rem !important; padding: 4px 7px !important; }
+                    #mainNav .nav-logo-link img { height: 38px !important; }
                 }
             </style>
                 <i data-lucide="clock" class="w-6 h-6 text-cyan-electric/60"></i>
@@ -3554,8 +3568,10 @@
             fetchScores(activeSport);
         };
 
-        async function fetchScores(sport) {
-            container.innerHTML = '<div class="scores-loading">⏳ Chargement...</div>';
+        async function fetchScores(sport, preserveScroll) {
+            // Montrer loader seulement au premier chargement ou changement de ligue/date
+            const savedScroll = preserveScroll ? container.scrollLeft : 0;
+            if (!preserveScroll) container.innerHTML = '<div class="scores-loading">⏳ Chargement...</div>';
             updateDateLabel();
             try {
                 const targetDate = getScoreDate();
@@ -3637,8 +3653,10 @@
                     </div>`;
                 });
                 container.innerHTML = html;
+                // Restaure le scroll horizontal apres auto-refresh
+                if (preserveScroll) container.scrollLeft = savedScroll;
             } catch(e) {
-                container.innerHTML = '<div class="scores-loading">Impossible de charger les scores</div>';
+                if (!preserveScroll) container.innerHTML = '<div class="scores-loading">Impossible de charger les scores</div>';
             }
         }
 
@@ -3656,8 +3674,8 @@
         // Initial load
         updateDateLabel();
         fetchScores(activeSport);
-        // Auto-refresh every 30s
-        setInterval(() => fetchScores(activeSport), 30000);
+        // Auto-refresh toutes les 30s en preservant le scroll horizontal
+        setInterval(() => fetchScores(activeSport, true), 30000);
     })();
 
     // VISIT COUNTER — géré par Firebase Realtime Database (voir script en bas)
