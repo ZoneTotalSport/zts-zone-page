@@ -10,6 +10,10 @@
 
     <!-- Canonical -->
     <link rel="canonical" href="https://zonetotalsport.ca/">
+    <link rel="alternate" hreflang="fr-CA" href="https://zonetotalsport.ca/">
+    <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/?lang=en">
+    <link rel="alternate" hreflang="es" href="https://zonetotalsport.ca/?lang=es">
+    <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/">
 
     <!-- Open Graph -->
     <meta property="og:title" content="Zone Total Sport — Ressources ÉPS pour enseignants au primaire">
@@ -100,8 +104,8 @@
     </script>
 
     <!-- GSAP + ScrollTrigger -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -1143,7 +1147,7 @@
             </div>
             <!-- Logo centré -->
             <a href="#" class="flex items-center shrink-0 absolute left-1/2 transform -translate-x-1/2">
-                <img src="logo-zts.png" alt="Zone Total Sport" class="h-[72px] md:h-24 w-auto">
+                <img decoding="async" loading="lazy" src="logo-zts.png" alt="Zone Total Sport" class="h-[72px] md:h-24 w-auto">
             </a>
             <div class="nav-links flex items-center gap-6">
                 <!-- Language Selector -->
@@ -1236,8 +1240,8 @@
                 <div class="relative cursor-pointer" id="mascotSwap"
                      onmouseenter="this.querySelector('.mascot-default').style.opacity='0';this.querySelector('.mascot-hover').style.opacity='1'"
                      onmouseleave="this.querySelector('.mascot-default').style.opacity='1';this.querySelector('.mascot-hover').style.opacity='0'">
-                    <img src="mascot-badminton.png" alt="Mascotte Zone Total Sport" class="mascot-default w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300">
-                    <img src="mascot-pingpong.png" alt="Mascotte Smash!" class="mascot-hover w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300 absolute inset-0 opacity-0">
+                    <img decoding="async" loading="lazy" src="mascot-badminton.png" alt="Mascotte Zone Total Sport" class="mascot-default w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300">
+                    <img decoding="async" loading="lazy" src="mascot-pingpong.png" alt="Mascotte Smash!" class="mascot-hover w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300 absolute inset-0 opacity-0">
                 </div>
             </div>
         </div>
@@ -1361,7 +1365,7 @@
                         </div>
                         <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide">App Gym</h3>
                         <p class="tilt-desc text-white/70 font-baloo text-sm mb-6">Gestion du gymnase en temps reel : transitions, signaux visuels, minuteurs et routines. Ton assistant numerique au gym!</p>
-                        <a href="https://gym.zonetotalsport.ca" target="_blank" rel="noopener" data-protected="true" class="inline-flex items-center gap-2 text-cyan-electric font-bangers text-sm hover:gap-3 transition-all tracking-wide">
+                        <a href="#" onclick="event.preventDefault();ztsOpenApp('https://gym.zonetotalsport.ca')" class="inline-flex items-center gap-2 text-cyan-electric font-bangers text-sm hover:gap-3 transition-all tracking-wide">
                             Lancer l'app <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
@@ -1449,7 +1453,7 @@
     <!-- ========== SECTION 3: TEASER BANNER (White) ========== -->
     <section class="py-12 px-6 md:px-10">
         <div class="max-w-5xl mx-auto bg-cyan-electric/10 rounded-3xl p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 reveal">
-            <img src="mascot-tablet.png" alt="Mascotte" class="w-32 md:w-48 shrink-0">
+            <img decoding="async" loading="lazy" src="mascot-tablet.png" alt="Mascotte" class="w-32 md:w-48 shrink-0">
             <div class="text-center md:text-left">
                 <h3 class="font-bangers text-2xl md:text-3xl text-dark tracking-wide mb-2" data-i18n="teaserTitle">Découvre le générateur de jeux!</h3>
                 <p class="text-dark/60 font-baloo mb-4" data-i18n="teaserSub">50 jeux au hasard avec règles complètes. Parfait quand t'es en panne d'idées.</p>
@@ -1659,7 +1663,7 @@
                 <!-- Card 1: App Gym -->
                 <div class="alaune-card reveal" onclick="window.location.href='https://gym.zonetotalsport.ca'">
                     <div style="height:200px;background:linear-gradient(135deg,#0F0F2E,#1a237e);display:flex;align-items:center;justify-content:center">
-                        <img src="bucheron-basketball.png" alt="App Gym" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2))">
+                        <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="App Gym" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2))">
                     </div>
                     <div class="alaune-card-body">
                         <div class="alaune-card-title">App Gym</div>
@@ -1672,7 +1676,7 @@
                 <!-- Card 2: Blog EPS -->
                 <div class="alaune-card reveal" onclick="window.location.href='blog.html'">
                     <div style="height:200px;background:linear-gradient(135deg,#FF2A7A,#E91E63);display:flex;align-items:center;justify-content:center">
-                        <img src="mr-root-bureau.png" alt="Blog" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2))">
+                        <img decoding="async" loading="lazy" src="mr-root-bureau.png" alt="Blog" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2))">
                     </div>
                     <div class="alaune-card-body">
                         <div class="alaune-card-title">Blog EPS — 23 articles</div>
@@ -1698,7 +1702,7 @@
                 <!-- Card 4: Application Mobile -->
                 <div class="alaune-card reveal" onclick="if(window.ztsGetUser()){window.location.href='https://educatifs.zonetotalsport.ca'}else{window.ztsShowSignup()}">
                     <div style="height:200px;background:linear-gradient(135deg,#8B5CF6,#6D28D9);display:flex;align-items:center;justify-content:center">
-                        <img src="mascot-pingpong.png" alt="Mascotte" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2))">
+                        <img decoding="async" loading="lazy" src="mascot-pingpong.png" alt="Mascotte" style="height:160px;filter:drop-shadow(3px 3px 6px rgba(0,0,0,0.2))">
                     </div>
                     <div class="alaune-card-body">
                         <div class="alaune-card-title">Application Mobile</div>
@@ -1911,7 +1915,7 @@
                         <h3 class="font-fredoka text-lg text-dark">App Gym — gym.zonetotalsport.ca</h3>
                         <p class="font-baloo text-dark/60 text-sm">Nouvelle app de gestion du gymnase : transitions, signaux visuels, minuteurs et routines.</p>
                     </div>
-                    <a href="https://gym.zonetotalsport.ca" class="news-btn">
+                    <a href="#" onclick="event.preventDefault();ztsOpenApp('https://gym.zonetotalsport.ca')" class="news-btn">
                         <i data-lucide="dumbbell" class="w-4 h-4"></i> Lancer
                     </a>
                 </div>
@@ -1962,7 +1966,7 @@
         <div class="max-w-7xl mx-auto">
             <div class="grid md:grid-cols-4 gap-10 mb-12">
                 <div class="md:col-span-2">
-                    <img src="logo-zts.png" alt="Zone Total Sport" class="h-14 w-auto mb-4">
+                    <img decoding="async" loading="lazy" src="logo-zts.png" alt="Zone Total Sport" class="h-14 w-auto mb-4">
                     <p class="text-dark/60 font-baloo text-sm max-w-sm mb-6" data-i18n="footerDesc">
                         La plateforme gratuite de ressources en éducation physique pour les enseignants du primaire au Québec.
                     </p>
@@ -1990,8 +1994,8 @@
                     <h4 class="font-bangers text-sm text-dark/50 uppercase tracking-widest mb-4" data-i18n="footerNav">Navigation</h4>
                     <ul class="space-y-2">
                         <li><a href="https://zonetotalsport.ca/" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fAccueil">Accueil</a></li>
-                        <li><a href="https://jeux.zonetotalsport.ca/" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fJeux">Banque de jeux</a></li>
-                        <li><a href="https://sae.zonetotalsport.ca/" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fSae">SAÉ</a></li>
+                        <li><a href="#" onclick="event.preventDefault();ztsOpenApp('https://jeux.zonetotalsport.ca')" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fJeux">Banque de jeux</a></li>
+                        <li><a href="#" onclick="event.preventDefault();ztsOpenApp('https://sae.zonetotalsport.ca')" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fSae">SAÉ</a></li>
                         <li><a href="blog.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fBlogue">Blogue</a></li>
                         <li><a href="avis.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fContact">Contact</a></li>
                     </ul>
@@ -2074,7 +2078,7 @@
 
             <!-- Header camp de jour cyan -->
             <div class="subscribe-header">
-                <img src="bucheron-basketball.png" alt="Le Bucheron Sportif" style="width:220px;height:auto;margin:0 auto 8px;filter:drop-shadow(3px 6px 12px rgba(0,0,0,0.4))">
+                <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Le Bucheron Sportif" style="width:220px;height:auto;margin:0 auto 8px;filter:drop-shadow(3px 6px 12px rgba(0,0,0,0.4))">
                 <h2 style="font-family:'Fredoka One',cursive;font-size:2.6rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.1" data-i18n="subTitle">DEVIENS MEMBRE VIP!</h2>
                 <p style="font-family:'Fredoka One',cursive;color:rgba(255,255,255,0.85);font-size:1.2rem;margin-top:8px" data-i18n="subDesc">Accède au plein potentiel de la Zone!</p>
 
@@ -2254,7 +2258,7 @@
 
                 <!-- MASCOTTE + TITRE -->
                 <div style="text-align:center;padding:32px 24px 16px">
-                    <img src="bucheron-basketball.png" alt="Mr. Root" style="height:100px;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.5));margin-bottom:12px">
+                    <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Mr. Root" style="height:100px;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.5));margin-bottom:12px">
                     <h2 style="font-family:'Luckiest Guy',cursive;font-size:2.2rem;color:#fff;margin:0;text-shadow:3px 3px 0 rgba(0,0,0,0.3);line-height:1.1" data-i18n="gateTitle">REJOINS LA ZONE!</h2>
                     <p style="font-family:'Patrick Hand',cursive;color:#00E5FF;font-size:1.15rem;margin-top:6px" data-i18n="gateDesc">+1000 enseignants nous font déjà confiance</p>
                 </div>
@@ -2320,7 +2324,7 @@
         <div style="padding:20px;text-align:center;max-width:600px;margin:0 auto">
             <h1 style="font-family:'Luckiest Guy',cursive;font-size:2.8rem;margin:10px 0 5px;line-height:1;letter-spacing:0.04em;color:#18181b">JOEY RACINE</h1>
             <p style="font-size:1.15rem;margin-bottom:25px;font-family:'Patrick Hand',cursive;color:#333">Enseignant & Créateur de Zone Total Sport</p>
-            <img src="https://static.wixstatic.com/media/692b77_db70931c1a904d32bffb8495b081a317~mv2.png" style="width:130px;border:4px solid #18181b;border-radius:50%;margin:0 auto 25px;box-shadow:6px 6px 0 #18181b;background:#fff;display:block" alt="Joey Racine">
+            <img decoding="async" loading="lazy" src="https://static.wixstatic.com/media/692b77_db70931c1a904d32bffb8495b081a317~mv2.png" style="width:130px;border:4px solid #18181b;border-radius:50%;margin:0 auto 25px;box-shadow:6px 6px 0 #18181b;background:#fff;display:block" alt="Joey Racine">
             <div class="profile-bio-box">
                 <h3 class="profile-bio-title">🚀 MON PARCOURS</h3>
                 <p class="profile-bio-text">Enseignant en éducation physique depuis plus de <strong>20 ans</strong>, j'ai parcouru les gymnases du Québec avec une seule idée en tête : faire bouger les jeunes avec le sourire. J'ai enseigné à tous les niveaux, du primaire au secondaire.</p>
@@ -3604,12 +3608,12 @@
 
                     html += `<div class="game-card">
                         <div class="game-team-row ${awayWin ? 'winner' : ''}">
-                            <img src="${awayLogo}" class="game-team-logo" alt="${awayName}" onerror="this.style.display='none'">
+                            <img decoding="async" loading="lazy" src="${awayLogo}" class="game-team-logo" alt="${awayName}" onerror="this.style.display='none'">
                             <span class="game-team-name">${awayName}</span>
                             <span class="game-team-score">${isScheduled ? '' : awayScore}</span>
                         </div>
                         <div class="game-team-row ${homeWin ? 'winner' : ''}">
-                            <img src="${homeLogo}" class="game-team-logo" alt="${homeName}" onerror="this.style.display='none'">
+                            <img decoding="async" loading="lazy" src="${homeLogo}" class="game-team-logo" alt="${homeName}" onerror="this.style.display='none'">
                             <span class="game-team-name">${homeName}</span>
                             <span class="game-team-score">${isScheduled ? '' : homeScore}</span>
                         </div>
@@ -4484,72 +4488,72 @@ ztsInitVisitCounter();
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:20px 30px 30px;" id="appsGrid">
       <div class="app-card" onclick="ztsOpenApp('https://zonetotalsport.ca/apps/planificateur/')" style="border:2px solid #FFD700;box-shadow:0 0 15px rgba(255,215,0,0.3)">
-        <img src="apps/planificateur/mr-root-thumbup.png" alt="Planificateur">
+        <img decoding="async" loading="lazy" src="apps/planificateur/mr-root-thumbup.png" alt="Planificateur">
         <h3 style="color:#FFD700">Planificateur EPS</h3>
         <p>Calendrier scolaire complet</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://zonetotalsport.ca/apps/transitions/')" style="border:2px solid #00E5FF;box-shadow:0 0 15px rgba(0,229,255,0.3)">
-        <img src="bucheron-basketball.png" alt="Transitions">
+        <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Transitions">
         <h3 style="color:#00E5FF">Boite a Outils</h3>
         <p>Signaux, chrono, zones</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://educatifs.zonetotalsport.ca')">
-        <img src="bucheron-educatifs.png" alt="Educatifs">
+        <img decoding="async" loading="lazy" src="bucheron-educatifs.png" alt="Educatifs">
         <h3>Banque d'educatifs</h3>
         <p>Fiches et ressources</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://sae.zonetotalsport.ca')">
-        <img src="bucheron-sae.png" alt="SAE">
+        <img decoding="async" loading="lazy" src="bucheron-sae.png" alt="SAE">
         <h3>S.A.E</h3>
         <p>Situations d'apprentissage</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://jeux.zonetotalsport.ca')">
-        <img src="bucheron-jeux.png" alt="Jeux">
+        <img decoding="async" loading="lazy" src="bucheron-jeux.png" alt="Jeux">
         <h3>Banque de Jeux</h3>
         <p>+500 jeux sportifs</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://musique.zonetotalsport.ca')">
-        <img src="bucheron-musique.png" alt="Musique">
+        <img decoding="async" loading="lazy" src="bucheron-musique.png" alt="Musique">
         <h3>Musique</h3>
         <p>Ambiance gym</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://carnet.zonetotalsport.ca')">
-        <img src="bucheron-carnet.png" alt="Carnet">
+        <img decoding="async" loading="lazy" src="bucheron-carnet.png" alt="Carnet">
         <h3>Carnet de notes</h3>
         <p>Évaluation, présences, Léger</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://suppleance.zonetotalsport.ca')">
-        <img src="bucheron-suppleance.png" alt="Suppleance">
+        <img decoding="async" loading="lazy" src="bucheron-suppleance.png" alt="Suppleance">
         <h3>Ma Suppleance</h3>
         <p>Outils pour suppleants</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://generateur.zonetotalsport.ca')">
-        <img src="bucheron-generateur.png" alt="Generateur">
+        <img decoding="async" loading="lazy" src="bucheron-generateur.png" alt="Generateur">
         <h3>Generateur de SAE</h3>
         <p>IA sur mesure</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://ZoneTotalSport.github.io/app-agenda')">
-        <img src="bucheron-agenda.png" alt="Agenda">
+        <img decoding="async" loading="lazy" src="bucheron-agenda.png" alt="Agenda">
         <h3>Agenda</h3>
         <p>Planification</p>
       </div>
       <div class="app-card" onclick="window.location.href='https://zonetotalsport.ca/repertoire.html'">
-        <img src="bucheron-sports.png" alt="Repertoire">
+        <img decoding="async" loading="lazy" src="bucheron-sports.png" alt="Repertoire">
         <h3>Repertoire mondial</h3>
         <p>50+ sites EPS en 5 langues</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://zonetotalsport.ca/apps/scoreboard/')" style="border:2px solid #F59E0B;box-shadow:0 0 15px rgba(245,158,11,0.3)">
-        <img src="bucheron-basketball.png" alt="Scoreboard">
+        <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Scoreboard">
         <h3 style="color:#F59E0B">Tableau Indicateur</h3>
         <p>Basketball, Hockey, Football</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://grille.zonetotalsport.ca')" style="border:2px solid #00E5FF;box-shadow:0 0 15px rgba(0,229,255,0.3)">
-        <img src="bucheron-grille.png" alt="Grille Horaire">
+        <img decoding="async" loading="lazy" src="bucheron-grille.png" alt="Grille Horaire">
         <h3 style="color:#00E5FF">Grille Horaire</h3>
         <p>Horaire des specialistes</p>
       </div>
       <div class="app-card" onclick="ztsOpenApp('https://ZoneTotalSport.github.io/app-tni')" style="border:2px solid #00E5FF;box-shadow:0 0 15px rgba(0,229,255,0.3)">
-        <img src="bucheron-tni.png" alt="TNI">
+        <img decoding="async" loading="lazy" src="bucheron-tni.png" alt="TNI">
         <h3 style="color:#00E5FF">Tableau Blanc</h3>
         <p>TNI interactif</p>
       </div>
