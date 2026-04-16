@@ -1141,12 +1141,23 @@
         </div>
         <div class="w-full px-4 flex items-center justify-between mt-3" style="position:relative; z-index:1;">
             <!-- Horloge à gauche -->
-            <div class="digital-clock" id="navClock" style="font-size:1.6rem; padding:20px 36px; min-width:220px;"><style>@media (max-width: 640px) { .digital-clock { min-width: auto !important; font-size: 1rem !important; padding: 10px 16px !important; } }</style>
+            <div class="digital-clock" id="navClock" style="font-size:1.6rem; padding:20px 36px; min-width:220px;"><style>
+                @media (max-width: 640px) {
+                    #mainNav .digital-clock { min-width: auto !important; font-size: .8rem !important; padding: 6px 10px !important; gap: 4px !important; }
+                    #mainNav .digital-clock i { width: 14px !important; height: 14px !important; }
+                    #mainNav .digital-clock #clockTime { min-width: auto !important; }
+                    #mainNav .nav-logo-link img { height: 52px !important; }
+                }
+                @media (max-width: 420px) {
+                    #mainNav .digital-clock { font-size: .7rem !important; padding: 5px 8px !important; }
+                    #mainNav .nav-logo-link img { height: 44px !important; }
+                }
+            </style>
                 <i data-lucide="clock" class="w-6 h-6 text-cyan-electric/60"></i>
                 <span id="clockTime" style="min-width:150px;">00<span class="clock-dot">:</span>00<span class="clock-dot">:</span>00</span>
             </div>
             <!-- Logo centré -->
-            <a href="#" class="flex items-center shrink-0 absolute left-1/2 transform -translate-x-1/2">
+            <a href="#" class="nav-logo-link flex items-center shrink-0 absolute left-1/2 transform -translate-x-1/2">
                 <img decoding="async" loading="lazy" src="logo-zts.png" alt="Zone Total Sport" class="h-[72px] md:h-24 w-auto">
             </a>
             <div class="nav-links flex items-center gap-6">
@@ -3548,7 +3559,11 @@
             updateDateLabel();
             try {
                 const targetDate = getScoreDate();
-                const dateStr = targetDate.toISOString().slice(0, 10).replace(/-/g, '');
+                // Utilise la date locale (pas UTC) — sinon tard le soir ESPN renvoie le jour d'apres
+                const y = targetDate.getFullYear();
+                const m = String(targetDate.getMonth() + 1).padStart(2, '0');
+                const d = String(targetDate.getDate()).padStart(2, '0');
+                const dateStr = `${y}${m}${d}`;
                 const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${sport}/scoreboard?dates=${dateStr}`);
                 const data = await res.json();
                 let events = data.events || [];
@@ -3557,7 +3572,8 @@
                     container.innerHTML = '<div class="scores-loading">Aucun match ce jour</div>';
                     return;
                 }
-                const today = new Date().toISOString().slice(0, 10);
+                const now = new Date();
+                const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
                 let html = '';
                 events.forEach(ev => {
                     const comp = ev.competitions?.[0];
