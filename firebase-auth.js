@@ -37,6 +37,16 @@
         loadScript('https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js', function() {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        // Recupere le resultat si on revient d'une redirection Google (mobile)
+        firebase.auth().getRedirectResult().then(function(result) {
+          if (result && result.user) {
+            if (result.additionalUserInfo && result.additionalUserInfo.isNewUser && window.ztsNotifySignup) {
+              window.ztsNotifySignup(result.user);
+            } else if (window.ztsNotifyLogin) {
+              window.ztsNotifyLogin(result.user);
+            }
+          }
+        }).catch(function(err) { console.error('[ZTS Auth] getRedirectResult:', err); });
         firebase.auth().onAuthStateChanged(function(user) {
           _user = user;
           _authReady = true;
@@ -334,7 +344,10 @@
           </div>\
           <div class="zts-auth-field">\
             <label>Mot de passe</label>\
-            <input type="password" id="ztsPassword" placeholder="' + (isLogin ? 'Ton mot de passe' : 'Minimum 6 caracteres') + '" required autocomplete="' + (isLogin ? 'current-password' : 'new-password') + '" minlength="6">\
+            <div style="position:relative">\
+              <input type="password" id="ztsPassword" placeholder="' + (isLogin ? 'Ton mot de passe' : 'Minimum 6 caracteres') + '" required autocomplete="' + (isLogin ? 'current-password' : 'new-password') + '" minlength="6" style="padding-right:44px;width:100%">\
+              <button type="button" id="ztsTogglePw" aria-label="Afficher le mot de passe" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;padding:6px;font-size:1.25rem;color:#6b7280;line-height:1">&#x1F441;</button>\
+            </div>\
           </div>\
           \
           <button type="submit" class="zts-auth-btn zts-auth-btn-primary" id="ztsAuthSubmit">\
@@ -452,6 +465,24 @@
 
     // Google button
     document.getElementById('ztsGoogleBtn').addEventListener('click', handleGoogle);
+
+    // Toggle password visibility
+    var togglePwBtn = document.getElementById('ztsTogglePw');
+    if (togglePwBtn) {
+      togglePwBtn.addEventListener('click', function() {
+        var pw = document.getElementById('ztsPassword');
+        if (!pw) return;
+        if (pw.type === 'password') {
+          pw.type = 'text';
+          togglePwBtn.innerHTML = '&#x1F648;';
+          togglePwBtn.setAttribute('aria-label', 'Masquer le mot de passe');
+        } else {
+          pw.type = 'password';
+          togglePwBtn.innerHTML = '&#x1F441;';
+          togglePwBtn.setAttribute('aria-label', 'Afficher le mot de passe');
+        }
+      });
+    }
   }
 
   function closeModal() {
@@ -541,6 +572,13 @@
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     setLoading(true);
+    // Mobile (iOS/Android): utilise redirect car les popups sont souvent bloquees
+    var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      firebase.auth().signInWithRedirect(provider)
+        .catch(function(err) { console.error('[ZTS Auth] Google redirect error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
+      return;
+    }
     firebase.auth().signInWithPopup(provider)
       .then(function(result) {
         if (result.additionalUserInfo && result.additionalUserInfo.isNewUser && window.ztsNotifySignup) {
@@ -550,7 +588,16 @@
         }
         closeModal();
       })
-      .catch(function(err) { console.error('[ZTS Auth] Google error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
+      .catch(function(err) {
+        // Si popup bloquee sur desktop, fallback sur redirect
+        if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
+          firebase.auth().signInWithRedirect(provider).catch(function(e2) {
+            console.error('[ZTS Auth] Redirect fallback error:', e2); showError('Erreur [' + (e2.code || 'unknown') + ']: ' + (e2.message || e2)); setLoading(false);
+          });
+          return;
+        }
+        console.error('[ZTS Auth] Google error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false);
+      });
   }
 
   function handleForgotPassword() {
