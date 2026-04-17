@@ -63,21 +63,21 @@
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     z-index: -1;
-    opacity: 0.35;
+    opacity: 0.5;
     pointer-events: none;
     display: grid;
-    grid-template-columns: repeat(auto-fill, 110px);
-    grid-template-rows: repeat(auto-fill, 110px);
-    gap: 12px;
-    padding: 15px;
+    grid-template-columns: repeat(auto-fill, 140px);
+    grid-template-rows: repeat(auto-fill, 140px);
+    gap: 10px;
+    padding: 10px;
     align-content: start;
     overflow: hidden;
   }
   .nhl-bg-pattern img {
-    width: 90px;
-    height: 90px;
+    width: 120px;
+    height: 120px;
     object-fit: contain;
-    filter: saturate(1.3) brightness(1.2);
+    filter: saturate(1.5) brightness(1.3);
   }
 
   /* ========== ZOOM CONTROLS (TNI / Gymnase) ========== */
@@ -126,6 +126,8 @@
     text-align: center;
     padding: 25px 20px 0;
     position: relative;
+    background: rgba(8,18,35,0.92);
+    z-index: 10;
   }
   .header::before {
     content: '';
@@ -236,12 +238,15 @@
   .conference-label {
     text-align: center;
     font-family: 'Luckiest Guy', cursive;
-    font-size: 20px;
+    font-size: 22px;
     text-transform: uppercase;
     letter-spacing: 4px;
     color: var(--cyan);
-    padding: 10px 0 15px;
+    padding: 12px 20px;
     text-shadow: 0 0 15px rgba(0,229,255,0.3);
+    background: rgba(8,18,35,0.85);
+    border-radius: 10px;
+    margin: 0 10px 15px;
   }
 
   .rounds { display: flex; align-items: center; }
@@ -265,11 +270,15 @@
   .round-label {
     text-align: center;
     font-family: 'Bangers', cursive;
-    font-size: 14px;
+    font-size: 15px;
     text-transform: uppercase;
     letter-spacing: 3px;
     color: var(--jaune);
-    margin-bottom: 8px;
+    margin-bottom: 10px;
+    background: rgba(8,18,35,0.8);
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-shadow: 0 0 10px rgba(255,214,0,0.3);
   }
 
   /* Connector lines */
@@ -313,19 +322,20 @@
 
   /* ========== MATCHUP CARD ========== */
   .matchup {
-    background: linear-gradient(135deg, rgba(0,229,255,0.08) 0%, rgba(0,59,115,0.35) 100%);
+    background: rgba(8,18,35,0.95);
     border-radius: 12px;
     overflow: hidden;
-    border: 2px solid rgba(0,229,255,0.2);
+    border: 2px solid rgba(0,229,255,0.3);
     width: 240px;
     margin: 0 auto;
     transition: all 0.3s;
     cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   }
   .matchup:hover {
-    border-color: rgba(0,229,255,0.4);
-    box-shadow: var(--glow-cyan);
-    transform: scale(1.02);
+    border-color: rgba(0,229,255,0.6);
+    box-shadow: var(--glow-cyan), 0 4px 20px rgba(0,0,0,0.6);
+    transform: scale(1.03);
   }
 
   .team-row {
@@ -335,8 +345,8 @@
     gap: 10px;
     transition: all 0.3s;
   }
-  .team-row:first-child { border-bottom: 1px solid rgba(0,229,255,0.1); }
-  .team-row.winner { background: linear-gradient(90deg, rgba(46,204,113,0.15), transparent); }
+  .team-row:first-child { border-bottom: 1px solid rgba(0,229,255,0.15); }
+  .team-row.winner { background: linear-gradient(90deg, rgba(46,204,113,0.25), transparent); }
   .team-row.eliminated { opacity: 0.35; }
 
   .seed {
@@ -374,20 +384,24 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 130px;
-    padding: 0 10px;
+    min-width: 140px;
+    padding: 15px 10px;
+    background: rgba(8,18,35,0.85);
+    border-radius: 14px;
+    margin: 0 5px;
   }
   .cup-center img.cup-img {
-    width: 85px;
-    filter: drop-shadow(0 0 20px rgba(255,214,0,0.3));
+    width: 90px;
+    filter: drop-shadow(0 0 25px rgba(255,214,0,0.4));
     margin-bottom: 10px;
   }
   .cup-label {
     font-family: 'Bungee Shade', cursive;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     color: var(--jaune);
     text-align: center;
+    text-shadow: 0 0 10px rgba(255,214,0,0.3);
   }
 
   /* ========== RESULTS VIEW ========== */
@@ -403,21 +417,24 @@
     text-transform: uppercase;
     letter-spacing: 4px;
     color: var(--cyan);
-    padding: 10px 0;
+    padding: 12px 18px;
     border-bottom: 2px solid rgba(0,229,255,0.2);
     margin-bottom: 15px;
+    background: rgba(8,18,35,0.9);
+    border-radius: 10px 10px 0 0;
   }
 
   /* ========== SERIES CARD ========== */
   .series-card {
-    background: linear-gradient(135deg, rgba(0,229,255,0.04) 0%, rgba(0,59,115,0.2) 100%);
+    background: rgba(8,18,35,0.95);
     border-radius: 12px;
-    border: 1px solid rgba(0,229,255,0.12);
+    border: 2px solid rgba(0,229,255,0.2);
     margin-bottom: 12px;
     overflow: hidden;
     transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
   }
-  .series-card:hover { border-color: rgba(0,229,255,0.3); }
+  .series-card:hover { border-color: rgba(0,229,255,0.4); box-shadow: 0 4px 25px rgba(0,0,0,0.5); }
 
   .series-header {
     display: flex;
@@ -764,10 +781,11 @@
     margin-bottom: 25px;
   }
   .leader-section {
-    background: linear-gradient(135deg, rgba(0,229,255,0.04) 0%, rgba(0,59,115,0.2) 100%);
+    background: rgba(8,18,35,0.95);
     border-radius: 12px;
-    border: 1px solid rgba(0,229,255,0.12);
+    border: 2px solid rgba(0,229,255,0.2);
     padding: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
   }
   .leader-section-title {
     font-family: 'Luckiest Guy', cursive;
