@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouveautés — Zone Total Sport</title>
+    <meta name="description" content="Découvre les nouvelles fonctionnalités de Zone Total Sport. Ressources ÉPS pour enseignants au primaire.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    cyan: { electric: '#00E5FF' },
+                    yellow: { sun: '#FFD700' },
+                    pink: { fuchsia: '#FF2A7A' },
+                    violet: { pop: '#8B5CF6' },
+                    dark: '#0F0F2E',
+                },
+                fontFamily: {
+                    bangers: ['"Luckiest Guy"', 'cursive'],
+                    fredoka: ['"Fredoka One"', 'cursive'],
+                    boogaloo: ['Boogaloo', 'cursive'],
+                    baloo: ['"Patrick Hand"', 'cursive'],
+                },
+            }
+        }
+    };
+    </script>
+
+    <!-- GSAP + Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
+
+    <!-- Matter.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+    /* ============================================= */
+    /*  ZONE TOTAL SPORT — MODULE TEASING            */
+    /*  Une oeuvre d'art technologique                */
+    /* ============================================= */
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        background: #00E5FF;
+        overflow-x: hidden;
+        min-height: 100vh;
+        position: relative;
+        font-family: 'Patrick Hand', cursive;
+        color: #fff;
+    }
+
+    /* ========== ANIMATED BACKGROUND ========== */
+    .blob {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.35;
+        pointer-events: none;
+        will-change: transform;
+        z-index: 0;
+    }
+    .blob-1 { width: 500px; height: 500px; background: #8B5CF6; top: -150px; left: -120px; }
+    .blob-2 { width: 450px; height: 450px; background: #FF2A7A; bottom: -100px; right: -100px; }
+    .blob-3 { width: 380px; height: 380px; background: #FFD700; top: 35%; left: 55%; }
+    .blob-4 { width: 300px; height: 300px; background: #00E5FF; top: 60%; left: -50px; opacity: 0.2; }
+
+    .grain-overlay {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.06;
+        background-repeat: repeat;
+    }
+
+    /* ========== XP PROGRESS BAR ========== */
+    .xp-bar-container {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 5px;
+        background: rgba(0,0,0,0.15);
+        z-index: 9500;
+        overflow: hidden;
+    }
+    .xp-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #00E5FF, #FFD700, #FF2A7A, #8B5CF6, #00E5FF);
+        background-size: 300% 100%;
+        animation: xpGradient 4s linear infinite;
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes xpGradient {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 300% 50%; }
+    }
+
+    .level-badge {
+        position: fixed;
+        top: 20px; right: 20px;
+        z-index: 9600;
+        background: rgba(255,255,255,0.12);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,215,0,0.5);
+        border-radius: 16px;
+        padding: 14px 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateX(300px);
+        transition: transform 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
+        font-family: 'Luckiest Guy', cursive;
+        color: #FFD700;
+        font-size: 1.1rem;
+        text-shadow: 0 2px 8px rgba(255,215,0,0.4);
+    }
+    .level-badge.show { transform: translateX(0); }
+
+    /* ========== GLASSMORPHISM CARDS ========== */
+    .glass-card {
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 32px;
+        border: 1.5px solid rgba(255,255,255,0.22);
+        padding: 36px 28px 32px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.3s, box-shadow 0.3s;
+        min-width: 300px;
+        max-width: 340px;
+        flex-shrink: 0;
+        cursor: pointer;
+        will-change: transform;
+    }
+    @supports not (backdrop-filter: blur(20px)) {
+        .glass-card { background: rgba(15,15,46,0.75); }
+    }
+    .glass-card.magnetic-active,
+    .glass-card:hover {
+        border-color: rgba(255,215,0,0.7);
+        box-shadow: 0 0 40px rgba(255,215,0,0.25), 0 0 80px rgba(255,215,0,0.08), inset 0 0 30px rgba(255,215,0,0.05);
+    }
+
+    .card-icon-wrap {
+        width: 72px; height: 72px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        font-size: 2rem;
+        transition: transform 0.3s;
+    }
+    .glass-card:hover .card-icon-wrap { transform: scale(1.1) rotate(-3deg); }
+
+    .card-tag {
+        display: inline-block;
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.15);
+        margin-bottom: 14px;
+        color: rgba(255,255,255,0.7);
+    }
+
+    .card-title {
+        font-family: 'Fredoka One', cursive;
+        font-size: 1.4rem;
+        color: #fff;
+        margin-bottom: 10px;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    }
+
+    .card-desc {
+        font-family: 'Patrick Hand', cursive;
+        font-size: 1rem;
+        color: rgba(255,255,255,0.7);
+        line-height: 1.5;
+    }
+
+    .card-number {
+        position: absolute;
+        bottom: -15px; right: 10px;
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 7rem;
+        line-height: 1;
+        opacity: 0.06;
+        pointer-events: none;
+        color: #fff;
+    }
+
+    /* ========== SLIDER ========== */
+    .slider-section { position: relative; z-index: 5; padding: 0 0 40px; }
+
+    .slider-viewport {
+        overflow: hidden;
+        width: 100%;
+        padding: 30px 0;
+    }
+    .slider-track {
+        display: flex;
+        gap: 24px;
+        padding: 20px 40px;
+        cursor: grab;
+        will-change: transform;
+        touch-action: pan-y;
+    }
+    .slider-track:active { cursor: grabbing; }
+
+    .slider-nav {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .slider-dot {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.25);
+        border: 2px solid rgba(255,255,255,0.4);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .slider-dot.active {
+        background: #FFD700;
+        border-color: #FFD700;
+        transform: scale(1.3);
+        box-shadow: 0 0 12px rgba(255,215,0,0.5);
+    }
+
+    /* Arrow buttons */
+    .slider-arrow {
+        position: absolute;
+        top: 50%; transform: translateY(-50%);
+        width: 48px; height: 48px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.2s;
+    }
+    .slider-arrow:hover { background: rgba(255,215,0,0.3); border-color: rgba(255,215,0,0.6); }
+    .slider-arrow-left { left: 12px; }
+    .slider-arrow-right { right: 12px; }
+
+    /* ========== VIP POPUP ========== */
+    .vip-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15,15,46,0.65);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 9000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    .vip-overlay.show { display: flex; }
+
+    .vip-popup {
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 36px;
+        max-width: 520px;
+        width: 100%;
+        padding: 48px 32px 36px;
+        position: relative;
+        animation: vipPopIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    @supports not (backdrop-filter: blur(30px)) {
+        .vip-popup { background: rgba(15,15,46,0.92); }
+    }
+    @keyframes vipPopIn {
+        from { transform: scale(0.4) rotate(-5deg); opacity: 0; }
+        to { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    .vip-crown {
+        position: absolute;
+        top: -32px; left: 50%;
+        transform: translateX(-50%);
+        font-size: 3.5rem;
+        filter: drop-shadow(0 4px 16px rgba(255,215,0,0.6));
+        z-index: 10;
+        animation: crownFloat 3s ease-in-out infinite;
+    }
+    @keyframes crownFloat {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-8px); }
+    }
+
+    .vip-close {
+        position: absolute;
+        top: 16px; right: 16px;
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: rgba(255,255,255,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+    .vip-close:hover { background: rgba(239,68,68,0.3); color: #fff; border-color: rgba(239,68,68,0.5); }
+
+    .vip-benefit {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 18px;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: all 0.2s;
+    }
+    .vip-benefit:hover {
+        transform: translateY(-2px);
+        background: rgba(255,255,255,0.12);
+        border-color: rgba(255,215,0,0.3);
+    }
+
+    .vip-benefit-icon {
+        font-size: 1.8rem;
+        transform: perspective(200px) rotateY(-10deg);
+        filter: drop-shadow(3px 3px 0 rgba(0,0,0,0.15));
+        flex-shrink: 0;
+    }
+
+    .vip-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        padding: 18px 32px;
+        border-radius: 18px;
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 1.25rem;
+        letter-spacing: 0.04em;
+        border: none;
+        cursor: pointer;
+        background: linear-gradient(135deg, #FFD700, #FFA000);
+        color: #0F0F2E;
+        box-shadow: 0 0 30px rgba(255,215,0,0.35), 0 8px 32px rgba(255,215,0,0.25);
+        transition: transform 0.15s, box-shadow 0.3s;
+        animation: neonPulse 2.5s ease-in-out infinite;
+        text-decoration: none;
+    }
+    .vip-cta:hover { transform: scale(1.03); }
+    @keyframes neonPulse {
+        0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.3), 0 8px 28px rgba(255,215,0,0.2); }
+        50% { box-shadow: 0 0 45px rgba(255,215,0,0.55), 0 8px 40px rgba(255,215,0,0.35); }
+    }
+
+    .vip-dismiss {
+        background: rgba(255,255,255,0.06);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 10px 24px;
+        color: rgba(255,255,255,0.35);
+        font-family: 'Patrick Hand', cursive;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .vip-dismiss:hover { color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.1); }
+
+    /* ========== LANGUAGE SELECTOR ========== */
+    .lang-selector {
+        position: fixed;
+        bottom: 24px; right: 24px;
+        z-index: 8000;
+        display: flex;
+        gap: 5px;
+        padding: 6px 10px;
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 30px;
+    }
+    .lang-pill {
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 0.65rem;
+        letter-spacing: 0.05em;
+        padding: 5px 10px;
+        border-radius: 20px;
+        border: none;
+        cursor: pointer;
+        background: transparent;
+        color: rgba(255,255,255,0.5);
+        transition: all 0.25s;
+    }
+    .lang-pill:hover { color: rgba(255,255,255,0.8); }
+    .lang-pill.active {
+        background: #FFD700;
+        color: #0F0F2E;
+        box-shadow: 0 0 12px rgba(255,215,0,0.3);
+    }
+
+    /* ========== MATTER.JS CANVAS ========== */
+    #matterCanvas {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 50;
+    }
+
+    /* ========== HERO ========== */
+    .hero-section {
+        position: relative;
+        z-index: 5;
+        text-align: center;
+        padding: 80px 24px 20px;
+    }
+
+    /* ========== CTA SECTION ========== */
+    .cta-section {
+        position: relative;
+        z-index: 5;
+        text-align: center;
+        padding: 40px 24px 100px;
+    }
+    .cta-glass-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 36px;
+        border-radius: 30px;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1.5px solid rgba(255,255,255,0.25);
+        color: #fff;
+        font-family: 'Luckiest Guy', cursive;
+        font-size: 1.1rem;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+    .cta-glass-btn:hover {
+        background: rgba(255,215,0,0.2);
+        border-color: rgba(255,215,0,0.5);
+        box-shadow: 0 0 30px rgba(255,215,0,0.2);
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 768px) {
+        .glass-card { min-width: 260px; max-width: 280px; padding: 28px 22px 26px; border-radius: 28px; }
+        .slider-track { padding: 16px 20px; gap: 16px; }
+        .slider-arrow { display: none; }
+        .hero-section { padding: 60px 16px 16px; }
+        .vip-popup { padding: 40px 20px 28px; border-radius: 28px; }
+        .lang-selector { bottom: 12px; right: 12px; }
+        .blob { opacity: 0.2; }
+    }
+
+    /* ========== REDUCED MOTION ========== */
+    @media (prefers-reduced-motion: reduce) {
+        .blob, .vip-crown { animation: none !important; }
+        .xp-bar-fill { animation: none !important; transition: none !important; }
+        .glass-card { transition: none !important; }
+        .vip-popup { animation: none !important; }
+        .vip-cta { animation: none !important; }
+    }
+
+    /* Grain canvas hidden */
+    #grainCanvas { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- ========== ANIMATED BACKGROUND ========== -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+    <div class="grain-overlay"></div>
+    <canvas id="grainCanvas"></canvas>
+
+    <!-- ========== XP PROGRESS BAR ========== -->
+    <div class="xp-bar-container">
+        <div class="xp-bar-fill" id="xpFill"></div>
+    </div>
+
+    <!-- ========== LEVEL BADGE ========== -->
+    <div class="level-badge" id="levelBadge">
+        <span style="font-size:1.5rem;">⚡</span>
+        <span class="level-text">LEVEL 2!</span>
+    </div>
+
+    <!-- ========== MATTER.JS CANVAS ========== -->
+    <canvas id="matterCanvas"></canvas>
+
+    <!-- ========== HERO ========== -->
+    <section class="hero-section">
+        <a href="https://zone.zonetotalsport.ca/" style="text-decoration:none;">
+            <img src="logo-zts.png" alt="Zone Total Sport" style="height:56px;margin:0 auto 24px;display:block;" onerror="this.style.display='none'">
+        </a>
+        <p class="font-bangers text-sm tracking-widest mb-3 opacity-60" style="letter-spacing:0.2em;" data-i18n="heroTag">NOUVEAUTÉS</p>
+        <h1 class="font-fredoka text-3xl md:text-5xl mb-4 leading-tight" style="text-shadow:0 4px 20px rgba(0,0,0,0.15);" data-i18n="heroTitle">Quoi de neuf sur<br>Zone Total Sport?</h1>
+        <p class="font-baloo text-lg md:text-xl opacity-75 max-w-xl mx-auto" data-i18n="heroSub">Découvre les nouvelles fonctionnalités qui vont transformer tes cours d'ÉPS!</p>
+    </section>
+
+    <!-- ========== SLIDER DE NOUVEAUTÉS ========== -->
+    <section class="slider-section" id="sliderSection">
+        <button class="slider-arrow slider-arrow-left" onclick="navigateSlider(-1)" aria-label="Précédent">
+            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+        </button>
+        <button class="slider-arrow slider-arrow-right" onclick="navigateSlider(1)" aria-label="Suivant">
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+        </button>
+
+        <div class="slider-viewport" id="sliderViewport">
+            <div class="slider-track" id="sliderTrack">
+
+                <!-- Card 1: Générateur IA -->
+                <div class="glass-card" data-card="0">
+                    <div class="card-icon-wrap" style="background:rgba(0,229,255,0.2);"><i data-lucide="sparkles" class="w-8 h-8" style="color:#00E5FF;"></i></div>
+                    <span class="card-tag" data-i18n="tagNew">NOUVEAU</span>
+                    <h3 class="card-title" data-i18n="c1Title">Générateur IA</h3>
+                    <p class="card-desc" data-i18n="c1Desc">Un moteur intelligent qui crée des jeux adaptés à ton groupe, en un seul clic. Fini le casse-tête!</p>
+                    <span class="card-number">1</span>
+                </div>
+
+                <!-- Card 2: Tableau de Bord -->
+                <div class="glass-card" data-card="1">
+                    <div class="card-icon-wrap" style="background:rgba(255,215,0,0.2);"><i data-lucide="layout-dashboard" class="w-8 h-8" style="color:#FFD700;"></i></div>
+                    <span class="card-tag" data-i18n="tagSoon">BIENTÔT</span>
+                    <h3 class="card-title" data-i18n="c2Title">Tableau de Bord</h3>
+                    <p class="card-desc" data-i18n="c2Desc">Visualise tes stats, tes jeux préférés et ta progression pédagogique en un coup d'oeil.</p>
+                    <span class="card-number">2</span>
+                </div>
+
+                <!-- Card 3: Mode Collaboratif -->
+                <div class="glass-card" data-card="2">
+                    <div class="card-icon-wrap" style="background:rgba(255,42,122,0.2);"><i data-lucide="users" class="w-8 h-8" style="color:#FF2A7A;"></i></div>
+                    <span class="card-tag" data-i18n="tagSoon">BIENTÔT</span>
+                    <h3 class="card-title" data-i18n="c3Title">Mode Collaboratif</h3>
+                    <p class="card-desc" data-i18n="c3Desc">Partage et co-crée des jeux avec d'autres profs d'ÉPS partout au Québec.</p>
+                    <span class="card-number">3</span>
+                </div>
+
+                <!-- Card 4: Défis Hebdo -->
+                <div class="glass-card" data-card="3">
+                    <div class="card-icon-wrap" style="background:rgba(139,92,246,0.2);"><i data-lucide="trophy" class="w-8 h-8" style="color:#8B5CF6;"></i></div>
+                    <span class="card-tag" data-i18n="tagNew">NOUVEAU</span>
+                    <h3 class="card-title" data-i18n="c4Title">Défis Hebdo</h3>
+                    <p class="card-desc" data-i18n="c4Desc">Chaque semaine, un nouveau défi sportif motivant pour tes élèves. Qui va relever le défi?</p>
+                    <span class="card-number">4</span>
+                </div>
+
+                <!-- Card 5: App Mobile -->
+                <div class="glass-card" data-card="4">
+                    <div class="card-icon-wrap" style="background:rgba(0,229,255,0.2);"><i data-lucide="smartphone" class="w-8 h-8" style="color:#00E5FF;"></i></div>
+                    <span class="card-tag" data-i18n="tagDev">EN DEV</span>
+                    <h3 class="card-title" data-i18n="c5Title">App Mobile</h3>
+                    <p class="card-desc" data-i18n="c5Desc">Accède à toutes les ressources directement depuis ton téléphone, même au gymnase!</p>
+                    <span class="card-number">5</span>
+                </div>
+
+                <!-- Card 6: Tutoriels Vidéo -->
+                <div class="glass-card" data-card="5">
+                    <div class="card-icon-wrap" style="background:rgba(255,215,0,0.2);"><i data-lucide="video" class="w-8 h-8" style="color:#FFD700;"></i></div>
+                    <span class="card-tag" data-i18n="tagSoon">BIENTÔT</span>
+                    <h3 class="card-title" data-i18n="c6Title">Tutoriels Vidéo</h3>
+                    <p class="card-desc" data-i18n="c6Desc">Des vidéos explicatives pour chaque jeu et SAÉ. Apprends en regardant!</p>
+                    <span class="card-number">6</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Slider Dots -->
+        <div class="slider-nav" id="sliderNav"></div>
+    </section>
+
+    <!-- ========== CTA SECTION ========== -->
+    <section class="cta-section">
+        <p class="font-baloo text-lg opacity-60 mb-6" data-i18n="ctaSub">Tu veux accéder à tout ça en premier?</p>
+        <button class="cta-glass-btn magnetic-btn" onclick="showVipPopup()">
+            <i data-lucide="crown" class="w-5 h-5" style="color:#FFD700;"></i>
+            <span data-i18n="ctaBtn">Devenir membre VIP</span>
+        </button>
+    </section>
+
+    <!-- ========== VIP POPUP ========== -->
+    <div class="vip-overlay" id="vipOverlay">
+        <div class="vip-popup" id="vipPopup">
+            <div class="vip-crown">👑</div>
+            <button class="vip-close" onclick="closeVipPopup()">✕</button>
+
+            <h2 class="font-fredoka text-2xl md:text-3xl text-center mb-2 mt-2" style="color:#FFD700;text-shadow:0 2px 12px rgba(255,215,0,0.3);" data-i18n="vipTitle">Deviens membre VIP!</h2>
+            <p class="font-baloo text-center opacity-60 mb-6 text-sm" data-i18n="vipSub">Accède à l'immensité de Zone Total Sport!</p>
+
+            <div class="flex flex-col gap-3 mb-6">
+                <div class="vip-benefit">
+                    <span class="vip-benefit-icon">⚽</span>
+                    <span class="font-baloo text-sm" data-i18n="vipP1"><strong style="color:#00E5FF;">+500 jeux</strong> avec fiches détaillées</span>
+                </div>
+                <div class="vip-benefit">
+                    <span class="vip-benefit-icon">📋</span>
+                    <span class="font-baloo text-sm" data-i18n="vipP2"><strong style="color:#FFD700;">SAÉ complètes</strong> alignées PFEQ</span>
+                </div>
+                <div class="vip-benefit">
+                    <span class="vip-benefit-icon">🧰</span>
+                    <span class="font-baloo text-sm" data-i18n="vipP3"><strong style="color:#FF2A7A;">Outils exclusifs</strong> de gestion de classe</span>
+                </div>
+                <div class="vip-benefit">
+                    <span class="vip-benefit-icon">🆕</span>
+                    <span class="font-baloo text-sm" data-i18n="vipP4"><strong style="color:#8B5CF6;">Nouveautés</strong> chaque semaine</span>
+                </div>
+                <div class="vip-benefit">
+                    <span class="vip-benefit-icon">🚀</span>
+                    <span class="font-baloo text-sm" data-i18n="vipP5"><strong style="color:#00E5FF;">Accès prioritaire</strong> aux nouvelles fonctionnalités</span>
+                </div>
+            </div>
+
+            <a href="https://www.zonetotalsport.ca/plans-pricing" target="_blank" class="vip-cta magnetic-btn" data-i18n="vipCta">
+                <i data-lucide="crown" class="w-5 h-5"></i> JE M'ABONNE!
+            </a>
+            <div class="text-center mt-4">
+                <button class="vip-dismiss" onclick="closeVipPopup()" data-i18n="vipDismiss">Non merci, plus tard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== LANGUAGE SELECTOR ========== -->
+    <div class="lang-selector">
+        <button class="lang-pill active" onclick="setLang('fr')" id="lang-fr">FR</button>
+        <button class="lang-pill" onclick="setLang('en')" id="lang-en">ENG</button>
+        <button class="lang-pill" onclick="setLang('es')" id="lang-es">ESP</button>
+        <button class="lang-pill" onclick="setLang('zh')" id="lang-zh">MAN</button>
+    </div>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script>
+    (function() {
+    'use strict';
+
+    /* ============================================= */
+    /*  1. i18n — TRADUCTIONS                        */
+    /* ============================================= */
+    const i18nMap = [
+        ['[data-i18n="heroTag"]','heroTag'],
+        ['[data-i18n="heroTitle"]','heroTitle'],
+        ['[data-i18n="heroSub"]','heroSub'],
+        ['[data-i18n="tagNew"]','tagNew'],
+        ['[data-i18n="tagSoon"]','tagSoon'],
+        ['[data-i18n="tagDev"]','tagDev'],
+        ['[data-i18n="c1Title"]','c1Title'],['[data-i18n="c1Desc"]','c1Desc'],
+        ['[data-i18n="c2Title"]','c2Title'],['[data-i18n="c2Desc"]','c2Desc'],
+        ['[data-i18n="c3Title"]','c3Title'],['[data-i18n="c3Desc"]','c3Desc'],
+        ['[data-i18n="c4Title"]','c4Title'],['[data-i18n="c4Desc"]','c4Desc'],
+        ['[data-i18n="c5Title"]','c5Title'],['[data-i18n="c5Desc"]','c5Desc'],
+        ['[data-i18n="c6Title"]','c6Title'],['[data-i18n="c6Desc"]','c6Desc'],
+        ['[data-i18n="ctaSub"]','ctaSub'],['[data-i18n="ctaBtn"]','ctaBtn'],
+        ['[data-i18n="vipTitle"]','vipTitle'],['[data-i18n="vipSub"]','vipSub'],
+        ['[data-i18n="vipP1"]','vipP1'],['[data-i18n="vipP2"]','vipP2'],
+        ['[data-i18n="vipP3"]','vipP3'],['[data-i18n="vipP4"]','vipP4'],
+        ['[data-i18n="vipP5"]','vipP5'],
+        ['[data-i18n="vipCta"]','vipCta'],['[data-i18n="vipDismiss"]','vipDismiss'],
+    ];
+
+    const i18n = {
+        fr: {
+            heroTag:'NOUVEAUTÉS', heroTitle:'Quoi de neuf sur<br>Zone Total Sport?',
+            heroSub:"Découvre les nouvelles fonctionnalités qui vont transformer tes cours d'ÉPS!",
+            tagNew:'NOUVEAU', tagSoon:'BIENTÔT', tagDev:'EN DEV',
+            c1Title:'Générateur IA', c1Desc:"Un moteur intelligent qui crée des jeux adaptés à ton groupe, en un seul clic. Fini le casse-tête!",
+            c2Title:'Tableau de Bord', c2Desc:"Visualise tes stats, tes jeux préférés et ta progression pédagogique en un coup d'oeil.",
+            c3Title:'Mode Collaboratif', c3Desc:"Partage et co-crée des jeux avec d'autres profs d'ÉPS partout au Québec.",
+            c4Title:'Défis Hebdo', c4Desc:"Chaque semaine, un nouveau défi sportif motivant pour tes élèves. Qui va relever le défi?",
+            c5Title:'App Mobile', c5Desc:"Accède à toutes les ressources directement depuis ton téléphone, même au gymnase!",
+            c6Title:'Tutoriels Vidéo', c6Desc:"Des vidéos explicatives pour chaque jeu et SAÉ. Apprends en regardant!",
+            ctaSub:'Tu veux accéder à tout ça en premier?', ctaBtn:'Devenir membre VIP',
+            vipTitle:'Deviens membre VIP!', vipSub:"Accède à l'immensité de Zone Total Sport!",
+            vipP1:'<strong style="color:#00E5FF;">+500 jeux</strong> avec fiches détaillées',
+            vipP2:'<strong style="color:#FFD700;">SAÉ complètes</strong> alignées PFEQ',
+            vipP3:'<strong style="color:#FF2A7A;">Outils exclusifs</strong> de gestion de classe',
+            vipP4:'<strong style="color:#8B5CF6;">Nouveautés</strong> chaque semaine',
+            vipP5:'<strong style="color:#00E5FF;">Accès prioritaire</strong> aux nouvelles fonctionnalités',
+            vipCta:'<i data-lucide="crown" class="w-5 h-5"></i> JE M\'ABONNE!',
+            vipDismiss:'Non merci, plus tard',
+        },
+        en: {
+            heroTag:'WHAT\'S NEW', heroTitle:'What\'s new on<br>Zone Total Sport?',
+            heroSub:'Discover the new features that will transform your PE classes!',
+            tagNew:'NEW', tagSoon:'COMING SOON', tagDev:'IN DEV',
+            c1Title:'AI Generator', c1Desc:'A smart engine that creates games tailored to your group, in a single click. No more headaches!',
+            c2Title:'Dashboard', c2Desc:'Visualize your stats, favorite games and teaching progress at a glance.',
+            c3Title:'Collab Mode', c3Desc:'Share and co-create games with other PE teachers across Quebec.',
+            c4Title:'Weekly Challenges', c4Desc:'Every week, a new motivating sports challenge for your students. Who\'s up for it?',
+            c5Title:'Mobile App', c5Desc:'Access all resources right from your phone, even in the gym!',
+            c6Title:'Video Tutorials', c6Desc:'Explainer videos for every game and learning situation. Learn by watching!',
+            ctaSub:'Want early access to all of this?', ctaBtn:'Become a VIP member',
+            vipTitle:'Become a VIP member!', vipSub:'Access the full power of Zone Total Sport!',
+            vipP1:'<strong style="color:#00E5FF;">500+ games</strong> with detailed sheets',
+            vipP2:'<strong style="color:#FFD700;">Complete learning situations</strong> aligned with PFEQ',
+            vipP3:'<strong style="color:#FF2A7A;">Exclusive tools</strong> for class management',
+            vipP4:'<strong style="color:#8B5CF6;">New content</strong> every week',
+            vipP5:'<strong style="color:#00E5FF;">Priority access</strong> to new features',
+            vipCta:'<i data-lucide="crown" class="w-5 h-5"></i> SUBSCRIBE NOW!',
+            vipDismiss:'No thanks, maybe later',
+        },
+        es: {
+            heroTag:'NOVEDADES', heroTitle:'¿Qué hay de nuevo en<br>Zone Total Sport?',
+            heroSub:'¡Descubre las nuevas funciones que transformarán tus clases de educación física!',
+            tagNew:'NUEVO', tagSoon:'PRÓXIMAMENTE', tagDev:'EN DESARROLLO',
+            c1Title:'Generador IA', c1Desc:'Un motor inteligente que crea juegos adaptados a tu grupo, con un solo clic. ¡Se acabaron los problemas!',
+            c2Title:'Panel de Control', c2Desc:'Visualiza tus estadísticas, juegos favoritos y progreso pedagógico de un vistazo.',
+            c3Title:'Modo Colaborativo', c3Desc:'Comparte y co-crea juegos con otros profesores de educación física de todo Quebec.',
+            c4Title:'Retos Semanales', c4Desc:'Cada semana, un nuevo reto deportivo motivador para tus alumnos. ¿Quién lo acepta?',
+            c5Title:'App Móvil', c5Desc:'Accede a todos los recursos desde tu teléfono, ¡incluso en el gimnasio!',
+            c6Title:'Tutoriales en Vídeo', c6Desc:'Vídeos explicativos para cada juego y situación de aprendizaje. ¡Aprende mirando!',
+            ctaSub:'¿Quieres acceder a todo esto primero?', ctaBtn:'Hazte miembro VIP',
+            vipTitle:'¡Hazte miembro VIP!', vipSub:'¡Accede a todo Zone Total Sport!',
+            vipP1:'<strong style="color:#00E5FF;">+500 juegos</strong> con fichas detalladas',
+            vipP2:'<strong style="color:#FFD700;">Situaciones de aprendizaje completas</strong> alineadas PFEQ',
+            vipP3:'<strong style="color:#FF2A7A;">Herramientas exclusivas</strong> de gestión de clase',
+            vipP4:'<strong style="color:#8B5CF6;">Novedades</strong> cada semana',
+            vipP5:'<strong style="color:#00E5FF;">Acceso prioritario</strong> a nuevas funciones',
+            vipCta:'<i data-lucide="crown" class="w-5 h-5"></i> ¡ME SUSCRIBO!',
+            vipDismiss:'No gracias, más tarde',
+        },
+        zh: {
+            heroTag:'最新动态', heroTitle:'Zone Total Sport<br>有什么新功能？',
+            heroSub:'发现将改变你体育课程的全新功能！',
+            tagNew:'全新', tagSoon:'即将推出', tagDev:'开发中',
+            c1Title:'AI生成器', c1Desc:'智能引擎，一键生成适合你班级的游戏，告别烦恼！',
+            c2Title:'控制面板', c2Desc:'一目了然地查看你的数据、最爱游戏和教学进度。',
+            c3Title:'协作模式', c3Desc:'与魁北克各地的其他体育老师分享和共同创建游戏。',
+            c4Title:'每周挑战', c4Desc:'每周一个全新的体育挑战激励你的学生。谁敢接受？',
+            c5Title:'手机应用', c5Desc:'直接从手机访问所有资源，即使在体育馆也可以！',
+            c6Title:'视频教程', c6Desc:'每个游戏和教学情境都有讲解视频。看着学！',
+            ctaSub:'想优先体验这一切吗？', ctaBtn:'成为VIP会员',
+            vipTitle:'成为VIP会员！', vipSub:'解锁Zone Total Sport的全部内容！',
+            vipP1:'<strong style="color:#00E5FF;">500+游戏</strong> 附详细说明',
+            vipP2:'<strong style="color:#FFD700;">完整教学情境</strong> 符合PFEQ标准',
+            vipP3:'<strong style="color:#FF2A7A;">独家工具</strong> 用于课堂管理',
+            vipP4:'<strong style="color:#8B5CF6;">每周更新</strong> 新内容',
+            vipP5:'<strong style="color:#00E5FF;">优先访问</strong> 新功能',
+            vipCta:'<i data-lucide="crown" class="w-5 h-5"></i> 立即订阅！',
+            vipDismiss:'不了，谢谢',
+        }
+    };
+
+    window.currentLang = 'fr';
+
+    function setLang(lang) {
+        var t = i18n[lang]; if (!t) return;
+        window.currentLang = lang;
+        i18nMap.forEach(function(pair) {
+            document.querySelectorAll(pair[0]).forEach(function(el) {
+                if (t[pair[1]]) el.innerHTML = t[pair[1]];
+            });
+        });
+        document.querySelectorAll('.lang-pill').forEach(function(b) { b.classList.remove('active'); });
+        var btn = document.getElementById('lang-' + lang);
+        if (btn) btn.classList.add('active');
+        lucide.createIcons();
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang === 'es' ? 'es' : lang === 'en' ? 'en' : 'fr-CA';
+        if (window.gamification) window.gamification.addXp('changeLang');
+    }
+    window.setLang = setLang;
+
+    /* ============================================= */
+    /*  2. GRAIN TEXTURE                             */
+    /* ============================================= */
+    function generateGrain() {
+        var c = document.getElementById('grainCanvas');
+        var ctx = c.getContext('2d');
+        c.width = 256; c.height = 256;
+        var img = ctx.createImageData(256, 256);
+        for (var i = 0; i < img.data.length; i += 4) {
+            var v = Math.random() * 255;
+            img.data[i] = v; img.data[i+1] = v; img.data[i+2] = v; img.data[i+3] = 20;
+        }
+        ctx.putImageData(img, 0, 0);
+        document.querySelector('.grain-overlay').style.backgroundImage = 'url(' + c.toDataURL() + ')';
+    }
+
+    /* ============================================= */
+    /*  3. GSAP — BLOBS + MAGNETIC                   */
+    /* ============================================= */
+    function initBlobs() {
+        document.querySelectorAll('.blob').forEach(function(blob, i) {
+            gsap.to(blob, {
+                x: function() { return gsap.utils.random(-120, 120); },
+                y: function() { return gsap.utils.random(-100, 100); },
+                scale: function() { return gsap.utils.random(0.7, 1.4); },
+                duration: gsap.utils.random(10, 18),
+                repeat: -1, yoyo: true,
+                ease: 'sine.inOut',
+                delay: i * 2.5,
+            });
+        });
+    }
+
+    function initMagnetic() {
+        document.querySelectorAll('.magnetic-btn').forEach(function(btn) {
+            btn.addEventListener('mousemove', function(e) {
+                var rect = btn.getBoundingClientRect();
+                var x = e.clientX - rect.left - rect.width / 2;
+                var y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, { x: x * 0.25, y: y * 0.25, duration: 0.3, ease: 'power2.out' });
+            });
+            btn.addEventListener('mouseleave', function() {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+            });
+        });
+    }
+
+    function initCardMagnetic() {
+        var hoveredCards = new Set();
+        document.querySelectorAll('.glass-card').forEach(function(card) {
+            var hoverTimer;
+            card.addEventListener('mousemove', function(e) {
+                var rect = card.getBoundingClientRect();
+                var x = e.clientX - rect.left - rect.width / 2;
+                var y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(card, {
+                    x: x * 0.06, y: y * 0.06,
+                    rotateX: -y * 0.04, rotateY: x * 0.04,
+                    duration: 0.3, ease: 'power2.out',
+                    transformPerspective: 800
+                });
+                card.classList.add('magnetic-active');
+            });
+            card.addEventListener('mouseenter', function() {
+                hoverTimer = setTimeout(function() {
+                    var idx = card.getAttribute('data-card');
+                    if (!hoveredCards.has(idx)) {
+                        hoveredCards.add(idx);
+                        if (window.gamification) window.gamification.addXp('viewCard_' + idx);
+                    }
+                }, 1000);
+            });
+            card.addEventListener('mouseleave', function() {
+                clearTimeout(hoverTimer);
+                gsap.to(card, {
+                    x: 0, y: 0, rotateX: 0, rotateY: 0,
+                    duration: 0.6, ease: 'elastic.out(1, 0.4)',
+                });
+                card.classList.remove('magnetic-active');
+            });
+        });
+    }
+
+    /* ============================================= */
+    /*  4. SLIDER — GSAP DRAGGABLE                   */
+    /* ============================================= */
+    var sliderCurrentIndex = 0;
+    var sliderCardWidth = 324; // min-width + gap
+
+    function initSlider() {
+        var track = document.getElementById('sliderTrack');
+        var cards = track.querySelectorAll('.glass-card');
+        var viewport = document.getElementById('sliderViewport');
+        var nav = document.getElementById('sliderNav');
+        var isMobile = window.innerWidth < 768;
+        sliderCardWidth = isMobile ? 276 : 324;
+
+        // Create dots
+        nav.innerHTML = '';
+        for (var i = 0; i < cards.length; i++) {
+            var dot = document.createElement('div');
+            dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('data-idx', i);
+            dot.addEventListener('click', function() {
+                navigateSlider(parseInt(this.getAttribute('data-idx')) - sliderCurrentIndex);
+            });
+            nav.appendChild(dot);
+        }
+
+        var maxX = 0;
+        var minX = -(cards.length * sliderCardWidth - viewport.offsetWidth + 60);
+
+        Draggable.create(track, {
+            type: 'x',
+            bounds: { minX: minX, maxX: maxX },
+            edgeResistance: 0.7,
+            onDragEnd: function() {
+                var nearest = Math.round(-this.x / sliderCardWidth);
+                sliderCurrentIndex = Math.max(0, Math.min(nearest, cards.length - 1));
+                var snapX = -sliderCurrentIndex * sliderCardWidth;
+                gsap.to(track, { x: Math.max(minX, Math.min(maxX, snapX)), duration: 0.5, ease: 'elastic.out(1, 0.7)' });
+                updateDots(sliderCurrentIndex);
+                if (window.gamification) window.gamification.addXp('dragSlider');
+            }
+        });
+    }
+
+    window.navigateSlider = function(dir) {
+        var track = document.getElementById('sliderTrack');
+        var cards = track.querySelectorAll('.glass-card');
+        var viewport = document.getElementById('sliderViewport');
+        var minX = -(cards.length * sliderCardWidth - viewport.offsetWidth + 60);
+        sliderCurrentIndex = Math.max(0, Math.min(sliderCurrentIndex + dir, cards.length - 1));
+        var snapX = -sliderCurrentIndex * sliderCardWidth;
+        gsap.to(track, { x: Math.max(minX, Math.min(0, snapX)), duration: 0.5, ease: 'elastic.out(1, 0.7)' });
+        updateDots(sliderCurrentIndex);
+    };
+
+    function updateDots(idx) {
+        document.querySelectorAll('.slider-dot').forEach(function(d, i) {
+            d.classList.toggle('active', i === idx);
+        });
+    }
+
+    /* ============================================= */
+    /*  5. VIP POPUP                                 */
+    /* ============================================= */
+    var vipShown = false;
+
+    window.showVipPopup = function() {
+        if (vipShown) { document.getElementById('vipOverlay').classList.add('show'); return; }
+        vipShown = true;
+        document.getElementById('vipOverlay').classList.add('show');
+        lucide.createIcons();
+        if (window.gamification) window.gamification.addXp('openPopup');
+        if (window.spawnMatterBurst) window.spawnMatterBurst(window.innerWidth / 2, window.innerHeight / 2, 15);
+    };
+
+    window.closeVipPopup = function() {
+        document.getElementById('vipOverlay').classList.remove('show');
+    };
+
+    // Auto-trigger after 45s
+    setTimeout(function() {
+        if (!vipShown && !sessionStorage.getItem('zts-teasing-vip')) {
+            window.showVipPopup();
+            sessionStorage.setItem('zts-teasing-vip', '1');
+        }
+    }, 45000);
+
+    /* ============================================= */
+    /*  6. MATTER.JS — PHYSICS ENGINE                */
+    /* ============================================= */
+    function initMatter() {
+        var Engine = Matter.Engine, World = Matter.World, Bodies = Matter.Bodies, Body = Matter.Body, Runner = Matter.Runner;
+        var engine = Engine.create({ gravity: { x: 0, y: 0.8 } });
+        var world = engine.world;
+
+        var canvas = document.getElementById('matterCanvas');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        var ctx = canvas.getContext('2d');
+
+        var isMobile = window.innerWidth < 768;
+        var maxEmojis = isMobile ? 15 : 30;
+
+        // Boundaries
+        var floor = Bodies.rectangle(canvas.width / 2, canvas.height + 30, canvas.width * 2, 60, { isStatic: true });
+        var wallL = Bodies.rectangle(-30, canvas.height / 2, 60, canvas.height * 2, { isStatic: true });
+        var wallR = Bodies.rectangle(canvas.width + 30, canvas.height / 2, 60, canvas.height * 2, { isStatic: true });
+        World.add(world, [floor, wallL, wallR]);
+
+        var sportsEmojis = ['🏀','⚽','🎾','🏸','🏐','🥎','🏈','🏓'];
+        var emojiBodies = [];
+
+        function spawnEmoji(x, y) {
+            if (emojiBodies.length >= maxEmojis) return;
+            var r = 12 + Math.random() * 8;
+            var body = Bodies.circle(x || Math.random() * canvas.width, y || -30, r, {
+                restitution: 0.65, friction: 0.1, density: 0.002,
+            });
+            Body.setVelocity(body, { x: (Math.random() - 0.5) * 8, y: Math.random() * 3 });
+            body.emoji = sportsEmojis[Math.floor(Math.random() * sportsEmojis.length)];
+            body.emojiSize = r * 2.2;
+            World.add(world, body);
+            emojiBodies.push(body);
+            setTimeout(function() {
+                World.remove(world, body);
+                var idx = emojiBodies.indexOf(body);
+                if (idx > -1) emojiBodies.splice(idx, 1);
+            }, 10000);
+        }
+
+        window.spawnMatterBurst = function(x, y, count) {
+            for (var i = 0; i < (count || 10); i++) {
+                setTimeout(function() { spawnEmoji(x + (Math.random() - 0.5) * 100, y - Math.random() * 50); }, i * 60);
+            }
+        };
+
+        // Auto-spawn
+        setInterval(function() {
+            if (emojiBodies.length < maxEmojis * 0.6) {
+                spawnEmoji();
+            }
+        }, 4000);
+
+        // Initial burst
+        setTimeout(function() { window.spawnMatterBurst(canvas.width / 2, -20, 8); }, 1500);
+
+        var runner = Runner.create();
+        Runner.run(runner, engine);
+
+        function renderMatter() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            emojiBodies.forEach(function(body) {
+                ctx.save();
+                ctx.translate(body.position.x, body.position.y);
+                ctx.rotate(body.angle);
+                ctx.font = body.emojiSize + 'px serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(body.emoji, 0, 0);
+                ctx.restore();
+            });
+            requestAnimationFrame(renderMatter);
+        }
+        renderMatter();
+
+        window.addEventListener('resize', function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    }
+
+    /* ============================================= */
+    /*  7. GAMIFICATION                              */
+    /* ============================================= */
+    window.gamification = {
+        xp: 0, maxXp: 100, level: 1,
+        achieved: {},
+        addXp: function(action) {
+            if (this.achieved[action]) return;
+            this.achieved[action] = true;
+            var points = 0;
+            if (action.startsWith('viewCard')) points = 8;
+            else if (action === 'dragSlider') points = 12;
+            else if (action === 'openPopup') points = 15;
+            else if (action === 'changeLang') points = 10;
+            else if (action === 'clickCta') points = 20;
+            else points = 5;
+            this.xp = Math.min(this.xp + points, this.maxXp);
+            document.getElementById('xpFill').style.transform = 'scaleX(' + (this.xp / this.maxXp) + ')';
+            if (this.xp >= this.maxXp && this.level < 3) { this.levelUp(); }
+        },
+        levelUp: function() {
+            this.level++;
+            this.xp = 0;
+            this.maxXp += 50;
+            this.achieved = {};
+            document.getElementById('xpFill').style.transform = 'scaleX(0)';
+            var badge = document.getElementById('levelBadge');
+            badge.querySelector('.level-text').textContent = 'LEVEL ' + this.level + '!';
+            badge.classList.add('show');
+            if (window.spawnMatterBurst) window.spawnMatterBurst(window.innerWidth / 2, 0, 20);
+            setTimeout(function() { badge.classList.remove('show'); }, 3500);
+        }
+    };
+
+    /* ============================================= */
+    /*  8. WIX VELO BRIDGE                           */
+    /* ============================================= */
+    window.addEventListener('message', function(event) {
+        var data = event.data;
+        if (!data || !data.type) return;
+        if (data.type === 'setLang' && data.lang) setLang(data.lang);
+        if (data.type === 'openVip') window.showVipPopup();
+    });
+
+    function sendHeight() {
+        window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
+    }
+    if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(sendHeight).observe(document.body);
+    }
+
+    /* ============================================= */
+    /*  9. INIT                                      */
+    /* ============================================= */
+    document.addEventListener('DOMContentLoaded', function() {
+        generateGrain();
+        initBlobs();
+        initSlider();
+        initMagnetic();
+        initCardMagnetic();
+
+        // Check reduced motion
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            initMatter();
+        }
+
+        lucide.createIcons();
+        setTimeout(sendHeight, 500);
+
+        // Keyboard nav
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') window.navigateSlider(1);
+            if (e.key === 'ArrowLeft') window.navigateSlider(-1);
+            if (e.key === 'Escape') window.closeVipPopup();
+        });
+    });
+
+    })();
+    </script>
+</body>
+</html>

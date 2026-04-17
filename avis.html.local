@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone Total Sport &#8212; Laisse ton avis!</title>
+    <meta name="description" content="Donne ton avis sur Zone Total Sport! Les enseignants d'ÉPS partagent leur expérience.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyan: { electric: '#00E5FF', green: '#00E5A0', rose: '#FF2A7A' },
+                        yellow: { sun: '#FFD700' },
+                        pink: { fuchsia: '#FF2A7A' },
+                        violet: { pop: '#8B5CF6' },
+                        dark: '#0F0F2E',
+                    },
+                    fontFamily: {
+                        bangers: ['"Luckiest Guy"', 'cursive'],
+                        boogaloo: ['Boogaloo', 'cursive'],
+                        baloo: ['"Patrick Hand"', 'cursive'],
+                        fredoka: ['"Fredoka One"', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; overflow-x: hidden; }
+        body {
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.15rem;
+            background: #ffffff;
+            color: #1a1a2e;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ========== HERO BG ========== */
+        .hero-bg {
+            background: linear-gradient(135deg, #00E5FF 0%, #00C8E0 50%, #00B0C8 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(255,215,0,0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(0,229,160,0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .hero-bg::after {
+            content: '';
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
+            background: #fff;
+            clip-path: ellipse(55% 100% at 50% 100%);
+        }
+
+        /* ========== STAT PILL ========== */
+        .stat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            color: #0F0F2E;
+        }
+
+        /* ========== REVIEW CARD ========== */
+        .review-card {
+            background: #fff;
+            border: 4px solid #18181b;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 6px 6px 0 #18181b;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+        .review-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, #00E5FF, #FFD700, #FF2A7A, #00E5A0);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .review-card:hover {
+            transform: translateY(-6px) rotate(-0.5deg);
+            box-shadow: 9px 9px 0 #18181b;
+        }
+        .review-card:hover::before { opacity: 1; }
+
+        /* ========== STATS SECTION ========== */
+        .stats-section {
+            background: linear-gradient(135deg, #F0FDFF 0%, #FFFDE7 100%);
+        }
+
+        /* ========== AVERAGE SCORE ========== */
+        .avg-score-ring {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(#FFD700 0deg, #FFD700 calc(var(--score) * 72deg), #e5e5e5 calc(var(--score) * 72deg));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 3px solid #18181b;
+        }
+        .avg-score-ring::after {
+            content: '';
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            background: #fff;
+            position: absolute;
+            border: 2px solid #18181b;
+        }
+        .avg-score-value {
+            position: relative;
+            z-index: 2;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 2.2rem;
+            color: #0F0F2E;
+        }
+
+        /* ========== FORM SECTION ========== */
+        .form-section {
+            background: linear-gradient(135deg, #00E5FF 0%, #00E5A0 100%);
+            position: relative;
+        }
+        .form-section::before {
+            content: '';
+            position: absolute; top: 0; left: 0; width: 100%; height: 80px;
+            background: #fff;
+            clip-path: ellipse(55% 100% at 50% 0%);
+        }
+
+        .form-card {
+            background: #fff;
+            border: 5px solid #18181b;
+            border-radius: 28px;
+            box-shadow: 10px 10px 0 #18181b;
+            padding: 40px 32px;
+            position: relative;
+            color: #1a1a2e;
+        }
+
+        .star-btn {
+            font-size: 2.8rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: none;
+            border: none;
+            padding: 0;
+            line-height: 1;
+            filter: grayscale(1) opacity(0.3);
+        }
+        .star-btn:hover { transform: scale(1.3); filter: none; }
+        .star-btn.active { transform: scale(1.1); filter: none; }
+
+        .form-input {
+            width: 100%;
+            border: 3px solid #e5e5e5;
+            border-radius: 14px;
+            padding: 14px 18px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s;
+            background: #FAFAFA;
+        }
+        .form-input:focus { border-color: #00E5FF; background: #F0FDFF; box-shadow: 0 0 0 4px rgba(0,229,255,0.15); }
+        .form-input::placeholder { color: #bbb; }
+
+        .submit-btn {
+            width: 100%;
+            padding: 20px;
+            border-radius: 18px;
+            border: 4px solid #18181b;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #0F0F2E;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.4rem;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            box-shadow: 6px 6px 0 #18181b;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .submit-btn:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 #18181b; }
+        .submit-btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #18181b; }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .role-chip {
+            padding: 10px 18px;
+            border: 3px solid #e5e5e5;
+            border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 0.75rem;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #FAFAFA;
+            box-shadow: 3px 3px 0 #e5e5e5;
+            color: #666;
+        }
+        .role-chip:hover { transform: translateY(-2px); border-color: #00E5FF; }
+        .role-chip.active { background: #00E5FF; color: #0F0F2E; border-color: #00B0C8; box-shadow: 3px 3px 0 #00B0C8; }
+
+        /* ========== CTA BANNER ========== */
+        .cta-banner {
+            background: linear-gradient(135deg, #FFFDE7, #FFF9C4);
+            border: 4px solid #18181b;
+            border-radius: 24px;
+            box-shadow: 6px 6px 0 #18181b;
+        }
+
+        /* ========== CONFETTI ========== */
+        .confetti-piece { position: fixed; pointer-events: none; z-index: 99990; font-size: 1.6rem; }
+
+        /* ========== THANK YOU ========== */
+        .thank-you-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .thank-you-overlay.show { display: flex; }
+
+        /* ========== FOOTER ========== */
+        .footer-section {
+            background: #0F0F2E;
+            color: #fff;
+        }
+
+        /* ========== FLOATING ========== */
+        @keyframes floatSlow { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(3deg); } }
+
+        a { text-decoration: none; color: inherit; }
+        ::selection { background: #00E5FF; color: #0F0F2E; }
+
+        @media (max-width: 640px) {
+            .form-card { padding: 28px 20px; }
+            .star-btn { font-size: 2.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating decorations -->
+    <div style="position:fixed; top:8%; left:3%; font-size:3rem; animation: floatSlow 5s ease-in-out infinite; pointer-events:none; opacity:0.12;">&#11088;</div>
+    <div style="position:fixed; top:25%; right:5%; font-size:2.5rem; animation: floatSlow 6s ease-in-out infinite 1s; pointer-events:none; opacity:0.1;">&#128172;</div>
+    <div style="position:fixed; bottom:15%; left:5%; font-size:2rem; animation: floatSlow 4s ease-in-out infinite 2s; pointer-events:none; opacity:0.1;">&#128077;</div>
+    <div style="position:fixed; bottom:30%; right:8%; font-size:2.5rem; animation: floatSlow 7s ease-in-out infinite 0.5s; pointer-events:none; opacity:0.08;">&#127942;</div>
+
+    <!-- ========== HERO SECTION ========== -->
+    <section class="hero-bg pt-12 pb-28 px-4 text-center relative z-10">
+        <div class="gsap-hero">
+            <a href="https://zone.zonetotalsport.ca/">
+                <img src="https://zone.zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-20 w-auto mx-auto mb-6" style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));">
+            </a>
+            <h1 class="font-bangers text-5xl md:text-7xl tracking-wide mb-4" style="text-shadow: 4px 4px 0 rgba(0,0,0,0.1); color:#0F0F2E;">
+                Les profs <span style="color:#FF2A7A">parlent!</span>
+            </h1>
+            <p class="font-baloo text-dark/60 text-xl max-w-lg mx-auto mb-8">
+                D&#233;couvre ce que les enseignants d'&#201;PS pensent de Zone Total Sport.
+            </p>
+            <div class="flex flex-wrap justify-center gap-3">
+                <div class="stat-pill">&#11088; <span id="avgRatingHero">4.9</span>/5 en moyenne</div>
+                <div class="stat-pill">&#128172; <span id="totalReviewsHero">47</span> avis</div>
+                <div class="stat-pill">&#128154; 100% recommand&#233;</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== STATS BAR ========== -->
+    <section class="stats-section py-14 px-4 relative z-10">
+        <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+            <!-- Average Score -->
+            <div class="flex flex-col items-center gsap-stat">
+                <div class="avg-score-ring" style="--score:4.9">
+                    <span class="avg-score-value">4.9</span>
+                </div>
+                <p class="font-bangers text-sm text-dark/40 mt-3 tracking-widest">NOTE MOYENNE</p>
+            </div>
+            <!-- Star Breakdown -->
+            <div class="gsap-stat space-y-2">
+                <div class="flex items-center gap-3">
+                    <span class="font-bangers text-xs text-dark/50 w-8">5&#9733;</span>
+                    <div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300"><div class="h-full rounded-full" style="width:88%; background: linear-gradient(90deg, #FFD700, #FFA500);"></div></div>
+                    <span class="font-baloo text-xs text-dark/50 w-8 text-right">88%</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-bangers text-xs text-dark/50 w-8">4&#9733;</span>
+                    <div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300"><div class="h-full rounded-full" style="width:10%; background: linear-gradient(90deg, #FFD700, #FFA500);"></div></div>
+                    <span class="font-baloo text-xs text-dark/50 w-8 text-right">10%</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-bangers text-xs text-dark/50 w-8">3&#9733;</span>
+                    <div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300"><div class="h-full rounded-full" style="width:2%; background: linear-gradient(90deg, #FFD700, #FFA500);"></div></div>
+                    <span class="font-baloo text-xs text-dark/50 w-8 text-right">2%</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-bangers text-xs text-dark/50 w-8">2&#9733;</span>
+                    <div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300"><div class="h-full rounded-full" style="width:0%"></div></div>
+                    <span class="font-baloo text-xs text-dark/50 w-8 text-right">0%</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="font-bangers text-xs text-dark/50 w-8">1&#9733;</span>
+                    <div class="flex-1 h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300"><div class="h-full rounded-full" style="width:0%"></div></div>
+                    <span class="font-baloo text-xs text-dark/50 w-8 text-right">0%</span>
+                </div>
+            </div>
+            <!-- Quick Stats -->
+            <div class="flex flex-col items-center gap-4 gsap-stat">
+                <div class="text-center">
+                    <div class="font-bangers text-4xl" style="color:#00E5FF;">47</div>
+                    <div class="font-baloo text-xs text-dark/40">avis v&#233;rifi&#233;s</div>
+                </div>
+                <div class="text-center">
+                    <div class="font-bangers text-4xl" style="color:#FF2A7A;">100%</div>
+                    <div class="font-baloo text-xs text-dark/40">recommandent</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== REVIEWS GRID ========== -->
+    <section class="py-10 px-4 relative z-10">
+        <div class="max-w-5xl mx-auto">
+            <h2 class="font-bangers text-2xl text-center text-dark/40 tracking-widest mb-8">CE QUE LES PROFS EN PENSENT</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="reviewsList">
+                <!-- Review 1 -->
+                <div class="review-card gsap-review" style="transform: rotate(-0.8deg);">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center font-bangers text-white text-lg border-3 border-black shadow-lg" style="background: linear-gradient(135deg, #00E5FF, #0097A7);">MJ</div>
+                        <div>
+                            <div class="font-bangers text-sm tracking-wide">Marie-Jos&#233;e</div>
+                            <div class="text-dark/40 font-baloo text-xs">Enseignante &#201;PS, Laval</div>
+                        </div>
+                    </div>
+                    <div style="color:#FFD700;" class="text-lg mb-3">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="text-dark/60 font-baloo text-sm leading-relaxed">"J'utilise Zone Total Sport chaque semaine pour planifier mes cours. La banque de jeux est une mine d'or! Mes &#233;l&#232;ves adorent les nouveaux jeux."</p>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5" style="color:#00E5A0;"></i>
+                        <span class="font-baloo text-xs text-dark/25">Avis v&#233;rifi&#233;</span>
+                    </div>
+                </div>
+                <!-- Review 2 -->
+                <div class="review-card gsap-review" style="transform: rotate(0.5deg);">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center font-bangers text-dark text-lg border-3 border-black shadow-lg" style="background: linear-gradient(135deg, #FFD700, #FFA500);">PL</div>
+                        <div>
+                            <div class="font-bangers text-sm tracking-wide">Pierre-Luc</div>
+                            <div class="text-dark/40 font-baloo text-xs">Enseignant &#201;PS, Qu&#233;bec</div>
+                        </div>
+                    </div>
+                    <div style="color:#FFD700;" class="text-lg mb-3">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="text-dark/60 font-baloo text-sm leading-relaxed">"Le g&#233;n&#233;rateur de jeux est g&#233;nial quand je suis en panne d'inspiration. En un clic, j'ai une activit&#233; pr&#234;te &#224; lancer!"</p>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5" style="color:#00E5A0;"></i>
+                        <span class="font-baloo text-xs text-dark/25">Avis v&#233;rifi&#233;</span>
+                    </div>
+                </div>
+                <!-- Review 3 -->
+                <div class="review-card gsap-review" style="transform: rotate(-0.3deg);">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center font-bangers text-white text-lg border-3 border-black shadow-lg" style="background: linear-gradient(135deg, #FF2A7A, #E91E63);">SB</div>
+                        <div>
+                            <div class="font-bangers text-sm tracking-wide">Sarah B.</div>
+                            <div class="text-dark/40 font-baloo text-xs">&#201;tudiante B&#201;PEP, Montr&#233;al</div>
+                        </div>
+                    </div>
+                    <div style="color:#FFD700;" class="text-lg mb-3">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="text-dark/60 font-baloo text-sm leading-relaxed">"Indispensable pour mes stages! Les SA&#201; sont align&#233;es avec le programme et faciles &#224; adapter."</p>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5" style="color:#00E5A0;"></i>
+                        <span class="font-baloo text-xs text-dark/25">Avis v&#233;rifi&#233;</span>
+                    </div>
+                </div>
+                <!-- Review 4 -->
+                <div class="review-card gsap-review" style="transform: rotate(0.7deg);">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center font-bangers text-white text-lg border-3 border-black shadow-lg" style="background: linear-gradient(135deg, #00E5A0, #00C853);">JR</div>
+                        <div>
+                            <div class="font-bangers text-sm tracking-wide">Jean-Ren&#233;</div>
+                            <div class="text-dark/40 font-baloo text-xs">Enseignant &#201;PS, Gatineau</div>
+                        </div>
+                    </div>
+                    <div style="color:#FFD700;" class="text-lg mb-3">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="text-dark/60 font-baloo text-sm leading-relaxed">"Enfin une ressource faite par des profs QU&#201;B&#201;COIS! Les jeux sont adapt&#233;s &#224; notre r&#233;alit&#233;. Bravo!"</p>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5" style="color:#00E5A0;"></i>
+                        <span class="font-baloo text-xs text-dark/25">Avis v&#233;rifi&#233;</span>
+                    </div>
+                </div>
+                <!-- Review 5 -->
+                <div class="review-card gsap-review" style="transform: rotate(-0.6deg);">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center font-bangers text-dark text-lg border-3 border-black shadow-lg" style="background: linear-gradient(135deg, #00E5FF, #00B8D4);">KL</div>
+                        <div>
+                            <div class="font-bangers text-sm tracking-wide">Karine L.</div>
+                            <div class="text-dark/40 font-baloo text-xs">Enseignante &#201;PS, Sherbrooke</div>
+                        </div>
+                    </div>
+                    <div style="color:#FFD700;" class="text-lg mb-3">&#9733;&#9733;&#9733;&#9733;&#9734;</div>
+                    <p class="text-dark/60 font-baloo text-sm leading-relaxed">"Super plateforme! J'adore les outils de gestion de classe. Le chrono et la roue sont devenus mes essentiels au gym."</p>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5" style="color:#00E5A0;"></i>
+                        <span class="font-baloo text-xs text-dark/25">Avis v&#233;rifi&#233;</span>
+                    </div>
+                </div>
+                <!-- Review 6 -->
+                <div class="review-card gsap-review" style="transform: rotate(0.4deg);">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center font-bangers text-white text-lg border-3 border-black shadow-lg" style="background: linear-gradient(135deg, #FF2A7A, #FF6090);">MT</div>
+                        <div>
+                            <div class="font-bangers text-sm tracking-wide">Marc-Antoine T.</div>
+                            <div class="text-dark/40 font-baloo text-xs">Suppl&#233;ant, Trois-Rivi&#232;res</div>
+                        </div>
+                    </div>
+                    <div style="color:#FFD700;" class="text-lg mb-3">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="text-dark/60 font-baloo text-sm leading-relaxed">"En tant que suppl&#233;ant, c'est mon secret! Je trouve un jeu en 30 secondes et les &#233;l&#232;ves pensent que je suis un pro."</p>
+                    <div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5" style="color:#00E5A0;"></i>
+                        <span class="font-baloo text-xs text-dark/25">Avis v&#233;rifi&#233;</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== CTA BANNER ========== -->
+    <section class="py-10 px-4 relative z-10">
+        <div class="max-w-3xl mx-auto text-center gsap-cta">
+            <div class="cta-banner" style="padding: 40px 24px;">
+                <div style="font-size:3rem; margin-bottom:12px;">&#128588;</div>
+                <h3 class="font-bangers text-2xl text-dark tracking-wide mb-2">Toi aussi, partage ton exp&#233;rience!</h3>
+                <p class="font-baloo text-dark/50 text-sm mb-6">Ton avis aide d'autres enseignants &#224; d&#233;couvrir la Zone.</p>
+                <a href="#formSection" class="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bangers text-lg tracking-wide" style="background: linear-gradient(135deg, #00E5FF, #00B8D4); color:#fff; border:3px solid #18181b; box-shadow: 5px 5px 0 #18181b; transition: all 0.2s;" onmouseover="this.style.transform='translate(-2px,-2px)'; this.style.boxShadow='7px 7px 0 #18181b'" onmouseout="this.style.transform='none'; this.style.boxShadow='5px 5px 0 #18181b'">
+                    <i data-lucide="pen-line" class="w-5 h-5"></i>
+                    Laisser mon avis
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== REVIEW FORM SECTION ========== -->
+    <section class="form-section pt-28 pb-20 px-4 relative z-10" id="formSection">
+        <div class="max-w-lg mx-auto relative" style="padding-top: 20px;">
+            <div class="form-card gsap-form">
+                <!-- Sticker -->
+                <div style="position:absolute; top:-16px; right:-10px; background:#FF2A7A; color:#fff; font-family:'Luckiest Guy',cursive; font-size:0.7rem; letter-spacing:0.1em; padding:6px 16px; border-radius:20px; border:3px solid #18181b; box-shadow:3px 3px 0 #18181b; transform:rotate(8deg); z-index:5;">
+                    &#10024; TON TOUR!
+                </div>
+
+                <h2 class="font-bangers text-3xl text-center text-dark tracking-wide mb-8">&#128221; Laisse ton t&#233;moignage</h2>
+
+                <!-- Stars -->
+                <div class="text-center mb-6">
+                    <p class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-3">Ta note</p>
+                    <div class="flex justify-center gap-2" id="starRating">
+                        <button class="star-btn" data-star="1" onclick="setRating(1)">&#9733;</button>
+                        <button class="star-btn" data-star="2" onclick="setRating(2)">&#9733;</button>
+                        <button class="star-btn" data-star="3" onclick="setRating(3)">&#9733;</button>
+                        <button class="star-btn" data-star="4" onclick="setRating(4)">&#9733;</button>
+                        <button class="star-btn" data-star="5" onclick="setRating(5)">&#9733;</button>
+                    </div>
+                </div>
+
+                <!-- Name -->
+                <div class="mb-5">
+                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block">Ton pr&#233;nom</label>
+                    <input type="text" id="reviewName" class="form-input" placeholder="Ex: Marie-Claude">
+                </div>
+
+                <!-- Role -->
+                <div class="mb-5">
+                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block">Tu es...</label>
+                    <div class="flex flex-wrap gap-2" id="roleChips">
+                        <button class="role-chip" onclick="selectRole(this, 'Enseignant(e) &#201;PS')">&#127939; Enseignant(e) &#201;PS</button>
+                        <button class="role-chip" onclick="selectRole(this, '&#201;tudiant(e)')">&#127891; &#201;tudiant(e)</button>
+                        <button class="role-chip" onclick="selectRole(this, 'Suppl&#233;ant(e)')">&#128188; Suppl&#233;ant(e)</button>
+                        <button class="role-chip" onclick="selectRole(this, 'Autre')">&#128075; Autre</button>
+                    </div>
+                </div>
+
+                <!-- City -->
+                <div class="mb-5">
+                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block">Ta ville</label>
+                    <input type="text" id="reviewCity" class="form-input" placeholder="Ex: Montr&#233;al">
+                </div>
+
+                <!-- Message -->
+                <div class="mb-7">
+                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block">Ton avis</label>
+                    <textarea id="reviewMessage" class="form-input" rows="4" placeholder="Dis-nous ce que tu aimes de Zone Total Sport! &#128522;"></textarea>
+                </div>
+
+                <!-- Submit -->
+                <button class="submit-btn" id="submitBtn" onclick="submitReview()">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                    Envoyer mon avis
+                </button>
+
+                <p class="text-center text-dark/30 font-baloo text-xs mt-4">
+                    Ton avis sera visible apr&#232;s mod&#233;ration &#128522;
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer-section py-10 px-4 relative z-10">
+        <div class="max-w-4xl mx-auto text-center">
+            <a href="https://zone.zonetotalsport.ca/">
+                <img src="https://zone.zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-10 w-auto mx-auto mb-4 opacity-40 hover:opacity-70 transition-opacity">
+            </a>
+            <div class="flex flex-wrap justify-center gap-6 mb-6">
+                <a href="https://zone.zonetotalsport.ca/" class="font-baloo text-white/30 text-sm hover:text-cyan-electric transition-colors">&#127968; Accueil</a>
+                <a href="https://zone.zonetotalsport.ca/donation.html" class="font-baloo text-white/30 text-sm hover:text-yellow-sun transition-colors">&#128155; Faire un don</a>
+                <a href="https://zone.zonetotalsport.ca/avis.html" class="font-baloo text-white/30 text-sm hover:text-pink-fuchsia transition-colors">&#128172; Avis</a>
+            </div>
+            <div class="mb-4">
+                <a href="https://zone.zonetotalsport.ca/politique.html" class="font-baloo text-white/20 text-xs hover:text-white/40 transition-colors">
+                    <i data-lucide="shield" class="w-3 h-3 inline-block mr-1" style="vertical-align: -2px;"></i>Politique de confidentialit&#233;
+                </a>
+            </div>
+            <p class="font-baloo text-white/15 text-xs">
+                &copy; 2026 Zone Total Sport &#183; Fait avec &#128155; au Qu&#233;bec
+            </p>
+        </div>
+    </footer>
+
+    <!-- ========== THANK YOU POPUP ========== -->
+    <div class="thank-you-overlay" id="thankYouOverlay">
+        <div style="background:#FFD700; border:6px solid #18181b; border-radius:28px; box-shadow:14px 14px 0 #18181b; max-width:500px; width:100%; padding:48px 32px; text-align:center; transform:rotate(-1deg);">
+            <div style="font-size:4rem; margin-bottom:16px;">&#127881;</div>
+            <h2 class="font-bangers text-3xl text-dark tracking-wide mb-3">MERCI!</h2>
+            <p class="font-baloo text-dark/70 text-lg mb-2">Ton avis a &#233;t&#233; envoy&#233; avec succ&#232;s!</p>
+            <p class="font-baloo text-dark/50 text-sm mb-6">Il sera visible apr&#232;s mod&#233;ration. Merci de soutenir la Zone!</p>
+            <a href="https://zone.zonetotalsport.ca/" style="display:inline-block; background:#0F0F2E; color:#fff; font-family:'Luckiest Guy',cursive; font-size:1rem; padding:14px 32px; border-radius:14px; border:3px solid #0F0F2E; letter-spacing:0.03em;">
+                &#128588; Retour &#224; la Zone
+            </a>
+        </div>
+    </div>
+
+    <!-- ========== JAVASCRIPT ========== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        initGSAP();
+    });
+
+    var selectedRating = 0;
+    var selectedRole = '';
+
+    function setRating(n) {
+        selectedRating = n;
+        var btns = document.querySelectorAll('#starRating .star-btn');
+        btns.forEach(function(btn) {
+            var star = parseInt(btn.dataset.star);
+            btn.classList.toggle('active', star <= n);
+            btn.style.color = star <= n ? '#FFD700' : '';
+            btn.style.filter = star <= n ? 'none' : 'grayscale(1) opacity(0.3)';
+        });
+        gsap.fromTo(btns[n - 1], { scale: 1.5 }, { scale: 1.1, duration: 0.4, ease: 'elastic.out(1, 0.4)' });
+    }
+
+    function selectRole(el, role) {
+        selectedRole = role;
+        document.querySelectorAll('.role-chip').forEach(function(c) { c.classList.remove('active'); });
+        el.classList.add('active');
+        gsap.fromTo(el, { scale: 0.9 }, { scale: 1, duration: 0.3, ease: 'back.out(2)' });
+    }
+
+    function submitReview() {
+        var name = document.getElementById('reviewName').value.trim();
+        var city = document.getElementById('reviewCity').value.trim();
+        var message = document.getElementById('reviewMessage').value.trim();
+
+        if (!name) { shakeElement(document.getElementById('reviewName')); return; }
+        if (selectedRating === 0) { shakeElement(document.getElementById('starRating')); return; }
+        if (!message) { shakeElement(document.getElementById('reviewMessage')); return; }
+
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+
+        var reviews = JSON.parse(localStorage.getItem('zts_reviews') || '[]');
+        reviews.push({ name: name, role: selectedRole || 'Autre', city: city || 'Qu\u00e9bec', rating: selectedRating, message: message, date: new Date().toISOString() });
+        localStorage.setItem('zts_reviews', JSON.stringify(reviews));
+
+        window.parent.postMessage({ type: 'newReview', group: 'avis', data: { name: name, role: selectedRole, city: city, rating: selectedRating, message: message } }, '*');
+
+        setTimeout(function() {
+            burstConfetti();
+            document.getElementById('thankYouOverlay').classList.add('show');
+            gsap.fromTo('.thank-you-overlay > div', { scale: 0.5, rotation: -5 }, { scale: 1, rotation: -1, duration: 0.6, ease: 'back.out(1.7)' });
+        }, 400);
+    }
+
+    function shakeElement(el) { gsap.fromTo(el, { x: -8 }, { x: 0, duration: 0.5, ease: 'elastic.out(1, 0.3)' }); }
+
+    function burstConfetti() {
+        var emojis = ['\u2b50', '\u2764\ufe0f', '\ud83c\udf89', '\ud83c\udfc6', '\ud83d\udc4d', '\u26bd', '\ud83c\udfc0', '\ud83c\udfc5'];
+        for (var i = 0; i < 30; i++) {
+            var el = document.createElement('div');
+            el.className = 'confetti-piece';
+            el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            el.style.left = (20 + Math.random() * 60) + 'vw';
+            el.style.top = '50vh';
+            document.body.appendChild(el);
+            gsap.to(el, { x: (Math.random() - 0.5) * 500, y: -(200 + Math.random() * 400), rotation: Math.random() * 720 - 360, opacity: 0, duration: 1.5 + Math.random(), ease: 'power2.out', onComplete: function() { if (el.parentNode) el.parentNode.removeChild(el); } });
+        }
+    }
+
+    function initGSAP() {
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.from('.gsap-hero', { y: 40, opacity: 0, duration: 1, ease: 'power3.out' });
+        gsap.from('.gsap-hero .stat-pill', { y: 20, opacity: 0, duration: 0.6, stagger: 0.15, delay: 0.5, ease: 'back.out(1.7)' });
+        gsap.utils.toArray('.gsap-stat').forEach(function(el) { gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 85%' }, y: 30, opacity: 0, duration: 0.7, ease: 'power2.out' }); });
+        gsap.utils.toArray('.gsap-review').forEach(function(el, i) { gsap.from(el, { scrollTrigger: { trigger: el, start: 'top 88%' }, y: 50, opacity: 0, duration: 0.6, delay: i * 0.1, ease: 'power2.out' }); });
+        gsap.from('.gsap-cta', { scrollTrigger: { trigger: '.gsap-cta', start: 'top 85%' }, y: 40, opacity: 0, duration: 0.8, ease: 'power2.out' });
+        gsap.from('.gsap-form', { scrollTrigger: { trigger: '.gsap-form', start: 'top 85%' }, y: 60, opacity: 0, rotation: 2, duration: 0.8, ease: 'power3.out' });
+    }
+
+    // Load stored reviews
+    (function() {
+        var reviews = JSON.parse(localStorage.getItem('zts_reviews') || '[]');
+        var list = document.getElementById('reviewsList');
+        var colors = ['#00E5FF', '#FFD700', '#FF2A7A', '#00E5A0'];
+        reviews.forEach(function(r, i) {
+            var initials = r.name.split(' ').map(function(w) { return w[0]; }).join('').toUpperCase().substring(0, 2);
+            if (initials.length < 2) initials = r.name.substring(0, 2).toUpperCase();
+            var stars = '';
+            for (var s = 0; s < r.rating; s++) stars += '\u2605';
+            for (var s = r.rating; s < 5; s++) stars += '\u2606';
+            var card = document.createElement('div');
+            card.className = 'review-card gsap-review';
+            card.style.transform = 'rotate(' + ((Math.random() - 0.5) * 1.5) + 'deg)';
+            card.innerHTML = '<div class="flex items-center gap-3 mb-4"><div class="w-12 h-12 rounded-full flex items-center justify-center font-bangers text-white text-lg border-3 border-black shadow-lg" style="background:' + colors[i % colors.length] + '">' + initials + '</div><div><div class="font-bangers text-sm tracking-wide">' + r.name + '</div><div class="text-dark/40 font-baloo text-xs">' + r.role + ', ' + r.city + '</div></div></div><div style="color:#FFD700;" class="text-lg mb-3">' + stars + '</div><p class="text-dark/60 font-baloo text-sm leading-relaxed">"' + r.message + '"</p><div class="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2"><svg class="w-3.5 h-3.5" style="color:#00E5A0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="font-baloo text-xs text-dark/25">Avis v\u00e9rifi\u00e9</span></div>';
+            list.appendChild(card);
+        });
+    })();
+    </script>
+
+    <!-- ========== WIX VELO BRIDGE ========== -->
+    <script>
+    (function() {
+        'use strict';
+        var GROUP_ID = 'avis';
+        function sendHeight() { window.parent.postMessage({ type: 'resize', group: GROUP_ID, height: document.documentElement.scrollHeight }, '*'); }
+        var _ro = new ResizeObserver(function() { sendHeight(); });
+        _ro.observe(document.body);
+        window.addEventListener('load', function() { setTimeout(sendHeight, 500); setTimeout(sendHeight, 2000); });
+    })();
+    </script>
+</body>
+</html>
