@@ -40,10 +40,13 @@
         // Recupere le resultat si on revient d'une redirection Google (mobile)
         firebase.auth().getRedirectResult().then(function(result) {
           if (result && result.user) {
-            if (result.additionalUserInfo && result.additionalUserInfo.isNewUser && window.ztsNotifySignup) {
-              window.ztsNotifySignup(result.user);
-            } else if (window.ztsNotifyLogin) {
-              window.ztsNotifyLogin(result.user);
+            var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
+            if (isNew) {
+              if (window.ztsTrackSignup) window.ztsTrackSignup('google_redirect', result.user.uid);
+              if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
+            } else {
+              if (window.ztsTrackLogin) window.ztsTrackLogin('google_redirect', result.user.uid);
+              if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
             }
           }
         }).catch(function(err) { console.error('[ZTS Auth] getRedirectResult:', err); });
@@ -545,7 +548,11 @@
     if (!email || !password) { showError('Remplis tous les champs!'); return; }
     setLoading(true);
     firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(function(result) { if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user); closeModal(); })
+      .then(function(result) {
+        if (window.ztsTrackLogin) window.ztsTrackLogin('email', result.user.uid);
+        if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
+        closeModal();
+      })
       .catch(function(err) { console.error('[ZTS Auth] Full error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
   }
 
@@ -564,7 +571,11 @@
           displayName: firstName.trim() + ' ' + lastName.trim()
         }).then(function() { return result; });
       })
-      .then(function(result) { if (window.ztsNotifySignup) window.ztsNotifySignup(result.user); closeModal(); })
+      .then(function(result) {
+        if (window.ztsTrackSignup) window.ztsTrackSignup('email', result.user.uid);
+        if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
+        closeModal();
+      })
       .catch(function(err) { showError(getErrorMsg(err.code)); setLoading(false); });
   }
 
@@ -581,10 +592,13 @@
     }
     firebase.auth().signInWithPopup(provider)
       .then(function(result) {
-        if (result.additionalUserInfo && result.additionalUserInfo.isNewUser && window.ztsNotifySignup) {
-          window.ztsNotifySignup(result.user);
-        } else if (window.ztsNotifyLogin) {
-          window.ztsNotifyLogin(result.user);
+        var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
+        if (isNew) {
+          if (window.ztsTrackSignup) window.ztsTrackSignup('google', result.user.uid);
+          if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
+        } else {
+          if (window.ztsTrackLogin) window.ztsTrackLogin('google', result.user.uid);
+          if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
         }
         closeModal();
       })

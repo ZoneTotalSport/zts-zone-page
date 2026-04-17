@@ -110,6 +110,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Google Analytics 4 + events custom -->
+    <script src="analytics.js"></script>
+
     <style>
         /* ========================================== */
         /* TBI READABILITY BOOST - Polices agrandies  */
@@ -2177,8 +2180,9 @@
             <!-- Header camp de jour cyan -->
             <div class="subscribe-header">
                 <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Le Bucheron Sportif" style="width:220px;height:auto;margin:0 auto 8px;filter:drop-shadow(3px 6px 12px rgba(0,0,0,0.4))">
-                <h2 style="font-family:'Fredoka One',cursive;font-size:2.6rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.1" data-i18n="subTitle">DEVIENS MEMBRE VIP!</h2>
-                <p style="font-family:'Fredoka One',cursive;color:rgba(255,255,255,0.85);font-size:1.2rem;margin-top:8px" data-i18n="subDesc">Accède au plein potentiel de la Zone!</p>
+                <div style="display:inline-block;background:#EF4444;color:#fff;font-family:'Bangers',cursive;font-size:0.95rem;letter-spacing:1.5px;padding:5px 16px;border-radius:20px;margin-bottom:10px;box-shadow:0 4px 14px rgba(239,68,68,0.5)">🔥 OFFRE GRATUITE</div>
+                <h2 style="font-family:'Fredoka One',cursive;font-size:2.7rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.05" data-i18n="subTitle">Prépare ton prochain cours ÉPS en 30 sec</h2>
+                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.95);font-size:1.3rem;margin-top:10px;line-height:1.35" data-i18n="subDesc"><strong style="color:#FFEA00">349 profs</strong> d'ÉPS au Québec utilisent déjà la Zone chaque matin. C'est ton tour.</p>
 
                 <!-- Stats band -->
                 <div class="sub-stats-band">
@@ -2241,7 +2245,7 @@
                         <div style="width:34px;height:34px;border-radius:50%;background:#FF2A7A;border:3px solid #fff;margin-right:-10px;z-index:2;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#fff;font-family:'Fredoka One',cursive">JR</div>
                         <div style="width:34px;height:34px;border-radius:50%;background:#8B5CF6;border:3px solid #fff;z-index:1;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#fff;font-family:'Fredoka One',cursive">SL</div>
                     </div>
-                    <span style="font-family:'Patrick Hand',cursive;font-size:1.05rem;color:rgba(255,255,255,0.8)" data-i18n="subSocial">2 295 enseignants utilisent la Zone!</span>
+                    <span style="font-family:'Patrick Hand',cursive;font-size:1.05rem;color:rgba(255,255,255,0.8)" data-i18n="subSocial">349 profs d'ÉPS utilisent déjà la Zone!</span>
                 </div>
 
                 <a href="#" onclick="event.preventDefault();window.ztsShowSignup()" class="sub-btn-cta" data-i18n="subBtn">
@@ -2357,8 +2361,18 @@
                 <!-- MASCOTTE + TITRE -->
                 <div style="text-align:center;padding:32px 24px 16px">
                     <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Mr. Root" style="height:100px;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.5));margin-bottom:12px">
-                    <h2 style="font-family:'Luckiest Guy',cursive;font-size:2.2rem;color:#fff;margin:0;text-shadow:3px 3px 0 rgba(0,0,0,0.3);line-height:1.1" data-i18n="gateTitle">REJOINS LA ZONE!</h2>
-                    <p style="font-family:'Patrick Hand',cursive;color:#00E5FF;font-size:1.15rem;margin-top:6px" data-i18n="gateDesc">+1000 enseignants nous font déjà confiance</p>
+                    <div style="display:inline-block;background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;font-family:'Bangers',cursive;font-size:0.9rem;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:8px;box-shadow:0 4px 12px rgba(239,68,68,0.4)">🔥 100% GRATUIT · 0 CARTE DE CRÉDIT</div>
+                    <h2 style="font-family:'Luckiest Guy',cursive;font-size:2.4rem;color:#fff;margin:4px 0 0;text-shadow:3px 3px 0 rgba(0,0,0,0.3);line-height:1.05" data-i18n="gateTitle">Débloque la Zone</h2>
+                    <p style="font-family:'Patrick Hand',cursive;color:#00E5FF;font-size:1.2rem;margin-top:8px;line-height:1.3" data-i18n="gateDesc"><strong style="color:#FFEA00;font-size:1.3rem">349 profs ÉPS</strong> s'en servent déjà.<br>Ton tour de rejoindre la Zone!</p>
+                </div>
+
+                <!-- BOUTON GOOGLE EXPRESS (1 clic) -->
+                <div style="padding:0 20px 12px">
+                    <button onclick="if(window.ztsTrackPopupConverted)window.ztsTrackPopupConverted('gate_google');window.ztsShowSignup();setTimeout(function(){var b=document.getElementById('ztsGoogleBtn');if(b)b.click();},400);" style="width:100%;background:#fff;color:#1a1a2e;border:3px solid #fff;box-shadow:0 6px 20px rgba(255,255,255,0.3);font-family:'Fredoka One',cursive;font-size:1.15rem;border-radius:16px;padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s">
+                        <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3L37.5 9.3C34 6 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.6 15.1 19 12 24 12c3.1 0 5.8 1.1 7.9 3L37.5 9.3C34 6 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-1.9 1.4-4.4 2.4-7.2 2.4-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.3-.1-2.6-.4-3.9z"/></svg>
+                        Continuer avec Google
+                    </button>
+                    <div style="text-align:center;font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.55);font-size:0.9rem;margin-top:8px">— ou par courriel ↓ —</div>
                 </div>
 
                 <!-- FEATURE CARDS COLORÉES -->
@@ -2366,29 +2380,29 @@
                     <div class="gate-feature" style="background:linear-gradient(135deg,#00E5FF,#0097A7);border:3px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;text-align:center;color:#fff">
                         <div style="font-size:2rem;margin-bottom:4px">🎮</div>
                         <div style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;line-height:1">1000+</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat1">Jeux avec fiches</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat1">Jeux avec fiches PDF</div>
                     </div>
                     <div class="gate-feature" style="background:linear-gradient(135deg,#FF2A7A,#C2185B);border:3px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;text-align:center;color:#fff">
                         <div style="font-size:2rem;margin-bottom:4px">🤖</div>
                         <div style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;line-height:1">IA</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat2">Générateur de jeux</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat2">Générateur sur mesure</div>
                     </div>
                     <div class="gate-feature" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);border:3px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;text-align:center;color:#fff">
                         <div style="font-size:2rem;margin-bottom:4px">📋</div>
                         <div style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;line-height:1">1000+</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat3">SAÉ complètes</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat3">SAÉ alignées PFEQ</div>
                     </div>
                     <div class="gate-feature" style="background:linear-gradient(135deg,#FFD700,#F59E0B);border:3px solid rgba(255,255,255,0.3);border-radius:16px;padding:14px 12px;text-align:center;color:#1a1a2e">
                         <div style="font-size:2rem;margin-bottom:4px">🆓</div>
-                        <div style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;line-height:1">100%</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat4">Gratuit pour toujours</div>
+                        <div style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;line-height:1">0$</div>
+                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;opacity:0.9" data-i18n="gateFeat4">Gratuit à vie</div>
                     </div>
                 </div>
 
                 <!-- CTA BUTTON (GROS + GLOWING) -->
                 <div style="padding:0 20px 12px">
-                    <a href="#" onclick="event.preventDefault();window.ztsShowSignup()" class="gate-btn-main" style="background:linear-gradient(135deg,#FFD700,#FF8C00);border:4px solid #fff;box-shadow:0 0 30px rgba(255,215,0,0.5),6px 6px 0 rgba(0,0,0,0.3);font-family:'Luckiest Guy',cursive;font-size:1.4rem;border-radius:18px;padding:18px;color:#1a1a2e;letter-spacing:1px;animation:glow-pulse 2s ease-in-out infinite" data-i18n="gateBtn">
-                        <i data-lucide="zap" class="w-7 h-7"></i> INSCRIPTION GRATUITE
+                    <a href="#" onclick="event.preventDefault();if(window.ztsTrackPopupConverted)window.ztsTrackPopupConverted('gate');window.ztsShowSignup()" class="gate-btn-main" style="background:linear-gradient(135deg,#FFD700,#FF8C00);border:4px solid #fff;box-shadow:0 0 30px rgba(255,215,0,0.5),6px 6px 0 rgba(0,0,0,0.3);font-family:'Luckiest Guy',cursive;font-size:1.4rem;border-radius:18px;padding:18px;color:#1a1a2e;letter-spacing:1px;animation:glow-pulse 2s ease-in-out infinite" data-i18n="gateBtn">
+                        <i data-lucide="zap" class="w-7 h-7"></i> Créer mon compte en 10 sec
                     </a>
                 </div>
 
@@ -3786,6 +3800,7 @@
         subscribeShown = true;
         document.getElementById('subscribeOverlay').classList.add('show');
         lucide.createIcons();
+        if (window.ztsTrackPopupShown) window.ztsTrackPopupShown('subscribe_vip');
     }
     function closeSubscribe() {
         // Non-fermable sauf si connecté
@@ -4112,14 +4127,14 @@
             fAbout:'À propos', fPrivacy:'Politique de confidentialité', fDon:'Faire un don', fTerms:'Conditions d\'utilisation',
             copyright:'© 2026 Zone Total Sport. Tous droits réservés.', madeWith:'Fait avec 💛 au Québec',
             visitLabel:'Visiteurs :',
-            subTitle:'DEVIENS MEMBRE VIP!', subDesc:'Débloque tout le contenu de la Zone!',
+            subTitle:'Prépare ton prochain cours ÉPS en 30 sec', subDesc:'349 profs d\'ÉPS au Québec utilisent déjà la Zone chaque matin. C\'est ton tour.',
             subPerk1:'Fiches détaillées, règles et variantes',
             subPerk2:'Crée un jeu sur mesure en 10 secondes',
             subPerk3:'Situations d\'apprentissage et gestion de classe',
             subPerk4:'Sans abonnement ni carte de crédit',
             subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> REJOINDRE LA ZONE GRATUITEMENT!', subLater:'Non merci, plus tard',
             subPerkT1:'+500 jeux sportifs', subPerkT2:'Générateur IA', subPerkT3:'SAÉ + Outils', subPerkT4:'100% gratuit',
-            subSocial:'2 295 enseignants utilisent la Zone!',
+            subSocial:'349 profs d'ÉPS utilisent déjà la Zone!',
             iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NOUVEAUTÉ',
             iaTitle:'Le futur de l\'ÉPS<br><span style="color:#FF2A7A">est arrivé!</span>',
             iaSub:'L\'intelligence artificielle débarque dans la Zone. Prépare-toi!',
@@ -4137,7 +4152,7 @@
             iaPopupLater:'Je regarderai plus tard',
             iaPopupTagline:'Plus jamais en panne d\'idées!',
             iaStat1Num:'10 sec', iaStat1Label:'par jeu',
-            iaStat2Num:'500+', iaStat2Label:'profs actifs',
+            iaStat2Num:'349', iaStat2Label:'profs actifs',
             iaStat3Num:'100%', iaStat3Label:'gratuit',
             iaSocialProof:'<strong>Marie-Claude</strong> et <strong>47 autres profs</strong> ont généré un jeu cette semaine!',
             iaGuarantee:'Aucune carte de crédit requise. C\'est vraiment gratuit.',
@@ -4210,7 +4225,7 @@
             subPerk4:'No subscription, no credit card',
             subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> JOIN THE ZONE FOR FREE!', subLater:'No thanks, maybe later',
             subPerkT1:'+500 sports games', subPerkT2:'AI Generator', subPerkT3:'Units + Tools', subPerkT4:'100% free',
-            subSocial:'2,295 teachers use the Zone!',
+            subSocial:'349 PE teachers already use the Zone!',
             iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NEW FEATURE',
             iaTitle:'The future of PE<br><span style="color:#FF2A7A">is here!</span>',
             iaSub:'Artificial intelligence arrives in the Zone. Get ready!',
@@ -4301,7 +4316,7 @@
             subPerk4:'无需订阅，无需信用卡',
             subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> 免费加入Zone！', subLater:'不了，以后再说',
             subPerkT1:'+500体育游戏', subPerkT2:'AI生成器', subPerkT3:'教学单元+工具', subPerkT4:'100%免费',
-            subSocial:'2295名教师在使用Zone！',
+            subSocial:'349名体育老师已在使用Zone！',
             iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> 新功能',
             iaTitle:'体育教育的未来<br><span style="color:#FF2A7A">已经到来！</span>',
             iaSub:'人工智能登陆Zone。准备好了吗！',
