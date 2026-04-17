@@ -111,12 +111,30 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
+        /* ========================================== */
+        /* TBI READABILITY BOOST - Polices agrandies  */
+        /* pour lecture a distance (tableau blanc)    */
+        /* ========================================== */
+        /* Police de base plus grande (TBI) */
+        @media (max-width: 640px) { html { font-size: 16px !important; } }
+
+        /* Agrandit les classes Tailwind standards */
+        .text-xs   { font-size: 1rem !important;    line-height: 1.5 !important; }
+        .text-sm   { font-size: 1.15rem !important; line-height: 1.55 !important; }
+        .text-base { font-size: 1.3rem !important;  line-height: 1.55 !important; }
+        .text-lg   { font-size: 1.45rem !important; line-height: 1.5 !important; }
+
+        /* Polices cursives moins lisibles : on grossit */
+        .font-schoolbell     { font-size: 1.25em !important; }
+        .font-patrick-hand   { font-size: 1.15em !important; }
+        .font-baloo          { font-size: 1.08em !important; }
+
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; overflow-x: hidden; }
+        html { scroll-behavior: smooth; overflow-x: hidden; font-size: 18px; }
 
         body {
             font-family: 'Patrick Hand', cursive;
-            font-size: 1.15rem;
+            font-size: 1.3rem;
             background-color: #ffffff;
             color: #1a1a2e;
             overflow-x: hidden;
