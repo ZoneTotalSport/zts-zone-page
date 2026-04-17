@@ -130,6 +130,84 @@
   }
 
   // ============================================
+  // PAUSE EPS : citation/blague/fait + quiz
+  // ============================================
+  async function getFunPause() {
+    var today = getToday();
+    try {
+      var [blagRes, quizRes] = await Promise.all([
+        fetch('blagues-citations.json?v=1'),
+        fetch('quiz-sportif.json?v=1')
+      ]);
+      var blagues = await blagRes.json();
+      var quiz = await quizRes.json();
+      var dayNum = getDayOfYear(today.full);
+      return {
+        blague: blagues[dayNum % blagues.length],
+        quiz: quiz[dayNum % quiz.length]
+      };
+    } catch(e) {
+      console.warn('[ZTS Daily] Pause load failed:', e);
+      return null;
+    }
+  }
+
+  // ============================================
+  // RENDU PAUSE EPS : citation + quiz
+  // ============================================
+  async function renderPause() {
+    var container = document.getElementById('ztsPauseGrid');
+    if (!container) return;
+    var data = await getFunPause();
+    if (!data) { container.innerHTML = '<div style="color:#fff;text-align:center;padding:20px">Chargement...</div>'; return; }
+
+    var html = '';
+    // Carte Citation/Blague/Fait
+    var b = data.blague;
+    var typeEmoji = { citation: '💬', blague: '😂', fait: '🎯' }[b.type] || '✨';
+    var typeLabel = { citation: 'CITATION DU JOUR', blague: 'BLAGUE DU JOUR', fait: 'LE SAVAIS-TU?' }[b.type] || 'AUJOURD\'HUI';
+    var authorHtml = b.author ? '<div class="zts-pause-author">— ' + b.author + '</div>' : '';
+    html += '<div class="zts-pause-card zts-pause-quote">' +
+      '<div class="zts-pause-label">' + typeEmoji + ' ' + typeLabel + '</div>' +
+      '<div class="zts-pause-quote-text">« ' + b.text + ' »</div>' +
+      authorHtml +
+      '</div>';
+
+    // Carte Quiz interactif
+    var q = data.quiz;
+    var choicesHtml = q.choices.map(function(c, i){
+      return '<button class="zts-pause-choice" data-idx="' + i + '">' + c + '</button>';
+    }).join('');
+    html += '<div class="zts-pause-card zts-pause-quiz" data-answer="' + q.answer + '" data-fact="' + (q.fact || '').replace(/"/g, '&quot;') + '">' +
+      '<div class="zts-pause-label">🧠 QUIZ SPORTIF</div>' +
+      '<div class="zts-pause-question">' + q.q + '</div>' +
+      '<div class="zts-pause-choices">' + choicesHtml + '</div>' +
+      '<div class="zts-pause-feedback" style="display:none"></div>' +
+      '</div>';
+
+    container.innerHTML = html;
+
+    // Attache event click aux boutons choix
+    var quizCard = container.querySelector('.zts-pause-quiz');
+    if (quizCard) {
+      var answerIdx = parseInt(quizCard.getAttribute('data-answer'), 10);
+      var fact = quizCard.getAttribute('data-fact');
+      var buttons = quizCard.querySelectorAll('.zts-pause-choice');
+      var feedback = quizCard.querySelector('.zts-pause-feedback');
+      buttons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var chosen = parseInt(btn.getAttribute('data-idx'), 10);
+          buttons.forEach(function(b) { b.disabled = true; });
+          buttons[answerIdx].classList.add('correct');
+          if (chosen !== answerIdx) btn.classList.add('wrong');
+          feedback.innerHTML = (chosen === answerIdx ? '✅ Bonne reponse! ' : '❌ La bonne reponse etait : <strong>' + q.choices[answerIdx] + '</strong>. ') + (fact ? '<br><em>' + fact + '</em>' : '');
+          feedback.style.display = 'block';
+        });
+      });
+    }
+  }
+
+  // ============================================
   // RENDU : injecte dans #ztsTodaySection
   // ============================================
   async function render() {
@@ -203,9 +281,13 @@
   // ============================================
   // INIT
   // ============================================
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', render);
-  } else {
+  function initAll() {
     render();
+    renderPause();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
   }
 })();

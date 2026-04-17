@@ -1440,6 +1440,160 @@
         <div id="ztsTodayGrid"></div>
     </section>
 
+    <!-- ========== SECTION PAUSE EPS : Citation + Quiz ========== -->
+    <style>
+        #ztsPauseSection { background: linear-gradient(135deg, #FF2A7A 0%, #8B5CF6 100%); padding: 50px 20px; position: relative; overflow: hidden; }
+        #ztsPauseSection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(255,234,0,0.2), transparent 40%); pointer-events: none; }
+        .zts-pause-header { max-width: 1400px; margin: 0 auto 32px; text-align: center; position: relative; }
+        .zts-pause-tag { display: inline-block; background: #FFEA00; color: #18181b; padding: 8px 20px; border-radius: 20px; font-family: 'Bangers', cursive; font-size: 1rem; letter-spacing: 1.5px; margin-bottom: 10px; }
+        .zts-pause-h2 { font-family: 'Luckiest Guy', cursive; color: #fff; font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0; letter-spacing: 1.5px; text-shadow: 3px 3px 0 rgba(0,0,0,0.15); line-height: 1.1; }
+        .zts-pause-sub { font-family: 'Patrick Hand', cursive; color: rgba(255,255,255,0.85); font-size: 1.25rem; margin-top: 8px; }
+        #ztsPauseGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; position: relative; }
+        .zts-pause-card { background: #fff; border-radius: 24px; padding: 32px 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 4px solid #18181b; position: relative; transition: transform 0.3s; }
+        .zts-pause-card:hover { transform: translateY(-4px) rotate(-0.5deg); }
+        .zts-pause-label { font-family: 'Bangers', cursive; font-size: 1rem; letter-spacing: 2px; color: #FF2A7A; margin-bottom: 18px; }
+        .zts-pause-quote .zts-pause-label { color: #FF2A7A; }
+        .zts-pause-quiz .zts-pause-label { color: #8B5CF6; }
+        .zts-pause-quote-text { font-family: 'Patrick Hand', cursive; font-size: 1.5rem; color: #18181b; line-height: 1.4; font-style: italic; }
+        .zts-pause-author { font-family: 'Bangers', cursive; color: #8B5CF6; font-size: 1.1rem; margin-top: 16px; letter-spacing: 1.5px; text-align: right; }
+        .zts-pause-question { font-family: 'Fredoka One', cursive; font-size: 1.25rem; color: #18181b; margin-bottom: 20px; line-height: 1.35; }
+        .zts-pause-choices { display: flex; flex-direction: column; gap: 10px; }
+        .zts-pause-choice { font-family: 'Patrick Hand', cursive; font-size: 1.15rem; background: #f3f4f6; color: #18181b; border: 3px solid #e5e7eb; padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; }
+        .zts-pause-choice:hover:not(:disabled) { background: #FFEA00; border-color: #18181b; transform: translateX(4px); }
+        .zts-pause-choice:disabled { cursor: default; opacity: 0.6; }
+        .zts-pause-choice.correct { background: #10B981 !important; color: #fff; border-color: #065f46; opacity: 1; }
+        .zts-pause-choice.wrong { background: #EF4444 !important; color: #fff; border-color: #991b1b; }
+        .zts-pause-feedback { font-family: 'Patrick Hand', cursive; font-size: 1.05rem; color: #18181b; background: #FFEA00; padding: 14px 16px; border-radius: 12px; margin-top: 16px; border: 2px solid #18181b; line-height: 1.4; }
+        @media (max-width: 640px) {
+            #ztsPauseGrid { grid-template-columns: 1fr; }
+            .zts-pause-card { padding: 24px 22px; }
+            .zts-pause-quote-text { font-size: 1.25rem; }
+            .zts-pause-question { font-size: 1.1rem; }
+        }
+    </style>
+    <section id="ztsPauseSection">
+        <div class="zts-pause-header">
+            <span class="zts-pause-tag">☕ PAUSE ÉPS</span>
+            <h2 class="zts-pause-h2">Prends 30 secondes pour toi</h2>
+            <div class="zts-pause-sub">Une citation, une question. Un nouveau défi chaque jour.</div>
+        </div>
+        <div id="ztsPauseGrid"></div>
+    </section>
+
+    <!-- ========== SECTION: NOUVEAUTES (deplacee plus haut) ========== -->
+    <section class="py-16 px-6 md:px-10 bg-white" id="nouveautes">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-10">
+                <span class="inline-block bg-pink-fuchsia/10 text-pink-fuchsia font-fredoka text-sm px-4 py-1 rounded-full mb-3">
+                    <i data-lucide="sparkles" class="w-4 h-4 inline-block mr-1"></i> QUOI DE NEUF?
+                </span>
+                <h2 class="hero-title text-4xl md:text-5xl text-dark" data-i18n="newsTitle">Nouveautes</h2>
+                <p class="font-baloo text-dark/60 mt-2" data-i18n="newsDesc">Les dernieres mises a jour du site</p>
+            </div>
+            <div class="space-y-4" id="newsList">
+                <!-- Item 0: Tableau Blanc Numérique -->
+                <div class="news-card" style="border-color:#00E5FF;background:linear-gradient(90deg,#E0FCFF,#FFF)">
+                    <div class="news-date" style="background:#0096C7;color:#fff">7 avril 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Tableau Blanc Numérique (TNI) — NOUVEAU!</h3>
+                        <p class="font-baloo text-dark/60 text-sm">TNI interactif pour le gymnase : dessin libre, photos, vidéos, bulles de texte, sites web, gomme, grille, annuler, plein écran. Optimisé TBI!</p>
+                    </div>
+                    <a href="https://tni.zonetotalsport.ca" data-protected="true" class="news-btn" style="background:#0096C7;color:#fff;border-color:#0096C7">
+                        <i data-lucide="presentation" class="w-4 h-4"></i> Essayer!
+                    </a>
+                </div>
+                <!-- Item 1: Grille Horaire -->
+                <div class="news-card" style="border-color:#00E5FF;background:linear-gradient(90deg,#E0FCFF,#FFF)">
+                    <div class="news-date" style="background:#00897B;color:#fff">5 avril 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Grille Horaire des Spécialistes — NOUVEAU!</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Planifie l'horaire de tes spécialistes (ÉPS, musique, art, anglais). Cycle 5-10 jours, gestion des locaux, calcul automatique du % de tâche. Optimisé TBI!</p>
+                    </div>
+                    <a href="https://grille.zonetotalsport.ca" data-protected="true" class="news-btn" style="background:#00897B;color:#fff;border-color:#00897B">
+                        <i data-lucide="calendar-clock" class="w-4 h-4"></i> Planifier!
+                    </a>
+                </div>
+                <!-- Item 1: Scoreboard -->
+                <div class="news-card" style="border-color:#F59E0B;background:linear-gradient(90deg,#FFFBEB,#FFF)">
+                    <div class="news-date" style="background:#F59E0B;color:#000">5 avril 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Tableau Indicateur — Basketball, Hockey, Football!</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Scoreboard complet pour le gymnase : chrono, fautes, possession, chrono de tir, temps-morts, horns NBA/Sirene configurables. 3 sports!</p>
+                    </div>
+                    <a href="apps/scoreboard/" class="news-btn" style="background:#F59E0B;color:#000;border-color:#F59E0B">
+                        <i data-lucide="trophy" class="w-4 h-4"></i> Lancer!
+                    </a>
+                </div>
+                <!-- Item 1 -->
+                <div class="news-card">
+                    <div class="news-date">29 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Notifications Telegram en temps reel!</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Recevez une notification a chaque visite, inscription ou avis directement sur Telegram.</p>
+                    </div>
+                    <a href="#" class="news-btn">
+                        <i data-lucide="bell" class="w-4 h-4"></i> Nouveau!
+                    </a>
+                </div>
+                <!-- Item 2 -->
+                <div class="news-card">
+                    <div class="news-date">29 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Avis connectes a Firebase Firestore</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Les avis sont maintenant sauvegardes en base de donnees avec moderation avant publication.</p>
+                    </div>
+                    <a href="avis.html" class="news-btn btn-pink-outline">
+                        <i data-lucide="star" class="w-4 h-4"></i> Voir
+                    </a>
+                </div>
+                <!-- Item 3 -->
+                <div class="news-card">
+                    <div class="news-date">29 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">App Gym — gym.zonetotalsport.ca</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Nouvelle app de gestion du gymnase : transitions, signaux visuels, minuteurs et routines.</p>
+                    </div>
+                    <a href="#" onclick="event.preventDefault();ztsOpenApp('https://gym.zonetotalsport.ca')" class="news-btn">
+                        <i data-lucide="dumbbell" class="w-4 h-4"></i> Lancer
+                    </a>
+                </div>
+                <!-- Item 4 -->
+                <div class="news-card">
+                    <div class="news-date">29 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Blog EPS avec 23 articles + images</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Articles enrichis avec photos personnalisees, background gymnase et navigation amelioree.</p>
+                    </div>
+                    <a href="blog.html" class="news-btn btn-pink-outline">
+                        <i data-lucide="pen-line" class="w-4 h-4"></i> Lire
+                    </a>
+                </div>
+                <!-- Item 5 -->
+                <div class="news-card">
+                    <div class="news-date">29 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">Migration complete vers GitHub Pages</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Adieu Wix! Le site est maintenant 100% autonome sur GitHub Pages + Cloudflare + Firebase.</p>
+                    </div>
+                    <a href="#" class="news-btn btn-violet-outline">
+                        <i data-lucide="rocket" class="w-4 h-4"></i> Top!
+                    </a>
+                </div>
+                <!-- Item 6 -->
+                <div class="news-card">
+                    <div class="news-date">23 mars 2026</div>
+                    <div class="news-content">
+                        <h3 class="font-fredoka text-lg text-dark">150 jeux dans le generateur + PayPal</h3>
+                        <p class="font-baloo text-dark/60 text-sm">Generateur avec 150 jeux (FR/EN/ZH), page de dons PayPal et site multilingue.</p>
+                    </div>
+                    <a href="#jeux" class="news-btn btn-yellow-outline">
+                        <i data-lucide="gamepad-2" class="w-4 h-4"></i> Jouer
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- ========== SECTION 2: SERVICE CARDS (White) ========== -->
     <section class="py-24 px-6 md:px-10" id="services">
         <div class="max-w-7xl mx-auto">
@@ -2024,120 +2178,6 @@
             <path d="M0,0 L1440,50 L1440,70 L0,70 Z" fill="#FFD700"/>
         </svg>
     </div>
-
-    <!-- ========== SECTION 9.5: NOUVEAUTES (White) ========== -->
-    <section class="py-16 px-6 md:px-10 bg-white" id="nouveautes">
-        <div class="max-w-5xl mx-auto">
-            <div class="text-center mb-10">
-                <span class="inline-block bg-pink-fuchsia/10 text-pink-fuchsia font-fredoka text-sm px-4 py-1 rounded-full mb-3">
-                    <i data-lucide="sparkles" class="w-4 h-4 inline-block mr-1"></i> QUOI DE NEUF?
-                </span>
-                <h2 class="hero-title text-4xl md:text-5xl text-dark" data-i18n="newsTitle">Nouveautes</h2>
-                <p class="font-baloo text-dark/60 mt-2" data-i18n="newsDesc">Les dernieres mises a jour du site</p>
-            </div>
-            <div class="space-y-4" id="newsList">
-                <!-- Item 0: Tableau Blanc Numérique -->
-                <div class="news-card" style="border-color:#00E5FF;background:linear-gradient(90deg,#E0FCFF,#FFF)">
-                    <div class="news-date" style="background:#0096C7;color:#fff">7 avril 2026</div>
-                    <div class="news-content">
-                        <h3 class="font-fredoka text-lg text-dark">Tableau Blanc Numérique (TNI) — NOUVEAU!</h3>
-                        <p class="font-baloo text-dark/60 text-sm">TNI interactif pour le gymnase : dessin libre, photos, vidéos, bulles de texte, sites web, gomme, grille, annuler, plein écran. Optimisé TBI!</p>
-                    </div>
-                    <a href="https://tni.zonetotalsport.ca" data-protected="true" class="news-btn" style="background:#0096C7;color:#fff;border-color:#0096C7">
-                        <i data-lucide="presentation" class="w-4 h-4"></i> Essayer!
-                    </a>
-                </div>
-                <!-- Item 1: Grille Horaire -->
-                <div class="news-card" style="border-color:#00E5FF;background:linear-gradient(90deg,#E0FCFF,#FFF)">
-                    <div class="news-date" style="background:#00897B;color:#fff">5 avril 2026</div>
-                    <div class="news-content">
-                        <h3 class="font-fredoka text-lg text-dark">Grille Horaire des Spécialistes — NOUVEAU!</h3>
-                        <p class="font-baloo text-dark/60 text-sm">Planifie l'horaire de tes spécialistes (ÉPS, musique, art, anglais). Cycle 5-10 jours, gestion des locaux, calcul automatique du % de tâche. Optimisé TBI!</p>
-                    </div>
-                    <a href="https://grille.zonetotalsport.ca" data-protected="true" class="news-btn" style="background:#00897B;color:#fff;border-color:#00897B">
-                        <i data-lucide="calendar-clock" class="w-4 h-4"></i> Planifier!
-                    </a>
-                </div>
-                <!-- Item 1: Scoreboard -->
-                <div class="news-card" style="border-color:#F59E0B;background:linear-gradient(90deg,#FFFBEB,#FFF)">
-                    <div class="news-date" style="background:#F59E0B;color:#000">5 avril 2026</div>
-                    <div class="news-content">
-                        <h3 class="font-fredoka text-lg text-dark">Tableau Indicateur — Basketball, Hockey, Football!</h3>
-                        <p class="font-baloo text-dark/60 text-sm">Scoreboard complet pour le gymnase : chrono, fautes, possession, chrono de tir, temps-morts, horns NBA/Sirene configurables. 3 sports!</p>
-                    </div>
-                    <a href="apps/scoreboard/" class="news-btn" style="background:#F59E0B;color:#000;border-color:#F59E0B">
-                        <i data-lucide="trophy" class="w-4 h-4"></i> Lancer!
-                    </a>
-                </div>
-                <!-- Item 1 -->
-                <div class="news-card">
-                    <div class="news-date">29 mars 2026</div>
-                    <div class="news-content">
-                        <h3 class="font-fredoka text-lg text-dark">Notifications Telegram en temps reel!</h3>
-                        <p class="font-baloo text-dark/60 text-sm">Recevez une notification a chaque visite, inscription ou avis directement sur Telegram.</p>
-                    </div>
-                    <a href="#" class="news-btn">
-                        <i data-lucide="bell" class="w-4 h-4"></i> Nouveau!
-                    </a>
-                </div>
-                <!-- Item 2 -->
-                <div class="news-card">
-                    <div class="news-date">29 mars 2026</div>
-                    <div class="news-content">
-                        <h3 class="font-fredoka text-lg text-dark">Avis connectes a Firebase Firestore</h3>
-                        <p class="font-baloo text-dark/60 text-sm">Les avis sont maintenant sauvegardes en base de donnees avec moderation avant publication.</p>
-                    </div>
-                    <a href="avis.html" class="news-btn btn-pink-outline">
-                        <i data-lucide="star" class="w-4 h-4"></i> Voir
-                    </a>
-                </div>
-                <!-- Item 3 -->
-                <div class="news-card">
-                    <div class="news-date">29 mars 2026</div>
-                    <div class="news-content">
-                        <h3 class="font-fredoka text-lg text-dark">App Gym — gym.zonetotalsport.ca</h3>
-                        <p class="font-baloo text-dark/60 text-sm">Nouvelle app de gestion du gymnase : transitions, signaux visuels, minuteurs et routines.</p>
-                    </div>
-                    <a href="#" onclick="event.preventDefault();ztsOpenApp('https://gym.zonetotalsport.ca')" class="news-btn">
-                        <i data-lucide="dumbbell" class="w-4 h-4"></i> Lancer
-                    </a>
-                </div>
-                <!-- Item 4 -->
-                <div class="news-card">
-                    <div class="news-date">29 mars 2026</div>
-                    <div class="news-content">
-                        <h3 class="font-fredoka text-lg text-dark">Blog EPS avec 23 articles + images</h3>
-                        <p class="font-baloo text-dark/60 text-sm">Articles enrichis avec photos personnalisees, background gymnase et navigation amelioree.</p>
-                    </div>
-                    <a href="blog.html" class="news-btn btn-pink-outline">
-                        <i data-lucide="pen-line" class="w-4 h-4"></i> Lire
-                    </a>
-                </div>
-                <!-- Item 5 -->
-                <div class="news-card">
-                    <div class="news-date">29 mars 2026</div>
-                    <div class="news-content">
-                        <h3 class="font-fredoka text-lg text-dark">Migration complete vers GitHub Pages</h3>
-                        <p class="font-baloo text-dark/60 text-sm">Adieu Wix! Le site est maintenant 100% autonome sur GitHub Pages + Cloudflare + Firebase.</p>
-                    </div>
-                    <a href="#" class="news-btn btn-violet-outline">
-                        <i data-lucide="rocket" class="w-4 h-4"></i> Top!
-                    </a>
-                </div>
-                <!-- Item 6 -->
-                <div class="news-card">
-                    <div class="news-date">23 mars 2026</div>
-                    <div class="news-content">
-                        <h3 class="font-fredoka text-lg text-dark">150 jeux dans le generateur + PayPal</h3>
-                        <p class="font-baloo text-dark/60 text-sm">Generateur avec 150 jeux (FR/EN/ZH), page de dons PayPal et site multilingue.</p>
-                    </div>
-                    <a href="#jeux" class="news-btn btn-yellow-outline">
-                        <i data-lucide="gamepad-2" class="w-4 h-4"></i> Jouer
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Wave before footer -->
     <div class="wave-divider">
