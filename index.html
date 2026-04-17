@@ -850,72 +850,149 @@
         .digital-clock .clock-dot { }
         .nav-fixed.scrolled .digital-clock { border-color: rgba(0,229,255,0.15); }
 
-        /* ========== SPORTS TICKER (Live ESPN) ========== */
+        /* ========== SPORTS TICKER (Live ESPN) - REFONTE ========== */
         .sports-ticker-wrap {
-            background: #18181b; border-top: 3px solid #00E5FF; position: relative;
+            background: linear-gradient(180deg, #0b0f1f 0%, #18181b 100%);
+            border-top: 4px solid #00E5FF;
+            position: relative;
+            padding: 0 0 28px;
+        }
+        .sports-ticker-wrap::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 10% 20%, rgba(0,229,255,0.12), transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(239,68,68,0.1), transparent 40%);
+            pointer-events: none;
+        }
+        .sports-header {
+            position: relative; padding: 24px 20px 18px; text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .sports-header-title {
+            display: inline-flex; align-items: center; gap: 12px;
+            font-family: 'Luckiest Guy', cursive; color: #fff;
+            font-size: clamp(1.4rem, 3vw, 2rem); letter-spacing: 1.5px; line-height: 1;
+        }
+        .sports-live-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #EF4444; color: #fff; padding: 4px 12px; border-radius: 20px;
+            font-family: 'Bangers', cursive; font-size: 0.9rem; letter-spacing: 1.5px;
+        }
+        .sports-live-badge .dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #fff;
+            animation: livePulse 1.2s infinite;
+        }
+        .sports-header-sub {
+            font-family: 'Patrick Hand', cursive; color: rgba(255,255,255,0.55);
+            font-size: 1rem; margin-top: 6px;
         }
         .sports-tabs {
             display: flex; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none;
-            border-bottom: 2px solid rgba(255,255,255,0.08); background: #111;
+            background: rgba(0,0,0,0.4); position: relative; padding: 0 16px;
+            border-bottom: 2px solid rgba(255,255,255,0.08);
         }
         .sports-tabs::-webkit-scrollbar { display: none; }
         .sport-tab {
-            padding: 8px 18px; font-family: 'Luckiest Guy', cursive; font-size: 0.75rem;
-            letter-spacing: 0.06em; color: rgba(255,255,255,0.4); cursor: pointer;
+            padding: 14px 22px; font-family: 'Bangers', cursive; font-size: 1.05rem;
+            letter-spacing: 1.2px; color: rgba(255,255,255,0.55); cursor: pointer;
             white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s;
             background: none; border-top: none; border-left: none; border-right: none;
+            display: flex; align-items: center; gap: 8px;
         }
-        .sport-tab:hover { color: rgba(255,255,255,0.7); }
-        .sport-tab.active { color: #00E5FF; border-bottom-color: #00E5FF; }
+        .sport-tab:hover { color: #fff; background: rgba(255,255,255,0.04); }
+        .sport-tab.active {
+            color: #00E5FF; border-bottom-color: #00E5FF;
+            background: linear-gradient(180deg, rgba(0,229,255,0.1), transparent);
+        }
+        .scores-date-nav {
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            padding: 14px 0; background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .scores-nav-btn {
+            width: 40px; height: 40px; border-radius: 10px;
+            border: 2px solid rgba(0,229,255,0.3);
+            background: rgba(0,229,255,0.05); color: #00E5FF;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .scores-nav-btn:hover:not(:disabled) {
+            background: rgba(0,229,255,0.2); border-color: #00E5FF;
+            transform: scale(1.05);
+        }
+        .scores-nav-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+        .scores-date-label {
+            font-family: 'Luckiest Guy', cursive; font-size: 1.1rem; letter-spacing: 1.5px;
+            color: #fff; min-width: 180px; text-align: center;
+        }
+        .scores-refresh-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15); background: transparent;
+            color: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; margin-left: 8px;
+        }
+        .scores-refresh-btn:hover { color: #00E5FF; border-color: #00E5FF; transform: rotate(180deg); }
+        .scores-refresh-btn.spinning i { animation: spin 1s linear; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .scores-container {
-            display: flex; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; gap: 0; padding: 0;
+            display: flex; overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+            gap: 14px; padding: 20px 20px 12px;
             -webkit-overflow-scrolling: touch; touch-action: pan-x;
             scroll-snap-type: x proximity; position: relative;
         }
         .scores-container::-webkit-scrollbar { display: none; }
         .scores-container::after {
             content: ''; position: sticky; right: 0; top: 0; bottom: 0;
-            width: 40px; min-width: 40px; pointer-events: none;
+            width: 50px; min-width: 50px; pointer-events: none;
             background: linear-gradient(to right, transparent, #18181b);
-            flex-shrink: 0; margin-left: -40px;
+            flex-shrink: 0; margin-left: -50px; align-self: stretch;
         }
-        .game-card { scroll-snap-align: start; }
         .game-card {
-            min-width: 200px; padding: 12px 16px; border-right: 1px solid rgba(255,255,255,0.06);
-            display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+            scroll-snap-align: start; flex-shrink: 0;
+            min-width: 240px; padding: 16px 18px;
+            background: rgba(255,255,255,0.04);
+            border: 2px solid rgba(255,255,255,0.08); border-radius: 14px;
+            display: flex; flex-direction: column; gap: 10px;
+            transition: all 0.2s;
         }
-        .game-card:hover { background: rgba(255,255,255,0.03); }
-        @media (max-width: 640px) { .game-card { min-width: 160px; padding: 8px 10px; } }
+        .game-card:hover {
+            background: rgba(255,255,255,0.08); border-color: rgba(0,229,255,0.4);
+            transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,229,255,0.15);
+        }
+        .game-card.is-live { border-color: rgba(239,68,68,0.5); background: rgba(239,68,68,0.05); }
         .game-team-row {
-            display: flex; align-items: center; gap: 8px; font-family: 'Patrick Hand', cursive;
-            font-size: 0.9rem; color: #fff;
+            display: flex; align-items: center; gap: 10px;
+            font-family: 'Fredoka One', cursive; font-size: 1rem; color: #fff;
         }
-        .game-team-logo { width: 22px; height: 22px; object-fit: contain; }
+        .game-team-row.loser { opacity: 0.55; }
+        .game-team-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
         .game-team-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .game-team-score { font-family: 'Luckiest Guy', cursive; font-size: 1rem; min-width: 24px; text-align: right; letter-spacing: 0.04em; }
+        .game-team-score {
+            font-family: 'Luckiest Guy', cursive; font-size: 1.4rem;
+            min-width: 32px; text-align: right; letter-spacing: 0.04em;
+        }
         .game-team-row.winner .game-team-score { color: #00E5FF; }
         .game-status {
-            font-family: 'Luckiest Guy', cursive; font-size: 0.6rem; letter-spacing: 0.06em;
-            text-align: center; color: rgba(255,255,255,0.35); padding-top: 2px;
+            font-family: 'Bangers', cursive; font-size: 0.8rem; letter-spacing: 1.2px;
+            text-align: center; color: rgba(255,255,255,0.5);
+            padding: 6px 10px; border-top: 1px solid rgba(255,255,255,0.08);
         }
-        .game-status.live { color: #EF4444; animation: livePulse 1.5s infinite; }
-        @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .scores-loading { color: rgba(255,255,255,0.3); font-family: 'Patrick Hand', cursive; padding: 16px 20px; font-size: 0.9rem; }
-        .scores-date-nav {
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            padding: 6px 0; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06);
+        .game-status.live {
+            color: #EF4444; animation: livePulse 1.5s infinite;
+            background: rgba(239,68,68,0.1); border-radius: 8px;
+            border-top: none; margin-top: 4px;
         }
-        .scores-nav-btn {
-            width: 32px; height: 32px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.15);
-            background: transparent; color: #fff; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s;
+        .game-status.final { color: #00E5FF; }
+        @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .scores-loading, .scores-empty {
+            color: rgba(255,255,255,0.5); font-family: 'Patrick Hand', cursive;
+            padding: 40px 20px; font-size: 1.1rem; text-align: center; width: 100%;
         }
-        .scores-nav-btn:hover { background: rgba(0,229,255,0.2); border-color: #00E5FF; color: #00E5FF; }
-        .scores-nav-btn:disabled { opacity: 0.2; cursor: not-allowed; }
-        .scores-nav-btn:disabled:hover { background: transparent; border-color: rgba(255,255,255,0.15); color: #fff; }
-        .scores-date-label {
-            font-family: 'Luckiest Guy', cursive; font-size: 0.8rem; letter-spacing: 0.06em;
-            color: #00E5FF; min-width: 160px; text-align: center;
+        .scores-empty-icon { font-size: 3rem; margin-bottom: 8px; display: block; }
+        @media (max-width: 640px) {
+            .game-card { min-width: 200px; padding: 14px; }
+            .sport-tab { padding: 12px 14px; font-size: 0.95rem; }
+            .scores-container { padding: 16px 14px 10px; gap: 10px; }
+            .scores-date-label { font-size: 0.95rem; min-width: 140px; }
         }
 
         /* ========== COMIC TOOLS DOCK ========== */
@@ -2130,6 +2207,13 @@
 
     <!-- ========== SPORTS SCORES (Live ESPN) ========== -->
     <div class="sports-ticker-wrap" id="liveScores">
+        <div class="sports-header">
+            <div class="sports-header-title">
+                <span class="sports-live-badge"><span class="dot"></span>LIVE</span>
+                <span>SCORES EN DIRECT</span>
+            </div>
+            <div class="sports-header-sub">Tes sports preferes mis a jour automatiquement</div>
+        </div>
         <div class="sports-tabs" id="sportsTabs">
             <button class="sport-tab active" data-sport="hockey/nhl">🏒 NHL</button>
             <button class="sport-tab" data-sport="basketball/nba">🏀 NBA</button>
@@ -2140,16 +2224,19 @@
             <button class="sport-tab" data-sport="basketball/mens-college-basketball">🏀 NCAAB</button>
         </div>
         <div class="scores-date-nav">
-            <button class="scores-nav-btn" id="scoresPrev" onclick="changeScoresDate(-1)" title="Jour précédent">
+            <button class="scores-nav-btn" id="scoresPrev" onclick="changeScoresDate(-1)" title="Jour précédent" aria-label="Jour precedent">
                 <i data-lucide="chevron-left" class="w-5 h-5"></i>
             </button>
             <span class="scores-date-label" id="scoresDateLabel">Aujourd'hui</span>
-            <button class="scores-nav-btn" id="scoresNext" onclick="changeScoresDate(1)" title="Jour suivant">
+            <button class="scores-nav-btn" id="scoresNext" onclick="changeScoresDate(1)" title="Jour suivant" aria-label="Jour suivant">
                 <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+            <button class="scores-refresh-btn" id="scoresRefresh" title="Actualiser" aria-label="Actualiser">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
             </button>
         </div>
         <div class="scores-container" id="scoresContainer">
-            <div class="scores-loading">Chargement des scores...</div>
+            <div class="scores-loading">⏳ Chargement des scores...</div>
         </div>
     </div>
 
@@ -3654,13 +3741,11 @@
         };
 
         async function fetchScores(sport, preserveScroll) {
-            // Montrer loader seulement au premier chargement ou changement de ligue/date
             const savedScroll = preserveScroll ? container.scrollLeft : 0;
-            if (!preserveScroll) container.innerHTML = '<div class="scores-loading">⏳ Chargement...</div>';
+            if (!preserveScroll) container.innerHTML = '<div class="scores-loading">⏳ Chargement des scores...</div>';
             updateDateLabel();
             try {
                 const targetDate = getScoreDate();
-                // Utilise la date locale (pas UTC) — sinon tard le soir ESPN renvoie le jour d'apres
                 const y = targetDate.getFullYear();
                 const m = String(targetDate.getMonth() + 1).padStart(2, '0');
                 const d = String(targetDate.getDate()).padStart(2, '0');
@@ -3670,11 +3755,22 @@
                 let events = data.events || [];
 
                 if (events.length === 0) {
-                    container.innerHTML = '<div class="scores-loading">Aucun match ce jour</div>';
+                    container.innerHTML = '<div class="scores-empty"><span class="scores-empty-icon">🏟️</span>Aucun match prevu ce jour</div>';
                     return;
                 }
-                const now = new Date();
-                const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+                // Tri : LIVE en premier, puis programmes, puis termines
+                events.sort((a, b) => {
+                    const aName = a.status?.type?.name || '';
+                    const bName = b.status?.type?.name || '';
+                    const liveNames = ['STATUS_IN_PROGRESS','STATUS_HALFTIME','STATUS_END_PERIOD'];
+                    const aLive = liveNames.includes(aName), bLive = liveNames.includes(bName);
+                    if (aLive && !bLive) return -1;
+                    if (!aLive && bLive) return 1;
+                    const aFinal = aName === 'STATUS_FINAL', bFinal = bName === 'STATUS_FINAL';
+                    if (aFinal && !bFinal) return 1;
+                    if (!aFinal && bFinal) return -1;
+                    return 0;
+                });
                 let html = '';
                 events.forEach(ev => {
                     const comp = ev.competitions?.[0];
@@ -3682,9 +3778,6 @@
                     const away = comp.competitors?.find(c => c.homeAway === 'away');
                     const home = comp.competitors?.find(c => c.homeAway === 'home');
                     if (!away || !home) return;
-
-                    const gameDate = ev.date ? ev.date.slice(0, 10) : '';
-                    const isYesterday = gameDate && gameDate !== today;
 
                     const status = ev.status || {};
                     const statusType = status.type?.name || '';
@@ -3698,17 +3791,15 @@
                     let statusHtml = '';
                     if (isLive) {
                         let detail = '';
-                        if (clock && clock !== '0:00') detail = clock + ' - ';
+                        if (clock && clock !== '0:00') detail = clock + ' · ';
                         if (sport.includes('hockey')) detail += 'P' + period;
                         else if (sport.includes('basketball')) detail += 'Q' + period;
                         else if (sport.includes('football')) detail += 'Q' + period;
                         else if (sport.includes('baseball')) detail += period > 9 ? period + 'th' : ['','1st','2nd','3rd','4th','5th','6th','7th','8th','9th'][period];
                         else if (sport.includes('soccer')) detail += period === 1 ? '1H' : '2H';
-                        statusHtml = `<div class="game-status live">🔴 LIVE ${detail}</div>`;
+                        statusHtml = `<div class="game-status live">🔴 LIVE · ${detail}</div>`;
                     } else if (isFinal) {
-                        statusHtml = `<div class="game-status">FINAL</div>`;
-                    } else if (isScheduled) {
-                        statusHtml = `<div class="game-status">${statusDetail}</div>`;
+                        statusHtml = `<div class="game-status final">FINAL</div>`;
                     } else {
                         statusHtml = `<div class="game-status">${statusDetail}</div>`;
                     }
@@ -3717,31 +3808,33 @@
                     const homeScore = parseInt(home.score) || 0;
                     const awayWin = isFinal && awayScore > homeScore;
                     const homeWin = isFinal && homeScore > awayScore;
+                    const awayLoser = isFinal && awayScore < homeScore;
+                    const homeLoser = isFinal && homeScore < awayScore;
 
                     const awayLogo = away.team?.logo || '';
                     const homeLogo = home.team?.logo || '';
                     const awayName = away.team?.abbreviation || away.team?.shortDisplayName || '?';
                     const homeName = home.team?.abbreviation || home.team?.shortDisplayName || '?';
 
-                    html += `<div class="game-card">
-                        <div class="game-team-row ${awayWin ? 'winner' : ''}">
-                            <img decoding="async" loading="lazy" src="${awayLogo}" class="game-team-logo" alt="${awayName}" onerror="this.style.display='none'">
+                    const cardClass = isLive ? 'game-card is-live' : 'game-card';
+                    html += `<div class="${cardClass}">
+                        <div class="game-team-row ${awayWin ? 'winner' : ''} ${awayLoser ? 'loser' : ''}">
+                            <img decoding="async" loading="lazy" src="${awayLogo}" class="game-team-logo" alt="${awayName}" onerror="this.style.visibility='hidden'">
                             <span class="game-team-name">${awayName}</span>
-                            <span class="game-team-score">${isScheduled ? '' : awayScore}</span>
+                            <span class="game-team-score">${isScheduled ? '—' : awayScore}</span>
                         </div>
-                        <div class="game-team-row ${homeWin ? 'winner' : ''}">
-                            <img decoding="async" loading="lazy" src="${homeLogo}" class="game-team-logo" alt="${homeName}" onerror="this.style.display='none'">
+                        <div class="game-team-row ${homeWin ? 'winner' : ''} ${homeLoser ? 'loser' : ''}">
+                            <img decoding="async" loading="lazy" src="${homeLogo}" class="game-team-logo" alt="${homeName}" onerror="this.style.visibility='hidden'">
                             <span class="game-team-name">${homeName}</span>
-                            <span class="game-team-score">${isScheduled ? '' : homeScore}</span>
+                            <span class="game-team-score">${isScheduled ? '—' : homeScore}</span>
                         </div>
                         ${statusHtml}
                     </div>`;
                 });
                 container.innerHTML = html;
-                // Restaure le scroll horizontal apres auto-refresh
                 if (preserveScroll) container.scrollLeft = savedScroll;
             } catch(e) {
-                if (!preserveScroll) container.innerHTML = '<div class="scores-loading">Impossible de charger les scores</div>';
+                if (!preserveScroll) container.innerHTML = '<div class="scores-empty"><span class="scores-empty-icon">⚠️</span>Impossible de charger les scores</div>';
             }
         }
 
@@ -3755,6 +3848,17 @@
                 fetchScores(activeSport);
             });
         });
+
+        // Bouton refresh manuel
+        const refreshBtn = document.getElementById('scoresRefresh');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                refreshBtn.classList.add('spinning');
+                fetchScores(activeSport).finally(() => {
+                    setTimeout(() => refreshBtn.classList.remove('spinning'), 800);
+                });
+            });
+        }
 
         // Initial load
         updateDateLabel();
