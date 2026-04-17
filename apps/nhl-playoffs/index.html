@@ -63,21 +63,63 @@
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     z-index: -1;
-    opacity: 0.15;
+    opacity: 0.35;
     pointer-events: none;
     display: grid;
-    grid-template-columns: repeat(auto-fill, 100px);
-    grid-template-rows: repeat(auto-fill, 100px);
-    gap: 15px;
-    padding: 20px;
+    grid-template-columns: repeat(auto-fill, 110px);
+    grid-template-rows: repeat(auto-fill, 110px);
+    gap: 12px;
+    padding: 15px;
     align-content: start;
     overflow: hidden;
   }
   .nhl-bg-pattern img {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     object-fit: contain;
+    filter: saturate(1.3) brightness(1.2);
   }
+
+  /* ========== ZOOM CONTROLS (TNI / Gymnase) ========== */
+  .zoom-controls {
+    position: fixed;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .zoom-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 2px solid rgba(0,229,255,0.3);
+    background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(0,59,115,0.4));
+    color: var(--cyan);
+    font-family: 'Bungee', cursive;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+  }
+  .zoom-btn:hover {
+    background: linear-gradient(135deg, rgba(0,229,255,0.3), rgba(0,59,115,0.6));
+    box-shadow: var(--glow-cyan);
+    transform: scale(1.1);
+  }
+  .zoom-label {
+    text-align: center;
+    font-family: 'Bangers', cursive;
+    font-size: 11px;
+    color: rgba(0,229,255,0.5);
+    letter-spacing: 1px;
+  }
+
 
   /* ========== HEADER ========== */
   .header {
@@ -271,11 +313,11 @@
 
   /* ========== MATCHUP CARD ========== */
   .matchup {
-    background: linear-gradient(135deg, rgba(0,229,255,0.06) 0%, rgba(0,59,115,0.3) 100%);
-    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(0,229,255,0.08) 0%, rgba(0,59,115,0.35) 100%);
+    border-radius: 12px;
     overflow: hidden;
-    border: 1px solid rgba(0,229,255,0.15);
-    width: 200px;
+    border: 2px solid rgba(0,229,255,0.2);
+    width: 240px;
     margin: 0 auto;
     transition: all 0.3s;
     cursor: pointer;
@@ -289,8 +331,8 @@
   .team-row {
     display: flex;
     align-items: center;
-    padding: 8px 10px;
-    gap: 8px;
+    padding: 10px 12px;
+    gap: 10px;
     transition: all 0.3s;
   }
   .team-row:first-child { border-bottom: 1px solid rgba(0,229,255,0.1); }
@@ -299,28 +341,28 @@
 
   .seed {
     font-family: 'Bangers', cursive;
-    font-size: 13px;
+    font-size: 16px;
     color: var(--jaune);
-    width: 18px;
+    width: 20px;
     text-align: center;
   }
   .team-logo {
-    width: 30px;
-    height: 30px;
+    width: 38px;
+    height: 38px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
   }
   .team-abbrev {
     font-family: 'Luckiest Guy', cursive;
-    font-size: 14px;
+    font-size: 17px;
     color: var(--blanc);
     flex: 1;
     letter-spacing: 1px;
   }
   .team-wins-num {
     font-family: 'Bungee', cursive;
-    font-size: 18px;
-    width: 24px;
+    font-size: 22px;
+    width: 28px;
     text-align: center;
     color: rgba(255,255,255,0.3);
   }
@@ -1082,6 +1124,14 @@
   </div>
 </div>
 
+<!-- Zoom controls for TNI -->
+<div class="zoom-controls">
+  <button class="zoom-btn" onclick="setZoom('in')" title="Zoom +">+</button>
+  <div class="zoom-label" id="zoomLevel">100%</div>
+  <button class="zoom-btn" onclick="setZoom('out')" title="Zoom -">−</button>
+  <button class="zoom-btn" onclick="setZoom('reset')" title="Réinitialiser" style="font-size:14px;margin-top:4px">↺</button>
+</div>
+
 <div class="mascot-corner"><img src="mascot-badminton.png" alt="Mr Root"></div>
 
 <button class="refresh-btn" onclick="refreshAll()" id="refreshBtn">
@@ -1142,11 +1192,11 @@ function createNHLBackground() {
     'SJS','UTA'
   ];
   const container = document.getElementById('nhlBgPattern');
-  // Fill with ~120 logos (repeating teams)
-  for (let i = 0; i < 120; i++) {
+  // Use dark logos (colorful, for dark background)
+  for (let i = 0; i < 150; i++) {
     const team = teams[i % teams.length];
     const img = document.createElement('img');
-    img.src = LOGO(team);
+    img.src = `https://assets.nhle.com/logos/nhl/svg/${team}_dark.svg`;
     img.alt = '';
     img.loading = 'lazy';
     container.appendChild(img);
@@ -1849,6 +1899,40 @@ async function refreshAll() {
 // =============================================
 // INIT
 // =============================================
+// =============================================
+// ZOOM (TNI / Gymnase)
+// =============================================
+let currentZoom = 100;
+const ZOOM_STEPS = [75, 100, 125, 150, 175, 200];
+
+function setZoom(action) {
+  const idx = ZOOM_STEPS.indexOf(currentZoom);
+  if (action === 'in' && idx < ZOOM_STEPS.length - 1) {
+    currentZoom = ZOOM_STEPS[idx + 1];
+  } else if (action === 'out' && idx > 0) {
+    currentZoom = ZOOM_STEPS[idx - 1];
+  } else if (action === 'reset') {
+    currentZoom = 100;
+  }
+  applyZoom();
+}
+
+function applyZoom() {
+  document.getElementById('zoomLevel').textContent = currentZoom + '%';
+  const scale = currentZoom / 100;
+  // Apply zoom to content areas
+  document.querySelectorAll('.header, .view, .footer').forEach(el => {
+    el.style.transform = scale === 1 ? '' : `scale(${scale})`;
+    el.style.transformOrigin = 'top center';
+  });
+  // Adjust body height for scrolling
+  if (scale > 1) {
+    document.body.style.paddingBottom = ((scale - 1) * 100) + 'vh';
+  } else {
+    document.body.style.paddingBottom = '';
+  }
+}
+
 async function init() {
   createParticles();
   createNHLBackground();
