@@ -1306,32 +1306,39 @@
 
     <!-- ========== SECTION "AUJOURD'HUI" (Jeu + Meteo + Ephemeride) ========== -->
     <style>
-        #ztsTodaySection { background: linear-gradient(135deg, #18181b 0%, #0f0f2e 100%); padding: 40px 16px; position: relative; }
+        #ztsTodaySection { background: linear-gradient(135deg, #18181b 0%, #0f0f2e 100%); padding: 60px 20px; position: relative; }
         #ztsTodaySection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 20%, rgba(0,229,255,0.15), transparent 50%), radial-gradient(circle at 80% 80%, rgba(139,92,246,0.15), transparent 50%); pointer-events: none; }
-        .zts-today-header { max-width: 1200px; margin: 0 auto 24px; text-align: center; position: relative; }
-        .zts-today-tag-pill { display: inline-block; background: linear-gradient(135deg, #00E5FF, #8B5CF6); color: #fff; padding: 6px 16px; border-radius: 20px; font-family: 'Bangers', cursive; font-size: 0.85rem; letter-spacing: 1.5px; margin-bottom: 8px; }
-        .zts-today-h2 { font-family: 'Luckiest Guy', cursive; color: #fff; font-size: clamp(1.8rem, 4vw, 2.8rem); margin: 0; letter-spacing: 1px; }
-        .zts-today-date { font-family: 'Patrick Hand', cursive; color: #00E5FF; font-size: 1.1rem; margin-top: 4px; }
-        #ztsTodayGrid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; position: relative; }
-        .zts-today-card { background: rgba(255,255,255,0.05); border: 2px solid rgba(0,229,255,0.2); border-radius: 20px; padding: 20px; backdrop-filter: blur(10px); transition: all 0.3s; }
-        .zts-today-card:hover { transform: translateY(-4px); border-color: rgba(0,229,255,0.5); box-shadow: 0 10px 40px rgba(0,229,255,0.2); }
-        .zts-today-label { font-family: 'Bangers', cursive; color: #00E5FF; font-size: 0.85rem; letter-spacing: 1.5px; margin-bottom: 10px; text-transform: uppercase; }
-        .zts-today-body { color: #fff; font-family: 'Patrick Hand', cursive; font-size: 1.05rem; line-height: 1.5; }
-        .zts-today-weather-big { font-family: 'Luckiest Guy', cursive; font-size: 2.5rem; color: #00E5FF; margin-bottom: 4px; }
-        .zts-today-weather-label { font-size: 1rem; color: #fff; opacity: 0.8; margin-bottom: 4px; }
-        .zts-today-weather-details { font-size: 0.9rem; color: #fff; opacity: 0.6; margin-bottom: 12px; }
-        .zts-today-decision { display: inline-block; padding: 8px 18px; border-radius: 12px; font-family: 'Luckiest Guy', cursive; letter-spacing: 1px; color: #fff; margin-bottom: 6px; font-size: 1rem; }
-        .zts-today-reason { font-size: 0.9rem; color: #fff; opacity: 0.7; }
-        .zts-today-game-title { font-family: 'Luckiest Guy', cursive; color: #FFEA00; font-size: 1.4rem; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .zts-today-game-desc { font-size: 0.95rem; margin-bottom: 10px; }
-        .zts-today-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-        .zts-today-tag { background: rgba(0,229,255,0.15); color: #00E5FF; padding: 3px 10px; border-radius: 8px; font-size: 0.8rem; }
-        .zts-today-cta { background: linear-gradient(135deg, #00E5FF, #0096C7); color: #0F0F2E; border: none; padding: 10px 18px; border-radius: 12px; font-family: 'Bangers', cursive; letter-spacing: 1px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; width: 100%; }
-        .zts-today-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,229,255,0.4); }
-        .zts-today-eph-title { font-family: 'Luckiest Guy', cursive; color: #FF2A7A; font-size: 1.25rem; margin-bottom: 8px; line-height: 1.2; }
-        .zts-today-year { background: #FF2A7A; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 0.9rem; font-family: 'Fredoka One'; }
-        .zts-today-eph-desc { font-size: 0.95rem; margin-bottom: 10px; }
-        .zts-today-eph-activity { background: rgba(255,42,122,0.1); border-left: 3px solid #FF2A7A; padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; }
+        .zts-today-header { max-width: 1400px; margin: 0 auto 40px; text-align: center; position: relative; }
+        .zts-today-tag-pill { display: inline-block; background: linear-gradient(135deg, #00E5FF, #8B5CF6); color: #fff; padding: 10px 24px; border-radius: 24px; font-family: 'Bangers', cursive; font-size: 1.15rem; letter-spacing: 2px; margin-bottom: 14px; }
+        .zts-today-h2 { font-family: 'Luckiest Guy', cursive; color: #fff; font-size: clamp(2.4rem, 5vw, 3.8rem); margin: 0; letter-spacing: 1.5px; line-height: 1.1; }
+        .zts-today-date { font-family: 'Patrick Hand', cursive; color: #00E5FF; font-size: 1.5rem; margin-top: 10px; }
+        #ztsTodayGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; position: relative; }
+        .zts-today-card { background: rgba(255,255,255,0.05); border: 3px solid rgba(0,229,255,0.25); border-radius: 28px; padding: 32px 28px; backdrop-filter: blur(10px); transition: all 0.3s; }
+        .zts-today-card:hover { transform: translateY(-6px); border-color: rgba(0,229,255,0.55); box-shadow: 0 14px 50px rgba(0,229,255,0.25); }
+        .zts-today-label { font-family: 'Bangers', cursive; color: #00E5FF; font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 18px; text-transform: uppercase; }
+        .zts-today-body { color: #fff; font-family: 'Patrick Hand', cursive; font-size: 1.3rem; line-height: 1.55; }
+        .zts-today-weather-big { font-family: 'Luckiest Guy', cursive; font-size: 3.8rem; color: #00E5FF; margin-bottom: 6px; line-height: 1; }
+        .zts-today-weather-label { font-size: 1.35rem; color: #fff; opacity: 0.85; margin-bottom: 6px; }
+        .zts-today-weather-details { font-size: 1.15rem; color: #fff; opacity: 0.65; margin-bottom: 18px; }
+        .zts-today-decision { display: inline-block; padding: 12px 26px; border-radius: 14px; font-family: 'Luckiest Guy', cursive; letter-spacing: 1.5px; color: #fff; margin-bottom: 10px; font-size: 1.5rem; }
+        .zts-today-reason { font-size: 1.1rem; color: #fff; opacity: 0.8; }
+        .zts-today-game-title { font-family: 'Luckiest Guy', cursive; color: #FFEA00; font-size: 2rem; margin-bottom: 14px; letter-spacing: 0.8px; line-height: 1.15; }
+        .zts-today-game-desc { font-size: 1.2rem; margin-bottom: 16px; }
+        .zts-today-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .zts-today-tag { background: rgba(0,229,255,0.18); color: #00E5FF; padding: 6px 14px; border-radius: 10px; font-size: 1rem; font-family: 'Fredoka One', cursive; }
+        .zts-today-cta { background: linear-gradient(135deg, #00E5FF, #0096C7); color: #0F0F2E; border: none; padding: 14px 22px; border-radius: 14px; font-family: 'Bangers', cursive; letter-spacing: 1.5px; cursor: pointer; font-size: 1.2rem; transition: all 0.2s; width: 100%; }
+        .zts-today-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,229,255,0.5); }
+        .zts-today-eph-title { font-family: 'Luckiest Guy', cursive; color: #FF2A7A; font-size: 1.85rem; margin-bottom: 14px; line-height: 1.2; }
+        .zts-today-year { background: #FF2A7A; color: #fff; padding: 4px 12px; border-radius: 8px; font-size: 1.2rem; font-family: 'Fredoka One'; margin-right: 6px; }
+        .zts-today-eph-desc { font-size: 1.2rem; margin-bottom: 16px; }
+        .zts-today-eph-activity { background: rgba(255,42,122,0.12); border-left: 4px solid #FF2A7A; padding: 16px 18px; border-radius: 12px; font-size: 1.15rem; line-height: 1.5; }
+        @media (max-width: 640px) {
+            #ztsTodayGrid { grid-template-columns: 1fr; gap: 20px; }
+            .zts-today-card { padding: 24px 22px; }
+            .zts-today-weather-big { font-size: 3rem; }
+            .zts-today-game-title, .zts-today-eph-title { font-size: 1.6rem; }
+            .zts-today-body, .zts-today-game-desc, .zts-today-eph-desc { font-size: 1.15rem; }
+        }
     </style>
     <section id="ztsTodaySection">
         <div class="zts-today-header">
