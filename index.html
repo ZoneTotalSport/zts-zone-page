@@ -1280,25 +1280,39 @@
     </section>
 
     <!-- ========== WIDGET SCORES TEASER ========== -->
-    <div id="scoresWidget" style="position:relative;z-index:20;margin-top:-40px;padding:0 20px;">
-      <div style="max-width:800px;margin:0 auto;background:linear-gradient(135deg,#0F0F2E,#1a237e);border-radius:20px;border:3px solid #00E5FF;box-shadow:0 8px 40px rgba(0,229,255,.2);padding:20px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;">
-        <!-- Close button -->
-        <button onclick="document.getElementById('scoresWidget').style.display='none'" style="position:absolute;top:10px;right:14px;background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">&times;</button>
-        <!-- Live dot + text -->
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="width:10px;height:10px;border-radius:50%;background:#39FF14;display:inline-block;animation:pulse 1.5s infinite;"></span>
-          <span style="font-family:'Bangers',cursive;font-size:1.1rem;color:#00E5FF;letter-spacing:1px;">SCORES EN DIRECT</span>
+    <style>
+      #scoresWidget { position: relative; z-index: 20; margin-top: -40px; padding: 0 20px; }
+      #scoresWidget .sw-box { position: relative; max-width: 900px; margin: 0 auto; background: linear-gradient(135deg, #0F0F2E, #1a237e); border-radius: 20px; border: 3px solid #00E5FF; box-shadow: 0 8px 40px rgba(0,229,255,.25); padding: 22px 60px 22px 28px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: center; }
+      #scoresWidget .sw-close { position: absolute; top: 10px; right: 14px; background: rgba(255,255,255,.12); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; line-height: 1; display: flex; align-items: center; justify-content: center; transition: background .2s; z-index: 2; }
+      #scoresWidget .sw-close:hover { background: rgba(255,255,255,.3); }
+      #scoresWidget .sw-label { display: flex; align-items: center; gap: 10px; }
+      #scoresWidget .sw-dot { width: 10px; height: 10px; border-radius: 50%; background: #39FF14; animation: pulse 1.5s infinite; }
+      #scoresWidget .sw-title { font-family: 'Bangers', cursive; font-size: 1.15rem; color: #00E5FF; letter-spacing: 1.5px; }
+      #scoresWidget .sw-leagues { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+      #scoresWidget .sw-league { font-family: 'Fredoka One', cursive; font-size: .9rem; color: #fff; background: rgba(255,255,255,.1); padding: 7px 14px; border-radius: 10px; white-space: nowrap; }
+      #scoresWidget .sw-cta { background: linear-gradient(135deg, #00E5FF, #8B5CF6); color: #fff; font-family: 'Bangers', cursive; font-size: 1.05rem; letter-spacing: 1.5px; padding: 11px 24px; border-radius: 12px; border: none; cursor: pointer; transition: all .2s; white-space: nowrap; }
+      #scoresWidget .sw-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,229,255,.5); }
+      @media (max-width: 640px) {
+        #scoresWidget .sw-box { padding: 20px 52px 20px 20px; flex-direction: column; gap: 14px; }
+        #scoresWidget .sw-leagues { gap: 6px; }
+        #scoresWidget .sw-league { font-size: .8rem; padding: 5px 10px; }
+      }
+    </style>
+    <div id="scoresWidget">
+      <div class="sw-box">
+        <button class="sw-close" onclick="document.getElementById('scoresWidget').style.display='none'" aria-label="Fermer">&times;</button>
+        <div class="sw-label">
+          <span class="sw-dot"></span>
+          <span class="sw-title">SCORES EN DIRECT</span>
         </div>
-        <!-- Mini scores preview -->
-        <div id="miniScores" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center;">
-          <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px;">🏒 NHL</span>
-          <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px;">🏀 NBA</span>
-          <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px;">🏈 NFL</span>
-          <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:rgba(255,255,255,.1);padding:6px 14px;border-radius:10px;">⚾ MLB</span>
+        <div class="sw-leagues">
+          <span class="sw-league">🏒 NHL</span>
+          <span class="sw-league">🏀 NBA</span>
+          <span class="sw-league">🏈 NFL</span>
+          <span class="sw-league">⚾ MLB</span>
         </div>
-        <!-- CTA button -->
-        <button onclick="document.getElementById('sportsNewsModal').style.display='flex';document.getElementById('sportsNewsFrame').src='https://zonetotalsport.ca/sports-news.html'" style="background:linear-gradient(135deg,#00E5FF,#8B5CF6);color:#fff;font-family:'Bangers',cursive;font-size:1rem;letter-spacing:1px;padding:10px 24px;border-radius:12px;border:none;cursor:pointer;transition:all .2s;white-space:nowrap;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 20px rgba(0,229,255,.4)'" onmouseout="this.style.transform='none';this.style.boxShadow='none'">
-          Je veux voir! ⚡
+        <button class="sw-cta" onclick="document.getElementById('liveScores').scrollIntoView({behavior:'smooth',block:'start'})">
+          Voir les scores ⚡
         </button>
       </div>
     </div>
@@ -2093,7 +2107,7 @@
     </div>
 
     <!-- ========== SPORTS SCORES (Live ESPN) ========== -->
-    <div class="sports-ticker-wrap">
+    <div class="sports-ticker-wrap" id="liveScores">
         <div class="sports-tabs" id="sportsTabs">
             <button class="sport-tab active" data-sport="hockey/nhl">🏒 NHL</button>
             <button class="sport-tab" data-sport="basketball/nba">🏀 NBA</button>
