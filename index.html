@@ -1304,6 +1304,44 @@
     </div>
     <style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}</style>
 
+    <!-- ========== SECTION "AUJOURD'HUI" (Jeu + Meteo + Ephemeride) ========== -->
+    <style>
+        #ztsTodaySection { background: linear-gradient(135deg, #18181b 0%, #0f0f2e 100%); padding: 40px 16px; position: relative; }
+        #ztsTodaySection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 20%, rgba(0,229,255,0.15), transparent 50%), radial-gradient(circle at 80% 80%, rgba(139,92,246,0.15), transparent 50%); pointer-events: none; }
+        .zts-today-header { max-width: 1200px; margin: 0 auto 24px; text-align: center; position: relative; }
+        .zts-today-tag-pill { display: inline-block; background: linear-gradient(135deg, #00E5FF, #8B5CF6); color: #fff; padding: 6px 16px; border-radius: 20px; font-family: 'Bangers', cursive; font-size: 0.85rem; letter-spacing: 1.5px; margin-bottom: 8px; }
+        .zts-today-h2 { font-family: 'Luckiest Guy', cursive; color: #fff; font-size: clamp(1.8rem, 4vw, 2.8rem); margin: 0; letter-spacing: 1px; }
+        .zts-today-date { font-family: 'Patrick Hand', cursive; color: #00E5FF; font-size: 1.1rem; margin-top: 4px; }
+        #ztsTodayGrid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; position: relative; }
+        .zts-today-card { background: rgba(255,255,255,0.05); border: 2px solid rgba(0,229,255,0.2); border-radius: 20px; padding: 20px; backdrop-filter: blur(10px); transition: all 0.3s; }
+        .zts-today-card:hover { transform: translateY(-4px); border-color: rgba(0,229,255,0.5); box-shadow: 0 10px 40px rgba(0,229,255,0.2); }
+        .zts-today-label { font-family: 'Bangers', cursive; color: #00E5FF; font-size: 0.85rem; letter-spacing: 1.5px; margin-bottom: 10px; text-transform: uppercase; }
+        .zts-today-body { color: #fff; font-family: 'Patrick Hand', cursive; font-size: 1.05rem; line-height: 1.5; }
+        .zts-today-weather-big { font-family: 'Luckiest Guy', cursive; font-size: 2.5rem; color: #00E5FF; margin-bottom: 4px; }
+        .zts-today-weather-label { font-size: 1rem; color: #fff; opacity: 0.8; margin-bottom: 4px; }
+        .zts-today-weather-details { font-size: 0.9rem; color: #fff; opacity: 0.6; margin-bottom: 12px; }
+        .zts-today-decision { display: inline-block; padding: 8px 18px; border-radius: 12px; font-family: 'Luckiest Guy', cursive; letter-spacing: 1px; color: #fff; margin-bottom: 6px; font-size: 1rem; }
+        .zts-today-reason { font-size: 0.9rem; color: #fff; opacity: 0.7; }
+        .zts-today-game-title { font-family: 'Luckiest Guy', cursive; color: #FFEA00; font-size: 1.4rem; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .zts-today-game-desc { font-size: 0.95rem; margin-bottom: 10px; }
+        .zts-today-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .zts-today-tag { background: rgba(0,229,255,0.15); color: #00E5FF; padding: 3px 10px; border-radius: 8px; font-size: 0.8rem; }
+        .zts-today-cta { background: linear-gradient(135deg, #00E5FF, #0096C7); color: #0F0F2E; border: none; padding: 10px 18px; border-radius: 12px; font-family: 'Bangers', cursive; letter-spacing: 1px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; width: 100%; }
+        .zts-today-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,229,255,0.4); }
+        .zts-today-eph-title { font-family: 'Luckiest Guy', cursive; color: #FF2A7A; font-size: 1.25rem; margin-bottom: 8px; line-height: 1.2; }
+        .zts-today-year { background: #FF2A7A; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 0.9rem; font-family: 'Fredoka One'; }
+        .zts-today-eph-desc { font-size: 0.95rem; margin-bottom: 10px; }
+        .zts-today-eph-activity { background: rgba(255,42,122,0.1); border-left: 3px solid #FF2A7A; padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; }
+    </style>
+    <section id="ztsTodaySection">
+        <div class="zts-today-header">
+            <span class="zts-today-tag-pill">✨ AUJOURD'HUI</span>
+            <h2 class="zts-today-h2">Ton cours ÉPS prêt en 30 secondes</h2>
+            <div class="zts-today-date" id="ztsTodayDate">&nbsp;</div>
+        </div>
+        <div id="ztsTodayGrid"></div>
+    </section>
+
     <!-- ========== SECTION 2: SERVICE CARDS (White) ========== -->
     <section class="py-24 px-6 md:px-10" id="services">
         <div class="max-w-7xl mx-auto">
@@ -2699,7 +2737,9 @@
         });
 
         // ============ SLOT MACHINE (150 GAMES) ============
-        const gamesI18n = {
+        // Expose gamesI18n en global pour daily.js (jeu du jour)
+        window.gamesI18n = window.gamesI18n || {};
+        Object.assign(window.gamesI18n, {
     fr: [
         { name: '🧟 Invasion Zombie', desc: 'Un zombie (dossard) touche les joueurs qui deviennent zombies. Les survivants doivent atteindre la zone securitaire avant la fin du temps.', tags: ['Esquive', 'Tous ages', 'Dossards'] },
         { name: '🥷 Ninja Furtif', desc: 'Les ninjas doivent traverser le gym sans se faire reperer par les gardiens. Si un gardien te pointe, tu geles sur place 5 secondes.', tags: ['Strategie', ' 2e-3e cycle', 'Sans materiel'] },
@@ -3156,7 +3196,9 @@
         { name: '🎵 冰冻健身', desc: '音乐响时做运动。音乐停时冻结并听下一个运动指令。不间断流动！', tags: ['有氧', '低中年级', '音乐'] },
         { name: '🥎 踢球', desc: '棒球但用脚踢泡沫球而不是击打。相同基本规则：跑垒、每局3出局。', tags: ['团队', '中高年级', '泡沫球'] }
     ]
-};
+});
+        // Alias local pour compat code existant
+        const gamesI18n = window.gamesI18n;
 
         window.currentLang = window.currentLang || 'fr';
 
@@ -4597,7 +4639,8 @@ ztsInitVisitCounter();
 <script>
 // Ouvrir une app (vérifie si connecté)
 function ztsOpenApp(url) {
-  document.getElementById('appsModal').style.display='none';
+  var modal = document.getElementById('appsModal');
+  if (modal) modal.style.display='none';
   if (window.ztsGetUser && window.ztsGetUser()) {
     window.location.href = url;
   } else if (window.ztsShowSignup) {
@@ -4608,6 +4651,7 @@ function ztsOpenApp(url) {
     window.ztsShowSignup();
   }
 }
+window.ztsOpenApp = ztsOpenApp;
 // Fermer modal au clic extérieur + ESC
 document.getElementById('appsModal').addEventListener('click', function(e) {
   if (e.target === this) this.style.display='none';
@@ -4644,5 +4688,8 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { var m = document.getElementById('sportsNewsModal'); if (m.style.display === 'flex') { m.style.display='none'; document.getElementById('sportsNewsFrame').src=''; } }
 });
 </script>
+
+<!-- Section Aujourd'hui : Jeu du jour + Meteo + Ephemeride -->
+<script src="daily.js" defer></script>
 </body>
 </html>
