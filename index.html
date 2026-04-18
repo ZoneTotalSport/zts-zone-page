@@ -4857,17 +4857,48 @@ ztsInitVisitCounter();
   </div>
 </div>
 <script>
-// Ouvrir une app (vérifie si connecté)
+// Ouvrir une app (vérifie si connecté — fallback robuste)
 function ztsOpenApp(url) {
   var modal = document.getElementById('appsModal');
   if (modal) modal.style.display='none';
-  if (window.ztsGetUser && window.ztsGetUser()) {
+
+  // 1. Check synchrone : ztsGetUser OU firebase.currentUser (persist LOCAL)
+  var user = (window.ztsGetUser && window.ztsGetUser())
+          || (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+
+  if (user) {
     window.location.href = url;
-  } else if (window.ztsShowSignup) {
-    // Use ztsSetProtected to set the closure-scoped variables correctly
-    if (window.ztsSetProtected) {
-      window.ztsSetProtected(url);
-    }
+    return;
+  }
+
+  // 2. Auth pas encore prêt? Attendre puis redécider
+  if (typeof firebase !== 'undefined' && window.ztsOnAuth) {
+    var decided = false;
+    window.ztsOnAuth(function(u) {
+      if (decided) return;
+      decided = true;
+      if (u) {
+        window.location.href = url;
+      } else if (window.ztsShowSignup) {
+        if (window.ztsSetProtected) window.ztsSetProtected(url);
+        window.ztsShowSignup();
+      }
+    });
+    // Timeout 1.5s : si Firebase ne répond jamais, afficher popup
+    setTimeout(function() {
+      if (decided) return;
+      decided = true;
+      if (window.ztsShowSignup) {
+        if (window.ztsSetProtected) window.ztsSetProtected(url);
+        window.ztsShowSignup();
+      }
+    }, 1500);
+    return;
+  }
+
+  // 3. Fallback final
+  if (window.ztsShowSignup) {
+    if (window.ztsSetProtected) window.ztsSetProtected(url);
     window.ztsShowSignup();
   }
 }
@@ -4913,7 +4944,7 @@ document.addEventListener('keydown', function(e) {
 <style>
 .nhl-float-btn {
     position: fixed;
-    right: 0;
+    left: 0;
     top: 50%;
     transform: translateY(-50%);
     z-index: 900;
@@ -4926,21 +4957,21 @@ document.addEventListener('keydown', function(e) {
     background: linear-gradient(180deg, #000000 0%, #1a1a2e 100%);
     color: #fff;
     border: 2px solid #c8102e;
-    border-right: none;
-    border-radius: 14px 0 0 14px;
+    border-left: none;
+    border-radius: 0 14px 14px 0;
     cursor: pointer;
     font-family: 'Bangers', cursive;
     font-size: 1rem;
     letter-spacing: 2px;
     text-transform: uppercase;
-    box-shadow: -4px 0 20px rgba(200,16,46,0.4), 0 0 30px rgba(200,16,46,0.15);
+    box-shadow: 4px 0 20px rgba(200,16,46,0.4), 0 0 30px rgba(200,16,46,0.15);
     transition: all 0.3s ease;
     text-decoration: none;
     animation: nhlPulse 3s ease-in-out infinite;
 }
 .nhl-float-btn:hover {
-    padding-right: 18px;
-    box-shadow: -6px 0 35px rgba(200,16,46,0.6), 0 0 50px rgba(200,16,46,0.25);
+    padding-left: 18px;
+    box-shadow: 6px 0 35px rgba(200,16,46,0.6), 0 0 50px rgba(200,16,46,0.25);
     animation: none;
 }
 .nhl-float-btn .nhl-shield {
@@ -4966,16 +4997,16 @@ document.addEventListener('keydown', function(e) {
 }
 @keyframes nhlPulse {
     0%, 100% { transform: translateY(-50%) translateX(0); }
-    50% { transform: translateY(-50%) translateX(-4px); }
+    50% { transform: translateY(-50%) translateX(4px); }
 }
 @media (max-width: 768px) {
     .nhl-float-btn {
         top: auto;
         bottom: 90px;
-        right: 0;
+        left: 0;
         writing-mode: horizontal-tb;
-        padding: 10px 14px 10px 16px;
-        border-radius: 14px 0 0 14px;
+        padding: 10px 16px 10px 14px;
+        border-radius: 0 14px 14px 0;
         font-size: 0.85rem;
         gap: 6px;
     }
