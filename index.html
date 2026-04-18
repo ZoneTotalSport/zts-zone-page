@@ -119,25 +119,26 @@
         /* pour lecture a distance (tableau blanc)    */
         /* ========================================== */
         /* Police de base plus grande (TBI) */
-        @media (max-width: 640px) { html { font-size: 16px !important; } }
+        @media (max-width: 640px) { html { font-size: 17px !important; } }
 
-        /* Agrandit les classes Tailwind standards */
-        .text-xs   { font-size: 1rem !important;    line-height: 1.5 !important; }
-        .text-sm   { font-size: 1.15rem !important; line-height: 1.55 !important; }
-        .text-base { font-size: 1.3rem !important;  line-height: 1.55 !important; }
-        .text-lg   { font-size: 1.45rem !important; line-height: 1.5 !important; }
+        /* Agrandit les classes Tailwind standards (visible de loin dans gymnase) */
+        .text-xs   { font-size: 1.15rem !important; line-height: 1.5 !important; }
+        .text-sm   { font-size: 1.35rem !important; line-height: 1.55 !important; }
+        .text-base { font-size: 1.55rem !important; line-height: 1.55 !important; }
+        .text-lg   { font-size: 1.75rem !important; line-height: 1.5 !important; }
+        .text-xl   { font-size: 2rem !important;    line-height: 1.4 !important; }
 
-        /* Polices cursives moins lisibles : on grossit */
-        .font-schoolbell     { font-size: 1.25em !important; }
-        .font-patrick-hand   { font-size: 1.15em !important; }
-        .font-baloo          { font-size: 1.08em !important; }
+        /* Polices cursives moins lisibles : on grossit plus */
+        .font-schoolbell     { font-size: 1.4em !important; }
+        .font-patrick-hand   { font-size: 1.25em !important; }
+        .font-baloo          { font-size: 1.15em !important; }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; overflow-x: hidden; font-size: 18px; }
+        html { scroll-behavior: smooth; overflow-x: hidden; font-size: 20px; }
 
         body {
             font-family: 'Patrick Hand', cursive;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             background-color: #ffffff;
             color: #1a1a2e;
             overflow-x: hidden;
@@ -1363,8 +1364,8 @@
                 <div class="relative cursor-pointer" id="mascotSwap"
                      onmouseenter="this.querySelector('.mascot-default').style.opacity='0';this.querySelector('.mascot-hover').style.opacity='1'"
                      onmouseleave="this.querySelector('.mascot-default').style.opacity='1';this.querySelector('.mascot-hover').style.opacity='0'">
-                    <img decoding="async" loading="lazy" src="mascot-badminton.png" alt="Mascotte Zone Total Sport" class="mascot-default w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300">
-                    <img decoding="async" loading="lazy" src="mascot-pingpong.png" alt="Mascotte Smash!" class="mascot-hover w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300 absolute inset-0 opacity-0">
+                    <img decoding="async" loading="lazy" src="bucheron-hero.png" alt="Mr. Root - Bucheron Sportif" class="mascot-default w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300">
+                    <img decoding="async" loading="lazy" src="bucheron-hero-hover.png" alt="Mr. Root salut!" class="mascot-hover w-full max-w-sm lg:max-w-md drop-shadow-2xl transition-opacity duration-300 absolute inset-0 opacity-0">
                 </div>
             </div>
         </div>
@@ -4907,6 +4908,86 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') { var m = document.getElementById('sportsNewsModal'); if (m.style.display === 'flex') { m.style.display='none'; document.getElementById('sportsNewsFrame').src=''; } }
 });
 </script>
+
+<!-- ========== NHL PLAYOFFS FLOATING BUTTON ========== -->
+<style>
+.nhl-float-btn {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 900;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 10px;
+    background: linear-gradient(180deg, #000000 0%, #1a1a2e 100%);
+    color: #fff;
+    border: 2px solid #c8102e;
+    border-right: none;
+    border-radius: 14px 0 0 14px;
+    cursor: pointer;
+    font-family: 'Bangers', cursive;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    box-shadow: -4px 0 20px rgba(200,16,46,0.4), 0 0 30px rgba(200,16,46,0.15);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    animation: nhlPulse 3s ease-in-out infinite;
+}
+.nhl-float-btn:hover {
+    padding-right: 18px;
+    box-shadow: -6px 0 35px rgba(200,16,46,0.6), 0 0 50px rgba(200,16,46,0.25);
+    animation: none;
+}
+.nhl-float-btn .nhl-shield {
+    width: 36px;
+    height: 36px;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
+}
+.nhl-float-btn .nhl-text {
+    color: #fff;
+    text-shadow: 0 0 8px rgba(200,16,46,0.6);
+}
+.nhl-float-btn .nhl-live-dot {
+    width: 8px;
+    height: 8px;
+    background: #c8102e;
+    border-radius: 50%;
+    animation: nhlDot 1.5s ease infinite;
+    flex-shrink: 0;
+}
+@keyframes nhlDot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px #c8102e; }
+    50% { opacity: 0.3; box-shadow: none; }
+}
+@keyframes nhlPulse {
+    0%, 100% { transform: translateY(-50%) translateX(0); }
+    50% { transform: translateY(-50%) translateX(-4px); }
+}
+@media (max-width: 768px) {
+    .nhl-float-btn {
+        top: auto;
+        bottom: 90px;
+        right: 0;
+        writing-mode: horizontal-tb;
+        padding: 10px 14px 10px 16px;
+        border-radius: 14px 0 0 14px;
+        font-size: 0.85rem;
+        gap: 6px;
+    }
+    .nhl-float-btn .nhl-shield { width: 28px; height: 28px; }
+    .nhl-float-btn .nhl-text { display: none; }
+}
+</style>
+<button class="nhl-float-btn" onclick="document.getElementById('nhlPlayoffsModal').style.display='flex'" title="Séries éliminatoires LNH 2026">
+    <img class="nhl-shield" src="https://assets.nhle.com/logos/nhl/svg/NHL_light.svg" alt="NHL" onerror="this.textContent='NHL'">
+    <span class="nhl-live-dot"></span>
+    <span class="nhl-text">Séries LNH 2026</span>
+</button>
 
 <!-- ========== NHL PLAYOFFS MODAL ========== -->
 <div id="nhlPlayoffsModal" style="display:none;position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:10px;">
