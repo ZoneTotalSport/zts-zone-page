@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Séries éliminatoires NBA 2026 | Séries actuelles & Résultats | Zone Total Sport</title>
+<meta name="description" content="Suivez les séries éliminatoires NBA 2026 en direct! Séries actuelles, résultats, marqueurs et meneurs des séries.">
+<meta name="keywords" content="NBA 2026, séries éliminatoires, NBA playoffs, résultats, basketball, scores">
+<meta name="author" content="Zone Total Sport - Mr Roots">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://zonetotalsport.ca/apps/nba-playoffs/">
+<meta property="og:title" content="Séries éliminatoires NBA 2026 | Zone Total Sport">
+<meta property="og:description" content="Séries actuelles NBA 2026. Résultats et stats en temps réel!">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://zonetotalsport.ca/apps/nba-playoffs/">
+<meta property="og:image" content="https://zonetotalsport.ca/logo-zts.png">
+<meta property="og:locale" content="fr_CA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Séries NBA 2026 | Zone Total Sport">
+<meta name="twitter:description" content="Séries actuelles, résultats et stats des séries éliminatoires NBA 2026!">
+<link rel="icon" type="image/png" href="../nhl-playoffs/logo-zts.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Barriecito&family=Bungee&family=Bungee+Shade&family=Righteous&family=Fredoka+One&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --nba-blue: #1D428A;
+    --nba-red: #C8102E;
+    --nba-gold: #FDB927;
+    --nba-dark: #0a0e1a;
+    --nba-navy: #17233d;
+    --blanc: #FFFFFF;
+    --vert: #2ECC71;
+    --orange: #FF6B35;
+    --glow-red: 0 0 20px rgba(200,16,46,0.4), 0 0 60px rgba(200,16,46,0.15);
+    --glow-gold: 0 0 20px rgba(253,185,39,0.4), 0 0 60px rgba(253,185,39,0.15);
+  }
+
+  body {
+    font-family: 'Righteous', sans-serif;
+    background: var(--nba-dark);
+    color: var(--blanc);
+    min-height: 100vh;
+    overflow-x: auto;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(200,16,46,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 0%, rgba(253,185,39,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, rgba(29,66,138,0.08) 0%, transparent 50%);
+    position: relative;
+  }
+
+  /* NBA Logos Background Pattern */
+  .nba-bg-pattern {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: -1;
+    opacity: 0.08;
+    pointer-events: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 130px);
+    grid-template-rows: repeat(auto-fill, 130px);
+    gap: 15px;
+    padding: 15px;
+    align-content: start;
+    overflow: hidden;
+  }
+  .nba-bg-pattern img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: saturate(0.6) brightness(1.5);
+  }
+
+  /* ========== ZOOM CONTROLS (TNI / Gymnase) ========== */
+  .zoom-controls {
+    position: fixed;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .zoom-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 2px solid rgba(200,16,46,0.3);
+    background: linear-gradient(135deg, rgba(200,16,46,0.15), rgba(29,66,138,0.4));
+    color: var(--nba-gold);
+    font-family: 'Bungee', cursive;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+  }
+  .zoom-btn:hover {
+    background: linear-gradient(135deg, rgba(200,16,46,0.3), rgba(29,66,138,0.6));
+    box-shadow: var(--glow-red);
+    transform: scale(1.1);
+  }
+  .zoom-label {
+    text-align: center;
+    font-family: 'Bangers', cursive;
+    font-size: 11px;
+    color: rgba(253,185,39,0.5);
+    letter-spacing: 1px;
+  }
+
+  /* ========== HEADER ========== */
+  .header {
+    text-align: center;
+    padding: 25px 20px 0;
+    position: relative;
+    background: rgba(10,14,26,0.95);
+    z-index: 10;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--nba-red), var(--nba-gold), var(--nba-blue), var(--nba-gold), var(--nba-red));
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 10px;
+  }
+  .nba-logo-header {
+    height: 80px;
+    filter: drop-shadow(0 4px 15px rgba(253,185,39,0.3));
+  }
+
+  .header h1 {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 42px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--nba-gold);
+    text-shadow: 0 0 10px rgba(253,185,39,0.5), 3px 3px 0 var(--nba-blue);
+    line-height: 1.1;
+  }
+  .header h1 span {
+    color: var(--nba-red);
+    text-shadow: 0 0 10px rgba(200,16,46,0.5), 3px 3px 0 rgba(0,0,0,0.5);
+  }
+
+  .subtitle {
+    font-family: 'Barriecito', cursive;
+    color: var(--blanc);
+    font-size: 18px;
+    letter-spacing: 2px;
+    margin-top: 5px;
+    opacity: 0.7;
+  }
+
+  .zts-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--nba-red), #8B0000);
+    color: var(--blanc);
+    font-family: 'Bangers', cursive;
+    font-size: 14px;
+    padding: 4px 16px;
+    border-radius: 20px;
+    letter-spacing: 2px;
+    margin-top: 8px;
+    box-shadow: var(--glow-red);
+  }
+
+  /* ========== TABS ========== */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    margin: 20px auto 0;
+    max-width: 700px;
+  }
+  .tab {
+    padding: 12px 28px;
+    font-family: 'Bangers', cursive;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    color: rgba(253,185,39,0.4);
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: none;
+    transition: all 0.3s;
+  }
+  .tab:hover { color: var(--nba-gold); }
+  .tab.active {
+    color: var(--nba-gold);
+    border-bottom-color: var(--nba-red);
+    text-shadow: 0 0 15px rgba(253,185,39,0.5);
+  }
+
+  /* ========== VIEWS ========== */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ========== BRACKET ========== */
+  .bracket-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 10px 40px;
+    gap: 0;
+    min-width: 1300px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .conference { flex: 1; }
+  .conference-label {
+    text-align: center;
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 22px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--nba-gold);
+    padding: 10px 20px;
+    text-shadow: 0 0 15px rgba(253,185,39,0.3);
+    background: rgba(10,14,26,0.9);
+    border-radius: 10px;
+    margin: 0 10px 10px;
+  }
+
+  .rounds { display: flex; align-items: stretch; min-height: 520px; gap: 8px; }
+  .east .rounds { flex-direction: row; }
+  .west .rounds { flex-direction: row-reverse; }
+
+  .round {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    min-width: 205px;
+    padding: 0 2px;
+  }
+
+  .round-label {
+    text-align: center;
+    font-family: 'Bangers', cursive;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--nba-red);
+    margin-bottom: 6px;
+    background: rgba(10,14,26,0.85);
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-shadow: 0 0 10px rgba(200,16,46,0.3);
+  }
+
+  .round.r1 { gap: 4px; justify-content: center; }
+  .round.r2 { justify-content: space-around; padding: 20px 0; }
+  .round.r3 { justify-content: center; }
+
+  /* ========== MATCHUP CARD ========== */
+  .matchup {
+    background: rgba(10,14,26,0.96);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid rgba(200,16,46,0.3);
+    width: 195px;
+    margin: 0 auto;
+    transition: all 0.3s;
+    cursor: pointer;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.6);
+  }
+  .matchup:hover {
+    border-color: rgba(253,185,39,0.6);
+    box-shadow: var(--glow-gold), 0 4px 20px rgba(0,0,0,0.7);
+    transform: scale(1.03);
+  }
+
+  .team-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 6px;
+    gap: 5px;
+    transition: all 0.3s;
+  }
+  .team-row:first-child { border-bottom: 1px solid rgba(200,16,46,0.15); }
+  .team-row.winner { background: linear-gradient(90deg, rgba(46,204,113,0.25), transparent); }
+  .team-row.eliminated { opacity: 0.35; }
+
+  .seed {
+    font-family: 'Bangers', cursive;
+    font-size: 14px;
+    color: var(--nba-gold);
+    width: 16px;
+    text-align: center;
+  }
+  .team-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+  }
+  .team-abbrev {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 14px;
+    color: var(--blanc);
+    flex: 1;
+    letter-spacing: 1px;
+  }
+  .team-wins-num {
+    font-family: 'Bungee', cursive;
+    font-size: 18px;
+    width: 22px;
+    text-align: center;
+    color: rgba(255,255,255,0.3);
+  }
+  .team-wins-num.has-wins { color: var(--vert); text-shadow: 0 0 10px rgba(46,204,113,0.5); }
+
+  /* Trophy */
+  .cup-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 150px;
+    padding: 20px 10px;
+    background: rgba(10,14,26,0.9);
+    border-radius: 14px;
+    margin: 0 5px;
+    align-self: center;
+  }
+  .cup-center .trophy-icon {
+    font-size: 64px;
+    filter: drop-shadow(0 0 25px rgba(253,185,39,0.4));
+    margin-bottom: 10px;
+  }
+  .cup-label {
+    font-family: 'Bungee Shade', cursive;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--nba-gold);
+    text-align: center;
+    text-shadow: 0 0 10px rgba(253,185,39,0.3);
+  }
+
+  /* ========== RESULTS VIEW ========== */
+  .results-container {
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 20px 20px 60px;
+  }
+  .conf-section { margin-bottom: 30px; }
+  .conf-title {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--nba-gold);
+    padding: 12px 18px;
+    border-bottom: 2px solid rgba(200,16,46,0.2);
+    margin-bottom: 15px;
+    background: rgba(10,14,26,0.9);
+    border-radius: 10px 10px 0 0;
+  }
+
+  /* ========== SERIES CARD ========== */
+  .series-card {
+    background: rgba(10,14,26,0.95);
+    border-radius: 12px;
+    border: 2px solid rgba(200,16,46,0.2);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+  .series-card:hover { border-color: rgba(253,185,39,0.4); box-shadow: 0 4px 25px rgba(0,0,0,0.5); }
+
+  .series-header {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 15px;
+    cursor: pointer;
+  }
+  .series-letter-badge {
+    font-family: 'Bungee', cursive;
+    font-size: 18px;
+    color: var(--blanc);
+    background: linear-gradient(135deg, var(--nba-red), var(--nba-blue));
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 0 15px rgba(200,16,46,0.3);
+  }
+
+  .series-teams { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .series-team { display: flex; align-items: center; gap: 10px; }
+  .series-team img { width: 36px; height: 36px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
+  .series-team .name { font-family: 'Righteous', sans-serif; font-size: 15px; flex: 1; }
+  .series-team.eliminated .name { color: #555; }
+
+  .dots { display: flex; gap: 4px; }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .dot.won { background: var(--vert); border-color: var(--vert); box-shadow: 0 0 6px rgba(46,204,113,0.5); }
+
+  .series-team .record {
+    font-family: 'Bungee', cursive;
+    font-size: 22px;
+    width: 28px;
+    text-align: center;
+    color: rgba(255,255,255,0.25);
+  }
+  .series-team .record.leading { color: var(--vert); text-shadow: 0 0 12px rgba(46,204,113,0.5); }
+
+  .series-status { text-align: right; min-width: 140px; flex-shrink: 0; }
+  .series-status .status-label {
+    font-family: 'Bangers', cursive;
+    color: rgba(253,185,39,0.5);
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+  .series-status .status-text {
+    font-family: 'Barriecito', cursive;
+    color: var(--nba-gold);
+    font-size: 15px;
+    margin-top: 3px;
+  }
+
+  /* ========== GAMES DROPDOWN ========== */
+  .series-games {
+    display: none;
+    background: rgba(0,0,0,0.3);
+    border-top: 1px solid rgba(200,16,46,0.1);
+    padding: 0;
+  }
+  .series-card.open .series-games { display: block; }
+
+  .game-card {
+    border-bottom: 1px solid rgba(200,16,46,0.06);
+    transition: all 0.2s;
+  }
+  .game-card:last-child { border-bottom: none; }
+
+  .game-card-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+    gap: 12px;
+  }
+  .game-card-header:hover { background: rgba(200,16,46,0.03); }
+
+  .game-num {
+    font-family: 'Bangers', cursive;
+    color: var(--nba-red);
+    font-size: 14px;
+    width: 70px;
+    letter-spacing: 1px;
+  }
+  .game-date-label {
+    font-family: 'Righteous', sans-serif;
+    color: rgba(255,255,255,0.3);
+    font-size: 12px;
+    width: 80px;
+  }
+  .game-mini-score {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Bungee', cursive;
+    font-size: 14px;
+  }
+  .game-mini-score img { width: 22px; height: 22px; }
+  .game-mini-score .score-val { min-width: 18px; text-align: center; }
+  .game-mini-score .score-val.winner-score { color: var(--vert); }
+  .game-mini-score .vs-label { color: rgba(200,16,46,0.25); font-family: 'Bangers'; font-size: 12px; }
+
+  .game-status-badge {
+    font-family: 'Bangers', cursive;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    letter-spacing: 1px;
+  }
+  .game-status-badge.final { background: rgba(46,204,113,0.15); color: var(--vert); }
+  .game-status-badge.live { background: rgba(200,16,46,0.2); color: var(--nba-red); }
+  .game-status-badge.upcoming { background: rgba(253,185,39,0.1); color: var(--nba-gold); }
+
+  .live-pulse {
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--nba-red);
+    border-radius: 50%;
+    margin-right: 5px;
+    animation: pulse 1.5s ease infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ========== GAME DETAILS ========== */
+  .game-details {
+    display: none;
+    padding: 0 20px 15px;
+    margin-left: 70px;
+  }
+  .game-card.open .game-details { display: block; }
+
+  .period-scoring { margin-bottom: 10px; }
+  .period-label {
+    font-family: 'Bangers', cursive;
+    font-size: 13px;
+    color: var(--nba-gold);
+    letter-spacing: 2px;
+    padding: 6px 0 4px;
+    border-bottom: 1px solid rgba(253,185,39,0.1);
+    margin-bottom: 6px;
+  }
+
+  .scorer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 13px;
+  }
+  .scorer-team-logo { width: 18px; height: 18px; }
+  .scorer-name {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 13px;
+    color: var(--blanc);
+    letter-spacing: 0.5px;
+    flex: 1;
+  }
+  .scorer-stats {
+    font-family: 'Bungee', cursive;
+    font-size: 12px;
+    color: var(--nba-gold);
+  }
+
+  /* Leaders section */
+  .leader-mugshot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(200,16,46,0.2);
+    background: rgba(0,0,0,0.3);
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 20px;
+    font-family: 'Barriecito', cursive;
+    color: rgba(255,255,255,0.25);
+    font-size: 14px;
+  }
+
+  /* ========== LEADERS VIEW ========== */
+  .leaders-container {
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 20px 20px 60px;
+  }
+  .leaders-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  .leader-section {
+    background: rgba(10,14,26,0.95);
+    border-radius: 12px;
+    border: 2px solid rgba(200,16,46,0.2);
+    padding: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+  .leader-section-title {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 16px;
+    color: var(--nba-red);
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+  .leader-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .leader-row:last-child { border-bottom: none; }
+  .leader-rank {
+    font-family: 'Bungee', cursive;
+    font-size: 14px;
+    color: var(--nba-red);
+    width: 24px;
+    text-align: center;
+  }
+  .leader-rank.gold { color: var(--nba-gold); }
+  .leader-info { flex: 1; }
+  .leader-name {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .leader-team-info {
+    font-family: 'Barriecito', cursive;
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .leader-team-info img { width: 14px; height: 14px; }
+  .leader-value {
+    font-family: 'Bungee', cursive;
+    font-size: 18px;
+    color: var(--nba-gold);
+    min-width: 35px;
+    text-align: center;
+  }
+
+  /* ========== SERIES MODAL ========== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(6px);
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: linear-gradient(135deg, #0f1a2e 0%, #0a0e1a 100%);
+    border: 2px solid rgba(200,16,46,0.25);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 650px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 0 40px rgba(200,16,46,0.15), 0 20px 60px rgba(0,0,0,0.5);
+    animation: modalIn 0.25s ease;
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 25px;
+    gap: 20px;
+    border-bottom: 1px solid rgba(200,16,46,0.15);
+    position: relative;
+  }
+  .modal-team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+  .modal-team img { width: 60px; height: 60px; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4)); }
+  .modal-team .modal-team-name {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 18px;
+    text-align: center;
+    letter-spacing: 1px;
+  }
+  .modal-team .modal-team-record {
+    font-family: 'Bungee', cursive;
+    font-size: 28px;
+    color: var(--nba-gold);
+    text-shadow: 0 0 12px rgba(253,185,39,0.3);
+  }
+  .modal-vs {
+    font-family: 'Bungee Shade', cursive;
+    font-size: 22px;
+    color: var(--nba-red);
+    opacity: 0.5;
+  }
+  .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 24px;
+    cursor: pointer;
+    transition: color 0.2s;
+    font-family: sans-serif;
+  }
+  .modal-close:hover { color: var(--nba-gold); }
+
+  .modal-series-label {
+    text-align: center;
+    font-family: 'Bangers', cursive;
+    font-size: 13px;
+    color: rgba(200,16,46,0.4);
+    letter-spacing: 3px;
+    padding: 8px 0 0;
+  }
+
+  .modal-games { padding: 10px 0; }
+
+  .modal-game {
+    display: flex;
+    align-items: center;
+    padding: 12px 25px;
+    gap: 12px;
+    border-bottom: 1px solid rgba(200,16,46,0.06);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .modal-game:hover { background: rgba(200,16,46,0.04); }
+  .modal-game:last-child { border-bottom: none; }
+
+  .modal-game-num {
+    font-family: 'Bangers', cursive;
+    font-size: 15px;
+    color: var(--nba-red);
+    width: 75px;
+    letter-spacing: 1px;
+  }
+  .modal-game-date {
+    font-family: 'Barriecito', cursive;
+    font-size: 13px;
+    color: rgba(255,255,255,0.3);
+    width: 75px;
+  }
+  .modal-game-score {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .modal-game-score img { width: 24px; height: 24px; }
+  .modal-game-score .mg-score {
+    font-family: 'Bungee', cursive;
+    font-size: 18px;
+    min-width: 22px;
+    text-align: center;
+    color: rgba(255,255,255,0.3);
+  }
+  .modal-game-score .mg-score.winner { color: var(--vert); text-shadow: 0 0 8px rgba(46,204,113,0.4); }
+  .modal-game-score .mg-at {
+    font-family: 'Bangers', cursive;
+    font-size: 12px;
+    color: rgba(200,16,46,0.2);
+  }
+  .modal-game-badge {
+    font-family: 'Bangers', cursive;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    letter-spacing: 1px;
+    min-width: 65px;
+    text-align: center;
+  }
+  .modal-game-badge.final { background: rgba(46,204,113,0.15); color: var(--vert); }
+  .modal-game-badge.live { background: rgba(200,16,46,0.2); color: var(--nba-red); }
+  .modal-game-badge.upcoming { background: rgba(253,185,39,0.1); color: rgba(253,185,39,0.5); }
+  .modal-game-badge.if-needed { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.2); }
+
+  .modal-game-details {
+    display: none;
+    padding: 8px 25px 15px 75px;
+    border-bottom: 1px solid rgba(200,16,46,0.06);
+  }
+  .modal-game-details.open { display: block; }
+
+  .modal-no-data {
+    text-align: center;
+    padding: 15px;
+    font-family: 'Barriecito', cursive;
+    color: rgba(255,255,255,0.2);
+    font-size: 14px;
+  }
+
+  /* ========== REFRESH / FOOTER ========== */
+  .refresh-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, rgba(200,16,46,0.15), rgba(29,66,138,0.4));
+    border: 1px solid rgba(200,16,46,0.3);
+    color: var(--nba-gold);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-family: 'Bangers', cursive;
+    font-size: 15px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    z-index: 100;
+  }
+  .refresh-btn:hover {
+    box-shadow: var(--glow-red);
+    transform: scale(1.05);
+  }
+  .refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-family: 'Barriecito', cursive;
+    color: rgba(255,255,255,0.2);
+    font-size: 13px;
+  }
+  .footer a { color: var(--nba-gold); text-decoration: none; }
+
+  /* Particles */
+  .particles { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: var(--nba-red);
+    border-radius: 50%;
+    opacity: 0;
+    animation: drift 8s linear infinite;
+  }
+  @keyframes drift {
+    0% { opacity: 0; transform: translateY(100vh) translateX(0); }
+    10% { opacity: 0.4; }
+    90% { opacity: 0.1; }
+    100% { opacity: 0; transform: translateY(-20px) translateX(50px); }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 60px;
+    font-family: 'Barriecito', cursive;
+    color: var(--nba-gold);
+    font-size: 18px;
+  }
+
+  @media (max-width: 900px) {
+    .header h1 { font-size: 28px; }
+    .bracket-container { min-width: unset; flex-direction: column; padding: 10px; }
+    .rounds { flex-direction: column !important; }
+    .round { min-width: unset; width: 100%; }
+    .matchup { width: 100%; max-width: 300px; }
+    .cup-center { padding: 20px 0; }
+    .leaders-grid { grid-template-columns: 1fr; }
+    .game-details { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NBA Logos Background -->
+<div class="nba-bg-pattern" id="nbaBgPattern"></div>
+
+<div class="particles" id="particles"></div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-top">
+    <img class="nba-logo-header" src="https://cdn.nba.com/logos/leagues/logo-nba.svg" alt="NBA" onerror="this.style.display='none'">
+    <div>
+      <h1>Séries <span>NBA</span> 2026</h1>
+      <div class="subtitle">Séries éliminatoires — NBA Playoffs</div>
+      <div class="zts-badge">ZONE TOTAL SPORT</div>
+    </div>
+    <img class="nba-logo-header" src="https://cdn.nba.com/logos/leagues/logo-nba.svg" alt="NBA" style="transform:scaleX(-1)" onerror="this.style.display='none'">
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-view="bracket">Séries actuelles</button>
+    <button class="tab" data-view="results">Résultats</button>
+    <button class="tab" data-view="leaders">Meneurs</button>
+  </div>
+</div>
+
+<!-- Views -->
+<div class="view active" id="bracketView">
+  <div class="bracket-container" id="bracketContainer"><div class="loading">Chargement des séries...</div></div>
+</div>
+<div class="view" id="resultsView">
+  <div class="results-container" id="resultsContainer"><div class="loading">Chargement...</div></div>
+</div>
+<div class="view" id="leadersView">
+  <div class="leaders-container" id="leadersContainer"><div class="loading">Chargement des meneurs...</div></div>
+</div>
+
+<!-- Series Modal -->
+<div class="modal-overlay" id="seriesModal">
+  <div class="modal">
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Zoom controls for TNI -->
+<div class="zoom-controls">
+  <button class="zoom-btn" onclick="setZoom('in')" title="Zoom +">+</button>
+  <div class="zoom-label" id="zoomLevel">100%</div>
+  <button class="zoom-btn" onclick="setZoom('out')" title="Zoom -">−</button>
+  <button class="zoom-btn" onclick="setZoom('reset')" title="Réinitialiser" style="font-size:14px;margin-top:4px">↺</button>
+</div>
+
+<button class="refresh-btn" onclick="refreshAll()" id="refreshBtn">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+  </svg>
+  Actualiser
+</button>
+
+<div class="footer">par <a href="https://zonetotalsport.ca">zonetotalsport.ca</a> — Mr Roots</div>
+
+<script>
+// =============================================
+// CONFIG & API (ESPN)
+// =============================================
+const LOGO = abbrev => `https://a.espncdn.com/i/teamlogos/nba/500/${abbrev.toLowerCase()}.png`;
+const HEADSHOT = id => `https://a.espncdn.com/combiner/i?img=/i/headshots/nba/players/full/${id}.png&w=96&h=70`;
+
+const API = {
+  scoreboard: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
+  scoreDate: d => `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${d}`,
+  summary: id => `https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event=${id}`,
+  leaders: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/leaders',
+};
+
+const NBA_TEAMS = {
+  ATL:'Hawks', BOS:'Celtics', BKN:'Nets', CHA:'Hornets', CHI:'Bulls',
+  CLE:'Cavaliers', DAL:'Mavericks', DEN:'Nuggets', DET:'Pistons',
+  GS:'Warriors', HOU:'Rockets', IND:'Pacers', LAC:'Clippers', LAL:'Lakers',
+  MEM:'Grizzlies', MIA:'Heat', MIL:'Bucks', MIN:'Timberwolves', NO:'Pelicans',
+  NY:'Knicks', OKC:'Thunder', ORL:'Magic', PHI:'76ers', PHX:'Suns',
+  POR:'Blazers', SAC:'Kings', SA:'Spurs', TOR:'Raptors', UTAH:'Jazz',
+  WAS:'Wizards'
+};
+
+async function apiFetch(url) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(r.status);
+    return await r.json();
+  } catch(e) { console.warn('API fail:', url, e); return null; }
+}
+
+// =============================================
+// PARTICLES & BACKGROUND
+// =============================================
+function createParticles() {
+  const c = document.getElementById('particles');
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random()*100+'%';
+    p.style.animationDelay = Math.random()*8+'s';
+    p.style.animationDuration = (6+Math.random()*6)+'s';
+    p.style.width = p.style.height = (1+Math.random()*3)+'px';
+    p.style.background = Math.random() > 0.5 ? 'var(--nba-red)' : 'var(--nba-gold)';
+    c.appendChild(p);
+  }
+}
+
+function createNBABackground() {
+  const teams = [
+    'bos','nyk','mil','cle','orl','ind','phi','mia','chi','atl',
+    'bkn','tor','cha','det','wsh','okc','den','min','dal','lac',
+    'phx','sac','lal','gs','hou','mem','no','sa','por','utah'
+  ];
+  const container = document.getElementById('nbaBgPattern');
+  for (let i = 0; i < 120; i++) {
+    const team = teams[i % teams.length];
+    const img = document.createElement('img');
+    img.src = `https://a.espncdn.com/i/teamlogos/nba/500/${team}.png`;
+    img.alt = '';
+    img.loading = 'lazy';
+    container.appendChild(img);
+  }
+}
+
+// =============================================
+// DATA
+// =============================================
+let bracketData = null;
+let seriesMap = {}; // seriesId -> { games, team1, team2, ... }
+let allPlayoffEvents = [];
+
+// =============================================
+// FETCH PLAYOFF DATA
+// =============================================
+async function fetchPlayoffData() {
+  // Fetch current scoreboard (today) + recent days
+  const dates = [];
+  const today = new Date();
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    dates.push(d.toISOString().split('T')[0].replace(/-/g, ''));
+  }
+  // Also fetch a few days ahead
+  for (let i = 1; i <= 3; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    dates.push(d.toISOString().split('T')[0].replace(/-/g, ''));
+  }
+
+  allPlayoffEvents = [];
+  seriesMap = {};
+
+  for (const date of dates) {
+    const data = await apiFetch(API.scoreDate(date));
+    if (!data || !data.events) continue;
+
+    data.events.forEach(ev => {
+      // Check if playoff game (season type 3)
+      const isPlayoff = ev.season?.type === 3 || ev.competitions?.[0]?.series;
+      if (!isPlayoff) return;
+
+      // Avoid duplicates
+      if (allPlayoffEvents.find(e => e.id === ev.id)) return;
+      allPlayoffEvents.push(ev);
+
+      // Build series map
+      const comp = ev.competitions?.[0];
+      const series = comp?.series;
+      if (series) {
+        const key = series.id || series.title || 'unknown';
+        if (!seriesMap[key]) {
+          const home = comp.competitors?.find(c => c.homeAway === 'home');
+          const away = comp.competitors?.find(c => c.homeAway === 'away');
+          seriesMap[key] = {
+            id: key,
+            title: series.title || '',
+            summary: series.summary || '',
+            completed: series.completed || false,
+            games: [],
+            teams: {}
+          };
+        }
+        seriesMap[key].games.push(ev);
+
+        // Track team wins from series summary
+        comp.competitors?.forEach(c => {
+          const abbrev = c.team?.abbreviation;
+          if (abbrev && !seriesMap[key].teams[abbrev]) {
+            seriesMap[key].teams[abbrev] = {
+              abbrev,
+              name: c.team?.displayName || c.team?.shortDisplayName || abbrev,
+              logo: c.team?.logo || LOGO(abbrev),
+              seed: c.curatedRank?.current || 0,
+              wins: 0
+            };
+          }
+          if (abbrev && seriesMap[key].teams[abbrev]) {
+            seriesMap[key].teams[abbrev].logo = c.team?.logo || LOGO(abbrev);
+            seriesMap[key].teams[abbrev].seed = c.curatedRank?.current || seriesMap[key].teams[abbrev].seed;
+          }
+        });
+
+        // Parse series summary for wins (e.g., "BOS leads 2-1" or "Tied 1-1")
+        if (series.summary) {
+          const m = series.summary.match(/(\w+)\s+leads\s+(\d+)-(\d+)/i)
+            || series.summary.match(/(\w+)\s+m[eè]ne\s+(\d+)-(\d+)/i);
+          if (m) {
+            const leader = m[1];
+            Object.values(seriesMap[key].teams).forEach(t => {
+              if (t.abbrev === leader) t.wins = parseInt(m[2]);
+              else t.wins = parseInt(m[3]);
+            });
+          }
+          const tied = series.summary.match(/[ÉETt]gal(?:it[ée]|ed)?\s+(\d+)-(\d+)/i)
+            || series.summary.match(/[Tt]ied\s+(\d+)-(\d+)/i);
+          if (tied) {
+            Object.values(seriesMap[key].teams).forEach(t => {
+              t.wins = parseInt(tied[1]);
+            });
+          }
+          const wins = series.summary.match(/(\w+)\s+(?:wins|gagne)\s+(\d+)-(\d+)/i);
+          if (wins) {
+            Object.values(seriesMap[key].teams).forEach(t => {
+              if (t.abbrev === wins[1]) t.wins = parseInt(wins[2]);
+              else t.wins = parseInt(wins[3]);
+            });
+          }
+        }
+      }
+    });
+  }
+
+  // Sort games in each series
+  Object.values(seriesMap).forEach(s => {
+    s.games.sort((a, b) => new Date(a.date) - new Date(b.date));
+  });
+
+  return buildBracketFromSeries();
+}
+
+function buildBracketFromSeries() {
+  const east = [], west = [];
+  const letters = 'ABCDEFGHIJKLMNOP';
+  let idx = 0;
+
+  Object.values(seriesMap).forEach(s => {
+    const teams = Object.values(s.teams);
+    if (teams.length < 2) return;
+
+    const t1 = teams[0], t2 = teams[1];
+    // Determine conference from series title
+    const title = (s.title || '').toLowerCase();
+    const isEast = title.includes('east') || title.includes('est');
+    const isWest = title.includes('west') || title.includes('ouest');
+
+    const entry = {
+      top: { a: t1.abbrev, n: t1.name, s: t1.seed, w: t1.wins, logo: t1.logo },
+      bot: { a: t2.abbrev, n: t2.name, s: t2.seed, w: t2.wins, logo: t2.logo },
+      letter: letters[idx++],
+      seriesId: s.id,
+      round: title.includes('first') || title.includes('1') ? 1 : title.includes('semi') || title.includes('2') ? 2 : title.includes('conference final') ? 3 : title.includes('nba final') || title.includes('finale') ? 4 : 1,
+    };
+
+    if (isEast) east.push(entry);
+    else if (isWest) west.push(entry);
+    else if (east.length <= west.length) east.push(entry);
+    else west.push(entry);
+  });
+
+  // Sort by round then seed
+  east.sort((a, b) => a.round - b.round || a.top.s - b.top.s);
+  west.sort((a, b) => a.round - b.round || a.top.s - b.top.s);
+
+  return { east, west };
+}
+
+// =============================================
+// RENDER BRACKET
+// =============================================
+function renderBracket(data) {
+  const c = document.getElementById('bracketContainer');
+  const tbd = { a: '', n: '?', s: 0, w: 0 };
+  const tbdS = { top: tbd, bot: tbd };
+
+  const eastR1 = data.east.filter(s => s.round === 1);
+  const eastR2 = data.east.filter(s => s.round === 2);
+  const eastR3 = data.east.filter(s => s.round === 3);
+  const westR1 = data.west.filter(s => s.round === 1);
+  const westR2 = data.west.filter(s => s.round === 2);
+  const westR3 = data.west.filter(s => s.round === 3);
+  const finals = [...data.east, ...data.west].filter(s => s.round === 4);
+
+  const fillTo = (arr, n) => { while (arr.length < n) arr.push(tbdS); return arr; };
+
+  c.innerHTML = `
+    <div class="conference east">
+      <div class="conference-label">Est</div>
+      <div class="rounds">
+        <div class="round r1"><div class="round-label">1re ronde</div>${fillTo(eastR1, 4).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r2"><div class="round-label">Demi-finales</div>${fillTo(eastR2, 2).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r3"><div class="round-label">Finale conf.</div>${fillTo(eastR3, 1).map(s => matchupHTML(s)).join('')}</div>
+      </div>
+    </div>
+    <div class="cup-center">
+      <div class="trophy-icon">🏆</div>
+      <div class="cup-label">NBA<br>Finals</div>
+      <div style="margin-top:15px">${matchupHTML(finals[0] || tbdS)}</div>
+    </div>
+    <div class="conference west">
+      <div class="conference-label">Ouest</div>
+      <div class="rounds">
+        <div class="round r1"><div class="round-label">1re ronde</div>${fillTo(westR1, 4).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r2"><div class="round-label">Demi-finales</div>${fillTo(westR2, 2).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r3"><div class="round-label">Finale conf.</div>${fillTo(westR3, 1).map(s => matchupHTML(s)).join('')}</div>
+      </div>
+    </div>`;
+}
+
+function matchupHTML(s) {
+  const t = s.top, b = s.bot, tw = t.w === 4, bw = b.w === 4, tbd = !t.a && !b.a;
+  const placeholder = '<span style="width:44px;height:44px;display:inline-block;background:rgba(200,16,46,0.08);border-radius:8px;border:2px dashed rgba(200,16,46,0.2);"></span>';
+  const clickAttr = (t.a && b.a && s.seriesId) ? `onclick="openSeriesModal('${s.seriesId}')"` : '';
+  const logoT = t.logo || LOGO(t.a);
+  const logoB = b.logo || LOGO(b.a);
+
+  return `<div class="matchup" ${clickAttr}>
+    <div class="team-row ${tw ? 'winner' : ''} ${bw ? 'eliminated' : ''}">
+      <span class="seed">${t.s || '-'}</span>
+      ${t.a ? `<img class="team-logo" src="${logoT}" onerror="this.style.display='none'">` : placeholder}
+      <span class="team-abbrev">${t.a || '?'}</span>
+      <span class="team-wins-num ${t.w > 0 ? 'has-wins' : ''}">${tbd ? '-' : t.w}</span>
+    </div>
+    <div class="team-row ${bw ? 'winner' : ''} ${tw ? 'eliminated' : ''}">
+      <span class="seed">${b.s || '-'}</span>
+      ${b.a ? `<img class="team-logo" src="${logoB}" onerror="this.style.display='none'">` : placeholder}
+      <span class="team-abbrev">${b.a || '?'}</span>
+      <span class="team-wins-num ${b.w > 0 ? 'has-wins' : ''}">${tbd ? '-' : b.w}</span>
+    </div>
+  </div>`;
+}
+
+// =============================================
+// SERIES MODAL
+// =============================================
+async function openSeriesModal(seriesId) {
+  const series = seriesMap[seriesId];
+  if (!series) return;
+
+  const modal = document.getElementById('seriesModal');
+  const content = document.getElementById('modalContent');
+  const teams = Object.values(series.teams);
+  const t = teams[0] || { abbrev: '?', name: '?', wins: 0, logo: '' };
+  const b = teams[1] || { abbrev: '?', name: '?', wins: 0, logo: '' };
+
+  let gamesHTML = '';
+
+  series.games.forEach((ev, i) => {
+    const comp = ev.competitions?.[0];
+    const home = comp?.competitors?.find(c => c.homeAway === 'home');
+    const away = comp?.competitors?.find(c => c.homeAway === 'away');
+    const status = comp?.status;
+    const isFinal = status?.type?.completed;
+    const isLive = status?.type?.name === 'STATUS_IN_PROGRESS';
+    const gameDate = new Date(ev.date).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short.' });
+
+    let badge = '';
+    if (isLive) badge = `<span class="modal-game-badge live"><span class="live-pulse"></span>EN COURS</span>`;
+    else if (isFinal) badge = `<span class="modal-game-badge final">FINAL</span>`;
+    else badge = `<span class="modal-game-badge upcoming">À VENIR</span>`;
+
+    const awayScore = parseInt(away?.score) || 0;
+    const homeScore = parseInt(home?.score) || 0;
+    const awayW = isFinal && awayScore > homeScore;
+    const homeW = isFinal && homeScore > awayScore;
+
+    gamesHTML += `
+      <div class="modal-game" data-event-id="${ev.id}" onclick="toggleModalGameDetail(this)">
+        <span class="modal-game-num">Match ${i + 1}</span>
+        <span class="modal-game-date">${gameDate}</span>
+        <div class="modal-game-score">
+          <img src="${away?.team?.logo || LOGO(away?.team?.abbreviation || '')}">
+          <span class="mg-score ${awayW ? 'winner' : ''}">${isFinal || isLive ? awayScore : '-'}</span>
+          <span class="mg-at">@</span>
+          <span class="mg-score ${homeW ? 'winner' : ''}">${isFinal || isLive ? homeScore : '-'}</span>
+          <img src="${home?.team?.logo || LOGO(home?.team?.abbreviation || '')}">
+        </div>
+        ${isLive ? `<span style="font-family:'Bungee';font-size:11px;color:var(--nba-gold);">${status?.displayClock || ''} ${status?.period ? 'Q' + status.period : ''}</span>` : ''}
+        ${badge}
+      </div>
+      <div class="modal-game-details" id="mgd-${ev.id}"></div>`;
+  });
+
+  // Fill remaining games up to 7
+  for (let i = series.games.length; i < 7; i++) {
+    const ifNeeded = i >= 4;
+    gamesHTML += `
+      <div class="modal-game" style="opacity:${ifNeeded ? '0.25' : '0.5'};cursor:default">
+        <span class="modal-game-num">Match ${i + 1}</span>
+        <div class="modal-game-score">
+          <img src="${t.logo || LOGO(t.abbrev)}" style="width:24px;height:24px;opacity:0.4">
+          <span class="mg-at">vs</span>
+          <img src="${b.logo || LOGO(b.abbrev)}" style="width:24px;height:24px;opacity:0.4">
+        </div>
+        <span class="modal-game-badge ${ifNeeded ? 'if-needed' : 'upcoming'}">${ifNeeded ? 'SI NÉC.' : 'À VENIR'}</span>
+      </div>`;
+  }
+
+  content.innerHTML = `
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeSeriesModal()">&times;</button>
+      <div class="modal-team">
+        <img src="${t.logo || LOGO(t.abbrev)}">
+        <div class="modal-team-name">${t.name}</div>
+        <div class="modal-team-record">${t.wins}</div>
+      </div>
+      <div class="modal-vs">VS</div>
+      <div class="modal-team">
+        <img src="${b.logo || LOGO(b.abbrev)}">
+        <div class="modal-team-name">${b.name}</div>
+        <div class="modal-team-record">${b.wins}</div>
+      </div>
+    </div>
+    <div class="modal-series-label">${series.title || 'SÉRIE'} — MEILLEUR DE 7</div>
+    <div class="modal-games">${gamesHTML}</div>
+  `;
+
+  modal.classList.add('open');
+}
+
+function closeSeriesModal() {
+  document.getElementById('seriesModal').classList.remove('open');
+}
+
+document.getElementById('seriesModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSeriesModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSeriesModal(); });
+
+async function toggleModalGameDetail(el) {
+  const eventId = el.dataset.eventId;
+  if (!eventId) return;
+
+  const detailDiv = document.getElementById('mgd-' + eventId);
+  if (!detailDiv) return;
+
+  if (detailDiv.classList.contains('open')) {
+    detailDiv.classList.remove('open');
+    return;
+  }
+
+  if (!detailDiv.innerHTML.trim()) {
+    detailDiv.innerHTML = '<div class="modal-no-data">Chargement...</div>';
+    detailDiv.classList.add('open');
+    const summary = await apiFetch(API.summary(eventId));
+    detailDiv.innerHTML = renderGameSummary(summary);
+  }
+  detailDiv.classList.toggle('open');
+}
+
+// =============================================
+// RENDER GAME SUMMARY
+// =============================================
+function renderGameSummary(summary) {
+  if (!summary) return '<div class="no-data">Données non disponibles</div>';
+
+  let html = '';
+  const boxscore = summary.boxscore;
+
+  // Top performers
+  if (boxscore?.players) {
+    boxscore.players.forEach(teamData => {
+      const teamName = teamData.team?.displayName || '';
+      const teamLogo = teamData.team?.logo || '';
+      const stats = teamData.statistics?.[0];
+      if (!stats?.athletes) return;
+
+      html += `<div class="period-scoring"><div class="period-label">${teamName}</div>`;
+      // Show top 3 scorers
+      const athletes = stats.athletes.slice(0, 5);
+      athletes.forEach(a => {
+        const playerStats = a.stats || [];
+        // ESPN NBA stats order: MIN, FG, 3PT, FT, OREB, DREB, REB, AST, STL, BLK, TO, PF, PTS
+        const pts = playerStats[12] || playerStats[playerStats.length - 1] || '0';
+        const reb = playerStats[6] || '0';
+        const ast = playerStats[7] || '0';
+
+        html += `
+          <div class="scorer-row">
+            <img class="scorer-team-logo" src="${teamLogo}" onerror="this.style.display='none'">
+            <img class="leader-mugshot" src="${a.athlete?.headshot?.href || ''}" onerror="this.style.display='none'">
+            <span class="scorer-name">${a.athlete?.displayName || ''}</span>
+            <span class="scorer-stats">${pts} PTS ${reb} REB ${ast} AST</span>
+          </div>`;
+      });
+      html += '</div>';
+    });
+  }
+
+  return html || '<div class="no-data">Détails non disponibles</div>';
+}
+
+// =============================================
+// RENDER RESULTS
+// =============================================
+function renderResults(data) {
+  const c = document.getElementById('resultsContainer');
+
+  const allSeries = Object.values(seriesMap);
+  const eastSeries = allSeries.filter(s => (s.title || '').toLowerCase().includes('east'));
+  const westSeries = allSeries.filter(s => (s.title || '').toLowerCase().includes('west'));
+  const finalsSeries = allSeries.filter(s => {
+    const t = (s.title || '').toLowerCase();
+    return t.includes('nba final') || t.includes('finale nba');
+  });
+  // Catch unclassified
+  const classified = new Set([...eastSeries, ...westSeries, ...finalsSeries].map(s => s.id));
+  const other = allSeries.filter(s => !classified.has(s.id));
+
+  let html = '';
+
+  if (eastSeries.length) {
+    html += `<div class="conf-section"><div class="conf-title">Conférence de l'Est</div>${eastSeries.map(s => seriesCardHTML(s)).join('')}</div>`;
+  }
+  if (westSeries.length) {
+    html += `<div class="conf-section"><div class="conf-title">Conférence de l'Ouest</div>${westSeries.map(s => seriesCardHTML(s)).join('')}</div>`;
+  }
+  if (finalsSeries.length) {
+    html += `<div class="conf-section"><div class="conf-title">Finales NBA</div>${finalsSeries.map(s => seriesCardHTML(s)).join('')}</div>`;
+  }
+  if (other.length) {
+    html += `<div class="conf-section"><div class="conf-title">Séries</div>${other.map(s => seriesCardHTML(s)).join('')}</div>`;
+  }
+
+  if (!html) {
+    html = '<div class="no-data">Les séries commencent bientôt! Revenez pour les résultats.</div>';
+  }
+
+  c.innerHTML = html;
+
+  // Attach handlers
+  c.querySelectorAll('.series-header').forEach(h => {
+    h.addEventListener('click', () => h.closest('.series-card').classList.toggle('open'));
+  });
+
+  c.querySelectorAll('.game-card-header[data-event-id]').forEach(h => {
+    h.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const card = h.closest('.game-card');
+      const eventId = h.dataset.eventId;
+      if (!eventId) return;
+
+      if (card.classList.contains('open')) {
+        card.classList.remove('open');
+        return;
+      }
+
+      const detailsDiv = card.querySelector('.game-details');
+      if (!detailsDiv.innerHTML.trim()) {
+        detailsDiv.innerHTML = '<div class="no-data">Chargement...</div>';
+        card.classList.add('open');
+        const summary = await apiFetch(API.summary(eventId));
+        detailsDiv.innerHTML = renderGameSummary(summary);
+      }
+      card.classList.toggle('open');
+    });
+  });
+}
+
+function seriesCardHTML(series) {
+  const teams = Object.values(series.teams);
+  const t = teams[0] || { abbrev: '?', name: '?', wins: 0, logo: '' };
+  const b = teams[1] || { abbrev: '?', name: '?', wins: 0, logo: '' };
+  const total = t.wins + b.wins;
+
+  let status = series.summary || '';
+  if (!status) {
+    if (t.wins === 4) status = `${t.name} gagne en ${total}`;
+    else if (b.wins === 4) status = `${b.name} gagne en ${total}`;
+    else if (total === 0) status = 'À venir';
+    else if (t.wins === b.wins) status = `Égalité ${t.wins}-${b.wins}`;
+    else { const l = t.wins > b.wins ? t : b; status = `${l.abbrev} mène ${l.wins}-${Math.min(t.wins, b.wins)}`; }
+  }
+
+  const dots = w => Array(4).fill(0).map((_, i) => `<div class="dot ${i < w ? 'won' : ''}"></div>`).join('');
+
+  let gamesHTML = '';
+  series.games.forEach((ev, i) => {
+    const comp = ev.competitions?.[0];
+    const home = comp?.competitors?.find(c => c.homeAway === 'home');
+    const away = comp?.competitors?.find(c => c.homeAway === 'away');
+    const st = comp?.status;
+    const isFinal = st?.type?.completed;
+    const isLive = st?.type?.name === 'STATUS_IN_PROGRESS';
+
+    let badge = '';
+    if (isLive) badge = `<span class="game-status-badge live"><span class="live-pulse"></span>EN COURS</span>`;
+    else if (isFinal) badge = `<span class="game-status-badge final">FINAL</span>`;
+    else badge = `<span class="game-status-badge upcoming">À VENIR</span>`;
+
+    const awayScore = parseInt(away?.score) || 0;
+    const homeScore = parseInt(home?.score) || 0;
+    const awayW = isFinal && awayScore > homeScore;
+    const homeW = isFinal && homeScore > awayScore;
+
+    gamesHTML += `
+      <div class="game-card">
+        <div class="game-card-header" data-event-id="${ev.id}">
+          <span class="game-num">Match ${i + 1}</span>
+          <div class="game-mini-score">
+            <img src="${away?.team?.logo || LOGO(away?.team?.abbreviation || '')}" style="width:22px;height:22px">
+            <span class="score-val ${awayW ? 'winner-score' : ''}">${isFinal || isLive ? awayScore : '-'}</span>
+            <span class="vs-label">@</span>
+            <span class="score-val ${homeW ? 'winner-score' : ''}">${isFinal || isLive ? homeScore : '-'}</span>
+            <img src="${home?.team?.logo || LOGO(home?.team?.abbreviation || '')}" style="width:22px;height:22px">
+          </div>
+          ${isLive ? `<span style="font-family:'Bungee';font-size:12px;color:var(--nba-gold);">${st?.displayClock || ''} Q${st?.period || ''}</span>` : ''}
+          ${badge}
+        </div>
+        <div class="game-details"></div>
+      </div>`;
+  });
+
+  if (!gamesHTML) {
+    gamesHTML = '<div class="no-data">Aucun match joué</div>';
+  }
+
+  return `
+    <div class="series-card">
+      <div class="series-header">
+        <div class="series-letter-badge">${(series.title || '').charAt(0) || '?'}</div>
+        <div class="series-teams">
+          <div class="series-team ${b.wins === 4 ? 'eliminated' : ''}">
+            <img src="${t.logo || LOGO(t.abbrev)}">
+            <span class="name">${t.name}</span>
+            <div class="dots">${dots(t.wins)}</div>
+            <span class="record ${t.wins > b.wins ? 'leading' : ''}">${t.wins}</span>
+          </div>
+          <div class="series-team ${t.wins === 4 ? 'eliminated' : ''}">
+            <img src="${b.logo || LOGO(b.abbrev)}">
+            <span class="name">${b.name}</span>
+            <div class="dots">${dots(b.wins)}</div>
+            <span class="record ${b.wins > t.wins ? 'leading' : ''}">${b.wins}</span>
+          </div>
+        </div>
+        <div class="series-status">
+          <div class="status-label">${series.title || 'SÉRIE'}</div>
+          <div class="status-text">${status}</div>
+        </div>
+      </div>
+      <div class="series-games">${gamesHTML}</div>
+    </div>`;
+}
+
+// =============================================
+// RENDER LEADERS
+// =============================================
+async function renderLeaders() {
+  const c = document.getElementById('leadersContainer');
+  const data = await apiFetch(API.leaders);
+
+  if (!data || !data.leaders) {
+    c.innerHTML = '<div class="no-data">Les meneurs seront disponibles une fois les séries commencées!</div>';
+    return;
+  }
+
+  let html = '<div class="leaders-grid">';
+
+  data.leaders.forEach(cat => {
+    const label = cat.displayName || cat.name || '';
+    const leaders = cat.leaders || [];
+
+    html += `<div class="leader-section"><div class="leader-section-title">${label}</div>`;
+    if (leaders.length === 0) {
+      html += '<div class="no-data">Pas encore de données</div>';
+    } else {
+      leaders.slice(0, 10).forEach((l, i) => {
+        const athlete = l.athlete || {};
+        html += `
+          <div class="leader-row">
+            <span class="leader-rank ${i === 0 ? 'gold' : ''}">${i + 1}</span>
+            <img class="leader-mugshot" src="${athlete.headshot?.href || ''}" onerror="this.style.display='none'">
+            <div class="leader-info">
+              <div class="leader-name">${athlete.displayName || ''}</div>
+              <div class="leader-team-info">
+                <img src="${athlete.team?.logos?.[0]?.href || ''}">
+                ${athlete.team?.abbreviation || ''}
+              </div>
+            </div>
+            <span class="leader-value">${l.displayValue || l.value || ''}</span>
+          </div>`;
+      });
+    }
+    html += '</div>';
+  });
+
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+// =============================================
+// VIEW SWITCHING
+// =============================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.view + 'View').classList.add('active');
+  });
+});
+
+// =============================================
+// REFRESH
+// =============================================
+async function refreshAll() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+
+  bracketData = await fetchPlayoffData();
+  renderBracket(bracketData);
+  renderResults(bracketData);
+  renderLeaders();
+
+  setTimeout(() => btn.classList.remove('spinning'), 600);
+}
+
+// =============================================
+// ZOOM (TNI / Gymnase)
+// =============================================
+let currentZoom = 100;
+const ZOOM_STEPS = [75, 100, 125, 150, 175, 200];
+
+function setZoom(action) {
+  const idx = ZOOM_STEPS.indexOf(currentZoom);
+  if (action === 'in' && idx < ZOOM_STEPS.length - 1) currentZoom = ZOOM_STEPS[idx + 1];
+  else if (action === 'out' && idx > 0) currentZoom = ZOOM_STEPS[idx - 1];
+  else if (action === 'reset') currentZoom = 100;
+  applyZoom();
+}
+
+function applyZoom() {
+  document.getElementById('zoomLevel').textContent = currentZoom + '%';
+  const scale = currentZoom / 100;
+  document.querySelectorAll('.header, .view, .footer').forEach(el => {
+    el.style.transform = scale === 1 ? '' : `scale(${scale})`;
+    el.style.transformOrigin = 'top center';
+  });
+  if (scale > 1) document.body.style.paddingBottom = ((scale - 1) * 100) + 'vh';
+  else document.body.style.paddingBottom = '';
+}
+
+// =============================================
+// INIT
+// =============================================
+async function init() {
+  createParticles();
+  createNBABackground();
+
+  bracketData = await fetchPlayoffData();
+  renderBracket(bracketData);
+  renderResults(bracketData);
+  renderLeaders();
+
+  // Auto-refresh every 2 minutes
+  setInterval(refreshAll, 2 * 60 * 1000);
+}
+
+init();
+</script>
+</body>
+</html>
