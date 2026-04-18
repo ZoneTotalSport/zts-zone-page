@@ -2252,6 +2252,7 @@
                         <li><a href="https://zonetotalsport.ca/" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fAccueil">Accueil</a></li>
                         <li><a href="#" onclick="event.preventDefault();ztsOpenApp('https://jeux.zonetotalsport.ca')" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fJeux">Banque de jeux</a></li>
                         <li><a href="#" onclick="event.preventDefault();ztsOpenApp('https://sae.zonetotalsport.ca')" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fSae">SAÉ</a></li>
+                        <li><a href="aidons-nous.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fAidons">🤝 Aidons-nous</a></li>
                         <li><a href="blog.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fBlogue">Blogue</a></li>
                         <li><a href="avis.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="fContact">Contact</a></li>
                     </ul>
@@ -4916,6 +4917,7 @@ document.addEventListener('click', () => {
 });
 </script>
 <script src="firebase-auth.js?v=2"></script>
+<script src="suggestions.js?v=1"></script>
 <script src="telegram-notify.js"></script>
 <!-- Dock Outils -->
 <script src="dock.js"></script>
@@ -5036,6 +5038,11 @@ ztsInitVisitCounter();
       <p style="font-family:'Patrick Hand',cursive;font-size:1.2rem;color:rgba(255,255,255,.7);margin:6px 0 0;">Choisis ton outil!</p>
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:20px 30px 30px;" id="appsGrid">
+      <div class="app-card" onclick="window.location.href='aidons-nous.html'" style="border:2px solid #FF2A7A;box-shadow:0 0 15px rgba(255,42,122,0.4);background:linear-gradient(135deg,rgba(255,42,122,0.08),rgba(139,92,246,0.08))">
+        <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Aidons-nous">
+        <h3 style="color:#FF2A7A">🤝 Aidons-nous</h3>
+        <p>Forum d'entraide EPS · SDG · Camps</p>
+      </div>
       <div class="app-card" onclick="ztsOpenApp('https://zonetotalsport.ca/apps/planificateur/')" style="border:2px solid #FFD700;box-shadow:0 0 15px rgba(255,215,0,0.3)">
         <img decoding="async" loading="lazy" src="apps/planificateur/mr-root-thumbup.png" alt="Planificateur">
         <h3 style="color:#FFD700">Planificateur EPS</h3>
