@@ -62,6 +62,9 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--violet);border-radius:3px}
 </style>
+<!-- ZTS Landing Template -->
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="zts-landing.css">
 </head>
 <body class="relative z-10">
 
@@ -872,5 +875,47 @@ document.addEventListener('DOMContentLoaded', ()=>{
   lucide.createIcons();
 });
 </script>
+<!-- ZTS Landing config + script -->
+<script>
+window.ZTS_LANDING_CONFIG = {
+  appId: 'transitions',
+  accentColor: '#FF9800',
+  homeUrl: 'https://zonetotalsport.ca',
+  mascot: 'https://zonetotalsport.ca/bucheron-basketball.png',
+  logoIcon: 'https://zonetotalsport.ca/logo-zts.png',
+  logoTitle: { fr: 'Boîte à Outils', en: 'Toolbox', zh: '工具箱' },
+  logoSub: 'Zone Total Sport',
+  title: { fr: 'Boîte à Outils', en: 'Gym Toolbox', zh: '体育馆工具箱' },
+  subtitle: { fr: 'Gestion du gymnase!', en: 'Master your gym!', zh: '管理体育馆!' },
+  description: {
+    fr: "Tous les outils pour gérer les transitions, les signaux, les zones et les capitaines dans ton gymnase. Chronos, trame sonore, plan du gym et signaux visuels — la boîte à outils du spécialiste ÉPS.",
+    en: "All the tools to manage transitions, signals, zones and captains in your gym. Timers, soundtrack, gym layout and visual cues — the PE specialist's toolbox.",
+    zh: "管理体育馆过渡、信号、区域和队长的所有工具。计时器、配乐、场地图和视觉提示——体育专家的工具箱。"
+  },
+  badges: [
+    { emoji: '🚦', color: 'orange', text: { fr: 'Signaux visuels', en: 'Visual signals', zh: '视觉信号' } },
+    { emoji: '⏱️', color: 'cyan',   text: { fr: 'Chrono', en: 'Timer', zh: '计时器' } },
+    { emoji: '📍', color: 'pink',   text: { fr: 'Zones & capitaines', en: 'Zones & captains', zh: '区域 & 队长' } },
+    { emoji: '🎵', color: 'violet', text: { fr: 'Trame sonore', en: 'Soundtrack', zh: '配乐' } },
+    { emoji: '🏟️', color: 'yellow', text: { fr: 'Plan du gym', en: 'Gym layout', zh: '场地图' } }
+  ],
+  features: [
+    { emoji: '🟢', title: { fr: 'Signaux', en: 'Signals', zh: '信号' }, desc: { fr: 'Vert / jaune / rouge pour le volume', en: 'Green / yellow / red for noise', zh: '绿/黄/红音量' } },
+    { emoji: '⏱️', title: { fr: 'Chronos', en: 'Timers', zh: '计时器' }, desc: { fr: 'Plusieurs timers simultanés', en: 'Multiple concurrent timers', zh: '多计时器同步' } },
+    { emoji: '👥', title: { fr: 'Capitaines', en: 'Captains', zh: '队长' }, desc: { fr: 'Tirage aléatoire', en: 'Random picker', zh: '随机抽签' } },
+    { emoji: '🗺️', title: { fr: 'Zones', en: 'Zones', zh: '区域' }, desc: { fr: 'Assigne chaque groupe', en: 'Assign each group', zh: '为每组分配' } },
+    { emoji: '🎵', title: { fr: 'Trame sonore', en: 'Soundtrack', zh: '配乐' }, desc: { fr: 'Musique d\'ambiance dosée', en: 'Ambient music, right volume', zh: '氛围音乐' } },
+    { emoji: '🏟️', title: { fr: 'Plan du gym', en: 'Gym plan', zh: '场地图' }, desc: { fr: 'Visualise ton espace', en: 'Visualize your space', zh: '可视化场地' } },
+    { emoji: '📢', title: { fr: 'Consignes', en: 'Cues', zh: '提示' }, desc: { fr: 'Projetées en grand', en: 'Projected big', zh: '大屏投影' } },
+    { emoji: '📱', title: { fr: 'TNI + mobile', en: 'IWB + mobile', zh: '白板 + 手机' }, desc: { fr: 'Depuis ton téléphone ou TBI', en: 'From phone or IWB', zh: '手机或白板' } }
+  ],
+  ctaStart: { label: { fr: 'Commencer!', en: 'Start!', zh: '开始!' } },
+  ctaHelp: {
+    label: { fr: 'Comment utiliser', en: 'How to use', zh: '使用说明' },
+    onClick: function () { window.open('https://zonetotalsport.ca/articles/transitions-guide.html', '_blank'); }
+  }
+};
+</script>
+<script src="zts-landing.js"></script>
 </body>
 </html>
