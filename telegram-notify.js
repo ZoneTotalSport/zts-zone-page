@@ -164,4 +164,113 @@
     notifyVisitWithGeo();
   }
 
+  // ============================================================
+  // SESSION TRACKER — pour comprendre pourquoi ça ne s'inscrit pas
+  // ============================================================
+  var session = {
+    start: Date.now(),
+    pages: [window.location.pathname],
+    scrollMax: 0,
+    appClicks: [],
+    popupsShown: [],
+    popupsConverted: [],
+    signedUp: false,
+    city: '(?)',
+    summarySent: false
+  };
+
+  // Géoloc en cache pour le summary
+  fetch('https://ipapi.co/json/')
+    .then(function(r) { return r.json(); })
+    .then(function(g) { session.city = (g.city || '?') + ', ' + (g.country_name || '?'); })
+    .catch(function() {});
+
+  // Track scroll max
+  window.addEventListener('scroll', function() {
+    var pct = Math.round((window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100);
+    if (pct > session.scrollMax) session.scrollMax = pct;
+  }, { passive: true });
+
+  // Track clics sur apps (meme si anonyme)
+  document.addEventListener('click', function(e) {
+    var target = e.target.closest('[onclick*="ztsOpenApp"], [data-protected="true"], .app-card');
+    if (!target) return;
+    var name = (target.textContent || target.getAttribute('alt') || '').trim().slice(0, 40);
+    if (!name) return;
+    // Dedup: ne pas logger 2x la meme app
+    if (session.appClicks.indexOf(name) === -1) session.appClicks.push(name);
+
+    // Notif immediate si clic sans etre connecte
+    var user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+    if (!user && !sessionStorage.getItem('zts_click_notif_' + name)) {
+      sessionStorage.setItem('zts_click_notif_' + name, '1');
+      sendTelegram('🖱️ <b>Clic app sans compte</b>\n🎯 ' + name + '\n📍 ' + session.city + '\n⏳ Popup affiche — lead chaud');
+    }
+  }, { passive: true, capture: true });
+
+  // Hook popup shown
+  var _origShown = window.ztsTrackPopupShown || function(){};
+  window.ztsTrackPopupShown = function(name) {
+    if (session.popupsShown.indexOf(name) === -1) session.popupsShown.push(name);
+    return _origShown.apply(this, arguments);
+  };
+
+  // Hook popup converted
+  var _origConv = window.ztsTrackPopupConverted || function(){};
+  window.ztsTrackPopupConverted = function(name) {
+    if (session.popupsConverted.indexOf(name) === -1) session.popupsConverted.push(name);
+    return _origConv.apply(this, arguments);
+  };
+
+  // Hook signup -> marque la session
+  var _origSignup = window.ztsNotifySignup;
+  window.ztsNotifySignup = function(user) {
+    session.signedUp = true;
+    if (_origSignup) _origSignup.apply(this, arguments);
+  };
+
+  // ============================================================
+  // SUMMARY a la fermeture / navigation
+  // ============================================================
+  function sendSummary() {
+    if (session.summarySent) return;
+    if (session.signedUp) return; // pas de summary si inscrit (deja notif separee)
+    // Evite les summaries trop courts (bot ou rebond <5s)
+    var durMs = Date.now() - session.start;
+    if (durMs < 5000) return;
+
+    session.summarySent = true;
+
+    var min = Math.floor(durMs / 60000);
+    var sec = Math.floor((durMs % 60000) / 1000);
+    var dur = (min > 0 ? min + 'min ' : '') + sec + 's';
+
+    var user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+    var userLine = user ? '✅ ' + (user.email || 'Membre') + ' (deja membre)' : '🚫 <b>Non inscrit</b>';
+
+    var text = '👋 <b>Visiteur parti</b>\n' +
+      userLine + '\n' +
+      '📍 ' + session.city + '\n' +
+      '⏱️ Session: ' + dur + ' | 📜 Scroll: ' + session.scrollMax + '%\n' +
+      '🎯 Apps cliquees: ' + (session.appClicks.length ? session.appClicks.join(', ') : 'aucune') + '\n' +
+      '👁️ Popup vu: ' + (session.popupsShown.length ? 'oui (' + session.popupsShown.join(', ') + ')' : 'non') + '\n' +
+      '✅ Popup converti: ' + (session.popupsConverted.length ? 'oui' : 'non');
+
+    // sendBeacon pour garantir l'envoi avant unload
+    try {
+      var blob = new Blob([JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'HTML' })],
+                         { type: 'application/json' });
+      navigator.sendBeacon(API_URL, blob);
+    } catch (e) {
+      sendTelegram(text);
+    }
+  }
+
+  window.addEventListener('pagehide', sendSummary);
+  window.addEventListener('beforeunload', sendSummary);
+  // Aussi sur changement de visibilite mobile (onglet en arriere-plan)
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') sendSummary();
+  });
+
 })();
