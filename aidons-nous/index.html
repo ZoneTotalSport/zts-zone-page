@@ -273,9 +273,13 @@ document.querySelectorAll('.chip[data-sort]').forEach(c=>c.onclick=()=>{
 });
 
 // ─── Compose ───
+function getLiveUser(){
+  return currentUser || (window.firebase&&firebase.auth&&firebase.auth().currentUser) || (window.ztsGetUser&&window.ztsGetUser()) || null;
+}
 function openCompose(){
   $('composeModal').classList.add('show');
-  if(!currentUser){$('composeGate').classList.remove('hidden');$('composeForm').classList.add('hidden');}
+  const u=getLiveUser(); if(u)currentUser=u;
+  if(!u){$('composeGate').classList.remove('hidden');$('composeForm').classList.add('hidden');}
   else{$('composeGate').classList.add('hidden');$('composeForm').classList.remove('hidden');}
   if(typeof gtag==='function')gtag('event','forum_compose_opened');
 }
@@ -287,6 +291,7 @@ $('cmpContent').addEventListener('input',e=>$('cmpCount').textContent=e.target.v
 $('cmpSubmit').onclick=async()=>{
   const title=$('cmpTitle').value.trim(),content=$('cmpContent').value.trim(),cat=$('cmpCat').value;
   const err=$('cmpErr');err.classList.add('hidden');
+  const u=getLiveUser(); if(u)currentUser=u;
   if(!currentUser){err.textContent='Tu dois être connecté.';err.classList.remove('hidden');return;}
   if(title.length<5){err.textContent='Titre trop court (min 5 caractères).';err.classList.remove('hidden');return;}
   if(content.length<10){err.textContent='Message trop court (min 10 caractères).';err.classList.remove('hidden');return;}
@@ -369,6 +374,7 @@ function renderPost(p){
 }
 
 async function handleAct(act,id,p,el){
+  const u=getLiveUser(); if(u)currentUser=u;
   if(act==='like'){
     if(!currentUser){alert('Connecte-toi pour aimer 💛');return;}
     const liked=(p.likes||[]).includes(currentUser.uid);
@@ -391,6 +397,7 @@ async function handleAct(act,id,p,el){
 }
 
 async function submitReply(id,el){
+  const u=getLiveUser(); if(u)currentUser=u;
   if(!currentUser){alert('Connecte-toi 🔒');return;}
   const ta=el.querySelector('.reply-box textarea');
   const c=ta.value.trim();
