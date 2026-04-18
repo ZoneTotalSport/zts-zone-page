@@ -199,8 +199,9 @@ function renderCards(){
     const imgHTML=p.img
       ?`<img src="${p.img}" alt="${p.title}" class="w-full h-40 sm:h-52 object-cover" loading="lazy">`
       :`<div class="w-full h-52 flex items-center justify-center text-6xl" style="background:linear-gradient(135deg,${p.color}33,${p.color}88)">${p.emoji}</div>`;
+    const slug = (p.url.match(/articles\/([^\/\.]+)\.html/) || [])[1] || '';
     grid.insertAdjacentHTML('beforeend',`
-      <article class="card bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100" data-i="${i}">
+      <article class="card bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100" data-i="${i}" data-article-slug="${slug}">
         ${imgHTML}
         <div class="p-6">
           <span class="inline-block px-3 py-1 rounded-full text-xs font-fredoka text-white mb-3" style="background:${p.color}">${p.cat}</span>
@@ -209,7 +210,7 @@ function renderCards(){
           <div class="flex items-center justify-between text-xs text-dark/40 mb-4">
             <span><i data-lucide="calendar" class="w-3 h-3 inline"></i> ${p.date}</span>
             <span><i data-lucide="clock" class="w-3 h-3 inline"></i> ${p.time}</span>
-            <span><i data-lucide="eye" class="w-3 h-3 inline"></i> ${p.views}</span>
+            <span><i data-lucide="eye" class="w-3 h-3 inline"></i> <span data-views-count>${p.views}</span></span>
           </div>
           <a href="${p.url}" class="block text-center bg-dark text-white font-fredoka py-2.5 rounded-xl hover:bg-cyan hover:text-dark transition text-lg">Lire l'article</a>
         </div>
@@ -236,8 +237,14 @@ document.getElementById('searchBar').addEventListener('input',renderCards);
 // Init
 renderCards();
 lucide.createIcons();
+
+// Sync live views from Firestore
+window.addEventListener('load', function() {
+  if (window.ztsSyncBlogViews) window.ztsSyncBlogViews();
+});
 </script>
 <script src="/firebase-auth.js"></script>
 <script src="telegram-notify.js"></script>
+<script src="/article-views.js"></script>
 </body>
 </html>
