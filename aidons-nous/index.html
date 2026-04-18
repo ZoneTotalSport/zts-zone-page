@@ -36,7 +36,7 @@
 <style>
   body{font-family:'Patrick Hand',cursive;min-height:100vh;position:relative;}
   body::before{content:'';position:fixed;inset:0;background:url('../gym-bg.jpg') center/cover fixed no-repeat;z-index:-2;}
-  body::after{content:'';position:fixed;inset:0;background:linear-gradient(135deg,rgba(0,150,199,0.45) 0%,rgba(0,229,255,0.35) 100%);z-index:-1;}
+  body::after{content:'';position:fixed;inset:0;background:linear-gradient(135deg,rgba(0,150,199,0.18) 0%,rgba(0,229,255,0.12) 100%);z-index:-1;}
   .fb-card{background:rgba(255,255,255,0.96);backdrop-filter:blur(6px);}
   .font-bangers{font-family:'Luckiest Guy',cursive;letter-spacing:2px;}
   .font-bangers-sm{font-family:'Bangers',cursive;letter-spacing:1.5px;}
@@ -120,21 +120,23 @@
       <img src="../logo-zts.png" alt="ZTS" class="h-10">
       <span class="font-bangers text-yellow-sun text-2xl hidden sm:block">ZONE TOTAL SPORT</span>
     </a>
-    <div class="flex gap-2 flex-wrap">
+    <div class="flex gap-2 flex-wrap items-center">
       <a href="../" class="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 font-bangers-sm text-sm">🏠 Accueil</a>
       <a href="../blog.html" class="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 font-bangers-sm text-sm">📰 Blog</a>
-      <a href="#" class="px-3 py-2 rounded-lg bg-pink-fuchsia text-white font-bangers-sm text-sm">🤝 Aidons-nous</a>
+      <a href="#" class="px-3 py-2 rounded-lg bg-cyan-electric text-dark font-bangers-sm text-sm">🤝 Aidons-nous</a>
+      <a href="#" id="zts-login-btn" data-auth="login" class="px-4 py-2 rounded-lg text-white font-bangers-sm text-sm" style="background:linear-gradient(135deg,#FF6B00,#FF9500);">👤 <span id="navLoginLabel">Connexion</span></a>
     </div>
   </div>
 </nav>
 
 <!-- ═══════ HERO ═══════ -->
-<section class="relative overflow-hidden" style="background:linear-gradient(135deg,#00E5FF 0%,#0096C7 100%);">
-  <div class="max-w-4xl mx-auto px-6 py-10 text-center text-white relative z-10">
-    <img src="../bucheron-aidons-nous.png" alt="Les bûcherons de l'entraide" class="w-40 md:w-56 mx-auto mb-3 drop-shadow-2xl" onerror="this.src='../bucheron-basketball.png'">
-    <h1 class="font-bangers text-5xl md:text-6xl mb-2" style="text-shadow:3px 3px 0 rgba(0,0,0,0.3);">🤝 AIDONS-NOUS</h1>
-    <p class="font-bangers-sm text-xl md:text-2xl opacity-95">LA COMMUNAUTÉ QUI DONNE AU SUIVANT 💛</p>
-    <p class="mt-3 text-base md:text-lg opacity-95 max-w-xl mx-auto">Profs ÉPS · Éducatrices SDG · Animateurs de camp — on s'entraide, on partage, on grandit ensemble.</p>
+<section class="relative overflow-hidden" style="background:linear-gradient(135deg,rgba(0,229,255,0.85) 0%,rgba(0,150,199,0.85) 100%);">
+  <div class="max-w-5xl mx-auto px-4 py-3 md:py-4 flex items-center justify-center gap-4 text-white relative z-10">
+    <img src="../bucheron-aidons-nous.png" alt="Bûcherons de l'entraide" class="w-16 md:w-24 drop-shadow-lg flex-shrink-0" onerror="this.src='../bucheron-basketball.png'">
+    <div class="text-left">
+      <h1 class="font-bangers text-3xl md:text-4xl leading-none" style="text-shadow:2px 2px 0 rgba(0,0,0,0.3);">🤝 AIDONS-NOUS</h1>
+      <p class="font-bangers-sm text-base md:text-lg opacity-95">LA COMMUNAUTÉ QUI DONNE AU SUIVANT 💛</p>
+    </div>
   </div>
 </section>
 
@@ -259,6 +261,8 @@ function init(){
   firebase.auth().onAuthStateChanged(u=>{
     currentUser=u;
     $('composeAvatar').textContent=u?(u.displayName||u.email||'?').charAt(0).toUpperCase():'?';
+    const lbl=$('navLoginLabel');
+    if(lbl)lbl.textContent=u?(u.displayName||u.email.split('@')[0]):'Connexion';
   });
   loadFeed();
   lucide.createIcons();
