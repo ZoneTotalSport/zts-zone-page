@@ -7,11 +7,74 @@
     <title>Basketball Scoreboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./zts-landing.css">
     <script type="module" crossorigin src="./assets/index-hyWLnqIA.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-CzcDKP5a.css">
   </head>
   <body>
     <div id="root"></div>
+    <!-- ZTS Landing config + script -->
+    <script>
+      window.ZTS_LANDING_CONFIG = {
+        appId: 'scoreboard',
+        accentColor: '#F59E0B',
+        homeUrl: 'https://zonetotalsport.ca',
+        mascot: 'https://zonetotalsport.ca/apps/scoreboard/mr-root-scoreboard.png',
+        logoIcon: 'https://zonetotalsport.ca/logo-zts.png',
+        logoTitle: { fr: 'Tableau Indicateur', en: 'Scoreboard', zh: '计分板' },
+        logoSub: 'Zone Total Sport',
+        title: {
+          fr: 'Tableau Indicateur',
+          en: 'Scoreboard',
+          zh: '计分板'
+        },
+        subtitle: {
+          fr: 'Basketball • Hockey • Football!',
+          en: 'Basketball • Hockey • Football!',
+          zh: '篮球 • 冰球 • 橄榄球!'
+        },
+        description: {
+          fr: "Tableau indicateur professionnel pour le gymnase : chrono, fautes, possession, chrono de tir, temps-morts, horns NBA/sirène configurables. 3 sports intégrés (basketball, hockey, football). Affichage plein écran TNI!",
+          en: "Pro-grade gym scoreboard: game clock, fouls, possession, shot clock, timeouts, configurable NBA horns/siren. 3 sports built in (basketball, hockey, football). Full-screen IWB display!",
+          zh: "专业体育馆计分板:比赛计时、犯规、控球、进攻时间、暂停、可配置 NBA 号角/警报声。内置 3 项运动(篮球、冰球、橄榄球)。全屏交互白板显示!"
+        },
+        badges: [
+          { emoji: '🏀', color: 'cyan',   text: { fr: '3 sports',            en: '3 sports',           zh: '3 项运动' } },
+          { emoji: '⏱️', color: 'yellow', text: { fr: 'Chrono pro',          en: 'Pro clock',          zh: '专业计时' } },
+          { emoji: '🎯', color: 'pink',   text: { fr: 'Fautes & possession', en: 'Fouls & possession', zh: '犯规与控球' } },
+          { emoji: '🔔', color: 'violet', text: { fr: 'Horns NBA',           en: 'NBA horns',          zh: 'NBA 号角' } },
+          { emoji: '📺', color: 'green',  text: { fr: 'Plein écran TNI',     en: 'IWB full screen',    zh: '交互白板全屏' } }
+        ],
+        features: [
+          { emoji: '🏀', title: { fr: 'Basketball complet', en: 'Full basketball', zh: '完整篮球' },
+            desc: { fr: 'Quarts, fautes, bonus, possession', en: 'Quarters, fouls, bonus, possession', zh: '节次、犯规、加罚、控球' } },
+          { emoji: '🏒', title: { fr: 'Hockey', en: 'Hockey', zh: '冰球' },
+            desc: { fr: 'Périodes, pénalités, tirs', en: 'Periods, penalties, shots', zh: '时段、罚时、射门' } },
+          { emoji: '🏈', title: { fr: 'Football', en: 'Football', zh: '橄榄球' },
+            desc: { fr: 'Quarts, downs, yards', en: 'Quarters, downs, yards', zh: '节次、进攻、码数' } },
+          { emoji: '⏱️', title: { fr: 'Chrono match + tir', en: 'Game & shot clock', zh: '比赛与进攻计时' },
+            desc: { fr: 'Décompte précis configurable', en: 'Precise configurable countdown', zh: '精确可配置倒计时' } },
+          { emoji: '⚠️', title: { fr: 'Fautes & temps-morts', en: 'Fouls & timeouts', zh: '犯规与暂停' },
+            desc: { fr: 'Par équipe et par joueur', en: 'Per team and per player', zh: '按队伍和球员' } },
+          { emoji: '🔔', title: { fr: 'Horns/sirène', en: 'Horns/siren', zh: '号角/警报声' },
+            desc: { fr: 'Son NBA ou sirène au choix', en: 'NBA horn or siren', zh: 'NBA 号角或警报声' } },
+          { emoji: '🎨', title: { fr: 'Thèmes couleurs', en: 'Color themes', zh: '颜色主题' },
+            desc: { fr: "Personnalise l'affichage", en: 'Customize display', zh: '自定义显示' } },
+          { emoji: '📺', title: { fr: 'Plein écran TBI', en: 'IWB full screen', zh: '交互白板全屏' },
+            desc: { fr: 'Parfait pour le gymnase', en: 'Perfect for the gym', zh: '非常适合体育馆' } }
+        ],
+        ctaStart: {
+          label: { fr: '🚀 COMMENCER!', en: '🚀 START!', zh: '🚀 开始!' }
+        },
+        ctaHelp: {
+          label: { fr: '📖 COMMENT UTILISER', en: '📖 HOW TO USE', zh: '📖 使用说明' },
+          onClick: function () {
+            window.open('https://zonetotalsport.ca/articles/scoreboard-guide.html', '_blank');
+          }
+        }
+      };
+    </script>
+    <script src="./zts-landing.js"></script>
   </body>
 </html>

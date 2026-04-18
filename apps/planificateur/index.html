@@ -9,7 +9,8 @@
 <link rel="apple-touch-icon" href="/logo-zts.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="zts-landing.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config={theme:{extend:{colors:{cyan:{electric:'#00E5FF'},yellow:{sun:'#FFD700'},pink:{fuchsia:'#FF2A7A'},violet:{pop:'#8B5CF6'}},fontFamily:{lucky:['"Luckiest Guy"','cursive'],schoolbell:['"Schoolbell"','cursive'],bangers:['"Bangers"','cursive'],}}}};
@@ -1274,5 +1275,67 @@ setLang = function(l){
 init();
 updateQuickAddI18n();
 </script>
+<!-- ZTS Landing config + script -->
+<script>
+window.ZTS_LANDING_CONFIG = {
+  appId: 'planificateur',
+  accentColor: '#FFD600',
+  homeUrl: 'https://zonetotalsport.ca',
+  mascot: 'https://zonetotalsport.ca/apps/planificateur/mr-root-thumbup.png',
+  logoIcon: 'https://zonetotalsport.ca/logo-zts.png',
+  logoTitle: { fr: 'Planificateur ÉPS', en: 'PE Planner', zh: '体育规划器' },
+  logoSub: 'Zone Total Sport',
+  title: {
+    fr: 'Planificateur ÉPS',
+    en: 'PE Planner',
+    zh: '体育规划器'
+  },
+  subtitle: {
+    fr: 'Calendrier scolaire complet!',
+    en: 'Complete school calendar!',
+    zh: '完整学年日历!'
+  },
+  description: {
+    fr: "TON calendrier scolaire complet pour l'année en ÉPS. 3 à 7 périodes configurables, groupes, activités, gardes, récréations, congés fériés QC, exports PDF/Excel/CSV. 4 langues. Visible sur TNI!",
+    en: "YOUR complete school-year calendar for PE. 3 to 7 configurable periods, groups, activities, supervisions, recesses, QC public holidays, PDF/Excel/CSV exports. 4 languages. Works on IWB!",
+    zh: "您的体育课完整学年日历。3 至 7 个可配置时段、小组、活动、监督、课间、魁北克公共假期、PDF/Excel/CSV 导出。4 种语言。支持交互白板!"
+  },
+  badges: [
+    { emoji: '📅', color: 'cyan',   text: { fr: 'Calendrier scolaire', en: 'School calendar',   zh: '学校日历' } },
+    { emoji: '🗓️', color: 'yellow', text: { fr: '3-7 périodes',         en: '3-7 periods',        zh: '3-7 个时段' } },
+    { emoji: '👥', color: 'violet', text: { fr: 'Groupes & activités',  en: 'Groups & activities',zh: '小组与活动' } },
+    { emoji: '🇨🇦', color: 'pink',   text: { fr: 'Congés QC',            en: 'QC holidays',        zh: '魁北克假期' } },
+    { emoji: '📊', color: 'green',  text: { fr: 'Exports PDF/Excel',    en: 'PDF/Excel exports',  zh: 'PDF/Excel 导出' } }
+  ],
+  features: [
+    { emoji: '📆', title: { fr: 'Planification annuelle', en: 'Yearly planning', zh: '年度规划' },
+      desc: { fr: "Vue d'ensemble de l'année scolaire", en: 'Full school-year overview', zh: '全年概览' } },
+    { emoji: '📋', title: { fr: 'Gestion groupes', en: 'Group management', zh: '小组管理' },
+      desc: { fr: 'Classes, cycles, niveaux', en: 'Classes, cycles, levels', zh: '班级、周期、级别' } },
+    { emoji: '🎯', title: { fr: 'Activités ÉPS', en: 'PE activities', zh: '体育活动' },
+      desc: { fr: 'Banque de sports et thématiques', en: 'Library of sports and themes', zh: '运动与主题库' } },
+    { emoji: '🍎', title: { fr: 'Récréations & dîners', en: 'Recesses & lunches', zh: '课间与午餐' },
+      desc: { fr: 'Gardes et surveillances', en: 'Supervision schedule', zh: '监督安排' } },
+    { emoji: '🇨🇦', title: { fr: 'Fériés QC auto', en: 'Auto QC holidays', zh: '自动魁北克假期' },
+      desc: { fr: 'Jours pédagogiques et congés', en: 'PED days and school breaks', zh: '教育日与假期' } },
+    { emoji: '📤', title: { fr: 'Export PDF/Excel/CSV', en: 'PDF/Excel/CSV export', zh: 'PDF/Excel/CSV 导出' },
+      desc: { fr: 'Impression et partage faciles', en: 'Easy printing and sharing', zh: '轻松打印与分享' } },
+    { emoji: '🌐', title: { fr: '4 langues', en: '4 languages', zh: '4 种语言' },
+      desc: { fr: 'FR, EN, ES, ZH', en: 'FR, EN, ES, ZH', zh: 'FR, EN, ES, ZH' } },
+    { emoji: '📱', title: { fr: 'Visible sur TNI', en: 'Works on IWB', zh: '支持交互白板' },
+      desc: { fr: 'Parfait pour le gymnase', en: 'Perfect for the gym', zh: '非常适合体育馆' } }
+  ],
+  ctaStart: {
+    label: { fr: '🚀 COMMENCER!', en: '🚀 START!', zh: '🚀 开始!' }
+  },
+  ctaHelp: {
+    label: { fr: '📖 COMMENT UTILISER', en: '📖 HOW TO USE', zh: '📖 使用说明' },
+    onClick: function () {
+      window.open('https://zonetotalsport.ca/articles/planificateur-guide.html', '_blank');
+    }
+  }
+};
+</script>
+<script src="zts-landing.js"></script>
 </body>
 </html>
