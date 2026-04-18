@@ -4,230 +4,283 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>🤝 Aidons-nous — Zone Total Sport</title>
-<meta name="description" content="Communauté d'entraide des profs EPS, éducatrices SDG et animateurs de camp. Échange, partage, grandis avec la gang.">
+<meta name="description" content="Communauté d'entraide pour profs EPS, SDG et camps. Partage, entraide, bienveillance.">
 
-<!-- OG -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://zonetotalsport.ca/aidons-nous.html">
+<meta property="og:url" content="https://zonetotalsport.ca/aidons-nous/">
 <meta property="og:title" content="🤝 Aidons-nous — Communauté ZTS">
 <meta property="og:description" content="Donne au suivant. Partage tes trucs. Fais grandir la communauté.">
-<meta property="og:image" content="https://zonetotalsport.ca/bucheron-basketball.png">
+<meta property="og:image" content="https://zonetotalsport.ca/bucheron-aidons-nous.png">
 
 <link rel="icon" type="image/png" href="../logo-zts.png">
 
-<!-- Fonts (identiques à l'index) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&family=Schoolbell&family=Bangers&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@400;500;600;700&family=Bangers&display=swap" rel="stylesheet">
 
-<!-- Tailwind (identique à l'index) -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-  tailwind.config = {
-    theme: { extend: {
-      colors: { cyan: {electric:'#00E5FF'}, yellow:{sun:'#FFD700'}, pink:{fuchsia:'#FF2A7A'}, violet:{pop:'#8B5CF6'}, dark:'#0F0F2E' },
-      fontFamily: { bangers:['"Luckiest Guy"','cursive'], boogaloo:['Boogaloo','cursive'], baloo:['"Patrick Hand"','cursive'], fredoka:['"Fredoka One"','cursive'] }
-    }}
-  }
+  tailwind.config = { theme: { extend: {
+    colors: { cyan:{electric:'#00E5FF',deep:'#0096C7'}, yellow:{sun:'#FFD700'}, pink:{fuchsia:'#FF2A7A'}, violet:{pop:'#8B5CF6'}, dark:'#0F0F2E' },
+    fontFamily: { lucky:['"Luckiest Guy"','cursive'], fredoka:['Fredoka','sans-serif'], bangers:['Bangers','cursive'] }
+  }}}
 </script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="../analytics.js"></script>
 
 <style>
-  body{font-family:'Patrick Hand',cursive;min-height:100vh;background:url('../gym-bg.jpg') center top/cover no-repeat,linear-gradient(135deg,#00E5FF 0%,#0096C7 100%);background-attachment:scroll;}
-  body::before{content:'';position:fixed;inset:0;background:linear-gradient(135deg,rgba(0,150,199,0.18) 0%,rgba(0,229,255,0.12) 100%);z-index:-1;pointer-events:none;}
-  .fb-card{background:#fff;}
-  .font-bangers{font-family:'Luckiest Guy',cursive;letter-spacing:2px;}
-  .font-bangers-sm{font-family:'Bangers',cursive;letter-spacing:1.5px;}
-  /* ── TBI READABILITY BOOST — SCOPÉ au feed seulement, n'affecte PAS les modals externes (auth) ── */
-  main .text-xs{font-size:1.15rem;line-height:1.5;}
-  main .text-sm{font-size:1.35rem;line-height:1.55;}
-  main .text-base{font-size:1.55rem;line-height:1.55;}
-  main .text-lg{font-size:1.8rem;line-height:1.5;}
-  main .text-xl{font-size:2rem;line-height:1.4;}
-  main .text-2xl{font-size:2.4rem;line-height:1.3;}
-  #feed h3{font-size:1.9rem;line-height:1.2;}
-  #feed .font-bangers-sm{font-size:1.5rem;}
-  main .compose-placeholder{font-size:1.4rem;padding:14px 20px;}
-  main .chip{font-size:1.1rem;padding:9px 16px;}
-  main .react-btn{font-size:1.25rem;padding:9px 14px;}
-  main .cat-badge{font-size:1rem;padding:5px 12px;}
-  main textarea,main input[type=text],#composeModal textarea,#composeModal input[type=text],#composeModal select{font-size:1.2rem;padding:12px 14px;}
-  main .avatar{width:48px;height:48px;font-size:20px;}
-  main .avatar.avatar-lg{width:58px;height:58px;font-size:24px;}
+  :root{--cyan:#00E5FF;--cyan-deep:#0096C7;--dark:#0F0F2E;}
+  *{box-sizing:border-box;}
+  body{font-family:'Fredoka',sans-serif;font-weight:400;color:#1f2937;margin:0;min-height:100vh;
+    background:url('../gym-bg.jpg') center top/cover no-repeat #0096C7;background-attachment:scroll;}
+  body::before{content:'';position:fixed;inset:0;background:linear-gradient(135deg,rgba(0,150,199,0.22),rgba(0,229,255,0.15));z-index:-1;pointer-events:none;}
 
-  /* Card style type FB */
-  .fb-card{border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.15);transition:box-shadow 0.2s;}
-  .fb-card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.12);}
+  .lucky{font-family:'Luckiest Guy',cursive;letter-spacing:1.5px;}
+  .bangers{font-family:'Bangers',cursive;letter-spacing:1px;}
 
-  /* Avatar gradient par UID (fallback jaune) */
-  .avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#FF8C00);color:#18181b;display:flex;align-items:center;justify-content:center;font-family:'Luckiest Guy',cursive;font-size:18px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,0.15);}
-  .avatar-lg{width:52px;height:52px;font-size:22px;}
+  /* ── NAV ── */
+  .navbar{background:rgba(15,15,46,0.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+  .nav-btn{padding:8px 14px;border-radius:10px;color:#fff;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;text-decoration:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+  .nav-btn:hover{background:rgba(255,255,255,0.15);}
+  .nav-btn.active{background:var(--cyan);color:var(--dark);}
+  .nav-btn.login{background:linear-gradient(135deg,#FF6B00,#FF9500);}
 
-  /* Cat badges */
-  .cat-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-family:'Bangers',cursive;font-size:12px;letter-spacing:1px;}
+  /* ── HERO compact ── */
+  .hero{background:linear-gradient(135deg,rgba(0,229,255,0.88),rgba(0,150,199,0.88));color:#fff;padding:14px 20px;text-align:center;}
+  .hero-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:18px;}
+  .hero img{width:80px;height:auto;filter:drop-shadow(0 3px 6px rgba(0,0,0,0.3));}
+  .hero h1{font-family:'Luckiest Guy',cursive;font-size:38px;margin:0;line-height:1;letter-spacing:2px;text-shadow:3px 3px 0 rgba(0,0,0,0.3);}
+  .hero p{font-family:'Bangers',cursive;font-size:18px;margin:4px 0 0;letter-spacing:1.5px;}
+
+  /* ── LAYOUT ── */
+  .container{max-width:720px;margin:0 auto;padding:16px;}
+  .card{background:rgba(255,255,255,0.97);border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,0.12);margin-bottom:14px;}
+  .card-body{padding:16px 18px;}
+
+  /* ── CHARTE ── */
+  details.card summary{padding:14px 18px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:'Luckiest Guy',cursive;font-size:18px;color:var(--dark);}
+  details.card[open] summary{border-bottom:2px dashed #FFD700;}
+  details.card ul{list-style:none;padding:14px 18px;margin:0;font-size:16px;}
+  details.card li{padding:4px 0;}
+
+  /* ── COMPOSE ── */
+  .compose{display:flex;gap:12px;align-items:center;}
+  .compose-input{flex:1;background:#F0F2F5;border-radius:24px;padding:12px 18px;cursor:pointer;color:#65676B;font-family:'Fredoka',sans-serif;font-size:17px;transition:background .15s;border:none;text-align:left;width:100%;}
+  .compose-input:hover{background:#E4E6EB;}
+
+  .avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FFD700,#FF8C00);color:var(--dark);display:flex;align-items:center;justify-content:center;font-family:'Luckiest Guy',cursive;font-size:20px;flex-shrink:0;box-shadow:0 2px 5px rgba(0,0,0,0.15);}
+  .avatar-sm{width:34px;height:34px;font-size:15px;}
+  .avatar-lg{width:52px;height:52px;font-size:24px;}
+
+  /* ── FILTERS ── */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin-bottom:14px;}
+  .filter-group{display:flex;gap:6px;flex-wrap:wrap;}
+  .chip{padding:8px 16px;border-radius:20px;cursor:pointer;border:2px solid transparent;background:rgba(255,255,255,0.92);color:#374151;font-family:'Bangers',cursive;font-size:15px;letter-spacing:1px;transition:all .15s;}
+  .chip:hover{border-color:#FFD700;transform:translateY(-1px);}
+  .chip.active{background:var(--cyan);color:var(--dark);border-color:var(--cyan);}
+
+  /* ── POSTS ── */
+  .post-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+  .post-user{flex:1;min-width:0;}
+  .user-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .user-name{font-family:'Luckiest Guy',cursive;font-size:18px;color:var(--dark);letter-spacing:1px;}
+  .cat-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:12px;font-family:'Bangers',cursive;font-size:12px;letter-spacing:1px;}
   .cat-eps{background:#E0FCFF;color:#0096C7;}
   .cat-sdg{background:#FEF3C7;color:#B45309;}
   .cat-camp{background:#D1FAE5;color:#047857;}
+  .post-date{font-size:13px;color:#6B7280;margin-top:2px;}
+  .pinned-label{background:var(--cyan);color:var(--dark);padding:2px 10px;border-radius:12px;font-family:'Bangers',cursive;font-size:11px;letter-spacing:1px;}
+  .post.pinned{border-left:4px solid var(--cyan);}
 
-  /* Pinned */
-  .pinned{border-left:4px solid #FF2A7A;}
-  .pinned-label{background:#FF2A7A;color:#fff;padding:2px 10px;border-radius:12px;font-family:'Bangers',cursive;font-size:11px;letter-spacing:1px;display:inline-flex;align-items:center;gap:4px;}
+  .post-title{font-family:'Luckiest Guy',cursive;font-size:24px;color:var(--dark);line-height:1.2;margin:8px 0 10px;letter-spacing:1px;}
+  .post-content{font-family:'Fredoka',sans-serif;font-size:17px;color:#374151;white-space:pre-wrap;line-height:1.6;}
 
-  /* Reactions */
-  .react-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:10px;cursor:pointer;transition:background 0.15s;font-family:'Patrick Hand',cursive;font-size:15px;color:#4b5563;border:none;background:transparent;}
-  .react-btn:hover{background:#F3F4F6;}
-  .react-btn.active{color:#FF2A7A;background:#FCE7F3;}
-
-  /* Compose */
-  .compose-placeholder{background:#F3F4F6;padding:12px 18px;border-radius:24px;cursor:pointer;color:#6b7280;transition:background 0.15s;font-family:'Patrick Hand',cursive;font-size:16px;}
-  .compose-placeholder:hover{background:#E5E7EB;}
-
-  /* Modal */
-  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
-  .modal-backdrop.show{display:flex;}
-  .modal-box{background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;}
-
-  /* Filter chip */
-  .chip{padding:8px 14px;border-radius:20px;cursor:pointer;border:2px solid transparent;transition:all 0.15s;font-family:'Bangers',cursive;font-size:14px;letter-spacing:1px;background:#fff;color:#374151;}
-  .chip:hover{border-color:#FFD700;}
-  .chip.active{background:#FFD700;color:#18181b;border-color:#FFD700;}
+  /* Actions */
+  .post-actions{display:flex;gap:4px;padding-top:10px;border-top:1px solid #E5E7EB;margin-top:12px;flex-wrap:wrap;}
+  .act-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:background .15s;background:transparent;border:none;font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;color:#6B7280;}
+  .act-btn:hover{background:#F3F4F6;color:var(--dark);}
+  .act-btn.liked{color:#FF2A7A;}
 
   /* Replies */
-  .reply-thread{margin-top:12px;padding-left:52px;}
-  .reply{background:#F9FAFB;border-radius:14px;padding:10px 14px;margin-bottom:6px;}
+  .replies{margin-top:12px;padding-left:52px;}
+  .reply{background:#F9FAFB;border-radius:14px;padding:10px 14px;margin-bottom:6px;display:flex;gap:8px;align-items:flex-start;}
+  .reply-name{font-family:'Luckiest Guy',cursive;font-size:14px;color:var(--dark);}
+  .reply-content{font-size:15px;color:#374151;}
+  .reply-box{display:none;margin-top:12px;gap:8px;}
+  .reply-box.show{display:flex;}
+  .reply-input{flex:1;}
+  .reply-input textarea{width:100%;padding:10px;border:2px solid #E5E7EB;border-radius:10px;font-family:'Fredoka',sans-serif;font-size:15px;min-height:54px;resize:vertical;}
+  .reply-input textarea:focus{outline:none;border-color:#FFD700;}
+  .reply-send{margin-top:6px;background:var(--dark);color:#FFD700;padding:6px 14px;border:none;border-radius:8px;font-family:'Bangers',cursive;font-size:14px;cursor:pointer;letter-spacing:1px;}
 
-  /* Textarea */
-  textarea,input[type=text]{font-family:'Patrick Hand',cursive;font-size:16px;}
+  /* ── MODAL ── */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:flex-start;justify-content:center;padding:40px 16px 16px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);overflow-y:auto;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff;border-radius:14px;max-width:560px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,0.3);margin-bottom:40px;}
+  .modal-header{background:linear-gradient(135deg,var(--cyan),var(--cyan-deep));color:#fff;padding:14px 18px;border-radius:14px 14px 0 0;display:flex;justify-content:space-between;align-items:center;}
+  .modal-header h2{font-family:'Luckiest Guy',cursive;font-size:24px;margin:0;letter-spacing:1.5px;text-shadow:2px 2px 0 rgba(0,0,0,0.25);}
+  .modal-close{background:rgba(255,255,255,0.2);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .modal-close:hover{background:rgba(255,255,255,0.35);}
+  .modal-body{padding:18px;}
+  .modal-body label{display:block;font-family:'Bangers',cursive;font-size:14px;letter-spacing:1px;color:#6B7280;margin:10px 0 4px;}
+  .modal-body input,.modal-body textarea,.modal-body select{width:100%;padding:11px 14px;border:2px solid #E5E7EB;border-radius:10px;font-family:'Fredoka',sans-serif;font-size:16px;background:#fff;}
+  .modal-body input:focus,.modal-body textarea:focus,.modal-body select:focus{outline:none;border-color:#FFD700;}
+  .modal-body textarea{min-height:130px;resize:vertical;}
+  .char-count{text-align:right;font-size:12px;color:#9CA3AF;margin-top:4px;}
+  .submit-btn{width:100%;margin-top:14px;background:linear-gradient(135deg,#FFD700,#FF8C00);color:var(--dark);border:3px solid #fff;padding:14px;border-radius:12px;font-family:'Luckiest Guy',cursive;font-size:20px;letter-spacing:2px;cursor:pointer;box-shadow:0 4px 12px rgba(255,215,0,0.4);transition:transform .15s;}
+  .submit-btn:hover{transform:translateY(-2px);}
+  .submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+  .msg{padding:10px 14px;border-radius:10px;margin-bottom:10px;font-size:14px;display:none;}
+  .msg.show{display:block;}
+  .msg.err{background:#FEE2E2;border-left:4px solid #EF4444;color:#991B1B;}
+  .msg.ok{background:#D1FAE5;border-left:4px solid #10B981;color:#065F46;}
+
+  /* Auth gate inside modal */
+  .auth-gate{background:#FFFBEB;border:2px dashed var(--cyan);border-radius:12px;padding:20px;text-align:center;}
 
   /* Empty state */
-  .empty-state{text-align:center;padding:50px 20px;color:#9ca3af;}
-  .empty-state img{width:120px;opacity:0.5;margin:0 auto 12px;}
+  .empty{text-align:center;padding:40px 20px;background:rgba(255,255,255,0.92);border-radius:14px;}
+  .empty img{width:100px;opacity:0.7;margin:0 auto 10px;}
+  .empty h3{font-family:'Luckiest Guy',cursive;font-size:24px;color:var(--dark);margin:0 0 8px;letter-spacing:1.5px;}
+  .empty p{font-size:16px;color:#6B7280;margin:0 0 14px;}
+
+  .btn{display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#FFD700,#FF8C00);color:var(--dark);text-decoration:none;border-radius:10px;font-family:'Luckiest Guy',cursive;font-size:17px;letter-spacing:1.5px;border:none;cursor:pointer;}
+  .btn:hover{transform:translateY(-2px);}
+
+  /* ── FOOTER ── */
+  footer{background:rgba(15,15,46,0.95);color:rgba(255,255,255,0.7);text-align:center;padding:20px;margin-top:20px;}
+  footer a{color:var(--cyan);text-decoration:none;font-weight:600;}
+  footer .tag{font-family:'Luckiest Guy',cursive;color:#FFD700;font-size:18px;letter-spacing:1.5px;margin-bottom:6px;}
+
+  /* Mobile */
+  @media(max-width:640px){
+    .hero h1{font-size:28px;}
+    .hero p{font-size:15px;}
+    .hero img{width:60px;}
+    .post-title{font-size:20px;}
+    .user-name{font-size:16px;}
+    .post-content{font-size:16px;}
+    .replies{padding-left:42px;}
+  }
 </style>
 </head>
 <body>
 
-<!-- ═══════ NAV (simplifiée, cohérente avec l'index) ═══════ -->
-<nav class="bg-dark/95 backdrop-blur sticky top-0 z-40 shadow-lg">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-3">
-    <a href="../" class="flex items-center gap-2">
-      <img src="../logo-zts.png" alt="ZTS" class="h-10">
-      <span class="font-bangers text-yellow-sun text-2xl hidden sm:block">ZONE TOTAL SPORT</span>
+<!-- NAV -->
+<nav class="navbar sticky top-0 z-40 shadow-lg">
+  <div class="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between flex-wrap gap-2">
+    <a href="../" class="flex items-center gap-2 text-white no-underline">
+      <img src="../logo-zts.png" alt="ZTS" class="h-9">
+      <span class="lucky text-2xl text-yellow-sun hidden sm:block">ZONE TOTAL SPORT</span>
     </a>
-    <div class="flex gap-2 flex-wrap items-center">
-      <a href="../" class="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 font-bangers-sm text-sm">🏠 Accueil</a>
-      <a href="../blog.html" class="px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 font-bangers-sm text-sm">📰 Blog</a>
-      <a href="#" class="px-3 py-2 rounded-lg bg-cyan-electric text-dark font-bangers-sm text-sm">🤝 Aidons-nous</a>
-      <a href="#" id="zts-login-btn" data-auth="login" onclick="event.preventDefault();if(window.ztsShowLogin){window.ztsShowLogin()}else{alert('Chargement... réessaie dans 1 sec.');}" class="px-4 py-2 rounded-lg text-white font-bangers-sm text-sm cursor-pointer" style="background:linear-gradient(135deg,#FF6B00,#FF9500);">👤 <span id="navLoginLabel">Connexion</span></a>
+    <div class="flex gap-1 flex-wrap items-center">
+      <a href="../" class="nav-btn">🏠 Accueil</a>
+      <a href="../blog.html" class="nav-btn">📰 Blog</a>
+      <a href="#" class="nav-btn active">🤝 Aidons-nous</a>
+      <a href="#" id="zts-login-btn" data-auth="login"
+         onclick="event.preventDefault();if(window.ztsShowLogin){window.ztsShowLogin()}else{alert('Chargement... réessaie dans 1 sec.');}"
+         class="nav-btn login">👤 <span id="navLoginLabel">Connexion</span></a>
     </div>
   </div>
 </nav>
 
-<!-- ═══════ HERO ═══════ -->
-<section class="relative overflow-hidden" style="background:linear-gradient(135deg,rgba(0,229,255,0.85) 0%,rgba(0,150,199,0.85) 100%);">
-  <div class="max-w-5xl mx-auto px-4 py-3 md:py-4 flex items-center justify-center gap-4 text-white relative z-10">
-    <img src="../bucheron-aidons-nous.png" alt="Bûcherons de l'entraide" class="w-16 md:w-24 drop-shadow-lg flex-shrink-0" onerror="this.src='../bucheron-basketball.png'">
-    <div class="text-left">
-      <h1 class="font-bangers text-3xl md:text-4xl leading-none" style="text-shadow:2px 2px 0 rgba(0,0,0,0.3);">🤝 AIDONS-NOUS</h1>
-      <p class="font-bangers-sm text-base md:text-lg opacity-95">LA COMMUNAUTÉ QUI DONNE AU SUIVANT 💛</p>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <img src="../bucheron-aidons-nous.png" alt="Bûcherons" onerror="this.src='../bucheron-basketball.png'">
+    <div style="text-align:left;">
+      <h1>🤝 AIDONS-NOUS</h1>
+      <p>LA COMMUNAUTÉ QUI DONNE AU SUIVANT 💛</p>
     </div>
   </div>
 </section>
 
-<!-- ═══════ CONTENU PRINCIPAL ═══════ -->
-<main class="max-w-3xl mx-auto px-4 py-6">
+<!-- MAIN -->
+<main class="container">
 
   <!-- Charte collapsible -->
-  <details class="fb-card mb-4 overflow-hidden">
-    <summary class="cursor-pointer p-4 font-bangers text-lg text-dark flex items-center justify-between list-none">
-      <span>📜 NOTRE CHARTE — Clique pour lire</span>
-      <span class="text-sm opacity-50">▼</span>
-    </summary>
-    <div class="px-4 pb-4 text-base text-gray-700">
-      <div class="bg-yellow-50 border-l-4 border-yellow-sun p-3 rounded">
-        <ul class="space-y-1">
-          <li>✅ On partage nos trucs, nos jeux, nos bonnes idées</li>
-          <li>✅ On pose nos questions sans gêne — personne juge</li>
-          <li>✅ On donne au suivant : la communauté avance ensemble</li>
-          <li>✅ On encourage, on célèbre les bons coups des autres</li>
-          <li>✅ On respecte toutes les réalités (débutant, vétéran, milieu, région)</li>
-          <li>❌ Aucun gros mot, aucune insulte, aucune négativité</li>
-          <li>❌ Aucune pub extérieure, aucun spam, aucun jugement</li>
-        </ul>
-        <p class="text-sm italic text-gray-500 mt-2">Filtre auto + signalement. Modération par Joey. 🪓</p>
-      </div>
-    </div>
+  <details class="card">
+    <summary><span>📜 NOTRE CHARTE — Clique pour lire</span><span style="font-size:13px;opacity:0.5;">▼</span></summary>
+    <ul>
+      <li>✅ On partage nos trucs, nos jeux, nos bonnes idées</li>
+      <li>✅ On pose nos questions sans gêne — personne juge</li>
+      <li>✅ On donne au suivant : la communauté avance ensemble</li>
+      <li>✅ On encourage, on célèbre les bons coups des autres</li>
+      <li>✅ On respecte toutes les réalités (débutant, vétéran, région)</li>
+      <li>❌ Aucun gros mot, insulte, ou négativité</li>
+      <li>❌ Aucune pub extérieure, aucun spam</li>
+    </ul>
   </details>
 
-  <!-- Compose box (style FB "Quoi de neuf?") -->
-  <div class="fb-card p-4 mb-4 flex items-center gap-3">
-    <div class="avatar avatar-lg" id="composeAvatar">?</div>
-    <button class="compose-placeholder flex-1 text-left" onclick="openCompose()">Quoi de neuf la gang? Partage un truc, pose ta question...</button>
+  <!-- Compose -->
+  <div class="card card-body">
+    <div class="compose">
+      <div class="avatar avatar-lg" id="composeAvatar">?</div>
+      <button class="compose-input" onclick="openCompose()">Quoi de neuf la gang? Partage un truc...</button>
+    </div>
   </div>
 
-  <!-- Filtres + tri -->
-  <div class="flex items-center justify-between gap-2 mb-4 flex-wrap">
-    <div class="flex gap-2 flex-wrap">
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
       <button class="chip active" data-cat="all">🌟 Tous</button>
       <button class="chip" data-cat="eps">🏀 ÉPS</button>
       <button class="chip" data-cat="sdg">🎨 SDG</button>
       <button class="chip" data-cat="camp">⛺ Camps</button>
     </div>
-    <div class="flex gap-2">
+    <div class="filter-group">
       <button class="chip active" data-sort="recent">🕐 Récents</button>
       <button class="chip" data-sort="hot">🔥 Populaires</button>
     </div>
   </div>
 
   <!-- Feed -->
-  <div id="feed" class="space-y-4">
-    <div class="empty-state">
-      <p class="font-bangers-sm text-2xl">Chargement du fil...</p>
-    </div>
+  <div id="feed">
+    <div class="empty"><h3>Chargement...</h3></div>
   </div>
-
 </main>
 
-<!-- ═══════ MODAL COMPOSE ═══════ -->
-<div class="modal-backdrop" id="composeModal">
-  <div class="modal-box">
-    <div class="text-white p-4 rounded-t-2xl flex justify-between items-center" style="background:linear-gradient(135deg,#00E5FF,#0096C7);">
-      <h2 class="font-bangers text-2xl">💬 NOUVEAU SUJET</h2>
-      <button onclick="closeCompose()" class="bg-white/20 hover:bg-white/30 w-9 h-9 rounded-full text-white text-xl flex items-center justify-center">✕</button>
+<!-- MODAL COMPOSE -->
+<div class="modal-bg" id="composeModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>💬 NOUVEAU SUJET</h2>
+      <button class="modal-close" onclick="closeCompose()">✕</button>
     </div>
-    <div class="p-5">
-      <div id="composeGate" class="hidden bg-yellow-50 border-2 border-dashed border-yellow-sun rounded-xl p-5 text-center">
-        <p class="font-bangers-sm text-xl mb-2">🔒 Connecte-toi pour participer</p>
-        <p class="text-sm text-gray-600 mb-3">Inscription gratuite en 10 sec (Google 1 clic)</p>
-        <button class="bg-yellow-sun hover:bg-yellow-400 text-dark font-bangers text-lg px-6 py-3 rounded-xl shadow-lg" onclick="ztsOpenAuthModal && ztsOpenAuthModal()">🚀 Me connecter</button>
+    <div class="modal-body">
+      <div id="composeGate" class="auth-gate" style="display:none;">
+        <div class="lucky" style="font-size:20px;margin-bottom:6px;color:var(--dark);">🔒 CONNECTE-TOI POUR PARTICIPER</div>
+        <p style="margin:4px 0 14px;font-size:15px;color:#6B7280;">Inscription gratuite · Google 1 clic</p>
+        <button class="btn" onclick="if(window.ztsShowLogin)window.ztsShowLogin();">🚀 ME CONNECTER</button>
       </div>
       <div id="composeForm">
-        <label class="font-bangers-sm text-sm text-gray-600">Catégorie</label>
-        <select id="cmpCat" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-3 mt-1 focus:border-yellow-sun outline-none">
+        <div class="msg err" id="cmpErr"></div>
+        <label>Catégorie</label>
+        <select id="cmpCat">
           <option value="eps">🏀 Profs d'ÉPS</option>
           <option value="sdg">🎨 Service de garde</option>
           <option value="camp">⛺ Camps de jour</option>
         </select>
-        <label class="font-bangers-sm text-sm text-gray-600">Titre <span class="text-pink-fuchsia">*</span></label>
-        <input type="text" id="cmpTitle" maxlength="100" placeholder="Ex: Jeu coop pour 30 kids en gym" class="w-full p-3 border-2 border-gray-200 rounded-xl mb-3 mt-1 focus:border-yellow-sun outline-none">
-        <label class="font-bangers-sm text-sm text-gray-600">Ton message <span class="text-pink-fuchsia">*</span></label>
-        <textarea id="cmpContent" maxlength="2000" placeholder="Partage ton idée, ton truc, ta question... Sois bienveillant 💛" class="w-full p-3 border-2 border-gray-200 rounded-xl mt-1 focus:border-yellow-sun outline-none min-h-[140px]"></textarea>
-        <div class="text-xs text-gray-400 text-right"><span id="cmpCount">0</span>/2000</div>
-        <div id="cmpErr" class="hidden bg-red-50 border-l-4 border-red-400 p-3 rounded my-2 text-red-700 text-sm"></div>
-        <button id="cmpSubmit" class="w-full mt-3 bg-gradient-to-r from-yellow-sun to-orange-400 hover:scale-[1.02] transition text-dark font-bangers text-xl py-3 rounded-xl shadow-lg">🚀 PUBLIER</button>
+        <label>Titre <span style="color:#FF2A7A;">*</span></label>
+        <input type="text" id="cmpTitle" maxlength="100" placeholder="Ex: Jeu coop pour 30 kids en gym">
+        <label>Ton message <span style="color:#FF2A7A;">*</span></label>
+        <textarea id="cmpContent" maxlength="2000" placeholder="Partage ton idée, ton truc, ta question... 💛"></textarea>
+        <div class="char-count"><span id="cmpCount">0</span>/2000</div>
+        <button class="submit-btn" id="cmpSubmit">🚀 PUBLIER</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══════ FOOTER ═══════ -->
-<footer class="bg-dark text-white/70 text-center py-6 mt-10">
-  <p class="font-bangers text-yellow-sun text-xl">FAIT AVEC 💛 AU QUÉBEC</p>
-  <p class="text-sm mt-2"><a href="../" class="text-cyan-electric hover:underline">zonetotalsport.ca</a> · <a href="../blog.html" class="text-cyan-electric hover:underline">Blog</a> · <a href="../avis.html" class="text-cyan-electric hover:underline">Avis</a></p>
-  <p class="text-xs mt-2 opacity-60">© 2026 Zone Total Sport</p>
+<!-- FOOTER -->
+<footer>
+  <p class="tag">FAIT AVEC 💛 AU QUÉBEC</p>
+  <p style="font-size:14px;"><a href="../">zonetotalsport.ca</a> · <a href="../blog.html">Blog</a> · <a href="../avis.html">Avis</a></p>
+  <p style="font-size:12px;opacity:0.6;margin-top:6px;">© 2026 Zone Total Sport</p>
 </footer>
 
-<!-- Firebase + suggestions -->
+<!-- Firebase + auth + suggestions -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -235,34 +288,32 @@
 <script src="../suggestions.js"></script>
 
 <script>
-// ─── Config ───
 const CAT_LABELS = {
   eps:{name:'🏀 ÉPS',cls:'cat-eps'},
   sdg:{name:'🎨 SDG',cls:'cat-sdg'},
   camp:{name:'⛺ Camps',cls:'cat-camp'}
 };
-const BAD_WORDS = ['calisse','tabarnak','tabarnack','osti','crisse','esti','ciboire','sacrament','colon','cave','épais','niaiseux','con','conne','salope','pute','pédé','nique','fuck','shit','bitch','asshole','retard','retardé','débile','stupid','idiot','imbécile','hais','déteste'];
+const BAD_WORDS = ['calisse','tabarnak','osti','crisse','esti','ciboire','sacrament','salope','pute','fuck','shit','bitch','asshole','hais','déteste'];
 const hasBad = t => { const s=(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); return BAD_WORDS.some(w=>new RegExp('\\b'+w+'\\b').test(s)); };
 
-// ─── State ───
 let currentCat='all', currentSort='recent', currentUser=null, db=null, unsub=null;
-const $=id=>document.getElementById(id);
+const $ = id => document.getElementById(id);
+const getLiveUser = () => currentUser || (window.firebase&&firebase.auth&&firebase.auth().currentUser) || (window.ztsGetUser&&window.ztsGetUser()) || null;
 
-// ─── Init ───
 function init(){
-  if(!window.firebase||!firebase.firestore){setTimeout(init,200);return;}
+  if(!window.firebase||!firebase.firestore){setTimeout(init,150);return;}
   db=firebase.firestore();
   firebase.auth().onAuthStateChanged(u=>{
     currentUser=u;
-    $('composeAvatar').textContent=u?(u.displayName||u.email||'?').charAt(0).toUpperCase():'?';
+    const i=u?(u.displayName||u.email||'?').charAt(0).toUpperCase():'?';
+    $('composeAvatar').textContent=i;
     const lbl=$('navLoginLabel');
     if(lbl)lbl.textContent=u?(u.displayName||u.email.split('@')[0]):'Connexion';
   });
   loadFeed();
-  lucide.createIcons();
+  if(window.lucide)lucide.createIcons();
 }
 
-// ─── Filters ───
 document.querySelectorAll('.chip[data-cat]').forEach(c=>c.onclick=()=>{
   document.querySelectorAll('.chip[data-cat]').forEach(x=>x.classList.remove('active'));
   c.classList.add('active'); currentCat=c.dataset.cat; loadFeed();
@@ -272,31 +323,28 @@ document.querySelectorAll('.chip[data-sort]').forEach(c=>c.onclick=()=>{
   c.classList.add('active'); currentSort=c.dataset.sort; loadFeed();
 });
 
-// ─── Compose ───
-function getLiveUser(){
-  return currentUser || (window.firebase&&firebase.auth&&firebase.auth().currentUser) || (window.ztsGetUser&&window.ztsGetUser()) || null;
-}
 function openCompose(){
   $('composeModal').classList.add('show');
   const u=getLiveUser(); if(u)currentUser=u;
-  if(!u){$('composeGate').classList.remove('hidden');$('composeForm').classList.add('hidden');}
-  else{$('composeGate').classList.add('hidden');$('composeForm').classList.remove('hidden');}
+  if(!u){$('composeGate').style.display='block';$('composeForm').style.display='none';}
+  else{$('composeGate').style.display='none';$('composeForm').style.display='block';}
   if(typeof gtag==='function')gtag('event','forum_compose_opened');
 }
-function closeCompose(){$('composeModal').classList.remove('show');$('cmpErr').classList.add('hidden');}
+function closeCompose(){$('composeModal').classList.remove('show');$('cmpErr').classList.remove('show');}
 window.openCompose=openCompose;window.closeCompose=closeCompose;
 
-$('cmpContent').addEventListener('input',e=>$('cmpCount').textContent=e.target.value.length);
+// Char counter (passive, no perf impact)
+$('cmpContent').addEventListener('input',e=>{$('cmpCount').textContent=e.target.value.length;},{passive:true});
 
 $('cmpSubmit').onclick=async()=>{
   const title=$('cmpTitle').value.trim(),content=$('cmpContent').value.trim(),cat=$('cmpCat').value;
-  const err=$('cmpErr');err.classList.add('hidden');
+  const err=$('cmpErr');err.classList.remove('show');
   const u=getLiveUser(); if(u)currentUser=u;
-  if(!currentUser){err.textContent='Tu dois être connecté.';err.classList.remove('hidden');return;}
-  if(title.length<5){err.textContent='Titre trop court (min 5 caractères).';err.classList.remove('hidden');return;}
-  if(content.length<10){err.textContent='Message trop court (min 10 caractères).';err.classList.remove('hidden');return;}
-  if(hasBad(title)||hasBad(content)){err.textContent='⚠️ Langage non conforme à la charte. Reformule dans le respect.';err.classList.remove('hidden');return;}
-  $('cmpSubmit').disabled=true;$('cmpSubmit').textContent='⏳ Publication...';
+  if(!currentUser){err.textContent='Tu dois être connecté.';err.classList.add('show');return;}
+  if(title.length<5){err.textContent='Titre trop court (min 5 caractères).';err.classList.add('show');return;}
+  if(content.length<10){err.textContent='Message trop court (min 10 caractères).';err.classList.add('show');return;}
+  if(hasBad(title)||hasBad(content)){err.textContent='⚠️ Langage non conforme à la charte. Reformule dans le respect 💛';err.classList.add('show');return;}
+  $('cmpSubmit').disabled=true;$('cmpSubmit').textContent='⏳ PUBLICATION...';
   try{
     await db.collection('forum_posts').add({
       category:cat,user_uid:currentUser.uid,
@@ -308,68 +356,72 @@ $('cmpSubmit').onclick=async()=>{
     $('cmpTitle').value='';$('cmpContent').value='';$('cmpCount').textContent='0';
     closeCompose();
     if(typeof gtag==='function')gtag('event','forum_post_created',{category:cat});
-  }catch(e){err.textContent='Erreur: '+e.message;err.classList.remove('hidden');}
+  }catch(e){
+    console.error('[Forum post error]',e);
+    err.textContent='Erreur: '+(e.message||'impossible de publier. Vérifie ta connexion.');
+    err.classList.add('show');
+  }
   $('cmpSubmit').disabled=false;$('cmpSubmit').innerHTML='🚀 PUBLIER';
 };
 
-// ─── Feed ───
 function loadFeed(){
   if(unsub)unsub();
-  const feed=$('feed');feed.innerHTML='<div class="empty-state"><p class="font-bangers-sm text-2xl">Chargement...</p></div>';
+  const feed=$('feed');feed.innerHTML='<div class="empty"><h3>Chargement...</h3></div>';
   let q=db.collection('forum_posts');
   if(currentCat!=='all')q=q.where('category','==',currentCat);
   q=q.orderBy('timestamp','desc').limit(50);
   unsub=q.onSnapshot(snap=>{
-    if(snap.empty){feed.innerHTML='<div class="empty-state"><img src="../bucheron-basketball.png"><p class="font-bangers-sm text-2xl">🌱 Personne n\'a encore écrit ici</p><p class="text-base mt-2">Sois le premier à partager!</p><button onclick="openCompose()" class="mt-4 bg-yellow-sun hover:bg-yellow-400 text-dark font-bangers px-6 py-3 rounded-xl">💬 Écrire le premier</button></div>';return;}
+    if(snap.empty){feed.innerHTML='<div class="empty"><img src="../bucheron-aidons-nous.png" onerror="this.src=\'../bucheron-basketball.png\'"><h3>🌱 Personne n\'a encore écrit ici</h3><p>Sois le premier à partager ton savoir!</p><button class="btn" onclick="openCompose()">💬 Écrire le premier</button></div>';return;}
     let docs=snap.docs.map(d=>({id:d.id,...d.data()}));
     if(currentSort==='hot')docs.sort((a,b)=>((b.likes||[]).length+((b.replies||[]).length*2))-((a.likes||[]).length+((a.replies||[]).length*2)));
     docs.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
-    feed.innerHTML='';docs.forEach(d=>feed.appendChild(renderPost(d)));
-    lucide.createIcons();
-  },err=>{feed.innerHTML='<div class="empty-state"><p>Erreur: '+err.message+'</p></div>';});
+    const frag=document.createDocumentFragment();
+    docs.forEach(d=>frag.appendChild(renderPost(d)));
+    feed.innerHTML='';feed.appendChild(frag);
+  },err=>{console.error('[Feed error]',err);feed.innerHTML='<div class="empty"><h3>Erreur de chargement</h3><p>'+err.message+'</p></div>';});
 }
 
 function renderPost(p){
   const el=document.createElement('div');
-  el.className='fb-card p-4 '+(p.pinned?'pinned':'');
+  el.className='card post card-body '+(p.pinned?'pinned':'');
   const initial=(p.user_name||'?').charAt(0).toUpperCase();
   const date=p.timestamp?p.timestamp.toDate().toLocaleString('fr-CA',{dateStyle:'medium',timeStyle:'short'}):'à l\'instant';
   const likes=p.likes||[],replies=p.replies||[];
-  const liked=currentUser&&likes.includes(currentUser.uid);
+  const u=getLiveUser();
+  const liked=u&&likes.includes(u.uid);
   const catInfo=CAT_LABELS[p.category]||{name:p.category,cls:''};
   el.innerHTML=`
-    <div class="flex items-start gap-3 mb-3">
+    <div class="post-head">
       <div class="avatar avatar-lg">${initial}</div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="font-bangers-sm text-lg text-dark">${esc(p.user_name)}</span>
+      <div class="post-user">
+        <div class="user-line">
+          <span class="user-name">${esc(p.user_name)}</span>
           <span class="cat-badge ${catInfo.cls}">${catInfo.name}</span>
           ${p.pinned?'<span class="pinned-label">📌 ÉPINGLÉ</span>':''}
         </div>
-        <div class="text-xs text-gray-500">${date}</div>
+        <div class="post-date">${date}</div>
       </div>
     </div>
-    <h3 class="font-bangers text-xl text-dark mb-2 leading-tight">${esc(p.title)}</h3>
-    <p class="text-base text-gray-700 mb-3 whitespace-pre-wrap">${esc(p.content)}</p>
-    <div class="flex items-center gap-1 pt-2 border-t border-gray-100 flex-wrap">
-      <button class="react-btn ${liked?'active':''}" data-act="like" data-id="${p.id}">${liked?'❤️':'🤍'} <span>${likes.length}</span></button>
-      <button class="react-btn" data-act="reply" data-id="${p.id}">💬 <span>${replies.length} réponse${replies.length!==1?'s':''}</span></button>
-      <button class="react-btn" data-act="share" data-id="${p.id}">🔗 Partager</button>
-      <button class="react-btn" data-act="flag" data-id="${p.id}" title="Signaler">🚩</button>
+    <h3 class="post-title">${esc(p.title)}</h3>
+    <div class="post-content">${esc(p.content)}</div>
+    <div class="post-actions">
+      <button class="act-btn ${liked?'liked':''}" data-act="like">${liked?'❤️':'🤍'} <span>${likes.length}</span></button>
+      <button class="act-btn" data-act="reply">💬 ${replies.length} réponse${replies.length!==1?'s':''}</button>
+      <button class="act-btn" data-act="share">🔗 Partager</button>
+      <button class="act-btn" data-act="flag" title="Signaler">🚩</button>
     </div>
-    ${replies.length?`<div class="reply-thread">${replies.map(r=>`
-      <div class="reply flex items-start gap-2">
-        <div class="avatar" style="width:32px;height:32px;font-size:14px;">${esc((r.user_name||'?').charAt(0).toUpperCase())}</div>
-        <div class="flex-1"><div class="font-bangers-sm text-sm text-dark">${esc(r.user_name)}</div><div class="text-base text-gray-700 whitespace-pre-wrap">${esc(r.content)}</div></div>
+    ${replies.length?`<div class="replies">${replies.map(r=>`
+      <div class="reply">
+        <div class="avatar avatar-sm">${esc((r.user_name||'?').charAt(0).toUpperCase())}</div>
+        <div><div class="reply-name">${esc(r.user_name)}</div><div class="reply-content">${esc(r.content)}</div></div>
       </div>`).join('')}</div>`:''}
-    <div class="reply-box hidden mt-3 flex gap-2">
-      <div class="avatar" style="width:36px;height:36px;font-size:15px;">${currentUser?((currentUser.displayName||currentUser.email||'?').charAt(0).toUpperCase()):'?'}</div>
-      <div class="flex-1"><textarea placeholder="Ta réponse bienveillante 💛" class="w-full p-2 border-2 border-gray-200 rounded-xl text-sm focus:border-yellow-sun outline-none min-h-[60px]"></textarea>
-      <button class="mt-2 bg-dark text-yellow-sun px-4 py-2 rounded-lg font-bangers-sm text-sm hover:bg-black">Envoyer</button></div>
+    <div class="reply-box">
+      <div class="avatar avatar-sm">${u?((u.displayName||u.email||'?').charAt(0).toUpperCase()):'?'}</div>
+      <div class="reply-input"><textarea placeholder="Ta réponse bienveillante 💛"></textarea><button class="reply-send">Envoyer</button></div>
     </div>
   `;
-  el.querySelectorAll('.react-btn').forEach(b=>b.onclick=()=>handleAct(b.dataset.act,p.id,p,el));
-  el.querySelector('.reply-box button').onclick=()=>submitReply(p.id,el);
+  el.querySelectorAll('.act-btn').forEach(b=>b.onclick=()=>handleAct(b.dataset.act,p.id,p,el));
+  el.querySelector('.reply-send').onclick=()=>submitReply(p.id,el);
   return el;
 }
 
@@ -378,21 +430,21 @@ async function handleAct(act,id,p,el){
   if(act==='like'){
     if(!currentUser){alert('Connecte-toi pour aimer 💛');return;}
     const liked=(p.likes||[]).includes(currentUser.uid);
-    await db.collection('forum_posts').doc(id).update({
+    try{await db.collection('forum_posts').doc(id).update({
       likes:liked?firebase.firestore.FieldValue.arrayRemove(currentUser.uid):firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-    });
+    });}catch(e){console.error(e);alert('Erreur: '+e.message);}
   }else if(act==='reply'){
     if(!currentUser){alert('Connecte-toi pour répondre 💬');return;}
-    el.querySelector('.reply-box').classList.toggle('hidden');
+    el.querySelector('.reply-box').classList.toggle('show');
   }else if(act==='share'){
-    const url=location.origin+'/aidons-nous.html#post-'+id;
-    if(navigator.share)navigator.share({title:p.title,url});
+    const url=location.origin+'/aidons-nous/#post-'+id;
+    if(navigator.share)navigator.share({title:p.title,url}).catch(()=>{});
     else{navigator.clipboard.writeText(url);alert('Lien copié! 🔗');}
   }else if(act==='flag'){
     if(!currentUser){alert('Connecte-toi pour signaler.');return;}
     if(!confirm('Signaler ce message à la modération?'))return;
-    await db.collection('forum_posts').doc(id).update({flagged:true});
-    alert('Merci. Joey va réviser. 🙏');
+    try{await db.collection('forum_posts').doc(id).update({flagged:true});alert('Merci. Joey va réviser. 🙏');}
+    catch(e){alert('Erreur: '+e.message);}
   }
 }
 
@@ -402,15 +454,17 @@ async function submitReply(id,el){
   const ta=el.querySelector('.reply-box textarea');
   const c=ta.value.trim();
   if(c.length<3){alert('Réponse trop courte.');return;}
-  if(hasBad(c)){alert('⚠️ Langage non conforme.');return;}
-  await db.collection('forum_posts').doc(id).update({
-    replies:firebase.firestore.FieldValue.arrayUnion({
-      user_uid:currentUser.uid,
-      user_name:currentUser.displayName||currentUser.email.split('@')[0],
-      content:c,timestamp:Date.now()
-    })
-  });
-  ta.value='';el.querySelector('.reply-box').classList.add('hidden');
+  if(hasBad(c)){alert('⚠️ Langage non conforme à la charte.');return;}
+  try{
+    await db.collection('forum_posts').doc(id).update({
+      replies:firebase.firestore.FieldValue.arrayUnion({
+        user_uid:currentUser.uid,
+        user_name:currentUser.displayName||currentUser.email.split('@')[0],
+        content:c,timestamp:Date.now()
+      })
+    });
+    ta.value='';el.querySelector('.reply-box').classList.remove('show');
+  }catch(e){console.error(e);alert('Erreur: '+e.message);}
 }
 
 function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
