@@ -447,7 +447,7 @@
 <body>
 
 <!-- NBA Logos Background — gros et colorés -->
-<div class="nba-bg-pattern" id="nbaBgPattern"></div>
+<!-- bg pattern removed for perf -->
 
 <!-- Header -->
 <div class="header">
@@ -562,16 +562,7 @@ const SCHED = {
 // BACKGROUND — GROS LOGOS COULEURS VIVES
 // =============================================
 function createNBABackground() {
-  const teams = ['bos','ny','mil','cle','orl','ind','phi','mia','chi','atl','bkn','tor','cha','det','wsh','okc','den','min','dal','lac','phx','sac','lal','gs','hou','mem','no','sa','por','utah'];
-  const container = document.getElementById('nbaBgPattern');
-  for (let i = 0; i < 90; i++) {
-    const team = teams[i % teams.length];
-    const img = document.createElement('img');
-    img.src = LOGO(team);
-    img.alt = '';
-    img.loading = 'lazy';
-    container.appendChild(img);
-  }
+  // Lightweight — no images, just CSS gradient bg
 }
 
 // =============================================
@@ -653,6 +644,13 @@ function buildBracketFromAPI() {
   const EAST_TEAMS = ['ATL','BOS','BKN','CHA','CHI','CLE','DET','IND','MIA','MIL','NY','ORL','PHI','TOR','WSH'];
   const WEST_TEAMS = ['DAL','DEN','GS','HOU','LAC','LAL','MEM','MIN','NOP','OKC','PHX','POR','SAC','SA','UTA'];
 
+  // Seed lookup from FALLBACK
+  const seedMap = {};
+  [...FALLBACK.east, ...FALLBACK.west].forEach(s => {
+    seedMap[s.top.a] = s.top.s;
+    seedMap[s.bot.a] = s.bot.s;
+  });
+
   function detectConf(teams) {
     for (const t of teams) {
       if (EAST_TEAMS.includes(t.abbrev)) return 'east';
@@ -673,6 +671,11 @@ function buildBracketFromAPI() {
     const isWest = title.includes('west') || detectConf(teams) === 'west';
     const round = title.includes('first') ? 1 : title.includes('semi') ? 2 : title.includes('conference final') ? 3 : title.includes('nba final') ? 4 : 1;
 
+    // Assign seeds from fallback if API doesn't provide them
+    teams.forEach(t => { if (!t.seed) t.seed = seedMap[t.abbrev] || 0; });
+    // Sort by seed so higher seed (lower number) is on top
+    teams.sort((a, b) => (a.seed || 99) - (b.seed || 99));
+
     const entry = {
       top: { a: teams[0].abbrev, n: teams[0].name, s: teams[0].seed, w: teams[0].wins, logo: teams[0].logo },
       bot: { a: teams[1].abbrev, n: teams[1].name, s: teams[1].seed, w: teams[1].wins, logo: teams[1].logo },
@@ -690,8 +693,8 @@ function buildBracketFromAPI() {
     east: east.length >= 4 ? east : [...east, ...FALLBACK.east.slice(east.length)],
     west: west.length >= 4 ? west : [...west, ...FALLBACK.west.slice(west.length)]
   };
-  result.east.sort((a, b) => a.round - b.round || a.top.s - b.top.s);
-  result.west.sort((a, b) => a.round - b.round || a.top.s - b.top.s);
+  result.east.sort((a, b) => a.round - b.round || (a.top.s || 99) - (b.top.s || 99));
+  result.west.sort((a, b) => a.round - b.round || (a.top.s || 99) - (b.top.s || 99));
   return result;
 }
 
