@@ -1465,23 +1465,27 @@
         <div id="ztsTodayGrid"></div>
     </section>
 
-    <!-- ========== SECTION PAUSE EPS : Citation + Quiz ========== -->
+    <!-- ========== SECTION PAUSE EPS : Citation + Quiz + Fait ========== -->
     <style>
+        @font-face { font-family: 'ZoneTotalSport'; src: url('fonts/ZoneTotalSport.ttf') format('truetype'); font-display: swap; }
         #ztsPauseSection { background: linear-gradient(135deg, #FF2A7A 0%, #8B5CF6 100%); padding: 50px 20px; position: relative; overflow: hidden; }
         #ztsPauseSection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(255,234,0,0.2), transparent 40%); pointer-events: none; }
         .zts-pause-header { max-width: 1400px; margin: 0 auto 32px; text-align: center; position: relative; }
         .zts-pause-tag { display: inline-block; background: #FFEA00; color: #18181b; padding: 8px 20px; border-radius: 20px; font-family: 'Bangers', cursive; font-size: 1rem; letter-spacing: 1.5px; margin-bottom: 10px; }
-        .zts-pause-h2 { font-family: 'Luckiest Guy', cursive; color: #fff; font-size: clamp(2rem, 4.5vw, 3.2rem); margin: 0; letter-spacing: 1.5px; text-shadow: 3px 3px 0 rgba(0,0,0,0.15); line-height: 1.1; }
-        .zts-pause-sub { font-family: 'Patrick Hand', cursive; color: rgba(255,255,255,0.85); font-size: 1.25rem; margin-top: 8px; }
+        .zts-pause-h2 { font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(2.4rem, 5.5vw, 4rem); margin: 0; letter-spacing: 2px; text-shadow: 3px 3px 0 rgba(0,0,0,0.15); line-height: 1.1; }
+        .zts-pause-sub { font-family: 'Bangers', cursive; color: rgba(255,255,255,0.95); font-size: 1.5rem; margin-top: 12px; letter-spacing: 1.5px; }
         #ztsPauseGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; position: relative; }
         .zts-pause-card { background: #fff; border-radius: 24px; padding: 32px 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 4px solid #18181b; position: relative; transition: transform 0.3s; }
         .zts-pause-card:hover { transform: translateY(-4px) rotate(-0.5deg); }
         .zts-pause-label { font-family: 'Bangers', cursive; font-size: 1rem; letter-spacing: 2px; color: #FF2A7A; margin-bottom: 18px; }
         .zts-pause-quote .zts-pause-label { color: #FF2A7A; }
         .zts-pause-quiz .zts-pause-label { color: #8B5CF6; }
-        .zts-pause-quote-text { font-family: 'Patrick Hand', cursive; font-size: 1.5rem; color: #18181b; line-height: 1.4; font-style: italic; }
-        .zts-pause-author { font-family: 'Bangers', cursive; color: #8B5CF6; font-size: 1.1rem; margin-top: 16px; letter-spacing: 1.5px; text-align: right; }
-        .zts-pause-question { font-family: 'Fredoka One', cursive; font-size: 1.25rem; color: #18181b; margin-bottom: 20px; line-height: 1.35; }
+        .zts-pause-quote-text { font-family: 'Luckiest Guy', cursive; font-size: 1.7rem; color: #18181b; line-height: 1.3; letter-spacing: 0.5px; }
+        .zts-pause-author { font-family: 'Bangers', cursive; color: #8B5CF6; font-size: 1.3rem; margin-top: 16px; letter-spacing: 2px; text-align: right; }
+        .zts-pause-question { font-family: 'Luckiest Guy', cursive; font-size: 1.5rem; color: #18181b; margin-bottom: 20px; line-height: 1.25; letter-spacing: 0.5px; }
+        .zts-pause-fact-text { font-family: 'Luckiest Guy', cursive; font-size: 1.5rem; color: #18181b; line-height: 1.3; letter-spacing: 0.5px; }
+        .zts-pause-fact-date { font-family: 'Bangers', cursive; color: #FF2A7A; font-size: 1.3rem; margin-top: 16px; letter-spacing: 2px; }
+        .zts-pause-fact .zts-pause-label { color: #FFAA00; }
         .zts-pause-choices { display: flex; flex-direction: column; gap: 10px; }
         .zts-pause-choice { font-family: 'Patrick Hand', cursive; font-size: 1.15rem; background: #f3f4f6; color: #18181b; border: 3px solid #e5e7eb; padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; }
         .zts-pause-choice:hover:not(:disabled) { background: #FFEA00; border-color: #18181b; transform: translateX(4px); }

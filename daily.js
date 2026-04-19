@@ -469,7 +469,7 @@
   async function renderPause() {
     var container = document.getElementById('ztsPauseGrid');
     if (!container) return;
-    var data = await getFunPause();
+    var [data, eph] = await Promise.all([getFunPause(), getEphemeride()]);
     if (!data) { container.innerHTML = '<div style="color:#fff;text-align:center;padding:20px">' + L('loading') + '</div>'; return; }
 
     var html = '';
@@ -483,6 +483,18 @@
       '<div class="zts-pause-quote-text">« ' + b.text + ' »</div>' +
       authorHtml +
       '</div>';
+
+    // Carte Fait historique du jour (ephemeride OU conseil EPS fallback)
+    if (eph) {
+      var factEmoji = eph.type === 'event' ? '📜' : '💡';
+      var factLabel = eph.type === 'event' ? 'FAIT HISTORIQUE' : 'CONSEIL EPS';
+      var factDate = eph.year ? eph.year : '';
+      html += '<div class="zts-pause-card zts-pause-fact">' +
+        '<div class="zts-pause-label">' + factEmoji + ' ' + factLabel + '</div>' +
+        '<div class="zts-pause-fact-text">' + (eph.title ? '<strong>' + eph.title + '</strong> — ' : '') + (eph.desc || '') + '</div>' +
+        (factDate ? '<div class="zts-pause-fact-date">📅 ' + factDate + '</div>' : '') +
+        '</div>';
+    }
 
     // Carte Quiz interactif
     var q = data.quiz;
