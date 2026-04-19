@@ -1368,6 +1368,13 @@ function renderBracket(data) {
         <div class="round r3"><div class="round-label">Finale conf.</div>${matchupHTML(tbdS)}</div>
       </div>
     </div>`;
+
+  // Attach click handlers directly on matchup cards
+  c.querySelectorAll('.matchup[data-series-letter]').forEach(el => {
+    el.addEventListener('click', function() {
+      openSeriesModal(this.getAttribute('data-series-letter'));
+    });
+  });
 }
 
 function matchupHTML(s) {
@@ -1507,24 +1514,16 @@ async function openSeriesModal(letter) {
 }
 
 function closeSeriesModal() {
-  document.getElementById('seriesModal').classList.remove('open');
+  const m = document.getElementById('seriesModal');
+  if (m) m.classList.remove('open');
 }
+// Close on overlay click + Escape
+(function() {
+  const m = document.getElementById('seriesModal');
+  if (m) m.addEventListener('click', function(e) { if (e.target === this) closeSeriesModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSeriesModal(); });
+})();
 
-// Close modal on overlay click
-document.getElementById('seriesModal').addEventListener('click', function(e) {
-  if (e.target === this) closeSeriesModal();
-});
-
-// Close on Escape
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSeriesModal(); });
-
-// EVENT DELEGATION — clic sur matchup bracket → ouvre modal
-document.addEventListener('click', function(e) {
-  const matchup = e.target.closest('.matchup[data-series-letter]');
-  if (!matchup) return;
-  const letter = matchup.getAttribute('data-series-letter');
-  if (letter) openSeriesModal(letter);
-});
 
 // Load game details inside modal
 async function toggleModalGameDetail(el) {
