@@ -10,10 +10,42 @@
   var CHAT_ID = '897290762';
   var API_URL = 'https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage';
 
+  // ── ntfy.sh : push notif phone (alternative Telegram) ──
+  // Topic prive, dur a deviner. Installer app ntfy + s'abonner a ce topic.
+  var NTFY_TOPIC = 'zts-joey-9k3mq7xv4p';
+  var NTFY_URL = 'https://ntfy.sh/' + NTFY_TOPIC;
+
+  function sendNtfy(title, message, priority, tags) {
+    try {
+      fetch(NTFY_URL, {
+        method: 'POST',
+        headers: {
+          'Title': title,
+          'Priority': priority || '3',
+          'Tags': tags || ''
+        },
+        body: message
+      }).catch(function(){});
+    } catch(e) {}
+  }
+
+  // Strip HTML tags pour ntfy (texte brut)
+  function stripHtml(s) {
+    return String(s).replace(/<[^>]+>/g, '').replace(/\n+/g, '\n').trim();
+  }
+
   // Anti-spam: max 1 notif visite par session
   var _visitNotified = sessionStorage.getItem('zts_visit_notif');
 
-  function sendTelegram(text) {
+  function sendTelegram(text, ntfyMeta) {
+    // Mirror vers ntfy.sh
+    if (ntfyMeta !== false) {
+      var clean = stripHtml(text);
+      var firstLine = clean.split('\n')[0] || 'ZTS';
+      var rest = clean.split('\n').slice(1).join('\n') || clean;
+      var meta = ntfyMeta || {};
+      sendNtfy(firstLine, rest, meta.priority, meta.tags);
+    }
     fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
