@@ -602,11 +602,13 @@ async function fetchPlayoffData() {
       allPlayoffEvents.push(ev);
 
       if (series) {
-        const key = series.id || series.title || ev.id;
+        // Build key from team abbreviations (series.id is often empty)
+        const teamAbbrs = (comp.competitors || []).map(c => c.team?.abbreviation).filter(Boolean).sort().join('-');
+        const key = teamAbbrs || series.id || ev.id;
         if (!seriesMap[key]) {
           seriesMap[key] = { id: key, title: series.title || '', summary: series.summary || '', completed: series.completed || false, games: [], teams: {} };
         }
-        seriesMap[key].games.push(ev);
+        if (!seriesMap[key].games.find(g => g.id === ev.id)) seriesMap[key].games.push(ev);
         comp.competitors?.forEach(c => {
           const abbrev = c.team?.abbreviation;
           if (abbrev) {
@@ -637,6 +639,18 @@ async function fetchPlayoffData() {
 function buildBracketFromAPI() {
   if (Object.keys(seriesMap).length === 0) return FALLBACK;
 
+  // Conference map — all 30 NBA teams
+  const EAST_TEAMS = ['ATL','BOS','BKN','CHA','CHI','CLE','DET','IND','MIA','MIL','NY','ORL','PHI','TOR','WSH'];
+  const WEST_TEAMS = ['DAL','DEN','GS','HOU','LAC','LAL','MEM','MIN','NOP','OKC','PHX','POR','SAC','SA','UTA'];
+
+  function detectConf(teams) {
+    for (const t of teams) {
+      if (EAST_TEAMS.includes(t.abbrev)) return 'east';
+      if (WEST_TEAMS.includes(t.abbrev)) return 'west';
+    }
+    return null;
+  }
+
   const east = [], west = [];
   const letters = 'ABCDEFGHIJKLMNOP';
   let idx = 0;
@@ -645,8 +659,8 @@ function buildBracketFromAPI() {
     const teams = Object.values(s.teams);
     if (teams.length < 2) return;
     const title = (s.title || '').toLowerCase();
-    const isEast = title.includes('east');
-    const isWest = title.includes('west');
+    const isEast = title.includes('east') || detectConf(teams) === 'east';
+    const isWest = title.includes('west') || detectConf(teams) === 'west';
     const round = title.includes('first') ? 1 : title.includes('semi') ? 2 : title.includes('conference final') ? 3 : title.includes('nba final') ? 4 : 1;
 
     const entry = {

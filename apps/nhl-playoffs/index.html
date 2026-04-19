@@ -1229,21 +1229,25 @@ const SCHED = {
 // =============================================
 async function fetchBracket() {
   const data = await apiFetch(API.bracket);
-  if (!data || !data.rounds) return FALLBACK;
+  if (!data) return FALLBACK;
+
+  // API format: flat array data.series with playoffRound field
+  const seriesList = data.series || (data.rounds && data.rounds[0]?.series) || [];
+  if (!seriesList.length) return FALLBACK;
 
   const east = [], west = [];
-  const r1 = data.rounds[0];
-  if (r1 && r1.series) {
-    r1.series.forEach(s => {
-      const entry = {
-        top: { a: s.topSeedTeam?.abbrev||'?', n: s.topSeedTeam?.name?.default||'?', s: s.topSeedRank||0, w: s.topSeedWins||0 },
-        bot: { a: s.bottomSeedTeam?.abbrev||'?', n: s.bottomSeedTeam?.name?.default||'?', s: s.bottomSeedRank||0, w: s.bottomSeedWins||0 },
-        letter: s.seriesLetter||'',
-        g1: '',
-      };
-      if ('ABCD'.includes(entry.letter)) east.push(entry); else west.push(entry);
-    });
-  }
+  seriesList.forEach(s => {
+    // Only use round 1 for bracket display
+    const round = s.playoffRound || 1;
+    if (round !== 1) return;
+    const entry = {
+      top: { a: s.topSeedTeam?.abbrev||'?', n: s.topSeedTeam?.name?.default||'?', s: s.topSeedRank||0, w: s.topSeedWins||0 },
+      bot: { a: s.bottomSeedTeam?.abbrev||'?', n: s.bottomSeedTeam?.name?.default||'?', s: s.bottomSeedRank||0, w: s.bottomSeedWins||0 },
+      letter: s.seriesLetter||'',
+      g1: '',
+    };
+    if ('ABCD'.includes(entry.letter)) east.push(entry); else west.push(entry);
+  });
   return { east: east.length ? east : FALLBACK.east, west: west.length ? west : FALLBACK.west };
 }
 
