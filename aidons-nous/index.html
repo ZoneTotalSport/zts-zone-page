@@ -69,6 +69,17 @@
   .avatar-sm{width:34px;height:34px;font-size:15px;}
   .avatar-lg{width:52px;height:52px;font-size:24px;}
 
+  /* ── FOLDERS (Drive-style) ── */
+  .folders-wrap{margin-bottom:14px;}
+  .folders-title{font-family:'Luckiest Guy',cursive;font-size:18px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,0.35);letter-spacing:1.5px;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+  .folders{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+  .folder{background:rgba(255,255,255,0.95);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;border:3px solid transparent;transition:all .2s;box-shadow:0 3px 8px rgba(0,0,0,0.12);}
+  .folder:hover{transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,0.18);border-color:#FFD700;}
+  .folder.active{border-color:var(--cyan);background:#E0FCFF;}
+  .folder-ico{font-size:38px;line-height:1;margin-bottom:4px;}
+  .folder-name{font-family:'Bangers',cursive;font-size:14px;color:var(--dark);letter-spacing:0.5px;line-height:1.2;}
+  .folder-count{font-size:12px;color:#6B7280;margin-top:2px;font-family:'Fredoka',sans-serif;font-weight:500;}
+
   /* ── FILTERS ── */
   .filters{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin-bottom:14px;}
   .filter-group{display:flex;gap:6px;flex-wrap:wrap;}
@@ -218,6 +229,12 @@
     </div>
   </div>
 
+  <!-- Folders (par catégorie, style Drive) -->
+  <div class="folders-wrap">
+    <div class="folders-title">📁 <span id="foldersTitle">DOSSIERS</span></div>
+    <div class="folders" id="foldersGrid"></div>
+  </div>
+
   <!-- Filters -->
   <div class="filters">
     <div class="filter-group">
@@ -285,6 +302,8 @@
           <option value="sdg">🎨 Service de garde</option>
           <option value="camp">⛺ Camps de jour</option>
         </select>
+        <label>📁 Sujet / dossier</label>
+        <select id="cmpTopic"></select>
         <label>Titre <span style="color:#FF2A7A;">*</span></label>
         <input type="text" id="cmpTitle" maxlength="100" placeholder="Ex: Jeu coop pour 30 kids en gym">
         <label>Ton message <span style="color:#FF2A7A;">*</span></label>
@@ -333,10 +352,49 @@ const CAT_LABELS = {
   sdg:{name:'🎨 SDG',cls:'cat-sdg'},
   camp:{name:'⛺ Camps',cls:'cat-camp'}
 };
+// Dossiers par catégorie (modifiable facilement)
+const TOPICS = {
+  eps:[
+    {id:'jeux-coop',ico:'🤝',name:'Jeux coopératifs'},
+    {id:'invasion',ico:'⚔️',name:'Sports d\'invasion'},
+    {id:'tague',ico:'🏃',name:'Tague & poursuite'},
+    {id:'ballon',ico:'⚽',name:'Ballons'},
+    {id:'danse',ico:'💃',name:'Danse & musique'},
+    {id:'sae',ico:'📝',name:'SAÉ & PFEQ'},
+    {id:'educatifs',ico:'🎯',name:'Éducatifs'},
+    {id:'evaluation',ico:'📊',name:'Évaluation'},
+    {id:'materiel',ico:'🧰',name:'Matériel & trucs'},
+    {id:'comportement',ico:'👥',name:'Gestion de classe'},
+    {id:'autre',ico:'💬',name:'Autre'}
+  ],
+  sdg:[
+    {id:'interieur',ico:'🏠',name:'Activités intérieur'},
+    {id:'exterieur',ico:'🌳',name:'Activités extérieur'},
+    {id:'coop',ico:'🤝',name:'Jeux coopératifs'},
+    {id:'motricite',ico:'🤸',name:'Motricité'},
+    {id:'bricolage',ico:'🎨',name:'Bricolage & arts'},
+    {id:'pedago',ico:'📅',name:'Journées pédago'},
+    {id:'calme',ico:'🧘',name:'Retour au calme'},
+    {id:'gestion',ico:'👥',name:'Gestion de groupe'},
+    {id:'autre',ico:'💬',name:'Autre'}
+  ],
+  camp:[
+    {id:'grands-jeux',ico:'🏆',name:'Grands jeux'},
+    {id:'rallye',ico:'🗺️',name:'Rallyes'},
+    {id:'olympiades',ico:'🥇',name:'Olympiades'},
+    {id:'coop',ico:'🤝',name:'Jeux coop'},
+    {id:'pluie',ico:'☔',name:'Plans B pluie'},
+    {id:'eau',ico:'💧',name:'Jeux d\'eau'},
+    {id:'animation',ico:'🎤',name:'Animation & chansons'},
+    {id:'equipes',ico:'⚔️',name:'Défis par équipes'},
+    {id:'formation',ico:'👨‍🏫',name:'Formation animateurs'},
+    {id:'autre',ico:'💬',name:'Autre'}
+  ]
+};
 const BAD_WORDS = ['calisse','tabarnak','osti','crisse','esti','ciboire','sacrament','salope','pute','fuck','shit','bitch','asshole','hais','déteste'];
 const hasBad = t => { const s=(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); return BAD_WORDS.some(w=>new RegExp('\\b'+w+'\\b').test(s)); };
 
-let currentCat='all', currentSort='recent', currentUser=null, db=null, FV=null, unsub=null;
+let currentCat='all', currentTopic='all', currentSort='recent', currentUser=null, db=null, FV=null, unsub=null, postsCache=[];
 const $ = id => document.getElementById(id);
 const getLiveUser = () => currentUser || (window.firebase&&firebase.auth&&firebase.auth().currentUser) || (window.ztsGetUser&&window.ztsGetUser()) || null;
 const getDb = () => {
@@ -377,17 +435,54 @@ function init(){
     const lbl=$('navLoginLabel');
     if(lbl)lbl.textContent=u?(u.displayName||u.email.split('@')[0]):'Connexion';
   });
+  renderFolders();
   loadFeed();
-  if(window.lucide)lucide.createIcons();
+}
+
+function renderFolders(){
+  const grid=$('foldersGrid'), title=$('foldersTitle');
+  if(currentCat==='all'){
+    // Tous: union des dossiers mais moins pertinent — affiche par catégorie
+    const all=[].concat(TOPICS.eps,TOPICS.sdg,TOPICS.camp);
+    title.textContent='DOSSIERS — TOUTES CATÉGORIES';
+    renderFolderCards(all,grid);
+  }else{
+    title.textContent='DOSSIERS — '+({eps:'🏀 PROFS D\'ÉPS',sdg:'🎨 SERVICE DE GARDE',camp:'⛺ CAMPS DE JOUR'}[currentCat]);
+    renderFolderCards(TOPICS[currentCat]||[],grid);
+  }
+  // Update compose topic dropdown
+  const sel=$('cmpTopic');
+  if(sel){
+    sel.innerHTML='';
+    const list=TOPICS[$('cmpCat').value]||TOPICS.eps;
+    list.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.ico+' '+t.name;sel.appendChild(o);});
+  }
+}
+function renderFolderCards(list,grid){
+  grid.innerHTML='';
+  // "Tous" folder
+  const allCard=document.createElement('div');
+  allCard.className='folder'+(currentTopic==='all'?' active':'');
+  allCard.innerHTML='<div class="folder-ico">🌟</div><div class="folder-name">TOUS LES SUJETS</div><div class="folder-count">'+postsCache.length+' posts</div>';
+  allCard.onclick=()=>{currentTopic='all';renderFolders();renderFeed();};
+  grid.appendChild(allCard);
+  list.forEach(t=>{
+    const card=document.createElement('div');
+    card.className='folder'+(currentTopic===t.id?' active':'');
+    const count=postsCache.filter(p=>p.topic===t.id).length;
+    card.innerHTML='<div class="folder-ico">'+t.ico+'</div><div class="folder-name">'+t.name.toUpperCase()+'</div><div class="folder-count">'+count+' posts</div>';
+    card.onclick=()=>{currentTopic=t.id;renderFolders();renderFeed();};
+    grid.appendChild(card);
+  });
 }
 
 document.querySelectorAll('.chip[data-cat]').forEach(c=>c.onclick=()=>{
   document.querySelectorAll('.chip[data-cat]').forEach(x=>x.classList.remove('active'));
-  c.classList.add('active'); currentCat=c.dataset.cat; loadFeed();
+  c.classList.add('active'); currentCat=c.dataset.cat; currentTopic='all'; loadFeed(); renderFolders();
 });
 document.querySelectorAll('.chip[data-sort]').forEach(c=>c.onclick=()=>{
   document.querySelectorAll('.chip[data-sort]').forEach(x=>x.classList.remove('active'));
-  c.classList.add('active'); currentSort=c.dataset.sort; loadFeed();
+  c.classList.add('active'); currentSort=c.dataset.sort; renderFeed();
 });
 
 function openCompose(){
@@ -402,6 +497,11 @@ window.openCompose=openCompose;window.closeCompose=closeCompose;
 
 // Char counter (passive, no perf impact)
 $('cmpContent').addEventListener('input',e=>{$('cmpCount').textContent=e.target.value.length;},{passive:true});
+// Quand catégorie change dans compose → recharge les sujets
+$('cmpCat').addEventListener('change',()=>{
+  const sel=$('cmpTopic'),list=TOPICS[$('cmpCat').value]||[];
+  sel.innerHTML='';list.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.ico+' '+t.name;sel.appendChild(o);});
+});
 
 $('cmpSubmit').onclick=async()=>{
   const title=$('cmpTitle').value.trim(),content=$('cmpContent').value.trim(),cat=$('cmpCat').value,drive=$('cmpDrive').value.trim();
@@ -416,7 +516,7 @@ $('cmpSubmit').onclick=async()=>{
   $('cmpSubmit').disabled=true;$('cmpSubmit').textContent='⏳ PUBLICATION...';
   try{
     await d.collection('forum_posts').add({
-      category:cat,user_uid:currentUser.uid,
+      category:cat,topic:$('cmpTopic').value||'autre',user_uid:currentUser.uid,
       user_name:currentUser.displayName||currentUser.email.split('@')[0],
       user_email:currentUser.email,title,content,drive:drive||null,
       timestamp:new Date(),
@@ -439,16 +539,23 @@ function loadFeed(){
   const d=getDb(); if(!d){setTimeout(loadFeed,200);return;}
   let q=d.collection('forum_posts');
   if(currentCat!=='all')q=q.where('category','==',currentCat);
-  q=q.orderBy('timestamp','desc').limit(50);
+  q=q.orderBy('timestamp','desc').limit(100);
   unsub=q.onSnapshot(snap=>{
-    if(snap.empty){feed.innerHTML='<div class="empty"><img src="../bucheron-aidons-nous.png" onerror="this.src=\'../bucheron-basketball.png\'"><h3>🌱 Personne n\'a encore écrit ici</h3><p>Sois le premier à partager ton savoir!</p><button class="btn" onclick="openCompose()">💬 Écrire le premier</button></div>';return;}
-    let docs=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(currentSort==='hot')docs.sort((a,b)=>((b.likes||[]).length+((b.replies||[]).length*2))-((a.likes||[]).length+((a.replies||[]).length*2)));
-    docs.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
-    const frag=document.createDocumentFragment();
-    docs.forEach(d=>frag.appendChild(renderPost(d)));
-    feed.innerHTML='';feed.appendChild(frag);
+    postsCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderFolders();
+    renderFeed();
   },err=>{console.error('[Feed error]',err);feed.innerHTML='<div class="empty"><h3>Erreur de chargement</h3><p>'+err.message+'</p></div>';});
+}
+function renderFeed(){
+  const feed=$('feed');
+  let docs=postsCache.slice();
+  if(currentTopic!=='all')docs=docs.filter(p=>p.topic===currentTopic);
+  if(!docs.length){feed.innerHTML='<div class="empty"><img src="../bucheron-aidons-nous.png" onerror="this.src=\'../bucheron-basketball.png\'"><h3>🌱 Aucun post dans ce dossier</h3><p>Sois le premier à partager!</p><button class="btn" onclick="openCompose()">💬 Écrire maintenant</button></div>';return;}
+  if(currentSort==='hot')docs.sort((a,b)=>((b.likes||[]).length+((b.replies||[]).length*2))-((a.likes||[]).length+((a.replies||[]).length*2)));
+  docs.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+  const frag=document.createDocumentFragment();
+  docs.forEach(d=>frag.appendChild(renderPost(d)));
+  feed.innerHTML='';feed.appendChild(frag);
 }
 
 function renderPost(p){
@@ -460,6 +567,9 @@ function renderPost(p){
   const u=getLiveUser();
   const liked=u&&likes.includes(u.uid);
   const catInfo=CAT_LABELS[p.category]||{name:p.category,cls:''};
+  const topicList=TOPICS[p.category]||[];
+  const topicInfo=topicList.find(t=>t.id===p.topic);
+  const topicBadge=topicInfo?`<span class="cat-badge" style="background:#FEF3C7;color:#B45309;">${topicInfo.ico} ${topicInfo.name}</span>`:'';
   el.innerHTML=`
     <div class="post-head">
       <div class="avatar avatar-lg">${initial}</div>
@@ -467,6 +577,7 @@ function renderPost(p){
         <div class="user-line">
           <span class="user-name">${esc(p.user_name)}</span>
           <span class="cat-badge ${catInfo.cls}">${catInfo.name}</span>
+          ${topicBadge}
           ${p.pinned?'<span class="pinned-label">📌 ÉPINGLÉ</span>':''}
         </div>
         <div class="post-date">${date}</div>
