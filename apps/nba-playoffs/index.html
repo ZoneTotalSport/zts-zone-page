@@ -631,11 +631,11 @@ async function fetchPlayoffData() {
         });
         // Parse wins from summary
         if (series.summary) {
-          const m = series.summary.match(/(\w+)\s+leads\s+(\d+)-(\d+)/i);
+          const m = series.summary.match(/(\w+)\s+leads?\s+(?:series\s+)?(\d+)-(\d+)/i);
           if (m) { Object.values(seriesMap[key].teams).forEach(t => { t.wins = t.abbrev === m[1] ? +m[2] : +m[3]; }); }
-          const tied = series.summary.match(/[Tt]ied\s+(\d+)-(\d+)/i);
+          const tied = series.summary.match(/[Tt]ied\s+(?:series\s+)?(\d+)-(\d+)/i);
           if (tied) { Object.values(seriesMap[key].teams).forEach(t => { t.wins = +tied[1]; }); }
-          const wins = series.summary.match(/(\w+)\s+wins\s+(\d+)-(\d+)/i);
+          const wins = series.summary.match(/(\w+)\s+wins?\s+(?:series\s+)?(\d+)-(\d+)/i);
           if (wins) { Object.values(seriesMap[key].teams).forEach(t => { t.wins = t.abbrev === wins[1] ? +wins[2] : +wins[3]; }); }
         }
       }
