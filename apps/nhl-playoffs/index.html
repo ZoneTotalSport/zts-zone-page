@@ -66,17 +66,18 @@
     opacity: 1;
     pointer-events: none;
     display: grid;
-    grid-template-columns: repeat(auto-fill, 200px);
-    grid-template-rows: repeat(auto-fill, 200px);
-    gap: 20px;
-    padding: 20px;
+    grid-template-columns: repeat(auto-fill, 280px);
+    grid-template-rows: repeat(auto-fill, 280px);
+    gap: 30px;
+    padding: 30px;
     align-content: start;
     overflow: hidden;
   }
   .nhl-bg-pattern img {
-    width: 170px;
-    height: 170px;
+    width: 240px;
+    height: 240px;
     object-fit: contain;
+    opacity: 0.15;
   }
 
   /* ========== ZOOM CONTROLS (TNI / Gymnase) ========== */
@@ -1169,7 +1170,7 @@ async function apiFetch(url) {
 // =============================================
 function createParticles() {
   const c = document.getElementById('particles');
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 8; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
     p.style.left = Math.random()*100+'%';
@@ -1181,22 +1182,17 @@ function createParticles() {
 }
 
 function createNHLBackground() {
-  const teams = [
-    'TOR','MTL','BOS','BUF','OTT','TBL','CAR','PIT','PHI','FLA',
-    'NYR','NYI','NJD','WSH','DET','CBJ','COL','DAL','EDM','VGK',
-    'MIN','LAK','ANA','SEA','VAN','WPG','CGY','STL','NSH','CHI',
-    'SJS','UTA'
-  ];
+  // Only playoff teams for lighter load
+  const teams = ['TOR','OTT','FLA','TBL','CAR','WSH','NJD','MTL','WPG','COL','DAL','MIN','EDM','LAK','VGK','STL'];
   const container = document.getElementById('nhlBgPattern');
-  // Use dark logos (colorful, for dark background)
-  for (let i = 0; i < 150; i++) {
-    const team = teams[i % teams.length];
+  teams.forEach(team => {
     const img = document.createElement('img');
     img.src = `https://assets.nhle.com/logos/nhl/svg/${team}_dark.svg`;
     img.alt = '';
     img.loading = 'lazy';
+    img.decoding = 'async';
     container.appendChild(img);
-  }
+  });
 }
 
 // =============================================
@@ -1945,7 +1941,7 @@ async function init() {
   renderLeaders(); // fire and forget
 
   // Auto-refresh every 2 minutes during games
-  setInterval(refreshAll, 2 * 60 * 1000);
+  setInterval(refreshAll, 5 * 60 * 1000);
 }
 
 init();

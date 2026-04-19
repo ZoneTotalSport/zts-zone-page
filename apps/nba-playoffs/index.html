@@ -68,8 +68,7 @@
     width: 240px;
     height: 240px;
     object-fit: contain;
-    filter: brightness(1.3) saturate(1.4);
-    background: rgba(255,255,255,0.12);
+    opacity: 0.15;
     border-radius: 16px;
     padding: 8px;
   }
@@ -562,16 +561,17 @@ const SCHED = {
 // BACKGROUND — GROS LOGOS COULEURS VIVES
 // =============================================
 function createNBABackground() {
-  const teams = ['bos','ny','mil','cle','orl','ind','phi','mia','chi','atl','bkn','tor','cha','det','wsh','okc','den','min','dal','lac','phx','sac','lal','gs','hou','mem','no','sa','por','utah'];
+  const teams = ['det','orl','bos','phi','ny','atl','cle','tor','okc','phx','sa','por','den','min','lal','hou'];
   const container = document.getElementById('nbaBgPattern');
-  for (let i = 0; i < 45; i++) {
-    const team = teams[i % teams.length];
+  if (!container) return;
+  teams.forEach(t => {
     const img = document.createElement('img');
-    img.src = LOGO(team);
+    img.src = LOGO(t);
     img.alt = '';
     img.loading = 'lazy';
+    img.decoding = 'async';
     container.appendChild(img);
-  }
+  });
 }
 
 // =============================================
@@ -751,8 +751,7 @@ function renderBracket(data) {
 function matchupHTML(s) {
   const t = s.top, b = s.bot, tw = t.w === 4, bw = b.w === 4, tbd = !t.a && !b.a;
   const placeholder = '<span style="width:58px;height:58px;display:inline-block;background:rgba(200,16,46,0.06);border-radius:10px;border:2px dashed rgba(200,16,46,0.15);"></span>';
-  const key = s.seriesId || s.letter || '';
-  const clickAttr = (t.a && b.a) ? `onclick="openSeriesModal('${key}')"` : '';
+  const clickAttr = (t.a && b.a && s.letter) ? `onclick="openSeriesModal('${s.letter}')"` : '';
   const logoT = t.logo || LOGO(t.a);
   const logoB = b.logo || LOGO(b.a);
 
@@ -775,104 +774,97 @@ function matchupHTML(s) {
 // =============================================
 // SERIES MODAL
 // =============================================
-function findSeriesByKey(key) {
-  // Try seriesMap first (API data)
-  if (seriesMap[key]) return seriesMap[key];
-  // Try by letter (fallback)
+function findSeriesByLetter(letter) {
   const all = [...(bracketData?.east || []), ...(bracketData?.west || [])];
-  const found = all.find(s => s.letter === key);
-  if (found) return { id: key, title: `Série ${key}`, games: [], teams: {
-    [found.top.a]: found.top, [found.bot.a]: found.bot
-  }};
-  return null;
+  return all.find(s => s.letter === letter) || null;
 }
 
-async function openSeriesModal(key) {
-  const series = findSeriesByKey(key);
-  if (!series) return;
+function openSeriesModal(letter) {
+  try {
+    const series = findSeriesByLetter(letter);
+    if (!series) { console.warn('[NBA] No series for letter', letter); return; }
 
-  const modal = document.getElementById('seriesModal');
-  const content = document.getElementById('modalContent');
-  const teams = Object.values(series.teams);
-  const t = teams[0] || { abbrev: '?', name: '?', w: 0, wins: 0, logo: '' };
-  const b = teams[1] || { abbrev: '?', name: '?', w: 0, wins: 0, logo: '' };
-  const tWins = t.wins || t.w || 0;
-  const bWins = b.wins || b.w || 0;
-  const tLogo = t.logo || LOGO(t.a || t.abbrev || '');
-  const bLogo = b.logo || LOGO(b.a || b.abbrev || '');
-  const tName = t.n || t.name || t.abbrev || '?';
-  const bName = b.n || b.name || b.abbrev || '?';
-  const sched = SCHED[key] || [];
+    const modal = document.getElementById('seriesModal');
+    const content = document.getElementById('modalContent');
+    const t = series.top, b = series.bot;
+    const sched = SCHED[letter] || [];
+    const tLogo = t.logo || LOGO(t.a);
+    const bLogo = b.logo || LOGO(b.a);
 
-  let gamesHTML = '';
+    // Find API games for this series via seriesId
+    const apiSeries = series.seriesId ? seriesMap[series.seriesId] : null;
+    const apiGames = apiSeries?.games || [];
 
-  // API games
-  if (series.games && series.games.length > 0) {
-    series.games.forEach((ev, i) => {
-      const comp = ev.competitions?.[0];
-      const home = comp?.competitors?.find(c => c.homeAway === 'home');
-      const away = comp?.competitors?.find(c => c.homeAway === 'away');
-      const status = comp?.status;
-      const isFinal = status?.type?.completed;
-      const isLive = status?.type?.name === 'STATUS_IN_PROGRESS';
-      const gameDate = new Date(ev.date).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short.' });
+    let gamesHTML = '';
 
-      let badge = isLive ? `<span class="modal-game-badge live"><span class="live-pulse"></span>EN COURS</span>` :
-        isFinal ? `<span class="modal-game-badge final">FINAL</span>` :
-        `<span class="modal-game-badge upcoming">À VENIR</span>`;
+    if (apiGames.length > 0) {
+      apiGames.forEach((ev, i) => {
+        const comp = ev.competitions?.[0];
+        const home = comp?.competitors?.find(c => c.homeAway === 'home');
+        const away = comp?.competitors?.find(c => c.homeAway === 'away');
+        const status = comp?.status;
+        const isFinal = status?.type?.completed;
+        const isLive = status?.type?.name === 'STATUS_IN_PROGRESS';
+        const gameDate = new Date(ev.date).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short.' });
 
-      const aS = parseInt(away?.score) || 0, hS = parseInt(home?.score) || 0;
-      const aW = isFinal && aS > hS, hW = isFinal && hS > aS;
+        let badge = isLive ? `<span class="modal-game-badge live"><span class="live-pulse"></span>EN COURS</span>` :
+          isFinal ? `<span class="modal-game-badge final">FINAL</span>` :
+          `<span class="modal-game-badge upcoming">À VENIR</span>`;
 
-      gamesHTML += `
-        <div class="modal-game" data-event-id="${ev.id}" onclick="toggleModalGameDetail(this)">
-          <span class="modal-game-num">Match ${i + 1}</span>
-          <span class="modal-game-date">${gameDate}</span>
-          <div class="modal-game-score">
-            <img src="${away?.team?.logo || LOGO(away?.team?.abbreviation || '')}">
-            <span class="mg-score ${aW ? 'winner' : ''}">${isFinal || isLive ? aS : '-'}</span>
-            <span class="mg-at">@</span>
-            <span class="mg-score ${hW ? 'winner' : ''}">${isFinal || isLive ? hS : '-'}</span>
-            <img src="${home?.team?.logo || LOGO(home?.team?.abbreviation || '')}">
+        const aS = parseInt(away?.score) || 0, hS = parseInt(home?.score) || 0;
+        const aW = isFinal && aS > hS, hW = isFinal && hS > aS;
+
+        gamesHTML += `
+          <div class="modal-game" data-event-id="${ev.id}" onclick="toggleModalGameDetail(this)">
+            <span class="modal-game-num">Match ${i + 1}</span>
+            <span class="modal-game-date">${gameDate}</span>
+            <div class="modal-game-score">
+              <img src="${away?.team?.logo || LOGO(away?.team?.abbreviation || '')}">
+              <span class="mg-score ${aW ? 'winner' : ''}">${isFinal || isLive ? aS : '-'}</span>
+              <span class="mg-at">@</span>
+              <span class="mg-score ${hW ? 'winner' : ''}">${isFinal || isLive ? hS : '-'}</span>
+              <img src="${home?.team?.logo || LOGO(home?.team?.abbreviation || '')}">
+            </div>
+            ${badge}
           </div>
-          ${badge}
-        </div>
-        <div class="modal-game-details" id="mgd-${ev.id}"></div>`;
-    });
+          <div class="modal-game-details" id="mgd-${ev.id}"></div>`;
+      });
 
-    // Fill remaining
-    for (let i = series.games.length; i < 7; i++) {
-      const ifN = i >= 4;
-      gamesHTML += `<div class="modal-game" style="opacity:${ifN ? '0.25' : '0.5'};cursor:default">
-        <span class="modal-game-num">Match ${i + 1}</span>
-        <div class="modal-game-score"><img src="${tLogo}" style="width:24px;height:24px;opacity:0.4"><span class="mg-at">vs</span><img src="${bLogo}" style="width:24px;height:24px;opacity:0.4"></div>
-        <span class="modal-game-badge ${ifN ? 'if-needed' : 'upcoming'}">${ifN ? 'SI NÉC.' : 'À VENIR'}</span>
-      </div>`;
+      for (let i = apiGames.length; i < 7; i++) {
+        const ifN = i >= 4;
+        gamesHTML += `<div class="modal-game" style="opacity:${ifN ? '0.25' : '0.5'};cursor:default">
+          <span class="modal-game-num">Match ${i + 1}</span>
+          <span class="modal-game-date">${sched[i] || ''}</span>
+          <div class="modal-game-score"><img src="${tLogo}" style="width:24px;height:24px;opacity:0.4"><span class="mg-at">vs</span><img src="${bLogo}" style="width:24px;height:24px;opacity:0.4"></div>
+          <span class="modal-game-badge ${ifN ? 'if-needed' : 'upcoming'}">${ifN ? 'SI NÉC.' : 'À VENIR'}</span>
+        </div>`;
+      }
+    } else {
+      for (let i = 0; i < 7; i++) {
+        const ifN = i >= 4;
+        gamesHTML += `<div class="modal-game" style="opacity:${ifN ? '0.25' : '0.5'};cursor:default">
+          <span class="modal-game-num">Match ${i + 1}</span>
+          <span class="modal-game-date">${sched[i] || ''}</span>
+          <div class="modal-game-score"><img src="${tLogo}" style="width:24px;height:24px"><span class="mg-at">vs</span><img src="${bLogo}" style="width:24px;height:24px"></div>
+          <span class="modal-game-badge ${ifN ? 'if-needed' : 'upcoming'}">${ifN ? 'SI NÉC.' : 'À VENIR'}</span>
+        </div>`;
+      }
     }
-  } else {
-    // No API games — show schedule
-    for (let i = 0; i < 7; i++) {
-      const ifN = i >= 4;
-      gamesHTML += `<div class="modal-game" style="opacity:${ifN ? '0.25' : '0.5'};cursor:default">
-        <span class="modal-game-num">Match ${i + 1}</span>
-        <span class="modal-game-date">${sched[i] || ''}</span>
-        <div class="modal-game-score"><img src="${tLogo}" style="width:24px;height:24px"><span class="mg-at">vs</span><img src="${bLogo}" style="width:24px;height:24px"></div>
-        <span class="modal-game-badge ${ifN ? 'if-needed' : 'upcoming'}">${ifN ? 'SI NÉC.' : 'À VENIR'}</span>
-      </div>`;
-    }
+
+    content.innerHTML = `
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeSeriesModal()">&times;</button>
+        <div class="modal-team"><img src="${tLogo}"><div class="modal-team-name">${t.n || t.a}</div><div class="modal-team-record">${t.w}</div></div>
+        <div class="modal-vs">VS</div>
+        <div class="modal-team"><img src="${bLogo}"><div class="modal-team-name">${b.n || b.a}</div><div class="modal-team-record">${b.w}</div></div>
+      </div>
+      <div class="modal-series-label">SÉRIE ${letter} — MEILLEUR DE 7</div>
+      <div class="modal-games">${gamesHTML}</div>`;
+
+    modal.classList.add('open');
+  } catch(err) {
+    console.error('[NBA] openSeriesModal error:', err);
   }
-
-  content.innerHTML = `
-    <div class="modal-header">
-      <button class="modal-close" onclick="closeSeriesModal()">&times;</button>
-      <div class="modal-team"><img src="${tLogo}"><div class="modal-team-name">${tName}</div><div class="modal-team-record">${tWins}</div></div>
-      <div class="modal-vs">VS</div>
-      <div class="modal-team"><img src="${bLogo}"><div class="modal-team-name">${bName}</div><div class="modal-team-record">${bWins}</div></div>
-    </div>
-    <div class="modal-series-label">${series.title || 'SÉRIE ' + key} — MEILLEUR DE 7</div>
-    <div class="modal-games">${gamesHTML}</div>`;
-
-  modal.classList.add('open');
 }
 
 function closeSeriesModal() { document.getElementById('seriesModal').classList.remove('open'); }
@@ -1154,7 +1146,7 @@ async function init() {
     renderBracket(bracketData);
     renderResults(bracketData);
     renderLeaders();
-    setInterval(refreshAll, 2 * 60 * 1000);
+    setInterval(refreshAll, 5 * 60 * 1000);
   } catch(err) {
     console.error('[NBA] Init error:', err);
     const c = document.getElementById('bracketContainer');
