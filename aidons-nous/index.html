@@ -296,6 +296,7 @@ const hasBad = t => { const s=(t||'').toLowerCase().normalize('NFD').replace(/[\
 let currentCat='all', currentSort='recent', currentUser=null, db=null, unsub=null;
 const $ = id => document.getElementById(id);
 const getLiveUser = () => currentUser || (window.firebase&&firebase.auth&&firebase.auth().currentUser) || (window.ztsGetUser&&window.ztsGetUser()) || null;
+const getDb = () => { if(db)return db; if(window.firebase&&firebase.firestore){db=firebase.firestore();return db;} return null; };
 
 function init(){
   if(!window.firebase||!firebase.firestore){setTimeout(init,150);return;}
@@ -341,9 +342,11 @@ $('cmpSubmit').onclick=async()=>{
   if(title.length<5){err.textContent='Titre trop court (min 5 caractères).';err.classList.add('show');return;}
   if(content.length<10){err.textContent='Message trop court (min 10 caractères).';err.classList.add('show');return;}
   if(hasBad(title)||hasBad(content)){err.textContent='⚠️ Langage non conforme à la charte. Reformule dans le respect 💛';err.classList.add('show');return;}
+  const d=getDb();
+  if(!d){err.textContent='Connexion Firebase pas encore prête, attends 2 sec et réessaie.';err.classList.add('show');return;}
   $('cmpSubmit').disabled=true;$('cmpSubmit').textContent='⏳ PUBLICATION...';
   try{
-    await db.collection('forum_posts').add({
+    await d.collection('forum_posts').add({
       category:cat,user_uid:currentUser.uid,
       user_name:currentUser.displayName||currentUser.email.split('@')[0],
       user_email:currentUser.email,title,content,
@@ -364,7 +367,8 @@ $('cmpSubmit').onclick=async()=>{
 function loadFeed(){
   if(unsub)unsub();
   const feed=$('feed');feed.innerHTML='<div class="empty"><h3>Chargement...</h3></div>';
-  let q=db.collection('forum_posts');
+  const d=getDb(); if(!d){setTimeout(loadFeed,200);return;}
+  let q=d.collection('forum_posts');
   if(currentCat!=='all')q=q.where('category','==',currentCat);
   q=q.orderBy('timestamp','desc').limit(50);
   unsub=q.onSnapshot(snap=>{
@@ -427,7 +431,7 @@ async function handleAct(act,id,p,el){
   if(act==='like'){
     if(!currentUser){alert('Connecte-toi pour aimer 💛');return;}
     const liked=(p.likes||[]).includes(currentUser.uid);
-    try{await db.collection('forum_posts').doc(id).update({
+    try{await getDb().collection('forum_posts').doc(id).update({
       likes:liked?firebase.firestore.FieldValue.arrayRemove(currentUser.uid):firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
     });}catch(e){console.error(e);alert('Erreur: '+e.message);}
   }else if(act==='reply'){
@@ -440,7 +444,7 @@ async function handleAct(act,id,p,el){
   }else if(act==='flag'){
     if(!currentUser){alert('Connecte-toi pour signaler.');return;}
     if(!confirm('Signaler ce message à la modération?'))return;
-    try{await db.collection('forum_posts').doc(id).update({flagged:true});alert('Merci. Joey va réviser. 🙏');}
+    try{await getDb().collection('forum_posts').doc(id).update({flagged:true});alert('Merci. Joey va réviser. 🙏');}
     catch(e){alert('Erreur: '+e.message);}
   }
 }
@@ -453,7 +457,7 @@ async function submitReply(id,el){
   if(c.length<3){alert('Réponse trop courte.');return;}
   if(hasBad(c)){alert('⚠️ Langage non conforme à la charte.');return;}
   try{
-    await db.collection('forum_posts').doc(id).update({
+    await getDb().collection('forum_posts').doc(id).update({
       replies:firebase.firestore.FieldValue.arrayUnion({
         user_uid:currentUser.uid,
         user_name:currentUser.displayName||currentUser.email.split('@')[0],
