@@ -238,6 +238,32 @@
   </div>
 </main>
 
+<!-- MODAL AUTH (inline, simple Google + email) -->
+<div class="modal-bg" id="authModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🔐 CONNEXION</h2>
+      <button class="modal-close" onclick="document.getElementById('authModal').classList.remove('show')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="msg err" id="authErr"></div>
+      <button id="googleBtn" style="width:100%;padding:14px;background:#fff;border:2px solid #E5E7EB;border-radius:10px;font-family:'Fredoka',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;">
+        <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+        Continuer avec Google
+      </button>
+      <div style="display:flex;align-items:center;gap:10px;margin:14px 0;color:#9CA3AF;font-size:13px;"><div style="flex:1;height:1px;background:#E5E7EB;"></div>OU<div style="flex:1;height:1px;background:#E5E7EB;"></div></div>
+      <label>Courriel</label>
+      <input type="email" id="authEmail" placeholder="toi@exemple.com">
+      <label>Mot de passe</label>
+      <input type="password" id="authPwd" placeholder="••••••••">
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button class="submit-btn" style="flex:1;font-size:16px;padding:12px;" onclick="authDo('login')">Se connecter</button>
+        <button class="submit-btn" style="flex:1;font-size:16px;padding:12px;background:linear-gradient(135deg,#00E5FF,#0096C7);color:#fff;" onclick="authDo('signup')">S'inscrire</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL COMPOSE -->
 <div class="modal-bg" id="composeModal">
   <div class="modal">
@@ -264,6 +290,9 @@
         <label>Ton message <span style="color:#FF2A7A;">*</span></label>
         <textarea id="cmpContent" maxlength="2000" placeholder="Partage ton idée, ton truc, ta question... 💛"></textarea>
         <div class="char-count"><span id="cmpCount">0</span>/2000</div>
+        <label>📎 Lien Google Drive (optionnel)</label>
+        <input type="url" id="cmpDrive" placeholder="https://drive.google.com/... (ou tout autre lien partageable)">
+        <p style="font-size:13px;color:#6B7280;margin-top:-6px;margin-bottom:10px;font-style:italic;">Partage un PDF, doc ou dossier Drive avec la gang. Assure-toi que l'accès est "Tous ceux qui ont le lien". 🔗</p>
         <button class="submit-btn" id="cmpSubmit">🚀 PUBLIER</button>
       </div>
     </div>
@@ -277,18 +306,15 @@
   <p style="font-size:12px;opacity:0.6;margin-top:6px;">© 2026 Zone Total Sport</p>
 </footer>
 
-<!-- Firebase SDK 10.14.0 + init explicite (comme avis.html) -->
+<!-- Firebase SDK 10.14.0 — init direct, SANS firebase-auth.js (qui casse le namespace firestore) -->
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
 <script>
-// Initialise Firebase tout de suite pour que firebase.firestore() fonctionne
 if (!firebase.apps.length) {
   firebase.initializeApp({
     apiKey: "AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA",
     authDomain: "zone-total-sport.firebaseapp.com",
-    databaseURL: "https://zone-total-sport-default-rtdb.firebaseio.com",
     projectId: "zone-total-sport",
     storageBucket: "zone-total-sport.firebasestorage.app",
     messagingSenderId: "681359040455",
@@ -296,9 +322,10 @@ if (!firebase.apps.length) {
   });
   firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 }
+// Login minimal inline (Google + email)
+window.ztsShowLogin = function(){ document.getElementById('authModal').classList.add('show'); };
+window.ztsLogout = function(){ firebase.auth().signOut(); };
 </script>
-<script src="../firebase-auth.js"></script>
-<script src="../suggestions.js"></script>
 
 <script>
 const CAT_LABELS = {
@@ -319,6 +346,26 @@ const getDb = () => {
   }
   return null;
 };
+
+window.authDo = async function(mode){
+  const email=$('authEmail').value.trim(), pwd=$('authPwd').value, err=$('authErr');
+  err.classList.remove('show');
+  if(!email||!pwd){err.textContent='Courriel + mot de passe requis';err.classList.add('show');return;}
+  try{
+    if(mode==='signup')await firebase.auth().createUserWithEmailAndPassword(email,pwd);
+    else await firebase.auth().signInWithEmailAndPassword(email,pwd);
+    $('authModal').classList.remove('show');
+  }catch(e){err.textContent=e.message;err.classList.add('show');}
+};
+document.addEventListener('DOMContentLoaded',()=>{
+  const gb=$('googleBtn');
+  if(gb)gb.onclick=()=>{
+    const isMobile=/iPhone|iPad|Android/i.test(navigator.userAgent);
+    const provider=new firebase.auth.GoogleAuthProvider();
+    if(isMobile)firebase.auth().signInWithRedirect(provider);
+    else firebase.auth().signInWithPopup(provider).then(()=>$('authModal').classList.remove('show')).catch(e=>{$('authErr').textContent=e.message;$('authErr').classList.add('show');});
+  };
+});
 
 function init(){
   if(!window.firebase||!firebase.firestore){setTimeout(init,150);return;}
@@ -357,7 +404,7 @@ window.openCompose=openCompose;window.closeCompose=closeCompose;
 $('cmpContent').addEventListener('input',e=>{$('cmpCount').textContent=e.target.value.length;},{passive:true});
 
 $('cmpSubmit').onclick=async()=>{
-  const title=$('cmpTitle').value.trim(),content=$('cmpContent').value.trim(),cat=$('cmpCat').value;
+  const title=$('cmpTitle').value.trim(),content=$('cmpContent').value.trim(),cat=$('cmpCat').value,drive=$('cmpDrive').value.trim();
   const err=$('cmpErr');err.classList.remove('show');
   const u=getLiveUser(); if(u)currentUser=u;
   if(!currentUser){err.textContent='Tu dois être connecté.';err.classList.add('show');return;}
@@ -371,11 +418,11 @@ $('cmpSubmit').onclick=async()=>{
     await d.collection('forum_posts').add({
       category:cat,user_uid:currentUser.uid,
       user_name:currentUser.displayName||currentUser.email.split('@')[0],
-      user_email:currentUser.email,title,content,
+      user_email:currentUser.email,title,content,drive:drive||null,
       timestamp:FV.serverTimestamp(),
       likes:[],replies:[],flagged:false,pinned:false
     });
-    $('cmpTitle').value='';$('cmpContent').value='';$('cmpCount').textContent='0';
+    $('cmpTitle').value='';$('cmpContent').value='';$('cmpDrive').value='';$('cmpCount').textContent='0';
     closeCompose();
     if(typeof gtag==='function')gtag('event','forum_post_created',{category:cat});
   }catch(e){
@@ -427,6 +474,7 @@ function renderPost(p){
     </div>
     <h3 class="post-title">${esc(p.title)}</h3>
     <div class="post-content">${esc(p.content)}</div>
+    ${p.drive?`<a href="${esc(p.drive)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:10px 14px;background:linear-gradient(135deg,#4285F4,#0F9D58);color:#fff;border-radius:10px;text-decoration:none;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;">📎 Ouvrir la ressource partagée</a>`:''}
     <div class="post-actions">
       <button class="act-btn ${liked?'liked':''}" data-act="like">${liked?'❤️':'🤍'} <span>${likes.length}</span></button>
       <button class="act-btn" data-act="reply">💬 ${replies.length} réponse${replies.length!==1?'s':''}</button>
