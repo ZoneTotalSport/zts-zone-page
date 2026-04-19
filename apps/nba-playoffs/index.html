@@ -401,10 +401,10 @@
   .modal-game-score { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .modal-game-score img { width: 28px; height: 28px; }
   .modal-game-score .mg-score { font-family: 'Bungee', cursive; font-size: 20px; min-width: 28px; text-align: center; color: rgba(255,255,255,0.3); }
-  .modal-game-score .mg-score.winner { color: var(--vert); text-shadow: 0 0 8px rgba(46,204,113,0.4); }
+  .modal-game-score .mg-score.winner { color: #00E5FF; text-shadow: 0 0 8px rgba(0,229,255,0.5); }
   .modal-game-score .mg-at { font-family: 'Bangers', cursive; font-size: 13px; color: rgba(200,16,46,0.2); }
   .modal-game-badge { font-family: 'Bangers', cursive; font-size: 12px; padding: 4px 12px; border-radius: 10px; letter-spacing: 1px; min-width: 70px; text-align: center; }
-  .modal-game-badge.final { background: rgba(46,204,113,0.15); color: var(--vert); }
+  .modal-game-badge.final { background: rgba(0,229,255,0.15); color: #00E5FF; }
   .modal-game-badge.live { background: rgba(200,16,46,0.2); color: var(--nba-red); }
   .modal-game-badge.upcoming { background: rgba(253,185,39,0.1); color: rgba(253,185,39,0.5); }
   .modal-game-badge.if-needed { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.2); }
@@ -751,7 +751,8 @@ function renderBracket(data) {
 function matchupHTML(s) {
   const t = s.top, b = s.bot, tw = t.w === 4, bw = b.w === 4, tbd = !t.a && !b.a;
   const placeholder = '<span style="width:58px;height:58px;display:inline-block;background:rgba(200,16,46,0.06);border-radius:10px;border:2px dashed rgba(200,16,46,0.15);"></span>';
-  const clickAttr = (t.a && b.a) ? `onclick="openSeriesModal('${s.seriesId || s.letter}')"` : '';
+  const key = s.seriesId || s.letter || '';
+  const clickAttr = (t.a && b.a) ? `onclick="openSeriesModal('${key}')"` : '';
   const logoT = t.logo || LOGO(t.a);
   const logoB = b.logo || LOGO(b.a);
 
