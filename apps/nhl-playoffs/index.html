@@ -165,7 +165,7 @@
 
   .header h1 {
     font-family: 'Luckiest Guy', cursive;
-    font-size: 42px;
+    font-size: 52px;
     text-transform: uppercase;
     letter-spacing: 3px;
     color: var(--cyan);
@@ -180,7 +180,7 @@
   .subtitle {
     font-family: 'Barriecito', cursive;
     color: var(--jaune-vif);
-    font-size: 18px;
+    font-size: 22px;
     letter-spacing: 2px;
     margin-top: 5px;
   }
@@ -207,9 +207,9 @@
     max-width: 700px;
   }
   .tab {
-    padding: 12px 28px;
+    padding: 14px 32px;
     font-family: 'Bangers', cursive;
-    font-size: 18px;
+    font-size: 24px;
     text-transform: uppercase;
     letter-spacing: 2px;
     cursor: pointer;
@@ -237,8 +237,8 @@
     justify-content: center;
     padding: 15px 10px 40px;
     gap: 0;
-    min-width: 1300px;
-    max-width: 1600px;
+    min-width: 1500px;
+    max-width: 1900px;
     margin: 0 auto;
   }
 
@@ -246,18 +246,18 @@
   .conference-label {
     text-align: center;
     font-family: 'Luckiest Guy', cursive;
-    font-size: 22px;
+    font-size: 32px;
     text-transform: uppercase;
     letter-spacing: 4px;
     color: var(--cyan);
-    padding: 10px 20px;
+    padding: 14px 20px;
     text-shadow: 0 0 15px rgba(0,229,255,0.3);
     background: rgba(8,18,35,0.97);
     border-radius: 10px;
     margin: 0 10px 10px;
   }
 
-  .rounds { display: flex; align-items: stretch; min-height: 520px; gap: 8px; }
+  .rounds { display: flex; align-items: stretch; min-height: 650px; gap: 10px; }
   .east .rounds { flex-direction: row; }
   .west .rounds { flex-direction: row-reverse; }
 
@@ -265,38 +265,38 @@
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    min-width: 205px;
+    min-width: 280px;
     padding: 0 2px;
   }
 
   .round-label {
     text-align: center;
     font-family: 'Bangers', cursive;
-    font-size: 13px;
+    font-size: 20px;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: var(--jaune);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     background: rgba(8,18,35,0.97);
-    padding: 4px 10px;
+    padding: 8px 12px;
     border-radius: 6px;
     text-shadow: 0 0 10px rgba(255,214,0,0.3);
   }
 
   /* Round 1: 4 matchups evenly spaced */
-  .round.r1 { gap: 4px; justify-content: center; }
+  .round.r1 { gap: 8px; justify-content: center; }
   /* Round 2: 2 matchups centered between R1 pairs */
   .round.r2 { justify-content: space-around; padding: 20px 0; }
   /* Conf finals: 1 matchup, centered */
   .round.r3 { justify-content: center; }
 
-  /* ========== MATCHUP CARD ========== */
+  /* ========== MATCHUP CARD — GROS POUR TNI ========== */
   .matchup {
     background: rgba(255,255,255,0.92);
-    border-radius: 12px;
+    border-radius: 14px;
     overflow: hidden;
-    border: 2px solid rgba(0,0,0,0.15);
-    width: 220px;
+    border: 3px solid rgba(0,0,0,0.15);
+    width: 270px;
     margin: 0 auto;
     transition: all 0.3s;
     cursor: pointer;
@@ -311,38 +311,38 @@
   .team-row {
     display: flex;
     align-items: center;
-    padding: 6px 8px;
-    gap: 6px;
+    padding: 8px 10px;
+    gap: 8px;
     transition: all 0.3s;
   }
-  .team-row:first-child { border-bottom: 1px solid rgba(0,0,0,0.1); }
-  .team-row.winner { background: linear-gradient(90deg, rgba(46,204,113,0.2), transparent); }
+  .team-row:first-child { border-bottom: 2px solid rgba(0,0,0,0.1); }
+  .team-row.winner { background: linear-gradient(90deg, rgba(46,204,113,0.25), transparent); }
   .team-row.eliminated { opacity: 0.35; }
 
   .seed {
     font-family: 'Bungee', cursive;
-    font-size: 16px;
+    font-size: 22px;
     color: var(--bleu-fonce);
-    width: 20px;
+    width: 28px;
     text-align: center;
   }
   .team-logo {
-    width: 65px;
-    height: 65px;
+    width: 70px;
+    height: 70px;
     object-fit: contain;
     filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
   }
   .team-abbrev {
     font-family: 'Luckiest Guy', cursive;
-    font-size: 18px;
+    font-size: 26px;
     color: #1a1a2e;
     flex: 1;
     letter-spacing: 1px;
   }
   .team-wins-num {
     font-family: 'Bungee', cursive;
-    font-size: 22px;
-    width: 26px;
+    font-size: 32px;
+    width: 36px;
     text-align: center;
     color: rgba(0,0,0,0.2);
   }
@@ -368,7 +368,7 @@
   }
   .cup-label {
     font-family: 'Bungee Shade', cursive;
-    font-size: 12px;
+    font-size: 18px;
     text-transform: uppercase;
     color: var(--jaune);
     text-align: center;
@@ -1373,8 +1373,8 @@ function renderBracket(data) {
 function matchupHTML(s) {
   const t = s.top, b = s.bot, tw = t.w===4, bw = b.w===4, tbd = !t.a && !b.a;
   const placeholder = '<span style="width:44px;height:44px;display:inline-block;background:rgba(0,229,255,0.08);border-radius:8px;border:2px dashed rgba(0,229,255,0.2);"></span>';
-  const clickAttr = (t.a && b.a && s.letter) ? `onclick="openSeriesModal('${s.letter}')"` : '';
-  return `<div class="matchup" ${clickAttr}>
+  const dataAttr = (t.a && b.a && s.letter) ? `data-series-letter="${s.letter}"` : '';
+  return `<div class="matchup" ${dataAttr}>
     <div class="team-row ${tw?'winner':''} ${bw?'eliminated':''}">
       <span class="seed">${t.s||'-'}</span>
       ${t.a?`<img class="team-logo" src="${LOGO(t.a)}" onerror="this.style.display='none'">`:placeholder}
@@ -1517,6 +1517,14 @@ document.getElementById('seriesModal').addEventListener('click', function(e) {
 
 // Close on Escape
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSeriesModal(); });
+
+// EVENT DELEGATION — clic sur matchup bracket → ouvre modal
+document.addEventListener('click', function(e) {
+  const matchup = e.target.closest('.matchup[data-series-letter]');
+  if (!matchup) return;
+  const letter = matchup.getAttribute('data-series-letter');
+  if (letter) openSeriesModal(letter);
+});
 
 // Load game details inside modal
 async function toggleModalGameDetail(el) {
