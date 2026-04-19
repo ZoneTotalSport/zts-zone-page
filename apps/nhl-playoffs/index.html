@@ -1798,7 +1798,7 @@ async function renderLeaders() {
   if (skaters) {
     html += '<div class="leaders-grid">';
     ['points', 'goals', 'assists'].forEach(cat => {
-      const label = cat === 'points' ? 'POINTS' : cat === 'goals' ? 'BUTS' : 'PASSES';
+      const label = cat === 'points' ? 'POINTS (B+P)' : cat === 'goals' ? 'BUTS' : 'PASSES';
       const players = skaters[cat] || [];
       if (players.length === 0) {
         html += `<div class="leader-section"><div class="leader-section-title">${label}</div><div class="no-data">Pas encore de données</div></div>`;
