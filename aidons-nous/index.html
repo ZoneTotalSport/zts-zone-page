@@ -69,6 +69,16 @@
   .avatar-sm{width:34px;height:34px;font-size:15px;}
   .avatar-lg{width:52px;height:52px;font-size:24px;}
 
+  /* ── FAMILLES (3 onglets en haut) ── */
+  .families{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+  .family{background:rgba(255,255,255,0.95);border-radius:14px;padding:18px 12px;text-align:center;cursor:pointer;border:3px solid transparent;transition:all .2s;box-shadow:0 3px 10px rgba(0,0,0,0.15);}
+  .family:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(0,0,0,0.2);}
+  .family.active{background:linear-gradient(135deg,#00E5FF,#0096C7);color:#fff;border-color:#FFD700;transform:translateY(-2px);}
+  .family-ico{font-size:42px;line-height:1;margin-bottom:6px;}
+  .family-name{font-family:'Luckiest Guy',cursive;font-size:18px;letter-spacing:1.5px;line-height:1.1;}
+  .family-count{font-size:12px;font-family:'Fredoka',sans-serif;font-weight:500;opacity:0.8;margin-top:2px;}
+  @media(max-width:500px){.family-ico{font-size:32px;}.family-name{font-size:14px;}}
+
   /* ── FOLDERS (Drive-style) ── */
   .folders-wrap{margin-bottom:14px;}
   .folders-title{font-family:'Luckiest Guy',cursive;font-size:18px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,0.35);letter-spacing:1.5px;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
@@ -229,20 +239,21 @@
     </div>
   </div>
 
-  <!-- Folders (par catégorie, style Drive) -->
+  <!-- 3 FAMILLES (onglets principaux) -->
+  <div class="families" id="familiesRow">
+    <div class="family active" data-cat="eps"><div class="family-ico">🏀</div><div class="family-name">PROFS D'ÉPS</div><div class="family-count" id="countEps">0 posts</div></div>
+    <div class="family" data-cat="sdg"><div class="family-ico">🎨</div><div class="family-name">SERVICE DE GARDE</div><div class="family-count" id="countSdg">0 posts</div></div>
+    <div class="family" data-cat="camp"><div class="family-ico">⛺</div><div class="family-name">CAMPS DE JOUR</div><div class="family-count" id="countCamp">0 posts</div></div>
+  </div>
+
+  <!-- Dossiers de la famille sélectionnée -->
   <div class="folders-wrap">
     <div class="folders-title">📁 <span id="foldersTitle">DOSSIERS</span></div>
     <div class="folders" id="foldersGrid"></div>
   </div>
 
-  <!-- Filters -->
+  <!-- Tri du fil -->
   <div class="filters">
-    <div class="filter-group">
-      <button class="chip active" data-cat="all">🌟 Tous</button>
-      <button class="chip" data-cat="eps">🏀 ÉPS</button>
-      <button class="chip" data-cat="sdg">🎨 SDG</button>
-      <button class="chip" data-cat="camp">⛺ Camps</button>
-    </div>
     <div class="filter-group">
       <button class="chip active" data-sort="recent">🕐 Récents</button>
       <button class="chip" data-sort="hot">🔥 Populaires</button>
@@ -394,7 +405,7 @@ const TOPICS = {
 const BAD_WORDS = ['calisse','tabarnak','osti','crisse','esti','ciboire','sacrament','salope','pute','fuck','shit','bitch','asshole','hais','déteste'];
 const hasBad = t => { const s=(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); return BAD_WORDS.some(w=>new RegExp('\\b'+w+'\\b').test(s)); };
 
-let currentCat='all', currentTopic='all', currentSort='recent', currentUser=null, db=null, FV=null, unsub=null, postsCache=[];
+let currentCat='eps', currentTopic='all', currentSort='recent', currentUser=null, db=null, FV=null, unsub=null, postsCache=[], allPostsCache=[];
 const $ = id => document.getElementById(id);
 const getLiveUser = () => currentUser || (window.firebase&&firebase.auth&&firebase.auth().currentUser) || (window.ztsGetUser&&window.ztsGetUser()) || null;
 const getDb = () => {
@@ -441,15 +452,15 @@ function init(){
 
 function renderFolders(){
   const grid=$('foldersGrid'), title=$('foldersTitle');
-  if(currentCat==='all'){
-    // Tous: union des dossiers mais moins pertinent — affiche par catégorie
-    const all=[].concat(TOPICS.eps,TOPICS.sdg,TOPICS.camp);
-    title.textContent='DOSSIERS — TOUTES CATÉGORIES';
-    renderFolderCards(all,grid);
-  }else{
-    title.textContent='DOSSIERS — '+({eps:'🏀 PROFS D\'ÉPS',sdg:'🎨 SERVICE DE GARDE',camp:'⛺ CAMPS DE JOUR'}[currentCat]);
-    renderFolderCards(TOPICS[currentCat]||[],grid);
-  }
+  title.textContent='DOSSIERS — '+({eps:'🏀 PROFS D\'ÉPS',sdg:'🎨 SERVICE DE GARDE',camp:'⛺ CAMPS DE JOUR'}[currentCat]);
+  renderFolderCards(TOPICS[currentCat]||[],grid);
+  // Update compteurs familles
+  const cEps=allPostsCache.filter(p=>p.category==='eps').length;
+  const cSdg=allPostsCache.filter(p=>p.category==='sdg').length;
+  const cCamp=allPostsCache.filter(p=>p.category==='camp').length;
+  if($('countEps'))$('countEps').textContent=cEps+' post'+(cEps!==1?'s':'');
+  if($('countSdg'))$('countSdg').textContent=cSdg+' post'+(cSdg!==1?'s':'');
+  if($('countCamp'))$('countCamp').textContent=cCamp+' post'+(cCamp!==1?'s':'');
   // Update compose topic dropdown
   const sel=$('cmpTopic');
   if(sel){
@@ -476,8 +487,8 @@ function renderFolderCards(list,grid){
   });
 }
 
-document.querySelectorAll('.chip[data-cat]').forEach(c=>c.onclick=()=>{
-  document.querySelectorAll('.chip[data-cat]').forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('.family').forEach(c=>c.onclick=()=>{
+  document.querySelectorAll('.family').forEach(x=>x.classList.remove('active'));
   c.classList.add('active'); currentCat=c.dataset.cat; currentTopic='all'; loadFeed(); renderFolders();
 });
 document.querySelectorAll('.chip[data-sort]').forEach(c=>c.onclick=()=>{
@@ -537,11 +548,10 @@ function loadFeed(){
   if(unsub)unsub();
   const feed=$('feed');feed.innerHTML='<div class="empty"><h3>Chargement...</h3></div>';
   const d=getDb(); if(!d){setTimeout(loadFeed,200);return;}
-  let q=d.collection('forum_posts');
-  if(currentCat!=='all')q=q.where('category','==',currentCat);
-  q=q.orderBy('timestamp','desc').limit(100);
-  unsub=q.onSnapshot(snap=>{
-    postsCache=snap.docs.map(d=>({id:d.id,...d.data()}));
+  // Charge TOUS les posts (toutes familles) pour les compteurs globaux
+  unsub=d.collection('forum_posts').orderBy('timestamp','desc').limit(200).onSnapshot(snap=>{
+    allPostsCache=snap.docs.map(x=>({id:x.id,...x.data()}));
+    postsCache=allPostsCache.filter(p=>p.category===currentCat);
     renderFolders();
     renderFeed();
   },err=>{console.error('[Feed error]',err);feed.innerHTML='<div class="empty"><h3>Erreur de chargement</h3><p>'+err.message+'</p></div>';});
