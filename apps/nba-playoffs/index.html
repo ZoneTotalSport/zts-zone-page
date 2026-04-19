@@ -377,39 +377,39 @@
   .leader-team-info img { width: 16px; height: 16px; }
   .leader-value { font-family: 'Bungee', cursive; font-size: 20px; color: var(--nba-gold); min-width: 40px; text-align: center; }
 
-  /* ===== SERIES MODAL ===== */
+  /* ===== SERIES MODAL — GROS TEXTE GYMNASE ===== */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(6px); }
   .modal-overlay.open { display: flex; }
-  .modal { background: linear-gradient(135deg, #121d36 0%, #0f1528 100%); border: 2px solid rgba(200,16,46,0.3); border-radius: 16px; width: 90%; max-width: 650px; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 50px rgba(200,16,46,0.2), 0 20px 60px rgba(0,0,0,0.5); animation: modalIn 0.25s ease; }
+  .modal { background: linear-gradient(135deg, #121d36 0%, #0f1528 100%); border: 2px solid rgba(200,16,46,0.3); border-radius: 16px; width: 90%; max-width: 750px; max-height: 85vh; overflow-y: auto; box-shadow: 0 0 50px rgba(200,16,46,0.2), 0 20px 60px rgba(0,0,0,0.5); animation: modalIn 0.25s ease; }
   @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .modal-header { display: flex; align-items: center; justify-content: center; padding: 20px 25px; gap: 20px; border-bottom: 1px solid rgba(200,16,46,0.15); position: relative; }
-  .modal-team { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
-  .modal-team img { width: 75px; height: 75px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); }
-  .modal-team .modal-team-name { font-family: 'Luckiest Guy', cursive; font-size: 18px; text-align: center; }
-  .modal-team .modal-team-record { font-family: 'Bungee', cursive; font-size: 30px; color: var(--nba-gold); text-shadow: 0 0 15px rgba(253,185,39,0.3); }
-  .modal-vs { font-family: 'Bungee Shade', cursive; font-size: 24px; color: var(--nba-red); opacity: 0.5; }
-  .modal-close { position: absolute; top: 12px; right: 15px; background: none; border: none; color: rgba(255,255,255,0.4); font-size: 26px; cursor: pointer; font-family: sans-serif; }
+  .modal-header { display: flex; align-items: center; justify-content: center; padding: 25px 30px; gap: 20px; border-bottom: 1px solid rgba(200,16,46,0.15); position: relative; }
+  .modal-team { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
+  .modal-team img { width: 90px; height: 90px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); }
+  .modal-team .modal-team-name { font-family: 'Luckiest Guy', cursive; font-size: 28px; text-align: center; }
+  .modal-team .modal-team-record { font-family: 'Bungee', cursive; font-size: 48px; color: var(--nba-gold); text-shadow: 0 0 15px rgba(253,185,39,0.3); }
+  .modal-vs { font-family: 'Bungee Shade', cursive; font-size: 32px; color: var(--nba-red); opacity: 0.5; }
+  .modal-close { position: absolute; top: 12px; right: 15px; background: none; border: none; color: rgba(255,255,255,0.4); font-size: 36px; cursor: pointer; font-family: sans-serif; padding: 8px; }
   .modal-close:hover { color: var(--nba-gold); }
-  .modal-series-label { text-align: center; font-family: 'Bangers', cursive; font-size: 14px; color: rgba(200,16,46,0.5); letter-spacing: 3px; padding: 8px 0 0; }
+  .modal-series-label { text-align: center; font-family: 'Bangers', cursive; font-size: 20px; color: rgba(200,16,46,0.5); letter-spacing: 3px; padding: 10px 0 0; }
   .modal-games { padding: 10px 0; }
-  .modal-game { display: flex; align-items: center; padding: 12px 25px; gap: 12px; border-bottom: 1px solid rgba(200,16,46,0.06); transition: background 0.2s; cursor: pointer; }
+  .modal-game { display: flex; align-items: center; padding: 14px 30px; gap: 14px; border-bottom: 1px solid rgba(200,16,46,0.06); transition: background 0.2s; cursor: pointer; }
   .modal-game:hover { background: rgba(200,16,46,0.04); }
   .modal-game:last-child { border-bottom: none; }
-  .modal-game-num { font-family: 'Bangers', cursive; font-size: 16px; color: var(--nba-red); width: 75px; }
-  .modal-game-date { font-family: 'Barriecito', cursive; font-size: 13px; color: rgba(255,255,255,0.3); width: 75px; }
-  .modal-game-score { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
-  .modal-game-score img { width: 28px; height: 28px; }
-  .modal-game-score .mg-score { font-family: 'Bungee', cursive; font-size: 20px; min-width: 28px; text-align: center; color: rgba(255,255,255,0.3); }
+  .modal-game-num { font-family: 'Bangers', cursive; font-size: 22px; color: var(--nba-red); width: 100px; }
+  .modal-game-date { font-family: 'Barriecito', cursive; font-size: 18px; color: rgba(255,255,255,0.3); width: 90px; }
+  .modal-game-score { flex: 1; display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .modal-game-score img { width: 40px; height: 40px; }
+  .modal-game-score .mg-score { font-family: 'Bungee', cursive; font-size: 32px; min-width: 36px; text-align: center; color: rgba(255,255,255,0.3); }
   .modal-game-score .mg-score.winner { color: #00E5FF; text-shadow: 0 0 8px rgba(0,229,255,0.5); }
-  .modal-game-score .mg-at { font-family: 'Bangers', cursive; font-size: 13px; color: rgba(200,16,46,0.2); }
-  .modal-game-badge { font-family: 'Bangers', cursive; font-size: 12px; padding: 4px 12px; border-radius: 10px; letter-spacing: 1px; min-width: 70px; text-align: center; }
+  .modal-game-score .mg-at { font-family: 'Bangers', cursive; font-size: 18px; color: rgba(200,16,46,0.2); }
+  .modal-game-badge { font-family: 'Bangers', cursive; font-size: 16px; padding: 5px 14px; border-radius: 10px; letter-spacing: 1px; min-width: 80px; text-align: center; }
   .modal-game-badge.final { background: rgba(0,229,255,0.15); color: #00E5FF; }
   .modal-game-badge.live { background: rgba(200,16,46,0.2); color: var(--nba-red); }
   .modal-game-badge.upcoming { background: rgba(253,185,39,0.1); color: rgba(253,185,39,0.5); }
   .modal-game-badge.if-needed { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.2); }
-  .modal-game-details { display: none; padding: 8px 25px 15px 75px; border-bottom: 1px solid rgba(200,16,46,0.06); }
+  .modal-game-details { display: none; padding: 8px 30px 15px 100px; border-bottom: 1px solid rgba(200,16,46,0.06); }
   .modal-game-details.open { display: block; }
-  .modal-no-data { text-align: center; padding: 15px; font-family: 'Barriecito', cursive; color: rgba(255,255,255,0.2); font-size: 14px; }
+  .modal-no-data { text-align: center; padding: 15px; font-family: 'Barriecito', cursive; color: rgba(255,255,255,0.2); font-size: 18px; }
 
   /* ===== REFRESH / FOOTER ===== */
   .refresh-btn {
@@ -430,16 +430,50 @@
 
   .loading { text-align: center; padding: 60px; font-family: 'Barriecito', cursive; color: var(--nba-gold); font-size: 20px; }
 
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1200px) {
+    .bracket-container { min-width: unset; padding: 10px 5px; }
+    .round { min-width: 190px; }
+    .matchup { width: 200px; }
+    .team-logo { width: 50px; height: 50px; }
+    .team-abbrev { font-size: 15px; }
+    .team-wins-num { font-size: 18px; }
+  }
   @media (max-width: 900px) {
     .header h1 { font-size: 28px; }
-    .bracket-container { min-width: unset; flex-direction: column; padding: 10px; }
+    .bracket-container { flex-direction: column; padding: 10px; }
     .rounds { flex-direction: column !important; }
     .round { min-width: unset; width: 100%; }
-    .matchup { width: 100%; max-width: 320px; }
+    .matchup { width: 100%; max-width: 400px; }
+    .team-logo { width: 55px; height: 55px; }
+    .team-abbrev { font-size: 18px; }
+    .team-wins-num { font-size: 24px; }
     .cup-center { padding: 20px 0; }
     .leaders-grid { grid-template-columns: 1fr; }
     .game-details { margin-left: 0; }
-    .team-logo { width: 55px; height: 55px; }
+    .modal { width: 95%; max-width: 95%; }
+    .modal-team img { width: 70px; height: 70px; }
+    .modal-team .modal-team-name { font-size: 22px; }
+    .modal-team .modal-team-record { font-size: 38px; }
+    .modal-game-score .mg-score { font-size: 26px; }
+    .modal-game-score img { width: 32px; height: 32px; }
+    .modal-game-num { font-size: 18px; width: 85px; }
+  }
+  @media (max-width: 500px) {
+    .header h1 { font-size: 22px; }
+    .header-top { gap: 10px; }
+    .nba-logo-header { height: 55px; }
+    .tab { padding: 10px 14px; font-size: 14px; }
+    .matchup { max-width: 100%; }
+    .team-row { padding: 8px 10px; }
+    .modal-header { padding: 15px; gap: 12px; }
+    .modal-game { padding: 12px 15px; gap: 8px; }
+    .modal-game-num { width: 70px; font-size: 16px; }
+    .modal-game-date { width: 60px; font-size: 14px; }
+    .modal-game-score .mg-score { font-size: 22px; }
+    .modal-game-score img { width: 26px; height: 26px; }
+    .modal-game-details { padding-left: 15px; }
+    .zoom-controls { display: none; }
   }
 </style>
 </head>

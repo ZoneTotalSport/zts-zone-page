@@ -938,22 +938,22 @@
     gap: 6px;
     flex: 1;
   }
-  .modal-team img { width: 60px; height: 60px; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4)); }
+  .modal-team img { width: 90px; height: 90px; filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4)); }
   .modal-team .modal-team-name {
     font-family: 'Luckiest Guy', cursive;
-    font-size: 18px;
+    font-size: 28px;
     text-align: center;
     letter-spacing: 1px;
   }
   .modal-team .modal-team-record {
     font-family: 'Bungee', cursive;
-    font-size: 28px;
+    font-size: 48px;
     color: var(--jaune);
     text-shadow: 0 0 12px rgba(255,214,0,0.3);
   }
   .modal-vs {
     font-family: 'Bungee Shade', cursive;
-    font-size: 22px;
+    font-size: 32px;
     color: var(--cyan);
     opacity: 0.5;
   }
@@ -964,20 +964,21 @@
     background: none;
     border: none;
     color: rgba(255,255,255,0.4);
-    font-size: 24px;
+    font-size: 36px;
     cursor: pointer;
     transition: color 0.2s;
     font-family: sans-serif;
+    padding: 8px;
   }
   .modal-close:hover { color: var(--cyan); }
 
   .modal-series-label {
     text-align: center;
     font-family: 'Bangers', cursive;
-    font-size: 13px;
+    font-size: 20px;
     color: rgba(0,229,255,0.4);
     letter-spacing: 3px;
-    padding: 8px 0 0;
+    padding: 10px 0 0;
   }
 
   .modal-games { padding: 10px 0; }
@@ -985,8 +986,8 @@
   .modal-game {
     display: flex;
     align-items: center;
-    padding: 12px 25px;
-    gap: 12px;
+    padding: 14px 30px;
+    gap: 14px;
     border-bottom: 1px solid rgba(0,229,255,0.06);
     transition: background 0.2s;
     cursor: pointer;
@@ -996,45 +997,45 @@
 
   .modal-game-num {
     font-family: 'Bangers', cursive;
-    font-size: 15px;
+    font-size: 22px;
     color: var(--cyan);
-    width: 75px;
+    width: 100px;
     letter-spacing: 1px;
   }
   .modal-game-date {
     font-family: 'Barriecito', cursive;
-    font-size: 13px;
+    font-size: 18px;
     color: rgba(255,255,255,0.3);
-    width: 75px;
+    width: 90px;
   }
   .modal-game-score {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
   }
-  .modal-game-score img { width: 24px; height: 24px; }
+  .modal-game-score img { width: 40px; height: 40px; }
   .modal-game-score .mg-score {
     font-family: 'Bungee', cursive;
-    font-size: 18px;
-    min-width: 22px;
+    font-size: 32px;
+    min-width: 36px;
     text-align: center;
     color: rgba(255,255,255,0.3);
   }
   .modal-game-score .mg-score.winner { color: var(--vert); text-shadow: 0 0 8px rgba(46,204,113,0.4); }
   .modal-game-score .mg-at {
     font-family: 'Bangers', cursive;
-    font-size: 12px;
+    font-size: 18px;
     color: rgba(0,229,255,0.2);
   }
   .modal-game-badge {
     font-family: 'Bangers', cursive;
-    font-size: 11px;
-    padding: 3px 10px;
+    font-size: 16px;
+    padding: 5px 14px;
     border-radius: 10px;
     letter-spacing: 1px;
-    min-width: 65px;
+    min-width: 80px;
     text-align: center;
   }
   .modal-game-badge.final { background: rgba(46,204,113,0.15); color: var(--vert); }
@@ -1045,7 +1046,7 @@
   /* Game detail inside modal */
   .modal-game-details {
     display: none;
-    padding: 8px 25px 15px 75px;
+    padding: 8px 30px 15px 100px;
     border-bottom: 1px solid rgba(0,229,255,0.06);
   }
   .modal-game-details.open { display: block; }
@@ -1055,18 +1056,54 @@
     padding: 15px;
     font-family: 'Barriecito', cursive;
     color: rgba(255,255,255,0.2);
-    font-size: 14px;
+    font-size: 18px;
   }
 
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 1200px) {
+    .bracket-container { min-width: unset; padding: 10px 5px; }
+    .round { min-width: 180px; }
+    .matchup { width: 190px; }
+    .team-logo { width: 50px; height: 50px; }
+    .team-abbrev { font-size: 15px; }
+    .team-wins-num { font-size: 18px; }
+  }
   @media (max-width: 900px) {
     .header h1 { font-size: 28px; }
-    .bracket-container { min-width: unset; flex-direction: column; padding: 10px; }
+    .bracket-container { flex-direction: column; padding: 10px; }
     .rounds { flex-direction: column !important; }
     .round { min-width: unset; width: 100%; }
-    .matchup { width: 100%; max-width: 300px; }
+    .matchup { width: 100%; max-width: 400px; }
+    .team-logo { width: 55px; height: 55px; }
+    .team-abbrev { font-size: 18px; }
+    .team-wins-num { font-size: 24px; }
     .cup-center { padding: 20px 0; }
     .leaders-grid { grid-template-columns: 1fr; }
     .game-details { margin-left: 0; }
+    .modal { width: 95%; max-width: 95%; }
+    .modal-team img { width: 70px; height: 70px; }
+    .modal-team .modal-team-name { font-size: 22px; }
+    .modal-team .modal-team-record { font-size: 38px; }
+    .modal-game-score .mg-score { font-size: 26px; }
+    .modal-game-score img { width: 32px; height: 32px; }
+    .modal-game-num { font-size: 18px; width: 85px; }
+  }
+  @media (max-width: 500px) {
+    .header h1 { font-size: 22px; }
+    .header-top { gap: 10px; }
+    .mascot-header { height: 55px; }
+    .player-header { height: 65px; }
+    .tab { padding: 10px 14px; font-size: 14px; }
+    .matchup { max-width: 100%; }
+    .team-row { padding: 8px 10px; }
+    .modal-header { padding: 15px; gap: 12px; }
+    .modal-game { padding: 12px 15px; gap: 8px; }
+    .modal-game-num { width: 70px; font-size: 16px; }
+    .modal-game-date { width: 60px; font-size: 14px; }
+    .modal-game-score .mg-score { font-size: 22px; }
+    .modal-game-score img { width: 26px; height: 26px; }
+    .modal-game-details { padding-left: 15px; }
+    .zoom-controls { display: none; }
   }
 </style>
 </head>
