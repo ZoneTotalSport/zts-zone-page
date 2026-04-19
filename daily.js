@@ -562,6 +562,21 @@
   }
 
   // ============================================
+  // DEFI DU JOUR : conseil EPS deterministe (1 par jour de l'annee)
+  // ============================================
+  async function getDefiDuJour() {
+    try {
+      var res = await fetch('conseils-eps.json?v=1');
+      var conseils = await res.json();
+      var dayNum = getDayOfYear(new Date());
+      return conseils[dayNum % conseils.length];
+    } catch(e) {
+      console.warn('[ZTS Daily] Defi load failed:', e);
+      return null;
+    }
+  }
+
+  // ============================================
   // RENDU : injecte dans #ztsTodaySection
   // ============================================
   async function render() {
@@ -576,13 +591,13 @@
     // Render squelette immediat
     container.innerHTML = '<div class="zts-today-card zts-today-weather"><div class="zts-today-label">🌤️ ' + L('meteo') + '</div><div class="zts-today-body">' + L('loading') + '</div></div>' +
       '<div class="zts-today-card zts-today-game"><div class="zts-today-label">🎮 ' + L('jeu') + '</div><div class="zts-today-body">' + L('loading') + '</div></div>' +
-      '<div class="zts-today-card zts-today-eph"><div class="zts-today-label">📅 ' + L('ephemeride') + '</div><div class="zts-today-body">' + L('loading') + '</div></div>';
+      '<div class="zts-today-card zts-today-eph"><div class="zts-today-label">💪 Défi du jour</div><div class="zts-today-body">' + L('loading') + '</div></div>';
 
     var dateEl = document.getElementById('ztsTodayDate');
     if (dateEl) dateEl.textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
     // Lance en parallele
-    var [weather, ephemeride] = await Promise.all([getWeather(), getEphemeride()]);
+    var weather = await getWeather();
     var game = getDailyGame();
 
     // Render cards
@@ -619,16 +634,15 @@
         '</div></div>';
     }
 
-    // Carte Ephemeride
-    if (ephemeride) {
-      var yearTxt = ephemeride.year ? '<span class="zts-today-year">' + ephemeride.year + '</span> ' : '';
-      var typeIcon = ephemeride.type === 'event' ? '📜' : '💡';
+    // Carte Defi du jour (conseil EPS pratique, deterministe par jour)
+    var defi = await getDefiDuJour();
+    if (defi) {
       html += '<div class="zts-today-card zts-today-eph">' +
-        '<div class="zts-today-label">' + typeIcon + ' ' + (ephemeride.type === 'event' ? L('ephemeride') : L('conseil')) + '</div>' +
+        '<div class="zts-today-label">💪 Défi du jour</div>' +
         '<div class="zts-today-body">' +
-          '<div class="zts-today-eph-title">' + yearTxt + ephemeride.title + '</div>' +
-          '<div class="zts-today-eph-desc">' + ephemeride.desc + '</div>' +
-          '<div class="zts-today-eph-activity"><strong>' + L('inClass') + '</strong> ' + ephemeride.activity + '</div>' +
+          '<div class="zts-today-eph-title">' + defi.title + '</div>' +
+          '<div class="zts-today-eph-desc">' + defi.desc + '</div>' +
+          '<div class="zts-today-eph-activity"><strong>🎯 ' + L('inClass') + '</strong> ' + defi.activity + '</div>' +
         '</div></div>';
     }
 
