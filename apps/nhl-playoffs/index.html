@@ -307,6 +307,26 @@
     box-shadow: var(--glow-cyan), 0 6px 25px rgba(0,0,0,0.4);
     transform: scale(1.04);
   }
+  /* Compact TBD card for upcoming rounds */
+  .matchup.tbd {
+    width: 200px;
+    border: 2px dashed rgba(0,229,255,0.25);
+    background: rgba(255,255,255,0.06);
+    box-shadow: none;
+    cursor: default;
+    opacity: 0.85;
+  }
+  .matchup.tbd:hover { transform: none; border-color: rgba(0,229,255,0.35); box-shadow: none; }
+  .matchup.tbd .team-row { padding: 8px 10px; gap: 8px; }
+  .matchup.tbd .team-row:first-child { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .matchup.tbd .seed { font-size: 18px; width: 22px; color: rgba(0,229,255,0.4); }
+  .matchup.tbd .team-logo,
+  .matchup.tbd .team-abbrev { display: none; }
+  .matchup.tbd .tbd-label {
+    font-family: 'Bangers', cursive; font-size: 20px; color: rgba(0,229,255,0.55);
+    flex: 1; letter-spacing: 2px; text-align: center;
+  }
+  .matchup.tbd .team-wins-num { font-size: 22px; width: 28px; color: rgba(255,255,255,0.15); }
 
   .team-row {
     display: flex;
@@ -354,7 +374,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 150px;
+    min-width: 220px;
     padding: 20px 10px;
     background: rgba(8,18,35,0.97);
     border-radius: 14px;
@@ -1373,20 +1393,26 @@ function renderBracket(data) {
 
 function matchupHTML(s) {
   const t = s.top, b = s.bot, tw = t.w===4, bw = b.w===4, tbd = !t.a && !b.a;
-  const placeholder = '<span style="width:44px;height:44px;display:inline-block;background:rgba(0,229,255,0.08);border-radius:8px;border:2px dashed rgba(0,229,255,0.2);"></span>';
   const dataAttr = (t.a && b.a && s.letter) ? `data-series-letter="${s.letter}"` : '';
+  if (tbd) {
+    return `<div class="matchup tbd">
+      <div class="team-row"><span class="seed">-</span><span class="tbd-label">À venir</span><span class="team-wins-num">-</span></div>
+      <div class="team-row"><span class="seed">-</span><span class="tbd-label">À venir</span><span class="team-wins-num">-</span></div>
+    </div>`;
+  }
+  const placeholder = '<span style="width:44px;height:44px;display:inline-block;background:rgba(0,229,255,0.08);border-radius:8px;border:2px dashed rgba(0,229,255,0.2);"></span>';
   return `<div class="matchup" ${dataAttr}>
     <div class="team-row ${tw?'winner':''} ${bw?'eliminated':''}">
       <span class="seed">${t.s||'-'}</span>
       ${t.a?`<img class="team-logo" src="${LOGO(t.a)}" onerror="this.style.display='none'">`:placeholder}
       <span class="team-abbrev">${t.a||'?'}</span>
-      <span class="team-wins-num ${t.w>0?'has-wins':''}">${tbd?'-':t.w}</span>
+      <span class="team-wins-num ${t.w>0?'has-wins':''}">${t.w}</span>
     </div>
     <div class="team-row ${bw?'winner':''} ${tw?'eliminated':''}">
       <span class="seed">${b.s||'-'}</span>
       ${b.a?`<img class="team-logo" src="${LOGO(b.a)}" onerror="this.style.display='none'">`:placeholder}
       <span class="team-abbrev">${b.a||'?'}</span>
-      <span class="team-wins-num ${b.w>0?'has-wins':''}">${tbd?'-':b.w}</span>
+      <span class="team-wins-num ${b.w>0?'has-wins':''}">${b.w}</span>
     </div>
   </div>`;
 }
