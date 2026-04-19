@@ -846,7 +846,7 @@ function openSeriesModal(letter) {
         const status = comp?.status;
         const isFinal = status?.type?.completed;
         const isLive = status?.type?.name === 'STATUS_IN_PROGRESS';
-        const gameDate = new Date(ev.date).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short.' });
+        const gameDate = new Date(ev.date).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short'});
 
         let badge = isLive ? `<span class="modal-game-badge live"><span class="live-pulse"></span>EN COURS</span>` :
           isFinal ? `<span class="modal-game-badge final">FINAL</span>` :
