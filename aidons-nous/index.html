@@ -277,11 +277,26 @@
   <p style="font-size:12px;opacity:0.6;margin-top:6px;">© 2026 Zone Total Sport</p>
 </footer>
 
-<!-- Firebase SDK (version alignée avec firebase-auth.js = 10.14.0) + firestore -->
+<!-- Firebase SDK 10.14.0 + init explicite (comme avis.html) -->
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
+<script>
+// Initialise Firebase tout de suite pour que firebase.firestore() fonctionne
+if (!firebase.apps.length) {
+  firebase.initializeApp({
+    apiKey: "AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA",
+    authDomain: "zone-total-sport.firebaseapp.com",
+    databaseURL: "https://zone-total-sport-default-rtdb.firebaseio.com",
+    projectId: "zone-total-sport",
+    storageBucket: "zone-total-sport.firebasestorage.app",
+    messagingSenderId: "681359040455",
+    appId: "1:681359040455:web:80c9f584583824cc8cc3e2"
+  });
+  firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+}
+</script>
 <script src="../firebase-auth.js"></script>
 <script src="../suggestions.js"></script>
 
