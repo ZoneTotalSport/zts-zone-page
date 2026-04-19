@@ -37,26 +37,38 @@
   // Anti-spam: max 1 notif visite par session
   var _visitNotified = sessionStorage.getItem('zts_visit_notif');
 
-  function sendTelegram(text, ntfyMeta) {
-    // Mirror vers ntfy.sh
-    if (ntfyMeta !== false) {
-      var clean = stripHtml(text);
-      var firstLine = clean.split('\n')[0] || 'ZTS';
-      var rest = clean.split('\n').slice(1).join('\n') || clean;
-      var meta = ntfyMeta || {};
-      sendNtfy(firstLine, rest, meta.priority, meta.tags);
-    }
-    fetch(API_URL, {
+  // ── Worker proxy first-party (bypass Brave/uBlock) ──
+  var WORKER_URL = '/api/notify';
+
+  function sendViaWorker(title, message, priority, tags) {
+    return fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: text,
-        parse_mode: 'HTML'
-      })
-    }).catch(function(err) {
-      console.log('[ZTS Telegram] Erreur:', err);
+      body: JSON.stringify({ title: title, message: message, priority: priority || 3, tags: tags || '' })
     });
+  }
+
+  function sendTelegram(text, ntfyMeta) {
+    var clean = stripHtml(text);
+    var firstLine = clean.split('\n')[0] || 'ZTS';
+    var rest = clean.split('\n').slice(1).join('\n') || clean;
+    var meta = ntfyMeta || {};
+
+    // 1) Try Worker proxy (server-side, bypass tous bloqueurs). Si OK, stop.
+    sendViaWorker(firstLine, rest, meta.priority, meta.tags)
+      .then(function(r) {
+        if (r && r.ok) return; // Worker a tout fait
+        throw new Error('worker not ok');
+      })
+      .catch(function() {
+        // 2) Fallback: direct ntfy + Telegram (marche pour browsers permissifs)
+        if (ntfyMeta !== false) sendNtfy(firstLine, rest, meta.priority, meta.tags);
+        fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'HTML' })
+        }).catch(function(){});
+      });
   }
 
   // ── Notification de visite ──
