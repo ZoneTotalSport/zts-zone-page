@@ -309,10 +309,16 @@ const CAT_LABELS = {
 const BAD_WORDS = ['calisse','tabarnak','osti','crisse','esti','ciboire','sacrament','salope','pute','fuck','shit','bitch','asshole','hais','déteste'];
 const hasBad = t => { const s=(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); return BAD_WORDS.some(w=>new RegExp('\\b'+w+'\\b').test(s)); };
 
-let currentCat='all', currentSort='recent', currentUser=null, db=null, unsub=null;
+let currentCat='all', currentSort='recent', currentUser=null, db=null, FV=null, unsub=null;
 const $ = id => document.getElementById(id);
 const getLiveUser = () => currentUser || (window.firebase&&firebase.auth&&firebase.auth().currentUser) || (window.ztsGetUser&&window.ztsGetUser()) || null;
-const getDb = () => { if(db)return db; if(window.firebase&&firebase.firestore){db=firebase.firestore();return db;} return null; };
+const getDb = () => {
+  if(db && FV) return db;
+  if(window.firebase && firebase.firestore){
+    try{ db=firebase.firestore(); FV=FV; return db; }catch(e){ console.warn('firestore init:',e); return null; }
+  }
+  return null;
+};
 
 function init(){
   if(!window.firebase||!firebase.firestore){setTimeout(init,150);return;}
@@ -366,7 +372,7 @@ $('cmpSubmit').onclick=async()=>{
       category:cat,user_uid:currentUser.uid,
       user_name:currentUser.displayName||currentUser.email.split('@')[0],
       user_email:currentUser.email,title,content,
-      timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+      timestamp:FV.serverTimestamp(),
       likes:[],replies:[],flagged:false,pinned:false
     });
     $('cmpTitle').value='';$('cmpContent').value='';$('cmpCount').textContent='0';
@@ -448,7 +454,7 @@ async function handleAct(act,id,p,el){
     if(!currentUser){alert('Connecte-toi pour aimer 💛');return;}
     const liked=(p.likes||[]).includes(currentUser.uid);
     try{await getDb().collection('forum_posts').doc(id).update({
-      likes:liked?firebase.firestore.FieldValue.arrayRemove(currentUser.uid):firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+      likes:liked?FV.arrayRemove(currentUser.uid):FV.arrayUnion(currentUser.uid)
     });}catch(e){console.error(e);alert('Erreur: '+e.message);}
   }else if(act==='reply'){
     if(!currentUser){alert('Connecte-toi pour répondre 💬');return;}
@@ -474,7 +480,7 @@ async function submitReply(id,el){
   if(hasBad(c)){alert('⚠️ Langage non conforme à la charte.');return;}
   try{
     await getDb().collection('forum_posts').doc(id).update({
-      replies:firebase.firestore.FieldValue.arrayUnion({
+      replies:FV.arrayUnion({
         user_uid:currentUser.uid,
         user_name:currentUser.displayName||currentUser.email.split('@')[0],
         content:c,timestamp:Date.now()
