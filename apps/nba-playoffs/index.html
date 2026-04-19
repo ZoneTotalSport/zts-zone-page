@@ -188,7 +188,7 @@
   .conference-label {
     text-align: center;
     font-family: 'Luckiest Guy', cursive;
-    font-size: 32px;
+    font-size: 44px;
     text-transform: uppercase;
     letter-spacing: 4px;
     color: var(--nba-gold);
@@ -201,9 +201,9 @@
   .rounds { display: flex; align-items: stretch; min-height: 650px; gap: 10px; }
   .east .rounds { flex-direction: row; }
   .west .rounds { flex-direction: row-reverse; }
-  .round { display: flex; flex-direction: column; justify-content: space-around; min-width: 280px; padding: 0 2px; }
+  .round { display: flex; flex-direction: column; justify-content: space-around; min-width: 360px; padding: 0 2px; }
   .round-label {
-    text-align: center; font-family: 'Bangers', cursive; font-size: 20px;
+    text-align: center; font-family: 'Bangers', cursive; font-size: 28px;
     text-transform: uppercase; letter-spacing: 2px; color: var(--nba-red);
     margin-bottom: 8px; background: rgba(15,21,40,0.9); padding: 8px 12px;
     border-radius: 6px; text-shadow: 0 0 10px rgba(200,16,46,0.3);
@@ -215,10 +215,10 @@
   /* ===== MATCHUP CARD — GROS POUR TNI ===== */
   .matchup {
     background: rgba(255,255,255,0.92);
-    border-radius: 14px;
+    border-radius: 16px;
     overflow: hidden;
-    border: 3px solid rgba(200,16,46,0.3);
-    width: 270px;
+    border: 4px solid rgba(200,16,46,0.3);
+    width: 340px;
     margin: 0 auto;
     transition: all 0.3s;
     cursor: pointer;
@@ -231,29 +231,29 @@
   }
   .team-row {
     display: flex; align-items: center;
-    padding: 8px 10px; gap: 8px;
+    padding: 12px 14px; gap: 12px;
     transition: all 0.3s;
   }
   .team-row:first-child { border-bottom: 2px solid rgba(0,0,0,0.1); }
   .team-row.winner { background: linear-gradient(90deg, rgba(46,204,113,0.25), transparent); }
   .team-row.eliminated { opacity: 0.35; }
   .seed {
-    font-family: 'Bungee', cursive; font-size: 22px;
-    color: var(--nba-blue); width: 28px; text-align: center;
+    font-family: 'Bungee', cursive; font-size: 30px;
+    color: var(--nba-blue); width: 38px; text-align: center;
   }
   .team-logo {
-    width: 70px; height: 70px;
+    width: 95px; height: 95px;
     object-fit: contain;
     filter: drop-shadow(0 3px 8px rgba(0,0,0,0.5));
   }
   .team-abbrev {
     font-family: 'Luckiest Guy', cursive;
-    font-size: 26px; color: #1a1a2e;
+    font-size: 36px; color: #1a1a2e;
     flex: 1; letter-spacing: 1px;
   }
   .team-wins-num {
-    font-family: 'Bungee', cursive; font-size: 32px;
-    width: 36px; text-align: center;
+    font-family: 'Bungee', cursive; font-size: 44px;
+    width: 48px; text-align: center;
     color: rgba(0,0,0,0.2);
   }
   .team-wins-num.has-wins { color: #1a8a3e; text-shadow: none; }
@@ -434,20 +434,22 @@
   @media (max-width: 1200px) {
     .bracket-container { min-width: unset; padding: 10px 5px; }
     .round { min-width: 190px; }
-    .matchup { width: 200px; }
-    .team-logo { width: 50px; height: 50px; }
-    .team-abbrev { font-size: 15px; }
-    .team-wins-num { font-size: 18px; }
+    .matchup { width: 250px; }
+    .team-logo { width: 70px; height: 70px; }
+    .team-abbrev { font-size: 22px; }
+    .team-wins-num { font-size: 28px; }
+    .seed { font-size: 22px; width: 30px; }
   }
   @media (max-width: 900px) {
     .header h1 { font-size: 28px; }
     .bracket-container { flex-direction: column; padding: 10px; }
     .rounds { flex-direction: column !important; }
     .round { min-width: unset; width: 100%; }
-    .matchup { width: 100%; max-width: 400px; }
-    .team-logo { width: 55px; height: 55px; }
-    .team-abbrev { font-size: 18px; }
-    .team-wins-num { font-size: 24px; }
+    .matchup { width: 100%; max-width: 500px; }
+    .team-logo { width: 80px; height: 80px; }
+    .team-abbrev { font-size: 28px; }
+    .team-wins-num { font-size: 34px; }
+    .seed { font-size: 26px; }
     .cup-center { padding: 20px 0; }
     .leaders-grid { grid-template-columns: 1fr; }
     .game-details { margin-left: 0; }
