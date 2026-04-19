@@ -38,7 +38,7 @@
   var _visitNotified = sessionStorage.getItem('zts_visit_notif');
 
   // ── Worker proxy first-party (bypass Brave/uBlock) ──
-  var WORKER_URL = '/api/notify';
+  var WORKER_URL = 'https://notify.zonetotalsport.ca/';
 
   function sendViaWorker(title, message, priority, tags) {
     return fetch(WORKER_URL, {
