@@ -419,7 +419,7 @@ $('cmpSubmit').onclick=async()=>{
       category:cat,user_uid:currentUser.uid,
       user_name:currentUser.displayName||currentUser.email.split('@')[0],
       user_email:currentUser.email,title,content,drive:drive||null,
-      timestamp:FV.serverTimestamp(),
+      timestamp:new Date(),
       likes:[],replies:[],flagged:false,pinned:false
     });
     $('cmpTitle').value='';$('cmpContent').value='';$('cmpDrive').value='';$('cmpCount').textContent='0';
@@ -500,10 +500,11 @@ async function handleAct(act,id,p,el){
   const u=getLiveUser(); if(u)currentUser=u;
   if(act==='like'){
     if(!currentUser){alert('Connecte-toi pour aimer 💛');return;}
-    const liked=(p.likes||[]).includes(currentUser.uid);
-    try{await getDb().collection('forum_posts').doc(id).update({
-      likes:liked?FV.arrayRemove(currentUser.uid):FV.arrayUnion(currentUser.uid)
-    });}catch(e){console.error(e);alert('Erreur: '+e.message);}
+    const cur=(p.likes||[]);
+    const liked=cur.includes(currentUser.uid);
+    const newLikes=liked?cur.filter(x=>x!==currentUser.uid):[...cur,currentUser.uid];
+    try{await getDb().collection('forum_posts').doc(id).update({likes:newLikes});}
+    catch(e){console.error(e);alert('Erreur: '+e.message);}
   }else if(act==='reply'){
     if(!currentUser){alert('Connecte-toi pour répondre 💬');return;}
     el.querySelector('.reply-box').classList.toggle('show');
@@ -527,13 +528,15 @@ async function submitReply(id,el){
   if(c.length<3){alert('Réponse trop courte.');return;}
   if(hasBad(c)){alert('⚠️ Langage non conforme à la charte.');return;}
   try{
-    await getDb().collection('forum_posts').doc(id).update({
-      replies:FV.arrayUnion({
-        user_uid:currentUser.uid,
-        user_name:currentUser.displayName||currentUser.email.split('@')[0],
-        content:c,timestamp:Date.now()
-      })
-    });
+    const ref=getDb().collection('forum_posts').doc(id);
+    const snap=await ref.get();
+    const existing=(snap.data()&&snap.data().replies)||[];
+    const newReplies=[...existing,{
+      user_uid:currentUser.uid,
+      user_name:currentUser.displayName||currentUser.email.split('@')[0],
+      content:c,timestamp:Date.now()
+    }];
+    await ref.update({replies:newReplies});
     ta.value='';el.querySelector('.reply-box').classList.remove('show');
   }catch(e){console.error(e);alert('Erreur: '+e.message);}
 }
