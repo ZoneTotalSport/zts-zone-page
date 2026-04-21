@@ -1558,7 +1558,7 @@
                         <h3 class="font-fredoka text-lg text-dark" data-i18n="news1Title">Tableau Blanc Numérique (TNI) — NOUVEAU!</h3>
                         <p class="font-baloo text-dark/60 text-sm" data-i18n="news1Desc">TNI interactif pour le gymnase : dessin libre, photos, vidéos, bulles de texte, sites web, gomme, grille, annuler, plein écran. Optimisé TBI!</p>
                     </div>
-                    <a href="https://tni.zonetotalsport.ca" data-protected="true" class="news-btn" style="background:#0096C7;color:#fff;border-color:#0096C7">
+                    <a href="#" onclick="event.preventDefault();ztsOpenApp('https://tni.zonetotalsport.ca')" data-protected="true" class="news-btn" style="background:#0096C7;color:#fff;border-color:#0096C7">
                         <i data-lucide="presentation" class="w-4 h-4"></i> Essayer!
                     </a>
                 </div>
@@ -1569,7 +1569,7 @@
                         <h3 class="font-fredoka text-lg text-dark" data-i18n="news2Title">Grille Horaire des Spécialistes — NOUVEAU!</h3>
                         <p class="font-baloo text-dark/60 text-sm" data-i18n="news2Desc">Planifie l'horaire de tes spécialistes (ÉPS, musique, art, anglais). Cycle 5-10 jours, gestion des locaux, calcul automatique du % de tâche. Optimisé TBI!</p>
                     </div>
-                    <a href="https://grille.zonetotalsport.ca" data-protected="true" class="news-btn" style="background:#00897B;color:#fff;border-color:#00897B">
+                    <a href="#" onclick="event.preventDefault();ztsOpenApp('https://grille.zonetotalsport.ca')" data-protected="true" class="news-btn" style="background:#00897B;color:#fff;border-color:#00897B">
                         <i data-lucide="calendar-clock" class="w-4 h-4"></i> Planifier!
                     </a>
                 </div>
@@ -1800,7 +1800,7 @@
                         </div>
                         <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" style="color:#fff">Grille Horaire</h3>
                         <p class="tilt-desc text-white/80 font-baloo text-sm mb-6">Planifie l'horaire de tes spécialistes (ÉPS, musique, art, anglais). Cycle 5-10 jours, gestion des locaux, calcul automatique du % de tâche. Conçu pour le TBI!</p>
-                        <a href="https://grille.zonetotalsport.ca" data-protected="true" class="inline-flex items-center gap-2 font-bangers text-sm hover:gap-3 transition-all tracking-wide" style="color:#FFEA00">
+                        <a href="#" onclick="event.preventDefault();ztsOpenApp('https://grille.zonetotalsport.ca')" data-protected="true" class="inline-flex items-center gap-2 font-bangers text-sm hover:gap-3 transition-all tracking-wide" style="color:#FFEA00">
                             Planifier ma grille <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
@@ -1816,7 +1816,7 @@
                         </div>
                         <h3 class="tilt-title font-bangers text-2xl mb-3 tracking-wide" style="color:#fff">Tableau Blanc Numérique</h3>
                         <p class="tilt-desc text-white/80 font-baloo text-sm mb-6">TNI interactif : dessine, ajoute des photos, vidéos, bulles et sites web. Gomme, grille, annuler, plein écran. Parfait pour le TBI en classe!</p>
-                        <a href="https://tni.zonetotalsport.ca" data-protected="true" class="inline-flex items-center gap-2 font-bangers text-sm hover:gap-3 transition-all tracking-wide" style="color:#FFEA00">
+                        <a href="#" onclick="event.preventDefault();ztsOpenApp('https://tni.zonetotalsport.ca')" data-protected="true" class="inline-flex items-center gap-2 font-bangers text-sm hover:gap-3 transition-all tracking-wide" style="color:#FFEA00">
                             Ouvrir le TNI <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
@@ -5188,6 +5188,23 @@ function ztsOpenApp(url) {
   }
 }
 window.ztsOpenApp = ztsOpenApp;
+
+// Redirection gatee depuis articles/header : /?open=<url>
+(function(){
+  try {
+    var m = window.location.search.match(/[?&]open=([^&]+)/);
+    if (!m) return;
+    var target = decodeURIComponent(m[1]);
+    if (!/^https:\/\/[a-z-]+\.zonetotalsport\.ca\/?/.test(target)) return;
+    // Nettoie l'URL visible
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    // Laisse le temps a firebase-auth de se charger
+    setTimeout(function(){ ztsOpenApp(target); }, 200);
+  } catch(e){}
+})();
+
 // Fermer modal au clic extérieur + ESC
 document.getElementById('appsModal').addEventListener('click', function(e) {
   if (e.target === this) this.style.display='none';

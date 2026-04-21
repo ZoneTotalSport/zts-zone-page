@@ -236,19 +236,44 @@
   }, { passive: true });
 
   // Track clics sur apps (meme si anonyme)
+  // Anti faux-positif: attendre que Firebase Auth ait termine son rehydrate
+  // avant de declarer "sans compte" (sinon un user deja connecte apparait
+  // comme anonyme pendant les 1-2s de chargement).
   document.addEventListener('click', function(e) {
     var target = e.target.closest('[onclick*="ztsOpenApp"], [data-protected="true"], .app-card');
     if (!target) return;
     var name = (target.textContent || target.getAttribute('alt') || '').trim().slice(0, 40);
     if (!name) return;
-    // Dedup: ne pas logger 2x la meme app
     if (session.appClicks.indexOf(name) === -1) session.appClicks.push(name);
 
-    // Notif immediate si clic sans etre connecte
-    var user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
-    if (!user && !sessionStorage.getItem('zts_click_notif_' + name)) {
+    if (sessionStorage.getItem('zts_click_notif_' + name)) return;
+
+    function decide() {
+      var u = (window.ztsGetUser && window.ztsGetUser())
+            || (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser);
+      if (u) return; // connecte -> pas de notif
+      if (sessionStorage.getItem('zts_click_notif_' + name)) return;
       sessionStorage.setItem('zts_click_notif_' + name, '1');
       sendTelegram('🖱️ <b>Clic app sans compte</b>\n🎯 ' + name + '\n📍 ' + session.city + '\n⏳ Popup affiche — lead chaud');
+    }
+
+    // Si ztsOnAuth dispo, attendre la decision reelle
+    if (typeof firebase !== 'undefined' && window.ztsOnAuth) {
+      var decided = false;
+      window.ztsOnAuth(function(u) {
+        if (decided) return;
+        decided = true;
+        if (!u) decide();
+      });
+      // Fallback si onAuth ne fire jamais
+      setTimeout(function() {
+        if (decided) return;
+        decided = true;
+        decide();
+      }, 2000);
+    } else {
+      // Pas de firebase du tout -> attendre un peu puis decider
+      setTimeout(decide, 2000);
     }
   }, { passive: true, capture: true });
 
