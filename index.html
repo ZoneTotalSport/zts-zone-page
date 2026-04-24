@@ -874,6 +874,8 @@
             min-width: 130px;
             justify-content: center;
         }
+        #navClock { font-size: 1.6rem; padding: 20px 36px; min-width: 220px; }
+        .nav-don-btn { font-size: 1.6rem; padding: 20px 48px; }
         #clockTime { font-variant-numeric: tabular-nums; display: inline-block; min-width: 95px; text-align: center; }
         .digital-clock .clock-dot { }
         .nav-fixed.scrolled .digital-clock { border-color: rgba(0,229,255,0.15); }
@@ -1205,6 +1207,102 @@
             .news-date { min-width: auto; }
         }
 
+        /* ========== MOBILE GLOBAL FIX (iPhone) ========== */
+        @media (max-width: 768px) {
+            /* --- NAV: réduire hauteur totale --- */
+            .wix-nav-bar { padding: 8px 10px !important; gap: 4px !important; }
+            .wix-nav-btn { padding: 8px 10px !important; font-size: 0.85rem !important; }
+
+            /* --- Rangée horloge/logo/hamburger --- */
+            #mainNav > .w-full { margin-top: 6px !important; }
+            #mainNav .digital-clock { font-size: 0.7rem !important; padding: 5px 10px !important; min-width: auto !important; }
+            #mainNav .nav-logo-link { position: static !important; transform: none !important; }
+            #mainNav .nav-logo-link img { height: 44px !important; }
+
+            /* --- HERO: ajuster pour la nav plus courte --- */
+            #hero { padding-top: 130px !important; min-height: auto !important; }
+            #hero > div { padding-top: 12px !important; padding-bottom: 16px !important; gap: 24px !important; }
+            .hero-title { font-size: 1.8rem !important; }
+
+            /* --- Badge hero: compact --- */
+            #hero .inline-flex { font-size: 0.75rem !important; padding: 4px 10px !important; }
+
+            /* --- Boutons plus compacts --- */
+            .btn-primary { padding: 12px 22px !important; font-size: 1rem !important; }
+            .btn-outline-dark { padding: 12px 22px !important; font-size: 1rem !important; }
+
+            /* --- Stats hero: 2 colonnes serrées --- */
+            #hero .grid { gap: 12px !important; }
+            .stat-number { font-size: 1.6rem !important; }
+
+            /* --- Mascotte: plus petite --- */
+            #mascotSwap img { max-width: 200px !important; }
+
+            /* --- Emojis flottants: cacher sur mobile (chevauchent le texte) --- */
+            .floating-emoji { display: none !important; }
+
+            /* --- Sections: réduire padding vertical --- */
+            section[class*="py-24"] { padding-top: 48px !important; padding-bottom: 48px !important; }
+            section[class*="py-20"] { padding-top: 40px !important; padding-bottom: 40px !important; }
+            section[class*="py-16"] { padding-top: 32px !important; padding-bottom: 32px !important; }
+
+            /* --- Service cards: 1 colonne, hauteur auto --- */
+            .service-card { min-height: auto !important; padding: 24px 20px !important; }
+            .card-number { font-size: 5rem !important; }
+
+            /* --- Titres sections plus petits --- */
+            .hero-title { font-size: 1.8rem !important; }
+            h2.hero-title { font-size: 1.7rem !important; }
+
+            /* --- Slot machine: compact --- */
+            #slotBox { padding: 20px 16px !important; }
+            #slotBox .text-6xl { font-size: 3rem !important; }
+
+            /* --- Testimonials: 1 colonne --- */
+            .testimonial-card { padding: 20px !important; }
+
+            /* --- IA Teaser: compact --- */
+            .ia-teaser-card { padding: 24px 16px !important; }
+
+            /* --- Donation section --- */
+            #don .text-6xl { font-size: 3rem !important; }
+
+            /* --- Footer: 1 colonne --- */
+            footer .grid { gap: 24px !important; }
+
+            /* --- Nav dock + ZTS dock: cacher sur mobile --- */
+            .nav-dock { display: none !important; }
+            .zts-dock { display: none !important; }
+
+            /* --- Cacher le widget NBA/scores flottant en bas à gauche sur mobile --- */
+            #nbaPlayoffsShortcut, #nhlPlayoffsShortcut, .playoffs-shortcut,
+            [id*="playoff" i][style*="fixed"],
+            [id*="Playoff" i][style*="fixed"] { display: none !important; }
+
+            /* --- Scores widget teaser --- */
+            #scoresWidget { margin-top: -24px !important; padding: 0 10px !important; }
+
+            /* --- Marquee plus petit --- */
+            .marquee-big .marquee-track span { font-size: 1.8rem !important; }
+
+            /* --- Apps modal: 2 colonnes sur mobile --- */
+            #appsGrid { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; padding: 14px !important; }
+
+            /* --- Paragraphe hero: empêcher débordement --- */
+            #hero p { font-size: 1rem !important; }
+        }
+
+        /* ========== TRÈS PETIT ÉCRAN (iPhone SE, mini) ========== */
+        @media (max-width: 390px) {
+            .hero-title, h2.hero-title { font-size: 1.5rem !important; }
+            .btn-primary, .btn-outline-dark { padding: 10px 16px !important; font-size: 0.9rem !important; }
+            #mainNav .nav-logo-link img { height: 36px !important; }
+            .stat-number { font-size: 1.4rem !important; }
+            #mascotSwap img { max-width: 160px !important; }
+            .wix-nav-btn { padding: 6px 8px !important; font-size: 0.75rem !important; }
+            .service-card { padding: 20px 16px !important; }
+        }
+
     </style>
 </head>
 <body>
@@ -1258,7 +1356,7 @@
         </div>
         <div class="w-full px-4 flex items-center justify-between mt-3 min-h-[180px] md:min-h-[280px]" style="position:relative; z-index:1;">
             <!-- Horloge à gauche -->
-            <div class="digital-clock" id="navClock" style="font-size:1.6rem; padding:20px 36px; min-width:220px;"><style>
+            <div class="digital-clock" id="navClock"><style>
                 @media (max-width: 640px) {
                     /* Horloge compacte */
                     #mainNav .digital-clock { min-width: auto !important; font-size: .75rem !important; padding: 5px 9px !important; gap: 4px !important; }
@@ -5304,15 +5402,15 @@ document.addEventListener('keydown', function(e) {
 @media (max-width: 768px) {
     .nhl-float-btn {
         top: auto;
-        bottom: 150px;
+        bottom: 200px;
         left: 0;
         writing-mode: horizontal-tb;
-        padding: 10px 16px 10px 14px;
-        border-radius: 0 14px 14px 0;
-        font-size: 0.85rem;
-        gap: 6px;
+        padding: 8px 12px 8px 10px;
+        border-radius: 0 12px 12px 0;
+        font-size: 0.8rem;
+        gap: 4px;
     }
-    .nhl-float-btn .nhl-shield { width: 28px; height: 28px; }
+    .nhl-float-btn .nhl-shield { width: 24px; height: 24px; }
     .nhl-float-btn .nhl-text { display: none; }
 }
 </style>
@@ -5383,11 +5481,12 @@ document.addEventListener('keydown', function(e) {
         bottom: 150px;
         left: 0;
         writing-mode: horizontal-tb;
-        padding: 10px 16px 10px 14px;
-        border-radius: 0 14px 14px 0;
-        font-size: 0.85rem;
-        gap: 6px;
+        padding: 8px 12px 8px 10px;
+        border-radius: 0 12px 12px 0;
+        font-size: 0.8rem;
+        gap: 4px;
     }
+    .nba-float-btn .nba-icon { font-size: 22px; }
     .nba-float-btn .nba-text { display: none; }
 }
 </style>
