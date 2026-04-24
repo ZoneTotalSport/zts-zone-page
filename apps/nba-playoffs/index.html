@@ -968,9 +968,9 @@ function renderGameSummary(summary) {
       html += `<div style="margin-bottom:10px"><div class="period-label">${td.team?.displayName || ''}</div>`;
       stats.athletes.slice(0, 5).forEach(a => {
         const s = a.stats || [];
-        const pts = s[12] || s[s.length - 1] || '0';
-        const reb = s[6] || '0';
-        const ast = s[7] || '0';
+        const pts = s[1] || '0';
+        const reb = s[5] || '0';
+        const ast = s[6] || '0';
         html += `<div class="scorer-row">
           <img class="scorer-team-logo" src="${td.team?.logo || ''}" onerror="this.style.display='none'">
           <img class="leader-mugshot" src="${a.athlete?.headshot?.href || ''}" onerror="this.style.display='none'">
