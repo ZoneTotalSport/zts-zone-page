@@ -1140,7 +1140,7 @@
 // =============================================
 const LOGO = a => `https://assets.nhle.com/logos/nhl/svg/${a}_light.svg`;
 const MUG = (s, t, id) => `https://assets.nhle.com/mugs/nhl/${s}/${t}/${id}.png`;
-const SEASON = '20242025'; // NHL API season format
+const SEASON = '20252026'; // NHL API season format
 const API = {
   bracket: 'https://api-web.nhle.com/v1/playoff-bracket/2026',
   score: d => `https://api-web.nhle.com/v1/score/${d}`,
@@ -1151,12 +1151,21 @@ const API = {
   goalieLeaders: `https://api-web.nhle.com/v1/goalie-stats-leaders/20252026/3?categories=savePctg,wins,goalsAgainstAverage&limit=10`,
 };
 
+const PROXIES = [
+  u => u,
+  u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+];
 async function apiFetch(url) {
-  try {
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(r.status);
-    return await r.json();
-  } catch(e) { console.warn('API fail:', url, e); return null; }
+  for (const proxy of PROXIES) {
+    try {
+      const r = await fetch(proxy(url));
+      if (!r.ok) continue;
+      return await r.json();
+    } catch(e) { /* try next proxy */ }
+  }
+  console.warn('API fail (all proxies):', url);
+  return null;
 }
 
 // =============================================
@@ -1233,21 +1242,22 @@ const SCHED = {
 // =============================================
 async function fetchBracket() {
   const data = await apiFetch(API.bracket);
-  if (!data || !data.rounds) return FALLBACK;
+  if (!data) return FALLBACK;
+
+  // API returns data.series directly (no rounds wrapper)
+  const seriesList = data.series || (data.rounds && data.rounds[0]?.series) || [];
+  if (!seriesList.length) return FALLBACK;
 
   const east = [], west = [];
-  const r1 = data.rounds[0];
-  if (r1 && r1.series) {
-    r1.series.forEach(s => {
-      const entry = {
-        top: { a: s.topSeedTeam?.abbrev||'?', n: s.topSeedTeam?.name?.default||'?', s: s.topSeedRank||0, w: s.topSeedWins||0 },
-        bot: { a: s.bottomSeedTeam?.abbrev||'?', n: s.bottomSeedTeam?.name?.default||'?', s: s.bottomSeedRank||0, w: s.bottomSeedWins||0 },
-        letter: s.seriesLetter||'',
-        g1: '',
-      };
-      if ('ABCD'.includes(entry.letter)) east.push(entry); else west.push(entry);
-    });
-  }
+  seriesList.filter(s => s.playoffRound === 1).forEach(s => {
+    const entry = {
+      top: { a: s.topSeedTeam?.abbrev||'?', n: s.topSeedTeam?.name?.default||'?', s: s.topSeedRank||0, w: s.topSeedWins||0 },
+      bot: { a: s.bottomSeedTeam?.abbrev||'?', n: s.bottomSeedTeam?.name?.default||'?', s: s.bottomSeedRank||0, w: s.bottomSeedWins||0 },
+      letter: s.seriesLetter||'',
+      g1: '',
+    };
+    if ('ABCD'.includes(entry.letter)) east.push(entry); else west.push(entry);
+  });
   return { east: east.length ? east : FALLBACK.east, west: west.length ? west : FALLBACK.west };
 }
 
