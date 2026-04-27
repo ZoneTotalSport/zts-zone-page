@@ -1240,25 +1240,58 @@ const SCHED = {
 // =============================================
 // FETCH BRACKET
 // =============================================
+function parseSeries(s) {
+  const topA = s.topSeedTeam?.abbrev || '';
+  const botA = s.bottomSeedTeam?.abbrev || '';
+  // Skip TBD placeholders (id=-1)
+  const topValid = topA && topA !== 'TBD';
+  const botValid = botA && botA !== 'TBD';
+  return {
+    top: { a: topValid ? topA : '', n: topValid ? (s.topSeedTeam?.name?.default||topA) : '', s: s.topSeedRank||0, w: s.topSeedWins||0 },
+    bot: { a: botValid ? botA : '', n: botValid ? (s.bottomSeedTeam?.name?.default||botA) : '', s: s.bottomSeedRank||0, w: s.bottomSeedWins||0 },
+    letter: s.seriesLetter||'',
+    g1: '',
+  };
+}
+
 async function fetchBracket() {
   const data = await apiFetch(API.bracket);
   if (!data) return FALLBACK;
 
-  // API returns data.series directly (no rounds wrapper)
   const seriesList = data.series || (data.rounds && data.rounds[0]?.series) || [];
   if (!seriesList.length) return FALLBACK;
 
-  const east = [], west = [];
-  seriesList.filter(s => s.playoffRound === 1).forEach(s => {
-    const entry = {
-      top: { a: s.topSeedTeam?.abbrev||'?', n: s.topSeedTeam?.name?.default||'?', s: s.topSeedRank||0, w: s.topSeedWins||0 },
-      bot: { a: s.bottomSeedTeam?.abbrev||'?', n: s.bottomSeedTeam?.name?.default||'?', s: s.bottomSeedRank||0, w: s.bottomSeedWins||0 },
-      letter: s.seriesLetter||'',
-      g1: '',
-    };
-    if ('ABCD'.includes(entry.letter)) east.push(entry); else west.push(entry);
+  // East: R1=ABCD, R2 conf semis, R3 conf final (letters from API)
+  // West: R1=EFGH, R2 conf semis, R3 conf final
+  const EAST_R1 = 'ABCD', WEST_R1 = 'EFGH';
+
+  const result = { east: [], west: [], eastR2: [], westR2: [], eastR3: [], westR3: [], finals: [] };
+
+  seriesList.forEach(s => {
+    const round = s.playoffRound || 1;
+    const letter = s.seriesLetter || '';
+    const title = (s.seriesTitle || '').toLowerCase();
+    const entry = parseSeries(s);
+
+    if (round === 1) {
+      if (EAST_R1.includes(letter)) result.east.push(entry);
+      else if (WEST_R1.includes(letter)) result.west.push(entry);
+    } else if (title.includes('stanley cup')) {
+      result.finals.push(entry);
+    } else if (title.includes('conference final')) {
+      // M=East conf final, N=West conf final
+      if (letter === 'M') result.eastR3.push(entry);
+      else if (letter === 'N') result.westR3.push(entry);
+    } else if (round === 2) {
+      // I,J = East R2; K,L = West R2
+      if ('IJ'.includes(letter)) result.eastR2.push(entry);
+      else if ('KL'.includes(letter)) result.westR2.push(entry);
+    }
   });
-  return { east: east.length ? east : FALLBACK.east, west: west.length ? west : FALLBACK.west };
+
+  if (!result.east.length) result.east = FALLBACK.east;
+  if (!result.west.length) result.west = FALLBACK.west;
+  return result;
 }
 
 // =============================================
@@ -1313,27 +1346,34 @@ function renderBracket(data) {
   const c = document.getElementById('bracketContainer');
   const tbd = { a:'', n:'?', s:0, w:0 };
   const tbdS = { top: tbd, bot: tbd };
+  const fill = (arr, n) => { const r = [...arr]; while (r.length < n) r.push(tbdS); return r; };
+
+  const eR2 = fill(data.eastR2 || [], 2);
+  const wR2 = fill(data.westR2 || [], 2);
+  const eR3 = fill(data.eastR3 || [], 1);
+  const wR3 = fill(data.westR3 || [], 1);
+  const finals = (data.finals && data.finals.length) ? data.finals[0] : tbdS;
 
   c.innerHTML = `
     <div class="conference east">
       <div class="conference-label">Est</div>
       <div class="rounds">
         <div class="round r1"><div class="round-label">1re ronde</div>${data.east.map(s=>matchupHTML(s)).join('')}</div>
-        <div class="round r2"><div class="round-label">2e ronde</div>${matchupHTML(tbdS)}${matchupHTML(tbdS)}</div>
-        <div class="round r3"><div class="round-label">Finale conf.</div>${matchupHTML(tbdS)}</div>
+        <div class="round r2"><div class="round-label">2e ronde</div>${eR2.map(s=>matchupHTML(s)).join('')}</div>
+        <div class="round r3"><div class="round-label">Finale conf.</div>${eR3.map(s=>matchupHTML(s)).join('')}</div>
       </div>
     </div>
     <div class="cup-center">
       <img class="cup-img" src="https://assets.nhle.com/logos/playoffs/png/scp-20252026-cup.png" alt="Cup" onerror="this.style.display='none'">
       <div class="cup-label">Coupe<br>Stanley</div>
-      <div style="margin-top:15px">${matchupHTML(tbdS)}</div>
+      <div style="margin-top:15px">${matchupHTML(finals)}</div>
     </div>
     <div class="conference west">
       <div class="conference-label">Ouest</div>
       <div class="rounds">
         <div class="round r1"><div class="round-label">1re ronde</div>${data.west.map(s=>matchupHTML(s)).join('')}</div>
-        <div class="round r2"><div class="round-label">2e ronde</div>${matchupHTML(tbdS)}${matchupHTML(tbdS)}</div>
-        <div class="round r3"><div class="round-label">Finale conf.</div>${matchupHTML(tbdS)}</div>
+        <div class="round r2"><div class="round-label">2e ronde</div>${wR2.map(s=>matchupHTML(s)).join('')}</div>
+        <div class="round r3"><div class="round-label">Finale conf.</div>${wR3.map(s=>matchupHTML(s)).join('')}</div>
       </div>
     </div>`;
 }
@@ -1524,15 +1564,25 @@ async function renderResults(data, playoffGames) {
     }
   });
 
-  c.innerHTML = `
-    <div class="conf-section">
-      <div class="conf-title">Conférence de l'Est</div>
-      ${data.east.map(s => seriesCardHTML(s, gamesBySeries[s.letter] || [])).join('')}
-    </div>
-    <div class="conf-section">
-      <div class="conf-title">Conférence de l'Ouest</div>
-      ${data.west.map(s => seriesCardHTML(s, gamesBySeries[s.letter] || [])).join('')}
-    </div>`;
+  // Collect all series with at least one real team
+  const allEast = [...data.east, ...(data.eastR2||[]), ...(data.eastR3||[])].filter(s => s.top.a || s.bot.a);
+  const allWest = [...data.west, ...(data.westR2||[]), ...(data.westR3||[])].filter(s => s.top.a || s.bot.a);
+  const finals = (data.finals||[]).filter(s => s.top.a || s.bot.a);
+
+  let html = '';
+  if (allEast.length) {
+    html += `<div class="conf-section"><div class="conf-title">Conférence de l'Est</div>
+      ${allEast.map(s => seriesCardHTML(s, gamesBySeries[s.letter] || [])).join('')}</div>`;
+  }
+  if (allWest.length) {
+    html += `<div class="conf-section"><div class="conf-title">Conférence de l'Ouest</div>
+      ${allWest.map(s => seriesCardHTML(s, gamesBySeries[s.letter] || [])).join('')}</div>`;
+  }
+  if (finals.length) {
+    html += `<div class="conf-section"><div class="conf-title">Finale de la Coupe Stanley</div>
+      ${finals.map(s => seriesCardHTML(s, gamesBySeries[s.letter] || [])).join('')}</div>`;
+  }
+  c.innerHTML = html || '<div class="no-data">Aucune série en cours</div>';
 
   // Attach handlers
   c.querySelectorAll('.series-header').forEach(h => {
