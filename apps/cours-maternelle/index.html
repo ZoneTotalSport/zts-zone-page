@@ -98,9 +98,12 @@ body.tbi #view-course{background:#f1f5f9!important;}
   </div>
 </div>
 
-<!-- ═══ VUE WELCOME (1ère visite) ═══ -->
-<div id="view-welcome" class="hidden-view min-h-screen flex items-center justify-center p-4 md:p-8">
-  <div class="bg-card rounded-3xl border-2 border-brandCyan/40 shadow-2xl p-6 md:p-12 max-w-5xl w-full">
+<!-- ═══ MODAL WELCOME (1ère visite + bouton Aide) ═══ -->
+<div id="view-welcome" class="fixed inset-0 z-[80] hidden items-center justify-center p-4 md:p-8 bg-dark/95 backdrop-blur-sm overflow-y-auto" style="display:none;">
+  <div class="bg-card rounded-3xl border-2 border-brandCyan/40 shadow-2xl p-6 md:p-12 max-w-5xl w-full my-auto relative">
+    <button onclick="finishWelcome()" class="absolute top-4 right-4 w-12 h-12 bg-brandRed hover:bg-red-600 text-white rounded-full flex items-center justify-center text-2xl font-black shadow-xl bento-transition active:scale-90 z-10" title="Fermer">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
     <div class="grid md:grid-cols-2 gap-8 items-center mb-8">
       <div class="text-center md:text-left">
         <div class="inline-block bg-brandYellow text-dark font-black px-4 py-2 rounded-full text-xs uppercase tracking-widest mb-4">👋 Bienvenue !</div>
@@ -635,22 +638,15 @@ function checkAccess(){
 const WELCOME_KEY='zts_mat_welcome';
 function unlock(){
   document.getElementById('lock-screen').style.display='none';
-  if(!localStorage.getItem(WELCOME_KEY)){showWelcome();return;}
   renderAll();
+  if(!localStorage.getItem(WELCOME_KEY))showWelcome();
 }
 function showWelcome(){
-  ['main','tbi','course','surprise'].forEach(v=>{
-    const el=document.getElementById('view-'+v);el.classList.remove('active-view');el.classList.add('hidden-view');
-  });
-  const w=document.getElementById('view-welcome');
-  w.classList.remove('hidden-view');w.classList.add('active-view');
-  window.scrollTo(0,0);
+  document.getElementById('view-welcome').style.display='flex';
 }
 function finishWelcome(){
   localStorage.setItem(WELCOME_KEY,'1');
-  document.getElementById('view-welcome').classList.remove('active-view');
-  document.getElementById('view-welcome').classList.add('hidden-view');
-  switchView('main');
+  document.getElementById('view-welcome').style.display='none';
 }
 function logout(){localStorage.removeItem(LOCK_KEY);location.reload();}
 function testAccess(){localStorage.setItem(LOCK_KEY,'DEMO2026');unlock();}
