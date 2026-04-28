@@ -4202,7 +4202,7 @@
         if (window.gtag) gtag('event', 'lead_magnet_signup', { lang: lang, lead: '90-cours-app' });
         // Send link by email via Resend
         if (user.email) {
-            fetch('https://zonetotalsport.ca/api/send-pdf', {
+            fetch('https://zts-send-pdf.zts-ccd.workers.dev', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: user.email, name: user.displayName || '', lang: lang, pdf: '90-cours-app', appUrl: appUrl })
