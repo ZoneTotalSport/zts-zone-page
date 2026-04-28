@@ -39,6 +39,16 @@ body::before{
   background:url('assets/gymnase.jpg') center/cover no-repeat;
 }
 body.tbi::before{opacity:.2;}
+/* Cards : fond opaque pour lisibilité sur background gymnase */
+.bg-card{background:rgba(15,23,42,.92)!important;backdrop-filter:blur(8px);}
+[class*="bg-brand"][class*="/10"],
+[class*="bg-blue-500/10"],
+[class*="bg-orange-500/10"]{
+  background:rgba(15,23,42,.88)!important;backdrop-filter:blur(8px);
+}
+body.tbi .bg-card{background:rgba(255,255,255,.96)!important;}
+body.tbi [class*="/10"]{background:rgba(241,245,249,.95)!important;}
+
 .no-scrollbar::-webkit-scrollbar{display:none;}
 .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
 .bento-transition{transition:all .3s cubic-bezier(.4,0,.2,1);}
@@ -850,8 +860,27 @@ function toggleDoneCourse(){
   switchView('main');
 }
 
-// ═══════════ TIMER ═══════════
-let timerSec=600,timerInt=null;
+// ═══════════ TIMER + GONG ═══════════
+let timerSec=600,timerInt=null,audioCtx=null;
+function playGong(){
+  try{
+    audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();
+    const ctx=audioCtx,now=ctx.currentTime;
+    // 3 coups de gong : fondamentale + harmoniques
+    [0,0.6,1.2].forEach((t,i)=>{
+      const freqs=[110,220,330,440];// gong = mélange harmonique
+      freqs.forEach(f=>{
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.type='sine';o.frequency.value=f*(1+Math.random()*.02);
+        g.gain.setValueAtTime(0,now+t);
+        g.gain.linearRampToValueAtTime(.18/(freqs.indexOf(f)+1),now+t+.02);
+        g.gain.exponentialRampToValueAtTime(.001,now+t+2.2);
+        o.connect(g).connect(ctx.destination);
+        o.start(now+t);o.stop(now+t+2.5);
+      });
+    });
+  }catch(e){console.warn('Audio non supporté',e);}
+}
 function setTimerMinutes(m){
   if(timerInt){clearInterval(timerInt);timerInt=null;
     const btn=document.getElementById('timer-btn');
@@ -875,7 +904,8 @@ function toggleTimer(){
     btn.classList.replace('bg-brandCyan','bg-brandRed');
     timerInt=setInterval(()=>{
       if(timerSec>0){timerSec--;updateTimerDisplay();}
-      else{clearInterval(timerInt);timerInt=null;document.getElementById('timer-display').innerText='⏰ FIN';}
+      else{clearInterval(timerInt);timerInt=null;document.getElementById('timer-display').innerText='⏰ FIN';playGong();
+        const btn=document.getElementById('timer-btn');btn.innerHTML='<i class="fa-solid fa-play"></i>';btn.classList.replace('bg-brandRed','bg-brandCyan');}
     },1000);
   }
 }
