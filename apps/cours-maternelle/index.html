@@ -120,7 +120,7 @@ body.tbi #view-course{background:#f1f5f9!important;}
         <div class="relative z-10">
           <span class="bg-brandCyan text-dark font-extrabold px-3 py-1 rounded-full text-xs uppercase tracking-widest inline-block mb-4">▶ Cours du jour</span>
           <h2 id="bento-today-title" class="font-bangers text-5xl md:text-7xl lg:text-8xl text-white mb-3 group-hover:scale-[1.02] origin-left bento-transition leading-tight">—</h2>
-          <p id="bento-today-desc" class="text-slate-300 font-medium max-w-2xl mt-3 text-base md:text-lg lg:text-xl leading-relaxed">—</p>
+          <p id="bento-today-desc" class="text-slate-300 font-medium max-w-3xl mt-3 text-lg md:text-xl lg:text-2xl leading-relaxed">—</p>
         </div>
         <div class="mt-6 flex gap-3 z-10 relative">
           <span class="bg-brandCyan text-dark font-black px-8 py-4 rounded-2xl flex items-center gap-3 text-lg md:text-xl shadow-xl">
@@ -235,45 +235,80 @@ body.tbi #view-course{background:#f1f5f9!important;}
         <i id="player-main-icon" class="fa-solid fa-fire text-[60px] md:text-[100px] text-brandYellow animate-float"></i>
       </div>
       <h2 id="player-activity-name" class="font-bangers text-3xl md:text-6xl text-white mb-2 text-center px-2">—</h2>
-      <p id="player-activity-but" class="text-brandCyan font-bold text-center mb-6 px-4 max-w-2xl">—</p>
+      <div id="player-activity-duree" class="text-brandYellow font-bangers text-2xl mb-2"></div>
+      <p id="player-activity-but" class="text-brandCyan font-bold text-center mb-6 px-4 max-w-2xl text-lg md:text-xl">—</p>
+
+      <!-- DÉMO ENSEIGNANT — comment introduire -->
+      <div id="player-demo-wrap" class="w-full bg-brandPurple/10 rounded-3xl p-6 border-2 border-brandPurple/40 mb-4 hidden">
+        <div class="flex items-center gap-3 mb-3">
+          <i class="fa-solid fa-clapperboard text-brandPurple text-3xl"></i>
+          <h4 class="font-bangers text-2xl md:text-3xl text-white uppercase tracking-wider">Démonstration enseignant</h4>
+        </div>
+        <p id="player-demo" class="text-slate-100 text-lg md:text-2xl leading-relaxed font-medium"></p>
+        <p class="text-xs text-brandPurple uppercase tracking-widest font-black mt-3">👆 Comment tu introduis l'activité</p>
+      </div>
 
       <!-- DÉROULEMENT -->
-      <div class="w-full bg-dark/50 rounded-3xl p-6 md:p-8 border border-slate-700/50 backdrop-blur-sm mb-4">
-        <div class="flex items-center gap-3 mb-4">
-          <i class="fa-solid fa-list-ol text-brandYellow text-2xl"></i>
-          <h4 class="font-bangers text-2xl md:text-3xl text-white uppercase tracking-wider">Déroulement</h4>
+      <div class="w-full bg-dark/50 rounded-3xl p-6 md:p-8 border-2 border-brandYellow/40 backdrop-blur-sm mb-4">
+        <div class="flex items-center gap-3 mb-2">
+          <i class="fa-solid fa-list-ol text-brandYellow text-3xl"></i>
+          <h4 class="font-bangers text-2xl md:text-3xl text-white uppercase tracking-wider">Déroulement étape par étape</h4>
         </div>
+        <p class="text-xs text-brandYellow uppercase tracking-widest font-black mb-4">👆 Clique sur une étape pour la cocher</p>
         <div id="player-explanations" class="space-y-3"></div>
       </div>
 
       <!-- CONSIGNES VERBATIM -->
-      <div id="player-consignes-wrap" class="w-full bg-brandCyan/10 rounded-3xl p-6 border border-brandCyan/30 mb-4 hidden">
-        <div class="flex items-center gap-3 mb-4">
-          <i class="fa-solid fa-quote-right text-brandCyan text-2xl"></i>
-          <h4 class="font-bangers text-2xl text-white uppercase tracking-wider">Ce que tu dis</h4>
+      <div id="player-consignes-wrap" class="w-full bg-brandCyan/10 rounded-3xl p-6 border-2 border-brandCyan/40 mb-4 hidden">
+        <div class="flex items-center gap-3 mb-2">
+          <i class="fa-solid fa-comment-dots text-brandCyan text-3xl"></i>
+          <h4 class="font-bangers text-2xl md:text-3xl text-white uppercase tracking-wider">Ce que tu dis (mot-à-mot)</h4>
         </div>
+        <p class="text-xs text-brandCyan uppercase tracking-widest font-black mb-4">📣 Phrases exactes à dire aux élèves</p>
         <div id="player-consignes" class="space-y-3"></div>
       </div>
 
       <!-- VARIANTES + SÉCURITÉ -->
       <div class="w-full grid md:grid-cols-2 gap-4 mb-4">
-        <div id="player-variantes-wrap" class="bg-brandPurple/10 rounded-3xl p-6 border border-brandPurple/30 hidden">
-          <h4 class="font-bangers text-xl text-brandPurple uppercase tracking-wider mb-3"><i class="fa-solid fa-shuffle mr-2"></i>Variantes</h4>
+        <div id="player-variantes-wrap" class="bg-brandPurple/10 rounded-3xl p-6 border-2 border-brandPurple/40 hidden">
+          <h4 class="font-bangers text-xl md:text-2xl text-brandPurple uppercase tracking-wider mb-2"><i class="fa-solid fa-shuffle mr-2"></i>Variantes par niveau</h4>
+          <p class="text-xs text-brandPurple uppercase tracking-widest font-black mb-3">Plus facile / plus dur</p>
           <ul id="player-variantes" class="space-y-2"></ul>
         </div>
-        <div id="player-securite-wrap" class="bg-brandRed/10 rounded-3xl p-6 border border-brandRed/30 hidden">
-          <h4 class="font-bangers text-xl text-brandRed uppercase tracking-wider mb-3"><i class="fa-solid fa-shield-halved mr-2"></i>Sécurité</h4>
+        <div id="player-securite-wrap" class="bg-brandRed/10 rounded-3xl p-6 border-2 border-brandRed/40 hidden">
+          <h4 class="font-bangers text-xl md:text-2xl text-brandRed uppercase tracking-wider mb-2"><i class="fa-solid fa-shield-halved mr-2"></i>Sécurité</h4>
+          <p class="text-xs text-brandRed uppercase tracking-widest font-black mb-3">⚠️ Pièges à éviter</p>
           <ul id="player-securite" class="space-y-2"></ul>
         </div>
       </div>
 
-      <!-- DÉTAILS pédagogiques (collapse) -->
-      <details class="w-full bg-slate-800/30 rounded-3xl border border-slate-700/50">
-        <summary class="px-6 py-4 cursor-pointer font-bangers text-xl text-white uppercase tracking-wider hover:bg-slate-700/30 rounded-3xl">
-          <i class="fa-solid fa-graduation-cap text-brandPink mr-2"></i>Plus d'infos pédagogiques
-        </summary>
-        <div id="player-extras" class="p-6 space-y-4"></div>
-      </details>
+      <!-- ERREURS FRÉQUENTES -->
+      <div id="player-erreurs-wrap" class="w-full bg-orange-500/10 rounded-3xl p-6 border-2 border-orange-500/40 mb-4 hidden">
+        <h4 class="font-bangers text-xl md:text-2xl text-orange-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-circle-exclamation mr-2"></i>Erreurs fréquentes des élèves</h4>
+        <p class="text-xs text-orange-400 uppercase tracking-widest font-black mb-3">❌ Ce qu'ils font mal + comment corriger</p>
+        <ul id="player-erreurs" class="space-y-2"></ul>
+      </div>
+
+      <!-- QUESTIONS DES ÉLÈVES -->
+      <div id="player-questions-wrap" class="w-full bg-blue-500/10 rounded-3xl p-6 border-2 border-blue-500/40 mb-4 hidden">
+        <h4 class="font-bangers text-xl md:text-2xl text-blue-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-hand mr-2"></i>Questions des élèves</h4>
+        <p class="text-xs text-blue-400 uppercase tracking-widest font-black mb-3">🙋 Ce qu'ils vont te demander + quoi répondre</p>
+        <ul id="player-questions" class="space-y-2"></ul>
+      </div>
+
+      <!-- FAQ ENSEIGNANT -->
+      <div id="player-faq-wrap" class="w-full bg-brandGreen/10 rounded-3xl p-6 border-2 border-brandGreen/40 mb-4 hidden">
+        <h4 class="font-bangers text-xl md:text-2xl text-brandGreen uppercase tracking-wider mb-2"><i class="fa-solid fa-chalkboard-user mr-2"></i>FAQ enseignant</h4>
+        <p class="text-xs text-brandGreen uppercase tracking-widest font-black mb-3">👨‍🏫 Cas particuliers + solutions</p>
+        <ul id="player-faq" class="space-y-2"></ul>
+      </div>
+
+      <!-- ADAPTATIONS -->
+      <div id="player-adapt-wrap" class="w-full bg-brandPink/10 rounded-3xl p-6 border-2 border-brandPink/40 mb-4 hidden">
+        <h4 class="font-bangers text-xl md:text-2xl text-brandPink uppercase tracking-wider mb-2"><i class="fa-solid fa-universal-access mr-2"></i>Adaptations besoins particuliers</h4>
+        <p class="text-xs text-brandPink uppercase tracking-widest font-black mb-3">🎓 TSA, motricité réduite, anxiété, etc.</p>
+        <ul id="player-adapt" class="space-y-2"></ul>
+      </div>
     </div>
 
     <!-- SIDEBAR -->
@@ -313,7 +348,7 @@ body.tbi #view-course{background:#f1f5f9!important;}
         <h4 class="font-bangers text-xl text-brandYellow mb-3 uppercase tracking-wider">
           <i class="fa-solid fa-lightbulb mr-2"></i> Astuce du maître
         </h4>
-        <p id="player-astuce" class="text-slate-300 text-sm leading-relaxed italic">—</p>
+        <p id="player-astuce" class="text-slate-200 text-lg md:text-xl leading-relaxed italic font-medium">—</p>
       </div>
 
       <!-- Quick infos cours -->
@@ -332,6 +367,59 @@ body.tbi #view-course{background:#f1f5f9!important;}
             <div id="player-eleves" class="font-bangers text-lg text-white">—</div>
           </div>
         </div>
+      </div>
+
+      <!-- INTENTION PÉDAGOGIQUE -->
+      <div id="player-intention-wrap" class="bg-brandPurple/10 p-6 rounded-3xl border-2 border-brandPurple/40 hidden">
+        <h4 class="font-bangers text-xl text-brandPurple mb-3 uppercase tracking-wider">
+          <i class="fa-solid fa-bullseye mr-2"></i> Intention pédagogique
+        </h4>
+        <p id="player-intention" class="text-slate-200 text-base md:text-lg leading-relaxed font-medium"></p>
+      </div>
+
+      <!-- PFEQ -->
+      <div id="player-pfeq-wrap" class="bg-card p-6 rounded-3xl border border-slate-700 hidden">
+        <h4 class="font-bangers text-xl text-brandCyan mb-3 uppercase tracking-wider">
+          <i class="fa-solid fa-graduation-cap mr-2"></i> PFEQ
+        </h4>
+        <div id="player-pfeq-principale" class="mb-2 text-sm"></div>
+        <div id="player-pfeq-secondaire" class="text-sm"></div>
+      </div>
+
+      <!-- PRÉPARATION GYMNASE -->
+      <div id="player-prep-wrap" class="bg-card p-6 rounded-3xl border-2 border-orange-500/40 hidden">
+        <h4 class="font-bangers text-xl text-orange-400 mb-2 uppercase tracking-wider">
+          <i class="fa-solid fa-screwdriver-wrench mr-2"></i> Préparation
+        </h4>
+        <p class="text-xs text-orange-400 uppercase font-black mb-3">Avant l'arrivée des élèves</p>
+        <ol id="player-prep" class="space-y-3 text-base md:text-lg text-slate-200 leading-relaxed list-decimal pl-5"></ol>
+      </div>
+
+      <!-- ÉVALUATION -->
+      <div id="player-eval-wrap" class="bg-card p-6 rounded-3xl border-2 border-blue-500/40 hidden">
+        <h4 class="font-bangers text-xl text-blue-400 mb-2 uppercase tracking-wider">
+          <i class="fa-solid fa-clipboard-check mr-2"></i> Évaluation
+        </h4>
+        <p class="text-xs text-blue-400 uppercase font-black mb-3">Quoi observer pendant le cours</p>
+        <p id="player-eval" class="text-base md:text-lg text-slate-200 leading-relaxed"></p>
+      </div>
+
+      <!-- LIENS TRANSVERSAUX -->
+      <div id="player-liens-wrap" class="bg-card p-6 rounded-3xl border-2 border-brandGreen/40 hidden">
+        <h4 class="font-bangers text-xl text-brandGreen mb-2 uppercase tracking-wider">
+          <i class="fa-solid fa-link mr-2"></i> Liens transversaux
+        </h4>
+        <p class="text-xs text-brandGreen uppercase font-black mb-3">Avec les autres matières</p>
+        <ul id="player-liens" class="space-y-3 text-base md:text-lg text-slate-200 leading-relaxed"></ul>
+      </div>
+
+      <!-- PROLONGEMENT -->
+      <div id="player-prolong-wrap" class="bg-card p-6 rounded-3xl border-2 border-brandPink/40 hidden">
+        <h4 class="font-bangers text-xl text-brandPink mb-2 uppercase tracking-wider">
+          <i class="fa-solid fa-school mr-2"></i> Prolongement
+        </h4>
+        <p class="text-xs text-brandPink uppercase font-black mb-3">À ramener en classe</p>
+        <p id="player-prolong" class="text-base md:text-lg text-slate-200 leading-relaxed"></p>
       </div>
     </div>
   </div>
@@ -611,9 +699,42 @@ function openPlayer(id){
   document.getElementById('player-eleves').innerText=(c.eleves||'15-25');
   document.getElementById('player-astuce').innerText=c.astuce||'L\'imaginaire fait tout. Si tu y crois, ils y croient.';
 
+  // Intention
+  const intW=document.getElementById('player-intention-wrap');
+  if(c.intention){intW.classList.remove('hidden');document.getElementById('player-intention').innerText=c.intention;}
+  else intW.classList.add('hidden');
+
+  // PFEQ
+  const pfeqW=document.getElementById('player-pfeq-wrap');
+  if(c.pfeq_principale||c.pfeq_secondaire){
+    pfeqW.classList.remove('hidden');
+    document.getElementById('player-pfeq-principale').innerHTML=c.pfeq_principale?`<b class="text-brandPink">Principale :</b><br><span class="text-slate-200">${c.pfeq_principale}</span>`:'';
+    document.getElementById('player-pfeq-secondaire').innerHTML=c.pfeq_secondaire?`<b class="text-brandCyan">Secondaire(s) :</b><br><span class="text-slate-200">${c.pfeq_secondaire}</span>`:'';
+  }else pfeqW.classList.add('hidden');
+
+  // Préparation
+  const prepW=document.getElementById('player-prep-wrap');
+  if(c.preparation&&c.preparation.length){prepW.classList.remove('hidden');document.getElementById('player-prep').innerHTML=c.preparation.map(p=>`<li>${p}</li>`).join('');}
+  else prepW.classList.add('hidden');
+
+  // Évaluation
+  const evalW=document.getElementById('player-eval-wrap');
+  if(c.evaluation){evalW.classList.remove('hidden');document.getElementById('player-eval').innerHTML=(c.evaluation+'').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');}
+  else evalW.classList.add('hidden');
+
+  // Liens transversaux
+  const liensW=document.getElementById('player-liens-wrap');
+  if(c.liens&&c.liens.length){liensW.classList.remove('hidden');document.getElementById('player-liens').innerHTML=c.liens.map(l=>`<li><b class="text-brandGreen">${l.discipline} :</b> ${l.lien}</li>`).join('');}
+  else liensW.classList.add('hidden');
+
+  // Prolongement
+  const prolongW=document.getElementById('player-prolong-wrap');
+  if(c.prolongement){prolongW.classList.remove('hidden');document.getElementById('player-prolong').innerText=c.prolongement;}
+  else prolongW.classList.add('hidden');
+
   // Matériel global
   const matList=document.getElementById('player-material-list');
-  matList.innerHTML=(c.materiel||[]).map(m=>`<li class="flex items-start gap-3 text-slate-300 font-medium text-sm md:text-base p-3 bg-slate-800/40 rounded-xl border border-slate-700/50"><i class="fa-solid fa-check text-brandCyan mt-1"></i><span>${m}</span></li>`).join('');
+  matList.innerHTML=(c.materiel||[]).map(m=>`<li class="flex items-start gap-3 text-slate-200 font-medium text-base md:text-xl p-4 bg-slate-800/40 rounded-xl border border-slate-700/50"><i class="fa-solid fa-check text-brandCyan mt-1"></i><span>${m}</span></li>`).join('');
 
   // Tabs
   const isDone=getDone().includes(c.id);
@@ -637,53 +758,64 @@ function loadSection(sec){
   });
 
   document.getElementById('player-activity-name').innerText=a.nom||'';
+  document.getElementById('player-activity-duree').innerText=a.duree?('⏱ '+a.duree):'';
   document.getElementById('player-activity-but').innerText=a.but?('🎯 '+a.but):'';
   document.getElementById('player-main-icon').className=`fa-solid ${ICON_BY_KIND[sec]||'fa-star'} text-[60px] md:text-[100px] text-brandYellow animate-float`;
 
-  // Déroulement avec étapes cochables
+  const showHide=(wrapId,arr,populate)=>{
+    const w=document.getElementById(wrapId);
+    if(arr&&(Array.isArray(arr)?arr.length:arr)){w.classList.remove('hidden');populate();}
+    else w.classList.add('hidden');
+  };
+
+  // DÉMO ENSEIGNANT
+  showHide('player-demo-wrap',a.demo,()=>{document.getElementById('player-demo').innerHTML=enrichStep(a.demo);});
+
+  // DÉROULEMENT cochables
   const stepsState=getStepsState();
-  const exp=document.getElementById('player-explanations');
-  exp.innerHTML=(a.deroulement||[]).map((step,i)=>{
-    const k=`${c.id}_${sec}_${i}`;
-    const done=stepsState[k];
-    return `<div class="flex gap-3 items-start cursor-pointer step-item ${done?'step-done':''}" onclick="toggleStep('${k}',this)">
-      <span class="w-8 h-8 rounded-full bg-brandCyan text-dark flex items-center justify-center font-black shrink-0 text-sm">${i+1}</span>
-      <p class="text-base md:text-lg font-medium leading-relaxed">${enrichStep(step)}</p>
+  document.getElementById('player-explanations').innerHTML=(a.deroulement||[]).map((step,i)=>{
+    const k=`${c.id}_${sec}_${i}`;const done=stepsState[k];
+    return `<div class="flex gap-3 items-start cursor-pointer step-item p-3 rounded-xl hover:bg-slate-700/30 ${done?'step-done':''}" onclick="toggleStep('${k}',this)">
+      <span class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-brandCyan text-dark flex items-center justify-center font-black shrink-0 text-base">${i+1}</span>
+      <p class="text-lg md:text-2xl font-medium leading-relaxed">${enrichStep(step)}</p>
     </div>`;
   }).join('');
 
-  // Consignes
-  const consWrap=document.getElementById('player-consignes-wrap');
-  if(a.consignes&&a.consignes.length){
-    consWrap.classList.remove('hidden');
-    document.getElementById('player-consignes').innerHTML=a.consignes.map(q=>`<div class="bg-dark/40 rounded-xl p-3 border-l-4 border-brandCyan italic text-slate-200 text-sm md:text-base">📣 «&nbsp;${q}&nbsp;»</div>`).join('');
-  }else consWrap.classList.add('hidden');
+  // CONSIGNES VERBATIM
+  showHide('player-consignes-wrap',a.consignes,()=>{
+    document.getElementById('player-consignes').innerHTML=a.consignes.map(q=>`<div class="bg-dark/40 rounded-xl p-4 border-l-4 border-brandCyan text-slate-100 text-xl md:text-2xl italic font-bold">📣 «&nbsp;${q}&nbsp;»</div>`).join('');
+  });
 
-  // Variantes
-  const varWrap=document.getElementById('player-variantes-wrap');
-  if(a.variantes&&a.variantes.length){
-    varWrap.classList.remove('hidden');
-    document.getElementById('player-variantes').innerHTML=a.variantes.map(v=>`<li class="text-slate-300 text-sm flex gap-2"><i class="fa-solid fa-shuffle text-brandPurple mt-1 shrink-0"></i><span>${v}</span></li>`).join('');
-  }else varWrap.classList.add('hidden');
+  // VARIANTES
+  showHide('player-variantes-wrap',a.variantes,()=>{
+    document.getElementById('player-variantes').innerHTML=a.variantes.map(v=>`<li class="text-slate-200 text-base md:text-xl flex gap-3 leading-relaxed"><i class="fa-solid fa-shuffle text-brandPurple mt-1 shrink-0"></i><span>${v}</span></li>`).join('');
+  });
 
-  // Sécurité
-  const secWrap=document.getElementById('player-securite-wrap');
-  if(a.securite&&a.securite.length){
-    secWrap.classList.remove('hidden');
-    document.getElementById('player-securite').innerHTML=a.securite.map(s=>`<li class="text-slate-300 text-sm flex gap-2"><i class="fa-solid fa-triangle-exclamation text-brandRed mt-1 shrink-0"></i><span>${s}</span></li>`).join('');
-  }else secWrap.classList.add('hidden');
+  // SÉCURITÉ
+  showHide('player-securite-wrap',a.securite,()=>{
+    document.getElementById('player-securite').innerHTML=a.securite.map(s=>`<li class="text-slate-200 text-base md:text-xl flex gap-3 leading-relaxed"><i class="fa-solid fa-triangle-exclamation text-brandRed mt-1 shrink-0"></i><span>${s}</span></li>`).join('');
+  });
 
-  // Extras (collapse)
-  const ext=document.getElementById('player-extras');
-  let extHtml='';
-  if(a.demo)extHtml+=`<div><h5 class="font-bangers text-lg text-brandYellow mb-2">🎬 Démonstration enseignant</h5><p class="text-slate-300 text-sm leading-relaxed">${a.demo}</p></div>`;
-  if(a.erreurs&&a.erreurs.length)extHtml+=`<div><h5 class="font-bangers text-lg text-brandRed mb-2">❌ Erreurs fréquentes</h5><ul class="text-slate-300 text-sm space-y-1 list-disc pl-5">${a.erreurs.map(e=>`<li>${e}</li>`).join('')}</ul></div>`;
-  if(a.questions_eleves&&a.questions_eleves.length)extHtml+=`<div><h5 class="font-bangers text-lg text-brandCyan mb-2">🙋 Questions des élèves</h5><ul class="text-slate-300 text-sm space-y-1 list-disc pl-5">${a.questions_eleves.map(q=>`<li>${q}</li>`).join('')}</ul></div>`;
-  if(a.faq_enseignant&&a.faq_enseignant.length)extHtml+=`<div><h5 class="font-bangers text-lg text-brandGreen mb-2">👨‍🏫 FAQ enseignant</h5><ul class="text-slate-300 text-sm space-y-1 list-disc pl-5">${a.faq_enseignant.map(f=>`<li>${f}</li>`).join('')}</ul></div>`;
-  if(a.adaptations&&a.adaptations.length)extHtml+=`<div><h5 class="font-bangers text-lg text-brandPurple mb-2">🎓 Adaptations besoins particuliers</h5><ul class="text-slate-300 text-sm space-y-1 list-disc pl-5">${a.adaptations.map(ad=>`<li>${ad}</li>`).join('')}</ul></div>`;
-  ext.innerHTML=extHtml||'<p class="text-slate-500 italic text-sm">Pas d\'infos supplémentaires.</p>';
+  // ERREURS
+  showHide('player-erreurs-wrap',a.erreurs,()=>{
+    document.getElementById('player-erreurs').innerHTML=a.erreurs.map(e=>`<li class="text-slate-200 text-base md:text-xl flex gap-3 leading-relaxed"><i class="fa-solid fa-xmark text-orange-400 mt-1 shrink-0"></i><span>${e}</span></li>`).join('');
+  });
 
-  // Reset timer & scroll
+  // QUESTIONS ÉLÈVES
+  showHide('player-questions-wrap',a.questions_eleves,()=>{
+    document.getElementById('player-questions').innerHTML=a.questions_eleves.map(q=>`<li class="text-slate-200 text-base md:text-xl flex gap-3 leading-relaxed"><i class="fa-solid fa-hand text-blue-400 mt-1 shrink-0"></i><span>${q}</span></li>`).join('');
+  });
+
+  // FAQ ENSEIGNANT
+  showHide('player-faq-wrap',a.faq_enseignant,()=>{
+    document.getElementById('player-faq').innerHTML=a.faq_enseignant.map(f=>`<li class="text-slate-200 text-base md:text-xl flex gap-3 leading-relaxed"><i class="fa-solid fa-chalkboard-user text-brandGreen mt-1 shrink-0"></i><span>${f}</span></li>`).join('');
+  });
+
+  // ADAPTATIONS
+  showHide('player-adapt-wrap',a.adaptations,()=>{
+    document.getElementById('player-adapt').innerHTML=a.adaptations.map(ad=>`<li class="text-slate-200 text-base md:text-xl flex gap-3 leading-relaxed"><i class="fa-solid fa-universal-access text-brandPink mt-1 shrink-0"></i><span>${ad}</span></li>`).join('');
+  });
+
   document.getElementById('player-poster').scrollTo(0,0);
 }
 
