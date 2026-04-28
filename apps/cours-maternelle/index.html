@@ -198,6 +198,13 @@ body.tbi #view-course{background:#f1f5f9!important;}
         <button onclick="toggleTBI()" id="tbi-btn" class="bg-card border border-slate-700 hover:border-brandCyan text-white font-bold px-4 py-2 rounded-full bento-transition text-sm flex items-center gap-2" title="Mode tableau blanc">
           <i class="fa-solid fa-desktop"></i> TBI
         </button>
+        <button onclick="exportData()" class="bg-card border border-slate-700 hover:border-brandGreen text-white font-bold px-4 py-2 rounded-full bento-transition text-sm flex items-center gap-2" title="Sauvegarder mes données dans un fichier">
+          <i class="fa-solid fa-floppy-disk"></i> Sauvegarder
+        </button>
+        <button onclick="document.getElementById('import-file').click()" class="bg-card border border-slate-700 hover:border-brandPurple text-white font-bold px-4 py-2 rounded-full bento-transition text-sm flex items-center gap-2" title="Importer une sauvegarde">
+          <i class="fa-solid fa-upload"></i> Importer
+        </button>
+        <input type="file" id="import-file" accept=".json" onchange="importData(event)" class="hidden">
         <button onclick="afficherAide()" class="bg-card border border-slate-700 hover:border-brandYellow text-white font-bold px-4 py-2 rounded-full bento-transition text-sm flex items-center gap-2">
           <i class="fa-solid fa-circle-question"></i> Aide
         </button>
@@ -305,9 +312,14 @@ body.tbi #view-course{background:#f1f5f9!important;}
       <span id="player-title" class="font-bangers text-xl md:text-3xl text-brandCyan tracking-wide leading-tight truncate max-w-full">—</span>
       <span class="text-slate-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mt-1">Cours · <span id="player-id-tiny">—</span></span>
     </div>
-    <button onclick="toggleDoneCourse()" id="finish-btn" class="bg-brandGreen text-white px-4 md:px-8 py-2 md:py-3 rounded-2xl font-black text-sm md:text-lg hover:scale-105 bento-transition shadow-lg shadow-brandGreen/20 whitespace-nowrap">
-      <i class="fa-solid fa-check"></i> <span class="hidden md:inline">TERMINER</span>
-    </button>
+    <div class="flex gap-2">
+      <button onclick="printCourse()" class="bg-card border border-slate-700 hover:border-brandCyan text-white px-3 md:px-4 py-2 md:py-3 rounded-2xl font-bold text-sm md:text-base bento-transition whitespace-nowrap" title="Imprimer la séance">
+        <i class="fa-solid fa-print"></i> <span class="hidden md:inline">Imprimer</span>
+      </button>
+      <button onclick="toggleDoneCourse()" id="finish-btn" class="bg-brandGreen text-white px-4 md:px-8 py-2 md:py-3 rounded-2xl font-black text-sm md:text-lg hover:scale-105 bento-transition shadow-lg shadow-brandGreen/20 whitespace-nowrap">
+        <i class="fa-solid fa-check"></i> <span class="hidden md:inline">TERMINER</span>
+      </button>
+    </div>
   </nav>
 
   <!-- TABS DES 4 SECTIONS -->
@@ -1046,6 +1058,101 @@ function toggleTBI(){
   document.getElementById('tbi-btn').classList.toggle('text-dark',on);
 }
 if(localStorage.getItem(TBI_KEY))document.body.classList.add('tbi');
+
+// ═══════════ EXPORT / IMPORT / PRINT ═══════════
+function exportData(){
+  const data={
+    exported_at:new Date().toISOString(),
+    version:1,
+    done:getDone(),
+    favoris:getFav(),
+    steps:getStepsState(),
+    tbi:!!localStorage.getItem(TBI_KEY)
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const date=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`ZTS-Maternelle-${date}.json`;
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);
+  alert('✅ Sauvegarde téléchargée !\n\nGarde le fichier en lieu sûr — tu pourras le réimporter plus tard ou sur un autre appareil.');
+}
+function importData(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!confirm(`Importer cette sauvegarde ?\n\n• ${(d.done||[]).length} cours faits\n• ${(d.favoris||[]).length} favoris\n• Sauvegardé le ${(d.exported_at||'?').slice(0,10)}\n\n⚠️ Cela remplace tes données actuelles.`))return;
+      if(d.done)localStorage.setItem(DONE_KEY,JSON.stringify(d.done));
+      if(d.favoris)localStorage.setItem(FAV_KEY,JSON.stringify(d.favoris));
+      if(d.steps)localStorage.setItem(STEPS_KEY,JSON.stringify(d.steps));
+      if(d.tbi)localStorage.setItem(TBI_KEY,'1');
+      alert('✅ Sauvegarde importée !');
+      location.reload();
+    }catch(err){alert('❌ Fichier invalide : '+err.message);}
+  };
+  r.readAsText(file);
+  ev.target.value='';
+}
+function printCourse(){
+  if(!selectedCourseId){alert('Ouvre un cours avant d\'imprimer.');return;}
+  const c=COURS.find(x=>x.id===selectedCourseId);if(!c)return;
+  const w=window.open('','_blank','width=900,height=1100');
+  const sec=(a,label,emoji)=>{
+    if(!a||!a.deroulement)return'';
+    return `<div class="section">
+      <h2>${emoji} ${label}${a.duree?' · '+a.duree:''} — ${a.nom||''}</h2>
+      ${a.but?`<p class="but"><b>🎯 But :</b> ${a.but}</p>`:''}
+      ${a.demo?`<p><b>🎬 Démonstration :</b> ${a.demo}</p>`:''}
+      <h3>Déroulement :</h3>
+      <ol>${a.deroulement.map(s=>`<li>${s}</li>`).join('')}</ol>
+      ${a.consignes&&a.consignes.length?`<h3>Ce que tu dis (verbatim) :</h3><ul class="quotes">${a.consignes.map(q=>`<li>«&nbsp;${q}&nbsp;»</li>`).join('')}</ul>`:''}
+      ${a.variantes&&a.variantes.length?`<h3>Variantes :</h3><ul>${a.variantes.map(v=>`<li>${v}</li>`).join('')}</ul>`:''}
+      ${a.securite&&a.securite.length?`<h3>⚠️ Sécurité :</h3><ul>${a.securite.map(s=>`<li>${s}</li>`).join('')}</ul>`:''}
+      ${a.erreurs&&a.erreurs.length?`<h3>❌ Erreurs fréquentes :</h3><ul>${a.erreurs.map(e=>`<li>${e}</li>`).join('')}</ul>`:''}
+      ${a.adaptations&&a.adaptations.length?`<h3>♿ Adaptations :</h3><ul>${a.adaptations.map(ad=>`<li>${ad}</li>`).join('')}</ul>`:''}
+    </div>`;
+  };
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${c.titre} — ZTS Maternelle</title>
+  <style>
+    body{font-family:Georgia,serif;color:#000;max-width:780px;margin:0 auto;padding:24px;line-height:1.5;}
+    h1{font-family:'Arial Black',sans-serif;font-size:28px;border-bottom:3px solid #06b6d4;padding-bottom:8px;color:#06b6d4;}
+    h2{font-family:'Arial Black',sans-serif;font-size:20px;background:#06b6d4;color:#fff;padding:6px 12px;border-radius:6px;margin-top:24px;}
+    h3{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#444;margin-top:16px;margin-bottom:6px;}
+    .section{page-break-inside:avoid;margin-bottom:20px;}
+    ol,ul{padding-left:22px;}
+    li{margin-bottom:6px;}
+    .but{background:#fef3c7;padding:8px 12px;border-left:4px solid #facc15;border-radius:4px;}
+    .quotes li{background:#dbeafe;padding:6px 10px;border-left:3px solid #3b82f6;border-radius:4px;font-style:italic;list-style:none;margin-left:-22px;margin-bottom:4px;}
+    .meta{display:flex;gap:20px;font-size:12px;color:#666;margin:8px 0 16px;text-transform:uppercase;letter-spacing:1px;}
+    .meta b{color:#000;}
+    .intention{background:#f3e8ff;padding:12px;border-radius:6px;border-left:4px solid #a855f7;font-size:14px;}
+    .materiel{background:#f0fdf4;padding:12px;border-radius:6px;border-left:4px solid #22c55e;}
+    .footer{margin-top:30px;padding-top:12px;border-top:1px solid #ccc;font-size:11px;color:#888;text-align:center;}
+    @media print{body{max-width:none;padding:0;}}
+  </style></head><body>
+    <h1>Cours #${c.id} — ${c.titre}</h1>
+    <div class="meta"><span><b>Niveau :</b> ${c.niveau||'Maternelle'}</span><span><b>Durée :</b> ${c.duree||'60 min'}</span><span><b>Élèves :</b> ${c.eleves||'15-25'}</span></div>
+    ${c.intention?`<div class="intention"><b>🎯 Intention pédagogique :</b><br>${c.intention}</div>`:''}
+    ${c.pfeq_principale?`<p><b>PFEQ principale :</b> ${c.pfeq_principale}</p>`:''}
+    ${c.pfeq_secondaire?`<p><b>PFEQ secondaire(s) :</b> ${c.pfeq_secondaire}</p>`:''}
+    ${c.materiel&&c.materiel.length?`<div class="materiel"><b>📦 Matériel :</b><ul>${c.materiel.map(m=>`<li>${m}</li>`).join('')}</ul></div>`:''}
+    ${c.preparation&&c.preparation.length?`<div class="section"><h2>🔧 Préparation du gymnase</h2><ol>${c.preparation.map(p=>`<li>${p}</li>`).join('')}</ol></div>`:''}
+    ${sec(c.mise_en_train,'1. Mise en train','🔥')}
+    ${sec(c.activite_1,'2. Activité 1','▶️')}
+    ${sec(c.activite_2,'3. Activité 2','▶️')}
+    ${sec(c.retour,'4. Retour au calme','🌙')}
+    ${c.astuce?`<div class="section"><h2>💡 Astuce du maître du jeu</h2><p style="font-style:italic;">${c.astuce}</p></div>`:''}
+    ${c.evaluation?`<div class="section"><h2>📋 Évaluation</h2><p>${(c.evaluation+'').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>')}</p></div>`:''}
+    ${c.liens&&c.liens.length?`<div class="section"><h2>🔗 Liens transversaux</h2><ul>${c.liens.map(l=>`<li><b>${l.discipline} :</b> ${l.lien}</li>`).join('')}</ul></div>`:''}
+    ${c.prolongement?`<div class="section"><h2>🏫 Prolongement en classe</h2><p>${c.prolongement}</p></div>`:''}
+    <div class="footer">Zone Total Sport · 90 Cours Maternelle · zonetotalsport.ca</div>
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>{w.print();},400);
+}
 
 // ═══════════ AIDE ═══════════
 function afficherAide(){showWelcome();}
