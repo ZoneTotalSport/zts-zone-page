@@ -87,7 +87,7 @@ body.tbi #view-course{background:#f1f5f9!important;}
 
 <!-- ═══ VUE 1 : MENU PRINCIPAL ═══ -->
 <div id="view-main" class="active-view w-full">
-  <div class="w-full max-w-7xl mx-auto p-4 md:p-8">
+  <div class="w-full px-4 md:px-8 lg:px-12 py-4 md:py-6">
     <!-- HEADER -->
     <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
       <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('main')">
@@ -113,18 +113,18 @@ body.tbi #view-course{background:#f1f5f9!important;}
     </header>
 
     <!-- BENTO GRID -->
-    <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-6 auto-rows-[180px] mb-10">
+    <div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 md:gap-6 auto-rows-[260px] md:auto-rows-[300px] mb-10">
       <!-- Cours du jour -->
       <div id="bento-today" onclick="bentoTodayClick()" class="md:col-span-2 md:row-span-2 bg-card rounded-3xl p-6 md:p-8 relative overflow-hidden group border border-slate-700 hover:border-brandCyan bento-transition cursor-pointer flex flex-col justify-between shadow-lg shadow-black/50">
         <div class="absolute -top-20 -right-20 w-64 h-64 bg-brandCyan/20 rounded-full blur-3xl group-hover:bg-brandCyan/30 bento-transition"></div>
         <div class="relative z-10">
           <span class="bg-brandCyan text-dark font-extrabold px-3 py-1 rounded-full text-xs uppercase tracking-widest inline-block mb-4">▶ Cours du jour</span>
-          <h2 id="bento-today-title" class="font-bangers text-4xl md:text-6xl text-white mb-2 group-hover:scale-[1.02] origin-left bento-transition">—</h2>
-          <p id="bento-today-desc" class="text-slate-400 font-medium max-w-md mt-2 text-sm md:text-base leading-relaxed">—</p>
+          <h2 id="bento-today-title" class="font-bangers text-5xl md:text-7xl lg:text-8xl text-white mb-3 group-hover:scale-[1.02] origin-left bento-transition leading-tight">—</h2>
+          <p id="bento-today-desc" class="text-slate-300 font-medium max-w-2xl mt-3 text-base md:text-lg lg:text-xl leading-relaxed">—</p>
         </div>
         <div class="mt-6 flex gap-3 z-10 relative">
-          <span class="bg-brandCyan text-dark font-bold px-6 py-3 rounded-2xl flex items-center gap-2">
-            <i class="fa-solid fa-play"></i> Lancer le cours
+          <span class="bg-brandCyan text-dark font-black px-8 py-4 rounded-2xl flex items-center gap-3 text-lg md:text-xl shadow-xl">
+            <i class="fa-solid fa-play text-2xl"></i> LANCER LE COURS
           </span>
         </div>
       </div>
@@ -132,10 +132,10 @@ body.tbi #view-course{background:#f1f5f9!important;}
       <!-- Arsenal -->
       <div class="md:col-span-2 bg-gradient-to-br from-brandYellow to-yellow-600 rounded-3xl p-6 text-dark flex flex-col justify-center relative overflow-hidden bento-transition shadow-lg">
         <i class="fa-solid fa-database absolute -right-4 -bottom-4 text-9xl text-dark opacity-10"></i>
-        <h3 class="font-bangers text-3xl mb-1">Arsenal Complet</h3>
-        <div class="flex items-baseline gap-2 mb-2">
-          <span id="arsenal-num" class="font-bangers text-6xl md:text-7xl leading-none">90</span>
-          <span class="font-extrabold text-lg leading-tight">Cours<br>Maternelle</span>
+        <h3 class="font-bangers text-4xl md:text-5xl mb-2">Arsenal Complet</h3>
+        <div class="flex items-baseline gap-3 mb-3">
+          <span id="arsenal-num" class="font-bangers text-8xl md:text-9xl leading-none">90</span>
+          <span class="font-extrabold text-2xl md:text-3xl leading-tight">Cours<br>Maternelle</span>
         </div>
         <div class="w-full bg-dark/20 rounded-full h-2 mb-3 overflow-hidden">
           <div id="progress-bar" class="bg-dark h-full rounded-full transition-all duration-700" style="width:0%"></div>
@@ -146,40 +146,40 @@ body.tbi #view-course{background:#f1f5f9!important;}
       </div>
 
       <!-- TBI -->
-      <div onclick="switchView('tbi')" class="bg-card rounded-3xl p-6 flex flex-col items-center justify-center border border-slate-700 hover:border-brandCyan hover:bg-cardHover bento-transition cursor-pointer group shadow-lg">
-        <div class="w-16 h-16 rounded-2xl bg-brandCyan/10 text-brandCyan flex items-center justify-center text-3xl mb-3 group-hover:scale-110 group-hover:bg-brandCyan group-hover:text-dark bento-transition">
+      <div onclick="switchView('tbi')" class="bg-card rounded-3xl p-8 flex flex-col items-center justify-center border-2 border-slate-700 hover:border-brandCyan hover:bg-cardHover bento-transition cursor-pointer group shadow-lg">
+        <div class="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-brandCyan/10 text-brandCyan flex items-center justify-center text-5xl md:text-6xl mb-4 group-hover:scale-110 group-hover:bg-brandCyan group-hover:text-dark bento-transition">
           <i class="fa-solid fa-chalkboard"></i>
         </div>
-        <h3 class="font-bold text-lg text-slate-200">Mode TBI</h3>
-        <span class="text-xs text-slate-500 mt-1">Cartes géantes</span>
+        <h3 class="font-bangers text-3xl md:text-4xl text-white tracking-wider">MODE TBI</h3>
+        <span class="text-sm text-slate-400 mt-2 font-bold">Cartes géantes</span>
       </div>
 
       <!-- Surprise -->
-      <div onclick="switchView('surprise')" class="bg-card rounded-3xl p-6 flex flex-col items-center justify-center border border-slate-700 hover:border-brandYellow hover:bg-cardHover bento-transition cursor-pointer group shadow-lg">
-        <div class="w-16 h-16 rounded-2xl bg-brandYellow/10 text-brandYellow flex items-center justify-center text-3xl mb-3 group-hover:scale-110 group-hover:bg-brandYellow group-hover:text-dark bento-transition group-hover:rotate-12">
+      <div onclick="switchView('surprise')" class="bg-card rounded-3xl p-8 flex flex-col items-center justify-center border-2 border-slate-700 hover:border-brandYellow hover:bg-cardHover bento-transition cursor-pointer group shadow-lg">
+        <div class="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-brandYellow/10 text-brandYellow flex items-center justify-center text-5xl md:text-6xl mb-4 group-hover:scale-110 group-hover:bg-brandYellow group-hover:text-dark bento-transition group-hover:rotate-12">
           <i class="fa-solid fa-dice"></i>
         </div>
-        <h3 class="font-bold text-lg text-slate-200">Surprise</h3>
-        <span class="text-xs text-slate-500 mt-1">Tirage au sort</span>
+        <h3 class="font-bangers text-3xl md:text-4xl text-white tracking-wider">SURPRISE</h3>
+        <span class="text-sm text-slate-400 mt-2 font-bold">Tirage au sort</span>
       </div>
     </div>
 
     <!-- TRIMESTRES -->
-    <div id="trim-nav" class="flex gap-2 md:gap-4 mb-6 border-b border-slate-700 pb-2 overflow-x-auto no-scrollbar">
-      <button onclick="filterCourses('1-30',this)" data-trim="1-30" class="trim-btn font-bangers text-xl md:text-2xl px-4 py-2 text-brandCyan border-b-4 border-brandCyan whitespace-nowrap">🍂 Automne (1-30)</button>
-      <button onclick="filterCourses('31-60',this)" data-trim="31-60" class="trim-btn font-bangers text-xl md:text-2xl px-4 py-2 text-slate-500 hover:text-slate-300 bento-transition whitespace-nowrap">❄️ Hiver (31-60)</button>
-      <button onclick="filterCourses('61-90',this)" data-trim="61-90" class="trim-btn font-bangers text-xl md:text-2xl px-4 py-2 text-slate-500 hover:text-slate-300 bento-transition whitespace-nowrap">🌸 Printemps (61-90)</button>
-      <input type="text" id="searchInput" oninput="renderGrid()" placeholder="🔍 Recherche…" class="ml-auto bg-card border border-slate-700 focus:border-brandCyan rounded-full px-4 py-2 text-white text-sm font-bold outline-none w-40 md:w-64">
+    <div id="trim-nav" class="flex gap-2 md:gap-6 mb-8 border-b-2 border-slate-700 pb-3 overflow-x-auto no-scrollbar items-center">
+      <button onclick="filterCourses('1-30',this)" data-trim="1-30" class="trim-btn font-bangers text-2xl md:text-4xl px-4 py-3 text-brandCyan border-b-4 border-brandCyan whitespace-nowrap">🍂 Automne</button>
+      <button onclick="filterCourses('31-60',this)" data-trim="31-60" class="trim-btn font-bangers text-2xl md:text-4xl px-4 py-3 text-slate-500 hover:text-slate-300 bento-transition whitespace-nowrap">❄️ Hiver</button>
+      <button onclick="filterCourses('61-90',this)" data-trim="61-90" class="trim-btn font-bangers text-2xl md:text-4xl px-4 py-3 text-slate-500 hover:text-slate-300 bento-transition whitespace-nowrap">🌸 Printemps</button>
+      <input type="text" id="searchInput" oninput="renderGrid()" placeholder="🔍 Recherche…" class="ml-auto bg-card border-2 border-slate-700 focus:border-brandCyan rounded-full px-5 py-3 text-white text-base font-bold outline-none w-48 md:w-72">
     </div>
 
     <!-- COURSE GRID -->
-    <div id="course-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4 mb-20"></div>
+    <div id="course-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-4 md:gap-5 mb-20"></div>
   </div>
 </div>
 
 <!-- ═══ VUE 2 : MODE TBI ═══ -->
 <div id="view-tbi" class="hidden-view min-h-screen p-6 md:p-12">
-  <div class="max-w-7xl mx-auto">
+  <div class="w-full">
     <div class="flex justify-between items-center mb-10 flex-wrap gap-4">
       <div>
         <h1 class="font-bangers text-4xl md:text-6xl text-white">TABLEAU MAGIQUE</h1>
@@ -514,17 +514,17 @@ function renderGrid(){
   list.forEach(c=>{
     const isDone=done.includes(c.id),isFav=fav.includes(c.id);
     const card=document.createElement('div');
-    card.className=`rounded-2xl p-4 flex flex-col h-40 md:h-44 bento-transition relative border cursor-pointer ${isDone?'bg-brandGreen text-white border-brandGreen shadow-lg shadow-brandGreen/20':'bg-card border-slate-700 hover:border-brandCyan'}`;
+    card.className=`rounded-3xl p-5 md:p-6 flex flex-col h-52 md:h-64 bento-transition relative border-2 cursor-pointer ${isDone?'bg-brandGreen text-white border-brandGreen shadow-xl shadow-brandGreen/30':'bg-card border-slate-700 hover:border-brandCyan hover:scale-[1.03] shadow-lg'}`;
     card.onclick=()=>openCourseModal(c.id);
     card.innerHTML=`
       <div class="flex justify-between items-start mb-auto">
-        <span class="font-bangers text-2xl ${isDone?'text-white':'text-slate-400'}">${String(c.id).padStart(2,'0')}</span>
-        <i class="fa-solid ${isDone?'fa-circle-check':iconForCourse(c)} text-xl ${isDone?'text-white':'text-brandCyan'}"></i>
+        <span class="font-bangers text-4xl ${isDone?'text-white':'text-brandYellow'}">${String(c.id).padStart(2,'0')}</span>
+        <i class="fa-solid ${isDone?'fa-circle-check':iconForCourse(c)} text-3xl md:text-4xl ${isDone?'text-white':'text-brandCyan'}"></i>
       </div>
-      <h4 class="font-bold text-xs md:text-sm leading-tight mb-1">${c.titre}</h4>
+      <h4 class="font-bangers text-lg md:text-xl leading-tight mb-2 mt-4">${c.titre}</h4>
       <div class="flex justify-between items-center">
-        <span class="text-[8px] md:text-[9px] uppercase font-black opacity-60 tracking-widest">${c.periode||''}</span>
-        ${isFav?'<i class="fa-solid fa-star text-brandYellow text-xs"></i>':''}
+        <span class="text-xs uppercase font-black opacity-70 tracking-widest">${c.periode||''}</span>
+        ${isFav?'<i class="fa-solid fa-star text-brandYellow text-base"></i>':''}
       </div>`;
     grid.appendChild(card);
   });
