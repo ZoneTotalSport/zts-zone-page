@@ -563,13 +563,13 @@ const API = {
 
 const PROXIES = [
   u => u, // direct first (ESPN supports CORS)
-  u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
   u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
 ];
 async function apiFetch(url) {
   for (const proxy of PROXIES) {
     try {
-      const r = await fetch(proxy(url));
+      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(6000) });
       if (!r.ok) continue;
       return await r.json();
     } catch(e) { /* try next */ }
@@ -581,18 +581,19 @@ async function apiFetch(url) {
 // =============================================
 // FALLBACK BRACKET — VRAIS MATCHUPS 2026
 // =============================================
+// Fallback mis à jour le 28 avril 2026
 const FALLBACK = {
   east: [
-    { top:{a:'DET',n:'Detroit Pistons',s:1,w:0,logo:LOGO('det')}, bot:{a:'ORL',n:'Orlando Magic',s:8,w:0,logo:LOGO('orl')}, letter:'A', round:1 },
-    { top:{a:'BOS',n:'Boston Celtics',s:2,w:0,logo:LOGO('bos')}, bot:{a:'PHI',n:'Philadelphia 76ers',s:7,w:0,logo:LOGO('phi')}, letter:'B', round:1 },
-    { top:{a:'NY',n:'New York Knicks',s:3,w:0,logo:LOGO('ny')}, bot:{a:'ATL',n:'Atlanta Hawks',s:6,w:0,logo:LOGO('atl')}, letter:'C', round:1 },
-    { top:{a:'CLE',n:'Cleveland Cavaliers',s:4,w:0,logo:LOGO('cle')}, bot:{a:'TOR',n:'Toronto Raptors',s:5,w:0,logo:LOGO('tor')}, letter:'D', round:1 },
+    { top:{a:'DET',n:'Detroit Pistons',s:1,w:1,logo:LOGO('det')}, bot:{a:'ORL',n:'Orlando Magic',s:8,w:3,logo:LOGO('orl')}, letter:'A', round:1 },
+    { top:{a:'BOS',n:'Boston Celtics',s:2,w:3,logo:LOGO('bos')}, bot:{a:'PHI',n:'Philadelphia 76ers',s:7,w:1,logo:LOGO('phi')}, letter:'B', round:1 },
+    { top:{a:'NY',n:'New York Knicks',s:3,w:2,logo:LOGO('ny')}, bot:{a:'ATL',n:'Atlanta Hawks',s:6,w:2,logo:LOGO('atl')}, letter:'C', round:1 },
+    { top:{a:'CLE',n:'Cleveland Cavaliers',s:4,w:2,logo:LOGO('cle')}, bot:{a:'TOR',n:'Toronto Raptors',s:5,w:2,logo:LOGO('tor')}, letter:'D', round:1 },
   ],
   west: [
-    { top:{a:'OKC',n:'Oklahoma City Thunder',s:1,w:0,logo:LOGO('okc')}, bot:{a:'PHX',n:'Phoenix Suns',s:8,w:0,logo:LOGO('phx')}, letter:'E', round:1 },
-    { top:{a:'SA',n:'San Antonio Spurs',s:2,w:0,logo:LOGO('sa')}, bot:{a:'POR',n:'Portland Trail Blazers',s:7,w:0,logo:LOGO('por')}, letter:'F', round:1 },
-    { top:{a:'DEN',n:'Denver Nuggets',s:3,w:0,logo:LOGO('den')}, bot:{a:'MIN',n:'Minnesota Timberwolves',s:6,w:0,logo:LOGO('min')}, letter:'G', round:1 },
-    { top:{a:'LAL',n:'Los Angeles Lakers',s:4,w:0,logo:LOGO('lal')}, bot:{a:'HOU',n:'Houston Rockets',s:5,w:0,logo:LOGO('hou')}, letter:'H', round:1 },
+    { top:{a:'OKC',n:'Oklahoma City Thunder',s:1,w:4,logo:LOGO('okc')}, bot:{a:'PHX',n:'Phoenix Suns',s:8,w:0,logo:LOGO('phx')}, letter:'E', round:1 },
+    { top:{a:'SA',n:'San Antonio Spurs',s:2,w:3,logo:LOGO('sa')}, bot:{a:'POR',n:'Portland Trail Blazers',s:7,w:1,logo:LOGO('por')}, letter:'F', round:1 },
+    { top:{a:'DEN',n:'Denver Nuggets',s:3,w:1,logo:LOGO('den')}, bot:{a:'MIN',n:'Minnesota Timberwolves',s:6,w:3,logo:LOGO('min')}, letter:'G', round:1 },
+    { top:{a:'LAL',n:'Los Angeles Lakers',s:4,w:3,logo:LOGO('lal')}, bot:{a:'HOU',n:'Houston Rockets',s:5,w:1,logo:LOGO('hou')}, letter:'H', round:1 },
   ]
 };
 

@@ -494,11 +494,56 @@
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-12px) rotate(8deg); }
         }
+        .sub-pdf-mockup {
+            position: relative; width: 150px; height: 200px;
+            background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+            border-radius: 4px 12px 12px 4px;
+            box-shadow: -4px 0 0 #e0e0e0, -8px 0 0 #ccc, 8px 10px 30px rgba(0,0,0,0.35);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 14px; margin: 0 auto 14px;
+            transform: rotate(-4deg); animation: pdfFloat 3s ease-in-out infinite;
+        }
+        .sub-pdf-mockup::before {
+            content: ''; position: absolute; top: 0; right: 0;
+            width: 0; height: 0; border-style: solid;
+            border-width: 0 28px 28px 0;
+            border-color: transparent rgba(0,229,255,0.6) transparent transparent;
+            border-radius: 0 12px 0 0;
+        }
+        .sub-pdf-mockup-lines { width: 100%; }
+        .sub-pdf-mockup-lines div { height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; margin-bottom: 5px; }
+        .sub-pdf-mockup-lines div:nth-child(3) { width: 70%; }
+        .sub-pdf-mockup-lines div:nth-child(5) { width: 50%; }
+        .sub-pdf-mockup-badge {
+            position: absolute; bottom: -10px; right: -14px;
+            background: #EF4444; color: #fff;
+            font-family: 'Bangers', cursive; font-size: 0.75rem;
+            padding: 4px 10px; border-radius: 10px;
+            border: 2px solid #fff; transform: rotate(6deg);
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+            letter-spacing: 1px; white-space: nowrap;
+        }
+        @keyframes pdfFloat {
+            0%, 100% { transform: rotate(-4deg) translateY(0); }
+            50% { transform: rotate(-4deg) translateY(-8px); }
+        }
+        .sub-dismiss {
+            display: block; text-align: center; padding: 8px;
+            font-family: 'Patrick Hand', cursive; font-size: 0.95rem;
+            color: rgba(255,255,255,0.4); cursor: pointer;
+            background: none; border: none; margin-top: 6px; transition: color 0.2s;
+        }
+        .sub-dismiss:hover { color: rgba(255,255,255,0.7); }
         @media (max-width: 768px) {
             .subscribe-box { flex-direction: column; border-radius: 24px; max-width: 92vw; padding: 20px; }
             .subscribe-header { border-right: none; border-bottom: 2px solid rgba(255,255,255,0.12); padding: 24px 22px 18px; }
             .subscribe-body { padding: 18px 22px 24px; }
             .sub-btn-cta { font-size: 1.2rem; }
+            .sub-pdf-mockup { width: 120px; height: 160px; padding: 10px; }
+        }
+        @media (max-width: 428px) {
+            .sub-pdf-mockup { width: 100px; height: 135px; padding: 8px; margin-bottom: 10px; }
+            .sub-pdf-mockup-badge { font-size: 0.65rem; padding: 3px 8px; }
         }
 
         /* ========== À LA UNE SECTION ========== */
@@ -2456,74 +2501,62 @@
         <p class="text-white/30 font-baloo text-xs">zonetotalsport.ca — Ressources ÉPS pour enseignants au primaire</p>
     </div>
 
-    <!-- ========== SUBSCRIBE POPUP (VIP Vivid) ========== -->
+    <!-- ========== SUBSCRIBE POPUP — Lead Magnet (30 cours maternelle) ========== -->
     <div class="subscribe-overlay" id="subscribeOverlay">
         <div class="subscribe-box" id="subscribeBox">
-            <!-- Bouton X supprimé — inscription obligatoire -->
+            <!-- Close X (freemium) -->
+            <button class="subscribe-close" onclick="closeSubscribe()" aria-label="Fermer">&times;</button>
 
             <!-- Floating decorations -->
-            <div class="sub-floating" style="top:-24px;left:-16px;font-size:1.8rem;animation:subFloat 2.5s ease-in-out infinite">⚡</div>
-            <div class="sub-floating" style="top:30%;right:-20px;font-size:1.6rem;animation:subFloat 2.8s ease-in-out infinite 0.4s">🏀</div>
-            <div class="sub-floating" style="bottom:10%;left:-18px;font-size:1.5rem;animation:subFloat 2.2s ease-in-out infinite 0.8s">⚽</div>
-            <div class="sub-floating" style="bottom:-16px;right:30px;font-size:1.3rem;animation:subFloat 3s ease-in-out infinite 0.6s">🎾</div>
+            <div class="sub-floating" style="top:-24px;left:-16px;font-size:1.8rem;animation:subFloat 2.5s ease-in-out infinite">🎒</div>
+            <div class="sub-floating" style="top:30%;right:-20px;font-size:1.6rem;animation:subFloat 2.8s ease-in-out infinite 0.4s">🏃</div>
+            <div class="sub-floating" style="bottom:10%;left:-18px;font-size:1.5rem;animation:subFloat 2.2s ease-in-out infinite 0.8s">🧒</div>
+            <div class="sub-floating" style="bottom:-16px;right:30px;font-size:1.3rem;animation:subFloat 3s ease-in-out infinite 0.6s">⭐</div>
 
-            <!-- Header camp de jour cyan -->
+            <!-- Header — PDF Mockup -->
             <div class="subscribe-header">
-                <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Le Bucheron Sportif" style="width:220px;height:auto;margin:0 auto 8px;filter:drop-shadow(3px 6px 12px rgba(0,0,0,0.4))">
-                <div style="display:inline-block;background:#EF4444;color:#fff;font-family:'Bangers',cursive;font-size:0.95rem;letter-spacing:1.5px;padding:5px 16px;border-radius:20px;margin-bottom:10px;box-shadow:0 4px 14px rgba(239,68,68,0.5)" data-i18n="subOfferBadge">🔥 OFFRE GRATUITE</div>
-                <h2 style="font-family:'Fredoka One',cursive;font-size:2.7rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.05" data-i18n="subTitle">Prépare ton prochain cours ÉPS en 30 sec</h2>
-                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.95);font-size:1.3rem;margin-top:10px;line-height:1.35" data-i18n="subDesc"><strong style="color:#FFEA00">349 profs</strong> d'ÉPS au Québec utilisent déjà la Zone chaque matin. C'est ton tour.</p>
-
-                <!-- Stats band -->
-                <div class="sub-stats-band">
-                    <div class="sub-stat">
-                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#FFD700;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">1000+</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)" data-i18n="subStatGames">jeux</div>
+                <div class="sub-pdf-mockup">
+                    <div style="font-size:2rem;margin-bottom:6px">🏃‍♂️</div>
+                    <div style="font-family:'Bangers',cursive;font-size:0.7rem;color:#18181b;letter-spacing:1px;text-align:center;line-height:1.2" data-i18n="subPdfLabel">30 COURS<br>MATERNELLE</div>
+                    <div class="sub-pdf-mockup-lines" style="margin-top:8px">
+                        <div></div><div></div><div></div><div></div><div></div>
                     </div>
-                    <div class="sub-stat">
-                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">1000+</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)" data-i18n="subStatSae">SAÉ</div>
-                    </div>
-                    <div class="sub-stat">
-                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#FF2A7A;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">IA</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)" data-i18n="subStatGen">générateur</div>
-                    </div>
-                    <div class="sub-stat">
-                        <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#4ADE80;text-shadow:1px 1px 0 rgba(0,0,0,0.2)">0$</div>
-                        <div style="font-family:'Patrick Hand',cursive;font-size:0.85rem;color:rgba(255,255,255,0.7)" data-i18n="subStatFree">gratuit!</div>
-                    </div>
+                    <div class="sub-pdf-mockup-badge" data-i18n="subPdfBadge">PDF GRATUIT</div>
                 </div>
+                <div style="display:inline-block;background:#EF4444;color:#fff;font-family:'Bangers',cursive;font-size:0.95rem;letter-spacing:1.5px;padding:5px 16px;border-radius:20px;margin-bottom:10px;box-shadow:0 4px 14px rgba(239,68,68,0.5)" data-i18n="subOfferBadge">🎁 CADEAU GRATUIT</div>
+                <h2 style="font-family:'Fredoka One',cursive;font-size:2.2rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.05" data-i18n="subTitle">30 cours clé en main pour la maternelle!</h2>
+                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.95);font-size:1.2rem;margin-top:10px;line-height:1.35" data-i18n="subDesc">Un PDF complet prêt à utiliser dès lundi. <strong style="color:#FFEA00">Aucune préparation requise.</strong></p>
             </div>
 
             <!-- Body -->
             <div class="subscribe-body">
                 <div class="flex flex-col gap-3 mb-5">
                     <div class="subscribe-perk">
-                        <div class="subscribe-perk-icon">⚽</div>
-                        <div>
-                            <div style="font-family:'Fredoka One',cursive;font-size:1.25rem;color:#FFD700;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT1">+500 jeux sportifs</div>
-                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk1">Fiches détaillées, règles et variantes</div>
-                        </div>
-                    </div>
-                    <div class="subscribe-perk">
-                        <div class="subscribe-perk-icon">🤖</div>
-                        <div>
-                            <div style="font-family:'Fredoka One',cursive;font-size:1.25rem;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT2">Générateur IA</div>
-                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk2">Crée un jeu sur mesure en 10 secondes</div>
-                        </div>
-                    </div>
-                    <div class="subscribe-perk">
                         <div class="subscribe-perk-icon">📋</div>
                         <div>
-                            <div style="font-family:'Fredoka One',cursive;font-size:1.25rem;color:#FF2A7A;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT3">SAÉ + Outils</div>
-                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk3">Situations d'apprentissage et gestion de classe</div>
+                            <div style="font-family:'Fredoka One',cursive;font-size:1.15rem;color:#FFD700;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT1">30 séances complètes</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk1">Échauffement, corps du cours, retour au calme</div>
                         </div>
                     </div>
                     <div class="subscribe-perk">
-                        <div class="subscribe-perk-icon">🆓</div>
+                        <div class="subscribe-perk-icon">🎯</div>
                         <div>
-                            <div style="font-family:'Fredoka One',cursive;font-size:1.25rem;color:#4ADE80;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT4">100% gratuit</div>
-                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk4">Sans abonnement ni carte de crédit</div>
+                            <div style="font-family:'Fredoka One',cursive;font-size:1.15rem;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT2">Adapté 4-6 ans</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk2">Motricité, coopération, jeux actifs</div>
+                        </div>
+                    </div>
+                    <div class="subscribe-perk">
+                        <div class="subscribe-perk-icon">⏱️</div>
+                        <div>
+                            <div style="font-family:'Fredoka One',cursive;font-size:1.15rem;color:#FF2A7A;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT3">Cours de 60 minutes</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk3">Minutage précis, zéro temps mort</div>
+                        </div>
+                    </div>
+                    <div class="subscribe-perk">
+                        <div class="subscribe-perk-icon">✅</div>
+                        <div>
+                            <div style="font-family:'Fredoka One',cursive;font-size:1.15rem;color:#4ADE80;text-shadow:1px 1px 0 rgba(0,0,0,0.15)" data-i18n="subPerkT4">Zéro préparation</div>
+                            <div style="font-family:'Patrick Hand',cursive;font-size:1rem;color:rgba(255,255,255,0.75)" data-i18n="subPerk4">Imprime et c'est parti. Matériel minimal.</div>
                         </div>
                     </div>
                 </div>
@@ -2535,16 +2568,16 @@
                         <div style="width:34px;height:34px;border-radius:50%;background:#FF2A7A;border:3px solid #fff;margin-right:-10px;z-index:2;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#fff;font-family:'Fredoka One',cursive">JR</div>
                         <div style="width:34px;height:34px;border-radius:50%;background:#8B5CF6;border:3px solid #fff;z-index:1;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#fff;font-family:'Fredoka One',cursive">SL</div>
                     </div>
-                    <span style="font-family:'Patrick Hand',cursive;font-size:1.05rem;color:rgba(255,255,255,0.8)" data-i18n="subSocial">349 profs d'ÉPS utilisent déjà la Zone!</span>
+                    <span style="font-family:'Patrick Hand',cursive;font-size:1.05rem;color:rgba(255,255,255,0.8)" data-i18n="subSocial">+2 300 profs ont déjà téléchargé le PDF!</span>
                 </div>
 
                 <a href="#" onclick="event.preventDefault();window.ztsShowSignup()" class="sub-btn-cta" data-i18n="subBtn">
-                    🏆 REJOINDRE LA ZONE GRATUITEMENT!
+                    📥 TÉLÉCHARGER MON PDF GRATUIT!
                 </a>
                 <div style="margin-top:10px">
-                    <span style="font-family:'Patrick Hand',cursive;font-size:0.95rem;color:rgba(255,255,255,0.6)" data-i18n="subGuarantee">Aucune carte de crédit. Aucun abonnement. 🎉</span>
+                    <span style="font-family:'Patrick Hand',cursive;font-size:0.95rem;color:rgba(255,255,255,0.6)" data-i18n="subGuarantee">Inscription gratuite requise. Aucune carte de crédit. 🎉</span>
                 </div>
-                <!-- "Non merci" supprimé — inscription obligatoire -->
+                <button class="sub-dismiss" onclick="closeSubscribe()" data-i18n="subLater">Non merci, plus tard</button>
             </div>
         </div>
     </div>
@@ -2635,6 +2668,9 @@
     <div class="gate-overlay" id="gateOverlay" style="background:rgba(0,0,0,0.85);">
         <div class="gate-box" id="gateBox" style="max-width:560px;border:none;box-shadow:0 0 60px rgba(0,229,255,0.3),0 0 120px rgba(255,42,122,0.15);border-radius:28px;transform:rotate(0deg);overflow:hidden">
 
+            <!-- BOUTON FERMER -->
+            <button onclick="dismissGatePopup()" style="position:absolute;top:14px;right:14px;z-index:10;width:42px;height:42px;border-radius:50%;border:3px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.3);color:#fff;font-size:1.5rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:sans-serif" aria-label="Fermer">&times;</button>
+
             <!-- GYMNASE BACKGROUND + OVERLAY -->
             <div style="position:absolute;inset:0;background:url('gym-bg.jpg') center/cover;opacity:0.25;z-index:0;border-radius:28px"></div>
             <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,229,255,0.15),rgba(15,15,46,0.95));z-index:1;border-radius:28px"></div>
@@ -2653,12 +2689,12 @@
                     <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Mr. Root" style="height:100px;filter:drop-shadow(0 4px 16px rgba(0,0,0,0.5));margin-bottom:12px">
                     <div style="display:inline-block;background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;font-family:'Bangers',cursive;font-size:0.9rem;letter-spacing:1.5px;padding:5px 14px;border-radius:20px;margin-bottom:8px;box-shadow:0 4px 12px rgba(239,68,68,0.4)" data-i18n="gate2Badge">🔥 100% GRATUIT · 0 CARTE DE CRÉDIT</div>
                     <h2 style="font-family:'Luckiest Guy',cursive;font-size:2.4rem;color:#fff;margin:4px 0 0;text-shadow:3px 3px 0 rgba(0,0,0,0.3);line-height:1.05" data-i18n="gateTitle">Débloque la Zone</h2>
-                    <p style="font-family:'Patrick Hand',cursive;color:#00E5FF;font-size:1.2rem;margin-top:8px;line-height:1.3" data-i18n="gateDesc"><strong style="color:#FFEA00;font-size:1.3rem">349 profs ÉPS</strong> s'en servent déjà.<br>Ton tour de rejoindre la Zone!</p>
+                    <p style="font-family:'Patrick Hand',cursive;color:#00E5FF;font-size:1.2rem;margin-top:8px;line-height:1.3" data-i18n="gateDesc"><strong style="color:#FFEA00;font-size:1.3rem">2 300+ profs ÉPS</strong> s'en servent déjà.<br>Ton tour de rejoindre la Zone!</p>
                 </div>
 
                 <!-- BOUTON GOOGLE EXPRESS (1 clic) -->
                 <div style="padding:0 20px 12px">
-                    <button onclick="if(window.ztsTrackPopupConverted)window.ztsTrackPopupConverted('gate_google');window.ztsShowSignup();setTimeout(function(){var b=document.getElementById('ztsGoogleBtn');if(b)b.click();},400);" style="width:100%;background:#fff;color:#1a1a2e;border:3px solid #fff;box-shadow:0 6px 20px rgba(255,255,255,0.3);font-family:'Fredoka One',cursive;font-size:1.15rem;border-radius:16px;padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s">
+                    <button onclick="if(window.ztsTrackPopupConverted)window.ztsTrackPopupConverted('gate_google');ztsGateGoogleSignin();" style="width:100%;background:#fff;color:#1a1a2e;border:3px solid #fff;box-shadow:0 6px 20px rgba(255,255,255,0.3);font-family:'Fredoka One',cursive;font-size:1.15rem;border-radius:16px;padding:14px 18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:transform .15s">
                         <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3L37.5 9.3C34 6 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.6 15.1 19 12 24 12c3.1 0 5.8 1.1 7.9 3L37.5 9.3C34 6 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-1.9 1.4-4.4 2.4-7.2 2.4-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.3-.1-2.6-.4-3.9z"/></svg>
                         <span data-i18n="gate2Google">Continuer avec Google</span>
                     </button>
@@ -4078,29 +4114,72 @@
 
     // VISIT COUNTER — géré par Firebase Realtime Database (voir script en bas)
 
-    // SUBSCRIBE POPUP (appears once per session after scroll 60% or 30s)
+    // SUBSCRIBE POPUP — Lead Magnet (30 cours maternelle)
     let subscribeShown = false;
+
+    // Auto-detect visitor language for PDF delivery
+    function ztsDetectLang() {
+        var nav = (navigator.languages && navigator.languages[0]) || navigator.language || 'fr';
+        var code = nav.toLowerCase().split('-')[0];
+        if (code === 'zh') return 'zh';
+        if (code === 'es') return 'es';
+        if (code === 'en') return 'en';
+        return 'fr';
+    }
+    window._ztsLeadLang = null;
+
+    // ES-only popup translations (site doesn't have full ES i18n)
+    var leadMagnetES = {
+        subOfferBadge:'🎁 REGALO GRATIS',
+        subTitle:'¡30 clases listas para preescolar!',
+        subDesc:'Un PDF completo listo para usar el lunes. <strong style="color:#FFEA00">Sin preparación.</strong>',
+        subPerkT1:'30 sesiones completas', subPerk1:'Calentamiento, clase principal, vuelta a la calma',
+        subPerkT2:'Adaptado 4-6 años', subPerk2:'Motricidad, cooperación, juegos activos',
+        subPerkT3:'Clases de 60 minutos', subPerk3:'Tiempo preciso, cero tiempo muerto',
+        subPerkT4:'Cero preparación', subPerk4:'Imprime y listo. Material mínimo.',
+        subSocial:'¡+2 300 profes ya descargaron el PDF!',
+        subBtn:'📥 ¡DESCARGAR MI PDF GRATIS!',
+        subGuarantee:'Registro gratuito. Sin tarjeta de crédito. 🎉',
+        subLater:'No gracias, después',
+        subPdfLabel:'30 CLASES<br>PREESCOLAR',
+        subPdfBadge:'PDF GRATIS'
+    };
+
+    function applyLeadLang(lang) {
+        window._ztsLeadLang = lang;
+        // For FR/EN/ZH use the site's setLang (updates everything including popup)
+        if (lang !== 'es' && window.setLang) { window.setLang(lang); return; }
+        // For ES only update the popup elements
+        if (lang === 'es') {
+            Object.keys(leadMagnetES).forEach(function(key) {
+                document.querySelectorAll('[data-i18n="' + key + '"]').forEach(function(el) {
+                    el.innerHTML = leadMagnetES[key];
+                });
+            });
+        }
+    }
+
     function showSubscribe() {
-        if (subscribeShown || sessionStorage.getItem('zts-sub-closed')) return;
-        // NE PAS montrer si l'utilisateur est déjà connecté
+        if (subscribeShown || sessionStorage.getItem('zts-sub-closed') || sessionStorage.getItem('zts-gate-shown')) return;
         if (window.ztsGetUser && window.ztsGetUser()) {
             sessionStorage.setItem('zts-sub-closed', '1');
             return;
         }
         subscribeShown = true;
+        // Auto-detect language for popup + PDF
+        var detectedLang = ztsDetectLang();
+        applyLeadLang(detectedLang);
         document.getElementById('subscribeOverlay').classList.add('show');
         lucide.createIcons();
-        if (window.ztsTrackPopupShown) window.ztsTrackPopupShown('subscribe_vip');
+        if (window.ztsTrackPopupShown) window.ztsTrackPopupShown('lead_magnet_30cours');
     }
     function closeSubscribe() {
-        // Non-fermable sauf si connecté
-        if (window.ztsGetUser && window.ztsGetUser()) {
-            document.getElementById('subscribeOverlay').classList.remove('show');
-            sessionStorage.setItem('zts-sub-closed', '1');
-        }
+        document.getElementById('subscribeOverlay').classList.remove('show');
+        sessionStorage.setItem('zts-sub-closed', '1');
     }
     window.closeSubscribe = closeSubscribe;
-    // Fermer le subscribe popup automatiquement quand l'utilisateur se connecte
+
+    // Auto-close + trigger PDF download when user signs up
     if (window.ztsOnAuth) {
         window.ztsOnAuth(function(user) {
             if (user) {
@@ -4108,10 +4187,49 @@
                 if (subOverlay && subOverlay.classList.contains('show')) {
                     subOverlay.classList.remove('show');
                     sessionStorage.setItem('zts-sub-closed', '1');
+                    ztsDeliverPdf(user);
                 }
             }
         });
     }
+
+    // PDF delivery after signup
+    function ztsDeliverPdf(user) {
+        var lang = window._ztsLeadLang || window.currentLang || 'fr';
+        var pdfUrl = '/assets/pdf/30-cours-maternelle-' + lang + '.pdf';
+        var fallbackUrl = '/assets/pdf/30-cours-maternelle-fr.pdf';
+        // Check if translated PDF exists, fallback to FR
+        fetch(pdfUrl, { method: 'HEAD' }).then(function(r) {
+            var url = r.ok ? pdfUrl : fallbackUrl;
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = '30-cours-maternelle-' + lang + '.pdf';
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() { document.body.removeChild(a); }, 1000);
+        }).catch(function() {
+            // Network error — try FR directly
+            var a = document.createElement('a');
+            a.href = fallbackUrl;
+            a.download = '30-cours-maternelle-fr.pdf';
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() { document.body.removeChild(a); }, 1000);
+        });
+        // Track in GA4
+        if (window.gtag) gtag('event', 'lead_magnet_download', { lang: lang, pdf: '30-cours-maternelle' });
+        // Send copy by email via Resend (silent fail if endpoint not ready)
+        if (user.email) {
+            fetch('https://zonetotalsport.ca/api/send-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: user.email, name: user.displayName || '', lang: lang, pdf: '30-cours-maternelle' })
+            }).catch(function() {});
+        }
+    }
+    window.ztsDeliverPdf = ztsDeliverPdf;
 
     // Trigger: after 30s
     setTimeout(showSubscribe, 30000);
@@ -4165,9 +4283,12 @@
             return;
         }
         _gateDestination = destinationUrl;
+        sessionStorage.setItem('zts-gate-shown', '1');
         const overlay = document.getElementById('gateOverlay');
         const box = document.getElementById('gateBox');
         overlay.classList.add('show');
+        // Fermer si clic sur l'overlay (pas la box)
+        overlay.onclick = function(e) { if (e.target === overlay) dismissGatePopup(); };
         gsap.fromTo(overlay, { backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'rgba(0,0,0,0.9)', duration: 0.3 });
         gsap.fromTo(box,
             { scale: 0.5, rotation: -5, opacity: 0, y: 50 },
@@ -4180,11 +4301,47 @@
         lucide.createIcons();
     }
     function closeGatePopup() {
-        // Le gate popup ne peut PAS être fermé — l'utilisateur DOIT s'inscrire
-        // Seule la connexion réussie permet de fermer
+        const overlay = document.getElementById('gateOverlay');
+        if (!overlay) return;
+        overlay.classList.remove('show');
+        overlay.style.display = 'none';
     }
+    function dismissGatePopup() {
+        closeGatePopup();
+        _gateDestination = null;
+    }
+    // Google sign-in direct depuis le gate (sans ouvrir le modal auth)
+    function ztsGateGoogleSignin() {
+        if (typeof firebase === 'undefined') { window.ztsShowSignup(); return; }
+        var provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+            firebase.auth().signInWithRedirect(provider);
+            return;
+        }
+        firebase.auth().signInWithPopup(provider)
+            .then(function(result) {
+                var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
+                if (isNew) {
+                    if (window.ztsTrackSignup) window.ztsTrackSignup('google', result.user.uid);
+                    if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
+                } else {
+                    if (window.ztsTrackLogin) window.ztsTrackLogin('google', result.user.uid);
+                    if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
+                }
+            })
+            .catch(function(err) {
+                if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
+                    firebase.auth().signInWithRedirect(provider);
+                }
+            });
+    }
+    window.ztsGateGoogleSignin = ztsGateGoogleSignin;
+
     window.openGatePopup = openGatePopup;
     window.closeGatePopup = closeGatePopup;
+    window.dismissGatePopup = dismissGatePopup;
 
     // Après connexion réussie, fermer le gate popup et rediriger
     if (window.ztsOnAuth) {
@@ -4223,16 +4380,20 @@
     document.addEventListener('DOMContentLoaded', function() {
         const gatedSelectors = [
             '[data-i18n="card1a"]', '[data-i18n="card2a"]',
-            '[data-i18n="card3a"]', '[data-i18n="card4a"]',
-            '[data-i18n="fAccueil"]', '[data-i18n="fSae"]',
-            '[data-i18n="fBlogue"]', '[data-i18n="fContact"]',
-            '[data-i18n="fPrivacy"]', '[data-i18n="fTerms"]'
+            '[data-i18n="card3a"]', '[data-i18n="card4a"]'
         ];
+        // Laisser 2 clics gratuits avant d'afficher le gate
+        var FREE_CLICKS = 2;
+        var gateClickCount = parseInt(sessionStorage.getItem('zts-gate-clicks') || '0', 10);
+
         gatedSelectors.forEach(sel => {
             document.querySelectorAll(sel).forEach(link => {
                 link.addEventListener('click', function(e) {
                     // Si connecté, laisser passer
                     if (window.ztsGetUser && window.ztsGetUser()) return;
+                    gateClickCount++;
+                    sessionStorage.setItem('zts-gate-clicks', gateClickCount);
+                    if (gateClickCount <= FREE_CLICKS) return; // laisser passer
                     e.preventDefault();
                     const url = this.getAttribute('href');
                     const realUrl = (url && url !== '#') ? url : 'https://zonetotalsport.ca';
@@ -4415,10 +4576,8 @@
         ['[data-i18n="gate2Trust3"]', 'gate2Trust3'],
         // Subscribe popup extra
         ['[data-i18n="subOfferBadge"]', 'subOfferBadge'],
-        ['[data-i18n="subStatGames"]', 'subStatGames'],
-        ['[data-i18n="subStatSae"]', 'subStatSae'],
-        ['[data-i18n="subStatGen"]', 'subStatGen'],
-        ['[data-i18n="subStatFree"]', 'subStatFree'],
+        ['[data-i18n="subPdfLabel"]', 'subPdfLabel'],
+        ['[data-i18n="subPdfBadge"]', 'subPdfBadge'],
         ['[data-i18n="subGuarantee"]', 'subGuarantee'],
         // Profile popup
         ['[data-i18n="profTitle"]', 'profTitle'],
@@ -4475,14 +4634,14 @@
             fAbout:'À propos', fPrivacy:'Politique de confidentialité', fDon:'Faire un don', fTerms:'Conditions d\'utilisation',
             copyright:'© 2026 Zone Total Sport. Tous droits réservés.', madeWith:'Fait avec 💛 au Québec',
             visitLabel:'Visiteurs :',
-            subTitle:'Prépare ton prochain cours ÉPS en 30 sec', subDesc:'349 profs d\'ÉPS au Québec utilisent déjà la Zone chaque matin. C\'est ton tour.',
-            subPerk1:'Fiches détaillées, règles et variantes',
-            subPerk2:'Crée un jeu sur mesure en 10 secondes',
-            subPerk3:'Situations d\'apprentissage et gestion de classe',
-            subPerk4:'Sans abonnement ni carte de crédit',
-            subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> REJOINDRE LA ZONE GRATUITEMENT!', subLater:'Non merci, plus tard',
-            subPerkT1:'+500 jeux sportifs', subPerkT2:'Générateur IA', subPerkT3:'SAÉ + Outils', subPerkT4:'100% gratuit',
-            subSocial:'349 profs d\'ÉPS utilisent déjà la Zone!',
+            subTitle:'30 cours clé en main pour la maternelle!', subDesc:'Un PDF complet prêt à utiliser dès lundi. <strong style="color:#FFEA00">Aucune préparation requise.</strong>',
+            subPerk1:'Échauffement, corps du cours, retour au calme',
+            subPerk2:'Motricité, coopération, jeux actifs',
+            subPerk3:'Minutage précis, zéro temps mort',
+            subPerk4:'Imprime et c\'est parti. Matériel minimal.',
+            subBtn:'📥 TÉLÉCHARGER MON PDF GRATUIT!', subLater:'Non merci, plus tard',
+            subPerkT1:'30 séances complètes', subPerkT2:'Adapté 4-6 ans', subPerkT3:'Cours de 60 minutes', subPerkT4:'Zéro préparation',
+            subSocial:'+2 300 profs ont déjà téléchargé le PDF!',
             iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NOUVEAUTÉ',
             iaTitle:'Le futur de l\'ÉPS<br><span style="color:#FF2A7A">est arrivé!</span>',
             iaSub:'L\'intelligence artificielle débarque dans la Zone. Prépare-toi!',
@@ -4568,9 +4727,9 @@
             gate2Trust2:'🔒 Données protégées',
             gate2Trust3:'⚡ Accès instantané',
             // Subscribe popup extra
-            subOfferBadge:'🔥 OFFRE GRATUITE',
-            subStatGames:'jeux', subStatSae:'SAÉ', subStatGen:'générateur', subStatFree:'gratuit!',
-            subGuarantee:'Aucune carte de crédit. Aucun abonnement. 🎉',
+            subOfferBadge:'🎁 CADEAU GRATUIT',
+            subPdfLabel:'30 COURS<br>MATERNELLE', subPdfBadge:'PDF GRATUIT',
+            subGuarantee:'Inscription gratuite requise. Aucune carte de crédit. 🎉',
             // Profile popup
             profTitle:'MON PROFIL',
             profClose:'FERMER X',
@@ -4628,14 +4787,14 @@
             fAbout:'About', fPrivacy:'Privacy policy', fDon:'Donate', fTerms:'Terms of use',
             copyright:'© 2026 Zone Total Sport. All rights reserved.', madeWith:'Made with 💛 in Quebec',
             visitLabel:'Visitors:',
-            subTitle:'BECOME A VIP MEMBER!', subDesc:'Unlock all the Zone\'s content!',
-            subPerk1:'Detailed sheets, rules and variations',
-            subPerk2:'Create a custom game in 10 seconds',
-            subPerk3:'Learning situations and class management',
-            subPerk4:'No subscription, no credit card',
-            subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> JOIN THE ZONE FOR FREE!', subLater:'No thanks, maybe later',
-            subPerkT1:'+500 sports games', subPerkT2:'AI Generator', subPerkT3:'Units + Tools', subPerkT4:'100% free',
-            subSocial:'349 PE teachers already use the Zone!',
+            subTitle:'30 ready-to-use kindergarten lessons!', subDesc:'A complete PDF ready for Monday. <strong style="color:#FFEA00">Zero prep required.</strong>',
+            subPerk1:'Warm-up, main activity, cool-down',
+            subPerk2:'Motor skills, cooperation, active games',
+            subPerk3:'Precise timing, zero downtime',
+            subPerk4:'Print and go. Minimal equipment.',
+            subBtn:'📥 DOWNLOAD MY FREE PDF!', subLater:'No thanks, maybe later',
+            subPerkT1:'30 full sessions', subPerkT2:'Ages 4-6', subPerkT3:'60-minute classes', subPerkT4:'Zero prep',
+            subSocial:'+2,300 teachers already downloaded the PDF!',
             iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NEW FEATURE',
             iaTitle:'The future of PE<br><span style="color:#FF2A7A">is here!</span>',
             iaSub:'Artificial intelligence arrives in the Zone. Get ready!',
@@ -4721,9 +4880,9 @@
             gate2Trust2:'🔒 Data protected',
             gate2Trust3:'⚡ Instant access',
             // Subscribe popup extra
-            subOfferBadge:'🔥 FREE OFFER',
-            subStatGames:'games', subStatSae:'units', subStatGen:'generator', subStatFree:'free!',
-            subGuarantee:'No credit card. No subscription. 🎉',
+            subOfferBadge:'🎁 FREE GIFT',
+            subPdfLabel:'30 LESSONS<br>KINDERGARTEN', subPdfBadge:'FREE PDF',
+            subGuarantee:'Free sign-up required. No credit card. 🎉',
             // Profile popup
             profTitle:'MY PROFILE',
             profClose:'CLOSE X',
@@ -4781,14 +4940,14 @@
             fAbout:'关于', fPrivacy:'隐私政策', fDon:'捐赠', fTerms:'使用条款',
             copyright:'© 2026 Zone Total Sport. 版权所有。', madeWith:'用 💛 在魁北克制作',
             visitLabel:'访客：',
-            subTitle:'成为VIP会员！', subDesc:'解锁Zone的所有内容！',
-            subPerk1:'详细说明、规则和变体',
-            subPerk2:'10秒创建定制游戏',
-            subPerk3:'学习情境和课堂管理',
-            subPerk4:'无需订阅，无需信用卡',
-            subBtn:'<i data-lucide="crown" class="w-6 h-6"></i> 免费加入Zone！', subLater:'不了，以后再说',
-            subPerkT1:'+500体育游戏', subPerkT2:'AI生成器', subPerkT3:'教学单元+工具', subPerkT4:'100%免费',
-            subSocial:'349名体育老师已在使用Zone！',
+            subTitle:'30节幼儿园即用课程！', subDesc:'一份完整的PDF，周一就能用。<strong style="color:#FFEA00">无需任何准备。</strong>',
+            subPerk1:'热身、主要活动、放松',
+            subPerk2:'运动技能、合作、活跃游戏',
+            subPerk3:'精确计时，零空闲',
+            subPerk4:'打印即用。最少器材。',
+            subBtn:'📥 下载免费PDF！', subLater:'不了，以后再说',
+            subPerkT1:'30节完整课程', subPerkT2:'适合4-6岁', subPerkT3:'60分钟课程', subPerkT4:'零准备',
+            subSocial:'+2300名教师已下载PDF！',
             iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> 新功能',
             iaTitle:'体育教育的未来<br><span style="color:#FF2A7A">已经到来！</span>',
             iaSub:'人工智能登陆Zone。准备好了吗！',
@@ -4874,9 +5033,9 @@
             gate2Trust2:'🔒 数据受保护',
             gate2Trust3:'⚡ 即时访问',
             // Subscribe popup extra
-            subOfferBadge:'🔥 免费优惠',
-            subStatGames:'游戏', subStatSae:'教学单元', subStatGen:'生成器', subStatFree:'免费！',
-            subGuarantee:'无需信用卡。无需订阅。🎉',
+            subOfferBadge:'🎁 免费礼物',
+            subPdfLabel:'30节课程<br>幼儿园', subPdfBadge:'免费PDF',
+            subGuarantee:'需免费注册。无需信用卡。🎉',
             // Profile popup
             profTitle:'我的简介',
             profClose:'关闭 X',

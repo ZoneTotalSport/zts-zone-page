@@ -378,7 +378,7 @@
       <div class="zts-auth-feat zts-auth-feat-pink"><span class="zts-auth-feat-icon">&#x1F389;</span><span class="zts-auth-feat-text">100% gratuit</span></div>\
     </div>\
     \
-    <div class="zts-auth-proof">&#x1F3C6; 2 295 enseignants utilisent la Zone!</div>\
+    <div class="zts-auth-proof">&#x1F3C6; 2 300+ enseignants utilisent la Zone!</div>\
   </div>\
 </div>';
   }

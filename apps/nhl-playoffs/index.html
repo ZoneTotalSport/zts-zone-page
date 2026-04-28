@@ -1151,15 +1151,15 @@ const API = {
   goalieLeaders: `https://api-web.nhle.com/v1/goalie-stats-leaders/20252026/3?categories=savePctg,wins,goalsAgainstAverage&limit=10`,
 };
 
+// NHL API n'a pas de CORS — on passe directement par les proxies
 const PROXIES = [
-  u => u,
-  u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
   u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
 ];
 async function apiFetch(url) {
   for (const proxy of PROXIES) {
     try {
-      const r = await fetch(proxy(url));
+      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(6000) });
       if (!r.ok) continue;
       return await r.json();
     } catch(e) { /* try next proxy */ }
@@ -1193,7 +1193,7 @@ function createNHLBackground() {
   ];
   const container = document.getElementById('nhlBgPattern');
   // Use dark logos (colorful, for dark background)
-  for (let i = 0; i < 150; i++) {
+  for (let i = 0; i < 32; i++) {
     const team = teams[i % teams.length];
     const img = document.createElement('img');
     img.src = `https://assets.nhle.com/logos/nhl/svg/${team}_dark.svg`;
@@ -1211,18 +1211,19 @@ let gamesCache = {}; // gameId -> {landing, boxscore}
 let scoresCache = {}; // date -> score data
 
 // Fallback bracket
+// Fallback mis à jour le 28 avril 2026
 const FALLBACK = {
   east: [
-    { top: {a:'BUF',n:'Buffalo Sabres',s:1,w:0}, bot: {a:'BOS',n:'Boston Bruins',s:4,w:0}, letter:'A', g1:'Sam. 19 avr.' },
-    { top: {a:'TBL',n:'Tampa Bay Lightning',s:2,w:0}, bot: {a:'MTL',n:'Montréal Canadiens',s:3,w:0}, letter:'B', g1:'Sam. 19 avr.' },
-    { top: {a:'CAR',n:'Carolina Hurricanes',s:1,w:0}, bot: {a:'OTT',n:'Ottawa Senators',s:4,w:0}, letter:'C', g1:'Ven. 18 avr.' },
-    { top: {a:'PIT',n:'Pittsburgh Penguins',s:2,w:0}, bot: {a:'PHI',n:'Philadelphia Flyers',s:3,w:0}, letter:'D', g1:'Ven. 18 avr.' },
+    { top: {a:'BUF',n:'Buffalo Sabres',s:1,w:3}, bot: {a:'BOS',n:'Boston Bruins',s:4,w:1}, letter:'A', g1:'Sam. 19 avr.' },
+    { top: {a:'TBL',n:'Tampa Bay Lightning',s:2,w:2}, bot: {a:'MTL',n:'Montréal Canadiens',s:3,w:2}, letter:'B', g1:'Sam. 19 avr.' },
+    { top: {a:'CAR',n:'Carolina Hurricanes',s:1,w:4}, bot: {a:'OTT',n:'Ottawa Senators',s:4,w:0}, letter:'C', g1:'Ven. 18 avr.' },
+    { top: {a:'PIT',n:'Pittsburgh Penguins',s:2,w:2}, bot: {a:'PHI',n:'Philadelphia Flyers',s:3,w:3}, letter:'D', g1:'Ven. 18 avr.' },
   ],
   west: [
-    { top: {a:'COL',n:'Colorado Avalanche',s:1,w:0}, bot: {a:'LAK',n:'Los Angeles Kings',s:4,w:0}, letter:'E', g1:'Sam. 19 avr.' },
-    { top: {a:'DAL',n:'Dallas Stars',s:2,w:0}, bot: {a:'MIN',n:'Minnesota Wild',s:3,w:0}, letter:'F', g1:'Ven. 18 avr.' },
-    { top: {a:'VGK',n:'Vegas Golden Knights',s:1,w:0}, bot: {a:'UTA',n:'Utah Mammoth',s:4,w:0}, letter:'G', g1:'Sam. 19 avr.' },
-    { top: {a:'EDM',n:'Edmonton Oilers',s:2,w:0}, bot: {a:'ANA',n:'Anaheim Ducks',s:3,w:0}, letter:'H', g1:'Dim. 20 avr.' },
+    { top: {a:'COL',n:'Colorado Avalanche',s:1,w:4}, bot: {a:'LAK',n:'Los Angeles Kings',s:4,w:0}, letter:'E', g1:'Sam. 19 avr.' },
+    { top: {a:'DAL',n:'Dallas Stars',s:2,w:2}, bot: {a:'MIN',n:'Minnesota Wild',s:3,w:2}, letter:'F', g1:'Ven. 18 avr.' },
+    { top: {a:'VGK',n:'Vegas Golden Knights',s:1,w:2}, bot: {a:'UTA',n:'Utah Mammoth',s:4,w:2}, letter:'G', g1:'Sam. 19 avr.' },
+    { top: {a:'EDM',n:'Edmonton Oilers',s:2,w:1}, bot: {a:'ANA',n:'Anaheim Ducks',s:3,w:3}, letter:'H', g1:'Dim. 20 avr.' },
   ]
 };
 
@@ -1298,7 +1299,6 @@ async function fetchBracket() {
 // FETCH SCORES FOR A DATE RANGE (find playoff games)
 // =============================================
 async function fetchPlayoffScores() {
-  // Fetch today and recent dates to find games
   const dates = [];
   const today = new Date();
   for (let i = 0; i < 7; i++) {
@@ -1307,19 +1307,19 @@ async function fetchPlayoffScores() {
     dates.push(d.toISOString().split('T')[0]);
   }
 
-  const allGames = [];
-  for (const date of dates) {
-    if (scoresCache[date]) {
-      allGames.push(...scoresCache[date]);
-      continue;
-    }
-    const data = await apiFetch(API.score(date));
+  // Fetch toutes les dates en parallèle
+  const uncached = dates.filter(d => !scoresCache[d]);
+  const results = await Promise.all(uncached.map(date => apiFetch(API.score(date)).then(data => ({ date, data }))));
+  results.forEach(({ date, data }) => {
     if (data && data.games) {
-      const playoffs = data.games.filter(g => g.gameType === 3);
-      scoresCache[date] = playoffs;
-      allGames.push(...playoffs);
+      scoresCache[date] = data.games.filter(g => g.gameType === 3);
+    } else {
+      scoresCache[date] = [];
     }
-  }
+  });
+
+  const allGames = [];
+  dates.forEach(d => { if (scoresCache[d]) allGames.push(...scoresCache[d]); });
   return allGames;
 }
 
@@ -1933,16 +1933,19 @@ async function refreshAll() {
   const btn = document.getElementById('refreshBtn');
   btn.classList.add('spinning');
 
-  // Clear caches for fresh data
-  scoresCache = {};
+  // Vider seulement les 2 derniers jours (données récentes/live) + game details
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  delete scoresCache[today];
+  delete scoresCache[yesterday];
   gamesCache = {};
 
-  bracketData = await fetchBracket();
-  const playoffGames = await fetchPlayoffScores();
+  const [bracket, playoffGames] = await Promise.all([fetchBracket(), fetchPlayoffScores()]);
+  bracketData = bracket;
 
   renderBracket(bracketData);
   await renderResults(bracketData, playoffGames);
-  await renderLeaders();
+  renderLeaders();
 
   setTimeout(() => btn.classList.remove('spinning'), 600);
 }
@@ -1988,15 +1991,16 @@ async function init() {
   createParticles();
   createNHLBackground();
 
-  bracketData = await fetchBracket();
-  const playoffGames = await fetchPlayoffScores();
+  // Bracket + scores en parallèle
+  const [bracket, playoffGames] = await Promise.all([fetchBracket(), fetchPlayoffScores()]);
+  bracketData = bracket;
 
   renderBracket(bracketData);
   await renderResults(bracketData, playoffGames);
   renderLeaders(); // fire and forget
 
-  // Auto-refresh every 2 minutes during games
-  setInterval(refreshAll, 2 * 60 * 1000);
+  // Auto-refresh every 3 minutes
+  setInterval(refreshAll, 3 * 60 * 1000);
 }
 
 init();
