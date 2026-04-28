@@ -226,10 +226,10 @@ body.tbi #view-course{background:#f1f5f9!important;}
   <!-- TABS DES 4 SECTIONS -->
   <div class="px-4 md:px-6 pt-4 sticky top-[56px] md:top-[88px] z-20 bg-dark/80 backdrop-blur">
     <div class="bg-card rounded-2xl p-2 flex gap-1 overflow-x-auto no-scrollbar border border-slate-700">
-      <button data-section="mise_en_train" class="player-tab flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bangers tracking-wider text-sm md:text-base bento-transition whitespace-nowrap">🔥 <span class="hidden md:inline">Mise en train</span><span class="md:hidden">M.train</span></button>
-      <button data-section="activite_1" class="player-tab flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bangers tracking-wider text-sm md:text-base bento-transition whitespace-nowrap">▶️ Activité 1</button>
-      <button data-section="activite_2" class="player-tab flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bangers tracking-wider text-sm md:text-base bento-transition whitespace-nowrap">▶️ Activité 2</button>
-      <button data-section="retour" class="player-tab flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bangers tracking-wider text-sm md:text-base bento-transition whitespace-nowrap">🌙 Retour</button>
+      <button data-section="mise_en_train" class="player-tab flex-1 min-w-[140px] py-4 px-5 rounded-xl font-bangers tracking-wider text-2xl md:text-3xl bento-transition whitespace-nowrap">🔥 Mise en train</button>
+      <button data-section="activite_1" class="player-tab flex-1 min-w-[140px] py-4 px-5 rounded-xl font-bangers tracking-wider text-2xl md:text-3xl bento-transition whitespace-nowrap">▶️ Activité 1</button>
+      <button data-section="activite_2" class="player-tab flex-1 min-w-[140px] py-4 px-5 rounded-xl font-bangers tracking-wider text-2xl md:text-3xl bento-transition whitespace-nowrap">▶️ Activité 2</button>
+      <button data-section="retour" class="player-tab flex-1 min-w-[140px] py-4 px-5 rounded-xl font-bangers tracking-wider text-2xl md:text-3xl bento-transition whitespace-nowrap">🌙 Retour</button>
     </div>
   </div>
 
@@ -328,10 +328,18 @@ body.tbi #view-course{background:#f1f5f9!important;}
         </h4>
         <div id="timer-display" class="font-bangers text-6xl md:text-[80px] leading-none text-white mb-4 md:mb-6 tabular-nums">10:00</div>
         <div class="flex justify-center gap-2 w-full mb-3 flex-wrap">
-          <button onclick="setTimerMinutes(5)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-600">5min</button>
-          <button onclick="setTimerMinutes(10)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-600">10min</button>
-          <button onclick="setTimerMinutes(15)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-600">15min</button>
-          <button onclick="setTimerMinutes(20)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-600">20min</button>
+          <button onclick="setTimerMinutes(5)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-slate-600">5</button>
+          <button onclick="setTimerMinutes(10)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-slate-600">10</button>
+          <button onclick="setTimerMinutes(15)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-slate-600">15</button>
+          <button onclick="setTimerMinutes(20)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-slate-600">20</button>
+          <button onclick="setTimerMinutes(30)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-slate-600">30</button>
+          <button onclick="setTimerMinutes(45)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-slate-600">45</button>
+          <button onclick="setTimerMinutes(60)" class="bg-slate-700 text-white px-3 py-2 rounded-xl text-sm font-bold hover:bg-slate-600">60</button>
+        </div>
+        <div class="flex items-center gap-2 w-full mb-3">
+          <label class="text-xs text-slate-400 font-bold uppercase tracking-widest">Personnalisé</label>
+          <input id="timer-custom" type="number" min="1" max="120" placeholder="min" class="flex-1 bg-dark border-2 border-slate-700 focus:border-brandCyan rounded-xl px-3 py-2 text-white text-base font-bold outline-none text-center">
+          <button onclick="setTimerCustom()" class="bg-brandYellow text-dark px-4 py-2 rounded-xl text-sm font-black hover:scale-105 bento-transition">OK</button>
         </div>
         <div class="flex justify-center gap-3 w-full">
           <button onclick="toggleTimer()" id="timer-btn" class="flex-1 bg-brandCyan text-dark py-4 md:py-5 rounded-2xl text-xl md:text-2xl font-black hover:scale-105 bento-transition">
@@ -762,7 +770,7 @@ function loadSection(sec){
   // Tab active state
   document.querySelectorAll('.player-tab').forEach(t=>{
     const isActive=t.dataset.section===sec;
-    t.className=`player-tab flex-1 min-w-[120px] py-3 px-4 rounded-xl font-bangers tracking-wider text-sm md:text-base bento-transition whitespace-nowrap ${isActive?'bg-brandCyan text-dark':'text-slate-400 hover:bg-slate-700'}`;
+    t.className=`player-tab flex-1 min-w-[140px] py-4 px-5 rounded-xl font-bangers tracking-wider text-2xl md:text-3xl bento-transition whitespace-nowrap ${isActive?'bg-brandCyan text-dark':'text-slate-400 hover:bg-slate-700'}`;
   });
 
   document.getElementById('player-activity-name').innerText=a.nom||'';
@@ -849,7 +857,18 @@ function toggleDoneCourse(){
 
 // ═══════════ TIMER ═══════════
 let timerSec=600,timerInt=null;
-function setTimerMinutes(m){timerSec=m*60;updateTimerDisplay();}
+function setTimerMinutes(m){
+  if(timerInt){clearInterval(timerInt);timerInt=null;
+    const btn=document.getElementById('timer-btn');
+    btn.innerHTML='<i class="fa-solid fa-play"></i>';
+    btn.classList.replace('bg-brandRed','bg-brandCyan');
+  }
+  timerSec=m*60;updateTimerDisplay();
+}
+function setTimerCustom(){
+  const v=parseInt(document.getElementById('timer-custom').value);
+  if(v>0&&v<=120){setTimerMinutes(v);document.getElementById('timer-custom').value='';}
+}
 function toggleTimer(){
   const btn=document.getElementById('timer-btn');
   if(timerInt){
