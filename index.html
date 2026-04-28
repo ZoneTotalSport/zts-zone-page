@@ -2523,8 +2523,8 @@
                     <div class="sub-pdf-mockup-badge" data-i18n="subPdfBadge">PDF GRATUIT</div>
                 </div>
                 <div style="display:inline-block;background:#EF4444;color:#fff;font-family:'Bangers',cursive;font-size:0.95rem;letter-spacing:1.5px;padding:5px 16px;border-radius:20px;margin-bottom:10px;box-shadow:0 4px 14px rgba(239,68,68,0.5)" data-i18n="subOfferBadge">🎁 CADEAU GRATUIT</div>
-                <h2 style="font-family:'Fredoka One',cursive;font-size:2.2rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.05" data-i18n="subTitle">30 cours clé en main pour la maternelle!</h2>
-                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.95);font-size:1.2rem;margin-top:10px;line-height:1.35" data-i18n="subDesc">Un PDF complet prêt à utiliser dès lundi. <strong style="color:#FFEA00">Aucune préparation requise.</strong></p>
+                <h2 style="font-family:'Fredoka One',cursive;font-size:2.2rem;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,0.15);line-height:1.05" data-i18n="subTitle">90 cours interactifs pour la maternelle!</h2>
+                <p style="font-family:'Patrick Hand',cursive;color:rgba(255,255,255,0.95);font-size:1.2rem;margin-top:10px;line-height:1.35" data-i18n="subDesc">Une web-app complète, gratuite, prête dès lundi. <strong style="color:#FFEA00">Zéro préparation. Toute l'année couverte.</strong></p>
             </div>
 
             <!-- Body -->
@@ -4130,8 +4130,8 @@
     // ES-only popup translations (site doesn't have full ES i18n)
     var leadMagnetES = {
         subOfferBadge:'🎁 REGALO GRATIS',
-        subTitle:'¡30 clases listas para preescolar!',
-        subDesc:'Un PDF completo listo para usar el lunes. <strong style="color:#FFEA00">Sin preparación.</strong>',
+        subTitle:'¡90 clases interactivas para preescolar!',
+        subDesc:'Una web-app completa y gratuita, lista para el lunes. <strong style="color:#FFEA00">Sin preparación. Todo el año cubierto.</strong>',
         subPerkT1:'30 sesiones completas', subPerk1:'Calentamiento, clase principal, vuelta a la calma',
         subPerkT2:'Adaptado 4-6 años', subPerk2:'Motricidad, cooperación, juegos activos',
         subPerkT3:'Clases de 60 minutos', subPerk3:'Tiempo preciso, cero tiempo muerto',
@@ -4192,39 +4192,20 @@
         });
     }
 
-    // PDF delivery after signup
+    // App access delivery after signup (90 cours web app)
     function ztsDeliverPdf(user) {
         var lang = window._ztsLeadLang || window.currentLang || 'fr';
-        var pdfUrl = '/assets/pdf/30-cours-maternelle-' + lang + '.pdf';
-        var fallbackUrl = '/assets/pdf/30-cours-maternelle-fr.pdf';
-        // Check if translated PDF exists, fallback to FR
-        fetch(pdfUrl, { method: 'HEAD' }).then(function(r) {
-            var url = r.ok ? pdfUrl : fallbackUrl;
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = '30-cours-maternelle-' + lang + '.pdf';
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(function() { document.body.removeChild(a); }, 1000);
-        }).catch(function() {
-            // Network error — try FR directly
-            var a = document.createElement('a');
-            a.href = fallbackUrl;
-            a.download = '30-cours-maternelle-fr.pdf';
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(function() { document.body.removeChild(a); }, 1000);
-        });
+        var appUrl = 'https://zonetotalsport.ca/apps/cours-maternelle/?token=DEMO2026';
+        // Open app in new tab
+        window.open(appUrl, '_blank');
         // Track in GA4
-        if (window.gtag) gtag('event', 'lead_magnet_download', { lang: lang, pdf: '30-cours-maternelle' });
-        // Send copy by email via Resend (silent fail if endpoint not ready)
+        if (window.gtag) gtag('event', 'lead_magnet_signup', { lang: lang, lead: '90-cours-app' });
+        // Send link by email via Resend
         if (user.email) {
             fetch('https://zonetotalsport.ca/api/send-pdf', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: user.email, name: user.displayName || '', lang: lang, pdf: '30-cours-maternelle' })
+                body: JSON.stringify({ email: user.email, name: user.displayName || '', lang: lang, pdf: '90-cours-app', appUrl: appUrl })
             }).catch(function() {});
         }
     }
@@ -4633,7 +4614,7 @@
             fAbout:'À propos', fPrivacy:'Politique de confidentialité', fDon:'Faire un don', fTerms:'Conditions d\'utilisation',
             copyright:'© 2026 Zone Total Sport. Tous droits réservés.', madeWith:'Fait avec 💛 au Québec',
             visitLabel:'Visiteurs :',
-            subTitle:'30 cours clé en main pour la maternelle!', subDesc:'Un PDF complet prêt à utiliser dès lundi. <strong style="color:#FFEA00">Aucune préparation requise.</strong>',
+            subTitle:'90 cours interactifs pour la maternelle!', subDesc:'Une web-app complète, gratuite, prête dès lundi. <strong style="color:#FFEA00">Zéro préparation. Toute l\'année couverte.</strong>',
             subPerk1:'Échauffement, corps du cours, retour au calme',
             subPerk2:'Motricité, coopération, jeux actifs',
             subPerk3:'Minutage précis, zéro temps mort',
@@ -4786,7 +4767,7 @@
             fAbout:'About', fPrivacy:'Privacy policy', fDon:'Donate', fTerms:'Terms of use',
             copyright:'© 2026 Zone Total Sport. All rights reserved.', madeWith:'Made with 💛 in Quebec',
             visitLabel:'Visitors:',
-            subTitle:'30 ready-to-use kindergarten lessons!', subDesc:'A complete PDF ready for Monday. <strong style="color:#FFEA00">Zero prep required.</strong>',
+            subTitle:'90 interactive kindergarten lessons!', subDesc:'A complete free web app, ready for Monday. <strong style="color:#FFEA00">Zero prep. Whole year covered.</strong>',
             subPerk1:'Warm-up, main activity, cool-down',
             subPerk2:'Motor skills, cooperation, active games',
             subPerk3:'Precise timing, zero downtime',
@@ -4939,7 +4920,7 @@
             fAbout:'关于', fPrivacy:'隐私政策', fDon:'捐赠', fTerms:'使用条款',
             copyright:'© 2026 Zone Total Sport. 版权所有。', madeWith:'用 💛 在魁北克制作',
             visitLabel:'访客：',
-            subTitle:'30节幼儿园即用课程！', subDesc:'一份完整的PDF，周一就能用。<strong style="color:#FFEA00">无需任何准备。</strong>',
+            subTitle:'90节幼儿园互动课程！', subDesc:'一个完整的免费网页应用，周一就能用。<strong style="color:#FFEA00">无需准备。全年覆盖。</strong>',
             subPerk1:'热身、主要活动、放松',
             subPerk2:'运动技能、合作、活跃游戏',
             subPerk3:'精确计时，零空闲',
