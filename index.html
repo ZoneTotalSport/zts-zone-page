@@ -5648,7 +5648,7 @@ document.addEventListener('keydown', function(e) {
       <span style="font-family:'Fredoka One',cursive;font-size:.75rem;color:rgba(255,255,255,.4);margin-left:auto;">zonetotalsport.ca</span>
     </div>
     <!-- Iframe -->
-    <iframe id="sportsNewsFrame" src="" style="width:100%;height:calc(100% - 52px);border:none;background:#fff;" loading="lazy"></iframe>
+    <iframe id="sportsNewsFrame" src="about:blank" style="width:100%;height:calc(100% - 52px);border:none;background:#fff;" loading="lazy"></iframe>
   </div>
 </div>
 <script>
@@ -5827,7 +5827,7 @@ document.addEventListener('keydown', function(e) {
       <span style="font-family:'Bangers',cursive;font-size:1.3rem;color:#FDB927;letter-spacing:2px;">SÉRIES NBA 2026 — PLAYOFFS</span>
       <span style="font-family:'Fredoka One',cursive;font-size:.75rem;color:rgba(255,255,255,.4);margin-left:auto;">zonetotalsport.ca</span>
     </div>
-    <iframe id="nbaPlayoffsFrame" src="" style="width:100%;height:calc(100% - 54px);border:none;background:#0a0e1a;"></iframe>
+    <iframe id="nbaPlayoffsFrame" src="about:blank" loading="lazy" style="width:100%;height:calc(100% - 54px);border:none;background:#0a0e1a;"></iframe>
   </div>
 </div>
 <script>
@@ -5836,7 +5836,7 @@ document.addEventListener('keydown', function(e) {
   var observer = new MutationObserver(function(){
     if(modal.style.display === 'flex'){
       var frame = document.getElementById('nbaPlayoffsFrame');
-      if(!frame.src || frame.src === '' || frame.src === window.location.href) frame.src = 'apps/nba-playoffs/';
+      if(!frame.src || frame.src === '' || frame.src === 'about:blank' || frame.src === window.location.href) frame.src = 'apps/nba-playoffs/';
     }
   });
   observer.observe(modal, {attributes:true, attributeFilter:['style']});
@@ -5861,7 +5861,7 @@ document.addEventListener('keydown', function(e) {
       <span style="font-family:'Fredoka One',cursive;font-size:.75rem;color:rgba(255,255,255,.4);margin-left:auto;">zonetotalsport.ca</span>
     </div>
     <!-- iframe -->
-    <iframe id="nhlPlayoffsFrame" src="" style="width:100%;height:calc(100% - 54px);border:none;background:#0D1B2A;"></iframe>
+    <iframe id="nhlPlayoffsFrame" src="about:blank" loading="lazy" style="width:100%;height:calc(100% - 54px);border:none;background:#0D1B2A;"></iframe>
   </div>
 </div>
 <script>
@@ -5871,7 +5871,7 @@ document.addEventListener('keydown', function(e) {
   var observer = new MutationObserver(function(){
     if(modal.style.display === 'flex'){
       var frame = document.getElementById('nhlPlayoffsFrame');
-      if(!frame.src || frame.src === '' || frame.src === window.location.href) frame.src = 'apps/nhl-playoffs/';
+      if(!frame.src || frame.src === '' || frame.src === 'about:blank' || frame.src === window.location.href) frame.src = 'apps/nhl-playoffs/';
     }
   });
   observer.observe(modal, {attributes:true, attributeFilter:['style']});
