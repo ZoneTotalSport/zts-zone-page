@@ -1589,6 +1589,10 @@
         .zts-today-cycle-badge.c1 { background: #10B981; }
         .zts-today-cycle-badge.c2 { background: #F59E0B; }
         .zts-today-cycle-badge.c3 { background: #8B5CF6; }
+        .zts-today-context-badge { display: inline-block; font-family: 'Bangers', cursive; letter-spacing: 1.5px; padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; margin-bottom: 14px; border: 2px solid; }
+        .zts-today-context-gym { background: rgba(255,234,0,0.18); color: #FFEA00; border-color: #FFEA00; }
+        .zts-today-context-classroom { background: rgba(255,42,122,0.15); color: #FF6B9D; border-color: #FF2A7A; }
+        .zts-today-section-label { font-family: 'Bangers', cursive; letter-spacing: 1.5px; color: rgba(255,255,255,0.55); font-size: 0.9rem; margin: 14px 0 6px; text-transform: uppercase; }
         .zts-today-game-title { font-family: 'Luckiest Guy', cursive; color: #FFEA00; font-size: 2rem; margin-bottom: 14px; letter-spacing: 0.8px; line-height: 1.15; }
         .zts-today-game-desc { font-size: 1.2rem; margin-bottom: 16px; }
         .zts-today-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
@@ -1622,8 +1626,8 @@
         #ztsPauseSection { background: linear-gradient(135deg, #FF2A7A 0%, #8B5CF6 100%); padding: 50px 20px; position: relative; overflow: hidden; }
         #ztsPauseSection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(255,234,0,0.2), transparent 40%); pointer-events: none; }
         .zts-pause-header { max-width: 1400px; margin: 0 auto 32px; text-align: center; position: relative; }
-        .zts-pause-tag { display: inline-block; background: #FFEA00; color: #18181b; padding: 12px 28px; border-radius: 28px; font-family: 'Luckiest Guy', cursive; font-size: 1.6rem; letter-spacing: 1px; margin-bottom: 10px; }
-        .zts-pause-h2 { font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin: 18px 0 0; letter-spacing: 0.5px; text-shadow: 3px 3px 0 rgba(0,0,0,0.18); line-height: 1.15; }
+        .zts-pause-tag { display: inline-block; background: #FFEA00; color: #18181b; padding: 12px 28px; border-radius: 28px; font-family: 'Bangers', 'Luckiest Guy', cursive; font-size: 1.7rem; letter-spacing: 2px; margin-bottom: 10px; }
+        .zts-pause-h2 { font-family: 'ZoneTotalSport', 'Bangers', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin: 18px 0 0; letter-spacing: 0.5px; text-shadow: 3px 3px 0 rgba(0,0,0,0.18); line-height: 1.15; }
         .zts-pause-sub { font-family: 'Bangers', cursive; color: rgba(255,255,255,0.95); font-size: 1.5rem; margin-top: 12px; letter-spacing: 1.5px; }
         #ztsPauseGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; position: relative; }
         .zts-pause-card { background: #fff; border-radius: 24px; padding: 32px 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 4px solid #18181b; position: relative; transition: transform 0.3s; }
@@ -4750,6 +4754,20 @@
         ['[data-i18n="profH2"]', 'profH2'], ['[data-i18n="profP2"]', 'profP2'],
         ['[data-i18n="profH3"]', 'profH3'], ['[data-i18n="profP3"]', 'profP3'],
         ['[data-i18n="profH4"]', 'profH4'], ['[data-i18n="profP4"]', 'profP4'],
+        ['[data-i18n="joinTitle"]', 'joinTitle'],
+        ['[data-i18n="joinSub"]', 'joinSub'],
+        ['[data-i18n="joinPerk1"]', 'joinPerk1'], ['[data-i18n="joinPerk2"]', 'joinPerk2'],
+        ['[data-i18n="joinPerk3"]', 'joinPerk3'], ['[data-i18n="joinPerk4"]', 'joinPerk4'],
+        ['[data-i18n="joinCta"]', 'joinCta'],
+        ['[data-i18n="joinFoot"]', 'joinFoot'],
+        ['[data-i18n="joinWelcome"]', 'joinWelcome'],
+        ['[data-i18n="joinWelcomeSub"]', 'joinWelcomeSub'],
+        ['[data-i18n="joinWelcomeCta"]', 'joinWelcomeCta'],
+        ['[data-i18n="joinKeepLink"]', 'joinKeepLink'],
+        ['[data-i18n="joinResendCta"]', 'joinResendCta'],
+        ['[data-i18n="joinRecoverToggle"]', 'joinRecoverToggle'],
+        ['[data-i18n="joinRecoverDesc"]', 'joinRecoverDesc'],
+        ['[data-i18n="joinRecoverSubmit"]', 'joinRecoverSubmit'],
     ];
 
     const i18n = {
@@ -4905,6 +4923,22 @@
             profP3:'Simplifier votre planification pour que vous puissiez vous concentrer sur l\'essentiel : <strong>la relation avec vos élèves</strong>. Fini les fichiers Excel brisés ! Mon but est de vous faire sauver du temps précieux.',
             profH4:'🌟 LE PETIT PLUS',
             profP4:'"Je suis convaincu qu\'un prof bien outillé est un prof heureux, et un prof heureux fait des élèves actifs pour la vie !"',
+            joinTitle:'Rejoins la <em>Zone</em>',
+            joinSub:'Gratuit, pour toujours. 30 secondes pour tout débloquer.',
+            joinPerk1:'<strong>90 cours maternelle</strong> clé en main, prêts dès lundi',
+            joinPerk2:'<strong>Nouveaux outils</strong> dès leur sortie',
+            joinPerk3:'<strong>Répertoire de jeux</strong> qui grossit chaque semaine',
+            joinPerk4:'<strong>100% gratuit</strong>, zéro pub, zéro carte de crédit',
+            joinCta:'Devenir membre — 30 sec',
+            joinFoot:'Aucun spam. Désinscription en un clic.',
+            joinWelcome:'Bienvenue',
+            joinWelcomeSub:'Tu as accès à tout. Voici ton outil le plus populaire.',
+            joinWelcomeCta:'Ouvrir mes 90 cours maternelle',
+            joinKeepLink:'C\'est ton accès personnel à l\'app 90 cours. On vient aussi de te l\'envoyer par courriel — vérifie ta boîte (et tes spams au besoin).',
+            joinResendCta:'Renvoyer le lien par courriel',
+            joinRecoverToggle:'Déjà membre? J\'ai oublié mon lien →',
+            joinRecoverDesc:'Entre ton courriel — on te renvoie ton lien d\'accès.',
+            joinRecoverSubmit:'M\'envoyer le lien',
         },
         en: {
             navJeux:'Games', navRes:'Resources', navGen:'Generator', navAvis:'Reviews',
@@ -5058,6 +5092,22 @@
             profP3:'Simplify your planning so you can focus on what matters: <strong>your connection with your students</strong>. No more broken Excel files! My goal is to save you precious time.',
             profH4:'🌟 THE LITTLE EXTRA',
             profP4:'"I\'m convinced that a well-equipped teacher is a happy teacher, and a happy teacher raises kids who stay active for life!"',
+            joinTitle:'Join the <em>Zone</em>',
+            joinSub:'Free, forever. 30 seconds to unlock everything.',
+            joinPerk1:'<strong>90 ready-to-go</strong> kindergarten lessons',
+            joinPerk2:'<strong>New tools</strong> as soon as they launch',
+            joinPerk3:'<strong>Game library</strong> growing every week',
+            joinPerk4:'<strong>100% free</strong>, no ads, no credit card',
+            joinCta:'Become a member — 30 sec',
+            joinFoot:'No spam. One-click unsubscribe.',
+            joinWelcome:'Welcome',
+            joinWelcomeSub:'You\'re all set. Here\'s your most popular tool.',
+            joinWelcomeCta:'Open my 90 kindergarten lessons',
+            joinKeepLink:'This is your personal access to the 90-lessons app. We just emailed it to you too — check your inbox (and spam if needed).',
+            joinResendCta:'Resend the link by email',
+            joinRecoverToggle:'Already a member? I forgot my link →',
+            joinRecoverDesc:'Enter your email — we\'ll resend your access link.',
+            joinRecoverSubmit:'Email me the link',
         },
         zh: {
             navJeux:'游戏', navRes:'资源', navGen:'生成器', navAvis:'评价',
@@ -5211,6 +5261,22 @@
             profP3:'简化你的备课，让你能专注于最重要的：<strong>与学生的关系</strong>。告别崩溃的Excel文件！我的目标是帮你节省宝贵时间。',
             profH4:'🌟 小小附加',
             profP4:'"我坚信，装备齐全的老师是快乐的老师，而快乐的老师能培养出终身热爱运动的孩子！"',
+            joinTitle:'加入 <em>Zone</em>',
+            joinSub:'永久免费。30秒解锁全部内容。',
+            joinPerk1:'<strong>90节幼儿园课程</strong>，开箱即用',
+            joinPerk2:'<strong>新工具</strong>第一时间获取',
+            joinPerk3:'<strong>游戏库</strong>每周更新',
+            joinPerk4:'<strong>100%免费</strong>，无广告，无需信用卡',
+            joinCta:'成为会员 — 30秒',
+            joinFoot:'无垃圾邮件。一键退订。',
+            joinWelcome:'欢迎',
+            joinWelcomeSub:'你已拥有全部权限。这是最受欢迎的工具。',
+            joinWelcomeCta:'打开我的90节幼儿园课程',
+            joinKeepLink:'这是你访问90节课程应用的专属链接。我们也已发送到你的邮箱 — 请查收（如有需要请检查垃圾邮件）。',
+            joinResendCta:'重新发送链接到邮箱',
+            joinRecoverToggle:'已是会员？我忘了链接 →',
+            joinRecoverDesc:'输入你的邮箱 — 我们会重新发送访问链接。',
+            joinRecoverSubmit:'发送链接到我的邮箱',
         }
     };
 

@@ -14,6 +14,11 @@
     fr: {
       meteo: 'Météo & Plan',
       jeu: 'Jeu du Jour',
+      jeuContext: '🏟️ POUR LE GYMNASE',
+      jeuHowto: 'Comment jouer',
+      defi: 'Défi du Jour',
+      defiContext: '🏫 EN CLASSE & 🏠 À LA MAISON',
+      defiHowto: 'À faire aujourd\'hui',
       ephemeride: 'Éphéméride ÉPS',
       conseil: 'Conseil du Jour',
       loading: 'Chargement...',
@@ -54,6 +59,11 @@
     en: {
       meteo: 'Weather & Plan',
       jeu: 'Game of the Day',
+      jeuContext: '🏟️ FOR THE GYM',
+      jeuHowto: 'How to play',
+      defi: 'Challenge of the Day',
+      defiContext: '🏫 CLASSROOM & 🏠 HOME',
+      defiHowto: 'Try this today',
       ephemeride: 'PE Almanac',
       conseil: 'Tip of the Day',
       loading: 'Loading...',
@@ -94,6 +104,11 @@
     zh: {
       meteo: '天气与计划',
       jeu: '每日游戏',
+      jeuContext: '🏟️ 体育馆专用',
+      jeuHowto: '玩法',
+      defi: '每日挑战',
+      defiContext: '🏫 课堂与 🏠 家庭',
+      defiHowto: '今天试一试',
       ephemeride: '体育日历',
       conseil: '每日贴士',
       loading: '加载中...',
@@ -621,28 +636,32 @@
       html += '<div class="zts-today-card zts-today-weather"><div class="zts-today-label">🌤️ ' + L('meteo') + '</div><div class="zts-today-body">' + L('weather_unavailable') + '</div></div>';
     }
 
-    // Carte Jeu du Jour
+    // Carte Jeu du Jour — uniquement gymnase
     if (game) {
       var tagsHtml = (game.tags || []).map(function(t){ return '<span class="zts-today-tag">' + t + '</span>'; }).join('');
       html += '<div class="zts-today-card zts-today-game">' +
         '<div class="zts-today-label">🎮 ' + L('jeu') + '</div>' +
         '<div class="zts-today-body">' +
+          '<div class="zts-today-context-badge zts-today-context-gym">' + L('jeuContext') + '</div>' +
           '<div class="zts-today-game-title">' + game.name + '</div>' +
+          '<div class="zts-today-section-label">' + L('jeuHowto') + '</div>' +
           '<div class="zts-today-game-desc">' + game.desc + '</div>' +
           '<div class="zts-today-tags">' + tagsHtml + '</div>' +
           '<button class="zts-today-cta" onclick="window.ztsOpenApp && window.ztsOpenApp(\'https://jeux.zonetotalsport.ca\')">' + L('cta_games') + '</button>' +
         '</div></div>';
     }
 
-    // Carte Defi du jour (conseil EPS pratique, deterministe par jour)
+    // Carte Defi du jour — classe ET maison
     var defi = await getDefiDuJour();
     if (defi) {
       html += '<div class="zts-today-card zts-today-eph">' +
-        '<div class="zts-today-label">💪 Défi du jour</div>' +
+        '<div class="zts-today-label">💪 ' + L('defi') + '</div>' +
         '<div class="zts-today-body">' +
+          '<div class="zts-today-context-badge zts-today-context-classroom">' + L('defiContext') + '</div>' +
           '<div class="zts-today-eph-title">' + defi.title + '</div>' +
           '<div class="zts-today-eph-desc">' + defi.desc + '</div>' +
-          '<div class="zts-today-eph-activity"><strong>🎯 ' + L('inClass') + '</strong> ' + defi.activity + '</div>' +
+          '<div class="zts-today-section-label">' + L('defiHowto') + '</div>' +
+          '<div class="zts-today-eph-activity">' + defi.activity + '</div>' +
         '</div></div>';
     }
 
