@@ -1256,6 +1256,27 @@
             .news-card { flex-direction: column; align-items: flex-start; text-align: left; }
             .news-date { min-width: auto; }
         }
+        /* News carousel horizontal */
+        .news-carousel-wrap { position: relative; }
+        .news-carousel { display: flex; gap: 18px; overflow-x: auto; scroll-behavior: smooth; padding: 8px 0 18px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+        .news-carousel::-webkit-scrollbar { height: 8px; }
+        .news-carousel::-webkit-scrollbar-thumb { background: #00E5FF; border-radius: 4px; }
+        .news-carousel .news-card { flex: 0 0 360px; max-width: 360px; min-width: 360px; flex-direction: column; align-items: flex-start; gap: 12px; }
+        .news-carousel .news-date { min-width: auto; align-self: flex-start; }
+        .news-carousel .news-content { width: 100%; }
+        .news-carousel .news-btn { align-self: flex-start; }
+        .news-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 52px; height: 52px; border-radius: 50%; background: #FFFC00; border: 3px solid #18181b; box-shadow: 4px 4px 0 #18181b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #18181b; z-index: 5; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .news-arrow:hover { transform: translateY(calc(-50% - 2px)); box-shadow: 6px 6px 0 #18181b; }
+        .news-arrow:active { transform: translateY(calc(-50% + 2px)); box-shadow: 2px 2px 0 #18181b; }
+        .news-arrow:disabled { opacity: 0.35; cursor: not-allowed; transform: translateY(-50%); box-shadow: 4px 4px 0 #18181b; }
+        .news-arrow-prev { left: -10px; }
+        .news-arrow-next { right: -10px; }
+        @media (max-width: 480px) {
+            .news-carousel .news-card { flex: 0 0 86vw; min-width: 86vw; max-width: 86vw; }
+            .news-arrow { width: 44px; height: 44px; font-size: 1.3rem; }
+            .news-arrow-prev { left: -6px; }
+            .news-arrow-next { right: -6px; }
+        }
 
         /* ========== MOBILE GLOBAL FIX (iPhone) ========== */
         @media (max-width: 768px) {
@@ -1680,7 +1701,10 @@
                 <h2 class="hero-title text-4xl md:text-5xl text-dark" data-i18n="newsTitle">Nouveautes</h2>
                 <p class="font-baloo text-dark/60 mt-2" data-i18n="newsDesc">Les dernieres mises a jour du site</p>
             </div>
-            <div class="space-y-4" id="newsList">
+            <div class="news-carousel-wrap">
+                <button type="button" class="news-arrow news-arrow-prev" aria-label="Précédent" onclick="ztsNewsScroll(-1)">‹</button>
+                <button type="button" class="news-arrow news-arrow-next" aria-label="Suivant" onclick="ztsNewsScroll(1)">›</button>
+            <div class="news-carousel" id="newsList">
                 <!-- Item NEW: Forum Aidons-nous -->
                 <div class="news-card" style="border-color:#00E5FF;background:linear-gradient(90deg,#E0FCFF,#FFF)">
                     <div class="news-date" style="background:#0096C7;color:#fff">18 avril 2026</div>
@@ -1803,8 +1827,46 @@
                     </a>
                 </div>
             </div>
+            </div>
         </div>
     </section>
+    <script>
+        (function(){
+            function getStep(){
+                var list = document.getElementById('newsList');
+                if (!list) return 0;
+                var first = list.querySelector('.news-card');
+                if (!first) return 0;
+                var gap = parseFloat(getComputedStyle(list).columnGap || getComputedStyle(list).gap || '18') || 18;
+                return first.getBoundingClientRect().width + gap;
+            }
+            window.ztsNewsScroll = function(dir){
+                var list = document.getElementById('newsList');
+                if (!list) return;
+                var step = getStep();
+                var target = list.scrollLeft + dir * step;
+                target = Math.max(0, Math.min(target, list.scrollWidth - list.clientWidth));
+                list.scrollTo({ left: target, behavior: 'smooth' });
+            };
+            function updateArrows(){
+                var list = document.getElementById('newsList');
+                if (!list) return;
+                var prev = document.querySelector('.news-arrow-prev');
+                var next = document.querySelector('.news-arrow-next');
+                var maxScroll = list.scrollWidth - list.clientWidth - 2;
+                if (prev) prev.disabled = list.scrollLeft <= 2;
+                if (next) next.disabled = list.scrollLeft >= maxScroll;
+            }
+            function init(){
+                var list = document.getElementById('newsList');
+                if (!list) return;
+                list.addEventListener('scroll', updateArrows, { passive: true });
+                window.addEventListener('resize', updateArrows);
+                updateArrows();
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+        })();
+    </script>
 
     <!-- ========== SECTION JOIN ZONE (Cyan) — Inscription sans popup ========== -->
     <style>
