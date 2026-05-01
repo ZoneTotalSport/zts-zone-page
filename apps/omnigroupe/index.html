@@ -122,17 +122,15 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 <div id="app" class="max-w-lg mx-auto bg-slate-50 min-h-screen relative">
 
 <!-- ========== STATUS BAR ========== -->
-<div class="safe-top text-white px-5 pb-2 flex justify-between items-center text-[11px] font-semibold tracking-wide z-50 sticky top-0" style="background:#004A61">
-  <span class="font-luckiest" style="font-size:13px;">OmniGroupe</span>
-  <div class="flex items-center gap-2">
-    <span id="clock">09:41</span>
-    <span>🔋</span>
-  </div>
-  <!-- Device Switcher -->
-  <div class="flex items-center gap-1 rounded-lg p-0.5" style="background:#0086AD">
-    <button onclick="setDevice('iphone')" id="btn-iphone" class="dev-btn dev-active px-2 py-0.5 rounded-md text-[10px] font-bold transition-all">iPhone</button>
-    <button onclick="setDevice('ipad')" id="btn-ipad" class="dev-btn px-2 py-0.5 rounded-md text-[10px] font-bold transition-all">iPad</button>
-    <button onclick="setDevice('web')" id="btn-web" class="dev-btn px-2 py-0.5 rounded-md text-[10px] font-bold transition-all">Web</button>
+<div class="safe-top text-white px-4 py-3 flex justify-between items-center z-50 sticky top-0 border-b-4" style="background:#004A61;border-color:#0086AD">
+  <span class="font-luckiest text-lg uppercase zts-text-shadow tracking-wider">OmniGroupe</span>
+  <div class="flex items-center gap-3">
+    <span id="clock" class="font-bold text-sm text-white/80">09:41</span>
+    <div class="flex items-center gap-1 rounded-xl p-1" style="background:#0086AD">
+      <button onclick="setDevice('iphone')" id="btn-iphone" class="dev-btn dev-active px-3 py-1 rounded-lg text-xs font-bold transition-all">iPhone</button>
+      <button onclick="setDevice('ipad')" id="btn-ipad" class="dev-btn px-3 py-1 rounded-lg text-xs font-bold transition-all">iPad</button>
+      <button onclick="setDevice('web')" id="btn-web" class="dev-btn px-3 py-1 rounded-lg text-xs font-bold transition-all">Web</button>
+    </div>
   </div>
 </div>
 
@@ -304,7 +302,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   </div>
   <div class="px-4">
   <div class="flex gap-1.5 overflow-x-auto no-sb pb-3 mb-4" id="outils-tabs"></div>
-  <div id="outils-content" class="hc-card p-6 min-h-[400px] flex flex-col items-center justify-center" style="border-radius:1rem"></div>
+  <div id="outils-content" class="hc-card p-6 min-h-[400px] flex flex-col items-center justify-center shadow-lg" style="border-radius:1.25rem"></div>
   </div>
 </div>
 
@@ -320,10 +318,10 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   <div class="px-4">
 
   <!-- 3 sous-onglets -->
-  <div class="flex gap-1 rounded-xl p-1 mb-4" style="background:#004A6115">
-    <button onclick="switchSeanceTab('sequence')" id="st-sequence" class="seance-tab flex-1 py-2 rounded-lg text-xs font-bold press text-white" style="background:#0086AD">📋 Séquence</button>
-    <button onclick="switchSeanceTab('choix')" id="st-choix" class="seance-tab flex-1 py-2 rounded-lg text-xs font-bold press bg-transparent text-slate-500">🎮 Choix</button>
-    <button onclick="switchSeanceTab('taches')" id="st-taches" class="seance-tab flex-1 py-2 rounded-lg text-xs font-bold press bg-transparent text-slate-500">📝 Tâches <span id="taches-badge-tab" class="hidden text-white text-[9px] font-bold rounded-full px-1.5 py-0.5 ml-1" style="background:#00C4FF">0</span></button>
+  <div class="flex gap-2 rounded-2xl p-1.5 mb-4 border-b-[6px] border-r-[6px]" style="background:#004A61;border-color:#003445">
+    <button onclick="switchSeanceTab('sequence')" id="st-sequence" class="seance-tab flex-1 py-2.5 rounded-xl text-xs font-luckiest uppercase press text-white" style="background:#00C4FF">📋 Séquence</button>
+    <button onclick="switchSeanceTab('choix')" id="st-choix" class="seance-tab flex-1 py-2.5 rounded-xl text-xs font-luckiest uppercase press text-white/50">🎮 Choix</button>
+    <button onclick="switchSeanceTab('taches')" id="st-taches" class="seance-tab flex-1 py-2.5 rounded-xl text-xs font-luckiest uppercase press text-white/50">📝 Tâches <span id="taches-badge-tab" class="hidden text-ztsDeep text-[9px] font-bold rounded-full px-1.5 py-0.5 ml-1" style="background:#FFF000">0</span></button>
   </div>
 
   <!-- ===== SOUS-TAB SÉQUENCE ===== -->
@@ -598,27 +596,27 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 </div>
 
 <!-- ========== BOTTOM NAV ========== -->
-<nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-2 z-40 no-print" style="border-color:#0086AD30">
-  <div id="nav-inner" class="max-w-lg mx-auto flex justify-around py-2 pb-[max(8px,env(safe-area-inset-bottom))]">
-    <button onclick="go('home')" class="nav-item active flex flex-col items-center px-3 py-1" data-nav="home">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      <span class="text-[10px] mt-0.5">Accueil</span>
-      <div class="nav-dot w-4 h-1 rounded-full mt-0.5" style="background:#00C4FF"></div>
+<nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-4 z-40 no-print shadow-[0_-4px_12px_rgba(0,0,0,0.08)]" style="border-color:#00C4FF">
+  <div id="nav-inner" class="max-w-lg mx-auto flex justify-around py-3 pb-[max(12px,env(safe-area-inset-bottom))]">
+    <button onclick="go('home')" class="nav-item active flex flex-col items-center px-4 py-1.5" data-nav="home">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span class="text-xs font-luckiest mt-1 uppercase">Accueil</span>
+      <div class="nav-dot w-6 h-1.5 rounded-full mt-1" style="background:#00C4FF"></div>
     </button>
-    <button onclick="go('sos')" class="nav-item flex flex-col items-center px-3 py-1 text-slate-400" data-nav="sos">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
-      <span class="text-[10px] mt-0.5">SOS</span>
-      <div class="nav-dot w-4 h-1 rounded-full mt-0.5" style="background:#00C4FF"></div>
+    <button onclick="go('sos')" class="nav-item flex flex-col items-center px-4 py-1.5 text-slate-400" data-nav="sos">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+      <span class="text-xs font-luckiest mt-1 uppercase">SOS</span>
+      <div class="nav-dot w-6 h-1.5 rounded-full mt-1" style="background:#00C4FF"></div>
     </button>
-    <button onclick="go('planif')" class="nav-item flex flex-col items-center px-3 py-1 text-slate-400" data-nav="planif">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-      <span class="text-[10px] mt-0.5">Ma Séance</span>
-      <div class="nav-dot w-4 h-1 rounded-full mt-0.5" style="background:#00C4FF"></div>
+    <button onclick="go('planif')" class="nav-item flex flex-col items-center px-4 py-1.5 text-slate-400" data-nav="planif">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <span class="text-xs font-luckiest mt-1 uppercase">Séance</span>
+      <div class="nav-dot w-6 h-1.5 rounded-full mt-1" style="background:#00C4FF"></div>
     </button>
-    <button onclick="go('outils')" class="nav-item flex flex-col items-center px-3 py-1 text-slate-400" data-nav="outils">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
-      <span class="text-[10px] mt-0.5">Outils</span>
-      <div class="nav-dot w-4 h-1 rounded-full mt-0.5" style="background:#00C4FF"></div>
+    <button onclick="go('outils')" class="nav-item flex flex-col items-center px-4 py-1.5 text-slate-400" data-nav="outils">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+      <span class="text-xs font-luckiest mt-1 uppercase">Outils</span>
+      <div class="nav-dot w-6 h-1.5 rounded-full mt-1" style="background:#00C4FF"></div>
     </button>
   </div>
 </nav>
@@ -1194,17 +1192,23 @@ function renderOutilContent(){
         <button onclick="setLight('yellow')" id="ml-yellow" class="w-20 h-20 rounded-full bg-yellow-900/40 flex items-center justify-center transition-all press"><span class="text-2xl">🔉</span></button>
         <button onclick="setLight('green')" id="ml-green" class="w-20 h-20 rounded-full bg-green-500 glow-green flex items-center justify-center transition-all press"><span class="text-2xl">🔊</span></button>
       </div>`,
-    timer:`<h3 class="text-xl font-black uppercase tracking-tight mb-8" style="color:#004A61">Time Timer</h3>
-      <div class="relative w-56 h-56 bg-slate-100 rounded-full flex items-center justify-center border-8 border-slate-200 shadow-inner mb-6">
-        <svg viewBox="0 0 100 100" class="absolute inset-0 w-full h-full -rotate-90">
-          <circle cx="50" cy="50" r="42" fill="none" stroke="#ef4444" stroke-width="12" stroke-dasharray="${264*timerLeft/300} 264" stroke-linecap="round" opacity=".3"/>
-        </svg>
-        <span class="text-4xl font-black font-mono ${timerLeft<60?'text-red-600':'text-slate-800'}">${fmt(timerLeft)}</span>
-      </div>
-      <div class="flex gap-2 mb-4">${[60,120,180,300,600].map(v=>`<button onclick="timerLeft=${v};timerRunning=false;clearInterval(timerInterval);renderOutilContent()" class="px-3 py-1.5 rounded-xl text-xs font-bold press ${timerLeft===v&&!timerRunning?'text-white':'bg-slate-100 text-slate-600'}" ${timerLeft===v&&!timerRunning?'style="background:#0086AD"':''}>${v/60}m</button>`).join('')}</div>
-      <div class="flex gap-3">
-        <button onclick="timerLeft=${timerLeft};timerRunning=false;clearInterval(timerInterval);renderOutilContent()" class="p-3 bg-slate-100 rounded-full press">↺</button>
-        <button onclick="toggleTimer()" class="px-8 py-3 rounded-2xl font-bold text-white shadow-lg press" style="background:${timerRunning?'#FFF000;color:#004A61':'#00C4FF;color:#004A61'}">${timerRunning?'PAUSE':'DÉMARRER'}</button>
+    timer:`<div class="w-full rounded-2xl p-6 mb-4 border-b-[12px] border-r-[12px]" style="background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61);border-color:#003445">
+        <h3 class="text-2xl font-luckiest text-white uppercase tracking-tight mb-6 text-center zts-text-shadow">Time Timer</h3>
+        <div class="relative w-52 h-52 mx-auto mb-6">
+          <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90 drop-shadow-lg">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="10"/>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="${timerLeft<60?'#ef4444':'#FFF000'}" stroke-width="10" stroke-dasharray="${264*timerLeft/300} 264" stroke-linecap="round" style="filter:drop-shadow(0 0 8px ${timerLeft<60?'rgba(239,68,68,.5)':'rgba(255,240,0,.5)'})"/>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="text-5xl font-black font-luckiest ${timerLeft<60?'text-red-400':'text-white'}" style="text-shadow:2px 2px 0 rgba(0,0,0,.3)">${fmt(timerLeft)}</span>
+            <span class="text-xs text-white/60 font-bold mt-1 uppercase">${timerRunning?'En cours':'Prêt'}</span>
+          </div>
+        </div>
+        <div class="flex gap-2 justify-center mb-4 flex-wrap">${[60,120,180,300,600].map(v=>`<button onclick="timerLeft=${v};timerRunning=false;clearInterval(timerInterval);renderOutilContent()" class="px-4 py-2 rounded-xl text-xs font-black press border-2 ${timerLeft===v&&!timerRunning?'text-ztsDeep border-yellow-400':'text-white/70 border-white/20'}" ${timerLeft===v&&!timerRunning?'style="background:#FFF000"':''}>${v/60}m</button>`).join('')}</div>
+        <div class="flex gap-3 justify-center">
+          <button onclick="timerLeft=${timerLeft};timerRunning=false;clearInterval(timerInterval);renderOutilContent()" class="w-12 h-12 bg-white/20 backdrop-blur rounded-xl press flex items-center justify-center text-white text-lg border-2 border-white/20">↺</button>
+          <button onclick="toggleTimer()" class="flex-1 max-w-[200px] py-3 rounded-2xl font-luckiest text-lg shadow-lg press border-b-[6px] border-r-[6px] uppercase" style="background:${timerRunning?'#FFF000':'#22c55e'};color:#004A61;border-color:${timerRunning?'#d4a500':'#16a34a'}">${timerRunning?'PAUSE':'DÉMARRER'}</button>
+        </div>
       </div>`,
     sequence:`<h3 class="text-center font-black uppercase tracking-tight mb-6" style="color:#004A61">Séquence du cours</h3>
       <div class="w-full space-y-4">
@@ -1220,14 +1224,16 @@ function renderOutilContent(){
           <span class="font-bold text-slate-800 text-sm">${iconsList[step2].l}</span>
         </div>
       </div>`,
-    respire:`<h3 class="text-xl font-black uppercase tracking-tight mb-2" style="color:#004A61">Je me calme</h3>
-      <div class="relative w-64 h-64 flex items-center justify-center mt-4">
-        <div class="w-48 h-48 rounded-full shadow-2xl flex items-center justify-center" style="background:#00C4FF;animation:breathe 8s infinite ease-in-out">
-          <span class="text-5xl">🌬️</span>
+    respire:`<div class="w-full rounded-2xl p-6 border-b-[12px] border-r-[12px]" style="background:linear-gradient(135deg,#22c55e,#16a34a);border-color:#15803d">
+        <h3 class="text-2xl font-luckiest text-white uppercase tracking-tight mb-4 text-center zts-text-shadow">Je me calme</h3>
+        <div class="relative w-56 h-56 flex items-center justify-center mx-auto">
+          <div class="w-44 h-44 rounded-full shadow-2xl flex items-center justify-center border-4 border-white/30" style="background:rgba(255,255,255,.2);animation:breathe 8s infinite ease-in-out">
+            <span class="text-6xl">🌬️</span>
+          </div>
         </div>
-      </div>
-      <p class="mt-8 font-bold text-center text-sm" style="color:#004A61">Inspire quand ça gonfle...<br>Expire quand ça dégonfle.</p>`,
-    thermo:`<h3 class="text-xl font-black uppercase tracking-tight mb-6" style="color:#004A61">Mon énergie</h3>
+        <p class="mt-6 font-black text-center text-sm text-white/90 uppercase">Inspire quand ça gonfle...<br>Expire quand ça dégonfle.</p>
+      </div>`,
+    thermo:`<h3 class="text-2xl font-luckiest uppercase tracking-tight mb-6" style="color:#004A61">Mon énergie</h3>
       <div class="w-16 h-56 bg-slate-200 rounded-full relative overflow-hidden border-4 border-slate-100 mb-6">
         ${[1,2,3,4,5].map(lv=>{
           const colors=['bg-blue-400','bg-green-400','bg-yellow-400','bg-orange-500','bg-red-600'];
@@ -1250,7 +1256,7 @@ function renderOutilContent(){
         <div class="p-4 rounded-r-2xl border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">🤝 Partager</p><p class="text-xs italic text-slate-600">"On y va chacun notre tour."</p></div>
         <div class="p-4 rounded-r-2xl border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">🗣️ Dire comment je me sens</p><p class="text-xs italic text-slate-600">"Je suis fâché parce que..."</p></div>
       </div>`,
-    ecoute:`<h3 class="text-xl font-black uppercase tracking-tight mb-8" style="color:#004A61">Mon Focus</h3>
+    ecoute:`<h3 class="text-2xl font-luckiest uppercase tracking-tight mb-8" style="color:#004A61">Mon Focus</h3>
       <div class="flex gap-4 mb-6"><span class="text-5xl">👂</span><span class="text-5xl">👀</span></div>
       <p class="text-center font-black text-sm uppercase mb-6">Oreilles écoutent ?<br>Yeux regardent ?</p>
       <div class="flex gap-4">
@@ -1400,8 +1406,8 @@ function switchSeanceTab(tab){
   document.getElementById('sp-choix').classList.toggle('hidden',tab!=='choix');
   document.getElementById('sp-taches').classList.toggle('hidden',tab!=='taches');
   document.querySelectorAll('.seance-tab').forEach(b=>{
-    b.className='seance-tab flex-1 py-2 rounded-lg text-xs font-bold press '+(b.id==='st-'+tab?'text-white':'bg-transparent text-slate-500');
-    b.style.background=b.id==='st-'+tab?'#0086AD':'';
+    b.className='seance-tab flex-1 py-2.5 rounded-xl text-xs font-luckiest uppercase press '+(b.id==='st-'+tab?'text-white':'text-white/50');
+    b.style.background=b.id==='st-'+tab?'#00C4FF':'';
   });
   if(tab==='choix') renderJeuxInline();
   if(tab==='taches'){renderJournal();updateBadge();}
@@ -1413,7 +1419,7 @@ function renderJeuxInline(cat){
   const filtered=cat==='all'?jeuxData:jeuxData.filter(j=>j.cat===cat);
   el.innerHTML=filtered.map((j,i)=>{
     const idx=jeuxData.indexOf(j);
-    return`<div class="hc-card p-3 shadow-sm flex items-center justify-between">
+    return`<div class="hc-card p-3 shadow-md flex items-center justify-between" style="border-left:4px solid ${jeuxCatColors[j.cat]||'#0086AD'}">
       <div class="min-w-0 flex-1">
         <span class="font-bold text-sm text-slate-800 block truncate">${j.name}</span>
         <span class="text-[10px] text-slate-500">${j.cat} · ${j.players||'Tous'}</span>
