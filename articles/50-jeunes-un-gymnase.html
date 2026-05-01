@@ -383,15 +383,26 @@
   
 
       <!-- Partage et retour -->
-      <div class="mt-16 pt-10 border-t-4 border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div class="flex items-center gap-4">
+      <div class="mt-12 pt-8 border-t-4 border-slate-50 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-3 flex-wrap justify-center">
           <p class="font-black text-slate-400 uppercase text-xs tracking-[0.2em]">Partager :</p>
-          <div class="flex gap-3">
-            <a href="https://www.facebook.com/profile.php?id=100090661918934" target="_blank" rel="noopener" class="text-slate-300 hover:text-ztsBlue transition-colors"><i data-lucide="facebook" class="w-6 h-6"></i></a>
-            <a href="https://www.instagram.com/zonetotalsport/" target="_blank" rel="noopener" class="text-slate-300 hover:text-pink-500 transition-colors"><i data-lucide="instagram" class="w-6 h-6"></i></a>
-          </div>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2F50-jeunes-un-gymnase.html" target="_blank" rel="noopener" aria-label="Partager sur Facebook" class="w-10 h-10 rounded-full bg-cyan-50 hover:bg-ztsBlue hover:text-white text-ztsBlue flex items-center justify-center transition-all shadow-sm" title="Facebook">
+            <i data-lucide="facebook" class="w-5 h-5"></i>
+          </a>
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2F50-jeunes-un-gymnase.html" target="_blank" rel="noopener" aria-label="Partager sur X" class="w-10 h-10 rounded-full bg-cyan-50 hover:bg-ztsBlue hover:text-white text-ztsBlue flex items-center justify-center transition-all shadow-sm" title="X (Twitter)">
+            <i data-lucide="twitter" class="w-5 h-5"></i>
+          </a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2F50-jeunes-un-gymnase.html" target="_blank" rel="noopener" aria-label="Partager sur LinkedIn" class="w-10 h-10 rounded-full bg-cyan-50 hover:bg-ztsBlue hover:text-white text-ztsBlue flex items-center justify-center transition-all shadow-sm" title="LinkedIn">
+            <i data-lucide="linkedin" class="w-5 h-5"></i>
+          </a>
+          <a href="mailto:?subject=Article%20Zone%20Total%20Sport&body=Je%20te%20partage%20cet%20article%20%3A%20https%3A%2F%2Fzonetotalsport.ca%2Farticles%2F50-jeunes-un-gymnase.html" aria-label="Envoyer par courriel" class="w-10 h-10 rounded-full bg-cyan-50 hover:bg-ztsBlue hover:text-white text-ztsBlue flex items-center justify-center transition-all shadow-sm" title="Courriel">
+            <i data-lucide="mail" class="w-5 h-5"></i>
+          </a>
+          <button onclick="navigator.clipboard.writeText(window.location.href).then(()=>{this.querySelector('span').textContent='Copié !';setTimeout(()=>this.querySelector('span').textContent='Copier le lien',2000)})" aria-label="Copier le lien" class="inline-flex items-center gap-2 bg-ztsYellow text-ztsDeep px-4 py-2 rounded-full font-luckiest text-sm hover:bg-white transition-all shadow-sm">
+            <i data-lucide="link" class="w-4 h-4"></i><span>Copier le lien</span>
+          </button>
         </div>
-        <a href="../blog.html" class="bg-ztsBlue text-white px-8 py-3 rounded-2xl font-luckiest text-lg hover:bg-ztsDeep transition-all shadow-lg uppercase">
+        <a href="../blog.html" class="bg-ztsBlue text-white px-8 py-3 rounded-2xl font-luckiest text-lg hover:bg-ztsDeep transition-all shadow-lg uppercase whitespace-nowrap">
           ← Retour au blogue
         </a>
       </div>
