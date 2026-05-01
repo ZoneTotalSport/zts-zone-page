@@ -431,7 +431,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 
 <!-- ========== BOTTOM NAV ========== -->
 <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-2 z-40 no-print" style="border-color:#0086AD30">
-  <div class="max-w-lg mx-auto flex justify-around py-2 pb-[max(8px,env(safe-area-inset-bottom))]">
+  <div id="nav-inner" class="max-w-lg mx-auto flex justify-around py-2 pb-[max(8px,env(safe-area-inset-bottom))]">
     <button onclick="go('home')" class="nav-item active flex flex-col items-center px-3 py-1" data-nav="home">
       <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span class="text-[10px] mt-0.5">Accueil</span>
@@ -807,10 +807,12 @@ const transData=[
 let currentView='home';
 function setDevice(mode){
   const app=document.getElementById('app');
+  const navInner=document.getElementById('nav-inner');
   app.classList.remove('max-w-lg','max-w-3xl','max-w-full','tni-mode');
-  if(mode==='iphone') app.classList.add('max-w-lg');
-  else if(mode==='ipad') app.classList.add('max-w-3xl');
-  else { app.classList.add('max-w-full'); app.classList.add('tni-mode'); }
+  if(navInner) navInner.classList.remove('max-w-lg','max-w-3xl','max-w-full');
+  if(mode==='iphone'){ app.classList.add('max-w-lg'); if(navInner) navInner.classList.add('max-w-lg'); }
+  else if(mode==='ipad'){ app.classList.add('max-w-3xl'); if(navInner) navInner.classList.add('max-w-3xl'); }
+  else { app.classList.add('max-w-full'); app.classList.add('tni-mode'); if(navInner) navInner.classList.add('max-w-full'); }
   document.querySelectorAll('.dev-btn').forEach(b=>b.classList.remove('dev-active'));
   document.getElementById('btn-'+mode).classList.add('dev-active');
 }
@@ -1495,6 +1497,14 @@ setInterval(()=>{
 // INIT
 // ============================================================
 updateBadge();
+
+// Auto-detect device based on screen width
+(function autoDetectDevice(){
+  const w=window.innerWidth;
+  if(w>=1024) setDevice('web');
+  else if(w>=768) setDevice('ipad');
+  else setDevice('iphone');
+})();
 
 // PWA Service Worker
 if('serviceWorker' in navigator){
