@@ -3,7 +3,20 @@
    Cyan #00C4FF + Jaune #FFF000 + Luckiest Guy + Inter
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Nunito:wght@400;500;600;700;800;900&display=swap');
+
+/* Police composite : Luckiest Guy pour ASCII + Bangers pour accents (Luckiest Guy ne supporte pas é/è/à/etc.) */
+@font-face{
+  font-family:'LuckiestGuyZTS';
+  src:local('Luckiest Guy');
+  unicode-range:U+0020-007F;
+}
+@font-face{
+  font-family:'LuckiestGuyZTS';
+  src:local('Bangers');
+  unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F;
+  size-adjust:92%;
+}
 
 :root{
   --zts-blue:#00C4FF;
@@ -34,7 +47,7 @@ body{
     #f8fafc !important;
   background-attachment:fixed;
 }
-.font-luckiest{font-family:'Luckiest Guy',cursive !important;letter-spacing:.05em}
+.font-luckiest{font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;letter-spacing:.05em}
 .text-outline{text-shadow:2px 2px 0 rgba(0,0,0,.2)}
 .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
 
@@ -45,7 +58,7 @@ body{
 h1.font-bangers,h2.font-bangers,h3.font-bangers,h4.font-bangers,
 h1.font-fredoka,h2.font-fredoka,h3.font-fredoka,h4.font-fredoka,
 h1.font-lucky,h2.font-lucky,h3.font-lucky,h4.font-lucky{
-  font-family:'Luckiest Guy',cursive !important;letter-spacing:.04em;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;letter-spacing:.04em;
 }
 
 /* Animations */
@@ -75,7 +88,7 @@ h1.font-lucky,h2.font-lucky,h3.font-lucky,h4.font-lucky{
 
 /* Headings */
 .zts-prose h1,.zts-prose h2,.zts-prose h3,.zts-prose h4,.zts-prose h5,.zts-prose h6{
-  font-family:'Luckiest Guy',cursive !important;letter-spacing:.04em;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;letter-spacing:.04em;
   color:var(--zts-deep);text-transform:uppercase;line-height:1.15;
 }
 .zts-prose h1{font-size:clamp(2rem,5vw,2.8rem);margin:2rem 0 1.5rem;color:var(--zts-deep)}
@@ -97,7 +110,7 @@ article.zts-prose h2{
     0 12px 28px -8px rgba(0,196,255,.3),
     0 4px 12px rgba(0,0,0,.06) !important;
   position:relative !important;
-  font-family:'Luckiest Guy',cursive !important;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;
   letter-spacing:.04em !important;
   color:var(--zts-deep) !important;
   text-transform:uppercase !important;
@@ -126,7 +139,7 @@ article.zts-prose h2{
 }
 .zts-prose ol{list-style:decimal}
 .zts-prose ol li{margin-bottom:.6rem;padding-left:.5rem}
-.zts-prose ol li::marker{color:var(--zts-blue);font-weight:900;font-family:'Luckiest Guy',cursive}
+.zts-prose ol li::marker{color:var(--zts-blue);font-weight:900;font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive}
 
 /* Strong/em */
 .zts-prose strong,.zts-prose b{color:var(--zts-deep);font-weight:800}
@@ -146,11 +159,11 @@ article.zts-prose h2{
 }
 .zts-prose blockquote::before{
   content:'"';position:absolute;top:-1rem;right:1rem;
-  font-family:'Luckiest Guy',cursive;font-size:8rem;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;font-size:8rem;
   color:var(--zts-yellow);opacity:.15;line-height:1;
 }
 .zts-prose blockquote p{
-  font-family:'Luckiest Guy',cursive !important;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;
   color:var(--zts-yellow) !important;font-size:1.5rem;
   line-height:1.3;margin:0;text-transform:uppercase;letter-spacing:.04em;
 }
@@ -181,7 +194,7 @@ article.zts-prose h2{
 .zts-prose .astuce::before{
   content:'💡 ASTUCE';position:absolute;top:-1rem;left:2rem;
   background:var(--zts-yellow);color:var(--zts-deep);
-  font-family:'Luckiest Guy',cursive;letter-spacing:.05em;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;letter-spacing:.05em;
   padding:.4rem 1rem;border-radius:.6rem;font-size:.85rem;
   box-shadow:0 4px 12px rgba(0,0,0,.15);
 }
@@ -194,7 +207,7 @@ article.zts-prose h2{
 }
 .zts-prose th{
   background:var(--zts-blue);color:#fff;
-  font-family:'Luckiest Guy',cursive;letter-spacing:.04em;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;letter-spacing:.04em;
   padding:1rem;text-align:left;
 }
 .zts-prose td{padding:.9rem 1rem;border-bottom:1px solid #e2e8f0}
@@ -246,7 +259,7 @@ body > .hero-full,main > .hero-full{display:none !important}
   background:var(--zts-blue) !important;
   background-image:linear-gradient(135deg,var(--zts-blue),var(--zts-deep)) !important;
   color:#fff !important;
-  font-family:'Luckiest Guy',cursive !important;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;
   letter-spacing:.04em;
   border-radius:9999px !important;
   padding:1rem 2rem !important;
@@ -255,7 +268,7 @@ body > .hero-full,main > .hero-full{display:none !important}
 /* Like button legacy (Bangers + rose) */
 .zts-prose .like-btn,
 .zts-prose button[style*="Bangers"]{
-  font-family:'Luckiest Guy',cursive !important;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;
   background:var(--zts-yellow) !important;
   color:var(--zts-deep) !important;
   border:3px solid var(--zts-deep) !important;
@@ -274,7 +287,7 @@ body > .hero-full,main > .hero-full{display:none !important}
 .zts-prose h4.font-fredoka,
 .zts-prose h3[class*="font-bangers"]{
   color:var(--zts-deep) !important;
-  font-family:'Luckiest Guy',cursive !important;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;
   font-size:1.4rem !important;text-transform:uppercase;
   letter-spacing:.04em;margin:2rem 0 1rem !important;
 }
@@ -323,7 +336,7 @@ body > .hero-full,main > .hero-full{display:none !important}
   background:var(--zts-blue) !important;
   background-image:none !important;
   color:#fff !important;
-  font-family:'Luckiest Guy',cursive !important;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;
   letter-spacing:.04em !important;
   padding:1rem 2rem !important;
   border-radius:9999px !important;
@@ -337,7 +350,7 @@ body > .hero-full,main > .hero-full{display:none !important}
 /* Drop cap : première lettre du premier paragraphe en grande lettre cyan */
 .zts-prose .article-body > p:first-of-type::first-letter,
 .zts-article-centered .article-body > p:first-of-type::first-letter{
-  font-family:'Luckiest Guy',cursive !important;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;
   font-size:4.5rem !important;
   float:left;
   line-height:.9;
@@ -364,7 +377,7 @@ body > .hero-full,main > .hero-full{display:none !important}
   width:2.5rem;height:2.5rem;border-radius:50%;
   background:linear-gradient(135deg,var(--zts-yellow),#ffd700);
   color:var(--zts-deep);
-  font-family:'Luckiest Guy',cursive;font-size:1.4rem;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;font-size:1.4rem;
   display:flex;align-items:center;justify-content:center;
   border:3px solid var(--zts-deep);
   box-shadow:0 4px 8px rgba(0,0,0,.15);
@@ -429,7 +442,7 @@ body > .hero-full,main > .hero-full{display:none !important}
 /* Tables plus lisibles */
 .zts-prose table{font-family:'Nunito',sans-serif !important}
 .zts-prose th{
-  font-family:'Luckiest Guy',cursive !important;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;
   font-size:1.05rem !important;letter-spacing:.04em;
 }
 .zts-prose td{font-size:1rem !important}
@@ -442,7 +455,7 @@ body > .hero-full,main > .hero-full{display:none !important}
 .zts-prose h3{
   border-left:6px solid var(--zts-yellow) !important;
   padding-left:1rem !important;
-  font-family:'Luckiest Guy',cursive !important;
+  font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive !important;
   color:var(--zts-blue-dark) !important;
   margin-top:2.5rem !important;
 }
