@@ -79,7 +79,27 @@ h1.font-lucky,h2.font-lucky,h3.font-lucky,h4.font-lucky{
   color:var(--zts-deep);text-transform:uppercase;line-height:1.15;
 }
 .zts-prose h1{font-size:clamp(2rem,5vw,2.8rem);margin:2rem 0 1.5rem;color:var(--zts-deep)}
-.zts-prose h2{font-size:clamp(1.75rem,4vw,2.4rem);margin:2.5rem 0 1.25rem}
+.zts-prose h2{
+  font-size:clamp(1.75rem,4vw,2.4rem);
+  margin:3rem 0 1.5rem;
+  /* Carte sticker derrière le titre */
+  background:linear-gradient(135deg,#fff,#f0f9ff);
+  border-radius:1.5rem;
+  padding:1.25rem 1.75rem;
+  border-left:8px solid var(--zts-blue);
+  border-bottom:8px solid #e0f2fe;
+  box-shadow:
+    0 12px 28px -8px rgba(0,196,255,.25),
+    0 4px 8px rgba(0,0,0,.04);
+  position:relative;
+}
+.zts-prose h2::before{
+  content:'';position:absolute;top:1rem;right:1.5rem;
+  width:.6rem;height:.6rem;border-radius:50%;
+  background:var(--zts-yellow);
+  box-shadow:1.2rem 0 0 var(--zts-yellow),2.4rem 0 0 var(--zts-yellow);
+  opacity:.6;
+}
 .zts-prose h3{font-size:clamp(1.4rem,3vw,1.9rem);margin:2rem 0 1rem;color:var(--zts-blue-dark)}
 .zts-prose h4{font-size:1.4rem;margin:1.5rem 0 .8rem;color:var(--zts-blue-dark)}
 
