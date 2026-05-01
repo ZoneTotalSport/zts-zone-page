@@ -11,15 +11,17 @@
 <link rel="apple-touch-icon" href="img/sos-hero.jpg">
 <title>OmniGroupe — Assistant Terrain pour l'Inclusion</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script>
-tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif'],display:['Luckiest Guy','cursive']},colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61'},borderRadius:{'4xl':'2.5rem'}}}}
+tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif'],display:['Luckiest Guy','cursive']},colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61'},borderRadius:{'4xl':'3rem'}}}}
 </script>
 <style>
+@font-face{font-family:'Luckiest Guy';src:url('LuckiestGuy-Regular.ttf') format('truetype');font-display:swap;}
 *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{font-family:'Inter',system-ui,sans-serif;background:#f1f5f9;overscroll-behavior:none;-webkit-font-smoothing:antialiased;}
-h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;text-shadow:2px 2px 0px rgba(0,0,0,0.15);}
+.font-luckiest{font-family:'Luckiest Guy',cursive;letter-spacing:0.05em;}
+h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;text-shadow:2px 2px 0px rgba(0,0,0,0.2);}
 /* ZTS Signature Effects */
 .zts-chunky{border-bottom:12px solid #e2e8f0;border-right:12px solid #e2e8f0;}
 .zts-sticker{border:10px solid white;transform:rotate(3deg);box-shadow:4px 4px 12px rgba(0,0,0,0.15);}
@@ -42,7 +44,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 .anim-left{animation:slideLeft .3s ease both}
 
 /* High contrast for sun */
-.hc-card{background:#fff;border:2px solid #e2e8f0;border-bottom-width:12px;border-right-width:12px;border-radius:2.5rem;}
+.hc-card{background:#fff;border:2px solid #e2e8f0;border-bottom-width:12px;border-right-width:12px;border-radius:3rem;}
 .hc-text{color:#0f172a;}
 
 /* Scrollbar hide */
@@ -107,8 +109,9 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 #app.tni-mode .gap-3{gap:clamp(12px,1.2vw,22px);}
 #app.tni-mode .rounded-2xl{border-radius:clamp(12px,1.5vw,28px);}
 #app.tni-mode .rounded-3xl{border-radius:clamp(16px,2vw,36px);}
-#app.tni-mode .rounded-\[2\.5rem\]{border-radius:clamp(20px,2.5vw,44px);}
+#app.tni-mode .rounded-4xl{border-radius:clamp(24px,3vw,52px);}
 #app.tni-mode .rounded-\[1\.5rem\]{border-radius:clamp(12px,1.5vw,28px);}
+#app.tni-mode .hc-card{border-radius:clamp(24px,3vw,52px);}
 
 /* Print */
 @media print{nav,.no-print{display:none!important;}}
@@ -120,7 +123,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 
 <!-- ========== STATUS BAR ========== -->
 <div class="safe-top text-white px-5 pb-2 flex justify-between items-center text-[11px] font-semibold tracking-wide z-50 sticky top-0" style="background:#004A61">
-  <span style="font-family:'Luckiest Guy',cursive;letter-spacing:.05em;font-size:13px;">OmniGroupe</span>
+  <span class="font-luckiest" style="font-size:13px;">OmniGroupe</span>
   <div class="flex items-center gap-2">
     <span id="clock">09:41</span>
     <span>🔋</span>
@@ -138,12 +141,12 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 <!-- HOME -->
 <div id="v-home" class="view pb-32 anim-fade">
   <!-- Hero ZTS -->
-  <div class="zts-hero-gradient text-center px-4 pt-8 pb-10 rounded-b-[3rem] mb-6 shadow-xl">
-    <div class="w-20 h-20 rounded-[22px] bg-white/20 backdrop-blur mx-auto flex items-center justify-center shadow-xl mb-3 border-4 border-white/40">
-      <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+  <div class="zts-hero-gradient text-center px-4 pt-10 pb-14 rounded-b-[3rem] mb-6 shadow-2xl">
+    <div class="w-24 h-24 rounded-[28px] bg-white/20 backdrop-blur mx-auto flex items-center justify-center shadow-xl mb-4 border-4 border-white/40">
+      <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
     </div>
-    <h1 class="text-3xl font-black text-white tracking-tight zts-text-shadow">OmniGroupe</h1>
-    <p class="text-white/80 text-sm font-medium italic mt-1">L'Assistant Terrain pour l'Inclusion</p>
+    <h1 class="text-4xl font-black text-white tracking-tight zts-text-shadow font-luckiest uppercase">OmniGroupe</h1>
+    <p class="text-white/80 text-sm font-medium italic mt-2">L'Assistant Terrain pour l'Inclusion</p>
   </div>
   <div class="px-4">
 
@@ -154,23 +157,23 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
       <div class="absolute inset-0 bg-gradient-to-t from-red-900/90 via-red-900/40 to-transparent"></div>
       <div class="relative z-10 h-full flex flex-col items-center justify-center text-white p-3">
         <svg class="w-9 h-9 mb-1 drop-shadow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
-        <span class="font-black text-lg tracking-tight zts-text-shadow" style="font-family:'Luckiest Guy',cursive">SOS CRISE</span>
+        <span class="font-black text-lg tracking-tight zts-text-shadow font-luckiest">SOS CRISE</span>
         <span class="text-[10px] font-bold uppercase opacity-90">100 Solutions</span>
       </div>
     </button>
     <button onclick="go('jeux')" class="press h-40 rounded-[3rem] text-white flex flex-col items-center justify-center shadow-lg border-b-[12px] border-r-[12px] border-[#0086AD]" style="background:linear-gradient(135deg,#00C4FF,#0086AD)">
       <svg class="w-9 h-9 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-      <span class="font-bold text-lg leading-tight zts-text-shadow" style="font-family:'Luckiest Guy',cursive">Jeux Inclusifs</span>
+      <span class="font-bold text-lg leading-tight zts-text-shadow font-luckiest">Jeux Inclusifs</span>
       <span class="text-xs opacity-90 font-medium">60 Jeux</span>
     </button>
     <button onclick="go('transitions')" class="press h-40 rounded-[3rem] text-white flex flex-col items-center justify-center shadow-lg border-b-[12px] border-r-[12px] border-yellow-400" style="background:linear-gradient(135deg,#FFF000,#f59e0b);color:#004A61">
       <svg class="w-9 h-9 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
-      <span class="font-bold text-lg leading-tight" style="font-family:'Luckiest Guy',cursive;text-shadow:1px 1px 0 rgba(255,255,255,0.5)">Transitions</span>
+      <span class="font-bold text-lg leading-tight font-luckiest" style="text-shadow:1px 1px 0 rgba(255,255,255,0.5)">Transitions</span>
       <span class="text-xs opacity-90 font-semibold">30 Astuces</span>
     </button>
     <button onclick="go('outils')" class="press h-40 rounded-[3rem] text-white flex flex-col items-center justify-center shadow-lg border-b-[12px] border-r-[12px] border-[#003445]" style="background:linear-gradient(135deg,#0086AD,#004A61)">
       <svg class="w-9 h-9 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
-      <span class="font-bold text-lg leading-tight zts-text-shadow" style="font-family:'Luckiest Guy',cursive">Outils TSA</span>
+      <span class="font-bold text-lg leading-tight zts-text-shadow font-luckiest">Outils TSA</span>
       <span class="text-xs opacity-90 font-medium">10 Outils</span>
     </button>
   </div>
@@ -201,28 +204,28 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
   <!-- Nouvelles Features -->
   <p class="text-[10px] font-black uppercase tracking-widest mb-3 mt-6 px-1" style="color:#0086AD">Gestion de groupe</p>
   <div class="grid grid-cols-2 gap-3 mb-4">
-    <button onclick="go('equipes')" class="press bg-white rounded-[2.5rem] p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-32">
+    <button onclick="go('equipes')" class="press bg-white rounded-4xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
       <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#00C4FF20">
         <svg class="w-5 h-5" style="color:#0086AD" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       </div>
       <span class="font-bold text-xs" style="color:#004A61">Equipes</span>
       <span class="text-[10px] text-slate-400">Anti-Chicane</span>
     </button>
-    <button onclick="go('tournoi')" class="press bg-white rounded-[2.5rem] p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-32">
+    <button onclick="go('tournoi')" class="press bg-white rounded-4xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
       <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#FFF00030">
         <svg class="w-5 h-5" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
       </div>
       <span class="font-bold text-xs" style="color:#004A61">Table Gone</span>
       <span class="text-[10px] text-slate-400">Tournois</span>
     </button>
-    <button onclick="go('tabata')" class="press bg-white rounded-[2.5rem] p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-32">
+    <button onclick="go('tabata')" class="press bg-white rounded-4xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
       <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#00C4FF20">
         <svg class="w-5 h-5" style="color:#0086AD" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
       <span class="font-bold text-xs" style="color:#004A61">Tabata</span>
       <span class="text-[10px] text-slate-400">Intervalles</span>
     </button>
-    <button onclick="go('emulation')" class="press bg-white rounded-[2.5rem] p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-32">
+    <button onclick="go('emulation')" class="press bg-white rounded-4xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
       <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#FFF00030">
         <svg class="w-5 h-5" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
       </div>
@@ -237,10 +240,10 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 <!-- SOS LIST -->
 <div id="v-sos" class="view hidden pb-32">
   <!-- Hero banner -->
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl" style="background:radial-gradient(circle at top left, #ef4444, #b91c1c, #7f1d1d)">
-    <svg class="w-12 h-12 text-white mx-auto mb-2 drop-shadow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
-    <h2 class="text-2xl font-black text-white uppercase tracking-tight zts-text-shadow">Interventions SOS</h2>
-    <p class="text-white/70 text-xs font-medium mt-1">10 situations · 100 solutions terrain</p>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl" style="background:radial-gradient(circle at top left, #ef4444, #b91c1c, #7f1d1d)">
+    <svg class="w-14 h-14 text-white mx-auto mb-3 drop-shadow" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
+    <h2 class="text-3xl font-black text-white uppercase tracking-tight zts-text-shadow font-luckiest">Interventions SOS</h2>
+    <p class="text-white/70 text-sm font-medium mt-2">10 situations · 100 solutions terrain</p>
     <button onclick="triggerCodeBlanc()" class="mt-3 px-6 py-2 bg-white/20 backdrop-blur border-2 border-white/40 text-white font-black text-xs uppercase rounded-full press animate-pulse">CODE BLANC</button>
   </div>
   <div class="px-4">
@@ -259,10 +262,10 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 <!-- JEUX (standalone, kept for direct access from home) -->
 <div id="v-jeux" class="view hidden pb-32">
   <!-- Hero banner -->
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl zts-hero-gradient">
-    <svg class="w-12 h-12 text-white mx-auto mb-2 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-    <h2 class="text-2xl font-black text-white uppercase tracking-tight zts-text-shadow">60 Jeux Inclusifs</h2>
-    <p class="text-white/70 text-xs font-medium mt-1">6 catégories · 3 niveaux · rôles inclusifs</p>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl zts-hero-gradient">
+    <svg class="w-14 h-14 text-white mx-auto mb-3 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+    <h2 class="text-3xl font-black text-white uppercase tracking-tight zts-text-shadow font-luckiest">60 Jeux Inclusifs</h2>
+    <p class="text-white/70 text-sm font-medium mt-2">6 catégories · 3 niveaux · rôles inclusifs</p>
   </div>
   <div class="px-4">
   <div class="flex gap-2 mb-4 overflow-x-auto no-sb pb-1">
@@ -281,9 +284,9 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 <!-- TRANSITIONS -->
 <div id="v-transitions" class="view hidden pb-32">
   <!-- Hero banner -->
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl" style="background:radial-gradient(circle at top right, #FFF000, #f59e0b, #d97706)">
-    <svg class="w-12 h-12 mx-auto mb-2 drop-shadow" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
-    <h2 class="text-2xl font-black uppercase tracking-tight" style="color:#004A61;text-shadow:1px 1px 0 rgba(255,255,255,0.4)">30 Transitions</h2>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl" style="background:radial-gradient(circle at top right, #FFF000, #f59e0b, #d97706)">
+    <svg class="w-14 h-14 mx-auto mb-3 drop-shadow" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+    <h2 class="text-3xl font-black uppercase tracking-tight font-luckiest" style="color:#004A61;text-shadow:1px 1px 0 rgba(255,255,255,0.4)">30 Transitions</h2>
     <p class="text-xs font-medium mt-1" style="color:#004A61;opacity:.7">Déplacements · Rassemblements · Retour au calme</p>
   </div>
   <div class="px-4">
@@ -294,10 +297,10 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 <!-- OUTILS TSA -->
 <div id="v-outils" class="view hidden pb-32">
   <!-- Hero banner -->
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl" style="background:radial-gradient(circle at top left, #0086AD, #004A61, #003040)">
-    <svg class="w-12 h-12 text-white mx-auto mb-2 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
-    <h2 class="text-2xl font-black text-white uppercase tracking-tight zts-text-shadow">Outils TSA</h2>
-    <p class="text-white/70 text-xs font-medium mt-1">Timer · Respiration · Humeur · Tâches · Focus</p>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl" style="background:radial-gradient(circle at top left, #0086AD, #004A61, #003040)">
+    <svg class="w-14 h-14 text-white mx-auto mb-3 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+    <h2 class="text-3xl font-black text-white uppercase tracking-tight zts-text-shadow font-luckiest">Outils TSA</h2>
+    <p class="text-white/70 text-sm font-medium mt-2">Timer · Respiration · Humeur · Tâches · Focus</p>
   </div>
   <div class="px-4">
   <div class="flex gap-1.5 overflow-x-auto no-sb pb-3 mb-4" id="outils-tabs"></div>
@@ -308,10 +311,10 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 <!-- MA SÉANCE (fusionné: Séquence + Choix + Tâches) -->
 <div id="v-planif" class="view hidden pb-32">
   <!-- Hero banner -->
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl zts-hero-gradient relative">
-    <svg class="w-12 h-12 text-white mx-auto mb-2 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-    <h2 class="text-2xl font-black text-white uppercase tracking-tight zts-text-shadow">Ma Séance</h2>
-    <p class="text-white/70 text-xs font-medium mt-1">Séquence · Jeux · Journal d'interventions</p>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl zts-hero-gradient relative">
+    <svg class="w-14 h-14 text-white mx-auto mb-3 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    <h2 class="text-3xl font-black text-white uppercase tracking-tight zts-text-shadow font-luckiest">Ma Séance</h2>
+    <p class="text-white/70 text-sm font-medium mt-2">Séquence · Jeux · Journal d'interventions</p>
     <button onclick="clearPlanif()" class="absolute top-4 right-4 text-[10px] font-bold text-white/80 bg-white/20 backdrop-blur px-3 py-1.5 rounded-full press">Effacer</button>
   </div>
   <div class="px-4">
@@ -416,10 +419,10 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 <!-- DETECTEUR BRUIT -->
 <div id="v-bruit" class="view hidden pb-32">
   <!-- Hero banner -->
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl zts-hero-gradient">
-    <svg class="w-12 h-12 text-white mx-auto mb-2 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8"/></svg>
-    <h2 class="text-2xl font-black text-white uppercase tracking-tight zts-text-shadow">Feu de Bruit</h2>
-    <p class="text-white/70 text-xs font-medium mt-1">Détecteur sonore automatique par micro</p>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl zts-hero-gradient">
+    <svg class="w-14 h-14 text-white mx-auto mb-3 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8"/></svg>
+    <h2 class="text-3xl font-black text-white uppercase tracking-tight zts-text-shadow font-luckiest">Feu de Bruit</h2>
+    <p class="text-white/70 text-sm font-medium mt-2">Détecteur sonore automatique par micro</p>
   </div>
   <div class="px-4">
   <div class="hc-card p-8 flex flex-col items-center shadow-sm" style="border-radius:3rem">
@@ -467,13 +470,13 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 
 <!-- GÉNÉRATEUR D'ÉQUIPES -->
 <div id="v-equipes" class="view hidden pb-32">
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl zts-hero-gradient">
-    <svg class="w-12 h-12 text-white mx-auto mb-2 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-    <h2 class="text-2xl font-black text-white uppercase tracking-tight zts-text-shadow">Générateur d'Équipes</h2>
-    <p class="text-white/70 text-xs font-medium mt-1">Anti-Chicane · Mémoire des conflits</p>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl zts-hero-gradient">
+    <svg class="w-14 h-14 text-white mx-auto mb-3 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    <h2 class="text-3xl font-black text-white uppercase tracking-tight zts-text-shadow font-luckiest">Générateur d'Équipes</h2>
+    <p class="text-white/70 text-sm font-medium mt-2">Anti-Chicane · Mémoire des conflits</p>
   </div>
   <div class="px-4">
-    <div class="hc-card p-5 mb-4" style="border-radius:2.5rem">
+    <div class="hc-card p-8 mb-4" style="border-radius:3rem">
       <label class="text-[10px] font-black uppercase tracking-widest mb-2 block" style="color:#0086AD">Noms des élèves (un par ligne)</label>
       <textarea id="eq-names" rows="6" placeholder="Alex&#10;Sam&#10;Jordan&#10;Charlie&#10;..." class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none resize-none mb-3"></textarea>
       <div class="flex gap-3 mb-3">
@@ -490,7 +493,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
       </div>
       <button onclick="addConflictPair()" class="w-full text-xs font-bold py-2 rounded-full press mb-3 border-2" style="border-color:#0086AD;color:#0086AD">+ Ajouter un conflit (2 noms séparés par virgule)</button>
       <div id="eq-conflict-list" class="space-y-1 mb-3 text-xs"></div>
-      <button onclick="generateTeams()" class="w-full font-bold py-4 rounded-full press shadow-lg text-sm border-b-[12px] border-r-[12px] border-yellow-400" style="background:#FFF000;color:#004A61;font-family:'Luckiest Guy',cursive;font-size:1.1rem;letter-spacing:.03em">GÉNÉRER LES ÉQUIPES</button>
+      <button onclick="generateTeams()" class="w-full font-bold font-luckiest py-4 rounded-full press shadow-lg border-b-[12px] border-r-[12px] border-yellow-400" style="background:#FFF000;color:#004A61;font-size:1.2rem">GÉNÉRER LES ÉQUIPES</button>
     </div>
     <div id="eq-results" class="grid grid-cols-2 gap-3"></div>
   </div>
@@ -498,20 +501,20 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 
 <!-- TOURNOI (TABLE GONE) -->
 <div id="v-tournoi" class="view hidden pb-32">
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl" style="background:radial-gradient(circle at top left, #FFF000, #f59e0b, #d97706)">
-    <svg class="w-12 h-12 mx-auto mb-2 drop-shadow" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-    <h2 class="text-2xl font-black uppercase tracking-tight" style="color:#004A61;text-shadow:1px 1px 0 rgba(255,255,255,0.4)">Table Gone</h2>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl" style="background:radial-gradient(circle at top left, #FFF000, #f59e0b, #d97706)">
+    <svg class="w-14 h-14 mx-auto mb-3 drop-shadow" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+    <h2 class="text-3xl font-black uppercase tracking-tight font-luckiest" style="color:#004A61;text-shadow:1px 1px 0 rgba(255,255,255,0.4)">Table Gone</h2>
     <p class="text-xs font-medium mt-1" style="color:#004A61;opacity:.7">Tournois rapides · Élimination & Rotation</p>
   </div>
   <div class="px-4">
-    <div class="hc-card p-5 mb-4" style="border-radius:2.5rem">
+    <div class="hc-card p-8 mb-4" style="border-radius:3rem">
       <label class="text-[10px] font-black uppercase tracking-widest mb-2 block" style="color:#0086AD">Équipes / Joueurs (un par ligne)</label>
       <textarea id="tr-names" rows="4" placeholder="Équipe Rouge&#10;Équipe Bleue&#10;Équipe Verte&#10;Équipe Jaune" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none resize-none mb-3"></textarea>
       <div class="flex gap-2 mb-3">
         <button onclick="setTournType('elim')" id="tr-btn-elim" class="flex-1 py-2 rounded-full text-xs font-bold press text-white" style="background:#0086AD">Élimination</button>
         <button onclick="setTournType('rotation')" id="tr-btn-rotation" class="flex-1 py-2 rounded-full text-xs font-bold press bg-slate-100 text-slate-500">Rotation</button>
       </div>
-      <button onclick="generateTournament()" class="w-full font-bold py-4 rounded-full press shadow-lg text-sm border-b-[12px] border-r-[12px] border-yellow-400" style="background:#FFF000;color:#004A61;font-family:'Luckiest Guy',cursive;font-size:1.1rem">LANCER LE TOURNOI</button>
+      <button onclick="generateTournament()" class="w-full font-bold font-luckiest py-4 rounded-full press shadow-lg border-b-[12px] border-r-[12px] border-yellow-400" style="background:#FFF000;color:#004A61;font-size:1.2rem">LANCER LE TOURNOI</button>
     </div>
     <div id="tr-bracket" class="space-y-3"></div>
   </div>
@@ -519,13 +522,13 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 
 <!-- TABATA / ATELIERS -->
 <div id="v-tabata" class="view hidden pb-32">
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl" style="background:radial-gradient(circle at top right, #00C4FF, #0086AD, #004A61)">
-    <svg class="w-12 h-12 text-white mx-auto mb-2 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-    <h2 class="text-2xl font-black text-white uppercase tracking-tight zts-text-shadow">Tabata / Ateliers</h2>
-    <p class="text-white/70 text-xs font-medium mt-1">Intervalles · Stations · Signaux sonores</p>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl" style="background:radial-gradient(circle at top right, #00C4FF, #0086AD, #004A61)">
+    <svg class="w-14 h-14 text-white mx-auto mb-3 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <h2 class="text-3xl font-black text-white uppercase tracking-tight zts-text-shadow font-luckiest">Tabata / Ateliers</h2>
+    <p class="text-white/70 text-sm font-medium mt-2">Intervalles · Stations · Signaux sonores</p>
   </div>
   <div class="px-4">
-    <div id="tabata-config" class="hc-card p-5 mb-4" style="border-radius:2.5rem">
+    <div id="tabata-config" class="hc-card p-8 mb-4" style="border-radius:3rem">
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div>
           <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Effort (s)</label>
@@ -544,7 +547,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
         <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Stations (optionnel, une par ligne)</label>
         <textarea id="tab-stations" rows="3" placeholder="Station 1 : Sauts&#10;Station 2 : Pompes&#10;Station 3 : Planche" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none resize-none"></textarea>
       </div>
-      <button onclick="startTabata()" class="w-full font-bold py-4 rounded-full press shadow-lg text-sm border-b-[12px] border-r-[12px] border-[#006a8a]" style="background:#00C4FF;color:#004A61;font-family:'Luckiest Guy',cursive;font-size:1.1rem">DÉMARRER</button>
+      <button onclick="startTabata()" class="w-full font-bold font-luckiest py-4 rounded-full press shadow-lg border-b-[12px] border-r-[12px] border-[#006a8a]" style="background:#00C4FF;color:#004A61;font-size:1.2rem">DÉMARRER</button>
     </div>
     <div id="tabata-running" class="hidden text-center">
       <div id="tab-phase-label" class="text-2xl font-black uppercase mb-2 zts-text-shadow" style="color:#004A61">EFFORT</div>
@@ -569,10 +572,10 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 
 <!-- SYSTÈME D'ÉMULATION -->
 <div id="v-emulation" class="view hidden pb-32">
-  <div class="text-center px-4 pt-6 pb-8 rounded-b-[3rem] mb-6 shadow-xl" style="background:radial-gradient(circle at top right, #FFF000, #00C4FF, #0086AD)">
-    <svg class="w-12 h-12 text-white mx-auto mb-2 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-    <h2 class="text-2xl font-black text-white uppercase tracking-tight zts-text-shadow">Émulation</h2>
-    <p class="text-white/70 text-xs font-medium mt-1">Badges · Récompenses · Projetable TNI</p>
+  <div class="text-center px-4 pt-8 pb-12 rounded-b-[3rem] mb-6 shadow-2xl" style="background:radial-gradient(circle at top right, #FFF000, #00C4FF, #0086AD)">
+    <svg class="w-14 h-14 text-white mx-auto mb-3 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+    <h2 class="text-3xl font-black text-white uppercase tracking-tight zts-text-shadow font-luckiest">Émulation</h2>
+    <p class="text-white/70 text-sm font-medium mt-2">Badges · Récompenses · Projetable TNI</p>
   </div>
   <div class="px-4">
     <div class="flex gap-2 mb-4">
@@ -587,7 +590,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.04em;t
 <div id="code-blanc-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center" style="background:rgba(220,38,38,.95)">
   <div class="text-center text-white anim-scale p-8">
     <div class="text-8xl mb-4 animate-pulse">🚨</div>
-    <h2 class="text-4xl font-black uppercase tracking-tight mb-2" style="font-family:'Luckiest Guy',cursive;text-shadow:3px 3px 0 rgba(0,0,0,.3)">CODE BLANC</h2>
+    <h2 class="text-4xl font-black uppercase tracking-tight mb-2 font-luckiest" style="text-shadow:3px 3px 0 rgba(0,0,0,.3)">CODE BLANC</h2>
     <p class="text-lg font-bold mb-2 opacity-90">Alerte envoyée</p>
     <p class="text-sm opacity-70 mb-8">Vibration activée · Restez calme</p>
     <button onclick="closeCodeBlanc()" class="px-10 py-4 bg-white text-red-600 font-black text-lg rounded-full press shadow-2xl border-b-[12px] border-r-[12px] border-red-300">ANNULER L'ALERTE</button>
@@ -1464,7 +1467,7 @@ function renderPlanif(){
   }
   tl.innerHTML=seqBlocks.map((b,i)=>{
     const cls=seqColorMap[b.color]||seqColorMap.violet;
-    return`<div class="seq-block ${cls} border-2 rounded-[2.5rem] overflow-hidden" draggable="true" ondragstart="dragStart(event,${i})" ondragover="event.preventDefault()" ondrop="dropBlock(event,${i})">
+    return`<div class="seq-block ${cls} border-2 rounded-4xl overflow-hidden" draggable="true" ondragstart="dragStart(event,${i})" ondragover="event.preventDefault()" ondrop="dropBlock(event,${i})">
       <div class="flex items-center justify-between p-3 cursor-grab">
         <div class="flex items-center gap-2">
           <span class="text-2xl">${b.picto}</span>
@@ -1587,7 +1590,7 @@ function toggleMic(){
     src.connect(analyser);
     micActive=true;
     document.getElementById('mic-btn').innerHTML='<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg> Arrêter';
-    document.getElementById('mic-btn').className='w-full bg-red-500 text-white font-bold py-4 rounded-[2.5rem] press shadow-lg text-sm flex items-center justify-center gap-2';
+    document.getElementById('mic-btn').className='w-full bg-red-500 text-white font-bold py-4 rounded-4xl press shadow-lg text-sm flex items-center justify-center gap-2';
     readNoise();
   }).catch(()=>{
     document.getElementById('db-value').textContent='⛔';
@@ -1717,7 +1720,7 @@ function generateTeams(){
   const colors=['#00C4FF','#FFF000','#ef4444','#a855f7','#22c55e','#f97316','#ec4899','#6366f1'];
   const teamNames=['Bleu','Jaune','Rouge','Violet','Vert','Orange','Rose','Indigo'];
   document.getElementById('eq-results').innerHTML=teams.map((t,i)=>`
-    <div class="hc-card p-4" style="border-radius:2.5rem;border-left:6px solid ${colors[i%8]}">
+    <div class="hc-card p-4" style="border-radius:3rem;border-left:6px solid ${colors[i%8]}">
       <h4 class="font-black text-sm mb-2" style="color:${colors[i%8]}">Equipe ${teamNames[i%8]}</h4>
       <ul class="space-y-1">${t.map(n=>`<li class="text-xs font-medium text-slate-700">${n}</li>`).join('')}</ul>
     </div>
@@ -1764,7 +1767,7 @@ function generateTournament(){
       <div class="mb-4">
         <p class="text-[10px] font-black uppercase tracking-widest mb-2" style="color:#0086AD">${roundNames[ri]||'Tour '+(ri+1)}</p>
         <div class="space-y-2">${r.map(m=>`
-          <div class="hc-card p-3 flex items-center gap-3" style="border-radius:2.5rem">
+          <div class="hc-card p-3 flex items-center gap-3" style="border-radius:3rem">
             <span class="text-xs font-bold flex-1 ${m[0]==='— BYE —'?'text-slate-300':'text-slate-800'}">${m[0]}</span>
             <span class="text-[10px] font-black text-slate-300">VS</span>
             <span class="text-xs font-bold flex-1 text-right ${m[1]==='— BYE —'?'text-slate-300':'text-slate-800'}">${m[1]}</span>
@@ -1785,7 +1788,7 @@ function generateTournament(){
     el.innerHTML=`
       <p class="text-[10px] font-black uppercase tracking-widest mb-2" style="color:#0086AD">${matches.length} matchs (rotation complete)</p>
       <div class="space-y-2">${matches.map((m,i)=>`
-        <div class="hc-card p-3 flex items-center gap-3" style="border-radius:2.5rem">
+        <div class="hc-card p-3 flex items-center gap-3" style="border-radius:3rem">
           <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0" style="background:#0086AD">${i+1}</span>
           <span class="text-xs font-bold flex-1 text-slate-800">${m[0]}</span>
           <span class="text-[10px] font-black text-slate-300">VS</span>
@@ -1902,7 +1905,7 @@ function renderEmuBoard(){
     return;
   }
   el.innerHTML=emuGroups.map((g,gi)=>`
-    <div class="hc-card p-4 text-center" style="border-radius:2.5rem;border-top:4px solid ${emuColors[gi%8]}">
+    <div class="hc-card p-4 text-center" style="border-radius:3rem;border-top:4px solid ${emuColors[gi%8]}">
       <input value="${g.name}" onchange="renameEmuGroup(${gi},this.value)" class="text-center font-black text-sm w-full border-0 outline-none mb-2" style="color:${emuColors[gi%8]}">
       <div class="text-3xl font-black mb-2" style="color:#004A61">${g.points}</div>
       <div class="flex justify-center gap-1 flex-wrap mb-3">${g.badges.map(b=>emuBadgeEmoji[b]||b).join(' ')}</div>
