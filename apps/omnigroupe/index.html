@@ -11,15 +11,15 @@
 <link rel="apple-touch-icon" href="img/sos-hero.jpg">
 <title>OmniGroupe — Assistant Terrain pour l'Inclusion</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script>
-tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif'],display:['Luckiest Guy','cursive']},colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61'},borderRadius:{'4xl':'3rem'}}}}
+tailwind.config={theme:{extend:{fontFamily:{sans:['Nunito','system-ui','sans-serif'],display:['Luckiest Guy','cursive']},colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61'},borderRadius:{'4xl':'1rem'}}}}
 </script>
 <style>
 @font-face{font-family:'Luckiest Guy';src:url('LuckiestGuy-Regular.ttf') format('truetype');font-display:swap;}
 *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:'Inter',system-ui,sans-serif;background:#f1f5f9;overscroll-behavior:none;-webkit-font-smoothing:antialiased;}
+body{font-family:'Nunito',system-ui,sans-serif;background:#f1f5f9;overscroll-behavior:none;-webkit-font-smoothing:antialiased;}
 .font-luckiest{font-family:'Luckiest Guy',cursive;letter-spacing:0.05em;}
 h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;text-shadow:2px 2px 0px rgba(0,0,0,0.2);}
 /* ZTS Signature Effects */
@@ -44,7 +44,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 .anim-left{animation:slideLeft .3s ease both}
 
 /* High contrast for sun */
-.hc-card{background:#fff;border:2px solid #e2e8f0;border-bottom-width:12px;border-right-width:12px;border-radius:3rem;}
+.hc-card{background:#fff;border:2px solid #e2e8f0;border-bottom-width:12px;border-right-width:12px;border-radius:1.25rem;}
 .hc-text{color:#0f172a;}
 
 /* Scrollbar hide */
@@ -109,7 +109,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 #app.tni-mode .gap-3{gap:clamp(12px,1.2vw,22px);}
 #app.tni-mode .rounded-2xl{border-radius:clamp(12px,1.5vw,28px);}
 #app.tni-mode .rounded-3xl{border-radius:clamp(16px,2vw,36px);}
-#app.tni-mode .rounded-4xl{border-radius:clamp(24px,3vw,52px);}
+#app.tni-mode .rounded-2xl{border-radius:clamp(24px,3vw,52px);}
 #app.tni-mode .rounded-\[1\.5rem\]{border-radius:clamp(12px,1.5vw,28px);}
 #app.tni-mode .hc-card{border-radius:clamp(24px,3vw,52px);}
 
@@ -152,7 +152,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 
   <!-- 4 Piliers -->
   <div class="grid grid-cols-2 gap-4 mb-6">
-    <button onclick="go('sos')" class="press relative h-40 rounded-[3rem] overflow-hidden shadow-lg group border-b-[12px] border-r-[12px] border-red-200">
+    <button onclick="go('sos')" class="press relative h-40 rounded-2xl overflow-hidden shadow-lg group border-b-[12px] border-r-[12px] border-red-200">
       <img src="img/sos-hero.jpg" alt="" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-active:scale-110" loading="lazy">
       <div class="absolute inset-0 bg-gradient-to-t from-red-900/90 via-red-900/40 to-transparent"></div>
       <div class="relative z-10 h-full flex flex-col items-center justify-center text-white p-3">
@@ -161,17 +161,17 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
         <span class="text-[10px] font-bold uppercase opacity-90">100 Solutions</span>
       </div>
     </button>
-    <button onclick="go('jeux')" class="press h-40 rounded-[3rem] text-white flex flex-col items-center justify-center shadow-lg border-b-[12px] border-r-[12px] border-[#0086AD]" style="background:linear-gradient(135deg,#00C4FF,#0086AD)">
+    <button onclick="go('jeux')" class="press h-40 rounded-2xl text-white flex flex-col items-center justify-center shadow-lg border-b-[12px] border-r-[12px] border-[#0086AD]" style="background:linear-gradient(135deg,#00C4FF,#0086AD)">
       <svg class="w-9 h-9 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
       <span class="font-bold text-lg leading-tight zts-text-shadow font-luckiest">Jeux Inclusifs</span>
       <span class="text-xs opacity-90 font-medium">60 Jeux</span>
     </button>
-    <button onclick="go('transitions')" class="press h-40 rounded-[3rem] text-white flex flex-col items-center justify-center shadow-lg border-b-[12px] border-r-[12px] border-yellow-400" style="background:linear-gradient(135deg,#FFF000,#f59e0b);color:#004A61">
+    <button onclick="go('transitions')" class="press h-40 rounded-2xl text-white flex flex-col items-center justify-center shadow-lg border-b-[12px] border-r-[12px] border-yellow-400" style="background:linear-gradient(135deg,#FFF000,#f59e0b);color:#004A61">
       <svg class="w-9 h-9 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
       <span class="font-bold text-lg leading-tight font-luckiest" style="text-shadow:1px 1px 0 rgba(255,255,255,0.5)">Transitions</span>
       <span class="text-xs opacity-90 font-semibold">30 Astuces</span>
     </button>
-    <button onclick="go('outils')" class="press h-40 rounded-[3rem] text-white flex flex-col items-center justify-center shadow-lg border-b-[12px] border-r-[12px] border-[#003445]" style="background:linear-gradient(135deg,#0086AD,#004A61)">
+    <button onclick="go('outils')" class="press h-40 rounded-2xl text-white flex flex-col items-center justify-center shadow-lg border-b-[12px] border-r-[12px] border-[#003445]" style="background:linear-gradient(135deg,#0086AD,#004A61)">
       <svg class="w-9 h-9 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
       <span class="font-bold text-lg leading-tight zts-text-shadow font-luckiest">Outils TSA</span>
       <span class="text-xs opacity-90 font-medium">10 Outils</span>
@@ -181,7 +181,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   <!-- 3 Features Pro -->
   <p class="text-[10px] font-black uppercase tracking-widest mb-3 px-1" style="color:#0086AD">Outils Pro</p>
   <div class="space-y-3">
-    <button onclick="go('planif')" class="press w-full bg-white rounded-[3rem] p-4 flex items-center gap-4 shadow-sm text-left border-b-[12px] border-r-[12px] border-slate-100">
+    <button onclick="go('planif')" class="press w-full bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm text-left border-b-[12px] border-r-[12px] border-slate-100">
       <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background:#00C4FF20">
         <svg class="w-6 h-6" style="color:#0086AD" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       </div>
@@ -191,7 +191,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
       </div>
       <span id="journal-badge" class="ml-auto text-white text-[10px] font-bold rounded-full w-6 h-6 flex items-center justify-center hidden" style="background:#00C4FF">0</span>
     </button>
-    <button onclick="go('bruit')" class="press w-full bg-white rounded-[3rem] p-4 flex items-center gap-4 shadow-sm text-left border-b-[12px] border-r-[12px] border-slate-100">
+    <button onclick="go('bruit')" class="press w-full bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm text-left border-b-[12px] border-r-[12px] border-slate-100">
       <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background:#FFF00030">
         <svg class="w-6 h-6" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8"/></svg>
       </div>
@@ -204,28 +204,28 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   <!-- Nouvelles Features -->
   <p class="text-[10px] font-black uppercase tracking-widest mb-3 mt-6 px-1" style="color:#0086AD">Gestion de groupe</p>
   <div class="grid grid-cols-2 gap-3 mb-4">
-    <button onclick="go('equipes')" class="press bg-white rounded-4xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
+    <button onclick="go('equipes')" class="press bg-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
       <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#00C4FF20">
         <svg class="w-5 h-5" style="color:#0086AD" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       </div>
       <span class="font-bold text-xs" style="color:#004A61">Equipes</span>
       <span class="text-[10px] text-slate-400">Anti-Chicane</span>
     </button>
-    <button onclick="go('tournoi')" class="press bg-white rounded-4xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
+    <button onclick="go('tournoi')" class="press bg-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
       <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#FFF00030">
         <svg class="w-5 h-5" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
       </div>
       <span class="font-bold text-xs" style="color:#004A61">Table Gone</span>
       <span class="text-[10px] text-slate-400">Tournois</span>
     </button>
-    <button onclick="go('tabata')" class="press bg-white rounded-4xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
+    <button onclick="go('tabata')" class="press bg-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
       <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#00C4FF20">
         <svg class="w-5 h-5" style="color:#0086AD" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
       <span class="font-bold text-xs" style="color:#004A61">Tabata</span>
       <span class="text-[10px] text-slate-400">Intervalles</span>
     </button>
-    <button onclick="go('emulation')" class="press bg-white rounded-4xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
+    <button onclick="go('emulation')" class="press bg-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
       <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#FFF00030">
         <svg class="w-5 h-5" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
       </div>
@@ -250,7 +250,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   <!-- Search -->
   <div class="relative mb-4">
     <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input id="sos-search" type="search" placeholder="Rechercher une situation..." oninput="filterSOS()" class="w-full pl-11 pr-4 py-3 rounded-full border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none bg-white shadow-sm">
+    <input id="sos-search" type="search" placeholder="Rechercher une situation..." oninput="filterSOS()" class="w-full pl-11 pr-4 py-3 rounded-2xl border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none bg-white shadow-sm">
   </div>
   <div id="sos-grid" class="grid grid-cols-1 gap-3"></div>
   </div>
@@ -269,13 +269,13 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   </div>
   <div class="px-4">
   <div class="flex gap-2 mb-4 overflow-x-auto no-sb pb-1">
-    <button onclick="filterJeux('all')" data-cat="all" class="jeux-tab shrink-0 px-3 py-1.5 rounded-full text-xs font-bold text-white" style="background:#0086AD">Tous</button>
-    <button onclick="filterJeux('tague')" data-cat="tague" class="jeux-tab shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Tagues</button>
-    <button onclick="filterJeux('ballon')" data-cat="ballon" class="jeux-tab shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Ballons</button>
-    <button onclick="filterJeux('parachute')" data-cat="parachute" class="jeux-tab shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Parachute</button>
-    <button onclick="filterJeux('coop')" data-cat="coop" class="jeux-tab shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Coop</button>
-    <button onclick="filterJeux('relais')" data-cat="relais" class="jeux-tab shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Relais</button>
-    <button onclick="filterJeux('strategie')" data-cat="strategie" class="jeux-tab shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Stratégie</button>
+    <button onclick="filterJeux('all')" data-cat="all" class="jeux-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-white" style="background:#0086AD">Tous</button>
+    <button onclick="filterJeux('tague')" data-cat="tague" class="jeux-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Tagues</button>
+    <button onclick="filterJeux('ballon')" data-cat="ballon" class="jeux-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Ballons</button>
+    <button onclick="filterJeux('parachute')" data-cat="parachute" class="jeux-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Parachute</button>
+    <button onclick="filterJeux('coop')" data-cat="coop" class="jeux-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Coop</button>
+    <button onclick="filterJeux('relais')" data-cat="relais" class="jeux-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Relais</button>
+    <button onclick="filterJeux('strategie')" data-cat="strategie" class="jeux-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Stratégie</button>
   </div>
   <div id="jeux-list" class="space-y-3"></div>
   </div>
@@ -304,7 +304,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   </div>
   <div class="px-4">
   <div class="flex gap-1.5 overflow-x-auto no-sb pb-3 mb-4" id="outils-tabs"></div>
-  <div id="outils-content" class="hc-card p-6 min-h-[400px] flex flex-col items-center justify-center" style="border-radius:3rem"></div>
+  <div id="outils-content" class="hc-card p-6 min-h-[400px] flex flex-col items-center justify-center" style="border-radius:1rem"></div>
   </div>
 </div>
 
@@ -315,7 +315,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
     <svg class="w-14 h-14 text-white mx-auto mb-3 drop-shadow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
     <h2 class="text-3xl font-black text-white uppercase tracking-tight zts-text-shadow font-luckiest">Ma Séance</h2>
     <p class="text-white/70 text-sm font-medium mt-2">Séquence · Jeux · Journal d'interventions</p>
-    <button onclick="clearPlanif()" class="absolute top-4 right-4 text-[10px] font-bold text-white/80 bg-white/20 backdrop-blur px-3 py-1.5 rounded-full press">Effacer</button>
+    <button onclick="clearPlanif()" class="absolute top-4 right-4 text-[10px] font-bold text-white/80 bg-white/20 backdrop-blur px-3 py-1.5 rounded-xl press">Effacer</button>
   </div>
   <div class="px-4">
 
@@ -330,12 +330,12 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   <div id="sp-sequence">
     <p class="text-[10px] font-bold text-slate-400 uppercase mb-2">Ajouter à la séquence :</p>
     <div class="flex flex-wrap gap-2 mb-4">
-      <button onclick="quickAddSeq('arrivee')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-full press shadow-sm border-b-4 border-r-4 border-[#003445]" style="background:#004A61">🏫 Arrivée</button>
-      <button onclick="quickAddSeq('entree')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-full press shadow-sm border-b-4 border-r-4 border-[#006a8a]" style="background:#0086AD">🚪 Entrée</button>
-      <button onclick="quickAddSeq('routine')" class="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-full press shadow-sm border-b-4 border-r-4 border-yellow-400" style="background:#FFF000;color:#004A61">🔄 Routine</button>
-      <button onclick="quickAddSeq('activite')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-full press shadow-sm border-b-4 border-r-4 border-[#006a8a]" style="background:#00C4FF;color:#004A61">⚽ Activité</button>
-      <button onclick="quickAddSeq('retour')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-full press shadow-sm border-b-4 border-r-4 border-[#006a8a]" style="background:#0086AD">🌬️ Retour au calme</button>
-      <button onclick="quickAddSeq('fin')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-full press shadow-sm border-b-4 border-r-4 border-[#003445]" style="background:#004A61">🔔 Fin</button>
+      <button onclick="quickAddSeq('arrivee')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-2xl press shadow-sm border-b-4 border-r-4 border-[#003445]" style="background:#004A61">🏫 Arrivée</button>
+      <button onclick="quickAddSeq('entree')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-2xl press shadow-sm border-b-4 border-r-4 border-[#006a8a]" style="background:#0086AD">🚪 Entrée</button>
+      <button onclick="quickAddSeq('routine')" class="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-2xl press shadow-sm border-b-4 border-r-4 border-yellow-400" style="background:#FFF000;color:#004A61">🔄 Routine</button>
+      <button onclick="quickAddSeq('activite')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-2xl press shadow-sm border-b-4 border-r-4 border-[#006a8a]" style="background:#00C4FF;color:#004A61">⚽ Activité</button>
+      <button onclick="quickAddSeq('retour')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-2xl press shadow-sm border-b-4 border-r-4 border-[#006a8a]" style="background:#0086AD">🌬️ Retour au calme</button>
+      <button onclick="quickAddSeq('fin')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-2xl press shadow-sm border-b-4 border-r-4 border-[#003445]" style="background:#004A61">🔔 Fin</button>
     </div>
     <div id="seq-timeline" class="space-y-3 mb-4"></div>
   </div>
@@ -343,13 +343,13 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   <!-- ===== SOUS-TAB CHOIX (jeux + transitions) ===== -->
   <div id="sp-choix" class="hidden">
     <div class="flex gap-2 mb-4 overflow-x-auto no-sb pb-1">
-      <button onclick="filterJeuxInline('all')" data-cat="all" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-full text-xs font-bold text-white" style="background:#0086AD">Tous</button>
-      <button onclick="filterJeuxInline('tague')" data-cat="tague" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Tagues</button>
-      <button onclick="filterJeuxInline('ballon')" data-cat="ballon" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Ballons</button>
-      <button onclick="filterJeuxInline('parachute')" data-cat="parachute" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Parachute</button>
-      <button onclick="filterJeuxInline('coop')" data-cat="coop" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Coop</button>
-      <button onclick="filterJeuxInline('relais')" data-cat="relais" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Relais</button>
-      <button onclick="filterJeuxInline('strategie')" data-cat="strategie" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Stratégie</button>
+      <button onclick="filterJeuxInline('all')" data-cat="all" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold text-white" style="background:#0086AD">Tous</button>
+      <button onclick="filterJeuxInline('tague')" data-cat="tague" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Tagues</button>
+      <button onclick="filterJeuxInline('ballon')" data-cat="ballon" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Ballons</button>
+      <button onclick="filterJeuxInline('parachute')" data-cat="parachute" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Parachute</button>
+      <button onclick="filterJeuxInline('coop')" data-cat="coop" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Coop</button>
+      <button onclick="filterJeuxInline('relais')" data-cat="relais" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Relais</button>
+      <button onclick="filterJeuxInline('strategie')" data-cat="strategie" class="jeux-tab-inline shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">Stratégie</button>
     </div>
     <div id="jeux-inline-list" class="space-y-2"></div>
   </div>
@@ -358,30 +358,30 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
   <div id="sp-taches" class="hidden">
     <div class="flex justify-between items-center mb-3">
       <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Journal d'interventions</p>
-      <button onclick="exportJournal()" class="text-[10px] font-bold text-white px-3 py-1.5 rounded-full press" style="background:#0086AD">Exporter</button>
+      <button onclick="exportJournal()" class="text-[10px] font-bold text-white px-3 py-1.5 rounded-xl press" style="background:#0086AD">Exporter</button>
     </div>
     <div class="hc-card p-4 mb-4 shadow-sm">
-      <input id="j-eleve" type="text" placeholder="Nom/initiales de l'élève" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium mb-2 focus:border-[#00C4FF] focus:outline-none">
-      <select id="j-type" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium mb-2 focus:border-[#00C4FF] focus:outline-none bg-white">
+      <input id="j-eleve" type="text" placeholder="Nom/initiales de l'élève" class="w-full p-3 rounded-xl border-2 border-slate-200 text-sm font-medium mb-2 focus:border-[#00C4FF] focus:outline-none">
+      <select id="j-type" class="w-full p-3 rounded-xl border-2 border-slate-200 text-sm font-medium mb-2 focus:border-[#00C4FF] focus:outline-none bg-white">
         <option value="">Type d'incident...</option>
         <option>Bruit excessif</option><option>Opposition/TDAH</option><option>Surcharge TSA</option>
         <option>Bagarre/Conflit</option><option>Désintérêt</option><option>Blessure</option>
         <option>Triche/Injustice</option><option>Autre</option>
       </select>
-      <select id="j-solution" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium mb-2 focus:border-[#00C4FF] focus:outline-none bg-white">
+      <select id="j-solution" class="w-full p-3 rounded-xl border-2 border-slate-200 text-sm font-medium mb-2 focus:border-[#00C4FF] focus:outline-none bg-white">
         <option value="">Solution utilisée...</option>
         <option>Retrait volontaire</option><option>Respiration</option><option>Redirection de tâche</option>
         <option>Casque/isolation sensorielle</option><option>Médiation verbale</option><option>Zone calme</option>
         <option>Délégation de rôle</option><option>Contrat visuel</option><option>Autre</option>
       </select>
       <div class="flex gap-2 mb-2">
-        <select id="j-efficacite" class="flex-1 p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none bg-white">
+        <select id="j-efficacite" class="flex-1 p-3 rounded-xl border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none bg-white">
           <option value="">Efficacité?</option>
           <option>⭐ Très efficace</option><option>👍 Efficace</option><option>🤷 Moyen</option><option>👎 Inefficace</option>
         </select>
       </div>
-      <textarea id="j-notes" rows="2" placeholder="Notes supplémentaires..." class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium mb-3 focus:border-[#00C4FF] focus:outline-none resize-none"></textarea>
-      <button onclick="saveIncident()" class="w-full text-white font-bold py-3 rounded-full press shadow-md text-sm" style="background:#00C4FF;color:#004A61">Enregistrer</button>
+      <textarea id="j-notes" rows="2" placeholder="Notes supplémentaires..." class="w-full p-3 rounded-xl border-2 border-slate-200 text-sm font-medium mb-3 focus:border-[#00C4FF] focus:outline-none resize-none"></textarea>
+      <button onclick="saveIncident()" class="w-full text-white font-bold py-3 rounded-2xl press shadow-md text-sm" style="background:#00C4FF;color:#004A61">Enregistrer</button>
     </div>
     <div id="journal-list" class="space-y-3"></div>
   </div>
@@ -390,7 +390,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 
   <!-- Modal dessin -->
   <div id="draw-modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onclick="if(event.target===this)closeDrawModal()">
-    <div class="bg-white rounded-[3rem] w-full max-w-lg p-5 anim-fade border-b-[12px] border-r-[12px] border-slate-200">
+    <div class="bg-white rounded-2xl w-full max-w-lg p-5 anim-fade border-b-[12px] border-r-[12px] border-slate-200">
       <div class="flex justify-between items-center mb-3">
         <h3 class="font-black" style="color:#004A61">✏️ Dessiner</h3>
         <div class="flex gap-2">
@@ -411,7 +411,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
         <button onclick="setDrawSize(10)" class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center press draw-size-btn" data-s="10"><span class="w-4 h-4 bg-slate-800 rounded-full"></span></button>
       </div>
       <canvas id="draw-canvas" class="w-full rounded-2xl border-2 border-slate-200 bg-white touch-none" style="height:280px;"></canvas>
-      <button onclick="saveDrawing()" class="w-full text-white font-bold py-3 rounded-full press shadow-md text-sm mt-3" style="background:#0086AD">✅ Sauvegarder le dessin</button>
+      <button onclick="saveDrawing()" class="w-full text-white font-bold py-3 rounded-2xl press shadow-md text-sm mt-3" style="background:#0086AD">✅ Sauvegarder le dessin</button>
     </div>
   </div>
 </div>
@@ -425,7 +425,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
     <p class="text-white/70 text-sm font-medium mt-2">Détecteur sonore automatique par micro</p>
   </div>
   <div class="px-4">
-  <div class="hc-card p-8 flex flex-col items-center shadow-sm" style="border-radius:3rem">
+  <div class="hc-card p-8 flex flex-col items-center shadow-sm" style="border-radius:1rem">
     <!-- Traffic light -->
     <div class="bg-slate-800 p-5 rounded-[40px] flex flex-col gap-4 border-4 border-slate-700 shadow-2xl mb-6">
       <div id="light-red" class="w-24 h-24 rounded-full bg-red-900/30 flex items-center justify-center transition-all duration-300">
@@ -456,11 +456,11 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
     </div>
     <!-- Thresholds -->
     <div class="w-full grid grid-cols-3 gap-2 text-center text-[10px] font-bold mb-6">
-      <div class="bg-green-50 rounded-[1.5rem] py-3 border-b-4 border-r-4 border-green-200"><span class="text-green-700">VERT</span><br>&lt; 70 dB</div>
-      <div class="bg-yellow-50 rounded-[1.5rem] py-3 border-b-4 border-r-4 border-yellow-200"><span class="text-yellow-700">JAUNE</span><br>70-85 dB</div>
-      <div class="bg-red-50 rounded-[1.5rem] py-3 border-b-4 border-r-4 border-red-200"><span class="text-red-700">ROUGE</span><br>&gt; 85 dB</div>
+      <div class="bg-green-50 rounded-xl py-3 border-b-4 border-r-4 border-green-200"><span class="text-green-700">VERT</span><br>&lt; 70 dB</div>
+      <div class="bg-yellow-50 rounded-xl py-3 border-b-4 border-r-4 border-yellow-200"><span class="text-yellow-700">JAUNE</span><br>70-85 dB</div>
+      <div class="bg-red-50 rounded-xl py-3 border-b-4 border-r-4 border-red-200"><span class="text-red-700">ROUGE</span><br>&gt; 85 dB</div>
     </div>
-    <button id="mic-btn" onclick="toggleMic()" class="w-full text-white font-bold py-4 rounded-[3rem] press shadow-lg text-sm flex items-center justify-center gap-2" style="background:#00C4FF">
+    <button id="mic-btn" onclick="toggleMic()" class="w-full text-white font-bold py-4 rounded-2xl press shadow-lg text-sm flex items-center justify-center gap-2" style="background:#00C4FF">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8"/></svg>
       Activer le micro
     </button>
@@ -476,24 +476,24 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
     <p class="text-white/70 text-sm font-medium mt-2">Anti-Chicane · Mémoire des conflits</p>
   </div>
   <div class="px-4">
-    <div class="hc-card p-8 mb-4" style="border-radius:3rem">
+    <div class="hc-card p-8 mb-4" style="border-radius:1rem">
       <label class="text-[10px] font-black uppercase tracking-widest mb-2 block" style="color:#0086AD">Noms des élèves (un par ligne)</label>
-      <textarea id="eq-names" rows="6" placeholder="Alex&#10;Sam&#10;Jordan&#10;Charlie&#10;..." class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none resize-none mb-3"></textarea>
+      <textarea id="eq-names" rows="6" placeholder="Alex&#10;Sam&#10;Jordan&#10;Charlie&#10;..." class="w-full p-3 rounded-xl border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none resize-none mb-3"></textarea>
       <div class="flex gap-3 mb-3">
         <div class="flex-1">
           <label class="text-[10px] font-bold text-slate-400 uppercase">Nombre d'équipes</label>
-          <select id="eq-count" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-bold focus:border-[#00C4FF] focus:outline-none bg-white">
+          <select id="eq-count" class="w-full p-3 rounded-xl border-2 border-slate-200 text-sm font-bold focus:border-[#00C4FF] focus:outline-none bg-white">
             <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>8</option>
           </select>
         </div>
         <div class="flex-1">
           <label class="text-[10px] font-bold text-slate-400 uppercase">Conflits exclus</label>
-          <div id="eq-conflicts-count" class="p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-bold text-center" style="color:#0086AD">0 paire(s)</div>
+          <div id="eq-conflicts-count" class="p-3 rounded-xl border-2 border-slate-200 text-sm font-bold text-center" style="color:#0086AD">0 paire(s)</div>
         </div>
       </div>
-      <button onclick="addConflictPair()" class="w-full text-xs font-bold py-2 rounded-full press mb-3 border-2" style="border-color:#0086AD;color:#0086AD">+ Ajouter un conflit (2 noms séparés par virgule)</button>
+      <button onclick="addConflictPair()" class="w-full text-xs font-bold py-2 rounded-2xl press mb-3 border-2" style="border-color:#0086AD;color:#0086AD">+ Ajouter un conflit (2 noms séparés par virgule)</button>
       <div id="eq-conflict-list" class="space-y-1 mb-3 text-xs"></div>
-      <button onclick="generateTeams()" class="w-full font-bold font-luckiest py-4 rounded-full press shadow-lg border-b-[12px] border-r-[12px] border-yellow-400" style="background:#FFF000;color:#004A61;font-size:1.2rem">GÉNÉRER LES ÉQUIPES</button>
+      <button onclick="generateTeams()" class="w-full font-bold font-luckiest py-4 rounded-2xl press shadow-lg border-b-[12px] border-r-[12px] border-yellow-400" style="background:#FFF000;color:#004A61;font-size:1.2rem">GÉNÉRER LES ÉQUIPES</button>
     </div>
     <div id="eq-results" class="grid grid-cols-2 gap-3"></div>
   </div>
@@ -507,14 +507,14 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
     <p class="text-xs font-medium mt-1" style="color:#004A61;opacity:.7">Tournois rapides · Élimination & Rotation</p>
   </div>
   <div class="px-4">
-    <div class="hc-card p-8 mb-4" style="border-radius:3rem">
+    <div class="hc-card p-8 mb-4" style="border-radius:1rem">
       <label class="text-[10px] font-black uppercase tracking-widest mb-2 block" style="color:#0086AD">Équipes / Joueurs (un par ligne)</label>
-      <textarea id="tr-names" rows="4" placeholder="Équipe Rouge&#10;Équipe Bleue&#10;Équipe Verte&#10;Équipe Jaune" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none resize-none mb-3"></textarea>
+      <textarea id="tr-names" rows="4" placeholder="Équipe Rouge&#10;Équipe Bleue&#10;Équipe Verte&#10;Équipe Jaune" class="w-full p-3 rounded-xl border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none resize-none mb-3"></textarea>
       <div class="flex gap-2 mb-3">
         <button onclick="setTournType('elim')" id="tr-btn-elim" class="flex-1 py-2 rounded-full text-xs font-bold press text-white" style="background:#0086AD">Élimination</button>
         <button onclick="setTournType('rotation')" id="tr-btn-rotation" class="flex-1 py-2 rounded-full text-xs font-bold press bg-slate-100 text-slate-500">Rotation</button>
       </div>
-      <button onclick="generateTournament()" class="w-full font-bold font-luckiest py-4 rounded-full press shadow-lg border-b-[12px] border-r-[12px] border-yellow-400" style="background:#FFF000;color:#004A61;font-size:1.2rem">LANCER LE TOURNOI</button>
+      <button onclick="generateTournament()" class="w-full font-bold font-luckiest py-4 rounded-2xl press shadow-lg border-b-[12px] border-r-[12px] border-yellow-400" style="background:#FFF000;color:#004A61;font-size:1.2rem">LANCER LE TOURNOI</button>
     </div>
     <div id="tr-bracket" class="space-y-3"></div>
   </div>
@@ -528,26 +528,26 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
     <p class="text-white/70 text-sm font-medium mt-2">Intervalles · Stations · Signaux sonores</p>
   </div>
   <div class="px-4">
-    <div id="tabata-config" class="hc-card p-8 mb-4" style="border-radius:3rem">
+    <div id="tabata-config" class="hc-card p-8 mb-4" style="border-radius:1rem">
       <div class="grid grid-cols-3 gap-3 mb-4">
         <div>
           <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Effort (s)</label>
-          <input id="tab-effort" type="number" value="30" min="5" max="300" step="5" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-center text-lg font-black focus:border-[#00C4FF] focus:outline-none">
+          <input id="tab-effort" type="number" value="30" min="5" max="300" step="5" class="w-full p-3 rounded-xl border-2 border-slate-200 text-center text-lg font-black focus:border-[#00C4FF] focus:outline-none">
         </div>
         <div>
           <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Repos (s)</label>
-          <input id="tab-rest" type="number" value="10" min="0" max="120" step="5" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-center text-lg font-black focus:border-[#00C4FF] focus:outline-none">
+          <input id="tab-rest" type="number" value="10" min="0" max="120" step="5" class="w-full p-3 rounded-xl border-2 border-slate-200 text-center text-lg font-black focus:border-[#00C4FF] focus:outline-none">
         </div>
         <div>
           <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Rondes</label>
-          <input id="tab-rounds" type="number" value="8" min="1" max="30" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-center text-lg font-black focus:border-[#00C4FF] focus:outline-none">
+          <input id="tab-rounds" type="number" value="8" min="1" max="30" class="w-full p-3 rounded-xl border-2 border-slate-200 text-center text-lg font-black focus:border-[#00C4FF] focus:outline-none">
         </div>
       </div>
       <div class="mb-4">
         <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Stations (optionnel, une par ligne)</label>
-        <textarea id="tab-stations" rows="3" placeholder="Station 1 : Sauts&#10;Station 2 : Pompes&#10;Station 3 : Planche" class="w-full p-3 rounded-[1.5rem] border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none resize-none"></textarea>
+        <textarea id="tab-stations" rows="3" placeholder="Station 1 : Sauts&#10;Station 2 : Pompes&#10;Station 3 : Planche" class="w-full p-3 rounded-xl border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none resize-none"></textarea>
       </div>
-      <button onclick="startTabata()" class="w-full font-bold font-luckiest py-4 rounded-full press shadow-lg border-b-[12px] border-r-[12px] border-[#006a8a]" style="background:#00C4FF;color:#004A61;font-size:1.2rem">DÉMARRER</button>
+      <button onclick="startTabata()" class="w-full font-bold font-luckiest py-4 rounded-2xl press shadow-lg border-b-[12px] border-r-[12px] border-[#006a8a]" style="background:#00C4FF;color:#004A61;font-size:1.2rem">DÉMARRER</button>
     </div>
     <div id="tabata-running" class="hidden text-center">
       <div id="tab-phase-label" class="text-2xl font-black uppercase mb-2 zts-text-shadow" style="color:#004A61">EFFORT</div>
@@ -563,8 +563,8 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
         </div>
       </div>
       <div class="flex gap-3 justify-center">
-        <button onclick="pauseTabata()" id="tab-pause-btn" class="px-8 py-3 rounded-full font-bold text-white shadow-lg press" style="background:#0086AD">PAUSE</button>
-        <button onclick="stopTabata()" class="px-6 py-3 rounded-full font-bold press border-2" style="border-color:#004A61;color:#004A61">ARRÊTER</button>
+        <button onclick="pauseTabata()" id="tab-pause-btn" class="px-8 py-3 rounded-2xl font-bold text-white shadow-lg press" style="background:#0086AD">PAUSE</button>
+        <button onclick="stopTabata()" class="px-6 py-3 rounded-2xl font-bold press border-2" style="border-color:#004A61;color:#004A61">ARRÊTER</button>
       </div>
     </div>
   </div>
@@ -1018,7 +1018,7 @@ function go(view,opts){
 function renderSOS(){
   const grid=document.getElementById('sos-grid');
   grid.innerHTML=sosData.map(s=>`
-    <button onclick="openSOS('${s.id}')" class="press relative h-28 rounded-[3rem] overflow-hidden shadow-md text-left w-full border-b-[12px] border-r-[12px] border-slate-200">
+    <button onclick="openSOS('${s.id}')" class="press relative h-28 rounded-2xl overflow-hidden shadow-md text-left w-full border-b-[12px] border-r-[12px]" style="border-color:${SOS_COLORS_HEX[s.id]}30">
       <img src="${SOS_IMAGES[s.id]}" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
       <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/70 to-transparent"></div>
       <div class="absolute bottom-0 left-0 p-3 w-full">
@@ -1091,14 +1091,15 @@ function openSOS(id){
 // JEUX INCLUSIFS
 // ============================================================
 let jeuxFilter='all';
+const jeuxCatColors={tague:'#ef4444',ballon:'#00C4FF',parachute:'#a855f7',coop:'#22c55e',relais:'#f97316',strategie:'#004A61'};
 function renderJeux(){
   const list=document.getElementById('jeux-list');
   const filtered=jeuxFilter==='all'?jeuxData:jeuxData.filter(j=>j.cat===jeuxFilter);
   list.innerHTML=filtered.map((g,i)=>`
     <details class="hc-card shadow-sm overflow-hidden group" ${i===0?'open':''}>
-      <summary class="px-4 py-3 text-white cursor-pointer press flex items-center justify-between rounded-t-2xl" style="background:#0086AD">
+      <summary class="px-4 py-3 text-white cursor-pointer press flex items-center justify-between rounded-t-xl" style="background:${jeuxCatColors[g.cat]||'#0086AD'}">
         <h4 class="font-extrabold text-sm uppercase tracking-tight zts-text-shadow">${i+1}. ${g.name}</h4>
-        <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold">${g.cat}</span>
+        <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-lg font-bold">${g.cat}</span>
       </summary>
       <div class="p-4 space-y-2">
         ${g.steps.map((s,si)=>`<p class="text-xs text-slate-600 flex items-start leading-snug"><span class="font-bold mr-2 shrink-0" style="color:#0086AD">C${si+1}</span>${s.replace(/^C\d: /,'')}</p>`).join('')}
@@ -1114,7 +1115,7 @@ function filterJeux(cat){
   jeuxFilter=cat;
   document.querySelectorAll('.jeux-tab').forEach(t=>{
     const isActive=t.getAttribute('data-cat')===cat;
-    t.className='jeux-tab shrink-0 px-3 py-1.5 rounded-full text-xs font-bold '+(isActive?'text-white':'bg-slate-100 text-slate-600');
+    t.className='jeux-tab shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold '+(isActive?'text-white':'bg-slate-100 text-slate-600');
     t.style.background=isActive?'#0086AD':'';
   });
   renderJeux();
@@ -1123,15 +1124,16 @@ function filterJeux(cat){
 // ============================================================
 // TRANSITIONS
 // ============================================================
+const transCatColors=['#00C4FF','#FFF000','#0086AD'];
 function renderTransitions(){
   const list=document.getElementById('transitions-list');
   list.innerHTML=transData.map((sec,si)=>`
     <div>
-      <p class="text-[10px] uppercase font-black mb-3 border-b-2 pb-1" style="color:#0086AD;border-color:#00C4FF30">${si+1}. ${sec.cat}</p>
+      <p class="text-xs uppercase font-black mb-3 border-b-2 pb-1 font-luckiest" style="color:${transCatColors[si%3]};border-color:${transCatColors[si%3]}40">${si+1}. ${sec.cat}</p>
       <div class="space-y-2">
         ${sec.items.map((tr,ti)=>`
-          <div class="hc-card p-3 shadow-sm flex items-start gap-3">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-black text-xs" style="background:#FFF00040;color:#004A61">${si*10+ti+1}</div>
+          <div class="hc-card p-3 shadow-sm flex items-start gap-3" style="border-left:4px solid ${transCatColors[si%3]}">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-black text-xs text-white" style="background:${transCatColors[si%3]}">${si*10+ti+1}</div>
             <div>
               <h5 class="font-bold text-xs uppercase tracking-tight" style="color:#004A61">${tr.t}</h5>
               <p class="text-[11px] text-slate-600 mt-1 leading-snug">${tr.d}</p>
@@ -1161,20 +1163,20 @@ const iconsList=[
 let step1=3,step2=11;
 
 const outilsDef=[
-  {id:'timer',label:'Timer',color:'zts-outil-active',hex:'#0086AD'},
-  {id:'respire',label:'Respire',color:'zts-outil-active',hex:'#0086AD'},
-  {id:'thermo',label:'Humeur',color:'zts-outil-active',hex:'#0086AD'},
-  {id:'checklist',label:'Tâches',color:'zts-outil-active',hex:'#0086AD'},
-  {id:'sensoriel',label:'Pause',color:'zts-outil-active',hex:'#0086AD'},
-  {id:'social',label:'Social',color:'zts-outil-active',hex:'#0086AD'},
-  {id:'ecoute',label:'Focus',color:'zts-outil-active',hex:'#0086AD'}
+  {id:'timer',label:'⏱️ Timer',hex:'#0086AD'},
+  {id:'respire',label:'🌬️ Respire',hex:'#22c55e'},
+  {id:'thermo',label:'🌡️ Humeur',hex:'#f97316'},
+  {id:'checklist',label:'✅ Tâches',hex:'#00C4FF'},
+  {id:'sensoriel',label:'🧘 Pause',hex:'#a855f7'},
+  {id:'social',label:'🤝 Social',hex:'#ec4899'},
+  {id:'ecoute',label:'👂 Focus',hex:'#004A61'}
 ];
 
 function renderOutils(){
   const tabs=document.getElementById('outils-tabs');
   tabs.innerHTML=outilsDef.map(t=>`
-    <button onclick="setOutil('${t.id}')" class="shrink-0 flex flex-col items-center justify-center py-2 px-3 rounded-full border transition-all press ${outilTab===t.id?'text-white shadow-md border-transparent':'bg-white text-slate-400 border-slate-200'}" ${outilTab===t.id?'style="background:#0086AD"':''}>
-      <span class="text-[9px] font-bold">${t.label}</span>
+    <button onclick="setOutil('${t.id}')" class="shrink-0 flex flex-col items-center justify-center py-2 px-3 rounded-xl border-2 transition-all press ${outilTab===t.id?'text-white shadow-md border-transparent':'bg-white text-slate-500 border-slate-200'}" ${outilTab===t.id?`style="background:${t.hex}"`:''}>
+      <span class="text-[10px] font-bold">${t.label}</span>
     </button>
   `).join('');
   renderOutilContent();
@@ -1199,20 +1201,20 @@ function renderOutilContent(){
         </svg>
         <span class="text-4xl font-black font-mono ${timerLeft<60?'text-red-600':'text-slate-800'}">${fmt(timerLeft)}</span>
       </div>
-      <div class="flex gap-2 mb-4">${[60,120,180,300,600].map(v=>`<button onclick="timerLeft=${v};timerRunning=false;clearInterval(timerInterval);renderOutilContent()" class="px-3 py-1.5 rounded-full text-xs font-bold press ${timerLeft===v&&!timerRunning?'text-white':'bg-slate-100 text-slate-600'}" ${timerLeft===v&&!timerRunning?'style="background:#0086AD"':''}>${v/60}m</button>`).join('')}</div>
+      <div class="flex gap-2 mb-4">${[60,120,180,300,600].map(v=>`<button onclick="timerLeft=${v};timerRunning=false;clearInterval(timerInterval);renderOutilContent()" class="px-3 py-1.5 rounded-xl text-xs font-bold press ${timerLeft===v&&!timerRunning?'text-white':'bg-slate-100 text-slate-600'}" ${timerLeft===v&&!timerRunning?'style="background:#0086AD"':''}>${v/60}m</button>`).join('')}</div>
       <div class="flex gap-3">
         <button onclick="timerLeft=${timerLeft};timerRunning=false;clearInterval(timerInterval);renderOutilContent()" class="p-3 bg-slate-100 rounded-full press">↺</button>
-        <button onclick="toggleTimer()" class="px-8 py-3 rounded-full font-bold text-white shadow-lg press" style="background:${timerRunning?'#FFF000;color:#004A61':'#00C4FF;color:#004A61'}">${timerRunning?'PAUSE':'DÉMARRER'}</button>
+        <button onclick="toggleTimer()" class="px-8 py-3 rounded-2xl font-bold text-white shadow-lg press" style="background:${timerRunning?'#FFF000;color:#004A61':'#00C4FF;color:#004A61'}">${timerRunning?'PAUSE':'DÉMARRER'}</button>
       </div>`,
     sequence:`<h3 class="text-center font-black uppercase tracking-tight mb-6" style="color:#004A61">Séquence du cours</h3>
       <div class="w-full space-y-4">
-        <div onclick="step1=(step1+1)%${iconsList.length};renderOutilContent()" class="border-2 rounded-[3rem] p-4 flex flex-col items-center cursor-pointer press border-b-[12px] border-r-[12px]" style="background:#00C4FF15;border-color:#0086AD30">
+        <div onclick="step1=(step1+1)%${iconsList.length};renderOutilContent()" class="border-2 rounded-2xl p-4 flex flex-col items-center cursor-pointer press border-b-[12px] border-r-[12px]" style="background:#00C4FF15;border-color:#0086AD30">
           <span class="text-[10px] font-black uppercase tracking-widest mb-1" style="color:#0086AD">D'abord</span>
           <div class="text-6xl">${iconsList[step1].i}</div>
           <span class="font-bold text-slate-800 text-sm">${iconsList[step1].l}</span>
         </div>
         <div class="flex justify-center"><span class="text-slate-300 text-2xl">↓</span></div>
-        <div onclick="step2=(step2+1)%${iconsList.length};renderOutilContent()" class="border-2 rounded-[3rem] p-4 flex flex-col items-center cursor-pointer press border-b-[12px] border-r-[12px]" style="background:#FFF00020;border-color:#FFF00060">
+        <div onclick="step2=(step2+1)%${iconsList.length};renderOutilContent()" class="border-2 rounded-2xl p-4 flex flex-col items-center cursor-pointer press border-b-[12px] border-r-[12px]" style="background:#FFF00020;border-color:#FFF00060">
           <span class="text-[10px] font-black uppercase tracking-widest mb-1" style="color:#004A61">Ensuite</span>
           <div class="text-6xl">${iconsList[step2].i}</div>
           <span class="font-bold text-slate-800 text-sm">${iconsList[step2].l}</span>
@@ -1235,25 +1237,25 @@ function renderOutilContent(){
       <div class="flex gap-2 mb-6">${[1,2,3,4,5].map(lv=>`<button onclick="moodLevel=${lv};renderOutilContent()" class="w-10 h-10 rounded-full font-black press ${moodLevel===lv?'bg-slate-800 text-white scale-110':'bg-slate-100 text-slate-400'}">${lv}</button>`).join('')}</div>
       <p class="text-sm font-bold text-slate-600 uppercase text-center">${['','Zen / Calme','Bien / Prêt','Excité / Agité','Frustré / Colère','CRISE / BESOIN PAUSE'][moodLevel]}</p>`,
     choix:`<h3 class="text-center font-black uppercase tracking-tight mb-6" style="color:#004A61">Je choisis</h3>
-      <div class="grid grid-cols-2 gap-4 w-full">${['🏀 Basket','⚽ Soccer','🏃 Parcours','🧩 Calme'].map(c=>`<button class="h-20 border-2 rounded-[3rem] font-bold text-lg press border-b-[12px] border-r-[12px]" style="background:#00C4FF15;border-color:#0086AD30;color:#004A61">${c}</button>`).join('')}</div>`,
+      <div class="grid grid-cols-2 gap-4 w-full">${['🏀 Basket','⚽ Soccer','🏃 Parcours','🧩 Calme'].map(c=>`<button class="h-20 border-2 rounded-2xl font-bold text-lg press border-b-[12px] border-r-[12px]" style="background:#00C4FF15;border-color:#0086AD30;color:#004A61">${c}</button>`).join('')}</div>`,
     checklist:`<h3 class="text-center font-black uppercase tracking-tight mb-6" style="color:#004A61">Réussite</h3>
       <div class="space-y-2 w-full">${tasks.map(t=>`<button onclick="toggleTask(${t.id})" class="w-full p-3 rounded-full border-2 flex items-center justify-between transition-all press ${t.done?'text-white':'bg-white border-slate-100 text-slate-600'}" ${t.done?'style="background:#00C4FF;border-color:#0086AD"':''}>
         <span class="font-bold text-sm">${t.text}</span>${t.done?'<span>👍</span>':'<div class="w-4 h-4 rounded-full border-2 border-slate-200"></div>'}</button>`).join('')}</div>`,
     sensoriel:`<h3 class="text-center font-black uppercase tracking-tight mb-6" style="color:#004A61">J'ai besoin de...</h3>
-      <div class="grid grid-cols-1 gap-2 w-full">${['🎧 Casque','🧱 Pousser mur','⛺ Tente','💧 Eau'].map(b=>`<button class="p-4 rounded-[3rem] font-bold text-left press text-lg border-b-[12px] border-r-[12px] border-yellow-300" style="background:#FFF00020;color:#004A61">${b}</button>`).join('')}</div>`,
+      <div class="grid grid-cols-1 gap-2 w-full">${['🎧 Casque','🧱 Pousser mur','⛺ Tente','💧 Eau'].map(b=>`<button class="p-4 rounded-2xl font-bold text-left press text-lg border-b-[12px] border-r-[12px] border-yellow-300" style="background:#FFF00020;color:#004A61">${b}</button>`).join('')}</div>`,
     social:`<h3 class="text-center font-black uppercase tracking-tight mb-6" style="color:#004A61">Comment faire ?</h3>
       <div class="space-y-3 w-full">
-        <div class="p-4 rounded-r-[3rem] border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">✋ Demander</p><p class="text-xs italic text-slate-600">"Est-ce que je peux jouer?"</p></div>
-        <div class="p-4 rounded-r-[3rem] border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">⏳ Attendre</p><p class="text-xs italic text-slate-600">"J'attends que mon ami finisse."</p></div>
-        <div class="p-4 rounded-r-[3rem] border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">🤝 Partager</p><p class="text-xs italic text-slate-600">"On y va chacun notre tour."</p></div>
-        <div class="p-4 rounded-r-[3rem] border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">🗣️ Dire comment je me sens</p><p class="text-xs italic text-slate-600">"Je suis fâché parce que..."</p></div>
+        <div class="p-4 rounded-r-2xl border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">✋ Demander</p><p class="text-xs italic text-slate-600">"Est-ce que je peux jouer?"</p></div>
+        <div class="p-4 rounded-r-2xl border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">⏳ Attendre</p><p class="text-xs italic text-slate-600">"J'attends que mon ami finisse."</p></div>
+        <div class="p-4 rounded-r-2xl border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">🤝 Partager</p><p class="text-xs italic text-slate-600">"On y va chacun notre tour."</p></div>
+        <div class="p-4 rounded-r-2xl border-b-[6px] border-r-[6px] border-slate-100" style="background:#00C4FF15;border-left:4px solid #00C4FF"><p class="font-black text-sm uppercase mb-1" style="color:#004A61">🗣️ Dire comment je me sens</p><p class="text-xs italic text-slate-600">"Je suis fâché parce que..."</p></div>
       </div>`,
     ecoute:`<h3 class="text-xl font-black uppercase tracking-tight mb-8" style="color:#004A61">Mon Focus</h3>
       <div class="flex gap-4 mb-6"><span class="text-5xl">👂</span><span class="text-5xl">👀</span></div>
       <p class="text-center font-black text-sm uppercase mb-6">Oreilles écoutent ?<br>Yeux regardent ?</p>
       <div class="flex gap-4">
-        <button class="px-6 py-4 rounded-[3rem] font-black press shadow-lg text-lg border-b-[12px] border-r-[12px] border-[#006a8a]" style="background:#00C4FF;color:#004A61">OUI ✅</button>
-        <button class="px-6 py-4 rounded-[3rem] font-black press text-lg border-b-[12px] border-r-[12px] border-yellow-300" style="background:#FFF00030;color:#004A61">PAS ENCORE</button>
+        <button class="px-6 py-4 rounded-2xl font-black press shadow-lg text-lg border-b-[12px] border-r-[12px] border-[#006a8a]" style="background:#00C4FF;color:#004A61">OUI ✅</button>
+        <button class="px-6 py-4 rounded-2xl font-black press text-lg border-b-[12px] border-r-[12px] border-yellow-300" style="background:#FFF00030;color:#004A61">PAS ENCORE</button>
       </div>`
   };
   c.innerHTML=renders[outilTab]||'';
@@ -1416,14 +1418,14 @@ function renderJeuxInline(cat){
         <span class="font-bold text-sm text-slate-800 block truncate">${j.name}</span>
         <span class="text-[10px] text-slate-500">${j.cat} · ${j.players||'Tous'}</span>
       </div>
-      <button onclick="addJeuToPlanif(${idx});switchSeanceTab('sequence')" class="shrink-0 text-white text-[10px] font-bold px-3 py-1.5 rounded-full press ml-2" style="background:#00C4FF">+ Séquence</button>
+      <button onclick="addJeuToPlanif(${idx});switchSeanceTab('sequence')" class="shrink-0 text-white text-[10px] font-bold px-3 py-1.5 rounded-xl press ml-2" style="background:#00C4FF">+ Séquence</button>
     </div>`;
   }).join('');
 }
 
 function filterJeuxInline(cat){
   document.querySelectorAll('.jeux-tab-inline').forEach(b=>{
-    b.className='jeux-tab-inline shrink-0 px-3 py-1.5 rounded-full text-xs font-bold '+(b.dataset.cat===cat?'text-white':'bg-slate-100 text-slate-600');
+    b.className='jeux-tab-inline shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold '+(b.dataset.cat===cat?'text-white':'bg-slate-100 text-slate-600');
     b.style.background=b.dataset.cat===cat?'#0086AD':'';
   });
   renderJeuxInline(cat);
@@ -1467,7 +1469,7 @@ function renderPlanif(){
   }
   tl.innerHTML=seqBlocks.map((b,i)=>{
     const cls=seqColorMap[b.color]||seqColorMap.violet;
-    return`<div class="seq-block ${cls} border-2 rounded-4xl overflow-hidden" draggable="true" ondragstart="dragStart(event,${i})" ondragover="event.preventDefault()" ondrop="dropBlock(event,${i})">
+    return`<div class="seq-block ${cls} border-2 rounded-2xl overflow-hidden" draggable="true" ondragstart="dragStart(event,${i})" ondragover="event.preventDefault()" ondrop="dropBlock(event,${i})">
       <div class="flex items-center justify-between p-3 cursor-grab">
         <div class="flex items-center gap-2">
           <span class="text-2xl">${b.picto}</span>
@@ -1590,7 +1592,7 @@ function toggleMic(){
     src.connect(analyser);
     micActive=true;
     document.getElementById('mic-btn').innerHTML='<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg> Arrêter';
-    document.getElementById('mic-btn').className='w-full bg-red-500 text-white font-bold py-4 rounded-4xl press shadow-lg text-sm flex items-center justify-center gap-2';
+    document.getElementById('mic-btn').className='w-full bg-red-500 text-white font-bold py-4 rounded-2xl press shadow-lg text-sm flex items-center justify-center gap-2';
     readNoise();
   }).catch(()=>{
     document.getElementById('db-value').textContent='⛔';
@@ -1602,7 +1604,7 @@ function stopMic(){
   if(micStream)micStream.getTracks().forEach(t=>t.stop());
   if(audioCtx)audioCtx.close();
   document.getElementById('mic-btn').innerHTML='<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8"/></svg> Activer le micro';
-  document.getElementById('mic-btn').className='w-full text-white font-bold py-4 rounded-[3rem] press shadow-lg text-sm flex items-center justify-center gap-2';
+  document.getElementById('mic-btn').className='w-full text-white font-bold py-4 rounded-2xl press shadow-lg text-sm flex items-center justify-center gap-2';
   document.getElementById('mic-btn').style.background='#00C4FF';
   document.getElementById('db-value').textContent='--';
   updateTrafficLight('green');
@@ -1720,7 +1722,7 @@ function generateTeams(){
   const colors=['#00C4FF','#FFF000','#ef4444','#a855f7','#22c55e','#f97316','#ec4899','#6366f1'];
   const teamNames=['Bleu','Jaune','Rouge','Violet','Vert','Orange','Rose','Indigo'];
   document.getElementById('eq-results').innerHTML=teams.map((t,i)=>`
-    <div class="hc-card p-4" style="border-radius:3rem;border-left:6px solid ${colors[i%8]}">
+    <div class="hc-card p-4" style="border-radius:1rem;border-left:6px solid ${colors[i%8]}">
       <h4 class="font-black text-sm mb-2" style="color:${colors[i%8]}">Equipe ${teamNames[i%8]}</h4>
       <ul class="space-y-1">${t.map(n=>`<li class="text-xs font-medium text-slate-700">${n}</li>`).join('')}</ul>
     </div>
@@ -1767,7 +1769,7 @@ function generateTournament(){
       <div class="mb-4">
         <p class="text-[10px] font-black uppercase tracking-widest mb-2" style="color:#0086AD">${roundNames[ri]||'Tour '+(ri+1)}</p>
         <div class="space-y-2">${r.map(m=>`
-          <div class="hc-card p-3 flex items-center gap-3" style="border-radius:3rem">
+          <div class="hc-card p-3 flex items-center gap-3" style="border-radius:1rem">
             <span class="text-xs font-bold flex-1 ${m[0]==='— BYE —'?'text-slate-300':'text-slate-800'}">${m[0]}</span>
             <span class="text-[10px] font-black text-slate-300">VS</span>
             <span class="text-xs font-bold flex-1 text-right ${m[1]==='— BYE —'?'text-slate-300':'text-slate-800'}">${m[1]}</span>
@@ -1788,7 +1790,7 @@ function generateTournament(){
     el.innerHTML=`
       <p class="text-[10px] font-black uppercase tracking-widest mb-2" style="color:#0086AD">${matches.length} matchs (rotation complete)</p>
       <div class="space-y-2">${matches.map((m,i)=>`
-        <div class="hc-card p-3 flex items-center gap-3" style="border-radius:3rem">
+        <div class="hc-card p-3 flex items-center gap-3" style="border-radius:1rem">
           <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0" style="background:#0086AD">${i+1}</span>
           <span class="text-xs font-bold flex-1 text-slate-800">${m[0]}</span>
           <span class="text-[10px] font-black text-slate-300">VS</span>
@@ -1905,7 +1907,7 @@ function renderEmuBoard(){
     return;
   }
   el.innerHTML=emuGroups.map((g,gi)=>`
-    <div class="hc-card p-4 text-center" style="border-radius:3rem;border-top:4px solid ${emuColors[gi%8]}">
+    <div class="hc-card p-4 text-center" style="border-radius:1rem;border-top:4px solid ${emuColors[gi%8]}">
       <input value="${g.name}" onchange="renameEmuGroup(${gi},this.value)" class="text-center font-black text-sm w-full border-0 outline-none mb-2" style="color:${emuColors[gi%8]}">
       <div class="text-3xl font-black mb-2" style="color:#004A61">${g.points}</div>
       <div class="flex justify-center gap-1 flex-wrap mb-3">${g.badges.map(b=>emuBadgeEmoji[b]||b).join(' ')}</div>
