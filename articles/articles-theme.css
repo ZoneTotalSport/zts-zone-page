@@ -200,3 +200,100 @@ body > .hero-full,main > .hero-full{display:none !important}
 }
 
 ::selection{background:var(--zts-yellow);color:var(--zts-deep)}
+
+/* ==========================================================================
+   FORCE-OVERRIDE des éléments legacy dans le body d'article
+   ========================================================================== */
+
+/* Tous les CTA gradient cyan-violet → cyan/jaune ZTS */
+.zts-prose [class*="from-cyan-electric"],
+.zts-prose [class*="from-violet"],
+.zts-prose [style*="linear-gradient"][style*="#00E5FF"],
+.zts-prose [style*="linear-gradient"][style*="#8B5CF6"],
+.zts-prose [style*="135deg,#00E5FF"]{
+  background:var(--zts-blue) !important;
+  background-image:linear-gradient(135deg,var(--zts-blue),var(--zts-deep)) !important;
+  color:#fff !important;
+  font-family:'Luckiest Guy',cursive !important;
+  letter-spacing:.04em;
+  border-radius:9999px !important;
+  padding:1rem 2rem !important;
+}
+
+/* Like button legacy (Bangers + rose) */
+.zts-prose .like-btn,
+.zts-prose button[style*="Bangers"]{
+  font-family:'Luckiest Guy',cursive !important;
+  background:var(--zts-yellow) !important;
+  color:var(--zts-deep) !important;
+  border:3px solid var(--zts-deep) !important;
+  border-radius:9999px !important;
+  padding:12px 32px !important;
+  font-size:1.2rem !important;
+}
+.zts-prose .like-btn:hover{background:var(--zts-blue) !important;color:#fff !important}
+.zts-prose .like-count{
+  background:var(--zts-deep) !important;color:var(--zts-yellow) !important;
+  font-family:'Inter',sans-serif !important;font-weight:900;
+}
+
+/* Sections "Tags" / footer-style legacy DANS l'article — restyle */
+.zts-prose h3.font-fredoka,
+.zts-prose h4.font-fredoka,
+.zts-prose h3[class*="font-bangers"]{
+  color:var(--zts-deep) !important;
+  font-family:'Luckiest Guy',cursive !important;
+  font-size:1.4rem !important;text-transform:uppercase;
+  letter-spacing:.04em;margin:2rem 0 1rem !important;
+}
+
+/* Pink/rose anywhere in article → cyan */
+.zts-prose [style*="#FF2A7A"],
+.zts-prose [style*="#FF6B9D"],
+.zts-prose .text-pink,
+.zts-prose .bg-pink{
+  background-color:var(--zts-blue) !important;
+  color:#fff !important;
+  border-color:var(--zts-deep) !important;
+}
+
+/* Liens "back to blog" legacy en bas d'article */
+.zts-prose a[href*="blog.html"]:not(.no-style){
+  display:inline-flex;align-items:center;gap:.5rem;
+}
+
+/* Avatars / éléments cyan-electric → ztsBlue */
+.zts-prose .from-cyan-electric,
+.zts-prose .to-violet-pop,
+.zts-prose .bg-cyan-electric{
+  background-color:var(--zts-blue) !important;
+  background-image:none !important;
+}
+
+/* Sticky progress bar DOM legacy */
+.zts-prose .scroll-progress,body > div.scroll-progress{display:none !important}
+
+/* Couleurs texte "dark" legacy → slate */
+.zts-prose .text-dark{color:#1e293b !important}
+.zts-prose .text-dark\/40,.zts-prose .text-dark\/50,.zts-prose .text-dark\/60{color:#64748b !important}
+
+/* Cards "aside" legacy à l'intérieur du body article (sections tags, partage etc.) */
+.zts-prose > div[class*="bg-gray"],
+.zts-prose > div[class*="bg-slate"]:not(.zts-keep){
+  background:transparent !important;
+  border:none !important;
+  padding:0 !important;
+}
+
+/* Legacy buttons style "px-10 py-5 rounded-full" cyan-violet → ztsBlue */
+.zts-prose a[href*="open=https"],
+.zts-prose .inline-flex.bg-gradient-to-r{
+  background:var(--zts-blue) !important;
+  background-image:none !important;
+  color:#fff !important;
+  font-family:'Luckiest Guy',cursive !important;
+  letter-spacing:.04em !important;
+  padding:1rem 2rem !important;
+  border-radius:9999px !important;
+}
+.zts-prose a[href*="open=https"]:hover{background:var(--zts-deep) !important}
