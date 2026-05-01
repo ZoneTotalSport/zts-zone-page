@@ -23,7 +23,7 @@ body{font-family:'Nunito',system-ui,sans-serif;background:#f1f5f9;overscroll-beh
 .font-luckiest{font-family:'Luckiest Guy',cursive;letter-spacing:0.05em;}
 h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;text-shadow:2px 2px 0px rgba(0,0,0,0.2);}
 /* ZTS Signature Effects */
-.zts-chunky{border-bottom:12px solid #e2e8f0;border-right:12px solid #e2e8f0;}
+.zts-chunky{border-bottom:12px solid rgba(0,0,0,0.1);border-right:12px solid rgba(0,0,0,0.1);box-shadow:4px 4px 0 rgba(0,0,0,0.06);}
 .zts-sticker{border:10px solid white;transform:rotate(3deg);box-shadow:4px 4px 12px rgba(0,0,0,0.15);}
 .zts-sticker-neg{border:10px solid white;transform:rotate(-2deg);box-shadow:4px 4px 12px rgba(0,0,0,0.15);}
 .zts-hero-gradient{background:radial-gradient(circle at top right, #00C4FF, #0086AD, #004A61);}
@@ -44,7 +44,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 .anim-left{animation:slideLeft .3s ease both}
 
 /* High contrast for sun */
-.hc-card{background:#fff;border:2px solid #e2e8f0;border-bottom-width:12px;border-right-width:12px;border-radius:1.25rem;}
+.hc-card{background:#fff;border:2px solid #cbd5e1;border-bottom-width:12px;border-right-width:12px;border-radius:1.25rem;box-shadow:4px 4px 0 rgba(0,0,0,0.06);}
 .hc-text{color:#0f172a;}
 
 /* Scrollbar hide */
@@ -178,59 +178,59 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
     </button>
   </div>
 
-  <!-- 3 Features Pro -->
-  <p class="text-[10px] font-black uppercase tracking-widest mb-3 px-1" style="color:#0086AD">Outils Pro</p>
+  <!-- Outils Pro -->
+  <p class="text-xs font-black uppercase tracking-widest mb-3 px-1 font-luckiest" style="color:#0086AD">Outils Pro</p>
   <div class="space-y-3">
-    <button onclick="go('planif')" class="press w-full bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm text-left border-b-[12px] border-r-[12px] border-slate-100">
-      <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background:#00C4FF20">
-        <svg class="w-6 h-6" style="color:#0086AD" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    <button onclick="go('planif')" class="press w-full rounded-2xl p-5 flex items-center gap-4 shadow-lg text-left border-b-[12px] border-r-[12px] border-[#006a8a]" style="background:linear-gradient(135deg,#00C4FF,#0086AD)">
+      <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0 border-2 border-white/30">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       </div>
       <div>
-        <span class="font-bold text-sm" style="color:#004A61">Ma Séance</span>
-        <span class="block text-[11px] text-slate-500">Séquence, jeux, journal</span>
+        <span class="font-black text-base text-white font-luckiest uppercase zts-text-shadow">Ma Séance</span>
+        <span class="block text-xs text-white/70 font-medium">Séquence, jeux, journal</span>
       </div>
-      <span id="journal-badge" class="ml-auto text-white text-[10px] font-bold rounded-full w-6 h-6 flex items-center justify-center hidden" style="background:#00C4FF">0</span>
+      <span id="journal-badge" class="ml-auto bg-ztsYellow text-ztsDeep text-[10px] font-bold rounded-full w-6 h-6 flex items-center justify-center hidden">0</span>
     </button>
-    <button onclick="go('bruit')" class="press w-full bg-white rounded-2xl p-4 flex items-center gap-4 shadow-sm text-left border-b-[12px] border-r-[12px] border-slate-100">
-      <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background:#FFF00030">
-        <svg class="w-6 h-6" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8"/></svg>
+    <button onclick="go('bruit')" class="press w-full rounded-2xl p-5 flex items-center gap-4 shadow-lg text-left border-b-[12px] border-r-[12px] border-[#003445]" style="background:linear-gradient(135deg,#004A61,#0086AD)">
+      <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0 border-2 border-white/30">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m-4 0h8"/></svg>
       </div>
       <div>
-        <span class="font-bold text-sm" style="color:#004A61">Détecteur de Bruit</span>
-        <span class="block text-[11px] text-slate-500">Feu sonore automatique par micro</span>
+        <span class="font-black text-base text-white font-luckiest uppercase zts-text-shadow">Détecteur de Bruit</span>
+        <span class="block text-xs text-white/70 font-medium">Feu sonore automatique par micro</span>
       </div>
     </button>
   </div>
-  <!-- Nouvelles Features -->
-  <p class="text-[10px] font-black uppercase tracking-widest mb-3 mt-6 px-1" style="color:#0086AD">Gestion de groupe</p>
+  <!-- Gestion de groupe -->
+  <p class="text-xs font-black uppercase tracking-widest mb-3 mt-6 px-1 font-luckiest" style="color:#0086AD">Gestion de groupe</p>
   <div class="grid grid-cols-2 gap-3 mb-4">
-    <button onclick="go('equipes')" class="press bg-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
-      <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#00C4FF20">
-        <svg class="w-5 h-5" style="color:#0086AD" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    <button onclick="go('equipes')" class="press rounded-2xl p-5 flex flex-col items-center justify-center gap-2 shadow-lg text-center border-b-[12px] border-r-[12px] border-[#006a8a] h-36" style="background:linear-gradient(135deg,#00C4FF,#0086AD)">
+      <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0 border-2 border-white/30">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
       </div>
-      <span class="font-bold text-xs" style="color:#004A61">Equipes</span>
-      <span class="text-[10px] text-slate-400">Anti-Chicane</span>
+      <span class="font-black text-sm text-white font-luckiest uppercase zts-text-shadow">Équipes</span>
+      <span class="text-[10px] text-white/70 font-medium">Anti-Chicane</span>
     </button>
-    <button onclick="go('tournoi')" class="press bg-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
-      <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#FFF00030">
-        <svg class="w-5 h-5" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+    <button onclick="go('tournoi')" class="press rounded-2xl p-5 flex flex-col items-center justify-center gap-2 shadow-lg text-center border-b-[12px] border-r-[12px] border-yellow-500 h-36" style="background:linear-gradient(135deg,#FFF000,#f59e0b)">
+      <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2" style="background:#004A6130;border-color:#004A6140">
+        <svg class="w-6 h-6" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
       </div>
-      <span class="font-bold text-xs" style="color:#004A61">Table Gone</span>
-      <span class="text-[10px] text-slate-400">Tournois</span>
+      <span class="font-black text-sm font-luckiest uppercase" style="color:#004A61;text-shadow:1px 1px 0 rgba(255,255,255,.4)">Table Gone</span>
+      <span class="text-[10px] font-medium" style="color:#004A6190">Tournois</span>
     </button>
-    <button onclick="go('tabata')" class="press bg-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
-      <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#00C4FF20">
-        <svg class="w-5 h-5" style="color:#0086AD" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <button onclick="go('tabata')" class="press rounded-2xl p-5 flex flex-col items-center justify-center gap-2 shadow-lg text-center border-b-[12px] border-r-[12px] border-[#003445] h-36" style="background:linear-gradient(135deg,#0086AD,#004A61)">
+      <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0 border-2 border-white/30">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
-      <span class="font-bold text-xs" style="color:#004A61">Tabata</span>
-      <span class="text-[10px] text-slate-400">Intervalles</span>
+      <span class="font-black text-sm text-white font-luckiest uppercase zts-text-shadow">Tabata</span>
+      <span class="text-[10px] text-white/70 font-medium">Intervalles</span>
     </button>
-    <button onclick="go('emulation')" class="press bg-white rounded-2xl p-4 flex flex-col items-center justify-center gap-2 shadow-sm text-center border-b-[12px] border-r-[12px] border-slate-100 h-36">
-      <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background:#FFF00030">
-        <svg class="w-5 h-5" style="color:#004A61" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+    <button onclick="go('emulation')" class="press rounded-2xl p-5 flex flex-col items-center justify-center gap-2 shadow-lg text-center border-b-[12px] border-r-[12px] border-[#006a8a] h-36" style="background:linear-gradient(135deg,#22c55e,#16a34a)">
+      <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shrink-0 border-2 border-white/30">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
       </div>
-      <span class="font-bold text-xs" style="color:#004A61">Emulation</span>
-      <span class="text-[10px] text-slate-400">Badges</span>
+      <span class="font-black text-sm text-white font-luckiest uppercase zts-text-shadow">Émulation</span>
+      <span class="text-[10px] text-white/70 font-medium">Badges</span>
     </button>
   </div>
 
@@ -1063,7 +1063,7 @@ function openSOS(id){
         <p class="text-[10px] font-black uppercase tracking-widest mb-3" style="color:#0086AD">10 Situations & Solutions</p>
         <div class="space-y-3">
           ${s.tips.map((t,i)=>`
-            <div class="hc-card shadow-sm overflow-hidden">
+            <div class="hc-card shadow-md overflow-hidden">
               <div class="p-4">
                 <div class="flex items-start gap-3">
                   <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-white font-bold text-xs" style="background:${hex}">${i+1}</div>
@@ -1096,7 +1096,7 @@ function renderJeux(){
   const list=document.getElementById('jeux-list');
   const filtered=jeuxFilter==='all'?jeuxData:jeuxData.filter(j=>j.cat===jeuxFilter);
   list.innerHTML=filtered.map((g,i)=>`
-    <details class="hc-card shadow-sm overflow-hidden group" ${i===0?'open':''}>
+    <details class="hc-card shadow-md overflow-hidden group" ${i===0?'open':''}>
       <summary class="px-4 py-3 text-white cursor-pointer press flex items-center justify-between rounded-t-xl" style="background:${jeuxCatColors[g.cat]||'#0086AD'}">
         <h4 class="font-extrabold text-sm uppercase tracking-tight zts-text-shadow">${i+1}. ${g.name}</h4>
         <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-lg font-bold">${g.cat}</span>
