@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Le FooBaSKILL : un jeu innovant pour le développement moteur et cognitif des enfants | Blog EPS — Zone Total Sport</title>
-  <meta name="description" content="Le FooBaSKILL est une activité sportive originale qui allie le football et le basketball. C&#x27;est un jeu qui combine deux sports populaires: le futsal e...">  <meta name="author" content="Joey Root">
+  <title>Foobaskill : un sport hybride innovant pour le gymnase | Blog EPS — Zone Total Sport</title>
+  <meta name="description" content="Découvrez le Foobaskill, un sport hybride mêlant soccer et basketball, parfait pour le gymnase.">
+  <meta name="author" content="Joey Root">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Le FooBaSKILL : un jeu innovant pour le développement moteur et cognitif des enfants | Zone Total Sport">
-  <meta property="og:description" content="Le FooBaSKILL est une activité sportive originale qui allie le football et le basketball. C&#x27;est un jeu qui combine deux sports populaires: le futsal e...">
-  <meta property="og:image" content="https://zonetotalsport.ca/logo-zts.png">
+  <meta property="og:title" content="Foobaskill : un sport hybride innovant pour le gymnase | Zone Total Sport">
+  <meta property="og:description" content="Découvrez le Foobaskill, un sport hybride mêlant soccer et basketball, parfait pour le gymnase.">
+  <meta property="og:image" content="https://zonetotalsport.ca/articles/images/heroes/foobaskill.png">
   <meta property="og:url" content="https://zonetotalsport.ca/articles/foobaskill.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Zone Total Sport">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Le FooBaSKILL : un jeu innovant pour le développement moteur et cognitif des enfants">
-  <meta name="twitter:description" content="Le FooBaSKILL est une activité sportive originale qui allie le football et le basketball. C&#x27;est un jeu qui combine deux sports populaires: le futsal e...">
-  <meta name="twitter:image" content="https://zonetotalsport.ca/logo-zts.png">
+  <meta name="twitter:title" content="Foobaskill : un sport hybride innovant pour le gymnase">
+  <meta name="twitter:description" content="Découvrez le Foobaskill, un sport hybride mêlant soccer et basketball, parfait pour le gymnase.">
+  <meta name="twitter:image" content="https://zonetotalsport.ca/articles/images/heroes/foobaskill.png">
 
   <!-- Canonical -->
   <link rel="canonical" href="https://zonetotalsport.ca/articles/foobaskill.html">
@@ -28,7 +29,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&family=Schoolbell&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&family=Schoolbell&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS (pre-compiled static) -->
   <link rel="stylesheet" href="/articles/articles.css">
@@ -53,138 +54,108 @@
     a { text-decoration: none; color: inherit; }
     ::selection { background: #00E5FF; color: #0F0F2E; }
 
-    /* ========== NAV BAR ========== */
-    .wix-nav-bar {
-      background: linear-gradient(135deg, rgba(15,15,46,0.85), rgba(15,15,46,0.95));
-      border-radius: 16px; padding: 14px 24px;
-      backdrop-filter: blur(12px);
-      max-width: 1200px; margin: 0 auto 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      border: 1px solid rgba(0,229,255,0.2);
+    /* ========== UNIFIED CYAN HEADER ========== */
+    .zts-header {
+      position: sticky; top: 0; z-index: 50;
+      background: linear-gradient(135deg, #00E5FF, #00B8D4);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      padding: 12px 24px;
     }
+    .zts-header-inner {
+      display: flex; align-items: center; gap: 16px;
+      max-width: 1500px; margin: 0 auto;
+      flex-wrap: wrap; justify-content: space-between;
+    }
+    .zts-logo-link { display: inline-flex; align-items: center; flex-shrink: 0; }
+    .zts-logo-link img { height: 68px; width: auto; display: block; transition: transform 0.25s; }
+    .zts-logo-link:hover img { transform: scale(1.05) rotate(-3deg); }
+
+    .zts-nav-row {
+      display: flex; flex-wrap: nowrap; gap: 6px;
+      justify-content: center; flex: 1 1 auto;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .zts-nav-row::-webkit-scrollbar { display: none; }
+
     .wix-nav-btn {
-      display: inline-flex; align-items: center; gap: 10px;
-      font-family: 'Fredoka One', cursive; font-size: 1.8rem;
-      padding: 16px 28px; border-radius: 30px;
-      background: rgba(255,255,255,0.08); color: #fff;
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'Fredoka One', cursive; font-size: 1.15rem;
+      padding: 9px 14px; border-radius: 26px;
+      background: rgba(255,255,255,0.18); color: #fff;
       text-decoration: none; transition: all 0.25s;
-      white-space: nowrap; border: 2px solid rgba(255,255,255,0.1);
+      white-space: nowrap; border: 2px solid rgba(255,255,255,0.25);
     }
-    .wix-nav-btn:hover { background: #00E5FF; color: #0F0F2E; border-color: #00E5FF; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,229,255,0.3); }
-    .wix-nav-btn.active { background: #00E5FF; color: #0F0F2E; border-color: #00E5FF; box-shadow: 0 2px 10px rgba(0,229,255,0.3); }
+    .wix-nav-btn:hover { background: #fff; color: #00B8D4; border-color: #fff; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
+    .wix-nav-btn.active { background: #fff; color: #00B8D4; border-color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15); }
     .wix-nav-btn.btn-donate-nav { background: linear-gradient(135deg, #FF2A7A, #FF6B9D); color: #fff; border-color: #FF2A7A; animation: donPulse 2s ease-in-out infinite; }
-    .wix-nav-btn.btn-donate-nav:hover { transform: translateY(-2px) scale(1.08); box-shadow: 0 4px 20px rgba(255,42,122,0.5); }
-        .wix-nav-btn.btn-login-nav { background: linear-gradient(135deg, #FF6B00, #FF9500); color: #fff; border-color: #FF6B00; }
-        .wix-nav-btn.btn-login-nav:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 4px 20px rgba(255,107,0,0.4); }
+    .wix-nav-btn.btn-donate-nav:hover { transform: translateY(-2px) scale(1.06); box-shadow: 0 4px 20px rgba(255,42,122,0.5); color:#fff; }
+    .wix-nav-btn.btn-login-nav { background: linear-gradient(135deg, #FF6B00, #FF9500); color: #fff; border-color: #FF6B00; }
+    .wix-nav-btn.btn-login-nav:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 4px 20px rgba(255,107,0,0.4); color:#fff; }
     @keyframes donPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,42,122,0.4); } 50% { box-shadow: 0 0 15px 3px rgba(255,42,122,0.2); } }
-    @media (max-width: 768px) {
+
+    /* ========== LANG SELECTOR ========== */
+    .zts-lang { display: inline-flex; gap: 4px; flex-shrink: 0; }
+    .lang-btn {
+      font-family: 'Fredoka One', cursive; font-size: 1.1rem;
+      padding: 6px 14px; border-radius: 30px;
+      background: rgba(255,255,255,0.2); color: #fff;
+      border: 2px solid rgba(255,255,255,0.3);
+      cursor: pointer; transition: all 0.2s;
+      min-width: 44px;
+    }
+    .lang-btn:hover { background: rgba(255,255,255,0.4); }
+    .lang-btn.active { background: #fff; color: #006978; border-color: #fff; }
+
+    @media (max-width: 900px) {
       .wix-nav-btn span { display: none; }
-      .wix-nav-btn { padding: 12px 16px; font-size: 1.4rem; }
-      .wix-nav-bar { gap: 8px; padding: 10px 14px; border-radius: 12px; }
+      .wix-nav-btn { padding: 10px 14px; }
+      .zts-logo-link img { height: 52px; }
     }
 
     /* ========== ARTICLE TYPOGRAPHY ========== */
     .article-body h2 {
-      font-family: 'Luckiest Guy', cursive;
-      font-size: 2.5rem;
-      font-weight: bold;
-      color: #0F0F2E;
-      margin: 2.5rem 0 1rem;
-      padding-bottom: 0.5rem;
+      font-family: 'Bangers', cursive;
+      font-size: 2.5rem; font-weight: bold; color: #0F0F2E;
+      margin: 2.5rem 0 1rem; padding-bottom: 0.5rem;
       border-bottom: 3px solid #00E5FF;
     }
     .article-body h3 {
-      font-family: 'Luckiest Guy', cursive;
-      font-size: 2rem;
-      font-weight: bold;
-      color: #8B5CF6;
+      font-family: 'Bangers', cursive;
+      font-size: 2rem; font-weight: bold; color: #8B5CF6;
       margin: 2rem 0 0.75rem;
     }
     .article-body h4 {
-      font-family: 'Luckiest Guy', cursive;
-      font-size: 1.7rem;
-      font-weight: bold;
-      color: #FF2A7A;
+      font-family: 'Bangers', cursive;
+      font-size: 1.7rem; font-weight: bold; color: #FF2A7A;
       margin: 1.5rem 0 0.5rem;
     }
     .article-body p {
       font-family: 'Patrick Hand', cursive;
-      font-size: 1.5rem;
-      line-height: 1.85;
-      color: #1a1a2e;
-      margin-bottom: 1.25rem;
+      font-size: 1.5rem; line-height: 1.85;
+      color: #1a1a2e; margin-bottom: 1.25rem;
     }
     .article-body ul, .article-body ol {
       margin: 1rem 0 1.5rem 1.5rem;
       font-family: 'Patrick Hand', cursive;
-      font-size: 1.2rem;
-      line-height: 1.8;
+      font-size: 1.2rem; line-height: 1.8;
     }
-    .article-body li {
-      margin-bottom: 0.5rem;
-      font-size: 1.5rem;
-    }
-    .article-body ul li::marker {
-      color: #00E5FF;
-      font-size: 1.3em;
-    }
-    .article-body ol li::marker {
-      color: #FF2A7A;
-      font-weight: bold;
-    }
+    .article-body li { margin-bottom: 0.5rem; font-size: 1.5rem; }
+    .article-body ul li::marker { color: #00E5FF; font-size: 1.3em; }
+    .article-body ol li::marker { color: #FF2A7A; font-weight: bold; }
     .article-body blockquote {
-      border-left: 4px solid #FFD700;
-      background: #FFF9E6;
-      padding: 1.25rem 1.5rem;
-      margin: 1.5rem 0;
-      border-radius: 0 12px 12px 0;
-      font-style: italic;
-      font-size: 1.15rem;
-      color: #1a1a2e;
+      border-left: 4px solid #FFD700; background: #FFF9E6;
+      padding: 1.25rem 1.5rem; margin: 1.5rem 0;
+      border-radius: 0 12px 12px 0; font-style: italic;
+      font-size: 1.15rem; color: #1a1a2e;
     }
     .article-body img {
-      max-width: 100%;
-      height: auto;
-      border-radius: 16px;
-      margin: 1.5rem 0;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 100%; height: auto; border-radius: 16px;
+      margin: 1.5rem 0; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
-    .article-body a {
-      color: #00E5FF;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-      transition: color 0.2s;
-    }
-    .article-body a:hover {
-      color: #FF2A7A;
-    }
-    .article-body strong {
-      color: #0F0F2E;
-      font-weight: 700;
-    }
-    .article-body table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1.5rem 0;
-      font-family: 'Patrick Hand', cursive;
-      font-size: 1.1rem;
-    }
-    .article-body table th {
-      background: #0F0F2E;
-      color: #fff;
-      font-family: 'Fredoka One', cursive;
-      padding: 12px 16px;
-      text-align: left;
-    }
-    .article-body table td {
-      padding: 10px 16px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .article-body table tr:nth-child(even) {
-      background: #f9fafb;
-    }
+    .article-body a { color: #00B8D4; text-decoration: underline; text-underline-offset: 3px; transition: color 0.2s; }
+    .article-body a:hover { color: #FF2A7A; }
+    .article-body strong { color: #0F0F2E; font-weight: 700; }
 
-    /* ========== SHARE BUTTONS ========== */
     .share-btn {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 10px 20px; border-radius: 25px;
@@ -193,24 +164,19 @@
     }
     .share-btn:hover { transform: translateY(-2px); }
 
-    /* ========== TAG PILL ========== */
     .tag-pill {
-      display: inline-block;
-      padding: 6px 16px; border-radius: 25px;
+      display: inline-block; padding: 6px 16px; border-radius: 25px;
       font-family: 'Fredoka One', cursive; font-size: 1.8rem;
-      background: #f3f4f6; color: #1a1a2e;
-      transition: all 0.2s;
+      background: #f3f4f6; color: #1a1a2e; transition: all 0.2s;
     }
     .tag-pill:hover { background: #00E5FF; color: #0F0F2E; transform: scale(1.05); }
 
-    /* ========== SCROLL PROGRESS ========== */
     .scroll-progress {
       position: fixed; top: 0; left: 0; height: 4px;
       background: linear-gradient(90deg, #00E5FF, #FFD700, #FF2A7A, #8B5CF6);
       z-index: 10000; transform-origin: left; will-change: transform;
     }
 
-    /* ========== COPY TOAST ========== */
     .copy-toast {
       position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
       background: #0F0F2E; color: #fff; padding: 12px 28px; border-radius: 25px;
@@ -220,6 +186,8 @@
       pointer-events: none;
     }
     .copy-toast.show { transform: translateX(-50%) translateY(0); }
+
+    [hidden] { display: none !important; }
   </style>
 
   <!-- JSON-LD Structured Data -->
@@ -227,145 +195,140 @@
   {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    "headline": "Le FooBaSKILL : un jeu innovant pour le développement moteur et cognitif des enfants",
-    "image": "https://zonetotalsport.ca/logo-zts.png",
+    "inLanguage": "fr-CA",
+    "headline": "Foobaskill : un sport hybride innovant pour le gymnase",
+    "image": "https://zonetotalsport.ca/articles/images/heroes/foobaskill.png",
     "datePublished": "2025-01-15",
-    "dateModified": "2026-03-31",
-    "author": {
-      "@type": "Person",
-      "name": "Joey Root"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Zone Total Sport",
-      "url": "https://zonetotalsport.ca"
-    },
-    "description": "Le FooBaSKILL est une activité sportive originale qui allie le football et le basketball. C&#x27;est un jeu qui combine deux sports populaires: le futsal e...",
-    "keywords": "éducation physique, activité physique, communication, Sports collectifs, sport d&#x27;équipe, Stratégie, Psychologie du sport, Analyse de jeu, Compréhension du jeu, Mouvement sans ballon, Intuition, Marquage, Positionnement, Démarquage, Attaque, Défense, Éducatifs, Agilité, Passe, Tir, Dribble, Foobaskill, Bienfaits du sport, Les sports collectifs"
+    "dateModified": "2026-04-29",
+    "author": { "@type": "Person", "name": "Joey Root" },
+    "publisher": { "@type": "Organization", "name": "Zone Total Sport", "url": "https://zonetotalsport.ca" },
+    "description": "Découvrez le Foobaskill, un sport hybride mêlant soccer et basketball, parfait pour le gymnase.",
+    "keywords": "éducation physique, activité physique, communication, Sports collectifs, sport d&#x27;équipe, Stratégie, Psychologie du sport"
   }
   </script>
+  <link rel="stylesheet" href="/articles/articles-theme.css">
 </head>
 <body>
 
-  <!-- Scroll Progress Bar -->
   <div class="scroll-progress" id="scrollProgress" style="transform: scaleX(0)"></div>
 
-  <!-- Nav Bar -->
-  <nav class="bg-dark/95 backdrop-blur-lg sticky top-0 z-50 py-3 px-6 md:px-10">
-    <div class="wix-nav-bar flex items-center justify-center gap-2 md:gap-3 flex-wrap">
-      <a href="https://zonetotalsport.ca/" class="wix-nav-btn">
-        <i data-lucide="home" class="w-7 h-7"></i> <span>Accueil</span>
-      </a>
-      <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Feducatifs.zonetotalsport.ca" class="wix-nav-btn">
-        <i data-lucide="wrench" class="w-7 h-7"></i> <span>Outils</span>
-      </a>
-      <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fsae.zonetotalsport.ca" class="wix-nav-btn">
-        <i data-lucide="clipboard-list" class="w-7 h-7"></i> <span>S.A.E</span>
-      </a>
-      <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fjeux.zonetotalsport.ca" class="wix-nav-btn">
-        <i data-lucide="gamepad-2" class="w-7 h-7"></i> <span>Jeux</span>
-      </a>
-      <a href="../blog.html" class="wix-nav-btn active">
-        <i data-lucide="pen-line" class="w-7 h-7"></i> <span>Blog</span>
-      </a>
-      <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fmusique.zonetotalsport.ca" class="wix-nav-btn">
-        <i data-lucide="music" class="w-7 h-7"></i> <span>Musique</span>
-      </a>
-      <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fevaluation.zonetotalsport.ca" class="wix-nav-btn">
-                <i data-lucide="book-open" class="w-7 h-7"></i> <span>Carnet</span>
-            </a>
-            <a href="../avis.html" class="wix-nav-btn">
-        <i data-lucide="star" class="w-7 h-7"></i> <span>Avis</span>
-      </a>
-      <a href="../wix/donation.html" class="wix-nav-btn btn-donate-nav">
-        <i data-lucide="heart" class="w-7 h-7"></i> <span>Dons</span>
-      </a>
-
-            <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Feducatifs.zonetotalsport.ca" class="wix-nav-btn btn-login-nav" id="zts-login-btn" style="background: linear-gradient(135deg, #FF6B00, #FF9500); color: white; border: none;">
-                <i data-lucide="user" class="w-7 h-7"></i> <span>Connexion</span>
-            </button>
-    </div>
-  </nav>
-
-  <!-- Hero Image -->
-  <div class="hero-full relative w-full h-[300px] md:h-[420px] overflow-hidden">
-    <img src="https://zonetotalsport.ca/logo-zts.png" alt="Le FooBaSKILL : un jeu innovant pour le développement moteur et cognitif des enfants" class="w-full h-full object-cover">
-    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-    <!-- Category badge -->
-    <div class="absolute top-6 left-6">
-      <span class="inline-block px-4 py-2 rounded-full font-fredoka text-sm text-white" style="background:#FFD700">Jeux et activités</span>
-    </div>
-    <!-- Back to blog floating button -->
-    <a href="../blog.html" class="absolute top-6 right-6 bg-white/90 backdrop-blur text-dark px-4 py-2 rounded-full font-fredoka text-sm hover:bg-white transition flex items-center gap-2 shadow-lg">
-      <i data-lucide="arrow-left" class="w-4 h-4"></i> Blog
+  <!-- ZTS HEADER REFONTE -->
+<header class="zts-new-header">
+  <div class="zts-new-header-inner">
+    <a href="https://zonetotalsport.ca/" class="zts-new-logo">
+      <h1 class="font-lucky-new">ZONE <span class="zts-yellow">TOTAL</span> SPORT</h1>
+      <span class="zts-new-tag">Pédagogie Primaire</span>
     </a>
+    <nav class="zts-new-nav">
+      <a href="https://zonetotalsport.ca/" class="zts-new-link"><i data-lucide="home"></i><span>Accueil</span></a>
+      <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Feducatifs.zonetotalsport.ca" class="zts-new-link"><i data-lucide="wrench"></i><span>Outils</span></a>
+      <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fjeux.zonetotalsport.ca" class="zts-new-link"><i data-lucide="gamepad-2"></i><span>Jeux</span></a>
+      <a href="../blog.html" class="zts-new-link active"><i data-lucide="pen-line"></i><span>Blog</span></a>
+      <a href="../wix/donation.html" class="zts-new-link zts-new-donate"><i data-lucide="heart"></i><span>Dons</span></a>
+    </nav>
   </div>
+</header>
+<!-- /ZTS HEADER REFONTE -->
 
-  <!-- Article Container -->
-  <main class="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 -mt-16 relative z-10">
+  <!-- ZTS HERO XXL -->
+<section class="zts-new-hero">
+  <div class="zts-new-hero-inner">
+    <div class="zts-new-hero-text">
+      <a href="../blog.html" class="zts-new-back"><i data-lucide="arrow-left"></i> Retour au blog</a>
+      <span class="zts-new-cat-badge">Jeux et activités</span>
+      <h2 class="zts-new-hero-title">Foobaskill : un sport hybride innovant pour le <span class="zts-yellow">gymnase</span></h2>
+      <p class="zts-new-hero-desc">Découvrez le Foobaskill, un sport hybride mêlant soccer et basketball, parfait pour le gymnase.</p>
+      <div class="zts-new-hero-meta">
+        <span><i data-lucide="calendar"></i> 14 avr. 2023</span>
+        <span><i data-lucide="clock"></i> 9 min</span>
+        <span><i data-lucide="layers"></i> Cycles 2-3</span>
+      </div>
+    </div>
+    <div class="zts-new-hero-img-wrap">
+      <div class="zts-new-hero-img">
+        <img src="images/heroes/foobaskill.png" alt="Foobaskill : un sport hybride innovant pour le gymnase">
+      </div>
+      <div class="zts-new-hero-badge">
+        <div class="zts-new-hero-badge-icon"><i data-lucide="book-open"></i></div>
+        <div>
+          <p class="zts-new-hero-badge-t">ARTICLE</p>
+          <p class="zts-new-hero-badge-s">Lecture 9 min</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- /ZTS HERO XXL --><main class="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 -mt-16 relative z-10">
 
-    <!-- Article Header Card -->
     <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10 mb-8 border border-gray-100">
-      <!-- Title -->
-      <h1 class="font-bangers text-3xl md:text-4xl lg:text-[2.8rem] text-dark leading-tight mb-6">Le FooBaSKILL : un jeu innovant pour le développement moteur et cognitif des enfants</h1>
+      <h1 class="font-bangers text-3xl md:text-4xl lg:text-[2.8rem] text-dark leading-tight mb-6" data-i18n>
+        <span lang="fr">Foobaskill : un sport hybride innovant pour le gymnase</span>
+        <span lang="en" hidden>Foobaskill: an innovative hybrid sport for the gym</span>
+        <span lang="es" hidden>Foobaskill: un deporte híbrido innovador para el gimnasio</span>
+        <span lang="zh" hidden>Foobaskill：体育馆里的创新混合运动</span>
+      </h1>
 
-      <!-- Author + Meta -->
       <div class="flex flex-wrap items-center gap-4 text-sm font-baloo text-dark/50 mb-6 pb-6 border-b border-gray-100">
         <div class="flex items-center gap-2">
           <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-electric to-violet-pop flex items-center justify-center text-white font-fredoka text-sm">JR</div>
           <div>
             <p class="text-dark font-fredoka text-sm">Joey Root</p>
-            <p class="text-dark/40 text-xs">Enseignant EPS</p>
+            <p class="text-dark/40 text-xs" data-i18n><span lang="fr">Enseignant en éducation physique</span><span lang="en" hidden>Physical Education Teacher</span><span lang="es" hidden>Profesor de Educación Física</span><span lang="zh" hidden>体育教师</span></p>
           </div>
         </div>
         <div class="flex items-center gap-1">
           <i data-lucide="calendar" class="w-4 h-4"></i>
-          <span>14 avr. 2023</span>
+          <span>2025-01-15</span>
         </div>
         <div class="flex items-center gap-1">
           <i data-lucide="clock" class="w-4 h-4"></i>
-          <span>9 min de lecture</span>
+          <span data-i18n><span lang="fr">9 min de lecture</span><span lang="en" hidden>9 min read</span><span lang="es" hidden>9 min de lectura</span><span lang="zh" hidden>9分钟阅读</span></span>
         </div>
       </div>
 
-      <!-- Article Body -->
-      <!-- Donation Banner -->
       <div style="background:linear-gradient(135deg,#FF2A7A,#FF6B9D);border-radius:16px;padding:16px 24px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center">
-        <span style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:1.3rem">❤️ Tu aimes Zone Total Sport?</span>
-        <a href="../wix/donation.html" style="font-family:'Bangers',cursive;background:#FFD700;color:#333;padding:10px 24px;border-radius:999px;font-size:1.1rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2)">💛 Faire un don</a>
+        <span style="font-family:'Bangers',cursive;color:#fff;font-size:1.3rem" data-i18n>
+          <span lang="fr">❤️ Tu aimes Zone Total Sport?</span>
+          <span lang="en" hidden>❤️ Do you love Zone Total Sport?</span>
+          <span lang="es" hidden>❤️ ¿Te gusta Zone Total Sport?</span>
+          <span lang="zh" hidden>❤️ 喜欢 Zone Total Sport 吗?</span>
+        </span>
+        <a href="../wix/donation.html" style="font-family:'Bangers',cursive;background:#FFD700;color:#333;padding:10px 24px;border-radius:999px;font-size:1.1rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2)" data-i18n>
+          <span lang="fr">💛 Faire un don</span>
+          <span lang="en" hidden>💛 Donate</span>
+          <span lang="es" hidden>💛 Donar</span>
+          <span lang="zh" hidden>💛 捐赠</span>
+        </a>
       </div>
 
       <div class="article-body">
+
         <h2>Un sport hybride innovant</h2>
-        <p>Le FooBaSKILL est une activité sportive originale qui allie le football et le basketball. C&#x27;est un jeu qui combine deux sports populaires: le futsal et le basketball. Contrairement à d&#x27;autres sport, les règles de ce jeu sont conçues pour favoriser le développement moteur et cognitif global des joueurs, tout en encourageant la participation active de tous les enfants et jeunes.</p>
-<p>C&#x27;est un jeu hybride innovant  qui a été développé en 2017 par trois professeurs d’éducation physique suisses, ce jeu vise à améliorer les compétences motrices et tactiques-mentales des enfants en favorisant le développement de la coordination, la réflexion, les bons réflexes pour le football et le basketball, la coopération et la créativité.</p>
-<p>Ce jeu peut être pratiqué à l&#x27;école, dans les clubs ou en plein air. L&#x27;originalité du FooBaSKILL ne réside pas seulement dans sa fusion de deux sports, mais également dans son cadre de jeu qui vise à développer de manière complète les capacités des participants. Les joueurs peuvent marquer des points dans chaque moitié de terrain consacrée à une pratique sportive, en utilisant différentes méthodes que le simple tir au but ou panier. Cette caractéristique encourage la participation des élèves qui ne sont pas fans du football et/ou qui se sentent mis à l&#x27;écart de la classe. En passant la ligne médiane du terrain, les joueurs doivent immédiatement s&#x27;adapter aux nouvelles conditions, ce qui renforce leur capacité tactico-mentale et leur coordination.Il se pratique avec un ballon de football dans un terrain de basket-ball avec deux paniers situés à chaque extrémité. Le but du jeu est donc de marquer des points en faisant passer le ballon dans le panier adverse tout en évitant les défenseurs.</p>
+        <p>Le FooBaSKILL est une activité sportive originale qui allie le football et le basketball. C'est un jeu qui combine deux sports populaires: le futsal et le basketball. Contrairement à d'autres sport, les règles de ce jeu sont conçues pour favoriser le développement moteur et cognitif global des joueurs, tout en encourageant la participation active de tous les enfants et jeunes.</p>
+<p>C'est un jeu hybride innovant  qui a été développé en 2017 par trois professeurs d’éducation physique suisses, ce jeu vise à améliorer les compétences motrices et tactiques-mentales des enfants en favorisant le développement de la coordination, la réflexion, les bons réflexes pour le football et le basketball, la coopération et la créativité.</p>
+<p>Ce jeu peut être pratiqué à l'école, dans les clubs ou en plein air. L'originalité du FooBaSKILL ne réside pas seulement dans sa fusion de deux sports, mais également dans son cadre de jeu qui vise à développer de manière complète les capacités des participants. Les joueurs peuvent marquer des points dans chaque moitié de terrain consacrée à une pratique sportive, en utilisant différentes méthodes que le simple tir au but ou panier. Cette caractéristique encourage la participation des élèves qui ne sont pas fans du football et/ou qui se sentent mis à l'écart de la classe. En passant la ligne médiane du terrain, les joueurs doivent immédiatement s'adapter aux nouvelles conditions, ce qui renforce leur capacité tactico-mentale et leur coordination.Il se pratique avec un ballon de football dans un terrain de basket-ball avec deux paniers situés à chaque extrémité. Le but du jeu est donc de marquer des points en faisant passer le ballon dans le panier adverse tout en évitant les défenseurs.</p>
 <p>Dans cet article, nous allons explorer en détail les règles du FooBaSKILL ainsi que les compétences requises pour devenir un joueur accompli. Nous examinerons également les avantages de la pratique du FooBaSKILL pour la santé physique et mentale, ainsi que les stratégies et les tactiques que les joueurs peuvent utiliser pour améliorer leur jeu.</p>
-<p>Nous parlerons également d&#x27;éducatifs et de progression à utiliser en gymnase afin de pratiquer cette activité et d&#x27;en tirer le maximum de bénéfices.  Enfin, nous discuterons de l&#x27;importance de l&#x27;esprit d&#x27;équipe et de la coopération dans leFooBaSKILL, ainsi que des valeurs positives que cette activité sportive peut promouvoir.</p>
+<p>Nous parlerons également d'éducatifs et de progression à utiliser en gymnase afin de pratiquer cette activité et d'en tirer le maximum de bénéfices.  Enfin, nous discuterons de l'importance de l'esprit d'équipe et de la coopération dans leFooBaSKILL, ainsi que des valeurs positives que cette activité sportive peut promouvoir.</p>
 <p>Le FooBaSKILL est un jeu hybride combinant le football et le basketball. Il a été développé en 2017 par trois professeurs d’éducation physique suisses: Michal Lato, Piero Quaceci et Pascal Roserens  (https://conseils.casalsport.com/le-foobaskill-histoire-regles-et-materiel). Ils ont constaté que leurs élèves présentaient certains déficits dans leurs capacités motrices et tactiques-mentales et ont donc eu l’idée de créer un jeu autour de la coordination de l’enfant: le FooBaSKILL! Foo pour football, Ba pour basketball et SKILL pour habileté en anglais (https://conseils.casalsport.com/le-foobaskill-histoire-regles-et-materiel).</p>
 <p>Le but du FooBaSKILL est d’améliorer les compétences requises pour les jeux de ballons et de favoriser le développement et l’entraînement de la coordination, la réflexion, les bons réflexes pour le football et le basketball, la coopération et la créativité (https://conseils.casalsport.com/le-foobaskill-histoire-regles-et-materiel).</p>
-<p>C&#x27;est un jeu multidisciplinaire qui se joue à l’école, dans les clubs et/ou en plein air. Par exemple, il peut être facilement intégré dans des modules de coordination et multidisciplinaires pour rompre les routines habituelles dans les cours d’éducation physique et sportive ou dans des programmes de préparation physique généralisée pour les clubs (https://conseils.casalsport.com/le-foobaskill-histoire-regles-et-materiel).</p>
-<p>Lors de la première édition en 2015, l&#x27;idée de créer un jeu qui caractériserait le camp et sa principale préoccupation, développer les habiletés quotidiennes des jeunes, a surgi.</p>
-<p>Le jeu inventé est un mélange football et basket. Les manières de marquer des points ont été adaptées pour donner la possibilité à tous les participants aidant l&#x27;équipe à gagner, de travailler le bas et le haut du corps, mais aussi de travailler inconsciemment leurs capacités de rebond au basket et de marquer au football. Le Foobaskill devint le sport officiel de l&#x27;armée suisse à partir de janvier 2018 jusqu&#x27;à nos jours.</p>
-<p>Le 12 décembre 2017, l&#x27;Office fédéral du sport a publié un manuel pédagogique pour les professeurs et entraîneurs d&#x27;éducation physique. FooBaSKILL est devenu un sport officiel dans le système suisse d&#x27;éducation physique. Ce sport permet aux élèves d&#x27;offrir une expérience sportive unique afin de les aider à améliorer leur coordination. Le jeu est conçu pour favoriser un développement moteur et cognitif complet, tout en offrant une participation active à tous les enfants et jeunes.</p>
-<p>L&#x27;originalité du FooBaSKILL réside donc dans son cadre de jeu unique, favorisant l&#x27;adhésion des élèves n&#x27;appréciant pas spécialement le football et/ou qui se mettent en retrait de la classe. Les joueurs peuvent marquer des points autrement qu&#x27;en tirant au but ou au panier et ils contribuent ainsi au succès de leur équipe. De plus, le passage de la ligne médiane du terrain oblige les joueurs à s&#x27;adapter rapidement aux nouvelles conditions, ce qui sollicite fortement leur capacité tactico-mentale et leur capacité de coordination.</p>
-<img src="https://zonetotalsport.ca/logo-zts.png" alt="Ballon de football sur un terrain de gymnase" loading="lazy">
-
+<p>C'est un jeu multidisciplinaire qui se joue à l’école, dans les clubs et/ou en plein air. Par exemple, il peut être facilement intégré dans des modules de coordination et multidisciplinaires pour rompre les routines habituelles dans les cours d’éducation physique et sportive ou dans des programmes de préparation physique généralisée pour les clubs (https://conseils.casalsport.com/le-foobaskill-histoire-regles-et-materiel).</p>
+<p>Lors de la première édition en 2015, l'idée de créer un jeu qui caractériserait le camp et sa principale préoccupation, développer les habiletés quotidiennes des jeunes, a surgi.</p>
+<p>Le jeu inventé est un mélange football et basket. Les manières de marquer des points ont été adaptées pour donner la possibilité à tous les participants aidant l'équipe à gagner, de travailler le bas et le haut du corps, mais aussi de travailler inconsciemment leurs capacités de rebond au basket et de marquer au football. Le Foobaskill devint le sport officiel de l'armée suisse à partir de janvier 2018 jusqu'à nos jours.</p>
+<p>Le 12 décembre 2017, l'Office fédéral du sport a publié un manuel pédagogique pour les professeurs et entraîneurs d'éducation physique. FooBaSKILL est devenu un sport officiel dans le système suisse d'éducation physique. Ce sport permet aux élèves d'offrir une expérience sportive unique afin de les aider à améliorer leur coordination. Le jeu est conçu pour favoriser un développement moteur et cognitif complet, tout en offrant une participation active à tous les enfants et jeunes.</p>
+<p>L'originalité du FooBaSKILL réside donc dans son cadre de jeu unique, favorisant l'adhésion des élèves n'appréciant pas spécialement le football et/ou qui se mettent en retrait de la classe. Les joueurs peuvent marquer des points autrement qu'en tirant au but ou au panier et ils contribuent ainsi au succès de leur équipe. De plus, le passage de la ligne médiane du terrain oblige les joueurs à s'adapter rapidement aux nouvelles conditions, ce qui sollicite fortement leur capacité tactico-mentale et leur capacité de coordination.</p>
 
 <h2>Les bienfaits du FooBaSKILL</h2>
-<p>Le FooBaSKILL a été conçu initialement pour les cours d&#x27;éducation physique, mais il trouve également une place légitime dans les clubs sportifs. Les règles édictées permettent l&#x27;acquisition de certains aspects tactiques, qui sont à même d&#x27;être transférés facilement dans d&#x27;autres jeux d&#x27;équipe. Elles sont également source d&#x27;enrichissement, car la possibilité de marquer sur deux buts de football ouvre la voie à de nouvelles stratégies d&#x27;attaque et de défense, et l&#x27;autorisation de jouer avec les parois de la salle promeut la créativité.</p>
+<p>Le FooBaSKILL a été conçu initialement pour les cours d'éducation physique, mais il trouve également une place légitime dans les clubs sportifs. Les règles édictées permettent l'acquisition de certains aspects tactiques, qui sont à même d'être transférés facilement dans d'autres jeux d'équipe. Elles sont également source d'enrichissement, car la possibilité de marquer sur deux buts de football ouvre la voie à de nouvelles stratégies d'attaque et de défense, et l'autorisation de jouer avec les parois de la salle promeut la créativité.</p>
 <p>Le FooBaSKILL améliore les compétences physiques et cognitives des différents jeux de balle en sollicitant simultanément le bas et le haut du corps. Il favorise un développement moteur complet, en sollicitant les cinq qualités de coordination, à savoir:</p>
-<p>l&#x27;orientation</p>
+<p>l'orientation</p>
 <p>le rythme</p>
 <p>la différenciation</p>
 <p>la réaction</p>
-<p>l&#x27;équilibre.</p>
+<p>l'équilibre.</p>
 <p>Grâce à ses règles spécifiques, le FooBaSKILL offre la possibilité aux enfants et aux jeunes de développer de manière inconsciente les aptitudes et les automatismes des footballeurs.</p>
-<p>Le FooBaSKILL est un jeu complet qui peut être adapté en fonction des capacités de certains élèves, de la classe dans sa globalité, de la compétence qu&#x27;on souhaite développer ou encore du matériel à disposition. Il est donc taillé pour chaque élève.</p>
-<p>Trois leçons sont proposées pour une introduction progressive de ce jeu, afin que les élèves se familiarisent d&#x27;abord avec le FooSKILL, puis le BaSKILL, avant de découvrir la forme finale. Les nombreux conseils et les vidéos garantissent leur succès.</p>
-<p>En somme, le FooBaSKILL est un jeu innovant afin de développer la coordination et les compétences physiques et cognitives des enfants tout en leur offrant une expérience sportive unique. Il est taillé pour chaque élève, quelles que soient ses capacités et ses aptitudes, et peut être facilement adapté aux besoins de chaque classe ou groupe d&#x27;enfants. C&#x27;est un jeu à essayer pour tous les amateurs de sport, qu&#x27;ils soient débutants ou confirmés.</p>
-<img src="https://zonetotalsport.ca/logo-zts.png" alt="Panier de basketball dans un gymnase d'école primaire" loading="lazy">
-
+<p>Le FooBaSKILL est un jeu complet qui peut être adapté en fonction des capacités de certains élèves, de la classe dans sa globalité, de la compétence qu'on souhaite développer ou encore du matériel à disposition. Il est donc taillé pour chaque élève.</p>
+<p>Trois leçons sont proposées pour une introduction progressive de ce jeu, afin que les élèves se familiarisent d'abord avec le FooSKILL, puis le BaSKILL, avant de découvrir la forme finale. Les nombreux conseils et les vidéos garantissent leur succès.</p>
+<p>En somme, le FooBaSKILL est un jeu innovant afin de développer la coordination et les compétences physiques et cognitives des enfants tout en leur offrant une expérience sportive unique. Il est taillé pour chaque élève, quelles que soient ses capacités et ses aptitudes, et peut être facilement adapté aux besoins de chaque classe ou groupe d'enfants. C'est un jeu à essayer pour tous les amateurs de sport, qu'ils soient débutants ou confirmés.</p>
 
 <h2>Les règles du jeu</h2>
 <p>Le FooBaSKILL est un sport collectif qui mélange deux sports populaires: le football et le basketball. Il se pratique avec un ballon révolutionnaire adapté pour ces deux disciplines (https://conseils.casalsport.com/le-foobaskill-histoire-regles-et-materiel). Les règles de base sont sensiblement identiques à celles du football et du basketball (https://foobaskill.fr/les-regles/).</p>
@@ -376,34 +339,32 @@
 <p>•	Durant la 1er et 3ème quart-temps, une équipe attaque les buts de football et</p>
 <p>défend le panier de basketball. Puis en 2ème et 4ème quart-temps, les équipes</p>
 <p>inversent les rôles.</p>
-<p>Dans ce jeu, la moitié du terrain est équipée de deux buts de FooBaSKILL posés sur le sol et d’un cône (FooSKILL) et les joueurs peuvent marquer par l’avant ou par l’arrière du SKILLGoal. Un arc de cercle délimite chaque but et ni le défenseur, ni l’attaquant n&#x27;ont le droit de pénétrer dans cette zone. Dans l’autre moitié du terrain, il y a un panier de basketball (BaSKILL) et la ligne médiane doit être visible par une ligne ou des pastilles posées sur le sol. En fonction de l’organisation du cours et du nombre de joueurs, l’enseignant choisit une des deux options ci-dessous pour la mise en place des joueurs sur le terrain:</p>
+<p>Dans ce jeu, la moitié du terrain est équipée de deux buts de FooBaSKILL posés sur le sol et d’un cône (FooSKILL) et les joueurs peuvent marquer par l’avant ou par l’arrière du SKILLGoal. Un arc de cercle délimite chaque but et ni le défenseur, ni l’attaquant n'ont le droit de pénétrer dans cette zone. Dans l’autre moitié du terrain, il y a un panier de basketball (BaSKILL) et la ligne médiane doit être visible par une ligne ou des pastilles posées sur le sol. En fonction de l’organisation du cours et du nombre de joueurs, l’enseignant choisit une des deux options ci-dessous pour la mise en place des joueurs sur le terrain:</p>
 <p>Utilisation des murs: Deux équipes de 4-5 joueurs s’affrontent en utilisant les murs de fond et latéraux qui font partie intégrante du terrain de jeu. Les joueurs peuvent utiliser ces derniers pour faire rebondir le ballon.</p>
 <p>Joueurs d’appui: Deux équipes de 8 joueurs s’affrontent, dont 4 joueurs se positionnent dans le terrain et 4 joueurs sur les côtés en zone d’attaque (joueurs d’appuis). Les joueurs d’appui servent d’appuis à leurs coéquipiers (rôle de passeurs et /ou de tireurs). Les joueurs d’appui se déplacent dans leur couloir sans que personne ne puisse y pénétrer. Ils peuvent garder le ballon maximum 3 secondes au pied (côté FooSKILL) ou maximum 3 secondes en main (côté BaSKILL).</p>
-<img src="https://zonetotalsport.ca/logo-zts.png" alt="Enfants pratiquant un sport multidisciplinaire en gymnase" loading="lazy">
-
 
 <h2>Le système de pointage</h2>
 <p>L’attribution des points pour le BaSKILL est identique à celle du jeu officiel, mais elle diffère en revanche pour le FooSKILL.</p>
-<p>Le FooBaSKILL est un jeu qui combine les aspects du football et du basketball, où les joueurs alternent entre les deux disciplines à la ligne médiane du terrain de jeu. Les règles de base sont sensiblement identiques à celles du football et du basketball, avec l&#x27;application de règles telles que le marcher et le double dribble. Le terrain de jeu est divisé en deux, avec une moitié équipée de deux buts de FooBaSKILL posés sur le sol et d&#x27;un cône (FooSKILL) et l&#x27;autre moitié équipée d&#x27;un panier de basketball (BaSKILL). Le match dure 2 x 5 minutes, avec une équipe attaquant les buts de FooBaSKILL et défendant le panier de basketball en première mi-temps, et les équipes inversant les rôles en deuxième mi-temps. L&#x27;engagement du début de match et de la mi-temps se fait au milieu de terrain par un entre-deux. Les fautes sont sanctionnées par des pénalités et le jeu continue à l&#x27;endroit où la faute a été commise.</p>
-<p>Il existe deux options pour la mise en place des joueurs sur le terrain : l&#x27;option 1 &quot;utilisation des murs&quot; où deux équipes de 4-5 joueurs s&#x27;affrontent, avec les murs de fond et latéraux faisant partie intégrante du terrain de jeu, ou l&#x27;option 2 &quot;joueurs d&#x27;appuis&quot; où deux équipes de 8 joueurs s&#x27;affrontent, avec 4 joueurs se positionnant dans le terrain et 4 joueurs sur les côtés en zone d&#x27;attaque (joueurs d&#x27;appuis) servant d&#x27;appuis à leurs coéquipiers (rôle de passeurs et/ou de tireurs). Les joueurs d&#x27;appuis se déplacent dans leur couloir sans que personne ne puisse y pénétrer et peuvent garder le ballon maximum 3 secondes au pied (côté FooSKILL) ou maximum 3 secondes en main (côté BaSKILL).</p>
-<p>En cas d&#x27;erreur lors de l&#x27;exécution de certaines règles, comme le ballon dépassant la hauteur des buts ou du cône, une faute est commise. Les tacles et les contacts physiques inappropriés sont également sanctionnés par une pénalité, tout comme lorsque le ballon touche le plafond et tous types d&#x27;engins suspendus ou rebondit sur le rebord de la planche de basketball, sur l&#x27;arrière de la planche, ainsi que sur la structure métallique supportant le panier de basketball.</p>
-<p>En conclusion, le FooBaSKILL est une activité sportive originale qui offre de nombreux avantages aux élèves du primaire. En combinant le football et le basketball, ce jeu hybride innovant permet de développer de manière complète les compétences motrices, cognitives, tactiques et sociales des enfants. Les règles du jeu favorisent la participation active de tous les joueurs, quelle que soit leur affinité pour le football ou le basketball, et encouragent la coopération et la créativité. La pratique régulière du FooBaSKILL peut contribuer à améliorer la santé physique et mentale des élèves, tout en renforçant leur esprit d&#x27;équipe et leur sens de la coopération. Avec des éducatifs et des progressions adaptées, le FooBaSKILL peut être intégré de manière efficace dans les cours d&#x27;éducation physique et sportive des écoles primaires, offrant ainsi une activité ludique et stimulante pour les enfants. En somme, le FooBaSKILL est une excellente option pour les élèves du primaire à la recherche d&#x27;une activité sportive divertissante, éducative et bénéfique pour leur développement physique et mental.</p>
+<p>Le FooBaSKILL est un jeu qui combine les aspects du football et du basketball, où les joueurs alternent entre les deux disciplines à la ligne médiane du terrain de jeu. Les règles de base sont sensiblement identiques à celles du football et du basketball, avec l'application de règles telles que le marcher et le double dribble. Le terrain de jeu est divisé en deux, avec une moitié équipée de deux buts de FooBaSKILL posés sur le sol et d'un cône (FooSKILL) et l'autre moitié équipée d'un panier de basketball (BaSKILL). Le match dure 2 x 5 minutes, avec une équipe attaquant les buts de FooBaSKILL et défendant le panier de basketball en première mi-temps, et les équipes inversant les rôles en deuxième mi-temps. L'engagement du début de match et de la mi-temps se fait au milieu de terrain par un entre-deux. Les fautes sont sanctionnées par des pénalités et le jeu continue à l'endroit où la faute a été commise.</p>
+<p>Il existe deux options pour la mise en place des joueurs sur le terrain : l'option 1 "utilisation des murs" où deux équipes de 4-5 joueurs s'affrontent, avec les murs de fond et latéraux faisant partie intégrante du terrain de jeu, ou l'option 2 "joueurs d'appuis" où deux équipes de 8 joueurs s'affrontent, avec 4 joueurs se positionnant dans le terrain et 4 joueurs sur les côtés en zone d'attaque (joueurs d'appuis) servant d'appuis à leurs coéquipiers (rôle de passeurs et/ou de tireurs). Les joueurs d'appuis se déplacent dans leur couloir sans que personne ne puisse y pénétrer et peuvent garder le ballon maximum 3 secondes au pied (côté FooSKILL) ou maximum 3 secondes en main (côté BaSKILL).</p>
+<p>En cas d'erreur lors de l'exécution de certaines règles, comme le ballon dépassant la hauteur des buts ou du cône, une faute est commise. Les tacles et les contacts physiques inappropriés sont également sanctionnés par une pénalité, tout comme lorsque le ballon touche le plafond et tous types d'engins suspendus ou rebondit sur le rebord de la planche de basketball, sur l'arrière de la planche, ainsi que sur la structure métallique supportant le panier de basketball.</p>
+<p>En conclusion, le FooBaSKILL est une activité sportive originale qui offre de nombreux avantages aux élèves du primaire. En combinant le football et le basketball, ce jeu hybride innovant permet de développer de manière complète les compétences motrices, cognitives, tactiques et sociales des enfants. Les règles du jeu favorisent la participation active de tous les joueurs, quelle que soit leur affinité pour le football ou le basketball, et encouragent la coopération et la créativité. La pratique régulière du FooBaSKILL peut contribuer à améliorer la santé physique et mentale des élèves, tout en renforçant leur esprit d'équipe et leur sens de la coopération. Avec des éducatifs et des progressions adaptées, le FooBaSKILL peut être intégré de manière efficace dans les cours d'éducation physique et sportive des écoles primaires, offrant ainsi une activité ludique et stimulante pour les enfants. En somme, le FooBaSKILL est une excellente option pour les élèves du primaire à la recherche d'une activité sportive divertissante, éducative et bénéfique pour leur développement physique et mental.</p>
 <p>Pour télécharger les images de cet article, cliquez sur le lien suivant :</p>
-<p>En terminant, Je désire offrir ce site ainsi qu&#x27;un accès total à tout ce qui a été créé jusqu&#x27;ici en les téléchargeant totalement gratuitement. Mon objectif premier est d&#x27;aider les autres en partageant mon expérience enrichie à quiconque qui le désire. Cependant gardez en tête que créer, héberger, partager exige du temps et de l&#x27;argent.</p>
-<p>Dans cette optique, vous pouvez m&#x27;aider de 2 façons différentes: soit en partageant tout ce qui a été créé à quiconque en vous abonnant à ma liste de diffusion et l&#x27;autre façon de m&#x27;aider est de me faire un don.</p>
-<p>Les dons sont importants pour soutenir le fonctionnement et la croissance de ce site, qui vise à fournir des articles, des documents et des images de qualité à ses utilisateurs gratuitement.  En faisant un don, vous soutenez une communauté de personnes qui cherchent à partager et à accéder à des connaissances gratuitement. Les dons sont également un moyen de montrer votre engagement envers la diffusion de la connaissance et la poursuite du développement de ce site. Alors, si vous appréciez ce que vous trouvez ici, n&#x27;hésitez pas à faire un don pour soutenir l&#x27;avenir de ce site.</p>
+<p>En terminant, Je désire offrir ce site ainsi qu'un accès total à tout ce qui a été créé jusqu'ici en les téléchargeant totalement gratuitement. Mon objectif premier est d'aider les autres en partageant mon expérience enrichie à quiconque qui le désire. Cependant gardez en tête que créer, héberger, partager exige du temps et de l'argent.</p>
+<p>Dans cette optique, vous pouvez m'aider de 2 façons différentes: soit en partageant tout ce qui a été créé à quiconque en vous abonnant à ma liste de diffusion et l'autre façon de m'aider est de me faire un don.</p>
+<p>Les dons sont importants pour soutenir le fonctionnement et la croissance de ce site, qui vise à fournir des articles, des documents et des images de qualité à ses utilisateurs gratuitement.  En faisant un don, vous soutenez une communauté de personnes qui cherchent à partager et à accéder à des connaissances gratuitement. Les dons sont également un moyen de montrer votre engagement envers la diffusion de la connaissance et la poursuite du développement de ce site. Alors, si vous appréciez ce que vous trouvez ici, n'hésitez pas à faire un don pour soutenir l'avenir de ce site.</p>
 <p>Merci et au plaisir de vous revoir sur zonetotalsport.ca</p>
 <ul>
 <li>14 avr. 2023</li>
 <li>9 min de lecture</li>
 </ul>
 <ul>
-<li>Le FooBaSKILL a été conçu initialement pour les cours d&#x27;éducation physique, mais il trouve également une place légitime dans les clubs sportifs. Les règles édictées permettent l&#x27;acquisition de certains aspects tactiques, qui sont à même d&#x27;être transférés facilement dans d&#x27;autres jeux d&#x27;équipe. Elles sont également source d&#x27;enrichissement, car la possibilité de marquer sur deux buts de football ouvre la voie à de nouvelles stratégies d&#x27;attaque et de défense, et l&#x27;autorisation de jouer avec les parois de la salle promeut la créativité.</li>
-<li>Le FooBaSKILL améliore les compétences physiques et cognitives des différents jeux de balle en sollicitant simultanément le bas et le haut du corps. Il favorise un développement moteur complet, en sollicitant les cinq qualités de coordination, à savoir:l&#x27;orientation</li>
+<li>Le FooBaSKILL a été conçu initialement pour les cours d'éducation physique, mais il trouve également une place légitime dans les clubs sportifs. Les règles édictées permettent l'acquisition de certains aspects tactiques, qui sont à même d'être transférés facilement dans d'autres jeux d'équipe. Elles sont également source d'enrichissement, car la possibilité de marquer sur deux buts de football ouvre la voie à de nouvelles stratégies d'attaque et de défense, et l'autorisation de jouer avec les parois de la salle promeut la créativité.</li>
+<li>Le FooBaSKILL améliore les compétences physiques et cognitives des différents jeux de balle en sollicitant simultanément le bas et le haut du corps. Il favorise un développement moteur complet, en sollicitant les cinq qualités de coordination, à savoir:l'orientation</li>
 <li>le rythme</li>
 <li>la différenciation</li>
 <li>la réaction</li>
-<li>l&#x27;équilibre.</li>
+<li>l'équilibre.</li>
 </ul>
 <ul>
 <li>Utilisation des murs: Deux équipes de 4-5 joueurs s’affrontent en utilisant les murs de fond et latéraux qui font partie intégrante du terrain de jeu. Les joueurs peuvent utiliser ces derniers pour faire rebondir le ballon.</li>
@@ -414,7 +375,7 @@
 <li>activité physique</li>
 <li>communication</li>
 <li>Sports collectifs</li>
-<li>sport d&#x27;équipe</li>
+<li>sport d'équipe</li>
 <li>Stratégie</li>
 <li>Psychologie du sport</li>
 <li>Analyse de jeu</li>
@@ -440,10 +401,10 @@
       </div>
     </div>
 
-    <!-- Keywords / Tags -->
     <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 border border-gray-100">
       <h3 class="font-fredoka text-sm text-dark/50 uppercase tracking-widest mb-4">
-        <i data-lucide="tag" class="w-4 h-4 inline"></i> Mots-cles
+        <i data-lucide="tag" class="w-4 h-4 inline"></i>
+        <span data-i18n><span lang="fr">Mots-clés</span><span lang="en" hidden>Keywords</span><span lang="es" hidden>Palabras clave</span><span lang="zh" hidden>关键词</span></span>
       </h3>
       <div class="flex flex-wrap gap-2">
         <span class="tag-pill">éducation physique</span>
@@ -453,149 +414,162 @@
         <span class="tag-pill">sport d&#x27;équipe</span>
         <span class="tag-pill">Stratégie</span>
         <span class="tag-pill">Psychologie du sport</span>
-        <span class="tag-pill">Analyse de jeu</span>
-        <span class="tag-pill">Compréhension du jeu</span>
-        <span class="tag-pill">Mouvement sans ballon</span>
-        <span class="tag-pill">Intuition</span>
-        <span class="tag-pill">Marquage</span>
-        <span class="tag-pill">Positionnement</span>
-        <span class="tag-pill">Démarquage</span>
-        <span class="tag-pill">Attaque</span>
-        <span class="tag-pill">Défense</span>
-        <span class="tag-pill">Éducatifs</span>
-        <span class="tag-pill">Agilité</span>
-        <span class="tag-pill">Passe</span>
-        <span class="tag-pill">Tir</span>
-        <span class="tag-pill">Dribble</span>
-        <span class="tag-pill">Foobaskill</span>
-        <span class="tag-pill">Bienfaits du sport</span>
-        <span class="tag-pill">Les sports collectifs</span>
       </div>
     </div>
 
-    <!-- Share Section -->
     <div class="bg-white rounded-2xl shadow-md p-6 md:p-8 mb-8 border border-gray-100">
       <h3 class="font-fredoka text-sm text-dark/50 uppercase tracking-widest mb-4">
-        <i data-lucide="share-2" class="w-4 h-4 inline"></i> Partager cet article
+        <i data-lucide="share-2" class="w-4 h-4 inline"></i>
+        <span data-i18n><span lang="fr">Partager cet article</span><span lang="en" hidden>Share this article</span><span lang="es" hidden>Compartir este artículo</span><span lang="zh" hidden>分享这篇文章</span></span>
       </h3>
       <div class="flex flex-wrap gap-3">
         <button onclick="copyLink()" class="share-btn bg-dark text-white border-dark hover:bg-cyan-electric hover:text-dark hover:border-cyan-electric">
-          <i data-lucide="link" class="w-4 h-4"></i> Copier le lien
+          <i data-lucide="link" class="w-4 h-4"></i>
+          <span data-i18n><span lang="fr">Copier le lien</span><span lang="en" hidden>Copy link</span><span lang="es" hidden>Copiar enlace</span><span lang="zh" hidden>复制链接</span></span>
         </button>
         <a href="https://www.facebook.com/sharer/sharer.php?u=https://zonetotalsport.ca/articles/foobaskill.html" target="_blank" rel="noopener" class="share-btn bg-[#1877F2] text-white border-[#1877F2] hover:opacity-90">
           <i data-lucide="facebook" class="w-4 h-4"></i> Facebook
         </a>
-        <a href="https://twitter.com/intent/tweet?url=https://zonetotalsport.ca/articles/foobaskill.html&text=Le%20FooBaSKILL%20%3A%20un%20jeu%20innovant%20pour%20le%20d%C3%A9veloppement%20moteur%20et%20cognitif%20des%20enfants" target="_blank" rel="noopener" class="share-btn bg-dark text-white border-dark hover:bg-dark/80">
+        <a href="https://twitter.com/intent/tweet?url=https://zonetotalsport.ca/articles/foobaskill.html" target="_blank" rel="noopener" class="share-btn bg-dark text-white border-dark hover:bg-dark/80">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> X
         </a>
-        <a href="mailto:?subject=Le%20FooBaSKILL%20%3A%20un%20jeu%20innovant%20pour%20le%20d%C3%A9veloppement%20moteur%20et%20cognitif%20des%20enfants&body=Decouvrez cet article : https://zonetotalsport.ca/articles/foobaskill.html" class="share-btn bg-violet-pop text-white border-violet-pop hover:opacity-90">
-          <i data-lucide="mail" class="w-4 h-4"></i> Courriel
+        <a href="mailto:?subject=Foobaskill : un sport hybride innovant pour le gymnase&body=https://zonetotalsport.ca/articles/foobaskill.html" class="share-btn bg-violet-pop text-white border-violet-pop hover:opacity-90">
+          <i data-lucide="mail" class="w-4 h-4"></i>
+          <span data-i18n><span lang="fr">Courriel</span><span lang="en" hidden>Email</span><span lang="es" hidden>Correo</span><span lang="zh" hidden>电邮</span></span>
+        </a>
+        <a href="https://wa.me/?text=https://zonetotalsport.ca/articles/foobaskill.html" target="_blank" rel="noopener" class="share-btn" style="background:#25D366;color:#fff;border-color:#25D366">
+          <span>📱</span> WhatsApp
         </a>
       </div>
     </div>
 
+    <div class="text-center mb-8">
+      <button onclick="likeArticle(this)" class="like-btn" style="font-family:'Bangers',cursive;font-size:1.5rem;background:none;border:3px solid #FF2A7A;color:#FF2A7A;padding:12px 32px;border-radius:999px;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px">
+        <span class="like-heart">🤍</span>
+        <span data-i18n><span lang="fr">J'aime cet article</span><span lang="en" hidden>I like this article</span><span lang="es" hidden>Me gusta este artículo</span><span lang="zh" hidden>我喜欢这篇文章</span></span>
+        <span class="like-count" style="background:#FF2A7A;color:#fff;padding:2px 10px;border-radius:999px;font-size:1rem">0</span>
+      </button>
+    </div>
 
-      <!-- WhatsApp + Copy Link -->
-      <div class="flex flex-wrap gap-3 mb-8">
-        <a href="https://wa.me/?text=https://zonetotalsport.ca/articles/foobaskill.html" target="_blank" rel="noopener" class="share-btn" style="background:#25D366;color:#fff;border-color:#25D366">
-          <span>📱</span> WhatsApp
-        </a>
-        <button onclick="navigator.clipboard.writeText(window.location.href);this.textContent='\u2705 Copi\u00e9!';setTimeout(()=>this.textContent='\U0001F517 Copier le lien',2000)" class="share-btn" style="background:#6B7280;color:#fff;border-color:#6B7280;cursor:pointer">
-          🔗 Copier le lien
+    <div style="background:rgba(255,255,255,0.95);border-radius:20px;padding:24px;border:2px solid #e5e7eb;margin-bottom:24px">
+      <h3 style="font-family:'Bangers',cursive;font-size:1.8rem;color:#0F0F2E;margin:0 0 16px" data-i18n>
+        <span lang="fr">💬 Commentaires</span>
+        <span lang="en" hidden>💬 Comments</span>
+        <span lang="es" hidden>💬 Comentarios</span>
+        <span lang="zh" hidden>💬 评论</span>
+      </h3>
+      <div id="comments-list" style="margin-bottom:16px"></div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input type="text" id="comment-name"
+               placeholder="Ton prénom..."
+               data-fr="Ton prénom..." data-en="Your first name..." data-es="Tu nombre..." data-zh="你的名字..."
+               style="font-family:'Schoolbell',cursive;padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none"
+               onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'">
+        <textarea id="comment-text" rows="3"
+                  placeholder="Écris ton commentaire..."
+                  data-fr="Écris ton commentaire..." data-en="Write your comment..." data-es="Escribe tu comentario..." data-zh="写下你的评论..."
+                  style="font-family:'Schoolbell',cursive;padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none;resize:vertical"
+                  onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+        <button onclick="postComment()" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;padding:12px 24px;border:none;border-radius:999px;font-size:1.2rem;cursor:pointer;align-self:flex-start;transition:all 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+          <span data-i18n><span lang="fr">📤 Publier</span><span lang="en" hidden>📤 Post</span><span lang="es" hidden>📤 Publicar</span><span lang="zh" hidden>📤 发布</span></span>
         </button>
       </div>
+    </div>
 
-      <!-- Like Button -->
-      <div class="text-center mb-8">
-        <button onclick="likeArticle(this)" class="like-btn" style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;background:none;border:3px solid #FF2A7A;color:#FF2A7A;padding:12px 32px;border-radius:999px;cursor:pointer;transition:all 0.3s;display:inline-flex;align-items:center;gap:8px">
-          <span class="like-heart">🤍</span> <span>J'aime cet article</span> <span class="like-count" style="background:#FF2A7A;color:#fff;padding:2px 10px;border-radius:999px;font-size:1rem">0</span>
-        </button>
-      </div>
-
-      <!-- Comments Section -->
-      <div style="background:rgba(255,255,255,0.9);border-radius:20px;padding:24px;border:2px solid #e5e7eb;margin-bottom:24px">
-        <h3 style="font-family:'Luckiest Guy',cursive;font-size:1.8rem;color:#0F0F2E;margin:0 0 16px">💬 Commentaires</h3>
-        <div id="comments-list" style="margin-bottom:16px"></div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <input type="text" id="comment-name" placeholder="Ton pr\u00e9nom..." style="font-family:'Schoolbell',cursive;padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none" onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'">
-          <textarea id="comment-text" placeholder="\u00c9cris ton commentaire..." rows="3" style="font-family:'Schoolbell',cursive;padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none;resize:vertical" onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
-          <button onclick="postComment()" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;padding:12px 24px;border:none;border-radius:999px;font-size:1.2rem;cursor:pointer;align-self:flex-start;transition:all 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">📤 Publier</button>
-        </div>
-      </div>
-
-    <!-- Back to Blog CTA -->
     <div class="text-center py-8 mb-8">
       <a href="../blog.html" class="inline-flex items-center gap-3 bg-dark text-white font-fredoka text-lg px-8 py-4 rounded-full hover:bg-cyan-electric hover:text-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
-        <i data-lucide="arrow-left" class="w-5 h-5"></i> Retour au blog
+        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        <span data-i18n><span lang="fr">Retour au blog</span><span lang="en" hidden>Back to blog</span><span lang="es" hidden>Volver al blog</span><span lang="zh" hidden>返回博客</span></span>
       </a>
     </div>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-yellow-sun py-16 px-6 md:px-10">
-    <div class="max-w-7xl mx-auto">
-      <div class="grid md:grid-cols-4 gap-10 mb-12">
-        <div class="md:col-span-2">
-          <img src="../logo-zts.png" alt="Zone Total Sport" class="h-14 w-auto mb-4">
-          <p class="text-dark/60 font-baloo text-sm max-w-sm mb-6">
-            La plateforme gratuite de ressources en education physique pour les enseignants du primaire au Quebec.
-          </p>
-          <div class="flex gap-3">
-            <a href="https://www.facebook.com/zonetotalsportparMr.Roots/" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
-              <i data-lucide="facebook" class="w-5 h-5"></i>
-            </a>
-            <a href="https://www.instagram.com/zonetotalsportparmrroots/" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
-              <i data-lucide="instagram" class="w-5 h-5"></i>
-            </a>
-            <a href="https://www.youtube.com/@zonetotalsportparMrRoots" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
-              <i data-lucide="youtube" class="w-5 h-5"></i>
-            </a>
-            <a href="https://www.tiktok.com/@zonetotalsport" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.19a8.16 8.16 0 004.76 1.53v-3.45a4.85 4.85 0 01-1-.58z"/></svg>
-            </a>
-          </div>
-        </div>
-        <div>
-          <h4 class="font-bangers text-sm text-dark/50 uppercase tracking-widest mb-4">Navigation</h4>
-          <ul class="space-y-2">
-            <li><a href="https://zonetotalsport.ca/" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors">Accueil</a></li>
-            <li><a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fjeux.zonetotalsport.ca" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors">Banque de jeux</a></li>
-            <li><a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fsae.zonetotalsport.ca" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors">SAE</a></li>
-            <li><a href="../blog.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors">Blogue</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-bangers text-sm text-dark/50 uppercase tracking-widest mb-4">Infos</h4>
-          <ul class="space-y-2">
-            <li><a href="/politique.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors">Politique de confidentialite</a></li>
-            <li><a href="../wix/donation.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors">Faire un don</a></li>
-            <li><a href="../avis.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors">Laisser un avis</a></li>
-          </ul>
-        </div>
+  <!-- ZTS SIDEBAR REFONTE -->
+<section class="zts-new-aside-section">
+  <div class="zts-new-aside-inner">
+    <div class="zts-new-tools">
+      <h3 class="zts-new-tools-title">ESPACE OUTILS</h3>
+      <p class="zts-new-tools-sub">Téléchargez nos ressources prêtes à l'emploi pour vos cours.</p>
+      <div class="zts-new-tools-grid">
+        <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Feducatifs.zonetotalsport.ca" class="zts-new-tool-link">
+          <div class="zts-new-tool-icon"><i data-lucide="calendar"></i></div>
+          <span>Plan annuel</span>
+        </a>
+        <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fjeux.zonetotalsport.ca" class="zts-new-tool-link">
+          <div class="zts-new-tool-icon"><i data-lucide="trophy"></i></div>
+          <span>Recueil de jeux</span>
+        </a>
+        <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fsae.zonetotalsport.ca" class="zts-new-tool-link">
+          <div class="zts-new-tool-icon"><i data-lucide="clipboard-check"></i></div>
+          <span>SAÉ & grilles</span>
+        </a>
       </div>
-      <div class="border-t border-dark/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p class="text-dark/40 font-baloo text-sm">&copy; 2026 Zone Total Sport. Tous droits reserves.</p>
-        <p class="text-dark/40 font-baloo text-sm">Fait avec &#x1F49B; au Quebec</p>
-      </div>
+      <a href="https://zonetotalsport.ca/" class="zts-new-tools-cta">TOUT VOIR !</a>
     </div>
-  </footer>
-
-  <!-- Sub-footer -->
-  <div class="bg-dark py-4 px-6 flex flex-col md:flex-row items-center justify-between gap-3">
-    <p class="text-white/30 font-baloo text-xs">zonetotalsport.ca — Ressources EPS pour enseignants au primaire</p>
+    <div class="zts-new-blog-cta">
+      <h3 class="zts-new-tools-title">PLUS D'ARTICLES</h3>
+      <p class="zts-new-tools-sub">Découvre tous les articles du blogue EPS.</p>
+      <a href="../blog.html" class="zts-new-blog-cta-btn">Voir le blog <i data-lucide="arrow-right"></i></a>
+    </div>
   </div>
+</section>
+<!-- /ZTS SIDEBAR REFONTE -->
 
-  <!-- Copy Toast -->
-  <div class="copy-toast" id="copyToast">
-    <i data-lucide="check" class="w-4 h-4 inline"></i> Lien copie!
+<!-- ZTS FOOTER REFONTE -->
+<footer class="zts-new-footer">
+  <div class="zts-new-footer-inner">
+    <h2 class="zts-new-footer-logo">ZONE <span class="zts-yellow">TOTAL</span> SPORT</h2>
+    <nav class="zts-new-footer-nav">
+      <a href="https://zonetotalsport.ca/">Accueil</a>
+      <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Feducatifs.zonetotalsport.ca">Outils</a>
+      <a href="../blog.html" class="active">Blog</a>
+      <a href="../wix/donation.html">Dons</a>
+    </nav>
+    <div class="zts-new-footer-social">
+      <a href="https://www.facebook.com/profile.php?id=100090661918934" target="_blank" rel="noopener"><i data-lucide="facebook"></i></a>
+      <a href="https://www.instagram.com/zonetotalsport/" target="_blank" rel="noopener"><i data-lucide="instagram"></i></a>
+      <a href="https://zonetotalsport.ca/"><i data-lucide="globe"></i></a>
+    </div>
+    <p class="zts-new-footer-copy">© 2026 ZONE TOTAL SPORT • PASSIONNÉMENT PROFS</p>
   </div>
+</footer>
+<!-- /ZTS FOOTER REFONTE -->
 
   <script>
-    // Initialize Lucide icons
+    function setLang(l){
+      document.documentElement.lang = (l==='fr'?'fr-CA':l);
+      document.querySelectorAll('[data-i18n]').forEach(function(parent){
+        parent.querySelectorAll(':scope > [lang]').forEach(function(s){
+          s.hidden = (s.getAttribute('lang') !== l);
+        });
+      });
+      document.querySelectorAll('[data-fr]').forEach(function(el){
+        var v = el.getAttribute('data-' + l);
+        if (v === null) return;
+        var tag = el.tagName;
+        if ((tag === 'INPUT' || tag === 'TEXTAREA') && 'placeholder' in el) {
+          el.placeholder = v;
+        } else if (tag === 'IMG') {
+          el.alt = v;
+        } else {
+          el.textContent = v;
+        }
+      });
+      document.querySelectorAll('.lang-btn').forEach(function(b){
+        b.classList.toggle('active', b.dataset.lang === l);
+      });
+      try { localStorage.setItem('zts_lang', l); } catch(e){}
+    }
+    (function(){
+      var l = 'fr';
+      try { l = localStorage.getItem('zts_lang') || 'fr'; } catch(e){}
+      if (['fr','en','es','zh'].indexOf(l) === -1) l = 'fr';
+      setLang(l);
+    })();
+
     lucide.createIcons();
 
-    // Scroll progress bar
     window.addEventListener('scroll', function() {
       var scrollTop = window.scrollY;
       var docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -603,7 +577,6 @@
       document.getElementById('scrollProgress').style.transform = 'scaleX(' + progress + ')';
     });
 
-    // Copy link function
     function copyLink() {
       navigator.clipboard.writeText(window.location.href).then(function() {
         var toast = document.getElementById('copyToast');
@@ -613,73 +586,75 @@
     }
   </script>
 
-<script src="../telegram-notify.js"></script>
-<script>
-// Like functionality (localStorage)
-function likeArticle(btn) {
-  var slug = window.location.pathname.split('/').pop().replace('.html','');
-  var key = 'zts_like_' + slug;
-  var liked = localStorage.getItem(key);
-  if (liked) return;
-  localStorage.setItem(key, '1');
-  var heart = btn.querySelector('.like-heart');
-  var count = btn.querySelector('.like-count');
-  heart.textContent = '\u2764\uFE0F';
-  btn.style.background = '#FF2A7A';
-  btn.style.color = '#fff';
-  btn.style.borderColor = '#FF2A7A';
-  count.textContent = parseInt(count.textContent) + 1;
-}
-// Init like state
-(function(){
-  var slug = window.location.pathname.split('/').pop().replace('.html','');
-  var key = 'zts_like_' + slug;
-  if (localStorage.getItem(key)) {
-    var btn = document.querySelector('.like-btn');
-    if (btn) {
-      btn.querySelector('.like-heart').textContent = '\u2764\uFE0F';
+  <script src="../telegram-notify.js"></script>
+  <script>
+    function likeArticle(btn) {
+      var slug = window.location.pathname.split('/').pop().replace('.html','');
+      var key = 'zts_like_' + slug;
+      var liked = localStorage.getItem(key);
+      if (liked) return;
+      localStorage.setItem(key, '1');
+      var heart = btn.querySelector('.like-heart');
+      var count = btn.querySelector('.like-count');
+      heart.textContent = '❤️';
       btn.style.background = '#FF2A7A';
       btn.style.color = '#fff';
       btn.style.borderColor = '#FF2A7A';
+      count.textContent = parseInt(count.textContent) + 1;
     }
-  }
-})();
+    (function(){
+      var slug = window.location.pathname.split('/').pop().replace('.html','');
+      var key = 'zts_like_' + slug;
+      if (localStorage.getItem(key)) {
+        var btn = document.querySelector('.like-btn');
+        if (btn) {
+          btn.querySelector('.like-heart').textContent = '❤️';
+          btn.style.background = '#FF2A7A';
+          btn.style.color = '#fff';
+          btn.style.borderColor = '#FF2A7A';
+        }
+      }
+    })();
 
-// Comments (localStorage-based for simplicity)
-function postComment() {
-  var name = document.getElementById('comment-name').value.trim();
-  var text = document.getElementById('comment-text').value.trim();
-  if (!name || !text) return alert('Remplis ton pr\u00e9nom et ton commentaire!');
-  var slug = window.location.pathname.split('/').pop().replace('.html','');
-  var key = 'zts_comments_' + slug;
-  var comments = JSON.parse(localStorage.getItem(key) || '[]');
-  comments.push({name: name, text: text, date: new Date().toLocaleDateString('fr-CA')});
-  localStorage.setItem(key, JSON.stringify(comments));
-  document.getElementById('comment-name').value = '';
-  document.getElementById('comment-text').value = '';
-  renderComments();
-}
-function renderComments() {
-  var slug = window.location.pathname.split('/').pop().replace('.html','');
-  var key = 'zts_comments_' + slug;
-  var comments = JSON.parse(localStorage.getItem(key) || '[]');
-  var list = document.getElementById('comments-list');
-  if (!list) return;
-  if (comments.length === 0) {
-    list.innerHTML = '<p style="color:#999;font-family:Schoolbell,cursive;font-style:italic">Aucun commentaire encore. Sois le premier!</p>';
-    return;
-  }
-  list.innerHTML = comments.map(function(c) {
-    return '<div style="background:#f3f4f6;border-radius:12px;padding:12px 16px;margin-bottom:10px">' +
-      '<div style="font-family:Bangers,cursive;color:#0F0F2E;font-size:1.1rem">' + c.name + ' <span style="font-family:Schoolbell,cursive;color:#999;font-size:0.85rem">' + c.date + '</span></div>' +
-      '<p style="font-family:Schoolbell,cursive;color:#333;margin:4px 0 0;font-size:1.05rem">' + c.text + '</p></div>';
-  }).join('');
-}
-renderComments();
-</script>
+    function postComment() {
+      var name = document.getElementById('comment-name').value.trim();
+      var text = document.getElementById('comment-text').value.trim();
+      if (!name || !text) {
+        var l = document.documentElement.lang.slice(0,2);
+        var msg = {fr:'Remplis ton prénom et ton commentaire!', en:'Fill in your name and comment!', es:'¡Rellena tu nombre y comentario!', zh:'请填写姓名和评论!'}[l] || 'Remplis ton prénom et ton commentaire!';
+        return alert(msg);
+      }
+      var slug = window.location.pathname.split('/').pop().replace('.html','');
+      var key = 'zts_comments_' + slug;
+      var comments = JSON.parse(localStorage.getItem(key) || '[]');
+      comments.push({name: name, text: text, date: new Date().toLocaleDateString('fr-CA')});
+      localStorage.setItem(key, JSON.stringify(comments));
+      document.getElementById('comment-name').value = '';
+      document.getElementById('comment-text').value = '';
+      renderComments();
+    }
+    function renderComments() {
+      var slug = window.location.pathname.split('/').pop().replace('.html','');
+      var key = 'zts_comments_' + slug;
+      var comments = JSON.parse(localStorage.getItem(key) || '[]');
+      var list = document.getElementById('comments-list');
+      if (!list) return;
+      var l = document.documentElement.lang.slice(0,2);
+      var emptyMsg = {fr:'Aucun commentaire encore. Sois le premier!', en:'No comments yet. Be the first!', es:'Aún no hay comentarios. ¡Sé el primero!', zh:'还没有评论。来当第一个吧!'}[l] || 'Aucun commentaire encore. Sois le premier!';
+      if (comments.length === 0) {
+        list.innerHTML = '<p style="color:#999;font-family:Schoolbell,cursive;font-style:italic">' + emptyMsg + '</p>';
+        return;
+      }
+      list.innerHTML = comments.map(function(c) {
+        return '<div style="background:#f3f4f6;border-radius:12px;padding:12px 16px;margin-bottom:10px">' +
+          '<div style="font-family:Bangers,cursive;color:#0F0F2E;font-size:1.1rem">' + c.name + ' <span style="font-family:Schoolbell,cursive;color:#999;font-size:0.85rem">' + c.date + '</span></div>' +
+          '<p style="font-family:Schoolbell,cursive;color:#333;margin:4px 0 0;font-size:1.05rem">' + c.text + '</p></div>';
+      }).join('');
+    }
+    renderComments();
+  </script>
 
-<!-- ZTS Article Views -->
-<script src="/article-views.js"></script>
-<script>ztsCountView();</script>
+  <script src="/article-views.js"></script>
+  <script>ztsCountView();</script>
 </body>
 </html>
