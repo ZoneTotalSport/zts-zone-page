@@ -3,7 +3,7 @@
    Cyan #00C4FF + Jaune #FFF000 + Luckiest Guy + Inter
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@400;500;600;700;800;900&display=swap');
 
 :root{
   --zts-blue:#00C4FF;
@@ -27,7 +27,7 @@
 
 /* Typo + background article */
 body{
-  font-family:'Inter',system-ui,sans-serif !important;color:#1e293b;
+  font-family:'Nunito',system-ui,sans-serif !important;color:#1e293b;
   background:
     radial-gradient(circle at 20% 10%,rgba(0,196,255,.08),transparent 40%),
     radial-gradient(circle at 80% 90%,rgba(255,240,0,.08),transparent 40%),
@@ -40,7 +40,7 @@ body{
 
 /* Override des polices legacy → Luckiest Guy / Inter */
 .font-bangers,.font-fredoka,.font-baloo,.font-lucky,.font-hand,.font-schoolbell,.font-comic{
-  font-family:'Inter',sans-serif !important;
+  font-family:'Nunito',sans-serif !important;
 }
 h1.font-bangers,h2.font-bangers,h3.font-bangers,h4.font-bangers,
 h1.font-fredoka,h2.font-fredoka,h3.font-fredoka,h4.font-fredoka,
@@ -56,14 +56,14 @@ h1.font-lucky,h2.font-lucky,h3.font-lucky,h4.font-lucky{
    PROSE STYLES — pour le contenu de l'article (.zts-prose)
    ========================================================================== */
 .zts-prose{
-  font-family:'Inter',sans-serif;color:#334155;
+  font-family:'Nunito',sans-serif;color:#334155;
   font-size:1.0625rem;line-height:1.8;
 }
 
 /* Paragraphes */
 .zts-prose p{
   margin:0 0 1.5rem;line-height:1.8;color:#334155;font-size:1.0625rem;
-  font-family:'Inter',sans-serif !important;
+  font-family:'Nunito',sans-serif !important;
 }
 .zts-prose p:first-of-type{
   /* Lead paragraph — barre cyan à gauche */
@@ -157,7 +157,7 @@ article.zts-prose h2{
 .zts-prose blockquote cite,.zts-prose blockquote footer{
   display:block;margin-top:1rem;color:#cffafe;
   font-size:.85rem;font-weight:700;letter-spacing:.15em;
-  text-transform:uppercase;font-style:normal;font-family:'Inter',sans-serif !important;
+  text-transform:uppercase;font-style:normal;font-family:'Nunito',sans-serif !important;
 }
 
 /* Images dans le contenu — effet sticker */
@@ -266,7 +266,7 @@ body > .hero-full,main > .hero-full{display:none !important}
 .zts-prose .like-btn:hover{background:var(--zts-blue) !important;color:#fff !important}
 .zts-prose .like-count{
   background:var(--zts-deep) !important;color:var(--zts-yellow) !important;
-  font-family:'Inter',sans-serif !important;font-weight:900;
+  font-family:'Nunito',sans-serif !important;font-weight:900;
 }
 
 /* Sections "Tags" / footer-style legacy DANS l'article — restyle */
@@ -329,3 +329,120 @@ body > .hero-full,main > .hero-full{display:none !important}
   border-radius:9999px !important;
 }
 .zts-prose a[href*="open=https"]:hover{background:var(--zts-deep) !important}
+
+/* ==========================================================================
+   ENHANCEMENTS LISIBILITÉ — drop cap, surligneurs, séparateurs, etc.
+   ========================================================================== */
+
+/* Drop cap : première lettre du premier paragraphe en grande lettre cyan */
+.zts-prose .article-body > p:first-of-type::first-letter,
+.zts-article-centered .article-body > p:first-of-type::first-letter{
+  font-family:'Luckiest Guy',cursive !important;
+  font-size:4.5rem !important;
+  float:left;
+  line-height:.9;
+  padding:.4rem .8rem 0 0;
+  color:var(--zts-blue) !important;
+  text-shadow:3px 3px 0 var(--zts-yellow);
+}
+
+/* Listes numérotées avec gros chiffres jaunes */
+.zts-prose ol{counter-reset:zts-num;list-style:none;padding-left:0;margin-left:0}
+.zts-prose ol > li{
+  counter-increment:zts-num;position:relative;
+  padding:1rem 1.5rem 1rem 4.5rem !important;
+  margin-bottom:1rem;
+  background:#fff;border-radius:1rem;
+  border-left:4px solid var(--zts-yellow);
+  box-shadow:0 4px 12px -4px rgba(0,196,255,.15);
+  font-size:1.0625rem;
+}
+.zts-prose ol > li::marker{display:none}
+.zts-prose ol > li::before{
+  content:counter(zts-num);
+  position:absolute;left:1rem;top:.85rem;
+  width:2.5rem;height:2.5rem;border-radius:50%;
+  background:linear-gradient(135deg,var(--zts-yellow),#ffd700);
+  color:var(--zts-deep);
+  font-family:'Luckiest Guy',cursive;font-size:1.4rem;
+  display:flex;align-items:center;justify-content:center;
+  border:3px solid var(--zts-deep);
+  box-shadow:0 4px 8px rgba(0,0,0,.15);
+}
+
+/* Surligneur jaune subtil sur les strong */
+.zts-prose .article-body strong,
+.zts-prose strong{
+  background:linear-gradient(180deg,transparent 60%,rgba(255,240,0,.5) 60%) !important;
+  padding:0 .15em !important;color:var(--zts-deep) !important;font-weight:800 !important;
+}
+
+/* Liens avec underline animé */
+.zts-prose .article-body a,
+.zts-prose a{
+  position:relative;text-decoration:none !important;
+  color:var(--zts-blue-dark) !important;font-weight:700;
+  background-image:linear-gradient(var(--zts-yellow),var(--zts-yellow));
+  background-size:100% .25em;background-repeat:no-repeat;
+  background-position:0 88%;
+  transition:background-size .25s ease;
+}
+.zts-prose a:hover{background-size:100% 100%}
+
+/* Séparateurs décoratifs entre paragraphes longs (tous les ~5e p) */
+.zts-prose .article-body > p:nth-of-type(5n+5)::after{
+  content:'• • •';display:block;text-align:center;
+  margin:2.5rem auto 0;color:var(--zts-blue);
+  font-size:1.5rem;letter-spacing:.5em;opacity:.4;
+}
+
+/* HR décoratif si présent */
+.zts-prose hr{
+  border:none;height:8px;
+  background:
+    radial-gradient(circle,var(--zts-yellow) 2px,transparent 2px) 0 0/24px 8px repeat-x;
+  margin:3rem 0;opacity:.5;
+}
+
+/* Premier paragraphe — taille augmentée, look "lead" plus marqué */
+.zts-prose .article-body > p:first-of-type{
+  font-size:1.2rem !important;
+  line-height:1.7 !important;
+  color:#1e293b !important;
+  font-weight:500 !important;
+  border-left:none !important;
+  padding-left:0 !important;
+  font-style:normal !important;
+  margin-bottom:2rem !important;
+}
+
+/* Citations courtes inline (texte entre guillemets « ... » ou " ... ") — pas de style spécial mais garde lisibilité */
+.zts-prose em{
+  background:rgba(0,196,255,.08);
+  padding:.05em .25em;border-radius:.3em;
+  font-style:italic;color:var(--zts-deep);
+}
+
+/* Paragraphe avec emoji en début → mise en valeur (boîte de fond) */
+.zts-prose p:first-letter{font-feature-settings:"smcp"}
+
+/* Tables plus lisibles */
+.zts-prose table{font-family:'Nunito',sans-serif !important}
+.zts-prose th{
+  font-family:'Luckiest Guy',cursive !important;
+  font-size:1.05rem !important;letter-spacing:.04em;
+}
+.zts-prose td{font-size:1rem !important}
+
+/* Espacement aéré entre paragraphes */
+.zts-prose p + p{margin-top:0}
+
+/* H3 dans le contenu : barre jaune à gauche pour distinguer du H2 sticker */
+.zts-prose .article-body h3,
+.zts-prose h3{
+  border-left:6px solid var(--zts-yellow) !important;
+  padding-left:1rem !important;
+  font-family:'Luckiest Guy',cursive !important;
+  color:var(--zts-blue-dark) !important;
+  margin-top:2.5rem !important;
+}
