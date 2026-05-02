@@ -440,6 +440,7 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
 /* ═══ HIDDEN VIEW ═══ */
 .view{display:none;}
 .view.active{display:block;}
+.hidden{display:none!important;}
 
 /* ═══ PRINT ═══ */
 @media print{
@@ -718,34 +719,34 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
         </div>
       </div>
 
-      <div id="player-intention-wrap" class="side-card" style="background:var(--c-purple-soft);display:none;">
+      <div id="player-intention-wrap" class="side-card hidden" style="background:var(--c-purple-soft);">
         <h4><i class="fa-solid fa-bullseye" style="color:var(--c-purple);"></i> Intention pédagogique</h4>
         <p id="player-intention" style="font-family:'Girl',cursive;font-size:1.05rem;color:var(--ink);"></p>
       </div>
 
-      <div id="player-pfeq-wrap" class="side-card" style="display:none;">
+      <div id="player-pfeq-wrap" class="side-card hidden">
         <h4><i class="fa-solid fa-graduation-cap" style="color:var(--c-cyan);"></i> PFEQ</h4>
         <div id="player-pfeq-principale" style="margin-bottom:6px;font-family:'Girl',cursive;"></div>
         <div id="player-pfeq-secondaire" style="font-family:'Girl',cursive;"></div>
       </div>
 
-      <div id="player-prep-wrap" class="side-card" style="background:var(--c-orange-soft);display:none;">
+      <div id="player-prep-wrap" class="side-card hidden" style="background:var(--c-orange-soft);">
         <h4><i class="fa-solid fa-screwdriver-wrench" style="color:var(--c-orange);"></i> Préparation</h4>
         <div class="hint">Avant l'arrivée des élèves</div>
         <ol id="player-prep" style="padding-left:20px;font-family:'Girl',cursive;font-size:1.05rem;"></ol>
       </div>
 
-      <div id="player-eval-wrap" class="side-card" style="display:none;">
+      <div id="player-eval-wrap" class="side-card hidden">
         <h4><i class="fa-solid fa-clipboard-check" style="color:var(--c-cyan);"></i> Évaluation</h4>
         <p id="player-eval" style="font-family:'Girl',cursive;font-size:1.05rem;"></p>
       </div>
 
-      <div id="player-liens-wrap" class="side-card" style="background:var(--c-lime-soft);display:none;">
+      <div id="player-liens-wrap" class="side-card hidden" style="background:var(--c-lime-soft);">
         <h4><i class="fa-solid fa-link" style="color:#15803D;"></i> Liens transversaux</h4>
         <ul id="player-liens"></ul>
       </div>
 
-      <div id="player-prolong-wrap" class="side-card" style="background:var(--c-pink-soft);display:none;">
+      <div id="player-prolong-wrap" class="side-card hidden" style="background:var(--c-pink-soft);">
         <h4><i class="fa-solid fa-school" style="color:var(--c-pink);"></i> Prolongement</h4>
         <p id="player-prolong" style="font-family:'Girl',cursive;font-size:1.05rem;"></p>
       </div>
@@ -833,7 +834,9 @@ window.openCourseModal = (function(orig){
 })(window.openCourseModal);
 
 window.closeModal = function(){
-  document.getElementById('course-modal').classList.remove('show');
+  const m=document.getElementById('course-modal');
+  m.classList.remove('show');
+  m.style.display='none';
 };
 
 window.showWelcome = function(){
