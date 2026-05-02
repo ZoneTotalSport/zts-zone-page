@@ -85,7 +85,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&family=Schoolbell&family=Bangers&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&family=Schoolbell&family=Gloria+Hallelujah&family=Swanky+and+Moo+Moo&family=The+Girl+Next+Door&family=Love+Ya+Like+A+Sister&family=Kranky&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -185,8 +185,22 @@
 
         /* ========== HERO ========== */
         @font-face { font-family: 'ZoneTotalSport'; src: url('fonts/ZoneTotalSport.ttf') format('truetype'); font-display: swap; size-adjust: 50%; unicode-range: U+0020-007E; }
+        /* Police composite ZTS : Luckiest Guy pour ASCII + Swanky and Moo Moo pour accents FR */
+        @font-face { font-family: 'LuckiestZTS'; src: local('Luckiest Guy'); unicode-range: U+0020-007F; }
+        @font-face { font-family: 'LuckiestZTS'; src: local('Swanky and Moo Moo'); unicode-range: U+00A0-024F, U+1E00-1EFF, U+2000-206F; size-adjust: 92%; }
+        /* Tous titres et sous-titres en Luckiest Guy avec accents */
+        h1, h2, h3, h4, h5, h6,
+        .hero-title, .section-title, .section-subtitle,
+        .stat-number, .stat-label,
+        [class*="title"]:not(.font-body):not([class*="article-title"]),
+        [class*="heading"],
+        .nav-link, .btn, button,
+        .feature-title, .card-title {
+            font-family: 'LuckiestZTS', 'Luckiest Guy', 'Swanky and Moo Moo', cursive !important;
+            letter-spacing: 0.04em;
+        }
         .hero-title {
-            font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive;
+            font-family: 'ZoneTotalSport', 'LuckiestZTS', 'Luckiest Guy', 'Swanky and Moo Moo', cursive !important;
             font-weight: 400;
             line-height: 1.1;
             letter-spacing: 0.02em;
