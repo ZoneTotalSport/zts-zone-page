@@ -256,7 +256,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
     <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
     <input id="sos-search" type="search" placeholder="Rechercher une situation..." oninput="filterSOS()" class="w-full pl-11 pr-4 py-3 rounded-lg border-2 border-slate-200 text-sm font-medium focus:border-[#00C4FF] focus:outline-none bg-white shadow-sm">
   </div>
-  <div id="sos-grid" class="grid grid-cols-1 gap-3"></div>
+  <div id="sos-grid" class="grid grid-cols-2 gap-4"></div>
   </div>
 </div>
 
@@ -1112,16 +1112,14 @@ function go(view,opts){
 function renderSOS(){
   const grid=document.getElementById('sos-grid');
   grid.innerHTML=sosData.map(s=>`
-    <button onclick="openSOS('${s.id}')" class="press relative h-28 rounded-lg overflow-hidden shadow-md text-left w-full border-b-[12px] border-r-[12px]" style="border-color:${SOS_COLORS_HEX[s.id]}30">
+    <button onclick="openSOS('${s.id}')" class="press relative aspect-square rounded-lg overflow-hidden shadow-md text-left w-full border-b-[12px] border-r-[12px]" style="border-color:${SOS_COLORS_HEX[s.id]}30">
       <img src="${SOS_IMAGES[s.id]}" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/70 to-transparent"></div>
-      <div class="absolute bottom-0 left-0 p-3 w-full">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="text-lg">${s.icon}</span>
-          <span class="bg-black/50 text-white text-[9px] uppercase font-bold px-2 py-0.5 rounded-lg">10 Scénarios</span>
-        </div>
-        <h4 class="text-sm font-bold text-white leading-tight drop-shadow">${s.title}</h4>
-        <p class="text-[10px] text-slate-300">${s.subtitle}</p>
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 p-4 w-full">
+        <span class="text-3xl drop-shadow mb-1 block">${s.icon}</span>
+        <span class="bg-black/50 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-lg inline-block mb-2">10 Scenarios</span>
+        <h4 class="text-base font-luckiest text-white leading-tight drop-shadow uppercase">${s.title}</h4>
+        <p class="text-xs text-slate-300 mt-1">${s.subtitle}</p>
       </div>
     </button>
   `).join('');
