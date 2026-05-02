@@ -1592,7 +1592,7 @@ function renderPlanif(){
     return`<div class="seq-block ${cls} border-2 rounded-lg overflow-hidden" draggable="true" ondragstart="dragStart(event,${i})" ondragover="event.preventDefault()" ondrop="dropBlock(event,${i})">
       <div class="flex items-center justify-between p-3 cursor-grab">
         <div class="flex items-center gap-2">
-          <span class="text-2xl">${b.picto}</span>
+          <span class="emoji-picto select-none cursor-ns-resize" style="font-size:${b.pictoSize||24}px;line-height:1" onwheel="resizeEmoji(event,${i})" title="Molette = redimensionner">${b.picto}</span>
           <span class="font-bold text-sm text-slate-800">${b.titre}</span>
         </div>
         <div class="flex items-center gap-1">
@@ -1604,9 +1604,12 @@ function renderPlanif(){
         </div>
       </div>
       <div class="px-3 pb-3">
-        <div id="emoji-grid-${i}" class="hidden flex flex-wrap gap-1 mb-2 p-2 bg-white/50 rounded-lg border border-dashed border-slate-300">${sportEmojis.map(e=>`<button onclick="setBlockEmoji(${i},'${e}')" class="w-8 h-8 rounded-lg text-lg flex items-center justify-center press ${b.picto===e?'bg-[#00C4FF] shadow-md scale-110':'bg-white/60 hover:bg-white'} transition-all">${e}</button>`).join('')}</div>
+        <div id="emoji-grid-${i}" class="hidden mb-2 p-2 bg-white/50 rounded-lg border border-dashed border-slate-300">
+          <div class="flex items-center gap-2 mb-2"><span class="text-[10px] font-bold text-slate-400">Taille émoji</span><input type="range" min="16" max="64" value="${b.pictoSize||24}" oninput="resizeEmojiSlider(${i},this.value)" class="flex-1 accent-[#00C4FF]"><span class="text-[10px] font-bold text-slate-400" id="emoji-size-label-${i}">${b.pictoSize||24}px</span></div>
+          <div class="flex flex-wrap gap-1">${sportEmojis.map(e=>`<button onclick="setBlockEmoji(${i},'${e}')" class="w-8 h-8 rounded-lg text-lg flex items-center justify-center press ${b.picto===e?'bg-[#00C4FF] shadow-md scale-110':'bg-white/60 hover:bg-white'} transition-all">${e}</button>`).join('')}</div>
+        </div>
         <textarea onchange="updateSeqText(${i},this.value)" placeholder="Écrire les consignes, le déroulement..." class="w-full p-2 rounded-lg border border-slate-200 bg-white/70 text-sm font-medium resize-none focus:border-[#00C4FF] focus:outline-none" rows="2">${b.text||''}</textarea>
-        ${b.drawing?`<div class="mt-2"><div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-bold text-slate-400">Taille</span><input type="range" min="20" max="100" value="${b.drawScale||100}" oninput="this.nextElementSibling.textContent=this.value+'%';this.closest('.mt-2').querySelector('img').style.width=this.value+'%'" onchange="setDrawScale(${i},this.value)" class="flex-1 accent-[#00C4FF]"><span class="text-[10px] font-bold text-slate-400">${b.drawScale||100}%</span><button onclick="clearBlockDrawing(${i})" class="bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full press flex-shrink-0">✕</button></div><img src="${b.drawing}" style="width:${b.drawScale||100}%" class="rounded-lg border border-slate-200" alt="Dessin"></div>`:''}
+        ${b.drawing?`<div class="mt-2"><div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-bold text-slate-400">Taille</span><input type="range" min="20" max="100" value="${b.drawScale||100}" oninput="this.nextElementSibling.textContent=this.value+'%';this.closest('.mt-2').querySelector('.draw-container').querySelector('img').style.width=this.value+'%'" onchange="setDrawScale(${i},this.value)" class="flex-1 accent-[#00C4FF]"><span class="text-[10px] font-bold text-slate-400">${b.drawScale||100}%</span><button onclick="clearBlockDrawing(${i})" class="bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full press flex-shrink-0">✕</button></div><div class="draw-container relative overflow-hidden rounded-lg border border-slate-200 bg-[repeating-conic-gradient(#e2e8f0_0%_25%,transparent_0%_50%)_0_0/16px_16px]" style="height:160px;cursor:grab" onpointerdown="startDragImg(event,${i})" onpointermove="moveDragImg(event,${i})" onpointerup="stopDragImg()" onpointerleave="stopDragImg()"><img src="${b.drawing}" style="width:${b.drawScale||100}%;position:absolute;left:${b.drawOffX||0}px;top:${b.drawOffY||0}px;pointer-events:none" alt="Dessin"></div></div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1616,6 +1619,12 @@ function renderPlanif(){
 function setBlockEmoji(i,emoji){seqBlocks[i].picto=emoji;renderPlanif();}
 function toggleEmojiGrid(i){document.getElementById('emoji-grid-'+i).classList.toggle('hidden');}
 function setDrawScale(i,val){seqBlocks[i].drawScale=parseInt(val);saveSeq();}
+function resizeEmoji(e,i){e.preventDefault();const curr=seqBlocks[i].pictoSize||24;const next=Math.max(16,Math.min(64,curr+(e.deltaY<0?4:-4)));seqBlocks[i].pictoSize=next;const span=document.querySelectorAll('.seq-block')[i]?.querySelector('.emoji-picto');if(span)span.style.fontSize=next+'px';const lbl=document.getElementById('emoji-size-label-'+i);if(lbl)lbl.textContent=next+'px';const slider=document.querySelector('#emoji-grid-'+i+' input[type=range]');if(slider)slider.value=next;saveSeq();}
+function resizeEmojiSlider(i,val){const sz=parseInt(val);seqBlocks[i].pictoSize=sz;const span=document.querySelectorAll('.seq-block')[i]?.querySelector('.emoji-picto');if(span)span.style.fontSize=sz+'px';const lbl=document.getElementById('emoji-size-label-'+i);if(lbl)lbl.textContent=sz+'px';saveSeq();}
+let imgDragging=false,imgDragStartX=0,imgDragStartY=0,imgDragOrigX=0,imgDragOrigY=0,imgDragIdx=-1;
+function startDragImg(e,i){imgDragging=true;imgDragIdx=i;imgDragStartX=e.clientX;imgDragStartY=e.clientY;imgDragOrigX=seqBlocks[i].drawOffX||0;imgDragOrigY=seqBlocks[i].drawOffY||0;e.currentTarget.setPointerCapture(e.pointerId);}
+function moveDragImg(e,i){if(!imgDragging||imgDragIdx!==i)return;const dx=e.clientX-imgDragStartX,dy=e.clientY-imgDragStartY;const img=e.currentTarget.querySelector('img');seqBlocks[i].drawOffX=imgDragOrigX+dx;seqBlocks[i].drawOffY=imgDragOrigY+dy;img.style.left=seqBlocks[i].drawOffX+'px';img.style.top=seqBlocks[i].drawOffY+'px';}
+function stopDragImg(){if(imgDragging){imgDragging=false;saveSeq();}}
 function updateSeqText(i,val){seqBlocks[i].text=val;saveSeq();}
 function removeBlock(i){seqBlocks.splice(i,1);renderPlanif();}
 function clearPlanif(){seqBlocks=[];localStorage.removeItem('omni-seq');renderPlanif();}
@@ -1739,7 +1748,25 @@ function smoothDrawing(){
 function closeDrawModal(){document.getElementById('draw-modal').classList.add('hidden');}
 function saveDrawing(){
   const canvas=document.getElementById('draw-canvas');
-  seqBlocks[drawBlockIdx].drawing=canvas.toDataURL('image/png');
+  // Export PNG transparent (redessine les traits sans fond blanc)
+  if(drawStrokes.length){
+    const tmp=document.createElement('canvas');
+    tmp.width=canvas.width;tmp.height=canvas.height;
+    const ctx=tmp.getContext('2d');
+    ctx.scale(2,2);ctx.lineCap='round';ctx.lineJoin='round';
+    drawStrokes.forEach(s=>{
+      if(s.points.length<2)return;
+      ctx.strokeStyle=s.color==='#ffffff'?'rgba(0,0,0,0)':s.color;
+      ctx.lineWidth=s.size;ctx.beginPath();
+      ctx.moveTo(s.points[0].x,s.points[0].y);
+      for(let j=1;j<s.points.length;j++)ctx.lineTo(s.points[j].x,s.points[j].y);
+      ctx.stroke();
+    });
+    seqBlocks[drawBlockIdx].drawing=tmp.toDataURL('image/png');
+  }else{
+    seqBlocks[drawBlockIdx].drawing=canvas.toDataURL('image/png');
+  }
+  seqBlocks[drawBlockIdx].drawOffX=0;seqBlocks[drawBlockIdx].drawOffY=0;
   closeDrawModal();
   renderPlanif();
 }
