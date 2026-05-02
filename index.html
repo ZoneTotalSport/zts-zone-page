@@ -371,12 +371,13 @@
 
         /* ========== TESTIMONIAL CARD ========== */
         .testimonial-card {
-            background: #fff; border-radius: 24px; padding: 32px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            transition: transform 0.3s, box-shadow 0.3s;
-            border-top: 4px solid;
+            background: #0a1628; border-radius: 16px; padding: 32px;
+            transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+            border-bottom: 10px solid; border-right: 10px solid;
+            position: relative; overflow: hidden;
         }
-        .testimonial-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+        .testimonial-card:hover { transform: translateY(-8px) scale(1.03) rotate(-1deg); }
+        .testimonial-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.03),transparent); pointer-events:none; }
 
         /* ========== MISC ========== */
         .icon-circle { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
@@ -2374,50 +2375,53 @@
     </section>
 
     <!-- ========== SECTION 7: TESTIMONIALS (Gray → White) ========== -->
-    <section class="section-gray pt-8 pb-24 px-6 md:px-10" id="temoignages">
+    <section class="pt-8 pb-24 px-6 md:px-10" id="temoignages" style="background:#0a1628;">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
-                <div class="section-tag bg-violet-pop/10 text-violet-pop mb-4 reveal mx-auto w-fit">
-                    <i data-lucide="message-circle" class="w-4 h-4"></i> <span data-i18n="testTag">TÉMOIGNAGES</span>
+                <div style="display:inline-block;background:#FFF000;color:#0a1628;font-family:'Luckiest Guy',cursive;font-size:.85rem;padding:4px 16px;border-radius:8px;border-bottom:4px solid #ccbf00;border-right:4px solid #ccbf00;transform:rotate(-2deg);letter-spacing:1px;" class="reveal">
+                    <i data-lucide="message-circle" class="w-4 h-4 inline-block mr-1"></i> <span data-i18n="testTag">TEMOIGNAGES</span>
                 </div>
-                <h2 class="hero-title text-4xl md:text-6xl mb-4 reveal text-dark" data-i18n="testTitle">
-                    Ce qu'ils en<br>
-                    <span style="color:#8B5CF6">pensent.</span>
+                <h2 class="reveal" style="font-family:'Luckiest Guy',cursive;font-size:clamp(2.5rem,5vw,4rem);color:#fff;text-shadow:3px 3px 0 #A855F7,6px 6px 0 rgba(0,0,0,.2);margin:16px 0 0;letter-spacing:2px;" data-i18n="testTitle">
+                    CE QU'ILS EN<br>
+                    <span style="color:#A855F7">PENSENT.</span>
                 </h2>
             </div>
             <div class="grid md:grid-cols-3 gap-8">
-                <div class="testimonial-card reveal" style="border-color:#00E5FF">
+                <div class="testimonial-card reveal" style="border-color:#00C4FF;background:linear-gradient(135deg,#002a3d,#004a61);">
+                    <span style="position:absolute;top:12px;right:12px;background:#00C4FF;color:#fff;font-family:'Luckiest Guy',cursive;font-size:.6rem;padding:3px 10px;border-radius:8px;border:2px solid #fff;transform:rotate(3deg);letter-spacing:1px;">EPS</span>
                     <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-electric to-violet-pop flex items-center justify-center font-bangers text-lg text-white">MC</div>
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center text-xl" style="background:linear-gradient(135deg,#00C4FF,#0086AD);font-family:'Luckiest Guy',cursive;color:#fff;border-bottom:4px solid #006a8a;border-right:4px solid #006a8a;">MC</div>
                         <div>
-                            <div class="font-bangers tracking-wide">Marie-Claude</div>
-                            <div class="text-dark/40 font-baloo text-sm" data-i18n="test1role">Enseignante ÉPS, Laval</div>
+                            <div style="font-family:'Luckiest Guy',cursive;font-size:1.1rem;color:#fff;letter-spacing:1px;">Marie-Claude</div>
+                            <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:.8rem;color:rgba(255,255,255,.5);" data-i18n="test1role">Enseignante EPS, Laval</div>
                         </div>
                     </div>
-                    <p class="text-dark/60 font-baloo text-sm" data-i18n="test1">"J'utilise Zone Total Sport chaque semaine pour planifier mes cours. La banque de jeux est une mine d'or! Mes élèves adorent les nouveaux jeux."</p>
-                    <div class="flex gap-1 mt-4 text-yellow-sun">★★★★★</div>
+                    <p style="font-family:'Inter',sans-serif;font-weight:600;font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.6;" data-i18n="test1">"J'utilise Zone Total Sport chaque semaine pour planifier mes cours. La banque de jeux est une mine d'or! Mes eleves adorent les nouveaux jeux."</p>
+                    <div class="flex gap-1 mt-4" style="font-size:1.3rem;color:#FFF000;">★★★★★</div>
                 </div>
-                <div class="testimonial-card reveal" style="border-color:#FFD700">
+                <div class="testimonial-card reveal" style="border-color:#FFF000;background:linear-gradient(135deg,#2e2500,#4a3d00);">
+                    <span style="position:absolute;top:12px;right:12px;background:#FFF000;color:#0a1628;font-family:'Luckiest Guy',cursive;font-size:.6rem;padding:3px 10px;border-radius:8px;border:2px solid #fff;transform:rotate(-2deg);letter-spacing:1px;">EPS</span>
                     <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-sun to-pink-fuchsia flex items-center justify-center font-bangers text-lg text-dark">PL</div>
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center text-xl" style="background:linear-gradient(135deg,#FFF000,#FF8C00);font-family:'Luckiest Guy',cursive;color:#0a1628;border-bottom:4px solid #cc8400;border-right:4px solid #cc8400;">PL</div>
                         <div>
-                            <div class="font-bangers tracking-wide">Pierre-Luc</div>
-                            <div class="text-dark/40 font-baloo text-sm" data-i18n="test2role">Enseignant ÉPS, Québec</div>
+                            <div style="font-family:'Luckiest Guy',cursive;font-size:1.1rem;color:#fff;letter-spacing:1px;">Pierre-Luc</div>
+                            <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:.8rem;color:rgba(255,255,255,.5);" data-i18n="test2role">Enseignant EPS, Quebec</div>
                         </div>
                     </div>
-                    <p class="text-dark/60 font-baloo text-sm" data-i18n="test2">"Le générateur de jeux est génial quand je suis en panne d'inspiration. En un clic, j'ai une activité prête à lancer. Merci pour cette ressource!"</p>
-                    <div class="flex gap-1 mt-4 text-yellow-sun">★★★★★</div>
+                    <p style="font-family:'Inter',sans-serif;font-weight:600;font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.6;" data-i18n="test2">"Le generateur de jeux est genial quand je suis en panne d'inspiration. En un clic, j'ai une activite prete a lancer. Merci pour cette ressource!"</p>
+                    <div class="flex gap-1 mt-4" style="font-size:1.3rem;color:#FFF000;">★★★★★</div>
                 </div>
-                <div class="testimonial-card reveal" style="border-color:#FF2A7A">
+                <div class="testimonial-card reveal" style="border-color:#A855F7;background:linear-gradient(135deg,#1a0a30,#2d1550);">
+                    <span style="position:absolute;top:12px;right:12px;background:#A855F7;color:#fff;font-family:'Luckiest Guy',cursive;font-size:.6rem;padding:3px 10px;border-radius:8px;border:2px solid #fff;transform:rotate(2deg);letter-spacing:1px;">STAGE</span>
                     <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-pink-fuchsia to-cyan-electric flex items-center justify-center font-bangers text-lg text-white">SK</div>
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center text-xl" style="background:linear-gradient(135deg,#A855F7,#FF2A7A);font-family:'Luckiest Guy',cursive;color:#fff;border-bottom:4px solid #7c3aed;border-right:4px solid #7c3aed;">SK</div>
                         <div>
-                            <div class="font-bangers tracking-wide">Sarah K.</div>
-                            <div class="text-dark/40 font-baloo text-sm" data-i18n="test3role">Étudiante BÉPEP, Montréal</div>
+                            <div style="font-family:'Luckiest Guy',cursive;font-size:1.1rem;color:#fff;letter-spacing:1px;">Sarah K.</div>
+                            <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:.8rem;color:rgba(255,255,255,.5);" data-i18n="test3role">Etudiante BEPEP, Montreal</div>
                         </div>
                     </div>
-                    <p class="text-dark/60 font-baloo text-sm" data-i18n="test3">"Indispensable pour mes stages! Les SAÉ sont alignées avec le programme et faciles à adapter. Le site est devenu ma référence numéro un."</p>
-                    <div class="flex gap-1 mt-4 text-yellow-sun">★★★★★</div>
+                    <p style="font-family:'Inter',sans-serif;font-weight:600;font-size:.95rem;color:rgba(255,255,255,.7);line-height:1.6;" data-i18n="test3">"Indispensable pour mes stages! Les SAE sont alignees avec le programme et faciles a adapter. Le site est devenu ma reference numero un."</p>
+                    <div class="flex gap-1 mt-4" style="font-size:1.3rem;color:#FFF000;">★★★★★</div>
                 </div>
             </div>
         </div>
