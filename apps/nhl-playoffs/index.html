@@ -20,12 +20,23 @@
 <meta name="twitter:description" content="Séries actuelles, résultats et stats des séries éliminatoires LNH 2026!">
 <link rel="icon" type="image/png" href="logo-zts.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Barriecito&family=Bungee&family=Bungee+Shade&family=Righteous&family=Fredoka+One&family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  @font-face {
-    font-family: 'ZoneTotalSport';
-    src: url('fonts/ZoneTotalSport.ttf') format('truetype');
-  }
+  @font-face { font-family: 'ZoneTotalSport'; src: url('fonts/ZoneTotalSport.ttf') format('truetype'); }
+  /* ═══ POLICES ZTS — alias les noms originaux vers nos 6 polices locales ═══ */
+  @font-face { font-family: 'Lucky'; src: url('fonts/LuckiestGuy-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Swanky'; src: url('fonts/SwankyandMooMoo-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Gloria'; src: url('fonts/GloriaHallelujah-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Girl'; src: url('fonts/TheGirlNextDoor-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Love'; src: url('fonts/LoveYaLikeASister-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Kranky'; src: url('fonts/Kranky-Regular.ttf') format('truetype'); font-display:swap; }
+  /* Alias des anciens noms → fichiers locaux ZTS (remplace Google Fonts) */
+  @font-face { font-family: 'Bangers'; src: url('fonts/LuckiestGuy-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Luckiest Guy'; src: url('fonts/LuckiestGuy-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Bungee'; src: url('fonts/LuckiestGuy-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Bungee Shade'; src: url('fonts/LuckiestGuy-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Barriecito'; src: url('fonts/SwankyandMooMoo-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family: 'Righteous'; src: url('fonts/Kranky-Regular.ttf') format('truetype'); font-display:swap; }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1064,6 +1075,103 @@
     .rounds { flex-direction: column !important; }
     .round { min-width: unset; width: 100%; }
     .matchup { width: 100%; max-width: 300px; }
+  }
+
+  /* ════════════════════════════════════════════
+     ZTS ULTRA-INTERACTIF — thème clair unifié
+     (override final, garde les logos + structure)
+     ════════════════════════════════════════════ */
+  :root{
+    --zts-cyan:#00C4FF; --zts-yellow:#FFE600; --zts-orange:#FF8C00;
+    --zts-lime:#4ADE80; --zts-purple:#A855F7; --zts-pink:#EC4899;
+    --zts-ink:#0B1120; --zts-cream:#FFFBF0;
+  }
+  body{
+    background:linear-gradient(135deg,#FFFBF0 0%,#FFF8E1 50%,#FEF3C7 100%) !important;
+    background-image:none !important;
+    color:var(--zts-ink) !important;
+    font-family:'Inter',sans-serif !important; font-weight:600;
+  }
+  .nhl-bg-pattern{opacity:.12 !important;}
+  .nhl-bg-pattern img{filter:saturate(1.3) brightness(.95) !important;}
+
+  /* Cartes blanches sticker shadowbox */
+  .matchup,.series-card,.bracket-container,.live-section,.standings,.leaderboard,
+  .stat-card,.player-card,.scorers-card,.stat-block,.recent-games,
+  [class*="card"],[class*="panel"]{
+    background:#fff !important;
+    border:2px solid var(--zts-ink) !important;
+    border-bottom-width:8px !important;
+    border-right-width:8px !important;
+    border-radius:18px !important;
+    box-shadow:none !important;
+    color:var(--zts-ink) !important;
+    transition:transform .15s ease,border-width .15s ease;
+  }
+  .series-card:hover,.matchup:hover{
+    transform:translate(3px,3px);
+    border-bottom-width:4px !important;
+    border-right-width:4px !important;
+  }
+
+  /* Texte clair → foncé */
+  body, body p, body span, body div, body td, body th, body li{color:var(--zts-ink);}
+  .name,.team-name,.player-name{color:var(--zts-ink) !important;}
+  .series-team .name{font-family:'Lucky',cursive !important; font-size:18px !important;}
+  .series-team.eliminated .name{color:#9CA3AF !important; text-decoration:line-through;}
+
+  /* Headers / titres → Lucky */
+  h1,h2,h3,h4,h5{font-family:'Lucky',cursive !important; color:var(--zts-ink) !important;}
+
+  /* Badges/labels uppercase → Love */
+  .round-label,[class*="badge"],[class*="-label"]{font-family:'Love',cursive !important;letter-spacing:.06em;}
+
+  /* Series letter badge */
+  .series-letter-badge{
+    background:var(--zts-yellow) !important;
+    color:var(--zts-ink) !important;
+    border:2px solid var(--zts-ink) !important;
+    border-bottom-width:5px !important;border-right-width:5px !important;
+    box-shadow:none !important;
+    font-family:'Lucky',cursive !important;
+  }
+
+  /* Boutons / contrôles */
+  .zoom-btn,button,.btn{
+    background:#fff !important;
+    border:2px solid var(--zts-ink) !important;
+    border-bottom-width:5px !important;border-right-width:5px !important;
+    color:var(--zts-ink) !important;
+    backdrop-filter:none !important;
+    transition:all .12s ease;
+  }
+  .zoom-btn:hover,button:hover,.btn:hover{
+    transform:translate(2px,2px);
+    border-bottom-width:3px !important;border-right-width:3px !important;
+    background:var(--zts-yellow) !important;
+  }
+
+  /* Brand bar / header en cyan vif */
+  [class*="brand-bar"],[class*="header"],[class*="hero"]{
+    background:linear-gradient(135deg,var(--zts-cyan) 0%,#0891b2 100%) !important;
+    color:#fff !important;
+    border:2px solid var(--zts-ink) !important;
+    border-bottom-width:8px !important;border-right-width:8px !important;
+    border-radius:18px !important;
+  }
+  [class*="brand-bar"] *,[class*="header"] *,[class*="hero"] *{color:#fff !important;}
+
+  /* Dots (séries 0-4) */
+  .dot{background:rgba(0,0,0,.08) !important; border:1px solid rgba(0,0,0,.15) !important;}
+  .dot.win{background:var(--zts-lime) !important; border-color:var(--zts-ink) !important;}
+
+  /* Backgrounds qui étaient noirs/bleu nuit → blanc/cream */
+  [style*="background:rgba(8,18,35"],[style*="background: rgba(8,18,35"],
+  [style*="background:#0D1B2A"],[style*="background: #0D1B2A"]{
+    background:#fff !important;
+  }
+  /* Texte qui était cyan vif → cyan plus foncé pour contraste sur fond clair */
+  [style*="color:#00E5FF"],[style*="color: #00E5FF"]{color:#0891b2 !important;}
     .cup-center { padding: 20px 0; }
     .leaders-grid { grid-template-columns: 1fr; }
     .game-details { margin-left: 0; }
