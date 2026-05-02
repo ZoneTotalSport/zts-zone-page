@@ -6,7 +6,12 @@
 <title>Moyens d'action — Calendrier ÉPS · Zone Total Sport</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;500;600;700&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Inter:wght@400;600;700;900&family=Fredoka:wght@400;500;600;700&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61',pink:'#FF2A7A'},fontFamily:{lucky:['"Luckiest Guy"','cursive'],inter:['Inter','sans-serif']}}}}
+</script>
 <style>
 @font-face {
   font-family: 'ZoneTotalSport';
@@ -36,9 +41,8 @@ html, body {
   overflow-x: hidden;
 }
 body {
-  background:
-    linear-gradient(135deg, rgba(13,27,42,.85) 0%, rgba(27,41,66,.88) 100%),
-    url('gym-bg.jpg') center/cover fixed no-repeat;
+  background: #f8fafc;
+  color: #0f172a;
 }
 @media (max-width: 768px) {
   body { background-attachment: scroll; }
@@ -98,7 +102,7 @@ body {
 .filters {
   background: var(--nuit-2);
   padding: 16px 20px;
-  position: sticky; top: 0; z-index: 100;
+  position: sticky; top: 64px; z-index: 40;
   box-shadow: 0 4px 12px rgba(0,0,0,.3);
   display: flex;
   gap: 12px;
@@ -724,759 +728,232 @@ body {
   white-space: pre-wrap;
   font-size: .9rem; line-height: 1.45;
 }
+
+/* ===== Blog-style header/hero (canonical) ===== */
+@font-face{font-family:'LuckiestGuyZTS';src:local('Luckiest Guy');unicode-range:U+0020-007F}
+@font-face{font-family:'LuckiestGuyZTS';src:local('Bangers');unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F;size-adjust:92%}
+.font-lucky{font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;letter-spacing:.05em}
+.hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
+@keyframes ztsfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.animate-float{animation:ztsfloat 3s ease-in-out infinite}
+.text-outline{text-shadow:2px 2px 0px rgba(0,0,0,.2)}
+.nav-link{transition:all .2s;padding:8px 14px;border-radius:9999px;font-size:.9rem;white-space:nowrap;font-weight:700}
+.nav-link:hover{background:rgba(255,255,255,.2)}
+.nav-link.active-link{background:#FFF000;color:#004A61}
+
+/* ===== ZTS APP HEADER (legacy, unused) ===== */
+.zts-app-header{position:sticky;top:0;z-index:9999;background:#00C4FF;border-bottom:4px solid #0086AD;box-shadow:0 4px 12px rgba(0,0,0,.15);padding-top:env(safe-area-inset-top,0)}
+.zts-app-header-inner{max-width:1280px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.zts-app-brand{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;line-height:1;flex-shrink:0}
+.zts-app-brand-main{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;font-size:24px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2);line-height:1}
+.zts-app-brand-accent{color:#FFFA00}
+.zts-app-brand-sub{font-family:'Luckiest Guy',cursive;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#004A61;margin-top:2px;line-height:1}
+@media (max-width:640px){.zts-app-brand-sub{display:none}.zts-app-brand-main{font-size:18px}}
+.zts-app-header-right{display:flex;align-items:center;gap:8px}
+.zts-app-clock{font-family:'Luckiest Guy',cursive;letter-spacing:.1em;font-size:24px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2);background:rgba(0,0,0,.2);padding:4px 12px;border-radius:12px}
+.zts-app-home-btn{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;text-transform:uppercase;font-size:18px;background:#FFFA00;color:#004A61;padding:10px 20px;border-radius:16px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;box-shadow:4px 4px 0 rgba(0,0,0,.06);border-bottom:6px solid rgba(0,0,0,.1);border-right:6px solid rgba(0,0,0,.1)}
+@media (max-width:640px){.zts-app-clock{font-size:18px}.zts-app-home-btn{font-size:14px;padding:8px 12px}}
+
+/* ===== ZTS HERO XXL ===== */
+.zts-hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
+.zts-hero-xxl{position:relative;padding:40px 16px 80px;overflow:hidden;border-radius:0 0 32px 32px;margin-bottom:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,.25)}
+.zts-hero-inner{display:flex;flex-direction:column;align-items:center;gap:32px;max-width:1100px;margin:0 auto}
+@media(min-width:1024px){.zts-hero-inner{flex-direction:row;gap:48px}.zts-hero-xxl{padding:56px 16px 128px}}
+.zts-hero-text{flex:1;color:#fff;text-align:center}
+@media(min-width:1024px){.zts-hero-text{text-align:left}}
+.zts-hero-badge{display:inline-block;font-family:'Luckiest Guy',cursive;background:#FFFA00;color:#004A61;padding:6px 20px;border-radius:12px;font-size:14px;margin-bottom:20px;transform:rotate(-2deg);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.zts-hero-h1{font-family:'Luckiest Guy',cursive;font-size:clamp(48px,8vw,96px);text-transform:uppercase;line-height:1;text-shadow:2px 2px 0 rgba(0,0,0,.2);margin-bottom:20px;color:#fff}
+.zts-hero-h1 .accent{color:#FFFA00}
+.zts-hero-desc{font-family:'Love',cursive;color:#cffafe;font-size:18px;line-height:1.6;margin-bottom:32px;max-width:480px}
+@media(max-width:1023px){.zts-hero-desc{margin-left:auto;margin-right:auto}}
+.zts-hero-img-wrap{flex:1;position:relative;display:flex;justify-content:center;width:100%}
+.zts-hero-img{position:relative;z-index:10;border-radius:48px;overflow:hidden;border:10px solid #fff;box-shadow:0 25px 50px -12px rgba(0,0,0,.4);transform:rotate(3deg);transition:transform .7s;max-width:400px;width:100%}
+.zts-hero-img:hover{transform:rotate(0)}
+.zts-hero-img img{width:100%;height:320px;object-fit:cover;background:linear-gradient(135deg,#cffafe,#bfdbfe);display:block}
+@media(min-width:768px){.zts-hero-img img{height:420px}}
+.zts-hero-badge-card{position:absolute;bottom:-32px;left:-16px;z-index:20;background:#fff;padding:16px;border-radius:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,.3);display:flex;align-items:center;gap:12px;border:2px solid #00C4FF;animation:ztsfloat 3s ease-in-out infinite}
+@keyframes ztsfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.zts-hero-badge-icon{padding:12px;border-radius:16px;color:#fff;background:#00C4FF;display:flex;align-items:center;justify-content:center}
+.zts-hero-badge-label{font-family:'Luckiest Guy',cursive;font-size:18px;color:#00C4FF;line-height:1}
+.zts-hero-badge-sub{font-size:11px;font-weight:900;color:#94a3b8;text-transform:uppercase;letter-spacing:-.05em;margin-top:4px}
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <h1>Moyens d'Action</h1>
-  <div class="subtitle">Calendrier pédagogique ÉPS · 10 années de planification</div>
-  <div class="stats-pills" id="statsPills"></div>
-</div>
-
-<div class="filters">
-  <div class="filter-group">
-    <label>🎓 Cycle</label>
-    <select id="filterCycle">
-      <option value="">Tous</option>
-      <option value="1">Cycle 1 (1re-2e)</option>
-      <option value="2">Cycle 2 (3e-4e)</option>
-      <option value="3">Cycle 3 (5e-6e)</option>
-      <option value="0">Maternelle/Spé</option>
-    </select>
+<!-- Header ZTS app (logo / horloge centrée / bouton Accueil) -->
+<header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 grid grid-cols-3 items-center gap-4">
+    <a href="../../" class="flex flex-col items-start shrink-0 leading-none justify-self-start">
+      <h1 class="text-xl md:text-3xl font-lucky text-white text-outline leading-none">
+        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+      </h1>
+      <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none mt-1">Moyens d'action</span>
+    </a>
+    <span id="ztsClock" class="font-lucky text-2xl md:text-3xl text-white text-outline tracking-wider px-3 py-1 rounded-xl bg-black/20 justify-self-center">09:41</span>
+    <a href="../../" class="font-lucky text-base md:text-2xl uppercase px-4 md:px-6 py-2 md:py-3 rounded-2xl flex items-center gap-2 bg-ztsYellow text-ztsDeep shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] hover:bg-white hover:scale-105 transition-all justify-self-end">
+      <i data-lucide="home" class="w-5 h-5 md:w-6 md:h-6"></i>
+      Accueil
+    </a>
   </div>
-  <div class="filter-group">
-    <label>📅 Année</label>
-    <select id="filterYear">
-      <option value="">Toutes</option>
-    </select>
-  </div>
-  <div class="filter-group">
-    <label>⚡ Plage</label>
-    <button class="btn-range" id="btnRange2026" type="button" style="padding:.55rem 1rem;border-radius:10px;border:2px solid var(--cyan);background:var(--nuit-2);color:var(--blanc);font-family:'Luckiest Guy';letter-spacing:1px;cursor:pointer;font-size:.95rem;">2020-2026</button>
-  </div>
-  <div class="search-box">
-    <label style="font-family:'Luckiest Guy';font-size:.85rem;color:var(--jaune);letter-spacing:1px;">🔍 Chercher une activité</label>
-    <input type="text" id="searchInput" placeholder="ex: ballon chasseur, danse, relais...">
-  </div>
-  <button class="btn-reset" id="btnReset">Réinitialiser</button>
-</div>
+</header>
+<script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+' H '+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
 
-<div class="moyens-legend" id="moyensLegend"></div>
-
-<div class="view-toggle">
-  <button class="view-btn active" data-view="moyens">🧭 Vue Moyens d'action</button>
-  <button class="view-btn" data-view="cal">📅 Vue Calendrier quotidien</button>
-</div>
-
-<div id="loading"><span class="spinner"></span>Chargement des données…</div>
-
-<div class="search-results" id="searchResults"></div>
-
-<div id="calView" style="display:none;">
-  <div class="cal-controls">
-    <div class="cal-tabs" id="calYearTabs"></div>
-  </div>
-  <div class="cal-controls">
-    <div class="cal-nav">
-      <button id="calPrev">←</button>
-      <span id="calMonthLabel">—</span>
-      <button id="calNext">→</button>
+<!-- Hero XXL (style blog) -->
+<section class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 relative">
+    <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
+      <div class="lg:w-1/2 text-white z-10 text-center lg:text-left">
+        <span class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg">
+          COMPÉTENCE 1 EPS
+        </span>
+        <h2 class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline">
+          MOYENS<br><span class="text-ztsYellow">D'ACTION</span>
+        </h2>
+        <p class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0">
+          Le répertoire complet des moyens d'action en éducation physique. Compétence 1 du PFEQ — toutes les SAÉ classées par cycle, année et catégorie.
+        </p>
+        <div class="flex flex-wrap justify-center lg:justify-start items-center gap-5">
+          <a href="#calView" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase">
+            EXPLORER
+          </a>
+          <span class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl text-cyan-100 font-bold">
+            <i data-lucide="layers" class="w-5 h-5"></i> <span id="heroPillCount">0 SAÉ</span>
+          </span>
+        </div>
+      </div>
+      <div class="lg:w-1/2 relative flex justify-center mt-10 lg:mt-0 w-full">
+        <div class="relative z-10 rounded-[3rem] overflow-hidden border-[10px] border-white shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 max-w-md lg:max-w-full block">
+          <img src="../../bucheron-grille.png" alt="Mr Root répertoire" class="w-full h-[380px] md:h-[500px] object-cover" style="background:linear-gradient(135deg,#cffafe,#bfdbfe)">
+        </div>
+        <div class="absolute -bottom-8 -left-4 md:-bottom-10 md:-left-10 z-20 bg-white p-4 md:p-5 rounded-3xl shadow-2xl flex items-center gap-3 md:gap-4 border-2 border-ztsBlue animate-float">
+          <div class="bg-ztsBlue p-3 rounded-2xl text-white">
+            <i data-lucide="target" class="w-7 h-7 md:w-8 md:h-8"></i>
+          </div>
+          <div class="text-left">
+            <p class="font-lucky text-ztsBlue text-lg md:text-xl leading-none">MOYENS</p>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-tighter">Compétence 1 &bull; PFEQ</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="cal-grid" id="calGrid"></div>
-</div>
+</section>
+<script>lucide&&lucide.createIcons&&lucide.createIcons();</script>
+<div id="statsPills" style="display:none"></div>
 
-<div class="container" id="content"></div>
+<!-- Card grid des 10 moyens d'action -->
+<main class="max-w-7xl mx-auto px-4 py-12 md:py-16">
+  <h3 class="text-3xl md:text-4xl font-lucky text-ztsDeep mb-2 text-center">10 MOYENS D'ACTION</h3>
+  <p class="text-center text-slate-500 font-medium mb-10 md:mb-14">Compétence 1 du PFEQ — clique sur une catégorie pour voir les activités phares</p>
+  <div id="moyensGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-7"></div>
+  <p id="moyensLoading" class="text-center text-slate-400 font-lucky text-2xl py-16">Chargement…</p>
+</main>
 
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2 id="modalTitle">Titre</h2>
-      <div class="meta" id="modalMeta"></div>
-      <button class="modal-close" id="modalClose">×</button>
+<!-- Modal détail moyen -->
+<div id="moyenModal" class="fixed inset-0 z-[200] hidden items-start justify-center p-4 md:p-8 overflow-y-auto" style="background:rgba(0,0,0,0.6)">
+  <div class="bg-white rounded-[2.5rem] max-w-7xl w-full mt-4 md:mt-12 shadow-2xl border-b-[10px] overflow-hidden" id="moyenModalCard">
+    <div id="moyenModalHead" class="p-8 md:p-12 text-white relative">
+      <button onclick="closeMoyen()" class="absolute top-4 right-4 w-14 h-14 bg-white/20 hover:bg-white/40 rounded-full text-white text-4xl leading-none flex items-center justify-center">×</button>
+      <div id="moyenModalEmoji" class="text-7xl md:text-8xl mb-3"></div>
+      <h2 id="moyenModalTitle" class="font-lucky text-5xl md:text-7xl uppercase text-outline"></h2>
+      <p id="moyenModalSub" class="font-bold opacity-95 mt-2 text-xl md:text-2xl"></p>
     </div>
-    <div class="modal-body" id="modalBody"></div>
+    <div class="p-6 md:p-10 bg-white">
+      <h4 class="font-lucky text-3xl md:text-4xl text-ztsDeep mb-6 md:mb-8 uppercase text-center">Activités phares</h4>
+      <div id="moyenModalList" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
+    </div>
   </div>
 </div>
 
-<div class="footer">🪓 Zone Total Sport · Mr Root · Données extraites du calendrier scolaire</div>
+<footer class="bg-ztsDeep text-white py-12 md:py-16 mt-8">
+  <div class="max-w-7xl mx-auto px-4 text-center">
+    <h2 class="text-3xl md:text-4xl font-lucky tracking-[0.1em] mb-6 text-outline">
+      ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+    </h2>
+    <p class="text-white/40 font-black text-xs uppercase tracking-[0.5em]">© 2026 ZONE TOTAL SPORT &bull; PASSIONNÉMENT PROFS</p>
+  </div>
+</footer>
 
 <script>
-let DATA = null;
-let DAILY = null;
-let STATE = {
-  cycle: "",
-  year: "",
-  moyens: new Set(),
-  search: "",
-  view: "moyens",
-  calYear: null,
-  calMonth: 9  // septembre par défaut
-};
+(async function(){
+  const grid=document.getElementById('moyensGrid');
+  const loading=document.getElementById('moyensLoading');
+  const heroPill=document.getElementById('heroPillCount');
+  let DATA;
+  try{const r=await fetch('data.json');DATA=await r.json();}
+  catch(e){loading.textContent='Erreur de chargement';return;}
 
-const MOIS_ORDER = [8,9,10,11,12,1,2,3,4,5,6];
-const MOIS_SHORT = {8:"Août",9:"Sept",10:"Oct",11:"Nov",12:"Déc",1:"Janv",2:"Févr",3:"Mars",4:"Avr",5:"Mai",6:"Juin"};
-const MOIS_FULL = {8:"Août",9:"Septembre",10:"Octobre",11:"Novembre",12:"Décembre",1:"Janvier",2:"Février",3:"Mars",4:"Avril",5:"Mai",6:"Juin"};
-
-async function loadData() {
-  const [r1, r2] = await Promise.all([fetch('data.json'), fetch('daily.json')]);
-  DATA = await r1.json();
-  DAILY = await r2.json();
-  STATE.calYear = DAILY.years[DAILY.years.length - 1]; // plus récente
-  document.getElementById('loading').style.display = 'none';
-  initUI();
-  render();
-}
-
-function initUI() {
-  // Stats pills
-  const totalLessons = DATA.buckets.reduce((s,b)=>s+b.count,0);
-  const totalActivities = DATA.top_activities.length;
-  document.getElementById('statsPills').innerHTML = `
-    <div class="pill"><strong>${DATA.years.length}</strong> années</div>
-    <div class="pill"><strong>${DATA.moyens.length}</strong> moyens d'action</div>
-    <div class="pill"><strong>${totalLessons.toLocaleString('fr')}</strong> leçons</div>
-    <div class="pill"><strong>${totalActivities}+</strong> activités uniques</div>
-  `;
-
-  // Années dropdown
-  const yearSel = document.getElementById('filterYear');
-  DATA.years.forEach(y => {
-    const opt = document.createElement('option');
-    opt.value = y; opt.textContent = y;
-    yearSel.appendChild(opt);
-  });
-
-  // Moyens legend
-  const leg = document.getElementById('moyensLegend');
-  const counts = {};
-  DATA.buckets.forEach(b => counts[b.moyen] = (counts[b.moyen]||0) + b.count);
-  DATA.moyens.forEach(m => {
-    const chip = document.createElement('div');
-    chip.className = 'moyen-chip';
-    chip.style.background = m.color;
-    chip.innerHTML = `${m.label} <span class="count">${counts[m.key]||0}</span>`;
-    chip.onclick = () => {
-      if (STATE.moyens.has(m.key)) STATE.moyens.delete(m.key);
-      else STATE.moyens.add(m.key);
-      chip.classList.toggle('on');
-      render();
-    };
-    leg.appendChild(chip);
-  });
-
-  // Event listeners
-  document.getElementById('filterCycle').onchange = e => { STATE.cycle = e.target.value; render(); };
-  document.getElementById('filterYear').onchange = e => { STATE.year = e.target.value; document.getElementById('btnRange2026').classList.remove('active'); render(); };
-  document.getElementById('btnRange2026').onclick = () => {
-    const btn = document.getElementById('btnRange2026');
-    const on = STATE.year === "__2020_2026__";
-    if (on) { STATE.year = ""; btn.style.background = 'var(--nuit-2)'; btn.style.color = 'var(--blanc)'; }
-    else { STATE.year = "__2020_2026__"; document.getElementById('filterYear').value = ""; btn.style.background = 'var(--jaune)'; btn.style.color = 'var(--nuit)'; }
-    render();
-  };
-  document.getElementById('searchInput').oninput = e => { STATE.search = e.target.value.trim().toLowerCase(); render(); };
-  document.getElementById('btnReset').onclick = () => {
-    STATE = { cycle:"", year:"", moyens:new Set(), search:"" };
-    document.getElementById('filterCycle').value = "";
-    document.getElementById('filterYear').value = "";
-    document.getElementById('searchInput').value = "";
-    document.querySelectorAll('.moyen-chip.on').forEach(c=>c.classList.remove('on'));
-    render();
-  };
-
-  document.getElementById('modalClose').onclick = closeModal;
-  document.getElementById('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-  // View toggle
-  document.querySelectorAll('.view-btn').forEach(b => {
-    b.onclick = () => {
-      document.querySelectorAll('.view-btn').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      STATE.view = b.dataset.view;
-      render();
-    };
-  });
-
-  // Cal year tabs
-  const cyt = document.getElementById('calYearTabs');
-  cyt.innerHTML = DAILY.years.map(y => `<button class="cal-tab" data-year="${y}">${y}</button>`).join('');
-  cyt.querySelectorAll('.cal-tab').forEach(t => {
-    t.onclick = () => {
-      STATE.calYear = t.dataset.year;
-      renderCalendar();
-    };
-  });
-
-  document.getElementById('calPrev').onclick = () => { shiftCalMonth(-1); };
-  document.getElementById('calNext').onclick = () => { shiftCalMonth(1); };
-}
-
-const MOIS_ORDER_CAL = [9,10,11,12,1,2,3,4,5,6];
-function shiftCalMonth(dir) {
-  const idx = MOIS_ORDER_CAL.indexOf(STATE.calMonth);
-  const next = idx + dir;
-  if (next < 0 || next >= MOIS_ORDER_CAL.length) return;
-  STATE.calMonth = MOIS_ORDER_CAL[next];
-  renderCalendar();
-}
-
-function filteredBuckets() {
-  return DATA.buckets.filter(b => {
-    if (STATE.cycle !== "" && String(b.cycle) !== STATE.cycle) return false;
-    if (STATE.year === "__2020_2026__") {
-      const y = parseInt(b.year.split('-')[0]);
-      if (y < 2020 || y > 2026) return false;
-    } else if (STATE.year && b.year !== STATE.year) return false;
-    if (STATE.moyens.size > 0 && !STATE.moyens.has(b.moyen)) return false;
-    if (STATE.search) {
-      const hay = [
-        b.moyen,
-        ...(b.activities||[]).map(a => a.n),
-        ...(b.samples||[]).map(s => s.desc + " " + s.title)
-      ].join(" ").toLowerCase();
-      if (!hay.includes(STATE.search)) return false;
-    }
-    return true;
-  });
-}
-
-function moyenMeta(key) {
-  return DATA.moyens.find(m => m.key === key) || {label:key, color:"#888"};
-}
-
-function cycleLabel(c) {
-  return {0:"Maternelle/Spé", 1:"Cycle 1", 2:"Cycle 2", 3:"Cycle 3"}[c] || "Autre";
-}
-
-// Glossaire d'explications pour activités communes (fallback quand sample absent)
-// Structure: clé = nom de l'activité (lower), valeur = explication détaillée (but + règles + variantes)
-const GLOSSAIRE = {
-  // ═══ BALLONS CHASSEURS & DÉRIVÉS ═══
-  "ballon chasseur": "**But** : éliminer tous les joueurs adverses en les touchant avec le ballon. **Règles** : 2 équipes, chacune dans son camp. Toucher avec le ballon (au sol après contact = éliminé). Attraper une passe en plein vol = le lanceur est fait prisonnier. **Variantes** : avec ballons multiples, avec équipe prisonnière derrière, ballon chasseur quille (protéger sa quille).",
-  "ballon chasseur quille": "Variante du ballon chasseur : chaque équipe a une quille (cône, dossard) à protéger au centre de son camp. Si la quille tombe, l'équipe perd. Ajoute une dimension stratégique de défense.",
-  "ballon chasseur inversé": "Les équipes sont inversées : équipe A est autour du terrain de l'équipe B et vice versa. Un joueur 'pivot' est au centre de chaque camp. L'objectif : rejoindre son pivot en éliminant les adversaires. Développe coopération et stratégie.",
-  "ballon racheteur": "Variante du ballon chasseur : quand un joueur est éliminé, il peut revenir si un coéquipier attrape une passe. Les filles/gars peuvent avoir des règles différentes (ballons de couleurs). **Variante massive** : ajouter un joueur-clé avec dossard à protéger.",
-  "ballon fou": "**But** : éliminer les autres en lançant le ballon. Pas d'équipes, pas de déplacement avec le ballon. Les éliminés s'assoient et reviennent si un ami leur passe un ballon. La partie finit quand il reste 1 ou 2 joueurs. Excellent pour apprendre à attraper sous pression.",
-  "ballon invincible": "**But** : passer le ballon par-dessus le filet ou entre les joueurs sans qu'il touche le sol. Développe contrôle et coordination. Peut se jouer en cercle ou en carré.",
-  "ballon prisonnier": "Identique au ballon chasseur avec prison bien définie derrière le camp adverse. Les joueurs touchés vont en prison et peuvent participer en lançant depuis derrière. Excellent pour développer la vision du terrain.",
-  "ballon bombe": "Quand un élève attrape le ballon, il doit le passer rapidement en comptant à voix haute. Au bout de X secondes, la 'bombe' explose et celui qui l'a est éliminé. Rythme rapide, concentration.",
-  "ballon roi": "Un joueur-roi au centre, protégé par son équipe. L'équipe adverse tente de le toucher avec le ballon. Varier les défenses (passes, blocages). Développe rôles et tactique.",
-  "ballon poule": "Équipe 'poule' à protéger au centre du terrain, les 'renards' tentent de la toucher avec le ballon. Alterner les rôles. Parfait pour classe d'introduction.",
-  "ballon par-dessus": "Deux équipes de chaque côté d'un filet/ligne, lancer les ballons par-dessus pour vider son camp. L'équipe avec le moins de ballons au signal gagne. Travail lancer.",
-  "ballon au pied": "Activité de manipulation avec les pieds : dribbler, passer, tirer. Préparation au soccer. Cerceaux comme zones, cônes comme adversaires.",
-  "balle aux chasseurs": "Variante avec rôles définis : chasseurs (avec balles) vs lièvres (se sauvent). Les touchés deviennent chasseurs. Accumulation progressive.",
-  "ballon cible": "Lancer un ballon vers une cible (cerceau, mur, zone). Travail de précision, évaluation possible. Plusieurs stations avec cibles variées.",
-  "king of the court": "Format tournoi de mini-matchs (volley, basket, badminton). L'équipe qui gagne reste sur le 'court' roi, les autres tournent. Enchaînement rapide et motivant.",
-  "l'hôpital": "Variante ballon chasseur : joueurs touchés vont à l'hôpital (zone), soignés par les ambulanciers (joueurs désignés). Rôles multiples : lanceurs, ambulanciers, blessés.",
-  "bombardier": "Plusieurs ballons dans un camp; les équipes essaient de vider leur camp en lançant les ballons dans le camp adverse. Au signal, on compte. Très rythmé.",
-  "tchoukball": "Sport sans contact : faire rebondir le ballon sur un cadre incliné pour que personne ne l'attrape. Pas d'interception permise. Développe précision et stratégie défensive.",
-
-  // ═══ TAGS & JEUX DE POURSUITE ═══
-  "tag": "**But** : celui qui a la tague touche un autre joueur qui devient à son tour 'tague'. Roulement rapide. Base de tous les jeux de poursuite.",
-  "tag normal": "Version classique : un ou plusieurs chats (tagues) essaient de toucher les autres joueurs. Celui touché devient chat. Peut se jouer avec dossards.",
-  "tag sous-marin": "Quand touché, l'élève reste les jambes écartées comme sous-marin. Un coéquipier le délivre en passant sous ses jambes. Apprend à libérer les autres.",
-  "tag zeus": "Tag avec pouvoirs : celui qui attrape devient Zeus (foudre, invincibilité, etc.). Thématique motivante, varier les règles selon l'âge.",
-  "tag extermination": "Tag sans retour possible : quand on est touché, on est éliminé définitivement. Les derniers survivants gagnent. Court et intense.",
-  "tag exterminateur": "Plusieurs tagues (exterminateurs) chassent les autres. Les touchés s'assoient ou sortent. Finit quand tout le monde est éliminé.",
-  "tag contagion": "Au début 1 seule tague, les touchés deviennent aussi tagues. Effet boule de neige : fini quand tout le monde est attrapé.",
-  "tag-assis": "Pour se protéger, s'asseoir rapidement. Mais on ne peut rester assis que X secondes. Ajoute un élément stratégique de timing.",
-  "tag glacé": "Quand touché, on devient statue de glace. Un coéquipier nous dégèle en passant entre nos jambes ou en nous tapant.",
-  "bouledogue": "1 ou 2 bouledogues au centre du gymnase. Les autres doivent traverser d'un bout à l'autre sans se faire toucher. Les touchés deviennent bouledogues. Accumulation.",
-  "seigneur des anneaux": "Un chat (chevalier noir) touche un hobbit qui devient aussi chevalier. Quand les 2 chevaliers touchent un 3e hobbit, ils lui passent l'anneau et redeviennent hobbits. Roulement dynamique des rôles.",
-  "homme de glace": "Version tag : quand touché, on devient statue de glace. Un coéquipier dégèle en touchant. Variante avec 'cerceau de feu' comme refuge.",
-  "cerceau de feu": "Sécurité temporaire dans un cerceau (feu = chaleur). Max X secondes dans le cerceau, puis il faut sortir. Renouveler la pression.",
-  "chat et la souris": "Classique : le chat poursuit la souris. Pour se sauver, la souris s'accroche à une paire. La personne opposée devient la souris. Roulement fluide.",
-  "le roi": "Un roi protégé par ses gardes. Les attaquants essaient de toucher le roi. Plusieurs vagues. Varier avec ballons ou cibles.",
-  "roi dragon": "Thématique : dragon (tague) garde un trésor, les chevaliers (joueurs) essaient de le voler. Touché = éliminé. Durée limitée.",
-  "attrape-moi si tu es capable": "Course par deux autour du terrain. Chacun essaie de dépasser l'autre sur 2 tours. D'autres paires démarrent en relais. Endurance + compétition.",
-  "cruches": "Élèves placés par deux, se tenant par le bras. Une souris se sauve du chat en s'accrochant à une paire. L'élève opposé devient la souris. Rotation naturelle.",
-  "feux de circulation": "Vert = courir, Jaune = marcher, Rouge = statue. Traverser le gymnase en premier. Si on bouge au rouge, on recommence. Contrôle de soi.",
-  "pompier maléfique": "Pompiers malveillants 'éteignent' les joueurs avec leurs 'lances' (ballons mous, frites). Version thématique amusante du ballon chasseur.",
-  "guerre des planètes": "Équipes sur des 'planètes' (zones), lancent des ballons pour renverser les vaisseaux (cônes) adverses. Défense + offensive stratégique.",
-  "le courant électrique": "Chaîne humaine : transmettre une impulsion (presser la main). Variante : course contre une autre équipe. Coopération pure.",
-  "le chasseur et les lapins": "Un chasseur + plusieurs lapins qui doivent se rendre d'un point A à un point B. Le chasseur tente de les attraper. Coopération entre lapins.",
-
-  // ═══ LOCOMOTION / PRÉREQUIS MOTEURS ═══
-  "course navette": "Test d'endurance : courir entre 2 lignes espacées (souvent 20m) au rythme de bips qui accélèrent. On s'arrête quand on ne peut plus suivre. Évaluation Léger-Boucher.",
-  "léger-boucher": "Test standardisé d'endurance cardio-respiratoire : paliers de 1 minute avec bips de plus en plus rapides entre 2 lignes de 20m. Retient le dernier palier complété.",
-  "léger boucher": "Test standardisé d'endurance cardio-respiratoire : paliers de 1 minute avec bips de plus en plus rapides entre 2 lignes de 20m. Retient le dernier palier complété.",
-  "test myg": "Test des habiletés motrices globales (programme québécois) : équilibre, coordination, saut, course, lancer. Évaluation début/fin d'année.",
-  "pas chassés": "Déplacement latéral : pieds toujours orientés vers l'avant, les jambes se rapprochent et s'écartent. Travail coordination, agilité.",
-  "pas chassé": "Déplacement latéral : pieds toujours orientés vers l'avant, les jambes se rapprochent et s'écartent. Base de nombreux sports (tennis, basket).",
-  "relais": "Course en équipe : chaque coureur fait un segment du parcours et passe le relais (bâton, dossard) au suivant. Coordination, vitesse, stratégie.",
-  "sprint": "Course à vitesse maximale sur courte distance (10-30m). Travail explosivité et technique de départ.",
-  "slalom": "Parcours entre des cônes ou obstacles. Travail agilité, contrôle du corps. Peut être chronométré.",
-  "saut en longueur": "Saut pied joint ou avec élan, atterrir le plus loin possible. Marquer la longueur. Évaluation possible.",
-  "saut en hauteur": "Franchir une barre ou un élastique. Technique ciseaux ou rouleau ventral selon niveau.",
-  "triathlon": "Enchaînement de 3 épreuves adaptées (ex. course + saut + lancer). Peut être en équipes, chronométré ou non.",
-  "triathlon athlétique": "Course de vitesse + saut en longueur + lancer. Évaluation en fin d'unité athlétisme. Chaque épreuve 2 essais, meilleur compte.",
-  "parcours": "Série d'obstacles à franchir dans un ordre : rouler, sauter, grimper, équilibrer. Travail global, motivant. Chronométré ou libre.",
-  "jogging": "Course continue à rythme modéré. Développe endurance aérobie. 5-10 min selon niveau.",
-  "6 minutes jogging": "Course continue de 6 minutes : mesurer la distance parcourue. Test d'endurance simplifié pour jeunes élèves.",
-  "test 5 tours autour du cercle du gymnase": "5 tours de gymnase chronométrés. Indicateur simple de cardio. Évolution mesurable sur l'année.",
-
-  // ═══ SPORTS COLLECTIFS ═══
-  "soccer": "Sport collectif : marquer dans le but adverse avec les pieds. **Règles adaptées** : pas de gardien chez les petits, terrain plus court, ballon mousse. Travail passes, contrôle, tirs.",
-  "basketball": "Sport collectif : marquer dans le panier adverse. Dribble obligatoire pour se déplacer. **Règles adaptées** : paniers plus bas, ballon plus léger.",
-  "basket": "Sport collectif : marquer dans le panier adverse. Dribble obligatoire pour se déplacer. Variantes : 3 contre 3, tirs libres, concours de lancers.",
-  "hockey": "Avec bâton et balle (ou rondelle). Marquer dans le filet adverse. **Variantes scolaires** : cosom, bâtons en plastique, ballons mousses.",
-  "hockey cosom": "Hockey sur surface sèche avec bâtons en plastique et balle trouée. Règles simplifiées : pas de mise en échec, passes obligatoires.",
-  "hockey-balle": "Hockey joué avec balle au lieu de rondelle. Plus sécuritaire, apprentissage plus facile pour débutants.",
-  "handball": "Sport collectif à la main : passes et tirs pour marquer dans le but adverse. Max 3 pas avec le ballon, 3 secondes sans dribble.",
-  "volleyball": "Sport collectif : passer le ballon par-dessus le filet, max 3 touches par équipe. **Techniques** : manchette, touche haute, service. Variantes : ballon sauteur, kin-ball.",
-  "volley": "Sport collectif : passer le ballon par-dessus le filet, max 3 touches par équipe. Techniques de base : manchette, touche, service.",
-  "ultimate": "Sport coopératif avec frisbee : marquer en attrapant le disque dans la zone adverse. **Auto-arbitrage** = sport de l'esprit. Aucun contact.",
-  "ultimate frisbee": "Sport coopératif avec frisbee : marquer en attrapant le disque dans la zone adverse. Pas de contact, auto-arbitrage. Développe fair-play.",
-  "frisbee": "Lancer/attraper un disque volant. Techniques : revers, coup droit. Activité seule, à 2, ou comme préparation à l'ultimate.",
-  "baseball": "Version scolaire simplifiée (kickball, T-ball). Frapper/botter la balle et courir les bases. Règles adaptées selon l'âge.",
-  "kickball": "Baseball au pied : botter une balle lancée par le pitcher. Courir les bases. Accessible à tous, très populaire.",
-  "kinball": "Énorme ballon léger manipulé par 3 joueurs qui 'servent' une couleur adverse. Coopération nécessaire. Sport québécois original.",
-  "badminton": "Sport de raquette : envoyer le volant par-dessus le filet. Simple ou double. Travail précision, anticipation, mobilité.",
-  "tennis": "Sport de raquette avec balle. Travail coordination œil-main, précision. Variantes scolaires : mini-tennis, tennis mural.",
-  "tennis de table": "Ping-pong adapté : raquettes, balles légères, tables. Développe réflexes, précision.",
-  "ping-pong": "Ping-pong adapté : raquettes, balles légères, tables. Développe réflexes, précision.",
-  "rugby": "Version sans contact : rugby-flag ou toucher. Porter le ballon au-delà de la ligne d'en-but. Passes vers l'arrière seulement.",
-  "flag football": "Football américain sans contact : attraper les flags des joueurs au lieu de tacler. Travail passes, courses, stratégie.",
-
-  // ═══ GYMNASTIQUE & ACROBATIE ═══
-  "gymnastique": "Travail des habiletés corporelles : roulades, équilibres, sauts, suspensions. Au sol ou avec agrès (poutre, barres, mini-trampoline).",
-  "gymnastique, corde acro": "Gym + corde à sauter + acrobaties enchaînées en parcours ou chorégraphie. Travail combiné force, équilibre, rythme.",
-  "gym": "Activités de gymnastique : roulades, équilibres, sauts, parcours aux agrès. Adaptées selon niveau.",
-  "roulade": "Figure au sol : roulade avant (menton au torse), roulade arrière (pousser avec les mains). Base de toute gymnastique.",
-  "roulade avant": "Tuck menton au torse, mains au sol, pousser les jambes pour rouler vers l'avant et se relever debout. Sécurité : tapis obligatoire.",
-  "roulade arrière": "S'asseoir en rond, rouler en arrière, mains de chaque côté des oreilles pour pousser. Plus technique que la roulade avant.",
-  "trampoline": "Saut sur mini-trampoline : rebonds, figures aériennes (groupé, carpé, tendu). Sécurité essentielle : un sauteur à la fois, pareur.",
-  "mini-trampoline": "Mini-trampoline pour apprendre sauts et figures : rebonds, vrilles, saltos (selon niveau). Pareur obligatoire.",
-  "équilibre": "Tenir une position stable : sur un pied, sur une poutre, sur les mains (ATR). Progression selon habileté.",
-  "poutre": "Agrès d'équilibre : poutre basse puis haute. Progression : marcher, sauter, tourner, figurer.",
-  "barre": "Agrès : barres asymétriques ou fixe. Suspensions, balancers, passage. Nécessite force de préhension.",
-  "circus gyma": "Parcours gymnastique thématique cirque : équilibres (fil tendu = ligne au sol), acrobaties, manipulation (jonglerie, foulards), monocycle. Très motivant.",
-  "appuis": "Travail des appuis tendus renversés (ATR), roues, équerre. Force des bras et tronc. Progression mur puis libre.",
-  "renversement": "Figures inversées : ATR, roue, saut de main. Force + technique + courage. Toujours avec pareur.",
-  "roue": "Roue latérale : mains alignées au sol, jambes qui passent par-dessus la tête en étoile. Technique progressive.",
-  "saut de mouton": "Partenaire courbé (mouton), l'autre saute par-dessus en prenant appui sur le dos. Variante : saute-mouton en relais.",
-  "saut périlleux": "Salto avant (niveau avancé) : rotation complète en l'air. **Uniquement avec tapis + pareur**. Progression via mini-trampoline.",
-  "corde acro": "Corde à sauter combinée à figures acrobatiques : sauts croisés, figures en groupe, enchaînements coordonnés.",
-
-  // ═══ EXPRESSION & DANSE ═══
-  "danse": "Chorégraphie en groupe ou solo : rythme, coordination, expression corporelle. Styles variés : hip-hop, moderne, folklorique.",
-  "chorégraphie": "Enchaînement de mouvements sur musique. Création individuelle ou collective. Présentation finale possible.",
-  "just dance": "Choré projetée à l'écran, les élèves suivent les mouvements. Très populaire, accessible, motivant. Cardio + coordination.",
-  "zumba": "Fitness dansé sur musique latine (salsa, reggaeton, etc.). Cardio + coordination + plaisir. Accessible à tous.",
-  "yoga": "Postures (asanas), respiration, concentration. Retour au calme ou séance complète. Travaille souplesse, équilibre, conscience corporelle.",
-  "mime": "Communication sans mots. Exprimer un sentiment, une action, un personnage. Créativité + écoute.",
-  "statue": "Bouger sur musique, statue quand la musique s'arrête. Variante : chef juge les poses. Plaisir + contrôle.",
-  "expression corporelle": "Exprimer des émotions, situations, personnages par le corps uniquement. Créativité, libération.",
-  "rythme": "Exercices de rythme : frapper des mains, marcher en cadence, suivre un tempo. Base de toute danse.",
-  "musique": "Activité motrice sur musique : danse libre, jeux rythmiques, choré. Le tempo structure l'exercice.",
-  "acrobatie": "Figures acrobatiques individuelles ou en groupe : pyramides, portés, enchaînements. Confiance + force.",
-
-  // ═══ COOPÉRATION ═══
-  "coopération": "Activités où la réussite dépend du groupe entier : parachute, défi commun, construction. Aucune élimination, tous gagnent ensemble.",
-  "coopérer": "Activités où la réussite dépend du groupe entier : parachute, défi commun, construction. Aucune élimination, tous gagnent ensemble.",
-  "parachute": "Grande toile colorée manipulée en cercle : vagues, tente, balles sautantes, souris sous toile. Travail coopération + motricité.",
-  "toile": "Toile d'araignée (corde tendue) à traverser sans toucher, en aidant les coéquipiers. Défi coopératif classique.",
-  "cirque coopératif": "Numéros de cirque collectifs : jonglerie à plusieurs, pyramides, numéros d'équilibre. Chacun a un rôle.",
-  "collaboration": "Travail en binôme ou groupe pour accomplir une tâche commune : transporter, construire, résoudre. Base de nombreux défis.",
-
-  // ═══ OPPOSITION / DUEL ═══
-  "sumo": "Lutte dans un cercle : pousser l'adversaire hors du cercle sans utiliser les mains (ou avec). Règles de sécurité strictes, niveau équilibré.",
-  "tir à la corde": "Deux équipes tirent sur une corde. L'équipe qui passe la ligne adverse gagne. Force collective, stratégie de placement.",
-  "tirer sur la corde": "Deux équipes tirent sur une corde. L'équipe qui passe la ligne adverse gagne. Force collective, stratégie de placement.",
-  "lutte": "Combat au sol sans frappe : amener l'adversaire sur le dos ou hors d'un cercle. Règles claires, partenaire de taille similaire.",
-  "bras de fer": "Assis face à face, coudes au sol, rabattre le bras adverse. Classique sécuritaire. Organiser en tournoi.",
-  "combat de coqs": "Accroupi, sauter pour déséquilibrer l'adversaire. Premier à toucher le sol avec une main = perd. Amusant.",
-  "duel": "Affrontement 1 contre 1 dans diverses disciplines : course, précision, tir, lancer. Format tournoi.",
-
-  // ═══ CONDITIONNEMENT PHYSIQUE ═══
-  "échauffement": "Préparation du corps avant l'effort : cardio léger (5 min) + mobilité articulaire + étirements dynamiques (pas statiques).",
-  "étirement": "Étirements en fin de séance : statiques, tenir 15-30 secondes, sans douleur. Améliore souplesse à long terme.",
-  "cardio": "Exercices sollicitant le système cardio-vasculaire : course, sauts, jumping jacks, burpees. Intensité modérée à élevée.",
-  "musculation": "Travail de force adapté : pompes, squats, abdos, tractions. Au poids du corps, sans charges pour jeunes.",
-  "abdominaux": "Travail du centre du corps : crunchs, planches, ciseaux, bicyclette. Sans traction sur la nuque.",
-  "push-up": "Pompes : classique, sur genoux (progression), diamant, larges. Travail pectoraux, épaules, triceps, tronc.",
-  "planche": "Gainage : sur les avant-bras, dos droit, fessiers serrés. Tenir 20-60 sec. Latérale aussi. Renforce le tronc.",
-  "burpees": "Enchaînement : squat + push-up + saut. Exercice complet, cardio + force. Attention à la technique.",
-  "tabata": "Intervalles 20 sec effort / 10 sec repos × 8 = 4 min. Haute intensité. 1 ou plusieurs exercices.",
-  "hiit": "High Intensity Interval Training : alternance efforts intenses / récupérations courtes. Efficace, motivant.",
-  "intervalle": "Alternance d'efforts intenses et de récupérations. Varier les durées selon l'objectif.",
-  "endurance": "Activité prolongée à intensité modérée : course continue, vélo, nage. 10+ minutes sans arrêt.",
-  "circuit": "Enchaînement d'ateliers chronométrés (ex. 30 sec par station). Travail varié, tous muscles. En équipes ou individuel.",
-  "conditionnement physique": "Ensemble d'exercices développant force, endurance, souplesse. Souvent en circuit ou ateliers.",
-
-  // ═══ PLEIN AIR ═══
-  "jogging": "Course continue à rythme modéré. Endurance aérobie. Peut être en extérieur ou gymnase.",
-  "randonnée": "Marche en nature, parcours, découverte. Endurance + connexion environnement. Adaptée selon terrain.",
-  "vélo": "Activité cyclisme si accès : parcours, sécurité routière, maniabilité. Casque obligatoire.",
-  "patin": "Patinage sur glace : équilibre, déplacements, jeux adaptés. Matériel spécifique. Très populaire en hiver.",
-  "glissade": "Activité hivernale : toboggan, luge sur colline sécuritaire. Plaisir + sensations.",
-
-  // ═══ MANIPULATION SPÉCIFIQUE ═══
-  "jonglerie": "Manipulation de balles, foulards, massues. Progression : 1 → 2 → 3 objets. Coordination œil-main.",
-  "ateliers de manipulation": "Stations variées : lancer, attraper, dribbler, jongler. Rotation toutes les X minutes. Développe habiletés multiples.",
-  "raquette": "Activités avec raquette : pelote au mur, mini-tennis, badminton, pickleball. Coordination, précision.",
-  "crosse": "Activités avec bâton/crosse : hockey, crosse canadienne, golf scolaire. Maniabilité + précision.",
-
-  // ═══ TERMES GÉNÉRIQUES ═══
-  "train": "Jeu en file : élèves collés comme un train, la tête guide. Imiter trajets, rythmes. Pour petits.",
-  "ballon chasseur ou ballon cible selon le niveau": "Adaptation selon le groupe : les plus jeunes font du ballon-cible (précision), les plus âgés du ballon-chasseur (compétition).",
-  "cible au mur": "Lancer sur cible dessinée/collée au mur. Points selon zone touchée. Travail précision.",
-  "disposition": "Phase d'organisation du matériel et des élèves avant l'activité principale.",
-  "déroulement": "Phase de jeu principal : explication des règles puis exécution.",
-  "retour au calme": "Fin de séance : étirements + respiration + bilan. 3-5 minutes pour redescendre en intensité.",
-  "lancer le frisbee le plus loin possible": "Concours de lancer : mesurer la distance. Techniques variées (revers, coup droit). Motivant et évaluable.",
-};
-
-function getExplanation(actName, bucket) {
-  const key = actName.toLowerCase().trim().replace(/[!?.,]$/,'');
-  if (GLOSSAIRE[key]) return { text: GLOSSAIRE[key], source: "glossaire" };
-  // Look for match in sample descs
-  if (bucket && bucket.samples) {
-    for (const s of bucket.samples) {
-      const desc = s.desc || "";
-      const lower = desc.toLowerCase();
-      const idx = lower.indexOf(key);
-      if (idx !== -1) {
-        // Extract surrounding ~200 chars
-        const start = lower.lastIndexOf('\n', idx);
-        const end = lower.indexOf('\n\n', idx + key.length);
-        const snippet = desc.substring(start < 0 ? 0 : start + 1, end < 0 ? Math.min(desc.length, idx + 250) : end).trim();
-        if (snippet.length > 20 && snippet.length < 400) return { text: snippet, source: "extrait" };
-      }
-    }
-  }
-  return { text: "Pas d'explication détaillée dans l'agenda. Activité EPS classique — vérifier les samples pour plus de contexte.", source: "manquant" };
-}
-
-function aggregateByMoyen(buckets) {
-  // For each moyen: gather activities across all filtered buckets
-  const byMoyen = {};
-  buckets.forEach(b => {
-    if (!byMoyen[b.moyen]) byMoyen[b.moyen] = { count: 0, activities: {}, samples: [], cycles: new Set(), years: new Set() };
-    byMoyen[b.moyen].count += b.count;
-    b.cycles = b.cycles; // noop
-    byMoyen[b.moyen].cycles.add(b.cycle);
-    byMoyen[b.moyen].years.add(b.year);
-    b.activities.forEach(a => {
-      const k = a.n.trim();
-      if (!byMoyen[b.moyen].activities[k]) byMoyen[b.moyen].activities[k] = { count: 0, cycles: new Set(), sampleBucket: b };
-      byMoyen[b.moyen].activities[k].count += a.c;
-      byMoyen[b.moyen].activities[k].cycles.add(b.cycle);
-      // keep a bucket with samples for fallback explanation
-      if (!byMoyen[b.moyen].activities[k].sampleBucket.samples || byMoyen[b.moyen].activities[k].sampleBucket.samples.length === 0) {
-        byMoyen[b.moyen].activities[k].sampleBucket = b;
-      }
+  // Aggregate activity counts per moyen from buckets
+  const perMoyen={};
+  DATA.moyens.forEach(m=>perMoyen[m.key]={count:0,activities:{}});
+  DATA.buckets.forEach(b=>{
+    if(!perMoyen[b.moyen])return;
+    perMoyen[b.moyen].count+=b.count;
+    (b.activities||[]).forEach(a=>{
+      perMoyen[b.moyen].activities[a.n]=(perMoyen[b.moyen].activities[a.n]||0)+a.c;
     });
-    if (b.samples) byMoyen[b.moyen].samples.push(...b.samples);
   });
-  return byMoyen;
-}
 
-function render() {
-  const container = document.getElementById('content');
-  const calView = document.getElementById('calView');
+  const totalSAE=DATA.buckets.reduce((s,b)=>s+b.count,0);
+  if(heroPill)heroPill.textContent=totalSAE.toLocaleString('fr-CA')+' SAÉ';
 
-  if (STATE.view === 'cal') {
-    container.style.display = 'none';
-    calView.style.display = 'block';
-    document.getElementById('searchResults').classList.remove('open');
-    renderCalendar();
-    return;
-  } else {
-    container.style.display = 'block';
-    calView.style.display = 'none';
-  }
-
-  container.innerHTML = "";
-  const buckets = filteredBuckets();
-
-  if (STATE.search) {
-    renderSearchResults(buckets);
-  } else {
-    document.getElementById('searchResults').classList.remove('open');
-  }
-
-  if (buckets.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:40px;opacity:.6;font-family:Bangers;font-size:1.4rem;letter-spacing:1px;">Aucun résultat. Essaie d\'ajuster les filtres.</div>';
-    return;
-  }
-
-  const byMoyen = aggregateByMoyen(buckets);
-  // Conserver ordre défini dans DATA.moyens
-  const moyenOrder = DATA.moyens.map(m => m.key).filter(k => byMoyen[k]);
-
-  moyenOrder.forEach(mkey => {
-    const agg = byMoyen[mkey];
-    const meta = moyenMeta(mkey);
-    const emoji = meta.label.split(' ')[0];
-    const name = meta.label.replace(emoji,'').trim();
-
-    const section = document.createElement('section');
-    section.className = 'moyen-section';
-    section.style.borderColor = meta.color + '55';
-
-    const cyclesLabel = [...agg.cycles].sort().map(c => cycleLabel(c)).join(' · ');
-    const yearsLabel = [...agg.years].sort().join(', ');
-
-    section.innerHTML = `
-      <div class="moyen-section-head">
-        <div class="moyen-badge" style="background:${meta.color};">${emoji}</div>
-        <div class="moyen-title-wrap">
-          <div class="moyen-title" style="color:${meta.color};text-shadow:3px 3px 0 var(--nuit);">${name}</div>
-          <div class="moyen-sub">${agg.count.toLocaleString('fr')} leçons · ${cyclesLabel}</div>
-        </div>
+  loading.style.display='none';
+  grid.innerHTML=DATA.moyens.map(m=>{
+    const emoji=(m.label.match(/^\S+/)||[''])[0];
+    const name=m.label.replace(/^\S+\s*/,'').replace(/\s*\(.*$/,'').trim();
+    const sub=(m.label.match(/\(([^)]+)\)/)||[,''])[1];
+    const count=perMoyen[m.key].count;
+    return `<button data-key="${m.key}" class="moyen-card text-left rounded-[2rem] overflow-hidden transition-all hover:-translate-y-1" style="background:${m.color};color:#fff;border-bottom:12px solid rgba(0,0,0,0.18);border-right:12px solid rgba(0,0,0,0.18);box-shadow:6px 6px 0 rgba(0,0,0,0.08)">
+      <div class="px-5 pt-5 pb-3 flex items-start justify-between">
+        <div class="text-5xl md:text-6xl drop-shadow">${emoji}</div>
+        <span class="bg-black/30 text-white text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest">${count.toLocaleString('fr-CA')} SAÉ</span>
       </div>
-    `;
-
-    // Sort activities by count desc, limit 60
-    const acts = Object.entries(agg.activities)
-      .sort((a,b) => b[1].count - a[1].count)
-      .slice(0, 60);
-
-    const grid = document.createElement('div');
-    grid.className = 'activities-grid';
-    acts.forEach(([actName, info]) => {
-      const expl = getExplanation(actName, info.sampleBucket);
-      const levels = [...info.cycles].sort().map(c => "C"+c).join('·');
-      const card = document.createElement('div');
-      card.className = 'act-card';
-      card.style.borderLeftColor = meta.color;
-      card.innerHTML = `
-        <div class="act-name">${escapeHtml(actName)}</div>
-        <div class="act-meta">
-          <span class="act-count" style="background:${meta.color};color:white;">${info.count}×</span>
-          <span class="act-levels">${levels}</span>
-        </div>
-        <div class="act-explain ${expl.source === 'manquant' ? 'missing' : ''}">${richText(expl.text)}</div>
-      `;
-      card.onclick = () => openActivityModal(actName, info, meta);
-      grid.appendChild(card);
-    });
-
-    if (acts.length === 0) {
-      grid.innerHTML = '<div style="opacity:.6;">Pas d\'activités nommées extraites pour ce moyen dans ce filtre.</div>';
-    }
-    section.appendChild(grid);
-    container.appendChild(section);
-  });
-}
-
-function openActivityModal(actName, info, meta) {
-  document.getElementById('modalTitle').textContent = actName;
-  document.getElementById('modalMeta').textContent = `${meta.label} · ${info.count} leçons · Niveau(x): ${[...info.cycles].sort().map(c=>cycleLabel(c)).join(' · ')}`;
-  const body = document.getElementById('modalBody');
-  const expl = getExplanation(actName, info.sampleBucket);
-  const relevantSamples = (info.sampleBucket.samples || []).filter(s =>
-    (s.desc||"").toLowerCase().includes(actName.toLowerCase()) ||
-    (s.title||"").toLowerCase().includes(actName.toLowerCase())
-  ).slice(0,5);
-
-  body.innerHTML = `
-    <div class="modal-section">
-      <h3 style="color:${meta.color};border-bottom-color:${meta.color};">📖 Explication</h3>
-      <div style="font-size:1rem;line-height:1.6;${expl.source==='manquant'?'color:#D58A3F;font-style:italic;':''}">${richText(expl.text)}</div>
-      <div style="margin-top:8px;font-size:.75rem;opacity:.6;">Source: ${expl.source}</div>
-    </div>
-    ${relevantSamples.length ? `
-      <div class="modal-section">
-        <h3 style="color:${meta.color};border-bottom-color:${meta.color};">📝 Exemples du calendrier</h3>
-        ${relevantSamples.map(s => `
-          <div class="sample-card" style="border-left-color:${meta.color};">
-            <div class="sample-head">${s.group ? 'Groupe '+s.group : ''} ${s.school ? '· '+escapeHtml(s.school) : ''}</div>
-            ${s.title ? `<div class="sample-title">${escapeHtml(s.title)}</div>` : ''}
-            <div class="sample-desc">${escapeHtml(s.desc)}</div>
-          </div>
-        `).join('')}
+      <div class="bg-white text-slate-800 px-5 py-4 mt-3">
+        <p class="font-lucky text-lg md:text-xl leading-tight uppercase" style="color:${m.color}">${name}</p>
+        ${sub?`<p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">${sub}</p>`:''}
       </div>
-    ` : ''}
-  `;
-  document.getElementById('modal').classList.add('open');
-}
+    </button>`;
+  }).join('');
 
-function renderSearchResults(buckets) {
-  const sr = document.getElementById('searchResults');
-  sr.classList.add('open');
-  // aggregate activities matching the search
-  const matches = {};
-  let totalLessons = 0;
-  buckets.forEach(b => {
-    (b.activities||[]).forEach(a => {
-      if (a.n.toLowerCase().includes(STATE.search)) {
-        matches[a.n] = (matches[a.n] || 0) + a.c;
-      }
-    });
-    totalLessons += b.count;
-  });
-  const sorted = Object.entries(matches).sort((a,b)=>b[1]-a[1]).slice(0, 30);
-  sr.innerHTML = `<h3>🔍 Résultats pour "${escapeHtml(STATE.search)}" — ${buckets.length} bloc(s), ${totalLessons.toLocaleString('fr')} leçon(s)</h3>` +
-    (sorted.length > 0
-      ? `<div>${sorted.map(([n,c]) => `<div class="sr-item"><span class="sr-name">${escapeHtml(n)}</span><span class="sr-count">${c}</span></div>`).join('')}</div>`
-      : `<div style="opacity:.7;">Aucune activité nommée trouvée dans les titres, mais ${totalLessons} leçon(s) contiennent ce terme dans la description.</div>`);
-}
-
-// openCellModal retiré — remplacé par openActivityModal
-
-function closeModal() {
-  document.getElementById('modal').classList.remove('open');
-}
-
-function renderCalendar() {
-  // Update tabs
-  document.querySelectorAll('.cal-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.year === STATE.calYear);
+  grid.addEventListener('click',e=>{
+    const btn=e.target.closest('.moyen-card');
+    if(!btn)return;
+    openMoyen(btn.dataset.key);
   });
 
-  const year = STATE.calYear;
-  const month = STATE.calMonth;
-  const yStart = parseInt(year.split('-')[0]);
-  const realYear = month >= 8 ? yStart : yStart + 1;
-  const daysInMonth = new Date(realYear, month, 0).getDate();
-  const firstDow = new Date(realYear, month - 1, 1).getDay(); // 0=dim
-  // Cal: première col = lundi → shift
-  const shiftDow = (firstDow + 6) % 7;
-
-  document.getElementById('calMonthLabel').textContent = `${MOIS_FULL[month]} ${realYear}`;
-
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-
-  ['Lun','Mar','Mer','Jeu','Ven'].forEach(d => {
-    const h = document.createElement('div');
-    h.className = 'cal-dayhead';
-    h.textContent = d;
-    grid.appendChild(h);
-  });
-
-  // Cells vides avant le 1 (si lun-ven seulement)
-  const firstWeekdayShift = Math.min(shiftDow, 4); // si le 1er tombe sam/dim, on démarre la semaine suivante
-  for (let i = 0; i < firstWeekdayShift; i++) {
-    const c = document.createElement('div');
-    c.className = 'cal-day off';
-    grid.appendChild(c);
+  function openMoyen(key){
+    const m=DATA.moyens.find(x=>x.key===key);
+    if(!m)return;
+    const data=perMoyen[key];
+    const emoji=(m.label.match(/^\S+/)||[''])[0];
+    const name=m.label.replace(/^\S+\s*/,'').replace(/\s*\(.*$/,'').trim();
+    const sub=(m.label.match(/\(([^)]+)\)/)||[,''])[1];
+    document.getElementById('moyenModalCard').style.borderColor=m.color;
+    document.getElementById('moyenModalHead').style.background=m.color;
+    document.getElementById('moyenModalEmoji').textContent=emoji;
+    document.getElementById('moyenModalTitle').textContent=name;
+    document.getElementById('moyenModalSub').textContent=(sub?sub+' · ':'')+data.count.toLocaleString('fr-CA')+' SAÉ recensées';
+    const top=Object.entries(data.activities).sort((a,b)=>b[1]-a[1]).slice(0,30);
+    document.getElementById('moyenModalList').innerHTML=top.length?top.map(([n,c])=>{
+      const q=encodeURIComponent(n.replace(/\([^)]*\)/g,'').trim());
+      return `<a href="https://jeux.zonetotalsport.ca/?q=${q}" target="_blank" rel="noopener" class="aspect-square flex flex-col items-center justify-center text-center p-4 md:p-6 rounded-3xl shadow-lg hover:-translate-y-1 hover:shadow-2xl transition-all" style="background:${m.color}1a;border:4px solid ${m.color};border-bottom-width:10px;border-right-width:10px;text-decoration:none">
+        <span class="font-lucky text-2xl md:text-3xl mb-2" style="color:${m.color}">${c}×</span>
+        <span class="font-bold text-slate-800 text-base md:text-xl leading-tight mb-2" style="font-family:'Luckiest Guy',cursive;letter-spacing:.03em">${n}</span>
+        <span class="text-[10px] md:text-xs font-black uppercase tracking-widest mt-auto" style="color:${m.color}">▶ Voir les jeux</span>
+      </a>`;
+    }).join(''):'<p class="text-slate-400 italic col-span-full text-center text-2xl">Aucune activité recensée.</p>';
+    const modal=document.getElementById('moyenModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
   }
-
-  const dayData = DAILY.daily[year] || {};
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dow = new Date(realYear, month - 1, d).getDay(); // 0=dim,6=sam
-    if (dow === 0 || dow === 6) continue; // skip weekends
-    const dateStr = `${realYear}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const lessons = dayData[dateStr] || [];
-    const cell = document.createElement('div');
-    cell.className = 'cal-day';
-    if (lessons.length) {
-      cell.classList.add('has');
-      cell.onclick = () => openDayModal(dateStr, lessons);
-    }
-
-    const header = document.createElement('div');
-    header.className = 'dnum';
-    header.textContent = d;
-    cell.appendChild(header);
-
-    // Group by moyen for badges
-    const byMoyen = {};
-    lessons.forEach(l => {
-      byMoyen[l.m] = (byMoyen[l.m] || 0) + 1;
-    });
-    const groupsSet = new Set(lessons.map(l => l.g).filter(Boolean));
-
-    Object.entries(byMoyen)
-      .sort((a,b) => b[1] - a[1])
-      .slice(0, 4)
-      .forEach(([mkey, cnt]) => {
-        const meta = moyenMeta(mkey);
-        const emoji = meta.label.split(' ')[0];
-        const name = meta.label.replace(emoji,'').trim();
-        const badge = document.createElement('div');
-        badge.className = 'cal-badge';
-        badge.style.background = meta.color;
-        badge.innerHTML = `<span>${emoji} ${name}</span><span class="bg">${cnt}</span>`;
-        cell.appendChild(badge);
-      });
-
-    if (groupsSet.size) {
-      const g = document.createElement('div');
-      g.style.cssText = 'font-size:.7rem;color:var(--cyan);margin-top:auto;font-family:Bangers;letter-spacing:1px;';
-      g.textContent = [...groupsSet].slice(0,6).map(x => x).join(' · ');
-      cell.appendChild(g);
-    }
-
-    grid.appendChild(cell);
-  }
-}
-
-function openDayModal(dateStr, lessons) {
-  const d = new Date(dateStr + 'T12:00:00');
-  const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-  const pretty = `${jours[d.getDay()]} ${d.getDate()} ${MOIS_FULL[d.getMonth()+1]} ${d.getFullYear()}`;
-  document.getElementById('modalTitle').textContent = pretty;
-
-  // Filter by active filters (cycle, moyens)
-  const filtered = lessons.filter(l => {
-    if (STATE.cycle !== "" && String(l.c) !== STATE.cycle) return false;
-    if (STATE.moyens.size > 0 && !STATE.moyens.has(l.m)) return false;
-    return true;
+  window.closeMoyen=function(){
+    const modal=document.getElementById('moyenModal');
+    modal.classList.add('hidden');modal.classList.remove('flex');
+  };
+  document.getElementById('moyenModal').addEventListener('click',e=>{
+    if(e.target.id==='moyenModal')closeMoyen();
   });
-
-  document.getElementById('modalMeta').textContent = `${filtered.length} leçon(s)`;
-  const body = document.getElementById('modalBody');
-
-  // Group by cycle then by group
-  const byCycle = {};
-  filtered.forEach(l => {
-    if (!byCycle[l.c]) byCycle[l.c] = [];
-    byCycle[l.c].push(l);
-  });
-
-  body.innerHTML = '';
-  [1,2,3,0].filter(c => byCycle[c]).forEach(c => {
-    const sec = document.createElement('div');
-    sec.className = 'modal-section';
-    const lbl = cycleLabel(c);
-    sec.innerHTML = `<h3>🎓 ${lbl} · ${byCycle[c].length} leçon(s)</h3>`;
-    byCycle[c].forEach(l => {
-      const meta = moyenMeta(l.m);
-      const emoji = meta.label.split(' ')[0];
-      const dl = document.createElement('div');
-      dl.className = 'day-lesson';
-      dl.style.borderLeftColor = meta.color;
-      dl.innerHTML = `
-        <div class="dl-head">
-          ${l.g ? `<span class="dl-group">Gr ${escapeHtml(l.g)}</span>` : ''}
-          <span class="dl-moyen" style="background:${meta.color};">${emoji} ${meta.label.replace(emoji,'').trim()}</span>
-          ${l.s ? `<span style="font-size:.75rem;opacity:.7;">🏫 ${escapeHtml(l.s)}</span>` : ''}
-        </div>
-        <div class="dl-desc">${escapeHtml(l.d)}</div>
-      `;
-      sec.appendChild(dl);
-    });
-    body.appendChild(sec);
-  });
-
-  if (filtered.length === 0) {
-    body.innerHTML = '<div style="padding:20px;opacity:.6;">Aucune leçon avec les filtres actifs ce jour.</div>';
-  }
-
-  document.getElementById('modal').classList.add('open');
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function richText(s) {
-  // Escape puis render **gras**
-  return escapeHtml(s).replace(/\*\*([^*]+)\*\*/g, '<strong style="color:var(--cyan-d);">$1</strong>');
-}
-function escapeAttr(s) { return escapeHtml(s); }
-
-loadData().catch(e => {
-  document.getElementById('loading').innerHTML = '❌ Erreur de chargement: ' + e.message;
-  console.error(e);
-});
+})();
 </script>
 
 </body>
