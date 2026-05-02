@@ -1190,16 +1190,16 @@ function renderJeux(){
   const filtered=jeuxFilter==='all'?jeuxData:jeuxData.filter(j=>j.cat===jeuxFilter);
   list.innerHTML=filtered.map((g,i)=>`
     <details class="hc-card shadow-md overflow-hidden group" ${i===0?'open':''}>
-      <summary class="px-4 py-3 text-white cursor-pointer press flex items-center justify-between rounded-t-xl" style="background:${jeuxCatColors[g.cat]||'#0086AD'}">
-        <h4 class="font-extrabold text-sm uppercase tracking-tight zts-text-shadow">${i+1}. ${g.name}</h4>
-        <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-lg font-bold">${g.cat}</span>
+      <summary class="px-5 py-4 text-white cursor-pointer press flex items-center justify-between rounded-t-xl" style="background:${jeuxCatColors[g.cat]||'#0086AD'}">
+        <h4 class="font-luckiest text-xl uppercase tracking-tight zts-text-shadow">${i+1}. ${g.name}</h4>
+        <span class="text-xs bg-white/20 px-3 py-1 rounded-lg font-luckiest uppercase">${g.cat}</span>
       </summary>
-      <div class="p-4 space-y-2">
-        ${g.steps.map((s,si)=>`<p class="text-xs text-slate-600 flex items-start leading-snug font-swanky"><span class="font-bold mr-2 shrink-0" style="color:#0086AD">C${si+1}</span>${s.replace(/^C\d: /,'')}</p>`).join('')}
-        <div class="mt-3 p-2.5 rounded-lg border-b-4 border-r-4 border-yellow-200" style="background:#FFFA0020">
-          <p class="text-[11px] font-bold font-girly" style="color:#004A61">👤 Rôle inclusif : ${g.role}</p>
+      <div class="p-5 space-y-3">
+        ${g.steps.map((s,si)=>`<p class="text-base text-slate-700 flex items-start leading-relaxed font-swanky"><span class="font-luckiest text-lg mr-3 shrink-0" style="color:${jeuxCatColors[g.cat]||'#0086AD'}">C${si+1}</span>${s.replace(/^C\d: /,'')}</p>`).join('')}
+        <div class="mt-4 p-4 rounded-lg border-b-4 border-r-4 border-yellow-200" style="background:#FFFA0020">
+          <p class="text-base font-bold font-girly" style="color:#004A61">👤 <span class="font-luckiest text-lg">Role inclusif</span> : ${g.role}</p>
         </div>
-        <button onclick="addJeuToPlanif(${i})" class="mt-2 text-[10px] font-bold press" style="color:#0086AD">📋 Ajouter à ma séance</button>
+        <button onclick="addJeuToPlanif(${i})" class="mt-3 text-sm font-luckiest press uppercase" style="color:#0086AD">📋 Ajouter a ma seance</button>
       </div>
     </details>
   `).join('');
