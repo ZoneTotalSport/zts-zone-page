@@ -3,391 +3,363 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>🤝 Aidons-nous — Zone Total Sport</title>
+<title>Aidons-nous — Zone Total Sport</title>
 <meta name="description" content="Communauté d'entraide pour profs EPS, SDG et camps. Partage, entraide, bienveillance.">
 
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://zonetotalsport.ca/aidons-nous/">
-<meta property="og:title" content="🤝 Aidons-nous — Communauté ZTS">
+<meta property="og:title" content="Aidons-nous — Communauté ZTS">
 <meta property="og:description" content="Donne au suivant. Partage tes trucs. Fais grandir la communauté.">
 <meta property="og:image" content="https://zonetotalsport.ca/bucheron-aidons-nous.png">
 
 <link rel="icon" type="image/png" href="../logo-zts.png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@400;500;600;700&family=Bangers&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Inter:wght@400;600;700;900&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61',ztsOrange:'#FF8C00',ztsLime:'#4ADE80',ztsPink:'#FF2A7A'},fontFamily:{lucky:['"Luckiest Guy"','cursive'],inter:['Inter','sans-serif']}}}}
+</script>
+<style>
+  @font-face{font-family:'LuckiestGuyZTS';src:local('Luckiest Guy');unicode-range:U+0020-007F}
+  @font-face{font-family:'LuckiestGuyZTS';src:local('Bangers');unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F;size-adjust:92%}
+  body{font-family:'Inter',sans-serif}
+  .font-lucky{font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;letter-spacing:.05em}
+  .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  .animate-float{animation:float 3s ease-in-out infinite}
+  .text-outline{text-shadow:2px 2px 0px rgba(0,0,0,.2)}
+  .nav-link{transition:all .2s;padding:8px 14px;border-radius:9999px;font-size:.9rem;white-space:nowrap;font-weight:700}
+  .nav-link:hover{background:rgba(255,255,255,.2)}
+  .nav-link.active-link{background:#FFF000;color:#004A61}
+
+  /* Modal overlay */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:none;align-items:flex-start;justify-content:center;padding:40px 16px 16px;overflow-y:auto}
+  .modal-bg.show{display:flex}
+
+  /* Message alerts */
+  .msg{padding:10px 14px;border-radius:10px;margin-bottom:10px;font-size:14px;display:none}
+  .msg.show{display:block}
+  .msg.err{background:#FEE2E2;border-left:4px solid #EF4444;color:#991B1B}
+  .msg.ok{background:#D1FAE5;border-left:4px solid #10B981;color:#065F46}
+
+  /* Reply box toggle */
+  .reply-box{display:none;margin-top:12px;gap:8px}
+  .reply-box.show{display:flex}
+</style>
 <script src="../analytics.js" defer></script>
 <script src="../clarity.js"></script>
-
-<style>
-  :root{--cyan:#00C4FF;--cyan-deep:#0086AD;--dark:#004A61;--yellow:#FFF000;--orange:#FF8C00;--lime:#4ADE80;--violet:#A855F7;}
-  *{box-sizing:border-box;}
-  body{font-family:'Inter',sans-serif;font-weight:600;color:#1e293b;margin:0;min-height:100vh;
-    background:#f1f5f9;}
-
-  .lucky{font-family:'Luckiest Guy',cursive;letter-spacing:1.5px;}
-  .bangers{font-family:'Bangers',cursive;letter-spacing:1px;}
-
-  /* ── NAV ── */
-  .navbar{background:#fff;position:sticky;top:0;z-index:40;border-bottom:4px solid #00C4FF;box-shadow:0 2px 8px rgba(0,0,0,.08);}
-  .nav-inner{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-  .nav-brand{display:flex;align-items:center;gap:8px;color:var(--dark);text-decoration:none;}
-  .nav-brand img{height:50px;}
-  .nav-brand-txt{font-family:'Luckiest Guy',cursive;font-size:30px;color:var(--dark);letter-spacing:1.5px;}
-  .nav-links{display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
-  @media(max-width:600px){.nav-brand-txt{display:none;}}
-  .nav-btn{padding:8px 14px;border-radius:10px;color:var(--dark);font-family:'Luckiest Guy',cursive;font-size:18px;text-decoration:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;letter-spacing:1px;}
-  .nav-btn:hover{background:rgba(0,196,255,0.12);transform:translateY(-2px);}
-  .nav-btn.active{background:var(--cyan);color:#fff;border-bottom:4px solid #0086AD;border-right:4px solid #0086AD;}
-  .nav-btn.login{background:linear-gradient(135deg,#FF8C00,#FFF000);color:#0a1628;border-bottom:4px solid #cc7000;border-right:4px solid #cc7000;}
-
-  /* ── HERO IMMERSIF ── */
-  .hero{background:radial-gradient(ellipse at 30% 40%,#00C4FF 0%,#0086AD 40%,#004A61 100%);color:#fff;padding:28px 20px 22px;position:relative;overflow:hidden;border-bottom:12px solid #FFF000;}
-  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 85% 25%,rgba(255,240,0,.12),transparent 55%),radial-gradient(circle at 10% 80%,rgba(0,255,146,.08),transparent 40%);pointer-events:none;}
-  .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#00C4FF,#FFF000,#4ADE80,#FF8C00,#A855F7);pointer-events:none;}
-  .hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;position:relative;}
-
-  /* Left — Logo + sous-titre */
-  .hero-left{display:flex;align-items:center;gap:12px;}
-  .hero-left img{width:70px;height:auto;filter:drop-shadow(2px 4px 8px rgba(0,0,0,.3));}
-  .hero-left-txt{display:flex;flex-direction:column;}
-  .hero-left-brand{font-family:'Luckiest Guy',cursive;font-size:18px;letter-spacing:1.5px;color:#FFF000;line-height:1.1;}
-  .hero-left-sub{font-family:'Inter',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:2px;}
-
-  /* Center — Titre géant sticker */
-  .hero-center{text-align:center;}
-  .hero-title{font-family:'Luckiest Guy',cursive;font-size:clamp(32px,6vw,62px);margin:0;line-height:1;letter-spacing:3px;color:#fff;
-    -webkit-text-stroke:3px #fff;paint-order:stroke fill;
-    text-shadow:4px 4px 0 #004A61,6px 6px 0 rgba(0,0,0,.2);display:inline-flex;align-items:center;gap:14px;}
-  .hero-title .hero-ico{font-size:clamp(40px,7vw,72px);filter:drop-shadow(3px 3px 0 rgba(0,0,0,.2));animation:hero-float 3s ease-in-out infinite;}
-  @keyframes hero-float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-6px) rotate(3deg);}}
-  .hero-tagline{font-family:'Luckiest Guy',cursive;font-size:clamp(14px,2.2vw,22px);color:#FFF000;letter-spacing:1.5px;margin-top:4px;text-shadow:2px 2px 0 rgba(0,0,0,.15);}
-
-  /* Right — Bouton PRO + quick actions */
-  .hero-right{display:flex;flex-direction:column;align-items:center;gap:8px;}
-  .hero-pro-btn{background:linear-gradient(135deg,#FFF000,#FF8C00);color:#004A61;font-family:'Luckiest Guy',cursive;font-size:20px;letter-spacing:2px;padding:10px 22px;border:none;border-radius:12px;border-bottom:8px solid #cc7000;border-right:8px solid #cc7000;cursor:pointer;transition:all .15s;box-shadow:2px 2px 0 rgba(0,0,0,.1);}
-  .hero-pro-btn:hover{transform:translateY(-3px) scale(1.04);}
-  .hero-pro-btn:active{transform:translateY(2px);border-bottom-width:4px;border-right-width:4px;}
-
-  /* Quick action bubbles */
-  .hero-actions{display:flex;gap:6px;}
-  .hero-act{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);border:2px solid rgba(255,255,255,.25);border-bottom:6px solid rgba(255,255,255,.12);border-right:6px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .2s;text-decoration:none;}
-  .hero-act:hover{background:rgba(255,240,0,.25);transform:translateY(-3px) scale(1.1);border-color:#FFF000;}
-
-  @media(max-width:700px){
-    .hero-inner{grid-template-columns:1fr;text-align:center;gap:10px;}
-    .hero-left{justify-content:center;}
-    .hero-right{flex-direction:row;justify-content:center;}
-    .hero-pro-btn{font-size:16px;padding:8px 16px;}
-  }
-
-  /* ── LAYOUT ── */
-  .container{max-width:1060px;margin:0 auto;padding:16px;}
-  .card{background:#fff;border-radius:16px;border-bottom:12px solid #00C4FF;border-right:12px solid #00C4FF;box-shadow:4px 4px 0 rgba(0,0,0,.06);margin-bottom:16px;transition:all .25s cubic-bezier(.34,1.56,.64,1);}
-  .card:hover{transform:translateY(-4px) scale(1.01);}
-  .card-body{padding:18px 20px;}
-
-  /* ── CHARTE ── */
-  details.card summary{padding:14px 18px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:'Luckiest Guy',cursive;font-size:28px;color:var(--dark);}
-  details.card[open] summary{border-bottom:2px dashed #FF8C00;}
-  details.card ul{list-style:none;padding:14px 18px;margin:0;font-size:22px;color:#334155;}
-  details.card li{padding:4px 0;}
-
-  /* ── COMPOSE ── */
-  .compose{display:flex;gap:12px;align-items:center;}
-  .compose-input{flex:1;background:#f8fafc;border-radius:16px;padding:12px 18px;cursor:pointer;color:#94a3b8;font-family:'Inter',sans-serif;font-weight:600;font-size:22px;transition:all .2s;border:2px solid #e2e8f0;text-align:left;width:100%;}
-  .compose-input:hover{background:#f1f5f9;border-color:#00C4FF;}
-
-  .avatar{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#FFF000,#FF8C00);color:var(--dark);display:flex;align-items:center;justify-content:center;font-family:'Luckiest Guy',cursive;font-size:20px;flex-shrink:0;border-bottom:4px solid #cc7000;border-right:4px solid #cc7000;}
-  .avatar-sm{width:34px;height:34px;font-size:15px;}
-  .avatar-lg{width:52px;height:52px;font-size:24px;}
-
-  /* ── FAMILLES (3 onglets en haut) ── */
-  .families{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
-  .family{background:#fff;border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;border:3px solid transparent;border-bottom:12px solid #e2e8f0;border-right:12px solid #e2e8f0;box-shadow:4px 4px 0 rgba(0,0,0,.06);transition:all .25s cubic-bezier(.34,1.56,.64,1);color:var(--dark);}
-  .family:hover{transform:translateY(-6px) scale(1.04) rotate(-1deg);}
-  .family.active{background:#fff;border-color:#00C4FF;border-bottom-color:#0086AD;border-right-color:#0086AD;transform:translateY(-2px);}
-  .family-ico{font-size:60px;line-height:1;margin-bottom:8px;}
-  .family-name{font-family:'Luckiest Guy',cursive;font-size:26px;color:var(--dark);letter-spacing:1.5px;line-height:1.1;}
-  .family-count{font-size:17px;font-family:'Fredoka',sans-serif;font-weight:500;color:#64748b;margin-top:2px;}
-  @media(max-width:500px){.family-ico{font-size:32px;}.family-name{font-size:14px;}}
-
-  /* ── FOLDERS (Drive-style) ── */
-  .folders-wrap{margin-bottom:14px;}
-  .folders-title{font-family:'Luckiest Guy',cursive;font-size:28px;color:var(--dark);letter-spacing:1.5px;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
-  .folders{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
-  .folder{background:#fff;border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;border:3px solid transparent;border-bottom:8px solid #e2e8f0;border-right:8px solid #e2e8f0;box-shadow:3px 3px 0 rgba(0,0,0,.05);transition:all .25s cubic-bezier(.34,1.56,.64,1);color:var(--dark);}
-  .folder:hover{transform:translateY(-4px) scale(1.03);border-color:#FF8C00;}
-  .folder.active{border-color:var(--cyan);border-bottom-color:#0086AD;border-right-color:#0086AD;background:#f0f9ff;}
-  .folder-ico{font-size:54px;line-height:1;margin-bottom:6px;}
-  .folder-name{font-family:'Luckiest Guy',cursive;font-size:20px;color:var(--dark);letter-spacing:1px;line-height:1.2;}
-  .folder-count{font-size:16px;color:#64748b;margin-top:2px;font-family:'Inter',sans-serif;font-weight:600;}
-
-  /* ── FILTERS ── */
-  .filters{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;margin-bottom:14px;}
-  .filter-group{display:flex;gap:6px;flex-wrap:wrap;}
-  .chip{padding:8px 16px;border-radius:12px;cursor:pointer;border:2px solid #e2e8f0;border-bottom:6px solid #e2e8f0;border-right:6px solid #e2e8f0;background:#fff;color:var(--dark);font-family:'Luckiest Guy',cursive;font-size:18px;letter-spacing:1px;transition:all .2s;box-shadow:2px 2px 0 rgba(0,0,0,.04);}
-  .chip:hover{border-color:#FF8C00;transform:translateY(-2px);}
-  .chip.active{background:var(--cyan);color:#fff;border-color:var(--cyan);border-bottom-color:#0086AD;border-right-color:#0086AD;}
-
-  /* ── POSTS ── */
-  .post-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
-  .post-user{flex:1;min-width:0;}
-  .user-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-  .user-name{font-family:'Luckiest Guy',cursive;font-size:24px;color:var(--dark);letter-spacing:1px;}
-  .cat-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;font-family:'Luckiest Guy',cursive;font-size:11px;letter-spacing:1px;border:2px solid #fff;transform:rotate(2deg);}
-  .cat-eps{background:#00C4FF;color:#fff;}
-  .cat-sdg{background:#FF8C00;color:#fff;}
-  .cat-camp{background:#4ADE80;color:#0a1628;}
-  .post-date{font-size:16px;color:#94a3b8;margin-top:2px;font-family:'Inter',sans-serif;}
-  .pinned-label{background:#FFF000;color:#0a1628;padding:2px 10px;border-radius:8px;font-family:'Luckiest Guy',cursive;font-size:11px;letter-spacing:1px;border:2px solid #e2e8f0;transform:rotate(-2deg);}
-  .post.pinned{border-left:4px solid #FF8C00;}
-
-  .post-title{font-family:'Luckiest Guy',cursive;font-size:34px;color:var(--dark);line-height:1.2;margin:10px 0 14px;letter-spacing:1px;}
-  .post-content{font-family:'Inter',sans-serif;font-weight:600;font-size:22px;color:#334155;white-space:pre-wrap;line-height:1.6;}
-
-  /* Actions */
-  .post-actions{display:flex;gap:4px;padding-top:10px;border-top:1px solid #e2e8f0;margin-top:12px;flex-wrap:wrap;}
-  .act-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;cursor:pointer;transition:all .2s;background:transparent;border:none;font-family:'Luckiest Guy',cursive;font-size:16px;color:#64748b;letter-spacing:1px;}
-  .act-btn:hover{background:rgba(0,196,255,.1);color:#0086AD;transform:scale(1.05);}
-  .act-btn.liked{color:#A855F7;}
-
-  /* Replies */
-  .replies{margin-top:12px;padding-left:52px;}
-  .reply{background:#f8fafc;border-radius:12px;padding:10px 14px;margin-bottom:6px;display:flex;gap:8px;align-items:flex-start;border:1px solid #e2e8f0;}
-  .reply-name{font-family:'Luckiest Guy',cursive;font-size:14px;color:#0086AD;}
-  .reply-content{font-size:15px;color:#475569;}
-  .reply-box{display:none;margin-top:12px;gap:8px;}
-  .reply-box.show{display:flex;}
-  .reply-input{flex:1;}
-  .reply-input textarea{width:100%;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-family:'Inter',sans-serif;font-size:15px;min-height:54px;resize:vertical;background:#fff;color:#1e293b;}
-  .reply-input textarea:focus{outline:none;border-color:#00C4FF;}
-  .reply-send{margin-top:6px;background:#00C4FF;color:#0a1628;padding:6px 14px;border:none;border-bottom:4px solid #0086AD;border-right:4px solid #0086AD;border-radius:8px;font-family:'Luckiest Guy',cursive;font-size:14px;cursor:pointer;letter-spacing:1px;}
-
-  /* ── MODAL ── */
-  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:none;align-items:flex-start;justify-content:center;padding:40px 16px 16px;overflow-y:auto;}
-  .modal-bg.show{display:flex;}
-  .modal{background:#fff;border-radius:16px;max-width:560px;width:100%;border-bottom:12px solid #00C4FF;border-right:12px solid #00C4FF;box-shadow:4px 4px 0 rgba(0,0,0,.06);margin-bottom:40px;}
-  .modal-header{background:var(--cyan);color:#fff;padding:14px 18px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center;}
-  .modal-header h2{font-family:'Luckiest Guy',cursive;font-size:32px;margin:0;letter-spacing:1.5px;text-shadow:2px 2px 0 rgba(0,0,0,.15);}
-  .modal-close{background:rgba(255,255,255,0.2);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-  .modal-close:hover{background:rgba(255,255,255,0.35);}
-  .modal-body{padding:18px;}
-  .modal-body label{display:block;font-family:'Luckiest Guy',cursive;font-size:16px;letter-spacing:1px;color:#64748b;margin:10px 0 4px;}
-  .modal-body input,.modal-body textarea,.modal-body select{width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-family:'Inter',sans-serif;font-weight:600;font-size:18px;background:#fff;color:#1e293b;}
-  .modal-body input:focus,.modal-body textarea:focus,.modal-body select:focus{outline:none;border-color:#00C4FF;}
-  .modal-body textarea{min-height:130px;resize:vertical;}
-  .char-count{text-align:right;font-size:12px;color:#9CA3AF;margin-top:4px;}
-  .submit-btn{width:100%;margin-top:14px;background:linear-gradient(135deg,#FFF000,#FF8C00);color:#0a1628;border:none;border-bottom:8px solid #cc7000;border-right:8px solid #cc7000;padding:14px;border-radius:12px;font-family:'Luckiest Guy',cursive;font-size:28px;letter-spacing:2px;cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1);}
-  .submit-btn:hover{transform:translateY(-4px) scale(1.02);}
-  .submit-btn:active{transform:scale(.96);}
-  .submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
-
-  .msg{padding:10px 14px;border-radius:10px;margin-bottom:10px;font-size:14px;display:none;}
-  .msg.show{display:block;}
-  .msg.err{background:#FEE2E2;border-left:4px solid #EF4444;color:#991B1B;}
-  .msg.ok{background:#D1FAE5;border-left:4px solid #10B981;color:#065F46;}
-
-  /* Auth gate inside modal */
-  .auth-gate{background:#fffbeb;border:2px dashed #FF8C00;border-radius:12px;padding:20px;text-align:center;color:var(--dark);}
-
-  /* Empty state */
-  .empty{text-align:center;padding:40px 20px;background:#fff;border-radius:16px;border-bottom:12px solid #e2e8f0;border-right:12px solid #e2e8f0;box-shadow:4px 4px 0 rgba(0,0,0,.06);}
-  .empty img{width:100px;opacity:0.7;margin:0 auto 10px;}
-  .empty h3{font-family:'Luckiest Guy',cursive;font-size:24px;color:var(--dark);margin:0 0 8px;letter-spacing:1.5px;}
-  .empty p{font-size:16px;color:#64748b;margin:0 0 14px;}
-
-  .btn{display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#FFF000,#FF8C00);color:#0a1628;text-decoration:none;border-radius:12px;font-family:'Luckiest Guy',cursive;font-size:17px;letter-spacing:1.5px;border:none;border-bottom:6px solid #cc7000;border-right:6px solid #cc7000;cursor:pointer;transition:all .2s;}
-  .btn:hover{transform:translateY(-3px) scale(1.03);}
-
-  /* ── FOOTER ── */
-  footer{background:#fff;color:#64748b;text-align:center;padding:20px;margin-top:20px;border-top:4px solid #00C4FF;box-shadow:0 -2px 8px rgba(0,0,0,.04);}
-  footer a{color:#0086AD;text-decoration:none;font-weight:600;}
-  footer .tag{font-family:'Luckiest Guy',cursive;color:var(--dark);font-size:18px;letter-spacing:1.5px;margin-bottom:6px;}
-
-  /* Mobile */
-  @media(max-width:640px){
-    .hero h1{font-size:28px;}
-    .hero p{font-size:15px;}
-    .hero img{width:60px;}
-    .post-title{font-size:20px;}
-    .user-name{font-size:16px;}
-    .post-content{font-size:16px;}
-    .replies{padding-left:42px;}
-  }
-</style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900">
 
-<!-- NAV -->
-<nav class="navbar">
-  <div class="nav-inner">
-    <a href="../" class="nav-brand">
-      <img src="../logo-zts-text.png" alt="Zone Total Sport" style="height:60px;width:auto;">
+<!-- ══════════ HEADER / NAV (identique blog) ══════════ -->
+<header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+    <a href="../" class="flex flex-col items-start shrink-0">
+      <h1 class="text-xl md:text-3xl font-lucky text-white flex items-center gap-2 text-outline">
+        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+      </h1>
+      <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Communauté EPS</span>
     </a>
-    <div class="nav-links">
-      <a href="../" class="nav-btn">🏠 Accueil</a>
-      <a href="../blog.html" class="nav-btn">📰 Blog</a>
-      <a href="#" class="nav-btn active">🤝 Aidons-nous</a>
+    <nav class="flex items-center gap-1 flex-wrap justify-end">
+      <a href="../" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Accueil</span></a>
+      <a href="../blog.html" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="pen-line" class="w-4 h-4"></i><span class="hidden sm:inline">Blog</span></a>
+      <a href="#" class="nav-link text-white flex items-center gap-1.5 active-link"><i data-lucide="hand-helping" class="w-4 h-4"></i><span>Aidons-nous</span></a>
       <a href="#" id="zts-login-btn" data-auth="login"
-         onclick="event.preventDefault();if(window.ztsShowLogin){window.ztsShowLogin()}else{alert('Chargement... réessaie dans 1 sec.');}"
-         class="nav-btn login">👤 <span id="navLoginLabel">Connexion</span></a>
-    </div>
+         onclick="event.preventDefault();if(window.ztsShowLogin){window.ztsShowLogin()}else{alert('Chargement...');}"
+         class="nav-link text-ztsPink bg-white/90 hover:bg-white flex items-center gap-1.5">
+        <i data-lucide="user" class="w-4 h-4"></i><span id="navLoginLabel">Connexion</span>
+      </a>
+    </nav>
   </div>
-</nav>
+</header>
 
-<!-- HERO IMMERSIF -->
-<section class="hero">
-  <div class="hero-inner">
-    <!-- Left — Logo + sous-titre -->
-    <div class="hero-left">
-      <img src="../logo-zts.png" alt="Zone Total Sport" onerror="this.src='../bucheron-basketball.png'">
-      <div class="hero-left-txt">
-        <span class="hero-left-brand">ZONE TOTAL SPORT</span>
-        <span class="hero-left-sub">Communauté EPS &bull; SDG &bull; Camps</span>
+<!-- ══════════ HERO XXL ══════════ -->
+<section class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 relative">
+    <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+      <!-- Left text -->
+      <div class="lg:w-1/2 text-white z-10 text-center lg:text-left">
+        <span class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg">
+          COMMUNAUTÉ D'ENTRAIDE
+        </span>
+        <h2 class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline">
+          AIDONS-<span class="text-ztsYellow">NOUS</span>
+        </h2>
+        <p class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0">
+          La communauté qui donne au suivant. Partage tes trucs, pose tes questions, fais grandir la gang.
+        </p>
+        <div class="flex flex-wrap justify-center lg:justify-start items-center gap-5">
+          <button onclick="openCompose()" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase border-none cursor-pointer">
+            PARTAGER UN TRUC
+          </button>
+          <span class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl text-cyan-100 font-bold">
+            <i data-lucide="users" class="w-5 h-5"></i> <span id="heroPostCount">0 posts</span>
+          </span>
+        </div>
       </div>
-    </div>
-    <!-- Center — Titre géant sticker -->
-    <div class="hero-center">
-      <h1 class="hero-title"><span class="hero-ico">🤝</span> AIDONS-NOUS</h1>
-      <p class="hero-tagline">LA COMMUNAUTÉ QUI DONNE AU SUIVANT 💛</p>
-    </div>
-    <!-- Right — PRO + quick actions -->
-    <div class="hero-right">
-      <button class="hero-pro-btn" onclick="if(window.ztsShowLogin)ztsShowLogin();">⭐ PRO</button>
-      <div class="hero-actions">
-        <a href="../" class="hero-act" title="Accueil">🏠</a>
-        <a href="../blog.html" class="hero-act" title="Blog">📰</a>
-        <a href="#" class="hero-act" title="Paramètres" onclick="event.preventDefault();if(window.ztsShowLogin)ztsShowLogin();">⚙️</a>
+      <!-- Right image -->
+      <div class="lg:w-1/2 relative flex justify-center mt-10 lg:mt-0 w-full">
+        <div class="relative z-10 rounded-[3rem] overflow-hidden border-[10px] border-white shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 max-w-md lg:max-w-full">
+          <img src="../bucheron-aidons-nous.png" alt="Communauté Aidons-nous" class="w-full h-[300px] md:h-[420px] object-cover bg-gradient-to-br from-cyan-200 to-blue-300" onerror="this.src='../bucheron-basketball.png'">
+        </div>
+        <div class="absolute -bottom-8 -left-4 md:-bottom-10 md:-left-10 z-20 bg-white p-4 md:p-5 rounded-3xl shadow-2xl flex items-center gap-3 md:gap-4 border-2 border-ztsBlue animate-float">
+          <div class="bg-ztsBlue p-3 rounded-2xl text-white">
+            <i data-lucide="heart-handshake" class="w-7 h-7 md:w-8 md:h-8"></i>
+          </div>
+          <div class="text-left">
+            <p class="font-lucky text-ztsBlue text-lg md:text-xl leading-none">ENTRAIDE</p>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-tighter">EPS &bull; SDG &bull; Camps</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- MAIN -->
-<main class="container">
+<!-- ══════════ FAMILLES + COMPOSE (barre flottante) ══════════ -->
+<div class="max-w-7xl mx-auto px-4 -mt-12 relative z-30">
+  <div class="bg-white p-4 md:p-6 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl border-b-8 border-slate-200">
 
-  <!-- Charte collapsible -->
-  <details class="card">
-    <summary><span>📜 NOTRE CHARTE — Clique pour lire</span><span style="font-size:13px;opacity:0.5;">▼</span></summary>
-    <ul>
-      <li>✅ On partage nos trucs, nos jeux, nos bonnes idées</li>
-      <li>✅ On pose nos questions sans gêne — personne juge</li>
-      <li>✅ On donne au suivant : la communauté avance ensemble</li>
-      <li>✅ On encourage, on célèbre les bons coups des autres</li>
-      <li>✅ On respecte toutes les réalités (débutant, vétéran, région)</li>
-      <li>❌ Aucun gros mot, insulte, ou négativité</li>
-      <li>❌ Aucune pub extérieure, aucun spam</li>
-    </ul>
-  </details>
+    <!-- Compose bar -->
+    <div class="flex items-center gap-4 mb-6">
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-ztsYellow to-ztsOrange text-ztsDeep flex items-center justify-center font-lucky text-2xl shrink-0 border-b-4 border-r-4 border-orange-500/40" id="composeAvatar">?</div>
+      <button onclick="openCompose()" class="flex-1 text-left bg-slate-100 hover:bg-slate-50 px-6 py-4 rounded-2xl text-slate-400 font-semibold text-lg transition-all border-2 border-transparent hover:border-ztsBlue/30 cursor-pointer">
+        Quoi de neuf la gang? Partage un truc...
+      </button>
+      <button onclick="openCompose()" class="bg-ztsBlue text-white px-6 py-4 rounded-2xl font-lucky text-lg hover:bg-ztsDarkBlue transition-all shadow-[4px_4px_0px_0px_rgba(0,134,173,0.3)] border-none cursor-pointer hidden sm:block">
+        PUBLIER
+      </button>
+    </div>
 
-  <!-- Compose -->
-  <div class="card card-body">
-    <div class="compose">
-      <div class="avatar avatar-lg" id="composeAvatar">?</div>
-      <button class="compose-input" onclick="openCompose()">Quoi de neuf la gang? Partage un truc...</button>
+    <!-- 3 Familles -->
+    <div class="grid grid-cols-3 gap-3 md:gap-4" id="familiesRow">
+      <button class="family-tab group bg-cyan-50 hover:bg-cyan-100 rounded-2xl md:rounded-3xl p-4 md:p-6 text-center transition-all border-b-[8px] border-r-[8px] border-cyan-200 hover:border-ztsBlue cursor-pointer active" data-cat="eps">
+        <div class="text-4xl md:text-6xl mb-2">🏀</div>
+        <div class="font-lucky text-ztsDeep text-sm md:text-xl leading-tight">PROFS D'EPS</div>
+        <div class="text-[11px] md:text-sm font-black text-slate-400 uppercase tracking-widest mt-1" id="countEps">0 posts</div>
+      </button>
+      <button class="family-tab group bg-orange-50 hover:bg-orange-100 rounded-2xl md:rounded-3xl p-4 md:p-6 text-center transition-all border-b-[8px] border-r-[8px] border-orange-200 hover:border-ztsOrange cursor-pointer" data-cat="sdg">
+        <div class="text-4xl md:text-6xl mb-2">🎨</div>
+        <div class="font-lucky text-ztsDeep text-sm md:text-xl leading-tight">SERVICE DE GARDE</div>
+        <div class="text-[11px] md:text-sm font-black text-slate-400 uppercase tracking-widest mt-1" id="countSdg">0 posts</div>
+      </button>
+      <button class="family-tab group bg-green-50 hover:bg-green-100 rounded-2xl md:rounded-3xl p-4 md:p-6 text-center transition-all border-b-[8px] border-r-[8px] border-green-200 hover:border-ztsLime cursor-pointer" data-cat="camp">
+        <div class="text-4xl md:text-6xl mb-2">⛺</div>
+        <div class="font-lucky text-ztsDeep text-sm md:text-xl leading-tight">CAMPS DE JOUR</div>
+        <div class="text-[11px] md:text-sm font-black text-slate-400 uppercase tracking-widest mt-1" id="countCamp">0 posts</div>
+      </button>
     </div>
   </div>
+</div>
 
-  <!-- 3 FAMILLES (onglets principaux) -->
-  <div class="families" id="familiesRow">
-    <div class="family active" data-cat="eps"><div class="family-ico">🏀</div><div class="family-name">PROFS D'ÉPS</div><div class="family-count" id="countEps">0 posts</div></div>
-    <div class="family" data-cat="sdg"><div class="family-ico">🎨</div><div class="family-name">SERVICE DE GARDE</div><div class="family-count" id="countSdg">0 posts</div></div>
-    <div class="family" data-cat="camp"><div class="family-ico">⛺</div><div class="family-name">CAMPS DE JOUR</div><div class="family-count" id="countCamp">0 posts</div></div>
-  </div>
+<!-- ══════════ MAIN CONTENT ══════════ -->
+<main class="max-w-7xl mx-auto px-4 py-12 md:py-16">
+  <div class="grid lg:grid-cols-12 gap-10 lg:gap-16">
 
-  <!-- Dossiers de la famille sélectionnée -->
-  <div class="folders-wrap">
-    <div class="folders-title">📁 <span id="foldersTitle">DOSSIERS</span></div>
-    <div class="folders" id="foldersGrid"></div>
-  </div>
+    <!-- ── COL GAUCHE : Feed ── -->
+    <div class="lg:col-span-8">
 
-  <!-- Tri du fil -->
-  <div class="filters">
-    <div class="filter-group">
-      <button class="chip active" data-sort="recent">🕐 Récents</button>
-      <button class="chip" data-sort="hot">🔥 Populaires</button>
+      <!-- Dossiers titre -->
+      <h3 class="text-3xl md:text-4xl font-lucky text-ztsDeep mb-8 flex items-center gap-4">
+        <i data-lucide="folder-open" class="text-ztsYellow w-10 h-10 md:w-12 md:h-12 drop-shadow-sm"></i>
+        <span id="foldersTitle">DOSSIERS</span>
+      </h3>
+
+      <!-- Dossiers grid -->
+      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-8" id="foldersGrid"></div>
+
+      <!-- Tri -->
+      <div class="flex items-center gap-3 mb-8">
+        <button class="chip-sort font-lucky text-lg px-5 py-3 rounded-2xl bg-ztsBlue text-white shadow-[0_8px_20px_rgba(0,196,255,.4)] border-none cursor-pointer transition-all active" data-sort="recent">
+          <i data-lucide="clock" class="w-4 h-4 inline mr-1"></i> Recents
+        </button>
+        <button class="chip-sort font-lucky text-lg px-5 py-3 rounded-2xl bg-white text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 border-none cursor-pointer transition-all" data-sort="hot">
+          <i data-lucide="flame" class="w-4 h-4 inline mr-1"></i> Populaires
+        </button>
+      </div>
+
+      <!-- Feed -->
+      <div id="feed" class="space-y-6">
+        <div class="bg-white rounded-[2.5rem] p-10 border-b-[10px] border-slate-100 text-center shadow-sm">
+          <p class="font-lucky text-2xl text-slate-300">Chargement...</p>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- Feed -->
-  <div id="feed">
-    <div class="empty"><h3>Chargement...</h3></div>
+    <!-- ── COL DROITE : Sidebar ── -->
+    <aside class="lg:col-span-4 space-y-10">
+
+      <!-- Charte -->
+      <details class="bg-white rounded-[2.5rem] border-b-[10px] border-ztsYellow shadow-sm group">
+        <summary class="p-6 md:p-8 cursor-pointer font-lucky text-2xl text-ztsDeep flex items-center justify-between list-none">
+          <span class="flex items-center gap-3"><i data-lucide="scroll-text" class="w-7 h-7 text-ztsYellow"></i> NOTRE CHARTE</span>
+          <i data-lucide="chevron-down" class="w-6 h-6 text-slate-300 group-open:rotate-180 transition-transform"></i>
+        </summary>
+        <ul class="px-6 md:px-8 pb-6 md:pb-8 space-y-2 text-slate-600 font-semibold text-base">
+          <li class="flex items-start gap-2"><span class="text-ztsLime text-lg">✓</span> On partage nos trucs, nos jeux, nos bonnes idees</li>
+          <li class="flex items-start gap-2"><span class="text-ztsLime text-lg">✓</span> On pose nos questions sans gene — personne juge</li>
+          <li class="flex items-start gap-2"><span class="text-ztsLime text-lg">✓</span> On donne au suivant : la communaute avance ensemble</li>
+          <li class="flex items-start gap-2"><span class="text-ztsLime text-lg">✓</span> On encourage, on celebre les bons coups des autres</li>
+          <li class="flex items-start gap-2"><span class="text-ztsLime text-lg">✓</span> On respecte toutes les realites</li>
+          <li class="flex items-start gap-2"><span class="text-ztsPink text-lg">✕</span> Aucun gros mot, insulte, ou negativite</li>
+          <li class="flex items-start gap-2"><span class="text-ztsPink text-lg">✕</span> Aucune pub exterieure, aucun spam</li>
+        </ul>
+      </details>
+
+      <!-- Stats -->
+      <div class="bg-white rounded-[2.5rem] p-8 border-b-[10px] border-ztsBlue shadow-sm">
+        <h4 class="text-2xl font-lucky text-ztsDeep mb-6 uppercase">La communaute</h4>
+        <div class="grid grid-cols-2 gap-4 text-center">
+          <div class="bg-cyan-50 rounded-2xl py-4">
+            <div class="font-lucky text-3xl text-ztsBlue" id="statPosts">0</div>
+            <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Posts</div>
+          </div>
+          <div class="bg-yellow-50 rounded-2xl py-4">
+            <div class="font-lucky text-3xl text-ztsDeep">3</div>
+            <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Familles</div>
+          </div>
+          <div class="bg-green-50 rounded-2xl py-4">
+            <div class="font-lucky text-3xl text-ztsLime" id="statTopics">30</div>
+            <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Dossiers</div>
+          </div>
+          <div class="bg-orange-50 rounded-2xl py-4">
+            <div class="font-lucky text-2xl text-ztsOrange">100%</div>
+            <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Gratuit</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA Outils -->
+      <div class="bg-ztsDeep rounded-[2.5rem] p-8 md:p-10 text-white shadow-2xl relative overflow-hidden border-b-[12px] border-black/20">
+        <i data-lucide="wrench" class="absolute top-0 right-0 w-40 h-40 opacity-10 -mr-8 -mt-8"></i>
+        <h3 class="text-3xl md:text-4xl font-lucky mb-6 text-ztsYellow italic tracking-wide">ESPACE OUTILS</h3>
+        <p class="text-cyan-100 mb-8 font-medium">
+          Decouvre nos outils pedagogiques gratuits pour le gymnase.
+        </p>
+        <div class="space-y-4">
+          <a href="../#outils" class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-all group border border-white/5">
+            <div class="bg-ztsYellow p-3 rounded-xl text-ztsDeep group-hover:scale-110 transition-transform"><i data-lucide="gamepad-2" class="w-6 h-6"></i></div>
+            <span class="font-lucky text-lg uppercase tracking-wide">Jeux EPS</span>
+          </a>
+          <a href="../#sae" class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-all group border border-white/5">
+            <div class="bg-ztsYellow p-3 rounded-xl text-ztsDeep group-hover:scale-110 transition-transform"><i data-lucide="clipboard-check" class="w-6 h-6"></i></div>
+            <span class="font-lucky text-lg uppercase tracking-wide">SAE & grilles</span>
+          </a>
+          <a href="../blog.html" class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-all group border border-white/5">
+            <div class="bg-ztsYellow p-3 rounded-xl text-ztsDeep group-hover:scale-110 transition-transform"><i data-lucide="pen-line" class="w-6 h-6"></i></div>
+            <span class="font-lucky text-lg uppercase tracking-wide">Blog EPS</span>
+          </a>
+        </div>
+        <a href="../#outils" class="block text-center w-full mt-10 bg-ztsYellow text-ztsDeep font-lucky text-xl md:text-2xl py-4 rounded-3xl hover:bg-white transition-all shadow-xl uppercase">
+          TOUT VOIR !
+        </a>
+      </div>
+
+      <!-- Social -->
+      <div class="bg-white rounded-[2.5rem] p-8 border-b-[10px] border-slate-100 text-center shadow-sm">
+        <h4 class="text-2xl font-lucky text-slate-800 mb-6 uppercase">Suis-nous !</h4>
+        <div class="flex justify-center gap-4">
+          <a href="https://www.facebook.com/profile.php?id=100090661918934" target="_blank" rel="noopener" class="w-14 h-14 bg-cyan-50 rounded-2xl flex items-center justify-center text-ztsBlue hover:bg-ztsBlue hover:text-white transition-all shadow-sm">
+            <i data-lucide="facebook" class="w-7 h-7"></i>
+          </a>
+          <a href="https://www.instagram.com/zonetotalsport/" target="_blank" rel="noopener" class="w-14 h-14 bg-pink-50 rounded-2xl flex items-center justify-center text-pink-600 hover:bg-pink-600 hover:text-white transition-all shadow-sm">
+            <i data-lucide="instagram" class="w-7 h-7"></i>
+          </a>
+          <a href="../" class="w-14 h-14 bg-yellow-50 rounded-2xl flex items-center justify-center text-ztsDeep hover:bg-ztsYellow transition-all shadow-sm">
+            <i data-lucide="globe" class="w-7 h-7"></i>
+          </a>
+        </div>
+      </div>
+
+    </aside>
   </div>
 </main>
 
-<!-- MODAL AUTH (inline, simple Google + email) -->
-<div class="modal-bg" id="authModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>🔐 CONNEXION</h2>
-      <button class="modal-close" onclick="document.getElementById('authModal').classList.remove('show')">✕</button>
+<!-- ══════════ FOOTER (identique blog) ══════════ -->
+<footer class="bg-ztsDeep text-white py-16 md:py-24">
+  <div class="max-w-7xl mx-auto px-4 text-center">
+    <h2 class="text-4xl md:text-5xl font-lucky tracking-[0.1em] mb-8 text-outline">
+      ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+    </h2>
+    <nav class="flex flex-wrap justify-center gap-6 md:gap-12 mb-12 font-lucky text-lg md:text-2xl text-ztsBlue">
+      <a href="../" class="hover:text-ztsYellow transition-all uppercase">Accueil</a>
+      <a href="../blog.html" class="hover:text-ztsYellow transition-all uppercase">Blog</a>
+      <a href="#" class="text-ztsYellow uppercase border-b-2 border-ztsYellow">Aidons-nous</a>
+      <a href="../avis.html" class="hover:text-ztsYellow transition-all uppercase">Avis</a>
+    </nav>
+    <div class="max-w-2xl mx-auto border-t border-white/10 pt-10">
+      <p class="text-white/40 font-black text-xs uppercase tracking-[0.5em]">
+        © 2026 ZONE TOTAL SPORT &bull; FAIT AVEC COEUR AU QUEBEC
+      </p>
     </div>
-    <div class="modal-body">
+  </div>
+</footer>
+
+<!-- ══════════ MODAL AUTH ══════════ -->
+<div class="modal-bg" id="authModal">
+  <div class="bg-white rounded-[2.5rem] max-w-lg w-full border-b-[12px] border-r-[12px] border-ztsBlue shadow-2xl overflow-hidden">
+    <div class="bg-ztsBlue text-white p-6 flex justify-between items-center">
+      <h2 class="font-lucky text-3xl text-outline">CONNEXION</h2>
+      <button class="bg-white/20 hover:bg-white/30 border-none text-white w-10 h-10 rounded-full text-xl cursor-pointer flex items-center justify-center" onclick="document.getElementById('authModal').classList.remove('show')">✕</button>
+    </div>
+    <div class="p-6 md:p-8">
       <div class="msg err" id="authErr"></div>
-      <button id="googleBtn" style="width:100%;padding:14px;background:#fff;border:2px solid #E5E7EB;border-radius:10px;font-family:'Fredoka',sans-serif;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;">
+      <button id="googleBtn" class="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl font-semibold text-base cursor-pointer flex items-center justify-center gap-3 mb-4 hover:border-ztsBlue transition-all">
         <svg width="22" height="22" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
         Continuer avec Google
       </button>
-      <div style="display:flex;align-items:center;gap:10px;margin:14px 0;color:#9CA3AF;font-size:13px;"><div style="flex:1;height:1px;background:#E5E7EB;"></div>OU<div style="flex:1;height:1px;background:#E5E7EB;"></div></div>
-      <label>Courriel</label>
-      <input type="email" id="authEmail" placeholder="toi@exemple.com">
-      <label>Mot de passe</label>
-      <input type="password" id="authPwd" placeholder="••••••••">
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button class="submit-btn" style="flex:1;font-size:16px;padding:12px;" onclick="authDo('login')">Se connecter</button>
-        <button class="submit-btn" style="flex:1;font-size:16px;padding:12px;background:linear-gradient(135deg,#00E5FF,#0096C7);color:#fff;" onclick="authDo('signup')">S'inscrire</button>
+      <div class="flex items-center gap-3 my-4 text-slate-400 text-sm"><div class="flex-1 h-px bg-slate-200"></div>OU<div class="flex-1 h-px bg-slate-200"></div></div>
+      <label class="block font-lucky text-sm text-slate-400 mb-1 tracking-wider">Courriel</label>
+      <input type="email" id="authEmail" placeholder="toi@exemple.com" class="w-full p-3 border-2 border-slate-200 rounded-xl text-base font-semibold focus:outline-none focus:border-ztsBlue mb-3">
+      <label class="block font-lucky text-sm text-slate-400 mb-1 tracking-wider">Mot de passe</label>
+      <input type="password" id="authPwd" placeholder="••••••••" class="w-full p-3 border-2 border-slate-200 rounded-xl text-base font-semibold focus:outline-none focus:border-ztsBlue mb-4">
+      <div class="flex gap-3">
+        <button class="flex-1 bg-ztsYellow text-ztsDeep font-lucky text-lg py-3 rounded-2xl border-none border-b-[6px] border-r-[6px] border-orange-400/40 cursor-pointer hover:scale-[1.02] transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.08)]" onclick="authDo('login')">Se connecter</button>
+        <button class="flex-1 bg-ztsBlue text-white font-lucky text-lg py-3 rounded-2xl border-none border-b-[6px] border-r-[6px] border-ztsDarkBlue cursor-pointer hover:scale-[1.02] transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.08)]" onclick="authDo('signup')">S'inscrire</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- MODAL COMPOSE -->
+<!-- ══════════ MODAL COMPOSE ══════════ -->
 <div class="modal-bg" id="composeModal">
-  <div class="modal">
-    <div class="modal-header">
-      <h2>💬 NOUVEAU SUJET</h2>
-      <button class="modal-close" onclick="closeCompose()">✕</button>
+  <div class="bg-white rounded-[2.5rem] max-w-lg w-full border-b-[12px] border-r-[12px] border-ztsBlue shadow-2xl overflow-hidden">
+    <div class="bg-ztsBlue text-white p-6 flex justify-between items-center">
+      <h2 class="font-lucky text-3xl text-outline">NOUVEAU SUJET</h2>
+      <button class="bg-white/20 hover:bg-white/30 border-none text-white w-10 h-10 rounded-full text-xl cursor-pointer flex items-center justify-center" onclick="closeCompose()">✕</button>
     </div>
-    <div class="modal-body">
-      <div id="composeGate" class="auth-gate" style="display:none;">
-        <div class="lucky" style="font-size:20px;margin-bottom:6px;color:var(--dark);">🔒 CONNECTE-TOI POUR PARTICIPER</div>
-        <p style="margin:4px 0 14px;font-size:15px;color:#6B7280;">Inscription gratuite · Google 1 clic</p>
-        <button class="btn" onclick="if(window.ztsShowLogin)window.ztsShowLogin();">🚀 ME CONNECTER</button>
+    <div class="p-6 md:p-8">
+      <div id="composeGate" class="bg-yellow-50 border-2 border-dashed border-ztsOrange rounded-2xl p-6 text-center hidden">
+        <p class="font-lucky text-xl text-ztsDeep mb-2">CONNECTE-TOI POUR PARTICIPER</p>
+        <p class="text-sm text-slate-500 mb-4">Inscription gratuite &middot; Google 1 clic</p>
+        <button class="bg-ztsYellow text-ztsDeep font-lucky text-lg px-8 py-3 rounded-2xl border-none border-b-[6px] border-r-[6px] border-orange-400/40 cursor-pointer hover:scale-105 transition-all" onclick="if(window.ztsShowLogin)window.ztsShowLogin();">ME CONNECTER</button>
       </div>
       <div id="composeForm">
         <div class="msg err" id="cmpErr"></div>
-        <label>Catégorie</label>
-        <select id="cmpCat">
-          <option value="eps">🏀 Profs d'ÉPS</option>
+        <label class="block font-lucky text-sm text-slate-400 mb-1 tracking-wider">Categorie</label>
+        <select id="cmpCat" class="w-full p-3 border-2 border-slate-200 rounded-xl text-base font-semibold focus:outline-none focus:border-ztsBlue mb-3">
+          <option value="eps">🏀 Profs d'EPS</option>
           <option value="sdg">🎨 Service de garde</option>
           <option value="camp">⛺ Camps de jour</option>
         </select>
-        <label>📁 Sujet / dossier</label>
-        <select id="cmpTopic"></select>
-        <label>Titre <span style="color:#FF2A7A;">*</span></label>
-        <input type="text" id="cmpTitle" maxlength="100" placeholder="Ex: Jeu coop pour 30 kids en gym">
-        <label>Ton message <span style="color:#FF2A7A;">*</span></label>
-        <textarea id="cmpContent" maxlength="2000" placeholder="Partage ton idée, ton truc, ta question... 💛"></textarea>
-        <div class="char-count"><span id="cmpCount">0</span>/2000</div>
-        <label>📎 Lien Google Drive (optionnel)</label>
-        <input type="url" id="cmpDrive" placeholder="https://drive.google.com/... (ou tout autre lien partageable)">
-        <p style="font-size:13px;color:#6B7280;margin-top:-6px;margin-bottom:10px;font-style:italic;">Partage un PDF, doc ou dossier Drive avec la gang. Assure-toi que l'accès est "Tous ceux qui ont le lien". 🔗</p>
-        <button class="submit-btn" id="cmpSubmit">🚀 PUBLIER</button>
+        <label class="block font-lucky text-sm text-slate-400 mb-1 tracking-wider">Sujet / dossier</label>
+        <select id="cmpTopic" class="w-full p-3 border-2 border-slate-200 rounded-xl text-base font-semibold focus:outline-none focus:border-ztsBlue mb-3"></select>
+        <label class="block font-lucky text-sm text-slate-400 mb-1 tracking-wider">Titre <span class="text-ztsPink">*</span></label>
+        <input type="text" id="cmpTitle" maxlength="100" placeholder="Ex: Jeu coop pour 30 kids en gym" class="w-full p-3 border-2 border-slate-200 rounded-xl text-base font-semibold focus:outline-none focus:border-ztsBlue mb-3">
+        <label class="block font-lucky text-sm text-slate-400 mb-1 tracking-wider">Ton message <span class="text-ztsPink">*</span></label>
+        <textarea id="cmpContent" maxlength="2000" placeholder="Partage ton idee, ton truc, ta question..." class="w-full p-3 border-2 border-slate-200 rounded-xl text-base font-semibold focus:outline-none focus:border-ztsBlue mb-1 min-h-[130px] resize-y"></textarea>
+        <div class="text-right text-xs text-slate-400 mb-3"><span id="cmpCount">0</span>/2000</div>
+        <label class="block font-lucky text-sm text-slate-400 mb-1 tracking-wider">Lien Google Drive (optionnel)</label>
+        <input type="url" id="cmpDrive" placeholder="https://drive.google.com/..." class="w-full p-3 border-2 border-slate-200 rounded-xl text-base font-semibold focus:outline-none focus:border-ztsBlue mb-1">
+        <p class="text-xs text-slate-400 italic mb-4">Assure-toi que l'acces est "Tous ceux qui ont le lien".</p>
+        <button class="w-full bg-ztsYellow text-ztsDeep font-lucky text-2xl py-4 rounded-3xl border-none border-b-[8px] border-r-[8px] border-orange-400/40 cursor-pointer hover:scale-[1.02] hover:bg-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.08)] uppercase" id="cmpSubmit">PUBLIER</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FOOTER -->
-<footer>
-  <p class="tag">FAIT AVEC 💛 AU QUÉBEC</p>
-  <p style="font-size:14px;"><a href="../">zonetotalsport.ca</a> · <a href="../blog.html">Blog</a> · <a href="../avis.html">Avis</a></p>
-  <p style="font-size:12px;opacity:0.6;margin-top:6px;">© 2026 Zone Total Sport</p>
-</footer>
-
-<!-- Firebase SDK 10.14.0 — init direct, SANS firebase-auth.js (qui casse le namespace firestore) -->
+<!-- ══════════ FIREBASE ══════════ -->
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
@@ -403,39 +375,40 @@ if (!firebase.apps.length) {
   });
   firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 }
-// Login minimal inline (Google + email)
 window.ztsShowLogin = function(){ document.getElementById('authModal').classList.add('show'); };
 window.ztsLogout = function(){ firebase.auth().signOut(); };
 </script>
 
+<!-- ══════════ APP JS ══════════ -->
 <script>
 const CAT_LABELS = {
-  eps:{name:'🏀 ÉPS',cls:'cat-eps'},
-  sdg:{name:'🎨 SDG',cls:'cat-sdg'},
-  camp:{name:'⛺ Camps',cls:'cat-camp'}
+  eps:{name:'EPS',cls:'bg-ztsBlue text-white'},
+  sdg:{name:'SDG',cls:'bg-ztsOrange text-white'},
+  camp:{name:'Camps',cls:'bg-ztsLime text-ztsDeep'}
 };
-// Dossiers par catégorie (modifiable facilement)
+const CAT_COLORS = {eps:'#00C4FF',sdg:'#FF8C00',camp:'#4ADE80'};
+
 const TOPICS = {
   eps:[
-    {id:'jeux-coop',ico:'🤝',name:'Jeux coopératifs'},
+    {id:'jeux-coop',ico:'🤝',name:'Jeux cooperatifs'},
     {id:'invasion',ico:'⚔️',name:'Sports d\'invasion'},
     {id:'tague',ico:'🏃',name:'Tague & poursuite'},
     {id:'ballon',ico:'⚽',name:'Ballons'},
     {id:'danse',ico:'💃',name:'Danse & musique'},
-    {id:'sae',ico:'📝',name:'SAÉ & PFEQ'},
-    {id:'educatifs',ico:'🎯',name:'Éducatifs'},
-    {id:'evaluation',ico:'📊',name:'Évaluation'},
-    {id:'materiel',ico:'🧰',name:'Matériel & trucs'},
+    {id:'sae',ico:'📝',name:'SAE & PFEQ'},
+    {id:'educatifs',ico:'🎯',name:'Educatifs'},
+    {id:'evaluation',ico:'📊',name:'Evaluation'},
+    {id:'materiel',ico:'🧰',name:'Materiel & trucs'},
     {id:'comportement',ico:'👥',name:'Gestion de classe'},
     {id:'autre',ico:'💬',name:'Autre'}
   ],
   sdg:[
-    {id:'interieur',ico:'🏠',name:'Activités intérieur'},
-    {id:'exterieur',ico:'🌳',name:'Activités extérieur'},
-    {id:'coop',ico:'🤝',name:'Jeux coopératifs'},
-    {id:'motricite',ico:'🤸',name:'Motricité'},
+    {id:'interieur',ico:'🏠',name:'Activites interieur'},
+    {id:'exterieur',ico:'🌳',name:'Activites exterieur'},
+    {id:'coop',ico:'🤝',name:'Jeux cooperatifs'},
+    {id:'motricite',ico:'🤸',name:'Motricite'},
     {id:'bricolage',ico:'🎨',name:'Bricolage & arts'},
-    {id:'pedago',ico:'📅',name:'Journées pédago'},
+    {id:'pedago',ico:'📅',name:'Journees pedago'},
     {id:'calme',ico:'🧘',name:'Retour au calme'},
     {id:'gestion',ico:'👥',name:'Gestion de groupe'},
     {id:'autre',ico:'💬',name:'Autre'}
@@ -448,7 +421,7 @@ const TOPICS = {
     {id:'pluie',ico:'☔',name:'Plans B pluie'},
     {id:'eau',ico:'💧',name:'Jeux d\'eau'},
     {id:'animation',ico:'🎤',name:'Animation & chansons'},
-    {id:'equipes',ico:'⚔️',name:'Défis par équipes'},
+    {id:'equipes',ico:'⚔️',name:'Defis par equipes'},
     {id:'formation',ico:'👨‍🏫',name:'Formation animateurs'},
     {id:'autre',ico:'💬',name:'Autre'}
   ]
@@ -485,6 +458,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(isMobile)firebase.auth().signInWithRedirect(provider);
     else firebase.auth().signInWithPopup(provider).then(()=>$('authModal').classList.remove('show')).catch(e=>{$('authErr').textContent=e.message;$('authErr').classList.add('show');});
   };
+  lucide.createIcons();
 });
 
 function init(){
@@ -503,16 +477,16 @@ function init(){
 
 function renderFolders(){
   const grid=$('foldersGrid'), title=$('foldersTitle');
-  title.textContent='DOSSIERS — '+({eps:'🏀 PROFS D\'ÉPS',sdg:'🎨 SERVICE DE GARDE',camp:'⛺ CAMPS DE JOUR'}[currentCat]);
+  title.textContent='DOSSIERS — '+({eps:'🏀 PROFS D\'EPS',sdg:'🎨 SERVICE DE GARDE',camp:'⛺ CAMPS DE JOUR'}[currentCat]);
   renderFolderCards(TOPICS[currentCat]||[],grid);
-  // Update compteurs familles
   const cEps=allPostsCache.filter(p=>p.category==='eps').length;
   const cSdg=allPostsCache.filter(p=>p.category==='sdg').length;
   const cCamp=allPostsCache.filter(p=>p.category==='camp').length;
   if($('countEps'))$('countEps').textContent=cEps+' post'+(cEps!==1?'s':'');
   if($('countSdg'))$('countSdg').textContent=cSdg+' post'+(cSdg!==1?'s':'');
   if($('countCamp'))$('countCamp').textContent=cCamp+' post'+(cCamp!==1?'s':'');
-  // Update compose topic dropdown
+  if($('heroPostCount'))$('heroPostCount').textContent=allPostsCache.length+' posts';
+  if($('statPosts'))$('statPosts').textContent=allPostsCache.length;
   const sel=$('cmpTopic');
   if(sel){
     sel.innerHTML='';
@@ -520,31 +494,36 @@ function renderFolders(){
     list.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.ico+' '+t.name;sel.appendChild(o);});
   }
 }
+
 function renderFolderCards(list,grid){
   grid.innerHTML='';
-  // "Tous" folder
-  const allCard=document.createElement('div');
-  allCard.className='folder'+(currentTopic==='all'?' active':'');
-  allCard.innerHTML='<div class="folder-ico">🌟</div><div class="folder-name">TOUS LES SUJETS</div><div class="folder-count">'+postsCache.length+' posts</div>';
+  const color=CAT_COLORS[currentCat]||'#00C4FF';
+  // "Tous"
+  const allCard=document.createElement('button');
+  allCard.className='bg-white rounded-2xl p-3 md:p-4 text-center cursor-pointer border-2 border-b-[6px] border-r-[6px] transition-all hover:scale-105 '+(currentTopic==='all'?'border-['+color+'] shadow-md':'border-slate-200 hover:border-slate-300');
+  allCard.innerHTML='<div class="text-2xl md:text-3xl mb-1">🌟</div><div class="font-lucky text-xs md:text-sm text-ztsDeep leading-tight">TOUS</div><div class="text-[10px] font-bold text-slate-400">'+postsCache.length+'</div>';
   allCard.onclick=()=>{currentTopic='all';renderFolders();renderFeed();};
   grid.appendChild(allCard);
   list.forEach(t=>{
-    const card=document.createElement('div');
-    card.className='folder'+(currentTopic===t.id?' active':'');
+    const card=document.createElement('button');
     const count=postsCache.filter(p=>p.topic===t.id).length;
-    card.innerHTML='<div class="folder-ico">'+t.ico+'</div><div class="folder-name">'+t.name.toUpperCase()+'</div><div class="folder-count">'+count+' posts</div>';
+    card.className='bg-white rounded-2xl p-3 md:p-4 text-center cursor-pointer border-2 border-b-[6px] border-r-[6px] transition-all hover:scale-105 '+(currentTopic===t.id?'border-['+color+'] shadow-md':'border-slate-200 hover:border-slate-300');
+    card.innerHTML='<div class="text-2xl md:text-3xl mb-1">'+t.ico+'</div><div class="font-lucky text-xs md:text-sm text-ztsDeep leading-tight">'+t.name.toUpperCase()+'</div><div class="text-[10px] font-bold text-slate-400">'+count+'</div>';
     card.onclick=()=>{currentTopic=t.id;renderFolders();renderFeed();};
     grid.appendChild(card);
   });
 }
 
-document.querySelectorAll('.family').forEach(c=>c.onclick=()=>{
-  document.querySelectorAll('.family').forEach(x=>x.classList.remove('active'));
+// Family tabs
+document.querySelectorAll('.family-tab').forEach(c=>c.onclick=()=>{
+  document.querySelectorAll('.family-tab').forEach(x=>x.classList.remove('active'));
   c.classList.add('active'); currentCat=c.dataset.cat; currentTopic='all'; loadFeed(); renderFolders();
 });
-document.querySelectorAll('.chip[data-sort]').forEach(c=>c.onclick=()=>{
-  document.querySelectorAll('.chip[data-sort]').forEach(x=>x.classList.remove('active'));
-  c.classList.add('active'); currentSort=c.dataset.sort; renderFeed();
+// Sort chips
+document.querySelectorAll('.chip-sort').forEach(c=>c.onclick=()=>{
+  document.querySelectorAll('.chip-sort').forEach(x=>{x.classList.remove('active','bg-ztsBlue','text-white','shadow-[0_8px_20px_rgba(0,196,255,.4)]');x.classList.add('bg-white','text-slate-400');});
+  c.classList.remove('bg-white','text-slate-400');c.classList.add('active','bg-ztsBlue','text-white','shadow-[0_8px_20px_rgba(0,196,255,.4)]');
+  currentSort=c.dataset.sort; renderFeed();
 });
 
 function openCompose(){
@@ -554,12 +533,10 @@ function openCompose(){
   else{$('composeGate').style.display='none';$('composeForm').style.display='block';}
   if(typeof gtag==='function')gtag('event','forum_compose_opened');
 }
-function closeCompose(){$('composeModal').classList.remove('show');$('cmpErr').classList.remove('show');}
+function closeCompose(){$('composeModal').classList.remove('show');}
 window.openCompose=openCompose;window.closeCompose=closeCompose;
 
-// Char counter (passive, no perf impact)
 $('cmpContent').addEventListener('input',e=>{$('cmpCount').textContent=e.target.value.length;},{passive:true});
-// Quand catégorie change dans compose → recharge les sujets
 $('cmpCat').addEventListener('change',()=>{
   const sel=$('cmpTopic'),list=TOPICS[$('cmpCat').value]||[];
   sel.innerHTML='';list.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.ico+' '+t.name;sel.appendChild(o);});
@@ -572,10 +549,10 @@ $('cmpSubmit').onclick=async()=>{
   if(!currentUser){err.textContent='Tu dois être connecté.';err.classList.add('show');return;}
   if(title.length<5){err.textContent='Titre trop court (min 5 caractères).';err.classList.add('show');return;}
   if(content.length<10){err.textContent='Message trop court (min 10 caractères).';err.classList.add('show');return;}
-  if(hasBad(title)||hasBad(content)){err.textContent='⚠️ Langage non conforme à la charte. Reformule dans le respect 💛';err.classList.add('show');return;}
+  if(hasBad(title)||hasBad(content)){err.textContent='Langage non conforme à la charte. Reformule dans le respect.';err.classList.add('show');return;}
   const d=getDb();
-  if(!d){err.textContent='Connexion Firebase pas encore prête, attends 2 sec et réessaie.';err.classList.add('show');return;}
-  $('cmpSubmit').disabled=true;$('cmpSubmit').textContent='⏳ PUBLICATION...';
+  if(!d){err.textContent='Connexion Firebase pas encore prête, attends 2 sec.';err.classList.add('show');return;}
+  $('cmpSubmit').disabled=true;$('cmpSubmit').textContent='PUBLICATION...';
   try{
     await d.collection('forum_posts').add({
       category:cat,topic:$('cmpTopic').value||'autre',user_uid:currentUser.uid,
@@ -589,116 +566,125 @@ $('cmpSubmit').onclick=async()=>{
     if(typeof gtag==='function')gtag('event','forum_post_created',{category:cat});
   }catch(e){
     console.error('[Forum post error]',e);
-    err.textContent='Erreur: '+(e.message||'impossible de publier. Vérifie ta connexion.');
+    err.textContent='Erreur: '+(e.message||'impossible de publier.');
     err.classList.add('show');
   }
-  $('cmpSubmit').disabled=false;$('cmpSubmit').innerHTML='🚀 PUBLIER';
+  $('cmpSubmit').disabled=false;$('cmpSubmit').textContent='PUBLIER';
 };
 
 function loadFeed(){
   if(unsub)unsub();
-  const feed=$('feed');feed.innerHTML='<div class="empty"><h3>Chargement...</h3></div>';
+  const feed=$('feed');feed.innerHTML='<div class="bg-white rounded-[2.5rem] p-10 border-b-[10px] border-slate-100 text-center"><p class="font-lucky text-2xl text-slate-300">Chargement...</p></div>';
   const d=getDb(); if(!d){setTimeout(loadFeed,200);return;}
-  // Charge TOUS les posts (toutes familles) pour les compteurs globaux
   unsub=d.collection('forum_posts').orderBy('timestamp','desc').limit(200).onSnapshot(snap=>{
     allPostsCache=snap.docs.map(x=>({id:x.id,...x.data()}));
     postsCache=allPostsCache.filter(p=>p.category===currentCat);
     renderFolders();
     renderFeed();
-  },err=>{console.error('[Feed error]',err);feed.innerHTML='<div class="empty"><h3>Erreur de chargement</h3><p>'+err.message+'</p></div>';});
+  },err=>{console.error('[Feed error]',err);feed.innerHTML='<div class="bg-white rounded-[2.5rem] p-10 border-b-[10px] border-red-100 text-center"><p class="font-lucky text-xl text-red-400">Erreur de chargement</p><p class="text-sm text-slate-400">'+err.message+'</p></div>';});
 }
+
 function renderFeed(){
   const feed=$('feed');
   let docs=postsCache.slice();
   if(currentTopic!=='all')docs=docs.filter(p=>p.topic===currentTopic);
-  if(!docs.length){feed.innerHTML='<div class="empty"><img src="../bucheron-aidons-nous.png" onerror="this.src=\'../bucheron-basketball.png\'"><h3>🌱 Aucun post dans ce dossier</h3><p>Sois le premier à partager!</p><button class="btn" onclick="openCompose()">💬 Écrire maintenant</button></div>';return;}
+  if(!docs.length){
+    feed.innerHTML='<div class="bg-white rounded-[2.5rem] p-10 md:p-16 border-b-[10px] border-slate-100 text-center shadow-sm"><img src="../bucheron-aidons-nous.png" class="w-24 mx-auto mb-4 opacity-60" onerror="this.src=\'../bucheron-basketball.png\'"><h3 class="font-lucky text-2xl text-slate-400 mb-2">Aucun post dans ce dossier</h3><p class="text-slate-400 mb-6">Sois le premier a partager!</p><button class="bg-ztsYellow text-ztsDeep font-lucky text-xl px-8 py-4 rounded-3xl border-none border-b-[8px] border-r-[8px] border-orange-400/40 cursor-pointer hover:scale-105 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.08)] uppercase" onclick="openCompose()">ECRIRE MAINTENANT</button></div>';
+    return;
+  }
   if(currentSort==='hot')docs.sort((a,b)=>((b.likes||[]).length+((b.replies||[]).length*2))-((a.likes||[]).length+((a.replies||[]).length*2)));
   docs.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
   const frag=document.createDocumentFragment();
   docs.forEach(d=>frag.appendChild(renderPost(d)));
   feed.innerHTML='';feed.appendChild(frag);
+  lucide.createIcons();
 }
 
 function renderPost(p){
-  const el=document.createElement('div');
-  el.className='card post card-body '+(p.pinned?'pinned':'');
+  const el=document.createElement('article');
+  const color=CAT_COLORS[p.category]||'#00C4FF';
+  el.className='bg-white rounded-[2.5rem] overflow-hidden border-b-[10px] border-r-[10px] hover:scale-[1.01] transition-all shadow-sm';
+  el.style.borderColor=color+'33';
   const initial=(p.user_name||'?').charAt(0).toUpperCase();
   const date=p.timestamp?p.timestamp.toDate().toLocaleString('fr-CA',{dateStyle:'medium',timeStyle:'short'}):'à l\'instant';
   const likes=p.likes||[],replies=p.replies||[];
   const u=getLiveUser();
   const liked=u&&likes.includes(u.uid);
-  const catInfo=CAT_LABELS[p.category]||{name:p.category,cls:''};
+  const catInfo=CAT_LABELS[p.category]||{name:p.category,cls:'bg-slate-200'};
   const topicList=TOPICS[p.category]||[];
   const topicInfo=topicList.find(t=>t.id===p.topic);
-  const topicBadge=topicInfo?`<span class="cat-badge" style="background:#FEF3C7;color:#B45309;">${topicInfo.ico} ${topicInfo.name}</span>`:'';
-  el.innerHTML=`
-    <div class="post-head">
-      <div class="avatar avatar-lg">${initial}</div>
-      <div class="post-user">
-        <div class="user-line">
-          <span class="user-name">${esc(p.user_name)}</span>
-          <span class="cat-badge ${catInfo.cls}">${catInfo.name}</span>
-          ${topicBadge}
-          ${p.pinned?'<span class="pinned-label">📌 ÉPINGLÉ</span>':''}
-        </div>
-        <div class="post-date">${date}</div>
-      </div>
-    </div>
-    <h3 class="post-title">${esc(p.title)}</h3>
-    <div class="post-content">${esc(p.content)}</div>
-    ${p.drive?`<a href="${esc(p.drive)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:10px 14px;background:linear-gradient(135deg,#4285F4,#0F9D58);color:#fff;border-radius:10px;text-decoration:none;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;">📎 Ouvrir la ressource partagée</a>`:''}
-    <div class="post-actions">
-      <button class="act-btn ${liked?'liked':''}" data-act="like">${liked?'❤️':'🤍'} <span>${likes.length}</span></button>
-      <button class="act-btn" data-act="reply">💬 ${replies.length} réponse${replies.length!==1?'s':''}</button>
-      <button class="act-btn" data-act="share">🔗 Partager</button>
-      <button class="act-btn" data-act="flag" title="Signaler">🚩</button>
-    </div>
-    ${replies.length?`<div class="replies">${replies.map(r=>`
-      <div class="reply">
-        <div class="avatar avatar-sm">${esc((r.user_name||'?').charAt(0).toUpperCase())}</div>
-        <div><div class="reply-name">${esc(r.user_name)}</div><div class="reply-content">${esc(r.content)}</div></div>
-      </div>`).join('')}</div>`:''}
-    <div class="reply-box">
-      <div class="avatar avatar-sm">${u?((u.displayName||u.email||'?').charAt(0).toUpperCase()):'?'}</div>
-      <div class="reply-input"><textarea placeholder="Ta réponse bienveillante 💛"></textarea><button class="reply-send">Envoyer</button></div>
-    </div>
-  `;
+  const topicBadge=topicInfo?'<span class="inline-block bg-yellow-100 text-yellow-800 text-[10px] font-black px-3 py-1 rounded-xl uppercase tracking-widest">'+topicInfo.ico+' '+topicInfo.name+'</span>':'';
+
+  el.innerHTML=
+    '<div class="p-7 md:p-8">'+
+      '<div class="flex items-start gap-4 mb-4">'+
+        '<div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-ztsYellow to-ztsOrange text-ztsDeep flex items-center justify-center font-lucky text-xl shrink-0 border-b-4 border-r-4 border-orange-500/30">'+initial+'</div>'+
+        '<div class="flex-1 min-w-0">'+
+          '<div class="flex items-center gap-2 flex-wrap">'+
+            '<span class="font-lucky text-xl text-ztsDeep">'+esc(p.user_name)+'</span>'+
+            '<span class="inline-block '+catInfo.cls+' text-[10px] font-black px-3 py-1 rounded-xl uppercase tracking-widest">'+catInfo.name+'</span>'+
+            topicBadge+
+            (p.pinned?'<span class="inline-block bg-ztsYellow text-ztsDeep text-[10px] font-black px-3 py-1 rounded-xl uppercase tracking-widest -rotate-2">EPINGLE</span>':'')+
+          '</div>'+
+          '<p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">'+date+'</p>'+
+        '</div>'+
+      '</div>'+
+      '<h3 class="font-lucky text-2xl md:text-3xl text-slate-800 mb-3 leading-tight">'+esc(p.title)+'</h3>'+
+      '<p class="text-slate-600 font-medium leading-relaxed whitespace-pre-wrap text-base md:text-lg">'+esc(p.content)+'</p>'+
+      (p.drive?'<a href="'+esc(p.drive)+'" target="_blank" rel="noopener" class="inline-flex items-center gap-2 mt-4 px-4 py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-2xl font-bold text-sm hover:scale-105 transition-all no-underline"><i data-lucide="paperclip" class="w-4 h-4"></i> Ouvrir la ressource</a>':'')+
+      '<div class="flex items-center gap-1 pt-4 border-t-2 border-slate-50 mt-5 flex-wrap">'+
+        '<button class="act-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all border-none cursor-pointer '+(liked?'bg-purple-50 text-purple-600':'bg-slate-50 text-slate-400 hover:bg-cyan-50 hover:text-ztsBlue')+'" data-act="like">'+(liked?'❤️':'🤍')+' '+likes.length+'</button>'+
+        '<button class="act-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm bg-slate-50 text-slate-400 hover:bg-cyan-50 hover:text-ztsBlue transition-all border-none cursor-pointer" data-act="reply"><i data-lucide="message-circle" class="w-4 h-4"></i> '+replies.length+'</button>'+
+        '<button class="act-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm bg-slate-50 text-slate-400 hover:bg-cyan-50 hover:text-ztsBlue transition-all border-none cursor-pointer" data-act="share"><i data-lucide="link" class="w-4 h-4"></i></button>'+
+        '<button class="act-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm bg-slate-50 text-slate-400 hover:bg-red-50 hover:text-red-400 transition-all border-none cursor-pointer" data-act="flag"><i data-lucide="flag" class="w-4 h-4"></i></button>'+
+      '</div>'+
+      (replies.length?'<div class="mt-4 pl-10 md:pl-14 space-y-2">'+replies.map(r=>
+        '<div class="bg-slate-50 rounded-2xl p-3 flex gap-3 items-start border border-slate-100">'+
+          '<div class="w-8 h-8 rounded-xl bg-gradient-to-br from-ztsYellow to-ztsOrange text-ztsDeep flex items-center justify-center font-lucky text-xs shrink-0">'+esc((r.user_name||'?').charAt(0).toUpperCase())+'</div>'+
+          '<div><p class="font-lucky text-sm text-ztsDarkBlue">'+esc(r.user_name)+'</p><p class="text-sm text-slate-600">'+esc(r.content)+'</p></div>'+
+        '</div>').join('')+'</div>':'')+
+      '<div class="reply-box mt-4 gap-3">'+
+        '<div class="w-8 h-8 rounded-xl bg-gradient-to-br from-ztsYellow to-ztsOrange text-ztsDeep flex items-center justify-center font-lucky text-xs shrink-0">'+(u?((u.displayName||u.email||'?').charAt(0).toUpperCase()):'?')+'</div>'+
+        '<div class="flex-1"><textarea class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-ztsBlue min-h-[50px] resize-y" placeholder="Ta reponse bienveillante..."></textarea><button class="mt-1 bg-ztsBlue text-white font-lucky text-sm px-4 py-2 rounded-xl border-none border-b-4 border-r-4 border-ztsDarkBlue cursor-pointer">Envoyer</button></div>'+
+      '</div>'+
+    '</div>';
+
   el.querySelectorAll('.act-btn').forEach(b=>b.onclick=()=>handleAct(b.dataset.act,p.id,p,el));
-  el.querySelector('.reply-send').onclick=()=>submitReply(p.id,el);
+  el.querySelector('.reply-box button:last-child').onclick=()=>submitReply(p.id,el);
   return el;
 }
 
 async function handleAct(act,id,p,el){
   const u=getLiveUser(); if(u)currentUser=u;
   if(act==='like'){
-    if(!currentUser){alert('Connecte-toi pour aimer 💛');return;}
+    if(!currentUser){alert('Connecte-toi pour aimer');return;}
     const cur=(p.likes||[]);
     const liked=cur.includes(currentUser.uid);
     const newLikes=liked?cur.filter(x=>x!==currentUser.uid):[...cur,currentUser.uid];
     try{await getDb().collection('forum_posts').doc(id).update({likes:newLikes});}
     catch(e){console.error(e);alert('Erreur: '+e.message);}
   }else if(act==='reply'){
-    if(!currentUser){alert('Connecte-toi pour répondre 💬');return;}
+    if(!currentUser){alert('Connecte-toi pour repondre');return;}
     el.querySelector('.reply-box').classList.toggle('show');
   }else if(act==='share'){
     const url=location.origin+'/aidons-nous/#post-'+id;
     if(navigator.share)navigator.share({title:p.title,url}).catch(()=>{});
-    else{navigator.clipboard.writeText(url);alert('Lien copié! 🔗');}
+    else{navigator.clipboard.writeText(url);alert('Lien copie!');}
   }else if(act==='flag'){
     if(!currentUser){alert('Connecte-toi pour signaler.');return;}
-    if(!confirm('Signaler ce message à la modération?'))return;
-    try{await getDb().collection('forum_posts').doc(id).update({flagged:true});alert('Merci. Joey va réviser. 🙏');}
+    if(!confirm('Signaler ce message a la moderation?'))return;
+    try{await getDb().collection('forum_posts').doc(id).update({flagged:true});alert('Merci. Joey va reviser.');}
     catch(e){alert('Erreur: '+e.message);}
   }
 }
 
 async function submitReply(id,el){
   const u=getLiveUser(); if(u)currentUser=u;
-  if(!currentUser){alert('Connecte-toi 🔒');return;}
+  if(!currentUser){alert('Connecte-toi');return;}
   const ta=el.querySelector('.reply-box textarea');
   const c=ta.value.trim();
-  if(c.length<3){alert('Réponse trop courte.');return;}
-  if(hasBad(c)){alert('⚠️ Langage non conforme à la charte.');return;}
+  if(c.length<3){alert('Reponse trop courte.');return;}
+  if(hasBad(c)){alert('Langage non conforme a la charte.');return;}
   try{
     const ref=getDb().collection('forum_posts').doc(id);
     const snap=await ref.get();
