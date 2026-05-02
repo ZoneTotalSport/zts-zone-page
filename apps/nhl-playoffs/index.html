@@ -1245,6 +1245,14 @@
   .series-status .status-label{color:rgba(255,214,0,.6) !important;}
   .series-status .status-text{color:var(--jaune) !important; font-size:16px !important;}
 
+  /* Logo header NHL */
+  .header-league-logo{
+    height:90px !important; width:auto !important;
+    filter:drop-shadow(0 4px 15px rgba(0,229,255,.5));
+  }
+  /* Cache bûcherons coin */
+  .mascot-corner{display:none !important;}
+
   /* ═══ MODAL — gros texte TNI gymnase ═══ */
   .modal{max-width:1100px !important; width:95% !important; max-height:92vh !important;}
   .modal-team img{width:120px !important; height:120px !important;}
@@ -1291,6 +1299,37 @@
     min-width:130px !important; text-align:center !important;
   }
   .modal-close{font-size:48px !important; padding:12px 18px !important;}
+
+  /* ═══ DÉTAILS DU MATCH (dans le modal) — gros TNI ═══ */
+  .modal-game-details{padding:18px 30px 30px !important;}
+  .period-label{
+    font-family:'Bangers',cursive !important;
+    font-size:24px !important; letter-spacing:3px !important;
+    padding:10px 0 6px !important; margin-bottom:10px !important;
+  }
+  .scorer-row{
+    padding:10px 0 !important; gap:14px !important;
+    font-size:18px !important;
+  }
+  .scorer-team-logo{width:32px !important; height:32px !important;}
+  .scorer-name{
+    font-family:'Luckiest Guy',cursive !important;
+    font-size:22px !important; letter-spacing:1px !important;
+  }
+  .goal-time{font-family:'Bungee',cursive !important; font-size:18px !important;}
+  .goal-assists{font-size:16px !important; font-style:italic;}
+  .goalie-stats{padding:14px 0 !important;}
+  .goalie-stats-title{
+    font-family:'Bangers',cursive !important;
+    font-size:24px !important; letter-spacing:3px !important;
+    margin-bottom:12px !important;
+  }
+  .goalie-row{padding:10px 0 !important; gap:14px !important; font-size:18px !important;}
+  .goalie-pill{padding:6px 14px !important;}
+  .goalie-pill .pill-label{font-size:13px !important;}
+  .goalie-pill .pill-value{font-family:'Bungee',cursive !important; font-size:22px !important;}
+  .star-stats{font-family:'Bungee',cursive !important; font-size:18px !important;}
+  .stars-row{padding:10px 0 !important; gap:14px !important; font-size:18px !important;}
     .leaders-grid { grid-template-columns: 1fr; }
     .game-details { margin-left: 0; }
   }
@@ -1306,15 +1345,8 @@
 <!-- Header -->
 <div class="header">
   <div class="header-top">
-    <img class="player-header" src="https://assets.nhle.com/mugs/actionshots/1296x729/8478483.png" alt="Connor McDavid" title="Connor McDavid">
-    <img class="mascot-header" src="mascot-logo.png" alt="Mr Root">
-    <div>
-      <h1>Séries <span>LNH</span> 2026</h1>
-      <div class="subtitle">Séries éliminatoires de la Coupe Stanley</div>
-      <div class="zts-badge">ZONE TOTAL SPORT</div>
-    </div>
-    <img class="mascot-header" src="mascot-tablet.png" alt="Mr Root" style="transform: scaleX(-1);">
-    <img class="player-header right" src="https://assets.nhle.com/mugs/actionshots/1296x729/8479318.png" alt="Auston Matthews" title="Auston Matthews">
+    <img class="header-league-logo" src="https://assets.nhle.com/logos/nhl/svg/NHL_light.svg" alt="NHL">
+    <h1>SÉRIES ÉLIMINATOIRES <span>NHL</span></h1>
   </div>
   <div class="tabs">
     <button class="tab active" data-view="bracket">Séries actuelles</button>

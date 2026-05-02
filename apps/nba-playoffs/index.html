@@ -505,6 +505,9 @@
     .zoom-controls { display: none; }
   }
 
+  /* Cache bûcherons coin si présents */
+  .mascot-corner{display:none !important;}
+
   /* ═══ MODAL — gros texte TNI gymnase ═══ */
   .modal{max-width:1100px !important; width:95% !important; max-height:92vh !important;}
   .modal-team img{width:120px !important; height:120px !important;}
@@ -521,6 +524,14 @@
   .modal-game-score .mg-at{font-size:26px !important;}
   .modal-game-badge{font-size:22px !important; padding:8px 22px !important; border-radius:18px !important; letter-spacing:2px !important; min-width:130px !important; text-align:center !important;}
   .modal-close{font-size:48px !important; padding:12px 18px !important;}
+
+  /* ═══ DÉTAILS DU MATCH (dans le modal) — gros TNI ═══ */
+  .modal-game-details{padding:18px 30px 30px !important;}
+  .period-label{font-size:24px !important; letter-spacing:3px !important; padding:10px 0 6px !important; margin-bottom:10px !important;}
+  .scorer-row{padding:10px 0 !important; gap:14px !important; font-size:18px !important;}
+  .scorer-team-logo{width:32px !important; height:32px !important;}
+  .scorer-name{font-size:22px !important; letter-spacing:1px !important;}
+  .scorer-stats{font-family:'Bungee',cursive !important; font-size:18px !important;}
 </style>
 </head>
 <body>
@@ -532,12 +543,7 @@
 <div class="header">
   <div class="header-top">
     <img class="nba-logo-header" src="https://cdn.nba.com/logos/leagues/logo-nba.svg" alt="NBA" onerror="this.style.display='none'">
-    <div>
-      <h1>Séries <span>NBA</span> 2026</h1>
-      <div class="subtitle">Séries éliminatoires — NBA Playoffs</div>
-      <div class="zts-badge">ZONE TOTAL SPORT</div>
-    </div>
-    <img class="nba-logo-header" src="https://cdn.nba.com/logos/leagues/logo-nba.svg" alt="NBA" style="transform:scaleX(-1)" onerror="this.style.display='none'">
+    <h1>SÉRIES ÉLIMINATOIRES <span>NBA</span></h1>
   </div>
   <div class="tabs">
     <button class="tab active" data-view="bracket">Séries actuelles</button>
