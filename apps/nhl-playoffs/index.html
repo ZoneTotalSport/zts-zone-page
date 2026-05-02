@@ -1076,6 +1076,173 @@
     .round { min-width: unset; width: 100%; }
     .matchup { width: 100%; max-width: 300px; }
     .cup-center { padding: 20px 0; }
+  }
+
+  /* ════════════════════════════════════════════
+     NHL — adopte la mise en page NBA (couleurs NHL)
+     Sizing + cards plus gros, look "TNI gymnase"
+     ════════════════════════════════════════════ */
+
+  /* Background pattern logos NHL — gros et colorés (style NBA) */
+  .nhl-bg-pattern{
+    grid-template-columns:repeat(auto-fill,280px) !important;
+    grid-template-rows:repeat(auto-fill,280px) !important;
+    gap:30px !important; padding:30px !important;
+    opacity:1 !important;
+  }
+  .nhl-bg-pattern img{
+    width:240px !important; height:240px !important;
+    opacity:.18 !important; border-radius:16px !important; padding:8px !important;
+    filter:saturate(1.5) brightness(1.1) !important;
+  }
+
+  /* Header — barre arc-en-ciel cyan/jaune/bleu */
+  .header::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:5px;
+    background:linear-gradient(90deg,var(--cyan),var(--jaune),var(--bleu),var(--jaune),var(--cyan));
+  }
+  .header h1{
+    font-family:'Luckiest Guy',cursive !important;
+    font-size:52px !important; letter-spacing:3px !important;
+    text-shadow:0 0 20px rgba(0,229,255,.4),3px 3px 0 var(--bleu-fonce) !important;
+  }
+  .header h1 span{color:var(--jaune) !important; text-shadow:0 0 20px rgba(255,214,0,.5),3px 3px 0 rgba(0,0,0,.5) !important;}
+
+  /* Tabs — style NBA */
+  .tab{
+    padding:14px 32px !important;
+    font-family:'Bangers',cursive !important;
+    font-size:24px !important; letter-spacing:2px !important;
+    color:rgba(0,229,255,.35) !important;
+    border-bottom:3px solid transparent !important;
+  }
+  .tab:hover{color:var(--cyan) !important;}
+  .tab.active{
+    color:var(--jaune) !important;
+    border-bottom-color:var(--cyan) !important;
+    text-shadow:0 0 15px rgba(255,214,0,.5) !important;
+  }
+
+  /* Bracket — plus large */
+  .bracket-container{
+    min-width:1500px !important; max-width:1900px !important;
+    padding:15px 10px 40px !important;
+  }
+
+  /* Conference labels — gros titres */
+  .conference-label{
+    font-size:44px !important; letter-spacing:4px !important;
+    padding:14px 20px !important; color:var(--cyan) !important;
+    text-shadow:0 0 15px rgba(0,229,255,.4) !important;
+  }
+
+  /* Rounds — plus hauts */
+  .rounds{min-height:650px !important; gap:10px !important;}
+  .round{min-width:360px !important; padding:0 2px !important;}
+  .round-label{
+    font-family:'Bangers',cursive !important;
+    font-size:28px !important; letter-spacing:2px !important;
+    color:var(--jaune) !important;
+    padding:8px 12px !important; border-radius:6px !important;
+    text-shadow:0 0 10px rgba(255,214,0,.4) !important;
+  }
+
+  /* Matchup card — beaucoup plus gros (style NBA) */
+  .matchup{
+    background:rgba(255,255,255,.92) !important;
+    border-radius:16px !important;
+    border:4px solid rgba(0,229,255,.4) !important;
+    width:340px !important;
+    box-shadow:0 4px 16px rgba(0,0,0,.4) !important;
+  }
+  .matchup:hover{
+    border-color:rgba(255,214,0,.7) !important;
+    box-shadow:var(--glow-jaune),0 6px 25px rgba(0,0,0,.6) !important;
+    transform:scale(1.04) !important;
+  }
+  .team-row{padding:12px 14px !important; gap:12px !important;}
+  .team-row:first-child{border-bottom:2px solid rgba(0,0,0,.1) !important;}
+  .team-row.winner{background:linear-gradient(90deg,rgba(46,204,113,.25),transparent) !important;}
+  .seed{
+    font-family:'Bungee',cursive !important;
+    font-size:30px !important; width:38px !important;
+    color:var(--bleu-fonce) !important;
+  }
+  .team-logo{
+    width:95px !important; height:95px !important;
+    filter:drop-shadow(0 3px 8px rgba(0,0,0,.5)) !important;
+  }
+  .team-abbrev{
+    font-family:'Luckiest Guy',cursive !important;
+    font-size:36px !important; color:#1a1a2e !important;
+    letter-spacing:1px !important;
+  }
+  .team-wins-num{
+    font-family:'Bungee',cursive !important;
+    font-size:44px !important; width:48px !important;
+    color:rgba(0,0,0,.2) !important;
+  }
+  .team-wins-num.has-wins{color:#1a8a3e !important; text-shadow:none !important;}
+
+  /* TBD matchups */
+  .matchup.tbd{
+    width:200px !important;
+    border:2px dashed rgba(0,229,255,.3) !important;
+    background:rgba(255,255,255,.06) !important;
+    box-shadow:none !important;
+  }
+  .matchup.tbd:hover{transform:none !important; border-color:rgba(0,229,255,.4) !important; box-shadow:none !important;}
+  .matchup.tbd .team-row{padding:8px 10px !important; gap:8px !important;}
+  .matchup.tbd .seed{font-size:18px !important; width:22px !important; color:rgba(0,229,255,.5) !important;}
+  .matchup.tbd .team-logo,.matchup.tbd .team-abbrev{display:none !important;}
+  .matchup.tbd .tbd-label{
+    font-family:'Bangers',cursive !important;
+    font-size:20px !important; color:rgba(0,229,255,.6) !important;
+    letter-spacing:2px !important; text-align:center !important; flex:1 !important;
+  }
+  .matchup.tbd .team-wins-num{font-size:22px !important; width:28px !important;}
+
+  /* Trophy center (Coupe Stanley) */
+  .cup-center{
+    min-width:220px !important; padding:20px 10px !important;
+    background:rgba(8,18,35,.97) !important; border-radius:14px !important;
+    margin:0 5px !important; align-self:center !important;
+    display:flex !important; flex-direction:column !important;
+    align-items:center !important; justify-content:center !important;
+  }
+  .cup-center .trophy-icon,.cup-img{
+    font-size:80px !important;
+    filter:drop-shadow(0 0 30px rgba(255,214,0,.6)) !important;
+    margin-bottom:10px !important;
+    width:auto !important; max-width:140px !important; height:auto !important;
+  }
+  .cup-label{
+    font-family:'Bungee Shade',cursive !important;
+    font-size:18px !important; letter-spacing:2px !important;
+    color:var(--jaune) !important;
+    text-shadow:0 0 15px rgba(255,214,0,.4) !important; text-align:center !important;
+  }
+
+  /* Series cards (Résultats view) */
+  .series-card{
+    border:2px solid rgba(0,229,255,.25) !important;
+    border-radius:12px !important;
+  }
+  .series-card:hover{border-color:rgba(255,214,0,.4) !important;}
+  .series-letter-badge{
+    font-family:'Bungee',cursive !important;
+    font-size:18px !important;
+    width:40px !important; height:40px !important; border-radius:10px !important;
+    background:linear-gradient(135deg,var(--cyan),var(--bleu)) !important;
+    color:var(--bleu-nuit) !important;
+    box-shadow:0 0 15px rgba(0,229,255,.4) !important;
+  }
+  .series-team img{width:44px !important; height:44px !important;}
+  .series-team .name{font-size:16px !important;}
+  .dot{width:12px !important; height:12px !important;}
+  .series-team .record{font-size:24px !important;}
+  .series-status .status-label{color:rgba(255,214,0,.6) !important;}
+  .series-status .status-text{color:var(--jaune) !important; font-size:16px !important;}
     .leaders-grid { grid-template-columns: 1fr; }
     .game-details { margin-left: 0; }
   }
