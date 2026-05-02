@@ -1411,8 +1411,10 @@ const API = {
 
 // NHL API n'a pas de CORS — on passe directement par les proxies
 const PROXIES = [
-  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
   u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
+  u => 'https://corsproxy.io/?' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://thingproxy.freeboard.io/fetch/' + u,
 ];
 async function apiFetch(url) {
   for (const proxy of PROXIES) {
@@ -1470,18 +1472,27 @@ let scoresCache = {}; // date -> score data
 
 // Fallback bracket
 // Fallback mis à jour le 28 avril 2026
+// Snapshot 2 mai 2026 : R1 quasi terminée (B en 7), R2 commence
 const FALLBACK = {
   east: [
-    { top: {a:'BUF',n:'Buffalo Sabres',s:1,w:3}, bot: {a:'BOS',n:'Boston Bruins',s:4,w:1}, letter:'A', g1:'Sam. 19 avr.' },
-    { top: {a:'TBL',n:'Tampa Bay Lightning',s:2,w:2}, bot: {a:'MTL',n:'Montréal Canadiens',s:3,w:2}, letter:'B', g1:'Sam. 19 avr.' },
+    { top: {a:'BUF',n:'Buffalo Sabres',s:1,w:4}, bot: {a:'BOS',n:'Boston Bruins',s:4,w:2}, letter:'A', g1:'Sam. 19 avr.' },
+    { top: {a:'TBL',n:'Tampa Bay Lightning',s:2,w:3}, bot: {a:'MTL',n:'Montréal Canadiens',s:3,w:3}, letter:'B', g1:'Sam. 19 avr.' },
     { top: {a:'CAR',n:'Carolina Hurricanes',s:1,w:4}, bot: {a:'OTT',n:'Ottawa Senators',s:4,w:0}, letter:'C', g1:'Ven. 18 avr.' },
-    { top: {a:'PIT',n:'Pittsburgh Penguins',s:2,w:2}, bot: {a:'PHI',n:'Philadelphia Flyers',s:3,w:3}, letter:'D', g1:'Ven. 18 avr.' },
+    { top: {a:'PIT',n:'Pittsburgh Penguins',s:2,w:2}, bot: {a:'PHI',n:'Philadelphia Flyers',s:3,w:4}, letter:'D', g1:'Ven. 18 avr.' },
   ],
   west: [
     { top: {a:'COL',n:'Colorado Avalanche',s:1,w:4}, bot: {a:'LAK',n:'Los Angeles Kings',s:4,w:0}, letter:'E', g1:'Sam. 19 avr.' },
-    { top: {a:'DAL',n:'Dallas Stars',s:2,w:2}, bot: {a:'MIN',n:'Minnesota Wild',s:3,w:2}, letter:'F', g1:'Ven. 18 avr.' },
-    { top: {a:'VGK',n:'Vegas Golden Knights',s:1,w:2}, bot: {a:'UTA',n:'Utah Mammoth',s:4,w:2}, letter:'G', g1:'Sam. 19 avr.' },
-    { top: {a:'EDM',n:'Edmonton Oilers',s:2,w:1}, bot: {a:'ANA',n:'Anaheim Ducks',s:3,w:3}, letter:'H', g1:'Dim. 20 avr.' },
+    { top: {a:'DAL',n:'Dallas Stars',s:2,w:2}, bot: {a:'MIN',n:'Minnesota Wild',s:3,w:4}, letter:'F', g1:'Ven. 18 avr.' },
+    { top: {a:'VGK',n:'Vegas Golden Knights',s:1,w:4}, bot: {a:'UTA',n:'Utah Mammoth',s:4,w:2}, letter:'G', g1:'Sam. 19 avr.' },
+    { top: {a:'EDM',n:'Edmonton Oilers',s:2,w:2}, bot: {a:'ANA',n:'Anaheim Ducks',s:3,w:4}, letter:'H', g1:'Dim. 20 avr.' },
+  ],
+  eastR2: [
+    { top: {a:'BUF',n:'Buffalo Sabres',s:1,w:0}, bot: {a:'',n:'?',s:0,w:0}, letter:'I', g1:'' },
+    { top: {a:'CAR',n:'Carolina Hurricanes',s:1,w:0}, bot: {a:'PHI',n:'Philadelphia Flyers',s:3,w:0}, letter:'J', g1:'' },
+  ],
+  westR2: [
+    { top: {a:'COL',n:'Colorado Avalanche',s:1,w:0}, bot: {a:'MIN',n:'Minnesota Wild',s:3,w:0}, letter:'K', g1:'' },
+    { top: {a:'VGK',n:'Vegas Golden Knights',s:1,w:0}, bot: {a:'ANA',n:'Anaheim Ducks',s:3,w:0}, letter:'L', g1:'' },
   ]
 };
 
@@ -1550,6 +1561,8 @@ async function fetchBracket() {
 
   if (!result.east.length) result.east = FALLBACK.east;
   if (!result.west.length) result.west = FALLBACK.west;
+  if (!result.eastR2.length && FALLBACK.eastR2) result.eastR2 = FALLBACK.eastR2;
+  if (!result.westR2.length && FALLBACK.westR2) result.westR2 = FALLBACK.westR2;
   return result;
 }
 
