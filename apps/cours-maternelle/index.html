@@ -4,50 +4,186 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zone Total Sport — Maternelle 90 Cours</title>
-<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
 tailwind.config = {
   theme:{extend:{
-    fontFamily:{bangers:['Bangers','cursive'],sans:['Montserrat','sans-serif']},
+    fontFamily:{
+      bangers:['"Luckiest Guy"','cursive'],
+      lucky:['"Luckiest Guy"','cursive'],
+      swanky:['"Swanky and Moo Moo"','cursive'],
+      gloria:['"Gloria Hallelujah"','cursive'],
+      girl:['"The Girl Next Door"','cursive'],
+      love:['"Love Ya Like A Sister"','cursive'],
+      sans:['Inter','sans-serif']
+    },
     colors:{
       dark:'#0B1120',card:'#1E293B',cardHover:'#334155',
-      brandCyan:'#06b6d4',brandYellow:'#facc15',brandGreen:'#22c55e',
-      brandRed:'#ef4444',brandPink:'#ec4899',brandPurple:'#a855f7'
+      brandCyan:'#00C4FF',brandYellow:'#FFF000',brandGreen:'#4ADE80',
+      brandRed:'#ef4444',brandPink:'#ec4899',brandPurple:'#A855F7',
+      brandOrange:'#FF8C00',brandLime:'#4ADE80'
     },
     animation:{
       'pulse-glow':'pulseGlow 2s cubic-bezier(0.4,0,0.6,1) infinite',
       'float':'float 3s ease-in-out infinite',
       'spin-slow':'spin 3s linear infinite',
+      'wiggle':'wiggle 0.6s ease-in-out infinite',
+      'pop':'pop 0.4s ease-out'
     },
     keyframes:{
-      pulseGlow:{'0%,100%':{boxShadow:'0 0 15px rgba(250,204,21,0.4)'},'50%':{boxShadow:'0 0 30px rgba(250,204,21,0.8)'}},
-      float:{'0%,100%':{transform:'translateY(0)'},'50%':{transform:'translateY(-10px)'}}
+      pulseGlow:{'0%,100%':{boxShadow:'0 0 15px rgba(255,240,0,0.5)'},'50%':{boxShadow:'0 0 35px rgba(255,240,0,0.9)'}},
+      float:{'0%,100%':{transform:'translateY(0)'},'50%':{transform:'translateY(-10px)'}},
+      wiggle:{'0%,100%':{transform:'rotate(-3deg)'},'50%':{transform:'rotate(3deg)'}},
+      pop:{'0%':{transform:'scale(0.8)'},'60%':{transform:'scale(1.1)'},'100%':{transform:'scale(1)'}}
     }
   }}
 }
 </script>
 <style>
+/* ═══ POLICES ZTS ULTRA-INTERACTIF ═══ */
+@font-face{font-family:'Luckiest Guy';src:url('LuckiestGuy-Regular.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:'Swanky and Moo Moo';src:url('SwankyandMooMoo-Regular.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:'Gloria Hallelujah';src:url('GloriaHallelujah-Regular.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:'The Girl Next Door';src:url('TheGirlNextDoor-Regular.ttf') format('truetype');font-display:swap;}
+@font-face{font-family:'Love Ya Like A Sister';src:url('LoveYaLikeASister-Regular.ttf') format('truetype');font-display:swap;}
+
 body{
-  background:#0B1120;
-  color:#f8fafc;overflow-x:hidden;font-family:'Montserrat',sans-serif;
+  background:linear-gradient(135deg,#fef3c7 0%,#fde68a 50%,#fef9c3 100%);
+  color:#0B1120;overflow-x:hidden;font-family:'Inter',sans-serif;font-weight:600;
   position:relative;
 }
 body::before{
   content:'';position:fixed;inset:0;z-index:-1;
-  background:url('assets/gymnase.jpg') center/cover no-repeat;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(0,196,255,.18) 0%, transparent 35%),
+    radial-gradient(circle at 90% 30%, rgba(168,85,247,.18) 0%, transparent 35%),
+    radial-gradient(circle at 50% 80%, rgba(255,140,0,.15) 0%, transparent 40%),
+    radial-gradient(circle at 20% 90%, rgba(74,222,128,.15) 0%, transparent 35%);
 }
-body.tbi::before{opacity:.2;}
-/* Cards : fond opaque pour lisibilité sur background gymnase */
-.bg-card{background:rgba(15,23,42,.92)!important;backdrop-filter:blur(8px);}
+body.tbi::before{opacity:.4;}
+
+/* ═══ STICKER SHADOWBOX — toutes les cartes ═══ */
+.bg-card,
 [class*="bg-brand"][class*="/10"],
+[class*="bg-brand"][class*="/20"],
+[class*="bg-brand"][class*="/40"],
 [class*="bg-blue-500/10"],
-[class*="bg-orange-500/10"]{
-  background:rgba(15,23,42,.88)!important;backdrop-filter:blur(8px);
+[class*="bg-orange-500/10"],
+[class*="bg-dark/40"],
+[class*="bg-dark/50"],
+[class*="bg-dark/60"]{
+  background:#fff!important;
+  border:3px solid #0B1120!important;
+  border-bottom-width:12px!important;
+  border-right-width:12px!important;
+  color:#0B1120!important;
+  backdrop-filter:none!important;
+  transition:all .2s cubic-bezier(.4,0,.2,1);
 }
-body.tbi .bg-card{background:rgba(255,255,255,.96)!important;}
-body.tbi [class*="/10"]{background:rgba(241,245,249,.95)!important;}
+
+/* Welcome modal — couleurs vibrantes par carte (selon la couleur de la bordure originale) */
+#view-welcome > div{background:#fff!important;}
+#view-welcome [class*="border-brandPink"]{background:#FFE4F1!important;border-color:#ec4899!important;}
+#view-welcome [class*="border-brandCyan"]{background:#D6F5FF!important;border-color:#00C4FF!important;}
+#view-welcome [class*="border-brandYellow"]{background:#FFFAD6!important;border-color:#FFC700!important;}
+#view-welcome [class*="border-brandGreen"]{background:#DCFCE7!important;border-color:#4ADE80!important;}
+#view-welcome [class*="border-brandPurple"]{background:#F3E8FF!important;border-color:#A855F7!important;}
+
+/* Aide modal — même traitement */
+#aide-modal [class*="bg-dark"]{background:#fffbeb!important;border:3px solid #0B1120!important;border-bottom-width:8px!important;border-right-width:8px!important;}
+
+.bg-card:hover,
+[class*="bg-brand"][class*="/10"]:hover{
+  transform:translate(4px,4px);
+  border-bottom-width:6px!important;
+  border-right-width:6px!important;
+}
+.bg-card .text-white,
+.bg-card .text-slate-300,
+.bg-card .text-slate-200,
+.bg-card .text-slate-400,
+[class*="/10"] .text-white,
+[class*="/10"] .text-slate-300,
+[class*="/10"] .text-slate-200{
+  color:#0B1120!important;
+}
+.bg-dark{background:#0B1120!important;color:#fff!important;}
+
+/* ═══ TYPOGRAPHIE — mapping rôles ═══ */
+.font-bangers{font-family:'Luckiest Guy',cursive!important;letter-spacing:.04em;}
+.font-swanky{font-family:'Swanky and Moo Moo',cursive!important;}
+.font-gloria{font-family:'Gloria Hallelujah',cursive!important;}
+.font-girl{font-family:'The Girl Next Door',cursive!important;}
+.font-love{font-family:'Love Ya Like A Sister',cursive!important;}
+
+/* Verbatim "ce que tu dis" → Gloria Hallelujah */
+#player-consignes,#player-consignes-wrap p,
+#player-demo{font-family:'Gloria Hallelujah',cursive!important;font-size:1.25em;line-height:1.6;}
+
+/* Notes prof / astuces → The Girl Next Door */
+#player-astuce,#player-erreurs li,#player-faq li,
+#player-questions li,#player-variantes li,#player-securite li,#player-adapt li{
+  font-family:'The Girl Next Door',cursive!important;font-size:1.15em;line-height:1.5;
+}
+
+/* Paragraphes d'explication / desc / intention → The Girl Next Door */
+#view-welcome p,#view-welcome li,
+#view-welcome details div,
+#bento-today-desc,
+#aide-modal p,
+#modal-desc,
+#player-intention,#player-prolong,#player-eval,
+#player-prep li,#player-liens li,
+#player-material-list li span{
+  font-family:'The Girl Next Door',cursive!important;
+  font-size:1.2em;line-height:1.5;font-weight:400;
+}
+
+/* Garder le bold dans les paragraphes assez visible — surligné fin */
+#view-welcome p b,#view-welcome li b,#aide-modal p b{
+  font-family:'The Girl Next Door',cursive!important;
+  background:linear-gradient(transparent 78%,rgba(255,240,0,.7) 78%,rgba(255,240,0,.7) 96%,transparent 96%);
+  padding:0 .1em;font-weight:700;color:#0B1120!important;
+}
+/* Texte qui était déjà coloré (cyan/jaune/etc) → fond rose pâle au lieu de jaune pour rester lisible */
+#view-welcome p b[class*="text-brandYellow"],
+#view-welcome li b[class*="text-brandYellow"]{
+  background:linear-gradient(transparent 78%,rgba(255,180,200,.8) 78%,rgba(255,180,200,.8) 96%,transparent 96%)!important;
+  color:#A855F7!important;
+}
+#view-welcome p b[class*="text-brandCyan"],
+#view-welcome li b[class*="text-brandCyan"]{
+  background:linear-gradient(transparent 78%,rgba(255,140,0,.4) 78%,rgba(255,140,0,.4) 96%,transparent 96%)!important;
+  color:#0891b2!important;
+}
+
+/* Sous-titres sections → Swanky and Moo Moo */
+.player-tab,#trim-nav .trim-btn{font-family:'Swanky and Moo Moo',cursive!important;}
+
+/* Badges/tags → Love Ya Like A Sister */
+[class*="rounded-full"][class*="uppercase"]{font-family:'Love Ya Like A Sister',cursive!important;letter-spacing:.05em;}
+
+/* ═══ EFFETS STICKER — badges & icônes ═══ */
+.sticker-rotate-1{transform:rotate(-3deg);}
+.sticker-rotate-2{transform:rotate(2deg);}
+.sticker-rotate-3{transform:rotate(-2deg);}
+
+/* Bento cards multicolores */
+#bento-today{background:linear-gradient(135deg,#00C4FF 0%,#0891b2 100%)!important;color:#fff!important;}
+#bento-today .text-white{color:#fff!important;}
+#bento-today .text-slate-300{color:#e0f2fe!important;}
+
+/* TBI mode = fond clair (déjà clair par défaut, juste retirer le fond gymnase) */
+body.tbi{background:#f1f5f9!important;}
+body.tbi .bg-card{background:#fff!important;}
+
+/* ═══ HOVER WIGGLE sur boutons CTA ═══ */
+button:hover i.fa-bolt,
+button:hover i.fa-dice,
+button:hover i.fa-play{animation:wiggle .4s ease-in-out;}
 
 .no-scrollbar::-webkit-scrollbar{display:none;}
 .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
@@ -175,7 +311,7 @@ body.tbi #view-course{background:#f1f5f9!important;}
 
     <!-- Bouton Commencer -->
     <div class="text-center">
-      <button onclick="finishWelcome()" class="bg-brandYellow text-dark font-black text-2xl md:text-3xl px-12 py-6 rounded-2xl hover:scale-105 active:scale-95 bento-transition shadow-2xl shadow-brandYellow/30 animate-pulse-glow">
+      <button onclick="finishWelcome()" class="bg-brandYellow text-dark font-bangers text-4xl md:text-5xl tracking-wider px-12 py-6 rounded-2xl hover:scale-105 active:scale-95 bento-transition shadow-2xl shadow-brandYellow/30 animate-pulse-glow">
         <i class="fa-solid fa-play mr-2"></i> COMMENCER !
       </button>
       <p class="text-slate-400 text-sm mt-4">Tu pourras toujours revoir cette aide en cliquant <b>❓ Aide</b> dans le menu.</p>
@@ -729,20 +865,28 @@ function renderGrid(){
   if(q.length>=2)list=COURS.filter(c=>c.titre.toLowerCase().includes(q)||(c.intention||'').toLowerCase().includes(q));
   grid.innerHTML='';
   if(!list.length){grid.innerHTML='<div class="col-span-full text-center text-slate-500 font-bold py-12">Aucun cours trouvé.</div>';return;}
-  list.forEach(c=>{
+  const PALETTE=['#00C4FF','#FFF000','#FF8C00','#4ADE80','#A855F7','#ec4899'];
+  list.forEach((c,idx)=>{
     const isDone=done.includes(c.id),isFav=fav.includes(c.id);
+    const color=PALETTE[idx%PALETTE.length];
+    const dark=color==='#FFF000'||color==='#4ADE80';
+    const fg=dark?'#0B1120':'#fff';
+    const rot=(idx%3===0)?-1.5:(idx%3===1)?1.5:-.5;
     const card=document.createElement('div');
-    card.className=`rounded-3xl p-5 md:p-6 flex flex-col h-52 md:h-64 bento-transition relative border-2 cursor-pointer ${isDone?'bg-brandGreen text-white border-brandGreen shadow-xl shadow-brandGreen/30':'bg-card border-slate-700 hover:border-brandCyan hover:scale-[1.03] shadow-lg'}`;
+    card.className='rounded-2xl p-5 md:p-6 flex flex-col h-52 md:h-64 cursor-pointer relative zts-sticker-card';
+    card.style.cssText=`background:${isDone?'#4ADE80':color};color:${isDone?'#0B1120':fg};border:3px solid #0B1120;border-bottom-width:12px;border-right-width:12px;transform:rotate(${rot}deg);transition:all .15s cubic-bezier(.4,0,.2,1);`;
+    card.onmouseenter=()=>{card.style.transform=`rotate(0deg) translate(2px,2px)`;card.style.borderBottomWidth='6px';card.style.borderRightWidth='6px';};
+    card.onmouseleave=()=>{card.style.transform=`rotate(${rot}deg)`;card.style.borderBottomWidth='12px';card.style.borderRightWidth='12px';};
     card.onclick=()=>openCourseModal(c.id);
     card.innerHTML=`
       <div class="flex justify-between items-start mb-auto">
-        <span class="font-bangers text-4xl ${isDone?'text-white':'text-brandYellow'}">${String(c.id).padStart(2,'0')}</span>
-        <i class="fa-solid ${isDone?'fa-circle-check':iconForCourse(c)} text-3xl md:text-4xl ${isDone?'text-white':'text-brandCyan'}"></i>
+        <span class="font-bangers text-5xl" style="color:${fg};text-shadow:2px 2px 0 rgba(0,0,0,.15)">${String(c.id).padStart(2,'0')}</span>
+        <i class="fa-solid ${isDone?'fa-circle-check':iconForCourse(c)} text-3xl md:text-4xl" style="color:${fg}"></i>
       </div>
-      <h4 class="font-bangers text-lg md:text-xl leading-tight mb-2 mt-4">${c.titre}</h4>
+      <h4 class="font-bangers text-xl md:text-2xl leading-tight mb-2 mt-4" style="color:${fg}">${c.titre}</h4>
       <div class="flex justify-between items-center">
-        <span class="text-xs uppercase font-black opacity-70 tracking-widest">${c.periode||''}</span>
-        ${isFav?'<i class="fa-solid fa-star text-brandYellow text-base"></i>':''}
+        <span class="font-love text-sm uppercase tracking-widest" style="color:${fg};opacity:.8">${c.periode||''}</span>
+        ${isFav?`<i class="fa-solid fa-star text-base" style="color:${dark?'#A855F7':'#FFF000'}"></i>`:''}
       </div>`;
     grid.appendChild(card);
   });
@@ -964,9 +1108,20 @@ document.querySelectorAll('.player-tab').forEach(t=>{
 
 function toggleDoneCourse(){
   const d=getDone();const i=d.indexOf(selectedCourseId);
+  const justFinished=i===-1;
   if(i>-1)d.splice(i,1);else d.push(selectedCourseId);
   localStorage.setItem(DONE_KEY,JSON.stringify(d));
+  if(justFinished)ztsConfetti();
   switchView('main');
+}
+
+// ═══════════ CONFETTIS ═══════════
+function ztsConfetti(){
+  if(typeof confetti!=='function')return;
+  const colors=['#00C4FF','#FFF000','#FF8C00','#4ADE80','#A855F7'];
+  confetti({particleCount:120,spread:80,origin:{y:.6},colors});
+  setTimeout(()=>confetti({particleCount:60,angle:60,spread:55,origin:{x:0},colors}),200);
+  setTimeout(()=>confetti({particleCount:60,angle:120,spread:55,origin:{x:1},colors}),200);
 }
 
 // ═══════════ TIMER + GONG ═══════════
