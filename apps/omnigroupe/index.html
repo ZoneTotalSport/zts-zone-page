@@ -129,19 +129,18 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 
 <!-- ========== HEADER ZTS ========== -->
 <header class="safe-top sticky top-0 z-50 shadow-lg" style="background:#00C4FF;border-bottom:4px solid #0086AD">
-  <div class="px-4 py-3 flex items-center justify-between gap-3">
-    <a href="../../" class="flex flex-col items-start shrink-0 leading-none">
+  <div class="px-4 py-3 grid grid-cols-3 items-center gap-3">
+    <a href="../../" class="flex flex-col items-start shrink-0 leading-none justify-self-start">
       <span class="font-luckiest text-lg md:text-2xl text-white zts-text-shadow leading-none">ZONE <span style="color:#FFFA00">TOTAL</span> SPORT</span>
       <span class="hidden md:inline font-luckiest text-[10px] tracking-[.2em] uppercase leading-none mt-0.5" style="color:#004A61">Intervention Groupe</span>
     </a>
-    <div class="flex items-center gap-2">
-      <span id="clock" class="font-luckiest text-2xl md:text-3xl text-white zts-text-shadow tracking-wider px-3 py-1 rounded-xl bg-black/20">09:41</span>
-      <a href="../../" class="font-luckiest text-base md:text-2xl uppercase px-4 md:px-6 py-2 md:py-3 rounded-2xl press flex items-center gap-2 zts-chunky" style="background:#FFFA00;color:#004A61">
-        <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-        Accueil
-      </a>
-    </div>
+    <span id="clock" class="font-luckiest text-2xl md:text-3xl text-white zts-text-shadow tracking-wider px-3 py-1 rounded-xl bg-black/20 justify-self-center">09:41</span>
+    <a href="../../" class="font-luckiest text-base md:text-2xl uppercase px-4 md:px-6 py-2 md:py-3 rounded-2xl press flex items-center gap-2 zts-chunky shrink-0 justify-self-end" style="background:#FFFA00;color:#004A61">
+      <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+      Accueil
+    </a>
   </div>
+  <script>(function(){function t(){var el=document.getElementById('clock');if(!el)return;var d=new Date();el.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
   <!-- Sub-bar (device toggles + help) -->
   <div class="px-4 pb-2 flex items-center justify-end gap-2">
     <button onclick="showWelcome()" class="w-7 h-7 rounded-lg bg-white/30 text-white font-bold text-xs press flex items-center justify-center" title="Guide">?</button>
@@ -387,7 +386,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
       <button onclick="quickAddSeq('retour')" class="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg press shadow-sm border-b-4 border-r-4 border-[#00cc74]" style="background:#00FF92;color:#004A61">🌬️ Retour au calme</button>
       <button onclick="quickAddSeq('fin')" class="flex items-center gap-1.5 text-white text-xs font-bold px-3 py-2 rounded-lg press shadow-sm border-b-4 border-r-4 border-[#003445]" style="background:#004A61">🔔 Fin</button>
     </div>
-    <div id="seq-timeline" class="space-y-3 mb-4"></div>
+    <div id="seq-timeline" class="space-y-4 mb-6 pb-4"></div>
   </div>
 
   <!-- ===== SOUS-TAB CHOIX (jeux + transitions) ===== -->
@@ -1599,25 +1598,29 @@ let seqBlocks=JSON.parse(localStorage.getItem('omni-seq')||'[]');
 const sportEmojis=['⚽','🏀','🏐','🏈','⚾','🎾','🏒','🏸','🥏','🎯','🏃','🚶','🤸','🧗','🤾','🏊','⛹️','🚴','🤺','🥊','🎒','👟','🦺','🧤','🪢','🏋️','⏱️','🔔','🌬️','🏫','🚪','🔄'];
 
 const seqDefaults={
-  arrivee:{picto:'🏫',titre:'Arrivée au gymnase',color:'slate'},
-  entree:{picto:'🚪',titre:'Entrée',color:'blue'},
-  routine:{picto:'🔄',titre:'Routine',color:'orange'},
-  activite:{picto:'⚽',titre:'Activité',color:'indigo'},
-  retour:{picto:'🌬️',titre:'Retour au calme',color:'teal'},
-  fin:{picto:'🔔',titre:'Période terminée',color:'red'}
+  arrivee:{picto:'🏫',titre:'Arrivée au gymnase',color:'slate',duree:5},
+  entree:{picto:'🚪',titre:'Entrée',color:'blue',duree:3},
+  routine:{picto:'🔄',titre:'Routine',color:'orange',duree:5},
+  activite:{picto:'⚽',titre:'Activité',color:'indigo',duree:15},
+  retour:{picto:'🌬️',titre:'Retour au calme',color:'teal',duree:5},
+  fin:{picto:'🔔',titre:'Période terminée',color:'red',duree:2}
 };
 
 const seqColorMap={
-  slate:'bg-slate-100 border-slate-300',blue:'bg-blue-100 border-blue-300',
-  orange:'bg-orange-100 border-orange-300',indigo:'bg-indigo-100 border-indigo-300',
-  purple:'bg-purple-100 border-purple-300',teal:'bg-teal-100 border-teal-300',
-  red:'bg-red-100 border-red-300',emerald:'bg-emerald-100 border-emerald-300',
-  violet:'bg-violet-100 border-violet-300'
+  slate:{bg:'#f1f5f9',border:'#94a3b8',accent:'#64748b'},
+  blue:{bg:'#dbeafe',border:'#60a5fa',accent:'#2563eb'},
+  orange:{bg:'#ffedd5',border:'#fb923c',accent:'#ea580c'},
+  indigo:{bg:'#e0e7ff',border:'#818cf8',accent:'#4f46e5'},
+  purple:{bg:'#f3e8ff',border:'#a78bfa',accent:'#7c3aed'},
+  teal:{bg:'#ccfbf1',border:'#2dd4bf',accent:'#0d9488'},
+  red:{bg:'#fee2e2',border:'#f87171',accent:'#dc2626'},
+  emerald:{bg:'#d1fae5',border:'#34d399',accent:'#059669'},
+  violet:{bg:'#ede9fe',border:'#8b5cf6',accent:'#6d28d9'}
 };
 
 function quickAddSeq(type){
   const d=seqDefaults[type];
-  seqBlocks.push({picto:d.picto,titre:d.titre,color:d.color,text:'',drawing:''});
+  seqBlocks.push({picto:d.picto,titre:d.titre,color:d.color,duree:d.duree||5,text:'',drawing:''});
   saveSeq();
   renderPlanif();
   // Scroll to new block
@@ -1632,29 +1635,35 @@ function renderPlanif(){
     tl.innerHTML='<div class="text-center py-12 text-slate-400"><p class="text-sm italic">Séance vide</p><p class="text-xs mt-1">Cliquez sur un bouton ci-dessus pour construire votre séquence</p></div>';
     return;
   }
-  tl.innerHTML=seqBlocks.map((b,i)=>{
-    const cls=seqColorMap[b.color]||seqColorMap.violet;
-    return`<div class="seq-block ${cls} border-2 rounded-lg overflow-hidden" draggable="true" ondragstart="dragStart(event,${i})" ondragover="event.preventDefault()" ondrop="dropBlock(event,${i})">
+  const totalMin=seqBlocks.reduce((s,b)=>s+(b.duree||0),0);
+  tl.innerHTML=`<div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold text-slate-400 uppercase">⏱️ Durée totale</span><span class="font-luckiest text-lg" style="color:#004A61">${totalMin} min</span></div>`+seqBlocks.map((b,i)=>{
+    const c=seqColorMap[b.color]||seqColorMap.violet;
+    return`<div class="seq-block rounded-2xl overflow-hidden shadow-md" draggable="true" ondragstart="dragStart(event,${i})" ondragover="event.preventDefault()" ondrop="dropBlock(event,${i})" style="background:${c.bg};border:3px solid ${c.border};border-bottom-width:10px;border-right-width:10px">
       <div class="flex items-center justify-between p-3 cursor-grab">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-1 min-w-0">
           <span class="emoji-picto select-none cursor-ns-resize" style="font-size:${b.pictoSize||24}px;line-height:1" onpointerdown="startEmojiDrag(event,${i})" title="Glisser ↕ pour redimensionner">${b.picto}</span>
-          <span class="font-bold text-sm text-slate-800">${b.titre}</span>
+          <input type="text" value="${(b.titre||'').replace(/"/g,'&quot;')}" onchange="updateSeqTitle(${i},this.value)" class="font-bold text-sm text-slate-800 bg-transparent border-b-2 border-dashed focus:border-solid focus:outline-none flex-1 min-w-0 px-1 py-0.5 rounded" style="border-color:${c.border}">
         </div>
-        <div class="flex items-center gap-1">
-          <button onclick="toggleEmojiGrid(${i})" class="text-xs bg-white/60 px-2 py-1 rounded-lg press font-bold text-slate-500" title="Émojis">😀</button>
-          <button onclick="openDraw(${i})" class="text-xs bg-white/60 px-2 py-1 rounded-lg press font-bold text-slate-500" title="Dessiner">✏️</button>
-          <button onclick="moveBlock(${i},-1)" class="text-xs bg-white/60 px-1.5 py-1 rounded-lg press font-bold text-slate-400">▲</button>
-          <button onclick="moveBlock(${i},1)" class="text-xs bg-white/60 px-1.5 py-1 rounded-lg press font-bold text-slate-400">▼</button>
-          <button onclick="removeBlock(${i})" class="text-xs bg-white/60 px-1.5 py-1 rounded-lg press font-bold text-red-400">✕</button>
+        <div class="flex items-center gap-1 shrink-0 ml-2">
+          <button onclick="toggleEmojiGrid(${i})" class="text-xs bg-white/70 px-2 py-1 rounded-xl press font-bold text-slate-500 shadow-sm" title="Émojis">😀</button>
+          <button onclick="openDraw(${i})" class="text-xs bg-white/70 px-2 py-1 rounded-xl press font-bold text-slate-500 shadow-sm" title="Dessiner">✏️</button>
+          <button onclick="moveBlock(${i},-1)" class="text-xs bg-white/70 px-1.5 py-1 rounded-xl press font-bold text-slate-400 shadow-sm">▲</button>
+          <button onclick="moveBlock(${i},1)" class="text-xs bg-white/70 px-1.5 py-1 rounded-xl press font-bold text-slate-400 shadow-sm">▼</button>
+          <button onclick="removeBlock(${i})" class="text-xs bg-red-100 px-1.5 py-1 rounded-xl press font-bold text-red-500 shadow-sm">✕</button>
         </div>
       </div>
-      <div class="px-3 pb-3">
-        <div id="emoji-grid-${i}" class="hidden mb-2 p-2 bg-white/50 rounded-lg border border-dashed border-slate-300">
-          <div class="flex items-center gap-2 mb-2"><span class="text-[10px] font-bold text-slate-400">Taille émoji</span><input type="range" min="16" max="64" value="${b.pictoSize||24}" oninput="resizeEmojiSlider(${i},this.value)" class="flex-1 accent-[#00C4FF]"><span class="text-[10px] font-bold text-slate-400" id="emoji-size-label-${i}">${b.pictoSize||24}px</span></div>
-          <div class="flex flex-wrap gap-1">${sportEmojis.map(e=>`<button onclick="setBlockEmoji(${i},'${e}')" class="w-8 h-8 rounded-lg text-lg flex items-center justify-center press ${b.picto===e?'bg-[#00C4FF] shadow-md scale-110':'bg-white/60 hover:bg-white'} transition-all">${e}</button>`).join('')}</div>
+      <div class="px-3 pb-3 space-y-2">
+        <div class="flex items-center gap-2 bg-white/50 rounded-xl px-3 py-2">
+          <span class="text-[11px] font-bold text-slate-500 shrink-0">⏱️</span>
+          <input type="range" min="1" max="30" value="${b.duree||5}" oninput="updateSeqDuree(${i},this.value);this.nextElementSibling.textContent=this.value+' min'" class="flex-1 accent-[#00C4FF]">
+          <span class="text-xs font-bold min-w-[3rem] text-right" style="color:${c.accent}">${b.duree||5} min</span>
         </div>
-        <textarea onchange="updateSeqText(${i},this.value)" placeholder="Écrire les consignes, le déroulement..." class="w-full p-2 rounded-lg border border-slate-200 bg-white/70 text-sm font-medium resize-none focus:border-[#00C4FF] focus:outline-none" rows="2">${b.text||''}</textarea>
-        ${b.drawing?`<div class="mt-2"><div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-bold text-slate-400">Taille</span><input type="range" min="20" max="100" value="${b.drawScale||100}" oninput="this.nextElementSibling.textContent=this.value+'%';this.closest('.mt-2').querySelector('.draw-container').querySelector('img').style.width=this.value+'%'" onchange="setDrawScale(${i},this.value)" class="flex-1 accent-[#00C4FF]"><span class="text-[10px] font-bold text-slate-400">${b.drawScale||100}%</span><button onclick="clearBlockDrawing(${i})" class="bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full press flex-shrink-0">✕</button></div><div class="draw-container relative overflow-hidden rounded-lg border border-slate-200 bg-[repeating-conic-gradient(#e2e8f0_0%_25%,transparent_0%_50%)_0_0/16px_16px]" style="height:160px;cursor:grab" onpointerdown="startDragImg(event,${i})" onpointermove="moveDragImg(event,${i})" onpointerup="stopDragImg()" onpointerleave="stopDragImg()"><img src="${b.drawing}" style="width:${b.drawScale||100}%;position:absolute;left:${b.drawOffX||0}px;top:${b.drawOffY||0}px;pointer-events:none" alt="Dessin"></div></div>`:''}
+        <div id="emoji-grid-${i}" class="hidden p-2 bg-white/50 rounded-xl border border-dashed border-slate-300">
+          <div class="flex items-center gap-2 mb-2"><span class="text-[10px] font-bold text-slate-400">Taille émoji</span><input type="range" min="16" max="64" value="${b.pictoSize||24}" oninput="resizeEmojiSlider(${i},this.value)" class="flex-1 accent-[#00C4FF]"><span class="text-[10px] font-bold text-slate-400" id="emoji-size-label-${i}">${b.pictoSize||24}px</span></div>
+          <div class="flex flex-wrap gap-1">${sportEmojis.map(e=>`<button onclick="setBlockEmoji(${i},'${e}')" class="w-8 h-8 rounded-xl text-lg flex items-center justify-center press ${b.picto===e?'bg-[#00C4FF] shadow-md scale-110':'bg-white/60 hover:bg-white'} transition-all">${e}</button>`).join('')}</div>
+        </div>
+        <textarea onchange="updateSeqText(${i},this.value)" placeholder="Consignes, déroulement, variantes..." class="w-full p-2.5 rounded-xl border-2 border-slate-200 bg-white/70 text-sm font-medium resize-y focus:border-[#00C4FF] focus:outline-none" rows="2" style="min-height:44px">${b.text||''}</textarea>
+        ${b.drawing?`<div class="mt-1"><div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-bold text-slate-400">Taille</span><input type="range" min="20" max="100" value="${b.drawScale||100}" oninput="this.nextElementSibling.textContent=this.value+'%';this.closest('.mt-1').querySelector('.draw-container').querySelector('img').style.width=this.value+'%'" onchange="setDrawScale(${i},this.value)" class="flex-1 accent-[#00C4FF]"><span class="text-[10px] font-bold text-slate-400">${b.drawScale||100}%</span><button onclick="clearBlockDrawing(${i})" class="bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full press flex-shrink-0">✕</button></div><div class="draw-container relative overflow-hidden rounded-xl border-2 border-slate-200 bg-[repeating-conic-gradient(#e2e8f0_0%_25%,transparent_0%_50%)_0_0/16px_16px]" style="height:160px;cursor:grab" onpointerdown="startDragImg(event,${i})" onpointermove="moveDragImg(event,${i})" onpointerup="stopDragImg()" onpointerleave="stopDragImg()"><img src="${b.drawing}" style="width:${b.drawScale||100}%;position:absolute;left:${b.drawOffX||0}px;top:${b.drawOffY||0}px;pointer-events:none" alt="Dessin"></div></div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1662,6 +1671,8 @@ function renderPlanif(){
 }
 
 function setBlockEmoji(i,emoji){seqBlocks[i].picto=emoji;renderPlanif();}
+function updateSeqTitle(i,val){seqBlocks[i].titre=val;saveSeq();}
+function updateSeqDuree(i,val){seqBlocks[i].duree=parseInt(val);saveSeq();const tl=document.getElementById('seq-timeline');const total=seqBlocks.reduce((s,b)=>s+(b.duree||0),0);tl.querySelector('span:last-child').textContent=total+' min';}
 function toggleEmojiGrid(i){document.getElementById('emoji-grid-'+i).classList.toggle('hidden');}
 function setDrawScale(i,val){seqBlocks[i].drawScale=parseInt(val);saveSeq();}
 let emojiDragIdx=-1,emojiDragStartY=0,emojiDragOrigSize=24;
@@ -1698,7 +1709,7 @@ function clearBlockDrawing(i){seqBlocks[i].drawing='';renderPlanif();}
 
 function addJeuToPlanif(idx){
   const name=typeof idx==='number'?jeuxData[idx].name:idx;
-  seqBlocks.push({picto:'⚽',titre:name,color:'emerald',text:'',drawing:''});
+  seqBlocks.push({picto:'⚽',titre:name,color:'emerald',duree:10,text:'',drawing:''});
   saveSeq();go('planif');
 }
 
@@ -2206,10 +2217,9 @@ function resetEmulation(){
 // ============================================================
 // CLOCK
 // ============================================================
-setInterval(()=>{
-  const now=new Date();
-  document.getElementById('clock').textContent=now.toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});
-},10000);
+function updateClock(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'});}
+updateClock();
+setInterval(updateClock,10000);
 
 // ============================================================
 // INIT

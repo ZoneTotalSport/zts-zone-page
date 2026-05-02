@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Séries NBA 2026 | Zone Total Sport">
 <meta name="twitter:description" content="Séries actuelles, résultats et stats des séries éliminatoires NBA 2026!">
-<link rel="icon" type="image/png" href="../nhl-playoffs/logo-zts.png">
+<link rel="icon" type="image/png" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -36,6 +36,19 @@
   @font-face { font-family: 'Barriecito'; src: url('SwankyandMooMoo-Regular.ttf') format('truetype'); font-display:swap; }
   @font-face { font-family: 'Righteous'; src: url('Kranky-Regular.ttf') format('truetype'); font-display:swap; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* ===== ZTS APP HEADER (standard) ===== */
+  .zts-app-header{position:sticky;top:0;z-index:9999;background:#00C4FF;border-bottom:4px solid #0086AD;box-shadow:0 4px 12px rgba(0,0,0,.15);padding-top:env(safe-area-inset-top,0)}
+  .zts-app-header-inner{max-width:1280px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .zts-app-brand{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;line-height:1;flex-shrink:0}
+  .zts-app-brand-main{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;font-size:24px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2);line-height:1}
+  .zts-app-brand-accent{color:#FFFA00}
+  .zts-app-brand-sub{font-family:'Luckiest Guy',cursive;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#004A61;margin-top:2px;line-height:1}
+  @media (max-width:640px){.zts-app-brand-sub{display:none}.zts-app-brand-main{font-size:18px}}
+  .zts-app-header-right{display:flex;align-items:center;gap:8px}
+  .zts-app-clock{font-family:'Luckiest Guy',cursive;letter-spacing:.1em;font-size:24px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2);background:rgba(0,0,0,.2);padding:4px 12px;border-radius:12px}
+  .zts-app-home-btn{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;text-transform:uppercase;font-size:18px;background:#FFFA00;color:#004A61;padding:10px 20px;border-radius:16px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;box-shadow:4px 4px 0 rgba(0,0,0,.06);border-bottom:6px solid rgba(0,0,0,.1);border-right:6px solid rgba(0,0,0,.1)}
+  @media (max-width:640px){.zts-app-clock{font-size:18px}.zts-app-home-btn{font-size:14px;padding:8px 12px}}
 
   :root {
     --nba-blue: #1D428A;
@@ -535,6 +548,23 @@
 </style>
 </head>
 <body>
+
+<header class="zts-app-header">
+  <div class="zts-app-header-inner">
+    <a href="../../" class="zts-app-brand">
+      <span class="zts-app-brand-main">ZONE <span class="zts-app-brand-accent">TOTAL</span> SPORT</span>
+      <span class="zts-app-brand-sub">NBA Playoffs</span>
+    </a>
+    <div class="zts-app-header-right">
+      <span id="ztsClock" class="zts-app-clock">09:41</span>
+      <a href="../../" class="zts-app-home-btn">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+        Accueil
+      </a>
+    </div>
+  </div>
+</header>
+<script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
 
 <!-- NBA Logos Background — gros et colorés -->
 <div class="nba-bg-pattern" id="nbaBgPattern"></div>
