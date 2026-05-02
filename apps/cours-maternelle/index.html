@@ -789,7 +789,7 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
 <!-- ═══ AIDE MODAL ═══ -->
 <div id="aide-modal" class="overlay">
   <div class="modal welcome">
-    <button class="modal-close" onclick="document.getElementById('aide-modal').classList.remove('show')"><i class="fa-solid fa-xmark"></i></button>
+    <button class="modal-close" onclick="(function(){var m=document.getElementById('aide-modal');m.classList.remove('show');m.style.display='none';})()"><i class="fa-solid fa-xmark"></i></button>
     <h2 style="font-size:2rem;color:var(--c-cyan);margin-bottom:6px;">Comment ça marche ?</h2>
     <p style="font-family:'Girl',cursive;color:var(--ink-soft);margin-bottom:18px;">L'app en 4 étapes — pour profs débutants ou pressés.</p>
     <div class="steps">
@@ -840,14 +840,17 @@ window.closeModal = function(){
 };
 
 window.showWelcome = function(){
-  document.getElementById('view-welcome').classList.add('show');
+  const w=document.getElementById('view-welcome');
+  w.style.display=''; w.classList.add('show');
 };
 window.finishWelcome = function(){
   localStorage.setItem('zts_mat_welcome','1');
-  document.getElementById('view-welcome').classList.remove('show');
+  const w=document.getElementById('view-welcome');
+  w.classList.remove('show'); w.style.display='none';
 };
 window.afficherAide = function(){
-  document.getElementById('aide-modal').classList.add('show');
+  const w=document.getElementById('aide-modal');
+  w.style.display=''; w.classList.add('show');
 };
 
 // Override unlock
