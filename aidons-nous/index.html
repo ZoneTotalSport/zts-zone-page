@@ -42,13 +42,45 @@
   .nav-btn.active{background:var(--cyan);color:#fff;border-bottom:4px solid #0086AD;border-right:4px solid #0086AD;}
   .nav-btn.login{background:linear-gradient(135deg,#FF8C00,#FFF000);color:#0a1628;border-bottom:4px solid #cc7000;border-right:4px solid #cc7000;}
 
-  /* ── HERO compact ── */
-  .hero{background:#fff;color:var(--dark);padding:20px 20px;text-align:center;border-bottom:12px solid #00C4FF;position:relative;overflow:hidden;}
-  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(0,196,255,.06),transparent 50%);pointer-events:none;}
-  .hero-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:18px;position:relative;}
-  .hero img{width:110px;height:auto;filter:drop-shadow(3px 5px 10px rgba(0,0,0,0.15));}
-  .hero h1{font-family:'Luckiest Guy',cursive;font-size:56px;margin:0;line-height:1;letter-spacing:2px;color:var(--dark);text-shadow:3px 3px 0 #00C4FF;}
-  .hero p{font-family:'Luckiest Guy',cursive;font-size:22px;margin:6px 0 0;letter-spacing:1.5px;color:#FF8C00;}
+  /* ── HERO IMMERSIF ── */
+  .hero{background:radial-gradient(ellipse at 30% 40%,#00C4FF 0%,#0086AD 40%,#004A61 100%);color:#fff;padding:28px 20px 22px;position:relative;overflow:hidden;border-bottom:12px solid #FFF000;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 85% 25%,rgba(255,240,0,.12),transparent 55%),radial-gradient(circle at 10% 80%,rgba(0,255,146,.08),transparent 40%);pointer-events:none;}
+  .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#00C4FF,#FFF000,#4ADE80,#FF8C00,#A855F7);pointer-events:none;}
+  .hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;position:relative;}
+
+  /* Left — Logo + sous-titre */
+  .hero-left{display:flex;align-items:center;gap:12px;}
+  .hero-left img{width:70px;height:auto;filter:drop-shadow(2px 4px 8px rgba(0,0,0,.3));}
+  .hero-left-txt{display:flex;flex-direction:column;}
+  .hero-left-brand{font-family:'Luckiest Guy',cursive;font-size:18px;letter-spacing:1.5px;color:#FFF000;line-height:1.1;}
+  .hero-left-sub{font-family:'Inter',sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:2px;}
+
+  /* Center — Titre géant sticker */
+  .hero-center{text-align:center;}
+  .hero-title{font-family:'Luckiest Guy',cursive;font-size:clamp(32px,6vw,62px);margin:0;line-height:1;letter-spacing:3px;color:#fff;
+    -webkit-text-stroke:3px #fff;paint-order:stroke fill;
+    text-shadow:4px 4px 0 #004A61,6px 6px 0 rgba(0,0,0,.2);display:inline-flex;align-items:center;gap:14px;}
+  .hero-title .hero-ico{font-size:clamp(40px,7vw,72px);filter:drop-shadow(3px 3px 0 rgba(0,0,0,.2));animation:hero-float 3s ease-in-out infinite;}
+  @keyframes hero-float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-6px) rotate(3deg);}}
+  .hero-tagline{font-family:'Luckiest Guy',cursive;font-size:clamp(14px,2.2vw,22px);color:#FFF000;letter-spacing:1.5px;margin-top:4px;text-shadow:2px 2px 0 rgba(0,0,0,.15);}
+
+  /* Right — Bouton PRO + quick actions */
+  .hero-right{display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .hero-pro-btn{background:linear-gradient(135deg,#FFF000,#FF8C00);color:#004A61;font-family:'Luckiest Guy',cursive;font-size:20px;letter-spacing:2px;padding:10px 22px;border:none;border-radius:12px;border-bottom:8px solid #cc7000;border-right:8px solid #cc7000;cursor:pointer;transition:all .15s;box-shadow:2px 2px 0 rgba(0,0,0,.1);}
+  .hero-pro-btn:hover{transform:translateY(-3px) scale(1.04);}
+  .hero-pro-btn:active{transform:translateY(2px);border-bottom-width:4px;border-right-width:4px;}
+
+  /* Quick action bubbles */
+  .hero-actions{display:flex;gap:6px;}
+  .hero-act{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);border:2px solid rgba(255,255,255,.25);border-bottom:6px solid rgba(255,255,255,.12);border-right:6px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .2s;text-decoration:none;}
+  .hero-act:hover{background:rgba(255,240,0,.25);transform:translateY(-3px) scale(1.1);border-color:#FFF000;}
+
+  @media(max-width:700px){
+    .hero-inner{grid-template-columns:1fr;text-align:center;gap:10px;}
+    .hero-left{justify-content:center;}
+    .hero-right{flex-direction:row;justify-content:center;}
+    .hero-pro-btn{font-size:16px;padding:8px 16px;}
+  }
 
   /* ── LAYOUT ── */
   .container{max-width:1060px;margin:0 auto;padding:16px;}
@@ -205,13 +237,30 @@
   </div>
 </nav>
 
-<!-- HERO -->
+<!-- HERO IMMERSIF -->
 <section class="hero">
   <div class="hero-inner">
-    <img src="../bucheron-aidons-nous.png" alt="Bûcherons" onerror="this.src='../bucheron-basketball.png'">
-    <div style="text-align:left;">
-      <h1>🤝 AIDONS-NOUS</h1>
-      <p>LA COMMUNAUTÉ QUI DONNE AU SUIVANT 💛</p>
+    <!-- Left — Logo + sous-titre -->
+    <div class="hero-left">
+      <img src="../logo-zts.png" alt="Zone Total Sport" onerror="this.src='../bucheron-basketball.png'">
+      <div class="hero-left-txt">
+        <span class="hero-left-brand">ZONE TOTAL SPORT</span>
+        <span class="hero-left-sub">Communauté EPS &bull; SDG &bull; Camps</span>
+      </div>
+    </div>
+    <!-- Center — Titre géant sticker -->
+    <div class="hero-center">
+      <h1 class="hero-title"><span class="hero-ico">🤝</span> AIDONS-NOUS</h1>
+      <p class="hero-tagline">LA COMMUNAUTÉ QUI DONNE AU SUIVANT 💛</p>
+    </div>
+    <!-- Right — PRO + quick actions -->
+    <div class="hero-right">
+      <button class="hero-pro-btn" onclick="if(window.ztsShowLogin)ztsShowLogin();">⭐ PRO</button>
+      <div class="hero-actions">
+        <a href="../" class="hero-act" title="Accueil">🏠</a>
+        <a href="../blog.html" class="hero-act" title="Blog">📰</a>
+        <a href="#" class="hero-act" title="Paramètres" onclick="event.preventDefault();if(window.ztsShowLogin)ztsShowLogin();">⚙️</a>
+      </div>
     </div>
   </div>
 </section>
