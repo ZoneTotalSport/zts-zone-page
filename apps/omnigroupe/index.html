@@ -1112,14 +1112,15 @@ function go(view,opts){
 function renderSOS(){
   const grid=document.getElementById('sos-grid');
   grid.innerHTML=sosData.map(s=>`
-    <button onclick="openSOS('${s.id}')" class="press relative aspect-square rounded-lg overflow-hidden shadow-md text-left w-full border-b-[12px] border-r-[12px]" style="border-color:${SOS_COLORS_HEX[s.id]}30">
+    <button onclick="openSOS('${s.id}')" class="press relative aspect-square rounded-lg overflow-hidden shadow-md text-left w-full border-b-[12px] border-r-[12px]" style="border-color:${SOS_COLORS_HEX[s.id]}40">
       <img src="${SOS_IMAGES[s.id]}" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
-      <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
-      <div class="absolute bottom-0 left-0 p-4 w-full">
-        <span class="text-3xl drop-shadow mb-1 block">${s.icon}</span>
-        <span class="bg-black/50 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-lg inline-block mb-2">10 Scenarios</span>
+      <div class="absolute top-3 left-3 flex items-center gap-2">
+        <span class="text-3xl drop-shadow">${s.icon}</span>
+        <span class="bg-black/50 text-white text-[10px] uppercase font-bold px-2 py-1 rounded-lg backdrop-blur-sm">10 Scenarios</span>
+      </div>
+      <div class="absolute bottom-0 left-0 w-full px-4 py-3" style="background:${SOS_COLORS_HEX[s.id]}dd">
         <h4 class="text-base font-luckiest text-white leading-tight drop-shadow uppercase">${s.title}</h4>
-        <p class="text-xs text-slate-300 mt-1">${s.subtitle}</p>
+        <p class="text-[11px] text-white/80 mt-0.5">${s.subtitle}</p>
       </div>
     </button>
   `).join('');
