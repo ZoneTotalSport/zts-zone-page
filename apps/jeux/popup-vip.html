@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zone Total Sport — VIP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        @keyframes cyanPulse {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(-5deg); opacity: 0; }
+            50% { opacity: 0.3; }
+            100% { transform: translateX(100%) rotate(-5deg); opacity: 0; }
+        }
+        @keyframes floatEmoji {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(8deg); }
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.95); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+            50% { box-shadow: 0 0 50px rgba(255,215,0,0.8), 0 0 80px rgba(255,215,0,0.3); }
+        }
+        @keyframes mascotBounce {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        body {
+            font-family: 'Schoolbell', cursive;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0096C7, #00B4D8, #00E5FF, #00CFFF, #0096C7);
+            background-size: 400% 400%;
+            animation: cyanPulse 12s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            color: #fff;
+        }
+        body::before {
+            content: '';
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+            animation: shimmer 6s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .float-emoji {
+            position: fixed;
+            font-size: 2rem;
+            opacity: 0.12;
+            pointer-events: none;
+            animation: floatEmoji 3s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .vip-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 520px;
+            text-align: center;
+        }
+
+        .mascot {
+            width: 220px;
+            height: auto;
+            filter: drop-shadow(4px 8px 16px rgba(0,0,0,0.3));
+            animation: mascotBounce 3s ease-in-out infinite;
+            margin: 0 auto 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            font-family: 'Bangers', cursive;
+            font-size: 0.95rem;
+            letter-spacing: 4px;
+            color: #FFD700;
+            border: 2px solid rgba(255,215,0,0.5);
+            border-radius: 30px;
+            padding: 6px 24px;
+            background: rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease 0.3s both;
+        }
+
+        .title {
+            font-family: 'Bangers', cursive;
+            font-size: 2.8rem;
+            line-height: 1.1;
+            color: #fff;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+            margin: 16px 0 8px;
+            animation: bounceIn 0.8s ease 0.4s both;
+        }
+        .title .cyan { color: #FFD700; }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: rgba(255,255,255,0.9);
+            line-height: 1.4;
+            margin-bottom: 24px;
+            animation: slideUp 0.6s ease 0.5s both;
+        }
+        .subtitle .highlight { color: #FFD700; font-weight: bold; }
+        .subtitle .name { color: #39FF14; font-weight: bold; }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            margin-bottom: 24px;
+            animation: slideUp 0.6s ease 0.6s both;
+        }
+        .stat-num {
+            font-family: 'Bangers', cursive;
+            font-size: 2.2rem;
+            color: #FFD700;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+            line-height: 1;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            font-family: 'Bangers', cursive;
+        }
+
+        .pills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 28px;
+            animation: slideUp 0.6s ease 0.7s both;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Bangers', cursive;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            padding: 10px 20px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s;
+        }
+        .pill:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-3px);
+        }
+
+        .cta {
+            display: block;
+            width: 100%;
+            padding: 22px 20px;
+            border: none;
+            border-radius: 60px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            font-family: 'Bangers', cursive;
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+            color: #0a0a2e;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            animation: slideUp 0.6s ease 0.8s both, pulseGlow 2s ease-in-out 1.5s infinite;
+            transition: transform 0.2s;
+        }
+        .cta:hover { transform: scale(1.04); }
+
+        .footer-text {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.45);
+            margin-top: 16px;
+            animation: slideUp 0.6s ease 0.9s both;
+        }
+        .login-link {
+            display: block;
+            margin-top: 12px;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.7);
+            text-decoration: underline;
+            cursor: pointer;
+            animation: slideUp 0.6s ease 1s both;
+        }
+        .login-link:hover { color: #FFD700; }
+
+        .skip {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.3);
+            background: none;
+            border: none;
+            cursor: pointer;
+            animation: slideUp 0.6s ease 1.1s both;
+        }
+        .skip:hover { color: rgba(255,255,255,0.6); }
+    </style>
+</head>
+<body>
+
+    <!-- Floating emojis -->
+    <span class="float-emoji" style="top:5%;left:6%">⚽</span>
+    <span class="float-emoji" style="top:12%;right:8%;animation-delay:.5s;font-size:2.4rem">🏀</span>
+    <span class="float-emoji" style="top:35%;left:4%;animation-delay:1s">🎾</span>
+    <span class="float-emoji" style="top:55%;right:5%;animation-delay:1.5s;font-size:1.6rem">🏈</span>
+    <span class="float-emoji" style="top:75%;left:7%;animation-delay:.8s">🏐</span>
+    <span class="float-emoji" style="top:85%;right:10%;animation-delay:1.2s;font-size:2.2rem">⚾</span>
+    <span class="float-emoji" style="top:45%;left:90%;animation-delay:2s">🏸</span>
+    <span class="float-emoji" style="top:25%;right:92%;animation-delay:1.8s;font-size:1.4rem">🥎</span>
+
+    <div class="vip-container">
+        <!-- Mascot -->
+        <img src="https://zonetotalsport.github.io/app-jeux/mascot-roots.png"
+             alt="Mr. Roots"
+             class="mascot"
+             onerror="this.src='https://zonetotalsport.ca/mascot-tablet.png'">
+
+        <!-- Badge -->
+        <div class="badge">ZONE TOTAL SPORT</div>
+
+        <!-- Title -->
+        <h1 class="title">
+            REJOINS LA <span class="cyan">ZONE VIP</span><br>DES PROFS D'EDUC!
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="subtitle">
+            Rejoins plus de <span class="highlight">2 300 profs d'Educ</span> qui revolutionnent leurs cours avec <span class="name">Mr. Roots</span>.<br>
+            C'est gratuit, c'est pro, c'est la Zone!
+        </p>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div>
+                <div class="stat-num">2 300+</div>
+                <div class="stat-label">PROFS INSCRITS</div>
+            </div>
+            <div>
+                <div class="stat-num">800+</div>
+                <div class="stat-label">JEUX SPORTIFS</div>
+            </div>
+            <div>
+                <div class="stat-num">1 000+</div>
+                <div class="stat-label">SAE COMPLETES</div>
+            </div>
+        </div>
+
+        <!-- Feature pills -->
+        <div class="pills">
+            <span class="pill">🎮 500+ jeux sportifs</span>
+            <span class="pill">🤖 Generateur IA</span>
+            <span class="pill">📚 SAE pretes a l'emploi</span>
+            <span class="pill">🎵 Musiques libres</span>
+            <span class="pill">📅 Planificateur</span>
+            <span class="pill">🖨️ Imprimable</span>
+        </div>
+
+        <!-- CTA -->
+        <button class="cta" onclick="window.parent.postMessage('triggerSignup', '*')">
+            INSCRIPTION GRATUITE
+        </button>
+
+        <!-- Footer -->
+        <p class="footer-text">Aucune carte de credit. Aucun abonnement. 🎉</p>
+        <a class="login-link" onclick="window.parent.postMessage('triggerLogin', '*')">Deja membre? Connecte-toi ici</a>
+        <button class="skip" onclick="window.parent.postMessage('closePopup', '*')">Non merci, plus tard</button>
+    </div>
+
+</body>
+</html>

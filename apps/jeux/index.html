@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light" data-lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Répertoire de Jeux EPS | 1439 Jeux - Banque mondiale</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Luckiest+Guy&family=Bangers&family=Gloria+Hallelujah&family=Swanky+and+Moo+Moo&family=The+Girl+Next+Door&family=Love+Ya+Like+A+Sister&family=Kranky&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+  tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61',pink:'#FF2A7A'},fontFamily:{lucky:['"Luckiest Guy"','cursive']}}}}
+  </script>
+  <style>
+    @font-face{font-family:'LuckiestGuyZTS';src:local('Luckiest Guy');unicode-range:U+0020-007F}
+    @font-face{font-family:'LuckiestGuyZTS';src:local('Bangers');unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F;size-adjust:92%}
+    .font-lucky{font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;letter-spacing:.05em}
+    .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
+    @keyframes ztsfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    .animate-float{animation:ztsfloat 3s ease-in-out infinite}
+    .text-outline{text-shadow:2px 2px 0px rgba(0,0,0,.2)}
+    /* Push existing toolbar below new ZTS header */
+    body>header.header{position:sticky;top:64px;z-index:40}
+    @media(min-width:768px){body>header.header{top:76px}}
+
+    /* === Body white + chunky colored game cards (style omnigroupe) === */
+    body{background:#f8fafc!important}
+    .main-layout{background:#f8fafc}
+    .content,.stats-bar{background:transparent!important}
+    /* Sidebar masquée — filtres déplacés en haut */
+    .sidebar,.menu-toggle,.sidebar-overlay{display:none!important}
+    .main-layout{grid-template-columns:1fr!important;display:block!important;margin-top:0!important;min-height:0!important}
+    .content{margin-left:0!important;max-width:100%!important;padding:0!important;flex:none!important}
+    .game-grid{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:24px!important;padding:24px!important;max-width:1700px!important;margin:0 auto!important}
+    @media(min-width:640px){.game-grid{grid-template-columns:repeat(3,1fr)!important}}
+    @media(min-width:1024px){.game-grid{grid-template-columns:repeat(4,1fr)!important}}
+    @media(min-width:1280px){.game-grid{grid-template-columns:repeat(5,1fr)!important}}
+    .game-card{aspect-ratio:1/1!important;min-height:0!important}
+    .game-card .card-number{font-size:16px!important;padding:5px 14px!important}
+    .game-card .card-title{font-size:24px!important;line-height:1.05!important;margin:8px 0 12px!important}
+    .game-card .card-but{font-size:16px!important;line-height:1.35!important;-webkit-line-clamp:3!important}
+    .game-card .card-tag{font-size:12px!important;padding:5px 12px!important}
+    .game-card .card-fav{width:42px!important;height:42px!important;font-size:22px!important}
+    .game-card .card-bottom{padding:14px 18px!important}
+    .game-card .card-top{padding:20px 20px 12px!important}
+
+    /* Cacher entièrement l'ancienne toolbar colorée — search + boutons réinjectés dans la stats-bar */
+    body>header.header{display:none!important}
+    /* Stats bar XL avec barre de recherche centrée + boutons à droite */
+    /* Wrapper qui contient stats-bar + filtres dans UNE seule grande carte chunky qui empiète sur le hero */
+    #ztsControlCard{
+      max-width:1700px;width:calc(100% - 32px);
+      margin:-110px auto 0;position:relative;z-index:100;
+      background:#fff;border-radius:36px;
+      border:none;
+      border-bottom:14px solid #cbd5e1;border-right:14px solid rgba(0,0,0,.08);
+      box-shadow:10px 10px 0 rgba(0,0,0,.08), 0 30px 60px -20px rgba(0,0,0,.25);
+      padding:32px 44px 36px;display:flex;flex-direction:column;gap:20px
+    }
+    /* Réduire shadow droite des selects pour rester dans la case */
+    #ztsFilterBar .zts-filter:last-child select{border-right-width:6px!important;box-shadow:3px 6px 0 rgba(0,0,0,.06)!important}
+    /* Hide hero floating badge + image overflow so they don't compete with the control card */
+    body > section.hero-gradient .animate-float{display:none!important}
+    body > section.hero-gradient{padding-bottom:140px!important}
+    @media(max-width:900px){#ztsControlCard{margin:-60px 16px 0;padding:20px;border-radius:28px;border-bottom-width:10px;border-right-width:10px}}
+    .stats-bar{display:flex!important;align-items:center!important;gap:18px!important;padding:0!important;background:transparent!important;border:none!important;box-shadow:none!important;margin:0!important;flex-wrap:wrap!important}
+    .stats-left{flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:12px!important}
+    .stats-right{flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:10px!important;margin-left:auto!important}
+    .results-count{font-size:28px!important;color:#004A61!important;font-family:'Luckiest Guy',cursive!important;letter-spacing:.05em!important;white-space:nowrap!important}
+    /* Barre de recherche injectée — au centre */
+    #ztsSearchHost{flex:1!important;min-width:280px!important;position:relative!important}
+    #ztsSearchHost .search-icon{position:absolute!important;left:18px!important;top:50%!important;transform:translateY(-50%)!important;width:28px!important;height:28px!important;color:#0086AD!important;pointer-events:none!important}
+    #ztsSearchHost .search-input{width:100%!important;font-family:'Luckiest Guy',cursive!important;font-size:22px!important;letter-spacing:.04em!important;background:#f1f5f9!important;color:#0f172a!important;border:none!important;border-bottom:8px solid #00C4FF!important;border-right:8px solid rgba(0,0,0,.1)!important;border-radius:20px!important;padding:18px 24px 18px 58px!important;outline:none!important;box-shadow:4px 4px 0 rgba(0,0,0,.06)!important}
+    #ztsSearchHost .search-input:focus{background:#fff!important;border-bottom-color:#FFFA00!important}
+    #ztsSearchHost .search-clear{position:absolute!important;right:14px!important;top:50%!important;transform:translateY(-50%)!important;background:#FF2A7A!important;color:#fff!important;border:none!important;width:36px!important;height:36px!important;border-radius:999px!important;font-size:22px!important;cursor:pointer!important;display:none!important;align-items:center!important;justify-content:center!important}
+    #ztsSearchHost .search-input:not(:placeholder-shown) ~ .search-clear{display:flex!important}
+    /* Boutons d'actions à droite */
+    .stats-right .header-btn,.stats-right .lang-toggle{background:#fff!important;border:none!important;border-bottom:5px solid #cbd5e1!important;border-right:5px solid #cbd5e1!important;border-radius:14px!important;padding:10px 12px!important;color:#004A61!important;cursor:pointer!important;display:inline-flex!important;align-items:center!important;gap:6px!important;font-family:'Luckiest Guy',cursive!important;font-size:14px!important;transition:transform .15s,background .15s!important}
+    .stats-right .header-btn:hover,.stats-right .lang-toggle:hover{background:#FFFA00!important;transform:translateY(-1px)!important}
+    .stats-right .header-btn svg{width:24px!important;height:24px!important}
+    .stats-right .header-btn .fav-count{background:#FF2A7A!important;color:#fff!important;font-size:11px!important;border-radius:999px!important;padding:2px 7px!important;margin-left:4px!important}
+    .stats-right .view-toggle{display:flex!important;gap:6px!important;background:#f1f5f9!important;padding:4px!important;border-radius:14px!important}
+    .stats-right .view-btn{padding:8px 12px!important;font-size:12px!important}
+    .stats-right .sort-select{font-family:'Luckiest Guy',cursive!important;font-size:14px!important;padding:10px 14px!important;border:none!important;border-bottom:5px solid #cbd5e1!important;border-right:5px solid #cbd5e1!important;border-radius:14px!important;background:#fff!important;color:#004A61!important;cursor:pointer!important}
+
+    /* Filter bar en haut — XL pour TBI */
+    #ztsFilterBar{margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:18px;border-top:2px dashed #e2e8f0;padding-top:20px}
+    @media(min-width:640px){#ztsFilterBar{grid-template-columns:repeat(3,1fr)}}
+    @media(min-width:1024px){#ztsFilterBar{grid-template-columns:repeat(5,1fr)}}
+    .zts-filter{display:flex;flex-direction:column;gap:10px}
+    .zts-filter label{font-family:'Luckiest Guy',cursive;font-size:22px;letter-spacing:.08em;color:#004A61;text-transform:uppercase;padding-left:8px;text-shadow:1px 1px 0 rgba(0,0,0,.06)}
+    .zts-filter select{
+      font-family:'Luckiest Guy',cursive;font-size:24px;letter-spacing:.04em;
+      background:#fff;color:#0f172a;
+      border:none;border-bottom:10px solid #00C4FF;border-right:10px solid rgba(0,0,0,.12);
+      border-radius:22px;padding:20px 24px;cursor:pointer;outline:none;
+      box-shadow:6px 6px 0 rgba(0,0,0,.08);
+      transition:transform .15s,border-color .15s;
+      appearance:none;-webkit-appearance:none;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='none' stroke='%23004A61' stroke-width='3'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat:no-repeat;background-position:right 18px center;padding-right:54px
+    }
+    .zts-filter select:hover{transform:translateY(-2px)}
+    .zts-filter select:focus{border-bottom-color:#FFFA00}
+    .game-card{
+      background:var(--cat,#0086AD)!important;color:#fff!important;
+      border-radius:28px!important;overflow:hidden!important;
+      border:none!important;border-bottom:12px solid rgba(0,0,0,0.18)!important;border-right:12px solid rgba(0,0,0,0.18)!important;
+      box-shadow:6px 6px 0 rgba(0,0,0,0.08)!important;
+      transition:transform .2s,box-shadow .2s!important;cursor:pointer!important;
+      display:flex!important;flex-direction:column!important;min-height:240px!important;padding:0!important
+    }
+    .game-card:hover{transform:translateY(-4px)!important;box-shadow:6px 10px 0 rgba(0,0,0,0.12)!important}
+    .game-card .card-category-bar{display:none!important}
+    .game-card .card-top{padding:20px 20px 12px!important;flex:1!important;display:flex!important;flex-direction:column!important;background:transparent!important}
+    .game-card .card-number{align-self:flex-end!important;background:rgba(0,0,0,0.3)!important;color:#fff!important;font-family:'Luckiest Guy',cursive!important;letter-spacing:.05em!important;padding:4px 12px!important;border-radius:12px!important;font-size:13px!important;margin-bottom:12px!important}
+    .game-card .card-title{font-family:'Luckiest Guy','Bangers',cursive!important;letter-spacing:.04em!important;font-size:22px!important;line-height:1.05!important;text-shadow:2px 2px 0 rgba(0,0,0,.2)!important;text-transform:uppercase!important;color:#fff!important;margin:0 0 10px!important}
+    .game-card .card-but{font-family:'Gloria Hallelujah',cursive!important;color:rgba(255,255,255,.95)!important;font-size:15px!important;line-height:1.35!important;-webkit-line-clamp:3!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+    /* Apply Gloria Hallelujah to ALL body text in app */
+    body,.modal,.modal *,.detail-section *,.detail-meta,.fav-list-item,.search-input,.sidebar,.category-btn,.cat-name,.material-tag,.tag,.detail-section li{font-family:'Gloria Hallelujah',cursive}
+    /* Keep Luckiest Guy on titles/buttons */
+    .font-lucky,h1,h2,h3,h4,.detail-title,.detail-section-title,.detail-number,.detail-cat-badge,.detail-fav-btn,.card-title,.card-number,.card-tag,.material-tag,.comp-badge,.results-count,.sort-select,.view-btn,.btn-reset,.search-input::placeholder{font-family:'Luckiest Guy','Bangers',cursive!important}
+    .search-input{font-family:'Gloria Hallelujah',cursive!important;font-size:18px!important}
+    .game-card .card-bottom{background:#fff!important;color:#1e293b!important;padding:14px 20px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;border:none!important}
+    .game-card .card-tags{display:flex!important;gap:6px!important;flex-wrap:wrap!important}
+    .game-card .card-tag{font-family:'Luckiest Guy',cursive!important;letter-spacing:.05em!important;font-size:11px!important;padding:4px 10px!important;border-radius:999px!important;background:#f1f5f9!important;color:#475569!important;text-transform:uppercase!important;border:none!important}
+    .game-card .card-tag.duration{background:var(--cat,#0086AD)!important;color:#fff!important}
+    .game-card .card-fav{background:#f1f5f9!important;border:none!important;font-size:20px!important;width:36px!important;height:36px!important;border-radius:999px!important;cursor:pointer!important;color:#FFD000!important;display:flex!important;align-items:center!important;justify-content:center!important}
+    .game-card .card-fav:hover{background:#FFD000!important;color:#fff!important}
+
+    /* List view = same look but full width */
+    .game-grid.list-view{grid-template-columns:1fr!important}
+    .game-grid.list-view .game-card{min-height:auto!important;flex-direction:row!important}
+    .game-grid.list-view .game-card .card-top{padding:16px 20px!important}
+    .game-grid.list-view .game-card .card-bottom{flex-direction:column!important;justify-content:center!important;min-width:160px!important}
+
+    /* Stats bar lighter */
+    .stats-bar{padding:16px 24px!important}
+    .results-count{font-family:'Luckiest Guy',cursive!important;color:#004A61!important;font-size:20px!important;letter-spacing:.05em!important}
+    .sort-select,.view-btn{background:#fff!important;color:#004A61!important;border:2px solid #cbd5e1!important;border-radius:12px!important;font-family:'Luckiest Guy',cursive!important}
+    .view-btn.active{background:#00C4FF!important;color:#fff!important;border-color:#0086AD!important}
+
+    /* === Modal détail XXL pour TBI === */
+    .modal-overlay{padding:16px!important;align-items:flex-start!important}
+    .modal{max-width:1400px!important;width:96vw!important;background:#fff!important;border:none!important;border-bottom:14px solid var(--cat,#0086AD)!important;border-right:14px solid rgba(0,0,0,.1)!important;border-radius:32px!important;box-shadow:0 30px 80px rgba(0,0,0,.4)!important;color:#0f172a!important}
+    .modal-close{width:60px!important;height:60px!important;font-size:28px!important;background:#FF2A7A!important;border:4px solid #fff!important;top:20px!important;right:20px!important}
+    .detail-category-bar{height:18px!important;border-radius:32px 32px 0 0!important}
+    .detail-header{padding:50px 50px 30px!important;background:#fff!important}
+    .detail-meta{gap:18px!important;margin-bottom:18px!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important}
+    .detail-number{font-family:'Luckiest Guy',cursive!important;font-size:36px!important;background:var(--cat,#0086AD)!important;color:#fff!important;padding:8px 22px!important;border-radius:20px!important;text-shadow:2px 2px 0 rgba(0,0,0,.2)!important;box-shadow:4px 4px 0 rgba(0,0,0,.1)!important}
+    .detail-cat-badge{font-family:'Luckiest Guy',cursive!important;font-size:20px!important;padding:10px 22px!important;border-radius:18px!important;letter-spacing:.05em!important}
+    .detail-fav-btn{font-family:'Luckiest Guy',cursive!important;font-size:18px!important;padding:10px 22px!important;border-radius:18px!important;background:#FFD000!important;color:#004A61!important;border:none!important;cursor:pointer!important}
+    .detail-title{font-family:'Luckiest Guy','Bangers',cursive!important;font-size:64px!important;line-height:1!important;letter-spacing:.04em!important;color:#0f172a!important;text-transform:uppercase!important;margin:14px 0 0!important;text-shadow:none!important}
+    .detail-sections{padding:20px 50px 60px!important;background:#fff!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:24px!important}
+    .detail-section.section-full{grid-column:1 / -1!important}
+    .detail-section.section-third{grid-column:span 1!important}
+    @media(max-width:900px){.detail-sections{grid-template-columns:1fr!important}.detail-section.section-third{grid-column:1 / -1!important}}
+    .detail-print-btn{grid-column:1 / -1!important;justify-self:start!important}
+    .detail-section{background:#f8fafc!important;border-radius:24px!important;padding:28px 32px!important;border-bottom:8px solid var(--cat,#0086AD)!important;border-right:8px solid rgba(0,0,0,.06)!important;color:#1e293b!important}
+    .detail-section-title{font-family:'Luckiest Guy',cursive!important;font-size:28px!important;color:var(--cat,#0086AD)!important;margin-bottom:14px!important;letter-spacing:.05em!important;text-transform:uppercase!important;border-bottom:none!important}
+    .detail-section p,.detail-section li{font-size:21px!important;line-height:1.55!important;color:#334155!important;font-family:'Gloria Hallelujah',cursive!important}
+    .detail-section ol,.detail-section ul{padding-left:24px!important}
+    .detail-section li{margin-bottom:10px!important}
+    .competency-grid{display:grid!important;gap:14px!important}
+    .comp-item{font-size:20px!important;line-height:1.4!important;color:#1e293b!important;padding:10px 0!important}
+    .comp-badge{font-family:'Luckiest Guy',cursive!important;padding:6px 14px!important;border-radius:12px!important;color:#fff!important;font-size:18px!important;margin-right:10px!important}
+    .comp-badge.c1{background:#FF2D2D!important}.comp-badge.c2{background:#0088FF!important}.comp-badge.c3{background:#00D26A!important}.comp-badge.ct{background:#8B2FC9!important}
+    .material-tags,.detail-section .tag-list{display:flex!important;gap:10px!important;flex-wrap:wrap!important}
+    .material-tag{background:#fff!important;color:#004A61!important;border:3px solid var(--cat,#0086AD)!important;padding:8px 18px!important;border-radius:14px!important;font-family:'Luckiest Guy',cursive!important;font-size:18px!important;letter-spacing:.04em!important}
+    .detail-print-btn{
+      width:100%!important;font-size:24px!important;padding:22px!important;border-radius:20px!important;
+      font-family:'Luckiest Guy',cursive!important;letter-spacing:.08em!important;text-transform:uppercase!important;
+      background:#FFFA00!important;color:#004A61!important;border:none!important;
+      border-bottom:10px solid rgba(0,0,0,.15)!important;border-right:10px solid rgba(0,0,0,.15)!important;
+      box-shadow:6px 6px 0 rgba(0,0,0,.08)!important;
+      display:flex!important;align-items:center!important;justify-content:center!important;gap:14px!important;
+      cursor:pointer!important;transition:transform .15s,background .15s!important;margin-top:12px!important
+    }
+    .detail-print-btn svg{width:28px!important;height:28px!important}
+    .detail-print-btn:hover{background:#fff!important;transform:translateY(-2px)!important}
+
+    /* === SIDEBAR style ZTS clair === */
+    .sidebar,.sidebar-content{background:#fff!important;color:#0f172a!important;border-right:none!important}
+    .sidebar{box-shadow:6px 0 20px rgba(0,0,0,.06)!important}
+    .sidebar-section{padding:20px 16px!important;border-bottom:none!important}
+    .sidebar-section + .sidebar-section{border-top:2px dashed #e2e8f0!important}
+    .sidebar-title{font-family:'Luckiest Guy',cursive!important;font-size:22px!important;letter-spacing:.05em!important;color:#004A61!important;text-transform:uppercase!important;margin-bottom:14px!important;border-bottom:none!important;padding:0!important}
+    .category-list,.duration-list,.competence-list,.cycle-list,.material-list{display:flex!important;flex-direction:column!important;gap:10px!important}
+    /* Pills */
+    .category-btn,.duration-btn,.competence-btn,.cycle-btn,.material-filter-btn{
+      background:#f1f5f9!important;color:#1e293b!important;
+      border:none!important;border-bottom:5px solid #cbd5e1!important;border-right:5px solid #cbd5e1!important;
+      border-radius:18px!important;padding:12px 16px!important;
+      display:flex!important;align-items:center!important;gap:10px!important;
+      font-family:'Gloria Hallelujah',cursive!important;font-size:16px!important;
+      cursor:pointer!important;transition:transform .15s,background .15s!important;text-align:left!important
+    }
+    .category-btn:hover,.duration-btn:hover,.competence-btn:hover,.cycle-btn:hover,.material-filter-btn:hover{background:#e2e8f0!important;transform:translateY(-1px)!important}
+    .category-btn .cat-icon{font-size:22px!important;flex-shrink:0!important}
+    .category-btn .cat-name{flex:1!important;font-family:'Gloria Hallelujah',cursive!important;font-size:16px!important;line-height:1.2!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+    .category-btn .cat-count,.duration-btn .duration-count,.competence-btn .competence-count{background:#fff!important;color:#475569!important;font-family:'Luckiest Guy',cursive!important;font-size:13px!important;padding:3px 10px!important;border-radius:999px!important;border:2px solid #cbd5e1!important;letter-spacing:.05em!important}
+    /* Active state — colored */
+    .category-btn.active,.duration-btn.active,.competence-btn.active,.cycle-btn.active{color:#fff!important;border-bottom-color:rgba(0,0,0,.18)!important;border-right-color:rgba(0,0,0,.18)!important}
+    .category-btn.active .cat-count,.duration-btn.active .duration-count,.competence-btn.active .competence-count{background:rgba(0,0,0,.25)!important;color:#fff!important;border-color:transparent!important}
+    /* Per-category active color */
+    .category-btn.active[data-category="all"]{background:#0086AD!important}
+    .category-btn.active[data-category="ballons-chasseurs"]{background:#FF2D2D!important}
+    .category-btn.active[data-category="poursuites"]{background:#FF8C00!important}
+    .category-btn.active[data-category="ludiques"]{background:#00D26A!important}
+    .category-btn.active[data-category="collectifs"]{background:#0088FF!important}
+    .category-btn.active[data-category="opposition"]{background:#8B2FC9!important}
+    .category-btn.active[data-category="duels"]{background:#FFD000!important;color:#004A61!important}
+    .duration-btn.active,.competence-btn.active,.cycle-btn.active{background:#00C4FF!important}
+  </style>
+  <script>
+  // Set --cat var on modal when opening, based on game category
+  (function(){
+    const CAT_COLORS={'ballons-chasseurs':'#FF2D2D','poursuites':'#FF8C00','ludiques':'#00D26A','collectifs':'#0088FF','opposition':'#8B2FC9','duels':'#FFD000'};
+    const obs=new MutationObserver(()=>{
+      const m=document.querySelector('.modal-overlay.open .modal');
+      if(!m)return;
+      const bar=m.querySelector('.detail-category-bar');
+      if(!bar)return;
+      const cat=Array.from(bar.classList).find(c=>CAT_COLORS[c]);
+      if(cat)m.style.setProperty('--cat',CAT_COLORS[cat]);
+    });
+    document.addEventListener('DOMContentLoaded',()=>{
+      const ov=document.querySelector('.modal-overlay');
+      if(ov)obs.observe(ov,{attributes:true,childList:true,subtree:true});
+    });
+  })();
+  </script>
+</head>
+<body>
+
+<!-- ZTS Header (logo / horloge centrée / bouton Accueil) -->
+<header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 grid grid-cols-3 items-center gap-4">
+    <a href="https://zonetotalsport.ca/" class="flex flex-col items-start shrink-0 leading-none justify-self-start no-underline">
+      <h1 class="text-xl md:text-3xl font-lucky text-white text-outline leading-none m-0">
+        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+      </h1>
+      <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none mt-1" data-fr="Répertoire Jeux EPS" data-en="PE Game Library">Répertoire Jeux EPS</span>
+    </a>
+    <span id="ztsClock" class="font-lucky text-2xl md:text-3xl text-white text-outline tracking-wider px-3 py-1 rounded-xl bg-black/20 justify-self-center">09:41</span>
+    <a href="https://zonetotalsport.ca/" class="font-lucky text-base md:text-2xl uppercase px-4 md:px-6 py-2 md:py-3 rounded-2xl flex items-center gap-2 bg-ztsYellow text-ztsDeep shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] hover:bg-white hover:scale-105 transition-all justify-self-end no-underline">
+      <i data-lucide="home" class="w-5 h-5 md:w-6 md:h-6"></i>
+      <span data-fr="Accueil" data-en="Home">Accueil</span>
+    </a>
+  </div>
+</header>
+<script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+' H '+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
+
+<!-- Hero XXL -->
+<section class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 relative">
+    <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
+      <div class="lg:w-1/2 text-white z-10 text-center lg:text-left">
+        <span class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg" data-fr="RÉPERTOIRE PFEQ" data-en="PFEQ LIBRARY">RÉPERTOIRE PFEQ</span>
+        <h2 class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline m-0" data-fr="RÉPERTOIRE<br><span class=&quot;text-ztsYellow&quot;>JEUX EPS</span>" data-en="PE GAME<br><span class=&quot;text-ztsYellow&quot;>LIBRARY</span>">RÉPERTOIRE<br><span class="text-ztsYellow">JEUX EPS</span></h2>
+        <p class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0" data-fr="1439 jeux classés par catégorie, cycle, durée et matériel. Recherche instantanée, favoris, minuteur intégré." data-en="1439 games sorted by category, grade, duration and equipment. Instant search, favorites, built-in timer.">1439 jeux classés par catégorie, cycle, durée et matériel. Recherche instantanée, favoris, minuteur intégré.</p>
+        <div class="flex flex-wrap justify-center lg:justify-start items-center gap-5">
+          <a href="#gameGrid" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase no-underline" data-fr="EXPLORER" data-en="EXPLORE">EXPLORER</a>
+          <span class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl text-cyan-100 font-bold">
+            <i data-lucide="gamepad-2" class="w-5 h-5"></i> <span data-fr="1439 jeux" data-en="1439 games">1439 jeux</span>
+          </span>
+        </div>
+      </div>
+      <div class="lg:w-1/2 relative flex justify-center mt-10 lg:mt-0 w-full">
+        <div class="relative z-10 rounded-[3rem] overflow-hidden border-[10px] border-white shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 max-w-md lg:max-w-full block">
+          <img src="https://zonetotalsport.ca/bucheron-jeux.png" alt="Mr Root jeux EPS" class="w-full h-[380px] md:h-[500px] object-cover" style="background:linear-gradient(135deg,#cffafe,#bfdbfe)">
+        </div>
+        <div class="absolute -bottom-8 -left-4 md:-bottom-10 md:-left-10 z-20 bg-white p-4 md:p-5 rounded-3xl shadow-2xl flex items-center gap-3 md:gap-4 border-2 border-ztsBlue animate-float">
+          <div class="bg-ztsBlue p-3 rounded-2xl text-white">
+            <i data-lucide="trophy" class="w-7 h-7 md:w-8 md:h-8"></i>
+          </div>
+          <div class="text-left">
+            <p class="font-lucky text-ztsBlue text-lg md:text-xl leading-none">JEUX</p>
+            <p class="text-[11px] font-black text-slate-400 uppercase tracking-tighter">PFEQ &bull; Primaire</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>setTimeout(function(){lucide&&lucide.createIcons&&lucide.createIcons();},0);</script>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="logo">
+        <span class="logo-icon">🏃</span>
+        <div class="logo-text">
+          <h1 data-fr="Répertoire EPS" data-en="PE Game Library">Répertoire EPS</h1>
+          <span class="logo-subtitle" data-fr="1439 jeux &bull; PFEQ Primaire" data-en="1439 games &bull; Quebec Curriculum">1439 jeux &bull; PFEQ Primaire</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="search-container">
+        <svg class="search-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" class="search-input" data-placeholder-fr="Rechercher un jeu, matériel, variante..." data-placeholder-en="Search a game, equipment, variant..." placeholder="Rechercher un jeu, matériel, variante...">
+        <button class="search-clear" id="searchClear" aria-label="Effacer">&times;</button>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- Language Toggle -->
+      <button class="lang-toggle" id="langToggle" title="Switch language">
+        <span class="lang-flag" id="langFlag">🇫🇷</span>
+        <span class="lang-label" id="langLabel">FR</span>
+      </button>
+      <!-- Random Game -->
+      <button class="header-btn action-btn" id="randomBtn" title="Jeu aléatoire">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+      </button>
+      <!-- Timer -->
+      <button class="header-btn action-btn" id="timerBtn" title="Minuteur">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3l2 2"/><path d="M19 3l-2 2"/><line x1="12" y1="1" x2="12" y2="3"/></svg>
+      </button>
+      <!-- Favorites -->
+      <button class="header-btn" id="favoritesBtn" title="Mes favoris">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="fav-count" id="favCount">0</span>
+      </button>
+      <!-- Theme Toggle -->
+      <button class="header-btn" id="themeToggle" title="Mode sombre">
+        <svg class="icon-sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg class="icon-moon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- TIMER OVERLAY -->
+  <div class="timer-overlay" id="timerOverlay">
+    <div class="timer-modal">
+      <button class="timer-close" id="timerClose">&times;</button>
+      <h2 class="timer-title" data-fr="⏱️ Minuteur" data-en="⏱️ Timer">⏱️ Minuteur</h2>
+      <div class="timer-display" id="timerDisplay">05:00</div>
+      <div class="timer-presets">
+        <button class="timer-preset" data-time="60">1 min</button>
+        <button class="timer-preset" data-time="120">2 min</button>
+        <button class="timer-preset active" data-time="300">5 min</button>
+        <button class="timer-preset" data-time="600">10 min</button>
+        <button class="timer-preset" data-time="900">15 min</button>
+        <button class="timer-preset" data-time="1200">20 min</button>
+      </div>
+      <div class="timer-controls">
+        <button class="timer-ctrl-btn start" id="timerStart" data-fr="▶ DÉMARRER" data-en="▶ START">▶ DÉMARRER</button>
+        <button class="timer-ctrl-btn pause" id="timerPause" data-fr="⏸ PAUSE" data-en="⏸ PAUSE" style="display:none">⏸ PAUSE</button>
+        <button class="timer-ctrl-btn reset" id="timerReset" data-fr="↺ RÉINITIALISER" data-en="↺ RESET">↺ RÉINITIALISER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+      <div class="sidebar-content">
+        <!-- Categories -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title" data-fr="Catégories" data-en="Categories">Catégories</h3>
+          <div class="category-list" id="categoryList">
+            <button class="category-btn active" data-category="all">
+              <span class="cat-icon">📋</span>
+              <span class="cat-name" data-fr="Toutes les catégories" data-en="All categories">Toutes les catégories</span>
+              <span class="cat-count" id="countAll">1439</span>
+            </button>
+            <button class="category-btn" data-category="ballons-chasseurs">
+              <span class="cat-icon">🔴</span>
+              <span class="cat-name" data-fr="Ballons chasseurs" data-en="Dodgeball games">Ballons chasseurs</span>
+              <span class="cat-count" id="countBallons">60</span>
+            </button>
+            <button class="category-btn" data-category="poursuites">
+              <span class="cat-icon">🏃</span>
+              <span class="cat-name" data-fr="Jeux de poursuites" data-en="Chase games">Jeux de poursuites</span>
+              <span class="cat-count" id="countPoursuites">50</span>
+            </button>
+            <button class="category-btn" data-category="ludiques">
+              <span class="cat-icon">🎮</span>
+              <span class="cat-name" data-fr="Jeux ludiques/coopératifs" data-en="Fun/cooperative games">Jeux ludiques/coopératifs</span>
+              <span class="cat-count" id="countLudiques">50</span>
+            </button>
+            <button class="category-btn" data-category="collectifs">
+              <span class="cat-icon">⚽</span>
+              <span class="cat-name" data-fr="Jeux collectifs" data-en="Team games">Jeux collectifs</span>
+              <span class="cat-count" id="countCollectifs">50</span>
+            </button>
+            <button class="category-btn" data-category="opposition">
+              <span class="cat-icon">🤼</span>
+              <span class="cat-name" data-fr="Jeux d'opposition" data-en="Wrestling games">Jeux d'opposition</span>
+              <span class="cat-count" id="countOpposition">50</span>
+            </button>
+            <button class="category-btn" data-category="duels">
+              <span class="cat-icon">⚔️</span>
+              <span class="cat-name" data-fr="Jeux de duels" data-en="Duel games">Jeux de duels</span>
+              <span class="cat-count" id="countDuels">50</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Duration Filter -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title" data-fr="Durée" data-en="Duration">Durée</h3>
+          <div class="filter-chips" id="durationFilter">
+            <button class="chip active" data-duration="all" data-fr="Toutes" data-en="All">Toutes</button>
+            <button class="chip" data-duration="10">≤ 15 min</button>
+            <button class="chip" data-duration="15">15-20 min</button>
+            <button class="chip" data-duration="20">20-30 min</button>
+            <button class="chip" data-duration="30">30+ min</button>
+          </div>
+        </div>
+
+        <!-- PFEQ Competencies -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title" data-fr="Compétences PFEQ" data-en="PFEQ Competencies">Compétences PFEQ</h3>
+          <div class="filter-chips" id="pfeqFilter">
+            <button class="chip active" data-pfeq="all" data-fr="Toutes" data-en="All">Toutes</button>
+            <button class="chip" data-pfeq="C1" data-fr="C1 – Agir" data-en="C1 – Act">C1 – Agir</button>
+            <button class="chip" data-pfeq="C2" data-fr="C2 – Interagir" data-en="C2 – Interact">C2 – Interagir</button>
+            <button class="chip" data-pfeq="C3" data-fr="C3 – Mode de vie" data-en="C3 – Lifestyle">C3 – Mode de vie</button>
+          </div>
+        </div>
+
+        <!-- Cycle Filter -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title" data-fr="Cycle scolaire" data-en="Grade level">Cycle scolaire</h3>
+          <div class="filter-chips" id="cycleFilter">
+            <button class="chip active" data-cycle="all" data-fr="Tous" data-en="All">Tous</button>
+            <button class="chip" data-cycle="1" data-fr="Cycle 1 (6-8)" data-en="Cycle 1 (6-8)">Cycle 1 (6-8)</button>
+            <button class="chip" data-cycle="2" data-fr="Cycle 2 (8-10)" data-en="Cycle 2 (8-10)">Cycle 2 (8-10)</button>
+            <button class="chip" data-cycle="3" data-fr="Cycle 3 (10-12)" data-en="Cycle 3 (10-12)">Cycle 3 (10-12)</button>
+          </div>
+        </div>
+
+        <!-- Material Filter -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title" data-fr="Matériel" data-en="Equipment">Matériel</h3>
+          <div class="filter-chips wrap" id="materialFilter">
+            <button class="chip active" data-material="all" data-fr="Tout" data-en="All">Tout</button>
+            <button class="chip" data-material="ballon" data-fr="Ballon" data-en="Ball">Ballon</button>
+            <button class="chip" data-material="frite" data-fr="Frite" data-en="Noodle">Frite</button>
+            <button class="chip" data-material="cône" data-fr="Cônes" data-en="Cones">Cônes</button>
+            <button class="chip" data-material="foulard" data-fr="Foulard" data-en="Scarf">Foulard</button>
+            <button class="chip" data-material="tapis" data-fr="Tapis" data-en="Mat">Tapis</button>
+            <button class="chip" data-material="cerceau" data-fr="Cerceaux" data-en="Hoops">Cerceaux</button>
+            <button class="chip" data-material="dossard" data-fr="Dossards" data-en="Pinnies">Dossards</button>
+            <button class="chip" data-material="corde" data-fr="Corde" data-en="Rope">Corde</button>
+            <button class="chip" data-material="raquette" data-fr="Raquette" data-en="Racket">Raquette</button>
+          </div>
+        </div>
+
+        <!-- Reset -->
+        <div class="sidebar-section">
+          <button class="reset-btn" id="resetFilters">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <span data-fr="Réinitialiser les filtres" data-en="Reset filters">Réinitialiser les filtres</span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="content" id="content">
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="statsBar">
+        <div class="stats-left">
+          <span class="results-count" id="resultsCount">1439 jeux</span>
+          <span class="active-filters" id="activeFilters"></span>
+        </div>
+        <div class="stats-right">
+          <div class="view-toggle">
+            <button class="view-btn active" data-view="grid" title="Grille">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </button>
+            <button class="view-btn" data-view="list" title="Liste">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+          </div>
+          <select class="sort-select" id="sortSelect">
+            <option value="id" data-fr="Tri par numéro" data-en="Sort by number">Tri par numéro</option>
+            <option value="title" data-fr="Tri alphabétique" data-en="Sort A-Z">Tri alphabétique</option>
+            <option value="duration" data-fr="Tri par durée" data-en="Sort by duration">Tri par durée</option>
+            <option value="category" data-fr="Tri par catégorie" data-en="Sort by category">Tri par catégorie</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Game Grid -->
+      <div class="game-grid" id="gameGrid"></div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display:none">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3 data-fr="Aucun jeu trouvé" data-en="No games found">Aucun jeu trouvé</h3>
+        <p data-fr="Essayez de modifier vos critères de recherche ou filtres." data-en="Try adjusting your search criteria or filters.">Essayez de modifier vos critères de recherche ou filtres.</p>
+        <button class="reset-btn" onclick="resetAll()"><span data-fr="Réinitialiser tout" data-en="Reset all">Réinitialiser tout</span></button>
+      </div>
+
+      <!-- Game Detail Modal -->
+      <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="gameModal">
+          <div class="modal-header">
+            <button class="modal-close" id="modalClose" aria-label="Fermer">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="modal-body" id="modalBody"></div>
+        </div>
+      </div>
+
+      <!-- Favorites View -->
+      <div class="favorites-view" id="favoritesView" style="display:none">
+        <div class="fav-header">
+          <h2 data-fr="⭐ Mes favoris" data-en="⭐ My favorites">⭐ Mes favoris</h2>
+          <button class="back-btn" id="backFromFav">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span data-fr="Retour" data-en="Back">Retour</span>
+          </button>
+        </div>
+        <div class="fav-grid" id="favGrid"></div>
+        <div class="fav-empty" id="favEmpty" style="display:none">
+          <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <h3 data-fr="Aucun favori" data-en="No favorites">Aucun favori</h3>
+          <p data-fr="Cliquez sur l'étoile d'un jeu pour l'ajouter à vos favoris." data-en="Click the star on a game to add it to your favorites.">Cliquez sur l'étoile d'un jeu pour l'ajouter à vos favoris.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Loader: fetch merged dataset before app.js runs
+    window.__GAMES_LOAD__ = fetch('data/jeux-merged.json')
+      .then(r => r.json())
+      .then(data => { window.GAMES_DATA = data; })
+      .catch(e => { console.error('Erreur chargement jeux:', e); window.GAMES_DATA = []; });
+  </script>
+  <script>
+    // Wait for data, then load app.js
+    window.__GAMES_LOAD__.then(() => {
+      const s = document.createElement('script');
+      s.src = 'app.js';
+      document.body.appendChild(s);
+    });
+  </script>
+  <script>
+  // Inject ZTS dropdown filter bar at top of content
+  (function(){
+    function inject(){
+      const grid=document.getElementById('gameGrid');
+      if(!grid||document.getElementById('ztsFilterBar'))return;
+      const C=(typeof CATEGORIES!=='undefined')?CATEGORIES:{'ballons-chasseurs':{name:'Ballons chasseurs',icon:'🔴'},'poursuites':{name:'Jeux de poursuites',icon:'🏃'},'ludiques':{name:'Jeux ludiques',icon:'🎮'},'collectifs':{name:'Jeux collectifs',icon:'⚽'},'opposition':{name:"Jeux d'opposition",icon:'🤼'},'duels':{name:'Jeux de duels',icon:'⚔️'}};
+      const cats=Object.entries(C);
+      const bar=document.createElement('div');
+      bar.id='ztsFilterBar';
+      bar.innerHTML=`
+        <div class="zts-filter"><label data-fr="Catégorie" data-en="Category">Catégorie</label><select id="ztsCat"><option value="all" data-fr="Toutes les catégories" data-en="All categories">Toutes les catégories</option>${cats.map(([k,v])=>`<option value="${k}" data-fr="${v.icon||''} ${v.name||k}" data-en="${v.icon||''} ${v.nameEn||v.name||k}">${v.icon||''} ${v.name||k}</option>`).join('')}</select></div>
+        <div class="zts-filter"><label data-fr="Durée" data-en="Duration">Durée</label><select id="ztsDur"><option value="all" data-fr="Toutes" data-en="All">Toutes</option><option value="10">≤ 15 min</option><option value="15">15-20 min</option><option value="20">20-30 min</option><option value="30">30+ min</option></select></div>
+        <div class="zts-filter"><label data-fr="Compétence PFEQ" data-en="PFEQ Competency">Compétence PFEQ</label><select id="ztsPfeq"><option value="all" data-fr="Toutes" data-en="All">Toutes</option><option value="C1" data-fr="C1 — Agir" data-en="C1 — Act">C1 — Agir</option><option value="C2" data-fr="C2 — Interagir" data-en="C2 — Interact">C2 — Interagir</option><option value="C3" data-fr="C3 — Mode de vie" data-en="C3 — Lifestyle">C3 — Mode de vie</option></select></div>
+        <div class="zts-filter"><label data-fr="Cycle" data-en="Grade">Cycle</label><select id="ztsCyc"><option value="all" data-fr="Tous les cycles" data-en="All grades">Tous les cycles</option><option value="1" data-fr="Cycle 1 (6-8 ans)" data-en="Cycle 1 (6-8)">Cycle 1 (6-8 ans)</option><option value="2" data-fr="Cycle 2 (8-10 ans)" data-en="Cycle 2 (8-10)">Cycle 2 (8-10 ans)</option><option value="3" data-fr="Cycle 3 (10-12 ans)" data-en="Cycle 3 (10-12)">Cycle 3 (10-12 ans)</option></select></div>
+        <div class="zts-filter"><label data-fr="Matériel" data-en="Equipment">Matériel</label><select id="ztsMat"><option value="all" data-fr="Tout" data-en="All">Tout</option><option value="ballon" data-fr="Ballon" data-en="Ball">Ballon</option><option value="frite" data-fr="Frite" data-en="Noodle">Frite</option><option value="cône" data-fr="Cônes" data-en="Cones">Cônes</option><option value="foulard" data-fr="Foulard" data-en="Scarf">Foulard</option><option value="tapis" data-fr="Tapis" data-en="Mat">Tapis</option><option value="cerceau" data-fr="Cerceaux" data-en="Hoops">Cerceaux</option><option value="dossard" data-fr="Dossards" data-en="Pinnies">Dossards</option><option value="corde" data-fr="Corde" data-en="Rope">Corde</option><option value="raquette" data-fr="Raquette" data-en="Racket">Raquette</option></select></div>
+      `;
+      grid.parentNode.insertBefore(bar,grid);
+
+      function setAndApply(key,val){if(typeof state==='undefined')return;state[key]=val;if(typeof applyFilters==='function')applyFilters();}
+      document.getElementById('ztsCat').addEventListener('change',e=>setAndApply('activeCategory',e.target.value));
+      document.getElementById('ztsDur').addEventListener('change',e=>setAndApply('activeDuration',e.target.value));
+      document.getElementById('ztsPfeq').addEventListener('change',e=>setAndApply('activePfeq',e.target.value));
+      document.getElementById('ztsCyc').addEventListener('change',e=>setAndApply('activeCycle',e.target.value));
+      document.getElementById('ztsMat').addEventListener('change',e=>setAndApply('activeMaterial',e.target.value));
+      // Re-apply language after dynamic injection
+      if(typeof applyLanguage==='function')applyLanguage();
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(inject,150));
+    else setTimeout(inject,150);
+  })();
+  // Wrap stats-bar + filter-bar into ONE control card straddling the hero
+  (function(){
+    function wrap(){
+      const stats=document.querySelector('.stats-bar');
+      const filt=document.getElementById('ztsFilterBar');
+      if(!stats||!filt||document.getElementById('ztsControlCard'))return;
+      const card=document.createElement('div');card.id='ztsControlCard';
+      stats.parentNode.insertBefore(card,stats);
+      card.appendChild(stats);card.appendChild(filt);
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(wrap,250));
+    else setTimeout(wrap,250);
+  })();
+  // Relocate search + action buttons from hidden header into stats-bar
+  (function(){
+    function move(){
+      const statsLeft=document.querySelector('.stats-bar .stats-left');
+      const statsRight=document.querySelector('.stats-bar .stats-right');
+      const searchSrc=document.querySelector('body>header.header .search-container');
+      const lang=document.getElementById('langToggle');
+      const rand=document.getElementById('randomBtn');
+      const tim=document.getElementById('timerBtn');
+      const fav=document.getElementById('favoritesBtn');
+      const theme=document.getElementById('themeToggle');
+      if(!statsLeft||!statsRight)return;
+      // Insert search after stats-left
+      if(searchSrc&&!document.getElementById('ztsSearchHost')){
+        const host=document.createElement('div');host.id='ztsSearchHost';
+        searchSrc.querySelectorAll(':scope > *').forEach(c=>host.appendChild(c));
+        statsLeft.after(host);
+      }
+      // Move action buttons to right (before view-toggle)
+      const firstViewBtn=statsRight.querySelector('.view-toggle')||statsRight.firstChild;
+      [lang,rand,tim,fav,theme].forEach(b=>{if(b&&firstViewBtn)statsRight.insertBefore(b,firstViewBtn);});
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(move,200));
+    else setTimeout(move,200);
+  })();
+  </script>
+
+</body>
+</html>
