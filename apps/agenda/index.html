@@ -8,14 +8,76 @@
   <title>Agenda Scolaire — Zone Total Sport</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&display=swap" rel="stylesheet" />
-  <style>.hidden{display:none!important}</style>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+  tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61',ztsOrange:'#FF8C00',ztsLime:'#4ADE80',ztsPink:'#FF2A7A'},fontFamily:{lucky:['"Luckiest Guy"','cursive'],inter:['Inter','sans-serif']}}}}
+  </script>
+  <style>
+  .hidden{display:none!important}
+  .font-lucky{font-family:'Luckiest Guy','Bangers',cursive;letter-spacing:.05em}
+  .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
+  .text-outline{text-shadow:2px 2px 0 rgba(0,0,0,.2)}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  .animate-float{animation:float 3s ease-in-out infinite}
+  .nav-link{transition:all .2s;padding:8px 14px;border-radius:9999px;font-size:.9rem;white-space:nowrap;font-weight:700}
+  .nav-link:hover{background:rgba(255,255,255,.2)}
+  .nav-link.active-link{background:#FFF000;color:#004A61}
+
+  /* ===== SECTION PRÉSENTATION : grande case avec gradient ===== */
+  .pres-section{
+    max-width:1400px !important;margin:40px auto !important;padding:48px 32px !important;
+    background:linear-gradient(135deg,#00C4FF 0%,#0086AD 50%,#004A61 100%) !important;
+    border-radius:2.5rem !important;
+    border-bottom:14px solid #FFF000 !important;border-right:14px solid #FFF000 !important;
+    box-shadow:0 25px 70px rgba(0,134,173,.35) !important;
+    position:relative !important;overflow:hidden !important;
+  }
+  .pres-section::before{
+    content:"";position:absolute;top:-50px;right:-50px;width:300px;height:300px;
+    background:radial-gradient(circle,rgba(255,240,0,.18) 0%,transparent 70%);
+    pointer-events:none;
+  }
+  .pres-hero{display:flex !important;flex-direction:column !important;align-items:center !important;text-align:center !important;margin-bottom:32px !important;position:relative;z-index:2}
+  .pres-mascot{width:120px !important;height:auto !important;margin-bottom:16px !important;filter:drop-shadow(4px 4px 12px rgba(0,0,0,.3)) !important;transform:rotate(-3deg) !important}
+  .pres-hero h2{font-family:'Luckiest Guy',cursive !important;color:#fff !important;font-size:clamp(2rem,5vw,3.5rem) !important;text-shadow:3px 3px 0 rgba(0,0,0,.25) !important;letter-spacing:2px !important;margin:0 0 10px !important}
+  .pres-sub{font-family:'Inter',sans-serif !important;color:#FFF000 !important;font-size:clamp(1rem,2vw,1.4rem) !important;font-weight:700 !important;margin:0 !important;text-shadow:1px 1px 0 rgba(0,0,0,.2)}
+  .pres-grid{display:grid !important;grid-template-columns:repeat(auto-fit,minmax(280px,1fr)) !important;gap:20px !important;position:relative;z-index:2}
+  .pres-card{background:#fff !important;border-radius:1.5rem !important;padding:24px 20px !important;text-align:center !important;border-bottom:8px solid #FFF000 !important;border-right:8px solid #FFF000 !important;box-shadow:0 8px 24px rgba(0,0,0,.15) !important;transition:transform .25s !important}
+  .pres-card:hover{transform:translateY(-6px) scale(1.02) !important}
+  .pres-card:nth-child(2n){border-bottom-color:#FF8C00 !important;border-right-color:#FF8C00 !important}
+  .pres-card:nth-child(3n){border-bottom-color:#4ADE80 !important;border-right-color:#4ADE80 !important}
+  .pres-card:nth-child(5n){border-bottom-color:#FF2A7A !important;border-right-color:#FF2A7A !important}
+  .pres-card-icon{font-size:3rem !important;margin-bottom:10px !important}
+  .pres-card h3{font-family:'Luckiest Guy',cursive !important;color:#004A61 !important;font-size:1.3rem !important;margin:0 0 8px !important;letter-spacing:1px !important}
+  .pres-card p{font-family:'Inter',sans-serif !important;color:#475569 !important;font-size:.95rem !important;line-height:1.45 !important;margin:0 !important}
+  .pres-cta{text-align:center !important;margin-top:32px !important;position:relative;z-index:2}
+  .pres-start-btn{font-family:'Luckiest Guy',cursive !important;background:#FFF000 !important;color:#004A61 !important;border:none !important;border-radius:2rem !important;padding:18px 48px !important;font-size:1.4rem !important;letter-spacing:2px !important;cursor:pointer !important;box-shadow:8px 8px 0 rgba(0,0,0,.2) !important;border-bottom:6px solid #ccbf00 !important;border-right:6px solid #ccbf00 !important;transition:transform .2s !important}
+  .pres-start-btn:hover{transform:scale(1.05) !important}
+
+  /* ===== CALENDRIER XXL pour TBI ===== */
+  .cal-wrapper{max-width:1600px;margin:0 auto;border-radius:2rem;border-bottom:12px solid #00C4FF;border-right:12px solid #00C4FF;background:#fff !important}
+  .cal-day-name{font-size:1.6rem !important;padding:18px 4px !important;letter-spacing:3px !important}
+  .cal-cell{min-height:160px !important;padding:14px !important;border:2px solid #e2e8f0 !important}
+  .cal-cell:hover{transform:scale(1.03) !important}
+  .cal-num{font-size:2.4rem !important}
+  .cal-holiday-icon{font-size:2.2rem !important}
+  .cal-holiday{max-width:90% !important}
+  .month-title{font-size:2.8rem !important;letter-spacing:3px}
+  .month-controls{padding:20px 0 !important;gap:18px !important}
+  .ctrl-btn{font-size:2rem !important;padding:8px 20px !important}
+  .cal-period{font-size:1.05rem !important;padding:5px 8px !important}
+  @media(max-width:900px){
+    .cal-cell{min-height:90px !important;padding:6px !important}
+    .cal-num{font-size:1.4rem !important}
+    .cal-day-name{font-size:1rem !important;padding:10px 2px !important;letter-spacing:1px !important}
+    .month-title{font-size:1.6rem !important}
+  }
+  </style>
   <link rel="stylesheet" href="style.css?v=10" />
-  <!-- ZTS Landing Template -->
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="zts-landing.css">
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900">
   <!-- LOADING SCREEN -->
   <div id="loading-screen">
     <img src="img/bucheron-salut.png" alt="Bûcheron" class="loading-mascot" />
@@ -24,24 +86,22 @@
     <div class="loading-bar"><div class="loading-fill"></div></div>
   </div>
 
-  <!-- GYM BACKGROUND -->
-  <div id="gymBg"></div>
-
   <!-- MAIN APP -->
   <div id="app" class="app-hidden">
 
-    <!-- HEADER -->
-    <header style="background:linear-gradient(135deg,#00E5FF,#00B8D4);position:sticky;top:0;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,0.3);padding:12px 16px">
-      <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <a href="https://zonetotalsport.ca" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-          <img src="https://zonetotalsport.ca/bucheron-basketball.png" alt="Mascotte" style="height:50px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
-          <span style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:1rem;text-shadow:1px 1px 3px rgba(0,0,0,0.3)">🏠 Accueil</span>
+    <!-- HEADER ZTS Ultra-Interactif -->
+    <header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
+        <a href="https://zonetotalsport.ca" class="flex flex-col items-start shrink-0">
+          <h1 class="text-xl md:text-3xl font-lucky text-white flex items-center gap-2 text-outline">
+            ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+          </h1>
+          <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Agenda Scolaire ÉPS</span>
         </a>
-        <div style="flex:1;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px">
-          <img src="https://zonetotalsport.ca/bucheron-agenda.png" alt="App" style="height:50px;border-radius:12px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
-          <h1 style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:clamp(1.2rem,3vw,2rem);text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin:0;letter-spacing:1px">AGENDA SCOLAIRE</h1>
-        </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        <nav class="flex items-center gap-1 flex-wrap justify-end">
+          <a href="https://zonetotalsport.ca" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Accueil</span></a>
+          <a href="https://zonetotalsport.ca/blog.html" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="pen-line" class="w-4 h-4"></i><span class="hidden sm:inline">Blog</span></a>
+          <a href="#" class="nav-link text-white flex items-center gap-1.5 active-link"><i data-lucide="calendar" class="w-4 h-4"></i><span>Agenda</span></a>
           <div class="lang-switcher">
             <button class="lang-btn lang-active" onclick="setLang('fr')">FR</button>
             <button class="lang-btn" onclick="setLang('en')">EN</button>
@@ -52,42 +112,122 @@
           <label class="hdr-btn" title="Importer">📂<input type="file" id="importFile" accept=".json" onchange="importData(this)" hidden /></label>
           <button onclick="window.print()" class="hdr-btn" title="Imprimer">🖨️</button>
           <button onclick="resetAll()" class="hdr-btn hdr-btn-danger" title="Réinitialiser">🗑️</button>
-        </div>
-        <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
           <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
-          <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
-        </div>
+          <button id="zts-auth-btn" class="nav-link text-white" style="display:none" onclick="ztsAuthAction()"></button>
+        </nav>
       </div>
     </header>
 
-    <!-- HERO LANDING -->
-    <div id="heroLanding" style="max-width:900px;margin:20px auto;padding:0 16px">
-      <div style="background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:28px;border:1px solid rgba(0,229,255,0.2);display:flex;flex-wrap:wrap;align-items:center;gap:24px;justify-content:center">
-        <img src="https://zonetotalsport.ca/bucheron-agenda.png" alt="Mascotte" style="width:130px;height:auto;filter:drop-shadow(3px 3px 10px rgba(0,0,0,0.5));border-radius:16px;flex-shrink:0">
-        <div style="flex:1;min-width:250px;text-align:center">
-          <h2 style="font-family:'Luckiest Guy',cursive;font-size:clamp(1.5rem,4vw,2.5rem);color:#fff;margin:0 0 10px;line-height:1.15">AGENDA <span style="color:#00E5FF">SCOLAIRE!</span></h2>
-          <p style="font-family:'Schoolbell',cursive;font-size:1.05rem;color:#ccc;margin:0 0 14px;line-height:1.5">Ton agenda numerique pour toute l'annee scolaire. Organise tes cours, notes tes rendez-vous, planifie tes evaluations et ne manque plus jamais rien. Synchronise avec ton calendrier et accessible partout sur ton telephone!</p>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px">
-            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">📅 Annee complete</span>
-            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">📱 Mobile friendly</span>
-            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">🔔 Rappels</span>
-            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">💾 Synchronise</span>
+    <!-- HERO XXL ZTS Ultra-Interactif -->
+    <section id="heroLanding" class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
+      <div class="max-w-7xl mx-auto px-4 relative">
+        <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          <!-- Texte gauche -->
+          <div class="lg:w-1/2 text-white z-10 text-center lg:text-left">
+            <span class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg" data-i18n="heroBadge">
+              📅 PLANIFICATEUR ÉPS
+            </span>
+            <h2 class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline">
+              AGENDA <span class="text-ztsYellow">SCOLAIRE</span>
+            </h2>
+            <p class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0" data-i18n="heroDesc">
+              Ton agenda numérique pour toute l'année scolaire. Organise tes cours, notes tes rendez-vous, planifie tes évaluations et ne manque plus jamais rien.
+            </p>
+            <div class="flex flex-wrap justify-center lg:justify-start items-center gap-5">
+              <button onclick="document.getElementById('heroLanding').style.display='none'" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase border-none cursor-pointer">
+                🚀 COMMENCER
+              </button>
+              <button onclick="document.getElementById('guideSection').classList.toggle('hidden')" class="bg-white/15 hover:bg-white/25 text-white px-6 py-4 rounded-2xl font-lucky text-lg border-2 border-white/30 cursor-pointer transition-all">
+                📖 Comment utiliser
+              </button>
+            </div>
           </div>
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-            <button onclick="document.getElementById('heroLanding').style.display='none'" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;border:none;border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">🚀 Commencer!</button>
-            <button onclick="document.getElementById('guideSection').classList.toggle('hidden')" style="font-family:'Bangers',cursive;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">📖 Comment utiliser</button>
+          <!-- Image droite -->
+          <div class="lg:w-1/2 relative flex justify-center mt-10 lg:mt-0 w-full">
+            <div class="relative z-10 rounded-[3rem] overflow-hidden border-[10px] border-white shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 max-w-md lg:max-w-full">
+              <img src="https://zonetotalsport.ca/bucheron-agenda.png" alt="Agenda" class="w-full h-[300px] md:h-[420px] object-cover bg-gradient-to-br from-cyan-200 to-blue-300" onerror="this.src='https://zonetotalsport.ca/bucheron-basketball.png'">
+            </div>
+            <div class="absolute -bottom-8 -left-4 md:-bottom-10 md:-left-10 z-20 bg-white p-4 md:p-5 rounded-3xl shadow-2xl flex items-center gap-3 md:gap-4 border-2 border-ztsBlue animate-float">
+              <div class="bg-ztsBlue p-3 rounded-2xl text-white">
+                <i data-lucide="calendar-days" class="w-7 h-7 md:w-8 md:h-8"></i>
+              </div>
+              <div class="text-left">
+                <p class="font-lucky text-ztsBlue text-lg md:text-xl leading-none">PLANIFIE</p>
+                <p class="text-[11px] font-black text-slate-400 uppercase tracking-tighter">Cours &bull; Suppléances &bull; Évals</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grille de features sticker shadowbox -->
+        <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-5 max-w-5xl mx-auto">
+          <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsBlue shadow-xl hover:scale-105 transition-transform cursor-default">
+            <div class="text-4xl mb-2">📅</div>
+            <p class="font-lucky text-ztsDeep text-base leading-tight">VUE MOIS / SEMAINE</p>
+          </div>
+          <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsYellow shadow-xl hover:scale-105 transition-transform cursor-default">
+            <div class="text-4xl mb-2">🎨</div>
+            <p class="font-lucky text-ztsDeep text-base leading-tight">COULEURS PAR TYPE</p>
+          </div>
+          <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsOrange shadow-xl hover:scale-105 transition-transform cursor-default">
+            <div class="text-4xl mb-2">🔔</div>
+            <p class="font-lucky text-ztsDeep text-base leading-tight">RAPPELS</p>
+          </div>
+          <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsLime shadow-xl hover:scale-105 transition-transform cursor-default">
+            <div class="text-4xl mb-2">💾</div>
+            <p class="font-lucky text-ztsDeep text-base leading-tight">HORS-LIGNE</p>
+          </div>
+          <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsPink shadow-xl hover:scale-105 transition-transform cursor-default">
+            <div class="text-4xl mb-2">🧑‍🏫</div>
+            <p class="font-lucky text-ztsDeep text-base leading-tight">SUPPLÉANCES</p>
+          </div>
+          <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsBlue shadow-xl hover:scale-105 transition-transform cursor-default">
+            <div class="text-4xl mb-2">📊</div>
+            <p class="font-lucky text-ztsDeep text-base leading-tight">ÉVALUATIONS</p>
+          </div>
+          <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsYellow shadow-xl hover:scale-105 transition-transform cursor-default">
+            <div class="text-4xl mb-2">👨‍👩‍👧</div>
+            <p class="font-lucky text-ztsDeep text-base leading-tight">RENCONTRES PARENTS</p>
+          </div>
+          <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsOrange shadow-xl hover:scale-105 transition-transform cursor-default">
+            <div class="text-4xl mb-2">📥</div>
+            <p class="font-lucky text-ztsDeep text-base leading-tight">EXPORT PDF</p>
+          </div>
+        </div>
+
+        <div id="guideSection" class="hidden mt-16 max-w-4xl mx-auto">
+          <div class="bg-ztsYellow rounded-[2.5rem] p-8 md:p-10 border-b-[14px] border-r-[14px] border-ztsDeep shadow-[0_20px_60px_rgba(0,0,0,0.25)] relative">
+            <span class="absolute -top-5 left-8 bg-ztsBlue text-white font-lucky px-5 py-1.5 rounded-xl text-base -rotate-3 shadow-lg border-b-4 border-r-4 border-ztsDarkBlue">
+              📖 GUIDE EXPRESS
+            </span>
+            <h3 class="font-lucky text-4xl md:text-5xl text-ztsDeep mb-6 mt-2 leading-tight">DÉCOUVRE L'AGENDA</h3>
+            <div class="grid md:grid-cols-3 gap-5">
+              <div class="bg-white rounded-2xl p-5 border-b-[8px] border-r-[8px] border-ztsBlue">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="bg-ztsBlue text-white font-lucky text-2xl w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-md">1</span>
+                  <h4 class="font-lucky text-xl text-ztsDeep leading-tight">NAVIGUE</h4>
+                </div>
+                <p class="text-slate-700 font-medium">Utilise les flèches pour aller au mois voulu.</p>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border-b-[8px] border-r-[8px] border-ztsOrange">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="bg-ztsOrange text-white font-lucky text-2xl w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-md">2</span>
+                  <h4 class="font-lucky text-xl text-ztsDeep leading-tight">CLIQUE</h4>
+                </div>
+                <p class="text-slate-700 font-medium">Sur un jour pour ajouter événement ou note.</p>
+              </div>
+              <div class="bg-white rounded-2xl p-5 border-b-[8px] border-r-[8px] border-ztsLime">
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="bg-ztsLime text-white font-lucky text-2xl w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-md">3</span>
+                  <h4 class="font-lucky text-xl text-ztsDeep leading-tight">CONSULTE</h4>
+                </div>
+                <p class="text-slate-700 font-medium">Ton agenda partout, même sur téléphone.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div id="guideSection" class="hidden" style="margin-top:12px;background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:24px;border:1px solid rgba(0,229,255,0.2)">
-        <h3 style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;color:#fff;margin:0 0 14px">📖 COMMENT UTILISER</h3>
-        <p style="font-family:'Schoolbell',cursive;font-size:1rem;color:#ccc;line-height:1.6;margin:0">
-          <strong style="color:#00E5FF">1)</strong> <strong style="color:#fff">NAVIGUE</strong> au mois voulu.<br>
-          <strong style="color:#00E5FF">2)</strong> <strong style="color:#fff">CLIQUE</strong> sur un jour pour ajouter un evenement ou une note.<br>
-          <strong style="color:#00E5FF">3)</strong> <strong style="color:#fff">CONSULTE</strong> ton agenda a tout moment sur ton telephone!
-        </p>
-      </div>
-    </div>
+    </section>
 
     <!-- PRESENTATION -->
     <section id="presentation-section" class="pres-section" style="display:none;"></section>
@@ -348,6 +488,7 @@
   </div>
 
   <script src="app.js?v=3"></script>
+<script>if(window.lucide)lucide.createIcons();</script>
 <!-- ZTS Landing config + script -->
 <script>
 window.ZTS_LANDING_CONFIG = {
