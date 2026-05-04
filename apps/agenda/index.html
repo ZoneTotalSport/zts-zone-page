@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Agenda Scolaire EPS — Planificateur pour éducateurs physiques. zonetotalsport.ca" />
+  <meta name="theme-color" content="#00E5FF" />
+  <title>Agenda Scolaire — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&display=swap" rel="stylesheet" />
+  <style>.hidden{display:none!important}</style>
+  <link rel="stylesheet" href="style.css?v=10" />
+  <!-- ZTS Landing Template -->
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="zts-landing.css">
+</head>
+<body>
+  <!-- LOADING SCREEN -->
+  <div id="loading-screen">
+    <img src="img/bucheron-salut.png" alt="Bûcheron" class="loading-mascot" />
+    <h1 class="loading-title" data-i18n="appTitle">AGENDA SCOLAIRE</h1>
+    <p class="loading-sub">Zone Total Sport</p>
+    <div class="loading-bar"><div class="loading-fill"></div></div>
+  </div>
+
+  <!-- GYM BACKGROUND -->
+  <div id="gymBg"></div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app-hidden">
+
+    <!-- HEADER -->
+    <header style="background:linear-gradient(135deg,#00E5FF,#00B8D4);position:sticky;top:0;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,0.3);padding:12px 16px">
+      <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <a href="https://zonetotalsport.ca" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+          <img src="https://zonetotalsport.ca/bucheron-basketball.png" alt="Mascotte" style="height:50px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
+          <span style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:1rem;text-shadow:1px 1px 3px rgba(0,0,0,0.3)">🏠 Accueil</span>
+        </a>
+        <div style="flex:1;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px">
+          <img src="https://zonetotalsport.ca/bucheron-agenda.png" alt="App" style="height:50px;border-radius:12px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
+          <h1 style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:clamp(1.2rem,3vw,2rem);text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin:0;letter-spacing:1px">AGENDA SCOLAIRE</h1>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div class="lang-switcher">
+            <button class="lang-btn lang-active" onclick="setLang('fr')">FR</button>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+            <button class="lang-btn" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" onclick="setLang('es')">ES</button>
+          </div>
+          <button onclick="downloadData()" class="hdr-btn" title="Sauvegarder">💾</button>
+          <label class="hdr-btn" title="Importer">📂<input type="file" id="importFile" accept=".json" onchange="importData(this)" hidden /></label>
+          <button onclick="window.print()" class="hdr-btn" title="Imprimer">🖨️</button>
+          <button onclick="resetAll()" class="hdr-btn hdr-btn-danger" title="Réinitialiser">🗑️</button>
+        </div>
+        <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
+          <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
+          <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO LANDING -->
+    <div id="heroLanding" style="max-width:900px;margin:20px auto;padding:0 16px">
+      <div style="background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:28px;border:1px solid rgba(0,229,255,0.2);display:flex;flex-wrap:wrap;align-items:center;gap:24px;justify-content:center">
+        <img src="https://zonetotalsport.ca/bucheron-agenda.png" alt="Mascotte" style="width:130px;height:auto;filter:drop-shadow(3px 3px 10px rgba(0,0,0,0.5));border-radius:16px;flex-shrink:0">
+        <div style="flex:1;min-width:250px;text-align:center">
+          <h2 style="font-family:'Luckiest Guy',cursive;font-size:clamp(1.5rem,4vw,2.5rem);color:#fff;margin:0 0 10px;line-height:1.15">AGENDA <span style="color:#00E5FF">SCOLAIRE!</span></h2>
+          <p style="font-family:'Schoolbell',cursive;font-size:1.05rem;color:#ccc;margin:0 0 14px;line-height:1.5">Ton agenda numerique pour toute l'annee scolaire. Organise tes cours, notes tes rendez-vous, planifie tes evaluations et ne manque plus jamais rien. Synchronise avec ton calendrier et accessible partout sur ton telephone!</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px">
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">📅 Annee complete</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">📱 Mobile friendly</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">🔔 Rappels</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">💾 Synchronise</span>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button onclick="document.getElementById('heroLanding').style.display='none'" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;border:none;border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">🚀 Commencer!</button>
+            <button onclick="document.getElementById('guideSection').classList.toggle('hidden')" style="font-family:'Bangers',cursive;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">📖 Comment utiliser</button>
+          </div>
+        </div>
+      </div>
+      <div id="guideSection" class="hidden" style="margin-top:12px;background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:24px;border:1px solid rgba(0,229,255,0.2)">
+        <h3 style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;color:#fff;margin:0 0 14px">📖 COMMENT UTILISER</h3>
+        <p style="font-family:'Schoolbell',cursive;font-size:1rem;color:#ccc;line-height:1.6;margin:0">
+          <strong style="color:#00E5FF">1)</strong> <strong style="color:#fff">NAVIGUE</strong> au mois voulu.<br>
+          <strong style="color:#00E5FF">2)</strong> <strong style="color:#fff">CLIQUE</strong> sur un jour pour ajouter un evenement ou une note.<br>
+          <strong style="color:#00E5FF">3)</strong> <strong style="color:#fff">CONSULTE</strong> ton agenda a tout moment sur ton telephone!
+        </p>
+      </div>
+    </div>
+
+    <!-- PRESENTATION -->
+    <section id="presentation-section" class="pres-section" style="display:none;"></section>
+
+    <!-- TAB NAV -->
+    <nav class="tab-nav no-print">
+      <button class="tab-btn tab-active" data-tab="mensuel" onclick="switchTab('mensuel')">
+        <span class="tab-icon">📅</span>
+        <span class="tab-label" data-i18n="tabMonthly">MENSUEL</span>
+      </button>
+      <button class="tab-btn" data-tab="hebdo" onclick="switchTab('hebdo')">
+        <span class="tab-icon">🗓️</span>
+        <span class="tab-label" data-i18n="tabWeekly">HEBDO</span>
+      </button>
+      <button class="tab-btn" data-tab="sequentiel" onclick="switchTab('sequentiel')">
+        <span class="tab-icon">📝</span>
+        <span class="tab-label" data-i18n="tabSequential">SÉQUENTIEL</span>
+      </button>
+      <button class="tab-btn" data-tab="notes" onclick="switchTab('notes')">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label" data-i18n="tabNotes">NOTES</span>
+      </button>
+    </nav>
+
+    <!-- ======================== -->
+    <!-- VUE MENSUELLE -->
+    <!-- ======================== -->
+    <section id="view-mensuel" class="view-section view-active">
+
+      <!-- Controls -->
+      <div class="month-controls no-print">
+        <button onclick="navMonth(-1)" class="ctrl-btn ctrl-prev">&laquo;</button>
+        <h2 id="monthDisplay" class="month-title">Septembre 2025</h2>
+        <button onclick="navMonth(1)" class="ctrl-btn ctrl-next">&raquo;</button>
+        <div class="ctrl-periods">
+          <label data-i18n="periods">Périodes :</label>
+          <select id="periodsCount" onchange="changePeriodCount()">
+            <option value="4">4</option>
+            <option value="5" selected>5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="cal-wrapper">
+        <div class="cal-header-row" id="calHeaderRow">
+          <div class="cal-day-name" data-i18n="daySun">DIM</div>
+          <div class="cal-day-name" data-i18n="dayMon">LUN</div>
+          <div class="cal-day-name" data-i18n="dayTue">MAR</div>
+          <div class="cal-day-name" data-i18n="dayWed">MER</div>
+          <div class="cal-day-name" data-i18n="dayThu">JEU</div>
+          <div class="cal-day-name" data-i18n="dayFri">VEN</div>
+          <div class="cal-day-name" data-i18n="daySat">SAM</div>
+        </div>
+        <div id="calendarBody" class="cal-grid"></div>
+      </div>
+
+      <!-- Bucheron decoratif -->
+      <div class="cal-mascot-float no-print">
+        <img src="img/bucheron-salut2.png" alt="" />
+      </div>
+
+    </section>
+
+    <!-- ======================== -->
+    <!-- VUE HEBDOMADAIRE -->
+    <!-- ======================== -->
+    <section id="view-hebdo" class="view-section">
+
+      <div class="hebdo-controls no-print">
+        <button onclick="prevHebdoWeek()" class="ctrl-btn ctrl-prev">&laquo;</button>
+        <div class="hebdo-selects">
+          <select id="hebdo-month-select" onchange="renderHebdo()"></select>
+          <select id="hebdo-week-select" onchange="renderHebdo()">
+            <option value="1" data-i18n-tpl="weekN">Sem. 1</option>
+            <option value="2" data-i18n-tpl="weekN">Sem. 2</option>
+            <option value="3" data-i18n-tpl="weekN">Sem. 3</option>
+            <option value="4" data-i18n-tpl="weekN">Sem. 4</option>
+            <option value="5" data-i18n-tpl="weekN">Sem. 5</option>
+          </select>
+        </div>
+        <button onclick="nextHebdoWeek()" class="ctrl-btn ctrl-next">&raquo;</button>
+      </div>
+
+      <div id="hebdo-grid" class="hebdo-grid"></div>
+
+      <div class="hebdo-notes-box">
+        <div class="hebdo-notes-header">
+          <img src="img/bucheron-lire.png" alt="" class="hebdo-notes-mascot" />
+          <h3 data-i18n="weekNotes">NOTES DE LA SEMAINE</h3>
+        </div>
+        <textarea id="hebdoNotes" data-i18n-ph="weekNotesPlaceholder" placeholder="Tournois, rendez-vous, rappels..." oninput="saveHebdoNotes()"></textarea>
+      </div>
+
+    </section>
+
+    <!-- ======================== -->
+    <!-- VUE SÉQUENTIELLE -->
+    <!-- ======================== -->
+    <section id="view-sequentiel" class="view-section">
+
+      <div class="seq-hero">
+        <img src="img/bucheron-createur.png" alt="" class="seq-hero-mascot" />
+        <div>
+          <h2 data-i18n="seqTitle">PLANIFICATION SÉQUENTIELLE</h2>
+          <p data-i18n="seqSub">Crée tes séquences de cours en série!</p>
+        </div>
+      </div>
+
+      <div class="seq-config">
+        <div class="seq-config-item">
+          <label data-i18n="seqCycle">Cycle scolaire</label>
+          <select id="niveau-scolaire">
+            <option value="1" data-i18n="cycle1">1er Cycle (1re-2e)</option>
+            <option value="3" data-i18n="cycle2">2e Cycle (3e-4e)</option>
+            <option value="5" data-i18n="cycle3">3e Cycle (5e-6e)</option>
+          </select>
+        </div>
+        <div class="seq-config-item">
+          <label data-i18n="seqNbCours">Nombre de cours</label>
+          <input type="number" id="nombre-cours" min="1" max="20" value="6" />
+        </div>
+        <div class="seq-config-item">
+          <label data-i18n="seqTitre">Titre de la séquence</label>
+          <input type="text" id="titre-planification" data-i18n-ph="seqTitrePh" placeholder="Ex: Basketball extrême..." />
+        </div>
+      </div>
+
+      <div class="seq-objectives">
+        <h3><img src="img/bucheron-banque.png" alt="" class="inline-mascot" /> <span data-i18n="seqObjBank">BANQUE D'OBJECTIFS PFEQ</span></h3>
+        <div class="seq-legend">
+          <span class="legend-dot legend-apprend"></span> <span data-i18n="learns">Apprend</span>
+          <span class="legend-dot legend-maitrise"></span> <span data-i18n="masters">Maîtrise</span>
+          <span class="legend-dot legend-reutilise"></span> <span data-i18n="reuses">Réutilise</span>
+        </div>
+        <div id="tab-contents" class="seq-obj-grid"></div>
+      </div>
+
+      <div id="planning-grid-container" class="seq-cards-grid"></div>
+
+    </section>
+
+    <!-- ======================== -->
+    <!-- VUE NOTES -->
+    <!-- ======================== -->
+    <section id="view-notes" class="view-section">
+      <div class="notes-hero">
+        <img src="img/bucheron-mes-sae.png" alt="" class="notes-hero-mascot" />
+        <h2 data-i18n="myNotes">MES NOTES</h2>
+      </div>
+      <div class="notes-area">
+        <h3 data-i18n="meetingNotes">Notes de réunion / Générales</h3>
+        <textarea id="globalNotes" data-i18n-ph="meetingNotesPh" placeholder="Notes de réunions, rappels importants..." oninput="saveGlobalNotes()"></textarea>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="app-footer no-print">
+      <div class="app-footer-inner">
+        <img src="img/bucheron-defi.png" alt="" class="footer-mascot" />
+        <p><span data-i18n="footerTitle">Agenda Scolaire EPS</span> &mdash; <a href="https://www.zonetotalsport.ca/boite-a-outils-eps" target="_blank"><strong>zonetotalsport.ca</strong></a></p>
+        <p class="footer-copy">&copy; 2025-2026 Zone Total Sport. <span data-i18n="footerRights">Tous droits réservés.</span></p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ======================== -->
+  <!-- MODALS -->
+  <!-- ======================== -->
+
+  <!-- Modal Jour -->
+  <div id="dayModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modalDateTitle">Date</h2>
+        <button onclick="closeModal('dayModal')" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label data-i18n="specialNote">Note spéciale</label>
+          <input type="text" id="dayNote" data-i18n-ph="specialNotePh" placeholder="Ex: Journée pédagogique..." />
+        </div>
+        <div id="periodsContainer"></div>
+        <button onclick="saveDay()" class="btn-save" data-i18n="save">ENREGISTRER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Weekend -->
+  <div id="weekendModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header modal-header-weekend">
+        <h2 id="weekendDateTitle">Weekend</h2>
+        <button onclick="closeModal('weekendModal')" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="weekendNote" data-i18n-ph="weekendNotePh" placeholder="Notes pour la fin de semaine..." rows="8"></textarea>
+        <button onclick="saveWeekend()" class="btn-save" data-i18n="save">ENREGISTRER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Ajout Bloc Hebdo -->
+  <div id="addBlockModal" class="modal-overlay">
+    <div class="modal-box modal-box-sm">
+      <div class="modal-header">
+        <h2 data-i18n="addBlock">Ajouter un bloc</h2>
+        <button onclick="closeModal('addBlockModal')" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label data-i18n="group">Groupe</label>
+          <select id="hebdo-block-group"></select>
+        </div>
+        <div class="modal-field" id="hebdo-custom-wrap" style="display:none;">
+          <label data-i18n="groupName">Nom du groupe</label>
+          <input type="text" id="hebdo-block-custom" data-i18n-ph="namePh" placeholder="Nom..." />
+        </div>
+        <div class="modal-field">
+          <label data-i18n="activity">Activité</label>
+          <input type="text" id="hebdo-block-activity" data-i18n-ph="activityPh" placeholder="Ex: Ballon chasseur" />
+        </div>
+        <button onclick="confirmAddBlock()" class="btn-save" data-i18n="add">AJOUTER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Séquentiel -->
+  <div id="course-modal" class="modal-overlay">
+    <div class="modal-box modal-box-lg">
+      <div class="modal-header">
+        <h2 id="modal-title">Cours</h2>
+        <button id="close-modal" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="seq-modal-grid">
+          <div class="modal-field"><label data-i18n="seqMoyen">Titre / Moyen d'action</label><input type="text" id="modal-moyen-action" /></div>
+          <div class="modal-field"><label data-i18n="date">Date</label><input type="date" id="modal-date" /></div>
+        </div>
+        <div class="modal-field">
+          <label data-i18n="specificObj">Objectifs spécifiques</label>
+          <div id="modal-objectives-list" class="seq-obj-list"></div>
+        </div>
+        <div class="modal-field">
+          <label data-i18n="sequence">Déroulement</label>
+          <div class="editor-toolbar">
+            <button class="editor-btn" data-command="bold"><b>B</b></button>
+            <button class="editor-btn" data-command="italic"><i>I</i></button>
+            <button class="editor-btn" data-command="insertUnorderedList" data-i18n="list">Liste</button>
+          </div>
+          <div id="modal-editor" class="editor-area" contenteditable="true"></div>
+        </div>
+        <button id="save-modal-btn" class="btn-save" data-i18n="validateClose">VALIDER & FERMER</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=3"></script>
+<!-- ZTS Landing config + script -->
+<script>
+window.ZTS_LANDING_CONFIG = {
+  appId: 'agenda',
+  accentColor: '#A855F7',
+  homeUrl: 'https://zonetotalsport.ca',
+  mascot: 'https://zonetotalsport.ca/bucheron-agenda.png',
+  logoIcon: 'https://zonetotalsport.ca/logo-zts-text.png',
+  logoWide: true,
+  logoTitle: { fr: 'Agenda', en: 'Planner', zh: '日程表' },
+  logoSub: 'Zone Total Sport',
+  title: { fr: 'Agenda Scolaire ÉPS', en: 'PE School Planner', zh: '体育学校日程' },
+  subtitle: { fr: 'Planifie ta semaine!', en: 'Plan your week!', zh: '规划你的一周!' },
+  description: {
+    fr: "Ton agenda scolaire ÉPS tout-en-un. Planifie tes cours, tes suppléances, tes évaluations, tes rencontres parents et tes journées pédagogiques. Vue jour, semaine et mois, rappels et couleurs par type d'événement.",
+    en: "Your all-in-one PE school planner. Schedule lessons, sub days, evaluations, parent meetings and pro-D days. Day, week and month views, reminders and color-coded events.",
+    zh: "一站式体育课日程。安排课程、代课、评估、家长会和教研日。日/周/月视图,提醒和事件颜色编码。"
+  },
+  badges: [
+    { emoji: '🗓️', color: 'violet', text: { fr: 'Jour / Semaine / Mois', en: 'Day / Week / Month', zh: '日 / 周 / 月' } },
+    { emoji: '🎨', color: 'pink',   text: { fr: 'Couleurs par type', en: 'Color by type', zh: '按类型着色' } },
+    { emoji: '🔔', color: 'yellow', text: { fr: 'Rappels', en: 'Reminders', zh: '提醒' } },
+    { emoji: '💾', color: 'green',  text: { fr: 'Hors-ligne', en: 'Offline', zh: '离线' } },
+    { emoji: '📱', color: 'cyan',   text: { fr: 'Tous écrans', en: 'All screens', zh: '全屏幕' } }
+  ],
+  features: [
+    { emoji: '📚', title: { fr: 'Cours', en: 'Lessons', zh: '课程' }, desc: { fr: 'Lie tes SAÉ et tes groupes', en: 'Link your SAÉ and groups', zh: '关联 SAÉ 和组别' } },
+    { emoji: '🧑‍🏫', title: { fr: 'Suppléances', en: 'Sub days', zh: '代课日' }, desc: { fr: 'Planifie facilement tes remplacements', en: 'Plan your substitutions easily', zh: '轻松安排代课' } },
+    { emoji: '📊', title: { fr: 'Évaluations', en: 'Evaluations', zh: '评估' }, desc: { fr: 'Échéances d\'étape claires', en: 'Clear term deadlines', zh: '清晰学期节点' } },
+    { emoji: '👨‍👩‍👧', title: { fr: 'Rencontres parents', en: 'Parent meetings', zh: '家长会' }, desc: { fr: 'Notes et suivi intégrés', en: 'Notes and follow-up', zh: '笔记和跟进' } },
+    { emoji: '🏫', title: { fr: 'Journées péda', en: 'Pro-D days', zh: '教研日' }, desc: { fr: 'Ajoute congés et formations', en: 'Add days off and training', zh: '假期和培训' } },
+    { emoji: '🎨', title: { fr: 'Couleurs', en: 'Colors', zh: '颜色' }, desc: { fr: 'Repère visuel instantané', en: 'Instant visual cue', zh: '瞬间视觉提示' } },
+    { emoji: '🔄', title: { fr: 'Récurrences', en: 'Recurring', zh: '循环' }, desc: { fr: 'Cycles 9 ou 10 jours', en: '9 or 10-day cycles', zh: '9 或 10 天循环' } },
+    { emoji: '📥', title: { fr: 'Export', en: 'Export', zh: '导出' }, desc: { fr: 'PDF et impression', en: 'PDF and print', zh: 'PDF 和打印' } }
+  ],
+  ctaStart: { label: { fr: 'Commencer!', en: 'Start!', zh: '开始!' } },
+  ctaHelp: {
+    label: { fr: 'Comment utiliser', en: 'How to use', zh: '使用说明' },
+    onClick: function () { window.open('https://zonetotalsport.ca/blog.html', '_blank'); }
+  }
+};
+</script>
+<script src="zts-landing.js"></script>
+<!-- ZTS Auth Gate -->
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+(function(){var c={apiKey:'AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA',authDomain:'zone-total-sport.firebaseapp.com',projectId:'zone-total-sport'};if(!firebase.apps.length)firebase.initializeApp(c);var o=document.createElement('div');o.id='zts-gate';o.innerHTML='<div style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:24px;padding:40px;max-width:440px;width:90%;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,0.3)"><img src="https://zonetotalsport.ca/bucheron-basketball.png" style="width:120px;margin:0 auto 16px" alt=""><h2 style="font-family:Luckiest Guy,cursive;font-size:2rem;color:#1e293b;margin:0 0 4px">Zone Total Sport</h2><p style="font-family:Schoolbell,cursive;color:#64748b;margin:0 0 24px;font-size:1.1rem">Connecte-toi ou inscris-toi gratuitement pour acceder a cette ressource.</p><input id="zg-e" type="email" placeholder="Courriel" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:10px;font-size:1.1rem;box-sizing:border-box"><input id="zg-p" type="password" placeholder="Mot de passe" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:16px;font-size:1.1rem;box-sizing:border-box"><button id="zg-l" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#4f46e5;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Se connecter</button><button id="zg-s" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#00BCD4;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Creer un compte gratuit</button><button id="zg-g" style="font-family:Schoolbell,cursive;width:100%;padding:14px;background:#fff;color:#333;border:2px solid #e2e8f0;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer">Connexion Google</button><p id="zg-err" style="font-family:Schoolbell,cursive;color:#ef4444;font-size:.9rem;margin:12px 0 0;display:none"></p></div></div>';document.body.appendChild(o);var err=document.getElementById('zg-err');function se(m){err.textContent=m;err.style.display='block';}document.getElementById('zg-l').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().signInWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-s').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().createUserWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-g').onclick=function(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(r){se(r.message);});};firebase.auth().onAuthStateChanged(function(u){var g=document.getElementById('zts-gate');if(u&&g)g.remove();ztsUpdateAuthUI(u);});})();
+function ztsUpdateAuthUI(u){var l=document.getElementById('zts-auth-label'),b=document.getElementById('zts-auth-btn');if(!l||!b)return;if(u){var name=u.displayName||u.email.split('@')[0];l.textContent='\u{1F464} '+name;b.textContent='Deconnexion';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.15)';b.style.borderColor='rgba(255,255,255,0.5)';}else{l.textContent='';b.textContent='Se connecter';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.25)';b.style.borderColor='#fff';}}
+function ztsAuthAction(){var u=firebase.auth().currentUser;if(u){firebase.auth().signOut().then(function(){location.reload();});}else{location.reload();}}
+</script>
+</body>
+</html>
