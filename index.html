@@ -5653,6 +5653,20 @@ ztsInitVisitCounter();
 .zts-res-badge{position:absolute;top:8px;right:8px;font-family:'Luckiest Guy',cursive;font-size:.6rem;color:#fff;padding:3px 8px;border-radius:8px;border:2px solid #fff;transform:rotate(3deg);text-transform:uppercase;letter-spacing:1px;}
 @media(max-width:900px){.zts-res-grid{grid-template-columns:repeat(3,1fr);gap:14px;padding:0 16px 24px;}}
 @media(max-width:600px){.zts-res-grid{grid-template-columns:repeat(2,1fr);gap:12px;padding:0 12px 20px;}.zts-res-card img{width:60px;height:60px;}.zts-res-card h3{font-size:.85rem;}.zts-res-card{padding:16px 8px 14px;}}
+/* ZTS Popup d'aperçu au survol — Pop Art bûcheron */
+.zts-preview-popup{position:fixed;z-index:99999;width:320px;max-width:calc(100vw - 32px);background:#FFFDF5;border:3px solid #000;border-radius:14px;box-shadow:6px 6px 0 #000;padding:18px 18px 16px;pointer-events:none;opacity:0;transform:scale(.85) rotate(-2deg);transform-origin:top left;transition:opacity .18s ease,transform .22s cubic-bezier(.34,1.56,.64,1);font-family:'Patrick Hand',cursive;}
+.zts-preview-popup.zts-pp-visible{opacity:1;transform:scale(1) rotate(0);}
+.zts-preview-popup::before{content:"🪓";position:absolute;top:-14px;left:14px;background:#FFD93D;border:2.5px solid #000;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:2px 2px 0 #000;transform:rotate(-12deg);}
+.zts-pp-header{display:flex;align-items:center;gap:12px;padding-bottom:10px;margin-bottom:10px;border-bottom:2px dashed #000;}
+.zts-pp-icon{font-size:38px;line-height:1;flex-shrink:0;}
+.zts-pp-title{font-family:'Luckiest Guy',cursive;font-size:22px;line-height:1.05;color:#00C4FF;-webkit-text-stroke:1.5px #000;text-stroke:1.5px #000;margin:0;letter-spacing:.5px;}
+.zts-pp-subtitle{font-family:'Patrick Hand',cursive;font-size:14px;color:#555;margin:2px 0 0;}
+.zts-pp-desc{font-size:16px;line-height:1.35;color:#222;margin:0 0 12px;}
+.zts-pp-features{list-style:none;padding:0;margin:0 0 14px;}
+.zts-pp-features li{display:flex;align-items:flex-start;gap:8px;font-size:15px;color:#222;margin-bottom:6px;line-height:1.25;}
+.zts-pp-features li::before{content:"✓";display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#4CD964;border:2px solid #000;border-radius:50%;font-size:12px;font-weight:bold;color:#000;flex-shrink:0;margin-top:1px;}
+.zts-pp-cta{display:inline-block;background:#00C4FF;border:2.5px solid #000;border-radius:8px;padding:8px 14px;font-family:'Luckiest Guy',cursive;font-size:15px;color:#fff;-webkit-text-stroke:1px #000;text-stroke:1px #000;letter-spacing:.5px;box-shadow:4px 4px 0 #000;text-transform:uppercase;}
+@media(hover:none),(max-width:720px){.zts-preview-popup{display:none !important;}}
 </style>
 <div class="apps-overlay" id="appsModal">
   <div class="apps-modal">
@@ -5664,95 +5678,95 @@ ztsInitVisitCounter();
     </div>
     <div class="zts-res-grid" id="appsGrid">
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://zonetotalsport.ca/apps/omnigroupe/')" style="background:linear-gradient(135deg,#004A61,#006a8a);border-bottom:10px solid #00C4FF;border-right:10px solid #00C4FF;">
+      <div class="zts-res-card" data-zpp-icon="🚨" data-zpp-desc="Outils SOS pour reprendre le contrôle d'un groupe agité ou désengagé. Jeux d'urgence, séances express et stratégies éprouvées en gymnase." data-zpp-features='["Activités SOS prêtes en 30 secondes","Stratégies de gestion de classe","Adapté primaire et préscolaire"]' onclick="ztsOpenApp('https://zonetotalsport.ca/apps/omnigroupe/')" style="background:linear-gradient(135deg,#004A61,#006a8a);border-bottom:10px solid #00C4FF;border-right:10px solid #00C4FF;">
         <span class="zts-res-badge" style="background:#00C4FF;transform:rotate(-3deg);">Nouveau</span>
         <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Intervention Groupe">
         <h3 style="color:#00C4FF">Intervention Groupe</h3>
         <p>SOS, jeux, seance, outils</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://zonetotalsport.ca/apps/planificateur/')" style="background:linear-gradient(135deg,#3d2e00,#5a4400);border-bottom:10px solid #FFF000;border-right:10px solid #FFF000;">
+      <div class="zts-res-card" data-zpp-icon="📅" data-zpp-desc="Le calendrier scolaire complet pour planifier ton année d'éducation physique. Suit le rythme du programme québécois (PFEQ)." data-zpp-features='["Calendrier annuel complet","Aligné sur le PFEQ","Imprimable et partageable"]' onclick="ztsOpenApp('https://zonetotalsport.ca/apps/planificateur/')" style="background:linear-gradient(135deg,#3d2e00,#5a4400);border-bottom:10px solid #FFF000;border-right:10px solid #FFF000;">
         <img decoding="async" loading="lazy" src="apps/planificateur/mr-root-thumbup.png" alt="Planificateur">
         <h3 style="color:#FFF000">Planificateur EPS</h3>
         <p>Calendrier scolaire complet</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://zonetotalsport.ca/apps/transitions/')" style="background:linear-gradient(135deg,#2d1a00,#4a2d00);border-bottom:10px solid #FF8C00;border-right:10px solid #FF8C00;">
+      <div class="zts-res-card" data-zpp-icon="🧰" data-zpp-desc="Tous les outils essentiels du gymnase au même endroit : signaux visuels, chronomètres, délimitations de zones et plus." data-zpp-features='["Signaux et chronomètres","Délimitation de zones","Compatible projecteur et TNI"]' onclick="ztsOpenApp('https://zonetotalsport.ca/apps/transitions/')" style="background:linear-gradient(135deg,#2d1a00,#4a2d00);border-bottom:10px solid #FF8C00;border-right:10px solid #FF8C00;">
         <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Transitions">
         <h3 style="color:#FF8C00">Boite a Outils</h3>
         <p>Signaux, chrono, zones</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://educatifs.zonetotalsport.ca')" style="background:linear-gradient(135deg,#0a2e1a,#144d2d);border-bottom:10px solid #4ADE80;border-right:10px solid #4ADE80;">
+      <div class="zts-res-card" data-zpp-icon="📚" data-zpp-desc="Bibliothèque de fiches d'éducatifs sportifs prêtes à utiliser. Chaque ressource est testée en gymnase et adaptée au primaire." data-zpp-features='["Fiches imprimables","Classées par sport et niveau","Téléchargement gratuit"]' onclick="ztsOpenApp('https://educatifs.zonetotalsport.ca')" style="background:linear-gradient(135deg,#0a2e1a,#144d2d);border-bottom:10px solid #4ADE80;border-right:10px solid #4ADE80;">
         <img decoding="async" loading="lazy" src="bucheron-educatifs.png" alt="Educatifs">
         <h3 style="color:#4ADE80">Banque d'educatifs</h3>
         <p>Fiches et ressources</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://sae.zonetotalsport.ca')" style="background:linear-gradient(135deg,#2a1540,#3d1f5e);border-bottom:10px solid #A855F7;border-right:10px solid #A855F7;">
+      <div class="zts-res-card" data-zpp-icon="🎯" data-zpp-desc="Banque complète de Situations d'Apprentissage et d'Évaluation conformes au programme du Québec, prêtes à intégrer dans ta planification." data-zpp-features='["Conformes au PFEQ","Tous les cycles du primaire","Critères d&#39;évaluation inclus"]' onclick="ztsOpenApp('https://sae.zonetotalsport.ca')" style="background:linear-gradient(135deg,#2a1540,#3d1f5e);border-bottom:10px solid #A855F7;border-right:10px solid #A855F7;">
         <img decoding="async" loading="lazy" src="bucheron-sae.png" alt="SAE">
         <h3 style="color:#A855F7">S.A.E</h3>
         <p>Situations d'apprentissage</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://jeux.zonetotalsport.ca')" style="background:linear-gradient(135deg,#3d0a0a,#5a1515);border-bottom:10px solid #ef4444;border-right:10px solid #ef4444;">
+      <div class="zts-res-card" data-zpp-icon="🎮" data-zpp-desc="Plus de 1400 jeux sportifs filtrables par niveau, durée, espace requis et matériel. Idéal pour briser la routine ou animer un camp de jour." data-zpp-features='["+1400 jeux référencés","Filtres par durée et matériel","Variantes pour tous les âges"]' onclick="ztsOpenApp('https://jeux.zonetotalsport.ca')" style="background:linear-gradient(135deg,#3d0a0a,#5a1515);border-bottom:10px solid #ef4444;border-right:10px solid #ef4444;">
         <img decoding="async" loading="lazy" src="bucheron-jeux.png" alt="Jeux">
         <h3 style="color:#ef4444">Banque de Jeux</h3>
         <p>+500 jeux sportifs</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://musique.zonetotalsport.ca')" style="background:linear-gradient(135deg,#1a0a30,#2d1550);border-bottom:10px solid #c084fc;border-right:10px solid #c084fc;">
+      <div class="zts-res-card" data-zpp-icon="🎵" data-zpp-desc="Playlists et ambiances sonores pensées pour le gymnase. Énergiser, calmer ou rythmer une activité avec la bonne piste au bon moment." data-zpp-features='["Playlists par type d&#39;activité","Volume et tempo adaptés","Sans paroles inappropriées"]' onclick="ztsOpenApp('https://musique.zonetotalsport.ca')" style="background:linear-gradient(135deg,#1a0a30,#2d1550);border-bottom:10px solid #c084fc;border-right:10px solid #c084fc;">
         <img decoding="async" loading="lazy" src="bucheron-musique.png" alt="Musique">
         <h3 style="color:#c084fc">Musique</h3>
         <p>Ambiance gym</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://evaluation.zonetotalsport.ca')" style="background:linear-gradient(135deg,#002a2a,#004040);border-bottom:10px solid #2dd4bf;border-right:10px solid #2dd4bf;">
+      <div class="zts-res-card" data-zpp-icon="📝" data-zpp-desc="Outil d'évaluation et de gestion des présences inspiré de l'approche Léger. Suis la progression de chaque élève sans paperasse." data-zpp-features='["Évaluation rapide en gymnase","Gestion des présences","Approche Léger intégrée"]' onclick="ztsOpenApp('https://evaluation.zonetotalsport.ca')" style="background:linear-gradient(135deg,#002a2a,#004040);border-bottom:10px solid #2dd4bf;border-right:10px solid #2dd4bf;">
         <img decoding="async" loading="lazy" src="bucheron-carnet.png" alt="Carnet">
         <h3 style="color:#2dd4bf">Carnet de notes</h3>
         <p>Evaluation, presences, Leger</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://suppleance.zonetotalsport.ca')" style="background:linear-gradient(135deg,#2e2000,#4a3300);border-bottom:10px solid #fbbf24;border-right:10px solid #fbbf24;">
+      <div class="zts-res-card" data-zpp-icon="🦺" data-zpp-desc="Trousse de survie pour suppléants en éducation physique. Activités clés en main, règles de gymnase et procédures d'urgence." data-zpp-features='["Activités prêtes à animer","Règles et procédures du gym","Aucune préparation requise"]' onclick="ztsOpenApp('https://suppleance.zonetotalsport.ca')" style="background:linear-gradient(135deg,#2e2000,#4a3300);border-bottom:10px solid #fbbf24;border-right:10px solid #fbbf24;">
         <img decoding="async" loading="lazy" src="bucheron-suppleance.png" alt="Suppleance">
         <h3 style="color:#fbbf24">Ma Suppleance</h3>
         <p>Outils pour suppleants</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://generateur.zonetotalsport.ca')" style="background:linear-gradient(135deg,#0a2040,#153060);border-bottom:10px solid #60a5fa;border-right:10px solid #60a5fa;">
+      <div class="zts-res-card" data-zpp-icon="🤖" data-zpp-desc="Génère une Situation d'Apprentissage et d'Évaluation sur mesure grâce à l'IA. Tu choisis le niveau, le sport et la compétence visée." data-zpp-features='["IA personnalisée à ta classe","Conforme au programme","Génération en quelques secondes"]' onclick="ztsOpenApp('https://generateur.zonetotalsport.ca')" style="background:linear-gradient(135deg,#0a2040,#153060);border-bottom:10px solid #60a5fa;border-right:10px solid #60a5fa;">
         <span class="zts-res-badge" style="background:#60a5fa;transform:rotate(2deg);">IA</span>
         <img decoding="async" loading="lazy" src="bucheron-generateur.png" alt="Generateur">
         <h3 style="color:#60a5fa">Generateur de SAE</h3>
         <p>IA sur mesure</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://agenda.zonetotalsport.ca')" style="background:linear-gradient(135deg,#002020,#003838);border-bottom:10px solid #00C4FF;border-right:10px solid #00C4FF;">
+      <div class="zts-res-card" data-zpp-icon="🗓️" data-zpp-desc="Outil de planification pour organiser tes périodes, déplacements de matériel et événements sportifs au fil de l'année." data-zpp-features='["Vue jour, semaine, mois","Rappels automatiques","Synchronisation possible"]' onclick="ztsOpenApp('https://agenda.zonetotalsport.ca')" style="background:linear-gradient(135deg,#002020,#003838);border-bottom:10px solid #00C4FF;border-right:10px solid #00C4FF;">
         <img decoding="async" loading="lazy" src="bucheron-agenda.png" alt="Agenda">
         <h3 style="color:#00C4FF">Agenda</h3>
         <p>Planification</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://zonetotalsport.ca/repertoire.html')" style="background:linear-gradient(135deg,#0a200a,#1a351a);border-bottom:10px solid #4ADE80;border-right:10px solid #4ADE80;">
+      <div class="zts-res-card" data-zpp-icon="🌍" data-zpp-desc="Plus de 50 sites de référence en éducation physique, traduits en 5 langues. La meilleure veille pédagogique francophone et internationale." data-zpp-features='["+50 sites curés","5 langues disponibles","Veille pédagogique mondiale"]' onclick="ztsOpenApp('https://zonetotalsport.ca/repertoire.html')" style="background:linear-gradient(135deg,#0a200a,#1a351a);border-bottom:10px solid #4ADE80;border-right:10px solid #4ADE80;">
         <img decoding="async" loading="lazy" src="bucheron-sports.png" alt="Repertoire">
         <h3 style="color:#4ADE80">Repertoire mondial</h3>
         <p>50+ sites EPS en 5 langues</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://zonetotalsport.ca/apps/scoreboard/')" style="background:linear-gradient(135deg,#302000,#4a3200);border-bottom:10px solid #F59E0B;border-right:10px solid #F59E0B;">
+      <div class="zts-res-card" data-zpp-icon="🏀" data-zpp-desc="Tableau de pointage numérique pour basketball, hockey et football. À projeter sur le mur du gymnase pendant les matchs ou tournois." data-zpp-features='["3 sports prêts à l&#39;emploi","Affichage plein écran","Chronomètre intégré"]' onclick="ztsOpenApp('https://zonetotalsport.ca/apps/scoreboard/')" style="background:linear-gradient(135deg,#302000,#4a3200);border-bottom:10px solid #F59E0B;border-right:10px solid #F59E0B;">
         <span class="zts-res-badge" style="background:#F59E0B;color:#000;transform:rotate(-2deg);">Pro</span>
         <img decoding="async" loading="lazy" src="bucheron-basketball.png" alt="Scoreboard">
         <h3 style="color:#F59E0B">Tableau Indicateur</h3>
         <p>Basketball, Hockey, Football</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://grille.zonetotalsport.ca')" style="background:linear-gradient(135deg,#200a30,#351550);border-bottom:10px solid #e879f9;border-right:10px solid #e879f9;">
+      <div class="zts-res-card" data-zpp-icon="⏰" data-zpp-desc="Crée et imprime la grille horaire des spécialistes (musique, anglais, ÉPS) pour toute l'école. Vue claire pour la direction et les enseignants." data-zpp-features='["Vue par cycle ou par groupe","Export imprimable","Mise à jour rapide"]' onclick="ztsOpenApp('https://grille.zonetotalsport.ca')" style="background:linear-gradient(135deg,#200a30,#351550);border-bottom:10px solid #e879f9;border-right:10px solid #e879f9;">
         <span class="zts-res-badge" style="background:#e879f9;color:#000;transform:rotate(3deg);">Nouveau</span>
         <img decoding="async" loading="lazy" src="bucheron-grille.png" alt="Grille Horaire">
         <h3 style="color:#e879f9">Grille Horaire</h3>
         <p>Horaire des specialistes</p>
       </div>
 
-      <div class="zts-res-card" onclick="ztsOpenApp('https://tni.zonetotalsport.ca')" style="background:linear-gradient(135deg,#002530,#003d4d);border-bottom:10px solid #22d3ee;border-right:10px solid #22d3ee;">
+      <div class="zts-res-card" data-zpp-icon="✏️" data-zpp-desc="Tableau blanc interactif (TNI) pour expliquer une stratégie, dessiner une formation ou animer un brise-glace en grand groupe." data-zpp-features='["Compatible TNI et tablette","Outils de dessin et formes","Export image"]' onclick="ztsOpenApp('https://tni.zonetotalsport.ca')" style="background:linear-gradient(135deg,#002530,#003d4d);border-bottom:10px solid #22d3ee;border-right:10px solid #22d3ee;">
         <span class="zts-res-badge" style="background:#22d3ee;color:#000;transform:rotate(-3deg);">TNI</span>
         <img decoding="async" loading="lazy" src="bucheron-tni.png" alt="TNI">
         <h3 style="color:#22d3ee">Tableau Blanc</h3>
@@ -6089,5 +6103,66 @@ document.addEventListener('keydown', function(e) {
 
 <!-- Section Aujourd'hui : Jeu du jour + Meteo + Ephemeride -->
 <script src="daily.js?v=2" defer></script>
+
+<!-- ZTS Popup d'aperçu au survol des cartes ressources -->
+<script>
+(function(){
+  if(window.matchMedia('(hover: none)').matches) return;
+  function init(){
+    const cards=document.querySelectorAll('.zts-res-card');
+    if(!cards.length) return;
+    let popup=null,showTimer=null,currentCard=null;
+    function buildPopup(card){
+      const icon=card.dataset.zppIcon||'📌';
+      const title=card.querySelector('h3')?.textContent?.trim()||'';
+      const subtitle=card.querySelector('p')?.textContent?.trim()||'';
+      const desc=card.dataset.zppDesc||'';
+      let features=[];
+      try{features=JSON.parse(card.dataset.zppFeatures||'[]');}catch(e){}
+      const featuresHtml=features.map(f=>`<li>${f}</li>`).join('');
+      const el=document.createElement('div');
+      el.className='zts-preview-popup';
+      el.innerHTML=`<div class="zts-pp-header"><div class="zts-pp-icon">${icon}</div><div><h4 class="zts-pp-title">${title}</h4><p class="zts-pp-subtitle">${subtitle}</p></div></div><p class="zts-pp-desc">${desc}</p><ul class="zts-pp-features">${featuresHtml}</ul><span class="zts-pp-cta">Clique pour ouvrir →</span>`;
+      document.body.appendChild(el);
+      return el;
+    }
+    function positionPopup(e){
+      if(!popup) return;
+      const pad=16,rect=popup.getBoundingClientRect();
+      let x=e.clientX+18,y=e.clientY+18;
+      if(x+rect.width+pad>window.innerWidth) x=e.clientX-rect.width-18;
+      if(y+rect.height+pad>window.innerHeight) y=e.clientY-rect.height-18;
+      if(x<pad) x=pad;
+      if(y<pad) y=pad;
+      popup.style.left=x+'px';
+      popup.style.top=y+'px';
+    }
+    function hidePopup(){
+      clearTimeout(showTimer);
+      if(popup){popup.remove();popup=null;}
+      currentCard=null;
+    }
+    cards.forEach(card=>{
+      card.addEventListener('mouseenter',(e)=>{
+        clearTimeout(showTimer);
+        if(currentCard===card) return;
+        currentCard=card;
+        showTimer=setTimeout(()=>{
+          if(popup) popup.remove();
+          popup=buildPopup(card);
+          positionPopup(e);
+          requestAnimationFrame(()=>popup.classList.add('zts-pp-visible'));
+        },250);
+      });
+      card.addEventListener('mousemove',positionPopup);
+      card.addEventListener('mouseleave',hidePopup);
+      card.addEventListener('click',hidePopup);
+    });
+    window.addEventListener('scroll',hidePopup,{passive:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
 </body>
 </html>
