@@ -1,0 +1,236 @@
+/* ==========================================================================
+   ZTS Ultra-Interactif — Override partagé pour toutes les apps
+   Remplace zts-landing.css : header sticky cyan + hero XXL + sticker shadowbox
+   Couleurs: cyan #00C4FF, jaune #FFF000, deep #004A61
+   ========================================================================== */
+
+:root{
+  --zts-blue:#00C4FF; --zts-dark-blue:#0086AD; --zts-deep:#004A61;
+  --zts-yellow:#FFF000; --zts-orange:#FF8C00; --zts-lime:#4ADE80;
+  --zts-pink:#FF2A7A; --zts-violet:#8B5CF6;
+  --zts-r-md:18px; --zts-r-lg:24px; --zts-r-xl:32px;
+}
+
+/* ============ CONTAINER ============ */
+.zts-landing{
+  display:block;background:transparent;color:#0F172A;
+  font-family:'Inter','Patrick Hand',sans-serif;line-height:1.5;
+}
+.zts-landing.is-hidden{display:none}
+.zts-landing::before{content:none}
+
+/* ============ HEADER STICKY CYAN ============ */
+.zts-landing-header{
+  position:sticky;top:0;z-index:50;
+  background:#00C4FF;
+  border-bottom:4px solid #0086AD;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
+  padding:14px 20px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.zts-landing-home-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.15);color:#fff;
+  font-family:'Luckiest Guy',cursive;font-size:.95rem;letter-spacing:1px;
+  padding:8px 16px;border-radius:999px;
+  border:2px solid rgba(255,255,255,.4);text-decoration:none;
+  transition:all .2s;
+}
+.zts-landing-home-btn:hover{background:rgba(255,255,255,.3);transform:translateY(-1px)}
+.zts-landing-logo{display:flex;align-items:center;gap:10px}
+.zts-landing-logo-icon{width:48px;height:48px;border-radius:12px;object-fit:cover}
+.zts-landing-logo-icon--wide{width:auto;height:48px;border-radius:8px}
+.zts-landing-logo--wide{gap:0}
+.zts-landing-logo-title{
+  font-family:'Luckiest Guy',cursive;color:#fff;font-size:1.5rem;
+  text-shadow:2px 2px 0 rgba(0,0,0,.2);letter-spacing:1px;line-height:1;
+}
+.zts-landing-logo-sub{
+  color:#004A61;font-size:.65rem;font-weight:900;
+  text-transform:uppercase;letter-spacing:.2em;line-height:1.1;
+}
+.zts-landing-lang-switch{display:flex;gap:4px;background:rgba(255,255,255,.2);padding:4px;border-radius:999px}
+.zts-landing-lang-btn{
+  background:transparent;border:none;color:#fff;
+  font-family:'Luckiest Guy',cursive;font-size:.85rem;letter-spacing:1px;
+  padding:6px 12px;border-radius:999px;cursor:pointer;
+}
+.zts-landing-lang-btn.is-active{background:#FFF000;color:#004A61}
+
+/* ============ HERO XXL GRADIENT ============ */
+.zts-landing-container{max-width:none;padding:0;background:transparent}
+.zts-landing-hero-card{
+  background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61);
+  border-radius:0;border:none;box-shadow:none;
+  padding:60px 24px 100px;
+  position:relative;overflow:hidden;
+}
+.zts-landing-hero-card::before{
+  content:"";position:absolute;top:-100px;right:-100px;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(255,240,0,.15) 0%,transparent 70%);
+  pointer-events:none;
+}
+.zts-landing-hero-grid{
+  max-width:1280px;margin:0 auto;
+  display:grid;grid-template-columns:1fr;gap:40px;align-items:center;
+  position:relative;z-index:2;
+}
+@media(min-width:900px){
+  .zts-landing-hero-grid{grid-template-columns:1fr 1fr;gap:64px}
+}
+.zts-landing-mascot-wrap{display:flex;justify-content:center;order:2}
+@media(min-width:900px){.zts-landing-mascot-wrap{order:2}}
+.zts-landing-mascot{
+  width:100%;max-width:420px;height:auto;
+  border:10px solid #fff;border-radius:3rem;
+  box-shadow:0 25px 50px rgba(0,0,0,.3);
+  transform:rotate(3deg);
+  transition:transform .7s;
+}
+.zts-landing-mascot:hover{transform:rotate(0)}
+.zts-landing-hero-text{order:1;color:#fff;text-align:center}
+@media(min-width:900px){.zts-landing-hero-text{text-align:left}}
+.zts-landing-title{
+  font-family:'Luckiest Guy',cursive;
+  font-size:clamp(2.5rem,7vw,5rem);
+  line-height:1;letter-spacing:.05em;
+  text-shadow:2px 2px 0 rgba(0,0,0,.25);
+  margin:0 0 20px;
+}
+.zts-landing-subtitle{
+  display:inline-block;background:#FFF000;color:#004A61;
+  font-family:'Luckiest Guy',cursive;
+  padding:6px 18px;border-radius:12px;
+  font-size:.95rem;margin:0 0 16px;
+  transform:rotate(-2deg);
+  box-shadow:0 6px 12px rgba(0,0,0,.15);
+}
+.zts-landing-desc{
+  color:#E0F7FF;font-size:1.1rem;line-height:1.55;
+  font-weight:500;margin:0 0 28px;max-width:540px;
+}
+@media(min-width:900px){.zts-landing-desc{margin-left:0;margin-right:0}}
+
+/* ============ BADGES INCLINÉS ============ */
+.zts-landing-badges{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:0 0 28px;
+}
+@media(min-width:900px){.zts-landing-badges{justify-content:flex-start}}
+.zts-landing-badge{
+  background:rgba(255,255,255,.15);
+  color:#fff;font-family:'Luckiest Guy',cursive;
+  padding:6px 14px;border-radius:999px;
+  border:2px solid rgba(255,255,255,.3);
+  font-size:.8rem;letter-spacing:.5px;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.zts-landing-badge .zts-emoji{font-size:1.1rem}
+.zts-landing-badge.badge-cyan,.zts-landing-badge.badge-blue{background:rgba(0,196,255,.25);border-color:#00C4FF}
+.zts-landing-badge.badge-yellow{background:rgba(255,240,0,.25);border-color:#FFF000;color:#FFF000}
+.zts-landing-badge.badge-green{background:rgba(74,222,128,.25);border-color:#4ADE80}
+.zts-landing-badge.badge-pink{background:rgba(255,42,122,.25);border-color:#FF2A7A}
+.zts-landing-badge.badge-violet{background:rgba(139,92,246,.25);border-color:#8B5CF6}
+.zts-landing-badge.badge-orange{background:rgba(255,140,0,.25);border-color:#FF8C00}
+
+/* ============ ACTIONS / CTA CHUNKY ============ */
+.zts-landing-actions{
+  display:flex;flex-wrap:wrap;gap:16px;justify-content:center;
+}
+@media(min-width:900px){.zts-landing-actions{justify-content:flex-start}}
+.zts-landing-cta-start{
+  background:#FFF000;color:#004A61;
+  font-family:'Luckiest Guy',cursive;font-size:1.3rem;letter-spacing:1.5px;
+  padding:18px 36px;border:none;border-radius:1.2rem;cursor:pointer;
+  text-transform:uppercase;
+  box-shadow:8px 8px 0 rgba(0,0,0,.2);
+  border-bottom:6px solid #ccbf00;border-right:6px solid #ccbf00;
+  transition:transform .2s;
+}
+.zts-landing-cta-start:hover{transform:translateY(-2px) scale(1.03)}
+.zts-landing-cta-help{
+  background:rgba(255,255,255,.15);color:#fff;
+  font-family:'Luckiest Guy',cursive;font-size:1rem;letter-spacing:1px;
+  padding:14px 24px;border:2px solid rgba(255,255,255,.4);border-radius:1rem;cursor:pointer;
+  transition:all .2s;
+}
+.zts-landing-cta-help:hover{background:rgba(255,255,255,.25)}
+
+/* ============ FEATURES GRID ============ */
+.zts-landing-features-grid{
+  max-width:1280px;margin:60px auto;padding:0 24px;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;
+}
+.zts-landing-feature-card{
+  background:#fff;border-radius:1.5rem;
+  padding:28px 22px;text-align:center;
+  border-bottom:10px solid #00C4FF;border-right:10px solid #00C4FF;
+  box-shadow:0 8px 24px rgba(0,0,0,.08);
+  transition:transform .25s;
+}
+.zts-landing-feature-card:hover{transform:translateY(-6px) scale(1.02)}
+.zts-landing-feature-card:nth-child(2n){border-bottom-color:#FFF000;border-right-color:#FFF000}
+.zts-landing-feature-card:nth-child(3n){border-bottom-color:#FF8C00;border-right-color:#FF8C00}
+.zts-landing-feature-card:nth-child(4n){border-bottom-color:#4ADE80;border-right-color:#4ADE80}
+.zts-landing-feature-card:nth-child(5n){border-bottom-color:#FF2A7A;border-right-color:#FF2A7A}
+.zts-landing-feature-card:nth-child(6n){border-bottom-color:#8B5CF6;border-right-color:#8B5CF6}
+.zts-landing-feature-icon{font-size:3rem;margin-bottom:14px;line-height:1}
+.zts-landing-feature-title{
+  font-family:'Luckiest Guy',cursive;color:#004A61;
+  font-size:1.3rem;letter-spacing:1px;margin:0 0 10px;line-height:1.1;
+}
+.zts-landing-feature-desc{
+  color:#475569;font-size:.95rem;line-height:1.45;margin:0;
+}
+
+/* ============ FOOTER ============ */
+.zts-landing-footer{
+  text-align:center;padding:40px 24px 60px;color:#64748B;font-size:.9rem;
+}
+.zts-landing-footer a{color:#00C4FF;font-weight:700;text-decoration:none}
+
+/* ============ FLASH (smooth scroll target) ============ */
+@keyframes ztsFlash{0%,100%{box-shadow:0 8px 24px rgba(0,0,0,.08)}50%{box-shadow:0 0 60px 10px rgba(255,240,0,.6)}}
+.zts-landing-flash .zts-landing-feature-card{animation:ztsFlash 1.6s ease}
+
+/* ============ SECTION PRÉSENTATION (apps avec .pres-section) ============ */
+.pres-section{
+  max-width:1400px !important;margin:40px auto !important;padding:48px 32px !important;
+  background:linear-gradient(135deg,#00C4FF 0%,#0086AD 50%,#004A61 100%) !important;
+  border-radius:2.5rem !important;
+  border-bottom:14px solid #FFF000 !important;border-right:14px solid #FFF000 !important;
+  box-shadow:0 25px 70px rgba(0,134,173,.35) !important;
+  position:relative !important;overflow:hidden !important;
+}
+.pres-section::before{
+  content:"";position:absolute;top:-50px;right:-50px;width:300px;height:300px;
+  background:radial-gradient(circle,rgba(255,240,0,.18) 0%,transparent 70%);
+  pointer-events:none;
+}
+.pres-hero{display:flex !important;flex-direction:column !important;align-items:center !important;text-align:center !important;margin-bottom:32px !important;position:relative;z-index:2}
+.pres-mascot{width:120px !important;height:auto !important;margin-bottom:16px !important;filter:drop-shadow(4px 4px 12px rgba(0,0,0,.3)) !important;transform:rotate(-3deg) !important}
+.pres-hero h2{font-family:'Luckiest Guy',cursive !important;color:#fff !important;font-size:clamp(2rem,5vw,3.5rem) !important;text-shadow:3px 3px 0 rgba(0,0,0,.25) !important;letter-spacing:2px !important;margin:0 0 10px !important}
+.pres-sub{font-family:'Inter',sans-serif !important;color:#FFF000 !important;font-size:clamp(1rem,2vw,1.4rem) !important;font-weight:700 !important;margin:0 !important;text-shadow:1px 1px 0 rgba(0,0,0,.2)}
+.pres-grid{display:grid !important;grid-template-columns:repeat(auto-fit,minmax(280px,1fr)) !important;gap:20px !important;position:relative;z-index:2}
+.pres-card{background:#fff !important;border-radius:1.5rem !important;padding:24px 20px !important;text-align:center !important;border-bottom:8px solid #FFF000 !important;border-right:8px solid #FFF000 !important;box-shadow:0 8px 24px rgba(0,0,0,.15) !important;transition:transform .25s !important}
+.pres-card:hover{transform:translateY(-6px) scale(1.02) !important}
+.pres-card:nth-child(2n){border-bottom-color:#FF8C00 !important;border-right-color:#FF8C00 !important}
+.pres-card:nth-child(3n){border-bottom-color:#4ADE80 !important;border-right-color:#4ADE80 !important}
+.pres-card:nth-child(5n){border-bottom-color:#FF2A7A !important;border-right-color:#FF2A7A !important}
+.pres-card-icon{font-size:3rem !important;margin-bottom:10px !important}
+.pres-card h3{font-family:'Luckiest Guy',cursive !important;color:#004A61 !important;font-size:1.3rem !important;margin:0 0 8px !important;letter-spacing:1px !important}
+.pres-card p{font-family:'Inter',sans-serif !important;color:#475569 !important;font-size:.95rem !important;line-height:1.45 !important;margin:0 !important}
+.pres-cta{text-align:center !important;margin-top:32px !important;position:relative;z-index:2}
+.pres-start-btn{font-family:'Luckiest Guy',cursive !important;background:#FFF000 !important;color:#004A61 !important;border:none !important;border-radius:2rem !important;padding:18px 48px !important;font-size:1.4rem !important;letter-spacing:2px !important;cursor:pointer !important;box-shadow:8px 8px 0 rgba(0,0,0,.2) !important;border-bottom:6px solid #ccbf00 !important;border-right:6px solid #ccbf00 !important;transition:transform .2s !important}
+.pres-start-btn:hover{transform:scale(1.05) !important}
+
+/* ============ MOBILE ============ */
+@media(max-width:720px){
+  .zts-landing-header{padding:10px 14px;gap:8px}
+  .zts-landing-logo-title{font-size:1.1rem}
+  .zts-landing-home-btn{font-size:.8rem;padding:6px 12px}
+  .zts-landing-hero-card{padding:40px 16px 70px}
+  .zts-landing-cta-start{font-size:1.05rem;padding:14px 24px}
+  .zts-landing-features-grid{margin:40px auto;gap:16px;padding:0 16px}
+  .zts-landing-feature-icon{font-size:2.4rem}
+  .zts-landing-feature-title{font-size:1.1rem}
+}

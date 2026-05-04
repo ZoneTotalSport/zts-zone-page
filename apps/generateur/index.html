@@ -45,12 +45,26 @@
 
   <!-- ZTS Landing Template -->
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="zts-landing.css">
+  <link rel="stylesheet" href="../../zts-ultra.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+  tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61',ztsOrange:'#FF8C00',ztsLime:'#4ADE80',ztsPink:'#FF2A7A'},fontFamily:{lucky:['"Luckiest Guy"','cursive'],inter:['Inter','sans-serif']}}}}
+  </script>
+  <style>
+  .font-lucky{font-family:'Luckiest Guy','Bangers',cursive;letter-spacing:.05em}
+  .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
+  .text-outline{text-shadow:2px 2px 0 rgba(0,0,0,.2)}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  .animate-float{animation:float 3s ease-in-out infinite}
+  .nav-link{transition:all .2s;padding:8px 14px;border-radius:9999px;font-size:.9rem;white-space:nowrap;font-weight:700}
+  .nav-link:hover{background:rgba(255,255,255,.2)}
+  .nav-link.active-link{background:#FFF000;color:#004A61}
+  </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900">
 
   <!-- BACKGROUND ELEMENTS -->
-  <div id="gymBg" aria-hidden="true"></div>
   <canvas id="bgCanvas" aria-hidden="true"></canvas>
   <div id="grainOverlay" aria-hidden="true"></div>
 
@@ -70,57 +84,82 @@
   <div id="app" class="hidden">
 
     <!-- HEADER -->
-    <header style="background:linear-gradient(135deg,#00E5FF,#00B8D4);position:sticky;top:0;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,0.3);padding:12px 16px">
-      <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <a href="https://zonetotalsport.ca" style="display:flex;align-items:center;gap:10px;text-decoration:none">
-          <img src="https://zonetotalsport.ca/bucheron-basketball.png" alt="Mascotte" style="height:50px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
-          <span style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:1rem;text-shadow:1px 1px 3px rgba(0,0,0,0.3)">🏠 Accueil</span>
-        </a>
-        <div style="flex:1;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px">
-          <img src="https://zonetotalsport.ca/bucheron-generateur.png" alt="App" style="height:50px;border-radius:12px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
-          <h1 style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:clamp(1.2rem,3vw,2rem);text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin:0;letter-spacing:1px">GÉNÉRATEUR SAÉ</h1>
-        </div>
-        <div style="display:flex;align-items:center;gap:4px" role="navigation" aria-label="Sélection de la langue">
-          <button class="lang-btn active" data-lang="fr" aria-label="Français" aria-pressed="true">🇨🇦 FR</button>
-          <button class="lang-btn" data-lang="en" aria-label="English" aria-pressed="false">🇺🇸 EN</button>
-          <button class="lang-btn" data-lang="es" aria-label="Español" aria-pressed="false">🇪🇸 ES</button>
-          <button class="lang-btn" data-lang="zh" aria-label="中文" aria-pressed="false">🇨🇳 中文</button>
-        </div>
-        <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
-          <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
-          <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
-        </div>
-      </div>
-    </header>
+    <header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
+    <a href="https://zonetotalsport.ca" class="flex flex-col items-start shrink-0">
+      <h1 class="text-xl md:text-3xl font-lucky text-white flex items-center gap-2 text-outline">
+        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+      </h1>
+      <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Générateur</span>
+    </a>
+    <nav class="flex items-center gap-1 flex-wrap justify-end">
+      <a href="https://zonetotalsport.ca" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Accueil</span></a>
+      <a href="https://zonetotalsport.ca/blog.html" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="pen-line" class="w-4 h-4"></i><span class="hidden sm:inline">Blog</span></a>
+      <a href="#" class="nav-link text-white flex items-center gap-1.5 active-link"><i data-lucide="sparkles" class="w-4 h-4"></i><span>Générateur</span></a>
+    </nav>
+  </div>
+</header>
 
     <!-- HERO LANDING -->
-    <div id="heroLanding" style="max-width:900px;margin:20px auto;padding:0 16px">
-      <div style="background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:28px;border:1px solid rgba(0,229,255,0.2);display:flex;flex-wrap:wrap;align-items:center;gap:24px;justify-content:center">
-        <img src="https://zonetotalsport.ca/bucheron-generateur.png" alt="Mascotte" style="width:130px;height:auto;filter:drop-shadow(3px 3px 10px rgba(0,0,0,0.5));border-radius:16px;flex-shrink:0">
-        <div style="flex:1;min-width:250px;text-align:center">
-          <h2 style="font-family:'Luckiest Guy',cursive;font-size:clamp(1.5rem,4vw,2.5rem);color:#fff;margin:0 0 10px;line-height:1.15">GENERATEUR <span style="color:#00E5FF">SAE PAR IA!</span></h2>
-          <p style="font-family:'Schoolbell',cursive;font-size:1.05rem;color:#ccc;margin:0 0 14px;line-height:1.5">L'intelligence artificielle au service de ta planification! Decris ce que tu veux en une phrase et l'IA te genere une SAE complete en 10 secondes. Competences PFEQ, materiel, deroulement, variantes — tout est inclus. C'est comme avoir un collegue expert a cote de toi 24/7!</p>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px">
-            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">🤖 Intelligence artificielle</span>
-            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">⚡ 10 secondes</span>
-            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">📋 SAE complete</span>
-            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">🎯 Aligne PFEQ</span>
-          </div>
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-            <button onclick="document.getElementById('heroLanding').style.display='none'" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;border:none;border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">🚀 Commencer!</button>
-            <button onclick="document.getElementById('guideSection').classList.toggle('hidden')" style="font-family:'Bangers',cursive;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">📖 Comment utiliser</button>
-          </div>
+    <section id="heroLanding" class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 relative">
+    <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+      <div class="lg:w-1/2 text-white z-10 text-center lg:text-left">
+        <span class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg">🤖 PAR IA</span>
+        <h2 class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline">GÉNÉRATEUR <span class="text-ztsYellow">DE SAÉ</span></h2>
+        <p class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0">Génère une Situation d'Apprentissage et d'Évaluation sur mesure grâce à l'IA. Tu choisis le niveau, le sport et la compétence visée.</p>
+        <div class="flex flex-wrap justify-center lg:justify-start items-center gap-5">
+          <button onclick="document.getElementById('heroLanding').style.display='none'" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase border-none cursor-pointer">🚀 COMMENCER</button>
         </div>
       </div>
-      <div id="guideSection" class="hidden" style="margin-top:12px;background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:24px;border:1px solid rgba(0,229,255,0.2)">
-        <h3 style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;color:#fff;margin:0 0 14px">📖 COMMENT UTILISER</h3>
-        <p style="font-family:'Schoolbell',cursive;font-size:1rem;color:#ccc;line-height:1.6;margin:0">
-          <strong style="color:#00E5FF">1)</strong> <strong style="color:#fff">DECRIS</strong> ce que tu veux (ex: "jeu de cooperation pour cycle 2 avec ballons").<br>
-          <strong style="color:#00E5FF">2)</strong> L'IA <strong style="color:#fff">GENERE</strong> une SAE complete en quelques secondes.<br>
-          <strong style="color:#00E5FF">3)</strong> <strong style="color:#fff">MODIFIE</strong> si necessaire et <strong style="color:#fff">IMPRIME</strong>!
-        </p>
+      <div class="lg:w-1/2 relative flex justify-center mt-10 lg:mt-0 w-full">
+        <div class="relative z-10 rounded-[3rem] overflow-hidden border-[10px] border-white shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 max-w-md lg:max-w-full">
+          <img src="https://zonetotalsport.ca/bucheron-generateur.png" alt="Générateur" class="w-full h-[300px] md:h-[420px] object-cover bg-gradient-to-br from-cyan-200 to-blue-300" onerror="this.src='https://zonetotalsport.ca/bucheron-basketball.png'">
+        </div>
+        <div class="absolute -bottom-8 -left-4 md:-bottom-10 md:-left-10 z-20 bg-white p-4 md:p-5 rounded-3xl shadow-2xl flex items-center gap-3 md:gap-4 border-2 border-ztsBlue animate-float">
+          <div class="bg-ztsBlue p-3 rounded-2xl text-white"><i data-lucide="sparkles" class="w-7 h-7 md:w-8 md:h-8"></i></div>
+          <div class="text-left"><p class="font-lucky text-ztsBlue text-lg md:text-xl leading-none">Générateur</p><p class="text-[11px] font-black text-slate-400 uppercase tracking-tighter">Zone Total Sport</p></div>
+        </div>
       </div>
     </div>
+  </div>
+</section>
+<div class="max-w-6xl mx-auto -mt-16 px-4 mb-12 relative z-30">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+    <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsBlue shadow-xl hover:scale-105 transition-transform cursor-default">
+  <div class="text-4xl mb-2">🤖</div>
+  <p class="font-lucky text-ztsDeep text-base leading-tight">IA INTÉGRÉE</p>
+</div>
+<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsYellow shadow-xl hover:scale-105 transition-transform cursor-default">
+  <div class="text-4xl mb-2">⚡</div>
+  <p class="font-lucky text-ztsDeep text-base leading-tight">EN 30 SEC</p>
+</div>
+<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsOrange shadow-xl hover:scale-105 transition-transform cursor-default">
+  <div class="text-4xl mb-2">🎯</div>
+  <p class="font-lucky text-ztsDeep text-base leading-tight">SUR MESURE</p>
+</div>
+<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsLime shadow-xl hover:scale-105 transition-transform cursor-default">
+  <div class="text-4xl mb-2">🇨🇦</div>
+  <p class="font-lucky text-ztsDeep text-base leading-tight">CONFORME PFEQ</p>
+</div>
+<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsPink shadow-xl hover:scale-105 transition-transform cursor-default">
+  <div class="text-4xl mb-2">🏀</div>
+  <p class="font-lucky text-ztsDeep text-base leading-tight">TOUS SPORTS</p>
+</div>
+<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsBlue shadow-xl hover:scale-105 transition-transform cursor-default">
+  <div class="text-4xl mb-2">📚</div>
+  <p class="font-lucky text-ztsDeep text-base leading-tight">TOUS NIVEAUX</p>
+</div>
+<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsYellow shadow-xl hover:scale-105 transition-transform cursor-default">
+  <div class="text-4xl mb-2">🆓</div>
+  <p class="font-lucky text-ztsDeep text-base leading-tight">100% GRATUIT</p>
+</div>
+<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsOrange shadow-xl hover:scale-105 transition-transform cursor-default">
+  <div class="text-4xl mb-2">📥</div>
+  <p class="font-lucky text-ztsDeep text-base leading-tight">EXPORT PDF</p>
+</div>
+  </div>
+</div>
 
     <!-- NAVIGATION TABS -->
     <nav class="main-nav" id="mainNav" role="tablist" aria-label="Navigation principale">
@@ -610,5 +649,7 @@ function ztsAuthAction(){var u=firebase.auth().currentUser;if(u){firebase.auth()
   };
   </script>
   <script src="zts-landing.js"></script> (Landing ZTS uniforme (rollout design))
+
+<script>if(window.lucide)lucide.createIcons();</script>
 </body>
 </html>
