@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Grille Horaire — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Schoolbell&family=Luckiest+Guy&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--cyan:#00BCD4;--cyan2:#00E5FF;--green:#43A047;--red:#D32F2F;--orange:#FB8C00;--purple:#7C4DFF;--pink:#FF1493;--yellow:#FFD600;--card:#fff;--border:#ddd;--text:#222;--muted:#888;--radius:12px}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Fredoka',sans-serif;background:url('img/bg-planification.png') center/cover no-repeat fixed;color:var(--text);min-height:100vh;overflow-x:hidden;
+      font-size:22px}
+
+    /* HEADER — gros et tactile */
+    .hdr{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#00838F,#00ACC1);padding:10px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+    .hdr img{height:65px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.2))}
+    .hdr .t{font-family:'Luckiest Guy',cursive;font-size:1.8em;color:#fff;letter-spacing:3px;text-shadow:2px 2px 0 rgba(0,0,0,.15)}
+    .hdr .s{font-family:'Schoolbell',cursive;font-size:.85em;color:rgba(255,255,255,.75)}
+    .hdr .spacer{flex:1}
+    .hdr select,.hdr button{font-family:'Fredoka';font-size:.9em;font-weight:600;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;min-height:44px}
+    .hdr select{background:#fff;color:var(--text)}
+    .hdr .hb{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:1em}
+    .hdr .hb:hover{background:rgba(255,255,255,.35)}
+    .hdr a{color:#fff;font-family:'Luckiest Guy',cursive;font-size:.9em;text-decoration:none;padding:10px 16px;background:rgba(255,255,255,.15);border-radius:8px;border:1px solid rgba(255,255,255,.25)}
+
+    /* PROGRESS */
+    .progress{background:var(--card);border-bottom:2px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:14px;font-size:1em}
+    .progress .pbar{flex:1;height:14px;background:#e8e8e8;border-radius:7px;overflow:hidden}
+    .progress .pbar div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:7px;transition:width .3s}
+    .progress .ptxt{font-weight:700;color:var(--cyan);min-width:80px;text-align:right}
+
+    /* LAYOUT */
+    .layout{display:flex;height:calc(100vh - 110px);overflow:hidden}
+
+    /* LEFT PANEL */
+    .panel{width:260px;background:var(--card);border-right:2px solid var(--border);overflow-y:auto;padding:14px;flex-shrink:0}
+    .panel h3{font-family:'Bangers',cursive;font-size:1.2em;color:#00838F;margin-bottom:10px;letter-spacing:1px}
+    .spec-card{border:3px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .1s;min-height:50px}
+    .spec-card:hover{border-color:var(--cyan)}
+    .spec-card.active{border-color:#000;box-shadow:0 0 0 3px var(--cyan2),0 3px 10px rgba(0,0,0,.15)}
+    .spec-card .sc-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+    .spec-card .sc-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+    .spec-card .sc-name{font-weight:700;font-size:1em;flex:1}
+    .spec-card .sc-remain{font-family:'Bangers',cursive;font-size:1.1em;color:var(--cyan)}
+    .spec-card .sc-info{font-size:.8em;color:var(--muted)}
+    .spec-card .sc-bar{height:6px;background:#eee;border-radius:3px;margin-top:5px;overflow:hidden}
+    .spec-card .sc-bar div{height:100%;border-radius:3px;transition:width .2s}
+
+    .panel .p-section{margin-top:16px;padding-top:12px;border-top:2px solid var(--border)}
+    .panel .p-btn{display:block;width:100%;font-family:'Fredoka';font-weight:600;font-size:.95em;padding:12px;border:2px dashed var(--border);border-radius:10px;background:transparent;cursor:pointer;color:var(--muted);text-align:center;margin-bottom:6px;min-height:48px}
+    .panel .p-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,188,212,.04)}
+
+    /* ALERT TOAST */
+    .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:10px;font-weight:600;font-size:1em;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:toastIn .3s ease-out}
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    /* GRID AREA */
+    .grid-area{flex:1;overflow:auto;padding:12px;background:rgba(244,246,248,.85)}
+    .grid{display:grid;gap:3px;min-width:min-content}
+    .g-hdr{background:linear-gradient(135deg,#00838F,#00ACC1);border-radius:10px;padding:12px;text-align:center;min-height:54px;display:flex;align-items:center;justify-content:center;font-family:'Bangers',cursive;font-size:1.4em;color:#fff;letter-spacing:1px}
+    .g-time{background:var(--card);border:2px solid var(--border);border-radius:10px;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Bangers',cursive;font-size:1.2em;color:#00838F}
+    .g-time small{font-family:'Fredoka';font-size:.65em;color:var(--muted);font-weight:500}
+    .g-brk{border-radius:10px;min-height:38px;display:flex;align-items:center;justify-content:center;font-family:'Bangers',cursive;font-size:1em;letter-spacing:1px}
+    .g-brk.rec{background:#fff9c4;color:#F9A825}
+    .g-brk.lun{background:#e0f7fa;color:#00838F}
+
+    .g-cell{border:3px solid var(--border);border-radius:10px;min-height:80px;background:var(--card);display:flex;flex-wrap:wrap;align-content:center;align-items:stretch;justify-content:center;cursor:pointer;padding:4px;transition:all .1s;gap:3px}
+    .g-cell:hover{border-color:var(--cyan);background:#e0f7fa}
+    .g-cell.can-drop{border-color:var(--cyan2);background:rgba(0,229,255,.1);border-style:dashed}
+    .g-cell.cant-drop{opacity:.35}
+    .g-cell.hard{border-color:var(--red)!important;background:rgba(211,47,47,.06)!important}
+    .g-cell.soft{border-color:var(--orange)!important;background:rgba(255,152,0,.05)!important}
+
+    .g-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:8px;font-size:.85em;font-weight:800;justify-content:space-between;color:#000;white-space:nowrap;flex:1 1 auto;min-width:0;border:2px solid rgba(0,0,0,.12);text-shadow:0 1px 0 rgba(255,255,255,.4)}
+    .g-cell.multi .g-chip{font-size:.75em;padding:4px 7px}
+    .g-chip:hover{filter:brightness(.92)}
+    .g-chip .x{font-size:.75em;opacity:.3;padding:2px 4px;cursor:pointer;min-width:24px;min-height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px}
+    .g-chip .x:hover{opacity:1;color:#fff;background:var(--red)}
+    .g-chip .sp-tag{font-size:.7em;opacity:.6;font-weight:600;background:rgba(0,0,0,.1);padding:1px 4px;border-radius:3px}
+    .g-cell .plus{color:rgba(0,0,0,.12);font-size:1.8em;font-weight:300}
+
+    /* RIGHT PANEL */
+    .rpanel{width:240px;background:var(--card);border-left:2px solid var(--border);overflow-y:auto;padding:14px;flex-shrink:0}
+    .rpanel h3{font-family:'Bangers',cursive;font-size:1.2em;color:#00838F;margin-bottom:10px}
+    .next-item{font-size:.85em;padding:8px 10px;border-radius:8px;margin-bottom:4px;border-left:4px solid var(--border);background:rgba(0,0,0,.02)}
+    .next-item .ni-cls{font-weight:700;font-size:1em}
+    .next-item .ni-sub{color:var(--muted);font-size:.85em}
+    .next-item .ni-need{font-family:'Bangers',cursive;color:var(--cyan);float:right;font-size:1.1em}
+
+    /* WELCOME HERO — inline, not overlay */
+    .hero{display:flex;justify-content:center;padding:30px 20px;background:transparent}
+    .hero.hidden{display:none}
+    .hero-box{background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(224,247,250,.88));border:3px solid var(--cyan);border-radius:24px;padding:0;max-width:800px;width:100%;display:flex;align-items:stretch;box-shadow:0 8px 40px rgba(0,0,0,.15);overflow:hidden;backdrop-filter:blur(6px)}
+    .hb-left{flex:0 0 200px;display:flex;align-items:flex-end;justify-content:center;padding:20px 10px 0}
+    .hb-left img{width:185px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.2))}
+    .hb-right{flex:1;padding:30px 34px}
+    .hb-right h2{font-family:'Luckiest Guy',cursive;font-size:1.7em;color:#222;letter-spacing:2px;line-height:1.15;margin-bottom:4px}
+    .hb-right h2 span{color:var(--cyan);display:block}
+    .hb-right .hb-desc{font-family:'Schoolbell',cursive;font-size:.9em;color:#555;line-height:1.6;margin:12px 0 16px}
+    .hb-badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+    .hb-badge{font-family:'Bangers',cursive;font-size:.8em;letter-spacing:.5px;padding:5px 12px;border-radius:18px;border:2px solid var(--border);background:#fff;color:#444;display:inline-flex;align-items:center;gap:4px}
+    .hb-actions{display:flex;flex-wrap:wrap;gap:12px}
+    .hb-btn{font-family:'Bangers',cursive;font-weight:700;font-size:1.15em;letter-spacing:1px;padding:14px 26px;border:none;border-radius:14px;cursor:pointer;display:inline-flex;align-items:center;gap:10px;min-height:52px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:all .15s}
+    .hb-btn:hover{filter:brightness(.93);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+    .hb-btn.main{background:linear-gradient(135deg,#FFD600,#FFB300);color:#222}
+    .hb-btn.sec{background:#fff;color:#00838F;border:2px solid var(--cyan)}
+    @media(max-width:700px){.hb-left{display:none}.hb-right{padding:20px}}
+
+    /* MODAL — gros et tactile */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(2px);z-index:5000;display:flex;align-items:center;justify-content:center}
+    .mbox{background:#fff;border:3px solid var(--cyan);border-radius:var(--radius);padding:24px;width:95%;max-width:650px;max-height:88vh;overflow-y:auto;box-shadow:0 6px 30px rgba(0,0,0,.2)}
+    .mbox h3{font-family:'Bangers',cursive;font-size:1.5em;color:#00838F;text-align:center;margin-bottom:14px}
+    .macts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:2px solid #f0f0f0}
+    .fr{display:flex;gap:10px;align-items:center;margin-bottom:9px;flex-wrap:wrap}
+    .fr label{font-weight:600;min-width:95px;font-size:.9em}
+    .fr input,.fr select{font-family:'Fredoka';font-size:.9em;font-weight:500;border:2px solid var(--border);border-radius:8px;padding:8px 12px;min-height:40px}
+    .fr input:focus,.fr select:focus{outline:none;border-color:var(--cyan);background:#e0f7fa}
+    .fr input[type=number]{width:70px}
+    .fr input[type=checkbox]{width:22px;height:22px;accent-color:var(--cyan)}
+    .chips{display:flex;flex-wrap:wrap;gap:4px}
+    .ck{font-size:.85em;font-weight:700;padding:6px 14px;border-radius:18px;cursor:pointer;border:2px solid var(--border);background:#f5f5f5;color:#999;user-select:none;min-height:36px;display:flex;align-items:center}
+    .ck.on{background:var(--cyan);color:#fff;border-color:#00838F}
+    .dt{width:100%;border-collapse:collapse;font-size:.9em}
+    .dt th{background:#00838F;color:#fff;font-family:'Bangers',cursive;padding:8px;text-align:left;letter-spacing:.5px}
+    .dt td{padding:7px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+    .dt tr:hover{background:rgba(0,188,212,.04)}
+    .cdot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px}
+    .btn{font-family:'Fredoka';font-weight:700;font-size:.9em;padding:9px 18px;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:42px}
+    .btn:hover{filter:brightness(.93)}
+    .btn.g{background:var(--green);color:#fff}
+    .btn.c{background:var(--cyan);color:#fff}
+    .btn.r{background:var(--red);color:#fff}
+    .btn.o{background:#f0f0f0;color:var(--text)}
+    .btn.sm{font-size:.8em;padding:5px 10px;min-height:32px}
+
+    /* CLASS PICKER — gros boutons tactiles */
+    .class-picker{display:flex;flex-direction:column;gap:6px}
+    .class-picker .cp-btn{font-family:'Fredoka';font-weight:700;font-size:1.1em;padding:14px 18px;border:3px solid var(--border);border-radius:10px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;min-height:52px;transition:all .1s}
+    .class-picker .cp-btn:hover{border-color:var(--cyan);background:#e0f7fa}
+    .class-picker .cp-btn:disabled{opacity:.3;cursor:default}
+    .class-picker .cp-btn .cp-need{font-family:'Bangers',cursive;color:var(--cyan);font-size:1em}
+
+    @media print{.hdr,.panel,.rpanel,.progress,.hero{display:none!important}.layout{height:auto}.grid-area{padding:0}}
+    @media(max-width:900px){.panel{width:200px}.rpanel{display:none}}
+    @media(max-width:600px){.panel{display:none}.rpanel{display:none}.layout{flex-direction:column;height:auto}.grid-area{min-height:60vh}}
+  </style>
+  <!-- ZTS Landing Template -->
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="zts-landing.css">
+</head>
+<body>
+
+<header class="hdr">
+  <a href="https://zonetotalsport.ca">🏠 Accueil</a>
+  <img src="https://zonetotalsport.ca/logo-zts-text.png" alt="Zone Total Sport" style="height:70px;width:auto;">
+  <div>
+    <div class="t" data-t="appTitle">GRILLE HORAIRE</div>
+  </div>
+  <div class="spacer"></div>
+  <button class="hb" onclick="showHelp()">❓</button>
+  <button class="hb" onclick="openSetupModal()">⚙️</button>
+  <button class="hb" onclick="solveSchedule()">🤖 Auto</button>
+  <button class="hb" onclick="validateAll()">✅</button>
+  <button class="hb" onclick="exportPDF()">📄</button>
+  <button class="hb" onclick="clearSchedule()">🗑️</button>
+  <select id="langSel" onchange="changeLang(this.value)">
+    <option value="fr">🇫🇷 FR</option>
+    <option value="en">🇬🇧 EN</option>
+    <option value="es">🇪🇸 ES</option>
+    <option value="zh">🇨🇳 中文</option>
+  </select>
+  <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
+    <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
+    <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
+  </div>
+</header>
+
+<section class="hero" id="heroSection">
+  <div class="hero-box">
+    <div class="hb-left"><img src="img/bucheron-salut.png" alt="Mr Root"></div>
+    <div class="hb-right">
+      <h2 data-t="heroTitle">Ta grille horaire</h2>
+      <div class="hb-desc" data-t="heroDesc"></div>
+      <div class="hb-badges">
+        <span class="hb-badge" data-t="heroBadge1">📅 5 à 10 jours/cycle</span>
+        <span class="hb-badge" data-t="heroBadge2">⚙️ 3 à 7 périodes</span>
+        <span class="hb-badge" data-t="heroBadge3">🌍 4 langues</span>
+        <span class="hb-badge">📄 Export PDF</span>
+        <span class="hb-badge" data-t="heroBadge5">🤖 Auto-remplissage</span>
+        <span class="hb-badge">👥 Team teaching</span>
+      </div>
+      <div class="hb-actions">
+        <button class="hb-btn main" onclick="useTemplate()" data-t="heroStart">🚀 Commencer!</button>
+        <button class="hb-btn sec" onclick="showHelp()" data-t="heroHelp">📖 Comment utiliser</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="progress">
+  <span id="progLabel" style="font-weight:600">0 / 0</span>
+  <div class="pbar"><div id="progBar" style="width:0%"></div></div>
+  <span class="ptxt" id="progPct">0%</span>
+  <span id="pillH" style="font-weight:700;color:var(--red);display:none">🚫 0</span>
+  <span id="pillS" style="font-weight:700;color:var(--orange);display:none">⚠️ 0</span>
+</div>
+
+<div class="layout">
+  <div class="panel" id="panel">
+    <h3>👤 <span data-t="selectSpec">Sélectionnez</span></h3>
+    <div id="specList"></div>
+    <div class="p-section">
+      <button class="p-btn" onclick="openSpecModal()">👤 Spécialistes</button>
+      <button class="p-btn" onclick="openClassesModal()">🎓 Classes</button>
+      <button class="p-btn" onclick="openRoomsModal()">🏛️ Locaux</button>
+    </div>
+  </div>
+  <div class="grid-area"><div class="grid" id="grid"></div></div>
+  <div class="rpanel" id="rpanel">
+    <h3>📋 <span data-t="toPlace">À placer</span></h3>
+    <div id="nextList"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+// i18n
+const I={
+fr:{appTitle:'GRILLE HORAIRE',selectSpec:'Sélectionnez',toPlace:'À placer',day:'Jour',recess:'Récré',lunch:'Dîner',remaining:'restant',coursesPlaced:'cours placés',
+choose:'— Choisir —',confirm:'OK',close:'Fermer',save:'Sauvegarder',cancel:'Annuler',add:'Ajouter',default:'Défaut',
+specName:'Nom',specCode:'Code',specSubject:'Matière',specTask:'Tâche %',specRoom:'Local',specItinerant:'Itinérant',specTravelDays:'Jours autre école',
+specAllDay:'Toute la journée',specAmOnly:'AM seulement',specPmOnly:'PM seulement',specMaxDay:'Max/jour',specMaxConsec:'Max conséc.',specAvailDays:'Disponibilités',specConstraints:'Contraintes',
+classLevel:'Niveau',classGroup:'Groupe',classTitulaire:'Titulaire',roomName:'Nom',roomType:'Type',roomCap:'Cap.',
+schoolName:'Nom école',schoolCycle:'Jours/cycle',schoolDuration:'Min/période',dayStructure:'Journée',subjectsTitle:'Matières (min/cycle)',
+addPeriod:'+ Période',addRecess:'+ Récré',addLunch:'+ Dîner',addSubject:'+ Matière',
+autoConfirm:'Générer automatiquement ?',autoAddFirst:'Ajoutez spécialistes et classes.',clearConfirm:'Effacer toute la grille ?',
+noViolation:'Tout est OK!',full:'plein',busy:'occupé',unavailable:'indispo.',
+noSpec:'Aucun spécialiste',noClass:'Aucune classe — ajoutez des classes !',noRoom:'Aucun local',configSchool:'Configuration',presco:'Présco',
+autoSuccess:'cours placés!',autoPartial:'placés,',autoImpossible:'impossibles.',autoFailed:'Impossible.',
+welcomeTitle:'Bienvenue!',welcomeSub:'Créez l\'horaire des spécialistes de votre école primaire.',templateBtn:'🚀 Commencer avec un modèle',templateDesc:'École primaire typique — prêt en 1 clic',manualBtn:'🔧 Configurer moi-même',manualDesc:'Partir de zéro',
+quotaMode:'Quotas en',quotaPeriods:'Nb de périodes',quotaMinutes:'Minutes',
+periodsPerDay:'Périodes/jour',tache100:'Tâche 100%',tache100Unit:'périodes/cycle',contract:'Contrat',taskCalc:'tâche calc.',taskFull:'Tâche complète!',
+heroTitle:'Ta grille horaire<span>sur mesure!</span>',
+heroDesc:'Fini le casse-tête de la planification! Configure tes périodes en 30 secondes, clique sur un jour pour placer tes spécialistes et groupes-classes. Le % de tâche se calcule en temps réel. Team teaching, multi-gymnases, validation automatique — tout y est. Sauvegarde automatique et exporte en PDF pour ta direction. Les enseignants les plus organisés utilisent déjà cet outil — c\'est ton tour!',
+heroBadge1:'📅 5 à 10 jours/cycle',heroBadge2:'⚙️ 3 à 7 périodes',heroBadge3:'🌍 4 langues',heroBadge5:'🤖 Auto-remplissage',
+heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',
+helpTitle:'Comment utiliser<span>la grille horaire</span>',
+helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:#00838F;font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:#00838F;font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:#00838F;font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
+helpValidation:'Validation conflits',helpAutoSave:'Sauvegarde auto',helpGotIt:'Compris!',
+clickToPlace:'Cliquez dans la grille',needsMore:'a besoin de',selectClassFor:'Choisissez le groupe',addClassesFirst:'⚠️ Ajoutez des classes d\'abord!',needMin:'min de plus'},
+en:{appTitle:'SCHEDULE GRID',selectSpec:'Select',toPlace:'To place',day:'Day',recess:'Recess',lunch:'Lunch',remaining:'left',coursesPlaced:'lessons placed',
+choose:'— Choose —',confirm:'OK',close:'Close',save:'Save',cancel:'Cancel',add:'Add',default:'Default',
+specName:'Name',specCode:'Code',specSubject:'Subject',specTask:'Task %',specRoom:'Room',specItinerant:'Itinerant',specTravelDays:'Days at other school',
+specAllDay:'All day',specAmOnly:'AM only',specPmOnly:'PM only',specMaxDay:'Max/day',specMaxConsec:'Max consec.',specAvailDays:'Availability',specConstraints:'Constraints',
+classLevel:'Level',classGroup:'Group',classTitulaire:'Homeroom',roomName:'Name',roomType:'Type',roomCap:'Cap.',
+schoolName:'School name',schoolCycle:'Days/cycle',schoolDuration:'Min/period',dayStructure:'Day structure',subjectsTitle:'Subjects (min/cycle)',
+addPeriod:'+ Period',addRecess:'+ Recess',addLunch:'+ Lunch',addSubject:'+ Subject',
+autoConfirm:'Generate automatically?',autoAddFirst:'Add specialists and classes first.',clearConfirm:'Clear entire grid?',
+noViolation:'All good!',full:'full',busy:'busy',unavailable:'unavail.',
+noSpec:'No specialist',noClass:'No class — add classes first!',noRoom:'No room',configSchool:'Setup',presco:'Pre-K',
+autoSuccess:'lessons placed!',autoPartial:'placed,',autoImpossible:'impossible.',autoFailed:'Unable.',
+welcomeTitle:'Welcome!',welcomeSub:'Create your specialist schedule.',templateBtn:'🚀 Start with a template',templateDesc:'Typical school — ready in 1 click',manualBtn:'🔧 Set up myself',manualDesc:'From scratch',
+quotaMode:'Quotas in',quotaPeriods:'Nb of periods',quotaMinutes:'Minutes',
+periodsPerDay:'Periods/day',tache100:'100% task',tache100Unit:'periods/cycle',contract:'Contract',taskCalc:'calc. task',taskFull:'Task complete!',
+heroTitle:'Your schedule grid<span>made easy!</span>',
+heroDesc:'No more planning headaches! Set up your periods in 30 seconds, click a day to place your specialists and class groups. Task % is calculated in real time. Team teaching, multiple gyms, automatic validation — it\'s all here. Auto-save and export to PDF for your admin. The most organized teachers already use this tool — your turn!',
+heroBadge1:'📅 5 to 10 days/cycle',heroBadge2:'⚙️ 3 to 7 periods',heroBadge3:'🌍 4 languages',heroBadge5:'🤖 Auto-fill',
+heroStart:'🚀 Get started!',heroHelp:'📖 How to use',
+helpTitle:'How to use<span>the schedule grid</span>',
+helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:#00838F;font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:#00838F;font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:#00838F;font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
+helpValidation:'Conflict check',helpAutoSave:'Auto-save',helpGotIt:'Got it!',
+clickToPlace:'Click to place',needsMore:'needs',selectClassFor:'Choose class',addClassesFirst:'⚠️ Add classes first!',needMin:'min more'},
+es:{appTitle:'HORARIO',selectSpec:'Seleccione',toPlace:'Por colocar',day:'Día',recess:'Recreo',lunch:'Almuerzo',remaining:'restante',coursesPlaced:'clases colocadas',
+choose:'— Elegir —',confirm:'OK',close:'Cerrar',save:'Guardar',cancel:'Cancelar',add:'Agregar',default:'Defecto',
+specName:'Nombre',specCode:'Código',specSubject:'Materia',specTask:'Tarea %',specRoom:'Aula',specItinerant:'Itinerante',specTravelDays:'Días otra escuela',
+specAllDay:'Todo el día',specAmOnly:'Solo AM',specPmOnly:'Solo PM',specMaxDay:'Máx/día',specMaxConsec:'Máx consec.',specAvailDays:'Disponibilidad',specConstraints:'Restricciones',
+classLevel:'Nivel',classGroup:'Grupo',classTitulaire:'Titular',roomName:'Nombre',roomType:'Tipo',roomCap:'Cap.',
+schoolName:'Nombre',schoolCycle:'Días/ciclo',schoolDuration:'Min/período',dayStructure:'Estructura',subjectsTitle:'Materias (min/ciclo)',
+addPeriod:'+ Período',addRecess:'+ Recreo',addLunch:'+ Almuerzo',addSubject:'+ Materia',
+autoConfirm:'¿Generar automáticamente?',autoAddFirst:'Agregue especialistas y clases.',clearConfirm:'¿Borrar toda la grilla?',
+noViolation:'¡Todo bien!',full:'lleno',busy:'ocupado',unavailable:'no disp.',
+noSpec:'Ningún especialista',noClass:'Ninguna clase — ¡agregue clases!',noRoom:'Ninguna aula',configSchool:'Configuración',presco:'Preescolar',
+autoSuccess:'clases colocadas!',autoPartial:'colocadas,',autoImpossible:'imposibles.',autoFailed:'Imposible.',
+welcomeTitle:'¡Bienvenido!',welcomeSub:'Cree el horario de especialistas.',templateBtn:'🚀 Usar plantilla',templateDesc:'Escuela típica — 1 clic',manualBtn:'🔧 Configurar',manualDesc:'Desde cero',
+quotaMode:'Cuotas en',quotaPeriods:'Nb de períodos',quotaMinutes:'Minutos',
+periodsPerDay:'Períodos/día',tache100:'Tarea 100%',tache100Unit:'períodos/ciclo',contract:'Contrato',taskCalc:'tarea calc.',taskFull:'¡Tarea completa!',
+heroTitle:'Tu horario escolar<span>a tu medida!</span>',
+heroDesc:'¡Se acabó el rompecabezas de la planificación! Configura tus períodos en 30 segundos, haz clic en un día para colocar tus especialistas y grupos. El % de tarea se calcula en tiempo real. Enseñanza en equipo, múltiples gimnasios, validación automática — todo está aquí. Guardado automático y exporta en PDF para tu dirección. Los docentes más organizados ya usan esta herramienta — ¡es tu turno!',
+heroBadge1:'📅 5 a 10 días/ciclo',heroBadge2:'⚙️ 3 a 7 períodos',heroBadge3:'🌍 4 idiomas',heroBadge5:'🤖 Auto-llenado',
+heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',
+helpTitle:'Cómo usar<span>el horario escolar</span>',
+helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:#00838F;font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:#00838F;font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:#00838F;font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
+helpValidation:'Validación conflictos',helpAutoSave:'Guardado auto',helpGotIt:'¡Entendido!',
+clickToPlace:'Clic para colocar',needsMore:'necesita',selectClassFor:'Elija clase',addClassesFirst:'⚠️ ¡Agregue clases primero!',needMin:'min más'},
+zh:{appTitle:'课程表',selectSpec:'选择',toPlace:'待安排',day:'天',recess:'课间',lunch:'午餐',remaining:'剩余',coursesPlaced:'课程已安排',
+choose:'— 选择 —',confirm:'确定',close:'关闭',save:'保存',cancel:'取消',add:'添加',default:'默认',
+specName:'姓名',specCode:'代码',specSubject:'科目',specTask:'任务%',specRoom:'教室',specItinerant:'巡回',specTravelDays:'其他学校',
+specAllDay:'全天',specAmOnly:'仅上午',specPmOnly:'仅下午',specMaxDay:'每天最多',specMaxConsec:'最大连续',specAvailDays:'可用天数',specConstraints:'约束',
+classLevel:'级别',classGroup:'班',classTitulaire:'班主任',roomName:'名称',roomType:'类型',roomCap:'容量',
+schoolName:'名称',schoolCycle:'天/周期',schoolDuration:'分钟/节',dayStructure:'日程',subjectsTitle:'科目(分钟/周期)',
+addPeriod:'+ 节课',addRecess:'+ 课间',addLunch:'+ 午餐',addSubject:'+ 科目',
+autoConfirm:'自动生成？',autoAddFirst:'请先添加。',clearConfirm:'清除？',
+noViolation:'一切正常！',full:'已满',busy:'已占',unavailable:'不可用',
+noSpec:'没有专科教师',noClass:'没有班级——请先添加！',noRoom:'没有教室',configSchool:'配置',presco:'学前',
+autoSuccess:'已安排！',autoPartial:'已安排，',autoImpossible:'无法。',autoFailed:'失败。',
+welcomeTitle:'欢迎！',welcomeSub:'创建课程表。',templateBtn:'🚀 使用模板',templateDesc:'一键完成',manualBtn:'🔧 手动',manualDesc:'从头开始',
+quotaMode:'配额模式',quotaPeriods:'课时数',quotaMinutes:'分钟',
+periodsPerDay:'每天课时',tache100:'100%任务',tache100Unit:'课时/周期',contract:'合同',taskCalc:'计算任务',taskFull:'任务已满！',
+heroTitle:'你的课程表<span>量身定制!</span>',
+heroDesc:'告别排课烦恼！30秒配置课时，点击日期安排专科教师和班级。任务百分比实时计算。协同教学、多体育馆、自动验证——一应俱全。自动保存，导出PDF给校长。最有组织的老师已经在用这个工具了——轮到你了！',
+heroBadge1:'📅 5至10天/周期',heroBadge2:'⚙️ 3至7节课',heroBadge3:'🌍 4种语言',heroBadge5:'🤖 自动填充',
+heroStart:'🚀 开始!',heroHelp:'📖 使用说明',
+helpTitle:'如何使用<span>课程表</span>',
+helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:#00838F;font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:#00838F;font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:#00838F;font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
+helpValidation:'冲突验证',helpAutoSave:'自动保存',helpGotIt:'明白了!',
+clickToPlace:'点击安排',needsMore:'需要',selectClassFor:'选择班级',addClassesFirst:'⚠️ 请先添加班级！',needMin:'分钟'}
+};
+function t(k){return I[lang]?.[k]||I.fr[k]||k}
+function applyI18n(){document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;if(I[lang]?.[k])el.innerHTML=I[lang][k]})}
+
+// STATE
+const DEF_PER=[{type:'period',num:1,start:'08:20',end:'09:10'},{type:'period',num:2,start:'09:15',end:'10:05'},{type:'recess',label:'Récré',start:'10:05',end:'10:20'},{type:'period',num:3,start:'10:20',end:'11:10'},{type:'lunch',label:'Dîner',start:'11:10',end:'12:40'},{type:'period',num:4,start:'12:40',end:'13:30'},{type:'period',num:5,start:'13:35',end:'14:25'}];
+const DEF_SUB=[
+  {id:'eps',name:'Éducation physique',color:'#FF5252',roomType:'gym',min:{pres:120,'1':120,'2':120,'3':90,'4':90,'5':60,'6':60}},
+  {id:'mus',name:'Musique',color:'#4FC3F7',roomType:'music',min:{pres:60,'1':60,'2':60,'3':60,'4':60,'5':60,'6':60}},
+  {id:'art',name:'Art plastique',color:'#CE93D8',roomType:'art',min:{pres:60,'1':60,'2':60,'3':60,'4':60,'5':60,'6':60}},
+  {id:'dram',name:'Art dramatique',color:'#F48FB1',roomType:'',min:{pres:0,'1':0,'2':0,'3':60,'4':60,'5':60,'6':60}},
+  {id:'ang',name:'Anglais',color:'#81D4FA',roomType:'',min:{pres:0,'1':60,'2':60,'3':90,'4':90,'5':120,'6':120}},
+  {id:'ecr',name:'Éthique',color:'#A5D6A7',roomType:'',min:{pres:0,'1':50,'2':50,'3':50,'4':50,'5':50,'6':50}}
+];
+let nid=1;function uid(){return'id_'+(nid++)}
+let S={school:{name:'',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',tache100:30,periods:JSON.parse(JSON.stringify(DEF_PER))},subjects:JSON.parse(JSON.stringify(DEF_SUB)),specialists:[],classes:[],rooms:[],assignments:{}};
+let lang='fr',activeSpec=null;
+
+function save(){localStorage.setItem('gh2',JSON.stringify(S))}
+function load(){try{const r=localStorage.getItem('gh2');if(r){S=JSON.parse(r);if(!S.assignments)S.assignments={};if(!S.school.quotaMode)S.school.quotaMode='minutes';if(!S.school.periodsPerDay)S.school.periodsPerDay=tPer().length||5;if(!S.school.tache100)S.school.tache100=S.school.cycleDays*(S.school.periodsPerDay||5)}}catch(e){}
+  lang=localStorage.getItem('gh_lang')||'fr';document.getElementById('langSel').value=lang;
+  [...(S.specialists||[]),...(S.classes||[]),...(S.rooms||[])].forEach(x=>{if(x?.id){const n=parseInt(x.id.replace('id_',''));if(!isNaN(n)&&n>=nid)nid=n+1}})}
+function changeLang(l){lang=l;localStorage.setItem('gh_lang',l);applyI18n();renderAll()}
+
+// TOAST
+function toast(msg,dur){const d=document.createElement('div');d.className='toast';d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),dur||2500)}
+
+// GROUP COLORS — vivid/fluo palette, consistent per class
+const GROUP_COLORS=['#00E5FF','#FF1744','#76FF03','#FF9100','#D500F9','#FFEA00','#00E676','#FF4081','#18FFFF','#FF6D00','#B388FF','#64FFDA','#FF3D00','#C6FF00','#448AFF','#F50057','#69F0AE','#FFD740','#E040FB','#00B0FF','#FF8A80','#B2FF59','#EA80FC','#84FFFF','#FF9E80','#CCFF90','#82B1FF','#FF80AB','#A7FFEB','#FFE57F'];
+const _gcCache={};
+function groupColor(classId){
+  if(_gcCache[classId])return _gcCache[classId];
+  const idx=S.classes.findIndex(c=>c.id===classId);
+  _gcCache[classId]=GROUP_COLORS[idx%GROUP_COLORS.length]||'#ccc';
+  return _gcCache[classId]}
+function resetGroupColors(){Object.keys(_gcCache).forEach(k=>delete _gcCache[k])}
+
+// HELPERS
+function tPer(){return S.school.periods.filter(p=>p.type==='period')}
+function lunchIdx(){return S.school.periods.findIndex(p=>p.type==='lunch')}
+function isAM(n){const li=lunchIdx();let c=0;for(let i=0;i<S.school.periods.length;i++){if(S.school.periods[i].type==='period'){c++;if(c===n)return i<(li===-1?999:li)}}return true}
+function getA(d,p){return S.assignments[d]?.[p]||[]}
+function setA(d,p,sid,cid,rid){if(!S.assignments[d])S.assignments[d]={};if(!S.assignments[d][p])S.assignments[d][p]=[];S.assignments[d][p]=S.assignments[d][p].filter(a=>a.specId!==sid);if(cid)S.assignments[d][p].push({specId:sid,classId:cid,roomId:rid||''});save()}
+function removeA(d,p,sid){if(S.assignments[d]?.[p]){S.assignments[d][p]=S.assignments[d][p].filter(a=>a.specId!==sid);save()}}
+function totalA(){let c=0;for(const d in S.assignments)for(const p in S.assignments[d])c+=S.assignments[d][p].length;return c}
+function minUsed(cid,sid){let t=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.classId===cid){const sp=S.specialists.find(s=>s.id===a.specId);if(sp?.subjectId===sid)t+=S.school.periodDuration}})});return t}
+function specShare(sp){const peers=S.specialists.filter(s=>s.subjectId===sp.subjectId);if(peers.length<=1)return 1;
+  const totalPct=peers.reduce((s,p)=>s+(p.taskPercent||100),0);return(sp.taskPercent||100)/totalPct}
+function reqToPeriods(req){return S.school.quotaMode==='periods'?req:Math.ceil(req/S.school.periodDuration)}
+function totalNeeded(){let t=0;S.specialists.forEach(sp=>{const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return;const share=specShare(sp);
+  S.classes.forEach(cl=>{const req=su.min[cl.level]||0;if(req>0)t+=Math.max(1,Math.round(reqToPeriods(req)*share))})});return t}
+function specDemand(sp){const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return[];const d=[];const share=specShare(sp);
+  S.classes.forEach(cl=>{const req=su.min[cl.level]||0;if(req<=0)return;const fullNeed=reqToPeriods(req);const myNeed=Math.max(1,Math.round(fullNeed*share));const usedByMe=countPlaced(sp.id,cl.id);const need=Math.max(0,myNeed-usedByMe);if(need>0)d.push({cls:cl,need,req:Math.round(req*share),used:usedByMe})});
+  return d.sort((a,b)=>b.need-a.need)}
+function countPlaced(specId,classId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId&&a.classId===classId)c++})});return c}
+function specTotalPlaced(specId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId)c++})});return c}
+function specMaxPeriods(sp){return Math.round((sp.taskPercent||100)/100*S.school.tache100)}
+function specTaskPct(sp){const placed=specTotalPlaced(sp.id);return S.school.tache100?Math.round(placed/S.school.tache100*10000)/100:0}
+function canPlace(day,per,sp){
+  if(getA(day,per).some(a=>a.specId===sp.id))return false;
+  if(specTotalPlaced(sp.id)>=specMaxPeriods(sp))return false;
+  if(sp.isItinerant&&sp.travelDays?.includes(+day))return false;
+  if(sp.availDays?.length&&!sp.availDays.includes(+day))return false;
+  if(sp.amPm==='am'&&!isAM(per))return false;
+  if(sp.amPm==='pm'&&isAM(per))return false;
+  return true}
+function checkH(day,per,sid,cid,rid){const v=[];const sp=S.specialists.find(s=>s.id===sid);if(!sp)return v;
+  if(rid){const rm=S.rooms.find(r=>r.id===rid);if(rm&&getA(day,per).filter(a=>a.roomId===rid&&a.specId!==sid).length>=rm.maxSimultaneous)v.push({type:'room'})}
+  if(getA(day,per).some(a=>a.specId===sid))v.push({type:'specBusy'});
+  if(getA(day,per).some(a=>a.classId===cid&&a.specId!==sid))v.push({type:'classBusy'});
+  if(sp.isItinerant&&sp.travelDays?.includes(+day))v.push({type:'itin'});
+  if(sp.availDays?.length&&!sp.availDays.includes(+day))v.push({type:'avail'});
+  if(sp.amPm==='am'&&!isAM(per))v.push({type:'ampm'});if(sp.amPm==='pm'&&isAM(per))v.push({type:'ampm'});return v}
+function checkS(day,per,sid,cid){const w=[];const sp=S.specialists.find(s=>s.id===sid);if(!sp)return w;
+  const cl=S.classes.find(c=>c.id===cid),su=S.subjects.find(s=>s.id===sp.subjectId);
+  if(su&&cl){[+day-1,+day+1].filter(d=>d>=1&&d<=S.school.cycleDays).forEach(adj=>{tPer().forEach(p=>{getA(adj,p.num).forEach(a=>{if(a.classId===cid){const asp=S.specialists.find(s=>s.id===a.specId);if(asp?.subjectId===sp.subjectId)w.push({type:'spacing'})}})})})}
+  if(sp.maxConsecutive){const pn=tPer().map(p=>p.num).sort((a,b)=>a-b);const pi=pn.indexOf(+per);let st=1;for(let i=pi-1;i>=0;i--){if(getA(day,pn[i]).some(a=>a.specId===sid))st++;else break}for(let i=pi+1;i<pn.length;i++){if(getA(day,pn[i]).some(a=>a.specId===sid))st++;else break}if(st>sp.maxConsecutive)w.push({type:'consec'})}
+  if(sp.maxPerDay){let c=0;tPer().forEach(p=>{if(getA(day,p.num).some(a=>a.specId===sid))c++});if(c>sp.maxPerDay)w.push({type:'maxDay'})}return w}
+
+// PANEL
+function renderPanel(){
+  const c=document.getElementById('specList');
+  if(!S.specialists.length){c.innerHTML=`<div style="text-align:center;padding:20px;color:var(--muted);cursor:pointer" onclick="openSpecModal()">${t('noSpec')}</div>`;return}
+  c.innerHTML='';
+  S.specialists.forEach(sp=>{
+    const su=S.subjects.find(s=>s.id===sp.subjectId);
+    const placed=specTotalPlaced(sp.id);const maxP=specMaxPeriods(sp);const calcPct=specTaskPct(sp);
+    const remaining=Math.max(0,maxP-placed);
+    const barPct=maxP?Math.min(100,Math.round(placed/maxP*100)):100;
+    const card=document.createElement('div');card.className='spec-card'+(activeSpec===sp.id?' active':'');
+    card.innerHTML=`<div class="sc-top"><div class="sc-dot" style="background:${sp.color||su?.color||'#ccc'}"></div><span class="sc-name">${sp.shortName}</span><span class="sc-remain">${remaining>0?remaining+' '+t('remaining'):'✅'}</span></div><div class="sc-info">${su?.name||'—'} · ${t('contract')} ${sp.taskPercent}% · <b>${placed}/${maxP}</b> pér. · <b>${calcPct}%</b> ${t('taskCalc')}</div><div class="sc-bar"><div style="width:${barPct}%;background:${barPct>=100?'var(--green)':'var(--cyan)'}"></div></div>`;
+    card.onclick=()=>{activeSpec=activeSpec===sp.id?null:sp.id;renderPanel();renderGrid();renderNext()};
+    c.appendChild(card)});
+}
+
+// NEXT
+function renderNext(){
+  const c=document.getElementById('nextList');
+  if(!activeSpec){c.innerHTML=`<div style="color:var(--muted);padding:10px">← ${t('selectSpec')}</div>`;return}
+  const sp=S.specialists.find(s=>s.id===activeSpec);if(!sp){c.innerHTML='';return}
+  if(!S.classes.length){c.innerHTML=`<div style="color:var(--orange);padding:10px;font-weight:600;cursor:pointer" onclick="openClassesModal()">${t('addClassesFirst')}</div>`;return}
+  const demand=specDemand(sp);
+  if(!demand.length){c.innerHTML=`<div style="color:var(--green);padding:10px;text-align:center;font-size:1.2em">✅</div>`;return}
+  c.innerHTML=`<div style="color:var(--cyan);font-weight:600;margin-bottom:8px">${t('clickToPlace')}</div>`;
+  demand.forEach(d=>{c.innerHTML+=`<div class="next-item" style="border-left:5px solid ${groupColor(d.cls.id)};background:${groupColor(d.cls.id)}15"><span class="ni-cls">${d.cls.group}</span><span class="ni-need">${d.need}</span><br><span class="ni-sub">${t('needsMore')} ${d.req-d.used} ${t('needMin')}</span></div>`});
+}
+
+// GRID
+function renderGrid(){
+  const g=document.getElementById('grid');g.innerHTML='';
+  const periods=S.school.periods,cd=S.school.cycleDays;
+  const sp=activeSpec?S.specialists.find(s=>s.id===activeSpec):null;
+  const cols=cd+1;
+  g.style.gridTemplateColumns=`100px repeat(${cd},minmax(150px,1fr))`;
+  // Row 0: headers
+  let hdr=document.createElement('div');hdr.className='g-hdr';hdr.textContent='⏰';hdr.style.gridColumn='1';hdr.style.gridRow='1';g.appendChild(hdr);
+  for(let d=1;d<=cd;d++){hdr=document.createElement('div');hdr.className='g-hdr';hdr.textContent=t('day')+' '+d;hdr.style.gridColumn=''+(d+1);hdr.style.gridRow='1';g.appendChild(hdr)}
+  // Rows for periods
+  let row=2;
+  periods.forEach(p=>{
+    if(p.type!=='period'){
+      // break row spans all columns
+      for(let c=0;c<=cd;c++){const brk=document.createElement('div');brk.className='g-brk '+(p.type==='recess'?'rec':'lun');brk.textContent=c===0?(p.type==='recess'?t('recess'):t('lunch')):'';brk.style.gridColumn=''+(c+1);brk.style.gridRow=''+row;g.appendChild(brk)}
+      row++;return}
+    // Time cell
+    const tc=document.createElement('div');tc.className='g-time';tc.innerHTML=`<span>P${p.num}</span><small>${p.start||''}-${p.end||''}</small>`;tc.style.gridColumn='1';tc.style.gridRow=''+row;g.appendChild(tc);
+    // Day cells
+    for(let d=1;d<=cd;d++){
+      const assigns=getA(d,p.num);const cell=document.createElement('div');cell.className='g-cell';
+      if(assigns.length>1)cell.classList.add('multi');
+      if(sp){if(canPlace(d,p.num,sp)&&!assigns.some(a=>a.specId===sp.id))cell.classList.add('can-drop');else if(!assigns.some(a=>a.specId===sp.id))cell.classList.add('cant-drop')}
+      let hrd=false,sft=false;assigns.forEach(a=>{if(checkH(d,p.num,a.specId,a.classId,a.roomId).filter(v=>v.type!=='specBusy').length)hrd=true;if(checkS(d,p.num,a.specId,a.classId).length)sft=true});
+      const rc={};assigns.forEach(a=>{if(a.roomId)rc[a.roomId]=(rc[a.roomId]||0)+1});Object.entries(rc).forEach(([rid,cnt])=>{const rm=S.rooms.find(r=>r.id===rid);if(rm&&cnt>rm.maxSimultaneous)hrd=true});
+      if(hrd)cell.classList.add('hard');else if(sft)cell.classList.add('soft');
+      assigns.forEach(a=>{const asp=S.specialists.find(s=>s.id===a.specId),cl=S.classes.find(c=>c.id===a.classId);if(!asp)return;
+        const ch=document.createElement('div');ch.className='g-chip';ch.style.background=cl?groupColor(cl.id):'#eee';
+        ch.innerHTML=`<span style="overflow:hidden;text-overflow:ellipsis"><b>${cl?.group||'?'}</b> <span class="sp-tag">${asp.shortName}</span></span><span class="x" data-d="${d}" data-p="${p.num}" data-s="${a.specId}">✕</span>`;
+        ch.querySelector('.x').onclick=e=>{e.stopPropagation();removeA(d,p.num,a.specId);renderAll()};cell.appendChild(ch)});
+      if(!cell.children.length)cell.innerHTML='<span class="plus">+</span>';
+      cell.style.gridColumn=''+(d+1);cell.style.gridRow=''+row;
+      cell.onclick=()=>cellClick(d,p.num);g.appendChild(cell)}
+    row++});
+}
+
+function cellClick(day,per){
+  // BUG FIX: check if classes exist first
+  if(!S.classes.length){toast(t('addClassesFirst'));openClassesModal();return}
+  if(!activeSpec){openQuickAssign(day,per);return}
+  const sp=S.specialists.find(s=>s.id===activeSpec);if(!sp)return;
+  if(specTotalPlaced(sp.id)>=specMaxPeriods(sp)){toast('🚫 '+sp.shortName+' — '+t('taskFull')+' ('+specMaxPeriods(sp)+' pér.)');return}
+  if(!canPlace(day,per,sp)){toast('❌ '+t('unavailable'));return}
+  if(getA(day,per).some(a=>a.specId===sp.id)){removeA(day,per,sp.id);renderAll();return}
+  const demand=specDemand(sp);
+  if(!demand.length){toast('✅ '+sp.shortName+' — complet!');return}
+  if(demand.length===1){const cl=demand[0].cls;if(getA(day,per).some(a=>a.classId===cl.id)){toast('❌ '+cl.group+' '+t('busy'));return}
+    setA(day,per,sp.id,cl.id,sp.roomId||'');renderAll();return}
+  showClassPicker(day,per,sp,demand);
+}
+
+function showClassPicker(day,per,sp,demand){
+  closeModals();const ov=document.createElement('div');ov.className='modal';
+  let btns=demand.map(d=>{const busy=getA(day,per).some(a=>a.classId===d.cls.id);
+    return`<button class="cp-btn" ${busy?'disabled':''} data-cid="${d.cls.id}" style="border-left:6px solid ${groupColor(d.cls.id)};background:${groupColor(d.cls.id)}20"><span style="font-weight:700;font-size:1.2em">${d.cls.group}</span><span class="cp-need">${d.need} ${t('remaining')}</span></button>`}).join('');
+  ov.innerHTML=`<div class="mbox" style="max-width:400px"><h3>${t('selectClassFor')} ${sp.shortName}</h3><div class="class-picker">${btns}</div><div class="macts"><button class="btn o" onclick="closeModals()">${t('cancel')}</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelectorAll('[data-cid]').forEach(b=>{b.onclick=()=>{setA(day,per,sp.id,b.dataset.cid,sp.roomId||'');closeModals();renderAll()}});
+  ov.onclick=e=>{if(e.target===ov)closeModals()};
+}
+
+function openQuickAssign(day,per){
+  closeModals();const assigns=getA(day,per);const ov=document.createElement('div');ov.className='modal';
+  let html=`<h3>📅 ${t('day')} ${day} — P${per}</h3>`;
+  if(assigns.length){html+='<div style="margin-bottom:10px">';assigns.forEach(a=>{const sp=S.specialists.find(s=>s.id===a.specId),cl=S.classes.find(c=>c.id===a.classId);
+    html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${sp?.color||'#eee'};border-radius:8px;margin-bottom:3px;font-size:1em"><strong>${sp?.shortName||'?'}</strong> → ${cl?.group||'?'}<button class="btn r sm" style="margin-left:auto" onclick="removeA(${day},${per},'${a.specId}');closeModals();renderAll()">✕</button></div>`});html+='</div><hr style="border:none;border-top:2px solid #f0f0f0;margin:10px 0">';}
+  html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+  S.specialists.forEach(sp=>{const ok=canPlace(day,per,sp)&&!assigns.some(a=>a.specId===sp.id);
+    html+=`<button class="btn ${ok?'c':'o'}" style="font-size:1em;min-height:48px" ${ok?'':'disabled'} onclick="activeSpec='${sp.id}';closeModals();cellClick(${day},${per})"><span class="cdot" style="background:${sp.color}"></span>${sp.shortName}</button>`});
+  html+='</div>';
+  ov.innerHTML=`<div class="mbox" style="max-width:420px">${html}<div class="macts"><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()};
+}
+
+// PROGRESS
+function updateProgress(){const placed=totalA(),needed=totalNeeded();const pct=needed?Math.round((placed/needed)*100):0;
+  document.getElementById('progLabel').textContent=`${placed} / ${needed} ${t('coursesPlaced')}`;
+  document.getElementById('progBar').style.width=Math.min(100,pct)+'%';document.getElementById('progPct').textContent=pct+'%'}
+
+// VALIDATION
+function validateAll(){let hc=0,sc=0;
+  for(let d=1;d<=S.school.cycleDays;d++){tPer().forEach(p=>{const assigns=getA(d,p.num);
+    assigns.forEach(a=>{if(checkH(d,p.num,a.specId,a.classId,a.roomId).filter(v=>v.type!=='specBusy').length)hc++;if(checkS(d,p.num,a.specId,a.classId).length)sc++});
+    const rc={};assigns.forEach(a=>{if(a.roomId)rc[a.roomId]=(rc[a.roomId]||0)+1});Object.entries(rc).forEach(([rid,cnt])=>{const rm=S.rooms.find(r=>r.id===rid);if(rm&&cnt>rm.maxSimultaneous)hc++})})}
+  const ph=document.getElementById('pillH'),ps=document.getElementById('pillS');
+  ph.textContent=`🚫 ${hc}`;ph.style.display=hc?'':'none';ps.textContent=`⚠️ ${sc}`;ps.style.display=sc?'':'none';
+  if(!hc&&!sc&&totalA()>0)toast('✅ '+t('noViolation'))}
+
+// WELCOME
+function showWelcome(){/* hero is always visible as landing section */}
+
+function showHelp(){
+  closeModals();const ov=document.createElement('div');ov.className='modal';ov.id='helpOv';
+  ov.innerHTML=`<div class="hero-box" style="max-width:850px;margin:20px">
+    <div class="hb-left"><img src="img/mr-root-logo.png" alt="Mr Root"></div>
+    <div class="hb-right" style="max-height:80vh;overflow-y:auto">
+      <h2>${t('helpTitle')}</h2>
+      <div class="hb-desc" style="margin-bottom:10px">${t('helpBody')}</div>
+      <div class="hb-badges">
+        <span class="hb-badge">${t('heroBadge5')}</span>
+        <span class="hb-badge">✅ ${t('helpValidation')}</span>
+        <span class="hb-badge">📄 Export PDF</span>
+        <span class="hb-badge">💾 ${t('helpAutoSave')}</span>
+      </div>
+      <div class="hb-actions" style="margin-top:14px">
+        <button class="hb-btn main" onclick="closeModals()">👍 ${t('helpGotIt')}</button>
+      </div>
+    </div></div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
+
+function useTemplate(){
+  S.school={name:'Mon école',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',tache100:30,periods:JSON.parse(JSON.stringify(DEF_PER))};
+  S.subjects=JSON.parse(JSON.stringify(DEF_SUB)).map(su=>{const m={};Object.entries(su.min).forEach(([l,v])=>{m[l]=Math.ceil(v/50)});return{...su,min:m}});
+  S.rooms=[{id:uid(),name:'Gymnase principal',type:'gym',maxSimultaneous:2},{id:uid(),name:'Gymnase secondaire',type:'gym',maxSimultaneous:1},{id:uid(),name:'Plateau extérieur',type:'gym',maxSimultaneous:2},{id:uid(),name:'Piscine / Palestre',type:'gym',maxSimultaneous:1},{id:uid(),name:'Local musique',type:'music',maxSimultaneous:1},{id:uid(),name:'Local art',type:'art',maxSimultaneous:1}];
+  const groups=[{g:'MAT',l:'pres'},{g:'1A',l:'1'},{g:'1B',l:'1'},{g:'2A',l:'2'},{g:'2B',l:'2'},{g:'3A',l:'3'},{g:'3B',l:'3'},{g:'4A',l:'4'},{g:'4B',l:'4'},{g:'5A',l:'5'},{g:'5B',l:'5'},{g:'6A',l:'6'},{g:'6B',l:'6'}];
+  S.classes=groups.map(x=>({id:uid(),level:x.l,group:x.g,titulaire:'',prepQuota:200}));
+  const gymR=S.rooms[0].id,gym2R=S.rooms[1].id,musR=S.rooms[4].id,artR=S.rooms[5].id;
+  S.specialists=[
+    {id:uid(),name:'Prof. éducation physique 1',shortName:'EPS1',subjectId:'eps',taskPercent:100,isItinerant:false,travelDays:[],roomId:gymR,amPm:'all',maxPerDay:6,maxConsecutive:3,availDays:[],color:'#FF5252'},
+    {id:uid(),name:'Prof. éducation physique 2',shortName:'EPS2',subjectId:'eps',taskPercent:100,isItinerant:false,travelDays:[],roomId:gymR,amPm:'all',maxPerDay:6,maxConsecutive:3,availDays:[],color:'#FF8A80'},
+    {id:uid(),name:'Prof. musique',shortName:'MUS',subjectId:'mus',taskPercent:100,isItinerant:false,travelDays:[],roomId:musR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#4FC3F7'},
+    {id:uid(),name:'Prof. art plastique',shortName:'ART',subjectId:'art',taskPercent:100,isItinerant:false,travelDays:[],roomId:artR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#CE93D8'},
+    {id:uid(),name:'Prof. anglais',shortName:'ANG',subjectId:'ang',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#81D4FA'}];
+  S.assignments={};save();const h=document.getElementById('heroSection');if(h)h.classList.add('hidden');renderAll();toast('✅ 13 classes, 5 spécialistes, 6 locaux créés!')}
+
+// MODALS
+function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.remove())}
+
+function openSetupModal(){
+  closeModals();const ov=document.createElement('div');ov.className='modal';
+  const levs=['pres','1','2','3','4','5','6'],levL=[t('presco'),'1','2','3','4','5','6'];
+  let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:'Bangers';color:#00838F;min-width:30px">P${p.num}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
+  let sRows=S.subjects.map((su,i)=>`<tr><td><span class="cdot" style="background:${su.color}"></span><input type="text" value="${su.name}" data-si="${i}" data-sf="name" style="border:none;background:transparent;font-weight:600;width:120px"></td>${levs.map(l=>`<td><input type="number" value="${su.min[l]||0}" min="0" data-si="${i}" data-sl="${l}" style="width:42px;text-align:center;border:1px solid #eee;border-radius:3px;padding:2px"></td>`).join('')}<td><button class="btn r sm" data-delsub="${i}">✕</button></td></tr>`).join('');
+  ov.innerHTML=`<div class="mbox" style="max-width:720px"><h3>⚙️ ${t('configSchool')}</h3>
+    <div class="fr"><label>${t('schoolName')}</label><input type="text" id="sN" value="${S.school.name}" style="flex:1"></div>
+    <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
+    <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||30}" min="1" max="100" step="0.5" style="width:65px"> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
+    <div class="fr"><label>${t('quotaMode')}</label><select id="sQM"><option value="periods" ${S.school.quotaMode==='periods'?'selected':''}>${t('quotaPeriods')}</option><option value="minutes" ${S.school.quotaMode==='minutes'?'selected':''}>${t('quotaMinutes')}</option></select></div>
+    <div style="font-family:'Bangers';color:#00838F;margin:10px 0 5px">⏰ ${t('dayStructure')}</div>
+    <div id="sP" style="max-height:200px;overflow-y:auto">${pRows}</div>
+    <div style="display:flex;gap:5px;margin:6px 0"><button class="btn c sm" id="aP">${t('addPeriod')}</button><button class="btn sm" id="aR" style="background:var(--yellow);color:#000">${t('addRecess')}</button><button class="btn sm" id="aL" style="background:var(--orange);color:#fff">${t('addLunch')}</button></div>
+    <div style="font-family:'Bangers';color:#00838F;margin:10px 0 5px">📚 ${t('subjectsTitle')} <small style="font-family:Fredoka;font-weight:500;font-size:.7em;color:var(--muted)">(${S.school.quotaMode==='periods'?t('quotaPeriods'):t('quotaMinutes')})</small></div>
+    <div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('specSubject')}</th>${levL.map(l=>`<th>${l}</th>`).join('')}<th></th></tr></thead><tbody id="sS">${sRows}</tbody></table></div>
+    <button class="btn c sm" style="margin-top:5px" id="aSu">${t('addSubject')}</button>
+    <div class="macts"><button class="btn g" id="sSv">💾 ${t('save')}</button><button class="btn o" id="sCl">${t('close')}</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#aP').onclick=()=>{S.school.periods.push({type:'period',num:tPer().length+1,start:'',end:''});closeModals();save();openSetupModal()};
+  ov.querySelector('#aR').onclick=()=>{S.school.periods.push({type:'recess',label:'Récré',start:'',end:''});closeModals();save();openSetupModal()};
+  ov.querySelector('#aL').onclick=()=>{S.school.periods.push({type:'lunch',label:'Dîner',start:'',end:''});closeModals();save();openSetupModal()};
+  ov.querySelector('#aSu').onclick=()=>{S.subjects.push({id:'s'+Date.now(),name:'Nouvelle',color:`hsl(${Math.random()*360},60%,65%)`,roomType:'',min:{pres:0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0}});closeModals();save();openSetupModal()};
+  ov.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{S.school.periods.splice(+b.dataset.del,1);let n=1;S.school.periods.forEach(p=>{if(p.type==='period')p.num=n++});closeModals();save();openSetupModal()});
+  ov.querySelectorAll('[data-delsub]').forEach(b=>b.onclick=()=>{S.subjects.splice(+b.dataset.delsub,1);closeModals();save();openSetupModal()});
+  ov.querySelector('#sSv').onclick=()=>{S.school.name=document.getElementById('sN').value;S.school.cycleDays=+document.getElementById('sC').value;S.school.periodDuration=+document.getElementById('sD').value;S.school.periodsPerDay=+document.getElementById('sPD').value;S.school.tache100=+document.getElementById('sT100').value;S.school.quotaMode=document.getElementById('sQM').value;
+    ov.querySelectorAll('[data-pi]').forEach(inp=>{const i=+inp.dataset.pi;S.school.periods[i][inp.dataset.field]=inp.value});
+    ov.querySelectorAll('[data-si]').forEach(inp=>{const i=+inp.dataset.si;if(inp.dataset.sf)S.subjects[i][inp.dataset.sf]=inp.value;if(inp.dataset.sl)S.subjects[i].min[inp.dataset.sl]=+inp.value});
+    save();closeModals();renderAll()};
+  ov.querySelector('#sCl').onclick=()=>closeModals();ov.onclick=e=>{if(e.target===ov)closeModals()}}
+
+function openSpecModal(){
+  closeModals();const ov=document.createElement('div');ov.className='modal';
+  let rows=S.specialists.map((sp,i)=>{const su=S.subjects.find(s=>s.id===sp.subjectId);return`<tr><td><span class="cdot" style="background:${sp.color||'#ccc'}"></span></td><td style="font-weight:600">${sp.name}</td><td>${sp.shortName}</td><td>${su?.name||'—'}</td><td style="display:flex;gap:3px"><button class="btn c sm" onclick="closeModals();editSpec(${i})">✏️</button><button class="btn r sm" onclick="S.specialists.splice(${i},1);save();closeModals();openSpecModal()">✕</button></td></tr>`}).join('');
+  ov.innerHTML=`<div class="mbox" style="max-width:600px"><h3>👤 Spécialistes</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th></th><th>${t('specName')}</th><th>${t('specCode')}</th><th>${t('specSubject')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px">${t('noSpec')}</td></tr>`}</tbody></table></div>
+  <div class="macts"><button class="btn c" onclick="closeModals();addSpec()">+ ${t('add')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
+function addSpec(){const su=S.subjects[0];S.specialists.push({id:uid(),name:'Nouveau',shortName:'SP'+(S.specialists.length+1),subjectId:su?.id||'',taskPercent:100,isItinerant:false,travelDays:[],roomId:S.rooms[0]?.id||'',amPm:'all',maxPerDay:6,maxConsecutive:4,availDays:[],color:su?.color||'#ccc'});save();editSpec(S.specialists.length-1)}
+function editSpec(idx){
+  const sp=S.specialists[idx];if(!sp)return;closeModals();const ov=document.createElement('div');ov.className='modal';const cd=S.school.cycleDays;
+  ov.innerHTML=`<div class="mbox"><h3>✏️ ${sp.name}</h3>
+    <div class="fr"><label>${t('specName')}</label><input type="text" id="eN" value="${sp.name}" style="flex:1"></div>
+    <div class="fr"><label>${t('specCode')}</label><input type="text" id="eC" value="${sp.shortName}" style="width:80px"></div>
+    <div class="fr"><label>${t('specSubject')}</label><select id="eSu">${S.subjects.map(s=>`<option value="${s.id}" ${s.id===sp.subjectId?'selected':''}>${s.name}</option>`).join('')}</select></div>
+    <div class="fr"><label>${t('specTask')}</label><input type="number" id="eT" value="${sp.taskPercent}" min="10" max="100">% <small style="color:var(--cyan);font-weight:700">= ${specMaxPeriods(sp)} pér. / ${S.school.tache100}</small></div>
+    <div class="fr"><label>${t('specRoom')}</label><select id="eR"><option value="">—</option>${S.rooms.map(r=>`<option value="${r.id}" ${r.id===sp.roomId?'selected':''}>${r.name}</option>`).join('')}</select></div>
+    <div class="fr"><label>${t('specItinerant')}</label><input type="checkbox" id="eI" ${sp.isItinerant?'checked':''}></div>
+    <div class="fr" id="eTR" style="${sp.isItinerant?'':'display:none'};flex-direction:column;align-items:flex-start"><label>${t('specTravelDays')}</label><div class="chips">${Array.from({length:cd},(_,d)=>{const dn=d+1;return`<div class="ck ${sp.travelDays?.includes(dn)?'on':''}" data-td="${dn}" onclick="this.classList.toggle('on')">J${dn}</div>`}).join('')}</div></div>
+    <hr style="border:none;border-top:2px solid #f0f0f0;margin:10px 0">
+    <div style="font-family:'Bangers';color:var(--pink);margin-bottom:6px">⚙️ ${t('specConstraints')}</div>
+    <div class="fr"><label>AM/PM</label><select id="eAP"><option value="all" ${sp.amPm==='all'?'selected':''}>${t('specAllDay')}</option><option value="am" ${sp.amPm==='am'?'selected':''}>${t('specAmOnly')}</option><option value="pm" ${sp.amPm==='pm'?'selected':''}>${t('specPmOnly')}</option></select></div>
+    <div class="fr"><label>${t('specMaxDay')}</label><input type="number" id="eMD" value="${sp.maxPerDay||6}" min="1" max="8" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('specMaxConsec')}</label><input type="number" id="eMC" value="${sp.maxConsecutive||4}" min="1" max="8" style="width:55px"></div>
+    <div class="fr" style="flex-direction:column;align-items:flex-start"><label>${t('specAvailDays')}</label><div class="chips">${Array.from({length:cd},(_,d)=>{const dn=d+1;return`<div class="ck ${!sp.availDays?.length||sp.availDays.includes(dn)?'on':''}" data-ad="${dn}" onclick="this.classList.toggle('on')">J${dn}</div>`}).join('')}</div></div>
+    <div class="macts"><button class="btn g" id="eSv">💾 ${t('save')}</button><button class="btn o" id="eX">${t('cancel')}</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#eI').onchange=function(){document.getElementById('eTR').style.display=this.checked?'':'none'};
+  ov.querySelector('#eSv').onclick=()=>{sp.name=document.getElementById('eN').value;sp.shortName=document.getElementById('eC').value;sp.subjectId=document.getElementById('eSu').value;sp.taskPercent=+document.getElementById('eT').value;sp.roomId=document.getElementById('eR').value;sp.isItinerant=document.getElementById('eI').checked;sp.amPm=document.getElementById('eAP').value;sp.maxPerDay=+document.getElementById('eMD').value;sp.maxConsecutive=+document.getElementById('eMC').value;
+    sp.travelDays=[];ov.querySelectorAll('[data-td]').forEach(c=>{if(c.classList.contains('on'))sp.travelDays.push(+c.dataset.td)});
+    const ac=[...ov.querySelectorAll('[data-ad]')];sp.availDays=ac.every(c=>c.classList.contains('on'))?[]:ac.filter(c=>c.classList.contains('on')).map(c=>+c.dataset.ad);
+    const su=S.subjects.find(s=>s.id===sp.subjectId);if(su)sp.color=su.color;save();closeModals();renderAll()};
+  ov.querySelector('#eX').onclick=()=>closeModals();ov.onclick=e=>{if(e.target===ov)closeModals()}}
+
+function openClassesModal(){
+  closeModals();const ov=document.createElement('div');ov.className='modal';
+  let rows=S.classes.map((cl,i)=>`<tr><td><select onchange="S.classes[${i}].level=this.value;save()" style="padding:4px;border:1px solid #ddd;border-radius:4px">${['pres','1','2','3','4','5','6'].map(l=>`<option value="${l}" ${cl.level===l?'selected':''}>${l==='pres'?t('presco'):l+'e'}</option>`).join('')}</select></td><td><input type="text" value="${cl.group}" style="width:55px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:700" onchange="S.classes[${i}].group=this.value;save()"></td><td><input type="text" value="${cl.titulaire||''}" style="width:120px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.classes[${i}].titulaire=this.value;save()"></td><td><button class="btn r sm" onclick="S.classes.splice(${i},1);save();closeModals();openClassesModal()">✕</button></td></tr>`).join('');
+  ov.innerHTML=`<div class="mbox" style="max-width:520px"><h3>🎓 Classes</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('classLevel')}</th><th>${t('classGroup')}</th><th>${t('classTitulaire')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">${t('noClass')}</td></tr>`}</tbody></table></div>
+  <div class="macts"><button class="btn c" onclick="S.classes.push({id:uid(),level:'1',group:''+(S.classes.length+1)+'A',titulaire:'',prepQuota:200});save();closeModals();openClassesModal()">+ ${t('add')}</button><button class="btn o" onclick="const d=['MAT','1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B'];const l={MAT:'pres','1A':'1','1B':'1','2A':'2','2B':'2','3A':'3','3B':'3','4A':'4','4B':'4','5A':'5','5B':'5','6A':'6','6B':'6'};d.forEach(g=>{if(!S.classes.find(c=>c.group===g))S.classes.push({id:uid(),level:l[g],group:g,titulaire:'',prepQuota:200})});save();closeModals();openClassesModal()">📋 ${t('default')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
+
+function openRoomsModal(){
+  closeModals();const ov=document.createElement('div');ov.className='modal';
+  let rows=S.rooms.map((rm,i)=>`<tr><td><input type="text" value="${rm.name}" style="width:130px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:600" onchange="S.rooms[${i}].name=this.value;save()"></td><td><input type="text" value="${rm.type||''}" style="width:70px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.rooms[${i}].type=this.value;save()"></td><td><input type="number" value="${rm.maxSimultaneous||1}" min="1" max="10" style="width:45px;border:1px solid #ddd;border-radius:4px;padding:4px;text-align:center" onchange="S.rooms[${i}].maxSimultaneous=+this.value;save()"></td><td><button class="btn r sm" onclick="S.rooms.splice(${i},1);save();closeModals();openRoomsModal()">✕</button></td></tr>`).join('');
+  ov.innerHTML=`<div class="mbox" style="max-width:450px"><h3>🏛️ Locaux</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('roomName')}</th><th>${t('roomType')}</th><th>${t('roomCap')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">${t('noRoom')}</td></tr>`}</tbody></table></div>
+  <div class="macts"><button class="btn c" onclick="S.rooms.push({id:uid(),name:'Nouveau',type:'',maxSimultaneous:1});save();closeModals();openRoomsModal()">+ ${t('add')}</button><button class="btn o" onclick="[{name:'Gymnase principal',type:'gym',maxSimultaneous:2},{name:'Gymnase secondaire',type:'gym',maxSimultaneous:1},{name:'Plateau extérieur',type:'gym',maxSimultaneous:2},{name:'Piscine / Palestre',type:'gym',maxSimultaneous:1},{name:'Local musique',type:'music',maxSimultaneous:1},{name:'Local art',type:'art',maxSimultaneous:1}].forEach(d=>{if(!S.rooms.find(r=>r.name===d.name))S.rooms.push({id:uid(),...d})});save();closeModals();openRoomsModal()">📋 ${t('default')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
+
+// AUTO-FILL
+function solveSchedule(){if(!S.classes.length||!S.specialists.length){toast(t('autoAddFirst'));return}
+  if(!confirm(t('autoConfirm')))return;const pnums=tPer().map(p=>p.num);let filled=0,rem=0;const demand=[];
+  S.classes.forEach(cl=>{S.subjects.forEach(su=>{const req=su.min[cl.level]||0;if(req<=0)return;const u=minUsed(cl.id,su.id);const need=Math.max(0,Math.round((req-u)/S.school.periodDuration));if(need<=0)return;const specs=S.specialists.filter(sp=>sp.subjectId===su.id);if(specs.length)demand.push({cid:cl.id,sid:su.id,need,specs})})});
+  demand.sort((a,b)=>a.specs.length-b.specs.length);
+  demand.forEach(d=>{for(let att=0;att<d.need;att++){let best=null,bs=-Infinity;const days=Array.from({length:S.school.cycleDays},(_,i)=>i+1);shuf(days);
+  for(const day of days)for(const per of pnums)for(const sp of d.specs){if(checkH(day,per,sp.id,d.cid,sp.roomId||'').length)continue;if(getA(day,per).some(a=>a.specId===sp.id||a.classId===d.cid))continue;
+  let dc=0;pnums.forEach(pp=>{if(getA(day,pp).some(a=>a.specId===sp.id))dc++});if(dc>=(sp.maxPerDay||6))continue;
+  const sv=checkS(day,per,sp.id,d.cid);const sc=100-sv.length*20-dc*5+Math.random()*10;if(sc>bs){bs=sc;best={day,per,specId:sp.id,roomId:sp.roomId||''}}}
+  if(best){setA(best.day,best.per,best.specId,d.cid,best.roomId);filled++}else rem++}});
+  renderAll();if(!rem&&filled)toast(`✅ ${filled} ${t('autoSuccess')}`);else if(filled)toast(`⚠️ ${filled} ${t('autoPartial')} ${rem} ${t('autoImpossible')}`);else toast(`❌ ${t('autoFailed')}`)}
+function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
+function clearSchedule(){if(!confirm(`🗑️ ${t('clearConfirm')}`))return;S.assignments={};save();renderAll()}
+function exportPDF(){html2pdf().set({margin:5,filename:'grille_horaire.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a3',orientation:'landscape'}}).from(document.getElementById('grid')).save()}
+function renderAll(){resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
+
+document.addEventListener('DOMContentLoaded',()=>{load();applyI18n();renderAll();showWelcome()});
+</script>
+<!-- ZTS Landing config + script -->
+<script>
+window.ZTS_LANDING_CONFIG = {
+  appId: 'grille_horaire',
+  accentColor: '#00E5FF',
+  homeUrl: 'https://zonetotalsport.ca',
+  mascot: 'https://zonetotalsport.ca/bucheron-grille.png',
+  logoIcon: 'https://zonetotalsport.ca/logo-zts-text.png',
+  logoWide: true,
+  logoTitle: { fr: 'Grille Horaire', en: 'Schedule Grid', zh: '课程表' },
+  logoSub: 'Zone Total Sport',
+  title: { fr: 'Grille Horaire', en: 'Schedule Grid', zh: '课程表' },
+  subtitle: { fr: 'Spécialistes organisés!', en: 'Specialists sorted!', zh: '专科有序!' },
+  description: {
+    fr: "L'outil de planification pensé pour les spécialistes (ÉPS, musique, anglais, arts). Glisse-dépose tes groupes, visualise tes périodes libres, évite les conflits et imprime ta grille en un clic.",
+    en: "The planning tool designed for specialists (PE, music, English, arts). Drag-drop your groups, spot free periods, avoid conflicts and print your grid in one click.",
+    zh: "为专科教师(体育、音乐、英语、艺术)设计的排课工具。拖放组别、查看空闲时段、避免冲突、一键打印。"
+  },
+  badges: [
+    { emoji: '🗓️', color: 'cyan',   text: { fr: 'Glisser-déposer', en: 'Drag & drop', zh: '拖放操作' } },
+    { emoji: '🎓', color: 'violet', text: { fr: 'Spécialistes', en: 'Specialists', zh: '专科教师' } },
+    { emoji: '⚠️', color: 'pink',   text: { fr: 'Détecte conflits', en: 'Conflict detection', zh: '冲突检测' } },
+    { emoji: '🖨️', color: 'green',  text: { fr: 'Impression propre', en: 'Clean print', zh: '干净打印' } },
+    { emoji: '💾', color: 'yellow', text: { fr: 'Sauvegarde auto', en: 'Auto-save', zh: '自动保存' } }
+  ],
+  features: [
+    { emoji: '🏫', title: { fr: 'Multi-groupes', en: 'Multi-groups', zh: '多组' }, desc: { fr: 'Gère tous tes groupes de cycles', en: 'All grade-cycle groups', zh: '所有年级组' } },
+    { emoji: '⏰', title: { fr: 'Périodes', en: 'Periods', zh: '时段' }, desc: { fr: 'Cycles 9 ou 10 jours', en: '9 or 10-day cycles', zh: '9 或 10 天循环' } },
+    { emoji: '🎨', title: { fr: 'Couleurs', en: 'Colors', zh: '颜色' }, desc: { fr: 'Code ton horaire visuellement', en: 'Color-code your schedule', zh: '视觉配色' } },
+    { emoji: '🔄', title: { fr: 'Modifiable', en: 'Editable', zh: '可编辑' }, desc: { fr: 'Réorganise en un glisser', en: 'Rearrange in one drag', zh: '一拖即重排' } },
+    { emoji: '📊', title: { fr: 'Stats', en: 'Stats', zh: '统计' }, desc: { fr: 'Compte les périodes par groupe', en: 'Counts periods per group', zh: '每组时段统计' } },
+    { emoji: '📱', title: { fr: 'Tablette + TNI', en: 'Tablet + IWB', zh: '平板 + 白板' }, desc: { fr: 'Usage en gym ou classe', en: 'Works in gym or class', zh: '体育馆或教室' } },
+    { emoji: '💾', title: { fr: 'Hors-ligne', en: 'Offline', zh: '离线' }, desc: { fr: 'Tes données restent chez toi', en: 'Your data stays yours', zh: '数据留在本地' } },
+    { emoji: '🖨️', title: { fr: 'Export', en: 'Export', zh: '导出' }, desc: { fr: 'PDF, image ou impression', en: 'PDF, image or print', zh: 'PDF、图片或打印' } }
+  ],
+  ctaStart: { label: { fr: 'Commencer!', en: 'Start!', zh: '开始!' } },
+  ctaHelp: {
+    label: { fr: 'Comment utiliser', en: 'How to use', zh: '使用说明' },
+    onClick: function () { window.open('https://zonetotalsport.ca/blog.html', '_blank'); }
+  }
+};
+</script>
+<script src="zts-landing.js"></script>
+
+<!-- ZTS Auth Gate -->
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+(function(){var c={apiKey:'AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA',authDomain:'zone-total-sport.firebaseapp.com',projectId:'zone-total-sport'};if(!firebase.apps.length)firebase.initializeApp(c);var o=document.createElement('div');o.id='zts-gate';o.innerHTML='<div style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:24px;padding:40px;max-width:440px;width:90%;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,0.3)"><img src="https://zonetotalsport.ca/bucheron-basketball.png" style="width:120px;margin:0 auto 16px" alt=""><h2 style="font-family:Luckiest Guy,cursive;font-size:2rem;color:#1e293b;margin:0 0 4px">Zone Total Sport</h2><p style="font-family:Schoolbell,cursive;color:#64748b;margin:0 0 24px;font-size:1.1rem">Connecte-toi ou inscris-toi gratuitement pour acceder a cette ressource.</p><input id="zg-e" type="email" placeholder="Courriel" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:10px;font-size:1.1rem;box-sizing:border-box"><input id="zg-p" type="password" placeholder="Mot de passe" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:16px;font-size:1.1rem;box-sizing:border-box"><button id="zg-l" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#4f46e5;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Se connecter</button><button id="zg-s" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#00BCD4;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Creer un compte gratuit</button><button id="zg-g" style="font-family:Schoolbell,cursive;width:100%;padding:14px;background:#fff;color:#333;border:2px solid #e2e8f0;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer">Connexion Google</button><p id="zg-err" style="font-family:Schoolbell,cursive;color:#ef4444;font-size:.9rem;margin:12px 0 0;display:none"></p></div></div>';document.body.appendChild(o);var err=document.getElementById('zg-err');function se(m){err.textContent=m;err.style.display='block';}document.getElementById('zg-l').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().signInWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-s').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().createUserWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-g').onclick=function(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(r){se(r.message);});};firebase.auth().onAuthStateChanged(function(u){var g=document.getElementById('zts-gate');if(u&&g)g.remove();ztsUpdateAuthUI(u);});})();
+function ztsUpdateAuthUI(u){var l=document.getElementById('zts-auth-label'),b=document.getElementById('zts-auth-btn');if(!l||!b)return;if(u){var name=u.displayName||u.email.split('@')[0];l.textContent='\u{1F464} '+name;b.textContent='Deconnexion';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.15)';b.style.borderColor='rgba(255,255,255,0.5)';}else{l.textContent='';b.textContent='Se connecter';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.25)';b.style.borderColor='#fff';}}
+function ztsAuthAction(){var u=firebase.auth().currentUser;if(u){firebase.auth().signOut().then(function(){location.reload();});}else{location.reload();}}
+</script>
+</body>
+</html>

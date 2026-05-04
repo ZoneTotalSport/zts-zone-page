@@ -1,0 +1,428 @@
+/* ============================================
+   ZONE TOTAL SPORT — APP MUSIQUE
+   Dark mode · Luckiest Guy + Bangers + Schoolbell
+   ============================================ */
+
+:root {
+  --bg: #111111;
+  --text: #F0F0F0;
+  --text-muted: rgba(240,240,240,0.5);
+  --primary: #00E5FF;
+  --secondary: #FFD700;
+  --orange: #FF9800;
+  --green: #4CAF50;
+  --red: #ff4444;
+  --card-bg: rgba(20,20,20,0.88);
+  --transition: all 0.25s ease;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Schoolbell', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* === BACKGROUND === */
+#gymBg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: url('img/dj-roots-bg.png') center/cover no-repeat;
+  opacity: 1;
+  filter: brightness(1.4) saturate(0.9);
+  pointer-events: none;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+/* === HEADER === */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(17,17,17,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,229,255,0.15);
+  padding: 12px 24px 12px 180px;
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.logo-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.4rem;
+  color: var(--primary);
+  letter-spacing: 1px;
+}
+.logo-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.lang-selector{margin-left:8px;}
+.lang-select{font-family:'Bangers';font-size:0.8rem;padding:2px 6px;border-radius:6px;border:2px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.3);color:#fff;cursor:pointer;}
+
+nav { display: flex; gap: 12px; }
+nav a, .cross-app-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: var(--transition);
+}
+nav a:hover { color: var(--primary); border-color: var(--primary); }
+
+/* === HERO === */
+.hero {
+  text-align: center;
+  padding: 50px 24px 40px;
+  position: relative;
+}
+.hero-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.hero-mascot-dj {
+  height: 300px;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.5));
+  flex-shrink: 0;
+}
+.hero-text {
+  text-align: left;
+}
+.hero-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  line-height: 1.05;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+.hero-subtitle-main {
+  font-family: 'Schoolbell', cursive;
+  font-size: 1.4rem;
+  color: var(--secondary);
+  margin-bottom: 6px;
+}
+.hero-subtitle-sub {
+  font-family: 'Schoolbell', cursive;
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* === SECTIONS === */
+section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+.section-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  color: var(--text);
+  letter-spacing: 1px;
+}
+.section-desc {
+  font-family: 'Schoolbell', cursive;
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-bottom: 28px;
+}
+
+/* === PLAYER === */
+.player-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: start;
+}
+.player-wrap {
+  background: var(--card-bg);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(0,229,255,0.1);
+}
+.player-label {
+  padding: 12px 20px;
+  font-family: 'Bangers', cursive;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--primary);
+  background: rgba(0,229,255,0.05);
+  border-bottom: 1px solid rgba(0,229,255,0.1);
+}
+.iframe-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+}
+.iframe-container iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border: none;
+}
+
+/* URL Box */
+.url-box {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.url-label {
+  font-family: 'Bangers', cursive;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  color: var(--secondary);
+}
+.url-input-wrap { display: flex; gap: 8px; }
+.url-input {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: 'Schoolbell', sans-serif;
+  font-size: 0.85rem;
+  outline: none;
+  transition: var(--transition);
+}
+.url-input:focus { border-color: var(--primary); }
+.url-input::placeholder { color: var(--text-muted); }
+.url-btn {
+  background: linear-gradient(135deg, var(--primary), #00b8d4);
+  color: #111;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'Bangers', cursive;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.url-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,229,255,0.3); }
+.url-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* === PLAYLISTS GRID === */
+.playlists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.playlist-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.playlist-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--card-accent, var(--primary));
+}
+.playlist-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0,229,255,0.3);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+.playlist-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+.playlist-card-title {
+  font-family: 'Bangers', cursive;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+}
+.playlist-card-mood {
+  font-size: 0.78rem;
+  color: var(--secondary);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.playlist-card-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.playlist-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.playlist-tag {
+  background: rgba(0,229,255,0.08);
+  color: var(--primary);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.playlist-card-play {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0,229,255,0.15);
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.playlist-card:hover .playlist-card-play {
+  background: var(--primary);
+  color: #111;
+  transform: scale(1.1);
+}
+
+/* === SEARCH LINKS === */
+.search-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.search-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-bg);
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: var(--transition);
+}
+.search-link:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  color: var(--primary);
+}
+.search-link span { font-size: 1.2rem; }
+
+/* === MA PLAYLIST === */
+.add-wrap {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.add-wrap .url-input { min-width: 200px; }
+.my-playlist { display: flex; flex-direction: column; gap: 8px; }
+.my-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card-bg);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.my-track-title {
+  flex: 1;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.my-track-btn {
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.2);
+  color: var(--primary);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: 'Schoolbell', sans-serif;
+}
+.my-track-btn:hover { background: rgba(0,229,255,0.2); }
+.my-track-btn.delete {
+  background: rgba(255,68,68,0.1);
+  border-color: rgba(255,68,68,0.2);
+  color: var(--red);
+}
+.my-track-btn.delete:hover { background: rgba(255,68,68,0.2); }
+
+/* === FOOTER === */
+footer {
+  text-align: center;
+  padding: 40px 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+.footer-logo {
+  font-family: 'Bangers', cursive;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+.footer-links { display: flex; justify-content: center; gap: 16px; margin-top: 12px; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.8rem; }
+.footer-links a:hover { color: var(--primary); }
+
+/* === RESPONSIVE === */
+@media (max-width: 800px) {
+  .player-layout { grid-template-columns: 1fr; }
+  .hero-center { flex-direction: column; gap: 12px; }
+  .hero-mascot-dj { height: 180px; }
+  .hero-text { text-align: center; }
+  .playlists-grid { grid-template-columns: 1fr; }
+  .search-links { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 500px) {
+  .search-links { grid-template-columns: 1fr; }
+  .url-input-wrap { flex-direction: column; }
+  .add-wrap { flex-direction: column; }
+}

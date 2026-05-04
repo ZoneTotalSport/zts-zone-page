@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Playlists musicales pour les cours d'ÉPS. Lecteur YouTube intégré, organisé par mood et activité." />
+  <meta name="theme-color" content="#111111" />
+  <title>🎵 Musiques ÉPS — Zone Total Sport</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&display=swap" rel="stylesheet" />
+  <style>.hidden{display:none!important}</style>
+  <link rel="stylesheet" href="style.css?v=4" />
+  <!-- ZTS Landing Template -->
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="zts-landing.css">
+</head>
+<body>
+  <!-- Background -->
+  <div id="gymBg" aria-hidden="true"></div>
+
+  <!-- APP -->
+  <div id="app">
+
+    <!-- HEADER -->
+    <header style="background:linear-gradient(135deg,#00E5FF,#00B8D4);position:sticky;top:0;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,0.3);padding:12px 16px">
+      <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <a href="https://zonetotalsport.ca" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+          <img src="https://zonetotalsport.ca/bucheron-basketball.png" alt="Mascotte" style="height:50px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
+          <span style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:1rem;text-shadow:1px 1px 3px rgba(0,0,0,0.3)">🏠 Accueil</span>
+        </a>
+        <div style="flex:1;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px">
+          <img src="https://zonetotalsport.ca/bucheron-musique.png" alt="App" style="height:50px;border-radius:12px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
+          <h1 style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:clamp(1.2rem,3vw,2rem);text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin:0;letter-spacing:1px">MUSIQUE ÉPS</h1>
+        </div>
+        <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
+          <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
+          <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO LANDING -->
+    <div id="heroLanding" style="max-width:900px;margin:20px auto;padding:0 16px">
+      <div style="background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:28px;border:1px solid rgba(0,229,255,0.2);display:flex;flex-wrap:wrap;align-items:center;gap:24px;justify-content:center">
+        <img src="https://zonetotalsport.ca/bucheron-musique.png" alt="Mascotte" style="width:130px;height:auto;filter:drop-shadow(3px 3px 10px rgba(0,0,0,0.5));border-radius:16px;flex-shrink:0">
+        <div style="flex:1;min-width:250px;text-align:center">
+          <h2 style="font-family:'Luckiest Guy',cursive;font-size:clamp(1.5rem,4vw,2.5rem);color:#fff;margin:0 0 10px;line-height:1.15">MUSIQUES <span style="color:#00E5FF">POUR TON GYM!</span></h2>
+          <p style="font-family:'Schoolbell',cursive;font-size:1.05rem;color:#ccc;margin:0 0 14px;line-height:1.5">Des playlists motivantes selectionnees pour chaque type d'activite. Echauffement energique, retour au calme, danse, circuits — la musique parfaite pour creer l'ambiance ideale dans ton gymnase. Fini le silence genant pendant les transitions!</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px">
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">🎵 Playlists curees</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">🔊 Par type d'activite</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">⚡ Ambiance garantie</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">🆓 Gratuit</span>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button onclick="document.getElementById('heroLanding').style.display='none'" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;border:none;border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">🚀 Commencer!</button>
+            <button onclick="document.getElementById('guideSection').classList.toggle('hidden')" style="font-family:'Bangers',cursive;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">📖 Comment utiliser</button>
+          </div>
+        </div>
+      </div>
+      <div id="guideSection" class="hidden" style="margin-top:12px;background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:24px;border:1px solid rgba(0,229,255,0.2)">
+        <h3 style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;color:#fff;margin:0 0 14px">📖 COMMENT UTILISER</h3>
+        <p style="font-family:'Schoolbell',cursive;font-size:1rem;color:#ccc;line-height:1.6;margin:0">
+          <strong style="color:#00E5FF">1)</strong> <strong style="color:#fff">CHOISIS</strong> le type d'activite (echauffement, circuits, danse, retour au calme).<br>
+          <strong style="color:#00E5FF">2)</strong> <strong style="color:#fff">LANCE</strong> la playlist directement.<br>
+          <strong style="color:#00E5FF">3)</strong> <strong style="color:#fff">AJUSTE</strong> le volume et profite de l'ambiance!
+        </p>
+      </div>
+    </div>
+
+    <!-- ========================================
+         LECTEUR YOUTUBE
+         ======================================== -->
+    <section id="player-section">
+      <div class="player-layout">
+
+        <!-- IFRAME -->
+        <div class="player-wrap">
+          <div class="player-label" id="now-playing" data-t="player_default">▶ Sélectionne une playlist ci-dessous</div>
+          <div class="iframe-container">
+            <iframe
+              id="yt-iframe"
+              src="about:blank"
+              title="Lecteur YouTube"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </div>
+
+        <!-- URL CUSTOM -->
+        <div class="url-box">
+          <div class="url-label" data-t="url_label">🔗 Colle n'importe quelle URL YouTube</div>
+          <div class="url-input-wrap">
+            <input type="text" id="url-input" class="url-input" data-t-placeholder="url_placeholder" placeholder="https://youtube.com/watch?v=..." />
+            <button class="url-btn" onclick="loadCustomURL()" data-t="url_btn">▶ JOUER</button>
+          </div>
+          <div class="url-hint" data-t="url_hint">Vidéos, playlists, mix — tout fonctionne</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================
+         PLAYLISTS PAR MOOD
+         ======================================== -->
+    <section id="playlists-section">
+      <h2 class="section-title" data-t="playlists_title">🎧 Playlists par Mood</h2>
+      <p class="section-desc" data-t="playlists_desc">Clique sur une carte pour lancer la playlist dans le lecteur ci-dessus</p>
+      <div id="playlists-grid" class="playlists-grid"></div>
+    </section>
+
+    <!-- ========================================
+         RECHERCHE RAPIDE YOUTUBE
+         ======================================== -->
+    <section id="search-section">
+      <h2 class="section-title" data-t="search_title">🔍 Recherche Rapide YouTube</h2>
+      <p class="section-desc" data-t="search_desc">Trouve des mix et playlists de tes artistes préférés</p>
+      <div class="search-links" id="search-links"></div>
+    </section>
+
+    <!-- ========================================
+         MA PLAYLIST PERSO
+         ======================================== -->
+    <section id="my-playlist-section">
+      <h2 class="section-title" data-t="my_playlist_title">📋 Ma Playlist de Cours</h2>
+      <p class="section-desc" data-t="my_playlist_desc">Sauvegarde tes URLs préférées (stockées dans ton navigateur)</p>
+      <div class="add-wrap">
+        <input type="text" id="add-url" class="url-input" data-t-placeholder="my_playlist_url_ph" placeholder="URL YouTube..." />
+        <input type="text" id="add-title" class="url-input" data-t-placeholder="my_playlist_title_ph" placeholder="Titre (optionnel)" />
+        <button class="url-btn" onclick="addToMyPlaylist()" data-t="my_playlist_add">+ Ajouter</button>
+      </div>
+      <div id="my-playlist" class="my-playlist"></div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-logo" data-t="footer_logo">🎵 Zone Total Sport</div>
+      <p data-t="footer_text">Musiques pour l'éducation physique et la santé</p>
+      <p style="margin-top:16px;font-size:0.75rem;opacity:0.4;" data-t="footer_copy">Zone Total Sport © 2026</p>
+    </footer>
+
+  </div>
+
+  <script src="i18n.js"></script>
+  <script src="lang/translations.js"></script>
+  <script src="app.js?v=4"></script>
+<!-- ZTS Landing config + script -->
+<script>
+window.ZTS_LANDING_CONFIG = {
+  appId: 'musique',
+  accentColor: '#EF4444',
+  homeUrl: 'https://zonetotalsport.ca',
+  mascot: 'https://zonetotalsport.ca/bucheron-musique.png',
+  logoIcon: 'https://zonetotalsport.ca/logo-zts-text.png',
+  logoWide: true,
+  logoTitle: { fr: 'Musique du Gym', en: 'Gym Music', zh: '体育馆音乐' },
+  logoSub: 'Zone Total Sport',
+  title: { fr: 'Musique du Gym', en: 'Gym Music', zh: '体育馆音乐' },
+  subtitle: { fr: 'Ambiance garantie!', en: 'Vibes guaranteed!', zh: '气氛满分!' },
+  description: {
+    fr: "Des playlists YouTube soigneusement sélectionnées pour tes cours d'ÉPS. Échauffement, cardio, coopération, retour au calme — trouve la musique parfaite en un clic. Lecteur intégré, volume contrôlé, 100% sans pub.",
+    en: "Hand-picked YouTube playlists for your PE classes. Warm-up, cardio, cooperation, cool-down — find the right music in one click. Built-in player, ad-free experience.",
+    zh: "为体育课精选的 YouTube 播放列表。热身、有氧、合作、放松——一键找到合适音乐。内置播放器,无广告。"
+  },
+  badges: [
+    { emoji: '🎵', color: 'pink',   text: { fr: 'Playlists prêtes', en: 'Ready playlists', zh: '现成歌单' } },
+    { emoji: '🔥', color: 'orange', text: { fr: 'Par mood', en: 'By mood', zh: '按氛围' } },
+    { emoji: '🏃', color: 'cyan',   text: { fr: 'Par activité', en: 'By activity', zh: '按活动' } },
+    { emoji: '▶️', color: 'green',  text: { fr: 'Lecteur intégré', en: 'Built-in player', zh: '内置播放器' } },
+    { emoji: '🚫', color: 'yellow', text: { fr: 'Sans pub', en: 'Ad-free', zh: '无广告' } }
+  ],
+  features: [
+    { emoji: '🔥', title: { fr: 'Échauffement', en: 'Warm-up', zh: '热身' }, desc: { fr: 'Tempo progressif', en: 'Progressive tempo', zh: '渐进节奏' } },
+    { emoji: '💪', title: { fr: 'Cardio', en: 'Cardio', zh: '有氧' }, desc: { fr: 'BPM élevé pour énergie max', en: 'High BPM for max energy', zh: '高 BPM 最大能量' } },
+    { emoji: '🧘', title: { fr: 'Retour au calme', en: 'Cool-down', zh: '放松' }, desc: { fr: 'Douceur et respiration', en: 'Gentle and calming', zh: '温柔放松' } },
+    { emoji: '🏆', title: { fr: 'Tournoi', en: 'Tournament', zh: '比赛' }, desc: { fr: 'Hymnes et énergie', en: 'Anthems and energy', zh: '赞歌与能量' } },
+    { emoji: '🎉', title: { fr: 'Fête', en: 'Party', zh: '派对' }, desc: { fr: 'Danse et plaisir', en: 'Dance and fun', zh: '舞蹈乐趣' } },
+    { emoji: '🔊', title: { fr: 'Contrôles', en: 'Controls', zh: '控制' }, desc: { fr: 'Volume, pause, skip', en: 'Volume, pause, skip', zh: '音量、暂停、跳过' } },
+    { emoji: '⭐', title: { fr: 'Favoris', en: 'Favorites', zh: '收藏' }, desc: { fr: 'Tes listes à portée', en: 'Your lists handy', zh: '常用歌单' } },
+    { emoji: '📱', title: { fr: 'Tous écrans', en: 'All screens', zh: '全屏幕' }, desc: { fr: 'Téléphone, tablette, TNI', en: 'Phone, tablet, IWB', zh: '手机、平板、白板' } }
+  ],
+  ctaStart: { label: { fr: 'Commencer!', en: 'Start!', zh: '开始!' } },
+  ctaHelp: {
+    label: { fr: 'Comment utiliser', en: 'How to use', zh: '使用说明' },
+    onClick: function () { window.open('https://zonetotalsport.ca/blog.html', '_blank'); }
+  }
+};
+</script>
+<script src="zts-landing.js"></script>
+<!-- ZTS Auth Gate -->
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+(function(){var c={apiKey:'AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA',authDomain:'zone-total-sport.firebaseapp.com',projectId:'zone-total-sport'};if(!firebase.apps.length)firebase.initializeApp(c);var o=document.createElement('div');o.id='zts-gate';o.innerHTML='<div style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:24px;padding:40px;max-width:440px;width:90%;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,0.3)"><img src="https://zonetotalsport.ca/bucheron-basketball.png" style="width:120px;margin:0 auto 16px" alt=""><h2 style="font-family:Luckiest Guy,cursive;font-size:2rem;color:#1e293b;margin:0 0 4px">Zone Total Sport</h2><p style="font-family:Schoolbell,cursive;color:#64748b;margin:0 0 24px;font-size:1.1rem">Connecte-toi ou inscris-toi gratuitement pour acceder a cette ressource.</p><input id="zg-e" type="email" placeholder="Courriel" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:10px;font-size:1.1rem;box-sizing:border-box"><input id="zg-p" type="password" placeholder="Mot de passe" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:16px;font-size:1.1rem;box-sizing:border-box"><button id="zg-l" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#4f46e5;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Se connecter</button><button id="zg-s" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#00BCD4;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Creer un compte gratuit</button><button id="zg-g" style="font-family:Schoolbell,cursive;width:100%;padding:14px;background:#fff;color:#333;border:2px solid #e2e8f0;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer">Connexion Google</button><p id="zg-err" style="font-family:Schoolbell,cursive;color:#ef4444;font-size:.9rem;margin:12px 0 0;display:none"></p></div></div>';document.body.appendChild(o);var err=document.getElementById('zg-err');function se(m){err.textContent=m;err.style.display='block';}document.getElementById('zg-l').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().signInWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-s').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().createUserWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-g').onclick=function(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(r){se(r.message);});};firebase.auth().onAuthStateChanged(function(u){var g=document.getElementById('zts-gate');if(u&&g)g.remove();ztsUpdateAuthUI(u);});})();
+function ztsUpdateAuthUI(u){var l=document.getElementById('zts-auth-label'),b=document.getElementById('zts-auth-btn');if(!l||!b)return;if(u){var name=u.displayName||u.email.split('@')[0];l.textContent='\u{1F464} '+name;b.textContent='Deconnexion';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.15)';b.style.borderColor='rgba(255,255,255,0.5)';}else{l.textContent='';b.textContent='Se connecter';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.25)';b.style.borderColor='#fff';}}
+function ztsAuthAction(){var u=firebase.auth().currentUser;if(u){firebase.auth().signOut().then(function(){location.reload();});}else{location.reload();}}
+</script>
+</body>
+</html>

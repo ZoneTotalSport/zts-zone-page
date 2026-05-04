@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tableau Blanc Numérique — Zone Total Sport</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&family=Fredoka:wght@400;500;600;700&family=Bangers&family=Nunito:wght@400;600;700;800;900&subset=latin,latin-ext&display=swap" rel="stylesheet">
+    <style>
+        /* ===== VARIABLES ===== */
+        :root {
+            --cyan: #00E5FF;
+            --cyan-dark: #0096C7;
+            --yellow: #FFD600;
+            --orange: #FF9100;
+            --red: #FF2A2A;
+            --green: #4CAF50;
+            --lime: #B4FA00;
+            --magenta: #FF00FF;
+            --navy: #0d1b2e;
+            --dark: #1a1a2e;
+            --text: #ffffff;
+            --card-bg: rgba(255,255,255,0.08);
+            --glass: rgba(13,27,46,0.85);
+            --header-h: 80px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+            background: var(--navy);
+            color: var(--text);
+            overflow-x: hidden;
+            overflow-y: auto;
+            user-select: none;
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        #loading {
+            position: fixed; inset: 0; z-index: 99999;
+            background: linear-gradient(135deg, var(--navy), #162447);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 20px;
+            transition: opacity 0.5s ease;
+        }
+        #loading.fade-out { opacity: 0; pointer-events: none; }
+        .loading-mascot { height: 100px; animation: bounce 1s ease infinite; filter: drop-shadow(0 4px 20px rgba(0,229,255,0.4)); }
+        .loading-title { font-family: 'Luckiest Guy', cursive; font-size: 2rem; color: var(--cyan); text-shadow: 0 0 20px rgba(0,229,255,0.5); }
+        .loading-sub { font-family: 'Schoolbell', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.6); }
+        .loading-bar-wrap { width: 200px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .loading-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--yellow)); border-radius: 3px; transition: width 0.3s; }
+
+        @keyframes bounce {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        /* ===== APP WRAPPER ===== */
+        #app-wrapper {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* ===== GYM BACKGROUND ===== */
+        #gymBg {
+            position: fixed; inset: 0; z-index: 0;
+            background: url('img/gym-bg-roots.jpg') center/cover no-repeat;
+            opacity: 0.15; pointer-events: none;
+        }
+
+        /* ===== HEADER CYAN ===== */
+        .site-header {
+            position: relative; z-index: 1000;
+            height: var(--header-h);
+            background: linear-gradient(135deg, var(--cyan-dark), var(--cyan));
+            display: flex; align-items: center;
+            padding: 0 16px; gap: 12px;
+            box-shadow: 0 4px 20px rgba(0,229,255,0.3);
+            flex-shrink: 0;
+        }
+
+        .header-home-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            color: #fff; font-family: 'Luckiest Guy', cursive;
+            font-size: 1.3rem; letter-spacing: 1px;
+            border-radius: 10px; border: 2px solid rgba(255,255,255,0.4);
+            text-decoration: none;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .header-home-btn:hover { background: rgba(255,255,255,0.35); transform: scale(1.05); }
+
+        .header-brand {
+            display: flex; align-items: center; gap: 10px; flex: 1;
+            justify-content: center;
+        }
+        .header-mascot { height: 64px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); }
+        .header-title {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 2.4rem; letter-spacing: 3px;
+            background: linear-gradient(90deg, #fff, var(--yellow), #fff);
+            background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .header-help-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            color: #fff; font-family: 'Luckiest Guy', cursive;
+            font-size: 1.3rem;
+            border-radius: 10px; border: 2px solid rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .header-help-btn:hover { background: rgba(255,255,255,0.35); transform: scale(1.05); }
+
+        /* ===== TOOLBAR ===== */
+        #toolbar {
+            position: relative; z-index: 100;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 2px solid rgba(0,229,255,0.2);
+            padding: 12px 20px;
+            display: flex; flex-wrap: wrap; gap: 12px;
+            justify-content: center; align-items: center;
+            flex-shrink: 0;
+        }
+
+        .tool-group {
+            display: flex; gap: 8px; align-items: center;
+            padding: 0 14px;
+            border-right: 2px solid rgba(255,255,255,0.1);
+        }
+        .tool-group:last-child { border-right: none; }
+
+        .tool-btn {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.3rem; letter-spacing: 1px;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.08);
+            color: #fff; padding: 12px 22px;
+            border-radius: 12px; cursor: pointer;
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .tool-btn:hover { background: rgba(0,229,255,0.2); border-color: var(--cyan); transform: translateY(-1px); }
+        .tool-btn:active { transform: translateY(1px); }
+        .tool-btn.active-tool {
+            background: linear-gradient(135deg, var(--cyan-dark), var(--cyan));
+            border-color: var(--cyan); color: #fff;
+            box-shadow: 0 0 12px rgba(0,229,255,0.4);
+        }
+        .tool-btn.danger { background: rgba(255,42,42,0.2); border-color: var(--red); }
+        .tool-btn.danger:hover { background: rgba(255,42,42,0.4); }
+        .tool-btn.save { background: rgba(76,175,80,0.2); border-color: var(--green); }
+        .tool-btn.save:hover { background: rgba(76,175,80,0.4); }
+
+        .color-dot {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .color-dot:hover { transform: scale(1.15); }
+        .color-dot.active {
+            border-color: #fff;
+            box-shadow: 0 0 12px rgba(255,255,255,0.5);
+            transform: scale(1.1);
+        }
+
+        .tool-label {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        input[type=range] {
+            width: 120px; height: 28px; accent-color: var(--cyan);
+            cursor: pointer;
+        }
+
+        /* ===== TIPS BAR ===== */
+        #tips-bar {
+            flex-shrink: 0; z-index: 100;
+            background: rgba(0,229,255,0.08);
+            border-bottom: 1px solid rgba(0,229,255,0.15);
+            padding: 6px 16px;
+            display: flex; align-items: center; justify-content: center; gap: 24px;
+            font-family: 'Schoolbell', cursive;
+            font-size: 1rem; color: rgba(255,255,255,0.55);
+            overflow: hidden; white-space: nowrap;
+        }
+        #tips-bar span { display: inline-flex; align-items: center; gap: 4px; }
+        #tips-bar .tip-key {
+            display: inline-block;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px; padding: 2px 8px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 0.85rem;
+        }
+        .tips-close {
+            background: none; border: none; color: rgba(255,255,255,0.4);
+            cursor: pointer; font-size: 1.1rem; padding: 0 4px;
+            transition: color 0.2s;
+        }
+        .tips-close:hover { color: #fff; }
+
+        /* ===== CANVAS AREA ===== */
+        #canvas-container {
+            flex: 1; position: relative;
+            background: #ffffff;
+            margin: 8px; border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(0,229,255,0.15);
+            z-index: 1;
+        }
+
+        canvas {
+            display: block; touch-action: none;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
+        }
+
+        #objects-layer {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 5; pointer-events: none;
+        }
+
+        body.mode-move canvas { pointer-events: none; z-index: 5; opacity: 0.7; }
+        body.mode-move #objects-layer { z-index: 10; pointer-events: auto; }
+
+        .draggable-wrapper {
+            position: absolute; pointer-events: auto;
+            display: inline-block; min-width: 50px; min-height: 50px;
+            user-select: none; resize: both; overflow: hidden;
+            border: 2px dashed transparent;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.01);
+        }
+        body.mode-move .draggable-wrapper { border: 2px dashed rgba(0,229,255,0.4); }
+        body.mode-move .draggable-wrapper:hover {
+            border: 2px dashed var(--cyan);
+            cursor: move;
+            box-shadow: 0 0 15px rgba(0,229,255,0.2);
+        }
+
+        .delete-btn {
+            position: absolute; top: -2px; right: -2px;
+            background: var(--red); color: white;
+            border: 2px solid white; border-radius: 50%;
+            width: 24px; height: 24px;
+            text-align: center; line-height: 20px;
+            font-weight: bold; font-size: 0.75rem;
+            cursor: pointer; display: none; z-index: 50;
+            transition: transform 0.2s;
+        }
+        .delete-btn:hover { transform: scale(1.2); }
+        body.mode-move .draggable-wrapper:hover .delete-btn { display: block; }
+
+        .content-media { width: 100%; height: 100%; object-fit: fill; display: block; pointer-events: none; border-radius: 6px; }
+        body.mode-move video.content-media,
+        body.mode-move iframe.content-media { pointer-events: auto; }
+
+        .content-text {
+            width: 100%; height: 100%;
+            background: white; border: 3px solid var(--cyan-dark);
+            padding: 12px;
+            font-family: 'Schoolbell', cursive;
+            font-size: 1.4rem; color: #1a1a2e;
+            box-sizing: border-box; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .content-text:focus { outline: none; background: #f0faff; box-shadow: 0 0 15px rgba(0,229,255,0.3); }
+
+        .iframe-blocker { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 2; }
+        body.mode-move .draggable-wrapper:active .iframe-blocker { display: block; }
+
+        /* ===== FOOTER ===== */
+        #app-footer {
+            flex-shrink: 0; text-align: center;
+            padding: 6px 12px; z-index: 100;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+        }
+        .suggestion-btn {
+            font-family: 'Schoolbell', cursive;
+            font-size: 1rem; color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.15);
+            padding: 5px 16px; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .suggestion-btn:hover { background: rgba(0,229,255,0.15); border-color: var(--cyan); color: #fff; }
+
+        .footer-zts {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 0.85rem;
+            background: linear-gradient(135deg, var(--cyan), var(--yellow));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-logo { height: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 5000;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-box {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #162447, var(--navy));
+            border: 2px solid rgba(0,229,255,0.3);
+            border-radius: 16px; padding: 28px;
+            width: 380px; max-width: 90vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(0,229,255,0.15);
+            text-align: center;
+            animation: popIn 0.3s ease;
+        }
+        @keyframes popIn {
+            from { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .modal-box h2 {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.5rem; color: var(--cyan);
+            margin-bottom: 16px;
+        }
+
+        .modal-box input[type="text"],
+        .modal-box textarea {
+            width: 100%; padding: 12px 16px;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px; color: #fff;
+            font-family: 'Schoolbell', cursive; font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+        .modal-box input::placeholder, .modal-box textarea::placeholder { color: rgba(255,255,255,0.4); }
+        .modal-box textarea { height: 100px; resize: none; font-family: 'Schoolbell', cursive; font-size: 1.1rem; }
+
+        .modal-btn {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.1rem; padding: 10px 24px;
+            border-radius: 8px; border: 2px solid rgba(255,255,255,0.2);
+            cursor: pointer; transition: all 0.2s;
+            margin: 4px;
+        }
+        .modal-btn.primary { background: linear-gradient(135deg, var(--cyan-dark), var(--cyan)); color: #fff; border-color: var(--cyan); }
+        .modal-btn.primary:hover { box-shadow: 0 0 15px rgba(0,229,255,0.4); transform: scale(1.03); }
+        .modal-btn.danger { background: rgba(255,42,42,0.3); color: #fff; border-color: var(--red); }
+        .modal-btn.danger:hover { background: rgba(255,42,42,0.5); }
+        .modal-btn.ghost { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); }
+        .modal-btn.ghost:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+        /* ===== GUIDE OVERLAY ===== */
+        #guide-overlay {
+            position: fixed; inset: 0; z-index: 6000;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        #guide-overlay.hidden { display: none; }
+
+        .guide-card {
+            background: linear-gradient(135deg, #162447, var(--navy));
+            border: 2px solid rgba(0,229,255,0.3);
+            border-radius: 20px;
+            padding: 32px; width: 560px; max-width: 92vw;
+            max-height: 85vh; overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.1);
+            animation: popIn 0.4s ease;
+        }
+
+        .guide-header {
+            display: flex; align-items: center; gap: 14px;
+            margin-bottom: 20px;
+        }
+        .guide-header img { height: 60px; filter: drop-shadow(0 4px 12px rgba(0,229,255,0.3)); }
+        .guide-header h2 {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.6rem; color: var(--cyan);
+        }
+        .guide-header p {
+            font-family: 'Schoolbell', cursive;
+            font-size: 1rem; color: rgba(255,255,255,0.6);
+            margin-top: 2px;
+        }
+
+        .guide-steps { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+
+        .guide-step {
+            display: flex; align-items: flex-start; gap: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px; padding: 14px;
+            transition: all 0.2s;
+        }
+        .guide-step:hover { background: rgba(0,229,255,0.08); border-color: rgba(0,229,255,0.2); }
+
+        .guide-num {
+            flex-shrink: 0;
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--cyan-dark), var(--cyan));
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1rem; color: #fff;
+        }
+
+        .guide-step h3 {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.1rem;
+            color: var(--yellow); margin-bottom: 2px;
+        }
+        .guide-step p {
+            font-family: 'Schoolbell', cursive;
+            font-size: 1rem; color: rgba(255,255,255,0.7);
+            line-height: 1.4;
+        }
+
+        .guide-start-btn {
+            display: block; width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--cyan-dark), var(--cyan));
+            border: none; border-radius: 12px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.3rem; color: #fff;
+            cursor: pointer; letter-spacing: 2px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(0,229,255,0.3);
+        }
+        .guide-start-btn:hover { transform: scale(1.02); box-shadow: 0 6px 25px rgba(0,229,255,0.5); }
+
+        /* ===== INTRO SECTION ===== */
+        #intro-section {
+            position: relative;
+            min-height: 100vh;
+            background: url('img/gym-bg-roots.jpg') center/cover no-repeat;
+            display: flex; align-items: center; justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .intro-card {
+            position: relative; z-index: 1;
+            background: rgba(255,255,255,0.95);
+            border: 3px solid var(--cyan);
+            border-radius: 24px;
+            padding: 40px 48px;
+            width: 720px; max-width: 92vw;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px rgba(0,229,255,0.15);
+            animation: popIn 0.5s ease;
+            text-align: left;
+        }
+
+        .intro-top {
+            display: flex; align-items: flex-end; gap: 20px;
+            margin-bottom: 20px;
+        }
+        .intro-mascot {
+            height: 180px;
+            filter: drop-shadow(4px 4px 12px rgba(0,0,0,0.25));
+            flex-shrink: 0;
+        }
+        .intro-titles { flex: 1; }
+        .intro-titles h1 {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 2.2rem; color: #1a1a2e;
+            letter-spacing: 2px; line-height: 1.1;
+            margin-bottom: 4px;
+        }
+        .intro-titles h2 {
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.8rem; color: var(--cyan-dark);
+            letter-spacing: 1px;
+        }
+
+        .intro-desc {
+            font-family: 'Schoolbell', cursive;
+            font-size: 1.25rem; color: #444;
+            line-height: 1.6; margin-bottom: 24px;
+        }
+
+        .intro-pills {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            margin-bottom: 28px;
+        }
+        .intro-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 0.95rem; color: #1a1a2e;
+            background: rgba(0,229,255,0.08);
+            border: 2px solid rgba(0,229,255,0.25);
+            border-radius: 30px; padding: 8px 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .intro-buttons {
+            display: flex; gap: 16px; flex-wrap: wrap;
+        }
+        .intro-btn-start {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.4rem; letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--cyan-dark), var(--cyan));
+            color: #fff; border: none; border-radius: 14px;
+            padding: 16px 36px; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,229,255,0.35);
+            transition: all 0.2s;
+        }
+        .intro-btn-start:hover { transform: scale(1.03); box-shadow: 0 6px 30px rgba(0,229,255,0.5); }
+
+        .intro-btn-guide {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.2rem; letter-spacing: 1px;
+            background: transparent;
+            color: #1a1a2e; border: 3px solid rgba(0,0,0,0.15);
+            border-radius: 14px;
+            padding: 14px 30px; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .intro-btn-guide:hover { border-color: var(--cyan); color: var(--cyan-dark); }
+
+        @media (max-width: 700px) {
+            .intro-card { padding: 24px; }
+            .intro-mascot { height: 120px; }
+            .intro-titles h1 { font-size: 1.5rem; }
+            .intro-titles h2 { font-size: 1.2rem; }
+            .intro-desc { font-size: 1.05rem; }
+            .intro-btn-start { font-size: 1.1rem; padding: 12px 24px; }
+            .intro-btn-guide { font-size: 1rem; padding: 10px 20px; }
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed; bottom: 80px; left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(0,229,255,0.3);
+            border-radius: 12px; padding: 12px 24px;
+            font-family: 'Luckiest Guy', cursive;
+            font-size: 1.1rem; color: #fff;
+            z-index: 8000; opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 700px) {
+            :root { --header-h: 56px; }
+            .header-title { font-size: 1.1rem; }
+            .header-home-btn, .header-help-btn { font-size: 0.85rem; padding: 8px 12px; }
+            .header-mascot { height: 40px; }
+            .tool-btn { font-size: 0.9rem; padding: 8px 12px; }
+            .color-dot { width: 30px; height: 30px; }
+            .tool-label { display: none; }
+            #tips-bar { font-size: 0.85rem; gap: 12px; }
+            .guide-card { padding: 20px; }
+            .guide-header h2 { font-size: 1.2rem; }
+        }
+    </style>
+    <!-- ZTS Landing Template -->
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="zts-landing.css">
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading">
+    <img class="loading-mascot" src="img/bucheron-salut.png" alt="Mr. Roots">
+    <div class="loading-title">TABLEAU BLANC NUMÉRIQUE</div>
+    <div class="loading-sub">Zone Total Sport</div>
+    <div class="loading-bar-wrap"><div class="loading-bar" id="loading-bar"></div></div>
+</div>
+
+<!-- GYM BACKGROUND -->
+<div id="gymBg"></div>
+
+<!-- GUIDE OVERLAY -->
+<div id="guide-overlay" class="hidden">
+    <div class="guide-card">
+        <div class="guide-header">
+            <img src="img/bucheron-pointer.png" alt="Mr. Roots">
+            <div>
+                <h2>COMMENT UTILISER LE TNI?</h2>
+                <p>Ton tableau blanc interactif pour l'enseignement!</p>
+            </div>
+        </div>
+        <div class="guide-steps">
+            <div class="guide-step">
+                <span class="guide-num">1</span>
+                <div>
+                    <h3>Dessine librement</h3>
+                    <p>Utilise le mode DESSIN pour tracer, écrire et illustrer directement sur le tableau. Change de couleur et ajuste l'épaisseur du trait.</p>
+                </div>
+            </div>
+            <div class="guide-step">
+                <span class="guide-num">2</span>
+                <div>
+                    <h3>Ajoute du contenu</h3>
+                    <p>Insère des PHOTOS, VIDÉOS, BULLES de texte ou même des SITES WEB directement sur ton tableau!</p>
+                </div>
+            </div>
+            <div class="guide-step">
+                <span class="guide-num">3</span>
+                <div>
+                    <h3>Déplace et redimensionne</h3>
+                    <p>Passe en mode BOUGER pour déplacer, agrandir ou supprimer tes éléments. Glisse le coin pour redimensionner!</p>
+                </div>
+            </div>
+            <div class="guide-step">
+                <span class="guide-num">4</span>
+                <div>
+                    <h3>Gomme et grille</h3>
+                    <p>Efface avec la GOMME et affiche une GRILLE de référence pour aligner tes éléments.</p>
+                </div>
+            </div>
+            <div class="guide-step">
+                <span class="guide-num">5</span>
+                <div>
+                    <h3>Sauvegarde ton travail</h3>
+                    <p>Clique SAUVER pour télécharger ton dessin en image PNG. Parfait pour conserver tes schémas tactiques!</p>
+                </div>
+            </div>
+            <div class="guide-step">
+                <span class="guide-num">6</span>
+                <div>
+                    <h3>Plein écran</h3>
+                    <p>Active le mode PLEIN ÉCRAN pour profiter de tout l'espace disponible — idéal sur le TBI de la classe!</p>
+                </div>
+            </div>
+        </div>
+        <button class="guide-start-btn" onclick="closeGuide()">C'EST PARTI!</button>
+    </div>
+</div>
+
+<!-- INTRO SECTION -->
+<section id="intro-section">
+    <div class="intro-card">
+        <div class="intro-top">
+            <img class="intro-mascot" src="img/bucheron-tni.png" alt="Mr. Roots">
+            <div class="intro-titles">
+                <h1>TON TABLEAU BLANC</h1>
+                <h2>INTERACTIF!</h2>
+            </div>
+        </div>
+        <p class="intro-desc">
+            Dessine, annote et présente directement sur ton TBI! Ajoute des photos, des vidéos, des bulles de texte et même des sites web. Parfait pour expliquer des jeux, tracer des terrains ou illustrer tes consignes au gymnase. Sauvegarde ton travail en image PNG — c'est gratuit et sans compte!
+        </p>
+        <div class="intro-pills">
+            <span class="intro-pill">✏️ Dessin libre</span>
+            <span class="intro-pill">📷 Photos & vidéos</span>
+            <span class="intro-pill">💬 Bulles de texte</span>
+            <span class="intro-pill">🌐 Sites web</span>
+            <span class="intro-pill">📐 Grille</span>
+            <span class="intro-pill">↩️ Annuler</span>
+            <span class="intro-pill">⛶ Plein écran</span>
+            <span class="intro-pill">💾 Export PNG</span>
+        </div>
+        <div class="intro-buttons">
+            <button class="intro-btn-start" onclick="scrollToApp()">🚀 COMMENCER!</button>
+            <button class="intro-btn-guide" onclick="scrollToApp(); setTimeout(showGuide, 600);">📖 COMMENT UTILISER</button>
+        </div>
+    </div>
+</section>
+
+<!-- APP WRAPPER -->
+<div id="app-wrapper">
+
+<!-- HEADER CYAN -->
+<header class="site-header">
+    <a href="https://zonetotalsport.ca" class="header-home-btn">🏠 Accueil</a>
+    <div class="header-brand">
+        <img class="header-mascot" src="img/bucheron-createur.png" alt="Mr. Roots">
+        <span class="header-title">TABLEAU BLANC NUMÉRIQUE</span>
+    </div>
+    <button class="header-help-btn" onclick="showGuide()">❓ Aide</button>
+    <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
+      <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
+      <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
+    </div>
+</header>
+
+<!-- TOOLBAR -->
+<div id="toolbar">
+    <!-- Modes -->
+    <div class="tool-group">
+        <button class="tool-btn active-tool" id="btn-draw" onclick="setMode('draw')">✏️ Dessin</button>
+        <button class="tool-btn" id="btn-move" onclick="setMode('move')">✋ Bouger</button>
+    </div>
+    <!-- Couleurs -->
+    <div class="tool-group">
+        <div class="color-dot active" style="background:#000" onclick="setColor('#000',this)"></div>
+        <div class="color-dot" style="background:#fff; border-color:rgba(0,0,0,0.3)" onclick="setColor('#ffffff',this)"></div>
+        <div class="color-dot" style="background:#FF2A2A" onclick="setColor('#FF2A2A',this)"></div>
+        <div class="color-dot" style="background:#00ACFF" onclick="setColor('#00ACFF',this)"></div>
+        <div class="color-dot" style="background:#4CAF50" onclick="setColor('#4CAF50',this)"></div>
+        <div class="color-dot" style="background:#FFD600" onclick="setColor('#FFD600',this)"></div>
+        <div class="color-dot" style="background:#FF9100" onclick="setColor('#FF9100',this)"></div>
+        <div class="color-dot" style="background:#FF00FF" onclick="setColor('#FF00FF',this)"></div>
+    </div>
+    <!-- Épaisseur -->
+    <div class="tool-group">
+        <span class="tool-label">Trait</span>
+        <input type="range" id="lineWidth" min="1" max="40" value="5">
+        <span id="sizeLabel" style="font-family:'Luckiest Guy',cursive; font-size:1.2rem; color:rgba(255,255,255,0.6); min-width:30px;">5</span>
+    </div>
+    <!-- Outils -->
+    <div class="tool-group">
+        <button class="tool-btn" id="btn-eraser" onclick="setTool('eraser')">🧽 Gomme</button>
+        <button class="tool-btn danger" onclick="clearAllRequest()">🗑️ Vider</button>
+    </div>
+    <!-- Ajouts -->
+    <div class="tool-group">
+        <button class="tool-btn" onclick="triggerFile('img')">📷 Photo</button>
+        <button class="tool-btn" onclick="triggerFile('video')">🎬 Vidéo</button>
+        <button class="tool-btn" onclick="addText()">💬 Bulle</button>
+        <button class="tool-btn" onclick="askWeb()">🌐 Web</button>
+    </div>
+    <!-- Système -->
+    <div class="tool-group">
+        <button class="tool-btn" onclick="drawGrid()">📐 Grille</button>
+        <button class="tool-btn" onclick="toggleFullscreen()">⛶ Plein écran</button>
+        <button class="tool-btn" onclick="undoLast()">↩️ Annuler</button>
+        <button class="tool-btn save" onclick="saveCanvas()">💾 Sauver</button>
+    </div>
+</div>
+
+<!-- TIPS BAR -->
+<div id="tips-bar">
+    <span>✏️ Clique et glisse pour dessiner</span>
+    <span>✋ Mode BOUGER pour déplacer les éléments</span>
+    <span>📷 Ajoute photos, vidéos et sites web</span>
+    <span><span class="tip-key">Ctrl+Z</span> Annuler</span>
+    <span><span class="tip-key">Ctrl+S</span> Sauvegarder</span>
+    <span><span class="tip-key">F</span> Plein écran</span>
+    <button class="tips-close" onclick="this.parentElement.style.display='none'" title="Fermer">✕</button>
+</div>
+
+<!-- CANVAS -->
+<div id="canvas-container">
+    <canvas id="whiteboard"></canvas>
+    <div id="objects-layer"></div>
+</div>
+
+<!-- FOOTER -->
+<div id="app-footer">
+    <button class="suggestion-btn" onclick="openSuggestionBox()">💡 Suggestion</button>
+    <img class="footer-logo" src="https://zonetotalsport.ca/logo-zts-text.png" alt="Zone Total Sport" style="height:48px;width:auto;">
+</div>
+
+<!-- HIDDEN INPUTS -->
+<input type="file" id="file-img" accept="image/*" style="display:none" onchange="handleFile(this,'img')">
+<input type="file" id="file-video" accept="video/*" style="display:none" onchange="handleFile(this,'video')">
+
+<!-- MODAL -->
+<div id="modal-overlay" class="modal-overlay">
+    <div class="modal-box">
+        <h2 id="modal-title"></h2>
+        <div id="modal-content"></div>
+        <div id="modal-footer" style="margin-top:16px;">
+            <button class="modal-btn ghost" onclick="closeModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+</div><!-- /APP WRAPPER -->
+
+<script>
+// ===== VARIABLES =====
+const canvas = document.getElementById('whiteboard');
+const ctx = canvas.getContext('2d');
+const container = document.getElementById('canvas-container');
+const objectsLayer = document.getElementById('objects-layer');
+
+let isDrawing = false;
+let currentMode = 'draw';
+let currentTool = 'pencil';
+let currentColor = '#000';
+let currentSize = 5;
+
+// Undo history
+let undoStack = [];
+const MAX_UNDO = 20;
+
+// ===== LOADING SCREEN =====
+(function initLoading() {
+    const bar = document.getElementById('loading-bar');
+    let pct = 0;
+    const iv = setInterval(() => {
+        pct += Math.random() * 25 + 10;
+        if (pct > 100) pct = 100;
+        bar.style.width = pct + '%';
+        if (pct >= 100) {
+            clearInterval(iv);
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('fade-out');
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    // Intro overlay is shown by default
+                }, 500);
+            }, 300);
+        }
+    }, 150);
+})();
+
+// ===== INTRO =====
+function scrollToApp() {
+    document.getElementById('app-wrapper').scrollIntoView({ behavior: 'smooth' });
+    // Lock body scroll once in app mode
+    setTimeout(() => {
+        document.body.style.overflow = 'hidden';
+        document.body.style.height = '100vh';
+        document.getElementById('app-wrapper').style.height = '100vh';
+    }, 800);
+}
+
+// ===== GUIDE =====
+function showGuide() { document.getElementById('guide-overlay').classList.remove('hidden'); }
+function closeGuide() { document.getElementById('guide-overlay').classList.add('hidden'); }
+
+// ===== TOAST =====
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ===== CANVAS SETUP =====
+function resizeCanvas() {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    if (canvas.width > 0) tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    if (tempCanvas.width > 0) ctx.drawImage(tempCanvas, 0, 0);
+}
+window.addEventListener('resize', resizeCanvas);
+setTimeout(resizeCanvas, 100);
+
+// ===== UNDO =====
+function saveState() {
+    if (undoStack.length >= MAX_UNDO) undoStack.shift();
+    undoStack.push(canvas.toDataURL());
+}
+
+function undoLast() {
+    if (undoStack.length === 0) { showToast('Rien à annuler'); return; }
+    const data = undoStack.pop();
+    const img = new Image();
+    img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+    };
+    img.src = data;
+    showToast('↩️ Annulé');
+}
+
+// ===== MODES & TOOLS =====
+function setMode(mode) {
+    currentMode = mode;
+    document.body.className = (mode === 'move') ? 'mode-move' : '';
+    document.getElementById('btn-draw').classList.toggle('active-tool', mode === 'draw');
+    document.getElementById('btn-move').classList.toggle('active-tool', mode === 'move');
+    if (mode === 'draw') {
+        updateCursor();
+    } else {
+        container.style.cursor = 'grab';
+    }
+}
+
+function setColor(color, el) {
+    currentColor = color;
+    currentTool = 'pencil';
+    document.getElementById('btn-eraser').classList.remove('active-tool');
+    setMode('draw');
+    document.querySelectorAll('.color-dot').forEach(p => p.classList.remove('active'));
+    if (el) el.classList.add('active');
+    updateCursor();
+}
+
+function setTool(tool) {
+    currentTool = tool;
+    setMode('draw');
+    document.getElementById('btn-eraser').classList.toggle('active-tool', tool === 'eraser');
+    updateCursor();
+}
+
+function updateCursor() {
+    if (currentTool === 'eraser') {
+        const s = currentSize * 3;
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}"><circle cx="${s/2}" cy="${s/2}" r="${s/2-1}" fill="rgba(200,200,200,0.5)" stroke="%23999" stroke-width="1"/></svg>`;
+        container.style.cursor = `url('data:image/svg+xml;utf8,${svg}') ${s/2} ${s/2}, cell`;
+    } else {
+        const s = Math.max(currentSize, 8);
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${s+4}" height="${s+4}" viewBox="0 0 ${s+4} ${s+4}"><circle cx="${(s+4)/2}" cy="${(s+4)/2}" r="${s/2}" fill="${encodeURIComponent(currentColor)}" stroke="white" stroke-width="2"/></svg>`;
+        container.style.cursor = `url('data:image/svg+xml;utf8,${svg}') ${(s+4)/2} ${(s+4)/2}, crosshair`;
+    }
+}
+
+document.getElementById('lineWidth').addEventListener('input', (e) => {
+    currentSize = parseInt(e.target.value);
+    document.getElementById('sizeLabel').textContent = currentSize;
+    updateCursor();
+});
+
+// ===== DRAWING =====
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+}
+
+function startDraw(e) {
+    if (currentMode !== 'draw') return;
+    if (e.target !== canvas) return;
+    e.preventDefault();
+    saveState();
+    isDrawing = true;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    // Draw a dot for single clicks
+    ctx.lineWidth = currentSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (currentTool === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = currentSize * 3;
+    } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor;
+    }
+    ctx.lineTo(pos.x + 0.1, pos.y + 0.1);
+    ctx.stroke();
+}
+
+function stopDraw() {
+    isDrawing = false;
+    ctx.beginPath();
+}
+
+function draw(e) {
+    if (!isDrawing || currentMode !== 'draw') return;
+    e.preventDefault();
+    const pos = getPos(e);
+    ctx.lineWidth = currentSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (currentTool === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.lineWidth = currentSize * 3;
+    } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor;
+    }
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+}
+
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDraw);
+canvas.addEventListener('mouseleave', stopDraw);
+canvas.addEventListener('touchstart', startDraw, { passive: false });
+canvas.addEventListener('touchmove', draw, { passive: false });
+canvas.addEventListener('touchend', stopDraw);
+
+// ===== DRAGGABLE OBJECTS =====
+function createDraggable(element, w, h) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'draggable-wrapper';
+    wrapper.style.width = w || '200px';
+    wrapper.style.height = h || 'auto';
+    wrapper.style.left = '50px';
+    wrapper.style.top = '50px';
+
+    const del = document.createElement('div');
+    del.className = 'delete-btn';
+    del.innerText = '✕';
+    del.onclick = (e) => { e.stopPropagation(); wrapper.remove(); showToast('Élément supprimé'); };
+    wrapper.appendChild(del);
+    wrapper.appendChild(element);
+    objectsLayer.appendChild(wrapper);
+
+    let isDrag = false, startX, startY, initLeft, initTop;
+
+    const onDown = (e) => {
+        if (currentMode !== 'move') return;
+        const rect = wrapper.getBoundingClientRect();
+        if (e.clientX > rect.right - 20 && e.clientY > rect.bottom - 20) return;
+        if (e.target.isContentEditable) { e.target.focus(); return; }
+        if (e.target.tagName === 'VIDEO' && e.layerY > e.target.clientHeight - 40) return;
+        e.preventDefault();
+        isDrag = true;
+        startX = e.clientX || e.touches[0].clientX;
+        startY = e.clientY || e.touches[0].clientY;
+        initLeft = wrapper.offsetLeft;
+        initTop = wrapper.offsetTop;
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onUp);
+    };
+
+    const onMove = (e) => {
+        if (!isDrag) return;
+        e.preventDefault();
+        const cx = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+        const cy = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+        wrapper.style.left = (initLeft + (cx - startX)) + 'px';
+        wrapper.style.top = (initTop + (cy - startY)) + 'px';
+    };
+
+    const onUp = () => {
+        isDrag = false;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+    };
+
+    wrapper.addEventListener('mousedown', onDown);
+    wrapper.addEventListener('touchstart', onDown, { passive: false });
+}
+
+// ===== FILE HANDLING =====
+function triggerFile(type) { document.getElementById('file-' + type).click(); }
+
+function handleFile(input, type) {
+    if (!input.files[0]) return;
+    const url = URL.createObjectURL(input.files[0]);
+    if (type === 'img') {
+        const el = document.createElement('img');
+        el.src = url;
+        el.className = 'content-media';
+        createDraggable(el, '250px', '250px');
+        showToast('📷 Image ajoutée');
+    } else {
+        const el = document.createElement('video');
+        el.src = url;
+        el.controls = true;
+        el.className = 'content-media';
+        createDraggable(el, '320px', '240px');
+        showToast('🎬 Vidéo ajoutée');
+    }
+    input.value = '';
+    setMode('move');
+}
+
+function addText() {
+    const div = document.createElement('div');
+    div.className = 'content-text';
+    div.contentEditable = true;
+    div.innerText = 'CLIQUE POUR\nÉCRIRE';
+    createDraggable(div, '200px', '150px');
+    setMode('move');
+    showToast('💬 Bulle ajoutée — clique pour écrire');
+}
+
+function askWeb() {
+    document.getElementById('modal-overlay').style.display = 'block';
+    document.getElementById('modal-title').innerText = 'INSÉRER UN SITE WEB';
+    document.getElementById('modal-content').innerHTML = `
+        <input type="text" id="web-url" placeholder="https://wikipedia.org">
+        <br><button class="modal-btn primary" onclick="createWeb()">Ajouter</button>
+    `;
+    document.getElementById('modal-footer').style.display = 'block';
+}
+
+function createWeb() {
+    let url = document.getElementById('web-url').value;
+    if (!url) return;
+    if (!url.startsWith('http')) url = 'https://' + url;
+
+    const iframe = document.createElement('iframe');
+    iframe.src = url;
+    iframe.className = 'content-media';
+    iframe.style.border = 'none';
+
+    const blocker = document.createElement('div');
+    blocker.className = 'iframe-blocker';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'width:100%;height:100%;position:relative';
+    wrapper.appendChild(iframe);
+    wrapper.appendChild(blocker);
+
+    createDraggable(wrapper, '400px', '300px');
+    closeModal();
+    setMode('move');
+    showToast('🌐 Site web ajouté');
+}
+
+// ===== SYSTEM TOOLS =====
+function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+function drawGrid() {
+    saveState();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(0,150,199,0.25)';
+    ctx.lineWidth = 1;
+    const step = 40;
+    for (let x = 0; x < canvas.width; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
+    for (let y = 0; y < canvas.height; y += step) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
+    ctx.stroke();
+    showToast('📐 Grille affichée');
+}
+
+function clearAllRequest() {
+    document.getElementById('modal-overlay').style.display = 'block';
+    document.getElementById('modal-title').innerText = 'TOUT EFFACER?';
+    document.getElementById('modal-content').innerHTML = `
+        <p style="font-family:'Schoolbell'; font-size:1.1rem; margin-bottom:16px; color:rgba(255,255,255,0.8);">Attention! Tout le contenu sera perdu.</p>
+        <button class="modal-btn danger" onclick="performClear()" style="margin-right:8px;">Oui, tout vider!</button>
+        <button class="modal-btn ghost" onclick="closeModal()">Annuler</button>
+    `;
+    document.getElementById('modal-footer').style.display = 'none';
+}
+
+function performClear() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    while (objectsLayer.firstChild) objectsLayer.removeChild(objectsLayer.firstChild);
+    undoStack = [];
+    closeModal();
+    // Flash effect
+    container.style.boxShadow = '0 0 40px rgba(255,42,42,0.6), inset 0 0 0 2px rgba(255,42,42,0.5)';
+    setTimeout(() => {
+        container.style.boxShadow = '0 0 30px rgba(0,0,0,0.4), inset 0 0 0 2px rgba(0,229,255,0.15)';
+    }, 300);
+    showToast('🗑️ Tableau vidé');
+}
+
+function saveCanvas() {
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'tableau-blanc-zts.png';
+    a.click();
+    showToast('💾 Image téléchargée!');
+}
+
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+        showToast('⛶ Plein écran activé');
+    } else {
+        document.exitFullscreen();
+        showToast('⛶ Plein écran désactivé');
+    }
+}
+
+// ===== SUGGESTIONS =====
+function openSuggestionBox() {
+    document.getElementById('modal-overlay').style.display = 'block';
+    document.getElementById('modal-title').innerText = 'SUGGESTION';
+    document.getElementById('modal-content').innerHTML = `
+        <p style="font-family:'Schoolbell'; font-size:1.1rem; margin-bottom:12px; color:rgba(255,255,255,0.7);">Ton idée pour améliorer le TNI :</p>
+        <textarea id="suggestion-text" placeholder="J'aimerais avoir..."></textarea>
+        <br><button class="modal-btn primary" onclick="sendSuggestion()">Envoyer</button>
+    `;
+    document.getElementById('modal-footer').style.display = 'block';
+}
+
+function sendSuggestion() {
+    const text = document.getElementById('suggestion-text').value;
+    if (text) {
+        const email = 'zts@hotmail.ca';
+        const subject = encodeURIComponent("Suggestion pour le TNI — Zone Total Sport");
+        const body = encodeURIComponent(text);
+        window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        closeModal();
+        showToast('Merci pour ta suggestion!');
+    } else {
+        showToast('Écris un petit message d\'abord!');
+    }
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', (e) => {
+    if (e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'z') { e.preventDefault(); undoLast(); }
+        if (e.key === 's') { e.preventDefault(); saveCanvas(); }
+    }
+    if (e.key === 'd') setMode('draw');
+    if (e.key === 'm') setMode('move');
+    if (e.key === 'e') setTool('eraser');
+    if (e.key === 'g') drawGrid();
+    if (e.key === 'f') toggleFullscreen();
+    if (e.key === 'Escape') { closeModal(); closeGuide(); }
+});
+</script>
+<!-- ZTS Landing config + script -->
+<script>
+window.ZTS_LANDING_CONFIG = {
+  appId: 'tni',
+  accentColor: '#6366F1',
+  homeUrl: 'https://zonetotalsport.ca',
+  mascot: 'https://zonetotalsport.ca/bucheron-tni.png',
+  logoIcon: 'https://zonetotalsport.ca/logo-zts-text.png',
+  logoWide: true,
+  logoTitle: { fr: 'Tableau Blanc Numérique', en: 'Digital Whiteboard', zh: '数字白板' },
+  logoSub: 'Zone Total Sport',
+  title: { fr: 'Tableau Blanc Numérique', en: 'Digital Whiteboard', zh: '数字白板' },
+  subtitle: { fr: 'Interactif au gym!', en: 'Interactive in the gym!', zh: '互动体育课!' },
+  description: {
+    fr: "Le TBI pensé pour le gymnase. Dessine des stratégies, affiche un chrono XXL, présente des équipes, projette des pictos sportifs. Gros boutons, contraste élevé, tout ce qu'il faut pour captiver ton groupe.",
+    en: "The interactive whiteboard built for the gym. Draw strategies, show a huge timer, present teams, project sport icons. Big buttons, high contrast, everything you need.",
+    zh: "为体育馆打造的白板。画战术、大号计时器、分组展示、运动图标投影。大按钮、高对比度,应有尽有。"
+  },
+  badges: [
+    { emoji: '✏️', color: 'violet', text: { fr: 'Dessin libre', en: 'Free draw', zh: '自由绘图' } },
+    { emoji: '⏱️', color: 'cyan',   text: { fr: 'Chrono XXL', en: 'XXL timer', zh: '超大计时器' } },
+    { emoji: '🏆', color: 'yellow', text: { fr: 'Scoreboard', en: 'Scoreboard', zh: '记分板' } },
+    { emoji: '🏀', color: 'pink',   text: { fr: 'Pictos sport', en: 'Sport icons', zh: '运动图标' } },
+    { emoji: '📺', color: 'green',  text: { fr: 'Plein écran', en: 'Fullscreen', zh: '全屏' } }
+  ],
+  features: [
+    { emoji: '🖊️', title: { fr: 'Crayon + gomme', en: 'Pen + eraser', zh: '画笔 + 橡皮' }, desc: { fr: 'Multi-couleurs, multi-épaisseurs', en: 'Multi-color, multi-width', zh: '多色多粗细' } },
+    { emoji: '🏟️', title: { fr: 'Terrains', en: 'Courts', zh: '场地' }, desc: { fr: 'Basket, soccer, hockey, volley…', en: 'Basket, soccer, hockey, volley…', zh: '篮球、足球、冰球、排球…' } },
+    { emoji: '⏱️', title: { fr: 'Chrono géant', en: 'Giant timer', zh: '巨型计时器' }, desc: { fr: 'Lisible à 10 mètres', en: 'Readable from 30 ft', zh: '10 米内清晰' } },
+    { emoji: '🏆', title: { fr: 'Score live', en: 'Live score', zh: '实时比分' }, desc: { fr: '2 équipes, buzzer et corne', en: '2 teams, buzzer and horn', zh: '两队,蜂鸣器' } },
+    { emoji: '👥', title: { fr: 'Équipes', en: 'Teams', zh: '队伍' }, desc: { fr: 'Générateur aléatoire intégré', en: 'Random generator built-in', zh: '内置随机生成' } },
+    { emoji: '🎵', title: { fr: 'Musique', en: 'Music', zh: '音乐' }, desc: { fr: 'Playlists intégrées', en: 'Built-in playlists', zh: '内置歌单' } },
+    { emoji: '📱', title: { fr: 'Tactile', en: 'Touch', zh: '触控' }, desc: { fr: 'TNI, tablette, téléphone', en: 'IWB, tablet, phone', zh: '白板、平板、手机' } },
+    { emoji: '💾', title: { fr: 'Sauvegarde', en: 'Save', zh: '保存' }, desc: { fr: 'Retrouve tes croquis', en: 'Find your sketches', zh: '保留草图' } }
+  ],
+  ctaStart: { label: { fr: 'Commencer!', en: 'Start!', zh: '开始!' } },
+  ctaHelp: {
+    label: { fr: 'Comment utiliser', en: 'How to use', zh: '使用说明' },
+    onClick: function () { window.open('https://zonetotalsport.ca/blog.html', '_blank'); }
+  }
+};
+</script>
+<script src="zts-landing.js"></script>
+
+<!-- ZTS Auth Gate -->
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+(function(){
+  var c={apiKey:'AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA',authDomain:'zone-total-sport.firebaseapp.com',projectId:'zone-total-sport'};
+  if(!firebase.apps.length) firebase.initializeApp(c);
+  var o=document.createElement('div');
+  o.id='zts-gate';
+  o.innerHTML='<div style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:16px"><div style="background:#fff;border-radius:24px;padding:32px 28px;max-width:440px;width:100%;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,0.3);max-height:95vh;overflow-y:auto"><img src="https://zonetotalsport.ca/bucheron-basketball.png" style="width:100px;margin:0 auto 12px" alt=""><h2 style="font-family:Luckiest Guy,cursive;font-size:1.8rem;color:#1e293b;margin:0 0 4px">Zone Total Sport</h2><p style="font-family:Schoolbell,cursive;color:#64748b;margin:0 0 20px;font-size:1rem">Connecte-toi ou inscris-toi gratuitement pour acceder a cette ressource.</p><input id="zg-e" type="email" placeholder="Courriel" autocomplete="email" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:10px;font-size:1.05rem;box-sizing:border-box"><div style="position:relative;margin-bottom:16px"><input id="zg-p" type="password" placeholder="Mot de passe" autocomplete="current-password" style="font-family:Schoolbell,cursive;width:100%;padding:14px 48px 14px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:1.05rem;box-sizing:border-box"><button type="button" id="zg-pt" aria-label="Afficher le mot de passe" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;padding:6px;font-size:1.3rem;line-height:1">&#x1F441;</button></div><button id="zg-l" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#4f46e5;color:#fff;border:none;border-radius:12px;font-size:1.05rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Se connecter</button><button id="zg-s" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#00BCD4;color:#fff;border:none;border-radius:12px;font-size:1.05rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Creer un compte gratuit</button><button id="zg-g" style="font-family:Schoolbell,cursive;width:100%;padding:14px;background:#fff;color:#333;border:2px solid #e2e8f0;border-radius:12px;font-size:1.05rem;font-weight:700;cursor:pointer">Connexion Google</button><p id="zg-err" style="font-family:Schoolbell,cursive;color:#ef4444;font-size:.9rem;margin:12px 0 0;display:none"></p></div></div>';
+  document.body.appendChild(o);
+  var err=document.getElementById('zg-err');
+  function se(m){err.textContent=m;err.style.display='block';}
+  // Toggle password visibility
+  var pt=document.getElementById('zg-pt');
+  pt.onclick=function(){
+    var p=document.getElementById('zg-p');
+    if(p.type==='password'){p.type='text';pt.innerHTML='&#x1F648;';}
+    else{p.type='password';pt.innerHTML='&#x1F441;';}
+  };
+  // Detect mobile for Google auth strategy
+  var isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  // Check for redirect result on load (mobile Google flow)
+  firebase.auth().getRedirectResult().catch(function(r){if(r && r.code) se('Erreur Google: '+r.code);});
+  document.getElementById('zg-l').onclick=function(){
+    var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;
+    if(!e||!p){se('Remplis tous les champs');return;}
+    firebase.auth().signInWithEmailAndPassword(e,p).catch(function(r){se(r.message);});
+  };
+  document.getElementById('zg-s').onclick=function(){
+    var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;
+    if(!e||!p){se('Remplis tous les champs');return;}
+    firebase.auth().createUserWithEmailAndPassword(e,p).catch(function(r){se(r.message);});
+  };
+  document.getElementById('zg-g').onclick=function(){
+    var provider=new firebase.auth.GoogleAuthProvider();
+    if(isMobile){
+      firebase.auth().signInWithRedirect(provider).catch(function(r){se(r.message);});
+    } else {
+      firebase.auth().signInWithPopup(provider).catch(function(r){
+        if(r.code==='auth/popup-blocked'||r.code==='auth/popup-closed-by-user'){
+          firebase.auth().signInWithRedirect(provider).catch(function(r2){se(r2.message);});
+          return;
+        }
+        se(r.message);
+      });
+    }
+  };
+  firebase.auth().onAuthStateChanged(function(u){var g=document.getElementById('zts-gate');if(u&&g)g.remove();ztsUpdateAuthUI(u);});
+})();
+function ztsUpdateAuthUI(u){var l=document.getElementById('zts-auth-label'),b=document.getElementById('zts-auth-btn');if(!l||!b)return;if(u){var name=u.displayName||u.email.split('@')[0];l.textContent='\u{1F464} '+name;b.textContent='Deconnexion';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.15)';b.style.borderColor='rgba(255,255,255,0.5)';}else{l.textContent='';b.textContent='Se connecter';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.25)';b.style.borderColor='#fff';}}
+function ztsAuthAction(){var u=firebase.auth().currentUser;if(u){firebase.auth().signOut().then(function(){location.reload();});}else{location.reload();}}
+</script>
+</body>
+</html>

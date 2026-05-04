@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Banque de SAE PFEQ pour l'education physique et sante — Maternelle a Secondaire 5, conforme au programme quebecois." />
+  <meta name="theme-color" content="#0077CC" />
+  <title>SAE PFEQ — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <style>.hidden{display:none!important}</style>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="zts-landing.css">
+</head>
+<body>
+  <!-- Gym background -->
+  <div id="gymBg" aria-hidden="true"></div>
+  <!-- Canvas gradient anime -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Loading screen -->
+  <div id="loading">
+    <div class="loading-inner">
+      <img src="img/bucheron-salut.png" alt="Bucheron" class="loading-logo-img" />
+      <div class="loading-logo" style="display:none;">📚</div>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Chargement des SAE PFEQ…</p>
+    </div>
+  </div>
+
+  <!-- Application principale -->
+  <div id="app" class="hidden">
+
+    <!-- HEADER FIXE -->
+    <header style="background:linear-gradient(135deg,#00E5FF,#00B8D4);position:sticky;top:0;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,0.3);padding:12px 16px">
+      <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <a href="https://zonetotalsport.ca" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+          <img src="https://zonetotalsport.ca/bucheron-basketball.png" alt="Mascotte" style="height:50px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
+          <span style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:1rem;text-shadow:1px 1px 3px rgba(0,0,0,0.3)">🏠 Accueil</span>
+        </a>
+        <div style="flex:1;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px">
+          <img src="https://zonetotalsport.ca/bucheron-sae.png" alt="App" style="height:50px;border-radius:12px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
+          <h1 style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:clamp(1.2rem,3vw,2rem);text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin:0;letter-spacing:1px">BANQUE DE SAÉ</h1>
+        </div>
+        <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
+          <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
+          <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO LANDING -->
+    <div id="heroLanding" style="max-width:900px;margin:20px auto;padding:0 16px">
+      <div style="background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:28px;border:1px solid rgba(0,229,255,0.2);display:flex;flex-wrap:wrap;align-items:center;gap:24px;justify-content:center">
+        <img src="https://zonetotalsport.ca/bucheron-sae.png" alt="Mascotte" style="width:130px;height:auto;filter:drop-shadow(3px 3px 10px rgba(0,0,0,0.5));border-radius:16px;flex-shrink:0">
+        <div style="flex:1;min-width:250px;text-align:center">
+          <h2 style="font-family:'Luckiest Guy',cursive;font-size:clamp(1.5rem,4vw,2.5rem);color:#fff;margin:0 0 10px;line-height:1.15">BANQUE DE <span style="color:#00E5FF">SAE COMPLETES!</span></h2>
+          <p style="font-family:'Schoolbell',cursive;font-size:1.05rem;color:#ccc;margin:0 0 14px;line-height:1.5">Plus de 1000 Situations d'Apprentissage et d'Evaluation alignees sur le PFEQ. Chaque SAE inclut les competences visees, le materiel, le deroulement et les criteres d'evaluation. Prete a utiliser des demain matin au gymnase!</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px">
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">📋 1000+ SAE</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">📚 Aligne PFEQ</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">⏱️ Pretes a l'emploi</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">✅ Criteres inclus</span>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button onclick="document.getElementById('heroLanding').style.display='none'" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;border:none;border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">🚀 Commencer!</button>
+            <button onclick="document.getElementById('guideSection').classList.toggle('hidden')" style="font-family:'Bangers',cursive;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">📖 Comment utiliser</button>
+          </div>
+        </div>
+      </div>
+      <div id="guideSection" class="hidden" style="margin-top:12px;background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:24px;border:1px solid rgba(0,229,255,0.2)">
+        <h3 style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;color:#fff;margin:0 0 14px">📖 COMMENT UTILISER</h3>
+        <p style="font-family:'Schoolbell',cursive;font-size:1rem;color:#ccc;line-height:1.6;margin:0">
+          <strong style="color:#00E5FF">1)</strong> <strong style="color:#fff">FILTRE</strong> par competence, cycle ou domaine.<br>
+          <strong style="color:#00E5FF">2)</strong> Clique sur une SAE pour la <strong style="color:#fff">FICHE DETAILLEE</strong>.<br>
+          <strong style="color:#00E5FF">3)</strong> <strong style="color:#fff">IMPRIME</strong> et utilise-la directement en classe.
+        </p>
+      </div>
+    </div>
+
+    <!-- BROWSER MOYENS D'ACTION -->
+    <section class="section-browser" id="browser">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Parcourir par moyen d'action</h2>
+          <p class="section-subtitle">Selectionnez une categorie pour filtrer les SAE correspondantes</p>
+        </div>
+        <div class="moyens-grid" id="moyens-grid">
+          <!-- Rempli par JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- BARRE DE FILTRES -->
+    <section class="section-filters" id="filtres">
+      <div class="container">
+        <div class="filters-bar">
+          <div class="filter-group filter-search">
+            <span class="filter-icon">🔍</span>
+            <input
+              type="text"
+              id="sae-search"
+              class="filter-input"
+              placeholder="Rechercher une SAE…"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="sae-cycle">Cycle</label>
+            <select id="sae-cycle" class="filter-select">
+              <option value="">Tous les cycles</option>
+              <optgroup label="Primaire">
+                <option value="Prescolaire">Préscolaire / Maternelle</option>
+                <option value="Cycle 1">1er cycle primaire</option>
+                <option value="Cycle 2">2e cycle primaire</option>
+                <option value="Cycle 3">3e cycle primaire</option>
+              </optgroup>
+              <optgroup label="Secondaire">
+                <option value="Secondaire 1">Secondaire 1</option>
+                <option value="Secondaire 2">Secondaire 2</option>
+                <option value="Secondaire 3">Secondaire 3</option>
+                <option value="Secondaire 4">Secondaire 4</option>
+                <option value="Secondaire 5">Secondaire 5</option>
+                <option value="1er cycle secondaire">1er cycle sec. (1-2)</option>
+                <option value="2e cycle secondaire">2e cycle sec. (3-5)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="sae-moyen">Moyen d'action</label>
+            <select id="sae-moyen" class="filter-select">
+              <option value="">Tous les moyens</option>
+              <optgroup label="Manipulation">
+                <option value="manipulation">Manipulation d'objets</option>
+                <option value="raquette">Raquette / Outil</option>
+                <option value="ballon">Ballon</option>
+              </optgroup>
+              <optgroup label="Locomotion">
+                <option value="locomotion">Locomotion</option>
+                <option value="poursuite">Jeux de poursuite</option>
+              </optgroup>
+              <optgroup label="Stabilisation">
+                <option value="mobilite">Mobilite / Stabilisation</option>
+                <option value="conditionnement">Conditionnement physique</option>
+              </optgroup>
+              <optgroup label="Opposition">
+                <option value="opposition">Opposition / Duel</option>
+                <option value="dodgeball">Ballon chasseur</option>
+              </optgroup>
+              <optgroup label="Cooperation">
+                <option value="cooperation">Cooperation</option>
+                <option value="collectif">Sports collectifs</option>
+              </optgroup>
+              <optgroup label="Expression">
+                <option value="expression">Expression corporelle</option>
+                <option value="artistique">Expression artistique</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="sae-composante">Composante</label>
+            <select id="sae-composante" class="filter-select">
+              <option value="">Toutes les composantes</option>
+              <!-- Rempli dynamiquement par JS -->
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="sae-competence">Competence PFEQ</label>
+            <select id="sae-competence" class="filter-select">
+              <option value="">Toutes les competences</option>
+              <option value="Manipulation">Manipulation</option>
+              <option value="Locomotion">Locomotion</option>
+              <option value="Mobilite">Mobilite / Stabilisation</option>
+              <option value="Cooperation">Cooperation</option>
+              <option value="Opposition">Opposition</option>
+              <option value="Expression">Expression</option>
+              <option value="Conditionnement">Conditionnement</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label" for="sae-clientele">Clientele speciale</label>
+            <select id="sae-clientele" class="filter-select">
+              <option value="">Toutes les clienteles</option>
+              <option value="tsa">TSA</option>
+              <option value="handicap">Handicap moteur</option>
+              <option value="deficience">Deficience intellectuelle</option>
+              <option value="maternelle">Maternelle 4 ans</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Stats bar -->
+        <div class="stats-bar" id="stats-bar">
+          <div class="stats-pill" id="sae-count">0 SAE</div>
+          <button class="stats-pill favoris-filter-btn" id="favoris-filter" onclick="toggleFavorisFilter()">☆ Favoris</button>
+          <div class="stats-pills-cycles">
+            <span class="stats-pill stats-pill-green">Prescolaire</span>
+            <span class="stats-pill stats-pill-blue">Primaire</span>
+            <span class="stats-pill stats-pill-purple">Secondaire</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRILLE SAE -->
+    <section class="section-grid">
+      <div class="container">
+        <div class="sae-grid" id="sae-grid">
+          <!-- Rempli par JS -->
+        </div>
+        <div id="pagination" class="pagination"></div>
+      </div>
+    </section>
+
+    <!-- STATS BAR BOTTOM -->
+    <div class="stats-bar-bottom">
+      <div class="stats-bar-bottom-inner">
+        <div class="sbar-item">
+          <span class="sbar-icon">🎯</span>
+          <span>Aligne sur le PFEQ</span>
+        </div>
+        <div class="sbar-divider"></div>
+        <div class="sbar-item">
+          <span class="sbar-icon">📐</span>
+          <span>Progressions par niveau</span>
+        </div>
+        <div class="sbar-divider"></div>
+        <div class="sbar-item">
+          <span class="sbar-icon">♿</span>
+          <span>Adaptations HDAA incluses</span>
+        </div>
+        <div class="sbar-divider"></div>
+        <div class="sbar-item">
+          <span class="sbar-icon">🔄</span>
+          <span>Variantes et differenciation</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <a href="https://zonetotalsport.ca" target="_blank">
+        <img src="img/logo-zonetotalsport.png" alt="ZoneTotalSport.ca" class="footer-logo-img" />
+      </a>
+    </footer>
+
+  </div><!-- /#app -->
+
+  <!-- SECTION CONCEPTION DE MA SAE (cachee par defaut) -->
+  <section id="cours-section" class="cours-section hidden">
+    <div class="cours-inner">
+      <div class="cours-header">
+        <button class="back-btn" onclick="closeCours()">
+          <span class="back-icon">←</span>
+          Retour aux SAE
+        </button>
+        <h2 class="cours-title">📋 Planification de ma SAE</h2>
+        <p class="cours-subtitle">Planifie ta SAE cours par cours, ajoute ta grille d'evaluation et imprime le tout</p>
+      </div>
+
+      <!-- CHOIX DU MODE : Educatifs ou SAE complet -->
+      <div class="cours-mode-selector">
+        <h3 class="cours-section-title">🎯 Type de contenu</h3>
+        <p class="cours-section-hint">Choisis le type d'activites a integrer dans ta planification.</p>
+        <div class="cours-mode-options">
+          <button class="cours-mode-btn active" id="mode-btn-educatifs" onclick="setCoursMode('educatifs')">
+            <span class="cours-mode-icon">🏃</span>
+            <span class="cours-mode-label">Educatifs</span>
+            <span class="cours-mode-desc">1000+ educatifs specifiques par habilete</span>
+          </button>
+          <button class="cours-mode-btn" id="mode-btn-sae" onclick="setCoursMode('sae')">
+            <span class="cours-mode-icon">📚</span>
+            <span class="cours-mode-label">SAE complet</span>
+            <span class="cours-mode-desc">1080 situations d'apprentissage completes</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ETAPE 1 : Configuration -->
+      <div class="cours-config">
+        <div class="cours-config-row">
+          <div class="cours-field" style="flex:2">
+            <label class="cours-label">Titre de la SAE</label>
+            <input type="text" id="cours-titre" class="cours-input" placeholder="Ex: SAE Manipulation — 2e cycle" />
+          </div>
+          <div class="cours-field">
+            <label class="cours-label">Niveau scolaire</label>
+            <select id="cours-niveau" class="cours-select">
+              <option value="">Selectionner un niveau</option>
+              <optgroup label="Primaire">
+                <option value="Prescolaire">Préscolaire / Maternelle</option>
+                <option value="Cycle 1">1er cycle primaire</option>
+                <option value="Cycle 2">2e cycle primaire</option>
+                <option value="Cycle 3">3e cycle primaire</option>
+              </optgroup>
+              <optgroup label="Secondaire">
+                <option value="Secondaire 1">Secondaire 1</option>
+                <option value="Secondaire 2">Secondaire 2</option>
+                <option value="Secondaire 3">Secondaire 3</option>
+                <option value="Secondaire 4">Secondaire 4</option>
+                <option value="Secondaire 5">Secondaire 5</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="cours-field">
+            <label class="cours-label">Nombre de cours</label>
+            <select id="cours-nb" class="cours-select" onchange="onNbCoursChange()">
+              <option value="0">Choisir...</option>
+              <option value="1">1 cours</option>
+              <option value="2">2 cours</option>
+              <option value="3">3 cours</option>
+              <option value="4">4 cours</option>
+              <option value="5">5 cours</option>
+              <option value="6">6 cours</option>
+              <option value="7">7 cours</option>
+              <option value="8">8 cours</option>
+              <option value="9">9 cours</option>
+              <option value="10">10 cours</option>
+              <option value="12">12 cours</option>
+              <option value="15">15 cours</option>
+              <option value="20">20 cours</option>
+            </select>
+          </div>
+        </div>
+        <div class="cours-field">
+          <label class="cours-label">Notes / consignes generales</label>
+          <textarea id="cours-notes" class="cours-textarea" rows="2" placeholder="Ajoute tes notes, objectifs ou consignes pour cette SAE..."></textarea>
+        </div>
+      </div>
+
+      <!-- ETAPE 2a : Cases par cours (mode Educatifs) -->
+      <div id="cours-slots-section" class="cours-slots-section hidden">
+        <h3 class="cours-section-title">📅 Planification par cours</h3>
+        <p class="cours-section-hint">Clique sur chaque cours pour y assigner un educatif depuis la banque.</p>
+        <div id="cours-slots" class="cours-slots">
+          <!-- Rempli par JS -->
+        </div>
+      </div>
+
+      <!-- ETAPE 2b : Browser SAE complet (mode SAE complet) -->
+      <div id="sae-complet-section" class="sae-complet-section hidden">
+        <div class="sae-complet-filter-bar">
+          <div class="cours-field">
+            <label class="cours-label">Cycle / Niveau</label>
+            <select id="sae-complet-cycle" class="cours-select" onchange="filterSaeComplet()">
+              <option value="">Tous les cycles</option>
+              <optgroup label="Primaire">
+                <option value="Prescolaire">Préscolaire / Maternelle</option>
+                <option value="Cycle 1">1er cycle primaire</option>
+                <option value="Cycle 2">2e cycle primaire</option>
+                <option value="Cycle 3">3e cycle primaire</option>
+              </optgroup>
+              <optgroup label="Secondaire">
+                <option value="Secondaire 1">Secondaire 1</option>
+                <option value="Secondaire 2">Secondaire 2</option>
+                <option value="Secondaire 3">Secondaire 3</option>
+                <option value="Secondaire 4">Secondaire 4</option>
+                <option value="Secondaire 5">Secondaire 5</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="cours-field">
+            <label class="cours-label">Nombre de cours souhaite</label>
+            <select id="sae-complet-duree" class="cours-select" onchange="filterSaeComplet()">
+              <option value="">Choisir...</option>
+              <option value="2">2 cours</option>
+              <option value="3">3 cours</option>
+              <option value="4">4 cours</option>
+              <option value="5">5 cours</option>
+              <option value="6">6 cours</option>
+              <option value="7">7 cours</option>
+              <option value="8">8 cours</option>
+              <option value="9">9 cours</option>
+              <option value="10">10 cours</option>
+              <option value="11">11 cours</option>
+              <option value="12">12 cours</option>
+            </select>
+          </div>
+          <div class="cours-field">
+            <label class="cours-label">Moyen d'action</label>
+            <select id="sae-complet-moyen" class="cours-select" onchange="onSaeCompletMoyenChange()">
+              <option value="">Tous les moyens</option>
+            </select>
+          </div>
+          <div class="cours-field">
+            <label class="cours-label">Sous-categorie</label>
+            <select id="sae-complet-sous" class="cours-select" onchange="filterSaeComplet()">
+              <option value="">Toutes les sous-categories</option>
+              <!-- Rempli dynamiquement par JS -->
+            </select>
+          </div>
+        </div>
+        <div id="sae-complet-results" class="sae-complet-results">
+          <!-- Rempli par JS -->
+        </div>
+      </div>
+
+      <!-- Browser de SAE (modal-like, s'ouvre quand on clique un slot) -->
+      <div id="slot-browser" class="slot-browser hidden">
+        <div class="slot-browser-header">
+          <h3>🔍 Choisir une activite pour le <span id="slot-browser-label">Cours 1</span></h3>
+          <button class="slot-browser-close" onclick="closeSlotBrowser()">✕</button>
+        </div>
+        <div class="cours-browser-filters">
+          <div class="cours-field">
+            <label class="cours-label">Categorie</label>
+            <select id="cours-cat-select" class="cours-select" onchange="updateCoursBrowser()">
+              <option value="">— Choisir un moyen d'action —</option>
+            </select>
+          </div>
+          <div class="cours-field">
+            <label class="cours-label">Recherche rapide</label>
+            <input type="text" id="cours-browser-search" class="cours-input" placeholder="Filtrer par mot-cle..." oninput="updateCoursBrowser()" />
+          </div>
+        </div>
+        <div id="cours-browser-results" class="cours-browser-results">
+          <p class="cours-browser-hint">Selectionne un moyen d'action pour voir les SAE disponibles.</p>
+        </div>
+      </div>
+
+      <!-- ETAPE 3 : Grille d'evaluation -->
+      <div id="eval-section" class="eval-section hidden">
+        <h3 class="cours-section-title">📊 Grille d'evaluation</h3>
+        <p class="cours-section-hint">Coche les observables que tu souhaites evaluer, puis configure ton echelle de notation.</p>
+
+        <!-- Observables -->
+        <div class="eval-observables">
+          <h4 class="eval-sub-title">Observables / Criteres d'evaluation</h4>
+          <div id="eval-observables-list" class="eval-observables-list">
+            <!-- Rempli par JS -->
+          </div>
+          <div class="eval-add-custom">
+            <input type="text" id="eval-custom-input" class="cours-input" placeholder="Ajouter un observable personnalise..." />
+            <button class="eval-add-btn" onclick="addCustomObservable()">+ Ajouter</button>
+          </div>
+        </div>
+
+        <!-- Echelle de notation -->
+        <div class="eval-scale">
+          <h4 class="eval-sub-title">Echelle de notation</h4>
+          <div class="eval-scale-selector">
+            <label class="eval-scale-option">
+              <input type="radio" name="eval-scale" value="ABCDE" onchange="onScaleChange()" checked /> A B C D E
+            </label>
+            <label class="eval-scale-option">
+              <input type="radio" name="eval-scale" value="12345" onchange="onScaleChange()" /> 1 2 3 4 5
+            </label>
+          </div>
+          <div id="eval-scale-descriptions" class="eval-scale-descriptions">
+            <!-- Rempli par JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIONS EXPORT -->
+      <div id="cours-actions" class="cours-actions hidden">
+        <div class="cours-total-duration">
+          <strong><span id="cours-total-count">0</span> cours planifies</strong>
+        </div>
+        <div class="cours-export-btns">
+          <button class="cours-btn cours-btn-print" onclick="printCours()">🖨️ Imprimer</button>
+          <button class="cours-btn cours-btn-pdf" onclick="exportCoursPDF()">📄 Sauvegarder PDF</button>
+          <button class="cours-btn cours-btn-share" onclick="shareCours()">🔗 Partager</button>
+        </div>
+      </div>
+
+      <div class="cours-footer-logo">
+        <a href="https://zonetotalsport.ca" target="_blank">
+          <img src="img/logo-zonetotalsport.png" alt="ZoneTotalSport.ca" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bouton flottant Ma SAE -->
+  <button id="cours-fab" class="cours-fab" onclick="openCours()" title="Planification">
+    📋
+    <span id="cours-fab-count" class="cours-fab-count hidden">0</span>
+  </button>
+
+  <!-- MODAL -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div id="modal-backdrop" class="modal-backdrop"></div>
+    <div class="modal-container">
+      <div id="modal-body">
+        <!-- Rempli par JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast hidden">Lien copie !</div>
+
+  <script src="i18n.js"></script>
+  <script src="lang/translations.js"></script>
+  <script src="app.js"></script>
+<!-- ZTS Landing config + script -->
+<script>
+window.ZTS_LANDING_CONFIG = {
+  appId: 'sae',
+  accentColor: '#4CAF50',
+  homeUrl: 'https://zonetotalsport.ca',
+  mascot: 'https://zonetotalsport.ca/bucheron-sae.png',
+  logoIcon: 'https://zonetotalsport.ca/logo-zts-text.png',
+  logoWide: true,
+  logoTitle: { fr: "Situations d'apprentissage", en: 'Learning Situations', zh: '学习情境' },
+  logoSub: 'Zone Total Sport',
+  title: { fr: "Situations d'apprentissage", en: 'Learning Situations', zh: '学习情境' },
+  subtitle: { fr: 'Alignées PFEQ!', en: 'PFEQ-aligned!', zh: '对齐 PFEQ!' },
+  description: {
+    fr: "Plus de 1000 situations d'apprentissage et d'évaluation (SAÉ) pour l'éducation physique et à la santé, de la maternelle au secondaire 5. Conformes au Programme de formation de l'école québécoise (PFEQ), téléchargeables et prêtes à animer.",
+    en: "Over 1000 learning and assessment situations (SAÉ) for physical and health education, K to Grade 11. Aligned with the Quebec Education Program (PFEQ), downloadable and ready to deliver.",
+    zh: "超过 1000 个体育与健康教育学习评估情境(SAÉ),覆盖学前班至中五。符合魁北克教学大纲(PFEQ),可下载即用。"
+  },
+  badges: [
+    { emoji: '📚', color: 'green',  text: { fr: '1000+ SAÉ', en: '1000+ SAÉ', zh: '1000+ 情境' } },
+    { emoji: '🎓', color: 'cyan',   text: { fr: 'PFEQ', en: 'PFEQ', zh: 'PFEQ' } },
+    { emoji: '📥', color: 'pink',   text: { fr: 'Téléchargeable', en: 'Downloadable', zh: '可下载' } },
+    { emoji: '🧠', color: 'violet', text: { fr: 'C1 · C2 · C3', en: 'C1 · C2 · C3', zh: 'C1 · C2 · C3' } },
+    { emoji: '🏫', color: 'yellow', text: { fr: 'Primaire + Secondaire', en: 'Elementary + High', zh: '小学 + 中学' } }
+  ],
+  features: [
+    { emoji: '🎯', title: { fr: 'Par compétence', en: 'By competency', zh: '按能力' }, desc: { fr: 'C1 Agir · C2 Interagir · C3 Saine', en: 'C1 Act · C2 Interact · C3 Healthy', zh: 'C1 行动 · C2 互动 · C3 健康' } },
+    { emoji: '📊', title: { fr: 'Grilles d\'éval', en: 'Eval grids', zh: '评估表' }, desc: { fr: 'Critères PFEQ intégrés', en: 'PFEQ criteria included', zh: '含 PFEQ 标准' } },
+    { emoji: '🏃', title: { fr: 'Multi-activités', en: 'Multi-activity', zh: '多项活动' }, desc: { fr: 'Coopération, opposition, défi', en: 'Coop, opposition, challenge', zh: '合作、对抗、挑战' } },
+    { emoji: '📅', title: { fr: 'Cycle complet', en: 'Full cycle', zh: '完整周期' }, desc: { fr: 'Plusieurs cours clés en main', en: 'Multiple ready-made lessons', zh: '多节课一键搞定' } },
+    { emoji: '📝', title: { fr: 'Modifiable', en: 'Editable', zh: '可编辑' }, desc: { fr: 'Adapte à ton milieu', en: 'Adapt to your context', zh: '适配你的环境' } },
+    { emoji: '🔎', title: { fr: 'Recherche', en: 'Search', zh: '搜索' }, desc: { fr: 'Par niveau, sport, thème', en: 'By level, sport, theme', zh: '按级别、运动、主题' } },
+    { emoji: '🖨️', title: { fr: 'Impression', en: 'Printable', zh: '可打印' }, desc: { fr: 'Fiche prof + fiche élève', en: 'Teacher + student sheets', zh: '教师 + 学生纸' } },
+    { emoji: '⭐', title: { fr: 'Favoris', en: 'Favorites', zh: '收藏' }, desc: { fr: 'Retrouve tes SAÉ préférées', en: 'Find your top SAÉ fast', zh: '快速找到常用情境' } }
+  ],
+  ctaStart: { label: { fr: 'Commencer!', en: 'Start!', zh: '开始!' } },
+  ctaHelp: {
+    label: { fr: 'Comment utiliser', en: 'How to use', zh: '使用说明' },
+    onClick: function () { window.open('https://zonetotalsport.ca/blog.html', '_blank'); }
+  }
+};
+</script>
+<script src="zts-landing.js"></script>
+<!-- ZTS Auth Gate -->
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+(function(){var c={apiKey:'AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA',authDomain:'zone-total-sport.firebaseapp.com',projectId:'zone-total-sport'};if(!firebase.apps.length)firebase.initializeApp(c);var o=document.createElement('div');o.id='zts-gate';o.innerHTML='<div style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:24px;padding:40px;max-width:440px;width:90%;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,0.3)"><img src="https://zonetotalsport.ca/bucheron-basketball.png" style="width:120px;margin:0 auto 16px" alt=""><h2 style="font-family:Luckiest Guy,cursive;font-size:2rem;color:#1e293b;margin:0 0 4px">Zone Total Sport</h2><p style="font-family:Schoolbell,cursive;color:#64748b;margin:0 0 24px;font-size:1.1rem">Connecte-toi ou inscris-toi gratuitement pour acceder a cette ressource.</p><input id="zg-e" type="email" placeholder="Courriel" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:10px;font-size:1.1rem;box-sizing:border-box"><input id="zg-p" type="password" placeholder="Mot de passe" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:16px;font-size:1.1rem;box-sizing:border-box"><button id="zg-l" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#4f46e5;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Se connecter</button><button id="zg-s" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#00BCD4;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Creer un compte gratuit</button><button id="zg-g" style="font-family:Schoolbell,cursive;width:100%;padding:14px;background:#fff;color:#333;border:2px solid #e2e8f0;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer">Connexion Google</button><p id="zg-err" style="font-family:Schoolbell,cursive;color:#ef4444;font-size:.9rem;margin:12px 0 0;display:none"></p></div></div>';document.body.appendChild(o);var err=document.getElementById('zg-err');function se(m){err.textContent=m;err.style.display='block';}document.getElementById('zg-l').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().signInWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-s').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().createUserWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-g').onclick=function(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(r){se(r.message);});};firebase.auth().onAuthStateChanged(function(u){var g=document.getElementById('zts-gate');if(u&&g)g.remove();ztsUpdateAuthUI(u);});})();
+function ztsUpdateAuthUI(u){var l=document.getElementById('zts-auth-label'),b=document.getElementById('zts-auth-btn');if(!l||!b)return;if(u){var name=u.displayName||u.email.split('@')[0];l.textContent='👤 '+name;b.textContent='Deconnexion';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.15)';b.style.borderColor='rgba(255,255,255,0.5)';}else{l.textContent='';b.textContent='Se connecter';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.25)';b.style.borderColor='#fff';}}
+function ztsAuthAction(){var u=firebase.auth().currentUser;if(u){firebase.auth().signOut().then(function(){location.reload();});}else{location.reload();}}
+</script>
+</body>
+</html>

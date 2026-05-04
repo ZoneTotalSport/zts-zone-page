@@ -183,7 +183,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
       <!-- Right image -->
       <div class="lg:w-1/2 relative flex justify-center mt-8 lg:mt-0 w-full">
         <div class="relative z-10 rounded-[3rem] overflow-hidden border-[10px] border-white shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700 max-w-sm lg:max-w-md">
-          <img src="../../bucheron-tni.png" alt="Mr Root sur le terrain" class="w-full h-[300px] md:h-[420px] object-cover" style="background:linear-gradient(135deg,#cffafe,#bfdbfe)" onerror="this.onerror=null;this.src='../../bucheron-sports.png'">
+          <img src="img/bucheron-tni.png" alt="Mr Root sur le terrain" class="w-full h-[300px] md:h-[420px] object-cover" style="background:linear-gradient(135deg,#cffafe,#bfdbfe)">
         </div>
         <div class="absolute -bottom-8 -left-4 md:-bottom-10 md:-left-10 z-20 bg-white p-4 md:p-5 rounded-3xl shadow-2xl flex items-center gap-3 md:gap-4 border-2" style="border-color:#00C4FF;animation:float 3s ease-in-out infinite">
           <div class="p-3 rounded-2xl text-white" style="background:#00C4FF">
@@ -352,7 +352,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
     <p class="text-white/70 text-sm font-medium mt-2 font-sister">Timer · Respiration · Humeur · Tâches · Focus</p>
   </div>
   <div class="px-4">
-  <div class="flex gap-1.5 overflow-x-auto no-sb pb-3 mb-4" id="outils-tabs"></div>
+  <div class="pb-3 mb-4" id="outils-tabs"></div>
   <div id="outils-content" class="hc-card p-6 min-h-[400px] flex flex-col items-center justify-center shadow-lg" style="border-radius:1.25rem"></div>
   </div>
 </div>
@@ -1233,21 +1233,46 @@ const jeuxCatColors={tague:'#ef4444',ballon:'#00C4FF',parachute:'#a855f7',coop:'
 function renderJeux(){
   const list=document.getElementById('jeux-list');
   const filtered=jeuxFilter==='all'?jeuxData:jeuxData.filter(j=>j.cat===jeuxFilter);
-  list.innerHTML=filtered.map((g,i)=>`
-    <details class="hc-card shadow-md overflow-hidden group" ${i===0?'open':''}>
-      <summary class="px-5 py-4 text-white cursor-pointer press flex items-center justify-between rounded-t-xl" style="background:${jeuxCatColors[g.cat]||'#0086AD'}">
-        <h4 class="font-luckiest text-xl uppercase tracking-tight zts-text-shadow">${i+1}. ${g.name}</h4>
-        <span class="text-xs bg-white/20 px-3 py-1 rounded-lg font-luckiest uppercase">${g.cat}</span>
-      </summary>
-      <div class="p-5 space-y-3">
-        ${g.steps.map((s,si)=>`<p class="text-base text-slate-700 flex items-start leading-relaxed font-swanky"><span class="font-luckiest text-lg mr-3 shrink-0" style="color:${jeuxCatColors[g.cat]||'#0086AD'}">C${si+1}</span>${s.replace(/^C\d: /,'')}</p>`).join('')}
-        <div class="mt-4 p-4 rounded-lg border-b-4 border-r-4 border-yellow-200" style="background:#FFFA0020">
-          <p class="text-base font-bold font-girly" style="color:#004A61">👤 <span class="font-luckiest text-lg">Role inclusif</span> : ${g.role}</p>
+  list.innerHTML=`<div class="grid grid-cols-2 gap-3">${filtered.map((g,idx)=>{
+    const hex=jeuxCatColors[g.cat]||'#0086AD';
+    const desc=(g.steps[0]||'').replace(/^C\d:\s*/,'').slice(0,60)+'…';
+    return`<button onclick="openJeu(${jeuxData.indexOf(g)})" class="press rounded-lg overflow-hidden shadow-md text-left w-full border-b-[12px] border-r-[12px]" style="border-color:${hex}40;background:${hex}">
+      <div class="flex flex-col justify-between p-4 h-full min-h-[140px]">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-2xl drop-shadow">${g.cat==='tague'?'🏃':g.cat==='ballon'?'⚽':g.cat==='parachute'?'🪂':g.cat==='coop'?'🤝':g.cat==='relais'?'🏁':'🧠'}</span>
+          <span class="bg-white/20 text-white text-[9px] uppercase font-bold px-2 py-0.5 rounded-lg">${g.cat}</span>
         </div>
-        <button onclick="addJeuToPlanif(${i})" class="mt-3 text-sm font-luckiest press uppercase" style="color:#0086AD">📋 Ajouter a ma seance</button>
+        <div>
+          <h4 class="font-luckiest text-sm text-white leading-tight zts-text-shadow uppercase">${g.name}</h4>
+          <p class="text-[10px] text-white/70 mt-1 leading-snug font-bold">${desc}</p>
+        </div>
       </div>
-    </details>
-  `).join('');
+    </button>`;
+  }).join('')}</div>`;
+}
+function openJeu(idx){
+  const g=jeuxData[idx];
+  const hex=jeuxCatColors[g.cat]||'#0086AD';
+  const el=document.getElementById('jeux-list');
+  el.innerHTML=`
+    <div class="anim-right">
+      <button onclick="renderJeux();filterJeux(jeuxFilter)" class="mb-4 flex items-center gap-2 text-sm font-bold press" style="color:${hex}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg> Retour
+      </button>
+      <div class="hc-card shadow-md overflow-hidden" style="border-color:${hex}40">
+        <div class="p-5 text-white" style="background:${hex}">
+          <h3 class="font-luckiest text-2xl uppercase zts-text-shadow">${g.name}</h3>
+          <p class="text-sm text-white/80 font-bold mt-1">${g.cat} · ${g.steps.length} niveaux</p>
+        </div>
+        <div class="p-5 space-y-3">
+          ${g.steps.map((s,si)=>`<p class="text-base text-slate-700 flex items-start leading-relaxed font-swanky"><span class="font-luckiest text-lg mr-3 shrink-0" style="color:${hex}">C${si+1}</span>${s.replace(/^C\d: /,'')}</p>`).join('')}
+          <div class="mt-4 p-4 rounded-lg border-b-4 border-r-4 border-yellow-200" style="background:#FFFA0020">
+            <p class="text-base font-bold font-girly" style="color:#004A61">👤 <span class="font-luckiest text-lg">Role inclusif</span> : ${g.role}</p>
+          </div>
+          <button onclick="addJeuToPlanif(${idx})" class="mt-3 text-sm font-luckiest press uppercase" style="color:#0086AD">📋 Ajouter a ma seance</button>
+        </div>
+      </div>
+    </div>`;
 }
 function filterJeux(cat){
   jeuxFilter=cat;
@@ -1270,22 +1295,53 @@ function filterJeux(cat){
 const transCatColors=['#00C4FF','#FFFA00','#FFA625','#00FF92','#AAFF00','#0086AD'];
 function renderTransitions(){
   const list=document.getElementById('transitions-list');
+  const catEmojis=['🚶','📢','🧹'];
   list.innerHTML=transData.map((sec,si)=>`
     <div>
       <p class="text-xs uppercase font-black mb-3 border-b-2 pb-1 font-luckiest" style="color:${transCatColors[si%6]};border-color:${transCatColors[si%6]}40">${si+1}. ${sec.cat}</p>
-      <div class="space-y-2">
-        ${sec.items.map((tr,ti)=>`
-          <div class="hc-card p-3 shadow-sm flex items-start gap-3" style="border-left:4px solid ${transCatColors[si%6]}">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-black text-xs text-white" style="background:${transCatColors[si%6]}">${si*10+ti+1}</div>
-            <div>
-              <h5 class="font-bold text-xs uppercase tracking-tight font-sister" style="color:#004A61">${tr.t}</h5>
-              <p class="text-[11px] text-slate-600 mt-1 leading-snug font-swanky">${tr.d}</p>
+      <div class="grid grid-cols-2 gap-3">
+        ${sec.items.map((tr,ti)=>{
+          const desc=tr.d.replace(/^['"]|['"]$/g,'').slice(0,55)+'…';
+          return`<button onclick="openTransition(${si},${ti})" class="press rounded-lg overflow-hidden shadow-md text-left w-full border-b-[12px] border-r-[12px]" style="border-color:${transCatColors[si%6]}40;background:${transCatColors[si%6]}">
+            <div class="flex flex-col justify-between p-3 h-full min-h-[130px]">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-2xl drop-shadow">${catEmojis[si]||'🔄'}</span>
+                <span class="bg-white/20 text-white text-[9px] font-bold px-2 py-0.5 rounded-lg">${si*10+ti+1}</span>
+              </div>
+              <div>
+                <h5 class="font-luckiest text-xs text-white leading-tight zts-text-shadow uppercase">${tr.t}</h5>
+                <p class="text-[9px] text-white/70 mt-1 leading-snug font-bold">${desc}</p>
+              </div>
             </div>
-          </div>
-        `).join('')}
+          </button>`;
+        }).join('')}
       </div>
     </div>
   `).join('');
+}
+function openTransition(si,ti){
+  const sec=transData[si];
+  const tr=sec.items[ti];
+  const hex=transCatColors[si%6];
+  const list=document.getElementById('transitions-list');
+  list.innerHTML=`
+    <div class="anim-right">
+      <button onclick="renderTransitions()" class="mb-4 flex items-center gap-2 text-sm font-bold press" style="color:${hex}">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg> Retour
+      </button>
+      <div class="hc-card shadow-md overflow-hidden" style="border-color:${hex}40">
+        <div class="p-5 text-white" style="background:${hex}">
+          <div class="flex items-center gap-3">
+            <span class="bg-white/20 text-white font-bold text-sm w-8 h-8 rounded-full flex items-center justify-center">${si*10+ti+1}</span>
+            <h3 class="font-luckiest text-xl uppercase zts-text-shadow">${tr.t}</h3>
+          </div>
+          <p class="text-sm text-white/80 font-bold mt-1">${sec.cat}</p>
+        </div>
+        <div class="p-5">
+          <p class="text-base text-slate-700 leading-relaxed font-swanky" style="border-left:3px solid ${hex};padding-left:12px">${tr.d}</p>
+        </div>
+      </div>
+    </div>`;
 }
 
 // ============================================================
@@ -1317,11 +1373,14 @@ const outilsDef=[
 
 function renderOutils(){
   const tabs=document.getElementById('outils-tabs');
-  tabs.innerHTML=outilsDef.map(t=>`
-    <button onclick="setOutil('${t.id}')" class="shrink-0 flex flex-col items-center justify-center py-2 px-3 rounded-lg border-2 transition-all press border-b-4 border-r-4 ${outilTab===t.id?'shadow-md border-transparent':'bg-white text-slate-500 border-slate-200'}" ${outilTab===t.id?`style="background:${t.hex};color:${['#FFFA00','#AAFF00','#00FF92'].includes(t.hex)?'#004A61':'#fff'};border-color:${t.hex}88"`:''}>
-      <span class="text-[10px] font-bold">${t.label}</span>
-    </button>
-  `).join('');
+  tabs.innerHTML=`<div class="grid grid-cols-4 gap-2">${outilsDef.map(t=>{
+    const lightBg=['#FFFA00','#AAFF00','#00FF92','#00C4FF'].includes(t.hex);
+    const active=outilTab===t.id;
+    return`<button onclick="setOutil('${t.id}')" class="press aspect-square rounded-lg flex flex-col items-center justify-center gap-1 border-b-[8px] border-r-[8px] shadow-md transition-all ${active?'scale-105':''}" style="background:${active?t.hex:'#fff'};border-color:${active?t.hex+'88':'#e2e8f040'};color:${active?(lightBg?'#004A61':'#fff'):'#64748b'}">
+      <span class="text-4xl">${t.label.split(' ')[0]}</span>
+      <span class="text-[10px] font-bold leading-tight">${t.label.split(' ').slice(1).join(' ')}</span>
+    </button>`;
+  }).join('')}</div>`;
   renderOutilContent();
 }
 function setOutil(id){outilTab=id;renderOutils();}
@@ -1629,7 +1688,19 @@ function quickAddSeq(type){
 
 function saveSeq(){localStorage.setItem('omni-seq',JSON.stringify(seqBlocks));}
 
+function migrateDrawings(i){
+  const b=seqBlocks[i];
+  if(b.drawing&&(!b.drawings||!b.drawings.length)){
+    b.drawings=[b.drawing];
+    b.drawSizes=[b.drawScale||150];
+    b.drawing='';
+  }
+  if(!b.drawings)b.drawings=[];
+  if(!b.drawSizes)b.drawSizes=b.drawings.map(()=>150);
+  while(b.drawSizes.length<b.drawings.length)b.drawSizes.push(150);
+}
 function renderPlanif(){
+  seqBlocks.forEach((_,i)=>migrateDrawings(i));
   const tl=document.getElementById('seq-timeline');
   if(!seqBlocks.length){
     tl.innerHTML='<div class="text-center py-12 text-slate-400"><p class="text-sm italic">Séance vide</p><p class="text-xs mt-1">Cliquez sur un bouton ci-dessus pour construire votre séquence</p></div>';
@@ -1638,10 +1709,10 @@ function renderPlanif(){
   const totalMin=seqBlocks.reduce((s,b)=>s+(b.duree||0),0);
   tl.innerHTML=`<div class="flex items-center justify-between mb-3 px-1"><span class="text-xs font-bold text-slate-400 uppercase">⏱️ Durée totale</span><span class="font-luckiest text-lg" style="color:#004A61">${totalMin} min</span></div>`+seqBlocks.map((b,i)=>{
     const c=seqColorMap[b.color]||seqColorMap.violet;
-    return`<div class="seq-block rounded-2xl overflow-hidden shadow-md" draggable="true" ondragstart="dragStart(event,${i})" ondragover="event.preventDefault()" ondrop="dropBlock(event,${i})" style="background:${c.bg};border:3px solid ${c.border};border-bottom-width:10px;border-right-width:10px">
+    return`<div class="seq-block rounded-2xl shadow-md" draggable="true" ondragstart="dragStart(event,${i})" ondragover="event.preventDefault()" ondrop="dropBlock(event,${i})" style="background:${c.bg};border:3px solid ${c.border};border-bottom-width:10px;border-right-width:10px">
       <div class="flex items-center justify-between p-3 cursor-grab">
         <div class="flex items-center gap-2 flex-1 min-w-0">
-          <span class="emoji-picto select-none cursor-ns-resize" style="font-size:${b.pictoSize||24}px;line-height:1" onpointerdown="startEmojiDrag(event,${i})" title="Glisser ↕ pour redimensionner">${b.picto}</span>
+          <span class="emoji-picto select-none cursor-pointer" style="font-size:${b.pictoSize||24}px;line-height:1" onclick="selectEmoji(event,${i})" title="Cliquer pour redimensionner">${b.picto}</span>
           <input type="text" value="${(b.titre||'').replace(/"/g,'&quot;')}" onchange="updateSeqTitle(${i},this.value)" class="font-bold text-sm text-slate-800 bg-transparent border-b-2 border-dashed focus:border-solid focus:outline-none flex-1 min-w-0 px-1 py-0.5 rounded" style="border-color:${c.border}">
         </div>
         <div class="flex items-center gap-1 shrink-0 ml-2">
@@ -1653,17 +1724,16 @@ function renderPlanif(){
         </div>
       </div>
       <div class="px-3 pb-3 space-y-2">
-        <div class="flex items-center gap-2 bg-white/50 rounded-xl px-3 py-2">
-          <span class="text-[11px] font-bold text-slate-500 shrink-0">⏱️</span>
-          <input type="range" min="1" max="30" value="${b.duree||5}" oninput="updateSeqDuree(${i},this.value);this.nextElementSibling.textContent=this.value+' min'" class="flex-1 accent-[#00C4FF]">
-          <span class="text-xs font-bold min-w-[3rem] text-right" style="color:${c.accent}">${b.duree||5} min</span>
+        <div class="flex items-center gap-3 bg-white/50 rounded-xl px-4 py-2">
+          <span class="text-base shrink-0">⏱️</span>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" value="${b.duree||5}" onchange="updateSeqDuree(${i},this.value)" class="w-16 h-10 text-center font-luckiest text-xl rounded-xl border-2 border-slate-200 focus:border-[#00C4FF] focus:outline-none bg-white" style="color:${c.accent};-moz-appearance:textfield;-webkit-appearance:none">
+          <span class="text-base font-bold text-slate-500">min</span>
         </div>
         <div id="emoji-grid-${i}" class="hidden p-2 bg-white/50 rounded-xl border border-dashed border-slate-300">
-          <div class="flex items-center gap-2 mb-2"><span class="text-[10px] font-bold text-slate-400">Taille émoji</span><input type="range" min="16" max="64" value="${b.pictoSize||24}" oninput="resizeEmojiSlider(${i},this.value)" class="flex-1 accent-[#00C4FF]"><span class="text-[10px] font-bold text-slate-400" id="emoji-size-label-${i}">${b.pictoSize||24}px</span></div>
           <div class="flex flex-wrap gap-1">${sportEmojis.map(e=>`<button onclick="setBlockEmoji(${i},'${e}')" class="w-8 h-8 rounded-xl text-lg flex items-center justify-center press ${b.picto===e?'bg-[#00C4FF] shadow-md scale-110':'bg-white/60 hover:bg-white'} transition-all">${e}</button>`).join('')}</div>
         </div>
         <textarea onchange="updateSeqText(${i},this.value)" placeholder="Consignes, déroulement, variantes..." class="w-full p-2.5 rounded-xl border-2 border-slate-200 bg-white/70 text-sm font-medium resize-y focus:border-[#00C4FF] focus:outline-none" rows="2" style="min-height:44px">${b.text||''}</textarea>
-        ${b.drawing?`<div class="mt-1"><div class="flex items-center gap-2 mb-1"><span class="text-[10px] font-bold text-slate-400">Taille</span><input type="range" min="20" max="100" value="${b.drawScale||100}" oninput="this.nextElementSibling.textContent=this.value+'%';this.closest('.mt-1').querySelector('.draw-container').querySelector('img').style.width=this.value+'%'" onchange="setDrawScale(${i},this.value)" class="flex-1 accent-[#00C4FF]"><span class="text-[10px] font-bold text-slate-400">${b.drawScale||100}%</span><button onclick="clearBlockDrawing(${i})" class="bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full press flex-shrink-0">✕</button></div><div class="draw-container relative overflow-hidden rounded-xl border-2 border-slate-200 bg-[repeating-conic-gradient(#e2e8f0_0%_25%,transparent_0%_50%)_0_0/16px_16px]" style="height:160px;cursor:grab" onpointerdown="startDragImg(event,${i})" onpointermove="moveDragImg(event,${i})" onpointerup="stopDragImg()" onpointerleave="stopDragImg()"><img src="${b.drawing}" style="width:${b.drawScale||100}%;position:absolute;left:${b.drawOffX||0}px;top:${b.drawOffY||0}px;pointer-events:none" alt="Dessin"></div></div>`:''}
+        ${b.drawings&&b.drawings.length?`<div class="mt-2 flex flex-wrap gap-3">${b.drawings.map((dr,di)=>`<div class="drawing-item" id="draw-${i}-${di}" style="position:relative;width:${(b.drawSizes&&b.drawSizes[di])||150}px;cursor:pointer" onclick="selectDraw(event,${i},${di})"><img src="${dr}" class="block rounded-xl border-2 border-slate-200 w-full" style="pointer-events:none" alt="Dessin ${di+1}"></div>`).join('')}</div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -1672,30 +1742,56 @@ function renderPlanif(){
 
 function setBlockEmoji(i,emoji){seqBlocks[i].picto=emoji;renderPlanif();}
 function updateSeqTitle(i,val){seqBlocks[i].titre=val;saveSeq();}
-function updateSeqDuree(i,val){seqBlocks[i].duree=parseInt(val);saveSeq();const tl=document.getElementById('seq-timeline');const total=seqBlocks.reduce((s,b)=>s+(b.duree||0),0);tl.querySelector('span:last-child').textContent=total+' min';}
+function updateSeqDuree(i,val){seqBlocks[i].duree=Math.max(1,parseInt(val)||1);saveSeq();const tl=document.getElementById('seq-timeline');const total=seqBlocks.reduce((s,b)=>s+(b.duree||0),0);tl.querySelector('.font-luckiest.text-lg').textContent=total+' min';}
 function toggleEmojiGrid(i){document.getElementById('emoji-grid-'+i).classList.toggle('hidden');}
-function setDrawScale(i,val){seqBlocks[i].drawScale=parseInt(val);saveSeq();}
-let emojiDragIdx=-1,emojiDragStartY=0,emojiDragOrigSize=24;
-function startEmojiDrag(e,i){
-  e.preventDefault();e.stopPropagation();
-  emojiDragIdx=i;emojiDragStartY=e.clientY;emojiDragOrigSize=seqBlocks[i].pictoSize||24;
-  e.target.setPointerCapture(e.pointerId);
-  e.target.onpointermove=ev=>{
-    if(emojiDragIdx<0)return;
-    const dy=emojiDragStartY-ev.clientY;
-    const sz=Math.max(16,Math.min(72,emojiDragOrigSize+Math.round(dy/2)));
-    seqBlocks[i].pictoSize=sz;
-    ev.target.style.fontSize=sz+'px';
-    const lbl=document.getElementById('emoji-size-label-'+i);if(lbl)lbl.textContent=sz+'px';
-    const slider=document.querySelector('#emoji-grid-'+i+' input[type=range]');if(slider)slider.value=sz;
+let selectedEmojiIdx=-1;
+function selectEmoji(e,i){
+  e.stopPropagation();
+  // Deselect previous
+  deselectEmoji();
+  selectedEmojiIdx=i;
+  const span=e.currentTarget;
+  span.classList.add('emoji-selected');
+  // Create resize wrapper
+  const wrapper=document.createElement('div');
+  wrapper.className='emoji-resize-wrap';
+  wrapper.style.cssText='position:relative;display:inline-block;border:2px dashed #00C4FF;border-radius:8px;padding:4px;';
+  span.parentNode.insertBefore(wrapper,span);
+  wrapper.appendChild(span);
+  // Corner handle
+  const handle=document.createElement('div');
+  handle.className='emoji-handle';
+  handle.style.cssText='position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;background:#00C4FF;border-radius:3px;cursor:nwse-resize;z-index:10;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3)';
+  wrapper.appendChild(handle);
+  // Handle drag to resize
+  let startY=0,origSize=seqBlocks[i].pictoSize||24;
+  handle.onpointerdown=ev=>{
+    ev.preventDefault();ev.stopPropagation();
+    startY=ev.clientY;origSize=seqBlocks[i].pictoSize||24;
+    handle.setPointerCapture(ev.pointerId);
+    handle.onpointermove=mv=>{
+      const dy=mv.clientY-startY;
+      const sz=Math.max(16,Math.min(200,origSize+Math.round(dy/1.5)));
+      seqBlocks[i].pictoSize=sz;
+      span.style.fontSize=sz+'px';
+    };
+    handle.onpointerup=()=>{handle.onpointermove=null;handle.onpointerup=null;saveSeq();};
   };
-  e.target.onpointerup=()=>{emojiDragIdx=-1;e.target.onpointermove=null;e.target.onpointerup=null;saveSeq();};
 }
-function resizeEmojiSlider(i,val){const sz=parseInt(val);seqBlocks[i].pictoSize=sz;const span=document.querySelectorAll('.seq-block')[i]?.querySelector('.emoji-picto');if(span)span.style.fontSize=sz+'px';const lbl=document.getElementById('emoji-size-label-'+i);if(lbl)lbl.textContent=sz+'px';saveSeq();}
-let imgDragging=false,imgDragStartX=0,imgDragStartY=0,imgDragOrigX=0,imgDragOrigY=0,imgDragIdx=-1;
-function startDragImg(e,i){imgDragging=true;imgDragIdx=i;imgDragStartX=e.clientX;imgDragStartY=e.clientY;imgDragOrigX=seqBlocks[i].drawOffX||0;imgDragOrigY=seqBlocks[i].drawOffY||0;e.currentTarget.setPointerCapture(e.pointerId);}
-function moveDragImg(e,i){if(!imgDragging||imgDragIdx!==i)return;const dx=e.clientX-imgDragStartX,dy=e.clientY-imgDragStartY;const img=e.currentTarget.querySelector('img');seqBlocks[i].drawOffX=imgDragOrigX+dx;seqBlocks[i].drawOffY=imgDragOrigY+dy;img.style.left=seqBlocks[i].drawOffX+'px';img.style.top=seqBlocks[i].drawOffY+'px';}
-function stopDragImg(){if(imgDragging){imgDragging=false;saveSeq();}}
+function deselectEmoji(){
+  if(selectedEmojiIdx<0)return;
+  const wrap=document.querySelector('.emoji-resize-wrap');
+  if(wrap){
+    const span=wrap.querySelector('.emoji-picto');
+    span.classList.remove('emoji-selected');
+    wrap.parentNode.insertBefore(span,wrap);
+    wrap.remove();
+  }
+  selectedEmojiIdx=-1;
+}
+document.addEventListener('pointerdown',e=>{
+  if(!e.target.closest('.emoji-resize-wrap')&&!e.target.closest('.emoji-picto'))deselectEmoji();
+});
 function updateSeqText(i,val){seqBlocks[i].text=val;saveSeq();}
 function removeBlock(i){seqBlocks.splice(i,1);renderPlanif();}
 function clearPlanif(){seqBlocks=[];localStorage.removeItem('omni-seq');renderPlanif();}
@@ -1705,7 +1801,7 @@ function moveBlock(i,dir){
   [seqBlocks[i],seqBlocks[ni]]=[seqBlocks[ni],seqBlocks[i]];
   renderPlanif();
 }
-function clearBlockDrawing(i){seqBlocks[i].drawing='';renderPlanif();}
+function clearBlockDrawing(i){seqBlocks[i].drawing='';seqBlocks[i].drawings=[];seqBlocks[i].drawSizes=[];renderPlanif();}
 
 function addJeuToPlanif(idx){
   const name=typeof idx==='number'?jeuxData[idx].name:idx;
@@ -1819,7 +1915,7 @@ function smoothDrawing(){
 function closeDrawModal(){document.getElementById('draw-modal').classList.add('hidden');}
 function saveDrawing(){
   const canvas=document.getElementById('draw-canvas');
-  // Export PNG transparent (redessine les traits sans fond blanc)
+  let dataUrl;
   if(drawStrokes.length){
     const tmp=document.createElement('canvas');
     tmp.width=canvas.width;tmp.height=canvas.height;
@@ -1833,14 +1929,71 @@ function saveDrawing(){
       for(let j=1;j<s.points.length;j++)ctx.lineTo(s.points[j].x,s.points[j].y);
       ctx.stroke();
     });
-    seqBlocks[drawBlockIdx].drawing=tmp.toDataURL('image/png');
+    dataUrl=tmp.toDataURL('image/png');
   }else{
-    seqBlocks[drawBlockIdx].drawing=canvas.toDataURL('image/png');
+    dataUrl=canvas.toDataURL('image/png');
   }
-  seqBlocks[drawBlockIdx].drawOffX=0;seqBlocks[drawBlockIdx].drawOffY=0;
+  const b=seqBlocks[drawBlockIdx];
+  if(!b.drawings) b.drawings=b.drawing?[b.drawing]:[];
+  b.drawings.push(dataUrl);
+  if(!b.drawSizes) b.drawSizes=b.drawings.map(()=>100);
+  else b.drawSizes.push(100);
+  b.drawing='';
   closeDrawModal();
   renderPlanif();
 }
+
+function removeDrawing(blockIdx,drawIdx){
+  seqBlocks[blockIdx].drawings.splice(drawIdx,1);
+  if(seqBlocks[blockIdx].drawSizes) seqBlocks[blockIdx].drawSizes.splice(drawIdx,1);
+  renderPlanif();
+}
+let selectedDrawEl=null;
+function selectDraw(e,blockIdx,drawIdx){
+  e.stopPropagation();
+  deselectDraw();
+  const el=document.getElementById('draw-'+blockIdx+'-'+drawIdx);
+  if(!el)return;
+  selectedDrawEl=el;
+  el.style.border='2px dashed #00C4FF';
+  el.style.borderRadius='14px';
+  el.style.padding='4px';
+  // Delete button
+  const del=document.createElement('button');
+  del.className='draw-sel-btn';
+  del.style.cssText='position:absolute;top:-8px;right:-8px;width:22px;height:22px;background:#ef4444;color:white;font-size:12px;font-weight:bold;border-radius:50%;z-index:10;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center';
+  del.textContent='✕';
+  del.onclick=ev=>{ev.stopPropagation();removeDrawing(blockIdx,drawIdx);};
+  el.appendChild(del);
+  // Resize handle
+  const handle=document.createElement('div');
+  handle.className='draw-sel-btn';
+  handle.style.cssText='position:absolute;bottom:-6px;right:-6px;width:16px;height:16px;background:#00C4FF;border-radius:3px;cursor:nwse-resize;z-index:10;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.3)';
+  el.appendChild(handle);
+  let startX=0,origW=(seqBlocks[blockIdx].drawSizes&&seqBlocks[blockIdx].drawSizes[drawIdx])||150;
+  handle.onpointerdown=ev=>{
+    ev.preventDefault();ev.stopPropagation();
+    startX=ev.clientX;origW=(seqBlocks[blockIdx].drawSizes&&seqBlocks[blockIdx].drawSizes[drawIdx])||150;
+    handle.setPointerCapture(ev.pointerId);
+    handle.onpointermove=mv=>{
+      const dx=mv.clientX-startX;
+      const w=Math.max(50,Math.min(500,origW+dx));
+      if(!seqBlocks[blockIdx].drawSizes) seqBlocks[blockIdx].drawSizes=seqBlocks[blockIdx].drawings.map(()=>150);
+      seqBlocks[blockIdx].drawSizes[drawIdx]=w;
+      el.style.width=w+'px';
+    };
+    handle.onpointerup=()=>{handle.onpointermove=null;handle.onpointerup=null;saveSeq();};
+  };
+}
+function deselectDraw(){
+  if(!selectedDrawEl)return;
+  selectedDrawEl.style.border='';selectedDrawEl.style.borderRadius='';selectedDrawEl.style.padding='';
+  selectedDrawEl.querySelectorAll('.draw-sel-btn').forEach(b=>b.remove());
+  selectedDrawEl=null;
+}
+document.addEventListener('pointerdown',e=>{
+  if(!e.target.closest('.drawing-item')&&!e.target.closest('.draw-sel-btn'))deselectDraw();
+});
 
 // Drag & drop
 let dragIdx=null;
@@ -2247,5 +2400,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 </script>
+<script src="i18n-data-en.js"></script>
+<script src="i18n.js"></script>
 </body>
 </html>

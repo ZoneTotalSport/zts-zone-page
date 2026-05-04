@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Ma Suppléance EPS — Planificateur pour suppléants en éducation physique. zonetotalsport.ca" />
+  <meta name="theme-color" content="#00E5FF" />
+  <title>Ma Suppléance — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&display=swap" rel="stylesheet" />
+  <style>.hidden{display:none!important}</style>
+  <link rel="stylesheet" href="style.css?v=15" />
+  <!-- ZTS Landing Template -->
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="zts-landing.css">
+</head>
+<body>
+  <!-- LOADING SCREEN -->
+  <div id="loading-screen">
+    <img src="img/bucheron-salut.png" alt="Bûcheron" class="loading-mascot" />
+    <h1 class="loading-title">MA SUPPLÉANCE</h1>
+    <p class="loading-sub">Zone Total Sport</p>
+    <div class="loading-bar"><div class="loading-fill"></div></div>
+  </div>
+
+  <!-- GYM BACKGROUND -->
+  <div id="gymBg"></div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="app-hidden">
+
+    <!-- HEADER -->
+    <header style="background:linear-gradient(135deg,#00E5FF,#00B8D4);position:sticky;top:0;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,0.3);padding:12px 16px">
+      <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <a href="https://zonetotalsport.ca" style="display:flex;align-items:center;gap:10px;text-decoration:none">
+          <img src="https://zonetotalsport.ca/bucheron-basketball.png" alt="Mascotte" style="height:50px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
+          <span style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:1rem;text-shadow:1px 1px 3px rgba(0,0,0,0.3)">🏠 Accueil</span>
+        </a>
+        <div style="flex:1;text-align:center;display:flex;align-items:center;justify-content:center;gap:10px">
+          <img src="https://zonetotalsport.ca/bucheron-suppleance.png" alt="App" style="height:50px;border-radius:12px;filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.3))">
+          <h1 style="font-family:'Luckiest Guy',cursive;color:#fff;font-size:clamp(1.2rem,3vw,2rem);text-shadow:2px 2px 4px rgba(0,0,0,0.3);margin:0;letter-spacing:1px">MA SUPPLÉANCE</h1>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <div class="lang-switcher">
+            <button class="lang-btn lang-active" onclick="setLang('fr')">FR</button>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+            <button class="lang-btn" onclick="setLang('zh')">中文</button>
+            <button class="lang-btn" onclick="setLang('es')">ES</button>
+          </div>
+          <button onclick="window.print()" class="hdr-btn" title="Imprimer">🖨️</button>
+          <button onclick="resetAll()" class="hdr-btn hdr-btn-danger" title="Réinitialiser">🗑️</button>
+        </div>
+        <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
+          <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
+          <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO LANDING -->
+    <div id="heroLanding" style="max-width:900px;margin:20px auto;padding:0 16px">
+      <div style="background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:28px;border:1px solid rgba(0,229,255,0.2);display:flex;flex-wrap:wrap;align-items:center;gap:24px;justify-content:center">
+        <img src="https://zonetotalsport.ca/bucheron-suppleance.png" alt="Mascotte" style="width:130px;height:auto;filter:drop-shadow(3px 3px 10px rgba(0,0,0,0.5));border-radius:16px;flex-shrink:0">
+        <div style="flex:1;min-width:250px;text-align:center">
+          <h2 style="font-family:'Luckiest Guy',cursive;font-size:clamp(1.5rem,4vw,2.5rem);color:#fff;margin:0 0 10px;line-height:1.15">MA <span style="color:#00E5FF">SUPPLEANCE!</span></h2>
+          <p style="font-family:'Schoolbell',cursive;font-size:1.05rem;color:#ccc;margin:0 0 14px;line-height:1.5">L'outil ultime pour les suppleants en EPS. Tout ce dont tu as besoin quand tu remplaces : jeux rapides a mettre en place, consignes de securite, gestion de classe et routines pretaites. Meme si tu ne connais pas le groupe, tu seras pret en 2 minutes!</p>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px">
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">⚡ Pret en 2 min</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">🎮 Jeux rapides</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">🔒 Securite</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(0,229,255,0.15);color:#00E5FF;font-family:'Bangers',cursive;font-size:0.8rem;padding:4px 12px;border-radius:999px">📋 Routines pretaites</span>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button onclick="document.getElementById('heroLanding').style.display='none'" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;border:none;border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">🚀 Commencer!</button>
+            <button onclick="document.getElementById('guideSection').classList.toggle('hidden')" style="font-family:'Bangers',cursive;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:10px 24px;font-size:1rem;cursor:pointer">📖 Comment utiliser</button>
+          </div>
+        </div>
+      </div>
+      <div id="guideSection" class="hidden" style="margin-top:12px;background:rgba(26,26,62,0.88);backdrop-filter:blur(8px);border-radius:24px;padding:24px;border:1px solid rgba(0,229,255,0.2)">
+        <h3 style="font-family:'Luckiest Guy',cursive;font-size:1.5rem;color:#fff;margin:0 0 14px">📖 COMMENT UTILISER</h3>
+        <p style="font-family:'Schoolbell',cursive;font-size:1rem;color:#ccc;line-height:1.6;margin:0">
+          <strong style="color:#00E5FF">1)</strong> <strong style="color:#fff">CHOISIS</strong> le cycle et le nombre d'eleves.<br>
+          <strong style="color:#00E5FF">2)</strong> L'app te <strong style="color:#fff">PROPOSE</strong> des jeux adaptes avec les consignes completes.<br>
+          <strong style="color:#00E5FF">3)</strong> <strong style="color:#fff">SUIS</strong> la routine predefinie pour une suppleance reussie!
+        </p>
+      </div>
+    </div>
+
+    <!-- PROMO SECTION -->
+    <section class="promo-section no-print">
+      <div class="promo-hero">
+        <h2 data-i18n="promoTitle">TON OUTIL #1 POUR LA SUPPLÉANCE EN ÉPS!</h2>
+        <p class="promo-sub" data-i18n="promoSub">Fini le stress de la planification de dernière minute!</p>
+      </div>
+      <div class="promo-grid">
+        <div class="promo-card">
+          <span class="promo-icon">🎮</span>
+          <h3 data-i18n="promoF1t">800+ JEUX PRÊTS À L'EMPLOI</h3>
+          <p data-i18n="promoF1d">Classés par niveau scolaire (préscolaire au 3e cycle), par catégorie et par intensité. Un clic = c'est planifié!</p>
+        </div>
+        <div class="promo-card">
+          <span class="promo-icon">📅</span>
+          <h3 data-i18n="promoF2t">PLANIFICATEUR MULTI-JOURS</h3>
+          <p data-i18n="promoF2d">Organise ta journée ou ta semaine entière. Ajoute tes périodes, récréations et dîners exactement comme ton horaire.</p>
+        </div>
+        <div class="promo-card">
+          <span class="promo-icon">⏰</span>
+          <h3 data-i18n="promoF3t">HEURES & PAUSES PERSONNALISABLES</h3>
+          <p data-i18n="promoF3d">Indique les heures de chaque période, place les récréations AM/PM et le dîner où tu veux dans l'horaire.</p>
+        </div>
+        <div class="promo-card">
+          <span class="promo-icon">📝</span>
+          <h3 data-i18n="promoF4t">NOTES & CONSIGNES</h3>
+          <p data-i18n="promoF4d">Ajoute tes notes personnelles pour chaque période. Tout est sauvegardé automatiquement dans ton navigateur.</p>
+        </div>
+        <div class="promo-card">
+          <span class="promo-icon">🖨️</span>
+          <h3 data-i18n="promoF5t">IMPRIME & EMPORTE</h3>
+          <p data-i18n="promoF5d">Imprime ton plan en un clic. Arrive à l'école avec ta feuille prête — confiance garantie!</p>
+        </div>
+        <div class="promo-card">
+          <span class="promo-icon">🌍</span>
+          <h3 data-i18n="promoF6t">4 LANGUES</h3>
+          <p data-i18n="promoF6d">Français, English, 中文 et Español. Utilise l'outil dans la langue de ton choix!</p>
+        </div>
+      </div>
+      <p class="promo-bottom" data-i18n="promoBottom">Créé par des enseignants d'ÉPS, pour des enseignants d'ÉPS.</p>
+    </section>
+
+    <!-- GUIDE SECTION -->
+    <section class="guide-section no-print">
+      <div class="guide-header">
+        <h2 data-i18n="guideTitle">COMMENT UTILISER CETTE APP?</h2>
+      </div>
+      <div class="guide-steps">
+        <div class="guide-step">
+          <span class="guide-num">1</span>
+          <div>
+            <h3 data-i18n="guideS1t">CHOISIS TON NIVEAU</h3>
+            <p data-i18n="guideS1d">Sélectionne le niveau scolaire du groupe que tu remplaces (préscolaire, 1er, 2e ou 3e cycle). La banque de jeux s'adapte automatiquement!</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <span class="guide-num">2</span>
+          <div>
+            <h3 data-i18n="guideS2t">CONFIGURE TON HORAIRE</h3>
+            <p data-i18n="guideS2d">Indique le nombre de jours et de périodes par jour. Clique sur "Ajouter" pour placer les récréations AM/PM et le dîner entre les périodes.</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <span class="guide-num">3</span>
+          <div>
+            <h3 data-i18n="guideS3t">INSCRIS TES HEURES</h3>
+            <p data-i18n="guideS3d">Dans la colonne de gauche, entre l'heure de début de chaque période et de chaque pause (ex: 9h00, 10h15, 11h30).</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <span class="guide-num">4</span>
+          <div>
+            <h3 data-i18n="guideS4t">CLIQUE SUR UNE PÉRIODE</h3>
+            <p data-i18n="guideS4d">Sélectionne la case de la période où tu veux ajouter un jeu. Elle devient surlignée en bleu pour confirmer ta sélection.</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <span class="guide-num">5</span>
+          <div>
+            <h3 data-i18n="guideS5t">EXPLORE LA BANQUE DE JEUX</h3>
+            <p data-i18n="guideS5d">Descends jusqu'à la banque de 800+ jeux. Filtre par catégorie, clique sur un jeu pour voir les détails, puis clique "Insérer" pour l'ajouter à ta période.</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <span class="guide-num">6</span>
+          <div>
+            <h3 data-i18n="guideS6t">IMPRIME ET C'EST PARTI!</h3>
+            <p data-i18n="guideS6d">Ajoute tes notes personnelles, puis clique l'icône imprimante 🖨️ pour imprimer ton plan. Arrive à l'école confiant et organisé!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONFIG BAR -->
+    <div class="config-bar no-print">
+      <div class="config-item">
+        <label data-i18n="lblLevel">Niveau scolaire</label>
+        <select id="sel-level" onchange="refreshAll()">
+          <option value="prescolaire" data-i18n="lvlPresc">Préscolaire / Maternelle</option>
+          <option value="cycle1" data-i18n="lvlC1">1er Cycle (1re-2e)</option>
+          <option value="cycle2" selected data-i18n="lvlC2">2e Cycle (3e-4e)</option>
+          <option value="cycle3" data-i18n="lvlC3">3e Cycle (5e-6e)</option>
+        </select>
+      </div>
+      <div class="config-item">
+        <label data-i18n="lblDays">Nombre de jours</label>
+        <input type="number" id="sel-days" min="1" max="10" value="3" onchange="refreshAll()" oninput="refreshAll()" />
+      </div>
+      <div class="config-item">
+        <label data-i18n="lblPeriods">Périodes / jour</label>
+        <input type="number" id="sel-periods" min="1" max="10" value="4" onchange="refreshAll()" oninput="refreshAll()" />
+      </div>
+      <div class="config-item">
+        <button class="add-break-btn" onclick="openBreakMenu()" data-i18n="addBreak">Ajouter</button>
+        <span class="config-hint">Récré / Dîner</span>
+      </div>
+    </div>
+    <div id="break-tags-zone" class="break-tags-bar no-print"></div>
+
+    <!-- AGENDA GRID -->
+    <div id="agenda-container" class="agenda-container"></div>
+
+    <!-- GAME BANK -->
+    <div class="bank-section no-print">
+      <div class="bank-header">
+        <img src="img/bucheron-createur.png" alt="" class="bank-mascot" />
+        <div>
+          <h2 data-i18n="bankTitle">BANQUE DE JEUX</h2>
+          <p data-i18n="bankSub">Clique sur un jeu pour le copier dans une période!</p>
+        </div>
+      </div>
+      <div class="bank-filters">
+        <button class="bank-filter-btn active" data-cat="all" onclick="filterBank('all')" data-i18n="allCat">Tous</button>
+      </div>
+      <div id="bank-grid" class="bank-grid"></div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="app-footer no-print">
+      <div class="app-footer-inner">
+        <img src="img/bucheron-defi.png" alt="" class="footer-mascot" />
+        <p>Ma Suppléance EPS &mdash; <a href="https://www.zonetotalsport.ca/boite-a-outils-eps" target="_blank"><strong>zonetotalsport.ca</strong></a></p>
+        <p class="footer-copy">&copy; 2025-2026 Zone Total Sport. Tous droits réservés.</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- MODAL GAME DETAIL -->
+  <div id="gameModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="modal-game-title">Jeu</h2>
+        <button onclick="closeModal()" class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-game-meta" id="modal-game-meta"></div>
+        <div class="modal-game-desc" id="modal-game-desc"></div>
+        <button onclick="insertGameToPeriod()" class="btn-save" id="btn-insert" style="display:none;" data-i18n="insertBtn">INSÉRER DANS LA PÉRIODE</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="jeux-suppleance.js?v=3"></script>
+  <script src="app.js?v=9"></script>
+<!-- ZTS Landing config + script -->
+<script>
+window.ZTS_LANDING_CONFIG = {
+  appId: 'suppleance',
+  accentColor: '#14B8A6',
+  homeUrl: 'https://zonetotalsport.ca',
+  mascot: 'https://zonetotalsport.ca/bucheron-suppleance.png',
+  logoIcon: 'https://zonetotalsport.ca/logo-zts-text.png',
+  logoWide: true,
+  logoTitle: { fr: 'Ma Suppléance', en: 'My Substitute Plan', zh: '代课计划' },
+  logoSub: 'Zone Total Sport',
+  title: { fr: 'Ma Suppléance', en: 'My Substitute Plan', zh: '我的代课' },
+  subtitle: { fr: 'Planifier en minutes!', en: 'Plan in minutes!', zh: '几分钟搞定!' },
+  description: {
+    fr: "L'outil qui sauve la vie des suppléants en ÉPS. Choisis le niveau, la durée, le matériel — reçois un plan complet avec jeux, transitions, consignes. Plus jamais d'angoisse avant une suppléance.",
+    en: "The life-saver for PE substitute teachers. Pick grade, duration and equipment — get a full plan with games, transitions and instructions. No more pre-sub stress.",
+    zh: "体育代课教师的救星。选择级别、时长、器材——获得含游戏、过渡和指令的完整方案。代课不再焦虑。"
+  },
+  badges: [
+    { emoji: '⚡', color: 'yellow', text: { fr: 'Plan en 2 min', en: 'Plan in 2 min', zh: '2 分钟出方案' } },
+    { emoji: '🎯', color: 'cyan',   text: { fr: 'Adapté au niveau', en: 'Grade-tailored', zh: '适配级别' } },
+    { emoji: '🎲', color: 'pink',   text: { fr: 'Jeux intégrés', en: 'Games included', zh: '含游戏' } },
+    { emoji: '🖨️', color: 'green',  text: { fr: 'Imprimable', en: 'Printable', zh: '可打印' } },
+    { emoji: '🛟', color: 'violet', text: { fr: 'Zéro stress', en: 'Zero stress', zh: '零压力' } }
+  ],
+  features: [
+    { emoji: '🎚️', title: { fr: 'Niveau', en: 'Grade', zh: '年级' }, desc: { fr: 'Préscolaire à secondaire', en: 'Pre-K to high school', zh: '学前到中学' } },
+    { emoji: '⏱️', title: { fr: 'Durée', en: 'Duration', zh: '时长' }, desc: { fr: '30, 45 ou 60 min', en: '30, 45 or 60 min', zh: '30/45/60 分钟' } },
+    { emoji: '🧰', title: { fr: 'Matériel', en: 'Equipment', zh: '器材' }, desc: { fr: 'Ce qu\'il y a dans la réserve', en: 'What\'s in the storage', zh: '器材室有什么' } },
+    { emoji: '🎲', title: { fr: 'Jeux', en: 'Games', zh: '游戏' }, desc: { fr: 'Choisis dans 1000+ jeux', en: 'Pick from 1000+ games', zh: '从 1000+ 游戏选' } },
+    { emoji: '🚦', title: { fr: 'Transitions', en: 'Transitions', zh: '过渡' }, desc: { fr: 'Règles du gym intégrées', en: 'Gym rules included', zh: '含馆规' } },
+    { emoji: '📝', title: { fr: 'Consignes', en: 'Instructions', zh: '指令' }, desc: { fr: 'Scripts clairs pour suppléant', en: 'Clear sub scripts', zh: '代课清晰脚本' } },
+    { emoji: '🧯', title: { fr: 'Plan B', en: 'Plan B', zh: '备选' }, desc: { fr: 'Activité de secours incluse', en: 'Backup activity included', zh: '含备选活动' } },
+    { emoji: '🖨️', title: { fr: 'PDF', en: 'PDF', zh: 'PDF' }, desc: { fr: 'Imprime ou envoie au titulaire', en: 'Print or send to teacher', zh: '打印或发给教师' } }
+  ],
+  ctaStart: { label: { fr: 'Commencer!', en: 'Start!', zh: '开始!' } },
+  ctaHelp: {
+    label: { fr: 'Comment utiliser', en: 'How to use', zh: '使用说明' },
+    onClick: function () { window.open('https://zonetotalsport.ca/blog.html', '_blank'); }
+  }
+};
+</script>
+<script src="zts-landing.js"></script>
+<!-- ZTS Auth Gate -->
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Schoolbell&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script>
+(function(){var c={apiKey:'AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA',authDomain:'zone-total-sport.firebaseapp.com',projectId:'zone-total-sport'};if(!firebase.apps.length)firebase.initializeApp(c);var o=document.createElement('div');o.id='zts-gate';o.innerHTML='<div style="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center"><div style="background:#fff;border-radius:24px;padding:40px;max-width:440px;width:90%;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,0.3)"><img src="https://zonetotalsport.ca/bucheron-basketball.png" style="width:120px;margin:0 auto 16px" alt=""><h2 style="font-family:Luckiest Guy,cursive;font-size:2rem;color:#1e293b;margin:0 0 4px">Zone Total Sport</h2><p style="font-family:Schoolbell,cursive;color:#64748b;margin:0 0 24px;font-size:1.1rem">Connecte-toi ou inscris-toi gratuitement pour acceder a cette ressource.</p><input id="zg-e" type="email" placeholder="Courriel" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:10px;font-size:1.1rem;box-sizing:border-box"><input id="zg-p" type="password" placeholder="Mot de passe" style="font-family:Schoolbell,cursive;width:100%;padding:14px 16px;border:2px solid #e2e8f0;border-radius:12px;margin-bottom:16px;font-size:1.1rem;box-sizing:border-box"><button id="zg-l" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#4f46e5;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Se connecter</button><button id="zg-s" style="font-family:Luckiest Guy,cursive;width:100%;padding:14px;background:#00BCD4;color:#fff;border:none;border-radius:12px;font-size:1.1rem;cursor:pointer;margin-bottom:8px;letter-spacing:1px">Creer un compte gratuit</button><button id="zg-g" style="font-family:Schoolbell,cursive;width:100%;padding:14px;background:#fff;color:#333;border:2px solid #e2e8f0;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer">Connexion Google</button><p id="zg-err" style="font-family:Schoolbell,cursive;color:#ef4444;font-size:.9rem;margin:12px 0 0;display:none"></p></div></div>';document.body.appendChild(o);var err=document.getElementById('zg-err');function se(m){err.textContent=m;err.style.display='block';}document.getElementById('zg-l').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().signInWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-s').onclick=function(){var e=document.getElementById('zg-e').value,p=document.getElementById('zg-p').value;if(!e||!p){se('Remplis tous les champs');return;}firebase.auth().createUserWithEmailAndPassword(e,p).catch(function(r){se(r.message);});};document.getElementById('zg-g').onclick=function(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(r){se(r.message);});};firebase.auth().onAuthStateChanged(function(u){var g=document.getElementById('zts-gate');if(u&&g)g.remove();ztsUpdateAuthUI(u);});})();
+function ztsUpdateAuthUI(u){var l=document.getElementById('zts-auth-label'),b=document.getElementById('zts-auth-btn');if(!l||!b)return;if(u){var name=u.displayName||u.email.split('@')[0];l.textContent='\u{1F464} '+name;b.textContent='Deconnexion';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.15)';b.style.borderColor='rgba(255,255,255,0.5)';}else{l.textContent='';b.textContent='Se connecter';b.style.display='inline-block';b.style.background='rgba(255,255,255,0.25)';b.style.borderColor='#fff';}}
+function ztsAuthAction(){var u=firebase.auth().currentUser;if(u){firebase.auth().signOut().then(function(){location.reload();});}else{location.reload();}}
+</script>
+</body>
+</html>
