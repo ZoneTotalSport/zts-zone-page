@@ -1205,9 +1205,9 @@ button {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -1222,55 +1222,81 @@ button {
   pointer-events: none;
 }
 
+/* Modal pattern blog/omnigroupe : carte blanche + chunky shadowbox cyan */
 .modal-card {
-  background: url('img/gym-bg-roots.jpg') center/cover no-repeat;
-  border: 3px solid #FFD700;
-  color: #fff;
-  border-radius: var(--radius-lg);
-  padding: 36px;
-  max-width: 700px;
+  background: #fff;
+  color: #0f172a;
+  border-radius: 2.5rem;
+  border-bottom: 14px solid #00C4FF;
+  border-right: 14px solid #00C4FF;
+  padding: 0 0 40px;
+  max-width: 760px;
   width: 100%;
-  max-height: 85vh;
+  max-height: 92vh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 215, 0, 0.15);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
   animation: scaleIn 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  font-family: 'Gloria Hallelujah', cursive;
 }
+.modal-card > *:not(.modal-header):not(.modal-close) { padding-left: 36px; padding-right: 36px; }
 
 .modal-close {
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
-  font-size: 0.85rem;
+  background: #FFF000;
+  border: 3px solid #000;
+  color: #004A61;
+  font-size: 1.1rem;
+  font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: var(--transition);
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #000;
+  transition: transform 0.2s;
 }
 
 .modal-close:hover {
-  background: rgba(0, 229, 255, 0.15);
-  color: var(--text);
-  transform: rotate(90deg);
+  transform: rotate(90deg) scale(1.1);
 }
 
+/* Header en bandeau gradient cyan dans la modal */
 .modal-header {
-  margin-bottom: 24px;
+  margin: 0 0 24px;
+  padding: 32px 36px 24px;
   display: flex;
   align-items: center;
   gap: 20px;
-  background: rgba(255, 255, 255, 0.75);
-  padding: 20px;
-  border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  background: radial-gradient(circle at top right, #00C4FF, #0086AD, #004A61);
+  border-radius: 2.5rem 2.5rem 1.5rem 1.5rem;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
 }
+.modal-header::before {
+  content: "";
+  position: absolute; top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(255,240,0,0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* === Override texte sombre sur modal blanche (fix gym-bg legacy) === */
+.modal-card .modal-section { background: #f8fafc !important; border: 1px solid #e2e8f0 !important; color: #0f172a !important; }
+.modal-card .modal-section-label::after { background: #e2e8f0 !important; }
+.modal-card .modal-desc, .modal-card .modal-section p, .modal-card .modal-section li { color: #1e293b !important; }
+.modal-card .progression-card { background: #f1f5f9 !important; border: 1px solid #cbd5e1; }
+.modal-card .progression-title { color: #004A61 !important; }
+.modal-card .progression-desc, .modal-card .progression-sub { color: #475569 !important; }
+.modal-card .modal-meta-grid, .modal-card .modal-meta-item, .modal-card .modal-meta-label, .modal-card .modal-meta-value { color: #1e293b !important; }
+.modal-card ul, .modal-card ol, .modal-card li { color: #1e293b !important; }
 
 .modal-mascot {
   height: 200px;
