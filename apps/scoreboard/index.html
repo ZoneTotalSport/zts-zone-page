@@ -7,22 +7,25 @@
     <title>Basketball Scoreboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet">
+    <style>body{font-family:'DynaPuff',cursive}</style>
     <link rel="stylesheet" href="../../zts-ultra.css">
-    <script type="module" crossorigin src="./assets/index-hyWLnqIA.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-CzcDKP5a.css">
+    <script type="module" crossorigin src="./assets/index-PbmylT8B.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-bJ-cZC9g.css">
     <style>
-.zts-app-header{position:sticky;top:0;z-index:9999;background:#00C4FF;border-bottom:4px solid #0086AD;box-shadow:0 4px 12px rgba(0,0,0,.15);padding-top:env(safe-area-inset-top,0)}
-.zts-app-header-inner{max-width:1280px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.zts-app-header{position:sticky;top:0;z-index:9999;background:linear-gradient(135deg,#00C4FF 0%,#0086AD 100%);border-bottom:5px solid #000;box-shadow:0 6px 0 rgba(0,0,0,.2);padding-top:env(safe-area-inset-top,0)}
+.zts-app-header-inner{max-width:1800px;margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .zts-app-brand{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;line-height:1;flex-shrink:0}
-.zts-app-brand-main{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;font-size:24px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2);line-height:1}
+.zts-app-brand-main{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;font-size:48px;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.3);line-height:1}
 .zts-app-brand-accent{color:#FFFA00}
-.zts-app-brand-sub{font-family:'Luckiest Guy',cursive;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#004A61;margin-top:2px;line-height:1}
-@media (max-width:640px){.zts-app-brand-sub{display:none}.zts-app-brand-main{font-size:18px}}
-.zts-app-header-right{display:flex;align-items:center;gap:8px}
-.zts-app-clock{font-family:'Luckiest Guy',cursive;letter-spacing:.1em;font-size:24px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2);background:rgba(0,0,0,.2);padding:4px 12px;border-radius:12px}
-.zts-app-home-btn{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;text-transform:uppercase;font-size:18px;background:#FFFA00;color:#004A61;padding:10px 20px;border-radius:16px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;box-shadow:4px 4px 0 rgba(0,0,0,.06);border-bottom:6px solid rgba(0,0,0,.1);border-right:6px solid rgba(0,0,0,.1)}
-@media (max-width:640px){.zts-app-clock{font-size:18px}.zts-app-home-btn{font-size:14px;padding:8px 12px}}
+.zts-app-brand-sub{font-family:'Luckiest Guy',cursive;font-size:16px;letter-spacing:.25em;text-transform:uppercase;color:#FFFC00;margin-top:6px;line-height:1;text-shadow:2px 2px 0 rgba(0,0,0,.25)}
+@media (max-width:640px){.zts-app-brand-sub{display:none}.zts-app-brand-main{font-size:30px}}
+.zts-app-header-right{display:flex;align-items:center;gap:14px}
+.zts-app-clock{font-family:'Luckiest Guy',cursive;letter-spacing:.1em;font-size:42px;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.3);background:rgba(0,0,0,.25);padding:8px 22px;border-radius:18px;border:3px solid #000;box-shadow:5px 5px 0 #000}
+.zts-app-home-btn{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;text-transform:uppercase;font-size:30px;background:#FFFA00;color:#004A61;padding:14px 28px;border-radius:18px;display:inline-flex;align-items:center;gap:10px;text-decoration:none;border:3px solid #000;box-shadow:5px 5px 0 #000;transition:transform .12s,box-shadow .12s}
+.zts-app-home-btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+.zts-app-home-btn svg{width:28px;height:28px}
+@media (max-width:640px){.zts-app-clock{font-size:24px;padding:6px 14px}.zts-app-home-btn{font-size:20px;padding:10px 18px}.zts-app-home-btn svg{width:20px;height:20px}}
     </style>
   </head>
   <body>
@@ -43,67 +46,6 @@
     </header>
     <script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
     <div id="root"></div>
-    <!-- ZTS Landing config + script -->
-    <script>
-      window.ZTS_LANDING_CONFIG = {
-        appId: 'scoreboard',
-        accentColor: '#F59E0B',
-        homeUrl: 'https://zonetotalsport.ca',
-        mascot: 'https://zonetotalsport.ca/apps/scoreboard/mr-root-scoreboard.png',
-        logoIcon: 'https://zonetotalsport.ca/logo-zts.png',
-        logoTitle: { fr: 'Tableau Indicateur', en: 'Scoreboard', zh: '计分板' },
-        logoSub: 'Zone Total Sport',
-        title: {
-          fr: 'Tableau Indicateur',
-          en: 'Scoreboard',
-          zh: '计分板'
-        },
-        subtitle: {
-          fr: 'Basketball • Hockey • Football!',
-          en: 'Basketball • Hockey • Football!',
-          zh: '篮球 • 冰球 • 橄榄球!'
-        },
-        description: {
-          fr: "Tableau indicateur professionnel pour le gymnase : chrono, fautes, possession, chrono de tir, temps-morts, horns NBA/sirène configurables. 3 sports intégrés (basketball, hockey, football). Affichage plein écran TNI!",
-          en: "Pro-grade gym scoreboard: game clock, fouls, possession, shot clock, timeouts, configurable NBA horns/siren. 3 sports built in (basketball, hockey, football). Full-screen IWB display!",
-          zh: "专业体育馆计分板:比赛计时、犯规、控球、进攻时间、暂停、可配置 NBA 号角/警报声。内置 3 项运动(篮球、冰球、橄榄球)。全屏交互白板显示!"
-        },
-        badges: [
-          { emoji: '🏀', color: 'cyan',   text: { fr: '3 sports',            en: '3 sports',           zh: '3 项运动' } },
-          { emoji: '⏱️', color: 'yellow', text: { fr: 'Chrono pro',          en: 'Pro clock',          zh: '专业计时' } },
-          { emoji: '🎯', color: 'pink',   text: { fr: 'Fautes & possession', en: 'Fouls & possession', zh: '犯规与控球' } },
-          { emoji: '🔔', color: 'violet', text: { fr: 'Horns NBA',           en: 'NBA horns',          zh: 'NBA 号角' } },
-          { emoji: '📺', color: 'green',  text: { fr: 'Plein écran TNI',     en: 'IWB full screen',    zh: '交互白板全屏' } }
-        ],
-        features: [
-          { emoji: '🏀', title: { fr: 'Basketball complet', en: 'Full basketball', zh: '完整篮球' },
-            desc: { fr: 'Quarts, fautes, bonus, possession', en: 'Quarters, fouls, bonus, possession', zh: '节次、犯规、加罚、控球' } },
-          { emoji: '🏒', title: { fr: 'Hockey', en: 'Hockey', zh: '冰球' },
-            desc: { fr: 'Périodes, pénalités, tirs', en: 'Periods, penalties, shots', zh: '时段、罚时、射门' } },
-          { emoji: '🏈', title: { fr: 'Football', en: 'Football', zh: '橄榄球' },
-            desc: { fr: 'Quarts, downs, yards', en: 'Quarters, downs, yards', zh: '节次、进攻、码数' } },
-          { emoji: '⏱️', title: { fr: 'Chrono match + tir', en: 'Game & shot clock', zh: '比赛与进攻计时' },
-            desc: { fr: 'Décompte précis configurable', en: 'Precise configurable countdown', zh: '精确可配置倒计时' } },
-          { emoji: '⚠️', title: { fr: 'Fautes & temps-morts', en: 'Fouls & timeouts', zh: '犯规与暂停' },
-            desc: { fr: 'Par équipe et par joueur', en: 'Per team and per player', zh: '按队伍和球员' } },
-          { emoji: '🔔', title: { fr: 'Horns/sirène', en: 'Horns/siren', zh: '号角/警报声' },
-            desc: { fr: 'Son NBA ou sirène au choix', en: 'NBA horn or siren', zh: 'NBA 号角或警报声' } },
-          { emoji: '🎨', title: { fr: 'Thèmes couleurs', en: 'Color themes', zh: '颜色主题' },
-            desc: { fr: "Personnalise l'affichage", en: 'Customize display', zh: '自定义显示' } },
-          { emoji: '📺', title: { fr: 'Plein écran TBI', en: 'IWB full screen', zh: '交互白板全屏' },
-            desc: { fr: 'Parfait pour le gymnase', en: 'Perfect for the gym', zh: '非常适合体育馆' } }
-        ],
-        ctaStart: {
-          label: { fr: '🚀 COMMENCER!', en: '🚀 START!', zh: '🚀 开始!' }
-        },
-        ctaHelp: {
-          label: { fr: '📖 COMMENT UTILISER', en: '📖 HOW TO USE', zh: '📖 使用说明' },
-          onClick: function () {
-            window.open('https://zonetotalsport.ca/blog.html', '_blank');
-          }
-        }
-      };
-    </script>
-    <script src="./zts-landing.js"></script>
-  </body>
+    
+    </body>
 </html>
