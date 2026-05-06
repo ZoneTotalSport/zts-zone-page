@@ -9,62 +9,73 @@
 <link rel="apple-touch-icon" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=DynaPuff:wght@400..700&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../zts-ultra.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-tailwind.config={theme:{extend:{colors:{cyan:{electric:'#00E5FF'},yellow:{sun:'#FFD700'},pink:{fuchsia:'#FF2A7A'},violet:{pop:'#8B5CF6'}},fontFamily:{lucky:['"Luckiest Guy"','cursive'],schoolbell:['"Schoolbell"','cursive'],bangers:['"Bangers"','cursive'],}}}};
+tailwind.config={theme:{extend:{colors:{cyan:{electric:'#00E5FF'},yellow:{sun:'#FFD700'},pink:{fuchsia:'#FF2A7A'},violet:{pop:'#8B5CF6'}},fontFamily:{lucky:['"Luckiest Guy"','cursive'],dyna:['"DynaPuff"','cursive'],schoolbell:['"DynaPuff"','cursive'],bangers:['"DynaPuff"','cursive'],}}}};
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Schoolbell',cursive;font-size:1.15rem;min-height:100vh;overflow-x:hidden}
+body{font-family:'DynaPuff',cursive;font-size:1.35rem;min-height:100vh;overflow-x:hidden}
 .bg-gym{position:fixed;inset:0;z-index:-1;background:url('/gym-bg.jpg') center/cover no-repeat fixed}
 .header-grad{background:linear-gradient(135deg,#00E5FF,#00B8D4)}
-.cell-day{background:rgba(15,15,50,0.82);color:#fff;border-radius:10px;min-height:90px;padding:8px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.cell-day:hover{background:rgba(15,15,50,0.95);transform:scale(1.03);z-index:3;box-shadow:0 0 16px rgba(0,229,255,0.4)}
-.cell-weekend{background:rgba(5,5,30,0.9)!important;color:rgba(255,255,255,0.4)!important}
-.cell-weekend:hover{background:rgba(5,5,30,0.95)!important}
-.cell-weekend .day-num{color:rgba(255,255,255,0.4)!important}
-.cell-today{box-shadow:0 0 0 4px #00E5FF,0 0 20px rgba(0,229,255,0.5)!important}
-.day-header{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff;font-family:'Bangers',cursive;text-align:center;padding:10px 4px;font-size:1.3rem;letter-spacing:1px;border-radius:8px 8px 0 0}
-.week-col{background:rgba(0,229,255,0.6);font-family:'Luckiest Guy',cursive;font-size:1rem;display:flex;align-items:center;justify-content:center;min-width:44px;border-radius:8px;color:#fff}
-.day-num{font-family:'Luckiest Guy',cursive;font-size:1.8rem;line-height:1;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,0.5)}
-.planif-btn{font-family:'Bangers',cursive;font-size:.85rem;background:rgba(0,229,255,0.85);color:#fff;border:none;border-radius:8px;padding:3px 10px;cursor:pointer;transition:all .15s;letter-spacing:.5px}
-.planif-btn:hover{background:#00E5FF;transform:scale(1.1)}
+.cell-day{background:#fff;color:#0f172a;border:4px solid #000;border-radius:18px;min-height:150px;aspect-ratio:1/1;padding:10px;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s;position:relative;overflow:hidden;box-shadow:6px 6px 0 #000}
+.cell-day:hover{background:#FFFCEB;transform:translate(-2px,-2px);z-index:3;box-shadow:10px 10px 0 #000}
+.cell-day:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+.cell-weekend{background:#F1F5F9!important;color:#94a3b8!important}
+.cell-weekend:hover{background:#E2E8F0!important}
+.cell-weekend .day-num{color:#94a3b8!important;text-shadow:none!important}
+.cell-today{box-shadow:6px 6px 0 #000,0 0 0 4px #FFFC00!important;background:#ECFEFF!important}
+.cell-today:hover{box-shadow:10px 10px 0 #000,0 0 0 4px #FFFC00!important}
+.day-header{background:#00C4FF;color:#fff;font-family:'Luckiest Guy',cursive;text-align:center;padding:16px 6px;font-size:2rem;letter-spacing:2px;border-radius:16px;border:4px solid #000;box-shadow:5px 5px 0 #000;text-shadow:3px 3px 0 rgba(0,0,0,.25)}
+.week-col{background:#FFFC00;font-family:'Luckiest Guy',cursive;font-size:1.4rem;display:flex;align-items:center;justify-content:center;min-width:60px;border-radius:16px;color:#004A61;border:4px solid #000;box-shadow:4px 4px 0 #000}
+.day-num{font-family:'Luckiest Guy',cursive;font-size:2.6rem;line-height:1;color:#0f172a;text-shadow:2px 2px 0 #fff,-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff}
+.planif-btn{font-family:'Luckiest Guy',cursive;font-size:.85rem;background:#FFFC00;color:#004A61;border:2px solid #000;border-radius:10px;padding:4px 12px;cursor:pointer;transition:all .15s;letter-spacing:.5px;box-shadow:3px 3px 0 #000}
+.planif-btn:hover{background:#00C4FF;color:#fff;transform:translate(-1px,-1px);box-shadow:4px 4px 0 #000}
+.planif-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
 .cycle-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
-.badge{display:inline-flex;align-items:center;gap:3px;font-size:.75rem;padding:3px 10px;border-radius:9999px;font-family:'Bangers',cursive;cursor:default;white-space:nowrap;letter-spacing:.5px}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:1rem;padding:5px 14px;border-radius:9999px;font-family:'DynaPuff',cursive;font-weight:600;cursor:default;white-space:nowrap;letter-spacing:.5px;border:2px solid #000;box-shadow:2px 2px 0 #000}
 .badge-ped{background:#FFD700;color:#333}.badge-conge{background:#00B8D4;color:#fff}
 .badge-tournoi{background:#FF2A7A;color:#fff}.badge-photo{background:#8B5CF6;color:#fff}
 .badge-sortie{background:#10B981;color:#fff}.badge-custom{background:#6B7280;color:#fff}
-.btn-pill{font-family:'Bangers',cursive;border-radius:9999px;padding:8px 22px;font-size:1.05rem;cursor:pointer;transition:all .15s;border:none;letter-spacing:.5px}
-.btn-cyan{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff}
-.btn-yellow{background:linear-gradient(135deg,#FFD700,#FFC107);color:#333}
-.btn-pink{background:linear-gradient(135deg,#FF2A7A,#E91E63);color:#fff}
-.btn-violet{background:linear-gradient(135deg,#8B5CF6,#7C3AED);color:#fff}
-.btn-pill:hover{opacity:.85;transform:scale(1.05)}
-.lang-pill{font-family:'Bangers',cursive;padding:4px 14px;border-radius:9999px;cursor:pointer;font-size:1rem;background:rgba(255,255,255,0.3);color:#fff;transition:all .2s;border:none}
-.lang-pill.active{background:#fff;color:#00B8D4}
+.btn-pill{font-family:'Luckiest Guy',cursive;border-radius:14px;padding:10px 22px;font-size:1.05rem;cursor:pointer;transition:transform .12s,box-shadow .12s;border:3px solid #000;letter-spacing:.5px;box-shadow:5px 5px 0 #000}
+.btn-cyan{background:#00C4FF;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2)}
+.btn-yellow{background:#FFFC00;color:#004A61}
+.btn-pink{background:#FF2A7A;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2)}
+.btn-violet{background:#8B5CF6;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2)}
+.btn-pill:hover{transform:translate(-1px,-1px);box-shadow:7px 7px 0 #000}
+.btn-pill:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+.lang-pill{font-family:'Luckiest Guy',cursive;padding:8px 16px;border-radius:14px;cursor:pointer;font-size:1.4rem;letter-spacing:.05em;background:rgba(255,255,255,0.25);color:#fff;transition:transform .12s,box-shadow .12s;border:3px solid #000;box-shadow:3px 3px 0 #000}
+.lang-pill:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000}
+.lang-pill.active{background:#fff;color:#0086AD}
 .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.7);display:flex;align-items:start;justify-content:center;overflow-y:auto;padding:20px 10px}
-.modal-content{width:100%;max-width:900px;border-radius:20px;overflow:hidden;margin:20px auto;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
-.period-cyan{background:linear-gradient(135deg,#00E5FF,#00B8D4);color:#fff;font-family:'Luckiest Guy',cursive;border-radius:14px;min-width:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px;text-align:center;font-size:1.1rem}
-.period-yellow{background:linear-gradient(135deg,#FFD700,#FFC107);border:2px solid #333;border-radius:14px;padding:12px 16px;flex:1}
-.p-input{background:#fff;border:2px solid #ccc;border-radius:10px;padding:6px 10px;font-family:'Schoolbell',cursive;font-size:1.1rem;width:100%;outline:none}
-.p-input:focus{border-color:#00E5FF;box-shadow:0 0 0 3px rgba(0,229,255,0.25)}
-.separator-bar{font-family:'Schoolbell',cursive;font-style:italic;text-align:center;padding:8px;font-size:1.1rem;color:#555;background:rgba(0,229,255,0.12);border-radius:10px;margin:6px 0}
-.guard-bar{background:rgba(255,165,0,0.15);border:2px solid #FFA500;border-radius:10px;padding:8px 12px;margin:6px 0;display:flex;align-items:center;gap:8px}
-.guard-bar input{font-family:'Schoolbell',cursive;border:2px solid #FFA500;border-radius:8px;padding:4px 8px;font-size:1rem;outline:none;flex:1}
-.guard-bar input:focus{box-shadow:0 0 0 2px rgba(255,165,0,0.3)}
-.config-panel{background:rgba(255,255,255,0.96);border-radius:14px;margin:10px;padding:14px;border:3px dashed #00B8D4}
-.config-toggle{cursor:pointer;font-family:'Bangers',cursive;font-size:1.2rem;color:#00B8D4;background:none;border:none;padding:10px 18px;width:100%;text-align:left;letter-spacing:.5px}
+.modal-content{width:100%;max-width:900px;border-radius:24px;overflow:hidden;margin:20px auto;background:#fff;border:5px solid #000;box-shadow:12px 12px 0 #000,0 30px 60px rgba(0,0,0,.4)}
+.period-cyan{background:#00C4FF;color:#fff;font-family:'Luckiest Guy',cursive;border-radius:18px;min-width:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 14px;text-align:center;font-size:1.7rem;border:4px solid #000;box-shadow:5px 5px 0 #000;text-shadow:2px 2px 0 rgba(0,0,0,.25);gap:8px}
+.period-cyan input[type=time]{font-family:'DynaPuff',cursive;font-size:1.1rem;padding:6px 10px;border-radius:10px;border:2px solid #000;width:100%}
+.period-yellow{background:#FFFC00;border:4px solid #000;border-radius:18px;padding:16px 20px;flex:1;box-shadow:5px 5px 0 #000}
+.p-input{background:#fff;border:3px solid #000;border-radius:12px;padding:10px 14px;font-family:'DynaPuff',cursive;font-weight:500;font-size:1.35rem;width:100%;outline:none;transition:box-shadow .12s}
+.p-input:focus{border-color:#00C4FF;box-shadow:4px 4px 0 #00C4FF}
+.separator-bar{font-family:'DynaPuff',cursive;font-weight:700;text-align:center;padding:14px;font-size:1.5rem;color:#0086AD;background:#ECFEFF;border:3px solid #000;border-radius:14px;margin:10px 0;box-shadow:4px 4px 0 #000}
+.guard-bar{background:#FFF7E6;border:3px solid #000;border-radius:14px;padding:12px 16px;margin:10px 0;display:flex;align-items:center;gap:12px;box-shadow:4px 4px 0 #000}
+.guard-bar input{font-family:'DynaPuff',cursive;font-weight:500;border:2px solid #000;border-radius:10px;padding:8px 12px;font-size:1.25rem;outline:none;flex:1}
+.guard-bar input:focus{box-shadow:3px 3px 0 #FFA500}
+.config-panel{background:#fff;border-radius:18px;margin:12px;padding:18px;border:4px solid #000;box-shadow:6px 6px 0 #000}
+.config-toggle{cursor:pointer;font-family:'Luckiest Guy',cursive;font-size:1.6rem;color:#0086AD;background:none;border:none;padding:10px 18px;width:100%;text-align:left;letter-spacing:.05em}
 .config-toggle:hover{color:#FF2A7A}
-.config-row{display:flex;gap:10px;align-items:center;margin:8px 0;flex-wrap:wrap}
-.config-row label{font-family:'Bangers',cursive;font-size:1rem;color:#333;min-width:110px}
-.config-row input,.config-row select{font-family:'Schoolbell',cursive;border:2px solid #ccc;border-radius:10px;padding:5px 10px;font-size:1rem}
+.config-row{display:flex;gap:12px;align-items:center;margin:10px 0;flex-wrap:wrap}
+.config-row label{font-family:'Luckiest Guy',cursive;font-size:1.3rem;color:#0f172a;min-width:140px;letter-spacing:.03em}
+.config-row input,.config-row select{font-family:'DynaPuff',cursive;font-weight:500;border:2px solid #000;border-radius:10px;padding:8px 12px;font-size:1.05rem;color:#0f172a;background:#fff}
+.config-row input[type=time]{font-family:system-ui,-apple-system,sans-serif;font-weight:600;font-size:1.05rem;padding:6px 10px;min-width:160px;color:#0f172a}
+.config-row input[type=checkbox]{width:22px;height:22px;cursor:pointer}
+.period-cyan input[type=time]{font-family:system-ui,-apple-system,sans-serif;font-weight:700;color:#0f172a;background:#fff;min-width:140px;padding:6px 10px}
+input[type=time].p-input{font-family:system-ui,-apple-system,sans-serif;font-weight:600;min-width:160px!important;width:160px!important;padding:8px 12px}
 .config-row input:focus,.config-row select:focus{border-color:#00E5FF;outline:none}
-.detail-glass{background:rgba(255,255,255,0.93);backdrop-filter:blur(8px);border-radius:18px;border:3px solid rgba(0,229,255,0.3);padding:20px}
+.detail-glass{background:#fff;border-radius:24px;border:4px solid #000;box-shadow:8px 8px 0 #000;padding:20px 20px 30px;position:relative;overflow:hidden}
+.detail-glass::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;background:#00C4FF;border-top:3px solid #000;pointer-events:none}
 .holiday-cell{font-family:'Luckiest Guy',cursive;font-size:1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px}
 @media(max-width:768px){.day-num{font-size:1.3rem!important}.day-header{font-size:1rem!important}.cell-day{min-height:65px!important;padding:5px!important}}
 @media print{.no-print{display:none!important}body{background:#fff!important}.bg-gym{display:none}}
@@ -74,27 +85,30 @@ body{font-family:'Schoolbell',cursive;font-size:1.15rem;min-height:100vh;overflo
 <div class="bg-gym"></div>
 
 <style>
-.zts-app-header{position:sticky;top:0;z-index:9999;background:#00C4FF;border-bottom:4px solid #0086AD;box-shadow:0 4px 12px rgba(0,0,0,.15);padding-top:env(safe-area-inset-top,0)}
-.zts-app-header-inner{max-width:1280px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.zts-app-header{position:sticky;top:0;z-index:9999;background:#00C4FF;border-bottom:6px solid #000;box-shadow:0 8px 0 rgba(0,0,0,.15);padding-top:env(safe-area-inset-top,0)}
+.zts-app-header-inner{max-width:1700px;margin:0 auto;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .zts-app-brand{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;line-height:1;flex-shrink:0}
-.zts-app-brand-main{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;font-size:24px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2);line-height:1}
+.zts-app-brand-main{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;font-size:48px;color:#fff;text-shadow:4px 4px 0 rgba(0,0,0,.25);line-height:1}
 .zts-app-brand-accent{color:#FFFA00}
-.zts-app-brand-sub{font-family:'Luckiest Guy',cursive;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#004A61;margin-top:2px;line-height:1}
-@media (max-width:640px){.zts-app-brand-sub{display:none}.zts-app-brand-main{font-size:18px}}
-.zts-app-header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.zts-app-clock{font-family:'Luckiest Guy',cursive;letter-spacing:.1em;font-size:24px;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.2);background:rgba(0,0,0,.2);padding:4px 12px;border-radius:12px}
-.zts-app-home-btn{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;text-transform:uppercase;font-size:18px;background:#FFFA00;color:#004A61;padding:10px 20px;border-radius:16px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;box-shadow:4px 4px 0 rgba(0,0,0,.06);border-bottom:6px solid rgba(0,0,0,.1);border-right:6px solid rgba(0,0,0,.1)}
-@media (max-width:640px){.zts-app-clock{font-size:18px}.zts-app-home-btn{font-size:14px;padding:8px 12px}}
+.zts-app-brand-sub{font-family:'Luckiest Guy',cursive;font-size:18px;letter-spacing:.25em;text-transform:uppercase;color:#004A61;margin-top:6px;line-height:1}
+@media (max-width:640px){.zts-app-brand-sub{font-size:12px}.zts-app-brand-main{font-size:30px}.zts-app-header-inner{padding:14px 16px}}
+.zts-app-header-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+.zts-app-clock{font-family:'Luckiest Guy',cursive;letter-spacing:.1em;font-size:42px;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.25);background:rgba(0,0,0,.22);padding:10px 22px;border-radius:18px;border:3px solid #000;box-shadow:4px 4px 0 #000}
+.zts-app-home-btn{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;text-transform:uppercase;font-size:30px;background:#FFFA00;color:#004A61;padding:14px 28px;border-radius:18px;display:inline-flex;align-items:center;gap:12px;text-decoration:none;border:4px solid #000;box-shadow:6px 6px 0 #000;transition:transform .12s,box-shadow .12s}
+.zts-app-home-btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000}
+.zts-app-home-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+.zts-app-home-btn svg{width:30px;height:30px}
+@media (max-width:640px){.zts-app-clock{font-size:24px;padding:6px 14px}.zts-app-home-btn{font-size:18px;padding:10px 16px}.zts-app-home-btn svg{width:22px;height:22px}}
 .zts-hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
 .zts-hero-xxl{position:relative;padding:40px 16px 80px;overflow:hidden;border-radius:0 0 32px 32px;margin-bottom:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,.25)}
 .zts-hero-inner{display:flex;flex-direction:column;align-items:center;gap:32px;max-width:1100px;margin:0 auto}
 @media(min-width:1024px){.zts-hero-inner{flex-direction:row;gap:48px}.zts-hero-xxl{padding:56px 16px 128px}}
 .zts-hero-text{flex:1;color:#fff;text-align:center}
 @media(min-width:1024px){.zts-hero-text{text-align:left}}
-.zts-hero-badge-tag{display:inline-block;font-family:'Luckiest Guy',cursive;background:#FFFA00;color:#004A61;padding:6px 20px;border-radius:12px;font-size:14px;margin-bottom:20px;transform:rotate(-2deg);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.zts-hero-badge-tag{display:inline-block;font-family:'Luckiest Guy',cursive;background:#FFFA00;color:#004A61;padding:10px 28px;border-radius:14px;font-size:24px;letter-spacing:.05em;margin-bottom:24px;transform:rotate(-2deg);border:3px solid #000;box-shadow:5px 5px 0 #000}
 .zts-hero-h1{font-family:'Luckiest Guy',cursive;font-size:clamp(48px,8vw,96px);text-transform:uppercase;line-height:1;text-shadow:2px 2px 0 rgba(0,0,0,.2);margin-bottom:20px;color:#fff}
 .zts-hero-h1 .accent{color:#FFFA00}
-.zts-hero-desc{color:#cffafe;font-size:18px;line-height:1.6;margin-bottom:32px;max-width:480px}
+.zts-hero-desc{color:#cffafe;font-size:28px;line-height:1.5;margin-bottom:36px;max-width:620px;font-family:'DynaPuff',cursive;font-weight:500}
 @media(max-width:1023px){.zts-hero-desc{margin-left:auto;margin-right:auto}}
 .zts-hero-img-wrap{flex:1;position:relative;display:flex;justify-content:center;width:100%}
 .zts-hero-img{position:relative;z-index:10;border-radius:48px;overflow:hidden;border:10px solid #fff;box-shadow:0 25px 50px -12px rgba(0,0,0,.4);transform:rotate(3deg);transition:transform .7s;max-width:400px;width:100%}
@@ -135,15 +149,15 @@ body{font-family:'Schoolbell',cursive;font-size:1.15rem;min-height:100vh;overflo
       <span class="zts-hero-badge-tag">PLANIFICATION ANNUELLE</span>
       <h1 class="zts-hero-h1" data-hero="title">LE<br><span class="accent">PLANIFICATEUR</span></h1>
       <p class="zts-hero-desc font-schoolbell" data-hero="desc">Planifie ton année EPS au complet. Cycles, périodes, congés — tout en un coup d'oeil.</p>
-      <div class="flex flex-wrap gap-3 justify-center lg:justify-start mb-4">
-        <span class="inline-flex items-center gap-1 bg-white/20 text-white px-3 py-1 rounded-full font-bangers text-sm">📅 Août → Juin</span>
-        <span class="inline-flex items-center gap-1 bg-white/20 text-white px-3 py-1 rounded-full font-bangers text-sm">⚙️ 3 à 7 périodes</span>
-        <span class="inline-flex items-center gap-1 bg-white/20 text-white px-3 py-1 rounded-full font-bangers text-sm">🌍 4 langues</span>
-        <span class="inline-flex items-center gap-1 bg-white/20 text-white px-3 py-1 rounded-full font-bangers text-sm">📤 PDF / Excel / CSV</span>
+      <div class="flex flex-wrap gap-3 justify-center lg:justify-start mb-6">
+        <span class="inline-flex items-center gap-2 bg-white text-[#004A61] px-5 py-2 rounded-2xl font-lucky text-xl border-[3px] border-black" style="box-shadow:4px 4px 0 #000">📅 Août → Juin</span>
+        <span class="inline-flex items-center gap-2 bg-white text-[#004A61] px-5 py-2 rounded-2xl font-lucky text-xl border-[3px] border-black" style="box-shadow:4px 4px 0 #000">⚙️ 3 à 7 périodes</span>
+        <span class="inline-flex items-center gap-2 bg-white text-[#004A61] px-5 py-2 rounded-2xl font-lucky text-xl border-[3px] border-black" style="box-shadow:4px 4px 0 #000">🌍 4 langues</span>
+        <span class="inline-flex items-center gap-2 bg-white text-[#004A61] px-5 py-2 rounded-2xl font-lucky text-xl border-[3px] border-black" style="box-shadow:4px 4px 0 #000">📤 PDF / Excel / CSV</span>
       </div>
-      <div class="flex flex-wrap gap-3 justify-center lg:justify-start">
-        <button class="btn-pill btn-yellow text-base px-6 py-2" onclick="document.getElementById('heroLanding').style.display='none'">🚀 <span data-hero="start">Commencer!</span></button>
-        <button class="btn-pill text-base px-6 py-2" style="background:rgba(255,255,255,0.2);color:#fff;border:2px solid rgba(255,255,255,0.4)" onclick="toggleGuide()">📖 <span data-hero="guide">Comment utiliser</span></button>
+      <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+        <button class="btn-pill btn-yellow" style="font-size:1.6rem;padding:16px 32px" onclick="document.getElementById('heroLanding').style.display='none'">🚀 <span data-hero="start">Commencer!</span></button>
+        <button class="btn-pill" style="font-size:1.6rem;padding:16px 32px;background:#fff;color:#004A61" onclick="toggleGuide()">📖 <span data-hero="guide">Comment utiliser</span></button>
       </div>
     </div>
     <div class="zts-hero-img-wrap">
@@ -217,7 +231,7 @@ body{font-family:'Schoolbell',cursive;font-size:1.15rem;min-height:100vh;overflo
 </div>
 
 <!-- CALENDAR GRID -->
-<div class="max-w-7xl mx-auto px-2 pb-4">
+<div class="mx-auto px-4 pb-6" style="max-width:min(1700px,98vw)">
   <div id="calendarGrid"></div>
 </div>
 
@@ -477,7 +491,7 @@ function renderCalendar(){
   const todayKey=dateKey(today.getFullYear(),today.getMonth(),today.getDate());
 
   // Header row
-  let html=`<div style="display:grid;grid-template-columns:50px repeat(7,1fr);gap:4px;margin-bottom:4px;">`;
+  let html=`<div style="display:grid;grid-template-columns:60px repeat(7,1fr);gap:8px;margin-bottom:4px;">`;
   html+=`<div class="week-col" style="border-radius:8px;font-size:1.1rem">${t('week')}</div>`;
   for(let i=0;i<7;i++){
     html+=`<div class="day-header">${days[i]}</div>`;
@@ -485,7 +499,7 @@ function renderCalendar(){
   html+=`</div>`;
 
   // Weeks
-  html+=`<div style="display:grid;grid-template-columns:50px repeat(7,1fr);gap:4px;">`;
+  html+=`<div style="display:grid;grid-template-columns:60px repeat(7,1fr);gap:8px;">`;
 
   let dayNum=1;
   let weekStarted=false;
@@ -504,7 +518,7 @@ function renderCalendar(){
     for(let col=0;col<7;col++){
       const cellIndex=row*7+col;
       if(cellIndex<firstDay||dayNum>daysInMonth){
-        html+=`<div style="border-radius:10px;background:rgba(15,15,50,0.3);min-height:90px"></div>`;
+        html+=`<div style="border-radius:16px;background:rgba(255,255,255,0.4);border:3px dashed rgba(0,0,0,0.15);min-height:90px"></div>`;
       } else {
         const dk=dateKey(curYear,curMonth,dayNum);
         const isWeekend=(col===0||col===6);
@@ -867,21 +881,33 @@ function renderPeriods(dk){
       const pData=planif[pKey]||{group:'',activity:'',details:'',guardNote:''};
       const pConfig=config.periods[item.num-1]||{start:'',end:''};
 
-      html+=`<div class="flex gap-3 mb-3" style="align-items:stretch">`;
-      // Cyan box
-      html+=`<div class="period-cyan">`;
-      html+=`<div style="font-size:1.3rem">${t('period')}</div>`;
-      html+=`<div style="font-size:2.2rem">${item.num}</div>`;
-      html+=`<input type="time" value="${pConfig.start}" style="font-size:.85rem;border:none;border-radius:6px;padding:2px 4px;text-align:center;margin-top:4px;width:90px" onchange="config.periods[${item.num-1}].start=this.value;saveConfig()">`;
-      html+=`<span style="font-size:.8rem">→</span>`;
-      html+=`<input type="time" value="${pConfig.end}" style="font-size:.85rem;border:none;border-radius:6px;padding:2px 4px;text-align:center;width:90px" onchange="config.periods[${item.num-1}].end=this.value;saveConfig()">`;
+      const palette=[
+        {bg:'#00C4FF',accent:'#FFFC00'},
+        {bg:'#FF2A7A',accent:'#FFFC00'},
+        {bg:'#8B5CF6',accent:'#FFFC00'},
+        {bg:'#4ADE80',accent:'#004A61'},
+        {bg:'#FF8C00',accent:'#FFFC00'},
+        {bg:'#00E5FF',accent:'#FF2A7A'},
+        {bg:'#FFFC00',accent:'#004A61'}
+      ];
+      const c=palette[(item.num-1)%palette.length];
+      const txtColor=(c.bg==='#FFFC00'||c.bg==='#4ADE80')?'#004A61':'#fff';
+
+      html+=`<div class="flex gap-4 mb-4" style="align-items:stretch">`;
+      // Period number box (couleur cyclée)
+      html+=`<div class="period-cyan" style="background:${c.bg};color:${txtColor}">`;
+      html+=`<div style="font-size:1.5rem;letter-spacing:.05em">${t('period')}</div>`;
+      html+=`<div style="font-size:3rem;color:${c.accent};text-shadow:3px 3px 0 rgba(0,0,0,.3);line-height:1">${item.num}</div>`;
+      html+=`<input type="time" value="${pConfig.start}" onchange="config.periods[${item.num-1}].start=this.value;saveConfig()">`;
+      html+=`<span style="font-size:1rem">→</span>`;
+      html+=`<input type="time" value="${pConfig.end}" onchange="config.periods[${item.num-1}].end=this.value;saveConfig()">`;
       html+=`</div>`;
 
-      // Yellow box
+      // Yellow content box
       html+=`<div class="period-yellow">`;
-      html+=`<div class="flex gap-2 mb-2 flex-wrap">`;
-      html+=`<input class="p-input flex-1" style="min-width:120px" placeholder="${t('group')}" value="${escH(pData.group)}" data-dk="${dk}" data-pk="${pKey}" data-field="group" onchange="updatePlanifField(this)">`;
-      html+=`<input class="p-input flex-1" style="min-width:150px" placeholder="${t('activity')}" value="${escH(pData.activity)}" data-dk="${dk}" data-pk="${pKey}" data-field="activity" onchange="updatePlanifField(this)">`;
+      html+=`<div class="flex gap-3 mb-3 flex-wrap">`;
+      html+=`<input class="p-input flex-1" style="min-width:160px" placeholder="${t('group')}" value="${escH(pData.group)}" data-dk="${dk}" data-pk="${pKey}" data-field="group" onchange="updatePlanifField(this)">`;
+      html+=`<input class="p-input flex-1" style="min-width:200px" placeholder="${t('activity')}" value="${escH(pData.activity)}" data-dk="${dk}" data-pk="${pKey}" data-field="activity" onchange="updatePlanifField(this)">`;
       html+=`</div>`;
       html+=`<textarea class="p-input w-full" rows="2" placeholder="${t('details')}" data-dk="${dk}" data-pk="${pKey}" data-field="details" onchange="updatePlanifField(this)">${escH(pData.details)}</textarea>`;
       html+=`</div>`;
@@ -891,17 +917,17 @@ function renderPeriods(dk){
       const gKey='guard'+item.afterP;
       const gData=(planif[gKey]||{}).note||'';
       html+=`<div class="guard-bar">`;
-      html+=`<span style="font-family:'Bangers',cursive;font-size:1rem;white-space:nowrap">${t('guard')}</span>`;
+      html+=`<span style="font-family:'Luckiest Guy',cursive;font-size:1.3rem;white-space:nowrap;color:#B45309;letter-spacing:.05em">${t('guard')}</span>`;
       html+=`<input class="flex-1" placeholder="${t('details')}" value="${escH(gData)}" data-dk="${dk}" data-gk="${gKey}" onchange="updateGuard(this)">`;
       html+=`</div>`;
 
     } else if(item.type==='recess'){
-      html+=`<div class="separator-bar" style="background:rgba(0,229,255,0.2);border:2px solid #00E5FF;font-family:'Bangers',cursive;font-size:1.2rem;color:#00B8D4">`;
+      html+=`<div class="separator-bar" style="background:#00C4FF;border-color:#000;color:#fff;text-shadow:2px 2px 0 rgba(0,0,0,.25)">`;
       html+=`☀️ ${item.label} — ${item.start} → ${item.end}`;
       html+=`</div>`;
 
     } else if(item.type==='lunch'){
-      html+=`<div class="separator-bar" style="background:rgba(255,215,0,0.25);border:2px solid #FFD700;font-family:'Bangers',cursive;font-size:1.2rem;color:#b8860b">`;
+      html+=`<div class="separator-bar" style="background:#FFFC00;border-color:#000;color:#004A61">`;
       html+=`🍽️ ${item.label} — ${item.start} → ${item.end}`;
       html+=`</div>`;
     }
@@ -919,7 +945,7 @@ function renderExtras(dk){
   html+=`<div class="flex items-center gap-3 mb-2 flex-wrap bg-purple-50 p-3 rounded-xl">`;
   html+=`<label class="font-bangers text-lg">${t('parascolaire')}</label>`;
   html+=`<input type="checkbox" ${extras.parascolaire?'checked':''} onchange="updateExtra('${dk}','parascolaire',this.checked)">`;
-  html+=`<input type="time" class="p-input" style="width:120px" value="${extras.parascolaireTime||config.parascolaire.start}" data-dk="${dk}" data-ex="parascolaireTime" onchange="updateExtraField(this)">`;
+  html+=`<input type="time" class="p-input" style="width:160px" value="${extras.parascolaireTime||config.parascolaire.start}" data-dk="${dk}" data-ex="parascolaireTime" onchange="updateExtraField(this)">`;
   html+=`<input class="p-input flex-1" placeholder="${t('desc')}" value="${escH(extras.parascolaireDesc||'')}" data-dk="${dk}" data-ex="parascolaireDesc" onchange="updateExtraField(this)">`;
   html+=`</div>`;
 
@@ -927,7 +953,7 @@ function renderExtras(dk){
   html+=`<div class="flex items-center gap-3 mb-2 flex-wrap bg-blue-50 p-3 rounded-xl">`;
   html+=`<label class="font-bangers text-lg">${t('comite')}</label>`;
   html+=`<input type="checkbox" ${extras.comite?'checked':''} onchange="updateExtra('${dk}','comite',this.checked)">`;
-  html+=`<input type="time" class="p-input" style="width:120px" value="${extras.comiteTime||''}" data-dk="${dk}" data-ex="comiteTime" onchange="updateExtraField(this)">`;
+  html+=`<input type="time" class="p-input" style="width:160px" value="${extras.comiteTime||''}" data-dk="${dk}" data-ex="comiteTime" onchange="updateExtraField(this)">`;
   html+=`<input class="p-input flex-1" placeholder="${t('desc')}" value="${escH(extras.comiteDesc||'')}" data-dk="${dk}" data-ex="comiteDesc" onchange="updateExtraField(this)">`;
   html+=`</div>`;
 
@@ -936,7 +962,7 @@ function renderExtras(dk){
   html+=`<label class="font-bangers text-lg">${t('other')}</label>`;
   html+=`<input type="checkbox" ${extras.other?'checked':''} onchange="updateExtra('${dk}','other',this.checked)">`;
   html+=`<input class="p-input" style="width:150px" placeholder="${t('what')}" value="${escH(extras.otherWhat||'')}" data-dk="${dk}" data-ex="otherWhat" onchange="updateExtraField(this)">`;
-  html+=`<input type="time" class="p-input" style="width:120px" value="${extras.otherTime||''}" data-dk="${dk}" data-ex="otherTime" onchange="updateExtraField(this)">`;
+  html+=`<input type="time" class="p-input" style="width:160px" value="${extras.otherTime||''}" data-dk="${dk}" data-ex="otherTime" onchange="updateExtraField(this)">`;
   html+=`</div>`;
 
   return html;
@@ -1331,67 +1357,6 @@ setLang = function(l){
 init();
 updateQuickAddI18n();
 </script>
-<!-- ZTS Landing config + script -->
-<script>
-window.ZTS_LANDING_CONFIG = {
-  appId: 'planificateur',
-  accentColor: '#FFD600',
-  homeUrl: 'https://zonetotalsport.ca',
-  mascot: 'https://zonetotalsport.ca/apps/planificateur/mr-root-thumbup.png',
-  logoIcon: 'https://zonetotalsport.ca/logo-zts.png',
-  logoTitle: { fr: 'Planificateur ÉPS', en: 'PE Planner', zh: '体育规划器' },
-  logoSub: 'Zone Total Sport',
-  title: {
-    fr: 'Planificateur ÉPS',
-    en: 'PE Planner',
-    zh: '体育规划器'
-  },
-  subtitle: {
-    fr: 'Calendrier scolaire complet!',
-    en: 'Complete school calendar!',
-    zh: '完整学年日历!'
-  },
-  description: {
-    fr: "TON calendrier scolaire complet pour l'année en ÉPS. 3 à 7 périodes configurables, groupes, activités, gardes, récréations, congés fériés QC, exports PDF/Excel/CSV. 4 langues. Visible sur TNI!",
-    en: "YOUR complete school-year calendar for PE. 3 to 7 configurable periods, groups, activities, supervisions, recesses, QC public holidays, PDF/Excel/CSV exports. 4 languages. Works on IWB!",
-    zh: "您的体育课完整学年日历。3 至 7 个可配置时段、小组、活动、监督、课间、魁北克公共假期、PDF/Excel/CSV 导出。4 种语言。支持交互白板!"
-  },
-  badges: [
-    { emoji: '📅', color: 'cyan',   text: { fr: 'Calendrier scolaire', en: 'School calendar',   zh: '学校日历' } },
-    { emoji: '🗓️', color: 'yellow', text: { fr: '3-7 périodes',         en: '3-7 periods',        zh: '3-7 个时段' } },
-    { emoji: '👥', color: 'violet', text: { fr: 'Groupes & activités',  en: 'Groups & activities',zh: '小组与活动' } },
-    { emoji: '🇨🇦', color: 'pink',   text: { fr: 'Congés QC',            en: 'QC holidays',        zh: '魁北克假期' } },
-    { emoji: '📊', color: 'green',  text: { fr: 'Exports PDF/Excel',    en: 'PDF/Excel exports',  zh: 'PDF/Excel 导出' } }
-  ],
-  features: [
-    { emoji: '📆', title: { fr: 'Planification annuelle', en: 'Yearly planning', zh: '年度规划' },
-      desc: { fr: "Vue d'ensemble de l'année scolaire", en: 'Full school-year overview', zh: '全年概览' } },
-    { emoji: '📋', title: { fr: 'Gestion groupes', en: 'Group management', zh: '小组管理' },
-      desc: { fr: 'Classes, cycles, niveaux', en: 'Classes, cycles, levels', zh: '班级、周期、级别' } },
-    { emoji: '🎯', title: { fr: 'Activités ÉPS', en: 'PE activities', zh: '体育活动' },
-      desc: { fr: 'Banque de sports et thématiques', en: 'Library of sports and themes', zh: '运动与主题库' } },
-    { emoji: '🍎', title: { fr: 'Récréations & dîners', en: 'Recesses & lunches', zh: '课间与午餐' },
-      desc: { fr: 'Gardes et surveillances', en: 'Supervision schedule', zh: '监督安排' } },
-    { emoji: '🇨🇦', title: { fr: 'Fériés QC auto', en: 'Auto QC holidays', zh: '自动魁北克假期' },
-      desc: { fr: 'Jours pédagogiques et congés', en: 'PED days and school breaks', zh: '教育日与假期' } },
-    { emoji: '📤', title: { fr: 'Export PDF/Excel/CSV', en: 'PDF/Excel/CSV export', zh: 'PDF/Excel/CSV 导出' },
-      desc: { fr: 'Impression et partage faciles', en: 'Easy printing and sharing', zh: '轻松打印与分享' } },
-    { emoji: '🌐', title: { fr: '4 langues', en: '4 languages', zh: '4 种语言' },
-      desc: { fr: 'FR, EN, ES, ZH', en: 'FR, EN, ES, ZH', zh: 'FR, EN, ES, ZH' } },
-    { emoji: '📱', title: { fr: 'Visible sur TNI', en: 'Works on IWB', zh: '支持交互白板' },
-      desc: { fr: 'Parfait pour le gymnase', en: 'Perfect for the gym', zh: '非常适合体育馆' } }
-  ],
-  ctaStart: {
-    label: { fr: '🚀 COMMENCER!', en: '🚀 START!', zh: '🚀 开始!' }
-  },
-  ctaHelp: {
-    label: { fr: '📖 COMMENT UTILISER', en: '📖 HOW TO USE', zh: '📖 使用说明' },
-    onClick: function () {
-      window.open('https://zonetotalsport.ca/blog.html', '_blank');
-    }
-  }
-};
-</script>
-<script src="zts-landing.js"></script>
+
 </body>
 </html>
