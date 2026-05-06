@@ -36,14 +36,129 @@ var T = {
     c1Title:"C1: Agir", c2Title:"C2: Interagir", c3Title:"C3: Mode de vie sain",
     catKnowledge:"Connaissances", catSkills:"Savoir-faire", catStrategies:"Stratégies", catBeing:"Savoir-être", catHabits:"Habitudes",
     obj:{
-      bodyParts:"Identifier les parties du corps", bodySpace:"Situer son corps dans l'espace",
-      levels:"Différencier les niveaux (haut, moyen, bas)", directions:"Différencier des directions",
-      speed:"Reconnaître la vitesse (lent, rapide)", walkCrawl:"Marcher, ramper, gambader",
-      runGallop:"Courir, galoper, sautiller", jumpRope:"Sauter à la corde",
-      throwCatch:"Lancer et attraper", dribble:"Dribbler",
-      attackGoal:"Attaquer le but adverse", protect:"Protéger son territoire", getOpen:"Se démarquer",
-      respectRules:"Respecter les règles", encourage:"Encourager ses partenaires", acceptLoss:"Accepter la défaite",
-      warmUp:"S'échauffer correctement", hydrate:"S'hydrater", clothing:"Tenue vestimentaire adéquate"
+      // C1 — Connaissances : le corps
+      bodyParts:"Identifier les parties du corps",
+      bodySegments:"Différencier segments et articulations",
+      bodyAxes:"Reconnaître les axes du corps (vertical, horizontal)",
+      bodyMuscles:"Identifier les principaux groupes musculaires",
+      // C1 — Connaissances : l'espace
+      bodySpace:"Situer son corps dans l'espace",
+      spaceGeneral:"Distinguer espace personnel et espace général",
+      levels:"Différencier les niveaux (haut, moyen, bas)",
+      directions:"Différencier les directions (avant, arrière, côtés)",
+      planes:"Reconnaître les plans (frontal, sagittal, horizontal)",
+      trajectories:"Reconnaître les trajectoires (droite, courbe, zigzag)",
+      distances:"Estimer les distances",
+      // C1 — Connaissances : le temps
+      speed:"Reconnaître la vitesse (lent, rapide)",
+      rhythm:"Suivre un rythme régulier",
+      duration:"Estimer une durée",
+      simultaneity:"Coordonner des actions simultanées",
+      succession:"Enchaîner des actions en succession",
+      // C1 — Savoir-faire : actions de locomotion
+      walkCrawl:"Marcher, ramper, gambader",
+      runGallop:"Courir, galoper, sautiller",
+      jumpVarious:"Sauter de différentes façons",
+      jumpRope:"Sauter à la corde",
+      climb:"Grimper",
+      rollBody:"Rouler (avant, arrière, côté)",
+      slide:"Glisser",
+      swim:"Nager",
+      skate:"Patiner",
+      ski:"Skier",
+      // C1 — Savoir-faire : actions de manipulation
+      throwCatch:"Lancer et attraper",
+      dribbleHand:"Dribbler avec la main",
+      dribbleFoot:"Dribbler avec le pied",
+      kick:"Botter (frapper du pied)",
+      strikeHand:"Frapper avec la main",
+      strikeImpl:"Frapper avec un instrument (bâton, raquette)",
+      rollObject:"Faire rouler un objet",
+      receive:"Recevoir un objet",
+      pass:"Faire une passe",
+      // C1 — Savoir-faire : actions de non-locomotion
+      balance:"Maintenir l'équilibre statique",
+      balanceDyn:"Maintenir l'équilibre dynamique",
+      swing:"Se balancer",
+      turn:"Tourner sur soi-même",
+      suspend:"Se suspendre",
+      carry:"Transporter un objet",
+      stretchBody:"S'étirer",
+      // C1 — Stratégies cognitives & psychomotrices
+      analyzeTask:"Analyser la tâche à accomplir",
+      planAction:"Planifier ses actions",
+      regulate:"Réguler son action en cours",
+      adjustResult:"Ajuster en fonction du résultat",
+      anticipate:"Anticiper les conséquences",
+      // C1 — Savoir-être
+      persevere:"Persévérer dans l'effort",
+      autonomy:"Faire preuve d'autonomie",
+      riskMeasured:"Prendre des risques mesurés",
+      selfConfidence:"Démontrer de la confiance en soi",
+      // C2 — Connaissances : rôles & règles
+      rolesGame:"Reconnaître les rôles (attaquant, défenseur)",
+      rulesGame:"Comprendre les règles d'une activité",
+      ethicsCode:"Appliquer un code d'éthique sportif",
+      // C2 — Stratégies offensives
+      attackGoal:"Attaquer le but / la cible adverse",
+      getOpen:"Se démarquer",
+      occupySpace:"Occuper les espaces libres",
+      passSmart:"Passer à un partenaire démarqué",
+      moveBall:"Faire progresser le ballon",
+      // C2 — Stratégies défensives
+      markOpp:"Marquer un adversaire",
+      protectGoal:"Protéger son but / sa cible",
+      protect:"Protéger son territoire",
+      intercept:"Intercepter",
+      recoverBall:"Récupérer le ballon",
+      // C2 — Stratégies en duel
+      feint:"Feinter",
+      varyActions:"Varier ses actions",
+      evade:"Esquiver",
+      timingDuel:"Choisir le bon moment",
+      // C2 — Savoir-être : coopération & respect
+      communicate:"Communiquer avec ses partenaires",
+      support:"Soutenir son équipe",
+      encourage:"Encourager ses partenaires",
+      helpPartner:"Aider son partenaire",
+      respectRules:"Respecter les règles",
+      respectOpp:"Respecter ses adversaires",
+      respectOff:"Respecter les officiels",
+      fairPlay:"Faire preuve d'esprit sportif",
+      acceptLoss:"Accepter la défaite",
+      acceptWin:"Accepter la victoire avec humilité",
+      // C3 — Connaissances santé
+      healthEffects:"Reconnaître les effets de l'activité physique sur la santé",
+      benefits:"Nommer les bienfaits de l'activité physique",
+      bodyChanges:"Reconnaître les changements corporels à l'effort",
+      musclesRole:"Connaître le rôle des principaux groupes musculaires",
+      // C3 — Habitudes vie saines
+      hydrate:"S'hydrater",
+      nutrition:"Adopter une saine alimentation",
+      sleep:"Avoir un sommeil suffisant",
+      hygiene:"Adopter de bonnes pratiques d'hygiène",
+      screenTime:"Limiter le temps d'écran",
+      activeTransport:"Privilégier le transport actif",
+      // C3 — Sécurité
+      safetyRules:"Respecter les règles de sécurité",
+      safetyEquip:"Utiliser l'équipement de sécurité",
+      safetyEnv:"Reconnaître les risques de l'environnement",
+      clothing:"Adopter une tenue vestimentaire adéquate",
+      // C3 — Préparation à l'effort
+      warmUp:"S'échauffer correctement",
+      coolDown:"Effectuer un retour au calme",
+      stretchAfter:"S'étirer après l'effort",
+      // C3 — Évaluer son effort
+      heartRate:"Mesurer sa fréquence cardiaque",
+      perceivedEffort:"Évaluer son effort perçu",
+      breathRate:"Reconnaître sa fréquence respiratoire",
+      selfCapacity:"Évaluer ses capacités physiques",
+      // C3 — Engagement durable
+      regularPractice:"Pratiquer une activité physique régulièrement",
+      variedActivities:"Pratiquer des activités variées",
+      planActivity:"Planifier ses activités physiques",
+      personalGoals:"Se fixer des objectifs personnels",
+      valueActivity:"Valoriser l'activité physique au quotidien"
     },
     // Presentation
     presTitle:"DÉCOUVREZ L'AGENDA SCOLAIRE EPS",
@@ -87,14 +202,61 @@ var T = {
     c1Title:"C1: Act", c2Title:"C2: Interact", c3Title:"C3: Healthy lifestyle",
     catKnowledge:"Knowledge", catSkills:"Skills", catStrategies:"Strategies", catBeing:"Attitudes", catHabits:"Habits",
     obj:{
-      bodyParts:"Identify body parts", bodySpace:"Locate body in space",
-      levels:"Differentiate levels (high, mid, low)", directions:"Differentiate directions",
-      speed:"Recognize speed (slow, fast)", walkCrawl:"Walk, crawl, frolic",
-      runGallop:"Run, gallop, skip", jumpRope:"Jump rope",
-      throwCatch:"Throw and catch", dribble:"Dribble",
-      attackGoal:"Attack the opponent's goal", protect:"Protect your territory", getOpen:"Get open",
-      respectRules:"Respect the rules", encourage:"Encourage teammates", acceptLoss:"Accept defeat",
-      warmUp:"Warm up properly", hydrate:"Stay hydrated", clothing:"Appropriate clothing"
+      bodyParts:"Identify body parts", bodySegments:"Differentiate segments and joints",
+      bodyAxes:"Recognize body axes (vertical, horizontal)", bodyMuscles:"Identify main muscle groups",
+      bodySpace:"Locate body in space", spaceGeneral:"Distinguish personal vs general space",
+      levels:"Differentiate levels (high, mid, low)", directions:"Differentiate directions (front, back, sides)",
+      planes:"Recognize planes (frontal, sagittal, horizontal)", trajectories:"Recognize trajectories (straight, curved, zigzag)",
+      distances:"Estimate distances",
+      speed:"Recognize speed (slow, fast)", rhythm:"Follow a steady rhythm",
+      duration:"Estimate a duration", simultaneity:"Coordinate simultaneous actions",
+      succession:"Sequence actions in succession",
+      walkCrawl:"Walk, crawl, frolic", runGallop:"Run, gallop, skip",
+      jumpVarious:"Jump in various ways", jumpRope:"Jump rope",
+      climb:"Climb", rollBody:"Roll (forward, backward, side)",
+      slide:"Slide", swim:"Swim", skate:"Skate", ski:"Ski",
+      throwCatch:"Throw and catch", dribbleHand:"Dribble with hand",
+      dribbleFoot:"Dribble with foot", kick:"Kick",
+      strikeHand:"Strike with hand", strikeImpl:"Strike with an implement (stick, racquet)",
+      rollObject:"Roll an object", receive:"Receive an object", pass:"Make a pass",
+      balance:"Maintain static balance", balanceDyn:"Maintain dynamic balance",
+      swing:"Swing", turn:"Turn on oneself", suspend:"Hang/suspend",
+      carry:"Carry an object", stretchBody:"Stretch",
+      analyzeTask:"Analyze the task", planAction:"Plan one's actions",
+      regulate:"Regulate ongoing action", adjustResult:"Adjust based on result",
+      anticipate:"Anticipate consequences",
+      persevere:"Persevere through effort", autonomy:"Show autonomy",
+      riskMeasured:"Take measured risks", selfConfidence:"Show self-confidence",
+      rolesGame:"Recognize roles (attacker, defender)", rulesGame:"Understand activity rules",
+      ethicsCode:"Apply a sportsmanship code",
+      attackGoal:"Attack the opponent's goal/target", getOpen:"Get open",
+      occupySpace:"Occupy free spaces", passSmart:"Pass to an open teammate",
+      moveBall:"Advance the ball",
+      markOpp:"Mark an opponent", protectGoal:"Protect own goal/target",
+      protect:"Protect own territory", intercept:"Intercept", recoverBall:"Recover the ball",
+      feint:"Feint", varyActions:"Vary actions", evade:"Evade",
+      timingDuel:"Choose the right moment",
+      communicate:"Communicate with partners", support:"Support teammates",
+      encourage:"Encourage teammates", helpPartner:"Help partner",
+      respectRules:"Respect the rules", respectOpp:"Respect opponents",
+      respectOff:"Respect officials", fairPlay:"Show good sportsmanship",
+      acceptLoss:"Accept defeat", acceptWin:"Accept victory humbly",
+      healthEffects:"Recognize health effects of physical activity",
+      benefits:"Name benefits of physical activity",
+      bodyChanges:"Recognize body changes during effort",
+      musclesRole:"Know the role of main muscle groups",
+      hydrate:"Stay hydrated", nutrition:"Adopt healthy eating",
+      sleep:"Get enough sleep", hygiene:"Practice good hygiene",
+      screenTime:"Limit screen time", activeTransport:"Choose active transport",
+      safetyRules:"Respect safety rules", safetyEquip:"Use safety equipment",
+      safetyEnv:"Recognize environmental risks", clothing:"Wear appropriate clothing",
+      warmUp:"Warm up properly", coolDown:"Perform cool-down",
+      stretchAfter:"Stretch after effort",
+      heartRate:"Measure heart rate", perceivedEffort:"Rate perceived effort",
+      breathRate:"Recognize breathing rate", selfCapacity:"Assess physical capacities",
+      regularPractice:"Practice regularly", variedActivities:"Practice varied activities",
+      planActivity:"Plan physical activities", personalGoals:"Set personal goals",
+      valueActivity:"Value daily physical activity"
     },
     presTitle:"DISCOVER THE PE SCHOOL AGENDA",
     presSub:"The ultimate tool for physical educators!",
@@ -137,14 +299,129 @@ var T = {
     c1Title:"C1：行动", c2Title:"C2：互动", c3Title:"C3：健康生活",
     catKnowledge:"知识", catSkills:"技能", catStrategies:"策略", catBeing:"态度", catHabits:"习惯",
     obj:{
-      bodyParts:"辨识身体部位", bodySpace:"感知身体在空间中的位置",
-      levels:"区分高中低层次", directions:"辨别方向",
-      speed:"识别速度（快/慢）", walkCrawl:"走、爬、跳跃",
-      runGallop:"跑、飞奔、跳步", jumpRope:"跳绳",
-      throwCatch:"投掷与接球", dribble:"运球",
-      attackGoal:"攻击对方球门", protect:"保护自己的领地", getOpen:"拉开空间",
-      respectRules:"遵守规则", encourage:"鼓励队友", acceptLoss:"接受失败",
-      warmUp:"正确热身", hydrate:"及时补水", clothing:"穿着合适的运动服"
+      // C1 — Connaissances : le corps
+      bodyParts:"Identifier les parties du corps",
+      bodySegments:"Différencier segments et articulations",
+      bodyAxes:"Reconnaître les axes du corps (vertical, horizontal)",
+      bodyMuscles:"Identifier les principaux groupes musculaires",
+      // C1 — Connaissances : l'espace
+      bodySpace:"Situer son corps dans l'espace",
+      spaceGeneral:"Distinguer espace personnel et espace général",
+      levels:"Différencier les niveaux (haut, moyen, bas)",
+      directions:"Différencier les directions (avant, arrière, côtés)",
+      planes:"Reconnaître les plans (frontal, sagittal, horizontal)",
+      trajectories:"Reconnaître les trajectoires (droite, courbe, zigzag)",
+      distances:"Estimer les distances",
+      // C1 — Connaissances : le temps
+      speed:"Reconnaître la vitesse (lent, rapide)",
+      rhythm:"Suivre un rythme régulier",
+      duration:"Estimer une durée",
+      simultaneity:"Coordonner des actions simultanées",
+      succession:"Enchaîner des actions en succession",
+      // C1 — Savoir-faire : actions de locomotion
+      walkCrawl:"Marcher, ramper, gambader",
+      runGallop:"Courir, galoper, sautiller",
+      jumpVarious:"Sauter de différentes façons",
+      jumpRope:"Sauter à la corde",
+      climb:"Grimper",
+      rollBody:"Rouler (avant, arrière, côté)",
+      slide:"Glisser",
+      swim:"Nager",
+      skate:"Patiner",
+      ski:"Skier",
+      // C1 — Savoir-faire : actions de manipulation
+      throwCatch:"Lancer et attraper",
+      dribbleHand:"Dribbler avec la main",
+      dribbleFoot:"Dribbler avec le pied",
+      kick:"Botter (frapper du pied)",
+      strikeHand:"Frapper avec la main",
+      strikeImpl:"Frapper avec un instrument (bâton, raquette)",
+      rollObject:"Faire rouler un objet",
+      receive:"Recevoir un objet",
+      pass:"Faire une passe",
+      // C1 — Savoir-faire : actions de non-locomotion
+      balance:"Maintenir l'équilibre statique",
+      balanceDyn:"Maintenir l'équilibre dynamique",
+      swing:"Se balancer",
+      turn:"Tourner sur soi-même",
+      suspend:"Se suspendre",
+      carry:"Transporter un objet",
+      stretchBody:"S'étirer",
+      // C1 — Stratégies cognitives & psychomotrices
+      analyzeTask:"Analyser la tâche à accomplir",
+      planAction:"Planifier ses actions",
+      regulate:"Réguler son action en cours",
+      adjustResult:"Ajuster en fonction du résultat",
+      anticipate:"Anticiper les conséquences",
+      // C1 — Savoir-être
+      persevere:"Persévérer dans l'effort",
+      autonomy:"Faire preuve d'autonomie",
+      riskMeasured:"Prendre des risques mesurés",
+      selfConfidence:"Démontrer de la confiance en soi",
+      // C2 — Connaissances : rôles & règles
+      rolesGame:"Reconnaître les rôles (attaquant, défenseur)",
+      rulesGame:"Comprendre les règles d'une activité",
+      ethicsCode:"Appliquer un code d'éthique sportif",
+      // C2 — Stratégies offensives
+      attackGoal:"Attaquer le but / la cible adverse",
+      getOpen:"Se démarquer",
+      occupySpace:"Occuper les espaces libres",
+      passSmart:"Passer à un partenaire démarqué",
+      moveBall:"Faire progresser le ballon",
+      // C2 — Stratégies défensives
+      markOpp:"Marquer un adversaire",
+      protectGoal:"Protéger son but / sa cible",
+      protect:"Protéger son territoire",
+      intercept:"Intercepter",
+      recoverBall:"Récupérer le ballon",
+      // C2 — Stratégies en duel
+      feint:"Feinter",
+      varyActions:"Varier ses actions",
+      evade:"Esquiver",
+      timingDuel:"Choisir le bon moment",
+      // C2 — Savoir-être : coopération & respect
+      communicate:"Communiquer avec ses partenaires",
+      support:"Soutenir son équipe",
+      encourage:"Encourager ses partenaires",
+      helpPartner:"Aider son partenaire",
+      respectRules:"Respecter les règles",
+      respectOpp:"Respecter ses adversaires",
+      respectOff:"Respecter les officiels",
+      fairPlay:"Faire preuve d'esprit sportif",
+      acceptLoss:"Accepter la défaite",
+      acceptWin:"Accepter la victoire avec humilité",
+      // C3 — Connaissances santé
+      healthEffects:"Reconnaître les effets de l'activité physique sur la santé",
+      benefits:"Nommer les bienfaits de l'activité physique",
+      bodyChanges:"Reconnaître les changements corporels à l'effort",
+      musclesRole:"Connaître le rôle des principaux groupes musculaires",
+      // C3 — Habitudes vie saines
+      hydrate:"S'hydrater",
+      nutrition:"Adopter une saine alimentation",
+      sleep:"Avoir un sommeil suffisant",
+      hygiene:"Adopter de bonnes pratiques d'hygiène",
+      screenTime:"Limiter le temps d'écran",
+      activeTransport:"Privilégier le transport actif",
+      // C3 — Sécurité
+      safetyRules:"Respecter les règles de sécurité",
+      safetyEquip:"Utiliser l'équipement de sécurité",
+      safetyEnv:"Reconnaître les risques de l'environnement",
+      clothing:"Adopter une tenue vestimentaire adéquate",
+      // C3 — Préparation à l'effort
+      warmUp:"S'échauffer correctement",
+      coolDown:"Effectuer un retour au calme",
+      stretchAfter:"S'étirer après l'effort",
+      // C3 — Évaluer son effort
+      heartRate:"Mesurer sa fréquence cardiaque",
+      perceivedEffort:"Évaluer son effort perçu",
+      breathRate:"Reconnaître sa fréquence respiratoire",
+      selfCapacity:"Évaluer ses capacités physiques",
+      // C3 — Engagement durable
+      regularPractice:"Pratiquer une activité physique régulièrement",
+      variedActivities:"Pratiquer des activités variées",
+      planActivity:"Planifier ses activités physiques",
+      personalGoals:"Se fixer des objectifs personnels",
+      valueActivity:"Valoriser l'activité physique au quotidien"
     },
     presTitle:"探索学校体育日程表",
     presSub:"体育教育者的终极工具！",
@@ -187,14 +464,129 @@ var T = {
     c1Title:"C1: Actuar", c2Title:"C2: Interactuar", c3Title:"C3: Estilo de vida saludable",
     catKnowledge:"Conocimientos", catSkills:"Habilidades", catStrategies:"Estrategias", catBeing:"Actitudes", catHabits:"Hábitos",
     obj:{
-      bodyParts:"Identificar las partes del cuerpo", bodySpace:"Ubicar su cuerpo en el espacio",
-      levels:"Diferenciar niveles (alto, medio, bajo)", directions:"Diferenciar direcciones",
-      speed:"Reconocer la velocidad (lento, rápido)", walkCrawl:"Caminar, gatear, brincar",
-      runGallop:"Correr, galopar, saltar", jumpRope:"Saltar la cuerda",
-      throwCatch:"Lanzar y atrapar", dribble:"Driblar",
-      attackGoal:"Atacar la portería rival", protect:"Proteger su territorio", getOpen:"Desmarcarse",
-      respectRules:"Respetar las reglas", encourage:"Animar a los compañeros", acceptLoss:"Aceptar la derrota",
-      warmUp:"Calentar correctamente", hydrate:"Hidratarse", clothing:"Vestimenta adecuada"
+      // C1 — Connaissances : le corps
+      bodyParts:"Identifier les parties du corps",
+      bodySegments:"Différencier segments et articulations",
+      bodyAxes:"Reconnaître les axes du corps (vertical, horizontal)",
+      bodyMuscles:"Identifier les principaux groupes musculaires",
+      // C1 — Connaissances : l'espace
+      bodySpace:"Situer son corps dans l'espace",
+      spaceGeneral:"Distinguer espace personnel et espace général",
+      levels:"Différencier les niveaux (haut, moyen, bas)",
+      directions:"Différencier les directions (avant, arrière, côtés)",
+      planes:"Reconnaître les plans (frontal, sagittal, horizontal)",
+      trajectories:"Reconnaître les trajectoires (droite, courbe, zigzag)",
+      distances:"Estimer les distances",
+      // C1 — Connaissances : le temps
+      speed:"Reconnaître la vitesse (lent, rapide)",
+      rhythm:"Suivre un rythme régulier",
+      duration:"Estimer une durée",
+      simultaneity:"Coordonner des actions simultanées",
+      succession:"Enchaîner des actions en succession",
+      // C1 — Savoir-faire : actions de locomotion
+      walkCrawl:"Marcher, ramper, gambader",
+      runGallop:"Courir, galoper, sautiller",
+      jumpVarious:"Sauter de différentes façons",
+      jumpRope:"Sauter à la corde",
+      climb:"Grimper",
+      rollBody:"Rouler (avant, arrière, côté)",
+      slide:"Glisser",
+      swim:"Nager",
+      skate:"Patiner",
+      ski:"Skier",
+      // C1 — Savoir-faire : actions de manipulation
+      throwCatch:"Lancer et attraper",
+      dribbleHand:"Dribbler avec la main",
+      dribbleFoot:"Dribbler avec le pied",
+      kick:"Botter (frapper du pied)",
+      strikeHand:"Frapper avec la main",
+      strikeImpl:"Frapper avec un instrument (bâton, raquette)",
+      rollObject:"Faire rouler un objet",
+      receive:"Recevoir un objet",
+      pass:"Faire une passe",
+      // C1 — Savoir-faire : actions de non-locomotion
+      balance:"Maintenir l'équilibre statique",
+      balanceDyn:"Maintenir l'équilibre dynamique",
+      swing:"Se balancer",
+      turn:"Tourner sur soi-même",
+      suspend:"Se suspendre",
+      carry:"Transporter un objet",
+      stretchBody:"S'étirer",
+      // C1 — Stratégies cognitives & psychomotrices
+      analyzeTask:"Analyser la tâche à accomplir",
+      planAction:"Planifier ses actions",
+      regulate:"Réguler son action en cours",
+      adjustResult:"Ajuster en fonction du résultat",
+      anticipate:"Anticiper les conséquences",
+      // C1 — Savoir-être
+      persevere:"Persévérer dans l'effort",
+      autonomy:"Faire preuve d'autonomie",
+      riskMeasured:"Prendre des risques mesurés",
+      selfConfidence:"Démontrer de la confiance en soi",
+      // C2 — Connaissances : rôles & règles
+      rolesGame:"Reconnaître les rôles (attaquant, défenseur)",
+      rulesGame:"Comprendre les règles d'une activité",
+      ethicsCode:"Appliquer un code d'éthique sportif",
+      // C2 — Stratégies offensives
+      attackGoal:"Attaquer le but / la cible adverse",
+      getOpen:"Se démarquer",
+      occupySpace:"Occuper les espaces libres",
+      passSmart:"Passer à un partenaire démarqué",
+      moveBall:"Faire progresser le ballon",
+      // C2 — Stratégies défensives
+      markOpp:"Marquer un adversaire",
+      protectGoal:"Protéger son but / sa cible",
+      protect:"Protéger son territoire",
+      intercept:"Intercepter",
+      recoverBall:"Récupérer le ballon",
+      // C2 — Stratégies en duel
+      feint:"Feinter",
+      varyActions:"Varier ses actions",
+      evade:"Esquiver",
+      timingDuel:"Choisir le bon moment",
+      // C2 — Savoir-être : coopération & respect
+      communicate:"Communiquer avec ses partenaires",
+      support:"Soutenir son équipe",
+      encourage:"Encourager ses partenaires",
+      helpPartner:"Aider son partenaire",
+      respectRules:"Respecter les règles",
+      respectOpp:"Respecter ses adversaires",
+      respectOff:"Respecter les officiels",
+      fairPlay:"Faire preuve d'esprit sportif",
+      acceptLoss:"Accepter la défaite",
+      acceptWin:"Accepter la victoire avec humilité",
+      // C3 — Connaissances santé
+      healthEffects:"Reconnaître les effets de l'activité physique sur la santé",
+      benefits:"Nommer les bienfaits de l'activité physique",
+      bodyChanges:"Reconnaître les changements corporels à l'effort",
+      musclesRole:"Connaître le rôle des principaux groupes musculaires",
+      // C3 — Habitudes vie saines
+      hydrate:"S'hydrater",
+      nutrition:"Adopter une saine alimentation",
+      sleep:"Avoir un sommeil suffisant",
+      hygiene:"Adopter de bonnes pratiques d'hygiène",
+      screenTime:"Limiter le temps d'écran",
+      activeTransport:"Privilégier le transport actif",
+      // C3 — Sécurité
+      safetyRules:"Respecter les règles de sécurité",
+      safetyEquip:"Utiliser l'équipement de sécurité",
+      safetyEnv:"Reconnaître les risques de l'environnement",
+      clothing:"Adopter une tenue vestimentaire adéquate",
+      // C3 — Préparation à l'effort
+      warmUp:"S'échauffer correctement",
+      coolDown:"Effectuer un retour au calme",
+      stretchAfter:"S'étirer après l'effort",
+      // C3 — Évaluer son effort
+      heartRate:"Mesurer sa fréquence cardiaque",
+      perceivedEffort:"Évaluer son effort perçu",
+      breathRate:"Reconnaître sa fréquence respiratoire",
+      selfCapacity:"Évaluer ses capacités physiques",
+      // C3 — Engagement durable
+      regularPractice:"Pratiquer une activité physique régulièrement",
+      variedActivities:"Pratiquer des activités variées",
+      planActivity:"Planifier ses activités physiques",
+      personalGoals:"Se fixer des objectifs personnels",
+      valueActivity:"Valoriser l'activité physique au quotidien"
     },
     presTitle:"DESCUBRE EL AGENDA ESCOLAR DE EF",
     presSub:"¡La herramienta definitiva para educadores físicos!",
@@ -664,40 +1056,146 @@ function getSeqData(){
 // Full structured seq data with translatable objectives
 function buildSeqData(){
   var o = T[currentLang].obj;
+  // Helper: lvl(start,end) => {start:"apprend", end:"maitrise"}
+  function L(start,end){var x={};x[start]="apprend";if(end)x[end]="maitrise";return x;}
   return {
     c1:{title:t('c1Title'),categories:{
       [t('catKnowledge')]:[
-        {text:o.bodyParts,key:'bodyParts',levels:{1:"apprend",2:"maitrise"}},
-        {text:o.bodySpace,key:'bodySpace',levels:{1:"apprend",2:"maitrise"}},
-        {text:o.levels,key:'levels',levels:{1:"apprend",2:"maitrise"}},
-        {text:o.directions,key:'directions',levels:{1:"apprend",2:"maitrise"}},
-        {text:o.speed,key:'speed',levels:{1:"apprend",2:"maitrise"}}
+        // Le corps
+        {text:o.bodyParts,key:'bodyParts',levels:L(1,2)},
+        {text:o.bodySegments,key:'bodySegments',levels:L(2,3)},
+        {text:o.bodyAxes,key:'bodyAxes',levels:L(2,3)},
+        {text:o.bodyMuscles,key:'bodyMuscles',levels:L(3)},
+        // L'espace
+        {text:o.bodySpace,key:'bodySpace',levels:L(1,2)},
+        {text:o.spaceGeneral,key:'spaceGeneral',levels:L(1,2)},
+        {text:o.levels,key:'levels',levels:L(1,2)},
+        {text:o.directions,key:'directions',levels:L(1,2)},
+        {text:o.planes,key:'planes',levels:L(2,3)},
+        {text:o.trajectories,key:'trajectories',levels:L(2,3)},
+        {text:o.distances,key:'distances',levels:L(2,3)},
+        // Le temps
+        {text:o.speed,key:'speed',levels:L(1,2)},
+        {text:o.rhythm,key:'rhythm',levels:L(1,2)},
+        {text:o.duration,key:'duration',levels:L(2,3)},
+        {text:o.simultaneity,key:'simultaneity',levels:L(2,3)},
+        {text:o.succession,key:'succession',levels:L(2,3)}
       ],
       [t('catSkills')]:[
+        // Locomotion
         {text:o.walkCrawl,key:'walkCrawl',levels:{1:"maitrise",2:"reutilise"}},
-        {text:o.runGallop,key:'runGallop',levels:{1:"apprend",2:"maitrise"}},
-        {text:o.jumpRope,key:'jumpRope',levels:{2:"apprend",3:"maitrise"}},
-        {text:o.throwCatch,key:'throwCatch',levels:{1:"apprend",2:"maitrise"}},
-        {text:o.dribble,key:'dribble',levels:{2:"apprend",3:"maitrise"}}
+        {text:o.runGallop,key:'runGallop',levels:L(1,2)},
+        {text:o.jumpVarious,key:'jumpVarious',levels:L(1,2)},
+        {text:o.jumpRope,key:'jumpRope',levels:L(2,3)},
+        {text:o.climb,key:'climb',levels:L(1,3)},
+        {text:o.rollBody,key:'rollBody',levels:L(1,2)},
+        {text:o.slide,key:'slide',levels:L(2,3)},
+        {text:o.swim,key:'swim',levels:L(2,3)},
+        {text:o.skate,key:'skate',levels:L(2,3)},
+        {text:o.ski,key:'ski',levels:L(2,3)},
+        // Manipulation
+        {text:o.throwCatch,key:'throwCatch',levels:L(1,2)},
+        {text:o.dribbleHand,key:'dribbleHand',levels:L(2,3)},
+        {text:o.dribbleFoot,key:'dribbleFoot',levels:L(2,3)},
+        {text:o.kick,key:'kick',levels:L(1,2)},
+        {text:o.strikeHand,key:'strikeHand',levels:L(2,3)},
+        {text:o.strikeImpl,key:'strikeImpl',levels:L(2,3)},
+        {text:o.rollObject,key:'rollObject',levels:L(1,2)},
+        {text:o.receive,key:'receive',levels:L(1,2)},
+        {text:o.pass,key:'pass',levels:L(2,3)},
+        // Non-locomotion
+        {text:o.balance,key:'balance',levels:L(1,2)},
+        {text:o.balanceDyn,key:'balanceDyn',levels:L(2,3)},
+        {text:o.swing,key:'swing',levels:L(1,2)},
+        {text:o.turn,key:'turn',levels:L(1,2)},
+        {text:o.suspend,key:'suspend',levels:L(2,3)},
+        {text:o.carry,key:'carry',levels:L(1,2)},
+        {text:o.stretchBody,key:'stretchBody',levels:L(1,3)}
+      ],
+      [t('catStrategies')]:[
+        {text:o.analyzeTask,key:'analyzeTask',levels:L(2,3)},
+        {text:o.planAction,key:'planAction',levels:L(2,3)},
+        {text:o.regulate,key:'regulate',levels:L(2,3)},
+        {text:o.adjustResult,key:'adjustResult',levels:L(2,3)},
+        {text:o.anticipate,key:'anticipate',levels:L(3)}
+      ],
+      [t('catBeing')]:[
+        {text:o.persevere,key:'persevere',levels:L(1,3)},
+        {text:o.autonomy,key:'autonomy',levels:L(1,3)},
+        {text:o.riskMeasured,key:'riskMeasured',levels:L(2,3)},
+        {text:o.selfConfidence,key:'selfConfidence',levels:L(1,3)}
       ]
     }},
     c2:{title:t('c2Title'),categories:{
+      [t('catKnowledge')]:[
+        {text:o.rolesGame,key:'rolesGame',levels:L(1,2)},
+        {text:o.rulesGame,key:'rulesGame',levels:L(1,2)},
+        {text:o.ethicsCode,key:'ethicsCode',levels:L(2,3)}
+      ],
       [t('catStrategies')]:[
-        {text:o.attackGoal,key:'attackGoal',levels:{3:"apprend",4:"maitrise"}},
-        {text:o.protect,key:'protect',levels:{2:"apprend",3:"maitrise"}},
-        {text:o.getOpen,key:'getOpen',levels:{2:"apprend",3:"maitrise"}}
+        // Offensives
+        {text:o.attackGoal,key:'attackGoal',levels:L(2,3)},
+        {text:o.getOpen,key:'getOpen',levels:L(2,3)},
+        {text:o.occupySpace,key:'occupySpace',levels:L(2,3)},
+        {text:o.passSmart,key:'passSmart',levels:L(2,3)},
+        {text:o.moveBall,key:'moveBall',levels:L(2,3)},
+        // Défensives
+        {text:o.markOpp,key:'markOpp',levels:L(2,3)},
+        {text:o.protectGoal,key:'protectGoal',levels:L(2,3)},
+        {text:o.protect,key:'protect',levels:L(2,3)},
+        {text:o.intercept,key:'intercept',levels:L(2,3)},
+        {text:o.recoverBall,key:'recoverBall',levels:L(2,3)},
+        // Duel
+        {text:o.feint,key:'feint',levels:L(2,3)},
+        {text:o.varyActions,key:'varyActions',levels:L(2,3)},
+        {text:o.evade,key:'evade',levels:L(1,2)},
+        {text:o.timingDuel,key:'timingDuel',levels:L(3)}
       ],
       [t('catBeing')]:[
-        {text:o.respectRules,key:'respectRules',levels:{1:"apprend",2:"maitrise"}},
-        {text:o.encourage,key:'encourage',levels:{1:"apprend",2:"maitrise"}},
-        {text:o.acceptLoss,key:'acceptLoss',levels:{3:"apprend",4:"maitrise"}}
+        {text:o.communicate,key:'communicate',levels:L(1,2)},
+        {text:o.support,key:'support',levels:L(1,2)},
+        {text:o.encourage,key:'encourage',levels:L(1,2)},
+        {text:o.helpPartner,key:'helpPartner',levels:L(1,2)},
+        {text:o.respectRules,key:'respectRules',levels:L(1,2)},
+        {text:o.respectOpp,key:'respectOpp',levels:L(1,2)},
+        {text:o.respectOff,key:'respectOff',levels:L(2,3)},
+        {text:o.fairPlay,key:'fairPlay',levels:L(1,3)},
+        {text:o.acceptLoss,key:'acceptLoss',levels:L(2,3)},
+        {text:o.acceptWin,key:'acceptWin',levels:L(2,3)}
       ]
     }},
     c3:{title:t('c3Title'),categories:{
+      [t('catKnowledge')]:[
+        {text:o.healthEffects,key:'healthEffects',levels:L(2,3)},
+        {text:o.benefits,key:'benefits',levels:L(2,3)},
+        {text:o.bodyChanges,key:'bodyChanges',levels:L(2,3)},
+        {text:o.musclesRole,key:'musclesRole',levels:L(3)}
+      ],
+      [t('catSkills')]:[
+        {text:o.warmUp,key:'warmUp',levels:L(2,3)},
+        {text:o.coolDown,key:'coolDown',levels:L(2,3)},
+        {text:o.stretchAfter,key:'stretchAfter',levels:L(2,3)},
+        {text:o.heartRate,key:'heartRate',levels:L(3)},
+        {text:o.perceivedEffort,key:'perceivedEffort',levels:L(2,3)},
+        {text:o.breathRate,key:'breathRate',levels:L(2,3)},
+        {text:o.selfCapacity,key:'selfCapacity',levels:L(2,3)}
+      ],
       [t('catHabits')]:[
-        {text:o.warmUp,key:'warmUp',levels:{3:"apprend",4:"maitrise"}},
-        {text:o.hydrate,key:'hydrate',levels:{1:"apprend",2:"maitrise"}},
-        {text:o.clothing,key:'clothing',levels:{1:"apprend",2:"maitrise"}}
+        {text:o.hydrate,key:'hydrate',levels:L(1,2)},
+        {text:o.nutrition,key:'nutrition',levels:L(1,3)},
+        {text:o.sleep,key:'sleep',levels:L(1,3)},
+        {text:o.hygiene,key:'hygiene',levels:L(1,3)},
+        {text:o.screenTime,key:'screenTime',levels:L(2,3)},
+        {text:o.activeTransport,key:'activeTransport',levels:L(2,3)},
+        {text:o.safetyRules,key:'safetyRules',levels:L(1,2)},
+        {text:o.safetyEquip,key:'safetyEquip',levels:L(1,2)},
+        {text:o.safetyEnv,key:'safetyEnv',levels:L(2,3)},
+        {text:o.clothing,key:'clothing',levels:L(1,2)},
+        {text:o.regularPractice,key:'regularPractice',levels:L(2,3)},
+        {text:o.variedActivities,key:'variedActivities',levels:L(2,3)},
+        {text:o.planActivity,key:'planActivity',levels:L(3)},
+        {text:o.personalGoals,key:'personalGoals',levels:L(2,3)},
+        {text:o.valueActivity,key:'valueActivity',levels:L(2,3)}
       ]
     }}
   };
@@ -763,20 +1261,53 @@ function generateGrid(){
 window.openSeqModal=function(id){
   currentEditingSeqId=id;
   var d=planningSeqData[id];
-  var o = T[currentLang].obj;
   document.getElementById('modal-title').textContent=t('editN').replace('{n}',id);
   document.getElementById('modal-moyen-action').value=d.moyenAction;
   document.getElementById('modal-date').value=d.date;
   document.getElementById('modal-editor').innerHTML=d.deroulement;
-  var objList=document.getElementById('modal-objectives-list'); objList.innerHTML='';
-  if(!globalSelectedObjectives.size){ objList.innerHTML='<p style="color:var(--red)">'+t('noObj')+'</p>'; }
-  else {
-    globalSelectedObjectives.forEach(function(key){
-      var txt = o[key] || key;
-      var chk=d.objectifsSpecifiques.has(key)?'checked':'';
-      objList.innerHTML+='<label><input type="checkbox" class="spec-obj-cb" value="'+escAttr(key)+'" '+chk+'> '+escHtml(txt)+'</label>';
-    });
+  // Banque PFEQ complète groupée par compétence (C1/C2/C3) en <details> dépliables
+  var seqData=buildSeqData();
+  var cycle=parseInt(document.getElementById('niveau-scolaire').value)||1;
+  var compColors={c1:'#00C4FF',c2:'#FF2A7A',c3:'#4ADE80'};
+  var compEmojis={c1:'🏃',c2:'🤝',c3:'💪'};
+  var html='';
+  var totalChecked=d.objectifsSpecifiques.size;
+  for(var ck in seqData){
+    var comp=seqData[ck];
+    var compChecked=0;
+    var inner='';
+    for(var cat in comp.categories){
+      inner+='<div class="spec-obj-cat"><h5>'+escHtml(cat)+'</h5>';
+      comp.categories[cat].forEach(function(item){
+        var l1=cycle, l2=cycle+1;
+        var st=item.levels[l1]||item.levels[l2]||'reutilise';
+        var dotCls=st==='apprend'?'legend-apprend':st==='maitrise'?'legend-maitrise':'legend-reutilise';
+        var chk=d.objectifsSpecifiques.has(item.key)?'checked':'';
+        if(chk)compChecked++;
+        inner+='<label><input type="checkbox" class="spec-obj-cb" value="'+escAttr(item.key)+'" '+chk+'>'
+          +'<span style="flex:1">'+escHtml(item.text)+'</span>'
+          +'<span class="seq-obj-dot '+dotCls+'"></span></label>';
+      });
+      inner+='</div>';
+    }
+    var openAttr=compChecked>0?' open':'';
+    html+='<details class="spec-obj-details"'+openAttr+' style="--comp-color:'+compColors[ck]+'">'
+      +'<summary><span class="spec-obj-emoji">'+compEmojis[ck]+'</span><span class="spec-obj-title">'+escHtml(comp.title)+'</span>'
+      +'<span class="spec-obj-count">'+compChecked+'</span></summary>'
+      +'<div class="spec-obj-body">'+inner+'</div></details>';
   }
+  var objList=document.getElementById('modal-objectives-list');
+  objList.innerHTML=html;
+  // live update des compteurs au clic
+  objList.querySelectorAll('.spec-obj-cb').forEach(function(cb){
+    cb.addEventListener('change',function(e){
+      var det=e.target.closest('.spec-obj-details');
+      if(!det)return;
+      var n=det.querySelectorAll('.spec-obj-cb:checked').length;
+      var c=det.querySelector('.spec-obj-count');
+      if(c)c.textContent=n;
+    });
+  });
   document.getElementById('course-modal').classList.add('open');
 };
 

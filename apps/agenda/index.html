@@ -8,7 +8,7 @@
   <title>Agenda Scolaire — Zone Total Sport</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=DynaPuff:wght@400..700&family=Bangers&family=Schoolbell&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -74,8 +74,139 @@
     .cal-day-name{font-size:1rem !important;padding:10px 2px !important;letter-spacing:1px !important}
     .month-title{font-size:1.6rem !important}
   }
+
+  /* ===== ZTS PREMIUM LUMINEUX OVERRIDE ===== */
+  body{font-family:'DynaPuff',cursive!important;font-size:1.15rem}
+  /* HEADER XXL TBI */
+  .zts-app-header{position:sticky;top:0;z-index:9999;background:#00C4FF;border-bottom:6px solid #000;box-shadow:0 8px 0 rgba(0,0,0,.15)}
+  .zts-app-header-inner{max-width:1700px;margin:0 auto;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .zts-app-brand{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;line-height:1;flex-shrink:0}
+  .zts-app-brand-main{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;font-size:48px;color:#fff;text-shadow:4px 4px 0 rgba(0,0,0,.25);line-height:1}
+  .zts-app-brand-accent{color:#FFFA00}
+  .zts-app-brand-sub{font-family:'Luckiest Guy',cursive;font-size:18px;letter-spacing:.25em;text-transform:uppercase;color:#004A61;margin-top:6px;line-height:1}
+  .zts-app-header-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+  .zts-app-clock{font-family:'Luckiest Guy',cursive;letter-spacing:.1em;font-size:42px;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.25);background:rgba(0,0,0,.22);padding:10px 22px;border-radius:18px;border:3px solid #000;box-shadow:4px 4px 0 #000}
+  .zts-app-home-btn{font-family:'Luckiest Guy',cursive;text-transform:uppercase;font-size:24px;background:#FFFA00;color:#004A61;padding:12px 22px;border-radius:18px;display:inline-flex;align-items:center;gap:10px;text-decoration:none;border:4px solid #000;box-shadow:6px 6px 0 #000;transition:transform .12s,box-shadow .12s}
+  .zts-app-home-btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000}
+  .zts-app-home-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+  .zts-lang-pill{font-family:'Luckiest Guy',cursive;padding:8px 16px;border-radius:14px;cursor:pointer;font-size:1.3rem;background:rgba(255,255,255,.25);color:#fff;border:3px solid #000;box-shadow:3px 3px 0 #000;transition:transform .12s,box-shadow .12s}
+  .zts-lang-pill:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000}
+  .zts-lang-pill.active{background:#fff;color:#0086AD}
+  .zts-icon-btn{width:52px;height:52px;display:inline-flex;align-items:center;justify-content:center;font-size:24px;background:#fff;color:#0086AD;border:3px solid #000;border-radius:14px;cursor:pointer;box-shadow:4px 4px 0 #000;transition:transform .12s,box-shadow .12s}
+  .zts-icon-btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000}
+  .zts-icon-btn.danger{background:#FF2A7A;color:#fff}
+  @media(max-width:640px){.zts-app-brand-main{font-size:30px}.zts-app-brand-sub{font-size:12px}.zts-app-clock{font-size:24px;padding:6px 14px}.zts-app-home-btn{font-size:16px;padding:8px 14px}.zts-icon-btn{width:42px;height:42px;font-size:18px}.zts-lang-pill{font-size:1rem;padding:5px 10px}}
+
+  /* CALENDAR CELLS chunky */
+  .cal-wrapper{max-width:min(1700px,98vw)!important;margin:0 auto;padding:8px;border:none!important;background:transparent!important}
+  .cal-header-row{display:grid!important;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:8px}
+  .cal-day-name{background:#00C4FF;color:#fff;font-family:'Luckiest Guy',cursive!important;text-align:center;padding:16px 6px!important;font-size:2rem!important;letter-spacing:2px!important;border-radius:16px;border:4px solid #000;box-shadow:5px 5px 0 #000;text-shadow:3px 3px 0 rgba(0,0,0,.25)}
+  .cal-grid{display:grid!important;grid-template-columns:repeat(7,1fr);gap:8px}
+  .cal-cell{background:#00C4FF!important;color:#fff;border:4px solid #000!important;border-radius:18px!important;aspect-ratio:1/1;min-height:140px!important;padding:10px!important;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s;position:relative;overflow:hidden;box-shadow:6px 6px 0 #000!important}
+  .cal-cell:hover{background:#33D4FF!important;transform:translate(-2px,-2px)!important;z-index:3;box-shadow:10px 10px 0 #000!important}
+  .cal-cell.cal-today,.cal-cell.is-today,.cal-cell.today{box-shadow:6px 6px 0 #000,0 0 0 5px #FFFC00!important;background:#FFF7AE!important}
+  .cal-cell.today .cal-num{color:#B45309!important;text-shadow:2px 2px 0 #fff!important}
+  .cal-cell.weekend,.cal-cell.is-weekend{background:#0086AD!important;color:#cffafe!important}
+  .cal-num{font-family:'Luckiest Guy',cursive!important;font-size:2.6rem!important;line-height:1;color:#fff!important;text-shadow:3px 3px 0 #004A61,2px 2px 0 #000!important}
+  @media(max-width:900px){.cal-cell{min-height:80px!important;padding:6px!important}.cal-num{font-size:1.6rem!important}.cal-day-name{font-size:1.1rem!important;padding:10px 2px!important;letter-spacing:1px!important}}
+
+  /* MONTH CONTROLS + TABS chunky */
+  .month-controls{background:linear-gradient(135deg,#00C4FF,#0086AD)!important;border:4px solid #000!important;border-radius:24px!important;box-shadow:8px 8px 0 #000!important;padding:18px 24px!important;margin:18px auto!important;max-width:1100px;display:flex!important;align-items:center!important;justify-content:center!important;gap:18px!important;flex-wrap:wrap}
+  .month-title,#monthDisplay{font-family:'Luckiest Guy',cursive!important;font-size:clamp(2.5rem,5vw,4rem)!important;color:#FFFC00!important;text-shadow:4px 4px 0 #000,2px 2px 0 #004A61!important;text-align:center;letter-spacing:.05em;margin:0!important}
+  .ctrl-btn{font-family:'Luckiest Guy',cursive!important;background:#FFFC00!important;color:#004A61!important;border:4px solid #000!important;border-radius:14px!important;padding:10px 24px!important;font-size:1.8rem!important;cursor:pointer;box-shadow:5px 5px 0 #000!important;transition:transform .12s,box-shadow .12s}
+  .ctrl-btn:hover{transform:translate(-2px,-2px)!important;box-shadow:7px 7px 0 #000!important}
+  .ctrl-btn:active{transform:translate(2px,2px)!important;box-shadow:2px 2px 0 #000!important}
+  .ctrl-periods{display:inline-flex;align-items:center;gap:10px;background:#fff;border:3px solid #000;border-radius:14px;padding:8px 14px;box-shadow:4px 4px 0 #000;font-family:'DynaPuff',cursive;font-weight:600}
+  .ctrl-periods select{font-family:'DynaPuff',cursive;font-weight:600;border:2px solid #000;border-radius:8px;padding:4px 10px;font-size:1.1rem}
+  .tab-nav{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;padding:18px;max-width:1200px;margin:0 auto}
+  .tab-btn{font-family:'Luckiest Guy',cursive!important;background:#fff!important;color:#0086AD!important;border:4px solid #000!important;border-radius:16px!important;padding:14px 24px!important;font-size:1.4rem!important;cursor:pointer;box-shadow:5px 5px 0 #000!important;display:inline-flex;align-items:center;gap:10px;transition:transform .12s,box-shadow .12s,background .12s}
+  .tab-btn:hover{transform:translate(-2px,-2px)!important;box-shadow:7px 7px 0 #000!important}
+  .tab-btn.tab-active{background:#00C4FF!important;color:#fff!important;text-shadow:2px 2px 0 rgba(0,0,0,.25)}
+  .tab-icon{font-size:1.5rem}
+
+  /* HERO CTA bigger DynaPuff body */
+  .hero-gradient p,.hero-gradient .cyan-50{font-family:'DynaPuff',cursive!important;font-weight:500}
+
   </style>
   <link rel="stylesheet" href="style.css?v=10" />
+  <style>
+  /* SEQ-OBJ shadowbox coloré ZTS Premium Lumineux */
+  .seq-obj-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))!important;gap:24px!important;padding:8px 6px 18px!important;overflow:visible!important}
+  .seq-obj-col{background:#fff!important;border:4px solid #000!important;border-radius:20px!important;padding:18px 18px 22px!important;box-shadow:8px 8px 0 #000!important;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
+  .seq-obj-col:hover{transform:translate(-2px,-2px)!important;box-shadow:12px 12px 0 #000!important}
+  .seq-obj-col::after{content:"";position:absolute;left:0;right:0;bottom:0;height:14px;border-top:3px solid #000;background:#00C4FF;pointer-events:none}
+  .seq-obj-col:nth-child(7n+1)::after{background:#00C4FF}
+  .seq-obj-col:nth-child(7n+2)::after{background:#FFFC00}
+  .seq-obj-col:nth-child(7n+3)::after{background:#FF2A7A}
+  .seq-obj-col:nth-child(7n+4)::after{background:#8B5CF6}
+  .seq-obj-col:nth-child(7n+5)::after{background:#4ADE80}
+  .seq-obj-col:nth-child(7n+6)::after{background:#FF8C00}
+  .seq-obj-col:nth-child(7n+7)::after{background:#00E5FF}
+  .seq-obj-col h4{font-family:'Luckiest Guy',cursive!important;font-size:1.5rem!important;color:#0f172a!important;margin-bottom:14px!important;border-bottom:3px solid #000!important;padding-bottom:10px!important;letter-spacing:.04em;line-height:1.15}
+  .seq-obj-col label{display:flex!important;align-items:flex-start!important;gap:10px!important;padding:8px 10px!important;border-radius:10px!important;cursor:pointer!important;font-family:'DynaPuff',cursive!important;font-weight:500!important;font-size:1rem!important;color:#0f172a!important;border:2px solid transparent!important;transition:all .12s!important;margin-bottom:6px}
+  .seq-obj-col label:hover{background:#FFFCEB!important;border-color:#000!important;transform:translate(-1px,-1px);box-shadow:3px 3px 0 #000}
+  .seq-obj-col input[type="checkbox"]{width:22px!important;height:22px!important;accent-color:#00C4FF!important;flex-shrink:0;margin-top:2px}
+  .seq-obj-dot{width:14px!important;height:14px!important;border-radius:50%!important;flex-shrink:0;border:2px solid #000;margin-top:4px}
+  .legend-apprend{background:#FFFC00!important}
+  .legend-maitrise{background:#4ADE80!important}
+  .legend-reutilise{background:#94a3b8!important}
+  .seq-objectives{background:transparent!important;padding:18px 0!important;box-shadow:none!important;border:none!important}
+  .seq-objectives h3{font-family:'Luckiest Guy',cursive!important;font-size:2rem!important;color:#fff!important;text-shadow:3px 3px 0 rgba(0,0,0,.3);background:#0086AD;display:inline-flex!important;padding:14px 24px;border-radius:18px;border:4px solid #000;box-shadow:6px 6px 0 #000;letter-spacing:.05em;margin-bottom:18px!important}
+  /* Cartes séquence (cours) */
+  .seq-card{background:#fff!important;border:4px solid #000!important;border-radius:20px!important;box-shadow:8px 8px 0 #000!important;overflow:hidden;transition:transform .15s,box-shadow .15s}
+  .seq-card:hover{transform:translate(-2px,-2px)!important;box-shadow:12px 12px 0 #000!important}
+
+  /* HEBDO chunky shadowbox coloré */
+  .hebdo-controls{background:linear-gradient(135deg,#00C4FF,#0086AD)!important;border:4px solid #000!important;border-radius:24px!important;box-shadow:8px 8px 0 #000!important;padding:18px 24px!important;margin:18px auto!important;max-width:1100px;display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+  .hebdo-selects select{background:#fff!important;font-family:'Luckiest Guy',cursive!important;font-size:1.2rem!important;color:#0f172a!important;border:3px solid #000!important;border-radius:14px!important;box-shadow:4px 4px 0 #000!important;padding:8px 14px!important}
+  .hebdo-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;gap:18px!important;max-width:min(1700px,98vw)!important;margin:0 auto!important;padding:8px}
+  .hebdo-col{gap:14px!important}
+  .hebdo-day-hdr{background:linear-gradient(135deg,#FF8C00,#FFFC00)!important;border:4px solid #000!important;border-radius:18px!important;box-shadow:6px 6px 0 #000!important;padding:14px!important;text-align:center}
+  .hebdo-col:nth-child(5n+1) .hebdo-day-hdr{background:linear-gradient(135deg,#00C4FF,#0086AD)!important;color:#fff!important}
+  .hebdo-col:nth-child(5n+2) .hebdo-day-hdr{background:linear-gradient(135deg,#FF2A7A,#E91E63)!important;color:#fff!important}
+  .hebdo-col:nth-child(5n+3) .hebdo-day-hdr{background:linear-gradient(135deg,#8B5CF6,#7C3AED)!important;color:#fff!important}
+  .hebdo-col:nth-child(5n+4) .hebdo-day-hdr{background:linear-gradient(135deg,#4ADE80,#16A34A)!important;color:#fff!important}
+  .hebdo-col:nth-child(5n+5) .hebdo-day-hdr{background:linear-gradient(135deg,#FF8C00,#FFFC00)!important;color:#0f172a!important}
+  .hebdo-day-hdr h3{font-family:'Luckiest Guy',cursive!important;font-size:1.5rem!important;color:inherit!important;text-shadow:2px 2px 0 rgba(0,0,0,.25);margin:0!important;letter-spacing:.05em}
+  .hebdo-day-hdr .hebdo-date{font-family:'DynaPuff',cursive!important;font-weight:600!important;color:inherit!important;opacity:.9}
+  .hebdo-day-hdr select{background:#fff!important;color:#0f172a!important;font-family:'DynaPuff',cursive!important;font-weight:600!important;border:3px solid #000!important;border-radius:12px!important;padding:6px 10px!important;margin-top:8px!important;box-shadow:3px 3px 0 #000!important;width:100%}
+  .hebdo-activities{background:#fff!important;border:4px solid #000!important;border-radius:18px!important;box-shadow:6px 6px 0 #000!important;padding:14px!important;min-height:280px;display:flex!important;flex-direction:column!important;gap:8px!important}
+  .hebdo-activities.day-off{background:#F1F5F9!important;border-style:dashed!important}
+  .hebdo-block{background:#FFFCEB!important;border:3px solid #000!important;border-radius:12px!important;box-shadow:3px 3px 0 #000!important;padding:8px 10px!important;transition:transform .12s,box-shadow .12s}
+  .hebdo-block:hover{transform:translate(-1px,-1px)!important;box-shadow:5px 5px 0 #000!important}
+  .hebdo-add-btn{font-family:'Luckiest Guy',cursive!important;background:#FFFC00!important;color:#004A61!important;border:3px solid #000!important;border-radius:14px!important;padding:10px!important;font-size:1.1rem!important;letter-spacing:.05em;box-shadow:4px 4px 0 #000!important;margin-top:auto!important;transition:transform .12s,box-shadow .12s}
+  .hebdo-add-btn:hover{background:#00C4FF!important;color:#fff!important;transform:translate(-2px,-2px)!important;box-shadow:6px 6px 0 #000!important}
+  .hebdo-notes-box{background:#FFFC00!important;border:4px solid #000!important;border-radius:20px!important;box-shadow:8px 8px 0 #000!important;padding:0!important;margin:24px auto!important;max-width:min(1700px,98vw)!important;overflow:hidden}
+  .hebdo-notes-box h3{background:#FFFC00;color:#0f172a!important;font-family:'Luckiest Guy',cursive!important;padding:14px 20px!important;border-bottom:3px solid #000;font-size:1.5rem!important;margin:0!important;letter-spacing:.05em}
+  .hebdo-notes-box textarea{background:#fff!important;border:none!important;padding:14px 20px!important;font-family:'DynaPuff',cursive!important;font-weight:500!important;font-size:1.1rem!important;width:100%;min-height:120px}
+
+  /* Dropdown PFEQ par compétence dans modal cours */
+  .spec-obj-details{background:#fff;border:4px solid #000;border-radius:18px;box-shadow:6px 6px 0 #000;margin-bottom:14px;overflow:hidden;transition:transform .15s,box-shadow .15s}
+  .spec-obj-details[open]{box-shadow:8px 8px 0 #000}
+  .spec-obj-details summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--comp-color,#00C4FF);color:#fff;font-family:'Luckiest Guy',cursive;font-size:1.5rem;letter-spacing:.04em;text-shadow:2px 2px 0 rgba(0,0,0,.25);border-bottom:3px solid #000;transition:filter .15s}
+  .spec-obj-details summary::-webkit-details-marker{display:none}
+  .spec-obj-details summary::after{content:"▼";margin-left:auto;font-size:1rem;transition:transform .2s;color:#fff}
+  .spec-obj-details[open] summary::after{transform:rotate(180deg)}
+  .spec-obj-details summary:hover{filter:brightness(1.1)}
+  .spec-obj-emoji{font-size:1.6rem}
+  .spec-obj-title{flex:1}
+  .spec-obj-count{background:#fff;color:#0f172a;font-family:'Luckiest Guy',cursive;font-size:1.1rem;min-width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;border:3px solid #000;padding:0 10px}
+  .spec-obj-body{padding:16px 18px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .spec-obj-cat{background:#FFFCEB;border:3px solid #000;border-radius:14px;padding:12px 14px;box-shadow:4px 4px 0 #000}
+  .spec-obj-cat h5{font-family:'Luckiest Guy',cursive;font-size:1.15rem;color:#0f172a;margin:0 0 10px;letter-spacing:.03em;border-bottom:2px solid #000;padding-bottom:6px}
+  .spec-obj-cat label{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-family:'DynaPuff',cursive;font-weight:500;font-size:.95rem;color:#0f172a;border:2px solid transparent;margin-bottom:4px;transition:all .12s}
+  .spec-obj-cat label:hover{background:#fff;border-color:#000;transform:translate(-1px,-1px);box-shadow:2px 2px 0 #000}
+  .spec-obj-cat input[type="checkbox"]{width:20px;height:20px;accent-color:#00C4FF;flex-shrink:0;margin-top:2px}
+
+  /* DynaPuff override (chargé après style.css) */
+  body,p,span,div,td,th,li,a,label,input,textarea,select,button,
+  .loading-sub,.header-sub,.hebdo-day-hdr .hebdo-date,.hebdo-holiday-disp,
+  .ctrl-periods,.ctrl-periods label,.seq-hero p,.seq-card-header span:last-child,
+  .seq-card-body label,.notes-area textarea,.tab-label,
+  body *:not(h1):not(h2):not(h3):not(h4):not(h5):not(.font-lucky):not(.font-title):not(.zts-app-brand-main):not(.zts-app-brand-sub):not(.zts-app-clock):not(.zts-app-home-btn):not(.zts-lang-pill):not(.cal-day-name):not(.cal-num):not(.month-title):not(.tab-btn):not(.ctrl-btn):not(.pres-card h3):not(.pres-start-btn):not(.pres-hero h2)
+  {font-family:'DynaPuff',cursive!important}
+  h1,h2,h3,h4,h5,.font-lucky,.font-title,.zts-app-brand-main,.zts-app-brand-sub,.zts-app-clock,.zts-app-home-btn,.zts-lang-pill,.cal-day-name,.cal-num,.month-title,.tab-btn,.ctrl-btn,.pres-card h3,.pres-start-btn,.pres-hero h2{font-family:'Luckiest Guy',cursive!important}
+  </style>
   <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -90,34 +221,33 @@
   <!-- MAIN APP -->
   <div id="app" class="app-hidden">
 
-    <!-- HEADER ZTS Ultra-Interactif -->
-    <header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
-      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
-        <a href="https://zonetotalsport.ca" class="flex flex-col items-start shrink-0">
-          <h1 class="text-xl md:text-3xl font-lucky text-white flex items-center gap-2 text-outline">
-            ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
-          </h1>
-          <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Agenda Scolaire ÉPS</span>
+    <!-- HEADER ZTS Premium Lumineux XXL -->
+    <header class="zts-app-header no-print">
+      <div class="zts-app-header-inner">
+        <a href="https://zonetotalsport.ca" class="zts-app-brand">
+          <span class="zts-app-brand-main">ZONE <span class="zts-app-brand-accent">TOTAL</span> SPORT</span>
+          <span class="zts-app-brand-sub">Agenda Scolaire ÉPS</span>
         </a>
-        <nav class="flex items-center gap-1 flex-wrap justify-end">
-          <a href="https://zonetotalsport.ca" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Accueil</span></a>
-          <a href="https://zonetotalsport.ca/blog.html" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="pen-line" class="w-4 h-4"></i><span class="hidden sm:inline">Blog</span></a>
-          <a href="#" class="nav-link text-white flex items-center gap-1.5 active-link"><i data-lucide="calendar" class="w-4 h-4"></i><span>Agenda</span></a>
-          <div class="lang-switcher">
-            <button class="lang-btn lang-active" onclick="setLang('fr')">FR</button>
-            <button class="lang-btn" onclick="setLang('en')">EN</button>
-            <button class="lang-btn" onclick="setLang('zh')">中文</button>
-            <button class="lang-btn" onclick="setLang('es')">ES</button>
-          </div>
-          <button onclick="downloadData()" class="hdr-btn" title="Sauvegarder">💾</button>
-          <label class="hdr-btn" title="Importer">📂<input type="file" id="importFile" accept=".json" onchange="importData(this)" hidden /></label>
-          <button onclick="window.print()" class="hdr-btn" title="Imprimer">🖨️</button>
-          <button onclick="resetAll()" class="hdr-btn hdr-btn-danger" title="Réinitialiser">🗑️</button>
-          <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
-          <button id="zts-auth-btn" class="nav-link text-white" style="display:none" onclick="ztsAuthAction()"></button>
-        </nav>
+        <div class="zts-app-header-right">
+          <span id="ztsClock" class="zts-app-clock">09:41</span>
+          <button class="zts-lang-pill lang-active" onclick="setLang('fr')">FR</button>
+          <button class="zts-lang-pill" onclick="setLang('en')">EN</button>
+          <button class="zts-lang-pill" onclick="setLang('es')">ES</button>
+          <button class="zts-lang-pill" onclick="setLang('zh')">中文</button>
+          <button onclick="downloadData()" class="zts-icon-btn" title="Sauvegarder">💾</button>
+          <label class="zts-icon-btn" title="Importer" style="cursor:pointer">📂<input type="file" id="importFile" accept=".json" onchange="importData(this)" hidden /></label>
+          <button onclick="window.print()" class="zts-icon-btn" title="Imprimer">🖨️</button>
+          <button onclick="resetAll()" class="zts-icon-btn danger" title="Réinitialiser">🗑️</button>
+          <a href="https://zonetotalsport.ca" class="zts-app-home-btn">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+            Accueil
+          </a>
+          <span id="zts-auth-label" style="font-family:'DynaPuff',cursive;color:#fff;font-size:.95rem;opacity:.9"></span>
+          <button id="zts-auth-btn" class="zts-lang-pill" style="display:none" onclick="ztsAuthAction()"></button>
+        </div>
       </div>
     </header>
+    <script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
 
     <!-- HERO XXL ZTS Ultra-Interactif -->
     <section id="heroLanding" class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
@@ -490,48 +620,6 @@
 
   <script src="app.js?v=3"></script>
 <script>if(window.lucide)lucide.createIcons();</script>
-<!-- ZTS Landing config + script -->
-<script>
-window.ZTS_LANDING_CONFIG = {
-  appId: 'agenda',
-  accentColor: '#A855F7',
-  homeUrl: 'https://zonetotalsport.ca',
-  mascot: 'https://zonetotalsport.ca/bucheron-agenda.png',
-  logoIcon: 'https://zonetotalsport.ca/logo-zts-text.png',
-  logoWide: true,
-  logoTitle: { fr: 'Agenda', en: 'Planner', zh: '日程表' },
-  logoSub: 'Zone Total Sport',
-  title: { fr: 'Agenda Scolaire ÉPS', en: 'PE School Planner', zh: '体育学校日程' },
-  subtitle: { fr: 'Planifie ta semaine!', en: 'Plan your week!', zh: '规划你的一周!' },
-  description: {
-    fr: "Ton agenda scolaire ÉPS tout-en-un. Planifie tes cours, tes suppléances, tes évaluations, tes rencontres parents et tes journées pédagogiques. Vue jour, semaine et mois, rappels et couleurs par type d'événement.",
-    en: "Your all-in-one PE school planner. Schedule lessons, sub days, evaluations, parent meetings and pro-D days. Day, week and month views, reminders and color-coded events.",
-    zh: "一站式体育课日程。安排课程、代课、评估、家长会和教研日。日/周/月视图,提醒和事件颜色编码。"
-  },
-  badges: [
-    { emoji: '🗓️', color: 'violet', text: { fr: 'Jour / Semaine / Mois', en: 'Day / Week / Month', zh: '日 / 周 / 月' } },
-    { emoji: '🎨', color: 'pink',   text: { fr: 'Couleurs par type', en: 'Color by type', zh: '按类型着色' } },
-    { emoji: '🔔', color: 'yellow', text: { fr: 'Rappels', en: 'Reminders', zh: '提醒' } },
-    { emoji: '💾', color: 'green',  text: { fr: 'Hors-ligne', en: 'Offline', zh: '离线' } },
-    { emoji: '📱', color: 'cyan',   text: { fr: 'Tous écrans', en: 'All screens', zh: '全屏幕' } }
-  ],
-  features: [
-    { emoji: '📚', title: { fr: 'Cours', en: 'Lessons', zh: '课程' }, desc: { fr: 'Lie tes SAÉ et tes groupes', en: 'Link your SAÉ and groups', zh: '关联 SAÉ 和组别' } },
-    { emoji: '🧑‍🏫', title: { fr: 'Suppléances', en: 'Sub days', zh: '代课日' }, desc: { fr: 'Planifie facilement tes remplacements', en: 'Plan your substitutions easily', zh: '轻松安排代课' } },
-    { emoji: '📊', title: { fr: 'Évaluations', en: 'Evaluations', zh: '评估' }, desc: { fr: 'Échéances d\'étape claires', en: 'Clear term deadlines', zh: '清晰学期节点' } },
-    { emoji: '👨‍👩‍👧', title: { fr: 'Rencontres parents', en: 'Parent meetings', zh: '家长会' }, desc: { fr: 'Notes et suivi intégrés', en: 'Notes and follow-up', zh: '笔记和跟进' } },
-    { emoji: '🏫', title: { fr: 'Journées péda', en: 'Pro-D days', zh: '教研日' }, desc: { fr: 'Ajoute congés et formations', en: 'Add days off and training', zh: '假期和培训' } },
-    { emoji: '🎨', title: { fr: 'Couleurs', en: 'Colors', zh: '颜色' }, desc: { fr: 'Repère visuel instantané', en: 'Instant visual cue', zh: '瞬间视觉提示' } },
-    { emoji: '🔄', title: { fr: 'Récurrences', en: 'Recurring', zh: '循环' }, desc: { fr: 'Cycles 9 ou 10 jours', en: '9 or 10-day cycles', zh: '9 或 10 天循环' } },
-    { emoji: '📥', title: { fr: 'Export', en: 'Export', zh: '导出' }, desc: { fr: 'PDF et impression', en: 'PDF and print', zh: 'PDF 和打印' } }
-  ],
-  ctaStart: { label: { fr: 'Commencer!', en: 'Start!', zh: '开始!' } },
-  ctaHelp: {
-    label: { fr: 'Comment utiliser', en: 'How to use', zh: '使用说明' },
-    onClick: function () { window.open('https://zonetotalsport.ca/blog.html', '_blank'); }
-  }
-};
-</script>
-<script src="zts-landing.js"></script>
+
 </body>
 </html>
