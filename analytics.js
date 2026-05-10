@@ -8,14 +8,25 @@
 
   var GA_ID = 'G-C2L5PD388L';
 
+  // ============ CONSENT MODE V2 — DEFAULT DENY (opt-in RGPD) ============
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function() { dataLayer.push(arguments); };
+  gtag('consent', 'default', {
+    'ad_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage': 'denied',
+    'functionality_storage': 'granted',
+    'security_storage': 'granted',
+    'wait_for_update': 500
+  });
+
   // ============ CHARGER GA4 ============
   var s = document.createElement('script');
   s.async = true;
   s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
   document.head.appendChild(s);
 
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function() { dataLayer.push(arguments); };
   gtag('js', new Date());
   gtag('config', GA_ID, {
     page_title: document.title,
