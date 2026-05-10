@@ -54,6 +54,20 @@
     } catch(e) { return null; }
   }
 
+  // ============ MICROSOFT CLARITY (conditionnel) ============
+  var CLARITY_ID = 'we8zk6ghu0';
+  var clarityLoaded = false;
+
+  function loadClarity() {
+    if (clarityLoaded) return;
+    clarityLoaded = true;
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", CLARITY_ID);
+  }
+
   // ============ APPLIQUER CONSENT MODE ============
   function applyConsent(status) {
     if (typeof gtag !== 'function') return;
@@ -64,8 +78,10 @@
         'ad_personalization': 'granted',
         'analytics_storage': 'granted'
       });
+      // Charger Clarity seulement si consent granted
+      loadClarity();
     }
-    // Si denied, on ne fait rien — le default est deja denied dans analytics.js
+    // Si denied, on ne fait rien — le default est deja denied dans analytics.js, Clarity non charge
   }
 
   // ============ ACTIONS UTILISATEUR ============
