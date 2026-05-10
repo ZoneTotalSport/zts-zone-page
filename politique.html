@@ -185,7 +185,7 @@
             <div class="flex justify-center mb-4">
                 <div class="update-badge">
                     <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                    Derni&#232;re mise &#224; jour : 22 mars 2026
+                    Derni&#232;re mise &#224; jour : 10 mai 2026
                 </div>
             </div>
             <h1 class="font-bangers text-4xl md:text-6xl tracking-wide mb-4" style="text-shadow: 4px 4px 0 rgba(0,0,0,0.1); color:#0F0F2E;">
@@ -210,10 +210,12 @@
                     <a href="#s5" class="toc-link"><span class="toc-num">5</span> Partage des donn&#233;es</a>
                     <a href="#s6" class="toc-link"><span class="toc-num">6</span> S&#233;curit&#233;</a>
                     <a href="#s7" class="toc-link"><span class="toc-num">7</span> Conservation</a>
-                    <a href="#s8" class="toc-link"><span class="toc-num">8</span> Tes droits</a>
-                    <a href="#s9" class="toc-link"><span class="toc-num">9</span> Mineurs</a>
-                    <a href="#s10" class="toc-link"><span class="toc-num">10</span> Modifications</a>
-                    <a href="#s11" class="toc-link"><span class="toc-num">11</span> Contact</a>
+                    <a href="#s8" class="toc-link"><span class="toc-num">8</span> Tes droits (RGPD + Loi 25)</a>
+                    <a href="#s9" class="toc-link"><span class="toc-num">9</span> Modifier ton consentement</a>
+                    <a href="#s10" class="toc-link"><span class="toc-num">10</span> Responsable des donn&#233;es</a>
+                    <a href="#s11" class="toc-link"><span class="toc-num">11</span> Mineurs</a>
+                    <a href="#s12" class="toc-link"><span class="toc-num">12</span> Modifications</a>
+                    <a href="#s13" class="toc-link"><span class="toc-num">13</span> Contact</a>
                 </div>
             </div>
         </div>
@@ -231,14 +233,15 @@
                 <h3><span class="section-number">2</span> Donn&#233;es collect&#233;es</h3>
                 <p style="margin-bottom:12px;">Nous collectons uniquement les donn&#233;es minimales n&#233;cessaires :</p>
                 <ul>
+                    <li><strong>Inscription (Firebase Auth) :</strong> adresse courriel et nom d'affichage (via Google ou formulaire)</li>
                     <li><strong>Avis et t&#233;moignages :</strong> pr&#233;nom, ville, r&#244;le professionnel, note et message (soumission volontaire)</li>
                     <li><strong>Dons :</strong> les informations de paiement sont trait&#233;es directement par Stripe/Square. Nous ne stockons aucune donn&#233;e bancaire</li>
-                    <li><strong>Donn&#233;es de navigation :</strong> adresse IP, type de navigateur, pages visit&#233;es (via les analytiques Wix)</li>
-                    <li><strong>Stockage local :</strong> pr&#233;f&#233;rences de langue et compteur de visites (localStorage, jamais transmis &#224; un serveur)</li>
+                    <li><strong>Donn&#233;es de navigation :</strong> adresse IP anonymis&#233;e, type de navigateur, pages visit&#233;es (via Google Analytics 4)</li>
+                    <li><strong>Stockage local :</strong> pr&#233;f&#233;rences de langue, choix de consentement cookies, compteur de visites (localStorage, jamais transmis &#224; un serveur)</li>
                 </ul>
                 <div style="margin-top:14px; background: #F0FDFF; border: 2px solid #B2EBF2; border-radius: 12px; padding: 14px 16px; display:flex; gap:10px; align-items:flex-start;">
                     <i data-lucide="info" class="w-4 h-4 flex-shrink-0 mt-1" style="color:#00B8D4; min-width:16px"></i>
-                    <span class="font-baloo text-sm" style="color:#0097A7;">Nous ne demandons jamais ton adresse courriel, ton num&#233;ro de t&#233;l&#233;phone, ni aucun identifiant personnel sensible.</span>
+                    <span class="font-baloo text-sm" style="color:#0097A7;">Nous ne demandons jamais ton num&#233;ro de t&#233;l&#233;phone ni aucun identifiant personnel sensible. L'inscription par courriel est optionnelle et sert uniquement &#224; d&#233;bloquer les ressources.</span>
                 </div>
             </div>
             <div class="content-card gsap-section" id="s3">
@@ -254,21 +257,66 @@
             </div>
             <div class="content-card gsap-section" id="s4">
                 <h3><span class="section-number">4</span> Cookies et technologies</h3>
-                <p style="margin-bottom:12px;">Le site utilise :</p>
+                <p style="margin-bottom:12px;">Le site utilise les cookies et technologies suivantes, <strong>uniquement si tu donnes ton consentement</strong> via la banni&#232;re affich&#233;e &#224; ta premi&#232;re visite :</p>
+                <div style="overflow-x:auto; margin:16px 0;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.9rem; font-family:'Patrick Hand',cursive;">
+                        <thead>
+                            <tr style="background:#F0FDFF; border-bottom:2px solid #00E5A0;">
+                                <th style="padding:10px 12px; text-align:left; font-family:'Luckiest Guy',cursive; font-size:0.8rem;">Cookie / Service</th>
+                                <th style="padding:10px 12px; text-align:left; font-family:'Luckiest Guy',cursive; font-size:0.8rem;">Fournisseur</th>
+                                <th style="padding:10px 12px; text-align:left; font-family:'Luckiest Guy',cursive; font-size:0.8rem;">Finalit&#233;</th>
+                                <th style="padding:10px 12px; text-align:left; font-family:'Luckiest Guy',cursive; font-size:0.8rem;">Dur&#233;e</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom:1px solid #e5e5e5;">
+                                <td style="padding:10px 12px;"><code>_ga</code>, <code>_gid</code></td>
+                                <td style="padding:10px 12px;">Google Analytics 4</td>
+                                <td style="padding:10px 12px;">Mesure d'audience anonymis&#233;e</td>
+                                <td style="padding:10px 12px;">13 mois max</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #e5e5e5;">
+                                <td style="padding:10px 12px;">Microsoft Clarity</td>
+                                <td style="padding:10px 12px;">Microsoft</td>
+                                <td style="padding:10px 12px;">Heatmaps et enregistrement de sessions</td>
+                                <td style="padding:10px 12px;">1 an</td>
+                            </tr>
+                            <tr style="border-bottom:1px solid #e5e5e5;">
+                                <td style="padding:10px 12px;">Firebase Auth tokens</td>
+                                <td style="padding:10px 12px;">Google Firebase</td>
+                                <td style="padding:10px 12px;">Authentification utilisateur</td>
+                                <td style="padding:10px 12px;">Session</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:10px 12px;"><code>zts-cookie-consent</code></td>
+                                <td style="padding:10px 12px;">Zone Total Sport</td>
+                                <td style="padding:10px 12px;">M&#233;morisation de ton choix cookies</td>
+                                <td style="padding:10px 12px;">12 mois</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p style="margin-bottom:8px;"><strong>Technologies sans cookies (toujours actives) :</strong></p>
                 <ul>
-                    <li><strong>Cookies essentiels Wix :</strong> n&#233;cessaires au fonctionnement du site (session, s&#233;curit&#233;)</li>
-                    <li><strong>Cookies analytiques :</strong> Wix Analytics pour mesurer la fr&#233;quentation de mani&#232;re anonyme</li>
-                    <li><strong>localStorage :</strong> pr&#233;f&#233;rences de langue, compteur de visites, avis soumis (stock&#233;s localement)</li>
-                    <li><strong>API externes :</strong> ESPN (scores sportifs en direct), Google Fonts (typographies)</li>
+                    <li><strong>localStorage :</strong> pr&#233;f&#233;rences de langue, compteur de visites (stock&#233;s localement, jamais transmis)</li>
+                    <li><strong>Google Fonts :</strong> chargement de typographies (aucune donn&#233;e personnelle collect&#233;e)</li>
+                    <li><strong>Cloudflare :</strong> CDN et protection DDoS (traitement technique, pas de profilage)</li>
                 </ul>
-                <p style="margin-top:10px;">Tu peux g&#233;rer les cookies via les param&#232;tres de ton navigateur &#224; tout moment.</p>
+                <div style="margin-top:14px; background: #F0FDFF; border: 2px solid #B2EBF2; border-radius: 12px; padding: 14px 16px; display:flex; gap:10px; align-items:flex-start;">
+                    <i data-lucide="info" class="w-4 h-4 flex-shrink-0 mt-1" style="color:#00B8D4; min-width:16px"></i>
+                    <span class="font-baloo text-sm" style="color:#0097A7;">Si tu refuses les cookies, Google Analytics et Microsoft Clarity ne sont <strong>pas charg&#233;s</strong>. Seuls les cookies techniques essentiels (Firebase Auth) restent actifs pour permettre l'inscription.</span>
+                </div>
             </div>
             <div class="content-card gsap-section" id="s5">
                 <h3><span class="section-number">5</span> Partage des donn&#233;es</h3>
                 <p style="margin-bottom:12px;">Nous ne vendons, ne louons et ne partageons pas tes donn&#233;es personnelles, sauf avec :</p>
                 <ul>
-                    <li><strong>Wix.com :</strong> h&#233;bergement du site principal</li>
-                    <li><strong>GitHub Pages :</strong> h&#233;bergement du sous-domaine zone.zonetotalsport.ca</li>
+                    <li><strong>GitHub Pages :</strong> h&#233;bergement du site (pages statiques)</li>
+                    <li><strong>Cloudflare :</strong> CDN, DNS et protection du site</li>
+                    <li><strong>Google Firebase :</strong> authentification et base de donn&#233;es (Firestore)</li>
+                    <li><strong>Google Analytics 4 :</strong> mesure d'audience (avec consentement)</li>
+                    <li><strong>Microsoft Clarity :</strong> analyse UX — heatmaps et replays (avec consentement)</li>
+                    <li><strong>Resend :</strong> envoi de courriels transactionnels (lien d'acc&#232;s)</li>
                     <li><strong>Stripe / Square :</strong> traitement s&#233;curis&#233; des paiements pour les dons</li>
                 </ul>
             </div>
@@ -285,36 +333,65 @@
             <div class="content-card gsap-section" id="s7">
                 <h3><span class="section-number">7</span> Conservation des donn&#233;es</h3>
                 <ul>
+                    <li><strong>Compte Firebase Auth :</strong> conserv&#233; tant que tu ne demandes pas sa suppression</li>
                     <li><strong>T&#233;moignages :</strong> conserv&#233;s aussi longtemps qu'ils sont affich&#233;s sur le site</li>
-                    <li><strong>Donn&#233;es analytiques :</strong> conserv&#233;es conform&#233;ment aux politiques de Wix (24 mois)</li>
+                    <li><strong>Donn&#233;es analytiques (GA4) :</strong> 14 mois (param&#233;trage Google Analytics)</li>
+                    <li><strong>Microsoft Clarity :</strong> 30 jours (enregistrements de sessions)</li>
                     <li><strong>Donn&#233;es localStorage :</strong> stock&#233;es dans ton navigateur, tu peux les supprimer &#224; tout moment</li>
                 </ul>
             </div>
             <div class="content-card gsap-section" id="s8">
-                <h3><span class="section-number">8</span> Tes droits</h3>
-                <p style="margin-bottom:12px;">Conform&#233;ment &#224; la Loi 25 du Qu&#233;bec sur la protection des renseignements personnels, tu as le droit de :</p>
+                <h3><span class="section-number">8</span> Tes droits (RGPD + Loi 25)</h3>
+                <p style="margin-bottom:12px;">Conform&#233;ment au R&#232;glement g&#233;n&#233;ral sur la protection des donn&#233;es (RGPD, UE) et &#224; la Loi 25 du Qu&#233;bec, tu as le droit de :</p>
                 <ul>
-                    <li>Acc&#233;der aux donn&#233;es que nous d&#233;tenons &#224; ton sujet</li>
-                    <li>Demander la correction de tes donn&#233;es</li>
-                    <li>Demander la suppression de tes donn&#233;es (incluant ton t&#233;moignage)</li>
-                    <li>Retirer ton consentement &#224; tout moment</li>
-                    <li>D&#233;poser une plainte aupr&#232;s de la Commission d'acc&#232;s &#224; l'information du Qu&#233;bec (CAI)</li>
+                    <li><strong>Acc&#232;s :</strong> obtenir une copie des donn&#233;es que nous d&#233;tenons &#224; ton sujet</li>
+                    <li><strong>Rectification :</strong> demander la correction de donn&#233;es inexactes</li>
+                    <li><strong>Effacement :</strong> demander la suppression de tes donn&#233;es (&#171; droit &#224; l'oubli &#187;)</li>
+                    <li><strong>Portabilit&#233; :</strong> recevoir tes donn&#233;es dans un format structur&#233; et lisible</li>
+                    <li><strong>Opposition :</strong> t'opposer au traitement de tes donn&#233;es &#224; des fins de mesure d'audience</li>
+                    <li><strong>Retrait du consentement :</strong> retirer ton consentement aux cookies &#224; tout moment (voir section 9)</li>
+                </ul>
+                <p style="margin-top:12px;">Tu peux aussi :</p>
+                <ul>
+                    <li>D&#233;poser une plainte aupr&#232;s de la <strong>Commission d'acc&#232;s &#224; l'information du Qu&#233;bec (CAI)</strong></li>
+                    <li>D&#233;poser une plainte aupr&#232;s d'une autorit&#233; de protection des donn&#233;es europ&#233;enne (CNIL en France, par exemple)</li>
                 </ul>
                 <div style="margin-top:14px; background: #FFFDE7; border: 2px solid #FFE082; border-radius: 12px; padding: 14px 16px; display:flex; gap:10px; align-items:flex-start;">
                     <i data-lucide="mail" class="w-4 h-4 flex-shrink-0 mt-1" style="color:#FFA000; min-width:16px"></i>
-                    <span class="font-baloo text-sm" style="color:#E65100;">Pour exercer tes droits, contacte-nous &#224; l'adresse indiqu&#233;e dans la section Contact ci-dessous.</span>
+                    <span class="font-baloo text-sm" style="color:#E65100;">Pour exercer tes droits, contacte-nous &#224; l'adresse indiqu&#233;e dans la section Contact ci-dessous. Nous r&#233;pondons dans un d&#233;lai maximal de 30 jours.</span>
                 </div>
             </div>
             <div class="content-card gsap-section" id="s9">
-                <h3><span class="section-number">9</span> Mineurs</h3>
-                <p>Zone Total Sport est destin&#233; aux enseignants et professionnels de l'&#233;ducation. Nous ne collectons pas sciemment de donn&#233;es personnelles de mineurs de moins de 14 ans.</p>
+                <h3><span class="section-number">9</span> Modifier ton consentement</h3>
+                <p style="margin-bottom:12px;">Pour modifier ton choix concernant les cookies, tu peux &#224; tout moment :</p>
+                <ul>
+                    <li><strong>Option 1 :</strong> Efface le stockage local du site dans ton navigateur (Param&#232;tres &gt; Confidentialit&#233; &gt; Donn&#233;es des sites &gt; zonetotalsport.ca &gt; Supprimer). La banni&#232;re r&#233;appara&#238;tra &#224; ta prochaine visite.</li>
+                    <li><strong>Option 2 :</strong> Contacte-nous par courriel et nous r&#233;initialiserons ton consentement.</li>
+                </ul>
+                <div style="margin-top:14px; background: #F0FDFF; border: 2px solid #B2EBF2; border-radius: 12px; padding: 14px 16px; display:flex; gap:10px; align-items:flex-start;">
+                    <i data-lucide="info" class="w-4 h-4 flex-shrink-0 mt-1" style="color:#00B8D4; min-width:16px"></i>
+                    <span class="font-baloo text-sm" style="color:#0097A7;">Ton choix est automatiquement renouvel&#233; tous les 12 mois. Apr&#232;s cette p&#233;riode, la banni&#232;re s'affichera &#224; nouveau pour recueillir ton consentement.</span>
+                </div>
             </div>
             <div class="content-card gsap-section" id="s10">
-                <h3><span class="section-number">10</span> Modifications</h3>
+                <h3><span class="section-number">10</span> Responsable de la protection des donn&#233;es</h3>
+                <p>Conform&#233;ment &#224; la Loi 25 du Qu&#233;bec, le responsable de la protection des renseignements personnels pour Zone Total Sport est :</p>
+                <div style="margin-top:12px; background: linear-gradient(135deg, #F0FFF8, #E8FFF5); border: 2px solid #00E5A0; border-radius: 12px; padding: 16px 20px;">
+                    <p style="margin:0; color:#0F0F2E;"><strong>Joey Root</strong></p>
+                    <p style="margin:4px 0 0; color:rgba(26,26,46,0.6);">Enseignant en &#233;ducation physique</p>
+                    <p style="margin:4px 0 0; color:rgba(26,26,46,0.6);">Courriel : <strong style="color:#00B8D4;">zts@hotmail.ca</strong></p>
+                </div>
+            </div>
+            <div class="content-card gsap-section" id="s11">
+                <h3><span class="section-number">11</span> Mineurs</h3>
+                <p>Zone Total Sport est destin&#233; aux enseignants et professionnels de l'&#233;ducation. Nous ne collectons pas sciemment de donn&#233;es personnelles de mineurs de moins de 14 ans.</p>
+            </div>
+            <div class="content-card gsap-section" id="s12">
+                <h3><span class="section-number">12</span> Modifications</h3>
                 <p>Nous nous r&#233;servons le droit de modifier cette politique &#224; tout moment. La date de derni&#232;re mise &#224; jour en haut de page sera actualis&#233;e.</p>
             </div>
-            <div class="content-card gsap-section" id="s11" style="border-color: #00E5A0; background: linear-gradient(135deg, #F0FFF8, #E8FFF5);">
-                <h3><span class="section-number">11</span> Contact</h3>
+            <div class="content-card gsap-section" id="s13" style="border-color: #00E5A0; background: linear-gradient(135deg, #F0FFF8, #E8FFF5);">
+                <h3><span class="section-number">13</span> Contact</h3>
                 <p style="margin-bottom:14px;">Pour toute question ou pour exercer tes droits :</p>
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <div style="display:flex; align-items:center; gap:10px;">
@@ -322,11 +399,15 @@
                         <span class="font-baloo text-sm" style="color:rgba(26,26,46,0.6);">zonetotalsport.ca</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
+                        <i data-lucide="mail" class="w-4 h-4" style="color:#00E5A0;"></i>
+                        <span class="font-baloo text-sm" style="color:rgba(26,26,46,0.6);"><strong style="color:#00B8D4;">zts@hotmail.ca</strong></span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
                         <i data-lucide="map-pin" class="w-4 h-4" style="color:#00E5A0;"></i>
                         <span class="font-baloo text-sm" style="color:rgba(26,26,46,0.6);">Qu&#233;bec, Canada</span>
                     </div>
                 </div>
-                <p style="margin-top:14px; font-size:0.9rem; color:rgba(26,26,46,0.35);">Nous nous engageons &#224; r&#233;pondre dans un d&#233;lai raisonnable de 30 jours.</p>
+                <p style="margin-top:14px; font-size:0.9rem; color:rgba(26,26,46,0.35);">Nous nous engageons &#224; r&#233;pondre dans un d&#233;lai maximal de 30 jours.</p>
             </div>
         </div>
     </section>
