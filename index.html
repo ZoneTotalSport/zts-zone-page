@@ -2862,7 +2862,7 @@
                     <span style="font-family:'Patrick Hand',cursive;font-size:1.05rem;color:rgba(255,255,255,0.8)" data-i18n="subSocial">+2 300 profs utilisent déjà l'app!</span>
                 </div>
 
-                <a href="#" onclick="event.preventDefault();window.ztsShowSignup()" class="sub-btn-cta" data-i18n="subBtn">
+                <a href="#" onclick="event.preventDefault();if(window.ztsTrackPopupConverted)window.ztsTrackPopupConverted('lead_magnet_30cours');window.ztsShowSignup()" class="sub-btn-cta" data-i18n="subBtn">
                     🚀 OBTENIR MON ACCÈS GRATUIT!
                 </a>
                 <div style="margin-top:10px">
@@ -4451,7 +4451,10 @@
     }
 
     function showSubscribe() {
-        if (subscribeShown || sessionStorage.getItem('zts-sub-closed') || sessionStorage.getItem('zts-gate-shown')) return;
+        if (subscribeShown || sessionStorage.getItem('zts-sub-closed')) return;
+        // Ne pas ouvrir si le gate popup est actuellement visible
+        var gateOverlay = document.getElementById('gateOverlay');
+        if (gateOverlay && gateOverlay.classList.contains('show')) return;
         if (window.ztsGetUser && window.ztsGetUser()) {
             sessionStorage.setItem('zts-sub-closed', '1');
             return;
@@ -4503,8 +4506,8 @@
     }
     window.ztsDeliverPdf = ztsDeliverPdf;
 
-    // Trigger: after 30s
-    setTimeout(showSubscribe, 30000);
+    // Trigger: after 15s
+    setTimeout(showSubscribe, 15000);
     // Trigger: scroll 60%
     window.addEventListener('scroll', function onScrollSub() {
         const pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);

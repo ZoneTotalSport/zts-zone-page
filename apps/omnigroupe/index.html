@@ -1599,7 +1599,8 @@ function exportJournal(){
   <p style="color:#64748b">Exporté le ${new Date().toLocaleString('fr-CA')}</p>
   <table><tr><th>Date</th><th>Élève</th><th>Type</th><th>Solution</th><th>Efficacité</th><th>Notes</th></tr>
   ${incidents.map(i=>`<tr><td>${i.date}</td><td>${i.eleve||'-'}</td><td>${i.type}</td><td>${i.solution||'-'}</td><td>${i.efficacite||'-'}</td><td>${i.notes||'-'}</td></tr>`).join('')}
-  </table><p class="footer">Généré par Intervention Groupe — zonetotalsport.ca</p></body></html>`;
+  </table><p class="footer">Généré par Intervention Groupe — zonetotalsport.ca</p>
+</body></html>`;
   const blob=new Blob([html],{type:'text/html'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='journal-omnigroupe.html';a.click();
 }
@@ -2404,5 +2405,6 @@ if('serviceWorker' in navigator){
 </script>
 <script src="i18n-data-en.js"></script>
 <script src="i18n.js"></script>
+  <script src="../../analytics.js"></script>
 </body>
 </html>

@@ -23,7 +23,7 @@
   <meta name="twitter:description" content="Référence mondiale en ÉPS. 1000+ SAÉ conformes au PFEQ Québec.">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png"><text y='.9em' font-size='90'>⚡</text></svg>" type="image/svg+xml">
+  <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 
   <title>⚡ Zone Total Sport — Générateur SAÉ</title>
@@ -31,7 +31,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet">
   <style>.hidden{display:none!important}</style>
 
   <!-- GSAP -->
@@ -41,10 +41,10 @@
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" defer></script>
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20260509a">
 
   <!-- ZTS Landing Template -->
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../zts-ultra.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -57,9 +57,245 @@
   .text-outline{text-shadow:2px 2px 0 rgba(0,0,0,.2)}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
   .animate-float{animation:float 3s ease-in-out infinite}
-  .nav-link{transition:all .2s;padding:8px 14px;border-radius:9999px;font-size:.9rem;white-space:nowrap;font-weight:700}
-  .nav-link:hover{background:rgba(255,255,255,.2)}
-  .nav-link.active-link{background:#FFF000;color:#004A61}
+
+  /* PERF — désactiver canvas physics + grain overlay (lag) */
+  #bgCanvas,#grainOverlay{display:none!important}
+
+  /* ===== MACHINE À DÉFIS — ZTS Premium Lumineux ===== */
+  #tab-machine .slot-container.glass{background:linear-gradient(135deg,#FFFC00,#FF8C00)!important;border:5px solid #000!important;border-radius:32px!important;box-shadow:14px 14px 0 #000!important;padding:40px 32px!important;max-width:760px!important;margin:24px auto!important}
+  #tab-machine .slot-label{font-family:'Luckiest Guy',cursive!important;color:#fff!important;font-size:2.4rem!important;text-shadow:4px 4px 0 #000!important;letter-spacing:.05em!important;margin-bottom:24px!important;text-transform:uppercase}
+  #tab-machine .slot-window.glass{background:#fff!important;border:5px solid #000!important;border-radius:24px!important;box-shadow:inset 0 6px 0 rgba(0,0,0,.15),8px 8px 0 #000!important;height:160px!important;margin-bottom:28px!important}
+  #tab-machine .slot-window::before,#tab-machine .slot-window::after{content:"";position:absolute;left:0;right:0;height:24px;z-index:3;pointer-events:none}
+  #tab-machine .slot-window::before{top:0;background:linear-gradient(to bottom,#fff,transparent);border-bottom:3px dashed #FF2A7A}
+  #tab-machine .slot-window::after{bottom:0;background:linear-gradient(to top,#fff,transparent);border-top:3px dashed #FF2A7A}
+  #tab-machine .slot-item{font-family:'Luckiest Guy',cursive!important;font-size:1.4rem!important;color:#004A61!important;height:160px!important;letter-spacing:.04em;text-align:center;padding:16px 24px!important}
+  #tab-machine .slot-item:nth-child(5n+1){background:#E0F7FF}
+  #tab-machine .slot-item:nth-child(5n+2){background:#FFF7CC}
+  #tab-machine .slot-item:nth-child(5n+3){background:#FFE0EC}
+  #tab-machine .slot-item:nth-child(5n+4){background:#E6FFE0}
+  #tab-machine .slot-item:nth-child(5n+5){background:#EBE0FF}
+  #tab-machine .slot-btn{background:#00C4FF!important;color:#fff!important;font-family:'Luckiest Guy',cursive!important;font-size:2rem!important;padding:18px 48px!important;border:5px solid #000!important;border-radius:22px!important;box-shadow:8px 8px 0 #000!important;text-shadow:3px 3px 0 rgba(0,0,0,.35)!important;letter-spacing:.06em;cursor:pointer;transition:transform .12s,box-shadow .12s}
+  #tab-machine .slot-btn:hover{transform:translate(-2px,-2px);box-shadow:11px 11px 0 #000!important;background:#00D6FF!important}
+  #tab-machine .slot-btn:active{transform:translate(8px,8px);box-shadow:0 0 0 #000!important}
+  #tab-machine .slot-btn.spinning{animation:spinShake .25s linear infinite}
+  @keyframes spinShake{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1deg)}}
+  /* RESULT — force visible + chunky */
+  #slotResult{display:block!important;margin-top:24px!important;background:none!important;border:none!important;padding:0!important;box-shadow:none!important}
+  #slotResult:empty{display:none!important}
+  #tab-machine .slot-result-card,#tab-machine .slot-result-card.glass{background:#fff!important;border:5px solid #000!important;border-radius:28px!important;box-shadow:12px 12px 0 #000!important;padding:0!important;overflow:hidden;text-align:left}
+  #tab-machine .slot-result-card h3{font-family:'Luckiest Guy',cursive!important;background:#FF2A7A!important;color:#fff!important;font-size:1.8rem!important;text-shadow:3px 3px 0 rgba(0,0,0,.35)!important;padding:18px 22px!important;border-bottom:5px solid #000!important;margin:0!important;letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+  #tab-machine .slot-result-card .card-tags{display:flex;flex-wrap:wrap;gap:10px;padding:18px 22px 0!important;margin:0!important}
+  #tab-machine .slot-result-card .card-tag{background:#FFFC00!important;color:#004A61!important;border:3px solid #000!important;border-radius:9999px!important;padding:5px 14px!important;font-family:'Luckiest Guy',cursive!important;font-size:.95rem!important;letter-spacing:.04em;box-shadow:3px 3px 0 #000!important;text-shadow:none!important}
+  #tab-machine .slot-result-card .card-tag:nth-child(2){background:#00C4FF!important;color:#fff!important;text-shadow:2px 2px 0 rgba(0,0,0,.3)!important}
+  #tab-machine .slot-result-card p{font-family:'DynaPuff',cursive!important;font-weight:500!important;font-size:1.1rem!important;color:#0f172a!important;padding:14px 22px!important;line-height:1.5!important;margin:0!important}
+  #tab-machine .slot-result-card .action-btn{font-family:'Luckiest Guy',cursive!important;background:#4ADE80!important;color:#0f172a!important;border:5px solid #000!important;border-radius:18px!important;box-shadow:6px 6px 0 #000!important;padding:14px 24px!important;font-size:1.3rem!important;letter-spacing:.05em;cursor:pointer;margin:0 22px 22px!important;display:inline-block;transition:transform .12s,box-shadow .12s}
+  #tab-machine .slot-result-card .action-btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000!important;background:#5DEC91!important}
+  #tab-machine .slot-result-card .action-btn:active{transform:translate(6px,6px);box-shadow:0 0 0 #000!important}
+  /* Hero machine — gradient lumineux */
+  #tab-machine .section-hero,#tab-machine .section-hero.glass{background:linear-gradient(135deg,#4ADE80,#16A34A)!important;border:5px solid #000!important;border-radius:32px!important;box-shadow:14px 14px 0 #000!important;color:#fff!important}
+  #tab-machine .section-hero .hero-title{color:#fff!important;text-shadow:4px 4px 0 #000!important}
+
+  /* ===== CARDS SAÉ — bandeau coloré + titre blanc + body but+cours ===== */
+  #sae-grid.cards-grid,#mes-sae-grid.cards-grid{gap:24px!important;padding:16px 8px!important}
+  #sae-grid .card,#mes-sae-grid .card{background:#fff!important;border:4px solid #000!important;border-radius:22px!important;box-shadow:8px 8px 0 #000!important;padding:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important;transition:transform .15s,box-shadow .15s!important;border-top:4px solid #000!important;position:relative}
+  #sae-grid .card:hover,#mes-sae-grid .card:hover{transform:translate(-3px,-3px)!important;box-shadow:12px 12px 0 #000!important}
+  #sae-grid .card::before,#mes-sae-grid .card::before{display:none!important}
+  /* HEADER coloré cyclé — titre blanc */
+  #sae-grid .card .card-header,#mes-sae-grid .card .card-header{padding:14px 16px 14px 18px!important;background:#00C4FF;border-bottom:4px solid #000!important;display:flex!important;align-items:center!important;gap:10px!important;margin:0!important;flex-wrap:wrap;position:relative}
+  #sae-grid .card:nth-child(6n+1) .card-header,#mes-sae-grid .card:nth-child(6n+1) .card-header{background:#00C4FF}
+  #sae-grid .card:nth-child(6n+2) .card-header,#mes-sae-grid .card:nth-child(6n+2) .card-header{background:#FF8C00}
+  #sae-grid .card:nth-child(6n+3) .card-header,#mes-sae-grid .card:nth-child(6n+3) .card-header{background:#4ADE80}
+  #sae-grid .card:nth-child(6n+4) .card-header,#mes-sae-grid .card:nth-child(6n+4) .card-header{background:#FF2A7A}
+  #sae-grid .card:nth-child(6n+5) .card-header,#mes-sae-grid .card:nth-child(6n+5) .card-header{background:#A855F7}
+  #sae-grid .card:nth-child(6n+6) .card-header,#mes-sae-grid .card:nth-child(6n+6) .card-header{background:#0086AD}
+  /* PFEQ badge — pill noir/jaune */
+  #sae-grid .card .card-badge,#mes-sae-grid .card .card-badge{position:static!important;background:#FFFC00!important;color:#000!important;border:3px solid #000!important;border-radius:9999px!important;padding:3px 12px!important;font-family:'Luckiest Guy',cursive!important;font-size:.75rem!important;letter-spacing:.1em!important;box-shadow:2px 2px 0 #000!important;text-shadow:none!important;margin:0!important}
+  /* Icon */
+  #sae-grid .card .card-icon,#mes-sae-grid .card .card-icon{font-size:2rem!important;background:#fff;border:3px solid #000;border-radius:50%;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 #000;flex-shrink:0}
+  /* TITRE BLANC */
+  #sae-grid .card .card-title,#mes-sae-grid .card .card-title{font-family:'Luckiest Guy',cursive!important;color:#fff!important;font-size:1.35rem!important;line-height:1.1!important;text-shadow:2px 2px 0 rgba(0,0,0,.4)!important;letter-spacing:.04em!important;flex:1 1 100%!important;margin:6px 0 0!important;text-transform:uppercase}
+  #sae-grid .card:nth-child(6n+3) .card-title,#mes-sae-grid .card:nth-child(6n+3) .card-title,
+  #sae-grid .card:nth-child(6n+2) .card-title,#mes-sae-grid .card:nth-child(6n+2) .card-title{color:#fff!important;text-shadow:2px 2px 0 rgba(0,0,0,.45)!important}
+  /* BODY clean — pill durée + but */
+  #sae-grid .card .card-body,#mes-sae-grid .card .card-body{padding:14px 18px 18px!important;display:flex;flex-direction:column;gap:10px;flex:1}
+  #sae-grid .card .card-pill-duree,#mes-sae-grid .card .card-pill-duree{align-self:flex-start;background:#FFFC00!important;color:#004A61!important;border:3px solid #000!important;border-radius:9999px!important;box-shadow:3px 3px 0 #000!important;padding:5px 14px!important;font-family:'Luckiest Guy',cursive!important;font-size:.95rem!important;letter-spacing:.04em}
+  #sae-grid .card .card-but,#mes-sae-grid .card .card-but{font-family:'DynaPuff',cursive!important;font-weight:500!important;font-size:1rem!important;color:#0f172a!important;margin:0!important;line-height:1.4!important}
+  #sae-grid .card .card-but strong,#mes-sae-grid .card .card-but strong{font-family:'Luckiest Guy',cursive;color:#FF2A7A;letter-spacing:.05em;font-size:.95rem;margin-right:4px}
+  /* Fav star */
+  #sae-grid .card .card-fav,#mes-sae-grid .card .card-fav{position:absolute!important;top:8px!important;right:10px!important;background:rgba(255,255,255,.9)!important;border:3px solid #000!important;border-radius:50%!important;width:36px;height:36px;font-size:1.2rem!important;box-shadow:3px 3px 0 #000!important;cursor:pointer;z-index:5;color:#FFC107!important}
+  #sae-grid .card .card-fav.active,#mes-sae-grid .card .card-fav.active{background:#FFFC00!important;color:#FF2A7A!important}
+
+  /* HEADER XXL TBI — ZTS Premium Lumineux */
+  .zts-app-header{position:sticky;top:0;z-index:9999;background:#00C4FF;border-bottom:6px solid #000;box-shadow:0 8px 0 rgba(0,0,0,.15)}
+  .zts-app-header-inner{max-width:1700px;margin:0 auto;padding:24px 28px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:20px}
+  .zts-app-brand{display:flex;flex-direction:column;align-items:flex-start;text-decoration:none;line-height:1;justify-self:start}
+  .zts-app-brand-main{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;font-size:48px;color:#fff;text-shadow:4px 4px 0 rgba(0,0,0,.25);line-height:1}
+  .zts-app-brand-accent{color:#FFFA00}
+  .zts-app-brand-sub{font-family:'Luckiest Guy',cursive;font-size:18px;letter-spacing:.25em;text-transform:uppercase;color:#004A61;margin-top:6px;line-height:1}
+  .zts-app-clock{font-family:'Luckiest Guy',cursive;letter-spacing:.1em;font-size:42px;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.25);background:rgba(0,0,0,.22);padding:10px 26px;border-radius:18px;border:3px solid #000;box-shadow:4px 4px 0 #000;justify-self:center;white-space:nowrap}
+  .zts-app-header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end;justify-self:end}
+  .zts-app-home-btn{font-family:'Luckiest Guy',cursive;text-transform:uppercase;font-size:24px;background:#FFFA00;color:#004A61;padding:12px 22px;border-radius:18px;display:inline-flex;align-items:center;gap:10px;text-decoration:none;border:4px solid #000;box-shadow:6px 6px 0 #000;transition:transform .12s,box-shadow .12s;letter-spacing:.05em}
+  .zts-app-home-btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000}
+  .zts-app-home-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}
+  .zts-app-nav-link{font-family:'Luckiest Guy',cursive;font-size:1.4rem;color:#fff;background:rgba(255,255,255,.18);border:3px solid #000;border-radius:14px;padding:10px 16px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:4px 4px 0 #000;transition:transform .12s,box-shadow .12s;letter-spacing:.04em}
+  .zts-app-nav-link:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 #000;background:rgba(255,255,255,.28)}
+  .zts-app-nav-link.active-link{background:#FFF000;color:#004A61}
+  @media(max-width:1100px){.zts-app-header-inner{grid-template-columns:1fr;justify-items:center;gap:14px;padding:18px 16px}.zts-app-brand,.zts-app-header-right{justify-self:center}.zts-app-brand{align-items:center}}
+  @media(max-width:640px){.zts-app-brand-main{font-size:30px}.zts-app-brand-sub{font-size:12px}.zts-app-clock{font-size:24px;padding:6px 14px}.zts-app-home-btn{font-size:16px;padding:8px 14px}.zts-app-nav-link{font-size:1rem;padding:6px 10px}}
+
+  /* ===== MODAL SAÉ — Néobrutaliste shadowbox chunky ===== */
+  #modal.active .modal-box,#modal .modal-box.glass{background:#f8f9fa!important;background-image:linear-gradient(to right,rgba(0,0,0,.04) 2px,transparent 2px),linear-gradient(to bottom,rgba(0,0,0,.04) 2px,transparent 2px)!important;background-size:40px 40px!important;border:6px solid #000!important;border-radius:32px!important;box-shadow:16px 16px 0 #000!important;padding:0!important;max-width:1100px!important;width:96vw!important;max-height:92vh!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch}
+  .modal-box .modal-header{position:sticky;top:0;z-index:5}
+  /* Modal header — gradient cyan→bleu profond shadowbox */
+  .modal-box .modal-header{background:radial-gradient(circle at top right,#00C4FF 0%,#004A61 100%)!important;border-bottom:6px solid #000!important;padding:32px 36px!important;border-radius:0!important;position:relative;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .modal-box .modal-header::before{content:"FICHE SAÉ OFFICIELLE";position:absolute;top:18px;left:36px;background:#000;color:#fff;padding:4px 14px;border-radius:9999px;font-size:11px;letter-spacing:.2em;font-family:'DynaPuff',cursive;font-weight:700}
+  .modal-box .modal-title{font-family:'Luckiest Guy',cursive!important;font-size:clamp(2rem,4.5vw,3.6rem)!important;color:#fff!important;text-shadow:4px 4px 0 #000!important;line-height:1.05!important;text-transform:uppercase;letter-spacing:.04em;margin:24px 0 0!important;flex:1}
+  .modal-box .modal-close{background:#FFFC00!important;color:#000!important;border:4px solid #000!important;border-radius:16px!important;box-shadow:6px 6px 0 #000!important;font-family:'Luckiest Guy',cursive!important;font-size:1.2rem!important;padding:10px 18px!important;cursor:pointer;letter-spacing:.05em;transition:transform .12s,box-shadow .12s;align-self:flex-start;margin-top:16px}
+  .modal-box .modal-close:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000!important}
+  .modal-box .modal-close:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000!important}
+  /* Body wrapper padding */
+  #modalBody{padding:32px 36px 40px!important;display:flex;flex-direction:column;gap:24px}
+  /* Meta badges — stickers chunky */
+  .modal-box .modal-meta{display:flex!important;flex-wrap:wrap;gap:18px 22px!important;margin:0!important;padding:0!important;background:none!important;border:none!important}
+  .modal-box .meta-badge{background:#fff!important;border:3px solid #000!important;border-radius:14px!important;box-shadow:4px 4px 0 #000!important;padding:8px 14px!important;font-family:'DynaPuff',cursive!important;font-weight:600!important;font-size:1rem!important;color:#0f172a!important;display:inline-flex;align-items:center;gap:6px;transform:none;transition:transform .15s}
+  .modal-box .meta-badge:nth-child(2n){background:#FFFC00!important}
+  .modal-box .meta-badge:nth-child(3n){background:#FFB6E1!important}
+  .modal-box .meta-badge:nth-child(4n){background:#A8FF8C!important}
+  .modal-box .meta-badge:hover{transform:translate(-1px,-1px);box-shadow:6px 6px 0 #000!important}
+  .modal-box .meta-badge strong{font-family:'Luckiest Guy',cursive!important;color:#004A61!important;letter-spacing:.04em;font-size:.85rem;text-transform:uppercase;margin-right:4px}
+  /* Action buttons — push physique */
+  .modal-box .modal-actions{display:flex!important;flex-wrap:wrap;gap:12px!important;padding:18px 0!important;border-top:3px dashed #000!important;border-bottom:3px dashed #000!important;background:none!important;margin:0!important}
+  .modal-box .modal-actions .action-btn{font-family:'Luckiest Guy',cursive!important;background:#00C4FF!important;color:#fff!important;border:4px solid #000!important;border-radius:18px!important;box-shadow:6px 6px 0 #000!important;padding:12px 20px!important;font-size:1.1rem!important;letter-spacing:.05em;cursor:pointer;text-shadow:2px 2px 0 rgba(0,0,0,.25);transition:transform .12s,box-shadow .12s,background .12s}
+  .modal-box .modal-actions .action-btn:nth-child(1){background:#FFFC00!important;color:#004A61!important;text-shadow:none}
+  .modal-box .modal-actions .action-btn:nth-child(2){background:#FF8C00!important}
+  .modal-box .modal-actions .action-btn:nth-child(3){background:#A855F7!important}
+  .modal-box .modal-actions .action-btn:nth-child(4){background:#4ADE80!important;color:#0f172a!important;text-shadow:none}
+  .modal-box .modal-actions .action-btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000!important}
+  .modal-box .modal-actions .action-btn:active{transform:translate(8px,8px);box-shadow:0 0 0 #000!important}
+  .modal-box .modal-actions .action-btn.active{background:#FFFC00!important;color:#004A61!important;text-shadow:none}
+  /* Sections — tuiles shadowbox avec bandeau coloré bas */
+  .modal-box .modal-section{background:#fff!important;border:4px solid #000!important;border-radius:24px!important;box-shadow:8px 8px 0 #000!important;padding:0!important;margin:0!important;overflow:hidden;position:relative;transition:transform .15s,box-shadow .15s}
+  .modal-box .modal-section:hover{transform:translate(-2px,-2px);box-shadow:12px 12px 0 #000!important}
+  .modal-box .modal-section h3{font-family:'Luckiest Guy',cursive!important;font-size:1.5rem!important;color:#fff!important;background:#00C4FF;text-shadow:3px 3px 0 rgba(0,0,0,.25);padding:14px 20px!important;border-bottom:4px solid #000!important;margin:0!important;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+  .modal-box .modal-section:nth-of-type(2n) h3{background:#FFFC00;color:#004A61!important;text-shadow:none}
+  .modal-box .modal-section:nth-of-type(3n) h3{background:#FF2A7A}
+  .modal-box .modal-section:nth-of-type(4n) h3{background:#4ADE80;color:#0f172a!important;text-shadow:none}
+  .modal-box .modal-section:nth-of-type(5n) h3{background:#FF8C00}
+  .modal-box .modal-section:nth-of-type(6n) h3{background:#A855F7}
+  .modal-box .modal-section:nth-of-type(7n) h3{background:#0086AD}
+  .modal-box .modal-section .modal-content{padding:20px 24px!important;font-family:'DynaPuff',cursive!important;font-weight:500!important;font-size:1.1rem!important;color:#0f172a!important;line-height:1.5;background:transparent!important;border:none!important;border-radius:0!important;box-shadow:none!important}
+  /* ===== ONGLETS COURS — modal enrichi ===== */
+  .modal-box .cours-tabs-wrap{margin:0!important;padding:0!important}
+  .modal-box .cours-tabs-nav{display:flex;flex-wrap:wrap;gap:10px;padding:18px 22px 0;background:none;border:none}
+  .modal-box .cours-tab{font-family:'Luckiest Guy',cursive!important;background:#fff;color:#0086AD;border:4px solid #000;border-radius:16px 16px 0 0!important;padding:12px 22px;font-size:1.2rem;cursor:pointer;box-shadow:5px 5px 0 #000;transition:transform .12s,box-shadow .12s,background .12s;letter-spacing:.04em;position:relative;top:0}
+  .modal-box .cours-tab:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #000;background:#F0FDFF}
+  .modal-box .cours-tab.active{background:#00C4FF!important;color:#fff!important;text-shadow:2px 2px 0 rgba(0,0,0,.3);transform:translateY(2px);box-shadow:5px 5px 0 #000}
+  .modal-box .cours-tab.cours-tab-eval{background:#FFFC00;color:#004A61}
+  .modal-box .cours-tab.cours-tab-eval.active{background:#FF2A7A!important;color:#fff!important}
+  .modal-box .cours-tabs-panels{background:#fff;border:5px solid #000;border-radius:24px;box-shadow:10px 10px 0 #000;margin:0 22px 22px;padding:24px;display:block}
+  .modal-box .cours-tab-panel{display:none}
+  .modal-box .cours-tab-panel.active{display:block;animation:coursFade .25s ease-out}
+  @keyframes coursFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .modal-box .cours-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:linear-gradient(135deg,#00C4FF,#0086AD);border:4px solid #000;border-radius:18px;box-shadow:6px 6px 0 #000;padding:14px 20px;margin-bottom:18px}
+  .modal-box .cours-titre{font-family:'Luckiest Guy',cursive!important;font-size:1.6rem!important;color:#fff!important;text-shadow:3px 3px 0 rgba(0,0,0,.3)!important;margin:0!important;letter-spacing:.04em;line-height:1.1}
+  .modal-box .cours-duree{background:#FFFC00;color:#004A61!important;border:3px solid #000;border-radius:12px;padding:6px 12px;font-family:'Luckiest Guy',cursive;font-size:1rem;box-shadow:3px 3px 0 #000;letter-spacing:.04em}
+  .modal-box .cours-objectif{background:#FFFC00;border:3px solid #000;border-radius:14px;box-shadow:5px 5px 0 #000;padding:12px 16px;margin-bottom:18px;font-family:'DynaPuff',cursive;font-weight:500;font-size:1.05rem;color:#0f172a!important}
+  .modal-box .cours-objectif strong{font-family:'Luckiest Guy',cursive;color:#004A61;letter-spacing:.04em;margin-right:6px;font-size:.95rem}
+  .modal-box .cours-block{background:#fff;border:3px solid #000;border-radius:18px;box-shadow:6px 6px 0 #000;padding:0;margin-bottom:14px;overflow:hidden}
+  .modal-box .cours-block-title{font-family:'Luckiest Guy',cursive!important;font-size:1.2rem!important;color:#fff!important;text-shadow:2px 2px 0 rgba(0,0,0,.3)!important;padding:10px 16px!important;margin:0!important;border-bottom:3px solid #000;letter-spacing:.04em;text-transform:uppercase}
+  .modal-box .cours-block-echauffement .cours-block-title{background:#FF8C00}
+  .modal-box .cours-block-educatifs .cours-block-title{background:#A855F7}
+  .modal-box .cours-block-activite .cours-block-title{background:#00C4FF}
+  .modal-box .cours-block-retour .cours-block-title{background:#4ADE80;color:#0f172a!important;text-shadow:none!important}
+  .modal-box .cours-block-materiel .cours-block-title{background:#FF2A7A}
+  .modal-box .cours-block-securite .cours-block-title{background:#FFFC00;color:#004A61!important;text-shadow:none!important}
+  .modal-box .cours-block p{padding:10px 16px!important;margin:0!important;font-family:'DynaPuff',cursive;font-weight:500;font-size:1.05rem;color:#0f172a!important;line-height:1.5}
+  .modal-box .cours-block p+p{padding-top:0!important}
+  .modal-box .cours-block ul{padding:8px 16px 12px 36px!important;margin:0!important}
+  .modal-box .cours-block li{font-family:'DynaPuff',cursive;font-weight:500;color:#0f172a!important;line-height:1.5;margin:4px 0}
+  .modal-box .educatif-card{background:#FFFCEB;border-bottom:2px dashed #000;padding:12px 16px}
+  .modal-box .educatif-card:last-child{border-bottom:none}
+  .modal-box .educatif-card h5{font-family:'Luckiest Guy',cursive;font-size:1.1rem;color:#004A61!important;margin:0 0 6px;letter-spacing:.04em;display:flex;align-items:center;gap:8px}
+  .modal-box .educatif-duree{background:#00C4FF;color:#fff;font-size:.8rem;padding:2px 8px;border-radius:9999px;border:2px solid #000;font-family:'Luckiest Guy',cursive;text-shadow:1px 1px 0 rgba(0,0,0,.3)}
+  .modal-box .educatif-card p{padding:0!important;margin:6px 0!important;font-size:1rem!important}
+  .modal-box .educatif-consignes{background:#E0F7FF;border-left:4px solid #00C4FF;padding:6px 10px!important;border-radius:6px;margin:8px 0!important}
+  .modal-box .educatif-variante{background:#FFE0EC;border-left:4px solid #FF2A7A;padding:6px 10px!important;border-radius:6px;margin:8px 0!important}
+  .modal-box .cours-row-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:700px){.modal-box .cours-row-2col{grid-template-columns:1fr}}
+  /* EVAL PANEL */
+  .modal-box .eval-panel-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+  .modal-box .eval-panel-header h3{font-family:'Luckiest Guy',cursive!important;font-size:1.8rem!important;color:#004A61!important;margin:0!important;letter-spacing:.04em}
+  .modal-box .eval-print-btn{font-family:'Luckiest Guy',cursive!important;background:#4ADE80;color:#0f172a;border:4px solid #000;border-radius:16px;padding:12px 20px;font-size:1.1rem;box-shadow:6px 6px 0 #000;cursor:pointer;letter-spacing:.04em;transition:transform .12s,box-shadow .12s}
+  .modal-box .eval-print-btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #000}
+  .modal-box .eval-print-btn:active{transform:translate(6px,6px);box-shadow:0 0 0 #000}
+  .modal-box .eval-grille-table{width:100%;border-collapse:collapse;font-family:'DynaPuff',cursive;font-weight:500}
+  .modal-box .eval-grille-table th{background:#FFFC00;color:#004A61!important;font-family:'Luckiest Guy',cursive!important;border:3px solid #000;padding:10px;text-align:left;font-size:1rem;letter-spacing:.04em}
+  .modal-box .eval-grille-table td{border:3px solid #000;padding:10px;vertical-align:top;color:#0f172a!important;font-size:.95rem}
+  .modal-box .eval-grille-table .critere-desc{font-weight:400;font-size:.85rem;color:#444!important;display:block;margin-top:4px}
+  .modal-box .eval-cell-desc{font-size:.85rem;color:#333!important;display:block;margin-bottom:6px;line-height:1.35}
+  .modal-box .eval-checkbox{font-size:1.4rem;color:#0086AD}
+  .modal-box .eval-note-cell{text-align:center;font-size:1.3rem;font-family:'Luckiest Guy',cursive}
+
+  /* Sous-blocs phases dans Déroulement */
+  .modal-box .phases-wrap{padding:18px 22px 22px!important;display:flex;flex-direction:column;gap:14px}
+  .modal-box .phase-block{background:#FFFCEB!important;border:3px solid #000!important;border-radius:16px!important;box-shadow:5px 5px 0 #000!important;padding:14px 16px!important;transition:transform .12s,box-shadow .12s}
+  .modal-box .phase-block:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #000!important}
+  .modal-box .phase-block:nth-child(5n+1){background:#E0F7FF!important}
+  .modal-box .phase-block:nth-child(5n+2){background:#FFE8C2!important}
+  .modal-box .phase-block:nth-child(5n+3){background:#E6FFE0!important}
+  .modal-box .phase-block:nth-child(5n+4){background:#FFD6F0!important}
+  .modal-box .phase-block:nth-child(5n+5){background:#EBE0FF!important}
+  .modal-box .phase-block-title{font-family:'Luckiest Guy',cursive!important;font-size:1.1rem!important;color:#004A61!important;letter-spacing:.05em;margin:0 0 8px!important;display:flex;align-items:center;gap:8px;text-transform:uppercase;border-bottom:2px solid #000;padding-bottom:6px}
+  .modal-box .phase-block-content{font-family:'DynaPuff',cursive!important;font-weight:500!important;font-size:1.05rem!important;color:#0f172a!important;line-height:1.5}
+  .modal-box .phase-block-content p{margin:0 0 6px}
+  .modal-box .phase-block-content ul,.modal-box .phase-block-content ol{padding-left:22px;margin:6px 0}
+  .modal-box .modal-section .modal-content p{margin:0 0 10px;line-height:1.5}
+  .modal-box .modal-section .modal-content ul,.modal-box .modal-section .modal-content ol{padding-left:24px;margin:8px 0}
+  .modal-box .modal-section .modal-content li{margin:6px 0;line-height:1.45}
+  .modal-box .modal-section .modal-content h4{font-family:'Luckiest Guy',cursive!important;font-size:1.15rem!important;color:#004A61!important;margin:14px 0 8px!important;letter-spacing:.04em;border-bottom:2px solid #000;padding-bottom:4px;display:inline-block}
+  /* Eval grid — niveaux colorés */
+  .modal-box .modal-section .eval-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:10px 0}
+  .modal-box .modal-section .eval-level{background:#FFFCEB!important;border:3px solid #000!important;border-radius:14px!important;box-shadow:4px 4px 0 #000!important;padding:12px 14px!important}
+  .modal-box .modal-section .eval-level:nth-child(1){background:#A8FF8C!important}
+  .modal-box .modal-section .eval-level:nth-child(2){background:#FFFC00!important}
+  .modal-box .modal-section .eval-level:nth-child(3){background:#FFB347!important}
+  .modal-box .modal-section .eval-level strong{font-family:'Luckiest Guy',cursive!important;font-size:1rem!important;letter-spacing:.04em;display:block;margin-bottom:6px}
+  /* Tags */
+  .modal-box .modal-tags{display:flex;flex-wrap:wrap;gap:8px}
+  .modal-box .modal-tags .card-tag{background:#00C4FF!important;color:#fff!important;border:3px solid #000!important;border-radius:9999px!important;padding:4px 12px!important;font-family:'Luckiest Guy',cursive!important;font-size:.9rem!important;letter-spacing:.04em;box-shadow:3px 3px 0 #000!important;text-shadow:1px 1px 0 rgba(0,0,0,.25)}
+  .modal-box .modal-tags .card-tag:nth-child(2n){background:#FFFC00!important;color:#004A61!important;text-shadow:none}
+  .modal-box .modal-tags .card-tag:nth-child(3n){background:#FF2A7A!important}
+  .modal-box .modal-tags .card-tag:nth-child(4n){background:#4ADE80!important;color:#0f172a!important;text-shadow:none}
+  /* Force texte noir partout dans modal (kill .modal-section p/li #ccc) */
+  .modal-box .modal-section p,.modal-box .modal-section li,.modal-box .modal-section span,.modal-box .modal-section div,.modal-box .phase-block-content,.modal-box .phase-block-content *{color:#0f172a!important}
+  .modal-box .modal-section h3,.modal-box .modal-section h3 *{color:inherit!important}
+  /* Sections clés EN GRIS = couleur dynapuff fixée */
+  .modal-box .modal-section .modal-content,.modal-box .modal-section .modal-content *{color:#0f172a!important}
+
+  /* Layout grille 6-col — alterne carrés / rectangles / wide */
+  @media(min-width:900px){
+    #modalBody{display:grid!important;grid-template-columns:repeat(6,1fr)!important;gap:22px!important;grid-auto-flow:dense!important}
+    #modalBody>.modal-header,#modalBody>.modal-meta,#modalBody>.modal-actions{grid-column:1/-1!important}
+    /* Default section = demi-largeur (span 3) → 2 par rangée */
+    #modalBody>.modal-section{grid-column:span 3!important}
+    /* Déroulement (contient .phases-wrap) = pleine largeur */
+    #modalBody>.modal-section:has(.phases-wrap){grid-column:1/-1!important}
+    /* Classes explicites par section (assignées en JS) */
+    #modalBody>.modal-section.tile-square{grid-column:span 2!important;aspect-ratio:1/1!important}
+    #modalBody>.modal-section.tile-square .modal-content{overflow-y:auto;max-height:calc(100% - 60px)}
+    #modalBody>.modal-section.tile-wide{grid-column:span 4!important}
+    /* Fallback alterné pour sections sans classe explicite */
+    #modalBody>.modal-section:not(:has(.phases-wrap)):not(.tile-square):not(.tile-wide):nth-of-type(odd){grid-column:span 2!important;aspect-ratio:1/1}
+    #modalBody>.modal-section:not(:has(.phases-wrap)):not(.tile-square):not(.tile-wide):nth-of-type(odd) .modal-content{overflow-y:auto;max-height:calc(100% - 60px)}
+    #modalBody>.modal-section:not(:has(.phases-wrap)):not(.tile-square):not(.tile-wide):nth-of-type(even){grid-column:span 4!important}
+    /* Sections "Tags" toujours pleine largeur (peu de contenu, lit mieux en bandeau) */
+    #modalBody>.modal-section:has(.modal-tags){grid-column:1/-1!important;aspect-ratio:auto!important}
+  }
+  @media(max-width:640px){
+    .modal-box .modal-header{padding:24px 20px!important}
+    .modal-box .modal-title{font-size:1.8rem!important}
+    #modalBody{padding:20px!important}
+  }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
@@ -83,22 +319,27 @@
   <!-- MAIN APP -->
   <div id="app" class="hidden">
 
-    <!-- HEADER -->
-    <header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
-  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
-    <a href="https://zonetotalsport.ca" class="flex flex-col items-start shrink-0">
-      <h1 class="text-xl md:text-3xl font-lucky text-white flex items-center gap-2 text-outline">
-        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
-      </h1>
-      <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Générateur</span>
-    </a>
-    <nav class="flex items-center gap-1 flex-wrap justify-end">
-      <a href="https://zonetotalsport.ca" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Accueil</span></a>
-      <a href="https://zonetotalsport.ca/blog.html" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="pen-line" class="w-4 h-4"></i><span class="hidden sm:inline">Blog</span></a>
-      <a href="#" class="nav-link text-white flex items-center gap-1.5 active-link"><i data-lucide="sparkles" class="w-4 h-4"></i><span>Générateur</span></a>
-    </nav>
-  </div>
-</header>
+    <!-- HEADER ZTS Premium Lumineux XXL TBI -->
+    <header class="zts-app-header">
+      <div class="zts-app-header-inner">
+        <a href="https://zonetotalsport.ca" class="zts-app-brand">
+          <span class="zts-app-brand-main">ZONE <span class="zts-app-brand-accent">TOTAL</span> SPORT</span>
+          <span class="zts-app-brand-sub">Générateur SAÉ</span>
+        </a>
+        <span id="ztsClock" class="zts-app-clock">09:41</span>
+        <div class="zts-app-header-right">
+          <a href="https://zonetotalsport.ca/blog.html" class="zts-app-nav-link"><i data-lucide="pen-line" style="width:22px;height:22px"></i>Blog</a>
+          <a href="#" class="zts-app-nav-link active-link"><i data-lucide="sparkles" style="width:22px;height:22px"></i>Générateur</a>
+          <a href="https://zonetotalsport.ca" class="zts-app-home-btn">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
+            Accueil
+          </a>
+        </div>
+      </div>
+    </header>
+    <script>
+      (function(){function tick(){var d=new Date(),h=String(d.getHours()).padStart(2,'0'),m=String(d.getMinutes()).padStart(2,'0'),el=document.getElementById('ztsClock');if(el)el.textContent=h+':'+m;}tick();setInterval(tick,30000);})();
+    </script>
 
     <!-- HERO LANDING -->
     <section id="heroLanding" class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
@@ -109,7 +350,7 @@
         <h2 class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline">GÉNÉRATEUR <span class="text-ztsYellow">DE SAÉ</span></h2>
         <p class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0">Génère une Situation d'Apprentissage et d'Évaluation sur mesure grâce à l'IA. Tu choisis le niveau, le sport et la compétence visée.</p>
         <div class="flex flex-wrap justify-center lg:justify-start items-center gap-5">
-          <button onclick="document.getElementById('heroLanding').style.display='none'" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase border-none cursor-pointer">🚀 COMMENCER</button>
+          <button onclick="document.getElementById('heroLanding').style.display='none'" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:scale-105 hover:rotate-1 active:translate-y-[8px] active:translate-x-[8px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] transition-all uppercase cursor-pointer">🚀 COMMENCER</button>
         </div>
       </div>
       <div class="lg:w-1/2 relative flex justify-center mt-10 lg:mt-0 w-full">
@@ -125,39 +366,41 @@
   </div>
 </section>
 <div class="max-w-6xl mx-auto -mt-16 px-4 mb-12 relative z-30">
+  <div class="bg-gradient-to-br from-[#FFF000] to-[#FFC107] rounded-[2.5rem] border-[5px] border-black p-6 md:p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
   <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
-    <div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsBlue shadow-xl hover:scale-105 transition-transform cursor-default">
+    <div class="bg-white rounded-3xl p-5 text-center border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:scale-105 hover:rotate-1 transition-all cursor-default">
   <div class="text-4xl mb-2">🤖</div>
   <p class="font-lucky text-ztsDeep text-base leading-tight">IA INTÉGRÉE</p>
 </div>
-<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsYellow shadow-xl hover:scale-105 transition-transform cursor-default">
+<div class="bg-ztsYellow rounded-3xl p-5 text-center border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:scale-105 hover:-rotate-1 transition-all cursor-default">
   <div class="text-4xl mb-2">⚡</div>
   <p class="font-lucky text-ztsDeep text-base leading-tight">EN 30 SEC</p>
 </div>
-<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsOrange shadow-xl hover:scale-105 transition-transform cursor-default">
+<div class="bg-white rounded-3xl p-5 text-center border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:scale-105 hover:rotate-1 transition-all cursor-default">
   <div class="text-4xl mb-2">🎯</div>
   <p class="font-lucky text-ztsDeep text-base leading-tight">SUR MESURE</p>
 </div>
-<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsLime shadow-xl hover:scale-105 transition-transform cursor-default">
+<div class="bg-[#4ADE80] rounded-3xl p-5 text-center border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:scale-105 hover:-rotate-1 transition-all cursor-default">
   <div class="text-4xl mb-2">🇨🇦</div>
   <p class="font-lucky text-ztsDeep text-base leading-tight">CONFORME PFEQ</p>
 </div>
-<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsPink shadow-xl hover:scale-105 transition-transform cursor-default">
+<div class="bg-[#FF2A7A] rounded-3xl p-5 text-center border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:scale-105 hover:rotate-1 transition-all cursor-default">
   <div class="text-4xl mb-2">🏀</div>
-  <p class="font-lucky text-ztsDeep text-base leading-tight">TOUS SPORTS</p>
+  <p class="font-lucky text-white text-base leading-tight" style="text-shadow:2px 2px 0 rgba(0,0,0,.3)">TOUS SPORTS</p>
 </div>
-<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsBlue shadow-xl hover:scale-105 transition-transform cursor-default">
+<div class="bg-[#00C4FF] rounded-3xl p-5 text-center border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:scale-105 hover:-rotate-1 transition-all cursor-default">
   <div class="text-4xl mb-2">📚</div>
-  <p class="font-lucky text-ztsDeep text-base leading-tight">TOUS NIVEAUX</p>
+  <p class="font-lucky text-white text-base leading-tight" style="text-shadow:2px 2px 0 rgba(0,0,0,.3)">TOUS NIVEAUX</p>
 </div>
-<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsYellow shadow-xl hover:scale-105 transition-transform cursor-default">
+<div class="bg-white rounded-3xl p-5 text-center border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:scale-105 hover:rotate-1 transition-all cursor-default">
   <div class="text-4xl mb-2">🆓</div>
   <p class="font-lucky text-ztsDeep text-base leading-tight">100% GRATUIT</p>
 </div>
-<div class="bg-white rounded-3xl p-5 text-center border-b-[10px] border-r-[10px] border-ztsOrange shadow-xl hover:scale-105 transition-transform cursor-default">
+<div class="bg-[#FF8C00] rounded-3xl p-5 text-center border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:scale-105 hover:-rotate-1 transition-all cursor-default">
   <div class="text-4xl mb-2">📥</div>
-  <p class="font-lucky text-ztsDeep text-base leading-tight">EXPORT PDF</p>
+  <p class="font-lucky text-white text-base leading-tight" style="text-shadow:2px 2px 0 rgba(0,0,0,.3)">EXPORT PDF</p>
 </div>
+  </div>
   </div>
 </div>
 
@@ -245,6 +488,25 @@
             <option value="Agir">🏃 Agir dans divers contextes</option>
             <option value="Interagir">🤝 Interagir dans divers contextes</option>
             <option value="Adopter">❤️ Adopter un mode de vie sain</option>
+          </select>
+          <select id="sae-nbcours" class="filter-select" aria-label="Filtrer par nombre de cours">
+            <option value="">📅 Tous les nombres de cours</option>
+            <option value="3">3 cours</option>
+            <option value="4">4 cours</option>
+            <option value="5">5 cours</option>
+            <option value="6">6 cours</option>
+            <option value="7">7 cours</option>
+            <option value="8">8 cours</option>
+            <option value="10">10 cours</option>
+          </select>
+          <select id="sae-duree" class="filter-select" aria-label="Filtrer par durée du cours">
+            <option value="">⏱️ Toutes durées</option>
+            <option value="15">≤ 15 min</option>
+            <option value="30">≤ 30 min</option>
+            <option value="45">≤ 45 min</option>
+            <option value="60">≤ 60 min</option>
+            <option value="75">≤ 75 min</option>
+            <option value="90">≤ 90 min</option>
           </select>
           <button class="mag-btn secondary" id="favFilterBtn" data-i18n="favFilter">☆ Favoris</button>
         </div>
@@ -596,50 +858,8 @@
   <!-- TOAST -->
   <div id="toast" role="alert" aria-live="assertive"></div>
 
-  <script src="app.js"></script>
-<!-- ZTS Landing config + script -->
-  <script>
-  window.ZTS_LANDING_CONFIG = {
-    appId: 'generateur_sae',
-    accentColor: '#FF2A7A',
-    homeUrl: 'https://zonetotalsport.ca',
-    mascot: 'https://zonetotalsport.ca/bucheron-generateur.png',
-    logoIcon: 'https://zonetotalsport.ca/logo-zts.png',
-    logoTitle: { fr: 'Générateur IA', en: 'AI Generator', zh: 'AI 生成器' },
-    logoSub: 'Zone Total Sport',
-    title: { fr: 'Générateur IA', en: 'AI Generator', zh: 'AI SAÉ 生成器' },
-    subtitle: { fr: 'SAÉ sur mesure!', en: 'Custom SAÉ!', zh: '定制情境!' },
-    description: {
-      fr: "Génère une SAÉ complète en quelques secondes grâce à l'IA. Choisis ton niveau, ta compétence, ton thème — l'IA te fournit objectifs, déroulement, grilles d'évaluation et différenciation. Modifiable à souhait.",
-      en: "Generate a full SAÉ in seconds with AI. Pick your grade, competency and theme — AI produces goals, steps, evaluation grids and differentiation. Fully editable.",
-      zh: "AI 几秒内生成完整 SAÉ。选择级别、能力和主题——AI 输出目标、步骤、评估表和差异化。可完全编辑。"
-    },
-    badges: [
-      { emoji: '🤖', color: 'pink',   text: { fr: 'IA intégrée', en: 'AI powered', zh: 'AI 驱动' } },
-      { emoji: '⚡', color: 'yellow', text: { fr: 'En 30 secondes', en: 'In 30 seconds', zh: '30 秒搞定' } },
-      { emoji: '🎯', color: 'cyan',   text: { fr: 'Sur mesure', en: 'Tailored', zh: '量身定制' } },
-      { emoji: '📝', color: 'violet', text: { fr: 'Modifiable', en: 'Editable', zh: '可编辑' } },
-      { emoji: '🎓', color: 'green',  text: { fr: 'PFEQ', en: 'PFEQ', zh: 'PFEQ' } }
-    ],
-    features: [
-      { emoji: '🎚️', title: { fr: 'Niveau', en: 'Grade', zh: '年级' }, desc: { fr: 'Maternelle → Secondaire 5', en: 'K → Grade 11', zh: '学前 → 中五' } },
-      { emoji: '🧠', title: { fr: 'Compétence', en: 'Competency', zh: '能力' }, desc: { fr: 'C1, C2 ou C3 du PFEQ', en: 'C1, C2 or C3 from PFEQ', zh: 'PFEQ C1/C2/C3' } },
-      { emoji: '🏀', title: { fr: 'Thème', en: 'Theme', zh: '主题' }, desc: { fr: 'Sport, coop, saine habitude', en: 'Sport, coop, healthy habit', zh: '运动、合作、健康' } },
-      { emoji: '📋', title: { fr: 'Grille éval', en: 'Eval grid', zh: '评估表' }, desc: { fr: 'Critères PFEQ auto-générés', en: 'PFEQ criteria auto-generated', zh: '自动生成 PFEQ 标准' } },
-      { emoji: '⏱️', title: { fr: 'Durée', en: 'Duration', zh: '时长' }, desc: { fr: '1, 3 ou 5 cours', en: '1, 3 or 5 lessons', zh: '1、3 或 5 节课' } },
-      { emoji: '🌈', title: { fr: 'Différenciation', en: 'Differentiation', zh: '差异化' }, desc: { fr: 'Adaptations automatiques', en: 'Automatic adaptations', zh: '自动适配' } },
-      { emoji: '💾', title: { fr: 'Export', en: 'Export', zh: '导出' }, desc: { fr: 'PDF ou copie vers Word', en: 'PDF or copy to Word', zh: 'PDF 或复制到 Word' } },
-      { emoji: '🔄', title: { fr: 'Régénérer', en: 'Regenerate', zh: '重新生成' }, desc: { fr: 'Refait autant que tu veux', en: 'Redo as many times as you want', zh: '想重做就重做' } }
-    ],
-    ctaStart: { label: { fr: 'Commencer!', en: 'Start!', zh: '开始!' } },
-    ctaHelp: {
-      label: { fr: 'Comment utiliser', en: 'How to use', zh: '使用说明' },
-      onClick: function () { window.open('https://zonetotalsport.ca/blog.html', '_blank'); }
-    }
-  };
-  </script>
-  <script src="zts-landing.js"></script> (Landing ZTS uniforme (rollout design))
-
+  <script src="app.js?v=20260509b"></script>
 <script>if(window.lucide)lucide.createIcons();</script>
+  <script src="../../analytics.js"></script>
 </body>
 </html>
