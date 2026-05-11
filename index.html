@@ -10,7 +10,14 @@
 
     <!-- Canonical -->
     <link rel="canonical" href="https://zonetotalsport.ca/">
-    <!-- hreflang retire: les versions EN/ES utilisent le meme HTML (langue switchee par JS), pas de pages distinctes - cause "duplicate content" en GSC. A remettre quand vraies pages traduites separees. -->
+
+    <!-- Hreflang multilingue : URLs distinctes via ?lang= param, le JS lit le param au load.
+         FR = defaut canonical. EN/ZH/ES = alternates avec ?lang=. x-default = FR. -->
+    <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/">
+    <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/?lang=en">
+    <link rel="alternate" hreflang="zh" href="https://zonetotalsport.ca/?lang=zh">
+    <link rel="alternate" hreflang="es" href="https://zonetotalsport.ca/?lang=es">
+    <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/">
 
     <!-- Open Graph -->
     <meta property="og:title" content="Zone Total Sport — Ressources ÉPS pour enseignants au primaire">
@@ -1468,6 +1475,7 @@
                     <button onclick="setLang('fr')" class="lang-btn active" id="lang-fr" title="Fran&#231;ais">FR</button>
                     <button onclick="setLang('en')" class="lang-btn" id="lang-en" title="English">EN</button>
                     <button onclick="setLang('zh')" class="lang-btn" id="lang-zh" title="&#20013;&#25991;">&#20013;</button>
+                    <button onclick="setLang('es')" class="lang-btn" id="lang-es" title="Espa&#241;ol">ES</button>
                 </div>
                 <!-- Bouton Faire un don retire (duplicate de Dons dans menu top) -->
             </div>
@@ -2861,7 +2869,7 @@
                     <span style="font-family:'Patrick Hand',cursive;font-size:1.05rem;color:rgba(255,255,255,0.8)" data-i18n="subSocial">+2 300 profs utilisent déjà l'app!</span>
                 </div>
 
-                <a href="#" onclick="event.preventDefault();if(window.ztsTrackPopupConverted)window.ztsTrackPopupConverted('lead_magnet_30cours');window.ztsShowSignup()" class="sub-btn-cta" data-i18n="subBtn">
+                <a href="#" onclick="event.preventDefault();if(window.ztsTrackPopupConverted)window.ztsTrackPopupConverted('lead_magnet_90cours');window.ztsShowSignup()" class="sub-btn-cta" data-i18n="subBtn">
                     🚀 OBTENIR MON ACCÈS GRATUIT!
                 </a>
                 <div style="margin-top:10px">
@@ -4464,7 +4472,7 @@
         applyLeadLang(detectedLang);
         document.getElementById('subscribeOverlay').classList.add('show');
         lucide.createIcons();
-        if (window.ztsTrackPopupShown) window.ztsTrackPopupShown('lead_magnet_30cours');
+        if (window.ztsTrackPopupShown) window.ztsTrackPopupShown('lead_magnet_90cours');
     }
     function closeSubscribe() {
         document.getElementById('subscribeOverlay').classList.remove('show');
@@ -4518,6 +4526,7 @@
         const overlay = document.getElementById('iaPopupOverlay');
         const box = document.getElementById('iaPopupBox');
         overlay.classList.add('show');
+        if (window.ztsTrackPopupShown) window.ztsTrackPopupShown('ia');
         // Animate in with GSAP
         gsap.fromTo(overlay, { backgroundColor: 'rgba(0,0,0,0)' }, { backgroundColor: 'rgba(0,0,0,0.75)', duration: 0.3 });
         gsap.fromTo(box,
@@ -4558,6 +4567,7 @@
         }
         _gateDestination = destinationUrl;
         sessionStorage.setItem('zts-gate-shown', '1');
+        if (window.ztsTrackPopupShown) window.ztsTrackPopupShown('gate');
         const overlay = document.getElementById('gateOverlay');
         const box = document.getElementById('gateBox');
         overlay.classList.add('show');
@@ -5399,12 +5409,178 @@
             cookieAccept:'全部接受',
             cookieDecline:'拒绝',
             cookiePrivacy:'隐私政策',
+        },
+        es: {
+            navJeux:'Juegos', navRes:'Recursos', navGen:'Generador', navAvis:'Reseñas',
+            navDon:'<i data-lucide="heart" class="w-4 h-4"></i> Donar', mobileDon:'Donar',
+            heroBadge:'+500 recursos gratis para profes de EF',
+            heroTitle:'Tu gimnasio,<br><span style="color:#FF2A7A">tus reglas.</span>',
+            heroSub:'La plataforma <strong class="text-dark">100% gratuita</strong> que transforma tus clases de educación física en experiencias épicas.',
+            heroBtn1:'<i data-lucide="zap" class="w-5 h-5"></i> Generar un juego',
+            heroBtn2:'<i data-lucide="compass" class="w-5 h-5"></i> Explorar',
+            statJeux:'Juegos', statSae:'SAE', statEns:'Profes', statGratuit:'% Gratis',
+            resTag:'<i data-lucide="layers" class="w-4 h-4"></i> RECURSOS',
+            resTitle:'Todo lo que necesitas,<br><span style="color:#FF2A7A">en un solo lugar.</span>',
+            resSub:'Cientos de recursos diseñados por y para profes de educación física de primaria.',
+            card1:'Banco de Juegos', card1d:'+500 juegos clasificados por categoría, edad y habilidad. Encuentra el juego perfecto en segundos.', card1a:'Explorar <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card2:'SAE Completas', card2d:'Situaciones de aprendizaje listas para usar, alineadas con el currículo. Listas para mañana.', card2a:'Descubrir <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card3:'Blog de EF', card3d:'Artículos, estrategias y reflexiones sobre la enseñanza de la educación física en Quebec.', card3a:'Leer <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            card4:'Gestión de Clase', card4d:'Herramientas, rutinas y sistemas para un gimnasio organizado y motivador. ¡Adiós al caos!', card4a:'Organizar <i data-lucide="arrow-right" class="w-4 h-4"></i>',
+            teaserTitle:'¡Descubre el generador de juegos!', teaserSub:'50 juegos al azar con reglas completas. Perfecto cuando te quedas sin ideas.',
+            teaserBtn:'<i data-lucide="sparkles" class="w-5 h-5"></i> Probar el generador',
+            mission:'Zone Total Sport es una plataforma creada por <strong class="text-dark">profes de EF de Quebec</strong>, para profes de EF. Cada juego, cada SAE y cada herramienta ha sido probado en el terreno. Nuestra misión: simplificar tu vida y hacer tus clases inolvidables.',
+            whyTitle:'Lo que hace a la Zone<br><span style="color:#FFD700">diferente.</span>',
+            why1:'Gratis. De verdad.', why1d:'Sin freemium, sin paywall. Todos los recursos son 100% accesibles sin crear una cuenta.',
+            why2:'De profes para profes', why2d:'Cada juego y SAE es creado y probado por profes de Quebec. Del terreno, no del escritorio.',
+            why3:'Listo en 2 minutos', why3d:'Encuentra un juego, lee las reglas, ¡vamos! Todos los recursos están diseñados para usarse al instante.',
+            slotTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> GENERADOR',
+            slotTitle:'¿Sin ideas?<br><span style="color:#FF2A7A">Te cubrimos.</span>',
+            slotSub:'¡Haz clic en GO y deja que la magia ocurra. Un juego al azar, perfecto para tu próxima clase!',
+            slotResult:'Tu juego del momento:', slotHow:'Cómo jugar',
+            testTag:'<i data-lucide="message-circle" class="w-4 h-4"></i> TESTIMONIOS',
+            testTitle:'Lo que ellos<br><span style="color:#8B5CF6">opinan.</span>',
+            test1role:'Profe de EF, Laval', test1:'"Uso Zone Total Sport cada semana para planificar mis clases. ¡El banco de juegos es una mina de oro! A mis alumnos les encantan los juegos nuevos."',
+            test2role:'Profe de EF, Quebec', test2:'"El generador de juegos es increíble cuando me falta inspiración. Un clic y tengo una actividad lista. ¡Gracias por este recurso!"',
+            test3role:'Profe en formación, Montreal', test3:'"¡Esencial para mis prácticas! Las SAE están alineadas con el currículo y son fáciles de adaptar. El sitio se ha convertido en mi referencia número uno."',
+            marqueeLabel:'Nuestros juegos populares',
+            donTitle:'¡Apoya la<br><span style="color:#FFD700">Zone!</span>',
+            donSub:'Zone Total Sport es 100% gratis y siempre lo será. Una pequeña donación nos ayuda a seguir creando contenido de calidad para profes de EF.',
+            donBtn1:'<i data-lucide="heart" class="w-5 h-5"></i> Donar',
+            donBtn2:'<i data-lucide="share-2" class="w-5 h-5"></i> Compartir el sitio',
+            footerDesc:'La plataforma gratuita de recursos de educación física para profes de primaria en Quebec.',
+            footerNav:'Navegación', footerInfos:'Info',
+            fAccueil:'Inicio', fJeux:'Banco de juegos', fSae:'SAE', fBlogue:'Blog', fContact:'Contacto', fAvis:'Dejar una reseña',
+            newsTitle:'Novedades', newsDesc:'Últimas actualizaciones del sitio', gateLogin:'¿Ya eres miembro? Iniciar sesión',
+            fAbout:'Acerca de', fPrivacy:'Política de privacidad', fDon:'Donar', fTerms:'Términos de uso',
+            copyright:'© 2026 Zone Total Sport. Todos los derechos reservados.', madeWith:'Hecho con 💛 en Quebec',
+            visitLabel:'Visitantes:',
+            subTitle:'¡90 clases interactivas para preescolar!', subDesc:'Una app web completa y gratuita, lista para el lunes. <strong style="color:#FFEA00">Cero preparación. Año entero cubierto.</strong>',
+            subPerk1:'Calentamiento, 2 actividades, vuelta a la calma',
+            subPerk2:'Motricidad, cooperación, juegos activos',
+            subPerk3:'Tiempos precisos, cero tiempos muertos',
+            subPerk4:'Abre la app, proyecta a la pizarra. Listo.',
+            subBtn:'🚀 ¡OBTENER MI ACCESO GRATIS!', subLater:'No gracias, después',
+            subPerkT1:'90 sesiones completas', subPerkT2:'Edades 4-6', subPerkT3:'Clases de 60 min', subPerkT4:'Cero prep',
+            subSocial:'¡+2 300 profes ya usan la app!',
+            iaTag:'<i data-lucide="sparkles" class="w-4 h-4"></i> NOVEDAD',
+            iaTitle:'¡El futuro de la EF<br><span style="color:#FF2A7A">está aquí!</span>',
+            iaSub:'La inteligencia artificial llega a la Zone. ¡Prepárate!',
+            iaBadge:'¡WUJÚ!',
+            iaCardTitle:'Generador de Juegos con IA',
+            iaCardDesc:'Describe tu contexto, grupo y objetivos — la IA crea un juego personalizado en segundos. ¡Es magia!',
+            iaCardBtn:'<i data-lucide="zap" class="w-5 h-5"></i> Descubrir el Generador IA',
+            iaPopupTitle:'GENERADOR DE JUEGOS IA',
+            iaPopupDesc:'¡El futuro de la planificación en EF!',
+            iaPerk1:'<strong>IA inteligente</strong> — Crea juegos adaptados a TU grupo, gimnasio y objetivos',
+            iaPerk2:'<strong>En 10 segundos</strong> — Un juego completo con reglas, variaciones y material necesario',
+            iaPerk3:'<strong>Alineado al currículo</strong> — Cada juego respeta las competencias del currículo de Quebec',
+            iaPerk4:'<strong>Ilimitado y gratis</strong> — ¡Genera todos los juegos que quieras, sin límites!',
+            iaPopupBtn:'<i data-lucide="sparkles" class="w-6 h-6"></i> ¡REGÍSTRATE GRATIS!',
+            iaPopupLater:'Lo veo después',
+            iaPopupTagline:'¡Nunca más te quedes sin ideas!',
+            iaStat1Num:'10 seg', iaStat1Label:'por juego',
+            iaStat2Num:'500+', iaStat2Label:'profes activos',
+            iaStat3Num:'100%', iaStat3Label:'gratis',
+            iaSocialProof:'¡<strong>Marie-Claude</strong> y <strong>otros 47 profes</strong> generaron un juego esta semana!',
+            iaGuarantee:'Sin tarjeta de crédito. Es realmente gratis.',
+            gateTitle:'¡Accede a TODO el contenido!',
+            gateDesc:'Regístrate gratis para desbloquear toda la Zone.',
+            gateFeat1:'<strong>+500 juegos</strong> con reglas y fichas detalladas',
+            gateFeat2:'<strong>Generador IA</strong> — crea juegos en 10 segundos',
+            gateFeat3:'<strong>SAE completas</strong> listas para usar mañana',
+            gateFeat4:'<strong>100% gratis</strong> — sin tarjeta, sin suscripción',
+            gateBtn:'<i data-lucide="user-plus" class="w-6 h-6"></i> REGISTRO GRATIS',
+            gateContinue:'<i data-lucide="arrow-right" class="w-5 h-5"></i> Continuar sin registrarse',
+            gateFooter:'Sin suscripción. Acceso gratis, sin compromiso.',
+            aluneTag:'<i data-lucide="rocket" class="w-4 h-4"></i> PRÓXIMAMENTE',
+            aluneTitle:'Lo que viene<br><span class="gradient-text">¡a la Zone!</span>',
+            aluneSub:'¡Funciones nuevas y emocionantes vienen pronto para tus clases de EF!',
+            aluneC1:'Generador IA v2', aluneD1:'Primavera 2026', aluneC1d:'¡Versión 2 del generador con aún más opciones y personalización!',
+            aluneC2:'App Móvil', aluneD2:'Verano 2026', aluneC2d:'¡Accede a todos los recursos directamente desde tu teléfono, incluso en el gimnasio!',
+            aluneC3:'Modo Colaborativo', aluneD3:'Otoño 2026', aluneC3d:'¡Comparte y co-crea juegos con otros profes de EF de Quebec!',
+            aluneC4:'Panel de Control', aluneD4:'Invierno 2027', aluneC4d:'¡Sigue tu progreso, juegos favoritos y estadísticas de clase de un vistazo!',
+            aluneCta:'¿Quieres acceso a todo esto y más?',
+            aluneBtn:'<i data-lucide="crown" class="w-5 h-5"></i> Hazte miembro gratis',
+            navAvisTemoins:'Reseñas y Testimonios',
+            heroBtn1Link:'<i data-lucide="zap" class="w-5 h-5"></i> Generar un juego',
+            todayTag:'✨ HOY',
+            todayTitle:'Tu clase de EF lista en 30 segundos',
+            pauseTag:'☕ PAUSA EF',
+            pauseTitle:'Tómate 30 segundos para ti',
+            pauseSub:'Una cita, una pregunta. Un nuevo reto cada día.',
+            news1Title:'¡Pizarra Digital Interactiva (PDI) — NUEVO!',
+            news1Desc:'PDI interactiva para el gimnasio: dibujo libre, fotos, videos, burbujas de texto, sitios web, goma, cuadrícula, deshacer, pantalla completa. ¡Optimizado para PDI!',
+            news2Title:'¡Grilla Horaria de Especialistas — NUEVO!',
+            news2Desc:'Planifica el horario de tus especialistas (EF, música, arte, inglés). Ciclo de 5-10 días, gestión de aulas, cálculo automático del % de carga. ¡Optimizado para PDI!',
+            news3Title:'¡Marcador — Baloncesto, Hockey, Fútbol!',
+            news3Desc:'Marcador completo para el gimnasio: cronómetro, faltas, posesión, reloj de tiro, tiempos muertos, sirenas NBA configurables. ¡3 deportes!',
+            news4Title:'¡Notificaciones Telegram en tiempo real!',
+            news4Desc:'Recibe una notificación por cada visita, registro o reseña directamente en Telegram.',
+            news5Title:'Reseñas conectadas a Firebase Firestore',
+            news5Desc:'Las reseñas ahora se guardan en una base de datos con moderación antes de publicación.',
+            news6Title:'App Gimnasio — gym.zonetotalsport.ca',
+            news6Desc:'Nueva app de gestión de gimnasio: transiciones, señales visuales, temporizadores y rutinas.',
+            news7Title:'Blog de EF con 23 artículos + imágenes',
+            news7Desc:'Artículos enriquecidos con fotos personalizadas, fondo de gimnasio y navegación mejorada.',
+            news8Title:'Migración completa a GitHub Pages',
+            news8Desc:'¡Adiós Wix! El sitio ahora es 100% independiente en GitHub Pages + Cloudflare + Firebase.',
+            news9Title:'150 juegos en el generador + PayPal',
+            news9Desc:'Generador con 150 juegos (FR/EN/ZH/ES), página de donación PayPal y sitio multilingüe.',
+            shareTag:'🔥 AYUDA A OTROS PROFES DE EF',
+            shareTitle:'¡Comparte la Zone<br>con un colega!',
+            shareSub:'1 share = 2-3 nuevos profes descubriendo la Zone. ¡Gracias por correr la voz a tu equipo!',
+            shareMsg:'<em>Mi descubrimiento para los profes de EF: <strong>zonetotalsport.ca</strong> — 1000+ juegos con fichas PDF, generador IA, pizarra digital, SAE alineadas al currículo. 100% gratis, sin tarjeta. ¡349 colegas ya lo usan! 🪓</em>',
+            shareBtnEmail:'Email',
+            shareBtnCopy:'Copiar',
+            shareToast:'✓ ¡Enlace copiado!',
+            gate2Badge:'🔥 100% GRATIS · SIN TARJETA',
+            gate2Google:'Continuar con Google',
+            gate2OrEmail:'— o por email ↓ —',
+            gate2Trust1:'✅ Sin tarjeta de crédito',
+            gate2Trust2:'🔒 Datos protegidos',
+            gate2Trust3:'⚡ Acceso instantáneo',
+            subOfferBadge:'🎁 REGALO GRATIS',
+            subPdfLabel:'90 CLASES<br>PREESCOLAR', subPdfBadge:'APP WEB GRATIS',
+            subGuarantee:'Registro gratuito. Sin tarjeta de crédito. 🎉',
+            profTitle:'MI PERFIL',
+            profClose:'CERRAR X',
+            profBio:'Profesor y Creador de Zone Total Sport',
+            profH1:'🚀 MI TRAYECTORIA',
+            profP1:'Profesor de educación física desde hace más de <strong>20 años</strong>, he recorrido los gimnasios de Quebec con una idea en mente: hacer que los niños se muevan con una sonrisa. He enseñado en todos los niveles, desde primaria hasta secundaria.',
+            profH2:'💡 ¿POR QUÉ ZONE TOTAL SPORT?',
+            profP2:'Fundé <strong>Zone Total Sport</strong> porque no encontraba herramientas que se ajustaran a nuestra realidad. Demasiada teoría, pocos visuales. Aquí lo mantenemos <strong>concreto</strong>: fichas claras y apps que realmente funcionan.',
+            profH3:'🎯 MI MISIÓN',
+            profP3:'Simplificar tu planificación para que puedas enfocarte en lo importante: <strong>tu conexión con tus alumnos</strong>. ¡Adiós a los Excel rotos! Mi objetivo es ahorrarte tiempo precioso.',
+            profH4:'🌟 EL EXTRA',
+            profP4:'"Estoy convencido de que un profe bien equipado es un profe feliz, ¡y un profe feliz cría niños que se mantienen activos para toda la vida!"',
+            joinTitle:'Únete a la <em>Zone</em>',
+            joinSub:'Gratis, para siempre. 30 segundos para desbloquear todo.',
+            joinPerk1:'<strong>90 clases listas</strong> para preescolar',
+            joinPerk2:'<strong>Nuevas herramientas</strong> en cuanto se lanzan',
+            joinPerk3:'<strong>Banco de juegos</strong> creciendo cada semana',
+            joinPerk4:'<strong>100% gratis</strong>, sin anuncios, sin tarjeta',
+            joinCta:'Hazte miembro — 30 seg',
+            joinFoot:'Sin spam. Cancelación con un clic.',
+            joinWelcome:'Bienvenido/a',
+            joinWelcomeSub:'Tienes acceso a todo. Aquí está tu herramienta más popular.',
+            joinWelcomeCta:'Abrir mis 90 clases de preescolar',
+            joinKeepLink:'Este es tu acceso personal a la app de 90 clases. Acabamos de enviártelo también por email — revisa tu bandeja (y spam si hace falta).',
+            joinResendCta:'Reenviar el enlace por email',
+            joinRecoverToggle:'¿Ya eres miembro? Olvidé mi enlace →',
+            joinRecoverDesc:'Escribe tu email — te reenviamos tu enlace de acceso.',
+            joinRecoverSubmit:'Enviarme el enlace',
+            cookieTitle:'\u{1F36A} Cookies',
+            cookieBody:'Usamos cookies para medir el tráfico y permitir el registro. Puedes aceptar o rechazar.',
+            cookieAccept:'Aceptar todo',
+            cookieDecline:'Rechazar',
+            cookiePrivacy:'Política de privacidad',
         }
     };
 
     function setLang(lang) {
         const t = i18n[lang]; if (!t) return;
         window.currentLang = lang;
+        try { localStorage.setItem('zts-lang', lang); } catch(e) {}
         i18nMap.forEach(([sel, key]) => {
             document.querySelectorAll(sel).forEach(el => { if (t[key]) el.innerHTML = t[key]; });
         });
@@ -5414,11 +5590,41 @@
         const btn = document.getElementById('lang-' + lang);
         if (btn) btn.classList.add('active');
         lucide.createIcons();
-        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang === 'en' ? 'en' : 'fr-CA';
+        const langAttr = { fr:'fr-CA', en:'en', zh:'zh-CN', es:'es' };
+        document.documentElement.lang = langAttr[lang] || 'fr-CA';
         // Re-render section "Aujourd'hui" + "Pause EPS" dans la nouvelle langue
         if (window.ztsDailyRerender) window.ztsDailyRerender();
+        // Mettre a jour og:locale
+        const og = document.querySelector('meta[property="og:locale"]');
+        if (og) {
+            const ogLocale = { fr:'fr_CA', en:'en_US', zh:'zh_CN', es:'es_ES' };
+            og.setAttribute('content', ogLocale[lang] || 'fr_CA');
+        }
     }
     window.setLang = setLang;
+
+    // ====== AUTO-DETECTION DE LANGUE (premier visit + URL param) ======
+    (function autoDetectLang() {
+        try {
+            // 1. Priorite au parametre ?lang= dans l'URL (lien direct depuis Google)
+            var urlLang = new URLSearchParams(window.location.search).get('lang');
+            if (urlLang && ['fr','en','zh','es'].includes(urlLang)) {
+                setLang(urlLang);
+                return;
+            }
+            // 2. Sinon, langue choisie precedemment (localStorage)
+            var stored = localStorage.getItem('zts-lang');
+            if (stored && ['fr','en','zh','es'].includes(stored)) {
+                if (stored !== 'fr') setLang(stored); // FR = defaut, pas besoin
+                return;
+            }
+            // 3. Sinon, premier visit -> detecter via navigator.language
+            var nav = (navigator.language || navigator.userLanguage || 'fr').slice(0, 2).toLowerCase();
+            var supported = ['fr', 'en', 'zh', 'es'];
+            var detected = supported.includes(nav) ? nav : 'fr';
+            if (detected !== 'fr') setLang(detected);
+        } catch(e) { /* fail silently, FR par defaut */ }
+    })();
     </script>
 
     <!-- Weather Widget -->
