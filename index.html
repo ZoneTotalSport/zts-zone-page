@@ -5632,52 +5632,79 @@
 
     function setLang(lang) {
         const t = i18n[lang]; if (!t) return;
-        window.currentLang = lang;
-        try { localStorage.setItem('zts-lang', lang); } catch(e) {}
-        i18nMap.forEach(([sel, key]) => {
-            document.querySelectorAll(sel).forEach(el => { if (t[key]) el.innerHTML = t[key]; });
-        });
-        // Update slot machine games
-        if (window.populateSlot) window.populateSlot();
-        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-        const btn = document.getElementById('lang-' + lang);
-        if (btn) btn.classList.add('active');
-        lucide.createIcons();
+        // ÉTATS CRITIQUES EN PREMIER (avant tout appel qui pourrait throw)
         const langAttr = { fr:'fr-CA', en:'en', zh:'zh-CN', es:'es' };
         document.documentElement.lang = langAttr[lang] || 'fr-CA';
+        window.currentLang = lang;
+        try { localStorage.setItem('zts-lang', lang); } catch(e) {}
+        // og:locale (avant les operations DOM qui peuvent failler)
+        try {
+            const og = document.querySelector('meta[property="og:locale"]');
+            if (og) {
+                const ogLocale = { fr:'fr_CA', en:'en_US', zh:'zh_CN', es:'es_ES' };
+                og.setAttribute('content', ogLocale[lang] || 'fr_CA');
+            }
+        } catch(e) {}
+        // Switcher actif (rapide, sans risque)
+        try {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById('lang-' + lang);
+            if (btn) btn.classList.add('active');
+        } catch(e) {}
+        // Dict translation
+        try {
+            i18nMap.forEach(([sel, key]) => {
+                document.querySelectorAll(sel).forEach(el => { if (t[key]) el.innerHTML = t[key]; });
+            });
+        } catch(e) {}
+        // Update slot machine games
+        try { if (window.populateSlot) window.populateSlot(); } catch(e) {}
+        // Lucide icons (peut failler si pas encore charge — defer)
+        try { if (window.lucide && lucide.createIcons) lucide.createIcons(); } catch(e) {}
         // Re-render section "Aujourd'hui" + "Pause EPS" dans la nouvelle langue
-        if (window.ztsDailyRerender) window.ztsDailyRerender();
-        // Mettre a jour og:locale
-        const og = document.querySelector('meta[property="og:locale"]');
-        if (og) {
-            const ogLocale = { fr:'fr_CA', en:'en_US', zh:'zh_CN', es:'es_ES' };
-            og.setAttribute('content', ogLocale[lang] || 'fr_CA');
-        }
+        try { if (window.ztsDailyRerender) window.ztsDailyRerender(); } catch(e) {}
     }
     window.setLang = setLang;
 
     // ====== AUTO-DETECTION DE LANGUE (premier visit + URL param) ======
-    (function autoDetectLang() {
+    function ztsAutoDetectLang() {
         try {
             // 1. Priorite au parametre ?lang= dans l'URL (lien direct depuis Google)
             var urlLang = new URLSearchParams(window.location.search).get('lang');
             if (urlLang && ['fr','en','zh','es'].includes(urlLang)) {
                 setLang(urlLang);
-                return;
+                return urlLang;
             }
             // 2. Sinon, langue choisie precedemment (localStorage)
             var stored = localStorage.getItem('zts-lang');
             if (stored && ['fr','en','zh','es'].includes(stored)) {
                 if (stored !== 'fr') setLang(stored); // FR = defaut, pas besoin
-                return;
+                return stored;
             }
             // 3. Sinon, premier visit -> detecter via navigator.language
             var nav = (navigator.language || navigator.userLanguage || 'fr').slice(0, 2).toLowerCase();
             var supported = ['fr', 'en', 'zh', 'es'];
             var detected = supported.includes(nav) ? nav : 'fr';
             if (detected !== 'fr') setLang(detected);
-        } catch(e) { /* fail silently, FR par defaut */ }
-    })();
+            return detected;
+        } catch(e) { return 'fr'; }
+    }
+    // Run immediately
+    var __ztsDetectedLang = ztsAutoDetectLang();
+    // Re-run AFTER load (to override anything that might have reset state)
+    // Use __ztsDetectedLang (not current state) to avoid re-running URL-detected after user clicked FR
+    window.addEventListener('load', function() {
+      // Re-applique la langue detectee initialement
+      // Si elle correspond au state actuel, c'est un no-op visible
+      if (__ztsDetectedLang && __ztsDetectedLang !== 'fr' && window.currentLang !== __ztsDetectedLang) {
+        setLang(__ztsDetectedLang);
+      }
+      // Forcer html.lang si pas correct
+      var expected = { fr:'fr-CA', en:'en', zh:'zh-CN', es:'es' }[window.currentLang || 'fr'];
+      if (expected && document.documentElement.lang !== expected) {
+        document.documentElement.lang = expected;
+      }
+    });
     </script>
 
     <!-- Weather Widget -->
