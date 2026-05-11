@@ -3116,7 +3116,7 @@
     <div id="popup-dice" class="comic-popup hidden">
         <button onclick="closeToolPopup('dice')" class="close-btn">X</button>
         <div class="flex flex-col items-center space-y-4 w-full">
-            <h2 class="text-3xl font-bangers text-center tracking-wide">DÉ / DICE</h2>
+            <h2 class="text-3xl font-bangers text-center tracking-wide" data-i18n="toolDice">DÉ</h2>
             <div class="dice-container w-[130px] h-[130px]">
                 <div id="dice" class="dice" onclick="rollDice()">
                     <div class="face bg-red-500 text-white">1</div>
@@ -3128,7 +3128,7 @@
                 </div>
             </div>
             <div id="dice-result" class="opacity-0 transition-opacity text-6xl font-bangers text-red-600 drop-shadow-[2px_2px_0px_black] h-16">--</div>
-            <p class="text-sm text-gray-400 font-baloo">Clique le cube!</p>
+            <p class="text-sm text-gray-400 font-baloo" data-i18n="toolDiceHelp">Clique le cube!</p>
         </div>
     </div>
 
@@ -3136,14 +3136,14 @@
     <div id="popup-wheel" class="comic-popup hidden">
         <button onclick="closeToolPopup('wheel')" class="close-btn">X</button>
         <div class="flex flex-col items-center w-full">
-            <h2 class="text-3xl font-bangers mb-4 tracking-wide">ROUE / WHEEL</h2>
+            <h2 class="text-3xl font-bangers mb-4 tracking-wide" data-i18n="toolWheel">ROUE</h2>
             <div class="relative w-[280px] h-[280px] mb-4">
                 <canvas id="wheelCanvas" width="280" height="280" class="w-full h-full"></canvas>
                 <div class="absolute top-0 left-1/2 -translate-x-1/2 -mt-2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[25px] border-t-black z-10"></div>
             </div>
-            <button onclick="spinWheel()" class="comic-btn bg-red-500 text-white font-bangers text-xl px-8 py-2 mb-4 hover:bg-red-400">TOURNER!</button>
+            <button onclick="spinWheel()" class="comic-btn bg-red-500 text-white font-bangers text-xl px-8 py-2 mb-4 hover:bg-red-400" data-i18n="toolSpin">TOURNER!</button>
             <div class="w-full max-w-sm">
-                <label class="font-bangers text-sm tracking-wide">NOMS / NAMES:</label>
+                <label class="font-bangers text-sm tracking-wide" data-i18n="toolNames">NOMS:</label>
                 <textarea id="wheel-names" class="comic-input h-20 text-sm" oninput="drawWheel()">Léa, Thomas, Sarah, Lucas</textarea>
             </div>
         </div>
@@ -3153,13 +3153,13 @@
     <div id="popup-stopwatch" class="comic-popup hidden">
         <button onclick="closeToolPopup('stopwatch')" class="close-btn">X</button>
         <div class="flex flex-col items-center w-full max-w-md">
-            <h2 class="text-3xl font-bangers mb-6 tracking-wide">CHRONO</h2>
+            <h2 class="text-3xl font-bangers mb-6 tracking-wide" data-i18n="toolChrono">CHRONO</h2>
             <div class="bg-white border-4 border-black p-6 shadow-[6px_6px_0px_black] rotate-1 mb-8 w-full rounded-xl">
                 <div id="stopwatch-display" class="font-bangers text-5xl tracking-widest text-center">00:00:00</div>
             </div>
             <div class="flex gap-4 w-full justify-center">
-                <button onclick="toggleStopwatch()" id="sw-btn" class="comic-btn bg-green-400 text-black font-bangers text-xl px-6 py-3 flex-1">START</button>
-                <button onclick="resetStopwatch()" class="comic-btn bg-red-400 text-black font-bangers text-xl px-6 py-3 flex-1">RESET</button>
+                <button onclick="toggleStopwatch()" id="sw-btn" class="comic-btn bg-green-400 text-black font-bangers text-xl px-6 py-3 flex-1" data-i18n="toolStart">START</button>
+                <button onclick="resetStopwatch()" class="comic-btn bg-red-400 text-black font-bangers text-xl px-6 py-3 flex-1" data-i18n="toolReset">RESET</button>
             </div>
         </div>
     </div>
@@ -3168,7 +3168,7 @@
     <div id="popup-timer" class="comic-popup hidden">
         <button onclick="closeToolPopup('timer')" class="close-btn">X</button>
         <div class="flex flex-col items-center w-full max-w-md">
-            <h2 class="text-3xl font-bangers mb-6 tracking-wide">MINUTEUR / TIMER</h2>
+            <h2 class="text-3xl font-bangers mb-6 tracking-wide" data-i18n="toolTimer">MINUTEUR</h2>
             <div class="relative flex items-center justify-center w-48 h-48 mb-6">
                 <div class="absolute inset-0 bg-red-500 rounded-full animate-pulse opacity-20"></div>
                 <div class="relative z-10 bg-white border-4 border-black rounded-full w-44 h-44 flex items-center justify-center shadow-[6px_6px_0px_black]">
@@ -3176,13 +3176,13 @@
                 </div>
             </div>
             <div class="flex gap-2 mb-6 items-end">
-                <div class="text-center"><label class="text-xs font-bold block">MIN</label><input type="number" id="timer-min" value="5" class="comic-input w-20 text-center text-2xl" min="0"></div>
+                <div class="text-center"><label class="text-xs font-bold block" data-i18n="toolMin">MIN</label><input type="number" id="timer-min" value="5" class="comic-input w-20 text-center text-2xl" min="0"></div>
                 <span class="font-bangers text-3xl pb-1">:</span>
-                <div class="text-center"><label class="text-xs font-bold block">SEC</label><input type="number" id="timer-sec" value="0" class="comic-input w-20 text-center text-2xl" min="0" max="59"></div>
+                <div class="text-center"><label class="text-xs font-bold block" data-i18n="toolSec">SEC</label><input type="number" id="timer-sec" value="0" class="comic-input w-20 text-center text-2xl" min="0" max="59"></div>
             </div>
             <div class="flex gap-4 w-full">
-                <button onclick="startTimer()" id="tm-btn" class="comic-btn bg-yellow-400 text-black font-bangers text-lg px-4 py-3 flex-1">GO!</button>
-                <button onclick="resetTimer()" class="comic-btn bg-gray-300 text-black font-bangers text-lg px-4 py-3 flex-1">STOP</button>
+                <button onclick="startTimer()" id="tm-btn" class="comic-btn bg-yellow-400 text-black font-bangers text-lg px-4 py-3 flex-1" data-i18n="toolGo">GO!</button>
+                <button onclick="resetTimer()" class="comic-btn bg-gray-300 text-black font-bangers text-lg px-4 py-3 flex-1" data-i18n="toolStopBtn">STOP</button>
             </div>
         </div>
     </div>
@@ -3195,9 +3195,9 @@
             <button onclick="closeToolPopup('period')" class="win-btn bg-red-500 text-white font-bangers text-lg">X</button>
         </div>
         <div class="flex flex-col items-center w-full max-w-lg">
-            <h2 class="text-2xl font-bangers mb-2 bg-black text-white w-full text-center py-2 -rotate-1 shadow-[4px_4px_0px_rgba(0,0,0,0.2)] rounded-lg tracking-wide">FIN DU COURS / END OF CLASS</h2>
+            <h2 class="text-2xl font-bangers mb-2 bg-black text-white w-full text-center py-2 -rotate-1 shadow-[4px_4px_0px_rgba(0,0,0,0.2)] rounded-lg tracking-wide" data-i18n="toolPeriod">FIN DU COURS</h2>
             <div class="w-full mt-4 p-4 bg-cyan-200 border-4 border-black shadow-[6px_6px_0px_black] flex flex-col items-center rounded-xl">
-                <label class="block font-bangers text-lg mb-1 hide-fs tracking-wide">HEURE DE FIN</label>
+                <label class="block font-bangers text-lg mb-1 hide-fs tracking-wide" data-i18n="toolEndTime">HEURE DE FIN</label>
                 <div class="flex gap-2 mb-3 w-full justify-center hide-fs flex-wrap">
                     <button onclick="addMinutesToPeriod(30)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers hover:bg-cyan-100 shadow-[2px_2px_0px_black] active:translate-y-1 transition-all">+30m</button>
                     <button onclick="addMinutesToPeriod(45)" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers hover:bg-cyan-100 shadow-[2px_2px_0px_black] active:translate-y-1 transition-all">+45m</button>
@@ -3206,14 +3206,14 @@
                 </div>
                 <input type="time" id="period-end" class="comic-input w-full text-center text-3xl mb-4 hide-fs cursor-pointer bg-white">
                 <div class="flex gap-3 w-full mb-4 hide-fs">
-                    <button onclick="startPeriodTimer()" id="period-btn" class="comic-btn bg-green-400 text-black font-bangers text-lg px-2 py-2 flex-1">DÉMARRER</button>
-                    <button onclick="stopPeriodTimer()" class="comic-btn bg-red-400 text-white font-bangers text-lg px-2 py-2 flex-1">ARRÊT</button>
+                    <button onclick="startPeriodTimer()" id="period-btn" class="comic-btn bg-green-400 text-black font-bangers text-lg px-2 py-2 flex-1" data-i18n="toolPeriodStart">DÉMARRER</button>
+                    <button onclick="stopPeriodTimer()" class="comic-btn bg-red-400 text-white font-bangers text-lg px-2 py-2 flex-1" data-i18n="toolPeriodStop">ARRÊT</button>
                 </div>
                 <div class="bg-black text-green-400 font-mono text-center p-4 border-2 border-white rounded transition-all duration-300 w-full">
                     <span id="period-countdown" class="text-5xl font-bold block">--:--:--</span>
                 </div>
             </div>
-            <p class="text-xs text-center mt-3 font-bold hide-fs text-gray-400">Le temps s'écoule même fermé!</p>
+            <p class="text-xs text-center mt-3 font-bold hide-fs text-gray-400" data-i18n="toolPeriodNote">Le temps s'écoule même fermé!</p>
         </div>
     </div>
 
@@ -3221,20 +3221,20 @@
     <div id="popup-teams" class="comic-popup hidden">
         <button onclick="closeToolPopup('teams')" class="close-btn">X</button>
         <div class="flex flex-col items-center w-full max-w-lg">
-            <h2 class="text-3xl font-bangers mb-4 tracking-wide">⚡ GÉNÉRATEUR D'ÉQUIPES</h2>
+            <h2 class="text-3xl font-bangers mb-4 tracking-wide" data-i18n="toolTeams">⚡ GÉNÉRATEUR D'ÉQUIPES</h2>
             <div class="w-full mb-4">
-                <label class="font-bangers text-sm tracking-wide">NOMS DES ÉLÈVES (1 par ligne):</label>
+                <label class="font-bangers text-sm tracking-wide" data-i18n="toolTeamsNames">NOMS DES ÉLÈVES (1 par ligne):</label>
                 <textarea id="team-names" class="comic-input h-32 text-sm w-full" placeholder="Léa&#10;Thomas&#10;Sarah&#10;Lucas&#10;Emma&#10;Noah"></textarea>
             </div>
             <div class="flex gap-3 mb-4 items-end w-full">
                 <div class="flex-1">
-                    <label class="font-bangers text-sm">NOMBRE D'ÉQUIPES:</label>
+                    <label class="font-bangers text-sm" data-i18n="toolTeamsCount">NOMBRE D'ÉQUIPES:</label>
                     <input type="number" id="team-count" value="2" min="2" max="12" class="comic-input w-full text-center text-2xl">
                 </div>
-                <button onclick="generateTeams()" class="comic-btn bg-green-400 text-black font-bangers text-xl px-6 py-3 flex-1" style="box-shadow:4px 4px 0px #18181b">GÉNÉRER!</button>
+                <button onclick="generateTeams()" class="comic-btn bg-green-400 text-black font-bangers text-xl px-6 py-3 flex-1" style="box-shadow:4px 4px 0px #18181b" data-i18n="toolGenerate">GÉNÉRER!</button>
             </div>
             <div class="flex gap-2 mb-4 w-full justify-center">
-                <button onclick="generateTeams()" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers hover:bg-green-100 shadow-[2px_2px_0px_black] text-sm">🔄 Mélanger</button>
+                <button onclick="generateTeams()" class="bg-white border-2 border-black rounded px-3 py-1 font-bangers hover:bg-green-100 shadow-[2px_2px_0px_black] text-sm" data-i18n="toolShuffle">🔄 Mélanger</button>
             </div>
             <div id="team-results" class="w-full space-y-3"></div>
         </div>
@@ -3247,7 +3247,7 @@
             <button onclick="closeToolPopup('postit')" class="win-btn bg-red-500 text-white font-bangers text-lg">X</button>
         </div>
         <div class="flex flex-col items-center w-full max-w-lg">
-            <h2 class="text-3xl font-bangers mb-4 tracking-wide">📌 MESSAGE DU JOUR</h2>
+            <h2 class="text-3xl font-bangers mb-4 tracking-wide" data-i18n="toolPostit">📌 MESSAGE DU JOUR</h2>
             <div class="w-full mb-4">
                 <textarea id="postit-text" class="w-full p-4 border-4 border-black rounded-xl font-baloo text-xl hide-fs" rows="4" placeholder="Écris ton message ici..." oninput="updatePostit()" style="background:#FFFBCC;box-shadow:6px 6px 0px rgba(0,0,0,0.15);resize:none;">Bienvenue au cours d'éducation physique! 🏃‍♂️</textarea>
             </div>
@@ -4885,6 +4885,19 @@
         ['[data-i18n="joinRecoverToggle"]', 'joinRecoverToggle'],
         ['[data-i18n="joinRecoverDesc"]', 'joinRecoverDesc'],
         ['[data-i18n="joinRecoverSubmit"]', 'joinRecoverSubmit'],
+        // Tool popups
+        ['[data-i18n="toolDice"]', 'toolDice'], ['[data-i18n="toolDiceHelp"]', 'toolDiceHelp'],
+        ['[data-i18n="toolWheel"]', 'toolWheel'], ['[data-i18n="toolSpin"]', 'toolSpin'], ['[data-i18n="toolNames"]', 'toolNames'],
+        ['[data-i18n="toolChrono"]', 'toolChrono'], ['[data-i18n="toolStart"]', 'toolStart'], ['[data-i18n="toolReset"]', 'toolReset'],
+        ['[data-i18n="toolTimer"]', 'toolTimer'], ['[data-i18n="toolMin"]', 'toolMin'], ['[data-i18n="toolSec"]', 'toolSec'],
+        ['[data-i18n="toolGo"]', 'toolGo'], ['[data-i18n="toolStopBtn"]', 'toolStopBtn'],
+        ['[data-i18n="toolPeriod"]', 'toolPeriod'], ['[data-i18n="toolEndTime"]', 'toolEndTime'],
+        ['[data-i18n="toolPeriodStart"]', 'toolPeriodStart'], ['[data-i18n="toolPeriodStop"]', 'toolPeriodStop'],
+        ['[data-i18n="toolPeriodNote"]', 'toolPeriodNote'],
+        ['[data-i18n="toolTeams"]', 'toolTeams'], ['[data-i18n="toolTeamsNames"]', 'toolTeamsNames'],
+        ['[data-i18n="toolTeamsCount"]', 'toolTeamsCount'], ['[data-i18n="toolGenerate"]', 'toolGenerate'],
+        ['[data-i18n="toolShuffle"]', 'toolShuffle'],
+        ['[data-i18n="toolPostit"]', 'toolPostit'],
     ];
 
     const i18n = {
@@ -5061,6 +5074,16 @@
             cookieAccept:'Tout accepter',
             cookieDecline:'Refuser',
             cookiePrivacy:'Politique de confidentialit\u00e9',
+            toolDice:'D\u00c9', toolDiceHelp:'Clique le cube!',
+            toolWheel:'ROUE', toolSpin:'TOURNER!', toolNames:'NOMS:',
+            toolChrono:'CHRONO', toolStart:'START', toolReset:'RESET',
+            toolTimer:'MINUTEUR', toolMin:'MIN', toolSec:'SEC', toolGo:'GO!', toolStopBtn:'STOP',
+            toolPeriod:'FIN DU COURS', toolEndTime:'HEURE DE FIN',
+            toolPeriodStart:'D\u00c9MARRER', toolPeriodStop:'ARR\u00caT',
+            toolPeriodNote:'Le temps s\'\u00e9coule m\u00eame ferm\u00e9!',
+            toolTeams:'\u26a1 G\u00c9N\u00c9RATEUR D\'\u00c9QUIPES', toolTeamsNames:'NOMS DES \u00c9L\u00c8VES (1 par ligne):',
+            toolTeamsCount:'NOMBRE D\'\u00c9QUIPES:', toolGenerate:'G\u00c9N\u00c9RER!', toolShuffle:'\ud83d\udd04 M\u00e9langer',
+            toolPostit:'\ud83d\udccc MESSAGE DU JOUR',
         },
         en: {
             navJeux:'Games', navRes:'Resources', navGen:'Generator', navAvis:'Reviews',
@@ -5235,6 +5258,16 @@
             cookieAccept:'Accept all',
             cookieDecline:'Decline',
             cookiePrivacy:'Privacy policy',
+            toolDice:'DICE', toolDiceHelp:'Click the cube!',
+            toolWheel:'WHEEL', toolSpin:'SPIN!', toolNames:'NAMES:',
+            toolChrono:'STOPWATCH', toolStart:'START', toolReset:'RESET',
+            toolTimer:'TIMER', toolMin:'MIN', toolSec:'SEC', toolGo:'GO!', toolStopBtn:'STOP',
+            toolPeriod:'END OF CLASS', toolEndTime:'END TIME',
+            toolPeriodStart:'START', toolPeriodStop:'STOP',
+            toolPeriodNote:'Time keeps running even when closed!',
+            toolTeams:'⚡ TEAM GENERATOR', toolTeamsNames:'STUDENT NAMES (1 per line):',
+            toolTeamsCount:'NUMBER OF TEAMS:', toolGenerate:'GENERATE!', toolShuffle:'🔄 Shuffle',
+            toolPostit:'📌 MESSAGE OF THE DAY',
         },
         zh: {
             navJeux:'游戏', navRes:'资源', navGen:'生成器', navAvis:'评价',
@@ -5409,6 +5442,16 @@
             cookieAccept:'全部接受',
             cookieDecline:'拒绝',
             cookiePrivacy:'隐私政策',
+            toolDice:'骰子', toolDiceHelp:'点击立方体!',
+            toolWheel:'转盘', toolSpin:'旋转!', toolNames:'姓名:',
+            toolChrono:'秒表', toolStart:'开始', toolReset:'重置',
+            toolTimer:'计时器', toolMin:'分', toolSec:'秒', toolGo:'开始!', toolStopBtn:'停止',
+            toolPeriod:'课程结束', toolEndTime:'结束时间',
+            toolPeriodStart:'启动', toolPeriodStop:'停止',
+            toolPeriodNote:'即使关闭时间也在流逝!',
+            toolTeams:'⚡ 团队生成器', toolTeamsNames:'学生姓名 (每行1个):',
+            toolTeamsCount:'团队数量:', toolGenerate:'生成!', toolShuffle:'🔄 洗牌',
+            toolPostit:'📌 今日消息',
         },
         es: {
             navJeux:'Juegos', navRes:'Recursos', navGen:'Generador', navAvis:'Reseñas',
@@ -5574,6 +5617,16 @@
             cookieAccept:'Aceptar todo',
             cookieDecline:'Rechazar',
             cookiePrivacy:'Política de privacidad',
+            toolDice:'DADO', toolDiceHelp:'¡Haz clic en el cubo!',
+            toolWheel:'RULETA', toolSpin:'¡GIRAR!', toolNames:'NOMBRES:',
+            toolChrono:'CRONÓMETRO', toolStart:'INICIAR', toolReset:'REINICIAR',
+            toolTimer:'TEMPORIZADOR', toolMin:'MIN', toolSec:'SEG', toolGo:'¡VAMOS!', toolStopBtn:'PARAR',
+            toolPeriod:'FIN DE CLASE', toolEndTime:'HORA DE FIN',
+            toolPeriodStart:'INICIAR', toolPeriodStop:'PARAR',
+            toolPeriodNote:'¡El tiempo corre aun cerrado!',
+            toolTeams:'⚡ GENERADOR DE EQUIPOS', toolTeamsNames:'NOMBRES DE ALUMNOS (1 por línea):',
+            toolTeamsCount:'NÚMERO DE EQUIPOS:', toolGenerate:'¡GENERAR!', toolShuffle:'🔄 Mezclar',
+            toolPostit:'📌 MENSAJE DEL DÍA',
         }
     };
 
