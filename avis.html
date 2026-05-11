@@ -11,6 +11,13 @@
     <!-- Canonical -->
     <link rel="canonical" href="https://zonetotalsport.ca/avis.html">
 
+    <!-- Hreflang multilingue -->
+    <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/avis.html">
+    <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/avis.html?lang=en">
+    <link rel="alternate" hreflang="zh" href="https://zonetotalsport.ca/avis.html?lang=zh">
+    <link rel="alternate" hreflang="es" href="https://zonetotalsport.ca/avis.html?lang=es">
+    <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/avis.html">
+
     <!-- Open Graph -->
     <meta property="og:title" content="Zone Total Sport — Avis des enseignants">
     <meta property="og:description" content="Donne ton avis sur Zone Total Sport! Les enseignants d'ÉPS partagent leur expérience.">
@@ -306,6 +313,8 @@
         }
     </style>
 <script src="analytics.js"></script>
+<script src="zts-lang.js" defer></script>
+<script src="cookie-consent.js" defer></script>
 </head>
 <body>
 
@@ -313,26 +322,27 @@
   <nav class="backdrop-blur sticky top-0 z-50 px-4 py-3" style="background:rgba(15,15,46,.95);">
     <div class="max-w-6xl mx-auto flex items-center justify-center gap-2 flex-wrap">
       <a href="https://zonetotalsport.ca/" style="padding:8px 16px;border-radius:9999px;font-size:.85rem;white-space:nowrap;transition:all .2s;font-family:'Fredoka One',cursive;color:#fff;display:flex;align-items:center;gap:6px;">
-        <i data-lucide="home" class="w-4 h-4"></i> Accueil
+        <i data-lucide="home" class="w-4 h-4"></i> <span data-i18n="navHome">Accueil</span>
       </a>
       <a href="https://zonetotalsport.ca/#outils" style="padding:8px 16px;border-radius:9999px;font-size:.85rem;white-space:nowrap;transition:all .2s;font-family:'Fredoka One',cursive;color:#fff;display:flex;align-items:center;gap:6px;">
-        <i data-lucide="wrench" class="w-4 h-4"></i> Outils
+        <i data-lucide="wrench" class="w-4 h-4"></i> <span data-i18n="navTools">Outils</span>
       </a>
       <a href="https://zonetotalsport.ca/#sae" style="padding:8px 16px;border-radius:9999px;font-size:.85rem;white-space:nowrap;transition:all .2s;font-family:'Fredoka One',cursive;color:#fff;display:flex;align-items:center;gap:6px;">
-        <i data-lucide="clipboard-list" class="w-4 h-4"></i> S.A.E
+        <i data-lucide="clipboard-list" class="w-4 h-4"></i> <span data-i18n="navSae">S.A.E</span>
       </a>
       <a href="https://zonetotalsport.ca/#jeux" style="padding:8px 16px;border-radius:9999px;font-size:.85rem;white-space:nowrap;transition:all .2s;font-family:'Fredoka One',cursive;color:#fff;display:flex;align-items:center;gap:6px;">
-        <i data-lucide="gamepad-2" class="w-4 h-4"></i> Jeux
+        <i data-lucide="gamepad-2" class="w-4 h-4"></i> <span data-i18n="navGames">Jeux</span>
       </a>
       <a href="blog.html" style="padding:8px 16px;border-radius:9999px;font-size:.85rem;white-space:nowrap;transition:all .2s;font-family:'Fredoka One',cursive;color:#fff;display:flex;align-items:center;gap:6px;">
-        <i data-lucide="pen-line" class="w-4 h-4"></i> Blog
+        <i data-lucide="pen-line" class="w-4 h-4"></i> <span data-i18n="navBlog">Blog</span>
       </a>
       <a href="avis.html" style="padding:8px 16px;border-radius:9999px;font-size:.85rem;white-space:nowrap;transition:all .2s;font-family:'Fredoka One',cursive;color:#0F0F2E;background:#00E5FF;display:flex;align-items:center;gap:6px;">
-        <i data-lucide="star" class="w-4 h-4"></i> Avis
+        <i data-lucide="star" class="w-4 h-4"></i> <span data-i18n="navReviews">Avis</span>
       </a>
       <a href="wix/donation.html" style="padding:8px 16px;border-radius:9999px;font-size:.85rem;white-space:nowrap;transition:all .2s;font-family:'Fredoka One',cursive;color:#FF2A7A;background:rgba(255,42,122,.15);display:flex;align-items:center;gap:6px;">
-        <i data-lucide="heart" class="w-4 h-4"></i> Dons
+        <i data-lucide="heart" class="w-4 h-4"></i> <span data-i18n="navDonate">Dons</span>
       </a>
+      <div id="zts-lang-switcher" style="margin-left:8px;"></div>
     </div>
   </nav>
 
@@ -348,16 +358,16 @@
             <a href="https://zonetotalsport.ca/">
                 <img src="https://zonetotalsport.ca/logo-zts.png" alt="Zone Total Sport" class="h-20 w-auto mx-auto mb-6" style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));">
             </a>
-            <h1 class="font-bangers text-5xl md:text-7xl tracking-wide mb-4" style="text-shadow: 4px 4px 0 rgba(0,0,0,0.1); color:#0F0F2E;">
+            <h1 class="font-bangers text-5xl md:text-7xl tracking-wide mb-4" style="text-shadow: 4px 4px 0 rgba(0,0,0,0.1); color:#0F0F2E;" data-i18n="heroTitle">
                 Les profs <span style="color:#FF2A7A">parlent!</span>
             </h1>
-            <p class="font-baloo text-dark/60 text-xl max-w-lg mx-auto mb-8">
+            <p class="font-baloo text-dark/60 text-xl max-w-lg mx-auto mb-8" data-i18n="heroSub">
                 D&#233;couvre ce que les enseignants d'&#201;PS pensent de Zone Total Sport.
             </p>
             <div class="flex flex-wrap justify-center gap-3">
-                <div class="stat-pill">&#11088; <span id="avgRatingHero">4.9</span>/5 en moyenne</div>
-                <div class="stat-pill">&#128172; <span id="totalReviewsHero">47</span> avis</div>
-                <div class="stat-pill">&#128154; 100% recommand&#233;</div>
+                <div class="stat-pill">&#11088; <span id="avgRatingHero">4.9</span><span data-i18n="avgSuffix">/5 en moyenne</span></div>
+                <div class="stat-pill">&#128172; <span id="totalReviewsHero">47</span> <span data-i18n="reviewsWord">avis</span></div>
+                <div class="stat-pill" data-i18n="recommend">&#128154; 100% recommandé</div>
             </div>
         </div>
     </section>
@@ -370,7 +380,7 @@
                 <div class="avg-score-ring" style="--score:4.9">
                     <span class="avg-score-value">4.9</span>
                 </div>
-                <p class="font-bangers text-sm text-dark/40 mt-3 tracking-widest">NOTE MOYENNE</p>
+                <p class="font-bangers text-sm text-dark/40 mt-3 tracking-widest" data-i18n="avgScoreLabel">NOTE MOYENNE</p>
             </div>
             <!-- Star Breakdown -->
             <div class="gsap-stat space-y-2">
@@ -404,11 +414,11 @@
             <div class="flex flex-col items-center gap-4 gsap-stat">
                 <div class="text-center">
                     <div class="font-bangers text-4xl" style="color:#00E5FF;">47</div>
-                    <div class="font-baloo text-xs text-dark/40">avis v&#233;rifi&#233;s</div>
+                    <div class="font-baloo text-xs text-dark/40" data-i18n="verifiedReviews">avis vérifiés</div>
                 </div>
                 <div class="text-center">
                     <div class="font-bangers text-4xl" style="color:#FF2A7A;">100%</div>
-                    <div class="font-baloo text-xs text-dark/40">recommandent</div>
+                    <div class="font-baloo text-xs text-dark/40" data-i18n="recommendVerb">recommandent</div>
                 </div>
             </div>
         </div>
@@ -417,7 +427,7 @@
     <!-- ========== REVIEWS GRID ========== -->
     <section class="py-10 px-4 relative z-10">
         <div class="max-w-5xl mx-auto">
-            <h2 class="font-bangers text-2xl text-center text-dark/40 tracking-widest mb-8">CE QUE LES PROFS EN PENSENT</h2>
+            <h2 class="font-bangers text-2xl text-center text-dark/40 tracking-widest mb-8" data-i18n="whatTeachersThink">CE QUE LES PROFS EN PENSENT</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="reviewsList">
                 <!-- Review 1 -->
                 <div class="review-card gsap-review" style="transform: rotate(-0.8deg);">
@@ -524,11 +534,11 @@
         <div class="max-w-3xl mx-auto text-center gsap-cta">
             <div class="cta-banner" style="padding: 40px 24px;">
                 <div style="font-size:3rem; margin-bottom:12px;">&#128588;</div>
-                <h3 class="font-bangers text-2xl text-dark tracking-wide mb-2">Toi aussi, partage ton exp&#233;rience!</h3>
-                <p class="font-baloo text-dark/50 text-sm mb-6">Ton avis aide d'autres enseignants &#224; d&#233;couvrir la Zone.</p>
+                <h3 class="font-bangers text-2xl text-dark tracking-wide mb-2" data-i18n="ctaTitle">Toi aussi, partage ton expérience!</h3>
+                <p class="font-baloo text-dark/50 text-sm mb-6" data-i18n="ctaSub">Ton avis aide d'autres enseignants à découvrir la Zone.</p>
                 <a href="#formSection" class="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bangers text-lg tracking-wide" style="background: linear-gradient(135deg, #00E5FF, #00B8D4); color:#fff; border:3px solid #18181b; box-shadow: 5px 5px 0 #18181b; transition: all 0.2s;" onmouseover="this.style.transform='translate(-2px,-2px)'; this.style.boxShadow='7px 7px 0 #18181b'" onmouseout="this.style.transform='none'; this.style.boxShadow='5px 5px 0 #18181b'">
                     <i data-lucide="pen-line" class="w-5 h-5"></i>
-                    Laisser mon avis
+                    <span data-i18n="leaveReview">Laisser mon avis</span>
                 </a>
             </div>
         </div>
@@ -539,15 +549,15 @@
         <div class="max-w-lg mx-auto relative" style="padding-top: 20px;">
             <div class="form-card gsap-form">
                 <!-- Sticker -->
-                <div style="position:absolute; top:-16px; right:-10px; background:#FF2A7A; color:#fff; font-family:'Luckiest Guy',cursive; font-size:0.7rem; letter-spacing:0.1em; padding:6px 16px; border-radius:20px; border:3px solid #18181b; box-shadow:3px 3px 0 #18181b; transform:rotate(8deg); z-index:5;">
+                <div style="position:absolute; top:-16px; right:-10px; background:#FF2A7A; color:#fff; font-family:'Luckiest Guy',cursive; font-size:0.7rem; letter-spacing:0.1em; padding:6px 16px; border-radius:20px; border:3px solid #18181b; box-shadow:3px 3px 0 #18181b; transform:rotate(8deg); z-index:5;" data-i18n="yourTurn">
                     &#10024; TON TOUR!
                 </div>
 
-                <h2 class="font-bangers text-3xl text-center text-dark tracking-wide mb-8">&#128221; Laisse ton t&#233;moignage</h2>
+                <h2 class="font-bangers text-3xl text-center text-dark tracking-wide mb-8" data-i18n="formTitle">&#128221; Laisse ton témoignage</h2>
 
                 <!-- Stars -->
                 <div class="text-center mb-6">
-                    <p class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-3">Ta note</p>
+                    <p class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-3" data-i18n="formRating">Ta note</p>
                     <div class="flex justify-center gap-2" id="starRating">
                         <button class="star-btn" data-star="1" onclick="setRating(1)">&#9733;</button>
                         <button class="star-btn" data-star="2" onclick="setRating(2)">&#9733;</button>
@@ -559,41 +569,41 @@
 
                 <!-- Name -->
                 <div class="mb-5">
-                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block">Ton pr&#233;nom</label>
-                    <input type="text" id="reviewName" class="form-input" placeholder="Ex: Marie-Claude">
+                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block" data-i18n="formName">Ton prénom</label>
+                    <input type="text" id="reviewName" class="form-input" placeholder="Ex: Marie-Claude" data-i18n-attr="placeholder:formNamePh">
                 </div>
 
                 <!-- Role -->
                 <div class="mb-5">
-                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block">Tu es...</label>
+                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block" data-i18n="formRole">Tu es...</label>
                     <div class="flex flex-wrap gap-2" id="roleChips">
-                        <button class="role-chip" onclick="selectRole(this, 'Enseignant(e) &#201;PS')">&#127939; Enseignant(e) &#201;PS</button>
-                        <button class="role-chip" onclick="selectRole(this, '&#201;tudiant(e)')">&#127891; &#201;tudiant(e)</button>
-                        <button class="role-chip" onclick="selectRole(this, 'Suppl&#233;ant(e)')">&#128188; Suppl&#233;ant(e)</button>
-                        <button class="role-chip" onclick="selectRole(this, 'Autre')">&#128075; Autre</button>
+                        <button class="role-chip" onclick="selectRole(this, 'Enseignant(e) &#201;PS')" data-i18n="rolePE">&#127939; Enseignant(e) ÉPS</button>
+                        <button class="role-chip" onclick="selectRole(this, '&#201;tudiant(e)')" data-i18n="roleStudent">&#127891; Étudiant(e)</button>
+                        <button class="role-chip" onclick="selectRole(this, 'Suppl&#233;ant(e)')" data-i18n="roleSub">&#128188; Suppléant(e)</button>
+                        <button class="role-chip" onclick="selectRole(this, 'Autre')" data-i18n="roleOther">&#128075; Autre</button>
                     </div>
                 </div>
 
                 <!-- City -->
                 <div class="mb-5">
-                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block">Ta ville</label>
-                    <input type="text" id="reviewCity" class="form-input" placeholder="Ex: Montr&#233;al">
+                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block" data-i18n="formCity">Ta ville</label>
+                    <input type="text" id="reviewCity" class="form-input" placeholder="Ex: Montréal" data-i18n-attr="placeholder:formCityPh">
                 </div>
 
                 <!-- Message -->
                 <div class="mb-7">
-                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block">Ton avis</label>
-                    <textarea id="reviewMessage" class="form-input" rows="4" placeholder="Dis-nous ce que tu aimes de Zone Total Sport! &#128522;"></textarea>
+                    <label class="font-bangers text-xs text-dark/40 uppercase tracking-widest mb-2 block" data-i18n="formReview">Ton avis</label>
+                    <textarea id="reviewMessage" class="form-input" rows="4" placeholder="Dis-nous ce que tu aimes de Zone Total Sport! &#128522;" data-i18n-attr="placeholder:formReviewPh"></textarea>
                 </div>
 
                 <!-- Submit -->
                 <button class="submit-btn" id="submitBtn" onclick="submitReview()">
                     <i data-lucide="send" class="w-5 h-5"></i>
-                    Envoyer mon avis
+                    <span data-i18n="formSubmit">Envoyer mon avis</span>
                 </button>
 
-                <p class="text-center text-dark/30 font-baloo text-xs mt-4">
-                    Ton avis sera visible apr&#232;s mod&#233;ration &#128522;
+                <p class="text-center text-dark/30 font-baloo text-xs mt-4" data-i18n="formModeration">
+                    Ton avis sera visible après modération &#128522;
                 </p>
             </div>
         </div>
@@ -605,12 +615,12 @@
             <a href="https://zonetotalsport.ca/">
                 <img src="logo-zts.png" alt="Zone Total Sport" class="h-14 w-auto mx-auto mb-4">
             </a>
-            <p class="font-baloo text-dark/60 text-sm max-w-md mx-auto mb-6">zonetotalsport.ca &mdash; Ressources pour enseignants EPS</p>
+            <p class="font-baloo text-dark/60 text-sm max-w-md mx-auto mb-6" data-i18n="footerDesc">zonetotalsport.ca &mdash; Ressources pour enseignants EPS</p>
             <div class="flex flex-wrap justify-center gap-6 mb-6">
-                <a href="https://zonetotalsport.ca/" class="font-fredoka text-dark/70 text-sm hover:text-dark transition-colors">Accueil</a>
-                <a href="blog.html" class="font-fredoka text-dark/70 text-sm hover:text-dark transition-colors">Blog</a>
-                <a href="avis.html" class="font-fredoka text-dark/70 text-sm hover:text-dark transition-colors">Avis</a>
-                <a href="wix/donation.html" class="font-fredoka text-dark/70 text-sm hover:text-dark transition-colors">Dons</a>
+                <a href="https://zonetotalsport.ca/" class="font-fredoka text-dark/70 text-sm hover:text-dark transition-colors" data-i18n="navHome">Accueil</a>
+                <a href="blog.html" class="font-fredoka text-dark/70 text-sm hover:text-dark transition-colors" data-i18n="navBlog">Blog</a>
+                <a href="avis.html" class="font-fredoka text-dark/70 text-sm hover:text-dark transition-colors" data-i18n="navReviews">Avis</a>
+                <a href="wix/donation.html" class="font-fredoka text-dark/70 text-sm hover:text-dark transition-colors" data-i18n="navDonate">Dons</a>
             </div>
             <div class="flex justify-center gap-3 mb-6">
                 <a href="https://www.facebook.com/zonetotalsportparMr.Roots/" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
@@ -628,11 +638,11 @@
             </div>
             <div class="mb-4">
                 <a href="politique.html" class="font-baloo text-dark/40 text-xs hover:text-dark/60 transition-colors">
-                    <i data-lucide="shield" class="w-3 h-3 inline-block mr-1" style="vertical-align: -2px;"></i>Politique de confidentialit&eacute;
+                    <i data-lucide="shield" class="w-3 h-3 inline-block mr-1" style="vertical-align: -2px;"></i><span data-i18n="privacy">Politique de confidentialité</span>
                 </a>
             </div>
-            <p class="font-baloo text-dark/40 text-xs">
-                &copy; 2026 Zone Total Sport &middot; Fait avec &#10084;&#65039; au Qu&eacute;bec
+            <p class="font-baloo text-dark/40 text-xs" data-i18n="copyright">
+                &copy; 2026 Zone Total Sport &middot; Fait avec &#10084;&#65039; au Québec
             </p>
         </div>
     </footer>
@@ -641,16 +651,113 @@
     <div class="thank-you-overlay" id="thankYouOverlay">
         <div style="background:#FFD700; border:6px solid #18181b; border-radius:28px; box-shadow:14px 14px 0 #18181b; max-width:500px; width:100%; padding:48px 32px; text-align:center; transform:rotate(-1deg);">
             <div style="font-size:4rem; margin-bottom:16px;">&#127881;</div>
-            <h2 class="font-bangers text-3xl text-dark tracking-wide mb-3">MERCI!</h2>
-            <p class="font-baloo text-dark/70 text-lg mb-2">Ton avis a &#233;t&#233; envoy&#233; avec succ&#232;s!</p>
-            <p class="font-baloo text-dark/50 text-sm mb-6">Il sera visible apr&#232;s mod&#233;ration. Merci de soutenir la Zone!</p>
-            <a href="https://zonetotalsport.ca/" style="display:inline-block; background:#0F0F2E; color:#fff; font-family:'Luckiest Guy',cursive; font-size:1rem; padding:14px 32px; border-radius:14px; border:3px solid #0F0F2E; letter-spacing:0.03em;">
-                &#128588; Retour &#224; la Zone
+            <h2 class="font-bangers text-3xl text-dark tracking-wide mb-3" data-i18n="thankTitle">MERCI!</h2>
+            <p class="font-baloo text-dark/70 text-lg mb-2" data-i18n="thankBody">Ton avis a été envoyé avec succès!</p>
+            <p class="font-baloo text-dark/50 text-sm mb-6" data-i18n="thankSub">Il sera visible après modération. Merci de soutenir la Zone!</p>
+            <a href="https://zonetotalsport.ca/" style="display:inline-block; background:#0F0F2E; color:#fff; font-family:'Luckiest Guy',cursive; font-size:1rem; padding:14px 32px; border-radius:14px; border:3px solid #0F0F2E; letter-spacing:0.03em;" data-i18n="thankBack">
+                &#128588; Retour à la Zone
             </a>
         </div>
     </div>
 
     <!-- ========== FIREBASE ========== -->
+    <!-- Dict de traductions avis.html (4 langues) -->
+    <script>
+    window.ztsPageDict = {
+      fr: {
+        navHome:'Accueil', navTools:'Outils', navSae:'S.A.E', navGames:'Jeux', navBlog:'Blog', navReviews:'Avis', navDonate:'Dons',
+        heroTitle:'Les profs <span style="color:#FF2A7A">parlent!</span>',
+        heroSub:"Découvre ce que les enseignants d'ÉPS pensent de Zone Total Sport.",
+        avgSuffix:'/5 en moyenne', reviewsWord:'avis', recommend:'💚 100% recommandé',
+        avgScoreLabel:'NOTE MOYENNE', verifiedReviews:'avis vérifiés', recommendVerb:'recommandent',
+        whatTeachersThink:'CE QUE LES PROFS EN PENSENT',
+        ctaTitle:'Toi aussi, partage ton expérience!', ctaSub:"Ton avis aide d'autres enseignants à découvrir la Zone.",
+        leaveReview:'Laisser mon avis',
+        yourTurn:'✨ TON TOUR!', formTitle:'📝 Laisse ton témoignage',
+        formRating:'Ta note',
+        formName:'Ton prénom', formNamePh:'Ex: Marie-Claude',
+        formRole:'Tu es...', rolePE:'🏃 Enseignant(e) ÉPS', roleStudent:'🎓 Étudiant(e)', roleSub:'💼 Suppléant(e)', roleOther:'👋 Autre',
+        formCity:'Ta ville', formCityPh:'Ex: Montréal',
+        formReview:'Ton avis', formReviewPh:'Dis-nous ce que tu aimes de Zone Total Sport! 😊',
+        formSubmit:'Envoyer mon avis', formModeration:'Ton avis sera visible après modération 😊',
+        footerDesc:'zonetotalsport.ca — Ressources pour enseignants EPS',
+        privacy:'Politique de confidentialité',
+        copyright:'© 2026 Zone Total Sport · Fait avec ❤️ au Québec',
+        thankTitle:'MERCI!', thankBody:'Ton avis a été envoyé avec succès!',
+        thankSub:'Il sera visible après modération. Merci de soutenir la Zone!',
+        thankBack:'🙌 Retour à la Zone'
+      },
+      en: {
+        navHome:'Home', navTools:'Tools', navSae:'Units', navGames:'Games', navBlog:'Blog', navReviews:'Reviews', navDonate:'Donate',
+        heroTitle:'Teachers <span style="color:#FF2A7A">speak up!</span>',
+        heroSub:'See what PE teachers think about Zone Total Sport.',
+        avgSuffix:'/5 average', reviewsWord:'reviews', recommend:'💚 100% recommend',
+        avgScoreLabel:'AVERAGE SCORE', verifiedReviews:'verified reviews', recommendVerb:'recommend',
+        whatTeachersThink:'WHAT TEACHERS THINK',
+        ctaTitle:'Share your experience too!', ctaSub:'Your review helps other teachers discover the Zone.',
+        leaveReview:'Leave my review',
+        yourTurn:'✨ YOUR TURN!', formTitle:'📝 Leave your testimonial',
+        formRating:'Your rating',
+        formName:'Your first name', formNamePh:'e.g. Marie-Claude',
+        formRole:'You are...', rolePE:'🏃 PE Teacher', roleStudent:'🎓 Student', roleSub:'💼 Substitute', roleOther:'👋 Other',
+        formCity:'Your city', formCityPh:'e.g. Montreal',
+        formReview:'Your review', formReviewPh:'Tell us what you love about Zone Total Sport! 😊',
+        formSubmit:'Send my review', formModeration:'Your review will appear after moderation 😊',
+        footerDesc:'zonetotalsport.ca — Resources for PE teachers',
+        privacy:'Privacy policy',
+        copyright:'© 2026 Zone Total Sport · Made with ❤️ in Quebec',
+        thankTitle:'THANK YOU!', thankBody:'Your review was sent successfully!',
+        thankSub:'It will appear after moderation. Thanks for supporting the Zone!',
+        thankBack:'🙌 Back to the Zone'
+      },
+      zh: {
+        navHome:'首页', navTools:'工具', navSae:'学习情境', navGames:'游戏', navBlog:'博客', navReviews:'评价', navDonate:'捐赠',
+        heroTitle:'老师们<span style="color:#FF2A7A">开口了！</span>',
+        heroSub:'看看体育老师们对 Zone Total Sport 的评价。',
+        avgSuffix:'/5 平均分', reviewsWord:'评价', recommend:'💚 100% 推荐',
+        avgScoreLabel:'平均分', verifiedReviews:'已验证评价', recommendVerb:'推荐',
+        whatTeachersThink:'老师们的想法',
+        ctaTitle:'快来分享你的经验！', ctaSub:'你的评价能帮助其他老师发现 Zone。',
+        leaveReview:'留下我的评价',
+        yourTurn:'✨ 轮到你了！', formTitle:'📝 留下你的见证',
+        formRating:'你的评分',
+        formName:'你的名字', formNamePh:'例如：王老师',
+        formRole:'你是...', rolePE:'🏃 体育教师', roleStudent:'🎓 学生', roleSub:'💼 代课老师', roleOther:'👋 其他',
+        formCity:'你的城市', formCityPh:'例如：北京',
+        formReview:'你的评价', formReviewPh:'告诉我们你喜欢 Zone Total Sport 的哪些地方！😊',
+        formSubmit:'发送我的评价', formModeration:'你的评价将在审核后显示 😊',
+        footerDesc:'zonetotalsport.ca — 体育教师资源',
+        privacy:'隐私政策',
+        copyright:'© 2026 Zone Total Sport · 在魁北克用 ❤️ 制作',
+        thankTitle:'谢谢！', thankBody:'你的评价已成功发送！',
+        thankSub:'审核通过后将显示。感谢支持 Zone！',
+        thankBack:'🙌 回到 Zone'
+      },
+      es: {
+        navHome:'Inicio', navTools:'Herramientas', navSae:'SAE', navGames:'Juegos', navBlog:'Blog', navReviews:'Reseñas', navDonate:'Donar',
+        heroTitle:'¡Los profes <span style="color:#FF2A7A">opinan!</span>',
+        heroSub:'Descubre lo que los profes de EF piensan de Zone Total Sport.',
+        avgSuffix:'/5 promedio', reviewsWord:'reseñas', recommend:'💚 100% lo recomiendan',
+        avgScoreLabel:'PUNTUACIÓN PROMEDIO', verifiedReviews:'reseñas verificadas', recommendVerb:'lo recomiendan',
+        whatTeachersThink:'LO QUE PIENSAN LOS PROFES',
+        ctaTitle:'¡Comparte tu experiencia también!', ctaSub:'Tu reseña ayuda a otros profes a descubrir la Zone.',
+        leaveReview:'Dejar mi reseña',
+        yourTurn:'✨ ¡TU TURNO!', formTitle:'📝 Deja tu testimonio',
+        formRating:'Tu calificación',
+        formName:'Tu nombre', formNamePh:'Ej: Marie-Claude',
+        formRole:'Tú eres...', rolePE:'🏃 Profe de EF', roleStudent:'🎓 Estudiante', roleSub:'💼 Suplente', roleOther:'👋 Otro',
+        formCity:'Tu ciudad', formCityPh:'Ej: Ciudad de México',
+        formReview:'Tu reseña', formReviewPh:'¡Cuéntanos qué te gusta de Zone Total Sport! 😊',
+        formSubmit:'Enviar mi reseña', formModeration:'Tu reseña aparecerá después de la moderación 😊',
+        footerDesc:'zonetotalsport.ca — Recursos para profes de EF',
+        privacy:'Política de privacidad',
+        copyright:'© 2026 Zone Total Sport · Hecho con ❤️ en Quebec',
+        thankTitle:'¡GRACIAS!', thankBody:'¡Tu reseña se envió con éxito!',
+        thankSub:'Aparecerá después de la moderación. ¡Gracias por apoyar la Zone!',
+        thankBack:'🙌 Volver a la Zone'
+      }
+    };
+    </script>
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
     <script>

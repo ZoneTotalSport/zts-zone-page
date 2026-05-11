@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Répertoire mondial de jeux EPS | Zone Total Sport</title>
   <meta name="description" content="Méga répertoire de liens vers des sites de jeux d'éducation physique, camps de jour et services de garde à travers le monde en 5 langues.">
+  <link rel="canonical" href="https://zonetotalsport.ca/repertoire.html">
+  <!-- Hreflang multilingue -->
+  <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/repertoire.html">
+  <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/repertoire.html?lang=en">
+  <link rel="alternate" hreflang="zh" href="https://zonetotalsport.ca/repertoire.html?lang=zh">
+  <link rel="alternate" hreflang="es" href="https://zonetotalsport.ca/repertoire.html?lang=es">
+  <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/repertoire.html">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Patrick+Hand&family=Fredoka+One&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -31,6 +38,8 @@
     .tag-paid{background:rgba(255,42,122,.15);color:#FF2A7A;}
   </style>
 <script src="analytics.js"></script>
+<script src="zts-lang.js" defer></script>
+<script src="cookie-consent.js" defer></script>
 </head>
 <body class="text-white">
 
@@ -38,16 +47,17 @@
   <nav class="px-4 py-3 sticky top-0 z-50" style="background:linear-gradient(135deg,#4DD0E1 0%,#00BCD4 50%,#0097A7 100%);">
     <div class="max-w-6xl mx-auto flex items-center justify-between flex-wrap gap-2">
       <a href="https://zonetotalsport.ca/" class="flex items-center gap-2 font-fredoka text-white hover:text-yellow transition">
-        <img src="bucheron-basketball.png" alt="" style="width:36px;height:36px;object-fit:contain;"> <i data-lucide="home" class="w-4 h-4"></i> Accueil
+        <img src="bucheron-basketball.png" alt="" style="width:36px;height:36px;object-fit:contain;"> <i data-lucide="home" class="w-4 h-4"></i> <span data-i18n="navHome">Accueil</span>
       </a>
-      <h1 class="font-lucky text-xl md:text-3xl text-white tracking-wide" style="text-shadow:0 2px 6px rgba(0,0,0,.2);">REPERTOIRE MONDIAL</h1>
-      <div class="flex gap-1">
+      <h1 class="font-lucky text-xl md:text-3xl text-white tracking-wide" style="text-shadow:0 2px 6px rgba(0,0,0,.2);" data-i18n="navTitle">REPERTOIRE MONDIAL</h1>
+      <div class="flex gap-1 items-center">
         <a href="https://zonetotalsport.ca/blog.html" class="px-4 py-2 rounded-full text-sm font-fredoka text-white flex items-center gap-1.5 hover:bg-white/20 transition">
-          <i data-lucide="pen-line" class="w-4 h-4"></i> Blog
+          <i data-lucide="pen-line" class="w-4 h-4"></i> <span data-i18n="navBlog">Blog</span>
         </a>
         <a href="https://zonetotalsport.ca/avis.html" class="px-4 py-2 rounded-full text-sm font-fredoka text-white flex items-center gap-1.5 hover:bg-white/20 transition">
-          <i data-lucide="star" class="w-4 h-4"></i> Avis
+          <i data-lucide="star" class="w-4 h-4"></i> <span data-i18n="navReviews">Avis</span>
         </a>
+        <div id="zts-lang-switcher" style="margin-left:8px;"></div>
       </div>
     </div>
   </nav>
@@ -57,20 +67,20 @@
     <div style="background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-radius:24px;padding:32px 40px;display:flex;align-items:center;gap:32px;color:#0F0F2E;box-shadow:0 8px 40px rgba(0,0,0,.3);" class="flex-col md:flex-row">
       <img src="bucheron-sports.png" alt="Mr. Root" style="width:180px;height:180px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 5px 20px rgba(0,0,0,.3));">
       <div>
-        <h2 class="font-lucky text-3xl md:text-5xl tracking-wide mb-2" style="color:#0F0F2E;">REPERTOIRE MONDIAL</h2>
-        <p class="font-lucky text-lg md:text-xl mb-3" style="color:#00BCD4;">Jeux EPS • Camps de jour • Services de garde</p>
-        <p class="font-hand text-base md:text-lg leading-relaxed mb-5" style="color:rgba(15,15,46,.7);">Le plus grand repertoire de sites d'education physique au monde! Plus de 50 sites verifies dans 15+ pays et 5 langues. Filtre par categorie, langue ou pays. Chaque site est decrit avec son contenu et un lien direct. Parfait pour decouvrir de nouvelles idees partout sur la planete!</p>
+        <h2 class="font-lucky text-3xl md:text-5xl tracking-wide mb-2" style="color:#0F0F2E;" data-i18n="heroTitle">REPERTOIRE MONDIAL</h2>
+        <p class="font-lucky text-lg md:text-xl mb-3" style="color:#00BCD4;" data-i18n="heroSubtitle">Jeux EPS • Camps de jour • Services de garde</p>
+        <p class="font-hand text-base md:text-lg leading-relaxed mb-5" style="color:rgba(15,15,46,.7);" data-i18n="heroDesc">Le plus grand repertoire de sites d'education physique au monde! Plus de 50 sites verifies dans 15+ pays et 5 langues. Filtre par categorie, langue ou pays. Chaque site est decrit avec son contenu et un lien direct. Parfait pour decouvrir de nouvelles idees partout sur la planete!</p>
         <div class="flex flex-wrap gap-3 mb-5">
-          <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(0,188,212,.15);color:#0097A7;border:1px solid rgba(0,188,212,.3);">🌍 53+ sites</span>
-          <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(255,193,7,.15);color:#F57F17;border:1px solid rgba(255,193,7,.3);">🗣️ 5 langues</span>
-          <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(233,30,99,.1);color:#C2185B;border:1px solid rgba(233,30,99,.2);">📍 15+ pays</span>
-          <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(76,175,80,.12);color:#2E7D32;border:1px solid rgba(76,175,80,.25);">✅ 100% gratuit</span>
+          <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(0,188,212,.15);color:#0097A7;border:1px solid rgba(0,188,212,.3);" data-i18n="badge1">🌍 53+ sites</span>
+          <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(255,193,7,.15);color:#F57F17;border:1px solid rgba(255,193,7,.3);" data-i18n="badge2">🗣️ 5 langues</span>
+          <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(233,30,99,.1);color:#C2185B;border:1px solid rgba(233,30,99,.2);" data-i18n="badge3">📍 15+ pays</span>
+          <span class="font-fredoka text-xs px-4 py-1.5 rounded-full" style="background:rgba(76,175,80,.12);color:#2E7D32;border:1px solid rgba(76,175,80,.25);" data-i18n="badge4">✅ 100% gratuit</span>
         </div>
         <div class="flex gap-3 flex-wrap">
-          <a href="#sites" class="font-fredoka text-sm px-6 py-2.5 rounded-full flex items-center gap-2 transition hover:brightness-110" style="background:#00BCD4;color:#fff;">
+          <a href="#sites" class="font-fredoka text-sm px-6 py-2.5 rounded-full flex items-center gap-2 transition hover:brightness-110" style="background:#00BCD4;color:#fff;" data-i18n="ctaStart">
             🚀 Commencer!
           </a>
-          <a href="#howto" class="font-fredoka text-sm px-6 py-2.5 rounded-full flex items-center gap-2 transition border-2 hover:bg-gray-100" style="color:#0F0F2E;border-color:#ccc;">
+          <a href="#howto" class="font-fredoka text-sm px-6 py-2.5 rounded-full flex items-center gap-2 transition border-2 hover:bg-gray-100" style="color:#0F0F2E;border-color:#ccc;" data-i18n="ctaHowto">
             🎬 Comment utiliser
           </a>
         </div>
@@ -85,7 +95,7 @@
       <!-- Search -->
       <div class="max-w-lg mx-auto relative mb-5">
         <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30"></i>
-        <input id="searchBar" type="text" placeholder="Rechercher un site..." class="w-full pl-12 pr-4 py-3 rounded-full text-lg font-hand bg-white/10 border border-white/20 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan/50">
+        <input id="searchBar" type="text" placeholder="Rechercher un site..." data-i18n-attr="placeholder:searchPh" class="w-full pl-12 pr-4 py-3 rounded-full text-lg font-hand bg-white/10 border border-white/20 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan/50">
       </div>
 
       <!-- Language Filters -->
@@ -100,19 +110,19 @@
 
       <!-- Category Filters -->
       <div class="flex flex-wrap justify-center gap-2 mb-5" id="catFilters">
-        <button class="cat-pill active" data-cat="all">Tous</button>
-        <button class="cat-pill" data-cat="eps">EPS / Éducation physique</button>
-        <button class="cat-pill" data-cat="camp">Camps de jour</button>
-        <button class="cat-pill" data-cat="garde">Service de garde</button>
-        <button class="cat-pill" data-cat="curriculum">Curriculum / Programme</button>
-        <button class="cat-pill" data-cat="recreation">Récréation / Loisirs</button>
+        <button class="cat-pill active" data-cat="all" data-i18n="catAll">Tous</button>
+        <button class="cat-pill" data-cat="eps" data-i18n="catPE">EPS / Éducation physique</button>
+        <button class="cat-pill" data-cat="camp" data-i18n="catCamp">Camps de jour</button>
+        <button class="cat-pill" data-cat="garde" data-i18n="catCare">Service de garde</button>
+        <button class="cat-pill" data-cat="curriculum" data-i18n="catCurr">Curriculum / Programme</button>
+        <button class="cat-pill" data-cat="recreation" data-i18n="catRec">Récréation / Loisirs</button>
       </div>
 
       <!-- Stats -->
       <div class="flex justify-center gap-8 pt-4 border-t border-white/10">
-        <div class="text-center"><span class="font-lucky text-3xl text-cyan" id="totalCount">0</span><br><span class="text-white/50 text-sm font-fredoka">sites</span></div>
-        <div class="text-center"><span class="font-lucky text-3xl text-yellow">5</span><br><span class="text-white/50 text-sm font-fredoka">langues</span></div>
-        <div class="text-center"><span class="font-lucky text-3xl text-pink">15+</span><br><span class="text-white/50 text-sm font-fredoka">pays</span></div>
+        <div class="text-center"><span class="font-lucky text-3xl text-cyan" id="totalCount">0</span><br><span class="text-white/50 text-sm font-fredoka" data-i18n="statSites">sites</span></div>
+        <div class="text-center"><span class="font-lucky text-3xl text-yellow">5</span><br><span class="text-white/50 text-sm font-fredoka" data-i18n="statLangs">langues</span></div>
+        <div class="text-center"><span class="font-lucky text-3xl text-pink">15+</span><br><span class="text-white/50 text-sm font-fredoka" data-i18n="statCountries">pays</span></div>
       </div>
     </div>
   </div>
@@ -120,15 +130,68 @@
   <!-- Grid -->
   <main class="max-w-7xl mx-auto px-4 pb-16">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="sitesGrid"></div>
-    <p id="noResults" class="hidden text-center py-12 text-xl font-fredoka text-white/30">Aucun site trouvé</p>
+    <p id="noResults" class="hidden text-center py-12 text-xl font-fredoka text-white/30" data-i18n="noResults">Aucun site trouvé</p>
   </main>
 
   <!-- Footer -->
   <footer class="py-8 text-center" style="background:#FFD700;">
     <p class="font-lucky text-2xl text-dark mb-2">ZONE TOTAL SPORT</p>
-    <p class="font-hand text-dark/70">zonetotalsport.ca — Ressources pour enseignants EPS</p>
+    <p class="font-hand text-dark/70" data-i18n="footerDesc">zonetotalsport.ca — Ressources pour enseignants EPS</p>
   </footer>
 
+<!-- Dict de traductions repertoire.html (4 langues) -->
+<script>
+window.ztsPageDict = {
+  fr: {
+    navHome:'Accueil', navTitle:'REPERTOIRE MONDIAL', navBlog:'Blog', navReviews:'Avis',
+    heroTitle:'REPERTOIRE MONDIAL', heroSubtitle:'Jeux EPS • Camps de jour • Services de garde',
+    heroDesc:"Le plus grand répertoire de sites d'éducation physique au monde! Plus de 50 sites vérifiés dans 15+ pays et 5 langues. Filtre par catégorie, langue ou pays. Chaque site est décrit avec son contenu et un lien direct. Parfait pour découvrir de nouvelles idées partout sur la planète!",
+    badge1:'🌍 53+ sites', badge2:'🗣️ 5 langues', badge3:'📍 15+ pays', badge4:'✅ 100% gratuit',
+    ctaStart:'🚀 Commencer!', ctaHowto:'🎬 Comment utiliser',
+    searchPh:'Rechercher un site...',
+    catAll:'Tous', catPE:'ÉPS / Éducation physique', catCamp:'Camps de jour', catCare:'Service de garde', catCurr:'Curriculum / Programme', catRec:'Récréation / Loisirs',
+    statSites:'sites', statLangs:'langues', statCountries:'pays',
+    noResults:'Aucun site trouvé',
+    footerDesc:'zonetotalsport.ca — Ressources pour enseignants ÉPS'
+  },
+  en: {
+    navHome:'Home', navTitle:'WORLD DIRECTORY', navBlog:'Blog', navReviews:'Reviews',
+    heroTitle:'WORLD DIRECTORY', heroSubtitle:'PE Games • Day Camps • After-school Care',
+    heroDesc:"The world's biggest directory of PE websites! Over 50 verified sites across 15+ countries and 5 languages. Filter by category, language or country. Each site is described with its content and a direct link. Perfect for discovering new ideas from all over the planet!",
+    badge1:'🌍 53+ sites', badge2:'🗣️ 5 languages', badge3:'📍 15+ countries', badge4:'✅ 100% free',
+    ctaStart:'🚀 Get started!', ctaHowto:'🎬 How to use',
+    searchPh:'Search a site...',
+    catAll:'All', catPE:'PE / Physical Education', catCamp:'Day Camps', catCare:'After-school Care', catCurr:'Curriculum / Program', catRec:'Recreation / Leisure',
+    statSites:'sites', statLangs:'languages', statCountries:'countries',
+    noResults:'No site found',
+    footerDesc:'zonetotalsport.ca — Resources for PE teachers'
+  },
+  zh: {
+    navHome:'首页', navTitle:'世界目录', navBlog:'博客', navReviews:'评价',
+    heroTitle:'世界目录', heroSubtitle:'体育游戏 • 日间夏令营 • 课后托管',
+    heroDesc:'世界上最大的体育教学网站目录！15+ 个国家、5 种语言、超过 50 个已验证的网站。按类别、语言或国家筛选。每个网站都附有内容描述和直接链接。完美地从全球各地发现新点子！',
+    badge1:'🌍 53+ 个网站', badge2:'🗣️ 5 种语言', badge3:'📍 15+ 个国家', badge4:'✅ 100% 免费',
+    ctaStart:'🚀 开始！', ctaHowto:'🎬 如何使用',
+    searchPh:'搜索网站...',
+    catAll:'全部', catPE:'体育 / 体育教育', catCamp:'日间夏令营', catCare:'课后托管', catCurr:'课程 / 教学大纲', catRec:'休闲 / 娱乐',
+    statSites:'网站', statLangs:'语言', statCountries:'国家',
+    noResults:'未找到网站',
+    footerDesc:'zonetotalsport.ca — 体育教师资源'
+  },
+  es: {
+    navHome:'Inicio', navTitle:'DIRECTORIO MUNDIAL', navBlog:'Blog', navReviews:'Reseñas',
+    heroTitle:'DIRECTORIO MUNDIAL', heroSubtitle:'Juegos de EF • Campamentos • Cuidado escolar',
+    heroDesc:'¡El directorio de sitios de educación física más grande del mundo! Más de 50 sitios verificados en 15+ países y 5 idiomas. Filtra por categoría, idioma o país. Cada sitio está descrito con su contenido y un enlace directo. ¡Perfecto para descubrir nuevas ideas en todo el planeta!',
+    badge1:'🌍 53+ sitios', badge2:'🗣️ 5 idiomas', badge3:'📍 15+ países', badge4:'✅ 100% gratis',
+    ctaStart:'🚀 ¡Empezar!', ctaHowto:'🎬 Cómo usar',
+    searchPh:'Buscar un sitio...',
+    catAll:'Todos', catPE:'EF / Educación Física', catCamp:'Campamentos', catCare:'Cuidado escolar', catCurr:'Currículo / Programa', catRec:'Recreación / Ocio',
+    statSites:'sitios', statLangs:'idiomas', statCountries:'países',
+    noResults:'No se encontró ningún sitio',
+    footerDesc:'zonetotalsport.ca — Recursos para profes de EF'
+  }
+};
+</script>
 <script>
 const SITES = [
   // ==================== FRANÇAIS - QUÉBEC ====================

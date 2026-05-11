@@ -30,6 +30,13 @@
       accept: '\u5168\u90E8\u63A5\u53D7',
       decline: '\u62D2\u7EDD',
       privacy: '\u9690\u79C1\u653F\u7B56'
+    },
+    es: {
+      title: '\u{1F36A} Cookies',
+      body: 'Usamos cookies para medir el tr\u00E1fico y permitir el registro. Puedes aceptar o rechazar.',
+      accept: 'Aceptar todo',
+      decline: 'Rechazar',
+      privacy: 'Pol\u00EDtica de privacidad'
     }
   };
 

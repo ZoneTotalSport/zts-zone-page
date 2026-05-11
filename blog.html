@@ -10,6 +10,13 @@
 
   <link rel="canonical" href="https://zonetotalsport.ca/blog.html">
 
+  <!-- Hreflang multilingue -->
+  <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/blog.html">
+  <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/blog.html?lang=en">
+  <link rel="alternate" hreflang="zh" href="https://zonetotalsport.ca/blog.html?lang=zh">
+  <link rel="alternate" hreflang="es" href="https://zonetotalsport.ca/blog.html?lang=es">
+  <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/blog.html">
+
   <meta property="og:title" content="Blog EPS | Zone Total Sport">
   <meta property="og:description" content="Articles, conseils et ressources pour les enseignants d'éducation physique au primaire.">
   <meta property="og:image" content="https://zonetotalsport.ca/mr-root-bureau.png">
@@ -64,6 +71,8 @@
     .nav-link.active-link{background:#FFF000;color:#004A61}
   </style>
   <script src="analytics.js"></script>
+  <script src="zts-lang.js" defer></script>
+  <script src="cookie-consent.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900">
 
@@ -77,11 +86,12 @@
         <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Pédagogie Primaire</span>
       </a>
       <nav class="flex items-center gap-1 flex-wrap justify-end">
-        <a href="https://zonetotalsport.ca/" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Accueil</span></a>
-        <a href="https://zonetotalsport.ca/#outils" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4"></i><span class="hidden sm:inline">Outils</span></a>
-        <a href="https://zonetotalsport.ca/#jeux" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="gamepad-2" class="w-4 h-4"></i><span class="hidden sm:inline">Jeux</span></a>
-        <a href="blog.html" class="nav-link text-white flex items-center gap-1.5 active-link"><i data-lucide="pen-line" class="w-4 h-4"></i><span>Blog</span></a>
-        <a href="wix/donation.html" class="nav-link text-pink bg-white/90 hover:bg-white flex items-center gap-1.5"><i data-lucide="heart" class="w-4 h-4"></i><span class="hidden sm:inline">Dons</span></a>
+        <a href="https://zonetotalsport.ca/" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline" data-i18n="navHome">Accueil</span></a>
+        <a href="https://zonetotalsport.ca/#outils" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4"></i><span class="hidden sm:inline" data-i18n="navTools">Outils</span></a>
+        <a href="https://zonetotalsport.ca/#jeux" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="gamepad-2" class="w-4 h-4"></i><span class="hidden sm:inline" data-i18n="navGames">Jeux</span></a>
+        <a href="blog.html" class="nav-link text-white flex items-center gap-1.5 active-link"><i data-lucide="pen-line" class="w-4 h-4"></i><span data-i18n="navBlog">Blog</span></a>
+        <a href="wix/donation.html" class="nav-link text-pink bg-white/90 hover:bg-white flex items-center gap-1.5"><i data-lucide="heart" class="w-4 h-4"></i><span class="hidden sm:inline" data-i18n="navDonate">Dons</span></a>
+        <div id="zts-lang-switcher" class="ml-2"></div>
       </nav>
     </div>
   </header>
@@ -91,13 +101,13 @@
     <div class="max-w-7xl mx-auto px-4 relative">
       <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
         <div class="lg:w-1/2 text-white z-10 text-center lg:text-left">
-          <span class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg">
+          <span class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg" data-i18n="heroBadge">
             À NE PAS MANQUER !
           </span>
           <h2 id="heroTitle" class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline"></h2>
           <p id="heroDesc" class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0"></p>
           <div class="flex flex-wrap justify-center lg:justify-start items-center gap-5">
-            <a id="heroBtn" href="#" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase">
+            <a id="heroBtn" href="#" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase" data-i18n="heroBtn">
               LIRE L'ARTICLE
             </a>
             <span id="heroTime" class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl text-cyan-100 font-bold">
@@ -115,8 +125,8 @@
               <i data-lucide="book-open" class="w-7 h-7 md:w-8 md:h-8"></i>
             </div>
             <div class="text-left">
-              <p class="font-lucky text-ztsBlue text-lg md:text-xl leading-none">VEDETTE</p>
-              <p class="text-[11px] font-black text-slate-400 uppercase tracking-tighter">Article du moment</p>
+              <p class="font-lucky text-ztsBlue text-lg md:text-xl leading-none" data-i18n="featured">VEDETTE</p>
+              <p class="text-[11px] font-black text-slate-400 uppercase tracking-tighter" data-i18n="featuredSub">Article du moment</p>
             </div>
           </div>
         </div>
@@ -129,16 +139,16 @@
     <div class="bg-white p-4 md:p-5 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl border-b-8 border-slate-200 flex flex-col gap-4">
       <div class="relative max-w-lg mx-auto w-full">
         <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-        <input id="searchBar" type="text" placeholder="Rechercher un article..." class="w-full pl-12 pr-4 py-3 rounded-2xl text-base font-medium bg-slate-100 focus:bg-white focus:outline-none focus:ring-4 focus:ring-ztsYellow/50 text-slate-800">
+        <input id="searchBar" type="text" placeholder="Rechercher un article..." data-i18n-attr="placeholder:searchPh" class="w-full pl-12 pr-4 py-3 rounded-2xl text-base font-medium bg-slate-100 focus:bg-white focus:outline-none focus:ring-4 focus:ring-ztsYellow/50 text-slate-800">
       </div>
       <div id="pills" class="flex flex-wrap justify-center gap-2 md:gap-3 overflow-x-auto">
-        <button class="pill active px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 whitespace-nowrap" data-cat="Tous">Tous</button>
-        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Gestion de classe">Gestion</button>
-        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Jeux et activites">Jeux</button>
-        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="SAE">SAÉ</button>
-        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Ressources">Ressources</button>
-        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Vie enseignante">Vie enseignante</button>
-        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Bienfaits du sport">Bienfaits</button>
+        <button class="pill active px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 whitespace-nowrap" data-cat="Tous" data-i18n="pillAll">Tous</button>
+        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Gestion de classe" data-i18n="pillMgmt">Gestion</button>
+        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Jeux et activites" data-i18n="pillGames">Jeux</button>
+        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="SAE" data-i18n="pillSae">SAÉ</button>
+        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Ressources" data-i18n="pillRes">Ressources</button>
+        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Vie enseignante" data-i18n="pillLife">Vie enseignante</button>
+        <button class="pill px-5 md:px-7 py-3 rounded-2xl text-base md:text-lg font-lucky text-slate-400 hover:text-ztsBlue hover:bg-cyan-50 transition-all whitespace-nowrap" data-cat="Bienfaits du sport" data-i18n="pillBenefits">Bienfaits</button>
       </div>
     </div>
   </div>
@@ -149,40 +159,40 @@
 
       <div class="lg:col-span-8">
         <h3 class="text-3xl md:text-4xl font-lucky text-ztsDeep mb-10 md:mb-12 flex items-center gap-4">
-          <i data-lucide="target" class="text-ztsYellow w-10 h-10 md:w-12 md:h-12 drop-shadow-sm"></i> Les articles
+          <i data-lucide="target" class="text-ztsYellow w-10 h-10 md:w-12 md:h-12 drop-shadow-sm"></i> <span data-i18n="articlesTitle">Les articles</span>
         </h3>
         <div id="grid" class="grid md:grid-cols-2 gap-8 md:gap-10"></div>
-        <p id="noResults" class="hidden text-center py-12 text-2xl font-lucky text-slate-400">Aucun article trouvé</p>
+        <p id="noResults" class="hidden text-center py-12 text-2xl font-lucky text-slate-400" data-i18n="noResults">Aucun article trouvé</p>
       </div>
 
       <aside class="lg:col-span-4 space-y-10 md:space-y-12">
 
         <div class="bg-white rounded-[2.5rem] p-8 border-b-[10px] border-ztsYellow shadow-sm">
-          <h4 class="text-2xl font-lucky text-ztsDeep mb-6 uppercase">Le blog en chiffres</h4>
+          <h4 class="text-2xl font-lucky text-ztsDeep mb-6 uppercase" data-i18n="statsTitle">Le blog en chiffres</h4>
           <div class="grid grid-cols-2 gap-4 text-center">
             <div class="bg-cyan-50 rounded-2xl py-4">
               <div class="font-lucky text-3xl text-ztsBlue" id="statArticles">0</div>
-              <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Articles</div>
+              <div class="text-xs font-black text-slate-500 uppercase tracking-widest" data-i18n="statArticles">Articles</div>
             </div>
             <div class="bg-yellow-50 rounded-2xl py-4">
               <div class="font-lucky text-3xl text-ztsDeep" id="totalViews">0</div>
-              <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Vues</div>
+              <div class="text-xs font-black text-slate-500 uppercase tracking-widest" data-i18n="statViews">Vues</div>
             </div>
             <div class="bg-cyan-50 rounded-2xl py-4">
               <div class="font-lucky text-3xl text-ztsBlue">2023</div>
-              <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Depuis</div>
+              <div class="text-xs font-black text-slate-500 uppercase tracking-widest" data-i18n="statSince">Depuis</div>
             </div>
             <div class="bg-yellow-50 rounded-2xl py-4">
               <div class="font-lucky text-2xl text-ztsDeep">Joey Root</div>
-              <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Auteur</div>
+              <div class="text-xs font-black text-slate-500 uppercase tracking-widest" data-i18n="statAuthor">Auteur</div>
             </div>
           </div>
         </div>
 
         <div class="bg-ztsDeep rounded-[2.5rem] p-8 md:p-10 text-white shadow-2xl relative overflow-hidden border-b-[12px] border-black/20">
           <i data-lucide="book-open" class="absolute top-0 right-0 w-40 h-40 opacity-10 -mr-8 -mt-8"></i>
-          <h3 class="text-3xl md:text-4xl font-lucky mb-6 text-ztsYellow italic tracking-wide">ESPACE OUTILS</h3>
-          <p class="text-cyan-100 mb-8 font-medium">
+          <h3 class="text-3xl md:text-4xl font-lucky mb-6 text-ztsYellow italic tracking-wide" data-i18n="toolsTitle">ESPACE OUTILS</h3>
+          <p class="text-cyan-100 mb-8 font-medium" data-i18n="toolsDesc">
             Téléchargez nos ressources prêtes à l'emploi pour vos cours d'éducation physique.
           </p>
           <div class="space-y-4">
@@ -190,28 +200,28 @@
               <div class="bg-ztsYellow p-3 rounded-xl text-ztsDeep group-hover:scale-110 transition-transform">
                 <i data-lucide="calendar" class="w-6 h-6"></i>
               </div>
-              <span class="font-lucky text-lg uppercase tracking-wide">Plan annuel</span>
+              <span class="font-lucky text-lg uppercase tracking-wide" data-i18n="toolPlan">Plan annuel</span>
             </a>
             <a href="https://zonetotalsport.ca/#jeux" class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-all cursor-pointer group border border-white/5">
               <div class="bg-ztsYellow p-3 rounded-xl text-ztsDeep group-hover:scale-110 transition-transform">
                 <i data-lucide="trophy" class="w-6 h-6"></i>
               </div>
-              <span class="font-lucky text-lg uppercase tracking-wide">Recueil de jeux</span>
+              <span class="font-lucky text-lg uppercase tracking-wide" data-i18n="toolGames">Recueil de jeux</span>
             </a>
             <a href="https://zonetotalsport.ca/#sae" class="flex items-center gap-4 bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-all cursor-pointer group border border-white/5">
               <div class="bg-ztsYellow p-3 rounded-xl text-ztsDeep group-hover:scale-110 transition-transform">
                 <i data-lucide="clipboard-check" class="w-6 h-6"></i>
               </div>
-              <span class="font-lucky text-lg uppercase tracking-wide">SAÉ & grilles</span>
+              <span class="font-lucky text-lg uppercase tracking-wide" data-i18n="toolSae">SAÉ & grilles</span>
             </a>
           </div>
-          <a href="https://zonetotalsport.ca/#outils" class="block text-center w-full mt-10 bg-ztsYellow text-ztsDeep font-lucky text-xl md:text-2xl py-4 rounded-3xl hover:bg-white transition-all shadow-xl uppercase">
+          <a href="https://zonetotalsport.ca/#outils" class="block text-center w-full mt-10 bg-ztsYellow text-ztsDeep font-lucky text-xl md:text-2xl py-4 rounded-3xl hover:bg-white transition-all shadow-xl uppercase" data-i18n="toolSeeAll">
             TOUT VOIR !
           </a>
         </div>
 
         <div class="bg-white rounded-[2.5rem] p-8 border-b-[10px] border-slate-100 text-center shadow-sm">
-          <h4 class="text-2xl font-lucky text-slate-800 mb-6 uppercase">Suis-nous !</h4>
+          <h4 class="text-2xl font-lucky text-slate-800 mb-6 uppercase" data-i18n="followUs">Suis-nous !</h4>
           <div class="flex justify-center gap-4">
             <a href="https://www.facebook.com/profile.php?id=100090661918934" target="_blank" rel="noopener" class="w-14 h-14 bg-cyan-50 rounded-2xl flex items-center justify-center text-ztsBlue hover:bg-ztsBlue hover:text-white transition-all shadow-sm">
               <i data-lucide="facebook" class="w-7 h-7"></i>
@@ -235,19 +245,76 @@
         ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
       </h2>
       <nav class="flex flex-wrap justify-center gap-6 md:gap-12 mb-12 font-lucky text-lg md:text-2xl text-ztsBlue">
-        <a href="https://zonetotalsport.ca/" class="hover:text-ztsYellow transition-all uppercase">Accueil</a>
-        <a href="https://zonetotalsport.ca/#outils" class="hover:text-ztsYellow transition-all uppercase">Outils</a>
-        <a href="blog.html" class="text-ztsYellow uppercase border-b-2 border-ztsYellow">Blog</a>
-        <a href="wix/donation.html" class="hover:text-ztsYellow transition-all uppercase">Dons</a>
+        <a href="https://zonetotalsport.ca/" class="hover:text-ztsYellow transition-all uppercase" data-i18n="navHome">Accueil</a>
+        <a href="https://zonetotalsport.ca/#outils" class="hover:text-ztsYellow transition-all uppercase" data-i18n="navTools">Outils</a>
+        <a href="blog.html" class="text-ztsYellow uppercase border-b-2 border-ztsYellow" data-i18n="navBlog">Blog</a>
+        <a href="wix/donation.html" class="hover:text-ztsYellow transition-all uppercase" data-i18n="navDonate">Dons</a>
       </nav>
       <div class="max-w-2xl mx-auto border-t border-white/10 pt-10">
-        <p class="text-white/40 font-black text-xs uppercase tracking-[0.5em]">
+        <p class="text-white/40 font-black text-xs uppercase tracking-[0.5em]" data-i18n="copyright">
           © 2026 ZONE TOTAL SPORT • PASSIONNÉMENT PROFS
         </p>
       </div>
     </div>
   </footer>
 
+<!-- Dict de traductions blog.html (4 langues) -->
+<script>
+window.ztsPageDict = {
+  fr: {
+    navHome:'Accueil', navTools:'Outils', navGames:'Jeux', navBlog:'Blog', navDonate:'Dons',
+    heroBadge:'À NE PAS MANQUER !', heroBtn:"LIRE L'ARTICLE",
+    featured:'VEDETTE', featuredSub:'Article du moment',
+    searchPh:'Rechercher un article...',
+    pillAll:'Tous', pillMgmt:'Gestion', pillGames:'Jeux', pillSae:'SAÉ', pillRes:'Ressources', pillLife:'Vie enseignante', pillBenefits:'Bienfaits',
+    articlesTitle:'Les articles', noResults:'Aucun article trouvé',
+    statsTitle:'Le blog en chiffres', statArticles:'Articles', statViews:'Vues', statSince:'Depuis', statAuthor:'Auteur',
+    toolsTitle:'ESPACE OUTILS', toolsDesc:"Téléchargez nos ressources prêtes à l'emploi pour vos cours d'éducation physique.",
+    toolPlan:'Plan annuel', toolGames:'Recueil de jeux', toolSae:'SAÉ & grilles', toolSeeAll:'TOUT VOIR !',
+    followUs:'Suis-nous !',
+    copyright:'© 2026 ZONE TOTAL SPORT • PASSIONNÉMENT PROFS'
+  },
+  en: {
+    navHome:'Home', navTools:'Tools', navGames:'Games', navBlog:'Blog', navDonate:'Donate',
+    heroBadge:"DON'T MISS!", heroBtn:'READ ARTICLE',
+    featured:'FEATURED', featuredSub:'Article of the moment',
+    searchPh:'Search an article...',
+    pillAll:'All', pillMgmt:'Management', pillGames:'Games', pillSae:'Units', pillRes:'Resources', pillLife:'Teacher Life', pillBenefits:'Benefits',
+    articlesTitle:'The articles', noResults:'No article found',
+    statsTitle:'Blog in numbers', statArticles:'Articles', statViews:'Views', statSince:'Since', statAuthor:'Author',
+    toolsTitle:'TOOLS HUB', toolsDesc:'Download our ready-to-use resources for your physical education classes.',
+    toolPlan:'Yearly plan', toolGames:'Games library', toolSae:'Units & rubrics', toolSeeAll:'SEE ALL!',
+    followUs:'Follow us!',
+    copyright:'© 2026 ZONE TOTAL SPORT • PASSIONATELY FOR TEACHERS'
+  },
+  zh: {
+    navHome:'首页', navTools:'工具', navGames:'游戏', navBlog:'博客', navDonate:'捐赠',
+    heroBadge:'不容错过！', heroBtn:'阅读文章',
+    featured:'精选', featuredSub:'本期推荐',
+    searchPh:'搜索文章...',
+    pillAll:'全部', pillMgmt:'课堂管理', pillGames:'游戏', pillSae:'学习情境', pillRes:'资源', pillLife:'教师生活', pillBenefits:'益处',
+    articlesTitle:'文章列表', noResults:'未找到文章',
+    statsTitle:'博客数据', statArticles:'文章', statViews:'浏览', statSince:'自', statAuthor:'作者',
+    toolsTitle:'工具中心', toolsDesc:'下载我们为您的体育课准备的现成资源。',
+    toolPlan:'年度计划', toolGames:'游戏汇编', toolSae:'学习情境与评分量规', toolSeeAll:'查看全部！',
+    followUs:'关注我们！',
+    copyright:'© 2026 ZONE TOTAL SPORT • 教师挚爱'
+  },
+  es: {
+    navHome:'Inicio', navTools:'Herramientas', navGames:'Juegos', navBlog:'Blog', navDonate:'Donar',
+    heroBadge:'¡NO TE LO PIERDAS!', heroBtn:'LEER ARTÍCULO',
+    featured:'DESTACADO', featuredSub:'Artículo del momento',
+    searchPh:'Buscar un artículo...',
+    pillAll:'Todos', pillMgmt:'Gestión', pillGames:'Juegos', pillSae:'SAE', pillRes:'Recursos', pillLife:'Vida docente', pillBenefits:'Beneficios',
+    articlesTitle:'Los artículos', noResults:'No se encontró ningún artículo',
+    statsTitle:'El blog en cifras', statArticles:'Artículos', statViews:'Vistas', statSince:'Desde', statAuthor:'Autor',
+    toolsTitle:'CENTRO DE HERRAMIENTAS', toolsDesc:'Descarga nuestros recursos listos para usar en tus clases de educación física.',
+    toolPlan:'Plan anual', toolGames:'Banco de juegos', toolSae:'SAE y rúbricas', toolSeeAll:'¡VER TODO!',
+    followUs:'¡Síguenos!',
+    copyright:'© 2026 ZONE TOTAL SPORT • APASIONADAMENTE PROFES'
+  }
+};
+</script>
 <script>
 const posts=[
 {title:"50 jeunes, un gymnase : L'art de maitriser l'enseignement et l'animation",desc:"21 solutions concretes pour enseignants EPS, animateurs de camps et educateurs en SDG face aux grands groupes.",date:"29 avr. 2026",time:"25 min",views:1,cat:"Gestion de classe",cycle:"Tous cycles",emoji:"\u{1F3CB}",color:"#8B5CF6",url:"articles/50-jeunes-un-gymnase.html",img:"articles/images/Images%20article%2050%20jeunes%20gymnase%20/image%201%20article%20blig%2050%20jeunes%201%20gymnase.png"},
@@ -352,6 +419,7 @@ window.addEventListener('load',function(){
 });
 </script>
 <script src="/firebase-auth.js"></script>
+<script src="/zts-lock.js?v=1"></script>
 <script src="telegram-notify.js"></script>
 <script src="/article-views.js"></script>
   <script src="cookie-consent.js" defer></script>
