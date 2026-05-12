@@ -649,19 +649,27 @@ async function apiFetch(url) {
 // =============================================
 // FALLBACK BRACKET — VRAIS MATCHUPS 2026
 // =============================================
-// Snapshot 2 mai 2026 : R1 quasi terminée (A,B,D en game 7 le 2 mai)
+// Snapshot 12 mai 2026 : R1 terminée, R2 en cours
 const FALLBACK = {
   east: [
-    { top:{a:'DET',n:'Detroit Pistons',s:1,w:3,logo:LOGO('det')}, bot:{a:'ORL',n:'Orlando Magic',s:8,w:3,logo:LOGO('orl')}, letter:'A', round:1 },
-    { top:{a:'BOS',n:'Boston Celtics',s:2,w:3,logo:LOGO('bos')}, bot:{a:'PHI',n:'Philadelphia 76ers',s:7,w:3,logo:LOGO('phi')}, letter:'B', round:1 },
+    // R1 finals
+    { top:{a:'DET',n:'Detroit Pistons',s:1,w:4,logo:LOGO('det')}, bot:{a:'ORL',n:'Orlando Magic',s:8,w:3,logo:LOGO('orl')}, letter:'A', round:1 },
+    { top:{a:'BOS',n:'Boston Celtics',s:2,w:4,logo:LOGO('bos')}, bot:{a:'PHI',n:'Philadelphia 76ers',s:7,w:3,logo:LOGO('phi')}, letter:'B', round:1 },
     { top:{a:'NY',n:'New York Knicks',s:3,w:4,logo:LOGO('ny')}, bot:{a:'ATL',n:'Atlanta Hawks',s:6,w:2,logo:LOGO('atl')}, letter:'C', round:1 },
-    { top:{a:'CLE',n:'Cleveland Cavaliers',s:4,w:3,logo:LOGO('cle')}, bot:{a:'TOR',n:'Toronto Raptors',s:5,w:3,logo:LOGO('tor')}, letter:'D', round:1 },
+    { top:{a:'CLE',n:'Cleveland Cavaliers',s:4,w:4,logo:LOGO('cle')}, bot:{a:'TOR',n:'Toronto Raptors',s:5,w:3,logo:LOGO('tor')}, letter:'D', round:1 },
+    // R2 demi-finales en cours
+    { top:{a:'DET',n:'Detroit Pistons',s:1,w:2,logo:LOGO('det')}, bot:{a:'CLE',n:'Cleveland Cavaliers',s:4,w:1,logo:LOGO('cle')}, letter:'I', round:2 },
+    { top:{a:'BOS',n:'Boston Celtics',s:2,w:2,logo:LOGO('bos')}, bot:{a:'NY',n:'New York Knicks',s:3,w:2,logo:LOGO('ny')}, letter:'J', round:2 },
   ],
   west: [
+    // R1 finals
     { top:{a:'OKC',n:'Oklahoma City Thunder',s:1,w:4,logo:LOGO('okc')}, bot:{a:'PHX',n:'Phoenix Suns',s:8,w:0,logo:LOGO('phx')}, letter:'E', round:1 },
     { top:{a:'SA',n:'San Antonio Spurs',s:2,w:4,logo:LOGO('sa')}, bot:{a:'POR',n:'Portland Trail Blazers',s:7,w:1,logo:LOGO('por')}, letter:'F', round:1 },
-    { top:{a:'DEN',n:'Denver Nuggets',s:3,w:2,logo:LOGO('den')}, bot:{a:'MIN',n:'Minnesota Timberwolves',s:6,w:4,logo:LOGO('min')}, letter:'G', round:1 },
+    { top:{a:'MIN',n:'Minnesota Timberwolves',s:6,w:4,logo:LOGO('min')}, bot:{a:'DEN',n:'Denver Nuggets',s:3,w:2,logo:LOGO('den')}, letter:'G', round:1 },
     { top:{a:'LAL',n:'Los Angeles Lakers',s:4,w:4,logo:LOGO('lal')}, bot:{a:'HOU',n:'Houston Rockets',s:5,w:2,logo:LOGO('hou')}, letter:'H', round:1 },
+    // R2 demi-finales en cours
+    { top:{a:'OKC',n:'Oklahoma City Thunder',s:1,w:3,logo:LOGO('okc')}, bot:{a:'LAL',n:'Los Angeles Lakers',s:4,w:1,logo:LOGO('lal')}, letter:'K', round:2 },
+    { top:{a:'SA',n:'San Antonio Spurs',s:2,w:2,logo:LOGO('sa')}, bot:{a:'MIN',n:'Minnesota Timberwolves',s:6,w:2,logo:LOGO('min')}, letter:'L', round:2 },
   ]
 };
 
@@ -674,6 +682,10 @@ const SCHED = {
   F: ['20 avr.','22 avr.','25 avr.','27 avr.','29 avr.','2 mai','4 mai'],
   G: ['20 avr.','23 avr.','25 avr.','28 avr.','30 avr.','2 mai','5 mai'],
   H: ['21 avr.','23 avr.','26 avr.','28 avr.','30 avr.','3 mai','5 mai'],
+  I: ['5 mai','7 mai','9 mai','11 mai','13 mai','15 mai','17 mai'],
+  J: ['6 mai','8 mai','10 mai','12 mai','14 mai','16 mai','18 mai'],
+  K: ['5 mai','7 mai','9 mai','11 mai','13 mai','15 mai','17 mai'],
+  L: ['6 mai','8 mai','10 mai','12 mai','14 mai','16 mai','18 mai'],
 };
 
 // =============================================
