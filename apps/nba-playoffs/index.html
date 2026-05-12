@@ -778,10 +778,6 @@ async function fetchPlayoffData() {
 }
 
 function buildBracketFromAPI() {
-  // FORCE FALLBACK (12 mai 2026 snapshot) — l'API ESPN bloque souvent CORS
-  // L'API enrichit quand même les game details du modal via seriesMap
-  return FALLBACK;
-  // eslint-disable-next-line no-unreachable
   if (Object.keys(seriesMap).length === 0) return FALLBACK;
 
   // Conference map — all 30 NBA teams
