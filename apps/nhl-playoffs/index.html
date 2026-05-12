@@ -1677,13 +1677,20 @@ function renderBracket(data) {
         <div class="round r3"><div class="round-label">Finale conf.</div>${wR3.map(s=>matchupHTML(s)).join('')}</div>
       </div>
     </div>`;
+
+  // Attach click handlers
+  c.querySelectorAll('.matchup[data-series-letter]').forEach(el => {
+    el.addEventListener('click', function() {
+      openSeriesModal(this.getAttribute('data-series-letter'));
+    });
+  });
 }
 
 function matchupHTML(s) {
   const t = s.top, b = s.bot, tw = t.w===4, bw = b.w===4, tbd = !t.a && !b.a;
   const placeholder = '<span style="width:44px;height:44px;display:inline-block;background:rgba(0,229,255,0.08);border-radius:8px;border:2px dashed rgba(0,229,255,0.2);"></span>';
-  const clickAttr = (t.a && b.a && s.letter) ? `onclick="openSeriesModal('${s.letter}')"` : '';
-  return `<div class="matchup" ${clickAttr}>
+  const dataAttr = (t.a && b.a && s.letter) ? `data-series-letter="${s.letter}"` : '';
+  return `<div class="matchup" ${dataAttr}>
     <div class="team-row ${tw?'winner':''} ${bw?'eliminated':''}">
       <span class="seed">${t.s||'-'}</span>
       ${t.a?`<img class="team-logo" src="${LOGO(t.a)}" onerror="this.style.display='none'">`:placeholder}
