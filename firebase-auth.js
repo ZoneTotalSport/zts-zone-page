@@ -76,8 +76,8 @@
 .zts-auth-overlay {\
   position:fixed;inset:0;z-index:100000;\
   display:flex;align-items:center;justify-content:center;\
-  background:rgba(0,0,0,0.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);\
-  opacity:0;visibility:hidden;transition:opacity .4s ease,visibility .4s ease;\
+  background:rgba(0,0,0,0.78);\
+  opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s ease;\
   padding:20px;\
 }\
 .zts-auth-overlay.zts-open{opacity:1;visibility:visible}\
@@ -88,14 +88,14 @@
   background:url("/gym-bg.jpg") center/cover no-repeat;\
   border-radius:28px;overflow:hidden;overflow-y:auto;max-height:95vh;\
   border:4px solid #00E5FF;\
-  box-shadow:0 0 80px rgba(0,229,255,.3),0 0 0 8px rgba(0,229,255,.1),0 25px 60px rgba(0,0,0,.5);\
-  transform:scale(.85) translateY(40px);opacity:0;\
-  transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .4s ease;\
+  box-shadow:0 0 0 6px rgba(0,229,255,.15),0 20px 40px rgba(0,0,0,.5);\
+  transform:scale(.92) translateY(20px);opacity:0;\
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .25s ease;\
   font-family:"Schoolbell",cursive;\
 }\
 .zts-auth-modal::before{\
   content:"";position:absolute;inset:0;\
-  background:rgba(15,15,46,.82);backdrop-filter:blur(4px);\
+  background:rgba(15,15,46,.9);\
   z-index:0;\
 }\
 .zts-auth-modal>*{position:relative;z-index:1;}\
@@ -135,7 +135,7 @@
 }\
 .zts-auth-stat{\
   background:rgba(255,255,255,.15);border-radius:12px;padding:8px 14px;\
-  text-align:center;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.2);\
+  text-align:center;border:1px solid rgba(255,255,255,.2);\
 }\
 .zts-auth-stat-num{\
   font-family:"Bangers",cursive;font-size:1.6rem;color:#00E5FF;\
@@ -151,7 +151,7 @@
 }\
 .zts-auth-form-card{\
   background:rgba(255,255,255,.12);border-radius:20px;padding:24px;\
-  backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);\
+  border:1px solid rgba(255,255,255,.2);\
 }\
 .zts-auth-row{display:flex;gap:10px;}\
 .zts-auth-row .zts-auth-field{flex:1;}\
@@ -225,7 +225,7 @@
 }\
 .zts-auth-feat{\
   border-radius:14px;padding:12px;text-align:center;\
-  backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.15);\
+  border:1px solid rgba(255,255,255,.15);\
   transition:transform .3s;\
 }\
 .zts-auth-feat:hover{transform:translateY(-3px)}\
