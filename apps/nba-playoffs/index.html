@@ -774,6 +774,31 @@ async function fetchPlayoffData() {
   }
 
   Object.values(seriesMap).forEach(s => s.games.sort((a, b) => new Date(a.date) - new Date(b.date)));
+
+  // Recompte les victoires à partir des résultats RÉELS des matchs (source de vérité)
+  // — le summary ESPN peut être stale (ex: "leads 3-1" après que game 4 soit final)
+  Object.values(seriesMap).forEach(s => {
+    const counts = {};
+    s.games.forEach(ev => {
+      const comp = ev.competitions?.[0];
+      if (!comp?.status?.type?.completed) return;
+      const competitors = comp.competitors || [];
+      const winner = competitors.find(c => c.winner === true);
+      if (winner?.team?.abbreviation) {
+        const a = winner.team.abbreviation;
+        counts[a] = (counts[a] || 0) + 1;
+      } else {
+        // Fallback : plus haut score
+        const sorted = [...competitors].sort((a, b) => parseInt(b.score||0) - parseInt(a.score||0));
+        const a = sorted[0]?.team?.abbreviation;
+        if (a) counts[a] = (counts[a] || 0) + 1;
+      }
+    });
+    if (Object.keys(counts).length) {
+      Object.values(s.teams).forEach(t => { t.wins = counts[t.abbrev] || 0; });
+    }
+  });
+
   return buildBracketFromAPI();
 }
 
