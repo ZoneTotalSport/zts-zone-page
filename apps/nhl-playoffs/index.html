@@ -1710,7 +1710,13 @@ function matchupHTML(s) {
 // SERIES MODAL (click from bracket)
 // =============================================
 function findSeriesByLetter(letter) {
-  const all = [...(bracketData?.east||[]), ...(bracketData?.west||[])];
+  const d = bracketData || {};
+  const all = [
+    ...(d.east||[]), ...(d.west||[]),
+    ...(d.eastR2||[]), ...(d.westR2||[]),
+    ...(d.eastR3||[]), ...(d.westR3||[]),
+    ...(d.finals||[])
+  ];
   return all.find(s => s.letter === letter);
 }
 
