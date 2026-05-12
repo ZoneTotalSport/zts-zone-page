@@ -1734,57 +1734,73 @@ async function openSeriesModal(letter) {
   const seriesGames = allCachedGames.filter(g => g.seriesStatus?.seriesLetter === letter)
     .sort((a,b) => (a.seriesStatus?.gameNumberOfSeries||0) - (b.seriesStatus?.gameNumberOfSeries||0));
 
-  const playedNums = seriesGames.map(g => g.seriesStatus?.gameNumberOfSeries).filter(Boolean);
+  // Index played games par numéro de match (évite doublons + saut de match si cache incomplet)
+  const gamesByNum = {};
+  seriesGames.forEach(g => {
+    const n = g.seriesStatus?.gameNumberOfSeries;
+    if (n && !gamesByNum[n]) gamesByNum[n] = g;
+  });
+  // Nombre minimum de matchs joués = somme des victoires (source de vérité)
+  const totalPlayed = (t.w || 0) + (b.w || 0);
 
   let gamesHTML = '';
 
-  // Played / live games
-  seriesGames.forEach(g => {
-    const gNum = g.seriesStatus?.gameNumberOfSeries || '?';
-    const state = g.gameState;
-    const isFinal = state === 'OFF' || state === 'FINAL';
-    const isLive = state === 'LIVE' || state === 'CRIT';
-    const away = g.awayTeam, home = g.homeTeam;
-
-    let badge = '';
-    if (isLive) badge = `<span class="modal-game-badge live"><span class="live-pulse"></span>EN COURS</span>`;
-    else if (isFinal) badge = `<span class="modal-game-badge final">FINAL</span>`;
-    else badge = `<span class="modal-game-badge upcoming">À VENIR</span>`;
-
-    const awayW = isFinal && (away.score > home.score);
-    const homeW = isFinal && (home.score > away.score);
-
-    gamesHTML += `
-      <div class="modal-game" data-game-id="${g.id}" onclick="toggleModalGameDetail(this)">
-        <span class="modal-game-num">Match ${gNum}</span>
-        <div class="modal-game-score">
-          <img src="${LOGO(away.abbrev)}">
-          <span class="mg-score ${awayW?'winner':''}">${state==='FUT'?'-':away.score}</span>
-          <span class="mg-at">@</span>
-          <span class="mg-score ${homeW?'winner':''}">${state==='FUT'?'-':home.score}</span>
-          <img src="${LOGO(home.abbrev)}">
-        </div>
-        ${isLive ? `<span style="font-family:'Bungee';font-size:11px;color:var(--cyan);">P${g.period} ${g.clock?.timeRemaining||''}</span>` : ''}
-        ${badge}
-      </div>
-      <div class="modal-game-details" id="mgd-${g.id}"></div>`;
-  });
-
-  // Future games
+  // Boucle unique 1..7 — toujours en ordre
   for (let i = 1; i <= 7; i++) {
-    if (playedNums.includes(i)) continue;
+    const g = gamesByNum[i];
     const ifNeeded = i > 4;
-    gamesHTML += `
-      <div class="modal-game" style="opacity:0.35;cursor:default">
-        <span class="modal-game-num">Match ${i}</span>
-        <span class="modal-game-date">${sched[i-1]||''}</span>
-        <div class="modal-game-score">
-          <img src="${LOGO(t.a)}" style="opacity:0.4">
-          <span class="mg-at">vs</span>
-          <img src="${LOGO(b.a)}" style="opacity:0.4">
+
+    if (g) {
+      const state = g.gameState;
+      const isFinal = state === 'OFF' || state === 'FINAL';
+      const isLive = state === 'LIVE' || state === 'CRIT';
+      const away = g.awayTeam, home = g.homeTeam;
+      let badge = isLive ? `<span class="modal-game-badge live"><span class="live-pulse"></span>EN COURS</span>`
+        : isFinal ? `<span class="modal-game-badge final">FINAL</span>`
+        : `<span class="modal-game-badge upcoming">À VENIR</span>`;
+      const awayW = isFinal && (away.score > home.score);
+      const homeW = isFinal && (home.score > away.score);
+      gamesHTML += `
+        <div class="modal-game" data-game-id="${g.id}" onclick="toggleModalGameDetail(this)">
+          <span class="modal-game-num">Match ${i}</span>
+          <div class="modal-game-score">
+            <img src="${LOGO(away.abbrev)}">
+            <span class="mg-score ${awayW?'winner':''}">${state==='FUT'?'-':away.score}</span>
+            <span class="mg-at">@</span>
+            <span class="mg-score ${homeW?'winner':''}">${state==='FUT'?'-':home.score}</span>
+            <img src="${LOGO(home.abbrev)}">
+          </div>
+          ${isLive ? `<span style="font-family:'Bungee';font-size:11px;color:var(--cyan);">P${g.period} ${g.clock?.timeRemaining||''}</span>` : ''}
+          ${badge}
         </div>
-        <span class="modal-game-badge ${ifNeeded?'if-needed':'upcoming'}">${ifNeeded?'SI NÉC.':'À VENIR'}</span>
-      </div>`;
+        <div class="modal-game-details" id="mgd-${g.id}"></div>`;
+    } else if (i <= totalPlayed) {
+      // Match joué mais score absent de la cache (proxy timeout) — placeholder
+      gamesHTML += `
+        <div class="modal-game" style="opacity:0.7;cursor:default">
+          <span class="modal-game-num">Match ${i}</span>
+          <span class="modal-game-date">${sched[i-1]||''}</span>
+          <div class="modal-game-score">
+            <img src="${LOGO(t.a)}">
+            <span class="mg-at">@</span>
+            <img src="${LOGO(b.a)}">
+          </div>
+          <span class="modal-game-badge final" style="opacity:.6">SCORE N/D</span>
+        </div>`;
+    } else {
+      // Match à venir
+      gamesHTML += `
+        <div class="modal-game" style="opacity:0.35;cursor:default">
+          <span class="modal-game-num">Match ${i}</span>
+          <span class="modal-game-date">${sched[i-1]||''}</span>
+          <div class="modal-game-score">
+            <img src="${LOGO(t.a)}" style="opacity:0.4">
+            <span class="mg-at">vs</span>
+            <img src="${LOGO(b.a)}" style="opacity:0.4">
+          </div>
+          <span class="modal-game-badge ${ifNeeded?'if-needed':'upcoming'}">${ifNeeded?'SI NÉC.':'À VENIR'}</span>
+        </div>`;
+    }
   }
 
   if (!gamesHTML.trim() || seriesGames.length === 0) {
