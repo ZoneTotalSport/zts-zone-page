@@ -828,10 +828,24 @@ function buildBracketFromAPI() {
     else west.push(entry);
   });
 
-  // If we found API data but not enough for a full bracket, merge with fallback
+  // Merge API data with FALLBACK by round (API takes priority per round)
+  function mergeRound(apiArr, fallbackArr, round, expectedCount) {
+    const apiR = apiArr.filter(s => s.round === round);
+    if (apiR.length >= expectedCount) return apiR;
+    const fbR = fallbackArr.filter(s => s.round === round);
+    return apiR.length > 0 ? apiR : fbR;
+  }
   const result = {
-    east: east.length >= 4 ? east : [...east, ...FALLBACK.east.slice(east.length)],
-    west: west.length >= 4 ? west : [...west, ...FALLBACK.west.slice(west.length)]
+    east: [
+      ...mergeRound(east, FALLBACK.east, 1, 4),
+      ...mergeRound(east, FALLBACK.east, 2, 2),
+      ...mergeRound(east, FALLBACK.east, 3, 1),
+    ],
+    west: [
+      ...mergeRound(west, FALLBACK.west, 1, 4),
+      ...mergeRound(west, FALLBACK.west, 2, 2),
+      ...mergeRound(west, FALLBACK.west, 3, 1),
+    ]
   };
   result.east.sort((a, b) => a.round - b.round || (a.top.s || 99) - (b.top.s || 99));
   result.west.sort((a, b) => a.round - b.round || (a.top.s || 99) - (b.top.s || 99));
