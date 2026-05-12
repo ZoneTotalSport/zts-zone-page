@@ -953,8 +953,10 @@ function openSeriesModal(letter) {
     const tLogo = t.logo || LOGO(t.a);
     const bLogo = b.logo || LOGO(b.a);
 
-    // Find API games for this series via seriesId
-    const apiSeries = series.seriesId ? seriesMap[series.seriesId] : null;
+    // Find API games for this series via seriesId OU par paire d'équipes (clé teamAbbrs triée)
+    const teamKey = [series.top.a, series.bot.a].sort().join('-');
+    const apiSeries = (series.seriesId && seriesMap[series.seriesId])
+      || seriesMap[teamKey] || null;
     const apiGames = apiSeries?.games || [];
 
     let gamesHTML = '';
