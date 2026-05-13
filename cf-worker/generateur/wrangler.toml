@@ -1,0 +1,25 @@
+name = "zts-generateur"
+main = "src/generateur-worker.js"
+compatibility_date = "2025-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Route prod — à activer au commit #8
+# routes = [
+#   { pattern = "api.zonetotalsport.ca/generate", custom_domain = true }
+# ]
+
+[vars]
+DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+SONNET_MODEL = "claude-sonnet-4-6"
+QUOTA_FREE_MONTH = "10"
+QUOTA_ANON_MONTH = "3"
+MAX_OUTPUT_TOKENS = "2000"
+
+# Secrets (à provisionner via `wrangler secret put` au commit #2/#8) :
+# - ANTHROPIC_API_KEY        (clé zts-generateur-worker, à créer)
+# - FIREBASE_SERVICE_ACCOUNT (JSON service account complet)
+#
+# KV namespace anonymes (à créer au commit #3) :
+# [[kv_namespaces]]
+# binding = "ANON_QUOTA"
+# id = "<à remplir>"
