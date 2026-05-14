@@ -1144,48 +1144,55 @@ button, input, select, textarea {
 
 /* === COLLAPSIBLE SECTIONS === */
 .form-section {
-  margin-bottom: 8px;
-  border: 2px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
+  margin-bottom: 12px;
+  border: 4px solid #000;
+  border-radius: 20px;
   overflow: hidden;
+  background: #fff;
+  box-shadow: 6px 6px 0 #000;
 }
 
 .form-section-toggle {
   width: 100%;
   text-align: left;
-  font-family: 'Schoolbell', sans-serif;
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: #FFD700;
-  padding: 16px 20px;
+  font-family: 'Luckiest Guy', cursive;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  font-size: 1.4rem;
+  color: #fff;
+  padding: 16px 22px;
   cursor: pointer;
-  background: rgba(255,255,255,0.04);
+  background: linear-gradient(135deg, #00C4FF 0%, #0086AD 100%);
   transition: 0.2s;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+  border-bottom: 4px solid #000;
 }
 
 .form-section-toggle::after {
   content: '▸';
   margin-left: auto;
-  font-size: 1rem;
+  font-size: 1.2rem;
   transition: transform 0.2s;
-  color: #888;
+  color: #FFF000;
 }
 
 .form-section-toggle.active::after {
   transform: rotate(90deg);
-  color: #00E5FF;
+  color: #FFF000;
 }
 
 .form-section-toggle:hover {
-  background: rgba(255,255,255,0.08);
+  filter: brightness(1.1);
 }
 
 .form-section-body {
   display: none;
-  padding: 16px 20px 20px;
+  padding: 20px 22px 24px;
+  background: #f8f9fa;
 }
 
 .form-section-body.active {
@@ -1372,17 +1379,18 @@ button, input, select, textarea {
 .form-input,
 .form-textarea,
 .form-select {
-  background: rgba(255,255,255,0.06);
-  border: 2px solid rgba(255,255,255,0.12);
+  background: #fff;
+  border: 3px solid #000;
   padding: 14px 18px;
-  border-radius: 16px;
+  border-radius: 14px;
   color: #1a1a1a;
   width: 100%;
-  font-family: 'Schoolbell', sans-serif;
-  font-size: 1.1rem;
+  font-family: 'DynaPuff', sans-serif;
+  font-size: 1.05rem;
   font-weight: 600;
   box-sizing: border-box;
-  transition: border-color 0.2s;
+  transition: 0.15s;
+  box-shadow: 3px 3px 0 #000;
 }
 
 .form-textarea {
@@ -1393,12 +1401,13 @@ button, input, select, textarea {
 .form-input:focus,
 .form-textarea:focus,
 .form-select:focus {
-  border-color: #00E5FF;
-  box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.15);
+  border-color: #00C4FF;
+  box-shadow: 5px 5px 0 #00C4FF, 0 0 0 4px rgba(0, 196, 255, 0.2);
+  outline: none;
 }
 
 .form-select option {
-  background: #222;
+  background: #fff;
   color: #1a1a1a;
 }
 
@@ -1990,4 +1999,497 @@ button, input, select, textarea {
   .modal-title {
     font-size: 1.4rem;
   }
+}
+
+/* ============================================================
+   ZTS PREMIUM LUMINEUX — OVERRIDE NÉOBRUTALISTE (mai 2026)
+   Light bg + border 4px noir + shadow 12px noir + bandeau couleur
+   ============================================================ */
+body {
+  background: #F4F1E8 !important;
+  color: #111 !important;
+}
+#gymBg { display: none !important; }
+
+main, .tab-section { color: #111; }
+
+/* Section hero — bandeau coloré + neubru */
+.section-hero {
+  border: 4px solid #111 !important;
+  border-radius: 28px !important;
+  box-shadow: 12px 12px 0 #111 !important;
+  color: #fff !important;
+}
+#tab-mes-sae .section-hero { color: #111 !important; }
+.hero-title { font-size: 2.6rem !important; }
+
+/* Controls bar — light + neubru */
+.controls-bar {
+  background: #fff !important;
+  border: 4px solid #111 !important;
+  border-radius: 24px !important;
+  box-shadow: 8px 8px 0 #111 !important;
+  backdrop-filter: none !important;
+  color: #111 !important;
+}
+.controls-bar input,
+.controls-bar select,
+.controls-bar textarea,
+.search-input {
+  background: #FAFAFA !important;
+  border: 3px solid #111 !important;
+  color: #111 !important;
+  border-radius: 14px !important;
+}
+
+/* Cards — light + bandeau couleur + neubru */
+.cards-grid { gap: 28px; }
+.card {
+  background: #fff !important;
+  border: 4px solid #111 !important;
+  border-radius: 24px !important;
+  box-shadow: 8px 8px 0 #111 !important;
+  backdrop-filter: none !important;
+  color: #111 !important;
+  padding-top: 32px !important;
+}
+.card:hover {
+  transform: translate(-3px, -3px) !important;
+  box-shadow: 12px 12px 0 #111 !important;
+  border-color: #111 !important;
+}
+.card::before { height: 10px !important; }
+.card-title { color: #0086AD !important; }
+.card-desc { color: #333 !important; }
+.card-tag {
+  background: #FFF000 !important;
+  color: #111 !important;
+  border: 2px solid #111 !important;
+  font-weight: 800;
+}
+
+/* Nav tabs — sticker chunky */
+.main-nav {
+  background: #fff !important;
+  border: 4px solid #111 !important;
+  border-radius: 24px !important;
+  box-shadow: 8px 8px 0 #111 !important;
+  padding: 10px !important;
+  margin-bottom: 24px;
+}
+.nav-tab {
+  border: 3px solid #111 !important;
+  background: #FAFAFA !important;
+  color: #111 !important;
+  border-radius: 14px !important;
+  font-family: 'Luckiest Guy', cursive !important;
+  letter-spacing: .04em;
+}
+.nav-tab.active {
+  background: #00C4FF !important;
+  color: #fff !important;
+  box-shadow: 4px 4px 0 #111 !important;
+}
+.nav-tab:hover { background: #FFF000 !important; color: #111 !important; }
+
+/* Modal — neubru */
+.modal-content,
+.machine-result,
+.results-empty,
+.empty-state {
+  background: #fff !important;
+  border: 4px solid #111 !important;
+  border-radius: 24px !important;
+  box-shadow: 12px 12px 0 #111 !important;
+  color: #111 !important;
+}
+
+/* Boutons primaires */
+.btn-primary,
+.btn-machine,
+button.primary {
+  background: #FFF000 !important;
+  color: #111 !important;
+  border: 3px solid #111 !important;
+  box-shadow: 4px 4px 0 #111 !important;
+  font-family: 'Luckiest Guy', cursive !important;
+  border-radius: 14px !important;
+}
+.btn-primary:hover,
+.btn-machine:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #111 !important;
+}
+
+/* Liens */
+a { color: #0086AD !important; }
+a:hover { color: #FF8C00 !important; }
+
+/* === FONTS GLOBALES — Luckiest Guy + DynaPuff === */
+body, p, span, div, li, td, th, label, input, textarea, select, button {
+  font-family: 'DynaPuff', 'Comic Sans MS', cursive !important;
+}
+h1, h2, h3, h4, h5, h6,
+.font-lucky, .hero-title, .card-title, .nav-tab, .modal-title,
+.btn-primary, .btn-machine, .stat-num, .loading-text {
+  font-family: 'Luckiest Guy', cursive !important;
+  letter-spacing: .04em;
+}
+
+/* ====== MODE FICHE ZTS PREMIUM (modal openSaeModalEnriched) ====== */
+#modal:has(.modal-box.fiche-mode) { padding: 10px !important; }
+.modal-box.fiche-mode {
+  background: #f8f9fa !important;
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,0.04) 2px, transparent 2px),
+    linear-gradient(to bottom, rgba(0,0,0,0.04) 2px, transparent 2px) !important;
+  background-size: 40px 40px !important;
+  max-width: 98vw !important;
+  width: 1400px !important;
+  max-height: 95vh !important;
+  border: 4px solid #000 !important;
+  border-radius: 24px !important;
+  padding: 0 !important;
+}
+.modal-box.fiche-mode #modalBody { padding: 32px !important; color: #111 !important; width: 100% !important; box-sizing: border-box !important; display: block !important; grid-template-columns: none !important; gap: 0 !important; }
+.modal-box.fiche-mode #modalBody > div { width: 100% !important; max-width: 100% !important; }
+.modal-box.fiche-mode #modalBody > div > div { width: 100% !important; }
+.modal-box.fiche-mode .max-w-5xl, .modal-box.fiche-mode .max-w-md { max-width: 100% !important; }
+.modal-box.fiche-mode .ff-lucky { font-family: 'Luckiest Guy', cursive !important; }
+.modal-box.fiche-mode .court-pattern {
+  background-image:
+    linear-gradient(0deg, transparent 24%, rgba(255,255,255,.3) 25%, rgba(255,255,255,.3) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.3) 75%, rgba(255,255,255,.3) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, rgba(255,255,255,.3) 25%, rgba(255,255,255,.3) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.3) 75%, rgba(255,255,255,.3) 76%, transparent 77%, transparent);
+  background-size: 50px 50px;
+}
+.modal-box.fiche-mode .fiche-pane { display: none; }
+.modal-box.fiche-mode .fiche-pane.active { display: block; }
+.modal-box.fiche-mode .fiche-tab.active { background: #FFFC00 !important; color: #000 !important; }
+.modal-box.fiche-mode .fiche-modal-close {
+  position: absolute; top: 16px; right: 16px; z-index: 100;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #000; color: #fff; border: 3px solid #fff;
+  font-size: 1.4rem; cursor: pointer; box-shadow: 4px 4px 0 #000;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-box.fiche-mode .fiche-modal-close:hover { background: #FF2A7A; }
+@keyframes ficheFadeIn { from {opacity:0; transform:translateY(-8px)} to {opacity:1; transform:translateY(0)} }
+.modal-box.fiche-mode .fiche-fade { animation: ficheFadeIn .25s ease-out; }
+@media print {
+  @page { size: auto; margin: 10mm; }
+  body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .modal-box.fiche-mode .no-print { display:none !important; }
+  .modal-box.fiche-mode .fiche-pane { display:block !important; page-break-before: always; }
+}
+
+/* ====== MOYENS BROWSER (catégories + items) ====== */
+.moyens-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.moyen-category {
+  background: rgba(255,255,255,0.04);
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 14px;
+}
+.moyen-cat-header {
+  display: flex; align-items: center; gap: 8px;
+  padding-bottom: 8px; margin-bottom: 10px;
+  border-bottom: 3px solid;
+}
+.moyen-cat-icon { font-size: 1.4rem; }
+.moyen-cat-label {
+  font-family: 'Luckiest Guy', cursive;
+  letter-spacing: 0.04em;
+  font-size: 1rem;
+  color: #000;
+  text-transform: uppercase;
+}
+.moyen-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.moyen-item {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  color: #000;
+  font-size: 0.85rem;
+  font-family: 'DynaPuff', sans-serif;
+}
+.moyen-item:hover {
+  background: var(--moyen-color, #00E5FF);
+  border-color: var(--moyen-color, #00E5FF);
+  color: #111;
+  transform: translateY(-2px);
+}
+.moyen-item.active {
+  background: var(--moyen-color, #00E5FF);
+  border-color: var(--moyen-color, #00E5FF);
+  color: #111;
+  font-weight: 700;
+}
+.moyen-item-icon { font-size: 1rem; }
+.moyen-item-label { white-space: nowrap; }
+
+/* ============================================================
+   ZTS PREMIUM LUMINEUX — OVERRIDE GLOBAL APP (8 mai 2026)
+   Standard shadowbox néobrutaliste appliqué partout sauf
+   éléments déjà refaits inline (cards SAÉ, modal fiche, header).
+   ============================================================ */
+
+/* — Nav tabs principaux — */
+.main-nav { gap: 14px !important; padding: 18px 4px 24px !important; }
+.nav-tab {
+  font-family: 'Luckiest Guy', cursive !important;
+  letter-spacing: .04em !important;
+  font-size: 1.15rem !important;
+  background: #fff !important;
+  color: #004A61 !important;
+  border: 4px solid #000 !important;
+  border-radius: 18px !important;
+  box-shadow: 6px 6px 0 #000 !important;
+  padding: 14px 22px !important;
+  transition: transform .12s, box-shadow .12s, background .12s !important;
+  text-shadow: none !important;
+}
+.nav-tab:hover {
+  transform: translate(-2px,-2px) !important;
+  box-shadow: 8px 8px 0 #000 !important;
+  background: #FFFC00 !important;
+  color: #004A61 !important;
+}
+.nav-tab.active {
+  background: #00C4FF !important;
+  color: #fff !important;
+  border-color: #000 !important;
+  text-shadow: 2px 2px 0 rgba(0,0,0,.3) !important;
+  transform: translate(2px,2px) !important;
+  box-shadow: 4px 4px 0 #000 !important;
+}
+
+/* — Section hero (par tab) — */
+.section-hero, .section-hero.glass {
+  border: 5px solid #000 !important;
+  border-radius: 32px !important;
+  box-shadow: 12px 12px 0 #000 !important;
+  padding: 32px 28px !important;
+  margin-bottom: 28px !important;
+  color: #fff !important;
+}
+#tab-banque .section-hero { background: radial-gradient(circle at top right, #00C4FF 0%, #004A61 100%) !important; }
+#tab-createur .section-hero { background: linear-gradient(135deg, #FF8C00, #E65100) !important; }
+#tab-mes-sae .section-hero { background: linear-gradient(135deg, #FFFC00, #FFC107) !important; color: #004A61 !important; }
+#tab-machine .section-hero { background: linear-gradient(135deg, #4ADE80, #16A34A) !important; }
+.section-hero .hero-title {
+  font-family: 'Luckiest Guy', cursive !important;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem) !important;
+  text-shadow: 4px 4px 0 #000 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+  line-height: 1.05 !important;
+}
+#tab-mes-sae .section-hero .hero-title { text-shadow: 4px 4px 0 rgba(0,0,0,.2) !important; }
+.section-hero .hero-sub {
+  font-family: 'DynaPuff', cursive !important;
+  font-weight: 500 !important;
+  font-size: 1.05rem !important;
+  margin-top: 8px !important;
+  opacity: 1 !important;
+}
+.section-hero .hero-mascot {
+  border: 5px solid #fff !important;
+  border-radius: 24px !important;
+  box-shadow: 6px 6px 0 #000 !important;
+  background: #fff !important;
+  transform: rotate(-3deg);
+  filter: none !important;
+  padding: 6px;
+}
+
+/* — Controls bar (filtres) — */
+.controls-bar, .controls-bar.glass {
+  background: #fff !important;
+  border: 4px solid #000 !important;
+  border-radius: 24px !important;
+  box-shadow: 8px 8px 0 #000 !important;
+  padding: 22px !important;
+  margin-bottom: 22px !important;
+  backdrop-filter: none !important;
+  gap: 14px !important;
+}
+.search-input {
+  background: #fff !important;
+  border: 3px solid #000 !important;
+  border-radius: 16px !important;
+  box-shadow: 4px 4px 0 #000 !important;
+  font-family: 'DynaPuff', cursive !important;
+  font-weight: 600 !important;
+  color: #004A61 !important;
+  padding: 12px 18px !important;
+  transition: transform .12s, box-shadow .12s !important;
+}
+.search-input::placeholder { color: #888 !important; }
+.search-input:focus {
+  outline: none !important;
+  border-color: #000 !important;
+  box-shadow: 6px 6px 0 #00C4FF !important;
+  transform: translate(-1px,-1px);
+}
+.filter-select {
+  background-color: #FFFC00 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+  border: 3px solid #000 !important;
+  border-radius: 14px !important;
+  box-shadow: 4px 4px 0 #000 !important;
+  font-family: 'Luckiest Guy', cursive !important;
+  letter-spacing: .03em !important;
+  color: #004A61 !important;
+  padding: 11px 36px 11px 16px !important;
+  transition: transform .12s, box-shadow .12s !important;
+}
+.filter-select:hover { transform: translate(-1px,-1px); box-shadow: 5px 5px 0 #000 !important; }
+.filter-select:focus { outline: none !important; box-shadow: 6px 6px 0 #FF2A7A !important; }
+.filter-select option { background: #fff !important; color: #004A61 !important; }
+
+/* — Stats pills — */
+.stats-bar { gap: 12px !important; margin-bottom: 24px !important; }
+.stat-pill {
+  background: #fff !important;
+  border: 3px solid #000 !important;
+  border-radius: 9999px !important;
+  box-shadow: 4px 4px 0 #000 !important;
+  font-family: 'Luckiest Guy', cursive !important;
+  letter-spacing: .04em !important;
+  padding: 8px 18px !important;
+  font-size: 1rem !important;
+  color: #004A61 !important;
+}
+.stat-pill.pill-cyan { background: #00C4FF !important; color: #fff !important; text-shadow: 2px 2px 0 rgba(0,0,0,.3); }
+.stat-pill.pill-yellow { background: #FFFC00 !important; color: #004A61 !important; text-shadow: none !important; }
+
+/* — Moyens browser — */
+.moyens-browser, .moyens-browser.glass {
+  background: #fff !important;
+  border: 4px solid #000 !important;
+  border-radius: 28px !important;
+  box-shadow: 10px 10px 0 #000 !important;
+  padding: 28px !important;
+  margin-bottom: 28px !important;
+}
+.moyens-title {
+  font-family: 'Luckiest Guy', cursive !important;
+  font-size: 1.5rem !important;
+  color: #004A61 !important;
+  letter-spacing: .04em !important;
+  margin: 0 0 18px !important;
+  text-transform: uppercase;
+  text-shadow: none !important;
+  display: inline-block;
+  background: #FFFC00;
+  padding: 8px 18px;
+  border: 3px solid #000;
+  border-radius: 14px;
+  box-shadow: 5px 5px 0 #000;
+}
+.moyens-grid { gap: 16px !important; }
+.moyen-card {
+  background: #fff !important;
+  border: 4px solid #000 !important;
+  border-radius: 20px !important;
+  box-shadow: 6px 6px 0 #000 !important;
+  padding: 18px 14px !important;
+  transition: transform .15s, box-shadow .15s, background .15s !important;
+  cursor: pointer;
+}
+.moyen-card:hover {
+  transform: translate(-3px,-3px) !important;
+  box-shadow: 9px 9px 0 #000 !important;
+  background: #FFFC00 !important;
+}
+.moyen-card.active {
+  background: #00C4FF !important;
+  border-color: #000 !important;
+  color: #fff !important;
+  transform: translate(2px,2px) !important;
+  box-shadow: 4px 4px 0 #000 !important;
+}
+.moyen-card.active .moyen-label { color: #fff !important; text-shadow: 2px 2px 0 rgba(0,0,0,.3) !important; }
+.moyen-icon { font-size: 2.6rem !important; margin-bottom: 8px !important; }
+.moyen-label {
+  font-family: 'Luckiest Guy', cursive !important;
+  letter-spacing: .03em !important;
+  color: #004A61 !important;
+  font-size: 1rem !important;
+  text-shadow: none !important;
+}
+
+/* — Template bar (créateur) — */
+.template-bar, .template-bar.glass {
+  background: #FFFC00 !important;
+  border: 4px solid #000 !important;
+  border-radius: 22px !important;
+  box-shadow: 8px 8px 0 #000 !important;
+  padding: 18px 22px !important;
+  margin-bottom: 22px !important;
+  font-family: 'Luckiest Guy', cursive !important;
+  letter-spacing: .03em;
+  color: #004A61 !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+/* — Creator form wrap — */
+.creator-form, .creator-form.glass {
+  background: #fff !important;
+  border: 4px solid #000 !important;
+  border-radius: 28px !important;
+  box-shadow: 10px 10px 0 #000 !important;
+  padding: 24px !important;
+}
+
+/* — Mag-btn (favoris/secondaires) — */
+.mag-btn, .mag-btn.secondary {
+  font-family: 'Luckiest Guy', cursive !important;
+  background: #fff !important;
+  color: #004A61 !important;
+  border: 3px solid #000 !important;
+  border-radius: 16px !important;
+  box-shadow: 4px 4px 0 #000 !important;
+  padding: 10px 18px !important;
+  letter-spacing: .04em !important;
+  text-shadow: none !important;
+  transition: transform .12s, box-shadow .12s, background .12s !important;
+  cursor: pointer;
+}
+.mag-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #000 !important; background: #FFFC00 !important; }
+.mag-btn:active, .mag-btn.active {
+  transform: translate(4px,4px) !important;
+  box-shadow: 0 0 0 #000 !important;
+  background: #FF2A7A !important;
+  color: #fff !important;
+}
+
+/* — Pagination — */
+.pagination button {
+  font-family: 'Luckiest Guy', cursive !important;
+  background: #fff !important;
+  color: #004A61 !important;
+  border: 3px solid #000 !important;
+  border-radius: 14px !important;
+  box-shadow: 3px 3px 0 #000 !important;
+  padding: 8px 14px !important;
+  margin: 0 4px !important;
+  letter-spacing: .04em !important;
+  cursor: pointer;
+  transition: transform .12s, box-shadow .12s !important;
+}
+.pagination button:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #000 !important; background: #FFFC00 !important; }
+.pagination button.active, .pagination button:disabled {
+  background: #00C4FF !important;
+  color: #fff !important;
+  text-shadow: 2px 2px 0 rgba(0,0,0,.3) !important;
+  transform: translate(2px,2px);
+  box-shadow: 1px 1px 0 #000 !important;
 }

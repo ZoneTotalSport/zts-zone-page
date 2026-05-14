@@ -491,9 +491,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 // ============================================================
 
 async function loadAllSAE(onFileLoaded) {
+  const SAE_VERSION = '20260509a';
   const results = await Promise.allSettled(
     SAE_SOURCES.map(src =>
-      fetch(src)
+      fetch(src + '?v=' + SAE_VERSION)
         .then(r => {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
@@ -746,25 +747,31 @@ function renderSAE() {
     const id = getSaeId(sae);
     const fav = isFavori(sae);
     const titre = escapeHtml(sae.titre || 'Sans titre');
-    const desc = escapeHtml(truncate(sae.description || '', 120));
-    const niveau = escapeHtml(sae.niveau || '');
-    const moyen = escapeHtml(sae.moyen_action || '');
-    const duree = escapeHtml(sae.duree ? String(sae.duree) : '');
+    // BUT du cours : intentions/objectif d'abord, sinon description courte
+    const butRaw = sae.intentions || sae.intentions_pedagogiques || sae.objectifs || sae.objectif || sae.description || '';
+    const butStr = Array.isArray(butRaw) ? butRaw.join(' · ') : (typeof butRaw === 'object' ? Object.values(butRaw).join(' · ') : String(butRaw));
+    const but = escapeHtml(truncate(butStr, 110));
+    // NB cours : prioriser sae.cours.length (réalité), fallback duree/nombre_periodes
+    let nbCours = '';
+    if (Array.isArray(sae.cours) && sae.cours.length > 0) {
+      nbCours = sae.cours.length + ' cours';
+    } else {
+      const nbRaw = sae.duree || sae.duree_totale || sae.nombre_periodes || '';
+      const nbStr = String(nbRaw).match(/\d+/) ? String(nbRaw).match(/\d+/)[0] : (nbRaw ? String(nbRaw) : '');
+      if (nbStr) nbCours = nbStr + ' cours';
+    }
     const icon = getSaeIcon(sae);
 
     html += '<div class="card" data-id="' + escapeHtml(id) + '" data-index="' + i + '">' +
       '<button class="card-fav ' + (fav ? 'active' : '') + '" aria-label="Favori" data-sae-id="' + escapeHtml(id) + '">'+
       (fav ? '★' : '☆') + '</button>' +
-      '<div class="card-badge">PFEQ</div>' +
       '<div class="card-header">' +
         '<span class="card-icon">' + icon + '</span>' +
         '<h4 class="card-title">' + titre + '</h4>' +
       '</div>' +
-      '<p class="card-desc">' + desc + '</p>' +
-      '<div class="card-tags">' +
-        (niveau ? '<span class="card-tag">' + niveau + '</span>' : '') +
-        (moyen ? '<span class="card-tag">' + moyen + '</span>' : '') +
-        (duree ? '<span class="card-tag">' + duree + '</span>' : '') +
+      '<div class="card-body">' +
+        (nbCours ? '<span class="card-pill-duree">⏱️ ' + escapeHtml(nbCours) + '</span>' : '') +
+        (but ? '<p class="card-but"><strong>BUT :</strong> ' + but + '</p>' : '') +
       '</div>' +
     '</div>';
   }
@@ -858,11 +865,15 @@ function filterSAE() {
   const cycleEl = document.getElementById('sae-cycle');
   const moyenEl = document.getElementById('sae-moyen');
   const compEl = document.getElementById('sae-competence');
+  const nbCoursEl = document.getElementById('sae-nbcours');
+  const dureeEl = document.getElementById('sae-duree');
 
   const search = (searchEl?.value || '').toLowerCase().trim();
   const cycle = cycleEl?.value || '';
   const moyen = moyenEl?.value || '';
   const comp = compEl?.value || '';
+  const nbCoursFilter = parseInt(nbCoursEl?.value || '0', 10) || 0;
+  const dureeFilter = parseInt(dureeEl?.value || '0', 10) || 0;
 
   filteredSAE = allSAE.filter(sae => {
     // Search filter
@@ -904,6 +915,24 @@ function filterSAE() {
       if (!compStr.includes(comp.toLowerCase())) return false;
     }
 
+    // Nombre de cours filter (exact)
+    if (nbCoursFilter) {
+      const nb = Array.isArray(sae.cours) ? sae.cours.length : 0;
+      if (nb !== nbCoursFilter) return false;
+    }
+
+    // Durée par cours filter (≤ X min)
+    if (dureeFilter) {
+      let d = 0;
+      if (Array.isArray(sae.cours) && sae.cours.length && sae.cours[0].duree_min) {
+        d = parseInt(sae.cours[0].duree_min, 10) || 0;
+      } else {
+        const m = String(sae.duree_par_periode || sae.duree || '').match(/\d+/);
+        d = m ? parseInt(m[0], 10) : 0;
+      }
+      if (!d || d > dureeFilter) return false;
+    }
+
     // Favorites filter
     if (favFilterActive) {
       if (!isFavori(sae)) return false;
@@ -936,6 +965,12 @@ function setupFilterListeners() {
 
   const compEl = document.getElementById('sae-competence');
   if (compEl) compEl.addEventListener('change', filterSAE);
+
+  const nbCoursEl = document.getElementById('sae-nbcours');
+  if (nbCoursEl) nbCoursEl.addEventListener('change', filterSAE);
+
+  const dureeEl = document.getElementById('sae-duree');
+  if (dureeEl) dureeEl.addEventListener('change', filterSAE);
 
   const favBtn = document.getElementById('favFilterBtn');
   if (favBtn) {
@@ -1226,6 +1261,9 @@ function openSaeModal(sae) {
   const titre = escapeHtml(sae.titre || 'Sans titre');
   const icon = getSaeIcon(sae);
 
+  // ── TOUJOURS passer par la fiche ZTS Premium ──
+  return openSaeModalEnriched(sae);
+
   let html = '';
 
   // Header
@@ -1274,56 +1312,49 @@ function openSaeModal(sae) {
     html += buildModalSection(t('mContexte'), contexte);
   }
 
-  // ── DEROULEMENT: Handle multiple structures ──
+  // ── DEROULEMENT (groupé) : phases 1-4 + variantes dans UNE seule carte ──
   const deroulement = sae.deroulement || sae.déroulement;
+  let phases = []; // [{title, content}]
   if (deroulement) {
-    if (typeof deroulement === 'string') {
-      html += buildModalSection('🏃 Déroulement', deroulement);
-    } else if (Array.isArray(deroulement)) {
-      html += buildModalSection('🏃 Déroulement', deroulement);
+    if (typeof deroulement === 'string' || Array.isArray(deroulement)) {
+      phases.push({title: '📋 ' + t('mDeroulement') || '📋 Déroulement', content: deroulement});
     } else if (typeof deroulement === 'object') {
-      // Phase 1 — Échauffement
-      const phase1 = deroulement.mise_en_train || deroulement.echauffement || deroulement.phase1 || deroulement.preparation;
-      if (phase1) html += buildModalSection(t('mMiseEnTrain'), phase1);
-
-      // Phase 2 — Développement
-      const phase2 = deroulement.partie_principale_1 || deroulement.tache_complexe || deroulement.developpement ||
-                      deroulement.partie_principale || deroulement.phase2 || deroulement.realisation;
-      if (phase2) html += buildModalSection(t('mPartie1'), phase2);
-
-      // Phase 3 — Réinvestissement
-      const phase3 = deroulement.partie_principale_2 || deroulement.reinvestissement || deroulement.phase3 ||
-                      deroulement.integration || deroulement.jeu;
-      if (phase3) html += buildModalSection(t('mPartie2'), phase3);
-
-      // Phase 4 — Retour au calme
-      const phase4 = deroulement.retour_au_calme || deroulement.retour || deroulement.bilan || deroulement.phase4;
-      if (phase4) html += buildModalSection(t('mRetour'), phase4);
-
-      // Any other keys in deroulement not yet shown
-      const usedKeys = ['mise_en_train', 'echauffement', 'phase1', 'preparation',
-        'partie_principale_1', 'tache_complexe', 'developpement', 'partie_principale', 'phase2', 'realisation',
-        'partie_principale_2', 'reinvestissement', 'phase3', 'integration', 'jeu',
-        'retour_au_calme', 'retour', 'bilan', 'phase4'];
-      for (const [k, v] of Object.entries(deroulement)) {
-        if (!usedKeys.includes(k) && v) {
-          html += buildModalSection('📌 ' + escapeHtml(k.replace(/_/g, ' ')), v);
-        }
+      const p1 = deroulement.mise_en_train || deroulement.echauffement || deroulement.phase1 || deroulement.preparation;
+      if (p1) phases.push({title: '🏃 ' + t('mMiseEnTrain'), content: p1});
+      const p2 = deroulement.partie_principale_1 || deroulement.tache_complexe || deroulement.developpement || deroulement.partie_principale || deroulement.phase2 || deroulement.realisation;
+      if (p2) phases.push({title: '⚡ ' + t('mPartie1'), content: p2});
+      const p3 = deroulement.partie_principale_2 || deroulement.reinvestissement || deroulement.phase3 || deroulement.integration || deroulement.jeu;
+      if (p3) phases.push({title: '🔄 ' + t('mPartie2'), content: p3});
+      const p4 = deroulement.retour_au_calme || deroulement.retour || deroulement.bilan || deroulement.phase4;
+      if (p4) phases.push({title: '🧘 ' + t('mRetour'), content: p4});
+      const used = ['mise_en_train','echauffement','phase1','preparation','partie_principale_1','tache_complexe','developpement','partie_principale','phase2','realisation','partie_principale_2','reinvestissement','phase3','integration','jeu','retour_au_calme','retour','bilan','phase4'];
+      for (const [k,v] of Object.entries(deroulement)) {
+        if (!used.includes(k) && v) phases.push({title: '📌 ' + escapeHtml(k.replace(/_/g,' ')), content: v});
       }
     }
   } else {
-    // Try individual top-level fields
-    const miseEnTrain = sae.mise_en_train || sae.echauffement;
-    if (miseEnTrain) html += buildModalSection(t('mMiseEnTrain'), miseEnTrain);
+    const p1 = sae.mise_en_train || sae.echauffement;
+    if (p1) phases.push({title: '🏃 ' + t('mMiseEnTrain'), content: p1});
+    const p2 = sae.partie_principale_1 || sae.tache_complexe || sae.developpement || sae.partie_principale;
+    if (p2) phases.push({title: '⚡ ' + t('mPartie1'), content: p2});
+    const p3 = sae.partie_principale_2 || sae.reinvestissement;
+    if (p3) phases.push({title: '🔄 ' + t('mPartie2'), content: p3});
+    const p4 = sae.retour_au_calme || sae.retour || sae.bilan;
+    if (p4) phases.push({title: '🧘 ' + t('mRetour'), content: p4});
+  }
+  // Ajouter Variantes comme dernier sous-bloc du déroulement
+  const variantesRaw = sae.variantes || sae.variantes_progressions || sae.progressions;
+  if (variantesRaw) phases.push({title: '🔀 ' + t('mVariantes'), content: variantesRaw});
 
-    const partie1 = sae.partie_principale_1 || sae.tache_complexe || sae.developpement || sae.partie_principale;
-    if (partie1) html += buildModalSection(t('mPartie1'), partie1);
-
-    const partie2 = sae.partie_principale_2 || sae.reinvestissement;
-    if (partie2) html += buildModalSection(t('mPartie2'), partie2);
-
-    const retour = sae.retour_au_calme || sae.retour || sae.bilan;
-    if (retour) html += buildModalSection(t('mRetour'), retour);
+  if (phases.length > 0) {
+    html += '<div class="modal-section"><h3>🏃 Déroulement</h3><div class="phases-wrap">';
+    for (const ph of phases) {
+      html += '<div class="phase-block">' +
+        '<h4 class="phase-block-title">' + ph.title + '</h4>' +
+        '<div class="phase-block-content">' + formatTextBlock(ph.content) + '</div>' +
+      '</div>';
+    }
+    html += '</div></div>';
   }
 
   // ── SECTION: Matériel ──
@@ -1384,22 +1415,18 @@ function openSaeModal(sae) {
     }
   }
 
-  // ── SECTION: Adaptations HDAA ──
+  // ── SECTION: Adaptations HDAA (rectangle wide) ──
   const adaptations = sae.adaptations || sae.adaptations_hdaa || sae.differenciation || sae.inclusion;
   if (adaptations) {
-    html += buildModalSection(t('mAdaptations'), adaptations);
+    html += buildModalSection(t('mAdaptations'), adaptations, 'tile-wide');
   }
 
-  // ── SECTION: Variantes ──
-  const variantes = sae.variantes || sae.variantes_progressions || sae.progressions;
-  if (variantes) {
-    html += buildModalSection(t('mVariantes'), variantes);
-  }
+  // ── SECTION: Variantes — déjà incluse dans Déroulement (groupage) ──
 
-  // ── SECTION: Valeurs éducatives ──
+  // ── SECTION: Valeurs éducatives (carré) ──
   const valeurs = sae.valeurs || sae.valeurs_educatives || sae.valeurs_pedagogiques;
   if (valeurs) {
-    html += buildModalSection(t('mValeurs'), valeurs);
+    html += buildModalSection(t('mValeurs'), valeurs, 'tile-square');
   }
 
   // ── SECTION: Tags ──
@@ -1426,9 +1453,761 @@ function openSaeModal(sae) {
   addXP(2);
 }
 
-function buildModalSection(title, content) {
+// ── Mode enrichi : FICHE ZTS PREMIUM (style shadowbox) ──
+function openSaeModalEnriched(sae) {
+  const html = buildFicheZTSHtml(sae);
+  showModal(html);
+  // Délai 500ms pour laisser GSAP finir l'animation (350ms + marge)
+  setTimeout(() => {
+    const box = document.querySelector('.modal-box');
+    if (box) {
+      box.classList.add('fiche-mode');
+      // Utilise setProperty avec priority 'important' — n'écrase pas les transforms GSAP
+      box.style.setProperty('max-width', '98vw', 'important');
+      box.style.setProperty('width', '1400px', 'important');
+      box.style.setProperty('background', '#f8f9fa', 'important');
+      box.style.setProperty('border', '4px solid #000', 'important');
+      box.style.setProperty('border-radius', '24px', 'important');
+      box.style.setProperty('padding', '0', 'important');
+      box.style.setProperty('max-height', '95vh', 'important');
+      const body = box.querySelector('#modalBody');
+      if (body) {
+        body.style.setProperty('padding', '32px', 'important');
+        body.style.setProperty('width', '100%', 'important');
+        body.style.setProperty('box-sizing', 'border-box', 'important');
+        body.style.setProperty('color', '#111', 'important');
+      }
+    }
+    const modal = document.getElementById('modal');
+    if (modal) modal.style.padding = '10px';
+    initFicheHandlers(sae);
+  }, 500);
+  addXP(2);
+}
+
+// SVG icons inline (Lucide-style)
+function ficheIcons() {
+  return '<svg width="0" height="0" style="position:absolute"><defs>' +
+    '<symbol id="fi-trophy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></symbol>' +
+    '<symbol id="fi-package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></symbol>' +
+    '<symbol id="fi-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></symbol>' +
+    '<symbol id="fi-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>' +
+    '<symbol id="fi-shuffle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22"/><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"/><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"/></symbol>' +
+    '<symbol id="fi-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>' +
+    '<symbol id="fi-grad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></symbol>' +
+    '<symbol id="fi-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>' +
+    '<symbol id="fi-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>' +
+    '<symbol id="fi-print" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></symbol>' +
+  '</defs></svg>';
+}
+
+function ficheTuile(opts) {
+  const { title, iconId, bandColor, bgGradient, defaultIcon, content } = opts;
+  return '<div class="group relative bg-black border-[4px] border-black rounded-3xl flex flex-col overflow-hidden cursor-pointer shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-2 hover:-translate-x-2 hover:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 h-72">' +
+    '<div class="flex-1 relative overflow-hidden" style="background:' + bgGradient + '">' +
+      '<div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black/95 opacity-90 group-hover:opacity-100"></div>' +
+      '<div class="absolute inset-0 flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity">' +
+        '<svg width="72" height="72" style="color:white;filter:drop-shadow(0 4px 4px rgba(0,0,0,1))"><use href="#' + (defaultIcon || iconId) + '"/></svg>' +
+      '</div>' +
+      '<div class="absolute inset-0 flex items-center justify-center p-4 opacity-0 group-hover:opacity-100 transition-opacity z-20">' + content + '</div>' +
+    '</div>' +
+    '<div class="px-4 py-3 border-t-[4px] border-black flex items-center justify-between" style="background:' + bandColor + '">' +
+      '<span class="ff-lucky text-xl uppercase tracking-widest" style="text-shadow:2px 2px 0 rgba(255,255,255,0.4)">' + title + '</span>' +
+      '<div class="w-8 h-8 rounded-full bg-black/20 flex items-center justify-center border-2 border-black/30"><svg width="20" height="20" class="-rotate-90 group-hover:rotate-0 transition-transform"><use href="#fi-chev"/></svg></div>' +
+    '</div>' +
+  '</div>';
+}
+
+function fichePhase(c) {
+  const phases = [];
+  if (c.echauffement) {
+    const e = c.echauffement;
+    phases.push({
+      icon: '🔥', emoji: '🔥', color: 'orange', bgBtn: 'bg-orange-400',
+      label: 'Échauffement', duree: e.duree_min,
+      desc: escapeHtml(e.description || ''),
+      detail: (e.description ? escapeHtml(e.description) + '<br>' : '') +
+              (Array.isArray(e.exercices) ? '<ul class="list-disc pl-5 mt-1">' + e.exercices.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul>' : '')
+    });
+  }
+  if (Array.isArray(c.educatifs) && c.educatifs.length) {
+    const totalDuree = c.educatifs.reduce((s, ed) => s + (ed.duree_min || 0), 0);
+    phases.push({
+      icon: '🎓', emoji: '🎓', color: 'cyan', bgBtn: 'bg-cyan-400',
+      label: 'Éducatifs', duree: totalDuree,
+      desc: c.educatifs.map(ed => escapeHtml(ed.nom || '')).join(' · '),
+      detail: c.educatifs.map(ed => '<div class="mb-2"><strong>' + escapeHtml(ed.nom || '') + (ed.duree_min ? ' (' + ed.duree_min + ' min)' : '') + '</strong>' + (ed.description ? '<br>' + escapeHtml(ed.description) : '') + (ed.consignes ? '<br><em>Consignes :</em> ' + escapeHtml(ed.consignes) : '') + '</div>').join('')
+    });
+  }
+  if (c.activite_principale) {
+    const a = c.activite_principale;
+    phases.push({
+      icon: '⚡', emoji: '⚡', color: 'yellow', bgBtn: 'bg-yellow-400',
+      label: 'Activité principale', duree: a.duree_min,
+      desc: escapeHtml(a.description || '').slice(0, 120) + '...',
+      detail: (a.description ? escapeHtml(a.description) : '') +
+              (a.organisation ? '<br><br><strong>📐 Organisation :</strong> ' + escapeHtml(a.organisation) : '') +
+              (a.consignes_cles ? '<br><br><strong>📌 Consignes clés :</strong> ' + escapeHtml(a.consignes_cles) : '')
+    });
+  }
+  if (c.retour_au_calme) {
+    const r = c.retour_au_calme;
+    phases.push({
+      icon: '🧘', emoji: '🧘', color: 'green', bgBtn: 'bg-green-400',
+      label: 'Retour au calme', duree: r.duree_min,
+      desc: escapeHtml(r.description || ''),
+      detail: (r.description ? escapeHtml(r.description) : '') +
+              (Array.isArray(r.exercices) ? '<ul class="list-disc pl-5 mt-1">' + r.exercices.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul>' : '')
+    });
+  }
+  return phases;
+}
+
+function buildCoursPaneHtml(sae, c, idx, hideCoursHeader) {
+  const titre = escapeHtml(c.titre || ('Cours ' + (c.numero || idx+1)));
+  const obj = escapeHtml(c.objectif || '');
+  const duree = c.duree_min || 0;
+  const cycle = escapeHtml(sae.cycle || '');
+  const isC2 = idx > 0;
+  const headerGrad = isC2 ? '#FF6B9D 0%,#5F0F40 100%' : '#00C4FF 0%,#004A61 100%';
+  const ballGrad = isC2 ? 'from-pink-300 to-purple-500' : 'from-yellow-300 to-orange-400';
+  const terrainBg = isC2 ? '#9d174d' : '#00a896';
+  const terrainOuter = isC2 ? '#5F0F40' : '#004A61';
+  const shadowColor = isC2 ? '#FF6B9D' : '#00C4FF';
+
+  // Tuiles: matériel, objectif, organisation
+  const matItems = (Array.isArray(c.materiel_specifique) && c.materiel_specifique.length)
+    ? c.materiel_specifique
+    : (Array.isArray(sae.materiel) ? sae.materiel.slice(0, 8) : []);
+  const matContent = '<ul class="text-left space-y-1 text-white text-sm font-bold" style="text-shadow:0 2px 4px rgba(0,0,0,1)">' +
+    matItems.map(m => '<li>🔸 ' + escapeHtml(m) + '</li>').join('') + '</ul>';
+  const objContent = '<p class="text-base text-white font-bold leading-tight text-center" style="text-shadow:0 2px 4px rgba(0,0,0,1)">' + obj + '</p>';
+  const org = c.activite_principale && c.activite_principale.organisation ? escapeHtml(c.activite_principale.organisation) : 'Organisation à préciser';
+  const orgContent = '<p class="text-sm text-white font-bold leading-tight text-center" style="text-shadow:0 2px 4px rgba(0,0,0,1)">' + org + '</p>';
+
+  // Plan de match : phases dynamiques
+  const phases = fichePhase(c);
+  const positions = [
+    'top-[15%] left-[18%]', 'top-[40%] right-[15%]',
+    'bottom-[28%] left-[12%]', 'bottom-[14%] right-[20%]'
+  ];
+  const animClasses = ['animate-bounce', 'animate-pulse', 'animate-bounce', 'animate-bounce'];
+
+  let terrainDefault = '<div id="terrain-' + idx + '-default" class="absolute inset-0 flex items-center justify-center z-20">';
+  phases.forEach((p, i) => {
+    if (i < 4) {
+      terrainDefault += '<button data-step="' + i + '" data-cours="' + idx + '" class="fiche-step-btn ff-lucky absolute ' + positions[i] + ' w-14 h-14 ' + p.bgBtn + ' border-[3px] border-black rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:scale-125 hover:bg-yellow-300 transition-all text-3xl flex items-center justify-center ' + animClasses[i] + '">' + (i+1) + '</button>';
+    }
+  });
+  terrainDefault += '<span class="absolute bottom-6 bg-yellow-300 text-black px-4 py-2 rounded-full font-black text-xs shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-[3px] border-black uppercase tracking-wider animate-pulse">👆 Cliquez !</span>';
+  terrainDefault += '</div>';
+
+  let stepPanels = '';
+  phases.forEach((p, i) => {
+    if (i < 4) {
+      const colors = { orange: 'orange-300|orange-400', cyan: 'cyan-300|cyan-400', yellow: 'yellow-300|yellow-400', green: 'green-300|green-400' };
+      const [tc, bc] = (colors[p.color] || 'cyan-300|cyan-400').split('|');
+      stepPanels += '<div data-step-panel="' + i + '" data-cours="' + idx + '" class="fiche-step-panel absolute inset-0 flex items-center justify-center opacity-0 z-0 pointer-events-none transition-opacity duration-300 cursor-pointer">' +
+        '<div class="text-center"><div class="text-7xl mb-3 animate-pulse">' + p.emoji + '</div>' +
+        '<div class="bg-black/90 text-' + tc + ' px-5 py-3 rounded-xl font-bold text-sm border-2 border-' + bc + ' max-w-md mx-auto">' +
+        '<strong class="block ff-lucky text-base mb-1">' + p.label + (p.duree ? ' — ' + p.duree + ' min' : '') + '</strong>' +
+        p.detail +
+        '</div></div></div>';
+    }
+  });
+
+  let consignes = '';
+  phases.forEach((p, i) => {
+    if (i < 4) {
+      consignes += '<div class="fiche-consigne flex gap-4 items-start p-4 rounded-2xl border-[3px] border-transparent bg-white/5 hover:bg-white/10 cursor-pointer transition-all" data-consigne="' + i + '" data-cours="' + idx + '">' +
+        '<div class="num ff-lucky w-10 h-10 rounded-full border-[3px] border-black flex items-center justify-center ' + p.bgBtn + ' shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-xl">' + (i+1) + '</div>' +
+        '<div><div class="ff-lucky text-' + p.color + '-300 text-sm uppercase tracking-wider">' + p.icon + ' ' + p.label + (p.duree ? ' — ' + p.duree + ' min' : '') + '</div>' +
+        '<p class="text-white font-bold text-sm leading-tight mt-1">' + p.detail + '</p></div></div>';
+    }
+  });
+
+  // Variantes/Sécurité du cours
+  const variantesList = (c.educatifs || []).filter(e => e.variante).map(e => '<li class="flex items-start gap-2"><div class="w-3 h-3 bg-black rounded-full mt-2 shrink-0"></div> <strong>' + escapeHtml(e.nom || '') + '</strong> : ' + escapeHtml(e.variante) + '</li>').join('') ||
+    (Array.isArray(sae.variantes) ? sae.variantes.map(v => '<li class="flex items-start gap-2"><div class="w-3 h-3 bg-black rounded-full mt-2 shrink-0"></div>' + escapeHtml(typeof v === 'string' ? v : (v.description || '')) + '</li>').join('') : '<li>Aucune variante spécifiée</li>');
+  const securiteText = c.consignes_securite || (c.activite_principale && c.activite_principale.consignes_cles) || 'Respect des règles de sécurité de base.';
+  const securiteLines = String(securiteText).split(/[.;]\s+/).filter(s => s.trim()).map(s => '<li class="flex items-start gap-2"><div class="w-3 h-3 bg-black rounded-full mt-2 shrink-0"></div>' + escapeHtml(s.trim()) + '</li>').join('');
+
+  const headerHtml = hideCoursHeader ? '' :
+    '<div class="relative mt-12">' +
+      '<div class="absolute -top-6 left-8 z-30 flex items-center gap-2 px-4 py-2 bg-white border-[4px] border-black rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] -rotate-6">' +
+        '<div class="p-1.5 rounded-full bg-yellow-400 border-2 border-black"><svg width="16" height="16"><use href="#fi-grad"/></svg></div>' +
+        '<span class="ff-lucky text-sm uppercase tracking-wider">' + (cycle || 'Cycle') + '</span>' +
+      '</div>' +
+      '<div class="absolute -top-4 left-44 z-30 flex items-center gap-2 px-4 py-2 bg-white border-[4px] border-black rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rotate-3">' +
+        '<div class="p-1.5 rounded-full bg-pink-400 border-2 border-black"><svg width="16" height="16"><use href="#fi-clock"/></svg></div>' +
+        '<span class="ff-lucky text-sm uppercase tracking-wider">' + duree + ' min</span>' +
+      '</div>' +
+      '<header class="relative rounded-[40px] border-[6px] border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] overflow-hidden">' +
+        '<div class="absolute inset-0" style="background:radial-gradient(circle at top right,' + headerGrad + ')"></div>' +
+        '<div class="relative p-8 md:p-14 flex flex-col md:flex-row items-center justify-between gap-8 pt-12">' +
+          '<div class="flex-1 text-center md:text-left z-10">' +
+            '<div class="inline-block px-4 py-1 bg-black text-white rounded-full font-black text-xs uppercase tracking-widest mb-4">Cours ' + (c.numero || idx+1) + '</div>' +
+            '<h1 class="ff-lucky text-4xl md:text-6xl text-white uppercase leading-none" style="text-shadow:4px 4px 0 rgba(0,0,0,1)">' + titre + '</h1>' +
+            '<p class="mt-4 text-cyan-100 font-bold text-lg max-w-md">' + obj + '</p>' +
+          '</div>' +
+          '<div class="shrink-0">' +
+            '<div class="w-40 h-40 bg-gradient-to-br ' + ballGrad + ' rounded-full border-[12px] border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">' +
+              '<svg width="64" height="64" style="color:white;filter:drop-shadow(4px 4px 0 rgba(0,0,0,0.3))"><use href="#fi-trophy"/></svg>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</header>' +
+    '</div>';
+  return '<div class="fiche-pane ' + (idx === 0 ? 'active' : '') + '" id="fiche-pane-c' + idx + '">' +
+    headerHtml +
+    // TUILES
+    '<section class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">' +
+      ficheTuile({ title: 'Le Matériel', iconId: 'fi-package', defaultIcon: 'fi-package', bandColor: '#00C4FF', bgGradient: 'linear-gradient(135deg,#0891b2,#164e63)', content: matContent }) +
+      ficheTuile({ title: "L'Objectif", iconId: 'fi-trophy', defaultIcon: 'fi-trophy', bandColor: '#FFEA00', bgGradient: 'linear-gradient(135deg,#fbbf24,#d97706)', content: objContent }) +
+      ficheTuile({ title: 'Organisation', iconId: 'fi-map', defaultIcon: 'fi-map', bandColor: '#ec4899', bgGradient: 'linear-gradient(135deg,#ec4899,#9d174d)', content: orgContent }) +
+    '</section>' +
+    // PLAN DE MATCH
+    '<section class="relative mt-10">' +
+      '<div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-black text-white px-8 py-2 rounded-xl z-20 border-[4px] border-black" style="box-shadow:6px 6px 0 ' + shadowColor + '">' +
+        '<h2 class="ff-lucky text-3xl uppercase tracking-widest">Plan de Match</h2>' +
+      '</div>' +
+      '<div class="border-[12px] border-white rounded-[40px] shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] p-8 pt-12" style="background:' + terrainOuter + '">' +
+        '<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">' +
+          '<div class="rounded-2xl border-[6px] border-black shadow-inner p-4 court-pattern relative min-h-[400px] flex items-center justify-center overflow-hidden" style="background:' + terrainBg + '" data-terrain="' + idx + '">' +
+            '<div class="absolute top-4 left-4 right-4 bottom-4 border-4 border-white/50 border-dashed rounded-lg pointer-events-none"></div>' +
+            terrainDefault + stepPanels +
+          '</div>' +
+          '<div class="flex flex-col justify-center gap-3">' + consignes + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</section>' +
+    // VARIANTES + SÉCURITÉ
+    '<section class="flex flex-col md:flex-row gap-6 mt-10">' +
+      '<div class="flex-1 flex flex-col gap-4">' +
+        '<button class="fiche-toggle-panel w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-orange-500 hover:bg-orange-400 transition-all" data-target="var-c' + idx + '">' +
+          '<svg width="28" height="28" style="color:white"><use href="#fi-shuffle"/></svg>' +
+          '<span class="ff-lucky text-2xl text-white uppercase tracking-widest">Variantes</span>' +
+        '</button>' +
+        '<div id="panel-var-c' + idx + '" class="hidden bg-orange-100 border-[4px] border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 fiche-fade">' +
+          '<h3 class="ff-lucky text-2xl text-orange-600 mb-4 uppercase">Pour complexifier :</h3>' +
+          '<ul class="space-y-2 font-bold text-gray-800 text-base">' + variantesList + '</ul>' +
+        '</div>' +
+      '</div>' +
+      '<div class="flex-1 flex flex-col gap-4">' +
+        '<button class="fiche-toggle-panel w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl border-[4px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-green-500 hover:bg-green-400 transition-all" data-target="sec-c' + idx + '">' +
+          '<svg width="28" height="28" style="color:white"><use href="#fi-shield"/></svg>' +
+          '<span class="ff-lucky text-2xl text-white uppercase tracking-widest">Sécurité</span>' +
+        '</button>' +
+        '<div id="panel-sec-c' + idx + '" class="hidden bg-green-100 border-[4px] border-black rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 fiche-fade">' +
+          '<h3 class="ff-lucky text-2xl text-green-600 mb-4 uppercase">Points d\'attention :</h3>' +
+          '<ul class="space-y-2 font-bold text-gray-800 text-base">' + securiteLines + '</ul>' +
+        '</div>' +
+      '</div>' +
+    '</section>' +
+  '</div>';
+}
+
+function buildEvalPaneHtml(sae) {
+  const grille = sae.grille_imprimable || {};
+  const criteres = Array.isArray(grille.criteres) ? grille.criteres : [];
+  const echelle = grille.echelle || {};
+  const niveaux = Object.keys(echelle).length ? Object.keys(echelle) : ['A','B','C','D'];
+  const niveauHeaders = { A: 'A — Très bien', B: 'B — Bien', C: 'C — Acceptable', D: 'D — En développ.', tres_bien: 'Très bien', bien: 'Bien', en_developpement: 'En développ.' };
+  const niveauColors = ['bg-green-600', 'bg-yellow-500 text-black', 'bg-orange-500', 'bg-red-500'];
+  const critereColors = ['bg-cyan-50', 'bg-orange-50', 'bg-pink-50', 'bg-green-50'];
+
+  let critereCards = '';
+  criteres.forEach((cr, i) => {
+    const colors = ['cyan-600', 'orange-600', 'pink-600', 'green-600'];
+    const emojis = ['🗣️', '🔄', '📣', '🛡️'];
+    critereCards += '<div class="bg-white border-[4px] border-black rounded-2xl p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">' +
+      '<div class="ff-lucky text-2xl text-' + colors[i % 4] + ' uppercase mb-2">' + emojis[i % 4] + ' ' + escapeHtml(cr.nom || '') + '</div>' +
+      '<p class="font-bold text-gray-700 leading-tight">' + escapeHtml(cr.description || '') + '</p>' +
+    '</div>';
+  });
+
+  let tableHead = '<tr class="bg-black text-white ff-lucky uppercase tracking-wider text-base"><th class="p-3 text-left border-r-[3px] border-white">Critère</th>';
+  niveaux.forEach((n, i) => {
+    tableHead += '<th class="p-3 ' + niveauColors[i % 4] + ' border-r-[3px] border-white">' + escapeHtml(niveauHeaders[n] || n) + '</th>';
+  });
+  tableHead += '</tr>';
+
+  let tableBody = '';
+  criteres.forEach((cr, i) => {
+    tableBody += '<tr class="border-b-[3px] border-black' + (i % 2 ? ' bg-gray-50' : '') + '">' +
+      '<td class="p-3 align-top ' + critereColors[i % 4] + ' border-r-[3px] border-black"><strong>' + escapeHtml(cr.nom || '') + '</strong><br><span class="text-xs font-normal">' + escapeHtml(cr.description || '') + '</span></td>';
+    niveaux.forEach(n => {
+      tableBody += '<td class="p-3 align-top border-r-[2px] border-gray-300">' + escapeHtml(echelle[n] || '') + '<br><span class="text-2xl">☐</span></td>';
+    });
+    tableBody += '</tr>';
+  });
+
+  return '<div class="fiche-pane" id="fiche-pane-eval">' +
+    '<div class="relative mt-12">' +
+      '<header class="relative rounded-[40px] border-[6px] border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] overflow-hidden">' +
+        '<div class="absolute inset-0" style="background:radial-gradient(circle at top right,#A78BFA 0%,#3B0764 100%)"></div>' +
+        '<div class="relative p-8 md:p-14 flex flex-col md:flex-row items-center justify-between gap-8 pt-12">' +
+          '<div class="flex-1 text-center md:text-left z-10">' +
+            '<div class="inline-block px-4 py-1 bg-black text-white rounded-full font-black text-xs uppercase tracking-widest mb-4">Grille d\'évaluation imprimable</div>' +
+            '<h1 class="ff-lucky text-4xl md:text-6xl text-white uppercase leading-none" style="text-shadow:4px 4px 0 rgba(0,0,0,1)">Évaluer <span style="color:#FFFC00">la SAÉ</span></h1>' +
+            '<p class="mt-4 text-purple-100 font-bold text-lg max-w-md">' + criteres.length + ' critères × ' + niveaux.length + ' niveaux. Une ligne par élève.</p>' +
+          '</div>' +
+          '<div class="shrink-0">' +
+            '<div class="w-40 h-40 bg-gradient-to-br from-purple-300 to-pink-400 rounded-full border-[12px] border-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center"><span class="text-7xl">📊</span></div>' +
+          '</div>' +
+        '</div>' +
+      '</header>' +
+    '</div>' +
+    (criteres.length ? '<section class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">' + critereCards + '</section>' : '') +
+    (criteres.length ? '<section class="mt-10"><div class="bg-white border-[4px] border-black rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden"><table class="w-full text-sm"><thead>' + tableHead + '</thead><tbody class="font-bold text-gray-800">' + tableBody + '</tbody></table></div></section>' : '<p class="mt-8 text-center text-gray-600">Aucune grille structurée disponible.</p>') +
+    '<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">' +
+      '<div class="bg-yellow-100 border-[4px] border-black rounded-2xl p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"><div class="ff-lucky text-yellow-700 text-lg uppercase mb-2">📝 Élève</div><div class="border-b-[3px] border-black h-8"></div></div>' +
+      '<div class="bg-cyan-100 border-[4px] border-black rounded-2xl p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"><div class="ff-lucky text-cyan-700 text-lg uppercase mb-2">📅 Date</div><div class="border-b-[3px] border-black h-8"></div></div>' +
+      '<div class="bg-pink-100 border-[4px] border-black rounded-2xl p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"><div class="ff-lucky text-pink-700 text-lg uppercase mb-2">🏆 Note globale</div><div class="border-b-[3px] border-black h-8"></div></div>' +
+    '</section>' +
+    '<section class="mt-6 bg-white border-[4px] border-black rounded-2xl p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">' +
+      '<div class="ff-lucky text-xl text-purple-700 uppercase mb-3">💬 Observations / Forces / Pistes</div>' +
+      '<div class="space-y-3"><div class="border-b-2 border-dashed border-gray-400 h-6"></div><div class="border-b-2 border-dashed border-gray-400 h-6"></div><div class="border-b-2 border-dashed border-gray-400 h-6"></div><div class="border-b-2 border-dashed border-gray-400 h-6"></div></div>' +
+    '</section>' +
+  '</div>';
+}
+
+function synthesizeCoursFromSae(sae) {
+  // Construire un pseudo-cours à partir des champs top-level si sae.cours absent
+  const d = sae.deroulement || {};
+  const echauffement = d.mise_en_train ? {
+    duree_min: 10,
+    description: typeof d.mise_en_train === 'string' ? d.mise_en_train : (d.mise_en_train.description || ''),
+    exercices: Array.isArray(d.mise_en_train) ? d.mise_en_train : (Array.isArray(d.mise_en_train && d.mise_en_train.exercices) ? d.mise_en_train.exercices : [])
+  } : null;
+  const educatifs = [];
+  Object.keys(d).forEach(k => {
+    if (k.startsWith('partie_principale') && d[k]) {
+      educatifs.push({
+        nom: k.replace(/_/g, ' ').replace(/^./, c => c.toUpperCase()),
+        description: typeof d[k] === 'string' ? d[k] : (d[k].description || JSON.stringify(d[k]).slice(0, 200))
+      });
+    }
+  });
+  const activite = sae.tache_complexe ? {
+    duree_min: 20,
+    description: sae.tache_complexe,
+    organisation: sae.espace || '',
+    consignes_cles: Array.isArray(sae.criteres_evaluation) ? sae.criteres_evaluation.join(' · ') : ''
+  } : null;
+  const retour = d.retour_calme || d.retour_au_calme ? {
+    duree_min: 5,
+    description: typeof (d.retour_calme || d.retour_au_calme) === 'string' ? (d.retour_calme || d.retour_au_calme) : ((d.retour_calme || d.retour_au_calme).description || '')
+  } : { duree_min: 5, description: 'Retour au calme et bilan de la séance.' };
+
+  return [{
+    numero: 1,
+    titre: sae.titre || 'Séance',
+    objectif: sae.intentions_pedagogiques || sae.intentions || '',
+    duree_min: parseInt(sae.duree_par_periode) || 45,
+    echauffement: echauffement,
+    educatifs: educatifs.length ? educatifs : (Array.isArray(sae.educatifs) ? sae.educatifs : []),
+    activite_principale: activite,
+    retour_au_calme: retour,
+    materiel_specifique: Array.isArray(sae.materiel) ? sae.materiel : [],
+    consignes_securite: sae.consignes_securite || (Array.isArray(sae.adaptations) ? sae.adaptations.join(' ') : '')
+  }];
+}
+
+function buildFicheZTSHtml(sae) {
+  // Synthétiser cours[] si absent
+  if (!Array.isArray(sae.cours) || sae.cours.length === 0) {
+    sae = Object.assign({}, sae, { cours: synthesizeCoursFromSae(sae) });
+  }
+  const singleCours = (sae.cours || []).length === 1;
+  const titre = escapeHtml(sae.titre || 'Sans titre');
+  const cycle = escapeHtml(sae.cycle || '');
+  const niveau = escapeHtml(sae.niveau || sae.niveau_scolaire || '');
+  const moyen = escapeHtml(sae.moyen_action || sae.categorie || '');
+  const totalDuree = (sae.cours || []).reduce((s, c) => s + (c.duree_min || 0), 0);
+  const intentions = escapeHtml(sae.intentions_pedagogiques || sae.intentions || '');
+  const situation = escapeHtml(sae.situation_depart || '');
+  const tache = escapeHtml(sae.tache_complexe || '');
+  const competence = escapeHtml(sae.competence_pfeq || sae.competence || '');
+  const composante = escapeHtml(sae.composante || '');
+
+  // Tabs (cacher tabs cours si un seul cours, garder seulement Évaluation)
+  let tabs = '';
+  if (!singleCours) {
+    (sae.cours || []).forEach((c, i) => {
+      tabs += '<button class="fiche-tab tab-btn ' + (i === 0 ? 'active' : 'bg-white') + ' px-4 py-2 rounded-xl border-[3px] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wider text-sm" data-pane="c' + i + '">Cours ' + (c.numero || i+1) + '</button>';
+    });
+  } else {
+    tabs += '<button class="fiche-tab tab-btn active px-4 py-2 rounded-xl border-[3px] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wider text-sm" data-pane="c0">📋 Séance</button>';
+  }
+  tabs += '<button class="fiche-tab bg-white px-4 py-2 rounded-xl border-[3px] border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] uppercase tracking-wider text-sm" data-pane="eval">📊 Évaluation</button>';
+
+  // Panes
+  let panes = '';
+  (sae.cours || []).forEach((c, i) => { panes += buildCoursPaneHtml(sae, c, i, singleCours); });
+  panes += buildEvalPaneHtml(sae);
+
+  // Sections communes
+  const adapt = sae.adaptations;
+  const inter = sae.interdisciplinarite;
+  const valeurs = Array.isArray(sae.valeurs) ? sae.valeurs : [];
+  const notes = sae.notes_enseignant;
+  const prettyAdaptKey = (k) => {
+    const map = { besoins_speciaux: 'Besoins spéciaux', avances: 'Élèves avancés', difficulte: 'Élèves en difficulté', hdaa: 'HDAA', tdah: 'TDAH', autisme: 'Autisme', dys: 'Dys', moteur: 'Limitations motrices' };
+    return map[k] || k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g, ' ');
+  };
+  const isNumericKey = (k) => /^\d+$/.test(String(k));
+  const adaptHtml = adapt ? (typeof adapt === 'string' ? '<p class="font-bold text-gray-700 text-sm">' + escapeHtml(adapt) + '</p>' : '<ul class="space-y-1 font-bold text-gray-700 text-sm">' + Object.entries(adapt).map(([k,v]) => {
+    const val = typeof v === 'string' ? v : JSON.stringify(v);
+    return isNumericKey(k) ? '<li>• ' + escapeHtml(val) + '</li>' : '<li>• <strong>' + escapeHtml(prettyAdaptKey(k)) + '</strong> : ' + escapeHtml(val) + '</li>';
+  }).join('') + '</ul>') : '';
+  const interHtml = inter ? (typeof inter === 'string' ? '<p class="font-bold text-gray-700 text-sm">' + escapeHtml(inter) + '</p>' : '<ul class="space-y-1 font-bold text-gray-700 text-sm">' + Object.entries(inter).map(([k,v]) => {
+    const val = typeof v === 'string' ? v : JSON.stringify(v);
+    return isNumericKey(k) ? '<li>• ' + escapeHtml(val) + '</li>' : '<li>• <strong>' + escapeHtml(prettyAdaptKey(k)) + '</strong> : ' + escapeHtml(val) + '</li>';
+  }).join('') + '</ul>') : '';
+  const valColors = ['bg-pink-200', 'bg-cyan-200', 'bg-yellow-200', 'bg-green-200', 'bg-orange-200'];
+  const valHtml = valeurs.length ? '<div class="flex flex-wrap gap-2">' + valeurs.map((v,i) => '<span class="' + valColors[i % 5] + ' border-2 border-black px-3 py-1 rounded-full text-sm font-bold">' + escapeHtml(v) + '</span>').join('') + '</div>' : '';
+
+  return ficheIcons() +
+  '<button class="fiche-modal-close" onclick="closeModal()" aria-label="Fermer">✕</button>' +
+  '<div class="space-y-10" style="width:100%;max-width:100%;display:block">' +
+    // Bannière SAÉ
+    '<div class="bg-white border-[4px] border-black rounded-2xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] p-5" style="width:100%;display:block;box-sizing:border-box">' +
+      '<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">' +
+        '<div>' +
+          '<div class="text-xs font-black uppercase tracking-widest text-gray-500">SAÉ — ' + (sae.cours || []).length + ' cours · ' + totalDuree + ' min total</div>' +
+          '<div class="ff-lucky text-3xl">' + titre + '</div>' +
+          '<div class="text-sm text-gray-600 font-bold mt-1">' + [niveau, moyen].filter(Boolean).join(' · ') + '</div>' +
+        '</div>' +
+        '<div class="flex gap-2 flex-wrap">' + tabs + '</div>' +
+      '</div>' +
+      (intentions || situation || tache ? '<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">' +
+        (intentions ? '<div class="bg-cyan-50 border-[3px] border-black rounded-xl p-3"><div class="ff-lucky text-cyan-700 text-sm uppercase tracking-wider mb-1">🎯 Intentions</div><p class="text-sm font-bold leading-tight">' + intentions + '</p></div>' : '') +
+        (situation ? '<div class="bg-yellow-50 border-[3px] border-black rounded-xl p-3"><div class="ff-lucky text-yellow-700 text-sm uppercase tracking-wider mb-1">📖 Situation de départ</div><p class="text-sm font-bold leading-tight">' + situation + '</p></div>' : '') +
+        (tache ? '<div class="bg-pink-50 border-[3px] border-black rounded-xl p-3"><div class="ff-lucky text-pink-700 text-sm uppercase tracking-wider mb-1">🏆 Tâche complexe</div><p class="text-sm font-bold leading-tight">' + tache + '</p></div>' : '') +
+      '</div>' : '') +
+      (competence ? '<div class="mt-4 bg-black text-white rounded-xl p-3 border-[3px] border-black"><div class="text-xs ff-lucky text-yellow-300 uppercase tracking-wider mb-1">Compétence PFEQ' + (composante ? ' — Composante' : '') + '</div><p class="text-sm font-bold">' + competence + (composante ? ' · ' + composante : '') + '</p></div>' : '') +
+    '</div>' +
+    // Panes
+    panes +
+    // Sections communes bas
+    (adaptHtml || interHtml || valHtml || notes ? '<section class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">' +
+      (adaptHtml ? '<div class="bg-white border-[4px] border-black rounded-2xl p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"><div class="ff-lucky text-xl text-purple-600 uppercase mb-2">♿ Adaptations</div>' + adaptHtml + '</div>' : '') +
+      (interHtml ? '<div class="bg-white border-[4px] border-black rounded-2xl p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"><div class="ff-lucky text-xl text-cyan-600 uppercase mb-2">🌍 Interdisciplinarité</div>' + interHtml + '</div>' : '') +
+      (valHtml ? '<div class="bg-white border-[4px] border-black rounded-2xl p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"><div class="ff-lucky text-xl text-pink-600 uppercase mb-2">💎 Valeurs</div>' + valHtml + '</div>' : '') +
+      (notes ? '<div class="bg-white border-[4px] border-black rounded-2xl p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"><div class="ff-lucky text-xl text-green-600 uppercase mb-2">📌 Notes enseignant</div><p class="font-bold text-gray-700 text-sm leading-tight">' + escapeHtml(notes) + '</p></div>' : '') +
+    '</section>' : '') +
+    // Boutons
+    '<div class="flex flex-col sm:flex-row justify-center gap-6 pb-12 mt-10 no-print">' +
+      '<button onclick="window.print()" class="flex items-center justify-center gap-3 bg-yellow-300 hover:bg-yellow-400 text-black px-8 py-4 rounded-2xl border-[4px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all"><svg width="28" height="28"><use href="#fi-print"/></svg><span class="ff-lucky tracking-widest uppercase text-xl">Imprimer tout</span></button>' +
+    '</div>' +
+  '</div>';
+}
+
+function initFicheHandlers(sae) {
+  const root = document.querySelector('.modal-box.fiche-mode');
+  if (!root) return;
+
+  // Tabs
+  root.querySelectorAll('.fiche-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.pane;
+      root.querySelectorAll('.fiche-tab').forEach(t => { t.classList.remove('active'); t.classList.add('bg-white'); });
+      tab.classList.add('active'); tab.classList.remove('bg-white');
+      root.querySelectorAll('.fiche-pane').forEach(p => p.classList.remove('active'));
+      const pane = root.querySelector('#fiche-pane-' + target);
+      if (pane) pane.classList.add('active');
+      root.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Step buttons (terrain)
+  root.querySelectorAll('.fiche-step-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const step = parseInt(btn.dataset.step);
+      const cours = btn.dataset.cours;
+      ficheSetStep(root, cours, step);
+    });
+  });
+
+  // Step panels click to close
+  root.querySelectorAll('.fiche-step-panel').forEach(p => {
+    p.addEventListener('click', () => {
+      const cours = p.dataset.cours;
+      ficheSetStep(root, cours, null);
+    });
+  });
+
+  // Consignes click
+  root.querySelectorAll('.fiche-consigne').forEach(c => {
+    c.addEventListener('click', () => {
+      const step = parseInt(c.dataset.consigne);
+      const cours = c.dataset.cours;
+      ficheSetStep(root, cours, step);
+    });
+  });
+
+  // Toggle panels (variantes/sécurité)
+  root.querySelectorAll('.fiche-toggle-panel').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tgt = btn.dataset.target;
+      const panel = root.querySelector('#panel-' + tgt);
+      if (panel) panel.classList.toggle('hidden');
+    });
+  });
+}
+
+function ficheSetStep(root, cours, n) {
+  const def = root.querySelector('#terrain-' + cours + '-default');
+  if (def) {
+    if (n === null) { def.style.opacity='1'; def.style.zIndex='20'; def.style.pointerEvents='auto'; }
+    else { def.style.opacity='0'; def.style.zIndex='0'; def.style.pointerEvents='none'; }
+  }
+  root.querySelectorAll('.fiche-step-panel[data-cours="' + cours + '"]').forEach(p => {
+    const m = parseInt(p.dataset.stepPanel) === n;
+    p.style.opacity = m ? '1' : '0';
+    p.style.zIndex = m ? '10' : '0';
+    p.style.pointerEvents = m ? 'auto' : 'none';
+  });
+  root.querySelectorAll('.fiche-consigne[data-cours="' + cours + '"]').forEach(c => {
+    const m = parseInt(c.dataset.consigne) === n;
+    c.classList.toggle('bg-white', m);
+    c.classList.toggle('!border-black', m);
+    c.classList.toggle('shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]', m);
+    c.classList.toggle('scale-[1.02]', m);
+    c.classList.toggle('translate-x-2', m);
+    c.classList.toggle('bg-white/5', !m);
+    c.classList.toggle('border-transparent', !m);
+  });
+}
+
+// ── ANCIENNE fonction (gardée pour compat / non-utilisée) ──
+function openSaeModalEnrichedLegacy(sae) {
+  const titre = escapeHtml(sae.titre || 'Sans titre');
+  const icon = getSaeIcon(sae);
+  const saeId = getSaeId(sae);
+  const fav = isFavori(sae);
+  const moyen = escapeHtml(sae.moyen_action || sae.moyen || sae.categorie || '');
+  const niveau = escapeHtml(sae.niveau || sae.niveau_scolaire || '');
+  const cycle = escapeHtml(sae.cycle || '');
+  const competence = escapeHtml(sae.competence_pfeq || sae.competence || '');
+  const nbCours = sae.cours.length;
+
+  let html = '';
+
+  // HEADER
+  html += '<div class="modal-header">' +
+    '<h2 class="modal-title">' + icon + ' ' + titre + '</h2>' +
+    '<button class="modal-close" onclick="closeModal()">' + t('close') + '</button>' +
+  '</div>';
+
+  // META BADGES
+  html += '<div class="modal-meta">';
+  if (moyen) html += '<span class="meta-badge"><strong>Moyen :</strong> ' + moyen + '</span>';
+  if (niveau) html += '<span class="meta-badge"><strong>Niveau :</strong> ' + niveau + '</span>';
+  if (cycle) html += '<span class="meta-badge"><strong>Cycle :</strong> ' + cycle + '</span>';
+  html += '<span class="meta-badge"><strong>Cours :</strong> ' + nbCours + '</span>';
+  if (competence) html += '<span class="meta-badge"><strong>Compétence :</strong> ' + competence + '</span>';
+  html += '</div>';
+
+  // ACTIONS
+  html += '<div class="modal-actions">' +
+    '<button class="action-btn ' + (fav ? 'active' : '') + '" id="modalFavBtn" onclick="toggleFavoriModal(\'' + escapeHtml(saeId).replace(/\'/g, "\\'") + '\')">' + (fav ? '★' : '☆') + ' Favori</button>' +
+    '<button class="action-btn" onclick="printSae()">' + t('print') + '</button>' +
+    '<button class="action-btn" onclick="printGrilleEvaluation()">🖨️ Imprimer grille</button>' +
+    '<button class="action-btn" onclick="duplicateSae(\'' + escapeHtml(saeId).replace(/\'/g, "\\'") + '\')">' + t('duplicateSae') + '</button>' +
+  '</div>';
+
+  // INTENTIONS pédagogiques (toujours visible en haut)
+  const intentions = sae.intentions_pedagogiques || sae.intentions || sae.objectifs;
+  if (intentions) {
+    html += '<div class="modal-section"><h3>🎯 Intentions pédagogiques</h3>' +
+      '<div class="modal-content">' + formatTextBlock(intentions) + '</div></div>';
+  }
+
+  // ONGLETS Cours 1..N + Évaluation
+  html += '<div class="cours-tabs-wrap">';
+  // tab buttons
+  html += '<div class="cours-tabs-nav">';
+  for (let i = 0; i < nbCours; i++) {
+    const c = sae.cours[i];
+    const numero = c.numero || (i+1);
+    html += '<button class="cours-tab' + (i===0 ? ' active' : '') + '" data-cours-tab="' + i + '">📖 Cours ' + numero + '</button>';
+  }
+  html += '<button class="cours-tab cours-tab-eval" data-cours-tab="eval">📊 Évaluation</button>';
+  html += '</div>';
+
+  // tab panels
+  html += '<div class="cours-tabs-panels">';
+  for (let i = 0; i < nbCours; i++) {
+    html += '<div class="cours-tab-panel' + (i===0 ? ' active' : '') + '" data-cours-panel="' + i + '">' +
+      buildCoursPanel(sae.cours[i]) +
+    '</div>';
+  }
+  // Évaluation panel
+  html += '<div class="cours-tab-panel" data-cours-panel="eval">' +
+    buildEvalPanel(sae) +
+  '</div>';
+  html += '</div></div>';
+
+  showModal(html);
+  addXP(2);
+
+  // Bind tab clicks
+  setTimeout(() => {
+    const nav = document.querySelector('.cours-tabs-nav');
+    if (!nav) return;
+    nav.addEventListener('click', (e) => {
+      const btn = e.target.closest('.cours-tab');
+      if (!btn) return;
+      const key = btn.dataset.coursTab;
+      document.querySelectorAll('.cours-tab').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.cours-tab-panel').forEach(p => p.classList.toggle('active', p.dataset.coursPanel === key));
+    });
+  }, 0);
+}
+
+function buildCoursPanel(c) {
+  let h = '';
+  const numero = c.numero || '';
+  const titre = escapeHtml(c.titre || ('Cours ' + numero));
+  const obj = escapeHtml(c.objectif || '');
+  const duree = c.duree_min ? c.duree_min + ' min' : '';
+
+  h += '<div class="cours-header">' +
+    '<h3 class="cours-titre">📖 Cours ' + escapeHtml(String(numero)) + ' — ' + titre + '</h3>' +
+    (duree ? '<span class="cours-duree">⏱️ ' + escapeHtml(duree) + '</span>' : '') +
+  '</div>';
+  if (obj) h += '<div class="cours-objectif"><strong>🎯 OBJECTIF :</strong> ' + obj + '</div>';
+
+  // Échauffement
+  if (c.echauffement) {
+    const e = c.echauffement;
+    h += '<div class="cours-block cours-block-echauffement">' +
+      '<h4 class="cours-block-title">🔥 Échauffement' + (e.duree_min ? ' (' + e.duree_min + ' min)' : '') + '</h4>' +
+      (e.description ? '<p>' + escapeHtml(e.description) + '</p>' : '') +
+      (Array.isArray(e.exercices) ? '<ul>' + e.exercices.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul>' : '') +
+    '</div>';
+  }
+
+  // Éducatifs
+  if (Array.isArray(c.educatifs) && c.educatifs.length) {
+    h += '<div class="cours-block cours-block-educatifs">' +
+      '<h4 class="cours-block-title">🎓 Éducatifs</h4>';
+    for (const ed of c.educatifs) {
+      h += '<div class="educatif-card">' +
+        '<h5>' + escapeHtml(ed.nom || '') + (ed.duree_min ? ' <span class="educatif-duree">' + ed.duree_min + ' min</span>' : '') + '</h5>' +
+        (ed.description ? '<p>' + escapeHtml(ed.description) + '</p>' : '') +
+        (ed.consignes ? '<p class="educatif-consignes"><strong>Consignes :</strong> ' + escapeHtml(ed.consignes) + '</p>' : '') +
+        (ed.variante ? '<p class="educatif-variante"><strong>Variante :</strong> ' + escapeHtml(ed.variante) + '</p>' : '') +
+      '</div>';
+    }
+    h += '</div>';
+  }
+
+  // Activité principale
+  if (c.activite_principale) {
+    const a = c.activite_principale;
+    h += '<div class="cours-block cours-block-activite">' +
+      '<h4 class="cours-block-title">⚡ Activité principale' + (a.duree_min ? ' (' + a.duree_min + ' min)' : '') + '</h4>' +
+      (a.description ? '<p>' + escapeHtml(a.description) + '</p>' : '') +
+      (a.organisation ? '<p><strong>📐 Organisation :</strong> ' + escapeHtml(a.organisation) + '</p>' : '') +
+      (a.consignes_cles ? '<p><strong>📌 Consignes clés :</strong> ' + escapeHtml(a.consignes_cles) + '</p>' : '') +
+    '</div>';
+  }
+
+  // Retour au calme
+  if (c.retour_au_calme) {
+    const r = c.retour_au_calme;
+    h += '<div class="cours-block cours-block-retour">' +
+      '<h4 class="cours-block-title">🧘 Retour au calme' + (r.duree_min ? ' (' + r.duree_min + ' min)' : '') + '</h4>' +
+      (r.description ? '<p>' + escapeHtml(r.description) + '</p>' : '') +
+      (Array.isArray(r.exercices) ? '<ul>' + r.exercices.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul>' : '') +
+    '</div>';
+  }
+
+  // Matériel + Sécurité (rangée 2 colonnes)
+  if (c.materiel_specifique || c.consignes_securite) {
+    h += '<div class="cours-row-2col">';
+    if (Array.isArray(c.materiel_specifique) && c.materiel_specifique.length) {
+      h += '<div class="cours-block cours-block-materiel">' +
+        '<h4 class="cours-block-title">🎒 Matériel</h4>' +
+        '<ul>' + c.materiel_specifique.map(x => '<li>' + escapeHtml(x) + '</li>').join('') + '</ul>' +
+      '</div>';
+    }
+    if (c.consignes_securite) {
+      h += '<div class="cours-block cours-block-securite">' +
+        '<h4 class="cours-block-title">🛡️ Sécurité</h4>' +
+        '<p>' + escapeHtml(c.consignes_securite) + '</p>' +
+      '</div>';
+    }
+    h += '</div>';
+  }
+
+  return h;
+}
+
+function buildEvalPanel(sae) {
+  const grille = sae.grille_imprimable || sae.grille_evaluation;
+  let h = '';
+  h += '<div class="eval-panel-header">' +
+    '<h3>📊 Grille d\'évaluation imprimable</h3>' +
+    '<button class="eval-print-btn" onclick="printGrilleEvaluation()">🖨️ Imprimer la grille</button>' +
+  '</div>';
+
+  if (!grille) {
+    h += '<p>Aucune grille structurée disponible pour cette SAÉ.</p>';
+    if (Array.isArray(sae.criteres_evaluation)) {
+      h += '<ul>' + sae.criteres_evaluation.map(c => '<li>' + escapeHtml(typeof c === 'string' ? c : (c.nom || JSON.stringify(c))) + '</li>').join('') + '</ul>';
+    }
+    return h;
+  }
+
+  // Critères + échelle
+  const criteres = Array.isArray(grille.criteres) ? grille.criteres : (Array.isArray(sae.criteres_evaluation) ? sae.criteres_evaluation.map(s => ({nom: typeof s === 'string' ? s.split(/[\s—\-:]/)[0] : '', description: typeof s === 'string' ? s : ''})) : []);
+  const echelle = grille.echelle || {};
+  const niveaux = Object.keys(echelle).length ? Object.keys(echelle) : ['tres_bien','bien','en_developpement'];
+  const niveauLabels = {A:'A — Très bien', B:'B — Bien', C:'C — Acceptable', D:'D — En dévelop.', tres_bien:'🟢 Très bien', bien:'🟡 Bien', en_developpement:'🟠 En dévelop.'};
+
+  h += '<div class="eval-grille-print" id="evalGrillePrint">';
+  h += '<table class="eval-grille-table"><thead><tr><th>Critère</th>';
+  for (const n of niveaux) h += '<th>' + escapeHtml(niveauLabels[n] || n) + '</th>';
+  h += '<th>Note élève</th></tr></thead><tbody>';
+  for (const cr of criteres) {
+    const nom = escapeHtml(cr.nom || '');
+    const desc = escapeHtml(cr.description || cr.nom || (typeof cr === 'string' ? cr : ''));
+    h += '<tr><td><strong>' + nom + '</strong><br><span class="critere-desc">' + desc + '</span></td>';
+    for (const n of niveaux) {
+      h += '<td class="eval-cell"><span class="eval-cell-desc">' + escapeHtml(echelle[n] || '') + '</span><br><span class="eval-checkbox">☐</span></td>';
+    }
+    h += '<td class="eval-note-cell">_____</td></tr>';
+  }
+  h += '</tbody></table>';
+  h += '</div>';
+
+  return h;
+}
+
+window.printGrilleEvaluation = function() {
+  const grille = document.getElementById('evalGrillePrint');
+  if (!grille) { alert('Ouvrir l\'onglet Évaluation d\'abord.'); return; }
+  const w = window.open('', '_blank');
+  w.document.write('<!DOCTYPE html><html><head><title>Grille d\'évaluation</title>' +
+    '<style>body{font-family:Arial,sans-serif;padding:24px}h1{font-size:1.4rem}table{width:100%;border-collapse:collapse;margin-top:16px}th,td{border:2px solid #000;padding:10px;vertical-align:top;text-align:left;font-size:.9rem}th{background:#FFFC00;font-weight:700}.critere-desc{font-weight:400;font-size:.85rem;color:#444}.eval-cell-desc{font-size:.8rem;color:#333;display:block;margin-bottom:6px}.eval-checkbox{font-size:1.6rem}.eval-note-cell{font-size:1.4rem;text-align:center}@media print{body{padding:0}}</style>' +
+    '</head><body>' +
+    '<h1>Grille d\'évaluation — ' + (document.querySelector('.modal-title')?.textContent || 'SAÉ') + '</h1>' +
+    grille.innerHTML +
+    '<p style="margin-top:24px">Élève : _________________________  Groupe : _______  Date : _______</p>' +
+    '</body></html>');
+  w.document.close();
+  setTimeout(() => w.print(), 300);
+};
+
+function buildModalSection(title, content, layoutClass) {
   if (!content) return '';
-  return '<div class="modal-section"><h3>' + title + '</h3>' +
+  const cls = layoutClass ? ' ' + layoutClass : '';
+  return '<div class="modal-section' + cls + '"><h3>' + title + '</h3>' +
     '<div class="modal-content">' + formatTextBlock(content) + '</div></div>';
 }
 
