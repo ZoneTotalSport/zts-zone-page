@@ -1,0 +1,463 @@
+/* ==========================================================================
+   Générateur IA — Styles spécifiques (Fusion #1, commit #4)
+   Hérite de zts-ultra.css. Pop Art bûcheron — cyan/jaune.
+   ========================================================================== */
+
+:root {
+  --gen-red:    #FF3B5C;
+  --gen-violet: #8B5CF6;
+  --gen-cyan:   #00C4FF;
+  --gen-yellow: #FFF000;
+  --gen-orange: #FF8C00;
+  --gen-lime:   #4ADE80;
+  --gen-dark:   #0a2040;
+  --gen-deep:   #004A61;
+  --gen-r-lg:   24px;
+  --gen-r-xl:   32px;
+}
+
+.zts-gen-body {
+  margin: 0;
+  background: #FFFCEF;
+  font-family: 'Inter', 'Patrick Hand', sans-serif;
+  color: #0F172A;
+  min-height: 100vh;
+}
+
+/* ============ HEADER ACCOUNT ============ */
+.zts-gen-account { position: relative; }
+.zts-gen-account-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.18); color: #fff;
+  font-family: 'Luckiest Guy', cursive; font-size: .95rem; letter-spacing: 1px;
+  padding: 8px 16px; border-radius: 999px;
+  border: 2px solid rgba(255,255,255,.4); cursor: pointer;
+  transition: all .2s;
+}
+.zts-gen-account-btn:hover { background: rgba(255,255,255,.3); transform: translateY(-1px); }
+.zts-gen-account-menu {
+  position: absolute; right: 0; top: calc(100% + 8px);
+  background: #fff; border: 4px solid var(--gen-deep);
+  border-radius: 18px; padding: 8px;
+  box-shadow: 6px 6px 0 rgba(0,0,0,.2);
+  min-width: 220px; display: flex; flex-direction: column; gap: 4px;
+  z-index: 60;
+}
+.zts-gen-account-menu a, .zts-gen-account-menu button {
+  display: block; padding: 10px 14px; border-radius: 12px;
+  background: transparent; border: none; cursor: pointer;
+  font-family: 'Luckiest Guy', cursive; font-size: 1rem; letter-spacing: 1px;
+  color: var(--gen-deep); text-decoration: none; text-align: left;
+}
+.zts-gen-account-menu a:hover, .zts-gen-account-menu button:hover {
+  background: var(--gen-yellow);
+}
+
+/* ============ HERO BADGE ============ */
+.zts-gen-hero { padding: 60px 24px 80px !important; }
+.zts-gen-badge {
+  display: inline-block;
+  background: var(--gen-yellow); color: var(--gen-deep);
+  font-family: 'Luckiest Guy', cursive; font-size: 1.25rem; letter-spacing: 2px;
+  padding: 10px 24px; border-radius: 999px;
+  border: 4px solid var(--gen-deep);
+  box-shadow: 4px 4px 0 rgba(0,0,0,.25);
+  transform: rotate(-3deg);
+  margin-bottom: 24px;
+}
+
+/* ============ MAIN ============ */
+.zts-gen-main {
+  max-width: 1100px; margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ============ STEPS ============ */
+.zts-gen-step { margin-bottom: 56px; }
+.zts-gen-step-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+  letter-spacing: 2px; color: var(--gen-deep);
+  margin: 0 0 24px; display: flex; align-items: center; gap: 14px;
+}
+.zts-gen-step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px;
+  background: var(--gen-cyan); color: #fff;
+  border-radius: 50%; border: 4px solid var(--gen-deep);
+  font-size: 1.5rem; box-shadow: 3px 3px 0 rgba(0,0,0,.2);
+}
+.zts-gen-step-opt {
+  font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 600;
+  color: #64748B; letter-spacing: 0;
+}
+
+/* ============ SELECTOR CARDS ============ */
+.zts-gen-selector-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+}
+@media (max-width: 800px) { .zts-gen-selector-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .zts-gen-selector-grid { grid-template-columns: 1fr; } }
+
+.zts-gen-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; padding: 28px 16px; min-height: 180px;
+  background: #fff; border: 4px solid var(--gen-deep);
+  border-bottom-width: 10px; border-right-width: 10px;
+  border-radius: var(--gen-r-xl);
+  cursor: pointer; text-align: center;
+  font-family: 'Inter', sans-serif;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  position: relative;
+}
+.zts-gen-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 0 rgba(0,0,0,.15);
+}
+.zts-gen-card.is-active {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 4px var(--gen-yellow), 6px 6px 0 rgba(0,0,0,.25);
+}
+.zts-gen-card-emoji { font-size: 3.5rem; line-height: 1; }
+.zts-gen-card-title {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.5rem; letter-spacing: 2px;
+  color: var(--gen-deep);
+}
+.zts-gen-card-desc {
+  font-size: .85rem; color: #475569; font-weight: 600;
+  max-width: 220px;
+}
+
+.zts-gen-card--red    { background: linear-gradient(135deg, #FFE5EB, #FFC2D0); }
+.zts-gen-card--red.is-active    { background: linear-gradient(135deg, #FF3B5C, #FF6B83); color: #fff; }
+.zts-gen-card--red.is-active .zts-gen-card-title { color: #fff; }
+.zts-gen-card--red.is-active .zts-gen-card-desc  { color: rgba(255,255,255,.9); }
+
+.zts-gen-card--violet { background: linear-gradient(135deg, #EDE5FF, #D4C2FF); }
+.zts-gen-card--violet.is-active { background: linear-gradient(135deg, #8B5CF6, #A78BFA); color: #fff; }
+.zts-gen-card--violet.is-active .zts-gen-card-title { color: #fff; }
+.zts-gen-card--violet.is-active .zts-gen-card-desc  { color: rgba(255,255,255,.9); }
+
+.zts-gen-card--cyan   { background: linear-gradient(135deg, #D6F4FF, #A8E5FA); }
+.zts-gen-card--cyan.is-active   { background: linear-gradient(135deg, #00C4FF, #38D6FF); color: #fff; }
+.zts-gen-card--cyan.is-active .zts-gen-card-title { color: #fff; }
+.zts-gen-card--cyan.is-active .zts-gen-card-desc  { color: rgba(255,255,255,.9); }
+
+.zts-gen-card--yellow { background: linear-gradient(135deg, #FFFCE0, #FFF59D); }
+.zts-gen-card--yellow.is-active { background: linear-gradient(135deg, #FFF000, #FFE45C); }
+
+.zts-gen-card--orange { background: linear-gradient(135deg, #FFE8CC, #FFCB99); }
+.zts-gen-card--orange.is-active { background: linear-gradient(135deg, #FF8C00, #FFB45C); color: #fff; }
+.zts-gen-card--orange.is-active .zts-gen-card-title { color: #fff; }
+.zts-gen-card--orange.is-active .zts-gen-card-desc  { color: rgba(255,255,255,.9); }
+
+.zts-gen-card--lime   { background: linear-gradient(135deg, #E0FFE6, #ADF5BB); }
+.zts-gen-card--lime.is-active   { background: linear-gradient(135deg, #4ADE80, #86EFAC); }
+
+/* ============ TEXTAREA ============ */
+.zts-gen-textarea-wrap { position: relative; }
+.zts-gen-textarea {
+  width: 100%; box-sizing: border-box;
+  padding: 20px 24px;
+  background: #fff;
+  border: 4px dashed var(--gen-deep);
+  border-radius: var(--gen-r-lg);
+  font-family: 'Patrick Hand', cursive; font-size: 1.25rem;
+  color: var(--gen-deep);
+  resize: vertical; min-height: 100px;
+  transition: border-color .2s;
+}
+.zts-gen-textarea:focus {
+  outline: none;
+  border-color: var(--gen-cyan);
+  border-style: solid;
+}
+.zts-gen-counter {
+  position: absolute; right: 16px; bottom: 12px;
+  font-family: 'Luckiest Guy', cursive; font-size: .9rem;
+  color: #64748B; letter-spacing: 1px;
+  background: rgba(255,255,255,.85); padding: 2px 10px; border-radius: 999px;
+}
+
+/* ============ MODÈLE TOGGLE ============ */
+.zts-gen-modele-row {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  margin: 24px 0 32px;
+  position: relative;
+}
+.zts-gen-modele-label {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.2rem; letter-spacing: 1px;
+  color: var(--gen-deep);
+}
+.zts-gen-toggle {
+  display: flex; background: #fff;
+  border: 4px solid var(--gen-deep);
+  border-radius: 999px; padding: 4px;
+  box-shadow: 3px 3px 0 rgba(0,0,0,.2);
+}
+.zts-gen-toggle-opt {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 999px;
+  background: transparent; border: none; cursor: pointer;
+  font-family: 'Luckiest Guy', cursive; font-size: 1rem; letter-spacing: 1px;
+  color: var(--gen-deep); transition: all .15s;
+}
+.zts-gen-toggle-opt.is-active {
+  background: var(--gen-cyan); color: #fff;
+}
+.zts-gen-tooltip-trigger {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 3px solid var(--gen-deep); background: var(--gen-yellow);
+  color: var(--gen-deep); font-family: 'Luckiest Guy', cursive;
+  font-size: 1rem; cursor: pointer;
+}
+.zts-gen-tooltip {
+  position: absolute; top: calc(100% + 8px); left: 0;
+  max-width: 320px; background: var(--gen-dark); color: #fff;
+  padding: 12px 16px; border-radius: 14px;
+  font-size: .9rem; line-height: 1.5;
+  box-shadow: 4px 4px 0 rgba(0,0,0,.3);
+  z-index: 10;
+}
+
+/* ============ CTA GÉNÉRER ============ */
+.zts-gen-cta-wrap { text-align: center; margin: 40px 0 24px; }
+.zts-gen-cta-btn {
+  display: inline-flex; align-items: center; gap: 16px;
+  padding: 24px 56px;
+  background: linear-gradient(135deg, var(--gen-cyan), var(--gen-deep));
+  color: #fff; border: 6px solid var(--gen-deep);
+  border-bottom-width: 12px; border-right-width: 12px;
+  border-radius: var(--gen-r-xl);
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(1.5rem, 4vw, 2.4rem); letter-spacing: 3px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,196,255,.4);
+  transition: transform .15s, box-shadow .15s;
+  text-decoration: none;
+}
+.zts-gen-cta-btn:hover {
+  transform: translateY(-4px) rotate(-1deg);
+  box-shadow: 0 14px 32px rgba(0,196,255,.5);
+}
+.zts-gen-cta-btn:active { transform: translateY(2px); }
+.zts-gen-cta-btn:disabled {
+  opacity: .6; cursor: not-allowed; transform: none;
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  box-shadow: none;
+}
+.zts-gen-cta-btn--small {
+  padding: 14px 32px; font-size: 1.1rem;
+  border-bottom-width: 8px; border-right-width: 8px;
+}
+.zts-gen-cta-icon { font-size: 1.6em; }
+.zts-gen-cta-cost {
+  font-size: .55em; opacity: .85;
+  background: rgba(0,0,0,.2); padding: 4px 12px; border-radius: 999px;
+}
+.zts-gen-quota-hint {
+  margin: 16px 0 0;
+  font-family: 'Patrick Hand', cursive; font-size: 1.1rem;
+  color: var(--gen-deep);
+}
+
+/* ============ LOADING ============ */
+.zts-gen-result { margin-top: 48px; }
+.zts-gen-loading {
+  text-align: center; padding: 48px 24px;
+  background: #fff;
+  border: 4px solid var(--gen-deep); border-radius: var(--gen-r-xl);
+  box-shadow: 6px 6px 0 rgba(0,0,0,.15);
+}
+.zts-gen-loading-bucheron {
+  width: 140px; height: 140px; border-radius: 50%; object-fit: cover;
+  border: 6px solid var(--gen-yellow);
+  animation: bucheron-bounce 1.2s ease-in-out infinite;
+}
+@keyframes bucheron-bounce {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50%      { transform: translateY(-12px) rotate(3deg); }
+}
+.zts-gen-loading-msg {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.6rem; letter-spacing: 1.5px;
+  color: var(--gen-deep); margin: 20px 0 12px;
+}
+.zts-gen-loading-dots {
+  display: inline-flex; gap: 8px;
+}
+.zts-gen-loading-dots span {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--gen-cyan);
+  animation: dot-pulse 1.2s ease-in-out infinite;
+}
+.zts-gen-loading-dots span:nth-child(2) { animation-delay: .2s; }
+.zts-gen-loading-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes dot-pulse {
+  0%, 80%, 100% { transform: scale(.8); opacity: .5; }
+  40%           { transform: scale(1.2); opacity: 1; }
+}
+
+/* ============ FICHE RÉSULTAT ============ */
+.zts-gen-fiche {
+  background: #fff;
+  border: 4px solid var(--gen-deep);
+  border-bottom-width: 12px; border-right-width: 12px;
+  border-radius: var(--gen-r-xl);
+  padding: 32px 28px;
+  box-shadow: 8px 8px 0 rgba(0,0,0,.15);
+}
+.zts-gen-fiche-header { border-bottom: 3px dashed #CBD5E1; padding-bottom: 16px; margin-bottom: 20px; }
+.zts-gen-fiche-badge {
+  display: inline-block;
+  background: var(--gen-yellow); color: var(--gen-deep);
+  font-family: 'Luckiest Guy', cursive; font-size: .9rem; letter-spacing: 2px;
+  padding: 6px 16px; border-radius: 999px;
+  border: 3px solid var(--gen-deep);
+  margin-bottom: 12px;
+}
+.zts-gen-fiche-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.05; letter-spacing: 1.5px;
+  color: var(--gen-deep); margin: 0;
+}
+.zts-gen-fiche-meta {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px; margin-bottom: 24px;
+}
+.zts-gen-fiche-meta-item {
+  background: #F1F5F9; padding: 12px; border-radius: 14px;
+  font-family: 'Patrick Hand', cursive; font-size: 1.05rem;
+  color: var(--gen-deep);
+}
+.zts-gen-fiche-meta-item strong {
+  display: block; font-family: 'Luckiest Guy', cursive;
+  font-size: .75rem; letter-spacing: 1.5px; color: #64748B;
+  margin-bottom: 4px; text-transform: uppercase;
+}
+.zts-gen-fiche-section { margin-bottom: 24px; }
+.zts-gen-fiche-section h3 {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.4rem; letter-spacing: 1.5px;
+  color: var(--gen-deep); margin: 0 0 10px;
+}
+.zts-gen-fiche-section p,
+.zts-gen-fiche-section li,
+.zts-gen-fiche-section div {
+  font-family: 'Patrick Hand', cursive; font-size: 1.2rem; line-height: 1.55;
+  color: #1E293B;
+}
+.zts-gen-fiche-section ul { margin: 0; padding-left: 24px; }
+.zts-gen-fiche-section li { margin-bottom: 6px; }
+
+/* Typewriter cursor */
+.zts-gen-typewriter.is-typing::after {
+  content: "▎"; color: var(--gen-cyan);
+  animation: cursor-blink 1s steps(2) infinite;
+}
+@keyframes cursor-blink { 50% { opacity: 0; } }
+
+/* Action buttons */
+.zts-gen-fiche-actions {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  border-top: 3px dashed #CBD5E1; padding-top: 20px; margin-top: 16px;
+}
+.zts-gen-action-btn {
+  flex: 1 1 calc(50% - 6px); min-width: 140px;
+  padding: 12px 18px;
+  background: #fff; border: 3px solid var(--gen-deep);
+  border-bottom-width: 6px; border-right-width: 6px;
+  border-radius: 16px;
+  font-family: 'Luckiest Guy', cursive; font-size: 1rem; letter-spacing: 1.5px;
+  color: var(--gen-deep); cursor: pointer;
+  transition: transform .15s;
+}
+.zts-gen-action-btn:hover:not(:disabled) { transform: translateY(-2px); background: var(--gen-yellow); }
+.zts-gen-action-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ============ ERREUR ============ */
+.zts-gen-error {
+  text-align: center; padding: 32px 24px;
+  background: linear-gradient(135deg, #FEE2E2, #FECACA);
+  border: 4px solid #DC2626;
+  border-bottom-width: 10px; border-right-width: 10px;
+  border-radius: var(--gen-r-xl);
+}
+.zts-gen-error h3 {
+  font-family: 'Luckiest Guy', cursive; font-size: 1.6rem; letter-spacing: 1.5px;
+  color: #991B1B; margin: 0 0 12px;
+}
+.zts-gen-error p { font-family: 'Patrick Hand', cursive; font-size: 1.2rem; margin: 0 0 20px; color: #7F1D1D; }
+
+/* ============ MODAL SIGNUP ============ */
+.zts-gen-modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.zts-gen-modal-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(10, 32, 64, .75);
+}
+.zts-gen-modal-card {
+  position: relative;
+  background: #fff;
+  border: 6px solid var(--gen-deep);
+  border-bottom-width: 14px; border-right-width: 14px;
+  border-radius: var(--gen-r-xl);
+  padding: 36px 28px 28px;
+  max-width: 480px; width: 100%;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0,0,0,.4);
+  animation: modal-pop .25s ease-out;
+}
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.zts-gen-modal-close {
+  position: absolute; top: 12px; right: 16px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--gen-yellow); border: 3px solid var(--gen-deep);
+  font-size: 1.4rem; font-weight: 900; cursor: pointer;
+  color: var(--gen-deep);
+}
+.zts-gen-modal-emoji { font-size: 4rem; margin-bottom: 8px; }
+.zts-gen-modal-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(1.5rem, 4vw, 2rem); letter-spacing: 1.5px;
+  color: var(--gen-deep); margin: 0 0 12px;
+}
+.zts-gen-modal-subtitle {
+  font-family: 'Patrick Hand', cursive; font-size: 1.15rem;
+  color: #475569; margin: 0 0 24px;
+}
+.zts-gen-modal-actions { display: flex; flex-direction: column; gap: 12px; }
+.zts-gen-modal-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 16px 20px; border-radius: 18px;
+  font-family: 'Luckiest Guy', cursive; font-size: 1.1rem; letter-spacing: 1.5px;
+  cursor: pointer; text-decoration: none;
+  border: 4px solid var(--gen-deep);
+  transition: transform .15s;
+}
+.zts-gen-modal-btn--primary {
+  background: linear-gradient(135deg, var(--gen-cyan), var(--gen-deep));
+  color: #fff;
+  border-bottom-width: 8px; border-right-width: 8px;
+}
+.zts-gen-modal-btn--primary:hover { transform: translateY(-2px); }
+.zts-gen-modal-btn--ghost {
+  background: transparent; color: var(--gen-deep);
+  border: none; font-size: .95rem; letter-spacing: 1px;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 600px) {
+  .zts-gen-main { padding: 32px 16px 60px; }
+  .zts-gen-step { margin-bottom: 40px; }
+  .zts-gen-card { min-height: 150px; padding: 20px 12px; }
+  .zts-gen-card-emoji { font-size: 2.8rem; }
+  .zts-gen-card-title { font-size: 1.2rem; }
+  .zts-gen-fiche { padding: 24px 18px; }
+  .zts-gen-cta-btn { padding: 18px 32px; }
+  .zts-gen-action-btn { flex-basis: 100%; }
+}

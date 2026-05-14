@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 Générateur IA — Zone Total Sport</title>
+  <meta name="description" content="Crée un jeu, une SAÉ ou un éducatif sur mesure grâce à l'IA. Gratuit, illimité avec compte.">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/zts-ultra.css">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600;800;900&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <style>
+    @font-face { font-family:'ZoneTotalSport'; src:url('/fonts/ZoneTotalSport.ttf') format('truetype'); size-adjust:50%; }
+  </style>
+</head>
+<body class="zts-gen-body">
+
+  <!-- ============ HEADER STICKY ============ -->
+  <header class="zts-landing-header">
+    <a href="/" class="zts-landing-home-btn" aria-label="Retour accueil">
+      <span>←</span><span>ACCUEIL</span>
+    </a>
+    <div class="zts-landing-logo">
+      <img src="/logo-zts.png" alt="Zone Total Sport" class="zts-landing-logo-icon">
+      <div>
+        <div class="zts-landing-logo-title">GÉNÉRATEUR IA</div>
+        <div class="zts-landing-logo-sub">Beta — Fusion #1</div>
+      </div>
+    </div>
+    <div class="zts-gen-account">
+      <button id="accountBtn" class="zts-gen-account-btn" aria-label="Compte">
+        <span>👤</span><span>COMPTE</span>
+      </button>
+      <div id="accountMenu" class="zts-gen-account-menu" hidden>
+        <a href="/#signin" data-action="signin">🔑 Connexion</a>
+        <a href="/#profile" data-action="profile" hidden>👤 Mon profil</a>
+        <button data-action="signout" hidden>🚪 Déconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ HERO XXL ============ -->
+  <section class="zts-landing-hero-card zts-gen-hero">
+    <div class="zts-landing-hero-grid">
+      <div class="zts-landing-hero-text">
+        <div class="zts-gen-badge">🚀 10 GRATUITS/MOIS</div>
+        <h1 class="zts-landing-title">GÉNÉRATEUR IA</h1>
+        <p class="zts-landing-subtitle">Crée un jeu, une SAÉ ou un éducatif sur mesure. Le bûcheron taille pour toi en quelques secondes.</p>
+      </div>
+      <div class="zts-landing-mascot-wrap">
+        <img src="/bucheron-generateur.png" alt="Bûcheron Mr Root" class="zts-landing-mascot" id="bucheronHero">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FORMULAIRE ============ -->
+  <main class="zts-gen-main">
+
+    <!-- ÉTAPE 1 : TYPE -->
+    <section class="zts-gen-step">
+      <h2 class="zts-gen-step-title"><span class="zts-gen-step-num">1</span> Quel TYPE ?</h2>
+      <div class="zts-gen-selector-grid" data-group="type">
+        <button type="button" class="zts-gen-card zts-gen-card--red is-active" data-value="jeu">
+          <span class="zts-gen-card-emoji">🎮</span>
+          <span class="zts-gen-card-title">JEU</span>
+          <span class="zts-gen-card-desc">Un jeu sportif clé en main</span>
+        </button>
+        <button type="button" class="zts-gen-card zts-gen-card--violet" data-value="sae">
+          <span class="zts-gen-card-emoji">📚</span>
+          <span class="zts-gen-card-title">SAÉ</span>
+          <span class="zts-gen-card-desc">Situation d'apprentissage complète</span>
+        </button>
+        <button type="button" class="zts-gen-card zts-gen-card--cyan" data-value="educatif">
+          <span class="zts-gen-card-emoji">🏋️</span>
+          <span class="zts-gen-card-title">ÉDUCATIF</span>
+          <span class="zts-gen-card-desc">Exercice technique progressif</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ÉTAPE 2 : UNIVERS -->
+    <section class="zts-gen-step">
+      <h2 class="zts-gen-step-title"><span class="zts-gen-step-num">2</span> Quel UNIVERS ?</h2>
+      <div class="zts-gen-selector-grid" data-group="univers">
+        <button type="button" class="zts-gen-card zts-gen-card--yellow is-active" data-value="eps">
+          <span class="zts-gen-card-emoji">🏫</span>
+          <span class="zts-gen-card-title">ÉPS PRIMAIRE</span>
+          <span class="zts-gen-card-desc">PFEQ, gymnase, 25-30 élèves</span>
+        </button>
+        <button type="button" class="zts-gen-card zts-gen-card--orange" data-value="camps">
+          <span class="zts-gen-card-emoji">☀️</span>
+          <span class="zts-gen-card-title">CAMP DE JOUR</span>
+          <span class="zts-gen-card-desc">Plein air, 30-100 jeunes, plaisir</span>
+        </button>
+        <button type="button" class="zts-gen-card zts-gen-card--lime" data-value="sdg">
+          <span class="zts-gen-card-emoji">🧸</span>
+          <span class="zts-gen-card-title">SERVICE DE GARDE</span>
+          <span class="zts-gen-card-desc">Local 50m², 10-25 enfants, calme</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ÉTAPE 3 : CONTEXTE -->
+    <section class="zts-gen-step">
+      <h2 class="zts-gen-step-title"><span class="zts-gen-step-num">3</span> Donne du CONTEXTE <span class="zts-gen-step-opt">(optionnel)</span></h2>
+      <div class="zts-gen-textarea-wrap">
+        <textarea id="contextInput" class="zts-gen-textarea" maxlength="1000" rows="4"
+          placeholder="ex. 3e cycle, basketball, ballons mousse, 30 min"></textarea>
+        <div class="zts-gen-counter"><span id="charCount">0</span> / 1000</div>
+      </div>
+    </section>
+
+    <!-- TOGGLE MODÈLE -->
+    <section class="zts-gen-modele-row">
+      <label class="zts-gen-modele-label">Modèle :</label>
+      <div class="zts-gen-toggle" role="radiogroup" aria-label="Choix modèle">
+        <button type="button" class="zts-gen-toggle-opt is-active" data-modele="haiku">
+          <span>⚡</span><span>RAPIDE</span>
+        </button>
+        <button type="button" class="zts-gen-toggle-opt" data-modele="sonnet">
+          <span>✨</span><span>QUALITÉ +</span>
+        </button>
+      </div>
+      <button type="button" class="zts-gen-tooltip-trigger" aria-label="Aide modèle" id="tooltipBtn">i</button>
+      <div class="zts-gen-tooltip" id="tooltipBox" hidden>
+        <strong>Rapide (Haiku)</strong> : 5-10s, fiche complète.<br>
+        <strong>Qualité+ (Sonnet)</strong> : 15-25s, plus détaillé et nuancé.
+      </div>
+    </section>
+
+    <!-- BOUTON GÉNÉRER -->
+    <div class="zts-gen-cta-wrap">
+      <button id="generateBtn" type="button" class="zts-gen-cta-btn">
+        <span class="zts-gen-cta-icon">🚀</span>
+        <span class="zts-gen-cta-text">GÉNÉRER</span>
+        <span class="zts-gen-cta-cost">(1 crédit)</span>
+      </button>
+      <p id="quotaHint" class="zts-gen-quota-hint">Tu peux générer 3 fois sans inscription.</p>
+    </div>
+
+    <!-- ZONE RÉSULTAT -->
+    <section id="resultZone" class="zts-gen-result" hidden>
+
+      <!-- État LOADING -->
+      <div id="loadingState" class="zts-gen-loading" hidden>
+        <img src="/bucheron-hero.png" alt="" class="zts-gen-loading-bucheron">
+        <p id="loadingMsg" class="zts-gen-loading-msg">Le bûcheron réfléchit...</p>
+        <div class="zts-gen-loading-dots"><span></span><span></span><span></span></div>
+      </div>
+
+      <!-- État SUCCÈS -->
+      <article id="ficheCard" class="zts-gen-fiche" hidden>
+        <header class="zts-gen-fiche-header">
+          <div class="zts-gen-fiche-badge" id="ficheBadge">JEU · ÉPS</div>
+          <h2 class="zts-gen-fiche-title" id="ficheTitle"></h2>
+        </header>
+
+        <div class="zts-gen-fiche-meta" id="ficheMeta"></div>
+
+        <div class="zts-gen-fiche-section">
+          <h3>🎯 But</h3>
+          <p id="ficheBut" class="zts-gen-typewriter"></p>
+        </div>
+
+        <div class="zts-gen-fiche-section">
+          <h3>🎒 Matériel</h3>
+          <ul id="ficheMateriel"></ul>
+        </div>
+
+        <div class="zts-gen-fiche-section">
+          <h3>📋 Règles / Déroulement</h3>
+          <div id="ficheRegles" class="zts-gen-typewriter"></div>
+        </div>
+
+        <div class="zts-gen-fiche-section">
+          <h3>🔀 Variantes</h3>
+          <ul id="ficheVariantes"></ul>
+        </div>
+
+        <div class="zts-gen-fiche-section">
+          <h3>🛟 Sécurité / Conseils</h3>
+          <p id="ficheSecurite"></p>
+        </div>
+
+        <footer class="zts-gen-fiche-actions" id="ficheActions" hidden>
+          <button class="zts-gen-action-btn" disabled title="Bientôt — commit #5">💾 SAUVER</button>
+          <button class="zts-gen-action-btn" disabled title="Bientôt — commit #6">📄 PDF</button>
+          <button class="zts-gen-action-btn" disabled title="Bientôt — commit #6">🔄 RÉGÉNÉRER</button>
+          <button class="zts-gen-action-btn" disabled title="Bientôt — commit #6">✏️ ÉDITER</button>
+        </footer>
+      </article>
+
+      <!-- État ERREUR -->
+      <div id="errorState" class="zts-gen-error" hidden>
+        <h3>Oups, le bûcheron a glissé sur une bûche...</h3>
+        <p id="errorMsg"></p>
+        <button id="retryBtn" class="zts-gen-cta-btn zts-gen-cta-btn--small">🔄 Réessayer</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ POPUP SIGNUP ============ -->
+  <div id="signupModal" class="zts-gen-modal" hidden>
+    <div class="zts-gen-modal-backdrop" data-close></div>
+    <div class="zts-gen-modal-card" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+      <button class="zts-gen-modal-close" data-close aria-label="Fermer">×</button>
+      <div class="zts-gen-modal-emoji">🎁</div>
+      <h2 id="signupTitle" class="zts-gen-modal-title">INSCRIS-TOI GRATUITEMENT</h2>
+      <p class="zts-gen-modal-subtitle">Continue à générer (10/mois) + sauvegarde tes créations 100% gratuit.</p>
+      <div class="zts-gen-modal-actions">
+        <a href="/?signin=1" class="zts-gen-modal-btn zts-gen-modal-btn--primary">
+          <span>🔑</span><span>SE CONNECTER / S'INSCRIRE</span>
+        </a>
+        <button class="zts-gen-modal-btn zts-gen-modal-btn--ghost" data-close>Plus tard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase compat (optionnel — utilisé seulement si déjà chargé par index.html) -->
+  <script src="app.js" defer></script>
+</body>
+</html>
