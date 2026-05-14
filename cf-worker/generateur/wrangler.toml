@@ -14,12 +14,14 @@ SONNET_MODEL = "claude-sonnet-4-6"
 QUOTA_FREE_MONTH = "10"
 QUOTA_ANON_MONTH = "3"
 MAX_OUTPUT_TOKENS = "2000"
+FIREBASE_PROJECT_ID = "zone-total-sport"
+ENVIRONMENT = "dev"
 
-# Secrets (à provisionner via `wrangler secret put` au commit #2/#8) :
-# - ANTHROPIC_API_KEY        (clé zts-generateur-worker, à créer)
-# - FIREBASE_SERVICE_ACCOUNT (JSON service account complet)
-#
-# KV namespace anonymes (à créer au commit #3) :
-# [[kv_namespaces]]
-# binding = "ANON_QUOTA"
-# id = "<à remplir>"
+# Secrets (à provisionner via `wrangler secret put`) :
+# - ANTHROPIC_API_KEY        (clé zts-generateur-worker)
+# - FIREBASE_SERVICE_ACCOUNT (JSON service account complet, single-line)
+
+[[kv_namespaces]]
+binding = "ANON_QUOTA"
+id = "3dc369766df54fafadd52bb232f34573"
+preview_id = "d523ae6dd61e4bba9521fa88d4e2ccfb"
