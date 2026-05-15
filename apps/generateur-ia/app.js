@@ -201,11 +201,8 @@
   async function generate() {
     if (state.isGenerating) return;
 
-    // Gate anonyme côté client : à la 4e tentative, popup signup
-    if (!getUid() && getAnonCount() >= ANON_LIMIT) {
-      openSignupModal();
-      return;
-    }
+    // Plus de gate client-side stricte — le worker est la source de vérité.
+    // Le compteur local sert seulement à l'affichage indicatif du hint.
 
     state.isGenerating = true;
     $generateBtn.disabled = true;
@@ -234,13 +231,20 @@
       clearTimeout(timeoutId);
       const json = await resp.json().catch(() => null);
 
-      if (resp.status === 401 || json?.code === 'ANON_LIMIT') {
-        openSignupModal();
+      // QUOTA_EXCEEDED : si anon → popup signup. Si user authentifié → message + don.
+      if (resp.status === 429 || json?.code === 'QUOTA_EXCEEDED') {
         hideLoading();
+        const scope = json?.quota?.scope;
+        if (scope === 'anon' || !getUid()) {
+          openSignupModal();
+        } else {
+          showError(json?.message || 'Quota mensuel atteint. Fais un don pour soutenir le projet : https://paypal.me/zonetotalsport');
+        }
         return;
       }
-      if (resp.status === 429 || json?.code === 'QUOTA_EXCEEDED') {
-        showError(json?.message || 'Quota mensuel atteint. Fais un don pour soutenir le projet : https://paypal.me/zonetotalsport');
+      if (resp.status === 401 || json?.code === 'ANON_LIMIT') {
+        hideLoading();
+        openSignupModal();
         return;
       }
       if (!resp.ok || !json?.ok) {
