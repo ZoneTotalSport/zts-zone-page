@@ -18,10 +18,17 @@
 
 .zts-gen-body {
   margin: 0;
-  background: #FFFCEF;
   font-family: 'Inter', 'Patrick Hand', sans-serif;
   color: #0F172A;
   min-height: 100vh;
+  /* Fond Pop Art bûcheron : crème + Ben-Day dots cyan + grille subtile */
+  background-color: #FFF8E1;
+  background-image:
+    radial-gradient(rgba(0, 196, 255, 0.18) 1.8px, transparent 2px),
+    linear-gradient(to right, rgba(0, 74, 97, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 74, 97, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px, 56px 56px, 56px 56px;
+  background-attachment: fixed;
 }
 
 /* Fix : l'attribut [hidden] doit toujours masquer, même quand CSS définit display:flex */
