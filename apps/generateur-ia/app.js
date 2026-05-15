@@ -947,6 +947,47 @@
   // ──────────────────────────────────────────────────────────
   // Init
   // ──────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
+  // Zoom TBI (50% — 300%, persisté localStorage)
+  // ──────────────────────────────────────────────────────────
+  const ZOOM_KEY = 'zts_gen_zoom';
+  const ZOOM_MIN = 50, ZOOM_MAX = 300, ZOOM_STEP = 10;
+
+  function getZoom() {
+    const v = parseInt(localStorage.getItem(ZOOM_KEY) || '100', 10);
+    return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, isNaN(v) ? 100 : v));
+  }
+  function applyZoom(pct) {
+    const clamped = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, pct));
+    document.documentElement.style.zoom = clamped / 100;
+    // Fallback Firefox (pas de support `zoom`) : transform-scale
+    if (!CSS.supports('zoom', '1')) {
+      document.body.style.transform = `scale(${clamped / 100})`;
+      document.body.style.transformOrigin = 'top left';
+      document.body.style.width = `${10000 / clamped}%`;
+    }
+    const lbl = document.getElementById('zoomLevel');
+    if (lbl) lbl.textContent = `${clamped}%`;
+    localStorage.setItem(ZOOM_KEY, String(clamped));
+  }
+  function setupZoom() {
+    const inBtn = document.getElementById('zoomIn');
+    const outBtn = document.getElementById('zoomOut');
+    const resetBtn = document.getElementById('zoomReset');
+    if (inBtn) inBtn.addEventListener('click', () => applyZoom(getZoom() + ZOOM_STEP));
+    if (outBtn) outBtn.addEventListener('click', () => applyZoom(getZoom() - ZOOM_STEP));
+    if (resetBtn) resetBtn.addEventListener('click', () => applyZoom(100));
+    // Raccourcis clavier Ctrl/Cmd + / -
+    document.addEventListener('keydown', (e) => {
+      const mod = e.ctrlKey || e.metaKey;
+      if (!mod) return;
+      if (e.key === '+' || e.key === '=') { e.preventDefault(); applyZoom(getZoom() + ZOOM_STEP); }
+      else if (e.key === '-') { e.preventDefault(); applyZoom(getZoom() - ZOOM_STEP); }
+      else if (e.key === '0') { e.preventDefault(); applyZoom(100); }
+    });
+    applyZoom(getZoom());
+  }
+
   function init() {
     setupSelectors('type');
     setupSelectors('univers');
@@ -955,6 +996,7 @@
     setupGenerate();
     setupAccountMenu();
     setupSignupModal();
+    setupZoom();
     updatePlaceholder();
     updateQuotaHint();
     refreshGenerationsGrid();
