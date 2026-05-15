@@ -806,8 +806,41 @@
 }
 .zts-fiche2-foot-btn--yellow { background: #FFFC00; }
 .zts-fiche2-foot-btn--cyan   { background: #00D6FF; }
+.zts-fiche2-foot-btn--violet { background: #C084FC; color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.3); }
+.zts-fiche2-foot-btn--violet.is-saving { background: #22C55E; }
 .zts-fiche2-foot-btn--ghost  { background: #E5E7EB; color: #4B5563; }
 .zts-fiche2-foot-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+/* ---------- ÉDITION INLINE ---------- */
+.zts-fiche2.is-editing [data-editable] {
+  outline: 3px dashed #C084FC;
+  outline-offset: 2px;
+  border-radius: 6px;
+  background: rgba(192, 132, 252, .12);
+  cursor: text;
+  min-height: 1.2em;
+  transition: outline-color .15s, background .15s;
+}
+.zts-fiche2.is-editing [data-editable]:focus {
+  outline: 3px solid #FFFC00;
+  background: rgba(255, 252, 0, .15);
+  box-shadow: 0 0 0 4px rgba(192, 132, 252, .3);
+}
+.zts-fiche2.is-editing [data-editable]:hover:not(:focus) {
+  background: rgba(192, 132, 252, .25);
+}
+.zts-fiche2-edit-hint {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  z-index: 90;
+  background: #C084FC; color: #fff;
+  border: 4px solid #000;
+  border-radius: 16px;
+  box-shadow: 6px 6px 0 #000;
+  padding: 12px 22px;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1rem; letter-spacing: 1.5px;
+  animation: panel-in .25s ease-out;
+}
 
 /* ---------- TOAST ---------- */
 .zts-fiche2-toast {

@@ -380,8 +380,12 @@
     // ── Titre split + tagline + subtitle
     const fullTitle = data.titre || data.nom || 'Fiche générée';
     const [titleMain, titleAccent] = splitTitle(fullTitle);
-    $('#ficheTitleMain').textContent = titleMain;
-    $('#ficheTitleAccent').textContent = titleAccent;
+    const $titleMain = $('#ficheTitleMain');
+    const $titleAccent = $('#ficheTitleAccent');
+    $titleMain.textContent = titleMain;
+    $titleAccent.textContent = titleAccent;
+    $titleMain.setAttribute('data-editable', 'titre-main');
+    $titleAccent.setAttribute('data-editable', 'titre-accent');
     const TAGLINES = {
       jeu: '🎮 Fiche de jeu officielle',
       sae: '📚 Situation d\'apprentissage',
@@ -392,16 +396,19 @@
       || data.intentions_pedagogiques
       || (data.habilete_ciblee ? `Maîtriser : ${data.habilete_ciblee}` : '')
       || '';
-    $('#ficheSubtitle').textContent = subtitle.slice(0, 200);
+    const $sub = $('#ficheSubtitle');
+    $sub.textContent = subtitle.slice(0, 200);
+    $sub.setAttribute('data-editable', 'subtitle');
 
     // ── Tuile MATÉRIEL
     const $mat = $('#ficheMateriel');
     $mat.innerHTML = '';
     const matList = listFromAny(data.materiel);
     if (matList.length === 0) matList.push('Aucun matériel spécifique');
-    matList.slice(0, 6).forEach(item => {
+    matList.slice(0, 6).forEach((item, i) => {
       const li = document.createElement('li');
       li.textContent = item;
+      li.setAttribute('data-editable', `materiel-${i}`);
       $mat.appendChild(li);
     });
 
@@ -416,7 +423,9 @@
       objectifText = data.habilete_ciblee ? `🎯 ${data.habilete_ciblee}` : '';
       if (data.moyen_action) objectifText += `\n⚡ Moyen : ${data.moyen_action}`;
     }
-    $('#ficheObjectif').textContent = objectifText;
+    const $obj = $('#ficheObjectif');
+    $obj.textContent = objectifText;
+    $obj.setAttribute('data-editable', 'objectif');
 
     // ── Tuile ORGANISATION
     const $org = $('#ficheOrganisation');
@@ -443,10 +452,10 @@
       li.textContent = 'Plan de match à structurer.';
       $plan.appendChild(li);
     } else {
-      steps.forEach(step => {
+      steps.forEach((step, i) => {
         const li = document.createElement('li');
         const phaseStr = step.phase ? `${step.phase}${step.duree ? ` (${step.duree})` : ''}` : '';
-        li.innerHTML = `${phaseStr ? `<span class="plan-phase-name">${escapeHtml(phaseStr)}</span>` : ''}<span>${escapeHtml(step.text || '')}</span>`;
+        li.innerHTML = `${phaseStr ? `<span class="plan-phase-name">${escapeHtml(phaseStr)}</span>` : ''}<span data-editable="plan-${i}">${escapeHtml(step.text || '')}</span>`;
         $plan.appendChild(li);
       });
     }
@@ -462,9 +471,10 @@
                          : type === 'educatif' ? 'Erreurs courantes :'
                          : 'Pour complexifier :';
     $('#ficheVariantesTitle').textContent = variantesTitle;
-    varList.forEach(v => {
+    varList.forEach((v, i) => {
       const li = document.createElement('li');
       li.textContent = typeof v === 'string' ? v : (v.titre || v.nom || JSON.stringify(v));
+      li.setAttribute('data-editable', `variante-${i}`);
       $var.appendChild(li);
     });
     if (varList.length === 0) {
@@ -484,9 +494,10 @@
     if (data.differenciation) secEntries.push(`Différenciation : ${data.differenciation}`);
     if (data.evaluation?.critere) secEntries.push(`Évaluation : ${data.evaluation.critere}`);
     if (secEntries.length === 0) secEntries.push('Vérifie l\'espace et le matériel avant de commencer.');
-    secEntries.forEach(s => {
+    secEntries.forEach((s, i) => {
       const li = document.createElement('li');
       li.textContent = s;
+      li.setAttribute('data-editable', `securite-${i}`);
       $sec.appendChild(li);
     });
 
@@ -536,6 +547,155 @@
         window.print();
       }, 3500);
     });
+
+    // Éditer / Sauver (toggle inline edit)
+    const btnEdit = document.getElementById('ficheBtnEdit');
+    if (btnEdit) btnEdit.addEventListener('click', () => toggleEditMode(btnEdit));
+  }
+
+  let editMode = false;
+  let editHint = null;
+  function toggleEditMode(btn) {
+    editMode = !editMode;
+    const fiche = document.getElementById('ficheCard');
+    const lbl = document.getElementById('ficheBtnEditLabel');
+    const ico = document.getElementById('ficheBtnEditIcon');
+    if (editMode) {
+      fiche.classList.add('is-editing');
+      btn.classList.add('is-saving');
+      ico.textContent = '💾';
+      lbl.textContent = 'SAUVER';
+      fiche.querySelectorAll('[data-editable]').forEach(el => {
+        el.setAttribute('contenteditable', 'plaintext-only');
+      });
+      editHint = document.createElement('div');
+      editHint.className = 'zts-fiche2-edit-hint no-print';
+      editHint.textContent = '✏️ Mode édition — clique sur les champs surlignés';
+      document.body.appendChild(editHint);
+    } else {
+      // Sauver
+      fiche.querySelectorAll('[data-editable]').forEach(el => {
+        el.removeAttribute('contenteditable');
+      });
+      fiche.classList.remove('is-editing');
+      btn.classList.remove('is-saving');
+      ico.textContent = '✏️';
+      lbl.textContent = 'ÉDITER';
+      if (editHint) { editHint.remove(); editHint = null; }
+      persistEdits();
+    }
+  }
+
+  function readEdited(key) {
+    const el = document.querySelector(`[data-editable="${key}"]`);
+    return el ? el.textContent.trim() : null;
+  }
+  function readListEdits(prefix) {
+    const out = [];
+    let i = 0;
+    while (true) {
+      const v = readEdited(`${prefix}-${i}`);
+      if (v === null) break;
+      if (v) out.push(v);
+      i++;
+    }
+    return out;
+  }
+
+  async function persistEdits() {
+    if (!state.lastResult) return;
+    const json = state.lastResult;
+    const data = { ...(json.data || {}) };
+
+    // Reconstitue titre depuis les 2 spans
+    const main = readEdited('titre-main') || '';
+    const accent = readEdited('titre-accent') || '';
+    data.titre = (main + ' ' + accent).trim();
+
+    // Subtitle → champ contextuel
+    const sub = readEdited('subtitle');
+    if (sub !== null) {
+      if (json.type === 'sae') data.intentions_pedagogiques = sub;
+      else if (json.type === 'educatif') data.habilete_ciblee = sub;
+      else data.but = sub;
+    }
+
+    // Objectif tuile
+    const obj = readEdited('objectif');
+    if (obj !== null) {
+      if (json.type === 'sae') data.intentions_pedagogiques = obj;
+      else if (json.type === 'educatif') data.habilete_ciblee = obj;
+      else data.but = obj;
+    }
+
+    // Matériel
+    const newMat = readListEdits('materiel');
+    if (newMat.length) data.materiel = newMat;
+
+    // Plan steps → réinjecte selon le schéma
+    const newPlan = readListEdits('plan');
+    if (newPlan.length) {
+      if (Array.isArray(data.deroulement)) {
+        data.deroulement = data.deroulement.map((p, i) => typeof p === 'object'
+          ? { ...p, description: newPlan[i] || p.description }
+          : (newPlan[i] || p));
+      } else if (Array.isArray(data.progression)) {
+        data.progression = data.progression.map((p, i) => typeof p === 'object'
+          ? { ...p, consigne: newPlan[i] || p.consigne }
+          : (newPlan[i] || p));
+      } else {
+        data.regles = newPlan.join('\n\n');
+      }
+    }
+
+    // Variantes / savoirs / erreurs
+    const newVar = readListEdits('variante');
+    if (newVar.length) {
+      if (Array.isArray(data.variantes)) data.variantes = newVar;
+      else if (Array.isArray(data.savoirs_essentiels)) data.savoirs_essentiels = newVar;
+      else if (Array.isArray(data.erreurs_courantes)) data.erreurs_courantes = newVar;
+      else data.variantes = newVar;
+    }
+
+    // Sécurité → join en string
+    const newSec = readListEdits('securite');
+    if (newSec.length) data.securite = newSec.join(' ');
+
+    json.data = data;
+    state.lastResult = json;
+
+    // Persistance
+    const uid = getUid();
+    const genId = json.generationId || json.data?.id;
+    showEditToast('💾 Modifications enregistrées');
+
+    if (uid && genId) {
+      try {
+        await fetch(`${API_BASE}/generation/${encodeURIComponent(genId)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, data }),
+        });
+      } catch (e) {
+        console.warn('PATCH failed:', e);
+      }
+    } else {
+      // Anon : retrouve par id dans localStorage et update
+      const targetId = genId;
+      if (targetId) {
+        updateAnonGeneration(targetId, { data });
+      }
+    }
+    await refreshGenerationsGrid();
+  }
+
+  function showEditToast(text) {
+    const t = document.createElement('div');
+    t.className = 'zts-fiche2-edit-hint no-print';
+    t.style.background = '#22C55E';
+    t.textContent = text;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2200);
   }
 
   function typeText(el, text, speed) {

@@ -396,6 +396,23 @@ async function handleMigrateAnon(request, env) {
   return json({ ok: true, migrated, failed });
 }
 
+async function handleUpdateGenerationData(genId, request, env) {
+  if (!genId || !/^[a-zA-Z0-9_-]{1,80}$/.test(genId)) {
+    return err("INVALID_INPUT", "ID génération invalide");
+  }
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body.uid !== "string" || !body.data || typeof body.data !== "object") {
+    return err("INVALID_INPUT", "body: { uid, data }");
+  }
+  const doc = await getDoc(env, `generations/${genId}`);
+  if (!doc) return err("NOT_FOUND", "Génération introuvable", 404);
+  if (doc.fields.uid !== body.uid) {
+    return err("FORBIDDEN", "Cette génération n'appartient pas à cet uid", 403);
+  }
+  await setDoc(env, `generations/${genId}`, { data: body.data, edited: true, edited_at: new Date() });
+  return json({ ok: true, id: genId, edited: true });
+}
+
 async function handleDeleteGeneration(genId, request, env) {
   if (!genId || !/^[a-zA-Z0-9_-]{1,80}$/.test(genId)) {
     return err("INVALID_INPUT", "ID génération invalide");
@@ -549,13 +566,16 @@ export default {
       catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
     }
 
-    // /generation/:id/favori (POST) ou /generation/:id (DELETE)
+    // /generation/:id/favori (POST), /generation/:id (PATCH ou DELETE)
     const m = url.pathname.match(/^\/generation\/([a-zA-Z0-9_-]+)(?:\/(favori))?$/);
     if (m) {
       const genId = m[1];
       try {
         if (m[2] === "favori" && request.method === "POST") {
           return await handleToggleFavori(genId, request, env);
+        }
+        if (!m[2] && request.method === "PATCH") {
+          return await handleUpdateGenerationData(genId, request, env);
         }
         if (!m[2] && request.method === "DELETE") {
           return await handleDeleteGeneration(genId, request, env);
