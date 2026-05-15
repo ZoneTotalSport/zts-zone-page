@@ -71,8 +71,8 @@
 
 /* ============ MAIN ============ */
 .zts-gen-main {
-  max-width: 1100px; margin: 0 auto;
-  padding: 48px 24px 80px;
+  max-width: 1600px; margin: 0 auto;
+  padding: 48px 32px 80px;
 }
 
 /* ============ STEPS ============ */
@@ -95,40 +95,62 @@
   color: #64748B; letter-spacing: 0;
 }
 
-/* ============ SELECTOR CARDS ============ */
+/* ============ SELECTOR CARDS (XXL pour TBI gymnase) ============ */
 .zts-gen-selector-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+  width: 100%;
 }
-@media (max-width: 800px) { .zts-gen-selector-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 500px) { .zts-gen-selector-grid { grid-template-columns: 1fr; } }
+@media (max-width: 800px) { .zts-gen-selector-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+@media (max-width: 500px) { .zts-gen-selector-grid { grid-template-columns: 1fr; gap: 16px; } }
 
 .zts-gen-card {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 8px; padding: 28px 16px; min-height: 180px;
-  background: #fff; border: 4px solid var(--gen-deep);
-  border-bottom-width: 10px; border-right-width: 10px;
+  gap: 14px; padding: 40px 20px; min-height: 260px;
+  background: #fff; border: 5px solid var(--gen-deep);
+  border-bottom-width: 12px; border-right-width: 12px;
   border-radius: var(--gen-r-xl);
   cursor: pointer; text-align: center;
   font-family: 'Inter', sans-serif;
-  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
   position: relative;
 }
-.zts-gen-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 0 rgba(0,0,0,.15);
+.zts-gen-card:hover:not(.is-active) {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 0 rgba(0,0,0,.18);
 }
 .zts-gen-card.is-active {
-  transform: scale(1.02);
-  box-shadow: 0 0 0 4px var(--gen-yellow), 6px 6px 0 rgba(0,0,0,.25);
+  transform: scale(1.06) translateY(-4px);
+  border-color: #000;
+  box-shadow:
+    0 0 0 8px var(--gen-yellow),
+    0 0 0 12px var(--gen-deep),
+    12px 16px 0 rgba(0,0,0,.35);
+  z-index: 2;
 }
-.zts-gen-card-emoji { font-size: 3.5rem; line-height: 1; }
+.zts-gen-card.is-active::after {
+  content: "✓"; position: absolute; top: -16px; right: -16px;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--gen-yellow); color: var(--gen-deep);
+  border: 5px solid var(--gen-deep);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Luckiest Guy', cursive; font-size: 1.7rem;
+  box-shadow: 4px 4px 0 rgba(0,0,0,.3);
+  animation: check-pop .35s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes check-pop {
+  from { transform: scale(0) rotate(-180deg); }
+  to   { transform: scale(1) rotate(0); }
+}
+.zts-gen-card-emoji { font-size: 5rem; line-height: 1; transition: transform .2s; }
+.zts-gen-card.is-active .zts-gen-card-emoji { transform: scale(1.15); }
 .zts-gen-card-title {
-  font-family: 'Luckiest Guy', cursive; font-size: 1.5rem; letter-spacing: 2px;
+  font-family: 'Luckiest Guy', cursive; font-size: 2rem; letter-spacing: 2px;
   color: var(--gen-deep);
+  line-height: 1.1;
 }
 .zts-gen-card-desc {
-  font-size: .85rem; color: #475569; font-weight: 600;
-  max-width: 220px;
+  font-size: 1rem; color: #475569; font-weight: 700;
+  max-width: 260px; line-height: 1.3;
 }
 
 .zts-gen-card--red    { background: linear-gradient(135deg, #FFE5EB, #FFC2D0); }
