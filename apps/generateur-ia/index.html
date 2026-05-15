@@ -148,46 +148,130 @@
         <div class="zts-gen-loading-dots"><span></span><span></span><span></span></div>
       </div>
 
-      <!-- État SUCCÈS -->
-      <article id="ficheCard" class="zts-gen-fiche" hidden>
-        <header class="zts-gen-fiche-header">
-          <div class="zts-gen-fiche-badge" id="ficheBadge">JEU · ÉPS</div>
-          <h2 class="zts-gen-fiche-title" id="ficheTitle"></h2>
-        </header>
+      <!-- État SUCCÈS — FICHE NEUBRUTALISTE v2 -->
+      <article id="ficheCard" class="zts-fiche2" hidden>
 
-        <div class="zts-gen-fiche-meta" id="ficheMeta"></div>
+        <!-- HEADER GRADIENT AVEC BADGES STICKER + BÛCHERON -->
+        <div class="zts-fiche2-header-wrap">
+          <div class="zts-fiche2-sticker zts-fiche2-sticker--cycle" id="ficheStickerCycle">
+            <span class="zts-fiche2-sticker-icon">🎓</span>
+            <span id="ficheCycleText">Cycle 2</span>
+          </div>
+          <div class="zts-fiche2-sticker zts-fiche2-sticker--duree" id="ficheStickerDuree">
+            <span class="zts-fiche2-sticker-icon">⏱️</span>
+            <span id="ficheDureeText">15-20 min</span>
+          </div>
 
-        <div class="zts-gen-fiche-section">
-          <h3>🎯 But</h3>
-          <p id="ficheBut" class="zts-gen-typewriter"></p>
+          <header class="zts-fiche2-header">
+            <div class="zts-fiche2-header-text">
+              <div class="zts-fiche2-tagline" id="ficheTagline">Fiche officielle</div>
+              <h2 class="zts-fiche2-title">
+                <span class="zts-fiche2-title-main" id="ficheTitleMain"></span>
+                <span class="zts-fiche2-title-accent" id="ficheTitleAccent"></span>
+              </h2>
+              <p class="zts-fiche2-subtitle" id="ficheSubtitle"></p>
+            </div>
+            <div class="zts-fiche2-mascot-wrap">
+              <div class="zts-fiche2-mascot">
+                <img src="/bucheron-generateur.png" alt="" class="zts-fiche2-mascot-img">
+              </div>
+              <span class="zts-fiche2-mascot-dot zts-fiche2-mascot-dot--1"></span>
+              <span class="zts-fiche2-mascot-dot zts-fiche2-mascot-dot--2"></span>
+            </div>
+          </header>
         </div>
 
-        <div class="zts-gen-fiche-section">
-          <h3>🎒 Matériel</h3>
-          <ul id="ficheMateriel"></ul>
-        </div>
+        <!-- 3 TUILES SHADOWBOX -->
+        <section class="zts-fiche2-tiles">
+          <div class="zts-fiche2-tile" data-tile="materiel" style="background-image:url('img/materiel.jpg')">
+            <div class="zts-fiche2-tile-overlay"></div>
+            <div class="zts-fiche2-tile-icon">📦</div>
+            <div class="zts-fiche2-tile-content"><ul id="ficheMateriel"></ul></div>
+            <div class="zts-fiche2-tile-band zts-fiche2-tile-band--materiel">
+              <span>MATÉRIEL</span>
+              <span class="zts-fiche2-tile-chev">›</span>
+            </div>
+          </div>
+          <div class="zts-fiche2-tile" data-tile="objectif" style="background-image:url('img/objectif.jpg')">
+            <div class="zts-fiche2-tile-overlay"></div>
+            <div class="zts-fiche2-tile-icon">🏆</div>
+            <div class="zts-fiche2-tile-content"><p id="ficheObjectif"></p></div>
+            <div class="zts-fiche2-tile-band zts-fiche2-tile-band--objectif">
+              <span id="ficheObjectifLabel">OBJECTIF</span>
+              <span class="zts-fiche2-tile-chev">›</span>
+            </div>
+          </div>
+          <div class="zts-fiche2-tile" data-tile="organisation" style="background-image:url('img/organisation.jpg')">
+            <div class="zts-fiche2-tile-overlay"></div>
+            <div class="zts-fiche2-tile-icon">🗺️</div>
+            <div class="zts-fiche2-tile-content"><ul id="ficheOrganisation"></ul></div>
+            <div class="zts-fiche2-tile-band zts-fiche2-tile-band--organisation">
+              <span>ORGANISATION</span>
+              <span class="zts-fiche2-tile-chev">›</span>
+            </div>
+          </div>
+        </section>
 
-        <div class="zts-gen-fiche-section">
-          <h3>📋 Règles / Déroulement</h3>
-          <div id="ficheRegles" class="zts-gen-typewriter"></div>
-        </div>
+        <!-- PLAN DE MATCH (liste numérotée) -->
+        <section class="zts-fiche2-plan-wrap">
+          <div class="zts-fiche2-plan-titlebar">
+            <h3>PLAN DE MATCH</h3>
+          </div>
+          <div class="zts-fiche2-plan-card">
+            <ol id="fichePlan" class="zts-fiche2-plan-list"></ol>
+          </div>
+        </section>
 
-        <div class="zts-gen-fiche-section">
-          <h3>🔀 Variantes</h3>
-          <ul id="ficheVariantes"></ul>
-        </div>
+        <!-- VARIANTES + SÉCURITÉ -->
+        <section class="zts-fiche2-actions-row">
+          <div class="zts-fiche2-action-col">
+            <button type="button" class="zts-fiche2-push zts-fiche2-push--orange" data-toggle="variantes">
+              <span class="zts-fiche2-push-icon">🔀</span>
+              <span>VARIANTES</span>
+            </button>
+            <div class="zts-fiche2-panel zts-fiche2-panel--orange" id="panelVariantes" hidden>
+              <button class="zts-fiche2-panel-close" data-close-panel="variantes">×</button>
+              <h4 id="ficheVariantesTitle">Pour complexifier :</h4>
+              <ul id="ficheVariantes"></ul>
+            </div>
+          </div>
+          <div class="zts-fiche2-action-col">
+            <button type="button" class="zts-fiche2-push zts-fiche2-push--green" data-toggle="securite">
+              <span class="zts-fiche2-push-icon">🛡️</span>
+              <span>SÉCURITÉ</span>
+            </button>
+            <div class="zts-fiche2-panel zts-fiche2-panel--green" id="panelSecurite" hidden>
+              <button class="zts-fiche2-panel-close" data-close-panel="securite">×</button>
+              <h4>Points d'attention :</h4>
+              <ul id="ficheSecuriteList"></ul>
+            </div>
+          </div>
+        </section>
 
-        <div class="zts-gen-fiche-section">
-          <h3>🛟 Sécurité / Conseils</h3>
-          <p id="ficheSecurite"></p>
-        </div>
-
-        <footer class="zts-gen-fiche-actions" id="ficheActions" hidden>
-          <button class="zts-gen-action-btn" disabled title="Sauvegardé automatiquement ✓">💾 SAUVÉ</button>
-          <button class="zts-gen-action-btn" disabled title="Bientôt — commit #6">📄 PDF</button>
-          <button class="zts-gen-action-btn" disabled title="Bientôt — commit #6">🔄 RÉGÉNÉRER</button>
-          <button class="zts-gen-action-btn" disabled title="Bientôt — commit #6">✏️ ÉDITER</button>
+        <!-- FOOTER ACTIONS -->
+        <footer class="zts-fiche2-footer-actions no-print" id="ficheActions" hidden>
+          <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--yellow" id="ficheBtnPrint">
+            <span>🖨️</span><span>IMPRIMER</span>
+          </button>
+          <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--cyan" id="ficheBtnSave">
+            <span>💾</span><span>ENREGISTRER (PDF)</span>
+          </button>
+          <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--ghost" disabled title="Bientôt — commit #6">
+            <span>🔄</span><span>RÉGÉNÉRER</span>
+          </button>
+          <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--ghost" disabled title="Bientôt — commit #6">
+            <span>✏️</span><span>ÉDITER</span>
+          </button>
         </footer>
+
+        <!-- TOAST -->
+        <div class="zts-fiche2-toast no-print" id="ficheToast" hidden>
+          <span class="zts-fiche2-toast-icon">✅</span>
+          <div>
+            <strong>Astuce sauvegarde</strong>
+            <p>Sélectionne « Enregistrer au format PDF » dans la fenêtre qui s'ouvre.</p>
+          </div>
+        </div>
       </article>
 
       <!-- ============ MES GÉNÉRATIONS ============ -->

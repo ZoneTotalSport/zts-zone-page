@@ -453,6 +453,401 @@
   border: none; font-size: .95rem; letter-spacing: 1px;
 }
 
+/* ==========================================================================
+   FICHE NEUBRUTALISTE v2 — refonte commit #5c
+   Header gradient cyan + 3 tuiles shadowbox + plan match + variants/secu
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=DynaPuff:wght@500;700&display=swap');
+
+.zts-fiche2 {
+  font-family: 'DynaPuff', 'Inter', sans-serif;
+  display: flex; flex-direction: column; gap: 56px;
+  padding: 24px 0 12px;
+}
+
+/* ---------- HEADER GRADIENT ---------- */
+.zts-fiche2-header-wrap {
+  position: relative;
+  margin-top: 36px;
+}
+.zts-fiche2-sticker {
+  position: absolute; z-index: 20;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #fff;
+  border: 4px solid #000;
+  border-radius: 16px;
+  padding: 8px 14px;
+  box-shadow: 6px 6px 0 #000;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: .9rem; letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #000;
+}
+.zts-fiche2-sticker-icon {
+  background: #FFEA00; border: 2px solid #000; border-radius: 50%;
+  width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+  font-size: .85rem;
+}
+.zts-fiche2-sticker--cycle {
+  top: -22px; left: 24px;
+  transform: rotate(-5deg);
+}
+.zts-fiche2-sticker--cycle .zts-fiche2-sticker-icon { background: #FFEA00; }
+.zts-fiche2-sticker--duree {
+  top: -18px; left: 200px;
+  transform: rotate(3deg);
+}
+.zts-fiche2-sticker--duree .zts-fiche2-sticker-icon { background: #FF66B2; }
+
+.zts-fiche2-header {
+  position: relative;
+  border-radius: 40px;
+  border: 6px solid #000;
+  box-shadow: 16px 16px 0 #000;
+  overflow: hidden;
+  background: radial-gradient(circle at top right, #00C4FF 0%, #004A61 100%);
+  padding: 64px 36px 48px;
+  display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center;
+}
+.zts-fiche2-header::before {
+  content: ""; position: absolute; inset: 0; opacity: .1;
+  background-image: radial-gradient(white 2px, transparent 2px);
+  background-size: 30px 30px;
+  pointer-events: none;
+}
+.zts-fiche2-header-text { position: relative; z-index: 2; color: #fff; }
+.zts-fiche2-tagline {
+  display: inline-block;
+  background: #000; color: #fff;
+  padding: 6px 14px; border-radius: 999px;
+  font-weight: 900; font-size: .7rem; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 16px;
+  font-family: 'Inter', sans-serif;
+}
+.zts-fiche2-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  line-height: .95; letter-spacing: 1px;
+  margin: 0;
+  text-shadow: 4px 4px 0 #000;
+  text-transform: uppercase;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.zts-fiche2-title-main { color: #fff; }
+.zts-fiche2-title-accent { color: #FFFC00; }
+.zts-fiche2-subtitle {
+  margin: 20px 0 0;
+  color: #BFEFFF; font-weight: 600; font-size: 1.1rem;
+  max-width: 480px; line-height: 1.4;
+}
+.zts-fiche2-mascot-wrap {
+  position: relative; z-index: 2;
+  display: flex; justify-content: center;
+}
+.zts-fiche2-mascot {
+  width: 200px; height: 200px; border-radius: 50%;
+  border: 12px solid #fff;
+  background: linear-gradient(135deg, #FBBF24, #F97316);
+  box-shadow: 8px 8px 0 #000;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .3s;
+}
+.zts-fiche2-mascot:hover { transform: scale(1.05) rotate(6deg); }
+.zts-fiche2-mascot-img { width: 100%; height: 100%; object-fit: cover; }
+.zts-fiche2-mascot-dot {
+  position: absolute; border-radius: 50%; border: 4px solid #fff;
+}
+.zts-fiche2-mascot-dot--1 {
+  top: -6px; right: -6px; width: 32px; height: 32px;
+  background: #FF66B2;
+}
+.zts-fiche2-mascot-dot--2 {
+  bottom: 16px; left: -12px; width: 48px; height: 48px;
+  background: #00C4FF;
+}
+
+/* ---------- 3 TUILES SHADOWBOX ---------- */
+.zts-fiche2-tiles {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+}
+@media (max-width: 800px) { .zts-fiche2-tiles { grid-template-columns: 1fr; } }
+
+.zts-fiche2-tile {
+  position: relative;
+  background-color: #000; background-size: cover; background-position: center;
+  border: 4px solid #000;
+  border-radius: 28px;
+  box-shadow: 12px 12px 0 #000;
+  overflow: hidden;
+  height: 280px;
+  display: flex; flex-direction: column;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+.zts-fiche2-tile:hover {
+  transform: translate(-6px, -6px);
+  box-shadow: 18px 18px 0 #000;
+}
+.zts-fiche2-tile-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,.4) 50%, rgba(0,0,0,.95) 100%);
+  transition: opacity .3s;
+  z-index: 1;
+}
+.zts-fiche2-tile-icon {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 5rem; z-index: 2;
+  filter: drop-shadow(0 4px 4px #000);
+  transition: opacity .3s;
+}
+.zts-fiche2-tile:hover .zts-fiche2-tile-icon { opacity: 0; }
+.zts-fiche2-tile-content {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity .3s;
+  color: #fff;
+  font-family: 'Inter', sans-serif; font-weight: 700; font-size: .95rem;
+  text-shadow: 1px 1px 3px rgba(0,0,0,.9);
+}
+.zts-fiche2-tile:hover .zts-fiche2-tile-content { opacity: 1; }
+.zts-fiche2-tile-content ul { margin: 0; padding: 0; list-style: none; text-align: left; }
+.zts-fiche2-tile-content li { margin-bottom: 6px; line-height: 1.3; }
+.zts-fiche2-tile-content li::before { content: "🔸 "; }
+.zts-fiche2-tile-content p { margin: 0; text-align: center; line-height: 1.35; font-size: 1rem; }
+
+.zts-fiche2-tile-band {
+  margin-top: auto; padding: 12px 16px;
+  border-top: 4px solid #000;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 5;
+}
+.zts-fiche2-tile-band span:first-child {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.4rem; letter-spacing: 2px; color: #000;
+  text-shadow: 2px 2px 0 rgba(255,255,255,.4);
+}
+.zts-fiche2-tile-chev {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(0,0,0,.2); border: 2px solid rgba(0,0,0,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; font-weight: 900;
+  transform: rotate(0); transition: transform .3s;
+}
+.zts-fiche2-tile:hover .zts-fiche2-tile-chev { transform: rotate(-90deg); }
+
+.zts-fiche2-tile-band--materiel     { background: #00C4FF; }
+.zts-fiche2-tile-band--objectif     { background: #FFEA00; }
+.zts-fiche2-tile-band--organisation { background: #FF66B2; }
+
+/* ---------- PLAN DE MATCH ---------- */
+.zts-fiche2-plan-wrap { position: relative; padding-top: 16px; }
+.zts-fiche2-plan-titlebar {
+  position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+  background: #000; color: #fff;
+  padding: 8px 28px; border-radius: 14px;
+  border: 4px solid #000;
+  box-shadow: 6px 6px 0 #00C4FF;
+  z-index: 20;
+}
+.zts-fiche2-plan-titlebar h3 {
+  margin: 0;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.6rem; letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.zts-fiche2-plan-card {
+  background: #004A61;
+  border: 12px solid #fff;
+  border-radius: 40px;
+  box-shadow: 12px 12px 0 #000;
+  padding: 48px 28px 32px;
+}
+.zts-fiche2-plan-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 14px;
+  counter-reset: plan;
+}
+.zts-fiche2-plan-list li {
+  background: rgba(255,255,255,.07);
+  border: 3px solid rgba(255,255,255,.15);
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: flex; gap: 16px; align-items: flex-start;
+  color: #fff;
+  font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.05rem;
+  line-height: 1.4;
+  counter-increment: plan;
+  transition: all .25s;
+}
+.zts-fiche2-plan-list li:hover {
+  background: #fff; color: #000;
+  border-color: #000;
+  box-shadow: 6px 6px 0 #000;
+  transform: translateX(6px);
+}
+.zts-fiche2-plan-list li::before {
+  content: counter(plan);
+  flex-shrink: 0;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #00C4FF; color: #000;
+  border: 3px solid #000;
+  box-shadow: 2px 2px 0 #000;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Luckiest Guy', cursive; font-size: 1.3rem;
+}
+.zts-fiche2-plan-list li:hover::before { background: #FFFC00; transform: scale(1.1); }
+.zts-fiche2-plan-list .plan-phase-name {
+  display: block;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.05rem; letter-spacing: 1px;
+  color: #FFFC00;
+  margin-bottom: 4px;
+}
+.zts-fiche2-plan-list li:hover .plan-phase-name { color: #00C4FF; }
+
+/* ---------- VARIANTES + SÉCURITÉ ---------- */
+.zts-fiche2-actions-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+}
+@media (max-width: 700px) { .zts-fiche2-actions-row { grid-template-columns: 1fr; } }
+.zts-fiche2-action-col { display: flex; flex-direction: column; gap: 14px; }
+
+.zts-fiche2-push {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 18px 24px;
+  border: 4px solid #000;
+  border-radius: 20px;
+  box-shadow: 8px 8px 0 #000;
+  cursor: pointer;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.5rem; letter-spacing: 3px;
+  color: #fff;
+  text-shadow: 2px 2px 0 rgba(0,0,0,.5);
+  transition: all .15s;
+}
+.zts-fiche2-push:hover { transform: translate(-2px, -2px); box-shadow: 10px 10px 0 #000; }
+.zts-fiche2-push:active { transform: translate(8px, 8px); box-shadow: 0 0 0 #000; }
+.zts-fiche2-push-icon { font-size: 1.6em; text-shadow: 2px 2px 0 rgba(0,0,0,.5); }
+.zts-fiche2-push--orange { background: #F97316; }
+.zts-fiche2-push--orange:hover { background: #FB923C; }
+.zts-fiche2-push--green  { background: #22C55E; }
+.zts-fiche2-push--green:hover { background: #4ADE80; }
+
+.zts-fiche2-panel {
+  position: relative;
+  border: 4px solid #000;
+  border-radius: 18px;
+  box-shadow: 8px 8px 0 #000;
+  padding: 22px 22px 18px;
+  animation: panel-in .2s ease-out;
+}
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.zts-fiche2-panel--orange { background: #FFEDD5; }
+.zts-fiche2-panel--green  { background: #DCFCE7; }
+.zts-fiche2-panel h4 {
+  margin: 0 0 12px;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.3rem; letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.zts-fiche2-panel--orange h4 { color: #C2410C; }
+.zts-fiche2-panel--green  h4 { color: #15803D; }
+.zts-fiche2-panel ul { margin: 0; padding: 0; list-style: none; }
+.zts-fiche2-panel li {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 6px 0;
+  font-family: 'Inter', sans-serif; font-weight: 700; font-size: 1.05rem;
+  color: #1F2937; line-height: 1.4;
+}
+.zts-fiche2-panel li::before {
+  content: ""; flex-shrink: 0;
+  width: 10px; height: 10px; margin-top: 8px; border-radius: 50%; background: #000;
+}
+.zts-fiche2-panel-close {
+  position: absolute; top: 10px; right: 14px;
+  width: 32px; height: 32px;
+  background: transparent; border: none; cursor: pointer;
+  font-size: 1.6rem; font-weight: 900; color: #000;
+  transition: transform .15s;
+}
+.zts-fiche2-panel-close:hover { transform: scale(1.2); }
+
+/* ---------- FOOTER ACTIONS ---------- */
+.zts-fiche2-footer-actions {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 16px;
+  padding-top: 20px;
+}
+.zts-fiche2-foot-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 26px;
+  border: 4px solid #000;
+  border-radius: 18px;
+  box-shadow: 6px 6px 0 #000;
+  cursor: pointer;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.15rem; letter-spacing: 2px;
+  color: #000;
+  transition: all .15s;
+}
+.zts-fiche2-foot-btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px); box-shadow: 8px 8px 0 #000;
+}
+.zts-fiche2-foot-btn:active:not(:disabled) {
+  transform: translate(6px, 6px); box-shadow: 0 0 0 #000;
+}
+.zts-fiche2-foot-btn--yellow { background: #FFFC00; }
+.zts-fiche2-foot-btn--cyan   { background: #00D6FF; }
+.zts-fiche2-foot-btn--ghost  { background: #E5E7EB; color: #4B5563; }
+.zts-fiche2-foot-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+/* ---------- TOAST ---------- */
+.zts-fiche2-toast {
+  position: fixed; top: 40px; left: 50%; transform: translateX(-50%);
+  z-index: 200; max-width: 420px; width: calc(100% - 32px);
+  background: #fff; border: 4px solid #000; border-radius: 18px;
+  box-shadow: 8px 8px 0 #000;
+  padding: 16px 18px;
+  display: flex; align-items: center; gap: 14px;
+  animation: toast-in .25s ease-out;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, -16px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+.zts-fiche2-toast-icon { font-size: 2rem; flex-shrink: 0; }
+.zts-fiche2-toast strong {
+  display: block;
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1rem; letter-spacing: 1.5px; text-transform: uppercase;
+}
+.zts-fiche2-toast p {
+  margin: 4px 0 0;
+  font-family: 'Inter', sans-serif; font-size: .9rem; color: #374151; line-height: 1.3;
+}
+
+/* ---------- PRINT ---------- */
+@media print {
+  @page { size: A4; margin: 10mm; }
+  body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: #fff !important; }
+  .no-print, .zts-landing-header, .zts-gen-hero, .zts-gen-main > section:not(#resultZone), .zts-gen-cta-wrap, #mesGenerations, #loadingState, #errorState { display: none !important; }
+  .zts-gen-main { padding: 0 !important; }
+  .zts-fiche2 { gap: 24px; padding: 0; }
+  .zts-fiche2-header, .zts-fiche2-tile, .zts-fiche2-plan-card, .zts-fiche2-panel { box-shadow: 4px 4px 0 #000 !important; }
+  .zts-fiche2-tile-overlay, .zts-fiche2-tile-icon { display: none; }
+  .zts-fiche2-tile-content { opacity: 1 !important; position: relative; inset: auto; padding: 16px; background: #000; }
+  .zts-fiche2-tile { height: auto; }
+  * { page-break-inside: avoid; }
+}
+
 /* ============ MES GÉNÉRATIONS (grille mini-cards) ============ */
 .zts-gen-mes-section {
   margin-top: 56px;

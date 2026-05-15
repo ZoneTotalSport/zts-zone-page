@@ -308,107 +308,234 @@
   }
 
   // ──────────────────────────────────────────────────────────
-  // Rendu fiche avec effet machine à écrire
+  // Rendu fiche v2 (neubrutaliste shadowbox)
   // ──────────────────────────────────────────────────────────
   async function renderFicheTypewriter(json) {
+    // L'effet typewriter a été remplacé par un rendu structuré v2 (shadowbox).
+    return renderFiche2(json);
+  }
+
+  function splitTitle(title) {
+    // Sépare un titre en main + accent (dernier mot ou les 2 derniers)
+    if (!title) return ['', ''];
+    const words = String(title).split(/\s+/).filter(Boolean);
+    if (words.length <= 1) return [words[0] || '', ''];
+    if (words.length === 2) return [words[0], words[1]];
+    // 3+ mots : 2/3 main, 1/3 accent
+    const splitIdx = Math.ceil(words.length * 0.6);
+    return [words.slice(0, splitIdx).join(' '), words.slice(splitIdx).join(' ')];
+  }
+
+  function splitPlanSteps(data) {
+    // Construit une liste d'étapes pour le "Plan de match"
+    if (Array.isArray(data.deroulement)) {
+      return data.deroulement.map(p => typeof p === 'string'
+        ? { text: p }
+        : { phase: p.phase, duree: p.duree, text: [p.description, p.organisation ? `↳ ${p.organisation}` : ''].filter(Boolean).join(' ') });
+    }
+    if (Array.isArray(data.progression)) {
+      return data.progression.map(p => typeof p === 'string'
+        ? { text: p }
+        : { phase: `Palier ${p.palier || '?'}`, text: [p.consigne, p.critere_reussite ? `✓ Réussite : ${p.critere_reussite}` : ''].filter(Boolean).join(' ') });
+    }
+    if (data.regles) {
+      // Split le paragraphe en phrases (au moins 3, max 6)
+      const sentences = String(data.regles)
+        .split(/(?<=[.!?])\s+(?=[A-ZÉÈÀ])/)
+        .map(s => s.trim())
+        .filter(s => s.length > 10);
+      return sentences.slice(0, 6).map(s => ({ text: s }));
+    }
+    return [];
+  }
+
+  function listFromAny(...candidates) {
+    for (const c of candidates) {
+      if (Array.isArray(c) && c.length) return c.map(x => typeof x === 'string' ? x : (x.titre || x.nom || JSON.stringify(x)));
+      if (typeof c === 'string' && c.trim()) return [c];
+    }
+    return [];
+  }
+
+  function renderFiche2(json) {
     hideLoading();
     $errorState.hidden = true;
     $ficheCard.hidden = false;
 
     const data = json.data || {};
-    const TYPE_LABEL = { jeu: 'JEU', sae: 'SAÉ', educatif: 'ÉDUCATIF' };
-    const UNI_LABEL = { eps: 'ÉPS', camps: 'CAMP', sdg: 'SDG' };
+    const type = json.type;
 
-    // 1. Badge + titre instant
-    $('#ficheBadge').textContent = `${TYPE_LABEL[json.type]} · ${UNI_LABEL[json.univers]}`;
-    $('#ficheTitle').textContent = data.titre || data.nom || data.name || 'Fiche générée';
-
-    // 2. Méta — adaptée selon le type (JEU/SAE/EDUCATIF)
-    const meta = [];
+    // ── Badges sticker (cycle + durée)
+    const cycleStr = data.cycle
+      || (Array.isArray(data.niveaux) ? data.niveaux[0] : data.niveaux)
+      || data.niveau
+      || ({ eps: 'Primaire', camps: 'Camp', sdg: 'Service garde' }[json.univers] || '');
     const dureeStr = (data.duree_min && data.duree_max) ? `${data.duree_min}-${data.duree_max} min`
                    : (data.duree_totale) ? data.duree_totale
-                   : (data.duree_par_palier) ? `${data.duree_par_palier} / palier`
-                   : data.duree;
-    if (dureeStr)                        meta.push(['⏱️ Durée', dureeStr]);
-    if (data.nb_joueurs || data.joueurs) meta.push(['👥 Joueurs', data.nb_joueurs || data.joueurs]);
-    if (data.espace || data.organisation_spatiale || data.lieu)
-      meta.push(['📍 Espace', data.espace || data.organisation_spatiale || data.lieu]);
-    const niveau = data.cycle || (Array.isArray(data.niveaux) ? data.niveaux.join(', ') : data.niveaux) || data.niveau;
-    if (niveau)                          meta.push(['🎓 Niveau', niveau]);
-    if (data.competence_pfeq)            meta.push(['🎯 PFEQ', data.competence_pfeq]);
-    if (data.habilete_ciblee)            meta.push(['🎯 Habileté', data.habilete_ciblee]);
-    if (data.moyen_action)               meta.push(['⚡ Moyen', data.moyen_action]);
+                   : (data.duree_par_palier) ? `${data.duree_par_palier}/palier`
+                   : (data.duree || '—');
+    $('#ficheCycleText').textContent = cycleStr;
+    $('#ficheDureeText').textContent = dureeStr;
 
-    const $meta = $('#ficheMeta');
-    $meta.innerHTML = '';
-    for (const [label, val] of meta) {
-      const item = document.createElement('div');
-      item.className = 'zts-gen-fiche-meta-item';
-      item.innerHTML = `<strong>${label}</strong>${escapeHtml(String(val))}`;
-      $meta.appendChild(item);
-      await sleep(100);
-    }
+    // ── Titre split + tagline + subtitle
+    const fullTitle = data.titre || data.nom || 'Fiche générée';
+    const [titleMain, titleAccent] = splitTitle(fullTitle);
+    $('#ficheTitleMain').textContent = titleMain;
+    $('#ficheTitleAccent').textContent = titleAccent;
+    const TAGLINES = {
+      jeu: '🎮 Fiche de jeu officielle',
+      sae: '📚 Situation d\'apprentissage',
+      educatif: '🏋️ Éducatif progressif',
+    };
+    $('#ficheTagline').textContent = TAGLINES[type] || 'Fiche officielle';
+    const subtitle = data.but
+      || data.intentions_pedagogiques
+      || (data.habilete_ciblee ? `Maîtriser : ${data.habilete_ciblee}` : '')
+      || '';
+    $('#ficheSubtitle').textContent = subtitle.slice(0, 200);
 
-    // 3. But / Intentions / Habileté — char par char
-    const butText = data.but || data.intentions_pedagogiques || data.objectif || '';
-    await typeText($('#ficheBut'), butText, 12);
-
-    // 4. Matériel — item par item
+    // ── Tuile MATÉRIEL
     const $mat = $('#ficheMateriel');
     $mat.innerHTML = '';
-    const mat = Array.isArray(data.materiel) ? data.materiel : (data.materiel ? [data.materiel] : []);
-    for (const item of mat) {
+    const matList = listFromAny(data.materiel);
+    if (matList.length === 0) matList.push('Aucun matériel spécifique');
+    matList.slice(0, 6).forEach(item => {
       const li = document.createElement('li');
-      li.textContent = typeof item === 'string' ? item : JSON.stringify(item);
+      li.textContent = item;
       $mat.appendChild(li);
-      await sleep(50);
+    });
+
+    // ── Tuile OBJECTIF
+    const objectifLabel = type === 'sae' ? 'INTENTIONS'
+                        : type === 'educatif' ? 'HABILETÉ' : 'OBJECTIF';
+    $('#ficheObjectifLabel').textContent = objectifLabel;
+    let objectifText = '';
+    if (type === 'jeu') objectifText = data.but || '';
+    else if (type === 'sae') objectifText = data.intentions_pedagogiques || '';
+    else if (type === 'educatif') {
+      objectifText = data.habilete_ciblee ? `🎯 ${data.habilete_ciblee}` : '';
+      if (data.moyen_action) objectifText += `\n⚡ Moyen : ${data.moyen_action}`;
+    }
+    $('#ficheObjectif').textContent = objectifText;
+
+    // ── Tuile ORGANISATION
+    const $org = $('#ficheOrganisation');
+    $org.innerHTML = '';
+    const orgItems = [];
+    if (data.nb_joueurs || data.joueurs) orgItems.push(`👥 ${data.nb_joueurs || data.joueurs}`);
+    if (data.espace) orgItems.push(`📍 ${data.espace}`);
+    if (data.organisation_spatiale) orgItems.push(`🗺️ ${data.organisation_spatiale}`);
+    if (data.competence_pfeq) orgItems.push(`🎯 PFEQ : ${data.competence_pfeq}`);
+    if (data.cycle && !cycleStr.includes(data.cycle)) orgItems.push(`🎓 ${data.cycle}`);
+    if (orgItems.length === 0) orgItems.push('Organisation à adapter selon le contexte');
+    orgItems.forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      $org.appendChild(li);
+    });
+
+    // ── PLAN DE MATCH
+    const $plan = $('#fichePlan');
+    $plan.innerHTML = '';
+    const steps = splitPlanSteps(data);
+    if (steps.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'Plan de match à structurer.';
+      $plan.appendChild(li);
+    } else {
+      steps.forEach(step => {
+        const li = document.createElement('li');
+        const phaseStr = step.phase ? `${step.phase}${step.duree ? ` (${step.duree})` : ''}` : '';
+        li.innerHTML = `${phaseStr ? `<span class="plan-phase-name">${escapeHtml(phaseStr)}</span>` : ''}<span>${escapeHtml(step.text || '')}</span>`;
+        $plan.appendChild(li);
+      });
     }
 
-    // 5. Règles / Déroulement / Progression — texte formaté
-    let reglesText = '';
-    if (data.regles) {
-      reglesText = String(data.regles);
-    } else if (Array.isArray(data.deroulement)) {
-      reglesText = data.deroulement
-        .map(p => typeof p === 'string' ? p
-              : `▸ ${p.phase || ''} (${p.duree || '?'})\n${p.description || ''}\n${p.organisation ? '   ↳ ' + p.organisation : ''}`)
-        .join('\n\n');
-    } else if (Array.isArray(data.progression)) {
-      reglesText = data.progression
-        .map(p => typeof p === 'string' ? p
-              : `Palier ${p.palier || '?'} — ${p.consigne || ''}\n   ✓ Réussite : ${p.critere_reussite || '?'}`)
-        .join('\n\n');
-    } else if (data.deroulement || data.description) {
-      reglesText = String(data.deroulement || data.description);
-    }
-    await typeText($('#ficheRegles'), reglesText, 8);
-
-    // 6. Variantes / Savoirs / Erreurs courantes — item par item
+    // ── VARIANTES (panel dépliant)
     const $var = $('#ficheVariantes');
     $var.innerHTML = '';
-    const altList = Array.isArray(data.variantes) ? data.variantes
-                   : Array.isArray(data.savoirs_essentiels) ? data.savoirs_essentiels
-                   : Array.isArray(data.erreurs_courantes) ? data.erreurs_courantes
-                   : (data.variantes ? [data.variantes] : []);
-    for (const v of altList) {
+    let varList = [];
+    if (Array.isArray(data.variantes)) varList = data.variantes;
+    else if (Array.isArray(data.savoirs_essentiels)) varList = data.savoirs_essentiels;
+    else if (Array.isArray(data.erreurs_courantes)) varList = data.erreurs_courantes;
+    const variantesTitle = type === 'sae' ? 'Savoirs essentiels :'
+                         : type === 'educatif' ? 'Erreurs courantes :'
+                         : 'Pour complexifier :';
+    $('#ficheVariantesTitle').textContent = variantesTitle;
+    varList.forEach(v => {
       const li = document.createElement('li');
       li.textContent = typeof v === 'string' ? v : (v.titre || v.nom || JSON.stringify(v));
       $var.appendChild(li);
-      await sleep(80);
+    });
+    if (varList.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'Aucune variante fournie.';
+      $var.appendChild(li);
     }
 
-    // 7. Sécurité / Différenciation / Évaluation — instant
-    let secText = data.securite || data.conseils || data.notes;
-    if (!secText && data.differenciation) secText = `Différenciation : ${data.differenciation}`;
-    if (data.evaluation?.critere) {
-      const ev = data.evaluation;
-      secText = (secText ? secText + ' · ' : '') + `Évaluation : ${ev.critere}` +
-        (Array.isArray(ev.echelle) ? ` (${ev.echelle.slice(0,4).join(', ')})` : '');
+    // ── SÉCURITÉ (panel dépliant)
+    const $sec = $('#ficheSecuriteList');
+    $sec.innerHTML = '';
+    let secEntries = [];
+    if (data.securite) {
+      // Split en phrases pour faire une liste
+      secEntries = String(data.securite).split(/(?<=[.!?])\s+/).filter(s => s.length > 5);
     }
-    $('#ficheSecurite').textContent = secText || 'Vérifie l\'espace et le matériel avant de commencer.';
+    if (data.differenciation) secEntries.push(`Différenciation : ${data.differenciation}`);
+    if (data.evaluation?.critere) secEntries.push(`Évaluation : ${data.evaluation.critere}`);
+    if (secEntries.length === 0) secEntries.push('Vérifie l\'espace et le matériel avant de commencer.');
+    secEntries.forEach(s => {
+      const li = document.createElement('li');
+      li.textContent = s;
+      $sec.appendChild(li);
+    });
 
-    // 8. Boutons d'action
+    // ── Cache les panels au démarrage
+    document.getElementById('panelVariantes').hidden = true;
+    document.getElementById('panelSecurite').hidden = true;
+
+    // ── Boutons footer visible
     $('#ficheActions').hidden = false;
+
+    // ── Setup once handlers (idempotent via dataset)
+    setupFiche2Handlers();
+  }
+
+  function setupFiche2Handlers() {
+    if (document.body.dataset.fiche2HandlersReady) return;
+    document.body.dataset.fiche2HandlersReady = '1';
+
+    // Toggle variantes/sécurité
+    document.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-toggle]');
+      if (trigger) {
+        const which = trigger.dataset.toggle;
+        const panel = document.getElementById(which === 'variantes' ? 'panelVariantes' : 'panelSecurite');
+        if (panel) panel.hidden = !panel.hidden;
+        return;
+      }
+      const closer = e.target.closest('[data-close-panel]');
+      if (closer) {
+        const which = closer.dataset.closePanel;
+        const panel = document.getElementById(which === 'variantes' ? 'panelVariantes' : 'panelSecurite');
+        if (panel) panel.hidden = true;
+      }
+    });
+
+    // Imprimer
+    const btnPrint = document.getElementById('ficheBtnPrint');
+    if (btnPrint) btnPrint.addEventListener('click', () => window.print());
+
+    // Enregistrer (toast + print après 3.5s)
+    const btnSave = document.getElementById('ficheBtnSave');
+    if (btnSave) btnSave.addEventListener('click', () => {
+      const toast = document.getElementById('ficheToast');
+      if (toast) toast.hidden = false;
+      setTimeout(() => {
+        if (toast) toast.hidden = true;
+        window.print();
+      }, 3500);
+    });
   }
 
   function typeText(el, text, speed) {
@@ -598,56 +725,8 @@
     $resultZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // Variante "instant" du renderer (sans typewriter, pour réouverture)
-  function renderFicheInstant(json) {
-    const data = json.data || {};
-    const TYPE_LABEL = { jeu: 'JEU', sae: 'SAÉ', educatif: 'ÉDUCATIF' };
-    const UNI_LABEL = { eps: 'ÉPS', camps: 'CAMP', sdg: 'SDG' };
-    $('#ficheBadge').textContent = `${TYPE_LABEL[json.type]} · ${UNI_LABEL[json.univers]}`;
-    $('#ficheTitle').textContent = data.titre || data.nom || 'Fiche';
-
-    const meta = [];
-    const dureeStr = (data.duree_min && data.duree_max) ? `${data.duree_min}-${data.duree_max} min`
-                   : (data.duree_totale) ? data.duree_totale
-                   : (data.duree_par_palier) ? `${data.duree_par_palier} / palier`
-                   : data.duree;
-    if (dureeStr) meta.push(['⏱️ Durée', dureeStr]);
-    if (data.nb_joueurs || data.joueurs) meta.push(['👥 Joueurs', data.nb_joueurs || data.joueurs]);
-    if (data.espace || data.organisation_spatiale || data.lieu)
-      meta.push(['📍 Espace', data.espace || data.organisation_spatiale || data.lieu]);
-    const niveau = data.cycle || (Array.isArray(data.niveaux) ? data.niveaux.join(', ') : data.niveaux) || data.niveau;
-    if (niveau) meta.push(['🎓 Niveau', niveau]);
-    if (data.competence_pfeq) meta.push(['🎯 PFEQ', data.competence_pfeq]);
-
-    const $meta = $('#ficheMeta');
-    $meta.innerHTML = '';
-    for (const [label, val] of meta) {
-      const item = document.createElement('div');
-      item.className = 'zts-gen-fiche-meta-item';
-      item.innerHTML = `<strong>${label}</strong>${escapeHtml(String(val))}`;
-      $meta.appendChild(item);
-    }
-    $('#ficheBut').textContent = data.but || data.intentions_pedagogiques || data.objectif || '';
-    const $mat = $('#ficheMateriel');
-    $mat.innerHTML = '';
-    const mat = Array.isArray(data.materiel) ? data.materiel : (data.materiel ? [data.materiel] : []);
-    mat.forEach(item => { const li = document.createElement('li'); li.textContent = typeof item === 'string' ? item : JSON.stringify(item); $mat.appendChild(li); });
-    let reglesText = '';
-    if (data.regles) reglesText = String(data.regles);
-    else if (Array.isArray(data.deroulement)) reglesText = data.deroulement.map(p => typeof p === 'string' ? p : `▸ ${p.phase || ''} (${p.duree || '?'})\n${p.description || ''}`).join('\n\n');
-    else if (Array.isArray(data.progression)) reglesText = data.progression.map(p => `Palier ${p.palier || '?'} — ${p.consigne || ''}\n   ✓ Réussite : ${p.critere_reussite || '?'}`).join('\n\n');
-    $('#ficheRegles').textContent = reglesText;
-    const $var = $('#ficheVariantes');
-    $var.innerHTML = '';
-    const altList = Array.isArray(data.variantes) ? data.variantes
-                   : Array.isArray(data.savoirs_essentiels) ? data.savoirs_essentiels
-                   : Array.isArray(data.erreurs_courantes) ? data.erreurs_courantes : [];
-    altList.forEach(v => { const li = document.createElement('li'); li.textContent = typeof v === 'string' ? v : (v.titre || JSON.stringify(v)); $var.appendChild(li); });
-    let secText = data.securite || data.conseils;
-    if (!secText && data.differenciation) secText = `Différenciation : ${data.differenciation}`;
-    $('#ficheSecurite').textContent = secText || '';
-    $('#ficheActions').hidden = false;
-  }
+  // Variante "instant" du renderer (utilisée pour réouverture depuis Mes générations)
+  function renderFicheInstant(json) { renderFiche2(json); }
 
   // ──────────────────────────────────────────────────────────
   // Favori (auth → worker / anon → localStorage)
