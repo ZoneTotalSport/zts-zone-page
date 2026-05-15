@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/zts-ultra.css">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600;800;900&family=Patrick+Hand&display=swap" rel="stylesheet">
   <style>
     @font-face { font-family:'ZoneTotalSport'; src:url('/fonts/ZoneTotalSport.ttf') format('truetype'); size-adjust:50%; }
@@ -242,17 +243,31 @@
           </div>
         </section>
 
+        <!-- BADGE "ÉDITÉ" -->
+        <div class="zts-fiche2-edited-badge no-print" id="ficheEditedBadge" hidden>
+          <span>✏️</span><span>FICHE ÉDITÉE</span>
+        </div>
+
         <!-- FOOTER ACTIONS -->
         <footer class="zts-fiche2-footer-actions no-print" id="ficheActions" hidden>
-          <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--yellow" id="ficheBtnPrint">
-            <span>🖨️</span><span>IMPRIMER</span>
+          <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--pink" id="ficheBtnFavori" title="Marquer favori">
+            <span id="ficheBtnFavoriIcon">🤍</span><span id="ficheBtnFavoriLabel">FAVORI</span>
           </button>
-          <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--cyan" id="ficheBtnSave">
-            <span>💾</span><span>ENREGISTRER (PDF)</span>
+          <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--yellow" id="ficheBtnPdf">
+            <span>📄</span><span>PDF</span>
           </button>
-          <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--ghost" disabled title="Bientôt — commit #6">
-            <span>🔄</span><span>RÉGÉNÉRER</span>
-          </button>
+          <div class="zts-fiche2-regen-wrap">
+            <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--cyan" id="ficheBtnRegen">
+              <span>🔄</span><span>RÉGÉNÉRER</span>
+            </button>
+            <div class="zts-fiche2-confirm" id="regenConfirm" hidden>
+              <p id="regenConfirmText">🔄 Régénérer ? <span class="zts-fiche2-confirm-cost">(1 crédit)</span></p>
+              <div class="zts-fiche2-confirm-actions">
+                <button class="zts-fiche2-confirm-btn zts-fiche2-confirm-btn--cancel" data-regen="cancel">Annuler</button>
+                <button class="zts-fiche2-confirm-btn zts-fiche2-confirm-btn--ok" data-regen="ok">✅ OK</button>
+              </div>
+            </div>
+          </div>
           <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--violet" id="ficheBtnEdit" title="Modifier les champs">
             <span id="ficheBtnEditIcon">✏️</span><span id="ficheBtnEditLabel">ÉDITER</span>
           </button>

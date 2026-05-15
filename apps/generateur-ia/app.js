@@ -508,8 +508,25 @@
     // ── Boutons footer visible
     $('#ficheActions').hidden = false;
 
+    // ── Badge "Édité" si la fiche a été modifiée
+    const editedBadge = document.getElementById('ficheEditedBadge');
+    if (editedBadge) editedBadge.hidden = !data._edited && !json.edited;
+
+    // ── Sync icône favori sur la gen courante
+    syncFavoriBtn(state.lastResult?.favori || data?.favori || false);
+
     // ── Setup once handlers (idempotent via dataset)
     setupFiche2Handlers();
+  }
+
+  function syncFavoriBtn(isFav) {
+    const btn = document.getElementById('ficheBtnFavori');
+    if (!btn) return;
+    const ico = document.getElementById('ficheBtnFavoriIcon');
+    const lbl = document.getElementById('ficheBtnFavoriLabel');
+    btn.classList.toggle('is-fav', !!isFav);
+    if (ico) ico.textContent = isFav ? '❤️' : '🤍';
+    if (lbl) lbl.textContent = isFav ? 'FAVORI ✓' : 'FAVORI';
   }
 
   function setupFiche2Handlers() {
@@ -551,6 +568,302 @@
     // Éditer / Sauver (toggle inline edit)
     const btnEdit = document.getElementById('ficheBtnEdit');
     if (btnEdit) btnEdit.addEventListener('click', () => toggleEditMode(btnEdit));
+
+    // Favori (toggle ❤️/🤍 sur gen courante)
+    const btnFav = document.getElementById('ficheBtnFavori');
+    if (btnFav) btnFav.addEventListener('click', toggleCurrentFavori);
+
+    // PDF export
+    const btnPdf = document.getElementById('ficheBtnPdf');
+    if (btnPdf) btnPdf.addEventListener('click', exportCurrentPdf);
+
+    // Régénérer (mini-confirmation toast)
+    const btnRegen = document.getElementById('ficheBtnRegen');
+    if (btnRegen) btnRegen.addEventListener('click', toggleRegenConfirm);
+    document.addEventListener('click', handleRegenConfirmActions, true);
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // FAVORI (toggle sur la fiche courante)
+  // ──────────────────────────────────────────────────────────
+  async function toggleCurrentFavori() {
+    if (!state.lastResult) return;
+    const newFav = !state.lastResult.favori;
+    state.lastResult.favori = newFav;
+    if (state.lastResult.data) state.lastResult.data.favori = newFav;
+    syncFavoriBtn(newFav);
+
+    const uid = getUid();
+    const genId = state.lastResult.generationId || state.lastResult.data?.id;
+    if (uid && genId && !String(genId).startsWith('local-')) {
+      try {
+        await fetch(`${API_BASE}/generation/${encodeURIComponent(genId)}/favori`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, favori: newFav }),
+        });
+      } catch (e) { console.warn('favori PATCH failed', e); }
+    } else if (genId) {
+      updateAnonGeneration(genId, { favori: newFav });
+    }
+    await refreshGenerationsGrid();
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // PDF EXPORT (jsPDF, A4 portrait)
+  // ──────────────────────────────────────────────────────────
+  async function exportCurrentPdf() {
+    if (!state.lastResult) return;
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      alert('jsPDF non chargé. Réessaye dans 1 seconde.');
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const data = state.lastResult.data || {};
+    const type = state.lastResult.type;
+    const univers = state.lastResult.univers;
+
+    const PAGE_W = 210, PAGE_H = 297, M = 20;
+    const CONTENT_W = PAGE_W - 2 * M;
+    let y = M;
+
+    // ── Header logo
+    try {
+      const img = await loadImageAsDataURL('/bucheron-generateur.png');
+      if (img) doc.addImage(img, 'PNG', M, y, 18, 18);
+    } catch {}
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(0, 74, 97);
+    doc.text('ZONE TOTAL SPORT', M + 22, y + 8);
+    doc.setFontSize(8); doc.setTextColor(100);
+    doc.setFont('helvetica', 'normal');
+    doc.text('zonetotalsport.ca · Fiche générée par IA', M + 22, y + 14);
+    doc.setDrawColor(0, 196, 255); doc.setLineWidth(0.8);
+    doc.line(M, y + 22, PAGE_W - M, y + 22);
+    y += 30;
+
+    // ── Tagline
+    const TYPE_LABEL = { jeu: 'JEU', sae: 'SAÉ', educatif: 'ÉDUCATIF' };
+    const UNI_LABEL = { eps: 'ÉPS PRIMAIRE', camps: 'CAMP DE JOUR', sdg: 'SERVICE DE GARDE' };
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(255, 255, 255);
+    const tagText = `${TYPE_LABEL[type]} · ${UNI_LABEL[univers]}`;
+    const tagW = doc.getTextWidth(tagText) + 8;
+    doc.setFillColor(0, 74, 97);
+    doc.roundedRect(M, y, tagW, 6, 1.5, 1.5, 'F');
+    doc.text(tagText, M + 4, y + 4.2);
+    y += 12;
+
+    // ── Titre
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24); doc.setTextColor(0, 0, 0);
+    const titre = data.titre || data.nom || 'Fiche';
+    const titleLines = doc.splitTextToSize(titre, CONTENT_W);
+    doc.text(titleLines, M, y);
+    y += titleLines.length * 9 + 4;
+
+    // ── Sous-titre / objectif court
+    const subtitle = data.but || data.intentions_pedagogiques
+      || (data.habilete_ciblee ? `Maîtriser : ${data.habilete_ciblee}` : '');
+    if (subtitle) {
+      doc.setFont('helvetica', 'italic'); doc.setFontSize(11); doc.setTextColor(60);
+      const subLines = doc.splitTextToSize(subtitle, CONTENT_W);
+      doc.text(subLines, M, y);
+      y += subLines.length * 5 + 6;
+    }
+
+    // ── META boxes
+    const metas = [];
+    const dureeStr = (data.duree_min && data.duree_max) ? `${data.duree_min}-${data.duree_max} min`
+                   : data.duree_totale || data.duree_par_palier || data.duree;
+    if (dureeStr) metas.push(['DUREE', String(dureeStr)]);
+    if (data.nb_joueurs || data.joueurs) metas.push(['JOUEURS', String(data.nb_joueurs || data.joueurs)]);
+    if (data.espace || data.organisation_spatiale) metas.push(['ESPACE', String(data.espace || data.organisation_spatiale)]);
+    if (data.cycle || data.niveaux) metas.push(['NIVEAU', String(data.cycle || (Array.isArray(data.niveaux) ? data.niveaux.join(', ') : data.niveaux))]);
+    if (data.competence_pfeq) metas.push(['PFEQ', String(data.competence_pfeq)]);
+
+    if (metas.length) {
+      const colW = CONTENT_W / Math.min(metas.length, 4);
+      let mx = M;
+      metas.slice(0, 4).forEach(([label, val]) => {
+        doc.setFillColor(255, 252, 0);
+        doc.setDrawColor(0); doc.setLineWidth(0.4);
+        doc.roundedRect(mx, y, colW - 2, 14, 1.5, 1.5, 'FD');
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(0, 74, 97);
+        doc.text(label, mx + 2, y + 4);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(0);
+        const valLines = doc.splitTextToSize(String(val), colW - 6);
+        doc.text(valLines.slice(0, 2), mx + 2, y + 9);
+        mx += colW;
+      });
+      y += 18;
+    }
+
+    // ── Sections (différentes selon type)
+    const sections = buildPdfSections(data, type);
+    for (const sec of sections) {
+      y = drawPdfSection(doc, sec, y, M, CONTENT_W, PAGE_H);
+    }
+
+    // ── Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'italic'); doc.setFontSize(7); doc.setTextColor(120);
+      doc.text(`zonetotalsport.ca · ${new Date().toLocaleDateString('fr-CA')}`, M, PAGE_H - 8);
+      doc.text(`${i} / ${pageCount}`, PAGE_W - M, PAGE_H - 8, { align: 'right' });
+    }
+
+    const slug = (titre || 'fiche').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'fiche';
+    doc.save(`zts-${type}-${slug}.pdf`);
+  }
+
+  function buildPdfSections(data, type) {
+    const sections = [];
+    if (Array.isArray(data.materiel) && data.materiel.length) {
+      sections.push({ title: '🎒 MATÉRIEL', items: data.materiel });
+    }
+    if (type === 'jeu') {
+      if (data.but) sections.push({ title: '🎯 BUT DU JEU', text: data.but });
+      if (data.regles) sections.push({ title: '📋 RÈGLES', text: data.regles });
+      if (Array.isArray(data.variantes) && data.variantes.length)
+        sections.push({ title: '🔀 VARIANTES', items: data.variantes });
+      if (data.securite) sections.push({ title: '🛟 SÉCURITÉ', text: data.securite });
+    } else if (type === 'sae') {
+      if (data.intentions_pedagogiques) sections.push({ title: '🎯 INTENTIONS PÉDAGOGIQUES', text: data.intentions_pedagogiques });
+      if (Array.isArray(data.deroulement) && data.deroulement.length) {
+        sections.push({ title: '📋 DÉROULEMENT', items: data.deroulement.map(p =>
+          typeof p === 'string' ? p : `${p.phase || ''}${p.duree ? ' ('+p.duree+')' : ''} — ${p.description || ''}${p.organisation ? ' · '+p.organisation : ''}`) });
+      }
+      if (data.evaluation) {
+        const ev = data.evaluation;
+        let evText = ev.critere || '';
+        if (Array.isArray(ev.observables) && ev.observables.length) evText += '\nObservables : ' + ev.observables.join(', ');
+        if (Array.isArray(ev.echelle) && ev.echelle.length) evText += '\nÉchelle : ' + ev.echelle.join(' / ');
+        sections.push({ title: '📊 ÉVALUATION', text: evText });
+      }
+      if (Array.isArray(data.savoirs_essentiels) && data.savoirs_essentiels.length)
+        sections.push({ title: '📚 SAVOIRS ESSENTIELS', items: data.savoirs_essentiels });
+      if (data.differenciation) sections.push({ title: '♿ DIFFÉRENCIATION', text: data.differenciation });
+    } else if (type === 'educatif') {
+      if (data.habilete_ciblee) sections.push({ title: '🎯 HABILETÉ CIBLÉE', text: data.habilete_ciblee + (data.moyen_action ? `\nMoyen d'action : ${data.moyen_action}` : '') });
+      if (Array.isArray(data.progression) && data.progression.length) {
+        sections.push({ title: '📈 PROGRESSION', items: data.progression.map(p =>
+          typeof p === 'string' ? p : `Palier ${p.palier || '?'} : ${p.consigne || ''}${p.critere_reussite ? ' (✓ ' + p.critere_reussite + ')' : ''}`) });
+      }
+      if (Array.isArray(data.erreurs_courantes) && data.erreurs_courantes.length)
+        sections.push({ title: '⚠️ ERREURS COURANTES', items: data.erreurs_courantes });
+      if (data.differenciation) sections.push({ title: '♿ DIFFÉRENCIATION', text: data.differenciation });
+    }
+    return sections;
+  }
+
+  function drawPdfSection(doc, sec, y, M, W, PAGE_H) {
+    const PAGE_BREAK_AT = PAGE_H - 25;
+    if (y > PAGE_BREAK_AT - 20) { doc.addPage(); y = M; }
+    // Titre section
+    doc.setFillColor(0, 196, 255);
+    doc.rect(M, y, W, 7, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(255, 255, 255);
+    doc.text(sec.title.replace(/[^\x00-\x7F]/g, '').trim() || 'SECTION', M + 3, y + 5);
+    y += 11;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(20);
+    if (sec.items) {
+      for (const item of sec.items) {
+        const text = typeof item === 'string' ? item : String(item);
+        const lines = doc.splitTextToSize('• ' + text, W - 4);
+        if (y + lines.length * 5 > PAGE_BREAK_AT) { doc.addPage(); y = M; }
+        doc.text(lines, M + 2, y);
+        y += lines.length * 5 + 1;
+      }
+    } else if (sec.text) {
+      const lines = doc.splitTextToSize(sec.text, W);
+      if (y + lines.length * 5 > PAGE_BREAK_AT) { doc.addPage(); y = M; }
+      doc.text(lines, M, y);
+      y += lines.length * 5;
+    }
+    y += 6;
+    return y;
+  }
+
+  function loadImageAsDataURL(url) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const c = document.createElement('canvas');
+          c.width = img.width; c.height = img.height;
+          c.getContext('2d').drawImage(img, 0, 0);
+          resolve(c.toDataURL('image/png'));
+        } catch { resolve(null); }
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // RÉGÉNÉRATION (mini-confirmation toast inline)
+  // ──────────────────────────────────────────────────────────
+  let regenConfirmTimer = null;
+  function toggleRegenConfirm() {
+    const box = document.getElementById('regenConfirm');
+    if (!box) return;
+    // Check quota d'abord
+    const lastQuota = state.lastResult?.quota;
+    if (lastQuota && lastQuota.used >= lastQuota.max) {
+      showRegenQuotaExhausted(box);
+    } else {
+      showRegenNormalConfirm(box);
+    }
+    box.hidden = false;
+    clearTimeout(regenConfirmTimer);
+    regenConfirmTimer = setTimeout(() => { box.hidden = true; }, 5000);
+  }
+  function showRegenNormalConfirm(box) {
+    box.innerHTML = `
+      <p>🔄 Régénérer ? <span class="zts-fiche2-confirm-cost">(1 crédit)</span></p>
+      <div class="zts-fiche2-confirm-actions">
+        <button class="zts-fiche2-confirm-btn zts-fiche2-confirm-btn--cancel" data-regen="cancel">Annuler</button>
+        <button class="zts-fiche2-confirm-btn zts-fiche2-confirm-btn--ok" data-regen="ok">✅ OK</button>
+      </div>`;
+  }
+  function showRegenQuotaExhausted(box) {
+    const isAnon = !getUid();
+    box.innerHTML = `
+      <p>Crédits épuisés ce mois.</p>
+      <div class="zts-fiche2-confirm-actions">
+        <a href="https://paypal.me/zonetotalsport" target="_blank" class="zts-fiche2-confirm-btn zts-fiche2-confirm-btn--don" data-regen="cancel">💝 Don +10</a>
+        ${isAnon ? '<button class="zts-fiche2-confirm-btn zts-fiche2-confirm-btn--signup" data-regen="signup">🎁 Inscris-toi +10</button>' : ''}
+      </div>`;
+  }
+  function handleRegenConfirmActions(e) {
+    const btn = e.target.closest('[data-regen]');
+    const box = document.getElementById('regenConfirm');
+    if (!box || box.hidden) return;
+    // Click hors confirmation → ferme
+    if (!btn && !e.target.closest('#regenConfirm') && !e.target.closest('#ficheBtnRegen')) {
+      box.hidden = true; return;
+    }
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const action = btn.dataset.regen;
+    clearTimeout(regenConfirmTimer);
+    box.hidden = true;
+    if (action === 'ok') doRegenerate();
+    else if (action === 'signup') openSignupModal();
+  }
+  async function doRegenerate() {
+    if (state.isGenerating) return;
+    // Reset zone résultat à loading sans détruire l'historique localStorage
+    state.lastResult = null;
+    await generate();
   }
 
   let editMode = false;
@@ -661,8 +974,21 @@
     const newSec = readListEdits('securite');
     if (newSec.length) data.securite = newSec.join(' ');
 
+    data._edited = true;
     json.data = data;
+    json.edited = true;
     state.lastResult = json;
+
+    // Badge "Édité" visible
+    const editedBadge = document.getElementById('ficheEditedBadge');
+    if (editedBadge) editedBadge.hidden = false;
+
+    // Mise à jour titre dans hero si modifié
+    const [tm, ta] = splitTitle(data.titre || '');
+    const $tm = document.getElementById('ficheTitleMain');
+    const $ta = document.getElementById('ficheTitleAccent');
+    if ($tm) $tm.textContent = tm;
+    if ($ta) $ta.textContent = ta;
 
     // Persistance
     const uid = getUid();
