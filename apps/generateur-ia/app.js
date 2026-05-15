@@ -11,7 +11,11 @@
     : 'https://api.zonetotalsport.ca/generate';
 
   const ANON_COUNT_KEY = 'zts_gen_anon_count';
+  const ANON_GENS_KEY = 'zts_anon_generations';
   const ANON_LIMIT = 3;
+  const MAX_GENS_DISPLAY = 12;
+
+  const API_BASE = API_URL.replace(/\/generate$/, '');
 
   // ──────────────────────────────────────────────────────────
   // State
@@ -245,9 +249,13 @@
       }
 
       state.lastResult = json;
-      if (!getUid()) incAnonCount();
+      if (!getUid()) {
+        incAnonCount();
+        saveAnonGeneration(json);
+      }
       updateQuotaHint(json.quota);
       await renderFicheTypewriter(json);
+      await refreshGenerationsGrid();
     } catch (e) {
       clearTimeout(timeoutId);
       if (e.name === 'AbortError') {
@@ -443,6 +451,257 @@
   }
 
   // ──────────────────────────────────────────────────────────
+  // Sauvegarde générations (anon localStorage / auth Firestore-via-worker)
+  // ──────────────────────────────────────────────────────────
+  function loadAnonGenerations() {
+    try {
+      const arr = JSON.parse(localStorage.getItem(ANON_GENS_KEY) || '[]');
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }
+  function saveAnonGenerationsArr(arr) {
+    try { localStorage.setItem(ANON_GENS_KEY, JSON.stringify(arr.slice(0, MAX_GENS_DISPLAY))); }
+    catch {}
+  }
+  function saveAnonGeneration(resp) {
+    const list = loadAnonGenerations();
+    const entry = {
+      id: resp.data?.id || `local-${Date.now()}`,
+      type: resp.type,
+      univers: resp.univers,
+      contexte: state.contexte || '',
+      modele: state.modele,
+      modele_utilise: resp.modele_utilise,
+      data: resp.data,
+      favori: false,
+      date_generation: resp.data?.date_generation || new Date().toISOString(),
+      _local: true,
+    };
+    list.unshift(entry);
+    saveAnonGenerationsArr(list);
+  }
+  function updateAnonGeneration(id, patch) {
+    const list = loadAnonGenerations();
+    const i = list.findIndex(g => g.id === id);
+    if (i >= 0) {
+      list[i] = { ...list[i], ...patch };
+      saveAnonGenerationsArr(list);
+    }
+  }
+
+  async function fetchAuthGenerations(uid) {
+    try {
+      const r = await fetch(`${API_BASE}/generations?uid=${encodeURIComponent(uid)}&limit=${MAX_GENS_DISPLAY}`);
+      const j = await r.json();
+      return j.ok ? j.generations : [];
+    } catch { return []; }
+  }
+
+  async function refreshGenerationsGrid() {
+    const uid = getUid();
+    const list = uid ? await fetchAuthGenerations(uid) : loadAnonGenerations();
+    renderGrid(list, !!uid);
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Rendu grille "Mes générations"
+  // ──────────────────────────────────────────────────────────
+  const $mesSection = () => document.getElementById('mesGenerations');
+  const $mesGrid = () => document.getElementById('mesGenGrid');
+  const $mesSubtitle = () => document.getElementById('mesGenSubtitle');
+
+  const EMOJI_TYPE = { jeu: '🎮', sae: '📚', educatif: '🏋️' };
+  const LABEL_TYPE = { jeu: 'JEU', sae: 'SAÉ', educatif: 'ÉDUC.' };
+  const LABEL_UNI = { eps: 'ÉPS', camps: 'CAMP', sdg: 'SDG' };
+
+  function relativeDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    const diff = (Date.now() - d.getTime()) / 1000;
+    if (diff < 60)        return 'à l\'instant';
+    if (diff < 3600)      return `il y a ${Math.round(diff / 60)} min`;
+    if (diff < 86400)     return `il y a ${Math.round(diff / 3600)} h`;
+    if (diff < 86400 * 2) return 'hier';
+    if (diff < 86400 * 7) return `il y a ${Math.round(diff / 86400)} jours`;
+    return d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'short' });
+  }
+
+  function renderGrid(list, isAuth) {
+    const section = $mesSection();
+    const grid = $mesGrid();
+    if (!section || !grid) return;
+
+    if (!list.length) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+    $mesSubtitle().textContent = isAuth
+      ? `${list.length} génération${list.length > 1 ? 's' : ''} sauvegardée${list.length > 1 ? 's' : ''} dans ton compte`
+      : `${list.length} génération${list.length > 1 ? 's' : ''} sauvée${list.length > 1 ? 's' : ''} sur cet appareil — connecte-toi pour les conserver`;
+
+    grid.innerHTML = '';
+    for (const gen of list) {
+      const titre = gen.data?.titre || gen.titre || gen.data?.nom || 'Sans titre';
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'zts-gen-mini-card' + (gen.migrated_from_anon ? ' zts-gen-mini-card-migrated' : '');
+      card.dataset.id = gen.id;
+      card.innerHTML = `
+        <button type="button" class="zts-gen-mini-fav ${gen.favori ? 'is-fav' : ''}" data-fav data-id="${escapeHtml(gen.id)}" aria-label="Favori">
+          ${gen.favori ? '❤️' : '🤍'}
+        </button>
+        <div class="zts-gen-mini-card-emoji">${EMOJI_TYPE[gen.type] || '📄'}</div>
+        <div class="zts-gen-mini-card-title">${escapeHtml(String(titre).slice(0, 40))}${String(titre).length > 40 ? '…' : ''}</div>
+        <div class="zts-gen-mini-card-meta">
+          <span class="zts-gen-mini-badge zts-gen-mini-badge--type-${gen.type}">${LABEL_TYPE[gen.type] || gen.type}</span>
+          <span class="zts-gen-mini-badge zts-gen-mini-badge--uni-${gen.univers}">${LABEL_UNI[gen.univers] || gen.univers}</span>
+        </div>
+        <div class="zts-gen-mini-card-date">${relativeDate(gen.date_generation)}</div>
+      `;
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('[data-fav]')) return;
+        reopenGeneration(gen);
+      });
+      grid.appendChild(card);
+    }
+    // Délégation toggle favori
+    grid.querySelectorAll('[data-fav]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const isFav = btn.classList.contains('is-fav');
+        await toggleFavori(id, !isFav, btn);
+      });
+    });
+  }
+
+  function reopenGeneration(gen) {
+    // Réaffiche la fiche depuis les données stockées (pas de regen)
+    const fakeResp = {
+      ok: true,
+      type: gen.type,
+      univers: gen.univers,
+      data: gen.data || gen,
+    };
+    state.lastResult = fakeResp;
+    hideLoading();
+    $errorState.hidden = true;
+    $resultZone.hidden = false;
+    $ficheCard.hidden = false;
+    renderFicheInstant(fakeResp);
+    $resultZone.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Variante "instant" du renderer (sans typewriter, pour réouverture)
+  function renderFicheInstant(json) {
+    const data = json.data || {};
+    const TYPE_LABEL = { jeu: 'JEU', sae: 'SAÉ', educatif: 'ÉDUCATIF' };
+    const UNI_LABEL = { eps: 'ÉPS', camps: 'CAMP', sdg: 'SDG' };
+    $('#ficheBadge').textContent = `${TYPE_LABEL[json.type]} · ${UNI_LABEL[json.univers]}`;
+    $('#ficheTitle').textContent = data.titre || data.nom || 'Fiche';
+
+    const meta = [];
+    const dureeStr = (data.duree_min && data.duree_max) ? `${data.duree_min}-${data.duree_max} min`
+                   : (data.duree_totale) ? data.duree_totale
+                   : (data.duree_par_palier) ? `${data.duree_par_palier} / palier`
+                   : data.duree;
+    if (dureeStr) meta.push(['⏱️ Durée', dureeStr]);
+    if (data.nb_joueurs || data.joueurs) meta.push(['👥 Joueurs', data.nb_joueurs || data.joueurs]);
+    if (data.espace || data.organisation_spatiale || data.lieu)
+      meta.push(['📍 Espace', data.espace || data.organisation_spatiale || data.lieu]);
+    const niveau = data.cycle || (Array.isArray(data.niveaux) ? data.niveaux.join(', ') : data.niveaux) || data.niveau;
+    if (niveau) meta.push(['🎓 Niveau', niveau]);
+    if (data.competence_pfeq) meta.push(['🎯 PFEQ', data.competence_pfeq]);
+
+    const $meta = $('#ficheMeta');
+    $meta.innerHTML = '';
+    for (const [label, val] of meta) {
+      const item = document.createElement('div');
+      item.className = 'zts-gen-fiche-meta-item';
+      item.innerHTML = `<strong>${label}</strong>${escapeHtml(String(val))}`;
+      $meta.appendChild(item);
+    }
+    $('#ficheBut').textContent = data.but || data.intentions_pedagogiques || data.objectif || '';
+    const $mat = $('#ficheMateriel');
+    $mat.innerHTML = '';
+    const mat = Array.isArray(data.materiel) ? data.materiel : (data.materiel ? [data.materiel] : []);
+    mat.forEach(item => { const li = document.createElement('li'); li.textContent = typeof item === 'string' ? item : JSON.stringify(item); $mat.appendChild(li); });
+    let reglesText = '';
+    if (data.regles) reglesText = String(data.regles);
+    else if (Array.isArray(data.deroulement)) reglesText = data.deroulement.map(p => typeof p === 'string' ? p : `▸ ${p.phase || ''} (${p.duree || '?'})\n${p.description || ''}`).join('\n\n');
+    else if (Array.isArray(data.progression)) reglesText = data.progression.map(p => `Palier ${p.palier || '?'} — ${p.consigne || ''}\n   ✓ Réussite : ${p.critere_reussite || '?'}`).join('\n\n');
+    $('#ficheRegles').textContent = reglesText;
+    const $var = $('#ficheVariantes');
+    $var.innerHTML = '';
+    const altList = Array.isArray(data.variantes) ? data.variantes
+                   : Array.isArray(data.savoirs_essentiels) ? data.savoirs_essentiels
+                   : Array.isArray(data.erreurs_courantes) ? data.erreurs_courantes : [];
+    altList.forEach(v => { const li = document.createElement('li'); li.textContent = typeof v === 'string' ? v : (v.titre || JSON.stringify(v)); $var.appendChild(li); });
+    let secText = data.securite || data.conseils;
+    if (!secText && data.differenciation) secText = `Différenciation : ${data.differenciation}`;
+    $('#ficheSecurite').textContent = secText || '';
+    $('#ficheActions').hidden = false;
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Favori (auth → worker / anon → localStorage)
+  // ──────────────────────────────────────────────────────────
+  async function toggleFavori(id, newFav, btn) {
+    const uid = getUid();
+    btn.classList.toggle('is-fav', newFav);
+    btn.textContent = newFav ? '❤️' : '🤍';
+    if (uid) {
+      try {
+        await fetch(`${API_BASE}/generation/${encodeURIComponent(id)}/favori`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, favori: newFav }),
+        });
+      } catch (e) {
+        console.warn('favori toggle failed', e);
+        btn.classList.toggle('is-fav', !newFav);
+        btn.textContent = !newFav ? '❤️' : '🤍';
+      }
+    } else {
+      updateAnonGeneration(id, { favori: newFav });
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // Migration anon → Firestore (déclenchée au login)
+  // ──────────────────────────────────────────────────────────
+  let migrationRunning = false;
+  async function migrateAnonIfNeeded() {
+    if (migrationRunning) return;
+    const uid = getUid();
+    if (!uid) return;
+    const list = loadAnonGenerations();
+    if (!list.length) return;
+
+    migrationRunning = true;
+    try {
+      const resp = await fetch(`${API_BASE}/migrate-anon-generation`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, generations: list }),
+      });
+      const j = await resp.json();
+      if (j.ok) {
+        const failedIdx = new Set((j.failed || []).map(f => f.index));
+        const remaining = list.filter((_, i) => failedIdx.has(i));
+        saveAnonGenerationsArr(remaining);
+      }
+    } catch (e) {
+      console.warn('migration failed:', e);
+    } finally {
+      migrationRunning = false;
+      await refreshGenerationsGrid();
+    }
+  }
+
+  // ──────────────────────────────────────────────────────────
   // Init
   // ──────────────────────────────────────────────────────────
   function init() {
@@ -455,12 +714,15 @@
     setupSignupModal();
     updatePlaceholder();
     updateQuotaHint();
+    refreshGenerationsGrid();
 
-    // Si Firebase devient dispo plus tard, refresh
+    // Si Firebase devient dispo plus tard, refresh + migration anon→Firestore
     if (window.firebase?.auth) {
-      window.firebase.auth().onAuthStateChanged(() => {
+      window.firebase.auth().onAuthStateChanged(async () => {
         refreshAccountMenu();
         updateQuotaHint();
+        if (getUid()) await migrateAnonIfNeeded();
+        else refreshGenerationsGrid();
       });
     }
   }

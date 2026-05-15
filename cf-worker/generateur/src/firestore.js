@@ -164,6 +164,74 @@ export async function deleteDoc(env, path) {
   return r.ok;
 }
 
+// Crée un doc avec ID auto-généré dans une collection.
+// Retourne { id, name, fields } du doc créé.
+export async function addDoc(env, collection, fields) {
+  const token = await getAccessToken(env);
+  const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/${collection}`;
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ fields: encodeFields(fields) }),
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    throw Object.assign(new Error(`Firestore POST ${collection}: ${t}`), { code: "FIRESTORE_ERROR" });
+  }
+  const data = await r.json();
+  return {
+    id: data.name.split("/").pop(),
+    name: data.name,
+    fields: decodeFields(data.fields || {}),
+  };
+}
+
+// Query par égalité sur un champ, tri optionnel, limite.
+// orderField : nom de champ (ex. "date_generation"), orderDir : "asc"|"desc"
+export async function queryCollection(env, collection, { whereField, whereValue, orderField, orderDir = "desc", limit = 50 } = {}) {
+  const token = await getAccessToken(env);
+  const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
+
+  const structuredQuery = {
+    from: [{ collectionId: collection }],
+    limit: Math.min(Math.max(1, limit), 500),
+  };
+  if (whereField !== undefined) {
+    structuredQuery.where = {
+      fieldFilter: {
+        field: { fieldPath: whereField },
+        op: "EQUAL",
+        value: encodeValue(whereValue),
+      },
+    };
+  }
+  if (orderField) {
+    structuredQuery.orderBy = [{
+      field: { fieldPath: orderField },
+      direction: orderDir.toUpperCase() === "ASC" ? "ASCENDING" : "DESCENDING",
+    }];
+  }
+
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ structuredQuery }),
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    throw Object.assign(new Error(`Firestore runQuery ${collection}: ${t}`), { code: "FIRESTORE_ERROR" });
+  }
+  const data = await r.json();
+  // Réponse = array de { document: {...} } ou { readTime: ... } (sentinel)
+  return (data || [])
+    .filter(row => row.document)
+    .map(row => ({
+      id: row.document.name.split("/").pop(),
+      name: row.document.name,
+      fields: decodeFields(row.document.fields || {}),
+    }));
+}
+
 // runQuery via :runQuery — utilisé pour cleanup par préfixe d'ID
 export async function listDocsInCollection(env, collection) {
   const token = await getAccessToken(env);

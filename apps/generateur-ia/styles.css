@@ -450,6 +450,102 @@
   border: none; font-size: .95rem; letter-spacing: 1px;
 }
 
+/* ============ MES GÉNÉRATIONS (grille mini-cards) ============ */
+.zts-gen-mes-section {
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 4px dashed #CBD5E1;
+}
+.zts-gen-mes-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: 2px;
+  color: var(--gen-deep); margin: 0 0 8px; text-align: center;
+}
+.zts-gen-mes-subtitle {
+  text-align: center;
+  font-family: 'Patrick Hand', cursive; font-size: 1.05rem;
+  color: #475569; margin: 0 0 24px;
+}
+.zts-gen-mes-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+}
+@media (max-width: 900px) { .zts-gen-mes-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 500px) { .zts-gen-mes-grid { grid-template-columns: 1fr; } }
+
+.zts-gen-mini-card {
+  position: relative;
+  background: #fff;
+  border: 3px solid var(--gen-deep);
+  border-bottom-width: 8px; border-right-width: 8px;
+  border-radius: 20px;
+  padding: 16px 14px 14px;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  display: flex; flex-direction: column; gap: 8px;
+  min-height: 160px;
+  text-align: left;
+  font-family: inherit;
+}
+.zts-gen-mini-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 0 rgba(0,0,0,.15);
+}
+.zts-gen-mini-card-emoji {
+  font-size: 2.2rem; line-height: 1; margin-bottom: 4px;
+}
+.zts-gen-mini-card-title {
+  font-family: 'Luckiest Guy', cursive;
+  font-size: 1.05rem; letter-spacing: .5px;
+  color: var(--gen-deep);
+  line-height: 1.15;
+  flex-grow: 1;
+}
+.zts-gen-mini-card-meta {
+  display: flex; gap: 6px; flex-wrap: wrap;
+}
+.zts-gen-mini-badge {
+  display: inline-block;
+  font-family: 'Luckiest Guy', cursive; font-size: .7rem; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 999px;
+  border: 2px solid var(--gen-deep);
+  background: #F1F5F9; color: var(--gen-deep);
+}
+.zts-gen-mini-badge--type-jeu      { background: linear-gradient(135deg, #FFE5EB, #FFC2D0); }
+.zts-gen-mini-badge--type-sae      { background: linear-gradient(135deg, #EDE5FF, #D4C2FF); }
+.zts-gen-mini-badge--type-educatif { background: linear-gradient(135deg, #D6F4FF, #A8E5FA); }
+.zts-gen-mini-badge--uni-eps   { background: var(--gen-yellow); }
+.zts-gen-mini-badge--uni-camps { background: linear-gradient(135deg, #FFE8CC, #FFCB99); }
+.zts-gen-mini-badge--uni-sdg   { background: linear-gradient(135deg, #E0FFE6, #ADF5BB); }
+
+.zts-gen-mini-card-date {
+  font-family: 'Patrick Hand', cursive; font-size: .85rem;
+  color: #64748B;
+}
+.zts-gen-mini-fav {
+  position: absolute; top: 8px; right: 10px;
+  background: transparent; border: none;
+  font-size: 1.4rem; cursor: pointer;
+  padding: 4px; line-height: 1;
+  transition: transform .15s;
+  z-index: 2;
+}
+.zts-gen-mini-fav:hover { transform: scale(1.2); }
+.zts-gen-mini-fav.is-fav { animation: heart-pop .3s; }
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+.zts-gen-mini-card-migrated::before {
+  content: "↺";
+  position: absolute; top: 8px; left: 10px;
+  background: var(--gen-lime); color: var(--gen-deep);
+  width: 22px; height: 22px; border-radius: 50%;
+  font-size: .9rem; line-height: 22px; text-align: center;
+  border: 2px solid var(--gen-deep);
+}
+
 /* ============ RESPONSIVE ============ */
 @media (max-width: 600px) {
   .zts-gen-main { padding: 32px 16px 60px; }

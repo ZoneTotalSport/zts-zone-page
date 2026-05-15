@@ -9,7 +9,9 @@ import {
   readAnonQuota, incrementAnonQuota, setAnonQuota, deleteAnonQuota,
   currentMonthKey,
 } from "./quota.js";
-import { getTokenCacheStats } from "./firestore.js";
+import {
+  getTokenCacheStats, addDoc, getDoc, setDoc, deleteDoc, queryCollection, listDocsInCollection,
+} from "./firestore.js";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -211,9 +213,41 @@ async function handleGenerate(request, env) {
         ? await incrementUserQuota(env, uid)
         : await incrementAnonQuota(env, ip);
     } catch (e) {
-      // On ne bloque pas la réponse si l'increment échoue, mais on log
       console.warn("Quota increment failed:", e.message);
       quotaAfter = { used: quotaInfo.before + 1, max: quotaInfo.max, month_key: quotaInfo.month_key };
+    }
+
+    const date_generation = new Date().toISOString();
+    const fiche = {
+      id: `gen-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      type,
+      univers,
+      date_generation,
+      ...data,
+    };
+
+    // Sauvegarde Firestore si user authentifié — non bloquante
+    let generationId = null;
+    if (uid) {
+      try {
+        const doc = await addDoc(env, "generations", {
+          uid,
+          type,
+          univers,
+          contexte: contexte || "",
+          modele,
+          modele_utilise: model_used,
+          data: fiche,
+          favori: false,
+          migrated_from_anon: false,
+          tokens_input: tokens.input,
+          tokens_output: tokens.output,
+          date_generation: new Date(date_generation),
+        });
+        generationId = doc.id;
+      } catch (e) {
+        console.warn("Firestore save failed:", e.message);
+      }
     }
 
     return json({
@@ -222,19 +256,14 @@ async function handleGenerate(request, env) {
       univers,
       modele_utilise: model_used,
       tokens,
+      generationId,
       quota: {
         scope: quotaInfo.scope,
         used: quotaAfter.used,
         max: quotaAfter.max,
         month_key: quotaAfter.month_key,
       },
-      data: {
-        id: `gen-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        type,
-        univers,
-        date_generation: new Date().toISOString(),
-        ...data,
-      },
+      data: fiche,
     });
   } catch (e) {
     const code = e.code || "INTERNAL";
@@ -254,6 +283,134 @@ async function handleGenerate(request, env) {
     if (e.upstream) extra.upstream = e.upstream;
     return err(code, messages[code] || "Erreur interne", status, extra);
   }
+}
+
+// ────────────────────────────────────────────────────────────
+// Endpoints "generations" — liste, favori, migration anon
+// ⚠️ TRUST UID DU BODY (sécurité minimale pour ce commit).
+// Voir DETTE TECHNIQUE dans message commit #5.
+// ────────────────────────────────────────────────────────────
+
+function sanitizeFiche(fields) {
+  // Convertit un doc Firestore décodé en payload front-friendly
+  const id = fields.__id;
+  const d = fields.data || {};
+  return {
+    id,
+    type: fields.type,
+    univers: fields.univers,
+    titre: d.titre || d.nom || "Sans titre",
+    favori: !!fields.favori,
+    date_generation: fields.date_generation instanceof Date
+      ? fields.date_generation.toISOString()
+      : (fields.date_generation || null),
+    migrated_from_anon: !!fields.migrated_from_anon,
+    modele_utilise: fields.modele_utilise || null,
+    data: d,
+  };
+}
+
+async function handleListGenerations(url, env) {
+  const uid = url.searchParams.get("uid");
+  const limit = Math.min(Math.max(1, parseInt(url.searchParams.get("limit") || "12", 10)), 50);
+  if (!uid || typeof uid !== "string" || uid.length > 128) {
+    return err("INVALID_INPUT", "?uid=... obligatoire (≤128 chars)");
+  }
+  // Query par uid uniquement (pas d'orderBy pour éviter besoin d'index composite).
+  // Tri par date_generation desc côté worker — acceptable pour ≤50 gens/user.
+  const docs = await queryCollection(env, "generations", {
+    whereField: "uid",
+    whereValue: uid,
+    limit: 200,
+  });
+  docs.sort((a, b) => {
+    const da = a.fields.date_generation;
+    const db = b.fields.date_generation;
+    const ta = da instanceof Date ? da.getTime() : new Date(da || 0).getTime();
+    const tb = db instanceof Date ? db.getTime() : new Date(db || 0).getTime();
+    return tb - ta;
+  });
+  const out = docs.slice(0, limit).map(d => sanitizeFiche({ ...d.fields, __id: d.id }));
+  return json({ ok: true, count: out.length, total: docs.length, generations: out });
+}
+
+async function handleToggleFavori(genId, request, env) {
+  if (!genId || !/^[a-zA-Z0-9_-]{1,80}$/.test(genId)) {
+    return err("INVALID_INPUT", "ID génération invalide");
+  }
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body.uid !== "string" || typeof body.favori !== "boolean") {
+    return err("INVALID_INPUT", "body: { uid, favori: bool }");
+  }
+  const doc = await getDoc(env, `generations/${genId}`);
+  if (!doc) return err("NOT_FOUND", "Génération introuvable", 404);
+  if (doc.fields.uid !== body.uid) {
+    return err("FORBIDDEN", "Cette génération n'appartient pas à cet uid", 403);
+  }
+  await setDoc(env, `generations/${genId}`, { favori: body.favori });
+  return json({ ok: true, id: genId, favori: body.favori });
+}
+
+async function handleMigrateAnon(request, env) {
+  const body = await request.json().catch(() => null);
+  if (!body || !body.uid || typeof body.uid !== "string" || body.uid.length > 128) {
+    return err("INVALID_INPUT", "body: { uid: string, generations: [...] }");
+  }
+  if (!Array.isArray(body.generations)) {
+    return err("INVALID_INPUT", "generations doit être un array");
+  }
+  if (body.generations.length === 0) {
+    return json({ ok: true, migrated: [], failed: [] });
+  }
+  if (body.generations.length > 12) {
+    return err("INVALID_INPUT", "Max 12 entrées par appel");
+  }
+
+  const migrated = [];
+  const failed = [];
+  for (let i = 0; i < body.generations.length; i++) {
+    const g = body.generations[i];
+    try {
+      if (!g || typeof g !== "object") throw new Error("entrée non-objet");
+      if (!["jeu", "sae", "educatif"].includes(g.type)) throw new Error("type invalide");
+      if (!["eps", "camps", "sdg"].includes(g.univers)) throw new Error("univers invalide");
+      if (!g.data || typeof g.data !== "object") throw new Error("data manquante");
+      const dateGen = g.date_generation ? new Date(g.date_generation) : new Date();
+      const doc = await addDoc(env, "generations", {
+        uid: body.uid,
+        type: g.type,
+        univers: g.univers,
+        contexte: g.contexte || "",
+        modele: g.modele || "haiku",
+        modele_utilise: g.modele_utilise || null,
+        data: g.data,
+        favori: !!g.favori,
+        migrated_from_anon: true,
+        date_generation: dateGen,
+      });
+      migrated.push(doc.id);
+    } catch (e) {
+      failed.push({ index: i, reason: e.message });
+    }
+  }
+  return json({ ok: true, migrated, failed });
+}
+
+async function handleDeleteGeneration(genId, request, env) {
+  if (!genId || !/^[a-zA-Z0-9_-]{1,80}$/.test(genId)) {
+    return err("INVALID_INPUT", "ID génération invalide");
+  }
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body.uid !== "string") {
+    return err("INVALID_INPUT", "body: { uid }");
+  }
+  const doc = await getDoc(env, `generations/${genId}`);
+  if (!doc) return err("NOT_FOUND", "Génération introuvable", 404);
+  if (doc.fields.uid !== body.uid) {
+    return err("FORBIDDEN", "Cette génération n'appartient pas à cet uid", 403);
+  }
+  await deleteDoc(env, `generations/${genId}`);
+  return json({ ok: true, id: genId, deleted: true });
 }
 
 // ────────────────────────────────────────────────────────────
@@ -295,9 +452,56 @@ async function handleDebug(url, request, env) {
     const body = await request.json().catch(() => ({}));
     const prefix = body?.prefix || "test-user-";
     const r = await cleanupTestQuotas(env, prefix);
-    // Cleanup KV anon avec IP de test
     if (body?.anonIp) await deleteAnonQuota(env, body.anonIp, body.month_key);
-    return json({ ok: true, action: "cleanup", ...r });
+    // Cleanup aussi les generations dont uid commence par le préfixe
+    const allGens = await listDocsInCollection(env, "generations");
+    const matchingGens = allGens.filter(d => d.fields.uid && String(d.fields.uid).startsWith(prefix));
+    let deletedGens = 0;
+    for (const g of matchingGens) {
+      try { if (await deleteDoc(env, `generations/${g.id}`)) deletedGens++; } catch {}
+    }
+    return json({ ok: true, action: "cleanup", ...r, generations_deleted: deletedGens });
+  }
+
+  if (path === "getDoc" && request.method === "GET") {
+    const docPath = url.searchParams.get("path");
+    if (!docPath) return err("INVALID_INPUT", "?path=collection/docId");
+    const doc = await getDoc(env, docPath);
+    return json({ ok: true, doc });
+  }
+
+  if (path === "listGenerations" && request.method === "GET") {
+    const uid = url.searchParams.get("uid");
+    if (!uid) return err("INVALID_INPUT", "?uid=...");
+    const all = await listDocsInCollection(env, "generations");
+    const mine = all.filter(d => d.fields.uid === uid);
+    return json({ ok: true, count: mine.length, docs: mine.map(d => ({ id: d.id, fields: d.fields })) });
+  }
+
+  if (path === "seedGenerations" && request.method === "POST") {
+    // Pour TEST 10 : insère N docs de test rapidement
+    const body = await request.json().catch(() => null);
+    if (!body || !body.uid || typeof body.count !== "number") {
+      return err("INVALID_INPUT", "body: { uid, count, type?, univers? }");
+    }
+    const ids = [];
+    const baseTime = Date.now();
+    for (let i = 0; i < Math.min(body.count, 30); i++) {
+      const doc = await addDoc(env, "generations", {
+        uid: body.uid,
+        type: body.type || "jeu",
+        univers: body.univers || "eps",
+        contexte: "",
+        modele: "haiku",
+        modele_utilise: "test",
+        data: { id: `seed-${i}`, type: body.type || "jeu", univers: body.univers || "eps", titre: `Seed #${i + 1}` },
+        favori: false,
+        migrated_from_anon: false,
+        date_generation: new Date(baseTime - i * 60000),
+      });
+      ids.push(doc.id);
+    }
+    return json({ ok: true, seeded: ids });
   }
 
   if (path === "tokenCache" && request.method === "GET") {
@@ -320,7 +524,7 @@ export default {
     const url = new URL(request.url);
 
     if (url.pathname === "/health") {
-      return json({ ok: true, service: "zts-generateur", version: "0.3.0", env: env.ENVIRONMENT });
+      return json({ ok: true, service: "zts-generateur", version: "0.4.0", env: env.ENVIRONMENT });
     }
 
     if (url.pathname.startsWith("/debug/")) {
@@ -333,6 +537,32 @@ export default {
 
     if (url.pathname === "/generate" && request.method === "POST") {
       return await handleGenerate(request, env);
+    }
+
+    if (url.pathname === "/generations" && request.method === "GET") {
+      try { return await handleListGenerations(url, env); }
+      catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
+    }
+
+    if (url.pathname === "/migrate-anon-generation" && request.method === "POST") {
+      try { return await handleMigrateAnon(request, env); }
+      catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
+    }
+
+    // /generation/:id/favori (POST) ou /generation/:id (DELETE)
+    const m = url.pathname.match(/^\/generation\/([a-zA-Z0-9_-]+)(?:\/(favori))?$/);
+    if (m) {
+      const genId = m[1];
+      try {
+        if (m[2] === "favori" && request.method === "POST") {
+          return await handleToggleFavori(genId, request, env);
+        }
+        if (!m[2] && request.method === "DELETE") {
+          return await handleDeleteGeneration(genId, request, env);
+        }
+      } catch (e) {
+        return err(e.code || "INTERNAL", e.message, 500);
+      }
     }
 
     return err("NOT_FOUND", "Endpoint inconnu", 404);
