@@ -8,7 +8,33 @@ compatibility_flags = ["nodejs_compat"]
 #   { pattern = "api.zonetotalsport.ca/generate", custom_domain = true }
 # ]
 
+# Default top-level = safe (prod). Un déploiement sans --env hérite de "prod".
 [vars]
+DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+SONNET_MODEL = "claude-sonnet-4-6"
+QUOTA_FREE_MONTH = "10"
+QUOTA_ANON_MONTH = "3"
+MAX_OUTPUT_TOKENS = "2000"
+FIREBASE_PROJECT_ID = "zone-total-sport"
+ENVIRONMENT = "prod"
+
+# Secrets (à provisionner via `wrangler secret put`) :
+# - ANTHROPIC_API_KEY        (clé zts-generateur-worker)
+# - FIREBASE_SERVICE_ACCOUNT (JSON service account complet, single-line)
+
+[[kv_namespaces]]
+binding = "ANON_QUOTA"
+id = "3dc369766df54fafadd52bb232f34573"
+preview_id = "d523ae6dd61e4bba9521fa88d4e2ccfb"
+
+# ────────────────────────────────────────────────────────────────────
+# DEV : `wrangler dev --env dev` ou `wrangler deploy --env dev`
+# Active les routes /debug/* (gated par ENVIRONMENT === "dev" côté worker).
+# ────────────────────────────────────────────────────────────────────
+[env.dev]
+name = "zts-generateur-dev"
+
+[env.dev.vars]
 DEFAULT_MODEL = "claude-haiku-4-5-20251001"
 SONNET_MODEL = "claude-sonnet-4-6"
 QUOTA_FREE_MONTH = "10"
@@ -17,11 +43,28 @@ MAX_OUTPUT_TOKENS = "2000"
 FIREBASE_PROJECT_ID = "zone-total-sport"
 ENVIRONMENT = "dev"
 
-# Secrets (à provisionner via `wrangler secret put`) :
-# - ANTHROPIC_API_KEY        (clé zts-generateur-worker)
-# - FIREBASE_SERVICE_ACCOUNT (JSON service account complet, single-line)
+[[env.dev.kv_namespaces]]
+binding = "ANON_QUOTA"
+id = "3dc369766df54fafadd52bb232f34573"
+preview_id = "d523ae6dd61e4bba9521fa88d4e2ccfb"
 
-[[kv_namespaces]]
+# ────────────────────────────────────────────────────────────────────
+# PRODUCTION : `wrangler deploy --env production`
+# /debug/* renvoient 404. Sert api.zonetotalsport.ca.
+# ────────────────────────────────────────────────────────────────────
+[env.production]
+name = "zts-generateur"
+
+[env.production.vars]
+DEFAULT_MODEL = "claude-haiku-4-5-20251001"
+SONNET_MODEL = "claude-sonnet-4-6"
+QUOTA_FREE_MONTH = "10"
+QUOTA_ANON_MONTH = "3"
+MAX_OUTPUT_TOKENS = "2000"
+FIREBASE_PROJECT_ID = "zone-total-sport"
+ENVIRONMENT = "prod"
+
+[[env.production.kv_namespaces]]
 binding = "ANON_QUOTA"
 id = "3dc369766df54fafadd52bb232f34573"
 preview_id = "d523ae6dd61e4bba9521fa88d4e2ccfb"
