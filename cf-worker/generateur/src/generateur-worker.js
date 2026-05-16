@@ -13,12 +13,30 @@ import {
   getTokenCacheStats, addDoc, getDoc, setDoc, deleteDoc, queryCollection, listDocsInCollection,
 } from "./firestore.js";
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Max-Age": "86400",
-};
+// CORS — whitelist stricte. `*` retiré pour bloquer les appels cross-origin
+// depuis des sites tiers. Le worker isole chaque requête, donc la variable
+// module-scope `currentOrigin` est safe (réinitialisée à chaque fetch).
+const ALLOWED_ORIGINS = new Set([
+  "https://zonetotalsport.ca",
+  "https://www.zonetotalsport.ca",
+  "http://localhost:8000",
+  "http://localhost:8787",
+  "http://127.0.0.1:8000",
+  "http://127.0.0.1:8787",
+]);
+
+let currentOrigin = null;
+
+function corsHeaders() {
+  const allowed = currentOrigin && ALLOWED_ORIGINS.has(currentOrigin);
+  return {
+    "Access-Control-Allow-Origin": allowed ? currentOrigin : "https://zonetotalsport.ca",
+    "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Max-Age": "86400",
+    "Vary": "Origin",
+  };
+}
 
 const VALID_TYPES = ["jeu", "sae", "educatif"];
 const VALID_UNIVERS = ["eps", "camps", "sdg"];
@@ -29,7 +47,7 @@ const TIMEOUT_MS = 30000;
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "Content-Type": "application/json; charset=utf-8", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders() },
   });
 }
 
@@ -534,8 +552,10 @@ async function handleDebug(url, request, env) {
 
 export default {
   async fetch(request, env, ctx) {
+    currentOrigin = request.headers.get("Origin");
+
     if (request.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: CORS_HEADERS });
+      return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
     const url = new URL(request.url);
