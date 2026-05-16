@@ -333,15 +333,15 @@ function sanitizeFiche(fields) {
 }
 
 async function handleListGenerations(url, request, env) {
-  // C1 tolérant : token valide override ?uid= ; sans token, fallback query (à durcir en C2)
+  // C2 strict : token Firebase obligatoire. ?uid= n'est plus accepté.
   const verified = await verifyIdToken(request, env);
-  const queryUid = url.searchParams.get("uid");
-  logUidMismatch(verified?.uid, queryUid, "/generations");
-  const uid = verified?.uid || queryUid;
-  const limit = Math.min(Math.max(1, parseInt(url.searchParams.get("limit") || "12", 10)), 50);
-  if (!uid || typeof uid !== "string" || uid.length > 128) {
-    return err("INVALID_INPUT", "?uid=... obligatoire (≤128 chars)");
+  if (!verified?.uid) {
+    return err("UNAUTHORIZED", "Authentification requise (Firebase ID token)", 401);
   }
+  const queryUid = url.searchParams.get("uid");
+  logUidMismatch(verified.uid, queryUid, "/generations");
+  const uid = verified.uid;
+  const limit = Math.min(Math.max(1, parseInt(url.searchParams.get("limit") || "12", 10)), 50);
   // Query par uid uniquement (pas d'orderBy pour éviter besoin d'index composite).
   // Tri par date_generation desc côté worker — acceptable pour ≤50 gens/user.
   const docs = await queryCollection(env, "generations", {
@@ -365,15 +365,15 @@ async function handleToggleFavori(genId, request, env) {
     return err("INVALID_INPUT", "ID génération invalide");
   }
   const verified = await verifyIdToken(request, env);
+  if (!verified?.uid) {
+    return err("UNAUTHORIZED", "Authentification requise (Firebase ID token)", 401);
+  }
   const body = await request.json().catch(() => null);
   if (!body || typeof body.favori !== "boolean") {
     return err("INVALID_INPUT", "body: { favori: bool }");
   }
-  logUidMismatch(verified?.uid, body.uid, "/generation/:id/favori");
-  const uid = verified?.uid || body.uid;
-  if (!uid || typeof uid !== "string") {
-    return err("INVALID_INPUT", "uid requis (token ou body)");
-  }
+  logUidMismatch(verified.uid, body.uid, "/generation/:id/favori");
+  const uid = verified.uid;
   const doc = await getDoc(env, `generations/${genId}`);
   if (!doc) return err("NOT_FOUND", "Génération introuvable", 404);
   if (doc.fields.uid !== uid) {
@@ -385,15 +385,15 @@ async function handleToggleFavori(genId, request, env) {
 
 async function handleMigrateAnon(request, env) {
   const verified = await verifyIdToken(request, env);
+  if (!verified?.uid) {
+    return err("UNAUTHORIZED", "Authentification requise (Firebase ID token)", 401);
+  }
   const body = await request.json().catch(() => null);
   if (!body || !Array.isArray(body.generations)) {
     return err("INVALID_INPUT", "body: { generations: [...] }");
   }
-  logUidMismatch(verified?.uid, body.uid, "/migrate-anon-generation");
-  const uid = verified?.uid || body.uid;
-  if (!uid || typeof uid !== "string" || uid.length > 128) {
-    return err("INVALID_INPUT", "uid requis (token ou body)");
-  }
+  logUidMismatch(verified.uid, body.uid, "/migrate-anon-generation");
+  const uid = verified.uid;
   if (body.generations.length === 0) {
     return json({ ok: true, migrated: [], failed: [] });
   }
@@ -436,15 +436,15 @@ async function handleUpdateGenerationData(genId, request, env) {
     return err("INVALID_INPUT", "ID génération invalide");
   }
   const verified = await verifyIdToken(request, env);
+  if (!verified?.uid) {
+    return err("UNAUTHORIZED", "Authentification requise (Firebase ID token)", 401);
+  }
   const body = await request.json().catch(() => null);
   if (!body || !body.data || typeof body.data !== "object") {
     return err("INVALID_INPUT", "body: { data }");
   }
-  logUidMismatch(verified?.uid, body.uid, "/generation/:id PATCH");
-  const uid = verified?.uid || body.uid;
-  if (!uid || typeof uid !== "string") {
-    return err("INVALID_INPUT", "uid requis (token ou body)");
-  }
+  logUidMismatch(verified.uid, body.uid, "/generation/:id PATCH");
+  const uid = verified.uid;
   const doc = await getDoc(env, `generations/${genId}`);
   if (!doc) return err("NOT_FOUND", "Génération introuvable", 404);
   if (doc.fields.uid !== uid) {
@@ -459,12 +459,12 @@ async function handleDeleteGeneration(genId, request, env) {
     return err("INVALID_INPUT", "ID génération invalide");
   }
   const verified = await verifyIdToken(request, env);
-  const body = await request.json().catch(() => ({}));
-  logUidMismatch(verified?.uid, body?.uid, "/generation/:id DELETE");
-  const uid = verified?.uid || body?.uid;
-  if (!uid || typeof uid !== "string") {
-    return err("INVALID_INPUT", "uid requis (token ou body)");
+  if (!verified?.uid) {
+    return err("UNAUTHORIZED", "Authentification requise (Firebase ID token)", 401);
   }
+  const body = await request.json().catch(() => ({}));
+  logUidMismatch(verified.uid, body?.uid, "/generation/:id DELETE");
+  const uid = verified.uid;
   const doc = await getDoc(env, `generations/${genId}`);
   if (!doc) return err("NOT_FOUND", "Génération introuvable", 404);
   if (doc.fields.uid !== uid) {

@@ -140,6 +140,28 @@
     } catch { return null; }
   }
 
+  // Récupère l'ID token Firebase courant (refresh auto si proche expiration).
+  // Renvoie null si pas connecté. Utilisé pour Authorization: Bearer <token>.
+  async function getIdToken() {
+    try {
+      const u = window.firebase?.auth?.()?.currentUser;
+      if (!u) return null;
+      return await u.getIdToken(false);
+    } catch (e) {
+      console.warn('[auth] getIdToken failed:', e?.message);
+      return null;
+    }
+  }
+
+  // Construit les headers pour un appel worker. Ajoute Authorization si user connecté.
+  async function authHeaders(extra = {}) {
+    const t = await getIdToken();
+    return {
+      ...extra,
+      ...(t ? { 'Authorization': 'Bearer ' + t } : {}),
+    };
+  }
+
   function setupAccountMenu() {
     $accountBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -218,12 +240,12 @@
         univers: state.univers,
         contexte: state.contexte.slice(0, 1000),
         modele: state.modele,
-        uid: getUid(),
+        // uid retiré : le worker l'extrait du token Firebase si présent (sinon anon IP)
       };
 
       const resp = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(body),
         signal: controller.signal,
       });
@@ -599,8 +621,8 @@
       try {
         await fetch(`${API_BASE}/generation/${encodeURIComponent(genId)}/favori`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid, favori: newFav }),
+          headers: await authHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ favori: newFav }),
         });
       } catch (e) { console.warn('favori PATCH failed', e); }
     } else if (genId) {
@@ -999,8 +1021,8 @@
       try {
         await fetch(`${API_BASE}/generation/${encodeURIComponent(genId)}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid, data }),
+          headers: await authHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ data }),
         });
       } catch (e) {
         console.warn('PATCH failed:', e);
@@ -1108,7 +1130,9 @@
 
   async function fetchAuthGenerations(uid) {
     try {
-      const r = await fetch(`${API_BASE}/generations?uid=${encodeURIComponent(uid)}&limit=${MAX_GENS_DISPLAY}`);
+      const r = await fetch(`${API_BASE}/generations?limit=${MAX_GENS_DISPLAY}`, {
+        headers: await authHeaders(),
+      });
       const j = await r.json();
       return j.ok ? j.generations : [];
     } catch { return []; }
@@ -1225,8 +1249,8 @@
       try {
         await fetch(`${API_BASE}/generation/${encodeURIComponent(id)}/favori`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid, favori: newFav }),
+          headers: await authHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ favori: newFav }),
         });
       } catch (e) {
         console.warn('favori toggle failed', e);
@@ -1253,8 +1277,8 @@
     try {
       const resp = await fetch(`${API_BASE}/migrate-anon-generation`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid, generations: list }),
+        headers: await authHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ generations: list }),
       });
       const j = await resp.json();
       if (j.ok) {
