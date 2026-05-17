@@ -3,10 +3,7 @@ main = "src/generateur-worker.js"
 compatibility_date = "2025-05-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Route prod — à activer au commit #8
-# routes = [
-#   { pattern = "api.zonetotalsport.ca/generate", custom_domain = true }
-# ]
+# Route prod : voir [[env.production.routes]] plus bas.
 
 # Default top-level = safe (prod). Un déploiement sans --env hérite de "prod".
 [vars]
@@ -66,5 +63,8 @@ ENVIRONMENT = "prod"
 
 [[env.production.kv_namespaces]]
 binding = "ANON_QUOTA"
-id = "3dc369766df54fafadd52bb232f34573"
-preview_id = "d523ae6dd61e4bba9521fa88d4e2ccfb"
+id = "3f1ca3dec85e4472930beea526ff9273"
+
+[[env.production.routes]]
+pattern = "api.zonetotalsport.ca"
+custom_domain = true
