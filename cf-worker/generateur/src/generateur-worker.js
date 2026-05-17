@@ -20,6 +20,8 @@ import { verifyIdToken, logUidMismatch } from "./auth.js";
 const ALLOWED_ORIGINS = new Set([
   "https://zonetotalsport.ca",
   "https://www.zonetotalsport.ca",
+  "https://ia.zonetotalsport.ca",
+  "https://www.ia.zonetotalsport.ca",
   "http://localhost:8000",
   "http://localhost:8787",
   "http://127.0.0.1:8000",
