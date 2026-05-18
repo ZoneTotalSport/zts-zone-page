@@ -9,6 +9,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FIREBASE_TAG='<script src="/firebase-auth.js" defer></script>'
+FUNNEL_TAG='<script src="/zts-funnel.js" defer></script>'
 FULLSCREEN_TAG='<script src="/zts-locked-fullscreen.js" defer></script>'
 LOCK_TAG='<script src="/zts-lock-page.js" defer></script>'
 
@@ -30,6 +31,7 @@ inject() {
     return 0
   fi
   inject_tag "$f" "$FIREBASE_TAG" 'firebase-auth.js' || changed=1
+  inject_tag "$f" "$FUNNEL_TAG" 'zts-funnel.js' || changed=1
   inject_tag "$f" "$FULLSCREEN_TAG" 'zts-locked-fullscreen.js' || changed=1
   inject_tag "$f" "$LOCK_TAG" 'zts-lock-page.js' || changed=1
   if [ $changed -eq 1 ]; then echo "INJECTED : $f"; fi
