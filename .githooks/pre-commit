@@ -33,6 +33,11 @@ while IFS= read -r file; do
   fi
 
   for pattern in "${PATTERNS[@]}"; do
+    # Whitelist : Firebase Web SDK API keys sont publiques
+    # par design dans les fichiers firebase*.js
+    if [[ "$pattern" == AIza* ]] && [[ "$file" == *firebase* ]]; then
+      continue
+    fi
     if grep -E -q "$pattern" "$file" 2>/dev/null; then
       echo "🚨 SECRET DETECTED in $file"
       echo "   Pattern: $pattern"
