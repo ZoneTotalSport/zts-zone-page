@@ -51,10 +51,10 @@
   }
 
   function noun(source) {
-    if (source === 'article') return 'Cet article est reserve aux membres gratuits';
-    if (source === 'resource') return 'Cette ressource est reservee aux membres gratuits';
-    if (source === 'generator') return 'Tu as utilise tes 2 essais gratuits du generateur';
-    return 'Ce contenu est reserve aux membres gratuits';
+    if (source === 'article') return 'Cet article est réservé aux membres gratuits';
+    if (source === 'resource') return 'Cette ressource est réservée aux membres gratuits';
+    if (source === 'generator') return 'Tu as utilisé tes 2 essais gratuits du générateur';
+    return 'Ce contenu est réservé aux membres gratuits';
   }
 
   function build(opts) {
@@ -68,18 +68,18 @@
       closeBtn +
       '<div class="zts-lf-icon">CADENAS</div>' +
       '<h1 class="zts-lf-title">' + noun(opts.source) + '</h1>' +
-      '<p class="zts-lf-sub">Cree ton compte en 10 secondes (gratuit, sans carte).</p>' +
+      '<p class="zts-lf-sub">Crée ton compte en 10 secondes (gratuit, sans carte).</p>' +
       '<ul class="zts-lf-perks">' +
-        '<li>Acces a TOUTES les ressources (200+)</li>' +
+        '<li>Accès à TOUTES les ressources (200+)</li>' +
         '<li>Tous les articles complets</li>' +
-        '<li>Generateur IA illimite</li>' +
+        '<li>Générateur IA illimité</li>' +
       '</ul>' +
-      '<div class="zts-lf-bonus"><strong>BONUS</strong><br>90 cours cle en main d EPS livres par courriel</div>' +
+      '<div class="zts-lf-bonus"><strong>BONUS</strong><br>90 cours clé en main d\'ÉPS livrés par courriel</div>' +
       '<div class="zts-lf-btns">' +
         '<button class="zts-lf-btn zts-lf-btn-google" data-action="google">Continuer avec Google</button>' +
-        '<button class="zts-lf-btn zts-lf-btn-email" data-action="email">S inscrire avec un courriel</button>' +
+        '<button class="zts-lf-btn zts-lf-btn-email" data-action="email">S\'inscrire avec un courriel</button>' +
       '</div>' +
-      '<div class="zts-lf-login">Deja membre ? <a data-action="login">Connecte-toi</a></div>' +
+      '<div class="zts-lf-login">Déjà membre ? <a data-action="login">Connecte-toi</a></div>' +
       '<div class="zts-lf-social">Marie-Claude et 47 autres profs se sont inscrits cette semaine</div>';
 
     // Replace placeholder text with emojis (avoid encoding issues in source)

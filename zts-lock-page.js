@@ -61,7 +61,7 @@
     // Fallback minimal si zts-locked-fullscreen.js pas encore charge
     var d = document.createElement('div');
     d.style.cssText = 'position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1e3a8a,#6d28d9);display:flex;align-items:center;justify-content:center;padding:20px;font-family:"Patrick Hand",cursive;color:#fff;text-align:center';
-    d.innerHTML = '<div style="max-width:500px"><h1 style="font-size:2rem;margin-bottom:1rem">Cette page est reservee aux membres</h1><p style="margin-bottom:1.5rem">Inscris-toi gratuitement et recois 90 cours d\'EPS cle en main</p><button id="zts-lock-fallback-btn" style="background:#FFD700;border:3px solid #000;border-radius:14px;padding:12px 24px;font-family:inherit;font-size:1.2rem;cursor:pointer;box-shadow:4px 4px 0 #000">S\'inscrire</button></div>';
+    d.innerHTML = '<div style="max-width:500px"><h1 style="font-size:2rem;margin-bottom:1rem">Cette page est réservée aux membres</h1><p style="margin-bottom:1.5rem">Inscris-toi gratuitement et reçois 90 cours d\'ÉPS clé en main</p><button id="zts-lock-fallback-btn" style="background:#FFD700;border:3px solid #000;border-radius:14px;padding:12px 24px;font-family:inherit;font-size:1.2rem;cursor:pointer;box-shadow:4px 4px 0 #000">S\'inscrire</button></div>';
     document.body.appendChild(d);
     var btn = d.querySelector('#zts-lock-fallback-btn');
     btn.addEventListener('click', function () { if (window.ztsShowSignup) window.ztsShowSignup(); });

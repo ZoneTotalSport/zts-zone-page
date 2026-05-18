@@ -314,13 +314,13 @@
     <div class="zts-auth-header">\
       <img src="/bucheron-basketball.png" alt="ZTS Mascotte" class="zts-auth-mascot">\
       <h2 class="zts-auth-title">' + (isLogin ? 'Content de te revoir!' : 'Rejoins la Zone!') + '</h2>\
-      <p class="zts-auth-subtitle">' + (isLogin ? 'Connecte-toi pour acceder a toutes les ressources' : 'Cree ton compte gratuit en quelques secondes') + '</p>\
+      <p class="zts-auth-subtitle">' + (isLogin ? 'Connecte-toi pour accéder à toutes les ressources' : 'Crée ton compte gratuit en quelques secondes') + '</p>\
     </div>\
     \
     <div class="zts-auth-stats">\
       <div class="zts-auth-stat"><span class="zts-auth-stat-num">500+</span><span class="zts-auth-stat-label">Jeux</span></div>\
-      <div class="zts-auth-stat"><span class="zts-auth-stat-num">128</span><span class="zts-auth-stat-label">SAE</span></div>\
-      <div class="zts-auth-stat"><span class="zts-auth-stat-num">IA</span><span class="zts-auth-stat-label">Generateur</span></div>\
+      <div class="zts-auth-stat"><span class="zts-auth-stat-num">128</span><span class="zts-auth-stat-label">SAÉ</span></div>\
+      <div class="zts-auth-stat"><span class="zts-auth-stat-num">IA</span><span class="zts-auth-stat-label">Générateur</span></div>\
       <div class="zts-auth-stat"><span class="zts-auth-stat-num">0$</span><span class="zts-auth-stat-label">Gratuit</span></div>\
     </div>\
     \
@@ -333,8 +333,8 @@
           ' + (!isLogin ? '\
           <div class="zts-auth-row">\
             <div class="zts-auth-field">\
-              <label>Prenom</label>\
-              <input type="text" id="ztsFirstName" placeholder="Ton prenom" required autocomplete="given-name">\
+              <label>Prénom</label>\
+              <input type="text" id="ztsFirstName" placeholder="Ton prénom" required autocomplete="given-name">\
             </div>\
             <div class="zts-auth-field">\
               <label>Nom</label>\
@@ -349,13 +349,13 @@
           <div class="zts-auth-field">\
             <label>Mot de passe</label>\
             <div style="position:relative">\
-              <input type="password" id="ztsPassword" placeholder="' + (isLogin ? 'Ton mot de passe' : 'Minimum 6 caracteres') + '" required autocomplete="' + (isLogin ? 'current-password' : 'new-password') + '" minlength="6" style="padding-right:44px;width:100%">\
+              <input type="password" id="ztsPassword" placeholder="' + (isLogin ? 'Ton mot de passe' : 'Minimum 6 caractères') + '" required autocomplete="' + (isLogin ? 'current-password' : 'new-password') + '" minlength="6" style="padding-right:44px;width:100%">\
               <button type="button" id="ztsTogglePw" aria-label="Afficher le mot de passe" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;padding:6px;font-size:1.25rem;color:#6b7280;line-height:1">&#x1F441;</button>\
             </div>\
           </div>\
           \
           <button type="submit" class="zts-auth-btn zts-auth-btn-primary" id="ztsAuthSubmit">\
-            ' + (isLogin ? '&#x1F3C3; Se connecter' : '&#x1F680; Creer mon compte') + '\
+            ' + (isLogin ? '&#x1F3C3; Se connecter' : '&#x1F680; Créer mon compte') + '\
           </button>\
         </form>\
         \
@@ -366,20 +366,20 @@
         \
         <div class="zts-auth-links">\
           ' + (isLogin
-            ? '<button class="zts-auth-link" id="ztsForgotPw">Mot de passe oublie?</button><button class="zts-auth-link" id="ztsToggleMode">Pas de compte? Inscris-toi!</button>'
-            : '<span></span><button class="zts-auth-link" id="ztsToggleMode">Deja un compte? Connecte-toi!</button>') + '\
+            ? '<button class="zts-auth-link" id="ztsForgotPw">Mot de passe oublié ?</button><button class="zts-auth-link" id="ztsToggleMode">Pas de compte ? Inscris-toi !</button>'
+            : '<span></span><button class="zts-auth-link" id="ztsToggleMode">Déjà un compte ? Connecte-toi !</button>') + '\
         </div>\
       </div>\
     </div>\
     \
     <div class="zts-auth-features">\
       <div class="zts-auth-feat zts-auth-feat-blue"><span class="zts-auth-feat-icon">&#x1F3C0;</span><span class="zts-auth-feat-text">+500 jeux sportifs</span></div>\
-      <div class="zts-auth-feat zts-auth-feat-green"><span class="zts-auth-feat-icon">&#x1F916;</span><span class="zts-auth-feat-text">Generateur IA</span></div>\
-      <div class="zts-auth-feat zts-auth-feat-orange"><span class="zts-auth-feat-icon">&#x1F4DA;</span><span class="zts-auth-feat-text">SAE + Outils</span></div>\
+      <div class="zts-auth-feat zts-auth-feat-green"><span class="zts-auth-feat-icon">&#x1F916;</span><span class="zts-auth-feat-text">Générateur IA</span></div>\
+      <div class="zts-auth-feat zts-auth-feat-orange"><span class="zts-auth-feat-icon">&#x1F4DA;</span><span class="zts-auth-feat-text">SAÉ + Outils</span></div>\
       <div class="zts-auth-feat zts-auth-feat-pink"><span class="zts-auth-feat-icon">&#x1F389;</span><span class="zts-auth-feat-text">100% gratuit</span></div>\
     </div>\
     \
-    <div class="zts-auth-proof">&#x1F3C6; 2 300+ enseignants utilisent la Zone!</div>\
+    <div class="zts-auth-proof">&#x1F3C6; 2 300+ enseignants utilisent la Zone !</div>\
   </div>\
 </div>';
   }
@@ -387,14 +387,14 @@
   // ── Firebase Error Messages (FR) ──
   var ERROR_MESSAGES = {
     'auth/invalid-email': 'Adresse courriel invalide.',
-    'auth/user-disabled': 'Ce compte a ete desactive.',
-    'auth/user-not-found': 'Aucun compte trouve avec ce courriel.',
+    'auth/user-disabled': 'Ce compte a été désactivé.',
+    'auth/user-not-found': 'Aucun compte trouvé avec ce courriel.',
     'auth/wrong-password': 'Mot de passe incorrect.',
-    'auth/email-already-in-use': 'Ce courriel est deja utilise. Essaie de te connecter!',
-    'auth/weak-password': 'Le mot de passe doit avoir au moins 6 caracteres.',
-    'auth/too-many-requests': 'Trop de tentatives. Reessaie dans quelques minutes.',
-    'auth/popup-closed-by-user': 'Connexion Google annulee.',
-    'auth/network-request-failed': 'Erreur de connexion. Verifie ton internet.',
+    'auth/email-already-in-use': 'Ce courriel est déjà utilisé. Essaie de te connecter !',
+    'auth/weak-password': 'Le mot de passe doit avoir au moins 6 caractères.',
+    'auth/too-many-requests': 'Trop de tentatives. Réessaie dans quelques minutes.',
+    'auth/popup-closed-by-user': 'Connexion Google annulée.',
+    'auth/network-request-failed': 'Erreur de connexion. Vérifie ton internet.',
     'auth/invalid-credential': 'Courriel ou mot de passe incorrect.',
     'auth/missing-password': 'Entre ton mot de passe.'
   };
@@ -534,7 +534,7 @@
       if (gBtn) gBtn.disabled = true;
     } else {
       btn.disabled = false;
-      btn.innerHTML = _currentMode === 'login' ? '&#x1F3C3; Se connecter' : '&#x1F680; Creer mon compte';
+      btn.innerHTML = _currentMode === 'login' ? '&#x1F3C3; Se connecter' : '&#x1F680; Créer mon compte';
       if (gBtn) gBtn.disabled = false;
     }
   }

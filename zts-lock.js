@@ -65,7 +65,7 @@
     div.className = 'zts-lock-overlay';
     div.innerHTML =
       '<div class="zts-lock-icon">' + LOCK_SVG + '</div>' +
-      '<div class="zts-lock-cta">Inscris-toi pour debloquer<small>+ 90 cours d\'EPS offerts</small></div>';
+      '<div class="zts-lock-cta">Inscris-toi pour débloquer<small>+ 90 cours d\'ÉPS offerts</small></div>';
     div.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
