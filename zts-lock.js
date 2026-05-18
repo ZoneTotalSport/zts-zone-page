@@ -93,8 +93,19 @@
       var url = m ? m[1] : '';
       var slug = '';
       if (url) {
+        // 1) /apps/SLUG/  (ex: /apps/planificateur/)
         var ms = url.match(/\/apps\/([^/]+)/);
-        slug = ms ? ms[1] : url.replace(/\W+/g, '');
+        if (ms) {
+          slug = ms[1];
+        } else {
+          // 2) SLUG.zonetotalsport.ca  (ex: jeux.zonetotalsport.ca, sae.zonetotalsport.ca)
+          ms = url.match(/\/\/([^.]+)\.zonetotalsport\.ca/);
+          if (ms && ms[1] !== 'www' && ms[1] !== 'zonetotalsport') {
+            slug = ms[1];
+          } else {
+            slug = url.replace(/\W+/g, '');
+          }
+        }
       }
       if (slug && free.indexOf(slug) !== -1) return;
 
