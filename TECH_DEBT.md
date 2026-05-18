@@ -1,5 +1,15 @@
 # Dette technique
 
+## 2026-05-18 — Routing /generateur
+
+CTAs et JSON-LD pointent vers `/apps/generateur/` (path direct) au
+lieu de `/generateur` (URL propre). Raison : GitHub Pages ne supporte
+pas le format `_redirects` (Netlify/Cloudflare Pages exclusif).
+
+**À faire** : migrer le site vers Cloudflare Pages pour activer les
+clean URLs. Le `_redirects` initialement créé (commit aa31b79) a été
+retiré, garder cette dette en tête pour la migration future.
+
 ## 2026-05-17 — Assets dupliqués dans apps/generateur/
 
 Pour servir ia.zonetotalsport.ca (CF Pages, racine =
