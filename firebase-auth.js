@@ -44,6 +44,7 @@
             if (isNew) {
               if (window.ztsTrackSignup) window.ztsTrackSignup('google_redirect', result.user.uid);
               if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
+              window.location.href = '/bienvenue.html';
             } else {
               if (window.ztsTrackLogin) window.ztsTrackLogin('google_redirect', result.user.uid);
               if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
@@ -574,7 +575,7 @@
       .then(function(result) {
         if (window.ztsTrackSignup) window.ztsTrackSignup('email', result.user.uid);
         if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
-        closeModal();
+        window.location.href = '/bienvenue.html';
       })
       .catch(function(err) { showError(getErrorMsg(err.code)); setLoading(false); });
   }
@@ -596,11 +597,12 @@
         if (isNew) {
           if (window.ztsTrackSignup) window.ztsTrackSignup('google', result.user.uid);
           if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
+          window.location.href = '/bienvenue.html';
         } else {
           if (window.ztsTrackLogin) window.ztsTrackLogin('google', result.user.uid);
           if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
+          closeModal();
         }
-        closeModal();
       })
       .catch(function(err) {
         // Si popup bloquee sur desktop, fallback sur redirect
@@ -742,3 +744,4 @@
   init();
 
 })(window);
+

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion | Zone Total Sport</title>
+  <meta name="description" content="Connecte-toi a Zone Total Sport pour acceder a toutes les ressources gratuites.">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Patrick+Hand&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61',pink:'#FF2A7A'},fontFamily:{lucky:['"Luckiest Guy"','cursive'],inter:['Inter','sans-serif']}}}}
+  </script>
+  <style>
+    @font-face{font-family:'LuckiestGuyZTS';src:local('Luckiest Guy');unicode-range:U+0020-007F}
+    @font-face{font-family:'LuckiestGuyZTS';src:local('Bangers');unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F;size-adjust:92%}
+    body{font-family:'Inter',sans-serif}
+    .font-lucky{font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;letter-spacing:.05em}
+    .font-patrick{font-family:'Patrick Hand',cursive}
+    .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
+    .ben-day{background-image:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:18px 18px}
+    .text-outline{text-shadow:2px 2px 0px rgba(0,0,0,.2)}
+    .nav-link{transition:all .2s;padding:8px 14px;border-radius:9999px;font-size:.9rem;white-space:nowrap;font-weight:700}
+    .nav-link:hover{background:rgba(255,255,255,.2)}
+  </style>
+  <script src="analytics.js"></script>
+  <script src="cookie-consent.js" defer></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+  <!-- Header -->
+  <header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <a href="https://zonetotalsport.ca/" class="flex flex-col items-start shrink-0">
+        <h1 class="text-xl md:text-3xl font-lucky text-white flex items-center gap-2 text-outline">
+          ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+        </h1>
+      </a>
+      <nav class="flex items-center gap-1 flex-wrap justify-end">
+        <a href="https://zonetotalsport.ca/" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Accueil</span></a>
+        <a href="blog.html" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="pen-line" class="w-4 h-4"></i><span>Blog</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Body -->
+  <section class="hero-gradient ben-day min-h-[60vh] flex items-center justify-center py-20">
+    <div class="text-center text-white px-4">
+      <div class="text-5xl mb-6">🏃</div>
+      <h2 class="font-lucky text-3xl md:text-4xl mb-4 text-outline">Connexion en cours...</h2>
+      <p class="font-patrick text-lg text-cyan-100" id="login-status">Chargement du formulaire de connexion...</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-ztsDeep text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <h2 class="text-3xl font-lucky tracking-[0.1em] mb-6 text-outline">
+        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+      </h2>
+      <p class="text-white/40 font-black text-xs uppercase tracking-[0.5em]">
+        &copy; 2026 ZONE TOTAL SPORT
+      </p>
+    </div>
+  </footer>
+
+<script src="/firebase-auth.js"></script>
+<script>
+(function() {
+  function ready() {
+    if (!window.ztsOnAuth) { setTimeout(ready, 300); return; }
+    window.ztsOnAuth(function(user) {
+      if (user) {
+        // Deja connecte → redirect accueil
+        window.location.href = '/';
+      } else {
+        // Ouvre le modal login
+        if (window.ztsShowLogin) window.ztsShowLogin();
+        var el = document.getElementById('login-status');
+        if (el) el.textContent = 'Utilise le formulaire ci-dessus pour te connecter.';
+      }
+    });
+  }
+  ready();
+})();
+</script>
+</body>
+</html>

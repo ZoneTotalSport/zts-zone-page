@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenue | Zone Total Sport</title>
+  <meta name="description" content="Bienvenue dans Zone Total Sport ! Accède à ton bonus de 90 cours d'éducation physique clé en main.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Patrick+Hand&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61',pink:'#FF2A7A'},fontFamily:{lucky:['"Luckiest Guy"','cursive'],inter:['Inter','sans-serif']}}}}
+  </script>
+  <style>
+    @font-face{font-family:'LuckiestGuyZTS';src:local('Luckiest Guy');unicode-range:U+0020-007F}
+    @font-face{font-family:'LuckiestGuyZTS';src:local('Bangers');unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F;size-adjust:92%}
+    body{font-family:'Inter',sans-serif}
+    .font-lucky{font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;letter-spacing:.05em}
+    .font-patrick{font-family:'Patrick Hand',cursive}
+    .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
+    .ben-day{background-image:radial-gradient(circle,rgba(255,255,255,.06) 1px,transparent 1px);background-size:18px 18px}
+    .text-outline{text-shadow:2px 2px 0px rgba(0,0,0,.2)}
+    .pop-shadow{box-shadow:4px 4px 0 #000}
+    .pop-shadow-hover:hover{box-shadow:2px 2px 0 #000;transform:translate(2px,2px)}
+    .nav-link{transition:all .2s;padding:8px 14px;border-radius:9999px;font-size:.9rem;white-space:nowrap;font-weight:700}
+    .nav-link:hover{background:rgba(255,255,255,.2)}
+    @keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-60px) rotate(360deg);opacity:0}}
+    .confetti-burst span{position:absolute;width:8px;height:8px;border-radius:2px;animation:confetti .8s ease-out forwards}
+  </style>
+  <script src="analytics.js"></script>
+  <script src="cookie-consent.js" defer></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+  <!-- Header -->
+  <header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <a href="https://zonetotalsport.ca/" class="flex flex-col items-start shrink-0">
+        <h1 class="text-xl md:text-3xl font-lucky text-white flex items-center gap-2 text-outline">
+          ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+        </h1>
+        <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Bienvenue dans la Zone</span>
+      </a>
+      <nav class="flex items-center gap-1 flex-wrap justify-end">
+        <a href="https://zonetotalsport.ca/" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Accueil</span></a>
+        <a href="https://zonetotalsport.ca/#outils" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4"></i><span class="hidden sm:inline">Outils</span></a>
+        <a href="blog.html" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="pen-line" class="w-4 h-4"></i><span>Blog</span></a>
+        <a href="#" class="nav-link text-white flex items-center gap-1.5" id="zts-login-btn" data-auth="login" style="background:linear-gradient(135deg,#FF6B00,#FF9500);color:white;border:none;border-radius:9999px">
+          <i data-lucide="user" class="w-4 h-4"></i><span>Connexion</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero-gradient ben-day py-16 md:py-24 relative overflow-hidden">
+    <div class="max-w-3xl mx-auto px-4 text-center relative z-10">
+      <div class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg">
+        COMPTE CREE !
+      </div>
+      <h2 class="text-4xl md:text-6xl font-lucky text-white mb-4 text-outline leading-tight">
+        Bienvenue dans<br>Zone Total Sport !
+      </h2>
+      <p class="text-cyan-100 text-lg md:text-xl font-patrick max-w-xl mx-auto">
+        Ton compte est maintenant actif. Voici ton bonus de bienvenue.
+      </p>
+    </div>
+  </section>
+
+  <!-- Lead Magnet Card -->
+  <section class="max-w-2xl mx-auto px-4 -mt-12 relative z-20 mb-16">
+    <div class="bg-white rounded-3xl border-[3px] border-black pop-shadow p-8 md:p-12 text-center">
+      <div class="text-5xl mb-4">🎁</div>
+      <h3 class="font-lucky text-2xl md:text-3xl text-ztsDeep mb-3 text-outline">
+        90 cours d'education physique cle en main
+      </h3>
+      <p class="font-patrick text-slate-600 text-lg mb-8 max-w-md mx-auto leading-relaxed">
+        Des seances completes pretes a utiliser, concues par un prof d'EP avec 22 ans d'experience. Pour la maternelle et le primaire.
+      </p>
+      <a href="/apps/cours-maternelle/?token=DEMO2026"
+         class="inline-block bg-ztsYellow text-ztsDeep font-lucky text-xl md:text-2xl px-10 py-5 rounded-2xl border-[3px] border-black pop-shadow pop-shadow-hover transition-all uppercase tracking-wide hover:bg-yellow-300">
+        Acceder a mes 90 cours →
+      </a>
+      <p class="text-slate-400 text-sm mt-6 font-patrick">
+        Bookmarke cette page — le lien reste toujours accessible ici.
+      </p>
+    </div>
+  </section>
+
+  <!-- Explore le reste -->
+  <section class="max-w-4xl mx-auto px-4 mb-20">
+    <h3 class="font-lucky text-xl md:text-2xl text-ztsDeep text-center mb-8 text-outline">
+      Explore le reste de la Zone
+    </h3>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <!-- Card Ressources -->
+      <a href="https://zonetotalsport.ca/#outils" class="group bg-white rounded-2xl border-[3px] border-black pop-shadow p-6 text-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#000] transition-all">
+        <div class="text-4xl mb-3">🎮</div>
+        <h4 class="font-lucky text-lg text-ztsDeep mb-1">Ressources</h4>
+        <p class="text-slate-500 text-sm font-patrick">Jeux, SAE, outils pedagogiques</p>
+      </a>
+      <!-- Card Blog -->
+      <a href="/blog.html" class="group bg-white rounded-2xl border-[3px] border-black pop-shadow p-6 text-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#000] transition-all">
+        <div class="text-4xl mb-3">📝</div>
+        <h4 class="font-lucky text-lg text-ztsDeep mb-1">Blog</h4>
+        <p class="text-slate-500 text-sm font-patrick">Articles et conseils EPS</p>
+      </a>
+      <!-- Card Generateur IA -->
+      <a href="https://ia.zonetotalsport.ca" class="group bg-white rounded-2xl border-[3px] border-black pop-shadow p-6 text-center hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0_#000] transition-all">
+        <div class="text-4xl mb-3">🤖</div>
+        <h4 class="font-lucky text-lg text-ztsDeep mb-1">Generateur IA</h4>
+        <p class="text-slate-500 text-sm font-patrick">Cree des jeux et SAE sur mesure</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-ztsDeep text-white py-16 md:py-24">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <h2 class="text-4xl md:text-5xl font-lucky tracking-[0.1em] mb-8 text-outline">
+        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
+      </h2>
+      <nav class="flex flex-wrap justify-center gap-6 md:gap-12 mb-12 font-lucky text-lg md:text-2xl text-ztsBlue">
+        <a href="https://zonetotalsport.ca/" class="hover:text-ztsYellow transition-all uppercase">Accueil</a>
+        <a href="https://zonetotalsport.ca/#outils" class="hover:text-ztsYellow transition-all uppercase">Outils</a>
+        <a href="blog.html" class="hover:text-ztsYellow transition-all uppercase">Blog</a>
+        <a href="wix/donation.html" class="hover:text-ztsYellow transition-all uppercase">Dons</a>
+      </nav>
+      <div class="max-w-2xl mx-auto border-t border-white/10 pt-10">
+        <p class="text-white/40 font-black text-xs uppercase tracking-[0.5em]">
+          &copy; 2026 ZONE TOTAL SPORT &bull; PASSIONNEMENT PROFS
+        </p>
+      </div>
+    </div>
+  </footer>
+
+<script src="/firebase-auth.js"></script>
+<script>
+// Si l'utilisateur n'est pas connecte, redirect vers l'accueil
+(function() {
+  function check() {
+    if (window.ztsOnAuth) {
+      window.ztsOnAuth(function(user) {
+        if (!user) window.location.href = '/';
+      });
+      return;
+    }
+    setTimeout(check, 300);
+  }
+  check();
+})();
+</script>
+</body>
+</html>
