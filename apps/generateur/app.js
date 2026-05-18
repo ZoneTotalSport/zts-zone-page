@@ -10,9 +10,8 @@
     ? 'http://localhost:8787/generate'
     : 'https://api.zonetotalsport.ca/generate';
 
-  const ANON_COUNT_KEY = 'zts_gen_anon_count';
   const ANON_GENS_KEY = 'zts_anon_generations';
-  const ANON_LIMIT = 3;
+  const ANON_LIMIT = 2; // Sprint Cadenas V2 : fingerprint Firestore (zts-anon-fingerprint.js) remplace localStorage
   const MAX_GENS_DISPLAY = 12;
 
   const API_BASE = API_URL.replace(/\/generate$/, '');
@@ -186,11 +185,18 @@
   // Quota anonyme local (compteur indicatif côté UI seulement —
   // la vraie source de vérité reste le worker)
   // ──────────────────────────────────────────────────────────
+  // Sprint Cadenas V2 : fingerprint Firestore (window.ztsAnonGetCount /
+  // ztsAnonIncrement de zts-anon-fingerprint.js). Lecture cache synchrone
+  // pour le hint UI ; le check bloquant est asynchrone dans generate().
   function getAnonCount() {
-    return parseInt(localStorage.getItem(ANON_COUNT_KEY) || '0', 10);
+    try {
+      var v = localStorage.getItem('zts_anon_count_v1');
+      return v ? parseInt(v, 10) : 0;
+    } catch (e) { return 0; }
   }
   function incAnonCount() {
-    localStorage.setItem(ANON_COUNT_KEY, String(getAnonCount() + 1));
+    if (window.ztsAnonIncrement) return window.ztsAnonIncrement();
+    return Promise.resolve({ count: getAnonCount() + 1, blocked: false });
   }
 
   function updateQuotaHint(quota) {
@@ -207,8 +213,13 @@
     if (uid) {
       $quotaHint.textContent = 'Connecté : 10 générations gratuites/mois.';
     } else {
-      const remaining = Math.max(0, ANON_LIMIT - getAnonCount());
-      $quotaHint.textContent = `Tu peux générer ${remaining} fois sans inscription.`;
+      const used = getAnonCount();
+      const remaining = Math.max(0, ANON_LIMIT - used);
+      if (used >= ANON_LIMIT - 1 && remaining > 0) {
+        $quotaHint.textContent = '⚠️ Dernier essai gratuit — inscris-toi pour générer sans limite.';
+      } else {
+        $quotaHint.textContent = `Tu peux générer ${remaining} fois sans inscription.`;
+      }
     }
   }
 
@@ -223,8 +234,21 @@
   async function generate() {
     if (state.isGenerating) return;
 
-    // Plus de gate client-side stricte — le worker est la source de vérité.
-    // Le compteur local sert seulement à l'affichage indicatif du hint.
+    // Sprint Cadenas V2 : gate client-side fingerprint pour anonymes.
+    // 2 essais gratuits, ensuite pop-up plein ecran (le worker reste
+    // la deuxieme ligne de defense via quota Firestore + KV).
+    if (!getUid() && window.ztsAnonCheckBlocked) {
+      const blocked = await window.ztsAnonCheckBlocked();
+      if (blocked) {
+        if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_view', { source: 'generator', layer: 'pre-call' });
+        if (window.ztsShowLockedFullscreen) {
+          window.ztsShowLockedFullscreen({ source: 'generator', closable: true });
+        } else {
+          openSignupModal();
+        }
+        return;
+      }
+    }
 
     state.isGenerating = true;
     $generateBtn.disabled = true;
@@ -253,12 +277,13 @@
       clearTimeout(timeoutId);
       const json = await resp.json().catch(() => null);
 
-      // QUOTA_EXCEEDED : si anon → popup signup. Si user authentifié → message + don.
+      // QUOTA_EXCEEDED : si anon → pop-up plein ecran. Si user authentifié → message + don.
       if (resp.status === 429 || json?.code === 'QUOTA_EXCEEDED') {
         hideLoading();
         const scope = json?.quota?.scope;
         if (scope === 'anon' || !getUid()) {
-          openSignupModal();
+          if (window.ztsShowLockedFullscreen) window.ztsShowLockedFullscreen({ source: 'generator', closable: true });
+          else openSignupModal();
         } else {
           showError(json?.message || 'Quota mensuel atteint. Fais un don pour soutenir le projet : https://paypal.me/zonetotalsport');
         }
@@ -266,7 +291,8 @@
       }
       if (resp.status === 401 || json?.code === 'ANON_LIMIT') {
         hideLoading();
-        openSignupModal();
+        if (window.ztsShowLockedFullscreen) window.ztsShowLockedFullscreen({ source: 'generator', closable: true });
+        else openSignupModal();
         return;
       }
       if (!resp.ok || !json?.ok) {
