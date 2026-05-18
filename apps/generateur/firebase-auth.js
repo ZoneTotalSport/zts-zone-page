@@ -427,23 +427,20 @@
       });
     });
 
-    // Close button (disabled in protected mode)
-    document.getElementById('ztsAuthClose').addEventListener('click', function() {
-      if (!_protectedMode) closeModal();
-    });
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay && !_protectedMode) closeModal();
-    });
-
-    // ESC key (disabled in protected mode)
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && !_protectedMode) closeModal();
-    });
-
-    // Hide close button in protected mode
-    if (_protectedMode) {
-      document.getElementById('ztsAuthClose').style.display = 'none';
+    // Close button (always available — protected mode only affects post-signup redirect)
+    function closeFromUser() {
+      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_close', { source: 'auth_modal' });
+      closeModal();
     }
+    document.getElementById('ztsAuthClose').addEventListener('click', closeFromUser);
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) closeFromUser();
+    });
+
+    // ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeFromUser();
+    });
 
     // Toggle mode
     var toggleBtn = document.getElementById('ztsToggleMode');
