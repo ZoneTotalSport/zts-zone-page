@@ -1,10 +1,11 @@
 # Dette technique
 
-## 2026-05-17 — Assets dupliqués dans apps/generateur-ia/
+## 2026-05-17 — Assets dupliqués dans apps/generateur/
 
 Pour servir ia.zonetotalsport.ca (CF Pages, racine =
-apps/generateur-ia/), 6 fichiers ont été dupliqués depuis la racine
-du repo :
+apps/generateur/, renommé depuis apps/generateur-ia/ le 2026-05-18 ;
+ancien legacy archivé sous apps/_archive/generateur-legacy-2026-05/),
+6 fichiers ont été dupliqués depuis la racine du repo :
 
 - `bucheron-generateur.png` (226 KB)
 - `bucheron-hero.png` (233 KB)
@@ -18,7 +19,7 @@ de copy au build (CF Pages preset = build hook) ou via la stratégie
 de monorepo restructuration (option C du diagnostic 2026-05-17).
 
 **Risque actuel** : drift si un de ces fichiers évolue à la racine
-sans être synchronisé dans apps/generateur-ia/.
+sans être synchronisé dans apps/generateur/.
 
 **Mitigation temporaire** : checkpoint manuel à chaque modif de ces
 fichiers.
