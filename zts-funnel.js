@@ -81,25 +81,7 @@
     } catch (e) {}
   };
 
-  // Auto-hook signup_complete via ztsOnAuth
-  (function () {
-    var fired = false;
-    var seen = false;
-    function tick() {
-      if (window.ztsOnAuth) {
-        window.ztsOnAuth(function (user) {
-          if (!user) { seen = false; fired = false; return; }
-          // Premier appel : on enregistre l'etat connecte mais pas un evenement signup.
-          // Si on passe de null -> user dans la meme session, on fire signup_complete.
-          if (!seen) { seen = true; return; }
-          if (fired) return;
-          fired = true;
-          window.ztsTrackFunnel('signup_complete', { source: 'auth' });
-        });
-        return;
-      }
-      setTimeout(tick, 300);
-    }
-    tick();
-  })();
+  // signup_complete n'est PAS auto-declenche ici : un null->user couvre aussi
+  // les logins. firebase-auth.js le fire explicitement, uniquement sur une
+  // creation reelle de compte (garde isNewUser).
 })();

@@ -43,6 +43,7 @@
             var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
             if (isNew) {
               if (window.ztsTrackSignup) window.ztsTrackSignup('google_redirect', result.user.uid);
+              fireSignupComplete('google');
               if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
             } else {
               if (window.ztsTrackLogin) window.ztsTrackLogin('google_redirect', result.user.uid);
@@ -553,6 +554,19 @@
       .catch(function(err) { console.error('[ZTS Auth] Full error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
   }
 
+  // signup_complete : un seul envoi par creation REELLE de compte. Lit la
+  // source d'attribution posee par locked_click_signup puis la consomme.
+  function fireSignupComplete(method) {
+    var signup_source = 'direct';
+    try {
+      signup_source = sessionStorage.getItem('zts_signup_source') || 'direct';
+      sessionStorage.removeItem('zts_signup_source');
+    } catch (e) {}
+    if (window.ztsTrackFunnel) {
+      window.ztsTrackFunnel('signup_complete', { source: 'auth', method: method, signup_source: signup_source });
+    }
+  }
+
   function handleSignup() {
     var firstName = (document.getElementById('ztsFirstName') || {}).value || '';
     var lastName = (document.getElementById('ztsLastName') || {}).value || '';
@@ -570,6 +584,7 @@
       })
       .then(function(result) {
         if (window.ztsTrackSignup) window.ztsTrackSignup('email', result.user.uid);
+        fireSignupComplete('email');
         if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
         closeModal();
       })
@@ -592,6 +607,7 @@
         var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
         if (isNew) {
           if (window.ztsTrackSignup) window.ztsTrackSignup('google', result.user.uid);
+          fireSignupComplete('google');
           if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
         } else {
           if (window.ztsTrackLogin) window.ztsTrackLogin('google', result.user.uid);
