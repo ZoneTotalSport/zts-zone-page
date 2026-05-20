@@ -92,7 +92,8 @@
   }
 
   function fireSignup(provider, targetUrl) {
-    if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: 'fullscreen', provider: provider });
+    try { sessionStorage.setItem('zts_signup_source', 'popup'); } catch (e) {}
+    if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: 'fullscreen', provider: provider, cta_source: 'popup' });
     if (targetUrl && window.ztsSetProtected) window.ztsSetProtected(targetUrl);
     if (window.ztsShowSignup) window.ztsShowSignup({ provider: provider });
   }

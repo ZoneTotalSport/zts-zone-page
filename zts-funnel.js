@@ -67,13 +67,16 @@
       } catch (e) { /* swallow */ }
     });
 
-    // GA4 piggyback si gtag dispo
+    // GA4 piggyback si gtag dispo — forwarde tous les params fournis (a plat)
     try {
       if (typeof window.gtag === 'function') {
-        window.gtag('event', event, {
-          source: extra.source || 'unknown',
-          slug: extra.slug || null,
-        });
+        var ga = { source: extra.source || 'unknown' };
+        for (var k in extra) {
+          if (Object.prototype.hasOwnProperty.call(extra, k) && extra[k] != null) {
+            ga[k] = extra[k];
+          }
+        }
+        window.gtag('event', event, ga);
       }
     } catch (e) {}
   };

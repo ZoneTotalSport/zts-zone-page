@@ -240,9 +240,9 @@
     if (!getUid() && window.ztsAnonCheckBlocked) {
       const blocked = await window.ztsAnonCheckBlocked();
       if (blocked) {
-        if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_view', { source: 'generator', layer: 'pre-call' });
+        if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_view', { source: 'generateur', layer: 'pre-call' });
         if (window.ztsShowLockedFullscreen) {
-          window.ztsShowLockedFullscreen({ source: 'generator', closable: true });
+          window.ztsShowLockedFullscreen({ source: 'generateur', closable: true });
         } else {
           openSignupModal();
         }
@@ -282,7 +282,7 @@
         hideLoading();
         const scope = json?.quota?.scope;
         if (scope === 'anon' || !getUid()) {
-          if (window.ztsShowLockedFullscreen) window.ztsShowLockedFullscreen({ source: 'generator', closable: true });
+          if (window.ztsShowLockedFullscreen) window.ztsShowLockedFullscreen({ source: 'generateur', closable: true });
           else openSignupModal();
         } else {
           showError(json?.message || 'Quota mensuel atteint. Fais un don pour soutenir le projet : https://paypal.me/zonetotalsport');
@@ -291,7 +291,7 @@
       }
       if (resp.status === 401 || json?.code === 'ANON_LIMIT') {
         hideLoading();
-        if (window.ztsShowLockedFullscreen) window.ztsShowLockedFullscreen({ source: 'generator', closable: true });
+        if (window.ztsShowLockedFullscreen) window.ztsShowLockedFullscreen({ source: 'generateur', closable: true });
         else openSignupModal();
         return;
       }

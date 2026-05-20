@@ -69,7 +69,8 @@
     div.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: kind || 'grid', slug: slug });
+      try { sessionStorage.setItem('zts_signup_source', 'locked_card'); } catch (e2) {}
+      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: kind || 'grid', slug: slug, cta_source: 'locked_card' });
       if (window.ztsShowLockedFullscreen) {
         window.ztsShowLockedFullscreen({ source: kind || 'grid', slug: slug, targetUrl: url, closable: true });
         return;
