@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!-- App — Bricolages sans préparation (Service de garde). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bricolages sans préparation — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+    .jr-gear { font-family:var(--font-body); font-weight:700; margin-top:10px; }
+  </style>
+</head>
+<body data-metier="sdg">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../service-de-garde.html" data-i18n="subnav.back_metier">← Service de garde</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Bricolages</span>
+        <h1 style="margin-top:10px;" id="jrTitle">✂️ Bricolages sans préparation</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrMat"></div>
+      <div class="jr-chips" id="jrAge"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // mat: papier | recup | nature | dessin   age: 5-7 | 8-12
+    const GAMES = [
+      { id:'avion', icon:'✈️', mat:'papier', age:'8-12', gear:{fr:'1 feuille par enfant',en:'1 sheet per child'}, fr:{n:'Concours d\'avions',d:'Plier et décorer un avion de papier.',steps:['Chacun plie son avion (modèle au tableau si besoin).','On le décore aux crayons.','Concours amical : distance, vol plané, atterrissage.']}, en:{n:'Paper plane contest',d:'Fold and decorate a paper plane.',steps:['Each folds their plane (model on the board if needed).','Decorate it with markers.','Friendly contest: distance, glide, landing.']} },
+      { id:'marionnette', icon:'🧦', mat:'recup', age:'5-7', gear:{fr:'Chaussettes orphelines + retailles',en:'Odd socks + scraps'}, fr:{n:'Marionnette-chaussette',d:'Transformer une chaussette en personnage.',steps:['Enfiler la chaussette sur la main pour repérer la bouche.','Coller ou dessiner des yeux et une langue.','Petit spectacle improvisé à deux.']}, en:{n:'Sock puppet',d:'Turn a sock into a character.',steps:['Slip the sock on your hand to find the mouth.','Glue or draw eyes and a tongue.','Improvised duo puppet show.']} },
+      { id:'collier', icon:'📿', mat:'recup', age:'5-7', gear:{fr:'Pâtes + ficelle',en:'Pasta + string'}, fr:{n:'Collier de pâtes',d:'Enfiler des pâtes colorées.',steps:['Enfiler des pâtes sur une ficelle pour créer un motif.','Option : colorer les pâtes avant avec un peu de gouache.','Nouer et porter fièrement.']}, en:{n:'Pasta necklace',d:'Thread colorful pasta.',steps:['Thread pasta on a string to make a pattern.','Option: color the pasta first with a little paint.','Tie it and wear it proudly.']} },
+      { id:'herbier', icon:'🍃', mat:'nature', age:'8-12', gear:{fr:'Feuilles + papier',en:'Leaves + paper'}, fr:{n:'Mini-herbier',d:'Récolter et identifier des feuilles.',steps:['Ramasser quelques feuilles dans la cour.','Les coller sur une feuille et noter où elles ont été trouvées.','Comparer les formes en groupe.']}, en:{n:'Mini herbarium',d:'Collect and identify leaves.',steps:['Gather a few leaves in the yard.','Glue them on paper and note where they were found.','Compare the shapes as a group.']} },
+      { id:'galets', icon:'🪨', mat:'nature', age:'5-7', gear:{fr:'Cailloux + crayons',en:'Pebbles + markers'}, fr:{n:'Galets rigolos',d:'Peindre des visages sur des cailloux.',steps:['Choisir un caillou bien lisse.','Y dessiner un visage ou un petit animal.','Créer une mini-famille de galets.']}, en:{n:'Funny pebbles',d:'Paint faces on stones.',steps:['Pick a smooth stone.','Draw a face or a small animal on it.','Build a mini pebble family.']} },
+      { id:'mandala', icon:'🎨', mat:'dessin', age:'8-12', gear:{fr:'Papier + crayons',en:'Paper + markers'}, fr:{n:'Mandala libre',d:'Dessiner des motifs en spirale apaisants.',steps:['Partir d\'un point central et dessiner des cercles.','Remplir chaque anneau d\'un motif différent.','Activité calme et concentrée.']}, en:{n:'Free mandala',d:'Draw soothing spiral patterns.',steps:['Start from a center point and draw circles.','Fill each ring with a different pattern.','A calm, focused activity.']} },
+      { id:'origami', icon:'🦢', mat:'papier', age:'8-12', gear:{fr:'Papier carré',en:'Square paper'}, fr:{n:'Origami animal',d:'Plier un animal simple en papier.',steps:['Choisir un modèle simple (chien, grenouille).','Suivre les plis étape par étape avec le groupe.','Décorer et faire « sauter » la grenouille.']}, en:{n:'Animal origami',d:'Fold a simple paper animal.',steps:['Pick a simple model (dog, frog).','Follow the folds step by step with the group.','Decorate and make the frog "jump".']} },
+      { id:'collage', icon:'🖼️', mat:'recup', age:'5-7', gear:{fr:'Vieux magazines + colle',en:'Old magazines + glue'}, fr:{n:'Collage surprise',d:'Composer une image avec des découpes.',steps:['Découper des images dans de vieux magazines.','Les assembler librement pour créer une scène drôle.','Raconter l\'histoire de son collage.']}, en:{n:'Surprise collage',d:'Compose an image from cut-outs.',steps:['Cut images from old magazines.','Assemble them freely into a funny scene.','Tell the story of your collage.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Bricolages', title:'✂️ Bricolages sans préparation', intro:'Des idées à matériel minimal, prêtes en deux minutes. Filtre par matériel et par âge.',
+        search:'Rechercher un bricolage…', allMat:'Tout le matériel', allAges:'Tous les âges',
+        m_papier:'📄 Papier', m_recup:'♻️ Récup', m_nature:'🍃 Nature', m_dessin:'🎨 Dessin',
+        count:n=>`${n} bricolage${n>1?'s':''}`, empty:'Aucun bricolage ne correspond.', how:'Étapes', mat:'Matériel', age:'Âge', gear:'Matériel' },
+      en:{ pill:'Crafts', title:'✂️ No-prep crafts', intro:'Minimal-material ideas, ready in two minutes. Filter by material and age.',
+        search:'Search a craft…', allMat:'All materials', allAges:'All ages',
+        m_papier:'📄 Paper', m_recup:'♻️ Recycled', m_nature:'🍃 Nature', m_dessin:'🎨 Drawing',
+        count:n=>`${n} craft${n>1?'s':''}`, empty:'No craft matches.', how:'Steps', mat:'Material', age:'Age', gear:'Material' }
+    };
+    let fMat='*', fAge='*';
+    const MATS=['papier','recup','nature','dessin'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrMat').innerHTML =
+        [['*',l.allMat]].concat(MATS.map(m=>[m,l['m_'+m]]))
+        .map(([v,t])=>`<button class="jr-chip${fMat===v?' active':''}" onclick="fMat='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-7','5-7'],['8-12','8-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fMat==='*'||g.mat===fMat) && (fAge==='*'||g.age===fAge) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>${l['m_'+g.mat]}</span><span>👶 ${g.age}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>${l['m_'+g.mat]}</span><span>👶 ${l.age} ${g.age}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <p class="jr-gear">🎒 ${l.gear} : ${g.gear[lang]}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

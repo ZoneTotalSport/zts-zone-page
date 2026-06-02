@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!-- App — Plan B météo (Éducation physique). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan B météo — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+  </style>
+</head>
+<body data-metier="ep">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../ep.html" data-i18n="subnav.back_metier">← Éducation physique</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Plan B météo</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🌧️ Plan B météo</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrMeteo"></div>
+      <div class="jr-chips" id="jrLieu"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // meteo: pluie | canicule | froid | vent    lieu: gym | classe | ext
+    const GAMES = [
+      { id:'circuit-gym', icon:'🤸', meteo:'pluie', lieu:'gym', fr:{n:'Circuit station intérieur',d:'Parcours d\'ateliers au gymnase.',steps:['Monter 5 stations (saut, équilibre, lancer, gainage, agilité).','Groupes de 4, rotation aux 2 minutes au signal sonore.','Tour complet = défi réussi ensemble.']}, en:{n:'Indoor station circuit',d:'A workshop course in the gym.',steps:['Set 5 stations (jump, balance, throw, plank, agility).','Groups of 4, rotate every 2 minutes on the sound signal.','Full loop = challenge completed together.']} },
+      { id:'yoga-classe', icon:'🧘', meteo:'pluie', lieu:'classe', fr:{n:'Yoga des animaux',d:'Postures calmes entre les pupitres.',steps:['Debout près du pupitre, enchaîner cobra, chat, arbre, guerrier.','Tenir chaque posture 15 secondes en respirant.','Idéal quand le gym est occupé.']}, en:{n:'Animal yoga',d:'Calm poses between the desks.',steps:['Standing by the desk, flow through cobra, cat, tree, warrior.','Hold each pose 15 seconds while breathing.','Great when the gym is busy.']} },
+      { id:'relais-eau', icon:'💦', meteo:'canicule', lieu:'ext', fr:{n:'Relais d\'éponges',d:'Activité rafraîchissante à l\'ombre.',steps:['Deux équipes transvasent l\'eau avec une éponge.','Travailler à l\'ombre, pauses fréquentes, gourdes à portée.','Privilégier l\'intensité modérée par forte chaleur.']}, en:{n:'Sponge relay',d:'A cooling activity in the shade.',steps:['Two teams move water with a sponge.','Work in the shade, frequent breaks, water bottles nearby.','Keep intensity moderate in high heat.']} },
+      { id:'ombre-statue', icon:'🌳', meteo:'canicule', lieu:'ext', fr:{n:'Jeux à l\'ombre',d:'Activités calmes pour journée chaude.',steps:['Rester sous les arbres ou un préau.','Jeux d\'adresse au sol : pétanque, marelle, poches.','Hydratation rappelée toutes les 10 minutes.']}, en:{n:'Shade games',d:'Calm activities for a hot day.',steps:['Stay under trees or a covered area.','Ground skill games: bocce, hopscotch, beanbags.','Remind hydration every 10 minutes.']} },
+      { id:'rechauffe-froid', icon:'🥶', meteo:'froid', lieu:'ext', fr:{n:'Bouge pour te réchauffer',d:'Jeux dynamiques par temps froid.',steps:['Échauffement plus long et continu (pas de longues files).','Jeux de course courts et fréquents pour garder la chaleur.','Garder mitaines et tuque; rentrer dès les premiers signes de froid.']}, en:{n:'Move to warm up',d:'Dynamic games in cold weather.',steps:['Longer, continuous warm-up (no long lines).','Short, frequent running games to keep warm.','Keep mittens and hats; head in at first signs of cold.']} },
+      { id:'glace-prudence', icon:'❄️', meteo:'froid', lieu:'gym', fr:{n:'Repli au gymnase',d:'Quand dehors est gelé/glacé.',steps:['Basket-ballon, ballon-chasseur ou parcours en salle.','Vérifier les semelles mouillées (risque de glisser).','Alterner jeux intenses et récupération.']}, en:{n:'Move indoors',d:'When outside is frozen/icy.',steps:['Basketball, dodgeball or an indoor course.','Check for wet soles (slip risk).','Alternate intense games and recovery.']} },
+      { id:'vent-leger', icon:'🪁', meteo:'vent', lieu:'ext', fr:{n:'Jeux du vent',d:'Profiter du vent dehors.',steps:['Cerfs-volants maison, foulards, parachute de jeu.','Éviter les ballons légers qui s\'envolent.','Placer les jeux dos au vent pour le confort.']}, en:{n:'Wind games',d:'Make the most of the wind.',steps:['Homemade kites, scarves, play parachute.','Avoid light balls that blow away.','Set games with backs to the wind for comfort.']} },
+      { id:'vent-parachute', icon:'🪂', meteo:'vent', lieu:'gym', fr:{n:'Parachute géant',d:'Coopération au parachute (sans vent).',steps:['Au gym par jour venteux, sortir le parachute de jeu.','Vagues, champignon, échange de places sous la toile.','Travail d\'équipe et grands éclats de rire.']}, en:{n:'Giant parachute',d:'Parachute teamwork (no wind).',steps:['In the gym on windy days, bring out the play parachute.','Waves, mushroom, swap places under the canopy.','Teamwork and big laughs.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Plan B météo', title:'🌧️ Plan B météo', intro:'La météo change tes plans? Trouve l\'activité adaptée — filtre par météo et par lieu.',
+        search:'Rechercher une activité…', allMeteo:'Toutes météos', allLieu:'Tous les lieux',
+        m_pluie:'🌧️ Pluie', m_canicule:'🥵 Canicule', m_froid:'🥶 Froid', m_vent:'💨 Vent',
+        l_gym:'🏟️ Gymnase', l_classe:'🏫 Classe', l_ext:'🌳 Extérieur',
+        count:n=>`${n} activité${n>1?'s':''}`, empty:'Aucune activité ne correspond.', how:'Déroulement', meteo:'Météo', lieu:'Lieu' },
+      en:{ pill:'Weather plan B', title:'🌧️ Weather plan B', intro:'Weather ruining your plans? Find the right activity — filter by weather and place.',
+        search:'Search an activity…', allMeteo:'Any weather', allLieu:'Any place',
+        m_pluie:'🌧️ Rain', m_canicule:'🥵 Heat', m_froid:'🥶 Cold', m_vent:'💨 Wind',
+        l_gym:'🏟️ Gym', l_classe:'🏫 Classroom', l_ext:'🌳 Outdoor',
+        count:n=>`${n} activit${n>1?'ies':'y'}`, empty:'No activity matches.', how:'Run-through', meteo:'Weather', lieu:'Place' }
+    };
+    let fMeteo='*', fLieu='*';
+    const METEOS=['pluie','canicule','froid','vent'], LIEUX=['gym','classe','ext'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrMeteo').innerHTML =
+        [['*',l.allMeteo]].concat(METEOS.map(m=>[m,l['m_'+m]]))
+        .map(([v,t])=>`<button class="jr-chip${fMeteo===v?' active':''}" onclick="fMeteo='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrLieu').innerHTML =
+        [['*',l.allLieu]].concat(LIEUX.map(x=>[x,l['l_'+x]]))
+        .map(([v,t])=>`<button class="jr-chip${fLieu===v?' active':''}" onclick="fLieu='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fMeteo==='*'||g.meteo===fMeteo) && (fLieu==='*'||g.lieu===fLieu) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>${l['m_'+g.meteo]}</span><span>${l['l_'+g.lieu]}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>${l['m_'+g.meteo]}</span><span>${l['l_'+g.lieu]}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

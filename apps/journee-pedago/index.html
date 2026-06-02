@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!-- App — Journées pédagogiques : constructeur de journée (Service de garde). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journées pédagogiques — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jp-bar { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jp-field { font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:9px 14px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jp-btn { font-family:var(--font-impact); font-size:var(--fs-2); cursor:pointer;
+      padding:11px 22px; border:var(--bord); border-radius:var(--r-pill); background:var(--metier); color:var(--ink); box-shadow:var(--ombre); }
+    .jp-btn--ghost { background:#fff; }
+    .jp-btn:active { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--zts-noir); }
+    .jp-day { border:var(--bord); border-radius:var(--r-3); box-shadow:var(--ombre); background:#fff; overflow:hidden; }
+    .jp-row { display:grid; grid-template-columns:120px 1fr auto; gap:var(--space-3); align-items:center;
+      padding:var(--space-3) var(--space-4); border-bottom:3px solid var(--zts-noir); }
+    .jp-row:last-child { border-bottom:0; }
+    .jp-time { font-family:var(--font-impact); font-size:var(--fs-2); }
+    .jp-slot { font-family:var(--font-fun); font-weight:700; opacity:.7; font-size:var(--fs-1); display:block; }
+    .jp-pick { width:100%; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:8px 12px; border:2px solid var(--zts-noir); border-radius:var(--r-2); background:#fff; }
+    .jp-desc { font-family:var(--font-body); opacity:.8; font-size:var(--fs-1); margin-top:4px; }
+    .jp-dice { font-family:var(--font-impact); cursor:pointer; border:2px solid var(--zts-noir);
+      border-radius:var(--r-pill); background:#fff; padding:4px 12px; box-shadow:2px 2px 0 var(--zts-noir); }
+    @media print {
+      [data-zts-header], [data-zts-footer], .zts-subnav, .jp-bar, .jp-dice, .jp-pick~* { display:none !important; }
+      .jp-pick { border:0; -webkit-appearance:none; appearance:none; font-weight:700; }
+    }
+  </style>
+</head>
+<body data-metier="sdg">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../service-de-garde.html" data-i18n="subnav.back_metier">← Service de garde</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7); max-width:880px;">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jpPill">Journée pédago</span>
+        <h1 style="margin-top:10px;" id="jpTitle">🎨 Journées pédagogiques</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jpIntro"></p>
+      </div>
+    </section>
+
+    <div class="jp-bar">
+      <label class="jp-field" id="jpThemeLabel">
+        <span id="jpThemeText"></span>
+        <select id="jpTheme" onchange="jpFill()" style="border:0;font-family:inherit;font-weight:700;background:transparent;"></select>
+      </label>
+      <button class="jp-btn" id="jpSurprise" onclick="jpFill(true)"></button>
+      <button class="jp-btn jp-btn--ghost" id="jpPrint" onclick="window.print()"></button>
+    </div>
+
+    <div class="jp-day" id="jpDay"></div>
+  </main>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // Créneaux de la journée + banque d'options par créneau (bilingue)
+    const SLOTS = [
+      { id:'arrivee', time:'8 h 00', fr:'Accueil', en:'Arrival', opts:[
+        {fr:{n:'Jeux libres aux coins',d:'Coins lecture, blocs, dessin au choix.'},en:{n:'Free play corners',d:'Reading, blocks, drawing corners by choice.'}},
+        {fr:{n:'Casse-têtes & sociétés',d:'Tables de jeux calmes en arrivant.'},en:{n:'Puzzles & board games',d:'Calm game tables on arrival.'}},
+        {fr:{n:'Dessin du matin',d:'Thème libre au son d\'une musique douce.'},en:{n:'Morning drawing',d:'Free theme to soft music.'}}]},
+      { id:'am1', time:'9 h 00', fr:'Bloc matin 1', en:'Morning block 1', opts:[
+        {fr:{n:'Grand jeu extérieur',d:'Drapeau, poule-renard-vipère ou parcours.'},en:{n:'Outdoor big game',d:'Capture the flag, fox-hen-viper or course.'}},
+        {fr:{n:'Atelier sportif',d:'Stations de motricité et défis.'},en:{n:'Sports workshop',d:'Motor stations and challenges.'}},
+        {fr:{n:'Sortie nature',d:'Exploration et cueillette dans la cour.'},en:{n:'Nature outing',d:'Exploration and gathering in the yard.'}}]},
+      { id:'am2', time:'10 h 30', fr:'Bloc matin 2', en:'Morning block 2', opts:[
+        {fr:{n:'Atelier créatif',d:'Bricolage à matériel minimal.'},en:{n:'Creative workshop',d:'Minimal-material craft.'}},
+        {fr:{n:'Cuisine sans cuisson',d:'Brochettes de fruits, trempettes.'},en:{n:'No-cook cooking',d:'Fruit skewers, dips.'}},
+        {fr:{n:'Atelier scientifique',d:'Petites expériences amusantes.'},en:{n:'Science workshop',d:'Small fun experiments.'}}]},
+      { id:'diner', time:'11 h 45', fr:'Dîner', en:'Lunch', opts:[
+        {fr:{n:'Dîner + jeu calme',d:'Repas puis histoire ou musique douce.'},en:{n:'Lunch + calm game',d:'Meal then story or soft music.'}},
+        {fr:{n:'Pique-nique extérieur',d:'Dîner dehors si la météo le permet.'},en:{n:'Outdoor picnic',d:'Lunch outside if weather allows.'}}]},
+      { id:'pm1', time:'13 h 00', fr:'Bloc après-midi 1', en:'Afternoon block 1', opts:[
+        {fr:{n:'Grand jeu thématique',d:'Journée à thème (pirates, espace…).'},en:{n:'Themed big game',d:'Theme day (pirates, space…).'}},
+        {fr:{n:'Tournoi amical',d:'Mini-olympiades ou jeux de société.'},en:{n:'Friendly tournament',d:'Mini olympics or board games.'}},
+        {fr:{n:'Cinéma & relaxation',d:'Court film + coussins (jour de pluie).'},en:{n:'Movie & relax',d:'Short film + cushions (rainy day).'}}]},
+      { id:'pm2', time:'14 h 30', fr:'Bloc après-midi 2', en:'Afternoon block 2', opts:[
+        {fr:{n:'Jeux d\'eau',d:'Si chaude journée — surveillance requise.'},en:{n:'Water games',d:'On hot days — supervision required.'}},
+        {fr:{n:'Spectacle de talents',d:'Chaque groupe prépare un numéro.'},en:{n:'Talent show',d:'Each group prepares an act.'}},
+        {fr:{n:'Atelier libre',d:'Choix entre plusieurs coins d\'activités.'},en:{n:'Free workshop',d:'Choice among several activity corners.'}}]},
+      { id:'depart', time:'15 h 45', fr:'Départ', en:'Departure', opts:[
+        {fr:{n:'Retour au calme',d:'Cercle de gratitude et rangement.'},en:{n:'Wind-down',d:'Gratitude circle and tidy-up.'}},
+        {fr:{n:'Jeu de société',d:'Petites tables en attendant les parents.'},en:{n:'Board game',d:'Small tables while waiting for parents.'}}]}
+    ];
+    // Thèmes = indices préférés par créneau (sinon aléatoire)
+    const THEMES = {
+      classique:{ fr:'Classique équilibrée', en:'Balanced classic', pick:{} },
+      sportif:{ fr:'Journée sportive', en:'Sports day', pick:{am1:0,pm1:1,pm2:0} },
+      creatif:{ fr:'Journée créative', en:'Creative day', pick:{am2:0,pm2:1} },
+      pluie:{ fr:'Plan B pluie', en:'Rainy plan B', pick:{am1:1,pm1:2,pm2:2} }
+    };
+
+    const LBL = {
+      fr:{ pill:'Journée pédago', title:'🎨 Journées pédagogiques', intro:'Monte une programmation de journée complète en un clic. Choisis un thème, ajuste chaque bloc, imprime.',
+        theme:'Thème : ', surprise:'🎲 Journée surprise', print:'🖨️ Imprimer' },
+      en:{ pill:'PD day', title:'🎨 PD days', intro:'Build a full-day program in one click. Pick a theme, tweak each block, print.',
+        theme:'Theme: ', surprise:'🎲 Surprise day', print:'🖨️ Print' }
+    };
+    const chosen = {}; // slotId -> index
+    const pick=a=>Math.floor(Math.random()*a.length);
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jpStatic(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jpPill').textContent=l.pill;
+      document.getElementById('jpTitle').textContent=l.title;
+      document.getElementById('jpIntro').textContent=l.intro;
+      document.getElementById('jpThemeText').textContent=l.theme;
+      document.getElementById('jpSurprise').textContent=l.surprise;
+      document.getElementById('jpPrint').textContent=l.print;
+      const sel=document.getElementById('jpTheme');
+      const cur=sel.value||'classique';
+      sel.innerHTML=Object.keys(THEMES).map(k=>`<option value="${k}"${k===cur?' selected':''}>${THEMES[k][lang]}</option>`).join('');
+    }
+    function jpFill(surprise){
+      const theme=THEMES[document.getElementById('jpTheme').value]||THEMES.classique;
+      SLOTS.forEach(s=>{
+        if(surprise) chosen[s.id]=pick(s.opts);
+        else chosen[s.id]=(theme.pick && s.id in theme.pick)?theme.pick[s.id]:pick(s.opts);
+      });
+      jpRender();
+    }
+    function jpRender(){
+      const lang=ZTS.getLang();
+      document.getElementById('jpDay').innerHTML=SLOTS.map(s=>{
+        const i=chosen[s.id]??0;
+        const opt=s.opts[i][lang];
+        const options=s.opts.map((o,k)=>`<option value="${k}"${k===i?' selected':''}>${o[lang].n}</option>`).join('');
+        return `<div class="jp-row">
+          <div><span class="jp-time">${s.time}</span><span class="jp-slot">${s[lang]}</span></div>
+          <div>
+            <select class="jp-pick" onchange="chosen['${s.id}']=+this.value;jpRender()">${options}</select>
+            <div class="jp-desc">${opt.d}</div>
+          </div>
+          <button class="jp-dice" title="🎲" onclick="chosen['${s.id}']=Math.floor(Math.random()*${s.opts.length});jpRender()">🎲</button>
+        </div>`;
+      }).join('');
+    }
+    window.jpFill=jpFill; window.jpRender=jpRender; window.chosen=chosen;
+    document.addEventListener('zts:ready', ()=>{ jpStatic(); jpFill(); });
+    document.addEventListener('zts:langchange', ()=>{ jpStatic(); jpRender(); });
+  </script>
+</body>
+</html>

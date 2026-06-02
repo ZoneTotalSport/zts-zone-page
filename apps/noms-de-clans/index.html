@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!-- App — Générateur de noms de clans (Camps de jour). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Générateur de noms de clans — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .nc-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:var(--space-4); }
+    .nc-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .nc-chip.active { background:var(--metier); color:var(--ink); }
+    .nc-stage { text-align:center; border:var(--bord); border-radius:var(--r-3); box-shadow:var(--ombre);
+      background:#fff; padding:var(--space-6) var(--space-4); margin-bottom:var(--space-4); }
+    .nc-name { font-family:var(--font-impact); font-size:clamp(28px,7vw,64px); line-height:1.1; margin:0; }
+    .nc-emoji { font-size:clamp(40px,10vw,80px); display:block; margin-bottom:10px; }
+    .nc-hint { font-family:var(--font-body); font-weight:700; opacity:.7; margin-top:10px; }
+    .nc-btn { font-family:var(--font-impact); font-size:var(--fs-3); cursor:pointer; margin-top:var(--space-3);
+      padding:14px 30px; border:var(--bord); border-radius:var(--r-pill); background:var(--metier); color:var(--ink); box-shadow:var(--ombre); }
+    .nc-btn:active { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--zts-noir); }
+    .nc-hist h2 { font-family:var(--font-impact); font-size:var(--fs-3); margin:var(--space-5) 0 var(--space-2); }
+    .nc-hist ul { list-style:none; padding:0; margin:0; display:flex; flex-wrap:wrap; gap:8px; }
+    .nc-hist li { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-2);
+      border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:4px 14px; background:#fff; }
+  </style>
+</head>
+<body data-metier="camp">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../camps-de-jour.html" data-i18n="subnav.back_metier">← Camps de jour</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7); max-width:760px;">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="ncPill">Noms de clans</span>
+        <h1 style="margin-top:10px;" id="ncTitle">🏷️ Générateur de noms de clans</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="ncIntro"></p>
+      </div>
+    </section>
+
+    <div class="nc-chips" id="ncTheme"></div>
+
+    <div class="nc-stage">
+      <span class="nc-emoji" id="ncEmoji">🎲</span>
+      <h2 class="nc-name" id="ncName"></h2>
+      <p class="nc-hint" id="ncHint"></p>
+      <button class="nc-btn" id="ncGo" onclick="ncGen()"></button>
+    </div>
+
+    <div class="nc-hist" id="ncHistWrap" hidden>
+      <h2 id="ncHistTitle"></h2>
+      <ul id="ncHist"></ul>
+    </div>
+  </main>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // Banque adjectifs + noms + emoji, par thème, bilingue
+    const DATA = {
+      animaux:{ emoji:['🦁','🐺','🦅','🐻','🦊','🐉','🦈','🐍'],
+        fr:{adj:['Féroces','Rusés','Rapides','Sauvages','Indomptables','Rugissants'], nom:['Lions','Loups','Aigles','Ours','Renards','Dragons','Requins','Vipères']},
+        en:{adj:['Fierce','Cunning','Swift','Wild','Untamed','Roaring'], nom:['Lions','Wolves','Eagles','Bears','Foxes','Dragons','Sharks','Vipers']} },
+      elements:{ emoji:['🔥','🌊','🌪️','⚡','❄️','🌋','☀️','🌙'],
+        fr:{adj:['Ardents','Déchaînés','Foudroyants','Glacés','Brûlants','Mystiques'], nom:['Flammes','Vagues','Tornades','Éclairs','Glaciers','Volcans','Soleils','Lunes']},
+        en:{adj:['Blazing','Raging','Thundering','Frozen','Burning','Mystic'], nom:['Flames','Waves','Tornadoes','Bolts','Glaciers','Volcanoes','Suns','Moons']} },
+      heros:{ emoji:['⚔️','🛡️','🏹','👑','🦸','🐲','💎','🏰'],
+        fr:{adj:['Vaillants','Invincibles','Légendaires','Téméraires','Glorieux','Intrépides'], nom:['Chevaliers','Gardiens','Archers','Rois','Titans','Conquérants','Héros','Champions']},
+        en:{adj:['Valiant','Invincible','Legendary','Daring','Glorious','Fearless'], nom:['Knights','Guardians','Archers','Kings','Titans','Conquerors','Heroes','Champions']} },
+      rigolo:{ emoji:['🍕','🦄','🐙','🧦','🍌','🤪','👽','🦥'],
+        fr:{adj:['Déjantés','Loufoques','Survoltés','Gluants','Rebondissants','Chatouilleux'], nom:['Pizzas','Licornes','Pieuvres','Chaussettes','Bananes','Patates','Extraterrestres','Paresseux']},
+        en:{adj:['Wacky','Goofy','Hyper','Slimy','Bouncy','Ticklish'], nom:['Pizzas','Unicorns','Octopuses','Socks','Bananas','Potatoes','Aliens','Sloths']} }
+    };
+
+    const LBL = {
+      fr:{ pill:'Noms de clans', title:'🏷️ Générateur de noms de clans', intro:'Choisis un univers, appuie sur le bouton et donne un nom épique à chaque équipe!',
+        themes:{animaux:'🦁 Animaux',elements:'🔥 Éléments',heros:'⚔️ Héros',rigolo:'🤪 Rigolo'},
+        go:'🎲 Générer un nom', hint:'Appuie pour générer', histTitle:'Derniers tirages' },
+      en:{ pill:'Clan names', title:'🏷️ Clan name generator', intro:'Pick a world, hit the button and give each team an epic name!',
+        themes:{animaux:'🦁 Animals',elements:'🔥 Elements',heros:'⚔️ Heroes',rigolo:'🤪 Funny'},
+        go:'🎲 Generate a name', hint:'Tap to generate', histTitle:'Recent draws' }
+    };
+    let fTheme='animaux'; const hist=[];
+    const pick=a=>a[Math.floor(Math.random()*a.length)];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function ncChips(){
+      const l=L();
+      document.getElementById('ncTheme').innerHTML =
+        Object.keys(DATA).map(k=>`<button class="nc-chip${fTheme===k?' active':''}" onclick="fTheme='${k}';ncStatic()">${l.themes[k]}</button>`).join('');
+    }
+    function ncStatic(){
+      const l=L();
+      document.getElementById('ncPill').textContent=l.pill;
+      document.getElementById('ncTitle').textContent=l.title;
+      document.getElementById('ncIntro').textContent=l.intro;
+      document.getElementById('ncGo').textContent=l.go;
+      if(!document.getElementById('ncName').textContent) document.getElementById('ncHint').textContent=l.hint;
+      document.getElementById('ncHistTitle').textContent=l.histTitle;
+      ncChips();
+    }
+    function ncGen(){
+      const lang=ZTS.getLang(), d=DATA[fTheme];
+      const name=`${pick(d[lang].adj)} ${pick(d[lang].nom)}`;
+      const emoji=pick(d.emoji);
+      document.getElementById('ncEmoji').textContent=emoji;
+      document.getElementById('ncName').textContent=name;
+      document.getElementById('ncHint').textContent='';
+      hist.unshift(`${emoji} ${name}`);
+      if(hist.length>8) hist.pop();
+      document.getElementById('ncHistWrap').hidden=false;
+      document.getElementById('ncHist').innerHTML=hist.map(h=>`<li>${h}</li>`).join('');
+    }
+    window.ncGen=ncGen; window.ncStatic=ncStatic;
+    document.addEventListener('zts:ready', ncStatic);
+    document.addEventListener('zts:langchange', ncStatic);
+  </script>
+</body>
+</html>

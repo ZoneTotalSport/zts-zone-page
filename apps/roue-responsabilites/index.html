@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<!-- App — Roue de responsabilités + minuteur de routines (Service de garde). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roue de responsabilités — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .rr-grid { display:grid; gap:var(--space-5); grid-template-columns:1fr; }
+    @media(min-width:820px){ .rr-grid{ grid-template-columns:1fr 1fr; align-items:start; } }
+    .rr-card { border:var(--bord); border-radius:var(--r-3); box-shadow:var(--ombre); background:#fff; padding:var(--space-4); }
+    .rr-card h2 { font-family:var(--font-impact); font-size:var(--fs-3); margin:0 0 var(--space-3); }
+    /* Roue */
+    .rr-wheelwrap { position:relative; width:min(78vw,320px); aspect-ratio:1; margin:0 auto var(--space-3); }
+    .rr-wheel { position:absolute; inset:0; border-radius:50%; border:var(--bord);
+      transition:transform 4s cubic-bezier(.17,.67,.21,1); }
+    .rr-label { position:absolute; left:50%; top:6%; height:44%; transform-origin:bottom center;
+      font-family:var(--font-fun); font-weight:700; font-size:clamp(11px,3vw,15px); color:#1a1a1a;
+      width:90px; margin-left:-45px; text-align:center; pointer-events:none; }
+    .rr-ptr { position:absolute; left:50%; top:-6px; transform:translateX(-50%);
+      font-size:30px; z-index:3; filter:drop-shadow(0 2px 0 #1a1a1a); }
+    .rr-hub { position:absolute; left:50%; top:50%; width:18%; aspect-ratio:1; transform:translate(-50%,-50%);
+      background:#fff; border:var(--bord); border-radius:50%; z-index:2; }
+    .rr-result { font-family:var(--font-impact); font-size:var(--fs-3); text-align:center; min-height:1.4em; margin:var(--space-2) 0; }
+    .rr-ta { width:100%; min-height:120px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:10px 12px; border:2px solid var(--zts-noir); border-radius:var(--r-2); resize:vertical; }
+    .rr-btn { font-family:var(--font-impact); font-size:var(--fs-2); cursor:pointer; margin-top:var(--space-2);
+      padding:12px 24px; border:var(--bord); border-radius:var(--r-pill); background:var(--metier); color:var(--ink); box-shadow:var(--ombre); }
+    .rr-btn--ghost { background:#fff; }
+    .rr-btn:active { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--zts-noir); }
+    /* Minuteur */
+    .rr-time { font-family:var(--font-impact); font-size:clamp(48px,16vw,96px); text-align:center; line-height:1; margin:var(--space-3) 0; }
+    .rr-time.done { color:var(--zts-rouge,#e63329); animation:rrflash .5s steps(2) 6; }
+    @keyframes rrflash{ 50%{opacity:.2} }
+    .rr-presets, .rr-ctrl { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+    .rr-preset { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:2px solid var(--zts-noir); border-radius:var(--r-pill); background:#fff; box-shadow:2px 2px 0 var(--zts-noir); }
+    .rr-preset.active { background:var(--metier); }
+  </style>
+</head>
+<body data-metier="sdg">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../service-de-garde.html" data-i18n="subnav.back_metier">← Service de garde</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7); max-width:920px;">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="rrPill">Roue & minuteur</span>
+        <h1 style="margin-top:10px;" id="rrTitle">🎡 Roue de responsabilités</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="rrIntro"></p>
+      </div>
+    </section>
+
+    <div class="rr-grid">
+      <!-- Roue -->
+      <section class="rr-card">
+        <h2 id="rrWheelTitle">🎡 La roue</h2>
+        <div class="rr-wheelwrap">
+          <div class="rr-ptr">🔻</div>
+          <div class="rr-wheel" id="rrWheel"></div>
+          <div class="rr-hub"></div>
+        </div>
+        <div class="rr-result" id="rrResult"></div>
+        <div style="text-align:center;"><button class="rr-btn" id="rrSpin" onclick="rrSpin()"></button></div>
+        <p class="zts-menu__small" style="margin-top:var(--space-3);" id="rrEditTitle"></p>
+        <textarea class="rr-ta" id="rrItems" oninput="rrBuild()"></textarea>
+      </section>
+
+      <!-- Minuteur -->
+      <section class="rr-card">
+        <h2 id="rrTimerTitle">⏲️ Minuteur de routines</h2>
+        <div class="rr-presets" id="rrPresets"></div>
+        <div class="rr-time" id="rrTime">05:00</div>
+        <div class="rr-ctrl">
+          <button class="rr-btn" id="rrStart" onclick="rrStart()"></button>
+          <button class="rr-btn rr-btn--ghost" id="rrReset" onclick="rrReset()"></button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    const PALETTE=['#19B5C9','#FFD23F','#FF8A3D','#8BD450','#B57BFF','#FF6FA3','#4FC3F7','#FFB74D'];
+    const LBL = {
+      fr:{ pill:'Roue & minuteur', title:'🎡 Roue de responsabilités', intro:'Tire au sort une responsabilité ou un enfant, puis lance le minuteur de routine.',
+        wheel:'🎡 La roue', spin:'🎯 Tourner', edit:'Modifie la liste (une entrée par ligne) :',
+        defItems:['Collation','Rangement','Distribuer','Aide-éducatrice','Calendrier','Recyclage','Chef de file','Message du jour'],
+        result:r=>`👉 ${r}!`, timer:'⏲️ Minuteur de routines',
+        presets:{collation:'🍎 Collation 15',jeu:'🧸 Jeu libre 30',devoirs:'📚 Devoirs 20',transition:'🔔 Transition 5'},
+        start:'▶️ Départ', pause:'⏸️ Pause', reset:'↺ Réinitialiser', done:'Terminé!' },
+      en:{ pill:'Wheel & timer', title:'🎡 Responsibility wheel', intro:'Draw a responsibility or a child at random, then start the routine timer.',
+        wheel:'🎡 The wheel', spin:'🎯 Spin', edit:'Edit the list (one entry per line):',
+        defItems:['Snack','Tidy-up','Hand out','Helper','Calendar','Recycling','Line leader','Message of the day'],
+        result:r=>`👉 ${r}!`, timer:'⏲️ Routine timer',
+        presets:{collation:'🍎 Snack 15',jeu:'🧸 Free play 30',devoirs:'📚 Homework 20',transition:'🔔 Transition 5'},
+        start:'▶️ Start', pause:'⏸️ Pause', reset:'↺ Reset', done:'Done!' }
+    };
+    const PRESET_SECS={collation:900,jeu:1800,devoirs:1200,transition:300};
+    let items=[], rot=0, spinning=false;
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function rrStatic(){
+      const l=L();
+      document.getElementById('rrPill').textContent=l.pill;
+      document.getElementById('rrTitle').textContent=l.title;
+      document.getElementById('rrIntro').textContent=l.intro;
+      document.getElementById('rrWheelTitle').textContent=l.wheel;
+      document.getElementById('rrSpin').textContent=l.spin;
+      document.getElementById('rrEditTitle').textContent=l.edit;
+      document.getElementById('rrTimerTitle').textContent=l.timer;
+      document.getElementById('rrStart').textContent=running?l.pause:l.start;
+      document.getElementById('rrReset').textContent=l.reset;
+      document.getElementById('rrPresets').innerHTML=Object.keys(PRESET_SECS).map(k=>
+        `<button class="rr-preset${preset===k?' active':''}" onclick="rrPreset('${k}')">${l.presets[k]}</button>`).join('');
+    }
+    // ---- Roue ----
+    function rrBuild(){
+      const raw=document.getElementById('rrItems').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      items=raw.length?raw:[''];
+      const n=items.length, seg=360/n;
+      const stops=items.map((_,i)=>`${PALETTE[i%PALETTE.length]} ${i*seg}deg ${(i+1)*seg}deg`).join(',');
+      const w=document.getElementById('rrWheel');
+      w.style.background=`conic-gradient(${stops})`;
+      w.innerHTML=items.map((t,i)=>{
+        const mid=i*seg+seg/2;
+        return `<div class="rr-label" style="transform:rotate(${mid}deg)">${t}</div>`;
+      }).join('');
+    }
+    function rrSpin(){
+      if(spinning||!items.length) return;
+      spinning=true;
+      const n=items.length, seg=360/n;
+      const idx=Math.floor(Math.random()*n);
+      const target=360*5 + (360 - (idx*seg+seg/2)); // amène le centre du segment sous le pointeur (haut)
+      rot += target - (rot%360);
+      const w=document.getElementById('rrWheel');
+      w.style.transform=`rotate(${rot}deg)`;
+      document.getElementById('rrResult').textContent='';
+      setTimeout(()=>{ spinning=false; document.getElementById('rrResult').textContent=L().result(items[idx]); }, 4100);
+    }
+    // ---- Minuteur ----
+    let total=300, left=300, running=false, timer=null, preset='transition';
+    function fmt(s){ const m=Math.floor(s/60), x=s%60; return `${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}`; }
+    function rrShow(){ const el=document.getElementById('rrTime'); el.textContent=left<=0?L().done:fmt(left); el.classList.toggle('done',left<=0); }
+    function rrPreset(k){ preset=k; total=left=PRESET_SECS[k]; running=false; clearInterval(timer); rrStatic(); rrShow(); }
+    function rrStart(){
+      if(left<=0) left=total;
+      running=!running; rrStatic();
+      clearInterval(timer);
+      if(running){ timer=setInterval(()=>{ left--; if(left<=0){ left=0; running=false; clearInterval(timer); rrStatic(); } rrShow(); },1000); }
+    }
+    function rrReset(){ running=false; clearInterval(timer); left=total; rrStatic(); rrShow(); }
+    window.rrSpin=rrSpin; window.rrBuild=rrBuild; window.rrPreset=rrPreset; window.rrStart=rrStart; window.rrReset=rrReset;
+
+    function rrInit(){
+      document.getElementById('rrItems').value=L().defItems.join('\n');
+      rrBuild(); rrStatic(); rrShow();
+    }
+    document.addEventListener('zts:ready', rrInit);
+    document.addEventListener('zts:langchange', ()=>{ // ne pas écraser une liste personnalisée
+      rrStatic();
+    });
+  </script>
+</body>
+</html>

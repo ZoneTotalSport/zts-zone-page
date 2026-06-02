@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!-- App — Jeux d'eau (Camps de jour). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeux d'eau — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+    .jr-gear { font-family:var(--font-body); font-weight:700; margin-top:10px; }
+  </style>
+</head>
+<body data-metier="camp">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../camps-de-jour.html" data-i18n="subnav.back_metier">← Camps de jour</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Jeux d'eau</span>
+        <h1 style="margin-top:10px;" id="jrTitle">💦 Jeux d'eau</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrMat"></div>
+      <div class="jr-chips" id="jrAge"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // mat: ballons | eponges | seaux | aucun    age: 5-7 | 8-12
+    const GAMES = [
+      { id:'relais-eponge', icon:'🧽', mat:'eponges', age:'5-7', gear:{fr:'2 éponges, 2 seaux par équipe',en:'2 sponges, 2 buckets per team'}, fr:{n:'Relais de l\'éponge',d:'Transvider l\'eau d\'un seau à l\'autre.',steps:['Chaque équipe a un seau plein et un seau vide à distance.','On court avec l\'éponge gorgée d\'eau pour remplir le seau vide.','Au signal de fin, l\'équipe avec le plus d\'eau transférée gagne.']}, en:{n:'Sponge relay',d:'Move water from one bucket to another.',steps:['Each team has a full bucket and an empty one far apart.','Run with the soaked sponge to fill the empty bucket.','At the end signal, the team with the most transferred water wins.']} },
+      { id:'patate', icon:'🎈', mat:'ballons', age:'8-12', gear:{fr:'Ballons d\'eau',en:'Water balloons'}, fr:{n:'Patate chaude mouillée',d:'Se passer le ballon d\'eau sans le crever.',steps:['En cercle, on se lance un ballon d\'eau sur la musique.','À l\'arrêt, celui qui le tient recule d\'un pas.','Le ballon finit par éclater sur quelqu\'un — éclats de rire garantis.']}, en:{n:'Wet hot potato',d:'Pass the water balloon without popping it.',steps:['In a circle, toss a water balloon to the music.','When it stops, whoever holds it steps back.','The balloon eventually pops on someone — laughs guaranteed.']} },
+      { id:'chaine', icon:'🪣', mat:'seaux', age:'8-12', gear:{fr:'Gobelets + 1 grand seau',en:'Cups + 1 big bucket'}, fr:{n:'La chaîne des pompiers',d:'Remplir le seau en se passant l\'eau.',steps:['L\'équipe forme une ligne entre la source d\'eau et le seau.','On se passe un gobelet d\'eau de main en main, le plus vite possible.','Première équipe à remplir son grand seau gagne.']}, en:{n:'Firefighter chain',d:'Fill the bucket by passing water down the line.',steps:['The team lines up between the water source and the bucket.','Pass a cup of water hand to hand, as fast as possible.','First team to fill its big bucket wins.']} },
+      { id:'glissade', icon:'🛝', mat:'aucun', age:'5-7', gear:{fr:'Bâche + boyau (surveillance)',en:'Tarp + hose (supervised)'}, fr:{n:'Glissade savonneuse',d:'Glisser sur une bâche mouillée.',steps:['Installer une bâche sur une pente douce et la mouiller.','Un à la fois, on prend de l\'élan et on glisse à plat ventre.','Surveillance constante; on espace bien les départs.']}, en:{n:'Slip-n-slide',d:'Slide on a wet tarp.',steps:['Set a tarp on a gentle slope and wet it.','One at a time, take a run-up and slide on your belly.','Constant supervision; space out the starts.']} },
+      { id:'cible', icon:'🎯', mat:'ballons', age:'5-7', gear:{fr:'Ballons d\'eau + cibles dessinées',en:'Water balloons + drawn targets'}, fr:{n:'Tir sur cible',d:'Viser des cibles avec des ballons d\'eau.',steps:['Dessiner des cibles à la craie sur un mur extérieur ou au sol.','Chacun lance ses ballons et compte ses points.','Variante équipe : additionner les points de tous.']}, en:{n:'Target toss',d:'Hit targets with water balloons.',steps:['Chalk targets on an outdoor wall or the ground.','Each throws their balloons and counts points.','Team variant: add up everyone\'s points.']} },
+      { id:'transport', icon:'🥤', mat:'aucun', age:'8-12', gear:{fr:'Un gobelet troué par équipe',en:'One cup with holes per team'}, fr:{n:'Le gobelet troué',d:'Transporter l\'eau dans un gobelet percé.',steps:['Chaque équipe a un gobelet percé de petits trous.','On court remplir un récipient en perdant le moins d\'eau possible.','Astuce d\'équipe : boucher les trous avec les doigts!']}, en:{n:'The leaky cup',d:'Carry water in a punctured cup.',steps:['Each team has a cup with small holes.','Run to fill a container while losing as little water as possible.','Team trick: plug the holes with your fingers!']} },
+      { id:'bataille', icon:'🔫', mat:'seaux', age:'8-12', gear:{fr:'Pistolets à eau + foulards mouillés',en:'Water guns + wet scarves'}, fr:{n:'Capture mouillée',d:'Capture du drapeau version eau.',steps:['Deux équipes, chacune garde un foulard sec.','On asperge les adversaires; touché mouillé = retour à la base.','Première équipe à voler le foulard adverse gagne.']}, en:{n:'Wet capture',d:'Capture the flag, water edition.',steps:['Two teams, each guards a dry scarf.','Spray opponents; getting wet-tagged = return to base.','First team to steal the enemy scarf wins.']} },
+      { id:'limbo', icon:'🌊', mat:'aucun', age:'5-7', gear:{fr:'Un boyau d\'arrosage',en:'A garden hose'}, fr:{n:'Limbo sous la pluie',d:'Passer sous le jet d\'eau de plus en plus bas.',steps:['Deux animateurs tiennent un jet d\'eau horizontal.','Chacun passe dessous sans toucher le jet.','On baisse le jet à chaque tour : qui ira le plus bas?']}, en:{n:'Rain limbo',d:'Go under the water stream, lower each time.',steps:['Two leaders hold a horizontal water stream.','Each passes under without touching the stream.','Lower the stream each round: who goes lowest?']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Jeux d\'eau', title:'💦 Jeux d\'eau', intro:'Pour rafraîchir les chaudes journées — filtre par matériel et par âge. Surveillance obligatoire.',
+        search:'Rechercher un jeu d\'eau…', allMat:'Tout le matériel', allAges:'Tous les âges',
+        m_ballons:'🎈 Ballons', m_eponges:'🧽 Éponges', m_seaux:'🪣 Seaux', m_aucun:'∅ Sans matériel',
+        count:n=>`${n} jeu${n>1?'x':''} d'eau`, empty:'Aucun jeu ne correspond.', how:'Comment jouer', mat:'Matériel', age:'Âge', gear:'Matériel' },
+      en:{ pill:'Water games', title:'💦 Water games', intro:'To cool down hot days — filter by gear and age. Supervision required.',
+        search:'Search a water game…', allMat:'All gear', allAges:'All ages',
+        m_ballons:'🎈 Balloons', m_eponges:'🧽 Sponges', m_seaux:'🪣 Buckets', m_aucun:'∅ No gear',
+        count:n=>`${n} water game${n>1?'s':''}`, empty:'No game matches.', how:'How to play', mat:'Gear', age:'Age', gear:'Gear' }
+    };
+    let fMat='*', fAge='*';
+    const MATS=['ballons','eponges','seaux','aucun'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrMat').innerHTML =
+        [['*',l.allMat]].concat(MATS.map(m=>[m,l['m_'+m]]))
+        .map(([v,t])=>`<button class="jr-chip${fMat===v?' active':''}" onclick="fMat='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-7','5-7'],['8-12','8-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fMat==='*'||g.mat===fMat) && (fAge==='*'||g.age===fAge) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>${l['m_'+g.mat]}</span><span>👶 ${g.age}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>${l['m_'+g.mat]}</span><span>👶 ${l.age} ${g.age}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <p class="jr-gear">🎒 ${l.gear} : ${g.gear[lang]}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<!-- APP MODÈLE — Jeux rapides (Service de garde). Sur le gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeux rapides — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search {
+      flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff;
+    }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip {
+      font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre);
+    }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+  </style>
+</head>
+<body data-metier="sdg">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../service-de-garde.html" data-i18n="subnav.back_metier">← Service de garde</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Jeux rapides</span>
+        <h1 style="margin-top:10px;" id="jrTitle">⚡ Jeux rapides</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro">Des jeux sans matériel, prêts en 10 secondes — filtre par âge et par durée.</p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrAge"></div>
+      <div class="jr-chips" id="jrDur"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // ===== Données (jeux originaux, sans matériel) =====
+    const GAMES = [
+      { id:'statues', icon:'🗿', age:'5-6', dur:5, fr:{n:'Statues musicales',d:'On bouge, on fige au signal.',steps:['Les enfants bougent librement.','Au signal, tout le monde fige comme une statue.','Celui qui bouge encore fait une grimace rigolote, puis on repart.']}, en:{n:'Musical statues',d:'Move, then freeze on the signal.',steps:['Kids move around freely.','On the signal, everyone freezes like a statue.','Anyone still moving makes a funny face, then you start again.']} },
+      { id:'roi', icon:'👑', age:'7-9', dur:10, fr:{n:'Le roi du silence',d:'Garder le calme le plus longtemps.',steps:['Un meneur ferme les yeux.','Les autres avancent en silence pour toucher sa chaise.','Au moindre bruit entendu, le meneur pointe : le bruiteur recule.']}, en:{n:'King of silence',d:'Stay quiet the longest.',steps:['A leader closes their eyes.','The others sneak up silently to touch the chair.','At any noise, the leader points: the noisemaker steps back.']} },
+      { id:'chef', icon:'🕵️', age:'7-9', dur:10, fr:{n:"Le chef d'orchestre",d:'Trouver qui mène les gestes.',steps:['Un détective sort.','Le groupe choisit un chef qui lance des gestes à imiter.','Le détective revient et devine qui est le chef en 3 essais.']}, en:{n:'The conductor',d:'Spot who leads the moves.',steps:['A detective steps out.','The group picks a leader who starts moves to copy.','The detective returns and guesses the leader in 3 tries.']} },
+      { id:'ananas', icon:'🍍', age:'5-6', dur:5, fr:{n:'Passe l\'ananas',d:'Se passer un objet imaginaire.',steps:['En cercle, on se passe un « ananas » imaginaire.','Chacun change sa façon de le tenir (lourd, chaud, collant).','Le voisin doit imiter avant de le passer.']}, en:{n:'Pass the pineapple',d:'Pass an imaginary object.',steps:['In a circle, pass an imaginary "pineapple".','Each person changes how they hold it (heavy, hot, sticky).','The next person copies before passing it on.']} },
+      { id:'zip', icon:'⚡', age:'10-12', dur:5, fr:{n:'Zip Zap Zop',d:'Réflexe et concentration en cercle.',steps:['On envoie « Zip » à son voisin en pointant.','Lui envoie « Zap », le suivant « Zop ».','Qui se trompe ou hésite sort un tour.']}, en:{n:'Zip Zap Zop',d:'Reflexes and focus in a circle.',steps:['Send "Zip" to your neighbor with a point.','They send "Zap", the next "Zop".','Anyone who errs or hesitates sits out a round.']} },
+      { id:'noeud', icon:'🪢', age:'10-12', dur:10, fr:{n:'Le nœud humain',d:'Se démêler sans lâcher les mains.',steps:['En cercle, chacun attrape deux mains au hasard.','Sans lâcher, le groupe se démêle pour reformer un cercle.','Coopération et fous rires garantis.']}, en:{n:'Human knot',d:'Untangle without letting go.',steps:['In a circle, grab two random hands.','Without letting go, untangle into a full circle.','Teamwork and laughs guaranteed.']} },
+      { id:'fruit', icon:'🍎', age:'5-6', dur:5, fr:{n:'Salade de fruits',d:'Changer de place au bon fruit.',steps:['Chaque enfant reçoit un nom de fruit.','Quand on nomme son fruit, on change de place.','« Salade de fruits! » = tout le monde bouge.']}, en:{n:'Fruit salad',d:'Swap seats on your fruit.',steps:['Each child gets a fruit name.','When your fruit is called, swap seats.','"Fruit salad!" = everyone moves.']} },
+      { id:'miroir', icon:'🪞', age:'7-9', dur:5, fr:{n:'Le miroir',d:'Imiter les gestes en duo.',steps:['Deux par deux, face à face.','Un mène un geste lent, l\'autre est le reflet.','On inverse les rôles après 1 minute.']}, en:{n:'The mirror',d:'Copy your partner\'s moves.',steps:['In pairs, face to face.','One leads a slow move, the other mirrors.','Switch roles after 1 minute.']} },
+      { id:'compte', icon:'🔢', age:'10-12', dur:5, fr:{n:'Compter ensemble',d:'Aller à 20 sans se couper.',steps:['Le groupe compte à voix haute, un nombre par personne.','Personne ne décide de l\'ordre.','Si deux parlent en même temps, on recommence à 1.']}, en:{n:'Count together',d:'Reach 20 without clashing.',steps:['The group counts aloud, one number per person.','No one decides the order.','If two speak at once, restart from 1.']} },
+      { id:'animal', icon:'🐘', age:'5-6', dur:5, fr:{n:'Devine l\'animal',d:'Mimer un animal à deviner.',steps:['Un enfant mime un animal sans bruit.','Les autres devinent en levant la main.','Celui qui trouve mime à son tour.']}, en:{n:'Guess the animal',d:'Mime an animal to guess.',steps:['A child mimes an animal silently.','Others guess with hands up.','Whoever guesses mimes next.']} }
+    ];
+
+    // ===== Libellés (bilingue) =====
+    const LBL = {
+      fr:{ pill:'Jeux rapides', title:'⚡ Jeux rapides', intro:'Des jeux sans matériel, prêts en 10 secondes — filtre par âge et par durée.',
+        search:'Rechercher un jeu…', allAges:'Tous les âges', allDur:'Toutes durées', d5:'5 min', d10:'10 min',
+        count:n=>`${n} jeu${n>1?'x':''}`, empty:'Aucun jeu ne correspond.', how:'Comment jouer', age:'Âge', dur:'Durée', gear:'Matériel : aucun', open:'Voir la fiche' },
+      en:{ pill:'Quick games', title:'⚡ Quick games', intro:'No-gear games, ready in 10 seconds — filter by age and length.',
+        search:'Search a game…', allAges:'All ages', allDur:'Any length', d5:'5 min', d10:'10 min',
+        count:n=>`${n} game${n>1?'s':''}`, empty:'No game matches.', how:'How to play', age:'Age', dur:'Length', gear:'Gear: none', open:'View sheet' }
+    };
+    let fAge='*', fDur='*';
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-6','5-6'],['7-9','7-9'],['10-12','10-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrDur').innerHTML =
+        [['*',l.allDur],['5',l.d5],['10',l.d10]]
+        .map(([v,t])=>`<button class="jr-chip${fDur===v?' active':''}" onclick="fDur='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fAge==='*'||g.age===fAge) && (fDur==='*'||String(g.dur)===fDur) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>👶 ${g.age}</span><span>⏱️ ${g.dur} min</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>👶 ${l.age} ${g.age}</span><span>⏱️ ${l.dur} ${g.dur} min</span><span>${l.gear}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

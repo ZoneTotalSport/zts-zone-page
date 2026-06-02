@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!-- App — Échauffements (Éducation physique). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Échauffements — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+  </style>
+</head>
+<body data-metier="ep">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../ep.html" data-i18n="subnav.back_metier">← Éducation physique</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Échauffements</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🏃 Échauffements</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrZone"></div>
+      <div class="jr-chips" id="jrAge"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // zone: cardio | global | haut | bas    age: 5-7 | 8-9 | 10-12
+    const GAMES = [
+      { id:'jacques', icon:'🫅', zone:'global', age:'5-7', fr:{n:'Jacques a dit',d:'Échauffement guidé en imitation.',steps:['Le meneur lance « Jacques a dit : sautez sur place ».','Les élèves exécutent seulement si « Jacques a dit ».','Enchaîner mouvements de tête, bras, jambes pour réveiller tout le corps.']}, en:{n:'Simon says',d:'A guided imitation warm-up.',steps:['The leader calls "Simon says: jump on the spot".','Students do it only if "Simon says".','Chain head, arm and leg moves to wake the whole body.']} },
+      { id:'tag-queue', icon:'🦎', zone:'cardio', age:'8-9', fr:{n:'Chat et queues',d:'Course pour attraper les foulards.',steps:['Chacun glisse un foulard dans sa ceinture (la queue).','Au signal, tous essaient de voler les queues des autres.','Sans queue, on fait 5 jumping jacks puis on revient. 2 minutes intenses.']}, en:{n:'Tag the tails',d:'Run to grab the scarves.',steps:['Each tucks a scarf in their belt (the tail).','On the signal, everyone tries to steal the others\' tails.','Lost your tail? Do 5 jumping jacks then rejoin. 2 intense minutes.']} },
+      { id:'mobilite', icon:'🤸', zone:'global', age:'10-12', fr:{n:'Réveil articulaire',d:'Faire le tour des articulations.',steps:['Cercles de chevilles, genoux, hanches (10 chacun).','Rotations d\'épaules et de poignets.','Finir par des flexions latérales du tronc, en douceur.']}, en:{n:'Joint wake-up',d:'Mobilize every joint.',steps:['Ankle, knee, hip circles (10 each).','Shoulder and wrist rotations.','Finish with gentle side bends of the trunk.']} },
+      { id:'cordes', icon:'🪢', zone:'cardio', age:'10-12', fr:{n:'Corde imaginaire',d:'Saut à la corde sans corde.',steps:['On mime le saut à la corde sur place, 30 secondes.','Variantes : un pied, deux pieds, course sur place.','3 séries avec 15 secondes de repos.']}, en:{n:'Imaginary rope',d:'Jump rope with no rope.',steps:['Mime jumping rope on the spot, 30 seconds.','Variations: one foot, two feet, running in place.','3 sets with 15 seconds rest.']} },
+      { id:'bras', icon:'💪', zone:'haut', age:'8-9', fr:{n:'Hélicoptères',d:'Réveil du haut du corps.',steps:['Bras tendus, petits cercles avant puis arrière.','Agrandir les cercles progressivement.','Finir par des « boxes » devant soi, en rythme.']}, en:{n:'Helicopters',d:'Upper-body wake-up.',steps:['Arms out, small circles forward then backward.','Gradually widen the circles.','Finish with rhythmic "punches" out front.']} },
+      { id:'jambes', icon:'🦵', zone:'bas', age:'10-12', fr:{n:'Montées de genoux',d:'Activer le bas du corps.',steps:['Course sur place en montant haut les genoux, 20 secondes.','Enchaîner talons-fesses, 20 secondes.','Terminer par des fentes alternées lentes.']}, en:{n:'High knees',d:'Activate the lower body.',steps:['Run in place lifting knees high, 20 seconds.','Then butt-kicks, 20 seconds.','Finish with slow alternating lunges.']} },
+      { id:'miroir', icon:'🪞', zone:'global', age:'5-7', fr:{n:'Le miroir actif',d:'Imiter les mouvements du meneur.',steps:['En duo ou face au meneur.','Reproduire chaque mouvement dynamique (sauts, moulinets).','Augmenter le rythme petit à petit.']}, en:{n:'Active mirror',d:'Copy the leader\'s moves.',steps:['In pairs or facing the leader.','Copy each dynamic move (jumps, arm swings).','Increase the tempo little by little.']} },
+      { id:'animaux', icon:'🐾', zone:'cardio', age:'5-7', fr:{n:'Déplacements d\'animaux',d:'Se déplacer comme des animaux.',steps:['Traverser le gymnase en ours, crabe, grenouille, lapin.','Chaque retour, changer d\'animal.','Parfait pour réchauffer en s\'amusant.']}, en:{n:'Animal moves',d:'Move like animals.',steps:['Cross the gym as a bear, crab, frog, rabbit.','Change animal on each return trip.','Great to warm up while having fun.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Échauffements', title:'🏃 Échauffements', intro:'Des routines prêtes à mener — filtre par zone du corps et par âge. Compte 5 à 8 minutes.',
+        search:'Rechercher un échauffement…', allZone:'Tout le corps', allAges:'Tous les âges',
+        z_cardio:'❤️ Cardio', z_global:'🌀 Global', z_haut:'💪 Haut', z_bas:'🦵 Bas',
+        count:n=>`${n} échauffement${n>1?'s':''}`, empty:'Aucun échauffement ne correspond.', how:'Déroulement', zone:'Zone', age:'Âge' },
+      en:{ pill:'Warm-ups', title:'🏃 Warm-ups', intro:'Ready-to-lead routines — filter by body zone and age. Plan 5 to 8 minutes.',
+        search:'Search a warm-up…', allZone:'Whole body', allAges:'All ages',
+        z_cardio:'❤️ Cardio', z_global:'🌀 Global', z_haut:'💪 Upper', z_bas:'🦵 Lower',
+        count:n=>`${n} warm-up${n>1?'s':''}`, empty:'No warm-up matches.', how:'Run-through', zone:'Zone', age:'Age' }
+    };
+    let fZone='*', fAge='*';
+    const ZONES=['cardio','global','haut','bas'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrZone').innerHTML =
+        [['*',l.allZone]].concat(ZONES.map(z=>[z,l['z_'+z]]))
+        .map(([v,t])=>`<button class="jr-chip${fZone===v?' active':''}" onclick="fZone='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-7','5-7'],['8-9','8-9'],['10-12','10-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fZone==='*'||g.zone===fZone) && (fAge==='*'||g.age===fAge) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>${l['z_'+g.zone]}</span><span>👶 ${g.age}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>${l['z_'+g.zone]}</span><span>👶 ${l.age} ${g.age}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

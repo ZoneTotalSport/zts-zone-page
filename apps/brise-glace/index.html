@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!-- App — Brise-glace (Camps de jour). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brise-glace — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+  </style>
+</head>
+<body data-metier="camp">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../camps-de-jour.html" data-i18n="subnav.back_metier">← Camps de jour</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Brise-glace</span>
+        <h1 style="margin-top:10px;" id="jrTitle">😄 Brise-glace</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrTaille"></div>
+      <div class="jr-chips" id="jrEnergie"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // taille: petit(<12) | grand(12+)   energie: calme | actif
+    const GAMES = [
+      { id:'prenom', icon:'🎤', taille:'grand', energie:'actif', fr:{n:'Prénom + geste',d:'Chacun ajoute son prénom avec un geste.',steps:['En cercle, le premier dit son prénom avec un geste.','Le groupe répète prénom + geste.','Chaque nouveau ajoute le sien : la mémoire collective grandit.']}, en:{n:'Name + move',d:'Each adds their name with a move.',steps:['In a circle, the first says their name with a move.','The group repeats name + move.','Each newcomer adds theirs: the group memory grows.']} },
+      { id:'point', icon:'🤝', taille:'grand', energie:'actif', fr:{n:'Trouve ton point commun',d:'Former des groupes par ressemblances.',steps:['Le meneur crie une catégorie (mois de naissance, sport préféré…).','Les enfants se regroupent par réponse identique le plus vite possible.','Chaque groupe se présente en une phrase.']}, en:{n:'Find what you share',d:'Form groups by similarities.',steps:['The leader calls a category (birth month, favorite sport…).','Kids group by matching answer as fast as possible.','Each group introduces itself in one sentence.']} },
+      { id:'deuxmensonges', icon:'🕵️', taille:'petit', energie:'calme', fr:{n:'Deux vérités, un mensonge',d:'Deviner l\'affirmation fausse.',steps:['Chacun dit 3 choses sur soi : 2 vraies, 1 fausse.','Le groupe vote pour le mensonge.','On révèle : occasion de mieux se connaître.']}, en:{n:'Two truths, one lie',d:'Guess the false statement.',steps:['Each says 3 things about themselves: 2 true, 1 false.','The group votes on the lie.','Reveal: a chance to get to know each other.']} },
+      { id:'noeud', icon:'🪢', taille:'petit', energie:'actif', fr:{n:'Le nœud humain',d:'Se démêler sans lâcher les mains.',steps:['En cercle serré, chacun attrape deux mains au hasard.','Sans lâcher, le groupe se démêle pour reformer un cercle.','Parfait pour briser la gêne par le contact et le rire.']}, en:{n:'Human knot',d:'Untangle without letting go.',steps:['In a tight circle, grab two random hands.','Without letting go, untangle into a full circle.','Great for breaking the ice through contact and laughs.']} },
+      { id:'bingo', icon:'📋', taille:'grand', energie:'calme', fr:{n:'Bingo humain',d:'Trouver qui correspond à chaque case.',steps:['Chacun reçoit une grille de cases (« a un animal », « parle 2 langues »…).','On circule et on fait signer une personne par case.','Première grille pleine crie « Bingo! ».']}, en:{n:'Human bingo',d:'Find who matches each square.',steps:['Each gets a grid of squares ("has a pet", "speaks 2 languages"…).','Mingle and get one person to sign each square.','First full grid shouts "Bingo!".']} },
+      { id:'tempete', icon:'🌀', taille:'grand', energie:'actif', fr:{n:'Tempête de groupe',d:'Changer de place selon un critère partagé.',steps:['Tous assis en cercle, une chaise de moins.','Le meneur au centre dit « Tempête pour ceux qui… (aiment la pizza) ».','Les concernés changent de place; le dernier debout mène la suite.']}, en:{n:'Group storm',d:'Swap seats by a shared trait.',steps:['All seated in a circle, one chair short.','The leader in the center says "Storm for those who… (like pizza)".','Those who match swap seats; the one left standing leads next.']} },
+      { id:'portrait', icon:'🎨', taille:'petit', energie:'calme', fr:{n:'Portrait express',d:'Dessiner son voisin en 30 secondes.',steps:['En duo, chacun dessine l\'autre en 30 secondes sans regarder sa feuille.','On échange les portraits (souvent hilarants).','Chacun présente son voisin à partir du dessin.']}, en:{n:'Quick portrait',d:'Draw your partner in 30 seconds.',steps:['In pairs, each draws the other in 30 seconds without looking at the paper.','Swap the (often hilarious) portraits.','Each introduces their partner using the drawing.']} },
+      { id:'machine', icon:'⚙️', taille:'grand', energie:'actif', fr:{n:'La machine vivante',d:'Construire une machine avec les corps.',steps:['Un enfant lance un geste répétitif + un son.','Un à un, les autres s\'ajoutent en s\'emboîtant à la machine.','Quand tout le monde est branché, on accélère puis on ralentit ensemble.']}, en:{n:'The living machine',d:'Build a machine with your bodies.',steps:['One child starts a repeating move + sound.','One by one, others join and connect to the machine.','Once everyone is plugged in, speed up then slow down together.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Brise-glace', title:'😄 Brise-glace', intro:'Pour apprendre à se connaître en début de semaine — par taille de groupe et niveau d\'énergie.',
+        search:'Rechercher un brise-glace…', allTaille:'Tous les groupes', allEnergie:'Toutes énergies',
+        s_petit:'Petit groupe', s_grand:'Grand groupe', e_calme:'🟢 Calme', e_actif:'🔴 Actif',
+        count:n=>`${n} brise-glace`, empty:'Aucun brise-glace ne correspond.', how:'Comment faire', taille:'Groupe', energie:'Énergie' },
+      en:{ pill:'Ice-breakers', title:'😄 Ice-breakers', intro:'To get to know each other at the start of the week — by group size and energy level.',
+        search:'Search an ice-breaker…', allTaille:'Any group', allEnergie:'Any energy',
+        s_petit:'Small group', s_grand:'Large group', e_calme:'🟢 Calm', e_actif:'🔴 Active',
+        count:n=>`${n} ice-breaker${n>1?'s':''}`, empty:'No ice-breaker matches.', how:'How to do it', taille:'Group', energie:'Energy' }
+    };
+    let fTaille='*', fEnergie='*';
+    const TAILLES=['petit','grand'], ENERGIES=['calme','actif'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrTaille').innerHTML =
+        [['*',l.allTaille]].concat(TAILLES.map(t=>[t,l['s_'+t]]))
+        .map(([v,t])=>`<button class="jr-chip${fTaille===v?' active':''}" onclick="fTaille='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrEnergie').innerHTML =
+        [['*',l.allEnergie]].concat(ENERGIES.map(e=>[e,l['e_'+e]]))
+        .map(([v,t])=>`<button class="jr-chip${fEnergie===v?' active':''}" onclick="fEnergie='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fTaille==='*'||g.taille===fTaille) && (fEnergie==='*'||g.energie===fEnergie) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>👥 ${l['s_'+g.taille]}</span><span>${l['e_'+g.energie]}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>👥 ${l.taille} : ${l['s_'+g.taille]}</span><span>${l['e_'+g.energie]}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

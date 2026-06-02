@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!-- App — Énigmes & devinettes (Éducation physique / transversal). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Énigmes & devinettes — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .en-q { font-family:var(--font-hand,var(--font-body)); font-size:var(--fs-3); margin:var(--space-3) 0; }
+    .en-ans { font-family:var(--font-impact); font-size:var(--fs-3); color:var(--metier-ink,#0b6); padding:var(--space-3);
+      border:2px dashed var(--zts-noir); border-radius:var(--r-2); margin-top:var(--space-2); }
+    .en-btn { font-family:var(--font-impact); font-size:var(--fs-2); cursor:pointer; margin-top:var(--space-2);
+      padding:10px 20px; border:var(--bord); border-radius:var(--r-pill); background:var(--metier); color:var(--ink); box-shadow:var(--ombre); }
+    .en-btn:active { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--zts-noir); }
+  </style>
+</head>
+<body data-metier="ep">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../ep.html" data-i18n="subnav.back_metier">← Éducation physique</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Énigmes</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🧩 Énigmes & devinettes</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrType"></div>
+      <div class="jr-chips" id="jrAge"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // type: devinette | logique | charade    age: 5-7 | 8-12
+    const GAMES = [
+      { id:'echo', icon:'🔊', type:'devinette', age:'5-7', fr:{n:'Devinette du son',q:'Je réponds quand on m\'appelle, mais je n\'ai pas de bouche. Qui suis-je?',a:'L\'écho'}, en:{n:'Sound riddle',q:'I answer when called, yet I have no mouth. Who am I?',a:'The echo'} },
+      { id:'pied', icon:'👣', type:'devinette', age:'5-7', fr:{n:'Devinette du mouvement',q:'Plus on en enlève, plus il devient grand. Qu\'est-ce que c\'est?',a:'Un trou'}, en:{n:'Movement riddle',q:'The more you take away, the bigger it gets. What is it?',a:'A hole'} },
+      { id:'ballon', icon:'🏀', type:'devinette', age:'8-12', fr:{n:'Devinette du gym',q:'Je rebondis sans jamais me fatiguer, et je vis dans le panier sans jamais y rester. Qui suis-je?',a:'Un ballon'}, en:{n:'Gym riddle',q:'I bounce without ever tiring, and live in the hoop without ever staying. Who am I?',a:'A ball'} },
+      { id:'temps', icon:'⏳', type:'devinette', age:'8-12', fr:{n:'Devinette du temps',q:'Je marche sans jambes et je cours sans m\'arrêter. Qui suis-je?',a:'Le temps (l\'horloge)'}, en:{n:'Time riddle',q:'I walk without legs and run without stopping. Who am I?',a:'Time (the clock)'} },
+      { id:'poids', icon:'⚖️', type:'logique', age:'8-12', fr:{n:'Le plus lourd',q:'Qu\'est-ce qui est plus lourd : un kilo de plumes ou un kilo de plomb?',a:'Ni l\'un ni l\'autre — un kilo = un kilo!'}, en:{n:'The heaviest',q:'What weighs more: a kilo of feathers or a kilo of lead?',a:'Neither — a kilo is a kilo!'} },
+      { id:'course', icon:'🏁', type:'logique', age:'8-12', fr:{n:'La course',q:'Tu dépasses le deuxième dans une course. Quelle position occupes-tu?',a:'La deuxième place'}, en:{n:'The race',q:'You pass the runner in second place. What position are you in?',a:'Second place'} },
+      { id:'freres', icon:'👨‍👩‍👧', type:'logique', age:'8-12', fr:{n:'La famille',q:'Lucie a 4 frères. Chaque frère a une sœur. Combien d\'enfants dans la famille?',a:'5 enfants (les 4 frères partagent la même sœur, Lucie)'}, en:{n:'The family',q:'Lucy has 4 brothers. Each brother has one sister. How many children in the family?',a:'5 children (the 4 brothers share one sister, Lucy)'} },
+      { id:'corde', icon:'🟰', type:'devinette', age:'8-12', fr:{n:'Devinette du gym',q:'On me saute sans jamais me blesser, je tourne et tourne sans m\'arrêter. Qui suis-je?',a:'La corde à sauter'}, en:{n:'Gym riddle',q:'You jump over me without ever getting hurt, I turn and turn without stopping. Who am I?',a:'The skipping rope'} },
+      { id:'jour', icon:'📅', type:'logique', age:'5-7', fr:{n:'Le jour mystère',q:'Avant-hier j\'avais 7 ans, l\'an prochain j\'en aurai 10. Comment est-ce possible? (indice : c\'est une devinette pour rire)',a:'C\'est impossible — c\'est un piège pour faire réfléchir et discuter!'}, en:{n:'The mystery day',q:'The day before yesterday I was 7, next year I\'ll be 10. How? (hint: it\'s a fun teaser)',a:'It\'s impossible — a trick to spark discussion!'} },
+      { id:'lettre', icon:'🔤', type:'charade', age:'5-7', fr:{n:'La lettre cachée',q:'Quelle lettre de l\'alphabet est une boisson chaude?',a:'La lettre « T » (thé)'}, en:{n:'The hidden letter',q:'Which letter of the alphabet is a hot drink?',a:'The letter "T" (tea)'} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Énigmes', title:'🧩 Énigmes & devinettes', intro:'Pour les files d\'attente, les transitions ou un défi-éclair. Filtre par type et par âge.',
+        search:'Rechercher une énigme…', allType:'Tous les types', allAges:'Tous les âges',
+        t_devinette:'🤔 Devinette', t_logique:'🧠 Logique', t_charade:'🔤 Charade',
+        count:n=>`${n} énigme${n>1?'s':''}`, empty:'Aucune énigme ne correspond.', reveal:'👀 Révéler la réponse', answer:'Réponse', type:'Type', age:'Âge' },
+      en:{ pill:'Riddles', title:'🧩 Riddles & puzzles', intro:'For lines, transitions or a quick challenge. Filter by type and age.',
+        search:'Search a riddle…', allType:'All types', allAges:'All ages',
+        t_devinette:'🤔 Riddle', t_logique:'🧠 Logic', t_charade:'🔤 Word play',
+        count:n=>`${n} riddle${n>1?'s':''}`, empty:'No riddle matches.', reveal:'👀 Reveal the answer', answer:'Answer', type:'Type', age:'Age' }
+    };
+    let fType='*', fAge='*';
+    const TYPES=['devinette','logique','charade'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrType').innerHTML =
+        [['*',l.allType]].concat(TYPES.map(t=>[t,l['t_'+t]]))
+        .map(([v,t])=>`<button class="jr-chip${fType===v?' active':''}" onclick="fType='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-7','5-7'],['8-12','8-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fType==='*'||g.type===fType) && (fAge==='*'||g.age===fAge) &&
+        (!q || (g[lang].n+g[lang].q).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].q.length>60?g[lang].q.slice(0,60)+'…':g[lang].q}</span>
+          <div class="jr-meta"><span>${l['t_'+g.type]}</span><span>👶 ${g.age}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:6px;"><span>${l['t_'+g.type]}</span><span>👶 ${l.age} ${g.age}</span></div>
+        <p class="en-q">“${g[lang].q}”</p>
+        <button class="en-btn" id="enReveal" onclick="enReveal('${g.id}')">${l.reveal}</button>
+        <div id="enAnsWrap"></div>`;
+      ZTS.openModal('jrModal');
+    }
+    function enReveal(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('enReveal').style.display='none';
+      document.getElementById('enAnsWrap').innerHTML=`<div class="en-ans">✅ ${l.answer} : ${g[lang].a}</div>`;
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen; window.enReveal=enReveal;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

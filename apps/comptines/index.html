@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<!-- App — Comptines & chansons (Éducation physique). Gabarit partagé. Paroles ORIGINALES. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comptines & chansons — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .cp-lyrics { font-family:var(--font-hand,var(--font-body)); font-size:var(--fs-2); line-height:1.7;
+      white-space:pre-line; border:2px dashed var(--zts-noir); border-radius:var(--r-2); padding:var(--space-3); margin-top:var(--space-3); }
+    .cp-gest { font-family:var(--font-body); font-weight:700; margin-top:var(--space-3); }
+  </style>
+</head>
+<body data-metier="ep">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../ep.html" data-i18n="subnav.back_metier">← Éducation physique</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Comptines</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🎤 Comptines & chansons</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrUsage"></div>
+      <div class="jr-chips" id="jrAge"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // usage: rassemblement | mouvement | retour    age: 5-7 | 8-12   (paroles ORIGINALES ZTS)
+    const GAMES = [
+      { id:'cercle', icon:'⭕', usage:'rassemblement', age:'5-7',
+        fr:{n:'Tous au cercle',gest:'Marcher vers le centre puis s\'asseoir au dernier mot.',ly:'Un, deux, trois, viens près de moi,\nQuatre, cinq, six, fais comme ça,\nSept, huit, neuf, on se rassemble,\nDix : on s\'assoit tous ensemble!'},
+        en:{n:'Everyone to the circle',gest:'Walk to the center then sit on the last word.',ly:'One, two, three, come close to me,\nFour, five, six, just like this,\nSeven, eight, nine, we gather \'round,\nTen: we all sit on the ground!'} },
+      { id:'silence', icon:'🤫', usage:'rassemblement', age:'5-7',
+        fr:{n:'Le doigt sur la bouche',gest:'Baisser la voix à chaque ligne jusqu\'au chuchotement.',ly:'Si tu m\'entends, touche ton nez,\nSi tu m\'entends, viens te placer,\nDoucement, sans faire de bruit,\nLe silence, c\'est par ici!'},
+        en:{n:'Finger on lips',gest:'Lower your voice each line down to a whisper.',ly:'If you hear me, touch your nose,\nIf you hear me, strike a pose,\nSoftly now, without a sound,\nQuiet time is all around!'} },
+      { id:'sautille', icon:'🦘', usage:'mouvement', age:'5-7',
+        fr:{n:'Saute, saute, kangourou',gest:'Sauter à pieds joints, puis se figer.',ly:'Saute, saute, kangourou,\nLes deux pieds, on saute partout,\nSaute haut, saute bas,\nEt on fige : ne bouge pas!'},
+        en:{n:'Jump, jump, kangaroo',gest:'Two-foot jumps, then freeze.',ly:'Jump, jump, kangaroo,\nTwo feet hopping, me and you,\nJump up high, jump down low,\nNow we freeze: don\'t you go!'} },
+      { id:'marche', icon:'🥁', usage:'mouvement', age:'8-12',
+        fr:{n:'La marche des champions',gest:'Marquer le pas en rythme, varier la vitesse.',ly:'Gauche, droite, on avance fort,\nGauche, droite, on est d\'accord,\nPlus vite encore, puis ralentis,\nChampions, on est prêts, c\'est parti!'},
+        en:{n:'March of the champions',gest:'March in rhythm, vary the speed.',ly:'Left, right, we step ahead,\nLeft, right, just like we said,\nFaster now, then slow it down,\nChampions ready, best in town!'} },
+      { id:'respire', icon:'🌬️', usage:'retour', age:'5-7',
+        fr:{n:'Je respire comme un ballon',gest:'Inspirer en levant les bras, souffler en les baissant.',ly:'J\'inspire et je gonfle mon ballon,\nJe souffle tout doux, c\'est si bon,\nMes épaules tombent, je suis calme,\nMon cœur ralentit, quelle accalmie.'},
+        en:{n:'I breathe like a balloon',gest:'Inhale lifting arms, exhale lowering them.',ly:'I breathe in and my balloon grows,\nI breathe out soft, calm as it flows,\nShoulders drop, I feel so still,\nMy heart slows down, a quiet thrill.'} },
+      { id:'merci', icon:'💛', usage:'retour', age:'8-12',
+        fr:{n:'Merci pour le jeu',gest:'En cercle, taper doucement dans les mains au refrain.',ly:'Merci pour le jeu, merci pour l\'effort,\nMerci aux copains, on a joué fort,\nOn range, on respire, la cloche va sonner,\nÀ la prochaine, on va recommencer!'},
+        en:{n:'Thanks for the game',gest:'In a circle, gently clap on the chorus.',ly:'Thanks for the game, thanks for the sweat,\nThanks to my friends, the best team yet,\nWe tidy, we breathe, the bell will ring,\nSee you next time, let\'s play and sing!'} },
+      { id:'echauffe', icon:'🔥', usage:'mouvement', age:'8-12',
+        fr:{n:'On réveille le corps',gest:'Nommer chaque partie et la bouger en chantant.',ly:'On réveille les bras, on les fait tourner,\nOn réveille les jambes, on va sautiller,\nLa tête dit oui, la tête dit non,\nTout le corps est prêt pour l\'action!'},
+        en:{n:'Wake up the body',gest:'Name each part and move it while singing.',ly:'Wake up the arms, give them a swing,\nWake up the legs, let\'s hop and spring,\nThe head says yes, the head says no,\nThe whole body\'s ready, here we go!'} },
+      { id:'equipe', icon:'🤝', usage:'rassemblement', age:'8-12',
+        fr:{n:'En équipe',gest:'Se donner la main et lever les bras au dernier mot.',ly:'Un pour tous et tous pour un,\nOn s\'encourage, on tend la main,\nForts ensemble, on va y arriver,\nNotre équipe, c\'est la fierté!'},
+        en:{n:'As a team',gest:'Hold hands and raise arms on the last word.',ly:'One for all and all for one,\nWe cheer each other, the work gets done,\nStrong together, we\'ll find a way,\nOur team is proud and here to stay!'} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Comptines', title:'🎤 Comptines & chansons', intro:'Des paroles originales pour rassembler, bouger ou revenir au calme. Filtre par usage et par âge.',
+        search:'Rechercher une comptine…', allUsage:'Tous les usages', allAges:'Tous les âges',
+        u_rassemblement:'🔔 Rassemblement', u_mouvement:'🏃 Mouvement', u_retour:'🧘 Retour au calme',
+        count:n=>`${n} comptine${n>1?'s':''}`, empty:'Aucune comptine ne correspond.', lyrics:'Paroles', gest:'Gestes', usage:'Usage', age:'Âge' },
+      en:{ pill:'Rhymes', title:'🎤 Rhymes & songs', intro:'Original lyrics to gather, move or wind down. Filter by use and age.',
+        search:'Search a rhyme…', allUsage:'All uses', allAges:'All ages',
+        u_rassemblement:'🔔 Gathering', u_mouvement:'🏃 Movement', u_retour:'🧘 Wind-down',
+        count:n=>`${n} rhyme${n>1?'s':''}`, empty:'No rhyme matches.', lyrics:'Lyrics', gest:'Gestures', usage:'Use', age:'Age' }
+    };
+    let fUsage='*', fAge='*';
+    const USAGES=['rassemblement','mouvement','retour'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrUsage').innerHTML =
+        [['*',l.allUsage]].concat(USAGES.map(u=>[u,l['u_'+u]]))
+        .map(([v,t])=>`<button class="jr-chip${fUsage===v?' active':''}" onclick="fUsage='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-7','5-7'],['8-12','8-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fUsage==='*'||g.usage===fUsage) && (fAge==='*'||g.age===fAge) &&
+        (!q || (g[lang].n+g[lang].ly).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${l['u_'+g.usage]}</span>
+          <div class="jr-meta"><span>${l['u_'+g.usage]}</span><span>👶 ${g.age}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:6px;"><span>${l['u_'+g.usage]}</span><span>👶 ${l.age} ${g.age}</span></div>
+        <div class="zts-menu__small">${l.lyrics}</div>
+        <div class="cp-lyrics">${g[lang].ly}</div>
+        <p class="cp-gest">🙌 ${l.gest} : ${g[lang].gest}</p>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

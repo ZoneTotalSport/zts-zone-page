@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<!-- App — Jeux calmes / retour au calme (Service de garde). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeux calmes — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search {
+      flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff;
+    }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip {
+      font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre);
+    }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+  </style>
+</head>
+<body data-metier="sdg">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../service-de-garde.html" data-i18n="subnav.back_metier">← Service de garde</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Jeux calmes</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🧘 Jeux calmes</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrAge"></div>
+      <div class="jr-chips" id="jrMom"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // ===== Données (activités calmes originales) — mom: transition | sieste | fin =====
+    const GAMES = [
+      { id:'respi', icon:'🌬️', age:'5-6', mom:'transition', fr:{n:'La bougie magique',d:'Respirer pour souffler la bougie.',steps:['On lève un doigt-bougie devant soi.','On inspire par le nez en gonflant le ventre.','On souffle doucement et longtemps pour faire vaciller la flamme sans l\'éteindre.']}, en:{n:'The magic candle',d:'Breathe to flicker the flame.',steps:['Raise one finger as a candle.','Breathe in through the nose, filling the belly.','Blow out slowly and long to make the flame flicker without putting it out.']} },
+      { id:'meteo', icon:'🌦️', age:'5-6', mom:'fin', fr:{n:'La météo du dos',d:'Dessiner la météo dans le dos du voisin.',steps:['En file, chacun dessine sur le dos de devant.','Pluie : petits tapotements. Soleil : grands ronds. Vent : longs traits.','On inverse pour que tout le monde reçoive sa météo.']}, en:{n:'Weather on your back',d:'Draw weather on a partner\'s back.',steps:['In a line, each draws on the back ahead.','Rain: light taps. Sun: big circles. Wind: long strokes.','Switch so everyone gets their forecast.']} },
+      { id:'statue', icon:'🧊', age:'7-9', mom:'transition', fr:{n:'Statue de glace',d:'Fondre lentement au sol.',steps:['Debout, on est une statue de glace.','Au compte de 10, on fond très lentement vers le sol.','Arrivé au sol, on reste immobile et on écoute sa respiration.']}, en:{n:'Ice statue',d:'Melt slowly to the floor.',steps:['Standing, you are an ice statue.','Counting to 10, melt very slowly toward the floor.','On the floor, stay still and listen to your breathing.']} },
+      { id:'son', icon:'👂', age:'7-9', mom:'fin', fr:{n:'Chasse aux sons',d:'Repérer les sons en silence.',steps:['Yeux fermés, on écoute pendant une minute.','Chacun compte les sons entendus sur ses doigts.','On partage : qui a entendu le son le plus lointain?']}, en:{n:'Sound hunt',d:'Spot sounds in silence.',steps:['Eyes closed, listen for one minute.','Count the sounds you hear on your fingers.','Share: who heard the most distant sound?']} },
+      { id:'ballon', icon:'🎈', age:'5-6', mom:'sieste', fr:{n:'Le ballon-ventre',d:'Gonfler et dégonfler le ventre.',steps:['Couché, on pose les mains sur le ventre.','On inspire : le ventre-ballon se gonfle.','On expire : le ballon se dégonfle tout doucement. On répète 5 fois.']}, en:{n:'Belly balloon',d:'Inflate and deflate the belly.',steps:['Lying down, place hands on the belly.','Breathe in: the balloon-belly inflates.','Breathe out: the balloon deflates gently. Repeat 5 times.']} },
+      { id:'voyage', icon:'☁️', age:'10-12', mom:'sieste', fr:{n:'Voyage sur un nuage',d:'Visualisation guidée au calme.',steps:['Allongés, yeux fermés, on imagine s\'allonger sur un nuage doux.','Le meneur décrit lentement le ciel, la brise, les couleurs.','On revient en bougeant les doigts puis les bras avant d\'ouvrir les yeux.']}, en:{n:'Cloud journey',d:'Guided calm visualization.',steps:['Lying down, eyes closed, imagine resting on a soft cloud.','The leader slowly describes the sky, breeze, and colors.','Return by wiggling fingers then arms before opening the eyes.']} },
+      { id:'tortue', icon:'🐢', age:'5-6', mom:'transition', fr:{n:'La tortue',d:'Rentrer dans sa carapace.',steps:['On est une tortue assise en boule.','Quand un bruit arrive, on rentre la tête dans la carapace.','Quand c\'est calme, on ressort doucement la tête et on sourit.']}, en:{n:'The turtle',d:'Tuck into your shell.',steps:['Be a turtle curled up sitting.','When noise comes, tuck your head into the shell.','When calm returns, slowly poke your head out and smile.']} },
+      { id:'mots', icon:'💬', age:'10-12', mom:'fin', fr:{n:'Le mot de la fin',d:'Un mot pour résumer sa journée.',steps:['En cercle, chacun choisit UN mot sur sa journée.','On fait le tour sans commenter, juste écouter.','Le meneur termine en remerciant le groupe.']}, en:{n:'The closing word',d:'One word to sum up the day.',steps:['In a circle, each picks ONE word about their day.','Go around without commenting, just listening.','The leader closes by thanking the group.']} }
+    ];
+
+    // ===== Libellés (bilingue) =====
+    const LBL = {
+      fr:{ pill:'Jeux calmes', title:'🧘 Jeux calmes', intro:'Activités de transition et de retour au calme — par âge et par moment de la journée.',
+        search:'Rechercher une activité…', allAges:'Tous les âges', allMom:'Tous les moments',
+        m_transition:'Transition', m_sieste:'Sieste', m_fin:'Fin de journée',
+        count:n=>`${n} activité${n>1?'s':''}`, empty:'Aucune activité ne correspond.', how:'Comment faire', age:'Âge', mom:'Moment', gear:'Matériel : aucun' },
+      en:{ pill:'Calm games', title:'🧘 Calm games', intro:'Transition and winding-down activities — by age and time of day.',
+        search:'Search an activity…', allAges:'All ages', allMom:'Any time',
+        m_transition:'Transition', m_sieste:'Nap', m_fin:'End of day',
+        count:n=>`${n} activit${n>1?'ies':'y'}`, empty:'No activity matches.', how:'How to do it', age:'Age', mom:'Time', gear:'Gear: none' }
+    };
+    let fAge='*', fMom='*';
+    const MOMS=['transition','sieste','fin'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-6','5-6'],['7-9','7-9'],['10-12','10-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrMom').innerHTML =
+        [['*',l.allMom]].concat(MOMS.map(m=>[m,l['m_'+m]]))
+        .map(([v,t])=>`<button class="jr-chip${fMom===v?' active':''}" onclick="fMom='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fAge==='*'||g.age===fAge) && (fMom==='*'||g.mom===fMom) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>👶 ${g.age}</span><span>🕐 ${l['m_'+g.mom]}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>👶 ${l.age} ${g.age}</span><span>🕐 ${l.mom} : ${l['m_'+g.mom]}</span><span>${l.gear}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

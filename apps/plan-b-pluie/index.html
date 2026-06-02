@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<!-- App — Plan B jours de pluie (Service de garde). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan B jours de pluie — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search {
+      flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff;
+    }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip {
+      font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre);
+    }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+  </style>
+</head>
+<body data-metier="sdg">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../service-de-garde.html" data-i18n="subnav.back_metier">← Service de garde</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Plan B pluie</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🌧️ Plan B jours de pluie</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrAge"></div>
+      <div class="jr-chips" id="jrEsp"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // ===== Données (activités intérieures grand groupe) — esp: local | couloir | gym =====
+    const GAMES = [
+      { id:'chaise', icon:'🪑', age:'5-6', esp:'local', fr:{n:'Chaises coopératives',d:'Comme la chaise musicale, mais on s\'entraide.',steps:['On retire une chaise à chaque tour.','À l\'arrêt de la musique, tout le monde doit s\'asseoir — même sur les genoux des autres.','Le défi : faire tenir tout le groupe sur le moins de chaises possible.']}, en:{n:'Cooperative chairs',d:'Musical chairs, but you help each other.',steps:['Remove one chair each round.','When the music stops, everyone must sit — even on each other\'s laps.','Challenge: fit the whole group on as few chairs as possible.']} },
+      { id:'parcours', icon:'🧱', age:'7-9', esp:'local', fr:{n:'Parcours coussins',d:'Traverser le local sans toucher le sol.',steps:['On place coussins, tapis et chaises comme des îles.','Le sol est de la lave : interdit de le toucher.','En équipe, on traverse d\'un mur à l\'autre en s\'entraidant.']}, en:{n:'Cushion course',d:'Cross the room without touching the floor.',steps:['Place cushions, mats and chairs as islands.','The floor is lava: no touching.','In teams, cross from wall to wall helping each other.']} },
+      { id:'relais', icon:'🏃', age:'10-12', esp:'gym', fr:{n:'Relais des éléments',d:'Relais où chaque équipe imite un élément.',steps:['4 équipes : feu, eau, terre, air, avec un geste propre.','Au signal, le coureur traverse en faisant le geste de son équipe.','Première équipe à finir le relais sans casser le geste gagne.']}, en:{n:'Elements relay',d:'A relay where each team mimics an element.',steps:['4 teams: fire, water, earth, air, each with a signature move.','On the signal, the runner crosses doing the team move.','First team to finish without breaking the move wins.']} },
+      { id:'couloir', icon:'🚶', age:'5-6', esp:'couloir', fr:{n:'Le couloir secret',d:'Avancer selon la consigne chuchotée.',steps:['Les enfants attendent au bout du couloir.','Le meneur chuchote une façon d\'avancer (à pas de loup, en crabe…).','Au bout, on chuchote la consigne suivante à l\'oreille.']}, en:{n:'The secret hallway',d:'Move by the whispered instruction.',steps:['Kids wait at one end of the hallway.','The leader whispers a way to move (tiptoe, crab walk…).','At the end, whisper the next instruction in their ear.']} },
+      { id:'cache', icon:'🔦', age:'7-9', esp:'local', fr:{n:'Objet voyageur',d:'Trouver l\'objet qui change de place.',steps:['Un enfant sort, le groupe cache un petit objet en vue.','Il revient et cherche; le groupe guide avec « chaud / froid ».','Celui qui trouve cache l\'objet au tour suivant.']}, en:{n:'Traveling object',d:'Find the object that moves.',steps:['One child leaves, the group hides a small object in plain sight.','They return and search; the group guides with "hot / cold".','Whoever finds it hides it next round.']} },
+      { id:'orage', icon:'⛈️', age:'5-6', esp:'local', fr:{n:'L\'orage assis',d:'Recréer le son d\'un orage avec le corps.',steps:['Assis en cercle, on frotte les mains : c\'est la pluie qui commence.','On claque des doigts, puis on tape les cuisses : l\'orage monte.','On ralentit dans l\'ordre inverse jusqu\'au silence : l\'orage s\'éloigne.']}, en:{n:'Seated storm',d:'Recreate a storm sound with your body.',steps:['Sitting in a circle, rub hands: the rain begins.','Snap fingers, then tap thighs: the storm builds.','Slow down in reverse order to silence: the storm passes.']} },
+      { id:'mime', icon:'🎭', age:'10-12', esp:'gym', fr:{n:'Mime en chaîne',d:'Transmettre un mime de proche en proche.',steps:['Une équipe en file dos tourné.','Le premier mime une action au second, qui la transmet au suivant.','Le dernier devine : on compare avec le mime de départ. Fous rires assurés.']}, en:{n:'Mime chain',d:'Pass a mime person to person.',steps:['A team lines up facing away.','The first mimes an action to the second, who passes it on.','The last guesses: compare with the original. Laughs guaranteed.']} },
+      { id:'danse', icon:'🕺', age:'7-9', esp:'gym', fr:{n:'Statue dansante',d:'Danser puis figer au bon moment.',steps:['On danse librement sur la musique.','À l\'arrêt, on fige dans une pose rigolote.','Le meneur nomme un thème (animal, robot) pour la prochaine pose.']}, en:{n:'Dancing statue',d:'Dance then freeze on cue.',steps:['Dance freely to the music.','When it stops, freeze in a funny pose.','The leader calls a theme (animal, robot) for the next pose.']} }
+    ];
+
+    // ===== Libellés (bilingue) =====
+    const LBL = {
+      fr:{ pill:'Plan B pluie', title:'🌧️ Plan B jours de pluie', intro:'Quand on reste à l\'intérieur — activités grand groupe selon l\'espace disponible.',
+        search:'Rechercher une activité…', allAges:'Tous les âges', allEsp:'Tous les espaces',
+        e_local:'Local', e_couloir:'Couloir', e_gym:'Gymnase',
+        count:n=>`${n} activité${n>1?'s':''}`, empty:'Aucune activité ne correspond.', how:'Comment faire', age:'Âge', esp:'Espace', gear:'Matériel : minimal' },
+      en:{ pill:'Rainy plan B', title:'🌧️ Rainy-day plan B', intro:'When you stay indoors — large-group activities by available space.',
+        search:'Search an activity…', allAges:'All ages', allEsp:'Any space',
+        e_local:'Room', e_couloir:'Hallway', e_gym:'Gym',
+        count:n=>`${n} activit${n>1?'ies':'y'}`, empty:'No activity matches.', how:'How to do it', age:'Age', esp:'Space', gear:'Gear: minimal' }
+    };
+    let fAge='*', fEsp='*';
+    const ESPS=['local','couloir','gym'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-6','5-6'],['7-9','7-9'],['10-12','10-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrEsp').innerHTML =
+        [['*',l.allEsp]].concat(ESPS.map(e=>[e,l['e_'+e]]))
+        .map(([v,t])=>`<button class="jr-chip${fEsp===v?' active':''}" onclick="fEsp='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fAge==='*'||g.age===fAge) && (fEsp==='*'||g.esp===fEsp) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>👶 ${g.age}</span><span>📍 ${l['e_'+g.esp]}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>👶 ${l.age} ${g.age}</span><span>📍 ${l.esp} : ${l['e_'+g.esp]}</span><span>${l.gear}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

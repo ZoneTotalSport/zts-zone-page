@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!-- App — Grands jeux (Camps de jour). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grands jeux — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+    .jr-gear { font-family:var(--font-body); font-weight:700; margin-top:10px; }
+  </style>
+</head>
+<body data-metier="camp">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../camps-de-jour.html" data-i18n="subnav.back_metier">← Camps de jour</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Grands jeux</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🏆 Grands jeux</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrDur"></div>
+      <div class="jr-chips" id="jrLieu"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // dur: court(20) | moyen(40) | long(60)   lieu: terrain | boise | gym
+    const GAMES = [
+      { id:'drapeau', icon:'🚩', dur:'long', lieu:'terrain', gear:{fr:'2 fanions, 2 zones-prison',en:'2 flags, 2 jail zones'}, fr:{n:'Capture du drapeau',d:'Voler le fanion adverse sans se faire toucher.',steps:['Deux équipes, chacune garde son fanion dans son camp.','Traverser dans le camp adverse pour voler le fanion; si touché, on va en prison.','Un coéquipier libère en touchant la prison. Première équipe à ramener le fanion gagne.']}, en:{n:'Capture the flag',d:'Steal the enemy flag without being tagged.',steps:['Two teams, each guards its flag in its base.','Cross into the enemy base to grab the flag; if tagged, go to jail.','A teammate frees you by tagging the jail. First team to bring back the flag wins.']} },
+      { id:'poule', icon:'🦊', dur:'moyen', lieu:'terrain', gear:{fr:'Aucun',en:'None'}, fr:{n:'Poule, renard, vipère',d:'Trois équipes qui se chassent en triangle.',steps:['Poule attrape vipère, vipère attrape renard, renard attrape poule.','Les attrapés rejoignent l\'équipe qui les a pris.','Dernière équipe avec des membres libres gagne.']}, en:{n:'Hen, fox, viper',d:'Three teams chase in a triangle.',steps:['Hen tags viper, viper tags fox, fox tags hen.','Those tagged join the team that caught them.','Last team with free members wins.']} },
+      { id:'douaniers', icon:'💎', dur:'long', lieu:'boise', gear:{fr:'Foulards = trésors',en:'Scarves = treasures'}, fr:{n:'Douaniers-contrebandiers',d:'Faire passer des trésors sans se faire fouiller.',steps:['Les contrebandiers cachent des foulards sur eux et traversent la zone.','Les douaniers fouillent (toucher les épaules) pour confisquer.','Chaque trésor rendu à la base rapporte des points.']}, en:{n:'Customs & smugglers',d:'Sneak treasures past the search line.',steps:['Smugglers hide scarves on themselves and cross the zone.','Customs officers search (touch shoulders) to confiscate.','Each treasure brought to base scores points.']} },
+      { id:'ballon', icon:'🏐', dur:'moyen', lieu:'gym', gear:{fr:'Ballons mousse',en:'Foam balls'}, fr:{n:'Ballon-chasseur géant',d:'Éliminer l\'autre équipe à coups de ballons mousse.',steps:['Deux camps séparés par une ligne centrale.','Toucher un adversaire l\'envoie sur le banc; attraper le ballon libère un coéquipier.','Équipe qui élimine tout le monde gagne la manche.']}, en:{n:'Giant dodgeball',d:'Eliminate the other team with foam balls.',steps:['Two camps split by a center line.','Hitting an opponent sends them to the bench; a clean catch frees a teammate.','The team that eliminates everyone wins the round.']} },
+      { id:'sardine', icon:'🐟', dur:'court', lieu:'boise', gear:{fr:'Aucun',en:'None'}, fr:{n:'Cache-cache sardine',d:'Cache-cache inversé : tout le monde rejoint le caché.',steps:['Une seule personne se cache, les autres comptent.','Qui trouve le caché se glisse dans la cachette avec lui en silence.','Dernier à trouver la « sardine » se cache au tour suivant.']}, en:{n:'Sardines',d:'Reverse hide-and-seek: everyone joins the hider.',steps:['Only one person hides, the others count.','Whoever finds them squeezes into the hideout quietly.','Last to find the "sardine" hides next round.']} },
+      { id:'koh', icon:'🏝️', dur:'long', lieu:'terrain', gear:{fr:'Stations + foulards immunité',en:'Stations + immunity scarves'}, fr:{n:'Défis de l\'île',d:'Parcours d\'épreuves façon télé-réalité.',steps:['Les équipes tournent sur 5 stations d\'épreuves (adresse, force, énigme).','Chaque épreuve réussie rapporte un foulard d\'immunité.','Conseil final : l\'équipe avec le plus de foulards gagne l\'île.']}, en:{n:'Island challenges',d:'A reality-TV style obstacle circuit.',steps:['Teams rotate through 5 challenge stations (skill, strength, riddle).','Each cleared challenge earns an immunity scarf.','Final council: the team with the most scarves wins the island.']} },
+      { id:'tresor', icon:'🗝️', dur:'moyen', lieu:'boise', gear:{fr:'Cartes + indices',en:'Maps + clues'}, fr:{n:'La clé du coffre',d:'Suivre les indices pour ouvrir le coffre.',steps:['Chaque équipe reçoit un premier indice qui mène au suivant.','Chaque cachette donne un morceau du code du cadenas.','Première équipe à composer le code ouvre le coffre au trésor.']}, en:{n:'The chest key',d:'Follow clues to open the chest.',steps:['Each team gets a first clue leading to the next.','Each spot gives a piece of the lock code.','First team to enter the code opens the treasure chest.']} },
+      { id:'roches', icon:'🪨', dur:'court', lieu:'gym', gear:{fr:'Cônes',en:'Cones'}, fr:{n:'Le volcan',d:'Ramener un maximum d\'objets avant l\'éruption.',steps:['Des objets (« roches ») sont au centre = le volcan.','Au signal, chacun rapporte UN objet à la fois dans sa base.','Au compte à rebours « éruption! », on fige; l\'équipe avec le plus d\'objets gagne.']}, en:{n:'The volcano',d:'Grab the most objects before the eruption.',steps:['Objects ("rocks") sit in the center = the volcano.','On the signal, each carries ONE object at a time to their base.','At the "eruption!" countdown, freeze; the team with the most objects wins.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Grands jeux', title:'🏆 Grands jeux', intro:'Jeux grands groupes avec fiches complètes — filtre par durée et par lieu.',
+        search:'Rechercher un grand jeu…', allDur:'Toutes durées', allLieu:'Tous les lieux',
+        d_court:'~20 min', d_moyen:'~40 min', d_long:'60 min +', l_terrain:'Terrain', l_boise:'Boisé', l_gym:'Gymnase',
+        count:n=>`${n} grand${n>1?'s':''} jeu${n>1?'x':''}`, empty:'Aucun jeu ne correspond.', how:'Comment jouer', dur:'Durée', lieu:'Lieu', gear:'Matériel' },
+      en:{ pill:'Big games', title:'🏆 Big games', intro:'Large-group games with full sheets — filter by length and place.',
+        search:'Search a big game…', allDur:'Any length', allLieu:'Any place',
+        d_court:'~20 min', d_moyen:'~40 min', d_long:'60 min +', l_terrain:'Field', l_boise:'Woods', l_gym:'Gym',
+        count:n=>`${n} big game${n>1?'s':''}`, empty:'No game matches.', how:'How to play', dur:'Length', lieu:'Place', gear:'Gear' }
+    };
+    let fDur='*', fLieu='*';
+    const DURS=['court','moyen','long'], LIEUX=['terrain','boise','gym'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrDur').innerHTML =
+        [['*',l.allDur]].concat(DURS.map(d=>[d,l['d_'+d]]))
+        .map(([v,t])=>`<button class="jr-chip${fDur===v?' active':''}" onclick="fDur='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrLieu').innerHTML =
+        [['*',l.allLieu]].concat(LIEUX.map(x=>[x,l['l_'+x]]))
+        .map(([v,t])=>`<button class="jr-chip${fLieu===v?' active':''}" onclick="fLieu='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fDur==='*'||g.dur===fDur) && (fLieu==='*'||g.lieu===fLieu) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>⏱️ ${l['d_'+g.dur]}</span><span>📍 ${l['l_'+g.lieu]}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>⏱️ ${l.dur} : ${l['d_'+g.dur]}</span><span>📍 ${l.lieu} : ${l['l_'+g.lieu]}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <p class="jr-gear">🎒 ${l.gear} : ${g.gear[lang]}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

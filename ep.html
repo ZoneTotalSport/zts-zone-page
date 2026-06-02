@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!-- HUB MÉTIER — Éducation physique. Sur le design system partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Éducation physique — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/zts.css">
+</head>
+<body data-metier="ep">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" data-i18n="hub.ep.pill">Zone ÉP</span>
+        <h1 style="margin-top:10px;" data-i18n="hub.ep.title">Ton gym, tes règles.</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" data-i18n="hub.ep.intro">Toutes tes apps d'éducation physique, réunies au même endroit.</p>
+      </div>
+    </section>
+
+    <section class="zts-menu" id="menuJour"></section>
+
+    <h2 style="font-family:var(--font-impact); font-size:var(--fs-4); margin:var(--space-4) 0 var(--space-3);" data-i18n="hub.active">Apps prêtes à l'emploi</h2>
+    <div class="zts-grid" id="gridActive"></div>
+
+    <h2 id="soonTitle" style="font-family:var(--font-impact); font-size:var(--fs-4); margin:var(--space-6) 0 var(--space-3); opacity:.8;" data-i18n="hub.coming">Bientôt disponibles</h2>
+    <div class="zts-grid" id="gridSoon"></div>
+
+  </main>
+
+  <div data-zts-footer></div>
+
+  <script src="shared/zts.js"></script>
+  <script src="/firebase-auth.js" defer></script>
+  <script src="/zts-funnel.js" defer></script>
+  <script src="shared/zts-unlock.js"></script>
+  <script>
+    // ===== Apps du hub ÉP (bilingue) — rendu piloté par la langue active =====
+    const ACTIVE = [
+      { icon:'🗂️', url:'apps/planification/?metier=ep', tag:'new', fr:{n:'⭐ Planification ÉP',d:'360 cours clé en main · 4 niveaux · PFEQ'}, en:{n:'⭐ PE Planning',d:'360 turnkey lessons · 4 levels · PFEQ'} },
+      { icon:'📅', url:'https://zonetotalsport.ca/apps/planificateur/', tag:'pro', fr:{n:'Planificateur ÉPS',d:'Calendrier scolaire, séances et évaluation'}, en:{n:'PE Planner',d:'School calendar, sessions and assessment'} },
+      { icon:'🏀', url:'https://zonetotalsport.ca/apps/scoreboard/', fr:{n:'Tableau indicateur',d:'Scoreboard 3 sports, mode TNI'}, en:{n:'Scoreboard',d:'3-sport scoreboard, IWB mode'} },
+      { icon:'🧰', url:'https://zonetotalsport.ca/apps/transitions/', fr:{n:'Boîte à outils',d:'Signaux, chrono, équipes, message'}, en:{n:'Toolbox',d:'Signals, timer, teams, message'} },
+      { icon:'🎒', url:'https://zonetotalsport.ca/apps/cours-maternelle/', fr:{n:'90 cours maternelle',d:'90 séances clé en main, 4-6 ans'}, en:{n:'90 kindergarten lessons',d:'90 turnkey sessions, ages 4-6'} },
+      { icon:'🎮', url:'https://jeux.zonetotalsport.ca', fr:{n:'Banque de jeux',d:'1439 jeux filtrables avec fiches'}, en:{n:'Game bank',d:'1,439 filterable games with sheets'} },
+      { icon:'📚', url:'https://sae.zonetotalsport.ca', fr:{n:'SAÉ PFEQ',d:"Banque de situations d'apprentissage"}, en:{n:'PFEQ lessons',d:'Bank of learning situations'} },
+      { icon:'🤖', url:'https://generateur.zonetotalsport.ca', tag:'ia', fr:{n:'Générateur SAÉ IA',d:'Crée une SAÉ PFEQ en 10 secondes'}, en:{n:'AI SAÉ generator',d:'Build a PFEQ lesson in 10 seconds'} },
+      { icon:'📋', url:'https://educatifs.zonetotalsport.ca', fr:{n:"Banque d'éducatifs",d:'Fiches techniques par sport'}, en:{n:'Drills bank',d:'Technique sheets by sport'} },
+      { icon:'🗓️', url:'https://grille.zonetotalsport.ca', fr:{n:'Grille horaire',d:'Spécialistes, locaux et groupes'}, en:{n:'Schedule grid',d:'Specialists, rooms and groups'} },
+      { icon:'📊', url:'https://evaluation.zonetotalsport.ca', fr:{n:'Carnet ÉPS',d:'Évaluation et présences'}, en:{n:'PE gradebook',d:'Assessment and attendance'} },
+      { icon:'🖍️', url:'https://tni.zonetotalsport.ca', fr:{n:'Tableau blanc TNI',d:'Dessin et projection au tableau'}, en:{n:'IWB whiteboard',d:'Draw and project on the board'} },
+      { icon:'🎵', url:'https://musique.zonetotalsport.ca', fr:{n:'Musique',d:'Playlists par moment de cours'}, en:{n:'Music',d:'Playlists by class moment'} },
+      { icon:'🗒️', url:'https://agenda.zonetotalsport.ca', tag:'new', fr:{n:'Agenda',d:"Ton agenda d'enseignant en ligne"}, en:{n:'Agenda',d:'Your online teacher planner'} },
+      { icon:'🤸', url:'https://gym.zonetotalsport.ca', tag:'new', fr:{n:'App Gym',d:'Outils interactifs pour le gymnase'}, en:{n:'Gym App',d:'Interactive tools for the gym'} },
+      { icon:'🦺', url:'https://suppleance.zonetotalsport.ca', fr:{n:'Ma Suppléance',d:'Plans clé en main pour suppléants'}, en:{n:'My Substitute',d:'Turnkey plans for substitutes'} },
+      { icon:'🌍', url:'https://zonetotalsport.ca/repertoire.html', fr:{n:'Répertoire mondial',d:"Profs d'ÉP du monde entier"}, en:{n:'World directory',d:'PE teachers worldwide'} },
+      { icon:'✏️', url:'https://zonetotalsport.ca/blog.html', fr:{n:'Blog ÉPS',d:'23+ articles pratiques'}, en:{n:'PE Blog',d:'23+ practical articles'} },
+      { icon:'🤝', url:'https://zonetotalsport.ca/aidons-nous/', fr:{n:'Communauté ÉPS',d:'Forum Aidons-nous'}, en:{n:'PE Community',d:'Aidons-nous forum'} },
+      { icon:'🏃', url:'apps/echauffements/', tag:'new', fr:{n:'Échauffements',d:'Routines par zone du corps et âge'}, en:{n:'Warm-ups',d:'Routines by body zone and age'} },
+      { icon:'🏅', url:'apps/olympiades-scolaires/', tag:'new', fr:{n:'Olympiades scolaires',d:'Épreuves clé en main + pointage'}, en:{n:'School olympics',d:'Turnkey events + scoring'} },
+      { icon:'🌧️', url:'apps/plan-b-meteo/', tag:'new', fr:{n:'Plan B météo',d:'Activités selon la météo'}, en:{n:'Weather plan B',d:'Activities by weather'} },
+      { icon:'🧩', url:'apps/enigmes/', tag:'new', fr:{n:'Énigmes & devinettes',d:'Casse-tête par âge, réponse révélée'}, en:{n:'Riddles & puzzles',d:'Brain teasers by age, reveal answer'} },
+      { icon:'🎤', url:'apps/comptines/', tag:'new', fr:{n:'Comptines & chansons',d:'Paroles originales + gestes'}, en:{n:'Rhymes & songs',d:'Original lyrics + gestures'} },
+      { icon:'🛡️', url:'apps/intervention-groupe/', tag:'new', fr:{n:'Intervention Groupe',d:'SOS crise + jeux inclusifs'}, en:{n:'Group Intervention',d:'Crisis SOS + inclusive games'} }
+    ];
+    const SOON = [];
+
+    // ===== Menu du jour ÉP (bilingue) =====
+    const MENU = {
+      fr:{
+        weather:{tag:'EXTÉRIEUR', note:'Temps idéal dehors', suggTitle:'★ Suggestions par cycle', sugg:[
+          {cyc:'1ER',name:'Parcours cônes fous',desc:'Slalom, sauts, courses entre 8-10 cônes colorés.'},
+          {cyc:'2E',name:'Chasse au trésor sportive',desc:'Indices menant à un défi physique à chaque station.'},
+          {cyc:'3E',name:'Kin-ball modifié',desc:'3 équipes, gros ballon, stratégie coopérative.'}]},
+        game:{tag:'🏫 Pour le gymnase', name:'KINBALL', desc:'Trois équipes de 4 joueurs, un ballon géant. Une équipe nomme une couleur et frappe le ballon; l\'équipe nommée doit l\'attraper avant qu\'il touche le sol.', chips:['Équipe','2e-3e cycle','Ballon géant']},
+        challenge:{tag:'🏫 En classe & à la maison', name:'COMPLIMENT CHAÎNE', desc:'Chacun complimente son voisin. Le voisin continue.', box:'Cercle de fin : un compliment de droite à gauche.'}
+      },
+      en:{
+        weather:{tag:'OUTDOOR', note:'Perfect weather outside', suggTitle:'★ Suggestions by grade', sugg:[
+          {cyc:'G1',name:'Crazy cone course',desc:'Slalom, jumps, races among 8-10 colored cones.'},
+          {cyc:'G2',name:'Sporty treasure hunt',desc:'Clues leading to a physical challenge at each station.'},
+          {cyc:'G3',name:'Modified kin-ball',desc:'3 teams, big ball, cooperative strategy.'}]},
+        game:{tag:'🏫 For the gym', name:'KINBALL', desc:'Three teams of 4 players, one giant ball. A team calls a color and hits the ball; the named team must catch it before it touches the ground.', chips:['Team','Grades 2-3','Giant ball']},
+        challenge:{tag:'🏫 In class & at home', name:'COMPLIMENT CHAIN', desc:'Each person compliments their neighbor. The neighbor continues.', box:'Closing circle: one compliment passed right to left.'}
+      }
+    };
+    function renderMenu(){
+      const m = MENU[ZTS.getLang()];
+      document.getElementById('menuJour').innerHTML = `
+        <h2 class="zts-menu__title">${ZTS.t('hub.menu_title')}</h2>
+        <div class="zts-menu__grid">
+          <div class="zts-menu__card">
+            <h3>${ZTS.t('hub.menu_weather')}</h3>
+            <span class="zts-menu__tag">${m.weather.tag}</span>
+            <div class="zts-menu__desc">${m.weather.note}</div>
+            <div class="zts-menu__small">${m.weather.suggTitle}</div>
+            <ul class="zts-menu__list">${m.weather.sugg.map(s=>`<li><span class="cyc">${s.cyc}</span>${s.name} — <span style="opacity:.8">${s.desc}</span></li>`).join('')}</ul>
+          </div>
+          <div class="zts-menu__card">
+            <h3>${ZTS.t('hub.menu_game')}</h3>
+            <span class="zts-menu__tag">${m.game.tag}</span>
+            <div class="zts-menu__name">${m.game.name}</div>
+            <div class="zts-menu__small">${ZTS.t('hub.menu_howplay')}</div>
+            <div class="zts-menu__desc">${m.game.desc}</div>
+            <div class="zts-menu__chips">${m.game.chips.map(c=>`<span>${c}</span>`).join('')}</div>
+          </div>
+          <div class="zts-menu__card">
+            <h3>${ZTS.t('hub.menu_challenge')}</h3>
+            <span class="zts-menu__tag">${m.challenge.tag}</span>
+            <div class="zts-menu__name">${m.challenge.name}</div>
+            <div class="zts-menu__desc">${m.challenge.desc}</div>
+            <div class="zts-menu__small">${ZTS.t('hub.menu_todo')}</div>
+            <div class="zts-menu__box">${m.challenge.box}</div>
+          </div>
+        </div>`;
+    }
+
+    function tagHtml(tag){
+      if(!tag) return '';
+      const key = tag==='ia'?'tag.ia':tag==='new'?'tag.new':'tag.pro';
+      return `<span class="zts-tag zts-tag--${tag}">${ZTS.t(key)}</span>`;
+    }
+    function renderHub(){
+      renderMenu();
+      const L = ZTS.getLang();
+      document.getElementById('gridActive').innerHTML = ACTIVE.map(a=>`
+        <a class="zts-app-card" href="${a.url}" target="_blank" rel="noopener">
+          ${tagHtml(a.tag)}
+          <span class="zts-app-card__icon">${a.icon}</span>
+          <span class="zts-app-card__name">${a[L].n}</span>
+          <span class="zts-app-card__desc">${a[L].d}</span>
+        </a>`).join('');
+      document.getElementById('gridSoon').innerHTML = SOON.map(a=>`
+        <div class="zts-app-card is-soon" aria-disabled="true">
+          <span class="zts-tag zts-tag--soon">${ZTS.t('tag.soon')}</span>
+          <span class="zts-app-card__icon">${a.icon}</span>
+          <span class="zts-app-card__name">${a[L].n}</span>
+          <span class="zts-app-card__desc">${a[L].d}</span>
+        </div>`).join('');
+      const hasSoon = SOON.length>0;
+      document.getElementById('soonTitle').hidden = !hasSoon;
+      document.getElementById('gridSoon').hidden = !hasSoon;
+    }
+    document.addEventListener('zts:ready', renderHub);
+    document.addEventListener('zts:langchange', renderHub);
+  </script>
+</body>
+</html>

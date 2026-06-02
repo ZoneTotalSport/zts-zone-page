@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!-- App — Veillée / feu de camp (Camps de jour). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veillée / feu de camp — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+  </style>
+</head>
+<body data-metier="camp">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../camps-de-jour.html" data-i18n="subnav.back_metier">← Camps de jour</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Veillée</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🔥 Veillée / feu de camp</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrType"></div>
+      <div class="jr-chips" id="jrEnergie"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // type: histoire | chanson | jeu | talent    energie: calme | actif
+    const GAMES = [
+      { id:'crochu', icon:'🪝', type:'histoire', energie:'calme', fr:{n:'La légende du Capitaine Crochu',d:'Histoire à frissons adaptée au feu.',steps:['Baisser la voix; tout le monde se rapproche du feu.','Raconter lentement, en ménageant des silences.','Réserver un « pic » sonore léger à la fin — sans effrayer les plus jeunes.']}, en:{n:'The legend of Captain Hook',d:'A spooky-but-safe campfire tale.',steps:['Lower your voice; everyone leans toward the fire.','Tell it slowly, using pauses.','Save one light sound "spike" for the end — without scaring the youngest.']} },
+      { id:'echo', icon:'📣', type:'chanson', energie:'actif', fr:{n:'Chanson en écho',d:'Le meneur chante, le groupe répète.',steps:['Le meneur chante une ligne courte et rythmée.','Le groupe la répète exactement, gestes inclus.','On accélère couplet après couplet jusqu\'au fou rire.']}, en:{n:'Echo song',d:'The leader sings, the group repeats.',steps:['The leader sings a short, rhythmic line.','The group repeats it exactly, gestures included.','Speed up verse after verse until everyone laughs.']} },
+      { id:'telephone', icon:'📞', type:'jeu', energie:'calme', fr:{n:'Téléphone arabe',d:'Transmettre une phrase à voix basse.',steps:['Une phrase chuchotée passe d\'oreille en oreille.','Le dernier dit tout haut ce qu\'il a compris.','On compare avec la phrase d\'origine — toujours déformée!']}, en:{n:'Telephone',d:'Pass a whispered sentence around.',steps:['A whispered sentence travels ear to ear.','The last person says aloud what they heard.','Compare with the original — always garbled!']} },
+      { id:'talent', icon:'⭐', type:'talent', energie:'actif', fr:{n:'Cabaret des talents',d:'Mini-spectacle où chaque groupe se produit.',steps:['Chaque tente/groupe prépare un numéro de 2 minutes.','Un présentateur enchaîne les numéros avec énergie.','Le public applaudit; pas de gagnant, tout le monde brille.']}, en:{n:'Talent cabaret',d:'A mini-show where each group performs.',steps:['Each tent/group prepares a 2-minute act.','A host links the acts with energy.','The crowd cheers; no winner, everyone shines.']} },
+      { id:'ombres', icon:'🖐️', type:'jeu', energie:'calme', fr:{n:'Théâtre d\'ombres',d:'Créer des formes avec les mains et la lumière.',steps:['Tendre un drap clair éclairé par-derrière (lampe).','Les enfants forment des animaux et des scènes avec leurs mains.','Le public devine ce qui est représenté.']}, en:{n:'Shadow theater',d:'Make shapes with hands and light.',steps:['Hang a light sheet lit from behind (lamp).','Kids form animals and scenes with their hands.','The audience guesses what is shown.']} },
+      { id:'feu', icon:'🔥', type:'chanson', energie:'calme', fr:{n:'Le chant du feu qui s\'éteint',d:'Chanson douce pour finir la soirée.',steps:['Tout le monde s\'assoit, voix de plus en plus basse.','On chante un refrain apaisant en regardant les braises.','On termine en silence : moment de calme avant le coucher.']}, en:{n:'Song of the dying fire',d:'A soft song to end the night.',steps:['Everyone sits, voices growing softer.','Sing a soothing refrain while watching the embers.','End in silence: a calm moment before bedtime.']} },
+      { id:'devinettes', icon:'❓', type:'jeu', energie:'actif', fr:{n:'Devinettes du feu',d:'Énigmes rapides à crier la réponse.',steps:['Le meneur pose une devinette courte.','Le premier à lever la main et trouver marque un point pour sa tente.','5 devinettes, ambiance survoltée garantie.']}, en:{n:'Campfire riddles',d:'Quick riddles, shout the answer.',steps:['The leader gives a short riddle.','First to raise a hand and answer scores for their tent.','5 riddles, high-energy fun guaranteed.']} },
+      { id:'gratitude', icon:'💛', type:'histoire', energie:'calme', fr:{n:'Le tour de gratitude',d:'Chacun partage un bon moment de la journée.',steps:['En cercle autour du feu, on passe un « bâton de parole ».','Celui qui le tient nomme un moment qu\'il a aimé aujourd\'hui.','On termine la journée sur une note positive et reconnaissante.']}, en:{n:'Gratitude round',d:'Each shares a good moment of the day.',steps:['In a circle around the fire, pass a "talking stick".','Whoever holds it names a moment they loved today.','End the day on a positive, grateful note.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Veillée', title:'🔥 Veillée / feu de camp', intro:'Des activités de soirée pour clore la journée — histoires, chants, jeux et talents.',
+        search:'Rechercher une activité…', allType:'Tous les types', allEnergie:'Toutes énergies',
+        t_histoire:'📖 Histoire', t_chanson:'🎵 Chanson', t_jeu:'🎲 Jeu', t_talent:'⭐ Talent', e_calme:'🟢 Calme', e_actif:'🔴 Actif',
+        count:n=>`${n} activité${n>1?'s':''}`, empty:'Aucune activité ne correspond.', how:'Comment faire', type:'Type', energie:'Énergie' },
+      en:{ pill:'Evening', title:'🔥 Evening / campfire', intro:'Evening activities to close the day — stories, songs, games and talents.',
+        search:'Search an activity…', allType:'All types', allEnergie:'Any energy',
+        t_histoire:'📖 Story', t_chanson:'🎵 Song', t_jeu:'🎲 Game', t_talent:'⭐ Talent', e_calme:'🟢 Calm', e_actif:'🔴 Active',
+        count:n=>`${n} activit${n>1?'ies':'y'}`, empty:'No activity matches.', how:'How to do it', type:'Type', energie:'Energy' }
+    };
+    let fType='*', fEnergie='*';
+    const TYPES=['histoire','chanson','jeu','talent'], ENERGIES=['calme','actif'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrType').innerHTML =
+        [['*',l.allType]].concat(TYPES.map(t=>[t,l['t_'+t]]))
+        .map(([v,t])=>`<button class="jr-chip${fType===v?' active':''}" onclick="fType='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrEnergie').innerHTML =
+        [['*',l.allEnergie]].concat(ENERGIES.map(e=>[e,l['e_'+e]]))
+        .map(([v,t])=>`<button class="jr-chip${fEnergie===v?' active':''}" onclick="fEnergie='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fType==='*'||g.type===fType) && (fEnergie==='*'||g.energie===fEnergie) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>${l['t_'+g.type]}</span><span>${l['e_'+g.energie]}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>${l['t_'+g.type]}</span><span>${l['e_'+g.energie]}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

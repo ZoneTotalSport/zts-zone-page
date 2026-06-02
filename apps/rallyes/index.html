@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<!-- App — Rallyes / chasses au trésor (Camps de jour). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rallyes & chasses au trésor — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .rl-section { margin-bottom:var(--space-6); }
+    .rl-h { font-family:var(--font-impact); font-size:var(--fs-4); margin:0 0 var(--space-3); }
+    .rl-card { cursor:pointer; }
+    .rl-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .rl-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .rl-steps { margin:10px 0 0 0; padding-left:20px; }
+    .rl-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+    /* Générateur */
+    .rl-gen { border:var(--bord); border-radius:var(--r-3); box-shadow:var(--ombre); background:#fff; padding:var(--space-4); }
+    .rl-bar { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .rl-field { font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:9px 14px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .rl-btn { font-family:var(--font-impact); font-size:var(--fs-2); cursor:pointer;
+      padding:11px 22px; border:var(--bord); border-radius:var(--r-pill); background:var(--metier); color:var(--ink); box-shadow:var(--ombre); }
+    .rl-btn--ghost { background:#fff; }
+    .rl-btn:active { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--zts-noir); }
+    .rl-clue { border:2px solid var(--zts-noir); border-radius:var(--r-2); padding:var(--space-3); margin-bottom:var(--space-3);
+      background:var(--metier-tint,#fff8ec); }
+    .rl-clue b { font-family:var(--font-impact); display:block; font-size:var(--fs-2); }
+    .rl-clue p { font-family:var(--font-hand,var(--font-body)); font-size:var(--fs-3); margin:6px 0; }
+    .rl-clue small { font-family:var(--font-body); font-weight:700; opacity:.7; }
+    @media print { [data-zts-header],[data-zts-footer],.zts-subnav,.rl-section:first-of-type,.rl-bar,.rl-clue small{ display:none !important; } }
+  </style>
+</head>
+<body data-metier="camp">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../camps-de-jour.html" data-i18n="subnav.back_metier">← Camps de jour</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7); max-width:920px;">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="rlPill">Rallyes</span>
+        <h1 style="margin-top:10px;" id="rlTitle">🗺️ Rallyes & chasses au trésor</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="rlIntro"></p>
+      </div>
+    </section>
+
+    <!-- Modèles prêts -->
+    <section class="rl-section">
+      <h2 class="rl-h" id="rlModelsH"></h2>
+      <div class="zts-grid" id="rlModels"></div>
+    </section>
+
+    <!-- Générateur d'indices -->
+    <section class="rl-section">
+      <h2 class="rl-h" id="rlGenH"></h2>
+      <div class="rl-gen">
+        <div class="rl-bar">
+          <label class="rl-field"><span id="rlNbText"></span>
+            <select id="rlNb" style="border:0;font-family:inherit;font-weight:700;background:transparent;">
+              <option>4</option><option selected>6</option><option>8</option><option>10</option></select>
+          </label>
+          <button class="rl-btn" id="rlGo" onclick="rlGen()"></button>
+          <button class="rl-btn rl-btn--ghost" id="rlPrint" onclick="window.print()"></button>
+        </div>
+        <div id="rlOut"></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="zts-modal" id="rlModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="rlModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // ===== Modèles de rallye =====
+    const MODELS = [
+      { id:'pirate', icon:'🏴‍☠️', fr:{n:'Le trésor du capitaine',d:'Chasse au trésor sur le thème pirate.', tag:'~60 min',
+        steps:['Diviser le camp en équipages avec un nom de bateau.','Chaque équipage suit 6 indices menant au coffre.','Chaque station cache un morceau de la carte au trésor.','Le coffre final contient une récompense à partager.']},
+        en:{n:'The captain\'s treasure',d:'A pirate-themed treasure hunt.', tag:'~60 min',
+        steps:['Split the camp into crews with a ship name.','Each crew follows 6 clues to the chest.','Each station hides a piece of the treasure map.','The final chest holds a reward to share.']} },
+      { id:'enquete', icon:'🕵️', fr:{n:'L\'enquête mystère',d:'Résoudre une énigme en collectant des indices.', tag:'~45 min',
+        steps:['Un « vol » a eu lieu au camp : présenter le mystère.','Chaque station donne un indice sur le coupable (objet, lieu, mobile).','Les équipes notent leurs déductions.','Grand dévoilement : qui a fait le coup?']},
+        en:{n:'The mystery investigation',d:'Solve a riddle by collecting clues.', tag:'~45 min',
+        steps:['A "theft" happened at camp: present the mystery.','Each station gives a clue about the culprit (object, place, motive).','Teams write down their deductions.','Big reveal: whodunit?']} },
+      { id:'nature', icon:'🌲', fr:{n:'Rallye nature',d:'Parcours d\'observation en plein air.', tag:'~40 min',
+        steps:['Préparer une liste d\'éléments à trouver/observer dehors.','Chaque équipe coche et photographie ou ramasse (selon les règles).','Bonus pour les trouvailles rares.','Retour en cercle pour partager les découvertes.']},
+        en:{n:'Nature rally',d:'An outdoor observation course.', tag:'~40 min',
+        steps:['Prepare a list of things to find/observe outside.','Each team checks off and photographs or gathers (per the rules).','Bonus for rare finds.','Circle back to share discoveries.']} },
+      { id:'defis', icon:'🎯', fr:{n:'Rallye-défis',d:'Stations d\'épreuves à compléter en équipe.', tag:'~50 min',
+        steps:['Installer 6 stations avec un défi chacune (adresse, énigme, coopération).','Une station réussie donne une lettre.','À la fin, les lettres forment un mot-code.','Le mot-code ouvre la dernière surprise.']},
+        en:{n:'Challenge rally',d:'Challenge stations to complete as a team.', tag:'~50 min',
+        steps:['Set up 6 stations, each with a challenge (skill, riddle, teamwork).','A cleared station gives a letter.','At the end, the letters spell a code word.','The code word unlocks the final surprise.']} }
+    ];
+
+    // ===== Générateur d'indices (cachettes + énigmes) =====
+    const SPOTS = [
+      { fr:{lieu:'le grand arbre', clue:'Plus vieux que vous tous, je touche le ciel. Cherche mon tronc, près du soleil.'}, en:{lieu:'the big tree', clue:'Older than you all, I reach the sky. Find my trunk where the sun is high.'} },
+      { fr:{lieu:'le banc', clue:'Je n\'ai pas de jambes mais quatre pattes. On s\'assoit sur moi sans qu\'on se débatte.'}, en:{lieu:'the bench', clue:'No legs of my own but four I keep. Sit on me, no need to leap.'} },
+      { fr:{lieu:'la glissade', clue:'Monte tout en haut puis laisse-toi aller. Mon toboggan te fera bien rigoler.'}, en:{lieu:'the slide', clue:'Climb to the top then let yourself go. My slope will make your laughter flow.'} },
+      { fr:{lieu:'la porte d\'entrée', clue:'Je m\'ouvre et je ferme tout le jour durant. Passe par moi pour aller dedans.'}, en:{lieu:'the front door', clue:'I open and close all day long. Pass through me to come along.'} },
+      { fr:{lieu:'le panier de basket', clue:'Rond et accroché bien haut dans les airs, on me vise avec un ballon de sphère.'}, en:{lieu:'the basketball hoop', clue:'Round and hung up high in the air, aim a ball at me with care.'} },
+      { fr:{lieu:'la fontaine d\'eau', clue:'Quand tu as soif, viens me trouver. Une gorgée fraîche je vais te donner.'}, en:{lieu:'the water fountain', clue:'When you are thirsty, come to me. A cool fresh sip is my decree.'} },
+      { fr:{lieu:'le bac à sable', clue:'On me creuse, on me bâtit, châteaux et tunnels jusqu\'à midi.'}, en:{lieu:'the sandbox', clue:'Dig me, build me, all the while — castles and tunnels make you smile.'} },
+      { fr:{lieu:'la clôture', clue:'Je fais le tour pour vous garder. Longe-moi pour me retrouver.'}, en:{lieu:'the fence', clue:'I run around to keep you near. Follow my edge to find me here.'} },
+      { fr:{lieu:'le grand rocher', clue:'Gris et lourd, je ne bouge jamais. Grimpe sur moi si tu l\'oses vraiment.'}, en:{lieu:'the big rock', clue:'Grey and heavy, I never roam. Climb on me if you dare, my home.'} },
+      { fr:{lieu:'la balançoire', clue:'D\'avant en arrière je vais et je viens. Plus tu pousses, plus je vais loin.'}, en:{lieu:'the swing', clue:'Back and forth I love to sway. The more you push, the more I play.'} },
+      { fr:{lieu:'le terrain de soccer', clue:'Deux filets, beaucoup de pelouse. Marque un but, la foule jalouse!'}, en:{lieu:'the soccer field', clue:'Two nets and lots of grass. Score a goal and watch them gasp!'} },
+      { fr:{lieu:'le local d\'arts', clue:'Crayons, pinceaux et beaucoup de couleurs. Ici naissent les chefs-d\'œuvre des artistes en fleur.'}, en:{lieu:'the art room', clue:'Crayons, brushes, colors galore. Here young artists\' works will soar.'} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Rallyes', title:'🗺️ Rallyes & chasses au trésor', intro:'Des modèles prêts à animer + un générateur d\'indices rimés pour bâtir ton propre parcours.',
+        modelsH:'📋 Modèles prêts', genH:'🪄 Générateur d\'indices', nb:'Nombre d\'indices : ', go:'🎲 Générer le parcours', print:'🖨️ Imprimer',
+        steps:'Déroulement', clue:n=>`Indice ${n}`, leads:'mène à', hint:'Conseil : cache chaque indice à l\'endroit nommé par l\'indice précédent.' },
+      en:{ pill:'Rallies', title:'🗺️ Rallies & treasure hunts', intro:'Ready-to-run templates + a rhyming clue generator to build your own trail.',
+        modelsH:'📋 Ready templates', genH:'🪄 Clue generator', nb:'Number of clues: ', go:'🎲 Generate the trail', print:'🖨️ Print',
+        steps:'Run-through', clue:n=>`Clue ${n}`, leads:'leads to', hint:'Tip: hide each clue at the spot named by the previous clue.' }
+    };
+    function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function rlStatic(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('rlPill').textContent=l.pill;
+      document.getElementById('rlTitle').textContent=l.title;
+      document.getElementById('rlIntro').textContent=l.intro;
+      document.getElementById('rlModelsH').textContent=l.modelsH;
+      document.getElementById('rlGenH').textContent=l.genH;
+      document.getElementById('rlNbText').textContent=l.nb;
+      document.getElementById('rlGo').textContent=l.go;
+      document.getElementById('rlPrint').textContent=l.print;
+      document.getElementById('rlModels').innerHTML=MODELS.map(m=>`
+        <div class="zts-app-card rl-card" role="button" tabindex="0" onclick="rlOpen('${m.id}')" onkeydown="if(event.key==='Enter')rlOpen('${m.id}')">
+          <span class="zts-app-card__icon">${m.icon}</span>
+          <span class="zts-app-card__name">${m[lang].n}</span>
+          <span class="zts-app-card__desc">${m[lang].d}</span>
+          <div class="rl-meta"><span>⏱️ ${m[lang].tag}</span></div>
+        </div>`).join('');
+    }
+    function rlOpen(id){
+      const m=MODELS.find(x=>x.id===id); if(!m) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('rlModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${m.icon} ${m[lang].n}</h2>
+        <div class="rl-meta" style="margin-bottom:10px;"><span>⏱️ ${m[lang].tag}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${m[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.steps}</div>
+        <ol class="rl-steps">${m[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('rlModal');
+    }
+    function rlGen(){
+      const l=L(), lang=ZTS.getLang();
+      const n=Math.min(+document.getElementById('rlNb').value, SPOTS.length);
+      const trail=shuffle(SPOTS).slice(0,n);
+      let html=`<p class="zts-menu__small" style="margin-bottom:var(--space-3);">${l.hint}</p>`;
+      html+=trail.map((s,i)=>`
+        <div class="rl-clue">
+          <b>${l.clue(i+1)}</b>
+          <p>“${s[lang].clue}”</p>
+          <small>👉 ${l.leads} : ${s[lang].lieu}</small>
+        </div>`).join('');
+      document.getElementById('rlOut').innerHTML=html;
+    }
+    window.rlOpen=rlOpen; window.rlGen=rlGen;
+    document.addEventListener('zts:ready', ()=>{ rlStatic(); rlGen(); });
+    document.addEventListener('zts:langchange', ()=>{ rlStatic(); rlGen(); });
+  </script>
+</body>
+</html>

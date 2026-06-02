@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!-- App — Olympiades scolaires : épreuves & organisation (Éducation physique). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Olympiades scolaires — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+    .jr-note { font-family:var(--font-body); font-weight:700; margin-top:10px; }
+    .os-cta { display:inline-block; margin-top:var(--space-3); font-family:var(--font-impact); font-size:var(--fs-2);
+      padding:10px 20px; border:var(--bord); border-radius:var(--r-pill); background:var(--metier); color:var(--ink); box-shadow:var(--ombre); text-decoration:none; }
+  </style>
+</head>
+<body data-metier="ep">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../ep.html" data-i18n="subnav.back_metier">← Éducation physique</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Olympiades</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🏅 Olympiades scolaires</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+        <a class="os-cta" id="osScore" href="../olympiades/" target="_blank" rel="noopener"></a>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrType"></div>
+      <div class="jr-chips" id="jrFormat"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // type: course | saut | lancer | relais    format: individuel | equipe
+    const GAMES = [
+      { id:'sprint', icon:'🏃', type:'course', format:'individuel', fr:{n:'Sprint 40 m',d:'Course de vitesse sur courte distance.',note:'Pointage : 1er = 10 pts, 2e = 8, 3e = 6, participation = 2.',steps:['Tracer un couloir de 40 m bien dégagé.','Départ par vagues de 4-6 élèves.','Chronométrer ou classer par ordre d\'arrivée.']}, en:{n:'40 m sprint',d:'A short-distance speed race.',note:'Scoring: 1st = 10 pts, 2nd = 8, 3rd = 6, participation = 2.',steps:['Mark a clear 40 m lane.','Start in waves of 4-6 students.','Time them or rank by finish order.']} },
+      { id:'longueur', icon:'📏', type:'saut', format:'individuel', fr:{n:'Saut en longueur',d:'Sauter le plus loin possible.',note:'Mesurer au talon le plus proche; 3 essais, on garde le meilleur.',steps:['Marquer une ligne d\'élan.','Sauter à pieds joints ou avec élan (selon l\'âge).','Mesurer et noter la meilleure distance.']}, en:{n:'Long jump',d:'Jump as far as possible.',note:'Measure to the nearest heel; 3 tries, keep the best.',steps:['Mark a run-up line.','Jump two-footed or with a run-up (by age).','Measure and record the best distance.']} },
+      { id:'poids', icon:'🥎', type:'lancer', format:'individuel', fr:{n:'Lancer de précision',d:'Viser une cible avec une balle.',note:'Points selon la zone touchée (10 / 5 / 2).',steps:['Installer des cibles concentriques au mur ou au sol.','Chaque élève a 5 lancers.','Additionner les points des zones touchées.']}, en:{n:'Accuracy throw',d:'Hit a target with a ball.',note:'Points by zone hit (10 / 5 / 2).',steps:['Set concentric targets on a wall or floor.','Each student gets 5 throws.','Add up the points of the zones hit.']} },
+      { id:'relais4', icon:'🏃‍♂️', type:'relais', format:'equipe', fr:{n:'Relais 4 × 50 m',d:'Relais d\'équipe avec témoin.',note:'Pointage par équipe; pénalité si le témoin tombe.',steps:['Équipes de 4, un couloir chacune.','Passer le témoin dans la zone d\'échange.','Première équipe complète gagne la manche.']}, en:{n:'4 × 50 m relay',d:'A team relay with a baton.',note:'Team scoring; penalty if the baton drops.',steps:['Teams of 4, one lane each.','Pass the baton in the exchange zone.','First full team finishes wins the round.']} },
+      { id:'sacs', icon:'🦵', type:'course', format:'equipe', fr:{n:'Course en sac',d:'Avancer en sautant dans un sac.',note:'Manche par équipe; relais possible.',steps:['Chaque coureur entre dans un sac de jute.','Sauter jusqu\'à la ligne et revenir.','Passer le sac au coéquipier suivant.']}, en:{n:'Sack race',d:'Hop forward inside a sack.',note:'Round per team; can be a relay.',steps:['Each racer steps into a jute sack.','Hop to the line and back.','Pass the sack to the next teammate.']} },
+      { id:'hauteur', icon:'⬆️', type:'saut', format:'individuel', fr:{n:'Saut en hauteur (élastique)',d:'Sauter par-dessus un élastique.',note:'Monter l\'élastique par paliers; éliminé après 2 échecs.',steps:['Deux élèves tiennent un élastique souple.','Chacun saute par-dessus sans le toucher.','On monte la hauteur progressivement.']}, en:{n:'High jump (elastic)',d:'Jump over an elastic band.',note:'Raise by steps; out after 2 misses.',steps:['Two students hold a soft elastic.','Each jumps over without touching it.','Raise the height gradually.']} },
+      { id:'cerceau', icon:'⭕', type:'lancer', format:'equipe', fr:{n:'Lancer dans le cerceau',d:'Réussir le plus de lancers en équipe.',note:'Total des réussites de l\'équipe en 1 minute.',steps:['Un cerceau-cible posé à distance.','Chaque membre lance à tour de rôle pendant 1 minute.','Compter les réussites de toute l\'équipe.']}, en:{n:'Hoop toss',d:'Land the most throws as a team.',note:'Team total of successes in 1 minute.',steps:['A target hoop placed at a distance.','Each member throws in turn for 1 minute.','Count the whole team\'s successes.']} },
+      { id:'tir-corde', icon:'🪢', type:'relais', format:'equipe', fr:{n:'Tir à la corde',d:'Épreuve de force collective.',note:'Meilleur de 3 manches; rotation des équipes.',steps:['Deux équipes de force équivalente.','Au signal, tirer pour franchir la ligne centrale.','Sécurité : pas d\'enroulement autour des mains.']}, en:{n:'Tug of war',d:'A team strength event.',note:'Best of 3 rounds; rotate teams.',steps:['Two evenly matched teams.','On the signal, pull past the center line.','Safety: no wrapping the rope around hands.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Olympiades', title:'🏅 Olympiades scolaires', intro:'Des épreuves clés en main pour ta journée olympique — filtre par type et par format. Combine avec le tableau de pointage.',
+        score:'🏆 Ouvrir le pointage', search:'Rechercher une épreuve…', allType:'Tous les types', allFormat:'Tous formats',
+        t_course:'🏃 Course', t_saut:'🦘 Saut', t_lancer:'🥎 Lancer', t_relais:'🤝 Relais',
+        f_individuel:'👤 Individuel', f_equipe:'👥 Équipe',
+        count:n=>`${n} épreuve${n>1?'s':''}`, empty:'Aucune épreuve ne correspond.', how:'Organisation', note:'Pointage', type:'Type', format:'Format' },
+      en:{ pill:'Olympics', title:'🏅 School olympics', intro:'Turnkey events for your olympic day — filter by type and format. Pair it with the scoreboard.',
+        score:'🏆 Open the scoreboard', search:'Search an event…', allType:'All types', allFormat:'All formats',
+        t_course:'🏃 Race', t_saut:'🦘 Jump', t_lancer:'🥎 Throw', t_relais:'🤝 Relay',
+        f_individuel:'👤 Individual', f_equipe:'👥 Team',
+        count:n=>`${n} event${n>1?'s':''}`, empty:'No event matches.', how:'Setup', note:'Scoring', type:'Type', format:'Format' }
+    };
+    let fType='*', fFormat='*';
+    const TYPES=['course','saut','lancer','relais'], FORMATS=['individuel','equipe'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrType').innerHTML =
+        [['*',l.allType]].concat(TYPES.map(t=>[t,l['t_'+t]]))
+        .map(([v,t])=>`<button class="jr-chip${fType===v?' active':''}" onclick="fType='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrFormat').innerHTML =
+        [['*',l.allFormat]].concat(FORMATS.map(f=>[f,l['f_'+f]]))
+        .map(([v,t])=>`<button class="jr-chip${fFormat===v?' active':''}" onclick="fFormat='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('osScore').textContent=l.score;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fType==='*'||g.type===fType) && (fFormat==='*'||g.format===fFormat) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>${l['t_'+g.type]}</span><span>${l['f_'+g.format]}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>${l['t_'+g.type]}</span><span>${l['f_'+g.format]}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+        <p class="jr-note">🏆 ${l.note} : ${g[lang].note}</p>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

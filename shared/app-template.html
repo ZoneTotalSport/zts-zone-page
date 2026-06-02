@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  GABARIT D'APP ZONE TOTAL SPORT
+  Copie ce fichier dans /apps/<nom-app>/index.html et remplis
+  la zone CONTENU. Header, footer, toggle FR/EN, thème métier et
+  retour sont déjà câblés par /shared/zts.css + /shared/zts.js.
+  RÈGLE : aucune app ne définit son style en solo — tout vient
+  des classes zts-*. Ajoute seulement le strict nécessaire ici.
+  ============================================================
+-->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nom de l'app — Zone Total Sport</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- DESIGN SYSTEM PARTAGÉ (chemin depuis /apps/<nom>/) -->
+  <link rel="stylesheet" href="../../shared/zts.css">
+</head>
+<body data-metier="ep"><!-- data-metier = ep | sdg | camp : pilote couleur + fond -->
+
+  <!-- Header injecté automatiquement -->
+  <div data-zts-header></div>
+
+  <!-- Sous-nav retour (métier + accueil) -->
+  <nav class="zts-subnav">
+    <a href="../../index.html" data-i18n="subnav.back_metier">← Retour au métier</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <!-- ============ CONTENU DE L'APP ============ -->
+  <main class="zts-container" style="padding-top:var(--space-5); padding-bottom:var(--space-7);">
+
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" data-i18n="metier.ep">Éducation physique</span>
+        <h1 style="margin-top:8px;">Nom de l'app</h1>
+      </div>
+    </section>
+
+    <!-- Exemple : grille de cartes -->
+    <div class="zts-grid">
+      <a class="zts-app-card" href="#">
+        <span class="zts-tag zts-tag--new" data-i18n="tag.new">Nouveau</span>
+        <span class="zts-app-card__icon">🎯</span>
+        <span class="zts-app-card__name">Carte exemple</span>
+        <span class="zts-app-card__desc">Remplace ce bloc par le contenu réel de l'app.</span>
+      </a>
+      <button class="zts-app-card is-soon" type="button" onclick="ZTS.openModal('demoModal')">
+        <span class="zts-tag zts-tag--soon" data-i18n="tag.soon">Bientôt</span>
+        <span class="zts-app-card__icon">🛠️</span>
+        <span class="zts-app-card__name">Ouvrir une modale</span>
+        <span class="zts-app-card__desc">Démo du helper ZTS.openModal().</span>
+      </button>
+    </div>
+  </main>
+
+  <!-- Modale partagée (s'ouvre/ferme via zts.js : ✕, overlay, Échap) -->
+  <div class="zts-modal" id="demoModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title">Modale de démonstration</h2>
+      <p data-i18n="soon.note">Cette app arrive sous peu.</p>
+    </div>
+  </div>
+
+  <!-- Footer injecté automatiquement -->
+  <div data-zts-footer></div>
+
+  <!-- UTILITAIRES PARTAGÉS (header/footer, i18n, modales, thème) -->
+  <script src="../../shared/zts.js"></script>
+</body>
+</html>

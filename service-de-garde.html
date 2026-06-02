@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!-- HUB MÉTIER — Service de garde. Sur le design system partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service de garde — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared/zts.css">
+</head>
+<body data-metier="sdg">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" data-i18n="hub.sdg.pill">Zone SDG</span>
+        <h1 style="margin-top:10px;" data-i18n="hub.sdg.title">Ta journée bien outillée.</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" data-i18n="hub.sdg.intro">Tes outils pour animer 30 jeunes au service de garde.</p>
+      </div>
+    </section>
+
+    <section class="zts-menu" id="menuJour"></section>
+
+    <h2 style="font-family:var(--font-impact); font-size:var(--fs-4); margin:var(--space-4) 0 var(--space-3);" data-i18n="hub.active">Apps prêtes à l'emploi</h2>
+    <div class="zts-grid" id="gridActive"></div>
+
+    <h2 id="soonTitle" style="font-family:var(--font-impact); font-size:var(--fs-4); margin:var(--space-6) 0 var(--space-3); opacity:.8;" data-i18n="hub.coming">Bientôt disponibles</h2>
+    <div class="zts-grid" id="gridSoon"></div>
+
+  </main>
+
+  <div data-zts-footer></div>
+
+  <script src="shared/zts.js"></script>
+  <script src="/firebase-auth.js" defer></script>
+  <script src="/zts-funnel.js" defer></script>
+  <script src="shared/zts-unlock.js"></script>
+  <script>
+    const ACTIVE = [
+      { icon:'🗂️', url:'apps/planification/?metier=sdg', tag:'new', fr:{n:'⭐ Planification SDG',d:'200 jours clé en main · matin + soir · plan pluie'}, en:{n:'⭐ Daycare planning',d:'200 turnkey days · morning + evening · rain plan'} },
+      { icon:'🧰', url:'https://zonetotalsport.ca/apps/transitions/', tag:'pro', fr:{n:'Boîte à outils',d:'Signaux, chrono, équipes pour 30 jeunes'}, en:{n:'Toolbox',d:'Signals, timer, teams for 30 kids'} },
+      { icon:'🏀', url:'https://zonetotalsport.ca/apps/scoreboard/', fr:{n:'Tableau indicateur',d:'Pour les grands jeux et le pointage'}, en:{n:'Scoreboard',d:'For big games and scoring'} },
+      { icon:'📅', url:'https://zonetotalsport.ca/apps/planificateur/', tag:'new', fr:{n:'Planificateur SDG',d:'Programmation hebdo et journées péda'}, en:{n:'Daycare planner',d:'Weekly programming and PD days'} },
+      { icon:'🎒', url:'https://zonetotalsport.ca/apps/cours-maternelle/', fr:{n:'90 cours maternelle',d:'Idéal pour les groupes maternelle'}, en:{n:'90 kindergarten lessons',d:'Ideal for kindergarten groups'} },
+      { icon:'🎮', url:'https://jeux.zonetotalsport.ca', fr:{n:'Banque de jeux',d:'1439 jeux filtrables pour la cour'}, en:{n:'Game bank',d:'1,439 filterable schoolyard games'} },
+      { icon:'🎵', url:'https://musique.zonetotalsport.ca', fr:{n:'Musique',d:'Playlists par moment de journée'}, en:{n:'Music',d:'Playlists by time of day'} },
+      { icon:'🖍️', url:'https://tni.zonetotalsport.ca', fr:{n:'Tableau blanc TNI',d:'Activités projetées dans le local'}, en:{n:'IWB whiteboard',d:'Activities projected in the room'} },
+      { icon:'✏️', url:'https://zonetotalsport.ca/blog.html', fr:{n:'Blog',d:'Gestion de grand groupe'}, en:{n:'Blog',d:'Large-group management'} },
+      { icon:'🤝', url:'https://zonetotalsport.ca/aidons-nous/', fr:{n:'Communauté SDG',d:'Forum entre éducatrices'}, en:{n:'Daycare Community',d:'Educator forum'} },
+      { icon:'⚡', url:'apps/jeux-rapides/', tag:'new', fr:{n:'Jeux rapides',d:'< 10 min, sans matériel, par âge'}, en:{n:'Quick games',d:'<10 min, no gear, by age'} },
+      { icon:'🧘', url:'apps/jeux-calmes/', tag:'new', fr:{n:'Jeux calmes',d:'Transitions et retour au calme'}, en:{n:'Calm games',d:'Transitions and winding down'} },
+      { icon:'🌧️', url:'apps/plan-b-pluie/', tag:'new', fr:{n:'Plan B jours de pluie',d:'Activités intérieures grand groupe'}, en:{n:'Rainy-day plan B',d:'Indoor large-group activities'} },
+      { icon:'🛡️', url:'apps/sos-conflits/', tag:'new', fr:{n:'SOS conflits',d:'Médiation rapide + scénarios'}, en:{n:'Conflict SOS',d:'Quick mediation + scenarios'} },
+      { icon:'⏳', url:'apps/activites-duree/', tag:'new', fr:{n:'Activités par durée',d:'Filtre 15 / 30 / 60 min'}, en:{n:'Activities by length',d:'Filter 15 / 30 / 60 min'} },
+      { icon:'🎨', url:'apps/journee-pedago/', tag:'new', fr:{n:'Journées pédagogiques',d:'Programmation de journée complète'}, en:{n:'PD days',d:'Full-day programming'} },
+      { icon:'✂️', url:'apps/bricolages/', tag:'new', fr:{n:'Bricolages sans préparation',d:'Idées à matériel minimal'}, en:{n:'No-prep crafts',d:'Minimal-material ideas'} },
+      { icon:'🎡', url:'apps/roue-responsabilites/', tag:'new', fr:{n:'Roue de responsabilités',d:'Routines : collation, jeu libre'}, en:{n:'Responsibility wheel',d:'Routines: snack, free play'} }
+    ];
+    const SOON = [];
+
+    // ===== Menu du jour SDG (bilingue) =====
+    const MENU = {
+      fr:{
+        weather:{tag:'INTÉRIEUR', note:'Plan B activé · pluie battante', suggTitle:'★ Suggestions par groupe d\'âge', sugg:[
+          {cyc:'5-6',name:'Coin lecture animé',desc:'Histoires interactives avec marionnettes ou mimes.'},
+          {cyc:'7-9',name:'Atelier bricolage',desc:'Création libre avec matériaux recyclés. 45 min.'},
+          {cyc:'10-12',name:'Tournoi société',desc:'Jeux de plateau en équipes mixtes. Bonus stratégique.'}]},
+        game:{tag:'🧸 Pour le local SDG', name:'LOUP-GAROU', desc:'Jeu sans matériel. Les villageois démasquent les loups-garous avant qu\'ils ne dévorent le village. Ambiance et stratégie.', chips:['Sans matériel','8 ans +','Groupe 8-30']},
+        challenge:{tag:'🧸 En cercle', name:'MERCI EN CHAÎNE', desc:'Chaque enfant dit merci pour quelque chose à son voisin.', box:'Termine par un applaudissement collectif pour clôturer la journée.'}
+      },
+      en:{
+        weather:{tag:'INDOOR', note:'Plan B on · pouring rain', suggTitle:'★ Suggestions by age group', sugg:[
+          {cyc:'5-6',name:'Lively reading corner',desc:'Interactive stories with puppets or mime.'},
+          {cyc:'7-9',name:'Craft workshop',desc:'Free creation with recycled materials. 45 min.'},
+          {cyc:'10-12',name:'Board-game tournament',desc:'Board games in mixed teams. Strategy bonus.'}]},
+        game:{tag:'🧸 For the daycare room', name:'WEREWOLF', desc:'A no-gear game. Villagers unmask the werewolves before they devour the village. Atmosphere and strategy.', chips:['No gear','Age 8+','Group 8-30']},
+        challenge:{tag:'🧸 In a circle', name:'THANK-YOU CHAIN', desc:'Each child thanks their neighbor for something.', box:'End with a group round of applause to close the day.'}
+      }
+    };
+    function renderMenu(){
+      const m = MENU[ZTS.getLang()];
+      document.getElementById('menuJour').innerHTML = `
+        <h2 class="zts-menu__title">${ZTS.t('hub.menu_title')}</h2>
+        <div class="zts-menu__grid">
+          <div class="zts-menu__card">
+            <h3>${ZTS.t('hub.menu_weather')}</h3>
+            <span class="zts-menu__tag">${m.weather.tag}</span>
+            <div class="zts-menu__desc">${m.weather.note}</div>
+            <div class="zts-menu__small">${m.weather.suggTitle}</div>
+            <ul class="zts-menu__list">${m.weather.sugg.map(s=>`<li><span class="cyc">${s.cyc}</span>${s.name} — <span style="opacity:.8">${s.desc}</span></li>`).join('')}</ul>
+          </div>
+          <div class="zts-menu__card">
+            <h3>${ZTS.t('hub.menu_game')}</h3>
+            <span class="zts-menu__tag">${m.game.tag}</span>
+            <div class="zts-menu__name">${m.game.name}</div>
+            <div class="zts-menu__small">${ZTS.t('hub.menu_howplay')}</div>
+            <div class="zts-menu__desc">${m.game.desc}</div>
+            <div class="zts-menu__chips">${m.game.chips.map(c=>`<span>${c}</span>`).join('')}</div>
+          </div>
+          <div class="zts-menu__card">
+            <h3>${ZTS.t('hub.menu_challenge')}</h3>
+            <span class="zts-menu__tag">${m.challenge.tag}</span>
+            <div class="zts-menu__name">${m.challenge.name}</div>
+            <div class="zts-menu__desc">${m.challenge.desc}</div>
+            <div class="zts-menu__small">${ZTS.t('hub.menu_todo')}</div>
+            <div class="zts-menu__box">${m.challenge.box}</div>
+          </div>
+        </div>`;
+    }
+
+    function tagHtml(tag){
+      if(!tag) return '';
+      const key = tag==='ia'?'tag.ia':tag==='new'?'tag.new':'tag.pro';
+      return `<span class="zts-tag zts-tag--${tag}">${ZTS.t(key)}</span>`;
+    }
+    function renderHub(){
+      renderMenu();
+      const L = ZTS.getLang();
+      document.getElementById('gridActive').innerHTML = ACTIVE.map(a=>`
+        <a class="zts-app-card" href="${a.url}" target="_blank" rel="noopener">
+          ${tagHtml(a.tag)}
+          <span class="zts-app-card__icon">${a.icon}</span>
+          <span class="zts-app-card__name">${a[L].n}</span>
+          <span class="zts-app-card__desc">${a[L].d}</span>
+        </a>`).join('');
+      document.getElementById('gridSoon').innerHTML = SOON.map(a=>`
+        <div class="zts-app-card is-soon" aria-disabled="true">
+          <span class="zts-tag zts-tag--soon">${ZTS.t('tag.soon')}</span>
+          <span class="zts-app-card__icon">${a.icon}</span>
+          <span class="zts-app-card__name">${a[L].n}</span>
+          <span class="zts-app-card__desc">${a[L].d}</span>
+        </div>`).join('');
+      const hasSoon = SOON.length>0;
+      document.getElementById('soonTitle').hidden = !hasSoon;
+      document.getElementById('gridSoon').hidden = !hasSoon;
+    }
+    document.addEventListener('zts:ready', renderHub);
+    document.addEventListener('zts:langchange', renderHub);
+  </script>
+</body>
+</html>

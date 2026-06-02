@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<!-- APP MODÈLE — Chansons & cris de camp (Camps de jour). Gabarit partagé.
+     Paroles ORIGINALES (aucun contenu sous droits d'auteur). -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chansons & cris de camp — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .cc-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-3); }
+    .cc-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .cc-chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:var(--space-3); }
+    .cc-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .cc-chip.active { background:var(--metier); color:var(--ink); }
+    .cc-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .cc-card { cursor:pointer; }
+    .cc-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .cc-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .cc-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .cc-lyrics { font-family:var(--font-hand,'Caveat'); font-size:clamp(20px,3.2vw,28px); line-height:1.5; white-space:pre-line;
+      margin-top:10px; padding:14px 18px; background:var(--cream); border:var(--bord); border-radius:var(--r-2); }
+  </style>
+</head>
+<body data-metier="camp">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../camps-de-jour.html" data-i18n="subnav.back_metier">← Camps de jour</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="ccPill">Chansons & cris</span>
+        <h1 style="margin-top:10px;" id="ccTitle">🎤 Chansons & cris de camp</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="ccIntro">Paroles prêtes à chanter — filtre par énergie et par thème.</p>
+      </div>
+    </section>
+
+    <div class="cc-filters">
+      <input type="search" class="cc-search" id="ccSearch" oninput="ccRender()">
+    </div>
+    <div class="cc-chips" id="ccEnergie"></div>
+    <div class="cc-chips" id="ccTheme"></div>
+    <p class="cc-count" id="ccCount"></p>
+
+    <div class="zts-grid" id="ccGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="ccModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="ccModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // ===== Données — paroles ORIGINALES Zone Total Sport =====
+    // energie: calme | moyenne | haute ; theme: ralliement | jeu | eau | veillee | echauffement
+    const SONGS = [
+      { id:'zone', icon:'🔥', type:'cri', energie:'haute', theme:'ralliement',
+        fr:{n:'Le cri de la Zone',d:'Pour rassembler le camp en énergie.',ly:'Zone! Zone! On est en feu!\nBouge tes pieds, lève les yeux!\nUne équipe, un grand cœur,\nOn avance tous ensemble, c\'est l\'heure!'},
+        en:{n:'The Zone cheer',d:'To gather the camp with energy.',ly:'Zone! Zone! We\'re on fire!\nMove your feet, look up higher!\nOne team, one big heart,\nWe move together, let\'s start!'} },
+      { id:'echo', icon:'🌲', type:'cri', energie:'moyenne', theme:'jeu',
+        fr:{n:'Écho de la forêt',d:'Cri répété : le moniteur lance, le groupe répond.',ly:'(Moniteur) Oh-é!\n(Groupe) Oh-é!\n(Moniteur) La forêt nous attend!\n(Groupe) La forêt nous attend!\nOn marche, on chante, on rit,\nLe camp est notre pays!'},
+        en:{n:'Forest echo',d:'Call and response: leader calls, group answers.',ly:'(Leader) Oh-hey!\n(Group) Oh-hey!\n(Leader) The forest is calling!\n(Group) The forest is calling!\nWe walk, we sing, we cheer,\nThe camp is why we\'re here!'} },
+      { id:'mains', icon:'👏', type:'chanson', energie:'moyenne', theme:'echauffement',
+        fr:{n:'Tape dans tes mains',d:'Réveil corporel en chanson.',ly:'Tape, tape dans tes mains,\nLève les bras vers demain,\nSaute un coup, tourne en rond,\nLe matin on se réveille pour de bon!'},
+        en:{n:'Clap your hands',d:'A wake-up body song.',ly:'Clap, clap, clap your hands,\nReach up high across the lands,\nJump once, spin around,\nMorning\'s here, let\'s make a sound!'} },
+      { id:'canot', icon:'🛶', type:'chanson', energie:'calme', theme:'veillee',
+        fr:{n:'Le canot du soir',d:'Chanson douce pour le rassemblement du soir.',ly:'Doucement glisse le canot,\nSur le lac calme et beau,\nLa journée s\'endort tout bas,\nDemain on recommencera.'},
+        en:{n:'Evening canoe',d:'A gentle song for the evening gathering.',ly:'Softly glides the small canoe,\nOn the calm lake, still and blue,\nThe day lies down to rest,\nTomorrow we\'ll give our best.'} },
+      { id:'clan', icon:'🏷️', type:'cri', energie:'haute', theme:'ralliement',
+        fr:{n:'Notre clan',d:'Cri d\'esprit d\'équipe.',ly:'Qui c\'est les meilleurs? C\'est nous!\nNotre clan tient debout!\nMain dans la main, on est forts,\nEnsemble jusqu\'au bout!'},
+        en:{n:'Our clan',d:'A team-spirit cheer.',ly:'Who\'s the best? It\'s us, it\'s true!\nOur clan will see it through!\nHand in hand, we\'re strong,\nTogether all day long!'} },
+      { id:'eau', icon:'💦', type:'chanson', energie:'haute', theme:'eau',
+        fr:{n:'Vive l\'eau',d:'Chanson pour les jeux d\'eau.',ly:'Splash, splash, dans l\'eau on saute,\nLes éclaboussures, on adore!\nLe soleil tape, on se rafraîchit,\nVive l\'été et vive midi!'},
+        en:{n:'Hooray for water',d:'A song for water games.',ly:'Splash, splash, into the water,\nWe love the spray, it makes us hotter... cooler!\nThe sun is high, we cool it down,\nHooray for summer all around!'} },
+      { id:'cinq', icon:'✋', type:'cri', energie:'moyenne', theme:'jeu',
+        fr:{n:'Compte jusqu\'à cinq',d:'Cri de transition pour ramener le calme.',ly:'Cinq! On s\'arrête,\nQuatre! On écoute,\nTrois! On respire,\nDeux! On regarde,\nUn! Prêts pour la suite!'},
+        en:{n:'Count to five',d:'A transition cheer to bring calm back.',ly:'Five! We stop,\nFour! We listen,\nThree! We breathe,\nTwo! We look,\nOne! Ready for what\'s next!'} },
+      { id:'nuit', icon:'🌙', type:'chanson', energie:'calme', theme:'veillee',
+        fr:{n:'Bonne nuit le camp',d:'Chanson de fin de veillée.',ly:'Bonne nuit les amis,\nLes étoiles sont parties dormir,\nMerci pour cette belle journée,\nDemain on va recommencer à rêver.'},
+        en:{n:'Goodnight camp',d:'An end-of-evening song.',ly:'Goodnight to all my friends,\nThe stars have gone to sleep,\nThanks for this lovely day,\nTomorrow new dreams we\'ll keep.'} },
+      { id:'serpent', icon:'🐍', type:'chanson', energie:'haute', theme:'jeu',
+        fr:{n:'Le serpent qui danse',d:'Chanson à gestes en file indienne.',ly:'Le serpent ondule, ondule,\nDerrière moi tu te faufiles,\nÀ gauche, à droite, on se balance,\nLe serpent du camp s\'élance!'},
+        en:{n:'The dancing snake',d:'An action song in a line.',ly:'The snake is waving, waving,\nBehind me you keep weaving,\nLeft and right, we sway along,\nThe camp\'s big snake is going strong!'} },
+      { id:'haut', icon:'⛰️', type:'cri', energie:'haute', theme:'echauffement',
+        fr:{n:'Plus haut, plus fort',d:'Cri d\'énergie avant une épreuve.',ly:'Plus haut! (Plus haut!)\nPlus fort! (Plus fort!)\nOn donne tout ce qu\'on a,\nLe camp est fier de toi!'},
+        en:{n:'Higher, louder',d:'An energy cheer before a challenge.',ly:'Higher! (Higher!)\nLouder! (Louder!)\nWe give it all we\'ve got,\nThe camp is proud, a lot!'} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Chansons & cris', title:'🎤 Chansons & cris de camp', intro:'Paroles prêtes à chanter — filtre par énergie et par thème.',
+        search:'Rechercher…', allE:'Toute énergie', calme:'😌 Calme', moyenne:'🙂 Moyenne', haute:'🔥 Haute',
+        allT:'Tous les thèmes', ralliement:'Ralliement', jeu:'Jeu', eau:'Eau', veillee:'Veillée', echauffement:'Échauffement',
+        count:n=>`${n} titre${n>1?'s':''}`, empty:'Aucun titre ne correspond.', lyrics:'Paroles', cri:'Cri', chanson:'Chanson' },
+      en:{ pill:'Songs & cheers', title:'🎤 Camp songs & cheers', intro:'Ready-to-sing lyrics — filter by energy and theme.',
+        search:'Search…', allE:'Any energy', calme:'😌 Calm', moyenne:'🙂 Medium', haute:'🔥 High',
+        allT:'All themes', ralliement:'Rally', jeu:'Game', eau:'Water', veillee:'Evening', echauffement:'Warm-up',
+        count:n=>`${n} title${n>1?'s':''}`, empty:'No title matches.', lyrics:'Lyrics', cri:'Cheer', chanson:'Song' }
+    };
+    let fE='*', fT='*';
+    function L(){ return LBL[ZTS.getLang()]; }
+    function ccChips(){
+      const l=L();
+      document.getElementById('ccEnergie').innerHTML =
+        [['*',l.allE],['calme',l.calme],['moyenne',l.moyenne],['haute',l.haute]]
+        .map(([v,t])=>`<button class="cc-chip${fE===v?' active':''}" onclick="fE='${v}';ccRender()">${t}</button>`).join('');
+      document.getElementById('ccTheme').innerHTML =
+        [['*',l.allT],['ralliement',l.ralliement],['jeu',l.jeu],['eau',l.eau],['veillee',l.veillee],['echauffement',l.echauffement]]
+        .map(([v,t])=>`<button class="cc-chip${fT===v?' active':''}" onclick="fT='${v}';ccRender()">${t}</button>`).join('');
+    }
+    function ccRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('ccPill').textContent=l.pill;
+      document.getElementById('ccTitle').textContent=l.title;
+      document.getElementById('ccIntro').textContent=l.intro;
+      document.getElementById('ccSearch').placeholder=l.search;
+      ccChips();
+      const q=(document.getElementById('ccSearch').value||'').toLowerCase();
+      const list=SONGS.filter(s=>
+        (fE==='*'||s.energie===fE) && (fT==='*'||s.theme===fT) &&
+        (!q || (s[lang].n+s[lang].d).toLowerCase().includes(q)));
+      document.getElementById('ccCount').textContent=l.count(list.length);
+      const grid=document.getElementById('ccGrid');
+      if(!list.length){ grid.innerHTML=`<p class="cc-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(s=>`
+        <div class="zts-app-card cc-card" role="button" tabindex="0" onclick="ccOpen('${s.id}')" onkeydown="if(event.key==='Enter')ccOpen('${s.id}')">
+          <span class="zts-app-card__icon">${s.icon}</span>
+          <span class="zts-app-card__name">${s[lang].n}</span>
+          <span class="zts-app-card__desc">${s[lang].d}</span>
+          <div class="cc-meta"><span>${l[s.type]}</span><span>${l[s.energie]}</span></div>
+        </div>`).join('');
+    }
+    function ccOpen(id){
+      const s=SONGS.find(x=>x.id===id); if(!s) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('ccModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${s.icon} ${s[lang].n}</h2>
+        <div class="cc-meta" style="margin-bottom:6px;"><span>${l[s.type]}</span><span>${l[s.energie]}</span><span>${l[s.theme]}</span></div>
+        <div class="zts-menu__small">${l.lyrics}</div>
+        <div class="cc-lyrics">${s[lang].ly}</div>`;
+      ZTS.openModal('ccModal');
+    }
+    window.ccRender=ccRender; window.ccOpen=ccOpen;
+    document.addEventListener('zts:ready', ccRender);
+    document.addEventListener('zts:langchange', ccRender);
+  </script>
+</body>
+</html>

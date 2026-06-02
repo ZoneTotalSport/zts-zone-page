@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!-- App — Activités par durée (Service de garde). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activités par durée — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+  </style>
+</head>
+<body data-metier="sdg">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../service-de-garde.html" data-i18n="subnav.back_metier">← Service de garde</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Par durée</span>
+        <h1 style="margin-top:10px;" id="jrTitle">⏳ Activités par durée</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrDur"></div>
+      <div class="jr-chips" id="jrLieu"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // dur: 15 | 30 | 60   lieu: int | ext
+    const GAMES = [
+      { id:'devine-dessin', icon:'✏️', dur:'15', lieu:'int', fr:{n:'Devine mon dessin',d:'Dessiner pendant que le groupe devine.',steps:['Un meneur dessine un mot secret au tableau.','Le groupe crie ses idées; le premier qui trouve dessine ensuite.','Idéal pour combler un court moment de transition.']}, en:{n:'Guess my drawing',d:'Draw while the group guesses.',steps:['A leader draws a secret word on the board.','The group shouts ideas; the first to guess draws next.','Great to fill a short transition moment.']} },
+      { id:'jeux-mimes', icon:'🎭', dur:'15', lieu:'int', fr:{n:'Mimes éclairs',d:'Mimer une carte tirée au hasard.',steps:['Préparer des petits papiers avec des actions.','Chacun en pige un et le mime; les autres devinent.','Rapide, sans matériel lourd.']}, en:{n:'Flash mimes',d:'Mime a randomly drawn card.',steps:['Prepare slips with actions on them.','Each draws one and mimes it; others guess.','Fast, no heavy gear.']} },
+      { id:'course-relais', icon:'🏃', dur:'30', lieu:'ext', fr:{n:'Relais surprise',d:'Relais avec défis variés à chaque tour.',steps:['Deux équipes en file devant un parcours.','À chaque tour, le meneur annonce un mode (à cloche-pied, en crabe…).','Première équipe à compléter tous les tours gagne.']}, en:{n:'Surprise relay',d:'Relay with a new challenge each round.',steps:['Two teams line up before a course.','Each round, the leader calls a mode (hop, crab walk…).','First team to finish all rounds wins.']} },
+      { id:'cabane', icon:'🏕️', dur:'30', lieu:'int', fr:{n:'Construis ta cabane',d:'Monter une cabane avec coussins et draps.',steps:['Diviser le matériel (coussins, draps, chaises) entre les équipes.','Chaque équipe construit une cabane en 20 minutes.','Tour de visite : chacun présente sa cabane.']}, en:{n:'Build your fort',d:'Build a fort with cushions and sheets.',steps:['Split the materials (cushions, sheets, chairs) among teams.','Each team builds a fort in 20 minutes.','Tour time: each presents their fort.']} },
+      { id:'grand-jeu-piste', icon:'🗺️', dur:'60', lieu:'ext', fr:{n:'Jeu de piste',d:'Suivre des indices à travers la cour.',steps:['Cacher une série d\'indices menant l\'un à l\'autre.','Les équipes suivent la piste jusqu\'au trésor final.','Prévoir un défi à chaque station pour gagner l\'indice suivant.']}, en:{n:'Trail game',d:'Follow clues across the yard.',steps:['Hide a series of clues leading one to the next.','Teams follow the trail to the final treasure.','Add a challenge at each station to earn the next clue.']} },
+      { id:'olympiades-mini', icon:'🏅', dur:'60', lieu:'ext', fr:{n:'Mini-olympiades',d:'Plusieurs épreuves avec pointage.',steps:['Installer 4-5 stations d\'épreuves (saut, lancer, équilibre…).','Les équipes tournent et accumulent des points.','Cérémonie finale avec médailles improvisées.']}, en:{n:'Mini olympics',d:'Several events with scoring.',steps:['Set up 4-5 event stations (jump, throw, balance…).','Teams rotate and earn points.','Final ceremony with improvised medals.']} },
+      { id:'atelier-recup', icon:'♻️', dur:'30', lieu:'int', fr:{n:'Atelier récup',d:'Créer un objet avec du matériel recyclé.',steps:['Mettre à disposition du carton, bouchons, rouleaux.','Chacun fabrique un objet libre en 25 minutes.','Exposition rapide des créations.']}, en:{n:'Recycle workshop',d:'Make an object from recycled material.',steps:['Provide cardboard, caps, tubes.','Each makes a free object in 25 minutes.','Quick exhibit of the creations.']} },
+      { id:'quiz-express', icon:'❓', dur:'15', lieu:'int', fr:{n:'Quiz express',d:'Questions rapides en deux équipes.',steps:['Préparer 10 questions simples et amusantes.','Les deux équipes répondent à tour de rôle.','Bonus rapidité pour la dernière question.']}, en:{n:'Express quiz',d:'Quick questions in two teams.',steps:['Prepare 10 simple, fun questions.','The two teams answer in turn.','Speed bonus on the last question.']} },
+      { id:'parcours-moteur', icon:'🤸', dur:'60', lieu:'int', fr:{n:'Parcours moteur géant',d:'Grand circuit d\'obstacles à enchaîner.',steps:['Monter un circuit avec tapis, cônes, cerceaux, bancs.','Les enfants enchaînent les stations en boucle.','Chronométrer pour le plaisir, sans esprit de compétition.']}, en:{n:'Giant motor course',d:'A big obstacle circuit to loop through.',steps:['Build a circuit with mats, cones, hoops, benches.','Kids loop through the stations.','Time it for fun, no competitive pressure.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Par durée', title:'⏳ Activités par durée', intro:'Combien de temps as-tu? Filtre par durée et par lieu pour trouver l\'activité parfaite.',
+        search:'Rechercher une activité…', allDur:'Toutes durées', allLieu:'Tous les lieux',
+        d_15:'15 min', d_30:'30 min', d_60:'60 min', l_int:'🏠 Intérieur', l_ext:'🌳 Extérieur',
+        count:n=>`${n} activité${n>1?'s':''}`, empty:'Aucune activité ne correspond.', how:'Déroulement', dur:'Durée', lieu:'Lieu' },
+      en:{ pill:'By length', title:'⏳ Activities by length', intro:'How much time do you have? Filter by length and place to find the perfect activity.',
+        search:'Search an activity…', allDur:'Any length', allLieu:'Any place',
+        d_15:'15 min', d_30:'30 min', d_60:'60 min', l_int:'🏠 Indoor', l_ext:'🌳 Outdoor',
+        count:n=>`${n} activit${n>1?'ies':'y'}`, empty:'No activity matches.', how:'Run-through', dur:'Length', lieu:'Place' }
+    };
+    let fDur='*', fLieu='*';
+    const DURS=['15','30','60'], LIEUX=['int','ext'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrDur').innerHTML =
+        [['*',l.allDur]].concat(DURS.map(d=>[d,l['d_'+d]]))
+        .map(([v,t])=>`<button class="jr-chip${fDur===v?' active':''}" onclick="fDur='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrLieu').innerHTML =
+        [['*',l.allLieu]].concat(LIEUX.map(x=>[x,l['l_'+x]]))
+        .map(([v,t])=>`<button class="jr-chip${fLieu===v?' active':''}" onclick="fLieu='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fDur==='*'||g.dur===fDur) && (fLieu==='*'||g.lieu===fLieu) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>⏱️ ${l['d_'+g.dur]}</span><span>${l['l_'+g.lieu]}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>⏱️ ${l.dur} : ${l['d_'+g.dur]}</span><span>${l['l_'+g.lieu]}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

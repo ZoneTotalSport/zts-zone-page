@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!-- App — SOS conflits (Service de garde). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOS conflits — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search {
+      flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff;
+    }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip {
+      font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre);
+    }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+    /* Aide-mémoire des étapes de médiation, en tête de page */
+    .sc-protocol { border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff;
+      padding:var(--space-4); margin-bottom:var(--space-5); }
+    .sc-protocol h2 { font-family:var(--font-impact); font-size:var(--fs-3); margin:0 0 8px; }
+    .sc-protocol ol { margin:0; padding-left:22px; }
+    .sc-protocol li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+    .sc-quote { font-family:var(--font-hand,var(--font-body)); font-style:italic; opacity:.85; }
+  </style>
+</head>
+<body data-metier="sdg">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../service-de-garde.html" data-i18n="subnav.back_metier">← Service de garde</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">SOS conflits</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🛡️ SOS conflits</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <section class="sc-protocol">
+      <h2 id="scProtoTitle">Les 4 étapes</h2>
+      <ol id="scProtoList"></ol>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrType"></div>
+      <div class="jr-chips" id="jrAge"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // ===== Scénarios fréquents — type: partage | exclusion | mots | bagarre =====
+    const GAMES = [
+      { id:'jouet', icon:'🧸', type:'partage', age:'5-6', fr:{n:'« C\'est à moi! »',d:'Deux enfants veulent le même jouet.',say:'« Vous voulez tous les deux le camion. On va trouver une solution ensemble. »',steps:['Mettre le jouet de côté un instant pour baisser la tension.','Chacun dit ce qu\'il voulait en faire.','Proposer : tour de rôle minuté, jeu à deux, ou autre jouet équivalent.','Valider le choix avec les deux avant de rendre le jouet.']}, en:{n:'"It\'s mine!"',d:'Two kids want the same toy.',say:'"You both want the truck. Let\'s find a solution together."',steps:['Set the toy aside for a moment to lower the tension.','Each says what they wanted to do with it.','Offer: timed turns, play together, or an equivalent toy.','Confirm the choice with both before returning the toy.']} },
+      { id:'equipe', icon:'🚫', type:'exclusion', age:'7-9', fr:{n:'« On ne veut pas de lui »',d:'Un enfant est rejeté d\'un jeu.',say:'« Tout le monde a le droit de jouer. On va voir comment l\'inclure. »',steps:['Parler à l\'écart, sans accuser le groupe.','Demander au groupe la vraie raison (souvent : règles, niveau).','Trouver un rôle clair pour l\'enfant exclu (arbitre, capitaine, paire).','Revérifier 5 minutes plus tard que ça tient.']}, en:{n:'"We don\'t want him"',d:'A child is shut out of a game.',say:'"Everyone has the right to play. Let\'s see how to include them."',steps:['Talk aside, without blaming the group.','Ask the group the real reason (often: rules, skill level).','Find a clear role for the excluded child (referee, captain, pair).','Recheck 5 minutes later that it holds.']} },
+      { id:'insulte', icon:'💢', type:'mots', age:'7-9', fr:{n:'Mots blessants',d:'Un enfant en insulte un autre.',say:'« Ces mots-là font mal. Ici, on règle les choses autrement. »',steps:['Arrêter la situation calmement, sans crier plus fort.','Nommer l\'émotion derrière l\'insulte (colère, jalousie, gêne).','Faire reformuler le besoin sans le mot blessant.','Réparer : un geste ou un mot pour rétablir le lien.']}, en:{n:'Hurtful words',d:'One child insults another.',say:'"Those words hurt. Here, we settle things differently."',steps:['Calmly stop the situation, without out-shouting.','Name the emotion behind the insult (anger, jealousy, embarrassment).','Have them restate the need without the hurtful word.','Repair: a gesture or word to restore the bond.']} },
+      { id:'pousse', icon:'🤜', type:'bagarre', age:'5-6', fr:{n:'Bousculade',d:'Ça pousse, ça commence à dégénérer.',say:'« On arrête. Vos corps sont en sécurité d\'abord, on parle ensuite. »',steps:['Séparer physiquement et en douceur, créer de l\'espace.','Laisser respirer 1 minute avant de parler.','Chacun raconte SANS être interrompu.','Convenir d\'une règle claire pour éviter que ça recommence.']}, en:{n:'Shoving',d:'Pushing that starts to escalate.',say:'"We stop. Your bodies are safe first, we talk after."',steps:['Separate gently and physically, create space.','Allow 1 minute to breathe before talking.','Each tells their side WITHOUT being interrupted.','Agree on a clear rule to keep it from happening again.']} },
+      { id:'triche', icon:'🎲', type:'partage', age:'10-12', fr:{n:'« Il a triché! »',d:'Désaccord sur les règles d\'un jeu.',say:'« On dirait qu\'on ne jouait pas avec les mêmes règles. Clarifions. »',steps:['Mettre le jeu en pause sans désigner de coupable.','Faire dire à chacun la règle qu\'il croyait juste.','Choisir ensemble UNE règle claire pour la suite.','Reprendre la partie à zéro si besoin.']}, en:{n:'"He cheated!"',d:'Disagreement over a game\'s rules.',say:'"Looks like you weren\'t playing by the same rules. Let\'s clarify."',steps:['Pause the game without naming a culprit.','Have each state the rule they thought was right.','Choose ONE clear rule together for what follows.','Restart the round if needed.']} },
+      { id:'rumeur', icon:'🗣️', type:'mots', age:'10-12', fr:{n:'Rumeur / commérage',d:'Une histoire circule et blesse quelqu\'un.',say:'« Avant de répéter quelque chose, on se demande : est-ce vrai, utile, gentil? »',steps:['Parler à part avec les enfants concernés.','Remonter à la source sans chercher à punir.','Distinguer ce qui est vu/su de ce qui est supposé.','Convenir de ce qu\'on dit (ou pas) à partir de maintenant.']}, en:{n:'Rumor / gossip',d:'A story is spreading and hurting someone.',say:'"Before repeating something, ask: is it true, useful, kind?"',steps:['Speak privately with the children involved.','Trace it to the source without seeking to punish.','Separate what is seen/known from what is assumed.','Agree on what gets said (or not) from now on.']} }
+    ];
+
+    // ===== Libellés (bilingue) =====
+    const LBL = {
+      fr:{ pill:'SOS conflits', title:'🛡️ SOS conflits', intro:'Médiation rapide + scénarios fréquents. Garde la tête froide, suis les étapes.',
+        protoTitle:'Les 4 étapes de médiation', proto:['Calmer : créer de l\'espace et baisser le ton.','Écouter : chacun raconte sans être coupé.','Comprendre : nommer le besoin derrière l\'émotion.','Réparer : convenir d\'une solution ensemble.'],
+        search:'Rechercher un scénario…', allType:'Tous les types', allAges:'Tous les âges',
+        t_partage:'Partage', t_exclusion:'Exclusion', t_mots:'Mots', t_bagarre:'Bagarre',
+        count:n=>`${n} scénario${n>1?'s':''}`, empty:'Aucun scénario ne correspond.', say:'Ce que tu peux dire', how:'Étapes', age:'Âge', type:'Type' },
+      en:{ pill:'Conflict SOS', title:'🛡️ Conflict SOS', intro:'Quick mediation + common scenarios. Stay calm, follow the steps.',
+        protoTitle:'The 4 mediation steps', proto:['Calm: create space and lower your voice.','Listen: each tells their side uninterrupted.','Understand: name the need behind the emotion.','Repair: agree on a solution together.'],
+        search:'Search a scenario…', allType:'All types', allAges:'All ages',
+        t_partage:'Sharing', t_exclusion:'Exclusion', t_mots:'Words', t_bagarre:'Fighting',
+        count:n=>`${n} scenario${n>1?'s':''}`, empty:'No scenario matches.', say:'What you can say', how:'Steps', age:'Age', type:'Type' }
+    };
+    let fType='*', fAge='*';
+    const TYPES=['partage','exclusion','mots','bagarre'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function scProto(){
+      const l=L();
+      document.getElementById('scProtoTitle').textContent=l.protoTitle;
+      document.getElementById('scProtoList').innerHTML=l.proto.map(s=>`<li>${s}</li>`).join('');
+    }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrType').innerHTML =
+        [['*',l.allType]].concat(TYPES.map(t=>[t,l['t_'+t]]))
+        .map(([v,t])=>`<button class="jr-chip${fType===v?' active':''}" onclick="fType='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-6','5-6'],['7-9','7-9'],['10-12','10-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      scProto(); jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fType==='*'||g.type===fType) && (fAge==='*'||g.age===fAge) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>🏷️ ${l['t_'+g.type]}</span><span>👶 ${g.age}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>🏷️ ${l.type} : ${l['t_'+g.type]}</span><span>👶 ${l.age} ${g.age}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.say}</div>
+        <p class="sc-quote">${g[lang].say}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

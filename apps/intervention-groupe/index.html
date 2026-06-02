@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!-- App — Intervention Groupe : SOS crise + jeux inclusifs (Éducation physique). Gabarit partagé.
+     Note : version « banque » sur le gabarit. Le futur PWA omnigroupe complet pourra remplacer ce lien. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intervention Groupe — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+    .ig-say { font-family:var(--font-hand,var(--font-body)); font-style:italic; opacity:.85; margin-top:10px; }
+  </style>
+</head>
+<body data-metier="ep">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../ep.html" data-i18n="subnav.back_metier">← Éducation physique</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Intervention Groupe</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🛡️ Intervention Groupe</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrCat"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // cat: sos (gestion de crise) | inclusif (jeu adaptable)
+    const GAMES = [
+      { id:'agite', icon:'🌪️', cat:'sos', fr:{n:'Groupe survolté',d:'Le groupe est trop excité, ça déborde.',say:'« On fige et on écoute mon signal. »',steps:['Lancer un signal sonore connu (clap-clap, sifflet doux).','Imposer 30 secondes de calme : tout le monde s\'assoit.','Repartir avec une consigne simple et un jeu plus structuré.','Réduire le bruit ambiant et l\'espace si nécessaire.']}, en:{n:'Over-excited group',d:'The group is too wound up, it\'s spilling over.',say:'"We freeze and listen for my signal."',steps:['Use a known sound signal (clap-clap, soft whistle).','Impose 30 seconds of calm: everyone sits.','Restart with a simple instruction and a more structured game.','Lower ambient noise and shrink the space if needed.']} },
+      { id:'refus', icon:'🙅', cat:'sos', fr:{n:'Refus de participer',d:'Un élève refuse de faire l\'activité.',say:'« Tu peux commencer par regarder ou aider, ça me va. »',steps:['Ne pas forcer : proposer un rôle alternatif (arbitre, marqueur).','Comprendre la raison (gêne, fatigue, conflit) à l\'écart.','Offrir un point d\'entrée plus facile dans le jeu.','Valoriser dès qu\'il s\'engage, même un peu.']}, en:{n:'Refusing to take part',d:'A student refuses the activity.',say:'"You can start by watching or helping, that\'s fine."',steps:['Don\'t force it: offer an alternate role (referee, scorer).','Understand the reason (shyness, tiredness, conflict) aside.','Offer an easier entry point into the game.','Praise any engagement, even small.']} },
+      { id:'larmes', icon:'😢', cat:'sos', fr:{n:'Élève en détresse',d:'Un enfant pleure ou se ferme.',say:'« Je suis là. Respire avec moi, on prend notre temps. »',steps:['Se mettre à sa hauteur, voix calme et basse.','Mettre des mots sur l\'émotion sans minimiser.','Proposer un coin calme et de l\'eau.','Reprendre l\'activité seulement quand l\'enfant est prêt.']}, en:{n:'Student in distress',d:'A child is crying or shutting down.',say:'"I\'m here. Breathe with me, we\'ll take our time."',steps:['Get to their level, calm and quiet voice.','Name the emotion without minimizing.','Offer a quiet corner and water.','Resume the activity only when the child is ready.']} },
+      { id:'meneur', icon:'👑', cat:'sos', fr:{n:'Meneur négatif',d:'Un leader entraîne le groupe à déraper.',say:'« J\'ai besoin de toi pour montrer l\'exemple. »',steps:['Lui confier une responsabilité valorisante.','Séparer temporairement du public qui l\'encourage.','Renforcer les comportements positifs des autres.','En parler en privé, sans humilier devant le groupe.']}, en:{n:'Negative leader',d:'A leader pulls the group off track.',say:'"I need you to set the example."',steps:['Give them a valued responsibility.','Briefly separate from the audience that eggs them on.','Reinforce positive behavior in others.','Talk privately, without humiliating in front of the group.']} },
+      { id:'parachute', icon:'🪂', cat:'inclusif', fr:{n:'Parachute coopératif',d:'Jeu sans élimination, tous gagnent.',say:'',steps:['Tous tiennent le parachute : vagues douces puis grandes.','« Champignon » : lever ensemble et s\'asseoir dessous.','Échanger les places sous la toile en se nommant.','Adaptable assis pour les élèves à mobilité réduite.']}, en:{n:'Cooperative parachute',d:'No-elimination game, everyone wins.',say:'',steps:['Everyone holds the parachute: small then big waves.','"Mushroom": lift together and sit underneath.','Swap places under the canopy by calling names.','Can be done seated for students with reduced mobility.']} },
+      { id:'ballon-assis', icon:'🪑', cat:'inclusif', fr:{n:'Ballon assis',d:'Jeu de passe accessible à tous.',say:'',steps:['Tout le monde au sol en cercle ou en deux camps.','Faire rouler ou passer le ballon, jamais lancer fort.','But : toucher doucement, pas d\'exclusion (on revient vite).','Égalise les écarts d\'habileté et de mobilité.']}, en:{n:'Seated ball',d:'A passing game accessible to all.',say:'',steps:['Everyone on the floor in a circle or two camps.','Roll or pass the ball, never hard throws.','Goal: gentle tags, no exclusion (quick return).','Levels out gaps in skill and mobility.']} },
+      { id:'roles', icon:'🎭', cat:'inclusif', fr:{n:'Jeu à rôles multiples',d:'Chacun a un rôle à sa mesure.',say:'',steps:['Définir plusieurs rôles : coureur, passeur, gardien, arbitre.','Laisser chaque élève choisir un rôle qui lui convient.','Faire tourner les rôles pour que tous essaient.','Personne sur le banc : un rôle utile pour chacun.']}, en:{n:'Multi-role game',d:'Everyone has a role that fits them.',say:'',steps:['Define several roles: runner, passer, keeper, referee.','Let each student pick a role that suits them.','Rotate roles so everyone tries.','No one benched: a useful role for each.']} },
+      { id:'defi-cooperatif', icon:'🤝', cat:'inclusif', fr:{n:'Défi coopératif',d:'Réussir ensemble, pas l\'un contre l\'autre.',say:'',steps:['Donner un objectif commun (traverser, transporter, bâtir).','Le groupe gagne seulement si tout le monde réussit.','Encourager l\'entraide : les plus forts aident les autres.','Adapter la difficulté pour rester atteignable.']}, en:{n:'Cooperative challenge',d:'Succeed together, not against each other.',say:'',steps:['Set a common goal (cross, carry, build).','The group wins only if everyone succeeds.','Encourage mutual help: the stronger help the others.','Adjust difficulty to stay achievable.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Intervention Groupe', title:'🛡️ Intervention Groupe', intro:'Le couteau suisse de la gestion de groupe : gestes SOS pour désamorcer une crise + jeux inclusifs où personne n\'est exclu.',
+        search:'Rechercher…', allCat:'Tout', c_sos:'🚨 SOS crise', c_inclusif:'🤝 Jeu inclusif',
+        count:n=>`${n} fiche${n>1?'s':''}`, empty:'Aucune fiche ne correspond.', say:'Ce que tu peux dire', how:'Quoi faire', cat:'Catégorie' },
+      en:{ pill:'Group Intervention', title:'🛡️ Group Intervention', intro:'The Swiss-army knife of group management: SOS moves to defuse a crisis + inclusive games where no one is left out.',
+        search:'Search…', allCat:'All', c_sos:'🚨 Crisis SOS', c_inclusif:'🤝 Inclusive game',
+        count:n=>`${n} card${n>1?'s':''}`, empty:'No card matches.', say:'What you can say', how:'What to do', cat:'Category' }
+    };
+    let fCat='*';
+    const CATS=['sos','inclusif'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrCat').innerHTML =
+        [['*',l.allCat]].concat(CATS.map(c=>[c,l['c_'+c]]))
+        .map(([v,t])=>`<button class="jr-chip${fCat===v?' active':''}" onclick="fCat='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fCat==='*'||g.cat===fCat) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>${l['c_'+g.cat]}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      const say=g[lang].say ? `<p class="ig-say">💬 ${g[lang].say}</p>` : '';
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>${l['c_'+g.cat]}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        ${say}
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!-- App — Jeux par thème (Camps de jour). Gabarit partagé. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeux par thème — Zone Total Sport</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
+    .jr-search { flex:1 1 220px; min-width:180px; font-family:var(--font-body); font-weight:700; font-size:var(--fs-2);
+      padding:11px 16px; border:var(--bord); border-radius:var(--r-2); box-shadow:var(--ombre); background:#fff; }
+    .jr-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .jr-chip { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1); cursor:pointer;
+      padding:7px 14px; border:var(--bord); border-radius:var(--r-pill); background:#fff; box-shadow:var(--ombre); }
+    .jr-chip.active { background:var(--metier); color:var(--ink); }
+    .jr-count { font-family:var(--font-fun); font-weight:700; opacity:.75; margin:0 0 var(--space-3); }
+    .jr-card { cursor:pointer; }
+    .jr-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+    .jr-meta span { font-family:var(--font-fun); font-weight:700; font-size:var(--fs-1);
+      background:var(--metier-tint,rgba(0,0,0,.05)); border:2px solid var(--zts-noir); border-radius:var(--r-pill); padding:1px 10px; }
+    .jr-empty { font-family:var(--font-fun); font-weight:700; opacity:.7; padding:var(--space-4); }
+    .jr-steps { margin:10px 0 0 0; padding-left:20px; }
+    .jr-steps li { font-family:var(--font-body); font-weight:700; margin:6px 0; }
+  </style>
+</head>
+<body data-metier="camp">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="../../camps-de-jour.html" data-i18n="subnav.back_metier">← Camps de jour</a>
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+  </nav>
+
+  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+    <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
+      <div>
+        <span class="zts-metier-banner__pill" id="jrPill">Jeux par thème</span>
+        <h1 style="margin-top:10px;" id="jrTitle">🏴‍☠️ Jeux par thème</h1>
+        <p style="margin-top:8px; font-family:var(--font-body); font-size:var(--fs-2); max-width:60ch;" id="jrIntro"></p>
+      </div>
+    </section>
+
+    <div class="jr-filters">
+      <input type="search" class="jr-search" id="jrSearch" oninput="jrRender()">
+      <div class="jr-chips" id="jrTheme"></div>
+      <div class="jr-chips" id="jrAge"></div>
+    </div>
+    <p class="jr-count" id="jrCount"></p>
+    <div class="zts-grid" id="jrGrid"></div>
+  </main>
+
+  <div class="zts-modal" id="jrModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <div id="jrModalBody"></div>
+    </div>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script>
+    // theme: pirates | espace | medieval | jungle    age: 5-7 | 8-12
+    const GAMES = [
+      { id:'abordage', icon:'🏴‍☠️', theme:'pirates', age:'8-12', fr:{n:'À l\'abordage!',d:'Voler le butin du navire ennemi.',steps:['Deux « navires » (zones) avec un coffre de butin (foulards).','Les pirates traversent l\'océan; touchés, ils retournent à leur navire.','Premier équipage à vider le coffre adverse remporte la bataille.']}, en:{n:'Board the ship!',d:'Steal the enemy ship\'s loot.',steps:['Two "ships" (zones) each with a loot chest (scarves).','Pirates cross the ocean; if tagged, return to their ship.','First crew to empty the enemy chest wins the battle.']} },
+      { id:'planche', icon:'🦜', theme:'pirates', age:'5-7', fr:{n:'La planche',d:'Avancer au signal sans tomber à l\'eau.',steps:['Une ligne au sol = la planche du bateau.','Au « Tribord! / Bâbord! », on saute du bon côté.','Qui se trompe « tombe à l\'eau » et fait 3 sauts de poisson avant de revenir.']}, en:{n:'Walk the plank',d:'Move on cue without falling overboard.',steps:['A floor line = the ship\'s plank.','On "Starboard! / Port!", jump to the correct side.','Whoever errs "falls overboard" and does 3 fish jumps before returning.']} },
+      { id:'meteorite', icon:'☄️', theme:'espace', age:'8-12', fr:{n:'Pluie de météorites',d:'Esquiver les ballons pour sauver la station.',steps:['Les « astronautes » protègent une zone-station.','Les lanceurs envoient des ballons mousse (météorites) à faire rebondir au sol.','Touché = on devient météorite. Derniers astronautes debout gagnent.']}, en:{n:'Meteor shower',d:'Dodge the balls to save the station.',steps:['"Astronauts" defend a station zone.','Throwers send foam balls (meteors) bouncing off the floor.','Hit = you become a meteor. Last astronauts standing win.']} },
+      { id:'aliens', icon:'👽', theme:'espace', age:'5-7', fr:{n:'Chasse aux aliens',d:'Attraper les extraterrestres lumineux.',steps:['Quelques enfants sont des aliens avec un dossard fluo.','Les autres les attrapent en les touchant doucement.','Alien attrapé devient chasseur. On rejoue avec de nouveaux aliens.']}, en:{n:'Alien hunt',d:'Catch the glowing aliens.',steps:['A few kids are aliens with a bright bib.','The others catch them with a gentle tag.','A caught alien becomes a hunter. Replay with new aliens.']} },
+      { id:'chateau', icon:'🏰', theme:'medieval', age:'8-12', fr:{n:'Le siège du château',d:'Attaquants contre défenseurs du château.',steps:['Les défenseurs gardent une zone-château avec un drapeau.','Les attaquants doivent toucher le drapeau sans se faire prendre.','3 manches, on inverse les rôles; équipe la plus rapide gagne.']}, en:{n:'Castle siege',d:'Attackers vs. castle defenders.',steps:['Defenders guard a castle zone with a flag.','Attackers must touch the flag without getting caught.','3 rounds, swap roles; fastest team wins.']} },
+      { id:'dragon', icon:'🐉', theme:'medieval', age:'5-7', fr:{n:'La queue du dragon',d:'Attraper la queue du dragon en file.',steps:['Les enfants s\'accrochent en file = le dragon.','La tête essaie d\'attraper la queue (le dernier) sans casser la file.','Quand la tête touche la queue, la queue devient la nouvelle tête.']}, en:{n:'Dragon\'s tail',d:'Catch the dragon\'s tail in a line.',steps:['Kids hold on in a line = the dragon.','The head tries to tag the tail (the last) without breaking the line.','When the head tags the tail, the tail becomes the new head.']} },
+      { id:'safari', icon:'🦁', theme:'jungle', age:'5-7', fr:{n:'Safari photo',d:'Repérer et imiter les animaux.',steps:['Des moniteurs-animaux sont cachés dans la zone.','Les explorateurs cherchent et imitent l\'animal trouvé pour le « photographier ».','Premier groupe à trouver tous les animaux gagne le safari.']}, en:{n:'Photo safari',d:'Spot and mimic the animals.',steps:['Counselor-animals hide around the zone.','Explorers find and mimic each animal to "photograph" it.','First group to find all animals wins the safari.']} },
+      { id:'liane', icon:'🐒', theme:'jungle', age:'8-12', fr:{n:'De liane en liane',d:'Traverser sans toucher le sol-rivière.',steps:['Des cerceaux = des lianes posées au sol.','En équipe, on traverse la rivière en ne marchant que dans les cerceaux.','Un pied dans la rivière = l\'équipe recommence. Coopération essentielle.']}, en:{n:'Vine to vine',d:'Cross without touching the river-floor.',steps:['Hoops = vines laid on the ground.','In teams, cross the river stepping only inside the hoops.','One foot in the river = the team restarts. Teamwork is key.']} }
+    ];
+
+    const LBL = {
+      fr:{ pill:'Jeux par thème', title:'🏴‍☠️ Jeux par thème', intro:'Une banque de jeux par univers — pirates, espace, médiéval, jungle. Pour les semaines thématiques.',
+        search:'Rechercher un jeu…', allTheme:'Tous les thèmes', allAges:'Tous les âges',
+        t_pirates:'🏴‍☠️ Pirates', t_espace:'🚀 Espace', t_medieval:'🏰 Médiéval', t_jungle:'🌴 Jungle',
+        count:n=>`${n} jeu${n>1?'x':''}`, empty:'Aucun jeu ne correspond.', how:'Comment jouer', theme:'Thème', age:'Âge' },
+      en:{ pill:'Themed games', title:'🏴‍☠️ Themed games', intro:'A game bank by world — pirates, space, medieval, jungle. For theme weeks.',
+        search:'Search a game…', allTheme:'All themes', allAges:'All ages',
+        t_pirates:'🏴‍☠️ Pirates', t_espace:'🚀 Space', t_medieval:'🏰 Medieval', t_jungle:'🌴 Jungle',
+        count:n=>`${n} game${n>1?'s':''}`, empty:'No game matches.', how:'How to play', theme:'Theme', age:'Age' }
+    };
+    let fTheme='*', fAge='*';
+    const THEMES=['pirates','espace','medieval','jungle'];
+
+    function L(){ return LBL[ZTS.getLang()]; }
+    function jrChips(){
+      const l=L();
+      document.getElementById('jrTheme').innerHTML =
+        [['*',l.allTheme]].concat(THEMES.map(t=>[t,l['t_'+t]]))
+        .map(([v,t])=>`<button class="jr-chip${fTheme===v?' active':''}" onclick="fTheme='${v}';jrRender()">${t}</button>`).join('');
+      document.getElementById('jrAge').innerHTML =
+        [['*',l.allAges],['5-7','5-7'],['8-12','8-12']]
+        .map(([v,t])=>`<button class="jr-chip${fAge===v?' active':''}" onclick="fAge='${v}';jrRender()">${t}</button>`).join('');
+    }
+    function jrRender(){
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrPill').textContent=l.pill;
+      document.getElementById('jrTitle').textContent=l.title;
+      document.getElementById('jrIntro').textContent=l.intro;
+      document.getElementById('jrSearch').placeholder=l.search;
+      jrChips();
+      const q=(document.getElementById('jrSearch').value||'').toLowerCase();
+      const list=GAMES.filter(g=>
+        (fTheme==='*'||g.theme===fTheme) && (fAge==='*'||g.age===fAge) &&
+        (!q || (g[lang].n+g[lang].d).toLowerCase().includes(q)));
+      document.getElementById('jrCount').textContent=l.count(list.length);
+      const grid=document.getElementById('jrGrid');
+      if(!list.length){ grid.innerHTML=`<p class="jr-empty">${l.empty}</p>`; return; }
+      grid.innerHTML=list.map(g=>`
+        <div class="zts-app-card jr-card" role="button" tabindex="0" onclick="jrOpen('${g.id}')" onkeydown="if(event.key==='Enter')jrOpen('${g.id}')">
+          <span class="zts-app-card__icon">${g.icon}</span>
+          <span class="zts-app-card__name">${g[lang].n}</span>
+          <span class="zts-app-card__desc">${g[lang].d}</span>
+          <div class="jr-meta"><span>${l['t_'+g.theme]}</span><span>👶 ${g.age}</span></div>
+        </div>`).join('');
+    }
+    function jrOpen(id){
+      const g=GAMES.find(x=>x.id===id); if(!g) return;
+      const l=L(), lang=ZTS.getLang();
+      document.getElementById('jrModalBody').innerHTML=`
+        <h2 class="zts-modal__title">${g.icon} ${g[lang].n}</h2>
+        <div class="jr-meta" style="margin-bottom:10px;"><span>${l['t_'+g.theme]}</span><span>👶 ${l.age} ${g.age}</span></div>
+        <p style="font-family:var(--font-body);font-weight:700;">${g[lang].d}</p>
+        <div class="zts-menu__small" style="margin-top:12px;">${l.how}</div>
+        <ol class="jr-steps">${g[lang].steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      ZTS.openModal('jrModal');
+    }
+    window.jrRender=jrRender; window.jrOpen=jrOpen;
+    document.addEventListener('zts:ready', jrRender);
+    document.addEventListener('zts:langchange', jrRender);
+  </script>
+</body>
+</html>
