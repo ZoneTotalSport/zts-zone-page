@@ -11,14 +11,17 @@
     <style>
       /* Fond gymnase continu derrière le header flottant (mêmes réglages que la div React → calage pixel-perfect, plus de noir) */
       html { background:#E0F7FF; }
+      /* !important : le CSS du build React (chargé après) repeignait le body en
+         foncé → on force le fond gymnase pour qu'il apparaisse derrière le
+         header transparent, à l'identique de la div React. */
       body {
         font-family:'DynaPuff',cursive;
-        background-color:#E0F7FF;
-        background-image:linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(224,247,255,0.72) 50%, rgba(125,211,252,0.78) 100%), url('gym-bg.png');
-        background-size:cover;
-        background-position:center;
-        background-attachment:fixed;
-        background-repeat:no-repeat;
+        background-color:#E0F7FF !important;
+        background-image:linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(224,247,255,0.72) 50%, rgba(125,211,252,0.78) 100%), url('gym-bg.png') !important;
+        background-size:cover !important;
+        background-position:center !important;
+        background-attachment:fixed !important;
+        background-repeat:no-repeat !important;
       }
     </style>
     <link rel="stylesheet" href="../../zts-ultra.css">
