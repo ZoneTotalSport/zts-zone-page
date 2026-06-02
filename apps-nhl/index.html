@@ -156,6 +156,15 @@
   .zts-hero .meta{margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;position:relative}
   .zts-hero .pill{background:#fff;color:#1A1A2E;border:3px solid #1A1A2E;border-radius:999px;
     padding:6px 16px;font-family:'Luckiest Guy',cursive;font-size:.9rem;box-shadow:3px 3px 0 #1A1A2E}
+  .zts-hero__bar{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    position:relative;z-index:2;margin-bottom:8px}
+  .zts-hero__clock{font-family:'Luckiest Guy',cursive;font-size:1.5rem;letter-spacing:.06em;color:#fff;
+    background:rgba(0,0,0,.22);border:3px solid #1A1A2E;border-radius:14px;padding:3px 14px;box-shadow:3px 3px 0 #1A1A2E}
+  .zts-hero__home{font-family:'Luckiest Guy',cursive;text-transform:uppercase;font-size:1.05rem;letter-spacing:.04em;
+    background:#FFEA00;color:#004A61;text-decoration:none;border:3px solid #1A1A2E;border-radius:14px;
+    padding:7px 16px;box-shadow:4px 4px 0 #1A1A2E;white-space:nowrap}
+  .zts-hero__home:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #1A1A2E}
+  @media(max-width:640px){.zts-hero__clock{font-size:1.1rem;padding:2px 10px}.zts-hero__home{font-size:.85rem;padding:5px 11px}}
   .header {
     text-align: center;
     padding: 25px 20px 0;
@@ -1364,22 +1373,8 @@
 </head>
 <body>
 
-<header class="zts-app-header">
-  <div class="zts-app-header-inner">
-    <a href="../../" class="zts-app-brand">
-      <span class="zts-app-brand-main">ZONE <span class="zts-app-brand-accent">TOTAL</span> SPORT</span>
-      <span class="zts-app-brand-sub">LNH Playoffs</span>
-    </a>
-    <span id="ztsClock" class="zts-app-clock">09:41</span>
-    <div class="zts-app-header-right">
-      <a href="../../" class="zts-app-home-btn">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-        Accueil
-      </a>
-    </div>
-  </div>
-</header>
-<script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
+<!-- barre du haut retirée : Accueil + heure sont maintenant dans la carte hero -->
+<script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();document.addEventListener('DOMContentLoaded',t);setInterval(t,15000);})();</script>
 
 <!-- NHL Logos Background -->
 <div class="nhl-bg-pattern" id="nhlBgPattern"></div>
@@ -1389,6 +1384,10 @@
 <!-- Header -->
 <div class="header">
   <div class="zts-hero">
+    <div class="zts-hero__bar">
+      <span id="ztsClock" class="zts-hero__clock">--:--</span>
+      <a href="/" target="_top" class="zts-hero__home">⌂ Accueil</a>
+    </div>
     <h1><span class="ball">🏒</span> Séries <span class="accent">LNH 2026</span></h1>
     <div class="sub">En route vers la Coupe Stanley</div>
     <div class="meta">
