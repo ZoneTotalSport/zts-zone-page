@@ -1,0 +1,118 @@
+/* ============================================================
+   ZONE TOTAL SPORT — HEADER PARTAGÉ (autonome)  zts-header.css
+   Extrait de zts.css SANS les resets globaux (*, body, img, a…)
+   pour pouvoir être chargé par n'importe quelle app (y compris
+   React/Vite) sans casser sa mise en page.
+   À utiliser avec : <div data-zts-header></div> + shared/zts.js
+   ============================================================ */
+
+:root {
+  --zts-noir:#1A1A2E; --ink:#1A1A2E; --paper:#FFFEF7;
+  --cyan:#00E5FF; --jaune:#FFEA00; --orange:#FF6B00; --vert:#39FF14;
+  --bleu:#1E90FF; --rose:#FF2D87; --violet:#8B5CF6;
+  --metier:var(--cyan);
+  --font-impact:'Luckiest Guy','LuckiestGuy','Impact',sans-serif;
+  --font-fun:'Fredoka','Helvetica Neue',sans-serif;
+  --bord:3px solid var(--zts-noir);
+  --ombre:4px 4px 0 var(--zts-noir);
+  --ombre-xl:6px 6px 0 var(--zts-noir);
+  --r-2:16px; --r-4:28px; --r-pill:999px;
+  --fs-1:clamp(13px,1.6vw,15px);
+  --fs-2:clamp(15px,1.9vw,18px);
+}
+
+/* Box-sizing scopé au header (on évite le reset global qui casserait l'app) */
+.zts-header, .zts-header *, .zts-header *::before, .zts-header *::after { box-sizing:border-box; }
+
+/* ============ HEADER PARTAGÉ (.zts-header) — grand bandeau bleu dégradé ============ */
+.zts-header {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  margin:14px clamp(12px,2.5vw,28px);
+  background:radial-gradient(circle at top right, #00C4FF 0%, #004A61 100%);
+  border:5px solid var(--zts-noir);
+  border-radius:var(--r-4);
+  box-shadow:8px 8px 0 var(--zts-noir);
+  color:var(--ink);
+  overflow:hidden;
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  gap:20px;
+  padding:18px clamp(16px,3vw,40px) 24px;
+  transition:transform .35s cubic-bezier(.4,0,.2,1);
+}
+.zts-header::before {
+  content:""; position:absolute; inset:0; opacity:.12; pointer-events:none;
+  background-image:radial-gradient(#fff 2px, transparent 2px);
+  background-size:30px 30px;
+}
+.zts-header > * { position:relative; z-index:1; }
+.zts-header.hidden { transform:translateY(-130%); }
+.zts-header__brandwrap { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:14px; }
+.zts-header__brand {
+  display:flex; align-items:baseline; gap:10px;
+  font-family:var(--font-impact); letter-spacing:.02em;
+  font-size:clamp(48px,8.5vw,104px);
+  text-decoration:none; white-space:nowrap; line-height:1;
+}
+.zts-header__brand span {
+  text-shadow:
+    3px 3px 0 var(--zts-noir), -2px -2px 0 var(--zts-noir),
+    2px -2px 0 var(--zts-noir), -2px 2px 0 var(--zts-noir),
+    0 2px 0 var(--zts-noir), 2px 0 0 var(--zts-noir),
+    7px 9px 0 rgba(26,26,46,.40);
+  display:inline-block; transform-origin:center bottom; cursor:pointer;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+}
+.zts-header__brand .w1 { color:var(--jaune); }
+.zts-header__brand .w2 { color:var(--rose); }
+.zts-header__brand .w3 { color:var(--vert); }
+.zts-header__brand span:hover { transform:translateY(-9px) rotate(-3deg) scale(1.18); }
+.zts-header__meta { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; }
+.zts-header__clock {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--font-impact); color:var(--zts-noir);
+  font-size:clamp(22px,2.6vw,32px); letter-spacing:.05em;
+  background:rgba(255,255,255,.92);
+  border:3px solid var(--zts-noir); border-radius:var(--r-pill);
+  padding:5px 18px; box-shadow:3px 3px 0 var(--zts-noir);
+  font-variant-numeric:tabular-nums;
+}
+.zts-header__sub { font-family:var(--font-fun); font-weight:700; color:rgba(255,255,255,.88); font-size:var(--fs-1); }
+.zts-header__nav { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center; }
+.zts-header__nav > *:nth-child(1) { rotate:-3deg; }
+.zts-header__nav > *:nth-child(2) { rotate:2deg; }
+.zts-header__nav > *:nth-child(3) { rotate:-2deg; }
+.zts-header__nav > *:nth-child(4) { rotate:2.5deg; }
+.zts-header__nav > *:nth-child(5) { rotate:-2deg; }
+.zts-header .zts-btn--primary { background:#fff; color:var(--ink); }
+
+/* Boutons chunky 3D */
+.zts-btn {
+  display:inline-flex; align-items:center; gap:9px;
+  font-family:var(--font-impact); font-size:var(--fs-2);
+  letter-spacing:.02em; color:#fff; text-decoration:none; cursor:pointer;
+  padding:11px 22px; border-radius:var(--r-2);
+  border:var(--bord); background:#2A3447;
+  box-shadow:0 5px 0 var(--zts-noir),0 8px 14px rgba(0,0,0,.35);
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s ease;
+}
+.zts-btn:hover  { transform:translateY(-3px); box-shadow:0 8px 0 var(--zts-noir),0 12px 20px rgba(0,0,0,.45); }
+.zts-btn:active { transform:translateY(2px); box-shadow:0 2px 0 var(--zts-noir),0 4px 8px rgba(0,0,0,.3); }
+.zts-btn .em { font-size:1.15em; line-height:1; }
+.zts-btn--primary   { background:var(--cyan);   color:var(--ink); }
+.zts-btn--communaute{ background:var(--rose);   color:#fff; }
+.zts-btn--dons      { background:var(--jaune);  color:var(--ink); }
+
+/* Toggle langue FR/EN */
+.zts-lang {
+  display:inline-flex; border:var(--bord); border-radius:var(--r-pill);
+  overflow:hidden; font-family:var(--font-impact); background:#fff;
+  box-shadow:var(--ombre);
+}
+.zts-lang button {
+  border:0; background:#fff; cursor:pointer;
+  padding:7px 16px; font-family:inherit; font-size:var(--fs-1);
+  color:#8a8aa0; letter-spacing:.04em;
+  transition:background .15s ease, color .15s ease;
+}
+.zts-lang button:hover { color:var(--ink); }
+.zts-lang button.active { background:var(--metier); color:var(--zts-noir); }
