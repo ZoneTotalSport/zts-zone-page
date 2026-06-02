@@ -99,10 +99,12 @@ const PROXIES = [
 let ALL = [], FILTER = 'all';
 
 async function apiFetch(url){
+  const ck = 'ztsc:' + url;
+  try{ const c = JSON.parse(localStorage.getItem(ck)||'null'); if(c && Date.now()-c.t < 90000) return c.d; }catch(e){}
   for(const p of PROXIES){
     try{
-      const r = await fetch(p(url), { signal: AbortSignal.timeout(8000) });
-      if(r.ok){ const j = await r.json(); if(j) return j; }
+      const r = await fetch(p(url), { signal: AbortSignal.timeout(6000) });
+      if(r.ok){ const j = await r.json(); if(j){ try{localStorage.setItem(ck,JSON.stringify({t:Date.now(),d:j}))}catch(e){} return j; } }
     }catch(e){ /* proxy suivant */ }
   }
   return null;

@@ -1448,11 +1448,15 @@ const PROXIES = [
   u => 'https://thingproxy.freeboard.io/fetch/' + u,
 ];
 async function apiFetch(url) {
+  const ck = 'ztsc:' + url;
+  try { const c = JSON.parse(localStorage.getItem(ck) || 'null'); if (c && Date.now() - c.t < 90000) return c.d; } catch(e){}
   for (const proxy of PROXIES) {
     try {
-      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(6000) });
+      const r = await fetch(proxy(url), { signal: AbortSignal.timeout(5000) });
       if (!r.ok) continue;
-      return await r.json();
+      const j = await r.json();
+      try { localStorage.setItem(ck, JSON.stringify({ t: Date.now(), d: j })); } catch(e){}
+      return j;
     } catch(e) { /* try next proxy */ }
   }
   console.warn('API fail (all proxies):', url);
@@ -1603,7 +1607,7 @@ async function fetchBracket() {
 async function fetchPlayoffScores() {
   const dates = [];
   const today = new Date();
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 12; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     dates.push(d.toISOString().split('T')[0]);
