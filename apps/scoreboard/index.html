@@ -29,9 +29,11 @@
          carte et on la rend translucide (voile clair) → le fond gymnase du body
          (fixed) apparaît à travers, en continuité parfaite. Aucun foncé. */
       .zts-header {
-        background: linear-gradient(180deg, rgba(255,255,255,0.34) 0%, rgba(176,228,250,0.24) 100%) !important;
-        backdrop-filter: saturate(1.05);
+        background: transparent !important;
       }
+      /* On retire aussi la trame de points (sur la carte bleue elle servait de
+         texture ; sur le gymnase elle salirait l'image). */
+      .zts-header::before { display: none !important; }
     </style>
     <script type="module" crossorigin src="./assets/index-BmRQS-th.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-GtdHna40.css">
