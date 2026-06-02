@@ -16,7 +16,7 @@
   var OVERLAY_ID = 'zts-locked-fullscreen';
 
   var CSS =
-    '#' + OVERLAY_ID + '{position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#1e3a8a 0%,#4c1d95 50%,#6d28d9 100%);font-family:"Patrick Hand","Comic Neue",cursive;color:#fff;overflow-y:auto;animation:zts-lf-fade .25s ease-out}' +
+    '#' + OVERLAY_ID + '{position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#1e3a8a 0%,#4c1d95 50%,#6d28d9 100%);font-family:"Fredoka","Quicksand",sans-serif;color:#fff;overflow-y:auto;animation:zts-lf-fade .25s ease-out}' +
     '#' + OVERLAY_ID + '::before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.08) 1.5px,transparent 1.5px);background-size:18px 18px;pointer-events:none;opacity:.6}' +
     '@keyframes zts-lf-fade{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}' +
     '.zts-lf-box{position:relative;z-index:1;max-width:560px;width:100%;background:#fff;color:#1f2937;border:4px solid #000;border-radius:24px;box-shadow:10px 10px 0 #000;padding:32px 28px;text-align:center}' +
@@ -24,15 +24,15 @@
     '.zts-lf-close:hover{transform:rotate(-10deg) scale(1.1)}' +
     '.zts-lf-icon{font-size:3.5rem;margin-bottom:6px;display:inline-block;animation:zts-lf-bounce 1.4s ease-in-out infinite}' +
     '@keyframes zts-lf-bounce{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-6px) rotate(4deg)}}' +
-    '.zts-lf-title{font-family:"Luckiest Guy","Patrick Hand",cursive;font-size:clamp(1.5rem,4vw,2.1rem);color:#1e3a8a;line-height:1.15;margin:0 0 14px;letter-spacing:.5px}' +
+    '.zts-lf-title{font-family:"Luckiest Guy","Fredoka",sans-serif;font-size:clamp(1.5rem,4vw,2.1rem);color:#1e3a8a;line-height:1.15;margin:0 0 14px;letter-spacing:.5px}' +
     '.zts-lf-sub{font-size:1.05rem;color:#374151;margin:0 0 18px;line-height:1.4}' +
     '.zts-lf-perks{list-style:none;padding:0;margin:0 0 18px;text-align:left;display:inline-block}' +
-    '.zts-lf-perks li{font-size:1.05rem;margin:6px 0;color:#1f2937;font-family:"Patrick Hand",cursive}' +
+    '.zts-lf-perks li{font-size:1.05rem;margin:6px 0;color:#1f2937;font-family:"Fredoka",sans-serif}' +
     '.zts-lf-perks li::before{content:"OUI";color:#10b981;font-weight:bold;font-family:"Luckiest Guy",cursive;font-size:.85rem;background:#d1fae5;padding:1px 6px;border-radius:6px;margin-right:8px;border:2px solid #10b981}' +
-    '.zts-lf-bonus{background:linear-gradient(135deg,#FFF7CC,#FFE066);border:3px dashed #1e3a8a;border-radius:14px;padding:12px 14px;margin:0 0 20px;font-family:"Patrick Hand",cursive;color:#1e3a8a;font-size:1.05rem;line-height:1.3}' +
+    '.zts-lf-bonus{background:linear-gradient(135deg,#FFF7CC,#FFE066);border:3px dashed #1e3a8a;border-radius:14px;padding:12px 14px;margin:0 0 20px;font-family:"Fredoka",sans-serif;color:#1e3a8a;font-size:1.05rem;line-height:1.3}' +
     '.zts-lf-bonus strong{font-family:"Luckiest Guy",cursive;font-size:1.15rem;letter-spacing:.5px}' +
     '.zts-lf-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}' +
-    '.zts-lf-btn{font-family:"Luckiest Guy","Patrick Hand",cursive;font-size:1.05rem;letter-spacing:.5px;padding:14px 18px;border:3px solid #000;border-radius:14px;cursor:pointer;box-shadow:5px 5px 0 #000;transition:transform .15s,box-shadow .15s;min-width:180px;flex:1 1 200px;max-width:240px}' +
+    '.zts-lf-btn{font-family:"Luckiest Guy","Fredoka",sans-serif;font-size:1.05rem;letter-spacing:.5px;padding:14px 18px;border:3px solid #000;border-radius:14px;cursor:pointer;box-shadow:5px 5px 0 #000;transition:transform .15s,box-shadow .15s;min-width:180px;flex:1 1 200px;max-width:240px}' +
     '.zts-lf-btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #000}' +
     '.zts-lf-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #000}' +
     '.zts-lf-btn-google{background:#fff;color:#1f2937}' +
@@ -44,6 +44,15 @@
 
   function injectStyles() {
     if (document.getElementById(STYLE_ID)) return;
+    // Charge Fredoka (police pédagogique cool) + Luckiest Guy si absentes,
+    // sinon fallback cursive (Apple Chancery) moche.
+    if (!document.getElementById('zts-lf-font')) {
+      var f = document.createElement('link');
+      f.id = 'zts-lf-font';
+      f.rel = 'stylesheet';
+      f.href = 'https://fonts.googleapis.com/css2?family=Fredoka:wght@400..600&family=Luckiest+Guy&display=swap';
+      document.head.appendChild(f);
+    }
     var s = document.createElement('style');
     s.id = STYLE_ID;
     s.textContent = CSS;
