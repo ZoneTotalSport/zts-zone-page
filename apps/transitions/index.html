@@ -7,6 +7,7 @@
 <meta name="description" content="Outils de transition pour enseignants d'éducation physique au primaire. Signaux, chrono, zones, capitaines, trame sonore et plan du gymnase.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=DynaPuff:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../shared/zts-header.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -246,23 +247,7 @@ nav.z-40>div{flex-wrap:wrap!important;min-width:0!important;gap:10px!important}
 </style>
 
 <!-- HEADER ZTS standard -->
-<header class="zts-app-header">
-  <div class="zts-app-header-inner">
-    <a href="../../" class="zts-app-brand">
-      <span class="zts-app-brand-main">ZONE <span class="zts-app-brand-accent">TOTAL</span> SPORT</span>
-      <span class="zts-app-brand-sub">Boîte à outils Transitions</span>
-    </a>
-    <div class="zts-app-header-right">
-      <span id="ztsClock" class="zts-app-clock">09:41</span>
-      <button onclick="setLang('fr')" id="btn-fr" class="btn-font px-2 py-1 rounded-full text-sm font-bold" style="background:#fff;color:#00B8D4;border:2px solid rgba(255,255,255,0.7)">FR</button>
-      <button onclick="setLang('en')" id="btn-en" class="btn-font px-2 py-1 rounded-full text-sm font-bold" style="background:rgba(255,255,255,0.25);color:#fff;border:2px solid rgba(255,255,255,0.5)">EN</button>
-      <a href="../../" class="zts-app-home-btn">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-        Accueil
-      </a>
-    </div>
-  </div>
-</header>
+<!-- Header partagé ZTS (identique à la home) --><div data-zts-header></div>
 <script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
 
 <!-- NAV STICKY -->
@@ -1205,5 +1190,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>
+  <script src="../../shared/zts.js"></script>
 </body>
 </html>

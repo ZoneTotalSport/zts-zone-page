@@ -129,6 +129,7 @@
 
   </style>
   <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="../../shared/zts-header.css">
   <style>
   /* SEQ-OBJ shadowbox coloré ZTS Premium Lumineux */
   .seq-obj-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))!important;gap:24px!important;padding:8px 6px 18px!important;overflow:visible!important}
@@ -226,31 +227,7 @@
   <div id="app" class="app-hidden">
 
     <!-- HEADER ZTS Premium Lumineux XXL -->
-    <header class="zts-app-header no-print">
-      <div class="zts-app-header-inner">
-        <a href="https://zonetotalsport.ca" class="zts-app-brand">
-          <span class="zts-app-brand-main">ZONE <span class="zts-app-brand-accent">TOTAL</span> SPORT</span>
-          <span class="zts-app-brand-sub">Agenda Scolaire ÉPS</span>
-        </a>
-        <div class="zts-app-header-right">
-          <span id="ztsClock" class="zts-app-clock">09:41</span>
-          <button class="zts-lang-pill lang-active" onclick="setLang('fr')">FR</button>
-          <button class="zts-lang-pill" onclick="setLang('en')">EN</button>
-          <button class="zts-lang-pill" onclick="setLang('es')">ES</button>
-          <button class="zts-lang-pill" onclick="setLang('zh')">中文</button>
-          <button onclick="downloadData()" class="zts-icon-btn" title="Sauvegarder">💾</button>
-          <label class="zts-icon-btn" title="Importer" style="cursor:pointer">📂<input type="file" id="importFile" accept=".json" onchange="importData(this)" hidden /></label>
-          <button onclick="window.print()" class="zts-icon-btn" title="Imprimer">🖨️</button>
-          <button onclick="resetAll()" class="zts-icon-btn danger" title="Réinitialiser">🗑️</button>
-          <a href="https://zonetotalsport.ca" class="zts-app-home-btn">
-            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-            Accueil
-          </a>
-          <span id="zts-auth-label" style="font-family:'DynaPuff',cursive;color:#fff;font-size:.95rem;opacity:.9"></span>
-          <button id="zts-auth-btn" class="zts-lang-pill" style="display:none" onclick="ztsAuthAction()"></button>
-        </div>
-      </div>
-    </header>
+    <!-- Header partagé ZTS (identique à la home) --><div data-zts-header></div>
     <script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
 
     <!-- HERO XXL ZTS Ultra-Interactif -->
@@ -627,5 +604,6 @@
 
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>
+  <script src="../../shared/zts.js"></script>
 </body>
 </html>

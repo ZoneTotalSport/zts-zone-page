@@ -6,6 +6,7 @@
 <title>Zone Total Sport — Maternelle 90 Cours</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../../shared/zts-header.css">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <style>
 /* ═══ POLICES ═══ */
@@ -552,22 +553,8 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
 <!-- ═══ MAIN VIEW ═══ -->
 <div id="view-main" class="view active">
 
-  <!-- HEADER ZTS standard -->
-  <header class="zts-app-header">
-    <div class="zts-app-header-inner">
-      <a href="../../" class="zts-app-brand">
-        <span class="zts-app-brand-main">ZONE <span class="zts-app-brand-accent">TOTAL</span> SPORT</span>
-        <span class="zts-app-brand-sub">Cours Maternelle</span>
-      </a>
-      <div class="zts-app-header-right">
-        <span id="ztsClock" class="zts-app-clock">09:41</span>
-        <a href="../../" class="zts-app-home-btn">
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-          Accueil
-        </a>
-      </div>
-    </div>
-  </header>
+  <!-- Header partagé ZTS (identique à la home) -->
+  <div data-zts-header></div>
 
   <!-- HERO XXL ZTS -->
   <section class="zts-hero-gradient zts-hero-xxl">
@@ -1111,5 +1098,6 @@ if(!checkAccess()){/* lock visible */}
 <script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>
+  <script src="../../shared/zts.js"></script>
 </body>
 </html>
