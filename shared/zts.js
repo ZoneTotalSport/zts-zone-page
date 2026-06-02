@@ -151,12 +151,10 @@
   function hideHeaderOnScroll() {
     const h = document.querySelector('.zts-header');
     if (!h) return;
-    let last = 0;
-    addEventListener('scroll', () => {
-      const y = scrollY;
-      h.classList.toggle('hidden', y > last && y > 120);
-      last = y;
-    }, { passive: true });
+    // Header visible UNIQUEMENT en haut de page ; caché dès qu'on descend.
+    const apply = () => h.classList.toggle('hidden', scrollY > 80);
+    addEventListener('scroll', apply, { passive: true });
+    apply();
   }
 
   /* ---------- INIT ---------- */

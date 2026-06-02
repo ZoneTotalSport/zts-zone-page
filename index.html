@@ -1052,6 +1052,8 @@
   }
   .serie-card.nba { border-color: var(--orange); box-shadow: 0 0 20px rgba(255,107,0,0.4), 0 4px 12px rgba(0,0,0,0.5); }
   .serie-card.nba:hover { box-shadow: 0 0 28px rgba(255,107,0,0.6), 0 6px 16px rgba(0,0,0,0.5); }
+  .serie-card.fifa { border-color: var(--vert); box-shadow: 0 0 20px rgba(57,255,20,0.4), 0 4px 12px rgba(0,0,0,0.5); }
+  .serie-card.fifa:hover { box-shadow: 0 0 28px rgba(57,255,20,0.6), 0 6px 16px rgba(0,0,0,0.5); }
   .serie-card .league-logo {
     width: 36px; height: 36px;
     border-radius: 50%;
@@ -2976,6 +2978,11 @@
     <div class="league-logo">🏀</div>
     <div class="label" data-i18n="series.nba_label">SÉRIES NBA</div>
   </a>
+  <a class="serie-card fifa" href="apps-fifa/index.html" onclick="openSeries('fifa'); return false;" data-i18n-attr="title:series.see_fifa" title="Voir la Coupe du monde FIFA 2026">
+    <span class="dot-live"></span>
+    <div class="league-logo">⚽</div>
+    <div class="label" data-i18n="series.fifa_label">MONDIAL FIFA</div>
+  </a>
 </div>
 
 <!-- MODAL SÉRIES -->
@@ -4031,6 +4038,13 @@
           ]
         }
       ]
+    },
+    fifa: {
+      badge: '⚽ FIFA',
+      title: 'Coupe du monde FIFA 2026',
+      subtitle: 'Canada · États-Unis · Mexique — 11 juin au 19 juillet',
+      externalUrl: 'https://www.fifa.com/fr/tournaments/mens/worldcup/canadamexicousa2026',
+      bracket: []
     }
   };
 
@@ -4045,7 +4059,7 @@
     document.getElementById('seriesExtLink').href = data.externalUrl;
 
     const content = document.getElementById('seriesContent');
-    const appPath = league === 'nhl' ? 'apps-nhl/index.html' : 'apps-nba/index.html';
+    const appPath = { nhl:'apps-nhl/index.html', nba:'apps-nba/index.html', fifa:'apps-fifa/index.html' }[league] || 'apps-nhl/index.html';
     content.innerHTML = `
       <iframe src="${appPath}" style="width:100%; height:78vh; border:4px solid var(--ink); border-radius:16px; background:#fff;" loading="lazy"></iframe>
     `;
@@ -4085,17 +4099,11 @@
       return;
     }
 
-    if (currentScroll > lastScroll && currentScroll > 120) {
-      // Scroll vers le bas - on cache
-      darkNav?.classList.add('hidden');
-      topNav?.classList.add('hidden');
-      document.body.classList.add('header-hidden');
-    } else {
-      // Scroll vers le haut - on montre
-      darkNav?.classList.remove('hidden');
-      topNav?.classList.remove('hidden');
-      document.body.classList.remove('header-hidden');
-    }
+    // Header visible UNIQUEMENT en haut ; caché dès qu'on descend (docks remontent).
+    const hide = currentScroll > 80;
+    darkNav?.classList.toggle('hidden', hide);
+    topNav?.classList.toggle('hidden', hide);
+    document.body.classList.toggle('header-hidden', hide);
 
     lastScroll = currentScroll;
     ticking = false;
