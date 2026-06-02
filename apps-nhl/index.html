@@ -1456,8 +1456,12 @@ const API = {
   goalieLeaders: `https://api-web.nhle.com/v1/goalie-stats-leaders/20252026/3?categories=savePctg,wins,goalsAgainstAverage&limit=10`,
 };
 
-// NHL API n'a pas de CORS — on passe directement par les proxies
+// NHL API n'a pas de CORS. Source #1 = notre worker Cloudflare (cache edge,
+// 1er chargement instantané) qui mappe nhl.zonetotalsport.ca/v1/... -> api-web.nhle.com/v1/...
+// Repli sur les proxies publics si le worker ne répond pas.
+const NHL_WORKER = 'https://nhl.zonetotalsport.ca';
 const PROXIES = [
+  u => NHL_WORKER + u.replace('https://api-web.nhle.com', ''),
   u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
   u => 'https://corsproxy.io/?' + encodeURIComponent(u),
   u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
