@@ -72,20 +72,20 @@
     <!-- Bouton COMPTE en haut-droite du hero (Accueil est déjà dans le header partagé) -->
     <div class="zts-gen-hero-account">
       <button id="accountBtn" class="zts-gen-hero-btn zts-gen-hero-btn--right" aria-label="Compte">
-        <span>👤</span><span>COMPTE</span>
+        <span>👤</span><span data-i18n="acc_btn">COMPTE</span>
       </button>
       <div id="accountMenu" class="zts-gen-account-menu" hidden>
-        <a href="#" data-action="signin" data-auth="login">🔑 Connexion</a>
-        <a href="#" data-action="profile" hidden>👤 Mon profil</a>
-        <button data-action="signout" data-auth="logout" hidden>🚪 Déconnexion</button>
+        <a href="#" data-action="signin" data-auth="login" data-i18n="acc_signin">🔑 Connexion</a>
+        <a href="#" data-action="profile" hidden data-i18n="acc_profile">👤 Mon profil</a>
+        <button data-action="signout" data-auth="logout" hidden data-i18n="acc_signout">🚪 Déconnexion</button>
       </div>
     </div>
 
     <div class="zts-landing-hero-grid">
       <div class="zts-landing-hero-text">
-        <div class="zts-gen-badge">🚀 10 GRATUITS/MOIS</div>
-        <h1 class="zts-landing-title">GÉNÉRATEUR IA</h1>
-        <p class="zts-landing-subtitle">Crée un jeu, une SAÉ ou un éducatif sur mesure. Le bûcheron taille pour toi en quelques secondes.</p>
+        <div class="zts-gen-badge" data-i18n="hero_badge">🚀 10 GRATUITS/MOIS</div>
+        <h1 class="zts-landing-title" data-i18n="hero_title">GÉNÉRATEUR IA</h1>
+        <p class="zts-landing-subtitle" data-i18n="hero_subtitle">Crée un jeu, une SAÉ ou un éducatif sur mesure. Le bûcheron taille pour toi en quelques secondes.</p>
       </div>
       <div class="zts-landing-mascot-wrap">
         <img src="/bucheron-generateur.png" alt="Bûcheron Mr Root" class="zts-landing-mascot" id="bucheronHero">
@@ -98,73 +98,73 @@
 
     <!-- ÉTAPE 1 : UNIVERS -->
     <section class="zts-gen-step">
-      <h2 class="zts-gen-step-title"><span class="zts-gen-step-num">1</span> Quel UNIVERS ?</h2>
+      <h2 class="zts-gen-step-title"><span class="zts-gen-step-num">1</span> <span data-i18n="step1_title">Quel UNIVERS ?</span></h2>
       <div class="zts-gen-selector-grid" data-group="univers">
         <button type="button" class="zts-gen-card zts-gen-card--yellow is-active" data-value="eps">
           <span class="zts-gen-card-emoji">🏫</span>
-          <span class="zts-gen-card-title">ÉPS PRIMAIRE</span>
-          <span class="zts-gen-card-desc">PFEQ, gymnase, 25-30 élèves</span>
+          <span class="zts-gen-card-title" data-i18n="uni_eps_title">ÉPS PRIMAIRE</span>
+          <span class="zts-gen-card-desc" data-i18n="uni_eps_desc">PFEQ, gymnase, 25-30 élèves</span>
         </button>
         <button type="button" class="zts-gen-card zts-gen-card--orange" data-value="camps">
           <span class="zts-gen-card-emoji">☀️</span>
-          <span class="zts-gen-card-title">CAMP DE JOUR</span>
-          <span class="zts-gen-card-desc">Plein air, 30-100 jeunes, plaisir</span>
+          <span class="zts-gen-card-title" data-i18n="uni_camps_title">CAMP DE JOUR</span>
+          <span class="zts-gen-card-desc" data-i18n="uni_camps_desc">Plein air, 30-100 jeunes, plaisir</span>
         </button>
         <button type="button" class="zts-gen-card zts-gen-card--lime" data-value="sdg">
           <span class="zts-gen-card-emoji">🧸</span>
-          <span class="zts-gen-card-title">SERVICE DE GARDE</span>
-          <span class="zts-gen-card-desc">Local 50m², 10-25 enfants, calme</span>
+          <span class="zts-gen-card-title" data-i18n="uni_sdg_title">SERVICE DE GARDE</span>
+          <span class="zts-gen-card-desc" data-i18n="uni_sdg_desc">Local 50m², 10-25 enfants, calme</span>
         </button>
       </div>
     </section>
 
     <!-- ÉTAPE 2 : TYPE -->
     <section class="zts-gen-step">
-      <h2 class="zts-gen-step-title"><span class="zts-gen-step-num">2</span> Quel TYPE ?</h2>
+      <h2 class="zts-gen-step-title"><span class="zts-gen-step-num">2</span> <span data-i18n="step2_title">Quel TYPE ?</span></h2>
       <div class="zts-gen-selector-grid" data-group="type">
         <button type="button" class="zts-gen-card zts-gen-card--red is-active" data-value="jeu">
           <span class="zts-gen-card-emoji">🎮</span>
-          <span class="zts-gen-card-title">JEU</span>
-          <span class="zts-gen-card-desc">Un jeu sportif clé en main</span>
+          <span class="zts-gen-card-title" data-i18n="type_jeu_title">JEU</span>
+          <span class="zts-gen-card-desc" data-i18n="type_jeu_desc">Un jeu sportif clé en main</span>
         </button>
         <button type="button" class="zts-gen-card zts-gen-card--violet" data-value="sae">
           <span class="zts-gen-card-emoji">📚</span>
-          <span class="zts-gen-card-title">SAÉ</span>
-          <span class="zts-gen-card-desc">Situation d'apprentissage complète</span>
+          <span class="zts-gen-card-title" data-i18n="type_sae_title">SAÉ</span>
+          <span class="zts-gen-card-desc" data-i18n="type_sae_desc">Situation d'apprentissage complète</span>
         </button>
         <button type="button" class="zts-gen-card zts-gen-card--cyan" data-value="educatif">
           <span class="zts-gen-card-emoji">🏋️</span>
-          <span class="zts-gen-card-title">ÉDUCATIF</span>
-          <span class="zts-gen-card-desc">Exercice technique progressif</span>
+          <span class="zts-gen-card-title" data-i18n="type_educatif_title">ÉDUCATIF</span>
+          <span class="zts-gen-card-desc" data-i18n="type_educatif_desc">Exercice technique progressif</span>
         </button>
       </div>
     </section>
 
     <!-- ÉTAPE 3 : CONTEXTE -->
     <section class="zts-gen-step">
-      <h2 class="zts-gen-step-title"><span class="zts-gen-step-num">3</span> Donne du CONTEXTE <span class="zts-gen-step-opt">(optionnel)</span></h2>
+      <h2 class="zts-gen-step-title"><span class="zts-gen-step-num">3</span> <span data-i18n="step3_title">Donne du CONTEXTE</span> <span class="zts-gen-step-opt" data-i18n="step3_opt">(optionnel)</span></h2>
       <div class="zts-gen-textarea-wrap">
         <textarea id="contextInput" class="zts-gen-textarea" maxlength="1000" rows="4"
-          placeholder="ex. 3e cycle, basketball, ballons mousse, 30 min"></textarea>
+          data-i18n-ph="ctx_ph_default" placeholder="ex. 3e cycle, basketball, ballons mousse, 30 min"></textarea>
         <div class="zts-gen-counter"><span id="charCount">0</span> / 1000</div>
       </div>
     </section>
 
     <!-- TOGGLE MODÈLE -->
     <section class="zts-gen-modele-row">
-      <label class="zts-gen-modele-label">Modèle :</label>
+      <label class="zts-gen-modele-label" data-i18n="modele_label">Modèle :</label>
       <div class="zts-gen-toggle" role="radiogroup" aria-label="Choix modèle">
         <button type="button" class="zts-gen-toggle-opt is-active" data-modele="haiku">
-          <span>⚡</span><span>RAPIDE</span>
+          <span>⚡</span><span data-i18n="modele_fast">RAPIDE</span>
         </button>
         <button type="button" class="zts-gen-toggle-opt" data-modele="sonnet">
-          <span>✨</span><span>QUALITÉ +</span>
+          <span>✨</span><span data-i18n="modele_quality">QUALITÉ +</span>
         </button>
       </div>
       <button type="button" class="zts-gen-tooltip-trigger" aria-label="Aide modèle" id="tooltipBtn">i</button>
       <div class="zts-gen-tooltip" id="tooltipBox" hidden>
-        <strong>Rapide (Haiku)</strong> : 5-10s, fiche complète.<br>
-        <strong>Qualité+ (Sonnet)</strong> : 15-25s, plus détaillé et nuancé.
+        <strong data-i18n="tooltip_fast_strong">Rapide (Haiku)</strong><span data-i18n="tooltip_fast_rest"> : 5-10s, fiche complète.</span><br>
+        <strong data-i18n="tooltip_quality_strong">Qualité+ (Sonnet)</strong><span data-i18n="tooltip_quality_rest"> : 15-25s, plus détaillé et nuancé.</span>
       </div>
     </section>
 
@@ -172,10 +172,10 @@
     <div class="zts-gen-cta-wrap">
       <button id="generateBtn" type="button" class="zts-gen-cta-btn">
         <span class="zts-gen-cta-icon">🚀</span>
-        <span class="zts-gen-cta-text">GÉNÉRER</span>
-        <span class="zts-gen-cta-cost">(1 crédit)</span>
+        <span class="zts-gen-cta-text" data-i18n="cta_generate">GÉNÉRER</span>
+        <span class="zts-gen-cta-cost" data-i18n="cta_cost">(1 crédit)</span>
       </button>
-      <p id="quotaHint" class="zts-gen-quota-hint">Tu peux générer 3 fois sans inscription.</p>
+      <p id="quotaHint" class="zts-gen-quota-hint" data-i18n="quota_default">Tu peux générer 3 fois sans inscription.</p>
     </div>
 
     <!-- ZONE RÉSULTAT -->
@@ -184,7 +184,7 @@
       <!-- État LOADING -->
       <div id="loadingState" class="zts-gen-loading" hidden>
         <img src="/bucheron-hero.png" alt="" class="zts-gen-loading-bucheron">
-        <p id="loadingMsg" class="zts-gen-loading-msg">Le bûcheron réfléchit...</p>
+        <p id="loadingMsg" class="zts-gen-loading-msg" data-i18n="loading_default">Le bûcheron réfléchit...</p>
         <div class="zts-gen-loading-dots"><span></span><span></span><span></span></div>
       </div>
 
@@ -228,7 +228,7 @@
             <div class="zts-fiche2-tile-icon">📦</div>
             <div class="zts-fiche2-tile-content"><ul id="ficheMateriel" data-edit-list="materiel"></ul></div>
             <div class="zts-fiche2-tile-band zts-fiche2-tile-band--materiel">
-              <span>MATÉRIEL</span>
+              <span data-i18n="band_materiel">MATÉRIEL</span>
               <span class="zts-fiche2-tile-chev">›</span>
             </div>
           </div>
@@ -246,7 +246,7 @@
             <div class="zts-fiche2-tile-icon">🗺️</div>
             <div class="zts-fiche2-tile-content"><ul id="ficheOrganisation"></ul></div>
             <div class="zts-fiche2-tile-band zts-fiche2-tile-band--organisation">
-              <span>ORGANISATION</span>
+              <span data-i18n="band_organisation">ORGANISATION</span>
               <span class="zts-fiche2-tile-chev">›</span>
             </div>
           </div>
@@ -255,7 +255,7 @@
         <!-- PLAN DE MATCH (liste numérotée) -->
         <section class="zts-fiche2-plan-wrap">
           <div class="zts-fiche2-plan-titlebar">
-            <h3>PLAN DE MATCH</h3>
+            <h3 data-i18n="plan_title">PLAN DE MATCH</h3>
           </div>
           <div class="zts-fiche2-plan-card">
             <ol id="fichePlan" class="zts-fiche2-plan-list"></ol>
@@ -267,7 +267,7 @@
           <div class="zts-fiche2-action-col">
             <button type="button" class="zts-fiche2-push zts-fiche2-push--orange" data-toggle="variantes">
               <span class="zts-fiche2-push-icon">🔀</span>
-              <span>VARIANTES</span>
+              <span data-i18n="btn_variantes">VARIANTES</span>
             </button>
             <div class="zts-fiche2-panel zts-fiche2-panel--orange" id="panelVariantes" hidden>
               <button class="zts-fiche2-panel-close" data-close-panel="variantes">×</button>
@@ -278,11 +278,11 @@
           <div class="zts-fiche2-action-col">
             <button type="button" class="zts-fiche2-push zts-fiche2-push--green" data-toggle="securite">
               <span class="zts-fiche2-push-icon">🛡️</span>
-              <span>SÉCURITÉ</span>
+              <span data-i18n="btn_securite">SÉCURITÉ</span>
             </button>
             <div class="zts-fiche2-panel zts-fiche2-panel--green" id="panelSecurite" hidden>
               <button class="zts-fiche2-panel-close" data-close-panel="securite">×</button>
-              <h4>Points d'attention :</h4>
+              <h4 data-i18n="securite_h4">Points d'attention :</h4>
               <ul id="ficheSecuriteList"></ul>
             </div>
           </div>
@@ -290,7 +290,7 @@
 
         <!-- BADGE "ÉDITÉ" -->
         <div class="zts-fiche2-edited-badge no-print" id="ficheEditedBadge" hidden>
-          <span>✏️</span><span>FICHE ÉDITÉE</span>
+          <span>✏️</span><span data-i18n="edited_badge">FICHE ÉDITÉE</span>
         </div>
 
         <!-- FOOTER ACTIONS -->
@@ -303,7 +303,7 @@
           </button>
           <div class="zts-fiche2-regen-wrap">
             <button class="zts-fiche2-foot-btn zts-fiche2-foot-btn--cyan" id="ficheBtnRegen">
-              <span>🔄</span><span>RÉGÉNÉRER</span>
+              <span>🔄</span><span data-i18n="btn_regen">RÉGÉNÉRER</span>
             </button>
             <div class="zts-fiche2-confirm" id="regenConfirm" hidden>
               <p id="regenConfirmText">🔄 Régénérer ? <span class="zts-fiche2-confirm-cost">(1 crédit)</span></p>
@@ -322,24 +322,24 @@
         <div class="zts-fiche2-toast no-print" id="ficheToast" hidden>
           <span class="zts-fiche2-toast-icon">✅</span>
           <div>
-            <strong>Astuce sauvegarde</strong>
-            <p>Sélectionne « Enregistrer au format PDF » dans la fenêtre qui s'ouvre.</p>
+            <strong data-i18n="toast_strong">Astuce sauvegarde</strong>
+            <p data-i18n="toast_text">Sélectionne « Enregistrer au format PDF » dans la fenêtre qui s'ouvre.</p>
           </div>
         </div>
       </article>
 
       <!-- ============ MES GÉNÉRATIONS ============ -->
       <section id="mesGenerations" class="zts-gen-mes-section" hidden>
-        <h2 class="zts-gen-mes-title">📜 MES GÉNÉRATIONS</h2>
+        <h2 class="zts-gen-mes-title" data-i18n="mes_title">📜 MES GÉNÉRATIONS</h2>
         <p id="mesGenSubtitle" class="zts-gen-mes-subtitle"></p>
         <div id="mesGenGrid" class="zts-gen-mes-grid"></div>
       </section>
 
       <!-- État ERREUR -->
       <div id="errorState" class="zts-gen-error" hidden>
-        <h3>Oups, le bûcheron a glissé sur une bûche...</h3>
+        <h3 data-i18n="error_title">Oups, le bûcheron a glissé sur une bûche...</h3>
         <p id="errorMsg"></p>
-        <button id="retryBtn" class="zts-gen-cta-btn zts-gen-cta-btn--small">🔄 Réessayer</button>
+        <button id="retryBtn" class="zts-gen-cta-btn zts-gen-cta-btn--small" data-i18n="error_retry">🔄 Réessayer</button>
       </div>
     </section>
 
@@ -351,13 +351,13 @@
     <div class="zts-gen-modal-card" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
       <button class="zts-gen-modal-close" data-close aria-label="Fermer">×</button>
       <div class="zts-gen-modal-emoji">🎁</div>
-      <h2 id="signupTitle" class="zts-gen-modal-title">INSCRIS-TOI GRATUITEMENT</h2>
-      <p class="zts-gen-modal-subtitle">Continue à générer (10/mois) + sauvegarde tes créations 100% gratuit.</p>
+      <h2 id="signupTitle" class="zts-gen-modal-title" data-i18n="signup_title">INSCRIS-TOI GRATUITEMENT</h2>
+      <p class="zts-gen-modal-subtitle" data-i18n="signup_subtitle">Continue à générer (10/mois) + sauvegarde tes créations 100% gratuit.</p>
       <div class="zts-gen-modal-actions">
         <a href="#" data-auth="signup" class="zts-gen-modal-btn zts-gen-modal-btn--primary">
-          <span>🔑</span><span>SE CONNECTER / S'INSCRIRE</span>
+          <span>🔑</span><span data-i18n="signup_cta">SE CONNECTER / S'INSCRIRE</span>
         </a>
-        <button class="zts-gen-modal-btn zts-gen-modal-btn--ghost" data-close>Plus tard</button>
+        <button class="zts-gen-modal-btn zts-gen-modal-btn--ghost" data-close data-i18n="signup_later">Plus tard</button>
       </div>
     </div>
   </div>
@@ -376,6 +376,90 @@
   <script src="/zts-locked-fullscreen.js" defer></script>
   <script src="zts-anon-fingerprint.js" defer></script>
   <script src="app.js" defer></script>
+  <!-- i18n statique de l'app (texte du HTML). Le texte généré par app.js est traduit dans app.js. -->
+  <script>
+  (function(){
+    const I18N = {
+      fr: {
+        acc_btn:'COMPTE', acc_signin:'🔑 Connexion', acc_profile:'👤 Mon profil', acc_signout:'🚪 Déconnexion',
+        hero_badge:'🚀 10 GRATUITS/MOIS', hero_title:'GÉNÉRATEUR IA',
+        hero_subtitle:'Crée un jeu, une SAÉ ou un éducatif sur mesure. Le bûcheron taille pour toi en quelques secondes.',
+        step1_title:'Quel UNIVERS ?',
+        uni_eps_title:'ÉPS PRIMAIRE', uni_eps_desc:'PFEQ, gymnase, 25-30 élèves',
+        uni_camps_title:'CAMP DE JOUR', uni_camps_desc:'Plein air, 30-100 jeunes, plaisir',
+        uni_sdg_title:'SERVICE DE GARDE', uni_sdg_desc:'Local 50m², 10-25 enfants, calme',
+        step2_title:'Quel TYPE ?',
+        type_jeu_title:'JEU', type_jeu_desc:'Un jeu sportif clé en main',
+        type_sae_title:'SAÉ', type_sae_desc:'Situation d\'apprentissage complète',
+        type_educatif_title:'ÉDUCATIF', type_educatif_desc:'Exercice technique progressif',
+        step3_title:'Donne du CONTEXTE', step3_opt:'(optionnel)',
+        ctx_ph_default:'ex. 3e cycle, basketball, ballons mousse, 30 min',
+        modele_label:'Modèle :', modele_fast:'RAPIDE', modele_quality:'QUALITÉ +',
+        tooltip_fast_strong:'Rapide (Haiku)', tooltip_fast_rest:' : 5-10s, fiche complète.',
+        tooltip_quality_strong:'Qualité+ (Sonnet)', tooltip_quality_rest:' : 15-25s, plus détaillé et nuancé.',
+        cta_generate:'GÉNÉRER', cta_cost:'(1 crédit)',
+        quota_default:'Tu peux générer 3 fois sans inscription.',
+        loading_default:'Le bûcheron réfléchit...',
+        band_materiel:'MATÉRIEL', band_organisation:'ORGANISATION', plan_title:'PLAN DE MATCH',
+        btn_variantes:'VARIANTES', btn_securite:'SÉCURITÉ', securite_h4:'Points d\'attention :',
+        edited_badge:'FICHE ÉDITÉE', btn_regen:'RÉGÉNÉRER',
+        toast_strong:'Astuce sauvegarde', toast_text:'Sélectionne « Enregistrer au format PDF » dans la fenêtre qui s\'ouvre.',
+        mes_title:'📜 MES GÉNÉRATIONS',
+        error_title:'Oups, le bûcheron a glissé sur une bûche...', error_retry:'🔄 Réessayer',
+        signup_title:'INSCRIS-TOI GRATUITEMENT',
+        signup_subtitle:'Continue à générer (10/mois) + sauvegarde tes créations 100% gratuit.',
+        signup_cta:'SE CONNECTER / S\'INSCRIRE', signup_later:'Plus tard'
+      },
+      en: {
+        acc_btn:'ACCOUNT', acc_signin:'🔑 Sign in', acc_profile:'👤 My profile', acc_signout:'🚪 Sign out',
+        hero_badge:'🚀 10 FREE/MONTH', hero_title:'AI GENERATOR',
+        hero_subtitle:'Create a custom game, SAÉ or skill drill. The lumberjack crafts it for you in seconds.',
+        step1_title:'Which SETTING?',
+        uni_eps_title:'ELEMENTARY PE', uni_eps_desc:'PFEQ, gym, 25-30 students',
+        uni_camps_title:'DAY CAMP', uni_camps_desc:'Outdoors, 30-100 kids, fun',
+        uni_sdg_title:'AFTER-SCHOOL CARE', uni_sdg_desc:'50m² room, 10-25 kids, calm',
+        step2_title:'Which TYPE?',
+        type_jeu_title:'GAME', type_jeu_desc:'A ready-to-play sports game',
+        type_sae_title:'SAÉ', type_sae_desc:'Complete learning situation',
+        type_educatif_title:'SKILL DRILL', type_educatif_desc:'Progressive technical exercise',
+        step3_title:'Add some CONTEXT', step3_opt:'(optional)',
+        ctx_ph_default:'e.g. 3rd cycle, basketball, foam balls, 30 min',
+        modele_label:'Model:', modele_fast:'FAST', modele_quality:'QUALITY +',
+        tooltip_fast_strong:'Fast (Haiku)', tooltip_fast_rest:': 5-10s, complete sheet.',
+        tooltip_quality_strong:'Quality+ (Sonnet)', tooltip_quality_rest:': 15-25s, more detailed and nuanced.',
+        cta_generate:'GENERATE', cta_cost:'(1 credit)',
+        quota_default:'You can generate 3 times without signing up.',
+        loading_default:'The lumberjack is thinking...',
+        band_materiel:'EQUIPMENT', band_organisation:'SETUP', plan_title:'GAME PLAN',
+        btn_variantes:'VARIATIONS', btn_securite:'SAFETY', securite_h4:'Watch out for:',
+        edited_badge:'SHEET EDITED', btn_regen:'REGENERATE',
+        toast_strong:'Saving tip', toast_text:'Choose "Save as PDF" in the window that opens.',
+        mes_title:'📜 MY GENERATIONS',
+        error_title:'Oops, the lumberjack slipped on a log...', error_retry:'🔄 Try again',
+        signup_title:'SIGN UP FOR FREE',
+        signup_subtitle:'Keep generating (10/month) + save your creations, 100% free.',
+        signup_cta:'SIGN IN / SIGN UP', signup_later:'Later'
+      }
+    };
+    function lang(){ try { return (window.ZTS && ZTS.getLang && ZTS.getLang()) || (new URLSearchParams(location.search).get('lang')==='en'?'en':'fr'); } catch(e){ return 'fr'; } }
+    function apply(){
+      const d = I18N[lang()] || I18N.fr;
+      document.querySelectorAll('[data-i18n]').forEach(el=>{
+        const k=el.getAttribute('data-i18n'); if(d[k]!=null) el.textContent=d[k];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+        const k=el.getAttribute('data-i18n-ph'); if(d[k]!=null) el.placeholder=d[k];
+      });
+      // app.js re-render des textes dynamiques (placeholder ctx, quota, grille)
+      if (window.ztsGenApplyI18n) window.ztsGenApplyI18n();
+    }
+    window.ztsGenStaticI18n = apply;
+    document.addEventListener('zts:ready', apply);
+    document.addEventListener('zts:langchange', apply);
+    if (document.readyState !== 'loading') apply();
+    else document.addEventListener('DOMContentLoaded', apply);
+  })();
+  </script>
   <!-- Header partagé : injection + horloge + i18n -->
   <script src="../../shared/zts.js"></script>
 </body>

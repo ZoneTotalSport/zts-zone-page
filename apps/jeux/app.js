@@ -240,6 +240,9 @@ function init() {
   // Create random overlay div
   createRandomOverlay();
 
+  // If the shared ZTS header already resolved a language (URL ?lang= / saved), adopt it
+  if (window.ZTS && typeof ZTS.getLang === 'function') setAppLang(ZTS.getLang());
+
   console.log(`✅ Répertoire EPS v2.0 chargé : ${state.games.length} jeux | Lang: ${state.lang}`);
 }
 
@@ -386,7 +389,18 @@ function setupEventListeners() {
 // LANGUAGE
 // ============================================================
 function toggleLanguage() {
-  state.lang = state.lang === 'fr' ? 'en' : 'fr';
+  setAppLang(state.lang === 'fr' ? 'en' : 'fr');
+  // Keep the shared ZTS header toggle in sync (fires zts:langchange too)
+  if (window.ZTS && typeof ZTS.setLang === 'function' && ZTS.getLang() !== state.lang) {
+    ZTS.setLang(state.lang);
+  }
+}
+
+// Apply a given language across the whole app (used by in-app toggle + shared header)
+function setAppLang(lang) {
+  lang = (lang === 'en') ? 'en' : 'fr';
+  if (lang === state.lang && document.documentElement.getAttribute('data-lang') === lang) return;
+  state.lang = lang;
   localStorage.setItem('eps-lang', state.lang);
   document.documentElement.setAttribute('data-lang', state.lang);
   document.documentElement.setAttribute('lang', state.lang);
@@ -396,6 +410,15 @@ function toggleLanguage() {
   updateFavCount();
   if (state.showFavorites) renderFavorites();
 }
+
+// Sync with the shared ZTS header language toggle
+document.addEventListener('zts:ready', function (e) {
+  if (window.ZTS && typeof ZTS.getLang === 'function') setAppLang(ZTS.getLang());
+});
+document.addEventListener('zts:langchange', function (e) {
+  const l = (e.detail && e.detail.lang) || (window.ZTS && ZTS.getLang && ZTS.getLang());
+  if (l) setAppLang(l);
+});
 
 function applyLanguage() {
   const lang = state.lang;
@@ -422,6 +445,15 @@ function applyLanguage() {
     const ph = searchInput.getAttribute('data-placeholder-' + lang);
     if (ph) searchInput.placeholder = ph;
   }
+
+  // Update title / aria-label tooltips
+  document.querySelectorAll('[data-title-fr][data-title-en]').forEach(el => {
+    const tip = el.getAttribute('data-title-' + lang);
+    if (tip) {
+      if (el.hasAttribute('title')) el.setAttribute('title', tip);
+      if (el.hasAttribute('aria-label')) el.setAttribute('aria-label', tip);
+    }
+  });
 
   // Update page title
   document.title = lang === 'fr'

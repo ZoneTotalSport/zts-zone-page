@@ -840,17 +840,17 @@ body {
   <div class="max-w-7xl mx-auto px-4 relative">
     <div class="flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
       <div class="lg:w-1/2 text-white z-10 text-center lg:text-left">
-        <span class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg">
+        <span data-i18n="heroBadge" class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg">
           COMPÉTENCE 1 EPS
         </span>
-        <h2 class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline">
+        <h2 data-i18n-html="heroTitle" class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline">
           MOYENS<br><span class="text-ztsYellow">D'ACTION</span>
         </h2>
-        <p class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0">
+        <p data-i18n="heroDesc" class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0">
           Le répertoire complet des moyens d'action en éducation physique. Compétence 1 du PFEQ — toutes les SAÉ classées par cycle, année et catégorie.
         </p>
         <div class="flex flex-wrap justify-center lg:justify-start items-center gap-5">
-          <a href="#calView" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase">
+          <a href="#calView" data-i18n="heroCta" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase">
             EXPLORER
           </a>
           <span class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl text-cyan-100 font-bold">
@@ -867,8 +867,8 @@ body {
             <i data-lucide="target" class="w-7 h-7 md:w-8 md:h-8"></i>
           </div>
           <div class="text-left">
-            <p class="font-lucky text-ztsBlue text-lg md:text-xl leading-none">MOYENS</p>
-            <p class="text-[11px] font-black text-slate-400 uppercase tracking-tighter">Compétence 1 &bull; PFEQ</p>
+            <p data-i18n="badgeCardLabel" class="font-lucky text-ztsBlue text-lg md:text-xl leading-none">MOYENS</p>
+            <p data-i18n="badgeCardSub" class="text-[11px] font-black text-slate-400 uppercase tracking-tighter">Compétence 1 &bull; PFEQ</p>
           </div>
         </div>
       </div>
@@ -880,10 +880,10 @@ body {
 
 <!-- Card grid des 10 moyens d'action -->
 <main class="max-w-7xl mx-auto px-4 py-12 md:py-16">
-  <h3 class="text-3xl md:text-4xl font-lucky text-ztsDeep mb-2 text-center">10 MOYENS D'ACTION</h3>
-  <p class="text-center text-slate-500 font-medium mb-10 md:mb-14">Compétence 1 du PFEQ — clique sur une catégorie pour voir les activités phares</p>
+  <h3 data-i18n="gridTitle" class="text-3xl md:text-4xl font-lucky text-ztsDeep mb-2 text-center">10 MOYENS D'ACTION</h3>
+  <p data-i18n="gridSub" class="text-center text-slate-500 font-medium mb-10 md:mb-14">Compétence 1 du PFEQ — clique sur une catégorie pour voir les activités phares</p>
   <div id="moyensGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-7"></div>
-  <p id="moyensLoading" class="text-center text-slate-400 font-lucky text-2xl py-16">Chargement…</p>
+  <p id="moyensLoading" data-i18n="loading" class="text-center text-slate-400 font-lucky text-2xl py-16">Chargement…</p>
 </main>
 
 <!-- Modal détail moyen -->
@@ -896,7 +896,7 @@ body {
       <p id="moyenModalSub" class="font-bold opacity-95 mt-2 text-xl md:text-2xl"></p>
     </div>
     <div class="p-6 md:p-10 bg-white">
-      <h4 class="font-lucky text-3xl md:text-4xl text-ztsDeep mb-6 md:mb-8 uppercase text-center">Activités phares</h4>
+      <h4 data-i18n="modalActHeading" class="font-lucky text-3xl md:text-4xl text-ztsDeep mb-6 md:mb-8 uppercase text-center">Activités phares</h4>
       <div id="moyenModalList" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
     </div>
   </div>
@@ -907,18 +907,69 @@ body {
     <h2 class="text-3xl md:text-4xl font-lucky tracking-[0.1em] mb-6 text-outline">
       ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
     </h2>
-    <p class="text-white/40 font-black text-xs uppercase tracking-[0.5em]">© 2026 ZONE TOTAL SPORT &bull; PASSIONNÉMENT PROFS</p>
+    <p data-i18n="footerTag" class="text-white/40 font-black text-xs uppercase tracking-[0.5em]">© 2026 ZONE TOTAL SPORT &bull; PASSIONNÉMENT PROFS</p>
   </div>
 </footer>
 
 <script>
+// ===== i18n (interface only — data.json reste FR, Tier 2) =====
+const I18N = {
+  fr: {
+    heroBadge:'COMPÉTENCE 1 EPS',
+    heroTitle:'MOYENS<br><span class="text-ztsYellow">D\'ACTION</span>',
+    heroDesc:'Le répertoire complet des moyens d\'action en éducation physique. Compétence 1 du PFEQ — toutes les SAÉ classées par cycle, année et catégorie.',
+    heroCta:'EXPLORER',
+    badgeCardLabel:'MOYENS',
+    badgeCardSub:'Compétence 1 • PFEQ',
+    gridTitle:'10 MOYENS D\'ACTION',
+    gridSub:'Compétence 1 du PFEQ — clique sur une catégorie pour voir les activités phares',
+    loading:'Chargement…',
+    modalActHeading:'Activités phares',
+    footerTag:'© 2026 ZONE TOTAL SPORT • PASSIONNÉMENT PROFS',
+    loadError:'Erreur de chargement',
+    saeUnit:'SAÉ',
+    saeRecensees:'SAÉ recensées',
+    voirJeux:'▶ Voir les jeux',
+    aucuneActivite:'Aucune activité recensée.'
+  },
+  en: {
+    heroBadge:'COMPETENCY 1 PE',
+    heroTitle:'ACTION<br><span class="text-ztsYellow">METHODS</span>',
+    heroDesc:'The complete directory of action methods in physical education. Competency 1 of the PFEQ — every SAÉ sorted by cycle, year and category.',
+    heroCta:'EXPLORE',
+    badgeCardLabel:'METHODS',
+    badgeCardSub:'Competency 1 • PFEQ',
+    gridTitle:'10 ACTION METHODS',
+    gridSub:'Competency 1 of the PFEQ — click a category to see its flagship activities',
+    loading:'Loading…',
+    modalActHeading:'Flagship activities',
+    footerTag:'© 2026 ZONE TOTAL SPORT • PASSIONATELY TEACHERS',
+    loadError:'Loading error',
+    saeUnit:'SAÉ',
+    saeRecensees:'SAÉ recorded',
+    voirJeux:'▶ See the games',
+    aucuneActivite:'No activity recorded.'
+  }
+};
+function maLang(){ return (window.ZTS && ZTS.getLang && ZTS.getLang()==='en') ? 'en' : 'fr'; }
+function maT(){ return I18N[maLang()] || I18N.fr; }
+function applyI18n(){
+  const d = maT();
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n'); if(d[k]!=null) el.textContent=d[k];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{
+    const k=el.getAttribute('data-i18n-html'); if(d[k]!=null) el.innerHTML=d[k];
+  });
+}
+
 (async function(){
   const grid=document.getElementById('moyensGrid');
   const loading=document.getElementById('moyensLoading');
   const heroPill=document.getElementById('heroPillCount');
   let DATA;
   try{const r=await fetch('data.json');DATA=await r.json();}
-  catch(e){loading.textContent='Erreur de chargement';return;}
+  catch(e){loading.textContent=maT().loadError;return;}
 
   // Aggregate activity counts per moyen from buckets
   const perMoyen={};
@@ -932,25 +983,33 @@ body {
   });
 
   const totalSAE=DATA.buckets.reduce((s,b)=>s+b.count,0);
-  if(heroPill)heroPill.textContent=totalSAE.toLocaleString('fr-CA')+' SAÉ';
-
+  const numLocale=()=>maLang()==='en'?'en-CA':'fr-CA';
   loading.style.display='none';
-  grid.innerHTML=DATA.moyens.map(m=>{
-    const emoji=(m.label.match(/^\S+/)||[''])[0];
-    const name=m.label.replace(/^\S+\s*/,'').replace(/\s*\(.*$/,'').trim();
-    const sub=(m.label.match(/\(([^)]+)\)/)||[,''])[1];
-    const count=perMoyen[m.key].count;
-    return `<button data-key="${m.key}" class="moyen-card text-left rounded-[2rem] overflow-hidden transition-all hover:-translate-y-1" style="background:${m.color};color:#fff;border-bottom:12px solid rgba(0,0,0,0.18);border-right:12px solid rgba(0,0,0,0.18);box-shadow:6px 6px 0 rgba(0,0,0,0.08)">
-      <div class="px-5 pt-5 pb-3 flex items-start justify-between">
-        <div class="text-5xl md:text-6xl drop-shadow">${emoji}</div>
-        <span class="bg-black/30 text-white text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest">${count.toLocaleString('fr-CA')} SAÉ</span>
-      </div>
-      <div class="bg-white text-slate-800 px-5 py-4 mt-3">
-        <p class="font-lucky text-lg md:text-xl leading-tight uppercase" style="color:${m.color}">${name}</p>
-        ${sub?`<p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">${sub}</p>`:''}
-      </div>
-    </button>`;
-  }).join('');
+
+  function renderUI(){
+    const t=maT();
+    if(heroPill)heroPill.textContent=totalSAE.toLocaleString(numLocale())+' '+t.saeUnit;
+    grid.innerHTML=DATA.moyens.map(m=>{
+      const emoji=(m.label.match(/^\S+/)||[''])[0];
+      const name=m.label.replace(/^\S+\s*/,'').replace(/\s*\(.*$/,'').trim();
+      const sub=(m.label.match(/\(([^)]+)\)/)||[,''])[1];
+      const count=perMoyen[m.key].count;
+      return `<button data-key="${m.key}" class="moyen-card text-left rounded-[2rem] overflow-hidden transition-all hover:-translate-y-1" style="background:${m.color};color:#fff;border-bottom:12px solid rgba(0,0,0,0.18);border-right:12px solid rgba(0,0,0,0.18);box-shadow:6px 6px 0 rgba(0,0,0,0.08)">
+        <div class="px-5 pt-5 pb-3 flex items-start justify-between">
+          <div class="text-5xl md:text-6xl drop-shadow">${emoji}</div>
+          <span class="bg-black/30 text-white text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest">${count.toLocaleString(numLocale())} ${t.saeUnit}</span>
+        </div>
+        <div class="bg-white text-slate-800 px-5 py-4 mt-3">
+          <p class="font-lucky text-lg md:text-xl leading-tight uppercase" style="color:${m.color}">${name}</p>
+          ${sub?`<p class="text-[11px] font-black text-slate-400 uppercase tracking-widest mt-1">${sub}</p>`:''}
+        </div>
+      </button>`;
+    }).join('');
+  }
+  renderUI();
+  applyI18n();
+  document.addEventListener('zts:ready',()=>{ applyI18n(); renderUI(); });
+  document.addEventListener('zts:langchange',()=>{ applyI18n(); renderUI(); });
 
   grid.addEventListener('click',e=>{
     const btn=e.target.closest('.moyen-card');
@@ -969,16 +1028,17 @@ body {
     document.getElementById('moyenModalHead').style.background=m.color;
     document.getElementById('moyenModalEmoji').textContent=emoji;
     document.getElementById('moyenModalTitle').textContent=name;
-    document.getElementById('moyenModalSub').textContent=(sub?sub+' · ':'')+data.count.toLocaleString('fr-CA')+' SAÉ recensées';
+    const t=maT();
+    document.getElementById('moyenModalSub').textContent=(sub?sub+' · ':'')+data.count.toLocaleString(numLocale())+' '+t.saeRecensees;
     const top=Object.entries(data.activities).sort((a,b)=>b[1]-a[1]).slice(0,30);
     document.getElementById('moyenModalList').innerHTML=top.length?top.map(([n,c])=>{
       const q=encodeURIComponent(n.replace(/\([^)]*\)/g,'').trim());
       return `<a href="https://jeux.zonetotalsport.ca/?q=${q}" target="_blank" rel="noopener" class="aspect-square flex flex-col items-center justify-center text-center p-4 md:p-6 rounded-3xl shadow-lg hover:-translate-y-1 hover:shadow-2xl transition-all" style="background:${m.color}1a;border:4px solid ${m.color};border-bottom-width:10px;border-right-width:10px;text-decoration:none">
         <span class="font-lucky text-2xl md:text-3xl mb-2" style="color:${m.color}">${c}×</span>
         <span class="font-bold text-slate-800 text-base md:text-xl leading-tight mb-2" style="font-family:'Luckiest Guy',cursive;letter-spacing:.03em">${n}</span>
-        <span class="text-[10px] md:text-xs font-black uppercase tracking-widest mt-auto" style="color:${m.color}">▶ Voir les jeux</span>
+        <span class="text-[10px] md:text-xs font-black uppercase tracking-widest mt-auto" style="color:${m.color}">${t.voirJeux}</span>
       </a>`;
-    }).join(''):'<p class="text-slate-400 italic col-span-full text-center text-2xl">Aucune activité recensée.</p>';
+    }).join(''):`<p class="text-slate-400 italic col-span-full text-center text-2xl">${t.aucuneActivite}</p>`;
     const modal=document.getElementById('moyenModal');
     modal.classList.remove('hidden');
     modal.classList.add('flex');

@@ -1403,24 +1403,24 @@
 <div class="header">
   <div class="header-top">
     <img class="header-league-logo" src="https://assets.nhle.com/logos/nhl/svg/NHL_light.svg" alt="NHL">
-    <h1>SÉRIES ÉLIMINATOIRES <span>NHL</span></h1>
+    <h1 data-i18n="h1">SÉRIES ÉLIMINATOIRES <span>NHL</span></h1>
   </div>
   <div class="tabs">
-    <button class="tab active" data-view="bracket">Séries actuelles</button>
-    <button class="tab" data-view="results">Résultats</button>
-    <button class="tab" data-view="leaders">Meneurs</button>
+    <button class="tab active" data-view="bracket" data-i18n="tabBracket">Séries actuelles</button>
+    <button class="tab" data-view="results" data-i18n="tabResults">Résultats</button>
+    <button class="tab" data-view="leaders" data-i18n="tabLeaders">Meneurs</button>
   </div>
 </div>
 
 <!-- Views -->
 <div class="view active" id="bracketView">
-  <div class="bracket-container" id="bracketContainer"><div class="loading">Chargement...</div></div>
+  <div class="bracket-container" id="bracketContainer"><div class="loading" data-i18n="loading">Chargement...</div></div>
 </div>
 <div class="view" id="resultsView">
-  <div class="results-container" id="resultsContainer"><div class="loading">Chargement...</div></div>
+  <div class="results-container" id="resultsContainer"><div class="loading" data-i18n="loading">Chargement...</div></div>
 </div>
 <div class="view" id="leadersView">
-  <div class="leaders-container" id="leadersContainer"><div class="loading">Chargement des meneurs...</div></div>
+  <div class="leaders-container" id="leadersContainer"><div class="loading" data-i18n="loadingLeaders">Chargement des meneurs...</div></div>
 </div>
 
 <!-- Series Modal -->
@@ -1435,7 +1435,7 @@
   <button class="zoom-btn" onclick="setZoom('in')" title="Zoom +">+</button>
   <div class="zoom-label" id="zoomLevel">100%</div>
   <button class="zoom-btn" onclick="setZoom('out')" title="Zoom -">−</button>
-  <button class="zoom-btn" onclick="setZoom('reset')" title="Réinitialiser" style="font-size:14px;margin-top:4px">↺</button>
+  <button class="zoom-btn" onclick="setZoom('reset')" title="Réinitialiser" data-i18n-title="zoomReset" style="font-size:14px;margin-top:4px">↺</button>
 </div>
 
 <div class="mascot-corner"><img src="mascot-badminton.png" alt="Mr Root"></div>
@@ -1444,12 +1444,85 @@
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
   </svg>
-  Actualiser
+  <span data-i18n="refresh">Actualiser</span>
 </button>
 
-<div class="footer">par <a href="https://zonetotalsport.ca">zonetotalsport.ca</a> — Mr Roots</div>
+<div class="footer"><span data-i18n="footerBy">par</span> <a href="https://zonetotalsport.ca">zonetotalsport.ca</a> — Mr Roots</div>
 
 <script>
+// =============================================
+// I18N (FR par défaut / EN)
+// =============================================
+const I18N = {
+  fr: {
+    h1: 'SÉRIES ÉLIMINATOIRES <span>NHL</span>',
+    tabBracket: 'Séries actuelles', tabResults: 'Résultats', tabLeaders: 'Meneurs',
+    loading: 'Chargement...', loadingLeaders: 'Chargement des meneurs...',
+    loadingDetails: 'Chargement des détails...',
+    zoomReset: 'Réinitialiser', refresh: 'Actualiser', footerBy: 'par',
+    confEast: 'Est', confWest: 'Ouest',
+    round1: '1re ronde', round2: '2e ronde', roundConf: 'Finale conf.',
+    cupLabel: 'Coupe<br>Stanley',
+    game: 'Match', live: 'EN COURS', final: 'FINAL', upcoming: 'À VENIR',
+    ifNeeded: 'SI NÉC.', scoreNA: 'SCORE N/D', vs: 'VS',
+    series: 'SÉRIE', bestOf7: 'MEILLEUR DE 7', otShort: 'PROL.',
+    confEastFull: "Conférence de l'Est", confWestFull: "Conférence de l'Ouest",
+    finalsTitle: 'Finale de la Coupe Stanley', noSeries: 'Aucune série en cours',
+    winsIn: 'gagne en', toCome: 'À venir', tied: 'Égalité', leads: 'mène',
+    noGames: 'Aucun match joué — les séries commencent le 18 avril!',
+    noData: 'Données non disponibles', noDetailData: 'Données détaillées non disponibles',
+    overtime: 'PROLONGATION', periodLabel: n => `${n}e PÉRIODE`,
+    pp: 'AN', sh: 'DÉS', en: 'FD', unassisted: '(non assisté)',
+    goalies: 'GARDIENS', pSaves: 'ARRÊTS', pShots: 'TIRS', pSavePct: '%ARR', pGA: 'BC',
+    win: 'V', loss: 'D', threeStars: '3 ÉTOILES',
+    savesAbbr: 'arr.', goalAbbr: 'B', assistAbbr: 'A',
+    leadersSoon: 'Les meneurs seront disponibles une fois les séries commencées!',
+    leadersSoon2: 'Les séries commencent le 18 avril — les meneurs apparaîtront bientôt!',
+    noDataYet: 'Pas encore de données',
+    lPoints: 'POINTS', lGoals: 'BUTS', lAssists: 'PASSES',
+    lSavePct: '% ARRÊTS', lWins: 'VICTOIRES', lGAA: 'MOY. BUTS ALLOUÉS',
+  },
+  en: {
+    h1: 'NHL <span>PLAYOFFS</span>',
+    tabBracket: 'Current series', tabResults: 'Results', tabLeaders: 'Leaders',
+    loading: 'Loading...', loadingLeaders: 'Loading leaders...',
+    loadingDetails: 'Loading details...',
+    zoomReset: 'Reset', refresh: 'Refresh', footerBy: 'by',
+    confEast: 'East', confWest: 'West',
+    round1: 'Round 1', round2: 'Round 2', roundConf: 'Conf. final',
+    cupLabel: 'Stanley<br>Cup',
+    game: 'Game', live: 'LIVE', final: 'FINAL', upcoming: 'UPCOMING',
+    ifNeeded: 'IF NEEDED', scoreNA: 'SCORE N/A', vs: 'VS',
+    series: 'SERIES', bestOf7: 'BEST OF 7', otShort: 'OT',
+    confEastFull: 'Eastern Conference', confWestFull: 'Western Conference',
+    finalsTitle: 'Stanley Cup Final', noSeries: 'No series in progress',
+    winsIn: 'wins in', toCome: 'Upcoming', tied: 'Tied', leads: 'leads',
+    noGames: 'No games played — the playoffs start April 18!',
+    noData: 'Data not available', noDetailData: 'Detailed data not available',
+    overtime: 'OVERTIME', periodLabel: n => `PERIOD ${n}`,
+    pp: 'PP', sh: 'SH', en: 'EN', unassisted: '(unassisted)',
+    goalies: 'GOALIES', pSaves: 'SAVES', pShots: 'SHOTS', pSavePct: 'SV%', pGA: 'GA',
+    win: 'W', loss: 'L', threeStars: '3 STARS',
+    savesAbbr: 'sv%', goalAbbr: 'G', assistAbbr: 'A',
+    leadersSoon: 'Leaders will be available once the playoffs begin!',
+    leadersSoon2: 'The playoffs start April 18 — leaders will appear soon!',
+    noDataYet: 'No data yet',
+    lPoints: 'POINTS', lGoals: 'GOALS', lAssists: 'ASSISTS',
+    lSavePct: 'SAVE %', lWins: 'WINS', lGAA: 'GOALS-AGAINST AVG',
+  }
+};
+function T(){ return I18N[(window.ZTS && ZTS.getLang) ? ZTS.getLang() : 'fr'] || I18N.fr; }
+function applyStaticI18n(){
+  const tr = T();
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k = el.getAttribute('data-i18n'); if(tr[k]==null) return;
+    if(k==='h1') el.innerHTML = tr[k]; else el.textContent = tr[k];
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{
+    const k = el.getAttribute('data-i18n-title'); if(tr[k]!=null) el.title = tr[k];
+  });
+}
+
 // =============================================
 // CONFIG & API
 // =============================================
@@ -1682,26 +1755,27 @@ function renderBracket(data) {
   const wR3 = fill(data.westR3 || [], 1);
   const finals = (data.finals && data.finals.length) ? data.finals[0] : tbdS;
 
+  const tr = T();
   c.innerHTML = `
     <div class="conference east">
-      <div class="conference-label">Est</div>
+      <div class="conference-label">${tr.confEast}</div>
       <div class="rounds">
-        <div class="round r1"><div class="round-label">1re ronde</div>${data.east.map(s=>matchupHTML(s)).join('')}</div>
-        <div class="round r2"><div class="round-label">2e ronde</div>${eR2.map(s=>matchupHTML(s)).join('')}</div>
-        <div class="round r3"><div class="round-label">Finale conf.</div>${eR3.map(s=>matchupHTML(s)).join('')}</div>
+        <div class="round r1"><div class="round-label">${tr.round1}</div>${data.east.map(s=>matchupHTML(s)).join('')}</div>
+        <div class="round r2"><div class="round-label">${tr.round2}</div>${eR2.map(s=>matchupHTML(s)).join('')}</div>
+        <div class="round r3"><div class="round-label">${tr.roundConf}</div>${eR3.map(s=>matchupHTML(s)).join('')}</div>
       </div>
     </div>
     <div class="cup-center">
       <img class="cup-img" src="https://assets.nhle.com/logos/playoffs/png/scp-20252026-cup.png" alt="Cup" onerror="this.style.display='none'">
-      <div class="cup-label">Coupe<br>Stanley</div>
+      <div class="cup-label">${tr.cupLabel}</div>
       <div style="margin-top:15px">${matchupHTML(finals)}</div>
     </div>
     <div class="conference west">
-      <div class="conference-label">Ouest</div>
+      <div class="conference-label">${tr.confWest}</div>
       <div class="rounds">
-        <div class="round r1"><div class="round-label">1re ronde</div>${data.west.map(s=>matchupHTML(s)).join('')}</div>
-        <div class="round r2"><div class="round-label">2e ronde</div>${wR2.map(s=>matchupHTML(s)).join('')}</div>
-        <div class="round r3"><div class="round-label">Finale conf.</div>${wR3.map(s=>matchupHTML(s)).join('')}</div>
+        <div class="round r1"><div class="round-label">${tr.round1}</div>${data.west.map(s=>matchupHTML(s)).join('')}</div>
+        <div class="round r2"><div class="round-label">${tr.round2}</div>${wR2.map(s=>matchupHTML(s)).join('')}</div>
+        <div class="round r3"><div class="round-label">${tr.roundConf}</div>${wR3.map(s=>matchupHTML(s)).join('')}</div>
       </div>
     </div>`;
 
@@ -1751,6 +1825,7 @@ async function openSeriesModal(letter) {
   const series = findSeriesByLetter(letter);
   if (!series) return;
 
+  const tr = T();
   const modal = document.getElementById('seriesModal');
   const content = document.getElementById('modalContent');
   const t = series.top, b = series.bot;
@@ -1782,14 +1857,14 @@ async function openSeriesModal(letter) {
       const isFinal = state === 'OFF' || state === 'FINAL';
       const isLive = state === 'LIVE' || state === 'CRIT';
       const away = g.awayTeam, home = g.homeTeam;
-      let badge = isLive ? `<span class="modal-game-badge live"><span class="live-pulse"></span>EN COURS</span>`
-        : isFinal ? `<span class="modal-game-badge final">FINAL</span>`
-        : `<span class="modal-game-badge upcoming">À VENIR</span>`;
+      let badge = isLive ? `<span class="modal-game-badge live"><span class="live-pulse"></span>${tr.live}</span>`
+        : isFinal ? `<span class="modal-game-badge final">${tr.final}</span>`
+        : `<span class="modal-game-badge upcoming">${tr.upcoming}</span>`;
       const awayW = isFinal && (away.score > home.score);
       const homeW = isFinal && (home.score > away.score);
       gamesHTML += `
         <div class="modal-game" data-game-id="${g.id}" onclick="toggleModalGameDetail(this)">
-          <span class="modal-game-num">Match ${i}</span>
+          <span class="modal-game-num">${tr.game} ${i}</span>
           <div class="modal-game-score">
             <img src="${LOGO(away.abbrev)}">
             <span class="mg-score ${awayW?'winner':''}">${state==='FUT'?'-':away.score}</span>
@@ -1805,27 +1880,27 @@ async function openSeriesModal(letter) {
       // Match joué mais score absent de la cache (proxy timeout) — placeholder
       gamesHTML += `
         <div class="modal-game" style="opacity:0.7;cursor:default">
-          <span class="modal-game-num">Match ${i}</span>
+          <span class="modal-game-num">${tr.game} ${i}</span>
           <span class="modal-game-date">${sched[i-1]||''}</span>
           <div class="modal-game-score">
             <img src="${LOGO(t.a)}">
             <span class="mg-at">@</span>
             <img src="${LOGO(b.a)}">
           </div>
-          <span class="modal-game-badge final" style="opacity:.6">SCORE N/D</span>
+          <span class="modal-game-badge final" style="opacity:.6">${tr.scoreNA}</span>
         </div>`;
     } else {
       // Match à venir
       gamesHTML += `
         <div class="modal-game" style="opacity:0.35;cursor:default">
-          <span class="modal-game-num">Match ${i}</span>
+          <span class="modal-game-num">${tr.game} ${i}</span>
           <span class="modal-game-date">${sched[i-1]||''}</span>
           <div class="modal-game-score">
             <img src="${LOGO(t.a)}" style="opacity:0.4">
             <span class="mg-at">vs</span>
             <img src="${LOGO(b.a)}" style="opacity:0.4">
           </div>
-          <span class="modal-game-badge ${ifNeeded?'if-needed':'upcoming'}">${ifNeeded?'SI NÉC.':'À VENIR'}</span>
+          <span class="modal-game-badge ${ifNeeded?'if-needed':'upcoming'}">${ifNeeded?tr.ifNeeded:tr.upcoming}</span>
         </div>`;
     }
   }
@@ -1837,14 +1912,14 @@ async function openSeriesModal(letter) {
       const ifNeeded = i > 4;
       gamesHTML += `
         <div class="modal-game" style="opacity:${ifNeeded?'0.25':'0.5'};cursor:default">
-          <span class="modal-game-num">Match ${i}</span>
+          <span class="modal-game-num">${tr.game} ${i}</span>
           <span class="modal-game-date">${sched[i-1]||''}</span>
           <div class="modal-game-score">
             <img src="${LOGO(t.a)}" style="width:24px;height:24px">
             <span class="mg-at">vs</span>
             <img src="${LOGO(b.a)}" style="width:24px;height:24px">
           </div>
-          <span class="modal-game-badge ${ifNeeded?'if-needed':'upcoming'}">${ifNeeded?'SI NÉC.':'À VENIR'}</span>
+          <span class="modal-game-badge ${ifNeeded?'if-needed':'upcoming'}">${ifNeeded?tr.ifNeeded:tr.upcoming}</span>
         </div>`;
     }
   }
@@ -1857,14 +1932,14 @@ async function openSeriesModal(letter) {
         <div class="modal-team-name">${t.n}</div>
         <div class="modal-team-record">${t.w}</div>
       </div>
-      <div class="modal-vs">VS</div>
+      <div class="modal-vs">${tr.vs}</div>
       <div class="modal-team">
         <img src="${LOGO(b.a)}">
         <div class="modal-team-name">${b.n}</div>
         <div class="modal-team-record">${b.w}</div>
       </div>
     </div>
-    <div class="modal-series-label">SÉRIE ${letter} — MEILLEUR DE 7</div>
+    <div class="modal-series-label">${tr.series} ${letter} — ${tr.bestOf7}</div>
     <div class="modal-games">${gamesHTML}</div>
   `;
 
@@ -1897,7 +1972,7 @@ async function toggleModalGameDetail(el) {
   }
 
   if (!detailDiv.innerHTML.trim()) {
-    detailDiv.innerHTML = '<div class="modal-no-data">Chargement des détails...</div>';
+    detailDiv.innerHTML = `<div class="modal-no-data">${T().loadingDetails}</div>`;
     detailDiv.classList.add('open');
     const details = await fetchGameDetails(gameId);
     detailDiv.innerHTML = renderGameDetails(details, '', '');
@@ -1926,20 +2001,21 @@ async function renderResults(data, playoffGames) {
   const allWest = [...data.west, ...(data.westR2||[]), ...(data.westR3||[])].filter(s => s.top.a || s.bot.a);
   const finals = (data.finals||[]).filter(s => s.top.a || s.bot.a);
 
+  const tr = T();
   let html = '';
   if (allEast.length) {
-    html += `<div class="conf-section"><div class="conf-title">Conférence de l'Est</div>
+    html += `<div class="conf-section"><div class="conf-title">${tr.confEastFull}</div>
       ${allEast.map(s => seriesCardHTML(s, gamesBySeries[s.letter] || [])).join('')}</div>`;
   }
   if (allWest.length) {
-    html += `<div class="conf-section"><div class="conf-title">Conférence de l'Ouest</div>
+    html += `<div class="conf-section"><div class="conf-title">${tr.confWestFull}</div>
       ${allWest.map(s => seriesCardHTML(s, gamesBySeries[s.letter] || [])).join('')}</div>`;
   }
   if (finals.length) {
-    html += `<div class="conf-section"><div class="conf-title">Finale de la Coupe Stanley</div>
+    html += `<div class="conf-section"><div class="conf-title">${tr.finalsTitle}</div>
       ${finals.map(s => seriesCardHTML(s, gamesBySeries[s.letter] || [])).join('')}</div>`;
   }
-  c.innerHTML = html || '<div class="no-data">Aucune série en cours</div>';
+  c.innerHTML = html || `<div class="no-data">${tr.noSeries}</div>`;
 
   // Attach handlers
   c.querySelectorAll('.series-header').forEach(h => {
@@ -1961,7 +2037,7 @@ async function renderResults(data, playoffGames) {
       // Load game details
       const detailsDiv = card.querySelector('.game-details');
       if (!detailsDiv.innerHTML.trim()) {
-        detailsDiv.innerHTML = '<div class="no-data">Chargement...</div>';
+        detailsDiv.innerHTML = `<div class="no-data">${T().loading}</div>`;
         card.classList.add('open');
         const details = await fetchGameDetails(gameId);
         detailsDiv.innerHTML = renderGameDetails(details, card.dataset.awayAbbrev, card.dataset.homeAbbrev);
@@ -1972,17 +2048,18 @@ async function renderResults(data, playoffGames) {
 }
 
 function seriesCardHTML(series, games) {
+  const tr = T();
   const t = series.top, b = series.bot;
   const total = t.w + b.w;
   const letter = series.letter;
   const sched = SCHED[letter] || [];
 
   let status = '';
-  if (t.w === 4) status = `${t.a} gagne en ${total}`;
-  else if (b.w === 4) status = `${b.a} gagne en ${total}`;
-  else if (total === 0) status = `Match 1: ${series.g1 || sched[0] || 'À venir'}`;
-  else if (t.w === b.w) status = `Égalité ${t.w}-${b.w}`;
-  else { const l = t.w > b.w ? t : b; status = `${l.a} mène ${l.w}-${Math.min(t.w, b.w)}`; }
+  if (t.w === 4) status = `${t.a} ${tr.winsIn} ${total}`;
+  else if (b.w === 4) status = `${b.a} ${tr.winsIn} ${total}`;
+  else if (total === 0) status = `${tr.game} 1: ${series.g1 || sched[0] || tr.toCome}`;
+  else if (t.w === b.w) status = `${tr.tied} ${t.w}-${b.w}`;
+  else { const l = t.w > b.w ? t : b; status = `${l.a} ${tr.leads} ${l.w}-${Math.min(t.w, b.w)}`; }
 
   const dots = (w) => Array(4).fill(0).map((_,i) => `<div class="dot ${i<w?'won':''}"></div>`).join('');
 
@@ -1999,9 +2076,9 @@ function seriesCardHTML(series, games) {
     const away = g.awayTeam, home = g.homeTeam;
 
     let statusBadge = '';
-    if (isLive) statusBadge = `<span class="game-status-badge live"><span class="live-pulse"></span>EN COURS</span>`;
-    else if (isFinal) statusBadge = `<span class="game-status-badge final">FINAL</span>`;
-    else statusBadge = `<span class="game-status-badge upcoming">À VENIR</span>`;
+    if (isLive) statusBadge = `<span class="game-status-badge live"><span class="live-pulse"></span>${tr.live}</span>`;
+    else if (isFinal) statusBadge = `<span class="game-status-badge final">${tr.final}</span>`;
+    else statusBadge = `<span class="game-status-badge upcoming">${tr.upcoming}</span>`;
 
     const awayW = isFinal && (away.score > home.score);
     const homeW = isFinal && (home.score > away.score);
@@ -2009,7 +2086,7 @@ function seriesCardHTML(series, games) {
     gamesHTML += `
       <div class="game-card" data-game-id="${g.id}" data-away-abbrev="${away.abbrev}" data-home-abbrev="${home.abbrev}">
         <div class="game-card-header">
-          <span class="game-num">Match ${gNum}</span>
+          <span class="game-num">${tr.game} ${gNum}</span>
           <div class="game-mini-score">
             <img src="${LOGO(away.abbrev)}" style="width:22px;height:22px">
             <span class="score-val ${awayW?'winner-score':''}">${g.gameState==='FUT'?'-':away.score}</span>
@@ -2017,7 +2094,7 @@ function seriesCardHTML(series, games) {
             <span class="score-val ${homeW?'winner-score':''}">${g.gameState==='FUT'?'-':home.score}</span>
             <img src="${LOGO(home.abbrev)}" style="width:22px;height:22px">
           </div>
-          ${isLive ? `<span style="font-family:'Bungee';font-size:12px;color:var(--cyan);">${g.periodDescriptor?.periodType==='OT'?'PROL.':'P'+g.period} ${g.clock?.timeRemaining||''}</span>` : ''}
+          ${isLive ? `<span style="font-family:'Bungee';font-size:12px;color:var(--cyan);">${g.periodDescriptor?.periodType==='OT'?tr.otShort:'P'+g.period} ${g.clock?.timeRemaining||''}</span>` : ''}
           ${statusBadge}
         </div>
         <div class="game-details"></div>
@@ -2032,14 +2109,14 @@ function seriesCardHTML(series, games) {
     gamesHTML += `
       <div class="game-card">
         <div class="game-card-header" style="cursor:default;opacity:0.4">
-          <span class="game-num">Match ${i}</span>
+          <span class="game-num">${tr.game} ${i}</span>
           <span class="game-date-label">${sched[i-1]||''}</span>
           <div class="game-mini-score">
             <img src="${LOGO(t.a)}" style="width:20px;height:20px;opacity:0.4">
             <span class="vs-label">vs</span>
             <img src="${LOGO(b.a)}" style="width:20px;height:20px;opacity:0.4">
           </div>
-          <span class="game-status-badge upcoming">${i > 4 ? 'SI NÉC.' : 'À VENIR'}</span>
+          <span class="game-status-badge upcoming">${i > 4 ? tr.ifNeeded : tr.upcoming}</span>
         </div>
       </div>`;
   }
@@ -2063,11 +2140,11 @@ function seriesCardHTML(series, games) {
           </div>
         </div>
         <div class="series-status">
-          <div class="status-label">SÉRIE ${letter}</div>
+          <div class="status-label">${tr.series} ${letter}</div>
           <div class="status-text">${status}</div>
         </div>
       </div>
-      <div class="series-games">${gamesHTML || '<div class="no-data">Aucun match joué — les séries commencent le 18 avril!</div>'}</div>
+      <div class="series-games">${gamesHTML || `<div class="no-data">${tr.noGames}</div>`}</div>
     </div>`;
 }
 
@@ -2075,7 +2152,8 @@ function seriesCardHTML(series, games) {
 // RENDER GAME DETAILS (goals + goalies + stars)
 // =============================================
 function renderGameDetails(details, awayAbbrev, homeAbbrev) {
-  if (!details.landing && !details.boxscore) return '<div class="no-data">Données non disponibles</div>';
+  const tr = T();
+  if (!details.landing && !details.boxscore) return `<div class="no-data">${tr.noData}</div>`;
 
   let html = '';
   const landing = details.landing;
@@ -2087,16 +2165,16 @@ function renderGameDetails(details, awayAbbrev, homeAbbrev) {
     landing.summary.scoring.forEach(period => {
       const pNum = period.periodDescriptor?.number;
       const pType = period.periodDescriptor?.periodType;
-      const pLabel = pType === 'OT' ? 'PROLONGATION' : `${pNum}e PÉRIODE`;
+      const pLabel = pType === 'OT' ? tr.overtime : tr.periodLabel(pNum);
 
       if (period.goals && period.goals.length > 0) {
         html += `<div class="period-scoring"><div class="period-label">${pLabel}</div>`;
         period.goals.forEach(g => {
           const assists = (g.assists || []).map(a => a.name?.default || a.firstName?.default).join(', ');
           const teamAbbrev = g.teamAbbrev?.default || g.teamAbbrev || '';
-          const strengthLabel = g.strength === 'pp' ? '<span class="goal-strength pp">AN</span>'
-            : g.strength === 'sh' ? '<span class="goal-strength sh">DÉS</span>'
-            : g.goalModifier === 'empty-net' ? '<span class="goal-strength en">FD</span>'
+          const strengthLabel = g.strength === 'pp' ? `<span class="goal-strength pp">${tr.pp}</span>`
+            : g.strength === 'sh' ? `<span class="goal-strength sh">${tr.sh}</span>`
+            : g.goalModifier === 'empty-net' ? `<span class="goal-strength en">${tr.en}</span>`
             : '';
 
           html += `
@@ -2105,7 +2183,7 @@ function renderGameDetails(details, awayAbbrev, homeAbbrev) {
               <img class="goal-mugshot" src="${g.headshot || g.mugshot || ''}" onerror="this.style.display='none'">
               <img class="goal-team-logo" src="${LOGO(teamAbbrev)}" onerror="this.style.display='none'">
               <span class="goal-scorer">${g.firstName?.default || ''} ${g.lastName?.default || g.name?.default || ''}</span>
-              <span class="goal-assists">${assists ? '('+assists+')' : '(non assisté)'}</span>
+              <span class="goal-assists">${assists ? '('+assists+')' : tr.unassisted}</span>
               ${strengthLabel}
               <span class="goal-score-after">${g.awayScore}-${g.homeScore}</span>
             </div>`;
@@ -2117,7 +2195,7 @@ function renderGameDetails(details, awayAbbrev, homeAbbrev) {
 
   // ---- GOALIE STATS ----
   if (box?.playerByGameStats) {
-    html += '<div class="goalie-stats"><div class="goalie-stats-title">GARDIENS</div>';
+    html += `<div class="goalie-stats"><div class="goalie-stats-title">${tr.goalies}</div>`;
 
     ['awayTeam', 'homeTeam'].forEach(side => {
       const teamStats = box.playerByGameStats[side];
@@ -2138,23 +2216,23 @@ function renderGameDetails(details, awayAbbrev, homeAbbrev) {
             </div>
             <div class="goalie-stat-pills">
               <div class="goalie-pill">
-                <span class="pill-label">ARRÊTS</span>
+                <span class="pill-label">${tr.pSaves}</span>
                 <span class="pill-value">${g.saves != null ? g.saves : '-'}</span>
               </div>
               <div class="goalie-pill">
-                <span class="pill-label">TIRS</span>
+                <span class="pill-label">${tr.pShots}</span>
                 <span class="pill-value">${g.shotsAgainst != null ? g.shotsAgainst : '-'}</span>
               </div>
               <div class="goalie-pill">
-                <span class="pill-label">%ARR</span>
+                <span class="pill-label">${tr.pSavePct}</span>
                 <span class="pill-value">${savePct}</span>
               </div>
               <div class="goalie-pill">
-                <span class="pill-label">BC</span>
+                <span class="pill-label">${tr.pGA}</span>
                 <span class="pill-value">${g.goalsAgainst != null ? g.goalsAgainst : '-'}</span>
               </div>
             </div>
-            ${decision ? `<span class="goalie-decision ${decision}">${decision === 'W' ? 'V' : 'D'}</span>` : ''}
+            ${decision ? `<span class="goalie-decision ${decision}">${decision === 'W' ? tr.win : tr.loss}</span>` : ''}
           </div>`;
       });
     });
@@ -2163,11 +2241,11 @@ function renderGameDetails(details, awayAbbrev, homeAbbrev) {
 
   // ---- THREE STARS ----
   if (landing?.summary?.threeStars) {
-    html += '<div class="three-stars"><div class="three-stars-title">3 ÉTOILES</div>';
+    html += `<div class="three-stars"><div class="three-stars-title">${tr.threeStars}</div>`;
     landing.summary.threeStars.forEach(star => {
       const stats = star.position === 'G'
-        ? `${(star.savePctg*100).toFixed(1)||'-'}% arr.`
-        : `${star.goals||0}B ${star.assists||0}A`;
+        ? `${(star.savePctg*100).toFixed(1)||'-'}% ${tr.savesAbbr}`
+        : `${star.goals||0}${tr.goalAbbr} ${star.assists||0}${tr.assistAbbr}`;
 
       html += `
         <div class="star-row">
@@ -2181,22 +2259,30 @@ function renderGameDetails(details, awayAbbrev, homeAbbrev) {
     html += '</div>';
   }
 
-  return html || '<div class="no-data">Données détaillées non disponibles</div>';
+  return html || `<div class="no-data">${tr.noDetailData}</div>`;
 }
 
 // =============================================
 // RENDER LEADERS
 // =============================================
+let leadersCache = null;
 async function renderLeaders() {
   const c = document.getElementById('leadersContainer');
 
-  const [skaters, goalies] = await Promise.all([
-    apiFetch(API.skaterLeaders),
-    apiFetch(API.goalieLeaders),
-  ]);
+  let skaters, goalies;
+  if (leadersCache) {
+    ({ skaters, goalies } = leadersCache);
+  } else {
+    [skaters, goalies] = await Promise.all([
+      apiFetch(API.skaterLeaders),
+      apiFetch(API.goalieLeaders),
+    ]);
+    if (skaters || goalies) leadersCache = { skaters, goalies };
+  }
 
+  const tr = T();
   if (!skaters && !goalies) {
-    c.innerHTML = '<div class="no-data">Les meneurs seront disponibles une fois les séries commencées!</div>';
+    c.innerHTML = `<div class="no-data">${tr.leadersSoon}</div>`;
     return;
   }
 
@@ -2206,10 +2292,10 @@ async function renderLeaders() {
   if (skaters) {
     html += '<div class="leaders-grid">';
     ['points', 'goals', 'assists'].forEach(cat => {
-      const label = cat === 'points' ? 'POINTS' : cat === 'goals' ? 'BUTS' : 'PASSES';
+      const label = cat === 'points' ? tr.lPoints : cat === 'goals' ? tr.lGoals : tr.lAssists;
       const players = skaters[cat] || [];
       if (players.length === 0) {
-        html += `<div class="leader-section"><div class="leader-section-title">${label}</div><div class="no-data">Pas encore de données</div></div>`;
+        html += `<div class="leader-section"><div class="leader-section-title">${label}</div><div class="no-data">${tr.noDataYet}</div></div>`;
         return;
       }
       html += `<div class="leader-section"><div class="leader-section-title">${label}</div>`;
@@ -2235,12 +2321,12 @@ async function renderLeaders() {
 
   // Goalie leaders
   if (goalies) {
-    html += '<div class="goalies-leaders-title">GARDIENS</div><div class="leaders-grid">';
+    html += `<div class="goalies-leaders-title">${tr.goalies}</div><div class="leaders-grid">`;
     ['savePctg', 'wins', 'goalsAgainstAverage'].forEach(cat => {
-      const label = cat === 'savePctg' ? '% ARRÊTS' : cat === 'wins' ? 'VICTOIRES' : 'MOY. BUTS ALLOUÉS';
+      const label = cat === 'savePctg' ? tr.lSavePct : cat === 'wins' ? tr.lWins : tr.lGAA;
       const players = goalies[cat] || [];
       if (players.length === 0) {
-        html += `<div class="leader-section"><div class="leader-section-title">${label}</div><div class="no-data">Pas encore de données</div></div>`;
+        html += `<div class="leader-section"><div class="leader-section-title">${label}</div><div class="no-data">${tr.noDataYet}</div></div>`;
         return;
       }
       html += `<div class="leader-section"><div class="leader-section-title">${label}</div>`;
@@ -2268,7 +2354,7 @@ async function renderLeaders() {
     html += '</div>';
   }
 
-  c.innerHTML = html || '<div class="no-data">Les séries commencent le 18 avril — les meneurs apparaîtront bientôt!</div>';
+  c.innerHTML = html || `<div class="no-data">${tr.leadersSoon2}</div>`;
 }
 
 // =============================================
@@ -2296,6 +2382,7 @@ async function refreshAll() {
   delete scoresCache[today];
   delete scoresCache[yesterday];
   gamesCache = {};
+  leadersCache = null;
 
   const [bracket, playoffGames] = await Promise.all([fetchBracket(), fetchPlayoffScores()]);
   bracketData = bracket;
@@ -2365,6 +2452,23 @@ async function init() {
 }
 
 init();
+
+// =============================================
+// I18N — appliquer + re-render au changement de langue
+// =============================================
+function relocalize(){
+  applyStaticI18n();
+  if (bracketData) {
+    renderBracket(bracketData);
+    const playoffGames = Object.values(scoresCache).flat();
+    renderResults(bracketData, playoffGames);
+  }
+  renderLeaders();
+}
+document.addEventListener('zts:ready', relocalize);
+document.addEventListener('zts:langchange', relocalize);
+// Si zts.js déjà prêt avant ce script
+if (window.ZTS && ZTS.getLang) applyStaticI18n();
 </script>
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>

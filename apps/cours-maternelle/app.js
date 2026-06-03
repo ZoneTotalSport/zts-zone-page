@@ -1,3 +1,78 @@
+// ═══════════ I18N — libellés UI générés par JS ═══════════
+const MAT_LBL={
+  fr:{
+    emailInvalid:'Courriel invalide.',
+    sending:'⏳ Envoi en cours…',
+    sent:'✅ <b>Lien envoyé !</b><br>Vérifie ta boîte courriel.',
+    coursFaits:(d,t,p)=>`<i class="fa-solid fa-bullseye text-xs"></i> ${d} / ${t} cours faits · ${p}%`,
+    aucunCours:'Aucun cours trouvé.',
+    fini:'Fini ✓', jouer:'Jouer',
+    coursNum:'Cours #', cours:'Cours',
+    astuceDefaut:'L\'imaginaire fait tout. Si tu y crois, ils y croient.',
+    principale:'Principale :', secondaires:'Secondaire(s) :',
+    refaire:'REFAIRE', terminer:'TERMINER',
+    sectionIndispo:'Section non disponible pour ce cours.',
+    drawing:'Tirage au sort…', selecting:'SÉLECTION…',
+    timerFin:'⏰ FIN',
+    exportOk:'✅ Sauvegarde téléchargée !\n\nGarde le fichier en lieu sûr — tu pourras le réimporter plus tard ou sur un autre appareil.',
+    importConfirm:(done,fav,date)=>`Importer cette sauvegarde ?\n\n• ${done} cours faits\n• ${fav} favoris\n• Sauvegardé le ${date}\n\n⚠️ Cela remplace tes données actuelles.`,
+    importOk:'✅ Sauvegarde importée !',
+    fileInvalid:'❌ Fichier invalide : ',
+    openFirst:'Ouvre un cours avant d\'imprimer.',
+    pBut:'🎯 But :', pDemo:'🎬 Démonstration :', pDeroulement:'Déroulement :',
+    pVerbatim:'Ce que tu dis (verbatim) :', pVariantes:'Variantes :',
+    pSecurite:'⚠️ Sécurité :', pErreurs:'❌ Erreurs fréquentes :', pAdapt:'♿ Adaptations :',
+    pNiveau:'Niveau :', pDuree:'Durée :', pEleves:'Élèves :',
+    pNiveauDefaut:'Maternelle',
+    pIntention:'🎯 Intention pédagogique :',
+    pPfeqPrinc:'PFEQ principale :', pPfeqSec:'PFEQ secondaire(s) :',
+    pMateriel:'📦 Matériel :',
+    pPreparation:'🔧 Préparation du gymnase',
+    secMet:'1. Mise en train', secAct1:'2. Activité 1', secAct2:'3. Activité 2', secRetour:'4. Retour au calme',
+    pAstuce:'💡 Astuce du maître du jeu',
+    pEval:'📋 Évaluation', pLiens:'🔗 Liens transversaux', pProlong:'🏫 Prolongement en classe',
+    printTitleSuffix:' — ZTS Maternelle',
+    printFooter:'Zone Total Sport · 90 Cours Maternelle · zonetotalsport.ca',
+    minPh:'min'
+  },
+  en:{
+    emailInvalid:'Invalid email.',
+    sending:'⏳ Sending…',
+    sent:'✅ <b>Link sent!</b><br>Check your inbox.',
+    coursFaits:(d,t,p)=>`<i class="fa-solid fa-bullseye text-xs"></i> ${d} / ${t} lessons done · ${p}%`,
+    aucunCours:'No lesson found.',
+    fini:'Done ✓', jouer:'Play',
+    coursNum:'Lesson #', cours:'Lesson',
+    astuceDefaut:'Imagination does it all. If you believe it, they believe it.',
+    principale:'Primary:', secondaires:'Secondary:',
+    refaire:'REDO', terminer:'FINISH',
+    sectionIndispo:'Section not available for this lesson.',
+    drawing:'Drawing…', selecting:'SELECTING…',
+    timerFin:'⏰ TIME',
+    exportOk:'✅ Backup downloaded!\n\nKeep the file safe — you can re-import it later or on another device.',
+    importConfirm:(done,fav,date)=>`Import this backup?\n\n• ${done} lessons done\n• ${fav} favourites\n• Saved on ${date}\n\n⚠️ This replaces your current data.`,
+    importOk:'✅ Backup imported!',
+    fileInvalid:'❌ Invalid file: ',
+    openFirst:'Open a lesson before printing.',
+    pBut:'🎯 Goal:', pDemo:'🎬 Demonstration:', pDeroulement:'Steps:',
+    pVerbatim:'What you say (verbatim):', pVariantes:'Variations:',
+    pSecurite:'⚠️ Safety:', pErreurs:'❌ Common mistakes:', pAdapt:'♿ Adaptations:',
+    pNiveau:'Level:', pDuree:'Duration:', pEleves:'Students:',
+    pNiveauDefaut:'Kindergarten',
+    pIntention:'🎯 Teaching intention:',
+    pPfeqPrinc:'PFEQ primary:', pPfeqSec:'PFEQ secondary:',
+    pMateriel:'📦 Equipment:',
+    pPreparation:'🔧 Gym setup',
+    secMet:'1. Warm-up', secAct1:'2. Activity 1', secAct2:'3. Activity 2', secRetour:'4. Cool-down',
+    pAstuce:'💡 Game master\'s tip',
+    pEval:'📋 Assessment', pLiens:'🔗 Cross-curricular links', pProlong:'🏫 Classroom extension',
+    printTitleSuffix:' — ZTS Kindergarten',
+    printFooter:'Zone Total Sport · 90 Kindergarten Lessons · zonetotalsport.ca',
+    minPh:'min'
+  }
+};
+function MATL(){ try{ return MAT_LBL[(window.ZTS&&ZTS.getLang&&ZTS.getLang())||'fr']||MAT_LBL.fr; }catch(e){ return MAT_LBL.fr; } }
+
 // ═══════════ AUTH ═══════════
 const LOCK_KEY='zts_cours_mat_token';
 const VALID_TOKENS=['DEMO2026','ZTS-MAT-90','JOEY-PROFS'];
@@ -29,11 +104,11 @@ function testAccess(){localStorage.setItem(LOCK_KEY,'DEMO2026');unlock();}
 async function submitEmail(e){
   e.preventDefault();const email=document.getElementById('lock-email').value.trim();
   const msg=document.getElementById('lock-msg');
-  if(!email.includes('@')){msg.className='mt-4 font-bold text-brandRed';msg.textContent='Courriel invalide.';return false;}
-  msg.className='mt-4 font-bold text-slate-400';msg.textContent='⏳ Envoi en cours…';
+  if(!email.includes('@')){msg.className='mt-4 font-bold text-brandRed';msg.textContent=MATL().emailInvalid;return false;}
+  msg.className='mt-4 font-bold text-slate-400';msg.textContent=MATL().sending;
   await new Promise(r=>setTimeout(r,800));
   msg.className='mt-4 font-bold text-brandGreen';
-  msg.innerHTML='✅ <b>Lien envoyé !</b><br>Vérifie ta boîte courriel.';
+  msg.innerHTML=MATL().sent;
   return false;
 }
 
@@ -72,7 +147,7 @@ function switchView(view){
   if(view==='main')renderAll();
   if(view==='tbi')renderTBIGrid();
   if(view==='surprise'){
-    document.getElementById('surprise-text').innerText='Tirage au sort…';
+    document.getElementById('surprise-text').innerText=MATL().drawing;
     document.getElementById('surprise-icon').className='fa-solid fa-dice';
     document.getElementById('surprise-btn').classList.remove('hidden');
   }
@@ -89,7 +164,7 @@ function renderBento(){
   document.getElementById('arsenal-num').innerText=String(total).padStart(2,'0');
   const pct=Math.round(done.length/total*100);
   document.getElementById('progress-bar').style.width=pct+'%';
-  document.getElementById('progress-msg').innerHTML=`<i class="fa-solid fa-bullseye text-xs"></i> ${done.length} / ${total} cours faits · ${pct}%`;
+  document.getElementById('progress-msg').innerHTML=MATL().coursFaits(done.length,total,pct);
   document.getElementById('bento-today').dataset.id=prochain.id;
 }
 function bentoTodayClick(){
@@ -104,7 +179,7 @@ function renderGrid(){
   let list=COURS.filter(c=>c.groupe===currentTrim);
   if(q.length>=2)list=COURS.filter(c=>c.titre.toLowerCase().includes(q)||(c.intention||'').toLowerCase().includes(q));
   grid.innerHTML='';
-  if(!list.length){grid.innerHTML='<div class="col-span-full text-center text-slate-500 font-bold py-12">Aucun cours trouvé.</div>';return;}
+  if(!list.length){grid.innerHTML='<div class="col-span-full text-center text-slate-500 font-bold py-12">'+MATL().aucunCours+'</div>';return;}
   const PALETTE=['#00C4FF','#FFF000','#FF8C00','#4ADE80','#A855F7','#ec4899'];
   list.forEach((c,idx)=>{
     const isDone=done.includes(c.id),isFav=fav.includes(c.id);
@@ -160,8 +235,8 @@ function renderTBIGrid(){
         <i class="fa-solid ${iconForCourse(c)}"></i>
       </div>
       <h3 class="font-bangers text-2xl md:text-4xl text-center text-dark">${c.titre}</h3>
-      <span class="${isDone?'bg-brandGreen':'bg-dark'} text-white px-6 md:px-8 py-2 md:py-3 rounded-full font-black text-base md:text-xl uppercase tracking-widest">${isDone?'Fini ✓':'Jouer'}</span>
-      <span class="text-xs text-slate-500">Cours #${c.id} · ${c.duree||'60 min'}</span>`;
+      <span class="${isDone?'bg-brandGreen':'bg-dark'} text-white px-6 md:px-8 py-2 md:py-3 rounded-full font-black text-base md:text-xl uppercase tracking-widest">${isDone?MATL().fini:MATL().jouer}</span>
+      <span class="text-xs text-slate-500">${MATL().coursNum}${c.id} · ${c.duree||'60 min'}</span>`;
     grid.appendChild(card);
   });
 }
@@ -211,7 +286,7 @@ function openPlayer(id){
   document.getElementById('player-niveau').innerText=(c.niveau||'4-5 ans').replace('Maternelle ','');
   document.getElementById('player-duree').innerText=(c.duree||'60 min');
   document.getElementById('player-eleves').innerText=(c.eleves||'15-25');
-  document.getElementById('player-astuce').innerText=c.astuce||'L\'imaginaire fait tout. Si tu y crois, ils y croient.';
+  document.getElementById('player-astuce').innerText=c.astuce||MATL().astuceDefaut;
 
   // Intention
   const intW=document.getElementById('player-intention-wrap');
@@ -222,8 +297,8 @@ function openPlayer(id){
   const pfeqW=document.getElementById('player-pfeq-wrap');
   if(c.pfeq_principale||c.pfeq_secondaire){
     pfeqW.classList.remove('hidden');
-    document.getElementById('player-pfeq-principale').innerHTML=c.pfeq_principale?`<b class="text-brandPink">Principale :</b><br><span class="text-slate-200">${c.pfeq_principale}</span>`:'';
-    document.getElementById('player-pfeq-secondaire').innerHTML=c.pfeq_secondaire?`<b class="text-brandCyan">Secondaire(s) :</b><br><span class="text-slate-200">${c.pfeq_secondaire}</span>`:'';
+    document.getElementById('player-pfeq-principale').innerHTML=c.pfeq_principale?`<b class="text-brandPink">${MATL().principale}</b><br><span class="text-slate-200">${c.pfeq_principale}</span>`:'';
+    document.getElementById('player-pfeq-secondaire').innerHTML=c.pfeq_secondaire?`<b class="text-brandCyan">${MATL().secondaires}</b><br><span class="text-slate-200">${c.pfeq_secondaire}</span>`:'';
   }else pfeqW.classList.add('hidden');
 
   // Préparation
@@ -253,7 +328,7 @@ function openPlayer(id){
   // Tabs
   const isDone=getDone().includes(c.id);
   const finishBtn=document.getElementById('finish-btn');
-  finishBtn.innerHTML=isDone?'<i class="fa-solid fa-rotate-left"></i> <span class="hidden md:inline">REFAIRE</span>':'<i class="fa-solid fa-check"></i> <span class="hidden md:inline">TERMINER</span>';
+  finishBtn.innerHTML=isDone?'<i class="fa-solid fa-rotate-left"></i> <span class="hidden md:inline">'+MATL().refaire+'</span>':'<i class="fa-solid fa-check"></i> <span class="hidden md:inline">'+MATL().terminer+'</span>';
   finishBtn.className=isDone?'bg-slate-600 text-white px-4 md:px-8 py-2 md:py-3 rounded-2xl font-black text-sm md:text-lg hover:scale-105 bento-transition whitespace-nowrap':'bg-brandGreen text-white px-4 md:px-8 py-2 md:py-3 rounded-2xl font-black text-sm md:text-lg hover:scale-105 bento-transition shadow-lg shadow-brandGreen/20 whitespace-nowrap';
 
   switchView('course');
@@ -263,7 +338,7 @@ function openPlayer(id){
 function loadSection(sec){
   currentSection=sec;
   const c=COURS.find(x=>x.id===selectedCourseId);if(!c)return;
-  const a=c[sec];if(!a){document.getElementById('player-explanations').innerHTML='<p class="text-slate-500 italic">Section non disponible pour ce cours.</p>';return;}
+  const a=c[sec];if(!a){document.getElementById('player-explanations').innerHTML='<p class="text-slate-500 italic">'+MATL().sectionIndispo+'</p>';return;}
 
   // Tab active state
   document.querySelectorAll('.player-tab').forEach(t=>{
@@ -408,7 +483,7 @@ function toggleTimer(){
     btn.classList.replace('bg-brandCyan','bg-brandRed');
     timerInt=setInterval(()=>{
       if(timerSec>0){timerSec--;updateTimerDisplay();}
-      else{clearInterval(timerInt);timerInt=null;document.getElementById('timer-display').innerText='⏰ FIN';playGong();
+      else{clearInterval(timerInt);timerInt=null;document.getElementById('timer-display').innerText=MATL().timerFin;playGong();
         const btn=document.getElementById('timer-btn');btn.innerHTML='<i class="fa-solid fa-play"></i>';btn.classList.replace('bg-brandRed','bg-brandCyan');}
     },1000);
   }
@@ -430,7 +505,7 @@ function rollSurprise(){
   const text=document.getElementById('surprise-text');
   const ic=document.getElementById('surprise-icon');
   btn.classList.add('hidden');
-  text.innerText='SÉLECTION…';
+  text.innerText=MATL().selecting;
   ic.className='fa-solid fa-sync fa-spin';
   setTimeout(()=>{
     const c=COURS[Math.floor(Math.random()*COURS.length)];
@@ -467,7 +542,7 @@ function exportData(){
   a.href=url;a.download=`ZTS-Maternelle-${date}.json`;
   document.body.appendChild(a);a.click();
   setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},100);
-  alert('✅ Sauvegarde téléchargée !\n\nGarde le fichier en lieu sûr — tu pourras le réimporter plus tard ou sur un autre appareil.');
+  alert(MATL().exportOk);
 }
 function importData(ev){
   const file=ev.target.files[0];if(!file)return;
@@ -475,38 +550,39 @@ function importData(ev){
   r.onload=e=>{
     try{
       const d=JSON.parse(e.target.result);
-      if(!confirm(`Importer cette sauvegarde ?\n\n• ${(d.done||[]).length} cours faits\n• ${(d.favoris||[]).length} favoris\n• Sauvegardé le ${(d.exported_at||'?').slice(0,10)}\n\n⚠️ Cela remplace tes données actuelles.`))return;
+      if(!confirm(MATL().importConfirm((d.done||[]).length,(d.favoris||[]).length,(d.exported_at||'?').slice(0,10))))return;
       if(d.done)localStorage.setItem(DONE_KEY,JSON.stringify(d.done));
       if(d.favoris)localStorage.setItem(FAV_KEY,JSON.stringify(d.favoris));
       if(d.steps)localStorage.setItem(STEPS_KEY,JSON.stringify(d.steps));
       if(d.tbi)localStorage.setItem(TBI_KEY,'1');
-      alert('✅ Sauvegarde importée !');
+      alert(MATL().importOk);
       location.reload();
-    }catch(err){alert('❌ Fichier invalide : '+err.message);}
+    }catch(err){alert(MATL().fileInvalid+err.message);}
   };
   r.readAsText(file);
   ev.target.value='';
 }
 function printCourse(){
-  if(!selectedCourseId){alert('Ouvre un cours avant d\'imprimer.');return;}
+  const _l=MATL();
+  if(!selectedCourseId){alert(_l.openFirst);return;}
   const c=COURS.find(x=>x.id===selectedCourseId);if(!c)return;
   const w=window.open('','_blank','width=900,height=1100');
   const sec=(a,label,emoji)=>{
     if(!a||!a.deroulement)return'';
     return `<div class="section">
       <h2>${emoji} ${label}${a.duree?' · '+a.duree:''} — ${a.nom||''}</h2>
-      ${a.but?`<p class="but"><b>🎯 But :</b> ${a.but}</p>`:''}
-      ${a.demo?`<p><b>🎬 Démonstration :</b> ${a.demo}</p>`:''}
-      <h3>Déroulement :</h3>
+      ${a.but?`<p class="but"><b>${_l.pBut}</b> ${a.but}</p>`:''}
+      ${a.demo?`<p><b>${_l.pDemo}</b> ${a.demo}</p>`:''}
+      <h3>${_l.pDeroulement}</h3>
       <ol>${a.deroulement.map(s=>`<li>${s}</li>`).join('')}</ol>
-      ${a.consignes&&a.consignes.length?`<h3>Ce que tu dis (verbatim) :</h3><ul class="quotes">${a.consignes.map(q=>`<li>«&nbsp;${q}&nbsp;»</li>`).join('')}</ul>`:''}
-      ${a.variantes&&a.variantes.length?`<h3>Variantes :</h3><ul>${a.variantes.map(v=>`<li>${v}</li>`).join('')}</ul>`:''}
-      ${a.securite&&a.securite.length?`<h3>⚠️ Sécurité :</h3><ul>${a.securite.map(s=>`<li>${s}</li>`).join('')}</ul>`:''}
-      ${a.erreurs&&a.erreurs.length?`<h3>❌ Erreurs fréquentes :</h3><ul>${a.erreurs.map(e=>`<li>${e}</li>`).join('')}</ul>`:''}
-      ${a.adaptations&&a.adaptations.length?`<h3>♿ Adaptations :</h3><ul>${a.adaptations.map(ad=>`<li>${ad}</li>`).join('')}</ul>`:''}
+      ${a.consignes&&a.consignes.length?`<h3>${_l.pVerbatim}</h3><ul class="quotes">${a.consignes.map(q=>`<li>«&nbsp;${q}&nbsp;»</li>`).join('')}</ul>`:''}
+      ${a.variantes&&a.variantes.length?`<h3>${_l.pVariantes}</h3><ul>${a.variantes.map(v=>`<li>${v}</li>`).join('')}</ul>`:''}
+      ${a.securite&&a.securite.length?`<h3>${_l.pSecurite}</h3><ul>${a.securite.map(s=>`<li>${s}</li>`).join('')}</ul>`:''}
+      ${a.erreurs&&a.erreurs.length?`<h3>${_l.pErreurs}</h3><ul>${a.erreurs.map(e=>`<li>${e}</li>`).join('')}</ul>`:''}
+      ${a.adaptations&&a.adaptations.length?`<h3>${_l.pAdapt}</h3><ul>${a.adaptations.map(ad=>`<li>${ad}</li>`).join('')}</ul>`:''}
     </div>`;
   };
-  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${c.titre} — ZTS Maternelle</title>
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${c.titre}${_l.printTitleSuffix}</title>
   <style>
     body{font-family:Georgia,serif;color:#000;max-width:780px;margin:0 auto;padding:24px;line-height:1.5;}
     h1{font-family:'Arial Black',sans-serif;font-size:28px;border-bottom:3px solid #06b6d4;padding-bottom:8px;color:#06b6d4;}
@@ -524,22 +600,22 @@ function printCourse(){
     .footer{margin-top:30px;padding-top:12px;border-top:1px solid #ccc;font-size:11px;color:#888;text-align:center;}
     @media print{body{max-width:none;padding:0;}}
   </style></head><body>
-    <h1>Cours #${c.id} — ${c.titre}</h1>
-    <div class="meta"><span><b>Niveau :</b> ${c.niveau||'Maternelle'}</span><span><b>Durée :</b> ${c.duree||'60 min'}</span><span><b>Élèves :</b> ${c.eleves||'15-25'}</span></div>
-    ${c.intention?`<div class="intention"><b>🎯 Intention pédagogique :</b><br>${c.intention}</div>`:''}
-    ${c.pfeq_principale?`<p><b>PFEQ principale :</b> ${c.pfeq_principale}</p>`:''}
-    ${c.pfeq_secondaire?`<p><b>PFEQ secondaire(s) :</b> ${c.pfeq_secondaire}</p>`:''}
-    ${c.materiel&&c.materiel.length?`<div class="materiel"><b>📦 Matériel :</b><ul>${c.materiel.map(m=>`<li>${m}</li>`).join('')}</ul></div>`:''}
-    ${c.preparation&&c.preparation.length?`<div class="section"><h2>🔧 Préparation du gymnase</h2><ol>${c.preparation.map(p=>`<li>${p}</li>`).join('')}</ol></div>`:''}
-    ${sec(c.mise_en_train,'1. Mise en train','🔥')}
-    ${sec(c.activite_1,'2. Activité 1','▶️')}
-    ${sec(c.activite_2,'3. Activité 2','▶️')}
-    ${sec(c.retour,'4. Retour au calme','🌙')}
-    ${c.astuce?`<div class="section"><h2>💡 Astuce du maître du jeu</h2><p style="font-style:italic;">${c.astuce}</p></div>`:''}
-    ${c.evaluation?`<div class="section"><h2>📋 Évaluation</h2><p>${(c.evaluation+'').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>')}</p></div>`:''}
-    ${c.liens&&c.liens.length?`<div class="section"><h2>🔗 Liens transversaux</h2><ul>${c.liens.map(l=>`<li><b>${l.discipline} :</b> ${l.lien}</li>`).join('')}</ul></div>`:''}
-    ${c.prolongement?`<div class="section"><h2>🏫 Prolongement en classe</h2><p>${c.prolongement}</p></div>`:''}
-    <div class="footer">Zone Total Sport · 90 Cours Maternelle · zonetotalsport.ca</div>
+    <h1>${_l.coursNum}${c.id} — ${c.titre}</h1>
+    <div class="meta"><span><b>${_l.pNiveau}</b> ${c.niveau||_l.pNiveauDefaut}</span><span><b>${_l.pDuree}</b> ${c.duree||'60 min'}</span><span><b>${_l.pEleves}</b> ${c.eleves||'15-25'}</span></div>
+    ${c.intention?`<div class="intention"><b>${_l.pIntention}</b><br>${c.intention}</div>`:''}
+    ${c.pfeq_principale?`<p><b>${_l.pPfeqPrinc}</b> ${c.pfeq_principale}</p>`:''}
+    ${c.pfeq_secondaire?`<p><b>${_l.pPfeqSec}</b> ${c.pfeq_secondaire}</p>`:''}
+    ${c.materiel&&c.materiel.length?`<div class="materiel"><b>${_l.pMateriel}</b><ul>${c.materiel.map(m=>`<li>${m}</li>`).join('')}</ul></div>`:''}
+    ${c.preparation&&c.preparation.length?`<div class="section"><h2>${_l.pPreparation}</h2><ol>${c.preparation.map(p=>`<li>${p}</li>`).join('')}</ol></div>`:''}
+    ${sec(c.mise_en_train,_l.secMet,'🔥')}
+    ${sec(c.activite_1,_l.secAct1,'▶️')}
+    ${sec(c.activite_2,_l.secAct2,'▶️')}
+    ${sec(c.retour,_l.secRetour,'🌙')}
+    ${c.astuce?`<div class="section"><h2>${_l.pAstuce}</h2><p style="font-style:italic;">${c.astuce}</p></div>`:''}
+    ${c.evaluation?`<div class="section"><h2>${_l.pEval}</h2><p>${(c.evaluation+'').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>')}</p></div>`:''}
+    ${c.liens&&c.liens.length?`<div class="section"><h2>${_l.pLiens}</h2><ul>${c.liens.map(l=>`<li><b>${l.discipline} :</b> ${l.lien}</li>`).join('')}</ul></div>`:''}
+    ${c.prolongement?`<div class="section"><h2>${_l.pProlong}</h2><p>${c.prolongement}</p></div>`:''}
+    <div class="footer">${_l.printFooter}</div>
   </body></html>`);
   w.document.close();
   setTimeout(()=>{w.print();},400);

@@ -7,125 +7,108 @@
 const PLAYLISTS = [
   {
     icon: '🏠',
-    title: 'Future House',
-    mood: 'ÉNERGIE MAXIMALE · 125–135 BPM',
-    desc: 'Basses profondes et synthés brillants. Parfait pour circuits, jeux collectifs et ballon chasseur.',
-    tags: ['Circuits', 'Jeux collectifs', 'Ballon chasseur'],
+    fr: { title: 'Future House', mood: 'ÉNERGIE MAXIMALE · 125–135 BPM', desc: 'Basses profondes et synthés brillants. Parfait pour circuits, jeux collectifs et ballon chasseur.', tags: ['Circuits', 'Jeux collectifs', 'Ballon chasseur'] },
+    en: { title: 'Future House', mood: 'MAXIMUM ENERGY · 125–135 BPM', desc: 'Deep bass and bright synths. Perfect for circuits, team games and dodgeball.', tags: ['Circuits', 'Team games', 'Dodgeball'] },
     playlistId: 'PLRBp0Fe2GpgnQfsrvd9ZQQOz4mneH_q8S',
     label: 'NCS — Top 50 Future House',
     accent: '#00E5FF'
   },
   {
     icon: '🎧',
-    title: 'House / Deep House',
-    mood: 'GROOVE CONSTANT · 120–128 BPM',
-    desc: 'Groove régulier et enveloppant. Idéal pour échauffement, course légère et endurance.',
-    tags: ['Échauffement', 'Course', 'Endurance'],
+    fr: { title: 'House / Deep House', mood: 'GROOVE CONSTANT · 120–128 BPM', desc: 'Groove régulier et enveloppant. Idéal pour échauffement, course légère et endurance.', tags: ['Échauffement', 'Course', 'Endurance'] },
+    en: { title: 'House / Deep House', mood: 'STEADY GROOVE · 120–128 BPM', desc: 'Steady, wrapping groove. Ideal for warm-up, light running and endurance.', tags: ['Warm-up', 'Running', 'Endurance'] },
     playlistId: 'PLRBp0Fe2GpgmoBCN3MTdwg4EiJmgxYy6e',
     label: 'NCS — Top 50 House Songs',
     accent: '#FFD700'
   },
   {
     icon: '🔥',
-    title: 'Best of House',
-    mood: 'MIX COMPLET · 120–130 BPM',
-    desc: 'La crème de la house music NCS. Mix varié pour garder l\'énergie pendant tout le cours.',
-    tags: ['Polyvalent', 'Cours complet', 'Ambiance'],
+    fr: { title: 'Best of House', mood: 'MIX COMPLET · 120–130 BPM', desc: 'La crème de la house music NCS. Mix varié pour garder l\'énergie pendant tout le cours.', tags: ['Polyvalent', 'Cours complet', 'Ambiance'] },
+    en: { title: 'Best of House', mood: 'FULL MIX · 120–130 BPM', desc: 'The cream of NCS house music. A varied mix to keep the energy up all class long.', tags: ['Versatile', 'Whole class', 'Atmosphere'] },
     playlistId: 'PLRBp0Fe2GpgmsW46rJyudVFlY6IYjFBIK',
     label: 'NCS — The Best of House',
     accent: '#FF9800'
   },
   {
     icon: '💪',
-    title: 'Workout / HIIT',
-    mood: 'INTENSITÉ MAX · 130–160 BPM',
-    desc: 'Musique explosive pour HIIT, circuits intensifs et musculation. Pousse tes élèves au max.',
-    tags: ['HIIT', 'Musculation', 'Gainage'],
+    fr: { title: 'Workout / HIIT', mood: 'INTENSITÉ MAX · 130–160 BPM', desc: 'Musique explosive pour HIIT, circuits intensifs et musculation. Pousse tes élèves au max.', tags: ['HIIT', 'Musculation', 'Gainage'] },
+    en: { title: 'Workout / HIIT', mood: 'MAX INTENSITY · 130–160 BPM', desc: 'Explosive music for HIIT, intense circuits and strength work. Push your students to the max.', tags: ['HIIT', 'Strength', 'Core'] },
     playlistId: 'PLC1og_v3eb4jNFEE9iuFNdLCQmYhZRNvt',
     label: 'Workout Music — Trap Nation',
     accent: '#ff4444'
   },
   {
     icon: '🎤',
-    title: 'Trap / Hip-Hop',
-    mood: 'URBAN BEATS · 80–100 BPM',
-    desc: 'Beats trap et hip-hop. Ambiance urbaine pour les jeux d\'opposition et expression libre.',
-    tags: ['Expression', 'Jeux libres', 'Opposition'],
+    fr: { title: 'Trap / Hip-Hop', mood: 'URBAN BEATS · 80–100 BPM', desc: 'Beats trap et hip-hop. Ambiance urbaine pour les jeux d\'opposition et expression libre.', tags: ['Expression', 'Jeux libres', 'Opposition'] },
+    en: { title: 'Trap / Hip-Hop', mood: 'URBAN BEATS · 80–100 BPM', desc: 'Trap and hip-hop beats. An urban vibe for opposition games and free expression.', tags: ['Expression', 'Free play', 'Opposition'] },
     playlistId: 'PLRBp0Fe2Gpgldp6wTkEHOmuk_l1_8OCgw',
     label: 'NCS — Top 50 Trap Songs',
     accent: '#4CAF50'
   },
   {
     icon: '⚡',
-    title: 'EDM / Électro',
-    mood: 'PARTY MODE · 128–140 BPM',
-    desc: 'Les meilleurs hits EDM de tous les temps. Énergie festive pour les cours spéciaux et fêtes.',
-    tags: ['Fête', 'Célébration', 'Énergie'],
+    fr: { title: 'EDM / Électro', mood: 'PARTY MODE · 128–140 BPM', desc: 'Les meilleurs hits EDM de tous les temps. Énergie festive pour les cours spéciaux et fêtes.', tags: ['Fête', 'Célébration', 'Énergie'] },
+    en: { title: 'EDM / Electro', mood: 'PARTY MODE · 128–140 BPM', desc: 'The best EDM hits of all time. Festive energy for special classes and parties.', tags: ['Party', 'Celebration', 'Energy'] },
     playlistId: 'PLw-VjHDlEOgs658kAHR_LAaILBXb-s6Q5',
     label: 'Best EDM Songs of All Time',
     accent: '#E040FB'
   },
   {
     icon: '🌅',
-    title: 'Happy / Échauffement',
-    mood: 'POSITIF & LÉGER · 100–120 BPM',
-    desc: 'Musique joyeuse et légère pour démarrer le cours. Monte doucement en énergie.',
-    tags: ['Échauffement', 'Début de cours', 'Bonne humeur'],
+    fr: { title: 'Happy / Échauffement', mood: 'POSITIF & LÉGER · 100–120 BPM', desc: 'Musique joyeuse et légère pour démarrer le cours. Monte doucement en énergie.', tags: ['Échauffement', 'Début de cours', 'Bonne humeur'] },
+    en: { title: 'Happy / Warm-up', mood: 'UPBEAT & LIGHT · 100–120 BPM', desc: 'Cheerful, light music to start class. Builds energy up gently.', tags: ['Warm-up', 'Class start', 'Good mood'] },
     playlistId: 'PLyDNc-mLpTPYZtyW55w4Zy7HJnAPnu8SR',
     label: 'Happy Music — Vlog No Copyright',
     accent: '#FFD700'
   },
   {
     icon: '💃',
-    title: 'Dance & Électronique',
-    mood: 'DANSE & EXPRESSION · 110–130 BPM',
-    desc: 'Dance music pour les activités d\'expression corporelle et chorégraphie.',
-    tags: ['Danse', 'Expression', 'Chorégraphie'],
+    fr: { title: 'Dance & Électronique', mood: 'DANSE & EXPRESSION · 110–130 BPM', desc: 'Dance music pour les activités d\'expression corporelle et chorégraphie.', tags: ['Danse', 'Expression', 'Chorégraphie'] },
+    en: { title: 'Dance & Electronic', mood: 'DANCE & EXPRESSION · 110–130 BPM', desc: 'Dance music for movement expression and choreography activities.', tags: ['Dance', 'Expression', 'Choreography'] },
     playlistId: 'PLyDNc-mLpTPYlda_wQd3tnP2joefEB_QF',
     label: 'Dance & Electronic — Vlog NoCopyright',
     accent: '#FF9800'
   },
   {
     icon: '🎵',
-    title: 'Pop Hits',
-    mood: 'POPULAIRE & FUN · 100–130 BPM',
-    desc: 'Hits pop intemporels que les élèves connaissent. Parfait pour créer une ambiance fun.',
-    tags: ['Ambiance', 'Fun', 'Populaire'],
+    fr: { title: 'Pop Hits', mood: 'POPULAIRE & FUN · 100–130 BPM', desc: 'Hits pop intemporels que les élèves connaissent. Parfait pour créer une ambiance fun.', tags: ['Ambiance', 'Fun', 'Populaire'] },
+    en: { title: 'Pop Hits', mood: 'POPULAR & FUN · 100–130 BPM', desc: 'Timeless pop hits students already know. Perfect for a fun atmosphere.', tags: ['Atmosphere', 'Fun', 'Popular'] },
     playlistId: 'PLMC9KNkIncKtPzgY-5rmhvj7fax8fdxoj',
     label: 'Pop Music — Timeless Pop Songs',
     accent: '#E040FB'
   },
   {
     icon: '🧘',
-    title: 'Chill / Retour au calme',
-    mood: 'RELAXATION · 60–90 BPM',
-    desc: 'Lo-fi et chill pour le retour au calme, étirements et fin de cours.',
-    tags: ['Retour au calme', 'Étirements', 'Relaxation'],
+    fr: { title: 'Chill / Retour au calme', mood: 'RELAXATION · 60–90 BPM', desc: 'Lo-fi et chill pour le retour au calme, étirements et fin de cours.', tags: ['Retour au calme', 'Étirements', 'Relaxation'] },
+    en: { title: 'Chill / Cool-down', mood: 'RELAXATION · 60–90 BPM', desc: 'Lo-fi and chill for cool-down, stretching and the end of class.', tags: ['Cool-down', 'Stretching', 'Relaxation'] },
     playlistId: 'PLRBp0Fe2GpgnRZpKULnyDQv9e_q41M6St',
     label: 'NCS — Background Music for Study & Chill',
     accent: '#00E5FF'
   },
   {
     icon: '☕',
-    title: 'Lo-fi Hip Hop',
-    mood: 'CONCENTRATION · 70–90 BPM',
-    desc: 'Beats lo-fi relaxants. Parfait pour yoga, pleine conscience et activités calmes.',
-    tags: ['Yoga', 'Pleine conscience', 'Calme'],
+    fr: { title: 'Lo-fi Hip Hop', mood: 'CONCENTRATION · 70–90 BPM', desc: 'Beats lo-fi relaxants. Parfait pour yoga, pleine conscience et activités calmes.', tags: ['Yoga', 'Pleine conscience', 'Calme'] },
+    en: { title: 'Lo-fi Hip Hop', mood: 'FOCUS · 70–90 BPM', desc: 'Relaxing lo-fi beats. Perfect for yoga, mindfulness and calm activities.', tags: ['Yoga', 'Mindfulness', 'Calm'] },
     playlistId: 'PLOzDu-MXXLliO9fBNZOQTBDddoA3FzZUo',
     label: 'Lo-fi Hip Hop',
     accent: '#FF9800'
   },
   {
     icon: '🎻',
-    title: 'Classique',
-    mood: 'PRESTIGE · 60–120 BPM',
-    desc: 'Les plus grandes pièces classiques. Idéal pour gymnastique, expression et retour au calme.',
-    tags: ['Gymnastique', 'Expression', 'Culture'],
+    fr: { title: 'Classique', mood: 'PRESTIGE · 60–120 BPM', desc: 'Les plus grandes pièces classiques. Idéal pour gymnastique, expression et retour au calme.', tags: ['Gymnastique', 'Expression', 'Culture'] },
+    en: { title: 'Classical', mood: 'PRESTIGE · 60–120 BPM', desc: 'The greatest classical pieces. Ideal for gymnastics, expression and cool-down.', tags: ['Gymnastics', 'Expression', 'Culture'] },
     playlistId: 'PLcGkkXtask_eI44NtdwwcJ2Zxh1miU9Qh',
     label: 'Classical Music — HalidonMusic',
     accent: '#FFD700'
   }
 ];
+
+// Langue courante pour le rendu JS : suit le toggle du header partagé (ZTS) si présent,
+// sinon le sélecteur i18n.js. EN ou FR uniquement pour les données de cartes.
+function plLang() {
+  try { if (window.ZTS && typeof ZTS.getLang === 'function') return ZTS.getLang() === 'en' ? 'en' : 'fr'; } catch (e) {}
+  return (typeof _currentLang !== 'undefined' && _currentLang === 'en') ? 'en' : 'fr';
+}
 
 // ---- RECHERCHES RAPIDES (vrais IDs YouTube) ----
 const QUICK_PLAYS = [
@@ -151,6 +134,13 @@ const QUICK_PLAYS = [
   { icon: '🎧', label: 'Skrillex — Ultra Festival 2025', videoId: 'ni2pGkTPLDo' }
 ];
 
+// ---- RE-RENDER GLOBAL (appelé par i18n.js setLang via renderAll) ----
+function renderAll() {
+  renderPlaylists();
+  renderQuickPlays();
+  renderMyPlaylist();
+}
+
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof initI18n === 'function') initI18n();
@@ -166,6 +156,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Enter') addToMyPlaylist();
   });
 });
+
+// ---- PONT AVEC LE HEADER PARTAGÉ (toggle FR/EN) ----
+// Le header injecté par shared/zts.js émet zts:ready et zts:langchange.
+// On synchronise le système data-t (i18n.js) et on re-render le contenu JS.
+function syncFromZTS() {
+  if (!(window.ZTS && typeof ZTS.getLang === 'function')) return;
+  const lang = ZTS.getLang() === 'en' ? 'en' : 'fr';
+  if (typeof setLang === 'function') setLang(lang); // applique data-t + appelle renderAll()
+  else renderAll();
+}
+document.addEventListener('zts:ready', syncFromZTS);
+document.addEventListener('zts:langchange', syncFromZTS);
 
 // ---- YOUTUBE PLAYER ----
 function extractYouTubeId(url) {
@@ -229,18 +231,22 @@ function renderPlaylists() {
   const grid = document.getElementById('playlists-grid');
   if (!grid) return;
 
-  grid.innerHTML = PLAYLISTS.map(p => `
+  const lg = plLang();
+  grid.innerHTML = PLAYLISTS.map(p => {
+    const c = p[lg] || p.fr;
+    return `
     <div class="playlist-card" style="--card-accent:${p.accent}" onclick="playPlaylist('${p.playlistId}', '${escapeAttr(p.label)}')">
       <div class="playlist-card-play">▶</div>
       <div class="playlist-card-icon">${p.icon}</div>
-      <div class="playlist-card-title">${p.title}</div>
-      <div class="playlist-card-mood">${p.mood}</div>
-      <div class="playlist-card-desc">${p.desc}</div>
+      <div class="playlist-card-title">${c.title}</div>
+      <div class="playlist-card-mood">${c.mood}</div>
+      <div class="playlist-card-desc">${c.desc}</div>
       <div class="playlist-card-tags">
-        ${p.tags.map(t => `<span class="playlist-tag">${t}</span>`).join('')}
+        ${c.tags.map(t => `<span class="playlist-tag">${escapeHtml(t)}</span>`).join('')}
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 // ---- RENDER QUICK PLAYS ----

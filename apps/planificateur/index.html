@@ -401,6 +401,88 @@ const T = {
   }
 };
 
+// ===== i18n du HERO + GUIDE statiques (texte d'interface, FR/EN) =====
+const HERO = {
+  fr:{
+    badgeTag:'PLANIFICATION ANNUELLE',
+    titleHtml:'LE<br><span class="accent">PLANIFICATEUR</span>',
+    desc:"Planifie ton année EPS au complet. Cycles, périodes, congés — tout en un coup d'oeil.",
+    chips:['📅 Août → Juin','⚙️ 3 à 7 périodes','🌍 4 langues','📤 PDF / Excel / CSV'],
+    start:'Commencer!',guide:'Comment utiliser',
+    guideTitle:'📖 COMMENT UTILISER LE PLANIFICATEUR',
+    g1t:'1. CONFIGURE TES PÉRIODES',
+    g1p:"Clique sur une case du calendrier → le modal s'ouvre → clique sur ⚙️ Configuration → choisis le nombre de périodes (3 à 7), les heures, les récréations et le dîner → « Appliquer à tout le calendrier ».",
+    g2t:'2. PLANIFIE CHAQUE JOUR',
+    g2p:'Clique sur un jour → remplis les groupes (ex: 204B), les activités (ex: Basketball) et les détails pour chaque période. Ajoute tes gardes de transition entre les périodes.',
+    g3t:'3. AJOUTE CONGÉS & ÉVÉNEMENTS',
+    g3p:'Utilise les boutons en bas du calendrier pour ajouter des congés (sur plusieurs jours!), des journées pédagogiques, des sorties scolaires. Les congés fériés du Québec sont déjà là!',
+    g4t:'4. EXPORTE & IMPRIME',
+    g4p:'Exporte ta planification en PDF, Excel ou CSV — par jour ou par mois complet. Imprime pour afficher au gymnase ou partager avec la direction!',
+    tipsTitle:'💡 ASTUCES',
+    tips:[
+      'Les <strong>points colorés</strong> (vert/bleu/violet) apparaissent quand tu écris « cycle 1 », « c2 », etc. dans les groupes',
+      'Le bouton <strong>« 📋 Planif »</strong> apparaît dans la case quand tu as sauvegardé une planification',
+      'Tout est <strong>sauvegardé automatiquement</strong> dans ton navigateur (localStorage)',
+      '<strong>4 langues</strong> disponibles : français, anglais, espagnol et chinois mandarin',
+      'Ajoute tes <strong>extras du jour</strong> : parascolaire, comité, et autre dans le modal'
+    ]
+  },
+  en:{
+    badgeTag:'YEARLY PLANNING',
+    titleHtml:'THE<br><span class="accent">PLANNER</span>',
+    desc:'Plan your whole PE year. Cycles, periods, days off — all at a glance.',
+    chips:['📅 August → June','⚙️ 3 to 7 periods','🌍 4 languages','📤 PDF / Excel / CSV'],
+    start:'Get started!',guide:'How to use it',
+    guideTitle:'📖 HOW TO USE THE PLANNER',
+    g1t:'1. SET UP YOUR PERIODS',
+    g1p:'Click a calendar cell → the modal opens → click ⚙️ Configuration → choose the number of periods (3 to 7), the times, recesses and lunch → "Apply to entire calendar".',
+    g2t:'2. PLAN EACH DAY',
+    g2p:'Click a day → fill in the groups (e.g. 204B), activities (e.g. Basketball) and details for each period. Add your transition duties between periods.',
+    g3t:'3. ADD DAYS OFF & EVENTS',
+    g3p:'Use the buttons below the calendar to add days off (over several days!), PD days and field trips. Quebec statutory holidays are already there!',
+    g4t:'4. EXPORT & PRINT',
+    g4p:'Export your plan as PDF, Excel or CSV — by day or by full month. Print it to post in the gym or share with admin!',
+    tipsTitle:'💡 TIPS',
+    tips:[
+      'The <strong>colored dots</strong> (green/blue/purple) appear when you type "cycle 1", "c2", etc. in the groups',
+      'The <strong>"📋 Plan"</strong> button shows up in the cell once you save a plan',
+      'Everything is <strong>saved automatically</strong> in your browser (localStorage)',
+      '<strong>4 languages</strong> available: French, English, Spanish and Mandarin Chinese',
+      'Add your <strong>extras of the day</strong>: after-school, committee and more in the modal'
+    ]
+  }
+};
+function heroLang(){ return HERO[lang] ? lang : 'fr'; }
+function applyHeroI18n(){
+  const h = HERO[heroLang()];
+  // badge + titre + desc
+  const tag = document.querySelector('.zts-hero-badge-tag'); if(tag) tag.textContent = h.badgeTag;
+  const ttl = document.querySelector('[data-hero="title"]'); if(ttl) ttl.innerHTML = h.titleHtml;
+  const dsc = document.querySelector('[data-hero="desc"]'); if(dsc) dsc.textContent = h.desc;
+  // chips du hero
+  const chipWrap = document.querySelector('#heroLanding .flex.flex-wrap.gap-3');
+  if(chipWrap) chipWrap.querySelectorAll('span').forEach((s,i)=>{ if(h.chips[i]!=null) s.textContent=h.chips[i]; });
+  // boutons start / guide (toutes occurrences)
+  document.querySelectorAll('[data-hero="start"]').forEach(el=>el.textContent=h.start);
+  document.querySelectorAll('[data-hero="guide"]').forEach(el=>el.textContent=h.guide);
+  // guide
+  const gt = document.querySelector('[data-hero="guideTitle"]'); if(gt) gt.textContent=h.guideTitle;
+  const gs = document.getElementById('guideSection');
+  if(gs){
+    const h4 = gs.querySelectorAll('.grid h4');
+    const p  = gs.querySelectorAll('.grid p');
+    [['g1t','g1p'],['g2t','g2p'],['g3t','g3p'],['g4t','g4p']].forEach((pair,i)=>{
+      if(h4[i]) h4[i].textContent=h[pair[0]];
+      if(p[i])  p[i].textContent=h[pair[1]];
+    });
+    const tipsBox = gs.querySelector('.bg-gray-100');
+    if(tipsBox){
+      const tt = tipsBox.querySelector('h4'); if(tt) tt.textContent=h.tipsTitle;
+      tipsBox.querySelectorAll('li').forEach((li,i)=>{ if(h.tips[i]!=null) li.innerHTML=h.tips[i]; });
+    }
+  }
+}
+
 // ===================== HOLIDAYS QC 2025-2026 =====================
 const HOLIDAYS = {
   '2025-09-01':{emoji:'💼',name:{fr:'Fête du travail',en:'Labour Day',es:'Día del trabajo',zh:'劳动节'},bg:'rgba(100,180,255,0.7)'},
@@ -428,7 +510,9 @@ const HOLIDAYS = {
 };
 
 // ===================== STATE =====================
-let lang = localStorage.getItem('zts-planif-lang') || 'fr';
+// La langue suit le toggle FR/EN du header partagé (ZTS.getLang). Fallback localStorage.
+function ztsLang(){ return (window.ZTS && ZTS.getLang) ? ZTS.getLang() : (localStorage.getItem('zts_lang')||localStorage.getItem('zts-planif-lang')||'fr'); }
+let lang = ztsLang();
 let curYear, curMonth;
 let data = JSON.parse(localStorage.getItem('zts-planificateur') || '{}');
 let config = JSON.parse(localStorage.getItem('zts-planif-config') || 'null') || defaultConfig();
@@ -473,28 +557,25 @@ function toggleGuide(){
 function init(){
   const now=new Date();
   curYear=now.getFullYear();curMonth=now.getMonth();
-  renderLangPills();
   renderMonthSelect();
   renderAll();
-  lucide.createIcons();
+  if(window.lucide&&lucide.createIcons)lucide.createIcons();
 }
 
 function renderAll(){
-  document.getElementById('headerTitle').textContent=t('title');
-  document.getElementById('btnToday').textContent=t('today');
-  document.getElementById('exportLabel').textContent=t('exportMonth');
-  document.getElementById('monthTitle').textContent=t('months')[curMonth]+' '+curYear;
+  const bt=document.getElementById('btnToday'); if(bt)bt.textContent=t('today');
+  const el=document.getElementById('exportLabel'); if(el)el.textContent=t('exportMonth');
+  const mt=document.getElementById('monthTitle'); if(mt)mt.textContent=t('months')[curMonth]+' '+curYear;
+  applyHeroI18n();
+  if(typeof updateQuickAddI18n==='function')updateQuickAddI18n();
   renderMonthSelect();
   renderCalendar();
   hideDetail();
 }
 
-// ===================== LANG PILLS =====================
-function renderLangPills(){
-  const c=document.getElementById('langPills');
-  c.innerHTML=LANGS.map(l=>`<button class="lang-pill ${l===lang?'active':''}" onclick="setLang('${l}')">${l.toUpperCase()}</button>`).join('');
-}
-function setLang(l){lang=l;saveLang();renderLangPills();renderAll();}
+// ===================== LANG (suit le header partagé FR/EN) =====================
+// Bascule la langue interne quand le toggle du header change.
+function setLang(l){lang=(l==='en')?'en':(LANGS.includes(l)?l:'fr');saveLang();renderAll();}
 
 // ===================== MONTH NAV =====================
 function renderMonthSelect(){
@@ -1386,7 +1467,25 @@ setLang = function(l){
   updateQuickAddI18n();
 };
 
+// Alias historique + toast léger
+function populateMonthSelect(){ renderMonthSelect(); }
+function showToast(msg){
+  let el=document.getElementById('ztsToast');
+  if(!el){
+    el=document.createElement('div'); el.id='ztsToast';
+    el.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:99999;background:#004A61;color:#fff;font-family:"DynaPuff",cursive;font-weight:600;padding:12px 22px;border:3px solid #000;border-radius:14px;box-shadow:5px 5px 0 #000;font-size:1.1rem;max-width:90vw;text-align:center';
+    document.body.appendChild(el);
+  }
+  el.textContent=msg; el.style.opacity='1';
+  clearTimeout(el._t); el._t=setTimeout(()=>{el.style.opacity='0';},2600);
+}
+
 // ===================== START =====================
+// Synchronise la langue interne sur le toggle FR/EN du header partagé.
+function syncFromHeader(){ const l=ztsLang(); if(l!==lang){lang=l;saveLang();} renderAll(); updateQuickAddI18n(); }
+document.addEventListener('zts:ready', syncFromHeader);
+document.addEventListener('zts:langchange', syncFromHeader);
+
 init();
 updateQuickAddI18n();
 </script>
