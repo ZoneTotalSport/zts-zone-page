@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Luckiest+Guy&family=Bangers&family=Gloria+Hallelujah&family=Swanky+and+Moo+Moo&family=The+Girl+Next+Door&family=Love+Ya+Like+A+Sister&family=Kranky&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="../../shared/zts-header.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -241,23 +242,8 @@
 </head>
 <body>
 
-<!-- ZTS Header (logo / horloge centrée / bouton Accueil) -->
-<header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
-  <div class="max-w-7xl mx-auto px-4 py-3 grid grid-cols-3 items-center gap-4">
-    <a href="https://zonetotalsport.ca/" class="flex flex-col items-start shrink-0 leading-none justify-self-start no-underline">
-      <h1 class="text-xl md:text-3xl font-lucky text-white text-outline leading-none m-0">
-        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
-      </h1>
-      <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none mt-1" data-fr="Répertoire Jeux EPS" data-en="PE Game Library">Répertoire Jeux EPS</span>
-    </a>
-    <span id="ztsClock" class="font-lucky text-2xl md:text-3xl text-white text-outline tracking-wider px-3 py-1 rounded-xl bg-black/20 justify-self-center">09:41</span>
-    <a href="https://zonetotalsport.ca/" class="font-lucky text-base md:text-2xl uppercase px-4 md:px-6 py-2 md:py-3 rounded-2xl flex items-center gap-2 bg-ztsYellow text-ztsDeep shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] hover:bg-white hover:scale-105 transition-all justify-self-end no-underline">
-      <i data-lucide="home" class="w-5 h-5 md:w-6 md:h-6"></i>
-      <span data-fr="Accueil" data-en="Home">Accueil</span>
-    </a>
-  </div>
-</header>
-<script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+' H '+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
+<!-- Header partagé ZTS (identique à la home) -->
+<div data-zts-header></div>
 
 <!-- Hero XXL -->
 <section class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
@@ -626,6 +612,7 @@
   })();
   </script>
 
+  <script src="../../shared/zts.js"></script>
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>
 </body>
