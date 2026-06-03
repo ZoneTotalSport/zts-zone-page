@@ -8,6 +8,8 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/zts-ultra.css">
   <link rel="stylesheet" href="styles.css">
+  <!-- Header partagé ZTS (identique à la home) -->
+  <link rel="stylesheet" href="../../shared/zts-header.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600;800;900&family=Patrick+Hand&display=swap" rel="stylesheet">
   <style>
@@ -16,15 +18,13 @@
 </head>
 <body class="zts-gen-body">
 
-  <!-- ============ HERO XXL avec boutons intégrés ============ -->
+  <!-- Header partagé ZTS (identique à la home) -->
+  <div data-zts-header></div>
+
+  <!-- ============ HERO XXL (sous le header partagé) ============ -->
   <section class="zts-landing-hero-card zts-gen-hero">
 
-    <!-- Bouton ACCUEIL en haut-gauche du hero -->
-    <a href="/" class="zts-gen-hero-btn zts-gen-hero-btn--left" aria-label="Retour accueil">
-      <span>←</span><span>ACCUEIL</span>
-    </a>
-
-    <!-- Bouton COMPTE en haut-droite du hero -->
+    <!-- Bouton COMPTE en haut-droite du hero (Accueil est déjà dans le header partagé) -->
     <div class="zts-gen-hero-account">
       <button id="accountBtn" class="zts-gen-hero-btn zts-gen-hero-btn--right" aria-label="Compte">
         <span>👤</span><span>COMPTE</span>
@@ -331,5 +331,7 @@
   <script src="/zts-locked-fullscreen.js" defer></script>
   <script src="zts-anon-fingerprint.js" defer></script>
   <script src="app.js" defer></script>
+  <!-- Header partagé : injection + horloge + i18n -->
+  <script src="../../shared/zts.js"></script>
 </body>
 </html>
