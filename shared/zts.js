@@ -18,8 +18,15 @@
 
   /* ---------- LANGUE ---------- */
   function detectLang() {
+    // 1) Paramètre d'URL ?lang= (priorité : liens hreflang, partages, Googlebot).
+    try {
+      const q = new URLSearchParams(location.search).get('lang');
+      if (q === 'fr' || q === 'en') { localStorage.setItem(STORE_KEY, q); return q; }
+    } catch (e) { /* URLSearchParams indispo : on ignore */ }
+    // 2) Choix mémorisé.
     const saved = localStorage.getItem(STORE_KEY);
     if (saved === 'fr' || saved === 'en') return saved;
+    // 3) Langue du navigateur.
     return (navigator.language || 'fr').toLowerCase().startsWith('en') ? 'en' : 'fr';
   }
 
