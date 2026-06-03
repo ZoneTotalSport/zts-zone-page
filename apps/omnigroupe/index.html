@@ -123,6 +123,7 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 @media print{nav,.no-print{display:none!important;}}
 </style>
   <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
+  <link rel="stylesheet" href="../../shared/zts-header.css">
   <script src="/zts-lock-page.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
   <script src="/zts-locked-fullscreen.js" defer></script>
@@ -132,30 +133,16 @@ h1,h2,h3,.font-display{font-family:'Luckiest Guy',cursive;letter-spacing:.05em;t
 
 <div id="app" class="max-w-lg mx-auto bg-slate-50 min-h-screen relative">
 
-<!-- ========== HEADER ZTS ========== -->
-<header class="safe-top sticky top-0 z-50 shadow-lg" style="background:#00C4FF;border-bottom:4px solid #0086AD">
-  <div class="px-4 py-3 grid grid-cols-3 items-center gap-3">
-    <a href="../../" class="flex flex-col items-start shrink-0 leading-none justify-self-start">
-      <span class="font-luckiest text-lg md:text-2xl text-white zts-text-shadow leading-none">ZONE <span style="color:#FFFA00">TOTAL</span> SPORT</span>
-      <span class="hidden md:inline font-luckiest text-[10px] tracking-[.2em] uppercase leading-none mt-0.5" style="color:#004A61">Intervention Groupe</span>
-    </a>
-    <span id="clock" class="font-luckiest text-2xl md:text-3xl text-white zts-text-shadow tracking-wider px-3 py-1 rounded-xl bg-black/20 justify-self-center">09:41</span>
-    <a href="../../" class="font-luckiest text-base md:text-2xl uppercase px-4 md:px-6 py-2 md:py-3 rounded-2xl press flex items-center gap-2 zts-chunky shrink-0 justify-self-end" style="background:#FFFA00;color:#004A61">
-      <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
-      Accueil
-    </a>
-  </div>
-  <script>(function(){function t(){var el=document.getElementById('clock');if(!el)return;var d=new Date();el.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
-  <!-- Sub-bar (device toggles + help) -->
-  <div class="px-4 pb-2 flex items-center justify-end gap-2">
-    <button onclick="showWelcome()" class="w-7 h-7 rounded-lg bg-white/30 text-white font-bold text-xs press flex items-center justify-center" title="Guide">?</button>
-    <div class="flex items-center gap-1 rounded-lg p-1" style="background:#0086AD">
-      <button onclick="setDevice('iphone')" id="btn-iphone" class="dev-btn dev-active px-3 py-1 rounded-lg text-xs font-bold transition-all">iPhone</button>
-      <button onclick="setDevice('ipad')" id="btn-ipad" class="dev-btn px-3 py-1 rounded-lg text-xs font-bold transition-all">iPad</button>
-      <button onclick="setDevice('web')" id="btn-web" class="dev-btn px-3 py-1 rounded-lg text-xs font-bold transition-all">Web</button>
-    </div>
-  </div>
-</header>
+<!-- Header partagé ZTS (identique à la home) -->
+<div data-zts-header></div>
+
+<!-- Sous-barre app (restaurée du header) : guide + sélecteur d'appareil terrain -->
+<div style="display:flex;gap:8px;justify-content:center;align-items:center;padding:10px 12px;flex-wrap:wrap">
+  <button onclick="showWelcome()" style="width:32px;height:32px;border-radius:10px;border:2px solid #0F0F2E;background:#FFEA00;color:#0F0F2E;font-weight:bold;cursor:pointer" title="Guide">?</button>
+  <button onclick="setDevice('iphone')" id="btn-iphone" class="dev-btn dev-active px-3 py-1 rounded-lg text-xs font-bold transition-all" style="border:2px solid #0F0F2E">iPhone</button>
+  <button onclick="setDevice('ipad')" id="btn-ipad" class="dev-btn px-3 py-1 rounded-lg text-xs font-bold transition-all" style="border:2px solid #0F0F2E">iPad</button>
+  <button onclick="setDevice('web')" id="btn-web" class="dev-btn px-3 py-1 rounded-lg text-xs font-bold transition-all" style="border:2px solid #0F0F2E">Web</button>
+</div>
 
 <!-- ========== VIEWS ========== -->
 
@@ -2411,5 +2398,6 @@ if('serviceWorker' in navigator){
 <script src="i18n.js"></script>
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>
+  <script src="../../shared/zts.js"></script>
 </body>
 </html>

@@ -595,6 +595,7 @@
     <!-- ZTS Landing Template -->
     <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../zts-ultra.css">
+    <link rel="stylesheet" href="../../shared/zts-header.css">
   <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
   <script src="/zts-lock-page.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
@@ -705,19 +706,13 @@
 <!-- APP WRAPPER -->
 <div id="app-wrapper">
 
-<!-- HEADER CYAN -->
-<header class="site-header">
-    <a href="https://zonetotalsport.ca" class="header-home-btn">🏠 Accueil</a>
-    <div class="header-brand">
-        <img class="header-mascot" src="img/bucheron-createur.png" alt="Mr. Roots">
-        <span class="header-title">TABLEAU BLANC NUMÉRIQUE</span>
-    </div>
-    <button class="header-help-btn" onclick="showGuide()">❓ Aide</button>
-    <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
-      <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
-      <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
-    </div>
-</header>
+<!-- Header partagé ZTS (identique à la home) -->
+<div data-zts-header></div>
+
+<!-- Bouton Aide restauré du header (rouvre le guide) -->
+<div style="display:flex;justify-content:center;padding:10px 12px 0">
+  <button onclick="showGuide()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 18px;border:3px solid #0F0F2E;border-radius:12px;background:#FFEA00;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Guide d'utilisation">❓ Aide</button>
+</div>
 
 <!-- TOOLBAR -->
 <div id="toolbar">
@@ -1240,5 +1235,6 @@ document.addEventListener('keydown', (e) => {
 
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>
+  <script src="../../shared/zts.js"></script>
 </body>
 </html>

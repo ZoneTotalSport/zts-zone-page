@@ -149,6 +149,7 @@
   <!-- ZTS Landing Template -->
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Schoolbell&family=Patrick+Hand&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../zts-ultra.css">
+  <link rel="stylesheet" href="../../shared/zts-header.css">
   <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
   <script src="/zts-lock-page.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
@@ -157,30 +158,18 @@
 </head>
 <body>
 
-<header class="hdr">
-  <a href="https://zonetotalsport.ca">🏠 Accueil</a>
-  <img src="https://zonetotalsport.ca/logo-zts-text.png" alt="Zone Total Sport" style="height:70px;width:auto;">
-  <div>
-    <div class="t" data-t="appTitle">GRILLE HORAIRE</div>
-  </div>
-  <div class="spacer"></div>
-  <button class="hb" onclick="showHelp()">❓</button>
-  <button class="hb" onclick="openSetupModal()">⚙️</button>
-  <button class="hb" onclick="solveSchedule()">🤖 Auto</button>
-  <button class="hb" onclick="validateAll()">✅</button>
-  <button class="hb" onclick="exportPDF()">📄</button>
-  <button class="hb" onclick="clearSchedule()">🗑️</button>
-  <select id="langSel" onchange="changeLang(this.value)">
-    <option value="fr">🇫🇷 FR</option>
-    <option value="en">🇬🇧 EN</option>
-    <option value="es">🇪🇸 ES</option>
-    <option value="zh">🇨🇳 中文</option>
-  </select>
-  <div id="zts-auth-status" style="display:flex;align-items:center;gap:8px;min-width:fit-content">
-    <span id="zts-auth-label" style="font-family:'Schoolbell',cursive;color:#fff;font-size:0.85rem;opacity:0.9"></span>
-    <button id="zts-auth-btn" style="font-family:'Luckiest Guy',cursive;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,0.5);background:rgba(255,255,255,0.15);color:#fff;font-size:0.8rem;cursor:pointer;white-space:nowrap;display:none" onclick="ztsAuthAction()"></button>
-  </div>
-</header>
+<!-- Header partagé ZTS (identique à la home) -->
+<div data-zts-header></div>
+
+<!-- Barre d'actions de l'app (restaurée du header : contrôles propres à la grille) -->
+<div class="zts-app-actions" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:14px 16px 0;max-width:1100px;margin:0 auto">
+  <button onclick="showHelp()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#fff;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Aide">❓ Aide</button>
+  <button onclick="openSetupModal()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#fff;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Configuration">⚙️ Config</button>
+  <button onclick="solveSchedule()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#00E5FF;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Génération automatique">🤖 Auto</button>
+  <button onclick="validateAll()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#39FF14;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Tout valider">✅ Valider</button>
+  <button onclick="exportPDF()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#FFEA00;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Exporter en PDF">📄 PDF</button>
+  <button onclick="clearSchedule()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#FF2D87;color:#fff;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Tout vider">🗑️ Vider</button>
+</div>
 
 <section class="hero" id="heroSection">
   <div class="hero-box">
@@ -653,5 +642,6 @@ document.addEventListener('DOMContentLoaded',()=>{load();applyI18n();renderAll()
 
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>
+  <script src="../../shared/zts.js"></script>
 </body>
 </html>
