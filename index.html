@@ -4485,11 +4485,15 @@
   }
   window.ztsSetLang = setLang;
 
-  // --- Inscription : pas d'endpoint confirmé → état honnête "bientôt" + relais courriel ---
+  // --- Inscription : ouvre la modale Firebase unifiée (firebase-auth.js) ---
+  // Le courriel saisi est pré-rempli dans la modale via sessionStorage.
   function ztsSignup(e){
     e.preventDefault();
     const email = (document.getElementById('signupEmail')?.value || '').trim();
-    const form = document.getElementById('signupForm');
+    try { sessionStorage.setItem('zts_signup_prefill_email', email); } catch(_) {}
+    try { sessionStorage.setItem('zts_signup_source', 'home_banner'); } catch(_) {}
+    if (window.ztsShowSignup) { window.ztsShowSignup(); return; }
+    // Fallback si firebase-auth.js pas encore chargé : relais courriel
     const box = document.getElementById('signupMsg');
     if (!box) return;
     const subject = encodeURIComponent('Inscription Zone Total Sport');
@@ -4497,7 +4501,6 @@
     box.innerHTML = `<span data-i18n="foot.signup_soon"></span> <a href="mailto:zts@hotmail.ca?subject=${subject}&body=${body}" data-i18n="foot.signup_cta"></a>`;
     applyStatic(box);
     box.hidden = false;
-    if (form) form.style.display = 'none';
   }
   window.ztsSignup = ztsSignup;
 

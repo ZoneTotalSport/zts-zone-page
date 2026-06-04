@@ -468,6 +468,16 @@
     // Google button
     document.getElementById('ztsGoogleBtn').addEventListener('click', handleGoogle);
 
+    // Pré-remplissage du courriel (depuis la bande d'inscription de la home)
+    try {
+      var prefill = sessionStorage.getItem('zts_signup_prefill_email');
+      if (prefill) {
+        var emailInput = document.getElementById('ztsEmail');
+        if (emailInput) emailInput.value = prefill;
+        sessionStorage.removeItem('zts_signup_prefill_email');
+      }
+    } catch (e) {}
+
     // Toggle password visibility
     var togglePwBtn = document.getElementById('ztsTogglePw');
     if (togglePwBtn) {
@@ -752,6 +762,14 @@
       bindDataAttributes();
       bindProtectedLinks();
     }
+
+    // Header/footer partagés injectés async par zts.js → re-lier après injection
+    // (sinon #zts-login-btn et [data-auth] n'existent pas encore au 1er bind).
+    document.addEventListener('zts:ready', function() {
+      bindDataAttributes();
+      bindProtectedLinks();
+      if (_authReady) updateUI(_user);
+    });
   }
 
   init();
