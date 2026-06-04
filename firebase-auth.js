@@ -422,12 +422,17 @@
 
     var overlay = document.getElementById('ztsAuthOverlay');
 
-    // Open with small delay for animation
+    // Open with small delay for animation.
+    // rAF pour la transition fluide + fallback setTimeout au cas où rAF est
+    // gelé (onglet en arrière-plan) → la modale s'affiche quand même.
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
         overlay.classList.add('zts-open');
       });
     });
+    setTimeout(function() {
+      if (overlay && overlay.parentNode) overlay.classList.add('zts-open');
+    }, 60);
 
     // Close button (always available — protected mode only affects post-signup redirect)
     function closeFromUser() {
