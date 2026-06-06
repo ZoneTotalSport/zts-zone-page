@@ -308,10 +308,19 @@ export async function runSmokeTest() {
     const db = await getDb();
     push('   OK — persistence offline activée');
 
+    // UID réel requis par les règles Firestore
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      push('ERREUR: Connecte-toi d\'abord (bouton Connexion dans le header).');
+      return { success: false, log, error: new Error('Non authentifié') };
+    }
+    const uid = user.uid;
+    push('   Utilisateur: ' + (user.displayName || user.email) + ' (' + uid + ')');
+
     push('2. Création org de test...');
     const orgId = await Organisations.create({
       nom: TEST_PREFIX + 'Camp Soleil',
-      coordoUid: 'test-coordo-uid',
+      coordoUid: uid,
       dateDebut: '2026-06-22',
       dateFin: '2026-08-15',
       semaines: [{ num: 1, theme: 'Aventure' }, { num: 2, theme: 'Océan' }]
@@ -322,7 +331,7 @@ export async function runSmokeTest() {
     const groupeId = await Groupes.create({
       nom: TEST_PREFIX + 'Les Dauphins',
       orgId,
-      animateurUid: 'test-animateur-uid',
+      animateurUid: uid,
       theme: 'Océan'
     });
     push('   groupeId = ' + groupeId);
@@ -395,29 +404,67 @@ export async function runSmokeTest() {
 //  INIT
 // ══════════════════════════════════════════════════════════
 
-async function init() {
+async function doSmokeTest() {
   const statusEl = document.getElementById('app-status');
   const detailEl = document.getElementById('app-detail');
   const resultEl = document.getElementById('smoke-result');
 
+  statusEl.textContent = 'Smoke test en cours...';
+  detailEl.textContent = '';
+
+  const result = await runSmokeTest();
+  resultEl.style.display = 'block';
+  resultEl.textContent = result.log.join('\n');
+
+  if (result.success) {
+    statusEl.textContent = 'Smoke test réussi';
+    detailEl.textContent = 'Le scaffold est fonctionnel. Les écrans arrivent en étape 2.';
+    resultEl.style.borderColor = 'var(--vert)';
+  } else {
+    statusEl.textContent = 'Smoke test échoué';
+    detailEl.textContent = result.error?.message || 'Voir le détail ci-dessous.';
+    resultEl.style.borderColor = 'var(--rose)';
+  }
+}
+
+async function init() {
+  const statusEl = document.getElementById('app-status');
+  const detailEl = document.getElementById('app-detail');
+
   try {
     await getDb();
     statusEl.textContent = 'Connecté à Firestore';
-    detailEl.textContent = 'Persistence offline activée. Smoke test en cours...';
+    detailEl.textContent = 'Persistence offline activée.';
 
-    const result = await runSmokeTest();
-    resultEl.style.display = 'block';
-    resultEl.textContent = result.log.join('\n');
-
-    if (result.success) {
-      statusEl.textContent = 'Smoke test réussi';
-      detailEl.textContent = 'Le scaffold est fonctionnel. Les écrans arrivent en étape 2.';
-      resultEl.style.borderColor = 'var(--vert)';
-    } else {
-      statusEl.textContent = 'Smoke test échoué';
-      detailEl.textContent = 'Vérifiez les règles Firestore et la console.';
-      resultEl.style.borderColor = 'var(--rose)';
+    // Attendre que firebase-auth.js soit prêt et écouter l'état d'auth
+    function waitAuth() {
+      if (typeof firebase === 'undefined' || !firebase.auth) {
+        setTimeout(waitAuth, 200);
+        return;
+      }
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          statusEl.textContent = 'Connecté — ' + (user.displayName || user.email);
+          detailEl.innerHTML = 'Clique pour lancer le smoke test.';
+          const btn = document.createElement('button');
+          btn.className = 'zts-btn zts-btn--primary';
+          btn.style.marginTop = 'var(--space-3)';
+          btn.textContent = 'Lancer le smoke test';
+          btn.onclick = () => { btn.disabled = true; doSmokeTest(); };
+          // Éviter les doublons si onAuthStateChanged re-fire
+          const existing = document.getElementById('smoke-btn');
+          if (existing) existing.remove();
+          btn.id = 'smoke-btn';
+          detailEl.after(btn);
+        } else {
+          statusEl.textContent = 'Non connecté';
+          detailEl.textContent = 'Connecte-toi via le bouton Connexion dans le header pour lancer le smoke test.';
+          const existing = document.getElementById('smoke-btn');
+          if (existing) existing.remove();
+        }
+      });
     }
+    waitAuth();
   } catch (err) {
     statusEl.textContent = 'Erreur de connexion';
     detailEl.textContent = err.message;
