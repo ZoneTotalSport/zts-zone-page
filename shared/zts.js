@@ -187,6 +187,15 @@
       if (b) setLang(b.dataset.lang);
     });
     document.dispatchEvent(new CustomEvent('zts:ready', { detail: { lang } }));
+
+    // Capture courriel site-wide (le script s'auto-exclut des /apps/*)
+    if (!document.getElementById('zts-nl-loader')) {
+      var nl = document.createElement('script');
+      nl.id = 'zts-nl-loader';
+      nl.src = ROOT + 'zts-newsletter.js';
+      nl.defer = true;
+      document.body.appendChild(nl);
+    }
   }
 
   // API publique
