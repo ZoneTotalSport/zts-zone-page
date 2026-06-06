@@ -48,7 +48,14 @@
     .scroll-progress{position:fixed;top:0;left:0;height:5px;width:100%;background:#FFF000;transform-origin:left;z-index:60}
     .lang-btn{font-family:'Luckiest Guy',cursive;padding:.2rem .7rem;border-radius:999px;border:2px solid #fff;color:#fff;background:transparent;cursor:pointer;font-size:.9rem;line-height:1.4}
     .lang-btn.active{background:#FFF000;color:#004A61;border-color:#FFF000}
-    .article-body h2{font-family:'Luckiest Guy',cursive;color:#004A61;font-size:clamp(1.6rem,4vw,2.3rem);margin:2rem 0 1rem;line-height:1.1}
+    .article-body h2{font-family:'Luckiest Guy',cursive;color:#004A61;font-size:clamp(1.7rem,4.2vw,2.5rem);margin:2.2rem 0 1rem;line-height:1.08}
+    .article-body h2:nth-of-type(4n+1){color:#0086AD}
+    .article-body h2:nth-of-type(4n+2){color:#FF2A7A}
+    .article-body h2:nth-of-type(4n+3){color:#FF6B00}
+    .article-body h2:nth-of-type(4n+4){color:#8B5CF6}
+    .article-img{width:100%;border-radius:1.5rem;border:3px solid #0F0F2E;box-shadow:6px 6px 0 #0F0F2E;margin:1.8rem 0 .5rem;display:block}
+    .article-cap{font-size:.98rem;color:#0086AD;font-style:italic;text-align:center;margin:0 0 1.6rem;font-weight:600}
+    .hl{background:linear-gradient(transparent 58%,#FFF000 58%);padding:0 3px;font-weight:700;color:#0F0F2E}
     .article-body h3{font-family:'Luckiest Guy',cursive;color:#0086AD;font-size:1.35rem;margin:1.6rem 0 .6rem}
     .article-body p{font-size:1.18rem;line-height:1.65;color:#1f2d3d;margin-bottom:1rem}
     .article-body ol{counter-reset:g;list-style:none;padding:0}
@@ -56,12 +63,28 @@
     .article-body ol>li::before{counter-increment:g;content:counter(g);position:absolute;left:.8rem;top:1rem;width:2rem;height:2rem;background:#FFF000;border:2px solid #0F0F2E;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Luckiest Guy',cursive;color:#004A61}
     .article-body ul{padding-left:1.4rem;margin-bottom:1rem}
     .article-body ul li{font-size:1.1rem;line-height:1.55;margin-bottom:.5rem;color:#1f2d3d}
-    .article-body strong{color:#0F0F2E}
+    .article-body strong{color:#0086AD}
+    .article-body em{color:#FF2A7A;font-style:italic;font-weight:600}
     .article-body a{color:#0086AD;text-decoration:underline;text-underline-offset:3px;font-weight:700}
     .article-body a:hover{color:#FF2A7A}
     .zts-cta-inline{margin:2.5rem 0;padding:1.75rem;background:linear-gradient(135deg,#00C4FF,#0086AD);border:3px solid #000;border-radius:1.5rem;box-shadow:6px 6px 0 rgba(0,0,0,.15);color:#fff;text-align:center}
     .zts-cta-inline h3{font-family:'Luckiest Guy',cursive;font-size:1.7rem;color:#FFF000;margin-bottom:.5rem}
     .zts-cta-inline a{display:inline-block;margin-top:.9rem;background:#FFF000;color:#004A61;font-family:'Luckiest Guy',cursive;font-size:1.15rem;padding:.8rem 1.6rem;border-radius:999px;border:3px solid #000;text-decoration:none}
+    .share-ic{width:46px;height:46px;border-radius:50%;border:3px solid #0F0F2E;background:#E0F7FF;color:#0086AD;display:inline-flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 #0F0F2E;text-decoration:none;transition:transform .1s}
+    .share-ic:hover{transform:translateY(-2px);background:#FFF000}
+    .share-copy{display:inline-flex;align-items:center;gap:6px;font-family:'Luckiest Guy',cursive;font-size:1rem;background:#FFF000;color:#004A61;border:3px solid #0F0F2E;border-radius:999px;padding:9px 16px;box-shadow:3px 3px 0 #0F0F2E;cursor:pointer}
+    .share-copy:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0F0F2E}
+    .like-btn{font-family:'Luckiest Guy',cursive;font-size:1.3rem;background:#fff;border:3px solid #FF2A7A;color:#FF2A7A;padding:12px 30px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:4px 4px 0 #FF2A7A;transition:transform .1s}
+    .like-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #FF2A7A}
+    .like-count{background:#FF2A7A;color:#fff;padding:2px 12px;border-radius:999px;font-size:1rem}
+    .g-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:16px;margin:1.2rem 0 1.8rem}
+    .g-card{position:relative;border:3px solid #0F0F2E;border-radius:18px;box-shadow:5px 5px 0 #0F0F2E;padding:22px 16px;min-height:96px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:transform .1s;outline:none}
+    .g-card:hover{transform:translateY(-3px)}
+    .g-card:nth-child(6n+1){background:#E0F7FF}.g-card:nth-child(6n+2){background:#FFF6C9}.g-card:nth-child(6n+3){background:#FFE0EC}.g-card:nth-child(6n+4){background:#EFE2FF}.g-card:nth-child(6n+5){background:#E6F9D8}.g-card:nth-child(6n+6){background:#FFE9CC}
+    .g-name{font-family:'Luckiest Guy',cursive;font-size:1.18rem;color:#0F0F2E;line-height:1.06;letter-spacing:.3px}
+    .g-pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);width:min(265px,80vw);background:#0F0F2E;color:#fff;padding:13px 15px;border-radius:14px;font-family:'Nunito',sans-serif;font-weight:600;font-size:.95rem;line-height:1.4;opacity:0;visibility:hidden;transition:.16s;z-index:30;box-shadow:4px 4px 0 rgba(0,0,0,.3);pointer-events:none}
+    .g-pop::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:9px solid transparent;border-top-color:#0F0F2E}
+    .g-card:hover .g-pop,.g-card:focus .g-pop,.g-card.open .g-pop{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
   </style>
 </head>
 <body>
@@ -88,7 +111,7 @@
       <div class="max-w-4xl mx-auto">
         <div class="mb-6 flex justify-center gap-3 flex-wrap">
           <span class="bg-ztsYellow text-ztsDeep font-luckiest px-5 py-1.5 rounded-xl text-sm -rotate-2 shadow-lg uppercase" data-i18n><span lang="fr">Camp de jour</span><span lang="en" hidden>Day camp</span></span>
-          <span class="bg-black/20 text-white font-bold px-4 py-1.5 rounded-xl text-sm tracking-wider uppercase" data-i18n><span lang="fr">8 min de lecture</span><span lang="en" hidden>8 min read</span></span>
+          <span class="bg-black/20 text-white font-bold px-4 py-1.5 rounded-xl text-sm tracking-wider uppercase" data-i18n><span lang="fr">12 min de lecture</span><span lang="en" hidden>12 min read</span></span>
         </div>
         <h1 class="text-4xl md:text-6xl font-luckiest text-white mb-8 leading-[1.1] text-outline uppercase" data-i18n><span lang="fr">20 grands jeux extérieurs pour camp de jour</span><span lang="en" hidden>20 great outdoor games for day camp</span></h1>
         <div class="flex items-center justify-center gap-4 text-cyan-50">
@@ -100,28 +123,35 @@
   </section>
 
   <main class="container mx-auto px-4 -mt-14 relative z-30 pb-20">
-    <article class="max-w-3xl mx-auto bg-white rounded-[2.5rem] shadow-2xl p-6 md:p-12 border-b-[16px] border-slate-100">
+    <article class="max-w-7xl mx-auto bg-white rounded-[2.5rem] shadow-2xl p-6 md:p-12 lg:p-16 border-b-[16px] border-slate-100">
       <div class="article-body">
 
-        <p data-i18n><span lang="fr">Un bon camp de jour roule sur ses <strong>grands jeux extérieurs</strong> : ces moments où tout le groupe court, rit et coopère dehors. Voici 20 jeux clé en main, classés par type et par âge, prêts à animer demain matin — sans matériel compliqué.</span><span lang="en" hidden>A great day camp runs on its <strong>big outdoor games</strong>: those moments when the whole group runs, laughs and cooperates outside. Here are 20 ready-to-use games, sorted by type and age, ready to run tomorrow morning — no fancy gear needed.</span></p>
+        <p data-i18n><span lang="fr">Si tu animes un camp de jour, tu connais ce moment précis : 9 h 05, le soleil plombe déjà, et 25 enfants débordants d'énergie te fixent en attendant « <em>on fait quoi, là?</em> ». Ta journée entière peut basculer dans les trente secondes qui suivent. Cet article existe pour qu'à partir d'aujourd'hui, tu n'aies <strong>plus jamais à improviser ce moment-là</strong>.</span><span lang="en" hidden>If you run a day camp, you know this exact moment: 9:05 a.m., the sun is already blazing, and 25 kids bursting with energy stare at you waiting for "<em>so… what are we doing?</em>" Your whole day can tip one way or the other in the next thirty seconds. This article exists so that, starting today, you <strong>never have to improvise that moment again</strong>.</span></p>
+        <p data-i18n><span lang="fr">Parce que soyons honnêtes : le <strong class="hl">plus grand défi en animation</strong>, ce n'est presque jamais le manque d'idées. C'est de <strong>remplir le temps, garder tout le monde engagé et éviter les temps morts</strong> — ces fameux trous où l'ennui s'installe et où, comme par magie, les chicanes commencent. Un groupe qui s'ennuie devient en quelques minutes un groupe difficile à gérer. À l'inverse, un groupe qui court, qui rit et qui joue ne te laisse pratiquement aucun problème de discipline à régler. L'animation, ce n'est pas surveiller des enfants : c'est <em>occuper</em> intelligemment leur énergie.</span><span lang="en" hidden>Because let's be honest: the <strong class="hl">biggest challenge in camp leadership</strong> is almost never a lack of ideas. It's <strong>filling the time, keeping everyone engaged, and avoiding dead spots</strong> — those gaps where boredom creeps in and, like magic, the squabbles begin. A bored group becomes a hard-to-manage group within minutes. Flip it around: a group that runs, laughs and plays leaves you with almost no discipline to manage. Leading a camp isn't about watching kids — it's about <em>channeling</em> their energy smartly.</span></p>
+        <p data-i18n><span lang="fr">Ajoute à ça les réalités du terrain : des groupes de tailles variées, des âges mélangés, du matériel limité, une météo imprévisible, et parfois un plan qui tombe à l'eau à la dernière minute. Le bon animateur doit pouvoir <strong>sortir un grand jeu de sa poche, n'importe quand, sans préparation</strong>. C'est une compétence — et comme toute compétence, ça se bâtit avec les bons outils.</span><span lang="en" hidden>Add the realities on the ground: groups of all sizes, mixed ages, limited equipment, unpredictable weather, and sometimes a plan that falls apart at the last minute. A good leader needs to be able to <strong>pull a big game out of their back pocket, anytime, with zero prep</strong>. That's a skill — and like any skill, it's built with the right tools.</span></p>
+        <p data-i18n><span lang="fr">C'est exactement le problème que cet article veut régler : <strong>te donner une banque de jeux fiables et testés</strong> que tu peux lancer en moins de deux minutes d'explication. Fini de fouiller dix sites différents la veille au soir, ou de répéter le même jeu jusqu'à l'écœurement. Tu choisis, tu lis, tu joues.</span><span lang="en" hidden>That's exactly the problem this article solves: <strong>giving you a bank of reliable, tested games</strong> you can launch with under two minutes of explanation. No more digging through ten websites the night before, or running the same game until everyone's sick of it. You pick, you read, you play.</span></p>
+        <p data-i18n><span lang="fr">Pourquoi <strong>20</strong> grands jeux, et pas 5 ni 100? Parce que 5, c'est trop peu : tu en fais le tour en une semaine et l'effet de nouveauté s'épuise. Et 100, c'est ingérable : tu te perds et tu n'en retiens aucun. Vingt, c'est le nombre juste — assez pour varier chaque jour de tout un été, assez peu pour que tu finisses par les connaître <em>par cœur</em> et les adapter d'instinct à ton groupe. On les a aussi classés en <strong>5 familles</strong> (poursuite, thématiques, eau, coopératifs, défis) pour que tu trouves le bon jeu selon ton intention du moment : défouler, rassembler, rafraîchir, souder ou faire compétitionner.</span><span lang="en" hidden>Why <strong>20</strong> big games, not 5 or 100? Because 5 is too few: you burn through them in a week and the novelty dies. And 100 is unmanageable: you get lost and remember none of them. Twenty is the sweet spot — enough to vary every single day of a whole summer, few enough that you'll eventually know them <em>by heart</em> and adapt them to your group on instinct. We've also sorted them into <strong>5 families</strong> (chasing, themed, water, cooperative, challenges) so you can grab the right game for your goal of the moment: burn off energy, bring everyone together, cool down, build bonds, or compete.</span></p>
+        <p data-i18n><span lang="fr">Voici donc tes 20 grands jeux extérieurs, prêts à transformer n'importe quelle journée de camp. 👇</span><span lang="en" hidden>So here are your 20 big outdoor games, ready to transform any camp day. 👇</span></p>
+        <figure><img class="article-img" loading="lazy" src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=900&h=480&fit=crop" alt="Enfant qui rit au camp de jour"><figcaption class="article-cap" data-i18n><span lang="fr">Un groupe qui rit et qui joue ne te laisse aucun problème de discipline à régler.</span><span lang="en" hidden>A group that laughs and plays leaves you with no discipline to manage.</span></figcaption></figure>
 
-        <h2 data-i18n><span lang="fr">🏃 Jeux de poursuite (5-12 ans)</span><span lang="en" hidden>🏃 Chasing games (ages 5-12)</span></h2>
-        <ol>
-          <li data-i18n><span lang="fr"><strong>Poule, renard, vipère</strong> — roche-papier-ciseaux géant en équipe : la poule bat la vipère, la vipère bat le renard, le renard bat la poule. <a href="/jeux/">Voir la fiche complète →</a></span><span lang="en" hidden><strong>Hens, foxes, vipers</strong> — giant team rock-paper-scissors: hen beats viper, viper beats fox, fox beats hen. <a href="/jeux/">See the full game sheet →</a></span></li>
-          <li data-i18n><span lang="fr"><strong>La queue du dragon</strong> — des files accrochées essaient d'attraper la « queue » du dragon adverse. Fous rires garantis.</span><span lang="en" hidden><strong>Dragon's tail</strong> — linked lines try to grab the other dragon's "tail." Guaranteed laughs.</span></li>
-          <li data-i18n><span lang="fr"><strong>Les sorciers</strong> — deux sorciers gèlent les joueurs d'un toucher; les fées les délivrent. Inverse les rôles souvent.</span><span lang="en" hidden><strong>The wizards</strong> — two wizards freeze players with a touch; fairies free them. Switch roles often.</span></li>
-          <li data-i18n><span lang="fr"><strong>Tague-gelée</strong> — touché = figé bras en croix; un ami te dégèle en passant dessous. Personne n'attend.</span><span lang="en" hidden><strong>Freeze tag</strong> — tagged = frozen with arms out; a friend frees you by crawling under. Nobody waits.</span></li>
-          <li data-i18n><span lang="fr"><strong>Chat et souris en cercle</strong> — le chat poursuit la souris autour et à travers un grand cercle de joueurs.</span><span lang="en" hidden><strong>Cat and mouse circle</strong> — the cat chases the mouse around and through a big circle of players.</span></li>
-        </ol>
+        <h2 data-i18n><span lang="fr">🏃 Défoule la gang : les jeux de poursuite</span><span lang="en" hidden>🏃 Burn off the energy: chasing games</span></h2>
+        <figure><img class="article-img" loading="lazy" src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=900&h=440&fit=crop" alt="Enfants qui courent au coucher du soleil"><figcaption class="article-cap" data-i18n><span lang="fr">Les jeux de poursuite : parfaits pour brûler l'énergie du matin.</span><span lang="en" hidden>Chasing games: perfect for burning off that morning energy.</span></figcaption></figure>
+        <div class="g-grid">
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Poule, renard, vipère</span><span lang="en" hidden>Hens, foxes, vipers</span></span><span class="g-pop" data-i18n><span lang="fr">Roche-papier-ciseaux géant en équipe : la poule bat la vipère, la vipère bat le renard, le renard bat la poule.</span><span lang="en" hidden>Giant team rock-paper-scissors: hen beats viper, viper beats fox, fox beats hen.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">La queue du dragon</span><span lang="en" hidden>Dragon's tail</span></span><span class="g-pop" data-i18n><span lang="fr">Des files accrochées essaient d'attraper la « queue » du dragon adverse. Fous rires garantis.</span><span lang="en" hidden>Linked lines try to grab the other dragon's "tail." Guaranteed laughs.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Les sorciers</span><span lang="en" hidden>The wizards</span></span><span class="g-pop" data-i18n><span lang="fr">Deux sorciers gèlent les joueurs d'un toucher; les fées les délivrent. Inverse les rôles souvent.</span><span lang="en" hidden>Two wizards freeze players with a touch; fairies free them. Switch roles often.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Tague-gelée</span><span lang="en" hidden>Freeze tag</span></span><span class="g-pop" data-i18n><span lang="fr">Touché = figé bras en croix; un ami te dégèle en passant dessous. Personne n'attend.</span><span lang="en" hidden>Tagged = frozen with arms out; a friend frees you by crawling under. Nobody waits.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Chat et souris en cercle</span><span lang="en" hidden>Cat and mouse circle</span></span><span class="g-pop" data-i18n><span lang="fr">Le chat poursuit la souris autour et à travers un grand cercle de joueurs.</span><span lang="en" hidden>The cat chases the mouse around and through a big circle of players.</span></span></div>
+        </div>
 
-        <h2 data-i18n><span lang="fr">🚩 Grands jeux thématiques</span><span lang="en" hidden>🚩 Themed big games</span></h2>
-        <ol>
-          <li data-i18n><span lang="fr"><strong>Capture du drapeau</strong> — deux équipes, deux drapeaux, deux territoires. Vole le drapeau adverse sans te faire toucher. <a href="/jeux/">Règles complètes →</a></span><span lang="en" hidden><strong>Capture the flag</strong> — two teams, two flags, two territories. Steal the other flag without being tagged. <a href="/jeux/">Full rules →</a></span></li>
-          <li data-i18n><span lang="fr"><strong>Chasse au trésor / rallye</strong> — une série d'indices mène les équipes d'une station à l'autre. Parfait pour une demi-journée.</span><span lang="en" hidden><strong>Treasure hunt / rally</strong> — a series of clues leads teams from station to station. Perfect for a half-day.</span></li>
-          <li data-i18n><span lang="fr"><strong>Les douaniers et contrebandiers</strong> — passe des « marchandises » (foulards) sans te faire prendre par les douaniers.</span><span lang="en" hidden><strong>Smugglers and customs</strong> — sneak "goods" (scarves) past the customs officers without getting caught.</span></li>
-          <li data-i18n><span lang="fr"><strong>Le loup-garou en plein air</strong> — version active du jeu de rôle : les villageois courent vers des refuges quand le loup attaque.</span><span lang="en" hidden><strong>Outdoor werewolf</strong> — an active twist on the role game: villagers run to safe zones when the wolf attacks.</span></li>
-          <li data-i18n><span lang="fr"><strong>Les quatre coins du royaume</strong> — quatre équipes, quatre bases; à un signal, échange ta base avec une autre sans collision.</span><span lang="en" hidden><strong>Four corners of the kingdom</strong> — four teams, four bases; on a signal, swap bases without collisions.</span></li>
-        </ol>
+        <h2 data-i18n><span lang="fr">🚩 Les classiques qui marquent l'été</span><span lang="en" hidden>🚩 The classics that define the summer</span></h2>
+        <div class="g-grid">
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Capture du drapeau</span><span lang="en" hidden>Capture the flag</span></span><span class="g-pop" data-i18n><span lang="fr">Deux équipes, deux drapeaux, deux territoires. Vole le drapeau adverse sans te faire toucher.</span><span lang="en" hidden>Two teams, two flags, two territories. Steal the other flag without being tagged.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Chasse au trésor / rallye</span><span lang="en" hidden>Treasure hunt / rally</span></span><span class="g-pop" data-i18n><span lang="fr">Une série d'indices mène les équipes d'une station à l'autre. Parfait pour une demi-journée.</span><span lang="en" hidden>A series of clues leads teams from station to station. Perfect for a half-day.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Les douaniers et contrebandiers</span><span lang="en" hidden>Smugglers and customs</span></span><span class="g-pop" data-i18n><span lang="fr">Passe des « marchandises » (foulards) sans te faire prendre par les douaniers.</span><span lang="en" hidden>Sneak "goods" (scarves) past the customs officers without getting caught.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Le loup-garou en plein air</span><span lang="en" hidden>Outdoor werewolf</span></span><span class="g-pop" data-i18n><span lang="fr">Version active du jeu de rôle : les villageois courent vers des refuges quand le loup attaque.</span><span lang="en" hidden>An active twist on the role game: villagers run to safe zones when the wolf attacks.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Les quatre coins du royaume</span><span lang="en" hidden>Four corners of the kingdom</span></span><span class="g-pop" data-i18n><span lang="fr">Quatre équipes, quatre bases; à un signal, échange ta base avec une autre sans collision.</span><span lang="en" hidden>Four teams, four bases; on a signal, swap bases without collisions.</span></span></div>
+        </div>
 
         <div class="zts-cta-inline">
           <h3 data-i18n><span lang="fr">🎁 Reçois 90 activités gratuites</span><span lang="en" hidden>🎁 Get 90 free activities</span></h3>
@@ -129,42 +159,86 @@
           <a href="#" onclick="event.preventDefault();window.ztsShowSignup&&window.ztsShowSignup()" data-i18n><span lang="fr">Je m'inscris gratuitement</span><span lang="en" hidden>Sign up free</span></a>
         </div>
 
-        <h2 data-i18n><span lang="fr">💧 Jeux d'eau (canicule)</span><span lang="en" hidden>💧 Water games (heat wave)</span></h2>
-        <ol>
-          <li data-i18n><span lang="fr"><strong>Course aux éponges</strong> — relais : transporte le plus d'eau possible dans une éponge jusqu'au seau de ton équipe.</span><span lang="en" hidden><strong>Sponge relay</strong> — carry as much water as possible in a sponge to your team's bucket.</span></li>
-          <li data-i18n><span lang="fr"><strong>Ballon-chasseur mouillé</strong> — version estivale avec ballons-éponges trempés. Rafraîchissant et inclusif. <a href="/jeux/">Variantes →</a></span><span lang="en" hidden><strong>Wet dodgeball</strong> — summer version with soaked sponge balls. Refreshing and inclusive. <a href="/jeux/">Variants →</a></span></li>
-          <li data-i18n><span lang="fr"><strong>Le gobelet percé</strong> — transporte de l'eau dans un gobelet troué au-dessus de ta tête. Coopération et fous rires.</span><span lang="en" hidden><strong>Leaky cup</strong> — carry water in a hole-punched cup over your head. Cooperation and laughs.</span></li>
-        </ol>
+        <h2 data-i18n><span lang="fr">💧 Canicule? Sors l'artillerie d'eau</span><span lang="en" hidden>💧 Heat wave? Break out the water arsenal</span></h2>
+        <div class="g-grid">
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Course aux éponges</span><span lang="en" hidden>Sponge relay</span></span><span class="g-pop" data-i18n><span lang="fr">Relais : transporte le plus d'eau possible dans une éponge jusqu'au seau de ton équipe.</span><span lang="en" hidden>Relay: carry as much water as possible in a sponge to your team's bucket.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Ballon-chasseur mouillé</span><span lang="en" hidden>Wet dodgeball</span></span><span class="g-pop" data-i18n><span lang="fr">Version estivale avec ballons-éponges trempés. Rafraîchissant et inclusif.</span><span lang="en" hidden>Summer version with soaked sponge balls. Refreshing and inclusive.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Le gobelet percé</span><span lang="en" hidden>Leaky cup</span></span><span class="g-pop" data-i18n><span lang="fr">Transporte de l'eau dans un gobelet troué au-dessus de ta tête. Coopération et fous rires.</span><span lang="en" hidden>Carry water in a hole-punched cup over your head. Cooperation and laughs.</span></span></div>
+        </div>
 
-        <h2 data-i18n><span lang="fr">🤝 Jeux coopératifs (cohésion)</span><span lang="en" hidden>🤝 Cooperative games (team building)</span></h2>
-        <ol>
-          <li data-i18n><span lang="fr"><strong>Le tapis volant</strong> — toute l'équipe sur une bâche doit la retourner sans poser le pied au sol.</span><span lang="en" hidden><strong>Flying carpet</strong> — the whole team on a tarp must flip it over without stepping off.</span></li>
-          <li data-i18n><span lang="fr"><strong>La rivière aux crocodiles</strong> — traverse de tapis en tapis sans toucher le « sol », en déplaçant les pierres ensemble.</span><span lang="en" hidden><strong>Crocodile river</strong> — cross mat to mat without touching the "ground," moving the stones together.</span></li>
-          <li data-i18n><span lang="fr"><strong>Le nœud humain</strong> — un cercle se prend les mains au hasard, puis se démêle sans lâcher prise.</span><span lang="en" hidden><strong>Human knot</strong> — a circle grabs hands at random, then untangles without letting go.</span></li>
-          <li data-i18n><span lang="fr"><strong>Le parachute géant</strong> — fais onduler la toile, échange les places dessous, garde le ballon en l'air ensemble.</span><span lang="en" hidden><strong>Giant parachute</strong> — ripple the canopy, swap spots underneath, keep the ball up together.</span></li>
-        </ol>
+        <h2 data-i18n><span lang="fr">🤝 Souder la gang : les jeux coopératifs</span><span lang="en" hidden>🤝 Bond the crew: cooperative games</span></h2>
+        <div class="g-grid">
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Le tapis volant</span><span lang="en" hidden>Flying carpet</span></span><span class="g-pop" data-i18n><span lang="fr">Toute l'équipe sur une bâche doit la retourner sans poser le pied au sol.</span><span lang="en" hidden>The whole team on a tarp must flip it over without stepping off.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">La rivière aux crocodiles</span><span lang="en" hidden>Crocodile river</span></span><span class="g-pop" data-i18n><span lang="fr">Traverse de tapis en tapis sans toucher le « sol », en déplaçant les pierres ensemble.</span><span lang="en" hidden>Cross mat to mat without touching the "ground," moving the stones together.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Le nœud humain</span><span lang="en" hidden>Human knot</span></span><span class="g-pop" data-i18n><span lang="fr">Un cercle se prend les mains au hasard, puis se démêle sans lâcher prise.</span><span lang="en" hidden>A circle grabs hands at random, then untangles without letting go.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Le parachute géant</span><span lang="en" hidden>Giant parachute</span></span><span class="g-pop" data-i18n><span lang="fr">Fais onduler la toile, échange les places dessous, garde le ballon en l'air ensemble.</span><span lang="en" hidden>Ripple the canopy, swap spots underneath, keep the ball up together.</span></span></div>
+        </div>
 
-        <h2 data-i18n><span lang="fr">🏅 Défis et relais</span><span lang="en" hidden>🏅 Challenges and relays</span></h2>
-        <ol>
-          <li data-i18n><span lang="fr"><strong>Le déménageur</strong> — relais : transporte un maximum de petits objets dans ton cerceau en un temps donné.</span><span lang="en" hidden><strong>The mover</strong> — relay: carry as many small objects into your hoop as you can within the time limit.</span></li>
-          <li data-i18n><span lang="fr"><strong>Mini-olympiades</strong> — 4 à 6 stations (saut, lancer, équilibre, vitesse); les équipes tournent et cumulent des points. <a href="/jeux/">Idées de stations →</a></span><span lang="en" hidden><strong>Mini-olympics</strong> — 4 to 6 stations (jump, throw, balance, speed); teams rotate and earn points. <a href="/jeux/">Station ideas →</a></span></li>
-          <li data-i18n><span lang="fr"><strong>La course à trois pattes</strong> — en duo, une cheville attachée à celle du partenaire. Synchronisation obligatoire!</span><span lang="en" hidden><strong>Three-legged race</strong> — in pairs, one ankle tied to your partner's. Synchronization required!</span></li>
-        </ol>
+        <h2 data-i18n><span lang="fr">🏅 Monte l'adrénaline : défis et relais</span><span lang="en" hidden>🏅 Crank up the adrenaline: challenges &amp; relays</span></h2>
+        <div class="g-grid">
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Le déménageur</span><span lang="en" hidden>The mover</span></span><span class="g-pop" data-i18n><span lang="fr">Relais : transporte un maximum de petits objets dans ton cerceau en un temps donné.</span><span lang="en" hidden>Relay: carry as many small objects into your hoop as you can within the time limit.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">Mini-olympiades</span><span lang="en" hidden>Mini-olympics</span></span><span class="g-pop" data-i18n><span lang="fr">4 à 6 stations (saut, lancer, équilibre, vitesse); les équipes tournent et cumulent des points.</span><span lang="en" hidden>4 to 6 stations (jump, throw, balance, speed); teams rotate and earn points.</span></span></div>
+          <div class="g-card" tabindex="0"><span class="g-name" data-i18n><span lang="fr">La course à trois pattes</span><span lang="en" hidden>Three-legged race</span></span><span class="g-pop" data-i18n><span lang="fr">En duo, une cheville attachée à celle du partenaire. Synchronisation obligatoire!</span><span lang="en" hidden>In pairs, one ankle tied to your partner's. Synchronization required!</span></span></div>
+        </div>
 
-        <h2 data-i18n><span lang="fr">✅ 3 conseils pour réussir tes grands jeux</span><span lang="en" hidden>✅ 3 tips to nail your big games</span></h2>
+        <h2 data-i18n><span lang="fr">✅ Les 3 réflexes qui changent tout</span><span lang="en" hidden>✅ The 3 reflexes that change everything</span></h2>
         <ul>
           <li data-i18n><span lang="fr"><strong>Explique en 60 secondes, démontre, puis lance.</strong> Les longues consignes perdent le groupe.</span><span lang="en" hidden><strong>Explain in 60 seconds, demo, then start.</strong> Long instructions lose the group.</span></li>
           <li data-i18n><span lang="fr"><strong>Prévois une variante « sans élimination ».</strong> Personne ne reste assis sur le banc à bouder.</span><span lang="en" hidden><strong>Always have a "no-elimination" variant.</strong> Nobody sits out sulking.</span></li>
           <li data-i18n><span lang="fr"><strong>Garde un plan B pluie.</strong> Consulte nos <a href="/service-de-garde.html">activités intérieures</a> et la <a href="/jeux/">banque de 1400+ jeux</a>.</span><span lang="en" hidden><strong>Keep a rain plan B.</strong> Check our <a href="/service-de-garde.html">indoor activities</a> and the <a href="/jeux/">bank of 1,400+ games</a>.</span></li>
         </ul>
 
-        <p data-i18n><span lang="fr">Chacun de ces jeux a une fiche détaillée (matériel, déroulement, variantes, sécurité, adaptations) dans notre <a href="/jeux/">banque de 1400+ jeux gratuits</a>. Bon camp! 🪓</span><span lang="en" hidden>Each of these games has a detailed sheet (gear, steps, variants, safety, adaptations) in our <a href="/jeux/">bank of 1,400+ free games</a>. Have a great camp! 🪓</span></p>
+        <h2 data-i18n><span lang="fr">🏁 En résumé : fais-en ton terrain de jeu</span><span lang="en" hidden>🏁 In short: make it your own playground</span></h2>
+        <figure><img class="article-img" loading="lazy" src="https://images.unsplash.com/photo-1530541930197-ff16ac917b0e?w=900&h=460&fit=crop" alt="Feu de camp au crépuscule"><figcaption class="article-cap" data-i18n><span lang="fr">Animer un camp, c'est offrir des souvenirs qui durent toute une vie.</span><span lang="en" hidden>Leading a camp is about giving kids memories that last a lifetime.</span></figcaption></figure>
+        <p data-i18n><span lang="fr">Tu as maintenant 20 grands jeux extérieurs répartis en cinq familles. Mais retiens une chose essentielle : <strong>cette liste n'est qu'un point de départ</strong>. Le meilleur animateur n'est pas celui qui connaît le plus de jeux — c'est celui qui sait <em>lire son groupe</em> et choisir le bon jeu au bon moment. Deux animateurs avec exactement la même liste n'auront jamais la même journée; toute la différence se joue dans le <em>comment</em> et le <em>quand</em>.</span><span lang="en" hidden>You now have 20 big outdoor games across five families. But remember one essential thing: <strong>this list is only a starting point</strong>. The best leader isn't the one who knows the most games — it's the one who can <em>read the group</em> and pick the right game at the right time. Two leaders with the exact same list will never have the same day; the whole difference is in the <em>how</em> and the <em>when</em>.</span></p>
+        <p data-i18n><span lang="fr"><strong>Adapte, toujours.</strong> Un jeu trop facile? Ajoute une règle, une zone interdite, un deuxième chasseur. Trop difficile ou trop long? Réduis le terrain, enlève l'élimination, raccourcis les manches. Des âges mélangés? Jumelle les grands avec les petits, ou donne-leur des rôles différents dans le même jeu. Un seul jeu peut servir trente fois dans un été simplement en variant une ou deux contraintes — c'est ça, le vrai secret d'un répertoire qui ne s'épuise jamais.</span><span lang="en" hidden><strong>Always adapt.</strong> A game too easy? Add a rule, a no-go zone, a second tagger. Too hard or too long? Shrink the area, drop elimination, shorten the rounds. Mixed ages? Pair big kids with little ones, or give them different roles in the same game. A single game can be used thirty times in one summer just by tweaking one or two constraints — that's the real secret to a repertoire that never runs dry.</span></p>
+        <p data-i18n><span lang="fr"><strong>Garde deux réflexes en tête.</strong> D'abord la <strong>sécurité</strong> : délimite clairement ton espace, explique les règles <em>avant</em> de distribuer le matériel, et surveille l'hydratation quand il fait chaud. Ensuite l'<strong>inclusion</strong> : prévois systématiquement une variante « sans élimination ». Un enfant éliminé est un enfant qui s'ennuie sur le banc à regarder les autres s'amuser — et l'ennui, on l'a dit, c'est la source numéro un des problèmes de comportement.</span><span lang="en" hidden><strong>Keep two reflexes in mind.</strong> First, <strong>safety</strong>: clearly mark your space, explain the rules <em>before</em> handing out equipment, and watch hydration in the heat. Second, <strong>inclusion</strong>: always plan a "no-elimination" variant. An eliminated child is a bored child sitting on the bench watching others have fun — and boredom, as we said, is the number-one source of behavior problems.</span></p>
+        <p data-i18n><span lang="fr"><strong>Pense au rythme de ta journée</strong>, comme une vague. Alterne les jeux intenses (poursuite, défis) avec des moments plus calmes (coopératifs, retour au calme). Un groupe maintenu au maximum d'excitation pendant trois heures finit toujours par exploser. Un bon animateur dose : il fait monter l'énergie, puis la redescend, encore et encore. C'est cette gestion du rythme qui distingue une journée mémorable d'une journée chaotique.</span><span lang="en" hidden><strong>Think about the rhythm of your day</strong>, like a wave. Alternate intense games (chasing, challenges) with calmer moments (cooperative games, cool-downs). A group kept at peak excitement for three hours always ends up boiling over. A good leader paces it: energy up, then down, again and again. That control of rhythm is what separates a memorable day from a chaotic one.</span></p>
+        <p data-i18n><span lang="fr">Avec le temps, tu développeras <strong>tes classiques</strong> — ces trois ou quatre jeux que ton groupe réclame et qui fonctionnent à tout coup. Garde-les précieusement, mais continue d'en tester de nouveaux chaque semaine : c'est en essayant que tu découvres les perles qui deviendront tes incontournables de l'an prochain.</span><span lang="en" hidden>Over time, you'll build <strong>your classics</strong> — those three or four games your group begs for and that work every single time. Treasure them, but keep trying new ones each week: testing is how you find the gems that become next year's must-haves.</span></p>
+        <p data-i18n><span lang="fr">Et quand tu veux aller plus loin, toute notre <a href="/jeux/">banque de 1400+ jeux gratuits</a> t'attend : chaque jeu y a sa fiche complète — matériel, déroulement étape par étape, variantes, consignes de sécurité et adaptations. De quoi remplir des étés entiers. Pour les journées de pluie, regarde aussi nos <a href="/service-de-garde.html">activités intérieures</a>, et pour les plus grands, nos <a href="/ep.html">jeux d'éducation physique</a>.</span><span lang="en" hidden>And when you want to go further, our entire <a href="/jeux/">bank of 1,400+ free games</a> is waiting: every game has a full sheet — equipment, step-by-step instructions, variants, safety guidelines and adaptations. Enough to fill whole summers. For rainy days, check out our <a href="/service-de-garde.html">indoor activities</a>, and for older kids, our <a href="/ep.html">physical education games</a>.</span></p>
+        <p data-i18n><span lang="fr">Au fond, animer un camp, c'est offrir des <strong>souvenirs</strong>. Dans vingt ans, les enfants n'auront pas oublié ce grand jeu de capture du drapeau gagné dans les dernières secondes, ni ce fou rire pendant la course aux éponges sous le soleil. C'est ça, ton vrai métier. Maintenant, sors dehors et fais-les jouer. <strong>Bon camp!</strong> 🪓</span><span lang="en" hidden>At its heart, leading a camp is about giving kids <strong>memories</strong>. Twenty years from now, they won't have forgotten that capture-the-flag game won in the final seconds, or that fit of laughter during the sponge relay under the sun. That's your real job. Now get outside and let them play. <strong>Have a great camp!</strong> 🪓</span></p>
 
       </div>
 
-      <div class="mt-10 pt-8 border-t-4 border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
-        <a href="/camps-de-jour.html" class="bg-ztsYellow text-ztsDeep px-6 py-3 rounded-2xl font-luckiest hover:bg-ztsBlue hover:text-white transition-all" data-i18n><span lang="fr">🏕️ Tous les outils camp de jour</span><span lang="en" hidden>🏕️ All day camp tools</span></a>
-        <a href="../blog.html" class="bg-ztsBlue text-white px-6 py-3 rounded-2xl font-luckiest hover:bg-ztsDeep transition-all" data-i18n><span lang="fr">← Retour au blog</span><span lang="en" hidden>← Back to blog</span></a>
+      <!-- Bannière don -->
+      <div class="my-10 rounded-[2rem] p-8 text-center text-white" style="background:linear-gradient(135deg,#00C4FF,#004A61);border:3px solid #0F0F2E;box-shadow:6px 6px 0 #0F0F2E">
+        <p class="font-luckiest text-2xl md:text-3xl mb-3" style="color:#FFF000" data-i18n><span lang="fr">Tu aimes Zone Total Sport ?</span><span lang="en" hidden>Love Zone Total Sport?</span></p>
+        <p class="mb-6 max-w-xl mx-auto" data-i18n><span lang="fr">100 % gratuit, propulsé par la passion. Un petit don aide à garder tout le contenu accessible aux animateurs et aux profs.</span><span lang="en" hidden>100% free, powered by passion. A small donation helps keep all the content accessible to camp leaders and teachers.</span></p>
+        <a href="../wix/donation.html" class="inline-flex items-center gap-2 font-luckiest text-xl px-8 py-4 rounded-full transition-all hover:-translate-y-1" style="background:#FFF000;color:#004A61;border:3px solid #0F0F2E;box-shadow:4px 4px 0 #0F0F2E"><span>💛</span> <span data-i18n><span lang="fr">Faire un don</span><span lang="en" hidden>Donate</span></span></a>
+      </div>
+
+      <!-- Partage -->
+      <div class="mt-10 pt-8 border-t-4 border-slate-100">
+        <p class="font-luckiest text-xl text-center mb-4" style="color:#0086AD" data-i18n><span lang="fr">📣 Partage cet article</span><span lang="en" hidden>📣 Share this article</span></p>
+        <div class="flex flex-wrap justify-center items-center gap-3">
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2Fgrands-jeux-exterieurs-camp-de-jour.html" target="_blank" rel="noopener" aria-label="Facebook" class="share-ic"><span style="font-family:Georgia,serif;font-weight:900;font-size:1.25rem">f</span></a>
+          <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2Fgrands-jeux-exterieurs-camp-de-jour.html" target="_blank" rel="noopener" aria-label="X (Twitter)" class="share-ic"><span style="font-weight:900;font-size:1.15rem">𝕏</span></a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2Fgrands-jeux-exterieurs-camp-de-jour.html" target="_blank" rel="noopener" aria-label="LinkedIn" class="share-ic"><span style="font-weight:900;font-size:.9rem">in</span></a>
+          <a href="mailto:?subject=20%20grands%20jeux%20ext%C3%A9rieurs%20pour%20camp%20de%20jour&body=Je%20te%20partage%20cet%20article%20%3A%20https%3A%2F%2Fzonetotalsport.ca%2Farticles%2Fgrands-jeux-exterieurs-camp-de-jour.html" aria-label="Courriel" class="share-ic"><span style="font-size:1.15rem">✉️</span></a>
+          <button onclick="copyLink(this)" class="share-copy"><span>🔗</span><span data-i18n><span lang="fr">Copier le lien</span><span lang="en" hidden>Copy link</span></span></button>
+        </div>
+      </div>
+
+      <!-- J'aime -->
+      <div class="text-center my-8">
+        <button onclick="likeArticle(this)" class="like-btn"><span class="like-heart">🤍</span> <span data-i18n><span lang="fr">J'aime cet article</span><span lang="en" hidden>I like this article</span></span> <span class="like-count">0</span></button>
+      </div>
+
+      <!-- Commentaires -->
+      <div style="background:#fff;border:3px solid #0F0F2E;border-radius:20px;box-shadow:5px 5px 0 #0F0F2E;padding:24px;margin-bottom:26px">
+        <h3 class="font-luckiest" style="font-size:1.6rem;color:#0F0F2E;margin:0 0 16px" data-i18n><span lang="fr">💬 Commentaires</span><span lang="en" hidden>💬 Comments</span></h3>
+        <div id="comments-list" style="margin-bottom:16px"></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <input type="text" id="comment-name" placeholder="Ton prénom…" style="font-family:'Nunito',sans-serif;font-weight:600;padding:12px 16px;border:2px solid #cde9f5;border-radius:12px;font-size:1.05rem;outline:none">
+          <textarea id="comment-text" rows="3" placeholder="Écris ton commentaire…" style="font-family:'Nunito',sans-serif;font-weight:600;padding:12px 16px;border:2px solid #cde9f5;border-radius:12px;font-size:1.05rem;outline:none;resize:vertical"></textarea>
+          <button onclick="postComment()" class="font-luckiest" style="background:linear-gradient(135deg,#00C4FF,#0086AD);color:#fff;padding:12px 24px;border:3px solid #0F0F2E;border-radius:999px;font-size:1.15rem;cursor:pointer;align-self:flex-start;box-shadow:3px 3px 0 #0F0F2E"><span data-i18n><span lang="fr">📤 Publier</span><span lang="en" hidden>📤 Post</span></span></button>
+        </div>
+      </div>
+
+      <!-- Retour / outils -->
+      <div class="mt-6 pt-6 border-t-4 border-slate-100 flex flex-col sm:flex-row justify-center gap-4">
+        <a href="/camps-de-jour.html" class="text-center bg-ztsYellow text-ztsDeep px-6 py-3 rounded-2xl font-luckiest hover:bg-ztsBlue hover:text-white transition-all" data-i18n><span lang="fr">🏕️ Tous les outils camp de jour</span><span lang="en" hidden>🏕️ All day camp tools</span></a>
+        <a href="../blog.html" class="text-center bg-ztsBlue text-white px-6 py-3 rounded-2xl font-luckiest hover:bg-ztsDeep transition-all" data-i18n><span lang="fr">← Retour au blog</span><span lang="en" hidden>← Back to blog</span></a>
       </div>
     </article>
   </main>
@@ -192,11 +266,73 @@
     });
   </script>
 
+  <!-- J'aime + commentaires + partage (localStorage, comme les autres articles) -->
+  <script>
+    function copyLink(btn){
+      navigator.clipboard.writeText(location.href.split('?')[0]).then(function(){
+        var s=btn.querySelector('span'); if(!s)return; var o=s.textContent; s.textContent='Copié!';
+        setTimeout(function(){ s.textContent=o; },2000);
+      });
+    }
+    function likeArticle(btn){
+      var slug=location.pathname.split('/').pop().replace('.html','');
+      var key='zts_like_'+slug; if(localStorage.getItem(key))return;
+      localStorage.setItem(key,'1');
+      btn.querySelector('.like-heart').textContent='❤️';
+      btn.style.background='#FF2A7A'; btn.style.color='#fff';
+      var c=btn.querySelector('.like-count'); c.textContent=parseInt(c.textContent||'0')+1;
+    }
+    (function(){
+      var slug=location.pathname.split('/').pop().replace('.html','');
+      if(localStorage.getItem('zts_like_'+slug)){
+        var b=document.querySelector('.like-btn');
+        if(b){ b.querySelector('.like-heart').textContent='❤️'; b.style.background='#FF2A7A'; b.style.color='#fff'; }
+      }
+    })();
+    function postComment(){
+      var name=(document.getElementById('comment-name').value||'').trim();
+      var text=(document.getElementById('comment-text').value||'').trim();
+      if(!name||!text){ alert('Remplis ton prénom et ton commentaire!'); return; }
+      var slug=location.pathname.split('/').pop().replace('.html','');
+      var key='zts_comments_'+slug;
+      var arr=JSON.parse(localStorage.getItem(key)||'[]');
+      arr.push({name:name,text:text,date:new Date().toLocaleDateString('fr-CA')});
+      localStorage.setItem(key,JSON.stringify(arr));
+      document.getElementById('comment-name').value='';
+      document.getElementById('comment-text').value='';
+      renderComments();
+    }
+    function renderComments(){
+      var slug=location.pathname.split('/').pop().replace('.html','');
+      var arr=JSON.parse(localStorage.getItem('zts_comments_'+slug)||'[]');
+      var list=document.getElementById('comments-list'); if(!list)return;
+      if(!arr.length){ list.innerHTML='<p style="color:#8aa;font-style:italic">Aucun commentaire encore. Sois le premier!</p>'; return; }
+      list.innerHTML=arr.map(function(c){
+        return '<div style="background:#f3f9fc;border:2px solid #cde9f5;border-radius:12px;padding:12px 16px;margin-bottom:10px">'+
+          '<div style="font-family:\'Luckiest Guy\',cursive;color:#0F0F2E;font-size:1.05rem">'+c.name.replace(/</g,'&lt;')+' <span style="color:#8aa;font-size:.8rem">'+c.date+'</span></div>'+
+          '<p style="margin:4px 0 0;color:#33485c">'+c.text.replace(/</g,'&lt;')+'</p></div>';
+      }).join('');
+    }
+    renderComments();
+    if(window.lucide) lucide.createIcons();
+    // Cartes de jeux : survol = popup (ordi) ; tap = popup (mobile)
+    document.querySelectorAll('.g-card').forEach(function(c){
+      c.addEventListener('click',function(e){
+        e.stopPropagation();
+        var was=c.classList.contains('open');
+        document.querySelectorAll('.g-card.open').forEach(function(o){o.classList.remove('open');});
+        if(!was) c.classList.add('open');
+      });
+    });
+    document.addEventListener('click',function(){ document.querySelectorAll('.g-card.open').forEach(function(o){o.classList.remove('open');}); });
+  </script>
+
   <script src="/zts-lock-page.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
   <script src="/zts-newsletter.js" defer></script>
   <script src="/zts-locked-fullscreen.js" defer></script>
   <script src="/zts-funnel.js" defer></script>
   <script src="/article-views.js" defer></script>
+  <script>addEventListener('load',function(){ if(window.ztsCountView) ztsCountView(); });</script>
 </body>
 </html>
