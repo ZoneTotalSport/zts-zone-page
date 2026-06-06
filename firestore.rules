@@ -40,6 +40,19 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // leads — courriels captures par le popup newsletter (anonymes).
+    // Create-only cote client : email string, ts=serverTimestamp.
+    // Lecture/maj/suppression interdites (export via console Firebase).
+    // ─────────────────────────────────────────────────────────
+    match /leads/{leadId} {
+      allow create: if request.resource.data.email is string
+                    && request.resource.data.email.size() > 3
+                    && request.resource.data.email.size() < 200
+                    && request.resource.data.ts == request.time;
+      allow read, update, delete: if false;
+    }
+
+    // ─────────────────────────────────────────────────────────
     // Tout le reste : interdit par defaut.
     // ─────────────────────────────────────────────────────────
     match /{document=**} {

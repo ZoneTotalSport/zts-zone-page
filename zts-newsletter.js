@@ -92,6 +92,28 @@
     if (window.ztsTrackFunnel) window.ztsTrackFunnel(ev, extra || {});
   }
 
+  // ── Sauvegarde du lead dans Firestore (charge le SDK au besoin)
+  function loadScript(src, cb) {
+    var s = document.createElement('script'); s.src = src; s.onload = cb;
+    s.onerror = function () { cb(); }; document.head.appendChild(s);
+  }
+  function saveLead(email) {
+    if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) return;
+    function write() {
+      try {
+        firebase.firestore().collection('leads').add({
+          email: email, source: 'newsletter_popup', lang: lang(),
+          page: location.pathname,
+          ts: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function () {});
+      } catch (e) {}
+    }
+    if (firebase.firestore) { write(); return; }
+    loadScript('https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js', function () {
+      if (firebase.firestore) write();
+    });
+  }
+
   // ── Style (shadowbox néobrutaliste ZTS)
   function injectCss() {
     if (document.getElementById('zts-nl-css')) return;
@@ -190,15 +212,8 @@
       btn.disabled = true; var label = btn.textContent; btn.textContent = tr2.sending;
       track('newsletter_submit', { source: 'popup' });
 
-      // Lead → Firestore (best-effort, si firebase dispo)
-      try {
-        if (window.firebase && firebase.firestore) {
-          firebase.firestore().collection('leads').add({
-            email: email, source: 'newsletter_popup', lang: lang(),
-            page: location.pathname, ts: firebase.firestore.FieldValue.serverTimestamp()
-          }).catch(function () {});
-        }
-      } catch (e) {}
+      // Lead → Firestore (ta copie exportable)
+      saveLead(email);
 
       // Envoi de l'accès par courriel via le worker Resend
       fetch(WORKER_URL, {

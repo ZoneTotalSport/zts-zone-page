@@ -162,6 +162,18 @@ export default {
         });
       }
 
+      // Ajout à l'Audience Resend (liste réutilisable) — best-effort.
+      // Configurer le secret RESEND_AUDIENCE_ID sur le worker pour l'activer.
+      if (env.RESEND_AUDIENCE_ID) {
+        try {
+          await fetch(`https://api.resend.com/audiences/${env.RESEND_AUDIENCE_ID}/contacts`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, first_name: name, unsubscribed: false }),
+          });
+        } catch (e) { /* n'empêche pas la réponse OK */ }
+      }
+
       return new Response(JSON.stringify({ ok: true, id: result.id }), {
         headers: { 'Content-Type': 'application/json', ...CORS },
       });
