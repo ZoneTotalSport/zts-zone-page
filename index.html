@@ -3202,6 +3202,101 @@
 <!-- TRANSITION SWEEP -->
 <div class="color-sweep" id="sweep"></div>
 
+<!-- ========== SECTION "AUJOURD'HUI" (Jeu + Météo + Défi) — trafic récurrent ========== -->
+<style>
+    #ztsTodaySection { background: linear-gradient(135deg, #18181b 0%, #0f0f2e 100%); padding: 60px 20px; position: relative; }
+    #ztsTodaySection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 20%, rgba(0,229,255,0.15), transparent 50%), radial-gradient(circle at 80% 80%, rgba(139,92,246,0.15), transparent 50%); pointer-events: none; }
+    .zts-today-header { max-width: 1400px; margin: 0 auto 40px; text-align: center; position: relative; }
+    .zts-today-tag-pill { display: inline-block; background: linear-gradient(135deg, #00E5FF, #8B5CF6); color: #fff; padding: 12px 28px; border-radius: 28px; font-family: 'Luckiest Guy', cursive; font-size: 1.6rem; letter-spacing: 1.5px; margin-bottom: 14px; }
+    .zts-today-h2 { font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(2rem, 4vw, 3.2rem); margin: 0; letter-spacing: 0.5px; line-height: 1.15; }
+    .zts-today-date { font-family: 'Patrick Hand', cursive; color: #00E5FF; font-size: 1.5rem; margin-top: 10px; }
+    #ztsTodayGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; position: relative; }
+    .zts-today-card { background: rgba(255,255,255,0.05); border: 3px solid rgba(0,229,255,0.25); border-radius: 28px; padding: 32px 28px; transition: all 0.3s; }
+    .zts-today-card:hover { transform: translateY(-6px); border-color: rgba(0,229,255,0.55); box-shadow: 0 14px 50px rgba(0,229,255,0.25); }
+    .zts-today-label { font-family: 'Luckiest Guy', cursive; color: #00E5FF; font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 18px; text-transform: uppercase; }
+    .zts-today-body { color: #fff; font-family: 'Patrick Hand', cursive; font-size: 1.3rem; line-height: 1.55; }
+    .zts-today-weather-big { font-family: 'Luckiest Guy', cursive; font-size: 3.8rem; color: #00E5FF; margin-bottom: 6px; line-height: 1; }
+    .zts-today-weather-label { font-size: 1.35rem; color: #fff; opacity: 0.85; margin-bottom: 6px; }
+    .zts-today-weather-details { font-size: 1.15rem; color: #fff; opacity: 0.65; margin-bottom: 18px; }
+    .zts-today-decision { display: inline-block; padding: 12px 26px; border-radius: 14px; font-family: 'Luckiest Guy', cursive; letter-spacing: 1.5px; color: #fff; margin-bottom: 10px; font-size: 1.5rem; }
+    .zts-today-reason { font-size: 1.1rem; color: #fff; opacity: 0.8; }
+    .zts-today-cycles { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(0,229,255,0.2); }
+    .zts-today-cycle-label { font-family: 'Luckiest Guy', cursive; font-size: 0.95rem; letter-spacing: 1.5px; color: #FFEA00; margin-bottom: 10px; }
+    .zts-today-cycle-item { font-size: 1rem; line-height: 1.4; color: #fff; margin-bottom: 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+    .zts-today-cycle-item strong { color: #00E5FF; font-family: 'Fredoka One', cursive; }
+    .zts-today-cycle-badge { display: inline-block; font-family: 'Luckiest Guy', cursive; letter-spacing: 1px; color: #fff; padding: 3px 10px; border-radius: 10px; font-size: 0.85rem; flex-shrink: 0; }
+    .zts-today-cycle-badge.c1 { background: #10B981; }
+    .zts-today-cycle-badge.c2 { background: #F59E0B; }
+    .zts-today-cycle-badge.c3 { background: #8B5CF6; }
+    .zts-today-context-badge { display: inline-block; font-family: 'Luckiest Guy', cursive; letter-spacing: 1.5px; padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; margin-bottom: 14px; border: 2px solid; }
+    .zts-today-context-gym { background: rgba(255,234,0,0.18); color: #FFEA00; border-color: #FFEA00; }
+    .zts-today-context-classroom { background: rgba(255,42,122,0.15); color: #FF6B9D; border-color: #FF2A7A; }
+    .zts-today-section-label { font-family: 'Luckiest Guy', cursive; letter-spacing: 1.5px; color: rgba(255,255,255,0.55); font-size: 0.9rem; margin: 14px 0 6px; text-transform: uppercase; }
+    .zts-today-game-title { font-family: 'Luckiest Guy', cursive; color: #FFEA00; font-size: 2rem; margin-bottom: 14px; letter-spacing: 0.8px; line-height: 1.15; }
+    .zts-today-game-desc { font-size: 1.2rem; margin-bottom: 16px; }
+    .zts-today-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .zts-today-tag { background: rgba(0,229,255,0.18); color: #00E5FF; padding: 6px 14px; border-radius: 10px; font-size: 1rem; font-family: 'Fredoka One', cursive; }
+    .zts-today-cta { background: linear-gradient(135deg, #00E5FF, #0096C7); color: #0F0F2E; border: none; padding: 14px 22px; border-radius: 14px; font-family: 'Luckiest Guy', cursive; letter-spacing: 1.5px; cursor: pointer; font-size: 1.2rem; transition: all 0.2s; width: 100%; }
+    .zts-today-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,229,255,0.5); }
+    .zts-today-eph-title { font-family: 'Luckiest Guy', cursive; color: #FF2A7A; font-size: 1.85rem; margin-bottom: 14px; line-height: 1.2; }
+    .zts-today-year { background: #FF2A7A; color: #fff; padding: 4px 12px; border-radius: 8px; font-size: 1.2rem; font-family: 'Fredoka One'; margin-right: 6px; }
+    .zts-today-eph-desc { font-size: 1.2rem; margin-bottom: 16px; }
+    .zts-today-eph-activity { background: rgba(255,42,122,0.12); border-left: 4px solid #FF2A7A; padding: 16px 18px; border-radius: 12px; font-size: 1.15rem; line-height: 1.5; }
+    @media (max-width: 640px) {
+        #ztsTodayGrid { grid-template-columns: 1fr; gap: 20px; }
+        .zts-today-card { padding: 24px 22px; }
+        .zts-today-weather-big { font-size: 3rem; }
+        .zts-today-game-title, .zts-today-eph-title { font-size: 1.6rem; }
+        .zts-today-body, .zts-today-game-desc, .zts-today-eph-desc { font-size: 1.15rem; }
+    }
+    #ztsPauseSection { background: linear-gradient(135deg, #FF2A7A 0%, #8B5CF6 100%); padding: 50px 20px; position: relative; overflow: hidden; }
+    #ztsPauseSection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(255,234,0,0.2), transparent 40%); pointer-events: none; }
+    .zts-pause-header { max-width: 1400px; margin: 0 auto 32px; text-align: center; position: relative; }
+    .zts-pause-tag { display: inline-block; background: #FFEA00; color: #18181b; padding: 12px 28px; border-radius: 28px; font-family: 'Luckiest Guy', cursive; font-size: 1.7rem; letter-spacing: 2px; margin-bottom: 10px; }
+    .zts-pause-h2 { font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin: 18px 0 0; letter-spacing: 0.5px; text-shadow: 3px 3px 0 rgba(0,0,0,0.18); line-height: 1.15; }
+    .zts-pause-sub { font-family: 'Swanky and Moo Moo', cursive; color: rgba(255,255,255,0.95); font-size: 1.5rem; margin-top: 12px; letter-spacing: 1.5px; }
+    #ztsPauseGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; position: relative; }
+    .zts-pause-card { background: #fff; border-radius: 24px; padding: 32px 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 4px solid #18181b; position: relative; transition: transform 0.3s; }
+    .zts-pause-card:hover { transform: translateY(-4px) rotate(-0.5deg); }
+    .zts-pause-label { font-family: 'Luckiest Guy', cursive; font-size: 1rem; letter-spacing: 2px; color: #FF2A7A; margin-bottom: 18px; }
+    .zts-pause-quiz .zts-pause-label { color: #8B5CF6; }
+    .zts-pause-quote-text { font-family: 'Swanky and Moo Moo', cursive; font-size: 1.7rem; color: #18181b; line-height: 1.3; letter-spacing: 1.2px; }
+    .zts-pause-author { font-family: 'Swanky and Moo Moo', cursive; color: #8B5CF6; font-size: 1.3rem; margin-top: 16px; letter-spacing: 2px; text-align: right; }
+    .zts-pause-question { font-family: 'Swanky and Moo Moo', cursive; font-size: 1.5rem; color: #18181b; margin-bottom: 20px; line-height: 1.25; letter-spacing: 1.2px; }
+    .zts-pause-fact-text { font-family: 'Swanky and Moo Moo', cursive; font-size: 1.5rem; color: #18181b; line-height: 1.3; letter-spacing: 1.2px; }
+    .zts-pause-fact-date { font-family: 'Swanky and Moo Moo', cursive; color: #FF2A7A; font-size: 1.3rem; margin-top: 16px; letter-spacing: 2px; }
+    .zts-pause-fact .zts-pause-label { color: #FFAA00; }
+    .zts-pause-choices { display: flex; flex-direction: column; gap: 10px; }
+    .zts-pause-choice { font-family: 'Patrick Hand', cursive; font-size: 1.15rem; background: #f3f4f6; color: #18181b; border: 3px solid #e5e7eb; padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; }
+    .zts-pause-choice:hover:not(:disabled) { background: #FFEA00; border-color: #18181b; transform: translateX(4px); }
+    .zts-pause-choice:disabled { cursor: default; opacity: 0.6; }
+    .zts-pause-choice.correct { background: #10B981 !important; color: #fff; border-color: #065f46; opacity: 1; }
+    .zts-pause-choice.wrong { background: #EF4444 !important; color: #fff; border-color: #991b1b; }
+    .zts-pause-feedback { font-family: 'Patrick Hand', cursive; font-size: 1.05rem; color: #18181b; background: #FFEA00; padding: 14px 16px; border-radius: 12px; margin-top: 16px; border: 2px solid #18181b; line-height: 1.4; }
+    @media (max-width: 640px) {
+        #ztsPauseGrid { grid-template-columns: 1fr; }
+        .zts-pause-card { padding: 24px 22px; }
+        .zts-pause-quote-text { font-size: 1.25rem; }
+        .zts-pause-question { font-size: 1.1rem; }
+    }
+</style>
+<section id="ztsTodaySection">
+    <div class="zts-today-header">
+        <span class="zts-today-tag-pill">✨ AUJOURD'HUI</span>
+        <h2 class="zts-today-h2">Ton inspiration du jour</h2>
+        <div class="zts-today-date" id="ztsTodayDate">&nbsp;</div>
+    </div>
+    <div id="ztsTodayGrid"></div>
+</section>
+<section id="ztsPauseSection">
+    <div class="zts-pause-header">
+        <span class="zts-pause-tag">☕ PAUSE</span>
+        <h2 class="zts-pause-h2">Prends 30 secondes pour toi</h2>
+        <div class="zts-pause-sub">Une citation, une question. Du nouveau chaque jour.</div>
+    </div>
+    <div id="ztsPauseGrid"></div>
+</section>
+
 <!-- BANDE INSCRIPTION (conservée, propre à la home) -->
 <section class="home-signup" style="margin-top:var(--space-6);">
   <div class="foot-banner">
@@ -4517,6 +4612,50 @@
   document.addEventListener('zts:ready', () => { if (window.ZTS) setLang(ZTS.getLang()); });
 
 </script>
+
+<!-- AUJOURD'HUI : globales + banque de jeux + moteur quotidien (daily.js) -->
+<script>
+  window.currentLang = (typeof ztsLang !== 'undefined' ? ztsLang : 'fr');
+  window.ztsOpenApp = function (u) { if (u) window.location.href = u; };
+  window.gamesI18n = window.gamesI18n || {};
+  window.gamesI18n.fr = [
+    { name: "Ballon-chasseur étoilé", desc: "Deux équipes, des ballons mous. Touché = banc, mais une passe attrapée te libère. Rapide et inclusif.", tags: ["Gymnase", "5-12 ans", "Sans contact"] },
+    { name: "La queue du dragon", desc: "Files de 4-5 élèves accrochés. La tête essaie d'attraper la queue de l'autre dragon. Fous rires garantis.", tags: ["Coopération", "Agilité", "Extérieur"] },
+    { name: "Poules, renards, vipères", desc: "Roche-papier-ciseaux géant en équipe. Poule bat vipère, vipère bat renard, renard bat poule. Cours te sauver!", tags: ["Course", "Stratégie", "Grand groupe"] },
+    { name: "Le château fort", desc: "Quatre quilles à protéger au centre, les attaquants lancent des ballons mous. Défends ton château!", tags: ["Lancer", "Défense", "Gymnase"] },
+    { name: "Tague-gelée", desc: "Touché = tu gèles, bras en croix. Un coéquipier te dégèle en passant dessous. Personne n'attend.", tags: ["Course", "Entraide", "5-10 ans"] },
+    { name: "Le déménageur", desc: "Course de relais : transporte un maximum de petits objets dans ton cerceau en un temps donné.", tags: ["Relais", "Vitesse", "Équipe"] },
+    { name: "Béret sportif", desc: "Deux équipes numérotées. On appelle un chiffre + une habileté (dribble, saut). Le premier revenu marque.", tags: ["Réaction", "Habiletés", "Gymnase"] },
+    { name: "Serpents et échelles vivant", desc: "Plateau géant au sol, élèves = pions. Une case = un défi moteur à réussir pour avancer.", tags: ["Parcours", "Défis", "Coopération"] },
+    { name: "La rivière aux crocodiles", desc: "Traverse de tapis en tapis sans toucher le sol. Travail d'équipe pour déplacer les 'pierres'.", tags: ["Coopération", "Équilibre", "Résolution"] },
+    { name: "Mille-pattes", desc: "En file assise, on fait avancer un ballon par-dessus la tête puis sous les jambes. Le plus rapide gagne.", tags: ["Coopération", "Coordination", "Calme"] },
+    { name: "Les sorciers", desc: "Deux sorciers gèlent les autres d'un toucher. Les fées (2) délivrent. Inverse les rôles souvent.", tags: ["Course", "Endurance", "Grand groupe"] },
+    { name: "Quilles à renverser", desc: "Deux équipes, une ligne au centre. Renverse les quilles adverses avec des ballons. Replace les tiennes!", tags: ["Lancer", "Précision", "Gymnase"] },
+    { name: "Le facteur", desc: "En cercle, le facteur dépose un foulard derrière quelqu'un qui doit le rattraper avant de prendre sa place.", tags: ["Réaction", "Cercle", "5-9 ans"] },
+    { name: "Parcours du gymnase", desc: "Banc, cerceaux, cônes, tapis : enchaîne sauts, roulades et équilibres. Chronomètre pour se dépasser.", tags: ["Parcours", "Motricité", "Individuel"] }
+  ];
+  window.gamesI18n.en = [
+    { name: "Star dodgeball", desc: "Two teams, soft balls. Hit = bench, but a caught pass frees you. Fast and inclusive.", tags: ["Gym", "Ages 5-12", "No contact"] },
+    { name: "Dragon's tail", desc: "Lines of 4-5 students linked up. The head tries to catch the other dragon's tail. Guaranteed laughs.", tags: ["Teamwork", "Agility", "Outdoor"] },
+    { name: "Hens, foxes, vipers", desc: "Giant team rock-paper-scissors. Hen beats viper, viper beats fox, fox beats hen. Run for safety!", tags: ["Running", "Strategy", "Large group"] },
+    { name: "The fortress", desc: "Four pins to protect in the center, attackers throw soft balls. Defend your castle!", tags: ["Throwing", "Defense", "Gym"] },
+    { name: "Freeze tag", desc: "Tagged = frozen, arms out. A teammate frees you by crawling under. Nobody waits around.", tags: ["Running", "Teamwork", "Ages 5-10"] },
+    { name: "The mover", desc: "Relay race: carry as many small objects into your hoop as you can within the time limit.", tags: ["Relay", "Speed", "Team"] },
+    { name: "Sporty beret", desc: "Two numbered teams. Call a number + a skill (dribble, jump). First one back scores.", tags: ["Reaction", "Skills", "Gym"] },
+    { name: "Living snakes & ladders", desc: "Giant floor board, students = pawns. Each square is a motor challenge to advance.", tags: ["Course", "Challenges", "Teamwork"] },
+    { name: "Crocodile river", desc: "Cross mat to mat without touching the floor. Team up to move the 'stones'.", tags: ["Teamwork", "Balance", "Problem-solving"] },
+    { name: "Centipede", desc: "Seated in a line, pass a ball overhead then under legs. Fastest line wins.", tags: ["Teamwork", "Coordination", "Calm"] },
+    { name: "The wizards", desc: "Two wizards freeze others with a touch. Two fairies free them. Switch roles often.", tags: ["Running", "Endurance", "Large group"] },
+    { name: "Knock the pins", desc: "Two teams, a center line. Knock down the other team's pins with balls. Reset yours!", tags: ["Throwing", "Accuracy", "Gym"] },
+    { name: "The mailman", desc: "In a circle, the mailman drops a scarf behind someone who must catch them before taking their spot.", tags: ["Reaction", "Circle", "Ages 5-9"] },
+    { name: "Gym obstacle course", desc: "Bench, hoops, cones, mats: chain jumps, rolls and balances. Time it to beat your record.", tags: ["Course", "Motor skills", "Solo"] }
+  ];
+  document.addEventListener('zts:langchange', function (e) {
+    window.currentLang = (e.detail && e.detail.lang) || window.currentLang;
+    if (window.ztsDailyRerender) window.ztsDailyRerender();
+  });
+</script>
+<script src="/daily.js?v=3" defer></script>
 
 <!-- DESIGN SYSTEM PARTAGÉ : injecte header/footer, horloge, toggle FR/EN.
      Chargé APRÈS le script de la home pour que le pont soit déjà branché. -->
