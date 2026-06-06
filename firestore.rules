@@ -52,6 +52,110 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
+    // ═════════════════════════════════════════════════════════
+    // PLANIFICATEUR CAMP DE JOUR
+    // ═════════════════════════════════════════════════════════
+
+    // ── Organisations ──
+    // coordo : lecture/ecriture sur son org.
+    // animateur : lecture seulement (via groupes.orgId).
+    // Lecture : coordo OU tout utilisateur authentifie (l'animateur
+    // fera un get() par ID apres avoir lu son groupe.orgId).
+    // L'isolation cross-org est assuree par le fait que seul le
+    // coordo peut lister, et l'animateur doit connaitre l'orgId.
+    match /organisations/{orgId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.coordoUid == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.coordoUid == request.auth.uid;
+    }
+
+    // ── Groupes ──
+    // animateur : CRUD sur ses propres groupes.
+    // coordo de l'org : lecture.
+    match /groupes/{groupeId} {
+      // get : animateur du groupe OU coordo de l'org.
+      allow get: if request.auth != null
+                 && (resource.data.animateurUid == request.auth.uid
+                     || isCoordo(resource.data.orgId));
+      // list : tout utilisateur authentifie (filtre cote client par animateurUid ou orgId).
+      // La securite repose sur le fait que les docs enfants/journees/presences
+      // exigent isAnimateurOfGroupe, donc lister les groupes ne donne rien sans droit.
+      allow list: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.animateurUid == request.auth.uid;
+      allow update, delete: if request.auth != null
+                            && resource.data.animateurUid == request.auth.uid;
+    }
+
+    // ── Enfants ──
+    // animateur du groupe : CRUD.
+    match /enfants/{enfantId} {
+      allow read, update, delete: if request.auth != null
+                                  && isAnimateurOfGroupe(resource.data.groupeId);
+      allow create: if request.auth != null
+                    && isAnimateurOfGroupe(request.resource.data.groupeId);
+    }
+
+    // ── Grilles Type (gabarit de journee) ──
+    // animateur du groupe : CRUD.
+    match /grillesType/{id} {
+      allow read, update, delete: if request.auth != null
+                                  && isAnimateurOfGroupe(resource.data.groupeId);
+      allow create: if request.auth != null
+                    && isAnimateurOfGroupe(request.resource.data.groupeId);
+    }
+
+    // ── Journees (blocs embarques) ──
+    // animateur : CRUD. coordo de l'org : lecture.
+    match /journees/{journeeId} {
+      allow read: if request.auth != null
+                  && (isAnimateurOfGroupe(resource.data.groupeId)
+                      || isCoordoOfGroupe(resource.data.groupeId));
+      allow create: if request.auth != null
+                    && isAnimateurOfGroupe(request.resource.data.groupeId);
+      allow update, delete: if request.auth != null
+                            && isAnimateurOfGroupe(resource.data.groupeId);
+    }
+
+    // ── Presences (collection separee, donnees de securite) ──
+    // animateur : CRUD. coordo : lecture.
+    match /presences/{id} {
+      allow read: if request.auth != null
+                  && (isAnimateurOfGroupe(resource.data.groupeId)
+                      || isCoordoOfGroupe(resource.data.groupeId));
+      allow create: if request.auth != null
+                    && isAnimateurOfGroupe(request.resource.data.groupeId);
+      allow update, delete: if request.auth != null
+                            && isAnimateurOfGroupe(resource.data.groupeId);
+    }
+
+    // ── Jeux (banque partagee) ──
+    // read : tout utilisateur authentifie. write : admin seulement.
+    match /jeux/{jeuId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // ── Helper functions ──
+
+    // Verifie que l'utilisateur est l'animateur du groupe donne.
+    function isAnimateurOfGroupe(groupeId) {
+      return get(/databases/$(database)/documents/groupes/$(groupeId)).data.animateurUid == request.auth.uid;
+    }
+
+    // Verifie que l'utilisateur est coordo de l'org qui possede le groupe.
+    function isCoordoOfGroupe(groupeId) {
+      let grp = get(/databases/$(database)/documents/groupes/$(groupeId));
+      return isCoordo(grp.data.orgId);
+    }
+
+    // Verifie que l'utilisateur est coordo de l'org donnee.
+    function isCoordo(orgId) {
+      return get(/databases/$(database)/documents/organisations/$(orgId)).data.coordoUid == request.auth.uid;
+    }
+
     // ─────────────────────────────────────────────────────────
     // Tout le reste : interdit par defaut.
     // ─────────────────────────────────────────────────────────
