@@ -383,7 +383,18 @@ function renderAll(){document.getElementById('startDate').value=fmtISO(START);re
 const LS_DAYS="prog2_days", LS_MEAS="prog2_meas", LS_PROF="prog2_prof";
 function loadJSON(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v==null?def:v;}catch(e){return def;}}
 let DAYS=loadJSON(LS_DAYS,{}), MEAS=loadJSON(LS_MEAS,[]), PROFILE=loadJSON(LS_PROF,{});
-PROFILE=Object.assign({goalKcal:2200,goalWater:2500,goalSteps:10000,fastPlan:16,fast:null},PROFILE);
+PROFILE=Object.assign({goalKcal:2200,goalWater:2500,goalSteps:10000,fastPlan:16,fast:null,units:'metric'},PROFILE);
+// Unités (stockage canonique = métrique : kg, cm, ml, g)
+function imp(){return PROFILE.units==='imperial';}
+function r1(x){const n=+x;return isFinite(n)?Math.round(n*10)/10:0;}
+function wDisp(kg){return kg==null||kg===''?'':(imp()?r1(kg*2.20462):r1(kg));}
+function wToKg(v){const n=parseFloat(v);if(!isFinite(n))return null;return imp()?Math.round(n/2.20462*100)/100:n;}
+function wUnit(){return imp()?'lb':'kg';}
+function cDisp(cm){return cm==null||cm===''?'':(imp()?r1(cm/2.54):r1(cm));}
+function cToCm(v){const n=parseFloat(v);if(!isFinite(n))return null;return imp()?Math.round(n*2.54*10)/10:n;}
+function cUnit(){return imp()?'po':'cm';}
+function volDisp(ml){return imp()?Math.round(ml/29.5735):ml;}
+function volUnit(){return imp()?'oz':'ml';}
 let mcur=new Date(); mcur.setHours(0,0,0,0); mcur.setDate(1);
 let modalISO=null, fastTick=null;
 function saveTrackers(){localStorage.setItem(LS_DAYS,JSON.stringify(DAYS));localStorage.setItem(LS_MEAS,JSON.stringify(MEAS));localStorage.setItem(LS_PROF,JSON.stringify(PROFILE));if(!applying){clearTimeout(window._pt);window._pt=setTimeout(()=>pushRemote(),500);}}
@@ -445,13 +456,16 @@ function openDay(iso){
       <div class="row" style="margin:8px 0;font-size:13px;color:var(--text);font-weight:800"><span>🥩 ${Math.round(ft.p)} g prot.</span><span>🍞 ${Math.round(ft.c)} g gluc.</span><span>🥑 ${Math.round(ft.g)} g lip.</span></div>
       <div id="foodList">${foodList}</div>
       <div class="row" style="margin-top:10px"><input class="ti" id="aiText" placeholder="Décris : 2 œufs, toast, café…"><button class="aibtn" id="aiBtn">✨ IA</button></div>
+      <div class="row" style="margin-top:8px"><button class="aibtn" id="fPhotoBtn">📷 Photo du plat → IA</button><input id="fPhoto" type="file" accept="image/*" capture="environment" style="display:none"></div>
+      <div class="row" style="margin-top:8px"><input class="ti" id="fSearch" placeholder="🔎 Chercher dans la banque d'aliments…"><button class="sm" id="fSearchBtn">Chercher</button></div>
+      <div id="fResults"></div>
       <div class="row" style="margin-top:8px"><input class="ti" id="fName" placeholder="Aliment (manuel)"><input class="num" id="fKcal" type="number" inputmode="numeric" placeholder="kcal"><button class="sm" id="fAdd">+ Ajouter</button></div>
       <div class="lbl" id="aiMsg" style="margin-top:6px"></div>
     </div>
-    <div class="msec"><h4><span class="em">💧</span> Hydratation <span class="lbl">${water} / ${goalW} ml</span></h4><div class="cups" id="cups">${cupHTML}</div></div>
+    <div class="msec"><h4><span class="em">💧</span> Hydratation <span class="lbl">${volDisp(water)} / ${volDisp(goalW)} ${volUnit()}</span></h4><div class="cups" id="cups">${cupHTML}</div></div>
     <div class="msec"><h4><span class="em">⏱️</span> Jeûne intermittent</h4>${fastHTML}</div>
     <div class="row" style="margin-top:12px;align-items:stretch">
-      <div class="msec" style="flex:1;margin-top:0"><h4><span class="em">⚖️</span> Poids</h4><div class="row"><input class="num" id="dWeight" type="number" step="0.1" inputmode="decimal" placeholder="kg" value="${meas.weight||''}"><span class="lbl">kg</span></div></div>
+      <div class="msec" style="flex:1;margin-top:0"><h4><span class="em">⚖️</span> Poids</h4><div class="row"><input class="num" id="dWeight" type="number" step="0.1" inputmode="decimal" placeholder="${wUnit()}" value="${wDisp(meas.weight)}"><span class="lbl">${wUnit()}</span></div></div>
       <div class="msec" style="flex:1;margin-top:0"><h4><span class="em">👟</span> Pas</h4><div class="row"><input class="num" id="dSteps" type="number" inputmode="numeric" placeholder="pas" value="${r.steps||''}"><span class="lbl">/ ${PROFILE.goalSteps}</span></div></div>
     </div>
     <div class="msec"><h4><span class="em">📝</span> Note</h4><input class="ti" id="dNote" style="width:100%" placeholder="Énergie, ressenti…" value="${esc(r.note||'')}"></div>`;
@@ -465,7 +479,11 @@ function openDay(iso){
   document.getElementById('fAdd').onclick=()=>{const n=document.getElementById('fName').value.trim();const k=+document.getElementById('fKcal').value;if(!n)return;(r.food||(r.food=[])).push({n:n,kcal:k||0,p:0,c:0,g:0});saveTrackers();openDay(iso);renderMonth();};
   document.getElementById('aiBtn').onclick=()=>aiAdd(iso);
   document.getElementById('aiText').addEventListener('keydown',e=>{if(e.key==='Enter')aiAdd(iso);});
-  document.getElementById('dWeight').onchange=(e)=>{setWeight(iso,e.target.value);renderBody();renderMonth();};
+  document.getElementById('fSearchBtn').onclick=()=>foodSearch(iso);
+  document.getElementById('fSearch').addEventListener('keydown',e=>{if(e.key==='Enter')foodSearch(iso);});
+  document.getElementById('fPhotoBtn').onclick=()=>document.getElementById('fPhoto').click();
+  document.getElementById('fPhoto').onchange=(e)=>{photoAdd(e.target.files[0],iso);e.target.value='';};
+  document.getElementById('dWeight').onchange=(e)=>{setWeight(iso,wToKg(e.target.value));renderBody();renderMonth();};
   document.getElementById('dSteps').onchange=(e)=>{r.steps=+e.target.value||0;saveTrackers();renderMonth();};
   document.getElementById('dNote').onchange=(e)=>{r.note=e.target.value;saveTrackers();};
   const fs=document.getElementById('fastStart'); if(fs)fs.onclick=()=>{PROFILE.fast={start:Date.now()};saveTrackers();openDay(iso);};
@@ -489,15 +507,49 @@ async function aiAdd(iso){const msg=document.getElementById('aiMsg');const txt=(
   }catch(e){ msg.textContent='⚠️ '+e.message+' — ajoute manuellement ci-dessous.'; }
 }
 
+// ----- Banque d'aliments (Open Food Facts via worker) -----
+async function foodSearch(iso){const q=(document.getElementById('fSearch').value||'').trim();const box=document.getElementById('fResults');if(!q){box.innerHTML='';return;}box.innerHTML='<div class="lbl" style="padding:6px 0">⏳ Recherche…</div>';
+  try{ if(!user)throw new Error('Connexion (synchro) requise');
+    const idt=await user.getIdToken();
+    const res=await fetch('https://api.zonetotalsport.ca/food-search?q='+encodeURIComponent(q),{headers:{'Authorization':'Bearer '+idt}});
+    if(!res.ok)throw new Error('Recherche indisponible ('+res.status+')');
+    const data=await res.json(), list=data.items||[];
+    if(!list.length){box.innerHTML='<div class="lbl" style="padding:6px 0">Aucun résultat pour « '+esc(q)+' ».</div>';return;}
+    box.innerHTML=list.map((f,i)=>`<div class="foodrow" data-fr="${i}" style="cursor:pointer"><span class="fn">${esc(f.name)}</span><span class="fk">${f.kcal} kcal/100g ›</span></div>`).join('');
+    box.querySelectorAll('[data-fr]').forEach(el=>el.onclick=()=>pickFood(list[+el.dataset.fr],iso));
+  }catch(e){box.innerHTML='<div class="lbl" style="padding:6px 0">⚠️ '+e.message+'</div>';}}
+function pickFood(f,iso){const box=document.getElementById('fResults');const unit=imp()?'oz':'g',def=imp()?3.5:100;
+  box.innerHTML=`<div class="msec" style="margin-top:8px"><div class="fn" style="margin-bottom:6px">${esc(f.name)} <span class="lbl">(${f.kcal} kcal · P${f.protein} G${f.carbs} L${f.fat} /100g)</span></div><div class="row"><input class="num" id="fQty" type="number" step="1" inputmode="decimal" value="${def}"><span class="lbl">${unit}</span><button class="sm" id="fQtyAdd">+ Ajouter</button><button class="sm" id="fQtyX">Annuler</button></div></div>`;
+  document.getElementById('fQtyAdd').onclick=()=>{const qv=parseFloat(document.getElementById('fQty').value)||0;const grams=imp()?qv*28.3495:qv;const k=grams/100;const r=rec(iso);if(!r.food)r.food=[];r.food.push({n:f.name.slice(0,40)+' ('+Math.round(grams)+'g)',kcal:Math.round(f.kcal*k),p:r1(f.protein*k),c:r1(f.carbs*k),g:r1(f.fat*k)});saveTrackers();openDay(iso);renderMonth();};
+  document.getElementById('fQtyX').onclick=()=>{document.getElementById('fResults').innerHTML='';};}
+
+// ----- Photo du plat -> IA vision -----
+function fileToB64(file,max,q){return new Promise((resolve,reject)=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max;}else if(h>=w&&h>max){w=Math.round(w*max/h);h=max;}const cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);try{resolve(cv.toDataURL('image/jpeg',q).split(',')[1]);}catch(e){reject(new Error('Lecture image impossible'));}};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Image illisible'));};img.src=url;});}
+async function photoAdd(file,iso){if(!file)return;const msg=document.getElementById('aiMsg');msg.textContent='📷 Analyse de la photo…';
+  try{ if(!user)throw new Error('Connexion (synchro) requise');
+    const b64=await fileToB64(file,1024,0.7);
+    const idt=await user.getIdToken();
+    const res=await fetch('https://api.zonetotalsport.ca/nutrition-photo',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+idt},body:JSON.stringify({image:b64,mediaType:'image/jpeg'})});
+    if(!res.ok){let m='IA photo indisponible ('+res.status+')';try{m=(await res.json()).message||m;}catch(e){}throw new Error(m);}
+    const data=await res.json(), items=data.items||[];
+    if(!items.length)throw new Error('Aucun aliment détecté sur la photo');
+    const r=rec(iso); if(!r.food)r.food=[];
+    items.forEach(it=>r.food.push({n:'📷 '+(it.name||'Aliment'),kcal:+it.kcal||0,p:+it.protein||0,c:+it.carbs||0,g:+it.fat||0}));
+    saveTrackers(); openDay(iso); renderMonth();
+  }catch(e){msg.textContent='⚠️ '+e.message;}}
+
 function renderBody(){const box=document.getElementById('bodyPanel');if(!box)return;
   const ws=MEAS.filter(x=>x.weight).map(x=>({d:x.date,w:+x.weight})).sort((a,b)=>a.d<b.d?-1:1);
   let chart='<div class="lbl" style="padding:24px;text-align:center">Entre ton poids (ici ou dans une journée) pour voir la courbe 📈</div>';
-  if(ws.length>=1){const W=600,H=150,pad=26;const xs=ws.map((p,i)=>ws.length>1?pad+i/(ws.length-1)*(W-2*pad):W/2);const mn=Math.min(...ws.map(p=>p.w)),mx=Math.max(...ws.map(p=>p.w)),rng=(mx-mn)||1;const ys=ws.map(p=>H-pad-(p.w-mn)/rng*(H-2*pad));const pts=xs.map((x,i)=>x.toFixed(1)+','+ys[i].toFixed(1)).join(' ');const dots=xs.map((x,i)=>`<circle cx="${x.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="4" fill="#00eaff"/>`).join('');chart=`<svg class="wchart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${ws.length>1?`<polyline points="${pts}" fill="none" stroke="#00eaff" stroke-width="3" style="filter:drop-shadow(0 0 6px #00eaff)"/>`:''}${dots}<text x="6" y="16" fill="#9db0d6" font-size="13">${mx} kg</text><text x="6" y="${H-6}" fill="#9db0d6" font-size="13">${mn} kg</text></svg>`;}
-  const last=ws.length?ws[ws.length-1].w:'', first=ws.length?ws[0].w:null, delta=(first!=null&&ws.length>1)?Math.round((last-first)*10)/10:null;
-  const fields=[['weight','Poids (kg)'],['waist','Taille (cm)'],['chest','Poitrine'],['hips','Hanches'],['arm','Bras'],['thigh','Cuisse']];
+  if(ws.length>=1){const W=600,H=150,pad=26;const xs=ws.map((p,i)=>ws.length>1?pad+i/(ws.length-1)*(W-2*pad):W/2);const mn=Math.min(...ws.map(p=>p.w)),mx=Math.max(...ws.map(p=>p.w)),rng=(mx-mn)||1;const ys=ws.map(p=>H-pad-(p.w-mn)/rng*(H-2*pad));const pts=xs.map((x,i)=>x.toFixed(1)+','+ys[i].toFixed(1)).join(' ');const dots=xs.map((x,i)=>`<circle cx="${x.toFixed(1)}" cy="${ys[i].toFixed(1)}" r="4" fill="#00eaff"/>`).join('');chart=`<svg class="wchart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${ws.length>1?`<polyline points="${pts}" fill="none" stroke="#00eaff" stroke-width="3" style="filter:drop-shadow(0 0 6px #00eaff)"/>`:''}${dots}<text x="6" y="16" fill="#9db0d6" font-size="13">${wDisp(mx)} ${wUnit()}</text><text x="6" y="${H-6}" fill="#9db0d6" font-size="13">${wDisp(mn)} ${wUnit()}</text></svg>`;}
+  const last=ws.length?ws[ws.length-1].w:null, first=ws.length?ws[0].w:null, delta=(first!=null&&ws.length>1)?Math.round((last-first)*10)/10:null;
+  const deltaD=delta!=null?(imp()?r1(delta*2.20462):delta):null;
+  const fields=[['weight','Poids',wUnit(),'w'],['waist','Taille',cUnit(),'c'],['chest','Poitrine',cUnit(),'c'],['hips','Hanches',cUnit(),'c'],['arm','Bras',cUnit(),'c'],['thigh','Cuisse',cUnit(),'c']];
   const tm=MEAS.find(x=>x.date===todayISO())||{};
-  box.innerHTML=`<div class="row" style="justify-content:space-between"><div class="lbl">Dernier : <b style="color:var(--cyan);font-size:18px">${last||'—'} kg</b></div>${delta!=null?`<div class="lbl">Δ depuis le début : <b style="color:${delta<=0?'var(--gamma)':'var(--beta)'}">${delta>0?'+':''}${delta} kg</b></div>`:''}</div>${chart}<div class="lbl" style="margin:4px 0 8px">Mesures d'aujourd'hui :</div><div class="measgrid">${fields.map(([k,l])=>`<label>${l}<input type="number" step="0.1" inputmode="decimal" data-mk="${k}" value="${tm[k]||''}"></label>`).join('')}</div>`;
-  box.querySelectorAll('input[data-mk]').forEach(inp=>inp.onchange=()=>{const k=inp.dataset.mk,v=parseFloat(inp.value),iso=todayISO();let e=MEAS.find(x=>x.date===iso);if(!e){e={date:iso};MEAS.push(e);}if(v)e[k]=v;else delete e[k];if(Object.keys(e).filter(x=>x!=='date').length===0)MEAS=MEAS.filter(x=>x!==e);saveTrackers();renderBody();renderMonth();});
+  const toggle=`<div class="row" style="justify-content:flex-end;margin-bottom:8px"><span class="lbl">Unités :</span><button class="sm" id="unitToggle">${imp()?'Impérial (lb/po)':'Métrique (kg/cm)'}</button></div>`;
+  box.innerHTML=`${toggle}<div class="row" style="justify-content:space-between"><div class="lbl">Dernier : <b style="color:var(--cyan);font-size:18px">${last!=null?wDisp(last)+' '+wUnit():'—'}</b></div>${deltaD!=null?`<div class="lbl">Δ depuis le début : <b style="color:${deltaD<=0?'var(--gamma)':'var(--beta)'}">${deltaD>0?'+':''}${deltaD} ${wUnit()}</b></div>`:''}</div>${chart}<div class="lbl" style="margin:4px 0 8px">Mesures d'aujourd'hui :</div><div class="measgrid">${fields.map(([k,l,u,t])=>`<label>${l} (${u})<input type="number" step="0.1" inputmode="decimal" data-mk="${k}" data-mt="${t}" value="${k==='weight'?wDisp(tm[k]):cDisp(tm[k])}"></label>`).join('')}</div>`;
+  document.getElementById('unitToggle').onclick=()=>{PROFILE.units=imp()?'metric':'imperial';saveTrackers();renderAll();};
+  box.querySelectorAll('input[data-mk]').forEach(inp=>inp.onchange=()=>{const k=inp.dataset.mk,iso=todayISO();const v=inp.dataset.mt==='w'?wToKg(inp.value):cToCm(inp.value);let e=MEAS.find(x=>x.date===iso);if(!e){e={date:iso};MEAS.push(e);}if(v!=null)e[k]=v;else delete e[k];if(Object.keys(e).filter(x=>x!=='date').length===0)MEAS=MEAS.filter(x=>x!==e);saveTrackers();renderBody();renderMonth();});
 }
 
 // ---------- Auth + sync ----------
