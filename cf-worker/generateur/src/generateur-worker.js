@@ -615,15 +615,7 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour, au forma
     return err(e.code || "AI_ERROR", "Échec IA : " + e.message, 502);
   }
 
-  const raw = resp?.content?.[0]?.text || "";
-  const parsed = extractJson(raw);
-  const items = Array.isArray(parsed?.items) ? parsed.items.map((it) => ({
-    name: String(it.name || it.aliment || "Aliment").slice(0, 80),
-    kcal: Math.max(0, Math.round(+it.kcal || +it.calories || 0)),
-    protein: Math.max(0, Math.round((+it.protein || +it.prot || 0) * 10) / 10),
-    carbs: Math.max(0, Math.round((+it.carbs || +it.glucides || 0) * 10) / 10),
-    fat: Math.max(0, Math.round((+it.fat || +it.lipides || 0) * 10) / 10),
-  })) : [];
+  const items = normFoodItems(extractJson(resp?.content?.[0]?.text || ""));
   return json({ ok: true, items });
 }
 
@@ -665,6 +657,100 @@ async function handleSteps(request, env) {
   return json({ ok: true, date, steps });
 }
 
+// Normalise les items {name,kcal,protein,carbs,fat} renvoyés par l'IA.
+function round1(x) { const n = +x; return isFinite(n) ? Math.round(n * 10) / 10 : 0; }
+function normFoodItems(parsed) {
+  return Array.isArray(parsed?.items) ? parsed.items.map((it) => ({
+    name: String(it.name || it.aliment || "Aliment").slice(0, 80),
+    kcal: Math.max(0, Math.round(+it.kcal || +it.calories || 0)),
+    protein: Math.max(0, round1(it.protein ?? it.prot ?? 0)),
+    carbs: Math.max(0, round1(it.carbs ?? it.glucides ?? 0)),
+    fat: Math.max(0, round1(it.fat ?? it.lipides ?? 0)),
+  })) : [];
+}
+
+// ────────────────────────────────────────────────────────────
+// /food-search — recherche dans Open Food Facts (banque d'aliments).
+// Renvoie des aliments avec macros POUR 100 g. Auth Firebase requise.
+// ────────────────────────────────────────────────────────────
+async function handleFoodSearch(request, env) {
+  const verified = await verifyIdToken(request, env);
+  if (!verified?.uid) return err("UNAUTHORIZED", "Connexion requise", 401);
+  const url = new URL(request.url);
+  const q = (url.searchParams.get("q") || "").trim();
+  if (!q) return err("INVALID_INPUT", "q requis");
+  if (q.length > 80) return err("INVALID_INPUT", "q trop long");
+
+  const off = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}`
+    + `&search_simple=1&action=process&json=1&page_size=20`
+    + `&fields=product_name,product_name_fr,brands,nutriments,serving_size`;
+  let r;
+  try {
+    r = await Promise.race([
+      fetch(off, { headers: { "User-Agent": "ZoneTotalSport-Entrainement/1.0 (zts@hotmail.ca)" } }),
+      new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error("timeout"), { code: "TIMEOUT" })), 12000)),
+    ]);
+  } catch (e) { return err("OFF_ERROR", "Recherche indisponible : " + e.message, 502); }
+  if (!r.ok) return err("OFF_ERROR", "Recherche indisponible (" + r.status + ")", 502);
+
+  const data = await r.json();
+  const items = (data.products || []).map((p) => {
+    const n = p.nutriments || {};
+    const name = [(p.product_name_fr || p.product_name), p.brands].filter(Boolean).join(" · ").slice(0, 90);
+    const kcal = n["energy-kcal_100g"] != null ? Math.round(n["energy-kcal_100g"])
+      : (n["energy-kcal"] != null ? Math.round(n["energy-kcal"]) : null);
+    if (!name || kcal == null) return null;
+    return {
+      name, per: 100, unit: "g", kcal,
+      protein: round1(n.proteins_100g), carbs: round1(n.carbohydrates_100g), fat: round1(n.fat_100g),
+      serving: p.serving_size || null,
+    };
+  }).filter(Boolean).slice(0, 15);
+  return json({ ok: true, items });
+}
+
+// ────────────────────────────────────────────────────────────
+// /nutrition-photo — analyse une PHOTO de plat (Claude vision) -> macros.
+// ────────────────────────────────────────────────────────────
+async function handleNutritionPhoto(request, env) {
+  const verified = await verifyIdToken(request, env);
+  if (!verified?.uid) return err("UNAUTHORIZED", "Connexion requise", 401);
+  let body;
+  try { body = await request.json(); } catch { return err("INVALID_INPUT", "Body JSON malformé"); }
+  const image = (body?.image || "").toString();
+  const mediaType = (body?.mediaType || "image/jpeg").toString();
+  if (!image || image.length < 50) return err("INVALID_INPUT", "image base64 requise");
+  if (image.length > 7000000) return err("INVALID_INPUT", "image trop grande (réduis la qualité)");
+  if (!["image/jpeg", "image/png", "image/webp"].includes(mediaType)) return err("INVALID_INPUT", "format image non supporté");
+
+  const apiKey = env.ANTHROPIC_API_KEY;
+  if (!apiKey) return err("CONFIG_MISSING", "ANTHROPIC_API_KEY manquante", 500);
+  const client = new Anthropic({ apiKey });
+  const system = `Tu es nutritionniste. Analyse la PHOTO d'un plat et estime les aliments visibles + leurs macros.
+Réponds UNIQUEMENT avec un JSON valide, sans texte autour : {"items":[{"name":"...","kcal":0,"protein":0,"carbs":0,"fat":0}]}
+- Un item par aliment distinct visible.
+- Estime les portions d'après la photo. kcal = entier ; protein, carbs, fat = grammes.`;
+
+  let resp;
+  try {
+    resp = await Promise.race([
+      client.messages.create({
+        model: env.SONNET_MODEL,
+        max_tokens: 800,
+        system,
+        messages: [{ role: "user", content: [
+          { type: "image", source: { type: "base64", media_type: mediaType, data: image } },
+          { type: "text", text: "Analyse ce plat : aliments + macros, en JSON." },
+        ] }],
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error("timeout"), { code: "TIMEOUT" })), TIMEOUT_MS)),
+    ]);
+  } catch (e) { return err(e.code || "AI_ERROR", "Échec IA : " + e.message, 502); }
+
+  const items = normFoodItems(extractJson(resp?.content?.[0]?.text || ""));
+  return json({ ok: true, items });
+}
+
 export default {
   async fetch(request, env, ctx) {
     currentOrigin = request.headers.get("Origin");
@@ -698,6 +784,16 @@ export default {
 
     if (url.pathname === "/steps" && request.method === "POST") {
       try { return await handleSteps(request, env); }
+      catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
+    }
+
+    if (url.pathname === "/food-search" && request.method === "GET") {
+      try { return await handleFoodSearch(request, env); }
+      catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
+    }
+
+    if (url.pathname === "/nutrition-photo" && request.method === "POST") {
+      try { return await handleNutritionPhoto(request, env); }
       catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
     }
 
