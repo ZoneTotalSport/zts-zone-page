@@ -82,10 +82,16 @@
   .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 14px}
   .bar label{font-family:var(--bang);font-size:16px;color:var(--cyan);text-shadow:0 0 10px rgba(0,234,255,.5)}
   input[type=date]{font-family:var(--body);font-weight:700;background:var(--panel);border:2px solid rgba(0,234,255,.45);color:var(--text);border-radius:10px;padding:7px 9px;font-size:14px;box-shadow:0 0 12px rgba(0,234,255,.15)}
-  button{cursor:pointer;font-family:var(--bang);font-size:18px;border:3px solid #07101f;background:linear-gradient(180deg,#00eaff,#2a93ff);color:#06121f;border-radius:12px;padding:13px 22px;box-shadow:6px 6px 0 var(--pink),0 0 18px rgba(0,234,255,.45);transition:transform .07s,box-shadow .07s,filter .07s}
-  button:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--pink),0 0 28px rgba(0,234,255,.8);filter:brightness(1.06)}
-  button:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--pink),0 0 12px rgba(0,234,255,.5)}
+  button{cursor:pointer;font-family:var(--bang);font-size:18px;border:3px solid #07101f;background:var(--bface,linear-gradient(180deg,#00eaff,#2a93ff));color:var(--bink,#06121f);border-radius:12px;padding:13px 22px;box-shadow:6px 6px 0 var(--boff,var(--pink)),0 0 18px var(--bglow,rgba(0,234,255,.4));transition:transform .07s,box-shadow .07s,filter .07s}
+  button:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--boff,var(--pink)),0 0 28px var(--bglow,rgba(0,234,255,.6));filter:brightness(1.07)}
+  button:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--boff,var(--pink))}
   button.sm{font-size:15px;padding:10px 16px}
+  .b-cyan{--bface:linear-gradient(180deg,#00eaff,#2a93ff);--boff:var(--pink);--bink:#06121f;--bglow:rgba(0,234,255,.45)}
+  .b-pink{--bface:linear-gradient(180deg,#ff2d9b,#ff5a8a);--boff:var(--cyan);--bink:#fff;--bglow:rgba(255,45,155,.5)}
+  .b-yellow{--bface:linear-gradient(180deg,#ffe500,#ffb800);--boff:var(--violet);--bink:#06121f;--bglow:rgba(255,229,0,.5)}
+  .b-green{--bface:linear-gradient(180deg,#39ff14,#c6ff00);--boff:var(--violet);--bink:#06121f;--bglow:rgba(57,255,20,.5)}
+  .b-violet{--bface:linear-gradient(180deg,#b14bff,#7a3dff);--boff:var(--lime);--bink:#fff;--bglow:rgba(177,75,255,.5)}
+  .b-orange{--bface:linear-gradient(180deg,#ff7a00,#ffc400);--boff:var(--cyan);--bink:#06121f;--bglow:rgba(255,122,0,.5)}
 
   .prog{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 8px}
   .pcard{flex:1;min-width:240px;background:var(--white);border:2px solid rgba(120,140,190,.22);border-radius:18px;padding:14px 16px;box-shadow:0 0 22px rgba(0,234,255,.1),0 10px 28px #0009}
@@ -223,7 +229,7 @@
     <div class="sub">Accès privé · Entraînement</div>
     <input id="gu" placeholder="Nom d'usager" autocomplete="username">
     <input id="gp" type="password" placeholder="Code de sécurité" autocomplete="current-password">
-    <button id="gbtn">ENTRER</button>
+    <button id="gbtn" class="b-cyan">ENTRER</button>
     <div id="gerr"></div>
   </div>
 </div>
@@ -254,8 +260,8 @@
   </div>
 
   <div class="bar" style="margin-bottom:10px">
-    <button id="lockBtn" class="sm" title="Verrouiller">🔒</button>
-    <button id="tniBtn" class="sm" title="Mode tableau (grand écran / TNI)">📺 TNI</button>
+    <button id="lockBtn" class="sm b-violet" title="Verrouiller">🔒</button>
+    <button id="tniBtn" class="sm b-orange" title="Mode tableau (grand écran / TNI)">📺 TNI</button>
     <span class="pill off" id="syncPill" style="margin-left:auto">local</span>
   </div>
 
@@ -270,8 +276,8 @@
   <div class="bar">
     <label>DÉBUT&nbsp;</label>
     <input type="date" id="startDate">
-    <button id="todayBtn">AUJOURD'HUI</button>
-    <button id="resetBtn">RESET</button>
+    <button id="todayBtn" class="b-yellow">AUJOURD'HUI</button>
+    <button id="resetBtn" class="b-pink">RESET</button>
   </div>
 
   <div class="prog">
@@ -398,7 +404,7 @@ function todayIdx(){const t=new Date();t.setHours(0,0,0,0);return Math.round((t-
 // ---------- Rendu ----------
 function sessionHTML(day){if(day.isRest)return `<div class="rest">😌 Jour de repos</div>`;return `<div class="session">`+day.items.map(it=>{const href=vhref(day.prog,it.name);const opt=it.opt?`<span class="opt">OPT.</span>`:'';return href?`<a class="wkt" href="${href}" target="_blank" rel="noopener"><span class="ico">▶︎</span>${it.name}${opt}</a>`:`<span class="wkt"><span class="ico">●</span>${it.name}${opt}</span>`;}).join('')+`</div>`;}
 function colBlock(key,day,idx,extraClass){if(!day)return `<div class="col ${extraClass}"><span class="tag" style="background:#cfd6df">TERMINÉ 🎉</span><div class="rest" style="margin-top:10px">Programme complété</div></div>`;const checked=DONE[key][idx]?'checked':'';const dr=day.isRest?'':`<div class="done-row"><input type="checkbox" class="check" data-key="${key}" data-i="${idx}" ${checked}><label>FAIT!</label></div>`;return `<div class="col ${extraClass}"><span class="tag" style="background:${day.color}">${day.phaseLabel}</span><div class="phase">${day.phaseSub} · Sem. ${day.weekInPhase}/${day.weeksInPhase} — ${DOW[day.dow]}</div>${sessionHTML(day)}${dr}</div>`;}
-function renderHero(){if(sel<0)sel=0;if(sel>=SPAN)sel=SPAN-1;const date=dateFor(sel),ti=todayIdx(),isToday=sel===ti;const t=T25_DAYS[sel]||null,d=DD_DAYS[sel]||null;document.getElementById('hero').innerHTML=`<div class="nav"><button id="prevD">‹ PRÉC.</button><div class="day">${isToday?'★ AUJOURD\'HUI · ':''}Jour ${sel+1}/${SPAN} · ${fmtDate(date)}</div><button id="nextD">SUIV. ›</button></div><div class="cols">${colBlock('t25',t,sel,'t25h')}${colBlock('dd',d,sel,'ddh')}</div>`;document.getElementById('prevD').onclick=()=>{sel--;renderHero();};document.getElementById('nextD').onclick=()=>{sel++;renderHero();};document.querySelectorAll('#hero .check').forEach(c=>c.onchange=()=>{const k=c.dataset.key,i=+c.dataset.i;if(c.checked)DONE[k][i]=1;else delete DONE[k][i];saveDone();renderProgress();syncMini();});renderProgress();}
+function renderHero(){if(sel<0)sel=0;if(sel>=SPAN)sel=SPAN-1;const date=dateFor(sel),ti=todayIdx(),isToday=sel===ti;const t=T25_DAYS[sel]||null,d=DD_DAYS[sel]||null;document.getElementById('hero').innerHTML=`<div class="nav"><button id="prevD" class="b-cyan">‹ PRÉC.</button><div class="day">${isToday?'★ AUJOURD\'HUI · ':''}Jour ${sel+1}/${SPAN} · ${fmtDate(date)}</div><button id="nextD" class="b-orange">SUIV. ›</button></div><div class="cols">${colBlock('t25',t,sel,'t25h')}${colBlock('dd',d,sel,'ddh')}</div>`;document.getElementById('prevD').onclick=()=>{sel--;renderHero();};document.getElementById('nextD').onclick=()=>{sel++;renderHero();};document.querySelectorAll('#hero .check').forEach(c=>c.onchange=()=>{const k=c.dataset.key,i=+c.dataset.i;if(c.checked)DONE[k][i]=1;else delete DONE[k][i];saveDone();renderProgress();syncMini();});renderProgress();}
 function renderProgress(){const dt=Object.keys(DONE.t25).length,dd=Object.keys(DONE.dd).length;const pt=Math.round(dt/T25_TOT*100),pd=Math.round(dd/DD_TOT*100);document.getElementById('pfillT').style.width=pt+'%';document.getElementById('pfillD').style.width=pd+'%';document.getElementById('pstatT').textContent=`${dt} / ${T25_TOT} séances · ${pt}%`;document.getElementById('pstatD').textContent=`${dd} / ${DD_TOT} séances · ${pd}%`;}
 function cellHTML(day,key,idx){if(!day)return '<span style="color:var(--muted)">—</span>';if(day.isRest)return '<span style="color:var(--muted)">Repos</span>';const txt=day.items.map(it=>{const h=vhref(day.prog,it.name);const t=it.name+(it.opt?' (opt.)':'');return h?`<a href="${h}" target="_blank" rel="noopener">${t}</a>`:t;}).join(' + ');const chk=`<input type="checkbox" class="mini-check" data-key="${key}" data-i="${idx}" ${DONE[key][idx]?'checked':''}>`;return `<div style="display:flex;gap:7px;align-items:center">${chk}<span>${txt}</span></div>`;}
 function renderCal(){const cal=document.getElementById('cal');cal.innerHTML='';const ti=todayIdx();const nWeeks=Math.ceil(SPAN/7);for(let w=0;w<nWeeks;w++){const det=document.createElement('details');det.className='phaseblk';const start=w*7;if(ti>=start&&ti<start+7)det.open=true;let rows='';for(let dlt=0;dlt<7;dlt++){const idx=start+dlt;if(idx>=SPAN)break;const date=dateFor(idx);const cls=idx===ti?'today':'';rows+=`<tr class="${cls}"><td class="dcell">J${idx+1} · ${fmtDate(date)}</td><td>${DOW[dlt]}</td><td>${cellHTML(T25_DAYS[idx],'t25',idx)}</td><td>${cellHTML(DD_DAYS[idx],'dd',idx)}</td></tr>`;}const tday=T25_DAYS[start];const lbl=tday?tday.phaseLabel:'';const pi=tday?tday.phaseIdx:0;const grads=['linear-gradient(120deg,#00eaff,#2a93ff)','linear-gradient(120deg,#ff7a00,#ffd000)','linear-gradient(120deg,#39ff14,#c6ff00)'];const shad=['#00b8d4','#ff7a00','#39ff14'];det.style.boxShadow='6px 6px 0 '+(shad[pi]||shad[0]);det.style.borderColor='#07101f';det.innerHTML=`<summary style="background:${grads[pi]||grads[0]};font-size:20px">SEMAINE ${w+1}<span style="font-family:var(--bang);font-size:16px;opacity:.9"> · ${lbl}</span></summary><table><thead><tr><th>Jour</th><th></th><th><span class="dot" style="background:var(--yellow)"></span>T25</th><th><span class="dot" style="background:var(--cyan)"></span>Dig Deeper</th></tr></thead><tbody>${rows}</tbody></table>`;cal.appendChild(det);}cal.querySelectorAll('.mini-check').forEach(c=>c.onchange=()=>{const k=c.dataset.key,i=+c.dataset.i;if(c.checked)DONE[k][i]=1;else delete DONE[k][i];saveDone();renderProgress();if(sel===i)renderHero();});}
@@ -466,7 +472,7 @@ function renderMonth(){
   const box=document.getElementById('monthCal'); if(!box)return;
   const y=mcur.getFullYear(), m=mcur.getMonth();
   const off=(new Date(y,m,1).getDay()+6)%7, dim=new Date(y,m+1,0).getDate(), today=todayISO();
-  let html='<div class="navmonth"><button class="sm" id="mPrev">‹</button><div class="mt">'+MONTHS[m]+' '+y+'</div><button class="sm" id="mNext">›</button></div>';
+  let html='<div class="navmonth"><button class="sm b-violet" id="mPrev">‹</button><div class="mt">'+MONTHS[m]+' '+y+'</div><button class="sm b-violet" id="mNext">›</button></div>';
   html+='<div class="mgridhead">'+WD.map(d=>'<span>'+d+'</span>').join('')+'</div><div class="mgrid">';
   for(let k=0;k<off;k++)html+='<div class="mcell empty"></div>';
   for(let dn=1;dn<=dim;dn++){
@@ -501,10 +507,10 @@ function openDay(iso){
   let cupHTML=''; for(let i=0;i<cups;i++)cupHTML+=`<span class="cup ${i<onCups?'on':''}" data-cup="${i+1}">💧</span>`;
   const foodList=(r.food||[]).map((f,i)=>`<div class="foodrow"><span class="fn">${esc(f.n)}</span><span class="fk">${Math.round(f.kcal||0)} kcal · P${Math.round(f.p||0)} G${Math.round(f.c||0)} L${Math.round(f.g||0)}</span><span class="fx" data-del="${i}">✕</span></div>`).join('') || '<div class="lbl" style="padding:6px 0">Décris ton repas à l\'IA, ou ajoute manuellement.</div>';
   const fast=PROFILE.fast;
-  const fastHTML = (fast&&fast.start) ? `<div class="fastbox"><div class="fasttime" id="fastTime">…</div><div class="lbl">Jeûne en cours — objectif ${PROFILE.fastPlan||16} h</div><button class="sm" id="fastStop" style="margin-top:8px">⏹ Arrêter</button></div>` : `<div class="fastbox"><div class="lbl" style="margin-bottom:8px">Aucun jeûne en cours${r.fastH?` · dernier : ${r.fastH} h`:''}</div><button class="sm" id="fastStart">▶︎ Démarrer le jeûne</button></div>`;
+  const fastHTML = (fast&&fast.start) ? `<div class="fastbox"><div class="fasttime" id="fastTime">…</div><div class="lbl">Jeûne en cours — objectif ${PROFILE.fastPlan||16} h</div><button class="sm b-violet" id="fastStop" style="margin-top:8px">⏹ Arrêter</button></div>` : `<div class="fastbox"><div class="lbl" style="margin-bottom:8px">Aucun jeûne en cours${r.fastH?` · dernier : ${r.fastH} h`:''}</div><button class="sm b-violet" id="fastStart">▶︎ Démarrer le jeûne</button></div>`;
   const D=new Date(iso+'T00:00:00');
   document.getElementById('dayModalCard').innerHTML=`
-    <button class="sm mclose" id="mClose">✕</button>
+    <button class="sm mclose b-pink" id="mClose">✕</button>
     <div class="mhdr"><div><h3>${D.getDate()} ${MONTHS[D.getMonth()]}</h3><div class="msub">${fmtLong(iso)}</div></div></div>
     <div class="msec"><h4><span class="em">🏋️</span> Entraînement</h4>${wHTML}</div>
     <div class="msec"><h4><span class="em">🍎</span> Alimentation</h4>
@@ -513,9 +519,9 @@ function openDay(iso){
       <div id="foodList">${foodList}</div>
       <div class="row" style="margin-top:10px"><input class="ti" id="aiText" placeholder="Décris : 2 œufs, toast, café…"><button class="aibtn" id="aiBtn">✨ IA</button></div>
       <div class="row" style="margin-top:8px"><button class="aibtn" id="fPhotoBtn">📷 Photo du plat → IA</button><input id="fPhoto" type="file" accept="image/*" capture="environment" style="display:none"></div>
-      <div class="row" style="margin-top:8px"><input class="ti" id="fSearch" placeholder="🔎 Chercher dans la banque d'aliments…"><button class="sm" id="fSearchBtn">Chercher</button></div>
+      <div class="row" style="margin-top:8px"><input class="ti" id="fSearch" placeholder="🔎 Chercher dans la banque d'aliments…"><button class="sm b-orange" id="fSearchBtn">Chercher</button></div>
       <div id="fResults"></div>
-      <div class="row" style="margin-top:8px"><input class="ti" id="fName" placeholder="Aliment (manuel)"><input class="num" id="fKcal" type="number" inputmode="numeric" placeholder="kcal"><button class="sm" id="fAdd">+ Ajouter</button></div>
+      <div class="row" style="margin-top:8px"><input class="ti" id="fName" placeholder="Aliment (manuel)"><input class="num" id="fKcal" type="number" inputmode="numeric" placeholder="kcal"><button class="sm b-green" id="fAdd">+ Ajouter</button></div>
       <div class="lbl" id="aiMsg" style="margin-top:6px"></div>
     </div>
     <div class="msec"><h4><span class="em">💧</span> Hydratation <span class="lbl">${volDisp(water)} / ${volDisp(goalW)} ${volUnit()}</span></h4><div class="cups" id="cups">${cupHTML}</div></div>
@@ -575,7 +581,7 @@ async function foodSearch(iso){const q=(document.getElementById('fSearch').value
     box.querySelectorAll('[data-fr]').forEach(el=>el.onclick=()=>pickFood(list[+el.dataset.fr],iso));
   }catch(e){box.innerHTML='<div class="lbl" style="padding:6px 0">⚠️ '+e.message+'</div>';}}
 function pickFood(f,iso){const box=document.getElementById('fResults');const unit=imp()?'oz':'g',def=imp()?3.5:100;
-  box.innerHTML=`<div class="msec" style="margin-top:8px"><div class="fn" style="margin-bottom:6px">${esc(f.name)} <span class="lbl">(${f.kcal} kcal · P${f.protein} G${f.carbs} L${f.fat} /100g)</span></div><div class="row"><input class="num" id="fQty" type="number" step="1" inputmode="decimal" value="${def}"><span class="lbl">${unit}</span><button class="sm" id="fQtyAdd">+ Ajouter</button><button class="sm" id="fQtyX">Annuler</button></div></div>`;
+  box.innerHTML=`<div class="msec" style="margin-top:8px"><div class="fn" style="margin-bottom:6px">${esc(f.name)} <span class="lbl">(${f.kcal} kcal · P${f.protein} G${f.carbs} L${f.fat} /100g)</span></div><div class="row"><input class="num" id="fQty" type="number" step="1" inputmode="decimal" value="${def}"><span class="lbl">${unit}</span><button class="sm b-green" id="fQtyAdd">+ Ajouter</button><button class="sm b-pink" id="fQtyX">Annuler</button></div></div>`;
   document.getElementById('fQtyAdd').onclick=()=>{const qv=parseFloat(document.getElementById('fQty').value)||0;const grams=imp()?qv*28.3495:qv;const k=grams/100;const r=rec(iso);if(!r.food)r.food=[];r.food.push({n:f.name.slice(0,40)+' ('+Math.round(grams)+'g)',kcal:Math.round(f.kcal*k),p:r1(f.protein*k),c:r1(f.carbs*k),g:r1(f.fat*k)});saveTrackers();openDay(iso);renderMonth();};
   document.getElementById('fQtyX').onclick=()=>{document.getElementById('fResults').innerHTML='';};}
 
@@ -602,7 +608,7 @@ function renderBody(){const box=document.getElementById('bodyPanel');if(!box)ret
   const deltaD=delta!=null?(imp()?r1(delta*2.20462):delta):null;
   const fields=[['weight','Poids',wUnit(),'w'],['waist','Taille',cUnit(),'c'],['chest','Poitrine',cUnit(),'c'],['hips','Hanches',cUnit(),'c'],['arm','Bras',cUnit(),'c'],['thigh','Cuisse',cUnit(),'c']];
   const tm=MEAS.find(x=>x.date===todayISO())||{};
-  const toggle=`<div class="row" style="justify-content:flex-end;margin-bottom:8px"><span class="lbl">Unités :</span><button class="sm" id="unitToggle">${imp()?'Impérial (lb/po)':'Métrique (kg/cm)'}</button></div>`;
+  const toggle=`<div class="row" style="justify-content:flex-end;margin-bottom:8px"><span class="lbl">Unités :</span><button class="sm b-yellow" id="unitToggle">${imp()?'Impérial (lb/po)':'Métrique (kg/cm)'}</button></div>`;
   box.innerHTML=`${toggle}<div class="row" style="justify-content:space-between"><div class="lbl">Dernier : <b style="color:var(--cyan);font-size:18px">${last!=null?wDisp(last)+' '+wUnit():'—'}</b></div>${deltaD!=null?`<div class="lbl">Δ depuis le début : <b style="color:${deltaD<=0?'var(--gamma)':'var(--beta)'}">${deltaD>0?'+':''}${deltaD} ${wUnit()}</b></div>`:''}</div>${chart}<div class="lbl" style="margin:4px 0 8px">Mesures d'aujourd'hui :</div><div class="measgrid">${fields.map(([k,l,u,t])=>`<label>${l} (${u})<input type="number" step="0.1" inputmode="decimal" data-mk="${k}" data-mt="${t}" value="${k==='weight'?wDisp(tm[k]):cDisp(tm[k])}"></label>`).join('')}</div>`;
   document.getElementById('unitToggle').onclick=()=>{PROFILE.units=imp()?'metric':'imperial';saveTrackers();renderAll();};
   box.querySelectorAll('input[data-mk]').forEach(inp=>inp.onchange=()=>{const k=inp.dataset.mk,iso=todayISO();const v=inp.dataset.mt==='w'?wToKg(inp.value):cToCm(inp.value);let e=MEAS.find(x=>x.date===iso);if(!e){e={date:iso};MEAS.push(e);}if(v!=null)e[k]=v;else delete e[k];if(Object.keys(e).filter(x=>x!=='date').length===0)MEAS=MEAS.filter(x=>x!==e);saveTrackers();renderBody();renderMonth();});
