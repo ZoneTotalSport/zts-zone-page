@@ -54,6 +54,22 @@ jeux/{jeuId}            { titre, description, tags:{materiel,espace,groupe,type,
 - Application en lot : plage de dates (lun-ven), conflit sauter/remplacer/fusionner
 - Tout offline (writes en file, sync au retour)
 
+### Tranche 3 — Tableau de bord (refonte UI)
+- Vue `accueil` = landing par défaut : hero du jour (mascotte, date longue, thème), 3 tuiles
+  (anneau de présences SVG, nb blocs, taille groupe), carte « prochaine activité » avec compte
+  à rebours (`minutesUntil`/`humanDelay`), actions rapides (`goto-appel`, `goto-programme`, live).
+- `triggerConfetti()` + `maybeCelebrate()` : pluie de confettis vanilla + son quand tout le
+  groupe est arrivé (1× par jour via `state.celebratedDate`).
+- Données du jour chargées à l'init et sur `nav→accueil` (`loadJourneeData` sur `todayISO()`).
+
+## Robustesse Firestore (pas d'index composite requis)
+- `loadCalendarData` : requête par `groupeId` seul (index simple auto) + filtre du mois côté
+  client — évite l'index composite `journees(groupeId+date)` qui n'est PAS déployé sur le projet.
+- `Presences.listByJournee`/`listByEnfant` : pas de `orderBy` dans la requête, tri client via
+  `sortByTs()` — fonctionne même si les index composites `presences` ne sont pas déployés.
+- `firestore.indexes.json` existe à la racine mais n'a jamais été déployé (`firebase deploy
+  --only firestore:indexes`). Le code ne dépend plus de ces index.
+
 ## Conventions
 - `data-metier="camp"` sur `<body>` (palette orange).
 - Offline-first : persistence Firestore activee (`synchronizeTabs: true`).
