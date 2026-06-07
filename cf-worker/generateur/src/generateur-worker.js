@@ -578,6 +578,54 @@ async function handleDebug(url, request, env) {
 // Router
 // ────────────────────────────────────────────────────────────
 
+// ────────────────────────────────────────────────────────────
+// /nutrition — estimation calories/macros d'un repas décrit en texte.
+// Usage : app /entrainement (journal alimentaire). Auth Firebase requise.
+// ────────────────────────────────────────────────────────────
+async function handleNutrition(request, env) {
+  const verified = await verifyIdToken(request, env);
+  if (!verified?.uid) return err("UNAUTHORIZED", "Connexion requise", 401);
+
+  let body;
+  try { body = await request.json(); } catch { return err("INVALID_INPUT", "Body JSON malformé"); }
+  const text = (body?.text || "").toString().trim();
+  if (!text) return err("INVALID_INPUT", "text requis");
+  if (text.length > 500) return err("INVALID_INPUT", "text ≤ 500 caractères");
+
+  const apiKey = env.ANTHROPIC_API_KEY;
+  if (!apiKey) return err("CONFIG_MISSING", "ANTHROPIC_API_KEY manquante", 500);
+
+  const client = new Anthropic({ apiKey });
+  const system = `Tu es un nutritionniste. On te décrit un repas (français québécois). Estime les calories et macronutriments.
+Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour, au format exact :
+{"items":[{"name":"...","kcal":0,"protein":0,"carbs":0,"fat":0}]}
+- Un item par aliment distinct du repas.
+- kcal = calories estimées pour la portion décrite (nombre entier).
+- protein, carbs, fat = grammes estimés (nombres).
+- Si la portion n'est pas précisée, suppose une portion normale réaliste.`;
+
+  let resp;
+  try {
+    resp = await Promise.race([
+      callAnthropic(client, env.DEFAULT_MODEL, system, text, 700),
+      new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error("timeout"), { code: "TIMEOUT" })), TIMEOUT_MS)),
+    ]);
+  } catch (e) {
+    return err(e.code || "AI_ERROR", "Échec IA : " + e.message, 502);
+  }
+
+  const raw = resp?.content?.[0]?.text || "";
+  const parsed = extractJson(raw);
+  const items = Array.isArray(parsed?.items) ? parsed.items.map((it) => ({
+    name: String(it.name || it.aliment || "Aliment").slice(0, 80),
+    kcal: Math.max(0, Math.round(+it.kcal || +it.calories || 0)),
+    protein: Math.max(0, Math.round((+it.protein || +it.prot || 0) * 10) / 10),
+    carbs: Math.max(0, Math.round((+it.carbs || +it.glucides || 0) * 10) / 10),
+    fat: Math.max(0, Math.round((+it.fat || +it.lipides || 0) * 10) / 10),
+  })) : [];
+  return json({ ok: true, items });
+}
+
 export default {
   async fetch(request, env, ctx) {
     currentOrigin = request.headers.get("Origin");
@@ -602,6 +650,11 @@ export default {
 
     if (url.pathname === "/generate" && request.method === "POST") {
       return await handleGenerate(request, env);
+    }
+
+    if (url.pathname === "/nutrition" && request.method === "POST") {
+      try { return await handleNutrition(request, env); }
+      catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
     }
 
     if (url.pathname === "/generations" && request.method === "GET") {
