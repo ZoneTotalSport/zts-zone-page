@@ -86,8 +86,9 @@ const Presences = {
       date:d.date||'', ts:firebase.firestore.FieldValue.serverTimestamp()
     })).id;
   },
-  async listByJournee(jid,gid) { const s=await (await getDb()).collection('presences').where('journeeId','==',jid).where('groupeId','==',gid).orderBy('ts').get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
-  async listByEnfant(eid,gid) { const s=await (await getDb()).collection('presences').where('enfantId','==',eid).where('groupeId','==',gid).orderBy('ts').get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
+  // Pas de orderBy dans la requete -> evite l'index composite. Tri cote client.
+  async listByJournee(jid,gid) { const s=await (await getDb()).collection('presences').where('journeeId','==',jid).where('groupeId','==',gid).get(); return sortByTs(s.docs.map(d=>({id:d.id,...d.data()}))); },
+  async listByEnfant(eid,gid) { const s=await (await getDb()).collection('presences').where('enfantId','==',eid).where('groupeId','==',gid).get(); return sortByTs(s.docs.map(d=>({id:d.id,...d.data()}))); },
   async update(id,d) { (await getDb()).collection('presences').doc(id).update(d); },
   async delete(id) { (await getDb()).collection('presences').doc(id).delete(); },
 };
@@ -140,9 +141,10 @@ const state = {
   user: null, orgId: null, groupeId: null, groupe: null, org: null,
   enfants: [],
   // Navigation
-  view: 'calendrier', // calendrier | journee | roster | gabarit | historique | live
+  view: 'accueil', // accueil | calendrier | journee | roster | gabarit | historique | live
   liveCompleted: new Set(),
   liveTimer: null,
+  celebratedDate: null,
   // Calendar
   calYear: new Date().getFullYear(),
   calMonth: new Date().getMonth(),
@@ -199,6 +201,10 @@ function shiftDate(iso, delta) {
 function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 function initials(p,n) { return (p?.[0]||'?')+(n?.[0]||''); }
 function blocId() { return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+// Tri chronologique sur le timestamp Firestore (gere les ts null en attente de sync).
+function tsMillis(t) { if(!t) return Infinity; if(t.toMillis) return t.toMillis(); if(t.seconds!=null) return t.seconds*1000; return Infinity; }
+function sortByTs(arr) { return arr.sort((a,b)=>tsMillis(a.ts)-tsMillis(b.ts)); }
 
 function resizePhoto(file, maxSize=400) {
   return new Promise((resolve) => {
@@ -263,6 +269,7 @@ function renderGroupBar() {
     <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
   </div>
   <div class="p-nav">
+    <button class="p-nav-btn ${state.view==='accueil'?'active':''}" data-action="nav" data-to="accueil">\u{1F3E0} Accueil</button>
     <button class="p-nav-btn ${state.view==='calendrier'?'active':''}" data-action="nav" data-to="calendrier">\u{1F4C5} Calendrier</button>
     <button class="p-nav-btn ${state.view==='roster'?'active':''}" data-action="nav" data-to="roster">\u{1F465} Mon groupe</button>
     <button class="p-nav-btn ${state.view==='gabarit'?'active':''}" data-action="nav" data-to="gabarit">\u{1F4D0} Journee type</button>
@@ -273,6 +280,7 @@ function renderGroupBar() {
 function renderMain() {
   let content = '';
   switch (state.view) {
+    case 'accueil':    content = renderDashboard(); break;
     case 'calendrier': content = renderCalendrier(); break;
     case 'journee':    content = renderJournee(); break;
     case 'live':       return renderLive();
@@ -281,6 +289,160 @@ function renderMain() {
     case 'historique': content = renderHistorique(); break;
   }
   return renderGroupBar() + content;
+}
+
+// ══════════════════════════════════════════════════════════
+//  TABLEAU DE BORD (accueil)
+// ══════════════════════════════════════════════════════════
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Bon matin';
+  if (h < 17) return 'Bon après-midi';
+  return 'Bonne soirée';
+}
+
+// Minutes entre maintenant et une heure "HH:MM" (negatif si passe).
+function minutesUntil(t) {
+  if (!t) return null;
+  const [h,m] = t.split(':').map(Number);
+  const now = new Date();
+  return (h*60+m) - (now.getHours()*60+now.getMinutes());
+}
+function humanDelay(mins) {
+  if (mins <= 0) return 'maintenant';
+  if (mins < 60) return 'dans ' + mins + ' min';
+  const h = Math.floor(mins/60), r = mins%60;
+  return 'dans ' + h + 'h' + (r?String(r).padStart(2,'0'):'');
+}
+
+function firstName() {
+  const u = state.user;
+  const dn = u?.displayName || u?.email?.split('@')[0] || '';
+  return dn.split(' ')[0] || 'la Zone';
+}
+
+function renderDashboard() {
+  const blocs = [...state.journeeBlocs].sort((a,b)=>a.ordre-b.ordre);
+  const now = nowTime();
+
+  // ── Présences ──
+  const total = state.enfants.length;
+  let present=0, parti=0, absent=0;
+  state.enfants.forEach(e=>{const s=state.presenceMap[e.id]?.statut; if(s==='present')present++; else if(s==='parti')parti++; else if(s==='absent')absent++;});
+  const arrives = present + parti;
+  const pct = total ? Math.round(arrives/total*100) : 0;
+  const RING_R = 52, RING_CIRC = 2*Math.PI*RING_R;
+  const offset = RING_CIRC * (1 - (total?arrives/total:0));
+
+  // ── Prochaine activité ──
+  let nextBloc=null, isLive=false;
+  for (const b of blocs) {
+    if (b.fin && b.fin < now) continue;            // déjà terminé
+    if (b.debut && b.fin && now>=b.debut && now<=b.fin) { nextBloc=b; isLive=true; break; }
+    if (!nextBloc) nextBloc=b;                       // premier à venir
+    if (b.debut && b.debut>=now) { nextBloc=b; break; }
+  }
+
+  const dateLabel = formatDateLong(todayISO());
+  const themePill = state.groupe?.theme ? `<span class="p-hero__theme">✨ ${esc(state.groupe.theme)}</span>` : '';
+
+  // Hero
+  let html = `<div class="p-hero p-anim">
+    <img src="/perso-camp.png" alt="Mascotte Camps de jour" class="p-hero__mascot" onerror="this.style.display='none'">
+    <div class="p-hero__content">
+      <div class="p-hero__greet">${greeting()}, ${esc(firstName())} \u{1F44B}</div>
+      <div class="p-hero__title">${dateLabel.charAt(0).toUpperCase()+dateLabel.slice(1)}</div>
+      ${themePill}
+    </div>
+  </div>`;
+
+  // Tuiles stats
+  html += `<div class="p-dash-grid">
+    <div class="p-tile p-tile--clickable p-anim-2" data-action="goto-appel">
+      <div class="p-tile__accent" style="background:var(--vert)"></div>
+      <div class="p-tile__label">\u{1F4CB} Présences du jour</div>
+      <div class="p-ring-wrap">
+        <svg class="p-ring" viewBox="0 0 118 118" style="--ring-circ:${RING_CIRC.toFixed(1)}">
+          <circle class="p-ring__bg" cx="59" cy="59" r="${RING_R}"></circle>
+          <circle class="p-ring__fg" cx="59" cy="59" r="${RING_R}" style="stroke-dashoffset:${offset.toFixed(1)};stroke:${pct>=100?'var(--vert)':(pct>0?'var(--orange)':'#ccc')}"></circle>
+        </svg>
+        <div class="p-ring__txt"><div class="p-ring__pct" style="color:${pct>=100?'var(--vert)':'var(--orange)'}">${pct}%</div><div class="p-ring__cap">${arrives}/${total}</div></div>
+      </div>
+      <div class="p-tile__sub">${present} présent·s · ${parti} parti·s${absent?` · ${absent} absent·s`:''}</div>
+    </div>
+
+    <div class="p-tile p-tile--clickable p-anim-3" data-action="goto-programme">
+      <div class="p-tile__accent" style="background:var(--orange)"></div>
+      <div class="p-tile__label">\u{1F4C5} Programme</div>
+      <div class="p-tile__big">${blocs.length}</div>
+      <div class="p-tile__sub">${blocs.length? 'bloc'+(blocs.length>1?'s':'')+' planifié'+(blocs.length>1?'s':'') : 'rien de prévu — tape pour ajouter'}</div>
+    </div>
+
+    <div class="p-tile p-anim-4">
+      <div class="p-tile__accent" style="background:var(--jaune)"></div>
+      <div class="p-tile__label">\u{1F465} Mon groupe</div>
+      <div class="p-tile__big">${total}</div>
+      <div class="p-tile__sub">${esc(state.groupe?.nom||'')}${state.groupe?.theme?` · ${esc(state.groupe.theme)}`:''}</div>
+    </div>
+  </div>`;
+
+  // Prochaine activité
+  if (nextBloc) {
+    const t = BLOC_TYPES[nextBloc.type] || BLOC_TYPES.activite;
+    const delay = minutesUntil(nextBloc.debut);
+    const cd = isLive ? 'EN COURS' : (delay!=null ? humanDelay(delay) : 'à planifier');
+    html += `<div class="p-next p-anim-2">
+      <div class="p-next__icon" style="background:${t.color}22">${t.icon}</div>
+      <div class="p-next__body">
+        <div class="p-next__kicker">${isLive?'\u{1F534} En ce moment':'⏭️ Prochaine activité'}</div>
+        <div class="p-next__titre">${esc(nextBloc.titre||t.label)}</div>
+        ${(nextBloc.debut||nextBloc.fin)?`<div class="p-tile__sub">${nextBloc.debut||'?'} → ${nextBloc.fin||'?'}</div>`:''}
+      </div>
+      <div class="p-next__countdown ${isLive?'p-next__countdown--live':''}">${cd}</div>
+    </div>`;
+  }
+
+  // Actions rapides
+  html += `<div class="p-dash-sec">⚡ Actions rapides</div>
+  <div class="p-quick p-anim-3">
+    <div class="p-quick-btn p-quick-btn--primary" data-action="goto-appel"><span class="p-quick-btn__icon">✋</span>Faire l'appel</div>
+    <div class="p-quick-btn" data-action="goto-programme"><span class="p-quick-btn__icon">\u{1F4DD}</span>Programme</div>
+    ${blocs.length?`<div class="p-quick-btn" data-action="start-live"><span class="p-quick-btn__icon">▶️</span>Mode live</div>`:''}
+    <div class="p-quick-btn" data-action="nav" data-to="calendrier"><span class="p-quick-btn__icon">\u{1F4C5}</span>Calendrier</div>
+    <div class="p-quick-btn" data-action="nav" data-to="gabarit"><span class="p-quick-btn__icon">\u{1F4D0}</span>Journée type</div>
+  </div>`;
+
+  return html;
+}
+
+// Déclenche la fête une seule fois par jour quand tout le monde est arrivé.
+function maybeCelebrate() {
+  const total = state.enfants.length; if(!total) return;
+  let arrived = 0;
+  state.enfants.forEach(e=>{const s=state.presenceMap[e.id]?.statut; if(s==='present'||s==='parti')arrived++;});
+  if(arrived===total && state.celebratedDate!==state.currentDate){
+    state.celebratedDate=state.currentDate; triggerConfetti(); playDoneSound();
+  }
+}
+
+// Confettis vanilla — célèbre quand tout le groupe est arrivé.
+function triggerConfetti() {
+  const colors = ['#ff6b00','#ffc107','#4caf50','#00bcd4','#e91e63','#9c27b0'];
+  const layer = document.createElement('div');
+  layer.className = 'p-confetti-layer';
+  for (let i=0;i<90;i++){
+    const c = document.createElement('div');
+    c.className = 'p-confetti';
+    c.style.left = (Math.random()*100)+'%';
+    c.style.background = colors[i%colors.length];
+    c.style.animationDuration = (2.2+Math.random()*1.8)+'s';
+    c.style.animationDelay = (Math.random()*0.5)+'s';
+    if (Math.random()>.5) c.style.borderRadius='50%';
+    layer.appendChild(c);
+  }
+  document.body.appendChild(layer);
+  setTimeout(()=>layer.remove(), 4500);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -487,7 +649,11 @@ function renderPresencesSection() {
     <div style="text-align:center;margin-bottom:var(--space-2);font-family:var(--font-body);font-size:var(--fs-1);opacity:.5">
       Tap = present \u00B7 Appui long = absent
     </div>
-    <div class="p-presence-grid">${cards}</div>`;
+    <div class="p-presence-grid">${cards}</div>
+    <div class="p-presence-actions">
+      <button class="zts-btn p-save-btn" data-action="save-day">\u{1F4BE} Sauvegarder</button>
+      <button class="zts-btn p-reset-btn" data-action="reset-day">\u{1F504} R\u00E9initialiser</button>
+    </div>`;
 }
 
 function renderPresenceCard(enfant, presence, status) {
@@ -518,7 +684,7 @@ function renderBlocCard(bloc, context, index, total) {
   const fontCSS = (bloc.font && bloc.font!=='default') ? (BLOC_FONTS.find(f=>f.id===bloc.font)?.css||'') : '';
   let detail = '';
   if (bloc.type==='garde') {
-    detail = `<div class="p-bloc-detail">Plage : ${bloc.plage==='matin'?'Matin':'Soir'}</div>`;
+    detail = `<div class="p-bloc-detail">Plage : ${bloc.plage==='matin'?'Matin':'Soir'}${context==='journee'?` <span class="p-garde-link" data-action="open-registre">\u{1F4CB} Ouvrir le registre →</span>`:''}</div>`;
   } else if (bloc.type==='sortie' && bloc.lieu) {
     detail = `<div class="p-bloc-detail">\u{1F4CD} ${esc(bloc.lieu)}</div>`;
   }
@@ -1030,10 +1196,21 @@ async function handleAction(action, ds) {
     // ── Navigation ──
     case 'nav': {
       state.view=ds.to;
+      if(ds.to==='accueil'){ state.currentDate=todayISO(); await loadJourneeData(); }
       if(ds.to==='calendrier') await loadCalendarData();
       if(ds.to==='gabarit') await loadGrilleType();
       if(ds.to==='historique'){state.historyEnfantId=null;state.historyData=[];}
       render(); break;
+    }
+    case 'goto-appel': {
+      state.currentDate=todayISO(); state.view='journee';
+      await loadJourneeData(); render();
+      setTimeout(()=>{const ts=document.querySelectorAll('.p-section-title'); const s=ts[ts.length-1]; s&&s.scrollIntoView({behavior:'smooth',block:'start'});},80);
+      break;
+    }
+    case 'goto-programme': {
+      state.currentDate=todayISO(); state.view='journee';
+      await loadJourneeData(); render(); break;
     }
     case 'start-live':
       state.liveCompleted=new Set(); state.view='live'; render(); break;
@@ -1068,6 +1245,12 @@ async function handleAction(action, ds) {
     // ── Depart ──
     case 'close-depart': closeModal('modal-depart'); break;
     case 'tap-presence': await handlePresenceTap(ds.id); break;
+    case 'save-day': await handleSaveDay(); break;
+    case 'reset-day': await handleResetDay(); break;
+    case 'open-registre': {
+      const ts=document.querySelectorAll('.p-section-title'); const s=ts[ts.length-1];
+      s&&s.scrollIntoView({behavior:'smooth',block:'start'}); break;
+    }
     case 'select-person':
       _departSelectedPerson={nom:ds.nom,lien:ds.lien}; _departCustom='';
       const ci2=document.getElementById('depart-custom'); if(ci2)ci2.value='';
@@ -1138,7 +1321,7 @@ async function handlePresenceTap(enfantId) {
   if(!p){
     const id=await Presences.create({journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),date:state.currentDate});
     state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),heureDepart:'',partiAvec:{nom:'',lien:''},horsListe:false,date:state.currentDate};
-    render(); return;
+    maybeCelebrate(); render(); return;
   }
   if(p.statut==='present') openDepartModal(enfant,p);
   else if(p.statut==='absent'){await Presences.delete(p.id);delete state.presenceMap[enfantId];render();}
@@ -1148,6 +1331,49 @@ async function handleMarkAbsent(enfantId) {
   const p=state.presenceMap[enfantId];
   if(p){await Presences.update(p.id,{statut:'absent',ts:firebase.firestore.FieldValue.serverTimestamp()});state.presenceMap[enfantId]={...p,statut:'absent'};}
   else{const id=await Presences.create({journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'absent',date:state.currentDate});state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'absent',heureArrivee:'',heureDepart:'',partiAvec:{nom:'',lien:''},horsListe:false,date:state.currentDate};}
+  render();
+}
+
+// ── Sauvegarde / Réinitialisation de la journée ──
+
+// Toast léger réutilisable.
+function showToast(msg) {
+  let t = document.getElementById('p-toast');
+  if (!t) { t = document.createElement('div'); t.id = 'p-toast'; t.className = 'p-toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(showToast._t); showToast._t = setTimeout(() => t.classList.remove('show'), 2300);
+}
+
+// Sauvegarder : les présences sont déjà écrites en direct dans Firestore ; ce bouton
+// confirme + garde un instantané local (utile hors-ligne / preuve de l'appel du jour).
+async function handleSaveDay() {
+  try {
+    const snapshot = {
+      date: state.currentDate, groupeId: state.groupeId, groupeNom: state.groupe?.nom || '',
+      savedAt: new Date().toISOString(),
+      enfants: state.enfants.map(e => {
+        const p = state.presenceMap[e.id];
+        return { enfantId: e.id, prenom: e.prenom, nom: e.nom, statut: p?.statut || 'attendu',
+                 heureArrivee: p?.heureArrivee || '', heureDepart: p?.heureDepart || '',
+                 partiAvec: p?.partiAvec || null, horsListe: !!p?.horsListe };
+      })
+    };
+    localStorage.setItem('planif_backup_' + state.groupeId + '_' + state.currentDate, JSON.stringify(snapshot));
+    showToast('✅ Journée sauvegardée');
+  } catch (e) {
+    console.warn('[Planif] save:', e);
+    showToast('⚠ Sauvegarde locale impossible');
+  }
+}
+
+// Réinitialiser : efface les pointages présences du jour (le programme/blocs reste intact).
+async function handleResetDay() {
+  const ids = Object.values(state.presenceMap).map(p => p.id).filter(Boolean);
+  if (!ids.length) { showToast('Rien à réinitialiser'); return; }
+  if (!confirm(`Réinitialiser les présences du jour ?\n\n${ids.length} pointage(s) seront effacés. Le programme de la journée reste intact.`)) return;
+  for (const id of ids) { try { await Presences.delete(id); } catch (e) { console.warn('[Planif] reset:', e); } }
+  state.presenceMap = {}; state.celebratedDate = null;
+  showToast('\u{1F504} Présences réinitialisées');
   render();
 }
 
@@ -1187,13 +1413,13 @@ async function loadCalendarData() {
   const end=y+'-'+String(m+1).padStart(2,'0')+'-'+String(new Date(y,m+1,0).getDate()).padStart(2,'0');
   try {
     const db=await getDb();
+    // Requete par groupeId seulement (index simple auto) + filtre du mois cote client.
+    // -> evite l'index composite groupeId+date qui n'existe pas dans Firestore.
     const snap=await db.collection('journees')
       .where('groupeId','==',state.groupeId)
-      .where('date','>=',start)
-      .where('date','<=',end)
       .get();
     state.calDatesWithBlocs=new Set();
-    snap.docs.forEach(d=>{const data=d.data(); if(data.blocs&&data.blocs.length) state.calDatesWithBlocs.add(data.date);});
+    snap.docs.forEach(d=>{const data=d.data(); if(data.date>=start&&data.date<=end&&data.blocs&&data.blocs.length) state.calDatesWithBlocs.add(data.date);});
   } catch(e) {
     console.warn('[Planif] loadCalendarData:', e.message);
     state.calDatesWithBlocs=new Set();
@@ -1287,7 +1513,7 @@ async function init() {
         if(g.length){state.groupeId=g[0].id;state.orgId=g[0].orgId;localStorage.setItem(LS.groupeId,state.groupeId);localStorage.setItem(LS.orgId,state.orgId);}
       }
       console.log('[Planif] groupeId:', state.groupeId);
-      if(state.groupeId) { await loadGroupeData(); await loadCalendarData(); }
+      if(state.groupeId) { await loadGroupeData(); state.currentDate=todayISO(); await loadJourneeData(); await loadCalendarData(); }
       console.log('[Planif] render');
       render();
     });
