@@ -189,6 +189,23 @@
   .aibtn{background:linear-gradient(180deg,#ff2d9b,#b14bff);color:#fff;box-shadow:6px 6px 0 var(--cyan),0 0 18px rgba(255,45,155,.5)}
   .aibtn:hover{box-shadow:9px 9px 0 var(--cyan),0 0 26px rgba(255,45,155,.8)}
   .aibtn:active{box-shadow:2px 2px 0 var(--cyan)}
+  /* ---- Tableau de bord Aujourd'hui (tuiles carrées shadowbox) ---- */
+  .dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  .tile{aspect-ratio:1/1;background:var(--white);border:3px solid #07101f;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;text-align:center;padding:10px;transition:transform .07s,box-shadow .07s}
+  .tile:hover{transform:translate(-3px,-3px)}
+  .tile:active{transform:translate(3px,3px)!important}
+  .tile .em{font-size:34px;line-height:1}
+  .tile .val{font-family:var(--comic);font-weight:400;font-size:28px;line-height:1;color:var(--text)}
+  .tile .lab{font-family:var(--bang);font-size:13px;color:var(--muted)}
+  .tile.t-cal{box-shadow:6px 6px 0 var(--gamma),0 0 18px rgba(57,255,20,.18)} .tile.t-cal:hover{box-shadow:9px 9px 0 var(--gamma),0 0 26px rgba(57,255,20,.4)} .tile.t-cal:active{box-shadow:2px 2px 0 var(--gamma)} .tile.t-cal .val{color:var(--gamma)}
+  .tile.t-water{box-shadow:6px 6px 0 var(--cyan),0 0 18px rgba(0,234,255,.18)} .tile.t-water:hover{box-shadow:9px 9px 0 var(--cyan),0 0 26px rgba(0,234,255,.4)} .tile.t-water:active{box-shadow:2px 2px 0 var(--cyan)} .tile.t-water .val{color:var(--cyan)}
+  .tile.t-fast{box-shadow:6px 6px 0 var(--violet),0 0 18px rgba(177,75,255,.18)} .tile.t-fast:hover{box-shadow:9px 9px 0 var(--violet),0 0 26px rgba(177,75,255,.4)} .tile.t-fast:active{box-shadow:2px 2px 0 var(--violet)} .tile.t-fast .val{color:var(--violet);font-size:24px}
+  .tile.t-weight{box-shadow:6px 6px 0 var(--pink),0 0 18px rgba(255,45,155,.18)} .tile.t-weight:hover{box-shadow:9px 9px 0 var(--pink),0 0 26px rgba(255,45,155,.4)} .tile.t-weight:active{box-shadow:2px 2px 0 var(--pink)} .tile.t-weight .val{color:var(--pink)}
+  .tile.steps{grid-column:1/-1;aspect-ratio:auto;flex-direction:row;justify-content:space-between;padding:18px 22px;box-shadow:7px 7px 0 var(--yellow),0 0 24px rgba(255,229,0,.22)}
+  .tile.steps:hover{box-shadow:10px 10px 0 var(--yellow),0 0 32px rgba(255,229,0,.45)} .tile.steps:active{box-shadow:2px 2px 0 var(--yellow)}
+  .tile.steps .em{font-size:48px}
+  .tile.steps .val{font-size:50px;color:var(--yellow);text-shadow:0 0 18px rgba(255,229,0,.55)}
+  .tile.steps .ring{font-family:var(--bang);font-size:24px;color:#07101f;background:var(--yellow);border:3px solid #07101f;border-radius:14px;padding:10px 14px;box-shadow:3px 3px 0 #07101f}
   /* ---- Poids & mensurations ---- */
   #bodyPanel{background:var(--white);border:2px solid rgba(255,45,155,.3);border-radius:18px;padding:16px;box-shadow:0 0 26px rgba(255,45,155,.12),0 12px 32px #0009}
   .wchart{width:100%;height:150px;background:var(--panel);border-radius:12px;border:2px solid rgba(120,140,190,.2);margin:8px 0 12px;display:block}
@@ -234,13 +251,24 @@
     <p>Synchronisé sur tous tes appareils. Chaque jour : T25, Dig Deeper, ou les deux. Coche ce que tu fais!</p>
   </div>
 
+  <div class="bar" style="margin-bottom:10px">
+    <button id="lockBtn" class="sm" title="Verrouiller">🔒</button>
+    <span class="pill off" id="syncPill" style="margin-left:auto">local</span>
+  </div>
+
+  <h2 class="sec">📊 AUJOURD'HUI</h2>
+  <p style="font-family:var(--note);font-size:14px;color:var(--muted);margin:-6px 0 12px">Touche une tuile pour entrer/voir le détail de ta journée.</p>
+  <div id="todayDash"></div>
+
+  <h2 class="sec">⚖️ POIDS &amp; MENSURATIONS</h2>
+  <div id="bodyPanel"></div>
+
+  <h2 class="sec">🏋️ MES ENTRAÎNEMENTS</h2>
   <div class="bar">
     <label>DÉBUT&nbsp;</label>
     <input type="date" id="startDate">
     <button id="todayBtn">AUJOURD'HUI</button>
     <button id="resetBtn">RESET</button>
-    <button id="lockBtn" title="Verrouiller">🔒</button>
-    <span class="pill off" id="syncPill" style="margin-left:auto">local</span>
   </div>
 
   <div class="prog">
@@ -261,9 +289,6 @@
   <h2 class="sec">📆 CALENDRIER DU MOIS</h2>
   <p style="font-family:var(--note);font-size:14px;color:var(--muted);margin:-6px 0 12px">Clique une journée → entraînements, alimentation (calories + IA), eau, jeûne, poids, pas.</p>
   <div id="monthCal" class="monthwrap"></div>
-
-  <h2 class="sec">⚖️ POIDS &amp; MENSURATIONS</h2>
-  <div id="bodyPanel"></div>
 
   <h2 class="sec">📅 CALENDRIER COMPLET</h2>
   <div id="cal"></div>
@@ -385,7 +410,7 @@ function renderLinks(){const box=document.getElementById('linksBody');if(!box)re
   document.getElementById('linksWrap').querySelector('summary').innerHTML=`🔗 MES LIENS pCloud (vidéos) — ${n}/${tot}`;
   box.querySelectorAll('.linput').forEach(inp=>inp.onchange=()=>{const k=inp.dataset.k;const val=inp.value.trim();if(val)LINKS[k]=val;else delete LINKS[k];saveLinks();renderHero();renderCal();renderLinks();});}
 function renderDelta(){const box=document.getElementById('deltaBody');if(!box)return;let html='<div class="session">';Object.keys(VID_DELTA).forEach(name=>{const href=vhref('DELTA',name);html+=href?`<a class="wkt" href="${href}" target="_blank" rel="noopener"><span class="ico">▶︎</span>${name}</a>`:`<span class="wkt"><span class="ico">●</span>${name}<span class="opt">lien à définir</span></span>`;});html+='</div>';box.innerHTML=html;}
-function renderAll(){document.getElementById('startDate').value=fmtISO(START);renderHero();renderCal();renderLinks();renderDelta();renderMonth();renderBody();}
+function renderAll(){document.getElementById('startDate').value=fmtISO(START);renderHero();renderCal();renderLinks();renderDelta();renderToday();renderMonth();renderBody();}
 
 // ============ SUIVI QUOTIDIEN (nutrition + IA, poids, jeûne, eau, pas) ============
 const LS_DAYS="prog2_days", LS_MEAS="prog2_meas", LS_PROF="prog2_prof";
@@ -414,6 +439,26 @@ function foodTotals(iso){const f=(DAYS[iso]&&DAYS[iso].food)||[];return f.reduce
 const MONTHS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const WD=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
+function renderToday(){
+  const box=document.getElementById('todayDash'); if(!box)return;
+  const iso=todayISO(), r=DAYS[iso]||{}, ft=foodTotals(iso);
+  const steps=r.steps||0, gSteps=PROFILE.goalSteps||10000, pctS=Math.min(100,Math.round(steps/gSteps*100));
+  const kcal=Math.round(ft.kcal), gK=PROFILE.goalKcal||2200;
+  const water=r.water||0, gW=PROFILE.goalWater||2500;
+  const fast=PROFILE.fast; let fastTxt='—', fastLab='jeûne';
+  if(fast&&fast.start){const ms=Date.now()-fast.start;fastTxt=Math.floor(ms/3600000)+'h'+String(Math.floor(ms%3600000/60000)).padStart(2,'0');fastLab='en cours';}
+  const meas=MEAS.find(x=>x.date===iso)||{};
+  const lastW=(MEAS.filter(x=>x.weight).sort((a,b)=>a.date<b.date?-1:1).slice(-1)[0]||{}).weight;
+  const w=meas.weight!=null?meas.weight:lastW;
+  box.innerHTML=`<div class="dash">
+    <div class="tile steps" data-open><div style="display:flex;align-items:center;gap:16px"><span class="em">👟</span><div style="text-align:left"><div class="val">${steps.toLocaleString('fr-CA')}</div><div class="lab">PAS AUJOURD'HUI · obj. ${gSteps.toLocaleString('fr-CA')}</div></div></div><div class="ring">${pctS}%</div></div>
+    <div class="tile t-cal" data-open><span class="em">🔥</span><div class="val">${kcal}</div><div class="lab">/ ${gK} kcal</div></div>
+    <div class="tile t-water" data-open><span class="em">💧</span><div class="val">${volDisp(water)}</div><div class="lab">/ ${volDisp(gW)} ${volUnit()}</div></div>
+    <div class="tile t-fast" data-open><span class="em">⏱️</span><div class="val">${fastTxt}</div><div class="lab">${fastLab}</div></div>
+    <div class="tile t-weight" data-open><span class="em">⚖️</span><div class="val">${w!=null?wDisp(w):'—'}</div><div class="lab">${wUnit()}</div></div>
+  </div>`;
+  box.querySelectorAll('[data-open]').forEach(el=>el.onclick=()=>openDay(iso));
+}
 function renderMonth(){
   const box=document.getElementById('monthCal'); if(!box)return;
   const y=mcur.getFullYear(), m=mcur.getMonth();
@@ -498,7 +543,7 @@ function openDay(iso){
   const fst=document.getElementById('fastStop'); if(fst)fst.onclick=()=>{const h=Math.round((Date.now()-PROFILE.fast.start)/3600000*10)/10;r.fastH=h;PROFILE.fast=null;saveTrackers();openDay(iso);};
   startFastTick();
 }
-function closeDay(){document.getElementById('dayModal').hidden=true;modalISO=null;if(fastTick){clearInterval(fastTick);fastTick=null;}}
+function closeDay(){document.getElementById('dayModal').hidden=true;modalISO=null;if(fastTick){clearInterval(fastTick);fastTick=null;}renderToday();}
 function startFastTick(){if(fastTick){clearInterval(fastTick);fastTick=null;}if(!PROFILE.fast)return;const upd=()=>{const e=document.getElementById('fastTime');if(!e||!PROFILE.fast)return;const ms=Date.now()-PROFILE.fast.start,h=Math.floor(ms/3600000),m=Math.floor(ms%3600000/60000),s=Math.floor(ms%60000/1000);e.textContent=`${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;};upd();fastTick=setInterval(upd,1000);}
 function setWeight(iso,val){const w=parseFloat(val);let e=MEAS.find(x=>x.date===iso);if(!w){if(e){delete e.weight;if(Object.keys(e).filter(x=>x!=='date').length===0)MEAS=MEAS.filter(x=>x!==e);}}else{if(e)e.weight=w;else MEAS.push({date:iso,weight:w});}saveTrackers();}
 
