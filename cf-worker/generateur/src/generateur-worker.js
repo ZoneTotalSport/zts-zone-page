@@ -11,6 +11,7 @@ import {
 } from "./quota.js";
 import {
   getTokenCacheStats, addDoc, getDoc, setDoc, deleteDoc, queryCollection, listDocsInCollection,
+  getAccessToken,
 } from "./firestore.js";
 import { verifyIdToken, logUidMismatch } from "./auth.js";
 
@@ -626,6 +627,44 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour, au forma
   return json({ ok: true, items });
 }
 
+// ────────────────────────────────────────────────────────────
+// /steps — ingestion des pas depuis l'iPhone (Raccourci iOS lisant Santé).
+// Auth = secret partagé (env.STEPS_KEY), pas de token Firebase (Shortcuts
+// ne peut pas s'authentifier Firebase). Écrit users/<JOEY_UID>.days.<date>.steps
+// via un PATCH cible (updateMask sur la feuille -> ne touche rien d'autre).
+// ────────────────────────────────────────────────────────────
+const ENTRAINEMENT_UID = "UG2F0lsClOdyzB5fcuSzX2kW7Gu2";
+async function handleSteps(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return err("INVALID_INPUT", "Body JSON malformé"); }
+  const key = request.headers.get("X-Steps-Key") || body?.key || "";
+  if (!env.STEPS_KEY || key !== env.STEPS_KEY) return err("UNAUTHORIZED", "Clé invalide", 401);
+
+  const steps = Math.max(0, Math.round(+body?.steps || 0));
+  if (!steps) return err("INVALID_INPUT", "steps requis (> 0)");
+
+  let date = (body?.date || "").toString().trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const d = new Date();
+    date = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+  }
+
+  const token = await getAccessToken(env);
+  const url = `https://firestore.googleapis.com/v1/projects/${env.FIREBASE_PROJECT_ID}/databases/(default)/documents/users/${ENTRAINEMENT_UID}`
+    + `?updateMask.fieldPaths=${encodeURIComponent("days.`" + date + "`.steps")}`;
+  const fsBody = { fields: { days: { mapValue: { fields: { [date]: { mapValue: { fields: { steps: { integerValue: String(steps) } } } } } } } } };
+  const r = await fetch(url, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(fsBody),
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    return err("FIRESTORE_ERROR", `Écriture pas échouée : ${t}`, 502);
+  }
+  return json({ ok: true, date, steps });
+}
+
 export default {
   async fetch(request, env, ctx) {
     currentOrigin = request.headers.get("Origin");
@@ -654,6 +693,11 @@ export default {
 
     if (url.pathname === "/nutrition" && request.method === "POST") {
       try { return await handleNutrition(request, env); }
+      catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
+    }
+
+    if (url.pathname === "/steps" && request.method === "POST") {
+      try { return await handleSteps(request, env); }
       catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
     }
 
