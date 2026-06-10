@@ -199,6 +199,32 @@
 .p-live-check{width:clamp(40px,6vw,56px);height:clamp(40px,6vw,56px);border:3px solid var(--vert);border-radius:50%;background:#fff;cursor:pointer;font-size:clamp(1.2rem,3vw,1.8rem);display:flex;align-items:center;justify-content:center;transition:all .15s;margin-left:auto;flex-shrink:0}
 .p-live-check:hover{background:var(--vert);color:#fff;transform:scale(1.1)}
 .p-live-done-badge{font-size:clamp(1.4rem,3vw,2rem);margin-left:auto}
+
+/* ═══ CALENDRIER UNIFIE — toggle Jour/Semaine/Mois + vue Semaine (scope .zts-vue-*) ═══ */
+.zts-vue-toggle{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:var(--space-4)}
+.zts-vue-tab{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-2);padding:8px 18px;border:var(--bord);border-radius:var(--r-pill);background:#fff;cursor:pointer;box-shadow:var(--ombre);transition:all .12s}
+.zts-vue-tab:hover{transform:translateY(-2px);box-shadow:var(--ombre-xl)}
+.zts-vue-tab--active{background:var(--orange);color:#fff}
+.zts-vue-week-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,1vw,10px);margin-bottom:var(--space-4);align-items:start}
+.zts-vue-week-col{display:flex;flex-direction:column;gap:6px;background:var(--cream);border:var(--bord);border-radius:var(--r-2);padding:6px;box-shadow:var(--ombre);min-height:120px}
+.zts-vue-week-col--today{border-color:var(--orange);box-shadow:0 0 0 2px var(--orange),var(--ombre)}
+.zts-vue-week-head{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;background:#fff;border:var(--bord);border-radius:var(--r-1);cursor:pointer;transition:all .12s}
+.zts-vue-week-head:hover{background:var(--orange);color:#fff;transform:translateY(-1px)}
+.zts-vue-week-dow{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1)}
+.zts-vue-week-num{font-family:var(--font-impact);font-size:var(--fs-3);line-height:1}
+.zts-vue-mini-bloc{display:flex;align-items:center;gap:6px;padding:6px 8px;background:#fff;border:2px solid var(--ink);border-left-width:6px;border-radius:var(--r-1);cursor:pointer;font-family:var(--font-body);transition:transform .1s}
+.zts-vue-mini-bloc:hover{transform:translateX(2px)}
+.zts-vue-mini-ic{flex-shrink:0}
+.zts-vue-mini-titre{flex:1;min-width:0;font-size:var(--fs-1);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.zts-vue-mini-times{flex-shrink:0;font-size:clamp(10px,1.4vw,12px);opacity:.6}
+.zts-vue-week-empty{text-align:center;padding:10px 4px;font-family:var(--font-fun);font-size:var(--fs-1);opacity:.5;cursor:pointer;border:2px dashed #ccc;border-radius:var(--r-1)}
+.zts-vue-week-empty:hover{opacity:.9;border-color:var(--orange);color:var(--orange)}
+@media(max-width:640px){
+  .zts-vue-week-grid{grid-template-columns:1fr}
+  .zts-vue-week-col{flex-direction:row;flex-wrap:wrap;align-items:center;min-height:0}
+  .zts-vue-week-head{flex-direction:row;gap:8px;min-width:84px}
+  .zts-vue-mini-bloc{flex:1;min-width:140px}
+}
   </style>
 </head>
 <body data-metier="camp">

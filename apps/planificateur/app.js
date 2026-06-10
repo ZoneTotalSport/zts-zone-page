@@ -140,12 +140,14 @@ const state = {
   user: null, orgId: null, groupeId: null, groupe: null, org: null,
   enfants: [],
   // Navigation
-  view: 'calendrier', // calendrier | journee | roster | gabarit | historique | live
+  view: 'journee', // journee | semaine | calendrier | roster | gabarit | historique | live
   liveCompleted: new Set(),
   liveTimer: null,
   // Calendar
   calYear: new Date().getFullYear(),
   calMonth: new Date().getMonth(),
+  // Semaine (lun-ven, lecture seule)
+  weekStart: null, weekData: [],
   // Day
   currentDate: todayISO(),
   journeeId: null, journeeBlocs: [], presenceMap: {},
@@ -274,13 +276,17 @@ function renderMain() {
   let content = '';
   switch (state.view) {
     case 'calendrier': content = renderCalendrier(); break;
+    case 'semaine':    content = renderSemaine(); break;
     case 'journee':    content = renderJournee(); break;
     case 'live':       return renderLive();
     case 'roster':     content = renderRoster(); break;
     case 'gabarit':    content = renderGabarit(); break;
     case 'historique': content = renderHistorique(); break;
   }
-  return renderGroupBar() + content;
+  // Toggle Jour/Semaine/Mois injecte ici uniquement (vue Jour/Calendrier intouchees)
+  const calFamily = ['journee','semaine','calendrier'].includes(state.view);
+  const toggle = calFamily ? renderCalToggle(state.view) : '';
+  return renderGroupBar() + toggle + content;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -317,6 +323,91 @@ function renderCalendrier() {
   <div style="text-align:center">
     <button class="zts-btn zts-btn--primary" data-action="select-date" data-date="${today}">Aujourd'hui</button>
   </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  CALENDRIER UNIFIE — Toggle Jour/Semaine/Mois + vue Semaine
+//  (lecture seule : aucune ecriture Firestore ici)
+// ══════════════════════════════════════════════════════════
+
+function renderCalToggle(view) {
+  const cur = view==='journee' ? 'jour' : view==='semaine' ? 'semaine' : 'mois';
+  const tab = (mode,label) => `<button class="zts-vue-tab ${cur===mode?'zts-vue-tab--active':''}" data-action="cal-mode" data-mode="${mode}">${label}</button>`;
+  return `<div class="zts-vue-toggle">
+    ${tab('jour','\u{1F4C5} Jour')}
+    ${tab('semaine','\u{1F5D3}️ Semaine')}
+    ${tab('mois','\u{1F4C6} Mois')}
+  </div>`;
+}
+
+function mondayOf(iso) {
+  const d = new Date(iso+'T12:00:00');
+  const wd = d.getDay();                 // 0=dim..6=sam
+  d.setDate(d.getDate() + (wd===0 ? -6 : 1-wd));
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+async function loadWeekData() {
+  const start = state.weekStart || mondayOf(todayISO());
+  state.weekStart = start;
+  const dates = [0,1,2,3,4].map(i=>shiftDate(start,i)); // lun-ven
+  const byDate = {};
+  if (state.groupeId) {
+    try {
+      const db = await getDb();
+      const snap = await db.collection('journees')
+        .where('groupeId','==',state.groupeId)
+        .where('date','>=',dates[0])
+        .where('date','<=',dates[4])
+        .get();
+      snap.docs.forEach(d=>{const data=d.data(); byDate[data.date]=(data.blocs||[]).slice().sort((a,b)=>a.ordre-b.ordre);});
+    } catch(e) { console.warn('[Planif] loadWeekData:', e.message); }
+  }
+  state.weekData = dates.map(dt=>({date:dt, blocs:byDate[dt]||[]}));
+}
+
+function renderSemaineMiniBloc(bloc, date) {
+  const t = BLOC_TYPES[bloc.type] || BLOC_TYPES.activite;
+  const blocColor = (bloc.customColor && bloc.customColor!=='default') ? (BLOC_COLORS.find(c=>c.id===bloc.customColor)?.hex||t.color) : t.color;
+  const times = (bloc.debut||bloc.fin) ? `<span class="zts-vue-mini-times">${bloc.debut||'?'}–${bloc.fin||'?'}</span>` : '';
+  return `<div class="zts-vue-mini-bloc" data-action="select-date" data-date="${date}" style="border-left-color:${blocColor}">
+    <span class="zts-vue-mini-ic">${t.icon}</span>
+    <span class="zts-vue-mini-titre">${esc(bloc.titre||t.label)}</span>
+    ${times}
+  </div>`;
+}
+
+function renderSemaine() {
+  const days = state.weekData || [];
+  const today = todayISO();
+  const first = days[0]?.date, last = days[days.length-1]?.date;
+  const label = (first&&last) ? `Semaine du ${formatDateFR(first)} au ${formatDateFR(last)}` : 'Semaine';
+  const dowNames = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+
+  let html = `<div class="p-date-nav" style="margin-bottom:var(--space-4)">
+    <button class="p-day-nav-btn" data-action="prev-week">◀</button>
+    <span class="p-day-title" style="text-align:center">${label}</span>
+    <button class="p-day-nav-btn" data-action="next-week">▶</button>
+  </div>
+  <div class="zts-vue-week-grid">`;
+
+  days.forEach(d => {
+    const dt = new Date(d.date+'T12:00:00');
+    const isToday = d.date===today;
+    const blocs = d.blocs||[];
+    html += `<div class="zts-vue-week-col ${isToday?'zts-vue-week-col--today':''}">
+      <div class="zts-vue-week-head" data-action="select-date" data-date="${d.date}">
+        <span class="zts-vue-week-dow">${dowNames[dt.getDay()]}</span>
+        <span class="zts-vue-week-num">${dt.getDate()}</span>
+      </div>`;
+    html += blocs.length
+      ? blocs.map(b=>renderSemaineMiniBloc(b,d.date)).join('')
+      : `<div class="zts-vue-week-empty" data-action="select-date" data-date="${d.date}">+ Planifier</div>`;
+    html += `</div>`;
+  });
+
+  html += `</div>`;
+  return html;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1035,6 +1126,15 @@ async function handleAction(action, ds) {
       if(ds.to==='historique'){state.historyEnfantId=null;state.historyData=[];}
       render(); break;
     }
+    case 'cal-mode':
+      if(ds.mode==='jour'){ if(!state.currentDate)state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
+      else if(ds.mode==='semaine'){ state.weekStart=mondayOf(state.currentDate||todayISO()); state.view='semaine'; await loadWeekData(); }
+      else { state.view='calendrier'; await loadCalendarData(); }
+      render(); break;
+    case 'prev-week':
+      state.weekStart=shiftDate(state.weekStart,-7); await loadWeekData(); render(); break;
+    case 'next-week':
+      state.weekStart=shiftDate(state.weekStart,7); await loadWeekData(); render(); break;
     case 'start-live':
       state.liveCompleted=new Set(); state.view='live'; render(); break;
     case 'stop-live':
@@ -1287,7 +1387,7 @@ async function init() {
         if(g.length){state.groupeId=g[0].id;state.orgId=g[0].orgId;localStorage.setItem(LS.groupeId,state.groupeId);localStorage.setItem(LS.orgId,state.orgId);}
       }
       console.log('[Planif] groupeId:', state.groupeId);
-      if(state.groupeId) { await loadGroupeData(); await loadCalendarData(); }
+      if(state.groupeId) { await loadGroupeData(); state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
       console.log('[Planif] render');
       render();
     });
