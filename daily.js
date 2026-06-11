@@ -47,7 +47,7 @@
       quiz: '🧠 QUIZ SPORTIF',
       quiz_good: '✅ Bonne réponse! ',
       quiz_bad: '❌ La bonne réponse était : ',
-      cta_games: 'Voir 150 autres jeux →',
+      cta_games: 'Voir 1400+ jeux →',
       weather_unavailable: 'Météo indisponible',
       your_position: 'Ta position',
       cycles_label: '🎯 SUGGESTIONS PAR CYCLE',
@@ -92,7 +92,7 @@
       quiz: '🧠 SPORTS QUIZ',
       quiz_good: '✅ Correct! ',
       quiz_bad: '❌ The right answer was: ',
-      cta_games: 'See 150 more games →',
+      cta_games: 'See 1400+ games →',
       weather_unavailable: 'Weather unavailable',
       your_position: 'Your location',
       cycles_label: '🎯 SUGGESTIONS BY CYCLE',
@@ -137,7 +137,7 @@
       quiz: '🧠 体育问答',
       quiz_good: '✅ 答对了！',
       quiz_bad: '❌ 正确答案是：',
-      cta_games: '查看其他 150 款游戏 →',
+      cta_games: '查看其他 1400+ 款游戏 →',
       weather_unavailable: '天气信息不可用',
       your_position: '你的位置',
       cycles_label: '🎯 按学段推荐',
@@ -592,6 +592,21 @@
   }
 
   // ============================================
+  // MÉTÉO #menuJour : même source que daily.js (source unique, plus de météo en dur)
+  // ============================================
+  function updateMenuJourWeather(weather) {
+    if (!weather) return;
+    var tag = document.getElementById('meteoTag');
+    var note = document.getElementById('meteoNote');
+    var temp = document.querySelector('#menuJour .meteo-temp');
+    var loc = document.querySelector('#menuJour .meteo-loc');
+    if (tag) tag.textContent = L(weather.decision);
+    if (note) note.textContent = weather.reason;
+    if (temp) temp.innerHTML = '<span class="icon">' + weather.emoji + '</span>' + weather.temp + '°C';
+    if (loc) loc.textContent = weather.label + ' · ' + weather.city;
+  }
+
+  // ============================================
   // RENDU : injecte dans #ztsTodaySection
   // ============================================
   async function render() {
@@ -613,6 +628,7 @@
 
     // Lance en parallele
     var weather = await getWeather();
+    updateMenuJourWeather(weather);
     var game = getDailyGame();
 
     // Render cards

@@ -3086,7 +3086,8 @@
     <div class="menu-jour-head">
       <span class="pill-top" data-i18n="menu.pill">✨ AUJOURD'HUI AU MENU</span>
       <h2 id="menuJourTitre">Ton cours ÉPS prêt en 30 secondes</h2>
-      <div class="date" id="menuJourDate">Dimanche 24 mai</div>
+      <div class="date" id="menuJourDate"></div>
+      <script>/* date du jour : robuste + isolée des autres <script> (s'affiche même si le reste du JS plante) */(function(){try{var el=document.getElementById('menuJourDate');if(!el)return;var n=new Date();var en=(typeof ztsLang!=='undefined'&&ztsLang==='en');var d=n.toLocaleDateString(en?'en-CA':'fr-CA',{weekday:'long',day:'numeric',month:'long'});el.textContent=d.charAt(0).toUpperCase()+d.slice(1);}catch(e){}})();</script>
     </div>
 
     <div class="menu-jour-grid">
@@ -3094,10 +3095,10 @@
       <!-- MÉTÉO & PLAN -->
       <div class="menu-jour-card meteo">
         <h3 data-i18n="menu.meteo_head">☁️ MÉTÉO & PLAN</h3>
-        <div class="meteo-temp"><span class="icon">🌧️</span>10°C</div>
-        <div class="meteo-loc" data-i18n="menu.meteo_loc">Bruine · Saint-Jean-sur-Richelieu</div>
-        <div class="meteo-tag" id="meteoTag">EXTÉRIEUR</div>
-        <div class="meteo-note" id="meteoNote">Temps idéal dehors</div>
+        <div class="meteo-temp"><span class="icon">🌤️</span>—</div>
+        <div class="meteo-loc">Saint-Jean-sur-Richelieu</div>
+        <div class="meteo-tag" id="meteoTag">MÉTÉO</div>
+        <div class="meteo-note" id="meteoNote">Chargement…</div>
         <div class="suggestions-title" id="suggTitle">★ SUGGESTIONS PAR CYCLE</div>
         <ul class="suggestions-list" id="suggList">
           <!-- Injecté en JS selon métier -->
@@ -3625,8 +3626,7 @@
   function renderMenuJour(key) {
     const m = MENU_JOUR[key] || MENU_JOUR.default;
     document.getElementById('menuJourTitre').textContent = m.titre;
-    document.getElementById('meteoTag').textContent = m.meteoTag;
-    document.getElementById('meteoNote').textContent = m.meteoNote;
+    // Météo désormais pilotée par daily.js (source unique) -> updateMenuJourWeather()
     document.getElementById('suggTitle').textContent = m.suggTitle;
     document.getElementById('suggList').innerHTML = m.suggList.map(s =>
       `<li><span class="cyc">${s.cyc}</span><span class="name">${s.name}</span><span class="desc">— ${s.desc}</span></li>`
@@ -4263,7 +4263,7 @@
       'porte.ep.cta':"C'est parti!",'porte.sdg.cta':'On y va!','porte.camp.cta':'En avant!',
       'stat.games':'Jeux & fiches','stat.sae':'SAÉ PFEQ','stat.pros':'Pros inscrits','stat.free':'Gratuit, à vie',
       'menu.pill':'✨ AUJOURD\'HUI AU MENU','menu.meteo_head':'☁️ MÉTÉO & PLAN','menu.meteo_loc':'Bruine · Saint-Jean-sur-Richelieu',
-      'menu.jeu_head':'🎮 JEU DU JOUR','menu.how_to_play':'COMMENT JOUER','menu.see_games':'VOIR 150 AUTRES JEUX →',
+      'menu.jeu_head':'🎮 JEU DU JOUR','menu.how_to_play':'COMMENT JOUER','menu.see_games':'VOIR 1400+ JEUX →',
       'menu.defi_head':'💪 DÉFI DU JOUR','menu.todo':'À FAIRE AUJOURD\'HUI',
       'metier.change':'← Changer','metier.howto_suffix':" Clique sur un outil pour l'ouvrir. Les boutons marqués « bientôt » sont en chantier.",
       'pause.label':'PAUSE SYNDICALE','pause.title':'Prends 30 secondes pour toi','pause.sub':'Une citation, une question. Un nouveau défi chaque jour.',
@@ -4313,7 +4313,7 @@
       'porte.ep.cta':"Let's go!",'porte.sdg.cta':"Let's go!",'porte.camp.cta':'Onward!',
       'stat.games':'Games & sheets','stat.sae':'PFEQ lessons','stat.pros':'Pros signed up','stat.free':'Free, for life',
       'menu.pill':'✨ TODAY ON THE MENU','menu.meteo_head':'☁️ WEATHER & PLAN','menu.meteo_loc':'Drizzle · Saint-Jean-sur-Richelieu',
-      'menu.jeu_head':'🎮 GAME OF THE DAY','menu.how_to_play':'HOW TO PLAY','menu.see_games':'SEE 150 MORE GAMES →',
+      'menu.jeu_head':'🎮 GAME OF THE DAY','menu.how_to_play':'HOW TO PLAY','menu.see_games':'SEE 1400+ GAMES →',
       'menu.defi_head':'💪 CHALLENGE OF THE DAY','menu.todo':'TO DO TODAY',
       'metier.change':'← Change','metier.howto_suffix':' Click a tool to open it. Buttons marked "soon" are in the works.',
       'pause.label':'COFFEE BREAK','pause.title':'Take 30 seconds for yourself','pause.sub':'A quote, a question. A new challenge every day.',
