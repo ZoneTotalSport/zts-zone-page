@@ -23,12 +23,12 @@
       conseil: 'Conseil du Jour',
       loading: 'Chargement...',
       inClass: 'En classe :',
-      GYMNASE: 'GYMNASE',
+      GYMNASE: 'INTÉRIEUR',
       EXTERIEUR: 'EXTÉRIEUR',
       'AU CHOIX': 'AU CHOIX',
       reason_cold: 'Trop froid',
       reason_hot: 'Trop chaud',
-      reason_rain: 'Pluie/neige active',
+      reason_rain: 'on reste au gym',
       reason_wind: 'Vent fort',
       reason_ideal: 'Temps idéal dehors',
       reason_ok: 'Temps correct',
@@ -68,12 +68,12 @@
       conseil: 'Tip of the Day',
       loading: 'Loading...',
       inClass: 'In class:',
-      GYMNASE: 'GYM',
+      GYMNASE: 'INDOOR',
       EXTERIEUR: 'OUTDOOR',
       'AU CHOIX': 'YOUR CHOICE',
       reason_cold: 'Too cold',
       reason_hot: 'Too hot',
-      reason_rain: 'Active rain/snow',
+      reason_rain: 'staying indoors',
       reason_wind: 'Strong wind',
       reason_ideal: 'Perfect outside',
       reason_ok: 'Decent weather',
@@ -118,7 +118,7 @@
       'AU CHOIX': '自由选择',
       reason_cold: '太冷',
       reason_hot: '太热',
-      reason_rain: '雨雪天',
+      reason_rain: '留在室内',
       reason_wind: '大风',
       reason_ideal: '户外理想',
       reason_ok: '天气还行',
@@ -379,14 +379,14 @@
       var code = c.weather_code;
       var emoji = weatherEmoji(code);
       var label = weatherLabel(code);
-      // Decision gym vs exterieur
+      // Decision interieur vs exterieur (seuils v2 : precipitation OU froid < 12°C => interieur)
       var decision, reason;
-      if (temp < -10) { decision = 'GYMNASE'; reason = L('reason_cold') + ' (' + temp + '°C)'; }
+      var isPrecip = rain > 0 || (typeof code === 'number' && code >= 51); // bruine(51+)/pluie/averses/neige/orage
+      if (isPrecip) { decision = 'GYMNASE'; reason = label + ' → ' + L('reason_rain'); }
+      else if (temp < 12) { decision = 'GYMNASE'; reason = L('reason_cold') + ' (' + temp + '°C)'; }
       else if (temp > 30) { decision = 'GYMNASE'; reason = L('reason_hot') + ' (' + temp + '°C)'; }
-      else if (rain > 1) { decision = 'GYMNASE'; reason = L('reason_rain'); }
       else if (wind > 40) { decision = 'GYMNASE'; reason = L('reason_wind') + ' (' + wind + ' km/h)'; }
-      else if (temp >= 5 && temp <= 25 && wind < 25) { decision = 'EXTERIEUR'; reason = L('reason_ideal'); }
-      else { decision = 'AU CHOIX'; reason = L('reason_ok'); }
+      else { decision = 'EXTERIEUR'; reason = L('reason_ideal'); }
       return { temp: temp, wind: wind, rain: rain, emoji: emoji, label: label, city: coords.city, decision: decision, reason: reason };
     } catch(e) {
       console.warn('[ZTS Daily] Weather failed:', e);
