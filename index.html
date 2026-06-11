@@ -3073,9 +3073,9 @@
   </div>
 
   <div class="stats-bar">
-    <div class="stat"><div class="num" data-target="500">0</div><div class="label" data-i18n="stat.games">Jeux & fiches</div></div>
-    <div class="stat"><div class="num" data-target="150">0</div><div class="label" data-i18n="stat.sae">SAÉ PFEQ</div></div>
-    <div class="stat"><div class="num" data-target="2300">0</div><div class="label" data-i18n="stat.pros">Pros inscrits</div></div>
+    <div class="stat"><div class="num" data-target="1439" data-suffix="">1 439</div><div class="label" data-i18n="stat.games">Jeux & fiches</div></div>
+    <div class="stat"><div class="num" data-target="1790" data-suffix="">1 790</div><div class="label" data-i18n="stat.sae">SAÉ PFEQ</div></div>
+    <div class="stat"><div class="num" id="statPros" data-target="300" data-suffix="+">300+</div><div class="label" data-i18n="stat.pros">Pros inscrits</div></div>
     <div class="stat"><div class="num">100%</div><div class="label" data-i18n="stat.free">Gratuit, à vie</div></div>
   </div>
 </section>
@@ -3656,24 +3656,41 @@
   renderMenuJour('default');
 
   // ============ ANIMATIONS COUNTERS ============
+  function animateOne(el) {
+    const target = parseInt(el.dataset.target);
+    const suffix = el.dataset.suffix != null ? el.dataset.suffix : '+';
+    const duration = 1400;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = Math.floor(target * eased);
+      el.textContent = val.toLocaleString('fr-CA') + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
   function animateCounters() {
-    document.querySelectorAll('.stat .num[data-target]').forEach(el => {
-      const target = parseInt(el.dataset.target);
-      const duration = 1400;
-      const start = performance.now();
-      const startVal = 0;
-      function tick(now) {
-        const t = Math.min(1, (now - start) / duration);
-        const eased = 1 - Math.pow(1 - t, 3);
-        const val = Math.floor(startVal + (target - startVal) * eased);
-        el.textContent = val.toLocaleString('fr-CA') + (target >= 500 ? '+' : '+');
-        if (t < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    });
+    document.querySelectorAll('.stat .num[data-target]').forEach(animateOne);
   }
   // Lance au chargement
   setTimeout(animateCounters, 400);
+
+  // Compteur "Pros inscrits" : vrai nombre d'abonnés via worker, fallback "300+"
+  (function fetchProsCount() {
+    const el = document.getElementById('statPros');
+    if (!el || !window.fetch) return;
+    fetch('https://zone-subscriber-count.zts-ccd.workers.dev')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d && typeof d.total === 'number' && d.total > 0) {
+          el.dataset.target = String(d.total);
+          el.dataset.suffix = '';
+          animateOne(el);
+        }
+      })
+      .catch(() => { /* garde le fallback "300+" déjà affiché */ });
+  })();
 
   // ============ CHOISIR UN MÉTIER → navigation vers le hub ============
   // Source de vérité unique par métier = le hub. La langue active est déjà
