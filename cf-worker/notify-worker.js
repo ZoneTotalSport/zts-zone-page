@@ -22,6 +22,13 @@ const CORS = {
 
 export default {
   async fetch(request) {
+    // robots.txt valide (webhook interne -> jamais indexé). Corrige l'erreur
+    // critique GSC : auparavant le worker renvoyait 'OK' sur /robots.txt.
+    if (request.method === 'GET' && new URL(request.url).pathname === '/robots.txt') {
+      return new Response('User-agent: *\nDisallow: /\n', {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      });
+    }
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS });
     }
