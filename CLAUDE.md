@@ -53,9 +53,14 @@ fusionnées (voir zts-refonte-sequencage.md, Fusions #1 à #4).
   standardisés, météo dynamique #menuJour, date du jour robuste, preuve sociale '300+'
   unifiée, accents/emoji corrigés, toggle calendrier Jour/Semaine/Mois du planificateur.
 - Vérifié en prod : '1400+ jeux' visible sur la home après rebuild GitHub Pages.
-- ⚠️ Worker `zts-notify` (handler `/robots.txt`, commit `b86d637`) : code poussé mais
-  **redéploiement Cloudflare encore requis** (le push GitHub ne déploie pas le worker).
-  URL servie = `https://notify.zonetotalsport.ca/robots.txt` (pas l'apex).
+- ✅ Worker `zts-notify` (handler `/robots.txt`, commit `b86d637`) : **déployé via wrangler
+  CLI le 2026-06-12** (version `a3b2dc01`). `notify.zonetotalsport.ca/robots.txt` renvoie
+  désormais un robots.txt valide avec `User-agent: * / Disallow: /` — l'ancienne ligne
+  invalide `OK` (erreur critique GSC) a disparu.
+- ⚠️ Cloudflare sert un **robots.txt managé** sur la zone (« Managed content », bloc
+  content-signals + Disallow anti-bots IA) qui se **préfixe** à la réponse du Worker. Résultat
+  valide mais avec deux groupes `User-agent: *` (managé `Allow:/` puis worker `Disallow:/`).
+  Pour un `Disallow:/` propre et unique : désactiver le robots.txt managé sur la zone (optionnel).
 - Branche `fix/phase1-coherence` supprimée (fusionnée, jamais poussée sur le remote).
 
 ## État des branches (2026-06-12)
@@ -68,7 +73,9 @@ fusionnées (voir zts-refonte-sequencage.md, Fusions #1 à #4).
 ## Dette technique
 - **Aucun pre-commit hook réel installé** (`.git/hooks/pre-commit` absent). Le scan de
   secrets est manuel pour l'instant — mettre en place un hook (ex. gitleaks) plus tard.
-- **Worker `zts-notify` déployé à la main via dashboard Cloudflare** (cf. `cf-worker/DEPLOY.md`).
-  Le déploiement CLI (`wrangler deploy`) n'est pas opérationnel sur cette machine : ni Node
-  ni npm/npx installés. Installer le toolchain Node + wrangler pour activer le deploy CLI.
+- **Toolchain Node installé le 2026-06-12** : Node v24.16.0 + npm + wrangler 4.100.0 sous
+  `~/.local/node` (espace utilisateur, sans sudo/Homebrew). `wrangler login` OAuth fonctionnel
+  (compte `zts@hotmail.ca`). Les workers `cf-worker/*` sont désormais déployables en CLI :
+  `export PATH="$HOME/.local/node/bin:$PATH"` puis `wrangler deploy` depuis le dossier du worker.
+  Le `~/.local/node/bin` n'est pas encore dans le PATH du shell par défaut (à ajouter au `~/.zshrc`).
 - Dossier `cf-worker/notif-stats/` non-suivi (non commité) — à inspecter au prochain sprint.
