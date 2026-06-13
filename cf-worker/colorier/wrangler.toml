@@ -1,0 +1,21 @@
+name = "zts-colorier"
+main = "src/worker.js"
+compatibility_date = "2025-05-01"
+
+# Moteur image : Cloudflare Workers AI (Flux), gratuit.
+[ai]
+binding = "AI"
+
+[vars]
+QUOTA_ANON_DAY = "15"
+AI_MODEL = "@cf/black-forest-labs/flux-1-schnell"
+
+# KV pour le quota anonyme (namespace « COLORIER_QUOTA » créé le 13 juin 2026).
+[[kv_namespaces]]
+binding = "ANON_QUOTA"
+id = "886d08dd8eba4488ae3136b09d8208e3"
+
+# KV pour la banque d'images partagée (permanent, sans TTL).
+[[kv_namespaces]]
+binding = "PAGES"
+id = "b82bdc9e15f041b4b5f38394014c6470"

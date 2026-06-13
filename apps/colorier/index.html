@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎨 Pages à colorier — Zone Total Sport</title>
+  <!-- ZTS-SEO -->
+  <link rel="canonical" href="https://zonetotalsport.ca/apps/colorier/">
+  <link rel="alternate" hreflang="fr-CA" href="https://zonetotalsport.ca/apps/colorier/">
+  <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/apps/colorier/">
+  <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/apps/colorier/?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/apps/colorier/">
+  <meta property="og:title" content="🎨 Pages à colorier — Zone Total Sport">
+  <meta property="og:description" content="Génère, colorie en ligne et imprime des pages à colorier sur le sport et les saines habitudes de vie. Idéal pour la compétence 3 du PFEQ en éducation physique au primaire.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zonetotalsport.ca/apps/colorier/">
+  <meta property="og:image" content="https://zonetotalsport.ca/favicon.png">
+  <meta property="og:locale" content="fr_CA">
+  <meta property="og:site_name" content="Zone Total Sport">
+  <meta name="twitter:card" content="summary">
+  <!-- /ZTS-SEO -->
+  <meta name="description" content="Génère, colorie en ligne et imprime des pages à colorier sport et saines habitudes de vie. Export PDF. Gratuit, compétence 3 du PFEQ au primaire.">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/zts-ultra.css">
+  <link rel="stylesheet" href="../../shared/zts-header.css">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@400;600;800;900&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+
+  <!-- ZTS-JSONLD -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "🎨 Pages à colorier — Zone Total Sport",
+  "description": "Génère, colorie en ligne et imprime des pages à colorier sport et saines habitudes de vie.",
+  "url": "https://zonetotalsport.ca/apps/colorier/",
+  "applicationCategory": "EducationApplication",
+  "operatingSystem": "Web",
+  "inLanguage": ["fr-CA", "en"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Zone Total Sport",
+    "url": "https://zonetotalsport.ca/",
+    "logo": "https://zonetotalsport.ca/favicon.png"
+  }
+}
+  </script>
+  <!-- /ZTS-JSONLD -->
+</head>
+<body class="col-body">
+
+  <!-- Header partagé ZTS -->
+  <div data-zts-header></div>
+
+  <!-- ============ HERO ============ -->
+  <section class="zts-landing-hero-card col-hero">
+    <div class="zts-landing-hero-grid">
+      <div class="zts-landing-hero-text">
+        <div class="col-badge" data-i18n="hero_badge">🖍️ COLORIE EN LIGNE &amp; IMPRIME</div>
+        <h1 class="zts-landing-title" data-i18n="hero_title">PAGES À COLORIER</h1>
+        <p class="zts-landing-subtitle" data-i18n="hero_subtitle">Décris un sport ou une saine habitude de vie. Le bûcheron dessine une page que tu peux colorier directement à l'écran, imprimer ou exporter en PDF.</p>
+      </div>
+      <div class="zts-landing-mascot-wrap">
+        <img src="/bucheron-generateur.png" alt="Bûcheron Mr Root" class="zts-landing-mascot">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FORMULAIRE ============ -->
+  <main class="col-main">
+
+    <!-- ÉTAPE 1 : MENUS D'IDÉES -->
+    <section class="col-step">
+      <h2 class="col-step-title"><span class="col-step-num">1</span> <span data-i18n="step1_title">Pige une idée</span></h2>
+      <div class="col-selects">
+        <div class="col-select-wrap col-select-wrap--cyan">
+          <label class="col-select-label" for="selSports" data-i18n="grp_sports">🏀 Sports &amp; équipements</label>
+          <select id="selSports" class="col-select" data-group="sports">
+            <option value="" data-i18n="opt_choose">— Choisir —</option>
+            <option value="un ballon de basketball" data-i18n="c_basket">🏀 Ballon de basket</option>
+            <option value="un enfant qui tient un ballon de soccer" data-i18n="c_soccer">⚽ Joueur de soccer</option>
+            <option value="une paire de patins de hockey" data-i18n="c_patins">⛸️ Patins de hockey</option>
+            <option value="une raquette de badminton avec un volant" data-i18n="c_badminton">🏸 Badminton</option>
+            <option value="un enfant qui saute à la corde" data-i18n="c_corde">🤸 Saut à la corde</option>
+            <option value="un cône et un sifflet de gymnase" data-i18n="c_cone">🟧 Cône &amp; sifflet</option>
+            <option value="un gardien de but de hockey avec son équipement" data-i18n="c_gardien">🥅 Gardien de but</option>
+            <option value="un enfant qui grimpe à un mur d'escalade" data-i18n="c_escalade">🧗 Escalade</option>
+            <option value="un ballon de football américain" data-i18n="c_football">🏈 Ballon de football</option>
+            <option value="une balle et un gant de baseball" data-i18n="c_baseball">⚾ Baseball</option>
+            <option value="un enfant qui fait du ski alpin" data-i18n="c_ski">🎿 Ski</option>
+            <option value="un nageur dans une piscine" data-i18n="c_natation">🏊 Natation</option>
+          </select>
+        </div>
+
+        <div class="col-select-wrap col-select-wrap--lime">
+          <label class="col-select-label" for="selSante" data-i18n="grp_sante">🥕 Saines habitudes de vie</label>
+          <select id="selSante" class="col-select" data-group="sante">
+            <option value="" data-i18n="opt_choose">— Choisir —</option>
+            <option value="une assiette équilibrée avec des fruits et légumes" data-i18n="h_assiette">🥗 Assiette équilibrée</option>
+            <option value="un enfant qui boit une bouteille d'eau" data-i18n="h_eau">💧 Boire de l'eau</option>
+            <option value="un enfant qui dort paisiblement dans son lit" data-i18n="h_sommeil">😴 Bien dormir</option>
+            <option value="un panier de fruits variés" data-i18n="h_fruits">🍎 Panier de fruits</option>
+            <option value="un enfant qui se brosse les dents" data-i18n="h_dents">🪥 Hygiène des dents</option>
+            <option value="un enfant qui s'étire avant de faire du sport" data-i18n="h_etirement">🧘 S'étirer</option>
+            <option value="une famille qui marche dehors au parc" data-i18n="h_marche">🚶 Bouger dehors</option>
+            <option value="un enfant qui se lave les mains au lavabo" data-i18n="h_mains">🧼 Laver ses mains</option>
+            <option value="un enfant qui mange un déjeuner santé" data-i18n="h_dejeuner">🥣 Déjeuner santé</option>
+            <option value="un verre de lait et du fromage" data-i18n="h_lait">🥛 Produits laitiers</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- ÉTAPE 2 : IDÉE PERSO (révélée par la case à cocher) -->
+    <section class="col-step">
+      <h2 class="col-step-title"><span class="col-step-num">2</span> <span data-i18n="step2_title">Que veux-tu colorier ?</span></h2>
+      <label class="col-toggle">
+        <input type="checkbox" id="customToggle">
+        <span class="col-toggle-box" aria-hidden="true">✓</span>
+        <span class="col-toggle-text" data-i18n="custom_toggle">✍️ J'écris ma propre idée</span>
+      </label>
+      <div class="col-input-wrap" id="customWrap" hidden>
+        <input id="subjectInput" class="col-input" type="text" maxlength="140"
+          data-i18n-ph="subject_ph" placeholder="ex. un joueur de soccer qui frappe le ballon">
+        <span class="col-input-icon">✏️</span>
+      </div>
+    </section>
+
+    <!-- BOUTON GÉNÉRER -->
+    <div class="col-cta-wrap">
+      <button id="generateBtn" type="button" class="col-cta-btn">
+        <span class="col-cta-icon">🎨</span>
+        <span class="col-cta-text" data-i18n="cta_generate">DESSINER MA PAGE</span>
+      </button>
+      <p id="quotaHint" class="col-quota-hint" data-i18n="quota_default">15 dessins gratuits par jour.</p>
+    </div>
+
+    <!-- ZONE RÉSULTAT -->
+    <section id="resultZone" class="col-result" hidden>
+
+      <!-- LOADING -->
+      <div id="loadingState" class="col-loading" hidden>
+        <img src="/bucheron-hero.png" alt="" class="col-loading-bucheron">
+        <p class="col-loading-msg" data-i18n="loading_msg">Le bûcheron taille ton dessin au trait...</p>
+        <div class="col-loading-dots"><span></span><span></span><span></span></div>
+      </div>
+
+      <!-- STUDIO DE COLORIAGE -->
+      <div id="studio" class="col-studio" hidden>
+
+        <!-- BARRE D'OUTILS -->
+        <div class="col-tools no-print">
+          <div class="col-toolset" role="radiogroup" aria-label="Outils">
+            <button type="button" class="col-tool is-active" data-tool="fill" title="Pot de peinture"><span>🪣</span><span data-i18n="tool_fill">REMPLIR</span></button>
+            <button type="button" class="col-tool" data-tool="brush" title="Pinceau"><span>🖌️</span><span data-i18n="tool_brush">PINCEAU</span></button>
+            <button type="button" class="col-tool" data-tool="eraser" title="Gomme"><span>🧽</span><span data-i18n="tool_eraser">GOMME</span></button>
+          </div>
+
+          <div class="col-sizewrap" id="sizeWrap" hidden>
+            <label for="brushSize" data-i18n="tool_size">Taille</label>
+            <input type="range" id="brushSize" min="4" max="60" value="18">
+          </div>
+
+          <div class="col-palette" id="palette" aria-label="Palette de couleurs"></div>
+
+          <label class="col-custom" title="Couleur personnalisée">
+            <span class="col-custom-emoji">➕</span>
+            <input type="color" id="customColor" value="#ff6b6b">
+          </label>
+
+          <button type="button" class="col-tool col-tool--reset" id="resetBtn" title="Tout effacer"><span>↺</span><span data-i18n="tool_reset">RECOMMENCER</span></button>
+        </div>
+
+        <!-- TOILE -->
+        <figure class="col-canvas-card">
+          <canvas id="colorCanvas" class="col-canvas"></canvas>
+          <figcaption id="imageCaption" class="col-image-caption"></figcaption>
+        </figure>
+
+        <!-- ACTIONS EXPORT -->
+        <div class="col-actions no-print">
+          <button id="printBtn" class="col-foot-btn col-foot-btn--yellow"><span>🖨️</span><span data-i18n="btn_print">IMPRIMER</span></button>
+          <button id="pngBtn" class="col-foot-btn col-foot-btn--cyan"><span>⬇️</span><span data-i18n="btn_png">PNG</span></button>
+          <button id="pdfBtn" class="col-foot-btn col-foot-btn--lime"><span>📄</span><span data-i18n="btn_pdf">PDF</span></button>
+          <button id="regenBtn" class="col-foot-btn col-foot-btn--violet"><span>🔄</span><span data-i18n="btn_regen">AUTRE VERSION</span></button>
+        </div>
+        <p class="col-hint" data-i18n="studio_hint">Astuce : clique dans une zone avec le pot 🪣 pour la remplir. Imprime vierge pour colorier sur papier.</p>
+      </div>
+
+      <!-- ERREUR -->
+      <div id="errorState" class="col-error" hidden>
+        <h3 data-i18n="error_title">Oups, le bûcheron a glissé sur une bûche…</h3>
+        <p id="errorMsg"></p>
+        <button id="retryBtn" class="col-cta-btn col-cta-btn--small" data-i18n="error_retry">🔄 Réessayer</button>
+      </div>
+    </section>
+
+    <!-- ============ BANQUE DE PAGES ============ -->
+    <section id="bankSection" class="col-bank" hidden>
+      <h2 class="col-step-title"><span class="col-step-num col-step-num--bank">🗂️</span> <span data-i18n="bank_title">Banque de pages</span></h2>
+      <p class="col-bank-sub" data-i18n="bank_sub">Des pages déjà créées — clique pour la colorier tout de suite (gratuit, instantané).</p>
+      <div id="bankGrid" class="col-bank-grid"></div>
+    </section>
+
+    <p class="col-disclaimer" data-i18n="disclaimer">Images générées par IA (Gemini) — destinées à un usage pédagogique. Les logos d'équipes sont réinterprétés de façon générique.</p>
+  </main>
+
+  <script src="app.js" defer></script>
+  <!-- i18n statique -->
+  <script>
+  (function(){
+    const I18N = {
+      fr: {
+        hero_badge:'🖍️ COLORIE EN LIGNE & IMPRIME', hero_title:'PAGES À COLORIER',
+        hero_subtitle:"Décris un sport ou une saine habitude de vie. Le bûcheron dessine une page que tu peux colorier directement à l'écran, imprimer ou exporter en PDF.",
+        step1_title:'Pige une idée', subject_ph:'ex. un joueur de soccer qui frappe le ballon',
+        step2_title:'Que veux-tu colorier ?', custom_toggle:"✍️ J'écris ma propre idée", opt_choose:'— Choisir —',
+        grp_sports:'🏀 Sports & équipements', grp_sante:'🥕 Saines habitudes de vie',
+        c_basket:'🏀 Ballon de basket', c_soccer:'⚽ Joueur de soccer', c_patins:'⛸️ Patins de hockey',
+        c_badminton:'🏸 Badminton', c_corde:'🤸 Saut à la corde', c_cone:'🟧 Cône & sifflet',
+        c_gardien:'🥅 Gardien de but', c_escalade:'🧗 Escalade', c_football:'🏈 Ballon de football',
+        c_baseball:'⚾ Baseball', c_ski:'🎿 Ski', c_natation:'🏊 Natation',
+        h_assiette:'🥗 Assiette équilibrée', h_eau:"💧 Boire de l'eau", h_sommeil:'😴 Bien dormir',
+        h_fruits:'🍎 Panier de fruits', h_dents:'🪥 Hygiène des dents', h_etirement:"🧘 S'étirer",
+        h_marche:'🚶 Bouger dehors', h_mains:'🧼 Laver ses mains', h_dejeuner:'🥣 Déjeuner santé', h_lait:'🥛 Produits laitiers',
+        cta_generate:'DESSINER MA PAGE', quota_default:'15 dessins gratuits par jour.',
+        loading_msg:'Le bûcheron taille ton dessin au trait...',
+        tool_fill:'REMPLIR', tool_brush:'PINCEAU', tool_eraser:'GOMME', tool_size:'Taille', tool_reset:'RECOMMENCER',
+        btn_print:'IMPRIMER', btn_png:'PNG', btn_pdf:'PDF', btn_regen:'AUTRE VERSION',
+        studio_hint:'Astuce : clique dans une zone avec le pot 🪣 pour la remplir. Imprime vierge pour colorier sur papier.',
+        bank_title:'Banque de pages', bank_sub:'Des pages déjà créées — clique pour la colorier tout de suite (gratuit, instantané).',
+        error_title:'Oups, le bûcheron a glissé sur une bûche…', error_retry:'🔄 Réessayer',
+        disclaimer:"Images générées par IA (Gemini) — destinées à un usage pédagogique. Les logos d'équipes sont réinterprétés de façon générique."
+      },
+      en: {
+        hero_badge:'🖍️ COLOR ONLINE & PRINT', hero_title:'COLORING PAGES',
+        hero_subtitle:'Describe a sport or a healthy habit. The lumberjack draws a page you can color right on screen, print, or export as PDF.',
+        step1_title:'Pick an idea', subject_ph:'e.g. a soccer player kicking the ball',
+        step2_title:'What do you want to color?', custom_toggle:"✍️ I'll write my own idea", opt_choose:'— Choose —',
+        grp_sports:'🏀 Sports & equipment', grp_sante:'🥕 Healthy lifestyle habits',
+        c_basket:'🏀 Basketball', c_soccer:'⚽ Soccer player', c_patins:'⛸️ Hockey skates',
+        c_badminton:'🏸 Badminton', c_corde:'🤸 Jump rope', c_cone:'🟧 Cone & whistle',
+        c_gardien:'🥅 Goalie', c_escalade:'🧗 Climbing', c_football:'🏈 Football',
+        c_baseball:'⚾ Baseball', c_ski:'🎿 Skiing', c_natation:'🏊 Swimming',
+        h_assiette:'🥗 Balanced plate', h_eau:'💧 Drinking water', h_sommeil:'😴 Good sleep',
+        h_fruits:'🍎 Fruit basket', h_dents:'🪥 Brushing teeth', h_etirement:'🧘 Stretching',
+        h_marche:'🚶 Move outdoors', h_mains:'🧼 Washing hands', h_dejeuner:'🥣 Healthy breakfast', h_lait:'🥛 Dairy products',
+        cta_generate:'DRAW MY PAGE', quota_default:'15 free drawings per day.',
+        loading_msg:'The lumberjack is carving your line art...',
+        tool_fill:'FILL', tool_brush:'BRUSH', tool_eraser:'ERASER', tool_size:'Size', tool_reset:'RESTART',
+        btn_print:'PRINT', btn_png:'PNG', btn_pdf:'PDF', btn_regen:'ANOTHER VERSION',
+        studio_hint:'Tip: click inside an area with the bucket 🪣 to fill it. Print it blank to color on paper.',
+        bank_title:'Page bank', bank_sub:'Pages already created — click one to color it right away (free, instant).',
+        error_title:'Oops, the lumberjack slipped on a log…', error_retry:'🔄 Try again',
+        disclaimer:'Images generated by AI (Gemini) — for educational use. Team logos are reinterpreted generically.'
+      }
+    };
+    function lang(){ try { return (window.ZTS && ZTS.getLang && ZTS.getLang()) || (new URLSearchParams(location.search).get('lang')==='en'?'en':'fr'); } catch(e){ return 'fr'; } }
+    function apply(){
+      const d = I18N[lang()] || I18N.fr;
+      document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]!=null) el.textContent=d[k]; });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ const k=el.getAttribute('data-i18n-ph'); if(d[k]!=null) el.placeholder=d[k]; });
+    }
+    window.ztsColStaticI18n = apply;
+    document.addEventListener('zts:ready', apply);
+    document.addEventListener('zts:langchange', apply);
+    if (document.readyState !== 'loading') apply();
+    else document.addEventListener('DOMContentLoaded', apply);
+  })();
+  </script>
+  <!-- Header partagé : injection + horloge + i18n -->
+  <script src="../../shared/zts.js"></script>
+</body>
+</html>
