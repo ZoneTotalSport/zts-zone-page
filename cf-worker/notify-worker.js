@@ -119,11 +119,11 @@ export default {
 
 async function sendNtfy(env, { title, body, priority = '3', tags = '' }) {
   if (!env.NTFY_TOPIC) throw new Error('NTFY_TOPIC manquant');
-  const r = await fetch(`https://ntfy.sh/${env.NTFY_TOPIC}`, {
-    method: 'POST',
-    headers: { 'Title': title, 'Priority': String(priority), 'Tags': tags },
-    body,
-  });
+  const headers = { 'Title': title, 'Priority': String(priority), 'Tags': tags };
+  // Auth ntfy : les Workers sortent par IP partagées que ntfy.sh rate-limite (429).
+  // Un token (compte gratuit) authentifie la requête → limites par compte, pas par IP.
+  if (env.NTFY_TOKEN) headers['Authorization'] = `Bearer ${env.NTFY_TOKEN}`;
+  const r = await fetch(`https://ntfy.sh/${env.NTFY_TOPIC}`, { method: 'POST', headers, body });
   if (!r.ok) throw new Error('ntfy ' + r.status);
 }
 
