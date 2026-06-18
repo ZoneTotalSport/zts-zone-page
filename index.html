@@ -4603,6 +4603,9 @@
     const email = (document.getElementById('signupEmail')?.value || '').trim();
     try { sessionStorage.setItem('zts_signup_prefill_email', email); } catch(_) {}
     try { sessionStorage.setItem('zts_signup_source', 'home_banner'); } catch(_) {}
+    // GA4 funnel-top : intention d'inscription depuis la section home + ouverture popup.
+    if (window.ztsTrack) window.ztsTrack('signup_homepage_section', { location: 'join_zone' });
+    if (window.ztsTrackPopupShown) window.ztsTrackPopupShown('home_banner');
     if (window.ztsShowSignup) { window.ztsShowSignup(); return; }
     // Fallback si firebase-auth.js pas encore chargé : relais courriel
     const box = document.getElementById('signupMsg');
@@ -4676,6 +4679,10 @@
 <!-- DESIGN SYSTEM PARTAGÉ : injecte header/footer, horloge, toggle FR/EN.
      Chargé APRÈS le script de la home pour que le pont soit déjà branché. -->
 <script src="shared/zts.js"></script>
+<!-- GA4 + Consent Mode v2 (doit charger AVANT firebase-auth.js pour que gtag /
+     les hooks ztsTrack* existent quand l'auth déclenche sign_up/login). -->
+<script src="/analytics.js" defer></script>
+<script src="/cookie-consent.js" defer></script>
 <script src="/firebase-auth.js" defer></script>
 <script src="/zts-funnel.js" defer></script>
 <script src="shared/zts-unlock.js"></script>

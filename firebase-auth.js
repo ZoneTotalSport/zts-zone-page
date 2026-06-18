@@ -581,6 +581,9 @@
     if (window.ztsTrackFunnel) {
       window.ztsTrackFunnel('signup_complete', { source: 'auth', method: method, signup_source: signup_source });
     }
+    // popup_converted : toute inscription se finalise via la modale (popup).
+    // Donne une donnée réelle à cet event GA4, attribuée à la source d'origine.
+    if (window.ztsTrackPopupConverted) window.ztsTrackPopupConverted(signup_source);
   }
 
   function handleSignup() {
