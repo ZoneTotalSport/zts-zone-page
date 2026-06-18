@@ -5,3 +5,8 @@ compatibility_date = "2025-01-01"
 routes = [
   { pattern = "notify.zonetotalsport.ca", custom_domain = true }
 ]
+
+# Cron — rapport stats quotidien. 0 13 UTC ≈ 9h Québec l'été (EDT, UTC-4),
+# 8h l'hiver (EST, UTC-5). Le worker rapporte la VEILLE (jour UTC complet).
+[triggers]
+crons = ["0 13 * * *"]
