@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planification de la semaine — Zone Total Sport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--jaune:#F2FF00;--jaune-d:#D9E600;--cyan:#19C3FF;--vert:#4ED11A;--orange:#FF7A00;--rose:#FF2D7E;
+  --gris:#E2E6EC;--gris-d:#AEB7C2;--gris-dd:#8A95A3;--ink:#0a0a0a;--bord:5px solid var(--ink)}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:'Fredoka',system-ui,sans-serif;font-weight:600;color:var(--ink);min-height:100vh;padding:24px;background:var(--cyan);
+  background-image:repeating-conic-gradient(from 0deg at 88% 96%,var(--jaune) 0deg 7deg,transparent 7deg 14deg);background-attachment:fixed}
+.sheet{max-width:1500px;margin:0 auto;background:#fff;border:var(--bord);border-radius:38px;box-shadow:14px 14px 0 rgba(0,0,0,.85);padding:clamp(16px,2.5vw,34px)}
+.sheet__title{font-family:'Luckiest Guy',cursive;text-align:center;font-size:clamp(2rem,5vw,3.4rem);color:var(--jaune);-webkit-text-stroke:2px var(--ink);letter-spacing:1px;margin:0 0 4px}
+.sheet__week{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sheet__week label{font-family:'Luckiest Guy',cursive;color:var(--cyan);-webkit-text-stroke:1px var(--ink);font-size:clamp(1.1rem,2.5vw,1.7rem)}
+.sheet__week input{font-family:'Fredoka';font-weight:700;font-size:1.1rem;padding:8px 14px;border:var(--bord);border-radius:14px;box-shadow:4px 4px 0 var(--ink)}
+.toolbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.btn{font-family:'Luckiest Guy',cursive;font-size:1.02rem;cursor:pointer;color:var(--ink);padding:10px 18px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);background:var(--gris);transition:transform .1s,box-shadow .1s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink);background:#eef1f5}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.btn--print{background:var(--gris-dd);color:#fff}
+.btn--big{background:var(--vert);color:#fff;font-size:1.2rem;padding:14px 28px}
+.stepper{display:flex;align-items:center;gap:8px;font-family:'Luckiest Guy',cursive;font-size:1rem;background:var(--gris);border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);padding:6px 12px}
+.stepper b{min-width:24px;text-align:center;font-size:1.3rem;color:var(--cyan);-webkit-text-stroke:.5px var(--ink)}
+.stepper button{font-family:'Luckiest Guy',cursive;cursor:pointer;width:34px;height:34px;border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:2px 2px 0 var(--ink);font-size:1.2rem}
+.stepper button:hover{background:var(--jaune)}
+
+.grid{display:grid;gap:10px;align-items:stretch}
+.rail{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;border:var(--bord);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:8px 6px;background:#fff}
+.rail__lbl{font-family:'Luckiest Guy',cursive;font-size:clamp(.85rem,1.2vw,1.1rem);color:var(--cyan);-webkit-text-stroke:.4px var(--ink);border:none;text-align:center;width:100%;background:transparent}
+.rail.alt .rail__lbl{color:var(--jaune-d)}
+.rail__hrs{display:flex;align-items:center;gap:3px;font-family:'Fredoka';font-weight:700;font-size:.82rem;color:#555}
+.rail__hrs input{width:48px;text-align:center;border:2px dashed #bbb;border-radius:8px;font-family:'Fredoka';font-weight:700;font-size:.82rem;padding:3px}
+.rail__ctrl{display:flex;gap:3px;margin-top:3px}
+.rail__ctrl button{cursor:pointer;width:26px;height:26px;border:2px solid var(--ink);border-radius:8px;background:#fff;box-shadow:1px 1px 0 var(--ink);font-size:.8rem;display:flex;align-items:center;justify-content:center;padding:0}
+.rail__ctrl button:hover{background:var(--jaune)}.rail__ctrl .del:hover{background:var(--rose);color:#fff}
+.rail--break{grid-column:1 / -1;background:var(--jaune);border-radius:14px;flex-direction:row;gap:10px;flex-wrap:wrap}
+.rail--break .rail__lbl{color:var(--ink);-webkit-text-stroke:0;font-size:clamp(1rem,1.6vw,1.4rem);width:auto}
+.addbar{grid-column:1 / -1;display:flex;gap:12px;justify-content:center;padding:4px}
+.addbar button{font-family:'Luckiest Guy',cursive;cursor:pointer;font-size:.95rem;border:var(--bord);border-radius:14px;box-shadow:4px 4px 0 var(--ink);padding:8px 16px;background:#fff}
+.addbar button:hover{background:var(--jaune);transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+
+.day-hd{border:var(--bord);border-radius:20px;box-shadow:6px 6px 0 var(--ink);overflow:hidden;background:#fff}
+.day-hd__name{font-family:'Luckiest Guy',cursive;text-align:center;font-size:clamp(1.1rem,2vw,1.7rem);padding:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+.day-hd__name input[type=checkbox]{width:22px;height:22px}
+.day-hd__date{width:100%;text-align:center;font-family:'Luckiest Guy',cursive;font-size:clamp(1rem,1.8vw,1.4rem);border:none;border-top:4px solid var(--ink);padding:6px;background:#fff;color:var(--orange)}
+.day-hd.j0 .day-hd__name,.day-hd.j2 .day-hd__name,.day-hd.j4 .day-hd__name{background:var(--jaune)}
+.day-hd.j1 .day-hd__name,.day-hd.j3 .day-hd__name{background:var(--cyan);color:#fff}
+.day-hd.j1 .day-hd__date,.day-hd.j3 .day-hd__date{color:var(--vert)}
+
+.slot{border:var(--bord);border-radius:18px;box-shadow:5px 5px 0 var(--ink);background:#fff;padding:8px;display:flex;flex-direction:column;gap:6px;min-height:120px}
+.slot--off{background:#f1f5f9;border-style:dashed}
+.slot__row{display:flex;flex-direction:column;gap:2px}
+.slot__lbl{font-family:'Luckiest Guy',cursive;color:var(--cyan);-webkit-text-stroke:.4px var(--ink);font-size:.95rem}
+.slot input.g{font-family:'Fredoka';font-weight:600;border:none;border-bottom:2px dashed #bbb;padding:2px 4px;font-size:1rem;width:100%}
+.slot input:focus,.rail__lbl:focus,.rail__hrs input:focus{outline:2px solid var(--cyan);border-radius:6px;background:#fbfeff}
+.acts__hd{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.act-pm{display:flex;gap:4px}
+.act-pm button{font-family:'Luckiest Guy',cursive;cursor:pointer;width:28px;height:28px;border:3px solid var(--ink);border-radius:9px;background:var(--vert);color:#fff;box-shadow:2px 2px 0 var(--ink);font-size:1rem}
+.act-pm button.minus{background:#fff;color:var(--ink)}
+.act-pm button:hover{transform:translate(-1px,-1px)}
+.acts__list{display:flex;flex-direction:column;gap:5px;margin-top:4px}
+.act-chip{display:flex;align-items:center;gap:6px;width:100%;text-align:left;cursor:pointer;font-family:'Fredoka';font-weight:700;font-size:.92rem;
+  background:#FFFCE0;border:3px solid var(--ink);border-radius:11px;box-shadow:3px 3px 0 var(--ink);padding:6px 9px;transition:transform .1s}
+.act-chip:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink);background:#fff7c2}
+.act-chip .t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act-chip .dur{font-family:'Luckiest Guy',cursive;font-size:.72rem;color:var(--orange);background:#fff;border:2px solid var(--ink);border-radius:8px;padding:1px 5px}
+.act-chip.is-done{filter:grayscale(1);opacity:.7;background:#e9e9e9}
+.act-chip .fait{font-family:'Luckiest Guy',cursive;font-size:.72rem;color:#fff;background:var(--vert);border:2px solid var(--ink);border-radius:8px;padding:1px 6px}
+.act-empty{font-family:'Fredoka';font-size:.82rem;opacity:.5}
+
+/* Modal */
+.modal{position:fixed;inset:0;z-index:1000;background:rgba(10,10,30,.82);display:none;align-items:center;justify-content:center;padding:18px}
+.modal.open{display:flex}
+.modal__box{background:#fff;border:var(--bord);border-radius:26px;box-shadow:12px 12px 0 rgba(0,0,0,.6);max-width:920px;width:100%;max-height:92vh;overflow:auto;padding:20px;position:relative}
+.modal__x{position:absolute;top:12px;right:12px;font-family:'Luckiest Guy',cursive;font-size:1.1rem;cursor:pointer;background:var(--rose);color:#fff;border:3px solid var(--ink);border-radius:50%;width:46px;height:46px;box-shadow:3px 3px 0 var(--ink)}
+.f-lbl{font-family:'Luckiest Guy',cursive;color:var(--cyan);-webkit-text-stroke:.4px var(--ink);font-size:1.05rem;margin:12px 0 4px;display:block}
+.f-in,.f-ta{width:100%;font-family:'Fredoka';font-weight:600;font-size:1rem;border:3px solid var(--ink);border-radius:12px;padding:10px 12px;box-shadow:3px 3px 0 var(--ink)}
+.f-ta{min-height:80px;resize:vertical}
+.f-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.medias{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.media-it{display:flex;align-items:center;gap:8px;background:#FFFCE0;border:2px solid var(--ink);border-radius:10px;padding:5px 9px;font-weight:700}
+.media-it .rm{cursor:pointer;color:var(--rose);font-weight:900;margin-left:auto}
+.modal__title{font-family:'Luckiest Guy',cursive;font-size:clamp(1.5rem,4vw,2.4rem);color:var(--cyan);-webkit-text-stroke:1px var(--ink);margin:6px 60px 10px 6px}
+.v-desc{font-family:'Fredoka';font-weight:500;font-size:1.05rem;margin:0 0 14px;white-space:pre-wrap}
+.v-media{display:flex;flex-direction:column;gap:14px;margin-top:12px}
+.v-media img{width:100%;border:4px solid var(--ink);border-radius:16px}
+.v-media iframe,.v-media video{width:100%;border:4px solid var(--ink);border-radius:16px;background:#000}
+.v-media iframe{height:min(64vh,560px)}
+.v-media .lnk{font-family:'Luckiest Guy',cursive;font-size:1.1rem;background:var(--jaune);border:3px solid var(--ink);border-radius:14px;padding:12px 18px;box-shadow:4px 4px 0 var(--ink);text-decoration:none;color:var(--ink);display:inline-block}
+/* Timer */
+.timer{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:4px solid var(--ink);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:12px 18px;margin:8px 0 4px}
+.timer__num{font-family:'Luckiest Guy',cursive;font-size:clamp(2.4rem,8vw,4rem);color:var(--ink);letter-spacing:2px;min-width:160px;text-align:center}
+.timer.done .timer__num{color:var(--rose)}
+.timer button{font-family:'Luckiest Guy',cursive;cursor:pointer;font-size:1rem;border:3px solid var(--ink);border-radius:12px;padding:10px 16px;box-shadow:3px 3px 0 var(--ink);background:var(--vert);color:#fff}
+.timer button.sec{background:#fff;color:var(--ink)}
+.timer__done{font-family:'Luckiest Guy',cursive;font-size:1.4rem;color:var(--rose);-webkit-text-stroke:.5px var(--ink)}
+
+@media (max-width:760px){body{padding:10px}}
+@media print{body{background:#fff;padding:0}.toolbar,.rail__ctrl,.addbar,.act-pm{display:none!important}.sheet{box-shadow:none;border-width:4px}.slot,.day-hd,.rail{box-shadow:3px 3px 0 var(--ink)}}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1 class="sheet__title">Planification de la semaine</h1>
+  <div class="sheet__week"><label>Semaine du :</label><input type="date" id="weekStart"></div>
+  <div class="toolbar">
+    <div class="stepper">Périodes <button data-step="-1">−</button><b id="pcount">6</b><button data-step="1">＋</button></div>
+    <button class="btn" id="toggleDays">5 ↔ 3 jours</button>
+    <button class="btn btn--print" onclick="window.print()">🖨️ Enregistrer PDF</button>
+    <button class="btn" id="reset">↺ Vider la semaine</button>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="modal" id="modal"><div class="modal__box"><button class="modal__x" id="modalX">✕</button><div id="modalBody"></div></div></div>
+
+<script>
+const JOURS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
+let nbJours=parseInt(localStorage.getItem('semaine_nbjours')||'5');
+const MAX_FILE=2.6*1024*1024;
+
+const DEFAUT=[
+ {id:'p1',label:'Période 1',type:'period',h1:'',h2:''},{id:'p2',label:'Période 2',type:'period',h1:'',h2:''},
+ {id:'r1',label:'Récréation',type:'break',h1:'',h2:''},{id:'p3',label:'Période 3',type:'period',h1:'',h2:''},
+ {id:'p4',label:'Période 4',type:'period',h1:'',h2:''},{id:'din',label:'Dîner',type:'break',h1:'',h2:''},
+ {id:'p5',label:'Période 5',type:'period',h1:'',h2:''},{id:'r2',label:'Récréation',type:'break',h1:'',h2:''},
+ {id:'p6',label:'Période 6',type:'period',h1:'',h2:''}];
+let structure;
+try{ structure=JSON.parse(localStorage.getItem('semaine_structure'))||DEFAUT.slice(); }catch(e){ structure=DEFAUT.slice(); }
+function saveStruct(){ localStorage.setItem('semaine_structure',JSON.stringify(structure)); }
+function newId(){ return 'x'+Date.now().toString(36)+Math.floor(Math.random()*1000); }
+function nbPeriodes(){ return structure.filter(x=>x.type==='period').length; }
+
+const KEY=()=>'semaine_data_'+(document.getElementById('weekStart').value||'x');
+let data={};
+function load(){ try{ data=JSON.parse(localStorage.getItem(KEY())||'{}'); }catch(e){ data={}; } migrate(); }
+function save(){ try{ localStorage.setItem(KEY(),JSON.stringify(data)); }catch(e){ alert('⚠️ Mémoire pleine — fichier trop lourd.'); } }
+// Migration : ancien titre/médias uniques → 1 activité dans la liste
+function migrate(){
+  structure.forEach(ln=>{ if(ln.type!=='period')return; JOURS.forEach((j,di)=>{
+    const ak=ln.id+'_acts_'+di; if(data[ak])return;
+    const t=data[ln.id+'_a_'+di], lk=data[ln.id+'_lk_'+di], at=data[ln.id+'_att_'+di];
+    if(t||lk||(at&&at.length)){ const m=[]; (at||[]).forEach(a=>m.push({kind:mediaKindOf(a.type),name:a.name,data:a.data}));
+      if(lk) m.push({kind:'link',url:lk}); data[ak]=[{id:newId(),titre:t||'Jeu',desc:'',duree:'',medias:m}]; }
+  });});
+}
+function acts(id,di){ return data[id+'_acts_'+di]||[]; }
+
+function moisFR(n){ return ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][n]; }
+function dayDate(i){ const v=document.getElementById('weekStart').value; if(!v)return''; const d=new Date(v+'T12:00:00'); d.setDate(d.getDate()+i); return d.getDate()+' '+moisFR(d.getMonth())+' '+d.getFullYear(); }
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML.replace(/"/g,'&quot;'); }
+function mediaKindOf(mime){ if(!mime)return'link'; if(mime.startsWith('image/'))return'img'; if(mime==='application/pdf')return'pdf'; if(mime.startsWith('audio/'))return'audio'; if(mime.startsWith('video/'))return'video'; return'link'; }
+
+function railCtrl(ln){ return `<div class="rail__ctrl"><button data-up="${ln.id}">↑</button><button data-down="${ln.id}">↓</button><button data-tog="${ln.id}" title="période↔pause">⇄</button><button class="del" data-del="${ln.id}">🗑️</button></div>`; }
+
+function render(){
+  const days=JOURS.slice(0,nbJours);
+  const grid=document.getElementById('grid');
+  grid.style.gridTemplateColumns=`minmax(120px,150px) repeat(${days.length}, 1fr)`;
+  let html='<div></div>';
+  days.forEach((j,di)=>{ html+=`<div class="day-hd j${di}"><div class="day-hd__name">${j} <input type="checkbox" data-off="${di}" ${data['off_'+di]?'checked':''}></div><input class="day-hd__date" data-date="${di}" value="${esc(data['date_'+di]||dayDate(di))}"></div>`; });
+  structure.forEach((ln,ri)=>{
+    const hrs=`<div class="rail__hrs"><input data-h="h1" data-row="${ln.id}" value="${esc(ln.h1)}" placeholder="‑‑">–<input data-h="h2" data-row="${ln.id}" value="${esc(ln.h2)}" placeholder="‑‑"></div>`;
+    if(ln.type==='break'){ html+=`<div class="rail rail--break"><input class="rail__lbl" data-lbl="${ln.id}" value="${esc(ln.label)}">${hrs}${railCtrl(ln)}</div>`; return; }
+    html+=`<div class="rail ${ri%2?'alt':''}"><input class="rail__lbl" data-lbl="${ln.id}" value="${esc(ln.label)}">${hrs}${railCtrl(ln)}</div>`;
+    days.forEach((j,di)=>{
+      const off=data['off_'+di]; const A=acts(ln.id,di);
+      const list=A.length? A.map(a=>`<button class="act-chip ${a.done?'is-done':''}" data-open="${ln.id}|${di}|${a.id}"><span class="t">${a.done?'✅':'▶'} ${esc(a.titre)}</span>${a.done?'<span class="fait">FAIT !</span>':(a.duree?`<span class="dur">${esc(a.duree)} min</span>`:'')}<span class="rm" data-delact="${ln.id}|${di}|${a.id}">✕</span></button>`).join('') : '<div class="act-empty">Aucun jeu — touche ＋</div>';
+      html+=`<div class="slot ${off?'slot--off':''}">
+        <div class="slot__row"><span class="slot__lbl">Groupe :</span><input class="g" data-k="${ln.id}_g_${di}" value="${esc(data[ln.id+'_g_'+di])}"></div>
+        <div class="acts__hd"><span class="slot__lbl">Activités :</span><div class="act-pm"><button class="minus" data-less="${ln.id}|${di}">−</button><button data-more="${ln.id}|${di}">＋</button></div></div>
+        <div class="acts__list">${list}</div>
+      </div>`;
+    });
+  });
+  html+=`<div class="addbar"><button data-add="period">＋ Période</button><button data-add="pause">＋ Pause</button></div>`;
+  grid.innerHTML=html;
+  const pc=document.getElementById('pcount'); if(pc) pc.textContent=nbPeriodes();
+}
+
+// ── MODAL : formulaire d'ajout / vue du jeu ──
+const modal=document.getElementById('modal'), modalBody=document.getElementById('modalBody');
+let editMedias=[], editCtx=null, timerInt=null;
+function openModal(){ modal.classList.add('open'); }
+function closeModal(){ modal.classList.remove('open'); modalBody.innerHTML=''; if(timerInt){clearInterval(timerInt);timerInt=null;} }
+document.getElementById('modalX').addEventListener('click',closeModal);
+modal.addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+function openEdit(id,di){
+  editCtx={id,di}; editMedias=[];
+  modalBody.innerHTML=`
+    <label class="f-lbl">🎯 Titre du jeu</label><input class="f-in" id="fTitre" placeholder="Ex : Capture du drapeau">
+    <label class="f-lbl">📝 Description de l'activité</label><textarea class="f-ta" id="fDesc" placeholder="Règles, but, matériel…"></textarea>
+    <label class="f-lbl">⏱ Durée du jeu (minutes)</label><input class="f-in" id="fDuree" type="number" min="1" placeholder="Ex : 15" style="max-width:160px">
+    <label class="f-lbl">📎 Médias (image / PDF / mp3 / mp4)</label>
+    <div class="f-row"><label class="btn"><input type="file" id="fFile" accept="image/png,image/jpeg,application/pdf,audio/mpeg,audio/mp3,video/mp4" multiple hidden>📂 Importer un fichier</label></div>
+    <label class="f-lbl">🔗 Lien YouTube / vidéo / chanson</label>
+    <div class="f-row"><input class="f-in" id="fLink" placeholder="https://youtube.com/…" style="flex:1"><button class="btn" id="fAddLink">＋ lien</button></div>
+    <div class="medias" id="fMedias"></div>
+    <div style="text-align:center;margin-top:18px"><button class="btn btn--big" id="fAdd">✅ Ajouter</button></div>`;
+  document.getElementById('fFile').addEventListener('change',e=>{ for(const f of e.target.files){ if(f.size>MAX_FILE){alert('⚠️ '+f.name+' trop lourd (max ~2,5 Mo).');continue;} const rd=new FileReader(); rd.onload=()=>{ editMedias.push({kind:mediaKindOf(f.type),name:f.name,data:rd.result}); renderMedias(); }; rd.readAsDataURL(f); } e.target.value=''; });
+  document.getElementById('fAddLink').addEventListener('click',()=>{ const v=document.getElementById('fLink').value.trim(); if(v){ editMedias.push({kind:'link',url:v}); document.getElementById('fLink').value=''; renderMedias(); } });
+  document.getElementById('fAdd').addEventListener('click',saveAct);
+  renderMedias(); openModal(); setTimeout(()=>document.getElementById('fTitre').focus(),50);
+}
+function renderMedias(){ const box=document.getElementById('fMedias'); if(!box)return;
+  box.innerHTML=editMedias.map((m,i)=>`<div class="media-it">${m.kind==='link'?'🔗':m.kind==='pdf'?'📄':m.kind==='audio'?'🎵':m.kind==='video'?'🎬':'🖼️'} ${esc(m.name||m.url)} <span class="rm" data-mrm="${i}">✕</span></div>`).join('');
+  box.querySelectorAll('[data-mrm]').forEach(x=>x.addEventListener('click',()=>{ editMedias.splice(+x.dataset.mrm,1); renderMedias(); }));
+}
+function saveAct(){
+  const titre=document.getElementById('fTitre').value.trim()||'Jeu';
+  const a={id:newId(),titre,desc:document.getElementById('fDesc').value.trim(),duree:document.getElementById('fDuree').value.trim(),medias:editMedias.slice()};
+  const k=editCtx.id+'_acts_'+editCtx.di; (data[k]=data[k]||[]).push(a); save(); render(); closeModal();
+}
+
+function ytEmbed(u){ const m=u.match(/(?:youtu\.be\/|v=|shorts\/|embed\/)([\w-]{6,})/); return m?'https://www.youtube.com/embed/'+m[1]:null; }
+function mediaView(m){
+  if(m.kind==='img') return `<img src="${m.data}" alt="${esc(m.name)}">`;
+  if(m.kind==='pdf') return `<iframe src="${m.data}"></iframe>`;
+  if(m.kind==='audio') return `<audio src="${m.data}" controls style="width:100%"></audio>`;
+  if(m.kind==='video') return `<video src="${m.data}" controls></video>`;
+  const yt=ytEmbed(m.url||''); if(yt) return `<iframe src="${yt}" allowfullscreen></iframe>`;
+  if(/\.(mp4|webm)$/i.test(m.url)) return `<video src="${esc(m.url)}" controls></video>`;
+  if(/\.(mp3|wav|m4a)$/i.test(m.url)) return `<audio src="${esc(m.url)}" controls style="width:100%"></audio>`;
+  return `<a class="lnk" href="${esc(m.url)}" target="_blank" rel="noopener">🔗 Ouvrir le lien</a>`;
+}
+// Buzzer de basket : bourdonnement grave et puissant ~1,8 s
+function buzzer(){ try{ const c=new(window.AudioContext||window.webkitAudioContext)(); const D=1.8;
+  [110,165].forEach(f=>{ const o=c.createOscillator(),g=c.createGain(); o.type='square'; o.frequency.value=f; o.connect(g); g.connect(c.destination);
+    g.gain.setValueAtTime(.0001,c.currentTime); g.gain.exponentialRampToValueAtTime(.4,c.currentTime+.03); g.gain.setValueAtTime(.4,c.currentTime+D-.15); g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+D);
+    o.start(); o.stop(c.currentTime+D); }); }catch(e){} }
+function openView(id,di,actId){
+  const a=acts(id,di).find(x=>x.id===actId); if(!a)return;
+  const dur=parseInt(a.duree)||0;
+  let html=`<h2 class="modal__title">${esc(a.titre)}</h2>`;
+  if(a.desc) html+=`<p class="v-desc">${esc(a.desc)}</p>`;
+  if(dur>0) html+=`<div class="timer" id="vTimer"><div class="timer__num" id="vNum">${String(dur).padStart(2,'0')}:00</div>
+    <button id="vStart">▶ Démarrer</button><button class="sec" id="vReset">↺</button><span class="timer__done" id="vDone" style="display:none">🏀 JEU TERMINÉ !</span></div>`;
+  if(a.medias&&a.medias.length) html+=`<div class="v-media">${a.medias.map(mediaView).join('')}</div>`;
+  modalBody.innerHTML=html; openModal();
+  if(dur>0){ let rem=dur*60, running=false;
+    const num=document.getElementById('vNum'), done=document.getElementById('vDone'), tm=document.getElementById('vTimer'), st=document.getElementById('vStart');
+    const fmt=()=>{ num.textContent=String(Math.floor(rem/60)).padStart(2,'0')+':'+String(rem%60).padStart(2,'0'); };
+    st.addEventListener('click',()=>{ if(running){ clearInterval(timerInt); running=false; st.textContent='▶ Reprendre'; return; }
+      running=true; st.textContent='⏸ Pause'; timerInt=setInterval(()=>{ rem--; fmt(); if(rem<=0){ clearInterval(timerInt); timerInt=null; running=false; tm.classList.add('done'); done.style.display='inline'; st.style.display='none'; buzzer(); a.done=true; save(); render(); } },1000); });
+    document.getElementById('vReset').addEventListener('click',()=>{ if(timerInt){clearInterval(timerInt);timerInt=null;} rem=dur*60; running=false; tm.classList.remove('done'); done.style.display='none'; st.style.display='inline'; st.textContent='▶ Démarrer'; fmt(); });
+  }
+}
+
+// ── Events grille ──
+const grid=document.getElementById('grid');
+grid.addEventListener('input',e=>{ const t=e.target;
+  if(t.dataset.k){ data[t.dataset.k]=t.value; save(); }
+  else if(t.dataset.date!=null){ data['date_'+t.dataset.date]=t.value; save(); }
+  else if(t.dataset.lbl){ const r=structure.find(x=>x.id===t.dataset.lbl); if(r){r.label=t.value;saveStruct();} }
+  else if(t.dataset.h){ const r=structure.find(x=>x.id===t.dataset.row); if(r){r[t.dataset.h]=t.value;saveStruct();} }
+});
+grid.addEventListener('change',e=>{ if(e.target.dataset.off!=null){ data['off_'+e.target.dataset.off]=e.target.checked; save(); render(); } });
+grid.addEventListener('click',e=>{
+  const rm=e.target.closest('[data-delact]'); if(rm){ e.stopPropagation(); const [id,di,aid]=rm.dataset.delact.split('|'); const k=id+'_acts_'+di; data[k]=(data[k]||[]).filter(a=>a.id!==aid); save(); render(); return; }
+  const op=e.target.closest('[data-open]'); if(op){ const [id,di,aid]=op.dataset.open.split('|'); openView(id,di,aid); return; }
+  const b=e.target.closest('button'); if(!b)return;
+  if(b.dataset.more){ const [id,di]=b.dataset.more.split('|'); openEdit(id,di); }
+  else if(b.dataset.less){ const [id,di]=b.dataset.less.split('|'); const k=id+'_acts_'+di; const arr=data[k]||[]; if(arr.length&&confirm('Retirer le dernier jeu ?')){ arr.pop(); save(); render(); } }
+  else if(b.dataset.up){ moveRow(b.dataset.up,-1); }
+  else if(b.dataset.down){ moveRow(b.dataset.down,1); }
+  else if(b.dataset.tog){ const r=structure.find(x=>x.id===b.dataset.tog); if(r){ r.type=r.type==='period'?'break':'period'; commit(); } }
+  else if(b.dataset.del){ if(confirm('Supprimer cette ligne ?')){ structure=structure.filter(x=>x.id!==b.dataset.del); commit(); } }
+  else if(b.dataset.add==='period'){ structure.push({id:newId(),label:'Période '+(nbPeriodes()+1),type:'period',h1:'',h2:''}); commit(); }
+  else if(b.dataset.add==='pause'){ structure.push({id:newId(),label:'Pause',type:'break',h1:'',h2:''}); commit(); }
+});
+function moveRow(id,dir){ const i=structure.findIndex(x=>x.id===id),j=i+dir; if(i<0||j<0||j>=structure.length)return; [structure[i],structure[j]]=[structure[j],structure[i]]; commit(); }
+function commit(){ saveStruct(); render(); }
+document.querySelector('.stepper').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
+  if(+b.dataset.step>0){ structure.push({id:newId(),label:'Période '+(nbPeriodes()+1),type:'period',h1:'',h2:''}); commit(); }
+  else { for(let i=structure.length-1;i>=0;i--){ if(structure[i].type==='period'){ structure.splice(i,1); break; } } commit(); } });
+document.getElementById('toggleDays').addEventListener('click',()=>{ nbJours=nbJours===5?3:5; localStorage.setItem('semaine_nbjours',nbJours); render(); });
+document.getElementById('reset').addEventListener('click',()=>{ if(confirm('Vider la planification de cette semaine ?')){ data={}; save(); render(); } });
+document.getElementById('weekStart').addEventListener('change',()=>{ load(); render(); });
+
+(function init(){ const ws=document.getElementById('weekStart'); const t=new Date(); const dow=(t.getDay()+6)%7; t.setDate(t.getDate()-dow);
+  ws.value=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); load(); render(); })();
+</script>
+</body>
+</html>

@@ -55,6 +55,7 @@ const Groupes = {
   async create(d) { return (await (await getDb()).collection('groupes').add({ nom:d.nom, orgId:d.orgId, animateurUid:d.animateurUid, theme:d.theme||'' })).id; },
   async get(id) { const s=await (await getDb()).collection('groupes').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async listByAnimateur(uid) { const s=await (await getDb()).collection('groupes').where('animateurUid','==',uid).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
+  async listByOrg(orgId) { const s=await (await getDb()).collection('groupes').where('orgId','==',orgId).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
   async update(id,d) { (await getDb()).collection('groupes').doc(id).update(d); },
 };
 
@@ -82,7 +83,7 @@ const Presences = {
     return (await (await getDb()).collection('presences').add({
       journeeId:d.journeeId, groupeId:d.groupeId, enfantId:d.enfantId, statut:d.statut,
       heureArrivee:d.heureArrivee||'', heureDepart:d.heureDepart||'',
-      partiAvec:d.partiAvec||{nom:'',lien:''}, horsListe:d.horsListe||false,
+      partiAvec:d.partiAvec||{nom:'',lien:''}, arriveAvec:d.arriveAvec||{lien:''}, horsListe:d.horsListe||false,
       date:d.date||'', ts:firebase.firestore.FieldValue.serverTimestamp()
     })).id;
   },
@@ -138,6 +139,9 @@ const BLOC_COLORS = [
 
 const state = {
   user: null, orgId: null, groupeId: null, groupe: null, org: null,
+  // Role : 'animateur' (defaut) | 'coordo'
+  role: localStorage.getItem('planif_role') || null,
+  coordoGroups: [], coordoDate: todayISO(),
   enfants: [],
   // Navigation
   view: 'journee', // journee | semaine | calendrier | roster | gabarit | historique | live
@@ -252,6 +256,75 @@ function renderSetup() {
   </div>`;
 }
 
+// ══════════════════════════════════════════════════════════
+//  COORDONNATEUR — vue agregee (lecture seule)
+// ══════════════════════════════════════════════════════════
+
+async function loadCoordoData() {
+  if(!state.orgId){ state.coordoGroups=[]; return; }
+  if(!state.org) state.org=await Organisations.get(state.orgId);
+  const groups=await Groupes.listByOrg(state.orgId);
+  const date=state.coordoDate||todayISO();
+  const out=[];
+  for(const g of groups){
+    const enfants=await Enfants.listByGroupe(g.id);
+    enfants.sort((a,b)=>a.prenom.localeCompare(b.prenom));
+    const j=await Journees.getByGroupeAndDate(g.id,date);
+    let presences=[];
+    if(j) presences=await Presences.listByJournee(j.id,g.id);
+    const pmap={}; presences.forEach(p=>{pmap[p.enfantId]=p;});
+    out.push({groupe:g, enfants, pmap, blocs:(j&&j.blocs)?j.blocs.length:0});
+  }
+  state.coordoGroups=out;
+}
+
+function renderCoordo() {
+  const date=state.coordoDate||todayISO();
+  const isToday=date===todayISO();
+  let totEnf=0, totPres=0, totFlag=0;
+  state.coordoGroups.forEach(c=>{
+    totEnf+=c.enfants.length;
+    c.enfants.forEach(e=>{ const p=c.pmap[e.id]; if(p&&(p.statut==='present'||p.statut==='parti'))totPres++; if(p&&p.horsListe)totFlag++; });
+  });
+
+  let html=`<div class="p-group-bar">
+    <div><span class="p-group-name">\u{1F451} Coordonnateur</span>
+      <span class="p-group-theme"> · ${esc(state.org?.nom||'')}</span>
+      <span class="p-group-theme"> · ${state.coordoGroups.length} groupe(s) · ${totPres}/${totEnf} présent(s)${totFlag?` · ⚠ ${totFlag} hors-liste`:''}</span>
+    </div>
+    <button class="zts-btn" data-action="exit-coordo" style="font-size:var(--fs-1)">↩ Vue animateur</button>
+  </div>
+  <div class="p-date-nav" style="margin:var(--space-2) 0 var(--space-4)">
+    <button class="p-day-nav-btn" data-action="coordo-prev">◀</button>
+    <span class="p-day-title">${isToday?"Aujourd'hui":formatDateLong(date)}</span>
+    <button class="p-day-nav-btn" data-action="coordo-next">▶</button>
+  </div>`;
+
+  if(!state.coordoGroups.length){
+    return html+`<div class="p-empty"><div class="p-empty-icon">\u{1F465}</div><div class="p-empty-text">Aucun groupe dans cette organisation.</div></div>`;
+  }
+
+  state.coordoGroups.forEach(c=>{
+    const rows=c.enfants.map(e=>{
+      const p=c.pmap[e.id];
+      const st=p?p.statut:'attendu';
+      let detail='';
+      if(st==='present'){ detail=`<span style="color:var(--vert);font-weight:700">Présent</span> · arrivée ${p.heureArrivee||'—'}`; if(p.arriveAvec?.lien)detail+=` · porté par ${esc(LIEN_LABELS[p.arriveAvec.lien]||p.arriveAvec.lien)}`; }
+      else if(st==='parti'){ detail=`Parti à ${p.heureDepart||'—'}`; if(p.partiAvec?.nom)detail+=` avec ${esc(p.partiAvec.nom)} (${esc(p.partiAvec.lien||'—')})`; if(p.horsListe)detail+=` <span class="p-history-flag">HORS LISTE</span>`; }
+      else if(st==='absent') detail=`<span style="color:var(--rose)">Absent</span>`;
+      else detail=`<span style="opacity:.5">Attendu</span>`;
+      return `<div class="p-history-item" style="margin-bottom:8px">
+        <div class="p-history-date" style="min-width:120px">${esc(e.prenom)} ${esc(e.nom)}</div>
+        <div class="p-history-detail">${detail}</div></div>`;
+    }).join('');
+    html+=`<div class="p-card" style="margin-bottom:var(--space-4)">
+      <div class="p-section-title" style="margin-top:0">${esc(c.groupe.nom)}${c.groupe.theme?` <span style="opacity:.6;font-size:var(--fs-1)">· ${esc(c.groupe.theme)}</span>`:''} <span style="opacity:.6;font-size:var(--fs-1)">· ${c.enfants.length} enfant(s) · ${c.blocs} bloc(s)</span></div>
+      ${c.enfants.length?rows:`<div style="opacity:.5;font-family:var(--font-fun)">Aucun enfant.</div>`}
+    </div>`;
+  });
+  return html;
+}
+
 // ── Group bar + secondary nav ──
 
 function renderGroupBar() {
@@ -262,7 +335,10 @@ function renderGroupBar() {
       ${g.theme ? `<span class="p-group-theme"> \u00B7 ${esc(g.theme)}</span>` : ''}
       <span class="p-group-theme"> \u00B7 ${state.enfants.length} enfant(s)</span>
     </div>
-    <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
+    <div style="display:flex;gap:6px">
+      <button class="zts-btn" data-action="enter-coordo" style="font-size:var(--fs-1)" title="Vue coordonnateur">\u{1F451}</button>
+      <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
+    </div>
   </div>
   <div class="p-nav">
     <button class="p-nav-btn ${state.view==='calendrier'?'active':''}" data-action="nav" data-to="calendrier">\u{1F4C5} Calendrier</button>
@@ -311,7 +387,7 @@ function renderCalendrier() {
     const isToday = iso===today;
     const hasBlocs = !isWE && !isToday && state.calDatesWithBlocs.has(iso);
     cells += `<div class="p-cal-day ${isToday?'p-cal-day--today':''} ${isWE?'p-cal-day--weekend':''} ${hasBlocs?'p-cal-day--has-blocs':''}"
-      ${isWE?'':'data-action="select-date" data-date="'+iso+'"'}>${d}</div>`;
+      ${isWE?'':'data-action="presences-date" data-date="'+iso+'"'}>${d}</div>`;
   }
 
   return `<div class="p-date-nav" style="margin-bottom:var(--space-4)">
@@ -321,8 +397,9 @@ function renderCalendrier() {
   </div>
   <div class="p-cal-grid">${cells}</div>
   <div style="text-align:center">
-    <button class="zts-btn zts-btn--primary" data-action="select-date" data-date="${today}">Aujourd'hui</button>
-  </div>`;
+    <button class="zts-btn zts-btn--primary" data-action="presences-date" data-date="${today}">\u{1F4CB} Présences aujourd'hui</button>
+  </div>
+  <div style="text-align:center;margin-top:var(--space-2);font-family:var(--font-fun);font-size:var(--fs-1);opacity:.6">Clique une date pour prendre les présences</div>`;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -594,10 +671,18 @@ function renderPresenceCard(enfant, presence, status) {
   } else if (status==='absent') {
     badge=`<span class="p-pcard-badge p-badge-absent">\u2717</span>`;
   }
-  return `<div class="p-pcard p-pcard--${status}" data-action="tap-presence" data-id="${enfant.id}">
-    ${badge}${avatarHTML(enfant)}
-    <div class="p-enfant-name" style="font-size:var(--fs-1)">${esc(enfant.prenom)}</div>
-    ${time}
+  let porte='';
+  if (status==='present') {
+    const cur=presence.arriveAvec?.lien||'';
+    porte=`<button class="p-arrive" data-action="cycle-arrive" data-id="${enfant.id}">\u{1F44B} ${cur?('Porté par '+(LIEN_LABELS[cur]||cur)):'porté par ?'}</button>`;
+  }
+  return `<div class="p-pcard p-pcard--${status}">
+    <div class="p-pcard-tap" data-action="tap-presence" data-id="${enfant.id}">
+      ${badge}${avatarHTML(enfant)}
+      <div class="p-enfant-name" style="font-size:var(--fs-1)">${esc(enfant.prenom)}</div>
+      ${time}
+    </div>
+    ${porte}
   </div>`;
 }
 
@@ -729,6 +814,23 @@ function renderHistorique() {
 
 function openModal(id) { const m=document.getElementById(id); if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');} }
 function closeModal(id) { const m=document.getElementById(id); if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');} }
+
+// Popup présences (ouvert depuis le calendrier) — registre du jour
+function openPresencesModal() {
+  const inner=document.getElementById('modal-presences-inner');
+  const dLabel = state.currentDate===todayISO() ? "Aujourd'hui" : formatDateLong(state.currentDate);
+  inner.innerHTML = `<button class="zts-modal__close" data-action="close-presences">✕</button>
+    <h2 class="zts-modal__title">\u{1F4CB} Présences — ${dLabel}</h2>
+    <div style="text-align:center;margin-bottom:var(--space-2)"><button class="zts-btn" data-action="goto-programme-day" style="font-size:var(--fs-1)">\u{1F4C5} Voir le programme du jour</button></div>
+    ${renderPresencesSection()}`;
+  openModal('modal-presences');
+}
+// Rafraîchit là où sont affichées les présences (popup si ouvert, sinon page)
+function refreshPresences() {
+  const m=document.getElementById('modal-presences');
+  if(m && m.classList.contains('open')) openPresencesModal();
+  else render();
+}
 
 // ── Enfant ──
 
@@ -862,7 +964,7 @@ async function handleConfirmDepart() {
   } else return alert('Selectionne ou entre le nom de la personne.');
   await Presences.update(state.departPresence.id,{statut:'parti',heureDepart:h,partiAvec,horsListe,ts:firebase.firestore.FieldValue.serverTimestamp()});
   state.presenceMap[state.departEnfant.id]={...state.departPresence,statut:'parti',heureDepart:h,partiAvec,horsListe};
-  closeModal('modal-depart'); render();
+  closeModal('modal-depart'); refreshPresences();
 }
 
 // ── Bloc ──
@@ -1145,6 +1247,19 @@ async function handleAction(action, ds) {
     case 'select-date':
       state.currentDate=ds.date; state.view='journee';
       await loadJourneeData(); render(); break;
+    case 'presences-date':
+      state.currentDate=ds.date; await loadJourneeData(); openPresencesModal(); break;
+    case 'close-presences': closeModal('modal-presences'); break;
+    case 'goto-programme-day': closeModal('modal-presences'); state.view='journee'; await loadJourneeData(); render(); break;
+    case 'cycle-arrive': {
+      const p=state.presenceMap[ds.id]; if(!p||p.statut!=='present')break;
+      const order=['mere','pere','grand-mere','grand-pere','gardien(ne)','autre',''];
+      const cur=p.arriveAvec?.lien||'';
+      const next=order[(order.indexOf(cur)+1)%order.length];
+      await Presences.update(p.id,{arriveAvec:{lien:next}});
+      state.presenceMap[ds.id]={...p,arriveAvec:{lien:next}};
+      refreshPresences(); break;
+    }
     case 'prev-date':
       state.currentDate=shiftDate(state.currentDate,-1);
       await loadJourneeData(); render(); break;
@@ -1179,6 +1294,17 @@ async function handleAction(action, ds) {
     case 'trigger-photo': break;
 
     // ── Groupe ──
+    // ── Coordonnateur ──
+    case 'enter-coordo':
+      state.role='coordo'; localStorage.setItem('planif_role','coordo');
+      state.coordoDate=todayISO(); await loadCoordoData(); render(); break;
+    case 'exit-coordo':
+      state.role='animateur'; localStorage.setItem('planif_role','animateur'); render(); break;
+    case 'coordo-prev':
+      state.coordoDate=shiftDate(state.coordoDate||todayISO(),-1); await loadCoordoData(); render(); break;
+    case 'coordo-next':
+      state.coordoDate=shiftDate(state.coordoDate||todayISO(),1); await loadCoordoData(); render(); break;
+
     case 'edit-groupe': {
       const nn=prompt('Nom du groupe:',state.groupe.nom); if(nn===null)return;
       const nt=prompt('Theme:',state.groupe.theme||'');
@@ -1237,18 +1363,18 @@ async function handlePresenceTap(enfantId) {
   const p=state.presenceMap[enfantId];
   if(!p){
     const id=await Presences.create({journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),date:state.currentDate});
-    state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),heureDepart:'',partiAvec:{nom:'',lien:''},horsListe:false,date:state.currentDate};
-    render(); return;
+    state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),heureDepart:'',partiAvec:{nom:'',lien:''},arriveAvec:{lien:''},horsListe:false,date:state.currentDate};
+    refreshPresences(); return;
   }
   if(p.statut==='present') openDepartModal(enfant,p);
-  else if(p.statut==='absent'){await Presences.delete(p.id);delete state.presenceMap[enfantId];render();}
+  else if(p.statut==='absent'){await Presences.delete(p.id);delete state.presenceMap[enfantId];refreshPresences();}
 }
 
 async function handleMarkAbsent(enfantId) {
   const p=state.presenceMap[enfantId];
   if(p){await Presences.update(p.id,{statut:'absent',ts:firebase.firestore.FieldValue.serverTimestamp()});state.presenceMap[enfantId]={...p,statut:'absent'};}
   else{const id=await Presences.create({journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'absent',date:state.currentDate});state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'absent',heureArrivee:'',heureDepart:'',partiAvec:{nom:'',lien:''},horsListe:false,date:state.currentDate};}
-  render();
+  refreshPresences();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1321,6 +1447,7 @@ function initOffline() {
 function render() {
   const root=document.getElementById('app-root');
   if(!state.user){root.innerHTML=renderNoAuth();return;}
+  if(state.role==='coordo'){root.innerHTML=renderCoordo();return;}
   if(!state.groupeId){root.innerHTML=renderSetup();return;}
   root.innerHTML=renderMain();
 }
@@ -1348,7 +1475,7 @@ function wireEvents() {
   root.addEventListener('pointercancel',clearLP);
   root.addEventListener('contextmenu',(e)=>{if(e.target.closest('[data-action="tap-presence"]'))e.preventDefault();});
 
-  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer'].forEach(id=>{
+  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer','modal-presences'].forEach(id=>{
     const modal=document.getElementById(id);
     modal.addEventListener('click',(e)=>{
       if(e.target===modal){closeModal(id);return;}
@@ -1388,6 +1515,7 @@ async function init() {
       }
       console.log('[Planif] groupeId:', state.groupeId);
       if(state.groupeId) { await loadGroupeData(); state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
+      if(state.role==='coordo' && state.orgId){ state.coordoDate=todayISO(); await loadCoordoData(); }
       console.log('[Planif] render');
       render();
     });
