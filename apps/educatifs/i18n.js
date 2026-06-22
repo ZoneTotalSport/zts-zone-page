@@ -1,83 +1,64 @@
 /* ============================================================
-   i18n.js — Système de traduction pour les apps Zone Total Sport
-   FR · EN · 中文 · ES
-   Usage:
-     1. Inclure <script src="i18n.js"></script> AVANT app.js
-     2. Définir window.APP_TRANSLATIONS = { fr:{...}, en:{...}, zh:{...}, es:{...} }
-     3. Appeler initI18n() au DOMContentLoaded
-     4. Utiliser t('key') pour traduire
+   i18n.js — Pont de traduction pour app-educatifs
+   Branché sur le toggle FR/EN du header partagé (shared/zts.js).
+   - Les chaînes vivent dans lang/translations.js (window.APP_TRANSLATIONS).
+   - La langue active suit ZTS.getLang() ('fr' | 'en').
+   - t('cle') retourne la chaîne traduite (fallback FR).
+   - Les éléments [data-t] / [data-t-placeholder] sont mis à jour
+     automatiquement ; le contenu dynamique se re-rend via les
+     écouteurs zts:ready / zts:langchange (voir app.js).
    ============================================================ */
 'use strict';
 
 var _currentLang = 'fr';
 var _translations = {};
 
-var LANG_OPTIONS = [
-  { code: 'fr', label: '🇫🇷 Français', short: 'FR' },
-  { code: 'en', label: '🇬🇧 English', short: 'EN' },
-  { code: 'zh', label: '🇨🇳 中文', short: '中文' },
-  { code: 'es', label: '🇪🇸 Español', short: 'ES' },
-];
-
 function t(key, fallback) {
   var lang = _translations[_currentLang];
   if (lang && lang[key] !== undefined) return lang[key];
-  // Fallback to French
   var fr = _translations['fr'];
   if (fr && fr[key] !== undefined) return fr[key];
   return fallback || key;
 }
 
-function setLang(code) {
-  _currentLang = code;
-  localStorage.setItem('zts-lang', code);
-  document.documentElement.lang = code === 'zh' ? 'zh-CN' : code;
-  // Update all elements with data-t attribute
-  document.querySelectorAll('[data-t]').forEach(function(el) {
+// Détecte la langue courante : ZTS si dispo, sinon ?lang= / localStorage.
+function detectLang() {
+  if (window.ZTS && typeof window.ZTS.getLang === 'function') {
+    return window.ZTS.getLang();
+  }
+  try {
+    var p = new URLSearchParams(location.search).get('lang');
+    if (p === 'en' || p === 'fr') return p;
+  } catch (e) {}
+  var stored = localStorage.getItem('zts-lang');
+  return (stored === 'en') ? 'en' : 'fr';
+}
+
+// Applique les traductions sur tous les [data-t] / [data-t-placeholder].
+function applyStaticI18n() {
+  document.querySelectorAll('[data-t]').forEach(function (el) {
     var key = el.getAttribute('data-t');
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      el.placeholder = t(key);
-    } else {
-      el.textContent = t(key);
-    }
+    var val = t(key);
+    if (el.hasAttribute('data-t-html')) el.innerHTML = val;
+    else el.textContent = val;
   });
-  // Update elements with data-t-placeholder
-  document.querySelectorAll('[data-t-placeholder]').forEach(function(el) {
+  document.querySelectorAll('[data-t-placeholder]').forEach(function (el) {
     el.placeholder = t(el.getAttribute('data-t-placeholder'));
   });
-  // Update lang selector display
-  var sel = document.getElementById('lang-select');
-  if (sel) sel.value = code;
-  // Trigger re-render if app has a renderAll/renderSAE function
-  if (typeof renderAll === 'function') renderAll();
-  else if (typeof renderSAE === 'function') { applyFilters(); }
-  else if (typeof renderContent === 'function') renderContent();
+  document.querySelectorAll('[data-t-title]').forEach(function (el) {
+    el.title = t(el.getAttribute('data-t-title'));
+  });
 }
 
-function initI18n() {
+// Synchronise la langue + ré-applique le statique. Le re-render du
+// contenu dynamique est déclenché par app.js (rerenderDynamic()).
+function syncI18n() {
   if (window.APP_TRANSLATIONS) _translations = window.APP_TRANSLATIONS;
-  _currentLang = localStorage.getItem('zts-lang') || 'fr';
-  // Inject language selector into header
-  injectLangSelector();
-  // Apply initial translations
-  setLang(_currentLang);
+  _currentLang = detectLang();
+  document.documentElement.lang = (_currentLang === 'en') ? 'en' : 'fr-CA';
+  applyStaticI18n();
 }
 
-function injectLangSelector() {
-  // Find a place in the header to put the selector
-  var target = document.querySelector('.header-right') ||
-               document.querySelector('.header-center') ||
-               document.querySelector('.top-header') ||
-               document.querySelector('header');
-  if (!target) return;
-
-  var wrapper = document.createElement('span');
-  wrapper.className = 'lang-selector';
-  wrapper.innerHTML =
-    '<select id="lang-select" class="lang-select" onchange="setLang(this.value)">' +
-    LANG_OPTIONS.map(function(l) {
-      return '<option value="' + l.code + '"' + (l.code === _currentLang ? ' selected' : '') + '>' + l.short + '</option>';
-    }).join('') +
-    '</select>';
-  target.appendChild(wrapper);
-}
+// Init précoce (avant ZTS) pour éviter un flash FR si ?lang=en.
+if (window.APP_TRANSLATIONS) _translations = window.APP_TRANSLATIONS;
+_currentLang = detectLang();

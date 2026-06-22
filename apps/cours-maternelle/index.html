@@ -546,14 +546,14 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
   <div class="lock-card sticker">
     <div class="logo-bolt"><i class="fa-solid fa-bolt"></i></div>
     <h1>ZONE TOTAL SPORT</h1>
-    <div class="app-subtitle">Édition Maternelle</div>
-    <p>🔐 Entre ton courriel pour recevoir ton accès magique.</p>
+    <div class="app-subtitle" data-i18n="lockSub">Édition Maternelle</div>
+    <p data-i18n="lockIntro">🔐 Entre ton courriel pour recevoir ton accès magique.</p>
     <form onsubmit="return submitEmail(event)">
-      <input id="lock-email" type="email" required placeholder="ton.courriel@exemple.ca">
-      <button type="submit" class="btn btn-yellow btn-lg" style="width:100%;justify-content:center;"><i class="fa-solid fa-wand-magic-sparkles"></i> Recevoir mon accès</button>
+      <input id="lock-email" type="email" required placeholder="ton.courriel@exemple.ca" data-i18n-ph="lockEmailPh">
+      <button type="submit" class="btn btn-yellow btn-lg" style="width:100%;justify-content:center;"><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="lockBtn">Recevoir mon accès</span></button>
     </form>
     <div id="lock-msg" class="lock-msg"></div>
-    <span class="lock-demo" onclick="testAccess()">Mode démo (aperçu sans inscription) →</span>
+    <span class="lock-demo" onclick="testAccess()" data-i18n="lockDemo">Mode démo (aperçu sans inscription) →</span>
   </div>
 </div>
 
@@ -564,34 +564,34 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
 
     <div class="welcome-hero">
       <img src="assets/bucheron-hero.png" alt="Mascotte ZTS" class="welcome-mascot float">
-      <span class="badge badge-yellow">👋 Bienvenue !</span>
-      <h1>90 COURS<br><span class="accent">MATERNELLE</span></h1>
-      <p>L'app qui te donne <b>90 cours d'éducation physique</b> clés en main pour tes 4-5 ans, du 1<sup>er</sup> jour de septembre au dernier de mai.</p>
+      <span class="badge badge-yellow" data-i18n="wBadge">👋 Bienvenue !</span>
+      <h1 data-i18n-html="wTitle">90 COURS<br><span class="accent">MATERNELLE</span></h1>
+      <p data-i18n-html="wIntro">L'app qui te donne <b>90 cours d'éducation physique</b> clés en main pour tes 4-5 ans, du 1<sup>er</sup> jour de septembre au dernier de mai.</p>
     </div>
 
-    <h2 style="text-align:center;font-size:1.8rem;margin-bottom:18px;"><i class="fa-solid fa-rocket" style="color:var(--c-yellow);"></i> Comment ça marche ?</h2>
+    <h2 style="text-align:center;font-size:1.8rem;margin-bottom:18px;"><i class="fa-solid fa-rocket" style="color:var(--c-yellow);"></i> <span data-i18n="wHow">Comment ça marche ?</span></h2>
 
     <div class="steps">
       <div class="step step-1">
         <div class="numbox" style="background:var(--c-pink);color:#fff;">1</div>
-        <div><h3>Choisis ton cours</h3><p>Clique <b>Cours du jour</b> ou un <b>trimestre</b> (Automne/Hiver/Printemps).</p></div>
+        <div><h3 data-i18n="wS1t">Choisis ton cours</h3><p data-i18n-html="wS1d">Clique <b>Cours du jour</b> ou un <b>trimestre</b> (Automne/Hiver/Printemps).</p></div>
       </div>
       <div class="step step-2">
         <div class="numbox" style="background:var(--c-cyan);color:var(--ink);">2</div>
-        <div><h3>Lis la fiche</h3><p>4 sections : 🔥 Mise en train, ▶️ Activité 1, ▶️ Activité 2, 🌙 Retour.</p></div>
+        <div><h3 data-i18n="wS2t">Lis la fiche</h3><p data-i18n="wS2d">4 sections : 🔥 Mise en train, ▶️ Activité 1, ▶️ Activité 2, 🌙 Retour.</p></div>
       </div>
       <div class="step step-3">
         <div class="numbox" style="background:var(--c-yellow);color:var(--ink);">3</div>
-        <div><h3>Anime au gym</h3><p>Démo, déroulement, ce que tu dis, variantes, sécurité. Active le <b>chrono</b>, coche les étapes.</p></div>
+        <div><h3 data-i18n="wS3t">Anime au gym</h3><p data-i18n-html="wS3d">Démo, déroulement, ce que tu dis, variantes, sécurité. Active le <b>chrono</b>, coche les étapes.</p></div>
       </div>
       <div class="step step-4">
         <div class="numbox" style="background:var(--c-lime);color:var(--ink);">4</div>
-        <div><h3>Marque comme fait</h3><p>Clique <b>TERMINER</b>. La carte devient verte ✓, ta progression monte.</p></div>
+        <div><h3 data-i18n="wS4t">Marque comme fait</h3><p data-i18n-html="wS4d">Clique <b>TERMINER</b>. La carte devient verte ✓, ta progression monte.</p></div>
       </div>
     </div>
 
     <div class="welcome-cta">
-      <button class="btn btn-yellow btn-lg" onclick="finishWelcome()"><i class="fa-solid fa-play"></i> COMMENCER !</button>
+      <button class="btn btn-yellow btn-lg" onclick="finishWelcome()"><i class="fa-solid fa-play"></i> <span data-i18n="wStart">COMMENCER !</span></button>
     </div>
   </div>
 </div>
@@ -606,9 +606,9 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
   <section class="zts-hero-gradient zts-hero-xxl">
     <div class="zts-hero-inner">
       <div class="zts-hero-text">
-        <span class="zts-hero-badge">90 COURS PRÊTS À FILMER</span>
-        <h1 class="zts-hero-h1">COURS<br><span class="accent">MATERNELLE</span></h1>
-        <p class="zts-hero-desc">Plan de cours filmés au gymnase. Mode TBI inclus. Maître du jeu prêt à animer.</p>
+        <span class="zts-hero-badge" data-i18n="heroBadge">90 COURS PRÊTS À FILMER</span>
+        <h1 class="zts-hero-h1" data-i18n-html="heroH1">COURS<br><span class="accent">MATERNELLE</span></h1>
+        <p class="zts-hero-desc" data-i18n="heroDesc">Plan de cours filmés au gymnase. Mode TBI inclus. Maître du jeu prêt à animer.</p>
       </div>
       <div class="zts-hero-img-wrap">
         <div class="zts-hero-img">
@@ -619,8 +619,8 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
             <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           </div>
           <div style="text-align:left">
-            <p class="zts-hero-badge-label">MATERNELLE</p>
-            <p class="zts-hero-badge-sub">90 cours · Mode TBI</p>
+            <p class="zts-hero-badge-label" data-i18n="heroCardLabel">MATERNELLE</p>
+            <p class="zts-hero-badge-sub" data-i18n="heroCardSub">90 cours · Mode TBI</p>
           </div>
         </div>
       </div>
@@ -630,28 +630,28 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
   <div class="wrap">
     <!-- Toolbar (préservée) -->
     <div class="toolbar" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-bottom:16px;">
-      <button class="btn btn-ghost" id="tbi-btn" onclick="toggleTBI()" title="Mode tableau blanc"><i class="fa-solid fa-desktop"></i> TBI</button>
-      <button class="btn btn-ghost" onclick="exportData()"><i class="fa-solid fa-floppy-disk"></i> Sauver</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()"><i class="fa-solid fa-upload"></i> Importer</button>
+      <button class="btn btn-ghost" id="tbi-btn" onclick="toggleTBI()" data-i18n-title="ttTbi" title="Mode tableau blanc"><i class="fa-solid fa-desktop"></i> TBI</button>
+      <button class="btn btn-ghost" onclick="exportData()"><i class="fa-solid fa-floppy-disk"></i> <span data-i18n="tbSave">Sauver</span></button>
+      <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()"><i class="fa-solid fa-upload"></i> <span data-i18n="tbImport">Importer</span></button>
       <input type="file" id="import-file" accept=".json" onchange="importData(event)" style="display:none;">
-      <button class="btn btn-ghost" onclick="afficherAide()"><i class="fa-solid fa-circle-question"></i> Aide</button>
+      <button class="btn btn-ghost" onclick="afficherAide()"><i class="fa-solid fa-circle-question"></i> <span data-i18n="tbHelp">Aide</span></button>
       <button class="btn btn-red" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
 
     <div class="hero">
       <div id="bento-today" class="hero-main" onclick="bentoTodayClick()">
         <div>
-          <span class="hero-tag">▶ Cours du jour</span>
+          <span class="hero-tag" data-i18n="bentoTag">▶ Cours du jour</span>
           <h2 id="bento-today-title" class="hero-title">—</h2>
           <p id="bento-today-desc" class="hero-desc">—</p>
         </div>
-        <span class="hero-cta"><i class="fa-solid fa-play"></i> LANCER LE COURS</span>
+        <span class="hero-cta"><i class="fa-solid fa-play"></i> <span data-i18n="bentoCta">LANCER LE COURS</span></span>
       </div>
       <div class="hero-side">
         <div class="hero-stats">
           <div style="display:flex;align-items:baseline;gap:10px;">
             <span id="arsenal-num" class="hero-stats-num">90</span>
-            <span class="hero-stats-label">Cours<br>Maternelle</span>
+            <span class="hero-stats-label" data-i18n-html="statsLabel">Cours<br>Maternelle</span>
           </div>
           <div class="bar"><div id="progress-bar" class="bar-fill" style="width:0%"></div></div>
           <p id="progress-msg" class="hero-stats-msg"><i class="fa-solid fa-bullseye"></i> 0 / 90 cours faits</p>
@@ -663,17 +663,17 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
           </div>
           <div class="quick quick-surprise" onclick="switchView('surprise')">
             <i class="fa-solid fa-dice quick-icon" style="color:var(--c-orange);"></i>
-            <div class="quick-label">SURPRISE</div>
+            <div class="quick-label" data-i18n="qSurprise">SURPRISE</div>
           </div>
         </div>
       </div>
     </div>
 
     <div id="trim-nav" class="trim-bar">
-      <button class="trim-btn active" data-trim="1-30" onclick="filterCourses('1-30',this)">🍂 Automne</button>
-      <button class="trim-btn" data-trim="31-60" onclick="filterCourses('31-60',this)">❄️ Hiver</button>
-      <button class="trim-btn" data-trim="61-90" onclick="filterCourses('61-90',this)">🌸 Printemps</button>
-      <input type="text" id="searchInput" oninput="renderGrid()" placeholder="🔍 Recherche…" class="search-box">
+      <button class="trim-btn active" data-trim="1-30" onclick="filterCourses('1-30',this)" data-i18n="trimFall">🍂 Automne</button>
+      <button class="trim-btn" data-trim="31-60" onclick="filterCourses('31-60',this)" data-i18n="trimWinter">❄️ Hiver</button>
+      <button class="trim-btn" data-trim="61-90" onclick="filterCourses('61-90',this)" data-i18n="trimSpring">🌸 Printemps</button>
+      <input type="text" id="searchInput" oninput="renderGrid()" placeholder="🔍 Recherche…" data-i18n-ph="searchPh" class="search-box">
     </div>
 
     <div id="course-grid" class="course-grid"></div>
@@ -685,16 +685,16 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
   <div class="wrap">
     <div class="app-header">
       <div>
-        <h1 style="font-size:2.5rem;">TABLEAU MAGIQUE</h1>
-        <div class="app-subtitle">Choisis ton défi !</div>
+        <h1 style="font-size:2.5rem;" data-i18n="tbiTitle">TABLEAU MAGIQUE</h1>
+        <div class="app-subtitle" data-i18n="tbiSub">Choisis ton défi !</div>
       </div>
       <div class="toolbar">
         <select id="tbi-trim" onchange="renderTBIGrid()" class="btn btn-ghost" style="padding:10px 14px;cursor:pointer;">
-          <option value="1-30">🍂 Automne (1-30)</option>
-          <option value="31-60">❄️ Hiver (31-60)</option>
-          <option value="61-90">🌸 Printemps (61-90)</option>
+          <option value="1-30" data-i18n="tbiOptFall">🍂 Automne (1-30)</option>
+          <option value="31-60" data-i18n="tbiOptWinter">❄️ Hiver (31-60)</option>
+          <option value="61-90" data-i18n="tbiOptSpring">🌸 Printemps (61-90)</option>
         </select>
-        <button class="btn btn-cyan" onclick="switchView('main')"><i class="fa-solid fa-house"></i> Accueil</button>
+        <button class="btn btn-cyan" onclick="switchView('main')"><i class="fa-solid fa-house"></i> <span data-i18n="navHome">Accueil</span></button>
       </div>
     </div>
     <div id="tbi-grid" class="tbi-grid"></div>
@@ -704,22 +704,22 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
 <!-- ═══ COURSE PLAYER ═══ -->
 <div id="view-course" class="view">
   <nav class="player-nav">
-    <button class="btn btn-ghost" onclick="switchView('main')"><i class="fa-solid fa-arrow-left"></i> Quitter</button>
+    <button class="btn btn-ghost" onclick="switchView('main')"><i class="fa-solid fa-arrow-left"></i> <span data-i18n="navQuit">Quitter</span></button>
     <div class="player-nav-title">
       <span id="player-title">—</span>
       <span id="player-id-tiny" class="player-nav-id">—</span>
     </div>
     <div style="display:flex;gap:8px;">
       <button class="btn btn-ghost" onclick="printCourse()"><i class="fa-solid fa-print"></i></button>
-      <button class="btn btn-lime" id="finish-btn" onclick="toggleDoneCourse()"><i class="fa-solid fa-check"></i> TERMINER</button>
+      <button class="btn btn-lime" id="finish-btn" onclick="toggleDoneCourse()"><i class="fa-solid fa-check"></i> <span data-i18n="finishBtn">TERMINER</span></button>
     </div>
   </nav>
 
   <div class="player-tabs">
-    <button class="player-tab" data-section="mise_en_train">🔥 Mise en train</button>
-    <button class="player-tab" data-section="activite_1">▶️ Activité 1</button>
-    <button class="player-tab" data-section="activite_2">▶️ Activité 2</button>
-    <button class="player-tab" data-section="retour">🌙 Retour</button>
+    <button class="player-tab" data-section="mise_en_train" data-i18n="tabMet">🔥 Mise en train</button>
+    <button class="player-tab" data-section="activite_1" data-i18n="tabAct1">▶️ Activité 1</button>
+    <button class="player-tab" data-section="activite_2" data-i18n="tabAct2">▶️ Activité 2</button>
+    <button class="player-tab" data-section="retour" data-i18n="tabRetour">🌙 Retour</button>
   </div>
 
   <div class="player-grid">
@@ -733,64 +733,64 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
       <p id="player-activity-but" class="player-but">—</p>
 
       <div id="player-demo-wrap" class="section-block sec-demo" style="display:none;">
-        <h4><i class="fa-solid fa-clapperboard"></i> Démonstration enseignant</h4>
-        <div class="hint">👆 Comment tu introduis l'activité</div>
+        <h4><i class="fa-solid fa-clapperboard"></i> <span data-i18n="secDemoH">Démonstration enseignant</span></h4>
+        <div class="hint" data-i18n="secDemoHint">👆 Comment tu introduis l'activité</div>
         <p id="player-demo"></p>
       </div>
 
       <div class="section-block sec-deroulement">
-        <h4><i class="fa-solid fa-list-ol"></i> Déroulement étape par étape</h4>
-        <div class="hint">👆 Clique sur une étape pour la cocher</div>
+        <h4><i class="fa-solid fa-list-ol"></i> <span data-i18n="secDerH">Déroulement étape par étape</span></h4>
+        <div class="hint" data-i18n="secDerHint">👆 Clique sur une étape pour la cocher</div>
         <div id="player-explanations"></div>
       </div>
 
       <div id="player-consignes-wrap" class="section-block sec-consignes" style="display:none;">
-        <h4><i class="fa-solid fa-comment-dots"></i> Ce que tu dis (mot-à-mot)</h4>
-        <div class="hint">📣 Phrases exactes à dire aux élèves</div>
+        <h4><i class="fa-solid fa-comment-dots"></i> <span data-i18n="secConsH">Ce que tu dis (mot-à-mot)</span></h4>
+        <div class="hint" data-i18n="secConsHint">📣 Phrases exactes à dire aux élèves</div>
         <div id="player-consignes"></div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;" class="grid-2">
         <div id="player-variantes-wrap" class="section-block sec-variantes" style="display:none;">
-          <h4><i class="fa-solid fa-shuffle"></i> Variantes</h4>
-          <div class="hint">Plus facile / plus dur</div>
+          <h4><i class="fa-solid fa-shuffle"></i> <span data-i18n="secVarH">Variantes</span></h4>
+          <div class="hint" data-i18n="secVarHint">Plus facile / plus dur</div>
           <ul id="player-variantes"></ul>
         </div>
         <div id="player-securite-wrap" class="section-block sec-securite" style="display:none;">
-          <h4><i class="fa-solid fa-shield-halved"></i> Sécurité</h4>
-          <div class="hint">⚠️ Pièges à éviter</div>
+          <h4><i class="fa-solid fa-shield-halved"></i> <span data-i18n="secSecH">Sécurité</span></h4>
+          <div class="hint" data-i18n="secSecHint">⚠️ Pièges à éviter</div>
           <ul id="player-securite"></ul>
         </div>
       </div>
 
       <div id="player-erreurs-wrap" class="section-block sec-erreurs" style="display:none;">
-        <h4><i class="fa-solid fa-circle-exclamation"></i> Erreurs fréquentes</h4>
-        <div class="hint">❌ Ce qu'ils font mal + comment corriger</div>
+        <h4><i class="fa-solid fa-circle-exclamation"></i> <span data-i18n="secErrH">Erreurs fréquentes</span></h4>
+        <div class="hint" data-i18n="secErrHint">❌ Ce qu'ils font mal + comment corriger</div>
         <ul id="player-erreurs"></ul>
       </div>
 
       <div id="player-questions-wrap" class="section-block sec-questions" style="display:none;">
-        <h4><i class="fa-solid fa-hand"></i> Questions des élèves</h4>
-        <div class="hint">🙋 Ce qu'ils vont te demander</div>
+        <h4><i class="fa-solid fa-hand"></i> <span data-i18n="secQH">Questions des élèves</span></h4>
+        <div class="hint" data-i18n="secQHint">🙋 Ce qu'ils vont te demander</div>
         <ul id="player-questions"></ul>
       </div>
 
       <div id="player-faq-wrap" class="section-block sec-faq" style="display:none;">
-        <h4><i class="fa-solid fa-chalkboard-user"></i> FAQ enseignant</h4>
-        <div class="hint">👨‍🏫 Cas particuliers</div>
+        <h4><i class="fa-solid fa-chalkboard-user"></i> <span data-i18n="secFaqH">FAQ enseignant</span></h4>
+        <div class="hint" data-i18n="secFaqHint">👨‍🏫 Cas particuliers</div>
         <ul id="player-faq"></ul>
       </div>
 
       <div id="player-adapt-wrap" class="section-block sec-adapt" style="display:none;">
-        <h4><i class="fa-solid fa-universal-access"></i> Adaptations</h4>
-        <div class="hint">🎓 TSA, motricité réduite, anxiété</div>
+        <h4><i class="fa-solid fa-universal-access"></i> <span data-i18n="secAdaptH">Adaptations</span></h4>
+        <div class="hint" data-i18n="secAdaptHint">🎓 TSA, motricité réduite, anxiété</div>
         <ul id="player-adapt"></ul>
       </div>
     </div>
 
     <aside class="player-side">
       <div id="timer-card" class="timer-card">
-        <h4><i class="fa-solid fa-stopwatch" style="color:var(--c-yellow);"></i> Minuteur</h4>
+        <h4><i class="fa-solid fa-stopwatch" style="color:var(--c-yellow);"></i> <span data-i18n="sideTimer">Minuteur</span></h4>
         <div id="timer-display" class="timer-display">10:00</div>
         <div class="timer-presets">
           <button class="timer-preset" onclick="setTimerMinutes(5)">5</button>
@@ -802,7 +802,7 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
           <button class="timer-preset" onclick="setTimerMinutes(60)">60</button>
         </div>
         <div class="timer-custom">
-          <input id="timer-custom" type="number" min="1" max="120" placeholder="min">
+          <input id="timer-custom" type="number" min="1" max="120" placeholder="min" data-i18n-ph="timerMinPh">
           <button class="btn btn-yellow" style="padding:8px 14px;font-size:.9rem;" onclick="setTimerCustom()">OK</button>
         </div>
         <div class="timer-controls">
@@ -812,20 +812,20 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
       </div>
 
       <div class="side-card">
-        <h4><i class="fa-solid fa-box-open" style="color:var(--c-cyan);"></i> Matériel</h4>
+        <h4><i class="fa-solid fa-box-open" style="color:var(--c-cyan);"></i> <span data-i18n="sideMateriel">Matériel</span></h4>
         <ul id="player-material-list"></ul>
       </div>
 
       <div class="side-card" style="background:var(--c-yellow-soft);">
-        <h4><i class="fa-solid fa-lightbulb" style="color:var(--c-orange);"></i> Astuce du maître</h4>
+        <h4><i class="fa-solid fa-lightbulb" style="color:var(--c-orange);"></i> <span data-i18n="sideAstuce">Astuce du maître</span></h4>
         <p id="player-astuce" class="astuce-text">—</p>
       </div>
 
       <div class="side-card">
         <div class="side-meta">
-          <div class="side-meta-cell"><div class="side-meta-label">Niveau</div><div id="player-niveau" class="side-meta-val">—</div></div>
-          <div class="side-meta-cell"><div class="side-meta-label">Durée</div><div id="player-duree" class="side-meta-val">—</div></div>
-          <div class="side-meta-cell"><div class="side-meta-label">Élèves</div><div id="player-eleves" class="side-meta-val">—</div></div>
+          <div class="side-meta-cell"><div class="side-meta-label" data-i18n="metaNiveau">Niveau</div><div id="player-niveau" class="side-meta-val">—</div></div>
+          <div class="side-meta-cell"><div class="side-meta-label" data-i18n="metaDuree">Durée</div><div id="player-duree" class="side-meta-val">—</div></div>
+          <div class="side-meta-cell"><div class="side-meta-label" data-i18n="metaEleves">Élèves</div><div id="player-eleves" class="side-meta-val">—</div></div>
         </div>
       </div>
 
@@ -927,7 +927,7 @@ window.switchView = function(view){
   if(view==='main')renderAll();
   if(view==='tbi')renderTBIGrid();
   if(view==='surprise'){
-    document.getElementById('surprise-text').innerText='Tirage au sort…';
+    document.getElementById('surprise-text').innerText=MATL().drawing;
     document.getElementById('surprise-icon').className='fa-solid fa-dice';
     document.getElementById('surprise-btn').style.display='';
     document.getElementById('surprise-spinner').classList.remove('spinning');
@@ -978,7 +978,7 @@ window.renderGrid = function(){
   let list=COURS.filter(c=>c.groupe===currentTrim);
   if(q.length>=2)list=COURS.filter(c=>c.titre.toLowerCase().includes(q)||(c.intention||'').toLowerCase().includes(q));
   grid.innerHTML='';
-  if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;font-family:Girl,cursive;font-size:1.2rem;padding:40px;color:var(--ink-soft);">Aucun cours trouvé.</div>';return;}
+  if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;font-family:Girl,cursive;font-size:1.2rem;padding:40px;color:var(--ink-soft);">'+MATL().aucunCours+'</div>';return;}
   const PALETTE=[
     {bg:'var(--c-cyan-soft)',ic:'var(--c-cyan)'},
     {bg:'var(--c-yellow-soft)',ic:'#B85C00'},
@@ -1014,7 +1014,7 @@ window.renderGrid = function(){
 window.loadSection = function(sec){
   currentSection=sec;
   const c=COURS.find(x=>x.id===selectedCourseId);if(!c)return;
-  const a=c[sec];if(!a){document.getElementById('player-explanations').innerHTML='<p style="font-family:Girl,cursive;color:var(--ink-soft);font-style:italic;">Section non disponible pour ce cours.</p>';return;}
+  const a=c[sec];if(!a){document.getElementById('player-explanations').innerHTML='<p style="font-family:Girl,cursive;color:var(--ink-soft);font-style:italic;">'+MATL().sectionIndispo+'</p>';return;}
 
   document.querySelectorAll('.player-tab').forEach(t=>{
     t.classList.toggle('active',t.dataset.section===sec);
@@ -1083,8 +1083,8 @@ window.renderTBIGrid = function(){
     card.innerHTML=`
       <div class="icon"><i class="fa-solid ${iconForCourse(c)}"></i></div>
       <h3>${c.titre}</h3>
-      <div class="play-tag">${isDone?'Fini ✓':'Jouer'}</div>
-      <div style="font-family:Love,cursive;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-top:8px;">Cours #${c.id} · ${c.duree||'60 min'}</div>`;
+      <div class="play-tag">${isDone?MATL().fini:MATL().jouer}</div>
+      <div style="font-family:Love,cursive;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin-top:8px;">${MATL().coursNum}${c.id} · ${c.duree||'60 min'}</div>`;
     grid.appendChild(card);
   });
 };
@@ -1096,7 +1096,7 @@ window.rollSurprise = function(){
   const ic=document.getElementById('surprise-icon');
   const sp=document.getElementById('surprise-spinner');
   btn.style.display='none';
-  text.innerText='SÉLECTION…';
+  text.innerText=MATL().selecting;
   ic.className='fa-solid fa-sync';
   sp.classList.add('spinning');
   setTimeout(()=>{

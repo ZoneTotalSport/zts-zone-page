@@ -209,12 +209,12 @@
 
 <!-- Barre d'actions de l'app (restaurée du header : contrôles propres à la grille) -->
 <div class="zts-app-actions" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:14px 16px 0;max-width:1100px;margin:0 auto">
-  <button onclick="showHelp()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#fff;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Aide">❓ Aide</button>
-  <button onclick="openSetupModal()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#fff;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Configuration">⚙️ Config</button>
-  <button onclick="solveSchedule()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#00E5FF;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Génération automatique">🤖 Auto</button>
-  <button onclick="validateAll()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#39FF14;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Tout valider">✅ Valider</button>
-  <button onclick="exportPDF()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#FFEA00;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Exporter en PDF">📄 PDF</button>
-  <button onclick="clearSchedule()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#FF2D87;color:#fff;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Tout vider">🗑️ Vider</button>
+  <button onclick="showHelp()" data-t="btnHelp" data-t-title="ttHelp" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#fff;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Aide">❓ Aide</button>
+  <button onclick="openSetupModal()" data-t="btnConfig" data-t-title="ttConfig" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#fff;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Configuration">⚙️ Config</button>
+  <button onclick="solveSchedule()" data-t="btnAuto" data-t-title="ttAuto" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#00E5FF;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Génération automatique">🤖 Auto</button>
+  <button onclick="validateAll()" data-t="btnValidate" data-t-title="ttValidate" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#39FF14;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Tout valider">✅ Valider</button>
+  <button onclick="exportPDF()" data-t="btnPdf" data-t-title="ttPdf" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#FFEA00;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Exporter en PDF">📄 PDF</button>
+  <button onclick="clearSchedule()" data-t="btnClear" data-t-title="ttClear" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#FF2D87;color:#fff;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Tout vider">🗑️ Vider</button>
 </div>
 
 <section class="hero" id="heroSection">
@@ -252,9 +252,9 @@
     <h3>👤 <span data-t="selectSpec">Sélectionnez</span></h3>
     <div id="specList"></div>
     <div class="p-section">
-      <button class="p-btn" onclick="openSpecModal()">👤 Spécialistes</button>
-      <button class="p-btn" onclick="openClassesModal()">🎓 Classes</button>
-      <button class="p-btn" onclick="openRoomsModal()">🏛️ Locaux</button>
+      <button class="p-btn" onclick="openSpecModal()" data-t="btnSpecialists">👤 Spécialistes</button>
+      <button class="p-btn" onclick="openClassesModal()" data-t="btnClasses">🎓 Classes</button>
+      <button class="p-btn" onclick="openRoomsModal()" data-t="btnRooms">🏛️ Locaux</button>
     </div>
   </div>
   <div class="grid-area"><div class="grid" id="grid"></div></div>
@@ -289,7 +289,11 @@ heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',
 helpTitle:'Comment utiliser<span>la grille horaire</span>',
 helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:#00838F;font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:#00838F;font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:#00838F;font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
 helpValidation:'Validation conflits',helpAutoSave:'Sauvegarde auto',helpGotIt:'Compris!',
-clickToPlace:'Cliquez dans la grille',needsMore:'a besoin de',selectClassFor:'Choisissez le groupe',addClassesFirst:'⚠️ Ajoutez des classes d\'abord!',needMin:'min de plus'},
+clickToPlace:'Cliquez dans la grille',needsMore:'a besoin de',selectClassFor:'Choisissez le groupe',addClassesFirst:'⚠️ Ajoutez des classes d\'abord!',needMin:'min de plus',
+btnHelp:'❓ Aide',btnConfig:'⚙️ Config',btnAuto:'🤖 Auto',btnValidate:'✅ Valider',btnPdf:'📄 PDF',btnClear:'🗑️ Vider',
+ttHelp:'Aide',ttConfig:'Configuration',ttAuto:'Génération automatique',ttValidate:'Tout valider',ttPdf:'Exporter en PDF',ttClear:'Tout vider',
+periodsAbbr:'pér.',specialistsTitle:'Spécialistes',classesTitle:'Classes',roomsTitle:'Locaux',
+btnSpecialists:'👤 Spécialistes',btnClasses:'🎓 Classes',btnRooms:'🏛️ Locaux',specComplete:'complet!',templateCreated:'13 classes, 5 spécialistes, 6 locaux créés!',gradeLabel:n=>n+'e'},
 en:{appTitle:'SCHEDULE GRID',selectSpec:'Select',toPlace:'To place',day:'Day',recess:'Recess',lunch:'Lunch',remaining:'left',coursesPlaced:'lessons placed',
 choose:'— Choose —',confirm:'OK',close:'Close',save:'Save',cancel:'Cancel',add:'Add',default:'Default',
 specName:'Name',specCode:'Code',specSubject:'Subject',specTask:'Task %',specRoom:'Room',specItinerant:'Itinerant',specTravelDays:'Days at other school',
@@ -311,7 +315,11 @@ heroStart:'🚀 Get started!',heroHelp:'📖 How to use',
 helpTitle:'How to use<span>the schedule grid</span>',
 helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:#00838F;font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:#00838F;font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:#00838F;font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
 helpValidation:'Conflict check',helpAutoSave:'Auto-save',helpGotIt:'Got it!',
-clickToPlace:'Click to place',needsMore:'needs',selectClassFor:'Choose class',addClassesFirst:'⚠️ Add classes first!',needMin:'min more'},
+clickToPlace:'Click to place',needsMore:'needs',selectClassFor:'Choose class',addClassesFirst:'⚠️ Add classes first!',needMin:'min more',
+btnHelp:'❓ Help',btnConfig:'⚙️ Setup',btnAuto:'🤖 Auto',btnValidate:'✅ Validate',btnPdf:'📄 PDF',btnClear:'🗑️ Clear',
+ttHelp:'Help',ttConfig:'Setup',ttAuto:'Auto-generate',ttValidate:'Validate all',ttPdf:'Export to PDF',ttClear:'Clear all',
+periodsAbbr:'per.',specialistsTitle:'Specialists',classesTitle:'Classes',roomsTitle:'Rooms',
+btnSpecialists:'👤 Specialists',btnClasses:'🎓 Classes',btnRooms:'🏛️ Rooms',specComplete:'complete!',templateCreated:'13 classes, 5 specialists, 6 rooms created!',gradeLabel:n=>'Gr '+n},
 es:{appTitle:'HORARIO',selectSpec:'Seleccione',toPlace:'Por colocar',day:'Día',recess:'Recreo',lunch:'Almuerzo',remaining:'restante',coursesPlaced:'clases colocadas',
 choose:'— Elegir —',confirm:'OK',close:'Cerrar',save:'Guardar',cancel:'Cancelar',add:'Agregar',default:'Defecto',
 specName:'Nombre',specCode:'Código',specSubject:'Materia',specTask:'Tarea %',specRoom:'Aula',specItinerant:'Itinerante',specTravelDays:'Días otra escuela',
@@ -333,7 +341,11 @@ heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',
 helpTitle:'Cómo usar<span>el horario escolar</span>',
 helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:#00838F;font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:#00838F;font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:#00838F;font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
 helpValidation:'Validación conflictos',helpAutoSave:'Guardado auto',helpGotIt:'¡Entendido!',
-clickToPlace:'Clic para colocar',needsMore:'necesita',selectClassFor:'Elija clase',addClassesFirst:'⚠️ ¡Agregue clases primero!',needMin:'min más'},
+clickToPlace:'Clic para colocar',needsMore:'necesita',selectClassFor:'Elija clase',addClassesFirst:'⚠️ ¡Agregue clases primero!',needMin:'min más',
+btnHelp:'❓ Ayuda',btnConfig:'⚙️ Config',btnAuto:'🤖 Auto',btnValidate:'✅ Validar',btnPdf:'📄 PDF',btnClear:'🗑️ Vaciar',
+ttHelp:'Ayuda',ttConfig:'Configuración',ttAuto:'Generación automática',ttValidate:'Validar todo',ttPdf:'Exportar a PDF',ttClear:'Vaciar todo',
+periodsAbbr:'per.',specialistsTitle:'Especialistas',classesTitle:'Clases',roomsTitle:'Aulas',
+btnSpecialists:'👤 Especialistas',btnClasses:'🎓 Clases',btnRooms:'🏛️ Aulas',specComplete:'¡completo!',templateCreated:'¡13 clases, 5 especialistas, 6 aulas creadas!',gradeLabel:n=>n+'º'},
 zh:{appTitle:'课程表',selectSpec:'选择',toPlace:'待安排',day:'天',recess:'课间',lunch:'午餐',remaining:'剩余',coursesPlaced:'课程已安排',
 choose:'— 选择 —',confirm:'确定',close:'关闭',save:'保存',cancel:'取消',add:'添加',default:'默认',
 specName:'姓名',specCode:'代码',specSubject:'科目',specTask:'任务%',specRoom:'教室',specItinerant:'巡回',specTravelDays:'其他学校',
@@ -355,10 +367,17 @@ heroStart:'🚀 开始!',heroHelp:'📖 使用说明',
 helpTitle:'如何使用<span>课程表</span>',
 helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:#00838F;font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:#00838F;font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:#00838F;font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
 helpValidation:'冲突验证',helpAutoSave:'自动保存',helpGotIt:'明白了!',
-clickToPlace:'点击安排',needsMore:'需要',selectClassFor:'选择班级',addClassesFirst:'⚠️ 请先添加班级！',needMin:'分钟'}
+clickToPlace:'点击安排',needsMore:'需要',selectClassFor:'选择班级',addClassesFirst:'⚠️ 请先添加班级！',needMin:'分钟',
+btnHelp:'❓ 帮助',btnConfig:'⚙️ 配置',btnAuto:'🤖 自动',btnValidate:'✅ 验证',btnPdf:'📄 PDF',btnClear:'🗑️ 清空',
+ttHelp:'帮助',ttConfig:'配置',ttAuto:'自动生成',ttValidate:'全部验证',ttPdf:'导出PDF',ttClear:'全部清空',
+periodsAbbr:'节',specialistsTitle:'专科教师',classesTitle:'班级',roomsTitle:'教室',
+btnSpecialists:'👤 专科教师',btnClasses:'🎓 班级',btnRooms:'🏛️ 教室',specComplete:'已完成！',templateCreated:'已创建13个班、5位专科教师、6间教室！',gradeLabel:n=>n+'年级'}
 };
 function t(k){return I[lang]?.[k]||I.fr[k]||k}
-function applyI18n(){document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;if(I[lang]?.[k])el.innerHTML=I[lang][k]})}
+function applyI18n(){
+  document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;if(I[lang]?.[k])el.innerHTML=I[lang][k]});
+  document.querySelectorAll('[data-t-title]').forEach(el=>{const k=el.dataset.tTitle;if(I[lang]?.[k])el.title=I[lang][k]});
+}
 
 // STATE
 const DEF_PER=[{type:'period',num:1,start:'08:20',end:'09:10'},{type:'period',num:2,start:'09:15',end:'10:05'},{type:'recess',label:'Récré',start:'10:05',end:'10:20'},{type:'period',num:3,start:'10:20',end:'11:10'},{type:'lunch',label:'Dîner',start:'11:10',end:'12:40'},{type:'period',num:4,start:'12:40',end:'13:30'},{type:'period',num:5,start:'13:35',end:'14:25'}];
@@ -376,9 +395,10 @@ let lang='fr',activeSpec=null;
 
 function save(){localStorage.setItem('gh2',JSON.stringify(S))}
 function load(){try{const r=localStorage.getItem('gh2');if(r){S=JSON.parse(r);if(!S.assignments)S.assignments={};if(!S.school.quotaMode)S.school.quotaMode='minutes';if(!S.school.periodsPerDay)S.school.periodsPerDay=tPer().length||5;if(!S.school.tache100)S.school.tache100=S.school.cycleDays*(S.school.periodsPerDay||5)}}catch(e){}
-  lang=localStorage.getItem('gh_lang')||'fr';document.getElementById('langSel').value=lang;
+  lang=(typeof ZTS!=='undefined'&&ZTS.getLang)?ZTS.getLang():(localStorage.getItem('gh_lang')||'fr');
   [...(S.specialists||[]),...(S.classes||[]),...(S.rooms||[])].forEach(x=>{if(x?.id){const n=parseInt(x.id.replace('id_',''));if(!isNaN(n)&&n>=nid)nid=n+1}})}
-function changeLang(l){lang=l;localStorage.setItem('gh_lang',l);applyI18n();renderAll()}
+// Synchronise la langue depuis le toggle FR/EN du header partagé (ZTS.getLang).
+function syncLang(){lang=(typeof ZTS!=='undefined'&&ZTS.getLang)?ZTS.getLang():lang;applyI18n();renderAll()}
 
 // TOAST
 function toast(msg,dur){const d=document.createElement('div');d.className='toast';d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),dur||2500)}
@@ -446,7 +466,7 @@ function renderPanel(){
     const remaining=Math.max(0,maxP-placed);
     const barPct=maxP?Math.min(100,Math.round(placed/maxP*100)):100;
     const card=document.createElement('div');card.className='spec-card'+(activeSpec===sp.id?' active':'');
-    card.innerHTML=`<div class="sc-top"><div class="sc-dot" style="background:${sp.color||su?.color||'#ccc'}"></div><span class="sc-name">${sp.shortName}</span><span class="sc-remain">${remaining>0?remaining+' '+t('remaining'):'✅'}</span></div><div class="sc-info">${su?.name||'—'} · ${t('contract')} ${sp.taskPercent}% · <b>${placed}/${maxP}</b> pér. · <b>${calcPct}%</b> ${t('taskCalc')}</div><div class="sc-bar"><div style="width:${barPct}%;background:${barPct>=100?'var(--green)':'var(--cyan)'}"></div></div>`;
+    card.innerHTML=`<div class="sc-top"><div class="sc-dot" style="background:${sp.color||su?.color||'#ccc'}"></div><span class="sc-name">${sp.shortName}</span><span class="sc-remain">${remaining>0?remaining+' '+t('remaining'):'✅'}</span></div><div class="sc-info">${su?.name||'—'} · ${t('contract')} ${sp.taskPercent}% · <b>${placed}/${maxP}</b> ${t('periodsAbbr')} · <b>${calcPct}%</b> ${t('taskCalc')}</div><div class="sc-bar"><div style="width:${barPct}%;background:${barPct>=100?'var(--green)':'var(--cyan)'}"></div></div>`;
     card.onclick=()=>{activeSpec=activeSpec===sp.id?null:sp.id;renderPanel();renderGrid();renderNext()};
     c.appendChild(card)});
 }
@@ -505,11 +525,11 @@ function cellClick(day,per){
   if(!S.classes.length){toast(t('addClassesFirst'));openClassesModal();return}
   if(!activeSpec){openQuickAssign(day,per);return}
   const sp=S.specialists.find(s=>s.id===activeSpec);if(!sp)return;
-  if(specTotalPlaced(sp.id)>=specMaxPeriods(sp)){toast('🚫 '+sp.shortName+' — '+t('taskFull')+' ('+specMaxPeriods(sp)+' pér.)');return}
+  if(specTotalPlaced(sp.id)>=specMaxPeriods(sp)){toast('🚫 '+sp.shortName+' — '+t('taskFull')+' ('+specMaxPeriods(sp)+' '+t('periodsAbbr')+')');return}
   if(!canPlace(day,per,sp)){toast('❌ '+t('unavailable'));return}
   if(getA(day,per).some(a=>a.specId===sp.id)){removeA(day,per,sp.id);renderAll();return}
   const demand=specDemand(sp);
-  if(!demand.length){toast('✅ '+sp.shortName+' — complet!');return}
+  if(!demand.length){toast('✅ '+sp.shortName+' — '+t('specComplete'));return}
   if(demand.length===1){const cl=demand[0].cls;if(getA(day,per).some(a=>a.classId===cl.id)){toast('❌ '+cl.group+' '+t('busy'));return}
     setA(day,per,sp.id,cl.id,sp.roomId||'');renderAll();return}
   showClassPicker(day,per,sp,demand);
@@ -587,7 +607,7 @@ function useTemplate(){
     {id:uid(),name:'Prof. musique',shortName:'MUS',subjectId:'mus',taskPercent:100,isItinerant:false,travelDays:[],roomId:musR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#4FC3F7'},
     {id:uid(),name:'Prof. art plastique',shortName:'ART',subjectId:'art',taskPercent:100,isItinerant:false,travelDays:[],roomId:artR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#CE93D8'},
     {id:uid(),name:'Prof. anglais',shortName:'ANG',subjectId:'ang',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#81D4FA'}];
-  S.assignments={};save();const h=document.getElementById('heroSection');if(h)h.classList.add('hidden');renderAll();toast('✅ 13 classes, 5 spécialistes, 6 locaux créés!')}
+  S.assignments={};save();const h=document.getElementById('heroSection');if(h)h.classList.add('hidden');renderAll();toast('✅ '+t('templateCreated'))}
 
 // MODALS
 function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.remove())}
@@ -625,7 +645,7 @@ function openSetupModal(){
 function openSpecModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
   let rows=S.specialists.map((sp,i)=>{const su=S.subjects.find(s=>s.id===sp.subjectId);return`<tr><td><span class="cdot" style="background:${sp.color||'#ccc'}"></span></td><td style="font-weight:600">${sp.name}</td><td>${sp.shortName}</td><td>${su?.name||'—'}</td><td style="display:flex;gap:3px"><button class="btn c sm" onclick="closeModals();editSpec(${i})">✏️</button><button class="btn r sm" onclick="S.specialists.splice(${i},1);save();closeModals();openSpecModal()">✕</button></td></tr>`}).join('');
-  ov.innerHTML=`<div class="mbox" style="max-width:600px"><h3>👤 Spécialistes</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th></th><th>${t('specName')}</th><th>${t('specCode')}</th><th>${t('specSubject')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px">${t('noSpec')}</td></tr>`}</tbody></table></div>
+  ov.innerHTML=`<div class="mbox" style="max-width:600px"><h3>👤 ${t('specialistsTitle')}</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th></th><th>${t('specName')}</th><th>${t('specCode')}</th><th>${t('specSubject')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px">${t('noSpec')}</td></tr>`}</tbody></table></div>
   <div class="macts"><button class="btn c" onclick="closeModals();addSpec()">+ ${t('add')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 function addSpec(){const su=S.subjects[0];S.specialists.push({id:uid(),name:'Nouveau',shortName:'SP'+(S.specialists.length+1),subjectId:su?.id||'',taskPercent:100,isItinerant:false,travelDays:[],roomId:S.rooms[0]?.id||'',amPm:'all',maxPerDay:6,maxConsecutive:4,availDays:[],color:su?.color||'#ccc'});save();editSpec(S.specialists.length-1)}
@@ -655,15 +675,15 @@ function editSpec(idx){
 
 function openClassesModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
-  let rows=S.classes.map((cl,i)=>`<tr><td><select onchange="S.classes[${i}].level=this.value;save()" style="padding:4px;border:1px solid #ddd;border-radius:4px">${['pres','1','2','3','4','5','6'].map(l=>`<option value="${l}" ${cl.level===l?'selected':''}>${l==='pres'?t('presco'):l+'e'}</option>`).join('')}</select></td><td><input type="text" value="${cl.group}" style="width:55px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:700" onchange="S.classes[${i}].group=this.value;save()"></td><td><input type="text" value="${cl.titulaire||''}" style="width:120px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.classes[${i}].titulaire=this.value;save()"></td><td><button class="btn r sm" onclick="S.classes.splice(${i},1);save();closeModals();openClassesModal()">✕</button></td></tr>`).join('');
-  ov.innerHTML=`<div class="mbox" style="max-width:520px"><h3>🎓 Classes</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('classLevel')}</th><th>${t('classGroup')}</th><th>${t('classTitulaire')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">${t('noClass')}</td></tr>`}</tbody></table></div>
+  let rows=S.classes.map((cl,i)=>`<tr><td><select onchange="S.classes[${i}].level=this.value;save()" style="padding:4px;border:1px solid #ddd;border-radius:4px">${['pres','1','2','3','4','5','6'].map(l=>`<option value="${l}" ${cl.level===l?'selected':''}>${l==='pres'?t('presco'):t('gradeLabel')(l)}</option>`).join('')}</select></td><td><input type="text" value="${cl.group}" style="width:55px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:700" onchange="S.classes[${i}].group=this.value;save()"></td><td><input type="text" value="${cl.titulaire||''}" style="width:120px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.classes[${i}].titulaire=this.value;save()"></td><td><button class="btn r sm" onclick="S.classes.splice(${i},1);save();closeModals();openClassesModal()">✕</button></td></tr>`).join('');
+  ov.innerHTML=`<div class="mbox" style="max-width:520px"><h3>🎓 ${t('classesTitle')}</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('classLevel')}</th><th>${t('classGroup')}</th><th>${t('classTitulaire')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">${t('noClass')}</td></tr>`}</tbody></table></div>
   <div class="macts"><button class="btn c" onclick="S.classes.push({id:uid(),level:'1',group:''+(S.classes.length+1)+'A',titulaire:'',prepQuota:200});save();closeModals();openClassesModal()">+ ${t('add')}</button><button class="btn o" onclick="const d=['MAT','1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B'];const l={MAT:'pres','1A':'1','1B':'1','2A':'2','2B':'2','3A':'3','3B':'3','4A':'4','4B':'4','5A':'5','5B':'5','6A':'6','6B':'6'};d.forEach(g=>{if(!S.classes.find(c=>c.group===g))S.classes.push({id:uid(),level:l[g],group:g,titulaire:'',prepQuota:200})});save();closeModals();openClassesModal()">📋 ${t('default')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
 function openRoomsModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
   let rows=S.rooms.map((rm,i)=>`<tr><td><input type="text" value="${rm.name}" style="width:130px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:600" onchange="S.rooms[${i}].name=this.value;save()"></td><td><input type="text" value="${rm.type||''}" style="width:70px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.rooms[${i}].type=this.value;save()"></td><td><input type="number" value="${rm.maxSimultaneous||1}" min="1" max="10" style="width:45px;border:1px solid #ddd;border-radius:4px;padding:4px;text-align:center" onchange="S.rooms[${i}].maxSimultaneous=+this.value;save()"></td><td><button class="btn r sm" onclick="S.rooms.splice(${i},1);save();closeModals();openRoomsModal()">✕</button></td></tr>`).join('');
-  ov.innerHTML=`<div class="mbox" style="max-width:450px"><h3>🏛️ Locaux</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('roomName')}</th><th>${t('roomType')}</th><th>${t('roomCap')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">${t('noRoom')}</td></tr>`}</tbody></table></div>
+  ov.innerHTML=`<div class="mbox" style="max-width:450px"><h3>🏛️ ${t('roomsTitle')}</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('roomName')}</th><th>${t('roomType')}</th><th>${t('roomCap')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">${t('noRoom')}</td></tr>`}</tbody></table></div>
   <div class="macts"><button class="btn c" onclick="S.rooms.push({id:uid(),name:'Nouveau',type:'',maxSimultaneous:1});save();closeModals();openRoomsModal()">+ ${t('add')}</button><button class="btn o" onclick="[{name:'Gymnase principal',type:'gym',maxSimultaneous:2},{name:'Gymnase secondaire',type:'gym',maxSimultaneous:1},{name:'Plateau extérieur',type:'gym',maxSimultaneous:2},{name:'Piscine / Palestre',type:'gym',maxSimultaneous:1},{name:'Local musique',type:'music',maxSimultaneous:1},{name:'Local art',type:'art',maxSimultaneous:1}].forEach(d=>{if(!S.rooms.find(r=>r.name===d.name))S.rooms.push({id:uid(),...d})});save();closeModals();openRoomsModal()">📋 ${t('default')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
@@ -684,6 +704,9 @@ function exportPDF(){html2pdf().set({margin:5,filename:'grille_horaire.pdf',imag
 function renderAll(){resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
 
 document.addEventListener('DOMContentLoaded',()=>{load();applyI18n();renderAll();showWelcome()});
+// Le toggle FR/EN vit dans le header partagé : on re-rend au prêt et au changement.
+document.addEventListener('zts:ready',syncLang);
+document.addEventListener('zts:langchange',syncLang);
 </script>
 
   <script src="../../analytics.js"></script>

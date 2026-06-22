@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!-- DÉMO header — comparatif de fonds. Non liée à la prod. -->
+<html lang="fr-CA">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Démo — fonds de header ZTS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --noir:#0a0a14; --cyan:#00E5FF; --jaune:#FFEA00; --orange:#FF6B00; --vert:#39FF14; --rose:#FF2D87; }
+  *{ box-sizing:border-box; margin:0; }
+  body{ font-family:'Fredoka',system-ui,sans-serif; background:#eef1f5; color:#1a1a2e; padding:28px 18px 60px; }
+  h1{ font-family:'Luckiest Guy',cursive; text-align:center; font-size:30px; color:#1a1a2e; margin-bottom:6px; }
+  .sub{ text-align:center; color:#5f5e5a; margin-bottom:26px; font-weight:600; }
+  .demo{ max-width:1040px; margin:0 auto 30px; }
+  .demo > .lbl{ font-family:'Luckiest Guy',cursive; font-size:20px; color:#1a1a2e; margin:0 0 4px 6px; }
+  .demo > .note{ color:#5f5e5a; font-weight:600; margin:0 0 10px 6px; font-size:14px; }
+
+  .hdr{ position:relative; border-radius:28px; border:4px solid var(--noir);
+        box-shadow:10px 10px 0 rgba(10,10,20,.30); padding:22px 22px 26px; text-align:center; overflow:hidden; }
+  .hdr > *{ position:relative; z-index:1; }
+
+  .nav{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:16px; }
+  .chip{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:14px; color:#fff;
+         background:#2A3447; border:3px solid var(--noir); border-radius:14px; padding:8px 16px; box-shadow:0 4px 0 var(--noir); }
+  .chip.w{ background:#fff; color:#1a1a2e; }
+  .chip.p{ background:var(--rose); }
+  .chip.y{ background:var(--jaune); color:#1a1a2e; }
+
+  .brand{ display:inline-flex; gap:12px; font-family:'Luckiest Guy',cursive; letter-spacing:.02em;
+          font-size:clamp(38px,6.5vw,72px); line-height:1; }
+  .brand span{ text-shadow:3px 3px 0 var(--noir),-2px -2px 0 var(--noir),2px -2px 0 var(--noir),
+               -2px 2px 0 var(--noir),0 2px 0 var(--noir),2px 0 0 var(--noir),6px 8px 0 rgba(10,10,20,.40); }
+  .w1,.w3{ color:var(--jaune); }
+  .w2{ color:var(--cyan); }
+  .clock{ display:inline-flex; align-items:center; gap:8px; margin-top:14px; background:#fff; color:#1a1a2e;
+          font-family:'Luckiest Guy',cursive; font-size:18px; border:3px solid var(--noir); border-radius:18px;
+          padding:6px 16px; box-shadow:0 4px 0 var(--noir); }
+
+  /* ---- FONDS ---- */
+  .bg-dots-base{ background-image:radial-gradient(rgba(255,255,255,.30) 1.6px, transparent 1.7px); background-size:16px 16px; }
+
+  .v1{ background:radial-gradient(circle at top right,#00C4FF 0%,#004A61 100%); }
+  .v1::before{ content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.28) 1.6px, transparent 1.7px); background-size:16px 16px; }
+
+  .v2{ background:#1a1a2e; }
+  .v2::before{ content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(0,229,255,.30) 1.6px, transparent 1.7px); background-size:16px 16px; }
+
+  .v3{ background:#14233a; }
+  .v3::before{ content:''; position:absolute; inset:0;
+    background-image:repeating-linear-gradient(45deg, rgba(0,229,255,.40) 0 12px, transparent 12px 24px, rgba(255,234,0,.40) 24px 36px, transparent 36px 48px); }
+
+  .v4{ background:#102634; }
+  .v4::before{ content:''; position:absolute; inset:0;
+    background-image:repeating-conic-gradient(from 0deg at 94% 108%, rgba(0,229,255,.42) 0deg 5deg, transparent 5deg 10deg, rgba(255,234,0,.34) 10deg 15deg, transparent 15deg 20deg); }
+
+  .v5{ background:#2b1a55; }
+  .v5::before{ content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.16) 1.5px, transparent 1.6px); background-size:16px 16px; }
+
+  .v6{ background:#16202e; }
+  .v6::before{ content:''; position:absolute; inset:0;
+    background-image:
+      radial-gradient(circle at 50% 52%, transparent 30px, rgba(255,255,255,.40) 31px, rgba(255,255,255,.40) 33px, transparent 34px),
+      linear-gradient(90deg, transparent calc(50% - 1.5px), rgba(255,255,255,.40) calc(50% - 1.5px), rgba(255,255,255,.40) calc(50% + 1.5px), transparent calc(50% + 1.5px)); }
+
+  .v7{ background:linear-gradient(120deg,#00E5FF 0%,#FFEA00 100%); }
+  .v8{ background:linear-gradient(120deg,#FF6B00 0%,#C026FF 100%); }
+  .v9{ background:linear-gradient(120deg,#39FF14 0%,#FF6EC7 100%); }
+  .v7::before,.v8::before,.v9::before{ content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.20) 1.6px, transparent 1.7px); background-size:16px 16px; }
+</style>
+</head>
+<body>
+<h1>Fonds de header — comparatif</h1>
+<p class="sub">Mot-symbole « ZONE TOTAL SPORT » en cyan + jaune sur chaque fond. Choisis ton préféré.</p>
+
+<div id="demos"></div>
+
+<script>
+  var VARIANTS = [
+    {c:'v1', n:'1 · Bleu nuit + points', note:'Actuel.'},
+    {c:'v2', n:'2 · Charbon + points cyan', note:'Contraste max, neutre par-dessus tous les métiers.'},
+    {c:'v3', n:'3 · Rayures diagonales', note:'Écho direct du fond métier (rayures fluo).'},
+    {c:'v4', n:'4 · Rayons (sunburst)', note:'Même motif que le planificateur / le fond des hubs.'},
+    {c:'v5', n:'5 · Indigo violet', note:'Pop, le jaune ressort très fort.'},
+    {c:'v6', n:'6 · Lignes de gymnase', note:'Thème sport (terrain).'},
+    {c:'v7', n:'7 · ÉP — dégradé cyan → jaune', note:'Les 2 couleurs du métier.'},
+    {c:'v8', n:'8 · Camp — dégradé orange → mauve', note:'Les 2 couleurs du métier.'},
+    {c:'v9', n:'9 · SDG — dégradé vert → rose', note:'Les 2 couleurs du métier.'}
+  ];
+  var NAV = '<div class="nav"><span class="chip w">🏠 Accueil</span><span class="chip">✏️ Blog</span><span class="chip p">🤝 Communauté ▾</span><span class="chip y">💛 Dons</span><span class="chip">👤 Connexion</span><span class="chip">FR / EN</span></div>';
+  var BRAND = '<div class="brand"><span class="w1">ZONE</span><span class="w2">TOTAL</span><span class="w3">SPORT</span></div>';
+  var CLOCK = '<div class="clock">🕐 09:48:54 · Pédagogie primaire</div>';
+  document.getElementById('demos').innerHTML = VARIANTS.map(function(v){
+    return '<div class="demo"><div class="lbl">'+v.n+'</div><div class="note">'+v.note+'</div>'+
+           '<div class="hdr '+v.c+'">'+NAV+BRAND+CLOCK+'</div></div>';
+  }).join('');
+</script>
+</body>
+</html>

@@ -17,6 +17,141 @@
   const API_BASE = API_URL.replace(/\/generate$/, '');
 
   // ──────────────────────────────────────────────────────────
+  // i18n (texte généré par JS). FR par défaut. EN via ?lang=en / toggle header.
+  // ──────────────────────────────────────────────────────────
+  function getLang() {
+    try {
+      if (window.ZTS && typeof ZTS.getLang === 'function') return ZTS.getLang();
+    } catch (e) {}
+    return new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'fr';
+  }
+
+  const I18N = {
+    fr: {
+      // quota hints
+      quota_left_auth: (left, max) => `Crédits restants ce mois : ${left} / ${max}`,
+      quota_left_anon: (left, used, max) => `Tu peux générer ${left} fois sans inscription (${used}/${max} utilisés).`,
+      quota_auth_default: 'Connecté : 10 générations gratuites/mois.',
+      quota_anon_last: '⚠️ Dernier essai gratuit — inscris-toi pour générer sans limite.',
+      quota_anon_remaining: (n) => `Tu peux générer ${n} fois sans inscription.`,
+      // loading
+      loading: ['Le bûcheron réfléchit...', 'Il taille la fiche...', 'Il polit les variantes...', 'Il vérifie le matériel...', 'Il aiguise les règles...', 'Presque prêt...'],
+      // errors
+      err_quota: 'Quota mensuel atteint. Fais un don pour soutenir le projet : https://paypal.me/zonetotalsport',
+      err_status: (s) => `Erreur ${s}. Le bûcheron a glissé, réessaye.`,
+      err_timeout: 'Le bûcheron a tardé (>35s). Réessaie avec un contexte plus court.',
+      err_network: 'Connexion au bûcheron impossible. Vérifie ta connexion puis réessaie.',
+      // fiche
+      fiche_default_title: 'Fiche générée',
+      cycle_eps: 'Primaire', cycle_camps: 'Camp', cycle_sdg: 'Service garde',
+      tag_jeu: '🎮 Fiche de jeu officielle', tag_sae: '📚 Situation d\'apprentissage', tag_educatif: '🏋️ Éducatif progressif', tag_default: 'Fiche officielle',
+      maitriser: (h) => `Maîtriser : ${h}`,
+      mat_none: 'Aucun matériel spécifique',
+      label_intentions: 'INTENTIONS', label_habilete: 'HABILETÉ', label_objectif: 'OBJECTIF',
+      moyen: (m) => `⚡ Moyen : ${m}`,
+      org_pfeq: (c) => `🎯 PFEQ : ${c}`,
+      org_none: 'Organisation à adapter selon le contexte',
+      plan_none: 'Plan de match à structurer.',
+      var_savoirs: 'Savoirs essentiels :', var_erreurs: 'Erreurs courantes :', var_complexifier: 'Pour complexifier :',
+      var_none: 'Aucune variante fournie.',
+      diff: (d) => `Différenciation : ${d}`,
+      eval: (c) => `Évaluation : ${c}`,
+      sec_none: 'Vérifie l\'espace et le matériel avant de commencer.',
+      fav_on: 'FAVORI ✓', fav_off: 'FAVORI',
+      // edit
+      edit_label: 'ÉDITER', save_label: 'SAUVER',
+      edit_hint: '✏️ Mode édition — clique sur les champs surlignés',
+      edit_saved: '💾 Modifications enregistrées',
+      // regen confirm
+      regen_q: '🔄 Régénérer ?', regen_cost: '(1 crédit)', regen_cancel: 'Annuler', regen_ok: '✅ OK',
+      regen_exhausted: 'Crédits épuisés ce mois.', regen_don: '💝 Don +10', regen_signup: '🎁 Inscris-toi +10',
+      // pdf
+      pdf_no_lib: 'jsPDF non chargé. Réessaye dans 1 seconde.',
+      pdf_subtitle: 'zonetotalsport.ca · Fiche générée par IA',
+      pdf_default_title: 'Fiche',
+      pdf_meta_duree: 'DUREE', pdf_meta_joueurs: 'JOUEURS', pdf_meta_espace: 'ESPACE', pdf_meta_niveau: 'NIVEAU', pdf_meta_pfeq: 'PFEQ',
+      pdf_sec_materiel: '🎒 MATÉRIEL', pdf_sec_but: '🎯 BUT DU JEU', pdf_sec_regles: '📋 RÈGLES', pdf_sec_variantes: '🔀 VARIANTES', pdf_sec_securite: '🛟 SÉCURITÉ',
+      pdf_sec_intentions: '🎯 INTENTIONS PÉDAGOGIQUES', pdf_sec_deroulement: '📋 DÉROULEMENT', pdf_sec_evaluation: '📊 ÉVALUATION', pdf_sec_savoirs: '📚 SAVOIRS ESSENTIELS', pdf_sec_diff: '♿ DIFFÉRENCIATION',
+      pdf_sec_habilete: '🎯 HABILETÉ CIBLÉE', pdf_sec_progression: '📈 PROGRESSION', pdf_sec_erreurs: '⚠️ ERREURS COURANTES',
+      pdf_observables: 'Observables : ', pdf_echelle: 'Échelle : ',
+      pdf_moyen: (m) => `\nMoyen d'action : ${m}`,
+      pdf_locale: 'fr-CA',
+      // grid / mes générations
+      grid_auth: (n) => `${n} génération${n > 1 ? 's' : ''} sauvegardée${n > 1 ? 's' : ''} dans ton compte`,
+      grid_anon: (n) => `${n} génération${n > 1 ? 's' : ''} sauvée${n > 1 ? 's' : ''} sur cet appareil — connecte-toi pour les conserver`,
+      grid_untitled: 'Sans titre',
+      label_type_jeu: 'JEU', label_type_sae: 'SAÉ', label_type_educatif: 'ÉDUC.',
+      label_uni_eps: 'ÉPS', label_uni_camps: 'CAMP', label_uni_sdg: 'SDG',
+      // relative date
+      date_now: 'à l\'instant', date_min: (n) => `il y a ${n} min`, date_h: (n) => `il y a ${n} h`,
+      date_yesterday: 'hier', date_days: (n) => `il y a ${n} jours`,
+      // placeholders dynamiques
+      ph: {
+        jeu: { eps: 'ex. 3e cycle, basketball, ballons mousse, 30 min', camps: 'ex. thème pirates, 50 jeunes, plein air, après-midi', sdg: 'ex. local de 50m², 15 enfants 6-10 ans, retour calme' },
+        sae: { eps: 'ex. 2e cycle, hockey-cosom, 4 périodes, compétence C1', camps: 'ex. journée volley-plage, débutants, 60 jeunes', sdg: 'ex. semaine olympique, ateliers tournants, 5 jours' },
+        educatif: { eps: 'ex. lancer par-dessus l\'épaule, 1er cycle, ballons mousse', camps: 'ex. initiation soccer, ateliers techniques 20 min', sdg: 'ex. équilibre sur un pied, jeu calme avant retour parents' },
+      },
+    },
+    en: {
+      quota_left_auth: (left, max) => `Credits left this month: ${left} / ${max}`,
+      quota_left_anon: (left, used, max) => `You can generate ${left} more times without signing up (${used}/${max} used).`,
+      quota_auth_default: 'Signed in: 10 free generations/month.',
+      quota_anon_last: '⚠️ Last free try — sign up to generate without limits.',
+      quota_anon_remaining: (n) => `You can generate ${n} times without signing up.`,
+      loading: ['The lumberjack is thinking...', 'He\'s carving the sheet...', 'He\'s polishing the variations...', 'He\'s checking the equipment...', 'He\'s sharpening the rules...', 'Almost ready...'],
+      err_quota: 'Monthly quota reached. Make a donation to support the project: https://paypal.me/zonetotalsport',
+      err_status: (s) => `Error ${s}. The lumberjack slipped, try again.`,
+      err_timeout: 'The lumberjack took too long (>35s). Try again with a shorter context.',
+      err_network: 'Couldn\'t reach the lumberjack. Check your connection and try again.',
+      fiche_default_title: 'Generated sheet',
+      cycle_eps: 'Elementary', cycle_camps: 'Camp', cycle_sdg: 'After-school',
+      tag_jeu: '🎮 Official game sheet', tag_sae: '📚 Learning situation', tag_educatif: '🏋️ Progressive skill drill', tag_default: 'Official sheet',
+      maitriser: (h) => `Master: ${h}`,
+      mat_none: 'No specific equipment',
+      label_intentions: 'INTENTIONS', label_habilete: 'SKILL', label_objectif: 'OBJECTIVE',
+      moyen: (m) => `⚡ Means: ${m}`,
+      org_pfeq: (c) => `🎯 PFEQ: ${c}`,
+      org_none: 'Setup to adapt to your context',
+      plan_none: 'Game plan to structure.',
+      var_savoirs: 'Key knowledge:', var_erreurs: 'Common mistakes:', var_complexifier: 'To make it harder:',
+      var_none: 'No variation provided.',
+      diff: (d) => `Differentiation: ${d}`,
+      eval: (c) => `Assessment: ${c}`,
+      sec_none: 'Check the space and equipment before starting.',
+      fav_on: 'FAVORITE ✓', fav_off: 'FAVORITE',
+      edit_label: 'EDIT', save_label: 'SAVE',
+      edit_hint: '✏️ Edit mode — click the highlighted fields',
+      edit_saved: '💾 Changes saved',
+      regen_q: '🔄 Regenerate?', regen_cost: '(1 credit)', regen_cancel: 'Cancel', regen_ok: '✅ OK',
+      regen_exhausted: 'Credits used up this month.', regen_don: '💝 Donate +10', regen_signup: '🎁 Sign up +10',
+      pdf_no_lib: 'jsPDF not loaded. Try again in 1 second.',
+      pdf_subtitle: 'zonetotalsport.ca · AI-generated sheet',
+      pdf_default_title: 'Sheet',
+      pdf_meta_duree: 'DURATION', pdf_meta_joueurs: 'PLAYERS', pdf_meta_espace: 'SPACE', pdf_meta_niveau: 'LEVEL', pdf_meta_pfeq: 'PFEQ',
+      pdf_sec_materiel: '🎒 EQUIPMENT', pdf_sec_but: '🎯 GAME GOAL', pdf_sec_regles: '📋 RULES', pdf_sec_variantes: '🔀 VARIATIONS', pdf_sec_securite: '🛟 SAFETY',
+      pdf_sec_intentions: '🎯 PEDAGOGICAL INTENTIONS', pdf_sec_deroulement: '📋 SEQUENCE', pdf_sec_evaluation: '📊 ASSESSMENT', pdf_sec_savoirs: '📚 KEY KNOWLEDGE', pdf_sec_diff: '♿ DIFFERENTIATION',
+      pdf_sec_habilete: '🎯 TARGET SKILL', pdf_sec_progression: '📈 PROGRESSION', pdf_sec_erreurs: '⚠️ COMMON MISTAKES',
+      pdf_observables: 'Observables: ', pdf_echelle: 'Scale: ',
+      pdf_moyen: (m) => `\nMeans of action: ${m}`,
+      pdf_locale: 'en-CA',
+      grid_auth: (n) => `${n} generation${n > 1 ? 's' : ''} saved to your account`,
+      grid_anon: (n) => `${n} generation${n > 1 ? 's' : ''} saved on this device — sign in to keep them`,
+      grid_untitled: 'Untitled',
+      label_type_jeu: 'GAME', label_type_sae: 'SAÉ', label_type_educatif: 'DRILL',
+      label_uni_eps: 'PE', label_uni_camps: 'CAMP', label_uni_sdg: 'ASC',
+      date_now: 'just now', date_min: (n) => `${n} min ago`, date_h: (n) => `${n} h ago`,
+      date_yesterday: 'yesterday', date_days: (n) => `${n} days ago`,
+      ph: {
+        jeu: { eps: 'e.g. 3rd cycle, basketball, foam balls, 30 min', camps: 'e.g. pirate theme, 50 kids, outdoors, afternoon', sdg: 'e.g. 50m² room, 15 kids 6-10 yrs, calm wind-down' },
+        sae: { eps: 'e.g. 2nd cycle, floor hockey, 4 periods, competency C1', camps: 'e.g. beach volleyball day, beginners, 60 kids', sdg: 'e.g. olympic week, rotating stations, 5 days' },
+        educatif: { eps: 'e.g. overhand throw, 1st cycle, foam balls', camps: 'e.g. intro soccer, 20-min technical stations', sdg: 'e.g. balance on one foot, calm game before pickup' },
+      },
+    },
+  };
+
+  function T() { return I18N[getLang()] || I18N.fr; }
+
+  // ──────────────────────────────────────────────────────────
   // State
   // ──────────────────────────────────────────────────────────
   const state = {
@@ -52,36 +187,6 @@
   const $tooltipBox = $('#tooltipBox');
 
   // ──────────────────────────────────────────────────────────
-  // Placeholders dynamiques
-  // ──────────────────────────────────────────────────────────
-  const PLACEHOLDERS = {
-    jeu: {
-      eps:   "ex. 3e cycle, basketball, ballons mousse, 30 min",
-      camps: "ex. thème pirates, 50 jeunes, plein air, après-midi",
-      sdg:   "ex. local de 50m², 15 enfants 6-10 ans, retour calme",
-    },
-    sae: {
-      eps:   "ex. 2e cycle, hockey-cosom, 4 périodes, compétence C1",
-      camps: "ex. journée volley-plage, débutants, 60 jeunes",
-      sdg:   "ex. semaine olympique, ateliers tournants, 5 jours",
-    },
-    educatif: {
-      eps:   "ex. lancer par-dessus l'épaule, 1er cycle, ballons mousse",
-      camps: "ex. initiation soccer, ateliers techniques 20 min",
-      sdg:   "ex. équilibre sur un pied, jeu calme avant retour parents",
-    },
-  };
-
-  const LOADING_MESSAGES = [
-    "Le bûcheron réfléchit...",
-    "Il taille la fiche...",
-    "Il polit les variantes...",
-    "Il vérifie le matériel...",
-    "Il aiguise les règles...",
-    "Presque prêt...",
-  ];
-
-  // ──────────────────────────────────────────────────────────
   // Sélecteurs (cartes XXL)
   // ──────────────────────────────────────────────────────────
   function setupSelectors(group) {
@@ -97,7 +202,7 @@
   }
 
   function updatePlaceholder() {
-    const ph = PLACEHOLDERS[state.type]?.[state.univers];
+    const ph = T().ph[state.type]?.[state.univers];
     if (ph) $context.placeholder = ph;
   }
 
@@ -199,26 +304,26 @@
     return Promise.resolve({ count: getAnonCount() + 1, blocked: false });
   }
 
+  let lastQuotaShown = null; // mémorise le dernier quota pour re-render à la bascule de langue
   function updateQuotaHint(quota) {
+    if (quota !== undefined) lastQuotaShown = quota;
+    const q = quota !== undefined ? quota : lastQuotaShown;
+    const t = T();
     const uid = getUid();
-    if (quota) {
-      const left = quota.max - quota.used;
-      if (uid) {
-        $quotaHint.textContent = `Crédits restants ce mois : ${left} / ${quota.max}`;
-      } else {
-        $quotaHint.textContent = `Tu peux générer ${left} fois sans inscription (${quota.used}/${quota.max} utilisés).`;
-      }
+    if (q) {
+      const left = q.max - q.used;
+      $quotaHint.textContent = uid ? t.quota_left_auth(left, q.max) : t.quota_left_anon(left, q.used, q.max);
       return;
     }
     if (uid) {
-      $quotaHint.textContent = 'Connecté : 10 générations gratuites/mois.';
+      $quotaHint.textContent = t.quota_auth_default;
     } else {
       const used = getAnonCount();
       const remaining = Math.max(0, ANON_LIMIT - used);
       if (used >= ANON_LIMIT - 1 && remaining > 0) {
-        $quotaHint.textContent = '⚠️ Dernier essai gratuit — inscris-toi pour générer sans limite.';
+        $quotaHint.textContent = t.quota_anon_last;
       } else {
-        $quotaHint.textContent = `Tu peux générer ${remaining} fois sans inscription.`;
+        $quotaHint.textContent = t.quota_anon_remaining(remaining);
       }
     }
   }
@@ -285,7 +390,7 @@
           if (window.ztsShowLockedFullscreen) window.ztsShowLockedFullscreen({ source: 'generateur', closable: true });
           else openSignupModal();
         } else {
-          showError(json?.message || 'Quota mensuel atteint. Fais un don pour soutenir le projet : https://paypal.me/zonetotalsport');
+          showError(json?.message || T().err_quota);
         }
         return;
       }
@@ -296,7 +401,7 @@
         return;
       }
       if (!resp.ok || !json?.ok) {
-        showError(json?.message || `Erreur ${resp.status}. Le bûcheron a glissé, réessaye.`);
+        showError(json?.message || T().err_status(resp.status));
         return;
       }
 
@@ -311,9 +416,9 @@
     } catch (e) {
       clearTimeout(timeoutId);
       if (e.name === 'AbortError') {
-        showError("Le bûcheron a tardé (>35s). Réessaie avec un contexte plus court.");
+        showError(T().err_timeout);
       } else {
-        showError("Connexion au bûcheron impossible. Vérifie ta connexion puis réessaie.");
+        showError(T().err_network);
       }
     } finally {
       state.isGenerating = false;
@@ -345,10 +450,11 @@
   let loadingTimer = null;
   function rotateLoadingMessages() {
     let i = 0;
-    $loadingMsg.textContent = LOADING_MESSAGES[0];
+    const msgs = T().loading;
+    $loadingMsg.textContent = msgs[0];
     loadingTimer = setInterval(() => {
-      i = (i + 1) % LOADING_MESSAGES.length;
-      $loadingMsg.textContent = LOADING_MESSAGES[i];
+      i = (i + 1) % msgs.length;
+      $loadingMsg.textContent = msgs[i];
     }, 2500);
   }
   function stopLoadingMessages() {
@@ -412,12 +518,13 @@
 
     const data = json.data || {};
     const type = json.type;
+    const t = T();
 
     // ── Badges sticker (cycle + durée)
     const cycleStr = data.cycle
       || (Array.isArray(data.niveaux) ? data.niveaux[0] : data.niveaux)
       || data.niveau
-      || ({ eps: 'Primaire', camps: 'Camp', sdg: 'Service garde' }[json.univers] || '');
+      || ({ eps: t.cycle_eps, camps: t.cycle_camps, sdg: t.cycle_sdg }[json.univers] || '');
     const dureeStr = (data.duree_min && data.duree_max) ? `${data.duree_min}-${data.duree_max} min`
                    : (data.duree_totale) ? data.duree_totale
                    : (data.duree_par_palier) ? `${data.duree_par_palier}/palier`
@@ -426,7 +533,7 @@
     $('#ficheDureeText').textContent = dureeStr;
 
     // ── Titre split + tagline + subtitle
-    const fullTitle = data.titre || data.nom || 'Fiche générée';
+    const fullTitle = data.titre || data.nom || t.fiche_default_title;
     const [titleMain, titleAccent] = splitTitle(fullTitle);
     const $titleMain = $('#ficheTitleMain');
     const $titleAccent = $('#ficheTitleAccent');
@@ -434,15 +541,11 @@
     $titleAccent.textContent = titleAccent;
     $titleMain.setAttribute('data-editable', 'titre-main');
     $titleAccent.setAttribute('data-editable', 'titre-accent');
-    const TAGLINES = {
-      jeu: '🎮 Fiche de jeu officielle',
-      sae: '📚 Situation d\'apprentissage',
-      educatif: '🏋️ Éducatif progressif',
-    };
-    $('#ficheTagline').textContent = TAGLINES[type] || 'Fiche officielle';
+    const TAGLINES = { jeu: t.tag_jeu, sae: t.tag_sae, educatif: t.tag_educatif };
+    $('#ficheTagline').textContent = TAGLINES[type] || t.tag_default;
     const subtitle = data.but
       || data.intentions_pedagogiques
-      || (data.habilete_ciblee ? `Maîtriser : ${data.habilete_ciblee}` : '')
+      || (data.habilete_ciblee ? t.maitriser(data.habilete_ciblee) : '')
       || '';
     const $sub = $('#ficheSubtitle');
     $sub.textContent = subtitle.slice(0, 200);
@@ -452,7 +555,7 @@
     const $mat = $('#ficheMateriel');
     $mat.innerHTML = '';
     const matList = listFromAny(data.materiel);
-    if (matList.length === 0) matList.push('Aucun matériel spécifique');
+    if (matList.length === 0) matList.push(t.mat_none);
     matList.slice(0, 6).forEach((item, i) => {
       const li = document.createElement('li');
       li.textContent = item;

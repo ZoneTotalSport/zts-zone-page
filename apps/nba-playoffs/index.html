@@ -599,24 +599,24 @@
 <div class="header">
   <div class="header-top">
     <img class="nba-logo-header" src="https://cdn.nba.com/logos/leagues/logo-nba.svg" alt="NBA" onerror="this.style.display='none'">
-    <h1>SÉRIES ÉLIMINATOIRES <span>NBA</span></h1>
+    <h1 data-i18n-html="h1">SÉRIES ÉLIMINATOIRES <span>NBA</span></h1>
   </div>
   <div class="tabs">
-    <button class="tab active" data-view="bracket">Séries actuelles</button>
-    <button class="tab" data-view="results">Résultats</button>
-    <button class="tab" data-view="leaders">Meneurs</button>
+    <button class="tab active" data-view="bracket" data-i18n="tabBracket">Séries actuelles</button>
+    <button class="tab" data-view="results" data-i18n="tabResults">Résultats</button>
+    <button class="tab" data-view="leaders" data-i18n="tabLeaders">Meneurs</button>
   </div>
 </div>
 
 <!-- Views -->
 <div class="view active" id="bracketView">
-  <div class="bracket-container" id="bracketContainer"><div class="loading">Chargement des séries...</div></div>
+  <div class="bracket-container" id="bracketContainer"><div class="loading" data-i18n="loadingBracket">Chargement des séries...</div></div>
 </div>
 <div class="view" id="resultsView">
-  <div class="results-container" id="resultsContainer"><div class="loading">Chargement...</div></div>
+  <div class="results-container" id="resultsContainer"><div class="loading" data-i18n="loading">Chargement...</div></div>
 </div>
 <div class="view" id="leadersView">
-  <div class="leaders-container" id="leadersContainer"><div class="loading">Chargement des meneurs...</div></div>
+  <div class="leaders-container" id="leadersContainer"><div class="loading" data-i18n="loadingLeaders">Chargement des meneurs...</div></div>
 </div>
 
 <!-- Series Modal -->
@@ -629,19 +629,69 @@
   <button class="zoom-btn" onclick="setZoom('in')" title="Zoom +">+</button>
   <div class="zoom-label" id="zoomLevel">100%</div>
   <button class="zoom-btn" onclick="setZoom('out')" title="Zoom -">−</button>
-  <button class="zoom-btn" onclick="setZoom('reset')" title="Réinitialiser" style="font-size:14px;margin-top:4px">↺</button>
+  <button class="zoom-btn" onclick="setZoom('reset')" title="Réinitialiser" data-i18n-title="zoomReset" style="font-size:14px;margin-top:4px">↺</button>
 </div>
 
 <button class="refresh-btn" onclick="refreshAll()" id="refreshBtn">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
   </svg>
-  Actualiser
+  <span data-i18n="refresh">Actualiser</span>
 </button>
 
-<div class="footer">par <a href="https://zonetotalsport.ca">zonetotalsport.ca</a> — Mr Roots</div>
+<div class="footer"><span data-i18n="footerBy">par</span> <a href="https://zonetotalsport.ca">zonetotalsport.ca</a> — Mr Roots</div>
 
 <script>
+// =============================================
+// I18N — texte d'interface FR/EN (Tier 1)
+// =============================================
+const I18N = {
+  fr: {
+    h1: 'SÉRIES ÉLIMINATOIRES <span>NBA</span>',
+    tabBracket: 'Séries actuelles', tabResults: 'Résultats', tabLeaders: 'Meneurs',
+    loadingBracket: 'Chargement des séries...', loading: 'Chargement...', loadingLeaders: 'Chargement des meneurs...',
+    zoomReset: 'Réinitialiser', refresh: 'Actualiser', footerBy: 'par',
+    confEast: 'Est', confWest: 'Ouest',
+    round1: '1re ronde', round2: 'Demi-finales', round3: 'Finale conf.',
+    tbd: 'À venir', game: 'Match', vs: 'VS', live: 'EN COURS', final: 'FINAL', upcoming: 'À VENIR', ifNeeded: 'SI NÉC.',
+    bestOf7: (l) => `SÉRIE ${l} — MEILLEUR DE 7`, seriesLabel: (l) => `SÉRIE ${l}`,
+    dataUnavailable: 'Données non disponibles', detailsUnavailable: 'Détails non disponibles',
+    confEastR1: "Conférence de l'Est — 1re ronde", confWestR1: "Conférence de l'Ouest — 1re ronde",
+    seriesSoon: 'Les séries commencent bientôt!', noGamePlayed: 'Aucun match joué', noDataYet: 'Pas encore de données',
+    leadersSoon: 'Les meneurs seront disponibles une fois les séries commencées!',
+    loadError: 'Erreur de chargement.', retry: 'Réessayer',
+    winsIn: (name, n) => `${name} gagne en ${n}`,
+    game1On: (d) => `Match 1: ${d}`, tie: (a, b) => `Égalité ${a}-${b}`, leads: (a, w, l) => `${a} mène ${w}-${l}`,
+    dateLocale: 'fr-CA'
+  },
+  en: {
+    h1: 'NBA <span>PLAYOFFS</span>',
+    tabBracket: 'Current series', tabResults: 'Results', tabLeaders: 'Leaders',
+    loadingBracket: 'Loading series...', loading: 'Loading...', loadingLeaders: 'Loading leaders...',
+    zoomReset: 'Reset', refresh: 'Refresh', footerBy: 'by',
+    confEast: 'East', confWest: 'West',
+    round1: 'Round 1', round2: 'Conf. Semifinals', round3: 'Conf. Finals',
+    tbd: 'Upcoming', game: 'Game', vs: 'VS', live: 'LIVE', final: 'FINAL', upcoming: 'UPCOMING', ifNeeded: 'IF NEC.',
+    bestOf7: (l) => `SERIES ${l} — BEST OF 7`, seriesLabel: (l) => `SERIES ${l}`,
+    dataUnavailable: 'Data unavailable', detailsUnavailable: 'Details unavailable',
+    confEastR1: 'Eastern Conference — Round 1', confWestR1: 'Western Conference — Round 1',
+    seriesSoon: 'The series start soon!', noGamePlayed: 'No game played', noDataYet: 'No data yet',
+    leadersSoon: 'Leaders will be available once the series begin!',
+    loadError: 'Loading error.', retry: 'Try again',
+    winsIn: (name, n) => `${name} wins in ${n}`,
+    game1On: (d) => `Game 1: ${d}`, tie: (a, b) => `Tied ${a}-${b}`, leads: (a, w, l) => `${a} leads ${w}-${l}`,
+    dateLocale: 'en-CA'
+  }
+};
+function getLang(){ return (window.ZTS && ZTS.getLang) ? ZTS.getLang() : 'fr'; }
+function L(){ return I18N[getLang()] || I18N.fr; }
+function applyStaticI18n(){
+  const d = L();
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k=el.getAttribute('data-i18n'); if(d[k]!=null && typeof d[k]==='string') el.textContent=d[k]; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const k=el.getAttribute('data-i18n-html'); if(d[k]!=null) el.innerHTML=d[k]; });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{ const k=el.getAttribute('data-i18n-title'); if(d[k]!=null) el.title=d[k]; });
+}
+
 // =============================================
 // CONFIG & API
 // =============================================
@@ -920,13 +970,14 @@ function renderBracket(data) {
   const wR3 = data.west.filter(s => s.round === 3);
   const finals = [...data.east, ...data.west].filter(s => s.round === 4);
 
+  const l = L();
   c.innerHTML = `
     <div class="conference east">
-      <div class="conference-label">Est</div>
+      <div class="conference-label">${l.confEast}</div>
       <div class="rounds">
-        <div class="round r1"><div class="round-label">1re ronde</div>${fill(eR1, 4).map(s => matchupHTML(s)).join('')}</div>
-        <div class="round r2"><div class="round-label">Demi-finales</div>${fill(eR2, 2).map(s => matchupHTML(s)).join('')}</div>
-        <div class="round r3"><div class="round-label">Finale conf.</div>${fill(eR3, 1).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r1"><div class="round-label">${l.round1}</div>${fill(eR1, 4).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r2"><div class="round-label">${l.round2}</div>${fill(eR2, 2).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r3"><div class="round-label">${l.round3}</div>${fill(eR3, 1).map(s => matchupHTML(s)).join('')}</div>
       </div>
     </div>
     <div class="cup-center">
@@ -935,11 +986,11 @@ function renderBracket(data) {
       <div style="margin-top:15px">${matchupHTML(finals[0] || tbdS)}</div>
     </div>
     <div class="conference west">
-      <div class="conference-label">Ouest</div>
+      <div class="conference-label">${l.confWest}</div>
       <div class="rounds">
-        <div class="round r1"><div class="round-label">1re ronde</div>${fill(wR1, 4).map(s => matchupHTML(s)).join('')}</div>
-        <div class="round r2"><div class="round-label">Demi-finales</div>${fill(wR2, 2).map(s => matchupHTML(s)).join('')}</div>
-        <div class="round r3"><div class="round-label">Finale conf.</div>${fill(wR3, 1).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r1"><div class="round-label">${l.round1}</div>${fill(wR1, 4).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r2"><div class="round-label">${l.round2}</div>${fill(wR2, 2).map(s => matchupHTML(s)).join('')}</div>
+        <div class="round r3"><div class="round-label">${l.round3}</div>${fill(wR3, 1).map(s => matchupHTML(s)).join('')}</div>
       </div>
     </div>`;
 
@@ -955,9 +1006,10 @@ function matchupHTML(s) {
   const t = s.top, b = s.bot, tw = t.w === 4, bw = b.w === 4, tbd = !t.a && !b.a;
   const dataAttr = (t.a && b.a && s.letter) ? `data-series-letter="${s.letter}"` : '';
   if (tbd) {
+    const tl = L().tbd;
     return `<div class="matchup tbd">
-      <div class="team-row"><span class="seed">-</span><span class="tbd-label">À venir</span><span class="team-wins-num">-</span></div>
-      <div class="team-row"><span class="seed">-</span><span class="tbd-label">À venir</span><span class="team-wins-num">-</span></div>
+      <div class="team-row"><span class="seed">-</span><span class="tbd-label">${tl}</span><span class="team-wins-num">-</span></div>
+      <div class="team-row"><span class="seed">-</span><span class="tbd-label">${tl}</span><span class="team-wins-num">-</span></div>
     </div>`;
   }
   const placeholder = '<span style="width:58px;height:58px;display:inline-block;background:rgba(200,16,46,0.06);border-radius:10px;border:2px dashed rgba(200,16,46,0.15);"></span>';
@@ -1006,6 +1058,7 @@ function openSeriesModal(letter) {
       || seriesMap[teamKey] || null;
     const apiGames = apiSeries?.games || [];
 
+    const l = L();
     let gamesHTML = '';
 
     if (apiGames.length > 0) {
@@ -1016,18 +1069,18 @@ function openSeriesModal(letter) {
         const status = comp?.status;
         const isFinal = status?.type?.completed;
         const isLive = status?.type?.name === 'STATUS_IN_PROGRESS';
-        const gameDate = new Date(ev.date).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short'});
+        const gameDate = new Date(ev.date).toLocaleDateString(l.dateLocale, { day: 'numeric', month: 'short'});
 
-        let badge = isLive ? `<span class="modal-game-badge live"><span class="live-pulse"></span>EN COURS</span>` :
-          isFinal ? `<span class="modal-game-badge final">FINAL</span>` :
-          `<span class="modal-game-badge upcoming">À VENIR</span>`;
+        let badge = isLive ? `<span class="modal-game-badge live"><span class="live-pulse"></span>${l.live}</span>` :
+          isFinal ? `<span class="modal-game-badge final">${l.final}</span>` :
+          `<span class="modal-game-badge upcoming">${l.upcoming}</span>`;
 
         const aS = parseInt(away?.score) || 0, hS = parseInt(home?.score) || 0;
         const aW = isFinal && aS > hS, hW = isFinal && hS > aS;
 
         gamesHTML += `
           <div class="modal-game" data-event-id="${ev.id}" onclick="toggleModalGameDetail(this)">
-            <span class="modal-game-num">Match ${i + 1}</span>
+            <span class="modal-game-num">${l.game} ${i + 1}</span>
             <span class="modal-game-date">${gameDate}</span>
             <div class="modal-game-score">
               <img src="${away?.team?.logo || LOGO(away?.team?.abbreviation || '')}">
@@ -1044,20 +1097,20 @@ function openSeriesModal(letter) {
       for (let i = apiGames.length; i < 7; i++) {
         const ifN = i >= 4;
         gamesHTML += `<div class="modal-game" style="opacity:${ifN ? '0.25' : '0.5'};cursor:default">
-          <span class="modal-game-num">Match ${i + 1}</span>
+          <span class="modal-game-num">${l.game} ${i + 1}</span>
           <span class="modal-game-date">${sched[i] || ''}</span>
           <div class="modal-game-score"><img src="${tLogo}" style="width:24px;height:24px;opacity:0.4"><span class="mg-at">vs</span><img src="${bLogo}" style="width:24px;height:24px;opacity:0.4"></div>
-          <span class="modal-game-badge ${ifN ? 'if-needed' : 'upcoming'}">${ifN ? 'SI NÉC.' : 'À VENIR'}</span>
+          <span class="modal-game-badge ${ifN ? 'if-needed' : 'upcoming'}">${ifN ? l.ifNeeded : l.upcoming}</span>
         </div>`;
       }
     } else {
       for (let i = 0; i < 7; i++) {
         const ifN = i >= 4;
         gamesHTML += `<div class="modal-game" style="opacity:${ifN ? '0.25' : '0.5'};cursor:default">
-          <span class="modal-game-num">Match ${i + 1}</span>
+          <span class="modal-game-num">${l.game} ${i + 1}</span>
           <span class="modal-game-date">${sched[i] || ''}</span>
           <div class="modal-game-score"><img src="${tLogo}" style="width:24px;height:24px"><span class="mg-at">vs</span><img src="${bLogo}" style="width:24px;height:24px"></div>
-          <span class="modal-game-badge ${ifN ? 'if-needed' : 'upcoming'}">${ifN ? 'SI NÉC.' : 'À VENIR'}</span>
+          <span class="modal-game-badge ${ifN ? 'if-needed' : 'upcoming'}">${ifN ? l.ifNeeded : l.upcoming}</span>
         </div>`;
       }
     }
@@ -1066,10 +1119,10 @@ function openSeriesModal(letter) {
       <div class="modal-header">
         <button class="modal-close" onclick="closeSeriesModal()">&times;</button>
         <div class="modal-team"><img src="${tLogo}"><div class="modal-team-name">${t.n || t.a}</div><div class="modal-team-record">${t.w}</div></div>
-        <div class="modal-vs">VS</div>
+        <div class="modal-vs">${l.vs}</div>
         <div class="modal-team"><img src="${bLogo}"><div class="modal-team-name">${b.n || b.a}</div><div class="modal-team-record">${b.w}</div></div>
       </div>
-      <div class="modal-series-label">SÉRIE ${letter} — MEILLEUR DE 7</div>
+      <div class="modal-series-label">${l.bestOf7(letter)}</div>
       <div class="modal-games">${gamesHTML}</div>`;
 
     modal.classList.add('open');
@@ -1097,7 +1150,7 @@ async function toggleModalGameDetail(el) {
   if (!d) return;
   if (d.classList.contains('open')) { d.classList.remove('open'); return; }
   if (!d.innerHTML.trim()) {
-    d.innerHTML = '<div class="modal-no-data">Chargement...</div>';
+    d.innerHTML = `<div class="modal-no-data">${L().loading}</div>`;
     d.classList.add('open');
     const summary = await apiFetch(API.summary(eventId));
     d.innerHTML = renderGameSummary(summary);
@@ -1106,7 +1159,7 @@ async function toggleModalGameDetail(el) {
 }
 
 function renderGameSummary(summary) {
-  if (!summary) return '<div class="no-data">Données non disponibles</div>';
+  if (!summary) return `<div class="no-data">${L().dataUnavailable}</div>`;
   let html = '';
   const box = summary.boxscore;
   if (box?.players) {
@@ -1129,7 +1182,7 @@ function renderGameSummary(summary) {
       html += '</div>';
     });
   }
-  return html || '<div class="no-data">Détails non disponibles</div>';
+  return html || `<div class="no-data">${L().detailsUnavailable}</div>`;
 }
 
 // =============================================
@@ -1141,18 +1194,19 @@ function renderResults(data) {
   const eastR1 = data.east.filter(s => !s.round || s.round === 1);
   const westR1 = data.west.filter(s => !s.round || s.round === 1);
 
+  const l = L();
   let html = '';
   if (eastR1.length) {
-    html += `<div class="conf-section"><div class="conf-title">Conférence de l'Est — 1re ronde</div>`;
+    html += `<div class="conf-section"><div class="conf-title">${l.confEastR1}</div>`;
     eastR1.forEach(s => { html += seriesCardHTML(s); });
     html += '</div>';
   }
   if (westR1.length) {
-    html += `<div class="conf-section"><div class="conf-title">Conférence de l'Ouest — 1re ronde</div>`;
+    html += `<div class="conf-section"><div class="conf-title">${l.confWestR1}</div>`;
     westR1.forEach(s => { html += seriesCardHTML(s); });
     html += '</div>';
   }
-  if (!html) html = '<div class="no-data">Les séries commencent bientôt!</div>';
+  if (!html) html = `<div class="no-data">${l.seriesSoon}</div>`;
   c.innerHTML = html;
 
   c.querySelectorAll('.series-header').forEach(h => {
@@ -1167,7 +1221,7 @@ function renderResults(data) {
       if (card.classList.contains('open')) { card.classList.remove('open'); return; }
       const dd = card.querySelector('.game-details');
       if (!dd.innerHTML.trim()) {
-        dd.innerHTML = '<div class="no-data">Chargement...</div>';
+        dd.innerHTML = `<div class="no-data">${L().loading}</div>`;
         card.classList.add('open');
         const summary = await apiFetch(API.summary(eid));
         dd.innerHTML = renderGameSummary(summary);
@@ -1182,13 +1236,14 @@ function seriesCardHTML(s) {
   const tw = t.w, bw = b.w, total = tw + bw;
   const letter = s.letter || '?';
   const sched = SCHED[letter] || [];
+  const l = L();
 
   let status = '';
-  if (tw === 4) status = `${t.n || t.a} gagne en ${total}`;
-  else if (bw === 4) status = `${b.n || b.a} gagne en ${total}`;
-  else if (total === 0) status = `Match 1: ${sched[0] || 'À venir'}`;
-  else if (tw === bw) status = `Égalité ${tw}-${bw}`;
-  else { const l = tw > bw ? t : b; status = `${l.a} mène ${l.w}-${Math.min(tw, bw)}`; }
+  if (tw === 4) status = l.winsIn(t.n || t.a, total);
+  else if (bw === 4) status = l.winsIn(b.n || b.a, total);
+  else if (total === 0) status = l.game1On(sched[0] || l.tbd);
+  else if (tw === bw) status = l.tie(tw, bw);
+  else { const w = tw > bw ? t : b; status = l.leads(w.a, w.w, Math.min(tw, bw)); }
 
   const dots = w => Array(4).fill(0).map((_, i) => `<div class="dot ${i < w ? 'won' : ''}"></div>`).join('');
   const tLogo = t.logo || LOGO(t.a), bLogo = b.logo || LOGO(b.a);
@@ -1207,16 +1262,16 @@ function seriesCardHTML(s) {
       const isFinal = st?.type?.completed;
       const isLive = st?.type?.name === 'STATUS_IN_PROGRESS';
 
-      let badge = isLive ? `<span class="game-status-badge live"><span class="live-pulse"></span>EN COURS</span>` :
-        isFinal ? `<span class="game-status-badge final">FINAL</span>` :
-        `<span class="game-status-badge upcoming">À VENIR</span>`;
+      let badge = isLive ? `<span class="game-status-badge live"><span class="live-pulse"></span>${l.live}</span>` :
+        isFinal ? `<span class="game-status-badge final">${l.final}</span>` :
+        `<span class="game-status-badge upcoming">${l.upcoming}</span>`;
 
       const aS = parseInt(away?.score) || 0, hS = parseInt(home?.score) || 0;
       const aW = isFinal && aS > hS, hW = isFinal && hS > aS;
 
       gamesHTML += `<div class="game-card">
         <div class="game-card-header" data-event-id="${ev.id}">
-          <span class="game-num">Match ${i + 1}</span>
+          <span class="game-num">${l.game} ${i + 1}</span>
           <div class="game-mini-score">
             <img src="${away?.team?.logo || ''}" style="width:26px;height:26px">
             <span class="score-val ${aW ? 'winner-score' : ''}">${isFinal || isLive ? aS : '-'}</span>
@@ -1237,19 +1292,19 @@ function seriesCardHTML(s) {
     const ifN = i >= 4;
     gamesHTML += `<div class="game-card">
       <div class="game-card-header" style="cursor:default;opacity:0.4">
-        <span class="game-num">Match ${i + 1}</span>
+        <span class="game-num">${l.game} ${i + 1}</span>
         <span class="game-date-label">${sched[i] || ''}</span>
         <div class="game-mini-score">
           <img src="${tLogo}" style="width:22px;height:22px;opacity:0.4">
           <span class="vs-label">vs</span>
           <img src="${bLogo}" style="width:22px;height:22px;opacity:0.4">
         </div>
-        <span class="game-status-badge upcoming">${ifN ? 'SI NÉC.' : 'À VENIR'}</span>
+        <span class="game-status-badge upcoming">${ifN ? l.ifNeeded : l.upcoming}</span>
       </div>
     </div>`;
   }
 
-  if (!gamesHTML) gamesHTML = '<div class="no-data">Aucun match joué</div>';
+  if (!gamesHTML) gamesHTML = `<div class="no-data">${l.noGamePlayed}</div>`;
 
   return `<div class="series-card">
     <div class="series-header">
@@ -1265,7 +1320,7 @@ function seriesCardHTML(s) {
         </div>
       </div>
       <div class="series-status">
-        <div class="status-label">SÉRIE ${letter}</div>
+        <div class="status-label">${l.seriesLabel(letter)}</div>
         <div class="status-text">${status}</div>
       </div>
     </div>
@@ -1280,14 +1335,14 @@ async function renderLeaders() {
   const c = document.getElementById('leadersContainer');
   const data = await apiFetch(API.leaders);
   if (!data || !data.leaders) {
-    c.innerHTML = '<div class="no-data">Les meneurs seront disponibles une fois les séries commencées!</div>';
+    c.innerHTML = `<div class="no-data">${L().leadersSoon}</div>`;
     return;
   }
   let html = '<div class="leaders-grid">';
   data.leaders.forEach(cat => {
     const leaders = cat.leaders || [];
     html += `<div class="leader-section"><div class="leader-section-title">${cat.displayName || cat.name || ''}</div>`;
-    if (!leaders.length) { html += '<div class="no-data">Pas encore de données</div>'; }
+    if (!leaders.length) { html += `<div class="no-data">${L().noDataYet}</div>`; }
     else {
       leaders.slice(0, 10).forEach((l, i) => {
         const a = l.athlete || {};
@@ -1372,13 +1427,29 @@ async function init() {
     renderResults(bracketData);
     renderLeaders();
     setInterval(refreshAll, 5 * 60 * 1000);
+    applyStaticI18n();
   } catch(err) {
     console.error('[NBA] Init error:', err);
     const c = document.getElementById('bracketContainer');
-    if (c) c.innerHTML = '<div style="color:#fff;text-align:center;padding:40px;font-size:1.2rem;">Erreur de chargement. <button onclick="location.reload()" style="color:#FDB927;text-decoration:underline;border:none;background:none;cursor:pointer;font-size:1.2rem;">Réessayer</button></div>';
+    if (c) c.innerHTML = `<div style="color:#fff;text-align:center;padding:40px;font-size:1.2rem;">${L().loadError} <button onclick="location.reload()" style="color:#FDB927;text-decoration:underline;border:none;background:none;cursor:pointer;font-size:1.2rem;">${L().retry}</button></div>`;
   }
 }
 init();
+
+// =============================================
+// I18N — application + re-rendu au changement de langue
+// =============================================
+function relocalize(){
+  applyStaticI18n();
+  if (bracketData){ renderBracket(bracketData); renderResults(bracketData); }
+  renderLeaders();
+}
+document.addEventListener('zts:ready', () => {
+  applyStaticI18n();
+  // Si les données sont déjà rendues en FR avant que zts.js détermine la langue, on re-rend.
+  if (getLang() !== 'fr' && bracketData){ renderBracket(bracketData); renderResults(bracketData); renderLeaders(); }
+});
+document.addEventListener('zts:langchange', relocalize);
 </script>
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>

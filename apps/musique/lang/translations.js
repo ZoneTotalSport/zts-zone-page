@@ -16,6 +16,24 @@ window.APP_TRANSLATIONS = {
     hero_subtitle:          'Playlists YouTube pour tes cours d\'EPS',
     hero_subtitle_strong:   'Selectionne un mood \u00b7 Colle ton URL \u00b7 Lance la musique',
 
+    // Hero landing
+    hero_badge:             '\ud83c\udfb5 PLAYLISTS GYM',
+    hero_h2_a:              'MUSIQUE',
+    hero_h2_b:              '\u00c9PS',
+    hero_lead:              'Playlists et ambiances sonores pens\u00e9es pour le gymnase. \u00c9nergiser, calmer ou rythmer une activit\u00e9 avec la bonne piste au bon moment.',
+    hero_cta:               '\ud83d\ude80 COMMENCER',
+    hero_card_label:        'Musique',
+
+    // Feature cards
+    feat_activite:          'PAR ACTIVIT\u00c9',
+    feat_energiser:         '\u00c9NERGISER',
+    feat_calmer:            'CALMER',
+    feat_bpm:               'BPM ADAPT\u00c9',
+    feat_clean:             'SANS PAROLES SALES',
+    feat_gratuit:           '100% GRATUIT',
+    feat_appareils:         'TOUS APPAREILS',
+    feat_boucle:            'BOUCLE',
+
     // Player
     player_default:         '\u25b6 Selectionne une playlist ci-dessous',
     player_iframe_title:    'Lecteur YouTube',
@@ -90,6 +108,24 @@ window.APP_TRANSLATIONS = {
     hero_title:             'DJ ZONE TOTAL SPORT',
     hero_subtitle:          'YouTube playlists for your PE classes',
     hero_subtitle_strong:   'Pick a mood \u00b7 Paste your URL \u00b7 Start the music',
+
+    // Hero landing
+    hero_badge:             '\ud83c\udfb5 GYM PLAYLISTS',
+    hero_h2_a:              'PE',
+    hero_h2_b:              'MUSIC',
+    hero_lead:              'Playlists and sound moods built for the gym. Energize, calm down or set the pace of an activity with the right track at the right moment.',
+    hero_cta:               '\ud83d\ude80 GET STARTED',
+    hero_card_label:        'Music',
+
+    // Feature cards
+    feat_activite:          'BY ACTIVITY',
+    feat_energiser:         'ENERGIZE',
+    feat_calmer:            'CALM DOWN',
+    feat_bpm:               'MATCHED BPM',
+    feat_clean:             'NO EXPLICIT LYRICS',
+    feat_gratuit:           '100% FREE',
+    feat_appareils:         'ALL DEVICES',
+    feat_boucle:            'LOOP',
 
     // Player
     player_default:         '\u25b6 Select a playlist below',
@@ -166,6 +202,24 @@ window.APP_TRANSLATIONS = {
     hero_subtitle:          '\u4e3a\u4f60\u7684\u4f53\u80b2\u8bfe\u63d0\u4f9b YouTube \u64ad\u653e\u5217\u8868',
     hero_subtitle_strong:   '\u9009\u62e9\u6c1b\u56f4 \u00b7 \u7c98\u8d34\u94fe\u63a5 \u00b7 \u64ad\u653e\u97f3\u4e50',
 
+    // Hero landing
+    hero_badge:             '\ud83c\udfb5 \u4f53\u80b2\u9986\u64ad\u653e\u5217\u8868',
+    hero_h2_a:              '\u4f53\u80b2',
+    hero_h2_b:              '\u97f3\u4e50',
+    hero_lead:              '\u4e3a\u4f53\u80b2\u9986\u8bbe\u8ba1\u7684\u64ad\u653e\u5217\u8868\u548c\u58f0\u97f3\u6c1b\u56f4\u3002\u7528\u5408\u9002\u7684\u66f2\u76ee\u5728\u5408\u9002\u7684\u65f6\u523b\u6fc0\u52b1\u3001\u653e\u677e\u6216\u8c03\u8282\u6d3b\u52a8\u8282\u594f\u3002',
+    hero_cta:               '\ud83d\ude80 \u5f00\u59cb',
+    hero_card_label:        '\u97f3\u4e50',
+
+    // Feature cards
+    feat_activite:          '\u6309\u6d3b\u52a8\u5206\u7c7b',
+    feat_energiser:         '\u5145\u6ee1\u6d3b\u529b',
+    feat_calmer:            '\u653e\u677e\u5e73\u9759',
+    feat_bpm:               '\u5339\u914d\u8282\u62cd',
+    feat_clean:             '\u65e0\u4e0d\u96c5\u6b4c\u8bcd',
+    feat_gratuit:           '100% \u514d\u8d39',
+    feat_appareils:         '\u6240\u6709\u8bbe\u5907',
+    feat_boucle:            '\u5faa\u73af',
+
     // Player
     player_default:         '\u25b6 \u8bf7\u5728\u4e0b\u65b9\u9009\u62e9\u64ad\u653e\u5217\u8868',
     player_iframe_title:    'YouTube \u64ad\u653e\u5668',
@@ -240,6 +294,24 @@ window.APP_TRANSLATIONS = {
     hero_title:             'DJ ZONE TOTAL SPORT',
     hero_subtitle:          'Playlists de YouTube para tus clases de educaci\u00f3n f\u00edsica',
     hero_subtitle_strong:   'Elige un mood \u00b7 Pega tu URL \u00b7 Lanza la m\u00fasica',
+
+    // Hero landing
+    hero_badge:             '\ud83c\udfb5 PLAYLISTS GIMNASIO',
+    hero_h2_a:              'M\u00daSICA',
+    hero_h2_b:              'ED. F\u00cdSICA',
+    hero_lead:              'Playlists y ambientes sonoros pensados para el gimnasio. Energiza, calma o marca el ritmo de una actividad con la pista adecuada en el momento justo.',
+    hero_cta:               '\ud83d\ude80 EMPEZAR',
+    hero_card_label:        'M\u00fasica',
+
+    // Feature cards
+    feat_activite:          'POR ACTIVIDAD',
+    feat_energiser:         'ENERGIZAR',
+    feat_calmer:            'CALMAR',
+    feat_bpm:               'BPM ADAPTADO',
+    feat_clean:             'SIN LETRAS EXPL\u00cdCITAS',
+    feat_gratuit:           '100% GRATIS',
+    feat_appareils:         'TODOS LOS DISPOSITIVOS',
+    feat_boucle:            'BUCLE',
 
     // Player
     player_default:         '\u25b6 Selecciona una playlist abajo',
