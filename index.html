@@ -168,11 +168,11 @@
     z-index: 0;
   }
 
-  /* FONDS PAR MÉTIER — rayures fluo (comme le planificateur) */
+  /* FONDS PAR MÉTIER — rayures fluo (comme le planificateur), 100% sans voile blanc */
   body.metier-ep::before,
   body.metier-sdg::before,
   body.metier-camp::before {
-    opacity: 0.92;
+    opacity: 1;
     filter: none;
     background-size: auto;
     background-repeat: repeat;
@@ -189,11 +189,11 @@
     background-color: var(--vert);
     background-image: repeating-conic-gradient(from 0deg at 88% 96%, #FF2DAC 0deg 7deg, transparent 7deg 14deg);
   }
-  /* Voile blanc léger pour garder le contenu lisible par-dessus les rayures */
+  /* Voile blanc retiré — fond 100% */
   body.metier-ep::after,
   body.metier-sdg::after,
   body.metier-camp::after {
-    background: rgba(255,254,247,0.45);
+    background: transparent;
   }
 
   /* ============ DARK NAV BAR (top) — boutons chunky 3D ============ */
