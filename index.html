@@ -168,37 +168,32 @@
     z-index: 0;
   }
 
-  body.metier-ep::before {
-    background-image: url('bg-gym.jpg');
-    opacity: 0.50;
+  /* FONDS PAR MÉTIER — rayures fluo (comme le planificateur) */
+  body.metier-ep::before,
+  body.metier-sdg::before,
+  body.metier-camp::before {
+    opacity: 0.92;
+    filter: none;
+    background-size: auto;
+    background-repeat: repeat;
   }
-  body.metier-sdg::before {
-    background-image: url('bg-sdg.jpg');
-    opacity: 0.50;
+  body.metier-ep::before {
+    background-color: var(--cyan);
+    background-image: repeating-conic-gradient(from 0deg at 88% 96%, var(--jaune) 0deg 7deg, transparent 7deg 14deg);
   }
   body.metier-camp::before {
-    background-image: url('bg-camp.jpg');
-    opacity: 0.50;
+    background-color: var(--orange);
+    background-image: repeating-conic-gradient(from 0deg at 88% 96%, #C026FF 0deg 7deg, transparent 7deg 14deg);
   }
-
-  /* Voile teinté par métier - reflète la couleur du chandail */
-  body.metier-ep::after {
-    background: linear-gradient(180deg,
-      rgba(204,250,255,0.55) 0%,
-      rgba(255,254,247,0.40) 50%,
-      rgba(204,250,255,0.55) 100%);
+  body.metier-sdg::before {
+    background-color: var(--vert);
+    background-image: repeating-conic-gradient(from 0deg at 88% 96%, #FF2DAC 0deg 7deg, transparent 7deg 14deg);
   }
-  body.metier-sdg::after {
-    background: linear-gradient(180deg,
-      rgba(214,255,203,0.55) 0%,
-      rgba(255,254,247,0.40) 50%,
-      rgba(214,255,203,0.55) 100%);
-  }
+  /* Voile blanc léger pour garder le contenu lisible par-dessus les rayures */
+  body.metier-ep::after,
+  body.metier-sdg::after,
   body.metier-camp::after {
-    background: linear-gradient(180deg,
-      rgba(255,231,209,0.55) 0%,
-      rgba(255,254,247,0.40) 50%,
-      rgba(255,231,209,0.55) 100%);
+    background: rgba(255,254,247,0.45);
   }
 
   /* ============ DARK NAV BAR (top) — boutons chunky 3D ============ */
@@ -3130,6 +3125,54 @@
 
     </div>
   </div>
+</section>
+
+<!-- ========== CALENDRIER DE PRÉSENCES (sous Aujourd'hui au menu) ========== -->
+<section id="presenceCal">
+  <style>
+    #presenceCal{ padding:46px 20px; position:relative; z-index:2; }
+    #presenceCal .pc-inner{ max-width:760px; margin:0 auto; background:#fff; border:4px solid var(--ink); border-radius:28px; box-shadow:10px 10px 0 var(--ink); padding:clamp(20px,3vw,34px); text-align:center; }
+    #presenceCal .pc-pill{ display:inline-block; background:var(--cyan); color:var(--ink); border:3px solid var(--ink); border-radius:22px; padding:8px 20px; font-family:var(--font-impact); font-size:1.05rem; box-shadow:4px 4px 0 var(--ink); letter-spacing:.5px; }
+    #presenceCal h2{ font-family:var(--font-impact); font-size:clamp(1.6rem,4vw,2.6rem); color:var(--ink); margin:14px 0 4px; }
+    #presenceCal .pc-sub{ font-family:var(--font-fun); font-weight:600; color:#555; margin-bottom:20px; }
+    #presenceCal .pc-month{ font-family:var(--font-impact); font-size:1.35rem; color:var(--ink); margin-bottom:10px; text-transform:capitalize; }
+    #presenceCal .pc-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; max-width:520px; margin:0 auto; }
+    #presenceCal .pc-dow{ font-family:var(--font-impact); text-align:center; color:#9aa3ad; font-size:.9rem; padding:4px 0; }
+    #presenceCal .pc-day{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-family:var(--font-fun); font-weight:700; font-size:1.05rem; border:2px solid var(--ink); border-radius:11px; background:#FFFEF7; cursor:pointer; transition:transform .1s, box-shadow .1s, background .1s; text-decoration:none; color:var(--ink); }
+    #presenceCal .pc-day:hover{ transform:translate(-2px,-2px); box-shadow:3px 3px 0 var(--ink); background:var(--jaune); }
+    #presenceCal .pc-day.empty{ border:none; background:transparent; cursor:default; }
+    #presenceCal .pc-day.we{ background:#eef1f5; }
+    #presenceCal .pc-day.today{ background:var(--cyan); box-shadow:3px 3px 0 var(--ink); }
+    #presenceCal .pc-cta{ display:inline-flex; align-items:center; gap:10px; margin-top:20px; background:var(--jaune); color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 26px; font-family:var(--font-impact); font-size:1.15rem; text-decoration:none; transition:transform .12s, box-shadow .12s; }
+    #presenceCal .pc-cta:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
+    body.metier-camp #presenceCal .pc-pill, body.metier-camp #presenceCal .pc-day.today{ background:var(--orange); color:#fff; }
+    body.metier-sdg #presenceCal .pc-pill, body.metier-sdg #presenceCal .pc-day.today{ background:var(--vert); }
+  </style>
+  <div class="pc-inner">
+    <span class="pc-pill" id="pcPill">📅 CALENDRIER DE PRÉSENCES</span>
+    <h2 id="pcTitle">Qui est là aujourd'hui?</h2>
+    <p class="pc-sub" id="pcSub">Suis les présences de ton groupe, jour après jour.</p>
+    <div class="pc-month" id="pcMonth"></div>
+    <div class="pc-grid" id="pcGrid"></div>
+    <a class="pc-cta" id="pcCta" href="/apps/planificateur/">Ouvrir le calendrier →</a>
+  </div>
+  <script>(function(){
+    var EN=(typeof ztsLang!=='undefined'&&ztsLang==='en');
+    var grid=document.getElementById('pcGrid'), mlabel=document.getElementById('pcMonth');
+    var dow=EN?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+    var months=EN?['January','February','March','April','May','June','July','August','September','October','November','December']
+                 :['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    if(EN){ document.getElementById('pcPill').textContent='📅 ATTENDANCE CALENDAR'; document.getElementById('pcTitle').textContent="Who's here today?";
+      document.getElementById('pcSub').textContent='Track your group attendance, day after day.'; document.getElementById('pcCta').textContent='Open the calendar →'; }
+    var n=new Date(), y=n.getFullYear(), m=n.getMonth(), today=n.getDate();
+    mlabel.textContent=months[m]+' '+y;
+    var html=dow.map(function(d){return '<div class="pc-dow">'+d+'</div>';}).join('');
+    var first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+    for(var i=0;i<first;i++) html+='<div class="pc-day empty"></div>';
+    for(var d=1;d<=days;d++){ var wd=new Date(y,m,d).getDay(); var cls='pc-day'+((wd===0||wd===6)?' we':'')+(d===today?' today':'');
+      html+='<a class="'+cls+'" href="/apps/planificateur/">'+d+'</a>'; }
+    grid.innerHTML=html;
+  })();</script>
 </section>
 
 <!-- STAGE 2 retiré : la grille d'apps par métier vit désormais dans les
