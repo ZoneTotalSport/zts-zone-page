@@ -81,9 +81,10 @@
    pour les hubs (racine) ET les apps (/apps/<nom>/). Défaut = gymnase (ep). — */
 html { background: var(--paper); }
 body[data-metier] { background: transparent; }
-/* FONDS PAR MÉTIER — rayures fluo (comme le planificateur) */
+/* FONDS PAR MÉTIER — rayures fluo (comme le planificateur)
+   Calques : rayures ::before (-3) → voile ::after (-2) → perso .zts-perso (-1) → contenu (≥0). */
 body[data-metier]::before {
-  content:''; position:fixed; inset:0; z-index:-1;
+  content:''; position:fixed; inset:0; z-index:-3;
   background-color:var(--cyan);
   background-image:repeating-conic-gradient(from 0deg at 88% 96%, var(--jaune) 0deg 7deg, transparent 7deg 14deg);
   opacity:.92;
@@ -92,9 +93,33 @@ body[data-metier="camp"]::before { background-color:var(--orange); background-im
 body[data-metier="sdg"]::before  { background-color:var(--vert);   background-image:repeating-conic-gradient(from 0deg at 88% 96%, #FF2DAC 0deg 7deg, transparent 7deg 14deg); }
 /* Voile blanc léger pour garder le contenu lisible par-dessus les rayures */
 body[data-metier]::after {
-  content:''; position:fixed; inset:0; z-index:-1;
+  content:''; position:fixed; inset:0; z-index:-2;
   background:rgba(255,254,247,.45);
 }
+
+/* PERSONNAGE PAR MÉTIER — déco, injecté par zts.js (opt-in body.has-perso) */
+.zts-perso {
+  position:fixed; bottom:0; right:0;
+  width:min(40vh,42vw); height:45vh;
+  background-repeat:no-repeat; background-position:bottom right; background-size:contain;
+  z-index:-1; pointer-events:none;
+}
+body[data-metier="ep"] .zts-perso {
+  background-image:url('img/perso/perso_eps.png');
+  background-image:-webkit-image-set(url('img/perso/perso_eps.webp') type('image/webp'), url('img/perso/perso_eps.png') type('image/png'));
+  background-image:image-set(url('img/perso/perso_eps.webp') type('image/webp'), url('img/perso/perso_eps.png') type('image/png'));
+}
+body[data-metier="camp"] .zts-perso {
+  background-image:url('img/perso/perso_camps.png');
+  background-image:-webkit-image-set(url('img/perso/perso_camps.webp') type('image/webp'), url('img/perso/perso_camps.png') type('image/png'));
+  background-image:image-set(url('img/perso/perso_camps.webp') type('image/webp'), url('img/perso/perso_camps.png') type('image/png'));
+}
+body[data-metier="sdg"] .zts-perso {
+  background-image:url('img/perso/perso_sdg.png');
+  background-image:-webkit-image-set(url('img/perso/perso_sdg.webp') type('image/webp'), url('img/perso/perso_sdg.png') type('image/png'));
+  background-image:image-set(url('img/perso/perso_sdg.webp') type('image/webp'), url('img/perso/perso_sdg.png') type('image/png'));
+}
+@media (max-width:640px){ .zts-perso{ height:28vh; width:min(28vh,46vw); } }
 
 /* ============ RESET + BASE ============ */
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
