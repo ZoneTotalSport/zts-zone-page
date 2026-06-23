@@ -99,6 +99,30 @@ const GrillesType = {
   async update(id,d) { (await getDb()).collection('grillesType').doc(id).update(d); },
 };
 
+// Vue Semaine (grille riche) : 1 doc par (groupe, lundi ISO).
+// Les médias FICHIERS (data URL) ne sont PAS écrits au cloud (limite Firestore 1 Mo) —
+// seuls liens + réfs banque + titre/desc/durée sync ; le miroir localStorage garde tout.
+const Semaines = {
+  docId(gid,ws) { return gid+'__'+ws; },
+  async get(gid,ws) { const s=await (await getDb()).collection('semaines').doc(this.docId(gid,ws)).get(); return s.exists?s.data():null; },
+  async save(gid,ws,payload) {
+    const light = Semaines._strip(payload);
+    await (await getDb()).collection('semaines').doc(this.docId(gid,ws)).set({
+      groupeId:gid, weekStart:ws, structure:light.structure||[], cells:light.cells||{},
+      ts:firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge:true });
+  },
+  _strip(payload) {
+    const cells={};
+    for (const [k,v] of Object.entries(payload.cells||{})) {
+      cells[k] = Array.isArray(v)
+        ? v.map(a => a && a.medias ? {...a, medias:a.medias.filter(m=>m.kind==='link')} : a)
+        : v;
+    }
+    return { structure:payload.structure, cells };
+  }
+};
+
 // ══════════════════════════════════════════════════════════
 //  CONSTANTS + STATE
 // ══════════════════════════════════════════════════════════
@@ -164,6 +188,8 @@ const state = {
   grilleType: null,
   // Calendar data
   calDatesWithBlocs: new Set(),
+  // Vue Semaine (grille riche montée par semaine-grid.js)
+  semGrid: null,
 };
 
 // ══════════════════════════════════════════════════════════
@@ -443,48 +469,28 @@ async function loadWeekData() {
   state.weekData = dates.map(dt=>({date:dt, blocs:byDate[dt]||[]}));
 }
 
-function renderSemaineMiniBloc(bloc, date) {
-  const t = BLOC_TYPES[bloc.type] || BLOC_TYPES.activite;
-  const blocColor = (bloc.customColor && bloc.customColor!=='default') ? (BLOC_COLORS.find(c=>c.id===bloc.customColor)?.hex||t.color) : t.color;
-  const times = (bloc.debut||bloc.fin) ? `<span class="zts-vue-mini-times">${bloc.debut||'?'}–${bloc.fin||'?'}</span>` : '';
-  return `<div class="zts-vue-mini-bloc" data-action="select-date" data-date="${date}" style="border-left-color:${blocColor}">
-    <span class="zts-vue-mini-ic">${t.icon}</span>
-    <span class="zts-vue-mini-titre">${esc(bloc.titre||t.label)}</span>
-    ${times}
-  </div>`;
+// Vue Semaine = grille riche (périodes×jours, activités, banque ÉP/Camp/SDG,
+// minuterie, médias) montée par semaine-grid.js après render(). Persistée Firestore
+// (collection semaines) + miroir localStorage. Le conteneur seul est rendu ici.
+function renderSemaine() {
+  return `<div id="sem-grid-root"></div>`;
 }
 
-function renderSemaine() {
-  const days = state.weekData || [];
-  const today = todayISO();
-  const first = days[0]?.date, last = days[days.length-1]?.date;
-  const label = (first&&last) ? `Semaine du ${formatDateFR(first)} au ${formatDateFR(last)}` : 'Semaine';
-  const dowNames = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-
-  let html = `<div class="p-date-nav" style="margin-bottom:var(--space-4)">
-    <button class="p-day-nav-btn" data-action="prev-week">◀</button>
-    <span class="p-day-title" style="text-align:center">${label}</span>
-    <button class="p-day-nav-btn" data-action="next-week">▶</button>
-  </div>
-  <div class="zts-vue-week-grid">`;
-
-  days.forEach(d => {
-    const dt = new Date(d.date+'T12:00:00');
-    const isToday = d.date===today;
-    const blocs = d.blocs||[];
-    html += `<div class="zts-vue-week-col ${isToday?'zts-vue-week-col--today':''}">
-      <div class="zts-vue-week-head" data-action="select-date" data-date="${d.date}">
-        <span class="zts-vue-week-dow">${dowNames[dt.getDay()]}</span>
-        <span class="zts-vue-week-num">${dt.getDate()}</span>
-      </div>`;
-    html += blocs.length
-      ? blocs.map(b=>renderSemaineMiniBloc(b,d.date)).join('')
-      : `<div class="zts-vue-week-empty" data-action="select-date" data-date="${d.date}">+ Planifier</div>`;
-    html += `</div>`;
+function mountSemaineGrid() {
+  const rootEl = document.getElementById('sem-grid-root');
+  if (!rootEl || !window.SemaineGrid) return;
+  const gid = state.groupeId;
+  const metier = (state.groupe && state.groupe.metier) || 'camp';
+  const ws = state.weekStart || mondayOf(todayISO());
+  state.weekStart = ws;
+  state.semGrid = SemaineGrid.mount(rootEl, {
+    scope: 'planif_' + (gid || 'anon'),
+    metier, weekStart: ws,
+    dataPath: '../planification/data/', imgPath: 'img/',
+    load: gid ? (w) => Semaines.get(gid, w) : null,
+    save: gid ? (w, doc) => Semaines.save(gid, w, doc) : null,
+    onWeekChange: (w) => { state.weekStart = w; }
   });
-
-  html += `</div>`;
-  return html;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1230,7 +1236,7 @@ async function handleAction(action, ds) {
     }
     case 'cal-mode':
       if(ds.mode==='jour'){ if(!state.currentDate)state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
-      else if(ds.mode==='semaine'){ state.weekStart=mondayOf(state.currentDate||todayISO()); state.view='semaine'; await loadWeekData(); }
+      else if(ds.mode==='semaine'){ state.weekStart=mondayOf(state.currentDate||todayISO()); state.view='semaine'; }
       else { state.view='calendrier'; await loadCalendarData(); }
       render(); break;
     case 'prev-week':
@@ -1446,10 +1452,12 @@ function initOffline() {
 
 function render() {
   const root=document.getElementById('app-root');
+  if(state.semGrid){ state.semGrid.destroy(); state.semGrid=null; }   // nettoie grille + modal + listeners
   if(!state.user){root.innerHTML=renderNoAuth();return;}
   if(state.role==='coordo'){root.innerHTML=renderCoordo();return;}
   if(!state.groupeId){root.innerHTML=renderSetup();return;}
   root.innerHTML=renderMain();
+  if(state.view==='semaine') mountSemaineGrid();
 }
 
 function wireEvents() {

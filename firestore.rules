@@ -131,6 +131,18 @@ service cloud.firestore {
                             && isAnimateurOfGroupe(resource.data.groupeId);
     }
 
+    // ── Semaines (grille hebdo riche du planificateur) ──
+    // 1 doc par (groupe, lundi ISO). animateur : CRUD. coordo de l'org : lecture.
+    match /semaines/{id} {
+      allow read: if request.auth != null
+                  && (isAnimateurOfGroupe(resource.data.groupeId)
+                      || isCoordoOfGroupe(resource.data.groupeId));
+      allow create: if request.auth != null
+                    && isAnimateurOfGroupe(request.resource.data.groupeId);
+      allow update, delete: if request.auth != null
+                            && isAnimateurOfGroupe(resource.data.groupeId);
+    }
+
     // ── Jeux (banque partagee) ──
     // read : tout utilisateur authentifie. write : admin seulement.
     match /jeux/{jeuId} {
