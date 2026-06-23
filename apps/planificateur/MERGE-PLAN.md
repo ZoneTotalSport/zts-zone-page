@@ -74,7 +74,14 @@ modules/
 3. **Mesure** : poser `locked_view` / `locked_click_signup` / `signup_complete` aux points de gate.
 
 ## Slice « Rôles + Coordonnateur + Sauvegarde cloud » (décidé 2026-06-21)
-Décisions : développé **dans le moteur** · coordo = **accès direct temps réel** (pas d'email) · **règles Firestore déployées quand prêt**.
+Décisions : développé **dans le moteur** · coordo = **accès direct temps réel** · **règles Firestore déployées quand prêt**.
+
+### 🔁 RÉVISION 2026-06-23 — notification courriel coordo (supersede « pas d'email »)
+Joey : le coordonnateur reçoit **aussi un courriel** quand un plan/une journée est **validé/prêt** (en PLUS de l'accès temps réel ; pas réservé à l'animateur). Implémentation à coder (moteur auth-gated + worker, non testable sans Joey connecté) :
+1. **État « validé »** sur le doc `Semaines` (ou journée) : champs `valide:bool`, `valideAt`, `valideBy` (uid animateur). Bouton « ✅ Valider et notifier » dans la vue Semaine du moteur.
+2. **Destinataires** : courriels des coordonnateurs de l'`orgId` → `organisations.coordoUid` (+ co-coordos éventuels) → résoudre l'email via Auth/Firestore `users/{uid}`.
+3. **Envoi** : worker Cloudflare Resend (réutiliser le pattern `zts-send-pdf` / compte `zts-ccd`, secret `RESEND_*`). Payload = {orgId, semaine, valideBy, lien moteur}. Idempotence : ne pas renvoyer si déjà notifié pour la même version.
+4. **À fournir par Joey** : clé/secret Resend du worker + validation round-trip connecté + déploiement `firestore.rules` (autoriser write `valide*` à l'animateur du groupe).
 Séquence atomique :
 1. **Rôle animateur/coordonnateur** : choix à l'inscription (`organisations.coordoUid` pour coordo, `groupes.animateurUid` pour animateur) + badge + bascule. `state.role`.
 2. **Tableau de bord coordonnateur** : liste des groupes de l'`orgId` (`Groupes.listByOrg`) → par groupe, accès **lecture seule** aux présences (arrivée/heure, départ/avec qui/heure, drapeau hors-liste) + planif.
