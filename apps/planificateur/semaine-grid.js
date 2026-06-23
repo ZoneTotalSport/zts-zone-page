@@ -45,13 +45,24 @@ const CSS = `
 @media(max-width:900px){.sem-root .sheet-mascotte{display:none}}
 .sem-root .sheet__title{font-family:'Luckiest Guy',cursive;text-align:center;font-size:clamp(2.4rem,5.5vw,4rem);color:var(--jaune);-webkit-text-stroke:2px var(--ink);letter-spacing:1px;margin:0 0 4px}
 .sem-root .sheet__week{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.sem-root .sheet__week label{font-family:'Bangers',cursive;color:var(--cyan);-webkit-text-stroke:1px var(--ink);font-size:clamp(1.1rem,2.5vw,1.7rem)}
-.sem-root .sheet__week input{font-family:'Fredoka';font-weight:700;font-size:1.1rem;padding:8px 14px;border:var(--bord);border-radius:14px;box-shadow:4px 4px 0 var(--ink)}
+.sem-root .sheet__week label{font-family:'Luckiest Guy','Bangers',cursive;color:var(--cyan);-webkit-text-stroke:1.5px var(--ink);font-size:clamp(1.8rem,4vw,2.8rem)}
+.sem-root .sheet__week input{font-family:'Bangers','Fredoka',cursive;font-weight:700;font-size:clamp(1.6rem,3.6vw,2.6rem);color:var(--orange);padding:6px 16px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink)}
 .sem-root .toolbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-.sem-root .metier-sw{display:flex;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);overflow:hidden}
-.sem-root .metier-sw button{font-family:'Luckiest Guy','Bangers',cursive;cursor:pointer;font-size:1.15rem;letter-spacing:.5px;color:var(--ink);border:none;border-right:3px solid var(--ink);background:#fff;padding:13px 20px}
-.sem-root .metier-sw button:last-child{border-right:none}
-.sem-root .metier-sw button.on{background:var(--jaune)}
+/* Boutons métier SÉPARÉS, couleur + motif propre à chaque corps de métier */
+.sem-root .metier-sw{display:flex;gap:12px;flex-wrap:wrap;width:100%;justify-content:center;margin-bottom:4px}
+.sem-root .metier-sw button{font-family:'Luckiest Guy','Bangers',cursive;cursor:pointer;font-size:1.25rem;letter-spacing:.5px;color:var(--ink);display:flex;align-items:center;gap:8px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);padding:13px 22px;background:#fff;transition:transform .1s,box-shadow .1s,filter .1s,opacity .1s}
+.sem-root .metier-sw button span:first-child{font-size:1.5rem;filter:drop-shadow(1px 1px 0 rgba(0,0,0,.3))}
+.sem-root .metier-sw button:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+.sem-root .metier-sw button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+/* ÉP = cyan + pois Ben-Day */
+.sem-root .metier-sw button[data-metier="ep"]{background-color:#19C3FF;background-image:radial-gradient(rgba(255,255,255,.6) 2.2px,transparent 2.3px);background-size:13px 13px}
+/* Camp = orange + rayures auvent */
+.sem-root .metier-sw button[data-metier="camp"]{background-color:#FF7A00;background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.13) 0 9px,transparent 9px 18px)}
+/* SDG = vert + hachures */
+.sem-root .metier-sw button[data-metier="sdg"]{background-color:#4ED11A;background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.5) 0 7px,transparent 7px 16px)}
+/* inactif = estompé ; actif = relevé + anneau */
+.sem-root .metier-sw button:not(.on){filter:saturate(.45) brightness(1.06);opacity:.85}
+.sem-root .metier-sw button.on{transform:translate(-1px,-1px);box-shadow:7px 7px 0 var(--ink);outline:4px solid var(--ink);outline-offset:2px}
 .sem-root .btn{font-family:'Luckiest Guy','Bangers',cursive;font-size:1.05rem;letter-spacing:.5px;cursor:pointer;color:var(--ink);padding:13px 24px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);background:var(--gris);transition:transform .1s,box-shadow .1s}
 .sem-root .btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink);background:#eef1f5}
 .sem-root .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
@@ -243,7 +254,6 @@ function mount(root, opts){
         <div class="metier-sw"><button data-metier="ep"><span>🏫</span> <span class="m-lbl">ÉP</span></button><button data-metier="camp"><span>⛺</span> <span class="m-lbl">Camp</span></button><button data-metier="sdg"><span>🧸</span> <span class="m-lbl">SDG</span></button></div>
         <button class="btn sg-lang">EN</button>
         <div class="stepper"><span class="sg-periods">Périodes</span> <button data-step="-1">−</button><b class="sg-pcount">6</b><button data-step="1">＋</button></div>
-        <button class="btn sg-toggledays">5 ↔ 3 jours</button>
         <button class="btn btn--print sg-print">🖨️ Enregistrer PDF</button>
         <button class="btn sg-reset">↺ Vider la semaine</button>
       </div>
@@ -313,7 +323,6 @@ function mount(root, opts){
     $('.sheet__title').textContent=t('title');
     $('.sheet__week label').textContent=t('weekOf');
     $('.sg-periods').textContent=t('periods');
-    $('.sg-toggledays').textContent=t('toggleDays');
     $('.sg-print').textContent=t('savePdf');
     $('.sg-reset').textContent=t('clearWeek');
     $('.metier-sw [data-metier="ep"] .m-lbl').textContent=t('ep');
@@ -536,7 +545,6 @@ function mount(root, opts){
   $('.stepper').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
     if(+b.dataset.step>0){ structure.push({id:newId(),label:'Période '+(nbPeriodes()+1),type:'period',h1:'',h2:''}); commit(); }
     else { for(let i=structure.length-1;i>=0;i--){ if(structure[i].type==='period'){ structure.splice(i,1); break; } } commit(); } });
-  $('.sg-toggledays').addEventListener('click',()=>{ nbJours=nbJours===5?3:5; localStorage.setItem(ns('nbjours'),nbJours); render(); });
   $('.sg-print').addEventListener('click',()=>window.print());
   $('.sg-reset').addEventListener('click',()=>{ if(confirm(t('confClear'))){ data={}; save(); render(); } });
   $('.sg-lang').addEventListener('click',()=>setLang(LANG==='fr'?'en':'fr'));
