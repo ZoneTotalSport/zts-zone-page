@@ -26,13 +26,21 @@ const CSS = `
   background:var(--bg-base);
   background-image:repeating-conic-gradient(from 0deg at 88% 96%,var(--bg-stripe) 0deg 7deg,transparent 7deg 14deg)}
 .sem-root *{box-sizing:border-box}
-.sem-root[data-metier="camp"]{--cyan:#ff6a00;--jaune:#c026ff;--jaune-d:#a300e6}
-.sem-root[data-metier="sdg"]{--cyan:#39ff14;--jaune:#ff2dac;--jaune-d:#e0008f}
+/* Fond unifié bleu+jaune pour les 3 métiers (le métier ne change que perso + banque) */
 .sem-root .sheet{max-width:1500px;margin:0 auto;background:#fff;border:var(--bord);border-radius:38px;box-shadow:14px 14px 0 rgba(0,0,0,.85);padding:clamp(16px,2.5vw,34px);position:relative}
-.sem-root .sheet-mascotte{position:absolute;top:8px;left:16px;width:clamp(80px,9vw,140px);aspect-ratio:3/4;background-size:contain;background-repeat:no-repeat;background-position:top center;pointer-events:none;z-index:5}
-.sem-root[data-metier="ep"] .sheet-mascotte{background-image:url('img/mascotte-ep.png')}
+/* Perso EN AVANT + interactif : survol = anime + bulle de salutation par métier */
+.sem-root .sheet-mascotte{position:absolute;top:-14px;left:6px;width:clamp(96px,10vw,160px);aspect-ratio:3/4;background-size:contain;background-repeat:no-repeat;background-position:top center;cursor:pointer;z-index:30;filter:drop-shadow(4px 5px 0 rgba(0,0,0,.55));transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.sem-root .sheet-mascotte:hover{transform:translateY(-8px) rotate(-5deg) scale(1.07);animation:sem-wiggle .5s ease-in-out .25s 1}
+@keyframes sem-wiggle{0%,100%{transform:translateY(-8px) rotate(-5deg) scale(1.07)}25%{transform:translateY(-8px) rotate(4deg) scale(1.07)}75%{transform:translateY(-8px) rotate(-7deg) scale(1.07)}}
+.sem-root .sheet-mascotte::after{content:'';position:absolute;left:96%;top:6px;opacity:0;transform:translateX(-10px) scale(.85);transform-origin:left center;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;
+  font-family:'Fredoka',system-ui,sans-serif;font-weight:700;font-size:1.05rem;color:var(--ink);background:#fff;border:4px solid var(--ink);border-radius:16px;padding:9px 14px;box-shadow:5px 5px 0 var(--ink)}
+.sem-root .sheet-mascotte:hover::after{opacity:1;transform:translateX(0) scale(1)}
+.sem-root[data-metier="ep"]   .sheet-mascotte{background-image:url('img/mascotte-ep.png')}
 .sem-root[data-metier="camp"] .sheet-mascotte{background-image:url('img/mascotte-camp.png')}
-.sem-root[data-metier="sdg"] .sheet-mascotte{background-image:url('img/mascotte-sdg.png')}
+.sem-root[data-metier="sdg"]  .sheet-mascotte{background-image:url('img/mascotte-sdg.png')}
+.sem-root[data-metier="ep"]   .sheet-mascotte::after{content:'Salut, coach ! 🏀'}
+.sem-root[data-metier="camp"] .sheet-mascotte::after{content:'Allô, l’animateur ! ⛺'}
+.sem-root[data-metier="sdg"]  .sheet-mascotte::after{content:'Coucou, toi ! 🧸'}
 @media(max-width:900px){.sem-root .sheet-mascotte{display:none}}
 .sem-root .sheet__title{font-family:'Luckiest Guy',cursive;text-align:center;font-size:clamp(2.4rem,5.5vw,4rem);color:var(--jaune);-webkit-text-stroke:2px var(--ink);letter-spacing:1px;margin:0 0 4px}
 .sem-root .sheet__week{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
@@ -40,21 +48,21 @@ const CSS = `
 .sem-root .sheet__week input{font-family:'Fredoka';font-weight:700;font-size:1.1rem;padding:8px 14px;border:var(--bord);border-radius:14px;box-shadow:4px 4px 0 var(--ink)}
 .sem-root .toolbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .sem-root .metier-sw{display:flex;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);overflow:hidden}
-.sem-root .metier-sw button{font-family:'Bangers',cursive;cursor:pointer;font-size:1.25rem;letter-spacing:.5px;color:var(--ink);border:none;border-right:3px solid var(--ink);background:#fff;padding:13px 20px}
+.sem-root .metier-sw button{font-family:'Luckiest Guy','Bangers',cursive;cursor:pointer;font-size:1.15rem;letter-spacing:.5px;color:var(--ink);border:none;border-right:3px solid var(--ink);background:#fff;padding:13px 20px}
 .sem-root .metier-sw button:last-child{border-right:none}
 .sem-root .metier-sw button.on{background:var(--jaune)}
-.sem-root .btn{font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:.5px;cursor:pointer;color:var(--ink);padding:13px 24px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);background:var(--gris);transition:transform .1s,box-shadow .1s}
+.sem-root .btn{font-family:'Luckiest Guy','Bangers',cursive;font-size:1.05rem;letter-spacing:.5px;cursor:pointer;color:var(--ink);padding:13px 24px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);background:var(--gris);transition:transform .1s,box-shadow .1s}
 .sem-root .btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink);background:#eef1f5}
 .sem-root .btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
 .sem-root .btn--print{background:var(--gris-dd);color:#fff}
 .sem-root .btn--big{background:var(--vert);color:#fff;font-size:1.2rem;padding:14px 28px}
-.sem-root .stepper{display:flex;align-items:center;gap:8px;font-family:'Bangers',cursive;font-size:1.25rem;letter-spacing:.5px;background:var(--gris);border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);padding:8px 14px}
+.sem-root .stepper{display:flex;align-items:center;gap:8px;font-family:'Luckiest Guy','Bangers',cursive;font-size:1.05rem;letter-spacing:.5px;background:var(--gris);border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);padding:8px 14px}
 .sem-root .stepper b{min-width:28px;text-align:center;font-size:1.6rem;color:var(--cyan);-webkit-text-stroke:.5px var(--ink)}
-.sem-root .stepper button{font-family:'Bangers',cursive;cursor:pointer;width:42px;height:42px;border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:2px 2px 0 var(--ink);font-size:1.5rem}
+.sem-root .stepper button{font-family:'Luckiest Guy','Bangers',cursive;cursor:pointer;width:42px;height:42px;border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:2px 2px 0 var(--ink);font-size:1.5rem}
 .sem-root .stepper button:hover{background:var(--jaune)}
 .sem-root .grid{display:grid;gap:10px;align-items:stretch}
 .sem-root .rail{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;border:var(--bord);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:8px 6px;background:#fff}
-.sem-root .rail__lbl{font-family:'Bangers',cursive;font-size:clamp(1.1rem,1.7vw,1.5rem);color:var(--cyan);-webkit-text-stroke:.4px var(--ink);text-shadow:2px 2px 0 var(--ink);border:none;text-align:center;width:100%;background:transparent}
+.sem-root .rail__lbl{font-family:'Luckiest Guy','Bangers',cursive;font-size:clamp(1rem,1.6vw,1.4rem);color:var(--cyan);-webkit-text-stroke:.4px var(--ink);text-shadow:2px 2px 0 var(--ink);border:none;text-align:center;width:100%;background:transparent}
 .sem-root .rail.alt .rail__lbl{color:var(--jaune-d)}
 .sem-root .rail__hrs{display:flex;align-items:center;gap:3px;font-family:'Fredoka';font-weight:700;font-size:1rem;color:#555}
 .sem-root .rail__hrs input{width:56px;text-align:center;border:2px dashed #bbb;border-radius:8px;font-family:'Fredoka';font-weight:700;font-size:1rem;padding:4px}
@@ -64,21 +72,19 @@ const CSS = `
 .sem-root .rail--break{grid-column:1 / -1;background:var(--jaune);border-radius:14px;flex-direction:row;gap:10px;flex-wrap:wrap}
 .sem-root .rail--break .rail__lbl{color:var(--ink);-webkit-text-stroke:0;text-shadow:none;font-size:clamp(1.4rem,2.4vw,2rem);width:auto}
 .sem-root .addbar{grid-column:1 / -1;display:flex;gap:12px;justify-content:center;padding:4px}
-.sem-root .addbar button{font-family:'Bangers',cursive;cursor:pointer;font-size:.95rem;border:var(--bord);border-radius:14px;box-shadow:4px 4px 0 var(--ink);padding:8px 16px;background:#fff}
+.sem-root .addbar button{font-family:'Luckiest Guy','Bangers',cursive;cursor:pointer;font-size:.9rem;border:var(--bord);border-radius:14px;box-shadow:4px 4px 0 var(--ink);padding:8px 16px;background:#fff}
 .sem-root .addbar button:hover{background:var(--jaune);transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
 .sem-root .day-hd{border:var(--bord);border-radius:20px;box-shadow:6px 6px 0 var(--ink);overflow:hidden;background:#fff}
-.sem-root .day-hd__name{font-family:'Luckiest Guy',cursive;text-align:center;font-size:clamp(1.5rem,2.8vw,2.2rem);letter-spacing:.5px;padding:10px;display:flex;align-items:center;justify-content:center;gap:8px}
+.sem-root .day-hd__name{font-family:'Luckiest Guy',cursive;text-align:center;font-size:clamp(1.5rem,2.8vw,2.2rem);letter-spacing:.5px;padding:10px;display:flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(135deg,#5fd6ff 0%,var(--cyan) 45%,#0a96d8 100%);color:#fff;text-shadow:2px 2px 0 var(--ink)}
 .sem-root .day-hd__name input[type=checkbox]{width:22px;height:22px}
 .sem-root .day-hd__date{width:100%;text-align:center;font-family:'Bangers',cursive;font-size:clamp(1.4rem,2.8vw,2.2rem);letter-spacing:.5px;border:none;border-top:4px solid var(--ink);padding:10px 6px;background:#fff;color:var(--orange)}
-.sem-root .day-hd.j0 .day-hd__name,.sem-root .day-hd.j2 .day-hd__name,.sem-root .day-hd.j4 .day-hd__name{background:var(--jaune)}
-.sem-root .day-hd.j1 .day-hd__name,.sem-root .day-hd.j3 .day-hd__name{background:var(--cyan);color:#fff}
-.sem-root .day-hd.j1 .day-hd__date,.sem-root .day-hd.j3 .day-hd__date{color:var(--vert)}
 .sem-root .slot{border:var(--bord);border-radius:18px;box-shadow:5px 5px 0 var(--ink);background:#fff;padding:8px;display:flex;flex-direction:column;gap:6px;min-height:120px;transition:transform .12s,box-shadow .12s,border-color .12s}
 .sem-root .slot:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--ink);border-color:var(--cyan)}
 .sem-root .slot--off{background:#f1f5f9;border-style:dashed}
 .sem-root .slot--off:hover{border-color:var(--gris-dd)}
 .sem-root .slot__row{display:flex;flex-direction:column;gap:2px}
-.sem-root .slot__lbl{font-family:'Bangers',cursive;color:var(--cyan);-webkit-text-stroke:.4px var(--ink);text-shadow:2px 2px 0 var(--ink);font-size:1.35rem;letter-spacing:.5px;white-space:nowrap}
+.sem-root .slot__lbl{font-family:'Luckiest Guy','Bangers',cursive;color:var(--cyan);-webkit-text-stroke:.4px var(--ink);text-shadow:2px 2px 0 var(--ink);font-size:1.15rem;letter-spacing:.5px;white-space:nowrap}
 .sem-root .slot input.g{font-family:'Fredoka';font-weight:600;border:none;border-bottom:2px dashed #bbb;padding:3px 4px;font-size:1.3rem;width:100%}
 .sem-root .slot input:focus,.sem-root .rail__lbl:focus,.sem-root .rail__hrs input:focus{outline:2px solid var(--cyan);border-radius:6px;background:#fbfeff}
 .sem-root .acts__hd{display:flex;align-items:center;justify-content:space-between;gap:6px}
@@ -107,7 +113,7 @@ const CSS = `
 .sem-modal *{box-sizing:border-box}
 .sem-modal .modal__box{background:#fff;border:var(--bord);border-radius:26px;box-shadow:12px 12px 0 rgba(0,0,0,.6);max-width:920px;width:100%;max-height:92vh;overflow:auto;padding:20px;position:relative}
 .sem-modal .modal__x{position:absolute;top:12px;right:12px;font-family:'Bangers',cursive;font-size:1.1rem;cursor:pointer;background:var(--rose);color:#fff;border:3px solid var(--ink);border-radius:50%;width:46px;height:46px;box-shadow:3px 3px 0 var(--ink)}
-.sem-modal .f-lbl{font-family:'Bangers',cursive;color:var(--cyan);-webkit-text-stroke:.4px var(--ink);font-size:1.05rem;margin:12px 0 4px;display:block}
+.sem-modal .f-lbl{font-family:'Luckiest Guy','Bangers',cursive;color:var(--cyan);-webkit-text-stroke:.4px var(--ink);text-shadow:2px 2px 0 var(--ink);font-size:1rem;margin:12px 0 4px;display:block}
 .sem-modal .f-in,.sem-modal .f-ta{width:100%;font-family:'Fredoka';font-weight:600;font-size:1rem;border:3px solid var(--ink);border-radius:12px;padding:10px 12px;box-shadow:3px 3px 0 var(--ink)}
 .sem-modal .f-ta{min-height:80px;resize:vertical}
 .sem-modal .f-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -127,7 +133,7 @@ const CSS = `
 .sem-modal .timer button{font-family:'Bangers',cursive;cursor:pointer;font-size:1rem;border:3px solid var(--ink);border-radius:12px;padding:10px 16px;box-shadow:3px 3px 0 var(--ink);background:var(--vert);color:#fff}
 .sem-modal .timer button.sec{background:#fff;color:var(--ink)}
 .sem-modal .timer__done{font-family:'Bangers',cursive;font-size:1.4rem;color:var(--rose);-webkit-text-stroke:.5px var(--ink)}
-.sem-modal .btn{font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:.5px;cursor:pointer;color:var(--ink);padding:13px 24px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);background:var(--gris);transition:transform .1s,box-shadow .1s}
+.sem-modal .btn{font-family:'Luckiest Guy','Bangers',cursive;font-size:1.05rem;letter-spacing:.5px;cursor:pointer;color:var(--ink);padding:13px 24px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink);background:var(--gris);transition:transform .1s,box-shadow .1s}
 .sem-modal .btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink);background:#eef1f5}
 .sem-modal .btn--big{background:var(--vert);color:#fff}
 .sem-modal .bq-filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
