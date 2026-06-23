@@ -46,7 +46,7 @@ async function getDb() {
 // ══════════════════════════════════════════════════════════
 
 const Organisations = {
-  async create(d) { return (await (await getDb()).collection('organisations').add({ nom:d.nom, coordoUid:d.coordoUid, dateDebut:d.dateDebut||'', dateFin:d.dateFin||'', semaines:d.semaines||[] })).id; },
+  async create(d) { return (await (await getDb()).collection('organisations').add({ nom:d.nom, coordoUid:d.coordoUid, coordoEmail:d.coordoEmail||'', dateDebut:d.dateDebut||'', dateFin:d.dateFin||'', semaines:d.semaines||[] })).id; },
   async get(id) { const s=await (await getDb()).collection('organisations').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async update(id,d) { (await getDb()).collection('organisations').doc(id).update(d); },
 };
@@ -120,6 +120,14 @@ const Semaines = {
         : v;
     }
     return { structure:payload.structure, cells };
+  },
+  // Marque la semaine comme validée (déclenche la notification coordo).
+  // groupeId/weekStart inclus pour satisfaire la règle create si le doc n'existe pas encore.
+  async validate(gid,ws,uid) {
+    await (await getDb()).collection('semaines').doc(this.docId(gid,ws)).set({
+      groupeId:gid, weekStart:ws,
+      valide:true, valideAt:firebase.firestore.FieldValue.serverTimestamp(), valideBy:uid
+    }, { merge:true });
   }
 };
 
@@ -128,6 +136,9 @@ const Semaines = {
 // ══════════════════════════════════════════════════════════
 
 const LS = { groupeId:'planif_groupeId', orgId:'planif_orgId' };
+// Worker notification coordo (cf-worker/notify-coordo). Mettre à jour si déployé
+// sur une URL workers.dev plutôt que le domaine custom.
+const NOTIFY_COORDO_URL = 'https://coordo.zonetotalsport.ca';
 const LIENS = ['mere','pere','grand-mere','grand-pere','gardien(ne)','autre'];
 const LIEN_LABELS = { mere:'Mere', pere:'Pere', 'grand-mere':'Grand-mere', 'grand-pere':'Grand-pere', 'gardien(ne)':'Gardien(ne)', autre:'Autre' };
 
@@ -473,7 +484,12 @@ async function loadWeekData() {
 // minuterie, médias) montée par semaine-grid.js après render(). Persistée Firestore
 // (collection semaines) + miroir localStorage. Le conteneur seul est rendu ici.
 function renderSemaine() {
-  return `<div id="sem-grid-root"></div>`;
+  const canValidate = !!(state.groupeId && state.orgId);
+  return `
+    ${canValidate ? `<div style="display:flex;justify-content:center;margin:0 0 14px">
+      <button class="zts-btn zts-btn--primary" data-action="valider-semaine" id="btn-valider-sem" style="font-size:var(--fs-2)">✅ Valider et notifier le coordo</button>
+    </div>` : ''}
+    <div id="sem-grid-root"></div>`;
 }
 
 function mountSemaineGrid() {
@@ -1212,13 +1228,45 @@ async function handleApplyBatch() {
 
 async function handleAction(action, ds) {
   switch(action) {
+    // ── Valider la semaine + notifier le coordo ──
+    case 'valider-semaine': {
+      if(!state.groupeId||!state.orgId) return alert('Aucun groupe/organisation.');
+      const ws=state.weekStart||mondayOf(todayISO());
+      const btn=document.getElementById('btn-valider-sem');
+      if(btn){ btn.disabled=true; btn.textContent='⏳ Envoi…'; }
+      const reset=(txt)=>{ if(btn){ btn.disabled=false; btn.textContent=txt||'✅ Valider et notifier le coordo'; } };
+      try {
+        await Semaines.validate(state.groupeId, ws, state.user.uid);
+        const idToken=await state.user.getIdToken();
+        const res=await fetch(NOTIFY_COORDO_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+idToken },
+          body:JSON.stringify({
+            orgId:state.orgId, weekStart:ws,
+            groupeNom:(state.groupe&&state.groupe.nom)||'',
+            link:location.href
+          })
+        });
+        const data=await res.json().catch(()=>({}));
+        if(res.ok){ if(btn){ btn.disabled=true; btn.textContent='✅ Validé — coordo notifié'; } }
+        else if(data.code==='NO_COORDO_EMAIL'){ alert("Plan validé, mais aucun courriel de coordonnateur n'est enregistré sur l'organisation. (Recrée l'org pour l'associer à ton courriel.)"); reset(); }
+        else if(data.code==='FORBIDDEN'){ alert("Plan validé, mais accès refusé pour notifier — règles Firestore à déployer."); reset(); }
+        else { alert('Plan validé. Notification non envoyée ('+(data.error||res.status)+').'); reset(); }
+      } catch(e) {
+        console.error('[Planif] valider-semaine', e);
+        alert('Plan validé localement. Échec notification : '+(e.message||e));
+        reset();
+      }
+      break;
+    }
+
     // ── Setup ──
     case 'save-setup': {
       const orgNom=document.getElementById('setup-org').value.trim();
       const grpNom=document.getElementById('setup-groupe').value.trim();
       const theme=document.getElementById('setup-theme').value.trim();
       if(!orgNom||!grpNom) return alert('Nom requis.');
-      const orgId=await Organisations.create({nom:orgNom,coordoUid:state.user.uid,dateDebut:'',dateFin:'',semaines:[]});
+      const orgId=await Organisations.create({nom:orgNom,coordoUid:state.user.uid,coordoEmail:state.user.email||'',dateDebut:'',dateFin:'',semaines:[]});
       const groupeId=await Groupes.create({nom:grpNom,orgId,animateurUid:state.user.uid,theme});
       localStorage.setItem(LS.orgId,orgId); localStorage.setItem(LS.groupeId,groupeId);
       state.orgId=orgId; state.groupeId=groupeId;

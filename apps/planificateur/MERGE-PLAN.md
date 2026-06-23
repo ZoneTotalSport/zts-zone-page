@@ -81,7 +81,13 @@ Joey : le coordonnateur reçoit **aussi un courriel** quand un plan/une journée
 1. **État « validé »** sur le doc `Semaines` (ou journée) : champs `valide:bool`, `valideAt`, `valideBy` (uid animateur). Bouton « ✅ Valider et notifier » dans la vue Semaine du moteur.
 2. **Destinataires** : courriels des coordonnateurs de l'`orgId` → `organisations.coordoUid` (+ co-coordos éventuels) → résoudre l'email via Auth/Firestore `users/{uid}`.
 3. **Envoi** : worker Cloudflare Resend (réutiliser le pattern `zts-send-pdf` / compte `zts-ccd`, secret `RESEND_*`). Payload = {orgId, semaine, valideBy, lien moteur}. Idempotence : ne pas renvoyer si déjà notifié pour la même version.
-4. **À fournir par Joey** : clé/secret Resend du worker + validation round-trip connecté + déploiement `firestore.rules` (autoriser write `valide*` à l'animateur du groupe).
+4. **À fournir par Joey** : clé/secret Resend du worker + validation round-trip connecté.
+
+### ✅ CODÉ 2026-06-23 (en attente déploiement + test connecté)
+- **Worker** `cf-worker/notify-coordo/` : vérif Firebase ID token + résout `coordoEmail` côté serveur via Firestore REST (token appelant) + envoi Resend. README avec étapes deploy.
+- **Moteur** `app.js` : `Semaines.validate(gid,ws,uid)` (set `valide/valideAt/valideBy`), `coordoEmail` stocké à la création d'org, bouton **« ✅ Valider et notifier le coordo »** dans la vue Semaine, `NOTIFY_COORDO_URL` (= `coordo.zonetotalsport.ca`).
+- **Aucune modif `firestore.rules` requise** : lecture org = tout authentifié (worker OK), write `valide` couvert par règle animateur existante.
+- **RESTE Joey** : `wrangler secret put RESEND_API_KEY` + `wrangler deploy` + créer le domaine `coordo.zonetotalsport.ca` (ou URL workers.dev → MAJ `NOTIFY_COORDO_URL`) + recréer l'org de test (pour avoir `coordoEmail`) + tester connecté.
 Séquence atomique :
 1. **Rôle animateur/coordonnateur** : choix à l'inscription (`organisations.coordoUid` pour coordo, `groupes.animateurUid` pour animateur) + badge + bascule. `state.role`.
 2. **Tableau de bord coordonnateur** : liste des groupes de l'`orgId` (`Groupes.listByOrg`) → par groupe, accès **lecture seule** aux présences (arrivée/heure, départ/avec qui/heure, drapeau hors-liste) + planif.
