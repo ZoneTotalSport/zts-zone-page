@@ -306,7 +306,7 @@ function mount(root, opts){
 
   function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML.replace(/"/g,'&quot;'); }
   function mediaKindOf(mime){ if(!mime)return'link'; if(mime.startsWith('image/'))return'img'; if(mime==='application/pdf')return'pdf'; if(mime.startsWith('audio/'))return'audio'; if(mime.startsWith('video/'))return'video'; return'link'; }
-  function dayDate(i){ const v=weekStartEl.value; if(!v)return''; const d=new Date(v+'T12:00:00'); d.setDate(d.getDate()+i); return d.getDate()+' '+moisFR(d.getMonth())+' '+d.getFullYear(); }
+  function dayDate(i){ const v=weekStartEl.value; if(!v)return''; const d=new Date(v+'T12:00:00'); d.setDate(d.getDate()+i); return d.getDate()+' '+moisFR(d.getMonth()); }
 
   // ── i18n statique ──
   function applyI18n(){
@@ -316,16 +316,16 @@ function mount(root, opts){
     $('.sg-toggledays').textContent=t('toggleDays');
     $('.sg-print').textContent=t('savePdf');
     $('.sg-reset').textContent=t('clearWeek');
-    $('[data-metier="ep"] .m-lbl').textContent=t('ep');
-    $('[data-metier="camp"] .m-lbl').textContent=t('camp');
-    $('[data-metier="sdg"] .m-lbl').textContent=t('sdg');
+    $('.metier-sw [data-metier="ep"] .m-lbl').textContent=t('ep');
+    $('.metier-sw [data-metier="camp"] .m-lbl').textContent=t('camp');
+    $('.metier-sw [data-metier="sdg"] .m-lbl').textContent=t('sdg');
     $('.sg-lang').textContent = LANG==='fr'?'EN':'FR';
   }
 
   function railCtrl(ln){ return `<div class="rail__ctrl"><button data-up="${ln.id}">↑</button><button data-down="${ln.id}">↓</button><button data-tog="${ln.id}" title="${t('togglePB')}">⇄</button><button class="del" data-del="${ln.id}">🗑️</button></div>`; }
   function render(){
     const days=dayNames().slice(0,nbJours);
-    gridEl.style.gridTemplateColumns=`minmax(120px,150px) repeat(${days.length}, 1fr)`;
+    gridEl.style.gridTemplateColumns=`minmax(104px,134px) repeat(${days.length}, minmax(0,1fr))`;
     let html='<div></div>';
     days.forEach((j,di)=>{ html+=`<div class="day-hd j${di}"><div class="day-hd__name">${j} <input type="checkbox" data-off="${di}" ${data['off_'+di]?'checked':''}></div><input class="day-hd__date" data-date="${di}" value="${esc(data['date_'+di]||dayDate(di))}"></div>`; });
     structure.forEach((ln,ri)=>{
