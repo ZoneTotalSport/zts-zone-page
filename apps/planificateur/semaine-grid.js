@@ -18,6 +18,7 @@
 'use strict';
 
 const CSS = `
+@font-face{font-family:'Luckiest Guy';src:url('/fonts/LuckiestGuy-Regular.ttf') format('truetype');font-display:swap}
 .sem-root{font-family:'Fredoka',system-ui,sans-serif;font-weight:600;color:var(--ink);
   --jaune:#F2FF00;--jaune-d:#D9E600;--cyan:#19C3FF;--vert:#4ED11A;--orange:#FF7A00;--rose:#FF2D7E;
   --gris:#E2E6EC;--gris-d:#AEB7C2;--gris-dd:#8A95A3;--ink:#0a0a0a;--bord:5px solid var(--ink);
@@ -38,9 +39,9 @@ const CSS = `
 .sem-root[data-metier="ep"]   .sheet-mascotte{background-image:url('img/mascotte-ep.png')}
 .sem-root[data-metier="camp"] .sheet-mascotte{background-image:url('img/mascotte-camp.png')}
 .sem-root[data-metier="sdg"]  .sheet-mascotte{background-image:url('img/mascotte-sdg.png')}
-.sem-root[data-metier="ep"]   .sheet-mascotte::after{content:'Salut, coach ! 🏀'}
-.sem-root[data-metier="camp"] .sheet-mascotte::after{content:'Allô, l’animateur ! ⛺'}
-.sem-root[data-metier="sdg"]  .sheet-mascotte::after{content:'Coucou, toi ! 🧸'}
+.sem-root[data-metier="ep"]   .sheet-mascotte::after{content:'Salut à toi, le prof ! 🏀'}
+.sem-root[data-metier="camp"] .sheet-mascotte::after{content:'Allô à toi, l’animateur ! ⛺'}
+.sem-root[data-metier="sdg"]  .sheet-mascotte::after{content:'Coucou à toi ! 🧸'}
 @media(max-width:900px){.sem-root .sheet-mascotte{display:none}}
 .sem-root .sheet__title{font-family:'Luckiest Guy',cursive;text-align:center;font-size:clamp(2.4rem,5.5vw,4rem);color:var(--jaune);-webkit-text-stroke:2px var(--ink);letter-spacing:1px;margin:0 0 4px}
 .sem-root .sheet__week{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
@@ -168,9 +169,10 @@ const CSS = `
 
 function injectOnce(){
   if(document.getElementById('sem-grid-css')) return;
-  if(!document.querySelector('link[href*="Luckiest+Guy"]')){
-    const l=document.createElement('link'); l.rel='stylesheet';
-    l.href='https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@500;600;700&display=swap';
+  if(!document.getElementById('sem-grid-fonts')){
+    // Luckiest Guy = auto-hébergé (version accentuée, /fonts/) ; Bangers+Fredoka via Google.
+    const l=document.createElement('link'); l.id='sem-grid-fonts'; l.rel='stylesheet';
+    l.href='https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka:wght@500;600;700&display=swap';
     document.head.appendChild(l);
   }
   const s=document.createElement('style'); s.id='sem-grid-css'; s.textContent=CSS; document.head.appendChild(s);
