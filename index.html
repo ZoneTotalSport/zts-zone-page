@@ -484,27 +484,29 @@
   .eyebrow .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--vert); animation: pulse 1.5s ease infinite; }
   @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.6; } }
 
+  /* Titre hero en style sticker planificateur : Luckiest Guy, fond plein + contour noir */
   h1.mega {
     font-family: var(--font-impact);
-    font-size: clamp(38px, 5vw, 72px);
+    font-size: clamp(42px, 5.6vw, 80px);
     font-weight: 400;
-    letter-spacing: 0.01em;
-    line-height: 1;
+    letter-spacing: 0.02em;
+    line-height: 1.06;
     margin-bottom: 18px;
-    max-width: 900px;
-    color: var(--ink);
-    text-shadow: 4px 4px 0 var(--jaune);
+    max-width: 960px;
+    color: var(--jaune);
+    -webkit-text-stroke: 2.5px var(--ink);
+    text-shadow: 4px 6px 0 rgba(26,26,46,.32);
   }
   h1.mega .swipe {
     display: inline-block;
-    background: linear-gradient(90deg, var(--orange), var(--rose), var(--bleu), var(--vert), var(--cyan));
-    background-clip: text; -webkit-background-clip: text;
-    color: transparent;
-    background-size: 300% auto;
-    animation: shimmer 4s linear infinite;
-    text-shadow: none;
+    color: var(--cyan);
+    -webkit-text-fill-color: var(--cyan);
+    -webkit-text-stroke: 2.5px var(--ink);
+    background: none;
+    animation: none;
+    text-shadow: 4px 6px 0 rgba(26,26,46,.32);
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1);
   }
-  @keyframes shimmer { 0% { background-position: 0% center; } 100% { background-position: 300% center; } }
 
   p.lede {
     font-family: var(--font-fun);
