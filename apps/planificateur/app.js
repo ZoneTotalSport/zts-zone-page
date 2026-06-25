@@ -46,7 +46,7 @@ async function getDb() {
 // ══════════════════════════════════════════════════════════
 
 const Organisations = {
-  async create(d) { return (await (await getDb()).collection('organisations').add({ nom:d.nom, coordoUid:d.coordoUid, dateDebut:d.dateDebut||'', dateFin:d.dateFin||'', semaines:d.semaines||[] })).id; },
+  async create(d) { return (await (await getDb()).collection('organisations').add({ nom:d.nom, coordoUid:d.coordoUid, coordoEmail:d.coordoEmail||'', dateDebut:d.dateDebut||'', dateFin:d.dateFin||'', semaines:d.semaines||[] })).id; },
   async get(id) { const s=await (await getDb()).collection('organisations').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async update(id,d) { (await getDb()).collection('organisations').doc(id).update(d); },
 };
@@ -55,11 +55,12 @@ const Groupes = {
   async create(d) { return (await (await getDb()).collection('groupes').add({ nom:d.nom, orgId:d.orgId, animateurUid:d.animateurUid, theme:d.theme||'' })).id; },
   async get(id) { const s=await (await getDb()).collection('groupes').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async listByAnimateur(uid) { const s=await (await getDb()).collection('groupes').where('animateurUid','==',uid).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
+  async listByOrg(orgId) { const s=await (await getDb()).collection('groupes').where('orgId','==',orgId).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
   async update(id,d) { (await getDb()).collection('groupes').doc(id).update(d); },
 };
 
 const Enfants = {
-  async create(d) { return (await (await getDb()).collection('enfants').add({ prenom:d.prenom, nom:d.nom, photoUrl:d.photoUrl||'', groupeId:d.groupeId, personnesAutorisees:d.personnesAutorisees||[] })).id; },
+  async create(d) { return (await (await getDb()).collection('enfants').add({ prenom:d.prenom, nom:d.nom, photoUrl:d.photoUrl||'', groupeId:d.groupeId, personnesAutorisees:d.personnesAutorisees||[], particularites:d.particularites||[], noteParticuliere:d.noteParticuliere||'' })).id; },
   async get(id) { const s=await (await getDb()).collection('enfants').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async listByGroupe(gid) { const s=await (await getDb()).collection('enfants').where('groupeId','==',gid).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
   async update(id,d) { (await getDb()).collection('enfants').doc(id).update(d); },
@@ -82,7 +83,7 @@ const Presences = {
     return (await (await getDb()).collection('presences').add({
       journeeId:d.journeeId, groupeId:d.groupeId, enfantId:d.enfantId, statut:d.statut,
       heureArrivee:d.heureArrivee||'', heureDepart:d.heureDepart||'',
-      partiAvec:d.partiAvec||{nom:'',lien:''}, horsListe:d.horsListe||false,
+      partiAvec:d.partiAvec||{nom:'',lien:''}, arriveAvec:d.arriveAvec||{lien:''}, horsListe:d.horsListe||false,
       date:d.date||'', ts:firebase.firestore.FieldValue.serverTimestamp()
     })).id;
   },
@@ -98,12 +99,70 @@ const GrillesType = {
   async update(id,d) { (await getDb()).collection('grillesType').doc(id).update(d); },
 };
 
+// Vue Semaine (grille riche) : 1 doc par (groupe, lundi ISO).
+// Les médias FICHIERS (data URL) ne sont PAS écrits au cloud (limite Firestore 1 Mo) —
+// seuls liens + réfs banque + titre/desc/durée sync ; le miroir localStorage garde tout.
+const Semaines = {
+  docId(gid,ws) { return gid+'__'+ws; },
+  async get(gid,ws) { const s=await (await getDb()).collection('semaines').doc(this.docId(gid,ws)).get(); return s.exists?s.data():null; },
+  async save(gid,ws,payload) {
+    const light = Semaines._strip(payload);
+    await (await getDb()).collection('semaines').doc(this.docId(gid,ws)).set({
+      groupeId:gid, weekStart:ws, structure:light.structure||[], cells:light.cells||{},
+      ts:firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge:true });
+  },
+  _strip(payload) {
+    const cells={};
+    for (const [k,v] of Object.entries(payload.cells||{})) {
+      cells[k] = Array.isArray(v)
+        ? v.map(a => a && a.medias ? {...a, medias:a.medias.filter(m=>m.kind==='link')} : a)
+        : v;
+    }
+    return { structure:payload.structure, cells };
+  },
+  // Marque la semaine comme validée (déclenche la notification coordo).
+  // groupeId/weekStart inclus pour satisfaire la règle create si le doc n'existe pas encore.
+  async validate(gid,ws,uid) {
+    await (await getDb()).collection('semaines').doc(this.docId(gid,ws)).set({
+      groupeId:gid, weekStart:ws,
+      valide:true, valideAt:firebase.firestore.FieldValue.serverTimestamp(), valideBy:uid
+    }, { merge:true });
+  }
+};
+
 // ══════════════════════════════════════════════════════════
 //  CONSTANTS + STATE
 // ══════════════════════════════════════════════════════════
 
 const LS = { groupeId:'planif_groupeId', orgId:'planif_orgId' };
+// Worker notification coordo (cf-worker/notify-coordo). Mettre à jour si déployé
+// sur une URL workers.dev plutôt que le domaine custom.
+const NOTIFY_COORDO_URL = 'https://coordo.zonetotalsport.ca';
 const LIENS = ['mere','pere','grand-mere','grand-pere','gardien(ne)','autre'];
+
+// Particularités de l'enfant (permanent) — l'animateur voit la condition sous le nom
+const PARTICULARITES = [
+  {k:'tsa',      label:'TSA',                emoji:'\u{1F9E9}'},
+  {k:'tdah',     label:'TDAH',               emoji:'⚡'},
+  {k:'allergie', label:'Allergie',           emoji:'\u{1F95C}'},
+  {k:'asthme',   label:'Asthme',             emoji:'\u{1F4A8}'},
+  {k:'anxiete',  label:'Anxiété',  emoji:'\u{1F4A7}'},
+  {k:'epilepsie',label:'Épilepsie',     emoji:'\u{1F9E0}'},
+  {k:'diabete',  label:'Diabète',       emoji:'\u{1FA78}'},
+  {k:'dys',      label:'Dys (lexie/praxie)', emoji:'\u{1F524}'},
+  {k:'langage',  label:'Trouble du langage', emoji:'\u{1F4AC}'},
+  {k:'autre',    label:'Autre',              emoji:'⭐'},
+];
+const PARTICULARITES_MAP = Object.fromEntries(PARTICULARITES.map(p=>[p.k,p]));
+
+// Humeur de fin de journée (journal de bord)
+const HUMEURS = [
+  {k:'belle',     label:'Belle journée', emoji:'\u{1F31F}', color:'var(--vert)'},
+  {k:'ordinaire', label:'Ordinaire',          emoji:'\u{1F642}', color:'#e6e6e6'},
+  {k:'pepin',     label:'Pépin',         emoji:'⚠️', color:'var(--rose)'},
+];
+const HUMEURS_MAP = Object.fromEntries(HUMEURS.map(h=>[h.k,h]));
 const LIEN_LABELS = { mere:'Mere', pere:'Pere', 'grand-mere':'Grand-mere', 'grand-pere':'Grand-pere', 'gardien(ne)':'Gardien(ne)', autre:'Autre' };
 
 const BLOC_TYPES = {
@@ -138,6 +197,9 @@ const BLOC_COLORS = [
 
 const state = {
   user: null, orgId: null, groupeId: null, groupe: null, org: null,
+  // Role : 'animateur' (defaut) | 'coordo'
+  role: localStorage.getItem('planif_role') || null,
+  coordoGroups: [], coordoDate: todayISO(),
   enfants: [],
   // Navigation
   view: 'journee', // journee | semaine | calendrier | roster | gabarit | historique | live
@@ -160,6 +222,8 @@ const state = {
   grilleType: null,
   // Calendar data
   calDatesWithBlocs: new Set(),
+  // Vue Semaine (grille riche montée par semaine-grid.js)
+  semGrid: null,
 };
 
 // ══════════════════════════════════════════════════════════
@@ -227,6 +291,15 @@ function avatarHTML(enfant, cls='') {
   return `<div class="p-initials ${sm?'p-initials-sm':''} ${cls}">${esc(initials(enfant.prenom,enfant.nom))}</div>`;
 }
 
+// Mini-badges des particularités (TSA, allergie…) affichés sous le nom de l'enfant.
+function particMiniHTML(enfant) {
+  const ps = enfant.particularites||[];
+  if (!ps.length) return '';
+  const note = enfant.noteParticuliere ? ' — '+enfant.noteParticuliere : '';
+  const chips = ps.map(k=>{ const p=PARTICULARITES_MAP[k]; return p?`<span class="p-partic-mini" title="${esc(p.label)}${esc(note)}">${p.emoji}</span>`:''; }).join('');
+  return `<div class="p-partic-row">${chips}</div>`;
+}
+
 // ══════════════════════════════════════════════════════════
 //  RENDERING
 // ══════════════════════════════════════════════════════════
@@ -252,6 +325,75 @@ function renderSetup() {
   </div>`;
 }
 
+// ══════════════════════════════════════════════════════════
+//  COORDONNATEUR — vue agregee (lecture seule)
+// ══════════════════════════════════════════════════════════
+
+async function loadCoordoData() {
+  if(!state.orgId){ state.coordoGroups=[]; return; }
+  if(!state.org) state.org=await Organisations.get(state.orgId);
+  const groups=await Groupes.listByOrg(state.orgId);
+  const date=state.coordoDate||todayISO();
+  const out=[];
+  for(const g of groups){
+    const enfants=await Enfants.listByGroupe(g.id);
+    enfants.sort((a,b)=>a.prenom.localeCompare(b.prenom));
+    const j=await Journees.getByGroupeAndDate(g.id,date);
+    let presences=[];
+    if(j) presences=await Presences.listByJournee(j.id,g.id);
+    const pmap={}; presences.forEach(p=>{pmap[p.enfantId]=p;});
+    out.push({groupe:g, enfants, pmap, blocs:(j&&j.blocs)?j.blocs.length:0});
+  }
+  state.coordoGroups=out;
+}
+
+function renderCoordo() {
+  const date=state.coordoDate||todayISO();
+  const isToday=date===todayISO();
+  let totEnf=0, totPres=0, totFlag=0;
+  state.coordoGroups.forEach(c=>{
+    totEnf+=c.enfants.length;
+    c.enfants.forEach(e=>{ const p=c.pmap[e.id]; if(p&&(p.statut==='present'||p.statut==='parti'))totPres++; if(p&&p.horsListe)totFlag++; });
+  });
+
+  let html=`<div class="p-group-bar">
+    <div><span class="p-group-name">\u{1F451} Coordonnateur</span>
+      <span class="p-group-theme"> · ${esc(state.org?.nom||'')}</span>
+      <span class="p-group-theme"> · ${state.coordoGroups.length} groupe(s) · ${totPres}/${totEnf} présent(s)${totFlag?` · ⚠ ${totFlag} hors-liste`:''}</span>
+    </div>
+    <button class="zts-btn" data-action="exit-coordo" style="font-size:var(--fs-1)">↩ Vue animateur</button>
+  </div>
+  <div class="p-date-nav" style="margin:var(--space-2) 0 var(--space-4)">
+    <button class="p-day-nav-btn" data-action="coordo-prev">◀</button>
+    <span class="p-day-title">${isToday?"Aujourd'hui":formatDateLong(date)}</span>
+    <button class="p-day-nav-btn" data-action="coordo-next">▶</button>
+  </div>`;
+
+  if(!state.coordoGroups.length){
+    return html+`<div class="p-empty"><div class="p-empty-icon">\u{1F465}</div><div class="p-empty-text">Aucun groupe dans cette organisation.</div></div>`;
+  }
+
+  state.coordoGroups.forEach(c=>{
+    const rows=c.enfants.map(e=>{
+      const p=c.pmap[e.id];
+      const st=p?p.statut:'attendu';
+      let detail='';
+      if(st==='present'){ detail=`<span style="color:var(--vert);font-weight:700">Présent</span> · arrivée ${p.heureArrivee||'—'}`; if(p.arriveAvec?.lien)detail+=` · porté par ${esc(LIEN_LABELS[p.arriveAvec.lien]||p.arriveAvec.lien)}`; }
+      else if(st==='parti'){ detail=`Parti à ${p.heureDepart||'—'}`; if(p.partiAvec?.nom)detail+=` avec ${esc(p.partiAvec.nom)} (${esc(p.partiAvec.lien||'—')})`; if(p.horsListe)detail+=` <span class="p-history-flag">HORS LISTE</span>`; }
+      else if(st==='absent') detail=`<span style="color:var(--rose)">Absent</span>`;
+      else detail=`<span style="opacity:.5">Attendu</span>`;
+      return `<div class="p-history-item" style="margin-bottom:8px">
+        <div class="p-history-date" style="min-width:120px">${esc(e.prenom)} ${esc(e.nom)}</div>
+        <div class="p-history-detail">${detail}</div></div>`;
+    }).join('');
+    html+=`<div class="p-card" style="margin-bottom:var(--space-4)">
+      <div class="p-section-title" style="margin-top:0">${esc(c.groupe.nom)}${c.groupe.theme?` <span style="opacity:.6;font-size:var(--fs-1)">· ${esc(c.groupe.theme)}</span>`:''} <span style="opacity:.6;font-size:var(--fs-1)">· ${c.enfants.length} enfant(s) · ${c.blocs} bloc(s)</span></div>
+      ${c.enfants.length?rows:`<div style="opacity:.5;font-family:var(--font-fun)">Aucun enfant.</div>`}
+    </div>`;
+  });
+  return html;
+}
+
 // ── Group bar + secondary nav ──
 
 function renderGroupBar() {
@@ -262,7 +404,10 @@ function renderGroupBar() {
       ${g.theme ? `<span class="p-group-theme"> \u00B7 ${esc(g.theme)}</span>` : ''}
       <span class="p-group-theme"> \u00B7 ${state.enfants.length} enfant(s)</span>
     </div>
-    <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
+    <div style="display:flex;gap:6px">
+      <button class="zts-btn" data-action="enter-coordo" style="font-size:var(--fs-1)" title="Vue coordonnateur">\u{1F451}</button>
+      <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
+    </div>
   </div>
   <div class="p-nav">
     <button class="p-nav-btn ${state.view==='calendrier'?'active':''}" data-action="nav" data-to="calendrier">\u{1F4C5} Calendrier</button>
@@ -311,7 +456,7 @@ function renderCalendrier() {
     const isToday = iso===today;
     const hasBlocs = !isWE && !isToday && state.calDatesWithBlocs.has(iso);
     cells += `<div class="p-cal-day ${isToday?'p-cal-day--today':''} ${isWE?'p-cal-day--weekend':''} ${hasBlocs?'p-cal-day--has-blocs':''}"
-      ${isWE?'':'data-action="select-date" data-date="'+iso+'"'}>${d}</div>`;
+      ${isWE?'':'data-action="presences-date" data-date="'+iso+'"'}>${d}</div>`;
   }
 
   return `<div class="p-date-nav" style="margin-bottom:var(--space-4)">
@@ -321,8 +466,9 @@ function renderCalendrier() {
   </div>
   <div class="p-cal-grid">${cells}</div>
   <div style="text-align:center">
-    <button class="zts-btn zts-btn--primary" data-action="select-date" data-date="${today}">Aujourd'hui</button>
-  </div>`;
+    <button class="zts-btn zts-btn--primary" data-action="presences-date" data-date="${today}">\u{1F4CB} Présences aujourd'hui</button>
+  </div>
+  <div style="text-align:center;margin-top:var(--space-2);font-family:var(--font-fun);font-size:var(--fs-1);opacity:.6">Clique une date pour prendre les présences</div>`;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -366,48 +512,33 @@ async function loadWeekData() {
   state.weekData = dates.map(dt=>({date:dt, blocs:byDate[dt]||[]}));
 }
 
-function renderSemaineMiniBloc(bloc, date) {
-  const t = BLOC_TYPES[bloc.type] || BLOC_TYPES.activite;
-  const blocColor = (bloc.customColor && bloc.customColor!=='default') ? (BLOC_COLORS.find(c=>c.id===bloc.customColor)?.hex||t.color) : t.color;
-  const times = (bloc.debut||bloc.fin) ? `<span class="zts-vue-mini-times">${bloc.debut||'?'}–${bloc.fin||'?'}</span>` : '';
-  return `<div class="zts-vue-mini-bloc" data-action="select-date" data-date="${date}" style="border-left-color:${blocColor}">
-    <span class="zts-vue-mini-ic">${t.icon}</span>
-    <span class="zts-vue-mini-titre">${esc(bloc.titre||t.label)}</span>
-    ${times}
-  </div>`;
+// Vue Semaine = grille riche (périodes×jours, activités, banque ÉP/Camp/SDG,
+// minuterie, médias) montée par semaine-grid.js après render(). Persistée Firestore
+// (collection semaines) + miroir localStorage. Le conteneur seul est rendu ici.
+function renderSemaine() {
+  const canValidate = !!(state.groupeId && state.orgId);
+  return `
+    ${canValidate ? `<div style="display:flex;justify-content:center;margin:0 0 14px">
+      <button class="zts-btn zts-btn--primary" data-action="valider-semaine" id="btn-valider-sem" style="font-size:var(--fs-2)">✅ Valider et notifier le coordo</button>
+    </div>` : ''}
+    <div id="sem-grid-root"></div>`;
 }
 
-function renderSemaine() {
-  const days = state.weekData || [];
-  const today = todayISO();
-  const first = days[0]?.date, last = days[days.length-1]?.date;
-  const label = (first&&last) ? `Semaine du ${formatDateFR(first)} au ${formatDateFR(last)}` : 'Semaine';
-  const dowNames = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-
-  let html = `<div class="p-date-nav" style="margin-bottom:var(--space-4)">
-    <button class="p-day-nav-btn" data-action="prev-week">◀</button>
-    <span class="p-day-title" style="text-align:center">${label}</span>
-    <button class="p-day-nav-btn" data-action="next-week">▶</button>
-  </div>
-  <div class="zts-vue-week-grid">`;
-
-  days.forEach(d => {
-    const dt = new Date(d.date+'T12:00:00');
-    const isToday = d.date===today;
-    const blocs = d.blocs||[];
-    html += `<div class="zts-vue-week-col ${isToday?'zts-vue-week-col--today':''}">
-      <div class="zts-vue-week-head" data-action="select-date" data-date="${d.date}">
-        <span class="zts-vue-week-dow">${dowNames[dt.getDay()]}</span>
-        <span class="zts-vue-week-num">${dt.getDate()}</span>
-      </div>`;
-    html += blocs.length
-      ? blocs.map(b=>renderSemaineMiniBloc(b,d.date)).join('')
-      : `<div class="zts-vue-week-empty" data-action="select-date" data-date="${d.date}">+ Planifier</div>`;
-    html += `</div>`;
+function mountSemaineGrid() {
+  const rootEl = document.getElementById('sem-grid-root');
+  if (!rootEl || !window.SemaineGrid) return;
+  const gid = state.groupeId;
+  const metier = (state.groupe && state.groupe.metier) || 'camp';
+  const ws = state.weekStart || mondayOf(todayISO());
+  state.weekStart = ws;
+  state.semGrid = SemaineGrid.mount(rootEl, {
+    scope: 'planif_' + (gid || 'anon'),
+    metier, weekStart: ws,
+    dataPath: '../planification/data/', imgPath: 'img/',
+    load: gid ? (w) => Semaines.get(gid, w) : null,
+    save: gid ? (w, doc) => Semaines.save(gid, w, doc) : null,
+    onWeekChange: (w) => { state.weekStart = w; }
   });
-
-  html += `</div>`;
-  return html;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -590,14 +721,27 @@ function renderPresenceCard(enfant, presence, status) {
     badge=`<span class="p-pcard-badge p-badge-parti">\u2191</span>`;
     time=`<div class="p-pcard-time">\u2191 ${presence.heureDepart}</div>`;
     if (presence.partiAvec?.nom) time+=`<div class="p-pcard-time" style="opacity:.7">${esc(presence.partiAvec.nom)}</div>`;
+    const hh = presence.humeurJournee ? HUMEURS_MAP[presence.humeurJournee] : null;
+    if (hh) time+=`<div class="p-pcard-time" style="opacity:.85">${hh.emoji} ${esc(hh.label)}</div>`;
     if (presence.horsListe) badge=`<span class="p-pcard-badge p-badge-flag">\u26A0</span>`;
   } else if (status==='absent') {
     badge=`<span class="p-pcard-badge p-badge-absent">\u2717</span>`;
   }
-  return `<div class="p-pcard p-pcard--${status}" data-action="tap-presence" data-id="${enfant.id}">
-    ${badge}${avatarHTML(enfant)}
-    <div class="p-enfant-name" style="font-size:var(--fs-1)">${esc(enfant.prenom)}</div>
-    ${time}
+  let porte='';
+  if (status==='present') {
+    const cur=presence.arriveAvec?.lien||'';
+    porte=`<button class="p-arrive" data-action="cycle-arrive" data-id="${enfant.id}">\u{1F44B} ${cur?('Porté par '+(LIEN_LABELS[cur]||cur)):'porté par ?'}</button>`;
+  }
+  const msgFlag = (status==='parti' && presence.messageParent)
+    ? `<span class="p-msg-flag" title="Message à transmettre au parent${presence.noteJournee?' : '+esc(presence.noteJournee):''}">!</span>` : '';
+  return `<div class="p-pcard p-pcard--${status}">
+    <div class="p-pcard-tap" data-action="tap-presence" data-id="${enfant.id}">
+      ${badge}${msgFlag}${avatarHTML(enfant)}
+      <div class="p-enfant-name" style="font-size:var(--fs-1)">${esc(enfant.prenom)}</div>
+      ${particMiniHTML(enfant)}
+      ${time}
+    </div>
+    ${porte}
   </div>`;
 }
 
@@ -655,6 +799,7 @@ function renderRoster() {
     <div class="p-enfant-card" data-action="edit-enfant" data-id="${e.id}">
       ${avatarHTML(e)}
       <div class="p-enfant-name">${esc(e.prenom)} ${esc(e.nom)}</div>
+      ${particMiniHTML(e)}
       <div class="p-enfant-sub">${(e.personnesAutorisees||[]).length} autorise(s)</div>
     </div>`).join('')}</div>
     <div style="text-align:center">
@@ -730,6 +875,23 @@ function renderHistorique() {
 function openModal(id) { const m=document.getElementById(id); if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');} }
 function closeModal(id) { const m=document.getElementById(id); if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');} }
 
+// Popup présences (ouvert depuis le calendrier) — registre du jour
+function openPresencesModal() {
+  const inner=document.getElementById('modal-presences-inner');
+  const dLabel = state.currentDate===todayISO() ? "Aujourd'hui" : formatDateLong(state.currentDate);
+  inner.innerHTML = `<button class="zts-modal__close" data-action="close-presences">✕</button>
+    <h2 class="zts-modal__title">\u{1F4CB} Présences — ${dLabel}</h2>
+    <div style="text-align:center;margin-bottom:var(--space-2)"><button class="zts-btn" data-action="goto-programme-day" style="font-size:var(--fs-1)">\u{1F4C5} Voir le programme du jour</button></div>
+    ${renderPresencesSection()}`;
+  openModal('modal-presences');
+}
+// Rafraîchit là où sont affichées les présences (popup si ouvert, sinon page)
+function refreshPresences() {
+  const m=document.getElementById('modal-presences');
+  if(m && m.classList.contains('open')) openPresencesModal();
+  else render();
+}
+
 // ── Enfant ──
 
 let _enfantPhotoData = '';
@@ -756,6 +918,9 @@ function openEnfantModal(enfant) {
       <div id="autorises-list">${autorises.map((a,i)=>autoriseRowHTML(a,i)).join('')}</div>
       <button class="zts-btn" data-action="add-autorise" style="font-size:var(--fs-1);margin-top:8px">+ Ajouter</button>
     </div>
+    <div class="p-field"><label class="p-label">Particularités <span style="font-weight:400;opacity:.6">(l'animateur les voit sous le nom)</span></label>
+      <div id="particularites-chips" class="p-partic-chips">${PARTICULARITES.map(p=>`<button type="button" class="p-partic-chip ${(enfant?.particularites||[]).includes(p.k)?'on':''}" data-action="toggle-partic" data-k="${p.k}">${p.emoji} ${esc(p.label)}</button>`).join('')}</div>
+      <input class="p-input" id="enf-note-partic" value="${esc(enfant?.noteParticuliere||'')}" placeholder="Précision : allergie exacte, médication, déclencheur…" style="margin-top:10px"></div>
     <div class="p-modal-actions">
       <button class="zts-btn zts-btn--primary" data-action="save-enfant" style="flex:1">Sauvegarder</button>
       ${isEdit?`<button class="zts-btn" data-action="delete-enfant" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
@@ -785,11 +950,15 @@ function collectAutorises() {
   return r;
 }
 
+function collectParticularites() {
+  return Array.from(document.querySelectorAll('#particularites-chips .p-partic-chip.on')).map(b=>b.dataset.k);
+}
+
 async function handleSaveEnfant() {
   const prenom=document.getElementById('enf-prenom').value.trim();
   const nom=document.getElementById('enf-nom').value.trim();
   if(!prenom||!nom) return alert('Prenom et nom requis.');
-  const data={prenom,nom,photoUrl:_enfantPhotoData,groupeId:state.groupeId,personnesAutorisees:collectAutorises()};
+  const data={prenom,nom,photoUrl:_enfantPhotoData,groupeId:state.groupeId,personnesAutorisees:collectAutorises(),particularites:collectParticularites(),noteParticuliere:document.getElementById('enf-note-partic')?.value.trim()||''};
   if(state.editingEnfant) await Enfants.update(state.editingEnfant.id,data);
   else await Enfants.create(data);
   closeModal('modal-enfant');
@@ -806,11 +975,13 @@ async function handleDeleteEnfant() {
 
 // ── Depart ──
 
-let _departSelectedPerson=null, _departCustom='';
+let _departSelectedPerson=null, _departCustom='', _departHumeur='';
 
 function openDepartModal(enfant,presence) {
   state.departEnfant=enfant; state.departPresence=presence;
   _departSelectedPerson=null; _departCustom='';
+  _departHumeur=presence.humeurJournee||'';
+  const isParti=presence.statut==='parti';
   const autorises=enfant.personnesAutorisees||[];
   const inner=document.getElementById('modal-depart-inner');
   inner.innerHTML = `
@@ -822,7 +993,7 @@ function openDepartModal(enfant,presence) {
         <div class="p-enfant-sub">Arrivee: ${presence.heureArrivee||'\u2014'}</div></div>
     </div>
     <div class="p-field"><label class="p-label">Heure de depart</label>
-      <input class="p-input" type="time" id="depart-heure" value="${nowTime()}"></div>
+      <input class="p-input" type="time" id="depart-heure" value="${presence.heureDepart||nowTime()}"></div>
     <label class="p-label">Parti avec...</label>
     ${autorises.length?`<div class="p-depart-persons" id="depart-persons">
       ${autorises.map((a,i)=>`<button class="p-depart-person" data-action="select-person" data-idx="${i}" data-nom="${esc(a.nom)}" data-lien="${esc(a.lien)}">${esc(a.nom)} <span style="opacity:.5;font-size:var(--fs-1)">(${a.lien})</span></button>`).join('')}
@@ -835,7 +1006,14 @@ function openDepartModal(enfant,presence) {
         <input type="checkbox" id="depart-confirm-hors"> Je confirme ce depart hors-liste
       </label>
     </div>
-    <button class="zts-btn zts-btn--primary" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">Confirmer le depart</button>`;
+    <div class="p-field" style="margin-top:var(--space-4)"><label class="p-label">\u{1F4D3} Comment s'est pass\u00E9e la journ\u00E9e?</label>
+      <div class="p-humeur-row" id="depart-humeur">${HUMEURS.map(h=>`<button type="button" class="p-humeur-btn ${_departHumeur===h.k?'on':''}" data-action="select-humeur" data-k="${h.k}" style="--hc:${h.color}"><span class="p-humeur-emoji">${h.emoji}</span><span class="p-humeur-lbl">${esc(h.label)}</span></button>`).join('')}</div></div>
+    <div class="p-field"><label class="p-label">Note du jour <span style="font-weight:400;opacity:.6">(optionnel)</span></label>
+      <textarea class="p-input" id="depart-note" rows="2" placeholder="Belle journ\u00E9e, p\u00E9pin, objet perdu, petit accident, comportement\u2026">${esc(presence.noteJournee||'')}</textarea></div>
+    <label class="p-msgparent-toggle">
+      <input type="checkbox" id="depart-msgparent" ${presence.messageParent?'checked':''}> \u{1F4E3} Message \u00E0 transmettre au parent <span style="opacity:.7;font-weight:400">(affiche un \u2757 sur la photo)</span>
+    </label>
+    <button class="zts-btn zts-btn--primary" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">${isParti?'Enregistrer':'Confirmer le depart'}</button>`;
   const ci=document.getElementById('depart-custom');
   ci.addEventListener('input',()=>{_departCustom=ci.value.trim();_departSelectedPerson=null;document.querySelectorAll('#depart-persons .p-depart-person').forEach(b=>b.classList.remove('selected'));updateDepartWarning();});
   openModal('modal-depart');
@@ -852,6 +1030,7 @@ function updateDepartWarning() {
 async function handleConfirmDepart() {
   const h=document.getElementById('depart-heure').value;
   if(!h) return alert('Heure de depart requise.');
+  const prev=state.departPresence, dejaParti=prev.statut==='parti';
   let partiAvec={nom:'',lien:''}, horsListe=false;
   if(_departSelectedPerson) { partiAvec={..._departSelectedPerson}; }
   else if(_departCustom) {
@@ -859,10 +1038,14 @@ async function handleConfirmDepart() {
     if(!a.includes(_departCustom.toLowerCase())) { horsListe=true; const cb=document.getElementById('depart-confirm-hors'); if(!cb?.checked) return alert('Confirme le depart hors-liste.'); }
     const match=(e.personnesAutorisees||[]).find(x=>x.nom.toLowerCase()===_departCustom.toLowerCase());
     partiAvec={nom:_departCustom,lien:match?.lien||'autre'};
-  } else return alert('Selectionne ou entre le nom de la personne.');
-  await Presences.update(state.departPresence.id,{statut:'parti',heureDepart:h,partiAvec,horsListe,ts:firebase.firestore.FieldValue.serverTimestamp()});
-  state.presenceMap[state.departEnfant.id]={...state.departPresence,statut:'parti',heureDepart:h,partiAvec,horsListe};
-  closeModal('modal-depart'); render();
+  } else if(dejaParti) { partiAvec=prev.partiAvec||{nom:'',lien:''}; horsListe=!!prev.horsListe; } // ré-édition du journal : garde la personne
+  else return alert('Selectionne ou entre le nom de la personne.');
+  const noteJournee=document.getElementById('depart-note')?.value.trim()||'';
+  const messageParent=document.getElementById('depart-msgparent')?.checked||false;
+  const extra={statut:'parti',heureDepart:h,partiAvec,horsListe,humeurJournee:_departHumeur||'',noteJournee,messageParent};
+  await Presences.update(prev.id,{...extra,ts:firebase.firestore.FieldValue.serverTimestamp()});
+  state.presenceMap[state.departEnfant.id]={...prev,...extra};
+  closeModal('modal-depart'); refreshPresences();
 }
 
 // ── Bloc ──
@@ -1104,13 +1287,45 @@ async function handleApplyBatch() {
 
 async function handleAction(action, ds) {
   switch(action) {
+    // ── Valider la semaine + notifier le coordo ──
+    case 'valider-semaine': {
+      if(!state.groupeId||!state.orgId) return alert('Aucun groupe/organisation.');
+      const ws=state.weekStart||mondayOf(todayISO());
+      const btn=document.getElementById('btn-valider-sem');
+      if(btn){ btn.disabled=true; btn.textContent='⏳ Envoi…'; }
+      const reset=(txt)=>{ if(btn){ btn.disabled=false; btn.textContent=txt||'✅ Valider et notifier le coordo'; } };
+      try {
+        await Semaines.validate(state.groupeId, ws, state.user.uid);
+        const idToken=await state.user.getIdToken();
+        const res=await fetch(NOTIFY_COORDO_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+idToken },
+          body:JSON.stringify({
+            orgId:state.orgId, weekStart:ws,
+            groupeNom:(state.groupe&&state.groupe.nom)||'',
+            link:location.href
+          })
+        });
+        const data=await res.json().catch(()=>({}));
+        if(res.ok){ if(btn){ btn.disabled=true; btn.textContent='✅ Validé — coordo notifié'; } }
+        else if(data.code==='NO_COORDO_EMAIL'){ alert("Plan validé, mais aucun courriel de coordonnateur n'est enregistré sur l'organisation. (Recrée l'org pour l'associer à ton courriel.)"); reset(); }
+        else if(data.code==='FORBIDDEN'){ alert("Plan validé, mais accès refusé pour notifier — règles Firestore à déployer."); reset(); }
+        else { alert('Plan validé. Notification non envoyée ('+(data.error||res.status)+').'); reset(); }
+      } catch(e) {
+        console.error('[Planif] valider-semaine', e);
+        alert('Plan validé localement. Échec notification : '+(e.message||e));
+        reset();
+      }
+      break;
+    }
+
     // ── Setup ──
     case 'save-setup': {
       const orgNom=document.getElementById('setup-org').value.trim();
       const grpNom=document.getElementById('setup-groupe').value.trim();
       const theme=document.getElementById('setup-theme').value.trim();
       if(!orgNom||!grpNom) return alert('Nom requis.');
-      const orgId=await Organisations.create({nom:orgNom,coordoUid:state.user.uid,dateDebut:'',dateFin:'',semaines:[]});
+      const orgId=await Organisations.create({nom:orgNom,coordoUid:state.user.uid,coordoEmail:state.user.email||'',dateDebut:'',dateFin:'',semaines:[]});
       const groupeId=await Groupes.create({nom:grpNom,orgId,animateurUid:state.user.uid,theme});
       localStorage.setItem(LS.orgId,orgId); localStorage.setItem(LS.groupeId,groupeId);
       state.orgId=orgId; state.groupeId=groupeId;
@@ -1128,7 +1343,7 @@ async function handleAction(action, ds) {
     }
     case 'cal-mode':
       if(ds.mode==='jour'){ if(!state.currentDate)state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
-      else if(ds.mode==='semaine'){ state.weekStart=mondayOf(state.currentDate||todayISO()); state.view='semaine'; await loadWeekData(); }
+      else if(ds.mode==='semaine'){ state.weekStart=mondayOf(state.currentDate||todayISO()); state.view='semaine'; }
       else { state.view='calendrier'; await loadCalendarData(); }
       render(); break;
     case 'prev-week':
@@ -1145,6 +1360,19 @@ async function handleAction(action, ds) {
     case 'select-date':
       state.currentDate=ds.date; state.view='journee';
       await loadJourneeData(); render(); break;
+    case 'presences-date':
+      state.currentDate=ds.date; await loadJourneeData(); openPresencesModal(); break;
+    case 'close-presences': closeModal('modal-presences'); break;
+    case 'goto-programme-day': closeModal('modal-presences'); state.view='journee'; await loadJourneeData(); render(); break;
+    case 'cycle-arrive': {
+      const p=state.presenceMap[ds.id]; if(!p||p.statut!=='present')break;
+      const order=['mere','pere','grand-mere','grand-pere','gardien(ne)','autre',''];
+      const cur=p.arriveAvec?.lien||'';
+      const next=order[(order.indexOf(cur)+1)%order.length];
+      await Presences.update(p.id,{arriveAvec:{lien:next}});
+      state.presenceMap[ds.id]={...p,arriveAvec:{lien:next}};
+      refreshPresences(); break;
+    }
     case 'prev-date':
       state.currentDate=shiftDate(state.currentDate,-1);
       await loadJourneeData(); render(); break;
@@ -1163,6 +1391,7 @@ async function handleAction(action, ds) {
     case 'delete-enfant': await handleDeleteEnfant(); break;
     case 'add-autorise': { const l=document.getElementById('autorises-list'); l.insertAdjacentHTML('beforeend',autoriseRowHTML({nom:'',lien:'mere'},l.children.length)); break; }
     case 'remove-autorise': { const r=document.querySelector(`.p-autorise-row[data-idx="${ds.idx}"]`); if(r)r.remove(); break; }
+    case 'toggle-partic': { const b=document.querySelector(`#particularites-chips .p-partic-chip[data-k="${ds.k}"]`); if(b)b.classList.toggle('on'); break; }
     case 'close-enfant': closeModal('modal-enfant'); break;
 
     // ── Depart ──
@@ -1174,11 +1403,27 @@ async function handleAction(action, ds) {
       document.querySelectorAll('#depart-persons .p-depart-person').forEach(b=>b.classList.remove('selected'));
       document.querySelector(`[data-action="select-person"][data-idx="${ds.idx}"]`)?.classList.add('selected');
       updateDepartWarning(); break;
+    case 'select-humeur': {
+      _departHumeur = (_departHumeur===ds.k) ? '' : ds.k;
+      document.querySelectorAll('#depart-humeur .p-humeur-btn').forEach(b=>b.classList.toggle('on', b.dataset.k===_departHumeur));
+      break;
+    }
     case 'confirm-depart': await handleConfirmDepart(); break;
     case 'select-history-enfant': break;
     case 'trigger-photo': break;
 
     // ── Groupe ──
+    // ── Coordonnateur ──
+    case 'enter-coordo':
+      state.role='coordo'; localStorage.setItem('planif_role','coordo');
+      state.coordoDate=todayISO(); await loadCoordoData(); render(); break;
+    case 'exit-coordo':
+      state.role='animateur'; localStorage.setItem('planif_role','animateur'); render(); break;
+    case 'coordo-prev':
+      state.coordoDate=shiftDate(state.coordoDate||todayISO(),-1); await loadCoordoData(); render(); break;
+    case 'coordo-next':
+      state.coordoDate=shiftDate(state.coordoDate||todayISO(),1); await loadCoordoData(); render(); break;
+
     case 'edit-groupe': {
       const nn=prompt('Nom du groupe:',state.groupe.nom); if(nn===null)return;
       const nt=prompt('Theme:',state.groupe.theme||'');
@@ -1237,18 +1482,19 @@ async function handlePresenceTap(enfantId) {
   const p=state.presenceMap[enfantId];
   if(!p){
     const id=await Presences.create({journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),date:state.currentDate});
-    state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),heureDepart:'',partiAvec:{nom:'',lien:''},horsListe:false,date:state.currentDate};
-    render(); return;
+    state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),heureDepart:'',partiAvec:{nom:'',lien:''},arriveAvec:{lien:''},horsListe:false,date:state.currentDate};
+    refreshPresences(); return;
   }
   if(p.statut==='present') openDepartModal(enfant,p);
-  else if(p.statut==='absent'){await Presences.delete(p.id);delete state.presenceMap[enfantId];render();}
+  else if(p.statut==='parti') openDepartModal(enfant,p); // rouvre le journal de bord (note/humeur/message parent)
+  else if(p.statut==='absent'){await Presences.delete(p.id);delete state.presenceMap[enfantId];refreshPresences();}
 }
 
 async function handleMarkAbsent(enfantId) {
   const p=state.presenceMap[enfantId];
   if(p){await Presences.update(p.id,{statut:'absent',ts:firebase.firestore.FieldValue.serverTimestamp()});state.presenceMap[enfantId]={...p,statut:'absent'};}
   else{const id=await Presences.create({journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'absent',date:state.currentDate});state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'absent',heureArrivee:'',heureDepart:'',partiAvec:{nom:'',lien:''},horsListe:false,date:state.currentDate};}
-  render();
+  refreshPresences();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1320,9 +1566,12 @@ function initOffline() {
 
 function render() {
   const root=document.getElementById('app-root');
+  if(state.semGrid){ state.semGrid.destroy(); state.semGrid=null; }   // nettoie grille + modal + listeners
   if(!state.user){root.innerHTML=renderNoAuth();return;}
+  if(state.role==='coordo'){root.innerHTML=renderCoordo();return;}
   if(!state.groupeId){root.innerHTML=renderSetup();return;}
   root.innerHTML=renderMain();
+  if(state.view==='semaine') mountSemaineGrid();
 }
 
 function wireEvents() {
@@ -1348,7 +1597,7 @@ function wireEvents() {
   root.addEventListener('pointercancel',clearLP);
   root.addEventListener('contextmenu',(e)=>{if(e.target.closest('[data-action="tap-presence"]'))e.preventDefault();});
 
-  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer'].forEach(id=>{
+  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer','modal-presences'].forEach(id=>{
     const modal=document.getElementById(id);
     modal.addEventListener('click',(e)=>{
       if(e.target===modal){closeModal(id);return;}
@@ -1388,6 +1637,7 @@ async function init() {
       }
       console.log('[Planif] groupeId:', state.groupeId);
       if(state.groupeId) { await loadGroupeData(); state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
+      if(state.role==='coordo' && state.orgId){ state.coordoDate=todayISO(); await loadCoordoData(); }
       console.log('[Planif] render');
       render();
     });

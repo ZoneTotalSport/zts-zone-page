@@ -1,0 +1,18 @@
+name = "zts-notify-coordo"
+main = "src/notify-coordo-worker.js"
+compatibility_date = "2025-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+FIREBASE_PROJECT_ID = "zone-total-sport"
+# Origines autorisées (CORS). Ajuster si le planificateur sert depuis un sous-domaine.
+ALLOWED_ORIGINS = "https://zonetotalsport.ca,https://www.zonetotalsport.ca,http://localhost:8765,http://localhost:8012"
+
+# Secret à provisionner :
+#   wrangler secret put RESEND_API_KEY   (clé Resend, même compte que zts-send-pdf)
+
+# Domaine custom (créer l'enregistrement dans Cloudflare). Sinon, déployer sans
+# route et utiliser l'URL workers.dev directe (mettre à jour NOTIFY_COORDO_URL côté app.js).
+[[routes]]
+pattern = "coordo.zonetotalsport.ca"
+custom_domain = true
