@@ -143,6 +143,23 @@ service cloud.firestore {
                             && isAnimateurOfGroupe(resource.data.groupeId);
     }
 
+    // ── Messages (coordo ↔ animateur) ──
+    // enfantId='' = fil général du groupe. Lecture/écriture : animateur du groupe OU coordo de l'org.
+    // update permis pour marquer lu (les deux parties).
+    match /messages/{id} {
+      allow read: if request.auth != null
+                  && (isAnimateurOfGroupe(resource.data.groupeId)
+                      || isCoordoOfGroupe(resource.data.groupeId));
+      allow create: if request.auth != null
+                    && (isAnimateurOfGroupe(request.resource.data.groupeId)
+                        || isCoordoOfGroupe(request.resource.data.groupeId))
+                    && request.resource.data.fromUid == request.auth.uid;
+      allow update: if request.auth != null
+                    && (isAnimateurOfGroupe(resource.data.groupeId)
+                        || isCoordoOfGroupe(resource.data.groupeId));
+      allow delete: if false;
+    }
+
     // ── Jeux (banque partagee) ──
     // read : tout utilisateur authentifie. write : admin seulement.
     match /jeux/{jeuId} {

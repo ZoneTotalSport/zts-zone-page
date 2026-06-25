@@ -103,6 +103,27 @@
 .p-msgparent-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;font-family:var(--font-body);font-weight:700;font-size:var(--fs-2);background:rgba(255,234,0,.18);border:2px solid var(--jaune);border-radius:var(--r-2);padding:var(--space-3);margin:var(--space-3) 0}
 .p-msgparent-toggle input{width:20px;height:20px;cursor:pointer;flex-shrink:0}
 
+/* Messagerie coordo ↔ animateur */
+.p-msg-bell.has-unread{animation:p-msgpulse 1s ease-in-out infinite}
+.p-msg-badge{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 4px;display:flex;align-items:center;justify-content:center;font-family:var(--font-impact);font-size:11px;background:var(--rose);color:#fff;border:2px solid var(--ink);border-radius:var(--r-pill);box-shadow:1px 1px 0 var(--ink)}
+.p-msg-dot{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;margin-left:6px;font-family:var(--font-impact);font-size:11px;background:var(--rose);color:#fff;border:2px solid var(--ink);border-radius:var(--r-pill);vertical-align:middle}
+.p-msg-mini-btn{flex-shrink:0;display:inline-flex;align-items:center;font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);padding:4px 10px;border:2px solid var(--ink);border-radius:var(--r-pill);background:var(--cream);cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:all .12s}
+.p-msg-mini-btn:hover{background:var(--cyan);transform:translateY(-1px)}
+.p-msg-thread-list{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto}
+.p-msg-thread-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:2px solid var(--ink);border-radius:var(--r-2);background:#fff;cursor:pointer;box-shadow:2px 2px 0 var(--ink);font-family:var(--font-body);text-align:left;transition:all .12s}
+.p-msg-thread-row:hover{transform:translateY(-2px);background:var(--cream)}
+.p-msg-thread-titre{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-2)}
+.p-msg-thread-meta{display:flex;align-items:center;gap:4px;font-size:var(--fs-1);opacity:.7;flex-shrink:0}
+.p-msg-back{background:none;border:none;font-family:var(--font-fun);font-weight:700;font-size:var(--fs-2);cursor:pointer;color:var(--ink);padding:0;margin-bottom:2px}
+.p-msg-body{display:flex;flex-direction:column;gap:8px;max-height:48vh;overflow-y:auto;padding:var(--space-2) 2px;margin:var(--space-2) 0}
+.p-msg-bubble{max-width:82%;padding:8px 12px;border:2px solid var(--ink);border-radius:var(--r-2);box-shadow:2px 2px 0 var(--ink);font-family:var(--font-body)}
+.p-msg-bubble.mine{align-self:flex-end;background:var(--cyan)}
+.p-msg-bubble.them{align-self:flex-start;background:var(--jaune)}
+.p-msg-who{font-size:clamp(10px,1.2vw,12px);font-weight:700;opacity:.6;margin-bottom:2px}
+.p-msg-text{font-size:var(--fs-2);white-space:pre-wrap;word-break:break-word}
+.p-msg-compose{display:flex;gap:8px;align-items:flex-end}
+.p-msg-compose textarea{flex:1;resize:vertical}
+
 /* History */
 .p-history-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3);border:var(--bord);border-radius:var(--r-2);box-shadow:var(--ombre);background:#fff;margin-bottom:var(--space-3)}
 .p-history-date{font-family:var(--font-impact);font-size:var(--fs-2);min-width:90px;flex-shrink:0}
@@ -289,6 +310,10 @@
   </div>
 
   <!-- Modal: Appliquer gabarit -->
+  <div class="zts-modal" id="modal-messages" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner" id="modal-messages-inner"></div>
+  </div>
+
   <div class="zts-modal" id="modal-presences" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="zts-modal__inner" id="modal-presences-inner"></div>
   </div>

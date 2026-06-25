@@ -93,6 +93,27 @@ const Presences = {
   async delete(id) { (await getDb()).collection('presences').doc(id).delete(); },
 };
 
+// Messagerie coordo ↔ animateur. 1 doc / message. enfantId='' = fil général du groupe.
+const Messages = {
+  async send(d) {
+    const db=await getDb();
+    return db.collection('messages').add({
+      orgId:d.orgId||'', groupeId:d.groupeId, enfantId:d.enfantId||'',
+      fromUid:d.fromUid, fromRole:d.fromRole, fromNom:d.fromNom||'',
+      texte:d.texte, lu:false, ts:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  },
+  async markLu(id) { const db=await getDb(); try{ await db.collection('messages').doc(id).update({lu:true}); }catch(e){} },
+  // Écoute temps réel : where sur 1 seul champ (pas d'orderBy → aucun index composite). Tri client par ts.
+  async listen(field, value, cb) {
+    const db=await getDb();
+    return db.collection('messages').where(field,'==',value).onSnapshot(
+      snap=>{ const arr=snap.docs.map(d=>({id:d.id,...d.data()})); arr.sort((a,b)=>(a.ts?.seconds||1e15)-(b.ts?.seconds||1e15)); cb(arr); },
+      err=>console.warn('[Planif] msg listen', err)
+    );
+  },
+};
+
 const GrillesType = {
   async getByGroupe(gid) { const s=await (await getDb()).collection('grillesType').where('groupeId','==',gid).limit(1).get(); if(s.empty)return null; const d=s.docs[0]; return {id:d.id,...d.data()}; },
   async create(d) { return (await (await getDb()).collection('grillesType').add({ groupeId:d.groupeId, blocs:d.blocs||[] })).id; },
@@ -224,7 +245,16 @@ const state = {
   calDatesWithBlocs: new Set(),
   // Vue Semaine (grille riche montée par semaine-grid.js)
   semGrid: null,
+  // Messagerie coordo ↔ animateur (temps réel)
+  messages: [], msgUnsub: null, msgThread: null, // msgThread = {groupeId, enfantId, titre} fil ouvert
 };
+
+// Rôle effectif pour la messagerie
+function myRole() { return state.role==='coordo' ? 'coordo' : 'animateur'; }
+// Messages reçus de l'autre partie et non lus
+function unreadMessages() { const r=myRole(); return state.messages.filter(m=>m.fromRole!==r && !m.lu); }
+function unreadInThread(groupeId, enfantId) { const r=myRole(); return state.messages.filter(m=>m.groupeId===groupeId && (m.enfantId||'')===(enfantId||'') && m.fromRole!==r && !m.lu).length; }
+function threadMessages(groupeId, enfantId) { return state.messages.filter(m=>m.groupeId===groupeId && (m.enfantId||'')===(enfantId||'')); }
 
 // ══════════════════════════════════════════════════════════
 //  UTILITIES
@@ -361,7 +391,10 @@ function renderCoordo() {
       <span class="p-group-theme"> · ${esc(state.org?.nom||'')}</span>
       <span class="p-group-theme"> · ${state.coordoGroups.length} groupe(s) · ${totPres}/${totEnf} présent(s)${totFlag?` · ⚠ ${totFlag} hors-liste`:''}</span>
     </div>
-    <button class="zts-btn" data-action="exit-coordo" style="font-size:var(--fs-1)">↩ Vue animateur</button>
+    <div style="display:flex;gap:6px">
+      <button class="zts-btn p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages">\u{1F4AC}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
+      <button class="zts-btn" data-action="exit-coordo" style="font-size:var(--fs-1)">↩ Vue animateur</button>
+    </div>
   </div>
   <div class="p-date-nav" style="margin:var(--space-2) 0 var(--space-4)">
     <button class="p-day-nav-btn" data-action="coordo-prev">◀</button>
@@ -382,16 +415,145 @@ function renderCoordo() {
       else if(st==='parti'){ detail=`Parti à ${p.heureDepart||'—'}`; if(p.partiAvec?.nom)detail+=` avec ${esc(p.partiAvec.nom)} (${esc(p.partiAvec.lien||'—')})`; if(p.horsListe)detail+=` <span class="p-history-flag">HORS LISTE</span>`; }
       else if(st==='absent') detail=`<span style="color:var(--rose)">Absent</span>`;
       else detail=`<span style="opacity:.5">Attendu</span>`;
+      // Compte rendu (journal de bord) — visible par le coordo
+      if(p){
+        const hh=p.humeurJournee?HUMEURS_MAP[p.humeurJournee]:null;
+        if(hh)detail+=` · ${hh.emoji} ${esc(hh.label)}`;
+        if(p.noteJournee)detail+=` · \u{1F4DD} ${esc(p.noteJournee)}`;
+        if(p.messageParent)detail+=` <span class="p-history-flag" style="background:var(--jaune);color:var(--ink)">❗ parent</span>`;
+      }
+      const unread=unreadInThread(c.groupe.id, e.id);
       return `<div class="p-history-item" style="margin-bottom:8px">
-        <div class="p-history-date" style="min-width:120px">${esc(e.prenom)} ${esc(e.nom)}</div>
-        <div class="p-history-detail">${detail}</div></div>`;
+        <div class="p-history-date" style="min-width:120px">${esc(e.prenom)} ${esc(e.nom)}${particMiniHTML(e)}</div>
+        <div class="p-history-detail">${detail}</div>
+        <button class="p-msg-mini-btn" data-action="open-thread" data-gid="${c.groupe.id}" data-eid="${e.id}" title="Message à l'animateur sur ${esc(e.prenom)}">\u{1F4AC}${unread?`<span class="p-msg-dot">${unread}</span>`:''}</button>
+      </div>`;
     }).join('');
+    const ug=unreadInThread(c.groupe.id,'');
     html+=`<div class="p-card" style="margin-bottom:var(--space-4)">
-      <div class="p-section-title" style="margin-top:0">${esc(c.groupe.nom)}${c.groupe.theme?` <span style="opacity:.6;font-size:var(--fs-1)">· ${esc(c.groupe.theme)}</span>`:''} <span style="opacity:.6;font-size:var(--fs-1)">· ${c.enfants.length} enfant(s) · ${c.blocs} bloc(s)</span></div>
+      <div class="p-section-title" style="margin-top:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span>${esc(c.groupe.nom)}${c.groupe.theme?` <span style="opacity:.6;font-size:var(--fs-1)">· ${esc(c.groupe.theme)}</span>`:''} <span style="opacity:.6;font-size:var(--fs-1)">· ${c.enfants.length} enfant(s) · ${c.blocs} bloc(s)</span></span>
+        <button class="p-msg-mini-btn" data-action="open-thread" data-gid="${c.groupe.id}" data-eid="" title="Message général à l'animateur" style="font-size:var(--fs-1)">\u{1F4AC} Groupe${ug?`<span class="p-msg-dot">${ug}</span>`:''}</button>
+      </div>
       ${c.enfants.length?rows:`<div style="opacity:.5;font-family:var(--font-fun)">Aucun enfant.</div>`}
     </div>`;
   });
   return html;
+}
+
+// ══════════════════════════════════════════════════════════
+//  MESSAGERIE coordo ↔ animateur (modal)
+// ══════════════════════════════════════════════════════════
+
+function findEnfantAnywhere(eid) {
+  if(state.role==='coordo'){ for(const c of state.coordoGroups){ const e=c.enfants.find(x=>x.id===eid); if(e)return e; } }
+  return state.enfants.find(x=>x.id===eid)||null;
+}
+function findGroupeAnywhere(gid) {
+  if(state.role==='coordo'){ const c=state.coordoGroups.find(c=>c.groupe.id===gid); if(c)return c.groupe; }
+  return (state.groupe && state.groupe.id===gid) ? state.groupe : null;
+}
+
+// Met à jour cloche/badges/pastilles sans re-render global.
+function updateMsgBadges() {
+  const n=unreadMessages().length;
+  document.querySelectorAll('[data-msg-badge]').forEach(b=>{ b.textContent=n; b.style.display=n?'flex':'none'; });
+  const bell=document.querySelector('[data-msg-bell]'); if(bell) bell.classList.toggle('has-unread', n>0);
+}
+
+function openMessagesModal() { state.msgThread=null; renderInbox(); openModal('modal-messages'); }
+
+function inboxThreads() {
+  const threads=[];
+  let groups=[];
+  if(state.role==='coordo'){ groups=state.coordoGroups.map(c=>({id:c.groupe.id, nom:c.groupe.nom, enfants:c.enfants})); }
+  else if(state.groupe){ groups=[{id:state.groupeId, nom:state.groupe.nom, enfants:state.enfants}]; }
+  groups.forEach(g=>{
+    threads.push({groupeId:g.id, enfantId:'', titre:`\u{1F465} ${esc(g.nom)} (général)`, unread:unreadInThread(g.id,''), count:threadMessages(g.id,'').length});
+    const enfMap=Object.fromEntries((g.enfants||[]).map(e=>[e.id,e]));
+    const childIds=[...new Set(state.messages.filter(m=>m.groupeId===g.id && m.enfantId).map(m=>m.enfantId))];
+    childIds.forEach(eid=>{ const e=enfMap[eid]; threads.push({groupeId:g.id, enfantId:eid, titre:`\u{1F9D2} ${e?esc(e.prenom+' '+e.nom):'Enfant'}`, unread:unreadInThread(g.id,eid), count:threadMessages(g.id,eid).length, groupeNom:g.nom}); });
+  });
+  threads.sort((a,b)=> (b.unread-a.unread) || (b.count-a.count));
+  return threads;
+}
+
+function renderInbox() {
+  const inner=document.getElementById('modal-messages-inner'); if(!inner)return;
+  const threads=inboxThreads();
+  const list = threads.length ? threads.map(t=>`
+    <button class="p-msg-thread-row" data-action="open-thread" data-gid="${t.groupeId}" data-eid="${t.enfantId}">
+      <span class="p-msg-thread-titre">${t.titre}${t.groupeNom?` <span style="opacity:.45">· ${esc(t.groupeNom)}</span>`:''}</span>
+      <span class="p-msg-thread-meta">${t.count?`${t.count} msg`:'—'}${t.unread?`<span class="p-msg-dot">${t.unread}</span>`:''}</span>
+    </button>`).join('') : `<div style="opacity:.5;font-family:var(--font-fun);text-align:center;padding:var(--space-4)">Aucun message. Démarre un fil depuis un enfant ou le groupe.</div>`;
+  inner.innerHTML=`
+    <button class="zts-modal__close" data-action="close-messages">✕</button>
+    <h2 class="zts-modal__title">\u{1F4AC} Messages</h2>
+    <div class="p-msg-thread-list">${list}</div>`;
+}
+
+function openThread(groupeId, enfantId) {
+  enfantId=enfantId||'';
+  let titre;
+  if(enfantId){ const e=findEnfantAnywhere(enfantId); titre = e?`\u{1F9D2} ${esc(e.prenom)} ${esc(e.nom)}`:'\u{1F9D2} Enfant'; }
+  else { const g=findGroupeAnywhere(groupeId); titre = `\u{1F465} ${g?esc(g.nom):'Groupe'} (général)`; }
+  state.msgThread={groupeId, enfantId, titre};
+  renderThread();
+  openModal('modal-messages');
+  markThreadLu();
+}
+
+function renderThread() {
+  const inner=document.getElementById('modal-messages-inner'); if(!inner||!state.msgThread)return;
+  inner.innerHTML=`
+    <button class="zts-modal__close" data-action="close-messages">✕</button>
+    <button class="p-msg-back" data-action="msg-inbox">‹ Fils</button>
+    <h2 class="zts-modal__title" style="margin-top:2px">${state.msgThread.titre}</h2>
+    <div class="p-msg-body" id="msg-thread-body"></div>
+    <div class="p-msg-compose">
+      <textarea class="p-input" id="msg-input" rows="2" placeholder="Écris un message…"></textarea>
+      <button class="zts-btn zts-btn--primary" data-action="send-message">Envoyer</button>
+    </div>`;
+  renderThreadBody();
+  const ta=document.getElementById('msg-input'); if(ta) ta.focus();
+}
+
+function renderThreadBody() {
+  const body=document.getElementById('msg-thread-body'); if(!body||!state.msgThread)return;
+  const msgs=threadMessages(state.msgThread.groupeId, state.msgThread.enfantId);
+  const r=myRole();
+  body.innerHTML = msgs.length ? msgs.map(m=>{
+    const mine=m.fromRole===r;
+    const who = m.fromRole==='coordo'?'\u{1F451} Coordo':'\u{1F9D1}‍\u{1F3EB} Animateur';
+    const time = m.ts?.seconds ? new Date(m.ts.seconds*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'}) : '…';
+    return `<div class="p-msg-bubble ${mine?'mine':'them'}">
+      <div class="p-msg-who">${who} · ${time}</div>
+      <div class="p-msg-text">${esc(m.texte)}</div></div>`;
+  }).join('') : `<div style="opacity:.5;text-align:center;font-family:var(--font-fun);padding:var(--space-3)">Aucun message. Écris le premier !</div>`;
+  body.scrollTop=body.scrollHeight;
+}
+
+function markThreadLu() {
+  if(!state.msgThread)return;
+  const r=myRole();
+  threadMessages(state.msgThread.groupeId, state.msgThread.enfantId)
+    .filter(m=>m.fromRole!==r && !m.lu)
+    .forEach(m=>{ m.lu=true; Messages.markLu(m.id); });
+  updateMsgBadges();
+}
+
+async function handleSendMessage() {
+  const ta=document.getElementById('msg-input'); if(!ta||!state.msgThread)return;
+  const texte=ta.value.trim(); if(!texte)return;
+  ta.value=''; ta.focus();
+  try {
+    await Messages.send({
+      orgId:state.orgId, groupeId:state.msgThread.groupeId, enfantId:state.msgThread.enfantId,
+      fromUid:state.user.uid, fromRole:myRole(),
+      fromNom:state.user.displayName||state.user.email||'',
+      texte
+    });
+  } catch(e){ console.warn('[Planif] send msg', e); ta.value=texte; alert("Échec de l'envoi. Réessaie."); }
 }
 
 // ── Group bar + secondary nav ──
@@ -405,6 +567,7 @@ function renderGroupBar() {
       <span class="p-group-theme"> \u00B7 ${state.enfants.length} enfant(s)</span>
     </div>
     <div style="display:flex;gap:6px">
+      <button class="zts-btn p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages du coordonnateur">\u{1F514}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
       <button class="zts-btn" data-action="enter-coordo" style="font-size:var(--fs-1)" title="Vue coordonnateur">\u{1F451}</button>
       <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
     </div>
@@ -1416,9 +1579,16 @@ async function handleAction(action, ds) {
     // ── Coordonnateur ──
     case 'enter-coordo':
       state.role='coordo'; localStorage.setItem('planif_role','coordo');
-      state.coordoDate=todayISO(); await loadCoordoData(); render(); break;
+      state.coordoDate=todayISO(); await loadCoordoData(); await subscribeMessages(); render(); break;
     case 'exit-coordo':
-      state.role='animateur'; localStorage.setItem('planif_role','animateur'); render(); break;
+      state.role='animateur'; localStorage.setItem('planif_role','animateur'); await subscribeMessages(); render(); break;
+
+    // ── Messagerie coordo ↔ animateur ──
+    case 'open-messages': openMessagesModal(); break;
+    case 'open-thread': openThread(ds.gid, ds.eid||''); break;
+    case 'msg-inbox': state.msgThread=null; renderInbox(); break;
+    case 'send-message': await handleSendMessage(); break;
+    case 'close-messages': closeModal('modal-messages'); state.msgThread=null; break;
     case 'coordo-prev':
       state.coordoDate=shiftDate(state.coordoDate||todayISO(),-1); await loadCoordoData(); render(); break;
     case 'coordo-next':
@@ -1564,14 +1734,44 @@ function initOffline() {
 //  RENDER + WIRE
 // ══════════════════════════════════════════════════════════
 
+// (Re)branche l'écoute temps réel selon le rôle : coordo = toute l'org, animateur = son groupe.
+async function subscribeMessages() {
+  if(state.msgUnsub){ try{state.msgUnsub();}catch(e){} state.msgUnsub=null; }
+  let field, value;
+  if(state.role==='coordo' && state.orgId){ field='orgId'; value=state.orgId; }
+  else if(state.groupeId){ field='groupeId'; value=state.groupeId; }
+  else { state.messages=[]; return; }
+  let first=true;
+  state.msgUnsub = await Messages.listen(field, value, (msgs)=>{
+    const prevUnread = first ? 0 : unreadMessages().length;
+    state.messages = msgs;
+    const nowUnread = unreadMessages().length;
+    if(!first && nowUnread>prevUnread){ try{playDoneSound();}catch(e){} }
+    first=false;
+    onMessagesUpdate();
+  });
+}
+
+// Rafraîchit l'UI messagerie SANS re-render global (préserve la saisie en cours).
+function onMessagesUpdate() {
+  // Badge cloche (animateur) ou pastille coordo
+  const n=unreadMessages().length;
+  document.querySelectorAll('[data-msg-badge]').forEach(b=>{ b.textContent=n; b.style.display=n?'flex':'none'; });
+  const bell=document.querySelector('[data-msg-bell]'); if(bell) bell.classList.toggle('has-unread', n>0);
+  // Si un fil est ouvert, rafraîchir son contenu + marquer lu
+  const open=document.getElementById('modal-messages');
+  if(open && open.classList.contains('open') && state.msgThread){ renderThreadBody(); markThreadLu(); }
+}
+
 function render() {
   const root=document.getElementById('app-root');
   if(state.semGrid){ state.semGrid.destroy(); state.semGrid=null; }   // nettoie grille + modal + listeners
   if(!state.user){root.innerHTML=renderNoAuth();return;}
-  if(state.role==='coordo'){root.innerHTML=renderCoordo();return;}
+  if(state.role==='coordo'){root.innerHTML=renderCoordo();updateMsgBadges();return;}
   if(!state.groupeId){root.innerHTML=renderSetup();return;}
   root.innerHTML=renderMain();
   if(state.view==='semaine') mountSemaineGrid();
+  updateMsgBadges();
 }
 
 function wireEvents() {
@@ -1597,7 +1797,7 @@ function wireEvents() {
   root.addEventListener('pointercancel',clearLP);
   root.addEventListener('contextmenu',(e)=>{if(e.target.closest('[data-action="tap-presence"]'))e.preventDefault();});
 
-  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer','modal-presences'].forEach(id=>{
+  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer','modal-presences','modal-messages'].forEach(id=>{
     const modal=document.getElementById(id);
     modal.addEventListener('click',(e)=>{
       if(e.target===modal){closeModal(id);return;}
@@ -1607,7 +1807,7 @@ function wireEvents() {
   });
 
   document.addEventListener('keydown',(e)=>{
-    if(e.key==='Escape'){closeModal('modal-enfant');closeModal('modal-depart');closeModal('modal-bloc');closeModal('modal-appliquer');}
+    if(e.key==='Escape'){closeModal('modal-enfant');closeModal('modal-depart');closeModal('modal-bloc');closeModal('modal-appliquer');closeModal('modal-messages');state.msgThread=null;}
   });
 }
 
@@ -1638,6 +1838,7 @@ async function init() {
       console.log('[Planif] groupeId:', state.groupeId);
       if(state.groupeId) { await loadGroupeData(); state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
       if(state.role==='coordo' && state.orgId){ state.coordoDate=todayISO(); await loadCoordoData(); }
+      await subscribeMessages();
       console.log('[Planif] render');
       render();
     });
