@@ -14,22 +14,38 @@
   <style>
 /* ═══ PLANIFICATEUR — styles app ═══ */
 
-/* Fond de marque bleu+jaune UNIFORME sur toute la page (spécificité > body du design system) */
+/* Fond de marque SWIRL jaune+cyan UNIFORME sur toute la page (rayons larges depuis le coin bas-droit) */
 body[data-metier]{
   background-color:var(--cyan);
-  background-image:repeating-conic-gradient(from 0deg at 88% 96%,var(--jaune) 0deg 7deg,transparent 7deg 14deg);
+  background-image:repeating-conic-gradient(from 8deg at 92% 97%,var(--jaune) 0deg 12deg,var(--cyan) 12deg 24deg);
   background-attachment:fixed;
 }
 .zts-container{position:relative;z-index:1}
-/* Personnage par métier, en coin, derrière le contenu (orange=camp, vert=sdg, bleu=ép) */
+/* Personnage EN HAUT À DROITE, interactif : survol = wiggle + bulle de bienvenue par métier */
 .p-perso{
-  position:fixed;bottom:0;left:10px;width:clamp(96px,11vw,176px);aspect-ratio:3/4;
-  background-size:contain;background-repeat:no-repeat;background-position:bottom center;
-  pointer-events:none;z-index:0;filter:drop-shadow(4px 5px 0 rgba(0,0,0,.4));
+  position:fixed;top:88px;right:12px;width:clamp(92px,11vw,168px);aspect-ratio:3/4;
+  background-size:contain;background-repeat:no-repeat;background-position:top center;
+  z-index:40;cursor:pointer;filter:drop-shadow(4px 5px 0 rgba(0,0,0,.4));
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1);
 }
+.p-perso:hover{transform:translateY(-6px) rotate(-5deg) scale(1.06);animation:p-perso-wiggle .5s ease-in-out .25s 1}
+@keyframes p-perso-wiggle{0%,100%{transform:translateY(-6px) rotate(-5deg) scale(1.06)}25%{transform:translateY(-6px) rotate(4deg) scale(1.06)}75%{transform:translateY(-6px) rotate(-7deg) scale(1.06)}}
+/* Bulle de salutation, à GAUCHE du perso (il est collé à droite de l'écran) */
+.p-perso::after{
+  content:'';position:absolute;right:94%;top:8px;opacity:0;
+  transform:translateX(12px) scale(.9);transform-origin:right center;
+  transition:opacity .2s,transform .2s;pointer-events:none;
+  width:max-content;max-width:min(260px,62vw);white-space:normal;text-align:left;
+  font-family:'Fredoka',system-ui,sans-serif;font-weight:700;font-size:.98rem;line-height:1.25;color:var(--ink);
+  background:#fff;border:4px solid var(--ink);border-radius:16px;padding:10px 14px;box-shadow:5px 5px 0 var(--ink);
+}
+.p-perso:hover::after{opacity:1;transform:translateX(0) scale(1)}
 body[data-metier="ep"]   .p-perso{background-image:url('img/mascotte-ep.png')}
 body[data-metier="camp"] .p-perso{background-image:url('img/mascotte-camp.png')}
 body[data-metier="sdg"]  .p-perso{background-image:url('img/mascotte-sdg.png')}
+body[data-metier="ep"]   .p-perso::after{content:'Bienvenue dans la section éducation physique ! 🏀'}
+body[data-metier="camp"] .p-perso::after{content:'Bienvenue dans la section camps de jour ! ⛺'}
+body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section service de garde ! 🧸'}
 @media(max-width:900px){.p-perso{display:none}}
 
 /* Group bar */
