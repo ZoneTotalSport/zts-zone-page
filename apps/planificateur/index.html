@@ -14,6 +14,24 @@
   <style>
 /* ═══ PLANIFICATEUR — styles app ═══ */
 
+/* Fond de marque bleu+jaune UNIFORME sur toute la page (spécificité > body du design system) */
+body[data-metier]{
+  background-color:var(--cyan);
+  background-image:repeating-conic-gradient(from 0deg at 88% 96%,var(--jaune) 0deg 7deg,transparent 7deg 14deg);
+  background-attachment:fixed;
+}
+.zts-container{position:relative;z-index:1}
+/* Personnage par métier, en coin, derrière le contenu (orange=camp, vert=sdg, bleu=ép) */
+.p-perso{
+  position:fixed;bottom:0;left:10px;width:clamp(96px,11vw,176px);aspect-ratio:3/4;
+  background-size:contain;background-repeat:no-repeat;background-position:bottom center;
+  pointer-events:none;z-index:0;filter:drop-shadow(4px 5px 0 rgba(0,0,0,.4));
+}
+body[data-metier="ep"]   .p-perso{background-image:url('img/mascotte-ep.png')}
+body[data-metier="camp"] .p-perso{background-image:url('img/mascotte-camp.png')}
+body[data-metier="sdg"]  .p-perso{background-image:url('img/mascotte-sdg.png')}
+@media(max-width:900px){.p-perso{display:none}}
+
 /* Group bar */
 .p-group-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-4);padding:var(--space-3) var(--space-4);background:var(--cream);border:var(--bord);border-radius:var(--r-2);box-shadow:var(--ombre)}
 .p-group-name{font-family:var(--font-impact);font-size:var(--fs-3)}
@@ -311,6 +329,8 @@
   </style>
 </head>
 <body data-metier="camp">
+
+  <div class="p-perso" aria-hidden="true"></div>
 
   <div data-zts-header></div>
 

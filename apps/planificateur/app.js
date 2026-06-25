@@ -1676,6 +1676,8 @@ async function loadGroupeData() {
   state.enfants=await Enfants.listByGroupe(state.groupeId);
   state.enfants.sort((a,b)=>a.prenom.localeCompare(b.prenom));
   if(state.orgId) state.org=await Organisations.get(state.orgId);
+  // Fond + perso suivent le métier du groupe (orange=camp, vert=sdg, bleu=ép)
+  document.body.dataset.metier=(state.groupe&&state.groupe.metier)||'camp';
 }
 
 async function loadJourneeData() {
@@ -1771,6 +1773,7 @@ function render() {
   if(!state.groupeId){root.innerHTML=renderSetup();return;}
   root.innerHTML=renderMain();
   if(state.view==='semaine') mountSemaineGrid();
+  const perso=document.querySelector('.p-perso'); if(perso) perso.style.display = (state.view==='semaine') ? 'none' : '';
   updateMsgBadges();
 }
 
