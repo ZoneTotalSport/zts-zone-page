@@ -60,7 +60,7 @@ const Groupes = {
 };
 
 const Enfants = {
-  async create(d) { return (await (await getDb()).collection('enfants').add({ prenom:d.prenom, nom:d.nom, photoUrl:d.photoUrl||'', groupeId:d.groupeId, personnesAutorisees:d.personnesAutorisees||[] })).id; },
+  async create(d) { return (await (await getDb()).collection('enfants').add({ prenom:d.prenom, nom:d.nom, photoUrl:d.photoUrl||'', groupeId:d.groupeId, personnesAutorisees:d.personnesAutorisees||[], particularites:d.particularites||[], noteParticuliere:d.noteParticuliere||'' })).id; },
   async get(id) { const s=await (await getDb()).collection('enfants').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async listByGroupe(gid) { const s=await (await getDb()).collection('enfants').where('groupeId','==',gid).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
   async update(id,d) { (await getDb()).collection('enfants').doc(id).update(d); },
@@ -140,6 +140,29 @@ const LS = { groupeId:'planif_groupeId', orgId:'planif_orgId' };
 // sur une URL workers.dev plutôt que le domaine custom.
 const NOTIFY_COORDO_URL = 'https://coordo.zonetotalsport.ca';
 const LIENS = ['mere','pere','grand-mere','grand-pere','gardien(ne)','autre'];
+
+// Particularités de l'enfant (permanent) — l'animateur voit la condition sous le nom
+const PARTICULARITES = [
+  {k:'tsa',      label:'TSA',                emoji:'\u{1F9E9}'},
+  {k:'tdah',     label:'TDAH',               emoji:'⚡'},
+  {k:'allergie', label:'Allergie',           emoji:'\u{1F95C}'},
+  {k:'asthme',   label:'Asthme',             emoji:'\u{1F4A8}'},
+  {k:'anxiete',  label:'Anxiété',  emoji:'\u{1F4A7}'},
+  {k:'epilepsie',label:'Épilepsie',     emoji:'\u{1F9E0}'},
+  {k:'diabete',  label:'Diabète',       emoji:'\u{1FA78}'},
+  {k:'dys',      label:'Dys (lexie/praxie)', emoji:'\u{1F524}'},
+  {k:'langage',  label:'Trouble du langage', emoji:'\u{1F4AC}'},
+  {k:'autre',    label:'Autre',              emoji:'⭐'},
+];
+const PARTICULARITES_MAP = Object.fromEntries(PARTICULARITES.map(p=>[p.k,p]));
+
+// Humeur de fin de journée (journal de bord)
+const HUMEURS = [
+  {k:'belle',     label:'Belle journée', emoji:'\u{1F31F}', color:'var(--vert)'},
+  {k:'ordinaire', label:'Ordinaire',          emoji:'\u{1F642}', color:'#e6e6e6'},
+  {k:'pepin',     label:'Pépin',         emoji:'⚠️', color:'var(--rose)'},
+];
+const HUMEURS_MAP = Object.fromEntries(HUMEURS.map(h=>[h.k,h]));
 const LIEN_LABELS = { mere:'Mere', pere:'Pere', 'grand-mere':'Grand-mere', 'grand-pere':'Grand-pere', 'gardien(ne)':'Gardien(ne)', autre:'Autre' };
 
 const BLOC_TYPES = {
@@ -266,6 +289,15 @@ function avatarHTML(enfant, cls='') {
   const sm = cls.includes('sm');
   if (enfant.photoUrl) return `<img src="${esc(enfant.photoUrl)}" class="p-photo ${sm?'p-photo-sm':''} ${cls}" alt="${esc(enfant.prenom)}">`;
   return `<div class="p-initials ${sm?'p-initials-sm':''} ${cls}">${esc(initials(enfant.prenom,enfant.nom))}</div>`;
+}
+
+// Mini-badges des particularités (TSA, allergie…) affichés sous le nom de l'enfant.
+function particMiniHTML(enfant) {
+  const ps = enfant.particularites||[];
+  if (!ps.length) return '';
+  const note = enfant.noteParticuliere ? ' — '+enfant.noteParticuliere : '';
+  const chips = ps.map(k=>{ const p=PARTICULARITES_MAP[k]; return p?`<span class="p-partic-mini" title="${esc(p.label)}${esc(note)}">${p.emoji}</span>`:''; }).join('');
+  return `<div class="p-partic-row">${chips}</div>`;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -689,6 +721,8 @@ function renderPresenceCard(enfant, presence, status) {
     badge=`<span class="p-pcard-badge p-badge-parti">\u2191</span>`;
     time=`<div class="p-pcard-time">\u2191 ${presence.heureDepart}</div>`;
     if (presence.partiAvec?.nom) time+=`<div class="p-pcard-time" style="opacity:.7">${esc(presence.partiAvec.nom)}</div>`;
+    const hh = presence.humeurJournee ? HUMEURS_MAP[presence.humeurJournee] : null;
+    if (hh) time+=`<div class="p-pcard-time" style="opacity:.85">${hh.emoji} ${esc(hh.label)}</div>`;
     if (presence.horsListe) badge=`<span class="p-pcard-badge p-badge-flag">\u26A0</span>`;
   } else if (status==='absent') {
     badge=`<span class="p-pcard-badge p-badge-absent">\u2717</span>`;
@@ -698,10 +732,13 @@ function renderPresenceCard(enfant, presence, status) {
     const cur=presence.arriveAvec?.lien||'';
     porte=`<button class="p-arrive" data-action="cycle-arrive" data-id="${enfant.id}">\u{1F44B} ${cur?('Porté par '+(LIEN_LABELS[cur]||cur)):'porté par ?'}</button>`;
   }
+  const msgFlag = (status==='parti' && presence.messageParent)
+    ? `<span class="p-msg-flag" title="Message à transmettre au parent${presence.noteJournee?' : '+esc(presence.noteJournee):''}">!</span>` : '';
   return `<div class="p-pcard p-pcard--${status}">
     <div class="p-pcard-tap" data-action="tap-presence" data-id="${enfant.id}">
-      ${badge}${avatarHTML(enfant)}
+      ${badge}${msgFlag}${avatarHTML(enfant)}
       <div class="p-enfant-name" style="font-size:var(--fs-1)">${esc(enfant.prenom)}</div>
+      ${particMiniHTML(enfant)}
       ${time}
     </div>
     ${porte}
@@ -762,6 +799,7 @@ function renderRoster() {
     <div class="p-enfant-card" data-action="edit-enfant" data-id="${e.id}">
       ${avatarHTML(e)}
       <div class="p-enfant-name">${esc(e.prenom)} ${esc(e.nom)}</div>
+      ${particMiniHTML(e)}
       <div class="p-enfant-sub">${(e.personnesAutorisees||[]).length} autorise(s)</div>
     </div>`).join('')}</div>
     <div style="text-align:center">
@@ -880,6 +918,9 @@ function openEnfantModal(enfant) {
       <div id="autorises-list">${autorises.map((a,i)=>autoriseRowHTML(a,i)).join('')}</div>
       <button class="zts-btn" data-action="add-autorise" style="font-size:var(--fs-1);margin-top:8px">+ Ajouter</button>
     </div>
+    <div class="p-field"><label class="p-label">Particularités <span style="font-weight:400;opacity:.6">(l'animateur les voit sous le nom)</span></label>
+      <div id="particularites-chips" class="p-partic-chips">${PARTICULARITES.map(p=>`<button type="button" class="p-partic-chip ${(enfant?.particularites||[]).includes(p.k)?'on':''}" data-action="toggle-partic" data-k="${p.k}">${p.emoji} ${esc(p.label)}</button>`).join('')}</div>
+      <input class="p-input" id="enf-note-partic" value="${esc(enfant?.noteParticuliere||'')}" placeholder="Précision : allergie exacte, médication, déclencheur…" style="margin-top:10px"></div>
     <div class="p-modal-actions">
       <button class="zts-btn zts-btn--primary" data-action="save-enfant" style="flex:1">Sauvegarder</button>
       ${isEdit?`<button class="zts-btn" data-action="delete-enfant" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
@@ -909,11 +950,15 @@ function collectAutorises() {
   return r;
 }
 
+function collectParticularites() {
+  return Array.from(document.querySelectorAll('#particularites-chips .p-partic-chip.on')).map(b=>b.dataset.k);
+}
+
 async function handleSaveEnfant() {
   const prenom=document.getElementById('enf-prenom').value.trim();
   const nom=document.getElementById('enf-nom').value.trim();
   if(!prenom||!nom) return alert('Prenom et nom requis.');
-  const data={prenom,nom,photoUrl:_enfantPhotoData,groupeId:state.groupeId,personnesAutorisees:collectAutorises()};
+  const data={prenom,nom,photoUrl:_enfantPhotoData,groupeId:state.groupeId,personnesAutorisees:collectAutorises(),particularites:collectParticularites(),noteParticuliere:document.getElementById('enf-note-partic')?.value.trim()||''};
   if(state.editingEnfant) await Enfants.update(state.editingEnfant.id,data);
   else await Enfants.create(data);
   closeModal('modal-enfant');
@@ -930,11 +975,13 @@ async function handleDeleteEnfant() {
 
 // ── Depart ──
 
-let _departSelectedPerson=null, _departCustom='';
+let _departSelectedPerson=null, _departCustom='', _departHumeur='';
 
 function openDepartModal(enfant,presence) {
   state.departEnfant=enfant; state.departPresence=presence;
   _departSelectedPerson=null; _departCustom='';
+  _departHumeur=presence.humeurJournee||'';
+  const isParti=presence.statut==='parti';
   const autorises=enfant.personnesAutorisees||[];
   const inner=document.getElementById('modal-depart-inner');
   inner.innerHTML = `
@@ -946,7 +993,7 @@ function openDepartModal(enfant,presence) {
         <div class="p-enfant-sub">Arrivee: ${presence.heureArrivee||'\u2014'}</div></div>
     </div>
     <div class="p-field"><label class="p-label">Heure de depart</label>
-      <input class="p-input" type="time" id="depart-heure" value="${nowTime()}"></div>
+      <input class="p-input" type="time" id="depart-heure" value="${presence.heureDepart||nowTime()}"></div>
     <label class="p-label">Parti avec...</label>
     ${autorises.length?`<div class="p-depart-persons" id="depart-persons">
       ${autorises.map((a,i)=>`<button class="p-depart-person" data-action="select-person" data-idx="${i}" data-nom="${esc(a.nom)}" data-lien="${esc(a.lien)}">${esc(a.nom)} <span style="opacity:.5;font-size:var(--fs-1)">(${a.lien})</span></button>`).join('')}
@@ -959,7 +1006,14 @@ function openDepartModal(enfant,presence) {
         <input type="checkbox" id="depart-confirm-hors"> Je confirme ce depart hors-liste
       </label>
     </div>
-    <button class="zts-btn zts-btn--primary" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">Confirmer le depart</button>`;
+    <div class="p-field" style="margin-top:var(--space-4)"><label class="p-label">\u{1F4D3} Comment s'est pass\u00E9e la journ\u00E9e?</label>
+      <div class="p-humeur-row" id="depart-humeur">${HUMEURS.map(h=>`<button type="button" class="p-humeur-btn ${_departHumeur===h.k?'on':''}" data-action="select-humeur" data-k="${h.k}" style="--hc:${h.color}"><span class="p-humeur-emoji">${h.emoji}</span><span class="p-humeur-lbl">${esc(h.label)}</span></button>`).join('')}</div></div>
+    <div class="p-field"><label class="p-label">Note du jour <span style="font-weight:400;opacity:.6">(optionnel)</span></label>
+      <textarea class="p-input" id="depart-note" rows="2" placeholder="Belle journ\u00E9e, p\u00E9pin, objet perdu, petit accident, comportement\u2026">${esc(presence.noteJournee||'')}</textarea></div>
+    <label class="p-msgparent-toggle">
+      <input type="checkbox" id="depart-msgparent" ${presence.messageParent?'checked':''}> \u{1F4E3} Message \u00E0 transmettre au parent <span style="opacity:.7;font-weight:400">(affiche un \u2757 sur la photo)</span>
+    </label>
+    <button class="zts-btn zts-btn--primary" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">${isParti?'Enregistrer':'Confirmer le depart'}</button>`;
   const ci=document.getElementById('depart-custom');
   ci.addEventListener('input',()=>{_departCustom=ci.value.trim();_departSelectedPerson=null;document.querySelectorAll('#depart-persons .p-depart-person').forEach(b=>b.classList.remove('selected'));updateDepartWarning();});
   openModal('modal-depart');
@@ -976,6 +1030,7 @@ function updateDepartWarning() {
 async function handleConfirmDepart() {
   const h=document.getElementById('depart-heure').value;
   if(!h) return alert('Heure de depart requise.');
+  const prev=state.departPresence, dejaParti=prev.statut==='parti';
   let partiAvec={nom:'',lien:''}, horsListe=false;
   if(_departSelectedPerson) { partiAvec={..._departSelectedPerson}; }
   else if(_departCustom) {
@@ -983,9 +1038,13 @@ async function handleConfirmDepart() {
     if(!a.includes(_departCustom.toLowerCase())) { horsListe=true; const cb=document.getElementById('depart-confirm-hors'); if(!cb?.checked) return alert('Confirme le depart hors-liste.'); }
     const match=(e.personnesAutorisees||[]).find(x=>x.nom.toLowerCase()===_departCustom.toLowerCase());
     partiAvec={nom:_departCustom,lien:match?.lien||'autre'};
-  } else return alert('Selectionne ou entre le nom de la personne.');
-  await Presences.update(state.departPresence.id,{statut:'parti',heureDepart:h,partiAvec,horsListe,ts:firebase.firestore.FieldValue.serverTimestamp()});
-  state.presenceMap[state.departEnfant.id]={...state.departPresence,statut:'parti',heureDepart:h,partiAvec,horsListe};
+  } else if(dejaParti) { partiAvec=prev.partiAvec||{nom:'',lien:''}; horsListe=!!prev.horsListe; } // ré-édition du journal : garde la personne
+  else return alert('Selectionne ou entre le nom de la personne.');
+  const noteJournee=document.getElementById('depart-note')?.value.trim()||'';
+  const messageParent=document.getElementById('depart-msgparent')?.checked||false;
+  const extra={statut:'parti',heureDepart:h,partiAvec,horsListe,humeurJournee:_departHumeur||'',noteJournee,messageParent};
+  await Presences.update(prev.id,{...extra,ts:firebase.firestore.FieldValue.serverTimestamp()});
+  state.presenceMap[state.departEnfant.id]={...prev,...extra};
   closeModal('modal-depart'); refreshPresences();
 }
 
@@ -1332,6 +1391,7 @@ async function handleAction(action, ds) {
     case 'delete-enfant': await handleDeleteEnfant(); break;
     case 'add-autorise': { const l=document.getElementById('autorises-list'); l.insertAdjacentHTML('beforeend',autoriseRowHTML({nom:'',lien:'mere'},l.children.length)); break; }
     case 'remove-autorise': { const r=document.querySelector(`.p-autorise-row[data-idx="${ds.idx}"]`); if(r)r.remove(); break; }
+    case 'toggle-partic': { const b=document.querySelector(`#particularites-chips .p-partic-chip[data-k="${ds.k}"]`); if(b)b.classList.toggle('on'); break; }
     case 'close-enfant': closeModal('modal-enfant'); break;
 
     // ── Depart ──
@@ -1343,6 +1403,11 @@ async function handleAction(action, ds) {
       document.querySelectorAll('#depart-persons .p-depart-person').forEach(b=>b.classList.remove('selected'));
       document.querySelector(`[data-action="select-person"][data-idx="${ds.idx}"]`)?.classList.add('selected');
       updateDepartWarning(); break;
+    case 'select-humeur': {
+      _departHumeur = (_departHumeur===ds.k) ? '' : ds.k;
+      document.querySelectorAll('#depart-humeur .p-humeur-btn').forEach(b=>b.classList.toggle('on', b.dataset.k===_departHumeur));
+      break;
+    }
     case 'confirm-depart': await handleConfirmDepart(); break;
     case 'select-history-enfant': break;
     case 'trigger-photo': break;
@@ -1421,6 +1486,7 @@ async function handlePresenceTap(enfantId) {
     refreshPresences(); return;
   }
   if(p.statut==='present') openDepartModal(enfant,p);
+  else if(p.statut==='parti') openDepartModal(enfant,p); // rouvre le journal de bord (note/humeur/message parent)
   else if(p.statut==='absent'){await Presences.delete(p.id);delete state.presenceMap[enfantId];refreshPresences();}
 }
 
