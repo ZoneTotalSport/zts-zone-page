@@ -270,6 +270,43 @@
   .zts-vue-week-col{flex-direction:row;flex-wrap:wrap;align-items:center;min-height:0}
   .zts-vue-week-head{flex-direction:row;gap:8px;min-width:84px}
   .zts-vue-mini-bloc{flex:1;min-width:140px}
+
+  /* iOS : inputs ≥16px sinon Safari zoome au focus */
+  .p-input,.p-select,textarea.p-input{font-size:16px}
+
+  /* Modals : presque pleine largeur, scroll interne, marge sûre + safe-area iPhone */
+  .zts-modal{padding:10px}
+  .zts-modal__inner{padding:var(--space-4) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom));max-height:calc(100dvh - 20px);border-radius:var(--r-3);box-shadow:6px 6px 0 var(--zts-noir)}
+
+  /* Présences : plus de cartes par rangée sur petit écran */
+  .p-presence-grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:var(--space-2)}
+  .p-enfants-grid{grid-template-columns:repeat(auto-fill,minmax(118px,1fr))}
+
+  /* Barre de groupe + nav : compactes */
+  .p-group-bar{padding:var(--space-2) var(--space-3)}
+  .p-nav-btn{padding:8px 11px}
+
+  /* Tableau coordo : la ligne enfant s'empile (nom / détail / bouton 💬) */
+  .p-history-item{flex-wrap:wrap;gap:8px}
+  .p-history-date{min-width:0;width:100%}
+  .p-history-detail{flex:1 1 100%}
+  .p-msg-mini-btn{padding:8px 12px}      /* cible tactile plus grande */
+
+  /* Messagerie : corps plus haut, bulles plus larges, composer empilé */
+  .p-msg-body{max-height:46dvh}
+  .p-msg-thread-list{max-height:62dvh}
+  .p-msg-bubble{max-width:90%}
+  .p-msg-compose{flex-direction:column;align-items:stretch}
+  .p-msg-compose .zts-btn{width:100%}
+
+  /* Journal de bord : 3 humeurs adaptables sans débordement */
+  .p-humeur-btn{min-width:0;flex:1 1 28%}
+  .p-depart-person{font-size:var(--fs-1);padding:12px 16px}
+}
+
+/* Tablette portrait : garder de l'air, modal centré confortable */
+@media(min-width:641px) and (max-width:1024px){
+  .p-presence-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
 }
   </style>
 </head>
