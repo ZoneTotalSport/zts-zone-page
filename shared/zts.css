@@ -88,8 +88,7 @@ body[data-metier]::before {
   background-color:var(--cyan);
   background-image:repeating-conic-gradient(from 0deg at 88% 96%, var(--jaune) 0deg 7deg, transparent 7deg 14deg);
 }
-body[data-metier="camp"]::before { background-color:var(--orange); background-image:repeating-conic-gradient(from 0deg at 88% 96%, #C026FF 0deg 7deg, transparent 7deg 14deg); }
-body[data-metier="sdg"]::before  { background-color:var(--vert);   background-image:repeating-conic-gradient(from 0deg at 88% 96%, #FF2DAC 0deg 7deg, transparent 7deg 14deg); }
+/* Fond UNIFORME bleu+jaune pour les 3 métiers (seul le perso diffère). camp/sdg héritent du fond de base ci-dessus. */
 /* Voile blanc retiré — fond 100% */
 body[data-metier]::after {
   content:''; position:fixed; inset:0; z-index:-2;
@@ -152,10 +151,8 @@ a { color:inherit; }
   padding:18px clamp(16px,3vw,40px) 24px;
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
-/* Header — dégradé avec les 2 couleurs de chaque métier */
-body[data-metier="ep"]   .zts-header { background:linear-gradient(120deg, #00E5FF 0%, #FFEA00 100%); }
-body[data-metier="camp"] .zts-header { background:linear-gradient(120deg, #FF6B00 0%, #C026FF 100%); }
-body[data-metier="sdg"]  .zts-header { background:linear-gradient(120deg, #39FF14 0%, #FF6EC7 100%); }
+/* Header UNIFORME bleu→jaune pour tous les métiers (seul le perso diffère) */
+body[data-metier]        .zts-header { background:linear-gradient(120deg, #00E5FF 0%, #FFEA00 100%); }
 /* Trame de points façon sticker (comme la fiche) */
 .zts-header::before {
   content:""; position:absolute; inset:0; opacity:.12; pointer-events:none;
