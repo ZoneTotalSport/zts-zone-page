@@ -1991,7 +1991,7 @@ async function init() {
   console.log('[Planif] init start');
   // Intégration hub : ?embed=1 cache le header/subnav, ?vue= choisit la vue initiale, ?metier= force le métier
   const _params=new URLSearchParams(location.search);
-  if(_params.has('embed')) document.body.classList.add('zts-embed');
+  if(_params.has('embed')){ document.body.classList.add('zts-embed'); document.documentElement.style.background='transparent'; }  // html a un fond paper → le rendre transparent en intégré
   state.hubMetier=( ['ep','camp','sdg'].includes(_params.get('metier')) ? _params.get('metier') : '' );
   if(state.hubMetier) document.body.dataset.metier=state.hubMetier;
   initEmbedMessaging();

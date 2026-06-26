@@ -17,6 +17,7 @@
 /* Mode intégré (iframe dans un hub) : on cache le header/subnav/perso du planificateur */
 body.zts-embed [data-zts-header], body.zts-embed .zts-subnav, body.zts-embed .p-perso, body.zts-embed [data-zts-footer], body.zts-embed .zts-footer { display:none !important; }
 body.zts-embed { padding-top:6px !important; background:transparent !important; }
+html:has(body.zts-embed) { background:transparent !important; }   /* html a un fond paper → transparent en intégré */
 body.zts-embed[data-metier]{ background-image:none !important; }
 /* Cache le fond gymnase PROPRE au planificateur en mode intégré → un seul fond (celui du hub) */
 body.zts-embed::before, body.zts-embed::after, body.zts-embed[data-metier]::before, body.zts-embed[data-metier]::after { display:none !important; background:none !important; }
