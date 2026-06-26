@@ -47,6 +47,30 @@
 
     <section class="zts-menu" id="menuJour"></section>
 
+    <!-- Cahier de planification intégré (planificateur en iframe) -->
+    <section class="zts-plan">
+      <h2 class="zts-plan__title">📔 Mon cahier de planification</h2>
+      <div class="zts-plan__tabs">
+        <button class="zts-plan__tab is-active" data-vue="presences" type="button">📅 Présences</button>
+        <button class="zts-plan__tab" data-vue="semaine" type="button">🗓️ Semaine</button>
+        <button class="zts-plan__tab" data-vue="jour" type="button">📝 Jour</button>
+      </div>
+      <iframe class="zts-plan__frame" data-zts-plan-frame title="Planificateur" src="/apps/planificateur/?embed=1&vue=presences" loading="lazy"></iframe>
+    </section>
+    <script>
+    (function(){
+      var sec=document.currentScript.previousElementSibling;
+      var frame=sec.querySelector('[data-zts-plan-frame]');
+      sec.querySelectorAll('.zts-plan__tab').forEach(function(t){
+        t.addEventListener('click',function(){
+          sec.querySelectorAll('.zts-plan__tab').forEach(function(x){x.classList.remove('is-active');});
+          t.classList.add('is-active');
+          try{ frame.contentWindow.postMessage({type:'zts-setview',view:t.dataset.vue},'*'); }catch(e){}
+        });
+      });
+    })();
+    </script>
+
     <h2 style="font-family:var(--font-impact); font-size:var(--fs-4); margin:var(--space-4) 0 var(--space-3);" data-i18n="hub.active">Apps prêtes à l'emploi</h2>
     <div class="zts-grid" id="gridActive"></div>
 

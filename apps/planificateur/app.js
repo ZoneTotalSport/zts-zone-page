@@ -1498,11 +1498,7 @@ async function handleAction(action, ds) {
 
     // ── Navigation ──
     case 'nav': {
-      state.view=ds.to;
-      if(ds.to==='calendrier') await loadCalendarData();
-      if(ds.to==='gabarit') await loadGrilleType();
-      if(ds.to==='historique'){state.historyEnfantId=null;state.historyData=[];}
-      render(); break;
+      await navigateTo(ds.to); break;
     }
     case 'cal-mode':
       if(ds.mode==='jour'){ if(!state.currentDate)state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
@@ -1765,6 +1761,28 @@ function onMessagesUpdate() {
   if(open && open.classList.contains('open') && state.msgThread){ renderThreadBody(); markThreadLu(); }
 }
 
+// Navigation entre vues (réutilisé par les onglets du hub via postMessage)
+async function navigateTo(to) {
+  state.view=to;
+  if(to==='calendrier') await loadCalendarData();
+  else if(to==='journee'){ if(!state.currentDate)state.currentDate=todayISO(); await loadJourneeData(); }
+  else if(to==='gabarit') await loadGrilleType();
+  else if(to==='historique'){ state.historyEnfantId=null; state.historyData=[]; }
+  render();
+}
+
+// Mapping des vues demandées par le hub (français lisible → vue interne)
+const VUE_MAP={ presences:'calendrier', presence:'calendrier', calendrier:'calendrier', semaine:'semaine', jour:'journee', journee:'journee' };
+
+// Écoute les onglets du hub (iframe) : { type:'zts-setview', view:'presences|semaine|jour' }
+function initEmbedMessaging() {
+  window.addEventListener('message', function(e){
+    const d=e.data; if(!d || d.type!=='zts-setview') return;
+    const v=VUE_MAP[String(d.view||'').toLowerCase()];
+    if(v && state.user && state.groupeId) navigateTo(v);
+  });
+}
+
 function render() {
   const root=document.getElementById('app-root');
   if(state.semGrid){ state.semGrid.destroy(); state.semGrid=null; }   // nettoie grille + modal + listeners
@@ -1820,6 +1838,10 @@ function wireEvents() {
 
 async function init() {
   console.log('[Planif] init start');
+  // Intégration hub : ?embed=1 cache le header/subnav, ?vue= choisit la vue initiale
+  const _params=new URLSearchParams(location.search);
+  if(_params.has('embed')) document.body.classList.add('zts-embed');
+  initEmbedMessaging();
   try {
     wireEvents(); initOffline();
     console.log('[Planif] waiting for db...');
@@ -1839,7 +1861,11 @@ async function init() {
         if(g.length){state.groupeId=g[0].id;state.orgId=g[0].orgId;localStorage.setItem(LS.groupeId,state.groupeId);localStorage.setItem(LS.orgId,state.orgId);}
       }
       console.log('[Planif] groupeId:', state.groupeId);
-      if(state.groupeId) { await loadGroupeData(); state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
+      if(state.groupeId) {
+        await loadGroupeData(); state.currentDate=todayISO();
+        state.view = VUE_MAP[(_params.get('vue')||'').toLowerCase()] || 'journee';
+        if(state.view==='calendrier') await loadCalendarData(); else await loadJourneeData();
+      }
       if(state.role==='coordo' && state.orgId){ state.coordoDate=todayISO(); await loadCoordoData(); }
       await subscribeMessages();
       console.log('[Planif] render');

@@ -139,6 +139,24 @@ body:has(main.hub-sheet) .zts-perso {
 }
 @media (max-width:640px){ body:has(main.hub-sheet) .zts-perso{ display:none; } }
 
+/* ============ CAHIER DE PLANIFICATION INTÉGRÉ (iframe planificateur dans le hub) ============ */
+.zts-plan { margin:var(--space-5) 0; }
+.zts-plan__title { font-family:var(--font-impact); font-size:clamp(1.4rem,3.4vw,2.1rem); color:var(--ink); margin-bottom:14px; }
+.zts-plan__tabs { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.zts-plan__tab {
+  font-family:var(--font-impact); font-size:clamp(.95rem,2vw,1.2rem); letter-spacing:.3px;
+  padding:12px 20px; border:4px solid var(--zts-noir); border-radius:16px;
+  background:#fff; color:var(--ink); cursor:pointer; box-shadow:5px 5px 0 var(--zts-noir);
+  transition:transform .1s, box-shadow .1s, background .1s;
+}
+.zts-plan__tab:hover { transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--zts-noir); }
+.zts-plan__tab.is-active { background:var(--cyan); transform:translate(2px,2px); box-shadow:2px 2px 0 var(--zts-noir); }
+.zts-plan__frame {
+  width:100%; height:min(82vh,860px); border:4px solid var(--zts-noir); border-radius:20px;
+  box-shadow:8px 8px 0 var(--zts-noir); background:#fff; display:block;
+}
+@media (max-width:640px){ .zts-plan__frame{ height:80vh; border-radius:16px; box-shadow:5px 5px 0 var(--zts-noir); } }
+
 /* ============ RESET + BASE ============ */
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 html { scroll-behavior:smooth; }
