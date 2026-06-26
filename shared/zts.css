@@ -119,6 +119,19 @@ body[data-metier="sdg"] .zts-perso {
 }
 @media (max-width:640px){ .zts-perso{ height:28vh; width:min(28vh,46vw); } }
 
+/* ============ ENCADRÉ BLANC DES HUBS (feuille style planificateur, fond bleu+jaune autour) ============ */
+main.hub-sheet {
+  background:#fff;
+  border:5px solid var(--zts-noir);
+  border-radius:32px;
+  box-shadow:12px 12px 0 var(--zts-noir);
+  padding:clamp(20px,3vw,46px) !important;          /* écrase le padding inline du conteneur */
+  width:min(1160px, calc(100% - clamp(24px,6vw,60px)));
+  margin:10px auto 56px !important;                  /* fond visible en haut/bas + côtés (centré) */
+  position:relative; z-index:1;
+}
+@media (max-width:640px){ main.hub-sheet{ border-radius:24px; box-shadow:7px 7px 0 var(--zts-noir); } }
+
 /* ============ RESET + BASE ============ */
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 html { scroll-behavior:smooth; }
