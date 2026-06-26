@@ -81,18 +81,19 @@
    pour les hubs (racine) ET les apps (/apps/<nom>/). Défaut = gymnase (ep). — */
 html { background: var(--paper); }
 body[data-metier] { background: transparent; }
-/* FONDS PAR MÉTIER — rayures fluo (comme le planificateur), 100% sans voile blanc
-   Calques : rayures ::before (-3) → ::after (-2, transparent) → perso .zts-perso (-1) → contenu (≥0). */
+/* FOND UNIFORME = photo de gymnase estompée (comme la page d'accueil), identique pour les 3 métiers.
+   Calques : photo ::before (-3) → voile crème ::after (-2) → perso .zts-perso (-1) → contenu (≥0).
+   Le personnage reste différent par métier (géré plus bas) — seul le FOND est uniformisé. */
 body[data-metier]::before {
   content:''; position:fixed; inset:0; z-index:-3;
-  background-color:var(--cyan);
-  background-image:repeating-conic-gradient(from 0deg at 88% 96%, var(--jaune) 0deg 7deg, transparent 7deg 14deg);
+  background-image:url('/bg-gym.jpg');
+  background-size:cover; background-position:center; background-repeat:no-repeat; background-attachment:fixed;
+  opacity:.45; filter:saturate(.9);
 }
-/* Fond UNIFORME bleu+jaune pour les 3 métiers (seul le perso diffère). camp/sdg héritent du fond de base ci-dessus. */
-/* Voile blanc retiré — fond 100% */
+/* Voile crème par-dessus pour adoucir et garder le contenu lisible (comme la home) */
 body[data-metier]::after {
   content:''; position:fixed; inset:0; z-index:-2;
-  background:transparent;
+  background:linear-gradient(180deg, rgba(255,254,247,.55) 0%, rgba(255,254,247,.35) 40%, rgba(255,254,247,.65) 100%);
 }
 
 /* PERSONNAGE PAR MÉTIER — déco, injecté par zts.js (opt-in body.has-perso) */
