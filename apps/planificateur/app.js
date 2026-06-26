@@ -2001,6 +2001,7 @@ async function init() {
     if(typeof firebase==='undefined'||!firebase.auth){setTimeout(waitAuth,200);return;}
     console.log('[Planif] auth ready, listening...');
     firebase.auth().onAuthStateChanged(async(user)=>{
+     try {
       console.log('[Planif] auth state:', user?.email||'none');
       state.user=user; if(!user){render();return;}
       state.groupeId=localStorage.getItem(LS.groupeId)||null;
@@ -2022,9 +2023,20 @@ async function init() {
         if(state.view==='calendrier') await loadCalendarData(); else await loadJourneeData();
       }
       if(state.role==='coordo' && state.orgId){ state.coordoDate=todayISO(); await loadCoordoData(); }
-      await subscribeMessages();
+      try { await subscribeMessages(); } catch(eMsg){ console.warn('[Planif] subscribeMessages', eMsg); }
       console.log('[Planif] render');
       render();
+     } catch(err) {
+      console.error('[Planif] ERREUR démarrage:', err);
+      const root=document.getElementById('app-root');
+      if(root) root.innerHTML='<div style="padding:20px;font-family:system-ui;max-width:640px;margin:20px auto;background:#fff;border:3px solid #c00;border-radius:14px">'
+        +'<h2 style="color:#c00;margin:0 0 8px">⚠️ Erreur de démarrage</h2>'
+        +'<p style="font-weight:700">'+String(err&&err.message||err)+'</p>'
+        +'<pre style="white-space:pre-wrap;font-size:12px;background:#f6f6f6;padding:10px;border-radius:8px;overflow:auto">'+String(err&&err.stack||'').slice(0,600)+'</pre>'
+        +'<p style="font-size:13px;opacity:.7">Copie ce message à Claude pour le correctif.</p></div>';
+      // Tente quand même un rendu si possible
+      try{ if(state.user) render(); }catch(e2){}
+     }
     });
   }
   waitAuth();
