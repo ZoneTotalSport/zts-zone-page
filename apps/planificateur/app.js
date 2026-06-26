@@ -1924,9 +1924,13 @@ const VUE_MAP={ presences:'calendrier', presence:'calendrier', calendrier:'calen
 // Écoute les onglets du hub (iframe) : { type:'zts-setview', view:'presences|semaine|jour' }
 function initEmbedMessaging() {
   window.addEventListener('message', function(e){
-    const d=e.data; if(!d || d.type!=='zts-setview') return;
-    const v=VUE_MAP[String(d.view||'').toLowerCase()];
-    if(v && state.user && state.groupeId) navigateTo(v);
+    const d=e.data; if(!d) return;
+    if(d.type==='zts-setview'){
+      const v=VUE_MAP[String(d.view||'').toLowerCase()];
+      if(v && state.user && state.groupeId) navigateTo(v);
+    } else if(d.type==='zts-fullscreen'){
+      document.body.classList.toggle('zts-full', !!d.on);   // plein écran → restaure l'encadré blanc + fond
+    }
   });
 }
 

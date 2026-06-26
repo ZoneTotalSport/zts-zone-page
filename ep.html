@@ -71,6 +71,9 @@
       });
       var fs=sec.querySelector('[data-fs]');
       if(fs) fs.addEventListener('click',function(){ try{ (frame.requestFullscreen||frame.webkitRequestFullscreen).call(frame); }catch(e){} });
+      function fsNotify(){ var on=(document.fullscreenElement||document.webkitFullscreenElement)===frame; try{ frame.contentWindow.postMessage({type:'zts-fullscreen',on:on},'*'); }catch(e){} }
+      document.addEventListener('fullscreenchange',fsNotify);
+      document.addEventListener('webkitfullscreenchange',fsNotify);
     })();
     </script>
 

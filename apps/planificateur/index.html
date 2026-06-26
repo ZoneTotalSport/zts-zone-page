@@ -21,6 +21,9 @@ body.zts-embed[data-metier]{ background-image:none !important; }
 /* Aplatit la vue Semaine : pas de swirl ni de feuille en double (un seul encadré = celui du hub) */
 body.zts-embed .sem-root { background:transparent !important; padding:4px !important; }
 body.zts-embed .sem-root .sheet { background:transparent !important; border:none !important; box-shadow:none !important; padding:4px !important; max-width:none !important; }
+/* PLEIN ÉCRAN (classe ajoutée par le hub) : fond bleu+jaune + UN encadré blanc autour de la vue */
+body.zts-embed.zts-full { background:var(--cyan) !important; background-image:repeating-conic-gradient(from 8deg at 92% 97%, var(--jaune) 0deg 12deg, var(--cyan) 12deg 24deg) !important; padding:18px !important; overflow:auto; }
+body.zts-embed.zts-full #app-root { background:#fff; border:5px solid var(--ink); border-radius:24px; box-shadow:10px 10px 0 var(--ink); max-width:1320px; margin:0 auto; padding:clamp(14px,2vw,28px); min-height:calc(100dvh - 36px); }
 
 /* Fond de marque SWIRL jaune+cyan UNIFORME sur toute la page (rayons larges depuis le coin bas-droit) */
 body[data-metier]{
