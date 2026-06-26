@@ -24,6 +24,11 @@ body.zts-embed::before, body.zts-embed::after, body.zts-embed[data-metier]::befo
 body.zts-embed main.zts-container { max-width:none !important; padding-left:clamp(4px,1vw,14px) !important; padding-right:clamp(4px,1vw,14px) !important; }
 /* Cases du calendrier : remplissent la largeur, hauteur raisonnable et fluide (pas de carrés géants) */
 body.zts-embed .p-cal-day { aspect-ratio:auto; min-height:clamp(52px,6vw,96px); padding:clamp(6px,1.2vw,16px) 4px; }
+/* Fond blanc retiré → le gymnase transparaît ; numéros de dates en blanc avec contour pour la lisibilité */
+body.zts-embed .p-cal-day { background:transparent; color:#fff; text-shadow:1px 1px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink), 0 2px 4px rgba(0,0,0,.55); }
+body.zts-embed .p-cal-day:hover { background:rgba(0,0,0,.18); }
+body.zts-embed .p-cal-day--today { background:var(--orange); color:#fff; }
+body.zts-embed .p-cal-header { color:#fff; text-shadow:1px 1px 0 var(--ink), -1px -1px 0 var(--ink); }
 /* Aplatit la vue Semaine : pas de swirl ni de feuille en double (un seul encadré = celui du hub) */
 body.zts-embed .sem-root { background:transparent !important; padding:4px !important; }
 body.zts-embed .sem-root .sheet { background:transparent !important; border:none !important; box-shadow:none !important; padding:4px !important; max-width:none !important; }
