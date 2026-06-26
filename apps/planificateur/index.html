@@ -29,6 +29,10 @@ body.zts-embed .p-cal-day { background:transparent; color:#fff; text-shadow:1px 
 body.zts-embed .p-cal-day:hover { background:rgba(0,0,0,.18); }
 body.zts-embed .p-cal-day--today { background:var(--orange); color:#fff; }
 body.zts-embed .p-cal-header { color:#fff; text-shadow:1px 1px 0 var(--ink), -1px -1px 0 var(--ink); }
+/* Bouton « Rétrécir » : visible uniquement en plein écran */
+#ztsExitFs { display:none; position:fixed; top:14px; right:14px; z-index:99999; align-items:center; gap:6px; font-family:var(--font-impact); font-size:1rem; padding:10px 18px; border:3px solid var(--ink); border-radius:14px; background:#fff; color:var(--ink); cursor:pointer; box-shadow:4px 4px 0 var(--ink); }
+#ztsExitFs:hover { transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--ink); }
+body.zts-full #ztsExitFs { display:inline-flex; }
 /* Aplatit la vue Semaine : pas de swirl ni de feuille en double (un seul encadré = celui du hub) */
 body.zts-embed .sem-root { background:transparent !important; padding:4px !important; }
 body.zts-embed .sem-root .sheet { background:transparent !important; border:none !important; box-shadow:none !important; padding:4px !important; max-width:none !important; }
@@ -383,6 +387,8 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
   </style>
 </head>
 <body data-metier="camp">
+
+  <button id="ztsExitFs" type="button" title="Rétrécir" onclick="try{parent.postMessage({type:'zts-exitfullscreen'},'*')}catch(e){};try{(document.exitFullscreen||document.webkitExitFullscreen||function(){}).call(document)}catch(e){}">⤡ Rétrécir</button>
 
   <div class="p-perso" aria-hidden="true"></div>
 
