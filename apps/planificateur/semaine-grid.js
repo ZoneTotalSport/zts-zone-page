@@ -72,9 +72,7 @@ const CSS = `
 .sem-root .stepper b{min-width:28px;text-align:center;font-size:1.6rem;color:var(--cyan);-webkit-text-stroke:.5px var(--ink)}
 .sem-root .stepper button{font-family:'Luckiest Guy','Bangers',cursive;cursor:pointer;width:42px;height:42px;border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:2px 2px 0 var(--ink);font-size:1.5rem}
 .sem-root .stepper button:hover{background:var(--jaune)}
-.sem-root .grid-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 4px 12px;scrollbar-width:thin}
-.sem-root .grid-scroll::-webkit-scrollbar{height:12px}
-.sem-root .grid-scroll::-webkit-scrollbar-thumb{background:var(--cyan);border:2px solid var(--ink);border-radius:10px}
+.sem-root .grid-scroll{overflow:visible;padding:4px}
 .sem-root .grid{display:grid;gap:10px;align-items:stretch}
 .sem-root .rail{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px;border:var(--bord);border-radius:18px;box-shadow:5px 5px 0 var(--ink);padding:8px 6px;background:#fff}
 .sem-root .rail__lbl{font-family:'Luckiest Guy','Bangers',cursive;font-size:clamp(1rem,1.6vw,1.4rem);color:var(--cyan);-webkit-text-stroke:.4px var(--ink);text-shadow:2px 2px 0 var(--ink);border:none;text-align:center;width:100%;background:transparent}
@@ -337,8 +335,8 @@ function mount(root, opts){
   function railCtrl(ln){ return `<div class="rail__ctrl"><button data-up="${ln.id}">↑</button><button data-down="${ln.id}">↓</button><button data-tog="${ln.id}" title="${t('togglePB')}">⇄</button><button class="del" data-del="${ln.id}">🗑️</button></div>`; }
   function render(){
     const days=dayNames().slice(0,nbJours);
-    gridEl.style.gridTemplateColumns=`minmax(104px,134px) repeat(${days.length}, minmax(178px,1fr))`;
-    gridEl.style.minWidth=(134 + days.length*188)+'px'; // garantit le débordement → scroll horizontal dans un cadre étroit
+    gridEl.style.gridTemplateColumns=`minmax(92px,120px) repeat(${days.length}, minmax(0,1fr))`;
+    gridEl.style.minWidth='0'; // la grille remplit toujours la zone → aucun défilement interne
     let html='<div></div>';
     days.forEach((j,di)=>{ html+=`<div class="day-hd j${di}"><div class="day-hd__name">${j} <input type="checkbox" data-off="${di}" ${data['off_'+di]?'checked':''}></div><input class="day-hd__date" data-date="${di}" value="${esc(data['date_'+di]||dayDate(di))}"></div>`; });
     structure.forEach((ln,ri)=>{
