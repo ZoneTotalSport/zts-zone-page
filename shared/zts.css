@@ -405,11 +405,20 @@ body[data-metier] .rr-preset.active {
 /* ============ BANNIÈRE MÉTIER ============ */
 .zts-metier-banner {
   display:flex; align-items:center; justify-content:space-between; gap:var(--space-4);
-  background:var(--metier); color:var(--ink);
+  background:#19C3FF; color:var(--ink);   /* bleu du header pour les 3 métiers */
   border:var(--bord-gros); border-radius:var(--r-4);
   box-shadow:var(--ombre-xl); padding:var(--space-5);
 }
-.zts-metier-banner h1 { font-family:var(--font-impact); font-size:var(--fs-5); }
+/* Titre dans le style du wordmark « ZONE TOTAL SPORT » du header (jaune + contour noir relief) */
+.zts-metier-banner h1 {
+  font-family:var(--font-impact); font-size:var(--fs-5);
+  color:var(--jaune); letter-spacing:.02em; line-height:1.05;
+  text-shadow:
+    2px 2px 0 var(--zts-noir), -2px -2px 0 var(--zts-noir),
+    2px -2px 0 var(--zts-noir), -2px 2px 0 var(--zts-noir),
+    0 2px 0 var(--zts-noir), 2px 0 0 var(--zts-noir),
+    5px 6px 0 rgba(26,26,46,.40);
+}
 .zts-metier-banner__pill {
   display:inline-block; font-family:var(--font-bang); font-size:var(--fs-2);
   background:#fff; color:var(--ink); padding:4px 16px;
