@@ -52,7 +52,7 @@ const Organisations = {
 };
 
 const Groupes = {
-  async create(d) { return (await (await getDb()).collection('groupes').add({ nom:d.nom, orgId:d.orgId, animateurUid:d.animateurUid, theme:d.theme||'' })).id; },
+  async create(d) { return (await (await getDb()).collection('groupes').add({ nom:d.nom, orgId:d.orgId, animateurUid:d.animateurUid, theme:d.theme||'', metier:d.metier||'' })).id; },
   async get(id) { const s=await (await getDb()).collection('groupes').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async listByAnimateur(uid) { const s=await (await getDb()).collection('groupes').where('animateurUid','==',uid).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
   async listByOrg(orgId) { const s=await (await getDb()).collection('groupes').where('orgId','==',orgId).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
@@ -247,6 +247,8 @@ const state = {
   semGrid: null,
   // Messagerie coordo ↔ animateur (temps réel)
   messages: [], msgUnsub: null, msgThread: null, // msgThread = {groupeId, enfantId, titre} fil ouvert
+  // Métier imposé par le hub (?metier=ep|camp|sdg) quand intégré en iframe
+  hubMetier: '',
 };
 
 // Rôle effectif pour la messagerie
@@ -1489,7 +1491,7 @@ async function handleAction(action, ds) {
       const theme=document.getElementById('setup-theme').value.trim();
       if(!orgNom||!grpNom) return alert('Nom requis.');
       const orgId=await Organisations.create({nom:orgNom,coordoUid:state.user.uid,coordoEmail:state.user.email||'',dateDebut:'',dateFin:'',semaines:[]});
-      const groupeId=await Groupes.create({nom:grpNom,orgId,animateurUid:state.user.uid,theme});
+      const groupeId=await Groupes.create({nom:grpNom,orgId,animateurUid:state.user.uid,theme,metier:state.hubMetier||''});
       localStorage.setItem(LS.orgId,orgId); localStorage.setItem(LS.groupeId,groupeId);
       state.orgId=orgId; state.groupeId=groupeId;
       await loadGroupeData(); render();
@@ -1673,7 +1675,7 @@ async function loadGroupeData() {
   state.enfants.sort((a,b)=>a.prenom.localeCompare(b.prenom));
   if(state.orgId) state.org=await Organisations.get(state.orgId);
   // Fond + perso suivent le métier du groupe (orange=camp, vert=sdg, bleu=ép)
-  document.body.dataset.metier=(state.groupe&&state.groupe.metier)||'camp';
+  document.body.dataset.metier=state.hubMetier||(state.groupe&&state.groupe.metier)||'camp';
 }
 
 async function loadJourneeData() {
@@ -1838,9 +1840,11 @@ function wireEvents() {
 
 async function init() {
   console.log('[Planif] init start');
-  // Intégration hub : ?embed=1 cache le header/subnav, ?vue= choisit la vue initiale
+  // Intégration hub : ?embed=1 cache le header/subnav, ?vue= choisit la vue initiale, ?metier= force le métier
   const _params=new URLSearchParams(location.search);
   if(_params.has('embed')) document.body.classList.add('zts-embed');
+  state.hubMetier=( ['ep','camp','sdg'].includes(_params.get('metier')) ? _params.get('metier') : '' );
+  if(state.hubMetier) document.body.dataset.metier=state.hubMetier;
   initEmbedMessaging();
   try {
     wireEvents(); initOffline();
@@ -1856,6 +1860,12 @@ async function init() {
       state.user=user; if(!user){render();return;}
       state.groupeId=localStorage.getItem(LS.groupeId)||null;
       state.orgId=localStorage.getItem(LS.orgId)||null;
+      // Hub avec métier : on priorise le groupe de CE métier (ex. hub Camp → groupe camp)
+      if(state.hubMetier){
+        const g=await Groupes.listByAnimateur(user.uid);
+        const match=g.find(x=>x.metier===state.hubMetier);
+        if(match){ state.groupeId=match.id; state.orgId=match.orgId; localStorage.setItem(LS.groupeId,match.id); localStorage.setItem(LS.orgId,match.orgId); }
+      }
       if(!state.groupeId){
         const g=await Groupes.listByAnimateur(user.uid);
         if(g.length){state.groupeId=g[0].id;state.orgId=g[0].orgId;localStorage.setItem(LS.groupeId,state.groupeId);localStorage.setItem(LS.orgId,state.orgId);}
