@@ -163,6 +163,22 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 .p-msg-compose{display:flex;gap:8px;align-items:flex-end}
 .p-msg-compose textarea{flex:1;resize:vertical}
 
+/* Évaluation PFEQ — tableau élèves × critères */
+.p-eval-wrap{overflow-x:auto;border:3px solid var(--ink);border-radius:var(--r-2);box-shadow:var(--ombre);background:#fff;-webkit-overflow-scrolling:touch}
+.p-eval-table{border-collapse:collapse;width:100%;font-family:var(--font-body)}
+.p-eval-table th,.p-eval-table td{border:1px solid #e0e3e8;padding:8px;text-align:center;vertical-align:middle}
+.p-eval-sticky{position:sticky;left:0;z-index:2;background:#fff}
+.p-eval-name{min-width:130px;text-align:left!important;font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1)}
+.p-eval-name .p-photo-sm,.p-eval-name .p-initials-sm{display:inline-block;vertical-align:middle;margin-right:6px}
+.p-eval-col{min-width:88px;background:var(--cream)}
+.p-eval-colh{display:flex;align-items:flex-start;gap:4px;justify-content:center;font-family:var(--font-fun);font-weight:700;font-size:clamp(11px,1.3vw,13px);line-height:1.15}
+.p-eval-colx{flex-shrink:0;border:none;background:none;color:var(--rose);cursor:pointer;font-size:13px;font-weight:700;padding:0 2px}
+.p-eval-coltype{font-family:var(--font-body);font-size:clamp(9px,1.1vw,11px);opacity:.55;margin-top:2px}
+.p-eval-cell{cursor:pointer;font-family:var(--font-impact);font-size:clamp(13px,1.7vw,17px);min-width:64px;transition:background .1s;user-select:none}
+.p-eval-cell:hover{background:var(--jaune)}
+.p-eval-cell.has-val{background:#eafff0}
+.p-eval-cell .p-eval-val{pointer-events:none}
+
 /* History */
 .p-history-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3);border:var(--bord);border-radius:var(--r-2);box-shadow:var(--ombre);background:#fff;margin-bottom:var(--space-3)}
 .p-history-date{font-family:var(--font-impact);font-size:var(--fs-2);min-width:90px;flex-shrink:0}
@@ -390,6 +406,10 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
   <!-- Modal: Appliquer gabarit -->
   <div class="zts-modal" id="modal-messages" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="zts-modal__inner" id="modal-messages-inner"></div>
+  </div>
+
+  <div class="zts-modal" id="modal-eval" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner" id="modal-eval-inner"></div>
   </div>
 
   <div class="zts-modal" id="modal-presences" aria-hidden="true" role="dialog" aria-modal="true">

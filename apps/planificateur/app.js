@@ -114,6 +114,24 @@ const Messages = {
   },
 };
 
+// Évaluation : config des colonnes (critères + type) par groupe, réutilisée chaque date.
+const EvalConfig = {
+  async get(gid){ const db=await getDb(); const s=await db.collection('evalConfig').doc(gid).get(); return s.exists?(s.data().colonnes||[]):[]; },
+  async save(gid, colonnes){ const db=await getDb(); await db.collection('evalConfig').doc(gid).set({colonnes}); },
+};
+// Évaluation : 1 doc par (groupe, date, élève, critère). id déterministe = upsert sans doublon.
+const Evaluations = {
+  async set(d){
+    const db=await getDb();
+    const id=`${d.groupeId}__${d.date}__${d.enfantId}__${d.critereId}`;
+    if(d.valeur===''||d.valeur==null){ try{ await db.collection('evaluations').doc(id).delete(); }catch(e){} return; }
+    await db.collection('evaluations').doc(id).set({ groupeId:d.groupeId, enfantId:d.enfantId, critereId:d.critereId, date:d.date, valeur:String(d.valeur), ts:firebase.firestore.FieldValue.serverTimestamp() });
+  },
+  // where sur groupeId seul (pas d'index composite) → filtre date côté client
+  async listByDate(gid, date){ const db=await getDb(); const s=await db.collection('evaluations').where('groupeId','==',gid).get(); return s.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.date===date); },
+  async listByEnfant(gid, enfantId){ const db=await getDb(); const s=await db.collection('evaluations').where('groupeId','==',gid).get(); return s.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.enfantId===enfantId); },
+};
+
 const GrillesType = {
   async getByGroupe(gid) { const s=await (await getDb()).collection('grillesType').where('groupeId','==',gid).limit(1).get(); if(s.empty)return null; const d=s.docs[0]; return {id:d.id,...d.data()}; },
   async create(d) { return (await (await getDb()).collection('grillesType').add({ groupeId:d.groupeId, blocs:d.blocs||[] })).id; },
@@ -184,6 +202,30 @@ const HUMEURS = [
   {k:'pepin',     label:'Pépin',         emoji:'⚠️', color:'var(--rose)'},
 ];
 const HUMEURS_MAP = Object.fromEntries(HUMEURS.map(h=>[h.k,h]));
+
+// ── Évaluation PFEQ (ÉP) — référentiel des compétences (porté du Carnet ÉPS) ──
+const PFEQ = [
+  { key:'agir', label:'🏃 AGIR', items:[
+    ['agir_execution',"Exécution d'actions motrices"],['agir_principes',"Application de principes liés à l'exécution"],['agir_efficacite','Efficacité des actions motrices'],['agir_planif','Planification de sa démarche'],['agir_evaluation','Évaluation de sa démarche'],['agir_equilibre','Équilibre et coordination'],['agir_locomotion','Locomotion (courir, sauter, ramper)'],['agir_manipulation',"Manipulation d'objets"],['agir_securite','Respect des règles de sécurité'],['agir_lancer','Lancer (précision, force, trajectoire)'],['agir_attraper','Attraper (réception, amortissement)'],['agir_frapper','Frapper (pied, main, raquette, bâton)'],['agir_dribbler','Dribbler (ballon, rondelle)'],['agir_sauter','Sauter (hauteur, longueur)'],['agir_rouler','Rouler (roulade avant, arrière)'],['agir_grimper','Grimper et suspension'],['agir_esquiver','Esquiver et feinter'],['agir_posture','Posture et alignement'],['agir_rythme','Rythme et tempo'],['agir_enchainement','Enchaînement de mouvements'],['agir_precision','Précision du geste technique'],['agir_puissance','Puissance et force'],['agir_souplesse','Souplesse et flexibilité'],['agir_endurance','Endurance cardiovasculaire'],['agir_vitesse',"Vitesse de réaction et d'exécution"],['agir_agilite','Agilité et changements de direction'],['agir_lateralite','Latéralité (dominant / non-dominant)'],
+  ]},
+  { key:'interagir', label:'🤝 INTERAGIR', items:[
+    ['inter_coop','Coopération avec les partenaires'],['inter_opp','Opposition face aux adversaires'],['inter_comm','Communication motrice'],['inter_sync','Synchronisation des actions'],['inter_strat','Élaboration de stratégies'],['inter_roles','Application des rôles (attaque/défense)'],['inter_ethique','Éthique sportive et fair-play'],['inter_eval','Évaluation de la démarche collective'],['inter_passe','Qualité des passes (précision, timing)'],['inter_reception','Réception et contrôle du ballon'],['inter_demarquage',"Démarquage et occupation de l'espace"],['inter_marquage','Marquage et couverture défensive'],['inter_transition','Transition attaque-défense'],['inter_aide','Aide et entraide entre coéquipiers'],['inter_arbitrage',"Capacité d'arbitrage et jugement"],['inter_leadership',"Leadership positif dans l'équipe"],['inter_conflits','Gestion des conflits'],['inter_encouragement','Encouragement des pairs'],['inter_adaptation','Adaptation aux actions adverses'],['inter_lecture_jeu','Lecture du jeu et anticipation'],['inter_creation_jeu','Création de jeu (feintes, passes décisives)'],['inter_respect_regles','Respect des règles du jeu'],
+  ]},
+  { key:'sante', label:'❤️ SANTÉ', items:[
+    ['sante_condition','Condition physique'],['sante_habitudes','Habitudes de vie saines'],['sante_hygiene','Hygiène et propreté'],['sante_stress','Gestion du stress'],['sante_alimentation','Saine alimentation et hydratation'],['sante_securite','Sécurité dans la pratique'],['sante_effort',"Persévérance et engagement dans l'effort"],['sante_bienetre','Bien-être physique et mental'],['sante_echauffement','Échauffement et retour au calme'],['sante_frequence_cardiaque','Connaissance de sa fréquence cardiaque'],['sante_sommeil','Importance du sommeil'],['sante_posture_quotidienne','Posture dans la vie quotidienne'],['sante_gestion_effort',"Gestion de l'intensité de l'effort"],['sante_relaxation','Techniques de relaxation'],['sante_image_corporelle','Image corporelle positive'],['sante_objectifs',"Fixation d'objectifs personnels"],['sante_autonomie','Autonomie dans la pratique'],['sante_responsabilite','Responsabilité face à sa santé'],
+  ]},
+];
+const PFEQ_LABEL = {}; PFEQ.forEach(c=>c.items.forEach(([k,l])=>{ PFEQ_LABEL[k]={label:l, comp:c.label}; }));
+
+// Types de cote choisis par colonne : cyclables (clic) ou saisie (prompt)
+const COTE_TYPES = {
+  grade:     { label:'A–E',      cycle:['','A','B','C','D','E'] },
+  plusminus: { label:'++ … --',  cycle:['','++','+','±','-','--'] },
+  color:     { label:'Couleurs', cycle:['','🟢','🟡','🔴','🟣'] },
+  stars:     { label:'⭐ 1–5',   cycle:['','⭐','⭐⭐','⭐⭐⭐','⭐⭐⭐⭐','⭐⭐⭐⭐⭐'] },
+  percent:   { label:'%',        prompt:'Pourcentage (0–100) :', max:100 },
+  number:    { label:'/ total',  prompt:'Note :', hasTotal:true },
+};
 const LIEN_LABELS = { mere:'Mere', pere:'Pere', 'grand-mere':'Grand-mere', 'grand-pere':'Grand-pere', 'gardien(ne)':'Gardien(ne)', autre:'Autre' };
 
 const BLOC_TYPES = {
@@ -249,6 +291,8 @@ const state = {
   messages: [], msgUnsub: null, msgThread: null, // msgThread = {groupeId, enfantId, titre} fil ouvert
   // Métier imposé par le hub (?metier=ep|camp|sdg) quand intégré en iframe
   hubMetier: '',
+  // Évaluation PFEQ (ÉP) : colonnes (critères+type), valeurs du jour, date
+  evalCols: [], evalMap: {}, evalDate: todayISO(),
 };
 
 // Rôle effectif pour la messagerie
@@ -579,6 +623,7 @@ function renderGroupBar() {
     <button class="p-nav-btn ${state.view==='roster'?'active':''}" data-action="nav" data-to="roster">\u{1F465} Mon groupe</button>
     <button class="p-nav-btn ${state.view==='gabarit'?'active':''}" data-action="nav" data-to="gabarit">\u{1F4D0} Journee type</button>
     <button class="p-nav-btn ${state.view==='historique'?'active':''}" data-action="nav" data-to="historique">\u{1F4CA} Historique</button>
+    ${epMetierActif()?`<button class="p-nav-btn ${state.view==='evaluation'?'active':''}" data-action="nav" data-to="evaluation">\u{1F4CA} Évaluation</button>`:''}
   </div>`;
 }
 
@@ -590,6 +635,7 @@ function renderMain() {
     case 'journee':    content = renderJournee(); break;
     case 'live':       return renderLive();
     case 'roster':     content = renderRoster(); break;
+    case 'evaluation': content = renderEvaluation(); break;
     case 'gabarit':    content = renderGabarit(); break;
     case 'historique': content = renderHistorique(); break;
   }
@@ -1587,6 +1633,15 @@ async function handleAction(action, ds) {
     case 'msg-inbox': state.msgThread=null; renderInbox(); break;
     case 'send-message': await handleSendMessage(); break;
     case 'close-messages': closeModal('modal-messages'); state.msgThread=null; break;
+
+    // ── Évaluation PFEQ ──
+    case 'eval-add-col': openEvalColModal(); break;
+    case 'eval-save-col': await handleEvalSaveCol(); break;
+    case 'close-eval': closeModal('modal-eval'); break;
+    case 'eval-del-col': { if(confirm('Retirer cette colonne? (les cotes saisies restent en base)')){ state.evalCols.splice(+ds.i,1); await EvalConfig.save(state.groupeId,state.evalCols); render(); } break; }
+    case 'eval-cell': await handleEvalCell(ds.eid, +ds.i); break;
+    case 'eval-prev': state.evalDate=shiftDate(state.evalDate||todayISO(),-1); await loadEvalData(); render(); break;
+    case 'eval-next': state.evalDate=shiftDate(state.evalDate||todayISO(),1); await loadEvalData(); render(); break;
     case 'coordo-prev':
       state.coordoDate=shiftDate(state.coordoDate||todayISO(),-1); await loadCoordoData(); render(); break;
     case 'coordo-next':
@@ -1763,12 +1818,102 @@ function onMessagesUpdate() {
   if(open && open.classList.contains('open') && state.msgThread){ renderThreadBody(); markThreadLu(); }
 }
 
+// ══════════════════════════════════════════════════════════
+//  ÉVALUATION PFEQ (ÉP)
+// ══════════════════════════════════════════════════════════
+
+function epMetierActif(){ return state.hubMetier==='ep' || (state.groupe && state.groupe.metier==='ep'); }
+
+async function loadEvalData(){
+  if(!state.groupeId) return;
+  state.evalCols = await EvalConfig.get(state.groupeId);
+  const evals = await Evaluations.listByDate(state.groupeId, state.evalDate||todayISO());
+  state.evalMap = {}; evals.forEach(e=>{ state.evalMap[e.enfantId+'__'+e.critereId]=e.valeur; });
+}
+
+function renderEvaluation(){
+  const date=state.evalDate||todayISO(), isToday=date===todayISO();
+  let html=`<div class="p-day-header">
+    <div class="p-day-main-title">📊 Évaluation</div>
+    <div class="p-day-title-row">
+      <button class="p-day-nav-btn" data-action="eval-prev">◀</button>
+      <span class="p-day-title">${isToday?"Aujourd'hui":formatDateLong(date)}</span>
+      <button class="p-day-nav-btn" data-action="eval-next">▶</button>
+    </div>
+  </div>`;
+  if(!state.enfants.length){
+    return html+`<div style="text-align:center;padding:var(--space-3);opacity:.5;font-family:var(--font-fun)">Ajoute des élèves dans <em>Mon groupe</em> d'abord.</div>`;
+  }
+  const cols=state.evalCols;
+  if(!cols.length){
+    html+=`<div style="text-align:center;padding:var(--space-4);opacity:.6;font-family:var(--font-fun)">Aucun critère pour l'instant.<br>Ajoute un critère PFEQ à évaluer pour commencer.</div>`;
+  } else {
+    html+=`<div class="p-eval-wrap"><table class="p-eval-table"><thead><tr><th class="p-eval-name p-eval-sticky">Élève</th>`;
+    cols.forEach((c,i)=>{ const cr=PFEQ_LABEL[c.critereId]; const tt=COTE_TYPES[c.type];
+      html+=`<th class="p-eval-col"><div class="p-eval-colh"><span>${esc(cr?cr.label:c.critereId)}</span><button class="p-eval-colx" data-action="eval-del-col" data-i="${i}" title="Retirer la colonne">✕</button></div><div class="p-eval-coltype">${tt?tt.label:c.type}${(c.type==='number'&&c.total)?(' /'+c.total):''}</div></th>`;
+    });
+    html+=`</tr></thead><tbody>`;
+    state.enfants.forEach(e=>{
+      html+=`<tr><td class="p-eval-name p-eval-sticky">${avatarHTML(e,'sm')}<span>${esc(e.prenom)}</span>${particMiniHTML(e)}</td>`;
+      cols.forEach((c,i)=>{ const v=state.evalMap[e.id+'__'+c.critereId]||'';
+        html+=`<td class="p-eval-cell ${v?'has-val':''}" data-action="eval-cell" data-eid="${e.id}" data-i="${i}"><span class="p-eval-val">${esc(v)||'·'}</span></td>`;
+      });
+      html+=`</tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  }
+  html+=`<div style="text-align:center;margin-top:var(--space-3)"><button class="zts-btn zts-btn--primary" data-action="eval-add-col">+ Ajouter un critère</button></div>`;
+  return html;
+}
+
+async function handleEvalCell(eid, i){
+  const col=state.evalCols[i]; if(!col) return;
+  const type=COTE_TYPES[col.type]; const key=eid+'__'+col.critereId; const cur=state.evalMap[key]||'';
+  let nv;
+  if(type.cycle){ const arr=type.cycle; const idx=arr.indexOf(cur); nv=arr[(idx+1)%arr.length]; }
+  else if(col.type==='percent'){ const r=prompt(type.prompt, cur.replace('%','')); if(r===null)return; const s=String(r).trim(); nv = s==='' ? '' : Math.max(0,Math.min(100,parseInt(s)||0))+'%'; }
+  else if(col.type==='number'){ const tot=col.total||10; const r=prompt(type.prompt+' / '+tot, cur.replace(/\/.*/,'')); if(r===null)return; const s=String(r).trim(); nv = s==='' ? '' : Math.max(0,Math.min(tot,parseInt(s)||0))+'/'+tot; }
+  if(nv==='' || nv==null) delete state.evalMap[key]; else state.evalMap[key]=nv;
+  try{ await Evaluations.set({groupeId:state.groupeId,enfantId:eid,critereId:col.critereId,date:state.evalDate||todayISO(),valeur:nv}); }catch(e){ console.warn('[Planif] eval set',e); }
+  render();
+}
+
+function openEvalColModal(){
+  const inner=document.getElementById('modal-eval-inner'); if(!inner)return;
+  const compOpts=PFEQ.map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('');
+  const typeOpts=Object.entries(COTE_TYPES).map(([k,t])=>`<option value="${k}">${esc(t.label)}</option>`).join('');
+  inner.innerHTML=`
+    <button class="zts-modal__close" data-action="close-eval">✕</button>
+    <h2 class="zts-modal__title">+ Ajouter un critère</h2>
+    <div class="p-field"><label class="p-label">Compétence</label><select class="p-select" id="eval-comp">${compOpts}</select></div>
+    <div class="p-field"><label class="p-label">Critère</label><select class="p-select" id="eval-crit"></select></div>
+    <div class="p-field"><label class="p-label">Type de cote</label><select class="p-select" id="eval-type">${typeOpts}</select></div>
+    <div class="p-field" id="eval-total-field" style="display:none"><label class="p-label">Note sur… (total)</label><input class="p-input" id="eval-total" type="number" value="10" min="1" max="100"></div>
+    <button class="zts-btn zts-btn--primary" data-action="eval-save-col" style="width:100%;margin-top:var(--space-2)">Ajouter la colonne</button>`;
+  const fillCrit=()=>{ const comp=PFEQ.find(c=>c.key===document.getElementById('eval-comp').value)||PFEQ[0]; document.getElementById('eval-crit').innerHTML=comp.items.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join(''); };
+  fillCrit();
+  document.getElementById('eval-comp').addEventListener('change',fillCrit);
+  document.getElementById('eval-type').addEventListener('change',ev=>{ document.getElementById('eval-total-field').style.display=(ev.target.value==='number')?'block':'none'; });
+  openModal('modal-eval');
+}
+
+async function handleEvalSaveCol(){
+  const critereId=document.getElementById('eval-crit').value;
+  const type=document.getElementById('eval-type').value;
+  const total=type==='number'?(Math.max(1,Math.min(100,parseInt(document.getElementById('eval-total').value)||10))):0;
+  if(state.evalCols.some(c=>c.critereId===critereId && c.type===type)){ closeModal('modal-eval'); return; }
+  state.evalCols.push({critereId, type, total});
+  try{ await EvalConfig.save(state.groupeId, state.evalCols); }catch(e){ console.warn('[Planif] evalConfig save',e); }
+  closeModal('modal-eval'); render();
+}
+
 // Navigation entre vues (réutilisé par les onglets du hub via postMessage)
 async function navigateTo(to) {
   state.view=to;
   if(to==='calendrier') await loadCalendarData();
   else if(to==='journee'){ if(!state.currentDate)state.currentDate=todayISO(); await loadJourneeData(); }
   else if(to==='gabarit') await loadGrilleType();
+  else if(to==='evaluation'){ if(!state.evalDate)state.evalDate=todayISO(); await loadEvalData(); }
   else if(to==='historique'){ state.historyEnfantId=null; state.historyData=[]; }
   render();
 }
@@ -1820,7 +1965,7 @@ function wireEvents() {
   root.addEventListener('pointercancel',clearLP);
   root.addEventListener('contextmenu',(e)=>{if(e.target.closest('[data-action="tap-presence"]'))e.preventDefault();});
 
-  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer','modal-presences','modal-messages'].forEach(id=>{
+  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer','modal-presences','modal-messages','modal-eval'].forEach(id=>{
     const modal=document.getElementById(id);
     modal.addEventListener('click',(e)=>{
       if(e.target===modal){closeModal(id);return;}
