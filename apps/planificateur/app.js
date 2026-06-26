@@ -1995,6 +1995,13 @@ async function init() {
   state.hubMetier=( ['ep','camp','sdg'].includes(_params.get('metier')) ? _params.get('metier') : '' );
   if(state.hubMetier) document.body.dataset.metier=state.hubMetier;
   initEmbedMessaging();
+  // Intégré : rapporte la hauteur du contenu au hub → l'iframe s'ajuste (pas de scroll interne)
+  if(_params.has('embed')){
+    const postH=()=>{ try{ if(document.body.classList.contains('zts-full'))return; parent.postMessage({type:'zts-height', h:Math.ceil(document.documentElement.scrollHeight)}, '*'); }catch(e){} };
+    try{ if(window.ResizeObserver) new ResizeObserver(postH).observe(document.body); }catch(e){}
+    window.addEventListener('load', postH);
+    setInterval(postH, 1200);
+  }
   try {
     wireEvents(); initOffline();
     console.log('[Planif] waiting for db...');

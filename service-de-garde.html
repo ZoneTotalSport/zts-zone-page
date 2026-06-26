@@ -74,6 +74,7 @@
       function fsNotify(){ var on=(document.fullscreenElement||document.webkitFullscreenElement)===frame; try{ frame.contentWindow.postMessage({type:'zts-fullscreen',on:on},'*'); }catch(e){} }
       document.addEventListener('fullscreenchange',fsNotify);
       document.addEventListener('webkitfullscreenchange',fsNotify);
+      window.addEventListener('message',function(e){ if(e.data&&e.data.type==='zts-height'&&e.source===frame.contentWindow){ frame.style.height=Math.max(420,Math.min(6000,e.data.h||0))+'px'; } });
     })();
     </script>
 
