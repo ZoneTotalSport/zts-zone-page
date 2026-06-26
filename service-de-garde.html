@@ -54,6 +54,7 @@
         <button class="zts-plan__tab is-active" data-vue="presences" type="button">📅 Présences</button>
         <button class="zts-plan__tab" data-vue="semaine" type="button">🗓️ Semaine</button>
         <button class="zts-plan__tab" data-vue="jour" type="button">📝 Jour</button>
+        <button class="zts-plan__tab zts-plan__fs" data-fs type="button" title="Plein écran">⛶ Plein écran</button>
       </div>
       <iframe class="zts-plan__frame" data-zts-plan-frame title="Planificateur" src="/apps/planificateur/?embed=1&metier=sdg&vue=presences" loading="lazy"></iframe>
     </section>
@@ -61,13 +62,15 @@
     (function(){
       var sec=document.currentScript.previousElementSibling;
       var frame=sec.querySelector('[data-zts-plan-frame]');
-      sec.querySelectorAll('.zts-plan__tab').forEach(function(t){
+      sec.querySelectorAll('.zts-plan__tab[data-vue]').forEach(function(t){
         t.addEventListener('click',function(){
-          sec.querySelectorAll('.zts-plan__tab').forEach(function(x){x.classList.remove('is-active');});
+          sec.querySelectorAll('.zts-plan__tab[data-vue]').forEach(function(x){x.classList.remove('is-active');});
           t.classList.add('is-active');
           try{ frame.contentWindow.postMessage({type:'zts-setview',view:t.dataset.vue},'*'); }catch(e){}
         });
       });
+      var fs=sec.querySelector('[data-fs]');
+      if(fs) fs.addEventListener('click',function(){ try{ (frame.requestFullscreen||frame.webkitRequestFullscreen).call(frame); }catch(e){} });
     })();
     </script>
 

@@ -16,8 +16,11 @@
 
 /* Mode intégré (iframe dans un hub) : on cache le header/subnav/perso du planificateur */
 body.zts-embed [data-zts-header], body.zts-embed .zts-subnav, body.zts-embed .p-perso, body.zts-embed [data-zts-footer], body.zts-embed .zts-footer { display:none !important; }
-body.zts-embed { padding-top:10px !important; background:transparent !important; }
+body.zts-embed { padding-top:6px !important; background:transparent !important; }
 body.zts-embed[data-metier]{ background-image:none !important; }
+/* Aplatit la vue Semaine : pas de swirl ni de feuille en double (un seul encadré = celui du hub) */
+body.zts-embed .sem-root { background:transparent !important; padding:4px !important; }
+body.zts-embed .sem-root .sheet { background:transparent !important; border:none !important; box-shadow:none !important; padding:4px !important; max-width:none !important; }
 
 /* Fond de marque SWIRL jaune+cyan UNIFORME sur toute la page (rayons larges depuis le coin bas-droit) */
 body[data-metier]{
