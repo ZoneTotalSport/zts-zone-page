@@ -838,7 +838,7 @@ ${edu.progression ? (() => {
 
   // Share button
   content.querySelector('.modal-share-btn').addEventListener('click', () => {
-    const url = `https://educatifs.zonetotalsport.ca/?id=${eduId}`;
+    const url = `https://zonetotalsport.ca/apps/educatifs/?id=${eduId}`;
     navigator.clipboard.writeText(url).then(() => {
       showToast('Lien copié !');
     }).catch(() => {
@@ -1388,7 +1388,7 @@ function shareCours() {
   };
 
   const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(shareData))));
-  const url = `https://educatifs.zonetotalsport.ca/?cours=${encoded}`;
+  const url = `https://zonetotalsport.ca/apps/educatifs/?cours=${encoded}`;
 
   navigator.clipboard.writeText(url).then(() => {
     showToast('Lien du cours copié !');

@@ -3468,7 +3468,7 @@ function pcHowEN(){ return ''
         { icon: '🏀', name: 'Tableau indicateur', desc: 'Scoreboard 3 sports', url: 'https://zonetotalsport.ca/apps/scoreboard/', hot: true },
         { icon: '🧰', name: 'Boîte à outils', desc: 'Signaux, chrono, équipes', url: 'https://zonetotalsport.ca/apps/transitions/' },
         { icon: '🎒', name: '90 cours maternelle', desc: 'Web-app clé en main', url: 'https://zonetotalsport.ca/apps/cours-maternelle/', hot: true },
-        { icon: '🦺', name: 'Ma Suppléance', desc: 'Plans pour suppléants', url: 'https://suppleance.zonetotalsport.ca/' },
+        { icon: '🦺', name: 'Ma Suppléance', desc: 'Plans pour suppléants', url: '/apps/suppleance/' },
         { icon: '🌍', name: 'Répertoire mondial', desc: 'Profs ÉP du monde', url: 'https://zonetotalsport.ca/repertoire.html' },
         { icon: '✏️', name: 'Blog ÉPS', desc: '23+ articles pratiques', url: 'https://zonetotalsport.ca/blog.html' },
         { icon: '🤝', name: 'Communauté ÉPS', desc: 'Forum Aidons-nous', url: 'https://zonetotalsport.ca/aidons-nous/' },
@@ -4493,7 +4493,7 @@ function pcHowEN(){ return ''
         { icon:'🏀', name:'Scoreboard', desc:'3-sport scoreboard', url:'https://zonetotalsport.ca/apps/scoreboard/', hot:true },
         { icon:'🧰', name:'Toolbox', desc:'Signals, timer, teams', url:'https://zonetotalsport.ca/apps/transitions/' },
         { icon:'🎒', name:'90 kindergarten lessons', desc:'Turnkey web app', url:'https://zonetotalsport.ca/apps/cours-maternelle/', hot:true },
-        { icon:'🦺', name:'My Substitute', desc:'Plans for substitutes', url:'https://suppleance.zonetotalsport.ca/' },
+        { icon:'🦺', name:'My Substitute', desc:'Plans for substitutes', url:'/apps/suppleance/' },
         { icon:'🌍', name:'World directory', desc:'PE teachers worldwide', url:'https://zonetotalsport.ca/repertoire.html' },
         { icon:'✏️', name:'PE Blog', desc:'23+ practical articles', url:'https://zonetotalsport.ca/blog.html' },
         { icon:'🤝', name:'PE Community', desc:'Aidons-nous forum', url:'https://zonetotalsport.ca/aidons-nous/' },
@@ -4614,13 +4614,13 @@ function pcHowEN(){ return ''
   const APP_URL = {
     'Banque de jeux':'https://jeux.zonetotalsport.ca', 'Game bank':'https://jeux.zonetotalsport.ca',
     'Générateur SAÉ IA':'https://ia.zonetotalsport.ca', 'AI SAÉ generator':'https://ia.zonetotalsport.ca',
-    'Carnet Léger':'https://evaluation.zonetotalsport.ca', 'Light gradebook':'https://evaluation.zonetotalsport.ca',
-    "Banque d'éducatifs":'https://educatifs.zonetotalsport.ca', 'Drills bank':'https://educatifs.zonetotalsport.ca',
-    'Grille horaire':'https://grille.zonetotalsport.ca', 'Schedule grid':'https://grille.zonetotalsport.ca',
-    'Musique':'https://musique.zonetotalsport.ca', 'Music':'https://musique.zonetotalsport.ca',
-    'Musique ambiance':'https://musique.zonetotalsport.ca', 'Mood music':'https://musique.zonetotalsport.ca',
-    'Musique camp':'https://musique.zonetotalsport.ca', 'Camp music':'https://musique.zonetotalsport.ca',
-    'Tableau blanc TNI':'https://tni.zonetotalsport.ca', 'IWB whiteboard':'https://tni.zonetotalsport.ca'
+    'Carnet Léger':'/apps/evaluation/', 'Light gradebook':'/apps/evaluation/',
+    "Banque d'éducatifs":'/apps/educatifs/', 'Drills bank':'/apps/educatifs/',
+    'Grille horaire':'/apps/grille/', 'Schedule grid':'/apps/grille/',
+    'Musique':'/apps/musique/', 'Music':'/apps/musique/',
+    'Musique ambiance':'/apps/musique/', 'Mood music':'/apps/musique/',
+    'Musique camp':'/apps/musique/', 'Camp music':'/apps/musique/',
+    'Tableau blanc TNI':'/apps/tni/', 'IWB whiteboard':'/apps/tni/'
   };
   [METIERS_FR, METIERS_EN].forEach(M => Object.values(M).forEach(m => m.apps.forEach(a => {
     if (APP_URL[a.name]) { a.url = APP_URL[a.name]; delete a.soon; }
