@@ -28,3 +28,10 @@ Aucun.
 | Cache-cache sardine | Sardines | `SANS_003` | 1.0 |
 | Le volcan | LE VOLCAN | `pfeq_146` | 1.0 |
 
+## jeux-eau — 2 doublon(s)
+
+| Activité extraite | ≈ Jeu du catalogue | slug catalogue | similarité |
+|---|---|---|---|
+| Relais de l'éponge | Sponge relay | `EXT_037` | 1.0 |
+| Tir sur cible | Tir sur cibles mobiles | `OLYM_033` | 0.74 |
+
