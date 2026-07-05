@@ -35,3 +35,10 @@ Aucun.
 | Relais de l'éponge | Sponge relay | `EXT_037` | 1.0 |
 | Tir sur cible | Tir sur cibles mobiles | `OLYM_033` | 0.74 |
 
+## jeux-par-theme — 2 doublon(s)
+
+| Activité extraite | ≈ Jeu du catalogue | slug catalogue | similarité |
+|---|---|---|---|
+| La planche | WALK THE PLANK | `pfeq_47` | 1.0 |
+| La queue du dragon | Attraper la queue du dragon | `AAO_005` | 0.8 |
+
