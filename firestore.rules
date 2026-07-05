@@ -209,6 +209,43 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // budget — app privee familiale. Deux types d'espaces :
+    //  • COMMUN  (budget/root-famille) : partage entre les membres. Self-join
+    //    controle (un 2e membre peut s'ajouter lui-meme, plafond 2 personnes).
+    //  • PERSO   (budget/perso-<uid>)  : prive, lisible/ecrivable par le seul
+    //    proprietaire (uid dans l'identifiant du doc).
+    // ─────────────────────────────────────────────────────────
+
+    // ── Espace COMMUN : doc racine ──
+    match /budget/root-famille {
+      allow get: if request.auth != null; // lire membres (pour rejoindre)
+      allow create: if request.auth != null
+                    && request.auth.uid in request.resource.data.membres;
+      // Deja membre : ecriture libre. Sinon : self-join (n'enleve personne,
+      // s'ajoute soi-meme, uniquement si <2 membres actuellement).
+      allow update: if request.auth != null && (
+        request.auth.uid in resource.data.membres
+        || (request.resource.data.membres.hasAll(resource.data.membres)
+            && request.auth.uid in request.resource.data.membres
+            && resource.data.membres.size() < 2)
+      );
+      allow delete: if false;
+    }
+    // ── Espace COMMUN : sous-documents (config, transactions, planifs) ──
+    match /budget/root-famille/{document=**} {
+      allow read, write: if request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/budget/root-famille).data.membres;
+    }
+
+    // ── Espaces PERSO : proprietaire uniquement (perso-<uid>) ──
+    match /budget/{sid} {
+      allow read, write: if request.auth != null && sid == ('perso-' + request.auth.uid);
+    }
+    match /budget/{sid}/{document=**} {
+      allow read, write: if request.auth != null && sid == ('perso-' + request.auth.uid);
+    }
+
+    // ─────────────────────────────────────────────────────────
     // Tout le reste : interdit par defaut.
     // ─────────────────────────────────────────────────────────
     match /{document=**} {
