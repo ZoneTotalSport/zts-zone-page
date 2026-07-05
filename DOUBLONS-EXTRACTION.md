@@ -52,3 +52,7 @@ Aucun.
 |---|---|---|---|
 | Téléphone arabe | LE TÉLÉPHONE ARABE PHYSIQUE | `pfeq_145` | 0.71 |
 
+## journee-pedago — 0 doublon(s)
+
+Aucun.
+
