@@ -46,3 +46,9 @@ Aucun.
 
 Aucun.
 
+## veillee-feu-de-camp — 1 doublon(s)
+
+| Activité extraite | ≈ Jeu du catalogue | slug catalogue | similarité |
+|---|---|---|---|
+| Téléphone arabe | LE TÉLÉPHONE ARABE PHYSIQUE | `pfeq_145` | 0.71 |
+
