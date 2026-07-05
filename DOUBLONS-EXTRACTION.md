@@ -42,3 +42,7 @@ Aucun.
 | La planche | WALK THE PLANK | `pfeq_47` | 1.0 |
 | La queue du dragon | Attraper la queue du dragon | `AAO_005` | 0.8 |
 
+## rallyes — 0 doublon(s)
+
+Aucun.
+
