@@ -18,6 +18,13 @@
   ne pas réutiliser dans du nouveau code. Migration prévue au chantier harmonisation.
 - Les **pilules `border-radius:999px` sont dépréciées** pour les boutons d'action.
 
+## Firebase — règles Firestore (source de vérité)
+- **`firestore.rules` du repo = source de vérité UNIQUE** (projet `zone-total-sport`).
+- Tout déploiement de règles passe par un **commit d'abord**.
+- **Jamais de modification via console sans rapatriement immédiat** dans le repo.
+- Rapatriement du 5 juil 2026 (`f88abfa`) : repo aligné sur le ruleset actif du 2 juil
+  (bloc `budget/*` + slice semaines/messages/évaluations déjà commité les 23-26 juin).
+
 ## Audience
 Trois corps de métier visés équitablement :
 1. **ÉPS** — Enseignants éducation physique primaire (Québec, alignement PFEQ)
