@@ -7,6 +7,17 @@
 - **Style visuel** : Pop Art bûcheron — Patrick Hand, Schoolbell, Ben-Day dots, bleu-violet, offset shadows, dashed borders
 - **Mascotte** : Mr. Root (bûcheron sportif)
 
+## Design — boutons (décision verrouillée 2026-07-05)
+- **`.zts-action`** (shared/zts.css) = standard **OBLIGATOIRE pour tout nouveau bouton
+  d'action** : rectangle courbé (border 3px #111, radius 10px), ombre BD décalée
+  `4px 4px 0 #111`, Bangers, hover `translate(-2px,-2px)` / active `translate(2px,2px)`.
+  Variantes de fond : `.zts-action--camps` (#FF6B00, texte blanc), `.zts-action--eps`
+  (#00E5FF, texte #111), `.zts-action--sdg` (#39FF14, texte #111), `.zts-action--neutre`
+  (blanc, texte #111). Bangers doit être chargée par la page (Google Fonts).
+- **`.zts-btn`** = legacy du header partagé (1489 pages), **GELÉ** : ne pas modifier,
+  ne pas réutiliser dans du nouveau code. Migration prévue au chantier harmonisation.
+- Les **pilules `border-radius:999px` sont dépréciées** pour les boutons d'action.
+
 ## Audience
 Trois corps de métier visés équitablement :
 1. **ÉPS** — Enseignants éducation physique primaire (Québec, alignement PFEQ)
