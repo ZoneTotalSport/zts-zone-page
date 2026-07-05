@@ -18,3 +18,13 @@
 
 Aucun.
 
+## grands-jeux — 5 doublon(s)
+
+| Activité extraite | ≈ Jeu du catalogue | slug catalogue | similarité |
+|---|---|---|---|
+| Capture du drapeau | Capturer le drapeau | `PO_020` | 0.86 |
+| Poule, renard, vipère | POULES, RENARDS, VIPÈRES | `pfeq_68` | 0.93 |
+| Ballon-chasseur géant | Inuit Dodgeball | `BC_019` | 0.87 |
+| Cache-cache sardine | Sardines | `SANS_003` | 1.0 |
+| Le volcan | LE VOLCAN | `pfeq_146` | 1.0 |
+
