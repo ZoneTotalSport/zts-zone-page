@@ -71,9 +71,13 @@ const TiroirJeux = (() => {
   function paint() {
     const inner = el().querySelector('.tiroir__panel');
     if (!inner) return;
-    inner.innerHTML = renderHeader() + renderCorps();
-    const q = inner.querySelector('[data-tiroir-q]');
-    if (q && document.activeElement !== q) { /* focus géré au besoin */ }
+    inner.innerHTML = renderHeader() + renderFiltres() + renderCorps();
+  }
+
+  // Repeint SEULEMENT le corps (compte + liste) : le champ recherche garde le focus.
+  function paintCorps() {
+    const corps = el().querySelector('[data-tiroir-corps]');
+    if (corps) corps.innerHTML = renderCorps(); else paint();
   }
 
   function renderHeader() {
@@ -83,6 +87,25 @@ const TiroirJeux = (() => {
       ${ou ? `<div class="tiroir__slot">${T.mode === 'fill' ? 'Pour le bloc de' : 'Créneau'} ${ou}</div>` : ''}
       <button class="zts-action zts-action--neutre tiroir__close" data-tiroir="close" aria-label="Fermer">✕</button>
     </div>`;
+  }
+
+  // Filtres GROS et simples ; la recherche texte reste discrète (2e niveau, repliée).
+  function renderFiltres() {
+    const f = T.filtres;
+    const chip = (grp, val, label) =>
+      `<button class="zts-action zts-action--neutre tiroir__chip ${f[grp] === val ? 'on' : ''}"
+        data-tiroir="filtre" data-grp="${grp}" data-val="${val}">${label}</button>`;
+    return `<div class="tiroir__filtres">
+      <div class="tiroir__frow">${chip('age','4-5','4-5 ans')}${chip('age','6-8','6-8 ans')}${chip('age','9-12','9-12 ans')}</div>
+      <div class="tiroir__frow">${chip('energie','defoulement','🔥 Défoulement')}${chip('energie','calme','😌 Calme')}
+        ${chip('lieu','interieur','🏠 Intérieur')}${chip('lieu','exterieur','🌳 Extérieur')}
+        <button class="zts-action zts-action--neutre tiroir__chip ${f.sansMateriel ? 'on' : ''}" data-tiroir="filtre" data-grp="sansMateriel" data-val="1">🎒 Sans matériel</button>
+      </div>
+      <details class="tiroir__search" ${f.q ? 'open' : ''}>
+        <summary>🔍 Recherche par nom</summary>
+        <input class="p-input" data-tiroir-q type="search" placeholder="Ex. : ballon, relais…" value="${esc(f.q)}">
+      </details>
+    </div><div data-tiroir-corps>${renderCorps()}</div>`;
   }
 
   function renderCorps() {
@@ -138,7 +161,16 @@ const TiroirJeux = (() => {
       const k = b.dataset.tiroir;
       if (k === 'close') fermer();
       else if (k === 'retry') charger();
+      else if (k === 'filtre') {
+        const { grp, val } = b.dataset;
+        if (grp === 'sansMateriel') T.filtres.sansMateriel = !T.filtres.sansMateriel;
+        else T.filtres[grp] = (T.filtres[grp] === val) ? '' : val;   // re-clic = désactive
+        paint();
+      }
       else if (k === 'add') { b.disabled = true; try { await ajouter(b.dataset.ref); } catch (err) { b.disabled = false; alert('Erreur : ' + (err.message || err)); } }
+    });
+    m.addEventListener('input', (e) => {
+      if (e.target.matches('[data-tiroir-q]')) { T.filtres.q = e.target.value; paintCorps(); }
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && T.open) { e.stopImmediatePropagation(); fermer(); }
