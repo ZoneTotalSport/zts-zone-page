@@ -148,7 +148,20 @@ const TiroirJeux = (() => {
     else idInsere = await PlanifData.insererJeu(jeu, T.creneau || PlanifData.premierTrou(state.journeeBlocs));
     fermer();
     render();
+    flashBloc(idInsere);
     return idInsere;
+  }
+
+  // Flash BD court sur le bloc fraîchement inséré (après re-render de la journée)
+  function flashBloc(idBloc) {
+    if (!idBloc) return;
+    requestAnimationFrame(() => {
+      const node = document.querySelector(`[data-bloc-id="${idBloc}"]`);
+      if (!node) return;
+      node.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      node.classList.add('p-bloc--flash');
+      node.addEventListener('animationend', () => node.classList.remove('p-bloc--flash'), { once: true });
+    });
   }
 
   // ── Événements (autonomes — le tiroir vit hors de #app-root) ──

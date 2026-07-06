@@ -426,6 +426,14 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
   .tiroir__row{flex-direction:column;align-items:stretch}
   .tiroir__add{width:100%;text-align:center}
 }
+/* Flash BD du bloc fraîchement inséré depuis le tiroir */
+.p-bloc--flash{animation:p-bloc-flash .9s cubic-bezier(.34,1.56,.64,1) 1}
+@keyframes p-bloc-flash{
+  0%{transform:scale(.94);box-shadow:0 0 0 0 rgba(255,107,0,.0)}
+  30%{transform:scale(1.03);box-shadow:0 0 0 6px rgba(255,107,0,.55),8px 8px 0 #B026FF}
+  60%{transform:scale(1);box-shadow:0 0 0 4px rgba(176,38,255,.4),var(--ombre)}
+  100%{transform:scale(1);box-shadow:var(--ombre)}
+}
 /* Trou libre dans la timeline → ouvre le tiroir sur ce créneau */
 .p-trou{display:block;width:100%;text-align:center;padding:10px 12px;cursor:pointer;
   font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);color:var(--orange);
