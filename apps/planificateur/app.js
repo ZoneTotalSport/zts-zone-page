@@ -775,12 +775,13 @@ function renderJournee() {
   // ── Section Programme ──
   html += `<div class="p-section-title">\u{1F4C5} Programme</div>`;
   if (blocs.length) {
-    html += `<div class="p-timeline">${blocs.map((b,i) => renderBlocCard(b,'journee',i,blocs.length)).join('')}</div>`;
+    html += `<div class="p-timeline">${renderTimelineAvecTrous(blocs)}</div>`;
   } else {
     html += `<div style="text-align:center;padding:var(--space-3);opacity:.5;font-family:var(--font-fun)">Aucun bloc planifie pour cette journee.</div>`;
   }
   html += `<div class="p-bloc-add" style="gap:var(--space-2);display:flex;flex-wrap:wrap;justify-content:center">
     <button class="zts-btn" data-action="add-bloc" data-context="journee" style="font-size:var(--fs-1)">+ Ajouter un bloc</button>
+    <button class="zts-action zts-action--camps" data-action="open-tiroir-jeux" style="font-size:var(--fs-1)">\u{1F3B2} Ajouter un jeu</button>
     ${blocs.length?`<button class="zts-btn zts-btn--primary" data-action="start-live" style="font-size:var(--fs-1)">\u25B6 Planif en direct</button>`:''}
   </div>`;
 
@@ -958,6 +959,21 @@ function renderPresenceCard(enfant, presence, status) {
 
 // ── Bloc card (shared journee + gabarit) ──
 
+// Timeline de la journée avec les TROUS d'horaire cliquables (ouvre le Tiroir Jeux).
+// Un trou s'insère avant le premier bloc horodaté qui commence à (ou après) sa fin.
+function renderTimelineAvecTrous(blocs) {
+  const cards = blocs.map((b,i) => ({ tMin: hmToMin(b.debut), html: renderBlocCard(b,'journee',i,blocs.length) }));
+  const trous = (typeof PlanifData!=='undefined') ? PlanifData.trousJournee(blocs) : [];
+  for (const t of trous) {
+    const row = { tMin: hmToMin(t.debut), html: `<button class="p-trou" data-action="tiroir-trou" data-debut="${t.debut}" data-fin="${t.fin}">
+      \u{1F3B2} Trou libre ${t.debut.replace(':',' h ')} → ${t.fin.replace(':',' h ')} — choisir un jeu</button>` };
+    const idx = cards.findIndex(c => c.tMin!=null && row.tMin!=null && c.tMin >= hmToMin(t.fin));
+    if (idx === -1) cards.push(row); else cards.splice(idx, 0, row);
+  }
+  return cards.map(c => c.html).join('');
+}
+function hmToMin(h){ const m=/^(\d{1,2})[:h](\d{2})$/.exec(h||''); return m?(+m[1])*60+(+m[2]):null; }
+
 function renderBlocCard(bloc, context, index, total) {
   const t = BLOC_TYPES[bloc.type] || BLOC_TYPES.activite;
   const blocColor = (bloc.customColor && bloc.customColor!=='default') ? (BLOC_COLORS.find(c=>c.id===bloc.customColor)?.hex||t.color) : t.color;
@@ -986,6 +1002,7 @@ function renderBlocCard(bloc, context, index, total) {
       ${attachHTML}
     </div>
     <div class="p-bloc-actions">
+      ${(context==='journee' && bloc.type==='activite' && !bloc.titre)?`<button class="p-bloc-btn" data-action="tiroir-fill-bloc" data-bloc-id="${bloc.id}" data-debut="${bloc.debut||''}" data-fin="${bloc.fin||''}" title="Choisir un jeu">\u{1F3B2}</button>`:''}
       ${index>0?`<button class="p-bloc-btn" data-action="move-bloc-up" data-bloc-id="${bloc.id}" data-context="${context}">\u2191</button>`:'<div style="width:36px;height:36px"></div>'}
       <button class="p-bloc-btn" data-action="edit-bloc" data-bloc-id="${bloc.id}" data-context="${context}">\u270F\uFE0F</button>
       ${index<total-1?`<button class="p-bloc-btn" data-action="move-bloc-down" data-bloc-id="${bloc.id}" data-context="${context}">\u2193</button>`:'<div style="width:36px;height:36px"></div>'}
@@ -1498,6 +1515,17 @@ async function handleApplyBatch() {
 
 async function handleAction(action, ds) {
   switch(action) {
+    // ── Tiroir Jeux (insertion contextuelle — on ne quitte jamais la journée) ──
+    case 'open-tiroir-jeux':   // bouton générique → premier trou libre
+      TiroirJeux.openForCreneau(PlanifData.premierTrou(state.journeeBlocs));
+      return;
+    case 'tiroir-trou':        // trou cliqué → créneau exact du trou
+      TiroirJeux.openForCreneau({ debut: ds.debut, fin: ds.fin });
+      return;
+    case 'tiroir-fill-bloc':   // bloc activité vide → remplir ce bloc
+      TiroirJeux.openForBloc(ds.blocId, (ds.debut && ds.fin) ? { debut: ds.debut, fin: ds.fin } : null);
+      return;
+
     // ── Valider la semaine + notifier le coordo ──
     case 'valider-semaine': {
       if(!state.groupeId||!state.orgId) return alert('Aucun groupe/organisation.');
