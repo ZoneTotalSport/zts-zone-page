@@ -46,20 +46,21 @@ async function getDb() {
 // ══════════════════════════════════════════════════════════
 
 const Organisations = {
-  async create(d) { return (await (await getDb()).collection('organisations').add({ nom:d.nom, coordoUid:d.coordoUid, dateDebut:d.dateDebut||'', dateFin:d.dateFin||'', semaines:d.semaines||[] })).id; },
+  async create(d) { return (await (await getDb()).collection('organisations').add({ nom:d.nom, coordoUid:d.coordoUid, coordoEmail:d.coordoEmail||'', dateDebut:d.dateDebut||'', dateFin:d.dateFin||'', semaines:d.semaines||[] })).id; },
   async get(id) { const s=await (await getDb()).collection('organisations').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async update(id,d) { (await getDb()).collection('organisations').doc(id).update(d); },
 };
 
 const Groupes = {
-  async create(d) { return (await (await getDb()).collection('groupes').add({ nom:d.nom, orgId:d.orgId, animateurUid:d.animateurUid, theme:d.theme||'' })).id; },
+  async create(d) { return (await (await getDb()).collection('groupes').add({ nom:d.nom, orgId:d.orgId, animateurUid:d.animateurUid, theme:d.theme||'', metier:d.metier||'' })).id; },
   async get(id) { const s=await (await getDb()).collection('groupes').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async listByAnimateur(uid) { const s=await (await getDb()).collection('groupes').where('animateurUid','==',uid).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
+  async listByOrg(orgId) { const s=await (await getDb()).collection('groupes').where('orgId','==',orgId).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
   async update(id,d) { (await getDb()).collection('groupes').doc(id).update(d); },
 };
 
 const Enfants = {
-  async create(d) { return (await (await getDb()).collection('enfants').add({ prenom:d.prenom, nom:d.nom, photoUrl:d.photoUrl||'', groupeId:d.groupeId, personnesAutorisees:d.personnesAutorisees||[] })).id; },
+  async create(d) { return (await (await getDb()).collection('enfants').add({ prenom:d.prenom, nom:d.nom, photoUrl:d.photoUrl||'', groupeId:d.groupeId, personnesAutorisees:d.personnesAutorisees||[], particularites:d.particularites||[], noteParticuliere:d.noteParticuliere||'' })).id; },
   async get(id) { const s=await (await getDb()).collection('enfants').doc(id).get(); return s.exists?{id:s.id,...s.data()}:null; },
   async listByGroupe(gid) { const s=await (await getDb()).collection('enfants').where('groupeId','==',gid).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
   async update(id,d) { (await getDb()).collection('enfants').doc(id).update(d); },
@@ -82,7 +83,7 @@ const Presences = {
     return (await (await getDb()).collection('presences').add({
       journeeId:d.journeeId, groupeId:d.groupeId, enfantId:d.enfantId, statut:d.statut,
       heureArrivee:d.heureArrivee||'', heureDepart:d.heureDepart||'',
-      partiAvec:d.partiAvec||{nom:'',lien:''}, horsListe:d.horsListe||false,
+      partiAvec:d.partiAvec||{nom:'',lien:''}, arriveAvec:d.arriveAvec||{lien:''}, horsListe:d.horsListe||false,
       date:d.date||'', ts:firebase.firestore.FieldValue.serverTimestamp()
     })).id;
   },
@@ -92,10 +93,81 @@ const Presences = {
   async delete(id) { (await getDb()).collection('presences').doc(id).delete(); },
 };
 
+// Messagerie coordo ↔ animateur. 1 doc / message. enfantId='' = fil général du groupe.
+const Messages = {
+  async send(d) {
+    const db=await getDb();
+    return db.collection('messages').add({
+      orgId:d.orgId||'', groupeId:d.groupeId, enfantId:d.enfantId||'',
+      fromUid:d.fromUid, fromRole:d.fromRole, fromNom:d.fromNom||'',
+      texte:d.texte, lu:false, ts:firebase.firestore.FieldValue.serverTimestamp()
+    });
+  },
+  async markLu(id) { const db=await getDb(); try{ await db.collection('messages').doc(id).update({lu:true}); }catch(e){} },
+  // Écoute temps réel : where sur 1 seul champ (pas d'orderBy → aucun index composite). Tri client par ts.
+  async listen(field, value, cb) {
+    const db=await getDb();
+    return db.collection('messages').where(field,'==',value).onSnapshot(
+      snap=>{ const arr=snap.docs.map(d=>({id:d.id,...d.data()})); arr.sort((a,b)=>(a.ts?.seconds||1e15)-(b.ts?.seconds||1e15)); cb(arr); },
+      err=>console.warn('[Planif] msg listen', err)
+    );
+  },
+};
+
+// Évaluation : config des colonnes (critères + type) par groupe, réutilisée chaque date.
+const EvalConfig = {
+  async get(gid){ const db=await getDb(); const s=await db.collection('evalConfig').doc(gid).get(); return s.exists?(s.data().colonnes||[]):[]; },
+  async save(gid, colonnes){ const db=await getDb(); await db.collection('evalConfig').doc(gid).set({colonnes}); },
+};
+// Évaluation : 1 doc par (groupe, date, élève, critère). id déterministe = upsert sans doublon.
+const Evaluations = {
+  async set(d){
+    const db=await getDb();
+    const id=`${d.groupeId}__${d.date}__${d.enfantId}__${d.critereId}`;
+    if(d.valeur===''||d.valeur==null){ try{ await db.collection('evaluations').doc(id).delete(); }catch(e){} return; }
+    await db.collection('evaluations').doc(id).set({ groupeId:d.groupeId, enfantId:d.enfantId, critereId:d.critereId, date:d.date, valeur:String(d.valeur), ts:firebase.firestore.FieldValue.serverTimestamp() });
+  },
+  // where sur groupeId seul (pas d'index composite) → filtre date côté client
+  async listByDate(gid, date){ const db=await getDb(); const s=await db.collection('evaluations').where('groupeId','==',gid).get(); return s.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.date===date); },
+  async listByEnfant(gid, enfantId){ const db=await getDb(); const s=await db.collection('evaluations').where('groupeId','==',gid).get(); return s.docs.map(x=>({id:x.id,...x.data()})).filter(x=>x.enfantId===enfantId); },
+};
+
 const GrillesType = {
   async getByGroupe(gid) { const s=await (await getDb()).collection('grillesType').where('groupeId','==',gid).limit(1).get(); if(s.empty)return null; const d=s.docs[0]; return {id:d.id,...d.data()}; },
   async create(d) { return (await (await getDb()).collection('grillesType').add({ groupeId:d.groupeId, blocs:d.blocs||[] })).id; },
   async update(id,d) { (await getDb()).collection('grillesType').doc(id).update(d); },
+};
+
+// Vue Semaine (grille riche) : 1 doc par (groupe, lundi ISO).
+// Les médias FICHIERS (data URL) ne sont PAS écrits au cloud (limite Firestore 1 Mo) —
+// seuls liens + réfs banque + titre/desc/durée sync ; le miroir localStorage garde tout.
+const Semaines = {
+  docId(gid,ws) { return gid+'__'+ws; },
+  async get(gid,ws) { const s=await (await getDb()).collection('semaines').doc(this.docId(gid,ws)).get(); return s.exists?s.data():null; },
+  async save(gid,ws,payload) {
+    const light = Semaines._strip(payload);
+    await (await getDb()).collection('semaines').doc(this.docId(gid,ws)).set({
+      groupeId:gid, weekStart:ws, structure:light.structure||[], cells:light.cells||{},
+      ts:firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge:true });
+  },
+  _strip(payload) {
+    const cells={};
+    for (const [k,v] of Object.entries(payload.cells||{})) {
+      cells[k] = Array.isArray(v)
+        ? v.map(a => a && a.medias ? {...a, medias:a.medias.filter(m=>m.kind==='link')} : a)
+        : v;
+    }
+    return { structure:payload.structure, cells };
+  },
+  // Marque la semaine comme validée (déclenche la notification coordo).
+  // groupeId/weekStart inclus pour satisfaire la règle create si le doc n'existe pas encore.
+  async validate(gid,ws,uid) {
+    await (await getDb()).collection('semaines').doc(this.docId(gid,ws)).set({
+      groupeId:gid, weekStart:ws,
+      valide:true, valideAt:firebase.firestore.FieldValue.serverTimestamp(), valideBy:uid
+    }, { merge:true });
+  }
 };
 
 // ══════════════════════════════════════════════════════════
@@ -103,7 +175,57 @@ const GrillesType = {
 // ══════════════════════════════════════════════════════════
 
 const LS = { groupeId:'planif_groupeId', orgId:'planif_orgId' };
+// Worker notification coordo (cf-worker/notify-coordo). Mettre à jour si déployé
+// sur une URL workers.dev plutôt que le domaine custom.
+const NOTIFY_COORDO_URL = 'https://coordo.zonetotalsport.ca';
 const LIENS = ['mere','pere','grand-mere','grand-pere','gardien(ne)','autre'];
+
+// Particularités de l'enfant (permanent) — l'animateur voit la condition sous le nom
+const PARTICULARITES = [
+  {k:'tsa',      label:'TSA',                emoji:'\u{1F9E9}'},
+  {k:'tdah',     label:'TDAH',               emoji:'⚡'},
+  {k:'allergie', label:'Allergie',           emoji:'\u{1F95C}'},
+  {k:'asthme',   label:'Asthme',             emoji:'\u{1F4A8}'},
+  {k:'anxiete',  label:'Anxiété',  emoji:'\u{1F4A7}'},
+  {k:'epilepsie',label:'Épilepsie',     emoji:'\u{1F9E0}'},
+  {k:'diabete',  label:'Diabète',       emoji:'\u{1FA78}'},
+  {k:'dys',      label:'Dys (lexie/praxie)', emoji:'\u{1F524}'},
+  {k:'langage',  label:'Trouble du langage', emoji:'\u{1F4AC}'},
+  {k:'autre',    label:'Autre',              emoji:'⭐'},
+];
+const PARTICULARITES_MAP = Object.fromEntries(PARTICULARITES.map(p=>[p.k,p]));
+
+// Humeur de fin de journée (journal de bord)
+const HUMEURS = [
+  {k:'belle',     label:'Belle journée', emoji:'\u{1F31F}', color:'var(--vert)'},
+  {k:'ordinaire', label:'Ordinaire',          emoji:'\u{1F642}', color:'#e6e6e6'},
+  {k:'pepin',     label:'Pépin',         emoji:'⚠️', color:'var(--rose)'},
+];
+const HUMEURS_MAP = Object.fromEntries(HUMEURS.map(h=>[h.k,h]));
+
+// ── Évaluation PFEQ (ÉP) — référentiel des compétences (porté du Carnet ÉPS) ──
+const PFEQ = [
+  { key:'agir', label:'🏃 AGIR', items:[
+    ['agir_execution',"Exécution d'actions motrices"],['agir_principes',"Application de principes liés à l'exécution"],['agir_efficacite','Efficacité des actions motrices'],['agir_planif','Planification de sa démarche'],['agir_evaluation','Évaluation de sa démarche'],['agir_equilibre','Équilibre et coordination'],['agir_locomotion','Locomotion (courir, sauter, ramper)'],['agir_manipulation',"Manipulation d'objets"],['agir_securite','Respect des règles de sécurité'],['agir_lancer','Lancer (précision, force, trajectoire)'],['agir_attraper','Attraper (réception, amortissement)'],['agir_frapper','Frapper (pied, main, raquette, bâton)'],['agir_dribbler','Dribbler (ballon, rondelle)'],['agir_sauter','Sauter (hauteur, longueur)'],['agir_rouler','Rouler (roulade avant, arrière)'],['agir_grimper','Grimper et suspension'],['agir_esquiver','Esquiver et feinter'],['agir_posture','Posture et alignement'],['agir_rythme','Rythme et tempo'],['agir_enchainement','Enchaînement de mouvements'],['agir_precision','Précision du geste technique'],['agir_puissance','Puissance et force'],['agir_souplesse','Souplesse et flexibilité'],['agir_endurance','Endurance cardiovasculaire'],['agir_vitesse',"Vitesse de réaction et d'exécution"],['agir_agilite','Agilité et changements de direction'],['agir_lateralite','Latéralité (dominant / non-dominant)'],
+  ]},
+  { key:'interagir', label:'🤝 INTERAGIR', items:[
+    ['inter_coop','Coopération avec les partenaires'],['inter_opp','Opposition face aux adversaires'],['inter_comm','Communication motrice'],['inter_sync','Synchronisation des actions'],['inter_strat','Élaboration de stratégies'],['inter_roles','Application des rôles (attaque/défense)'],['inter_ethique','Éthique sportive et fair-play'],['inter_eval','Évaluation de la démarche collective'],['inter_passe','Qualité des passes (précision, timing)'],['inter_reception','Réception et contrôle du ballon'],['inter_demarquage',"Démarquage et occupation de l'espace"],['inter_marquage','Marquage et couverture défensive'],['inter_transition','Transition attaque-défense'],['inter_aide','Aide et entraide entre coéquipiers'],['inter_arbitrage',"Capacité d'arbitrage et jugement"],['inter_leadership',"Leadership positif dans l'équipe"],['inter_conflits','Gestion des conflits'],['inter_encouragement','Encouragement des pairs'],['inter_adaptation','Adaptation aux actions adverses'],['inter_lecture_jeu','Lecture du jeu et anticipation'],['inter_creation_jeu','Création de jeu (feintes, passes décisives)'],['inter_respect_regles','Respect des règles du jeu'],
+  ]},
+  { key:'sante', label:'❤️ SANTÉ', items:[
+    ['sante_condition','Condition physique'],['sante_habitudes','Habitudes de vie saines'],['sante_hygiene','Hygiène et propreté'],['sante_stress','Gestion du stress'],['sante_alimentation','Saine alimentation et hydratation'],['sante_securite','Sécurité dans la pratique'],['sante_effort',"Persévérance et engagement dans l'effort"],['sante_bienetre','Bien-être physique et mental'],['sante_echauffement','Échauffement et retour au calme'],['sante_frequence_cardiaque','Connaissance de sa fréquence cardiaque'],['sante_sommeil','Importance du sommeil'],['sante_posture_quotidienne','Posture dans la vie quotidienne'],['sante_gestion_effort',"Gestion de l'intensité de l'effort"],['sante_relaxation','Techniques de relaxation'],['sante_image_corporelle','Image corporelle positive'],['sante_objectifs',"Fixation d'objectifs personnels"],['sante_autonomie','Autonomie dans la pratique'],['sante_responsabilite','Responsabilité face à sa santé'],
+  ]},
+];
+const PFEQ_LABEL = {}; PFEQ.forEach(c=>c.items.forEach(([k,l])=>{ PFEQ_LABEL[k]={label:l, comp:c.label}; }));
+
+// Types de cote choisis par colonne : cyclables (clic) ou saisie (prompt)
+const COTE_TYPES = {
+  grade:     { label:'A–E',      cycle:['','A','B','C','D','E'] },
+  plusminus: { label:'++ … --',  cycle:['','++','+','±','-','--'] },
+  color:     { label:'Couleurs', cycle:['','🟢','🟡','🔴','🟣'] },
+  stars:     { label:'⭐ 1–5',   cycle:['','⭐','⭐⭐','⭐⭐⭐','⭐⭐⭐⭐','⭐⭐⭐⭐⭐'] },
+  percent:   { label:'%',        prompt:'Pourcentage (0–100) :', max:100 },
+  number:    { label:'/ total',  prompt:'Note :', hasTotal:true },
+};
 const LIEN_LABELS = { mere:'Mere', pere:'Pere', 'grand-mere':'Grand-mere', 'grand-pere':'Grand-pere', 'gardien(ne)':'Gardien(ne)', autre:'Autre' };
 
 const BLOC_TYPES = {
@@ -138,14 +260,19 @@ const BLOC_COLORS = [
 
 const state = {
   user: null, orgId: null, groupeId: null, groupe: null, org: null,
+  // Role : 'animateur' (defaut) | 'coordo'
+  role: localStorage.getItem('planif_role') || null,
+  coordoGroups: [], coordoDate: todayISO(),
   enfants: [],
   // Navigation
-  view: 'calendrier', // calendrier | journee | roster | gabarit | historique | live
+  view: 'journee', // journee | semaine | calendrier | roster | gabarit | historique | live
   liveCompleted: new Set(),
   liveTimer: null,
   // Calendar
   calYear: new Date().getFullYear(),
   calMonth: new Date().getMonth(),
+  // Semaine (lun-ven, lecture seule)
+  weekStart: null, weekData: [],
   // Day
   currentDate: todayISO(),
   journeeId: null, journeeBlocs: [], presenceMap: {},
@@ -158,7 +285,22 @@ const state = {
   grilleType: null,
   // Calendar data
   calDatesWithBlocs: new Set(),
+  // Vue Semaine (grille riche montée par semaine-grid.js)
+  semGrid: null,
+  // Messagerie coordo ↔ animateur (temps réel)
+  messages: [], msgUnsub: null, msgThread: null, // msgThread = {groupeId, enfantId, titre} fil ouvert
+  // Métier imposé par le hub (?metier=ep|camp|sdg) quand intégré en iframe
+  hubMetier: '',
+  // Évaluation PFEQ (ÉP) : colonnes (critères+type), valeurs du jour, date
+  evalCols: [], evalMap: {}, evalDate: todayISO(),
 };
+
+// Rôle effectif pour la messagerie
+function myRole() { return state.role==='coordo' ? 'coordo' : 'animateur'; }
+// Messages reçus de l'autre partie et non lus
+function unreadMessages() { const r=myRole(); return state.messages.filter(m=>m.fromRole!==r && !m.lu); }
+function unreadInThread(groupeId, enfantId) { const r=myRole(); return state.messages.filter(m=>m.groupeId===groupeId && (m.enfantId||'')===(enfantId||'') && m.fromRole!==r && !m.lu).length; }
+function threadMessages(groupeId, enfantId) { return state.messages.filter(m=>m.groupeId===groupeId && (m.enfantId||'')===(enfantId||'')); }
 
 // ══════════════════════════════════════════════════════════
 //  UTILITIES
@@ -225,6 +367,15 @@ function avatarHTML(enfant, cls='') {
   return `<div class="p-initials ${sm?'p-initials-sm':''} ${cls}">${esc(initials(enfant.prenom,enfant.nom))}</div>`;
 }
 
+// Mini-badges des particularités (TSA, allergie…) affichés sous le nom de l'enfant.
+function particMiniHTML(enfant) {
+  const ps = enfant.particularites||[];
+  if (!ps.length) return '';
+  const note = enfant.noteParticuliere ? ' — '+enfant.noteParticuliere : '';
+  const chips = ps.map(k=>{ const p=PARTICULARITES_MAP[k]; return p?`<span class="p-partic-mini" title="${esc(p.label)}${esc(note)}">${p.emoji}</span>`:''; }).join('');
+  return `<div class="p-partic-row">${chips}</div>`;
+}
+
 // ══════════════════════════════════════════════════════════
 //  RENDERING
 // ══════════════════════════════════════════════════════════
@@ -250,6 +401,207 @@ function renderSetup() {
   </div>`;
 }
 
+// ══════════════════════════════════════════════════════════
+//  COORDONNATEUR — vue agregee (lecture seule)
+// ══════════════════════════════════════════════════════════
+
+async function loadCoordoData() {
+  if(!state.orgId){ state.coordoGroups=[]; return; }
+  if(!state.org) state.org=await Organisations.get(state.orgId);
+  const groups=await Groupes.listByOrg(state.orgId);
+  const date=state.coordoDate||todayISO();
+  const out=[];
+  for(const g of groups){
+    const enfants=await Enfants.listByGroupe(g.id);
+    enfants.sort((a,b)=>a.prenom.localeCompare(b.prenom));
+    const j=await Journees.getByGroupeAndDate(g.id,date);
+    let presences=[];
+    if(j) presences=await Presences.listByJournee(j.id,g.id);
+    const pmap={}; presences.forEach(p=>{pmap[p.enfantId]=p;});
+    out.push({groupe:g, enfants, pmap, blocs:(j&&j.blocs)?j.blocs.length:0});
+  }
+  state.coordoGroups=out;
+}
+
+function renderCoordo() {
+  const date=state.coordoDate||todayISO();
+  const isToday=date===todayISO();
+  let totEnf=0, totPres=0, totFlag=0;
+  state.coordoGroups.forEach(c=>{
+    totEnf+=c.enfants.length;
+    c.enfants.forEach(e=>{ const p=c.pmap[e.id]; if(p&&(p.statut==='present'||p.statut==='parti'))totPres++; if(p&&p.horsListe)totFlag++; });
+  });
+
+  let html=`<div class="p-group-bar">
+    <div><span class="p-group-name">\u{1F451} Coordonnateur</span>
+      <span class="p-group-theme"> · ${esc(state.org?.nom||'')}</span>
+      <span class="p-group-theme"> · ${state.coordoGroups.length} groupe(s) · ${totPres}/${totEnf} présent(s)${totFlag?` · ⚠ ${totFlag} hors-liste`:''}</span>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="zts-btn p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages">\u{1F4AC}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
+      <button class="zts-btn" data-action="exit-coordo" style="font-size:var(--fs-1)">↩ Vue animateur</button>
+    </div>
+  </div>
+  <div class="p-date-nav" style="margin:var(--space-2) 0 var(--space-4)">
+    <button class="p-day-nav-btn" data-action="coordo-prev">◀</button>
+    <span class="p-day-title">${isToday?"Aujourd'hui":formatDateLong(date)}</span>
+    <button class="p-day-nav-btn" data-action="coordo-next">▶</button>
+  </div>`;
+
+  if(!state.coordoGroups.length){
+    return html+`<div class="p-empty"><div class="p-empty-icon">\u{1F465}</div><div class="p-empty-text">Aucun groupe dans cette organisation.</div></div>`;
+  }
+
+  state.coordoGroups.forEach(c=>{
+    const rows=c.enfants.map(e=>{
+      const p=c.pmap[e.id];
+      const st=p?p.statut:'attendu';
+      let detail='';
+      if(st==='present'){ detail=`<span style="color:var(--vert);font-weight:700">Présent</span> · arrivée ${p.heureArrivee||'—'}`; if(p.arriveAvec?.lien)detail+=` · porté par ${esc(LIEN_LABELS[p.arriveAvec.lien]||p.arriveAvec.lien)}`; }
+      else if(st==='parti'){ detail=`Parti à ${p.heureDepart||'—'}`; if(p.partiAvec?.nom)detail+=` avec ${esc(p.partiAvec.nom)} (${esc(p.partiAvec.lien||'—')})`; if(p.horsListe)detail+=` <span class="p-history-flag">HORS LISTE</span>`; }
+      else if(st==='absent') detail=`<span style="color:var(--rose)">Absent</span>`;
+      else detail=`<span style="opacity:.5">Attendu</span>`;
+      // Compte rendu (journal de bord) — visible par le coordo
+      if(p){
+        const hh=p.humeurJournee?HUMEURS_MAP[p.humeurJournee]:null;
+        if(hh)detail+=` · ${hh.emoji} ${esc(hh.label)}`;
+        if(p.noteJournee)detail+=` · \u{1F4DD} ${esc(p.noteJournee)}`;
+        if(p.messageParent)detail+=` <span class="p-history-flag" style="background:var(--jaune);color:var(--ink)">❗ parent</span>`;
+      }
+      const unread=unreadInThread(c.groupe.id, e.id);
+      return `<div class="p-history-item" style="margin-bottom:8px">
+        <div class="p-history-date" style="min-width:120px">${esc(e.prenom)} ${esc(e.nom)}${particMiniHTML(e)}</div>
+        <div class="p-history-detail">${detail}</div>
+        <button class="p-msg-mini-btn" data-action="open-thread" data-gid="${c.groupe.id}" data-eid="${e.id}" title="Message à l'animateur sur ${esc(e.prenom)}">\u{1F4AC}${unread?`<span class="p-msg-dot">${unread}</span>`:''}</button>
+      </div>`;
+    }).join('');
+    const ug=unreadInThread(c.groupe.id,'');
+    html+=`<div class="p-card" style="margin-bottom:var(--space-4)">
+      <div class="p-section-title" style="margin-top:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span>${esc(c.groupe.nom)}${c.groupe.theme?` <span style="opacity:.6;font-size:var(--fs-1)">· ${esc(c.groupe.theme)}</span>`:''} <span style="opacity:.6;font-size:var(--fs-1)">· ${c.enfants.length} enfant(s) · ${c.blocs} bloc(s)</span></span>
+        <button class="p-msg-mini-btn" data-action="open-thread" data-gid="${c.groupe.id}" data-eid="" title="Message général à l'animateur" style="font-size:var(--fs-1)">\u{1F4AC} Groupe${ug?`<span class="p-msg-dot">${ug}</span>`:''}</button>
+      </div>
+      ${c.enfants.length?rows:`<div style="opacity:.5;font-family:var(--font-fun)">Aucun enfant.</div>`}
+    </div>`;
+  });
+  return html;
+}
+
+// ══════════════════════════════════════════════════════════
+//  MESSAGERIE coordo ↔ animateur (modal)
+// ══════════════════════════════════════════════════════════
+
+function findEnfantAnywhere(eid) {
+  if(state.role==='coordo'){ for(const c of state.coordoGroups){ const e=c.enfants.find(x=>x.id===eid); if(e)return e; } }
+  return state.enfants.find(x=>x.id===eid)||null;
+}
+function findGroupeAnywhere(gid) {
+  if(state.role==='coordo'){ const c=state.coordoGroups.find(c=>c.groupe.id===gid); if(c)return c.groupe; }
+  return (state.groupe && state.groupe.id===gid) ? state.groupe : null;
+}
+
+// Met à jour cloche/badges/pastilles sans re-render global.
+function updateMsgBadges() {
+  const n=unreadMessages().length;
+  document.querySelectorAll('[data-msg-badge]').forEach(b=>{ b.textContent=n; b.style.display=n?'flex':'none'; });
+  const bell=document.querySelector('[data-msg-bell]'); if(bell) bell.classList.toggle('has-unread', n>0);
+}
+
+function openMessagesModal() { state.msgThread=null; renderInbox(); openModal('modal-messages'); }
+
+function inboxThreads() {
+  const threads=[];
+  let groups=[];
+  if(state.role==='coordo'){ groups=state.coordoGroups.map(c=>({id:c.groupe.id, nom:c.groupe.nom, enfants:c.enfants})); }
+  else if(state.groupe){ groups=[{id:state.groupeId, nom:state.groupe.nom, enfants:state.enfants}]; }
+  groups.forEach(g=>{
+    threads.push({groupeId:g.id, enfantId:'', titre:`\u{1F465} ${esc(g.nom)} (général)`, unread:unreadInThread(g.id,''), count:threadMessages(g.id,'').length});
+    const enfMap=Object.fromEntries((g.enfants||[]).map(e=>[e.id,e]));
+    const childIds=[...new Set(state.messages.filter(m=>m.groupeId===g.id && m.enfantId).map(m=>m.enfantId))];
+    childIds.forEach(eid=>{ const e=enfMap[eid]; threads.push({groupeId:g.id, enfantId:eid, titre:`\u{1F9D2} ${e?esc(e.prenom+' '+e.nom):'Enfant'}`, unread:unreadInThread(g.id,eid), count:threadMessages(g.id,eid).length, groupeNom:g.nom}); });
+  });
+  threads.sort((a,b)=> (b.unread-a.unread) || (b.count-a.count));
+  return threads;
+}
+
+function renderInbox() {
+  const inner=document.getElementById('modal-messages-inner'); if(!inner)return;
+  const threads=inboxThreads();
+  const list = threads.length ? threads.map(t=>`
+    <button class="p-msg-thread-row" data-action="open-thread" data-gid="${t.groupeId}" data-eid="${t.enfantId}">
+      <span class="p-msg-thread-titre">${t.titre}${t.groupeNom?` <span style="opacity:.45">· ${esc(t.groupeNom)}</span>`:''}</span>
+      <span class="p-msg-thread-meta">${t.count?`${t.count} msg`:'—'}${t.unread?`<span class="p-msg-dot">${t.unread}</span>`:''}</span>
+    </button>`).join('') : `<div style="opacity:.5;font-family:var(--font-fun);text-align:center;padding:var(--space-4)">Aucun message. Démarre un fil depuis un enfant ou le groupe.</div>`;
+  inner.innerHTML=`
+    <button class="zts-modal__close" data-action="close-messages">✕</button>
+    <h2 class="zts-modal__title">\u{1F4AC} Messages</h2>
+    <div class="p-msg-thread-list">${list}</div>`;
+}
+
+function openThread(groupeId, enfantId) {
+  enfantId=enfantId||'';
+  let titre;
+  if(enfantId){ const e=findEnfantAnywhere(enfantId); titre = e?`\u{1F9D2} ${esc(e.prenom)} ${esc(e.nom)}`:'\u{1F9D2} Enfant'; }
+  else { const g=findGroupeAnywhere(groupeId); titre = `\u{1F465} ${g?esc(g.nom):'Groupe'} (général)`; }
+  state.msgThread={groupeId, enfantId, titre};
+  renderThread();
+  openModal('modal-messages');
+  markThreadLu();
+}
+
+function renderThread() {
+  const inner=document.getElementById('modal-messages-inner'); if(!inner||!state.msgThread)return;
+  inner.innerHTML=`
+    <button class="zts-modal__close" data-action="close-messages">✕</button>
+    <button class="p-msg-back" data-action="msg-inbox">‹ Fils</button>
+    <h2 class="zts-modal__title" style="margin-top:2px">${state.msgThread.titre}</h2>
+    <div class="p-msg-body" id="msg-thread-body"></div>
+    <div class="p-msg-compose">
+      <textarea class="p-input" id="msg-input" rows="2" placeholder="Écris un message…"></textarea>
+      <button class="zts-btn zts-btn--primary" data-action="send-message">Envoyer</button>
+    </div>`;
+  renderThreadBody();
+  const ta=document.getElementById('msg-input'); if(ta) ta.focus();
+}
+
+function renderThreadBody() {
+  const body=document.getElementById('msg-thread-body'); if(!body||!state.msgThread)return;
+  const msgs=threadMessages(state.msgThread.groupeId, state.msgThread.enfantId);
+  const r=myRole();
+  body.innerHTML = msgs.length ? msgs.map(m=>{
+    const mine=m.fromRole===r;
+    const who = m.fromRole==='coordo'?'\u{1F451} Coordo':'\u{1F9D1}‍\u{1F3EB} Animateur';
+    const time = m.ts?.seconds ? new Date(m.ts.seconds*1000).toLocaleTimeString('fr-CA',{hour:'2-digit',minute:'2-digit'}) : '…';
+    return `<div class="p-msg-bubble ${mine?'mine':'them'}">
+      <div class="p-msg-who">${who} · ${time}</div>
+      <div class="p-msg-text">${esc(m.texte)}</div></div>`;
+  }).join('') : `<div style="opacity:.5;text-align:center;font-family:var(--font-fun);padding:var(--space-3)">Aucun message. Écris le premier !</div>`;
+  body.scrollTop=body.scrollHeight;
+}
+
+function markThreadLu() {
+  if(!state.msgThread)return;
+  const r=myRole();
+  threadMessages(state.msgThread.groupeId, state.msgThread.enfantId)
+    .filter(m=>m.fromRole!==r && !m.lu)
+    .forEach(m=>{ m.lu=true; Messages.markLu(m.id); });
+  updateMsgBadges();
+}
+
+async function handleSendMessage() {
+  const ta=document.getElementById('msg-input'); if(!ta||!state.msgThread)return;
+  const texte=ta.value.trim(); if(!texte)return;
+  ta.value=''; ta.focus();
+  try {
+    await Messages.send({
+      orgId:state.orgId, groupeId:state.msgThread.groupeId, enfantId:state.msgThread.enfantId,
+      fromUid:state.user.uid, fromRole:myRole(),
+      fromNom:state.user.displayName||state.user.email||'',
+      texte
+    });
+  } catch(e){ console.warn('[Planif] send msg', e); ta.value=texte; alert("Échec de l'envoi. Réessaie."); }
+}
+
 // ── Group bar + secondary nav ──
 
 function renderGroupBar() {
@@ -260,13 +612,18 @@ function renderGroupBar() {
       ${g.theme ? `<span class="p-group-theme"> \u00B7 ${esc(g.theme)}</span>` : ''}
       <span class="p-group-theme"> \u00B7 ${state.enfants.length} enfant(s)</span>
     </div>
-    <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
+    <div style="display:flex;gap:6px">
+      <button class="zts-btn p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages du coordonnateur">\u{1F514}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
+      <button class="zts-btn" data-action="enter-coordo" style="font-size:var(--fs-1)" title="Vue coordonnateur">\u{1F451}</button>
+      <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
+    </div>
   </div>
   <div class="p-nav">
     <button class="p-nav-btn ${state.view==='calendrier'?'active':''}" data-action="nav" data-to="calendrier">\u{1F4C5} Calendrier</button>
     <button class="p-nav-btn ${state.view==='roster'?'active':''}" data-action="nav" data-to="roster">\u{1F465} Mon groupe</button>
     <button class="p-nav-btn ${state.view==='gabarit'?'active':''}" data-action="nav" data-to="gabarit">\u{1F4D0} Journee type</button>
     <button class="p-nav-btn ${state.view==='historique'?'active':''}" data-action="nav" data-to="historique">\u{1F4CA} Historique</button>
+    ${epMetierActif()?`<button class="p-nav-btn ${state.view==='evaluation'?'active':''}" data-action="nav" data-to="evaluation">\u{1F4CA} Évaluation</button>`:''}
   </div>`;
 }
 
@@ -274,13 +631,18 @@ function renderMain() {
   let content = '';
   switch (state.view) {
     case 'calendrier': content = renderCalendrier(); break;
+    case 'semaine':    content = renderSemaine(); break;
     case 'journee':    content = renderJournee(); break;
     case 'live':       return renderLive();
     case 'roster':     content = renderRoster(); break;
+    case 'evaluation': content = renderEvaluation(); break;
     case 'gabarit':    content = renderGabarit(); break;
     case 'historique': content = renderHistorique(); break;
   }
-  return renderGroupBar() + content;
+  // Toggle Jour/Semaine/Mois injecte ici uniquement (vue Jour/Calendrier intouchees)
+  const calFamily = ['journee','semaine','calendrier'].includes(state.view);
+  const toggle = calFamily ? renderCalToggle(state.view) : '';
+  return renderGroupBar() + toggle + content;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -305,7 +667,7 @@ function renderCalendrier() {
     const isToday = iso===today;
     const hasBlocs = !isWE && !isToday && state.calDatesWithBlocs.has(iso);
     cells += `<div class="p-cal-day ${isToday?'p-cal-day--today':''} ${isWE?'p-cal-day--weekend':''} ${hasBlocs?'p-cal-day--has-blocs':''}"
-      ${isWE?'':'data-action="select-date" data-date="'+iso+'"'}>${d}</div>`;
+      ${isWE?'':'data-action="presences-date" data-date="'+iso+'"'}>${d}</div>`;
   }
 
   return `<div class="p-date-nav" style="margin-bottom:var(--space-4)">
@@ -315,8 +677,79 @@ function renderCalendrier() {
   </div>
   <div class="p-cal-grid">${cells}</div>
   <div style="text-align:center">
-    <button class="zts-btn zts-btn--primary" data-action="select-date" data-date="${today}">Aujourd'hui</button>
+    <button class="zts-btn zts-btn--primary" data-action="presences-date" data-date="${today}">\u{1F4CB} Présences aujourd'hui</button>
+  </div>
+  <div style="text-align:center;margin-top:var(--space-2);font-family:var(--font-fun);font-size:var(--fs-1);opacity:.6">Clique une date pour prendre les présences</div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+//  CALENDRIER UNIFIE — Toggle Jour/Semaine/Mois + vue Semaine
+//  (lecture seule : aucune ecriture Firestore ici)
+// ══════════════════════════════════════════════════════════
+
+function renderCalToggle(view) {
+  const cur = view==='journee' ? 'jour' : view==='semaine' ? 'semaine' : 'mois';
+  const tab = (mode,label) => `<button class="zts-vue-tab ${cur===mode?'zts-vue-tab--active':''}" data-action="cal-mode" data-mode="${mode}">${label}</button>`;
+  return `<div class="zts-vue-toggle">
+    ${tab('jour','\u{1F4C5} Jour')}
+    ${tab('semaine','\u{1F5D3}️ Semaine')}
+    ${tab('mois','\u{1F4C6} Mois')}
   </div>`;
+}
+
+function mondayOf(iso) {
+  const d = new Date(iso+'T12:00:00');
+  const wd = d.getDay();                 // 0=dim..6=sam
+  d.setDate(d.getDate() + (wd===0 ? -6 : 1-wd));
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+async function loadWeekData() {
+  const start = state.weekStart || mondayOf(todayISO());
+  state.weekStart = start;
+  const dates = [0,1,2,3,4].map(i=>shiftDate(start,i)); // lun-ven
+  const byDate = {};
+  if (state.groupeId) {
+    try {
+      const db = await getDb();
+      const snap = await db.collection('journees')
+        .where('groupeId','==',state.groupeId)
+        .where('date','>=',dates[0])
+        .where('date','<=',dates[4])
+        .get();
+      snap.docs.forEach(d=>{const data=d.data(); byDate[data.date]=(data.blocs||[]).slice().sort((a,b)=>a.ordre-b.ordre);});
+    } catch(e) { console.warn('[Planif] loadWeekData:', e.message); }
+  }
+  state.weekData = dates.map(dt=>({date:dt, blocs:byDate[dt]||[]}));
+}
+
+// Vue Semaine = grille riche (périodes×jours, activités, banque ÉP/Camp/SDG,
+// minuterie, médias) montée par semaine-grid.js après render(). Persistée Firestore
+// (collection semaines) + miroir localStorage. Le conteneur seul est rendu ici.
+function renderSemaine() {
+  const canValidate = !!(state.groupeId && state.orgId);
+  return `
+    ${canValidate ? `<div style="display:flex;justify-content:center;margin:0 0 14px">
+      <button class="zts-btn zts-btn--primary" data-action="valider-semaine" id="btn-valider-sem" style="font-size:var(--fs-2)">✅ Valider et notifier le coordo</button>
+    </div>` : ''}
+    <div id="sem-grid-root"></div>`;
+}
+
+function mountSemaineGrid() {
+  const rootEl = document.getElementById('sem-grid-root');
+  if (!rootEl || !window.SemaineGrid) return;
+  const gid = state.groupeId;
+  const metier = (state.groupe && state.groupe.metier) || 'camp';
+  const ws = state.weekStart || mondayOf(todayISO());
+  state.weekStart = ws;
+  state.semGrid = SemaineGrid.mount(rootEl, {
+    scope: 'planif_' + (gid || 'anon'),
+    metier, weekStart: ws,
+    dataPath: '../planification/data/', imgPath: 'img/',
+    load: gid ? (w) => Semaines.get(gid, w) : null,
+    save: gid ? (w, doc) => Semaines.save(gid, w, doc) : null,
+    onWeekChange: (w) => { state.weekStart = w; }
+  });
 }
 
 // ══════════════════════════════════════════════════════════
@@ -499,14 +932,27 @@ function renderPresenceCard(enfant, presence, status) {
     badge=`<span class="p-pcard-badge p-badge-parti">\u2191</span>`;
     time=`<div class="p-pcard-time">\u2191 ${presence.heureDepart}</div>`;
     if (presence.partiAvec?.nom) time+=`<div class="p-pcard-time" style="opacity:.7">${esc(presence.partiAvec.nom)}</div>`;
+    const hh = presence.humeurJournee ? HUMEURS_MAP[presence.humeurJournee] : null;
+    if (hh) time+=`<div class="p-pcard-time" style="opacity:.85">${hh.emoji} ${esc(hh.label)}</div>`;
     if (presence.horsListe) badge=`<span class="p-pcard-badge p-badge-flag">\u26A0</span>`;
   } else if (status==='absent') {
     badge=`<span class="p-pcard-badge p-badge-absent">\u2717</span>`;
   }
-  return `<div class="p-pcard p-pcard--${status}" data-action="tap-presence" data-id="${enfant.id}">
-    ${badge}${avatarHTML(enfant)}
-    <div class="p-enfant-name" style="font-size:var(--fs-1)">${esc(enfant.prenom)}</div>
-    ${time}
+  let porte='';
+  if (status==='present') {
+    const cur=presence.arriveAvec?.lien||'';
+    porte=`<button class="p-arrive" data-action="cycle-arrive" data-id="${enfant.id}">\u{1F44B} ${cur?('Porté par '+(LIEN_LABELS[cur]||cur)):'porté par ?'}</button>`;
+  }
+  const msgFlag = (status==='parti' && presence.messageParent)
+    ? `<span class="p-msg-flag" title="Message à transmettre au parent${presence.noteJournee?' : '+esc(presence.noteJournee):''}">!</span>` : '';
+  return `<div class="p-pcard p-pcard--${status}">
+    <div class="p-pcard-tap" data-action="tap-presence" data-id="${enfant.id}">
+      ${badge}${msgFlag}${avatarHTML(enfant)}
+      <div class="p-enfant-name" style="font-size:var(--fs-1)">${esc(enfant.prenom)}</div>
+      ${particMiniHTML(enfant)}
+      ${time}
+    </div>
+    ${porte}
   </div>`;
 }
 
@@ -564,6 +1010,7 @@ function renderRoster() {
     <div class="p-enfant-card" data-action="edit-enfant" data-id="${e.id}">
       ${avatarHTML(e)}
       <div class="p-enfant-name">${esc(e.prenom)} ${esc(e.nom)}</div>
+      ${particMiniHTML(e)}
       <div class="p-enfant-sub">${(e.personnesAutorisees||[]).length} autorise(s)</div>
     </div>`).join('')}</div>
     <div style="text-align:center">
@@ -639,6 +1086,23 @@ function renderHistorique() {
 function openModal(id) { const m=document.getElementById(id); if(m){m.classList.add('open');m.setAttribute('aria-hidden','false');} }
 function closeModal(id) { const m=document.getElementById(id); if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');} }
 
+// Popup présences (ouvert depuis le calendrier) — registre du jour
+function openPresencesModal() {
+  const inner=document.getElementById('modal-presences-inner');
+  const dLabel = state.currentDate===todayISO() ? "Aujourd'hui" : formatDateLong(state.currentDate);
+  inner.innerHTML = `<button class="zts-modal__close" data-action="close-presences">✕</button>
+    <h2 class="zts-modal__title">\u{1F4CB} Présences — ${dLabel}</h2>
+    <div style="text-align:center;margin-bottom:var(--space-2)"><button class="zts-btn" data-action="goto-programme-day" style="font-size:var(--fs-1)">\u{1F4C5} Voir le programme du jour</button></div>
+    ${renderPresencesSection()}`;
+  openModal('modal-presences');
+}
+// Rafraîchit là où sont affichées les présences (popup si ouvert, sinon page)
+function refreshPresences() {
+  const m=document.getElementById('modal-presences');
+  if(m && m.classList.contains('open')) openPresencesModal();
+  else render();
+}
+
 // ── Enfant ──
 
 let _enfantPhotoData = '';
@@ -665,6 +1129,9 @@ function openEnfantModal(enfant) {
       <div id="autorises-list">${autorises.map((a,i)=>autoriseRowHTML(a,i)).join('')}</div>
       <button class="zts-btn" data-action="add-autorise" style="font-size:var(--fs-1);margin-top:8px">+ Ajouter</button>
     </div>
+    <div class="p-field"><label class="p-label">Particularités <span style="font-weight:400;opacity:.6">(l'animateur les voit sous le nom)</span></label>
+      <div id="particularites-chips" class="p-partic-chips">${PARTICULARITES.map(p=>`<button type="button" class="p-partic-chip ${(enfant?.particularites||[]).includes(p.k)?'on':''}" data-action="toggle-partic" data-k="${p.k}">${p.emoji} ${esc(p.label)}</button>`).join('')}</div>
+      <input class="p-input" id="enf-note-partic" value="${esc(enfant?.noteParticuliere||'')}" placeholder="Précision : allergie exacte, médication, déclencheur…" style="margin-top:10px"></div>
     <div class="p-modal-actions">
       <button class="zts-btn zts-btn--primary" data-action="save-enfant" style="flex:1">Sauvegarder</button>
       ${isEdit?`<button class="zts-btn" data-action="delete-enfant" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
@@ -694,11 +1161,15 @@ function collectAutorises() {
   return r;
 }
 
+function collectParticularites() {
+  return Array.from(document.querySelectorAll('#particularites-chips .p-partic-chip.on')).map(b=>b.dataset.k);
+}
+
 async function handleSaveEnfant() {
   const prenom=document.getElementById('enf-prenom').value.trim();
   const nom=document.getElementById('enf-nom').value.trim();
   if(!prenom||!nom) return alert('Prenom et nom requis.');
-  const data={prenom,nom,photoUrl:_enfantPhotoData,groupeId:state.groupeId,personnesAutorisees:collectAutorises()};
+  const data={prenom,nom,photoUrl:_enfantPhotoData,groupeId:state.groupeId,personnesAutorisees:collectAutorises(),particularites:collectParticularites(),noteParticuliere:document.getElementById('enf-note-partic')?.value.trim()||''};
   if(state.editingEnfant) await Enfants.update(state.editingEnfant.id,data);
   else await Enfants.create(data);
   closeModal('modal-enfant');
@@ -715,11 +1186,13 @@ async function handleDeleteEnfant() {
 
 // ── Depart ──
 
-let _departSelectedPerson=null, _departCustom='';
+let _departSelectedPerson=null, _departCustom='', _departHumeur='';
 
 function openDepartModal(enfant,presence) {
   state.departEnfant=enfant; state.departPresence=presence;
   _departSelectedPerson=null; _departCustom='';
+  _departHumeur=presence.humeurJournee||'';
+  const isParti=presence.statut==='parti';
   const autorises=enfant.personnesAutorisees||[];
   const inner=document.getElementById('modal-depart-inner');
   inner.innerHTML = `
@@ -731,7 +1204,7 @@ function openDepartModal(enfant,presence) {
         <div class="p-enfant-sub">Arrivee: ${presence.heureArrivee||'\u2014'}</div></div>
     </div>
     <div class="p-field"><label class="p-label">Heure de depart</label>
-      <input class="p-input" type="time" id="depart-heure" value="${nowTime()}"></div>
+      <input class="p-input" type="time" id="depart-heure" value="${presence.heureDepart||nowTime()}"></div>
     <label class="p-label">Parti avec...</label>
     ${autorises.length?`<div class="p-depart-persons" id="depart-persons">
       ${autorises.map((a,i)=>`<button class="p-depart-person" data-action="select-person" data-idx="${i}" data-nom="${esc(a.nom)}" data-lien="${esc(a.lien)}">${esc(a.nom)} <span style="opacity:.5;font-size:var(--fs-1)">(${a.lien})</span></button>`).join('')}
@@ -744,7 +1217,14 @@ function openDepartModal(enfant,presence) {
         <input type="checkbox" id="depart-confirm-hors"> Je confirme ce depart hors-liste
       </label>
     </div>
-    <button class="zts-btn zts-btn--primary" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">Confirmer le depart</button>`;
+    <div class="p-field" style="margin-top:var(--space-4)"><label class="p-label">\u{1F4D3} Comment s'est pass\u00E9e la journ\u00E9e?</label>
+      <div class="p-humeur-row" id="depart-humeur">${HUMEURS.map(h=>`<button type="button" class="p-humeur-btn ${_departHumeur===h.k?'on':''}" data-action="select-humeur" data-k="${h.k}" style="--hc:${h.color}"><span class="p-humeur-emoji">${h.emoji}</span><span class="p-humeur-lbl">${esc(h.label)}</span></button>`).join('')}</div></div>
+    <div class="p-field"><label class="p-label">Note du jour <span style="font-weight:400;opacity:.6">(optionnel)</span></label>
+      <textarea class="p-input" id="depart-note" rows="2" placeholder="Belle journ\u00E9e, p\u00E9pin, objet perdu, petit accident, comportement\u2026">${esc(presence.noteJournee||'')}</textarea></div>
+    <label class="p-msgparent-toggle">
+      <input type="checkbox" id="depart-msgparent" ${presence.messageParent?'checked':''}> \u{1F4E3} Message \u00E0 transmettre au parent <span style="opacity:.7;font-weight:400">(affiche un \u2757 sur la photo)</span>
+    </label>
+    <button class="zts-btn zts-btn--primary" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">${isParti?'Enregistrer':'Confirmer le depart'}</button>`;
   const ci=document.getElementById('depart-custom');
   ci.addEventListener('input',()=>{_departCustom=ci.value.trim();_departSelectedPerson=null;document.querySelectorAll('#depart-persons .p-depart-person').forEach(b=>b.classList.remove('selected'));updateDepartWarning();});
   openModal('modal-depart');
@@ -761,6 +1241,7 @@ function updateDepartWarning() {
 async function handleConfirmDepart() {
   const h=document.getElementById('depart-heure').value;
   if(!h) return alert('Heure de depart requise.');
+  const prev=state.departPresence, dejaParti=prev.statut==='parti';
   let partiAvec={nom:'',lien:''}, horsListe=false;
   if(_departSelectedPerson) { partiAvec={..._departSelectedPerson}; }
   else if(_departCustom) {
@@ -768,10 +1249,14 @@ async function handleConfirmDepart() {
     if(!a.includes(_departCustom.toLowerCase())) { horsListe=true; const cb=document.getElementById('depart-confirm-hors'); if(!cb?.checked) return alert('Confirme le depart hors-liste.'); }
     const match=(e.personnesAutorisees||[]).find(x=>x.nom.toLowerCase()===_departCustom.toLowerCase());
     partiAvec={nom:_departCustom,lien:match?.lien||'autre'};
-  } else return alert('Selectionne ou entre le nom de la personne.');
-  await Presences.update(state.departPresence.id,{statut:'parti',heureDepart:h,partiAvec,horsListe,ts:firebase.firestore.FieldValue.serverTimestamp()});
-  state.presenceMap[state.departEnfant.id]={...state.departPresence,statut:'parti',heureDepart:h,partiAvec,horsListe};
-  closeModal('modal-depart'); render();
+  } else if(dejaParti) { partiAvec=prev.partiAvec||{nom:'',lien:''}; horsListe=!!prev.horsListe; } // ré-édition du journal : garde la personne
+  else return alert('Selectionne ou entre le nom de la personne.');
+  const noteJournee=document.getElementById('depart-note')?.value.trim()||'';
+  const messageParent=document.getElementById('depart-msgparent')?.checked||false;
+  const extra={statut:'parti',heureDepart:h,partiAvec,horsListe,humeurJournee:_departHumeur||'',noteJournee,messageParent};
+  await Presences.update(prev.id,{...extra,ts:firebase.firestore.FieldValue.serverTimestamp()});
+  state.presenceMap[state.departEnfant.id]={...prev,...extra};
+  closeModal('modal-depart'); refreshPresences();
 }
 
 // ── Bloc ──
@@ -1013,14 +1498,46 @@ async function handleApplyBatch() {
 
 async function handleAction(action, ds) {
   switch(action) {
+    // ── Valider la semaine + notifier le coordo ──
+    case 'valider-semaine': {
+      if(!state.groupeId||!state.orgId) return alert('Aucun groupe/organisation.');
+      const ws=state.weekStart||mondayOf(todayISO());
+      const btn=document.getElementById('btn-valider-sem');
+      if(btn){ btn.disabled=true; btn.textContent='⏳ Envoi…'; }
+      const reset=(txt)=>{ if(btn){ btn.disabled=false; btn.textContent=txt||'✅ Valider et notifier le coordo'; } };
+      try {
+        await Semaines.validate(state.groupeId, ws, state.user.uid);
+        const idToken=await state.user.getIdToken();
+        const res=await fetch(NOTIFY_COORDO_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+idToken },
+          body:JSON.stringify({
+            orgId:state.orgId, weekStart:ws,
+            groupeNom:(state.groupe&&state.groupe.nom)||'',
+            link:location.href
+          })
+        });
+        const data=await res.json().catch(()=>({}));
+        if(res.ok){ if(btn){ btn.disabled=true; btn.textContent='✅ Validé — coordo notifié'; } }
+        else if(data.code==='NO_COORDO_EMAIL'){ alert("Plan validé, mais aucun courriel de coordonnateur n'est enregistré sur l'organisation. (Recrée l'org pour l'associer à ton courriel.)"); reset(); }
+        else if(data.code==='FORBIDDEN'){ alert("Plan validé, mais accès refusé pour notifier — règles Firestore à déployer."); reset(); }
+        else { alert('Plan validé. Notification non envoyée ('+(data.error||res.status)+').'); reset(); }
+      } catch(e) {
+        console.error('[Planif] valider-semaine', e);
+        alert('Plan validé localement. Échec notification : '+(e.message||e));
+        reset();
+      }
+      break;
+    }
+
     // ── Setup ──
     case 'save-setup': {
       const orgNom=document.getElementById('setup-org').value.trim();
       const grpNom=document.getElementById('setup-groupe').value.trim();
       const theme=document.getElementById('setup-theme').value.trim();
       if(!orgNom||!grpNom) return alert('Nom requis.');
-      const orgId=await Organisations.create({nom:orgNom,coordoUid:state.user.uid,dateDebut:'',dateFin:'',semaines:[]});
-      const groupeId=await Groupes.create({nom:grpNom,orgId,animateurUid:state.user.uid,theme});
+      const orgId=await Organisations.create({nom:orgNom,coordoUid:state.user.uid,coordoEmail:state.user.email||'',dateDebut:'',dateFin:'',semaines:[]});
+      const groupeId=await Groupes.create({nom:grpNom,orgId,animateurUid:state.user.uid,theme,metier:state.hubMetier||''});
       localStorage.setItem(LS.orgId,orgId); localStorage.setItem(LS.groupeId,groupeId);
       state.orgId=orgId; state.groupeId=groupeId;
       await loadGroupeData(); render();
@@ -1029,12 +1546,17 @@ async function handleAction(action, ds) {
 
     // ── Navigation ──
     case 'nav': {
-      state.view=ds.to;
-      if(ds.to==='calendrier') await loadCalendarData();
-      if(ds.to==='gabarit') await loadGrilleType();
-      if(ds.to==='historique'){state.historyEnfantId=null;state.historyData=[];}
-      render(); break;
+      await navigateTo(ds.to); break;
     }
+    case 'cal-mode':
+      if(ds.mode==='jour'){ if(!state.currentDate)state.currentDate=todayISO(); state.view='journee'; await loadJourneeData(); }
+      else if(ds.mode==='semaine'){ state.weekStart=mondayOf(state.currentDate||todayISO()); state.view='semaine'; }
+      else { state.view='calendrier'; await loadCalendarData(); }
+      render(); break;
+    case 'prev-week':
+      state.weekStart=shiftDate(state.weekStart,-7); await loadWeekData(); render(); break;
+    case 'next-week':
+      state.weekStart=shiftDate(state.weekStart,7); await loadWeekData(); render(); break;
     case 'start-live':
       state.liveCompleted=new Set(); state.view='live'; render(); break;
     case 'stop-live':
@@ -1045,6 +1567,19 @@ async function handleAction(action, ds) {
     case 'select-date':
       state.currentDate=ds.date; state.view='journee';
       await loadJourneeData(); render(); break;
+    case 'presences-date':
+      state.currentDate=ds.date; await loadJourneeData(); openPresencesModal(); break;
+    case 'close-presences': closeModal('modal-presences'); break;
+    case 'goto-programme-day': closeModal('modal-presences'); state.view='journee'; await loadJourneeData(); render(); break;
+    case 'cycle-arrive': {
+      const p=state.presenceMap[ds.id]; if(!p||p.statut!=='present')break;
+      const order=['mere','pere','grand-mere','grand-pere','gardien(ne)','autre',''];
+      const cur=p.arriveAvec?.lien||'';
+      const next=order[(order.indexOf(cur)+1)%order.length];
+      await Presences.update(p.id,{arriveAvec:{lien:next}});
+      state.presenceMap[ds.id]={...p,arriveAvec:{lien:next}};
+      refreshPresences(); break;
+    }
     case 'prev-date':
       state.currentDate=shiftDate(state.currentDate,-1);
       await loadJourneeData(); render(); break;
@@ -1063,6 +1598,7 @@ async function handleAction(action, ds) {
     case 'delete-enfant': await handleDeleteEnfant(); break;
     case 'add-autorise': { const l=document.getElementById('autorises-list'); l.insertAdjacentHTML('beforeend',autoriseRowHTML({nom:'',lien:'mere'},l.children.length)); break; }
     case 'remove-autorise': { const r=document.querySelector(`.p-autorise-row[data-idx="${ds.idx}"]`); if(r)r.remove(); break; }
+    case 'toggle-partic': { const b=document.querySelector(`#particularites-chips .p-partic-chip[data-k="${ds.k}"]`); if(b)b.classList.toggle('on'); break; }
     case 'close-enfant': closeModal('modal-enfant'); break;
 
     // ── Depart ──
@@ -1074,11 +1610,43 @@ async function handleAction(action, ds) {
       document.querySelectorAll('#depart-persons .p-depart-person').forEach(b=>b.classList.remove('selected'));
       document.querySelector(`[data-action="select-person"][data-idx="${ds.idx}"]`)?.classList.add('selected');
       updateDepartWarning(); break;
+    case 'select-humeur': {
+      _departHumeur = (_departHumeur===ds.k) ? '' : ds.k;
+      document.querySelectorAll('#depart-humeur .p-humeur-btn').forEach(b=>b.classList.toggle('on', b.dataset.k===_departHumeur));
+      break;
+    }
     case 'confirm-depart': await handleConfirmDepart(); break;
     case 'select-history-enfant': break;
     case 'trigger-photo': break;
 
     // ── Groupe ──
+    // ── Coordonnateur ──
+    case 'enter-coordo':
+      state.role='coordo'; localStorage.setItem('planif_role','coordo');
+      state.coordoDate=todayISO(); await loadCoordoData(); await subscribeMessages(); render(); break;
+    case 'exit-coordo':
+      state.role='animateur'; localStorage.setItem('planif_role','animateur'); await subscribeMessages(); render(); break;
+
+    // ── Messagerie coordo ↔ animateur ──
+    case 'open-messages': openMessagesModal(); break;
+    case 'open-thread': openThread(ds.gid, ds.eid||''); break;
+    case 'msg-inbox': state.msgThread=null; renderInbox(); break;
+    case 'send-message': await handleSendMessage(); break;
+    case 'close-messages': closeModal('modal-messages'); state.msgThread=null; break;
+
+    // ── Évaluation PFEQ ──
+    case 'eval-add-col': openEvalColModal(); break;
+    case 'eval-save-col': await handleEvalSaveCol(); break;
+    case 'close-eval': closeModal('modal-eval'); break;
+    case 'eval-del-col': { if(confirm('Retirer cette colonne? (les cotes saisies restent en base)')){ state.evalCols.splice(+ds.i,1); await EvalConfig.save(state.groupeId,state.evalCols); render(); } break; }
+    case 'eval-cell': await handleEvalCell(ds.eid, +ds.i); break;
+    case 'eval-prev': state.evalDate=shiftDate(state.evalDate||todayISO(),-1); await loadEvalData(); render(); break;
+    case 'eval-next': state.evalDate=shiftDate(state.evalDate||todayISO(),1); await loadEvalData(); render(); break;
+    case 'coordo-prev':
+      state.coordoDate=shiftDate(state.coordoDate||todayISO(),-1); await loadCoordoData(); render(); break;
+    case 'coordo-next':
+      state.coordoDate=shiftDate(state.coordoDate||todayISO(),1); await loadCoordoData(); render(); break;
+
     case 'edit-groupe': {
       const nn=prompt('Nom du groupe:',state.groupe.nom); if(nn===null)return;
       const nt=prompt('Theme:',state.groupe.theme||'');
@@ -1137,18 +1705,19 @@ async function handlePresenceTap(enfantId) {
   const p=state.presenceMap[enfantId];
   if(!p){
     const id=await Presences.create({journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),date:state.currentDate});
-    state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),heureDepart:'',partiAvec:{nom:'',lien:''},horsListe:false,date:state.currentDate};
-    render(); return;
+    state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'present',heureArrivee:nowTime(),heureDepart:'',partiAvec:{nom:'',lien:''},arriveAvec:{lien:''},horsListe:false,date:state.currentDate};
+    refreshPresences(); return;
   }
   if(p.statut==='present') openDepartModal(enfant,p);
-  else if(p.statut==='absent'){await Presences.delete(p.id);delete state.presenceMap[enfantId];render();}
+  else if(p.statut==='parti') openDepartModal(enfant,p); // rouvre le journal de bord (note/humeur/message parent)
+  else if(p.statut==='absent'){await Presences.delete(p.id);delete state.presenceMap[enfantId];refreshPresences();}
 }
 
 async function handleMarkAbsent(enfantId) {
   const p=state.presenceMap[enfantId];
   if(p){await Presences.update(p.id,{statut:'absent',ts:firebase.firestore.FieldValue.serverTimestamp()});state.presenceMap[enfantId]={...p,statut:'absent'};}
   else{const id=await Presences.create({journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'absent',date:state.currentDate});state.presenceMap[enfantId]={id,journeeId:state.journeeId,groupeId:state.groupeId,enfantId,statut:'absent',heureArrivee:'',heureDepart:'',partiAvec:{nom:'',lien:''},horsListe:false,date:state.currentDate};}
-  render();
+  refreshPresences();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1160,6 +1729,8 @@ async function loadGroupeData() {
   state.enfants=await Enfants.listByGroupe(state.groupeId);
   state.enfants.sort((a,b)=>a.prenom.localeCompare(b.prenom));
   if(state.orgId) state.org=await Organisations.get(state.orgId);
+  // Fond + perso suivent le métier du groupe (orange=camp, vert=sdg, bleu=ép)
+  document.body.dataset.metier=state.hubMetier||(state.groupe&&state.groupe.metier)||'camp';
 }
 
 async function loadJourneeData() {
@@ -1218,11 +1789,161 @@ function initOffline() {
 //  RENDER + WIRE
 // ══════════════════════════════════════════════════════════
 
+// (Re)branche l'écoute temps réel selon le rôle : coordo = toute l'org, animateur = son groupe.
+async function subscribeMessages() {
+  if(state.msgUnsub){ try{state.msgUnsub();}catch(e){} state.msgUnsub=null; }
+  let field, value;
+  if(state.role==='coordo' && state.orgId){ field='orgId'; value=state.orgId; }
+  else if(state.groupeId){ field='groupeId'; value=state.groupeId; }
+  else { state.messages=[]; return; }
+  let first=true;
+  state.msgUnsub = await Messages.listen(field, value, (msgs)=>{
+    const prevUnread = first ? 0 : unreadMessages().length;
+    state.messages = msgs;
+    const nowUnread = unreadMessages().length;
+    if(!first && nowUnread>prevUnread){ try{playDoneSound();}catch(e){} }
+    first=false;
+    onMessagesUpdate();
+  });
+}
+
+// Rafraîchit l'UI messagerie SANS re-render global (préserve la saisie en cours).
+function onMessagesUpdate() {
+  // Badge cloche (animateur) ou pastille coordo
+  const n=unreadMessages().length;
+  document.querySelectorAll('[data-msg-badge]').forEach(b=>{ b.textContent=n; b.style.display=n?'flex':'none'; });
+  const bell=document.querySelector('[data-msg-bell]'); if(bell) bell.classList.toggle('has-unread', n>0);
+  // Si un fil est ouvert, rafraîchir son contenu + marquer lu
+  const open=document.getElementById('modal-messages');
+  if(open && open.classList.contains('open') && state.msgThread){ renderThreadBody(); markThreadLu(); }
+}
+
+// ══════════════════════════════════════════════════════════
+//  ÉVALUATION PFEQ (ÉP)
+// ══════════════════════════════════════════════════════════
+
+function epMetierActif(){ return state.hubMetier==='ep' || (state.groupe && state.groupe.metier==='ep'); }
+
+async function loadEvalData(){
+  if(!state.groupeId) return;
+  state.evalCols = await EvalConfig.get(state.groupeId);
+  const evals = await Evaluations.listByDate(state.groupeId, state.evalDate||todayISO());
+  state.evalMap = {}; evals.forEach(e=>{ state.evalMap[e.enfantId+'__'+e.critereId]=e.valeur; });
+}
+
+function renderEvaluation(){
+  const date=state.evalDate||todayISO(), isToday=date===todayISO();
+  let html=`<div class="p-day-header">
+    <div class="p-day-main-title">📊 Évaluation</div>
+    <div class="p-day-title-row">
+      <button class="p-day-nav-btn" data-action="eval-prev">◀</button>
+      <span class="p-day-title">${isToday?"Aujourd'hui":formatDateLong(date)}</span>
+      <button class="p-day-nav-btn" data-action="eval-next">▶</button>
+    </div>
+  </div>`;
+  if(!state.enfants.length){
+    return html+`<div style="text-align:center;padding:var(--space-3);opacity:.5;font-family:var(--font-fun)">Ajoute des élèves dans <em>Mon groupe</em> d'abord.</div>`;
+  }
+  const cols=state.evalCols;
+  if(!cols.length){
+    html+=`<div style="text-align:center;padding:var(--space-4);opacity:.6;font-family:var(--font-fun)">Aucun critère pour l'instant.<br>Ajoute un critère PFEQ à évaluer pour commencer.</div>`;
+  } else {
+    html+=`<div class="p-eval-wrap"><table class="p-eval-table"><thead><tr><th class="p-eval-name p-eval-sticky">Élève</th>`;
+    cols.forEach((c,i)=>{ const cr=PFEQ_LABEL[c.critereId]; const tt=COTE_TYPES[c.type];
+      html+=`<th class="p-eval-col"><div class="p-eval-colh"><span>${esc(cr?cr.label:c.critereId)}</span><button class="p-eval-colx" data-action="eval-del-col" data-i="${i}" title="Retirer la colonne">✕</button></div><div class="p-eval-coltype">${tt?tt.label:c.type}${(c.type==='number'&&c.total)?(' /'+c.total):''}</div></th>`;
+    });
+    html+=`</tr></thead><tbody>`;
+    state.enfants.forEach(e=>{
+      html+=`<tr><td class="p-eval-name p-eval-sticky">${avatarHTML(e,'sm')}<span>${esc(e.prenom)}</span>${particMiniHTML(e)}</td>`;
+      cols.forEach((c,i)=>{ const v=state.evalMap[e.id+'__'+c.critereId]||'';
+        html+=`<td class="p-eval-cell ${v?'has-val':''}" data-action="eval-cell" data-eid="${e.id}" data-i="${i}"><span class="p-eval-val">${esc(v)||'·'}</span></td>`;
+      });
+      html+=`</tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  }
+  html+=`<div style="text-align:center;margin-top:var(--space-3)"><button class="zts-btn zts-btn--primary" data-action="eval-add-col">+ Ajouter un critère</button></div>`;
+  return html;
+}
+
+async function handleEvalCell(eid, i){
+  const col=state.evalCols[i]; if(!col) return;
+  const type=COTE_TYPES[col.type]; const key=eid+'__'+col.critereId; const cur=state.evalMap[key]||'';
+  let nv;
+  if(type.cycle){ const arr=type.cycle; const idx=arr.indexOf(cur); nv=arr[(idx+1)%arr.length]; }
+  else if(col.type==='percent'){ const r=prompt(type.prompt, cur.replace('%','')); if(r===null)return; const s=String(r).trim(); nv = s==='' ? '' : Math.max(0,Math.min(100,parseInt(s)||0))+'%'; }
+  else if(col.type==='number'){ const tot=col.total||10; const r=prompt(type.prompt+' / '+tot, cur.replace(/\/.*/,'')); if(r===null)return; const s=String(r).trim(); nv = s==='' ? '' : Math.max(0,Math.min(tot,parseInt(s)||0))+'/'+tot; }
+  if(nv==='' || nv==null) delete state.evalMap[key]; else state.evalMap[key]=nv;
+  try{ await Evaluations.set({groupeId:state.groupeId,enfantId:eid,critereId:col.critereId,date:state.evalDate||todayISO(),valeur:nv}); }catch(e){ console.warn('[Planif] eval set',e); }
+  render();
+}
+
+function openEvalColModal(){
+  const inner=document.getElementById('modal-eval-inner'); if(!inner)return;
+  const compOpts=PFEQ.map(c=>`<option value="${c.key}">${esc(c.label)}</option>`).join('');
+  const typeOpts=Object.entries(COTE_TYPES).map(([k,t])=>`<option value="${k}">${esc(t.label)}</option>`).join('');
+  inner.innerHTML=`
+    <button class="zts-modal__close" data-action="close-eval">✕</button>
+    <h2 class="zts-modal__title">+ Ajouter un critère</h2>
+    <div class="p-field"><label class="p-label">Compétence</label><select class="p-select" id="eval-comp">${compOpts}</select></div>
+    <div class="p-field"><label class="p-label">Critère</label><select class="p-select" id="eval-crit"></select></div>
+    <div class="p-field"><label class="p-label">Type de cote</label><select class="p-select" id="eval-type">${typeOpts}</select></div>
+    <div class="p-field" id="eval-total-field" style="display:none"><label class="p-label">Note sur… (total)</label><input class="p-input" id="eval-total" type="number" value="10" min="1" max="100"></div>
+    <button class="zts-btn zts-btn--primary" data-action="eval-save-col" style="width:100%;margin-top:var(--space-2)">Ajouter la colonne</button>`;
+  const fillCrit=()=>{ const comp=PFEQ.find(c=>c.key===document.getElementById('eval-comp').value)||PFEQ[0]; document.getElementById('eval-crit').innerHTML=comp.items.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join(''); };
+  fillCrit();
+  document.getElementById('eval-comp').addEventListener('change',fillCrit);
+  document.getElementById('eval-type').addEventListener('change',ev=>{ document.getElementById('eval-total-field').style.display=(ev.target.value==='number')?'block':'none'; });
+  openModal('modal-eval');
+}
+
+async function handleEvalSaveCol(){
+  const critereId=document.getElementById('eval-crit').value;
+  const type=document.getElementById('eval-type').value;
+  const total=type==='number'?(Math.max(1,Math.min(100,parseInt(document.getElementById('eval-total').value)||10))):0;
+  if(state.evalCols.some(c=>c.critereId===critereId && c.type===type)){ closeModal('modal-eval'); return; }
+  state.evalCols.push({critereId, type, total});
+  try{ await EvalConfig.save(state.groupeId, state.evalCols); }catch(e){ console.warn('[Planif] evalConfig save',e); }
+  closeModal('modal-eval'); render();
+}
+
+// Navigation entre vues (réutilisé par les onglets du hub via postMessage)
+async function navigateTo(to) {
+  state.view=to;
+  if(to==='calendrier') await loadCalendarData();
+  else if(to==='journee'){ if(!state.currentDate)state.currentDate=todayISO(); await loadJourneeData(); }
+  else if(to==='gabarit') await loadGrilleType();
+  else if(to==='evaluation'){ if(!state.evalDate)state.evalDate=todayISO(); await loadEvalData(); }
+  else if(to==='historique'){ state.historyEnfantId=null; state.historyData=[]; }
+  render();
+}
+
+// Mapping des vues demandées par le hub (français lisible → vue interne)
+const VUE_MAP={ presences:'calendrier', presence:'calendrier', calendrier:'calendrier', semaine:'semaine', jour:'journee', journee:'journee' };
+
+// Écoute les onglets du hub (iframe) : { type:'zts-setview', view:'presences|semaine|jour' }
+function initEmbedMessaging() {
+  window.addEventListener('message', function(e){
+    const d=e.data; if(!d) return;
+    if(d.type==='zts-setview'){
+      const v=VUE_MAP[String(d.view||'').toLowerCase()];
+      if(v && state.user && state.groupeId) navigateTo(v);
+    } else if(d.type==='zts-fullscreen'){
+      document.body.classList.toggle('zts-full', !!d.on);   // plein écran → restaure l'encadré blanc + fond
+    }
+  });
+}
+
 function render() {
   const root=document.getElementById('app-root');
+  if(state.semGrid){ state.semGrid.destroy(); state.semGrid=null; }   // nettoie grille + modal + listeners
   if(!state.user){root.innerHTML=renderNoAuth();return;}
+  if(state.role==='coordo'){root.innerHTML=renderCoordo();updateMsgBadges();return;}
   if(!state.groupeId){root.innerHTML=renderSetup();return;}
   root.innerHTML=renderMain();
+  if(state.view==='semaine') mountSemaineGrid();
+  const perso=document.querySelector('.p-perso'); if(perso) perso.style.display = (state.view==='semaine') ? 'none' : '';
+  updateMsgBadges();
 }
 
 function wireEvents() {
@@ -1248,7 +1969,7 @@ function wireEvents() {
   root.addEventListener('pointercancel',clearLP);
   root.addEventListener('contextmenu',(e)=>{if(e.target.closest('[data-action="tap-presence"]'))e.preventDefault();});
 
-  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer'].forEach(id=>{
+  ['modal-enfant','modal-depart','modal-bloc','modal-appliquer','modal-presences','modal-messages','modal-eval'].forEach(id=>{
     const modal=document.getElementById(id);
     modal.addEventListener('click',(e)=>{
       if(e.target===modal){closeModal(id);return;}
@@ -1258,7 +1979,7 @@ function wireEvents() {
   });
 
   document.addEventListener('keydown',(e)=>{
-    if(e.key==='Escape'){closeModal('modal-enfant');closeModal('modal-depart');closeModal('modal-bloc');closeModal('modal-appliquer');}
+    if(e.key==='Escape'){closeModal('modal-enfant');closeModal('modal-depart');closeModal('modal-bloc');closeModal('modal-appliquer');closeModal('modal-messages');state.msgThread=null;}
   });
 }
 
@@ -1268,6 +1989,19 @@ function wireEvents() {
 
 async function init() {
   console.log('[Planif] init start');
+  // Intégration hub : ?embed=1 cache le header/subnav, ?vue= choisit la vue initiale, ?metier= force le métier
+  const _params=new URLSearchParams(location.search);
+  if(_params.has('embed')){ document.body.classList.add('zts-embed'); document.documentElement.style.background='transparent'; }  // html a un fond paper → le rendre transparent en intégré
+  state.hubMetier=( ['ep','camp','sdg'].includes(_params.get('metier')) ? _params.get('metier') : '' );
+  if(state.hubMetier) document.body.dataset.metier=state.hubMetier;
+  initEmbedMessaging();
+  // Intégré : rapporte la hauteur du contenu au hub → l'iframe s'ajuste (pas de scroll interne)
+  if(_params.has('embed')){
+    const postH=()=>{ try{ if(document.body.classList.contains('zts-full'))return; parent.postMessage({type:'zts-height', h:Math.ceil(document.documentElement.scrollHeight)}, '*'); }catch(e){} };
+    try{ if(window.ResizeObserver) new ResizeObserver(postH).observe(document.body); }catch(e){}
+    window.addEventListener('load', postH);
+    setInterval(postH, 1200);
+  }
   try {
     wireEvents(); initOffline();
     console.log('[Planif] waiting for db...');
@@ -1278,18 +2012,42 @@ async function init() {
     if(typeof firebase==='undefined'||!firebase.auth){setTimeout(waitAuth,200);return;}
     console.log('[Planif] auth ready, listening...');
     firebase.auth().onAuthStateChanged(async(user)=>{
+     try {
       console.log('[Planif] auth state:', user?.email||'none');
       state.user=user; if(!user){render();return;}
       state.groupeId=localStorage.getItem(LS.groupeId)||null;
       state.orgId=localStorage.getItem(LS.orgId)||null;
+      // Hub avec métier : on priorise le groupe de CE métier (ex. hub Camp → groupe camp)
+      if(state.hubMetier){
+        const g=await Groupes.listByAnimateur(user.uid);
+        const match=g.find(x=>x.metier===state.hubMetier);
+        if(match){ state.groupeId=match.id; state.orgId=match.orgId; localStorage.setItem(LS.groupeId,match.id); localStorage.setItem(LS.orgId,match.orgId); }
+      }
       if(!state.groupeId){
         const g=await Groupes.listByAnimateur(user.uid);
         if(g.length){state.groupeId=g[0].id;state.orgId=g[0].orgId;localStorage.setItem(LS.groupeId,state.groupeId);localStorage.setItem(LS.orgId,state.orgId);}
       }
       console.log('[Planif] groupeId:', state.groupeId);
-      if(state.groupeId) { await loadGroupeData(); await loadCalendarData(); }
+      if(state.groupeId) {
+        await loadGroupeData(); state.currentDate=todayISO();
+        state.view = VUE_MAP[(_params.get('vue')||'').toLowerCase()] || 'journee';
+        if(state.view==='calendrier') await loadCalendarData(); else await loadJourneeData();
+      }
+      if(state.role==='coordo' && state.orgId){ state.coordoDate=todayISO(); await loadCoordoData(); }
+      try { await subscribeMessages(); } catch(eMsg){ console.warn('[Planif] subscribeMessages', eMsg); }
       console.log('[Planif] render');
       render();
+     } catch(err) {
+      console.error('[Planif] ERREUR démarrage:', err);
+      const root=document.getElementById('app-root');
+      if(root) root.innerHTML='<div style="padding:20px;font-family:system-ui;max-width:640px;margin:20px auto;background:#fff;border:3px solid #c00;border-radius:14px">'
+        +'<h2 style="color:#c00;margin:0 0 8px">⚠️ Erreur de démarrage</h2>'
+        +'<p style="font-weight:700">'+String(err&&err.message||err)+'</p>'
+        +'<pre style="white-space:pre-wrap;font-size:12px;background:#f6f6f6;padding:10px;border-radius:8px;overflow:auto">'+String(err&&err.stack||'').slice(0,600)+'</pre>'
+        +'<p style="font-size:13px;opacity:.7">Copie ce message à Claude pour le correctif.</p></div>';
+      // Tente quand même un rendu si possible
+      try{ if(state.user) render(); }catch(e2){}
+     }
     });
   }
   waitAuth();

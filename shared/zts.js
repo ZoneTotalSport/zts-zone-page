@@ -115,6 +115,21 @@
     else document.body.removeAttribute('data-metier');
   }
 
+  /* ---------- PERSONNAGE PAR MÉTIER (opt-in : body.has-perso + [data-metier]) ----------
+     L'image est mappée en CSS via body[data-metier] .zts-perso (image-set webp+png).
+     Posé une seule fois au load ; aucun MutationObserver (les landings ne changent
+     pas de métier sur place). Décoratif : pointer-events:none + aria-hidden. */
+  function injectPerso() {
+    const b = document.body;
+    if (!b.classList.contains('has-perso')) return;   // opt-in strict
+    if (!b.getAttribute('data-metier')) return;        // besoin d'un métier actif
+    if (document.querySelector('.zts-perso')) return;  // idempotent
+    const d = document.createElement('div');
+    d.className = 'zts-perso';
+    d.setAttribute('aria-hidden', 'true');
+    b.appendChild(d);
+  }
+
   /* ---------- HORLOGE ---------- */
   function startClock(sel) {
     const el = document.querySelector(sel || '[data-clock]');
@@ -177,6 +192,7 @@
     wireModals();
     startClock();
     countUp();
+    injectPerso();
     hideHeaderOnScroll();
     adjustHeaderOffset();
     setTimeout(adjustHeaderOffset, 300); // après chargement des polices

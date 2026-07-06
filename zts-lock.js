@@ -99,7 +99,7 @@
         if (ms) {
           slug = ms[1];
         } else {
-          // 2) SLUG.zonetotalsport.ca  (ex: jeux.zonetotalsport.ca, sae.zonetotalsport.ca)
+          // 2) SLUG.zonetotalsport.ca  (ex: jeux.zonetotalsport.ca)
           ms = url.match(/\/\/([^.]+)\.zonetotalsport\.ca/);
           if (ms && ms[1] !== 'www' && ms[1] !== 'zonetotalsport') {
             slug = ms[1];

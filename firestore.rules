@@ -131,6 +131,50 @@ service cloud.firestore {
                             && isAnimateurOfGroupe(resource.data.groupeId);
     }
 
+    // ── Semaines (grille hebdo riche du planificateur) ──
+    // 1 doc par (groupe, lundi ISO). animateur : CRUD. coordo de l'org : lecture.
+    match /semaines/{id} {
+      allow read: if request.auth != null
+                  && (isAnimateurOfGroupe(resource.data.groupeId)
+                      || isCoordoOfGroupe(resource.data.groupeId));
+      allow create: if request.auth != null
+                    && isAnimateurOfGroupe(request.resource.data.groupeId);
+      allow update, delete: if request.auth != null
+                            && isAnimateurOfGroupe(resource.data.groupeId);
+    }
+
+    // ── Messages (coordo ↔ animateur) ──
+    // enfantId='' = fil général du groupe. Lecture/écriture : animateur du groupe OU coordo de l'org.
+    // update permis pour marquer lu (les deux parties).
+    match /messages/{id} {
+      allow read: if request.auth != null
+                  && (isAnimateurOfGroupe(resource.data.groupeId)
+                      || isCoordoOfGroupe(resource.data.groupeId));
+      allow create: if request.auth != null
+                    && (isAnimateurOfGroupe(request.resource.data.groupeId)
+                        || isCoordoOfGroupe(request.resource.data.groupeId))
+                    && request.resource.data.fromUid == request.auth.uid;
+      allow update: if request.auth != null
+                    && (isAnimateurOfGroupe(resource.data.groupeId)
+                        || isCoordoOfGroupe(resource.data.groupeId));
+      allow delete: if false;
+    }
+
+    // ── Évaluation PFEQ (ÉP) ──
+    // evalConfig : 1 doc par groupe (id = groupeId), colonnes/critères. animateur CRUD, coordo read.
+    match /evalConfig/{groupeId} {
+      allow read: if request.auth != null
+                  && (isAnimateurOfGroupe(groupeId) || isCoordoOfGroupe(groupeId));
+      allow write: if request.auth != null && isAnimateurOfGroupe(groupeId);
+    }
+    // evaluations : 1 doc par (groupe, date, élève, critère). animateur CRUD, coordo read.
+    match /evaluations/{id} {
+      allow read: if request.auth != null
+                  && (isAnimateurOfGroupe(resource.data.groupeId) || isCoordoOfGroupe(resource.data.groupeId));
+      allow create: if request.auth != null && isAnimateurOfGroupe(request.resource.data.groupeId);
+      allow update, delete: if request.auth != null && isAnimateurOfGroupe(resource.data.groupeId);
+    }
+
     // ── Jeux (banque partagee) ──
     // read : tout utilisateur authentifie. write : admin seulement.
     match /jeux/{jeuId} {
@@ -162,6 +206,43 @@ service cloud.firestore {
     // ─────────────────────────────────────────────────────────
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // budget — app privee familiale. Deux types d'espaces :
+    //  • COMMUN  (budget/root-famille) : partage entre les membres. Self-join
+    //    controle (un 2e membre peut s'ajouter lui-meme, plafond 2 personnes).
+    //  • PERSO   (budget/perso-<uid>)  : prive, lisible/ecrivable par le seul
+    //    proprietaire (uid dans l'identifiant du doc).
+    // ─────────────────────────────────────────────────────────
+
+    // ── Espace COMMUN : doc racine ──
+    match /budget/root-famille {
+      allow get: if request.auth != null; // lire membres (pour rejoindre)
+      allow create: if request.auth != null
+                    && request.auth.uid in request.resource.data.membres;
+      // Deja membre : ecriture libre. Sinon : self-join (n'enleve personne,
+      // s'ajoute soi-meme, uniquement si <2 membres actuellement).
+      allow update: if request.auth != null && (
+        request.auth.uid in resource.data.membres
+        || (request.resource.data.membres.hasAll(resource.data.membres)
+            && request.auth.uid in request.resource.data.membres
+            && resource.data.membres.size() < 2)
+      );
+      allow delete: if false;
+    }
+    // ── Espace COMMUN : sous-documents (config, transactions, planifs) ──
+    match /budget/root-famille/{document=**} {
+      allow read, write: if request.auth != null
+        && request.auth.uid in get(/databases/$(database)/documents/budget/root-famille).data.membres;
+    }
+
+    // ── Espaces PERSO : proprietaire uniquement (perso-<uid>) ──
+    match /budget/{sid} {
+      allow read, write: if request.auth != null && sid == ('perso-' + request.auth.uid);
+    }
+    match /budget/{sid}/{document=**} {
+      allow read, write: if request.auth != null && sid == ('perso-' + request.auth.uid);
     }
 
     // ─────────────────────────────────────────────────────────

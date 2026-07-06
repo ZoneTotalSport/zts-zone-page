@@ -27,7 +27,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="shared/zts.css">
 </head>
-<body data-metier="ep">
+<body data-metier="ep" class="has-perso">
 
   <div data-zts-header></div>
 
@@ -35,7 +35,7 @@
     <a href="index.html" data-i18n="subnav.back_home">← Accueil</a>
   </nav>
 
-  <main class="zts-container" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
+  <main class="zts-container hub-sheet" style="padding-top:var(--space-4); padding-bottom:var(--space-7);">
 
     <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
       <div>
@@ -46,6 +46,37 @@
     </section>
 
     <section class="zts-menu" id="menuJour"></section>
+
+    <!-- Cahier de planification intégré (planificateur en iframe) -->
+    <section class="zts-plan">
+      <h2 class="zts-plan__title">📔 Mon cahier de planification</h2>
+      <div class="zts-plan__tabs">
+        <button class="zts-plan__tab is-active" data-vue="presences" type="button">📅 Présences</button>
+        <button class="zts-plan__tab" data-vue="semaine" type="button">🗓️ Semaine</button>
+        <button class="zts-plan__tab" data-vue="jour" type="button">📝 Jour</button>
+        <button class="zts-plan__tab zts-plan__fs" data-fs type="button" title="Plein écran">⛶ Plein écran</button>
+      </div>
+      <iframe class="zts-plan__frame" data-zts-plan-frame title="Planificateur" src="/apps/planificateur/?embed=1&metier=ep&vue=presences" loading="lazy"></iframe>
+    </section>
+    <script>
+    (function(){
+      var sec=document.currentScript.previousElementSibling;
+      var frame=sec.querySelector('[data-zts-plan-frame]');
+      sec.querySelectorAll('.zts-plan__tab[data-vue]').forEach(function(t){
+        t.addEventListener('click',function(){
+          sec.querySelectorAll('.zts-plan__tab[data-vue]').forEach(function(x){x.classList.remove('is-active');});
+          t.classList.add('is-active');
+          try{ frame.contentWindow.postMessage({type:'zts-setview',view:t.dataset.vue},'*'); }catch(e){}
+        });
+      });
+      var fs=sec.querySelector('[data-fs]');
+      if(fs) fs.addEventListener('click',function(){ try{ (frame.requestFullscreen||frame.webkitRequestFullscreen).call(frame); }catch(e){} });
+      function fsNotify(){ var on=(document.fullscreenElement||document.webkitFullscreenElement)===frame; try{ frame.contentWindow.postMessage({type:'zts-fullscreen',on:on},'*'); }catch(e){} }
+      document.addEventListener('fullscreenchange',fsNotify);
+      document.addEventListener('webkitfullscreenchange',fsNotify);
+      window.addEventListener('message',function(e){ if(!e.data)return; if(e.data.type==='zts-height'&&e.source===frame.contentWindow){ frame.style.height=Math.max(420,Math.min(6000,e.data.h||0))+'px'; } else if(e.data.type==='zts-exitfullscreen'){ try{ (document.exitFullscreen||document.webkitExitFullscreen).call(document); }catch(e){} } });
+    })();
+    </script>
 
     <h2 style="font-family:var(--font-impact); font-size:var(--fs-4); margin:var(--space-4) 0 var(--space-3);" data-i18n="hub.active">Apps prêtes à l'emploi</h2>
     <div class="zts-grid" id="gridActive"></div>
@@ -64,22 +95,21 @@
   <script>
     // ===== Apps du hub ÉP (bilingue) — rendu piloté par la langue active =====
     const ACTIVE = [
-      { icon:'🗂️', url:'apps/planification/?metier=ep', tag:'new', fr:{n:'⭐ Planification ÉP',d:'360 cours clé en main · 4 niveaux · PFEQ'}, en:{n:'⭐ PE Planning',d:'360 turnkey lessons · 4 levels · PFEQ'} },
-      { icon:'📅', url:'https://zonetotalsport.ca/apps/planificateur/', tag:'pro', fr:{n:'Planificateur ÉPS',d:'Calendrier scolaire, séances et évaluation'}, en:{n:'PE Planner',d:'School calendar, sessions and assessment'} },
+      { icon:'🎨', url:'apps/colorier/', tag:'new', fr:{n:'Pages à colorier',d:'Génère, colorie en ligne, imprime · PFEQ compétence 3'}, en:{n:'Coloring pages',d:'Generate, color online, print · PFEQ competency 3'} },
       { icon:'🏀', url:'https://zonetotalsport.ca/apps/scoreboard/', fr:{n:'Tableau indicateur',d:'Scoreboard 3 sports, mode TNI'}, en:{n:'Scoreboard',d:'3-sport scoreboard, IWB mode'} },
       { icon:'🧰', url:'https://zonetotalsport.ca/apps/transitions/', fr:{n:'Boîte à outils',d:'Signaux, chrono, équipes, message'}, en:{n:'Toolbox',d:'Signals, timer, teams, message'} },
       { icon:'🎒', url:'https://zonetotalsport.ca/apps/cours-maternelle/', fr:{n:'90 cours maternelle',d:'90 séances clé en main, 4-6 ans'}, en:{n:'90 kindergarten lessons',d:'90 turnkey sessions, ages 4-6'} },
       { icon:'🎮', url:'https://jeux.zonetotalsport.ca', fr:{n:'Banque de jeux',d:'1439 jeux filtrables avec fiches'}, en:{n:'Game bank',d:'1,439 filterable games with sheets'} },
-      { icon:'📚', url:'https://sae.zonetotalsport.ca', fr:{n:'SAÉ PFEQ',d:"Banque de situations d'apprentissage"}, en:{n:'PFEQ lessons',d:'Bank of learning situations'} },
+      { icon:'📚', url:'/apps/sae/', fr:{n:'SAÉ PFEQ',d:"Banque de situations d'apprentissage"}, en:{n:'PFEQ lessons',d:'Bank of learning situations'} },
       { icon:'🤖', url:'https://generateur.zonetotalsport.ca', tag:'ia', fr:{n:'Générateur SAÉ IA',d:'Crée une SAÉ PFEQ en 10 secondes'}, en:{n:'AI SAÉ generator',d:'Build a PFEQ lesson in 10 seconds'} },
-      { icon:'📋', url:'https://educatifs.zonetotalsport.ca', fr:{n:"Banque d'éducatifs",d:'Fiches techniques par sport'}, en:{n:'Drills bank',d:'Technique sheets by sport'} },
-      { icon:'🗓️', url:'https://grille.zonetotalsport.ca', fr:{n:'Grille horaire',d:'Spécialistes, locaux et groupes'}, en:{n:'Schedule grid',d:'Specialists, rooms and groups'} },
-      { icon:'📊', url:'https://evaluation.zonetotalsport.ca', fr:{n:'Carnet ÉPS',d:'Évaluation et présences'}, en:{n:'PE gradebook',d:'Assessment and attendance'} },
-      { icon:'🖍️', url:'https://tni.zonetotalsport.ca', fr:{n:'Tableau blanc TNI',d:'Dessin et projection au tableau'}, en:{n:'IWB whiteboard',d:'Draw and project on the board'} },
-      { icon:'🎵', url:'https://musique.zonetotalsport.ca', fr:{n:'Musique',d:'Playlists par moment de cours'}, en:{n:'Music',d:'Playlists by class moment'} },
-      { icon:'🗒️', url:'https://agenda.zonetotalsport.ca', tag:'new', fr:{n:'Agenda',d:"Ton agenda d'enseignant en ligne"}, en:{n:'Agenda',d:'Your online teacher planner'} },
+      { icon:'📋', url:'/apps/educatifs/', fr:{n:"Banque d'éducatifs",d:'Fiches techniques par sport'}, en:{n:'Drills bank',d:'Technique sheets by sport'} },
+      { icon:'🗓️', url:'/apps/grille/', fr:{n:'Grille horaire',d:'Spécialistes, locaux et groupes'}, en:{n:'Schedule grid',d:'Specialists, rooms and groups'} },
+      { icon:'📊', url:'/apps/evaluation/', fr:{n:'Carnet ÉPS',d:'Évaluation et présences'}, en:{n:'PE gradebook',d:'Assessment and attendance'} },
+      { icon:'🖍️', url:'/apps/tni/', fr:{n:'Tableau blanc TNI',d:'Dessin et projection au tableau'}, en:{n:'IWB whiteboard',d:'Draw and project on the board'} },
+      { icon:'🎵', url:'/apps/musique/', fr:{n:'Musique',d:'Playlists par moment de cours'}, en:{n:'Music',d:'Playlists by class moment'} },
+      { icon:'🗒️', url:'/apps/agenda/', tag:'new', fr:{n:'Agenda',d:"Ton agenda d'enseignant en ligne"}, en:{n:'Agenda',d:'Your online teacher planner'} },
       { icon:'🤸', url:'https://gym.zonetotalsport.ca', tag:'new', fr:{n:'App Gym',d:'Outils interactifs pour le gymnase'}, en:{n:'Gym App',d:'Interactive tools for the gym'} },
-      { icon:'🦺', url:'https://suppleance.zonetotalsport.ca', fr:{n:'Ma Suppléance',d:'Plans clé en main pour suppléants'}, en:{n:'My Substitute',d:'Turnkey plans for substitutes'} },
+      { icon:'🦺', url:'/apps/suppleance/', fr:{n:'Ma Suppléance',d:'Plans clé en main pour suppléants'}, en:{n:'My Substitute',d:'Turnkey plans for substitutes'} },
       { icon:'🌍', url:'https://zonetotalsport.ca/repertoire.html', fr:{n:'Répertoire mondial',d:"Profs d'ÉP du monde entier"}, en:{n:'World directory',d:'PE teachers worldwide'} },
       { icon:'✏️', url:'https://zonetotalsport.ca/blog.html', fr:{n:'Blog ÉPS',d:'23+ articles pratiques'}, en:{n:'PE Blog',d:'23+ practical articles'} },
       { icon:'🤝', url:'https://zonetotalsport.ca/aidons-nous/', fr:{n:'Communauté ÉPS',d:'Forum Aidons-nous'}, en:{n:'PE Community',d:'Aidons-nous forum'} },

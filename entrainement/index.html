@@ -82,10 +82,13 @@
   .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 14px}
   .bar label{font-family:var(--bang);font-size:16px;color:var(--cyan);text-shadow:0 0 10px rgba(0,234,255,.5)}
   input[type=date]{font-family:var(--body);font-weight:700;background:var(--panel);border:2px solid rgba(0,234,255,.45);color:var(--text);border-radius:10px;padding:7px 9px;font-size:14px;box-shadow:0 0 12px rgba(0,234,255,.15)}
-  button{cursor:pointer;font-family:var(--bang);font-size:18px;border:3px solid #07101f;background:var(--bface,linear-gradient(180deg,#00eaff,#2a93ff));color:var(--bink,#06121f);border-radius:12px;padding:13px 22px;box-shadow:6px 6px 0 var(--boff,var(--pink)),0 0 18px var(--bglow,rgba(0,234,255,.4));transition:transform .07s,box-shadow .07s,filter .07s}
+  button{cursor:pointer;font-family:var(--bang);font-size:18px;border:3px solid #07101f;background:var(--bface,linear-gradient(180deg,#00eaff,#2a93ff));color:var(--bink,#06121f);border-radius:14px;padding:16px 20px;box-shadow:6px 6px 0 var(--boff,var(--pink)),0 0 18px var(--bglow,rgba(0,234,255,.4));transition:transform .07s,box-shadow .07s,filter .07s}
   button:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--boff,var(--pink)),0 0 28px var(--bglow,rgba(0,234,255,.6));filter:brightness(1.07)}
   button:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--boff,var(--pink))}
-  button.sm{font-size:15px;padding:10px 16px}
+  button.sm{font-size:15px;padding:14px 16px}
+  /* boutons-icônes carrés */
+  .sq{width:60px;min-width:60px;height:60px;padding:0!important;display:inline-flex;align-items:center;justify-content:center;font-size:26px;border-radius:14px}
+  .sm.sq{width:52px;min-width:52px;height:52px;font-size:22px}
   .b-cyan{--bface:linear-gradient(180deg,#00eaff,#2a93ff);--boff:var(--pink);--bink:#06121f;--bglow:rgba(0,234,255,.45)}
   .b-pink{--bface:linear-gradient(180deg,#ff2d9b,#ff5a8a);--boff:var(--cyan);--bink:#fff;--bglow:rgba(255,45,155,.5)}
   .b-yellow{--bface:linear-gradient(180deg,#ffe500,#ffb800);--boff:var(--violet);--bink:#06121f;--bglow:rgba(255,229,0,.5)}
@@ -260,8 +263,8 @@
   </div>
 
   <div class="bar" style="margin-bottom:10px">
-    <button id="lockBtn" class="sm b-violet" title="Verrouiller">🔒</button>
-    <button id="tniBtn" class="sm b-orange" title="Mode tableau (grand écran / TNI)">📺 TNI</button>
+    <button id="lockBtn" class="sm b-violet sq" title="Verrouiller">🔒</button>
+    <button id="tniBtn" class="sm b-orange sq" title="Mode tableau (grand écran / TNI)">📺</button>
     <span class="pill off" id="syncPill" style="margin-left:auto">local</span>
   </div>
 
@@ -472,7 +475,7 @@ function renderMonth(){
   const box=document.getElementById('monthCal'); if(!box)return;
   const y=mcur.getFullYear(), m=mcur.getMonth();
   const off=(new Date(y,m,1).getDay()+6)%7, dim=new Date(y,m+1,0).getDate(), today=todayISO();
-  let html='<div class="navmonth"><button class="sm b-violet" id="mPrev">‹</button><div class="mt">'+MONTHS[m]+' '+y+'</div><button class="sm b-violet" id="mNext">›</button></div>';
+  let html='<div class="navmonth"><button class="sm b-violet sq" id="mPrev">‹</button><div class="mt">'+MONTHS[m]+' '+y+'</div><button class="sm b-violet sq" id="mNext">›</button></div>';
   html+='<div class="mgridhead">'+WD.map(d=>'<span>'+d+'</span>').join('')+'</div><div class="mgrid">';
   for(let k=0;k<off;k++)html+='<div class="mcell empty"></div>';
   for(let dn=1;dn<=dim;dn++){
@@ -510,7 +513,7 @@ function openDay(iso){
   const fastHTML = (fast&&fast.start) ? `<div class="fastbox"><div class="fasttime" id="fastTime">…</div><div class="lbl">Jeûne en cours — objectif ${PROFILE.fastPlan||16} h</div><button class="sm b-violet" id="fastStop" style="margin-top:8px">⏹ Arrêter</button></div>` : `<div class="fastbox"><div class="lbl" style="margin-bottom:8px">Aucun jeûne en cours${r.fastH?` · dernier : ${r.fastH} h`:''}</div><button class="sm b-violet" id="fastStart">▶︎ Démarrer le jeûne</button></div>`;
   const D=new Date(iso+'T00:00:00');
   document.getElementById('dayModalCard').innerHTML=`
-    <button class="sm mclose b-pink" id="mClose">✕</button>
+    <button class="sm mclose b-pink sq" id="mClose">✕</button>
     <div class="mhdr"><div><h3>${D.getDate()} ${MONTHS[D.getMonth()]}</h3><div class="msub">${fmtLong(iso)}</div></div></div>
     <div class="msec"><h4><span class="em">🏋️</span> Entraînement</h4>${wHTML}</div>
     <div class="msec"><h4><span class="em">🍎</span> Alimentation</h4>
@@ -518,7 +521,7 @@ function openDay(iso){
       <div class="row" style="margin:8px 0;font-size:13px;color:var(--text);font-weight:800"><span>🥩 ${Math.round(ft.p)} g prot.</span><span>🍞 ${Math.round(ft.c)} g gluc.</span><span>🥑 ${Math.round(ft.g)} g lip.</span></div>
       <div id="foodList">${foodList}</div>
       <div class="row" style="margin-top:10px"><input class="ti" id="aiText" placeholder="Décris : 2 œufs, toast, café…"><button class="aibtn" id="aiBtn">✨ IA</button></div>
-      <div class="row" style="margin-top:8px"><button class="aibtn" id="fPhotoBtn">📷 Photo du plat → IA</button><input id="fPhoto" type="file" accept="image/*" capture="environment" style="display:none"></div>
+      <div class="row" style="margin-top:8px"><button class="aibtn" id="fPhotoBtn">📷 Photo</button><input id="fPhoto" type="file" accept="image/*" capture="environment" style="display:none"></div>
       <div class="row" style="margin-top:8px"><input class="ti" id="fSearch" placeholder="🔎 Chercher dans la banque d'aliments…"><button class="sm b-orange" id="fSearchBtn">Chercher</button></div>
       <div id="fResults"></div>
       <div class="row" style="margin-top:8px"><input class="ti" id="fName" placeholder="Aliment (manuel)"><input class="num" id="fKcal" type="number" inputmode="numeric" placeholder="kcal"><button class="sm b-green" id="fAdd">+ Ajouter</button></div>

@@ -1053,7 +1053,7 @@ ${s.adaptation_hdaa && Object.keys(s.adaptation_hdaa).length > 0 ? '<h2>♿ Adap
 }
 
 function handleShare(saeId) {
-  const url = `https://sae.zonetotalsport.ca/?id=${encodeURIComponent(saeId)}`;
+  const url = `https://zonetotalsport.ca/apps/sae/?id=${encodeURIComponent(saeId)}`;
   navigator.clipboard.writeText(url).then(() => {
     showToast('Lien copie !');
   }).catch(() => {
@@ -1428,7 +1428,7 @@ function fetchEducatifs(catKey) {
       resolve(_educatifsCache[catKey]);
       return;
     }
-    var url = 'https://educatifs.zonetotalsport.ca/data/educatifs/' + catKey + '.json';
+    var url = '/apps/educatifs/data/educatifs/' + catKey + '.json';
     fetch(url).then(function(r) { return r.json(); }).then(function(data) {
       var items = Array.isArray(data) ? data : (data.educatifs || data.items || []);
       // Tag each item with source info
@@ -1809,7 +1809,7 @@ function updateCoursBrowser() {
     return;
   }
 
-  // Educatifs mode: fetch from educatifs.zonetotalsport.ca
+  // Educatifs mode: fetch from /apps/educatifs/
   if (catKey.startsWith('edu:')) {
     var eduKey = catKey.replace('edu:', '');
     container.innerHTML = '<p class="cours-browser-hint">Chargement des educatifs...</p>';
@@ -2191,8 +2191,8 @@ function buildCoursHTML() {
     var saesLinksHTML = '';
     slotSaes.forEach(function(sae) {
       var saeUrl = sae._isEducatif
-        ? 'https://educatifs.zonetotalsport.ca/?id=' + encodeURIComponent(sae.titre)
-        : 'https://sae.zonetotalsport.ca/?id=' + encodeURIComponent(sae.titre);
+        ? 'https://zonetotalsport.ca/apps/educatifs/?id=' + encodeURIComponent(sae.titre)
+        : 'https://zonetotalsport.ca/apps/sae/?id=' + encodeURIComponent(sae.titre);
       var dureeStr = sae.duree_periodes ? ' <span style="font-weight:400; color:#666; font-size:0.9rem;">(' + sae.duree_periodes + ')</span>' : '';
       saesLinksHTML +=
         '<div style="padding:3px 0;">' +
@@ -2337,7 +2337,7 @@ function shareCours() {
   };
 
   var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(shareData))));
-  var url = 'https://sae.zonetotalsport.ca/?cours=' + encoded;
+  var url = 'https://zonetotalsport.ca/apps/sae/?cours=' + encoded;
 
   navigator.clipboard.writeText(url).then(function() {
     showToast('Lien de la SAE copie !');

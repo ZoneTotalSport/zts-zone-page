@@ -168,37 +168,32 @@
     z-index: 0;
   }
 
-  body.metier-ep::before {
-    background-image: url('bg-gym.jpg');
-    opacity: 0.50;
+  /* FONDS PAR MÉTIER — rayures fluo (comme le planificateur), 100% sans voile blanc */
+  body.metier-ep::before,
+  body.metier-sdg::before,
+  body.metier-camp::before {
+    opacity: 1;
+    filter: none;
+    background-size: auto;
+    background-repeat: repeat;
   }
-  body.metier-sdg::before {
-    background-image: url('bg-sdg.jpg');
-    opacity: 0.50;
+  body.metier-ep::before {
+    background-color: var(--cyan);
+    background-image: repeating-conic-gradient(from 0deg at 88% 96%, var(--jaune) 0deg 7deg, transparent 7deg 14deg);
   }
   body.metier-camp::before {
-    background-image: url('bg-camp.jpg');
-    opacity: 0.50;
+    background-color: var(--orange);
+    background-image: repeating-conic-gradient(from 0deg at 88% 96%, #C026FF 0deg 7deg, transparent 7deg 14deg);
   }
-
-  /* Voile teinté par métier - reflète la couleur du chandail */
-  body.metier-ep::after {
-    background: linear-gradient(180deg,
-      rgba(204,250,255,0.55) 0%,
-      rgba(255,254,247,0.40) 50%,
-      rgba(204,250,255,0.55) 100%);
+  body.metier-sdg::before {
+    background-color: var(--vert);
+    background-image: repeating-conic-gradient(from 0deg at 88% 96%, #FF2DAC 0deg 7deg, transparent 7deg 14deg);
   }
-  body.metier-sdg::after {
-    background: linear-gradient(180deg,
-      rgba(214,255,203,0.55) 0%,
-      rgba(255,254,247,0.40) 50%,
-      rgba(214,255,203,0.55) 100%);
-  }
+  /* Voile blanc retiré — fond 100% */
+  body.metier-ep::after,
+  body.metier-sdg::after,
   body.metier-camp::after {
-    background: linear-gradient(180deg,
-      rgba(255,231,209,0.55) 0%,
-      rgba(255,254,247,0.40) 50%,
-      rgba(255,231,209,0.55) 100%);
+    background: transparent;
   }
 
   /* ============ DARK NAV BAR (top) — boutons chunky 3D ============ */
@@ -484,27 +479,29 @@
   .eyebrow .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--vert); animation: pulse 1.5s ease infinite; }
   @keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.6; } }
 
+  /* Titre hero en style sticker planificateur : Luckiest Guy, fond plein + contour noir */
   h1.mega {
     font-family: var(--font-impact);
-    font-size: clamp(38px, 5vw, 72px);
+    font-size: clamp(42px, 5.6vw, 80px);
     font-weight: 400;
-    letter-spacing: 0.01em;
-    line-height: 1;
+    letter-spacing: 0.02em;
+    line-height: 1.06;
     margin-bottom: 18px;
-    max-width: 900px;
-    color: var(--ink);
-    text-shadow: 4px 4px 0 var(--jaune);
+    max-width: 960px;
+    color: var(--jaune);
+    -webkit-text-stroke: 2.5px var(--ink);
+    text-shadow: 4px 6px 0 rgba(26,26,46,.32);
   }
   h1.mega .swipe {
     display: inline-block;
-    background: linear-gradient(90deg, var(--orange), var(--rose), var(--bleu), var(--vert), var(--cyan));
-    background-clip: text; -webkit-background-clip: text;
-    color: transparent;
-    background-size: 300% auto;
-    animation: shimmer 4s linear infinite;
-    text-shadow: none;
+    color: var(--cyan);
+    -webkit-text-fill-color: var(--cyan);
+    -webkit-text-stroke: 2.5px var(--ink);
+    background: none;
+    animation: none;
+    text-shadow: 4px 6px 0 rgba(26,26,46,.32);
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1);
   }
-  @keyframes shimmer { 0% { background-position: 0% center; } 100% { background-position: 300% center; } }
 
   p.lede {
     font-family: var(--font-fun);
@@ -2974,7 +2971,6 @@
   </a>
   <a class="serie-card nba" href="apps-nba/index.html" onclick="openSeries('nba'); return false;" data-i18n-attr="title:series.see_nba" title="Voir les séries NBA">
     <span class="dot-live"></span>
-    <span class="ball">🏀</span>
     <div class="league-logo">🏀</div>
     <div class="label" data-i18n="series.nba_label">SÉRIES NBA</div>
   </a>
@@ -3011,7 +3007,7 @@
 
 <!-- HERO STAGE 1 : SÉLECTEUR 3 PORTES -->
 <section class="hero" id="stage1">
-  <span class="eyebrow"><span class="dot"></span> <span data-i18n="hero.eyebrow">+500 jeux · 100% gratuit · primaire</span></span>
+  <span class="eyebrow"><span class="dot"></span> <span data-i18n="hero.eyebrow">1400+ jeux · 100% gratuit · primaire</span></span>
   <h1 class="mega"><span data-i18n="hero.title1">Faire bouger les enfants,</span><br><span class="swipe" data-i18n="hero.title2">c'est notre mission!</span></h1>
   <p class="lede" data-i18n="hero.lede">Une plateforme. Trois métiers. Choisis le tien et reçois exactement ce qu'il te faut — pour des journées qui roulent au primaire.</p>
 
@@ -3074,9 +3070,9 @@
   </div>
 
   <div class="stats-bar">
-    <div class="stat"><div class="num" data-target="500">0</div><div class="label" data-i18n="stat.games">Jeux & fiches</div></div>
-    <div class="stat"><div class="num" data-target="150">0</div><div class="label" data-i18n="stat.sae">SAÉ PFEQ</div></div>
-    <div class="stat"><div class="num" data-target="2300">0</div><div class="label" data-i18n="stat.pros">Pros inscrits</div></div>
+    <div class="stat"><div class="num" data-target="1439" data-suffix="">1 439</div><div class="label" data-i18n="stat.games">Jeux & fiches</div></div>
+    <div class="stat"><div class="num" data-target="1790" data-suffix="">1 790</div><div class="label" data-i18n="stat.sae">SAÉ PFEQ</div></div>
+    <div class="stat"><div class="num" id="statPros" data-target="300" data-suffix="+">300+</div><div class="label" data-i18n="stat.pros">Pros inscrits</div></div>
     <div class="stat"><div class="num">100%</div><div class="label" data-i18n="stat.free">Gratuit, à vie</div></div>
   </div>
 </section>
@@ -3087,7 +3083,8 @@
     <div class="menu-jour-head">
       <span class="pill-top" data-i18n="menu.pill">✨ AUJOURD'HUI AU MENU</span>
       <h2 id="menuJourTitre">Ton cours ÉPS prêt en 30 secondes</h2>
-      <div class="date" id="menuJourDate">Dimanche 24 mai</div>
+      <div class="date" id="menuJourDate"></div>
+      <script>/* date du jour : robuste + isolée des autres <script> (s'affiche même si le reste du JS plante) */(function(){try{var el=document.getElementById('menuJourDate');if(!el)return;var n=new Date();var en=(typeof ztsLang!=='undefined'&&ztsLang==='en');var d=n.toLocaleDateString(en?'en-CA':'fr-CA',{weekday:'long',day:'numeric',month:'long'});el.textContent=d.charAt(0).toUpperCase()+d.slice(1);}catch(e){}})();</script>
     </div>
 
     <div class="menu-jour-grid">
@@ -3095,10 +3092,10 @@
       <!-- MÉTÉO & PLAN -->
       <div class="menu-jour-card meteo">
         <h3 data-i18n="menu.meteo_head">☁️ MÉTÉO & PLAN</h3>
-        <div class="meteo-temp"><span class="icon">🌧️</span>10°C</div>
-        <div class="meteo-loc" data-i18n="menu.meteo_loc">Bruine · Saint-Jean-sur-Richelieu</div>
-        <div class="meteo-tag" id="meteoTag">EXTÉRIEUR</div>
-        <div class="meteo-note" id="meteoNote">Temps idéal dehors</div>
+        <div class="meteo-temp"><span class="icon">🌤️</span>—</div>
+        <div class="meteo-loc">Saint-Jean-sur-Richelieu</div>
+        <div class="meteo-tag" id="meteoTag">MÉTÉO</div>
+        <div class="meteo-note" id="meteoNote">Chargement…</div>
         <div class="suggestions-title" id="suggTitle">★ SUGGESTIONS PAR CYCLE</div>
         <ul class="suggestions-list" id="suggList">
           <!-- Injecté en JS selon métier -->
@@ -3131,6 +3128,127 @@
     </div>
   </div>
 </section>
+
+<!-- ========== CALENDRIER DE PRÉSENCES (sous Aujourd'hui au menu) ========== -->
+<section id="presenceCal">
+  <style>
+    #presenceCal{ padding:46px 20px; position:relative; z-index:2; }
+    #presenceCal .pc-inner{ max-width:760px; margin:0 auto; background:#fff; border:4px solid var(--ink); border-radius:28px; box-shadow:10px 10px 0 var(--ink); padding:clamp(20px,3vw,34px); text-align:center; }
+    #presenceCal .pc-pill{ display:inline-block; background:var(--cyan); color:var(--ink); border:3px solid var(--ink); border-radius:22px; padding:8px 20px; font-family:var(--font-impact); font-size:1.05rem; box-shadow:4px 4px 0 var(--ink); letter-spacing:.5px; }
+    #presenceCal h2{ font-family:var(--font-impact); font-size:clamp(1.6rem,4vw,2.6rem); color:var(--ink); margin:14px 0 4px; }
+    #presenceCal .pc-sub{ font-family:var(--font-fun); font-weight:600; color:#555; margin-bottom:20px; }
+    #presenceCal .pc-month{ font-family:var(--font-impact); font-size:1.35rem; color:var(--ink); margin-bottom:10px; text-transform:capitalize; }
+    #presenceCal .pc-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; max-width:520px; margin:0 auto; }
+    #presenceCal .pc-dow{ font-family:var(--font-impact); text-align:center; color:#9aa3ad; font-size:.9rem; padding:4px 0; }
+    #presenceCal .pc-day{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-family:var(--font-fun); font-weight:700; font-size:1.05rem; border:2px solid var(--ink); border-radius:11px; background:#FFFEF7; cursor:pointer; transition:transform .1s, box-shadow .1s, background .1s; text-decoration:none; color:var(--ink); }
+    #presenceCal .pc-day:hover{ transform:translate(-2px,-2px); box-shadow:3px 3px 0 var(--ink); background:var(--jaune); }
+    #presenceCal .pc-day.empty{ border:none; background:transparent; cursor:default; }
+    #presenceCal .pc-day.we{ background:#eef1f5; }
+    #presenceCal .pc-day.today{ background:var(--cyan); box-shadow:3px 3px 0 var(--ink); }
+    #presenceCal .pc-cta{ display:inline-flex; align-items:center; gap:10px; margin-top:20px; background:var(--jaune); color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 26px; font-family:var(--font-impact); font-size:1.15rem; text-decoration:none; transition:transform .12s, box-shadow .12s; }
+    #presenceCal .pc-cta:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
+    body.metier-camp #presenceCal .pc-pill, body.metier-camp #presenceCal .pc-day.today{ background:var(--orange); color:#fff; }
+    body.metier-sdg #presenceCal .pc-pill, body.metier-sdg #presenceCal .pc-day.today{ background:var(--vert); }
+    #presenceCal .pc-actions{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; align-items:center; }
+    #presenceCal .pc-how{ display:inline-flex; align-items:center; gap:8px; margin-top:20px; background:#fff; color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 24px; font-family:var(--font-impact); font-size:1.1rem; cursor:pointer; transition:transform .12s, box-shadow .12s; }
+    #presenceCal .pc-how:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); background:var(--cyan); }
+    /* Popup « Comment ça fonctionne ? » */
+    .pcHow-modal{ display:none; position:fixed; inset:0; z-index:1200; background:rgba(26,26,46,.62); padding:24px; overflow-y:auto; }
+    .pcHow-modal.open{ display:flex; }
+    .pcHow-inner{ position:relative; background:#fff; border:5px solid var(--ink); border-radius:26px; box-shadow:12px 12px 0 var(--ink); max-width:680px; width:100%; margin:auto; padding:clamp(22px,3vw,40px); font-family:var(--font-fun); }
+    .pcHow-close{ position:absolute; top:14px; right:14px; width:42px; height:42px; border:3px solid var(--ink); border-radius:50%; background:var(--rose,#FF2DAC); color:#fff; font-size:20px; cursor:pointer; box-shadow:3px 3px 0 var(--ink); }
+    .pcHow-inner h3{ font-family:var(--font-impact); font-size:clamp(1.5rem,4vw,2.2rem); color:var(--ink); margin:0 8px 8px 0; padding-right:40px; }
+    .pcHow-inner h4{ font-family:var(--font-impact); font-size:1.25rem; color:var(--ink); margin:24px 0 8px; }
+    .pcHow-inner p{ font-size:1.06rem; line-height:1.5; color:#333; margin:0 0 10px; }
+    .pcHow-steps{ list-style:none; padding:0; margin:0; counter-reset:s; }
+    .pcHow-steps li{ position:relative; padding:11px 0 11px 48px; font-size:1.05rem; line-height:1.45; border-bottom:2px dashed #e3e6ea; }
+    .pcHow-steps li::before{ counter-increment:s; content:counter(s); position:absolute; left:0; top:9px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:var(--cyan); border:3px solid var(--ink); border-radius:50%; font-family:var(--font-impact); box-shadow:2px 2px 0 var(--ink); }
+    .pcHow-ex{ background:#FFFEF7; border:3px solid var(--ink); border-radius:16px; box-shadow:4px 4px 0 var(--ink); padding:14px 16px; margin:10px 0; font-size:1.02rem; line-height:1.45; }
+    .pcHow-cta{ display:inline-flex; align-items:center; gap:8px; margin-top:22px; background:var(--jaune); color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 26px; font-family:var(--font-impact); font-size:1.1rem; text-decoration:none; }
+    .pcHow-cta:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
+  </style>
+  <div class="pc-inner">
+    <span class="pc-pill" id="pcPill">📅 CALENDRIER DE PRÉSENCES</span>
+    <h2 id="pcTitle">Qui est là aujourd'hui?</h2>
+    <p class="pc-sub" id="pcSub">Suis les présences de ton groupe, jour après jour.</p>
+    <div class="pc-month" id="pcMonth"></div>
+    <div class="pc-grid" id="pcGrid"></div>
+    <div class="pc-actions">
+      <a class="pc-cta" id="pcCta" href="/apps/planificateur/">Ouvrir le calendrier →</a>
+      <button class="pc-how" id="pcHowBtn" type="button" onclick="pcOpenHow()">❓ Comment ça fonctionne ?</button>
+    </div>
+  </div>
+  <script>(function(){
+    var EN=(typeof ztsLang!=='undefined'&&ztsLang==='en');
+    var grid=document.getElementById('pcGrid'), mlabel=document.getElementById('pcMonth');
+    var dow=EN?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+    var months=EN?['January','February','March','April','May','June','July','August','September','October','November','December']
+                 :['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    if(EN){ document.getElementById('pcPill').textContent='📅 ATTENDANCE CALENDAR'; document.getElementById('pcTitle').textContent="Who's here today?";
+      document.getElementById('pcSub').textContent='Track your group attendance, day after day.'; document.getElementById('pcCta').textContent='Open the calendar →'; }
+    var n=new Date(), y=n.getFullYear(), m=n.getMonth(), today=n.getDate();
+    mlabel.textContent=months[m]+' '+y;
+    var html=dow.map(function(d){return '<div class="pc-dow">'+d+'</div>';}).join('');
+    var first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+    for(var i=0;i<first;i++) html+='<div class="pc-day empty"></div>';
+    for(var d=1;d<=days;d++){ var wd=new Date(y,m,d).getDay(); var cls='pc-day'+((wd===0||wd===6)?' we':'')+(d===today?' today':'');
+      html+='<a class="'+cls+'" href="/apps/planificateur/">'+d+'</a>'; }
+    grid.innerHTML=html;
+  })();</script>
+</section>
+
+<!-- POPUP « Comment ça fonctionne ? » du calendrier de présences -->
+<div class="pcHow-modal" id="pcHowModal" onclick="if(event.target===this) pcCloseHow()">
+  <div class="pcHow-inner">
+    <button class="pcHow-close" onclick="pcCloseHow()" aria-label="Fermer">✕</button>
+    <div id="pcHowBody"></div>
+  </div>
+</div>
+<script>
+function pcOpenHow(){ var EN=(typeof ztsLang!=='undefined'&&ztsLang==='en'); document.getElementById('pcHowBody').innerHTML=(EN?pcHowEN():pcHowFR()); document.getElementById('pcHowModal').classList.add('open'); document.body.style.overflow='hidden'; }
+function pcCloseHow(){ document.getElementById('pcHowModal').classList.remove('open'); document.body.style.overflow=''; }
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') pcCloseHow(); });
+function pcHowFR(){ return ''
++'<h3>📅 Comment fonctionne le calendrier de présences&nbsp;?</h3>'
++'<p>C\'est un outil <b>100&nbsp;% gratuit</b> pour faire l\'appel de ton groupe et garder le fil de chaque journée — pensé pour les <b>animateurs de camp de jour</b>, les <b>éducatrices de service de garde</b> et les <b>profs d\'éducation physique</b>.</p>'
++'<h4>🎯 À quoi ça sert</h4>'
++'<p>Fini la feuille de papier qui se perd&nbsp;: tu vois d\'un coup d\'œil <b>qui est présent, qui est parti, avec qui</b>, et tu notes ce qui s\'est passé. Tout se synchronise <b>en temps réel</b> entre l\'animateur et le coordonnateur.</p>'
++'<h4>👉 Étape par étape</h4>'
++'<ol class="pcHow-steps">'
++'<li><b>Crée ton groupe</b> (ex.&nbsp;«&nbsp;Les Dauphins&nbsp;»). Tu peux en avoir plusieurs.</li>'
++'<li><b>Ajoute tes enfants</b>&nbsp;: prénom, photo, personnes autorisées à venir les chercher, et leurs <b>particularités</b> (allergie&nbsp;🥜, TSA&nbsp;🧩, asthme…) qui s\'affichent sous leur nom.</li>'
++'<li><b>Le matin</b>, tu <b>tapes la photo</b> de chaque enfant qui arrive → il passe au vert «&nbsp;présent&nbsp;» avec l\'heure. Un appui long&nbsp;= absent.</li>'
++'<li><b>Au départ</b>, tu indiques <b>qui vient le chercher</b> (avertissement si la personne n\'est pas autorisée), puis tu remplis le <b>journal de bord</b>&nbsp;: belle journée, pépin, objet perdu, comportement…</li>'
++'<li><b>Le coordonnateur</b> voit tous les groupes en temps réel et peut <b>t\'écrire dans l\'app</b> («&nbsp;Le parent de Mia est à l\'accueil&nbsp;»).</li>'
++'</ol>'
++'<h4>💡 Exemples concrets</h4>'
++'<div class="pcHow-ex"><b>Camp de jour —</b> Lundi 8&nbsp;h, 22 enfants arrivent. Tu tapes chaque visage&nbsp;= présent. Léo a une allergie&nbsp;: l\'icône&nbsp;🥜 est déjà sous son nom, impossible de l\'oublier. À 16&nbsp;h, sa mère vient le chercher&nbsp;: tu notes «&nbsp;Belle journée&nbsp;🌟&nbsp;» et qui vient le chercher.</div>'
++'<div class="pcHow-ex"><b>Service de garde —</b> Un grand-parent non inscrit se présente pour Mia. L\'app affiche un&nbsp;⚠️ «&nbsp;hors-liste&nbsp;»&nbsp;: tu confirmes en toute sécurité et c\'est consigné.</div>'
++'<div class="pcHow-ex"><b>Coordination —</b> La coordonnatrice cherche un enfant, voit qu\'il est parti à 15&nbsp;h avec son père, et lit le compte rendu de l\'animateur. Un&nbsp;❗ signifie qu\'il y a un message à transmettre au parent.</div>'
++'<h4>📱 Où ça marche</h4>'
++'<p>Sur <b>tablette et iPhone</b> directement au gymnase ou dans la cour, et sur ordinateur. <b>Rien à installer.</b></p>'
++'<a class="pcHow-cta" href="/apps/planificateur/">Ouvrir le calendrier →</a>'; }
+function pcHowEN(){ return ''
++'<h3>📅 How does the attendance calendar work?</h3>'
++'<p>A <b>100% free</b> tool to take your group\'s attendance and keep track of each day — built for <b>day-camp counsellors</b>, <b>daycare educators</b> and <b>PE teachers</b>.</p>'
++'<h4>🎯 What it\'s for</h4>'
++'<p>No more lost paper sheets: see at a glance <b>who is here, who left, and with whom</b>, and log what happened during the day. Everything syncs <b>in real time</b> between the counsellor and the coordinator.</p>'
++'<h4>👉 Step by step</h4>'
++'<ol class="pcHow-steps">'
++'<li><b>Create your group</b> (e.g. “The Dolphins”). You can have several.</li>'
++'<li><b>Add your kids</b>: first name, photo, authorized pickup people, and their <b>special notes</b> (allergy 🥜, ASD 🧩, asthma…) shown under their name.</li>'
++'<li><b>In the morning</b>, <b>tap each child\'s photo</b> as they arrive → they turn green “present” with the time. Long-press = absent.</li>'
++'<li><b>At pickup</b>, set <b>who is picking them up</b> (a warning shows if the person isn\'t authorized), then fill the <b>logbook</b>: great day, mishap, lost item, behaviour…</li>'
++'<li><b>The coordinator</b> sees every group in real time and can <b>message you in the app</b> (“Mia\'s parent is at the front desk”).</li>'
++'</ol>'
++'<h4>💡 Real examples</h4>'
++'<div class="pcHow-ex"><b>Day camp —</b> Monday 8&nbsp;a.m., 22 kids arrive. You tap each face = present. Leo has an allergy: the 🥜 icon is already under his name — impossible to miss. At 4&nbsp;p.m. his mom picks him up: you log “Great day 🌟” and who picked him up.</div>'
++'<div class="pcHow-ex"><b>Daycare —</b> An unregistered grandparent shows up for Mia. The app flags a&nbsp;⚠️ “off-list” pickup: you confirm safely and it\'s recorded.</div>'
++'<div class="pcHow-ex"><b>Coordination —</b> The coordinator looks up a child, sees they left at 3&nbsp;p.m. with their dad, and reads the counsellor\'s log. A&nbsp;❗ means there\'s a message to pass on to the parent.</div>'
++'<h4>📱 Where it works</h4>'
++'<p>On <b>tablet and iPhone</b> right in the gym or schoolyard, and on desktop. <b>Nothing to install.</b></p>'
++'<a class="pcHow-cta" href="/apps/planificateur/">Open the calendar →</a>'; }
+</script>
 
 <!-- STAGE 2 retiré : la grille d'apps par métier vit désormais dans les
      hubs (ep.html / service-de-garde.html / camps-de-jour.html) — source
@@ -3194,7 +3312,7 @@
 <div class="mascot" id="mascot">
   <span id="mascot-emoji"><img src="perso-ep.png" alt="Mr. Root"></span>
   <div class="bubble" id="mascot-bubble">
-    <img class="bubble-avatar" id="bubble-avatar" src="perso-ep.png" alt="">
+    <img class="bubble-avatar" id="bubble-avatar" src="perso-ep.png" alt="Mr. Root, la mascotte de Zone Total Sport">
     <div class="bubble-text" id="bubble-text">Salut! Clique-moi pour une dose de motivation!</div>
   </div>
 </div>
@@ -3336,8 +3454,8 @@
       mascotMsg: 'Yo coach! Ton gym t\'attend!',
       titre: 'Ton gym, tes règles.',
       baseline: 'Tout ce qu\'il te faut pour tes cours d\'ÉP au primaire — alignés PFEQ, testés au gymnase, prêts dès lundi.',
-      cta: 'Rejoins 2300+ profs d\'ÉP',
-      ctaSub: 'Accès illimité à 500+ jeux, SAÉ et outils. Gratuit à vie!',
+      cta: 'Rejoins 300+ profs d\'ÉP',
+      ctaSub: 'Accès illimité à 1400+ jeux, SAÉ et outils. Gratuit à vie!',
       commentUtiliser: [
         'Choisis une app dans la grille ci-dessous',
         'Elle s\'ouvre en moins de 2 secondes',
@@ -3350,12 +3468,12 @@
         { icon: '🏀', name: 'Tableau indicateur', desc: 'Scoreboard 3 sports', url: 'https://zonetotalsport.ca/apps/scoreboard/', hot: true },
         { icon: '🧰', name: 'Boîte à outils', desc: 'Signaux, chrono, équipes', url: 'https://zonetotalsport.ca/apps/transitions/' },
         { icon: '🎒', name: '90 cours maternelle', desc: 'Web-app clé en main', url: 'https://zonetotalsport.ca/apps/cours-maternelle/', hot: true },
-        { icon: '🦺', name: 'Ma Suppléance', desc: 'Plans pour suppléants', url: 'https://suppleance.zonetotalsport.ca/' },
+        { icon: '🦺', name: 'Ma Suppléance', desc: 'Plans pour suppléants', url: '/apps/suppleance/' },
         { icon: '🌍', name: 'Répertoire mondial', desc: 'Profs ÉP du monde', url: 'https://zonetotalsport.ca/repertoire.html' },
         { icon: '✏️', name: 'Blog ÉPS', desc: '23+ articles pratiques', url: 'https://zonetotalsport.ca/blog.html' },
         { icon: '🤝', name: 'Communauté ÉPS', desc: 'Forum Aidons-nous', url: 'https://zonetotalsport.ca/aidons-nous/' },
         // ===== EXCLUSIVES ÉP (SOON) =====
-        { icon: '🎮', name: 'Banque de jeux', desc: '500+ jeux avec fiches PDF', soon: true },
+        { icon: '🎮', name: 'Banque de jeux', desc: '1400+ jeux avec fiches PDF', soon: true },
         { icon: '🤖', name: 'Générateur SAÉ IA', desc: 'SAÉ PFEQ en 10 sec', soon: true },
         { icon: '📊', name: 'Carnet Léger', desc: 'Évaluation & présences', soon: true },
         { icon: '📋', name: 'Banque d\'éducatifs', desc: 'Fiches techniques', soon: true },
@@ -3372,7 +3490,7 @@
       ],
       temoignage: {
         initiale: 'MC',
-        nom: 'Marie-Claude — Prof d\'ÉP, Laval',
+        nom: 'Un prof d\'ÉP du Québec',
         quote: 'Je planifie 5 cours en 20 minutes le dimanche soir. Avant, ça me prenait 3 heures. Game changer.'
       }
     },
@@ -3425,7 +3543,7 @@
       ],
       temoignage: {
         initiale: 'JL',
-        nom: 'Julie L. — Éducatrice SDG, Trois-Rivières',
+        nom: 'Une éducatrice de service de garde',
         quote: 'La journée pédagogique de septembre, plus jamais le stress. J\'ouvre l\'app et on est partis!'
       }
     },
@@ -3477,7 +3595,7 @@
       ],
       temoignage: {
         initiale: 'AB',
-        nom: 'Alex B. — Coordo camp de jour, Sherbrooke',
+        nom: 'Un coordo de camp de jour',
         quote: 'L\'été passé j\'ai formé 12 moniteurs avec la plateforme. Game changer total!'
       }
     }
@@ -3551,7 +3669,7 @@
       meteoNote: 'Temps idéal dehors',
       suggTitle: '★ AUJOURD\'HUI ON A POUR TOI',
       suggList: [
-        { cyc: 'ÉP', name: 'Banque de 500 jeux', desc: 'Filtrable par âge, matériel et compétence.' },
+        { cyc: 'ÉP', name: 'Banque de 1400+ jeux', desc: 'Filtrable par âge, matériel et compétence.' },
         { cyc: 'SDG', name: 'SOS Intervention', desc: '100 solutions pour gérer une crise.' },
         { cyc: 'CDJ', name: 'Grands jeux d\'été', desc: '50+ thèmes clé en main pour ton camp.' }
       ],
@@ -3626,8 +3744,7 @@
   function renderMenuJour(key) {
     const m = MENU_JOUR[key] || MENU_JOUR.default;
     document.getElementById('menuJourTitre').textContent = m.titre;
-    document.getElementById('meteoTag').textContent = m.meteoTag;
-    document.getElementById('meteoNote').textContent = m.meteoNote;
+    // Météo désormais pilotée par daily.js (source unique) -> updateMenuJourWeather()
     document.getElementById('suggTitle').textContent = m.suggTitle;
     document.getElementById('suggList').innerHTML = m.suggList.map(s =>
       `<li><span class="cyc">${s.cyc}</span><span class="name">${s.name}</span><span class="desc">— ${s.desc}</span></li>`
@@ -3657,24 +3774,41 @@
   renderMenuJour('default');
 
   // ============ ANIMATIONS COUNTERS ============
+  function animateOne(el) {
+    const target = parseInt(el.dataset.target);
+    const suffix = el.dataset.suffix != null ? el.dataset.suffix : '+';
+    const duration = 1400;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = Math.floor(target * eased);
+      el.textContent = val.toLocaleString('fr-CA') + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
   function animateCounters() {
-    document.querySelectorAll('.stat .num[data-target]').forEach(el => {
-      const target = parseInt(el.dataset.target);
-      const duration = 1400;
-      const start = performance.now();
-      const startVal = 0;
-      function tick(now) {
-        const t = Math.min(1, (now - start) / duration);
-        const eased = 1 - Math.pow(1 - t, 3);
-        const val = Math.floor(startVal + (target - startVal) * eased);
-        el.textContent = val.toLocaleString('fr-CA') + (target >= 500 ? '+' : '+');
-        if (t < 1) requestAnimationFrame(tick);
-      }
-      requestAnimationFrame(tick);
-    });
+    document.querySelectorAll('.stat .num[data-target]').forEach(animateOne);
   }
   // Lance au chargement
   setTimeout(animateCounters, 400);
+
+  // Compteur "Pros inscrits" : vrai nombre d'abonnés via worker, fallback "300+"
+  (function fetchProsCount() {
+    const el = document.getElementById('statPros');
+    if (!el || !window.fetch) return;
+    fetch('https://zone-subscriber-count.zts-ccd.workers.dev')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d && typeof d.total === 'number' && d.total > 0) {
+          el.dataset.target = String(d.total);
+          el.dataset.suffix = '';
+          animateOne(el);
+        }
+      })
+      .catch(() => { /* garde le fallback "300+" déjà affiché */ });
+  })();
 
   // ============ CHOISIR UN MÉTIER → navigation vers le hub ============
   // Source de vérité unique par métier = le hub. La langue active est déjà
@@ -4235,7 +4369,7 @@
       'lang.fr':'FR','lang.en':'EN','brand.sub':'Pédagogie Primaire',
       'series.see_nhl':'Voir les séries LNH','series.see_nba':'Voir les séries NBA','series.nhl_label':'SÉRIES LNH','series.nba_label':'SÉRIES NBA',
       'series.title_init':'Séries éliminatoires LNH 2026','series.sub_init':'Coupe Stanley · Tour final','series.ext':'Voir le tableau complet sur le site officiel →',
-      'hero.eyebrow':'+500 jeux · 100% gratuit · primaire','hero.title1':'Faire bouger les enfants,','hero.title2':"c'est notre mission!",
+      'hero.eyebrow':'1400+ jeux · 100% gratuit · primaire','hero.title1':'Faire bouger les enfants,','hero.title2':"c'est notre mission!",
       'hero.lede':"Une plateforme. Trois métiers. Choisis le tien et reçois exactement ce qu'il te faut — pour des journées qui roulent au primaire.",
       'metier.ep':'Éducation physique','metier.sdg':'Service de garde','metier.camp':'Camps de jour',
       'porte.ep.role':"Profs d'ÉP du primaire : cours béton, alignés PFEQ, prêts dès lundi matin.",
@@ -4247,7 +4381,7 @@
       'porte.ep.cta':"C'est parti!",'porte.sdg.cta':'On y va!','porte.camp.cta':'En avant!',
       'stat.games':'Jeux & fiches','stat.sae':'SAÉ PFEQ','stat.pros':'Pros inscrits','stat.free':'Gratuit, à vie',
       'menu.pill':'✨ AUJOURD\'HUI AU MENU','menu.meteo_head':'☁️ MÉTÉO & PLAN','menu.meteo_loc':'Bruine · Saint-Jean-sur-Richelieu',
-      'menu.jeu_head':'🎮 JEU DU JOUR','menu.how_to_play':'COMMENT JOUER','menu.see_games':'VOIR 150 AUTRES JEUX →',
+      'menu.jeu_head':'🎮 JEU DU JOUR','menu.how_to_play':'COMMENT JOUER','menu.see_games':'VOIR 1400+ JEUX →',
       'menu.defi_head':'💪 DÉFI DU JOUR','menu.todo':'À FAIRE AUJOURD\'HUI',
       'metier.change':'← Changer','metier.howto_suffix':" Clique sur un outil pour l'ouvrir. Les boutons marqués « bientôt » sont en chantier.",
       'pause.label':'PAUSE SYNDICALE','pause.title':'Prends 30 secondes pour toi','pause.sub':'Une citation, une question. Un nouveau défi chaque jour.',
@@ -4259,7 +4393,7 @@
       'foot.pc1_title':'PLANIFICATION COMPLÈTE','foot.pc1_desc':'Gratuit, clé en main : 360 cours d\'ÉP (4 niveaux), 200 jours de service de garde et 7 semaines de camp.','foot.pc1_cta':'OBTENIR L\'ACCÈS →',
       'foot.pc2_title':'AIDONS-NOUS','foot.pc2_desc':'Forum pour profs ÉPS, éducatrices SDG et animateurs de camp. Partage tes trucs, pose tes questions.','foot.pc2_cta':'REJOINDRE →',
       'foot.pc3_title':'SOUTIENS LA ZONE','foot.pc3_desc':'100% gratuit, sans pub. Un petit don aide à garder les outils accessibles à tous les profs.','foot.pc3_cta':'FAIRE UN DON →',
-      'foot.brand_tag':'Faire bouger les enfants,<br>c\'est notre mission!','foot.brand_stats':'2 300+ pros inscrits · 500+ jeux · 150+ SAÉ',
+      'foot.brand_tag':'Faire bouger les enfants,<br>c\'est notre mission!','foot.brand_stats':'300+ pros inscrits · 1400+ jeux · 1700+ SAÉ',
       'foot.h_forwho':'POUR QUI?','foot.h_resources':'RESSOURCES','foot.h_tools':'OUTILS','foot.h_extras':'EXTRAS',
       'foot.fw1':'Éducation physique','foot.fw2':'Service de garde','foot.fw3':'Camps de jour','foot.fw4':'Communauté Aidons-nous',
       'foot.r1':'Banque de jeux','foot.r2':'SAÉ PFEQ','foot.r3':'Générateur de jeux IA','foot.r4':'90 cours maternelle','foot.r5':'Blog ÉPS','foot.r6':'Répertoire mondial',
@@ -4285,7 +4419,7 @@
       'lang.fr':'FR','lang.en':'EN','brand.sub':'Elementary Education',
       'series.see_nhl':'View NHL playoffs','series.see_nba':'View NBA playoffs','series.nhl_label':'NHL PLAYOFFS','series.nba_label':'NBA PLAYOFFS',
       'series.title_init':'NHL Playoffs 2026','series.sub_init':'Stanley Cup · Final round','series.ext':'See the full bracket on the official site →',
-      'hero.eyebrow':'+500 games · 100% free · elementary','hero.title1':'Getting kids moving,','hero.title2':"that's our mission!",
+      'hero.eyebrow':'1400+ games · 100% free · elementary','hero.title1':'Getting kids moving,','hero.title2':"that's our mission!",
       'hero.lede':"One platform. Three roles. Pick yours and get exactly what you need — for elementary days that run smoothly.",
       'metier.ep':'Physical Education','metier.sdg':'Daycare','metier.camp':'Day Camps',
       'porte.ep.role':'Elementary PE teachers: solid lessons, PFEQ-aligned, ready Monday morning.',
@@ -4297,7 +4431,7 @@
       'porte.ep.cta':"Let's go!",'porte.sdg.cta':"Let's go!",'porte.camp.cta':'Onward!',
       'stat.games':'Games & sheets','stat.sae':'PFEQ lessons','stat.pros':'Pros signed up','stat.free':'Free, for life',
       'menu.pill':'✨ TODAY ON THE MENU','menu.meteo_head':'☁️ WEATHER & PLAN','menu.meteo_loc':'Drizzle · Saint-Jean-sur-Richelieu',
-      'menu.jeu_head':'🎮 GAME OF THE DAY','menu.how_to_play':'HOW TO PLAY','menu.see_games':'SEE 150 MORE GAMES →',
+      'menu.jeu_head':'🎮 GAME OF THE DAY','menu.how_to_play':'HOW TO PLAY','menu.see_games':'SEE 1400+ GAMES →',
       'menu.defi_head':'💪 CHALLENGE OF THE DAY','menu.todo':'TO DO TODAY',
       'metier.change':'← Change','metier.howto_suffix':' Click a tool to open it. Buttons marked "soon" are in the works.',
       'pause.label':'COFFEE BREAK','pause.title':'Take 30 seconds for yourself','pause.sub':'A quote, a question. A new challenge every day.',
@@ -4309,7 +4443,7 @@
       'foot.pc1_title':'FULL PLANNING','foot.pc1_desc':'Free, turnkey: 360 PE lessons (4 levels), 200 daycare days and 7 camp weeks.','foot.pc1_cta':'GET ACCESS →',
       'foot.pc2_title':'AIDONS-NOUS','foot.pc2_desc':'A forum for PE teachers, daycare educators and camp counselors. Share your tips, ask your questions.','foot.pc2_cta':'JOIN →',
       'foot.pc3_title':'SUPPORT THE ZONE','foot.pc3_desc':'100% free, ad-free. A small donation helps keep the tools free for every teacher.','foot.pc3_cta':'DONATE →',
-      'foot.brand_tag':'Getting kids moving,<br>that\'s our mission!','foot.brand_stats':'2,300+ pros signed up · 500+ games · 150+ lessons',
+      'foot.brand_tag':'Getting kids moving,<br>that\'s our mission!','foot.brand_stats':'300+ pros signed up · 1400+ games · 1700+ lessons',
       'foot.h_forwho':'WHO IT\'S FOR','foot.h_resources':'RESOURCES','foot.h_tools':'TOOLS','foot.h_extras':'EXTRAS',
       'foot.fw1':'Physical Education','foot.fw2':'Daycare','foot.fw3':'Day Camps','foot.fw4':'Aidons-nous community',
       'foot.r1':'Game bank','foot.r2':'PFEQ lessons','foot.r3':'AI game generator','foot.r4':'90 kindergarten lessons','foot.r5':'PE Blog','foot.r6':'World directory',
@@ -4352,18 +4486,18 @@
       nom:'PE Zone', color:'#00E5FF', colorSoft:'#CCFAFF', colorTint:'rgba(0,229,255,0.18)', mascot:'perso-ep.png',
       mascotMsg:'Yo coach! Your gym is waiting!', titre:'Your gym, your rules.',
       baseline:'Everything you need for your elementary PE classes — PFEQ-aligned, gym-tested, ready by Monday.',
-      cta:'Join 2,300+ PE teachers', ctaSub:'Unlimited access to 500+ games, lessons and tools. Free for life!',
+      cta:'Join 300+ PE teachers', ctaSub:'Unlimited access to 1400+ games, lessons and tools. Free for life!',
       commentUtiliser:['Pick an app from the grid below','It opens in under 2 seconds','No account needed to start','Automatic local save'],
       apps:[
         { icon:'📅', name:'PE Planner', desc:'Full school-year calendar', url:'https://zonetotalsport.ca/apps/planificateur/', hot:true },
         { icon:'🏀', name:'Scoreboard', desc:'3-sport scoreboard', url:'https://zonetotalsport.ca/apps/scoreboard/', hot:true },
         { icon:'🧰', name:'Toolbox', desc:'Signals, timer, teams', url:'https://zonetotalsport.ca/apps/transitions/' },
         { icon:'🎒', name:'90 kindergarten lessons', desc:'Turnkey web app', url:'https://zonetotalsport.ca/apps/cours-maternelle/', hot:true },
-        { icon:'🦺', name:'My Substitute', desc:'Plans for substitutes', url:'https://suppleance.zonetotalsport.ca/' },
+        { icon:'🦺', name:'My Substitute', desc:'Plans for substitutes', url:'/apps/suppleance/' },
         { icon:'🌍', name:'World directory', desc:'PE teachers worldwide', url:'https://zonetotalsport.ca/repertoire.html' },
         { icon:'✏️', name:'PE Blog', desc:'23+ practical articles', url:'https://zonetotalsport.ca/blog.html' },
         { icon:'🤝', name:'PE Community', desc:'Aidons-nous forum', url:'https://zonetotalsport.ca/aidons-nous/' },
-        { icon:'🎮', name:'Game bank', desc:'500+ games with PDF sheets', soon:true },
+        { icon:'🎮', name:'Game bank', desc:'1400+ games with PDF sheets', soon:true },
         { icon:'🤖', name:'AI SAÉ generator', desc:'PFEQ lessons in 10 sec', soon:true },
         { icon:'📊', name:'Light gradebook', desc:'Assessment & attendance', soon:true },
         { icon:'📋', name:'Drills bank', desc:'Technique sheets', soon:true },
@@ -4376,7 +4510,7 @@
         { icon:'🧩', name:'Riddles & puzzles', desc:'Brain teasers by age', soon:true },
         { icon:'🎤', name:'Rhymes & songs', desc:'Audio bank + lyrics', soon:true }
       ],
-      temoignage:{ initiale:'MC', nom:'Marie-Claude — PE teacher, Laval', quote:'I plan 5 lessons in 20 minutes on Sunday night. It used to take me 3 hours. Game changer.' }
+      temoignage:{ initiale:'PE', nom:'A PE teacher from Quebec', quote:'I plan 5 lessons in 20 minutes on Sunday night. It used to take me 3 hours. Game changer.' }
     },
     sdg: {
       nom:'Daycare Zone', color:'#39FF14', colorSoft:'#D6FFCB', colorTint:'rgba(57,255,20,0.18)', mascot:'perso-sdg.png',
@@ -4408,7 +4542,7 @@
         { icon:'🤸', name:'Warm-ups', desc:'Energetic wake-ups for big groups', soon:true, new:true },
         { icon:'🏅', name:'Daycare olympics', desc:'Turnkey special day', soon:true, new:true }
       ],
-      temoignage:{ initiale:'JL', nom:'Julie L. — Daycare educator, Trois-Rivières', quote:"September PD day, never stressful again. I open the app and we're off!" }
+      temoignage:{ initiale:'DE', nom:'A daycare educator from Quebec', quote:"September PD day, never stressful again. I open the app and we're off!" }
     },
     camp: {
       nom:'Camp Zone', color:'#FF6B00', colorSoft:'#FFE7D1', colorTint:'rgba(255,107,0,0.18)', mascot:'perso-camp.png',
@@ -4440,7 +4574,7 @@
         { icon:'🤸', name:'Warm-ups', desc:'Morning routines before camp activities', soon:true, new:true },
         { icon:'🏅', name:'Camp olympics', desc:'Turnkey inter-group tournament', soon:true, new:true }
       ],
-      temoignage:{ initiale:'AB', nom:'Alex B. — Day camp coordinator, Sherbrooke', quote:'Last summer I trained 12 counselors with the platform. Total game changer!' }
+      temoignage:{ initiale:'CC', nom:'A day camp coordinator from Quebec', quote:'Last summer I trained 12 counselors with the platform. Total game changer!' }
     }
   };
 
@@ -4479,14 +4613,14 @@
   // Retire l'état "soon" des apps dont l'URL est désormais connue.
   const APP_URL = {
     'Banque de jeux':'https://jeux.zonetotalsport.ca', 'Game bank':'https://jeux.zonetotalsport.ca',
-    'Générateur SAÉ IA':'https://ia.zonetotalsport.ca', 'AI SAÉ generator':'https://ia.zonetotalsport.ca',
-    'Carnet Léger':'https://evaluation.zonetotalsport.ca', 'Light gradebook':'https://evaluation.zonetotalsport.ca',
-    "Banque d'éducatifs":'https://educatifs.zonetotalsport.ca', 'Drills bank':'https://educatifs.zonetotalsport.ca',
-    'Grille horaire':'https://grille.zonetotalsport.ca', 'Schedule grid':'https://grille.zonetotalsport.ca',
-    'Musique':'https://musique.zonetotalsport.ca', 'Music':'https://musique.zonetotalsport.ca',
-    'Musique ambiance':'https://musique.zonetotalsport.ca', 'Mood music':'https://musique.zonetotalsport.ca',
-    'Musique camp':'https://musique.zonetotalsport.ca', 'Camp music':'https://musique.zonetotalsport.ca',
-    'Tableau blanc TNI':'https://tni.zonetotalsport.ca', 'IWB whiteboard':'https://tni.zonetotalsport.ca'
+    'Générateur SAÉ IA':'/apps/generateur/', 'AI SAÉ generator':'/apps/generateur/',
+    'Carnet Léger':'/apps/evaluation/', 'Light gradebook':'/apps/evaluation/',
+    "Banque d'éducatifs":'/apps/educatifs/', 'Drills bank':'/apps/educatifs/',
+    'Grille horaire':'/apps/grille/', 'Schedule grid':'/apps/grille/',
+    'Musique':'/apps/musique/', 'Music':'/apps/musique/',
+    'Musique ambiance':'/apps/musique/', 'Mood music':'/apps/musique/',
+    'Musique camp':'/apps/musique/', 'Camp music':'/apps/musique/',
+    'Tableau blanc TNI':'/apps/tni/', 'IWB whiteboard':'/apps/tni/'
   };
   [METIERS_FR, METIERS_EN].forEach(M => Object.values(M).forEach(m => m.apps.forEach(a => {
     if (APP_URL[a.name]) { a.url = APP_URL[a.name]; delete a.soon; }

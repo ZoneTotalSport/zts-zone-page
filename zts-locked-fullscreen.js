@@ -89,7 +89,7 @@
         '<button class="zts-lf-btn zts-lf-btn-email" data-action="email">S\'inscrire avec un courriel</button>' +
       '</div>' +
       '<div class="zts-lf-login">Déjà membre ? <a data-action="login">Connecte-toi</a></div>' +
-      '<div class="zts-lf-social">Marie-Claude et 47 autres profs se sont inscrits cette semaine</div>';
+      '<div class="zts-lf-social">Rejoins les profs du Québec qui utilisent la Zone chaque semaine</div>';
 
     // Replace placeholder text with emojis (avoid encoding issues in source)
     var icon = box.querySelector('.zts-lf-icon');
