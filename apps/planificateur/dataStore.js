@@ -1,0 +1,188 @@
+/**
+ * dataStore.js — couche données du Planificateur (Phase 3, biblio camp)
+ *
+ * 1) Banque camps : catalogue 1439 (apps/jeux/data/jeux-merged.json) +
+ *    mini-banques (data/mini-banques-camp.json), fusionnés à la lecture,
+ *    filtrés univers "camps", normalisés en fiche tiroir.
+ * 2) Écritures journée : TOUT passe par ici (Journees.* de app.js),
+ *    jamais de Firestore direct depuis l'UI du tiroir.
+ *
+ * Clés stables : catalogue = `id` (pfeq_*, SANS_*, …) — le champ `slug`
+ * n'existe pas encore dans jeux-merged.json ; mini-banques = `slug` (mb-*).
+ * `ref` d'un bloc activité = cette clé.
+ *
+ * Script classique (pas un module) : chargé AVANT app.js ; les références
+ * à Journees/state se résolvent à l'appel, pas au chargement.
+ */
+
+const PlanifData = (() => {
+
+  const CATALOGUE_URL = '../jeux/data/jeux-merged.json';
+  const MINIBANQUES_URL = 'data/mini-banques-camp.json';
+
+  let _loadPromise = null;   // cache : un seul fetch par session
+
+  // ── Normalisation ────────────────────────────────────────
+
+  // "Gymnase ou Extérieur" → {interieur:true, exterieur:true} ; vide → les deux (inclusif)
+  function lieuFlags(espace) {
+    const s = (espace || '').toLowerCase();
+    if (!s || /partout/.test(s)) return { interieur: true, exterieur: true };
+    const ext = /(ext[ée]rieur|terrain|parc|bois[ée]|plage|cour|nature)/.test(s);
+    const int_ = /(gymnase|int[ée]rieur|salle|local|classe)/.test(s);
+    return { interieur: int_ || !ext, exterieur: ext || !int_ };
+  }
+
+  // Élevé/Très élevé/actif/haute → defoulement ; Faible/calme/douce → calme ; sinon null (matche tout)
+  function energieNorm(v) {
+    const s = (v || '').toLowerCase();
+    if (/(très élevé|tres eleve|élevé|eleve|actif|haute)/.test(s)) return 'defoulement';
+    if (/(faible|calme|douce)/.test(s)) return 'calme';
+    return null;
+  }
+
+  function parseAgeTag(tag) { // '5-7' → [5,7]
+    const m = /^(\d+)\s*-\s*(\d+)$/.exec(tag || '');
+    return m ? [+m[1], +m[2]] : [null, null];
+  }
+
+  function fromCatalogue(j) {
+    const lieu = lieuFlags(j.espace);
+    const mat = j.materiel || [];
+    return {
+      ref: j.id,
+      titre: j.title || '',
+      ageMin: j.ageMin ?? null, ageMax: j.ageMax ?? null,
+      energie: energieNorm(j.niveauActivite),
+      interieur: lieu.interieur, exterieur: lieu.exterieur,
+      sansMateriel: mat.length === 0 || j.category === 'sans-materiel',
+      nbJoueurs: (j.nbJoueursMin || j.nbJoueursMax)
+        ? `${j.nbJoueursMin ?? '?'}–${j.nbJoueursMax ?? '?'}` : '',
+      duree: j.dureeMin ? `${j.dureeMin} min` : (j.duree || ''),
+      dureeMin: j.dureeMin || null,
+      materielCourt: mat.length ? String(mat[0]).split('(')[0].trim() : 'Aucun',
+      icon: j.categoryIcon || '🎲',
+      source: 'catalogue',
+    };
+  }
+
+  function fromMiniBanque(e) {
+    const t = e.tags || {};
+    const lieu = lieuFlags(t.espace);
+    const [a1, a2] = parseAgeTag(t.age);
+    return {
+      ref: e.slug,
+      titre: e.title || '',
+      ageMin: a1, ageMax: a2,
+      energie: energieNorm(t.energie),
+      interieur: lieu.interieur, exterieur: lieu.exterieur,
+      sansMateriel: t.materiel === 'aucun',
+      nbJoueurs: '',
+      duree: e.duree || '',
+      dureeMin: null,
+      materielCourt: (e.materiel && e.materiel[0]) ? String(e.materiel[0]).split(',')[0] : 'Aucun',
+      icon: e.icon || '🎯',
+      source: e.source || 'mini-banque',
+    };
+  }
+
+  // ── Chargement fusionné (lazy, 1 fois) ───────────────────
+
+  function loadBanqueCamp() {
+    if (_loadPromise) return _loadPromise;
+    _loadPromise = Promise.all([
+      fetch(CATALOGUE_URL).then(r => { if (!r.ok) throw new Error('catalogue ' + r.status); return r.json(); }),
+      fetch(MINIBANQUES_URL).then(r => { if (!r.ok) throw new Error('mini-banques ' + r.status); return r.json(); }),
+    ]).then(([cat, mb]) => {
+      const items = [
+        ...cat.filter(j => (j.univers || []).includes('camps')).map(fromCatalogue),
+        ...mb.filter(e => (e.univers || []).includes('camps')).map(fromMiniBanque),
+      ].filter(x => x.ref && x.titre);
+      items.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
+      return items;
+    }).catch(err => { _loadPromise = null; throw err; });
+    return _loadPromise;
+  }
+
+  // ── Filtres (inconnu = matche tout : ne jamais cacher du contenu) ──
+
+  const AGE_TRANCHES = { '4-5': [4, 5], '6-8': [6, 8], '9-12': [9, 12] };
+
+  function filterBanque(items, f) {
+    const q = (f.q || '').trim().toLowerCase();
+    return items.filter(x => {
+      if (f.age && AGE_TRANCHES[f.age]) {
+        const [lo, hi] = AGE_TRANCHES[f.age];
+        if (x.ageMin != null && x.ageMax != null && (x.ageMax < lo || x.ageMin > hi)) return false;
+      }
+      if (f.energie && x.energie && x.energie !== f.energie) return false;
+      if (f.lieu === 'interieur' && !x.interieur) return false;
+      if (f.lieu === 'exterieur' && !x.exterieur) return false;
+      if (f.sansMateriel && !x.sansMateriel) return false;
+      if (q && !x.titre.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }
+
+  // ── Horaire : trous et insertion ─────────────────────────
+
+  const JOUR_DEBUT = '09:00', JOUR_FIN = '16:00', TROU_MIN = 15;
+
+  function toMin(h) { const m = /^(\d{1,2})[:h](\d{2})$/.exec(h || ''); return m ? (+m[1]) * 60 + (+m[2]) : null; }
+  function toHM(min) { return String(Math.floor(min / 60)).padStart(2, '0') + ':' + String(min % 60).padStart(2, '0'); }
+
+  // Trous libres de la journée (entre blocs horodatés, bornes 9h-16h)
+  function trousJournee(blocs) {
+    const timed = blocs.filter(b => toMin(b.debut) != null && toMin(b.fin) != null)
+      .map(b => ({ d: toMin(b.debut), f: toMin(b.fin) }))
+      .sort((a, b) => a.d - b.d);
+    const trous = [];
+    let cur = toMin(JOUR_DEBUT);
+    for (const t of timed) {
+      if (t.d - cur >= TROU_MIN) trous.push({ debut: toHM(cur), fin: toHM(t.d) });
+      cur = Math.max(cur, t.f);
+    }
+    if (toMin(JOUR_FIN) - cur >= TROU_MIN) trous.push({ debut: toHM(cur), fin: JOUR_FIN });
+    return trous;
+  }
+
+  // Premier trou libre ; journée vide → 09:00, pleine → après le dernier bloc
+  function premierTrou(blocs) {
+    const trous = trousJournee(blocs);
+    if (trous.length) {
+      const t = trous[0];
+      const fin = Math.min(toMin(t.debut) + 45, toMin(t.fin));
+      return { debut: t.debut, fin: toHM(fin) };
+    }
+    const fins = blocs.map(b => toMin(b.fin)).filter(v => v != null);
+    const start = fins.length ? Math.max(...fins) : toMin(JOUR_DEBUT);
+    return { debut: toHM(start), fin: toHM(start + 45) };
+  }
+
+  // ── Écritures (via Journees de app.js — jamais Firestore direct) ──
+
+  // Insère un jeu comme nouveau bloc activité au créneau donné.
+  async function insererJeu(jeu, creneau) {
+    const bloc = {
+      id: blocId(), type: 'activite', titre: jeu.titre, ref: jeu.ref,
+      debut: creneau.debut, fin: creneau.fin, ordre: 0, notes: '',
+    };
+    const blocs = [...state.journeeBlocs, bloc];
+    blocs.sort((a, b) => (toMin(a.debut) ?? 9e9) - (toMin(b.debut) ?? 9e9));
+    blocs.forEach((b, i) => { b.ordre = i; });
+    await Journees.update(state.journeeId, { blocs });
+    state.journeeBlocs = blocs;
+    return bloc.id;
+  }
+
+  // Remplit un bloc activité existant (vide) avec un jeu — garde ses heures.
+  async function remplirBloc(jeu, blocIdCible) {
+    const blocs = state.journeeBlocs.map(b =>
+      b.id === blocIdCible ? { ...b, titre: jeu.titre, ref: jeu.ref } : b);
+    await Journees.update(state.journeeId, { blocs });
+    state.journeeBlocs = blocs;
+    return blocIdCible;
+  }
+
+  return { loadBanqueCamp, filterBanque, trousJournee, premierTrou, insererJeu, remplirBloc, AGE_TRANCHES };
+})();
