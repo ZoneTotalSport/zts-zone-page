@@ -385,6 +385,39 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 @media(min-width:641px) and (max-width:1024px){
   .p-presence-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
 }
+
+/* ═══ TIROIR JEUX — panneau par-dessus la journée (on ne quitte jamais le calendrier) ═══ */
+.tiroir{position:fixed;inset:0;z-index:400;display:none;background:rgba(26,26,46,.55)}
+.tiroir.open{display:block}
+.tiroir__panel{
+  position:absolute;top:0;right:0;bottom:0;width:min(540px,100%);
+  background:var(--paper);border-left:5px solid var(--ink);
+  box-shadow:-8px 0 0 rgba(26,26,46,.35);
+  display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;
+  padding:var(--space-4) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom));
+  animation:tiroir-in .22s cubic-bezier(.34,1.3,.64,1);
+}
+@keyframes tiroir-in{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+.tiroir__head{position:relative;border-bottom:4px solid var(--ink);padding-bottom:var(--space-2);margin-bottom:var(--space-3);
+  background:linear-gradient(120deg,rgba(255,107,0,.14),rgba(176,38,255,.14));border-radius:var(--r-2);padding:var(--space-3)}
+.tiroir__title{font-family:var(--font-impact);font-size:var(--fs-4);color:var(--orange);text-shadow:2px 2px 0 rgba(26,26,46,.18)}
+.tiroir__slot{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-2);color:#B026FF;margin-top:2px}
+.tiroir__close{position:absolute;top:10px;right:10px;padding:6px 12px;font-size:var(--fs-2);line-height:1}
+.tiroir__count{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);opacity:.65;margin:2px 2px var(--space-2)}
+.tiroir__list{display:flex;flex-direction:column;gap:var(--space-2)}
+.tiroir__row{display:flex;align-items:center;gap:var(--space-2);background:#fff;border:3px solid var(--ink);
+  border-radius:var(--r-2);box-shadow:var(--ombre);padding:10px 12px}
+.tiroir__row-main{flex:1;min-width:0}
+.tiroir__row-titre{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-2);line-height:1.2}
+.tiroir__row-meta{font-family:var(--font-body);font-size:var(--fs-1);opacity:.65;margin-top:2px}
+.tiroir__add{flex-shrink:0;font-size:var(--fs-1);white-space:nowrap}
+.tiroir__msg{text-align:center;font-family:var(--font-fun);font-weight:700;padding:var(--space-4);opacity:.75;display:flex;flex-direction:column;gap:var(--space-2);align-items:center}
+/* Mobile-first : plein écran sous 720px */
+@media(max-width:720px){
+  .tiroir__panel{width:100%;border-left:none}
+  .tiroir__row{flex-direction:column;align-items:stretch}
+  .tiroir__add{width:100%;text-align:center}
+}
   </style>
 </head>
 <body data-metier="camp">
@@ -444,6 +477,11 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
     <div class="zts-modal__inner" id="modal-appliquer-inner"></div>
   </div>
 
+  <!-- Tiroir : choisir un jeu (par-dessus la journée) -->
+  <div class="tiroir" id="tiroir-jeux" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Choisir un jeu">
+    <div class="tiroir__panel"></div>
+  </div>
+
   <!-- Sync indicator -->
   <div id="sync-bar" class="p-sync"></div>
 
@@ -452,6 +490,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
   <script src="../../shared/zts.js"></script>
   <script src="/firebase-auth.js" defer></script>
   <script src="dataStore.js" defer></script>
+  <script src="tiroir-jeux.js" defer></script>
   <script src="semaine-grid.js" defer></script>
   <script src="app.js" defer></script>
 </body>
