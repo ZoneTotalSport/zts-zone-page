@@ -71,7 +71,7 @@ const TiroirJeux = (() => {
   function paint() {
     const inner = el().querySelector('.tiroir__panel');
     if (!inner) return;
-    inner.innerHTML = renderHeader() + renderFiltres() + renderCorps();
+    inner.innerHTML = renderHeader() + renderFiltres();   // le corps est DANS renderFiltres (div data-tiroir-corps)
   }
 
   // Repeint SEULEMENT le corps (compte + liste) : le champ recherche garde le focus.
