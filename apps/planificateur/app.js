@@ -1514,6 +1514,9 @@ async function handleApplyBatch() {
 // ══════════════════════════════════════════════════════════
 
 async function handleAction(action, ds) {
+  // Actions de la coquille v2 → app-v2.js (le moteur reste ici)
+  if(action && action.startsWith('v2-') && typeof V2!=='undefined'){ return V2.handle(action, ds); }
+  if(action==='open-presences-modal'){ openPresencesModal(); return; }
   switch(action) {
     // ── Tiroir Jeux (insertion contextuelle — on ne quitte jamais la journée) ──
     case 'open-tiroir-jeux':   // bouton générique → premier trou libre
@@ -1968,6 +1971,8 @@ function render() {
   if(!state.user){root.innerHTML=renderNoAuth();return;}
   if(state.role==='coordo'){root.innerHTML=renderCoordo();updateMsgBadges();return;}
   if(!state.groupeId){root.innerHTML=renderSetup();return;}
+  // ── Coquille v2 (Mandat D1, flag ?v2=1) : même moteur, nouvelle enveloppe ──
+  if(state.v2 && typeof V2!=='undefined'){ root.innerHTML=V2.render(); V2.post(); updateMsgBadges(); return; }
   root.innerHTML=renderMain();
   if(state.view==='semaine') mountSemaineGrid();
   const perso=document.querySelector('.p-perso'); if(perso) perso.style.display = (state.view==='semaine') ? 'none' : '';
@@ -2019,6 +2024,7 @@ async function init() {
   console.log('[Planif] init start');
   // Intégration hub : ?embed=1 cache le header/subnav, ?vue= choisit la vue initiale, ?metier= force le métier
   const _params=new URLSearchParams(location.search);
+  state.v2=_params.has('v2');   // Mandat D1 : nouvelle coquille derrière ?v2=1 (ancien flux intact sans le flag)
   if(_params.has('embed')){ document.body.classList.add('zts-embed'); document.documentElement.style.background='transparent'; }  // html a un fond paper → le rendre transparent en intégré
   state.hubMetier=( ['ep','camp','sdg'].includes(_params.get('metier')) ? _params.get('metier') : '' );
   if(state.hubMetier) document.body.dataset.metier=state.hubMetier;
@@ -2060,6 +2066,9 @@ async function init() {
         await loadGroupeData(); state.currentDate=todayISO();
         state.view = VUE_MAP[(_params.get('vue')||'').toLowerCase()] || 'journee';
         if(state.view==='calendrier') await loadCalendarData(); else await loadJourneeData();
+        // v2 : la page principale est le calendrier MENSUEL
+        if(state.v2 && !_params.get('vue')){ state.view='mois'; await loadCalendarData(); }
+        if(state.v2 && typeof V2!=='undefined'){ try{ await V2.loadGroupes(); }catch(e){} }
       }
       if(state.role==='coordo' && state.orgId){ state.coordoDate=todayISO(); await loadCoordoData(); }
       try { await subscribeMessages(); } catch(eMsg){ console.warn('[Planif] subscribeMessages', eMsg); }
