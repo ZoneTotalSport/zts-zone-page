@@ -63,6 +63,14 @@ presences/{id}          { journeeId, groupeId, enfantId, statut, heureArrivee, h
 
 ## Conventions
 - `data-metier="camp"` sur `<body>` (palette orange).
+- **Thème par métier (2026-07-05)** : `--metier-1`/`--metier-2`/`--metier-ink` pilotées par
+  `body[data-metier]` — camp #FF6B00/#B026FF/blanc, ep #00E5FF/#1E90FF/#111,
+  sdg #39FF14/#169B62/#111. AUCUN accent en dur : tout passe par `var(--metier-*)`
+  (alphas via `color-mix`). Validé en navigateur sur les 3 métiers (bouton AJOUTER,
+  chips, onglet actif, case du jour, flash BD ; 0 pilule 999px calculée, 0 erreur console).
+- **Boutons = `.zts-action`** (+ `.zts-action--metier` locale = fond `--metier-1`,
+  encre `--metier-ink` ; `--neutre` pour les secondaires). `zts-btn` réservé au header
+  partagé injecté — ne pas en créer dans l'app. Pilules 999px interdites.
 - Offline-first : persistence Firestore activee (`synchronizeTabs: true`).
 - Pas de Tailwind — classes `zts-*` du design system + `p-*` app-specific.
 - Pas de bundler — vanilla JS, ES modules.
