@@ -582,3 +582,22 @@ body[data-metier] .rr-preset.active {
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { animation-duration:.001ms !important; transition-duration:.001ms !important; }
 }
+
+/* ============ HEADER PARTAGÉ — MOBILE ≤640px (ajout 2026-07-06) ============
+   Avant : AUCUNE règle mobile → titre nowrap coupé, nav sur 3 rangées,
+   header fixed ~360px qui mangeait l'écran iPhone. Règles ADDITIVES :
+   rien ne change au-dessus de 640px. (.zts-btn reste gelé — on ne fait
+   que le compacter DANS le header via media query, pas de refonte.) */
+@media (max-width:640px){
+  .zts-header{ margin:8px; padding:10px 10px 14px; gap:10px; border-width:4px;
+    box-shadow:5px 5px 0 var(--zts-noir); border-radius:var(--r-3); }
+  .zts-header__brandwrap{ margin-top:2px; gap:4px; }
+  .zts-header__brand{ font-size:clamp(26px,10.2vw,42px); gap:6px; }
+  .zts-header__brand span{ text-shadow:2px 2px 0 var(--zts-noir), -1px -1px 0 var(--zts-noir),
+    1px -1px 0 var(--zts-noir), -1px 1px 0 var(--zts-noir), 4px 5px 0 rgba(26,26,46,.35); }
+  .zts-header__meta{ gap:8px; }
+  .zts-header__clock{ font-size:15px; padding:5px 10px; }
+  .zts-header__nav{ gap:6px; }
+  .zts-header .zts-btn{ padding:7px 11px; font-size:13px; gap:5px; border-radius:12px;
+    box-shadow:0 3px 0 var(--zts-noir),0 5px 8px rgba(0,0,0,.3); }
+}
