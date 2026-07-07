@@ -12,6 +12,17 @@
   const SHARED = SELF ? SELF.src.replace(/zts\.js.*$/, '') : 'shared/';
   const ROOT = SHARED.replace(/shared\/$/, ''); // racine du repo
 
+  /* ---------- NOTIFICATIONS VISITE ----------
+     Charge telegram-notify.js (notif Telegram via Worker) sur toutes les pages,
+     y compris l'accueil. Garde anti-double-chargement pour les pages qui
+     l'incluent déjà (blog, articles). */
+  if (!document.querySelector('script[src*="telegram-notify"]')) {
+    var _ztsNotif = document.createElement('script');
+    _ztsNotif.src = ROOT + 'telegram-notify.js';
+    _ztsNotif.defer = true;
+    document.head.appendChild(_ztsNotif);
+  }
+
   const STORE_KEY = 'zts_lang';
   let dict = {};                 // dictionnaire de la langue active
   let lang = 'fr';
