@@ -2514,6 +2514,20 @@
   @media (min-width: 901px) and (max-width: 1200px) {
     .apps-grid { grid-template-columns: repeat(2, 1fr); }
   }
+  /* ≤640px : le header compact (zts.css mobile) fait ~230px, pas 480 —
+     on resserre la compensation, et le dock séries (FIFA) se range en bas
+     à gauche au lieu de flotter par-dessus le hero. */
+  @media (max-width: 640px) {
+    section.hero { padding: 290px 14px 36px; }
+    .series-dock, body.header-hidden .series-dock { top: auto; bottom: 74px; max-height: none; }
+    .serie-card { width: 52px; height: 118px; }
+    .serie-card .label { font-size: 10px; }
+    /* Flottants du bas : compacts pour ne plus recouvrir le texte du hero */
+    .pause-syndicale-btn { transform: scale(.72); transform-origin: bottom left; }
+    .mascot { width: 84px !important; height: 84px !important; }
+    /* Décors .splash absolus → 2px de scroll horizontal fantôme sur iOS */
+    html, body { overflow-x: clip; }
+  }
 
   /* Bouton retour */
   .back-btn {
@@ -2964,16 +2978,9 @@
 
 <!-- SÉRIES SPORTIVES - colonne flottante à gauche -->
 <div class="series-dock">
-  <a class="serie-card nhl" href="apps-nhl/index.html" onclick="openSeries('nhl'); return false;" data-i18n-attr="title:series.see_nhl" title="Voir les séries LNH">
-    <span class="dot-live"></span>
-    <div class="league-logo">🏒</div>
-    <div class="label" data-i18n="series.nhl_label">SÉRIES LNH</div>
-  </a>
-  <a class="serie-card nba" href="apps-nba/index.html" onclick="openSeries('nba'); return false;" data-i18n-attr="title:series.see_nba" title="Voir les séries NBA">
-    <span class="dot-live"></span>
-    <div class="league-logo">🏀</div>
-    <div class="label" data-i18n="series.nba_label">SÉRIES NBA</div>
-  </a>
+  <!-- Cartes Séries LNH + NBA retirées (demande Joey 2026-07-06) — saison finie.
+       Les pages /apps-nhl/ et /apps-nba/ restent en ligne (SEO), seules les
+       cartes de la home partent. FIFA (Coupe du monde 2026 en cours) reste. -->
   <a class="serie-card fifa" href="apps-fifa/index.html" onclick="openSeries('fifa'); return false;" data-i18n-attr="title:series.see_fifa" title="Voir la Coupe du monde FIFA 2026">
     <span class="dot-live"></span>
     <div class="league-logo">⚽</div>
