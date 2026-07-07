@@ -68,6 +68,24 @@ modules/
 - **AOÛT** : coquille Agenda public + Design System (3 thèmes univers) + triage i18n-apps + **mode anonyme local** du moteur.
 - **SEPTEMBRE** : fast-follow ÉP/SDG (re-seed via le même pattern + vue calendrier daté ÉP).
 
+## Fast-follow ÉPS — septembre (backlog, ajouté 2026-07-05)
+
+### Groupes ÉPS = numéros courts, plusieurs groupes par jour
+En ÉPS, un enseignant voit PLUSIEURS groupes chaque jour (libellés numériques
+courts : 101, 102, 203…). Le sélecteur de groupe doit :
+- accepter un **libellé numérique court** (101, 102, 203…) ;
+- permettre le **changement de groupe rapide entre périodes (1 tap)** —
+  pas de re-navigation par menus ;
+- lier **chaque période de la journée à SON groupe** : la journée ÉPS est un
+  **axe période × groupe** (période 1 → 101, période 2 → 203…), PAS la
+  timeline unique du mode camp (1 groupe / jour).
+
+### Tiroir Jeux : héritage du contexte de la période
+Ouvert depuis une période du groupe 102, le tiroir **hérite du contexte** :
+il propose d'emblée des jeux pour **l'âge de ce groupe** (pré-filtre âge
+depuis le niveau/âge du groupe ; l'enseignant peut l'élargir). Même gabarit
+de tiroir que le mode camp — seule la source du contexte change.
+
 ## 6. Phase 3 — détail (à coder en premier)
 1. **`banque.js`** : normalise `data/camp.json` (7 sem × 3 groupes) + réfs jeux/SAÉ → **fiche commune filtrable par tags** (`MODELE-DONNEES.md`). = le pattern réutilisable (re-seed ÉP/SDG plus tard avec d'autres sources).
 2. **Sélecteur biblio** branché sur le bloc `activité` (et la journée) : rechercher dans la banque Camp → insérer comme **`ref`** (champ déjà au schéma, lien sans copie) + titre/durée.
