@@ -104,7 +104,7 @@ const V2 = (() => {
       case 'mois':        return renderMois();
       case 'journee':     return renderJourV2();
       case 'semaine':     return `<div class="p-card" id="semaine-grid-root"></div>`;   // composant v1 monté en post()
-      case 'evaluation':  return renderEvaluation();                                     // vue v1 (habillage Phase B)
+      case 'evaluation':  return renderEvalV2();                                         // carnet iDoceo (moteur v1)
       case 'roster':      return renderRoster();                                         // vue v1
       case 'gabarit':     return renderGabarit();                                        // vue v1
       case 'historique':  return renderHistorique();                                     // vue v1
@@ -285,6 +285,105 @@ const V2 = (() => {
     state.journeeBlocs = blocs;
   }
 
+  // ── CARNET D'ÉVALUATION (façon iDoceo, sur le moteur EvalConfig/Evaluations) ──
+  // Tout se crée D'ICI : élèves (ajout rapide), colonnes (modal PFEQ existant), cotes (tap).
+  const EV_COLORS = { A:'#7BE495', B:'#D3F09A', C:'#FFD37A', D:'#FF9B9B', E:'#FF7B7B',
+    '++':'#7BE495', '+':'#D3F09A', '±':'#FFD37A', '-':'#FF9B9B', '--':'#FF7B7B',
+    '🟢':'#7BE495', '🟡':'#FFD37A', '🔴':'#FF9B9B', '🟣':'#E0B3FF' };
+
+  function renderEvalV2() {
+    const date = state.evalDate || todayISO();
+    const cols = state.evalCols || [];
+    const gnom = state.groupe ? state.groupe.nom : '—';
+    const annee = S.annee || anneeCourante();
+    const gs = S.groupes.filter(g => (g.annee || anneeCourante()) === annee && g.statut !== 'archive');
+
+    let h = `<div class="pv2-sheet">
+      <div class="pv2-sheettitle"><span class="c">Carnet</span> <span class="y">d'évaluation</span> — <span style="color:#F5820D">${esc(gnom)}</span></div>
+      <div class="pv2-evtabs">
+        ${gs.map(g => `<button class="zts-action pv2-act sm ${g.id === state.groupeId ? 'prim' : ''}" data-action="v2-ev-groupe" data-gid="${g.id}">👥 ${esc(g.nom)}</button>`).join('')}
+        <span style="flex:1"></span>
+        <button class="zts-action pv2-act sm" data-action="eval-prev">◀</button>
+        <span class="pv2-evdate">${date === todayISO() ? "Aujourd'hui" : formatDateFR(date)}</span>
+        <button class="zts-action pv2-act sm" data-action="eval-next">▶</button>
+        <button class="zts-action pv2-act sm prim" data-action="eval-add-col">＋ Critère</button>
+      </div>`;
+
+    if (!state.enfants.length) {
+      h += `<div class="pv2-empty">Aucun ${unit().slice(0, -1)} dans « ${esc(gnom)} » — ajoute-les juste en dessous 👇 (prénom + Entrée, un à la fois).</div>`;
+    } else if (!cols.length) {
+      h += `<div class="pv2-empty">Choisis ce que tu évalues : <b>＋ Critère</b> ➜ compétence PFEQ + type de cote (A-E, /10, %, couleurs…).<br>Ensuite : <b>1 tap sur une case = cote suivante</b>. Zéro paperasse.</div>`;
+    } else {
+      h += `<div class="pv2-evwrap"><table class="pv2-evtable"><tr><th class="n">${unit().toUpperCase().slice(0, -1)}</th>`;
+      cols.forEach((c, i) => {
+        const cr = PFEQ_LABEL[c.critereId]; const tt = COTE_TYPES[c.type];
+        h += `<th><span>${esc(cr ? cr.label : c.critereId)}</span>
+          <small>${tt ? tt.label : c.type}${(c.type === 'number' && c.total) ? ' /' + c.total : ''}</small>
+          <button class="pv2-evx" data-action="eval-del-col" data-i="${i}" title="Retirer">✕</button></th>`;
+      });
+      h += `</tr>`;
+      state.enfants.forEach(e => {
+        h += `<tr><td class="pv2-evname">${esc(e.prenom)}</td>`;
+        cols.forEach((c, i) => {
+          const v = (state.evalMap || {})[e.id + '__' + c.critereId] || '';
+          const bg = EV_COLORS[v] || (v ? '#E2F7FE' : '#fff');
+          h += `<td class="pv2-evcell" style="background:${bg}" data-action="eval-cell" data-eid="${e.id}" data-i="${i}">${esc(v) || '—'}</td>`;
+        });
+        h += `</tr>`;
+      });
+      h += `</table></div>
+      <div class="pv2-evlegend">👆 <b>1 tap = cote suivante</b> (revient à — au bout du cycle) · % et /total ouvrent une saisie</div>`;
+      h += renderPortraitV2(cols);
+    }
+
+    // Ajout rapide d'élèves — toujours visible (iDoceo : tout se crée depuis le carnet)
+    h += `<div class="pv2-evadd">
+      <input class="p-input" id="pv2-new-eleve" placeholder="＋ Prénom d'un ${unit().slice(0, -1)}… (Entrée = ajouter)" maxlength="30">
+      <button class="zts-action zts-action--metier pv2-act sm" data-action="v2-ev-add-eleve">Ajouter</button>
+    </div></div>`;
+    return h;
+  }
+
+  // Portrait de groupe : distribution des cotes par colonne + compteur X/N évalués
+  function renderPortraitV2(cols) {
+    const N = state.enfants.length;
+    let h = `<div class="pv2-portrait">`;
+    cols.forEach(c => {
+      const tt = COTE_TYPES[c.type];
+      const cr = PFEQ_LABEL[c.critereId];
+      const counts = {}; let done = 0;
+      state.enfants.forEach(e => {
+        const v = (state.evalMap || {})[e.id + '__' + c.critereId] || '';
+        if (v) { done++; counts[v] = (counts[v] || 0) + 1; }
+      });
+      let bar = '';
+      if (tt && tt.cycle) {
+        tt.cycle.filter(v => v && counts[v]).forEach(v => {
+          bar += `<div style="flex:${counts[v]};background:${EV_COLORS[v] || '#E2F7FE'}">${esc(v)}${counts[v] > 1 ? '×' + counts[v] : ''}</div>`;
+        });
+      } else if (done) {
+        bar += `<div style="flex:${done};background:#B6E8F5">${done} noté${done > 1 ? 's' : ''}</div>`;
+      }
+      if (N - done > 0) bar += `<div style="flex:${N - done};background:#f0f0f0;color:#999">${N - done} à faire</div>`;
+      h += `<div class="pv2-pcard"><h6>${esc(cr ? cr.label : c.critereId)}</h6>
+        <div class="pv2-pbar">${bar || '<div style="flex:1;background:#f0f0f0;color:#999">—</div>'}</div>
+        <div class="pv2-pmeta">${done}/${N} évalués</div></div>`;
+    });
+    return h + `</div>`;
+  }
+
+  async function evAddEleve() {
+    const inp = document.getElementById('pv2-new-eleve');
+    const prenom = (inp?.value || '').trim();
+    if (!prenom) { inp?.focus(); return; }
+    await Enfants.create({ prenom, nom: '', groupeId: state.groupeId });
+    state.enfants = await Enfants.listByGroupe(state.groupeId);
+    state.enfants.sort((a, b) => a.prenom.localeCompare(b.prenom));
+    render0();
+    requestAnimationFrame(() => { const i = document.getElementById('pv2-new-eleve'); if (i) i.focus(); });
+    toast('🧒 ' + prenom + ' ajouté à ' + (state.groupe ? state.groupe.nom : '') + '!');
+  }
+
   // ── PANNEAU GROUPES (+ CRUD + année — addendum) ──────────
   function renderGPanel() {
     const annee = S.annee || anneeCourante();
@@ -379,6 +478,7 @@ const V2 = (() => {
         state.view = ds.view;
         if (ds.view === 'mois') await loadCalendarData();
         if (ds.view === 'journee') await loadJourneeData();
+        if (ds.view === 'evaluation') { if (!S.groupes.length) await loadGroupes(); await loadEvalData(); }
         render0(); return;
       case 'v2-tog-planif': S.subOpen = !S.subOpen; render0(); return;
       case 'v2-tog-groupes': S.gpanelOpen = !S.gpanelOpen; if (S.gpanelOpen) await loadGroupes(); render0(); return;
@@ -433,6 +533,14 @@ const V2 = (() => {
         if (typeof loadEvalData === 'function') { try { await loadEvalData(); } catch (e) {} }
         render0(); return;
       case 'v2-export-json': exportJSON(); return;
+      case 'v2-ev-add-eleve': evAddEleve(); return;
+      case 'v2-ev-groupe':
+        if (state.groupeId !== ds.gid) {
+          const keep = state.view;
+          await switchGroupe(ds.gid);
+          state.view = keep; await loadEvalData(); render0();
+        }
+        return;
     }
   }
 
@@ -455,6 +563,7 @@ const V2 = (() => {
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target.closest?.('[data-v2-gname]')) { e.preventDefault(); e.target.blur(); }
       if (e.key === 'Enter' && e.target.closest?.('[data-v2-edit-bloc]')) { e.preventDefault(); e.target.blur(); }
+      if (e.key === 'Enter' && e.target.id === 'pv2-new-eleve') { e.preventDefault(); evAddEleve(); }
       if (e.key === 'Escape') closeOverlays();
     });
     document.addEventListener('change', (e) => {

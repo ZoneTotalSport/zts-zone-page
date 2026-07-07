@@ -485,6 +485,31 @@ body.pv2[data-metier="camp"] .pv2-act.prim{color:#fff}
 .pv2-mod .mlabel{background:#fff;border-top:3px solid var(--ink);padding:5px 4px;text-align:center;font-family:var(--font-bang);font-size:13px;line-height:1.05}
 .pv2-mbadge{position:absolute;top:6px;right:6px;background:#fff;border:2px solid var(--ink);border-radius:8px;font-size:9.5px;font-weight:700;padding:2px 6px;box-shadow:2px 2px 0 var(--ink)}
 .pv2-empty{border:3px dashed var(--ink);border-radius:14px;padding:26px;text-align:center;color:#777;font-weight:600;background:#fffaf2;font-family:var(--font-fun)}
+/* carnet d'évaluation (façon iDoceo, style maquette) */
+.pv2-evtabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.pv2-evdate{font-family:var(--font-bang);font-size:15px;letter-spacing:.5px;min-width:96px;text-align:center}
+.pv2-evwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pv2-evtable{width:100%;border-collapse:separate;border-spacing:8px}
+.pv2-evtable th{font-family:var(--font-impact);font-size:14px;border:3px solid var(--ink);border-radius:10px;padding:9px 6px;box-shadow:3px 3px 0 var(--ink);background:var(--m1);color:var(--mtxt);position:relative;min-width:96px}
+.pv2-evtable th small{display:block;font-family:var(--font-fun);font-size:10px;opacity:.75;margin-top:2px}
+.pv2-evtable th.n{background:var(--m2);color:#189AD3;min-width:110px}
+body.pv2[data-metier="camp"] .pv2-evtable th.n{color:#fff}
+.pv2-evx{position:absolute;top:4px;right:6px;border:none;background:none;color:inherit;opacity:.55;cursor:pointer;font-size:12px;font-weight:700}
+.pv2-evx:hover{opacity:1}
+.pv2-evname{border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:3px 3px 0 var(--ink);padding:9px 12px;font-weight:700;font-size:16px;font-family:var(--font-fun)}
+.pv2-evcell{border:3px solid var(--ink);border-radius:10px;box-shadow:3px 3px 0 var(--ink);text-align:center;font-family:var(--font-bang);font-size:22px;cursor:pointer;user-select:none;padding:7px 4px;min-width:74px;transition:transform .08s}
+.pv2-evcell:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink)}
+.pv2-evcell:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.pv2-evlegend{font-weight:700;font-size:13px;font-family:var(--font-fun);margin:12px 0;opacity:.8}
+.pv2-portrait{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.pv2-pcard{flex:1;min-width:170px;border:3px solid var(--ink);border-radius:14px;background:#fff;box-shadow:4px 4px 0 var(--ink);padding:10px 14px}
+.pv2-pcard h6{font-family:var(--font-bang);font-size:14px;letter-spacing:.5px;margin:0 0 6px;color:#189AD3}
+.pv2-pbar{display:flex;height:26px;border:3px solid var(--ink);border-radius:8px;overflow:hidden}
+.pv2-pbar div{display:flex;align-items:center;justify-content:center;font-family:var(--font-bang);font-size:13px;min-width:0;overflow:hidden}
+.pv2-pmeta{font-size:11.5px;color:#666;margin-top:5px;font-weight:700;font-family:var(--font-fun)}
+.pv2-evadd{display:flex;gap:8px;margin-top:14px;align-items:center}
+.pv2-evadd .p-input{max-width:320px}
+body.pv2.tbi .pv2-evcell{min-width:88px;min-height:60px;font-size:26px}
 /* TBI + toast */
 .pv2-tbibtn{position:fixed;bottom:14px;right:14px;z-index:360;font-size:14px;padding:9px 14px;background:#fff}
 body.pv2.tbi{zoom:1.4;padding:8px!important}
