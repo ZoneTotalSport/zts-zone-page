@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAQUETTE v2 — Planificateur ZTS (calendrier central)</title>
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;500;600;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --m1:#2FC6F5; --m2:#FFF200; --mtxt:#111;
+  --tc:#2FC6F5;--tcd:#189AD3;--ty:#FFF200;--tyd:#F5A623;--tor:#F5820D;
+  --ink:#111;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;}
+body{
+  font-family:'Fredoka',sans-serif;color:var(--ink);
+  background:repeating-conic-gradient(from 0deg at 103% 103%, #FDFF00 0 13deg, #2BD1F8 13deg 27deg);
+  background-attachment:fixed;padding:16px 12px;
+}
+.topnote{background:var(--ink);color:#fff;text-align:center;font-size:12.5px;padding:6px 10px;border-radius:10px;max-width:1360px;margin:0 auto 10px;}
+.topnote b{font-family:'Bangers',cursive;letter-spacing:1px;}
+.app{max-width:1360px;margin:0 auto;border:4px solid var(--ink);border-radius:26px;background:#fffdf9;overflow:hidden;box-shadow:10px 10px 0 rgba(0,0,0,.55);min-height:calc(100vh - 80px);display:flex;flex-direction:column;}
+/* ===== BARRE DU HAUT ===== */
+.topbar{display:flex;align-items:center;gap:12px;background:var(--m1);border-bottom:4px solid var(--ink);padding:10px 18px;flex-wrap:wrap;}
+.logo{font-family:'Luckiest Guy',cursive;font-size:21px;color:#fff;text-shadow:2px 2px 0 var(--ink);}
+.act{font-family:'Bangers',cursive;font-size:16px;letter-spacing:1px;border:3px solid var(--ink);border-radius:10px;padding:10px 18px;box-shadow:4px 4px 0 var(--ink);background:#fff;cursor:pointer;white-space:nowrap;transition:transform .1s, box-shadow .1s;user-select:none;}
+.act:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);}
+.act:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink);}
+.act.prim{background:var(--ty);color:var(--ink);}
+.act.sm{font-size:13px;padding:7px 12px;box-shadow:3px 3px 0 var(--ink);}
+.metier{display:flex;gap:6px;margin-left:auto;}
+/* ===== SOUS-BOUTONS PLANIFICATION ===== */
+.subrow{display:none;gap:10px;flex-wrap:wrap;background:#fffbe0;border-bottom:4px solid var(--ink);padding:10px 18px;}
+.subrow.on{display:flex;}
+/* ===== CORPS ===== */
+.bodyz{display:flex;flex:1;min-height:0;}
+.main{flex:1;padding:18px 22px;min-width:0;}
+/* ===== PANNEAU GROUPES ===== */
+.gpanel{display:none;width:250px;border-left:4px solid var(--ink);background:#fff;padding:14px;flex-shrink:0;}
+.gpanel.on{display:block;}
+.gpanel h6{font-family:'Bangers',cursive;font-size:16px;letter-spacing:1.5px;margin:0 0 10px;}
+.gitem{border:3px solid var(--ink);border-radius:12px;background:#fff;box-shadow:3px 3px 0 var(--ink);margin-bottom:9px;overflow:hidden;}
+.gitem .gname{font-family:'Bangers',cursive;font-size:17px;letter-spacing:1px;padding:9px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.gitem.on .gname{background:var(--m1);}
+.gopts{display:none;border-top:3px solid var(--ink);background:#fffdf0;padding:8px;}
+.gitem.on .gopts{display:block;}
+.gopt{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:9px;background:#fff;box-shadow:2px 2px 0 var(--ink);padding:6px 10px;margin-bottom:6px;font-weight:600;font-size:13px;cursor:pointer;}
+.gopt:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink);}
+.gcfg{text-align:center;font-size:11.5px;color:#777;font-weight:600;cursor:pointer;}
+/* ===== FEUILLES / GABARITS ===== */
+.sheet{border:4px solid var(--ink);border-radius:22px;background:#fff;box-shadow:8px 8px 0 var(--ink);padding:18px;width:100%;}
+.sheettitle{text-align:center;font-family:'Luckiest Guy',cursive;font-size:22px;margin-bottom:12px;}
+.sheettitle .c{color:var(--tc);text-shadow:2px 2px 0 var(--ink);}
+.sheettitle .y{color:var(--ty);text-shadow:2px 2px 0 var(--ink);}
+/* mensuel */
+.mgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.mh{font-family:'Luckiest Guy',cursive;text-align:center;border:3px solid var(--ink);border-radius:10px;padding:7px 2px;font-size:19px;box-shadow:3px 3px 0 var(--ink);}
+.mh.y{background:var(--ty);color:var(--tcd);}
+.mh.c{background:var(--tc);color:var(--ty);text-shadow:1px 1px 0 var(--ink);}
+.mcell{min-height:112px;border-radius:8px;padding:6px 10px;position:relative;font-family:'Bangers',cursive;cursor:pointer;}
+.mcell:hover{outline:3px solid var(--ink);}
+.mcell.y{background:#FFFDE0;border:2px dashed var(--tyd);}
+.mcell.c{background:#E2F7FE;border:2px dashed var(--tc);}
+.mcell .num{font-size:20px;letter-spacing:1px;}
+.mcell .cyc{position:absolute;top:7px;right:11px;color:var(--tor);font-size:16px;}
+.mcell.holiday{background:var(--tc);border:2px solid var(--ink);}
+.mcell.pedago{background:var(--ty);border:2px solid var(--ink);}
+.mcell .evt{display:block;font-family:'Fredoka',sans-serif;font-weight:700;font-size:11.5px;color:#fff;text-shadow:1px 1px 0 rgba(0,0,0,.4);margin-top:14px;}
+.mcell.pedago .evt{color:#333;text-shadow:none;}
+.evbadge{display:inline-block;font-family:'Fredoka',sans-serif;font-weight:700;font-size:10px;border:2px solid var(--ink);border-radius:7px;background:#FFD9F2;padding:1px 6px;margin-top:6px;box-shadow:2px 2px 0 var(--ink);}
+/* semaine */
+.wkgrid{display:grid;grid-template-columns:96px repeat(3,1fr);gap:8px;}
+.wk-day{border:3px solid var(--ink);border-radius:12px;padding:4px 2px;text-align:center;font-family:'Luckiest Guy',cursive;font-size:15px;box-shadow:3px 3px 0 var(--ink);}
+.wk-day.y{background:var(--ty);color:var(--tcd);}
+.wk-day.c{background:var(--tc);color:var(--ty);text-shadow:1px 1px 0 var(--ink);}
+.wk-date{text-align:center;font-family:'Bangers',cursive;color:var(--tor);border:2px solid var(--ink);border-radius:8px;background:#fff;margin-top:4px;font-size:13px;}
+.wcell{border-radius:10px;padding:6px;}
+.wcell.bandy{background:var(--ty);} .wcell.bandc{background:var(--tc);}
+.wbox{background:#fff;border:2px solid var(--ink);border-radius:8px;padding:3px 7px;font-size:11.5px;margin-bottom:5px;}
+.wbox b{font-family:'Bangers',cursive;font-size:11px;color:var(--tcd);}
+.wbox.big{min-height:44px;}
+.wk-per{border:3px solid;border-radius:12px;background:#fff;font-family:'Bangers',cursive;font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:3px 3px 0 var(--ink);color:var(--tyd);}
+.wk-per.c{border-color:var(--tc);color:var(--tcd);} .wk-per.y{border-color:#E8D900;}
+.wk-band{font-family:'Luckiest Guy',cursive;color:var(--tc);display:flex;align-items:center;padding-left:4px;font-size:14px;}
+/* séquentielle */
+.sq-title{border:4px solid var(--tc);border-radius:14px;padding:8px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:baseline;box-shadow:3px 3px 0 var(--ink);}
+.sq-title b{font-family:'Luckiest Guy',cursive;color:var(--ty);text-shadow:1.5px 1.5px 0 var(--ink);font-size:17px;}
+.sqgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.sq h5{font-family:'Luckiest Guy',cursive;text-align:center;margin:0 0 6px;font-size:16px;color:var(--tc);text-shadow:1.5px 1.5px 0 var(--ink);}
+.sq-date{border:3px solid;border-radius:10px;padding:4px 9px;font-size:12px;margin-bottom:7px;box-shadow:2px 2px 0 var(--ink);}
+.sq-date b{font-family:'Bangers',cursive;}
+.sq-box{border:3px solid;border-radius:14px;min-height:92px;padding:7px 9px;font-size:12px;box-shadow:3px 3px 0 var(--ink);}
+.alt-y{border-color:#E8D900;} .alt-y b{color:var(--tyd);}
+.alt-c{border-color:var(--tc);} .alt-c b{color:var(--tcd);}
+/* annuelle — 1 ligne = 1 semaine, format gymnase */
+.an-head{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+.an-hdays{display:grid;grid-template-columns:repeat(5,72px);}
+.an-hd{border:3px solid var(--ink);padding:8px 0;text-align:center;font-family:'Luckiest Guy',cursive;font-size:16px;}
+.an-hd.y{background:var(--ty);color:var(--tcd);} .an-hd.c{background:var(--tc);color:var(--ty);text-shadow:1px 1px 0 var(--ink);}
+.anweek{display:flex;align-items:center;gap:16px;margin-bottom:12px;}
+.an-days{display:grid;grid-template-columns:repeat(5,72px);}
+.an-d{border:3px solid var(--ink);padding:10px 0;text-align:center;font-family:'Bangers',cursive;font-size:24px;background:#fff;}
+.an-d.cy{color:var(--tcd);} .an-d.yl{color:#C9B800;}
+.anweek .arr{font-size:30px;}
+.anbar{flex:1;background:#EFEFEF;border:3px solid var(--ink);border-radius:16px;padding:14px 18px;display:flex;gap:14px;font-size:19px;box-shadow:4px 4px 0 var(--ink);flex-wrap:wrap;align-items:baseline;}
+.anbar b{font-family:'Bangers',cursive;font-size:18px;letter-spacing:1px;}
+.anbar .la{color:var(--tyd);} .anbar .lc{color:var(--tcd);}
+.anbar .ed{flex:1;min-width:110px;font-weight:600;}
+/* journée en grille */
+.drow{display:grid;grid-template-columns:104px 140px 1fr 88px;gap:8px;margin-bottom:8px;}
+.dcell{border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:3px 3px 0 var(--ink);padding:8px 11px;font-size:14px;display:flex;align-items:center;min-height:24px;}
+.dhead .dcell{background:var(--m1);font-family:'Bangers',cursive;letter-spacing:1px;justify-content:center;font-size:14px;padding:6px;}
+.time2{font-family:'Bangers',cursive;font-size:17px;justify-content:center;}
+.tag{font-size:10.5px;font-weight:700;padding:3px 9px;border:2px solid var(--ink);border-radius:8px;background:#eee;}
+.fait{justify-content:center;font-size:21px;cursor:pointer;font-family:'Bangers',cursive;user-select:none;}
+.fait:hover{background:#f3fff3;} .fait.ok{background:#B6F5C3;}
+.drow.flash .dcell{animation:bd .9s ease;}
+@keyframes bd{0%{background:var(--m2);transform:scale(1.02);}100%{background:#fff;transform:scale(1);}}
+.hole{border:3px dashed var(--ink);border-radius:13px;text-align:center;padding:12px;font-weight:700;color:#777;background:#fffaf2;margin-bottom:9px;cursor:pointer;}
+.hole:hover{background:#fff3e2;}
+/* tiroirs (dans la journée seulement) */
+.dock{width:100%;background:#fff;padding:14px 16px;margin-top:14px;border-radius:16px;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);}
+.dock h6{font-family:'Bangers',cursive;font-size:16px;letter-spacing:1.5px;margin:0 0 10px;}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;}
+.mod{aspect-ratio:1/1;border:3px solid var(--ink);border-radius:14px;box-shadow:4px 4px 0 var(--ink);cursor:pointer;transition:transform .1s;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;background-size:cover;background-position:center;position:relative;}
+.mod:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink);}
+.mico{font-size:30px;text-align:center;margin-top:10px;filter:drop-shadow(2px 2px 0 rgba(0,0,0,.35));}
+.mlabel{background:#fff;border-top:3px solid var(--ink);padding:5px 4px;text-align:center;font-family:'Bangers',cursive;font-size:13px;line-height:1.05;}
+.mbadge{position:absolute;top:6px;right:6px;background:#fff;border:2px solid var(--ink);border-radius:8px;font-size:9.5px;font-weight:700;padding:2px 6px;box-shadow:2px 2px 0 var(--ink);}
+/* tiroir jeux + résumé jour (modales) */
+.backdrop{position:fixed;inset:0;background:rgba(20,20,30,.45);display:none;z-index:40;}
+.drawer{position:fixed;top:6vh;right:4vw;width:min(560px,92vw);max-height:86vh;border:4px solid var(--ink);border-radius:18px;background:#fff;box-shadow:8px 8px 0 var(--ink);z-index:50;overflow:hidden;display:none;flex-direction:column;}
+.dhd{background:var(--m1);border-bottom:4px solid var(--ink);padding:10px 16px;display:flex;align-items:center;gap:10px;}
+.dhd h4{font-family:'Luckiest Guy',cursive;text-shadow:2px 2px 0 rgba(255,255,255,.4);margin:0;font-size:17px;flex:1;}
+.filters{display:flex;gap:6px;padding:10px 14px;flex-wrap:wrap;border-bottom:3px solid var(--ink);background:#F4FCFF;}
+.f{font-family:'Bangers',cursive;font-size:14px;border:3px solid var(--ink);border-radius:10px;padding:6px 13px;background:#fff;cursor:pointer;box-shadow:3px 3px 0 var(--ink);user-select:none;}
+.f.on{background:var(--m1);}
+.dlist{overflow-y:auto;flex:1;}
+.game{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:2px solid #eee;}
+.gico{width:38px;height:38px;border:3px solid var(--ink);border-radius:10px;background:#FFF9C4;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.gi{flex:1;min-width:0;} .gi b{font-size:14px;display:block;} .gi small{font-size:11.5px;color:#666;}
+.sumline{border:3px solid var(--ink);border-radius:12px;background:#fff;box-shadow:3px 3px 0 var(--ink);padding:9px 13px;margin:10px 14px 0;font-size:13.5px;}
+.sumline b{font-family:'Bangers',cursive;letter-spacing:.5px;color:var(--tcd);}
+.sumline .pill{display:inline-block;border:2px solid var(--ink);border-radius:8px;padding:1px 8px;font-weight:700;font-size:11.5px;margin:2px 3px 0 0;background:#FFF9C4;}
+.screen{display:none;} .screen.on{display:block;}
+.empty{border:3px dashed var(--ink);border-radius:14px;padding:26px;text-align:center;color:#777;font-weight:600;background:#fffaf2;}
+.tbibtn{position:fixed;bottom:14px;right:14px;z-index:98;font-family:'Bangers',cursive;border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:4px 4px 0 var(--ink);padding:9px 14px;cursor:pointer;font-size:14px;}
+body.tbi{zoom:1.4;padding:8px;}
+body.tbi .act{font-size:19px;padding:13px 22px;}
+body.tbi .f{font-size:17px;padding:9px 17px;}
+.ed{outline:none;min-height:14px;cursor:text;}
+.ed:empty:before{content:'…';color:#bbb;}
+.ed:focus{background:#fffbd6;border-radius:6px;}
+/* ===== CARNET D'ÉVALUATION ===== */
+.evtabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.evtable{width:100%;border-collapse:separate;border-spacing:8px;}
+.evtable th{font-family:'Luckiest Guy',cursive;font-size:16px;border:3px solid var(--ink);border-radius:10px;padding:9px 6px;box-shadow:3px 3px 0 var(--ink);background:var(--tc);color:var(--ty);text-shadow:1px 1px 0 var(--ink);}
+.evtable th.n{background:var(--ty);color:var(--tcd);text-shadow:none;}
+.evname{border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:3px 3px 0 var(--ink);padding:9px 12px;font-weight:700;font-size:16px;}
+.evcell{border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:3px 3px 0 var(--ink);text-align:center;font-family:'Bangers',cursive;font-size:24px;cursor:pointer;user-select:none;padding:7px 0;min-width:74px;transition:transform .08s;}
+.evcell:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink);}
+.evcell:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink);}
+.evA{background:#7BE495;} .evB{background:#D3F09A;} .evC{background:#FFD37A;} .evD{background:#FF9B9B;}
+.evlegend{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;font-weight:700;font-size:13px;align-items:center;}
+.evlegend .sw{display:inline-block;width:26px;height:26px;border:3px solid var(--ink);border-radius:8px;text-align:center;font-family:'Bangers',cursive;font-size:15px;line-height:22px;}
+.portrait{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.pcard{flex:1;min-width:170px;border:3px solid var(--ink);border-radius:14px;background:#fff;box-shadow:4px 4px 0 var(--ink);padding:10px 14px;}
+.pcard h6{font-family:'Bangers',cursive;font-size:15px;letter-spacing:1px;margin:0 0 6px;color:var(--tcd);}
+.pbar{display:flex;height:26px;border:3px solid var(--ink);border-radius:8px;overflow:hidden;}
+.pbar div{display:flex;align-items:center;justify-content:center;font-family:'Bangers',cursive;font-size:13px;}
+@media(max-width:760px){.bodyz{flex-direction:column;}.gpanel{width:100%;border-left:none;border-top:4px solid var(--ink);}.drawer{top:auto;bottom:0;right:0;left:0;width:100%;border-radius:18px 18px 0 0;}}
+</style>
+</head>
+<body>
+<div class="topnote">🧪 <b>MAQUETTE v2</b> — architecture de Joey : calendrier central · onglets Planification / Groupe / Évaluation · clique une date du calendrier!</div>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">ZONE PLANIF</div>
+    <span class="act" id="tab-planif" onclick="togPlanif()">📅 PLANIFICATION</span>
+    <span class="act" id="tab-groupe" onclick="togGroupes()">👥 GROUPE</span>
+    <span class="act" id="tab-eval" onclick="showView('eval');togPlanif(false);">📋 ÉVALUATION</span>
+    <div class="metier">
+      <span class="act sm" data-met="camps" id="mcamps">🏕️</span>
+      <span class="act sm prim" data-met="eps" id="meps">⚽</span>
+      <span class="act sm" data-met="sdg" id="msdg">🧩</span>
+    </div>
+  </div>
+  <div class="subrow" id="subplanif">
+    <span class="act sm" id="sb-jour" onclick="showView('jour')">☀️ Jour</span>
+    <span class="act sm" id="sb-sem" onclick="showView('sem')">📋 Semaine</span>
+    <span class="act sm prim" id="sb-mois" onclick="showView('mois')">📅 Mois</span>
+    <span class="act sm" id="sb-seq" onclick="showView('seq')">🎯 Séquentielle</span>
+    <span class="act sm" id="sb-an" onclick="showView('an')">🗓️ Annuelle</span>
+    <span class="act sm" style="margin-left:auto;" onclick="importCal()">📥 Importer calendrier scolaire</span>
+    <span class="act sm" onclick="toast('🖨️ Export PDF : la vue devient ton imprimable, pré-rempli.')">🖨️ PDF</span>
+  </div>
+
+  <div class="bodyz">
+    <div class="main">
+
+      <!-- ===== MOIS (page principale) ===== -->
+      <div class="screen on" id="v-mois">
+        <div class="sheet">
+          <div class="sheettitle"><span class="c">Septembre</span> <span class="y">2025</span></div>
+          <div class="mgrid" id="mgrid"></div>
+          <p style="font-size:12px;color:#555;margin:10px 0 0;" id="mnote">💡 Clique une <b>date</b> : présences du jour + évaluations (quoi, quels groupes). Les jours avec 📋 ont eu une évaluation. « 📥 Importer » intègre congés/pédagos et recale les jours-cycle.</p>
+        </div>
+      </div>
+
+      <!-- ===== JOUR ===== -->
+      <div class="screen" id="v-jour">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+          <b style="font-family:'Luckiest Guy',cursive;font-size:18px;" id="daytitle">Mardi 16 septembre — 101</b>
+        </div>
+        <div id="timeline"></div>
+        <div class="dock">
+          <h6>MES TIROIRS</h6>
+          <div class="dgrid">
+            <div class="mod" onclick="openDrawer(null)" style="background-image:radial-gradient(circle at 30% 25%, rgba(255,255,255,.35) 0 8%, transparent 9%), linear-gradient(135deg, var(--tc), var(--tcd));"><span class="mbadge">970</span><div class="mico">🎲</div><div class="mlabel">JEUX</div></div>
+            <div class="mod" onclick="toast('Tiroir Présences : prochain sur le gabarit!')" style="background-image:linear-gradient(135deg,#2ecc71,#169B62);"><div class="mico">✅</div><div class="mlabel">PRÉSENCES</div></div>
+            <div class="mod" onclick="toast('Plan B : biblio filtrée intérieur + sans matériel')" style="background-image:linear-gradient(160deg,#5dade2,#1E3A5F);"><div class="mico">🌧️</div><div class="mlabel">PLAN B</div></div>
+            <div class="mod" onclick="toast('Musique : minuteur + ambiance')" style="background-image:linear-gradient(135deg,#B026FF,#6C1FA8);"><div class="mico">🎵</div><div class="mlabel">MUSIQUE</div></div>
+            <div class="mod" onclick="toast('Coloriage : pages IA')" style="background-image:linear-gradient(135deg,#FFD166,#FF8C42);"><div class="mico">🖍️</div><div class="mlabel">COLORIAGE</div></div>
+            <div class="mod" onclick="toast('＋ Prochains tiroirs, même gabarit')" style="background-image:repeating-linear-gradient(45deg,#f3f3f3 0 10px,#e6e6e6 10px 20px);"><div class="mico" style="color:#999;">＋</div><div class="mlabel" style="color:#999;">BIENTÔT</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SEMAINE ===== -->
+      <div class="screen" id="v-sem">
+        <div class="sheet">
+          <div class="sheettitle"><span class="c">Planification</span> <span class="y">de la semaine</span></div>
+          <div class="wkgrid">
+            <div></div>
+            <div><div class="wk-day y">Lundi</div><div class="wk-date">15 SEPT.</div></div>
+            <div><div class="wk-day c">Mardi</div><div class="wk-date" style="color:#7CB518;">16 SEPT.</div></div>
+            <div><div class="wk-day y">Mercredi</div><div class="wk-date">17 SEPT.</div></div>
+            <div class="wk-per c">Période 1</div>
+            <div class="wcell bandy"><div class="wbox"><b>GROUPE :</b> <span class="ed" contenteditable>101</span></div><div class="wbox big"><b>ACTIVITÉ :</b> <span class="ed" contenteditable>Volleyball — touche</span></div></div>
+            <div class="wcell bandc"><div class="wbox"><b>GROUPE :</b> <span class="ed" contenteditable>203</span></div><div class="wbox big"><b>ACTIVITÉ :</b> <span class="ed" contenteditable></span></div></div>
+            <div class="wcell bandy"><div class="wbox"><b>GROUPE :</b> <span class="ed" contenteditable></span></div><div class="wbox big"><b>ACTIVITÉ :</b> <span class="ed" contenteditable></span></div></div>
+            <div class="wk-per y">Période 2</div>
+            <div class="wcell bandy"><div class="wbox"><b>GROUPE :</b> <span class="ed" contenteditable>102</span></div><div class="wbox big"><b>ACTIVITÉ :</b> <span class="ed" contenteditable>Volleyball — touche</span></div></div>
+            <div class="wcell bandc"><div class="wbox"><b>GROUPE :</b> <span class="ed" contenteditable></span></div><div class="wbox big"><b>ACTIVITÉ :</b> <span class="ed" contenteditable></span></div></div>
+            <div class="wcell bandy"><div class="wbox"><b>GROUPE :</b> <span class="ed" contenteditable></span></div><div class="wbox big"><b>ACTIVITÉ :</b> <span class="ed" contenteditable></span></div></div>
+            <div class="wk-band">Récréation</div>
+            <div class="wcell bandy" style="min-height:14px;"></div><div class="wcell bandc" style="min-height:14px;"></div><div class="wcell bandy" style="min-height:14px;"></div>
+            <div class="wk-per c">Période 3</div>
+            <div class="wcell bandy"><div class="wbox"><b>GROUPE :</b> <span class="ed" contenteditable></span></div><div class="wbox big"><b>ACTIVITÉ :</b> <span class="ed" contenteditable></span></div></div>
+            <div class="wcell bandc"><div class="wbox"><b>GROUPE :</b> <span class="ed" contenteditable></span></div><div class="wbox big"><b>ACTIVITÉ :</b> <span class="ed" contenteditable></span></div></div>
+            <div class="wcell bandy"><div class="wbox"><b>GROUPE :</b> <span class="ed" contenteditable></span></div><div class="wbox big"><b>ACTIVITÉ :</b> <span class="ed" contenteditable></span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SÉQUENTIELLE ===== -->
+      <div class="screen" id="v-seq">
+        <div class="sheet">
+          <div class="sheettitle"><span class="c">Planification</span> <span class="y">séquentielle</span></div>
+          <div class="sq-title"><b>TITRE :</b><div class="ed" contenteditable style="flex:1;font-size:15px;">SAÉ Volleyball — 3e cycle</div></div>
+          <div class="sqgrid">
+            <div class="sq"><h5>Cours 1</h5><div class="sq-date alt-y"><b>Date :</b> <span class="ed" contenteditable>9 sept.</span></div><div class="sq-box alt-y ed" contenteditable>Touche + manchette, éducatifs par 2</div></div>
+            <div class="sq"><h5>Cours 2</h5><div class="sq-date alt-c"><b>Date :</b> <span class="ed" contenteditable>16 sept.</span></div><div class="sq-box alt-c ed" contenteditable>Touche — évaluation C2</div></div>
+            <div class="sq"><h5>Cours 3</h5><div class="sq-date alt-y"><b>Date :</b> <span class="ed" contenteditable>23 sept.</span></div><div class="sq-box alt-y ed" contenteditable></div></div>
+            <div class="sq"><h5>Cours 4</h5><div class="sq-date alt-c"><b>Date :</b> <span class="ed" contenteditable></span></div><div class="sq-box alt-c ed" contenteditable></div></div>
+            <div class="sq"><h5>Cours 5</h5><div class="sq-date alt-y"><b>Date :</b> <span class="ed" contenteditable></span></div><div class="sq-box alt-y ed" contenteditable></div></div>
+            <div class="sq"><h5>Cours 6</h5><div class="sq-date alt-c"><b>Date :</b> <span class="ed" contenteditable></span></div><div class="sq-box alt-c ed" contenteditable></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ANNUELLE ===== -->
+      <div class="screen" id="v-an">
+        <div class="sheet">
+          <div class="sheettitle" style="font-size:26px;"><span class="y">Ma planification</span> <span class="c">annuelle</span> — Septembre</div>
+          <div class="an-head">
+            <div class="an-hdays">
+              <div class="an-hd c">Lun</div><div class="an-hd y">Mar</div><div class="an-hd c">Mer</div><div class="an-hd y">Jeu</div><div class="an-hd c">Ven</div>
+            </div>
+          </div>
+          <div class="anweek">
+            <div class="an-days"><div class="an-d yl">1</div><div class="an-d cy">2</div><div class="an-d yl">3</div><div class="an-d cy">4</div><div class="an-d yl">5</div></div>
+            <span class="arr">➜</span>
+            <div class="anbar"><b class="la">ACTIVITÉ :</b><span class="ed" contenteditable>Routines + coopération</span><b class="lc">COMPÉTENCE :</b><span class="ed" contenteditable>Interagir</span></div>
+          </div>
+          <div class="anweek">
+            <div class="an-days"><div class="an-d cy">8</div><div class="an-d yl">9</div><div class="an-d cy">10</div><div class="an-d yl">11</div><div class="an-d cy">12</div></div>
+            <span class="arr">➜</span>
+            <div class="anbar"><b class="la">ACTIVITÉ :</b><span class="ed" contenteditable>Athlétisme — course</span><b class="lc">COMPÉTENCE :</b><span class="ed" contenteditable>Agir</span></div>
+          </div>
+          <div class="anweek">
+            <div class="an-days"><div class="an-d yl">15</div><div class="an-d cy">16</div><div class="an-d yl">17</div><div class="an-d cy">18</div><div class="an-d yl">19</div></div>
+            <span class="arr">➜</span>
+            <div class="anbar"><b class="la">ACTIVITÉ :</b><span class="ed" contenteditable>SAÉ Volleyball (1-2)</span><b class="lc">COMPÉTENCE :</b><span class="ed" contenteditable>Interagir</span></div>
+          </div>
+          <div class="anweek">
+            <div class="an-days"><div class="an-d cy">22</div><div class="an-d yl">23</div><div class="an-d cy">24</div><div class="an-d yl">25</div><div class="an-d cy">26</div></div>
+            <span class="arr">➜</span>
+            <div class="anbar"><b class="la">ACTIVITÉ :</b><span class="ed" contenteditable>SAÉ Volleyball (3-4)</span><b class="lc">COMPÉTENCE :</b><span class="ed" contenteditable></span></div>
+          </div>
+          <div class="anweek">
+            <div class="an-days"><div class="an-d yl">29</div><div class="an-d cy">30</div><div class="an-d" style="background:#f4f4f4;"></div><div class="an-d" style="background:#f4f4f4;"></div><div class="an-d" style="background:#f4f4f4;"></div></div>
+            <span class="arr">➜</span>
+            <div class="anbar"><b class="la">ACTIVITÉ :</b><span class="ed" contenteditable></span><b class="lc">COMPÉTENCE :</b><span class="ed" contenteditable></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ÉVALUATION ===== -->
+      <div class="screen" id="v-eval">
+        <div class="sheet">
+          <div class="sheettitle"><span class="c">Carnet</span> <span class="y">d'évaluation</span> — <span id="evgname" style="color:var(--tor);">101</span></div>
+          <div class="evtabs" id="evtabs"></div>
+          <div id="evzone"></div>
+          <div class="evlegend">
+            <span>👆 Clique une case pour coter :</span>
+            <span class="sw evA">A</span><span class="sw evB">B</span><span class="sw evC">C</span><span class="sw evD">D</span><span class="sw">—</span>
+            <span style="color:#777;">(re-clic = cote suivante)</span>
+          </div>
+          <div class="portrait" id="portrait"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== PANNEAU GROUPES ===== -->
+    <div class="gpanel" id="gpanel">
+      <h6>MES GROUPES</h6>
+      <div id="glist"></div>
+      <div class="gcfg" onclick="toast('⚙️ Configurer : choisir les options visibles par groupe (présence, linge, évaluation, notes...)')">⚙️ Configurer les options</div>
+    </div>
+  </div>
+</div>
+
+<!-- TIROIR JEUX -->
+<div class="backdrop" id="backdrop" onclick="closeAll()"></div>
+<div class="drawer" id="drawer">
+  <div class="dhd"><h4>🎲 TIROIR JEUX</h4><span class="act sm" onclick="closeAll()">✕</span></div>
+  <div class="filters" id="filters"></div>
+  <div class="dlist" id="dlist"></div>
+</div>
+
+<!-- RÉSUMÉ DE JOURNÉE (clic sur une date) -->
+<div class="drawer" id="daysum">
+  <div class="dhd"><h4 id="dstitle">📆 Mardi 16 septembre</h4><span class="act sm" onclick="closeAll()">✕</span></div>
+  <div id="dsbody" style="overflow-y:auto;padding-bottom:14px;"></div>
+  <div style="padding:12px 14px;border-top:3px solid var(--ink);text-align:right;">
+    <span class="act sm prim" onclick="closeAll();showView('jour');">☀️ Ouvrir la planif du jour ➜</span>
+  </div>
+</div>
+
+<div id="toastbox" style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:99;"></div>
+<div class="tbibtn" onclick="document.body.classList.toggle('tbi');toast(document.body.classList.contains('tbi')?'🖥️ Mode TBI activé!':'Mode normal');">🖥️ Mode TBI</div>
+
+<script>
+/* ===== THÈMES / GROUPES ===== */
+const THEMES={
+  eps:{m1:'#2FC6F5',m2:'#FFF200',groups:['101','102','203','304'],unit:'élèves'},
+  camps:{m1:'#FF6B00',m2:'#B026FF',groups:['Renards','Castors'],unit:'jeunes'},
+  sdg:{m1:'#39FF14',m2:'#169B62',groups:['Local A','Local B'],unit:'enfants'}
+};
+let MET='eps';
+function setMet(m){
+  MET=m;const t=THEMES[m],r=document.documentElement.style;
+  r.setProperty('--m1',t.m1);r.setProperty('--m2',t.m2);
+  ['camps','eps','sdg'].forEach(x=>document.getElementById('m'+x).classList.toggle('prim',x===m));
+  renderGroups();
+}
+document.addEventListener('click',e=>{const met=e.target.closest('[data-met]');if(met)setMet(met.dataset.met);});
+/* ===== ONGLETS ===== */
+function togPlanif(force){
+  const s=document.getElementById('subplanif');
+  const on=(force===undefined)?!s.classList.contains('on'):force;
+  s.classList.toggle('on',on);
+  document.getElementById('tab-planif').classList.toggle('prim',on);
+}
+function togGroupes(){
+  const p=document.getElementById('gpanel');
+  p.classList.toggle('on');
+  document.getElementById('tab-groupe').classList.toggle('prim',p.classList.contains('on'));
+}
+function renderGroups(){
+  const g=document.getElementById('glist');
+  g.innerHTML=THEMES[MET].groups.map((n,i)=>`
+    <div class="gitem" id="g${i}">
+      <div class="gname" onclick="togG(${i})">👥 ${n}</div>
+      <div class="gopts">
+        <div class="gopt" onclick="toast('✅ Présences du groupe ${n} — 1 tap par ${THEMES[MET].unit.slice(0,-1)}')">✅ Présence</div>
+        <div class="gopt" onclick="toast('👕 Linge : qui n\\'a pas sa tenue aujourd\\'hui (${n})')">👕 Linge</div>
+        <div class="gopt" onclick="toast('📋 Évaluation du groupe ${n} — carnet PFEQ')">📋 Évaluation</div>
+      </div>
+    </div>`).join('');
+}
+function togG(i){document.getElementById('g'+i).classList.toggle('on');}
+/* ===== VUES ===== */
+function showView(v){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('v-'+v).classList.add('on');
+  document.getElementById('tab-eval').classList.toggle('prim',v==='eval');
+  ['jour','sem','mois','seq','an'].forEach(x=>{
+    const b=document.getElementById('sb-'+x);
+    if(b)b.classList.toggle('prim',x===v);
+  });
+  if(v==='jour')renderDay();
+  if(v==='eval')renderEval();
+}
+/* ===== MENSUEL + RÉSUMÉ JOUR ===== */
+let CAL_IMPORTED=false;
+const SCHOOL_EVENTS={1:{type:'holiday',label:'Fête du travail'},19:{type:'pedago',label:'Pédagogique'}};
+const EVALS={9:[{quoi:'Course — départ',comp:'Agir',groupes:['304']}],16:[{quoi:'Volleyball — touche',comp:'Interagir',groupes:['101','102']}],25:[{quoi:'Coopération — plans',comp:'Interagir',groupes:['203']}]};
+const PRES={16:{'101':'24/26 (abs : Léo, Mia)','102':'25/25','203':'—','304':'—'}};
+function renderMonth(){
+  const g=document.getElementById('mgrid');
+  const ROM=['I','II','III','IV','V','VI'];
+  let h='';['Lundi','Mardi','Mercredi','Jeudi','Vendredi'].forEach((d,i)=>h+=`<div class="mh ${i%2===0?'y':'c'}">${d}</div>`);
+  const weeks=[[1,2,3,4,5],[8,9,10,11,12],[15,16,17,18,19],[22,23,24,25,26],[29,30,null,null,null]];
+  let cyc=0;
+  weeks.forEach(w=>w.forEach((d,col)=>{
+    if(d===null){h+=`<div></div>`;return;}
+    const evt=CAL_IMPORTED?SCHOOL_EVENTS[d]:null;
+    if(evt){h+=`<div class="mcell ${evt.type}"><span class="num">${d}</span><span class="evt">${evt.label}</span></div>`;}
+    else{
+      const ev=EVALS[d]?`<span class="evbadge">📋 éval</span>`:'';
+      h+=`<div class="mcell ${col%2===0?'y':'c'}" onclick="openDaySum(${d})"><span class="num">${d}</span><span class="cyc">${ROM[cyc%6]}</span>${ev}</div>`;
+      cyc++;
+    }
+  }));
+  g.innerHTML=h;
+}
+function importCal(){
+  if(CAL_IMPORTED){toast('Calendrier scolaire déjà importé ✓');return;}
+  CAL_IMPORTED=true;renderMonth();
+  toast('📥 Congés + pédagos intégrés, jours-cycle recalés!');
+}
+function openDaySum(d){
+  document.getElementById('dstitle').textContent=`📆 ${d} septembre`;
+  let h='';
+  const p=PRES[d];
+  h+=`<div class="sumline"><b>PRÉSENCES DU JOUR</b><br>${p?Object.entries(p).map(([g,v])=>`<span class="pill">${g} : ${v}</span>`).join(''):'<span style="color:#888;">Aucune présence prise ce jour.</span>'}</div>`;
+  const ev=EVALS[d];
+  h+=`<div class="sumline"><b>ÉVALUATIONS</b><br>${ev?ev.map(e=>`📋 <b style="color:#111;">${e.quoi}</b> · compétence <span class="pill">${e.comp}</span> · groupes ${e.groupes.map(g=>`<span class="pill">${g}</span>`).join('')}`).join('<br>'):'<span style="color:#888;">Aucune évaluation ce jour.</span>'}</div>`;
+  document.getElementById('backdrop').style.display='block';
+  document.getElementById('daysum').style.display='flex';
+}
+/* ===== JOUR ===== */
+let DAY=[
+  {h:'P1',tag:'101',t:'Volleyball — touche (éval C2)',done:true},
+  {h:'P2',tag:'102',t:'Volleyball — touche (éval C2)',done:true},
+  {h:'P3',hole:true},
+  {h:'P4',tag:'203',t:'Coopération — plans d\'action',done:false},
+];
+let TARGET='P3';
+function renderDay(){
+  const tl=document.getElementById('timeline');
+  let h=`<div class="drow dhead"><div class="dcell">PÉRIODE</div><div class="dcell">GROUPE</div><div class="dcell">DÉROULEMENT</div><div class="dcell">FAIT ✓</div></div>`;
+  h+=DAY.map((b,i)=>b.hole
+    ?`<div class="hole" onclick="openDrawer('${b.h}')">＋ ${b.h} — libre · toucher pour ouvrir le tiroir Jeux 🎲</div>`
+    :`<div class="drow" id="blk${i}">
+        <div class="dcell time2">${b.h}</div>
+        <div class="dcell"><span class="tag">${b.tag}</span></div>
+        <div class="dcell ed" contenteditable>${b.t}</div>
+        <div class="dcell fait ${b.done?'ok':''}" onclick="tgDone(${i})">${b.done?'✓':''}</div>
+      </div>`).join('');
+  tl.innerHTML=h;
+}
+function tgDone(i){DAY[i].done=!DAY[i].done;renderDay();}
+/* ===== TIROIR JEUX ===== */
+const GAMES=[
+  {t:'Le loup glacé',i:'🏃',age:'7-9',en:'feu',lieu:'ext',mat:false,d:'10-20 · aucun matériel · 15 min'},
+  {t:'Ballon-chasseur géant',i:'⚽',age:'7-9',en:'feu',lieu:'ext',mat:true,d:'2 ballons mousse · 20 min'},
+  {t:'La chenille infernale',i:'🪢',age:'7-9',en:'feu',lieu:'int',mat:false,d:'équipes de 5 · 10 min'},
+  {t:'Dessin musical',i:'🎨',age:'5-6',en:'calme',lieu:'int',mat:true,d:'papier + crayons · 15 min'},
+  {t:'Le roi du silence',i:'🤫',age:'5-6',en:'calme',lieu:'int',mat:false,d:'grand groupe · 10 min'},
+  {t:'Relais de l\'éponge',i:'🧽',age:'7-9',en:'feu',lieu:'ext',mat:true,d:'éponges + seaux · 15 min'},
+  {t:'Cache-cache sardine',i:'🐟',age:'10-12',en:'feu',lieu:'ext',mat:false,d:'grand espace · 20 min'},
+  {t:'Yoga des animaux',i:'🧘',age:'5-6',en:'calme',lieu:'int',mat:false,d:'tapis optionnels · 10 min'},
+  {t:'Béret olympique',i:'🎖️',age:'10-12',en:'feu',lieu:'ext',mat:true,d:'1 objet central · 15 min'},
+];
+let FILT={age:null,en:null,lieu:null,mat:false};
+function openDrawer(target){
+  if(target)TARGET=target;
+  document.getElementById('backdrop').style.display='block';
+  document.getElementById('drawer').style.display='flex';
+  renderFilters();renderList();
+}
+function closeAll(){
+  ['backdrop','drawer','daysum'].forEach(id=>document.getElementById(id).style.display='none');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAll();});
+function renderFilters(){
+  document.getElementById('filters').innerHTML=[
+    ['age','5-6','5-6 ans'],['age','7-9','7-9 ans'],['age','10-12','10-12 ans'],
+    ['en','feu','🔥 Défoulement'],['en','calme','😌 Calme'],
+    ['lieu','int','Intérieur'],['lieu','ext','Extérieur'],['mat',true,'Sans matériel']
+  ].map(([k,v,l])=>{
+    const on=(k==='mat')?FILT.mat:(FILT[k]===v);
+    return `<span class="f ${on?'on':''}" onclick="tog('${k}','${v}')">${l}</span>`;
+  }).join('');
+}
+function tog(k,v){
+  if(k==='mat')FILT.mat=!FILT.mat;else FILT[k]=(FILT[k]===v)?null:v;
+  renderFilters();renderList();
+}
+function renderList(){
+  const res=GAMES.filter(g=>(!FILT.age||g.age===FILT.age)&&(!FILT.en||g.en===FILT.en)&&(!FILT.lieu||g.lieu===FILT.lieu)&&(!FILT.mat||!g.mat));
+  document.getElementById('dlist').innerHTML=res.length?res.map(g=>
+    `<div class="game"><div class="gico">${g.i}</div><div class="gi"><b>${g.t}</b><small>${g.d}</small></div>
+     <span class="act sm prim" onclick="addGame('${g.t.replace(/'/g,"\\'")}')">AJOUTER ➜ ${TARGET}</span></div>`).join('')
+  :`<div style="padding:22px;text-align:center;color:#777;font-weight:600;">Aucun jeu avec ces filtres!</div>`;
+}
+function addGame(title){
+  const i=DAY.findIndex(b=>b.hole);
+  if(i>-1)DAY[i]={h:TARGET,tag:'—',t:title,done:false};
+  closeAll();showView('jour');
+  setTimeout(()=>{const el=document.getElementById('blk'+i);if(el){el.classList.add('flash');el.scrollIntoView({behavior:'smooth',block:'center'});}},60);
+  toast('🎲 « '+title+' » ajouté en '+TARGET+'!');
+}
+/* ===== CARNET D'ÉVALUATION ===== */
+const COTES=['','A','B','C','D'];
+const EVDATA={
+  '101':[{n:'Léa',c:[1,2,0]},{n:'Nathan',c:[2,1,0]},{n:'Mia',c:[0,0,0]},{n:'Zack',c:[3,2,0]},{n:'Emma',c:[1,1,0]},{n:'Liam',c:[2,4,0]}],
+  '102':[{n:'Olivia',c:[1,1,0]},{n:'Noah',c:[2,3,0]},{n:'Jade',c:[1,2,0]},{n:'Théo',c:[0,0,0]}],
+  '203':[{n:'Alice',c:[2,1,1]},{n:'Félix',c:[1,1,2]},{n:'Rosalie',c:[3,2,1]}],
+  '304':[{n:'Charlie',c:[0,0,0]},{n:'Victor',c:[0,0,0]},{n:'Béatrice',c:[0,0,0]}]
+};
+let EVG='101';
+function renderEvalTabs(){
+  const groups=Object.keys(EVDATA);
+  document.getElementById('evtabs').innerHTML=groups.map(g=>
+    `<span class="act sm ${g===EVG?'prim':''}" onclick="EVG='${g}';renderEval();">👥 ${g}</span>`).join('')
+    +`<span class="act sm" style="margin-left:auto;" onclick="toast('⚙️ Compétences configurables par cycle (PFEQ) — et critères par SAÉ')">⚙️ Compétences</span>`;
+}
+function renderEval(){
+  renderEvalTabs();
+  document.getElementById('evgname').textContent=EVG;
+  const rows=EVDATA[EVG];
+  let h=`<table class="evtable"><tr><th class="n">ÉLÈVE</th><th>AGIR</th><th>INTERAGIR</th><th>ADOPTER</th></tr>`;
+  rows.forEach((s,i)=>{
+    h+=`<tr><td class="evname"><span class="ed" contenteditable onblur="EVDATA['${EVG}'][${i}].n=this.textContent">${s.n}</span></td>`;
+    s.c.forEach((v,j)=>{
+      h+=`<td class="evcell ${v?'ev'+COTES[v]:''}" onclick="cycleEv(${i},${j})">${COTES[v]||'—'}</td>`;
+    });
+    h+=`</tr>`;
+  });
+  h+=`</table>`;
+  document.getElementById('evzone').innerHTML=h;
+  renderPortrait();
+}
+function cycleEv(i,j){
+  EVDATA[EVG][i].c[j]=(EVDATA[EVG][i].c[j]+1)%5;
+  renderEval();
+}
+function renderPortrait(){
+  const comps=['AGIR','INTERAGIR','ADOPTER'];
+  const cols={1:'#7BE495',2:'#D3F09A',3:'#FFD37A',4:'#FF9B9B'};
+  const rows=EVDATA[EVG];
+  let h='';
+  comps.forEach((c,j)=>{
+    const counts=[0,0,0,0,0];
+    rows.forEach(s=>counts[s.c[j]]++);
+    const done=rows.length-counts[0];
+    let bar='';
+    [1,2,3,4].forEach(v=>{
+      if(counts[v])bar+=`<div style="flex:${counts[v]};background:${cols[v]};">${COTES[v]}${counts[v]>1?'×'+counts[v]:''}</div>`;
+    });
+    if(counts[0])bar+=`<div style="flex:${counts[0]};background:#f0f0f0;color:#999;">${counts[0]} à faire</div>`;
+    h+=`<div class="pcard"><h6>${c}</h6><div class="pbar">${bar}</div><div style="font-size:11.5px;color:#666;margin-top:5px;font-weight:600;">${done}/${rows.length} évalués</div></div>`;
+  });
+  document.getElementById('portrait').innerHTML=h;
+}
+/* ===== TOAST ===== */
+function toast(msg){
+  const b=document.getElementById('toastbox');
+  b.innerHTML=`<div style="border:3px solid var(--ink);border-radius:10px;background:#fff;box-shadow:4px 4px 0 var(--ink);padding:10px 16px;font-weight:600;font-size:13.5px;">${msg}</div>`;
+  clearTimeout(b._t);b._t=setTimeout(()=>b.innerHTML='',2800);
+}
+setMet('eps');renderMonth();renderDay();
+</script>
+</body>
+</html>
