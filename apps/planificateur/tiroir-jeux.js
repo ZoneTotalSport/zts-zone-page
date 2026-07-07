@@ -4,7 +4,7 @@
  * Panneau qui s'ouvre PAR-DESSUS la vue journée (on ne quitte jamais le
  * calendrier) : backdrop semi-transparent, fermeture X / ESC / clic backdrop.
  * Données et écritures : PlanifData (dataStore.js) uniquement.
- * Boutons : .zts-action / .zts-action--camps (standard 2026-07 — pas de pilule).
+ * Boutons : .zts-action / .zts-action--metier (standard 2026-07 — pas de pilule).
  *
  * Script classique chargé avant app.js ; `state`, `render`, `esc` de app.js
  * sont résolus à l'appel.
@@ -111,7 +111,7 @@ const TiroirJeux = (() => {
   function renderCorps() {
     if (T.loading) return `<div class="tiroir__msg">⏳ Chargement de la banque de jeux…</div>`;
     if (T.error) return `<div class="tiroir__msg">⚠️ Banque indisponible (${esc(T.error)}).
-      <button class="zts-action zts-action--camps" data-tiroir="retry">Réessayer</button></div>`;
+      <button class="zts-action zts-action--metier" data-tiroir="retry">Réessayer</button></div>`;
     if (!T.items) return '';
     const visibles = PlanifData.filterBanque(T.items, T.filtres);
     const rows = visibles.slice(0, MAX_AFFICHES).map(renderRow).join('');
@@ -133,7 +133,7 @@ const TiroirJeux = (() => {
         <div class="tiroir__row-titre">${x.icon} ${esc(x.titre)}</div>
         <div class="tiroir__row-meta">${meta}</div>
       </div>
-      <button class="zts-action zts-action--camps tiroir__add" data-tiroir="add" data-ref="${esc(x.ref)}">
+      <button class="zts-action zts-action--metier tiroir__add" data-tiroir="add" data-ref="${esc(x.ref)}">
         AJOUTER ${heure ? '➜ ' + heure : ''}</button>
     </div>`;
   }

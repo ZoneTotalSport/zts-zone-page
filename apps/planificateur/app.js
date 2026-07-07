@@ -396,7 +396,7 @@ function renderSetup() {
         <input class="p-input" id="setup-groupe" placeholder="Les Dauphins" required></div>
       <div class="p-field"><label class="p-label">Theme (optionnel)</label>
         <input class="p-input" id="setup-theme" placeholder="Aventure"></div>
-      <button class="zts-btn zts-btn--primary" data-action="save-setup" style="width:100%;margin-top:var(--space-3)">Creer mon groupe</button>
+      <button class="zts-action zts-action--metier" data-action="save-setup" style="width:100%;margin-top:var(--space-3)">Creer mon groupe</button>
     </div>
   </div>`;
 }
@@ -438,8 +438,8 @@ function renderCoordo() {
       <span class="p-group-theme"> · ${state.coordoGroups.length} groupe(s) · ${totPres}/${totEnf} présent(s)${totFlag?` · ⚠ ${totFlag} hors-liste`:''}</span>
     </div>
     <div style="display:flex;gap:6px">
-      <button class="zts-btn p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages">\u{1F4AC}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
-      <button class="zts-btn" data-action="exit-coordo" style="font-size:var(--fs-1)">↩ Vue animateur</button>
+      <button class="zts-action zts-action--neutre p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages">\u{1F4AC}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
+      <button class="zts-action zts-action--neutre" data-action="exit-coordo" style="font-size:var(--fs-1)">↩ Vue animateur</button>
     </div>
   </div>
   <div class="p-date-nav" style="margin:var(--space-2) 0 var(--space-4)">
@@ -558,7 +558,7 @@ function renderThread() {
     <div class="p-msg-body" id="msg-thread-body"></div>
     <div class="p-msg-compose">
       <textarea class="p-input" id="msg-input" rows="2" placeholder="Écris un message…"></textarea>
-      <button class="zts-btn zts-btn--primary" data-action="send-message">Envoyer</button>
+      <button class="zts-action zts-action--metier" data-action="send-message">Envoyer</button>
     </div>`;
   renderThreadBody();
   const ta=document.getElementById('msg-input'); if(ta) ta.focus();
@@ -613,17 +613,17 @@ function renderGroupBar() {
       <span class="p-group-theme"> \u00B7 ${state.enfants.length} enfant(s)</span>
     </div>
     <div style="display:flex;gap:6px">
-      <button class="zts-btn p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages du coordonnateur">\u{1F514}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
-      <button class="zts-btn" data-action="enter-coordo" style="font-size:var(--fs-1)" title="Vue coordonnateur">\u{1F451}</button>
-      <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
+      <button class="zts-action zts-action--neutre p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages du coordonnateur">\u{1F514}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
+      <button class="zts-action zts-action--neutre" data-action="enter-coordo" style="font-size:var(--fs-1)" title="Vue coordonnateur">\u{1F451}</button>
+      <button class="zts-action zts-action--neutre" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
     </div>
   </div>
   <div class="p-nav">
-    <button class="p-nav-btn ${state.view==='calendrier'?'active':''}" data-action="nav" data-to="calendrier">\u{1F4C5} Calendrier</button>
-    <button class="p-nav-btn ${state.view==='roster'?'active':''}" data-action="nav" data-to="roster">\u{1F465} Mon groupe</button>
-    <button class="p-nav-btn ${state.view==='gabarit'?'active':''}" data-action="nav" data-to="gabarit">\u{1F4D0} Journee type</button>
-    <button class="p-nav-btn ${state.view==='historique'?'active':''}" data-action="nav" data-to="historique">\u{1F4CA} Historique</button>
-    ${epMetierActif()?`<button class="p-nav-btn ${state.view==='evaluation'?'active':''}" data-action="nav" data-to="evaluation">\u{1F4CA} Évaluation</button>`:''}
+    <button class="zts-action p-nav-btn ${state.view==='calendrier'?'active':''}" data-action="nav" data-to="calendrier">\u{1F4C5} Calendrier</button>
+    <button class="zts-action p-nav-btn ${state.view==='roster'?'active':''}" data-action="nav" data-to="roster">\u{1F465} Mon groupe</button>
+    <button class="zts-action p-nav-btn ${state.view==='gabarit'?'active':''}" data-action="nav" data-to="gabarit">\u{1F4D0} Journee type</button>
+    <button class="zts-action p-nav-btn ${state.view==='historique'?'active':''}" data-action="nav" data-to="historique">\u{1F4CA} Historique</button>
+    ${epMetierActif()?`<button class="zts-action p-nav-btn ${state.view==='evaluation'?'active':''}" data-action="nav" data-to="evaluation">\u{1F4CA} Évaluation</button>`:''}
   </div>`;
 }
 
@@ -677,7 +677,7 @@ function renderCalendrier() {
   </div>
   <div class="p-cal-grid">${cells}</div>
   <div style="text-align:center">
-    <button class="zts-btn zts-btn--primary" data-action="presences-date" data-date="${today}">\u{1F4CB} Présences aujourd'hui</button>
+    <button class="zts-action zts-action--metier" data-action="presences-date" data-date="${today}">\u{1F4CB} Présences aujourd'hui</button>
   </div>
   <div style="text-align:center;margin-top:var(--space-2);font-family:var(--font-fun);font-size:var(--fs-1);opacity:.6">Clique une date pour prendre les présences</div>`;
 }
@@ -689,7 +689,7 @@ function renderCalendrier() {
 
 function renderCalToggle(view) {
   const cur = view==='journee' ? 'jour' : view==='semaine' ? 'semaine' : 'mois';
-  const tab = (mode,label) => `<button class="zts-vue-tab ${cur===mode?'zts-vue-tab--active':''}" data-action="cal-mode" data-mode="${mode}">${label}</button>`;
+  const tab = (mode,label) => `<button class="zts-action zts-vue-tab ${cur===mode?'zts-vue-tab--active':''}" data-action="cal-mode" data-mode="${mode}">${label}</button>`;
   return `<div class="zts-vue-toggle">
     ${tab('jour','\u{1F4C5} Jour')}
     ${tab('semaine','\u{1F5D3}️ Semaine')}
@@ -730,7 +730,7 @@ function renderSemaine() {
   const canValidate = !!(state.groupeId && state.orgId);
   return `
     ${canValidate ? `<div style="display:flex;justify-content:center;margin:0 0 14px">
-      <button class="zts-btn zts-btn--primary" data-action="valider-semaine" id="btn-valider-sem" style="font-size:var(--fs-2)">✅ Valider et notifier le coordo</button>
+      <button class="zts-action zts-action--metier" data-action="valider-semaine" id="btn-valider-sem" style="font-size:var(--fs-2)">✅ Valider et notifier le coordo</button>
     </div>` : ''}
     <div id="sem-grid-root"></div>`;
 }
@@ -780,9 +780,9 @@ function renderJournee() {
     html += `<div style="text-align:center;padding:var(--space-3);opacity:.5;font-family:var(--font-fun)">Aucun bloc planifie pour cette journee.</div>`;
   }
   html += `<div class="p-bloc-add" style="gap:var(--space-2);display:flex;flex-wrap:wrap;justify-content:center">
-    <button class="zts-btn" data-action="add-bloc" data-context="journee" style="font-size:var(--fs-1)">+ Ajouter un bloc</button>
-    <button class="zts-action zts-action--camps" data-action="open-tiroir-jeux" style="font-size:var(--fs-1)">\u{1F3B2} Ajouter un jeu</button>
-    ${blocs.length?`<button class="zts-btn zts-btn--primary" data-action="start-live" style="font-size:var(--fs-1)">\u25B6 Planif en direct</button>`:''}
+    <button class="zts-action zts-action--neutre" data-action="add-bloc" data-context="journee" style="font-size:var(--fs-1)">+ Ajouter un bloc</button>
+    <button class="zts-action zts-action--metier" data-action="open-tiroir-jeux" style="font-size:var(--fs-1)">\u{1F3B2} Ajouter un jeu</button>
+    ${blocs.length?`<button class="zts-action zts-action--metier" data-action="start-live" style="font-size:var(--fs-1)">\u25B6 Planif en direct</button>`:''}
   </div>`;
 
   // ── Section Presences ──
@@ -849,7 +849,7 @@ function renderLive() {
 
   let html = `<div class="p-live">
     <div class="p-live-header">
-      <button class="zts-btn" data-action="stop-live" style="font-size:var(--fs-1)">\u2190 Quitter</button>
+      <button class="zts-action zts-action--neutre" data-action="stop-live" style="font-size:var(--fs-1)">\u2190 Quitter</button>
       <div class="p-live-title">Planif en direct</div>
       <div class="p-live-date">${dateLabel}</div>
       <div class="p-live-clock" id="live-clock">${now}</div>
@@ -1020,7 +1020,7 @@ function renderRoster() {
     return `<div class="p-empty"><div class="p-empty-icon">\u{1F466}</div>
       <div class="p-empty-text">Aucun enfant dans le groupe.</div></div>
       <div style="text-align:center;margin-top:var(--space-3)">
-        <button class="zts-btn zts-btn--primary" data-action="add-enfant">+ Ajouter un enfant</button>
+        <button class="zts-action zts-action--metier" data-action="add-enfant">+ Ajouter un enfant</button>
       </div>`;
   }
   return `<div class="p-enfants-grid">${state.enfants.map(e => `
@@ -1031,7 +1031,7 @@ function renderRoster() {
       <div class="p-enfant-sub">${(e.personnesAutorisees||[]).length} autorise(s)</div>
     </div>`).join('')}</div>
     <div style="text-align:center">
-      <button class="zts-btn zts-btn--primary" data-action="add-enfant">+ Ajouter un enfant</button>
+      <button class="zts-action zts-action--metier" data-action="add-enfant">+ Ajouter un enfant</button>
     </div>`;
 }
 
@@ -1046,7 +1046,7 @@ function renderGabarit() {
   let header = `<div class="p-gabarit-header">
     <div><span class="p-group-name">\u{1F4D0} Journee type</span>
       <span class="p-group-theme"> \u00B7 ${blocs.length} bloc(s)</span></div>
-    ${blocs.length ? `<button class="zts-btn zts-btn--primary" data-action="appliquer-gabarit">Appliquer au calendrier</button>` : ''}
+    ${blocs.length ? `<button class="zts-action zts-action--metier" data-action="appliquer-gabarit">Appliquer au calendrier</button>` : ''}
   </div>`;
 
   let content = '';
@@ -1056,7 +1056,7 @@ function renderGabarit() {
     content = `<div style="text-align:center;padding:var(--space-4);opacity:.5;font-family:var(--font-fun)">Cree une journee type pour pouvoir l'appliquer a ton calendrier.</div>`;
   }
 
-  return header + content + `<div class="p-bloc-add"><button class="zts-btn zts-btn--primary" data-action="add-bloc" data-context="gabarit">+ Ajouter un bloc</button></div>`;
+  return header + content + `<div class="p-bloc-add"><button class="zts-action zts-action--metier" data-action="add-bloc" data-context="gabarit">+ Ajouter un bloc</button></div>`;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1109,7 +1109,7 @@ function openPresencesModal() {
   const dLabel = state.currentDate===todayISO() ? "Aujourd'hui" : formatDateLong(state.currentDate);
   inner.innerHTML = `<button class="zts-modal__close" data-action="close-presences">✕</button>
     <h2 class="zts-modal__title">\u{1F4CB} Présences — ${dLabel}</h2>
-    <div style="text-align:center;margin-bottom:var(--space-2)"><button class="zts-btn" data-action="goto-programme-day" style="font-size:var(--fs-1)">\u{1F4C5} Voir le programme du jour</button></div>
+    <div style="text-align:center;margin-bottom:var(--space-2)"><button class="zts-action zts-action--neutre" data-action="goto-programme-day" style="font-size:var(--fs-1)">\u{1F4C5} Voir le programme du jour</button></div>
     ${renderPresencesSection()}`;
   openModal('modal-presences');
 }
@@ -1144,14 +1144,14 @@ function openEnfantModal(enfant) {
       <input class="p-input" id="enf-nom" value="${esc(enfant?.nom||'')}" placeholder="Nom" required></div>
     <div class="p-field"><label class="p-label">Personnes autorisees</label>
       <div id="autorises-list">${autorises.map((a,i)=>autoriseRowHTML(a,i)).join('')}</div>
-      <button class="zts-btn" data-action="add-autorise" style="font-size:var(--fs-1);margin-top:8px">+ Ajouter</button>
+      <button class="zts-action zts-action--neutre" data-action="add-autorise" style="font-size:var(--fs-1);margin-top:8px">+ Ajouter</button>
     </div>
     <div class="p-field"><label class="p-label">Particularités <span style="font-weight:400;opacity:.6">(l'animateur les voit sous le nom)</span></label>
       <div id="particularites-chips" class="p-partic-chips">${PARTICULARITES.map(p=>`<button type="button" class="p-partic-chip ${(enfant?.particularites||[]).includes(p.k)?'on':''}" data-action="toggle-partic" data-k="${p.k}">${p.emoji} ${esc(p.label)}</button>`).join('')}</div>
       <input class="p-input" id="enf-note-partic" value="${esc(enfant?.noteParticuliere||'')}" placeholder="Précision : allergie exacte, médication, déclencheur…" style="margin-top:10px"></div>
     <div class="p-modal-actions">
-      <button class="zts-btn zts-btn--primary" data-action="save-enfant" style="flex:1">Sauvegarder</button>
-      ${isEdit?`<button class="zts-btn" data-action="delete-enfant" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
+      <button class="zts-action zts-action--metier" data-action="save-enfant" style="flex:1">Sauvegarder</button>
+      ${isEdit?`<button class="zts-action zts-action--neutre" data-action="delete-enfant" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
     </div>`;
   const fi = document.getElementById('photo-file-input');
   inner.querySelector('[data-action="trigger-photo"]').addEventListener('click',()=>fi.click());
@@ -1241,7 +1241,7 @@ function openDepartModal(enfant,presence) {
     <label class="p-msgparent-toggle">
       <input type="checkbox" id="depart-msgparent" ${presence.messageParent?'checked':''}> \u{1F4E3} Message \u00E0 transmettre au parent <span style="opacity:.7;font-weight:400">(affiche un \u2757 sur la photo)</span>
     </label>
-    <button class="zts-btn zts-btn--primary" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">${isParti?'Enregistrer':'Confirmer le depart'}</button>`;
+    <button class="zts-action zts-action--metier" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">${isParti?'Enregistrer':'Confirmer le depart'}</button>`;
   const ci=document.getElementById('depart-custom');
   ci.addEventListener('input',()=>{_departCustom=ci.value.trim();_departSelectedPerson=null;document.querySelectorAll('#depart-persons .p-depart-person').forEach(b=>b.classList.remove('selected'));updateDepartWarning();});
   openModal('modal-depart');
@@ -1309,8 +1309,8 @@ function openBlocModal(bloc,context) {
       </div></div>
     <div id="bloc-extra-fields">${renderBlocExtraFields(sel,bloc)}</div>
     <div class="p-modal-actions">
-      <button class="zts-btn zts-btn--primary" data-action="save-bloc" style="flex:1">Sauvegarder</button>
-      ${isEdit?`<button class="zts-btn" data-action="delete-bloc-modal" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
+      <button class="zts-action zts-action--metier" data-action="save-bloc" style="flex:1">Sauvegarder</button>
+      ${isEdit?`<button class="zts-action zts-action--neutre" data-action="delete-bloc-modal" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
     </div>`;
   openModal('modal-bloc');
 }
@@ -1430,7 +1430,7 @@ function openAppliquerModal() {
       <div style="display:flex;gap:var(--space-2);align-items:end">
         <div class="p-field" style="flex:1;margin-bottom:0">
           <input class="p-input" type="date" id="apply-single-date" value="${state.currentDate}"></div>
-        <button class="zts-btn zts-btn--primary" data-action="apply-single">Appliquer</button>
+        <button class="zts-action zts-action--metier" data-action="apply-single">Appliquer</button>
       </div>
     </div>
     <hr style="border:none;border-top:2px dashed #ccc;margin:var(--space-4) 0">
@@ -1450,7 +1450,7 @@ function openAppliquerModal() {
           <option value="remplacer">Remplacer (ecraser)</option>
           <option value="fusionner">Fusionner (ajouter apres)</option>
         </select></div>
-      <button class="zts-btn zts-btn--primary" data-action="apply-batch" style="width:100%">Appliquer en lot</button>
+      <button class="zts-action zts-action--metier" data-action="apply-batch" style="width:100%">Appliquer en lot</button>
       <div id="apply-progress" style="display:none;margin-top:var(--space-3)">
         <div class="p-label">Progression...</div>
         <div id="apply-progress-text" class="p-enfant-sub"></div>
@@ -1890,7 +1890,7 @@ function renderEvaluation(){
     });
     html+=`</tbody></table></div>`;
   }
-  html+=`<div style="text-align:center;margin-top:var(--space-3)"><button class="zts-btn zts-btn--primary" data-action="eval-add-col">+ Ajouter un critère</button></div>`;
+  html+=`<div style="text-align:center;margin-top:var(--space-3)"><button class="zts-action zts-action--metier" data-action="eval-add-col">+ Ajouter un critère</button></div>`;
   return html;
 }
 
@@ -1917,7 +1917,7 @@ function openEvalColModal(){
     <div class="p-field"><label class="p-label">Critère</label><select class="p-select" id="eval-crit"></select></div>
     <div class="p-field"><label class="p-label">Type de cote</label><select class="p-select" id="eval-type">${typeOpts}</select></div>
     <div class="p-field" id="eval-total-field" style="display:none"><label class="p-label">Note sur… (total)</label><input class="p-input" id="eval-total" type="number" value="10" min="1" max="100"></div>
-    <button class="zts-btn zts-btn--primary" data-action="eval-save-col" style="width:100%;margin-top:var(--space-2)">Ajouter la colonne</button>`;
+    <button class="zts-action zts-action--metier" data-action="eval-save-col" style="width:100%;margin-top:var(--space-2)">Ajouter la colonne</button>`;
   const fillCrit=()=>{ const comp=PFEQ.find(c=>c.key===document.getElementById('eval-comp').value)||PFEQ[0]; document.getElementById('eval-crit').innerHTML=comp.items.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join(''); };
   fillCrit();
   document.getElementById('eval-comp').addEventListener('change',fillCrit);

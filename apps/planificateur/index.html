@@ -91,8 +91,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 
 /* Secondary nav */
 .p-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--space-4)}
-.p-nav-btn{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);padding:8px 14px;border:var(--bord);border-radius:var(--r-2);background:#fff;cursor:pointer;box-shadow:var(--ombre);transition:all .12s}
-.p-nav-btn:hover{transform:translateY(-2px);box-shadow:var(--ombre-xl)}
+.p-nav-btn{font-size:var(--fs-1);padding:8px 14px;background:#fff}   /* base visuelle = .zts-action */
 .p-nav-btn.active{background:var(--metier-1);color:var(--metier-ink)}
 
 /* Card */
@@ -122,7 +121,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 .p-pcard{display:flex;flex-direction:column;align-items:center;gap:6px;padding:var(--space-3) var(--space-2);border:4px solid #ccc;border-radius:var(--r-2);box-shadow:var(--ombre);cursor:pointer;transition:all .12s;text-align:center;background:#fff;position:relative;user-select:none;-webkit-user-select:none}
 .p-pcard:active{transform:scale(.95)}
 .p-pcard-tap{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;width:100%}
-.p-arrive{margin-top:6px;width:100%;font-family:var(--font-fun);font-weight:700;font-size:clamp(10px,1.2vw,12px);cursor:pointer;background:var(--cream);border:2px solid var(--ink);border-radius:var(--r-pill);box-shadow:2px 2px 0 var(--ink);padding:3px 6px}
+.p-arrive{margin-top:6px;width:100%;font-family:var(--font-fun);font-weight:700;font-size:clamp(10px,1.2vw,12px);cursor:pointer;background:var(--cream);border:2px solid var(--ink);border-radius:var(--r-1);box-shadow:2px 2px 0 var(--ink);padding:3px 6px}
 .p-arrive:hover{background:var(--jaune)}
 .p-pcard--attendu{opacity:.5;border-color:#bbb}
 .p-pcard--attendu .p-photo,.p-pcard--attendu .p-initials{filter:saturate(.2)}
@@ -131,7 +130,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 .p-pcard--parti .p-photo,.p-pcard--parti .p-initials{filter:grayscale(1)}
 .p-pcard--absent{border-color:var(--rose);opacity:.55}
 .p-pcard-time{font-family:var(--font-body);font-size:clamp(11px,1.4vw,13px);font-weight:700}
-.p-pcard-badge{position:absolute;top:-8px;right:-8px;font-family:var(--font-impact);font-size:clamp(10px,1.2vw,12px);padding:2px 8px;border:2px solid var(--ink);border-radius:var(--r-pill);box-shadow:2px 2px 0 var(--ink)}
+.p-pcard-badge{position:absolute;top:-8px;right:-8px;font-family:var(--font-impact);font-size:clamp(10px,1.2vw,12px);padding:2px 8px;border:2px solid var(--ink);border-radius:var(--r-1);box-shadow:2px 2px 0 var(--ink)}
 .p-badge-present{background:var(--vert)}
 .p-badge-absent{background:var(--rose);color:#fff}
 .p-badge-parti{background:#ddd}
@@ -145,7 +144,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 
 /* Summary */
 .p-summary{display:flex;gap:var(--space-2);flex-wrap:wrap;justify-content:center;margin-bottom:var(--space-3)}
-.p-summary-item{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);padding:4px 12px;border:var(--bord);border-radius:var(--r-pill);box-shadow:2px 2px 0 var(--ink);background:#fff}
+.p-summary-item{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);padding:4px 12px;border:var(--bord);border-radius:var(--r-1);box-shadow:2px 2px 0 var(--ink);background:#fff}
 
 /* Depart persons */
 .p-depart-persons{display:flex;flex-wrap:wrap;gap:10px;margin:var(--space-3) 0}
@@ -159,7 +158,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 
 /* Particularités chips (modal enfant) */
 .p-partic-chips{display:flex;flex-wrap:wrap;gap:8px}
-.p-partic-chip{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);padding:6px 12px;border:2px solid var(--ink);border-radius:var(--r-pill);background:#fff;cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:all .12s;user-select:none}
+.p-partic-chip{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);padding:6px 12px;border:2px solid var(--ink);border-radius:var(--r-1);background:#fff;cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:all .12s;user-select:none}
 .p-partic-chip:hover{transform:translateY(-1px)}
 .p-partic-chip.on{background:var(--cyan);color:var(--ink)}
 
@@ -175,9 +174,9 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 
 /* Messagerie coordo ↔ animateur */
 .p-msg-bell.has-unread{animation:p-msgpulse 1s ease-in-out infinite}
-.p-msg-badge{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 4px;display:flex;align-items:center;justify-content:center;font-family:var(--font-impact);font-size:11px;background:var(--rose);color:#fff;border:2px solid var(--ink);border-radius:var(--r-pill);box-shadow:1px 1px 0 var(--ink)}
-.p-msg-dot{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;margin-left:6px;font-family:var(--font-impact);font-size:11px;background:var(--rose);color:#fff;border:2px solid var(--ink);border-radius:var(--r-pill);vertical-align:middle}
-.p-msg-mini-btn{flex-shrink:0;display:inline-flex;align-items:center;font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);padding:4px 10px;border:2px solid var(--ink);border-radius:var(--r-pill);background:var(--cream);cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:all .12s}
+.p-msg-badge{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 4px;display:flex;align-items:center;justify-content:center;font-family:var(--font-impact);font-size:11px;background:var(--rose);color:#fff;border:2px solid var(--ink);border-radius:var(--r-1);box-shadow:1px 1px 0 var(--ink)}
+.p-msg-dot{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;margin-left:6px;font-family:var(--font-impact);font-size:11px;background:var(--rose);color:#fff;border:2px solid var(--ink);border-radius:var(--r-1);vertical-align:middle}
+.p-msg-mini-btn{flex-shrink:0;display:inline-flex;align-items:center;font-family:var(--font-fun);font-weight:700;font-size:var(--fs-1);padding:4px 10px;border:2px solid var(--ink);border-radius:var(--r-1);background:var(--cream);cursor:pointer;box-shadow:2px 2px 0 var(--ink);transition:all .12s}
 .p-msg-mini-btn:hover{background:var(--cyan);transform:translateY(-1px)}
 .p-msg-thread-list{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto}
 .p-msg-thread-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:2px solid var(--ink);border-radius:var(--r-2);background:#fff;cursor:pointer;box-shadow:2px 2px 0 var(--ink);font-family:var(--font-body);text-align:left;transition:all .12s}
@@ -214,7 +213,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 .p-history-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3);border:var(--bord);border-radius:var(--r-2);box-shadow:var(--ombre);background:#fff;margin-bottom:var(--space-3)}
 .p-history-date{font-family:var(--font-impact);font-size:var(--fs-2);min-width:90px;flex-shrink:0}
 .p-history-detail{font-family:var(--font-body);font-size:var(--fs-1);flex:1}
-.p-history-flag{display:inline-block;padding:2px 8px;border-radius:var(--r-pill);font-family:var(--font-impact);font-size:clamp(10px,1.2vw,12px);background:var(--rose);color:#fff;border:2px solid var(--ink)}
+.p-history-flag{display:inline-block;padding:2px 8px;border-radius:var(--r-1);font-family:var(--font-impact);font-size:clamp(10px,1.2vw,12px);background:var(--rose);color:#fff;border:2px solid var(--ink)}
 
 /* Photo upload */
 .p-photo-upload{display:flex;flex-direction:column;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3)}
@@ -268,7 +267,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 .p-day-title{font-family:var(--font-fun);font-size:clamp(1.4rem,4.5vw,2.4rem);cursor:pointer;transition:color .15s}
 .p-day-title:hover{color:var(--metier-1)}
 .p-bloc-attachments{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.p-bloc-attach{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:var(--cream);border:2px solid var(--ink);border-radius:var(--r-pill);font-family:var(--font-fun);font-size:var(--fs-1);font-weight:700;cursor:pointer;text-decoration:none;color:var(--ink);transition:all .12s}
+.p-bloc-attach{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:var(--cream);border:2px solid var(--ink);border-radius:var(--r-1);font-family:var(--font-fun);font-size:var(--fs-1);font-weight:700;cursor:pointer;text-decoration:none;color:var(--ink);transition:all .12s}
 .p-bloc-attach:hover{background:var(--metier-1);color:var(--metier-ink);transform:translateY(-1px)}
 .p-attach-preview{max-width:100%;max-height:200px;border-radius:var(--r-2);border:var(--bord);margin-top:8px}
 .p-day-nav{display:flex;gap:6px}
@@ -281,7 +280,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 .p-bloc-color{width:8px;flex-shrink:0}
 .p-bloc-body{flex:1;padding:12px 14px;min-width:0}
 .p-bloc-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.p-bloc-type{font-family:var(--font-impact);font-size:var(--fs-1);padding:2px 10px;border:2px solid var(--ink);border-radius:var(--r-pill);color:#fff;white-space:nowrap}
+.p-bloc-type{font-family:var(--font-impact);font-size:var(--fs-1);padding:2px 10px;border:2px solid var(--ink);border-radius:var(--r-1);color:#fff;white-space:nowrap}
 .p-bloc-titre{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-2)}
 .p-bloc-times{font-family:var(--font-body);font-size:var(--fs-1);opacity:.6;margin-top:4px}
 .p-bloc-detail{font-family:var(--font-body);font-size:var(--fs-1);opacity:.7;margin-top:2px}
@@ -334,8 +333,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
 
 /* ═══ CALENDRIER UNIFIE — toggle Jour/Semaine/Mois + vue Semaine (scope .zts-vue-*) ═══ */
 .zts-vue-toggle{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:var(--space-4)}
-.zts-vue-tab{font-family:var(--font-fun);font-weight:700;font-size:var(--fs-2);padding:8px 18px;border:var(--bord);border-radius:var(--r-pill);background:#fff;cursor:pointer;box-shadow:var(--ombre);transition:all .12s}
-.zts-vue-tab:hover{transform:translateY(-2px);box-shadow:var(--ombre-xl)}
+.zts-vue-tab{font-size:var(--fs-2);padding:8px 18px;background:#fff}   /* base visuelle = .zts-action */
 .zts-vue-tab--active{background:var(--metier-1);color:var(--metier-ink)}
 .zts-vue-week-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(4px,1vw,10px);margin-bottom:var(--space-4);align-items:start}
 .zts-vue-week-col{display:flex;flex-direction:column;gap:6px;background:var(--cream);border:var(--bord);border-radius:var(--r-2);padding:6px;box-shadow:var(--ombre);min-height:120px}
@@ -383,7 +381,7 @@ body[data-metier="sdg"]  .p-perso::after{content:'Bienvenue dans la section serv
   .p-msg-thread-list{max-height:62dvh}
   .p-msg-bubble{max-width:90%}
   .p-msg-compose{flex-direction:column;align-items:stretch}
-  .p-msg-compose .zts-btn{width:100%}
+  .p-msg-compose .zts-action{width:100%}
 
   /* Journal de bord : 3 humeurs adaptables sans débordement */
   .p-humeur-btn{min-width:0;flex:1 1 28%}
