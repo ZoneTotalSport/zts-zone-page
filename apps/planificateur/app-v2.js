@@ -105,7 +105,7 @@ const V2 = (() => {
     switch (state.view) {
       case 'mois':        return renderMois();
       case 'journee':     return renderJourV2();
-      case 'semaine':     return `<div class="p-card" id="semaine-grid-root"></div>`;   // composant v1 monté en post()
+      case 'semaine':     return `<div class="p-card" id="sem-grid-root"></div>`;       // composant v1 monté en post() (id attendu par mountSemaineGrid)
       case 'evaluation':  return renderEvalV2();                                         // carnet iDoceo (moteur v1)
       case 'roster':      return renderRoster();                                         // vue v1
       case 'gabarit':     return renderGabarit();                                        // vue v1
