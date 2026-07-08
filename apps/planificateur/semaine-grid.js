@@ -78,7 +78,7 @@ const CSS = `
 .sem-root .rail__lbl{font-family:'Luckiest Guy','Bangers',cursive;font-size:clamp(1rem,1.6vw,1.4rem);color:var(--cyan);-webkit-text-stroke:.4px var(--ink);text-shadow:2px 2px 0 var(--ink);border:none;text-align:center;width:100%;background:transparent}
 .sem-root .rail.alt .rail__lbl{color:var(--jaune-d)}
 .sem-root .rail__hrs{display:flex;align-items:center;gap:3px;font-family:'Fredoka';font-weight:700;font-size:1rem;color:#555}
-.sem-root .rail__hrs input{width:56px;text-align:center;border:2px dashed #bbb;border-radius:8px;font-family:'Fredoka';font-weight:700;font-size:1rem;padding:4px}
+.sem-root .rail__hrs input{width:48px;text-align:center;border:2px dashed #bbb;border-radius:8px;font-family:'Fredoka';font-weight:700;font-size:1rem;padding:4px}
 .sem-root .rail__ctrl{display:flex;gap:3px;margin-top:3px}
 .sem-root .rail__ctrl button{cursor:pointer;width:26px;height:26px;border:2px solid var(--ink);border-radius:8px;background:#fff;box-shadow:1px 1px 0 var(--ink);font-size:.8rem;display:flex;align-items:center;justify-content:center;padding:0}
 .sem-root .rail__ctrl button:hover{background:var(--jaune)}.sem-root .rail__ctrl .del:hover{background:var(--rose);color:#fff}
@@ -335,7 +335,7 @@ function mount(root, opts){
   function railCtrl(ln){ return `<div class="rail__ctrl"><button data-up="${ln.id}">↑</button><button data-down="${ln.id}">↓</button><button data-tog="${ln.id}" title="${t('togglePB')}">⇄</button><button class="del" data-del="${ln.id}">🗑️</button></div>`; }
   function render(){
     const days=dayNames().slice(0,nbJours);
-    gridEl.style.gridTemplateColumns=`minmax(92px,120px) repeat(${days.length}, minmax(0,1fr))`;
+    gridEl.style.gridTemplateColumns=`minmax(124px,152px) repeat(${days.length}, minmax(0,1fr))`;
     gridEl.style.minWidth='0'; // la grille remplit toujours la zone → aucun défilement interne
     let html='<div></div>';
     days.forEach((j,di)=>{ html+=`<div class="day-hd j${di}"><div class="day-hd__name">${j} <input type="checkbox" data-off="${di}" ${data['off_'+di]?'checked':''}></div><input class="day-hd__date" data-date="${di}" value="${esc(data['date_'+di]||dayDate(di))}"></div>`; });
