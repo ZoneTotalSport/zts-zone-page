@@ -426,6 +426,14 @@ function wire() {
   $('m-cancel').addEventListener('click', () => $('pf-modal').classList.remove('open'));
   $('pf-modal').addEventListener('click', (e) => { if (e.target === $('pf-modal')) $('pf-modal').classList.remove('open'); });
 
+  // popup explicatif ❓ (boutons hero + flottant; fermer = ✕, bouton, backdrop, Échap)
+  document.querySelectorAll('[data-help-open]').forEach(b => b.addEventListener('click', () => $('pf-help').classList.add('open')));
+  document.querySelectorAll('[data-help-close]').forEach(b => b.addEventListener('click', () => $('pf-help').classList.remove('open')));
+  $('pf-help').addEventListener('click', (e) => { if (e.target === $('pf-help')) $('pf-help').classList.remove('open'); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { $('pf-help').classList.remove('open'); $('pf-modal').classList.remove('open'); }
+  });
+
   waitForFirebase().then(() => {
     firebase.auth().onAuthStateChanged(async (user) => {
       S.user = user;

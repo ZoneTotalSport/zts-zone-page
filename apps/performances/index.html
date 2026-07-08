@@ -61,8 +61,9 @@
       padding:28px; margin-top:44px; }
     .pf-card h2{ font-family:'Luckiest Guy',cursive; color:var(--pf-ink); font-size:clamp(22px,3.4vw,32px);
       margin:0 0 14px; letter-spacing:.5px; }
-    .pf-card h3{ font-family:'Luckiest Guy',cursive; color:var(--pf-ink); font-size:19px; margin:22px 0 8px; }
-    .pf-card, .pf-card p, .pf-card li, .pf-card label{ font-family:'DynaPuff',cursive; color:#1e3a4a; }
+    .pf-card h3, .pf-doc h3{ font-family:'Luckiest Guy',cursive; color:var(--pf-ink); font-size:19px; margin:22px 0 8px; }
+    .pf-card, .pf-card p, .pf-card li, .pf-card label,
+    .pf-doc, .pf-doc p, .pf-doc li{ font-family:'DynaPuff',cursive; color:#1e3a4a; }
 
     /* Boutons push */
     .pf-btn{ font-family:'Luckiest Guy',cursive; font-size:18px; letter-spacing:1px; cursor:pointer;
@@ -157,6 +158,16 @@
     .pf-modal.open{ display:flex; }
     .pf-modal .box{ background:#fff; border:var(--pf-bord); border-radius:2rem; box-shadow:12px 12px 0 0 rgba(0,74,97,1);
       max-width:640px; width:100%; padding:24px; }
+    .pf-modal .box.wide{ max-width:780px; position:relative; padding:28px; }
+    .pf-help-x{ position:absolute; top:14px; right:16px; font-family:'Luckiest Guy',cursive; font-size:18px;
+      color:var(--pf-ink); background:var(--pf-jaune); border:3px solid var(--pf-ink); border-radius:14px;
+      padding:6px 12px; cursor:pointer; box-shadow:var(--pf-ombre-sm); transition:all .12s; }
+    .pf-help-x:hover{ transform:scale(1.08) rotate(3deg); }
+    .pf-helpbtn{ position:fixed; bottom:18px; right:18px; z-index:390; font-size:26px; line-height:1;
+      background:var(--pf-jaune); border:4px solid var(--pf-ink); border-radius:50%; width:64px; height:64px;
+      cursor:pointer; box-shadow:var(--pf-ombre-sm); transition:all .15s; animation:pf-float 3s ease-in-out infinite; }
+    .pf-helpbtn:hover{ transform:scale(1.12) rotate(6deg); animation:none; }
+    .pf-helpbtn:active{ transform:translate(4px,4px); box-shadow:0 0 0 0 rgba(0,74,97,0); }
     .pf-toast{ position:fixed; left:50%; bottom:26px; transform:translateX(-50%); z-index:500;
       background:var(--pf-ink); color:#fff; font-family:'DynaPuff',cursive; font-weight:700;
       padding:12px 22px; border-radius:1.2rem; border:3px solid #fff; box-shadow:var(--pf-ombre-sm);
@@ -180,6 +191,7 @@
     <h1>PERFORMANCES <span class="pf-float">🎥</span> ÉLÈVES</h1>
     <p>Filme la performance, elle se range <b>toute seule dans ton cloud</b> — classée par
       <b>classe</b>, <b>date</b>, <b>année</b> et <b>critère PFEQ</b>. Tout est éditable, rien ne se perd.</p>
+    <button class="pf-btn" data-help-open style="margin-top:20px">❓ COMMENT ÇA MARCHE</button>
   </header>
 
   <main class="pf-wrap">
@@ -265,9 +277,13 @@
       <div id="pf-liste"><div class="pf-empty">Connecte-toi pour voir tes fiches.</div></div>
     </section>
 
-    <!-- SECTION EXPLICATIVE DÉTAILLÉE -->
-    <section class="pf-card pf-doc" id="pf-comment">
-      <h2>💡 Comment fonctionne cet outil</h2>
+  </main>
+
+  <!-- POPUP EXPLICATIF (bouton ❓ — la page reste courte, l'aide est à un tap) -->
+  <div class="pf-modal" id="pf-help">
+    <div class="box wide pf-doc">
+      <button class="pf-help-x" data-help-close title="Fermer">✕</button>
+      <h2 style="font-family:'Luckiest Guy',cursive; color:var(--pf-ink); font-size:clamp(22px,3.4vw,30px); margin:0 0 14px">💡 Comment fonctionne cet outil</h2>
 
       <p style="font-size:17px">Cet outil transforme ta tablette ou ton iPhone en
         <b>assistant d'observation</b> : tu filmes une performance au gymnase, et en 20 secondes elle est
@@ -336,9 +352,14 @@
         <p>Le <a href="/apps/evaluation/">Carnet ÉPS</a> sert à coter tout un groupe critère par critère.
         Ici, on documente <b>une performance précise d'un élève</b> avec une preuve vidéo — parfait pour les
         bulletins, les rencontres de parents et le suivi des progrès.</p></details>
-    </section>
+      <div style="text-align:center; margin-top:22px">
+        <button class="pf-btn lime" data-help-close>✅ C'EST CLAIR, GO!</button>
+      </div>
+    </div>
+  </div>
 
-  </main>
+  <!-- Bouton d'aide flottant : l'explication est toujours à un tap -->
+  <button class="pf-helpbtn" data-help-open title="Comment ça marche?">❓</button>
 
   <!-- Modal édition -->
   <div class="pf-modal" id="pf-modal">
