@@ -109,22 +109,19 @@ const since = new Date(Date.now() - DAYS * 864e5);
   console.log(`Fingerprints anonymes — total : ${total} · actifs ${DAYS}j : ${recent}`);
   console.log(`Générations anonymes cumulées : ${sumGen}`);
 
-  // ---- TÂCHE 2 : Firebase Auth ----
-  let users = 0, last = null;
+  // ---- TÂCHE 2 : Firebase Auth (une seule passe paginée) ----
+  let users = 0, last = null, n30 = 0;
   let page = await admin.auth().listUsers(1000);
   const scan = u => {
     users++;
     const t = u.metadata.creationTime ? new Date(u.metadata.creationTime) : null;
-    if (t && (!last || t > last)) last = t;
+    if (t) {
+      if (!last || t > last) last = t;   // dernier compte créé
+      if (t >= since) n30++;             // comptes < 30 j
+    }
   };
   page.users.forEach(scan);
   while (page.pageToken) { page = await admin.auth().listUsers(1000, page.pageToken); page.users.forEach(scan); }
-  const newLast30 = []; // recompte rapide des comptes < 30 j
-  let n30 = 0;
-  let p2 = await admin.auth().listUsers(1000);
-  const scan30 = u => { const t = u.metadata.creationTime && new Date(u.metadata.creationTime); if (t && t >= since) n30++; };
-  p2.users.forEach(scan30);
-  while (p2.pageToken) { p2 = await admin.auth().listUsers(1000, p2.pageToken); p2.users.forEach(scan30); }
 
   console.log(`\n=== FIREBASE AUTH ===`);
   console.log(`Utilisateurs total : ${users}`);
