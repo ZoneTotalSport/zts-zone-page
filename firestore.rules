@@ -209,6 +209,16 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // performances — app /apps/performances/ (fiches d'observation
+    // video PFEQ). Owner-only : chaque enseignant ne voit que les
+    // siennes. Les videos ne passent JAMAIS ici (Drive de l'usager).
+    // ─────────────────────────────────────────────────────────
+    match /performances/{id} {
+      allow read, update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // ─────────────────────────────────────────────────────────
     // budget — app privee familiale. Deux types d'espaces :
     //  • COMMUN  (budget/root-famille) : partage entre les membres. Self-join
     //    controle (un 2e membre peut s'ajouter lui-meme, plafond 2 personnes).
