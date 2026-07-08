@@ -473,8 +473,18 @@ body.pv2[data-metier="camp"] .pv2-act.prim{color:#fff}
 .pv2-fait{justify-content:center;font-size:21px;cursor:pointer;font-family:var(--font-bang);user-select:none}
 .pv2-fait:hover{background:#f3fff3}
 .pv2-fait.ok{background:#B6F5C3}
-.pv2-hole{border:3px dashed var(--ink);border-radius:13px;text-align:center;padding:12px;font-weight:700;color:#777;background:#fffaf2;margin-bottom:9px;cursor:pointer;font-family:var(--font-fun)}
+.pv2-hole{border:3px dashed var(--ink);border-radius:13px;text-align:center;padding:12px;font-weight:700;color:#777;background:#fffaf2;margin-bottom:9px;cursor:pointer;font-family:var(--font-fun);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
 .pv2-hole:hover{background:#fff3e2}
+/* outils de rangée : minuterie + copier */
+.pv2-rowtools{display:inline-flex;gap:4px;margin-left:auto;flex-shrink:0}
+.pv2-tool{border:2px solid var(--ink);border-radius:8px;background:#fff;box-shadow:2px 2px 0 var(--ink);cursor:pointer;font-size:13px;padding:3px 7px;opacity:.5;transition:all .1s}
+.pv2-drow:hover .pv2-tool,body.pv2.tbi .pv2-tool{opacity:1}
+.pv2-tool:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.pv2-tool.on{background:var(--m2);opacity:1}
+.pv2-countdown{font-family:var(--font-bang);font-size:19px;letter-spacing:1px}
+.pv2-timing{background:var(--m2)!important;animation:pv2-pulse 1s ease-in-out infinite}
+@keyframes pv2-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+body.pv2.tbi .pv2-tool{font-size:17px;padding:8px 12px;min-height:48px}
 /* tuiles tiroirs */
 .pv2-dock{width:100%;background:#fff;padding:14px 16px;margin-top:14px;border-radius:16px;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
 .pv2-dock h6{font-family:var(--font-bang);font-size:16px;letter-spacing:1.5px;margin:0 0 10px}

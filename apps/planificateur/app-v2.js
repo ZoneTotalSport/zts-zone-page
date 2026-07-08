@@ -30,6 +30,8 @@ const V2 = (() => {
     annees: [],             // années connues
     editGroupe: null,       // id du groupe en renommage inline
     resume: null,           // données du résumé de date (cache dernier clic)
+    timer: null,            // minuterie de bloc {blocId, end, int}
+    clip: null,             // bloc copié {titre, ref, notes} — collable dans les trous
   };
 
   function metier() { return document.body.dataset.metier || state.hubMetier || 'camp'; }
@@ -234,30 +236,44 @@ const V2 = (() => {
       <div class="pv2-dcell">PÉRIODE</div><div class="pv2-dcell">GROUPE</div>
       <div class="pv2-dcell">DÉROULEMENT</div><div class="pv2-dcell">FAIT ✓</div></div>`;
 
-    // rangées blocs + trous intercalés par heure (trous → tiroir Jeux)
+    // rangées blocs + trous intercalés par heure (trous → tiroir Jeux OU coller)
     const rows = blocs.map((b, i) => {
       const t = BLOC_TYPES[b.type] || BLOC_TYPES.activite;
-      const heures = (b.debut || b.fin) ? `${b.debut || '?'}<br>${b.fin || '?'}` : (b.plage === 'matin' ? 'AM' : b.plage === 'soir' ? 'PM' : '—');
+      const timerOn = S.timer && S.timer.blocId === b.id;
+      const heures = timerOn
+        ? `<span class="pv2-countdown" data-v2-countdown>${fmtMMSS(S.timer.end - Date.now())}</span>`
+        : ((b.debut || b.fin) ? `${b.debut || '?'}<br>${b.fin || '?'}` : (b.plage === 'matin' ? 'AM' : b.plage === 'soir' ? 'PM' : '—'));
       return { tMin: hmToMin(b.debut), html: `<div class="pv2-drow" data-bloc-id="${b.id}">
-        <div class="pv2-dcell pv2-time">${heures}</div>
+        <div class="pv2-dcell pv2-time ${timerOn ? 'pv2-timing' : ''}">${heures}</div>
         <div class="pv2-dcell"><span class="pv2-tag">${esc(gnom)}</span></div>
         <div class="pv2-dcell pv2-derou">
           <span class="pv2-btag" style="background:${t.color}">${t.icon}</span>
           <span class="pv2-ed" contenteditable data-v2-edit-bloc="${b.id}">${esc(b.titre || '')}</span>
           ${b.type === 'garde' ? `<button class="zts-action pv2-act sm" data-action="open-presences-modal">📋 Présences</button>` : ''}
+          <span class="pv2-rowtools">
+            <button class="pv2-tool ${timerOn ? 'on' : ''}" data-action="v2-timer" data-bloc-id="${b.id}" title="${timerOn ? 'Arrêter la minuterie' : 'Minuterie de ce bloc'}">⏱</button>
+            <button class="pv2-tool" data-action="v2-copy" data-bloc-id="${b.id}" title="Copier ce bloc (coller dans un trou)">📄</button>
+          </span>
         </div>
         <div class="pv2-dcell pv2-fait ${b.done ? 'ok' : ''}" data-action="v2-tog-fait" data-bloc-id="${b.id}">${b.done ? '✓' : ''}</div>
       </div>` };
     });
     const trous = (typeof PlanifData !== 'undefined') ? PlanifData.trousJournee(blocs) : [];
     for (const t of trous) {
-      const row = { tMin: hmToMin(t.debut), html: `<div class="pv2-hole" data-action="tiroir-trou" data-debut="${t.debut}" data-fin="${t.fin}">＋ ${t.debut.replace(':', ' h ')} → ${t.fin.replace(':', ' h ')} — libre · toucher pour ouvrir le tiroir Jeux 🎲</div>` };
+      const lbl = `${t.debut.replace(':', ' h ')} → ${t.fin.replace(':', ' h ')}`;
+      const inner = S.clip
+        ? `＋ ${lbl} — libre&nbsp;
+           <button class="zts-action pv2-act sm prim" data-action="v2-paste" data-debut="${t.debut}" data-fin="${t.fin}">📋 Coller « ${esc(S.clip.titre.slice(0, 24))} »</button>
+           <button class="zts-action pv2-act sm" data-action="tiroir-trou" data-debut="${t.debut}" data-fin="${t.fin}">🎲 Tiroir</button>`
+        : `＋ ${lbl} — libre · toucher pour ouvrir le tiroir Jeux 🎲`;
+      const row = { tMin: hmToMin(t.debut), html: `<div class="pv2-hole" ${S.clip ? '' : `data-action="tiroir-trou" data-debut="${t.debut}" data-fin="${t.fin}"`}>${inner}</div>` };
       const idx = rows.findIndex(c => c.tMin != null && row.tMin != null && c.tMin >= hmToMin(t.fin));
       if (idx === -1) rows.push(row); else rows.splice(idx, 0, row);
     }
     h += rows.map(r => r.html).join('') || `<div class="pv2-empty">Aucun bloc — clique un trou ou le tiroir JEUX 🎲</div>`;
     h += `<div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
       <button class="zts-action pv2-act sm" data-action="add-bloc" data-context="journee">+ Ajouter un bloc</button>
+      ${S.clip ? `<button class="zts-action pv2-act sm" data-action="v2-clip-cancel">✕ Terminer le collage (« ${esc(S.clip.titre.slice(0, 18))} »)</button>` : ''}
     </div>`;
 
     // ── Tuiles tiroirs (sous la journée SEULEMENT) ──
@@ -270,6 +286,77 @@ const V2 = (() => {
       <div class="pv2-mod" data-action="v2-stub" data-msg="＋ Prochains tiroirs, même gabarit (image de fond supportée)" style="background-image:repeating-linear-gradient(45deg,#f3f3f3 0 10px,#e6e6e6 10px 20px);"><div class="mico" style="color:#999">＋</div><div class="mlabel" style="color:#999">BIENTÔT</div></div>
     </div></div>`;
     return h;
+  }
+
+  // ── Minuterie par bloc (⏱) + copier/coller de période (📄→📋) ──
+  function fmtMMSS(ms) {
+    const s = Math.max(0, Math.round(ms / 1000));
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  function stopTimer(silencieux) {
+    if (S.timer) { clearInterval(S.timer.int); S.timer = null; }
+    if (!silencieux) render0();
+  }
+
+  function startTimer(blocId) {
+    if (S.timer && S.timer.blocId === blocId) { stopTimer(); toast('⏱ Minuterie arrêtée.'); return; }
+    stopTimer(true);
+    const b = state.journeeBlocs.find(x => x.id === blocId); if (!b) return;
+    let mins = null;
+    const d = hmToMin(b.debut), f = hmToMin(b.fin);
+    if (d != null && f != null && f > d) mins = f - d;
+    if (mins == null) {
+      const r = prompt('Minuterie (minutes) :', '10'); if (r === null) return;
+      mins = Math.max(1, Math.min(180, parseInt(r) || 10));
+    }
+    S.timer = { blocId, end: Date.now() + mins * 60000, int: null };
+    S.timer.int = setInterval(() => {
+      const left = S.timer.end - Date.now();
+      const el = document.querySelector('[data-v2-countdown]');
+      if (el) el.textContent = fmtMMSS(left);
+      if (left <= 0) {
+        stopTimer(true);
+        try { playDoneSound(); } catch (e) {}
+        toast('⏱ Temps écoulé — « ' + esc(b.titre || 'bloc') + ' »!');
+        const node = document.querySelector(`[data-bloc-id="${blocId}"]`);
+        if (node) { node.classList.add('p-bloc--flash'); node.addEventListener('animationend', () => node.classList.remove('p-bloc--flash'), { once: true }); }
+        render0();
+      }
+    }, 500);
+    render0();
+    toast('⏱ ' + mins + ' min — go!');
+  }
+
+  function copyBloc(blocId) {
+    const b = state.journeeBlocs.find(x => x.id === blocId); if (!b) return;
+    const d = hmToMin(b.debut), f = hmToMin(b.fin);
+    S.clip = { titre: b.titre || '', ref: b.ref || '', notes: b.notes || '',
+      duree: (d != null && f != null && f > d) ? (f - d) : 45 };   // durée d'origine (45 min par défaut)
+    render0();
+    toast('📄 « ' + (b.titre || 'bloc') + ' » copié — touche un trou pour le coller (autant de fois que tu veux).');
+  }
+
+  async function pasteClip(creneau) {
+    if (!S.clip) return;
+    // le collage garde la DURÉE du bloc copié, plafonnée à la taille du trou
+    const d = hmToMin(creneau.debut), f = hmToMin(creneau.fin);
+    if (d != null && f != null) {
+      const fin = Math.min(d + (S.clip.duree || 45), f);
+      creneau = { debut: creneau.debut, fin: String(Math.floor(fin / 60)).padStart(2, '0') + ':' + String(fin % 60).padStart(2, '0') };
+    }
+    const idInsere = await PlanifData.insererJeu({ titre: S.clip.titre, ref: S.clip.ref }, creneau);
+    if (S.clip.notes) {
+      const blocs = state.journeeBlocs.map(b => b.id === idInsere ? { ...b, notes: S.clip.notes } : b);
+      await Journees.update(state.journeeId, { blocs });
+      state.journeeBlocs = blocs;
+    }
+    render0();
+    requestAnimationFrame(() => {
+      const node = document.querySelector(`[data-bloc-id="${idInsere}"]`);
+      if (node) { node.classList.add('p-bloc--flash'); node.addEventListener('animationend', () => node.classList.remove('p-bloc--flash'), { once: true }); }
+    });
+    toast('📋 Collé à ' + creneau.debut.replace(':', ' h ') + ' — encore un trou? Re-colle!');
   }
 
   async function togFait(blocId) {
@@ -534,6 +621,10 @@ const V2 = (() => {
         render0(); return;
       case 'v2-export-json': exportJSON(); return;
       case 'v2-ev-add-eleve': evAddEleve(); return;
+      case 'v2-timer': startTimer(ds.blocId); return;
+      case 'v2-copy': copyBloc(ds.blocId); return;
+      case 'v2-paste': pasteClip({ debut: ds.debut, fin: ds.fin }); return;
+      case 'v2-clip-cancel': S.clip = null; render0(); toast('Collage terminé.'); return;
       case 'v2-ev-groupe':
         if (state.groupeId !== ds.gid) {
           const keep = state.view;
