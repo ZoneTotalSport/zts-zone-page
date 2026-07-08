@@ -31,7 +31,7 @@ const V2 = (() => {
     editGroupe: null,       // id du groupe en renommage inline
     resume: null,           // données du résumé de date (cache dernier clic)
     timer: null,            // minuterie de bloc {blocId, end, int}
-    clip: null,             // bloc copié {titre, ref, notes} — collable dans les trous
+    clip: null,             // case copiée {titre, ref, notes, type, attachments…} — collable trous + cases
   };
 
   function metier() { return document.body.dataset.metier || state.hubMetier || 'camp'; }
@@ -246,14 +246,16 @@ const V2 = (() => {
       return { tMin: hmToMin(b.debut), html: `<div class="pv2-drow" data-bloc-id="${b.id}">
         <div class="pv2-dcell pv2-time ${timerOn ? 'pv2-timing' : ''}">${heures}</div>
         <div class="pv2-dcell"><span class="pv2-tag">${esc(gnom)}</span></div>
-        <div class="pv2-dcell pv2-derou">
+        <div class="pv2-dcell pv2-derou" data-drop-bloc="${b.id}">
           <span class="pv2-btag" style="background:${t.color}">${t.icon}</span>
-          <span class="pv2-ed" contenteditable data-v2-edit-bloc="${b.id}">${esc(b.titre || '')}</span>
+          <div class="pv2-ed" contenteditable data-v2-edit-bloc="${b.id}">${esc(b.titre || '')}</div>
           ${b.type === 'garde' ? `<button class="zts-action pv2-act sm" data-action="open-presences-modal">📋 Présences</button>` : ''}
           <span class="pv2-rowtools">
             <button class="pv2-tool ${timerOn ? 'on' : ''}" data-action="v2-timer" data-bloc-id="${b.id}" title="${timerOn ? 'Arrêter la minuterie' : 'Minuterie de ce bloc'}">⏱</button>
-            <button class="pv2-tool" data-action="v2-copy" data-bloc-id="${b.id}" title="Copier ce bloc (coller dans un trou)">📄</button>
+            <button class="pv2-tool" data-action="v2-copy" data-bloc-id="${b.id}" title="Copier toute la case (texte + médias) — coller dans un trou ou une autre case">📄</button>
+            ${S.clip ? `<button class="pv2-tool" data-action="v2-paste-into" data-bloc-id="${b.id}" title="Coller ici « ${esc(clipTitre())} » (remplace le contenu de la case)">📋</button>` : ''}
           </span>
+          ${mediaChips(b)}
         </div>
         <div class="pv2-dcell pv2-fait ${b.done ? 'ok' : ''}" data-action="v2-tog-fait" data-bloc-id="${b.id}">${b.done ? '✓' : ''}</div>
       </div>` };
@@ -263,7 +265,7 @@ const V2 = (() => {
       const lbl = `${t.debut.replace(':', ' h ')} → ${t.fin.replace(':', ' h ')}`;
       const inner = S.clip
         ? `＋ ${lbl} — libre&nbsp;
-           <button class="zts-action pv2-act sm prim" data-action="v2-paste" data-debut="${t.debut}" data-fin="${t.fin}">📋 Coller « ${esc(S.clip.titre.slice(0, 24))} »</button>
+           <button class="zts-action pv2-act sm prim" data-action="v2-paste" data-debut="${t.debut}" data-fin="${t.fin}">📋 Coller « ${esc(clipTitre().slice(0, 24))} »</button>
            <button class="zts-action pv2-act sm" data-action="tiroir-trou" data-debut="${t.debut}" data-fin="${t.fin}">🎲 Tiroir</button>`
         : `＋ ${lbl} — libre · toucher pour ouvrir le tiroir Jeux 🎲`;
       const row = { tMin: hmToMin(t.debut), html: `<div class="pv2-hole" ${S.clip ? '' : `data-action="tiroir-trou" data-debut="${t.debut}" data-fin="${t.fin}"`}>${inner}</div>` };
@@ -273,7 +275,7 @@ const V2 = (() => {
     h += rows.map(r => r.html).join('') || `<div class="pv2-empty">Aucun bloc — clique un trou ou le tiroir JEUX 🎲</div>`;
     h += `<div style="display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap">
       <button class="zts-action pv2-act sm" data-action="add-bloc" data-context="journee">+ Ajouter un bloc</button>
-      ${S.clip ? `<button class="zts-action pv2-act sm" data-action="v2-clip-cancel">✕ Terminer le collage (« ${esc(S.clip.titre.slice(0, 18))} »)</button>` : ''}
+      ${S.clip ? `<button class="zts-action pv2-act sm" data-action="v2-clip-cancel">✕ Terminer le collage (« ${esc(clipTitre().slice(0, 18))} »)</button>` : ''}
     </div>`;
 
     // ── Tuiles tiroirs (sous la journée SEULEMENT) ──
@@ -318,7 +320,7 @@ const V2 = (() => {
       if (left <= 0) {
         stopTimer(true);
         try { playDoneSound(); } catch (e) {}
-        toast('⏱ Temps écoulé — « ' + esc(b.titre || 'bloc') + ' »!');
+        toast('⏱ Temps écoulé — « ' + esc((b.titre || 'bloc').split('\n')[0]) + ' »!');
         const node = document.querySelector(`[data-bloc-id="${blocId}"]`);
         if (node) { node.classList.add('p-bloc--flash'); node.addEventListener('animationend', () => node.classList.remove('p-bloc--flash'), { once: true }); }
         render0();
@@ -328,13 +330,165 @@ const V2 = (() => {
     toast('⏱ ' + mins + ' min — go!');
   }
 
+  // ── Médias de case (glisser-déposer / coller) ─────────────
+  // DÉCISION (même que la vue Semaine) : les octets (data URL) ne vont JAMAIS
+  // dans Firestore (doc journees limité à 1 Mo). Firestore garde {name,type,local:true},
+  // le miroir localStorage (clé par journée) garde les données.
+  const MAX_FILE = 2.6 * 1024 * 1024;
+  function mKey() { return 'pv2media_' + (state.journeeId || 'x'); }
+  function mAll() { try { return JSON.parse(localStorage.getItem(mKey()) || '{}'); } catch (e) { return {}; } }
+  function mGet(blocId, name) { return mAll()[blocId + '|' + name] || null; }
+  function mSet(blocId, name, data) {
+    const m = mAll(); m[blocId + '|' + name] = data;
+    try { localStorage.setItem(mKey(), JSON.stringify(m)); return true; }
+    catch (e) { toast('⚠️ Mémoire locale pleine — retire un média lourd avant d\'en ajouter.'); return false; }
+  }
+  function mDel(blocId, name) {
+    const m = mAll(); delete m[blocId + '|' + name];
+    try { localStorage.setItem(mKey(), JSON.stringify(m)); } catch (e) {}
+  }
+  function mediaData(blocId, a) { return a.data || mGet(blocId, a.name); }
+  function kindOf(mime) {
+    if (!mime) return 'file';
+    if (mime.startsWith('image/')) return 'img';
+    if (mime.startsWith('video/')) return 'video';
+    if (mime.startsWith('audio/')) return 'audio';
+    if (mime === 'application/pdf') return 'pdf';
+    return 'file';
+  }
+
+  function shrinkImage(dataURL) {
+    return new Promise(res => {
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 1400 / img.width);
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', .82));
+      };
+      img.onerror = () => res(dataURL);
+      img.src = dataURL;
+    });
+  }
+  function readMedia(f) {
+    return new Promise(res => {
+      const r = new FileReader();
+      r.onload = async () => {
+        let data = r.result;
+        if (f.type.startsWith('image/') && f.size > 300 * 1024) data = await shrinkImage(data);
+        res({ name: f.name || 'media', type: f.type || '', data });
+      };
+      r.readAsDataURL(f);
+    });
+  }
+
+  async function saveBlocAttachments(blocId, at) {
+    const blocs = state.journeeBlocs.map(x => x.id === blocId ? { ...x, attachments: at } : x);
+    await Journees.update(state.journeeId, { blocs });
+    state.journeeBlocs = blocs;
+  }
+
+  async function addMediasToBloc(blocId, files) {
+    const b = state.journeeBlocs.find(x => x.id === blocId); if (!b || !files.length) return;
+    const at = [...(b.attachments || [])]; let skip = 0, add = 0;
+    for (const f of files) {
+      if (f.size > MAX_FILE && !f.type.startsWith('image/')) { skip++; continue; }
+      const m = await readMedia(f);
+      let name = m.name, n = 2;                       // nom unique = clé du miroir
+      while (at.some(x => x.name === name)) name = m.name + ' (' + (n++) + ')';
+      if (!mSet(blocId, name, m.data)) break;
+      at.push({ name, type: m.type, local: true }); add++;
+    }
+    if (!add && !skip) return;
+    if (add) await saveBlocAttachments(blocId, at);
+    render0();
+    toast(skip
+      ? '⚠️ ' + skip + ' fichier(s) > 2,5 Mo ignoré(s)' + (add ? ' — le reste est dans la case 📎' : '.')
+      : '📎 Ajouté dans la case!');
+  }
+
+  async function removeMedia(blocId, idx) {
+    const b = state.journeeBlocs.find(x => x.id === blocId); if (!b) return;
+    const at = [...(b.attachments || [])];
+    const [a] = at.splice(idx, 1);
+    if (a && a.local) mDel(blocId, a.name);
+    await saveBlocAttachments(blocId, at);
+    render0();
+  }
+
+  // chips uniformes dans la case (mise en page jamais cassée : rangée dédiée pleine largeur)
+  function mediaChips(b) {
+    const at = b.attachments || []; if (!at.length) return '';
+    return `<div class="pv2-medias">` + at.map((a, i) => {
+      const k = kindOf(a.type), d = mediaData(b.id, a);
+      const inner = (k === 'img' && d)
+        ? `<img src="${d}" alt="${esc(a.name)}">`
+        : `${attachIcon(a.type || '')} <span class="nm">${esc(a.name)}</span>`;
+      return `<span class="pv2-media" data-action="v2-media-view" data-bloc-id="${b.id}" data-idx="${i}" title="${esc(a.name)}">${inner}<b class="rm" data-action="v2-media-rm" data-bloc-id="${b.id}" data-idx="${i}" title="Retirer">✕</b></span>`;
+    }).join('') + `</div>`;
+  }
+
+  function openMediaView(blocId, idx) {
+    const b = state.journeeBlocs.find(x => x.id === blocId);
+    const a = b?.attachments?.[idx]; if (!a) return;
+    const d = mediaData(blocId, a);
+    if (!d) { toast('⚠️ Média enregistré sur un autre appareil — re-glisse le fichier ici pour le revoir.'); return; }
+    const k = kindOf(a.type);
+    const box = document.getElementById('v2-daysum');
+    box.querySelector('[data-ds-title]').textContent = attachIcon(a.type || '') + ' ' + a.name;
+    box.querySelector('[data-ds-body]').innerHTML = `<div class="pv2-mview">` +
+      (k === 'img' ? `<img src="${d}">`
+      : k === 'pdf' ? `<iframe src="${d}"></iframe>`
+      : k === 'video' ? `<video src="${d}" controls autoplay></video>`
+      : k === 'audio' ? `<audio src="${d}" controls></audio>`
+      : `<a class="zts-action" href="${d}" download="${esc(a.name)}">💾 Télécharger ${esc(a.name)}</a>`) + `</div>`;
+    box.classList.add('open'); document.getElementById('v2-backdrop').classList.add('open');
+  }
+
+  // texte échappé (glissé sur une case) → ajouté à la fin du déroulement
+  async function appendTextToBloc(blocId, txt) {
+    const b = state.journeeBlocs.find(x => x.id === blocId); if (!b || !txt.trim()) return;
+    await saveBlocTitre(blocId, (b.titre ? b.titre + '\n' : '') + txt.trim());
+    render0();
+  }
+
+  function clipTitre() { return (S.clip?.titre || 'bloc').split('\n')[0]; }
+
   function copyBloc(blocId) {
     const b = state.journeeBlocs.find(x => x.id === blocId); if (!b) return;
     const d = hmToMin(b.debut), f = hmToMin(b.fin);
     S.clip = { titre: b.titre || '', ref: b.ref || '', notes: b.notes || '',
+      type: b.type, font: b.font, customColor: b.customColor,
+      attachments: (b.attachments || []).map(a => ({ name: a.name, type: a.type, data: mediaData(b.id, a) })),
       duree: (d != null && f != null && f > d) ? (f - d) : 45 };   // durée d'origine (45 min par défaut)
     render0();
-    toast('📄 « ' + (b.titre || 'bloc') + ' » copié — touche un trou pour le coller (autant de fois que tu veux).');
+    toast('📄 « ' + clipTitre() + ' » copié (texte + médias) — touche un trou OU le 📋 d\'une autre case.');
+  }
+
+  // applique TOUT le presse-papier (texte, notes, style, médias) au bloc cible
+  async function applyClip(blocId) {
+    const at = [];
+    for (const a of (S.clip.attachments || [])) {
+      if (a.data && !mSet(blocId, a.name, a.data)) break;
+      at.push({ name: a.name, type: a.type, local: !!a.data });
+    }
+    const blocs = state.journeeBlocs.map(x => x.id === blocId
+      ? { ...x, titre: S.clip.titre, ref: S.clip.ref || x.ref || null, notes: S.clip.notes,
+          font: S.clip.font || x.font, customColor: S.clip.customColor || x.customColor,
+          attachments: at } : x);
+    await Journees.update(state.journeeId, { blocs });
+    state.journeeBlocs = blocs;
+  }
+
+  async function pasteIntoBloc(blocId) {
+    if (!S.clip) return;
+    const b = state.journeeBlocs.find(x => x.id === blocId); if (!b) return;
+    if ((b.titre || (b.attachments || []).length) &&
+        !confirm('Remplacer le contenu de cette case par « ' + clipTitre() + ' » (texte + médias)?')) return;
+    await applyClip(blocId);
+    render0();
+    toast('📋 Case remplacée par « ' + clipTitre() + ' »!');
   }
 
   async function pasteClip(creneau) {
@@ -346,11 +500,7 @@ const V2 = (() => {
       creneau = { debut: creneau.debut, fin: String(Math.floor(fin / 60)).padStart(2, '0') + ':' + String(fin % 60).padStart(2, '0') };
     }
     const idInsere = await PlanifData.insererJeu({ titre: S.clip.titre, ref: S.clip.ref }, creneau);
-    if (S.clip.notes) {
-      const blocs = state.journeeBlocs.map(b => b.id === idInsere ? { ...b, notes: S.clip.notes } : b);
-      await Journees.update(state.journeeId, { blocs });
-      state.journeeBlocs = blocs;
-    }
+    await applyClip(idInsere);
     render0();
     requestAnimationFrame(() => {
       const node = document.querySelector(`[data-bloc-id="${idInsere}"]`);
@@ -624,6 +774,9 @@ const V2 = (() => {
       case 'v2-timer': startTimer(ds.blocId); return;
       case 'v2-copy': copyBloc(ds.blocId); return;
       case 'v2-paste': pasteClip({ debut: ds.debut, fin: ds.fin }); return;
+      case 'v2-paste-into': pasteIntoBloc(ds.blocId); return;
+      case 'v2-media-view': openMediaView(ds.blocId, +ds.idx); return;
+      case 'v2-media-rm': removeMedia(ds.blocId, +ds.idx); return;
       case 'v2-clip-cancel': S.clip = null; render0(); toast('Collage terminé.'); return;
       case 'v2-ev-groupe':
         if (state.groupeId !== ds.gid) {
@@ -642,7 +795,8 @@ const V2 = (() => {
   function wire() {
     document.addEventListener('focusout', async (e) => {
       const ed = e.target.closest?.('[data-v2-edit-bloc]');
-      if (ed) { await saveBlocTitre(ed.dataset.v2EditBloc, ed.textContent.trim()); return; }
+      // innerText (pas textContent) : préserve les sauts de ligne du contenteditable
+      if (ed) { await saveBlocTitre(ed.dataset.v2EditBloc, (ed.innerText || '').replace(/\u00a0/g, ' ').trim()); return; }
       const gn = e.target.closest?.('[data-v2-gname]');
       if (gn) {
         const nom = gn.value.trim(); const gid = gn.dataset.v2Gname;
@@ -653,9 +807,40 @@ const V2 = (() => {
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target.closest?.('[data-v2-gname]')) { e.preventDefault(); e.target.blur(); }
-      if (e.key === 'Enter' && e.target.closest?.('[data-v2-edit-bloc]')) { e.preventDefault(); e.target.blur(); }
+      // Enter DANS la case = nouvelle ligne (la case grandit), pas de blur
+      if (e.key === 'Enter' && e.target.closest?.('[data-v2-edit-bloc]')) { e.preventDefault(); document.execCommand('insertLineBreak'); }
+      if (e.key === 'Escape' && e.target.closest?.('[data-v2-edit-bloc]')) { e.target.blur(); }
       if (e.key === 'Enter' && e.target.id === 'pv2-new-eleve') { e.preventDefault(); evAddEleve(); }
       if (e.key === 'Escape') closeOverlays();
+    });
+    // Coller DANS la case : fichiers (images/PDF/vidéos) → chips médias ; texte → texte brut
+    // (jamais de HTML riche : la mise en page de la case reste intacte)
+    document.addEventListener('paste', (e) => {
+      const ed = e.target.closest?.('[data-v2-edit-bloc]');
+      if (!ed) return;
+      const files = [...(e.clipboardData?.files || [])];
+      e.preventDefault();
+      if (files.length) { addMediasToBloc(ed.dataset.v2EditBloc, files); return; }
+      const txt = e.clipboardData?.getData('text/plain') || '';
+      if (txt) document.execCommand('insertText', false, txt);
+    });
+    // Glisser-déposer N'IMPORTE OÙ sur la case DÉROULEMENT : fichiers → médias, texte → ajouté
+    document.addEventListener('dragover', (e) => {
+      const c = e.target.closest?.('[data-drop-bloc]');
+      if (c) { e.preventDefault(); c.classList.add('pv2-dropon'); }
+    });
+    document.addEventListener('dragleave', (e) => {
+      const c = e.target.closest?.('[data-drop-bloc]');
+      if (c && !c.contains(e.relatedTarget)) c.classList.remove('pv2-dropon');
+    });
+    document.addEventListener('drop', (e) => {
+      const c = e.target.closest?.('[data-drop-bloc]');
+      if (!c) return;
+      e.preventDefault(); c.classList.remove('pv2-dropon');
+      const files = [...(e.dataTransfer?.files || [])];
+      if (files.length) { addMediasToBloc(c.dataset.dropBloc, files); return; }
+      const txt = e.dataTransfer?.getData('text/plain') || '';
+      if (txt) appendTextToBloc(c.dataset.dropBloc, txt);
     });
     document.addEventListener('change', (e) => {
       if (e.target.matches('.pv2-annee')) { S.annee = e.target.value; window.render(); }

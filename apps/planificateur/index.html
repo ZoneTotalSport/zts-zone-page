@@ -466,10 +466,23 @@ body.pv2[data-metier="camp"] .pv2-act.prim{color:#fff}
 .pv2-time{font-family:var(--font-bang);font-size:14px;justify-content:center;text-align:center;line-height:1.2}
 .pv2-tag{font-size:10.5px;font-weight:700;padding:3px 9px;border:2px solid var(--ink);border-radius:8px;background:#eee}
 .pv2-btag{font-size:12px;border:2px solid var(--ink);border-radius:7px;padding:1px 6px;color:#fff;flex-shrink:0}
-.pv2-derou{flex-wrap:wrap}
-.pv2-ed{outline:none;min-height:14px;cursor:text;flex:1;min-width:80px}
+.pv2-derou{flex-wrap:wrap;align-items:flex-start}
+.pv2-ed{outline:none;min-height:14px;cursor:text;flex:1;min-width:80px;white-space:pre-wrap;word-break:break-word;line-height:1.4;padding:1px 4px}
 .pv2-ed:empty:before{content:'…';color:#bbb}
 .pv2-ed:focus{background:#fffbd6;border-radius:6px}
+.pv2-derou.pv2-dropon{background:#E2F7FE;outline:3px dashed var(--m1);outline-offset:-3px}
+/* médias de case : chips uniformes en rangée dédiée (la mise en page ne bouge pas) */
+.pv2-medias{flex-basis:100%;display:flex;gap:6px;flex-wrap:wrap}
+.pv2-media{display:inline-flex;align-items:center;gap:5px;border:2px solid var(--ink);border-radius:8px;background:#FFFCE0;padding:2px 7px;font-size:11.5px;font-weight:700;cursor:pointer;box-shadow:2px 2px 0 var(--ink);max-width:100%;font-family:var(--font-fun);transition:all .1s}
+.pv2-media img{height:48px;max-width:120px;object-fit:cover;border-radius:5px;display:block}
+.pv2-media .nm{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv2-media .rm{cursor:pointer;color:#E23838;font-weight:900;padding:0 2px}
+.pv2-media:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+/* visionneuse média (dans le tiroir résumé) */
+.pv2-mview{padding:12px 14px}
+.pv2-mview img{width:100%;border:4px solid var(--ink);border-radius:14px;display:block}
+.pv2-mview iframe{width:100%;height:min(64vh,560px);border:4px solid var(--ink);border-radius:14px;background:#fff}
+.pv2-mview video{width:100%;border:4px solid var(--ink);border-radius:14px;background:#000}
 .pv2-fait{justify-content:center;font-size:21px;cursor:pointer;font-family:var(--font-bang);user-select:none}
 .pv2-fait:hover{background:#f3fff3}
 .pv2-fait.ok{background:#B6F5C3}
