@@ -90,10 +90,14 @@ service cloud.firestore {
     }
 
     // ── Enfants ──
-    // animateur du groupe : CRUD.
+    // animateur du groupe : CRUD. coordo de l'org : lecture (tableau de bord
+    // coordo → loadCoordoData liste les enfants de chaque groupe de l'org).
     match /enfants/{enfantId} {
-      allow read, update, delete: if request.auth != null
-                                  && isAnimateurOfGroupe(resource.data.groupeId);
+      allow read: if request.auth != null
+                  && (isAnimateurOfGroupe(resource.data.groupeId)
+                      || isCoordoOfGroupe(resource.data.groupeId));
+      allow update, delete: if request.auth != null
+                            && isAnimateurOfGroupe(resource.data.groupeId);
       allow create: if request.auth != null
                     && isAnimateurOfGroupe(request.resource.data.groupeId);
     }
