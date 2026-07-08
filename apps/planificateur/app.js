@@ -138,6 +138,24 @@ const GrillesType = {
   async update(id,d) { (await getDb()).collection('grillesType').doc(id).update(d); },
 };
 
+// Plans (coquille v2) : planification séquentielle + annuelle.
+// 1 doc par (groupe, année scolaire, type) — owner-only via uid (règle `plans`).
+//   seq      : { sequences:[{id,titre,cours:[{date,texte}]}] }
+//   annuelle : { weeks:{ '<lundi ISO>':{act,comp} } }
+const Plans = {
+  docId(gid,annee,type) { return `${gid}__${annee}__${type}`; },
+  async get(gid,annee,type) {
+    const s=await (await getDb()).collection('plans').doc(this.docId(gid,annee,type)).get();
+    return s.exists?s.data():null;
+  },
+  async save(gid,annee,type,data) {
+    await (await getDb()).collection('plans').doc(this.docId(gid,annee,type)).set({
+      ...data, uid:state.user.uid, groupeId:gid, annee, type,
+      ts:firebase.firestore.FieldValue.serverTimestamp(),
+    },{merge:true});
+  },
+};
+
 // Vue Semaine (grille riche) : 1 doc par (groupe, lundi ISO).
 // Les médias FICHIERS (data URL) ne sont PAS écrits au cloud (limite Firestore 1 Mo) —
 // seuls liens + réfs banque + titre/desc/durée sync ; le miroir localStorage garde tout.

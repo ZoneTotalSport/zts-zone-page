@@ -219,6 +219,15 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // plans — planificateur v2 (vues sequentielle + annuelle).
+    // 1 doc par (groupe, annee, type), owner-only via uid.
+    // ─────────────────────────────────────────────────────────
+    match /plans/{id} {
+      allow read, update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // ─────────────────────────────────────────────────────────
     // budget — app privee familiale. Deux types d'espaces :
     //  • COMMUN  (budget/root-famille) : partage entre les membres. Self-join
     //    controle (un 2e membre peut s'ajouter lui-meme, plafond 2 personnes).

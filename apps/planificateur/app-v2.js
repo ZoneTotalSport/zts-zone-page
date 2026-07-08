@@ -32,6 +32,11 @@ const V2 = (() => {
     resume: null,           // données du résumé de date (cache dernier clic)
     timer: null,            // minuterie de bloc {blocId, end, int}
     clip: null,             // case copiée {titre, ref, notes, type, attachments…} — collable trous + cases
+    planKey: null,          // cache plans (groupe__année) — invalide au switch groupe/année
+    planSeq: null,          // doc 'seq'      { sequences:[{id,titre,cours:[{date,texte}]}] }
+    planAn: null,           // doc 'annuelle' { weeks:{ '<lundi ISO>':{act,comp} } }
+    seqIdx: 0,              // séquence affichée
+    anYM: null,             // mois affiché de l'annuelle 'YYYY-MM'
   };
 
   function metier() { return document.body.dataset.metier || state.hubMetier || 'camp'; }
@@ -111,8 +116,8 @@ const V2 = (() => {
       case 'gabarit':     return renderGabarit();                                        // vue v1
       case 'historique':  return renderHistorique();                                     // vue v1
       case 'live':        return renderLive();                                           // vue v1
-      case 'seq':         return stubSheet('Planification séquentielle', 'Phase B — gabarit TITRE + 6 cours alternés jaune/cyan.');
-      case 'annuelle':    return stubSheet('Ma planification annuelle', 'Phase B — semaines alignées avec barres Activité/Compétence.');
+      case 'seq':         return renderSeq();
+      case 'annuelle':    return renderAnnuelle();
       case 'calendrier':  return renderMois();                                           // l'ancien calendrier pointe sur le mensuel v2
       default:            return renderMois();
     }
@@ -522,6 +527,150 @@ const V2 = (() => {
     state.journeeBlocs = blocs;
   }
 
+  // ── PLANS SÉQUENTIELLE + ANNUELLE (maquette D1 — gabarits éditables) ──
+  function newSequence() {
+    return { id: 's' + Date.now().toString(36) + Math.floor(Math.random() * 1e4),
+      titre: '', cours: Array.from({ length: 6 }, () => ({ date: '', texte: '' })) };
+  }
+  function planCleCourante() { return state.groupeId + '__' + (S.annee || anneeCourante()); }
+
+  async function loadPlansV2(force) {
+    const key = planCleCourante();
+    if (!force && S.planKey === key && S.planSeq && S.planAn) return;
+    const annee = S.annee || anneeCourante();
+    let seq = null, an = null;
+    try { seq = await Plans.get(state.groupeId, annee, 'seq'); } catch (e) { console.warn('[V2] plans seq', e); }
+    try { an = await Plans.get(state.groupeId, annee, 'annuelle'); } catch (e) { console.warn('[V2] plans annuelle', e); }
+    S.planSeq = (seq && seq.sequences && seq.sequences.length) ? seq : { sequences: [newSequence()] };
+    S.planAn = (an && an.weeks) ? an : { weeks: {} };
+    S.planKey = key;
+    if (S.seqIdx >= S.planSeq.sequences.length) S.seqIdx = 0;
+    const mois = anMoisListe(annee);
+    if (!S.anYM || !mois.includes(S.anYM)) {
+      const now = new Date();
+      const cur = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+      S.anYM = mois.includes(cur) ? cur : mois[0];
+    }
+  }
+
+  function savePlanSeq() {
+    Plans.save(state.groupeId, S.planKey.split('__')[1], 'seq', { sequences: S.planSeq.sequences })
+      .catch(e => { console.warn('[V2] save seq', e); toast('⚠️ Sauvegarde séquentielle impossible : ' + (e.message || e)); });
+  }
+  function savePlanAn() {
+    Plans.save(state.groupeId, S.planKey.split('__')[1], 'annuelle', { weeks: S.planAn.weeks })
+      .catch(e => { console.warn('[V2] save annuelle', e); toast('⚠️ Sauvegarde annuelle impossible : ' + (e.message || e)); });
+  }
+
+  // Mois de l'année scolaire : ÉPS/SDG sept→juin, camps juin→août
+  function anMoisListe(annee) {
+    const out = [];
+    const push = (y, m) => out.push(y + '-' + String(m + 1).padStart(2, '0'));
+    if (annee.startsWith('ete-')) { const y = +annee.slice(4); [5, 6, 7].forEach(m => push(y, m)); }
+    else { const y1 = +annee.split('-')[0]; for (let m = 8; m <= 11; m++) push(y1, m); for (let m = 0; m <= 5; m++) push(y1 + 1, m); }
+    return out;
+  }
+  function lundiISO(y, m, d) {
+    const dt = new Date(y, m, d);
+    dt.setDate(dt.getDate() - (dt.getDay() + 6) % 7);   // recule au lundi
+    return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  }
+  function planPrete() {
+    if (S.planKey === planCleCourante()) return true;
+    loadPlansV2().then(render0);            // groupe/année a changé pendant la vue → recharge
+    return false;
+  }
+
+  function renderSeq() {
+    if (!planPrete()) return `<div class="pv2-sheet"><div class="pv2-empty">⏳ Chargement…</div></div>`;
+    const seqs = S.planSeq.sequences;
+    const sq = seqs[S.seqIdx] || seqs[0];
+    let h = `<div class="pv2-sheet pv2-print">
+      <div class="pv2-sheettitle"><span class="c">Planification</span> <span class="y">séquentielle</span></div>
+      <div class="pv2-sqtabs">
+        ${seqs.map((s, i) => `<button class="zts-action pv2-act sm ${i === S.seqIdx ? 'prim' : ''}" data-action="v2-sq-tab" data-i="${i}">${esc((s.titre || 'Séquence ' + (i + 1)).split('\n')[0].slice(0, 22))}</button>`).join('')}
+        <button class="zts-action pv2-act sm" data-action="v2-sq-new" title="Nouvelle feuille de séquence">＋ Séquence</button>
+        ${seqs.length > 1 ? `<button class="zts-action pv2-act sm" data-action="v2-sq-del" title="Supprimer cette feuille">🗑️</button>` : ''}
+      </div>
+      <div class="pv2-sqtitle"><b>TITRE :</b>
+        <span class="pv2-sqed" contenteditable data-sq-titre placeholder="SAÉ Volleyball — 3e cycle">${esc(sq.titre)}</span></div>
+      <div class="pv2-sqgrid">`;
+    sq.cours.forEach((c, i) => {
+      const alt = i % 2 === 0 ? 'alt-y' : 'alt-c';
+      h += `<div class="pv2-sq">
+        <h5>Cours ${i + 1}</h5>
+        <div class="pv2-sqdate ${alt}"><b>Date :</b> <span class="pv2-sqed" contenteditable data-sq-date="${i}">${esc(c.date)}</span></div>
+        <div class="pv2-sqbox ${alt} pv2-sqed" contenteditable data-sq-texte="${i}">${esc(c.texte)}</div>
+      </div>`;
+    });
+    h += `</div>
+      <div class="pv2-sqadd">
+        <button class="zts-action pv2-act sm" data-action="v2-sq-add-cours">＋ Ajouter un cours</button>
+        ${sq.cours.length > 1 ? `<button class="zts-action pv2-act sm" data-action="v2-sq-del-cours">− Retirer le dernier</button>` : ''}
+      </div>
+      <p class="pv2-note">💾 Tout se sauvegarde tout seul quand tu quittes une case. 🖨️ PDF = la feuille affichée s'imprime telle quelle.</p>
+    </div>`;
+    return h;
+  }
+
+  function renderAnnuelle() {
+    if (!planPrete()) return `<div class="pv2-sheet"><div class="pv2-empty">⏳ Chargement…</div></div>`;
+    const annee = S.planKey.split('__')[1];
+    const mois = anMoisListe(annee);
+    const idx = mois.indexOf(S.anYM);
+    const [y, m1] = S.anYM.split('-').map(Number);
+    const weeks = moisSemaines(y, m1 - 1);
+    let h = `<div class="pv2-sheet pv2-print">
+      <div class="pv2-sheettitle">
+        <button class="zts-action pv2-act sm" data-action="v2-an-nav" data-d="-1" ${idx <= 0 ? 'disabled' : ''}>◀</button>
+        <span class="y">Ma planification</span> <span class="c">annuelle</span> — <span style="color:#F5820D">${MOIS_FR[m1 - 1]} ${y}</span>
+        <button class="zts-action pv2-act sm" data-action="v2-an-nav" data-d="1" ${idx >= mois.length - 1 ? 'disabled' : ''}>▶</button>
+      </div>
+      <div class="pv2-anhead"><div class="pv2-anhdays">
+        ${['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'].map((j, i) => `<div class="pv2-anhd ${i % 2 === 0 ? 'c' : 'y'}">${j}</div>`).join('')}
+      </div></div>`;
+    weeks.forEach(w => {
+      const premier = w.find(d => d !== null);
+      if (premier == null) return;
+      const wk = lundiISO(y, m1 - 1, premier);
+      const v = S.planAn.weeks[wk] || { act: '', comp: '' };
+      h += `<div class="pv2-anweek">
+        <div class="pv2-andays">${w.map(d => d === null
+          ? `<div class="pv2-and off"></div>`
+          : `<div class="pv2-and ${d % 2 ? 'yl' : 'cy'}">${d}</div>`).join('')}</div>
+        <span class="pv2-anarr">➜</span>
+        <div class="pv2-anbar">
+          <b class="la">ACTIVITÉ :</b><span class="pv2-sqed ed" contenteditable data-an-act="${wk}">${esc(v.act)}</span>
+          <b class="lc">COMPÉTENCE :</b><span class="pv2-sqed ed" contenteditable data-an-comp="${wk}">${esc(v.comp)}</span>
+        </div>
+      </div>`;
+    });
+    h += `<p class="pv2-note">💡 1 ligne = 1 semaine. Écris l'<b>activité</b> (ex. SAÉ Volleyball 1-2) et la <b>compétence</b> (Agir / Interagir / Santé). Sauvegarde automatique, navigation ◀ ▶ sur les ${mois.length} mois de l'année ${annee}.</p>
+    </div>`;
+    return h;
+  }
+
+  // saisies des plans (focusout délégué depuis wire())
+  async function planFocusOut(el) {
+    const txt = (el.innerText || '').replace(/\u00a0/g, ' ').trim();
+    if (el.hasAttribute('data-sq-titre')) {
+      S.planSeq.sequences[S.seqIdx].titre = txt; savePlanSeq(); return true;
+    }
+    if (el.hasAttribute('data-sq-date')) {
+      S.planSeq.sequences[S.seqIdx].cours[+el.dataset.sqDate].date = txt; savePlanSeq(); return true;
+    }
+    if (el.hasAttribute('data-sq-texte')) {
+      S.planSeq.sequences[S.seqIdx].cours[+el.dataset.sqTexte].texte = txt; savePlanSeq(); return true;
+    }
+    if (el.hasAttribute('data-an-act') || el.hasAttribute('data-an-comp')) {
+      const wk = el.dataset.anAct || el.dataset.anComp;
+      const v = S.planAn.weeks[wk] || { act: '', comp: '' };
+      if (el.hasAttribute('data-an-act')) v.act = txt; else v.comp = txt;
+      S.planAn.weeks[wk] = v; savePlanAn(); return true;
+    }
+    return false;
+  }
+
   // ── CARNET D'ÉVALUATION (façon iDoceo, sur le moteur EvalConfig/Evaluations) ──
   // Tout se crée D'ICI : élèves (ajout rapide), colonnes (modal PFEQ existant), cotes (tap).
   const EV_COLORS = { A:'#7BE495', B:'#D3F09A', C:'#FFD37A', D:'#FF9B9B', E:'#FF7B7B',
@@ -716,6 +865,7 @@ const V2 = (() => {
         if (ds.view === 'mois') await loadCalendarData();
         if (ds.view === 'journee') await loadJourneeData();
         if (ds.view === 'evaluation') { if (!S.groupes.length) await loadGroupes(); await loadEvalData(); }
+        if (ds.view === 'seq' || ds.view === 'annuelle') await loadPlansV2();
         render0(); return;
       case 'v2-tog-planif': S.subOpen = !S.subOpen; render0(); return;
       case 'v2-tog-groupes': S.gpanelOpen = !S.gpanelOpen; if (S.gpanelOpen) await loadGroupes(); render0(); return;
@@ -748,7 +898,34 @@ const V2 = (() => {
         TiroirJeux.openForCreneau(PlanifData.premierTrou(state.journeeBlocs));
         toast('🌧️ Plan B : biblio filtrée intérieur + sans matériel'); return;
       case 'v2-import-ics': toast('📥 Import .ics (congés/pédagos + recalage des jours-cycle) — Phase B.'); return;
-      case 'v2-pdf': toast('🖨️ Export PDF : la vue devient ton imprimable pré-rempli — backlog.'); return;
+      case 'v2-pdf': window.print(); return;
+      case 'v2-an-nav': {
+        const mois = anMoisListe(S.planKey.split('__')[1]);
+        const i = mois.indexOf(S.anYM) + parseInt(ds.d, 10);
+        if (i >= 0 && i < mois.length) { S.anYM = mois[i]; render0(); }
+        return;
+      }
+      case 'v2-sq-tab': S.seqIdx = +ds.i; render0(); return;
+      case 'v2-sq-new':
+        S.planSeq.sequences.push(newSequence());
+        S.seqIdx = S.planSeq.sequences.length - 1;
+        savePlanSeq(); render0(); toast('＋ Nouvelle feuille de séquence!'); return;
+      case 'v2-sq-del': {
+        const sq = S.planSeq.sequences[S.seqIdx];
+        if (!confirm('Supprimer la feuille « ' + ((sq.titre || 'Séquence ' + (S.seqIdx + 1)).split('\n')[0]) + ' »?')) return;
+        S.planSeq.sequences.splice(S.seqIdx, 1);
+        S.seqIdx = Math.max(0, S.seqIdx - 1);
+        savePlanSeq(); render0(); toast('🗑️ Feuille supprimée.'); return;
+      }
+      case 'v2-sq-add-cours':
+        S.planSeq.sequences[S.seqIdx].cours.push({ date: '', texte: '' });
+        savePlanSeq(); render0(); return;
+      case 'v2-sq-del-cours': {
+        const cours = S.planSeq.sequences[S.seqIdx].cours;
+        const dernier = cours[cours.length - 1];
+        if ((dernier.date || dernier.texte) && !confirm('Le dernier cours contient du texte — le retirer quand même?')) return;
+        cours.pop(); savePlanSeq(); render0(); return;
+      }
       case 'v2-stub': toast(ds.msg || 'Bientôt!'); return;
       case 'v2-g-toggle':
         if (S.editGroupe) return;
@@ -797,6 +974,8 @@ const V2 = (() => {
       const ed = e.target.closest?.('[data-v2-edit-bloc]');
       // innerText (pas textContent) : préserve les sauts de ligne du contenteditable
       if (ed) { await saveBlocTitre(ed.dataset.v2EditBloc, (ed.innerText || '').replace(/\u00a0/g, ' ').trim()); return; }
+      const pl = e.target.closest?.('.pv2-sqed');
+      if (pl && await planFocusOut(pl)) return;
       const gn = e.target.closest?.('[data-v2-gname]');
       if (gn) {
         const nom = gn.value.trim(); const gid = gn.dataset.v2Gname;
@@ -810,6 +989,10 @@ const V2 = (() => {
       // Enter DANS la case = nouvelle ligne (la case grandit), pas de blur
       if (e.key === 'Enter' && e.target.closest?.('[data-v2-edit-bloc]')) { e.preventDefault(); document.execCommand('insertLineBreak'); }
       if (e.key === 'Escape' && e.target.closest?.('[data-v2-edit-bloc]')) { e.target.blur(); }
+      // plans : boîte de cours = multi-lignes ; titre/date/activité/compétence = 1 ligne (Enter = terminé)
+      if (e.key === 'Enter' && e.target.closest?.('[data-sq-texte]')) { e.preventDefault(); document.execCommand('insertLineBreak'); }
+      else if (e.key === 'Enter' && e.target.closest?.('.pv2-sqed')) { e.preventDefault(); e.target.blur(); }
+      if (e.key === 'Escape' && e.target.closest?.('.pv2-sqed')) { e.target.blur(); }
       if (e.key === 'Enter' && e.target.id === 'pv2-new-eleve') { e.preventDefault(); evAddEleve(); }
       if (e.key === 'Escape') closeOverlays();
     });
