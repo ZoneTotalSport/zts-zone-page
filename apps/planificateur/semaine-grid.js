@@ -79,9 +79,10 @@ const CSS = `
 .sem-root .rail.alt .rail__lbl{color:var(--jaune-d)}
 .sem-root .rail__hrs{display:flex;align-items:center;gap:3px;font-family:'Fredoka';font-weight:700;font-size:1rem;color:#555}
 .sem-root .rail__hrs input{width:48px;text-align:center;border:2px dashed #bbb;border-radius:8px;font-family:'Fredoka';font-weight:700;font-size:1rem;padding:4px}
-.sem-root .rail__ctrl{display:flex;gap:3px;margin-top:3px}
-.sem-root .rail__ctrl button{cursor:pointer;width:26px;height:26px;border:2px solid var(--ink);border-radius:8px;background:#fff;box-shadow:1px 1px 0 var(--ink);font-size:.8rem;display:flex;align-items:center;justify-content:center;padding:0}
+.sem-root .rail__ctrl{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;margin-top:3px}
+.sem-root .rail__ctrl button{cursor:pointer;width:24px;height:24px;border:2px solid var(--ink);border-radius:8px;background:#fff;box-shadow:1px 1px 0 var(--ink);font-size:.78rem;display:flex;align-items:center;justify-content:center;padding:0}
 .sem-root .rail__ctrl button:hover{background:var(--jaune)}.sem-root .rail__ctrl .del:hover{background:var(--rose);color:#fff}
+.sem-root .rail__ctrl .ins{background:var(--vert,#4ADE80);font-weight:900}.sem-root .rail__ctrl .ins:hover{background:#22c55e;color:#fff}
 .sem-root .rail--break{grid-column:1 / -1;background:var(--jaune);border-radius:14px;flex-direction:row;gap:10px;flex-wrap:wrap}
 .sem-root .rail--break .rail__lbl{color:var(--ink);-webkit-text-stroke:0;text-shadow:none;font-size:clamp(1.4rem,2.4vw,2rem);width:auto}
 .sem-root .addbar{grid-column:1 / -1;display:flex;gap:12px;justify-content:center;padding:4px}
@@ -209,7 +210,7 @@ function mount(root, opts){
   const I18N={
    fr:{title:'Planification de la semaine',weekOf:'Semaine du :',periods:'Périodes',toggleDays:'5 ↔ 3 jours',savePdf:'🖨️ Enregistrer PDF',clearWeek:'↺ Vider la semaine',
     ep:'ÉP',camp:'Camp',sdg:'SDG',period:'Période',recess:'Récréation',lunch:'Dîner',pause:'Pause',
-    group:'Groupe :',activities:'Activités :',noGame:'Aucun jeu — touche ＋',togglePB:'période↔pause',markTodo:'Marquer à faire',markDone:'Marquer comme fait',linkedTip:'Lié à la banque',done:'FAIT !',min:'min',game:'Jeu',
+    group:'Groupe :',activities:'Activités :',noGame:'Aucun jeu — touche ＋',togglePB:'période↔pause',insRow:'Insérer une période ici',markTodo:'Marquer à faire',markDone:'Marquer comme fait',linkedTip:'Lié à la banque',done:'FAIT !',min:'min',game:'Jeu',
     memFull:'⚠️ Mémoire pleine — fichier trop lourd.',tooHeavyA:'⚠️ ',tooHeavyB:' trop lourd (max ~2,5 Mo).',
     confRemoveLast:'Retirer le dernier jeu ?',confDelRow:'Supprimer cette ligne ?',confClear:'Vider la planification de cette semaine ?',addPeriod:'＋ Période',addPause:'＋ Pause',
     chooseLib:'📚 Choisir dans la banque',linkedLib:'📚 Lié à la banque',fTitle:'🎯 Titre du jeu',fTitlePh:'Ex : Capture du drapeau',fDesc:"📝 Description de l'activité",fDescPh:'Règles, but, matériel…',
@@ -220,7 +221,7 @@ function mount(root, opts){
     start:'▶ Démarrer',pauseBtn:'⏸ Pause',resume:'▶ Reprendre',gameOver:'🏀 JEU TERMINÉ !',openLink:'🔗 Ouvrir le lien'},
    en:{title:'Weekly Plan',weekOf:'Week of:',periods:'Periods',toggleDays:'5 ↔ 3 days',savePdf:'🖨️ Save PDF',clearWeek:'↺ Clear week',
     ep:'PE',camp:'Camp',sdg:'Daycare',period:'Period',recess:'Recess',lunch:'Lunch',pause:'Break',
-    group:'Group:',activities:'Activities:',noGame:'No game — tap ＋',togglePB:'period↔break',markTodo:'Mark as to-do',markDone:'Mark as done',linkedTip:'Linked to library',done:'DONE!',min:'min',game:'Game',
+    group:'Group:',activities:'Activities:',noGame:'No game — tap ＋',togglePB:'period↔break',insRow:'Insert a period here',markTodo:'Mark as to-do',markDone:'Mark as done',linkedTip:'Linked to library',done:'DONE!',min:'min',game:'Game',
     memFull:'⚠️ Memory full — file too large.',tooHeavyA:'⚠️ ',tooHeavyB:' too large (max ~2.5 MB).',
     confRemoveLast:'Remove the last game?',confDelRow:'Delete this row?',confClear:"Clear this week's plan?",addPeriod:'＋ Period',addPause:'＋ Break',
     chooseLib:'📚 Choose from the library',linkedLib:'📚 Linked to library',fTitle:'🎯 Game title',fTitlePh:'Ex: Capture the flag',fDesc:'📝 Activity description',fDescPh:'Rules, goal, equipment…',
@@ -332,7 +333,7 @@ function mount(root, opts){
     $('.sg-lang').textContent = LANG==='fr'?'EN':'FR';
   }
 
-  function railCtrl(ln){ return `<div class="rail__ctrl"><button data-up="${ln.id}">↑</button><button data-down="${ln.id}">↓</button><button data-tog="${ln.id}" title="${t('togglePB')}">⇄</button><button class="del" data-del="${ln.id}">🗑️</button></div>`; }
+  function railCtrl(ln){ return `<div class="rail__ctrl"><button data-up="${ln.id}">↑</button><button data-down="${ln.id}">↓</button><button data-tog="${ln.id}" title="${t('togglePB')}">⇄</button><button class="ins" data-ins="${ln.id}" title="${t('insRow')}">＋</button><button class="del" data-del="${ln.id}">🗑️</button></div>`; }
   function render(){
     const days=dayNames().slice(0,nbJours);
     gridEl.style.gridTemplateColumns=`minmax(124px,152px) repeat(${days.length}, minmax(0,1fr))`;
@@ -536,12 +537,17 @@ function mount(root, opts){
     else if(b.dataset.up){ moveRow(b.dataset.up,-1); }
     else if(b.dataset.down){ moveRow(b.dataset.down,1); }
     else if(b.dataset.tog){ const r=structure.find(x=>x.id===b.dataset.tog); if(r){ r.type=r.type==='period'?'break':'period'; commit(); } }
-    else if(b.dataset.del){ if(confirm(t('confDelRow'))){ structure=structure.filter(x=>x.id!==b.dataset.del); commit(); } }
-    else if(b.dataset.add==='period'){ structure.push({id:newId(),label:'Période '+(nbPeriodes()+1),type:'period',h1:'',h2:''}); commit(); }
+    else if(b.dataset.ins){ const i=structure.findIndex(x=>x.id===b.dataset.ins); if(i>=0){ structure.splice(i+1,0,{id:newId(),label:'Période 0',type:'period',h1:'',h2:''}); commit(); } }
+    else if(b.dataset.del){ if(rowEmpty(b.dataset.del)||confirm(t('confDelRow'))){ structure=structure.filter(x=>x.id!==b.dataset.del); commit(); } }
+    else if(b.dataset.add==='period'){ structure.push({id:newId(),label:'Période 0',type:'period',h1:'',h2:''}); commit(); }
     else if(b.dataset.add==='pause'){ structure.push({id:newId(),label:'Pause',type:'break',h1:'',h2:''}); commit(); }
   });
   function moveRow(id,dir){ const i=structure.findIndex(x=>x.id===id),j=i+dir; if(i<0||j<0||j>=structure.length)return; [structure[i],structure[j]]=[structure[j],structure[i]]; commit(); }
-  function commit(){ saveStruct(); render(); }
+  // Période « vide » = aucun groupe ni activité sur aucun jour → suppression sans confirmation.
+  function rowEmpty(id){ for(let di=0;di<nbJours;di++){ if((data[id+'_g_'+di]||'').trim()) return false; if((data[id+'_acts_'+di]||[]).length) return false; } return true; }
+  // Renumérote les périodes auto-nommées (1,2,3… de haut en bas) ; laisse les noms personnalisés.
+  function renumber(){ let n=0; const pre=(LANG==='fr'?'Période ':'Period '); structure.forEach(x=>{ if(x.type==='period'){ n++; if(/^(Période|Period)\s+\d+$/.test((x.label||'').trim())) x.label=pre+n; } }); }
+  function commit(){ renumber(); saveStruct(); render(); }
 
   // ── Toolbar ──
   $('.stepper').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;
