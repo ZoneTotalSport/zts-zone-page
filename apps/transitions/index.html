@@ -768,27 +768,14 @@ function getAudioCtx(){
   if(_audioCtx.state==='suspended') _audioCtx.resume();
   return _audioCtx;
 }
-// Ambiance sonore temporairement desactivee : images/gym-ambiance.mp3 (55 Mo)
-// depassait la limite DURE de 25 Mio/fichier de Cloudflare Pages et faisait
-// echouer tout le deploiement. Pour reactiver : re-ajouter un fichier compresse
-// (<25 Mio, ex. `ffmpeg -i src.mp3 -ac 1 -b:a 96k images/gym-ambiance.mp3`) puis
-// remettre AMBIANCE_AVAILABLE = true. Le bouton #ambianceBtn est masque tant que
-// c'est false.
-const AMBIANCE_AVAILABLE = false;
 // Unlock audio on first user interaction (iOS requirement) + start gym ambiance
 let _gymAmbiance = null;
 let _ambiancePlaying = false;
-if(!AMBIANCE_AVAILABLE){
-  document.addEventListener('DOMContentLoaded', function(){
-    var b = document.getElementById('ambianceBtn');
-    if(b) b.style.display = 'none';
-  });
-}
 ['click','touchstart','keydown'].forEach(evt=>{
   document.addEventListener(evt, function unlockAudio(){
     getAudioCtx();
     // Start gym ambiance sound on first interaction
-    if(AMBIANCE_AVAILABLE && !_ambiancePlaying){
+    if(!_ambiancePlaying){
       _gymAmbiance = new Audio('images/gym-ambiance.mp3');
       _gymAmbiance.loop = true;
       _gymAmbiance.volume = 0.15;
@@ -800,7 +787,6 @@ if(!AMBIANCE_AVAILABLE){
 });
 
 function toggleAmbiance(){
-  if(!AMBIANCE_AVAILABLE) return;
   if(!_gymAmbiance){
     _gymAmbiance = new Audio('images/gym-ambiance.mp3');
     _gymAmbiance.loop = true;
