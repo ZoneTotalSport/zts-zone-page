@@ -336,6 +336,79 @@ récupère du crawl budget.**
 
 ---
 
+## 7. AUDIT CONVERSION — chemins de consommation gratuite (analyse du code)
+
+> Complément READ-ONLY : « comment les visiteurs arrivent et consomment gratuitement les
+> outils ». Basé 100 % sur le code du repo (aucun réseau requis), donc factuel et vérifiable.
+
+### 7.1 Par où arrive le trafic (surfaces indexées)
+
+| Surface | Volume (sitemaps) | Rôle |
+|---|---:|---|
+| **Pages de jeux** `jeux/*.html` | **1 440 URLs** (`sitemap-jeux.xml`) | **surface SEO dominante** (longue traîne) |
+| Pages principales / hubs / articles | 87 URLs (`sitemap.xml`) | home + univers + blog |
+| Racines de sous-domaines | 11 URLs | apps externes |
+
+→ L'écrasante majorité des atterrissages organiques se fait sur des **fiches de jeux
+individuelles**, pas sur la home.
+
+### 7.2 Le trou noir de conversion (cause n°1)
+
+Les pages `jeux/*.html` chargent `shared/zts.js` + `firebase-auth.js` + `zts-funnel.js`, mais
+**aucun mécanisme de conversion** :
+
+| Élément | Présent sur les 1 440 fiches jeux ? | Preuve |
+|---|---|---|
+| Verrou / cadenas | ❌ Aucun | 0 fichier `jeux/` ne charge `zts-lock*` |
+| CTA « Créer un compte » | ❌ Aucun | `grep inscri\|compte gratuit\|débloque` = 0 sur échantillon |
+| Capture email / infolettre | ❌ Absente | `zts-newsletter.js` chargé sur 24 pages / ~2000 |
+| Événement funnel `locked_view` | ❌ Jamais émis | pas de lock → pas d'event |
+
+**Conséquence** : un visiteur Google lit **toute la fiche gratuitement**, repart, et sa visite
+est **invisible dans `conversionFunnel`**. La plus grosse source de trafic est **débranchée du
+tunnel d'inscription**.
+
+### 7.3 Là où le gate existe (surfaces à faible trafic d'entrée)
+
+- **Home / hubs** (`#gridActive`, `shared/zts-unlock.js`) : 1re app gratuite, reste 🔒, émet
+  `locked_view` (source `hub`).
+- **Pages d'apps** (`/apps/*`, `zts-lock-page.js`) : verrou plein écran dur (non-whitelist).
+- **Articles** (`zts-lock-page.js`) : demi-aperçu 50 % + CTA (bon mécanisme).
+- **Whitelist 100 % libre** (`locked-whitelist.json`) : `jeux, sae, nba-playoffs, nhl-playoffs,
+  suppleance, musique` + 2 articles.
+
+### 7.4 Aggravants secondaires
+
+- **Header partagé** : n'expose que **« Connexion »** (membres existants), **aucun CTA
+  « Créer un compte gratuit »** pour les nouveaux visiteurs.
+- **7 sous-domaines non verrouillés** (§3) : apps entières consommables gratis, hors funnel.
+- **Générateur** ouvert volontairement (limite anonyme `anonGenCount`) — friction faible.
+
+### 7.5 Verdict de l'audit conversion
+
+Ce n'est **pas d'abord un problème de trafic** : c'est une **fuite de conversion structurelle**.
+La machine SEO (1 440 fiches jeux) **attire** très bien mais est **déconnectée du tunnel**
+(ni gate, ni CTA, ni capture email, ni tracking). Le volume exact de ce trafic reste à confirmer
+via le script §1 / GA4, mais l'architecture convertirait **~0 %** sur les fiches jeux quel que
+soit le volume.
+
+### 7.6 Actions conversion (par impact)
+
+1. **Brancher les 1 440 fiches jeux au tunnel** : CTA d'inscription non-intrusif + capture email
+   en bas de fiche (« Débloque 90 cours d'ÉPS clé en main ») + bloc « ressources liées 🔒 ».
+   Plus gros levier (immense surface × 0 % actuel).
+2. **Header site-wide** : ajouter un bouton proéminent **« Créer un compte gratuit »** (visible
+   aussi sur les fiches jeux), en plus de « Connexion ».
+3. **Mesurer le volume** (script §1 + GA4) puis **fermer les 7 sous-domaines** pendants (§3).
+
+### Annexe conversion — fichiers inspectés
+`locked-whitelist.json` · `zts-lock.js` · `zts-lock-page.js` · `shared/zts-unlock.js` ·
+`shared/zts.js` · `header.html` · `zts-newsletter.js` · échantillon `jeux/*.html`
+(`tchoukball`, `le-crocodile`, `poissons-et-pecheur`, `harpastum`, `kin-ball`) ·
+`sitemap.xml` · `sitemap-jeux.xml`.
+
+---
+
 ### Annexe — fichiers clés inspectés
 `zts-funnel.js` · `firebase-auth.js` · `apps/generateur/zts-anon-fingerprint.js` ·
 `firestore.rules` · `robots.txt` · `sitemap.xml` · `sitemap-jeux.xml` ·
