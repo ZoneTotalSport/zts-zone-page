@@ -20,7 +20,7 @@
   if (!/\/jeux\//.test(location.pathname)) return;
 
   function slug() {
-    var m = location.pathname.match(/\/jeux\/([^\/]+?)(?:\.html)?$/);
+    var m = location.pathname.match(/\/jeux\/([^\/]+?)(?:\.html)?\/?$/);
     return m ? m[1] : 'jeu';
   }
 
@@ -67,6 +67,20 @@
   }
 
   var viewed = false;
+  var trackTries = 0;
+
+  // Envoi résilient de locked_view : zts-funnel.js peut n'être pas encore chargé
+  // quand render() s'exécute (ex. via le filet 2,5 s). On retente jusqu'à ~10 s
+  // plutôt que de perdre définitivement l'impression (métrique critique).
+  function trackView() {
+    if (viewed) return;
+    if (window.ztsTrackFunnel) {
+      viewed = true;
+      window.ztsTrackFunnel('locked_view', { source: 'jeu', slug: slug() });
+      return;
+    }
+    if (++trackTries <= 20) setTimeout(trackView, 500);
+  }
 
   function render() {
     if (document.getElementById('zts-jcta')) return;
@@ -89,10 +103,7 @@
       if (window.ztsShowSignup) window.ztsShowSignup();
     });
 
-    if (!viewed && window.ztsTrackFunnel) {
-      viewed = true;
-      window.ztsTrackFunnel('locked_view', { source: 'jeu', slug: slug() });
-    }
+    trackView();
   }
 
   function remove() {
@@ -103,21 +114,21 @@
   var decided = false;
   function apply(user) { decided = true; if (user) remove(); else render(); }
 
-  function attach() {
-    window.ztsOnAuth(function (user) { apply(user); });
-    // Filet : si firebase tarde ou échoue (SDK bloqué/lent), on affiche quand
-    // même le CTA en anonyme au bout de 2,5 s — jamais priver un visiteur.
-    setTimeout(function () { if (!decided) render(); }, 2500);
-  }
+  function attach() { window.ztsOnAuth(function (user) { apply(user); }); }
 
   function boot() {
+    // Filet indépendant : si l'état d'auth reste inconnu à 2,5 s (firebase lent
+    // ou SDK bloqué), on affiche le CTA en anonyme — jamais priver un visiteur.
+    setTimeout(function () { if (!decided) render(); }, 2500);
+
     if (window.ztsOnAuth) { attach(); return; }
-    // firebase-auth.js pas encore prêt : on retente ~3 s, puis on affiche.
+    // firebase-auth.js pas encore prêt : on CONTINUE de le chercher jusqu'à ~10 s
+    // (indépendamment du filet) pour pouvoir retirer le CTA si l'utilisateur
+    // s'avère finalement connecté.
     var tries = 0;
     (function tick() {
       if (window.ztsOnAuth) { attach(); return; }
-      if (++tries > 15) { render(); return; }
-      setTimeout(tick, 200);
+      if (++tries < 50) setTimeout(tick, 200);
     })();
   }
 
