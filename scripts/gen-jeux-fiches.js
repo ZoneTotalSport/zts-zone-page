@@ -40,7 +40,14 @@ function toList(v) {
 }
 function str(v) { return (v == null) ? '' : String(v); }
 function cap(s) { s = str(s).trim(); return s ? s.charAt(0) + s.slice(1).toLowerCase() : s; }
-function clip(s, n) { s = str(s).replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+function clip(s, n) {
+  s = str(s).replace(/\s+/g, ' ').trim();
+  if (s.length <= n) return s;
+  var cut = s.slice(0, n - 1);
+  var sp = cut.lastIndexOf(' ');
+  if (sp > n * 0.5) cut = cut.slice(0, sp);           // coupe sur un mot entier
+  return cut.replace(/[\s,;:.\-–—]+$/, '') + '…';     // pas de mot tronqué ni ponctuation orpheline
+}
 
 // fond gymnase + voile, commun à toutes les pages /jeux/
 const BODY_BG =
@@ -54,7 +61,7 @@ function buildPage(g, slug, related) {
   const cat = str(g.categoryName).trim();
   const icon = str(g.categoryIcon) || '🎮';
   const color = /^#[0-9a-fA-F]{3,6}$/.test(str(g.categoryColor)) ? g.categoryColor : '#00C4FF';
-  const desc = (but || ('Comment jouer à ' + nomTitre + ' : règles, déroulement et variantes.')).replace(/\s+/g, ' ').slice(0, 155);
+  const desc = clip(but || ('Comment jouer à ' + nomTitre + ' : règles, déroulement et variantes.'), 155);
 
   const facts = [];
   if (g.niveau) facts.push(['🎓', str(g.niveau)]);
