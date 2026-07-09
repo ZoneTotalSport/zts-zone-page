@@ -46,7 +46,7 @@ const CSS = `
 .sem-root .sheet__title{font-family:'Luckiest Guy',cursive;text-align:center;font-size:clamp(2.4rem,5.5vw,4rem);color:var(--jaune);-webkit-text-stroke:2px var(--ink);letter-spacing:1px;margin:0 0 4px}
 .sem-root .sheet__week{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .sem-root .sheet__week label{font-family:'Luckiest Guy','Bangers',cursive;color:var(--cyan);-webkit-text-stroke:1.5px var(--ink);font-size:clamp(1.8rem,4vw,2.8rem)}
-.sem-root .sheet__week input{font-family:'Bangers','Fredoka',cursive;font-weight:700;font-size:clamp(1.6rem,3.6vw,2.6rem);color:var(--orange);padding:6px 16px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink)}
+.sem-root .sheet__week input{font-family:'Bangers','Fredoka',cursive;font-weight:700;font-size:clamp(1.6rem,3.6vw,2.6rem);color:var(--metier-1);padding:6px 16px;border:var(--bord);border-radius:16px;box-shadow:5px 5px 0 var(--ink)}
 .sem-root .toolbar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 /* Boutons métier SÉPARÉS, couleur + motif propre à chaque corps de métier */
 .sem-root .metier-sw{display:flex;gap:12px;flex-wrap:wrap;width:100%;justify-content:center;margin-bottom:4px}
@@ -78,10 +78,11 @@ const CSS = `
 .sem-root .rail__lbl{font-family:'Luckiest Guy','Bangers',cursive;font-size:clamp(1rem,1.6vw,1.4rem);color:var(--cyan);-webkit-text-stroke:.4px var(--ink);text-shadow:2px 2px 0 var(--ink);border:none;text-align:center;width:100%;background:transparent}
 .sem-root .rail.alt .rail__lbl{color:var(--jaune-d)}
 .sem-root .rail__hrs{display:flex;align-items:center;gap:3px;font-family:'Fredoka';font-weight:700;font-size:1rem;color:#555}
-.sem-root .rail__hrs input{width:56px;text-align:center;border:2px dashed #bbb;border-radius:8px;font-family:'Fredoka';font-weight:700;font-size:1rem;padding:4px}
-.sem-root .rail__ctrl{display:flex;gap:3px;margin-top:3px}
-.sem-root .rail__ctrl button{cursor:pointer;width:26px;height:26px;border:2px solid var(--ink);border-radius:8px;background:#fff;box-shadow:1px 1px 0 var(--ink);font-size:.8rem;display:flex;align-items:center;justify-content:center;padding:0}
+.sem-root .rail__hrs input{width:48px;text-align:center;border:2px dashed #bbb;border-radius:8px;font-family:'Fredoka';font-weight:700;font-size:1rem;padding:4px}
+.sem-root .rail__ctrl{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;margin-top:3px}
+.sem-root .rail__ctrl button{cursor:pointer;width:24px;height:24px;border:2px solid var(--ink);border-radius:8px;background:#fff;box-shadow:1px 1px 0 var(--ink);font-size:.78rem;display:flex;align-items:center;justify-content:center;padding:0}
 .sem-root .rail__ctrl button:hover{background:var(--jaune)}.sem-root .rail__ctrl .del:hover{background:var(--rose);color:#fff}
+.sem-root .rail__ctrl .ins{background:var(--vert,#4ADE80);font-weight:900}.sem-root .rail__ctrl .ins:hover{background:#22c55e;color:#fff}
 .sem-root .rail--break{grid-column:1 / -1;background:var(--jaune);border-radius:14px;flex-direction:row;gap:10px;flex-wrap:wrap}
 .sem-root .rail--break .rail__lbl{color:var(--ink);-webkit-text-stroke:0;text-shadow:none;font-size:clamp(1.4rem,2.4vw,2rem);width:auto}
 .sem-root .addbar{grid-column:1 / -1;display:flex;gap:12px;justify-content:center;padding:4px}
@@ -91,7 +92,7 @@ const CSS = `
 .sem-root .day-hd__name{font-family:'Luckiest Guy',cursive;text-align:center;font-size:clamp(1.5rem,2.8vw,2.2rem);letter-spacing:.5px;padding:10px;display:flex;align-items:center;justify-content:center;gap:8px;
   background:linear-gradient(135deg,#5fd6ff 0%,var(--cyan) 45%,#0a96d8 100%);color:#fff;text-shadow:2px 2px 0 var(--ink)}
 .sem-root .day-hd__name input[type=checkbox]{width:22px;height:22px}
-.sem-root .day-hd__date{width:100%;text-align:center;font-family:'Bangers',cursive;font-size:clamp(1.4rem,2.8vw,2.2rem);letter-spacing:.5px;border:none;border-top:4px solid var(--ink);padding:10px 6px;background:#fff;color:var(--orange)}
+.sem-root .day-hd__date{width:100%;text-align:center;font-family:'Bangers',cursive;font-size:clamp(1.4rem,2.8vw,2.2rem);letter-spacing:.5px;border:none;border-top:4px solid var(--ink);padding:10px 6px;background:#fff;color:var(--metier-1)}
 .sem-root .slot{border:var(--bord);border-radius:18px;box-shadow:5px 5px 0 var(--ink);background:#fff;padding:8px;display:flex;flex-direction:column;gap:6px;min-height:120px;transition:transform .12s,box-shadow .12s,border-color .12s}
 .sem-root .slot:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 var(--ink);border-color:var(--cyan)}
 .sem-root .slot--off{background:#f1f5f9;border-style:dashed}
@@ -109,7 +110,7 @@ const CSS = `
 .sem-root .act-chip{display:flex;align-items:center;gap:6px;width:100%;text-align:left;cursor:pointer;font-family:'Fredoka';font-weight:700;font-size:1.18rem;background:#FFFCE0;border:3px solid var(--ink);border-radius:11px;box-shadow:3px 3px 0 var(--ink);padding:6px 9px;transition:transform .1s}
 .sem-root .act-chip:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink);background:#fff7c2}
 .sem-root .act-chip .t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sem-root .act-chip .dur{font-family:'Bangers',cursive;font-size:.95rem;color:var(--orange);background:#fff;border:2px solid var(--ink);border-radius:8px;padding:1px 6px}
+.sem-root .act-chip .dur{font-family:'Bangers',cursive;font-size:.95rem;color:var(--metier-1);background:#fff;border:2px solid var(--ink);border-radius:8px;padding:1px 6px}
 .sem-root .act-chip.is-done{filter:grayscale(1);opacity:.7;background:#e9e9e9}
 .sem-root .act-chip .chk{flex:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:'Bangers',cursive;font-size:1.25rem;color:#fff;border:2.5px solid var(--ink);border-radius:8px;background:#fff;box-shadow:1px 1px 0 var(--ink);transition:background .12s,transform .12s}
 .sem-root .act-chip .chk:hover{background:var(--vert);transform:scale(1.18)}
@@ -155,7 +156,7 @@ const CSS = `
 .sem-modal .bq-chip{font-family:'Fredoka';font-weight:700;font-size:.85rem;cursor:pointer;border:2.5px solid var(--ink);border-radius:11px;background:#fff;box-shadow:2px 2px 0 var(--ink);padding:4px 10px;transition:transform .1s,background .1s}
 .sem-modal .bq-chip:hover{transform:translate(-1px,-1px);background:#FFFCE0}
 .sem-modal .bq-chip.on{background:var(--jaune)}
-.sem-modal .bq-count{font-family:'Bangers',cursive;color:var(--orange);font-size:.95rem;margin:6px 0}
+.sem-modal .bq-count{font-family:'Bangers',cursive;color:var(--metier-1);font-size:.95rem;margin:6px 0}
 .sem-modal .bq-list{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow:auto;padding:2px}
 .sem-modal .bq-it{display:flex;flex-direction:column;gap:3px;text-align:left;cursor:pointer;background:#FFFCE0;border:3px solid var(--ink);border-radius:14px;box-shadow:3px 3px 0 var(--ink);padding:9px 12px;transition:transform .1s,box-shadow .1s}
 .sem-modal .bq-it:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 var(--ink);background:#fff7c2}
@@ -163,7 +164,7 @@ const CSS = `
 .sem-modal .bq-it__t{flex:1;font-family:'Bangers',cursive;font-size:1rem;color:var(--ink)}
 .sem-modal .bq-it__desc{font-family:'Fredoka';font-weight:500;font-size:.9rem;color:#333;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .sem-modal .bq-it__tags{font-family:'Fredoka';font-weight:600;font-size:.78rem;color:var(--gris-dd)}
-.sem-modal .bq-it .dur{font-family:'Bangers',cursive;font-size:.95rem;color:var(--orange);background:#fff;border:2px solid var(--ink);border-radius:8px;padding:1px 6px}
+.sem-modal .bq-it .dur{font-family:'Bangers',cursive;font-size:.95rem;color:var(--metier-1);background:#fff;border:2px solid var(--ink);border-radius:8px;padding:1px 6px}
 .sem-modal .bq-back{font-family:'Bangers',cursive;cursor:pointer;font-size:.9rem;border:3px solid var(--ink);border-radius:12px;box-shadow:3px 3px 0 var(--ink);padding:7px 14px;background:var(--gris)}
 .sem-modal .act-empty{font-family:'Fredoka';font-weight:600;font-size:1.05rem;opacity:.5}
 @media print{
@@ -209,7 +210,7 @@ function mount(root, opts){
   const I18N={
    fr:{title:'Planification de la semaine',weekOf:'Semaine du :',periods:'Périodes',toggleDays:'5 ↔ 3 jours',savePdf:'🖨️ Enregistrer PDF',clearWeek:'↺ Vider la semaine',
     ep:'ÉP',camp:'Camp',sdg:'SDG',period:'Période',recess:'Récréation',lunch:'Dîner',pause:'Pause',
-    group:'Groupe :',activities:'Activités :',noGame:'Aucun jeu — touche ＋',togglePB:'période↔pause',markTodo:'Marquer à faire',markDone:'Marquer comme fait',linkedTip:'Lié à la banque',done:'FAIT !',min:'min',game:'Jeu',
+    group:'Groupe :',activities:'Activités :',noGame:'Aucun jeu — touche ＋',togglePB:'période↔pause',insRow:'Insérer une période ici',markTodo:'Marquer à faire',markDone:'Marquer comme fait',linkedTip:'Lié à la banque',done:'FAIT !',min:'min',game:'Jeu',
     memFull:'⚠️ Mémoire pleine — fichier trop lourd.',tooHeavyA:'⚠️ ',tooHeavyB:' trop lourd (max ~2,5 Mo).',
     confRemoveLast:'Retirer le dernier jeu ?',confDelRow:'Supprimer cette ligne ?',confClear:'Vider la planification de cette semaine ?',addPeriod:'＋ Période',addPause:'＋ Pause',
     chooseLib:'📚 Choisir dans la banque',linkedLib:'📚 Lié à la banque',fTitle:'🎯 Titre du jeu',fTitlePh:'Ex : Capture du drapeau',fDesc:"📝 Description de l'activité",fDescPh:'Règles, but, matériel…',
@@ -220,7 +221,7 @@ function mount(root, opts){
     start:'▶ Démarrer',pauseBtn:'⏸ Pause',resume:'▶ Reprendre',gameOver:'🏀 JEU TERMINÉ !',openLink:'🔗 Ouvrir le lien'},
    en:{title:'Weekly Plan',weekOf:'Week of:',periods:'Periods',toggleDays:'5 ↔ 3 days',savePdf:'🖨️ Save PDF',clearWeek:'↺ Clear week',
     ep:'PE',camp:'Camp',sdg:'Daycare',period:'Period',recess:'Recess',lunch:'Lunch',pause:'Break',
-    group:'Group:',activities:'Activities:',noGame:'No game — tap ＋',togglePB:'period↔break',markTodo:'Mark as to-do',markDone:'Mark as done',linkedTip:'Linked to library',done:'DONE!',min:'min',game:'Game',
+    group:'Group:',activities:'Activities:',noGame:'No game — tap ＋',togglePB:'period↔break',insRow:'Insert a period here',markTodo:'Mark as to-do',markDone:'Mark as done',linkedTip:'Linked to library',done:'DONE!',min:'min',game:'Game',
     memFull:'⚠️ Memory full — file too large.',tooHeavyA:'⚠️ ',tooHeavyB:' too large (max ~2.5 MB).',
     confRemoveLast:'Remove the last game?',confDelRow:'Delete this row?',confClear:"Clear this week's plan?",addPeriod:'＋ Period',addPause:'＋ Break',
     chooseLib:'📚 Choose from the library',linkedLib:'📚 Linked to library',fTitle:'🎯 Game title',fTitlePh:'Ex: Capture the flag',fDesc:'📝 Activity description',fDescPh:'Rules, goal, equipment…',
@@ -332,10 +333,10 @@ function mount(root, opts){
     $('.sg-lang').textContent = LANG==='fr'?'EN':'FR';
   }
 
-  function railCtrl(ln){ return `<div class="rail__ctrl"><button data-up="${ln.id}">↑</button><button data-down="${ln.id}">↓</button><button data-tog="${ln.id}" title="${t('togglePB')}">⇄</button><button class="del" data-del="${ln.id}">🗑️</button></div>`; }
+  function railCtrl(ln){ return `<div class="rail__ctrl"><button data-up="${ln.id}">↑</button><button data-down="${ln.id}">↓</button><button data-tog="${ln.id}" title="${t('togglePB')}">⇄</button><button class="ins" data-ins="${ln.id}" title="${t('insRow')}">＋</button><button class="del" data-del="${ln.id}">🗑️</button></div>`; }
   function render(){
     const days=dayNames().slice(0,nbJours);
-    gridEl.style.gridTemplateColumns=`minmax(92px,120px) repeat(${days.length}, minmax(0,1fr))`;
+    gridEl.style.gridTemplateColumns=`minmax(124px,152px) repeat(${days.length}, minmax(0,1fr))`;
     gridEl.style.minWidth='0'; // la grille remplit toujours la zone → aucun défilement interne
     let html='<div></div>';
     days.forEach((j,di)=>{ html+=`<div class="day-hd j${di}"><div class="day-hd__name">${j} <input type="checkbox" data-off="${di}" ${data['off_'+di]?'checked':''}></div><input class="day-hd__date" data-date="${di}" value="${esc(data['date_'+di]||dayDate(di))}"></div>`; });
@@ -536,12 +537,17 @@ function mount(root, opts){
     else if(b.dataset.up){ moveRow(b.dataset.up,-1); }
     else if(b.dataset.down){ moveRow(b.dataset.down,1); }
     else if(b.dataset.tog){ const r=structure.find(x=>x.id===b.dataset.tog); if(r){ r.type=r.type==='period'?'break':'period'; commit(); } }
-    else if(b.dataset.del){ if(confirm(t('confDelRow'))){ structure=structure.filter(x=>x.id!==b.dataset.del); commit(); } }
-    else if(b.dataset.add==='period'){ structure.push({id:newId(),label:'Période '+(nbPeriodes()+1),type:'period',h1:'',h2:''}); commit(); }
+    else if(b.dataset.ins){ const i=structure.findIndex(x=>x.id===b.dataset.ins); if(i>=0){ structure.splice(i+1,0,{id:newId(),label:'Période 0',type:'period',h1:'',h2:''}); commit(); } }
+    else if(b.dataset.del){ if(rowEmpty(b.dataset.del)||confirm(t('confDelRow'))){ structure=structure.filter(x=>x.id!==b.dataset.del); commit(); } }
+    else if(b.dataset.add==='period'){ structure.push({id:newId(),label:'Période 0',type:'period',h1:'',h2:''}); commit(); }
     else if(b.dataset.add==='pause'){ structure.push({id:newId(),label:'Pause',type:'break',h1:'',h2:''}); commit(); }
   });
   function moveRow(id,dir){ const i=structure.findIndex(x=>x.id===id),j=i+dir; if(i<0||j<0||j>=structure.length)return; [structure[i],structure[j]]=[structure[j],structure[i]]; commit(); }
-  function commit(){ saveStruct(); render(); }
+  // Période « vide » = aucun groupe ni activité sur aucun jour → suppression sans confirmation.
+  function rowEmpty(id){ for(let di=0;di<nbJours;di++){ if((data[id+'_g_'+di]||'').trim()) return false; if((data[id+'_acts_'+di]||[]).length) return false; } return true; }
+  // Renumérote les périodes auto-nommées (1,2,3… de haut en bas) ; laisse les noms personnalisés.
+  function renumber(){ let n=0; const pre=(LANG==='fr'?'Période ':'Period '); structure.forEach(x=>{ if(x.type==='period'){ n++; if(/^(Période|Period)\s+\d+$/.test((x.label||'').trim())) x.label=pre+n; } }); }
+  function commit(){ renumber(); saveStruct(); render(); }
 
   // ── Toolbar ──
   $('.stepper').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return;

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<!-- App — Performances élèves (Éducation physique). Gabarit partagé + standard ZTS Premium Lumineux. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Performances élèves — filme, classe, observe (PFEQ) — Zone Total Sport</title>
+  <!-- ZTS-SEO -->
+  <meta name="description" content="Filme les performances de tes élèves avec ta tablette ou ton iPhone : la vidéo se range automatiquement dans ton Drive, classée par classe, date et année, avec ton observation PFEQ. Gratuit.">
+  <link rel="canonical" href="https://zonetotalsport.ca/apps/performances/">
+  <link rel="alternate" hreflang="fr-CA" href="https://zonetotalsport.ca/apps/performances/">
+  <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/apps/performances/">
+  <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/apps/performances/">
+  <meta property="og:title" content="Performances élèves — filme, classe, observe (PFEQ)">
+  <meta property="og:description" content="Filme une performance d'élève : vidéo auto-rangée dans ton Drive, fiche classée par classe, date, année et critère PFEQ. 100% éditable, 100% gratuit.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zonetotalsport.ca/apps/performances/">
+  <meta property="og:image" content="https://zonetotalsport.ca/favicon.png">
+  <meta property="og:locale" content="fr_CA">
+  <meta property="og:site_name" content="Zone Total Sport">
+  <meta name="twitter:card" content="summary">
+  <!-- /ZTS-SEO -->
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebApplication",
+   "name":"Performances élèves — Zone Total Sport",
+   "description":"Filme les performances de tes élèves : vidéo automatiquement stockée dans ton Drive et fiche d'observation PFEQ classée par classe, date et année. Éditable et gratuit.",
+   "url":"https://zonetotalsport.ca/apps/performances/",
+   "applicationCategory":"EducationApplication","operatingSystem":"Web",
+   "inLanguage":["fr-CA"],"isAccessibleForFree":true}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=DynaPuff:wght@400..700&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <style>
+    /* ── ZTS Premium Lumineux — ancre #004A61, hard shadows, coins puffy ── */
+    :root{
+      --pf-ink:#004A61; --pf-cyan:#00C4FF; --pf-jaune:#FFF000; --pf-rose:#FF007F;
+      --pf-lime:#4ADE80; --pf-orange:#FF8C00;
+      --pf-bord:4px solid var(--pf-ink);
+      --pf-ombre:8px 8px 0 0 rgba(0,74,97,1);
+      --pf-ombre-sm:4px 4px 0 0 rgba(0,74,97,1);
+    }
+    body{ background:#f8fafc; }
+    .pf-wrap{ max-width:1100px; margin:0 auto; padding:0 16px 80px; }
+
+    /* Hero */
+    .pf-hero{ background:radial-gradient(circle at 30% 20%, var(--pf-cyan), var(--pf-ink) 75%);
+      border-bottom:8px solid var(--pf-ink); padding:56px 20px 64px; text-align:center; }
+    .pf-hero h1{ font-family:'Luckiest Guy',cursive; color:#fff; font-size:clamp(34px,6vw,64px);
+      margin:0; line-height:1.05; text-shadow:4px 4px 0 var(--pf-ink); }
+    .pf-hero p{ font-family:'DynaPuff',cursive; color:#fff; font-size:clamp(16px,2.4vw,21px);
+      max-width:62ch; margin:14px auto 0; }
+    .pf-hero .badge{ display:inline-block; background:linear-gradient(135deg,var(--pf-jaune),#FFC107);
+      color:var(--pf-ink); font-family:'Luckiest Guy',cursive; padding:8px 18px; border-radius:16px;
+      border:3px solid var(--pf-ink); transform:rotate(-2deg); box-shadow:var(--pf-ombre-sm);
+      margin-bottom:14px; font-size:15px; letter-spacing:1px; }
+
+    /* Cartes / sections */
+    .pf-card{ background:#fff; border:var(--pf-bord); border-radius:2.5rem; box-shadow:var(--pf-ombre);
+      padding:28px; margin-top:44px; }
+    .pf-card h2{ font-family:'Luckiest Guy',cursive; color:var(--pf-ink); font-size:clamp(22px,3.4vw,32px);
+      margin:0 0 14px; letter-spacing:.5px; }
+    .pf-card h3, .pf-doc h3{ font-family:'Luckiest Guy',cursive; color:var(--pf-ink); font-size:19px; margin:22px 0 8px; }
+    .pf-card, .pf-card p, .pf-card li, .pf-card label,
+    .pf-doc, .pf-doc p, .pf-doc li{ font-family:'DynaPuff',cursive; color:#1e3a4a; }
+
+    /* Boutons push */
+    .pf-btn{ font-family:'Luckiest Guy',cursive; font-size:18px; letter-spacing:1px; cursor:pointer;
+      color:var(--pf-ink); background:var(--pf-jaune); border:var(--pf-bord); border-radius:1.5rem;
+      padding:14px 26px; box-shadow:var(--pf-ombre); transition:all .15s; display:inline-flex;
+      align-items:center; gap:10px; text-decoration:none; }
+    .pf-btn:hover{ transform:scale(1.04) rotate(1deg); }
+    .pf-btn:active{ transform:translate(8px,8px); box-shadow:0 0 0 0 rgba(0,74,97,0); }
+    .pf-btn.cyan{ background:var(--pf-cyan); color:#fff; }
+    .pf-btn.lime{ background:var(--pf-lime); }
+    .pf-btn.rose{ background:var(--pf-rose); color:#fff; }
+    .pf-btn.ghost{ background:#fff; }
+    .pf-btn.sm{ font-size:14px; padding:9px 16px; box-shadow:var(--pf-ombre-sm); border-width:3px; }
+    .pf-btn.sm:active{ transform:translate(4px,4px); }
+    .pf-btn[disabled]{ opacity:.45; pointer-events:none; }
+
+    /* Étapes cloud */
+    .pf-steps{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:22px; margin-top:18px; }
+    .pf-step{ border:var(--pf-bord); border-radius:2rem; box-shadow:var(--pf-ombre-sm); overflow:hidden;
+      background:#fff; display:flex; flex-direction:column; }
+    .pf-step .top{ flex:1; padding:20px; text-align:center; font-size:44px; }
+    .pf-step .bas{ border-top:var(--pf-bord); padding:10px 14px; font-family:'Luckiest Guy',cursive;
+      color:#fff; font-size:16px; letter-spacing:.5px; }
+    .pf-step p{ font-size:14px; margin:8px 0 0; }
+    .pf-step:nth-child(1) .bas{ background:var(--pf-cyan); }
+    .pf-step:nth-child(2) .bas{ background:var(--pf-rose); }
+    .pf-step:nth-child(3) .bas{ background:var(--pf-orange); }
+    .pf-step:nth-child(4) .bas{ background:var(--pf-lime); color:var(--pf-ink); }
+
+    /* Statuts connexion */
+    .pf-status{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-top:10px; }
+    .pf-chip{ font-family:'DynaPuff',cursive; font-weight:700; font-size:14px; padding:7px 14px;
+      border:3px solid var(--pf-ink); border-radius:14px; background:#fff; box-shadow:var(--pf-ombre-sm); }
+    .pf-chip.ok{ background:var(--pf-lime); }
+    .pf-chip.ko{ background:#ffd9d9; }
+
+    /* Formulaire fiche */
+    .pf-form{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin-top:14px; }
+    .pf-field{ display:flex; flex-direction:column; gap:6px; }
+    .pf-field label{ font-family:'Luckiest Guy',cursive; font-size:13px; color:var(--pf-ink); letter-spacing:.5px; }
+    .pf-field input,.pf-field select,.pf-field textarea{ font-family:'DynaPuff',cursive; font-size:16px;
+      padding:11px 14px; border:3px solid var(--pf-ink); border-radius:1.2rem; background:#fff;
+      box-shadow:var(--pf-ombre-sm); outline:none; }
+    .pf-field input:focus,.pf-field select:focus,.pf-field textarea:focus{ background:#FFFDE0; }
+    .pf-field.full{ grid-column:1/-1; }
+    .pf-field textarea{ min-height:90px; resize:vertical; }
+
+    /* Zone capture */
+    .pf-capture{ border:4px dashed var(--pf-ink); border-radius:2rem; background:#E9FAFF; padding:22px;
+      text-align:center; margin-top:16px; }
+    .pf-capture video{ width:100%; max-height:340px; border:var(--pf-bord); border-radius:1.5rem;
+      background:#000; margin-top:14px; }
+    .pf-progress{ height:26px; border:3px solid var(--pf-ink); border-radius:14px; background:#fff;
+      overflow:hidden; margin-top:12px; display:none; }
+    .pf-progress > div{ height:100%; width:0%; background:linear-gradient(90deg,var(--pf-cyan),var(--pf-lime));
+      transition:width .3s; }
+    .pf-progress-label{ font-size:13px; font-weight:700; margin-top:4px; }
+
+    /* Filtres + liste des fiches */
+    .pf-filtres{ display:flex; flex-wrap:wrap; gap:10px; margin:14px 0; }
+    .pf-filtres select,.pf-filtres input{ font-family:'DynaPuff',cursive; font-size:14px; padding:8px 12px;
+      border:3px solid var(--pf-ink); border-radius:1rem; background:#fff; box-shadow:var(--pf-ombre-sm); }
+    .pf-classe{ margin-top:26px; }
+    .pf-classe > h3{ display:inline-block; background:var(--pf-cyan); color:#fff; padding:8px 20px;
+      border:var(--pf-bord); border-radius:1.2rem; box-shadow:var(--pf-ombre-sm); transform:rotate(-1deg); }
+    .pf-item{ border:var(--pf-bord); border-radius:1.6rem; box-shadow:var(--pf-ombre-sm); background:#fff;
+      padding:16px 18px; margin-top:14px; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start; }
+    .pf-item .meta{ flex:1 1 260px; }
+    .pf-item .eleve{ font-family:'Luckiest Guy',cursive; font-size:19px; color:var(--pf-ink); }
+    .pf-item .tags{ display:flex; flex-wrap:wrap; gap:6px; margin:6px 0; }
+    .pf-item .tags span{ font-size:12px; font-weight:700; border:2px solid var(--pf-ink); border-radius:10px;
+      padding:2px 9px; background:#FFFDE0; }
+    .pf-item .obs{ font-size:14.5px; white-space:pre-wrap; }
+    .pf-item .acts{ display:flex; gap:8px; flex-wrap:wrap; }
+    .pf-empty{ opacity:.7; font-size:15px; padding:14px 0; }
+
+    /* Section explicative */
+    .pf-doc ol{ padding-left:22px; }
+    .pf-doc li{ margin:10px 0; font-size:16px; }
+    .pf-doc .astuce{ border:3px solid var(--pf-ink); border-radius:1.4rem; background:#FFFDE0;
+      box-shadow:var(--pf-ombre-sm); padding:14px 18px; margin:16px 0; font-size:15px; }
+    .pf-doc .warn{ background:#FFE4EF; }
+    details.pf-faq{ border:3px solid var(--pf-ink); border-radius:1.4rem; box-shadow:var(--pf-ombre-sm);
+      background:#fff; padding:12px 18px; margin-top:12px; }
+    details.pf-faq summary{ font-family:'Luckiest Guy',cursive; color:var(--pf-ink); font-size:16px;
+      cursor:pointer; letter-spacing:.5px; }
+    details.pf-faq p{ font-size:14.5px; margin:10px 0 4px; }
+
+    /* Modal édition */
+    .pf-modal{ position:fixed; inset:0; background:rgba(0,40,55,.55); display:none; z-index:400;
+      align-items:flex-start; justify-content:center; padding:5vh 16px; overflow:auto; }
+    .pf-modal.open{ display:flex; }
+    .pf-modal .box{ background:#fff; border:var(--pf-bord); border-radius:2rem; box-shadow:12px 12px 0 0 rgba(0,74,97,1);
+      max-width:640px; width:100%; padding:24px; }
+    .pf-modal .box.wide{ max-width:780px; position:relative; padding:28px; }
+    .pf-help-x{ position:absolute; top:14px; right:16px; font-family:'Luckiest Guy',cursive; font-size:18px;
+      color:var(--pf-ink); background:var(--pf-jaune); border:3px solid var(--pf-ink); border-radius:14px;
+      padding:6px 12px; cursor:pointer; box-shadow:var(--pf-ombre-sm); transition:all .12s; }
+    .pf-help-x:hover{ transform:scale(1.08) rotate(3deg); }
+    .pf-helpbtn{ position:fixed; bottom:18px; right:18px; z-index:390; font-size:26px; line-height:1;
+      background:var(--pf-jaune); border:4px solid var(--pf-ink); border-radius:50%; width:64px; height:64px;
+      cursor:pointer; box-shadow:var(--pf-ombre-sm); transition:all .15s; animation:pf-float 3s ease-in-out infinite; }
+    .pf-helpbtn:hover{ transform:scale(1.12) rotate(6deg); animation:none; }
+    .pf-helpbtn:active{ transform:translate(4px,4px); box-shadow:0 0 0 0 rgba(0,74,97,0); }
+    .pf-toast{ position:fixed; left:50%; bottom:26px; transform:translateX(-50%); z-index:500;
+      background:var(--pf-ink); color:#fff; font-family:'DynaPuff',cursive; font-weight:700;
+      padding:12px 22px; border-radius:1.2rem; border:3px solid #fff; box-shadow:var(--pf-ombre-sm);
+      display:none; max-width:90vw; }
+
+    @keyframes pf-float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .pf-float{ animation:pf-float 3s ease-in-out infinite; display:inline-block; }
+    @media(max-width:640px){ .pf-card{ padding:20px; border-radius:1.8rem; } }
+  </style>
+</head>
+<body data-metier="ep" class="has-perso">
+
+  <div data-zts-header></div>
+
+  <nav class="zts-subnav">
+    <a href="/ep.html">← Zone ÉP</a>
+  </nav>
+
+  <header class="pf-hero">
+    <span class="badge">📱 TABLETTE + IPHONE</span>
+    <h1>PERFORMANCES <span class="pf-float">🎥</span> ÉLÈVES</h1>
+    <p>Filme la performance, elle se range <b>toute seule dans ton cloud</b> — classée par
+      <b>classe</b>, <b>date</b>, <b>année</b> et <b>critère PFEQ</b>. Tout est éditable, rien ne se perd.</p>
+    <button class="pf-btn" data-help-open style="margin-top:20px">❓ COMMENT ÇA MARCHE</button>
+  </header>
+
+  <main class="pf-wrap">
+
+    <!-- ÉTAPE 0 : connexions -->
+    <section class="pf-card" id="pf-connect">
+      <h2>1️⃣ Tes deux connexions</h2>
+      <p>Pour filmer et stocker automatiquement, il te faut <b>un compte ZTS</b> (les fiches) et
+        <b>un cloud Google Drive</b> (les vidéos). Les vidéos restent dans <b>TON</b> Drive — jamais sur nos serveurs.</p>
+      <div class="pf-status">
+        <span class="pf-chip ko" id="chip-zts">⏳ Compte ZTS…</span>
+        <span class="pf-chip ko" id="chip-drive">☁️ Cloud non connecté</span>
+      </div>
+      <div class="pf-status">
+        <button class="pf-btn cyan" id="btn-login" hidden>🔑 Me connecter</button>
+        <button class="pf-btn lime" id="btn-drive" hidden>☁️ Connecter mon Drive</button>
+      </div>
+    </section>
+
+    <!-- ÉTAPE 1 : fiche + capture -->
+    <section class="pf-card" id="pf-nouvelle">
+      <h2>2️⃣ Nouvelle performance</h2>
+      <div class="pf-form">
+        <div class="pf-field">
+          <label>Numéro de classe *</label>
+          <input id="f-classe" placeholder="ex. 301" maxlength="12" inputmode="numeric">
+        </div>
+        <div class="pf-field">
+          <label>Élève *</label>
+          <input id="f-eleve" placeholder="Prénom (ou initiales)" maxlength="40">
+        </div>
+        <div class="pf-field">
+          <label>Date de la performance</label>
+          <input id="f-date" type="date">
+        </div>
+        <div class="pf-field">
+          <label>Année scolaire</label>
+          <select id="f-annee"></select>
+        </div>
+        <div class="pf-field">
+          <label>Compétence PFEQ</label>
+          <select id="f-comp"></select>
+        </div>
+        <div class="pf-field">
+          <label>Critère observé (PFEQ)</label>
+          <select id="f-critere"></select>
+        </div>
+        <div class="pf-field full">
+          <label>Qu'est-ce qui a été observé?</label>
+          <textarea id="f-obs" placeholder="ex. Maintient son équilibre 8 s sur la poutre; bras stabilisateurs bien placés. À travailler : la réception."></textarea>
+        </div>
+      </div>
+
+      <div class="pf-capture">
+        <b style="font-size:17px">🎬 La vidéo (optionnelle mais magique)</b>
+        <p style="margin:8px 0 14px; font-size:14.5px">Sur iPad/iPhone, « Filmer » ouvre directement la caméra.
+          La vidéo part <b>automatiquement</b> dans ton Drive dès que tu enregistres la fiche.</p>
+        <input type="file" id="f-video" accept="video/*" capture="environment" hidden>
+        <input type="file" id="f-video-import" accept="video/*" hidden>
+        <button class="pf-btn rose" id="btn-filmer">🎥 FILMER</button>
+        <button class="pf-btn ghost" id="btn-importer">📁 Importer une vidéo</button>
+        <div id="f-video-info" style="margin-top:10px; font-weight:700; font-size:14px"></div>
+        <video id="f-preview" controls playsinline hidden></video>
+        <div class="pf-progress" id="f-progress"><div></div></div>
+        <div class="pf-progress-label" id="f-progress-label"></div>
+      </div>
+
+      <div style="margin-top:22px; text-align:center">
+        <button class="pf-btn" id="btn-save" style="font-size:22px">💾 ENREGISTRER LA PERFORMANCE</button>
+      </div>
+    </section>
+
+    <!-- ÉTAPE 2 : le classeur -->
+    <section class="pf-card" id="pf-classeur">
+      <h2>3️⃣ Ton classeur de performances</h2>
+      <p>Chaque fiche est <b>classée par numéro de classe</b>. Clique ✏️ pour tout modifier, 🎬 pour revoir la vidéo.</p>
+      <div class="pf-filtres">
+        <select id="fl-annee"><option value="">Toutes les années</option></select>
+        <select id="fl-classe"><option value="">Toutes les classes</option></select>
+        <select id="fl-comp"><option value="">Toutes les compétences</option></select>
+        <input id="fl-eleve" placeholder="🔎 Chercher un élève…">
+      </div>
+      <div id="pf-liste"><div class="pf-empty">Connecte-toi pour voir tes fiches.</div></div>
+    </section>
+
+  </main>
+
+  <!-- POPUP EXPLICATIF (bouton ❓ — la page reste courte, l'aide est à un tap) -->
+  <div class="pf-modal" id="pf-help">
+    <div class="box wide pf-doc">
+      <button class="pf-help-x" data-help-close title="Fermer">✕</button>
+      <h2 style="font-family:'Luckiest Guy',cursive; color:var(--pf-ink); font-size:clamp(22px,3.4vw,30px); margin:0 0 14px">💡 Comment fonctionne cet outil</h2>
+
+      <p style="font-size:17px">Cet outil transforme ta tablette ou ton iPhone en
+        <b>assistant d'observation</b> : tu filmes une performance au gymnase, et en 20 secondes elle est
+        <b>stockée, classée et documentée</b> selon le PFEQ. Fini les vidéos perdues dans la pellicule photo!</p>
+
+      <div class="pf-steps">
+        <div class="pf-step"><div class="top">🎥<p>Tu filmes l'élève avec l'appareil que tu as déjà dans les mains.</p></div><div class="bas">1. FILME</div></div>
+        <div class="pf-step"><div class="top">☁️<p>La vidéo monte automatiquement dans TON Google Drive, dans un dossier rangé par année et par classe.</p></div><div class="bas">2. STOCKE</div></div>
+        <div class="pf-step"><div class="top">🗂️<p>La fiche est classée : numéro de classe, date, année, critère PFEQ observé.</p></div><div class="bas">3. CLASSE</div></div>
+        <div class="pf-step"><div class="top">✏️<p>Tout est modifiable après coup : observation, cote, critère, élève, date.</p></div><div class="bas">4. ÉDITE</div></div>
+      </div>
+
+      <h3>🔧 En détail, étape par étape</h3>
+      <ol>
+        <li><b>Connecte ton compte ZTS</b> (le même que partout sur le site). C'est lui qui garde tes
+          <b>fiches d'observation</b> : elles te suivent sur tous tes appareils.</li>
+        <li><b>Connecte ton cloud</b> avec le bouton « ☁️ Connecter mon Drive ». Une fenêtre Google s'ouvre :
+          tu autorises l'app à déposer des fichiers dans ton Drive. L'app ne voit <b>que</b> les fichiers
+          qu'elle crée elle-même (permission « drive.file ») — jamais le reste de ton Drive.</li>
+        <li><b>Remplis la fiche</b> : numéro de classe (ex. 301), élève, date (aujourd'hui par défaut),
+          année scolaire (détectée automatiquement), compétence PFEQ (Agir / Interagir / Adopter un mode de vie sain)
+          puis le critère précis parmi les <b>67 critères du référentiel</b> — le même que le Carnet ÉPS.</li>
+        <li><b>Filme</b> : « 🎥 FILMER » ouvre la caméra de l'iPad/iPhone (ou « 📁 Importer » pour une vidéo déjà
+          tournée). Tu vois un aperçu avant d'enregistrer.</li>
+        <li><b>Enregistre</b> : la vidéo est téléversée dans ton Drive dans
+          <b>ZTS Performances → 2026-2027 → Classe 301</b> (les dossiers se créent tout seuls), nommée
+          <code>301_2026-05-12_Prénom_critère.mp4</code>. La fiche apparaît dans ton classeur, groupée par classe.</li>
+        <li><b>Consulte et édite</b> : filtre par année, classe, compétence ou élève. Le bouton 🎬 rejoue la vidéo
+          depuis ton Drive; ✏️ ouvre la fiche complète pour tout modifier; 🗑️ supprime la fiche
+          (et te laisse le choix de garder ou non la vidéo dans le Drive).</li>
+      </ol>
+
+      <h3>🔒 Où vont les données?</h3>
+      <ol>
+        <li><b>Les vidéos</b> : uniquement dans <b>ton</b> Google Drive, sous ton compte, dans tes dossiers.
+          Zone Total Sport n'héberge aucune image d'élève.</li>
+        <li><b>Les fiches</b> (classe, date, critère, observation) : dans ton compte ZTS, visibles par toi seul.</li>
+        <li><b>Astuce vie privée</b> : utilise le prénom ou les initiales de l'élève — pas besoin du nom complet.</li>
+      </ol>
+
+      <div class="astuce">💛 <b>Astuce de prof</b> : filme 10-15 secondes maximum par performance. C'est assez pour
+        documenter le critère, ça téléverse vite au gymnase, et ton Drive te dira merci.</div>
+      <div class="astuce warn">⚠️ <b>Important — consentement</b> : avant de filmer des élèves, assure-toi de respecter
+        la politique de ton école et du centre de services scolaire sur la captation d'images
+        (autorisations parentales). Cet outil stocke dans TON cloud, mais la responsabilité de la captation reste la tienne.</div>
+
+      <h3>❓ Questions fréquentes</h3>
+      <details class="pf-faq"><summary>Pourquoi ça prend un cloud?</summary>
+        <p>Une vidéo pèse lourd (souvent 20-60 Mo). Les garder « dans l'app » remplirait ta tablette et
+        rien ne serait sauvegardé. En les envoyant automatiquement dans ton Drive, tes performances sont
+        en sécurité, accessibles de partout, et tu peux même les partager avec un parent ou un collègue
+        directement depuis Drive si tu le souhaites.</p></details>
+      <details class="pf-faq"><summary>Ça fonctionne sur quels appareils?</summary>
+        <p>iPhone, iPad, tablette Android, Chromebook et ordinateur. Sur mobile/tablette, « FILMER » ouvre la
+        caméra native — la meilleure qualité possible. Sur ordinateur, tu peux importer une vidéo existante.</p></details>
+      <details class="pf-faq"><summary>Combien ça coûte?</summary>
+        <p>Rien. L'outil est gratuit, et Google Drive offre 15 Go gratuits (assez pour ~300-500 courtes vidéos).
+        Ton centre de services scolaire fournit souvent un compte Google avec beaucoup plus d'espace.</p></details>
+      <details class="pf-faq"><summary>Et si je n'ai pas de connexion au gymnase?</summary>
+        <p>Filme quand même avec l'app Caméra de ton appareil, puis reviens ici et utilise
+        « 📁 Importer une vidéo » quand tu retrouves le wifi. La fiche se classe pareil.</p></details>
+      <details class="pf-faq"><summary>Puis-je changer une observation après coup?</summary>
+        <p>Oui — tout est éditable : l'observation, le critère PFEQ, la cote, la date, l'élève et même le numéro
+        de classe. Clique ✏️ sur n'importe quelle fiche.</p></details>
+      <details class="pf-faq"><summary>Quelle est la différence avec le Carnet ÉPS?</summary>
+        <p>Le <a href="/apps/evaluation/">Carnet ÉPS</a> sert à coter tout un groupe critère par critère.
+        Ici, on documente <b>une performance précise d'un élève</b> avec une preuve vidéo — parfait pour les
+        bulletins, les rencontres de parents et le suivi des progrès.</p></details>
+      <div style="text-align:center; margin-top:22px">
+        <button class="pf-btn lime" data-help-close>✅ C'EST CLAIR, GO!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bouton d'aide flottant : l'explication est toujours à un tap -->
+  <button class="pf-helpbtn" data-help-open title="Comment ça marche?">❓</button>
+
+  <!-- Modal édition -->
+  <div class="pf-modal" id="pf-modal">
+    <div class="box">
+      <h2 style="font-family:'Luckiest Guy',cursive; color:var(--pf-ink); margin:0 0 12px">✏️ Modifier la fiche</h2>
+      <div class="pf-form" id="pf-modal-form"></div>
+      <div style="display:flex; gap:10px; margin-top:18px; flex-wrap:wrap">
+        <button class="pf-btn lime sm" id="m-save">💾 Sauvegarder</button>
+        <button class="pf-btn ghost sm" id="m-cancel">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pf-toast" id="pf-toast"></div>
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="/firebase-auth.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>

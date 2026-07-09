@@ -1,3 +1,15 @@
+> # ⚠️ DOCUMENT PÉRIMÉ — NE PAS UTILISER COMME RÉFÉRENCE DE SCHÉMA
+>
+> Ce document décrit un schéma `snake_case` **français seulement** qui **ne correspond plus
+> aux données réelles**. Le schéma RÉEL de `jeux-merged.json` (1439 jeux) est :
+> - **`camelCase`** (`title`, `but`, `deroulement`, `nbJoueursMax`, `dureeMin`, `consignesSecurite`…)
+> - **bilingue FR/EN** : chaque champ de contenu a un jumeau `…En` (`titleEn`, `butEn`, `deroulementEn`…)
+> - enrichi du champ **`univers[]`** (`eps` | `camps` | `sdg`) ajouté lors du seed Biblio.
+>
+> Conservé pour mémoire historique uniquement. Source de vérité = le JSON lui-même.
+
+---
+
 # SCHÉMA OFFICIEL v2 — Banque de Jeux Sportifs Mondiaux
 
 **Date :** 2026-04-08

@@ -138,6 +138,24 @@ const GrillesType = {
   async update(id,d) { (await getDb()).collection('grillesType').doc(id).update(d); },
 };
 
+// Plans (coquille v2) : planification séquentielle + annuelle.
+// 1 doc par (groupe, année scolaire, type) — owner-only via uid (règle `plans`).
+//   seq      : { sequences:[{id,titre,cours:[{date,texte}]}] }
+//   annuelle : { weeks:{ '<lundi ISO>':{act,comp} } }
+const Plans = {
+  docId(gid,annee,type) { return `${gid}__${annee}__${type}`; },
+  async get(gid,annee,type) {
+    const s=await (await getDb()).collection('plans').doc(this.docId(gid,annee,type)).get();
+    return s.exists?s.data():null;
+  },
+  async save(gid,annee,type,data) {
+    await (await getDb()).collection('plans').doc(this.docId(gid,annee,type)).set({
+      ...data, uid:state.user.uid, groupeId:gid, annee, type,
+      ts:firebase.firestore.FieldValue.serverTimestamp(),
+    },{merge:true});
+  },
+};
+
 // Vue Semaine (grille riche) : 1 doc par (groupe, lundi ISO).
 // Les médias FICHIERS (data URL) ne sont PAS écrits au cloud (limite Firestore 1 Mo) —
 // seuls liens + réfs banque + titre/desc/durée sync ; le miroir localStorage garde tout.
@@ -396,7 +414,7 @@ function renderSetup() {
         <input class="p-input" id="setup-groupe" placeholder="Les Dauphins" required></div>
       <div class="p-field"><label class="p-label">Theme (optionnel)</label>
         <input class="p-input" id="setup-theme" placeholder="Aventure"></div>
-      <button class="zts-btn zts-btn--primary" data-action="save-setup" style="width:100%;margin-top:var(--space-3)">Creer mon groupe</button>
+      <button class="zts-action zts-action--metier" data-action="save-setup" style="width:100%;margin-top:var(--space-3)">Creer mon groupe</button>
     </div>
   </div>`;
 }
@@ -438,8 +456,8 @@ function renderCoordo() {
       <span class="p-group-theme"> · ${state.coordoGroups.length} groupe(s) · ${totPres}/${totEnf} présent(s)${totFlag?` · ⚠ ${totFlag} hors-liste`:''}</span>
     </div>
     <div style="display:flex;gap:6px">
-      <button class="zts-btn p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages">\u{1F4AC}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
-      <button class="zts-btn" data-action="exit-coordo" style="font-size:var(--fs-1)">↩ Vue animateur</button>
+      <button class="zts-action zts-action--neutre p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages">\u{1F4AC}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
+      <button class="zts-action zts-action--neutre" data-action="exit-coordo" style="font-size:var(--fs-1)">↩ Vue animateur</button>
     </div>
   </div>
   <div class="p-date-nav" style="margin:var(--space-2) 0 var(--space-4)">
@@ -558,7 +576,7 @@ function renderThread() {
     <div class="p-msg-body" id="msg-thread-body"></div>
     <div class="p-msg-compose">
       <textarea class="p-input" id="msg-input" rows="2" placeholder="Écris un message…"></textarea>
-      <button class="zts-btn zts-btn--primary" data-action="send-message">Envoyer</button>
+      <button class="zts-action zts-action--metier" data-action="send-message">Envoyer</button>
     </div>`;
   renderThreadBody();
   const ta=document.getElementById('msg-input'); if(ta) ta.focus();
@@ -613,17 +631,17 @@ function renderGroupBar() {
       <span class="p-group-theme"> \u00B7 ${state.enfants.length} enfant(s)</span>
     </div>
     <div style="display:flex;gap:6px">
-      <button class="zts-btn p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages du coordonnateur">\u{1F514}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
-      <button class="zts-btn" data-action="enter-coordo" style="font-size:var(--fs-1)" title="Vue coordonnateur">\u{1F451}</button>
-      <button class="zts-btn" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
+      <button class="zts-action zts-action--neutre p-msg-bell" data-msg-bell data-action="open-messages" style="font-size:var(--fs-1);position:relative" title="Messages du coordonnateur">\u{1F514}<span class="p-msg-badge" data-msg-badge style="display:none">0</span></button>
+      <button class="zts-action zts-action--neutre" data-action="enter-coordo" style="font-size:var(--fs-1)" title="Vue coordonnateur">\u{1F451}</button>
+      <button class="zts-action zts-action--neutre" data-action="edit-groupe" style="font-size:var(--fs-1)">\u2699</button>
     </div>
   </div>
   <div class="p-nav">
-    <button class="p-nav-btn ${state.view==='calendrier'?'active':''}" data-action="nav" data-to="calendrier">\u{1F4C5} Calendrier</button>
-    <button class="p-nav-btn ${state.view==='roster'?'active':''}" data-action="nav" data-to="roster">\u{1F465} Mon groupe</button>
-    <button class="p-nav-btn ${state.view==='gabarit'?'active':''}" data-action="nav" data-to="gabarit">\u{1F4D0} Journee type</button>
-    <button class="p-nav-btn ${state.view==='historique'?'active':''}" data-action="nav" data-to="historique">\u{1F4CA} Historique</button>
-    ${epMetierActif()?`<button class="p-nav-btn ${state.view==='evaluation'?'active':''}" data-action="nav" data-to="evaluation">\u{1F4CA} Évaluation</button>`:''}
+    <button class="zts-action p-nav-btn ${state.view==='calendrier'?'active':''}" data-action="nav" data-to="calendrier">\u{1F4C5} Calendrier</button>
+    <button class="zts-action p-nav-btn ${state.view==='roster'?'active':''}" data-action="nav" data-to="roster">\u{1F465} Mon groupe</button>
+    <button class="zts-action p-nav-btn ${state.view==='gabarit'?'active':''}" data-action="nav" data-to="gabarit">\u{1F4D0} Journee type</button>
+    <button class="zts-action p-nav-btn ${state.view==='historique'?'active':''}" data-action="nav" data-to="historique">\u{1F4CA} Historique</button>
+    ${epMetierActif()?`<button class="zts-action p-nav-btn ${state.view==='evaluation'?'active':''}" data-action="nav" data-to="evaluation">\u{1F4CA} Évaluation</button>`:''}
   </div>`;
 }
 
@@ -677,7 +695,7 @@ function renderCalendrier() {
   </div>
   <div class="p-cal-grid">${cells}</div>
   <div style="text-align:center">
-    <button class="zts-btn zts-btn--primary" data-action="presences-date" data-date="${today}">\u{1F4CB} Présences aujourd'hui</button>
+    <button class="zts-action zts-action--metier" data-action="presences-date" data-date="${today}">\u{1F4CB} Présences aujourd'hui</button>
   </div>
   <div style="text-align:center;margin-top:var(--space-2);font-family:var(--font-fun);font-size:var(--fs-1);opacity:.6">Clique une date pour prendre les présences</div>`;
 }
@@ -689,7 +707,7 @@ function renderCalendrier() {
 
 function renderCalToggle(view) {
   const cur = view==='journee' ? 'jour' : view==='semaine' ? 'semaine' : 'mois';
-  const tab = (mode,label) => `<button class="zts-vue-tab ${cur===mode?'zts-vue-tab--active':''}" data-action="cal-mode" data-mode="${mode}">${label}</button>`;
+  const tab = (mode,label) => `<button class="zts-action zts-vue-tab ${cur===mode?'zts-vue-tab--active':''}" data-action="cal-mode" data-mode="${mode}">${label}</button>`;
   return `<div class="zts-vue-toggle">
     ${tab('jour','\u{1F4C5} Jour')}
     ${tab('semaine','\u{1F5D3}️ Semaine')}
@@ -730,7 +748,7 @@ function renderSemaine() {
   const canValidate = !!(state.groupeId && state.orgId);
   return `
     ${canValidate ? `<div style="display:flex;justify-content:center;margin:0 0 14px">
-      <button class="zts-btn zts-btn--primary" data-action="valider-semaine" id="btn-valider-sem" style="font-size:var(--fs-2)">✅ Valider et notifier le coordo</button>
+      <button class="zts-action zts-action--metier" data-action="valider-semaine" id="btn-valider-sem" style="font-size:var(--fs-2)">✅ Valider et notifier le coordo</button>
     </div>` : ''}
     <div id="sem-grid-root"></div>`;
 }
@@ -775,13 +793,14 @@ function renderJournee() {
   // ── Section Programme ──
   html += `<div class="p-section-title">\u{1F4C5} Programme</div>`;
   if (blocs.length) {
-    html += `<div class="p-timeline">${blocs.map((b,i) => renderBlocCard(b,'journee',i,blocs.length)).join('')}</div>`;
+    html += `<div class="p-timeline">${renderTimelineAvecTrous(blocs)}</div>`;
   } else {
     html += `<div style="text-align:center;padding:var(--space-3);opacity:.5;font-family:var(--font-fun)">Aucun bloc planifie pour cette journee.</div>`;
   }
   html += `<div class="p-bloc-add" style="gap:var(--space-2);display:flex;flex-wrap:wrap;justify-content:center">
-    <button class="zts-btn" data-action="add-bloc" data-context="journee" style="font-size:var(--fs-1)">+ Ajouter un bloc</button>
-    ${blocs.length?`<button class="zts-btn zts-btn--primary" data-action="start-live" style="font-size:var(--fs-1)">\u25B6 Planif en direct</button>`:''}
+    <button class="zts-action zts-action--neutre" data-action="add-bloc" data-context="journee" style="font-size:var(--fs-1)">+ Ajouter un bloc</button>
+    <button class="zts-action zts-action--metier" data-action="open-tiroir-jeux" style="font-size:var(--fs-1)">\u{1F3B2} Ajouter un jeu</button>
+    ${blocs.length?`<button class="zts-action zts-action--metier" data-action="start-live" style="font-size:var(--fs-1)">\u25B6 Planif en direct</button>`:''}
   </div>`;
 
   // ── Section Presences ──
@@ -848,7 +867,7 @@ function renderLive() {
 
   let html = `<div class="p-live">
     <div class="p-live-header">
-      <button class="zts-btn" data-action="stop-live" style="font-size:var(--fs-1)">\u2190 Quitter</button>
+      <button class="zts-action zts-action--neutre" data-action="stop-live" style="font-size:var(--fs-1)">\u2190 Quitter</button>
       <div class="p-live-title">Planif en direct</div>
       <div class="p-live-date">${dateLabel}</div>
       <div class="p-live-clock" id="live-clock">${now}</div>
@@ -958,6 +977,21 @@ function renderPresenceCard(enfant, presence, status) {
 
 // ── Bloc card (shared journee + gabarit) ──
 
+// Timeline de la journée avec les TROUS d'horaire cliquables (ouvre le Tiroir Jeux).
+// Un trou s'insère avant le premier bloc horodaté qui commence à (ou après) sa fin.
+function renderTimelineAvecTrous(blocs) {
+  const cards = blocs.map((b,i) => ({ tMin: hmToMin(b.debut), html: renderBlocCard(b,'journee',i,blocs.length) }));
+  const trous = (typeof PlanifData!=='undefined') ? PlanifData.trousJournee(blocs) : [];
+  for (const t of trous) {
+    const row = { tMin: hmToMin(t.debut), html: `<button class="p-trou" data-action="tiroir-trou" data-debut="${t.debut}" data-fin="${t.fin}">
+      \u{1F3B2} Trou libre ${t.debut.replace(':',' h ')} → ${t.fin.replace(':',' h ')} — choisir un jeu</button>` };
+    const idx = cards.findIndex(c => c.tMin!=null && row.tMin!=null && c.tMin >= hmToMin(t.fin));
+    if (idx === -1) cards.push(row); else cards.splice(idx, 0, row);
+  }
+  return cards.map(c => c.html).join('');
+}
+function hmToMin(h){ const m=/^(\d{1,2})[:h](\d{2})$/.exec(h||''); return m?(+m[1])*60+(+m[2]):null; }
+
 function renderBlocCard(bloc, context, index, total) {
   const t = BLOC_TYPES[bloc.type] || BLOC_TYPES.activite;
   const blocColor = (bloc.customColor && bloc.customColor!=='default') ? (BLOC_COLORS.find(c=>c.id===bloc.customColor)?.hex||t.color) : t.color;
@@ -986,6 +1020,7 @@ function renderBlocCard(bloc, context, index, total) {
       ${attachHTML}
     </div>
     <div class="p-bloc-actions">
+      ${(context==='journee' && bloc.type==='activite' && !bloc.titre)?`<button class="p-bloc-btn" data-action="tiroir-fill-bloc" data-bloc-id="${bloc.id}" data-debut="${bloc.debut||''}" data-fin="${bloc.fin||''}" title="Choisir un jeu">\u{1F3B2}</button>`:''}
       ${index>0?`<button class="p-bloc-btn" data-action="move-bloc-up" data-bloc-id="${bloc.id}" data-context="${context}">\u2191</button>`:'<div style="width:36px;height:36px"></div>'}
       <button class="p-bloc-btn" data-action="edit-bloc" data-bloc-id="${bloc.id}" data-context="${context}">\u270F\uFE0F</button>
       ${index<total-1?`<button class="p-bloc-btn" data-action="move-bloc-down" data-bloc-id="${bloc.id}" data-context="${context}">\u2193</button>`:'<div style="width:36px;height:36px"></div>'}
@@ -1003,7 +1038,7 @@ function renderRoster() {
     return `<div class="p-empty"><div class="p-empty-icon">\u{1F466}</div>
       <div class="p-empty-text">Aucun enfant dans le groupe.</div></div>
       <div style="text-align:center;margin-top:var(--space-3)">
-        <button class="zts-btn zts-btn--primary" data-action="add-enfant">+ Ajouter un enfant</button>
+        <button class="zts-action zts-action--metier" data-action="add-enfant">+ Ajouter un enfant</button>
       </div>`;
   }
   return `<div class="p-enfants-grid">${state.enfants.map(e => `
@@ -1014,7 +1049,7 @@ function renderRoster() {
       <div class="p-enfant-sub">${(e.personnesAutorisees||[]).length} autorise(s)</div>
     </div>`).join('')}</div>
     <div style="text-align:center">
-      <button class="zts-btn zts-btn--primary" data-action="add-enfant">+ Ajouter un enfant</button>
+      <button class="zts-action zts-action--metier" data-action="add-enfant">+ Ajouter un enfant</button>
     </div>`;
 }
 
@@ -1029,7 +1064,7 @@ function renderGabarit() {
   let header = `<div class="p-gabarit-header">
     <div><span class="p-group-name">\u{1F4D0} Journee type</span>
       <span class="p-group-theme"> \u00B7 ${blocs.length} bloc(s)</span></div>
-    ${blocs.length ? `<button class="zts-btn zts-btn--primary" data-action="appliquer-gabarit">Appliquer au calendrier</button>` : ''}
+    ${blocs.length ? `<button class="zts-action zts-action--metier" data-action="appliquer-gabarit">Appliquer au calendrier</button>` : ''}
   </div>`;
 
   let content = '';
@@ -1039,7 +1074,7 @@ function renderGabarit() {
     content = `<div style="text-align:center;padding:var(--space-4);opacity:.5;font-family:var(--font-fun)">Cree une journee type pour pouvoir l'appliquer a ton calendrier.</div>`;
   }
 
-  return header + content + `<div class="p-bloc-add"><button class="zts-btn zts-btn--primary" data-action="add-bloc" data-context="gabarit">+ Ajouter un bloc</button></div>`;
+  return header + content + `<div class="p-bloc-add"><button class="zts-action zts-action--metier" data-action="add-bloc" data-context="gabarit">+ Ajouter un bloc</button></div>`;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1092,7 +1127,7 @@ function openPresencesModal() {
   const dLabel = state.currentDate===todayISO() ? "Aujourd'hui" : formatDateLong(state.currentDate);
   inner.innerHTML = `<button class="zts-modal__close" data-action="close-presences">✕</button>
     <h2 class="zts-modal__title">\u{1F4CB} Présences — ${dLabel}</h2>
-    <div style="text-align:center;margin-bottom:var(--space-2)"><button class="zts-btn" data-action="goto-programme-day" style="font-size:var(--fs-1)">\u{1F4C5} Voir le programme du jour</button></div>
+    <div style="text-align:center;margin-bottom:var(--space-2)"><button class="zts-action zts-action--neutre" data-action="goto-programme-day" style="font-size:var(--fs-1)">\u{1F4C5} Voir le programme du jour</button></div>
     ${renderPresencesSection()}`;
   openModal('modal-presences');
 }
@@ -1127,14 +1162,14 @@ function openEnfantModal(enfant) {
       <input class="p-input" id="enf-nom" value="${esc(enfant?.nom||'')}" placeholder="Nom" required></div>
     <div class="p-field"><label class="p-label">Personnes autorisees</label>
       <div id="autorises-list">${autorises.map((a,i)=>autoriseRowHTML(a,i)).join('')}</div>
-      <button class="zts-btn" data-action="add-autorise" style="font-size:var(--fs-1);margin-top:8px">+ Ajouter</button>
+      <button class="zts-action zts-action--neutre" data-action="add-autorise" style="font-size:var(--fs-1);margin-top:8px">+ Ajouter</button>
     </div>
     <div class="p-field"><label class="p-label">Particularités <span style="font-weight:400;opacity:.6">(l'animateur les voit sous le nom)</span></label>
       <div id="particularites-chips" class="p-partic-chips">${PARTICULARITES.map(p=>`<button type="button" class="p-partic-chip ${(enfant?.particularites||[]).includes(p.k)?'on':''}" data-action="toggle-partic" data-k="${p.k}">${p.emoji} ${esc(p.label)}</button>`).join('')}</div>
       <input class="p-input" id="enf-note-partic" value="${esc(enfant?.noteParticuliere||'')}" placeholder="Précision : allergie exacte, médication, déclencheur…" style="margin-top:10px"></div>
     <div class="p-modal-actions">
-      <button class="zts-btn zts-btn--primary" data-action="save-enfant" style="flex:1">Sauvegarder</button>
-      ${isEdit?`<button class="zts-btn" data-action="delete-enfant" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
+      <button class="zts-action zts-action--metier" data-action="save-enfant" style="flex:1">Sauvegarder</button>
+      ${isEdit?`<button class="zts-action zts-action--neutre" data-action="delete-enfant" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
     </div>`;
   const fi = document.getElementById('photo-file-input');
   inner.querySelector('[data-action="trigger-photo"]').addEventListener('click',()=>fi.click());
@@ -1224,7 +1259,7 @@ function openDepartModal(enfant,presence) {
     <label class="p-msgparent-toggle">
       <input type="checkbox" id="depart-msgparent" ${presence.messageParent?'checked':''}> \u{1F4E3} Message \u00E0 transmettre au parent <span style="opacity:.7;font-weight:400">(affiche un \u2757 sur la photo)</span>
     </label>
-    <button class="zts-btn zts-btn--primary" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">${isParti?'Enregistrer':'Confirmer le depart'}</button>`;
+    <button class="zts-action zts-action--metier" data-action="confirm-depart" style="width:100%;margin-top:var(--space-3)">${isParti?'Enregistrer':'Confirmer le depart'}</button>`;
   const ci=document.getElementById('depart-custom');
   ci.addEventListener('input',()=>{_departCustom=ci.value.trim();_departSelectedPerson=null;document.querySelectorAll('#depart-persons .p-depart-person').forEach(b=>b.classList.remove('selected'));updateDepartWarning();});
   openModal('modal-depart');
@@ -1292,8 +1327,8 @@ function openBlocModal(bloc,context) {
       </div></div>
     <div id="bloc-extra-fields">${renderBlocExtraFields(sel,bloc)}</div>
     <div class="p-modal-actions">
-      <button class="zts-btn zts-btn--primary" data-action="save-bloc" style="flex:1">Sauvegarder</button>
-      ${isEdit?`<button class="zts-btn" data-action="delete-bloc-modal" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
+      <button class="zts-action zts-action--metier" data-action="save-bloc" style="flex:1">Sauvegarder</button>
+      ${isEdit?`<button class="zts-action zts-action--neutre" data-action="delete-bloc-modal" style="background:var(--rose);color:#fff">Supprimer</button>`:''}
     </div>`;
   openModal('modal-bloc');
 }
@@ -1413,7 +1448,7 @@ function openAppliquerModal() {
       <div style="display:flex;gap:var(--space-2);align-items:end">
         <div class="p-field" style="flex:1;margin-bottom:0">
           <input class="p-input" type="date" id="apply-single-date" value="${state.currentDate}"></div>
-        <button class="zts-btn zts-btn--primary" data-action="apply-single">Appliquer</button>
+        <button class="zts-action zts-action--metier" data-action="apply-single">Appliquer</button>
       </div>
     </div>
     <hr style="border:none;border-top:2px dashed #ccc;margin:var(--space-4) 0">
@@ -1433,7 +1468,7 @@ function openAppliquerModal() {
           <option value="remplacer">Remplacer (ecraser)</option>
           <option value="fusionner">Fusionner (ajouter apres)</option>
         </select></div>
-      <button class="zts-btn zts-btn--primary" data-action="apply-batch" style="width:100%">Appliquer en lot</button>
+      <button class="zts-action zts-action--metier" data-action="apply-batch" style="width:100%">Appliquer en lot</button>
       <div id="apply-progress" style="display:none;margin-top:var(--space-3)">
         <div class="p-label">Progression...</div>
         <div id="apply-progress-text" class="p-enfant-sub"></div>
@@ -1497,7 +1532,21 @@ async function handleApplyBatch() {
 // ══════════════════════════════════════════════════════════
 
 async function handleAction(action, ds) {
+  // Actions de la coquille v2 → app-v2.js (le moteur reste ici)
+  if(action && action.startsWith('v2-') && typeof V2!=='undefined'){ return V2.handle(action, ds); }
+  if(action==='open-presences-modal'){ openPresencesModal(); return; }
   switch(action) {
+    // ── Tiroir Jeux (insertion contextuelle — on ne quitte jamais la journée) ──
+    case 'open-tiroir-jeux':   // bouton générique → premier trou libre
+      TiroirJeux.openForCreneau(PlanifData.premierTrou(state.journeeBlocs));
+      return;
+    case 'tiroir-trou':        // trou cliqué → créneau exact du trou
+      TiroirJeux.openForCreneau({ debut: ds.debut, fin: ds.fin });
+      return;
+    case 'tiroir-fill-bloc':   // bloc activité vide → remplir ce bloc
+      TiroirJeux.openForBloc(ds.blocId, (ds.debut && ds.fin) ? { debut: ds.debut, fin: ds.fin } : null);
+      return;
+
     // ── Valider la semaine + notifier le coordo ──
     case 'valider-semaine': {
       if(!state.groupeId||!state.orgId) return alert('Aucun groupe/organisation.');
@@ -1862,7 +1911,7 @@ function renderEvaluation(){
     });
     html+=`</tbody></table></div>`;
   }
-  html+=`<div style="text-align:center;margin-top:var(--space-3)"><button class="zts-btn zts-btn--primary" data-action="eval-add-col">+ Ajouter un critère</button></div>`;
+  html+=`<div style="text-align:center;margin-top:var(--space-3)"><button class="zts-action zts-action--metier" data-action="eval-add-col">+ Ajouter un critère</button></div>`;
   return html;
 }
 
@@ -1889,7 +1938,7 @@ function openEvalColModal(){
     <div class="p-field"><label class="p-label">Critère</label><select class="p-select" id="eval-crit"></select></div>
     <div class="p-field"><label class="p-label">Type de cote</label><select class="p-select" id="eval-type">${typeOpts}</select></div>
     <div class="p-field" id="eval-total-field" style="display:none"><label class="p-label">Note sur… (total)</label><input class="p-input" id="eval-total" type="number" value="10" min="1" max="100"></div>
-    <button class="zts-btn zts-btn--primary" data-action="eval-save-col" style="width:100%;margin-top:var(--space-2)">Ajouter la colonne</button>`;
+    <button class="zts-action zts-action--metier" data-action="eval-save-col" style="width:100%;margin-top:var(--space-2)">Ajouter la colonne</button>`;
   const fillCrit=()=>{ const comp=PFEQ.find(c=>c.key===document.getElementById('eval-comp').value)||PFEQ[0]; document.getElementById('eval-crit').innerHTML=comp.items.map(([k,l])=>`<option value="${k}">${esc(l)}</option>`).join(''); };
   fillCrit();
   document.getElementById('eval-comp').addEventListener('change',fillCrit);
@@ -1940,6 +1989,8 @@ function render() {
   if(!state.user){root.innerHTML=renderNoAuth();return;}
   if(state.role==='coordo'){root.innerHTML=renderCoordo();updateMsgBadges();return;}
   if(!state.groupeId){root.innerHTML=renderSetup();return;}
+  // ── Coquille v2 (Mandat D1, flag ?v2=1) : même moteur, nouvelle enveloppe ──
+  if(state.v2 && typeof V2!=='undefined'){ root.innerHTML=V2.render(); V2.post(); updateMsgBadges(); return; }
   root.innerHTML=renderMain();
   if(state.view==='semaine') mountSemaineGrid();
   const perso=document.querySelector('.p-perso'); if(perso) perso.style.display = (state.view==='semaine') ? 'none' : '';
@@ -1991,6 +2042,7 @@ async function init() {
   console.log('[Planif] init start');
   // Intégration hub : ?embed=1 cache le header/subnav, ?vue= choisit la vue initiale, ?metier= force le métier
   const _params=new URLSearchParams(location.search);
+  state.v2=_params.has('v2');   // Mandat D1 : nouvelle coquille derrière ?v2=1 (ancien flux intact sans le flag)
   if(_params.has('embed')){ document.body.classList.add('zts-embed'); document.documentElement.style.background='transparent'; }  // html a un fond paper → le rendre transparent en intégré
   state.hubMetier=( ['ep','camp','sdg'].includes(_params.get('metier')) ? _params.get('metier') : '' );
   if(state.hubMetier) document.body.dataset.metier=state.hubMetier;
@@ -2032,6 +2084,9 @@ async function init() {
         await loadGroupeData(); state.currentDate=todayISO();
         state.view = VUE_MAP[(_params.get('vue')||'').toLowerCase()] || 'journee';
         if(state.view==='calendrier') await loadCalendarData(); else await loadJourneeData();
+        // v2 : la page principale est le calendrier MENSUEL
+        if(state.v2 && !_params.get('vue')){ state.view='mois'; await loadCalendarData(); }
+        if(state.v2 && typeof V2!=='undefined'){ try{ await V2.loadGroupes(); }catch(e){} }
       }
       if(state.role==='coordo' && state.orgId){ state.coordoDate=todayISO(); await loadCoordoData(); }
       try { await subscribeMessages(); } catch(eMsg){ console.warn('[Planif] subscribeMessages', eMsg); }
