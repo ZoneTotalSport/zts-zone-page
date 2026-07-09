@@ -73,12 +73,17 @@ const since = new Date(Date.now() - DAYS * 864e5);
 
   const counts = {};
   const bySource = {};
+  const viewBySrc = {};   // locked_view par source (hub / jeu / article / resource)
   snap.forEach(d => {
     const e = d.get('event') || 'unknown';
     counts[e] = (counts[e] || 0) + 1;
     if (e === 'signup_complete') {
       const s = d.get('signup_source') || d.get('source') || 'direct';
       bySource[s] = (bySource[s] || 0) + 1;
+    }
+    if (e === 'locked_view') {
+      const s = d.get('source') || '?';
+      viewBySrc[s] = (viewBySrc[s] || 0) + 1;
     }
   });
 
@@ -90,10 +95,31 @@ const since = new Date(Date.now() - DAYS * 864e5);
   console.log(`\n=== FUNNEL conversionFunnel (${DAYS} derniers jours) ===`);
   console.log('Événements bruts :', counts);
   console.log(`\nlocked_view .............. ${V}`);
+  console.log('  détail par source ......', viewBySrc, '  // "jeu" apparaît une fois le CTA fiches en prod');
   console.log(`locked_click_signup ...... ${C}   (view→click : ${pct(C, V)})`);
   console.log(`signup_complete .......... ${S}   (click→signup : ${pct(S, C)})`);
   console.log(`Conversion globale view→signup : ${pct(S, V)}`);
   console.log('Attribution des signups :', bySource);
+
+  // ---- TÂCHE 1c : tunnel COURRIEL (pop-up newsletter) ----
+  const NV  = counts['newsletter_view']       || 0;
+  const NS  = counts['newsletter_submit']     || 0;
+  const NC  = counts['newsletter_complete']   || 0;   // leads confirmés (email envoyé)
+  const N2S = counts['newsletter_to_signup']  || 0;   // a cliqué « créer un compte »
+  console.log(`\n=== TUNNEL COURRIEL (pop-up newsletter) ===`);
+  console.log(`newsletter_view ......... ${NV}`);
+  console.log(`newsletter_submit ....... ${NS}   (view→submit : ${pct(NS, NV)})`);
+  console.log(`newsletter_complete ..... ${NC}   (leads confirmés)`);
+  console.log(`newsletter_to_signup .... ${N2S}   (bascule vers compte : ${pct(N2S, NV)})`);
+
+  // ---- TÂCHE 1d : collection leads (copie exportable des courriels) ----
+  let leadsCount = 0;
+  try {
+    const lq = await db.collection('leads').where('ts', '>=', since).get();
+    leadsCount = lq.size;
+  } catch (e) { console.warn('leads: lecture impossible', e.message); }
+  console.log(`\n=== LEADS COURRIEL (collection leads, ${DAYS}j) ===`);
+  console.log(`Leads récents : ${leadsCount}`);
 
   // ---- TÂCHE 1b : trafic générateur (fingerprints anonymes récents) ----
   // anonGenCount n'a pas de champ date filtrable par lastSeen indexé garanti :
@@ -145,12 +171,28 @@ jq -r '.users | max_by(.createdAt|tonumber) | (.createdAt|tonumber/1000 | todate
 
 | Étape | Événement | Volume 30 j | Taux vers l'étape suivante |
 |---|---|---:|---:|
-| 1. Vue du cadenas | `locked_view` | `____` | — |
+| **Tunnel COMPTE (gate/CTA)** | | | |
+| 1. Vue du cadenas / CTA | `locked_view` (dont source `jeu`) | `____` | — |
 | 2. Clic « créer un compte » | `locked_click_signup` | `____` | `view → click : ___ %` |
 | 3. Inscription réelle | `signup_complete` | `____` | `click → signup : ___ %` |
-| **Global** | | | **`view → signup : ___ %`** |
+| **Global compte** | | | **`view → signup : ___ %`** |
+| **Tunnel COURRIEL (pop-up)** | | | |
+| Vue pop-up | `newsletter_view` | `____` | — |
+| Soumission | `newsletter_submit` | `____` | `view → submit : ___ %` |
+| Lead confirmé | `newsletter_complete` | `____` | — |
+| Bascule vers compte | `newsletter_to_signup` | `____` | — |
+| Leads stockés | collection `leads` (30 j) | `____` | — |
+| **Repères** | | | |
 | Trafic générateur | `anonGenCount` (actifs 30 j) | `____` | — |
 | Comptes Auth (30 j) | `listUsers` créés < 30 j | `____` | (doit ≈ `signup_complete`) |
+
+**Lecture croisée (le test décisif)** :
+- `newsletter_view ≈ 0` **et** `locked_view ≈ 0` → **TRAFIC** (personne n'arrive, ou les scripts
+  ne se déclenchent pas).
+- `leads` **≫** `comptes Auth 30 j` → **CADRAGE** : on capte des courriels mais pas d'inscriptions
+  → le levier B (rééquilibrage pop-up) est le bon.
+- `locked_click_signup` / `newsletter_to_signup` **>** 0 mais `signup_complete ≈ 0` → **BUG du flux
+  d'inscription** (priorité absolue avant toute optimisation).
 
 ---
 
