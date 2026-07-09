@@ -163,7 +163,7 @@ const V2 = (() => {
         <button class="zts-action pv2-act sm" data-action="v2-sem-nav" data-d="-1">◀</button>
         <span class="c">Semaine</span> <span class="y">du ${S.weekStart ? formatDateFR(S.weekStart) : ''}</span>
         <button class="zts-action pv2-act sm" data-action="v2-sem-nav" data-d="1">▶</button>
-        <span style="font-size:15px;color:#F5820D;font-family:var(--font-fun);font-weight:700">· ${esc(gnom)}</span>
+        <span style="font-size:15px;color:var(--pv2-gold);font-family:var(--font-fun);font-weight:700">· ${esc(gnom)}</span>
       </div>
       <div class="pv2-wgrid">`;
     days.forEach((day, i) => {
@@ -366,7 +366,7 @@ const V2 = (() => {
     }));
     const nbSpec = Object.keys(SCHOOL.days).length;
     h += `</div>
-      <div class="pv2-note">💡 Clique une <b>date</b> pour tout éditer (congé/pédago/spécial, note, jour-cycle) · touche un <b style="color:#F5820D;font-family:var(--font-bang)">jour-cycle</b> pour le corriger → tout se recale · « 📥 Importer » ajoute le calendrier scolaire.
+      <div class="pv2-note">💡 Clique une <b>date</b> pour tout éditer (congé/pédago/spécial, note, jour-cycle) · touche un <b style="color:var(--pv2-gold);font-family:var(--font-bang)">jour-cycle</b> pour le corriger → tout se recale · « 📥 Importer » ajoute le calendrier scolaire.
         <button class="zts-action pv2-act sm" style="margin-left:8px" data-action="v2-cyc-cfg">⚙️ Configurer les jours-cycle</button>
         ${nbSpec ? `<button class="zts-action pv2-act sm" style="margin-left:6px" data-action="v2-cal-clear">🗑️ Effacer les ${nbSpec} jour(s) importé(s)</button>` : ''}
       </div>
@@ -858,7 +858,7 @@ const V2 = (() => {
     let h = `<div class="pv2-sheet pv2-print">
       <div class="pv2-sheettitle">
         <button class="zts-action pv2-act sm" data-action="v2-an-nav" data-d="-1" ${idx <= 0 ? 'disabled' : ''}>◀</button>
-        <span class="y">Ma planification</span> <span class="c">annuelle</span> — <span style="color:#F5820D">${MOIS_FR[m1 - 1]} ${y}</span>
+        <span class="y">Ma planification</span> <span class="c">annuelle</span> — <span style="color:var(--pv2-gold)">${MOIS_FR[m1 - 1]} ${y}</span>
         <button class="zts-action pv2-act sm" data-action="v2-an-nav" data-d="1" ${idx >= mois.length - 1 ? 'disabled' : ''}>▶</button>
       </div>
       <div class="pv2-anhead"><div class="pv2-anhdays">
@@ -920,7 +920,7 @@ const V2 = (() => {
     const gs = S.groupes.filter(g => (g.annee || anneeCourante()) === annee && g.statut !== 'archive');
 
     let h = `<div class="pv2-sheet">
-      <div class="pv2-sheettitle"><span class="c">Carnet</span> <span class="y">d'évaluation</span> — <span style="color:#F5820D">${esc(gnom)}</span></div>
+      <div class="pv2-sheettitle"><span class="c">Carnet</span> <span class="y">d'évaluation</span> — <span style="color:var(--pv2-gold)">${esc(gnom)}</span></div>
       <div class="pv2-evtabs">
         ${gs.map(g => `<button class="zts-action pv2-act sm ${g.id === state.groupeId ? 'prim' : ''}" data-action="v2-ev-groupe" data-gid="${g.id}">👥 ${esc(g.nom)}</button>`).join('')}
         <span style="flex:1"></span>
