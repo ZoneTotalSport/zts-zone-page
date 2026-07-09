@@ -151,6 +151,85 @@ const V2 = (() => {
     return weeks;
   }
 
+  // ── CALENDRIER SCOLAIRE : jours spéciaux (congé/pédago/spécial) + jours-cycle I-VI ──
+  // Données locales (par enseignant) : { anchor:{date,jour}, days:{ISO:{type,label}} }.
+  // Un congé/pédago N'AVANCE PAS le cycle ; un jour « spécial » reste un jour d'école.
+  let SCHOOL = schoolLoad();
+  function schoolLoad() { try { return JSON.parse(localStorage.getItem('pv2school') || 'null') || { anchor: null, days: {} }; } catch (e) { return { anchor: null, days: {} }; } }
+  function schoolSave() { try { localStorage.setItem('pv2school', JSON.stringify(SCHOOL)); } catch (e) {} }
+  function isoAdd(iso, n) { const [y, m, d] = iso.split('-').map(Number); const dt = new Date(y, m - 1, d + n); return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0'); }
+  function isoDow(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).getDay(); }
+  function schoolAnchor() {
+    if (SCHOOL.anchor && SCHOOL.anchor.date) return SCHOOL.anchor;
+    // défaut : 1er jour de semaine dès le 1er août de l'année scolaire = jour 1 (corrigeable en 1 clic)
+    const an = S.annee || anneeCourante();
+    const y = an.startsWith('ete-') ? +an.slice(4) : +an.split('-')[0];
+    let d = y + '-08-01'; while (isoDow(d) === 0 || isoDow(d) === 6) d = isoAdd(d, 1);
+    SCHOOL.anchor = { date: d, jour: 1 };
+    return SCHOOL.anchor;
+  }
+  function isSchoolDay(iso) { const dw = isoDow(iso); if (dw === 0 || dw === 6) return false; const sd = SCHOOL.days[iso]; return !(sd && (sd.type === 'conge' || sd.type === 'pedago')); }
+  // Nombre net de jours d'école entre deux dates (signé) — sert au calcul du cycle.
+  function schoolDelta(fromISO, toISO) { if (fromISO === toISO) return 0; let n = 0, cur = fromISO, g = 0; const dir = toISO > fromISO ? 1 : -1; while (cur !== toISO && g++ < 4000) { cur = isoAdd(cur, dir); if (isSchoolDay(cur)) n += dir; } return n; }
+  function cycleIdx(iso) { if (!isSchoolDay(iso)) return null; const a = schoolAnchor(); return (((a.jour - 1 + schoolDelta(a.date, iso)) % 6) + 6) % 6; }  // 0-based
+
+  // Import .ics : classe chaque événement (congé/pédago/spécial) par mots-clés.
+  function classifyDay(summary) {
+    const s = (summary || '').toLowerCase();
+    if (/cong[ée]|f[ée]ri[ée]|vacance|rel[âa]che|ferm[ée]|holiday|break/.test(s)) return 'conge';
+    if (/p[ée]dago|journ[ée]e profess|ped\.|professional dev|p\.p\./.test(s)) return 'pedago';
+    return 'special';
+  }
+  function parseIcs(txt) {
+    const lines = txt.replace(/\r\n[ \t]/g, '').replace(/\n[ \t]/g, '').split(/\r?\n/);
+    const pd = v => { const m = v.match(/(\d{4})(\d{2})(\d{2})/); return m ? `${m[1]}-${m[2]}-${m[3]}` : null; };
+    let cur = null, count = 0;
+    for (const ln of lines) {
+      if (ln === 'BEGIN:VEVENT') { cur = {}; continue; }
+      if (ln === 'END:VEVENT') {
+        if (cur && cur.start) {
+          const type = classifyDay(cur.summary);
+          const end = (cur.end && cur.end > cur.start) ? cur.end : isoAdd(cur.start, 1);   // DTEND all-day = exclusif
+          let d = cur.start, g = 0;
+          while (d < end && g++ < 400) { SCHOOL.days[d] = { type, label: (cur.summary || '').slice(0, 60) }; count++; d = isoAdd(d, 1); }
+        }
+        cur = null; continue;
+      }
+      if (!cur) continue;
+      const up = ln.toUpperCase();
+      if (up.startsWith('SUMMARY')) cur.summary = ln.slice(ln.indexOf(':') + 1).trim();
+      else if (up.startsWith('DTSTART')) cur.start = pd(ln);
+      else if (up.startsWith('DTEND')) cur.end = pd(ln);
+    }
+    return count;
+  }
+  function importIcs() {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = '.ics,text/calendar';
+    inp.onchange = async () => {
+      const f = inp.files[0]; if (!f) return;
+      try {
+        const n = parseIcs(await f.text());
+        schoolSave(); render0();
+        toast(n ? `📥 ${n} jour(s) importé(s) — congés/pédagos retirés du cycle, jours spéciaux marqués.` : '⚠️ Aucun événement trouvé dans ce fichier .ics.');
+      } catch (e) { toast('⚠️ Fichier illisible : ' + (e.message || e)); }
+    };
+    inp.click();
+  }
+  function setCycle(iso) {
+    const cur = cycleIdx(iso);
+    const r = prompt('Ce jour est le jour-cycle (1 à 6) :', String((cur == null ? 0 : cur) + 1));
+    if (r === null) return;
+    const j = Math.max(1, Math.min(6, parseInt(r) || 1));
+    SCHOOL.anchor = { date: iso, jour: j }; schoolSave();
+    render0(); toast('🔢 Jours-cycle recalés — tout le calendrier s\'est ajusté automatiquement.');
+  }
+  function clearSchool() {
+    if (!confirm('Effacer le calendrier scolaire importé (congés, pédagos, jours spéciaux)?')) return;
+    SCHOOL = { anchor: SCHOOL.anchor, days: {} }; schoolSave(); render0();
+    toast('🗑️ Jours spéciaux effacés (le calage des jours-cycle est conservé).');
+  }
+
   function renderMois() {
     const y = state.calYear, m = state.calMonth;
     const weeks = moisSemaines(y, m);
@@ -164,20 +243,34 @@ const V2 = (() => {
       <div class="pv2-mgrid">`;
     ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'].forEach((d, i) =>
       h += `<div class="pv2-mh ${i % 2 === 0 ? 'y' : 'c'}">${d}</div>`);
-    let cyc = 0;
+    let cyc = null;   // index 0-based du prochain jour d'école (calé une fois sur l'ancre)
     weeks.forEach(w => w.forEach((d, col) => {
       if (d === null) { h += `<div></div>`; return; }
       const iso = y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
       const isToday = iso === today;
       const has = state.calDatesWithBlocs && state.calDatesWithBlocs.has(iso);
-      h += `<div class="pv2-mcell ${col % 2 === 0 ? 'y' : 'c'} ${isToday ? 'today' : ''}" data-action="v2-daysum" data-date="${iso}">
-        <span class="num">${d}</span><span class="cyc">${ROM[cyc % 6]}</span>
+      const sd = SCHOOL.days[iso];
+      if (!isSchoolDay(iso)) {                       // congé / pédago : pas de jour-cycle, badge coloré
+        h += `<div class="pv2-mcell off ${sd ? sd.type : ''} ${isToday ? 'today' : ''}" data-action="v2-daysum" data-date="${iso}">
+          <span class="num">${d}</span>
+          <span class="pv2-cbadge ${sd ? sd.type : ''}">${sd && sd.type === 'pedago' ? 'PÉDAGO' : 'CONGÉ'}</span>
+          ${sd && sd.label ? `<span class="pv2-clabel">${esc(sd.label)}</span>` : ''}
+        </div>`;
+        return;
+      }
+      if (cyc === null) cyc = cycleIdx(iso);          // 1 seul calcul (marche depuis l'ancre)
+      h += `<div class="pv2-mcell ${col % 2 === 0 ? 'y' : 'c'} ${isToday ? 'today' : ''} ${sd ? 'special' : ''}" data-action="v2-daysum" data-date="${iso}">
+        <span class="num">${d}</span>
+        <span class="cyc" data-action="v2-cycle-set" data-date="${iso}" title="Corriger le jour-cycle (tout se recale)">${ROM[cyc]}</span>
+        ${sd ? `<span class="pv2-clabel special">${esc(sd.label || 'Spécial')}</span>` : ''}
         ${has ? '<span class="pv2-dotplan" title="Journée planifiée">●</span>' : ''}
       </div>`;
-      cyc++;
+      cyc = (cyc + 1) % 6;
     }));
+    const nbSpec = Object.keys(SCHOOL.days).length;
     h += `</div>
-      <p class="pv2-note">💡 Clique une <b>date</b> : présences du jour + évaluations. Jours-cycle <span style="color:#F5820D;font-family:'Bangers',cursive;">I-VI</span> (recalés par « 📥 Importer » — Phase B). ● = journée planifiée.</p>
+      <p class="pv2-note">💡 Clique une <b>date</b> (présences + évaluations) · touche un <b style="color:#F5820D;font-family:'Bangers',cursive">chiffre romain</b> pour corriger le jour-cycle → <b>tout se recale tout seul</b> · « 📥 Importer » ajoute congés/pédagos/jours spéciaux du calendrier scolaire.
+      ${nbSpec ? `<button class="zts-action pv2-act sm" style="margin-left:8px" data-action="v2-cal-clear">🗑️ Effacer les ${nbSpec} jour(s) importé(s)</button>` : ''}</p>
     </div>`;
     return h;
   }
@@ -897,7 +990,9 @@ const V2 = (() => {
         TiroirJeux._T.filtres.lieu = 'interieur'; TiroirJeux._T.filtres.sansMateriel = true;
         TiroirJeux.openForCreneau(PlanifData.premierTrou(state.journeeBlocs));
         toast('🌧️ Plan B : biblio filtrée intérieur + sans matériel'); return;
-      case 'v2-import-ics': toast('📥 Import .ics (congés/pédagos + recalage des jours-cycle) — Phase B.'); return;
+      case 'v2-import-ics': importIcs(); return;
+      case 'v2-cycle-set': setCycle(ds.date); return;
+      case 'v2-cal-clear': clearSchool(); return;
       case 'v2-pdf': window.print(); return;
       case 'v2-an-nav': {
         const mois = anMoisListe(S.planKey.split('__')[1]);

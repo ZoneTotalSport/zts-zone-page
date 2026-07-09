@@ -443,8 +443,19 @@ body.pv2[data-metier="camp"] .pv2-act.prim{color:#fff}
 .pv2-mcell.c{background:#E2F7FE;border:2px dashed var(--m1)}
 .pv2-mcell.today{outline:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
 .pv2-mcell .num{font-size:26px;letter-spacing:1px}
-.pv2-mcell .cyc{position:absolute;top:7px;right:11px;color:#F5820D;font-size:19px}
+.pv2-mcell .cyc{position:absolute;top:7px;right:11px;color:#F5820D;font-size:19px;cursor:pointer;padding:0 3px;border-radius:6px;line-height:1}
+.pv2-mcell .cyc:hover{background:var(--m2);outline:2px solid var(--ink)}
 .pv2-dotplan{position:absolute;bottom:8px;left:10px;color:#2ecc71;font-size:17px;text-shadow:1px 1px 0 var(--ink)}
+/* calendrier scolaire : congés / pédagos / jours spéciaux */
+.pv2-mcell.off{cursor:pointer}
+.pv2-mcell.conge{background:#FFE0E0!important;border:2px dashed #E88!important}
+.pv2-mcell.pedago{background:#E3E9FF!important;border:2px dashed #88A!important}
+.pv2-mcell.special{box-shadow:inset 0 0 0 3px #B026FF}
+.pv2-cbadge{position:absolute;top:8px;right:9px;font-family:var(--font-bang);font-size:12px;letter-spacing:.5px;padding:1px 7px;border:2px solid var(--ink);border-radius:8px}
+.pv2-cbadge.conge{background:#FF9B9B;color:#7a1a1a}
+.pv2-cbadge.pedago{background:#9FB4FF;color:#1a2a7a}
+.pv2-clabel{position:absolute;left:8px;right:8px;bottom:7px;font-family:var(--font-fun);font-weight:700;font-size:11px;line-height:1.1;color:#444;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv2-clabel.special{color:#7a1a9a}
 .pv2-note{font-size:15px;color:#555;margin:10px 0 0;font-family:var(--font-fun)}
 /* résumé de date + backdrop */
 .pv2-backdrop{position:fixed;inset:0;background:rgba(20,20,30,.45);display:none;z-index:340}

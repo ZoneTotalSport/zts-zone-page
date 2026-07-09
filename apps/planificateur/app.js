@@ -757,12 +757,14 @@ function mountSemaineGrid() {
   const rootEl = document.getElementById('sem-grid-root');
   if (!rootEl || !window.SemaineGrid) return;
   const gid = state.groupeId;
-  const metier = (state.groupe && state.groupe.metier) || 'camp';
+  // En v2, le métier est piloté par la barre du haut (🏕️/⚽/🧩) → la grille ET la
+  // mascotte suivent. Hors v2 : le métier du groupe.
+  const metier = (state.v2 && document.body.dataset.metier) || (state.groupe && state.groupe.metier) || 'camp';
   const ws = state.weekStart || mondayOf(todayISO());
   state.weekStart = ws;
   state.semGrid = SemaineGrid.mount(rootEl, {
     scope: 'planif_' + (gid || 'anon'),
-    metier, weekStart: ws,
+    metier, weekStart: ws, hideMetierSwitch: !!state.v2,   // v2 : la barre du haut gère déjà le métier
     dataPath: '../planification/data/', imgPath: 'img/',
     load: gid ? (w) => Semaines.get(gid, w) : null,
     save: gid ? (w, doc) => Semaines.save(gid, w, doc) : null,

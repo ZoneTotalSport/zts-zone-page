@@ -197,6 +197,7 @@ function mount(root, opts){
 
   const scope     = opts.scope || 'semaine';
   const dataPath  = opts.dataPath || '../planification/data/';
+  const hideMetierSw = !!opts.hideMetierSwitch;   // v2 : le sélecteur métier vit dans la barre du haut
   const MAX_FILE  = 2.6*1024*1024;
   const ns = k => scope+'::'+k;
 
@@ -253,7 +254,7 @@ function mount(root, opts){
       <h1 class="sheet__title"></h1>
       <div class="sheet__week"><label></label><input type="date" class="sg-week"></div>
       <div class="toolbar">
-        <div class="metier-sw"><button data-metier="ep"><span>🏫</span> <span class="m-lbl">ÉP</span></button><button data-metier="camp"><span>⛺</span> <span class="m-lbl">Camp</span></button><button data-metier="sdg"><span>🧸</span> <span class="m-lbl">SDG</span></button></div>
+        ${hideMetierSw ? '' : `<div class="metier-sw"><button data-metier="ep"><span>🏫</span> <span class="m-lbl">ÉP</span></button><button data-metier="camp"><span>⛺</span> <span class="m-lbl">Camp</span></button><button data-metier="sdg"><span>🧸</span> <span class="m-lbl">SDG</span></button></div>`}
         <button class="btn sg-lang">EN</button>
         <div class="stepper"><span class="sg-periods">Périodes</span> <button data-step="-1">−</button><b class="sg-pcount">6</b><button data-step="1">＋</button></div>
         <button class="btn btn--print sg-print">🖨️ Enregistrer PDF</button>
@@ -561,7 +562,7 @@ function mount(root, opts){
   function setMetier(m){ metier=m; root.dataset.metier=m; modal.dataset.metier=m; localStorage.setItem(ns('metier'),m);
     root.querySelectorAll('.metier-sw button').forEach(b=>b.classList.toggle('on',b.dataset.metier===m));
     banqueState.q=''; ['groupe','energie','lieu','cycle','type','moment'].forEach(k=>banqueState[k]=''); BANQUE=BANK_CACHE[m]||null; }
-  $('.metier-sw').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) setMetier(b.dataset.metier); });
+  $('.metier-sw')?.addEventListener('click',e=>{ const b=e.target.closest('button'); if(b) setMetier(b.dataset.metier); });
 
   // ── Init ──
   function mondayOf(d){ const wd=(d.getDay()+6)%7; d.setDate(d.getDate()-wd); return d; }
