@@ -44,6 +44,8 @@ function clip(s, n) {
   s = str(s).replace(/\s+/g, ' ').trim();
   if (s.length <= n) return s;
   var cut = s.slice(0, n - 1);
+  var lastCode = cut.charCodeAt(cut.length - 1);
+  if (lastCode >= 0xD800 && lastCode <= 0xDBFF) cut = cut.slice(0, -1);  // ne pas couper un emoji en deux
   var sp = cut.lastIndexOf(' ');
   if (sp > n * 0.5) cut = cut.slice(0, sp);           // coupe sur un mot entier
   return cut.replace(/[\s,;:.\-–—]+$/, '') + '…';     // pas de mot tronqué ni ponctuation orpheline
