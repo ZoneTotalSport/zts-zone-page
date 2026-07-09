@@ -2044,7 +2044,8 @@ async function init() {
   console.log('[Planif] init start');
   // Intégration hub : ?embed=1 cache le header/subnav, ?vue= choisit la vue initiale, ?metier= force le métier
   const _params=new URLSearchParams(location.search);
-  state.v2=_params.has('v2');   // Mandat D1 : nouvelle coquille derrière ?v2=1 (ancien flux intact sans le flag)
+  // Coquille redesignée = DÉFAUT (décision Joey 9 juil). Ancienne version en secours : ?v1=1
+  state.v2 = !_params.has('v1');
   if(_params.has('embed')){ document.body.classList.add('zts-embed'); document.documentElement.style.background='transparent'; }  // html a un fond paper → le rendre transparent en intégré
   state.hubMetier=( ['ep','camp','sdg'].includes(_params.get('metier')) ? _params.get('metier') : '' );
   if(state.hubMetier) document.body.dataset.metier=state.hubMetier;

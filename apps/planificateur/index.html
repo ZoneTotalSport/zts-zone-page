@@ -456,6 +456,29 @@ body.pv2[data-metier="camp"] .pv2-act.prim{color:#fff}
 .pv2-cbadge.pedago{background:#9FB4FF;color:#1a2a7a}
 .pv2-clabel{position:absolute;left:8px;right:8px;bottom:7px;font-family:var(--font-fun);font-weight:700;font-size:11px;line-height:1.1;color:#444;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pv2-clabel.special{color:#7a1a9a}
+/* vue Semaine v2 : 5 colonnes = 5 journées planifiées (mêmes données que le Jour) */
+.pv2-wsheet{position:relative}
+.pv2-wsheet{padding-top:34px}
+.pv2-wmascotte{position:absolute;top:-52px;left:-4px;width:clamp(64px,7vw,96px);filter:drop-shadow(3px 4px 0 rgba(0,0,0,.5));pointer-events:none;z-index:2}
+@media(max-width:820px){.pv2-wmascotte{display:none}}
+.pv2-wgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.pv2-wday{border:3px solid var(--ink);border-radius:14px;background:#fff;box-shadow:4px 4px 0 var(--ink);overflow:hidden;display:flex;flex-direction:column;min-height:180px}
+.pv2-wday.today{outline:3px solid #F5820D;outline-offset:2px}
+.pv2-wday.off{opacity:.92}
+.pv2-wday.conge{background:#FFF0F0}.pv2-wday.pedago{background:#F0F3FF}
+.pv2-wdhd{font-family:var(--font-bang);letter-spacing:.5px;font-size:16px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--ink);cursor:pointer}
+.pv2-wdhd.y{background:var(--m2);color:#189AD3}.pv2-wdhd.c{background:var(--m1);color:var(--m2);text-shadow:1px 1px 0 var(--ink)}
+.pv2-wdnum{font-size:20px}
+.pv2-wdbody{flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.pv2-wb{display:flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:9px;background:#FFFDF3;padding:5px 7px;font-family:var(--font-fun);font-weight:700;font-size:12.5px;box-shadow:2px 2px 0 var(--ink)}
+.pv2-wb.done{background:#DFF6E3;opacity:.85}
+.pv2-wbi{flex-shrink:0;font-size:12px;border:2px solid var(--ink);border-radius:6px;padding:0 4px;color:#fff}
+.pv2-wbt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pv2-wbh{flex-shrink:0;font-family:var(--font-bang);font-size:11px;color:#666}
+.pv2-wempty{margin:auto;color:#bbb;font-family:var(--font-fun);font-weight:700;font-size:13px}
+.pv2-wspecial{margin:auto;text-align:center;font-family:var(--font-fun);font-weight:700;font-size:13px;color:#7a1a9a;padding:8px}
+.pv2-wspecial small{color:#555;font-size:11px}
+@media(max-width:820px){.pv2-wgrid{grid-template-columns:1fr 1fr}.pv2-wday{min-height:120px}}
 .pv2-note{font-size:15px;color:#555;margin:10px 0 0;font-family:var(--font-fun)}
 /* résumé de date + backdrop */
 .pv2-backdrop{position:fixed;inset:0;background:rgba(20,20,30,.45);display:none;z-index:340}

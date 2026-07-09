@@ -32,6 +32,8 @@ const V2 = (() => {
     resume: null,           // données du résumé de date (cache dernier clic)
     timer: null,            // minuterie de bloc {blocId, end, int}
     clip: null,             // case copiée {titre, ref, notes, type, attachments…} — collable trous + cases
+    weekStart: null,        // lundi ISO de la vue Semaine
+    weekDays: null,         // [{date, blocs}] × 5 — cache de la semaine affichée
     planKey: null,          // cache plans (groupe__année) — invalide au switch groupe/année
     planSeq: null,          // doc 'seq'      { sequences:[{id,titre,cours:[{date,texte}]}] }
     planAn: null,           // doc 'annuelle' { weeks:{ '<lundi ISO>':{act,comp} } }
@@ -110,7 +112,7 @@ const V2 = (() => {
     switch (state.view) {
       case 'mois':        return renderMois();
       case 'journee':     return renderJourV2();
-      case 'semaine':     return `<div class="p-card" id="sem-grid-root"></div>`;       // composant v1 monté en post() (id attendu par mountSemaineGrid)
+      case 'semaine':     return renderSemaineV2();                                     // aperçu des journées planifiées (mêmes données que le Jour)
       case 'evaluation':  return renderEvalV2();                                         // carnet iDoceo (moteur v1)
       case 'roster':      return renderRoster();                                         // vue v1
       case 'gabarit':     return renderGabarit();                                        // vue v1
@@ -129,7 +131,69 @@ const V2 = (() => {
   }
 
   function post() {
-    if (state.view === 'semaine') mountSemaineGrid();
+    // Plus de montage semaine-grid en v2 : la vue Semaine est native (renderSemaineV2).
+  }
+
+  // ── VUE SEMAINE v2 : aperçu des 5 journées planifiées (source unique = journees/blocs) ──
+  // Planifier au Jour ⇒ visible ici ET au ● du Calendrier (même donnée). Toucher un jour l'ouvre.
+  function weekMonday(iso) { return isoAdd(iso, -((isoDow(iso) + 6) % 7)); }
+
+  async function loadWeekV2() {
+    const base = S.weekStart || weekMonday(state.currentDate || todayISO());
+    S.weekStart = base;
+    const days = [];
+    for (let i = 0; i < 5; i++) {
+      const date = isoAdd(base, i);
+      let blocs = [];
+      try { const j = await Journees.getByGroupeAndDate(state.groupeId, date); if (j) blocs = j.blocs || []; } catch (e) { console.warn('[V2] week', date, e); }
+      blocs = blocs.slice().sort((a, b) => (hmToMin(a.debut) ?? 9e9) - (hmToMin(b.debut) ?? 9e9));
+      days.push({ date, blocs });
+    }
+    S.weekDays = days;
+  }
+
+  function renderSemaineV2() {
+    const days = S.weekDays || [];
+    const JN = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
+    const today = todayISO();
+    const gnom = state.groupe ? state.groupe.nom : '—';
+    let h = `<div class="pv2-sheet pv2-print pv2-wsheet">
+      <img class="pv2-wmascotte" src="img/mascotte-${metier()}.png" alt="" aria-hidden="true">
+      <div class="pv2-sheettitle">
+        <button class="zts-action pv2-act sm" data-action="v2-sem-nav" data-d="-1">◀</button>
+        <span class="c">Semaine</span> <span class="y">du ${S.weekStart ? formatDateFR(S.weekStart) : ''}</span>
+        <button class="zts-action pv2-act sm" data-action="v2-sem-nav" data-d="1">▶</button>
+        <span style="font-size:15px;color:#F5820D;font-family:var(--font-fun);font-weight:700">· ${esc(gnom)}</span>
+      </div>
+      <div class="pv2-wgrid">`;
+    days.forEach((day, i) => {
+      const isToday = day.date === today;
+      const dd = +day.date.slice(8);
+      const sd = SCHOOL.days[day.date];
+      const off = !isSchoolDay(day.date);
+      h += `<div class="pv2-wday ${isToday ? 'today' : ''} ${off ? 'off ' + (sd ? sd.type : '') : ''}">
+        <div class="pv2-wdhd ${i % 2 ? 'c' : 'y'}" data-action="v2-open-day" data-date="${day.date}">
+          <span>${JN[i]}</span><span class="pv2-wdnum">${dd}</span>
+        </div>
+        <div class="pv2-wdbody" data-action="v2-open-day" data-date="${day.date}">`;
+      if (off) {
+        h += `<div class="pv2-wspecial ${sd ? sd.type : ''}">${sd && sd.type === 'pedago' ? '📎 Pédago' : '🎉 Congé'}${sd && sd.label ? '<br><small>' + esc(sd.label) + '</small>' : ''}</div>`;
+      } else if (day.blocs.length) {
+        h += day.blocs.map(b => {
+          const t = BLOC_TYPES[b.type] || BLOC_TYPES.activite;
+          const hr = (b.debut || b.fin) ? `<span class="pv2-wbh">${esc(b.debut || '')}${b.fin ? '–' + esc(b.fin) : ''}</span>` : '';
+          const titre = (b.titre || '').split('\n')[0] || t.label;
+          return `<div class="pv2-wb ${b.done ? 'done' : ''}"><span class="pv2-wbi" style="background:${t.color}">${t.icon}</span><span class="pv2-wbt">${esc(titre)}</span>${hr}</div>`;
+        }).join('');
+      } else {
+        h += `<div class="pv2-wempty">＋ Planifier</div>`;
+      }
+      h += `</div></div>`;
+    });
+    h += `</div>
+      <p class="pv2-note">💡 Aperçu de tes <b>journées planifiées</b>. Touche un jour pour l'ouvrir et l'éditer au <b>Jour</b> — ce que tu planifies apparaît ici, au Jour, et au ● du <b>Calendrier</b> (une seule et même donnée).</p>
+    </div>`;
+    return h;
   }
 
   // ── MENSUEL (page principale — gabarit imprimable maquette) ──
@@ -959,6 +1023,7 @@ const V2 = (() => {
         if (ds.view === 'journee') await loadJourneeData();
         if (ds.view === 'evaluation') { if (!S.groupes.length) await loadGroupes(); await loadEvalData(); }
         if (ds.view === 'seq' || ds.view === 'annuelle') await loadPlansV2();
+        if (ds.view === 'semaine') await loadWeekV2();
         render0(); return;
       case 'v2-tog-planif': S.subOpen = !S.subOpen; render0(); return;
       case 'v2-tog-groupes': S.gpanelOpen = !S.gpanelOpen; if (S.gpanelOpen) await loadGroupes(); render0(); return;
@@ -993,6 +1058,8 @@ const V2 = (() => {
       case 'v2-import-ics': importIcs(); return;
       case 'v2-cycle-set': setCycle(ds.date); return;
       case 'v2-cal-clear': clearSchool(); return;
+      case 'v2-sem-nav': S.weekStart = isoAdd(S.weekStart || weekMonday(state.currentDate || todayISO()), parseInt(ds.d, 10) * 7); await loadWeekV2(); render0(); return;
+      case 'v2-open-day': state.currentDate = ds.date; state.view = 'journee'; await loadJourneeData(); render0(); return;
       case 'v2-pdf': window.print(); return;
       case 'v2-an-nav': {
         const mois = anMoisListe(S.planKey.split('__')[1]);
