@@ -50,7 +50,8 @@
       ok: '🎉 C’est parti! Vérifie ta boîte courriel (et tes indésirables).',
       err: 'Oups, réessaie dans un instant.',
       bad: 'Entre un courriel valide.',
-      full: 'Je veux plutôt créer mon compte complet',
+      full: '🔓 Créer mon compte gratuit (tout débloqué)',
+      or: '— ou —',
       close: 'Fermer',
       proof: '🏆 328 profs sont déjà dans la Zone'
     },
@@ -64,7 +65,8 @@
       ok: '🎉 Done! Check your inbox (and spam folder).',
       err: 'Oops, try again in a moment.',
       bad: 'Enter a valid email.',
-      full: 'I’d rather create my full account',
+      full: '🔓 Create my free account (unlock all)',
+      or: '— or —',
       close: 'Close',
       proof: '🏆 328 teachers are already in the Zone'
     }
@@ -143,7 +145,9 @@
       'border:3px solid #0F0F2E;border-radius:14px;background:#FFD700;color:#0F0F2E;box-shadow:4px 4px 0 #0F0F2E;}',
       '.zts-nl-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E;}',
       '.zts-nl-btn[disabled]{opacity:.6;cursor:default;}',
-      '.zts-nl-full{margin:12px 0 0;background:none;border:none;color:#0F0F2E;text-decoration:underline;cursor:pointer;font-family:inherit;font-weight:700;font-size:.92rem;opacity:.8;}',
+      '.zts-nl-or{margin:12px 0 2px;text-align:center;font-family:"Nunito",system-ui,sans-serif;font-weight:800;font-size:.85rem;color:#1a2540;opacity:.55;letter-spacing:1px;}',
+      '.zts-nl-full{margin:8px 0 0;width:100%;box-sizing:border-box;cursor:pointer;font-family:"Luckiest Guy",cursive;font-size:1.05rem;letter-spacing:.5px;padding:14px;border:3px solid #0F0F2E;border-radius:14px;background:#00E5FF;color:#0F0F2E;box-shadow:4px 4px 0 #0F0F2E;}',
+      '.zts-nl-full:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E;}',
       '.zts-nl-proof{margin:14px 0 0;text-align:center;font-family:"Luckiest Guy",cursive;color:#0F0F2E;font-size:.95rem;letter-spacing:.5px;}',
       '.zts-nl-msg{margin:10px 0 0;font-weight:800;font-size:.98rem;text-align:center;}',
       '.zts-nl-msg.ok{color:#0a7d2e;}.zts-nl-msg.err{color:#c41d4a;}',
@@ -169,6 +173,7 @@
           '<button type="submit" class="zts-nl-btn">' + tr.btn + '</button>' +
         '</form>' +
         '<div class="zts-nl-msg" hidden></div>' +
+        '<div class="zts-nl-or">' + tr.or + '</div>' +
         '<button type="button" class="zts-nl-full">' + tr.full + '</button>' +
         '<p class="zts-nl-proof">' + tr.proof + '</p>' +
       '</div>';
@@ -227,6 +232,7 @@
           track('newsletter_complete', { source: 'popup' });
           form.style.display = 'none';
           ov.querySelector('.zts-nl-full').style.display = 'none';
+          var _or = ov.querySelector('.zts-nl-or'); if (_or) _or.style.display = 'none';
           showMsg(t().ok, 'ok');
           setTimeout(function () { ov.classList.remove('open'); setTimeout(function () { if (ov.parentNode) ov.remove(); }, 320); }, 3500);
         } else {

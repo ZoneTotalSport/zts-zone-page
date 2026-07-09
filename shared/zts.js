@@ -223,6 +223,16 @@
       nl.defer = true;
       document.body.appendChild(nl);
     }
+
+    // CTA compte inline permanent sur les fiches de jeux (surface SEO dominante).
+    // Complète le pop-up courriel : bandeau « créer un compte » toujours visible.
+    if (/\/jeux\//.test(location.pathname) && !document.getElementById('zts-jcta-loader')) {
+      var jc = document.createElement('script');
+      jc.id = 'zts-jcta-loader';
+      jc.src = ROOT + 'zts-jeux-cta.js';
+      jc.defer = true;
+      document.body.appendChild(jc);
+    }
   }
 
   // API publique
