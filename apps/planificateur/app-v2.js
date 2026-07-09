@@ -293,6 +293,15 @@ const V2 = (() => {
     SCHOOL = { anchor: SCHOOL.anchor, days: {} }; schoolSave(); render0();
     toast('🗑️ Jours spéciaux effacés (le calage des jours-cycle est conservé).');
   }
+  // Édition manuelle d'un jour : type (congé/pédago/spécial/normal) + titre/note libre.
+  function setDay(iso, patch) {
+    const cur = SCHOOL.days[iso] || {};
+    const type = ('type' in patch) ? patch.type : (cur.type || '');
+    const label = ('label' in patch) ? patch.label : (cur.label || '');
+    if (!type && !String(label).trim()) delete SCHOOL.days[iso];
+    else SCHOOL.days[iso] = { type: type || '', label: String(label).trim() };
+    schoolSave();
+  }
 
   function renderMois() {
     const y = state.calYear, m = state.calMonth;
@@ -323,10 +332,12 @@ const V2 = (() => {
         return;
       }
       if (cyc === null) cyc = cycleIdx(iso);          // 1 seul calcul (marche depuis l'ancre)
-      h += `<div class="pv2-mcell ${col % 2 === 0 ? 'y' : 'c'} ${isToday ? 'today' : ''} ${sd ? 'special' : ''}" data-action="v2-daysum" data-date="${iso}">
+      const isSpec = sd && sd.type === 'special';
+      const lbl = sd && sd.label;
+      h += `<div class="pv2-mcell ${col % 2 === 0 ? 'y' : 'c'} ${isToday ? 'today' : ''} ${isSpec ? 'special' : ''}" data-action="v2-daysum" data-date="${iso}">
         <span class="num">${d}</span>
         <span class="cyc" data-action="v2-cycle-set" data-date="${iso}" title="Corriger le jour-cycle (tout se recale)">${ROM[cyc]}</span>
-        ${sd ? `<span class="pv2-clabel special">${esc(sd.label || 'Spécial')}</span>` : ''}
+        ${lbl ? `<span class="pv2-clabel ${isSpec ? 'special' : ''}">${esc(sd.label)}</span>` : ''}
         ${has ? '<span class="pv2-dotplan" title="Journée planifiée">●</span>' : ''}
       </div>`;
       cyc = (cyc + 1) % 6;
@@ -371,7 +382,21 @@ const V2 = (() => {
         }
       } catch (e) { console.warn('[V2] daysum', g.nom, e); }
     }
-    body.innerHTML = `
+    // ── Éditeur du jour (tout est modifiable à la main) ──
+    const sdCur = SCHOOL.days[dateISO] || { type: '', label: '' };
+    const curType = sdCur.type || 'normal';
+    const weekend = isoDow(dateISO) === 0 || isoDow(dateISO) === 6;
+    const cyc = cycleIdx(dateISO);
+    const typeBtn = (t, ico, lbl) => `<button class="zts-action pv2-act sm ${curType === (t || 'normal') ? 'prim' : ''}" data-action="v2-day-type" data-date="${dateISO}" data-t="${t}">${ico} ${lbl}</button>`;
+    const editor = `
+      <div class="pv2-sumline"><b>CE JOUR — TOUT MODIFIABLE</b>
+        <div class="pv2-daytypes">
+          ${typeBtn('', '📘', 'Normal')}${typeBtn('conge', '🎉', 'Congé')}${typeBtn('pedago', '📎', 'Pédago')}${typeBtn('special', '⭐', 'Spécial')}
+        </div>
+        <input class="p-input pv2-daynote" data-day-note="${dateISO}" placeholder="＋ Ajouter un titre / une note (sortie, photo scolaire, rappel…)" value="${esc(sdCur.label || '')}" maxlength="70">
+        ${weekend ? '' : `<div class="pv2-daycyc">Jour-cycle&nbsp;: ${['I', 'II', 'III', 'IV', 'V', 'VI'].map((r, i) => `<button class="pv2-cycbtn ${cyc === i ? 'on' : ''}" data-action="v2-cycle-pick" data-date="${dateISO}" data-j="${i + 1}">${r}</button>`).join('')}</div>`}
+      </div>`;
+    body.innerHTML = editor + `
       <div class="pv2-sumline"><b>PRÉSENCES DU JOUR</b><br>
         ${pres.length ? pres.map(p => `<span class="pv2-pill">${esc(p.g)} : ${esc(p.txt)}</span>`).join('') : `<span class="pv2-mute">Aucune présence prise ce jour.</span>`}</div>
       <div class="pv2-sumline"><b>ÉVALUATIONS</b><br>
@@ -1058,6 +1083,8 @@ const V2 = (() => {
       case 'v2-import-ics': importIcs(); return;
       case 'v2-cycle-set': setCycle(ds.date); return;
       case 'v2-cal-clear': clearSchool(); return;
+      case 'v2-day-type': setDay(ds.date, { type: ds.t }); render0(); openDaySum(ds.date); return;
+      case 'v2-cycle-pick': SCHOOL.anchor = { date: ds.date, jour: parseInt(ds.j, 10) }; schoolSave(); render0(); openDaySum(ds.date); toast('🔢 Jours-cycle recalés — tout s\'ajuste automatiquement.'); return;
       case 'v2-sem-nav': S.weekStart = isoAdd(S.weekStart || weekMonday(state.currentDate || todayISO()), parseInt(ds.d, 10) * 7); await loadWeekV2(); render0(); return;
       case 'v2-open-day': state.currentDate = ds.date; state.view = 'journee'; await loadJourneeData(); render0(); return;
       case 'v2-pdf': window.print(); return;
@@ -1195,6 +1222,11 @@ const V2 = (() => {
     document.getElementById('v2-daysum')?.addEventListener('click', (e) => {
       const a = e.target.closest('[data-action]');
       if (a) handleAction(a.dataset.action, a.dataset);
+    });
+    // note/titre d'un jour saisie dans le résumé de date → sauvegarde + maj calendrier
+    document.getElementById('v2-daysum')?.addEventListener('change', (e) => {
+      const n = e.target.closest('[data-day-note]');
+      if (n) { setDay(n.dataset.dayNote, { label: n.value }); render0(); }
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire); else wire();
