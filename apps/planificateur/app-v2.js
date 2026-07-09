@@ -20,7 +20,6 @@ const V2 = (() => {
     camp: { m1:'#FF6B00', m2:'#B026FF', ink:'#fff', unit:'jeunes',  logo:'ZONE PLANIF' },
     sdg:  { m1:'#39FF14', m2:'#169B62', ink:'#111', unit:'enfants', logo:'ZONE PLANIF' },
   };
-  const ROM = ['I','II','III','IV','V','VI'];
 
   const S = {
     subOpen: true,          // sous-rangée Planification dépliée
@@ -34,6 +33,7 @@ const V2 = (() => {
     clip: null,             // case copiée {titre, ref, notes, type, attachments…} — collable trous + cases
     weekStart: null,        // lundi ISO de la vue Semaine
     weekDays: null,         // [{date, blocs}] × 5 — cache de la semaine affichée
+    cfgOpen: false,         // panneau de config des jours-cycle (vue Mois)
     planKey: null,          // cache plans (groupe__année) — invalide au switch groupe/année
     planSeq: null,          // doc 'seq'      { sequences:[{id,titre,cours:[{date,texte}]}] }
     planAn: null,           // doc 'annuelle' { weeks:{ '<lundi ISO>':{act,comp} } }
@@ -235,7 +235,25 @@ const V2 = (() => {
   function isSchoolDay(iso) { const dw = isoDow(iso); if (dw === 0 || dw === 6) return false; const sd = SCHOOL.days[iso]; return !(sd && (sd.type === 'conge' || sd.type === 'pedago')); }
   // Nombre net de jours d'école entre deux dates (signé) — sert au calcul du cycle.
   function schoolDelta(fromISO, toISO) { if (fromISO === toISO) return 0; let n = 0, cur = fromISO, g = 0; const dir = toISO > fromISO ? 1 : -1; while (cur !== toISO && g++ < 4000) { cur = isoAdd(cur, dir); if (isSchoolDay(cur)) n += dir; } return n; }
-  function cycleIdx(iso) { if (!isSchoolDay(iso)) return null; const a = schoolAnchor(); return (((a.jour - 1 + schoolDelta(a.date, iso)) % 6) + 6) % 6; }  // 0-based
+  // Configuration du cycle : longueur + affichage (romains/chiffres/lettres/couleurs/perso).
+  const CYC_PAL = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#B983FF', '#FF9F45', '#00C9A7', '#F97B8B', '#845EC2', '#2CD3E1', '#FFC75F', '#C34A36'];
+  function cycleCfg() {
+    if (!SCHOOL.cycle) SCHOOL.cycle = { len: 6, style: 'roman', labels: [] };
+    if (!(SCHOOL.cycle.len >= 1)) SCHOOL.cycle.len = 6;
+    return SCHOOL.cycle;
+  }
+  function cycleLen() { return Math.max(1, Math.min(12, cycleCfg().len)); }
+  function toRoman(n) { const m = [['X', 10], ['IX', 9], ['V', 5], ['IV', 4], ['I', 1]]; let r = ''; for (const [s, v] of m) while (n >= v) { r += s; n -= v; } return r; }
+  function cycleLabel(idx) {   // idx 0-based
+    const c = cycleCfg();
+    if (c.style === 'custom' && (c.labels || [])[idx]) return c.labels[idx];
+    if (c.style === 'num') return String(idx + 1);
+    if (c.style === 'alpha') return String.fromCharCode(65 + (idx % 26));
+    if (c.style === 'color') return '';
+    return toRoman(idx + 1);
+  }
+  function cycleColor(idx) { return cycleCfg().style === 'color' ? CYC_PAL[idx % CYC_PAL.length] : null; }
+  function cycleIdx(iso) { if (!isSchoolDay(iso)) return null; const a = schoolAnchor(); const L = cycleLen(); return (((a.jour - 1 + schoolDelta(a.date, iso)) % L) + L) % L; }  // 0-based
 
   // Import .ics : classe chaque événement (congé/pédago/spécial) par mots-clés.
   function classifyDay(summary) {
@@ -334,19 +352,54 @@ const V2 = (() => {
       if (cyc === null) cyc = cycleIdx(iso);          // 1 seul calcul (marche depuis l'ancre)
       const isSpec = sd && sd.type === 'special';
       const lbl = sd && sd.label;
+      const col2 = cycleColor(cyc);
+      const cycHtml = col2
+        ? `<span class="cyc cyc-color" data-action="v2-cycle-set" data-date="${iso}" title="Corriger le jour-cycle" style="background:${col2}"></span>`
+        : `<span class="cyc" data-action="v2-cycle-set" data-date="${iso}" title="Corriger le jour-cycle (tout se recale)">${esc(cycleLabel(cyc))}</span>`;
       h += `<div class="pv2-mcell ${col % 2 === 0 ? 'y' : 'c'} ${isToday ? 'today' : ''} ${isSpec ? 'special' : ''}" data-action="v2-daysum" data-date="${iso}">
         <span class="num">${d}</span>
-        <span class="cyc" data-action="v2-cycle-set" data-date="${iso}" title="Corriger le jour-cycle (tout se recale)">${ROM[cyc]}</span>
+        ${cycHtml}
         ${lbl ? `<span class="pv2-clabel ${isSpec ? 'special' : ''}">${esc(sd.label)}</span>` : ''}
         ${has ? '<span class="pv2-dotplan" title="Journée planifiée">●</span>' : ''}
       </div>`;
-      cyc = (cyc + 1) % 6;
+      cyc = (cyc + 1) % cycleLen();
     }));
     const nbSpec = Object.keys(SCHOOL.days).length;
     h += `</div>
-      <p class="pv2-note">💡 Clique une <b>date</b> (présences + évaluations) · touche un <b style="color:#F5820D;font-family:'Bangers',cursive">chiffre romain</b> pour corriger le jour-cycle → <b>tout se recale tout seul</b> · « 📥 Importer » ajoute congés/pédagos/jours spéciaux du calendrier scolaire.
-      ${nbSpec ? `<button class="zts-action pv2-act sm" style="margin-left:8px" data-action="v2-cal-clear">🗑️ Effacer les ${nbSpec} jour(s) importé(s)</button>` : ''}</p>
+      <div class="pv2-note">💡 Clique une <b>date</b> pour tout éditer (congé/pédago/spécial, note, jour-cycle) · touche un <b style="color:#F5820D;font-family:var(--font-bang)">jour-cycle</b> pour le corriger → tout se recale · « 📥 Importer » ajoute le calendrier scolaire.
+        <button class="zts-action pv2-act sm" style="margin-left:8px" data-action="v2-cyc-cfg">⚙️ Configurer les jours-cycle</button>
+        ${nbSpec ? `<button class="zts-action pv2-act sm" style="margin-left:6px" data-action="v2-cal-clear">🗑️ Effacer les ${nbSpec} jour(s) importé(s)</button>` : ''}
+      </div>
+      ${S.cfgOpen ? renderCycCfg() : ''}
     </div>`;
+    return h;
+  }
+
+  // Panneau de configuration du cycle (longueur + affichage)
+  function renderCycCfg() {
+    const c = cycleCfg(), L = cycleLen();
+    const styles = [['roman', 'I II III'], ['num', '1 2 3'], ['alpha', 'A B C'], ['color', '🎨 Couleurs'], ['custom', '✏️ Perso']];
+    let h = `<div class="pv2-cfg">
+      <div class="pv2-cfgrow"><b>Nombre de jours&nbsp;:</b>
+        <button class="pv2-cycbtn" data-action="v2-cyc-len" data-d="-1">−</button>
+        <b class="pv2-cfglen">${L}</b>
+        <button class="pv2-cycbtn" data-action="v2-cyc-len" data-d="1">＋</button>
+        <span class="pv2-mute" style="font-size:12px">(ex. 1 à ${L})</span>
+      </div>
+      <div class="pv2-cfgrow"><b>Affichage&nbsp;:</b>
+        ${styles.map(([s, lbl]) => `<button class="zts-action pv2-act sm ${c.style === s ? 'prim' : ''}" data-action="v2-cyc-style" data-s="${s}">${lbl}</button>`).join('')}
+      </div>`;
+    // aperçu
+    h += `<div class="pv2-cfgrow"><b>Aperçu&nbsp;:</b> ${Array.from({ length: L }, (_, i) => {
+      const col = cycleColor(i);
+      return col ? `<span class="pv2-cycprev" style="background:${col}"></span>` : `<span class="pv2-cycprev txt">${esc(cycleLabel(i) || '·')}</span>`;
+    }).join('')}</div>`;
+    if (c.style === 'custom') {
+      h += `<div class="pv2-cfgrow" style="align-items:flex-start"><b>Noms&nbsp;:</b>
+        <div class="pv2-cfgnames">${Array.from({ length: L }, (_, i) =>
+        `<input class="p-input pv2-cycname" data-cyc-name="${i}" value="${esc((c.labels || [])[i] || '')}" placeholder="Jour ${i + 1}" maxlength="8">`).join('')}</div></div>`;
+    }
+    h += `<div class="pv2-cfgrow"><button class="zts-action pv2-act sm" data-action="v2-cyc-cfg">✅ Fermer</button></div></div>`;
     return h;
   }
 
@@ -394,7 +447,7 @@ const V2 = (() => {
           ${typeBtn('', '📘', 'Normal')}${typeBtn('conge', '🎉', 'Congé')}${typeBtn('pedago', '📎', 'Pédago')}${typeBtn('special', '⭐', 'Spécial')}
         </div>
         <input class="p-input pv2-daynote" data-day-note="${dateISO}" placeholder="＋ Ajouter un titre / une note (sortie, photo scolaire, rappel…)" value="${esc(sdCur.label || '')}" maxlength="70">
-        ${weekend ? '' : `<div class="pv2-daycyc">Jour-cycle&nbsp;: ${['I', 'II', 'III', 'IV', 'V', 'VI'].map((r, i) => `<button class="pv2-cycbtn ${cyc === i ? 'on' : ''}" data-action="v2-cycle-pick" data-date="${dateISO}" data-j="${i + 1}">${r}</button>`).join('')}</div>`}
+        ${weekend ? '' : `<div class="pv2-daycyc">Jour-cycle&nbsp;: ${Array.from({ length: cycleLen() }, (_, i) => { const col = cycleColor(i); return `<button class="pv2-cycbtn ${cyc === i ? 'on' : ''}" data-action="v2-cycle-pick" data-date="${dateISO}" data-j="${i + 1}" ${col ? `style="background:${col};color:#fff;min-width:26px"` : ''}>${esc(cycleLabel(i) || (i + 1))}</button>`; }).join('')}</div>`}
       </div>`;
     body.innerHTML = editor + `
       <div class="pv2-sumline"><b>PRÉSENCES DU JOUR</b><br>
@@ -1085,6 +1138,14 @@ const V2 = (() => {
       case 'v2-cal-clear': clearSchool(); return;
       case 'v2-day-type': setDay(ds.date, { type: ds.t }); render0(); openDaySum(ds.date); return;
       case 'v2-cycle-pick': SCHOOL.anchor = { date: ds.date, jour: parseInt(ds.j, 10) }; schoolSave(); render0(); openDaySum(ds.date); toast('🔢 Jours-cycle recalés — tout s\'ajuste automatiquement.'); return;
+      case 'v2-cyc-cfg': S.cfgOpen = !S.cfgOpen; render0(); return;
+      case 'v2-cyc-len': {
+        const c = cycleCfg();
+        c.len = Math.max(1, Math.min(12, cycleLen() + parseInt(ds.d, 10)));
+        if (SCHOOL.anchor && SCHOOL.anchor.jour > c.len) SCHOOL.anchor.jour = c.len;   // recale l'ancre si hors borne
+        schoolSave(); render0(); return;
+      }
+      case 'v2-cyc-style': cycleCfg().style = ds.s; schoolSave(); render0(); return;
       case 'v2-sem-nav': S.weekStart = isoAdd(S.weekStart || weekMonday(state.currentDate || todayISO()), parseInt(ds.d, 10) * 7); await loadWeekV2(); render0(); return;
       case 'v2-open-day': state.currentDate = ds.date; state.view = 'journee'; await loadJourneeData(); render0(); return;
       case 'v2-pdf': window.print(); return;
@@ -1216,6 +1277,11 @@ const V2 = (() => {
     });
     document.addEventListener('change', (e) => {
       if (e.target.matches('.pv2-annee')) { S.annee = e.target.value; window.render(); }
+    });
+    // noms personnalisés des jours-cycle (config)
+    document.addEventListener('input', (e) => {
+      const n = e.target.closest?.('[data-cyc-name]');
+      if (n) { const c = cycleCfg(); c.labels = c.labels || []; c.labels[+n.dataset.cycName] = n.value; schoolSave(); }
     });
     // overlays v2 (résumé de date) — hors #app-root
     document.getElementById('v2-backdrop')?.addEventListener('click', closeOverlays);
