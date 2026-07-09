@@ -57,6 +57,7 @@ const Groupes = {
   async listByAnimateur(uid) { const s=await (await getDb()).collection('groupes').where('animateurUid','==',uid).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
   async listByOrg(orgId) { const s=await (await getDb()).collection('groupes').where('orgId','==',orgId).get(); return s.docs.map(d=>({id:d.id,...d.data()})); },
   async update(id,d) { (await getDb()).collection('groupes').doc(id).update(d); },
+  async remove(id) { await (await getDb()).collection('groupes').doc(id).delete(); },
 };
 
 const Enfants = {

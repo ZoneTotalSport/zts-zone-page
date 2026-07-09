@@ -1022,7 +1022,13 @@ const V2 = (() => {
         ? `<input class="p-input pv2-gedit" data-v2-gname="${g.id}" value="${esc(g.nom)}" maxlength="24">`
         : `👥 ${esc(g.nom)}`;
       return `<div class="pv2-gitem ${on ? 'on' : ''}">
-        <div class="pv2-gname" data-action="v2-g-toggle" data-gid="${g.id}">${nomHtml}</div>
+        <div class="pv2-ghead">
+          <div class="pv2-gname" data-action="v2-g-toggle" data-gid="${g.id}">${nomHtml}</div>
+          ${lecture ? '' : `<div class="pv2-growbtns">
+            <button class="pv2-gbtn" data-action="v2-g-rename" data-gid="${g.id}" title="Renommer / changer le numéro">✏️</button>
+            <button class="pv2-gbtn del" data-action="v2-g-delete" data-gid="${g.id}" title="Supprimer ce groupe">✕</button>
+          </div>`}
+        </div>
         <div class="pv2-gopts" ${on ? '' : 'hidden'}>
           <div class="pv2-gopt" data-action="v2-g-presence" data-gid="${g.id}">✅ Présence</div>
           <div class="pv2-gopt" data-action="v2-stub" data-msg="👕 Linge : liste cochable par ${unit()} — Phase B">👕 Linge</div>
@@ -1030,8 +1036,7 @@ const V2 = (() => {
           <div class="pv2-gopt" data-action="v2-view" data-view="roster">🧒 ${unit().charAt(0).toUpperCase() + unit().slice(1)}</div>
           <div class="pv2-gopt" data-action="v2-view" data-view="gabarit">📐 Journée type</div>
           ${lecture ? '' : `<div class="pv2-gcfg">
-            <span data-action="v2-g-rename" data-gid="${g.id}">✏️ Renommer</span> ·
-            <span data-action="v2-g-archive" data-gid="${g.id}">🗄️ Archiver</span></div>`}
+            <span data-action="v2-g-archive" data-gid="${g.id}">🗄️ Archiver (garder l'historique)</span></div>`}
         </div>
       </div>`;
     }).join('') || `<div class="pv2-mute" style="padding:8px">Aucun groupe pour ${annee}.</div>`;
@@ -1188,6 +1193,18 @@ const V2 = (() => {
         if (!confirm('Archiver ce groupe? Ses présences et évaluations restent consultables (aucune suppression).')) return;
         await Groupes.update(ds.gid, { statut: 'archive' });
         await loadGroupes(); render0(); toast('🗄️ Groupe archivé.'); return;
+      case 'v2-g-delete': {
+        const g = S.groupes.find(x => x.id === ds.gid); if (!g) return;
+        if (!confirm('Supprimer définitivement le groupe « ' + g.nom + ' »?\n\nSes présences et évaluations ne seront plus accessibles.\n(Astuce : « Archiver » garde tout l\'historique.)')) return;
+        try { await Groupes.remove(ds.gid); } catch (e) { toast('⚠️ Suppression impossible : ' + (e.message || e)); return; }
+        await loadGroupes();
+        if (state.groupeId === ds.gid) {
+          const next = (S.groupes || []).find(x => x.statut !== 'archive');
+          if (next) { await switchGroupe(next.id); toast('🗑️ « ' + g.nom + ' » supprimé.'); return; }
+          state.groupeId = null; state.groupe = null; try { localStorage.removeItem(LS.groupeId); } catch (e) {}
+        }
+        render0(); toast('🗑️ Groupe « ' + g.nom + ' » supprimé.'); return;
+      }
       case 'v2-g-presence':
         if (state.groupeId !== ds.gid) await switchGroupe(ds.gid);
         openPresencesModal(); return;
