@@ -352,21 +352,37 @@ récupère du crawl budget.**
 → L'écrasante majorité des atterrissages organiques se fait sur des **fiches de jeux
 individuelles**, pas sur la home.
 
-### 7.2 Le trou noir de conversion (cause n°1)
+### 7.2 Ce que voit vraiment un visiteur d'une fiche jeu (correctif)
 
-Les pages `jeux/*.html` chargent `shared/zts.js` + `firebase-auth.js` + `zts-funnel.js`, mais
-**aucun mécanisme de conversion** :
+> ⚠️ **Correctif d'une première version de cet audit.** `shared/zts.js` charge
+> **dynamiquement `zts-newsletter.js` sur tout le site** (sauf `/apps/*`), donc **les 1 440
+> fiches jeux reçoivent bien un pop-up de capture courriel** (« 90 cours gratuits »), déclenché
+> par exit-intent / 50 % de scroll / 35 s. Ce n'est donc **pas** un « trou noir » total. Voici
+> l'état réel :
 
-| Élément | Présent sur les 1 440 fiches jeux ? | Preuve |
+| Élément | Présent sur les fiches jeux ? | Détail |
 |---|---|---|
-| Verrou / cadenas | ❌ Aucun | 0 fichier `jeux/` ne charge `zts-lock*` |
-| CTA « Créer un compte » | ❌ Aucun | `grep inscri\|compte gratuit\|débloque` = 0 sur échantillon |
-| Capture email / infolettre | ❌ Absente | `zts-newsletter.js` chargé sur 24 pages / ~2000 |
-| Événement funnel `locked_view` | ❌ Jamais émis | pas de lock → pas d'event |
+| Verrou / cadenas | ❌ Non (voulu) | fiches = SEO bait, whitelist `jeux` libre |
+| **Pop-up capture courriel** | ✅ **Oui** | `zts-newsletter.js` via `zts.js` (exit-intent/scroll/35 s) |
+| Événements funnel | ✅ **Oui** mais `newsletter_*` | `newsletter_view/submit/complete/to_signup`, **pas** `locked_view` |
+| **CTA inline persistant** (compte) | ❌ **Non** | seulement 7 fiches / 1 440 contiennent « inscri » |
 
-**Conséquence** : un visiteur Google lit **toute la fiche gratuitement**, repart, et sa visite
-est **invisible dans `conversionFunnel`**. La plus grosse source de trafic est **débranchée du
-tunnel d'inscription**.
+**La vraie faille est plus subtile — et cohérente avec « des leads mais zéro *compte* »** :
+
+1. Le pop-up est **une seule touche**, **fermable** et **plafonnée 10 jours** (`DISMISS_DAYS`),
+   sautée pour les connectés. Un visiteur pressé le ferme → plus rien.
+2. Son **action principale = capture courriel** (→ Firestore `leads` + email Resend). La
+   **création de compte Firebase** (`ztsShowSignup`) n'est que le **bouton secondaire souligné**.
+   → On optimise la **liste courriel**, **pas** les **inscriptions** (« abonnés »). D'où
+   possiblement `leads > 0` mais **comptes Auth ≈ 0**.
+3. **Aucun CTA inline permanent** en bas de fiche : une fois le pop-up fermé, la fiche n'invite
+   plus jamais à créer un compte.
+
+**Conséquence funnel** : le trafic des fiches jeux **est** partiellement instrumenté, mais via
+les événements **`newsletter_*`** — que le tableau du §1 **ne comptait pas**. Il faut donc aussi
+tallier `newsletter_view/submit/complete/to_signup` et **comparer les comptes Auth (§2) au
+nombre de `leads`** : si `leads ≫ comptes`, le problème est le **cadrage courriel-d'abord**, pas
+le trafic.
 
 ### 7.3 Là où le gate existe (surfaces à faible trafic d'entrée)
 
@@ -384,22 +400,26 @@ tunnel d'inscription**.
 - **7 sous-domaines non verrouillés** (§3) : apps entières consommables gratis, hors funnel.
 - **Générateur** ouvert volontairement (limite anonyme `anonGenCount`) — friction faible.
 
-### 7.5 Verdict de l'audit conversion
+### 7.5 Verdict de l'audit conversion (corrigé)
 
-Ce n'est **pas d'abord un problème de trafic** : c'est une **fuite de conversion structurelle**.
-La machine SEO (1 440 fiches jeux) **attire** très bien mais est **déconnectée du tunnel**
-(ni gate, ni CTA, ni capture email, ni tracking). Le volume exact de ce trafic reste à confirmer
-via le script §1 / GA4, mais l'architecture convertirait **~0 %** sur les fiches jeux quel que
-soit le volume.
+La machine SEO (1 440 fiches jeux) **attire** bien et **est** reliée au tunnel via le **pop-up
+courriel** — mais ce tunnel est calibré pour la **liste courriel**, pas pour les **inscriptions
+de compte**, et il repose sur **une seule touche fermable/plafonnée**. Le levier n'est donc pas
+« il n'y a rien », mais « **le cadrage pousse le courriel, pas le compte, et il n'y a aucun CTA
+compte permanent** ». Reste à confirmer par les nombres (§1 + `leads`) : si `leads ≫ comptes
+Auth`, c'est bien un problème de **cadrage/CTA** ; si `newsletter_view ≈ 0`, alors c'est le
+**trafic** (ou le pop-up ne se déclenche pas).
 
 ### 7.6 Actions conversion (par impact)
 
-1. **Brancher les 1 440 fiches jeux au tunnel** : CTA d'inscription non-intrusif + capture email
-   en bas de fiche (« Débloque 90 cours d'ÉPS clé en main ») + bloc « ressources liées 🔒 ».
-   Plus gros levier (immense surface × 0 % actuel).
-2. **Header site-wide** : ajouter un bouton proéminent **« Créer un compte gratuit »** (visible
-   aussi sur les fiches jeux), en plus de « Connexion ».
-3. **Mesurer le volume** (script §1 + GA4) puis **fermer les 7 sous-domaines** pendants (§3).
+1. **Ajouter un CTA compte inline permanent en bas de fiche jeu** (non-fermable, non plafonné,
+   complémentaire du pop-up) : « Crée ton compte gratuit — débloque X », qui appelle
+   `ztsShowSignup` et émet un événement funnel dédié. Comble le manque n°3 du §7.2 sur l'immense
+   surface des 1 440 fiches.
+2. **Rééquilibrer le pop-up** : donner à « créer mon compte » une place ≥ à la capture courriel
+   (ou A/B tester), pour convertir en **abonnés** et pas seulement en **leads**.
+3. **Mesurer d'abord** (script §1 élargi aux `newsletter_*` + collection `leads` + §2) pour
+   confirmer le cadrage vs le trafic, puis **fermer les 7 sous-domaines** pendants (§3).
 
 ### Annexe conversion — fichiers inspectés
 `locked-whitelist.json` · `zts-lock.js` · `zts-lock-page.js` · `shared/zts-unlock.js` ·
