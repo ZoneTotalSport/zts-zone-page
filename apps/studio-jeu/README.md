@@ -145,8 +145,20 @@ Bouton **🎙️ REC** (barre du haut ou barre projection) :
 Combo typique : Projection → REC → Lecture en commentant à voix haute →
 STOP = mini-vidéo explicative prête pour les élèves ou les Reels.
 
+## Interface
+
+- Barre du haut : **📚 Choisir un jeu** + menus déroulants **📁 Fichier**
+  (scène libre / charger / télécharger JSON) et **⬇️ Exporter** (PNG / PDF),
+  puis 📽️ projection, 🎙️ REC et ❓ guide rapide (3 étapes + raccourcis).
+- Palette : groupes **repliables** (accordéon). Joueurs + Mes persos ouverts
+  par défaut.
+- Terrain vide → indice « Choisis un élément dans la palette ».
+- **Annuler/refaire** : boutons ↩ ↪ (barre du bas) ou `Ctrl+Z` /
+  `Ctrl+Shift+Z` (historique 60 états, débounce 350 ms).
+
 ## Raccourcis
 
 `C` calibration · `P` projection · `←`/`→` étapes (en projection) ·
+`Ctrl/Cmd+Z` annuler · `Ctrl/Cmd+Shift+Z` refaire ·
 `Suppr`/`Backspace` supprime la sélection · `Ctrl/Cmd+D` duplique ·
 `Échap` désélectionne / stoppe la lecture / sort de projection.

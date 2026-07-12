@@ -84,6 +84,10 @@ function render() {
   renderInspector();
   renderStepChips();
   if (document.body.classList.contains('projection')) updateProjUI();
+  const hint = $('#emptyHint');
+  if (hint) hint.classList.toggle('show',
+    step && step.elements.length === 0 && !state.calib && !state.playing
+    && !document.body.classList.contains('projection'));
 }
 
 // construit le noeud SVG d'un element (opacity pour la lecture)
@@ -186,43 +190,59 @@ function selBox(r) {
 }
 
 // ---- palette ---------------------------------------------------------------
+// etat ouvert/ferme des groupes (persiste pendant la session)
+const palOpen = { persos: true, joueurs: true, objets: false, fleches: false, zones: false, texte: false };
+
+function palGroup(pal, key, title, fill) {
+  const wrap = document.createElement('div');
+  wrap.className = 'pal-group' + (palOpen[key] ? '' : ' closed');
+  const head = document.createElement('button');
+  head.className = 'pal-head';
+  head.textContent = (palOpen[key] ? '▾ ' : '▸ ') + title;
+  head.addEventListener('click', () => { palOpen[key] = !palOpen[key]; buildPalette(); });
+  const body = document.createElement('div');
+  body.className = 'pal-items';
+  fill(body);
+  wrap.appendChild(head); wrap.appendChild(body);
+  pal.appendChild(wrap);
+}
+function palToolBtn(it) {
+  const b = document.createElement('button');
+  b.className = 'pal-item';
+  b.dataset.tool = JSON.stringify(it);
+  b.innerHTML = `<svg viewBox="-60 -60 120 120">${paletteIcon(it)}</svg><span>${it.label}</span>`;
+  b.addEventListener('click', () => armTool(it, b));
+  return b;
+}
 function buildPalette() {
   const pal = $('#palette');
-  const groups = [
-    ['Joueurs', PALETTE.filter((p) => p.type === 'player')],
-    ['Objets', PALETTE.filter((p) => ['ball', 'cone', 'hoop', 'pinnie'].includes(p.type))],
-    ['Flèches', PALETTE.filter((p) => p.type === 'arrow')],
-    ['Zones', PALETTE.filter((p) => p.type === 'zone')],
-    ['Texte', PALETTE.filter((p) => p.type === 'text')],
-  ];
   pal.innerHTML = '';
 
-  // groupe "Mes persos" : import + persos deja importes (reutilisables)
-  const h0 = document.createElement('h3'); h0.textContent = 'Mes persos'; pal.appendChild(h0);
-  const imp = document.createElement('button');
-  imp.className = 'pal-item'; imp.innerHTML = '<span style="font-size:26px">＋</span><span>Importer</span>';
-  imp.addEventListener('click', importCharacter);
-  pal.appendChild(imp);
-  const assets = (state.scene && state.scene.assets) || {};
-  for (const [id, a] of Object.entries(assets)) {
-    const b = document.createElement('button');
-    b.className = 'pal-item'; b.title = a.name;
-    b.innerHTML = `<img src="${a.src}" alt="${a.name}" style="width:34px;height:34px;object-fit:contain">`
-      + `<span>${a.name.slice(0, 10)}</span>`;
-    b.addEventListener('click', () => placeImage(id));
-    pal.appendChild(b);
-  }
-
-  for (const [title, items] of groups) {
-    const h = document.createElement('h3'); h.textContent = title; pal.appendChild(h);
-    for (const it of items) {
+  palGroup(pal, 'persos', 'Mes persos', (body) => {
+    const imp = document.createElement('button');
+    imp.className = 'pal-item'; imp.innerHTML = '<span style="font-size:26px">＋</span><span>Importer</span>';
+    imp.addEventListener('click', importCharacter);
+    body.appendChild(imp);
+    const assets = (state.scene && state.scene.assets) || {};
+    for (const [id, a] of Object.entries(assets)) {
       const b = document.createElement('button');
-      b.className = 'pal-item';
-      b.dataset.tool = JSON.stringify(it);
-      b.innerHTML = `<svg viewBox="-60 -60 120 120">${paletteIcon(it)}</svg><span>${it.label}</span>`;
-      b.addEventListener('click', () => armTool(it, b));
-      pal.appendChild(b);
+      b.className = 'pal-item'; b.title = a.name;
+      b.innerHTML = `<img src="${a.src}" alt="${a.name}" style="width:34px;height:34px;object-fit:contain">`
+        + `<span>${a.name.slice(0, 10)}</span>`;
+      b.addEventListener('click', () => placeImage(id));
+      body.appendChild(b);
     }
+  });
+
+  const groups = [
+    ['joueurs', 'Joueurs', PALETTE.filter((p) => p.type === 'player')],
+    ['objets', 'Objets', PALETTE.filter((p) => ['ball', 'cone', 'hoop', 'pinnie'].includes(p.type))],
+    ['fleches', 'Flèches', PALETTE.filter((p) => p.type === 'arrow')],
+    ['zones', 'Zones', PALETTE.filter((p) => p.type === 'zone')],
+    ['texte', 'Texte', PALETTE.filter((p) => p.type === 'text')],
+  ];
+  for (const [key, title, items] of groups) {
+    palGroup(pal, key, title, (body) => items.forEach((it) => body.appendChild(palToolBtn(it))));
   }
 }
 function paletteIcon(it) {
@@ -557,10 +577,47 @@ function drawInterpolated(elements) {
 function stopPlay() { state.playing = false; render(); }
 function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
 
+// ---- historique annuler/refaire ---------------------------------------------
+const history = { undo: [], redo: [] };
+let snapT = null;
+function snapshot() {
+  const s = JSON.stringify(state.scene);
+  if (history.undo[history.undo.length - 1] === s) return;
+  history.undo.push(s);
+  if (history.undo.length > 60) history.undo.shift();
+  history.redo.length = 0;
+}
+function resetHistory() {
+  history.undo.length = 0; history.redo.length = 0;
+  clearTimeout(snapT);
+  history.undo.push(JSON.stringify(state.scene));
+}
+function applySnap(s) {
+  clearTimeout(snapT);
+  state.scene = JSON.parse(s);
+  state.stepIndex = Math.min(state.stepIndex, state.scene.steps.length - 1);
+  state.selectedId = null;
+  try { localStorage.setItem(storageKey(), s); } catch (_) {}
+  buildPalette(); render();
+}
+function undo() {
+  clearTimeout(snapT); snapshot(); // capture un changement en attente avant d'annuler
+  if (history.undo.length < 2) { toast('Rien à annuler'); return; }
+  history.redo.push(history.undo.pop());
+  applySnap(history.undo[history.undo.length - 1]);
+}
+function redo() {
+  if (!history.redo.length) { toast('Rien à refaire'); return; }
+  const s = history.redo.pop();
+  history.undo.push(s);
+  applySnap(s);
+}
+
 // ---- sauvegarde ------------------------------------------------------------
 function storageKey() { return 'zts-studio-' + (state.scene.gameId || 'libre'); }
 function autosave() {
   try { localStorage.setItem(storageKey(), JSON.stringify(state.scene)); } catch (_) {}
+  clearTimeout(snapT); snapT = setTimeout(snapshot, 350);
 }
 function loadAutosave(gameId) {
   try {
@@ -599,6 +656,7 @@ function setScene(sc) {
   $('#gameName').textContent = sc.gameTitle;
   $('#gameName').title = sc.gameTitle;
   buildPalette(); render(); autosave();
+  resetHistory();
 }
 function newScene(game) {
   const saved = loadAutosave(game ? game.id : null);
@@ -844,6 +902,8 @@ window.addEventListener('keydown', (e) => {
   else if (e.key === 'ArrowLeft' && document.body.classList.contains('projection')) { projStepDelta(-1); }
   else if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedId) {
     e.preventDefault(); inspectorAction('del', findEl(state.selectedId));
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+    e.preventDefault(); e.shiftKey ? redo() : undo();
   } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd' && state.selectedId) {
     e.preventDefault(); inspectorAction('dup', findEl(state.selectedId));
   } else if (e.key === 'Escape') {
@@ -855,7 +915,24 @@ window.addEventListener('keydown', (e) => {
 });
 
 // ---- wiring boutons --------------------------------------------------------
+function wireMenus() {
+  document.querySelectorAll('.menu > .btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const m = btn.parentElement;
+      const wasOpen = m.classList.contains('open');
+      document.querySelectorAll('.menu.open').forEach((x) => x.classList.remove('open'));
+      if (!wasOpen) m.classList.add('open');
+    });
+  });
+  // un item cliqué ferme son menu ; un clic ailleurs ferme tout
+  document.querySelectorAll('.menu-list button').forEach((b) =>
+    b.addEventListener('click', () => b.closest('.menu').classList.remove('open')));
+  document.addEventListener('click', () =>
+    document.querySelectorAll('.menu.open').forEach((x) => x.classList.remove('open')));
+}
 function wireToolbar() {
+  wireMenus();
   $('#btnLibre').addEventListener('click', () => newScene(null));
   $('#btnSave').addEventListener('click', downloadJSON);
   $('#btnLoad').addEventListener('click', () => $('#fileInput').click());
@@ -880,6 +957,11 @@ function wireToolbar() {
   $('#projNext').addEventListener('click', () => projStepDelta(1));
   $('#projPlay').addEventListener('click', () => state.playing ? stopPlay() : play());
   $('#projRec').addEventListener('click', toggleRecording);
+  $('#btnUndo').addEventListener('click', undo);
+  $('#btnRedo').addEventListener('click', redo);
+  $('#btnHelp').addEventListener('click', () => $('#helpModal').classList.add('show'));
+  $('#helpClose').addEventListener('click', () => $('#helpModal').classList.remove('show'));
+  $('#helpModal').addEventListener('click', (e) => { if (e.target.id === 'helpModal') e.currentTarget.classList.remove('show'); });
   $('#calibCopy').addEventListener('click', () => {
     navigator.clipboard.writeText(configText()).then(() => toast('Config copiée'), () => toast('Copie refusée'));
   });

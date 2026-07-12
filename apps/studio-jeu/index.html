@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@500;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="studio.css">
+  <link rel="stylesheet" href="studio.css?v=3">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body data-metier="eps">
@@ -29,13 +29,24 @@
     <span class="game-name" id="gameName" title="Scène libre">Scène libre</span>
     <span class="grow"></span>
     <button class="btn btn--eps" id="btnPick">📚 Choisir un jeu</button>
-    <button class="btn" id="btnLibre">✨ Scène libre</button>
-    <button class="btn small" id="btnLoad">📂 Charger JSON</button>
-    <button class="btn small" id="btnSave">💾 JSON</button>
-    <button class="btn small btn--jaune" id="btnPng">🖼️ PNG</button>
-    <button class="btn small btn--jaune" id="btnPdf">📄 PDF</button>
-    <button class="btn btn--sdg" id="btnProj">📽️ Projection</button>
-    <button class="btn" id="btnRec">🎙️ REC</button>
+    <div class="menu">
+      <button class="btn" id="menuFileBtn">📁 Fichier ▾</button>
+      <div class="menu-list">
+        <button id="btnLibre">✨ Nouvelle scène libre</button>
+        <button id="btnLoad">📂 Charger un JSON</button>
+        <button id="btnSave">💾 Télécharger le JSON</button>
+      </div>
+    </div>
+    <div class="menu">
+      <button class="btn btn--jaune" id="menuExportBtn">⬇️ Exporter ▾</button>
+      <div class="menu-list">
+        <button id="btnPng">🖼️ Image PNG (étape courante)</button>
+        <button id="btnPdf">📄 Fiche PDF (toutes les étapes)</button>
+      </div>
+    </div>
+    <button class="btn btn--sdg" id="btnProj" title="Mode projection plein écran (P)">📽️</button>
+    <button class="btn" id="btnRec" title="Enregistrer l'écran + ta voix">🎙️ REC</button>
+    <button class="btn" id="btnHelp" title="Guide rapide">❓</button>
     <input type="file" id="fileInput" accept="application/json" hidden>
   </header>
 
@@ -47,14 +58,18 @@
         <div class="stage" id="stage">
           <img class="terrain" id="terrainImg" alt="Terrain de gymnase">
           <svg class="overlay" id="overlay" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="empty-hint" id="emptyHint">👈 Choisis un élément dans la palette<br><small>il apparaît au centre — glisse-le ensuite où tu veux</small></div>
           <div class="inspector" id="inspector"></div>
         </div>
       </div>
 
       <div class="steps-bar" id="stepsBar">
+        <button class="btn small" id="btnUndo" title="Annuler (Ctrl+Z)">↩</button>
+        <button class="btn small" id="btnRedo" title="Refaire (Ctrl+Shift+Z)">↪</button>
+        <span style="width:2px"></span>
         <button class="btn small btn--sdg" id="btnAddStep">＋ Étape</button>
         <button class="btn small" id="btnDupStep">⧉ Dupliquer l'étape</button>
-        <button class="btn small btn--play" id="btnPlay">▶ Lecture</button>
+        <button class="btn btn--play" id="btnPlay">▶ Lecture</button>
         <span style="width:6px"></span>
         <div id="stepChips" style="display:flex;gap:8px"></div>
       </div>
@@ -84,8 +99,34 @@
     <button class="btn btn--camps" id="projQuit">✕ Quitter</button>
   </div>
 
+  <!-- Guide rapide -->
+  <div class="modal" id="helpModal">
+    <div class="modal-card">
+      <header>
+        <h2>❓ Guide rapide</h2>
+        <button class="btn small" id="helpClose">✕</button>
+      </header>
+      <div class="help-body">
+        <ol class="help-steps">
+          <li><b>Place</b> — clique un élément dans la palette (gauche), il apparaît au centre. Glisse-le où tu veux. Flèches et zones : glisse directement sur le terrain de A à B.</li>
+          <li><b>Anime</b> — bouton <b>⧉ Dupliquer l'étape</b>, déplace tes éléments à leur position suivante, puis <b>▶ Lecture</b> : tout bouge tout seul.</li>
+          <li><b>Partage</b> — menu <b>⬇️ Exporter</b> (PNG/PDF), ou <b>📽️</b> + <b>🎙️ REC</b> pour enregistrer une mini-vidéo commentée de ta mise en scène.</li>
+        </ol>
+        <table class="help-keys">
+          <tr><td><kbd>P</kbd></td><td>Mode projection plein écran (TNI)</td></tr>
+          <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Changer d'étape (en projection)</td></tr>
+          <tr><td><kbd>Ctrl+Z</kbd></td><td>Annuler · <kbd>Ctrl+Shift+Z</kbd> refaire</td></tr>
+          <tr><td><kbd>Ctrl+D</kbd></td><td>Dupliquer l'élément sélectionné</td></tr>
+          <tr><td><kbd>Suppr</kbd></td><td>Supprimer l'élément sélectionné</td></tr>
+          <tr><td><kbd>Échap</kbd></td><td>Désélectionner / arrêter la lecture</td></tr>
+          <tr><td><kbd>C</kbd></td><td>Calibration du terrain (avancé)</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
-  <script type="module" src="studio.js"></script>
+  <script type="module" src="studio.js?v=3"></script>
 </body>
 </html>

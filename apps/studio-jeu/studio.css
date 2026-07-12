@@ -57,6 +57,22 @@ body {
 .btn.small  { font-size: 13px; padding: 4px 9px; box-shadow: 3px 3px 0 var(--ink); }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: 3px 3px 0 var(--ink); }
 
+/* ---------- menus déroulants ---------- */
+.menu { position: relative; }
+.menu-list {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0; z-index: 90;
+  flex-direction: column; gap: 4px; min-width: 230px; padding: 8px;
+  background: #fff; border: 3px solid var(--ink); border-radius: 12px;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.menu.open .menu-list { display: flex; }
+.menu-list button {
+  font-family: var(--font-fun,'Fredoka'),sans-serif; font-weight: 700; font-size: 13.5px;
+  text-align: left; background: none; border: none; border-radius: 8px;
+  padding: 9px 10px; cursor: pointer; color: var(--ink);
+}
+.menu-list button:hover { background: var(--cream,#FFFBE8); outline: 2px solid var(--ink); }
+
 /* ---------- corps ---------- */
 .studio-body { flex: 1; display: flex; min-height: 0; }
 
@@ -69,6 +85,17 @@ body {
   font-family: var(--font-impact,'Luckiest Guy'),cursive; font-size: 12px;
   margin: 6px 2px 0; color: var(--ink); opacity: .7; letter-spacing: .5px;
 }
+/* accordéon */
+.pal-group { display: flex; flex-direction: column; gap: 7px; }
+.pal-head {
+  font-family: var(--font-impact,'Luckiest Guy'),cursive; font-size: 12.5px;
+  text-align: left; background: var(--cream,#FFFBE8); border: 2px solid var(--ink);
+  border-radius: 8px; padding: 6px 8px; cursor: pointer; color: var(--ink);
+  letter-spacing: .5px; box-shadow: 2px 2px 0 var(--ink);
+}
+.pal-head:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+.pal-group.closed .pal-items { display: none; }
+.pal-items { display: flex; flex-direction: column; gap: 7px; }
 .pal-item {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   font-family: var(--font-fun,'Fredoka'),sans-serif; font-size: 10.5px; font-weight: 700;
@@ -98,6 +125,28 @@ body {
 .el.selected > .sel-box { display: block; }
 .sel-box { display: none; }
 .handle { cursor: pointer; }
+
+/* indice terrain vide */
+.empty-hint {
+  display: none; position: absolute; top: 38%; left: 50%; transform: translate(-50%,-50%);
+  z-index: 4; pointer-events: none; text-align: center;
+  font-family: var(--font-fun,'Fredoka'),sans-serif; font-weight: 700; font-size: 17px;
+  color: var(--ink); background: rgba(255,251,232,.95); border: 3px dashed var(--ink);
+  border-radius: 14px; padding: 14px 20px; box-shadow: 4px 4px 0 rgba(26,26,46,.25);
+}
+.empty-hint small { font-weight: 500; font-size: 12.5px; opacity: .75; }
+.empty-hint.show { display: block; }
+
+/* guide rapide */
+.help-body { padding: 6px 18px 18px; overflow-y: auto; font-family: var(--font-body,'Quicksand'),sans-serif; font-size: 14px; }
+.help-steps { margin: 10px 0 14px; padding-left: 20px; display: flex; flex-direction: column; gap: 9px; }
+.help-keys { border-collapse: collapse; width: 100%; }
+.help-keys td { padding: 5px 8px; border-top: 2px dashed rgba(26,26,46,.2); }
+.help-keys td:first-child { white-space: nowrap; width: 110px; }
+.help-keys kbd {
+  font-family: inherit; font-weight: 700; font-size: 12px; background: var(--cream,#FFFBE8);
+  border: 2px solid var(--ink); border-radius: 6px; padding: 1px 7px; box-shadow: 2px 2px 0 var(--ink);
+}
 
 /* placeholder quand pas de terrain */
 .stage.empty { min-height: 300px; display: flex; align-items: center; justify-content: center;
