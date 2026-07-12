@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎬 Studio Jeu — Zone Total Sport</title>
+  <meta name="description" content="Éditeur visuel de mises en scène sur terrain de gymnase : place joueurs, ballons, cônes, flèches et zones, monte des étapes animées, exporte en PNG/PDF. Zone Total Sport.">
+  <link rel="canonical" href="https://zonetotalsport.ca/apps/studio-jeu/">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@500;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="studio.css">
+</head>
+<body data-metier="eps">
+
+  <div class="calib-banner">
+    🎯 MODE CALIBRATION — glisse les 4 coins sur le plancher. <code>C</code> pour sortir.
+    <span class="grow" style="flex:1"></span>
+    <button class="btn small" id="calibCopy">Copier config</button>
+    <button class="btn small" id="calibDownload">Télécharger config</button>
+    <button class="btn small btn--jaune" id="calibReset">Réinitialiser</button>
+  </div>
+
+  <header class="studio-top">
+    <h1>🎬 Studio&nbsp;Jeu</h1>
+    <span class="game-name" id="gameName" title="Scène libre">Scène libre</span>
+    <span class="grow"></span>
+    <button class="btn btn--eps" id="btnPick">📚 Choisir un jeu</button>
+    <button class="btn" id="btnLibre">✨ Scène libre</button>
+    <button class="btn small" id="btnLoad">📂 Charger JSON</button>
+    <button class="btn small" id="btnSave">💾 JSON</button>
+    <button class="btn small btn--jaune" id="btnPng">🖼️ PNG</button>
+    <button class="btn small btn--jaune" id="btnPdf">📄 PDF</button>
+    <input type="file" id="fileInput" accept="application/json" hidden>
+  </header>
+
+  <div class="studio-body">
+    <aside class="palette" id="palette"><!-- rempli par JS --></aside>
+
+    <div class="stage-col">
+      <div class="stage-scroll">
+        <div class="stage" id="stage">
+          <img class="terrain" id="terrainImg" alt="Terrain de gymnase">
+          <svg class="overlay" id="overlay" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
+          <div class="inspector" id="inspector"></div>
+        </div>
+      </div>
+
+      <div class="steps-bar" id="stepsBar">
+        <button class="btn small btn--sdg" id="btnAddStep">＋ Étape</button>
+        <button class="btn small" id="btnDupStep">⧉ Dupliquer l'étape</button>
+        <button class="btn small btn--play" id="btnPlay">▶ Lecture</button>
+        <span style="width:6px"></span>
+        <div id="stepChips" style="display:flex;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sélecteur de jeu -->
+  <div class="modal" id="pickModal">
+    <div class="modal-card">
+      <header>
+        <h2>📚 Choisir un jeu</h2>
+        <button class="btn small" id="pickClose">✕</button>
+      </header>
+      <input class="search" id="gameSearch" placeholder="Rechercher un jeu (titre)…">
+      <div class="game-list" id="gameList"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="studio.js"></script>
+</body>
+</html>
