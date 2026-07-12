@@ -82,12 +82,23 @@ Champ commun : `id` (unique dans l'étape ; **stable entre étapes** pour animer
 | `cone`   | `u,v`                                                              |
 | `hoop`   | `u,v`, `color`                                                     |
 | `pinnie` | `u,v`, `color`                                                     |
+| `image`  | `u,v`, `assetId` (→ `scene.assets`), `scaleMul`, `rotation` — perso importé |
 | `arrow`  | `u,v` (A), `u2,v2` (B), `kind` (run\|pass\|throw), `hex`           |
 | `zone`   | `u,v`+`u2,v2` (boîte), `shape` (rect\|circle), `hex`              |
 | `text`   | `u,v`, `text`, `style` (onomatopee\|libre), `rotation`, `hex`, `fontSize` |
 
 **Impression N&B** : chaque couleur de joueur a une **forme distincte** —
 rouge=cercle, bleu=carré, blanc=triangle, noir=losange.
+
+### Persos importés (`scene.assets`)
+
+Bouton palette **Mes persos → ＋ Importer** : une image (PNG/JPEG) est
+redimensionnée à ≤ 512 px puis stockée en data-URI dans
+`scene.assets[assetId] = { name, src, w, h }`. Un élément `image` la référence par
+`assetId` (le blob n'est donc pas dupliqué à chaque étape). Le perso se déplace, se
+redimensionne (poignée jaune ou boutons Petit/Grand) et **s'anime entre les étapes**
+comme tout élément (id stable → interpolation de `u,v` et `scaleMul`). Les data-URI
+sont autonomes : Remotion les rend directement, sans fichier externe.
 
 ### Animation entre étapes
 

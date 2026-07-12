@@ -39,6 +39,15 @@ fondation de la génération vidéo Remotion (Phase 2). Branche `feat/studio-jeu
   types d'éléments exercés, perspective correcte.
 - `apps/studio-jeu/README.md` : schéma `scene-{id}.json` documenté.
 
+**Commit 5 — persos importés (image)**
+- Import d'images perso (bouton palette « Mes persos → ＋ Importer »), miniaturisées
+  ≤ 512 px → data-URI dans `scene.assets` (référencées par `assetId`, pas de blob
+  dupliqué par étape). Persos réutilisables (miniatures cliquables dans la palette).
+- Élément `image` : déplaçable, redimensionnable (poignée jaune + boutons), rotation,
+  ombre BD (filtre SVG). **S'anime entre étapes** (`scaleMul` ajouté aux clés
+  interpolées). Vérifié : rendu perspective, resize, export PNG non-taint (image
+  embarquée + ombre) — marche pour PNG et PDF.
+
 ## Décisions
 
 - **Chemin** `shared/studio-engine/` (et non `fiche-engine/` du 1er brief).

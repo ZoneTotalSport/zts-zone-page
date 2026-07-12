@@ -7,6 +7,7 @@ export const SCENE_VERSION = 1;
 
 export const ELEMENT_TYPES = [
   'player', 'ball', 'cone', 'hoop', 'pinnie', // objets ponctuels (u,v)
+  'image',                                     // perso importe (u,v) + assetId
   'arrow',                                     // A->B (u,v)->(u2,v2)
   'zone',                                      // rect/cercle (u,v)+(u2,v2)
   'text',                                      // texte/onomatopee (u,v)
@@ -41,10 +42,19 @@ export function createScene(game) {
     gameTitle: game && game.title ? game.title : 'Scène libre',
     univers: pickUnivers(game),
     terrain: 'terrain-gym',
+    assets: {},   // { assetId: { name, src (data-URI), w, h } } — persos importes
     steps: [],
   };
   scene.steps.push(createStep(scene, 'Mise en place'));
   return scene;
+}
+
+/** Enregistre un asset (perso importe) et retourne son id deterministe. */
+export function addAsset(scene, asset) {
+  if (!scene.assets) scene.assets = {};
+  const id = `asset-${maxNum(Object.keys(scene.assets), 'asset') + 1}`;
+  scene.assets[id] = { name: asset.name || 'perso', src: asset.src, w: asset.w, h: asset.h };
+  return id;
 }
 
 export function createStep(scene, title) {
@@ -86,7 +96,7 @@ function maxNum(ids, prefix) {
 
 export function lerp(a, b, t) { return a + (b - a) * t; }
 
-const LERP_KEYS = ['u', 'v', 'u2', 'v2', 'rotation', 'w', 'h', 'radius', 'fontSize'];
+const LERP_KEYS = ['u', 'v', 'u2', 'v2', 'rotation', 'w', 'h', 'radius', 'fontSize', 'scaleMul'];
 
 /**
  * Interpole tous les elements entre deux etapes a l'instant t in [0,1].

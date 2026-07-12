@@ -131,6 +131,39 @@ export function iconSVG(el) {
   }
 }
 
+// ---- perso importe (image) -------------------------------------------------
+
+// Hauteur locale de reference d'un perso a scaleMul=1 (avant, scale=1).
+export const IMAGE_BASE_H = 120;
+
+/**
+ * <defs> a inserer UNE fois dans l'overlay : ombre BD (offset dur) pour persos.
+ * Reference par filter="url(#ztsShadow)".
+ */
+export function svgDefs() {
+  return '<defs><filter id="ztsShadow" x="-25%" y="-25%" width="155%" height="155%">'
+    + '<feDropShadow dx="5" dy="6" stdDeviation="0" flood-color="#1A1A2E" flood-opacity="0.85"/>'
+    + '</filter></defs>';
+}
+
+/** Perso importe centre sur (0,0), hauteur locale ~IMAGE_BASE_H, aspect conserve. */
+export function imageSVG(asset) {
+  if (!asset || !asset.src) return '';
+  const h = IMAGE_BASE_H;
+  const ar = asset.w && asset.h ? asset.w / asset.h : 1;
+  const w = h * ar;
+  return `<image href="${asset.src}" xlink:href="${asset.src}" `
+    + `x="${-w / 2}" y="${-h / 2}" width="${w}" height="${h}" `
+    + `preserveAspectRatio="xMidYMid meet" filter="url(#ztsShadow)"/>`;
+}
+
+/** Demi-largeur / demi-hauteur locales du perso (pour boite de selection + poignee). */
+export function imageHalfBox(asset) {
+  const h = IMAGE_BASE_H;
+  const ar = asset && asset.w && asset.h ? asset.w / asset.h : 1;
+  return { hw: (h * ar) / 2, hh: h / 2 };
+}
+
 // ---- fleches (points ecran projetes) ---------------------------------------
 
 /**

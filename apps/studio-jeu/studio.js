@@ -3,11 +3,12 @@
 
 import { createProjector } from '../../shared/studio-engine/projection.js';
 import {
-  createScene, createStep, duplicateStep, nextElementId,
+  createScene, createStep, duplicateStep, nextElementId, addAsset,
   interpolateSteps, validateScene, pickUnivers, PLAYER_COLORS,
 } from '../../shared/studio-engine/scene-schema.js';
 import {
   PALETTE, iconSVG, arrowSVG, zoneSVG, textSVG,
+  imageSVG, imageHalfBox, svgDefs,
 } from '../../shared/studio-engine/elements.js';
 
 const CONFIG_URL = '../../shared/studio-engine/terrain-gym.config.json';
@@ -63,12 +64,17 @@ function projPx(u, v) {
   const p = state.projector.project(u, v);
   return { x: p.x * VBW, y: p.y * VBH, scale: p.scale };
 }
+function clientToVB(clientX, clientY) {
+  const r = overlay.getBoundingClientRect();
+  return { x: (clientX - r.left) / r.width * VBW, y: (clientY - r.top) / r.height * VBH };
+}
 
 // ---- rendu de la scene -----------------------------------------------------
 function render() {
   // vide l'overlay
   while (overlay.firstChild) overlay.removeChild(overlay.firstChild);
   overlay.setAttribute('viewBox', `0 0 ${VBW} ${VBH}`);
+  overlay.insertAdjacentHTML('afterbegin', svgDefs()); // ombre BD persos
 
   const step = curStep();
   if (step) {
@@ -89,6 +95,8 @@ function buildElementNode(el, opacity) {
     g.innerHTML = arrowMarkup(el);
   } else if (el.type === 'zone') {
     g.innerHTML = zoneMarkup(el);
+  } else if (el.type === 'image') {
+    g.innerHTML = imageMarkup(el);
   } else if (el.type === 'text') {
     const p = projPx(el.u, el.v);
     const s = (el.scaleMul || 1) * p.scale;
@@ -150,6 +158,25 @@ function zoneMarkup(el) {
   }
   return m;
 }
+function getAsset(el) {
+  return state.scene.assets && state.scene.assets[el.assetId];
+}
+function imageMarkup(el) {
+  const asset = getAsset(el);
+  if (!asset) return '';
+  const p = projPx(el.u, el.v);
+  const s = (el.scaleMul || 1) * p.scale;
+  let m = `<g transform="translate(${p.x},${p.y}) scale(${s}) rotate(${el.rotation || 0})">${imageSVG(asset)}</g>`;
+  if (el.id === state.selectedId) {
+    const hb = imageHalfBox(asset);
+    const hw = s * hb.hw, hh = s * hb.hh;
+    m += `<rect x="${p.x - hw}" y="${p.y - hh}" width="${hw * 2}" height="${hh * 2}" `
+      + `fill="none" stroke="#FF2D87" stroke-width="4" stroke-dasharray="10 8"/>`
+      + `<circle class="handle" data-h="size" cx="${p.x + hw}" cy="${p.y + hh}" r="11" `
+      + `fill="#FFEA00" stroke="#1A1A2E" stroke-width="3"/>`;
+  }
+  return m;
+}
 function handleDot(x, y, role) {
   return `<circle class="handle" data-h="${role}" cx="${x}" cy="${y}" r="9" fill="#fff" stroke="#1A1A2E" stroke-width="3"/>`;
 }
@@ -168,6 +195,23 @@ function buildPalette() {
     ['Texte', PALETTE.filter((p) => p.type === 'text')],
   ];
   pal.innerHTML = '';
+
+  // groupe "Mes persos" : import + persos deja importes (reutilisables)
+  const h0 = document.createElement('h3'); h0.textContent = 'Mes persos'; pal.appendChild(h0);
+  const imp = document.createElement('button');
+  imp.className = 'pal-item'; imp.innerHTML = '<span style="font-size:26px">＋</span><span>Importer</span>';
+  imp.addEventListener('click', importCharacter);
+  pal.appendChild(imp);
+  const assets = (state.scene && state.scene.assets) || {};
+  for (const [id, a] of Object.entries(assets)) {
+    const b = document.createElement('button');
+    b.className = 'pal-item'; b.title = a.name;
+    b.innerHTML = `<img src="${a.src}" alt="${a.name}" style="width:34px;height:34px;object-fit:contain">`
+      + `<span>${a.name.slice(0, 10)}</span>`;
+    b.addEventListener('click', () => placeImage(id));
+    pal.appendChild(b);
+  }
+
   for (const [title, items] of groups) {
     const h = document.createElement('h3'); h.textContent = title; pal.appendChild(h);
     for (const it of items) {
@@ -227,6 +271,45 @@ function addSpanElement(it, u, v, u2, v2) {
 
 function findEl(id) { return curStep().elements.find((e) => e.id === id); }
 function selectElement(id) { state.selectedId = id; }
+
+// ---- import de persos (image) ----------------------------------------------
+function importCharacter() {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.addEventListener('change', () => { if (inp.files[0]) readCharacter(inp.files[0]); });
+  inp.click();
+}
+function readCharacter(file) {
+  const rd = new FileReader();
+  rd.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const d = downscale(img, 512);
+      const name = file.name.replace(/\.[^.]+$/, '').slice(0, 24) || 'perso';
+      const id = addAsset(state.scene, { name, src: d.src, w: d.w, h: d.h });
+      buildPalette();
+      placeImage(id);
+      toast('Perso importé — glisse-le, redimensionne, il s\'anime entre les étapes');
+    };
+    img.onerror = () => toast('Image illisible');
+    img.src = rd.result;
+  };
+  rd.readAsDataURL(file);
+}
+function downscale(img, max) {
+  let w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+  const k = Math.min(1, max / Math.max(w, h));
+  w = Math.max(1, Math.round(w * k)); h = Math.max(1, Math.round(h * k));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  c.getContext('2d').drawImage(img, 0, 0, w, h);
+  return { src: c.toDataURL('image/png'), w, h }; // PNG = garde la transparence
+}
+function placeImage(assetId) {
+  const step = curStep();
+  const el = { id: nextElementId(step), type: 'image', assetId, u: 0.5, v: 0.5, scaleMul: 1, rotation: 0 };
+  step.elements.push(el);
+  selectElement(el.id); render(); autosave();
+}
 
 // ---- interactions pointeur sur la scene ------------------------------------
 let drag = null;
@@ -289,6 +372,15 @@ overlay.addEventListener('pointermove', (e) => {
 
   const el = findEl(drag.id); if (!el) return;
 
+  if (drag.type === 'handle' && drag.h === 'size') {
+    const c = projPx(el.u, el.v);
+    const vb = clientToVB(e.clientX, e.clientY);
+    const hb = imageHalfBox(getAsset(el));
+    const localDiag = Math.hypot(hb.hw, hb.hh) || 1;
+    const dist = Math.hypot(vb.x - c.x, vb.y - c.y);
+    el.scaleMul = clamp(dist / (localDiag * c.scale), 0.2, 6);
+    render(); return;
+  }
   if (drag.type === 'create-b' || (drag.type === 'handle' && drag.h === 'b')) {
     el.u2 = clamp(uv.u, -0.2, 1.2); el.v2 = clamp(uv.v, -0.2, 1.2);
   } else if (drag.type === 'handle' && drag.h === 'a') {
@@ -339,6 +431,14 @@ function renderInspector() {
       <option value="run"${el.kind === 'run' ? ' selected' : ''}>Course</option>
       <option value="pass"${el.kind === 'pass' ? ' selected' : ''}>Passe</option>
       <option value="throw"${el.kind === 'throw' ? ' selected' : ''}>Lancer</option></select>`;
+  } else if (el.type === 'image') {
+    const nm = (getAsset(el) && getAsset(el).name) || 'perso';
+    html += `<label>${nm}</label>
+      <div class="row"><button class="btn small" data-size="0.85">➖ Petit</button>
+      <button class="btn small" data-size="1.18">➕ Grand</button></div>
+      <div class="row"><button class="btn small" data-rot="-15">⟲ 15°</button>
+      <button class="btn small" data-rot="15">15° ⟳</button></div>
+      <div style="font-size:11px;opacity:.6;margin-top:4px">Poignée jaune = redimensionner</div>`;
   }
 
   html += `<div class="row">
@@ -352,7 +452,7 @@ function renderInspector() {
 }
 function labelFor(el) {
   return ({ player: 'Joueur', ball: 'Ballon', cone: 'Cône', hoop: 'Cerceau',
-    pinnie: 'Dossard', arrow: 'Flèche', zone: 'Zone', text: 'Texte' })[el.type] || el.type;
+    pinnie: 'Dossard', arrow: 'Flèche', zone: 'Zone', text: 'Texte', image: 'Perso' })[el.type] || el.type;
 }
 function colorSwatches(current) {
   let s = '<label>Couleur</label><div class="swatches">';
@@ -374,6 +474,8 @@ function wireInspector(el) {
     sw.addEventListener('click', () => { el.color = sw.dataset.color; render(); autosave(); }));
   inspector.querySelectorAll('[data-rot]').forEach((b) =>
     b.addEventListener('click', () => { el.rotation = (el.rotation || 0) + (+b.dataset.rot); render(); autosave(); }));
+  inspector.querySelectorAll('[data-size]').forEach((b) =>
+    b.addEventListener('click', () => { el.scaleMul = clamp((el.scaleMul || 1) * (+b.dataset.size), 0.2, 6); render(); autosave(); }));
   inspector.querySelectorAll('[data-act]').forEach((b) =>
     b.addEventListener('click', () => inspectorAction(b.dataset.act, el)));
 }
@@ -495,7 +597,7 @@ function setScene(sc) {
   document.body.dataset.metier = ({ eps: 'ep', sdg: 'sdg', camps: 'camp' })[sc.univers] || 'ep';
   $('#gameName').textContent = sc.gameTitle;
   $('#gameName').title = sc.gameTitle;
-  render(); autosave();
+  buildPalette(); render(); autosave();
 }
 function newScene(game) {
   const saved = loadAutosave(game ? game.id : null);
