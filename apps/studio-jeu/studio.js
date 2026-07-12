@@ -83,6 +83,7 @@ function render() {
   if (state.calib) drawCalibHandles();
   renderInspector();
   renderStepChips();
+  if (document.body.classList.contains('projection')) updateProjUI();
 }
 
 // construit le noeud SVG d'un element (opacity pour la lecture)
@@ -745,10 +746,102 @@ async function exportPDF() {
   toast('PDF exporté ✅');
 }
 
+// ---- mode projection (plein écran TNI) --------------------------------------
+function updateProjUI() {
+  $('#projTitle').textContent = curStep() ? curStep().title : '';
+  $('#projStep').textContent = `${state.stepIndex + 1}/${state.scene.steps.length}`;
+}
+function enterProjection() {
+  document.body.classList.add('projection');
+  state.selectedId = null; render(); updateProjUI();
+  const el = document.documentElement;
+  if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+}
+function exitProjection() {
+  document.body.classList.remove('projection');
+  if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  render();
+}
+function toggleProjection() {
+  document.body.classList.contains('projection') ? exitProjection() : enterProjection();
+}
+// Esc/quitter plein écran par le navigateur -> sortir aussi du mode
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && document.body.classList.contains('projection')) {
+    document.body.classList.remove('projection'); render();
+  }
+});
+function projStepDelta(d) {
+  const n = state.scene.steps.length;
+  state.stepIndex = (state.stepIndex + d + n) % n;
+  state.selectedId = null; render(); updateProjUI();
+}
+
+// ---- enregistrement écran + voix (MediaRecorder) ----------------------------
+let recState = null; // { recorder, chunks, streams }
+
+function recSupported() {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && window.MediaRecorder);
+}
+function setRecButtons(on) {
+  ['#btnRec', '#projRec'].forEach((s) => {
+    const b = $(s); if (!b) return;
+    b.classList.toggle('recording', on);
+    b.textContent = on ? '⏹ STOP' : '🎙️ REC';
+  });
+}
+async function toggleRecording() {
+  if (recState) { stopRecording(); return; }
+  if (!recSupported()) { toast('Enregistrement non supporté par ce navigateur'); return; }
+  try {
+    // 1) écran (l'utilisateur choisit l'onglet/écran dans la boîte du navigateur)
+    const screen = await navigator.mediaDevices.getDisplayMedia({
+      video: { frameRate: 30 }, audio: false,
+    });
+    // 2) micro (voix) — optionnel : on continue sans si refusé
+    let mic = null;
+    try { mic = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (_) { toast('Micro refusé — enregistrement sans voix'); }
+
+    const tracks = [...screen.getVideoTracks(), ...(mic ? mic.getAudioTracks() : [])];
+    const mixed = new MediaStream(tracks);
+    const mime = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+      .find((m) => MediaRecorder.isTypeSupported(m)) || '';
+    const recorder = new MediaRecorder(mixed, mime ? { mimeType: mime } : undefined);
+    const chunks = [];
+    recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      triggerDownload(blob, `studio-${state.scene.gameId || 'libre'}-capture.webm`);
+      toast('Vidéo téléchargée 🎥');
+    };
+    // si l'utilisateur arrête le partage via la barre du navigateur
+    screen.getVideoTracks()[0].addEventListener('ended', () => { if (recState) stopRecording(); });
+
+    recorder.start();
+    recState = { recorder, chunks, streams: [screen, mic].filter(Boolean) };
+    setRecButtons(true);
+    toast('Enregistrement en cours — reclique pour arrêter');
+  } catch (_) {
+    toast('Capture d\'écran refusée');
+  }
+}
+function stopRecording() {
+  if (!recState) return;
+  const { recorder, streams } = recState;
+  recState = null;
+  setRecButtons(false);
+  if (recorder.state !== 'inactive') recorder.stop();
+  streams.forEach((st) => st.getTracks().forEach((t) => t.stop()));
+}
+
 // ---- clavier ---------------------------------------------------------------
 window.addEventListener('keydown', (e) => {
   if (e.target.matches('input, textarea, select')) return;
   if (e.key === 'c' || e.key === 'C') { toggleCalib(); }
+  else if (e.key === 'p' || e.key === 'P') { toggleProjection(); }
+  else if (e.key === 'ArrowRight' && document.body.classList.contains('projection')) { projStepDelta(1); }
+  else if (e.key === 'ArrowLeft' && document.body.classList.contains('projection')) { projStepDelta(-1); }
   else if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedId) {
     e.preventDefault(); inspectorAction('del', findEl(state.selectedId));
   } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd' && state.selectedId) {
@@ -780,6 +873,13 @@ function wireToolbar() {
     toast('Étape dupliquée — déplace les éléments');
   });
   $('#btnPlay').addEventListener('click', () => state.playing ? stopPlay() : play());
+  $('#btnProj').addEventListener('click', enterProjection);
+  $('#btnRec').addEventListener('click', toggleRecording);
+  $('#projQuit').addEventListener('click', exitProjection);
+  $('#projPrev').addEventListener('click', () => projStepDelta(-1));
+  $('#projNext').addEventListener('click', () => projStepDelta(1));
+  $('#projPlay').addEventListener('click', () => state.playing ? stopPlay() : play());
+  $('#projRec').addEventListener('click', toggleRecording);
   $('#calibCopy').addEventListener('click', () => {
     navigator.clipboard.writeText(configText()).then(() => toast('Config copiée'), () => toast('Copie refusée'));
   });

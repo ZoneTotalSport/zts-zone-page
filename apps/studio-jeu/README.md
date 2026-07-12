@@ -127,7 +127,26 @@ palestre) = déposer le PNG + recalibrer en ~30 s, sans toucher au code.
 - **PDF** (jsPDF) : une page paysage par étape (titre du jeu + titre d'étape +
   rendu + pied `zonetotalsport.ca`).
 
+## Mode projection (TNI / présentation)
+
+Bouton **📽️ Projection** (ou touche `P`) : plein écran, fond sombre, seul le
+canevas + titre d'étape géant. Barre flottante discrète (s'opacifie au survol) :
+◀ ▶ navigation d'étapes (aussi flèches clavier), Lecture, REC, Quitter
+(`Échap` sort aussi du plein écran).
+
+## Enregistrement écran + voix
+
+Bouton **🎙️ REC** (barre du haut ou barre projection) :
+1. le navigateur demande quel écran/onglet capturer ;
+2. le micro est demandé pour la voix (si refusé → enregistrement sans voix) ;
+3. recliquer (⏹ STOP) ou arrêter le partage → télécharge
+   `studio-{id}-capture.webm` (lisible partout, importable dans CapCut/iMovie).
+
+Combo typique : Projection → REC → Lecture en commentant à voix haute →
+STOP = mini-vidéo explicative prête pour les élèves ou les Reels.
+
 ## Raccourcis
 
-`C` calibration · `Suppr`/`Backspace` supprime la sélection · `Ctrl/Cmd+D`
-duplique · `Échap` désélectionne / stoppe la lecture.
+`C` calibration · `P` projection · `←`/`→` étapes (en projection) ·
+`Suppr`/`Backspace` supprime la sélection · `Ctrl/Cmd+D` duplique ·
+`Échap` désélectionne / stoppe la lecture / sort de projection.

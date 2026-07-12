@@ -34,6 +34,8 @@
     <button class="btn small" id="btnSave">💾 JSON</button>
     <button class="btn small btn--jaune" id="btnPng">🖼️ PNG</button>
     <button class="btn small btn--jaune" id="btnPdf">📄 PDF</button>
+    <button class="btn btn--sdg" id="btnProj">📽️ Projection</button>
+    <button class="btn" id="btnRec">🎙️ REC</button>
     <input type="file" id="fileInput" accept="application/json" hidden>
   </header>
 
@@ -69,6 +71,17 @@
       <input class="search" id="gameSearch" placeholder="Rechercher un jeu (titre)…">
       <div class="game-list" id="gameList"></div>
     </div>
+  </div>
+
+  <!-- Mode projection : titre d'étape + contrôles flottants -->
+  <div class="proj-title" id="projTitle"></div>
+  <div class="proj-bar" id="projBar">
+    <button class="btn" id="projPrev">◀</button>
+    <span class="proj-step" id="projStep">1/1</span>
+    <button class="btn" id="projNext">▶</button>
+    <button class="btn btn--play" id="projPlay">▶ Lecture</button>
+    <button class="btn" id="projRec">🎙️ REC</button>
+    <button class="btn btn--camps" id="projQuit">✕ Quitter</button>
   </div>
 
   <div class="toast" id="toast"></div>
