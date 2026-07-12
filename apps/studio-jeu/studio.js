@@ -12,8 +12,13 @@ import {
   imageSVG, imageHalfBox, svgDefs,
 } from '../../shared/studio-engine/elements.js';
 
-const CONFIG_URL = '../../shared/studio-engine/terrain-gym.config.json';
-const TERRAIN_URL = '../../shared/studio-engine/assets/terrain-gym.png';
+const ENGINE = '../../shared/studio-engine/';
+const TERRAINS = {
+  'terrain-gym': { label: '🏀 Gymnase ligné', config: ENGINE + 'terrain-gym.config.json', image: ENGINE + 'assets/terrain-gym.png' },
+  'terrain-nu':  { label: '🪵 Plancher nu (trace tes lignes)', config: ENGINE + 'terrain-nu.config.json', image: ENGINE + 'assets/terrain-nu.png' },
+};
+const DEFAULT_TERRAIN = 'terrain-gym';
+const CONFIG_URL = TERRAINS[DEFAULT_TERRAIN].config; // reset calibration
 const INDEX_URL = 'data/jeux-index.json';
 
 // Repere du viewBox SVG (unites internes). H recalcule apres chargement config.
@@ -893,6 +898,8 @@ function loadFromFile(file) {
 // ---- gestion de la scene / jeu ---------------------------------------------
 function setScene(sc) {
   state.scene = sc; state.stepIndex = 0; state.selectedId = null;
+  const tid = TERRAINS[sc.terrain] ? sc.terrain : DEFAULT_TERRAIN;
+  if (tid !== state.terrainId) loadTerrain(tid).then(() => render());
   document.body.dataset.metier = ({ eps: 'ep', sdg: 'sdg', camps: 'camp' })[sc.univers] || 'ep';
   $('#gameName').textContent = sc.gameTitle;
   $('#gameName').title = sc.gameTitle;
@@ -967,6 +974,36 @@ function configText() {
 }
 function rebuildProjector() { state.projector = createProjector(state.config); }
 
+// ---- terrains (fonds interchangeables) ---------------------------------------
+const configCache = {};
+async function loadTerrain(id) {
+  const def = TERRAINS[id] || TERRAINS[DEFAULT_TERRAIN];
+  if (!configCache[id]) configCache[id] = await (await fetch(def.config)).json();
+  state.config = configCache[id];
+  state.terrainId = id;
+  VBW = 1000; VBH = Math.round(VBW * state.config.imageHeight / state.config.imageWidth);
+  rebuildProjector();
+  $('#terrainImg').src = def.image;
+  buildTerrainMenu();
+}
+async function switchTerrain(id) {
+  if (!TERRAINS[id]) return;
+  state.scene.terrain = id;
+  await loadTerrain(id);
+  render(); autosave();
+  toast('Terrain : ' + TERRAINS[id].label.replace(/^\S+\s/, ''));
+}
+function buildTerrainMenu() {
+  const list = $('#terrainMenuList'); if (!list) return;
+  list.innerHTML = '';
+  for (const [id, def] of Object.entries(TERRAINS)) {
+    const b = document.createElement('button');
+    b.textContent = (id === state.terrainId ? '✓ ' : '') + def.label;
+    b.addEventListener('click', () => { b.closest('.menu').classList.remove('open'); switchTerrain(id); });
+    list.appendChild(b);
+  }
+}
+
 // ---- exports ---------------------------------------------------------------
 function loadImg(src) {
   return new Promise((res, rej) => {
@@ -977,7 +1014,7 @@ function loadImg(src) {
 async function ensureTerrainLoaded() {
   const im = $('#terrainImg');
   if (im.complete && im.naturalWidth) return im;
-  return loadImg(TERRAIN_URL);
+  return loadImg(im.src);
 }
 
 // rasterise une etape (terrain PNG + overlay) sur un canvas pleine resolution
@@ -1220,17 +1257,16 @@ function wireToolbar() {
     toast('Config téléchargée');
   });
   $('#calibReset').addEventListener('click', async () => {
-    state.config = await (await fetch(CONFIG_URL + '?t=' + Date.now())).json();
+    const def = TERRAINS[state.terrainId] || TERRAINS[DEFAULT_TERRAIN];
+    state.config = await (await fetch(def.config + '?t=' + Date.now())).json();
+    configCache[state.terrainId] = state.config;
     rebuildProjector(); render(); toast('Config réinitialisée');
   });
 }
 
 // ---- init ------------------------------------------------------------------
 async function init() {
-  state.config = await (await fetch(CONFIG_URL)).json();
-  VBW = 1000; VBH = Math.round(VBW * state.config.imageHeight / state.config.imageWidth);
-  rebuildProjector();
-  $('#terrainImg').src = TERRAIN_URL;
+  await loadTerrain(DEFAULT_TERRAIN);
   buildPalette(); wireToolbar(); wirePicker();
   newScene(null);
 }
