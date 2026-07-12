@@ -136,6 +136,51 @@ function lerpElement(ea, eb, t) {
   return o;
 }
 
+// ---- jouee : gestes enregistres, rejoues action par action -------------------
+// step.jouee = { base: [elements au depart], actions: [...] }
+// kinds : move {elementId, path:[[u,v,ms],...]} · pose {elementId, after:{...}}
+//         add {element} · remove {elementId}
+
+export function createJouee(elements) {
+  return { base: elements.map((e) => ({ ...e })), actions: [] };
+}
+
+/** Position sur un chemin enregistre a t in [0,1] (interp. lineaire par temps). */
+export function samplePath(path, t) {
+  if (!path || !path.length) return null;
+  const total = path[path.length - 1][2] || 1;
+  const ms = Math.max(0, Math.min(1, t)) * total;
+  let prev = path[0];
+  for (const p of path) {
+    if (p[2] >= ms) {
+      const span = (p[2] - prev[2]) || 1;
+      const k = (ms - prev[2]) / span;
+      return { u: prev[0] + (p[0] - prev[0]) * k, v: prev[1] + (p[1] - prev[1]) * k };
+    }
+    prev = p;
+  }
+  const last = path[path.length - 1];
+  return { u: last[0], v: last[1] };
+}
+
+/** Applique instantanement l'etat final d'une action (mutation en place). */
+export function applyAction(elements, action) {
+  if (action.kind === 'add') {
+    elements.push({ ...action.element });
+  } else if (action.kind === 'remove') {
+    const i = elements.findIndex((e) => e.id === action.elementId);
+    if (i >= 0) elements.splice(i, 1);
+  } else if (action.kind === 'move') {
+    const el = elements.find((e) => e.id === action.elementId);
+    const p = action.path && action.path[action.path.length - 1];
+    if (el && p) { el.u = p[0]; el.v = p[1]; }
+  } else if (action.kind === 'pose') {
+    const el = elements.find((e) => e.id === action.elementId);
+    if (el) Object.assign(el, action.after);
+  }
+  return elements;
+}
+
 /** Valide grossierement une scene chargee depuis un JSON externe. */
 export function validateScene(scene) {
   if (!scene || typeof scene !== 'object') return 'Scène invalide (objet attendu).';

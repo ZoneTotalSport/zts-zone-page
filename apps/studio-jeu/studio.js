@@ -5,6 +5,7 @@ import { createProjector } from '../../shared/studio-engine/projection.js';
 import {
   createScene, createStep, duplicateStep, nextElementId, addAsset,
   interpolateSteps, validateScene, pickUnivers, PLAYER_COLORS,
+  createJouee, samplePath, applyAction,
 } from '../../shared/studio-engine/scene-schema.js';
 import {
   PALETTE, iconSVG, arrowSVG, zoneSVG, textSVG,
@@ -33,6 +34,9 @@ const state = {
   playing: false,
   calib: false,
   gamesIndex: null,
+  recordingJouee: false, // capture des gestes en cours
+  animAction: false,     // une action de jouee s'anime
+  jCur: {},              // curseur de relecture par etape { stepId: n }
 };
 
 // ---- utilitaires DOM -------------------------------------------------------
@@ -83,6 +87,7 @@ function render() {
   if (state.calib) drawCalibHandles();
   renderInspector();
   renderStepChips();
+  renderJoueeBar();
   if (document.body.classList.contains('projection')) updateProjUI();
   const hint = $('#emptyHint');
   if (hint) hint.classList.toggle('show',
@@ -276,6 +281,7 @@ function addPointElement(it, u, v) {
   if (it.type === 'text') { el.text = 'GO!'; el.style = 'onomatopee'; el.rotation = -6; el.hex = '#FFEA00'; el.fontSize = TEXT_BASE; }
   step.elements.push(el);
   selectElement(el.id);
+  if (state.recordingJouee) recordAction({ kind: 'add', element: { ...el } });
   render(); autosave();
   return el;
 }
@@ -329,7 +335,154 @@ function placeImage(assetId) {
   const step = curStep();
   const el = { id: nextElementId(step), type: 'image', assetId, u: 0.5, v: 0.5, scaleMul: 1, rotation: 0 };
   step.elements.push(el);
-  selectElement(el.id); render(); autosave();
+  selectElement(el.id);
+  if (state.recordingJouee) recordAction({ kind: 'add', element: { ...el } });
+  render(); autosave();
+}
+
+// ---- jouee : enregistrement des gestes --------------------------------------
+let dragPath = null, dragT0 = 0; // echantillons [[u,v,ms],...] du drag en cours
+
+function getJouee() { return curStep().jouee || null; }
+function jCurGet() {
+  const j = getJouee(); if (!j) return 0;
+  const c = state.jCur[curStep().id];
+  return c == null ? j.actions.length : Math.min(c, j.actions.length);
+}
+function jCurSet(n) { state.jCur[curStep().id] = n; }
+
+function recordAction(action) {
+  const step = curStep();
+  if (!step.jouee) step.jouee = createJouee(step.elements);
+  step.jouee.actions.push(action);
+  jCurSet(step.jouee.actions.length);
+  renderJoueeBar(); autosave();
+}
+
+function toggleJouee() {
+  const b = $('#btnJouee');
+  if (state.recordingJouee) {
+    state.recordingJouee = false;
+    b.classList.remove('recording'); b.textContent = '🔴 Jouée';
+    const j = getJouee();
+    toast(j && j.actions.length ? `Jouée prête : ${j.actions.length} actions — Espace pour rejouer` : 'Aucun geste capturé');
+  } else {
+    if (!curStep().jouee) curStep().jouee = createJouee(curStep().elements);
+    state.recordingJouee = true;
+    b.classList.add('recording'); b.textContent = '⏹ Fin jouée';
+    toast('🔴 Fais tes gestes : déplace, ajoute, supprime — tout est capturé');
+  }
+  renderJoueeBar(); autosave();
+}
+
+function resetJouee(silent) {
+  const j = getJouee(); if (!j) return;
+  curStep().elements = j.base.map((e) => ({ ...e }));
+  jCurSet(0); state.selectedId = null;
+  render(); renderJoueeBar();
+  if (!silent) autosave();
+}
+
+function clearJouee() {
+  if (!getJouee()) return;
+  resetJouee(true);
+  delete curStep().jouee;
+  delete state.jCur[curStep().id];
+  render(); renderJoueeBar(); autosave();
+  toast('Jouée effacée');
+}
+
+/** Espace : joue la prochaine action (revient au debut apres la derniere). */
+function playNextAction() {
+  const j = getJouee();
+  if (!j || !j.actions.length) { toast('Pas de jouée — bouton 🔴 pour en enregistrer une'); return; }
+  if (state.recordingJouee) { toast('Termine l\'enregistrement d\'abord (⏹)'); return; }
+  if (state.animAction || state.playing) return;
+  let cur = jCurGet();
+  if (cur >= j.actions.length) { resetJouee(true); cur = 0; }
+  animateAction(j.actions[cur], () => { jCurSet(cur + 1); renderJoueeBar(); autosave(); });
+}
+
+function animateAction(action, done) {
+  const step = curStep();
+  state.animAction = true; state.selectedId = null;
+  document.body.classList.add('animating'); // curseur masque
+  const finish = () => {
+    applyAction(step.elements, actionForApply(action));
+    cleanupAnim(); render(); state.animAction = false;
+    document.body.classList.remove('animating');
+    done();
+  };
+  const cleanupAnim = () => step.elements.forEach((e) => { delete e._opacity; });
+
+  if (action.kind === 'move' || action.kind === 'pose') {
+    const el = step.elements.find((e) => e.id === action.elementId);
+    if (!el) { finish(); return; }
+    const from = {};
+    if (action.kind === 'pose') for (const k in action.after) from[k] = el[k];
+    const recDur = action.kind === 'move' ? (action.path[action.path.length - 1][2] || 600) : 500;
+    const dur = Math.max(400, Math.min(2500, recDur));
+    const t0 = performance.now();
+    (function frame(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      if (action.kind === 'move') {
+        const p = samplePath(action.path, t);
+        if (p) { el.u = p.u; el.v = p.v; }
+      } else {
+        const e2 = easeInOut(t);
+        for (const k in action.after) {
+          if (typeof action.after[k] === 'number' && typeof from[k] === 'number') {
+            el[k] = from[k] + (action.after[k] - from[k]) * e2;
+          }
+        }
+      }
+      render();
+      t < 1 ? requestAnimationFrame(frame) : finish();
+    })(t0);
+  } else if (action.kind === 'add' || action.kind === 'remove') {
+    // fondu 300 ms
+    let el;
+    if (action.kind === 'add') { el = { ...action.element, _opacity: 0 }; step.elements.push(el); }
+    else { el = step.elements.find((e) => e.id === action.elementId); }
+    if (!el) { finish(); return; }
+    const t0 = performance.now();
+    (function frame(now) {
+      const t = Math.min(1, (now - t0) / 300);
+      el._opacity = action.kind === 'add' ? t : 1 - t;
+      render();
+      t < 1 ? requestAnimationFrame(frame) : finish();
+    })(t0);
+  } else { finish(); }
+}
+// l'add anime insere deja l'element : applyAction ne doit pas le dupliquer
+function actionForApply(action) {
+  if (action.kind !== 'add') return action;
+  const step = curStep();
+  if (step.elements.some((e) => e.id === action.element.id)) return { kind: 'noop' };
+  return action;
+}
+
+function renderJoueeBar() {
+  const bar = $('#joueeBar'); if (!bar) return;
+  const j = getJouee();
+  const show = state.recordingJouee || (j && j.actions.length > 0);
+  bar.classList.toggle('show', !!show);
+  const chips = $('#joueeChips'); chips.innerHTML = '';
+  if (!j) return;
+  const cur = jCurGet();
+  j.actions.forEach((a, i) => {
+    const c = document.createElement('button');
+    c.className = 'jouee-chip' + (i < cur ? ' done' : '') + (i === cur ? ' next' : '');
+    c.textContent = i + 1;
+    c.title = ({ move: 'Déplacement', pose: 'Ajustement', add: 'Apparition', remove: 'Disparition' })[a.kind] || a.kind;
+    c.addEventListener('click', () => {
+      // saute juste avant l'action i : base + actions 0..i-1 appliquees d'un coup
+      resetJouee(true);
+      for (let k = 0; k < i; k++) applyAction(curStep().elements, j.actions[k]);
+      jCurSet(i); render(); renderJoueeBar();
+    });
+    chips.appendChild(c);
+  });
 }
 
 // ---- interactions pointeur sur la scene ------------------------------------
@@ -369,6 +522,7 @@ overlay.addEventListener('pointerdown', (e) => {
     selectElement(id);
     const el = findEl(id);
     drag = { type: 'move', id, startUV: uv, snap: { u: el.u, v: el.v, u2: el.u2, v2: el.v2 } };
+    if (state.recordingJouee) { dragPath = [[el.u, el.v, 0]]; dragT0 = performance.now(); }
     node.classList.add('dragging');
     overlay.setPointerCapture(e.pointerId);
     render();
@@ -410,6 +564,13 @@ overlay.addEventListener('pointermove', (e) => {
     const du = uv.u - drag.startUV.u, dv = uv.v - drag.startUV.v;
     el.u = drag.snap.u + du; el.v = drag.snap.v + dv;
     if (drag.snap.u2 != null) { el.u2 = drag.snap.u2 + du; el.v2 = drag.snap.v2 + dv; }
+    if (state.recordingJouee && dragPath) {
+      const ms = performance.now() - dragT0;
+      const last = dragPath[dragPath.length - 1];
+      if (ms - last[2] > 40 || Math.hypot(el.u - last[0], el.v - last[1]) > 0.01) {
+        dragPath.push([el.u, el.v, Math.round(ms)]);
+      }
+    }
   }
   render();
 });
@@ -418,6 +579,23 @@ overlay.addEventListener('pointerup', (e) => {
   if (!drag) return;
   if (drag.type === 'create-b') state.tool = null,
     document.querySelectorAll('.pal-item.active').forEach((x) => x.classList.remove('active'));
+  if (state.recordingJouee) {
+    const el = drag.id ? findEl(drag.id) : null;
+    if (drag.type === 'move' && el && dragPath && dragPath.length > 1) {
+      // borne le temps final : un pointerup tardif ne doit pas etirer la relecture
+      const lastMs = dragPath[dragPath.length - 1][2];
+      const endMs = Math.min(Math.round(performance.now() - dragT0), lastMs + 200);
+      dragPath.push([el.u, el.v, endMs]);
+      recordAction({ kind: 'move', elementId: el.id, path: dragPath });
+    } else if (drag.type === 'handle' && el) {
+      const after = {};
+      for (const k of ['u', 'v', 'u2', 'v2', 'scaleMul']) if (typeof el[k] === 'number') after[k] = el[k];
+      recordAction({ kind: 'pose', elementId: el.id, after });
+    } else if (drag.type === 'create-b' && el) {
+      recordAction({ kind: 'add', element: { ...el } });
+    }
+  }
+  dragPath = null;
   const wasCalib = drag.type === 'corner';
   drag = null;
   try { overlay.releasePointerCapture(e.pointerId); } catch (_) {}
@@ -503,11 +681,15 @@ function wireInspector(el) {
 function inspectorAction(act, el) {
   const step = curStep();
   const i = step.elements.indexOf(el);
-  if (act === 'del') { step.elements.splice(i, 1); state.selectedId = null; }
+  if (act === 'del') {
+    if (state.recordingJouee) recordAction({ kind: 'remove', elementId: el.id });
+    step.elements.splice(i, 1); state.selectedId = null;
+  }
   else if (act === 'dup') {
     const copy = { ...el, id: nextElementId(step), u: el.u + 0.04, v: el.v + 0.04 };
     if (el.u2 != null) { copy.u2 = el.u2 + 0.04; copy.v2 = el.v2 + 0.04; }
     step.elements.push(copy); state.selectedId = copy.id;
+    if (state.recordingJouee) recordAction({ kind: 'add', element: { ...copy } });
   } else if (act === 'front') { step.elements.splice(i, 1); step.elements.push(el); }
   else if (act === 'back') { step.elements.splice(i, 1); step.elements.unshift(el); }
   render(); autosave();
@@ -550,6 +732,7 @@ function play() {
   }
   state.playing = true; state.selectedId = null;
   inspector.classList.remove('show');
+  document.body.classList.add('animating'); // curseur masque pendant la lecture
   const steps = state.scene.steps;
   const DUR = 900, HOLD = 500;
   let seg = 0, segStart = performance.now(), holding = false;
@@ -574,7 +757,7 @@ function drawInterpolated(elements) {
   while (overlay.firstChild) overlay.removeChild(overlay.firstChild);
   for (const el of elements) overlay.appendChild(buildElementNode(el, el._opacity));
 }
-function stopPlay() { state.playing = false; render(); }
+function stopPlay() { state.playing = false; document.body.classList.remove('animating'); render(); }
 function easeInOut(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
 
 // ---- historique annuler/refaire ---------------------------------------------
@@ -896,7 +1079,11 @@ function stopRecording() {
 // ---- clavier ---------------------------------------------------------------
 window.addEventListener('keydown', (e) => {
   if (e.target.matches('input, textarea, select')) return;
-  if (e.key === 'c' || e.key === 'C') { toggleCalib(); }
+  if (e.code === 'Space') {
+    if (document.querySelector('.modal.show')) return;
+    e.preventDefault(); playNextAction();
+  }
+  else if (e.key === 'c' || e.key === 'C') { toggleCalib(); }
   else if (e.key === 'p' || e.key === 'P') { toggleProjection(); }
   else if (e.key === 'ArrowRight' && document.body.classList.contains('projection')) { projStepDelta(1); }
   else if (e.key === 'ArrowLeft' && document.body.classList.contains('projection')) { projStepDelta(-1); }
@@ -959,6 +1146,11 @@ function wireToolbar() {
   $('#projRec').addEventListener('click', toggleRecording);
   $('#btnUndo').addEventListener('click', undo);
   $('#btnRedo').addEventListener('click', redo);
+  $('#btnJouee').addEventListener('click', toggleJouee);
+  $('#btnJoueeReset').addEventListener('click', () => resetJouee());
+  $('#btnJoueeNext').addEventListener('click', playNextAction);
+  $('#btnJoueeClear').addEventListener('click', clearJouee);
+  $('#projSpace').addEventListener('click', playNextAction);
   $('#btnHelp').addEventListener('click', () => $('#helpModal').classList.add('show'));
   $('#helpClose').addEventListener('click', () => $('#helpModal').classList.remove('show'));
   $('#helpModal').addEventListener('click', (e) => { if (e.target.id === 'helpModal') e.currentTarget.classList.remove('show'); });

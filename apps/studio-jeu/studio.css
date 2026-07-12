@@ -245,6 +245,27 @@ body.projection .proj-bar:hover, body.projection .proj-bar:focus-within { opacit
   text-align: center; color: var(--ink);
 }
 
+/* ---------- jouée (gestes enregistrés) ---------- */
+.jouee-bar {
+  display: none; align-items: center; gap: 8px; padding: 7px 14px;
+  background: #FFF4FA; border-top: 3px dashed var(--ink); overflow-x: auto;
+}
+.jouee-bar.show { display: flex; }
+#joueeChips { display: flex; gap: 6px; align-items: center; }
+.jouee-chip {
+  width: 28px; height: 28px; flex-shrink: 0; cursor: pointer;
+  border: 2px solid var(--ink); border-radius: 999px; background: #fff;
+  font-family: var(--font-impact,'Luckiest Guy'),cursive; font-size: 13px; color: var(--ink);
+  display: grid; place-items: center; box-shadow: 2px 2px 0 var(--ink);
+}
+.jouee-chip.done { background: var(--rose,#FF2D87); color: #fff; }
+.jouee-chip.next { outline: 3px dashed var(--rose,#FF2D87); outline-offset: 2px; }
+.btn--rec { background: #fff; }
+.btn--rec.recording { background: #FF2D2D !important; color: #fff !important; animation: recPulse 1.2s infinite; }
+
+/* curseur invisible pendant toute animation (lecture ou jouée) */
+body.animating, body.animating * { cursor: none !important; }
+
 /* bouton REC actif */
 .btn.recording { background: #FF2D2D !important; color: #fff !important; animation: recPulse 1.2s infinite; }
 @keyframes recPulse { 0%,100% { box-shadow: 4px 4px 0 var(--ink); } 50% { box-shadow: 4px 4px 0 var(--ink), 0 0 0 6px rgba(255,45,45,.35); } }

@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@500;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="studio.css?v=3">
+  <link rel="stylesheet" href="studio.css?v=4">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body data-metier="eps">
@@ -63,10 +63,17 @@
         </div>
       </div>
 
+      <div class="jouee-bar" id="joueeBar">
+        <button class="btn small" id="btnJoueeReset" title="Revenir au début de la jouée">⏮</button>
+        <div id="joueeChips"></div>
+        <button class="btn small btn--play" id="btnJoueeNext" title="Action suivante (Espace)">⏭ Espace</button>
+        <button class="btn small" id="btnJoueeClear" title="Effacer la jouée">🗑</button>
+      </div>
       <div class="steps-bar" id="stepsBar">
         <button class="btn small" id="btnUndo" title="Annuler (Ctrl+Z)">↩</button>
         <button class="btn small" id="btnRedo" title="Refaire (Ctrl+Shift+Z)">↪</button>
         <span style="width:2px"></span>
+        <button class="btn btn--rec" id="btnJouee" title="Enregistre tes gestes, rejoue-les avec Espace">🔴 Jouée</button>
         <button class="btn small btn--sdg" id="btnAddStep">＋ Étape</button>
         <button class="btn small" id="btnDupStep">⧉ Dupliquer l'étape</button>
         <button class="btn btn--play" id="btnPlay">▶ Lecture</button>
@@ -94,7 +101,8 @@
     <button class="btn" id="projPrev">◀</button>
     <span class="proj-step" id="projStep">1/1</span>
     <button class="btn" id="projNext">▶</button>
-    <button class="btn btn--play" id="projPlay">▶ Lecture</button>
+    <button class="btn btn--play" id="projSpace" title="Action suivante (Espace)">⏭ Action</button>
+    <button class="btn" id="projPlay">▶ Lecture</button>
     <button class="btn" id="projRec">🎙️ REC</button>
     <button class="btn btn--camps" id="projQuit">✕ Quitter</button>
   </div>
@@ -109,10 +117,11 @@
       <div class="help-body">
         <ol class="help-steps">
           <li><b>Place</b> — clique un élément dans la palette (gauche), il apparaît au centre. Glisse-le où tu veux. Flèches et zones : glisse directement sur le terrain de A à B.</li>
-          <li><b>Anime</b> — bouton <b>⧉ Dupliquer l'étape</b>, déplace tes éléments à leur position suivante, puis <b>▶ Lecture</b> : tout bouge tout seul.</li>
+          <li><b>Anime</b> — pèse sur <b>🔴 Jouée</b>, fais tes gestes (déplace, ajoute, supprime : tout est capturé), puis <b>Espace</b> rejoue chaque action une à une. Autre façon : <b>⧉ Dupliquer l'étape</b> + <b>▶ Lecture</b>.</li>
           <li><b>Partage</b> — menu <b>⬇️ Exporter</b> (PNG/PDF), ou <b>📽️</b> + <b>🎙️ REC</b> pour enregistrer une mini-vidéo commentée de ta mise en scène.</li>
         </ol>
         <table class="help-keys">
+          <tr><td><kbd>Espace</kbd></td><td>Jouer la prochaine action de la jouée</td></tr>
           <tr><td><kbd>P</kbd></td><td>Mode projection plein écran (TNI)</td></tr>
           <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Changer d'étape (en projection)</td></tr>
           <tr><td><kbd>Ctrl+Z</kbd></td><td>Annuler · <kbd>Ctrl+Shift+Z</kbd> refaire</td></tr>
@@ -127,6 +136,6 @@
 
   <div class="toast" id="toast"></div>
 
-  <script type="module" src="studio.js?v=3"></script>
+  <script type="module" src="studio.js?v=4"></script>
 </body>
 </html>

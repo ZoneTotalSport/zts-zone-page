@@ -127,6 +127,24 @@ palestre) = déposer le PNG + recalibrer en ~30 s, sans toucher au code.
 - **PDF** (jsPDF) : une page paysage par étape (titre du jeu + titre d'étape +
   rendu + pied `zonetotalsport.ca`).
 
+## Jouée — enregistre tes gestes, rejoue-les à l'Espace
+
+Bouton **🔴 Jouée** (barre du bas) : à partir de là, chaque geste devient une
+action de la timeline — glisser un élément (le **chemin complet** est capturé,
+courbes incluses), ajouter (apparition en fondu), supprimer (disparition),
+ajuster une flèche/taille (pose). **⏹ Fin jouée** pour arrêter.
+
+Relecture : **`Espace`** joue la prochaine action (bouton **⏭** en projection —
+pratique au TNI tactile). Après la dernière, `Espace` revient au début. Barre
+jouée : **⏮** retour au départ, chips numérotées cliquables (saute juste avant
+l'action N), **🗑** efface la jouée. Le curseur de souris est masqué pendant
+qu'une action s'anime.
+
+Stockage : `step.jouee = { base: [éléments au départ], actions: [...] }` avec
+`move` = `path` de `[u, v, ms]` (relecture bornée 0,4–2,5 s), `pose`, `add`,
+`remove`. Helpers purs dans `scene-schema.js` (`createJouee`, `samplePath`,
+`applyAction`) → la timeline est directement consommable par Remotion Phase 2.
+
 ## Mode projection (TNI / présentation)
 
 Bouton **📽️ Projection** (ou touche `P`) : plein écran, fond sombre, seul le
