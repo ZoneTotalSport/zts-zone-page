@@ -127,6 +127,14 @@ palestre) = déposer le PNG + recalibrer en ~30 s, sans toucher au code.
 - **PDF** (jsPDF) : une page paysage par étape (titre du jeu + titre d'étape +
   rendu + pied `zonetotalsport.ca`).
 
+## Lignes de terrain (marquage maison)
+
+Groupe palette **Lignes terrain** : **Ligne** (glisser de A à B) et **Rond**
+(glisser la boîte). Couleur au choix (8 pastilles + pipette libre), épaisseur
+2–30 (curseur), style pleine/pointillée. Les lignes suivent la perspective et
+se placent **derrière** les autres éléments. Permet de dessiner son propre
+marquage sur n'importe quel plancher (zones de but, cercle central, couloirs…).
+
 ## Jouée — enregistre tes gestes, rejoue-les à l'Espace
 
 Bouton **🔴 Jouée** (barre du bas) : à partir de là, chaque geste devient une

@@ -8,7 +8,7 @@ import {
   createJouee, samplePath, applyAction,
 } from '../../shared/studio-engine/scene-schema.js';
 import {
-  PALETTE, iconSVG, arrowSVG, zoneSVG, textSVG,
+  PALETTE, iconSVG, arrowSVG, zoneSVG, textSVG, lineSVG,
   imageSVG, imageHalfBox, svgDefs,
 } from '../../shared/studio-engine/elements.js';
 
@@ -105,6 +105,8 @@ function buildElementNode(el, opacity) {
     g.innerHTML = arrowMarkup(el);
   } else if (el.type === 'zone') {
     g.innerHTML = zoneMarkup(el);
+  } else if (el.type === 'line') {
+    g.innerHTML = lineMarkup(el);
   } else if (el.type === 'image') {
     g.innerHTML = imageMarkup(el);
   } else if (el.type === 'text') {
@@ -187,6 +189,20 @@ function imageMarkup(el) {
   }
   return m;
 }
+function lineMarkup(el) {
+  const sA = projPx(el.u, el.v).scale, sB = projPx(el.u2, el.v2).scale;
+  const w = (el.width || 8) * ((sA + sB) / 2); // epaisseur suit la profondeur moyenne
+  const circle = el.shape === 'circle';
+  const pts = circle ? zonePoints(el) : arrowPoints(el, 12);
+  // trait invisible large en dessous = zone de clic confortable
+  let m = lineSVG(pts, { hex: 'rgba(0,0,0,0)', width: Math.max(w, 26), close: circle })
+    + lineSVG(pts, { hex: el.hex || '#FFFFFF', width: w, dash: !!el.dash, close: circle });
+  if (el.id === state.selectedId) {
+    const a = projPx(el.u, el.v), b = projPx(el.u2, el.v2);
+    m += (circle ? '' : handleDot(a.x, a.y, 'a')) + handleDot(b.x, b.y, 'b');
+  }
+  return m;
+}
 function handleDot(x, y, role) {
   return `<circle class="handle" data-h="${role}" cx="${x}" cy="${y}" r="9" fill="#fff" stroke="#1A1A2E" stroke-width="3"/>`;
 }
@@ -196,7 +212,7 @@ function selBox(r) {
 
 // ---- palette ---------------------------------------------------------------
 // etat ouvert/ferme des groupes (persiste pendant la session)
-const palOpen = { persos: true, joueurs: true, objets: false, fleches: false, zones: false, texte: false };
+const palOpen = { persos: true, joueurs: true, objets: false, fleches: false, zones: false, lignes: false, texte: false };
 
 function palGroup(pal, key, title, fill) {
   const wrap = document.createElement('div');
@@ -244,6 +260,7 @@ function buildPalette() {
     ['objets', 'Objets', PALETTE.filter((p) => ['ball', 'cone', 'hoop', 'pinnie'].includes(p.type))],
     ['fleches', 'Flèches', PALETTE.filter((p) => p.type === 'arrow')],
     ['zones', 'Zones', PALETTE.filter((p) => p.type === 'zone')],
+    ['lignes', 'Lignes terrain', PALETTE.filter((p) => p.type === 'line')],
     ['texte', 'Texte', PALETTE.filter((p) => p.type === 'text')],
   ];
   for (const [key, title, items] of groups) {
@@ -256,6 +273,13 @@ function paletteIcon(it) {
   if (it.type === 'zone') return zoneSVG(it.shape === 'circle'
     ? [{ x: -38, y: -20 }, { x: 0, y: -32 }, { x: 38, y: -20 }, { x: 38, y: 20 }, { x: 0, y: 32 }, { x: -38, y: 20 }]
     : [{ x: -42, y: -28 }, { x: 42, y: -28 }, { x: 42, y: 28 }, { x: -42, y: 28 }], '#00E5FF');
+  if (it.type === 'line') {
+    if (it.kind === 'circle') {
+      const pts = []; for (let i = 0; i < 20; i++) { const a = i / 20 * Math.PI * 2; pts.push({ x: Math.cos(a) * 40, y: Math.sin(a) * 24 }); }
+      return lineSVG(pts, { hex: '#1A1A2E', width: 7, close: true });
+    }
+    return lineSVG([{ x: -42, y: 22 }, { x: 42, y: -22 }], { hex: '#1A1A2E', width: 8 });
+  }
   if (it.type === 'text') return textSVG({ text: 'GO!', style: 'onomatopee', fontSize: 44 });
   return iconSVG({ type: it.type });
 }
@@ -268,7 +292,8 @@ function armTool(it, btn) {
     // placement direct au centre, puis on desarme
     addPointElement(it, 0.5, 0.5); state.tool = null; btn.classList.remove('active');
   } else {
-    toast(it.type === 'arrow' ? 'Glisse de A vers B sur le terrain' : 'Glisse pour tracer la zone');
+    toast(it.type === 'arrow' ? 'Glisse de A vers B sur le terrain'
+      : it.type === 'line' ? 'Glisse pour tracer ta ligne' : 'Glisse pour tracer la zone');
   }
 }
 
@@ -290,7 +315,13 @@ function addSpanElement(it, u, v, u2, v2) {
   const el = { id: nextElementId(step), type: it.type, u, v, u2, v2 };
   if (it.type === 'arrow') { el.kind = it.kind; el.hex = '#1A1A2E'; }
   if (it.type === 'zone') { el.shape = it.shape; el.hex = univHex(); }
-  step.elements.push(el);
+  if (it.type === 'line') {
+    el.kind = it.kind;
+    if (it.kind === 'circle') el.shape = 'circle';
+    el.hex = '#FFFFFF'; el.width = 8; el.dash = false;
+  }
+  // les lignes de terrain vont derriere tout le reste
+  if (it.type === 'line') step.elements.unshift(el); else step.elements.push(el);
   selectElement(el.id);
   render(); autosave();
   return el;
@@ -499,8 +530,8 @@ overlay.addEventListener('pointerdown', (e) => {
     return;
   }
 
-  // outil trace (fleche / zone) : demarre un glisser
-  if (state.tool && (state.tool.type === 'arrow' || state.tool.type === 'zone')) {
+  // outil trace (fleche / zone / ligne) : demarre un glisser
+  if (state.tool && (state.tool.type === 'arrow' || state.tool.type === 'zone' || state.tool.type === 'line')) {
     const el = addSpanElement(state.tool, uv.u, uv.v, uv.u + 0.001, uv.v + 0.001);
     drag = { type: 'create-b', id: el.id };
     overlay.setPointerCapture(e.pointerId);
@@ -630,6 +661,17 @@ function renderInspector() {
       <option value="run"${el.kind === 'run' ? ' selected' : ''}>Course</option>
       <option value="pass"${el.kind === 'pass' ? ' selected' : ''}>Passe</option>
       <option value="throw"${el.kind === 'throw' ? ' selected' : ''}>Lancer</option></select>`;
+  } else if (el.type === 'line') {
+    const cols = ['#FFFFFF', '#FFEA00', '#00E5FF', '#FF2D2D', '#1E90FF', '#39FF14', '#FF6B00', '#1A1A2E'];
+    html += '<label>Couleur</label><div class="swatches">'
+      + cols.map((h) => `<div class="swatch${(el.hex || '#FFFFFF').toUpperCase() === h ? ' on' : ''}" data-hex="${h}" style="background:${h}"></div>`).join('')
+      + '</div>';
+    html += `<label>Autre couleur</label><input type="color" id="insHex" value="${el.hex || '#FFFFFF'}" style="width:100%;height:30px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer">`;
+    html += `<label>Épaisseur : <span id="insWidthVal">${el.width || 8}</span></label>
+      <input type="range" id="insWidth" min="2" max="30" step="1" value="${el.width || 8}" style="width:100%">`;
+    html += `<label>Style</label><select id="insDash">
+      <option value="0"${!el.dash ? ' selected' : ''}>Pleine</option>
+      <option value="1"${el.dash ? ' selected' : ''}>Pointillée</option></select>`;
   } else if (el.type === 'image') {
     const nm = (getAsset(el) && getAsset(el).name) || 'perso';
     html += `<label>${nm}</label>
@@ -651,7 +693,8 @@ function renderInspector() {
 }
 function labelFor(el) {
   return ({ player: 'Joueur', ball: 'Ballon', cone: 'Cône', hoop: 'Cerceau',
-    pinnie: 'Dossard', arrow: 'Flèche', zone: 'Zone', text: 'Texte', image: 'Perso' })[el.type] || el.type;
+    pinnie: 'Dossard', arrow: 'Flèche', zone: 'Zone', line: 'Ligne terrain',
+    text: 'Texte', image: 'Perso' })[el.type] || el.type;
 }
 function colorSwatches(current) {
   let s = '<label>Couleur</label><div class="swatches">';
@@ -669,8 +712,23 @@ function wireInspector(el) {
   if (is) is.addEventListener('change', () => { el.style = is.value; render(); autosave(); });
   const ik = inspector.querySelector('#insKind');
   if (ik) ik.addEventListener('change', () => { el.kind = ik.value; render(); autosave(); });
-  inspector.querySelectorAll('.swatch').forEach((sw) =>
+  inspector.querySelectorAll('.swatch[data-color]').forEach((sw) =>
     sw.addEventListener('click', () => { el.color = sw.dataset.color; render(); autosave(); }));
+  inspector.querySelectorAll('.swatch[data-hex]').forEach((sw) =>
+    sw.addEventListener('click', () => { el.hex = sw.dataset.hex; render(); autosave(); }));
+  const ihx = inspector.querySelector('#insHex');
+  if (ihx) ihx.addEventListener('input', () => { el.hex = ihx.value; render(); autosave(); });
+  const iw = inspector.querySelector('#insWidth');
+  if (iw) iw.addEventListener('input', () => {
+    el.width = +iw.value;
+    const lbl = inspector.querySelector('#insWidthVal'); if (lbl) lbl.textContent = iw.value;
+    // re-render leger sans reconstruire l'inspecteur (sinon le slider perd le focus)
+    const node = overlay.querySelector(`.el[data-id="${el.id}"]`);
+    if (node) node.innerHTML = lineMarkup(el);
+    autosave();
+  });
+  const idh = inspector.querySelector('#insDash');
+  if (idh) idh.addEventListener('change', () => { el.dash = idh.value === '1'; render(); autosave(); });
   inspector.querySelectorAll('[data-rot]').forEach((b) =>
     b.addEventListener('click', () => { el.rotation = (el.rotation || 0) + (+b.dataset.rot); render(); autosave(); }));
   inspector.querySelectorAll('[data-size]').forEach((b) =>

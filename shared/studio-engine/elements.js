@@ -29,6 +29,8 @@ export const PALETTE = [
   { type: 'arrow',  kind: 'throw', label: 'Lancer', emoji: '↗️' },
   { type: 'zone',   shape: 'rect',   label: 'Zone', emoji: '▭' },
   { type: 'zone',   shape: 'circle', label: 'Cercle', emoji: '◯' },
+  { type: 'line',   kind: 'straight', label: 'Ligne', emoji: '━' },
+  { type: 'line',   kind: 'circle',   label: 'Rond',  emoji: '⭕' },
   { type: 'text',   label: 'Texte', emoji: '💬' },
 ];
 
@@ -210,6 +212,24 @@ function arrowHead(tip, dx, dy, width, color) {
   const p1 = `${back.x + nx * s * 0.6},${back.y + ny * s * 0.6}`;
   const p2 = `${back.x - nx * s * 0.6},${back.y - ny * s * 0.6}`;
   return `<polygon points="${tip.x},${tip.y} ${p1} ${p2}" fill="${color}" stroke="none"/>`;
+}
+
+// ---- lignes de terrain (points ecran projetes) ------------------------------
+
+/**
+ * Ligne de marquage : trait libre (couleur/epaisseur/pointille au choix).
+ * @param pts  [{x,y},...] echantillonnes en perspective (>= 2)
+ * @param opts { hex, width, dash, close } — close=true pour un contour ferme (rond)
+ */
+export function lineSVG(pts, opts) {
+  if (!pts || pts.length < 2) return '';
+  const o = opts || {};
+  const stroke = o.hex || '#FFFFFF';
+  const w = o.width || 8;
+  const dash = o.dash ? ` stroke-dasharray="${w * 2.2} ${w * 1.6}"` : '';
+  const d = 'M ' + pts.map((p) => `${p.x} ${p.y}`).join(' L ') + (o.close ? ' Z' : '');
+  return `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${w}" `
+    + `stroke-linecap="round" stroke-linejoin="round"${dash}/>`;
 }
 
 // ---- zones (points ecran projetes) -----------------------------------------
