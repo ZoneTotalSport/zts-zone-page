@@ -93,13 +93,13 @@ function buildElementNode(el, opacity) {
     const p = projPx(el.u, el.v);
     const s = (el.scaleMul || 1) * p.scale;
     g.setAttribute('transform', `translate(${p.x},${p.y}) scale(${s}) rotate(${el.rotation || 0})`);
-    g.innerHTML = textSVG(el) + selBox(TEXT_BASE * 1.4);
+    g.innerHTML = textSVG(el) + (el.id === state.selectedId ? selBox(TEXT_BASE * 1.4) : '');
   } else {
     // icones ponctuelles
     const p = projPx(el.u, el.v);
     const s = ICON_BASE * (el.scaleMul || 1) * p.scale;
     g.setAttribute('transform', `translate(${p.x},${p.y}) scale(${s})`);
-    g.innerHTML = iconSVG(el) + selBox(60);
+    g.innerHTML = iconSVG(el) + (el.id === state.selectedId ? selBox(60) : '');
   }
   return g;
 }
@@ -565,9 +565,83 @@ function configText() {
 }
 function rebuildProjector() { state.projector = createProjector(state.config); }
 
-// ---- exports (implementes au commit 4) -------------------------------------
-async function exportPNG() { toast('Export PNG — commit 4'); }
-async function exportPDF() { toast('Export PDF — commit 4'); }
+// ---- exports ---------------------------------------------------------------
+function loadImg(src) {
+  return new Promise((res, rej) => {
+    const im = new Image();
+    im.onload = () => res(im); im.onerror = rej; im.src = src;
+  });
+}
+async function ensureTerrainLoaded() {
+  const im = $('#terrainImg');
+  if (im.complete && im.naturalWidth) return im;
+  return loadImg(TERRAIN_URL);
+}
+
+// rasterise une etape (terrain PNG + overlay) sur un canvas pleine resolution
+async function stepCanvas(stepIndex) {
+  const prev = { s: state.stepIndex, sel: state.selectedId, cal: state.calib };
+  state.stepIndex = stepIndex; state.selectedId = null; state.calib = false;
+  render();
+
+  const W = state.config.imageWidth, H = state.config.imageHeight;
+  const clone = overlay.cloneNode(true);
+  clone.setAttribute('width', W); clone.setAttribute('height', H);
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  const svgStr = new XMLSerializer().serializeToString(clone);
+  const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  const terrain = await ensureTerrainLoaded();
+  ctx.drawImage(terrain, 0, 0, W, H);
+  const ov = await loadImg(svgUrl);
+  ctx.drawImage(ov, 0, 0, W, H);
+
+  state.stepIndex = prev.s; state.selectedId = prev.sel; state.calib = prev.cal;
+  document.body.classList.toggle('calib', state.calib); render();
+  return canvas;
+}
+
+async function exportPNG() {
+  toast('Génération PNG…');
+  const canvas = await stepCanvas(state.stepIndex);
+  canvas.toBlob((b) => {
+    triggerDownload(b, `studio-${state.scene.gameId || 'libre'}-etape${state.stepIndex + 1}.png`);
+    toast('PNG exporté ✅');
+  }, 'image/png');
+}
+
+async function exportPDF() {
+  if (!window.jspdf || !window.jspdf.jsPDF) { toast('jsPDF pas encore chargé, réessaie'); return; }
+  toast('Génération PDF…');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
+  const pageW = 297, pageH = 210, margin = 12;
+  const steps = state.scene.steps;
+  for (let i = 0; i < steps.length; i++) {
+    if (i > 0) doc.addPage();
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(26, 26, 46);
+    doc.text(state.scene.gameTitle, margin, 16);
+    doc.setFontSize(13); doc.setTextColor(255, 45, 135);
+    doc.text(`Étape ${i + 1} — ${steps[i].title}`, margin, 24);
+
+    const canvas = await stepCanvas(i);
+    const imgData = canvas.toDataURL('image/png');
+    const availW = pageW - margin * 2, availH = pageH - 30 - margin;
+    const ar = canvas.width / canvas.height;
+    let w = availW, h = w / ar; if (h > availH) { h = availH; w = h * ar; }
+    doc.addImage(imgData, 'PNG', (pageW - w) / 2, 30, w, h);
+
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(140, 140, 140);
+    doc.text('zonetotalsport.ca — Studio Jeu', margin, pageH - 6);
+    doc.text(`${i + 1} / ${steps.length}`, pageW - margin - 12, pageH - 6);
+  }
+  doc.save(`studio-${state.scene.gameId || 'libre'}.pdf`);
+  toast('PDF exporté ✅');
+}
 
 // ---- clavier ---------------------------------------------------------------
 window.addEventListener('keydown', (e) => {
