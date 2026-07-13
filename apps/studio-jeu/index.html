@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@500;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="studio.css?v=6">
+  <link rel="stylesheet" href="studio.css?v=7">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body data-metier="eps">
@@ -67,21 +67,16 @@
         </div>
       </div>
 
-      <div class="jouee-bar" id="joueeBar">
-        <button class="btn small" id="btnJoueeReset" title="Revenir au début de la jouée">⏮</button>
-        <div id="joueeChips"></div>
-        <button class="btn small btn--play" id="btnJoueeNext" title="Action suivante (Espace)">⏭ Espace</button>
-        <button class="btn small" id="btnJoueeClear" title="Effacer la jouée">🗑</button>
-      </div>
       <div class="steps-bar" id="stepsBar">
         <button class="btn small" id="btnUndo" title="Annuler (Ctrl+Z)">↩</button>
         <button class="btn small" id="btnRedo" title="Refaire (Ctrl+Shift+Z)">↪</button>
-        <span style="width:2px"></span>
-        <button class="btn btn--rec" id="btnJouee" title="Enregistre tes gestes, rejoue-les avec Espace">🔴 Jouée</button>
-        <button class="btn small btn--sdg" id="btnAddStep">＋ Étape</button>
-        <button class="btn small" id="btnDupStep">⧉ Dupliquer l'étape</button>
-        <button class="btn btn--play" id="btnPlay">▶ Lecture</button>
+        <span style="width:4px"></span>
+        <button class="btn small" id="btnJoueeReset" title="Revenir au début">⏮ Début</button>
+        <button class="btn btn--play" id="btnJoueeNext" title="Joue la prochaine action (Espace)">⏭ Action (Espace)</button>
+        <div id="joueeChips"></div>
+        <button class="btn small" id="btnJoueeClear" title="Effacer toutes les actions">🗑</button>
         <span style="width:6px"></span>
+        <button class="btn small btn--play" id="btnPlay" hidden>▶ Lecture</button>
         <div id="stepChips" style="display:flex;gap:8px"></div>
       </div>
     </div>
@@ -121,7 +116,7 @@
       <div class="help-body">
         <ol class="help-steps">
           <li><b>Place</b> — clique un élément dans la palette (gauche), il apparaît au centre. Glisse-le où tu veux. Flèches et zones : glisse directement sur le terrain de A à B.</li>
-          <li><b>Anime</b> — pèse sur <b>🔴 Jouée</b>, fais tes gestes (déplace, ajoute, supprime : tout est capturé), puis <b>Espace</b> rejoue chaque action une à une. Autre façon : <b>⧉ Dupliquer l'étape</b> + <b>▶ Lecture</b>.</li>
+          <li><b>Anime</b> — fais tes gestes, c'est tout : chaque déplacement, ajout ou retrait devient une <b>action</b> en bas (survole une pastille → ✕ pour la supprimer). <b>Espace</b> rejoue les actions une à une, <b>⏮ Début</b> ramène au départ.</li>
           <li><b>Partage</b> — menu <b>⬇️ Exporter</b> (PNG/PDF), ou <b>📽️</b> + <b>🎙️ REC</b> pour enregistrer une mini-vidéo commentée de ta mise en scène.</li>
         </ol>
         <table class="help-keys">
@@ -140,6 +135,6 @@
 
   <div class="toast" id="toast"></div>
 
-  <script type="module" src="studio.js?v=6"></script>
+  <script type="module" src="studio.js?v=7"></script>
 </body>
 </html>

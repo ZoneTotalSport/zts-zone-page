@@ -253,13 +253,20 @@ body.projection .proj-bar:hover, body.projection .proj-bar:focus-within { opacit
 .jouee-bar.show { display: flex; }
 #joueeChips { display: flex; gap: 6px; align-items: center; }
 .jouee-chip {
-  width: 28px; height: 28px; flex-shrink: 0; cursor: pointer;
+  position: relative; min-width: 28px; height: 28px; flex-shrink: 0; cursor: pointer;
   border: 2px solid var(--ink); border-radius: 999px; background: #fff;
   font-family: var(--font-impact,'Luckiest Guy'),cursive; font-size: 13px; color: var(--ink);
-  display: grid; place-items: center; box-shadow: 2px 2px 0 var(--ink);
+  display: grid; place-items: center; box-shadow: 2px 2px 0 var(--ink); padding: 0 7px;
 }
 .jouee-chip.done { background: var(--rose,#FF2D87); color: #fff; }
 .jouee-chip.next { outline: 3px dashed var(--rose,#FF2D87); outline-offset: 2px; }
+.jouee-chip .chip-x {
+  display: none; position: absolute; top: -9px; right: -9px;
+  width: 17px; height: 17px; border-radius: 999px; background: #FF2D2D; color: #fff;
+  border: 2px solid var(--ink); font-size: 9px; line-height: 13px; text-align: center;
+  font-family: var(--font-body,'Quicksand'),sans-serif; font-weight: 700;
+}
+.jouee-chip:hover .chip-x { display: block; }
 .btn--rec { background: #fff; }
 .btn--rec.recording { background: #FF2D2D !important; color: #fff !important; animation: recPulse 1.2s infinite; }
 

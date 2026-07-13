@@ -17,7 +17,7 @@ const TERRAINS = {
   'terrain-gym': { label: '🏀 Gymnase ligné', config: ENGINE + 'terrain-gym.config.json', image: ENGINE + 'assets/terrain-gym.png' },
   'terrain-nu':  { label: '🪵 Plancher nu (trace tes lignes)', config: ENGINE + 'terrain-nu.config.json', image: ENGINE + 'assets/terrain-nu.png' },
 };
-const DEFAULT_TERRAIN = 'terrain-gym';
+const DEFAULT_TERRAIN = 'terrain-nu'; // plancher nu par defaut — Joey trace ses lignes
 const CONFIG_URL = TERRAINS[DEFAULT_TERRAIN].config; // reset calibration
 const INDEX_URL = 'data/jeux-index.json';
 
@@ -39,10 +39,16 @@ const state = {
   playing: false,
   calib: false,
   gamesIndex: null,
-  recordingJouee: false, // capture des gestes en cours
   animAction: false,     // une action de jouee s'anime
   jCur: {},              // curseur de relecture par etape { stepId: n }
 };
+
+// capture permanente : chaque geste devient une action (sauf pendant une
+// animation, la lecture, la calibration ou la projection)
+function capturing() {
+  return !state.animAction && !state.playing && !state.calib
+    && !document.body.classList.contains('projection');
+}
 
 // ---- utilitaires DOM -------------------------------------------------------
 const $ = (s) => document.querySelector(s);
@@ -304,6 +310,7 @@ function armTool(it, btn) {
 
 // ---- ajout d'elements ------------------------------------------------------
 function addPointElement(it, u, v) {
+  ensureJoueeBase();
   const step = curStep();
   const el = { id: nextElementId(step), type: it.type, u, v };
   if (it.type === 'player') { el.color = it.color; el.label = ''; }
@@ -311,11 +318,12 @@ function addPointElement(it, u, v) {
   if (it.type === 'text') { el.text = 'GO!'; el.style = 'onomatopee'; el.rotation = -6; el.hex = '#FFEA00'; el.fontSize = TEXT_BASE; }
   step.elements.push(el);
   selectElement(el.id);
-  if (state.recordingJouee) recordAction({ kind: 'add', element: { ...el } });
+  if (capturing()) recordAction({ kind: 'add', element: { ...el } });
   render(); autosave();
   return el;
 }
 function addSpanElement(it, u, v, u2, v2) {
+  ensureJoueeBase();
   const step = curStep();
   const el = { id: nextElementId(step), type: it.type, u, v, u2, v2 };
   if (it.type === 'arrow') { el.kind = it.kind; el.hex = '#1A1A2E'; }
@@ -368,11 +376,12 @@ function downscale(img, max) {
   return { src: c.toDataURL('image/png'), w, h }; // PNG = garde la transparence
 }
 function placeImage(assetId) {
+  ensureJoueeBase();
   const step = curStep();
   const el = { id: nextElementId(step), type: 'image', assetId, u: 0.5, v: 0.5, scaleMul: 1, rotation: 0 };
   step.elements.push(el);
   selectElement(el.id);
-  if (state.recordingJouee) recordAction({ kind: 'add', element: { ...el } });
+  if (capturing()) recordAction({ kind: 'add', element: { ...el } });
   render(); autosave();
 }
 
@@ -387,27 +396,16 @@ function jCurGet() {
 }
 function jCurSet(n) { state.jCur[curStep().id] = n; }
 
+// photographie l'etat AVANT le geste (sinon le replay partirait de l'etat final)
+function ensureJoueeBase() {
+  const step = curStep();
+  if (capturing() && !step.jouee) step.jouee = createJouee(step.elements);
+}
 function recordAction(action) {
   const step = curStep();
   if (!step.jouee) step.jouee = createJouee(step.elements);
   step.jouee.actions.push(action);
   jCurSet(step.jouee.actions.length);
-  renderJoueeBar(); autosave();
-}
-
-function toggleJouee() {
-  const b = $('#btnJouee');
-  if (state.recordingJouee) {
-    state.recordingJouee = false;
-    b.classList.remove('recording'); b.textContent = '🔴 Jouée';
-    const j = getJouee();
-    toast(j && j.actions.length ? `Jouée prête : ${j.actions.length} actions — Espace pour rejouer` : 'Aucun geste capturé');
-  } else {
-    if (!curStep().jouee) curStep().jouee = createJouee(curStep().elements);
-    state.recordingJouee = true;
-    b.classList.add('recording'); b.textContent = '⏹ Fin jouée';
-    toast('🔴 Fais tes gestes : déplace, ajoute, supprime — tout est capturé');
-  }
   renderJoueeBar(); autosave();
 }
 
@@ -432,7 +430,6 @@ function clearJouee() {
 function playNextAction() {
   const j = getJouee();
   if (!j || !j.actions.length) { toast('Pas de jouée — bouton 🔴 pour en enregistrer une'); return; }
-  if (state.recordingJouee) { toast('Termine l\'enregistrement d\'abord (⏹)'); return; }
   if (state.animAction || state.playing) return;
   let cur = jCurGet();
   if (cur >= j.actions.length) { resetJouee(true); cur = 0; }
@@ -499,18 +496,31 @@ function actionForApply(action) {
 }
 
 function renderJoueeBar() {
-  const bar = $('#joueeBar'); if (!bar) return;
+  const chips = $('#joueeChips'); if (!chips) return;
+  chips.innerHTML = '';
   const j = getJouee();
-  const show = state.recordingJouee || (j && j.actions.length > 0);
-  bar.classList.toggle('show', !!show);
-  const chips = $('#joueeChips'); chips.innerHTML = '';
+  const has = j && j.actions.length > 0;
+  $('#btnJoueeReset').disabled = !has;
+  $('#btnJoueeNext').disabled = !has;
+  $('#btnJoueeClear').disabled = !has;
   if (!j) return;
   const cur = jCurGet();
+  const KINDS = { move: 'Déplacement', pose: 'Ajustement', add: 'Apparition', remove: 'Disparition' };
   j.actions.forEach((a, i) => {
     const c = document.createElement('button');
     c.className = 'jouee-chip' + (i < cur ? ' done' : '') + (i === cur ? ' next' : '');
-    c.textContent = i + 1;
-    c.title = ({ move: 'Déplacement', pose: 'Ajustement', add: 'Apparition', remove: 'Disparition' })[a.kind] || a.kind;
+    c.title = (KINDS[a.kind] || a.kind) + ' — clic : voir juste avant · ✕ : supprimer';
+    const num = document.createElement('span'); num.textContent = i + 1;
+    const x = document.createElement('span'); x.className = 'chip-x'; x.textContent = '✕';
+    x.title = 'Supprimer cette action';
+    x.addEventListener('click', (e) => {
+      e.stopPropagation();
+      j.actions.splice(i, 1);
+      jCurSet(Math.min(jCurGet(), j.actions.length));
+      renderJoueeBar(); autosave();
+      toast('Action supprimée');
+    });
+    c.appendChild(num); c.appendChild(x);
     c.addEventListener('click', () => {
       // saute juste avant l'action i : base + actions 0..i-1 appliquees d'un coup
       resetJouee(true);
@@ -546,6 +556,7 @@ overlay.addEventListener('pointerdown', (e) => {
   // poignee de bout d'un element selectionne
   const handle = e.target.closest('.handle');
   if (handle && state.selectedId) {
+    ensureJoueeBase();
     drag = { type: 'handle', id: state.selectedId, h: handle.dataset.h };
     overlay.setPointerCapture(e.pointerId);
     return;
@@ -558,7 +569,7 @@ overlay.addEventListener('pointerdown', (e) => {
     selectElement(id);
     const el = findEl(id);
     drag = { type: 'move', id, startUV: uv, snap: { u: el.u, v: el.v, u2: el.u2, v2: el.v2 } };
-    if (state.recordingJouee) { dragPath = [[el.u, el.v, 0]]; dragT0 = performance.now(); }
+    if (capturing()) { ensureJoueeBase(); dragPath = [[el.u, el.v, 0]]; dragT0 = performance.now(); }
     node.classList.add('dragging');
     overlay.setPointerCapture(e.pointerId);
     render();
@@ -600,7 +611,7 @@ overlay.addEventListener('pointermove', (e) => {
     const du = uv.u - drag.startUV.u, dv = uv.v - drag.startUV.v;
     el.u = drag.snap.u + du; el.v = drag.snap.v + dv;
     if (drag.snap.u2 != null) { el.u2 = drag.snap.u2 + du; el.v2 = drag.snap.v2 + dv; }
-    if (state.recordingJouee && dragPath) {
+    if (capturing() && dragPath) {
       const ms = performance.now() - dragT0;
       const last = dragPath[dragPath.length - 1];
       if (ms - last[2] > 40 || Math.hypot(el.u - last[0], el.v - last[1]) > 0.01) {
@@ -615,7 +626,7 @@ overlay.addEventListener('pointerup', (e) => {
   if (!drag) return;
   if (drag.type === 'create-b') state.tool = null,
     document.querySelectorAll('.pal-item.active').forEach((x) => x.classList.remove('active'));
-  if (state.recordingJouee) {
+  if (capturing()) {
     const el = drag.id ? findEl(drag.id) : null;
     if (drag.type === 'move' && el && dragPath && dragPath.length > 1) {
       // borne le temps final : un pointerup tardif ne doit pas etirer la relecture
@@ -742,17 +753,18 @@ function wireInspector(el) {
     b.addEventListener('click', () => inspectorAction(b.dataset.act, el)));
 }
 function inspectorAction(act, el) {
+  ensureJoueeBase();
   const step = curStep();
   const i = step.elements.indexOf(el);
   if (act === 'del') {
-    if (state.recordingJouee) recordAction({ kind: 'remove', elementId: el.id });
+    if (capturing()) recordAction({ kind: 'remove', elementId: el.id });
     step.elements.splice(i, 1); state.selectedId = null;
   }
   else if (act === 'dup') {
     const copy = { ...el, id: nextElementId(step), u: el.u + 0.04, v: el.v + 0.04 };
     if (el.u2 != null) { copy.u2 = el.u2 + 0.04; copy.v2 = el.v2 + 0.04; }
     step.elements.push(copy); state.selectedId = copy.id;
-    if (state.recordingJouee) recordAction({ kind: 'add', element: { ...copy } });
+    if (capturing()) recordAction({ kind: 'add', element: { ...copy } });
   } else if (act === 'front') { step.elements.splice(i, 1); step.elements.push(el); }
   else if (act === 'back') { step.elements.splice(i, 1); step.elements.unshift(el); }
   render(); autosave();
@@ -761,6 +773,10 @@ function inspectorAction(act, el) {
 // ---- etapes ----------------------------------------------------------------
 function renderStepChips() {
   const wrap = $('#stepChips'); wrap.innerHTML = '';
+  // les etapes ne s'affichent que sur les anciennes scenes multi-etapes
+  const legacy = state.scene.steps.length > 1;
+  const bp = $('#btnPlay'); if (bp) bp.hidden = !legacy;
+  if (!legacy) return;
   state.scene.steps.forEach((s, i) => {
     const chip = document.createElement('div');
     chip.className = 'step-chip' + (i === state.stepIndex ? ' active' : '');
@@ -909,7 +925,9 @@ function setScene(sc) {
 function newScene(game) {
   const saved = loadAutosave(game ? game.id : null);
   if (saved && !validateScene(saved)) { setScene(saved); return; }
-  setScene(createScene(game || null));
+  const sc = createScene(game || null);
+  sc.terrain = DEFAULT_TERRAIN;
+  setScene(sc);
 }
 
 // ---- selecteur de jeu ------------------------------------------------------
@@ -1221,16 +1239,6 @@ function wireToolbar() {
   $('#fileInput').addEventListener('change', (e) => { if (e.target.files[0]) loadFromFile(e.target.files[0]); e.target.value = ''; });
   $('#btnPng').addEventListener('click', exportPNG);
   $('#btnPdf').addEventListener('click', exportPDF);
-  $('#btnAddStep').addEventListener('click', () => {
-    state.scene.steps.push(createStep(state.scene, 'Étape ' + (state.scene.steps.length + 1)));
-    state.stepIndex = state.scene.steps.length - 1; state.selectedId = null; render(); autosave();
-  });
-  $('#btnDupStep').addEventListener('click', () => {
-    const dup = duplicateStep(state.scene, curStep());
-    state.scene.steps.splice(state.stepIndex + 1, 0, dup);
-    state.stepIndex += 1; state.selectedId = null; render(); autosave();
-    toast('Étape dupliquée — déplace les éléments');
-  });
   $('#btnPlay').addEventListener('click', () => state.playing ? stopPlay() : play());
   $('#btnProj').addEventListener('click', enterProjection);
   $('#btnRec').addEventListener('click', toggleRecording);
@@ -1241,7 +1249,6 @@ function wireToolbar() {
   $('#projRec').addEventListener('click', toggleRecording);
   $('#btnUndo').addEventListener('click', undo);
   $('#btnRedo').addEventListener('click', redo);
-  $('#btnJouee').addEventListener('click', toggleJouee);
   $('#btnJoueeReset').addEventListener('click', () => resetJouee());
   $('#btnJoueeNext').addEventListener('click', playNextAction);
   $('#btnJoueeClear').addEventListener('click', clearJouee);
