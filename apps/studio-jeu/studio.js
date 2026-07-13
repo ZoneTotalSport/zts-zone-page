@@ -315,7 +315,10 @@ function addPointElement(it, u, v) {
   const el = { id: nextElementId(step), type: it.type, u, v };
   if (it.type === 'player') { el.color = it.color; el.label = ''; }
   if (it.type === 'hoop' || it.type === 'pinnie') el.color = it.color || (it.type === 'hoop' ? 'blanc' : 'rouge');
-  if (it.type === 'text') { el.text = 'GO!'; el.style = 'onomatopee'; el.rotation = -6; el.hex = '#FFEA00'; el.fontSize = TEXT_BASE; }
+  if (it.type === 'text') {
+    el.text = 'GO!'; el.rotation = -6; el.fontSize = TEXT_BASE;
+    el.font = 'zts'; el.hex = '#FFEA00'; el.strokeHex = '#1A1A2E'; el.strokeW = 5; el.shadow = true;
+  }
   step.elements.push(el);
   selectElement(el.id);
   if (capturing()) recordAction({ kind: 'add', element: { ...el } });
@@ -667,10 +670,23 @@ function renderInspector() {
   } else if (el.type === 'hoop' || el.type === 'pinnie') {
     html += colorSwatches(el.color);
   } else if (el.type === 'text') {
+    const cols = ['#FFEA00', '#FFFFFF', '#00E5FF', '#FF2D2D', '#1E90FF', '#39FF14', '#FF6B00', '#1A1A2E'];
     html += `<label>Texte</label><input type="text" id="insText" value="${(el.text || '').replace(/"/g, '&quot;')}">`;
-    html += `<label>Style</label><select id="insStyle">
-      <option value="onomatopee"${el.style === 'onomatopee' ? ' selected' : ''}>Onomatopée BD</option>
-      <option value="libre"${el.style !== 'onomatopee' ? ' selected' : ''}>Texte libre</option></select>`;
+    html += `<label>Police</label><select id="insFont">
+      <option value="zts"${el.font === 'zts' ? ' selected' : ''}>ZoneTotalSport (ta police)</option>
+      <option value="luckiest"${el.font !== 'zts' ? ' selected' : ''}>Luckiest Guy</option></select>`;
+    html += `<label>Taille : <span id="insSizeVal">${el.fontSize || TEXT_BASE}</span></label>
+      <input type="range" id="insSize" min="18" max="110" step="2" value="${el.fontSize || TEXT_BASE}" style="width:100%">`;
+    html += '<label>Couleur</label><div class="swatches">'
+      + cols.map((h) => `<div class="swatch${(el.hex || '#FFEA00').toUpperCase() === h ? ' on' : ''}" data-hex="${h}" style="background:${h}"></div>`).join('')
+      + '</div>';
+    html += `<input type="color" id="insHex" value="${el.hex || '#FFEA00'}" title="Autre couleur" style="width:100%;height:26px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer;margin-top:4px">`;
+    html += `<label>Contour : <span id="insStrokeWVal">${el.strokeW != null ? el.strokeW : 5}</span></label>
+      <div style="display:flex;gap:6px;align-items:center">
+      <input type="range" id="insStrokeW" min="0" max="14" step="1" value="${el.strokeW != null ? el.strokeW : 5}" style="flex:1">
+      <input type="color" id="insStrokeHex" value="${el.strokeHex || '#1A1A2E'}" title="Couleur du contour" style="width:34px;height:26px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer"></div>`;
+    html += `<label style="display:flex;gap:6px;align-items:center;margin-top:8px">
+      <input type="checkbox" id="insShadow"${el.shadow ? ' checked' : ''}> Ombre BD</label>`;
     html += `<div class="row"><button class="btn small" data-rot="-15">⟲ 15°</button><button class="btn small" data-rot="15">15° ⟳</button></div>`;
   } else if (el.type === 'arrow') {
     html += `<label>Type</label><select id="insKind">
@@ -724,8 +740,30 @@ function wireInspector(el) {
   if (li) li.addEventListener('input', () => { el.label = li.value; render(); autosave(); });
   const it = inspector.querySelector('#insText');
   if (it) it.addEventListener('input', () => { el.text = it.value; render(); autosave(); });
-  const is = inspector.querySelector('#insStyle');
-  if (is) is.addEventListener('change', () => { el.style = is.value; render(); autosave(); });
+  const ifo = inspector.querySelector('#insFont');
+  if (ifo) ifo.addEventListener('change', () => { el.font = ifo.value; render(); autosave(); });
+  const isz = inspector.querySelector('#insSize');
+  if (isz) isz.addEventListener('input', () => {
+    el.fontSize = +isz.value;
+    const lbl = inspector.querySelector('#insSizeVal'); if (lbl) lbl.textContent = isz.value;
+    const node = overlay.querySelector(`.el[data-id="${el.id}"]`);
+    if (node) { const p = projPx(el.u, el.v); const s = (el.scaleMul || 1) * p.scale;
+      node.setAttribute('transform', `translate(${p.x},${p.y}) scale(${s}) rotate(${el.rotation || 0})`);
+      node.innerHTML = textSVG(el) + (el.id === state.selectedId ? selBox((el.fontSize || TEXT_BASE) * 1.4) : ''); }
+    autosave();
+  });
+  const isw = inspector.querySelector('#insStrokeW');
+  if (isw) isw.addEventListener('input', () => {
+    el.strokeW = +isw.value;
+    const lbl = inspector.querySelector('#insStrokeWVal'); if (lbl) lbl.textContent = isw.value;
+    const node = overlay.querySelector(`.el[data-id="${el.id}"]`);
+    if (node) node.innerHTML = textSVG(el) + (el.id === state.selectedId ? selBox((el.fontSize || TEXT_BASE) * 1.4) : '');
+    autosave();
+  });
+  const ish = inspector.querySelector('#insStrokeHex');
+  if (ish) ish.addEventListener('input', () => { el.strokeHex = ish.value; render(); autosave(); });
+  const ichk = inspector.querySelector('#insShadow');
+  if (ichk) ichk.addEventListener('change', () => { el.shadow = ichk.checked; render(); autosave(); });
   const ik = inspector.querySelector('#insKind');
   if (ik) ik.addEventListener('change', () => { el.kind = ik.value; render(); autosave(); });
   inspector.querySelectorAll('.swatch[data-color]').forEach((sw) =>
@@ -1035,6 +1073,19 @@ async function ensureTerrainLoaded() {
   return loadImg(im.src);
 }
 
+// police maison en data-URI pour les exports (le SVG rasterise n'herite pas du CSS)
+let ztsFontURI = null;
+async function fontDataURI() {
+  if (ztsFontURI != null) return ztsFontURI;
+  try {
+    const buf = await (await fetch('../../fonts/ZoneTotalSport.ttf')).arrayBuffer();
+    const b = new Uint8Array(buf); let s = '';
+    for (let i = 0; i < b.length; i += 8192) s += String.fromCharCode.apply(null, b.subarray(i, i + 8192));
+    ztsFontURI = 'data:font/ttf;base64,' + btoa(s);
+  } catch (_) { ztsFontURI = ''; }
+  return ztsFontURI;
+}
+
 // rasterise une etape (terrain PNG + overlay) sur un canvas pleine resolution
 async function stepCanvas(stepIndex) {
   const prev = { s: state.stepIndex, sel: state.selectedId, cal: state.calib };
@@ -1045,6 +1096,9 @@ async function stepCanvas(stepIndex) {
   const clone = overlay.cloneNode(true);
   clone.setAttribute('width', W); clone.setAttribute('height', H);
   clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  const fd = await fontDataURI();
+  if (fd) clone.insertAdjacentHTML('afterbegin',
+    `<style>@font-face{font-family:'ZoneTotalSport';src:url(${fd}) format('truetype');size-adjust:50%;}</style>`);
   const svgStr = new XMLSerializer().serializeToString(clone);
   const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
 

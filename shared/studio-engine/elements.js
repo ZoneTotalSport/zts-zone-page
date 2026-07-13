@@ -250,18 +250,30 @@ export function zoneSVG(pts, hex) {
 
 // ---- texte / onomatopee ----------------------------------------------------
 
+export const TEXT_FONTS = {
+  zts:      "'ZoneTotalSport','Luckiest Guy','Impact',sans-serif",
+  luckiest: "'Luckiest Guy','Impact',sans-serif",
+};
+
 /**
- * Texte libre ou onomatopee BD (Luckiest Guy, contour, rotation).
+ * Texte stylable (police, remplissage, contour, ombre BD) — style Affinity.
+ * Champs : text, font ('zts'|'luckiest'), fontSize, hex (remplissage),
+ * strokeW + strokeHex (contour), shadow (bool). Les anciens presets
+ * (style:'onomatopee') restent honores comme valeurs par defaut.
  * Dessine centre sur (0,0) ; l'editeur applique translate+scale+rotation.
  */
 export function textSVG(el) {
   const size = el.fontSize || R * 1.2;
   const isOno = el.style === 'onomatopee';
-  const fill = isOno ? (el.hex || '#FFEA00') : (el.hex || INK);
-  const stroke = isOno ? INK : 'none';
-  const sw = isOno ? Math.max(4, size * 0.12) : 0;
-  return `<text x="0" y="0" text-anchor="middle" dominant-baseline="central" `
-    + `font-family="'Luckiest Guy','Impact',sans-serif" font-size="${size}" `
-    + `fill="${fill}" stroke="${stroke}" stroke-width="${sw}" `
-    + `paint-order="stroke" stroke-linejoin="round">${esc(el.text || 'Texte')}</text>`;
+  const fill = el.hex || (isOno ? '#FFEA00' : INK);
+  const sw = el.strokeW != null ? el.strokeW : (isOno ? Math.max(4, size * 0.12) : 0);
+  const stroke = sw > 0 ? (el.strokeHex || INK) : 'none';
+  const fam = TEXT_FONTS[el.font] || TEXT_FONTS.luckiest;
+  const body = (dx, dy, f, st, w) =>
+    `<text x="${dx}" y="${dy}" text-anchor="middle" dominant-baseline="central" `
+    + `font-family="${fam}" font-size="${size}" fill="${f}" stroke="${st}" `
+    + `stroke-width="${w}" paint-order="stroke" stroke-linejoin="round">${esc(el.text || 'Texte')}</text>`;
+  const off = Math.max(2, size * 0.07);
+  const shadow = el.shadow ? body(off, off, SHADOW, el.strokeW > 0 ? SHADOW : 'none', sw) : '';
+  return shadow + body(0, 0, fill, stroke, sw);
 }
