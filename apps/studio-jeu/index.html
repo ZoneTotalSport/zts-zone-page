@@ -11,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@500;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="studio.css?v=8">
+  <link rel="stylesheet" href="studio.css?v=9">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body data-metier="eps">
@@ -25,37 +25,45 @@
   </div>
 
   <header class="studio-top">
-    <h1>🎬 Studio&nbsp;Jeu</h1>
-    <span class="game-name" id="gameName" title="Scène libre">Scène libre</span>
-    <span class="grow"></span>
-    <button class="btn btn--eps" id="btnPick">📚 Choisir un jeu</button>
-    <div class="menu">
-      <button class="btn" id="menuFileBtn">📁 Fichier ▾</button>
-      <div class="menu-list">
-        <button id="btnLibre">✨ Nouvelle scène libre</button>
-        <button id="btnLoad">📂 Charger un JSON</button>
-        <button id="btnSave">💾 Télécharger le JSON</button>
+    <div class="top-left">
+      <span class="game-name" id="gameName" title="Scène libre">Scène libre</span>
+    </div>
+    <h1>🎬 STUDIO JEU</h1>
+    <div class="top-right">
+      <div class="menu">
+        <button class="btn" id="menuTerrainBtn">🏟 Terrain ▾</button>
+        <div class="menu-list" id="terrainMenuList"><!-- rempli par JS --></div>
       </div>
+      <button class="btn btn--sdg" id="btnProj" title="Mode projection plein écran (P)">📽️</button>
+      <button class="btn" id="btnRec" title="Enregistrer l'écran + ta voix">🎙️ REC</button>
+      <button class="btn" id="btnHelp" title="Guide rapide">❓</button>
+      <button class="btn small" id="btnLogout" title="Déconnexion" hidden>🚪</button>
     </div>
-    <div class="menu">
-      <button class="btn btn--jaune" id="menuExportBtn">⬇️ Exporter ▾</button>
-      <div class="menu-list">
-        <button id="btnPng">🖼️ Image PNG (étape courante)</button>
-        <button id="btnPdf">📄 Fiche PDF (toutes les étapes)</button>
-      </div>
-    </div>
-    <div class="menu">
-      <button class="btn" id="menuTerrainBtn">🏟 Terrain ▾</button>
-      <div class="menu-list" id="terrainMenuList"><!-- rempli par JS --></div>
-    </div>
-    <button class="btn btn--sdg" id="btnProj" title="Mode projection plein écran (P)">📽️</button>
-    <button class="btn" id="btnRec" title="Enregistrer l'écran + ta voix">🎙️ REC</button>
-    <button class="btn" id="btnHelp" title="Guide rapide">❓</button>
     <input type="file" id="fileInput" accept="application/json" hidden>
   </header>
 
   <div class="studio-body">
-    <aside class="palette" id="palette"><!-- rempli par JS --></aside>
+    <aside class="palette">
+      <div class="side-actions">
+        <button class="btn btn--eps" id="btnPick">📚 Choisir un jeu</button>
+        <div class="menu">
+          <button class="btn" id="menuFileBtn">📁 Fichier ▾</button>
+          <div class="menu-list">
+            <button id="btnLibre">✨ Nouvelle scène libre</button>
+            <button id="btnLoad">📂 Charger un JSON</button>
+            <button id="btnSave">💾 Télécharger le JSON</button>
+          </div>
+        </div>
+        <div class="menu">
+          <button class="btn btn--jaune" id="menuExportBtn">⬇️ Exporter ▾</button>
+          <div class="menu-list">
+            <button id="btnPng">🖼️ Image PNG (étape courante)</button>
+            <button id="btnPdf">📄 Fiche PDF (toutes les étapes)</button>
+          </div>
+        </div>
+      </div>
+      <div id="palette"><!-- rempli par JS --></div>
+    </aside>
 
     <div class="stage-col">
       <div class="stage-scroll">
@@ -135,6 +143,7 @@
 
   <div class="toast" id="toast"></div>
 
-  <script type="module" src="studio.js?v=8"></script>
+  <script src="admin-gate.js?v=1"></script>
+  <script type="module" src="studio.js?v=9"></script>
 </body>
 </html>
