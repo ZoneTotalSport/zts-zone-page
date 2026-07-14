@@ -142,6 +142,8 @@ function lerpElement(ea, eb, t) {
 // step.jouee = { base: [elements au depart], actions: [...] }
 // kinds : move {elementId, path:[[u,v,ms],...]} · pose {elementId, after:{...}}
 //         add {element} · remove {elementId}
+//         group {actions:[...]} — sous-actions jouees EN MEME TEMPS (ex. faire
+//         apparaitre plusieurs joueurs d'un coup, chacun en fondu)
 
 export function createJouee(elements) {
   return { base: elements.map((e) => ({ ...e })), actions: [] };
@@ -179,6 +181,8 @@ export function applyAction(elements, action) {
   } else if (action.kind === 'pose') {
     const el = elements.find((e) => e.id === action.elementId);
     if (el) Object.assign(el, action.after);
+  } else if (action.kind === 'group') {
+    for (const a of action.actions || []) applyAction(elements, a);
   }
   return elements;
 }

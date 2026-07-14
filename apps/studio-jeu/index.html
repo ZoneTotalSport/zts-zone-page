@@ -11,17 +11,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@500;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="studio.css?v=10">
+  <link rel="stylesheet" href="studio.css?v=11">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body data-metier="eps">
 
   <div class="calib-banner">
-    🎯 MODE CALIBRATION — glisse les 4 coins sur le plancher. <code>C</code> pour sortir.
+    <span data-i18n-html="calibBanner">🎯 MODE CALIBRATION — glisse les 4 coins sur le plancher. <code>C</code> pour sortir.</span>
     <span class="grow" style="flex:1"></span>
-    <button class="btn small" id="calibCopy">Copier config</button>
-    <button class="btn small" id="calibDownload">Télécharger config</button>
-    <button class="btn small btn--jaune" id="calibReset">Réinitialiser</button>
+    <button class="btn small" id="calibCopy" data-i18n="copyCfg">Copier config</button>
+    <button class="btn small" id="calibDownload" data-i18n="dlCfg">Télécharger config</button>
+    <button class="btn small btn--jaune" id="calibReset" data-i18n="resetCfg">Réinitialiser</button>
   </div>
 
   <header class="studio-top">
@@ -31,13 +31,14 @@
     <h1>🎬 STUDIO JEU</h1>
     <div class="top-right">
       <div class="menu">
-        <button class="btn" id="menuTerrainBtn">🏟 Terrain ▾</button>
+        <button class="btn" id="menuTerrainBtn" data-i18n="terrainMenu">🏟 Terrain ▾</button>
         <div class="menu-list" id="terrainMenuList"><!-- rempli par JS --></div>
       </div>
-      <button class="btn btn--sdg" id="btnProj" title="Mode projection plein écran (P)">📽️</button>
-      <button class="btn" id="btnRec" title="Enregistrer l'écran + ta voix">🎙️ REC</button>
-      <button class="btn" id="btnHelp" title="Guide rapide">❓</button>
-      <button class="btn small" id="btnLogout" title="Déconnexion" hidden>🚪</button>
+      <button class="btn" id="btnLang" title="Français / English">EN</button>
+      <button class="btn btn--sdg" id="btnProj" title="Mode projection plein écran (P)" data-i18n-title="projTitleBtn">📽️</button>
+      <button class="btn" id="btnRec" title="Enregistrer l'écran + ta voix" data-i18n-title="recTitleBtn">🎙️ REC</button>
+      <button class="btn" id="btnHelp" title="Guide rapide" data-i18n-title="helpTitleBtn">❓</button>
+      <button class="btn small" id="btnLogout" title="Déconnexion" data-i18n-title="logoutBtn" hidden>🚪</button>
     </div>
     <input type="file" id="fileInput" accept="application/json" hidden>
   </header>
@@ -45,20 +46,20 @@
   <div class="studio-body">
     <aside class="palette">
       <div class="side-actions">
-        <button class="btn btn--eps" id="btnPick">📚 Choisir un jeu</button>
+        <button class="btn btn--eps" id="btnPick" data-i18n="pickGame">📚 Choisir un jeu</button>
         <div class="menu">
-          <button class="btn" id="menuFileBtn">📁 Fichier ▾</button>
+          <button class="btn" id="menuFileBtn" data-i18n="file">📁 Fichier ▾</button>
           <div class="menu-list">
-            <button id="btnLibre">✨ Nouvelle scène libre</button>
-            <button id="btnLoad">📂 Charger un JSON</button>
-            <button id="btnSave">💾 Télécharger le JSON</button>
+            <button id="btnLibre" data-i18n="newFree">✨ Nouvelle scène libre</button>
+            <button id="btnLoad" data-i18n="loadJson">📂 Charger un JSON</button>
+            <button id="btnSave" data-i18n="saveJson">💾 Télécharger le JSON</button>
           </div>
         </div>
         <div class="menu">
-          <button class="btn btn--jaune" id="menuExportBtn">⬇️ Exporter ▾</button>
+          <button class="btn btn--jaune" id="menuExportBtn" data-i18n="exportMenu">⬇️ Exporter ▾</button>
           <div class="menu-list">
-            <button id="btnPng">🖼️ Image PNG (étape courante)</button>
-            <button id="btnPdf">📄 Fiche PDF (toutes les étapes)</button>
+            <button id="btnPng" data-i18n="pngExport">🖼️ Image PNG (étape courante)</button>
+            <button id="btnPdf" data-i18n="pdfExport">📄 Fiche PDF (toutes les étapes)</button>
           </div>
         </div>
       </div>
@@ -70,22 +71,26 @@
         <div class="stage" id="stage">
           <img class="terrain" id="terrainImg" alt="Terrain de gymnase">
           <svg class="overlay" id="overlay" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"></svg>
-          <div class="empty-hint" id="emptyHint">👈 Choisis un élément dans la palette<br><small>il apparaît au centre — glisse-le ensuite où tu veux</small></div>
-          <input class="scene-title" id="sceneTitle" maxlength="60" placeholder="✏️ Titre de la scène…" autocomplete="off" spellcheck="false">
+          <div class="empty-hint" id="emptyHint"><span data-i18n="hint1">👈 Choisis un élément dans la palette</span><br><small data-i18n="hint2">il apparaît au centre — glisse-le ensuite où tu veux</small></div>
+          <input class="scene-title" id="sceneTitle" maxlength="60" placeholder="✏️ Titre de la scène…" data-i18n-ph="titlePh" autocomplete="off" spellcheck="false">
+          <button class="btn small title-style-btn" id="titleStyleBtn" title="Style du titre" data-i18n-title="titleStyleT">🎨</button>
+          <div class="title-panel" id="titlePanel"></div>
           <div class="inspector" id="inspector"></div>
         </div>
       </div>
 
       <div class="steps-bar" id="stepsBar">
-        <button class="btn small" id="btnUndo" title="Annuler (Ctrl+Z)">↩</button>
-        <button class="btn small" id="btnRedo" title="Refaire (Ctrl+Shift+Z)">↪</button>
+        <button class="btn small" id="btnUndo" title="Annuler (Ctrl+Z)" data-i18n-title="undoT">↩</button>
+        <button class="btn small" id="btnRedo" title="Refaire (Ctrl+Shift+Z)" data-i18n-title="redoT">↪</button>
         <span style="width:4px"></span>
-        <button class="btn small" id="btnJoueeReset" title="Revenir au début">⏮ Début</button>
-        <button class="btn btn--play" id="btnJoueeNext" title="Joue la prochaine action (Espace)">⏭ Action (Espace)</button>
+        <button class="btn small" id="btnJoueeReset" data-i18n="startBtn">⏮ Début</button>
+        <button class="btn btn--play" id="btnJoueeNext" data-i18n="actionBtn">⏭ Action (Espace)</button>
         <div id="joueeChips"></div>
-        <button class="btn small" id="btnJoueeClear" title="Effacer toutes les actions">🗑</button>
+        <button class="btn small" id="btnJoueeGroup">🔗 Grouper</button>
+        <button class="btn small" id="btnJoueeSave" title="Enregistrer la scène + l'animation (fichier JSON)" data-i18n-title="saveAnimT">💾</button>
+        <button class="btn small" id="btnJoueeClear" title="Effacer toutes les actions" data-i18n-title="clearAnimT">🗑</button>
         <span style="width:6px"></span>
-        <button class="btn small btn--play" id="btnPlay" hidden>▶ Lecture</button>
+        <button class="btn small btn--play" id="btnPlay" data-i18n="playBtn" hidden>▶ Lecture</button>
         <div id="stepChips" style="display:flex;gap:8px"></div>
       </div>
     </div>
@@ -95,10 +100,10 @@
   <div class="modal" id="pickModal">
     <div class="modal-card">
       <header>
-        <h2>📚 Choisir un jeu</h2>
+        <h2 data-i18n="pickTitle">📚 Choisir un jeu</h2>
         <button class="btn small" id="pickClose">✕</button>
       </header>
-      <input class="search" id="gameSearch" placeholder="Rechercher un jeu (titre)…">
+      <input class="search" id="gameSearch" placeholder="Rechercher un jeu (titre)…" data-i18n-ph="searchPh">
       <div class="game-list" id="gameList"></div>
     </div>
   </div>
@@ -109,28 +114,28 @@
     <button class="btn" id="projPrev">◀</button>
     <span class="proj-step" id="projStep">1/1</span>
     <button class="btn" id="projNext">▶</button>
-    <button class="btn btn--play" id="projSpace" title="Action suivante (Espace)">⏭ Action</button>
-    <button class="btn" id="projPlay">▶ Lecture</button>
+    <button class="btn btn--play" id="projSpace" data-i18n="projAction">⏭ Action</button>
+    <button class="btn" id="projPlay" data-i18n="projPlay">▶ Lecture</button>
     <button class="btn" id="projRec">🎙️ REC</button>
-    <button class="btn btn--camps" id="projQuit">✕ Quitter</button>
+    <button class="btn btn--camps" id="projQuit" data-i18n="projQuit">✕ Quitter</button>
   </div>
 
   <!-- Guide rapide -->
   <div class="modal" id="helpModal">
     <div class="modal-card">
       <header>
-        <h2>❓ Guide rapide</h2>
+        <h2 data-i18n="helpT">❓ Guide rapide</h2>
         <button class="btn small" id="helpClose">✕</button>
       </header>
-      <div class="help-body">
+      <div class="help-body" data-lang="fr">
         <ol class="help-steps">
           <li><b>Place</b> — clique un élément dans la palette (gauche), il apparaît au centre. Glisse-le où tu veux. Flèches et zones : glisse directement sur le terrain de A à B.</li>
-          <li><b>Habille</b> — donne un titre à ta scène (bandeau blanc en haut du terrain) et ajoute des <b>bulles BD</b> : parole 💬 (glisse la poignée blanche pour pointer la queue vers un joueur), pensée 💭 ou règle 📋. Le texte s'édite dans le panneau à droite.</li>
-          <li><b>Anime</b> — fais tes gestes, c'est tout : chaque déplacement, ajout ou retrait devient une <b>action</b> en bas (survole une pastille → ✕ pour la supprimer). <b>Espace</b> rejoue les actions une à une, <b>⏮ Début</b> ramène au départ.</li>
+          <li><b>Habille</b> — donne un titre à ta scène (bandeau blanc en haut, 🎨 pour son style : trait, ombre) et ajoute des <b>bulles BD</b> : parole 💬 (glisse la poignée blanche pour pointer la queue vers un joueur), pensée 💭 ou règle 📋. Le texte s'édite dans le panneau à droite.</li>
+          <li><b>Anime</b> — fais tes gestes, c'est tout : chaque déplacement, ajout ou retrait devient une <b>action</b> en bas (survole une pastille → ✕ pour la supprimer). <b>🔗 Grouper</b> fusionne plusieurs actions en une seule (ex. faire apparaître 4 joueurs en même temps, en fondu). <b>Espace</b> rejoue les actions une à une, <b>⏮ Début</b> ramène au départ, <b>💾</b> enregistre, <b>🗑</b> efface tout.</li>
           <li><b>Partage</b> — menu <b>⬇️ Exporter</b> (PNG/PDF), ou <b>📽️</b> + <b>🎙️ REC</b> pour enregistrer une mini-vidéo commentée de ta mise en scène.</li>
         </ol>
         <table class="help-keys">
-          <tr><td><kbd>Espace</kbd></td><td>Jouer la prochaine action de la jouée</td></tr>
+          <tr><td><kbd>Espace</kbd></td><td>Jouer la prochaine action de l'animation</td></tr>
           <tr><td><kbd>P</kbd></td><td>Mode projection plein écran (TNI)</td></tr>
           <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Changer d'étape (en projection)</td></tr>
           <tr><td><kbd>Ctrl+Z</kbd></td><td>Annuler · <kbd>Ctrl+Shift+Z</kbd> refaire</td></tr>
@@ -140,12 +145,30 @@
           <tr><td><kbd>C</kbd></td><td>Calibration du terrain (avancé)</td></tr>
         </table>
       </div>
+      <div class="help-body" data-lang="en">
+        <ol class="help-steps">
+          <li><b>Place</b> — click an element in the palette (left), it appears in the middle. Drag it anywhere. Arrows and zones: drag directly on the court from A to B.</li>
+          <li><b>Dress it up</b> — give your scene a title (white banner on top, 🎨 for its style: outline, shadow) and add <b>comic bubbles</b>: speech 💬 (drag the white handle to aim the tail at a player), thought 💭 or rule 📋. Edit the text in the right panel.</li>
+          <li><b>Animate</b> — just make your moves: every drag, add or delete becomes an <b>action</b> at the bottom (hover a chip → ✕ to delete it). <b>🔗 Group</b> merges several actions into one (e.g. make 4 players appear at once, with a fade). <b>Space</b> replays actions one by one, <b>⏮ Start</b> goes back to the beginning, <b>💾</b> saves, <b>🗑</b> erases everything.</li>
+          <li><b>Share</b> — <b>⬇️ Export</b> menu (PNG/PDF), or <b>📽️</b> + <b>🎙️ REC</b> to record a short narrated video of your play.</li>
+        </ol>
+        <table class="help-keys">
+          <tr><td><kbd>Space</kbd></td><td>Play the next action of the animation</td></tr>
+          <tr><td><kbd>P</kbd></td><td>Full-screen projection mode (whiteboard)</td></tr>
+          <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Change step (in projection)</td></tr>
+          <tr><td><kbd>Ctrl+Z</kbd></td><td>Undo · <kbd>Ctrl+Shift+Z</kbd> redo</td></tr>
+          <tr><td><kbd>Ctrl+D</kbd></td><td>Duplicate the selected element</td></tr>
+          <tr><td><kbd>Del</kbd></td><td>Delete the selected element</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Deselect / stop playback</td></tr>
+          <tr><td><kbd>C</kbd></td><td>Court calibration (advanced)</td></tr>
+        </table>
+      </div>
     </div>
   </div>
 
   <div class="toast" id="toast"></div>
 
   <script src="admin-gate.js?v=1"></script>
-  <script type="module" src="studio.js?v=10"></script>
+  <script type="module" src="studio.js?v=11"></script>
 </body>
 </html>

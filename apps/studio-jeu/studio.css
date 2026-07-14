@@ -165,6 +165,32 @@ body {
 }
 body.projection .scene-title, body.calib .scene-title { display: none; }
 
+/* bouton + panneau de style du titre */
+.title-style-btn {
+  position: absolute; top: 14px; left: calc(50% + min(31%, 290px) + 8px);
+  z-index: 4;
+}
+body.projection .title-style-btn, body.calib .title-style-btn { display: none; }
+.title-panel {
+  position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
+  width: 230px; background: #fff; border: 3px solid var(--ink); border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--ink); padding: 10px; display: none; z-index: 6;
+  font-family: var(--font-body,'Quicksand'),sans-serif; font-size: 12.5px;
+}
+.title-panel.show { display: block; }
+.title-panel h4 { margin: 0 0 6px; font-family: var(--font-impact,'Luckiest Guy'),cursive; font-size: 13px; }
+.title-panel label { display: block; margin: 6px 0 2px; font-weight: 700; }
+
+/* langue : les blocs marqués data-lang ne s'affichent que dans la langue active */
+body[data-lang="fr"] [data-lang="en"] { display: none !important; }
+body[data-lang="en"] [data-lang="fr"] { display: none !important; }
+
+/* mode groupement d'actions */
+.jouee-chip.pick { background: #FFEA00; outline: 3px solid var(--ink); outline-offset: 1px; }
+.jouee-chip.group { border-width: 3px; background: #EDE4FF; }
+.jouee-chip.group.done { background: var(--rose,#FF2D87); }
+#btnJoueeGroup.arming { background: #FFEA00; }
+
 /* indice terrain vide */
 .empty-hint {
   display: none; position: absolute; top: 38%; left: 50%; transform: translate(-50%,-50%);

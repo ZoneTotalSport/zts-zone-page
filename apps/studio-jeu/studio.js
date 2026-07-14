@@ -11,11 +11,12 @@ import {
   PALETTE, iconSVG, arrowSVG, zoneSVG, textSVG, lineSVG,
   imageSVG, imageHalfBox, svgDefs, bubbleSVG, bubbleBox,
 } from '../../shared/studio-engine/elements.js';
+import { t, lang, setLang, initLang, applyStatic } from './i18n.js';
 
 const ENGINE = '../../shared/studio-engine/';
 const TERRAINS = {
-  'terrain-gym': { label: '🏀 Gymnase ligné', config: ENGINE + 'terrain-gym.config.json', image: ENGINE + 'assets/terrain-gym.png' },
-  'terrain-nu':  { label: '🪵 Plancher nu (trace tes lignes)', config: ENGINE + 'terrain-nu.config.json', image: ENGINE + 'assets/terrain-nu.png' },
+  'terrain-gym': { labelKey: 'terrainGym', config: ENGINE + 'terrain-gym.config.json', image: ENGINE + 'assets/terrain-gym.png' },
+  'terrain-nu':  { labelKey: 'terrainNu', config: ENGINE + 'terrain-nu.config.json', image: ENGINE + 'assets/terrain-nu.png' },
 };
 const DEFAULT_TERRAIN = 'terrain-nu'; // plancher nu par defaut — Joey trace ses lignes
 const CONFIG_URL = TERRAINS[DEFAULT_TERRAIN].config; // reset calibration
@@ -93,7 +94,8 @@ function render() {
 
   const step = curStep();
   if (step) {
-    for (const el of step.elements) overlay.appendChild(buildElementNode(el, 1));
+    // _opacity = fondu en cours (apparition/disparition d'une action de jouee)
+    for (const el of step.elements) overlay.appendChild(buildElementNode(el, el._opacity != null ? el._opacity : 1));
   }
   if (state.calib) drawCalibHandles();
   renderInspector();
@@ -264,7 +266,7 @@ function palToolBtn(it) {
   const b = document.createElement('button');
   b.className = 'pal-item';
   b.dataset.tool = JSON.stringify(it);
-  b.innerHTML = `<svg viewBox="-60 -60 120 120">${paletteIcon(it)}</svg><span>${it.label}</span>`;
+  b.innerHTML = `<svg viewBox="-60 -60 120 120">${paletteIcon(it)}</svg><span>${lang() === 'en' && it.labelEn ? it.labelEn : it.label}</span>`;
   b.addEventListener('click', () => armTool(it, b));
   return b;
 }
@@ -272,9 +274,9 @@ function buildPalette() {
   const pal = $('#palette');
   pal.innerHTML = '';
 
-  palGroup(pal, 'persos', 'Mes persos', (body) => {
+  palGroup(pal, 'persos', t('gPersos'), (body) => {
     const imp = document.createElement('button');
-    imp.className = 'pal-item'; imp.innerHTML = '<span style="font-size:26px">＋</span><span>Importer</span>';
+    imp.className = 'pal-item'; imp.innerHTML = `<span style="font-size:26px">＋</span><span>${t('gImport')}</span>`;
     imp.addEventListener('click', importCharacter);
     body.appendChild(imp);
     const assets = (state.scene && state.scene.assets) || {};
@@ -289,13 +291,13 @@ function buildPalette() {
   });
 
   const groups = [
-    ['joueurs', 'Joueurs', PALETTE.filter((p) => p.type === 'player')],
-    ['objets', 'Objets', PALETTE.filter((p) => ['ball', 'cone', 'hoop', 'pinnie'].includes(p.type))],
-    ['fleches', 'Flèches', PALETTE.filter((p) => p.type === 'arrow')],
-    ['zones', 'Zones', PALETTE.filter((p) => p.type === 'zone')],
-    ['lignes', 'Lignes terrain', PALETTE.filter((p) => p.type === 'line')],
-    ['texte', 'Texte', PALETTE.filter((p) => p.type === 'text')],
-    ['bulles', 'Bulles BD', PALETTE.filter((p) => p.type === 'bubble')],
+    ['joueurs', t('gJoueurs'), PALETTE.filter((p) => p.type === 'player')],
+    ['objets', t('gObjets'), PALETTE.filter((p) => ['ball', 'cone', 'hoop', 'pinnie'].includes(p.type))],
+    ['fleches', t('gFleches'), PALETTE.filter((p) => p.type === 'arrow')],
+    ['zones', t('gZones'), PALETTE.filter((p) => p.type === 'zone')],
+    ['lignes', t('gLignes'), PALETTE.filter((p) => p.type === 'line')],
+    ['texte', t('gTexte'), PALETTE.filter((p) => p.type === 'text')],
+    ['bulles', t('gBulles'), PALETTE.filter((p) => p.type === 'bubble')],
   ];
   for (const [key, title, items] of groups) {
     palGroup(pal, key, title, (body) => items.forEach((it) => body.appendChild(palToolBtn(it))));
@@ -329,8 +331,7 @@ function armTool(it, btn) {
     // placement direct au centre, puis on desarme
     addPointElement(it, 0.5, 0.5); state.tool = null; btn.classList.remove('active');
   } else {
-    toast(it.type === 'arrow' ? 'Glisse de A vers B sur le terrain'
-      : it.type === 'line' ? 'Glisse pour tracer ta ligne' : 'Glisse pour tracer la zone');
+    toast(it.type === 'arrow' ? t('dragAB') : it.type === 'line' ? t('dragLine') : t('dragZone'));
   }
 }
 
@@ -347,7 +348,7 @@ function addPointElement(it, u, v) {
   }
   if (it.type === 'bubble') {
     el.kind = it.kind || 'speech';
-    el.text = el.kind === 'rect' ? 'Ta règle ici' : 'Ton texte…';
+    el.text = el.kind === 'rect' ? t('defaultRule') : t('defaultBubble');
     el.fontSize = 26; el.hex = '#FFFFFF'; el.scaleMul = 1;
     if (el.kind !== 'rect') { el.u2 = u + 0.10; el.v2 = v + 0.13; }
   }
@@ -395,9 +396,9 @@ function readCharacter(file) {
       const id = addAsset(state.scene, { name, src: d.src, w: d.w, h: d.h });
       buildPalette();
       placeImage(id);
-      toast('Perso importé — glisse-le, redimensionne, il s\'anime entre les étapes');
+      toast(t('persoOk'));
     };
-    img.onerror = () => toast('Image illisible');
+    img.onerror = () => toast(t('imgBad'));
     img.src = rd.result;
   };
   rd.readAsDataURL(file);
@@ -454,34 +455,87 @@ function resetJouee(silent) {
 
 function clearJouee() {
   if (!getJouee()) return;
+  if (!confirm(t('confirmClear'))) return;
   resetJouee(true);
   delete curStep().jouee;
   delete state.jCur[curStep().id];
+  groupSel = null;
   render(); renderJoueeBar(); autosave();
-  toast('Jouée effacée');
+  toast(t('joueeCleared'));
+}
+
+// ---- groupement d'actions ----------------------------------------------------
+let groupSel = null; // null = mode normal ; Set d'indices = selection en cours
+
+function toggleGroupMode() {
+  const j = getJouee();
+  if (!groupSel) {
+    if (!j || j.actions.length < 2) { toast(t('groupNeed2')); return; }
+    groupSel = new Set();
+    toast(t('groupMode'));
+  } else {
+    const idx = [...groupSel].sort((a, b) => a - b);
+    if (idx.length >= 2) {
+      const picked = [];
+      for (const i of idx) {
+        const a = j.actions[i];
+        if (a.kind === 'group') picked.push(...a.actions); else picked.push(a);
+      }
+      for (let k = idx.length - 1; k >= 0; k--) j.actions.splice(idx[k], 1);
+      j.actions.splice(idx[0], 0, { kind: 'group', actions: picked });
+      groupSel = null;
+      resetJouee(true); jCurSet(0);
+      toast(t('grouped'));
+    } else {
+      groupSel = null;
+      if (idx.length === 1) toast(t('groupNeed2'));
+    }
+    autosave();
+  }
+  renderJoueeBar();
+}
+function ungroupAction(i) {
+  const j = getJouee();
+  const a = j.actions[i];
+  if (!a || a.kind !== 'group') return;
+  j.actions.splice(i, 1, ...a.actions);
+  resetJouee(true); jCurSet(0);
+  renderJoueeBar(); autosave();
+  toast(t('ungrouped'));
 }
 
 /** Espace : joue la prochaine action (revient au debut apres la derniere). */
 function playNextAction() {
   const j = getJouee();
-  if (!j || !j.actions.length) { toast('Pas de jouée — bouton 🔴 pour en enregistrer une'); return; }
+  if (!j || !j.actions.length) { toast(t('noJouee')); return; }
   if (state.animAction || state.playing) return;
   let cur = jCurGet();
   if (cur >= j.actions.length) { resetJouee(true); cur = 0; }
   animateAction(j.actions[cur], () => { jCurSet(cur + 1); renderJoueeBar(); autosave(); });
 }
 
+// anime une action ; un 'group' joue toutes ses sous-actions EN MEME TEMPS
+// (ex. plusieurs joueurs apparaissent ensemble, chacun en fondu)
 function animateAction(action, done) {
   const step = curStep();
   state.animAction = true; state.selectedId = null;
   document.body.classList.add('animating'); // curseur masque
-  const finish = () => {
-    applyAction(step.elements, actionForApply(action));
-    cleanupAnim(); render(); state.animAction = false;
+  const finishAll = () => {
+    step.elements.forEach((e) => { delete e._opacity; });
+    render(); state.animAction = false;
     document.body.classList.remove('animating');
     done();
   };
-  const cleanupAnim = () => step.elements.forEach((e) => { delete e._opacity; });
+  const subs = action.kind === 'group' ? (action.actions || []) : [action];
+  let left = subs.length;
+  if (!left) { finishAll(); return; }
+  const doneOne = () => { if (--left === 0) finishAll(); };
+  for (const a of subs) runOneAnim(step, a, doneOne);
+}
+
+// anime UNE action simple ; applique son etat final puis appelle done()
+function runOneAnim(step, action, done) {
+  const finish = () => { applyAction(step.elements, actionForApply(action)); done(); };
 
   if (action.kind === 'move' || action.kind === 'pose') {
     const el = step.elements.find((e) => e.id === action.elementId);
@@ -492,12 +546,12 @@ function animateAction(action, done) {
     const dur = Math.max(400, Math.min(2500, recDur));
     const t0 = performance.now();
     (function frame(now) {
-      const t = Math.min(1, (now - t0) / dur);
+      const tt = Math.min(1, (now - t0) / dur);
       if (action.kind === 'move') {
-        const p = samplePath(action.path, t);
+        const p = samplePath(action.path, tt);
         if (p) { el.u = p.u; el.v = p.v; }
       } else {
-        const e2 = easeInOut(t);
+        const e2 = easeInOut(tt);
         for (const k in action.after) {
           if (typeof action.after[k] === 'number' && typeof from[k] === 'number') {
             el[k] = from[k] + (action.after[k] - from[k]) * e2;
@@ -505,7 +559,7 @@ function animateAction(action, done) {
         }
       }
       render();
-      t < 1 ? requestAnimationFrame(frame) : finish();
+      tt < 1 ? requestAnimationFrame(frame) : finish();
     })(t0);
   } else if (action.kind === 'add' || action.kind === 'remove') {
     // fondu 300 ms
@@ -515,10 +569,10 @@ function animateAction(action, done) {
     if (!el) { finish(); return; }
     const t0 = performance.now();
     (function frame(now) {
-      const t = Math.min(1, (now - t0) / 300);
-      el._opacity = action.kind === 'add' ? t : 1 - t;
+      const tt = Math.min(1, (now - t0) / 300);
+      el._opacity = action.kind === 'add' ? tt : 1 - tt;
       render();
-      t < 1 ? requestAnimationFrame(frame) : finish();
+      tt < 1 ? requestAnimationFrame(frame) : finish();
     })(t0);
   } else { finish(); }
 }
@@ -538,24 +592,44 @@ function renderJoueeBar() {
   $('#btnJoueeReset').disabled = !has;
   $('#btnJoueeNext').disabled = !has;
   $('#btnJoueeClear').disabled = !has;
+  $('#btnJoueeSave').disabled = false;
+  const gb = $('#btnJoueeGroup');
+  gb.disabled = !has || (!groupSel && j.actions.length < 2);
+  gb.textContent = groupSel ? t('groupOkBtn') : t('groupBtn');
+  gb.classList.toggle('arming', !!groupSel);
   if (!j) return;
   const cur = jCurGet();
-  const KINDS = { move: 'Déplacement', pose: 'Ajustement', add: 'Apparition', remove: 'Disparition' };
+  const KINDS = { move: t('kMove'), pose: t('kPose'), add: t('kAdd'), remove: t('kRemove'), group: t('kGroup') };
   j.actions.forEach((a, i) => {
+    const isGroup = a.kind === 'group';
     const c = document.createElement('button');
-    c.className = 'jouee-chip' + (i < cur ? ' done' : '') + (i === cur ? ' next' : '');
-    c.title = (KINDS[a.kind] || a.kind) + ' — clic : voir juste avant · ✕ : supprimer';
-    const num = document.createElement('span'); num.textContent = i + 1;
+    c.className = 'jouee-chip' + (i < cur ? ' done' : '') + (i === cur ? ' next' : '')
+      + (isGroup ? ' group' : '') + (groupSel && groupSel.has(i) ? ' pick' : '');
+    const kindLbl = isGroup ? `${t('kGroup')} (${a.actions.length})` : (KINDS[a.kind] || a.kind);
+    c.title = kindLbl + (isGroup ? t('chipHintGroup') : t('chipHint'));
+    const num = document.createElement('span');
+    num.textContent = isGroup ? `${i + 1}⧉${a.actions.length}` : i + 1;
+    c.appendChild(num);
+    if (groupSel) {
+      // mode selection : clic = choisir/deselectionner
+      c.addEventListener('click', () => {
+        groupSel.has(i) ? groupSel.delete(i) : groupSel.add(i);
+        renderJoueeBar();
+      });
+      chips.appendChild(c);
+      return;
+    }
     const x = document.createElement('span'); x.className = 'chip-x'; x.textContent = '✕';
-    x.title = 'Supprimer cette action';
+    x.title = isGroup ? t('chipUngroupT') : t('chipDelT');
     x.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (isGroup) { ungroupAction(i); return; }
       j.actions.splice(i, 1);
       jCurSet(Math.min(jCurGet(), j.actions.length));
       renderJoueeBar(); autosave();
-      toast('Action supprimée');
+      toast(t('actionDeleted'));
     });
-    c.appendChild(num); c.appendChild(x);
+    c.appendChild(x);
     c.addEventListener('click', () => {
       // saute juste avant l'action i : base + actions 0..i-1 appliquees d'un coup
       resetJouee(true);
@@ -705,93 +779,91 @@ function renderInspector() {
   let html = `<h4>✏️ ${labelFor(el)}</h4>`;
 
   if (el.type === 'player') {
-    html += `<label>Numéro / lettre</label><input type="text" id="insLabel" maxlength="3" value="${el.label || ''}">`;
+    html += `<label>${t('numLetter')}</label><input type="text" id="insLabel" maxlength="3" value="${el.label || ''}">`;
     html += colorSwatches(el.color);
   } else if (el.type === 'hoop' || el.type === 'pinnie') {
     html += colorSwatches(el.color);
   } else if (el.type === 'text') {
     const cols = ['#FFEA00', '#FFFFFF', '#00E5FF', '#FF2D2D', '#1E90FF', '#39FF14', '#FF6B00', '#1A1A2E'];
-    html += `<label>Texte</label><input type="text" id="insText" value="${(el.text || '').replace(/"/g, '&quot;')}">`;
-    html += `<label>Police</label><select id="insFont">
-      <option value="zts"${el.font === 'zts' ? ' selected' : ''}>ZoneTotalSport (ta police)</option>
+    html += `<label>${t('textLbl')}</label><input type="text" id="insText" value="${(el.text || '').replace(/"/g, '&quot;')}">`;
+    html += `<label>${t('font')}</label><select id="insFont">
+      <option value="zts"${el.font === 'zts' ? ' selected' : ''}>${t('fontZts')}</option>
       <option value="luckiest"${el.font !== 'zts' ? ' selected' : ''}>Luckiest Guy</option></select>`;
-    html += `<label>Taille : <span id="insSizeVal">${el.fontSize || TEXT_BASE}</span></label>
+    html += `<label>${t('size')} : <span id="insSizeVal">${el.fontSize || TEXT_BASE}</span></label>
       <input type="range" id="insSize" min="18" max="110" step="2" value="${el.fontSize || TEXT_BASE}" style="width:100%">`;
-    html += '<label>Couleur</label><div class="swatches">'
+    html += `<label>${t('color')}</label><div class="swatches">`
       + cols.map((h) => `<div class="swatch${(el.hex || '#FFEA00').toUpperCase() === h ? ' on' : ''}" data-hex="${h}" style="background:${h}"></div>`).join('')
       + '</div>';
-    html += `<input type="color" id="insHex" value="${el.hex || '#FFEA00'}" title="Autre couleur" style="width:100%;height:26px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer;margin-top:4px">`;
-    html += `<label>Contour : <span id="insStrokeWVal">${el.strokeW != null ? el.strokeW : 5}</span></label>
+    html += `<input type="color" id="insHex" value="${el.hex || '#FFEA00'}" title="${t('otherColor')}" style="width:100%;height:26px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer;margin-top:4px">`;
+    html += `<label>${t('strokeLbl')} : <span id="insStrokeWVal">${el.strokeW != null ? el.strokeW : 5}</span></label>
       <div style="display:flex;gap:6px;align-items:center">
       <input type="range" id="insStrokeW" min="0" max="14" step="1" value="${el.strokeW != null ? el.strokeW : 5}" style="flex:1">
-      <input type="color" id="insStrokeHex" value="${el.strokeHex || '#1A1A2E'}" title="Couleur du contour" style="width:34px;height:26px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer"></div>`;
+      <input type="color" id="insStrokeHex" value="${el.strokeHex || '#1A1A2E'}" title="${t('strokeColorT')}" style="width:34px;height:26px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer"></div>`;
     html += `<label style="display:flex;gap:6px;align-items:center;margin-top:8px">
-      <input type="checkbox" id="insShadow"${el.shadow ? ' checked' : ''}> Ombre BD</label>`;
+      <input type="checkbox" id="insShadow"${el.shadow ? ' checked' : ''}> ${t('shadowBD')}</label>`;
     if (el.shadow) {
       const shOff = el.shadowOff != null ? el.shadowOff : 3;
       const shAlpha = el.shadowAlpha != null ? Math.round(el.shadowAlpha * 100) : 85;
-      html += `<label>Décalage : <span id="insShOffVal">${shOff}</span></label>
+      html += `<label>${t('offsetLbl')} : <span id="insShOffVal">${shOff}</span></label>
         <input type="range" id="insShOff" min="1" max="20" step="1" value="${shOff}" style="width:100%">`;
-      html += `<label>Intensité : <span id="insShAlphaVal">${shAlpha}%</span></label>
+      html += `<label>${t('intensityLbl')} : <span id="insShAlphaVal">${shAlpha}%</span></label>
         <input type="range" id="insShAlpha" min="10" max="100" step="5" value="${shAlpha}" style="width:100%">`;
     }
     html += `<div class="row"><button class="btn small" data-rot="-15">⟲ 15°</button><button class="btn small" data-rot="15">15° ⟳</button></div>`;
   } else if (el.type === 'bubble') {
     const cols = ['#FFFFFF', '#FFEA00', '#CCFAFF', '#FFD6EB', '#E8FFDA'];
-    html += `<label>Texte (↵ = nouvelle ligne)</label>
+    html += `<label>${t('multiline')}</label>
       <textarea id="insText" rows="3">${(el.text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}</textarea>`;
-    html += `<label>Style</label><select id="insBubbleKind">
-      <option value="speech"${el.kind === 'speech' ? ' selected' : ''}>💬 Parole (queue)</option>
-      <option value="thought"${el.kind === 'thought' ? ' selected' : ''}>💭 Pensée (nuage)</option>
-      <option value="rect"${el.kind === 'rect' ? ' selected' : ''}>📋 Règle (rectangle)</option></select>`;
-    html += `<label>Taille du texte : <span id="insSizeVal">${el.fontSize || 26}</span></label>
+    html += `<label>${t('styleLbl')}</label><select id="insBubbleKind">
+      <option value="speech"${el.kind === 'speech' ? ' selected' : ''}>${t('bubbleSpeech')}</option>
+      <option value="thought"${el.kind === 'thought' ? ' selected' : ''}>${t('bubbleThought')}</option>
+      <option value="rect"${el.kind === 'rect' ? ' selected' : ''}>${t('bubbleRect')}</option></select>`;
+    html += `<label>${t('textSize')} : <span id="insSizeVal">${el.fontSize || 26}</span></label>
       <input type="range" id="insSize" min="14" max="64" step="2" value="${el.fontSize || 26}" style="width:100%">`;
-    html += '<label>Fond</label><div class="swatches">'
+    html += `<label>${t('bg')}</label><div class="swatches">`
       + cols.map((h) => `<div class="swatch${(el.hex || '#FFFFFF').toUpperCase() === h ? ' on' : ''}" data-hex="${h}" style="background:${h}"></div>`).join('')
       + '</div>';
-    if (el.kind !== 'rect') html += '<div style="font-size:11px;opacity:.6;margin-top:4px">Poignée blanche = pointe la queue · jaune = taille</div>';
+    if (el.kind !== 'rect') html += `<div style="font-size:11px;opacity:.6;margin-top:4px">${t('bubbleHandles')}</div>`;
   } else if (el.type === 'arrow') {
-    html += `<label>Type</label><select id="insKind">
-      <option value="run"${el.kind === 'run' ? ' selected' : ''}>Course</option>
-      <option value="pass"${el.kind === 'pass' ? ' selected' : ''}>Passe</option>
-      <option value="throw"${el.kind === 'throw' ? ' selected' : ''}>Lancer</option></select>`;
+    html += `<label>${t('typeLbl')}</label><select id="insKind">
+      <option value="run"${el.kind === 'run' ? ' selected' : ''}>${t('run')}</option>
+      <option value="pass"${el.kind === 'pass' ? ' selected' : ''}>${t('pass')}</option>
+      <option value="throw"${el.kind === 'throw' ? ' selected' : ''}>${t('throw')}</option></select>`;
   } else if (el.type === 'line') {
     const cols = ['#FFFFFF', '#FFEA00', '#00E5FF', '#FF2D2D', '#1E90FF', '#39FF14', '#FF6B00', '#1A1A2E'];
-    html += '<label>Couleur</label><div class="swatches">'
+    html += `<label>${t('color')}</label><div class="swatches">`
       + cols.map((h) => `<div class="swatch${(el.hex || '#FFFFFF').toUpperCase() === h ? ' on' : ''}" data-hex="${h}" style="background:${h}"></div>`).join('')
       + '</div>';
-    html += `<label>Autre couleur</label><input type="color" id="insHex" value="${el.hex || '#FFFFFF'}" style="width:100%;height:30px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer">`;
-    html += `<label>Épaisseur : <span id="insWidthVal">${el.width || 8}</span></label>
+    html += `<label>${t('otherColor')}</label><input type="color" id="insHex" value="${el.hex || '#FFFFFF'}" style="width:100%;height:30px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer">`;
+    html += `<label>${t('widthLbl')} : <span id="insWidthVal">${el.width || 8}</span></label>
       <input type="range" id="insWidth" min="2" max="30" step="1" value="${el.width || 8}" style="width:100%">`;
-    html += `<label>Style</label><select id="insDash">
-      <option value="0"${!el.dash ? ' selected' : ''}>Pleine</option>
-      <option value="1"${el.dash ? ' selected' : ''}>Pointillée</option></select>`;
+    html += `<label>${t('styleLbl')}</label><select id="insDash">
+      <option value="0"${!el.dash ? ' selected' : ''}>${t('solid')}</option>
+      <option value="1"${el.dash ? ' selected' : ''}>${t('dashed')}</option></select>`;
   } else if (el.type === 'image') {
     const nm = (getAsset(el) && getAsset(el).name) || 'perso';
     html += `<label>${nm}</label>
-      <div class="row"><button class="btn small" data-size="0.85">➖ Petit</button>
-      <button class="btn small" data-size="1.18">➕ Grand</button></div>
+      <div class="row"><button class="btn small" data-size="0.85">${t('smaller')}</button>
+      <button class="btn small" data-size="1.18">${t('bigger')}</button></div>
       <div class="row"><button class="btn small" data-rot="-15">⟲ 15°</button>
       <button class="btn small" data-rot="15">15° ⟳</button></div>
-      <div style="font-size:11px;opacity:.6;margin-top:4px">Poignée jaune = redimensionner</div>`;
+      <div style="font-size:11px;opacity:.6;margin-top:4px">${t('yellowHandle')}</div>`;
   }
 
   html += `<div class="row">
-    <button class="btn small" data-act="dup">⧉ Dupliquer</button>
-    <button class="btn small" data-act="front">⬆ Devant</button>
-    <button class="btn small" data-act="back">⬇ Derrière</button>
-    <button class="btn small btn--camps" data-act="del">🗑 Suppr.</button>
+    <button class="btn small" data-act="dup">${t('dup')}</button>
+    <button class="btn small" data-act="front">${t('front')}</button>
+    <button class="btn small" data-act="back">${t('back')}</button>
+    <button class="btn small btn--camps" data-act="del">${t('del')}</button>
   </div>`;
   inspector.innerHTML = html;
   wireInspector(el);
 }
 function labelFor(el) {
-  return ({ player: 'Joueur', ball: 'Ballon', cone: 'Cône', hoop: 'Cerceau',
-    pinnie: 'Dossard', arrow: 'Flèche', zone: 'Zone', line: 'Ligne terrain',
-    text: 'Texte', image: 'Perso', bubble: 'Bulle BD' })[el.type] || el.type;
+  return t('el_' + el.type);
 }
 function colorSwatches(current) {
-  let s = '<label>Couleur</label><div class="swatches">';
+  let s = `<label>${t('color')}</label><div class="swatches">`;
   for (const [name, def] of Object.entries(PLAYER_COLORS)) {
     s += `<div class="swatch${name === current ? ' on' : ''}" data-color="${name}" title="${name}" style="background:${def.hex}"></div>`;
   }
@@ -914,7 +986,7 @@ function renderStepChips() {
     chip.appendChild(inp);
     if (state.scene.steps.length > 1) {
       const x = document.createElement('span');
-      x.textContent = '✕'; x.style.cursor = 'pointer'; x.title = 'Supprimer l\'étape';
+      x.textContent = '✕'; x.style.cursor = 'pointer'; x.title = t('stepDelT');
       x.addEventListener('click', (e) => { e.stopPropagation(); deleteStep(i); });
       chip.appendChild(x);
     }
@@ -932,7 +1004,7 @@ function deleteStep(i) {
 // ---- lecture (interpolation entre etapes) ----------------------------------
 function play() {
   if (state.playing || state.scene.steps.length < 2) {
-    if (state.scene.steps.length < 2) toast('Ajoute au moins 2 étapes');
+    if (state.scene.steps.length < 2) toast(t('add2'));
     return;
   }
   state.playing = true; state.selectedId = null;
@@ -987,16 +1059,17 @@ function applySnap(s) {
   state.selectedId = null;
   try { localStorage.setItem(storageKey(), s); } catch (_) {}
   $('#sceneTitle').value = state.scene.title || '';
+  applyTitleStyle();
   buildPalette(); render();
 }
 function undo() {
   clearTimeout(snapT); snapshot(); // capture un changement en attente avant d'annuler
-  if (history.undo.length < 2) { toast('Rien à annuler'); return; }
+  if (history.undo.length < 2) { toast(t('nothingUndo')); return; }
   history.redo.push(history.undo.pop());
   applySnap(history.undo[history.undo.length - 1]);
 }
 function redo() {
-  if (!history.redo.length) { toast('Rien à refaire'); return; }
+  if (!history.redo.length) { toast(t('nothingRedo')); return; }
   const s = history.redo.pop();
   history.undo.push(s);
   applySnap(s);
@@ -1014,10 +1087,10 @@ function loadAutosave(gameId) {
     return raw ? JSON.parse(raw) : null;
   } catch (_) { return null; }
 }
-function downloadJSON() {
+function downloadJSON(msg) {
   const blob = new Blob([JSON.stringify(state.scene, null, 2)], { type: 'application/json' });
   triggerDownload(blob, `scene-${state.scene.gameId || 'libre'}.json`);
-  toast('JSON téléchargé');
+  toast(msg || t('jsonDl'));
 }
 function triggerDownload(blob, name) {
   const a = document.createElement('a');
@@ -1032,10 +1105,58 @@ function loadFromFile(file) {
       const sc = JSON.parse(rd.result);
       const err = validateScene(sc);
       if (err) { toast(err); return; }
-      setScene(sc); toast('Scène chargée');
-    } catch (_) { toast('JSON invalide'); }
+      setScene(sc); toast(t('sceneLoaded'));
+    } catch (_) { toast(t('jsonBad')); }
   };
   rd.readAsText(file);
+}
+
+// ---- style du titre de scene -------------------------------------------------
+// scene.titleStyle = { hex, strokeW, strokeHex, shadowOff, shadowAlpha }
+function titleStyle() {
+  if (!state.scene.titleStyle) state.scene.titleStyle = {};
+  return state.scene.titleStyle;
+}
+function applyTitleStyle() {
+  const ts = state.scene.titleStyle || {};
+  const inp = $('#sceneTitle');
+  inp.style.color = ts.hex || '#1A1A2E';
+  inp.style.webkitTextStroke = (ts.strokeW || 0) > 0 ? `${ts.strokeW}px ${ts.strokeHex || '#FFFFFF'}` : '';
+  const off = ts.shadowOff || 0;
+  inp.style.textShadow = off > 0
+    ? `${off}px ${off}px 0 rgba(26,26,46,${ts.shadowAlpha != null ? ts.shadowAlpha : 0.85})` : '';
+}
+function renderTitlePanel() {
+  const p = $('#titlePanel');
+  const ts = titleStyle();
+  const cols = ['#1A1A2E', '#FFEA00', '#FFFFFF', '#00E5FF', '#FF2D2D', '#FF6B00'];
+  const shOff = ts.shadowOff || 0;
+  const shAlpha = ts.shadowAlpha != null ? Math.round(ts.shadowAlpha * 100) : 85;
+  p.innerHTML = `<h4>${t('titlePanelT')}</h4>`
+    + `<label>${t('textColor')}</label><div class="swatches">`
+    + cols.map((h) => `<div class="swatch${(ts.hex || '#1A1A2E').toUpperCase() === h ? ' on' : ''}" data-hex="${h}" style="background:${h}"></div>`).join('')
+    + '</div>'
+    + `<label>${t('strokeLbl')} : <span id="tpStrokeVal">${ts.strokeW || 0}</span></label>
+      <div style="display:flex;gap:6px;align-items:center">
+      <input type="range" id="tpStroke" min="0" max="14" step="1" value="${ts.strokeW || 0}" style="flex:1">
+      <input type="color" id="tpStrokeHex" value="${ts.strokeHex || '#FFFFFF'}" title="${t('strokeColorT')}" style="width:34px;height:26px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer"></div>`
+    + `<label>${t('shadowBD')} — ${t('offsetLbl').toLowerCase()} : <span id="tpShOffVal">${shOff}</span></label>
+      <input type="range" id="tpShOff" min="0" max="20" step="1" value="${shOff}" style="width:100%">`
+    + `<label>${t('intensityLbl')} : <span id="tpShAlphaVal">${shAlpha}%</span></label>
+      <input type="range" id="tpShAlpha" min="10" max="100" step="5" value="${shAlpha}" style="width:100%">`;
+  const upd = () => { applyTitleStyle(); autosave(); };
+  p.querySelectorAll('.swatch[data-hex]').forEach((sw) =>
+    sw.addEventListener('click', () => { ts.hex = sw.dataset.hex; renderTitlePanel(); upd(); }));
+  p.querySelector('#tpStroke').addEventListener('input', (e) => {
+    ts.strokeW = +e.target.value; p.querySelector('#tpStrokeVal').textContent = e.target.value; upd();
+  });
+  p.querySelector('#tpStrokeHex').addEventListener('input', (e) => { ts.strokeHex = e.target.value; upd(); });
+  p.querySelector('#tpShOff').addEventListener('input', (e) => {
+    ts.shadowOff = +e.target.value; p.querySelector('#tpShOffVal').textContent = e.target.value; upd();
+  });
+  p.querySelector('#tpShAlpha').addEventListener('input', (e) => {
+    ts.shadowAlpha = +e.target.value / 100; p.querySelector('#tpShAlphaVal').textContent = e.target.value + '%'; upd();
+  });
 }
 
 // ---- gestion de la scene / jeu ---------------------------------------------
@@ -1047,6 +1168,7 @@ function setScene(sc) {
   $('#gameName').textContent = sc.gameTitle;
   $('#gameName').title = sc.gameTitle;
   $('#sceneTitle').value = sc.title || '';
+  applyTitleStyle();
   buildPalette(); render(); autosave();
   resetHistory();
 }
@@ -1055,6 +1177,8 @@ function newScene(game) {
   if (saved && !validateScene(saved)) { setScene(saved); return; }
   const sc = createScene(game || null);
   sc.terrain = DEFAULT_TERRAIN;
+  if (!game) sc.gameTitle = t('freeScene');
+  if (sc.steps[0]) sc.steps[0].title = t('setup');
   setScene(sc);
 }
 
@@ -1113,7 +1237,7 @@ function toggleCalib() {
   state.calib = !state.calib;
   document.body.classList.toggle('calib', state.calib);
   state.selectedId = null; render();
-  toast(state.calib ? 'Calibration ON' : 'Calibration OFF');
+  toast(state.calib ? t('calibOn') : t('calibOff'));
 }
 function configText() {
   return JSON.stringify(state.config, null, 2);
@@ -1137,14 +1261,14 @@ async function switchTerrain(id) {
   state.scene.terrain = id;
   await loadTerrain(id);
   render(); autosave();
-  toast('Terrain : ' + TERRAINS[id].label.replace(/^\S+\s/, ''));
+  toast(t('terrainSet') + t(TERRAINS[id].labelKey).replace(/^\S+\s/, ''));
 }
 function buildTerrainMenu() {
   const list = $('#terrainMenuList'); if (!list) return;
   list.innerHTML = '';
   for (const [id, def] of Object.entries(TERRAINS)) {
     const b = document.createElement('button');
-    b.textContent = (id === state.terrainId ? '✓ ' : '') + def.label;
+    b.textContent = (id === state.terrainId ? '✓ ' : '') + t(def.labelKey);
     b.addEventListener('click', () => { b.closest('.menu').classList.remove('open'); switchTerrain(id); });
     list.appendChild(b);
   }
@@ -1190,15 +1314,25 @@ async function stepCanvas(stepIndex) {
   if (fd) clone.insertAdjacentHTML('afterbegin',
     `<style>@font-face{font-family:'ZoneTotalSport';src:url(${fd}) format('truetype');size-adjust:50%;}</style>`);
   if (state.scene.title) {
-    // bandeau blanc du titre de scene (meme rendu que l'editeur)
+    // bandeau blanc du titre de scene (meme rendu + style que l'editeur)
     const escT = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const ts = state.scene.titleStyle || {};
     const fs = 64; // ZoneTotalSport size-adjust 50% => ~32 u visuel
     const bw = Math.min(VBW * 0.86, Math.max(state.scene.title.length * fs * 0.30 + 44, 240));
     const bh = fs * 0.82;
+    const sw = (ts.strokeW || 0) * 1.2;
+    const off = (ts.shadowOff || 0) * 1.2;
+    const alpha = ts.shadowAlpha != null ? ts.shadowAlpha : 0.85;
+    const shCol = `rgba(26,26,46,${alpha})`;
+    const txt = (dx, dy, fill, stroke) =>
+      `<text x="${VBW / 2 + dx}" y="${16 + bh / 2 + dy}" text-anchor="middle" dominant-baseline="central" `
+      + `font-family="'ZoneTotalSport','Luckiest Guy',sans-serif" font-size="${fs}" fill="${fill}" `
+      + `stroke="${stroke}" stroke-width="${sw}" paint-order="stroke" stroke-linejoin="round">${escT(state.scene.title)}</text>`;
     clone.insertAdjacentHTML('beforeend',
       `<g><rect x="${(VBW - bw) / 2}" y="16" width="${bw}" height="${bh}" rx="14" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="5"/>`
-      + `<text x="${VBW / 2}" y="${16 + bh / 2}" text-anchor="middle" dominant-baseline="central" `
-      + `font-family="'ZoneTotalSport','Luckiest Guy',sans-serif" font-size="${fs}" fill="#1A1A2E">${escT(state.scene.title)}</text></g>`);
+      + (off > 0 ? txt(off, off, shCol, sw > 0 ? shCol : 'none') : '')
+      + txt(0, 0, ts.hex || '#1A1A2E', sw > 0 ? (ts.strokeHex || '#FFFFFF') : 'none')
+      + '</g>');
   }
   const svgStr = new XMLSerializer().serializeToString(clone);
   const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
@@ -1218,17 +1352,17 @@ async function stepCanvas(stepIndex) {
 }
 
 async function exportPNG() {
-  toast('Génération PNG…');
+  toast(t('pngGen'));
   const canvas = await stepCanvas(state.stepIndex);
   canvas.toBlob((b) => {
     triggerDownload(b, `studio-${state.scene.gameId || 'libre'}-etape${state.stepIndex + 1}.png`);
-    toast('PNG exporté ✅');
+    toast(t('pngOk'));
   }, 'image/png');
 }
 
 async function exportPDF() {
-  if (!window.jspdf || !window.jspdf.jsPDF) { toast('jsPDF pas encore chargé, réessaie'); return; }
-  toast('Génération PDF…');
+  if (!window.jspdf || !window.jspdf.jsPDF) { toast(t('pdfWait')); return; }
+  toast(t('pdfGen'));
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'landscape' });
   const pageW = 297, pageH = 210, margin = 12;
@@ -1238,7 +1372,7 @@ async function exportPDF() {
     doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(26, 26, 46);
     doc.text(state.scene.gameTitle, margin, 16);
     doc.setFontSize(13); doc.setTextColor(255, 45, 135);
-    doc.text(`Étape ${i + 1} — ${steps[i].title}`, margin, 24);
+    doc.text(`${t('step')} ${i + 1} — ${steps[i].title}`, margin, 24);
 
     const canvas = await stepCanvas(i);
     const imgData = canvas.toDataURL('image/png');
@@ -1252,7 +1386,7 @@ async function exportPDF() {
     doc.text(`${i + 1} / ${steps.length}`, pageW - margin - 12, pageH - 6);
   }
   doc.save(`studio-${state.scene.gameId || 'libre'}.pdf`);
-  toast('PDF exporté ✅');
+  toast(t('pdfOk'));
 }
 
 // ---- mode projection (plein écran TNI) --------------------------------------
@@ -1302,7 +1436,7 @@ function setRecButtons(on) {
 }
 async function toggleRecording() {
   if (recState) { stopRecording(); return; }
-  if (!recSupported()) { toast('Enregistrement non supporté par ce navigateur'); return; }
+  if (!recSupported()) { toast(t('recNo')); return; }
   try {
     // 1) écran (l'utilisateur choisit l'onglet/écran dans la boîte du navigateur)
     const screen = await navigator.mediaDevices.getDisplayMedia({
@@ -1311,7 +1445,7 @@ async function toggleRecording() {
     // 2) micro (voix) — optionnel : on continue sans si refusé
     let mic = null;
     try { mic = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-    catch (_) { toast('Micro refusé — enregistrement sans voix'); }
+    catch (_) { toast(t('micNo')); }
 
     const tracks = [...screen.getVideoTracks(), ...(mic ? mic.getAudioTracks() : [])];
     const mixed = new MediaStream(tracks);
@@ -1323,7 +1457,7 @@ async function toggleRecording() {
     recorder.onstop = () => {
       const blob = new Blob(chunks, { type: 'video/webm' });
       triggerDownload(blob, `studio-${state.scene.gameId || 'libre'}-capture.webm`);
-      toast('Vidéo téléchargée 🎥');
+      toast(t('videoOk'));
     };
     // si l'utilisateur arrête le partage via la barre du navigateur
     screen.getVideoTracks()[0].addEventListener('ended', () => { if (recState) stopRecording(); });
@@ -1331,9 +1465,9 @@ async function toggleRecording() {
     recorder.start();
     recState = { recorder, chunks, streams: [screen, mic].filter(Boolean) };
     setRecButtons(true);
-    toast('Enregistrement en cours — reclique pour arrêter');
+    toast(t('recOn'));
   } catch (_) {
-    toast('Capture d\'écran refusée');
+    toast(t('captureNo'));
   }
 }
 function stopRecording() {
@@ -1364,6 +1498,8 @@ window.addEventListener('keydown', (e) => {
     e.preventDefault(); inspectorAction('dup', findEl(state.selectedId));
   } else if (e.key === 'Escape') {
     if (state.playing) stopPlay();
+    if (groupSel) { groupSel = null; renderJoueeBar(); }
+    $('#titlePanel').classList.remove('show');
     state.selectedId = null; state.tool = null;
     document.querySelectorAll('.pal-item.active').forEach((x) => x.classList.remove('active'));
     render();
@@ -1409,27 +1545,53 @@ function wireToolbar() {
   $('#btnJoueeReset').addEventListener('click', () => resetJouee());
   $('#btnJoueeNext').addEventListener('click', playNextAction);
   $('#btnJoueeClear').addEventListener('click', clearJouee);
+  $('#btnJoueeGroup').addEventListener('click', toggleGroupMode);
+  $('#btnJoueeSave').addEventListener('click', () => downloadJSON(t('animSaved')));
+  $('#titleStyleBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const p = $('#titlePanel');
+    const open = p.classList.toggle('show');
+    if (open) renderTitlePanel();
+  });
+  $('#titlePanel').addEventListener('click', (e) => e.stopPropagation());
+  document.addEventListener('click', () => $('#titlePanel').classList.remove('show'));
+  $('#btnLang').addEventListener('click', () => {
+    setLang(lang() === 'fr' ? 'en' : 'fr');
+    applyStatic(); updateLangBtn();
+    if (!state.scene.gameId) {
+      state.scene.gameTitle = t('freeScene');
+      $('#gameName').textContent = state.scene.gameTitle;
+      $('#gameName').title = state.scene.gameTitle;
+    }
+    buildPalette(); buildTerrainMenu(); render(); autosave();
+  });
   $('#projSpace').addEventListener('click', playNextAction);
   $('#btnHelp').addEventListener('click', () => $('#helpModal').classList.add('show'));
   $('#helpClose').addEventListener('click', () => $('#helpModal').classList.remove('show'));
   $('#helpModal').addEventListener('click', (e) => { if (e.target.id === 'helpModal') e.currentTarget.classList.remove('show'); });
   $('#calibCopy').addEventListener('click', () => {
-    navigator.clipboard.writeText(configText()).then(() => toast('Config copiée'), () => toast('Copie refusée'));
+    navigator.clipboard.writeText(configText()).then(() => toast(t('configCopied')), () => toast(t('copyNo')));
   });
   $('#calibDownload').addEventListener('click', () => {
     triggerDownload(new Blob([configText()], { type: 'application/json' }), 'terrain-gym.config.json');
-    toast('Config téléchargée');
+    toast(t('configDl'));
   });
   $('#calibReset').addEventListener('click', async () => {
     const def = TERRAINS[state.terrainId] || TERRAINS[DEFAULT_TERRAIN];
     state.config = await (await fetch(def.config + '?t=' + Date.now())).json();
     configCache[state.terrainId] = state.config;
-    rebuildProjector(); render(); toast('Config réinitialisée');
+    rebuildProjector(); render(); toast(t('configReset'));
   });
 }
 
 // ---- init ------------------------------------------------------------------
+function updateLangBtn() {
+  const b = $('#btnLang');
+  b.textContent = lang() === 'fr' ? 'EN' : 'FR';
+  b.title = t('langBtn');
+}
 async function init() {
+  initLang(); applyStatic(); updateLangBtn();
   await loadTerrain(DEFAULT_TERRAIN);
   buildPalette(); wireToolbar(); wirePicker();
   newScene(null);

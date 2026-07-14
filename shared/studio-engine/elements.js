@@ -14,27 +14,27 @@ const STROKE = 7;                // epaisseur contour icones
 const SHADOW = 'rgba(26,26,46,.85)';
 const R = 46;                    // rayon nominal des pastilles
 
-// Palette de la barre d'outils (ordre d'affichage).
+// Palette de la barre d'outils (ordre d'affichage). labelEn = version anglaise.
 export const PALETTE = [
-  { type: 'player', color: 'rouge', label: 'Joueur rouge',  emoji: '🔴' },
-  { type: 'player', color: 'bleu',  label: 'Joueur bleu',   emoji: '🟦' },
-  { type: 'player', color: 'blanc', label: 'Joueur blanc',  emoji: '🔺' },
-  { type: 'player', color: 'noir',  label: 'Joueur noir',   emoji: '🔶' },
-  { type: 'ball',   label: 'Ballon',   emoji: '🏀' },
-  { type: 'cone',   label: 'Cône',     emoji: '🔻' },
-  { type: 'hoop',   label: 'Cerceau',  emoji: '⭕' },
-  { type: 'pinnie', label: 'Dossard',  emoji: '🎽' },
-  { type: 'arrow',  kind: 'run',   label: 'Course', emoji: '➡️' },
-  { type: 'arrow',  kind: 'pass',  label: 'Passe',  emoji: '⇢' },
-  { type: 'arrow',  kind: 'throw', label: 'Lancer', emoji: '↗️' },
-  { type: 'zone',   shape: 'rect',   label: 'Zone', emoji: '▭' },
-  { type: 'zone',   shape: 'circle', label: 'Cercle', emoji: '◯' },
-  { type: 'line',   kind: 'straight', label: 'Ligne', emoji: '━' },
-  { type: 'line',   kind: 'circle',   label: 'Rond',  emoji: '⭕' },
-  { type: 'text',   label: 'Texte', emoji: '💬' },
-  { type: 'bubble', kind: 'speech',  label: 'Parole', emoji: '💬' },
-  { type: 'bubble', kind: 'thought', label: 'Pensée', emoji: '💭' },
-  { type: 'bubble', kind: 'rect',    label: 'Règle',  emoji: '📋' },
+  { type: 'player', color: 'rouge', label: 'Joueur rouge',  labelEn: 'Red player',   emoji: '🔴' },
+  { type: 'player', color: 'bleu',  label: 'Joueur bleu',   labelEn: 'Blue player',  emoji: '🟦' },
+  { type: 'player', color: 'blanc', label: 'Joueur blanc',  labelEn: 'White player', emoji: '🔺' },
+  { type: 'player', color: 'noir',  label: 'Joueur noir',   labelEn: 'Black player', emoji: '🔶' },
+  { type: 'ball',   label: 'Ballon',   labelEn: 'Ball',   emoji: '🏀' },
+  { type: 'cone',   label: 'Cône',     labelEn: 'Cone',   emoji: '🔻' },
+  { type: 'hoop',   label: 'Cerceau',  labelEn: 'Hoop',   emoji: '⭕' },
+  { type: 'pinnie', label: 'Dossard',  labelEn: 'Pinnie', emoji: '🎽' },
+  { type: 'arrow',  kind: 'run',   label: 'Course', labelEn: 'Run',   emoji: '➡️' },
+  { type: 'arrow',  kind: 'pass',  label: 'Passe',  labelEn: 'Pass',  emoji: '⇢' },
+  { type: 'arrow',  kind: 'throw', label: 'Lancer', labelEn: 'Throw', emoji: '↗️' },
+  { type: 'zone',   shape: 'rect',   label: 'Zone',   labelEn: 'Zone',   emoji: '▭' },
+  { type: 'zone',   shape: 'circle', label: 'Cercle', labelEn: 'Circle', emoji: '◯' },
+  { type: 'line',   kind: 'straight', label: 'Ligne', labelEn: 'Line', emoji: '━' },
+  { type: 'line',   kind: 'circle',   label: 'Rond',  labelEn: 'Ring', emoji: '⭕' },
+  { type: 'text',   label: 'Texte', labelEn: 'Text', emoji: '💬' },
+  { type: 'bubble', kind: 'speech',  label: 'Parole', labelEn: 'Speech',  emoji: '💬' },
+  { type: 'bubble', kind: 'thought', label: 'Pensée', labelEn: 'Thought', emoji: '💭' },
+  { type: 'bubble', kind: 'rect',    label: 'Règle',  labelEn: 'Rule',    emoji: '📋' },
 ];
 
 // ---- helpers ---------------------------------------------------------------
