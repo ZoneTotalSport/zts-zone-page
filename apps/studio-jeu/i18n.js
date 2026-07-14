@@ -113,6 +113,10 @@ export const T = {
     projAction: '⏭ Action', projPlay: '▶ Lecture', projQuit: '✕ Quitter',
     helpT: '❓ Guide rapide',
     stepDelT: 'Supprimer l\'étape',
+    // vider la scene
+    clearScene: '🧹 Vider la scène',
+    confirmClearScene: 'Vider toute la scène (éléments, animations, titre)? Les persos importés et le terrain restent. Ctrl+Z pour annuler.',
+    sceneCleared: 'Scène vidée 🧹 (Ctrl+Z pour annuler)',
     // defauts de contenu
     defaultBubble: 'Ton texte…', defaultRule: 'Ta règle ici',
   },
@@ -218,6 +222,9 @@ export const T = {
     projAction: '⏭ Action', projPlay: '▶ Play', projQuit: '✕ Quit',
     helpT: '❓ Quick guide',
     stepDelT: 'Delete this step',
+    clearScene: '🧹 Clear the scene',
+    confirmClearScene: 'Clear the whole scene (elements, animations, title)? Imported characters and the court stay. Ctrl+Z to undo.',
+    sceneCleared: 'Scene cleared 🧹 (Ctrl+Z to undo)',
     defaultBubble: 'Your text…', defaultRule: 'Your rule here',
   },
 };

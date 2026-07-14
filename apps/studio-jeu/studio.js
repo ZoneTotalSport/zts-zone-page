@@ -1172,6 +1172,22 @@ function setScene(sc) {
   buildPalette(); render(); autosave();
   resetHistory();
 }
+// vide toute la scene (elements, animations, titre) — garde le jeu lie, le
+// terrain et les persos importes. Annulable par Ctrl+Z (l'historique survit).
+function clearScene() {
+  if (!confirm(t('confirmClearScene'))) return;
+  const sc = state.scene;
+  sc.title = '';
+  sc.steps = [];
+  sc.steps.push(createStep(sc, t('setup')));
+  state.stepIndex = 0; state.selectedId = null; state.tool = null;
+  state.jCur = {}; groupSel = null;
+  $('#sceneTitle').value = '';
+  document.querySelectorAll('.pal-item.active').forEach((x) => x.classList.remove('active'));
+  render(); autosave();
+  toast(t('sceneCleared'));
+}
+
 function newScene(game) {
   const saved = loadAutosave(game ? game.id : null);
   if (saved && !validateScene(saved)) { setScene(saved); return; }
@@ -1526,6 +1542,7 @@ function wireMenus() {
 function wireToolbar() {
   wireMenus();
   $('#btnLibre').addEventListener('click', () => newScene(null));
+  $('#btnClearScene').addEventListener('click', clearScene);
   $('#sceneTitle').addEventListener('input', (e) => { state.scene.title = e.target.value; autosave(); });
   $('#btnSave').addEventListener('click', downloadJSON);
   $('#btnLoad').addEventListener('click', () => $('#fileInput').click());

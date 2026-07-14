@@ -32,14 +32,21 @@
     + '#adminGate button:disabled{opacity:.6;cursor:wait;transform:none;}'
     + '#adminGate .err{color:#FF2D2D;font-weight:700;font-size:13px;min-height:18px;margin:8px 0 0;}'
     + '#adminGate .back{display:block;text-align:center;margin-top:14px;font-size:12.5px;color:#888;text-decoration:none;}'
+    + '#adminGate .sep{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:#999;font-size:12px;font-weight:700;}'
+    + '#adminGate .sep::before,#adminGate .sep::after{content:"";flex:1;border-top:2px dashed #ccc;}'
+    + '#agGoogle{background:#fff !important;display:flex;align-items:center;justify-content:center;gap:9px;}'
+    + '#agGoogle svg{width:20px;height:20px;flex-shrink:0;}'
     + '#btnLogout{cursor:pointer;}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   var gate = document.createElement('div');
   gate.id = 'adminGate';
+  var GOOGLE_ICON = '<svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.4 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.7l6.2 5.2C36.9 42.6 44 38 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>';
   gate.innerHTML = '<div class="card">'
     + '<h2>🔒 Studio Jeu</h2>'
     + '<p>Accès administrateur — connecte-toi pour continuer.</p>'
+    + '<button type="button" id="agGoogle">' + GOOGLE_ICON + 'Continuer avec Google</button>'
+    + '<div class="sep">ou</div>'
     + '<form id="agForm">'
     + '<input type="email" id="agMail" placeholder="Courriel" autocomplete="username" required>'
     + '<input type="password" id="agPass" placeholder="Mot de passe" autocomplete="current-password" required>'
@@ -79,6 +86,8 @@
         auth.signOut();
         err('Accès réservé à l\'administrateur.');
         busy(false);
+        var g = document.getElementById('agGoogle');
+        if (g) g.disabled = false;
       }
     });
 
@@ -91,6 +100,24 @@
           err('Courriel ou mot de passe invalide.'); busy(false);
         });
       }
+    });
+
+    document.addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('#agGoogle') : null;
+      if (!b) return;
+      err(''); b.disabled = true;
+      var provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: 'select_account' });
+      auth.signInWithPopup(provider).catch(function (ex) {
+        b.disabled = false;
+        if (ex && ex.code === 'auth/popup-closed-by-user') return;
+        if (ex && ex.code === 'auth/operation-not-allowed') {
+          err('Connexion Google pas encore activée dans Firebase (Authentication → Sign-in method).');
+        } else {
+          err('Connexion Google impossible. Réessaie ou utilise le courriel.');
+        }
+      });
+      // succes -> onAuthStateChanged fait le reste (et rejette tout autre compte)
     });
   }
 })();
