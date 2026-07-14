@@ -252,6 +252,10 @@ export function t(k) {
 export function applyStatic() {
   document.querySelectorAll('[data-i18n]').forEach((e) => { e.textContent = t(e.dataset.i18n); });
   document.querySelectorAll('[data-i18n-title]').forEach((e) => { e.title = t(e.dataset.i18nTitle); });
-  document.querySelectorAll('[data-i18n-ph]').forEach((e) => { e.placeholder = t(e.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-ph]').forEach((e) => {
+    const v = t(e.dataset.i18nPh);
+    if ('placeholder' in e) e.placeholder = v;
+    e.setAttribute('data-ph', v); // placeholder CSS des divs contenteditable
+  });
   document.querySelectorAll('[data-i18n-html]').forEach((e) => { e.innerHTML = t(e.dataset.i18nHtml); });
 }

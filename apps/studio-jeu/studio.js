@@ -1058,7 +1058,7 @@ function applySnap(s) {
   state.stepIndex = Math.min(state.stepIndex, state.scene.steps.length - 1);
   state.selectedId = null;
   try { localStorage.setItem(storageKey(), s); } catch (_) {}
-  $('#sceneTitle').value = state.scene.title || '';
+  $('#sceneTitle').textContent = state.scene.title || '';
   applyTitleStyle();
   buildPalette(); render();
 }
@@ -1167,7 +1167,7 @@ function setScene(sc) {
   document.body.dataset.metier = ({ eps: 'ep', sdg: 'sdg', camps: 'camp' })[sc.univers] || 'ep';
   $('#gameName').textContent = sc.gameTitle;
   $('#gameName').title = sc.gameTitle;
-  $('#sceneTitle').value = sc.title || '';
+  $('#sceneTitle').textContent = sc.title || '';
   applyTitleStyle();
   buildPalette(); render(); autosave();
   resetHistory();
@@ -1182,7 +1182,7 @@ function clearScene() {
   sc.steps.push(createStep(sc, t('setup')));
   state.stepIndex = 0; state.selectedId = null; state.tool = null;
   state.jCur = {}; groupSel = null;
-  $('#sceneTitle').value = '';
+  $('#sceneTitle').textContent = '';
   document.querySelectorAll('.pal-item.active').forEach((x) => x.classList.remove('active'));
   render(); autosave();
   toast(t('sceneCleared'));
@@ -1497,7 +1497,7 @@ function stopRecording() {
 
 // ---- clavier ---------------------------------------------------------------
 window.addEventListener('keydown', (e) => {
-  if (e.target.matches('input, textarea, select')) return;
+  if (e.target.matches && (e.target.matches('input, textarea, select') || e.target.isContentEditable)) return;
   if (e.code === 'Space') {
     if (document.querySelector('.modal.show')) return;
     e.preventDefault(); playNextAction();
@@ -1543,7 +1543,18 @@ function wireToolbar() {
   wireMenus();
   $('#btnLibre').addEventListener('click', () => newScene(null));
   $('#btnClearScene').addEventListener('click', clearScene);
-  $('#sceneTitle').addEventListener('input', (e) => { state.scene.title = e.target.value; autosave(); });
+  const st = $('#sceneTitle');
+  st.addEventListener('input', () => {
+    let v = st.textContent.replace(/\n/g, ' ');
+    if (v.length > 60) { v = v.slice(0, 60); st.textContent = v; }
+    state.scene.title = v; autosave();
+  });
+  st.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); st.blur(); } });
+  st.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const txt = (e.clipboardData || window.clipboardData).getData('text').replace(/\s+/g, ' ');
+    document.execCommand('insertText', false, txt);
+  });
   $('#btnSave').addEventListener('click', downloadJSON);
   $('#btnLoad').addEventListener('click', () => $('#fileInput').click());
   $('#fileInput').addEventListener('change', (e) => { if (e.target.files[0]) loadFromFile(e.target.files[0]); e.target.value = ''; });

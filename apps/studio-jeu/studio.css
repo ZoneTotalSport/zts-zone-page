@@ -147,21 +147,29 @@ body {
 .sel-box { display: none; }
 .handle { cursor: pointer; }
 
-/* titre de scène — bandeau blanc au-dessus du terrain, police maison */
+/* titre de scène — bandeau blanc au-dessus du terrain, police maison.
+   Div contenteditable (PAS un input : un input rogne les glyphes/contours
+   qui débordent — le L de la police ZTS était coupé). */
 .scene-title {
   position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
-  z-index: 4; width: min(62%, 560px); text-align: center;
-  font-family: 'ZoneTotalSport','Luckiest Guy',cursive; font-size: 52px; line-height: 1.05;
+  z-index: 4; width: fit-content; min-width: 200px; max-width: 86%;
+  text-align: center; white-space: nowrap; overflow: visible;
+  font-family: 'ZoneTotalSport','Luckiest Guy',cursive; font-size: 52px; line-height: 1.15;
   color: var(--ink); background: rgba(255,255,255,.94);
   border: 3px solid var(--ink); border-radius: 12px;
   box-shadow: 4px 4px 0 rgba(26,26,46,.35);
-  padding: 4px 14px; outline: none;
+  padding: 6px 24px; outline: none; cursor: text;
+  paint-order: stroke fill; /* contour derriere le remplissage, comme l'export */
 }
 .scene-title:focus { border-color: var(--rose,#FF2D87); }
-.scene-title::placeholder { font-family: var(--font-fun,'Fredoka'),sans-serif; font-size: 14px; color: rgba(26,26,46,.45); }
-.scene-title:placeholder-shown:not(:focus) {
+.scene-title:empty::before {
+  content: attr(data-ph);
+  font-family: var(--font-fun,'Fredoka'),sans-serif; font-size: 14px;
+  color: rgba(26,26,46,.45); -webkit-text-stroke: 0; text-shadow: none;
+}
+.scene-title:empty:not(:focus) {
   background: rgba(255,255,255,.55); border-style: dashed; box-shadow: none;
-  width: 200px; padding: 8px 10px;
+  padding: 8px 12px;
 }
 body.projection .scene-title, body.calib .scene-title { display: none; }
 
