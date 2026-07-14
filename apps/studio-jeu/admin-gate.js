@@ -7,7 +7,10 @@
  */
 (function () {
   'use strict';
-  var ADMIN_EMAIL = 'zts@hotmail.ca';
+  // adresses admin acceptees (courriel Firebase OU compte Google)
+  var ADMIN_EMAILS = ['zts@hotmail.ca'];
+  var ADMIN_EMAIL = ADMIN_EMAILS[0];
+  function isAdmin(mail) { return ADMIN_EMAILS.indexOf(String(mail || '').toLowerCase()) !== -1; }
   var CFG = {
     apiKey: 'AIzaSyBoBxVP6g_ObKIJJ1jkviNFQ-wpJoWdjbA',
     authDomain: 'zone-total-sport.firebaseapp.com',
@@ -73,9 +76,40 @@
   function init() {
     var app = firebase.apps.length ? firebase.app() : firebase.initializeApp(CFG);
     var auth = firebase.auth(app);
+    var pendingCred = null; // credential Google en attente de liaison au compte mot de passe
+
+    function googleEnable() {
+      var g = document.getElementById('agGoogle');
+      if (g) g.disabled = false;
+    }
+
+    // erreurs de connexion Google (popup OU redirection) -> message precis
+    function handleGoogleError(ex) {
+      googleEnable();
+      if (!ex || !ex.code) return;
+      if (ex.code === 'auth/popup-closed-by-user' || ex.code === 'auth/cancelled-popup-request') return;
+      if (ex.code === 'auth/account-exists-with-different-credential') {
+        // compte courriel+mot de passe existant : on lie Google apres UNE connexion mot de passe
+        pendingCred = ex.credential || null;
+        var mail = (ex.customData && ex.customData.email) || ex.email || ADMIN_EMAIL;
+        var mi = document.getElementById('agMail'); if (mi) mi.value = mail;
+        err('Ce compte a déjà un mot de passe. Connecte-toi avec ton mot de passe UNE fois — Google sera lié automatiquement pour les prochaines fois.');
+      } else if (ex.code === 'auth/popup-blocked') {
+        // popup bloque -> redirection pleine page
+        auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+      } else if (ex.code === 'auth/unauthorized-domain') {
+        err('Ce domaine n\'est pas autorisé dans Firebase (Authentication → Settings → Authorized domains).');
+      } else if (ex.code === 'auth/operation-not-allowed') {
+        err('Connexion Google pas activée dans Firebase (Authentication → Sign-in method).');
+      } else {
+        err('Échec Google : ' + ex.code);
+      }
+    }
+    // au retour d'une eventuelle redirection Google
+    auth.getRedirectResult().catch(handleGoogleError);
 
     auth.onAuthStateChanged(function (user) {
-      if (user && (user.email || '').toLowerCase() === ADMIN_EMAIL) {
+      if (user && isAdmin(user.email)) {
         gate.remove();
         var out = document.getElementById('btnLogout');
         if (out) {
@@ -83,11 +117,11 @@
           out.onclick = function () { auth.signOut().then(function () { location.reload(); }); };
         }
       } else if (user) {
+        // dit QUEL compte a ete refuse (ex. un gmail perso au lieu du courriel admin)
+        var who = user.email || '(compte sans courriel)';
         auth.signOut();
-        err('Accès réservé à l\'administrateur.');
-        busy(false);
-        var g = document.getElementById('agGoogle');
-        if (g) g.disabled = false;
+        err('Connecté comme ' + who + ' — accès réservé à ' + ADMIN_EMAIL + '.');
+        busy(false); googleEnable();
       }
     });
 
@@ -96,8 +130,17 @@
         e.preventDefault(); err(''); busy(true);
         var mail = document.getElementById('agMail').value.trim();
         var pass = document.getElementById('agPass').value;
-        auth.signInWithEmailAndPassword(mail, pass).catch(function () {
-          err('Courriel ou mot de passe invalide.'); busy(false);
+        auth.signInWithEmailAndPassword(mail, pass).then(function (cred) {
+          // liaison du credential Google en attente -> prochains logins en 1 clic
+          if (pendingCred && cred && cred.user) {
+            cred.user.linkWithCredential(pendingCred).catch(function () {});
+            pendingCred = null;
+          }
+        }).catch(function (ex) {
+          err(ex && ex.code === 'auth/too-many-requests'
+            ? 'Trop d\'essais — réessaie dans quelques minutes.'
+            : 'Courriel ou mot de passe invalide.');
+          busy(false);
         });
       }
     });
@@ -107,17 +150,10 @@
       if (!b) return;
       err(''); b.disabled = true;
       var provider = new firebase.auth.GoogleAuthProvider();
-      provider.setCustomParameters({ login_hint: ADMIN_EMAIL, prompt: 'select_account' });
-      auth.signInWithPopup(provider).catch(function (ex) {
-        b.disabled = false;
-        if (ex && ex.code === 'auth/popup-closed-by-user') return;
-        if (ex && ex.code === 'auth/operation-not-allowed') {
-          err('Connexion Google pas encore activée dans Firebase (Authentication → Sign-in method).');
-        } else {
-          err('Connexion Google impossible. Réessaie ou utilise le courriel.');
-        }
-      });
-      // succes -> onAuthStateChanged fait le reste (et rejette tout autre compte)
+      provider.setCustomParameters({ prompt: 'select_account' });
+      auth.signInWithPopup(provider).then(function () {
+        // succes -> onAuthStateChanged fait le reste (et rejette tout autre compte)
+      }).catch(handleGoogleError);
     });
   }
 })();
