@@ -147,6 +147,24 @@ body {
 .sel-box { display: none; }
 .handle { cursor: pointer; }
 
+/* titre de scène — bandeau blanc au-dessus du terrain, police maison */
+.scene-title {
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 4; width: min(62%, 560px); text-align: center;
+  font-family: 'ZoneTotalSport','Luckiest Guy',cursive; font-size: 52px; line-height: 1.05;
+  color: var(--ink); background: rgba(255,255,255,.94);
+  border: 3px solid var(--ink); border-radius: 12px;
+  box-shadow: 4px 4px 0 rgba(26,26,46,.35);
+  padding: 4px 14px; outline: none;
+}
+.scene-title:focus { border-color: var(--rose,#FF2D87); }
+.scene-title::placeholder { font-family: var(--font-fun,'Fredoka'),sans-serif; font-size: 14px; color: rgba(26,26,46,.45); }
+.scene-title:placeholder-shown:not(:focus) {
+  background: rgba(255,255,255,.55); border-style: dashed; box-shadow: none;
+  width: 200px; padding: 8px 10px;
+}
+body.projection .scene-title, body.calib .scene-title { display: none; }
+
 /* indice terrain vide */
 .empty-hint {
   display: none; position: absolute; top: 38%; left: 50%; transform: translate(-50%,-50%);
@@ -183,9 +201,10 @@ body {
 .inspector.show { display: block; }
 .inspector h4 { margin: 0 0 6px; font-family: var(--font-impact,'Luckiest Guy'),cursive; font-size: 13px; }
 .inspector label { display: block; margin: 6px 0 2px; font-weight: 700; }
-.inspector input[type=text], .inspector select {
+.inspector input[type=text], .inspector textarea, .inspector select {
   width: 100%; border: 2px solid var(--ink); border-radius: 7px; padding: 4px 6px; font: inherit;
 }
+.inspector textarea { resize: vertical; min-height: 52px; }
 .inspector .row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
 .swatches { display: flex; gap: 5px; margin-top: 3px; }
 .swatch { width: 24px; height: 24px; border: 2px solid var(--ink); border-radius: 6px; cursor: pointer; }

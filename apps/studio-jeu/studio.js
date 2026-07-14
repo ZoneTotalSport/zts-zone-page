@@ -9,7 +9,7 @@ import {
 } from '../../shared/studio-engine/scene-schema.js';
 import {
   PALETTE, iconSVG, arrowSVG, zoneSVG, textSVG, lineSVG,
-  imageSVG, imageHalfBox, svgDefs,
+  imageSVG, imageHalfBox, svgDefs, bubbleSVG, bubbleBox,
 } from '../../shared/studio-engine/elements.js';
 
 const ENGINE = '../../shared/studio-engine/';
@@ -120,6 +120,8 @@ function buildElementNode(el, opacity) {
     g.innerHTML = lineMarkup(el);
   } else if (el.type === 'image') {
     g.innerHTML = imageMarkup(el);
+  } else if (el.type === 'bubble') {
+    g.innerHTML = bubbleMarkup(el);
   } else if (el.type === 'text') {
     const p = projPx(el.u, el.v);
     const s = (el.scaleMul || 1) * p.scale;
@@ -214,6 +216,26 @@ function lineMarkup(el) {
   }
   return m;
 }
+function bubbleMarkup(el) {
+  const pc = projPx(el.u, el.v);
+  const s = (el.scaleMul || 1) * pc.scale;
+  let tail = null, pt = null;
+  if (el.u2 != null && el.kind !== 'rect') {
+    pt = projPx(el.u2, el.v2);
+    tail = { x: (pt.x - pc.x) / s, y: (pt.y - pc.y) / s };
+  }
+  let m = `<g transform="translate(${pc.x},${pc.y}) scale(${s})">${bubbleSVG(el, tail)}</g>`;
+  if (el.id === state.selectedId) {
+    const bb = bubbleBox(el);
+    const hw = s * bb.hw * 1.15, hh = s * bb.hh * 1.3;
+    m += `<rect x="${pc.x - hw}" y="${pc.y - hh}" width="${hw * 2}" height="${hh * 2}" `
+      + `fill="none" stroke="#FF2D87" stroke-width="4" stroke-dasharray="10 8"/>`
+      + `<circle class="handle" data-h="size" cx="${pc.x + hw}" cy="${pc.y + hh}" r="11" `
+      + `fill="#FFEA00" stroke="#1A1A2E" stroke-width="3"/>`;
+    if (pt) m += handleDot(pt.x, pt.y, 'b');
+  }
+  return m;
+}
 function handleDot(x, y, role) {
   return `<circle class="handle" data-h="${role}" cx="${x}" cy="${y}" r="9" fill="#fff" stroke="#1A1A2E" stroke-width="3"/>`;
 }
@@ -223,7 +245,7 @@ function selBox(r) {
 
 // ---- palette ---------------------------------------------------------------
 // etat ouvert/ferme des groupes (persiste pendant la session)
-const palOpen = { persos: true, joueurs: true, objets: false, fleches: false, zones: false, lignes: false, texte: false };
+const palOpen = { persos: true, joueurs: true, objets: false, fleches: false, zones: false, lignes: false, texte: false, bulles: false };
 
 function palGroup(pal, key, title, fill) {
   const wrap = document.createElement('div');
@@ -273,6 +295,7 @@ function buildPalette() {
     ['zones', 'Zones', PALETTE.filter((p) => p.type === 'zone')],
     ['lignes', 'Lignes terrain', PALETTE.filter((p) => p.type === 'line')],
     ['texte', 'Texte', PALETTE.filter((p) => p.type === 'text')],
+    ['bulles', 'Bulles BD', PALETTE.filter((p) => p.type === 'bubble')],
   ];
   for (const [key, title, items] of groups) {
     palGroup(pal, key, title, (body) => items.forEach((it) => body.appendChild(palToolBtn(it))));
@@ -292,6 +315,9 @@ function paletteIcon(it) {
     return lineSVG([{ x: -42, y: 22 }, { x: 42, y: -22 }], { hex: '#1A1A2E', width: 8 });
   }
   if (it.type === 'text') return textSVG({ text: 'GO!', style: 'onomatopee', fontSize: 44 });
+  if (it.type === 'bubble') return bubbleSVG(
+    { kind: it.kind, text: it.kind === 'rect' ? 'ABC' : '...', fontSize: 26 },
+    it.kind === 'rect' ? null : { x: 34, y: 46 });
   return iconSVG({ type: it.type });
 }
 function armTool(it, btn) {
@@ -299,7 +325,7 @@ function armTool(it, btn) {
   document.querySelectorAll('.pal-item.active').forEach((e) => e.classList.remove('active'));
   if (already) { state.tool = null; return; }
   state.tool = it; btn.classList.add('active');
-  if (['player', 'ball', 'cone', 'hoop', 'pinnie', 'text'].includes(it.type)) {
+  if (['player', 'ball', 'cone', 'hoop', 'pinnie', 'text', 'bubble'].includes(it.type)) {
     // placement direct au centre, puis on desarme
     addPointElement(it, 0.5, 0.5); state.tool = null; btn.classList.remove('active');
   } else {
@@ -318,6 +344,12 @@ function addPointElement(it, u, v) {
   if (it.type === 'text') {
     el.text = 'GO!'; el.rotation = -6; el.fontSize = TEXT_BASE;
     el.font = 'zts'; el.hex = '#FFEA00'; el.strokeHex = '#1A1A2E'; el.strokeW = 5; el.shadow = true;
+  }
+  if (it.type === 'bubble') {
+    el.kind = it.kind || 'speech';
+    el.text = el.kind === 'rect' ? 'Ta règle ici' : 'Ton texte…';
+    el.fontSize = 26; el.hex = '#FFFFFF'; el.scaleMul = 1;
+    if (el.kind !== 'rect') { el.u2 = u + 0.10; el.v2 = v + 0.13; }
   }
   step.elements.push(el);
   selectElement(el.id);
@@ -600,7 +632,7 @@ overlay.addEventListener('pointermove', (e) => {
   if (drag.type === 'handle' && drag.h === 'size') {
     const c = projPx(el.u, el.v);
     const vb = clientToVB(e.clientX, e.clientY);
-    const hb = imageHalfBox(getAsset(el));
+    const hb = el.type === 'bubble' ? bubbleBox(el) : imageHalfBox(getAsset(el));
     const localDiag = Math.hypot(hb.hw, hb.hh) || 1;
     const dist = Math.hypot(vb.x - c.x, vb.y - c.y);
     el.scaleMul = clamp(dist / (localDiag * c.scale), 0.2, 6);
@@ -632,11 +664,19 @@ overlay.addEventListener('pointerup', (e) => {
   if (capturing()) {
     const el = drag.id ? findEl(drag.id) : null;
     if (drag.type === 'move' && el && dragPath && dragPath.length > 1) {
-      // borne le temps final : un pointerup tardif ne doit pas etirer la relecture
-      const lastMs = dragPath[dragPath.length - 1][2];
-      const endMs = Math.min(Math.round(performance.now() - dragT0), lastMs + 200);
-      dragPath.push([el.u, el.v, endMs]);
-      recordAction({ kind: 'move', elementId: el.id, path: dragPath });
+      if (drag.snap.u2 != null) {
+        // element a deux points (fleche, zone, ligne, bulle) : la relecture
+        // doit deplacer les deux — pose plutot que chemin (qui ne bouge que u,v)
+        const after = {};
+        for (const k of ['u', 'v', 'u2', 'v2']) if (typeof el[k] === 'number') after[k] = el[k];
+        recordAction({ kind: 'pose', elementId: el.id, after });
+      } else {
+        // borne le temps final : un pointerup tardif ne doit pas etirer la relecture
+        const lastMs = dragPath[dragPath.length - 1][2];
+        const endMs = Math.min(Math.round(performance.now() - dragT0), lastMs + 200);
+        dragPath.push([el.u, el.v, endMs]);
+        recordAction({ kind: 'move', elementId: el.id, path: dragPath });
+      }
     } else if (drag.type === 'handle' && el) {
       const after = {};
       for (const k of ['u', 'v', 'u2', 'v2', 'scaleMul']) if (typeof el[k] === 'number') after[k] = el[k];
@@ -687,7 +727,29 @@ function renderInspector() {
       <input type="color" id="insStrokeHex" value="${el.strokeHex || '#1A1A2E'}" title="Couleur du contour" style="width:34px;height:26px;border:2px solid var(--ink);border-radius:7px;padding:0;cursor:pointer"></div>`;
     html += `<label style="display:flex;gap:6px;align-items:center;margin-top:8px">
       <input type="checkbox" id="insShadow"${el.shadow ? ' checked' : ''}> Ombre BD</label>`;
+    if (el.shadow) {
+      const shOff = el.shadowOff != null ? el.shadowOff : 3;
+      const shAlpha = el.shadowAlpha != null ? Math.round(el.shadowAlpha * 100) : 85;
+      html += `<label>Décalage : <span id="insShOffVal">${shOff}</span></label>
+        <input type="range" id="insShOff" min="1" max="20" step="1" value="${shOff}" style="width:100%">`;
+      html += `<label>Intensité : <span id="insShAlphaVal">${shAlpha}%</span></label>
+        <input type="range" id="insShAlpha" min="10" max="100" step="5" value="${shAlpha}" style="width:100%">`;
+    }
     html += `<div class="row"><button class="btn small" data-rot="-15">⟲ 15°</button><button class="btn small" data-rot="15">15° ⟳</button></div>`;
+  } else if (el.type === 'bubble') {
+    const cols = ['#FFFFFF', '#FFEA00', '#CCFAFF', '#FFD6EB', '#E8FFDA'];
+    html += `<label>Texte (↵ = nouvelle ligne)</label>
+      <textarea id="insText" rows="3">${(el.text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;')}</textarea>`;
+    html += `<label>Style</label><select id="insBubbleKind">
+      <option value="speech"${el.kind === 'speech' ? ' selected' : ''}>💬 Parole (queue)</option>
+      <option value="thought"${el.kind === 'thought' ? ' selected' : ''}>💭 Pensée (nuage)</option>
+      <option value="rect"${el.kind === 'rect' ? ' selected' : ''}>📋 Règle (rectangle)</option></select>`;
+    html += `<label>Taille du texte : <span id="insSizeVal">${el.fontSize || 26}</span></label>
+      <input type="range" id="insSize" min="14" max="64" step="2" value="${el.fontSize || 26}" style="width:100%">`;
+    html += '<label>Fond</label><div class="swatches">'
+      + cols.map((h) => `<div class="swatch${(el.hex || '#FFFFFF').toUpperCase() === h ? ' on' : ''}" data-hex="${h}" style="background:${h}"></div>`).join('')
+      + '</div>';
+    if (el.kind !== 'rect') html += '<div style="font-size:11px;opacity:.6;margin-top:4px">Poignée blanche = pointe la queue · jaune = taille</div>';
   } else if (el.type === 'arrow') {
     html += `<label>Type</label><select id="insKind">
       <option value="run"${el.kind === 'run' ? ' selected' : ''}>Course</option>
@@ -726,7 +788,7 @@ function renderInspector() {
 function labelFor(el) {
   return ({ player: 'Joueur', ball: 'Ballon', cone: 'Cône', hoop: 'Cerceau',
     pinnie: 'Dossard', arrow: 'Flèche', zone: 'Zone', line: 'Ligne terrain',
-    text: 'Texte', image: 'Perso' })[el.type] || el.type;
+    text: 'Texte', image: 'Perso', bubble: 'Bulle BD' })[el.type] || el.type;
 }
 function colorSwatches(current) {
   let s = '<label>Couleur</label><div class="swatches">';
@@ -747,10 +809,36 @@ function wireInspector(el) {
     el.fontSize = +isz.value;
     const lbl = inspector.querySelector('#insSizeVal'); if (lbl) lbl.textContent = isz.value;
     const node = overlay.querySelector(`.el[data-id="${el.id}"]`);
-    if (node) { const p = projPx(el.u, el.v); const s = (el.scaleMul || 1) * p.scale;
-      node.setAttribute('transform', `translate(${p.x},${p.y}) scale(${s}) rotate(${el.rotation || 0})`);
-      node.innerHTML = textSVG(el) + (el.id === state.selectedId ? selBox((el.fontSize || TEXT_BASE) * 1.4) : ''); }
+    if (node) {
+      if (el.type === 'bubble') { node.innerHTML = bubbleMarkup(el); }
+      else { const p = projPx(el.u, el.v); const s = (el.scaleMul || 1) * p.scale;
+        node.setAttribute('transform', `translate(${p.x},${p.y}) scale(${s}) rotate(${el.rotation || 0})`);
+        node.innerHTML = textSVG(el) + (el.id === state.selectedId ? selBox((el.fontSize || TEXT_BASE) * 1.4) : ''); }
+    }
     autosave();
+  });
+  const refreshTextNode = () => {
+    const node = overlay.querySelector(`.el[data-id="${el.id}"]`);
+    if (node) node.innerHTML = textSVG(el) + (el.id === state.selectedId ? selBox((el.fontSize || TEXT_BASE) * 1.4) : '');
+  };
+  const iso = inspector.querySelector('#insShOff');
+  if (iso) iso.addEventListener('input', () => {
+    el.shadowOff = +iso.value;
+    const lbl = inspector.querySelector('#insShOffVal'); if (lbl) lbl.textContent = iso.value;
+    refreshTextNode(); autosave();
+  });
+  const isa = inspector.querySelector('#insShAlpha');
+  if (isa) isa.addEventListener('input', () => {
+    el.shadowAlpha = +isa.value / 100;
+    const lbl = inspector.querySelector('#insShAlphaVal'); if (lbl) lbl.textContent = isa.value + '%';
+    refreshTextNode(); autosave();
+  });
+  const ibk = inspector.querySelector('#insBubbleKind');
+  if (ibk) ibk.addEventListener('change', () => {
+    el.kind = ibk.value;
+    if (el.kind === 'rect') { delete el.u2; delete el.v2; }
+    else if (el.u2 == null) { el.u2 = el.u + 0.10; el.v2 = el.v + 0.13; }
+    render(); autosave();
   });
   const isw = inspector.querySelector('#insStrokeW');
   if (isw) isw.addEventListener('input', () => {
@@ -898,6 +986,7 @@ function applySnap(s) {
   state.stepIndex = Math.min(state.stepIndex, state.scene.steps.length - 1);
   state.selectedId = null;
   try { localStorage.setItem(storageKey(), s); } catch (_) {}
+  $('#sceneTitle').value = state.scene.title || '';
   buildPalette(); render();
 }
 function undo() {
@@ -957,6 +1046,7 @@ function setScene(sc) {
   document.body.dataset.metier = ({ eps: 'ep', sdg: 'sdg', camps: 'camp' })[sc.univers] || 'ep';
   $('#gameName').textContent = sc.gameTitle;
   $('#gameName').title = sc.gameTitle;
+  $('#sceneTitle').value = sc.title || '';
   buildPalette(); render(); autosave();
   resetHistory();
 }
@@ -1099,6 +1189,17 @@ async function stepCanvas(stepIndex) {
   const fd = await fontDataURI();
   if (fd) clone.insertAdjacentHTML('afterbegin',
     `<style>@font-face{font-family:'ZoneTotalSport';src:url(${fd}) format('truetype');size-adjust:50%;}</style>`);
+  if (state.scene.title) {
+    // bandeau blanc du titre de scene (meme rendu que l'editeur)
+    const escT = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const fs = 64; // ZoneTotalSport size-adjust 50% => ~32 u visuel
+    const bw = Math.min(VBW * 0.86, Math.max(state.scene.title.length * fs * 0.30 + 44, 240));
+    const bh = fs * 0.82;
+    clone.insertAdjacentHTML('beforeend',
+      `<g><rect x="${(VBW - bw) / 2}" y="16" width="${bw}" height="${bh}" rx="14" fill="#FFFFFF" stroke="#1A1A2E" stroke-width="5"/>`
+      + `<text x="${VBW / 2}" y="${16 + bh / 2}" text-anchor="middle" dominant-baseline="central" `
+      + `font-family="'ZoneTotalSport','Luckiest Guy',sans-serif" font-size="${fs}" fill="#1A1A2E">${escT(state.scene.title)}</text></g>`);
+  }
   const svgStr = new XMLSerializer().serializeToString(clone);
   const svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
 
@@ -1156,7 +1257,8 @@ async function exportPDF() {
 
 // ---- mode projection (plein écran TNI) --------------------------------------
 function updateProjUI() {
-  $('#projTitle').textContent = curStep() ? curStep().title : '';
+  const st = curStep() ? curStep().title : '';
+  $('#projTitle').textContent = state.scene.title ? state.scene.title + (st ? ' — ' + st : '') : st;
   $('#projStep').textContent = `${state.stepIndex + 1}/${state.scene.steps.length}`;
 }
 function enterProjection() {
@@ -1288,6 +1390,7 @@ function wireMenus() {
 function wireToolbar() {
   wireMenus();
   $('#btnLibre').addEventListener('click', () => newScene(null));
+  $('#sceneTitle').addEventListener('input', (e) => { state.scene.title = e.target.value; autosave(); });
   $('#btnSave').addEventListener('click', downloadJSON);
   $('#btnLoad').addEventListener('click', () => $('#fileInput').click());
   $('#fileInput').addEventListener('change', (e) => { if (e.target.files[0]) loadFromFile(e.target.files[0]); e.target.value = ''; });

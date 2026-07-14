@@ -11,6 +11,7 @@ export const ELEMENT_TYPES = [
   'arrow',                                     // A->B (u,v)->(u2,v2)
   'zone',                                      // rect/cercle (u,v)+(u2,v2)
   'text',                                      // texte/onomatopee (u,v)
+  'bubble',                                    // bulle BD (u,v) + queue optionnelle (u2,v2)
 ];
 
 // Couleurs joueurs : chaque couleur = une FORME distincte (impression N&B).
@@ -40,6 +41,7 @@ export function createScene(game) {
     version: SCENE_VERSION,
     gameId: game && game.id ? game.id : null,
     gameTitle: game && game.title ? game.title : 'Scène libre',
+    title: '',    // titre affiche sur le canevas (police ZoneTotalSport)
     univers: pickUnivers(game),
     terrain: 'terrain-gym',
     assets: {},   // { assetId: { name, src (data-URI), w, h } } — persos importes

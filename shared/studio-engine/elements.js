@@ -32,6 +32,9 @@ export const PALETTE = [
   { type: 'line',   kind: 'straight', label: 'Ligne', emoji: '━' },
   { type: 'line',   kind: 'circle',   label: 'Rond',  emoji: '⭕' },
   { type: 'text',   label: 'Texte', emoji: '💬' },
+  { type: 'bubble', kind: 'speech',  label: 'Parole', emoji: '💬' },
+  { type: 'bubble', kind: 'thought', label: 'Pensée', emoji: '💭' },
+  { type: 'bubble', kind: 'rect',    label: 'Règle',  emoji: '📋' },
 ];
 
 // ---- helpers ---------------------------------------------------------------
@@ -258,8 +261,9 @@ export const TEXT_FONTS = {
 /**
  * Texte stylable (police, remplissage, contour, ombre BD) — style Affinity.
  * Champs : text, font ('zts'|'luckiest'), fontSize, hex (remplissage),
- * strokeW + strokeHex (contour), shadow (bool). Les anciens presets
- * (style:'onomatopee') restent honores comme valeurs par defaut.
+ * strokeW + strokeHex (contour), shadow (bool), shadowOff (decalage, unites
+ * locales) + shadowAlpha (opacite 0-1). Les anciens presets (style:'onomatopee')
+ * restent honores comme valeurs par defaut.
  * Dessine centre sur (0,0) ; l'editeur applique translate+scale+rotation.
  */
 export function textSVG(el) {
@@ -273,7 +277,95 @@ export function textSVG(el) {
     `<text x="${dx}" y="${dy}" text-anchor="middle" dominant-baseline="central" `
     + `font-family="${fam}" font-size="${size}" fill="${f}" stroke="${st}" `
     + `stroke-width="${w}" paint-order="stroke" stroke-linejoin="round">${esc(el.text || 'Texte')}</text>`;
-  const off = Math.max(2, size * 0.07);
-  const shadow = el.shadow ? body(off, off, SHADOW, el.strokeW > 0 ? SHADOW : 'none', sw) : '';
+  const off = el.shadowOff != null ? el.shadowOff : Math.max(2, size * 0.07);
+  const alpha = el.shadowAlpha != null ? el.shadowAlpha : 0.85;
+  const shCol = `rgba(26,26,46,${alpha})`;
+  const shadow = (el.shadow && off > 0)
+    ? body(off, off, shCol, el.strokeW > 0 ? shCol : 'none', sw) : '';
   return shadow + body(0, 0, fill, stroke, sw);
+}
+
+// ---- bulles BD (parole / pensee / regle) -------------------------------------
+
+export const BUBBLE_KINDS = ['speech', 'thought', 'rect'];
+
+// Comic Sans d'abord : dispo partout en local, donc identique dans les exports
+// rasterises (qui ne chargent pas les webfonts).
+const BUBBLE_FONT = "'Comic Sans MS','Fredoka','Quicksand',sans-serif";
+
+/** Demi-largeur / demi-hauteur locales de la bulle selon son texte. */
+export function bubbleBox(el) {
+  const fs = el.fontSize || 26;
+  const lines = String(el.text || 'Texte').split('\n');
+  const maxLen = Math.max(1, ...lines.map((l) => l.length));
+  const w = Math.max(fs * 2.4, maxLen * fs * 0.56 + fs * 1.6);
+  const h = lines.length * fs * 1.3 + fs * 1.4;
+  return { hw: w / 2, hh: h / 2 };
+}
+
+/**
+ * Bulle BD centree sur (0,0) — l'editeur applique translate+scale.
+ * Champs : kind ('speech'|'thought'|'rect'), text (\n = multi-lignes),
+ * fontSize, hex (fond), textHex (texte).
+ * @param tail {x,y} local (pointe de la queue) ou null — speech/thought.
+ */
+export function bubbleSVG(el, tail) {
+  const fs = el.fontSize || 26;
+  const lines = String(el.text || 'Texte').split('\n');
+  const { hw, hh } = bubbleBox(el);
+  const fill = el.hex || '#FFFFFF';
+  const kind = BUBBLE_KINDS.includes(el.kind) ? el.kind : 'speech';
+  let body, tailM = '';
+  if (kind === 'rect') {
+    body = `<rect x="${-hw}" y="${-hh}" width="${hw * 2}" height="${hh * 2}" rx="${fs * 0.5}"/>`;
+  } else if (kind === 'speech') {
+    body = `<ellipse cx="0" cy="0" rx="${hw * 1.06}" ry="${hh * 1.22}"/>`;
+    if (tail) tailM = speechTailSVG(tail, hw, hh);
+  } else { // thought
+    body = `<path d="${cloudPathD(hw, hh)}"/>`;
+    if (tail) tailM = thoughtTailSVG(tail, hw, hh);
+  }
+  const textM = lines.map((l, i) =>
+    `<text x="0" y="${((i - (lines.length - 1) / 2) * fs * 1.3).toFixed(1)}" text-anchor="middle" `
+    + `dominant-baseline="central" font-family="${BUBBLE_FONT}" font-weight="700" `
+    + `font-size="${fs}" fill="${el.textHex || INK}" stroke="none">${esc(l)}</text>`).join('');
+  // queue dessinee avant le corps : elle emerge de derriere la bulle
+  return withShadow(tailM + body, 5, 6)
+    + `<g fill="${fill}" stroke="${INK}" stroke-width="5" stroke-linejoin="round">${tailM}${body}</g>`
+    + textM;
+}
+
+function speechTailSVG(t, hw, hh) {
+  const len = Math.hypot(t.x, t.y) || 1;
+  const nx = -t.y / len, ny = t.x / len;
+  const spread = Math.min(hw, hh) * 0.38;
+  const bx = (t.x / len) * hw * 0.45, by = (t.y / len) * hh * 0.45; // base dans le corps
+  return `<polygon points="${(bx + nx * spread).toFixed(1)},${(by + ny * spread).toFixed(1)} `
+    + `${t.x.toFixed(1)},${t.y.toFixed(1)} `
+    + `${(bx - nx * spread).toFixed(1)},${(by - ny * spread).toFixed(1)}"/>`;
+}
+
+function thoughtTailSVG(t, hw, hh) {
+  const base = Math.min(hw, hh);
+  let m = '';
+  for (const [k, r] of [[0.5, 0.3], [0.74, 0.2], [0.94, 0.13]]) {
+    m += `<circle cx="${(t.x * k).toFixed(1)}" cy="${(t.y * k).toFixed(1)}" r="${(base * r).toFixed(1)}"/>`;
+  }
+  return m;
+}
+
+function cloudPathD(hw, hh) {
+  const rx = hw * 1.02, ry = hh * 1.18, n = 10;
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    pts.push([Math.cos(a) * rx, Math.sin(a) * ry]);
+  }
+  let d = `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for (let i = 1; i <= n; i++) {
+    const p = pts[i % n], q = pts[i - 1];
+    const mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2;
+    d += ` Q ${(mx * 1.45).toFixed(1)} ${(my * 1.45).toFixed(1)} ${p[0].toFixed(1)} ${p[1].toFixed(1)}`;
+  }
+  return d + ' Z';
 }
