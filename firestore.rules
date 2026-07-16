@@ -269,6 +269,44 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // familles — PWA privee « La Banque » (points/dollars des enfants).
+    // Membres = max 2 parents. Un parent qui connait le familleId
+    // (code d'invitation) peut uniquement s'ajouter lui-meme.
+    // Sous-collections : enfants, actions, transactions, notes.
+    // ─────────────────────────────────────────────────────────
+    match /familles/{familleId} {
+
+      function estMembreFamille() {
+        return request.auth != null && request.auth.uid in resource.data.membres;
+      }
+      // Rejoindre : s'ajouter soi-meme si <2 membres, sans toucher
+      // a autre chose que membres/membresInfo.
+      function rejointFamille() {
+        return request.auth != null
+          && !(request.auth.uid in resource.data.membres)
+          && resource.data.membres.size() < 2
+          && request.resource.data.membres.size() == resource.data.membres.size() + 1
+          && request.resource.data.membres.hasAll(resource.data.membres)
+          && request.auth.uid in request.resource.data.membres
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['membres', 'membresInfo']);
+      }
+
+      allow create: if request.auth != null
+        && request.auth.uid in request.resource.data.membres
+        && request.resource.data.membres.size() == 1;
+      allow read: if estMembreFamille();
+      allow update: if estMembreFamille() || rejointFamille();
+      allow delete: if estMembreFamille();
+
+      match /{sousCollection}/{docId} {
+        allow read, write: if request.auth != null
+          && request.auth.uid in
+             get(/databases/$(database)/documents/familles/$(familleId)).data.membres;
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────
     // Tout le reste : interdit par defaut.
     // ─────────────────────────────────────────────────────────
     match /{document=**} {
