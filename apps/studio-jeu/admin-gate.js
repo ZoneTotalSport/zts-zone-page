@@ -55,6 +55,7 @@
     + '<input type="password" id="agPass" placeholder="Mot de passe" autocomplete="current-password" required>'
     + '<button type="submit" id="agGo">Se connecter</button>'
     + '</form><div class="err" id="agErr"></div>'
+    + '<a class="back" href="#" id="agReset">Mot de passe oublié ?</a>'
     + '<a class="back" href="https://zonetotalsport.ca/">← Retour à zonetotalsport.ca</a>'
     + '</div>';
   function mount() { document.body.appendChild(gate); }
@@ -146,6 +147,19 @@
     });
 
     document.addEventListener('click', function (e) {
+      var r = e.target && e.target.closest ? e.target.closest('#agReset') : null;
+      if (r) {
+        e.preventDefault();
+        var m = (document.getElementById('agMail').value.trim() || ADMIN_EMAIL);
+        auth.sendPasswordResetEmail(m).then(function () {
+          err('Courriel de réinitialisation envoyé à ' + m + ' — regarde ta boîte (et les indésirables).');
+        }).catch(function (ex) {
+          err(ex && ex.code === 'auth/too-many-requests'
+            ? 'Trop de demandes — réessaie dans quelques minutes.'
+            : 'Envoi impossible (' + (ex && ex.code || '?') + ').');
+        });
+        return;
+      }
       var b = e.target && e.target.closest ? e.target.closest('#agGoogle') : null;
       if (!b) return;
       err(''); b.disabled = true;
