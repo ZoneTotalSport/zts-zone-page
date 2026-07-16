@@ -129,6 +129,16 @@ body {
 .pal-item.active { outline: 3px dashed var(--rose,#FF2D87); outline-offset: 2px; }
 .pal-item svg { width: 34px; height: 34px; pointer-events: none; }
 
+/* persos importés : ✕ de suppression au survol */
+.pal-perso { position: relative; }
+.perso-x {
+  display: none; position: absolute; top: -8px; right: -8px;
+  width: 18px; height: 18px; border-radius: 999px; background: #FF2D2D; color: #fff;
+  border: 2px solid var(--ink); font-size: 10px; line-height: 14px; text-align: center;
+  font-family: var(--font-body,'Quicksand'),sans-serif; font-weight: 700;
+}
+.pal-perso:hover .perso-x { display: block; }
+
 /* ---------- scène ---------- */
 .stage-col { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .stage-scroll { flex: 1; overflow: auto; display: flex; justify-content: center; align-items: center; padding: 12px; min-height: 0; }

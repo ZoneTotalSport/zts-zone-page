@@ -113,7 +113,12 @@ export const T = {
     projAction: '⏭ Action', projPlay: '▶ Lecture', projQuit: '✕ Quitter',
     helpT: '❓ Guide rapide',
     stepDelT: 'Supprimer l\'étape',
+    // persos importes
+    persoDelT: 'Supprimer ce perso',
+    confirmDelPerso: 'Supprimer « {n} » ? Il sera retiré de la palette ET du terrain (toutes les étapes).',
+    persoDeleted: 'Perso supprimé',
     // vider la scene
+    clearSceneT: 'Vider toute la scène (éléments + animations + titre)',
     clearScene: '🧹 Vider la scène',
     confirmClearScene: 'Vider toute la scène (éléments, animations, titre)? Les persos importés et le terrain restent. Ctrl+Z pour annuler.',
     sceneCleared: 'Scène vidée 🧹 (Ctrl+Z pour annuler)',
@@ -222,6 +227,10 @@ export const T = {
     projAction: '⏭ Action', projPlay: '▶ Play', projQuit: '✕ Quit',
     helpT: '❓ Quick guide',
     stepDelT: 'Delete this step',
+    persoDelT: 'Delete this character',
+    confirmDelPerso: 'Delete "{n}"? It will be removed from the palette AND the court (all steps).',
+    persoDeleted: 'Character deleted',
+    clearSceneT: 'Clear the whole scene (elements + animations + title)',
     clearScene: '🧹 Clear the scene',
     confirmClearScene: 'Clear the whole scene (elements, animations, title)? Imported characters and the court stay. Ctrl+Z to undo.',
     sceneCleared: 'Scene cleared 🧹 (Ctrl+Z to undo)',

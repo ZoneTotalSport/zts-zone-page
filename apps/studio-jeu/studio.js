@@ -1,17 +1,19 @@
 // studio.js — editeur visuel Studio Jeu. Vanilla ES module.
 // Logique de projection / scene deleguee aux modules purs de shared/studio-engine/.
 
-import { createProjector } from '../../shared/studio-engine/projection.js';
+// NB : garder les ?v= synchronises avec studio.js?v= dans index.html — sans
+// query, le navigateur peut servir un vieux module en cache (cles i18n brutes).
+import { createProjector } from '../../shared/studio-engine/projection.js?v=14';
 import {
   createScene, createStep, duplicateStep, nextElementId, addAsset,
   interpolateSteps, validateScene, pickUnivers, PLAYER_COLORS,
   createJouee, samplePath, applyAction,
-} from '../../shared/studio-engine/scene-schema.js';
+} from '../../shared/studio-engine/scene-schema.js?v=14';
 import {
   PALETTE, iconSVG, arrowSVG, zoneSVG, textSVG, lineSVG,
   imageSVG, imageHalfBox, svgDefs, bubbleSVG, bubbleBox,
-} from '../../shared/studio-engine/elements.js';
-import { t, lang, setLang, initLang, applyStatic } from './i18n.js';
+} from '../../shared/studio-engine/elements.js?v=14';
+import { t, lang, setLang, initLang, applyStatic } from './i18n.js?v=14';
 
 const ENGINE = '../../shared/studio-engine/';
 const TERRAINS = {
@@ -282,10 +284,14 @@ function buildPalette() {
     const assets = (state.scene && state.scene.assets) || {};
     for (const [id, a] of Object.entries(assets)) {
       const b = document.createElement('button');
-      b.className = 'pal-item'; b.title = a.name;
+      b.className = 'pal-item pal-perso'; b.title = a.name;
       b.innerHTML = `<img src="${a.src}" alt="${a.name}" style="width:34px;height:34px;object-fit:contain">`
-        + `<span>${a.name.slice(0, 10)}</span>`;
-      b.addEventListener('click', () => placeImage(id));
+        + `<span>${a.name.slice(0, 10)}</span>`
+        + `<span class="perso-x" title="${t('persoDelT')}">✕</span>`;
+      b.addEventListener('click', (e) => {
+        if (e.target.classList.contains('perso-x')) { deleteAsset(id); return; }
+        placeImage(id);
+      });
       body.appendChild(b);
     }
   });
@@ -419,6 +425,33 @@ function placeImage(assetId) {
   selectElement(el.id);
   if (capturing()) recordAction({ kind: 'add', element: { ...el } });
   render(); autosave();
+}
+
+// supprime un perso importe : palette + terrain + animations, toutes etapes
+function deleteAsset(id) {
+  const a = state.scene.assets && state.scene.assets[id];
+  if (!a) return;
+  if (!confirm(t('confirmDelPerso').replace('{n}', a.name))) return;
+  delete state.scene.assets[id];
+  for (const s of state.scene.steps) {
+    const gone = new Set();
+    const mark = (e) => { if (e.type === 'image' && e.assetId === id) gone.add(e.id); };
+    s.elements.forEach(mark);
+    if (s.jouee) s.jouee.base.forEach(mark);
+    s.elements = s.elements.filter((e) => !gone.has(e.id));
+    if (s.jouee) {
+      s.jouee.base = s.jouee.base.filter((e) => !gone.has(e.id));
+      const strip = (arr) => arr.filter((ac) =>
+        !(ac.elementId && gone.has(ac.elementId))
+        && !(ac.element && (gone.has(ac.element.id) || (ac.element.type === 'image' && ac.element.assetId === id))));
+      s.jouee.actions = strip(s.jouee.actions)
+        .map((ac) => ac.kind === 'group' ? { ...ac, actions: strip(ac.actions) } : ac)
+        .filter((ac) => ac.kind !== 'group' || ac.actions.length);
+    }
+  }
+  state.jCur = {}; state.selectedId = null;
+  buildPalette(); render(); autosave();
+  toast(t('persoDeleted'));
 }
 
 // ---- jouee : enregistrement des gestes --------------------------------------
@@ -1543,6 +1576,7 @@ function wireToolbar() {
   wireMenus();
   $('#btnLibre').addEventListener('click', () => newScene(null));
   $('#btnClearScene').addEventListener('click', clearScene);
+  $('#btnClearScene2').addEventListener('click', clearScene);
   const st = $('#sceneTitle');
   st.addEventListener('input', () => {
     let v = st.textContent.replace(/\n/g, ' ');
