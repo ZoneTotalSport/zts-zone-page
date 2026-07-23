@@ -740,7 +740,7 @@
     document.querySelectorAll('[data-auth="logout"]').forEach(function(el) {
       el.addEventListener('click', function(e) {
         e.preventDefault();
-        if (typeof firebase !== 'undefined') firebase.auth().signOut();
+        root.ztsLogout();
       });
     });
   }
@@ -749,7 +749,22 @@
   root.ztsShowLogin = function() { showModal('login'); };
   root.ztsShowSignup = function() { showModal('signup'); };
   root.ztsLogout = function() {
-    if (typeof firebase !== 'undefined') firebase.auth().signOut();
+    function done() {
+      // Purge nos caches de session (attribution signup) par hygiene.
+      try {
+        sessionStorage.removeItem('zts_signup_pending');
+        sessionStorage.removeItem('zts_signup_source');
+      } catch (e) {}
+      // Hard redirect vers l'accueil : re-init propre, aucun user restaure.
+      window.location.href = '/';
+    }
+    if (typeof firebase === 'undefined' || !firebase.auth) { done(); return; }
+    // On AWAIT signOut() avant le redirect : sinon la navigation tue le
+    // nettoyage async de la persistance (IndexedDB) et l'utilisateur est
+    // restaure au prochain chargement = le "Salut" revient (bug).
+    firebase.auth().signOut()
+      .catch(function(e) { console.error('[ZTS Auth] signOut:', e); })
+      .then(done);
   };
   root.ztsGetUser = function() { return _user; };
   root.ztsSetProtected = function(url) {
