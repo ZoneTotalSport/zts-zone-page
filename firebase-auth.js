@@ -570,17 +570,25 @@
       .catch(function(err) { console.error('[ZTS Auth] Full error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
   }
 
-  // signup_complete : un seul envoi par creation REELLE de compte. Lit la
-  // source d'attribution posee par locked_click_signup puis la consomme.
+  // signup_complete : un seul envoi par creation REELLE de compte.
+  // On pose un flag sessionStorage SYNCHRONE (survit a la redirection vers
+  // /bienvenue.html), consomme par zts-funnel.js a l'arrivee. L'ancien appel
+  // direct a ztsTrackFunnel etait tue par le window.location.href qui suit
+  // immediatement (l'ecriture Firestore async n'avait pas le temps de partir).
+  // Lit et consomme la source d'attribution posee par locked_click_signup.
   function fireSignupComplete(method) {
     var signup_source = 'direct';
     try {
       signup_source = sessionStorage.getItem('zts_signup_source') || 'direct';
       sessionStorage.removeItem('zts_signup_source');
     } catch (e) {}
-    if (window.ztsTrackFunnel) {
-      window.ztsTrackFunnel('signup_complete', { source: 'auth', method: method, signup_source: signup_source });
-    }
+    try {
+      sessionStorage.setItem('zts_signup_pending', JSON.stringify({
+        method: method,
+        signup_source: signup_source,
+        ts: Date.now()
+      }));
+    } catch (e) {}
   }
 
   function handleSignup() {

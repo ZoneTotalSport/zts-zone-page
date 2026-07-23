@@ -84,4 +84,57 @@
   // signup_complete n'est PAS auto-declenche ici : un null->user couvre aussi
   // les logins. firebase-auth.js le fire explicitement, uniquement sur une
   // creation reelle de compte (garde isNewUser).
+
+  // ── signup_complete differe : consomme le flag pose par firebase-auth.js ──
+  // firebase-auth.js pose un flag sessionStorage SYNCHRONE juste avant de
+  // rediriger vers /bienvenue.html. L'ancien appel direct etait tue par cette
+  // navigation (l'ecriture Firestore async n'avait pas le temps de partir).
+  // Ici, a l'arrivee sur la page de destination, aucune navigation ne suit :
+  // l'ecriture peut se terminer tranquillement.
+  (function consumePendingSignup() {
+    var raw;
+    try { raw = sessionStorage.getItem('zts_signup_pending'); } catch (e) { return; }
+    if (!raw) return;
+    // Consomme le flag immediatement (une seule tentative, evite les doublons
+    // si plusieurs onglets/pages chargent le script).
+    try { sessionStorage.removeItem('zts_signup_pending'); } catch (e) {}
+
+    var data;
+    try { data = JSON.parse(raw); } catch (e) { return; }
+    if (!data || !data.ts) return;
+    // Garde-fou : ignore un flag plus vieux que 10 min (onglet laisse ouvert,
+    // navigation manuelle tardive, etc.).
+    if (Date.now() - data.ts > 10 * 60 * 1000) return;
+
+    // GA4 tout de suite (sendBeacon survit meme a une navigation).
+    try {
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'signup_complete', {
+          source: 'auth',
+          method: data.method || 'unknown',
+          signup_source: data.signup_source || 'direct',
+        });
+      }
+    } catch (e) {}
+
+    // Ecriture Firestore (meme format que locked_view + method/signup_source).
+    // Pas de navigation sur cette page -> l'ecriture async se termine.
+    waitFb().then(function () {
+      try {
+        var db = firebase.firestore();
+        return db.collection('conversionFunnel').add({
+          event: 'signup_complete',
+          source: 'auth',
+          slug: null,
+          layer: null,
+          provider: null,
+          method: data.method ? String(data.method) : null,
+          signup_source: data.signup_source ? String(data.signup_source) : 'direct',
+          uid: uid(),
+          path: window.location.pathname,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (e) { /* swallow */ }
+    });
+  })();
 })();
