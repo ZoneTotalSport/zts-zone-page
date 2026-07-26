@@ -28,6 +28,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../shared/zts-header.css">
+<link rel="stylesheet" href="../../assets/ztsh-shell.css">
 <style>
   @font-face { font-family: 'ZoneTotalSport'; src: url('fonts/ZoneTotalSport.ttf') format('truetype'); }
   /* ═══ POLICES ZTS — alias les noms originaux vers nos 6 polices locales ═══ */
@@ -1394,6 +1395,7 @@
 <!-- Header partagé ZTS (identique à la home) --><div data-zts-header></div>
 <script>(function(){function t(){var e=document.getElementById('ztsClock');if(!e)return;var d=new Date();e.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}t();setInterval(t,15000);})();</script>
 
+<div class="ztsh-page">
 <!-- NHL Logos Background -->
 <div class="nhl-bg-pattern" id="nhlBgPattern"></div>
 
@@ -2366,8 +2368,12 @@ async function init() {
 
 init();
 </script>
+</div><!-- /.ztsh-page -->
+
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>
 <script src="../../shared/zts.js"></script>
+<script src="../../assets/ztsh-shell.js"></script>
+<script>ZTSShell.monter({ densite: 'projection' });</script>
 </body>
 </html>
