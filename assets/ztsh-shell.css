@@ -1,0 +1,1436 @@
+/* ==========================================================================
+   ZTSH-SHELL — habillage Zone Total Sport
+   État cible : zts-final-marine.html. L'ancienne identité visuelle ne
+   survit nulle part.
+   --------------------------------------------------------------------------
+   RÈGLES DE CONTACT AVEC LE CSS DES APPS
+     · aucun sélecteur de type nu (*, body, button, input, a, h1-h6, table…)
+     · aucun !important hors du bloc @media print (§20)
+     · aucun reset ; box-sizing borné à .ztsh-shell *
+     · tout est préfixé ztsh-, classes comme variables comme id
+
+   TROIS EXCEPTIONS, toutes bornées à une classe que le shell pose lui-même
+   et qui n'existe nulle part ailleurs dans le dépôt :
+     1. `body.ztsh-on` porte le fond marine. Le prompt exige un fond
+        inconditionnel sur body ; l'interdiction vise les sélecteurs de TYPE
+        nus, pas un body qualifié par une classe d'opt-in. Une page qui
+        n'appelle pas ZTSShell.monter() n'a pas la classe et ne change pas.
+     2. `body[data-ztsh-densite="…"]` déclare des variables. Le conteneur de
+        l'app n'est pas dans .ztsh-shell et doit pouvoir en hériter.
+     3. `@media print` emploie [class^="ztsh-"] avec !important.
+
+   TOUT EN px, JAMAIS EN rem. Une seule app trafique la taille racine —
+   apps/evaluation/ avec html{font-size:23px} — et elle est exclue du
+   chantier ; la règle reste par principe.
+
+   Compagnon : assets/ztsh-shell.js → window.ZTSShell.
+   Le shell ne se monte jamais tout seul.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. ÉCHELLE z-index — valeurs RELEVÉES au prescan du 25 juillet 2026
+   --------------------------------------------------------------------------
+        0 –  199   contenu et panneaux d'app (relevés : 50 60 80 90 100 200)
+      200          .zts-header — shared/zts-header.css:29, 43 apps sur 46
+      300 –  399   ▸ CHROME DU SHELL — réservé, rien d'autre n'y vit
+                      -3  rayons (fond et trame sont sur <html>, §5)
+                     310  sélecteur de métier
+                     340  rail d'outils
+                     350  encourageur et pause café
+     1000 – 99997  modales et overlays d'app (relevés : 1000 2000 3000 5000
+                   6000 8000 9999 10000 99999 100000 100001)
+     9998          .ztg-out — déconnexion, shared/zts-gate.js:91,
+                   right:12px bottom:12px. NE BOUGE PAS : le rail s'écarte.
+    99998          overlay plein écran verrouillé, zts-locked-fullscreen.js:19
+    99999          overlay page verrouillée zts-lock-page.js:63,
+                   et gate d'authentification shared/zts-gate.js:65
+
+   Conséquence voulue : sous un verrou freemium, le chrome passe DERRIÈRE le
+   mur de paiement. Un rail flottant par-dessus un écran d'inscription serait
+   un défaut, pas une fonction.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   2. POLICE DE MARQUE
+   --------------------------------------------------------------------------
+   /fonts/ZoneTotalSport.ttf — majuscules Z T S. Pages est sensible à la
+   casse ; « zonetotalsport.ttf » donne 404.
+
+   size-adjust:50% obligatoire : la police est dessinée à ~2,4× l'em
+   (unitsPerEm 1024, bbox des capitales jusqu'à 2435).
+
+   PAS de unicode-range : vérification fontTools, la police CONTIENT les
+   accents français (145 glyphes). Les couper privait les titres de la
+   police de marque sur les mots accentués.
+
+   MANQUENT pour un titre français :
+       lettres      Ù Ÿ Æ Œ ÿ æ œ
+       ponctuation  ’ « » — °
+   Le navigateur bascule PAR CARACTÈRE : « OÙ » ou « CŒUR » se retrouve à
+   cheval sur deux polices en plein mot.
+
+   ┌── RÈGLE DE RÉDACTION — dans tout texte de .ztsh-titre ────────────────┐
+   │  apostrophe   toujours la DROITE   '    jamais la courbe ’            │
+   │  guillemets   toujours les DROITS  "    jamais les français « »       │
+   │  tiret        toujours le SIMPLE   -    jamais le cadratin —          │
+   │  degré        écrire le mot « degrés »                                │
+   │  ligatures    OE et AE en deux lettres                                │
+   └──────────────────────────────────────────────────────────────────────┘
+
+   Le piège le plus discret est l'apostrophe : la droite ' est couverte, la
+   courbe ’ ne l'est pas — et c'est celle que produit la correction
+   automatique de la plupart des éditeurs. « L'ÉCOLE » passe, « L’ÉCOLE »
+   casse, et la différence ne se voit pas dans le code source.
+
+   Garde-fou :  python3 _scripts/verifie-glyphes-ztsh.py
+       ponctuation → BLOQUANT (sortie 1)
+       lettres     → avertissement (sortie 0)
+
+   Correctif définitif, hors chantier : faire dessiner les douze glyphes.
+   Voir TICKET-GLYPHES-ZTS.md.
+   ========================================================================== */
+@font-face {
+  /* Nom propre au shell. « ZoneTotalSport » tout court entre en conflit avec
+     les @font-face locaux de jeux, moyens-action, nhl-playoffs et studio-jeu,
+     qui déclarent la MÊME famille SANS size-adjust — le pilote projection a
+     montré le logo déborder du header, rendu au double de sa taille.
+     Un nom distinct rend la collision impossible. */
+  font-family: 'ZoneTotalSportZTSH';
+  src: url('/fonts/ZoneTotalSport.ttf') format('truetype');
+  font-display: swap;
+  size-adjust: 50%;
+}
+
+
+/* ==========================================================================
+   3. TOKENS — sémantique stricte
+   --------------------------------------------------------------------------
+   Tous préfixés --ztsh-*. shared/zts.css définit déjà --cyan, --jaune,
+   --orange, --rose, --ink, --bord, --r-1..4 avec d'autres valeurs, et
+   15 apps en redéfinissent une partie. Aucun chevauchement possible.
+
+   RÔLE UNIQUE PAR TOKEN — ne pas détourner :
+     cyan        boutons et actions. Jamais décoratif. Aussi = ÉP
+     cyan-vif    haut du dégradé de bouton, uniquement
+     cyan-dark   ombre sous les boutons cyan, uniquement
+     jaune       étiquettes, bandeau, compteur
+     jaune-deep  ombre sous les boutons jaunes, uniquement
+     lime        service de garde
+     orange      camp de jour
+     rose        SOS, communauté, alerte
+     noir        contours et texte
+
+   CONTRASTE — jaune et lime ne sont JAMAIS du texte sur le marine :
+   uniquement en aplat avec texte foncé. Le rose plafonne à ~3:1 sur le
+   marine : gros titre ou ombre seulement. --ztsh-rose-clair existe pour le
+   rose lisible en petit.
+
+   MAXIMUM DEUX ACCENTS VISIBLES PAR ÉCRAN, plus le cyan.
+   ========================================================================== */
+:root {
+  --ztsh-cyan:        #00C2E8;
+  --ztsh-cyan-vif:    #3ADCFA;
+  --ztsh-cyan-dark:   #075A6B;
+  --ztsh-jaune:       #FFFC00;
+  --ztsh-jaune-deep:  #C4C200;
+  --ztsh-lime:        #A3FF00;
+  --ztsh-orange:      #FFA200;
+  --ztsh-rose:        #FF0061;
+  --ztsh-rose-clair:  #FF4D8C;   /* rose lisible en petit sur marine */
+  --ztsh-noir:        #08131E;
+
+  /* Neutres de support — pas des accents. */
+  --ztsh-surface:     #FFFFFF;
+  --ztsh-ink:         #0C1720;   /* texte sur surface claire */
+  --ztsh-ink-soft:    #5B6773;
+  --ztsh-sur-marine:  #E6F4FA;   /* texte de corps sur le fond marine */
+  --ztsh-sur-marine-doux: #C4E1EE;
+
+  /* Fond marine — §5. */
+  --ztsh-marine:       #061726;
+  --ztsh-marine-voile: rgba(6, 23, 38, .74);
+
+  /* Rayons. */
+  --ztsh-r-btn:  11px;
+  --ztsh-r-card: 16px;
+  --ztsh-r-rail: 18px;
+
+  /* Polices. --ztsh-f-corps ne sert QU'aux éléments .ztsh-* : le corps de
+     texte des apps n'est jamais touché (agenda/colorier/generateur en Inter,
+     cours-maternelle avec 6 @font-face locaux). */
+  --ztsh-f-display: 'ZoneTotalSportZTSH', 'Luckiest Guy', system-ui, sans-serif;
+  --ztsh-f-titre:   'Luckiest Guy', system-ui, sans-serif;
+  --ztsh-f-punch:   'Bangers', system-ui, sans-serif;
+  --ztsh-f-corps:   'Nunito', system-ui, sans-serif;
+  --ztsh-f-note:    'Schoolbell', cursive;
+
+  /* Interlignage des gros titres. 1.05 minimum : les capitales accentuées
+     dépassent de 20-30 % au-dessus des capitales normales (E 1852,
+     É 2227, Ô 2435 pour un em de 1024). À .92, l'accent est coupé. */
+  --ztsh-lh-titre: 1.05;
+
+  /* Empilement — §1. */
+  --ztsh-z-rayons:   -3;   /* derrière les calques du titre (-1/-2) */
+  --ztsh-z-metiers:  310;
+  --ztsh-z-rail:     340;
+  --ztsh-z-flottant: 350;
+
+  /* Volume — surchargé par densité (§18). vitrine = ombres dures COLORÉES
+     8px et contours 3,5px ; travail = ombres NOIRES 4px et contours 2px. */
+  --ztsh-bord:         3.5px;
+  --ztsh-bord-fin:     3px;
+  --ztsh-ombre-carte:  8px;
+  --ztsh-ombre-survol: 11px;
+  --ztsh-ombre-teinte: var(--ztsh-cyan);
+  --ztsh-echelle-titre: 1;
+
+  /* Géométrie du rail.
+     --ztsh-marge-droite   : à appliquer par la page sur SON conteneur ;
+                             vaut 0 dès que le rail passe en ruban.
+     --ztsh-rail-garde-bas : dégage .ztg-out (bottom:12px, ~44px) sans le
+                             déplacer — le rail est ancré en bas.
+     --ztsh-rail-garde-haut: borne la hauteur ; .zts-header mesure ~316px. */
+  --ztsh-marge-droite:     0px;
+  --ztsh-rail-largeur:     70px;
+  --ztsh-rail-garde-bas:   96px;
+  --ztsh-rail-garde-haut: 340px;
+}
+
+
+/* ==========================================================================
+   4. RACINE DU SHELL
+   --------------------------------------------------------------------------
+   ZTSShell.monter() insère <div class="ztsh-shell"> en dernier enfant de
+   <body>, hors du conteneur de l'app. box-sizing borné à ce sous-arbre :
+   acrosport et studio-jeu ne chargent aucun CSS partagé, un `*` les
+   casserait.
+   ========================================================================== */
+.ztsh-shell,
+.ztsh-shell *,
+.ztsh-shell *::before,
+.ztsh-shell *::after { box-sizing: border-box; }
+
+.ztsh-shell {
+  font-family: var(--ztsh-f-corps);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  pointer-events: none;              /* ne peut pas voler un clic à l'app */
+}
+.ztsh-shell > * { pointer-events: auto; }
+.ztsh-shell :focus-visible,
+.ztsh-metiers :focus-visible { outline: 3px solid var(--ztsh-jaune); outline-offset: 4px; }
+
+/* Enveloppe du contenu existant de l'app. Posée par la procédure de
+   migration autour du contenu, SANS en modifier l'intérieur. Elle ne fait
+   qu'une chose : réserver la place du rail vertical. La variable vaut 0 dès
+   que le rail passe en ruban, donc la règle est neutre partout où le rail ne
+   mord sur rien.
+
+   Volontairement sans padding, sans largeur, sans fond : tout ça appartient
+   à l'app. */
+.ztsh-page { padding-right: var(--ztsh-marge-droite, 0px); }
+
+
+/* ==========================================================================
+   5. FOND MARINE — inconditionnel
+   --------------------------------------------------------------------------
+   Posé sur body.ztsh-on, jamais sur body[data-metier]. Le fond photo de
+   gymnase et le voile crème de shared/zts.css:83-97 sont neutralisés là-bas,
+   sous la même classe d'opt-in ; aucune règle n'y est supprimée.
+
+   Effet de bord voulu : data-metier ne sert plus qu'à teinter les accents.
+   Le bug présence-contre-valeur de zts.css est neutralisé sans être corrigé,
+   et data-metier="eps" de studio-jeu devient sans conséquence. Les deux
+   restent au registre de dette (D1, D2).
+
+   Trois calques en z-index négatifs, sous tout le contenu de l'app.
+   ========================================================================== */
+/* Le fond va sur <html>, PAS sur <body>, et les trois calques sont empilés
+   en images de fond multiples plutôt qu'en pseudo-éléments.
+
+   Trouvé au banc d'essai : un `background` opaque sur body place tout
+   z-index négatif de la page DERRIÈRE lui — c'est le comportement normal du
+   modèle d'empilement, mais il rendait invisibles à la fois le dégradé, la
+   trame, et les calques cyan/rose du titre de hero. Ce piège aurait aussi
+   frappé n'importe quelle app posant un décor en z-index négatif.
+
+   body reste donc transparent : les z-index négatifs des enfants restent
+   visibles, et rien de ce que fait une app n'est masqué. */
+html.ztsh-on {
+  background-color: var(--ztsh-marine);
+  background-image:
+    radial-gradient(rgba(255, 255, 255, .16) 1.3px, transparent 1.4px),
+    radial-gradient(760px 420px at 88% 4%, rgba(255, 212, 0, .10), transparent 70%),
+    linear-gradient(163deg, #12879E 0%, #0C5C7D 28%, #0A3A5E 58%, #08243D 82%, var(--ztsh-marine) 100%);
+  background-size: 12px 12px, auto, auto;
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-attachment: fixed, fixed, fixed;
+}
+body.ztsh-on {
+  background: transparent;
+  color: var(--ztsh-sur-marine);
+}
+/* Rayons à rotation lente. Nœud dédié : body n'a que deux pseudo-éléments. */
+.ztsh-rayons {
+  position: fixed;
+  top: -46vh;
+  left: 50%;
+  width: 150vmax;
+  height: 150vmax;
+  z-index: var(--ztsh-z-rayons);
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: .20;
+  background: repeating-conic-gradient(from 0deg at 50% 50%,
+    rgba(255, 212, 0, .85) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 62%);
+          mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 62%);
+  animation: ztsh-tourne 140s linear infinite;
+}
+@keyframes ztsh-tourne { to { transform: translateX(-50%) rotate(360deg); } }
+
+
+/* ==========================================================================
+   6. TITRES
+   ========================================================================== */
+
+/* Titre de marque. Seul endroit où ZoneTotalSport est employée — voir §2
+   pour les douze caractères à éviter. */
+.ztsh-titre {
+  font-family: var(--ztsh-f-display);
+  line-height: var(--ztsh-lh-titre);
+  letter-spacing: .5px;
+  margin: 0;
+  color: #fff;
+}
+
+/* Titre de hero — trois calques décalés, façon défaut de repérage
+   d'imprimerie. Blanc au centre, cyan décalé à gauche, rose à droite.
+   Le texte est répété via data-ztsh-txt pour que les calques restent
+   parfaitement alignés sur la même chaîne. */
+.ztsh-offset {
+  position: relative;
+  display: inline-block;
+  font-family: var(--ztsh-f-titre);
+  font-size: calc(clamp(38px, 6.2vw, 76px) * var(--ztsh-echelle-titre));
+  line-height: var(--ztsh-lh-titre);
+  letter-spacing: 1px;
+  color: #fff;
+  margin-top: 14px;
+}
+.ztsh-offset::before,
+.ztsh-offset::after {
+  content: attr(data-ztsh-txt);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: -1;
+}
+.ztsh-offset::before { color: var(--ztsh-cyan); transform: translate(-6px, 5px); }
+.ztsh-offset::after  { color: var(--ztsh-rose); transform: translate(6px, -4px); opacity: .85; z-index: -2; }
+
+/* Titre de section — blanc à contour noir. paint-order:stroke fill met le
+   contour SOUS le remplissage, sinon le trait ronge l'intérieur des lettres. */
+.ztsh-sectitre {
+  font-family: var(--ztsh-f-titre);
+  font-size: calc(clamp(24px, 3.2vw, 34px) * var(--ztsh-echelle-titre));
+  line-height: var(--ztsh-lh-titre);
+  letter-spacing: .6px;
+  color: #fff;
+  margin: 46px 0 5px;
+  -webkit-text-stroke: 3px var(--ztsh-noir);
+  paint-order: stroke fill;
+}
+.ztsh-sectrait { font-size: 14.5px; color: var(--ztsh-sur-marine-doux); margin: 0 0 18px; }
+
+
+/* ==========================================================================
+   7. ÉTIQUETTE
+   Bangers sur aplat jaune, contour noir, inclinée -1,6°, ombre dure.
+   Le jaune n'est jamais du texte : c'est l'aplat, et le texte est foncé.
+   ========================================================================== */
+.ztsh-etiquette {
+  display: inline-block;
+  font-family: var(--ztsh-f-punch);
+  letter-spacing: 1.6px;
+  font-size: 17px;
+  line-height: 1.25;
+  background: var(--ztsh-jaune);
+  color: #2B2A00;
+  padding: 4px 13px 2px;
+  border-radius: 7px;
+  border: var(--ztsh-bord-fin) solid var(--ztsh-noir);
+  transform: rotate(-1.6deg);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, .45);
+}
+.ztsh-etiquette--lime  { background: var(--ztsh-lime);   color: #1E3300; }
+.ztsh-etiquette--orange{ background: var(--ztsh-orange); color: #3D2400; }
+.ztsh-etiquette--rose  { background: var(--ztsh-rose);   color: #fff; }
+
+
+/* ==========================================================================
+   8. BOUTON
+   --------------------------------------------------------------------------
+   Tout est déclaré explicitement — font, border, background, color, margin,
+   appearance : la maquette s'appuyait sur un `button{}` global, interdit ici,
+   et acrosport comme studio-jeu n'ont aucun reset qui précède.
+   ========================================================================== */
+.ztsh-btn {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-family: var(--ztsh-f-titre);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: .6px;
+  line-height: 1.1;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 13px 25px 11px;
+  border: var(--ztsh-bord-fin) solid var(--ztsh-noir);
+  border-radius: var(--ztsh-r-btn);
+  background: linear-gradient(180deg, var(--ztsh-cyan-vif), var(--ztsh-cyan));
+  color: #03323C;
+  box-shadow: 0 5px 0 var(--ztsh-cyan-dark), 5px 9px 0 rgba(0, 0, 0, .35);
+  transition: transform .09s, box-shadow .09s;
+}
+.ztsh-btn:hover  { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ztsh-cyan-dark), 6px 12px 0 rgba(0, 0, 0, .35); }
+.ztsh-btn:active { transform: translateY(4px);  box-shadow: 0 1px 0 var(--ztsh-cyan-dark), 2px 4px 0 rgba(0, 0, 0, .35); }
+
+.ztsh-btn--jaune {
+  background: linear-gradient(180deg, #FFFF7A, var(--ztsh-jaune));
+  color: #2B2A00;
+  box-shadow: 0 5px 0 var(--ztsh-jaune-deep), 5px 9px 0 rgba(0, 0, 0, .35);
+}
+.ztsh-btn--jaune:hover  { box-shadow: 0 7px 0 var(--ztsh-jaune-deep), 6px 12px 0 rgba(0, 0, 0, .35); }
+.ztsh-btn--jaune:active { box-shadow: 0 1px 0 var(--ztsh-jaune-deep), 2px 4px 0 rgba(0, 0, 0, .35); }
+
+.ztsh-btn--sm { font-size: 13px; padding: 9px 16px 7px; border-width: 2.5px; }
+
+/* Halo blanc quand le bouton est posé directement sur le fond marine, sans
+   carte ni panneau derrière lui : le contour noir seul s'y perdrait. */
+.ztsh-btn--halo         { box-shadow: 0 0 0 5px rgba(255, 255, 255, .92), 0 5px 0 var(--ztsh-cyan-dark), 5px 9px 0 rgba(0, 0, 0, .35); }
+.ztsh-btn--halo:hover   { box-shadow: 0 0 0 5px rgba(255, 255, 255, .92), 0 7px 0 var(--ztsh-cyan-dark), 6px 12px 0 rgba(0, 0, 0, .35); }
+.ztsh-btn--halo:active  { box-shadow: 0 0 0 5px rgba(255, 255, 255, .92), 0 1px 0 var(--ztsh-cyan-dark), 2px 4px 0 rgba(0, 0, 0, .35); }
+.ztsh-btn--halo.ztsh-btn--jaune        { box-shadow: 0 0 0 5px rgba(255, 255, 255, .92), 0 5px 0 var(--ztsh-jaune-deep), 5px 9px 0 rgba(0, 0, 0, .35); }
+.ztsh-btn--halo.ztsh-btn--jaune:hover  { box-shadow: 0 0 0 5px rgba(255, 255, 255, .92), 0 7px 0 var(--ztsh-jaune-deep), 6px 12px 0 rgba(0, 0, 0, .35); }
+.ztsh-btn--halo.ztsh-btn--jaune:active { box-shadow: 0 0 0 5px rgba(255, 255, 255, .92), 0 1px 0 var(--ztsh-jaune-deep), 2px 4px 0 rgba(0, 0, 0, .35); }
+
+
+/* ==========================================================================
+   9. CARTE — blanche, ombre dure COLORÉE
+   L'ombre passe de 8px à 11px au survol, avec translation de 3px.
+   Rappel de la règle de couleur : deux accents visibles par écran au plus,
+   plus le cyan. Ne pas peindre un arc-en-ciel de cartes.
+   ========================================================================== */
+.ztsh-carte {
+  background: var(--ztsh-surface);
+  border: var(--ztsh-bord) solid var(--ztsh-noir);
+  border-radius: var(--ztsh-r-card);
+  padding: 20px;
+  color: var(--ztsh-ink);
+  box-shadow: var(--ztsh-ombre-carte) var(--ztsh-ombre-carte) 0 var(--ztsh-ombre-teinte);
+  transition: transform .14s, box-shadow .14s;
+}
+.ztsh-carte:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: var(--ztsh-ombre-survol) var(--ztsh-ombre-survol) 0 var(--ztsh-ombre-teinte);
+}
+.ztsh-carte--jaune  { --ztsh-ombre-teinte: var(--ztsh-jaune); }
+.ztsh-carte--lime   { --ztsh-ombre-teinte: var(--ztsh-lime); }
+.ztsh-carte--orange { --ztsh-ombre-teinte: var(--ztsh-orange); }
+.ztsh-carte--rose   { --ztsh-ombre-teinte: var(--ztsh-rose); }   /* SOS */
+.ztsh-carte__titre  { font-family: var(--ztsh-f-titre); font-size: calc(20px * var(--ztsh-echelle-titre)); letter-spacing: .4px; line-height: var(--ztsh-lh-titre); margin: 0 0 7px; }
+.ztsh-carte__txt    { font-size: 14.5px; color: var(--ztsh-ink-soft); margin: 0; }
+.ztsh-note          { font-family: var(--ztsh-f-note); font-size: 17px; color: #0A7C93; line-height: 1.3; margin: 0; }
+
+
+/* ==========================================================================
+   10. PANNEAU — incliné, bandeau noir en Bangers, date en jaune
+   ========================================================================== */
+.ztsh-panneau {
+  background: var(--ztsh-surface);
+  border: 4px solid var(--ztsh-noir);
+  border-radius: var(--ztsh-r-card);
+  box-shadow: 10px 10px 0 var(--ztsh-ombre-teinte);
+  position: relative;
+  color: var(--ztsh-ink);
+  transform: rotate(-.9deg);
+}
+.ztsh-panneau--droite { transform: rotate(.8deg); }
+.ztsh-panneau--jaune  { --ztsh-ombre-teinte: var(--ztsh-jaune); }
+.ztsh-panneau__bandeau {
+  background: var(--ztsh-noir);
+  color: #fff;
+  font-family: var(--ztsh-f-punch);
+  letter-spacing: 1.6px;
+  font-size: 19px;
+  padding: 8px 17px 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 11px 11px 0 0;
+}
+.ztsh-panneau__date  { font-family: var(--ztsh-f-corps); font-size: 11px; font-weight: 900; letter-spacing: 1px; color: var(--ztsh-jaune); }
+.ztsh-panneau__corps { padding: 19px 21px 21px; }
+.ztsh-panneau__titre { font-family: var(--ztsh-f-titre); font-size: calc(34px * var(--ztsh-echelle-titre)); line-height: var(--ztsh-lh-titre); letter-spacing: .5px; margin: 0 0 5px; }
+.ztsh-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 13px; }
+.ztsh-tag  { font-size: 11px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; border: 2px solid var(--ztsh-noir); border-radius: 20px; padding: 3px 11px; color: var(--ztsh-ink); }
+
+
+/* ==========================================================================
+   11. BANDEAU DÉFILANT — aplat jaune, Bangers, 26 s
+   Le contenu doit être dupliqué deux fois dans le HTML pour que la boucle
+   à -50 % soit invisible.
+   ========================================================================== */
+.ztsh-bande {
+  background: var(--ztsh-jaune);
+  border-top: var(--ztsh-bord-fin) solid var(--ztsh-noir);
+  border-bottom: var(--ztsh-bord-fin) solid var(--ztsh-noir);
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 7px 0;
+  margin: 34px 0 26px;
+}
+.ztsh-bande__piste {
+  display: inline-block;
+  animation: ztsh-defile 26s linear infinite;
+  font-family: var(--ztsh-f-punch);
+  font-size: 19px;
+  letter-spacing: 1.6px;
+  color: #2B2A00;
+}
+.ztsh-bande__piste > span { margin: 0 26px; }
+.ztsh-bande__piste b { color: var(--ztsh-cyan-dark); }
+@keyframes ztsh-defile { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+
+/* ==========================================================================
+   12. COMPTEUR GÉANT — Luckiest Guy jaune à contour noir
+   Le comptage animé est piloté par ZTSShell (§ ztsh-shell.js), au premier
+   affichage seulement, via IntersectionObserver.
+   ========================================================================== */
+.ztsh-compteur { display: flex; align-items: flex-end; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
+.ztsh-compteur__nb {
+  font-family: var(--ztsh-f-titre);
+  font-size: calc(clamp(46px, 6.6vw, 84px) * var(--ztsh-echelle-titre));
+  line-height: var(--ztsh-lh-titre);
+  color: var(--ztsh-jaune);
+  text-shadow:
+    5px 5px 0 var(--ztsh-noir), -2px -2px 0 var(--ztsh-noir),
+    2px -2px 0 var(--ztsh-noir), -2px 2px 0 var(--ztsh-noir);
+}
+.ztsh-compteur__quoi { font-family: var(--ztsh-f-punch); font-size: 19px; letter-spacing: 1.4px; color: #BFE9F6; padding-bottom: 9px; }
+.ztsh-ministats { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 18px; }
+.ztsh-ministat  { background: rgba(255, 255, 255, .09); border: 2.5px solid var(--ztsh-noir); border-radius: var(--ztsh-r-btn); padding: 8px 14px; box-shadow: 3px 3px 0 rgba(0, 0, 0, .4); }
+.ztsh-ministat__nb  { font-family: var(--ztsh-f-titre); font-size: 19px; display: block; line-height: var(--ztsh-lh-titre); color: var(--ztsh-cyan-vif); }
+.ztsh-ministat__lbl { font-size: 10.5px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; color: #9FC3D4; }
+
+
+/* ==========================================================================
+   13. BARRE DU HAUT
+   --------------------------------------------------------------------------
+   Le shell ne crée PAS de nœud de barre : .zts-header existe déjà en
+   position:fixed sur 43 apps sur 46. Décision de STRUCTURE — le nœud reste,
+   son allure est intégralement remplacée. Les règles vivent dans
+   shared/zts.css, sous body.ztsh-on, pour ne pas dupliquer les sélecteurs.
+
+   Ce qui y est fait : fond translucide flouté, contour noir 3px, ombre dure
+   cyan 6px, logo blanc avec « TOTAL » en cyan.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   14. SÉLECTEUR DE MÉTIER
+   --------------------------------------------------------------------------
+   Chaque bouton porte SA couleur en permanence : cyan ÉP, lime SDG,
+   orange camp. Les inactifs sont désaturés à 65 % et estompés ; l'actif est
+   en couleur pleine, soulevé de 2px, ombre dure jaune.
+
+   Vit dans le flux, sous la barre du haut. Le z-index ne sert qu'à passer
+   devant les fonds décoratifs des apps.
+
+   Monté UNIQUEMENT sur les 26 apps qui portent déjà body[data-metier].
+   Les 20 transversales (jeux, sae, educatifs, generateur…) servent les trois
+   métiers — leur en imposer un serait faux.
+   ========================================================================== */
+.ztsh-metiers {
+  position: relative;
+  z-index: var(--ztsh-z-metiers);
+  display: flex;
+  gap: 11px;
+  flex-wrap: wrap;
+  margin: 15px auto 24px;
+  max-width: 1180px;
+  padding: 0 18px;
+}
+.ztsh-metier {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 0;
+  padding: 12px 16px;
+  font-family: var(--ztsh-f-corps);
+  font-size: 15px;
+  cursor: pointer;
+  text-align: left;
+  border: var(--ztsh-bord-fin) solid var(--ztsh-noir);
+  border-radius: var(--ztsh-r-btn);
+  background: var(--ztsh-metier-teinte);
+  color: var(--ztsh-metier-encre);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, .45);
+  filter: saturate(.65);
+  opacity: .72;
+  transition: transform .12s, box-shadow .12s, filter .12s, opacity .12s;
+}
+.ztsh-metier--ep   { --ztsh-metier-teinte: var(--ztsh-cyan);   --ztsh-metier-encre: #03323C; }
+.ztsh-metier--sdg  { --ztsh-metier-teinte: var(--ztsh-lime);   --ztsh-metier-encre: #1E3300; }
+.ztsh-metier--camp { --ztsh-metier-teinte: var(--ztsh-orange); --ztsh-metier-encre: #3D2400; }
+
+.ztsh-metier:hover { filter: saturate(.85); opacity: .9; transform: translate(-2px, -2px); box-shadow: 6px 6px 0 rgba(0, 0, 0, .45); }
+.ztsh-metier[aria-pressed="true"] {
+  filter: none;
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 5px 5px 0 var(--ztsh-jaune);
+}
+.ztsh-metier__nom  { font-family: var(--ztsh-f-titre); font-size: calc(15px * var(--ztsh-echelle-titre)); letter-spacing: .4px; display: block; line-height: var(--ztsh-lh-titre); }
+.ztsh-metier__sous { font-size: 12px; opacity: .8; }
+
+
+/* ==========================================================================
+   15. RAIL D'OUTILS
+   --------------------------------------------------------------------------
+   Bloc vertical à droite, contour noir, ombre dure cyan, libellé jaune au
+   survol. Ruban horizontal sous 1200px et en densité travail.
+
+   Pas d'emoji : les pastilles sont des libellés Bangers, en réservant la
+   place pour les futures icônes Pop Art.
+
+   ANCRÉ EN BAS, pas centré. Vérifié au banc : centré à top:50 %, le rail
+   recouvrait .zts-header de 142px en vertical et 62px en horizontal sur un
+   écran 1400×900 — le header fait 316px de haut et le rail passe devant
+   (340 > 200). Ancré en bas, il ne peut par construction jamais le toucher,
+   et la garde basse dégage .ztg-out sans le déplacer.
+   ========================================================================== */
+.ztsh-casier {
+  position: fixed;
+  right: 14px;
+  bottom: var(--ztsh-rail-garde-bas);
+  z-index: var(--ztsh-z-rail);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 9px;
+  max-height: calc(100vh - var(--ztsh-rail-garde-bas) - var(--ztsh-rail-garde-haut));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--ztsh-marine-voile);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  border: var(--ztsh-bord-fin) solid var(--ztsh-noir);
+  border-radius: var(--ztsh-r-rail);
+  box-shadow: -7px 7px 0 rgba(0, 194, 232, .55);
+}
+.ztsh-casier__cle {
+  font-family: var(--ztsh-f-punch);
+  font-size: 12px;
+  letter-spacing: 1.4px;
+  color: var(--ztsh-jaune);
+  text-align: center;
+  padding: 2px 0 5px;
+  border-bottom: 2px dashed rgba(255, 255, 255, .2);
+  margin-bottom: 3px;
+}
+.ztsh-outil {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  text-decoration: none;
+  border: 2.5px solid var(--ztsh-noir);
+  background: linear-gradient(180deg, #123A55, #0B2436);
+  font-family: var(--ztsh-f-punch);
+  font-size: 13px;
+  letter-spacing: .8px;
+  color: #BFE9F6;
+  line-height: 1;
+  transition: transform .12s, background .12s, color .12s, box-shadow .12s;
+}
+.ztsh-outil:hover,
+.ztsh-outil:focus-visible {
+  transform: translate(2px, -2px);
+  background: linear-gradient(180deg, var(--ztsh-cyan-vif), var(--ztsh-cyan));
+  color: #03323C;
+  box-shadow: -4px 4px 0 var(--ztsh-jaune);
+}
+.ztsh-outil--vedette { background: linear-gradient(180deg, #FFFF7A, var(--ztsh-jaune)); color: #2B2A00; }
+.ztsh-outil__info {
+  position: absolute;
+  right: 60px;
+  white-space: nowrap;
+  background: var(--ztsh-jaune);
+  color: #2B2A00;
+  font-family: var(--ztsh-f-corps);
+  font-weight: 900;
+  font-size: 12.5px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 2.5px solid var(--ztsh-noir);
+  opacity: 0;
+  transform: translateX(7px);
+  pointer-events: none;
+  transition: opacity .13s, transform .13s;
+}
+.ztsh-outil:hover .ztsh-outil__info,
+.ztsh-outil:focus-visible .ztsh-outil__info { opacity: 1; transform: translateX(0); }
+
+
+/* ==========================================================================
+   16. ENCOURAGEUR ET PERSONNAGES — densité vitrine seulement
+   --------------------------------------------------------------------------
+   Le changement de métier bascule /perso-ep.png, /perso-sdg.png,
+   /perso-camp.png, avec rebond et cri assorti. Chemins relatifs à la racine
+   du site, jamais l'URL du domaine.
+
+   La place est réservée par min-height et aspect-ratio 500/641 pour que le
+   remplacement d'image ne fasse pas sauter la mise en page.
+
+   Jamais en densité travail : 10 apps impriment la page courante, 8 sont
+   projetées au TNI, et le coin bas-droit est déjà occupé sur 26 apps
+   (.ztg-out, .p-perso, .pf-helpbtn, .cal-mascot-float).
+   ========================================================================== */
+.ztsh-encourageur {
+  position: fixed;
+  right: 96px;
+  bottom: 18px;
+  z-index: var(--ztsh-z-flottant);
+  display: flex;
+  align-items: flex-end;
+  max-width: calc(100vw - 120px);
+}
+.ztsh-bulle {
+  max-width: 290px;
+  min-width: 0;
+  flex: 1 1 auto;
+  background: var(--ztsh-surface);
+  color: var(--ztsh-ink);
+  border: var(--ztsh-bord) solid var(--ztsh-noir);
+  border-radius: var(--ztsh-r-card);
+  padding: 14px 16px;
+  box-shadow: -7px 7px 0 var(--ztsh-jaune);
+  position: relative;
+  margin-right: -14px;
+  opacity: 0;
+  transform: translateY(9px) scale(.96);
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+}
+.ztsh-bulle.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.ztsh-bulle::after {
+  content: "";
+  position: absolute;
+  right: -13px;
+  bottom: 26px;
+  width: 0;
+  height: 0;
+  border: 11px solid transparent;
+  border-left-color: var(--ztsh-noir);
+  border-right: 0;
+}
+.ztsh-bulle__txt    { font-family: var(--ztsh-f-note); font-size: 19px; line-height: 1.3; margin: 0; }
+.ztsh-bulle__encore { font-family: var(--ztsh-f-punch); font-size: 14px; letter-spacing: 1.2px; color: var(--ztsh-cyan-dark); margin-top: 9px; display: inline-block; }
+
+.ztsh-perso {
+  -webkit-appearance: none;
+  appearance: none;
+  position: relative;
+  width: 132px;
+  min-height: 132px;              /* place réservée avant chargement */
+  flex: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(-5px 6px 0 rgba(0, 0, 0, .45));
+  animation: ztsh-flotte 5.5s ease-in-out infinite;
+  transition: transform .14s;
+}
+.ztsh-perso:hover { transform: scale(1.05) rotate(-2deg); }
+.ztsh-perso__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 500 / 641;
+  object-fit: contain;
+}
+/* Le cri, en Bangers, contour noir épais pour tenir sur n'importe quel fond. */
+.ztsh-perso__cri {
+  position: absolute;
+  top: -6px;
+  left: -18px;
+  font-family: var(--ztsh-f-punch);
+  font-size: 26px;
+  letter-spacing: 1.5px;
+  color: var(--ztsh-jaune);
+  transform: rotate(-11deg);
+  pointer-events: none;
+  text-shadow:
+    3px 3px 0 var(--ztsh-noir), -2.5px -2.5px 0 var(--ztsh-noir),
+    2.5px -2.5px 0 var(--ztsh-noir), -2.5px 2.5px 0 var(--ztsh-noir);
+  animation: ztsh-pop 2.8s ease-in-out infinite;
+}
+@keyframes ztsh-flotte { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+@keyframes ztsh-pop    { 0%, 100% { transform: rotate(-11deg) scale(1); } 50% { transform: rotate(-9deg) scale(1.08); } }
+
+/* Personnage en vedette, pour un hero de page vitrine. */
+.ztsh-vedette {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(300px, 42vw, 470px);
+}
+.ztsh-vedette__img {
+  width: min(400px, 92%);
+  aspect-ratio: 500 / 641;
+  object-fit: contain;
+  filter: drop-shadow(-10px 12px 0 rgba(0, 0, 0, .42));
+  animation: ztsh-flotte 6.5s ease-in-out infinite;
+}
+.ztsh-vedette__halo {
+  position: absolute;
+  width: min(400px, 88%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  z-index: -1;
+  background: radial-gradient(circle, rgba(255, 212, 0, .30), transparent 66%);
+}
+.ztsh-vedette__cri {
+  position: absolute;
+  top: 4%;
+  left: 3%;
+  z-index: 2;
+  font-family: var(--ztsh-f-punch);
+  font-size: calc(38px * var(--ztsh-echelle-titre));
+  color: var(--ztsh-jaune);
+  letter-spacing: 1.5px;
+  transform: rotate(-11deg);
+  text-shadow:
+    3px 3px 0 var(--ztsh-noir), -2.5px -2.5px 0 var(--ztsh-noir),
+    2.5px -2.5px 0 var(--ztsh-noir), -2.5px 2.5px 0 var(--ztsh-noir);
+  animation: ztsh-pop 2.8s ease-in-out infinite;
+}
+
+
+/* ==========================================================================
+   17. PAUSE CAFÉ — densité vitrine seulement
+   --------------------------------------------------------------------------
+   Aucun appel réseau : repli local seul. La route POST /pause-cafe n'existe
+   pas — api.zonetotalsport.ca ne sert que /health, /generate, /nutrition,
+   /steps, /food-search, /nutrition-photo, /generations,
+   /migrate-anon-generation, /generation/:id. Le worker est un chantier
+   séparé.
+
+   Pas d'emoji tasse : libellé Bangers, place réservée pour l'icône Pop Art.
+   ========================================================================== */
+.ztsh-cafe {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: var(--ztsh-z-flottant);
+  max-width: 330px;
+}
+.ztsh-declencheur {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--ztsh-f-titre);
+  font-size: 15px;
+  letter-spacing: .7px;
+  line-height: 1.1;
+  cursor: pointer;
+  padding: 13px 22px 11px;
+  border-radius: var(--ztsh-r-btn);
+  background: linear-gradient(180deg, #FFFF7A, var(--ztsh-jaune));
+  color: #2B2A00;
+  border: var(--ztsh-bord-fin) solid var(--ztsh-noir);
+  box-shadow: 0 5px 0 var(--ztsh-jaune-deep), 5px 9px 0 rgba(0, 0, 0, .4);
+  transition: transform .1s, box-shadow .1s;
+}
+.ztsh-declencheur:hover  { transform: translateY(-2px); }
+.ztsh-declencheur:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ztsh-jaune-deep), 2px 4px 0 rgba(0, 0, 0, .4); }
+.ztsh-declencheur[disabled] { opacity: .75; cursor: progress; }
+/* Emplacement de la future icône Pop Art. Aujourd'hui : un libellé Bangers. */
+.ztsh-declencheur__marque {
+  font-family: var(--ztsh-f-punch);
+  font-size: 17px;
+  letter-spacing: 1.2px;
+  line-height: 1;
+  min-width: 22px;
+  text-align: center;
+}
+.ztsh-plateau {
+  background: var(--ztsh-surface);
+  color: var(--ztsh-ink);
+  border: var(--ztsh-bord) solid var(--ztsh-noir);
+  border-radius: var(--ztsh-r-card);
+  padding: 16px 18px;
+  box-shadow: 7px 7px 0 var(--ztsh-cyan);
+  margin-bottom: 11px;
+  opacity: 0;
+  transform: translateY(9px);
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+}
+.ztsh-plateau.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.ztsh-plateau__genre { font-family: var(--ztsh-f-punch); font-size: 14px; letter-spacing: 1.3px; color: var(--ztsh-cyan-dark); display: block; margin-bottom: 5px; }
+.ztsh-plateau__txt   { font-size: 15px; line-height: 1.5; margin: 0; }
+.ztsh-plateau__src   { font-size: 11px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: #93A3AF; margin-top: 10px; display: block; }
+
+
+/* ==========================================================================
+   18. DENSITÉS
+   --------------------------------------------------------------------------
+   ZTSShell.monter() pose data-ztsh-densite sur <body> ET sur .ztsh-shell.
+   Le sélecteur passe par <body> pour que les variables soient héritées par
+   le conteneur de l'app, qui n'est pas dans .ztsh-shell.
+
+   Même identité dans les trois cas. Ce qui change, c'est le volume.
+   ========================================================================== */
+
+/* ---- vitrine — accueil, atterrissage ------------------------------------
+   Ombres dures COLORÉES 8px, contours 3,5px, titres au maximum. */
+body[data-ztsh-densite="vitrine"] {
+  --ztsh-marge-droite: 96px;
+  --ztsh-bord:          3.5px;
+  --ztsh-bord-fin:      3px;
+  --ztsh-ombre-carte:   8px;
+  --ztsh-ombre-survol: 11px;
+  --ztsh-echelle-titre: 1;
+}
+
+/* ---- travail — planificateur, banque, grilles, présences ----------------
+   Ombres dures NOIRES 4px, contours 2px, titres réduits d'un cran,
+   animations coupées sauf au survol. Le rail passe en ruban bas-gauche.
+
+   Le ruban n'est pas un repli responsive, c'est le défaut de la densité :
+   nba-playoffs, nhl-playoffs et generateur placent leurs contrôles de zoom
+   en top:50%/translateY(-50%) à droite, exactement sous un rail vertical, et
+   planificateur y a quatre éléments fixes. Le coin bas-gauche, lui, est libre
+   sur les 46 apps — seule nhl-playoffs y a une mascotte, et elle est en
+   densité projection. */
+body[data-ztsh-densite="travail"] {
+  --ztsh-marge-droite:  0px;
+  --ztsh-bord:          2px;
+  --ztsh-bord-fin:      2px;
+  --ztsh-ombre-carte:   4px;
+  --ztsh-ombre-survol:  6px;
+  --ztsh-ombre-teinte:  var(--ztsh-noir);
+  --ztsh-echelle-titre: .85;
+}
+/* Les cartes gardent l'ombre noire même quand une variante colorée est
+   demandée : en densité travail, la couleur passe au contour, pas au volume. */
+body[data-ztsh-densite="travail"] .ztsh-carte--jaune,
+body[data-ztsh-densite="travail"] .ztsh-carte--lime,
+body[data-ztsh-densite="travail"] .ztsh-carte--orange,
+body[data-ztsh-densite="travail"] .ztsh-carte--rose { --ztsh-ombre-teinte: var(--ztsh-noir); }
+
+/* Animations coupées, sauf ce qui répond au survol. */
+body[data-ztsh-densite="travail"] .ztsh-rayons,
+body[data-ztsh-densite="travail"] .ztsh-perso,
+body[data-ztsh-densite="travail"] .ztsh-perso__cri,
+body[data-ztsh-densite="travail"] .ztsh-vedette__img,
+body[data-ztsh-densite="travail"] .ztsh-vedette__cri,
+body[data-ztsh-densite="travail"] .ztsh-bande__piste { animation: none; }
+/* Les panneaux se redressent : l'inclinaison mange de la place utile. */
+body[data-ztsh-densite="travail"] .ztsh-panneau,
+body[data-ztsh-densite="travail"] .ztsh-panneau--droite { transform: none; }
+body[data-ztsh-densite="travail"] .ztsh-etiquette { transform: none; }
+
+body[data-ztsh-densite="travail"] .ztsh-casier {
+  bottom: 16px;
+  right: auto;
+  left: 16px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: min(560px, calc(100vw - 32px));
+  max-height: none;
+  overflow: visible;
+  box-shadow: 5px 5px 0 rgba(0, 194, 232, .5);
+}
+body[data-ztsh-densite="travail"] .ztsh-casier__cle { display: none; }
+/* L'infobulle s'ouvre vers le haut : à droite elle sortirait de l'écran. */
+body[data-ztsh-densite="travail"] .ztsh-outil__info {
+  right: auto;
+  left: 50%;
+  bottom: 58px;
+  transform: translate(-50%, 7px);
+}
+body[data-ztsh-densite="travail"] .ztsh-outil:hover .ztsh-outil__info,
+body[data-ztsh-densite="travail"] .ztsh-outil:focus-visible .ztsh-outil__info { transform: translate(-50%, 0); }
+
+/* ---- projection — tni, studio-jeu, playoffs -----------------------------
+   Tokens seulement. Aucun chrome n'est monté en JS ; ces règles sont une
+   ceinture de sécurité si un nœud survivait à un démontage partiel. */
+body[data-ztsh-densite="projection"] {
+  --ztsh-marge-droite: 0px;
+  --ztsh-echelle-titre: 1;
+}
+body[data-ztsh-densite="projection"] .ztsh-casier,
+body[data-ztsh-densite="projection"] .ztsh-encourageur,
+body[data-ztsh-densite="projection"] .ztsh-cafe,
+body[data-ztsh-densite="projection"] .ztsh-rayons,
+body[data-ztsh-densite="projection"] .ztsh-metiers { display: none; }
+
+
+/* ==========================================================================
+   19. RESPONSIVE
+   --------------------------------------------------------------------------
+   Sous 1200px, même la densité vitrine bascule en ruban : il n'y a plus
+   assez de largeur pour une colonne de 70px sans manger le contenu.
+   ========================================================================== */
+@media (max-width: 1200px) {
+  body[data-ztsh-densite="vitrine"] { --ztsh-marge-droite: 0px; }
+  body[data-ztsh-densite="vitrine"] .ztsh-casier {
+    bottom: 16px; right: auto; left: 16px;
+    flex-direction: row; flex-wrap: wrap;
+    max-width: min(560px, calc(100vw - 32px));
+    max-height: none; overflow: visible;
+    box-shadow: 5px 5px 0 rgba(0, 194, 232, .5);
+  }
+  body[data-ztsh-densite="vitrine"] .ztsh-casier__cle { display: none; }
+  body[data-ztsh-densite="vitrine"] .ztsh-outil__info {
+    right: auto; left: 50%; bottom: 58px; transform: translate(-50%, 7px);
+  }
+  body[data-ztsh-densite="vitrine"] .ztsh-outil:hover .ztsh-outil__info,
+  body[data-ztsh-densite="vitrine"] .ztsh-outil:focus-visible .ztsh-outil__info { transform: translate(-50%, 0); }
+  /* Le ruban occupe le coin bas-gauche : la pause café remonte au-dessus. */
+  .ztsh-cafe { bottom: 96px; max-width: 260px; }
+  .ztsh-encourageur { right: 12px; bottom: 12px; }
+  .ztsh-bulle { max-width: 200px; }
+  .ztsh-perso { width: 96px; min-height: 96px; }
+  .ztsh-perso__cri { font-size: 20px; }
+}
+
+@media (max-width: 700px) {
+  /* Sur téléphone la bulle mange l'écran : le personnage reste, muet. */
+  .ztsh-bulle { display: none; }
+  .ztsh-perso { width: 78px; min-height: 78px; }
+  .ztsh-plateau { max-width: 220px; }
+  .ztsh-metier { min-width: 100%; }
+  .ztsh-sectitre { -webkit-text-stroke-width: 2px; }
+}
+
+/* Écran court : le rail garde de la place plutôt que de défiler. */
+@media (max-height: 700px) { body[data-ztsh-densite="vitrine"] .ztsh-casier { --ztsh-rail-garde-haut: 90px; } }
+@media (max-height: 560px) { body[data-ztsh-densite="vitrine"] .ztsh-casier { --ztsh-rail-garde-haut: 24px; --ztsh-rail-garde-bas: 24px; } }
+
+
+/* ==========================================================================
+   20. IMPRESSION
+   --------------------------------------------------------------------------
+   SEULE exception au !important de tout le fichier, et elle est confinée ici.
+   10 apps impriment la page courante — acrosport, colorier, educatifs,
+   generateur, journee-pedago, olympiades, planificateur, planification,
+   rallyes, sae — pour produire des fiches distribuées aux élèves. Un rail
+   d'outils imprimé sur la feuille d'un enfant, c'est un défaut visible.
+
+   16 apps ont déjà leurs propres règles @media print, mais aucune ne connaît
+   le shell : il faut la nôtre, et elle doit gagner.
+
+   Le fond marine est retiré aussi : imprimer un aplat sombre plein page
+   viderait une cartouche pour rien.
+
+   (Les 4 apps qui impriment via window.open — cours-maternelle, jeux,
+   transitions, evaluation — construisent un document neuf où le shell
+   n'existe pas. Elles ne sont pas concernées.)
+   ========================================================================== */
+@media print {
+  .ztsh-shell,
+  [class^="ztsh-"],
+  [class*=" ztsh-"] { display: none !important; }
+  html.ztsh-on { background: #fff !important; background-image: none !important; }
+  body.ztsh-on { background: #fff !important; color: #000 !important; }
+}
+
+
+/* ==========================================================================
+   21. PLEIN ÉCRAN
+   --------------------------------------------------------------------------
+   Quand l'app passe UN élément en plein écran, le navigateur ne rend que lui
+   et le shell disparaît de lui-même. Ces règles couvrent le cas où c'est
+   documentElement qui passe en plein écran : le chrome resterait alors
+   visible par-dessus le contenu projeté au TNI.
+
+   acrosport (3 appels), studio-jeu (4), tni (2) et planificateur sont
+   concernés. tni et studio-jeu sont en densité projection, donc déjà sans
+   chrome ; la règle sert à acrosport et planificateur.
+
+   Non couvert : le « faux plein écran » (classe CSS + position:fixed
+   inset:0) de certains modes TBI. Registre de dette, D7.
+   ========================================================================== */
+:root:fullscreen .ztsh-shell,
+:root:fullscreen .ztsh-metiers { display: none; }
+:root:-webkit-full-screen .ztsh-shell,
+:root:-webkit-full-screen .ztsh-metiers { display: none; }
+
+
+/* ==========================================================================
+   22. MOUVEMENT RÉDUIT
+   --------------------------------------------------------------------------
+   Scopé au shell. La maquette posait *{animation:none!important} : global,
+   donc interdit ici. Placé en fin de fichier, ce bloc gagne à spécificité
+   égale sans !important, et ne touche jamais les animations d'une app —
+   transitions a du GSAP, planificateur des confettis.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .ztsh-shell,
+  .ztsh-shell *,
+  .ztsh-metiers,
+  .ztsh-metiers * { animation: none; transition: none; }
+}
+
+
+/* ==========================================================================
+   23. DÉGRADATION GRACIEUSE
+   --------------------------------------------------------------------------
+   · Police absente → la pile de repli de --ztsh-f-* prend le relais
+     (ZoneTotalSport → Luckiest Guy → system-ui). Aucune erreur console.
+   · Image de personnage absente → le JS retire l'encourageur en silence
+     (écouteur `error` sur l'img), et la place réservée disparaît avec.
+   · shared/zts.js absent — acrosport, evaluation, studio-jeu → le JS pose
+     data-metier directement, sans planter.
+   · backdrop-filter non supporté → les fonds sont déjà opaques à 66-74 %,
+     le rail et la barre restent lisibles sans le flou.
+   · -webkit-text-stroke non supporté → le titre reste blanc, sans contour :
+     lisible sur le marine, juste moins affirmé.
+   · aspect-ratio non supporté → width/height sont posés sur l'img par le JS,
+     le navigateur en déduit le rapport.
+   · assets/ztsh-shell.css absent alors que le JS tourne → les var() de
+     shared/zts.css ont toutes un repli littéral ci-dessous.
+   ========================================================================== */
+@supports not (aspect-ratio: 1) {
+  .ztsh-perso__img   { height: auto; }
+  .ztsh-vedette__img { height: clamp(300px, 42vw, 470px); }
+}
+
+
+/* ==========================================================================
+   24. HABILLAGE DU DESIGN SYSTEM EXISTANT
+   --------------------------------------------------------------------------
+   Ce bloc vivait d'abord dans shared/zts.css. Le pilote de densité projection
+   (nhl-playoffs) a montré pourquoi c'était une erreur : SEULES 26 apps sur 46
+   chargent shared/zts.css. Les vingt autres — dont jeux, sae, educatifs,
+   generateur, suppleance, transitions, cours-maternelle, les plus visibles du
+   site — ne l'auraient jamais reçu, et auraient gardé l'ancienne identité
+   intérieure.
+
+   assets/ztsh-shell.css, lui, est ajouté par le diff de chaque app migrée :
+   il est là par construction, sur les 46.
+
+   Effet secondaire : shared/zts.css redevient INTACT. Zéro modification d'un
+   fichier partagé servant 1489 pages, et le rollback d'une app se résume à
+   retirer une ligne de son HTML.
+
+   Tout reste conditionné à body.ztsh-on, posée par ZTSShell.monter().
+   Ce fichier doit être chargé APRÈS shared/zts.css là où elle existe.
+   ========================================================================== */
+
+/* ---- Le fond photo de gymnase et le voile crème ne survivent pas ---------
+   shared/zts.css:83-97 les pose sur body[data-metier]. Ils sont neutralisés
+   ici, sous l'opt-in ; les règles d'origine restent intactes en amont.
+   Le fond marine du shell (assets/ztsh-shell.css §5) prend leur place, et il
+   est inconditionnel : data-metier ne sert plus qu'à teinter les accents. */
+body.ztsh-on[data-metier]::before,
+body.ztsh-on[data-metier]::after { background: none; opacity: 0; }
+
+/* ---- Barre du haut — allure de la maquette ------------------------------
+   Fond translucide flouté, contour noir 3px, ombre dure cyan 6px. */
+body.ztsh-on .zts-header {
+  background-color: rgba(6, 23, 38, .66);
+  background-image: none;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: var(--ztsh-r-card, 16px);
+  box-shadow: 6px 6px 0 rgba(0, 194, 232, .45);
+  color: var(--ztsh-sur-marine, #E6F4FA);
+  gap: 14px;
+  padding: 14px 20px 18px;
+}
+/* La trame de points existante se réaccorde au fond sombre. */
+body.ztsh-on .zts-header::before { opacity: .14; background-size: 26px 26px; }
+
+/* Logo : ZoneTotalSport, blanc, « TOTAL » en cyan. Les trois mots portaient
+   jaune / cyan / jaune ; la maquette n'en garde qu'un accent. */
+body.ztsh-on .zts-header__brand {
+  font-family: var(--ztsh-f-display, 'ZoneTotalSportZTSH','Luckiest Guy',system-ui,sans-serif);
+  line-height: var(--ztsh-lh-titre, 1.05);
+  gap: 8px;
+}
+body.ztsh-on .zts-header__brand .w1,
+body.ztsh-on .zts-header__brand .w3 { color: #fff; }
+body.ztsh-on .zts-header__brand .w2 { color: var(--ztsh-cyan, #00C2E8); }
+body.ztsh-on .zts-header__brand span {
+  text-shadow:
+    3px 3px 0 var(--ztsh-noir, #08131E), -2px -2px 0 var(--ztsh-noir, #08131E),
+    2px -2px 0 var(--ztsh-noir, #08131E), -2px 2px 0 var(--ztsh-noir, #08131E),
+    7px 9px 0 rgba(8, 19, 30, .45);
+}
+
+/* Horloge et sous-titre, sur le nouveau fond. */
+body.ztsh-on .zts-header__clock {
+  font-family: var(--ztsh-f-titre, 'Luckiest Guy',system-ui,sans-serif);
+  border-color: var(--ztsh-noir, #08131E);
+  box-shadow: 3px 3px 0 var(--ztsh-noir, #08131E);
+  color: var(--ztsh-ink, #0C1720);
+}
+body.ztsh-on .zts-header__sub {
+  font-family: var(--ztsh-f-punch, 'Bangers',system-ui,sans-serif);
+  letter-spacing: 1.2px;
+  color: var(--ztsh-sur-marine-doux, #C4E1EE);
+}
+
+/* ---- Les emoji d'interface ne survivent pas -----------------------------
+   header.html pose une pastille emoji dans chaque bouton de nav
+   (.zts-btn .em). La maquette ne garde aucun emoji comme icône d'interface :
+   le libellé Bangers porte seul, et la place reste disponible pour les
+   futures icônes Pop Art.
+
+   Masqué en CSS plutôt que retiré de header.html : le fichier partagé sert
+   1489 pages, et un masquage sous l'opt-in est annulable en une ligne.
+   .zts-btn lui-même n'est pas touché — il reste gelé, conformément au
+   CLAUDE.md du dépôt. */
+body.ztsh-on .zts-btn .em { display: none; }
+
+/* ---- Sélecteur de métier — largeur du contenu --------------------------- */
+body.ztsh-on .ztsh-metiers { max-width: 1180px; }
+
+/* ---- Marge de sécurité pour le rail vertical -----------------------------
+   La variable vaut 0 dès que le rail passe en ruban : la règle est neutre
+   partout où le rail ne mord sur rien. */
+body.ztsh-on .zts-container { padding-right: calc(var(--space-4) + var(--ztsh-marge-droite, 0px)); }
+
+/* ==========================================================================
+   HABILLAGE SHELL — rebasage des tokens et des composants partagés
+   --------------------------------------------------------------------------
+   Toujours sous body.ztsh-on. Rien ne change tant qu'une app n'appelle pas
+   ZTSShell.monter().
+
+   POURQUOI CE BLOC EXISTE
+   Le premier pilote a montré que restyler le seul chrome ne suffit pas : le
+   contenu de l'app gardait l'ancienne identité — bannière cyan clair, puces
+   cyan, sous-nav blanche — ce qui viole le critère « un visiteur ne doit pas
+   pouvoir deviner à quoi ressemblait le site avant ».
+
+   Ces composants ne sont PAS dans les fichiers d'app. Ils sont ici, dans le
+   design system partagé, ou bien ils consomment les tokens définis ici. Les
+   23 apps du gabarit stylent leurs classes locales (.jr-chip, .jr-search,
+   .jr-count…) exclusivement avec var(--bord), var(--ombre), var(--metier),
+   var(--font-body), var(--r-pill)… — seize tokens en tout.
+
+   Rebaser ces tokens fait donc basculer l'intérieur des apps vers l'identité
+   marine SANS toucher un seul fichier d'app. C'est le seul moyen d'y arriver
+   dans le contrat, et c'est aussi le plus réversible : le retrait de la
+   classe ztsh-on rend tout son aspect d'origine.
+   ========================================================================== */
+body.ztsh-on {
+  /* ────────────────────────────────────────────────────────────────────────
+     INVENTAIRE DES TOKENS REBASÉS — 20 tokens, valeur avant → après.
+     Les redondants ont été retirés : --violet ne change pas, et --bord,
+     --bord-gros, --ombre référencent var(--zts-noir), donc ils suivent
+     automatiquement. --font-impact et --font-bang sont identiques.
+
+       token           avant                         après
+       ─────────────── ───────────────────────────── ─────────────────────────
+       --zts-noir      #1A1A2E                       #08131E
+       --ink           #1A1A2E                       #0C1720
+       --paper         #FFFEF7                       #FFFFFF
+       --cream         #FFFBE8                       #FFFFFF
+       --zts-creme     #FFFBE8                       #FFFFFF
+       --cyan          #00E5FF                       #00C2E8
+       --jaune         #FFEA00                       #FFFC00
+       --orange        #FF6B00                       #FFA200
+       --vert          #39FF14                       #A3FF00
+       --bleu          #1E90FF                       #12879E
+       --rose          #FF2D87                       #FF0061
+       --ep            #00E5FF                       #00C2E8
+       --sdg           #39FF14                       #A3FF00
+       --camp          #FF6B00                       #FFA200
+       --metier-soft   #CCFAFF                       rgba(255,255,255,.12)
+       --metier-tint   rgba(0,229,255,.14)           rgba(255,255,255,.09)
+       --font-fun      Fredoka                       Nunito
+       --font-body     Quicksand                     Nunito
+       --font-hand     Caveat, GloriaHallelujah      Schoolbell, Caveat
+       --ombre-xl      6px 6px 0                     8px 8px 0
+
+     Les seize tokens que les 23 gabarits consomment dans leurs classes
+     locales (.jr-chip, .jr-search, .jr-count, .jr-meta, .jr-steps) sont :
+       --bord --bord-gros --ombre --metier --metier-tint --ink --zts-noir
+       --font-body --font-fun --fs-1 --fs-2 --r-2 --r-pill
+       --space-3 --space-4 --space-5
+     ┌── RÈGLE — À NE PAS ENFREINDRE ───────────────────────────────────┐
+     │  Les tokens d'IDENTITÉ se rebasent.                              │
+     │  Les tokens de DIMENSION, jamais.                                │
+     │                                                                  │
+     │  identité   couleurs, polices, contours, ombres                  │
+     │             → --cyan --jaune --orange --vert --rose --bleu       │
+     │               --ink --paper --cream --zts-noir --zts-creme       │
+     │               --ep --sdg --camp --metier-soft --metier-tint      │
+     │               --font-* --bord --bord-gros --ombre --ombre-xl     │
+     │                                                                  │
+     │  dimension  tailles, rayons, espacements                         │
+     │             → --fs-1..6  --r-1..4  --r-pill  --space-1..7        │
+     │                                                                  │
+     │  Changer une couleur repeint. Changer une échelle DÉPLACE la     │
+     │  mise en page des 46 apps d'un coup, et le décalage ne se voit   │
+     │  qu'à l'endroit précis où une app comptait sur la valeur         │
+     │  d'origine. C'est irrattrapable sans tout revérifier.            │
+     │                                                                  │
+     │  Si un jour une échelle doit bouger, ce n'est pas de             │
+     │  l'habillage : c'est un chantier de mise en page, avec son       │
+     │  propre passage app par app.                                     │
+     └──────────────────────────────────────────────────────────────────┘
+     ──────────────────────────────────────────────────────────────────────── */
+
+  /* — Neutres — */
+  --zts-noir:  #08131E;
+  --ink:       #0C1720;
+  --paper:     #FFFFFF;
+  --cream:     #FFFFFF;
+  --zts-creme: #FFFFFF;
+
+  /* — Palette de la maquette, à la place des fluo d'origine — */
+  --cyan:   #00C2E8;
+  --jaune:  #FFFC00;
+  --orange: #FFA200;
+  --vert:   #A3FF00;
+  --bleu:   #12879E;
+  --rose:   #FF0061;
+
+  /* — Accent par métier — */
+  --ep:   #00C2E8;
+  --sdg:  #A3FF00;
+  --camp: #FFA200;
+  --metier-soft: rgba(255, 255, 255, .12);
+  --metier-tint: rgba(255, 255, 255, .09);
+
+  /* — Typographie. Quicksand cède à Nunito ; Patrick Hand ne survit nulle
+       part ; le manuscrit passe à Schoolbell. — */
+  --font-fun:  'Nunito', 'Helvetica Neue', sans-serif;
+  --font-body: 'Nunito', 'Helvetica Neue', sans-serif;
+  --font-hand: 'Schoolbell', 'Caveat', cursive;
+
+  /* — Ombre XL un cran plus marquée — */
+  --ombre-xl: 8px 8px 0 #08131E;
+
+  /* ────────────────────────────────────────────────────────────────────────
+     CONTRASTE — mesuré, pas supposé. Texte noir #08131E sur l'aplat :
+       cyan   12,16 → 8,81      jaune  15,17 → 17,09
+       lime   13,80 → 15,02     orange  6,55 →  9,29
+     Le rebasage améliore trois valeurs sur quatre et laisse le cyan très
+     au-dessus du seuil de 4,5.
+
+     UN SEUL POINT SOUS LE SEUIL, et il est antérieur : texte blanc sur le
+     rose. #FF2D87 donnait 3,51 ; #FF0061 donne 3,87. Défaut atténué, pas
+     introduit. Concerne .zts-btn--communaute et .zts-modal__close. Voir D13.
+
+     Jaune et lime EN TEXTE sur le marine donnent 16,56 et 14,56 : leur
+     interdiction est un choix esthétique, pas une contrainte de lisibilité.
+     --ztsh-rose-clair #FF4D8C monte le rose de 4,68 à 5,78 sur le marine ;
+     c'est son seul usage — en texte blanc SUR rose il ferait 3,14, pire.
+     ──────────────────────────────────────────────────────────────────────── */
+}
+
+
+/* ---- Bannière de métier — panneau de la maquette, incliné, bandeau noir --- */
+body.ztsh-on .zts-metier-banner {
+  background: #FFFFFF;
+  border: 4px solid var(--ztsh-noir, #08131E);
+  border-radius: var(--ztsh-r-card, 16px);
+  box-shadow: 10px 10px 0 var(--metier);
+  color: var(--ztsh-ink, #0C1720);
+  transform: rotate(-.6deg);
+}
+body.ztsh-on .zts-metier-banner__pill {
+  background: var(--ztsh-jaune, #FFFC00);
+  color: #2B2A00;
+  border: 3px solid var(--ztsh-noir, #08131E);
+  font-family: var(--ztsh-f-punch, 'Bangers', cursive);
+  letter-spacing: 1.6px;
+  transform: rotate(-1.6deg);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, .45);
+}
+
+/* ---- Cartes — blanches, ombre dure colorée, comme .ztsh-carte ------------ */
+body.ztsh-on .zts-app-card {
+  background: #FFFFFF;
+  border: 3.5px solid var(--ztsh-noir, #08131E);
+  border-radius: var(--ztsh-r-card, 16px);
+  box-shadow: 8px 8px 0 var(--metier);
+  color: var(--ztsh-ink, #0C1720);
+  transition: transform .14s, box-shadow .14s;
+}
+body.ztsh-on .zts-app-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 11px 11px 0 var(--metier);
+}
+body.ztsh-on .zts-app-card__name { font-family: var(--ztsh-f-titre, 'Luckiest Guy', sans-serif); line-height: var(--ztsh-lh-titre, 1.05); }
+body.ztsh-on .zts-app-card__desc { color: var(--ztsh-ink-soft, #5B6773); }
+
+/* ---- Sous-navigation — boutons de la maquette --------------------------- */
+body.ztsh-on .zts-subnav a {
+  background: rgba(255, 255, 255, .09);
+  color: var(--ztsh-sur-marine, #E6F4FA);
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: var(--ztsh-r-btn, 11px);
+  font-family: var(--ztsh-f-titre, 'Luckiest Guy', sans-serif);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, .45);
+}
+body.ztsh-on .zts-subnav a:hover { background: var(--ztsh-cyan, #00C2E8); color: #03323C; }
+
+/* ---- Modale — panneau blanc à ombre dure -------------------------------- */
+body.ztsh-on .zts-modal__inner {
+  border: 4px solid var(--ztsh-noir, #08131E);
+  border-radius: var(--ztsh-r-card, 16px);
+  box-shadow: 10px 10px 0 var(--ztsh-cyan, #00C2E8);
+}
+body.ztsh-on .zts-modal__title { font-family: var(--ztsh-f-titre, 'Luckiest Guy', sans-serif); line-height: var(--ztsh-lh-titre, 1.05); }
+
+/* ---- Titres de section dans le contenu ---------------------------------- */
+body.ztsh-on .zts-container > h1,
+body.ztsh-on .zts-container > h2 { color: #fff; }
+
+/* Le titre de la bannière était jaune à contour noir, lisible sur l'ancien
+   aplat cyan. Sur le panneau blanc de la maquette, il devient illisible :
+   il passe en encre foncée, sans contour. */
+body.ztsh-on .zts-metier-banner h1,
+body.ztsh-on .zts-metier-banner h2 {
+  color: var(--ztsh-ink, #0C1720);
+  text-shadow: none;
+  line-height: var(--ztsh-lh-titre, 1.05);
+}
+body.ztsh-on .zts-metier-banner p { color: var(--ztsh-ink-soft, #5B6773); }

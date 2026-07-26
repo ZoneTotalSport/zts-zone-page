@@ -1,0 +1,262 @@
+# Registre de dette technique — chantier habillage shell
+
+Repéré pendant le prescan et la phase 1. **Rien de ceci n'est corrigé** : le
+chantier d'habillage est additif, et corriger un de ces points changerait le
+comportement ou l'apparence d'une app en production.
+
+Ouvert le 25 juillet 2026. Une ligne par entrée, avec ce qu'elle coûterait.
+
+---
+
+## Signalé par vous à l'addendum
+
+### D1 — `shared/zts.css:83-97` conditionne le fond à la présence de `data-metier`, pas à sa valeur
+
+```css
+body[data-metier] { background: transparent; }
+body[data-metier]::before { /* photo de gymnase, fixed, inset:0, z-index:-3 */ }
+body[data-metier]::after  { /* voile crème, fixed, inset:0, z-index:-2 */ }
+```
+
+Conséquence : poser `data-metier` sur une des 20 apps qui n'en ont pas leur
+ajoute un fond gymnase et un voile crème. C'est la raison pour laquelle le
+sélecteur de métier du shell est en mode `auto` et ne s'affiche que sur les
+26 apps qui portent déjà un métier.
+
+**Correctif** : remplacer `body[data-metier]` par
+`body[data-metier="ep"], body[data-metier="sdg"], body[data-metier="camp"]`.
+**Coût** : nul en apparence — les 26 apps concernées portent toutes une valeur
+valide, sauf `studio-jeu` (voir D2). **Risque** : faible, mais à faire hors
+habillage pour que la régression, s'il y en a une, soit attribuable.
+
+### D2 — `apps/studio-jeu/index.html` porte `data-metier="eps"`
+
+`shared/zts.css:75-77` ne connaît que `ep`, `sdg`, `camp`. La page perd
+silencieusement sa variable `--metier` et retombe sur le cyan par défaut.
+
+**Ce n'est pas une coquille à corriger en passant** : la corriger en `ep`
+donnerait à l'app la couleur d'accent qu'elle n'a jamais eue. Changement
+d'apparence, donc décision, donc hors habillage.
+
+Interaction avec D1 : si D1 est corrigé sans D2, `studio-jeu` **perd** son
+fond gymnase (aujourd'hui actif par la présence de l'attribut). Les deux
+doivent être traités ensemble.
+
+---
+
+## Repéré au prescan
+
+### D3 — Deux builds Vite sans source utilisable
+
+| App | Source | État |
+|---|---|---|
+| `apps/scoreboard/` | `/Users/admin/Desktop/Remotion 2/scoreboard-basketball/` | source présent, hors dépôt |
+| `apps/evaluation/` | **introuvable** | source absent |
+
+Toute modification de leur `index.html` est écrasée au prochain build. Les
+deux sont exclues du chantier.
+
+**Prérequis, ticket séparé** : récupérer la source Vite de `apps/evaluation/`
+et la remettre au dépôt. Tant que ce n'est pas fait, l'app n'est pas
+maintenable — pas seulement inhabillable.
+
+### D4 — `apps/evaluation/index.html:40` force la police sur `*` en `!important`
+
+```css
+html { font-size: 23px; }
+*, body, button, input, select, textarea, p, span, div, td, th, li, a, label {
+  font-family: 'Patrick Hand', cursive !important;
+}
+```
+
+Rend l'app hermétique à toute typographie extérieure. Combiné à D3, c'est la
+raison de son exclusion.
+
+### D5 — Quatre copies de `ZoneTotalSport.ttf` dans le dépôt
+
+`/fonts/`, `apps/jeux/`, `apps/moyens-action/`, `apps/nhl-playoffs/fonts/`.
+Le shell utilise la copie racine en chemin absolu. Les trois autres restent en
+place — les supprimer casserait les `@font-face` relatifs de ces apps.
+
+**Correctif** : faire pointer les trois apps sur `/fonts/`, puis supprimer.
+Trois diffs d'une ligne, mais trois régressions possibles.
+
+### D6 — Sept lettres et cinq signes manquent à `ZoneTotalSport.ttf`
+
+Lettres : `Ù Ÿ Æ Œ ÿ æ œ`. Ponctuation : `’ « » — °`.
+
+Le plus insidieux est `’` (U+2019) : l'apostrophe droite `'` est couverte, la
+courbe ne l'est pas, et c'est la courbe que produit la correction automatique
+de la plupart des éditeurs. « L'ÉCOLE » passe, « L’ÉCOLE » bascule de police
+en plein mot.
+
+**Garde-fou en place** : `_scripts/verifie-glyphes-ztsh.py`, code de sortie 1
+s'il trouve un cas dans un `.ztsh-titre`.
+**Correctif définitif, hors chantier** : faire dessiner les douze glyphes.
+Dépôts mentionnés par Joey : `police-de-caract-re` et `font`.
+
+### D7 — Le « faux plein écran » n'est pas couvert par `:fullscreen`
+
+Le CSS du shell se masque sous `:root:fullscreen`. Certaines apps
+(`planificateur` avec `.pv2-tbibtn`, `cours-maternelle` en mode TBI) simulent
+le plein écran avec une classe et `position:fixed; inset:0` — le shell
+resterait visible par-dessus.
+
+**À vérifier app par app** lors de sa migration, et à traiter par une règle
+ciblée si le cas se présente. Non traité en phase 1 faute de cas concret.
+
+### D8 — `shared/zts.js` : `ZTS.setMetier` n'a aucun appelant
+
+API exportée depuis juin 2026, jamais appelée. Le métier est posé
+statiquement dans le HTML. Ce n'est pas un bug, mais c'est un écart entre
+l'API disponible et l'usage réel, qui a failli faire construire un deuxième
+système. Documenté dans `NOTE-SETMETIER-2026-07.md`.
+
+### D9 — `apps/planificateur/semaine-grid.js:562` redéfinit `setMetier` localement
+
+Fonction homonyme, sans lien avec `ZTS.setMetier` : elle agit sur
+`root.dataset.metier` et `modal.dataset.metier`, et persiste dans
+`localStorage`. Système parallèle qui fonctionne. À ne pas unifier tant que la
+question « métier de la page vs métier de l'utilisateur » n'est pas tranchée.
+
+### D10 — Onze apps chargent Tailwind Play CDN en production
+
+`acrosport`, `agenda`, `educatifs`, `evaluation`, `jeux`, `moyens-action`,
+`musique`, `omnigroupe`, `sae`, `suppleance`, `transitions`.
+
+`cdn.tailwindcss.com` est explicitement destiné au développement : il compile
+le CSS dans le navigateur à chaque chargement et observe le DOM. Coût de
+performance réel, et dépendance à un CDN tiers sur les deux apps les plus
+visibles du site (`educatifs` 28 liens entrants, `sae` 27).
+
+**Hors habillage.** Signalé parce que le shell injecte du DOM et déclenchera
+donc un recalcul sur ces onze apps — à mesurer sur le pilote.
+
+### D11 — `.ztg-out` à `z-index:9998` passe par-dessus le rail
+
+`shared/zts-gate.js:91`, présent sur les 23 apps du gabarit,
+`position:fixed; right:12px; bottom:12px`.
+
+**Arbitré : on ne le déplace pas.** C'est un bouton de déconnexion, il a de
+bonnes raisons d'être haut. Le rail s'écarte via `--ztsh-rail-garde-bas:96px`.
+Consigné ici pour que personne ne « corrige » le rail en montant son z-index.
+
+### D12 — Le focus dans le shell laisse passer les raccourcis à touche unique de l'app
+
+Vérifié au banc d'essai : avec le focus sur un bouton du shell, une frappe
+`d`, `f`, `+` ou `Escape` remonte jusqu'à `document`, où l'app l'intercepte.
+
+C'est le comportement voulu — le shell ne vole rien, conformément à
+l'arbitrage. Mais la conséquence est réelle sur les apps qui écoutent une
+touche unique : `generateur` (`+ − 0 =`), `nba-playoffs` et `nhl-playoffs`
+(idem), `tni` (`d e f g m s z`), `studio-jeu` (`c p Delete Backspace flèches`).
+
+Ce n'est pas une régression : ces apps captent déjà ces touches quel que soit
+le focus. Mais un utilisateur qui tabule jusqu'au rail puis tape `+` verra
+l'app zoomer sans comprendre pourquoi.
+
+**Atténuation déjà en place** : `tni` et `studio-jeu` sont en densité
+`projection`, sans chrome. Restent `generateur` et les deux playoffs.
+**À observer** lors de leur migration. Si le cas se révèle gênant, la
+correction propre est côté app (ignorer la touche quand `document.activeElement`
+n'est pas dans l'app) — donc hors chantier d'habillage.
+
+### D13 — Texte blanc sur le rose : 3,87 pour un seuil de 4,5
+
+`.zts-btn--communaute` et `.zts-modal__close` posent du texte blanc sur
+`var(--rose)`. Mesuré : 3,51 avec l'ancien `#FF2D87`, 3,87 avec le `#FF0061`
+de la maquette.
+
+**Défaut antérieur au chantier, et atténué par lui** — pas introduit. Il reste
+sous le seuil WCAG AA pour du texte normal (il passe pour du gros texte, seuil 3).
+
+Les corrections possibles sortent toutes de l'habillage : assombrir le rose
+(il cesserait d'être celui de la maquette), passer le texte en encre foncée
+(lisible mais moins affirmé), ou grossir le libellé. À trancher avec Joey.
+
+### D14 — Le portillon `zts-gate.js` n'a aucun contournement local
+
+Les 23 apps du gabarit sont bloquées par un mur d'inscription avant tout
+affichage, sans paramètre de développement ni exception `localhost`.
+
+Conséquence pour le chantier : rejouer la liste fonctionnelle d'un gabarit
+exige un compte réel. Masquer le portillon en JS depuis la console fausse le
+test — le portillon fait partie de la composition (z-index 99999, `.ztg-out`
+à 9998, `body.overflow:hidden`).
+
+**Non corrigé** : ajouter un contournement local à un fichier de production
+serait un risque de sécurité disproportionné pour un confort de test.
+
+### D15 — Cinq apps déclarent `@font-face ZoneTotalSport` sans `size-adjust`
+
+`apps/generateur/`, `apps/moyens-action/`, `apps/nhl-playoffs/`,
+`apps/studio-jeu/studio.css`, `apps/jeux/styles.css`.
+
+Le pilote de projection l'a montré en grand : deux `@font-face` de même nom de
+famille, l'un avec `size-adjust:50%` et l'autre sans, produisent un rendu au
+double de la taille demandée. Le logo du header débordait du cadre.
+
+**Contourné, pas corrigé** : le shell déclare sa famille sous le nom
+`ZoneTotalSportZTSH`, qui ne peut entrer en conflit avec aucune. Corriger les
+cinq apps demanderait de toucher leurs fichiers — interdit par le contrat.
+
+Le vrai correctif rejoint D5 et le ticket glyphes : une seule copie du TTF,
+une seule déclaration, `size-adjust` inclus.
+
+### D16 — Vingt apps sur 46 ne chargent pas `shared/zts.css`
+
+`acrosport`, `agenda`, `colorier`, `cours-maternelle`, `educatifs`,
+`evaluation`, `generateur`, `grille`, `jeux`, `moyens-action`, `musique`,
+`nba-playoffs`, `nhl-playoffs`, `omnigroupe`, `sae`, `scoreboard`,
+`studio-jeu`, `suppleance`, `tni`, `transitions`.
+
+Elles chargent `zts-header.css` et/ou `zts-ultra.css` à la place — soit une
+partie seulement du design system.
+
+Conséquence directe sur ce chantier : tout habillage placé dans
+`shared/zts.css` n'aurait touché que 26 apps, en laissant de côté les plus
+visibles du site. C'est ce qui a fait déplacer l'habillage vers
+`assets/ztsh-shell.css`.
+
+**Non corrigé** : uniformiser le chargement demanderait de modifier 20
+fichiers d'app. À traiter dans un chantier de consolidation du design system.
+
+### D17 — Deux apps ont leur propre en-tête, hors de portée du shell
+
+44 apps sur 46 portent l'hôte `data-zts-header` : le header est injecté par
+`zts.js`, le balisage est identique partout, et le sélecteur `.zts-header` du
+shell les couvre toutes.
+
+Deux exceptions, qui sont aussi les deux seules apps sans aucun CSS partagé :
+
+| App | En-tête | Restylable ? |
+|---|---|---|
+| `studio-jeu` | `<header class="studio-top">` | Oui, en ciblant `.studio-top` |
+| `acrosport` | `<header class="…" style="background: radial-gradient(…)">` | **Non** |
+
+`acrosport` porte son dégradé en **style inline**. Aucune règle externe ne peut
+le surcharger sans `!important`, et le contrat l'interdit hors du bloc print.
+
+Trois apps — `generateur`, `jeux`, `performances` — ont l'hôte **plus** un
+`<header>` interne (`.zts-fiche2-header`, `.header`, `.pf-hero`). Ce sont des
+composants de contenu, pas des barres de navigation : aucun doublon.
+
+**Décision requise avant de migrer ces deux apps** : soit on accepte qu'elles
+gardent leur en-tête (critère 6 en échec sur deux apps, dont une non
+déployée), soit on autorise une exception ciblée. Ni l'un ni l'autre ne se
+décide en passant.
+
+### D18 — L'ordre de chargement du shell est une convention, pas une garantie
+
+`assets/ztsh-shell.css` doit venir **après** `shared/zts.css`,
+`zts-header.css` et `zts-ultra.css`. Sinon les surcharges perdent la cascade
+et l'habillage est partiellement inactif — **sans aucune erreur visible**.
+
+C'est le mode de panne le plus dangereux du chantier : silencieux, et
+diagnostiqué comme « le shell ne marche pas » plutôt que comme un ordre de
+balises.
+
+**Garde-fou en place** : `_scripts/verifie-habillage.py` vérifie l'ordre, la
+paire CSS/JS, l'appel de montage, la présence de l'enveloppe et la taille du
+diff. Code de sortie 1 sur tout manquement bloquant. À lancer après chaque
+migration et avant tout déploiement.
