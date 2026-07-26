@@ -56,6 +56,18 @@
 
   var mode = 'signup'; // 'signup' | 'login'
   var ready = false;
+  var leaving = false;  // deconnexion en cours : ne pas redessiner le mur
+
+  // ── Drapeau de deconnexion volontaire (partage avec firebase-auth.js) ──
+  // Meme cle, meme contrat : pose synchroniquement avant signOut(), lu au
+  // debut du chargement suivant. Empeche ce portillon de transformer un
+  // getRedirectResult() fantome en session.
+  var SIGNED_OUT_KEY = 'zts_signed_out';
+  function markSignedOut() { try { sessionStorage.setItem(SIGNED_OUT_KEY, '1'); } catch (e) {} }
+  function clearSignedOut() { try { sessionStorage.removeItem(SIGNED_OUT_KEY); } catch (e) {} }
+  var _signedOutAtLoad = (function () {
+    try { return sessionStorage.getItem(SIGNED_OUT_KEY) === '1'; } catch (e) { return false; }
+  })();
 
   function injectStyles() {
     if (document.getElementById('zts-gate-css')) return;
@@ -125,7 +137,12 @@
 
   function doGoogle() {
     showErr(''); busy(true);
+    clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     var p = new firebase.auth.GoogleAuthProvider();
+    // Sans select_account, Google resigne en silence le seul compte ouvert :
+    // aucun selecteur, session retablie en une seconde. C'etait la cause
+    // percue comme « impossible de se deconnecter ».
+    p.setCustomParameters({ prompt: 'select_account' });
     firebase.auth().signInWithPopup(p).catch(function (err) {
       busy(false);
       if (err && (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment')) {
@@ -142,6 +159,7 @@
     var pass = el('ztg-pass').value || '';
     showErr('');
     if (pass.length < 6) { showErr(L.errPass); return; }
+    clearSignedOut();   // connexion/inscription volontaire
     busy(true);
     var auth = firebase.auth();
     var op = (mode === 'signup')
@@ -157,8 +175,13 @@
   }
 
   function onAuth(user) {
+    // Deconnexion en cours : la page part vers l'accueil. Redessiner le mur
+    // ici ferait clignoter « Cree ton compte » sur l'outil qu'on vient de
+    // quitter — c'est l'aller-retour vers une page de connexion a eviter.
+    if (leaving) return;
     var g = el('zts-gate');
     if (user) {
+      clearSignedOut();
       if (g) g.hidden = true;
       addLogout(user);
       document.dispatchEvent(new CustomEvent('zts:auth', { detail: { user: user } }));
@@ -174,7 +197,18 @@
     b.id = 'ztg-out'; b.className = 'ztg-out';
     var name = (user && (user.displayName || user.email)) || '';
     b.textContent = '👋 ' + t().bye + (name ? ' · ' + name.split('@')[0] : '');
-    b.addEventListener('click', function () { firebase.auth().signOut(); });
+    // Meme contrat que window.ztsLogout() de firebase-auth.js : drapeau pose
+    // avant, signOut() AWAITE (sinon la navigation tue le vidage async de la
+    // persistance et l'usager revient au chargement suivant), puis sortie
+    // vers l'accueil. Avant, ce bouton faisait un signOut() nu et laissait
+    // l'usager face au mur plein ecran sur l'outil qu'il utilisait.
+    b.addEventListener('click', function () {
+      leaving = true;
+      markSignedOut();
+      firebase.auth().signOut()
+        .catch(function (e) { console.error('[ZTS Gate] signOut:', e); })
+        .then(function () { window.location.href = ROOT + 'index.html'; });
+    });
     document.body.appendChild(b);
   }
   function removeLogout() { var b = el('ztg-out'); if (b) b.remove(); }
@@ -194,7 +228,14 @@
       try {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-        firebase.auth().getRedirectResult().catch(function () {});
+        firebase.auth().getRedirectResult().then(function (result) {
+          // Chargement qui suit une deconnexion volontaire : un resultat de
+          // redirection qui ressort ici est un fantome, pas une intention.
+          if (result && result.user && _signedOutAtLoad) {
+            console.warn('[ZTS Gate] getRedirectResult ignore : deconnexion volontaire');
+            firebase.auth().signOut().catch(function () {});
+          }
+        }).catch(function () {});
         firebase.auth().onAuthStateChanged(function (user) { ready = true; onAuth(user); });
       } catch (e) { fail(); }
     });

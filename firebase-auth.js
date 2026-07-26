@@ -22,6 +22,26 @@
   var _authReady = false;
   var _onAuthCallbacks = [];
 
+  // ── Drapeau de deconnexion volontaire ──
+  // Pose SYNCHRONEMENT juste avant signOut(). Il sert a deux choses :
+  //  1) empecher un getRedirectResult() encore en cache de ressusciter la
+  //     session au chargement suivant (Safari/ITP, redirect Google mobile) ;
+  //  2) dire au portillon des outils (shared/zts-gate.js) qu'on vient de
+  //     partir volontairement — il ne doit rien relancer.
+  // sessionStorage volontairement : le drapeau meurt avec l'onglet, il ne
+  // peut donc pas empoisonner une session future. N'a AUCUN rapport avec
+  // zts_signup_pending / zts_signup_source (invariant du funnel), qui
+  // gardent leur propre cycle de vie.
+  var SIGNED_OUT_KEY = 'zts_signed_out';
+  function markSignedOut() { try { sessionStorage.setItem(SIGNED_OUT_KEY, '1'); } catch (e) {} }
+  function clearSignedOut() { try { sessionStorage.removeItem(SIGNED_OUT_KEY); } catch (e) {} }
+  // Lu UNE seule fois, au parse : « ce chargement-ci suit une deconnexion ».
+  // Vider la cle plus tard (connexion volontaire) ne doit pas rouvrir la
+  // garde pour le chargement en cours.
+  var _signedOutAtLoad = (function() {
+    try { return sessionStorage.getItem(SIGNED_OUT_KEY) === '1'; } catch (e) { return false; }
+  })();
+
   // ── Load Firebase SDK ──
   function loadScript(src, cb) {
     var s = document.createElement('script');
@@ -40,6 +60,14 @@
         // Recupere le resultat si on revient d'une redirection Google (mobile)
         firebase.auth().getRedirectResult().then(function(result) {
           if (result && result.user) {
+            // Ce chargement suit une deconnexion volontaire : un resultat de
+            // redirection qui ressort ici est un fantome (cache SDK non purge,
+            // ITP Safari). On le refuse au lieu d'en faire une session.
+            if (_signedOutAtLoad) {
+              console.warn('[ZTS Auth] getRedirectResult ignore : deconnexion volontaire en cours');
+              firebase.auth().signOut().catch(function() {});
+              return;
+            }
             var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
             if (isNew) {
               if (window.ztsTrackSignup) window.ztsTrackSignup('google_redirect', result.user.uid);
@@ -53,6 +81,8 @@
           }
         }).catch(function(err) { console.error('[ZTS Auth] getRedirectResult:', err); });
         firebase.auth().onAuthStateChanged(function(user) {
+          // Un vrai utilisateur present = la deconnexion appartient au passe.
+          if (user) clearSignedOut();
           _user = user;
           _authReady = true;
           updateUI(user);
@@ -560,6 +590,7 @@
     var email = document.getElementById('ztsEmail').value.trim();
     var password = document.getElementById('ztsPassword').value;
     if (!email || !password) { showError('Remplis tous les champs!'); return; }
+    clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     setLoading(true);
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(function(result) {
@@ -599,6 +630,7 @@
     if (!firstName.trim() || !lastName.trim() || !email || !password) {
       showError('Remplis tous les champs!'); return;
     }
+    clearSignedOut();   // inscription volontaire : la garde ne s'applique plus
     setLoading(true);
     firebase.auth().createUserWithEmailAndPassword(email, password)
       .then(function(result) {
@@ -618,6 +650,7 @@
   function handleGoogle() {
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
+    clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     setLoading(true);
     // Mobile (iOS/Android): utilise redirect car les popups sont souvent bloquees
     var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -758,6 +791,10 @@
       // Hard redirect vers l'accueil : re-init propre, aucun user restaure.
       window.location.href = '/';
     }
+    // Drapeau pose AVANT signOut(), de facon synchrone : il doit survivre a
+    // la redirection et etre lisible au tout debut du chargement suivant,
+    // par firebase-auth.js comme par shared/zts-gate.js.
+    markSignedOut();
     if (typeof firebase === 'undefined' || !firebase.auth) { done(); return; }
     // On AWAIT signOut() avant le redirect : sinon la navigation tue le
     // nettoyage async de la persistance (IndexedDB) et l'utilisateur est
