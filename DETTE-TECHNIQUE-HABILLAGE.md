@@ -260,3 +260,22 @@ balises.
 paire CSS/JS, l'appel de montage, la présence de l'enveloppe et la taille du
 diff. Code de sortie 1 sur tout manquement bloquant. À lancer après chaque
 migration et avant tout déploiement.
+
+### D17 bis — `studio-jeu` se règle sans règle ciblée
+
+Vérifié : `.studio-top` n'a **aucun style inline**, contrairement à
+`acrosport`. Mieux, elle consomme déjà les tokens du design system —
+`var(--metier)`, `var(--ink)`, `var(--font-impact)`, `var(--font-fun)`, 64
+occurrences de `--ink` à elle seule.
+
+Comme `studio-jeu` ne charge aucun CSS partagé, ces tokens n'étaient définis
+nulle part chez elle : elle tombait sur ses valeurs de repli, dont l'ancien
+cyan fluo `#00E5FF`.
+
+Il a suffi d'ajouter **un repli `--metier` dans le `:root` du shell** pour
+qu'elle s'harmonise. Aucune règle ciblée sur une classe d'app, aucun sélecteur
+propre à `studio-jeu` dans un fichier partagé.
+
+Le repli est dans `:root` et non dans `body.ztsh-on` : `shared/zts.css`
+repeint `--metier` via `[data-metier="ep|sdg|camp"]`, plus spécifique, donc la
+teinte par métier continue de gagner partout où elle existe.

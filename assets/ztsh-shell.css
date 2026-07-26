@@ -1347,6 +1347,14 @@ body.ztsh-on {
   /* — Ombre XL un cran plus marquée — */
   --ombre-xl: 8px 8px 0 #08131E;
 
+  /* — Repli de --metier pour les apps qui ne chargent aucun CSS partagé.
+       shared/zts.css définit --metier sur :root et le repeint par
+       [data-metier="ep|sdg|camp"], plus spécifique que ce bloc : la teinte
+       par métier continue donc de gagner partout où elle existe.
+       Sans ce repli, studio-jeu — qui utilise var(--metier, #00E5FF) dans
+       .studio-top — resterait sur l'ancien cyan fluo. — */
+  --metier: #00C2E8;
+
   /* ────────────────────────────────────────────────────────────────────────
      CONTRASTE — mesuré, pas supposé. Texte noir #08131E sur l'aplat :
        cyan   12,16 → 8,81      jaune  15,17 → 17,09
