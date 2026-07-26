@@ -307,6 +307,33 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // article_views — compteur de vues des articles du blog.
+    // 1 doc par slug d'article (ex. article_views/nawatobi), ecrit par
+    // /article-views.js (ztsCountView) et lu par blog.html.
+    //
+    // La collection n'avait JAMAIS de bloc ici : elle tombait donc dans le
+    // « allow read, write: if false » final. Depuis le 1er deploiement de
+    // regles (1915b07, 18 mai 2026), chaque increment ET chaque lecture
+    // etaient refuses en silence (le .catch() du client avale l'erreur) —
+    // d'ou tous les compteurs affiches a zero.
+    //
+    // Lecture publique : le nombre de vues est affiche sur blog.html a tout
+    // le monde, connecte ou non. Ecriture : +1 strict, comme anonGenCount plus
+    // haut. Pas de suppression, pas d'ecrasement : un client ne peut que faire
+    // passer count de N a N+1. C'est pour rendre cette validation possible que
+    // article-views.js ecrit via une transaction a valeurs explicites plutot
+    // qu'avec FieldValue.increment().
+    // ─────────────────────────────────────────────────────────
+    match /article_views/{slug} {
+      allow read: if true;
+      allow create: if request.resource.data.count == 1
+                    && request.resource.data.last_view == request.time;
+      allow update: if request.resource.data.count == resource.data.count + 1
+                    && request.resource.data.last_view == request.time;
+      allow delete: if false;
+    }
+
+    // ─────────────────────────────────────────────────────────
     // Tout le reste : interdit par defaut.
     // ─────────────────────────────────────────────────────────
     match /{document=**} {
