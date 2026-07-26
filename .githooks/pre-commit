@@ -1,58 +1,24 @@
-#!/bin/bash
-# Pre-commit hook: block commits containing secrets
-# Activated via: git config core.hooksPath .githooks
+#!/bin/sh
+# Garde-fou local du chantier d'habillage — voir DETTE-TECHNIQUE-HABILLAGE.md D18.
+#
+# Installation :  git config core.hooksPath .githooks
+# Contournement ponctuel :  git commit --no-verify
+racine=$(git rev-parse --show-toplevel)
 
-set -e
-
-PATTERNS=(
-  '"private_key":[[:space:]]*"-----BEGIN'
-  '-----BEGIN PRIVATE KEY-----'
-  '-----BEGIN RSA PRIVATE KEY-----'
-  '-----BEGIN OPENSSH PRIVATE KEY-----'
-  '"client_email":[[:space:]]*"[^"]+@[^"]+\.iam\.gserviceaccount\.com"'
-  'AKIA[0-9A-Z]{16}'
-  'sk-ant-[a-zA-Z0-9_-]{40,}'
-  'sk-[a-zA-Z0-9]{48}'
-  'AIza[0-9A-Za-z_-]{35}'
-)
-
-FILES=$(git diff --cached --name-only --diff-filter=AM)
-
-if [ -z "$FILES" ]; then
-  exit 0
-fi
-
-FOUND=0
-while IFS= read -r file; do
-  [ -z "$file" ] && continue
-  if file --mime "$file" 2>/dev/null | grep -q 'charset=binary'; then
-    continue
-  fi
-  if [ "$file" = ".githooks/pre-commit" ]; then
-    continue
-  fi
-
-  for pattern in "${PATTERNS[@]}"; do
-    # Whitelist : Firebase Web SDK API keys sont publiques
-    # par design dans les fichiers firebase*.js
-    if [[ "$pattern" == AIza* ]] && [[ "$file" == *firebase* ]]; then
-      continue
-    fi
-    if grep -E -q "$pattern" "$file" 2>/dev/null; then
-      echo "🚨 SECRET DETECTED in $file"
-      echo "   Pattern: $pattern"
-      FOUND=1
-    fi
-  done
-done <<< "$FILES"
-
-if [ $FOUND -eq 1 ]; then
-  echo ""
-  echo "❌ Commit bloqué — un ou plusieurs fichiers contiennent ce qui"
-  echo "   ressemble à un secret. Si c'est un faux positif et que tu"
-  echo "   veux vraiment commit, utilise : git commit --no-verify"
-  echo "   Mais réfléchis 2 fois avant."
+echo "→ conformité de l'habillage…"
+python3 "$racine/_scripts/verifie-habillage.py" || {
+  echo
+  echo "COMMIT REFUSÉ — voir ci-dessus."
+  echo "Le défaut le plus courant est l'ordre de chargement : ztsh-shell.css"
+  echo "doit venir APRÈS shared/zts.css, zts-header.css et zts-ultra.css."
+  echo "La panne serait silencieuse : ni erreur console, ni défaut visible."
   exit 1
-fi
+}
 
-exit 0
+echo "→ glyphes de la police de marque…"
+python3 "$racine/_scripts/verifie-glyphes-ztsh.py" || {
+  echo
+  echo "COMMIT REFUSÉ — ponctuation absente de ZoneTotalSport dans un .ztsh-titre."
+  echo "Apostrophe droite, guillemets droits, tiret simple. Voir ztsh-shell.css §2."
+  exit 1
+}

@@ -1,0 +1,33 @@
+# Garde-fou du chantier d'habillage — voir DETTE-TECHNIQUE-HABILLAGE.md D18.
+#
+# Le mode de panne visé est silencieux : si assets/ztsh-shell.css est chargé
+# AVANT shared/zts.css ou zts-header.css, ses surcharges perdent la cascade et
+# l'habillage est partiellement inactif, sans aucune erreur ni en console ni à
+# l'œil. Ça se diagnostique comme « le shell ne marche pas » plutôt que comme
+# un ordre de balises.
+name: Verifie l'habillage
+
+on:
+  push:
+    paths: ['apps/**', 'assets/ztsh-*', 'shared/**', '_scripts/verifie-*']
+  pull_request:
+    paths: ['apps/**', 'assets/ztsh-*', 'shared/**', '_scripts/verifie-*']
+  workflow_dispatch:
+
+jobs:
+  verifie:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Conformite de l'habillage
+        run: python3 _scripts/verifie-habillage.py
+
+      - name: Glyphes de la police de marque
+        run: python3 _scripts/verifie-glyphes-ztsh.py
