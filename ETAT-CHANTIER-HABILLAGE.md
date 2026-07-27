@@ -1,6 +1,6 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 26 juillet 2026, pause demandée en cours de vague 1.
+**Dernière mise à jour** : 27 juillet 2026, vague 1 testée au complet.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/Desktop/Remotion 2/wix-deploy/`
 
 ---
@@ -31,7 +31,7 @@ main                      ← fondation + garde-fous, POUSSÉ, en production
 ├── pilote/plan-b-meteo   ← vitrine,    24/24 PASS
 ├── pilote/nhl-playoffs   ← projection, 16/16 PASS
 ├── pilote/suppleance     ← travail,    29/29 PASS
-└── vague/1-whitelist     ← EN COURS, 4 apps, une seule testée
+└── vague/1-whitelist     ← 4 apps, 4/4 testées, prête à fusionner
 ```
 
 **Les trois branches `pilote/*` ont été créées avant le commit `549a143`
@@ -39,20 +39,53 @@ main                      ← fondation + garde-fous, POUSSÉ, en production
 
 ## Ce qui reste à faire, dans l'ordre
 
-### 1. Terminer la vague 1 — le point de reprise
+### 1. ~~Terminer la vague 1~~ — FAIT le 27 juillet
 
 `vague/1-whitelist` contient quatre apps migrées, 6 lignes de diff chacune,
-`verifie-habillage.py` au vert. Mais **une seule est testée** :
+`verifie-habillage.py` et `verifie-glyphes-ztsh.py` au vert. Les quatre sont
+maintenant rejouées avec la liste fonctionnelle du prescan :
 
 | App | Densité | Tests |
 |---|---|---|
 | `jeux` | travail | **15/15 PASS** |
-| `sae` | travail | **non testée** |
-| `nba-playoffs` | projection | **non testée** |
-| `musique` | vitrine | **non testée** |
+| `sae` | travail | **PASS** |
+| `nba-playoffs` | projection | **PASS** |
+| `musique` | vitrine | **PASS** |
 
-Ne pas fusionner avant d'avoir rejoué les trois, avec la liste fonctionnelle
-du prescan pour chacune.
+Ce qui a été vérifié sur les trois nouvelles, au-delà du montage du shell :
+
+- **`sae`** — 1880 SAÉ chargées, 12 `<select>` présents, filtre cycle (671
+  résultats pour le 2ᵉ cycle), recherche en direct, état vide, modale ouverte
+  au clic **et** au clavier (`Enter`), `_currentModalSAE` peuplé, `Escape`
+  ferme, favori persistant (`favoris-sae`), filtre Favoris, `handleModalCours`
+  (toast, z 9999, passe au-dessus du rail), console sans erreur.
+- **`musique`** — Commencer, 3 champs, lecture d'une playlist (iframe YouTube
+  non recouverte par le rail), URL collée + **JOUER**, `Enter` valide,
+  `zts_my_playlist` persistée, encourageur (clic sur Mr Root → nouveau
+  message), pause café (**zéro requête réseau**, repli local seul),
+  bascule FR/EN du header.
+- **`nba-playoffs`** — densité projection : **aucun chrome injecté**, 3 nœuds
+  `ztsh-` seulement, `ztsh-encouragements.js` **non téléchargé**. `.zoom-controls`
+  libre à droite, zoom +/−/↺ et `zts_nba_zoom` persisté, raccourcis
+  `Cmd +/0`, 3 onglets, modale de série + `Escape`, données API chargées.
+
+Trois constats sortis de ces tests, aucun n'est un blocage :
+
+1. **Le banc d'essai ne sait pas envoyer une vraie touche `Enter`** : l'action
+   clavier de l'outil arrive avec `e.key === ''`. Toute vérification d'un
+   raccourci doit passer par un `KeyboardEvent` synthétique. Ne pas conclure
+   « le raccourci est cassé » sur la foi d'une frappe de l'outil.
+2. **`sae` masque le header partagé** dès qu'on quitte l'écran d'accueil
+   (`.zts-header.hidden` + `.hidden{display:none}` de son `style.css`).
+   Comportement antérieur au chantier, vérifié identique sur `main`.
+3. **La bulle de l'encourageur dit « Clique-moi encore → » mais la cible
+   cliquable est Mr Root**, pas la bulle. Rien ne casse ; à revoir dans une
+   passe d'ergonomie, pas ici.
+
+Méthode de comparaison utilisée, réutilisable : copier le fichier de `main`
+à côté de celui de la branche (`git show main:apps/X/index.html >
+apps/X/zz-base.html`), le servir, rejouer le même geste, supprimer la copie.
+La profondeur relative est conservée, donc tous les `../../` résolvent.
 
 ### 2. Fusionner les pilotes et la vague 1 dans `main`
 
