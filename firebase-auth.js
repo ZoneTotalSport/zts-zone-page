@@ -22,6 +22,26 @@
   var _authReady = false;
   var _onAuthCallbacks = [];
 
+  // ── Drapeau de deconnexion volontaire ──
+  // Pose SYNCHRONEMENT juste avant signOut(). Il sert a deux choses :
+  //  1) empecher un getRedirectResult() encore en cache de ressusciter la
+  //     session au chargement suivant (Safari/ITP, redirect Google mobile) ;
+  //  2) dire au portillon des outils (shared/zts-gate.js) qu'on vient de
+  //     partir volontairement — il ne doit rien relancer.
+  // sessionStorage volontairement : le drapeau meurt avec l'onglet, il ne
+  // peut donc pas empoisonner une session future. N'a AUCUN rapport avec
+  // zts_signup_pending / zts_signup_source (invariant du funnel), qui
+  // gardent leur propre cycle de vie.
+  var SIGNED_OUT_KEY = 'zts_signed_out';
+  function markSignedOut() { try { sessionStorage.setItem(SIGNED_OUT_KEY, '1'); } catch (e) {} }
+  function clearSignedOut() { try { sessionStorage.removeItem(SIGNED_OUT_KEY); } catch (e) {} }
+  // Lu UNE seule fois, au parse : « ce chargement-ci suit une deconnexion ».
+  // Vider la cle plus tard (connexion volontaire) ne doit pas rouvrir la
+  // garde pour le chargement en cours.
+  var _signedOutAtLoad = (function() {
+    try { return sessionStorage.getItem(SIGNED_OUT_KEY) === '1'; } catch (e) { return false; }
+  })();
+
   // ── Load Firebase SDK ──
   function loadScript(src, cb) {
     var s = document.createElement('script');
@@ -40,6 +60,14 @@
         // Recupere le resultat si on revient d'une redirection Google (mobile)
         firebase.auth().getRedirectResult().then(function(result) {
           if (result && result.user) {
+            // Ce chargement suit une deconnexion volontaire : un resultat de
+            // redirection qui ressort ici est un fantome (cache SDK non purge,
+            // ITP Safari). On le refuse au lieu d'en faire une session.
+            if (_signedOutAtLoad) {
+              console.warn('[ZTS Auth] getRedirectResult ignore : deconnexion volontaire en cours');
+              firebase.auth().signOut().catch(function() {});
+              return;
+            }
             var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
             if (isNew) {
               if (window.ztsTrackSignup) window.ztsTrackSignup('google_redirect', result.user.uid);
@@ -53,6 +81,8 @@
           }
         }).catch(function(err) { console.error('[ZTS Auth] getRedirectResult:', err); });
         firebase.auth().onAuthStateChanged(function(user) {
+          // Un vrai utilisateur present = la deconnexion appartient au passe.
+          if (user) clearSignedOut();
           _user = user;
           _authReady = true;
           updateUI(user);
@@ -66,14 +96,23 @@
   // ── Inject Fonts + Styles ──
   function injectStyles() {
     if (document.getElementById('zts-auth-styles')) return;
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Bangers&family=Schoolbell&family=Fredoka+One&display=swap';
-    document.head.appendChild(link);
 
     var s = document.createElement('style');
     s.id = 'zts-auth-styles';
     s.textContent = '\
+/* ── Polices ZTS auto-hebergees (plus de Google Fonts ici) ── */\
+/* ZoneTotalSport est dessinee sur un em double : size-adjust:50% la ramene\
+   a une echelle normale. Elle ne couvre que l ASCII (U+0020-007E), donc les\
+   accents (Prenom, Deja, Cree) tomberaient sur une police au gabarit\
+   different. On declare donc Luckiest Guy sur la MEME famille pour la plage\
+   accentuee : meme nom, meme taille apparente, aucun saut visuel. */\
+@font-face{font-family:"ZTSDisplay";src:url("/fonts/ZoneTotalSport.ttf") format("truetype");\
+  font-display:swap;size-adjust:50%;unicode-range:U+0020-007E;}\
+@font-face{font-family:"ZTSDisplay";src:local("Luckiest Guy"),url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");\
+  font-display:swap;unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F,U+2C60-2C7F,U+A720-A7FF;}\
+@font-face{font-family:"ZTSLucky";src:local("Luckiest Guy"),url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");\
+  font-display:swap;}\
+\
 /* ── Auth Overlay ── */\
 .zts-auth-overlay {\
   position:fixed;inset:0;z-index:100000;\
@@ -93,7 +132,7 @@
   box-shadow:0 0 0 6px rgba(0,229,255,.15),0 20px 40px rgba(0,0,0,.5);\
   transform:scale(.92) translateY(20px);opacity:0;\
   transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .25s ease;\
-  font-family:"Schoolbell",cursive;\
+  font-family:"ZTSLucky","Luckiest Guy",cursive;\
 }\
 .zts-auth-modal::before{\
   content:"";position:absolute;inset:0;\
@@ -115,19 +154,23 @@
 \
 /* ── Header ── */\
 .zts-auth-header{\
-  text-align:center;padding:30px 30px 10px;\
+  text-align:center;padding:20px 30px 6px;\
 }\
+/* <picture> reste inline par defaut : sa boite avale les espaces autour de\
+   l <img> et le personnage se retrouve decale a gauche. inline-block la colle\
+   a l image, le text-align:center du header fait le reste. */\
+.zts-auth-header picture{display:inline-block;line-height:0;}\
 .zts-auth-mascot{\
-  width:180px;height:auto;border-radius:0;object-fit:contain;\
+  width:auto;height:170px;border-radius:0;object-fit:contain;\
   border:none;box-shadow:none;filter:drop-shadow(0 4px 20px rgba(0,0,0,.5));\
-  margin-bottom:12px;\
+  margin-bottom:4px;\
 }\
 .zts-auth-title{\
-  font-family:"Bangers",cursive;font-size:2.8rem;color:#00E5FF;\
-  text-shadow:3px 3px 0 rgba(0,0,0,.4);margin:0;letter-spacing:3px;\
+  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:2.6rem;color:#00E5FF;\
+  text-shadow:3px 3px 0 rgba(0,0,0,.4);margin:0;letter-spacing:1px;\
 }\
 .zts-auth-subtitle{\
-  font-family:"Schoolbell",cursive;font-size:1.4rem;color:rgba(255,255,255,.9);\
+  font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:1.05rem;color:rgba(255,255,255,.9);\
   margin:8px 0 0;\
 }\
 \
@@ -140,7 +183,7 @@
   text-align:center;border:1px solid rgba(255,255,255,.2);\
 }\
 .zts-auth-stat-num{\
-  font-family:"Bangers",cursive;font-size:1.6rem;color:#00E5FF;\
+  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:1.5rem;color:#00E5FF;\
   display:block;text-shadow:1px 1px 0 rgba(0,0,0,.3);\
 }\
 .zts-auth-stat-label{\
@@ -161,13 +204,13 @@
   margin-bottom:14px;\
 }\
 .zts-auth-field label{\
-  display:block;font-family:"Schoolbell",cursive;font-size:1.2rem;\
+  display:block;font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:.95rem;letter-spacing:.5px;\
   color:#fff;margin-bottom:6px;text-shadow:1px 1px 0 rgba(0,0,0,.15);\
 }\
 .zts-auth-field input{\
   width:100%;padding:16px 20px;border-radius:14px;border:2px solid rgba(0,229,255,.3);\
-  background:rgba(255,255,255,.1);color:#fff;font-family:"Schoolbell",cursive;\
-  font-size:1.15rem;outline:none;transition:all .3s;\
+  background:rgba(255,255,255,.1);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;\
+  font-size:1.05rem;outline:none;transition:all .3s;\
 }\
 .zts-auth-field input::placeholder{color:rgba(255,255,255,.5)}\
 .zts-auth-field input:focus{border-color:#00E5FF;background:rgba(255,255,255,.2);box-shadow:0 0 15px rgba(0,229,255,.3)}\
@@ -175,7 +218,7 @@
 /* ── Buttons ── */\
 .zts-auth-btn{\
   width:100%;padding:18px;border-radius:16px;border:none;cursor:pointer;\
-  font-family:"Bangers",cursive;font-size:1.4rem;letter-spacing:2px;\
+  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:1.3rem;letter-spacing:1px;\
   transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;\
 }\
 .zts-auth-btn-primary{\
@@ -187,7 +230,7 @@
 \
 .zts-auth-btn-google{\
   background:rgba(255,255,255,.95);color:#333;margin-top:12px;\
-  font-family:"Fredoka One",cursive;font-size:1.15rem;letter-spacing:0;\
+  font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:1.05rem;letter-spacing:.3px;\
 }\
 .zts-auth-btn-google:hover{background:#fff;transform:translateY(-2px);box-shadow:0 4px 20px rgba(255,255,255,.4)}\
 .zts-auth-btn-google svg{width:20px;height:20px;}\
@@ -199,7 +242,7 @@
 }\
 .zts-auth-link{\
   color:#00E5FF;font-size:1.05rem;cursor:pointer;text-decoration:underline;\
-  background:none;border:none;font-family:"Schoolbell",cursive;\
+  background:none;border:none;font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:.9rem;\
   transition:color .2s;\
 }\
 .zts-auth-link:hover{color:#fff}\
@@ -232,7 +275,7 @@
 }\
 .zts-auth-feat:hover{transform:translateY(-3px)}\
 .zts-auth-feat-icon{font-size:1.5rem;margin-bottom:4px;display:block;}\
-.zts-auth-feat-text{font-family:"Bangers",cursive;font-size:.85rem;color:#fff;letter-spacing:1px;}\
+.zts-auth-feat-text{font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:.78rem;color:#fff;letter-spacing:1px;}\
 .zts-auth-feat-blue{background:rgba(0,229,255,.2);}\
 .zts-auth-feat-green{background:rgba(57,255,20,.2);}\
 .zts-auth-feat-orange{background:rgba(255,107,0,.3);}\
@@ -241,7 +284,7 @@
 /* ── Social Proof ── */\
 .zts-auth-proof{\
   text-align:center;padding:12px 30px 24px;\
-  font-family:"Bangers",cursive;font-size:1.2rem;color:#FFD700;\
+  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:1.15rem;color:#FFD700;\
   text-shadow:1px 1px 0 rgba(0,0,0,.3);letter-spacing:1.5px;\
 }\
 \
@@ -261,7 +304,7 @@
   display:flex;align-items:center;gap:6px;\
   padding:8px 16px;border-radius:30px;\
   background:linear-gradient(135deg,#39FF14,#00E5FF);\
-  color:#1a1a2e;font-family:"Bangers",cursive;font-size:.95rem;\
+  color:#1a1a2e;font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:.95rem;\
   letter-spacing:1px;border:2px solid rgba(255,255,255,.3);\
   cursor:pointer;transition:all .3s;text-decoration:none;\
 }\
@@ -275,7 +318,7 @@
 .zts-user-dropdown.open .zts-user-menu{opacity:1;visibility:visible;transform:translateY(0)}\
 .zts-user-menu-item{\
   display:flex;align-items:center;gap:8px;padding:10px 14px;\
-  border-radius:10px;color:#fff;font-family:"Schoolbell",cursive;\
+  border-radius:10px;color:#fff;font-family:"ZTSLucky","Luckiest Guy",cursive;\
   font-size:.95rem;cursor:pointer;transition:background .2s;border:none;background:none;width:100%;text-align:left;\
 }\
 .zts-user-menu-item:hover{background:rgba(255,255,255,.1)}\
@@ -284,18 +327,18 @@
 /* ── Responsive ── */\
 @media(max-width:600px){\
   .zts-auth-modal{max-width:100%;border-radius:20px;}\
-  .zts-auth-title{font-size:2rem;}\
-  .zts-auth-subtitle{font-size:1.1rem;}\
+  .zts-auth-title{font-size:1.9rem;}\
+  .zts-auth-subtitle{font-size:.92rem;}\
   .zts-auth-stats{gap:6px;}\
   .zts-auth-stat{padding:6px 10px;}\
   .zts-auth-stat-num{font-size:1.2rem;}\
   .zts-auth-form-wrap{padding:8px 18px 16px;}\
   .zts-auth-form-card{padding:16px;}\
   .zts-auth-features{gap:6px;padding:0 18px 8px;}\
-  .zts-auth-mascot{width:140px;}\
+  .zts-auth-mascot{height:150px;width:auto;}\
   .zts-auth-row{flex-direction:column;gap:0;}\
-  .zts-auth-btn{font-size:1.2rem;padding:16px;}\
-  .zts-auth-field label{font-size:1.05rem;}\
+  .zts-auth-btn{font-size:1.12rem;padding:16px;}\
+  .zts-auth-field label{font-size:.88rem;}\
   .zts-auth-field input{font-size:1rem;padding:14px 16px;}\
 }';
     document.head.appendChild(s);
@@ -313,7 +356,10 @@
     <button class="zts-auth-close" id="ztsAuthClose" aria-label="Fermer">&times;</button>\
     \
     <div class="zts-auth-header">\
-      <img src="/bucheron-basketball.png" alt="ZTS Mascotte" class="zts-auth-mascot">\
+      <picture>\
+        <source srcset="/shared/img/perso/perso_eps.webp" type="image/webp">\
+        <img src="/shared/img/perso/perso_eps.png" alt="Le prof d\'education physique de Zone Total Sport" class="zts-auth-mascot">\
+      </picture>\
       <h2 class="zts-auth-title">' + (isLogin ? 'Content de te revoir!' : 'Rejoins la Zone!') + '</h2>\
       <p class="zts-auth-subtitle">' + (isLogin ? 'Connecte-toi pour accéder à toutes les ressources' : 'Crée ton compte gratuit en quelques secondes') + '</p>\
     </div>\
@@ -560,6 +606,7 @@
     var email = document.getElementById('ztsEmail').value.trim();
     var password = document.getElementById('ztsPassword').value;
     if (!email || !password) { showError('Remplis tous les champs!'); return; }
+    clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     setLoading(true);
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(function(result) {
@@ -599,6 +646,7 @@
     if (!firstName.trim() || !lastName.trim() || !email || !password) {
       showError('Remplis tous les champs!'); return;
     }
+    clearSignedOut();   // inscription volontaire : la garde ne s'applique plus
     setLoading(true);
     firebase.auth().createUserWithEmailAndPassword(email, password)
       .then(function(result) {
@@ -618,6 +666,7 @@
   function handleGoogle() {
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
+    clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     setLoading(true);
     // Mobile (iOS/Android): utilise redirect car les popups sont souvent bloquees
     var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -758,6 +807,10 @@
       // Hard redirect vers l'accueil : re-init propre, aucun user restaure.
       window.location.href = '/';
     }
+    // Drapeau pose AVANT signOut(), de facon synchrone : il doit survivre a
+    // la redirection et etre lisible au tout debut du chargement suivant,
+    // par firebase-auth.js comme par shared/zts-gate.js.
+    markSignedOut();
     if (typeof firebase === 'undefined' || !firebase.auth) { done(); return; }
     // On AWAIT signOut() avant le redirect : sinon la navigation tue le
     // nettoyage async de la persistance (IndexedDB) et l'utilisateur est
