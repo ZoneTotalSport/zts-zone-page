@@ -1,27 +1,42 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 27 juillet 2026, vague 1 testée au complet.
+**Dernière mise à jour** : 27 juillet 2026, vague 1 EN PRODUCTION.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/Desktop/Remotion 2/wix-deploy/`
 
 ---
 
 ## En production, déjà déployé
 
-`main` a été fusionné et poussé (`3d90121`). Le build GitHub Pages est passé
-en 113 s, sans erreur.
+### Vague 1 — trois apps habillées, en ligne depuis le 27 juillet
 
-**Le rendu de la production est rigoureusement inchangé** — vérifié par
-empreinte avant/après sur trois pages :
+`main` @ `326c379`. Build Pages passé, `Verifie l'habillage` au vert.
 
-| Page | Avant | Après | Identique |
-|---|---|---|---|
-| `/` | 212 130 o · `11dee7f6` | 212 130 o · `11dee7f6` | oui |
-| `/apps/plan-b-meteo/` | 13 631 o · `cf078bed` | 13 631 o · `cf078bed` | oui |
-| `/apps/suppleance/` | 17 590 o · `8801bea1` | 17 590 o · `8801bea1` | oui |
+| App | Densité | Vérifié en production |
+|---|---|---|
+| `/apps/jeux/` | travail | shell monté, rail en ruban, bandeau marine |
+| `/apps/sae/` | travail | shell monté, `ztsh-encouragements.js` non téléchargé |
+| `/apps/musique/` | vitrine | shell monté, encourageur et pause café présents |
 
+Console propre sur les trois. **C'est le premier habillage visible du public.**
+
+**Un défaut est apparu à la mise en ligne, et a été corrigé dans la foulée**
+(`326c379`) : la barre du haut était à `rgba(6,23,38,.66)` et empruntait donc sa
+teinte au fond de la page. Sur `sae` et `musique` ce fond est le marine du
+shell — aucune différence. Sur `jeux`, `apps/jeux/index.html:49` impose
+`body{background:#f8fafc!important}`, que le shell n'a le droit ni de contrer
+(pas de `!important` hors impression) ni de modifier (contrat des 6 lignes) :
+le bandeau y était gris sale. Opacité portée à `.92`, la barre porte désormais
+sa propre teinte.
+
+**Leçon pour les vagues suivantes** : tout effet du shell qui repose sur la
+transparence est à la merci d'un `!important` dans l'app. À vérifier app par
+app, en production et pas seulement en local.
+
+### Fondation (rappel, 26 juillet)
+
+`3d90121`, poussé, rendu de production rigoureusement inchangé — vérifié par
+empreinte avant/après sur `/`, `/apps/plan-b-meteo/` et `/apps/suppleance/`.
 Les trois fichiers du shell sont passés de 404 à 200, servis en gzip.
-Aucune page n'appelle `ZTSShell.monter()` sur `main` : le shell est livré mais
-dormant, ce qui est exactement son contrat.
 
 ## Branches
 
@@ -29,9 +44,9 @@ dormant, ce qui est exactement son contrat.
 main                      ← fondation + garde-fous, POUSSÉ, en production
 ├── shell/fondation       ← identique à main, conservée comme base
 ├── pilote/plan-b-meteo   ← vitrine,    24/24 PASS
-├── pilote/nhl-playoffs   ← projection, 16/16 PASS
+├── pilote/nhl-playoffs   ← ABANDONNÉE — l'app est supprimée du site
 ├── pilote/suppleance     ← travail,    29/29 PASS
-└── vague/1-whitelist     ← 4 apps, 4/4 testées, prête à fusionner
+└── vague/1-whitelist     ← FUSIONNÉE dans main le 27 juillet
 ```
 
 **Les trois branches `pilote/*` ont été créées avant le commit `549a143`
@@ -97,9 +112,12 @@ Méthode de comparaison utilisée, réutilisable : copier le fichier de `main`
 apps/X/zz-base.html`), le servir, rejouer le même geste, supprimer la copie.
 La profondeur relative est conservée, donc tous les `../../` résolvent.
 
-### 2. Fusionner les pilotes et la vague 1 dans `main`
+### 2. ~~Fusionner la vague 1~~ — FAIT le 27 juillet
 
-Après rebasage, et après vérification que le build Pages passe.
+`vague/1-whitelist` est dans `main`, poussée, build Pages au vert, trois apps
+vérifiées en production. **Restent à fusionner : `pilote/plan-b-meteo` et
+`pilote/suppleance`**, après rebasage sur `main` (elles précèdent `549a143`).
+`pilote/nhl-playoffs` est abandonnée.
 
 ### 3. Vagues suivantes
 
