@@ -1004,88 +1004,16 @@
     font-size: 14px;
   }
 
-  /* ============ SÉRIES SPORTIVES - COLONNE FLOTTANTE À GAUCHE ============ */
-  .series-dock {
-    position: fixed;
-    top: 330px;   /* dégagement du dark nav + cyan banner */
-    left: 12px;
-    z-index: 80;
-    display: flex; flex-direction: column;
-    gap: 16px;
-    max-height: calc(100vh - 360px);
-    overflow-y: auto;
-    padding: 4px;
-  }
-  .series-dock::-webkit-scrollbar { width: 0; }
-  .series-dock { scrollbar-width: none; }
-
-  /* Quand le header se cache, les docks remontent en haut */
-  .series-dock, .apps-section {
+  /* Quand le header se cache, la colonne des apps remonte en haut.
+     (Le dock des séries sportives a été retiré le 27 juillet 2026 — les
+     matchs du jour vivent maintenant en bas de la page, section
+     #ztsMatchsJour.) */
+  .apps-section {
     transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.35s ease;
   }
-  body.header-hidden .series-dock,
   body.header-hidden .apps-section {
     top: 40px;
     max-height: calc(100vh - 70px);
-  }
-
-  /* La colonne de la boîte à outils (dé/roue/chrono/...) reste visible partout - quick access */
-  .serie-card {
-    width: 60px;
-    height: 200px;
-    background: linear-gradient(180deg, #1a1a2e 0%, #0a0a18 100%);
-    border: 3px solid var(--ep);
-    border-radius: 14px;
-    box-shadow: 0 0 20px rgba(0,229,255,0.4), 0 4px 12px rgba(0,0,0,0.5);
-    cursor: pointer;
-    position: relative;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 12px 0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .serie-card:hover {
-    transform: translateX(4px) scale(1.05);
-    box-shadow: 0 0 28px rgba(0,229,255,0.6), 0 6px 16px rgba(0,0,0,0.5);
-  }
-  .serie-card.nba { border-color: var(--orange); box-shadow: 0 0 20px rgba(255,107,0,0.4), 0 4px 12px rgba(0,0,0,0.5); }
-  .serie-card.nba:hover { box-shadow: 0 0 28px rgba(255,107,0,0.6), 0 6px 16px rgba(0,0,0,0.5); }
-  .serie-card.fifa { border-color: var(--vert); box-shadow: 0 0 20px rgba(57,255,20,0.4), 0 4px 12px rgba(0,0,0,0.5); }
-  .serie-card.fifa:hover { box-shadow: 0 0 28px rgba(57,255,20,0.6), 0 6px 16px rgba(0,0,0,0.5); }
-  .serie-card .league-logo {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: white;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    margin-bottom: 12px;
-    border: 2px solid var(--ink);
-  }
-  .serie-card .dot-live {
-    position: absolute;
-    top: 18px; left: 12px;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--rose);
-    animation: pulse 1.5s ease infinite;
-  }
-  .serie-card .label {
-    color: white;
-    font-family: var(--font-impact);
-    font-size: 18px;
-    letter-spacing: 0.06em;
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    text-align: center;
-    line-height: 1;
-    flex: 1;
-    display: flex; align-items: center;
-  }
-  .serie-card .ball {
-    position: absolute;
-    top: -10px; right: -10px;
-    font-size: 28px;
-    transform: rotate(15deg);
-    filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));
   }
 
   /* ============ MODAL OUTILS INTERACTIFS ============ */
@@ -1340,155 +1268,6 @@
     font-weight: 600;
     color: #555;
     margin-bottom: 4px;
-  }
-
-  /* ============ MODAL SÉRIES SPORTIVES ============ */
-  .series-card { text-decoration: none; }
-
-  .series-modal {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.85);
-    backdrop-filter: blur(10px);
-    display: none;
-    align-items: center; justify-content: center;
-    z-index: 200;
-    padding: 20px;
-  }
-  .series-modal.open { display: flex; }
-
-  .series-modal-inner {
-    background: linear-gradient(135deg, #0a0a18 0%, #1a1a2e 50%, #0a0a18 100%);
-    max-width: 1100px; width: 100%;
-    border: 5px solid var(--ink);
-    border-radius: 24px;
-    padding: 48px 36px;
-    position: relative;
-    max-height: 92vh;
-    overflow-y: auto;
-    color: white;
-    box-shadow: 0 0 60px rgba(0,229,255,0.25);
-  }
-  .series-modal.open .series-modal-inner {
-    animation: series-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  @keyframes series-pop {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .series-close {
-    position: absolute;
-    top: 16px; right: 16px;
-    background: var(--rose);
-    color: white;
-    border: 3px solid white;
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    font-size: 20px;
-    font-family: var(--font-impact);
-    cursor: pointer;
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
-    z-index: 1;
-  }
-
-  .series-modal-head { text-align: center; margin-bottom: 32px; }
-  .series-badge {
-    display: inline-block;
-    background: var(--cyan); color: var(--ink);
-    padding: 8px 20px; border-radius: 999px;
-    font-family: var(--font-impact); font-size: 16px;
-    letter-spacing: 0.04em;
-    margin-bottom: 14px;
-    box-shadow: 3px 3px 0 var(--ink);
-  }
-  .series-modal-head h2 {
-    font-family: var(--font-impact);
-    font-size: clamp(28px, 4vw, 44px);
-    line-height: 1; color: white;
-    margin-bottom: 8px;
-    text-shadow: 3px 3px 0 rgba(0,0,0,0.5);
-  }
-  .series-modal-head p {
-    font-family: var(--font-fun);
-    color: var(--cyan);
-    font-size: 18px;
-  }
-
-  /* Tableau des séries */
-  .series-bracket {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-bottom: 28px;
-  }
-  @media (max-width: 700px) { .series-bracket { grid-template-columns: 1fr; } }
-
-  .conference {
-    background: rgba(255,255,255,0.04);
-    border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 16px;
-    padding: 22px;
-  }
-  .conference-title {
-    font-family: var(--font-bang);
-    font-size: 16px;
-    color: var(--jaune);
-    letter-spacing: 0.06em;
-    margin-bottom: 14px;
-    text-align: center;
-    padding-bottom: 10px;
-    border-bottom: 2px solid rgba(255,234,0,0.3);
-  }
-  .matchup {
-    background: rgba(0,0,0,0.3);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-  }
-  .matchup .team-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 6px 0;
-    font-family: var(--font-body); font-weight: 700;
-    font-size: 14px;
-  }
-  .matchup .team-row.winning { color: var(--vert); }
-  .matchup .team-row .score {
-    background: var(--ink);
-    color: white;
-    padding: 2px 10px;
-    border-radius: 6px;
-    font-family: var(--font-impact);
-    min-width: 32px;
-    text-align: center;
-  }
-  .matchup .team-row.winning .score {
-    background: var(--vert);
-    color: var(--ink);
-  }
-  .matchup-meta {
-    font-family: var(--font-fun);
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
-    margin-top: 4px;
-    text-align: center;
-  }
-
-  .series-cta-row { text-align: center; }
-  .series-cta {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--cyan); color: var(--ink);
-    padding: 14px 26px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-family: var(--font-impact); font-size: 16px;
-    letter-spacing: 0.02em;
-    border: 3px solid var(--ink);
-    box-shadow: 5px 5px 0 var(--ink);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .series-cta:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 7px 7px 0 var(--ink);
   }
 
   /* ============ "AUJOURD'HUI AU MENU" SECTION ============ */
@@ -2515,13 +2294,9 @@
     .apps-grid { grid-template-columns: repeat(2, 1fr); }
   }
   /* ≤640px : le header compact (zts.css mobile) fait ~230px, pas 480 —
-     on resserre la compensation, et le dock séries (FIFA) se range en bas
-     à gauche au lieu de flotter par-dessus le hero. */
+     on resserre la compensation. */
   @media (max-width: 640px) {
     section.hero { padding: 290px 14px 36px; }
-    .series-dock, body.header-hidden .series-dock { top: auto; bottom: 74px; max-height: none; }
-    .serie-card { width: 52px; height: 118px; }
-    .serie-card .label { font-size: 10px; }
     /* Flottants du bas : compacts pour ne plus recouvrir le texte du hero */
     .pause-syndicale-btn { transform: scale(.72); transform-origin: bottom left; }
     .mascot { width: 84px !important; height: 84px !important; }
@@ -2976,40 +2751,6 @@
 <!-- HEADER PARTAGÉ (injecté par zts.js) — unifié avec hubs + apps -->
 <div data-zts-header></div>
 
-<!-- SÉRIES SPORTIVES - colonne flottante à gauche -->
-<div class="series-dock">
-  <!-- Cartes Séries LNH + NBA retirées (demande Joey 2026-07-06) — saison finie.
-       Les pages /apps-nhl/ et /apps-nba/ restent en ligne (SEO), seules les
-       cartes de la home partent. FIFA (Coupe du monde 2026 en cours) reste. -->
-  <a class="serie-card fifa" href="apps-fifa/index.html" onclick="openSeries('fifa'); return false;" data-i18n-attr="title:series.see_fifa" title="Voir la Coupe du monde FIFA 2026">
-    <span class="dot-live"></span>
-    <div class="league-logo">⚽</div>
-    <div class="label" data-i18n="series.fifa_label">SOCCER FIFA</div>
-  </a>
-</div>
-
-<!-- MODAL SÉRIES -->
-<div class="series-modal" id="seriesModal" onclick="if(event.target===this) this.classList.remove('open')">
-  <div class="series-modal-inner">
-    <button class="series-close" onclick="document.getElementById('seriesModal').classList.remove('open')">✕</button>
-    <div class="series-modal-head">
-      <span class="series-badge" id="seriesBadge">🏒 LNH</span>
-      <h2 id="seriesTitle" data-i18n="series.title_init">Séries éliminatoires LNH 2026</h2>
-      <p id="seriesSubtitle" data-i18n="series.sub_init">Coupe Stanley · Tour final</p>
-    </div>
-
-    <div class="series-content" id="seriesContent">
-      <!-- Injecté en JS -->
-    </div>
-
-    <div class="series-cta-row">
-      <a id="seriesExtLink" href="https://www.nhl.com/fr/playoffs" target="_blank" rel="noopener" class="series-cta" data-i18n="series.ext">
-        Voir le tableau complet sur le site officiel →
-      </a>
-    </div>
-  </div>
-</div>
-
 <!-- Bannière logo+horloge désormais intégrée au header partagé -->
 
 <!-- HERO STAGE 1 : SÉLECTEUR 3 PORTES -->
@@ -3421,6 +3162,274 @@ function pcHowEN(){ return ''
     </div>
     <div id="ztsPauseGrid"></div>
 </section>
+
+<!-- ========== MATCHS DU JOUR (LNH · NBA · FIFA) ==========
+     Remplace les trois apps de séries (apps-nhl, apps-nba, apps-fifa),
+     retirées du site le 27 juillet 2026. Données : ESPN site.api, en direct,
+     sans clé. Hors saison, la section se masque d'elle-même. -->
+<style>
+    #ztsMatchsJour { background: linear-gradient(135deg, #0f0f2e 0%, #18181b 100%); padding: 60px 20px; position: relative; }
+    #ztsMatchsJour::before { content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(circle at 85% 15%, rgba(255,107,0,0.14), transparent 52%), radial-gradient(circle at 12% 85%, rgba(0,229,255,0.14), transparent 52%); }
+    .zts-mj-header { max-width: 1400px; margin: 0 auto 36px; text-align: center; position: relative; }
+    .zts-mj-pill { display: inline-block; background: linear-gradient(135deg, #FF6B00, #FF2A7A); color: #fff; padding: 12px 28px; border-radius: 28px; font-family: 'Luckiest Guy', cursive; font-size: 1.6rem; letter-spacing: 1.5px; margin-bottom: 14px; }
+    .zts-mj-h2 { font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(2rem, 4vw, 3.2rem); margin: 0; letter-spacing: 0.5px; line-height: 1.15; }
+    .zts-mj-date { font-family: 'Patrick Hand', cursive; color: #FF9E4A; font-size: 1.5rem; margin-top: 10px; }
+    #ztsMjGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 26px; position: relative; }
+    .zts-mj-card { background: rgba(255,255,255,0.05); border: 3px solid rgba(255,255,255,0.16); border-radius: 28px; padding: 26px 22px; transition: transform .3s, border-color .3s, box-shadow .3s; }
+    .zts-mj-card:hover { transform: translateY(-6px); }
+    .zts-mj-card.lnh { border-color: rgba(0,229,255,0.3); }
+    .zts-mj-card.lnh:hover { border-color: rgba(0,229,255,0.6); box-shadow: 0 14px 50px rgba(0,229,255,0.22); }
+    .zts-mj-card.nba { border-color: rgba(255,107,0,0.3); }
+    .zts-mj-card.nba:hover { border-color: rgba(255,107,0,0.6); box-shadow: 0 14px 50px rgba(255,107,0,0.22); }
+    .zts-mj-card.fifa { border-color: rgba(57,255,20,0.3); }
+    .zts-mj-card.fifa:hover { border-color: rgba(57,255,20,0.6); box-shadow: 0 14px 50px rgba(57,255,20,0.2); }
+    .zts-mj-league { display: flex; align-items: center; gap: 10px; font-family: 'Luckiest Guy', cursive; font-size: 1.35rem; letter-spacing: 1.5px; margin-bottom: 6px; }
+    .zts-mj-card.lnh .zts-mj-league { color: #00E5FF; }
+    .zts-mj-card.nba .zts-mj-league { color: #FF9E4A; }
+    .zts-mj-card.fifa .zts-mj-league { color: #7CFF6B; }
+    .zts-mj-when { font-family: 'Patrick Hand', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.6); margin-bottom: 16px; }
+    .zts-mj-match { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-top: 1px solid rgba(255,255,255,0.1); }
+    .zts-mj-match:first-of-type { border-top: 0; }
+    .zts-mj-cote { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+    .zts-mj-cote img { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
+    .zts-mj-abbr { font-family: 'Fredoka One', 'Luckiest Guy', cursive; color: #fff; font-size: 1.05rem; letter-spacing: .5px; }
+    .zts-mj-pointage { font-family: 'Luckiest Guy', cursive; color: #fff; font-size: 1.35rem; min-width: 26px; text-align: center; }
+    .zts-mj-cote.perd .zts-mj-abbr, .zts-mj-cote.perd .zts-mj-pointage { opacity: .5; }
+    .zts-mj-vs { font-family: 'Patrick Hand', cursive; color: rgba(255,255,255,0.45); font-size: 1rem; }
+    .zts-mj-etat { font-family: 'Patrick Hand', cursive; font-size: 1.05rem; color: rgba(255,255,255,0.7); text-align: right; flex-shrink: 0; min-width: 92px; }
+    .zts-mj-etat.direct { color: #FF2A7A; font-family: 'Luckiest Guy', cursive; letter-spacing: 1px; }
+    .zts-mj-etat.direct::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #FF2A7A; margin-right: 6px; animation: zts-mj-pulse 1.5s ease infinite; }
+    @keyframes zts-mj-pulse { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+    .zts-mj-vide { font-family: 'Patrick Hand', cursive; color: rgba(255,255,255,0.55); font-size: 1.15rem; padding: 10px 0; }
+    .zts-mj-lien { display: inline-block; margin-top: 16px; font-family: 'Luckiest Guy', cursive; letter-spacing: 1px; font-size: 1rem; color: #fff; text-decoration: none; border-bottom: 2px solid rgba(255,255,255,0.35); padding-bottom: 2px; }
+    .zts-mj-lien:hover { border-bottom-color: #fff; }
+    @media (max-width: 640px) {
+        #ztsMatchsJour { padding: 44px 14px; }
+        #ztsMjGrid { grid-template-columns: 1fr; gap: 18px; }
+    }
+</style>
+<section id="ztsMatchsJour" hidden>
+    <div class="zts-mj-header">
+        <span class="zts-mj-pill" id="ztsMjPill">🏟️ MATCHS DU JOUR</span>
+        <h2 class="zts-mj-h2" id="ztsMjTitre">Ce qui joue aujourd'hui</h2>
+        <div class="zts-mj-date" id="ztsMjDate">&nbsp;</div>
+    </div>
+    <div id="ztsMjGrid"></div>
+</section>
+<script>
+/* Matchs du jour — LNH, NBA, Coupe du monde FIFA.
+   Autonome : ne dépend d'aucune variable du gros script de la home.
+   · données ESPN site.api (publiques, sans clé, CORS ouvert) ;
+   · trois replis proxy si l'appel direct est bloqué ;
+   · cache 10 min en sessionStorage — une visite = au plus 3 appels ;
+   · aucun match aujourd'hui → prochains matchs prévus ;
+   · rien nulle part (plein été) → la section se masque, la home reste propre.
+   Aperçu forcé : ?matchs=demo */
+(function () {
+  var GRILLE = document.getElementById('ztsMjGrid');
+  var SECTION = document.getElementById('ztsMatchsJour');
+  if (!GRILLE || !SECTION) return;
+
+  var LIGUES = [
+    { cle: 'lnh',  emoji: '🏒', nom: { fr: 'LNH',  en: 'NHL' },
+      chemins: ['hockey/nhl'], site: 'https://www.nhl.com/fr/scores' },
+    { cle: 'nba',  emoji: '🏀', nom: { fr: 'NBA',  en: 'NBA' },
+      chemins: ['basketball/nba'], site: 'https://www.nba.com/games' },
+    { cle: 'fifa', emoji: '⚽', nom: { fr: 'FIFA', en: 'FIFA' },
+      chemins: ['soccer/fifa.world', 'soccer/fifa.friendly', 'soccer/fifa.wwc'],
+      site: 'https://www.fifa.com/fr/tournaments/mens/worldcup/canadamexicousa2026' }
+  ];
+
+  var T = {
+    fr: { pill: '🏟️ MATCHS DU JOUR', titre: "Ce qui joue aujourd'hui",
+          aujourdhui: "Aujourd'hui", prochains: 'Prochains matchs',
+          horsSaison: 'Hors saison — rien au calendrier.', direct: 'EN DIRECT',
+          final: 'Final', lien: 'Calendrier complet →', vs: 'vs', aVenir: 'Heure à venir' },
+    en: { pill: '🏟️ TODAY\'S GAMES', titre: "What's on today",
+          aujourdhui: 'Today', prochains: 'Upcoming games',
+          horsSaison: 'Off-season — nothing scheduled.', direct: 'LIVE',
+          final: 'Final', lien: 'Full schedule →', vs: 'vs', aVenir: 'Time TBD' }
+  };
+
+  var PROXYS = [
+    function (u) { return u; },
+    function (u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); },
+    function (u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }
+  ];
+
+  var DEMO = /[?&]matchs=demo/.test(location.search);
+  var donnees = null;   // [{ligue, jour:bool, matchs:[]}]
+
+  function langue() {
+    var s = localStorage.getItem('zts_lang') || localStorage.getItem('zts-lang');
+    if (s === 'fr' || s === 'en') return s;
+    return (navigator.language || 'fr').toLowerCase().indexOf('en') === 0 ? 'en' : 'fr';
+  }
+
+  function aaaammjj(d) {
+    return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+  }
+
+  async function json(url) {
+    for (var i = 0; i < PROXYS.length; i++) {
+      try {
+        var r = await fetch(PROXYS[i](url), { signal: AbortSignal.timeout(7000) });
+        if (r.ok) return await r.json();
+      } catch (e) { /* proxy suivant */ }
+    }
+    return null;
+  }
+
+  /* Un évènement ESPN → la seule forme dont l'affichage a besoin. */
+  function normaliser(ev) {
+    var c = (ev.competitions && ev.competitions[0]) || {};
+    var eq = (c.competitors || []).slice().sort(function (a, b) {
+      return (a.homeAway === 'away' ? 0 : 1) - (b.homeAway === 'away' ? 0 : 1);
+    });
+    var st = (ev.status && ev.status.type) || {};
+    return {
+      date: ev.date,
+      etat: st.state || 'pre',                       // pre | in | post
+      detail: st.shortDetail || '',
+      cotes: eq.map(function (x) {
+        return {
+          abbr: (x.team && (x.team.abbreviation || x.team.shortDisplayName)) || '?',
+          logo: (x.team && x.team.logo) || '',
+          score: x.score,
+          gagnant: !!x.winner
+        };
+      })
+    };
+  }
+
+  /* ESPN liste parfois deux fois la même affiche (une entrée par équipe hôte,
+     surtout au calendrier préparatoire). Une affiche = une date + deux sigles. */
+  function dedoublonner(liste) {
+    var vus = {};
+    return liste.filter(function (m) {
+      var cle = m.date + '|' + m.cotes.map(function (c) { return c.abbr; }).slice().sort().join('-');
+      if (vus[cle]) return false;
+      vus[cle] = 1;
+      return true;
+    });
+  }
+
+  async function chargerLigue(l) {
+    var auj = new Date();
+    for (var i = 0; i < l.chemins.length; i++) {
+      var base = 'https://site.api.espn.com/apis/site/v2/sports/' + l.chemins[i] + '/scoreboard';
+      var d = await json(base + '?dates=' + aaaammjj(auj));
+      if (d && d.events && d.events.length) {
+        return { ligue: l, jour: true, matchs: dedoublonner(d.events.map(normaliser)).slice(0, 6) };
+      }
+      var fin = new Date(auj.getTime() + 120 * 86400000);
+      var p = await json(base + '?limit=12&dates=' + aaaammjj(auj) + '-' + aaaammjj(fin));
+      if (p && p.events && p.events.length) {
+        var tries = p.events.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+        return { ligue: l, jour: false, matchs: dedoublonner(tries.map(normaliser)).slice(0, 3) };
+      }
+    }
+    return { ligue: l, jour: false, matchs: [] };
+  }
+
+  function demo() {
+    var t = new Date().toISOString();
+    var m = function (a, b, sa, sb, etat, detail) {
+      return { date: t, etat: etat, detail: detail, cotes: [
+        { abbr: a, logo: '', score: sa, gagnant: sa > sb },
+        { abbr: b, logo: '', score: sb, gagnant: sb > sa } ] };
+    };
+    return [
+      { ligue: LIGUES[0], jour: true,  matchs: [m('MTL', 'TOR', '3', '2', 'in', '3e · 12:04'), m('BOS', 'NYR', '1', '1', 'pre', '19:00')] },
+      { ligue: LIGUES[1], jour: true,  matchs: [m('BOS', 'MIA', '112', '104', 'post', 'Final')] },
+      { ligue: LIGUES[2], jour: false, matchs: [m('CAN', 'MEX', '', '', 'pre', '11 juin')] }
+    ];
+  }
+
+  /* L'état affiché est reformulé ici : ESPN renvoie de l'anglais américain
+     ("9/19 - 7:00 PM EDT", "TBD"), illisible pour le public d'ici. */
+  function etatTexte(mt, lg, tr) {
+    if (mt.etat === 'in') return { cls: ' direct', txt: tr.direct };
+    if (mt.etat === 'post') return { cls: '', txt: tr.final };
+    var d = new Date(mt.date);
+    if (isNaN(d)) return { cls: '', txt: mt.detail || '' };
+    var loc = lg === 'en' ? 'en-CA' : 'fr-CA';
+    var heure = d.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' });
+    // Heure non annoncée : ESPN pose minuit. Mieux vaut la date seule qu'un « 00 h 00 ».
+    var sansHeure = d.getHours() === 0 && d.getMinutes() === 0;
+    var jour = d.toLocaleDateString(loc, { day: 'numeric', month: 'short' });
+    if (d.toDateString() === new Date().toDateString()) return { cls: '', txt: sansHeure ? tr.aVenir : heure };
+    return { cls: '', txt: sansHeure ? jour : jour + ' · ' + heure };
+  }
+
+  function ligne(mt, lg, tr) {
+    var e = etatTexte(mt, lg, tr);
+    var etat = '<span class="zts-mj-etat' + e.cls + '">' + e.txt + '</span>';
+    var cotes = mt.cotes.map(function (c) {
+      var perd = mt.etat === 'post' && !c.gagnant ? ' perd' : '';
+      var logo = c.logo ? '<img src="' + c.logo + '" alt="" loading="lazy" onerror="this.remove()">' : '';
+      // Avant le match, ESPN met 0 partout : un pointage n'a de sens qu'en cours ou fini.
+      var pts = (mt.etat === 'pre' || c.score === undefined || c.score === null || c.score === '')
+        ? '' : '<span class="zts-mj-pointage">' + c.score + '</span>';
+      return '<span class="zts-mj-cote' + perd + '">' + logo +
+             '<span class="zts-mj-abbr">' + c.abbr + '</span>' + pts + '</span>';
+    }).join('<span class="zts-mj-vs">' + tr.vs + '</span>');
+    return '<div class="zts-mj-match">' + cotes + etat + '</div>';
+  }
+
+  function rendre() {
+    if (!donnees) return;
+    var lg = langue(), tr = T[lg] || T.fr;
+    var vivantes = donnees.filter(function (d) { return d.matchs.length; });
+
+    if (!vivantes.length) { SECTION.hidden = true; return; }
+    SECTION.hidden = false;
+
+    document.getElementById('ztsMjPill').textContent = tr.pill;
+    document.getElementById('ztsMjTitre').textContent = tr.titre;
+    document.getElementById('ztsMjDate').textContent = new Date().toLocaleDateString(
+      lg === 'en' ? 'en-CA' : 'fr-CA', { weekday: 'long', day: 'numeric', month: 'long' });
+
+    GRILLE.innerHTML = vivantes.map(function (d) {
+      return '<div class="zts-mj-card ' + d.ligue.cle + '">' +
+        '<div class="zts-mj-league">' + d.ligue.emoji + ' ' + d.ligue.nom[lg] + '</div>' +
+        '<div class="zts-mj-when">' + (d.jour ? tr.aujourdhui : tr.prochains) + '</div>' +
+        d.matchs.map(function (m) { return ligne(m, lg, tr); }).join('') +
+        '<a class="zts-mj-lien" href="' + d.ligue.site + '" target="_blank" rel="noopener">' + tr.lien + '</a>' +
+        '</div>';
+    }).join('');
+  }
+  window.ztsMatchsRender = rendre;
+
+  async function demarrer() {
+    if (DEMO) { donnees = demo(); rendre(); return; }
+    try {
+      var cache = JSON.parse(sessionStorage.getItem('zts_matchs_jour') || 'null');
+      if (cache && Date.now() - cache.ts < 600000) {
+        donnees = cache.d.map(function (x) {
+          x.ligue = LIGUES.filter(function (l) { return l.cle === x.cle; })[0];
+          return x;
+        }).filter(function (x) { return x.ligue; });
+        rendre();
+        return;
+      }
+    } catch (e) { /* cache illisible : on refait l'appel */ }
+
+    donnees = await Promise.all(LIGUES.map(chargerLigue));
+    rendre();
+    try {
+      sessionStorage.setItem('zts_matchs_jour', JSON.stringify({
+        ts: Date.now(),
+        d: donnees.map(function (x) { return { cle: x.ligue.cle, jour: x.jour, matchs: x.matchs }; })
+      }));
+    } catch (e) { /* quota : tant pis, pas de cache */ }
+  }
+
+  if ('requestIdleCallback' in window) requestIdleCallback(demarrer, { timeout: 3000 });
+  else setTimeout(demarrer, 1200);
+})();
+</script>
 
 <!-- BANDE INSCRIPTION (conservée, propre à la home) -->
 <section class="home-signup" style="margin-top:var(--space-6);">
@@ -4205,104 +4214,6 @@ function pcHowEN(){ return ''
     document.getElementById('schoolInfo').style.display = 'block';
   }
 
-  // ============ SÉRIES SPORTIVES - MODAL CONTENU ============
-  let SERIES_DATA = {
-    nhl: {
-      badge: '🏒 LNH',
-      title: 'Séries éliminatoires LNH 2026',
-      subtitle: 'En route vers la Coupe Stanley',
-      externalUrl: 'https://www.nhl.com/fr/playoffs',
-      bracket: [
-        {
-          conference: 'EST · Finale d\'association',
-          matchups: [
-            { teamA: 'Panthers de la Floride', scoreA: 3, teamB: 'Hurricanes de la Caroline', scoreB: 2, meta: 'Série 3-2 · Match 6 ce soir' }
-          ]
-        },
-        {
-          conference: 'OUEST · Finale d\'association',
-          matchups: [
-            { teamA: 'Stars de Dallas', scoreA: 2, teamB: 'Oilers d\'Edmonton', scoreB: 3, meta: 'Série 3-2 · Match 6 ce soir' }
-          ]
-        },
-        {
-          conference: 'EST · 2e tour (terminé)',
-          matchups: [
-            { teamA: 'Panthers', scoreA: 4, teamB: 'Maple Leafs', scoreB: 1, meta: 'Série gagnée 4-1' },
-            { teamA: 'Hurricanes', scoreA: 4, teamB: 'Capitals', scoreB: 2, meta: 'Série gagnée 4-2' }
-          ]
-        },
-        {
-          conference: 'OUEST · 2e tour (terminé)',
-          matchups: [
-            { teamA: 'Stars', scoreA: 4, teamB: 'Jets', scoreB: 2, meta: 'Série gagnée 4-2' },
-            { teamA: 'Oilers', scoreA: 4, teamB: 'Knights', scoreB: 1, meta: 'Série gagnée 4-1' }
-          ]
-        }
-      ]
-    },
-    nba: {
-      badge: '🏀 NBA',
-      title: 'Playoffs NBA 2026',
-      subtitle: 'Finale NBA — Spurs vs Knicks (dès le 5 juin)',
-      externalUrl: 'https://www.nba.com/playoffs',
-      bracket: [
-        {
-          conference: 'EST · Finale d\'association',
-          matchups: [
-            { teamA: 'Boston Celtics', scoreA: 2, teamB: 'Cleveland Cavaliers', scoreB: 3, meta: 'Série 3-2 · Match 6 ce soir' }
-          ]
-        },
-        {
-          conference: 'OUEST · Finale d\'association',
-          matchups: [
-            { teamA: 'Denver Nuggets', scoreA: 3, teamB: 'OKC Thunder', scoreB: 2, meta: 'Série 3-2 · Match 6 ce soir' }
-          ]
-        },
-        {
-          conference: 'EST · Demi-finale (terminé)',
-          matchups: [
-            { teamA: 'Celtics', scoreA: 4, teamB: 'Knicks', scoreB: 1, meta: 'Série gagnée 4-1' },
-            { teamA: 'Cavaliers', scoreA: 4, teamB: 'Pacers', scoreB: 3, meta: 'Série gagnée 4-3' }
-          ]
-        },
-        {
-          conference: 'OUEST · Demi-finale (terminé)',
-          matchups: [
-            { teamA: 'Nuggets', scoreA: 4, teamB: 'Timberwolves', scoreB: 2, meta: 'Série gagnée 4-2' },
-            { teamA: 'Thunder', scoreA: 4, teamB: 'Mavericks', scoreB: 2, meta: 'Série gagnée 4-2' }
-          ]
-        }
-      ]
-    },
-    fifa: {
-      badge: '⚽ FIFA',
-      title: 'Coupe du monde FIFA 2026',
-      subtitle: 'Canada · États-Unis · Mexique — 11 juin au 19 juillet',
-      externalUrl: 'https://www.fifa.com/fr/tournaments/mens/worldcup/canadamexicousa2026',
-      bracket: []
-    }
-  };
-
-  function openSeries(league) {
-    const data = SERIES_DATA[league];
-    if (!data) return;
-
-    document.getElementById('seriesModal').dataset.league = league;
-    document.getElementById('seriesBadge').textContent = data.badge;
-    document.getElementById('seriesTitle').textContent = data.title;
-    document.getElementById('seriesSubtitle').textContent = data.subtitle;
-    document.getElementById('seriesExtLink').href = data.externalUrl;
-
-    const content = document.getElementById('seriesContent');
-    const appPath = { nhl:'apps-nhl/index.html', nba:'apps-nba/index.html', fifa:'apps-fifa/index.html' }[league] || 'apps-nhl/index.html';
-    content.innerHTML = `
-      <iframe src="${appPath}" style="width:100%; height:78vh; border:4px solid var(--ink); border-radius:16px; background:#fff;" loading="lazy"></iframe>
-    `;
-
-    document.getElementById('seriesModal').classList.add('open');
-  }
-
   // ============ MENU BURGER MOBILE (header géré par le partagé) ============
   document.getElementById('burger')?.addEventListener('click', () => {
     document.getElementById('navLinks')?.classList.toggle('open');
@@ -4374,8 +4285,6 @@ function pcHowEN(){ return ''
       'gate.title':'ACCÈS PROTÉGÉ','gate.sub':'Aperçu privé de Zone Total Sport. Entre le mot de passe pour continuer.','gate.ph':'Mot de passe','gate.btn':'DÉVERROUILLER','gate.err':'❌ Mot de passe incorrect',
       'nav.home':'Accueil','nav.resources':'Ressources','nav.community':'Communauté ▼','nav.donate':'Dons','nav.greeting':'Salut, Joey!',
       'lang.fr':'FR','lang.en':'EN','brand.sub':'Pédagogie Primaire',
-      'series.see_nhl':'Voir les séries LNH','series.see_nba':'Voir les séries NBA','series.nhl_label':'SÉRIES LNH','series.nba_label':'SÉRIES NBA',
-      'series.title_init':'Séries éliminatoires LNH 2026','series.sub_init':'Coupe Stanley · Tour final','series.ext':'Voir le tableau complet sur le site officiel →',
       'hero.eyebrow':'1400+ jeux · 100% gratuit · primaire','hero.title1':'Faire bouger les enfants,','hero.title2':"c'est notre mission!",
       'hero.lede':"Une plateforme. Trois métiers. Choisis le tien et reçois exactement ce qu'il te faut — pour des journées qui roulent au primaire.",
       'metier.ep':'Éducation physique','metier.sdg':'Service de garde','metier.camp':'Camps de jour',
@@ -4424,8 +4333,6 @@ function pcHowEN(){ return ''
       'gate.title':'PROTECTED ACCESS','gate.sub':'Private preview of Zone Total Sport. Enter the password to continue.','gate.ph':'Password','gate.btn':'UNLOCK','gate.err':'❌ Wrong password',
       'nav.home':'Home','nav.resources':'Resources','nav.community':'Community ▼','nav.donate':'Donate','nav.greeting':'Hi, Joey!',
       'lang.fr':'FR','lang.en':'EN','brand.sub':'Elementary Education',
-      'series.see_nhl':'View NHL playoffs','series.see_nba':'View NBA playoffs','series.nhl_label':'NHL PLAYOFFS','series.nba_label':'NBA PLAYOFFS',
-      'series.title_init':'NHL Playoffs 2026','series.sub_init':'Stanley Cup · Final round','series.ext':'See the full bracket on the official site →',
       'hero.eyebrow':'1400+ games · 100% free · elementary','hero.title1':'Getting kids moving,','hero.title2':"that's our mission!",
       'hero.lede':"One platform. Three roles. Pick yours and get exactly what you need — for elementary days that run smoothly.",
       'metier.ep':'Physical Education','metier.sdg':'Daycare','metier.camp':'Day Camps',
@@ -4476,7 +4383,7 @@ function pcHowEN(){ return ''
   function t(key){ const d = HOME_I18N[ztsLang] || HOME_I18N.fr; return (key in d) ? d[key] : (HOME_I18N.fr[key] ?? key); }
 
   // --- Conserve les données FR d'origine + miroirs EN ---
-  const METIERS_FR = METIERS, MENU_JOUR_FR = MENU_JOUR, QUOTES_FR = QUOTES, SERIES_FR = SERIES_DATA, APPS_DEFAULT_FR = APPS_DEFAULT;
+  const METIERS_FR = METIERS, MENU_JOUR_FR = MENU_JOUR, QUOTES_FR = QUOTES, APPS_DEFAULT_FR = APPS_DEFAULT;
 
   const APPS_DEFAULT_EN = [
     { icon:'🎲', name:'Die',       tool:'dice' },
@@ -4611,11 +4518,6 @@ function pcHowEN(){ return ''
     camp:["Summer is your season! ☀️","You're creating childhood memories.","Camp is pure magic. 🏕️","Grab the sunscreen and go!","Those big games — YOU bring them to life.","You're the hero of their summer."]
   };
 
-  const SERIES_EN = {
-    nhl:{ badge:'🏒 NHL', title:'NHL Playoffs 2026', subtitle:'On the road to the Stanley Cup', externalUrl:'https://www.nhl.com/playoffs', bracket:SERIES_FR.nhl.bracket },
-    nba:{ badge:'🏀 NBA', title:'NBA Playoffs 2026', subtitle:"Larry O'Brien Trophy on the line", externalUrl:'https://www.nba.com/playoffs', bracket:SERIES_FR.nba.bracket }
-  };
-
   // --- URLs confirmées (200) injectées dans les apps des métiers (FR+EN) ---
   // Retire l'état "soon" des apps dont l'URL est désormais connue.
   const APP_URL = {
@@ -4682,7 +4584,6 @@ function pcHowEN(){ return ''
     METIERS = EN?METIERS_EN:METIERS_FR;
     MENU_JOUR = EN?MENU_JOUR_EN:MENU_JOUR_FR;
     QUOTES = EN?QUOTES_EN:QUOTES_FR;
-    SERIES_DATA = EN?SERIES_EN:SERIES_FR;
     APPS_DEFAULT = EN?APPS_DEFAULT_EN:APPS_DEFAULT_FR;
 
     // Toggle visuel
@@ -4707,17 +4608,8 @@ function pcHowEN(){ return ''
 
     // Modale outil ouverte → re-render
     if (_openToolKey && document.getElementById('toolModal').classList.contains('open')) openTool(_openToolKey);
-    // Modale séries ouverte → re-render entête
-    const sm = document.getElementById('seriesModal');
-    if (sm.classList.contains('open')){
-      const lg = sm.dataset.league;
-      if (lg && SERIES_DATA[lg]){
-        document.getElementById('seriesBadge').textContent = SERIES_DATA[lg].badge;
-        document.getElementById('seriesTitle').textContent = SERIES_DATA[lg].title;
-        document.getElementById('seriesSubtitle').textContent = SERIES_DATA[lg].subtitle;
-        document.getElementById('seriesExtLink').href = SERIES_DATA[lg].externalUrl;
-      }
-    }
+    // Matchs du jour → re-render dans la nouvelle langue
+    if (typeof ztsMatchsRender === 'function') ztsMatchsRender();
   }
   window.ztsSetLang = setLang;
 
