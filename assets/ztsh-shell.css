@@ -1168,9 +1168,18 @@ body.ztsh-on[data-metier]::before,
 body.ztsh-on[data-metier]::after { background: none; opacity: 0; }
 
 /* ---- Barre du haut — allure de la maquette ------------------------------
-   Fond translucide flouté, contour noir 3px, ombre dure cyan 6px. */
+   Fond translucide flouté, contour noir 3px, ombre dure cyan 6px.
+
+   L'opacité est à .92, pas à .66. À .66 la barre empruntait sa teinte à ce
+   qui passe derrière : sur les apps bien élevées c'est le marine du shell,
+   donc aucune différence — mais `apps/jeux/index.html:49` impose
+   `body{background:#f8fafc!important}`, que le shell n'a pas le droit de
+   contrer (pas de !important hors impression). Résultat en production le
+   27 juillet : bandeau gris sale sur jeux, marine sur sae et musique.
+   À .92 la barre porte sa propre teinte et ne dépend plus de l'app ; le
+   flou et le léger fondu restent perceptibles là où le fond est marine. */
 body.ztsh-on .zts-header {
-  background-color: rgba(6, 23, 38, .66);
+  background-color: rgba(6, 23, 38, .92);
   background-image: none;
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
