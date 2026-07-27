@@ -49,8 +49,18 @@ maintenant rejouées avec la liste fonctionnelle du prescan :
 |---|---|---|
 | `jeux` | travail | **15/15 PASS** |
 | `sae` | travail | **PASS** |
-| `nba-playoffs` | projection | **PASS** |
+| `nba-playoffs` | projection | **PASS, puis retirée** — voir ci-dessous |
 | `musique` | vitrine | **PASS** |
+
+**`nba-playoffs` a été retirée de la vague avant la fusion.** L'app est
+supprimée du site par la branche `feat/matchs-du-jour` (décision du 27 juillet :
+les trois apps sportives cèdent la place aux matchs du jour, en bas de
+l'accueil). Son habillage était donc du travail mort : le fusionner aurait posé
+un conflit modifie/supprime pour rien. Son fichier est revenu à la version de
+`main`, les tests restent consignés ici pour mémoire.
+
+Même raison pour **`pilote/nhl-playoffs`** (16/16 PASS) : branche à abandonner,
+pas à fusionner.
 
 Ce qui a été vérifié sur les trois nouvelles, au-delà du montage du shell :
 
