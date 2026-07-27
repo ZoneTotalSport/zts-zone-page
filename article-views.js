@@ -59,10 +59,28 @@
     ensureFirestore(function() {
       var db = firebase.firestore();
       var ref = db.collection('article_views').doc(slug);
-      ref.set({
-        count: firebase.firestore.FieldValue.increment(1),
-        last_view: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true }).catch(function(e){ console.warn('[ZTS Views]', e); });
+      // Transaction a valeurs explicites plutot que FieldValue.increment().
+      // Raison : les regles Firestore doivent pouvoir valider « count passe de
+      // N a N+1 » — ce qu'elles ne peuvent faire de facon garantie sur une
+      // valeur produite par un transform serveur. Meme idiome que
+      // apps/generateur/zts-anon-fingerprint.js, qui tourne deja en prod
+      // contre ces memes regles.
+      db.runTransaction(function(tx) {
+        return tx.get(ref).then(function(snap) {
+          var now = firebase.firestore.FieldValue.serverTimestamp();
+          if (!snap.exists) {
+            tx.set(ref, { count: 1, last_view: now });
+            return;
+          }
+          var cur = (snap.data() && typeof snap.data().count === 'number') ? snap.data().count : 0;
+          tx.update(ref, { count: cur + 1, last_view: now });
+        });
+      }).catch(function(e){
+        // Echec = la vue n'est pas comptee. On libere le verrou de session
+        // pour que la prochaine visite reessaie au lieu de perdre l'article.
+        try { sessionStorage.removeItem(sessionKey); } catch (e2) {}
+        console.warn('[ZTS Views]', e);
+      });
     });
   };
 
