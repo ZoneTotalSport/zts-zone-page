@@ -5,6 +5,14 @@
 # Contournement ponctuel :  git commit --no-verify
 racine=$(git rev-parse --show-toplevel)
 
+# La detection de secrets passe EN PREMIER : c'est la seule verification dont
+# l'echec est irreversible une fois pousse. Elle vivait dans ce fichier jusqu'au
+# 26 juillet 2026, ou les garde-fous d'habillage l'ont ecrasee (3d90121) — d'ou
+# le script dedie : deux familles de controles, aucune ne peut plus effacer
+# l'autre par inadvertance.
+echo "→ secrets…"
+bash "$racine/_scripts/verifie-secrets.sh" || exit 1
+
 echo "→ conformité de l'habillage…"
 python3 "$racine/_scripts/verifie-habillage.py" || {
   echo
