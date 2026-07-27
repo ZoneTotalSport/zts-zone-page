@@ -3334,16 +3334,17 @@ function pcHowEN(){ return ''
   }
 
   function demo() {
-    var t = new Date().toISOString();
-    var m = function (a, b, sa, sb, etat, detail) {
-      return { date: t, etat: etat, detail: detail, cotes: [
+    var soir = new Date(); soir.setHours(19, 0, 0, 0);
+    var m = function (a, b, sa, sb, etat, detail, jours) {
+      var d = new Date(soir.getTime() + (jours || 0) * 86400000);
+      return { date: d.toISOString(), etat: etat, detail: detail, cotes: [
         { abbr: a, logo: '', score: sa, gagnant: sa > sb },
         { abbr: b, logo: '', score: sb, gagnant: sb > sa } ] };
     };
     return [
       { ligue: LIGUES[0], jour: true,  matchs: [m('MTL', 'TOR', '3', '2', 'in', '3e · 12:04'), m('BOS', 'NYR', '1', '1', 'pre', '19:00')] },
       { ligue: LIGUES[1], jour: true,  matchs: [m('BOS', 'MIA', '112', '104', 'post', 'Final')] },
-      { ligue: LIGUES[2], jour: false, matchs: [m('CAN', 'MEX', '', '', 'pre', '11 juin')] }
+      { ligue: LIGUES[2], jour: false, matchs: [m('CAN', 'MEX', '', '', 'pre', '', 14)] }
     ];
   }
 
