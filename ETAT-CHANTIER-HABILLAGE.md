@@ -1,6 +1,6 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 28 juillet 2026, audit des fonds avant la vague 2.
+**Dernière mise à jour** : 28 juillet 2026, fond sur l'enveloppe vérifié au banc.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/Desktop/Remotion 2/wix-deploy/`
 
 ---
@@ -170,6 +170,77 @@ Trois pièges déjà rencontrés, à ne pas re-diagnostiquer :
   d'empilement du header.
 - **`TICKET-TTF-COPIE-UNIQUE.md`** puis **`TICKET-GLYPHES-ZTS.md`**, dans cet
   ordre.
+
+## Deux mécanismes décidés le 28 juillet
+
+### `fondSurEnveloppe` — récupérer le marine sous un fond imposé
+
+Quatre apps imposent leur fond de page en `!important` (D23). Le marine du
+shell, posé sur `<html>`, est alors recouvert, et les rayons avec.
+
+**Le repli fonctionne, vérifié au banc.** `.ztsh-page` est un enfant de
+`<body>`, donc peinte **après** le fond de body : y poser le marine le fait
+réapparaître, sans `!important` et sans toucher au fichier de l'app.
+
+Deux conditions, toutes deux vérifiées :
+
+| Piège | Réponse | Preuve |
+|---|---|---|
+| L'enveloppe doit couvrir toute la hauteur | `min-height: 100vh` | mesuré à 1003 px sur un écran de 1003 px |
+| Le fond ne doit pas avaler un décor que l'app pose en z-index négatif | `isolation: isolate` | contre-épreuve : le même décor disparaît sans elle |
+
+`isolation: isolate` n'est pas cosmétique. Sans elle, un `z-index:-1` posé dans
+l'enveloppe se résout dans le contexte d'empilement de la racine et passe
+**derrière** le fond de l'enveloppe — on aurait échangé une disparition contre
+une autre. Avec elle, l'enveloppe devient le contexte de référence : les
+z-index négatifs de l'app se placent au-dessus de son fond, sous son contenu.
+Les rayons suivent le même chemin, par `::before` plutôt que par un nœud fixe,
+qui lui passerait sous l'enveloppe.
+
+Le banc d'essai a comparé trois cas côte à côte — avec isolation, sans, et sans
+le fond du tout. Il n'est pas conservé au dépôt : la recette tient en dix
+lignes, elle est ici.
+
+**Ce que ça rapporte, honnêtement** : le marine réapparaît **là où l'app ne
+peint pas**. Sur `jeux`, dont chaque section porte son propre fond, ce sont les
+gouttières et les marges — un gain réel mais modeste. Sur une app au fond plus
+nu, ce sera davantage. La bande du header, elle, reste hors de l'enveloppe :
+`.ztsh-page` s'ouvre après l'hôte `[data-zts-header]`, les 317 px du haut
+gardent le fond de l'app.
+
+**Option réservée**, jamais automatique : `fondSurEnveloppe: true`. Appliquée à
+`jeux` (en production). À poser sur `transitions` à la vague 5 et sur
+`planificateur` si elle est migrée. Jamais sur les autres : sans fond imposé,
+le marine de `<html>` fait déjà le travail, et l'enveloppe n'a pas à porter un
+fond de plus.
+
+### Une app, deux densités selon son mode — le premier cas
+
+**`planificateur` masque l'en-tête partagé** en `?v2=1` et en mode intégré
+(D24). Ce n'est pas un défaut : c'est une surface de travail, et l'app a décidé
+de rendre le haut de page à son contenu.
+
+**On respecte l'intention de l'app.** Lui réimposer une barre changerait son
+comportement, ce que le contrat interdit. Donc :
+
+| Mode | Densité | Ce que le shell apporte |
+|---|---|---|
+| `?v2=1` et mode intégré | `projection` | les tokens seuls — aucun chrome, aucun fond |
+| mode normal | `travail` | barre, casier en ruban, pas d'encourageur |
+
+La densité se décide **au moment du montage**, dans les six lignes du contrat :
+
+```html
+<script>ZTSShell.monter({
+  densite: (document.body.classList.contains('pv2') ||
+            document.body.classList.contains('zts-embed')) ? 'projection' : 'travail'
+});</script>
+```
+
+C'est le premier cas du genre et il y en aura d'autres — `cours-maternelle` a
+son mode TBI, `tni` et `studio-jeu` leur plein écran. La règle générale :
+**quand une app se réorganise elle-même pour une tâche, le shell descend d'un
+cran de densité au lieu de discuter.**
 
 ## Ce qu'il ne faut jamais faire
 

@@ -118,6 +118,10 @@
       encourageur: opt('encourageur'),
       pauseCafe:   opt('pauseCafe'),
       fond:        opt('fond'),
+      // Repli pour les apps qui imposent leur fond en !important (D23) : le
+      // marine passe de <html> a l'enveloppe .ztsh-page, enfant de <body>,
+      // donc peinte APRES le fond de body. Reserve, jamais automatique.
+      fondSurEnveloppe: opts.fondSurEnveloppe !== undefined ? !!opts.fondSurEnveloppe : false,
       metierSelecteur: opts.metierSelecteur !== undefined ? opts.metierSelecteur : base.metierSelecteur,
       // Réservé. Le shell ne filtre jamais les données d'une app de lui-même :
       // une app ne réagit que si elle a explicitement souscrit à
@@ -133,7 +137,7 @@
 
     if (densite === 'projection') {
       cfg.rail = false; cfg.encourageur = false; cfg.pauseCafe = false;
-      cfg.metierSelecteur = false; cfg.fond = false;
+      cfg.metierSelecteur = false; cfg.fond = false; cfg.fondSurEnveloppe = false;
     }
     return cfg;
   }
@@ -380,8 +384,21 @@
     document.body.classList.add('ztsh-on');
     document.body.setAttribute('data-ztsh-densite', cfg.densite);
 
+    // Fond sur l'enveloppe : le marine et les rayons quittent <html> pour
+    // .ztsh-page, qui est peinte apres le fond de body et repasse donc par
+    // dessus un background !important. L'enveloppe s'isole (isolation:isolate)
+    // pour que les z-index negatifs de l'app restent AU-DESSUS de ce fond.
+    etat.enveloppe = null;
+    if (cfg.fond && cfg.fondSurEnveloppe) {
+      var env = document.querySelector('.ztsh-page');
+      if (env) { env.classList.add('ztsh-fond'); etat.enveloppe = env; }
+    }
+
     // Rayons : nœud dédié, body n'a que deux pseudo-éléments (fond, halftone).
-    if (cfg.fond) {
+    // Avec fondSurEnveloppe, ils sont dessines par .ztsh-page::before, dans le
+    // contexte d'empilement de l'enveloppe — un noeud fixe a z-index negatif
+    // passerait sous elle.
+    if (cfg.fond && !etat.enveloppe) {
       etat.rayons = el('div', 'ztsh-rayons', { 'aria-hidden': 'true' });
       racine.appendChild(etat.rayons);
     }
@@ -421,6 +438,7 @@
     if (etat.encourageur && etat.encourageur._ztshScript && etat.encourageur._ztshScript.parentNode) {
       etat.encourageur._ztshScript.parentNode.removeChild(etat.encourageur._ztshScript);
     }
+    if (etat.enveloppe) etat.enveloppe.classList.remove('ztsh-fond');
     if (etat.metiers && etat.metiers.parentNode) etat.metiers.parentNode.removeChild(etat.metiers);
     if (etat.racine && etat.racine.parentNode) etat.racine.parentNode.removeChild(etat.racine);
     var n = document.querySelectorAll('[data-ztsh-cible]');

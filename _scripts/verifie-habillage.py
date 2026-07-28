@@ -252,17 +252,34 @@ def controle(chemin):
         aver.append("ENVELOPPE : <div class=\"ztsh-page\"> absente.")
 
     # 5 — taille du diff
+    #
+    # « Zero suppression » vise le contenu de l'app. Retoucher une ligne que
+    # la migration a elle-meme ajoutee — changer une densite, ajouter une
+    # option a monter() — compte pour une suppression au sens de git, mais
+    # ne retire rien a l'app. On ne bloque que sur les lignes retirees qui ne
+    # sont pas au shell.
     try:
         out = subprocess.run(
-            ["git", "diff", "--numstat", "main", "--", f"apps/{nom}/index.html"],
+            ["git", "diff", "-U0", "main", "--", f"apps/{nom}/index.html"],
             cwd=RACINE, capture_output=True, text=True, timeout=10,
-        ).stdout.strip()
-        if out:
-            ajouts, suppr = out.split()[0], out.split()[1]
-            if ajouts.isdigit() and int(ajouts) > 30:
-                aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")
-            if suppr.isdigit() and int(suppr) > 0:
-                bloq.append(f"DIFF : {suppr} ligne(s) SUPPRIMEE(S) dans le fichier d'app.")
+        ).stdout
+        ajouts, retirees_app = 0, []
+        for ligne in out.split("\n"):
+            if ligne.startswith("+") and not ligne.startswith("+++"):
+                ajouts += 1
+            elif ligne.startswith("-") and not ligne.startswith("---"):
+                # « ZTSShell » minuscule donne « ztsshell », qui ne contient
+                # pas « ztsh » : les deux marqueurs sont necessaires.
+                bas = ligne.lower()
+                if "ztsh" not in bas and "ztsshell" not in bas:
+                    retirees_app.append(ligne[1:].strip()[:60])
+        if ajouts > 30:
+            aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")
+        if retirees_app:
+            bloq.append(
+                f"DIFF : {len(retirees_app)} ligne(s) de l'app SUPPRIMEE(S) — "
+                f"p. ex. « {retirees_app[0]} »"
+            )
     except Exception:
         pass
 
