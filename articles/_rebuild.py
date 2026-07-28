@@ -7,6 +7,7 @@ ARTICLES_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # ===== Métadonnées par slug (titre, desc, cat, cycle, time, date, img Unsplash fallback) =====
 META = {
+  "un-jeu-trois-versions":          {"cat":"Gestion de classe","cycle":"Tous cycles","time":"31 min","date":"27 juill. 2026","img":"images/heroes/un-jeu-trois-versions.jpg"},
   "50-jeunes-un-gymnase":         {"cat":"Gestion de classe","cycle":"Tous cycles","time":"25 min","date":"29 avr. 2026","img":"images/Images%20article%2050%20jeunes%20gymnase%20/image%201%20article%20blig%2050%20jeunes%201%20gymnase.png"},
   "syndrome-gymnase":             {"cat":"Gestion de classe","cycle":"Tous cycles","time":"6 min", "date":"10 mars 2026","img":"https://images.unsplash.com/photo-1577896851231-70ef18881754?w=1200&h=600&fit=crop"},
   "sae-course":                   {"cat":"SAÉ",              "cycle":"Cycle 3",    "time":"12 min","date":"29 sept. 2024","img":"https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=1200&h=600&fit=crop"},
