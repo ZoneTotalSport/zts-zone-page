@@ -31,17 +31,179 @@ CONTROLES
  5  TAILLE DU DIFF (avertissement, si git dispo)
     Plus de 30 lignes ajoutees : le contrat demande de s'arreter et
     d'expliquer.
+
+ 6  FOND IMPOSE EN !IMPORTANT (avertissement)
+    Le shell pose son fond marine sur <html> et laisse <body> transparent,
+    pour ne masquer aucun decor que l'app poserait en z-index negatif. Une
+    app qui impose son propre fond en !important sur html, body, :root, *
+    ou un conteneur de premier niveau recouvre ce marine, et avec lui les
+    rayons (.ztsh-rayons, z-index negatif).
+
+    Le shell n'a pas le droit de riposter : pas de !important hors du bloc
+    @media print, et pas de modification du fichier de l'app.
+
+    Ce n'est PAS bloquant : l'app reste fonctionnelle et le chrome (barre,
+    casier, encourageur) reste lisible — la barre du haut porte sa propre
+    teinte depuis le 27 juillet, justement pour cela. C'est un avertissement
+    pour que personne ne redecouvre le probleme en production, comme c'est
+    arrive avec apps/jeux le 27 juillet 2026.
+
+    Les regles sous @media print sont ignorees : y forcer un fond blanc est
+    l'usage attendu, le shell le fait lui-meme.
 """
 
 import os
 import re
 import subprocess
 import sys
+from html.parser import HTMLParser
 
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APPS = os.path.join(RACINE, "apps")
 CSS_AVANT = ["shared/zts.css", "zts-header.css", "zts-ultra.css"]
 DENSITES = ["vitrine", "travail", "projection"]
+
+# Controle 6 — fond impose en !important
+FOND_IMPORTANT = re.compile(
+    r"background(?:-color|-image)?\s*:\s*[^;{}]*?!\s*important", re.I)
+# Selecteurs qui portent le fond de page : html, body, :root, * — avec ou
+# sans classe/attribut/pseudo accroche (body.pv2, html:has(...), body::before).
+SEL_RACINE = re.compile(r"^\s*(?:html|body|:root|\*)(?:[.#\[:][^\s>+~,]*)?\s*$", re.I)
+
+
+def regles_css(texte):
+    """(selecteur, corps, contexte @) pour chaque regle d'une feuille.
+
+    Le contexte sert a distinguer @media print du reste : forcer un fond
+    blanc a l'impression est legitime.
+    """
+    texte = re.sub(r"/\*.*?\*/", " ", texte, flags=re.S)
+    regles, pile, tampon, i = [], [], "", 0
+    while i < len(texte):
+        c = texte[i]
+        if c == "{":
+            prelude = " ".join(tampon.split())
+            tampon = ""
+            if prelude.startswith("@"):
+                pile.append(prelude)
+            else:
+                prof, j = 1, i + 1
+                while j < len(texte) and prof:
+                    if texte[j] == "{":
+                        prof += 1
+                    elif texte[j] == "}":
+                        prof -= 1
+                    j += 1
+                regles.append((prelude, texte[i + 1:j - 1], " ".join(pile)))
+                i = j
+                continue
+        elif c == "}":
+            if pile:
+                pile.pop()
+            tampon = ""
+        else:
+            tampon += c
+        i += 1
+    return regles
+
+
+class EnfantsDeBody(HTMLParser):
+    """Enfants directs de <body> : les conteneurs de premier niveau.
+
+    Un fond opaque pose sur l'un d'eux recouvre le marine aussi surement
+    qu'un fond sur body, des lors qu'il occupe la page.
+    """
+    VIDES = {"area", "base", "br", "col", "embed", "hr", "img", "input",
+             "link", "meta", "param", "source", "track", "wbr"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.dans_body, self.profondeur, self.ignore = False, 0, None
+        self.enfants = []
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "body":
+            self.dans_body, self.profondeur = True, 0
+            return
+        if not self.dans_body:
+            return
+        if self.ignore:
+            return
+        if tag in ("script", "style"):
+            self.ignore = tag
+            return
+        if self.profondeur == 0:
+            self.enfants.append((a.get("id", ""), a.get("class", ""),
+                                 a.get("style", ""), tag))
+        if tag not in self.VIDES:
+            self.profondeur += 1
+
+    def handle_endtag(self, tag):
+        if self.ignore == tag:
+            self.ignore = None
+        elif tag == "body":
+            self.dans_body = False
+        elif self.dans_body and tag not in self.VIDES and self.profondeur:
+            self.profondeur -= 1
+
+
+def fonds_imposes(chemin, html):
+    """Declarations de fond en !important qui recouvrent le marine du shell.
+
+    Balaie les <style> de la page et les .css du dossier de l'app. Regarde
+    les selecteurs de surface de page — html, body, :root, * — les
+    conteneurs de premier niveau, et les styles inline des uns et des autres.
+    """
+    trouves = []
+
+    for balise in re.findall(r"<(html|body)\b([^>]*)>", html, re.I):
+        st = re.search(r'style\s*=\s*"([^"]*)"', balise[1], re.I)
+        if st and FOND_IMPORTANT.search(st.group(1)):
+            trouves.append(f"<{balise[0].lower()} style=…> {st.group(1).strip()[:60]}")
+
+    p = EnfantsDeBody()
+    try:
+        p.feed(html)
+    except Exception:
+        pass
+    # index des conteneurs de premier niveau, par selecteur simple
+    premiers = {}
+    for eid, ecls, estyle, tag in p.enfants:
+        if estyle and FOND_IMPORTANT.search(estyle):
+            trouves.append(f"<{tag} style=…> {estyle.strip()[:60]}")
+        if eid:
+            premiers["#" + eid.lower()] = tag
+        for c in ecls.split():
+            premiers["." + c.lower()] = tag
+
+    sources = [("<style>", m) for m in
+               re.findall(r"<style[^>]*>(.*?)</style>", html, re.S | re.I)]
+    for f in sorted(os.listdir(chemin)):
+        if f.endswith(".css"):
+            sources.append(
+                (f, open(os.path.join(chemin, f), encoding="utf-8",
+                         errors="replace").read()))
+
+    for nom, texte in sources:
+        for sel, corps, ctx in regles_css(texte):
+            if "print" in ctx.lower():
+                continue
+            m = FOND_IMPORTANT.search(corps)
+            if not m:
+                continue
+            for part in sel.split(","):
+                if SEL_RACINE.match(part):
+                    trouves.append(f"{nom} — {part.strip()[:40]} {{ {m.group(0)[:52]} }}")
+                    break
+                dernier = re.split(r"[\s>+~]+", part.strip().lower())[-1]
+                dernier = re.sub(r"::?[a-z-]+(\([^)]*\))?$", "", dernier)
+                if dernier in premiers:
+                    trouves.append(
+                        f"{nom} — {part.strip()[:40]} {{ {m.group(0)[:44]} }} "
+                        f"(conteneur de 1er niveau)")
+                    break
+    return trouves
 
 
 def controle(chemin):
@@ -104,11 +266,49 @@ def controle(chemin):
     except Exception:
         pass
 
+    # 6 — fond impose en !important
+    for t in fonds_imposes(chemin, c):
+        aver.append(
+            f"FOND : {t} — recouvre le marine du shell et les rayons. "
+            f"Le chrome reste lisible, le decor de fond non."
+        )
+
     return bloq, aver
+
+
+def recense_fonds():
+    """--fonds : balaie les 46 apps, migrees ou non, et liste les fonds imposes.
+
+    Le controle 6 ne voit que les apps deja migrees. Ce mode sert a savoir
+    AVANT une vague quelles apps recouvriront le marine, pour ne pas le
+    decouvrir en production.
+    """
+    dossiers = [os.path.join(APPS, d) for d in sorted(os.listdir(APPS))
+                if os.path.isdir(os.path.join(APPS, d)) and not d.startswith("_")]
+    concernees = 0
+    for d in dossiers:
+        f = os.path.join(d, "index.html")
+        if not os.path.exists(f):
+            continue
+        html = open(f, encoding="utf-8", errors="replace").read()
+        trouves = fonds_imposes(d, html)
+        if not trouves:
+            continue
+        concernees += 1
+        migree = "migree" if "ztsh-shell" in html else "a migrer"
+        print(f"  {os.path.basename(d):<18} ({migree})")
+        for t in trouves:
+            print(f"      {t}")
+    print()
+    print(f"{concernees} app(s) imposent un fond en !important sur {len(dossiers)} scannees.")
+    print("Le chrome du shell reste lisible ; le fond marine et les rayons, non.")
+    return 0
 
 
 def main():
     cibles = sys.argv[1:]
+    if cibles and cibles[0] == "--fonds":
+        return recense_fonds()
     if cibles:
         dossiers = [c if os.path.isabs(c) else os.path.join(RACINE, c) for c in cibles]
     else:

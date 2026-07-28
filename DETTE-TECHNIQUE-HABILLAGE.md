@@ -279,3 +279,39 @@ propre à `studio-jeu` dans un fichier partagé.
 Le repli est dans `:root` et non dans `body.ztsh-on` : `shared/zts.css`
 repeint `--metier` via `[data-metier="ep|sdg|camp"]`, plus spécifique, donc la
 teinte par métier continue de gagner partout où elle existe.
+
+### D19 — Quatre apps imposent leur fond de page en `!important`
+
+`jeux` (`body{background:#f8fafc!important}`, en production), `transitions`
+(`body` + `body::before`), `planificateur` (`body.pv2`, dégradé conique),
+`scoreboard` (`body{background-color:#E0F7FF!important}`, hors chantier).
+
+Le shell pose son marine sur `<html>` et laisse `<body>` transparent, pour ne
+masquer aucun décor en z-index négatif. Ces quatre déclarations recouvrent donc
+le marine **et** les rayons (`.ztsh-rayons`, `z-index:-3`). Le chrome, lui,
+reste lisible : la barre du haut porte sa propre teinte depuis le 27 juillet
+(opacité `.92`), le casier et l'encourageur ont des fonds opaques.
+
+**Non corrigé** : le shell n'a pas le droit de riposter — pas de `!important`
+hors impression, pas de modification du fichier d'app. Retirer ces déclarations
+changerait l'apparence d'apps en production : décision, pas conséquence.
+
+**Garde-fou en place** : `_scripts/verifie-habillage.py` contrôle 6
+(avertissement) et son mode `--fonds`, qui balaie les 45 apps migrées ou non.
+Détail complet dans `AUDIT-FONDS-IMPORTANT-2026-07.md`.
+
+### D20 — `planificateur` masque l'en-tête partagé dans ses deux modes modernes
+
+`apps/planificateur/index.html:27` et `:401` :
+
+```css
+body.zts-embed [data-zts-header], … { display:none !important }
+body.pv2 [data-zts-header], …       { display:none !important }
+```
+
+En mode intégré et en `?v2=1`, l'en-tête partagé disparaît. Le shell n'a pas de
+barre à lui — il restyle `.zts-header`. Pas d'en-tête, pas de barre du haut.
+
+**À trancher avant de migrer l'app**, pas pendant. S'ajoute au dossier « risque
+3 maximum » du prescan (4 éléments fixes à droite, classe `metier` en collision,
+5 variables en collision, plein écran, écriture Firestore, mode TBI).
