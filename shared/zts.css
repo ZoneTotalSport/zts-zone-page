@@ -251,7 +251,15 @@ a { color:inherit; }
   font-variant-numeric:tabular-nums;
 }
 .zts-header__sub { font-family:var(--font-fun); font-weight:700; color:rgba(255,255,255,.88); font-size:var(--fs-1); }
-.zts-header__nav { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center; }
+/* z-index:2 — la nav doit passer AU-DESSUS du bloc titre.
+   `.zts-header > *` (plus haut) donne position:relative + z-index:1 a CHAQUE
+   enfant du header : la nav et .zts-header__brandwrap se retrouvent a egalite,
+   et l'ordre du DOM tranche en faveur du titre, qui vient apres. Le menu
+   deroulant de connexion vit dans la nav ; son z-index:100001 est prisonnier
+   de ce contexte d'empilement et ne peut pas en sortir. Resultat : le titre
+   recouvrait le menu et interceptait le clic — « Deconnexion » ne recevait
+   jamais l'evenement. Les deux blocs ne se chevauchent nulle part ailleurs. */
+.zts-header__nav { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center; z-index:2; }
 /* Boutons en angle façon stickers (rotation indépendante du hover) */
 .zts-header__nav > *:nth-child(1) { rotate:-3deg; }
 .zts-header__nav > *:nth-child(2) { rotate:2deg; }
