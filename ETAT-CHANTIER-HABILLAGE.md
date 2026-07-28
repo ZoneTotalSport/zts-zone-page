@@ -1,6 +1,6 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 27 juillet 2026, vague 1 EN PRODUCTION.
+**Dernière mise à jour** : 28 juillet 2026, audit des fonds avant la vague 2.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/Desktop/Remotion 2/wix-deploy/`
 
 ---
@@ -161,8 +161,13 @@ Trois pièges déjà rencontrés, à ne pas re-diagnostiquer :
 - **D13** — texte blanc sur rose, 3,87 pour un seuil de 4,5. Défaut antérieur,
   atténué par le chantier. Correctif = encre foncée sur le rose, donc une
   passe d'accessibilité dédiée après les vagues.
-- **Bug de déconnexion** — à observer dans une vraie session. Demande une
-  connexion de Joey sur une app hors whitelist, console ouverte.
+- ~~**Bug de déconnexion**~~ — **résolu le 28 juillet par une autre session**
+  (PR #7). Cause : `.zts-header > *` donnait `z-index:1` à chaque enfant du
+  header, le bloc titre passait donc au-dessus de la nav et interceptait le clic
+  sur « Déconnexion ». Corrigé par `z-index:2` sur `.zts-header__nav`, dans
+  `shared/zts.css` et `shared/zts-header.css`. Sans rapport avec le shell, et
+  sans interaction avec son échelle 300–399 : tout se joue dans le contexte
+  d'empilement du header.
 - **`TICKET-TTF-COPIE-UNIQUE.md`** puis **`TICKET-GLYPHES-ZTS.md`**, dans cet
   ordre.
 
