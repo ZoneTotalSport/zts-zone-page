@@ -142,4 +142,4 @@ sous `@media screen` qui, elle, doit bien ressortir.
 
 Corriger quoi que ce soit. Les quatre déclarations restent en place : les
 toucher changerait l'apparence d'apps en production, ce qui est une décision, pas
-une conséquence de l'habillage. Elles rejoignent le registre de dette technique.
+une conséquence de l'habillage. Elles rejoignent le registre de dette technique, entrées **D23** et **D24**.

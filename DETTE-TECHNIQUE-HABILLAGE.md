@@ -280,7 +280,87 @@ Le repli est dans `:root` et non dans `body.ztsh-on` : `shared/zts.css`
 repeint `--metier` via `[data-metier="ep|sdg|camp"]`, plus spécifique, donc la
 teinte par métier continue de gagner partout où elle existe.
 
-### D19 — Quatre apps imposent leur fond de page en `!important`
+### D19 — `shared/zts.css` et `shared/zts-header.css` dupliquent tout l'en-tête
+
+Les deux fichiers portent **les mêmes règles d'en-tête, à l'identique** :
+`.zts-header`, `.zts-header > *`, `.zts-header__brandwrap`, `.zts-header__brand`,
+`.zts-header__nav` et les rotations `nth-child`. Un correctif appliqué à l'un
+et pas à l'autre produit un site à deux comportements selon la page, puisque
+toutes ne chargent pas les deux fichiers.
+
+C'est ce qui vient d'arriver, en petit : le correctif de `z-index` du menu
+utilisateur a dû être écrit **deux fois**, à `zts.css:262` et
+`zts-header.css:89`. Rien ne signale la duplication, rien ne la vérifie.
+
+Le piège est le même que D18 — silencieux. Un développeur qui `grep` la règle
+la trouve, la corrige à l'endroit trouvé, et repart convaincu d'avoir fini.
+
+**À faire** : décider laquelle des deux est la source de vérité, faire de
+l'autre un `@import` ou la retirer des pages qui chargent déjà la première.
+Tant que ce n'est pas tranché, toute modification de l'en-tête doit toucher
+les deux fichiers, et `_scripts/verifie-habillage.py` gagnerait à comparer les
+deux blocs et à échouer s'ils divergent.
+
+### D20 — `apps/performances/app.js:96-101` : popup Google bloqué sur Safari iOS
+
+```js
+async function connectDrive() {
+  await waitForFirebase();                                   // ← await AVANT le popup
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope(DRIVE_SCOPE);
+  const result = await firebase.auth().signInWithPopup(provider);
+```
+
+Safari iOS n'autorise `window.open` que si l'appel est **synchrone dans le geste
+utilisateur**. Le `await waitForFirebase()` rend la main à la boucle
+d'événements : au moment du `signInWithPopup`, le geste a expiré et le popup est
+bloqué. Il n'y a **aucun repli redirect** ici, contrairement aux autres sites
+d'appel — la connexion Drive échoue simplement, sans message utile.
+
+Deux corrections, indépendantes :
+1. faire l'attente **avant** le clic (précharger au montage de la page) et
+   garder `signInWithPopup` en première instruction du gestionnaire ;
+2. ajouter `provider.setCustomParameters({ prompt: 'select_account' })` — absent
+   ici (l.98), alors qu'il est en place sur `firebase-auth.js`,
+   `shared/zts-gate.js` et `apps/studio-jeu/admin-gate.js`.
+
+### D21 — `aidons-nous/index.html:456` : `select_account` manquant
+
+Dernier site d'appel Google sans `setCustomParameters({prompt:'select_account'})`.
+Sans lui, Google resigne en silence le seul compte ouvert : aucun sélecteur, et
+l'utilisateur ne peut pas changer de compte ni constater qu'il s'est reconnecté.
+C'est la moitié de la cause du bug « impossible de se déconnecter » corrigé sur
+les deux autres portillons.
+
+Inventaire complet au 28 juillet 2026 :
+
+| fichier | `select_account` |
+|---|---|
+| `shared/zts-gate.js` | oui |
+| `firebase-auth.js` | oui |
+| `apps/studio-jeu/admin-gate.js` | oui |
+| `aidons-nous/index.html` | **non** |
+| `apps/performances/app.js` | **non** (voir D20) |
+| `index-old.html` | oui — fichier mort |
+
+### D22 — Le filtre `paths` de la CI laisse la racine sans aucun contrôle
+
+`.github/workflows/verifie-habillage.yml` ne se déclenche que sur
+`apps/**`, `assets/ztsh-*`, `shared/**` et `_scripts/verifie-*`.
+
+Un commit qui ne touche que la racine — `firebase-auth.js`, `firestore.rules`,
+`article-views.js`, `index.html`, `blog.html` — **ne déclenche aucun contrôle
+automatique**. Ni habillage, ni glyphes, ni détection de secrets (qui n'a de
+toute façon jamais été dans le workflow, seulement dans le hook local).
+
+Ça veut dire que le fichier d'authentification servi sur 1510 pages et les
+règles Firestore de production passent en CI sans être regardés.
+
+**À faire quand le workflow sera retouché** : ajouter la racine aux `paths`, et
+y ajouter une étape `_scripts/verifie-secrets.sh` — le hook local est
+contournable par `--no-verify`, la CI ne l'est pas.
+
+### D23 — Quatre apps imposent leur fond de page en `!important`
 
 `jeux` (`body{background:#f8fafc!important}`, en production), `transitions`
 (`body` + `body::before`), `planificateur` (`body.pv2`, dégradé conique),
@@ -300,7 +380,7 @@ changerait l'apparence d'apps en production : décision, pas conséquence.
 (avertissement) et son mode `--fonds`, qui balaie les 45 apps migrées ou non.
 Détail complet dans `AUDIT-FONDS-IMPORTANT-2026-07.md`.
 
-### D20 — `planificateur` masque l'en-tête partagé dans ses deux modes modernes
+### D24 — `planificateur` masque l'en-tête partagé dans ses deux modes modernes
 
 `apps/planificateur/index.html:27` et `:401` :
 
@@ -312,6 +392,6 @@ body.pv2 [data-zts-header], …       { display:none !important }
 En mode intégré et en `?v2=1`, l'en-tête partagé disparaît. Le shell n'a pas de
 barre à lui — il restyle `.zts-header`. Pas d'en-tête, pas de barre du haut.
 
-**À trancher avant de migrer l'app**, pas pendant. S'ajoute au dossier « risque
+**À trancher avant de migrer l'app**, pas pendant. S’ajoute au dossier « risque
 3 maximum » du prescan (4 éléments fixes à droite, classe `metier` en collision,
 5 variables en collision, plein écran, écriture Firestore, mode TBI).
