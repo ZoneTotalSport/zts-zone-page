@@ -138,6 +138,26 @@ sous `@media screen` qui, elle, doit bien ressortir.
 
 ---
 
+## Suite donnée — le décor est récupérable
+
+Testé au banc le 28 juillet, à la demande de Joey : poser le marine sur
+l'enveloppe `.ztsh-page` plutôt que sur `<html>`. L'enveloppe est un enfant de
+`<body>`, donc peinte après son fond ; elle repasse par-dessus le blanc imposé
+sans `!important` et sans toucher au fichier de l'app.
+
+**Ça marche, aux deux conditions annoncées** : `min-height:100vh` pour couvrir
+la page entière, et `isolation:isolate` pour que les z-index négatifs de l'app
+restent au-dessus du fond de l'enveloppe. La contre-épreuve sans isolation
+montre le décor avalé — la précaution n'était pas théorique.
+
+Livré en option **`fondSurEnveloppe: true`**, jamais automatique, appliquée à
+`jeux`. `transitions` la recevra à la vague 5, `planificateur` si elle est
+migrée. Détail et recette dans `ETAT-CHANTIER-HABILLAGE.md`.
+
+Réserve honnête : le marine ne réapparaît que **là où l'app ne peint pas**. Sur
+`jeux`, chaque section porte son fond — ce sont les gouttières qui se colorent,
+pas la page. Le gain est réel, il n'est pas spectaculaire.
+
 ## Ce que je n'ai pas fait
 
 Corriger quoi que ce soit. Les quatre déclarations restent en place : les

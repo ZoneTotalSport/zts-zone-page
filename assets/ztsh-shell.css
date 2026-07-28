@@ -272,6 +272,61 @@ body.ztsh-on {
   background: transparent;
   color: var(--ztsh-sur-marine);
 }
+/* ---- Repli : le fond sur l'enveloppe plutôt que sur <html> --------------
+   Quatre apps imposent leur fond de page en !important (D23) : le marine de
+   <html> est alors recouvert, et les rayons avec. Le shell n'a pas le droit
+   de riposter en !important.
+
+   L'enveloppe .ztsh-page est un enfant de <body>, donc peinte APRÈS le fond
+   de body : y poser le marine le fait réapparaître, sans !important et sans
+   toucher au fichier de l'app.
+
+   `isolation: isolate` n'est pas décoratif. Sans lui, un décor que l'app
+   poserait en z-index négatif à l'intérieur de l'enveloppe se résoudrait
+   dans le contexte d'empilement de la racine et passerait DERRIÈRE le fond
+   de l'enveloppe — on aurait échangé une disparition contre une autre. Avec
+   lui, l'enveloppe devient le contexte de référence : les z-index négatifs
+   de l'app se placent au-dessus de son fond, sous son contenu. C'est aussi
+   ce qui rend possible le ::before des rayons ci-dessous.
+
+   min-height:100vh : sans quoi une page plus courte que l'écran laisse
+   apparaître le blanc de l'app sous l'enveloppe.
+
+   Réservé : option fondSurEnveloppe, jamais automatique. */
+body.ztsh-on .ztsh-page.ztsh-fond {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  background-color: var(--ztsh-marine);
+  background-image:
+    radial-gradient(rgba(255, 255, 255, .16) 1.3px, transparent 1.4px),
+    radial-gradient(760px 420px at 88% 4%, rgba(255, 212, 0, .10), transparent 70%),
+    linear-gradient(163deg, #12879E 0%, #0C5C7D 28%, #0A3A5E 58%, #08243D 82%, var(--ztsh-marine) 100%);
+  background-size: 12px 12px, auto, auto;
+  background-repeat: repeat, no-repeat, no-repeat;
+  background-attachment: fixed, fixed, fixed;
+}
+/* Rayons de l'enveloppe. Un nœud fixe à z-index négatif passerait sous elle ;
+   son propre pseudo-élément, lui, vit dans son contexte d'empilement. */
+body.ztsh-on .ztsh-page.ztsh-fond::before {
+  content: '';
+  position: fixed;
+  top: -46vh;
+  left: 50%;
+  width: 150vmax;
+  height: 150vmax;
+  z-index: -1;
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: .20;
+  background: repeating-conic-gradient(from 0deg at 50% 50%,
+    rgba(255, 212, 0, .85) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 62%);
+          mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 62%);
+  animation: ztsh-tourne 140s linear infinite;
+}
+body[data-ztsh-densite="travail"] .ztsh-page.ztsh-fond::before { animation: none; }
+
 /* Rayons à rotation lente. Nœud dédié : body n'a que deux pseudo-éléments. */
 .ztsh-rayons {
   position: fixed;
