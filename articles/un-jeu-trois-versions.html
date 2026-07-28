@@ -468,9 +468,9 @@
 .zts-inc .simu-rules{margin:0 0 1rem 1.2rem !important}
 .zts-inc .simu-rules li.add{background:#f0f9ff;border-left:5px solid var(--i-blue);
   padding:.6rem .9rem;border-radius:0 .8rem .8rem 0}
-.zts-inc .add-rythme{border-left-color:var(--i-yellow) !important;background:#fffdf0 !important}
-.zts-inc .add-role{border-left-color:var(--i-pink) !important;background:#fff5f8 !important}
-.zts-inc .add-retour{border-left-color:#39FF14 !important;background:#f4fff0 !important}
+.zts-inc .simu-rules li.add-rythme{border-left-color:var(--i-yellow);background:#fffdf0}
+.zts-inc .simu-rules li.add-role{border-left-color:var(--i-pink);background:#fff5f8}
+.zts-inc .simu-rules li.add-retour{border-left-color:#39FF14;background:#f4fff0}
 .zts-inc .simu-warn{color:#64748b !important;font-style:italic;margin:0 0 1rem !important}
 .zts-inc .simu-warn.warn{color:#b3260f !important;font-weight:700;font-style:normal}
 
@@ -599,6 +599,86 @@
   .zts-inc .wgt{padding:1.4rem 1.1rem}
   .zts-inc .tr-body{padding:1.2rem 1.1rem .4rem}
   .panier{right:.5rem;bottom:.5rem}
+}
+
+/* ==========================================================================
+   ACCENTS — vraie Luckiest Guy, y compris les caractères accentués
+   Le thème compose LuckiestGuyZTS avec local('Luckiest Guy') + local('Bangers')
+   pour les accents : É, È, Ô basculent donc sur Bangers. Ici on charge le vrai
+   fichier du dépôt, qui couvre les accents, et on l'applique à cet article.
+   ========================================================================== */
+@font-face{
+  font-family:'LuckiestGuyVrai';
+  src:url('/fonts/LuckiestGuy-Regular.ttf') format('truetype');
+  font-display:swap;
+}
+.zts-inc h2,.zts-inc h3,.zts-inc h4,
+.zts-inc .tr-txt strong,.zts-inc .sol-n,.zts-inc .tr-num,
+.zts-inc .simu-lab,.zts-inc .mot,.zts-inc .chip,.zts-inc .big-pad,
+.zts-inc .wgt-tag,.zts-inc .fpill,.zts-inc .tro-t,
+.panier-t,.panier-l b{
+  font-family:'LuckiestGuyVrai','Luckiest Guy',cursive !important;
+}
+
+/* ==========================================================================
+   SÉLECTEUR DE MÉTIER — 3 cartes, calqué sur le composant du site
+   ========================================================================== */
+.tro-cartes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:0 0 1.5rem}
+.tro-carte{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;
+  text-align:center;cursor:pointer;padding:1.6rem 1rem;background:#fff;
+  border:3px solid #111;border-radius:10px;box-shadow:4px 4px 0 #111;color:#0F0F2E;
+  transition:transform .1s, box-shadow .1s;font-family:'Nunito',sans-serif;
+}
+.tro-carte:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #111}
+.tro-carte.on{background:#00E5FF;transform:translate(2px,2px);box-shadow:1px 1px 0 #111}
+.tro-carte i,.tro-carte svg{width:36px;height:36px;stroke-width:2}
+.tro-t{font-size:1.05rem;letter-spacing:.03em;line-height:1.2}
+.tro-s{font-size:.75rem;opacity:.65;font-weight:700}
+.tro-vide{
+  display:flex;flex-direction:column;align-items:center;gap:.8rem;text-align:center;
+  padding:2.6rem 1.5rem;color:#94a3b8;border:2px dashed #cbd5e1;border-radius:1.2rem;
+  background:#fafafa;margin-bottom:1.5rem;
+}
+.tro-vide svg{width:48px;height:48px;opacity:.4}
+.tro-vide p{margin:0 !important;font-style:italic}
+.zts-inc .trousse summary{display:none}
+@media(max-width:700px){.tro-cartes{grid-template-columns:1fr}}
+
+/* ==========================================================================
+   DIAGNOSTIC — solution concrète
+   ========================================================================== */
+.zts-inc .diag-fix{
+  background:#fff;border:2px solid #e2e8f0;border-left:6px solid #22c55e;
+  border-radius:0 1rem 1rem 0;padding:1rem 1.3rem;margin:0 0 1rem;
+}
+.zts-inc .diag-fix p{margin:0 !important}
+.zts-inc .diag-go{margin:0 !important}
+.zts-inc .diag-lien{
+  display:inline-block;margin-top:.4rem;font-weight:800;color:#0086AD;
+  text-decoration:underline;text-decoration-color:#FFF000;text-underline-offset:3px;cursor:pointer;
+}
+
+/* ==========================================================================
+   GRILLE IMPRIMABLE
+   ========================================================================== */
+.grille{
+  background:#fff;border-radius:2rem;padding:2rem 2.2rem;margin:2.5rem 0;
+  border-bottom:8px solid #e0f2fe;box-shadow:0 12px 28px -8px rgba(0,196,255,.25);
+}
+.grille h3{margin:0 0 .4rem !important}
+.grille-t{width:100%;border-collapse:collapse;margin:1.2rem 0}
+.grille-t th{background:#004A61;color:#FFF000;text-align:left;padding:.7rem 1rem;
+  font-family:'LuckiestGuyVrai','Luckiest Guy',cursive;letter-spacing:.04em;font-size:.9rem}
+.grille-t td{padding:.8rem 1rem;border-bottom:1px solid #e2e8f0;vertical-align:top;font-size:.95rem}
+.grille-t tr:nth-child(even) td{background:#f0f9ff}
+.grille-regle{font-style:italic;color:#64748b;margin:0 0 1.2rem !important}
+
+@media print{
+  body.print-grille main,body.print-grille header,body.print-grille footer,
+  body.print-grille .panier{display:none !important}
+  body.print-grille .grille{display:block !important;box-shadow:none;padding:0}
+  body.print-grille .grille-print,body.print-grille .wgt-tag{display:none !important}
 }
 </style>
 </head>
@@ -754,22 +834,44 @@
 <p>Tu n'as pas besoin des quatre en même temps. Regarde ce qui fait décrocher ton groupe et pars de là. Si le problème c'est le banc, tu tournes RETOUR. Si c'est le contact et la peur, tu tournes ZONE. Si c'est la fin de journée, la chaleur ou la surcharge, tu tournes RYTHME. Si c'est un enfant qui ne peut pas suivre l'activité aujourd'hui, tu tournes RÔLE.</p>
 <p>Deux boutons maximum par activité, et tu les annonces au groupe avant de commencer, pas en cours de route. Une règle changée avant le coup de sifflet, c'est le jeu. La même règle changée pendant la partie, c'est une faveur — et les enfants font très bien la différence entre les deux.</p>
 
+<section class="grille" id="grille-4-boutons">
+  <h3><span class="wgt-tag">A imprimer</span> La grille des 4 boutons</h3>
+  <p class="wgt-sub">Une page, quatre leviers. Colle-la sur la porte du local a materiel.</p>
+  <table class="grille-t">
+    <thead><tr><th>Bouton</th><th>Ce que tu tournes</th><th>Ta version en 10 secondes</th></tr></thead>
+    <tbody>
+      <tr><td><span class="mot mot-zone">ZONE</span></td><td>L'espace de jeu</td>
+          <td>Un carre refuge : personne ne peut t'y toucher, tu entres et sors quand tu veux.</td></tr>
+      <tr><td><span class="mot mot-rythme">RYTHME</span></td><td>La duree, les pauses</td>
+          <td>Manches de 3 minutes, arret franc, tout le monde s'assoit 10 secondes.</td></tr>
+      <tr><td><span class="mot mot-role">ROLE</span></td><td>Ce que l'enfant fait</td>
+          <td>Une job reelle par manche : ramasseur, juge de ligne, chrono. Ca tourne.</td></tr>
+      <tr><td><span class="mot mot-retour">RETOUR</span></td><td>Ce qui arrive si tu sors</td>
+          <td>Touche, 5 sauts derriere la ligne, tu rentres. Personne ne reste dehors.</td></tr>
+    </tbody>
+  </table>
+  <p class="grille-regle">Deux boutons maximum par activite, annonces avant le coup de sifflet.</p>
+  <button class="grille-print zts-action zts-action--jaune" type="button">Imprimer la grille</button>
+</section>
+
 <section class="wgt wgt-diag" id="diagnostic" aria-labelledby="diag-t">
   <h3 id="diag-t"><span class="wgt-tag">Interactif</span> Quel est ton problème, là, maintenant ?</h3>
   <p class="wgt-sub">Clique sur ta situation. Je te dis quels deux boutons tourner.</p>
   <div class="diag-grid">
-    <button class="diag-c" data-b="retour,role" data-t="Des élèves passent la période assis">Des élèves passent la période assis</button>
-    <button class="diag-c" data-b="zone,retour" data-t="Un enfant a peur du ballon ou du contact">Un enfant a peur du ballon ou du contact</button>
-    <button class="diag-c" data-b="rythme,zone" data-t="Fin de journée, tout le monde est à boutte">Fin de journée, tout le monde est à boutte</button>
-    <button class="diag-c" data-b="zone,role" data-t="Deux ou trois forts mangent le jeu au complet">Deux ou trois forts mangent tout le jeu</button>
-    <button class="diag-c" data-b="role,zone" data-t="Un enfant refuse de participer aujourd'hui">Un enfant refuse de participer</button>
-    <button class="diag-c" data-b="rythme,role" data-t="Groupe multi-âge, cinq ans d'écart">Groupe multi-âge, cinq ans d'écart</button>
+    <button class="diag-c" data-k="banc">Des élèves passent la période assis</button>
+    <button class="diag-c" data-k="peur">Un enfant a peur du ballon ou du contact</button>
+    <button class="diag-c" data-k="fatigue">Fin de journée, tout le monde est à boutte</button>
+    <button class="diag-c" data-k="forts">Deux ou trois forts mangent tout le jeu</button>
+    <button class="diag-c" data-k="refus">Un enfant refuse de participer</button>
+    <button class="diag-c" data-k="age">Groupe multi-âge, cinq ans d'écart</button>
   </div>
   <div class="diag-out" hidden aria-live="polite">
     <p class="diag-q"></p>
     <p class="diag-lead">Tourne ces deux boutons :</p>
     <div class="diag-btns"></div>
+    <div class="diag-fix"></div>
     <p class="diag-tip"></p>
+    <p class="diag-go"></p>
   </div>
 </section>
 <aside class="cta"><h3>Tu veux la grille des 4 boutons en format imprimable ?</h3><p>Elle tient sur une page, elle se colle sur la porte du local à matériel ou dans le cartable de l'animateur. Crée ton compte gratuit pour la télécharger et débloquer toute la Zone : 30 secondes, aucune carte de crédit, accès à vie.</p><a class="btn zts-action zts-action--jaune" href="https://zonetotalsport.ca/inscription.html">Créer mon compte gratuit</a></aside>
@@ -819,7 +921,29 @@
 <p>Le ballon chasseur, c'était la démonstration. Voici maintenant le contenu de ta trousse : dix solutions par métier, toutes applicables sans budget et sans matériel spécial.</p>
 <p>Chacune est présentée de la même façon — le contexte réel où ça se produit, le problème que ça cause, puis la ou les solutions. Et chacune indique le bouton qu'elle tourne, pour que tu voies que ce n'est jamais une astuce isolée : c'est toujours le même cadre appliqué à un contexte différent.</p>
 <p>Ouvre celle qui te concerne. Tu peux aussi lire les deux autres : c'est souvent chez le voisin qu'on trouve l'idée qui manque.</p>
-<p class="tro-hint">Clique sur ton metier pour ouvrir tes dix solutions.</p>
+
+<div class="tro-cartes" role="tablist" aria-label="Choisis ton metier">
+  <button class="tro-carte" data-cible="trousse-eps" role="tab" aria-selected="false">
+    <i data-lucide="book-open" aria-hidden="true"></i>
+    <span class="tro-t">Solutions pour l'Enseignement</span>
+    <span class="tro-s">(Education physique)</span>
+  </button>
+  <button class="tro-carte" data-cible="trousse-camp" role="tab" aria-selected="false">
+    <i data-lucide="tent" aria-hidden="true"></i>
+    <span class="tro-t">Solutions pour les Camps</span>
+    <span class="tro-s">(Animation estivale)</span>
+  </button>
+  <button class="tro-carte" data-cible="trousse-sdg" role="tab" aria-selected="false">
+    <i data-lucide="school" aria-hidden="true"></i>
+    <span class="tro-t">Solutions pour S.D.G.</span>
+    <span class="tro-s">(Services de garde)</span>
+  </button>
+</div>
+<div class="tro-vide" id="tro-vide">
+  <i data-lucide="users" aria-hidden="true"></i>
+  <p>Clique sur l'un des boutons ci-dessus pour reveler les 10 solutions.</p>
+</div>
+
 <details class="trousse" id="trousse-eps">
   <summary>
     <span class="tr-num">10</span>
@@ -1090,7 +1214,7 @@
   'use strict';
 
   /* ---------- 1. Barre de progression de lecture ---------- */
-  /* le gabarit du site a deja sa barre de progression */
+  /* barre de progression deja fournie par le gabarit */
 
   /* ---------- 2. Colorer ZONE / RYTHME / RÔLE / RETOUR dans le texte ---------- */
   var MOTS = { 'ZONE': 'zone', 'RYTHME': 'rythme', 'RÔLE': 'role', 'RETOUR': 'retour' };
@@ -1129,28 +1253,78 @@
   }
   colorer(document.querySelector('.zts-inc'));
 
-  /* ---------- 3. Accordéons : un seul ouvert ---------- */
+  /* ---------- 3. Selecteur de metier ---------- */
   var trousses = document.querySelectorAll('details.trousse');
-  trousses.forEach(function (d) {
-    d.addEventListener('toggle', function () {
-      if (!d.open) return;
-      trousses.forEach(function (o) { if (o !== d) o.open = false; });
-      var y = d.getBoundingClientRect().top + scrollY - 12;
-      scrollTo({ top: y, behavior: 'smooth' });
+  var cartes = document.querySelectorAll('.tro-carte');
+  var vide = document.getElementById('tro-vide');
+  function ouvrir(id, scroll) {
+    trousses.forEach(function (d) { d.open = (d.id === id); });
+    cartes.forEach(function (c) {
+      var on = c.dataset.cible === id;
+      c.classList.toggle('on', on);
+      c.setAttribute('aria-selected', on ? 'true' : 'false');
     });
+    if (vide) vide.hidden = true;
+    if (scroll) {
+      var t = document.getElementById(id);
+      if (t) scrollTo({ top: t.getBoundingClientRect().top + scrollY - 12, behavior: 'smooth' });
+    }
+  }
+  cartes.forEach(function (c) {
+    c.addEventListener('click', function () { ouvrir(c.dataset.cible, true); });
   });
-  if (location.hash) {
-    var t0 = document.querySelector('details.trousse' + location.hash);
-    if (t0) t0.open = true;
+  trousses.forEach(function (d) {
+    d.addEventListener('toggle', function () { if (d.open) ouvrir(d.id, false); });
+  });
+  if (location.hash && document.querySelector('details.trousse' + location.hash)) {
+    ouvrir(location.hash.slice(1), false);
   }
 
   /* ---------- 4. Diagnostic ---------- */
-  var NOMS = { zone: 'ZONE', rythme: 'RYTHME', role: 'RÔLE', retour: 'RETOUR' };
-  var TIPS = {
-    retour: 'Commence par celui-là : enlève l’élimination de ton jeu le plus utilisé.',
-    zone: 'Annonce le refuge au début de l’activité, pour tout le groupe, pas pendant une crise.',
-    rythme: 'Raccourcis les manches avant de changer d’activité. Presque toujours plus court que ton instinct.',
-    role: 'Fais tourner le rôle à chaque manche, sinon il devient une tablette.'
+  var NOMS = { zone: 'ZONE', rythme: 'RYTHME', role: 'ROLE', retour: 'RETOUR' };
+  var CAS = {
+    banc: {
+      q: 'Des eleves passent la periode assis',
+      b: ['retour', 'role'],
+      fix: 'Enleve l\'elimination de ton jeu, tout de suite. Touche, tu vas derriere ta ligne de fond, cinq sauts, tu rentres. Personne ne reste dehors plus de vingt secondes. Ajoute deux jobs par equipe qui tournent a chaque manche : un ramasseur de ballons, un juge de ligne.',
+      tip: 'Applique-le a tous tes jeux d\'un coup, pas juste a un seul.',
+      go: 'trousse-eps', goT: 'Voir les 10 solutions ÉPS'
+    },
+    peur: {
+      q: 'Un enfant a peur du ballon ou du contact',
+      b: ['zone', 'retour'],
+      fix: 'Quatre cones dans un coin : dans ce carre, personne ne peut te toucher. Tu y entres et tu en sors quand tu veux, sans demander. Annonce-le au debut de l\'activite, pour tout le groupe. Ajoute des ballons en mousse dans un deuxieme panier, au choix de chacun.',
+      tip: 'Ne nomme jamais le refuge par le prenom d\'un enfant, et ne commente jamais quand quelqu\'un l\'utilise.',
+      go: 'trousse-eps', goT: 'Voir les 10 solutions ÉPS'
+    },
+    fatigue: {
+      q: 'Fin de journee, tout le monde est a boutte',
+      b: ['rythme', 'zone'],
+      fix: 'Raccourcis a deux minutes par manche, avec une pause assise obligatoire entre chaque — tout le monde, meme ceux qui n\'en ont pas besoin. Ajoute un coin calme accessible sans permission, deux coussins au fond du local.',
+      tip: 'La pause n\'est pas du temps perdu : c\'est elle qui rend la troisieme manche possible.',
+      go: 'trousse-sdg', goT: 'Voir les 10 solutions service de garde'
+    },
+    forts: {
+      q: 'Deux ou trois forts mangent tout le jeu',
+      b: ['zone', 'role'],
+      fix: 'Trace une deuxieme ligne de tir deux metres derriere la premiere, et annonce qu\'un lancer reussi de la ligne eloignee vaut deux points. Les forts s\'y deplacent tout seuls. Dans les jeux d\'invasion, impose trois passes avant de marquer.',
+      tip: 'Tu n\'assignes personne : c\'est la geometrie qui reequilibre, pas un handicap impose a quelqu\'un.',
+      go: 'trousse-eps', goT: 'Voir les 10 solutions ÉPS'
+    },
+    refus: {
+      q: 'Un enfant refuse de participer',
+      b: ['role', 'zone'],
+      fix: 'Offre-lui une job reelle plutot qu\'une place sur le banc : juge de ligne avec un dossard, ramasseur de ballons, gardien du chrono. Une porte d\'entree par la marge, sans exposition. Laisse-lui deux ou trois activites comme ca.',
+      tip: 'Le role doit etre reellement utile et il doit tourner, sinon c\'est une tablette et tout le groupe le voit.',
+      go: 'trousse-camp', goT: 'Voir les 10 solutions camp de jour'
+    },
+    age: {
+      q: 'Groupe multi-age, cinq ans d\'ecart',
+      b: ['zone', 'rythme'],
+      fix: 'Coupe l\'espace en deux avec du ruban au sol : les grands lancent depuis la zone eloignee, les petits depuis la zone rapprochee. Manches courtes, et un 6e annee volontaire devient parrain d\'un petit pendant l\'activite.',
+      tip: 'C\'est une regle d\'espace, pas un jugement sur les personnes — personne n\'a besoin d\'expliquer pourquoi.',
+      go: 'trousse-sdg', goT: 'Voir les 10 solutions service de garde'
+    }
   };
   var diag = document.querySelector('.wgt-diag');
   if (diag) {
@@ -1159,14 +1333,25 @@
       c.addEventListener('click', function () {
         diag.querySelectorAll('.diag-c').forEach(function (o) { o.classList.remove('on'); });
         c.classList.add('on');
-        var ks = c.dataset.b.split(',');
-        out.querySelector('.diag-q').textContent = '« ' + c.dataset.t + ' »';
-        out.querySelector('.diag-btns').innerHTML = ks.map(function (k) {
+        var d = CAS[c.dataset.k];
+        out.querySelector('.diag-q').textContent = '\u00ab ' + d.q + ' \u00bb';
+        out.querySelector('.diag-btns').innerHTML = d.b.map(function (k) {
           return '<span class="big-pad big-' + k + '">' + NOMS[k] + '</span>';
         }).join('');
-        out.querySelector('.diag-tip').textContent = TIPS[ks[0]];
+        out.querySelector('.diag-fix').innerHTML = '<p>' + d.fix + '</p>';
+        out.querySelector('.diag-tip').innerHTML = '<b>Le piege :</b> ' + d.tip;
+        out.querySelector('.diag-go').innerHTML =
+          '<a href="#' + d.go + '" class="diag-lien">' + d.goT + ' &rarr;</a>';
         out.hidden = false;
       });
+    });
+    diag.addEventListener('click', function (e) {
+      var a = e.target.closest('.diag-lien');
+      if (!a) return;
+      e.preventDefault();
+      var id = a.getAttribute('href').slice(1);
+      var carte = document.querySelector('.tro-carte[data-cible="' + id + '"]');
+      if (carte) carte.click();
     });
   }
 
@@ -1299,7 +1484,15 @@
     setTimeout(function () { document.body.classList.remove('print-liste'); }, 800);
   });
 
-  /* ---------- 8. Repli si une photo ne charge pas ---------- */
+  /* ---------- 8. Impression de la grille ---------- */
+  var gp = document.querySelector('.grille-print');
+  if (gp) gp.addEventListener('click', function () {
+    document.body.classList.add('print-grille');
+    print();
+    setTimeout(function () { document.body.classList.remove('print-grille'); }, 800);
+  });
+
+  /* ---------- 9. Repli si une photo ne charge pas ---------- */
   document.querySelectorAll('img.photo').forEach(function (im) {
     var fin = function () {
       if (!im.naturalWidth) im.closest('.shot').classList.add('no-photo');
