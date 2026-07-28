@@ -300,3 +300,62 @@ l'autre un `@import` ou la retirer des pages qui chargent déjà la première.
 Tant que ce n'est pas tranché, toute modification de l'en-tête doit toucher
 les deux fichiers, et `_scripts/verifie-habillage.py` gagnerait à comparer les
 deux blocs et à échouer s'ils divergent.
+
+### D20 — `apps/performances/app.js:96-101` : popup Google bloqué sur Safari iOS
+
+```js
+async function connectDrive() {
+  await waitForFirebase();                                   // ← await AVANT le popup
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope(DRIVE_SCOPE);
+  const result = await firebase.auth().signInWithPopup(provider);
+```
+
+Safari iOS n'autorise `window.open` que si l'appel est **synchrone dans le geste
+utilisateur**. Le `await waitForFirebase()` rend la main à la boucle
+d'événements : au moment du `signInWithPopup`, le geste a expiré et le popup est
+bloqué. Il n'y a **aucun repli redirect** ici, contrairement aux autres sites
+d'appel — la connexion Drive échoue simplement, sans message utile.
+
+Deux corrections, indépendantes :
+1. faire l'attente **avant** le clic (précharger au montage de la page) et
+   garder `signInWithPopup` en première instruction du gestionnaire ;
+2. ajouter `provider.setCustomParameters({ prompt: 'select_account' })` — absent
+   ici (l.98), alors qu'il est en place sur `firebase-auth.js`,
+   `shared/zts-gate.js` et `apps/studio-jeu/admin-gate.js`.
+
+### D21 — `aidons-nous/index.html:456` : `select_account` manquant
+
+Dernier site d'appel Google sans `setCustomParameters({prompt:'select_account'})`.
+Sans lui, Google resigne en silence le seul compte ouvert : aucun sélecteur, et
+l'utilisateur ne peut pas changer de compte ni constater qu'il s'est reconnecté.
+C'est la moitié de la cause du bug « impossible de se déconnecter » corrigé sur
+les deux autres portillons.
+
+Inventaire complet au 28 juillet 2026 :
+
+| fichier | `select_account` |
+|---|---|
+| `shared/zts-gate.js` | oui |
+| `firebase-auth.js` | oui |
+| `apps/studio-jeu/admin-gate.js` | oui |
+| `aidons-nous/index.html` | **non** |
+| `apps/performances/app.js` | **non** (voir D20) |
+| `index-old.html` | oui — fichier mort |
+
+### D22 — Le filtre `paths` de la CI laisse la racine sans aucun contrôle
+
+`.github/workflows/verifie-habillage.yml` ne se déclenche que sur
+`apps/**`, `assets/ztsh-*`, `shared/**` et `_scripts/verifie-*`.
+
+Un commit qui ne touche que la racine — `firebase-auth.js`, `firestore.rules`,
+`article-views.js`, `index.html`, `blog.html` — **ne déclenche aucun contrôle
+automatique**. Ni habillage, ni glyphes, ni détection de secrets (qui n'a de
+toute façon jamais été dans le workflow, seulement dans le hook local).
+
+Ça veut dire que le fichier d'authentification servi sur 1510 pages et les
+règles Firestore de production passent en CI sans être regardés.
+
+**À faire quand le workflow sera retouché** : ajouter la racine aux `paths`, et
+y ajouter une étape `_scripts/verifie-secrets.sh` — le hook local est
+contournable par `--no-verify`, la CI ne l'est pas.
