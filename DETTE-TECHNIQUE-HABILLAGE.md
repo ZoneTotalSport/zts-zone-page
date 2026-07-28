@@ -279,3 +279,24 @@ propre à `studio-jeu` dans un fichier partagé.
 Le repli est dans `:root` et non dans `body.ztsh-on` : `shared/zts.css`
 repeint `--metier` via `[data-metier="ep|sdg|camp"]`, plus spécifique, donc la
 teinte par métier continue de gagner partout où elle existe.
+
+### D19 — `shared/zts.css` et `shared/zts-header.css` dupliquent tout l'en-tête
+
+Les deux fichiers portent **les mêmes règles d'en-tête, à l'identique** :
+`.zts-header`, `.zts-header > *`, `.zts-header__brandwrap`, `.zts-header__brand`,
+`.zts-header__nav` et les rotations `nth-child`. Un correctif appliqué à l'un
+et pas à l'autre produit un site à deux comportements selon la page, puisque
+toutes ne chargent pas les deux fichiers.
+
+C'est ce qui vient d'arriver, en petit : le correctif de `z-index` du menu
+utilisateur a dû être écrit **deux fois**, à `zts.css:262` et
+`zts-header.css:89`. Rien ne signale la duplication, rien ne la vérifie.
+
+Le piège est le même que D18 — silencieux. Un développeur qui `grep` la règle
+la trouve, la corrige à l'endroit trouvé, et repart convaincu d'avoir fini.
+
+**À faire** : décider laquelle des deux est la source de vérité, faire de
+l'autre un `@import` ou la retirer des pages qui chargent déjà la première.
+Tant que ce n'est pas tranché, toute modification de l'en-tête doit toucher
+les deux fichiers, et `_scripts/verifie-habillage.py` gagnerait à comparer les
+deux blocs et à échouer s'ils divergent.
