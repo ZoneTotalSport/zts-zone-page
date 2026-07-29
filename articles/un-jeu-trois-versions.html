@@ -663,11 +663,14 @@
 .grille-t tr:nth-child(even) td{background:#f0f9ff}
 .grille-regle{font-style:italic;color:#64748b;margin:0 0 1.2rem !important}
 
+/* Conteneur d'impression : la grille y est clonee au niveau de <body>, sinon elle
+   reste enfouie sous <main> et disparait avec lui a l'impression. */
+#zone-print-grille{display:none}
 @media print{
-  body.print-grille main,body.print-grille header,body.print-grille footer,
-  body.print-grille .panier{display:none !important}
-  body.print-grille .grille{display:block !important;box-shadow:none;padding:0}
-  body.print-grille .grille-print,body.print-grille .wgt-tag{display:none !important}
+  body.print-grille > *{display:none !important}
+  body.print-grille > #zone-print-grille{display:block !important}
+  #zone-print-grille .grille{display:block !important;box-shadow:none;padding:0;border:0}
+  #zone-print-grille .grille-print,#zone-print-grille .wgt-tag{display:none !important}
 }
 </style>
 </head>
@@ -863,7 +866,7 @@
     <p class="diag-go"></p>
   </div>
 </section>
-<aside class="cta"><h3>Tu veux la grille des 4 boutons en format imprimable ?</h3><p>Elle tient sur une page, elle se colle sur la porte du local à matériel ou dans le cartable de l'animateur. Crée ton compte gratuit pour la télécharger et débloquer toute la Zone : 30 secondes, aucune carte de crédit, accès à vie.</p><a class="btn zts-action zts-action--jaune" href="https://zonetotalsport.ca/inscription.html">Créer mon compte gratuit</a></aside>
+<aside class="cta"><h3>La grille est à toi, le reste de la Zone aussi</h3><p>La grille des 4 boutons tient sur une page et se colle sur la porte du local à matériel : le bouton « Imprimer la grille » plus haut te la sort tout de suite, sans compte ni courriel. Le compte gratuit, lui, ouvre le reste — 1 400+ jeux, les SAÉ, les outils de gym. 30 secondes, aucune carte de crédit, accès à vie.</p><a class="btn zts-action zts-action--jaune" href="https://zonetotalsport.ca/login.html">Créer mon compte gratuit</a></aside>
 <h2>Le test : un ballon chasseur, trois terrains</h2>
 <p>J'aurais pu prendre un jeu doux pour ma démonstration. J'ai pris le pire cas exprès : le ballon chasseur classique. Deux camps, une ligne au centre, des ballons, tu es touché tu es sorti. Élimination, ballons qui montent trop haut, écart d'habiletés brutal, et les mêmes enfants sur le banc à chaque fois.</p>
 <p>Si les quatre boutons tiennent là, ils tiennent partout. Même jeu de départ dans les trois cas, trois contextes, deux boutons tournés par contexte.</p>
@@ -1121,7 +1124,7 @@
 <p><strong>Deuxième geste :</strong> décide de ta zone refuge avant la période, pas pendant. Quatre cônes dans un coin, nommés en une phrase au début du cours, pour tout le groupe. Si tu attends la crise pour l'installer, elle devient une conséquence au lieu d'une option.</p>
 <p><strong>Troisième geste :</strong> ne tourne jamais plus de deux boutons à la fois. Quatre changements d'un coup, ton groupe ne comprend plus le jeu et tu vas conclure que la méthode ne marche pas. Prends-en une seule dans la trousse de ton métier, pas les dix.</p>
 <p>Tu ne rendras pas ton gymnase parfaitement inclusif lundi matin. Mais tu peux faire en sorte que plus personne ne passe sa période assis sur le banc, et c'est déjà la moitié du travail.</p>
-<aside class="cta"><h3>Va plus loin avec le Zone Total Planner</h3><p>Le Zone Total Planner te permet de monter tes séances avec les adaptations déjà intégrées et de retrouver en deux clics les versions qui ont fonctionné avec ton groupe. Crée ton compte gratuit pour le débloquer, avec les 1 400+ jeux, les SAÉ et les outils de gym. 30 secondes, zéro carte de crédit, accès à vie.</p><a class="btn zts-action zts-action--jaune" href="https://zonetotalsport.ca/inscription.html">Créer mon compte gratuit</a></aside>
+<aside class="cta"><h3>Va plus loin avec toute la Zone</h3><p>Les quatre boutons se tournent sur n'importe quel jeu. Crée ton compte gratuit pour ouvrir la banque au complet : 1 400+ jeux, les SAÉ et les outils de gym, de la maternelle au secondaire. 30 secondes, zéro carte de crédit, accès à vie.</p><a class="btn zts-action zts-action--jaune" href="https://zonetotalsport.ca/login.html">Créer mon compte gratuit</a></aside>
 </div>
 
       <!-- Bannière don ZTS -->
@@ -1259,15 +1262,25 @@
       if (t) scrollTo({ top: t.getBoundingClientRect().top + scrollY - 12, behavior: 'smooth' });
     }
   }
+  /* Les solutions restent cachees tant qu'aucun metier n'a ete presse. Le navigateur
+     restaure l'etat ouvert d'un <details> (retour arriere, bfcache, restauration de
+     session) et le listener toggle rallumait alors la carte : on repart de zero. */
+  function toutFermer() {
+    trousses.forEach(function (d) { d.open = false; });
+    cartes.forEach(function (c) {
+      c.classList.remove('on');
+      c.setAttribute('aria-selected', 'false');
+    });
+    if (vide) vide.hidden = false;
+  }
+  toutFermer();
   cartes.forEach(function (c) {
     c.addEventListener('click', function () { ouvrir(c.dataset.cible, true); });
   });
   trousses.forEach(function (d) {
     d.addEventListener('toggle', function () { if (d.open) ouvrir(d.id, false); });
   });
-  if (location.hash && document.querySelector('details.trousse' + location.hash)) {
-    ouvrir(location.hash.slice(1), false);
-  }
+  addEventListener('pageshow', function (e) { if (e.persisted) toutFermer(); });
 
   /* ---------- 4. Diagnostic ---------- */
   var NOMS = { zone: 'ZONE', rythme: 'RYTHME', role: 'RÔLE', retour: 'RETOUR' };
@@ -1476,9 +1489,26 @@
   /* ---------- 8. Impression de la grille ---------- */
   var gp = document.querySelector('.grille-print');
   if (gp) gp.addEventListener('click', function () {
+    var src = document.getElementById('grille-4-boutons');
+    if (!src) return;
+    var zone = document.getElementById('zone-print-grille');
+    if (!zone) {
+      zone = document.createElement('div');
+      zone.id = 'zone-print-grille';
+      document.body.appendChild(zone);
+    }
+    var clone = src.cloneNode(true);
+    clone.removeAttribute('id');
+    var b = clone.querySelector('.grille-print');
+    if (b) b.remove();
+    zone.innerHTML = '';
+    zone.appendChild(clone);
     document.body.classList.add('print-grille');
     print();
-    setTimeout(function () { document.body.classList.remove('print-grille'); }, 800);
+    setTimeout(function () {
+      document.body.classList.remove('print-grille');
+      zone.innerHTML = '';
+    }, 800);
   });
 
   /* ---------- 9. Repli si une photo ne charge pas ---------- */
