@@ -161,3 +161,108 @@ pages tierces pourraient encore appeler.
    ont quitté le sitemap (87 → 85 URLs). `/apps-nhl/` et `/apps-nba/` n'y ont
    jamais figuré, mais elles étaient indexées (`index, follow`) — leur
    désindexation prendra quelques semaines.
+
+---
+
+# Les trois règles à saisir dans le tableau de bord
+
+## a) Transform Rule — `X-Robots-Tag: noindex`
+
+**Rules → Transform Rules → Modify Response Header → Create rule**
+
+- **Nom** : `noindex fragments recuperes au runtime`
+- **Si** — *Custom filter expression*, mode Edit expression :
+
+```
+(http.request.uri.path in {"/header.html" "/footer.html" "/login.html" "/shared/header.html" "/shared/footer.html"})
+```
+
+- **Alors** — *Set static* :
+  - Header name : `X-Robots-Tag`
+  - Value : `noindex`
+
+Les cinq chemins continuent de répondre 200. Aucune modification du corps de
+la réponse, donc rien n'est injecté dans le DOM des 1489 pages.
+
+## b) Cache Rule — HTML hors cache, assets en cache
+
+**Caching → Cache Rules → Create rule**
+
+Deux règles, dans cet ordre. L'ordre compte : Cloudflare applique la première
+qui correspond.
+
+**Règle 1 — `HTML toujours frais`** (à placer en premier)
+
+- **Si** :
+
+```
+(http.request.uri.path matches "\\.html$") or (http.request.uri.path matches "/$") or (http.request.uri.path eq "/")
+```
+
+- **Alors** :
+  - Cache eligibility : **Bypass cache**
+
+**Règle 2 — `Assets en cache`**
+
+- **Si** :
+
+```
+(http.request.uri.path matches "\\.(css|js|png|jpg|jpeg|webp|svg|woff2?|ttf|mp3|json)$")
+```
+
+- **Alors** :
+  - Cache eligibility : **Eligible for cache**
+  - Edge TTL : *Ignore cache-control header and use this TTL* → **1 mois**
+  - Browser TTL : *Respect origin* (GitHub Pages envoie `max-age=600`)
+
+**Le piège que ça règle, et celui que ça laisse.** `index-BqzDoR3c.js` porte son
+empreinte dans son nom : un nouveau build produit un nouveau nom, le cache ne
+peut pas servir l'ancien. **`assets/ztsh-shell.css` n'a pas d'empreinte.** Avec
+un Edge TTL d'un mois, une correction du shell pourrait mettre un mois à
+apparaître. Deux façons de vivre avec :
+
+- purger `assets/ztsh-shell.css` et `.js` à la main après chaque déploiement du
+  shell (Caching → Configuration → Purge by URL) ;
+- ou, mieux, leur donner une empreinte au nom le jour où le chantier se
+  stabilise. Tant que le shell bouge toutes les semaines, la purge manuelle
+  suffit — c'est deux URLs.
+
+## c) Vérifications après coup — bloc copiable
+
+```bash
+# 1. Les 9 redirections repondent 301 vers la bonne cible
+for u in apps-nhl apps-nba apps-fifa apps/nhl-playoffs apps/nba-playoffs index-old.html teasing.html; do
+  printf "%-24s %s -> %s\n" "$u" \
+    "$(curl -s -o /dev/null -w '%{http_code}' "https://zonetotalsport.ca/$u")" \
+    "$(curl -s -o /dev/null -w '%{redirect_url}' "https://zonetotalsport.ca/$u")"
+done
+for s in agenda ia; do
+  printf "%-24s %s -> %s\n" "$s." \
+    "$(curl -s -o /dev/null -w '%{http_code}' "https://$s.zonetotalsport.ca/")" \
+    "$(curl -s -o /dev/null -w '%{redirect_url}' "https://$s.zonetotalsport.ca/")"
+done
+
+# 2. Un seul saut, jamais deux
+curl -s -o /dev/null -w 'agenda : %{num_redirects} saut(s)\n' -L https://agenda.zonetotalsport.ca/
+curl -s -o /dev/null -w 'ia     : %{num_redirects} saut(s)\n' -L https://ia.zonetotalsport.ca/
+
+# 3. Les fragments repondent 200 AVEC le noindex, et rien d'autre ne le porte
+for u in header.html footer.html login.html shared/header.html shared/footer.html; do
+  printf "%-24s %s  %s\n" "/$u" \
+    "$(curl -s -o /dev/null -w '%{http_code}' "https://zonetotalsport.ca/$u")" \
+    "$(curl -sI "https://zonetotalsport.ca/$u" | grep -i x-robots-tag || echo 'PAS DE X-ROBOTS-TAG')"
+done
+curl -sI https://zonetotalsport.ca/ | grep -i x-robots-tag && echo 'ALERTE : la home porte le noindex' || echo 'home : pas de noindex, correct'
+
+# 4. Le HTML n'est pas mis en cache, les assets le sont
+curl -sI https://zonetotalsport.ca/ | grep -iE 'cf-cache-status|cache-control'
+curl -sI https://zonetotalsport.ca/assets/ztsh-shell.css | grep -iE 'cf-cache-status|cache-control'
+
+# 5. Aucune page vivante n'est partie a la redirection
+for u in "" promo.html blog.html apps/jeux/ apps/sae/ apps/musique/ apps/suppleance/ apps/plan-b-meteo/; do
+  printf "%-24s %s\n" "/$u" "$(curl -s -o /dev/null -w '%{http_code}' "https://zonetotalsport.ca/$u")"
+done
+```
+
+Le point 5 est celui qu'on oublie : une expression trop large dans une Bulk
+Redirect avale des pages vivantes. Il doit afficher **200 partout**.
