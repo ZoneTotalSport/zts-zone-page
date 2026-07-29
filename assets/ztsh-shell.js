@@ -418,7 +418,30 @@
   }
 
   /* ================================================================ MONTER */
+  /* Le montage ne doit JAMAIS échouer en silence.
+
+     Trouvé le 29 juillet : une variable disparue dans construireEncourageur()
+     faisait échouer monter() en entier — la page gardait ses classes, perdait
+     tout le chrome, et la console restait vide. Sur 46 apps, c'est
+     indétectable. Même classe de panne que D18, l'ordre de chargement : ça ne
+     casse rien de visible, ça éteint le shell.
+
+     monter() intercepte donc ses propres erreurs, écrit UNE ligne explicite,
+     et remet la page dans son état d'avant. Mieux vaut une app sans habillage
+     qu'une app à moitié habillée. */
   function monter(opts) {
+    try {
+      return monterVraiment(opts);
+    } catch (e) {
+      try { demonter(); } catch (e2) { /* le démontage lui-même a échoué */ }
+      if (window.console && console.error) {
+        console.error('[ZTSH] montage échoué : ' + (e && e.message ? e.message : e));
+      }
+      return null;
+    }
+  }
+
+  function monterVraiment(opts) {
     if (!document.body) return null;      // appelé trop tôt : on ne casse rien
     if (etat) demonter();                 // idempotent
 

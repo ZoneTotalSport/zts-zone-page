@@ -50,6 +50,21 @@ CONTROLES
 
     Les regles sous @media print sont ignorees : y forcer un fond blanc est
     l'usage attendu, le shell le fait lui-meme.
+
+MODE --vivant <url> [<url>...]
+
+    Controle 7 — verifie SUR LE RESEAU qu'une page deployee est equipee et
+    que ses deux fichiers de shell repondent 200.
+
+    Limite a dire franchement : ce script ne rend pas la page, il ne peut donc
+    pas prouver que le shell s'est MONTE. Ce qu'il prouve, c'est que la page
+    appelle monter() et que le CSS et le JS arrivent — le mode de panne le
+    plus courant apres un deploiement, un asset en 404, est couvert.
+
+    La preuve du montage, elle, vient du shell lui-meme : depuis le
+    29 juillet, monter() intercepte ses erreurs et ecrit
+    « [ZTSH] montage echoue : … » en console. Un shell qui ne se monte pas le
+    dit desormais.
 """
 
 import os
@@ -293,6 +308,57 @@ def controle(chemin):
     return bloq, aver
 
 
+def verifie_vivant(urls):
+    """Controle 7 — la page deployee est-elle equipee, et ses assets arrivent-ils ?"""
+    import urllib.request, urllib.error
+    from urllib.parse import urljoin
+
+    def get(u):
+        try:
+            r = urllib.request.urlopen(u, timeout=15)
+            return r.status, r.read().decode("utf-8", "replace")
+        except urllib.error.HTTPError as e:
+            return e.code, ""
+        except Exception as e:
+            return 0, str(e)
+
+    total_ko = 0
+    for u in urls:
+        code, html = get(u)
+        if code != 200:
+            print(f"  ECHEC     {u} — page en {code}")
+            total_ko += 1
+            continue
+        soucis = []
+        m = re.search(r"ZTSShell\.monter\(", html)
+        if not m:
+            soucis.append("aucun appel a ZTSShell.monter()")
+        d = re.search(r"densite\s*:\s*['\"](\w+)['\"]", html)
+        densite = d.group(1) if d else "?"
+        if d and d.group(1) not in DENSITES:
+            soucis.append(f"densite inconnue « {d.group(1)} »")
+        for asset in ("ztsh-shell.css", "ztsh-shell.js"):
+            mm = re.search(r'["\']([^"\']*' + asset + r')["\']', html)
+            if not mm:
+                soucis.append(f"{asset} non reference")
+                continue
+            ac, _ = get(urljoin(u, mm.group(1)))
+            if ac != 200:
+                soucis.append(f"{asset} repond {ac}")
+        if soucis:
+            print(f"  ECHEC     {u}")
+            for x in soucis:
+                print(f"              {x}")
+            total_ko += 1
+        else:
+            print(f"  OK        {u}  (densite {densite}, CSS et JS en 200)")
+    print()
+    print(f"{len(urls)} page(s) verifiee(s) — {total_ko} en echec.")
+    print("Rappel : ce mode ne rend pas la page. La preuve du montage vient de")
+    print("la console — monter() ecrit « [ZTSH] montage echoue : … » s'il tombe.")
+    return 1 if total_ko else 0
+
+
 def recense_fonds():
     """--fonds : balaie les 46 apps, migrees ou non, et liste les fonds imposes.
 
@@ -326,6 +392,11 @@ def main():
     cibles = sys.argv[1:]
     if cibles and cibles[0] == "--fonds":
         return recense_fonds()
+    if cibles and cibles[0] == "--vivant":
+        if len(cibles) < 2:
+            print("usage : verifie-habillage.py --vivant <url> [<url>...]")
+            return 1
+        return verifie_vivant(cibles[1:])
     if cibles:
         dossiers = [c if os.path.isabs(c) else os.path.join(RACINE, c) for c in cibles]
     else:
