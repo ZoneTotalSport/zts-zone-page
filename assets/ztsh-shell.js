@@ -107,12 +107,16 @@
     // Planificateur, banque, grilles, présences. Même identité, volume
     // réduit : ombres noires 4px, contours 2px, titres d'un cran plus bas,
     // animations coupées sauf survol.
-    travail:    { rail: true,  metierSelecteur: 'auto', encourageur: true,  pauseCafe: false, fond: true },
+    // encourageur REMIS A false le 29 juillet : sur sae, le bouton flottant de
+    // l'app (.cours-fab, 54x54, z-index 1000) recouvre un quart du personnage.
+    // Mesure en production : 2916 px2 sur 11815. Le prescan avait signale la
+    // collision ; la garde n'etait pas ecrite. On ne generalise pas avant.
+    travail:    { rail: true,  metierSelecteur: 'auto', encourageur: false, pauseCafe: false, fond: true },
     // tni, studio-jeu, playoffs. Tokens seulement, l'app garde son plein cadre.
     // Le personnage est là aussi, silencieux. Le fond marine reste OFF en
     // projection tant que le banc sur tni n'a pas été fait (décision du
     // 29 juillet) — tni pose un #gymBg fixe à 15 % d'opacité par-dessus.
-    projection: { rail: false, metierSelecteur: false,  encourageur: true,  pauseCafe: false, fond: false }
+    projection: { rail: false, metierSelecteur: false,  encourageur: false, pauseCafe: false, fond: false }
   };
 
   function normaliser(opts) {
