@@ -1262,15 +1262,25 @@
       if (t) scrollTo({ top: t.getBoundingClientRect().top + scrollY - 12, behavior: 'smooth' });
     }
   }
+  /* Les solutions restent cachees tant qu'aucun metier n'a ete presse. Le navigateur
+     restaure l'etat ouvert d'un <details> (retour arriere, bfcache, restauration de
+     session) et le listener toggle rallumait alors la carte : on repart de zero. */
+  function toutFermer() {
+    trousses.forEach(function (d) { d.open = false; });
+    cartes.forEach(function (c) {
+      c.classList.remove('on');
+      c.setAttribute('aria-selected', 'false');
+    });
+    if (vide) vide.hidden = false;
+  }
+  toutFermer();
   cartes.forEach(function (c) {
     c.addEventListener('click', function () { ouvrir(c.dataset.cible, true); });
   });
   trousses.forEach(function (d) {
     d.addEventListener('toggle', function () { if (d.open) ouvrir(d.id, false); });
   });
-  if (location.hash && document.querySelector('details.trousse' + location.hash)) {
-    ouvrir(location.hash.slice(1), false);
-  }
+  addEventListener('pageshow', function (e) { if (e.persisted) toutFermer(); });
 
   /* ---------- 4. Diagnostic ---------- */
   var NOMS = { zone: 'ZONE', rythme: 'RYTHME', role: 'RÔLE', retour: 'RETOUR' };
