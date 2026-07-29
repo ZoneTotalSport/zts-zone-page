@@ -297,6 +297,27 @@ body.ztsh-on .ztsh-page.ztsh-fond {
   position: relative;
   isolation: isolate;
   min-height: 100vh;
+}
+/* Le marine est porté par un calque FIXE, pas par le fond de l'enveloppe.
+   Raison mesurée le 29 juillet : `body` porte un `padding-top` calculé en JS
+   pour réserver la place du header fixe — 328 px sur jeux. Cette bande est
+   peinte avec le fond de `body`, donc blanche là où l'app l'impose, et
+   l'enveloppe commence APRÈS elle : un fond d'élément ne peut pas la couvrir.
+   Un calque `position:fixed; inset:0` la couvre, lui, sans rien déplacer.
+
+   Il vit dans le contexte d'empilement de l'enveloppe (isolation:isolate),
+   donc à `z-index:-2` il se range sous le contenu ET sous les rayons (-1),
+   tout en restant au-dessus du fond blanc de l'app.
+
+   Le piège de la phase 1 n'est PAS réintroduit : un décor que l'app pose en
+   z-index négatif à l'intérieur de l'enveloppe vaut -1 ou plus, donc au-dessus
+   de ce calque. C'est la même isolation qui protège les deux. */
+body.ztsh-on .ztsh-page.ztsh-fond::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;         /* sinon il avale tous les clics de la page */
   background-color: var(--ztsh-marine);
   background-image:
     radial-gradient(rgba(255, 255, 255, .16) 1.3px, transparent 1.4px),
@@ -304,8 +325,16 @@ body.ztsh-on .ztsh-page.ztsh-fond {
     linear-gradient(163deg, #12879E 0%, #0C5C7D 28%, #0A3A5E 58%, #08243D 82%, var(--ztsh-marine) 100%);
   background-size: 12px 12px, auto, auto;
   background-repeat: repeat, no-repeat, no-repeat;
-  background-attachment: fixed, fixed, fixed;
 }
+/* Le calque suit le reste du chrome : ni sur la feuille, ni au TNI. */
+@media print {
+  body.ztsh-on .ztsh-page.ztsh-fond::after,
+  body.ztsh-on .ztsh-page.ztsh-fond::before { display: none !important; }
+}
+:root:fullscreen .ztsh-page.ztsh-fond::after,
+:root:fullscreen .ztsh-page.ztsh-fond::before,
+:root:-webkit-full-screen .ztsh-page.ztsh-fond::after,
+:root:-webkit-full-screen .ztsh-page.ztsh-fond::before { display: none; }
 /* Rayons de l'enveloppe. Un nœud fixe à z-index négatif passerait sous elle ;
    son propre pseudo-élément, lui, vit dans son contexte d'empilement. */
 body.ztsh-on .ztsh-page.ztsh-fond::before {
