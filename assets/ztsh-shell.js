@@ -257,6 +257,82 @@
      Les 100 messages pèsent 8 Ko : fichier séparé, chargé seulement quand
      l'encourageur est demandé. Les apps de travail et de projection ne le
      téléchargent jamais. */
+  /* ---- Placement du personnage face à ce que l'app pose déjà -------------
+     Le 29 juillet, .cours-fab (sae, educatifs) a recouvert un quart du
+     personnage en production. Coder la liste des quatre boutons connus
+     n'aurait rien réglé : le cinquième mordrait à la vague suivante, en
+     silence. La détection est donc générique — on regarde ce qui occupe
+     réellement le coin, pas comment il s'appelle.
+
+     Règle, dans cet ordre :
+       1. assez de place en décalant  → on décale ;
+       2. pas assez                   → LE SHELL S'EFFACE.
+
+     Le shell cède toujours. C'est le contrat depuis le début : l'app a
+     raison, le shell s'adapte. Mieux vaut aucun personnage qu'un personnage
+     à moitié caché.
+
+     Mesuré au montage, puis UNE fois après le chargement complet — certains
+     boutons flottants arrivent tard. Pas d'observateur permanent : sur
+     46 apps, ça se paierait en continu pour un cas qui ne bouge plus. */
+  var DEPLACEMENT_MAX = 260;   // au-delà, le personnage n'est plus dans son coin
+
+  function bloqueurs(rect) {
+    var res = [], tous = document.querySelectorAll('body *');
+    var aireVue = window.innerWidth * window.innerHeight;
+    for (var i = 0; i < tous.length; i++) {
+      var e = tous[i];
+      if (e.closest && e.closest('.ztsh-shell')) continue;      // le shell lui-même
+      var cs = getComputedStyle(e);
+      if (cs.position !== 'fixed' && cs.position !== 'sticky') continue;
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') continue;
+      var b = e.getBoundingClientRect();
+      if (!b.width || !b.height) continue;
+      // Les voiles et fonds plein cadre couvrent tout par nature : les compter
+      // ferait s'effacer le personnage sur toute app qui a un écran de
+      // chargement. On ne retient que ce qui occupe un coin.
+      if (b.width * b.height > aireVue * 0.6) continue;
+      if (b.right < rect.left || b.left > rect.right ||
+          b.bottom < rect.top || b.top > rect.bottom) continue;
+      res.push(b);
+    }
+    return res;
+  }
+
+  function placerPersonnage(zone) {
+    if (!zone || !zone.parentNode) return;
+    var base = zone.getBoundingClientRect();
+    if (!base.width) return;
+    var gene = bloqueurs(base);
+    if (!gene.length) return;                     // coin libre, rien à faire
+
+    // De combien faut-il s'écarter pour dégager tout le monde ?
+    var versLaGauche = 0, versLeHaut = 0;
+    for (var i = 0; i < gene.length; i++) {
+      versLaGauche = Math.max(versLaGauche, base.right - gene[i].left + 12);
+      versLeHaut   = Math.max(versLeHaut,   base.bottom - gene[i].top + 12);
+    }
+    // On prend le plus petit des deux déplacements possibles.
+    var horizontal = versLaGauche <= versLeHaut;
+    var d = horizontal ? versLaGauche : versLeHaut;
+
+    if (d > DEPLACEMENT_MAX) {                    // 2. pas assez de place
+      zone.parentNode.removeChild(zone);
+      if (etat) etat.encourageur = null;
+      return;
+    }
+
+    // 1. on décale, puis on revérifie : le déplacement peut heurter autre chose.
+    var propr = horizontal ? '--ztsh-perso-garde-droite' : '--ztsh-perso-garde-bas';
+    var avant = document.documentElement.style.getPropertyValue(propr);
+    document.documentElement.style.setProperty(propr, Math.ceil(d) + 'px');
+    if (bloqueurs(zone.getBoundingClientRect()).length) {
+      document.documentElement.style.setProperty(propr, avant);   // on remet
+      zone.parentNode.removeChild(zone);
+      if (etat) etat.encourageur = null;
+    }
+  }
+
   /* Personnages déjà posés par les apps. Là où l'un existe, le shell s'efface :
      deux personnages dans le même coin, ce n'est pas un défaut de style, c'est
      une image confuse. Recensé le 29 juillet — planificateur et agenda. */
@@ -516,6 +592,17 @@
 
     document.body.appendChild(racine);
 
+    // Placement du personnage : une fois maintenant, une fois quand la page a
+    // fini de charger. Les boutons flottants d'app arrivent souvent après.
+    if (etat.encourageur) {
+      placerPersonnage(etat.encourageur);
+      var tard = function () {
+        if (etat && etat.encourageur) placerPersonnage(etat.encourageur);
+      };
+      if (document.readyState === 'complete') setTimeout(tard, 400);
+      else window.addEventListener('load', function () { setTimeout(tard, 400); }, { once: true });
+    }
+
     // Personnages et compteurs déjà présents dans le HTML de la page.
     appliquerPersonnage(metierCourant() || 'ep');
     animerCompteurs(document);
@@ -535,6 +622,10 @@
     if (etat.racine && etat.racine.parentNode) etat.racine.parentNode.removeChild(etat.racine);
     var n = document.querySelectorAll('[data-ztsh-cible]');
     for (var i = 0; i < n.length; i++) if (n[i]._ztshIO) { n[i]._ztshIO.disconnect(); delete n[i]._ztshIO; }
+    // Les gardes sont posées par placerPersonnage() ; sans remise à zéro
+    // elles s'accumulent d'un montage au suivant et faussent la mesure.
+    document.documentElement.style.removeProperty('--ztsh-perso-garde-droite');
+    document.documentElement.style.removeProperty('--ztsh-perso-garde-bas');
     document.documentElement.classList.remove('ztsh-on');
     if (document.body) {
       document.body.classList.remove('ztsh-on');

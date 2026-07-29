@@ -805,7 +805,10 @@ body[data-ztsh-densite="travail"] .ztsh-page.ztsh-fond::before { animation: none
    ========================================================================== */
 .ztsh-encourageur {
   position: fixed;
-  right: 96px;
+  /* Garde droite — posée par placerPersonnage() quand l'app occupe déjà le
+     coin. Détection générique au montage : ce n'est pas une liste de classes,
+     c'est ce qui coupe réellement le rectangle du personnage. */
+  right: calc(96px + var(--ztsh-perso-garde-droite, 0px));
   /* Garde basse — .ztg-out, le bouton de déconnexion injecté par
      shared/zts-gate.js sur 24 apps, occupe right:12px bottom:12px à
      z-index:9998. Il passe donc AU-DESSUS du personnage (couche 300-399) et
@@ -1119,7 +1122,10 @@ body[data-ztsh-densite="projection"] .ztsh-metiers { display: none; }
   body[data-ztsh-densite="vitrine"] .ztsh-outil:focus-visible .ztsh-outil__info { transform: translate(-50%, 0); }
   /* Le ruban occupe le coin bas-gauche : la pause café remonte au-dessus. */
   .ztsh-cafe { bottom: 96px; max-width: 260px; }
-  .ztsh-encourageur { right: 12px; bottom: calc(12px + var(--ztsh-perso-garde-bas, 0px)); }
+  .ztsh-encourageur {
+    right: calc(12px + var(--ztsh-perso-garde-droite, 0px));
+    bottom: calc(12px + var(--ztsh-perso-garde-bas, 0px));
+  }
   .ztsh-bulle { max-width: 200px; }
   .ztsh-perso { width: 96px; min-height: 96px; }
   .ztsh-perso__cri { font-size: 20px; }
