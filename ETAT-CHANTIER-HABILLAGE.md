@@ -1,7 +1,7 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 29 juillet 2026, palier c) livré — `educatifs` habillée
-puis dotée du personnage, en deux temps.
+**Dernière mise à jour** : 29 juillet 2026, palier d) livré — `suppleance` a
+son personnage. Il ne reste que `jeux`.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
 ---
@@ -160,6 +160,12 @@ Cinq pièges déjà rencontrés, à ne pas re-diagnostiquer :
   normalement, à la bonne taille, et on l'inspecte depuis le parent.
   Sans ça, on conclut « le personnage est absent en production » alors qu'il
   est là. C'est arrivé au palier c).
+- **Une iframe posée hors écran ne déclenche pas le chargement paresseux.**
+  L'image du personnage porte `loading="lazy"` : dans une iframe en
+  `left:-9999px` elle ne se charge jamais et la sonde rapporte
+  `imageChargee: false`. Ce n'est pas un défaut de production. Poser l'iframe
+  **dans** la vue — `left:0; opacity:.01; z-index:-1` — et l'image se charge.
+  Vu au palier d).
 - **La copie de comparaison ne marche pas sur une app gardée.**
   `git show main:apps/X/index.html > apps/X/zz-base.html` donne une page qui
   **échappe au portillon** — `zts-lock-page.js` ne reconnaît pas le nom de
@@ -189,18 +195,41 @@ Cinq pièges déjà rencontrés, à ne pas re-diagnostiquer :
 - **`TICKET-TTF-COPIE-UNIQUE.md`** puis **`TICKET-GLYPHES-ZTS.md`**, dans cet
   ordre.
 
-## POINT DE REPRISE — 29 juillet, après le palier c)
+## POINT DE REPRISE — 29 juillet, après le palier d)
 
 ### Là où on s'arrête exactement
 
-**Le prochain geste est le palier d)** : `jeux` ou `suppleance`, les deux
-seules apps habillées en densité `travail` encore sans personnage. Une à la
-fois. `musique` et `plan-b-meteo` sont en `vitrine` : le personnage y est déjà
-actif par défaut, il n'y a rien à activer.
+**Le prochain geste est le palier e), le dernier** : `jeux`, seule app de
+densité `travail` encore sans personnage. `musique` et `plan-b-meteo` sont en
+`vitrine`, le personnage y est actif par défaut : rien à activer.
 
-Sur `jeux`, attention : elle porte déjà `fondSurEnveloppe: true` et un fond
-imposé en `!important` (D23). Deux mécanismes sur la même app, plus dur à
-diagnostiquer si ça tourne mal. **`suppleance` d'abord**, donc.
+**Attention sur `jeux`** : elle cumule `fondSurEnveloppe: true` et un fond
+imposé en `!important` (D23). Deux mécanismes sur la même app. Si le
+personnage y pose problème, isoler lequel des deux avant de conclure.
+
+### ~~Palier d)~~ — FAIT le 29 juillet
+
+`suppleance` (`045a714`), un mot de diff, poussée, build vert, **vérifiée en
+production**. Choisie avant `jeux` précisément pour garder les causes
+séparables.
+
+| Cas | Garde | Résultat |
+|---|---|---|
+| desktop 1280×720, tel quel | aucune | perso x=900→1184, rien n'occupe le coin |
+| après clic | — | 100 messages, bulle ouverte, perso s'élargit à x=776 |
+| coin saturé 420×600 | — | **personnage effacé**, gardes remises à zéro |
+| retour au normal | basse 74 px | personnage revenu |
+| mobile 375×812 | basse 203 px | perso y=497→597, casier en ruban y=663→796, chevauchement 0 |
+
+Recensement des éléments fixes, aux deux tailles : `#loading-screen` 100 % de
+la vue → ignoré comme voile ; `header` 40 % → compte mais ne coupe pas la zone ;
+`#ztsCookieBanner` 11 % en desktop, 25 % en mobile → compte, et c'est lui qui
+pose la garde en mobile. **Aucun bouton flottant d'app** : c'est la différence
+avec `sae` et `educatifs`.
+
+**Production, chargement naturel à 1280×800** : personnage présent, image
+`perso-ep-264.png` chargée à 264 px, perso x=900→1184, chevauchement 0 avec le
+casier, `ztsh-encouragements.js` non téléchargé au chargement.
 
 ### ~~Palier c)~~ — FAIT le 29 juillet, en deux temps
 
@@ -302,11 +331,11 @@ une décision écrite. Cocher le prescan ne suffit pas.
 ### État de la production
 
 **Six** apps habillées et saines : `jeux`, `sae`, `musique`, `plan-b-meteo`,
-`suppleance`, **`educatifs`**. Personnage en vitrine (`musique`,
-`plan-b-meteo`) et en travail sur `sae` (palier b) et `educatifs` (palier c).
-Restent sans personnage : `jeux` et `suppleance`. `main` poussé à `26ff6c6`,
-build vert, `Verifie l'habillage` au vert (seul avertissement : `jeux`, D23,
-antérieur).
+`suppleance`, `educatifs`. Personnage actif sur **cinq** : `musique` et
+`plan-b-meteo` par la densité `vitrine`, `sae` (palier b), `educatifs`
+(palier c), `suppleance` (palier d). **Reste `jeux`, et c'est tout.**
+`main` poussé à `045a714`, build vert, `Verifie l'habillage` au vert (seul
+avertissement : `jeux`, D23, antérieur).
 
 ### Ce qui attend, dans l'ordre
 
@@ -314,9 +343,23 @@ antérieur).
 2. **Banc `tni`** — avant d'activer le fond marine en densité `projection`.
    `tni` pose un `#gymBg` fixe à 15 % d'opacité ; le marine passerait au
    travers, le `<canvas>` du tableau garde son blanc. À voir tourner.
-3. **L'accueil** — `index.html` n'a jamais reçu l'habillage. **Bloqué** : la
-   maquette `_maquettes/zts-final-marine.html` (md5 `fc6e6551ee6b97770b6f9b61aa9814b8`)
-   n'a jamais été déposée. Le dossier est vide. Ne rien reproduire de mémoire.
+3. **L'accueil** — `index.html` n'a jamais reçu l'habillage. **Toujours
+   bloqué**, mais on sait enfin où chercher. `_maquettes/` est vide. La
+   maquette de référence (md5 `fc6e6551ee6b97770b6f9b61aa9814b8`) reste
+   introuvable. **Trois versions voisines dorment à la corbeille**, toutes
+   titrées « ZTS — Direction C · WOW + personnages » :
+
+   | Fichier | Empreinte | Taille | Heure (25 juillet) |
+   |---|---|---|---|
+   | `zts-final-marine.html` | `e23eeddb…` | 37,0 Ko | 9:00 |
+   | `zts-final-marine_1.html` | `5394bc1c…` | 37,3 Ko | 9:08 |
+   | `zts-final-marine_2.html` | `f10e09bc…` | 42,0 Ko | 9:12 |
+
+   **Aucune ne correspond à l'empreinte consignée.** Ce sont des itérations
+   successives, pas la version retenue. Joey doit dire laquelle fait foi — ou
+   retrouver la bonne — avant qu'on touche à l'accueil. Ne rien reproduire de
+   mémoire, et ne pas choisir à sa place : trois candidates valent zéro
+   certitude.
 4. **Temps 2** — suppression des apps sportives, après que Joey ait posé les
    9 redirections (`redirections-cloudflare.csv`) et que je les aie vérifiées.
 5. **Vague 2** — 22 gabarits, protocole allégé décrit plus bas.
