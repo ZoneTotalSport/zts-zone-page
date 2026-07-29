@@ -1,6 +1,6 @@
 # Redirections à poser dans Cloudflare
 
-**Fichier prêt à importer : `redirections-cloudflare.csv`** — 12 lignes,
+**Fichier prêt à importer : `redirections-cloudflare.csv`** — 9 lignes,
 colonnes `source,destination,statut`. Cloudflare → **Rules → Bulk Redirects**
 → créer une liste → importer le CSV → créer la règle qui utilise la liste.
 
@@ -23,14 +23,62 @@ lignes **remplacent** les règles existantes, elles ne s'y ajoutent pas.
 | `agenda.` → `/apps/agenda` → `/apps/agenda/` | `agenda.` → `/apps/agenda/` |
 | `ia.` → `/apps/generateur` → `/apps/generateur/` | `ia.` → `/apps/generateur/` |
 
-**Cinq orphelins de la racine**, servis en 200, sans `noindex`, sans aucun lien
-entrant, absents du sitemap — donc indexables et sans usage :
-`index-old.html` (494 Ko, l'ancienne home, dont le canonique pointe déjà sur
-`/`), `header.html` et `footer.html` (fragments morts, jamais inclus nulle
-part — GitHub Pages n'a pas d'includes), `login.html`, `teasing.html`.
+**Deux orphelins de la racine**, servis en 200, sans `noindex`, absents du
+sitemap, et — vérifié par recherche de code, pas par balayage de liens —
+récupérés par personne : `index-old.html` (494 Ko, l'ancienne home, dont le
+canonique pointe déjà sur `/`) et `teasing.html`.
 
-`promo.html` en est **volontairement absent** : elle figure au sitemap et porte
-son propre canonique. C'est une page vivante, pas un orphelin.
+### Trois retraits — la recherche de liens m'avait trompé
+
+`header.html`, `footer.html` et `login.html` figuraient dans une première
+version de ce CSV parce qu'aucune page ne pointe vers eux. **Le critère était
+faux** : ces fichiers ne sont pas liés, ils sont *récupérés par du code*.
+
+| Fichier | Qui le récupère | Ligne | Conséquence d'une 301 |
+|---|---|---|---|
+| `header.html` | `includes.js` → `loadFragment(basePath + 'header.html', …)` | `includes.js:140` | l'en-tête n'est plus injecté |
+| `footer.html` | `includes.js` → `loadFragment(basePath + 'footer.html', …)` | `includes.js:146` | le pied de page n'est plus injecté |
+| `login.html` | `apps/performances/app.js` → `location.href = '/login.html?next=' + …` | `apps/performances/app.js:415` | la connexion casse, et `?next=` est perdu |
+
+**Nuance importante, mesurée** : le header réellement injecté sur les
+**1489 pages** portant `[data-zts-header]` n'est pas celui de la racine mais
+`shared/header.html`. `shared/zts.js:198` appelle
+`injectPartial('[data-zts-header]', 'header.html')`, et `injectPartial`
+(`shared/zts.js:88-96`) construit son URL à partir du `src` de son propre
+script — donc `/shared/header.html`. Le seul consommateur de la copie racine
+est `includes.js`, qu'**aucune page ne charge aujourd'hui**.
+
+Autrement dit : une 301 sur `/header.html` ne casserait rien *aujourd'hui*.
+Elle casserait le jour où `includes.js` reprend du service — et la copie
+racine, plus récente (6 juillet, 4 354 o) que `shared/header.html`
+(4 juin, 1 563 o), a tout l'air d'être celle qu'on maintient. On ne redirige
+pas un fragment vivant pour un gain d'indexation.
+
+`promo.html` reste **volontairement absente** du CSV : elle figure au sitemap
+et porte son propre canonique. Page vivante, pas orphelin.
+
+## Pour les fragments : `X-Robots-Tag`, jamais une meta, jamais une 301
+
+`header.html`, `footer.html` et `login.html` doivent continuer à répondre 200.
+Ce qu'il faut, c'est qu'ils sortent de l'index — donc un en-tête HTTP, posé par
+Cloudflare, qui ne touche pas au corps de la réponse.
+
+**Rules → Transform Rules → Modify Response Header** :
+
+- **Nom** : `noindex fragments et pages techniques`
+- **Si** — expression personnalisée :
+
+```
+(http.request.uri.path in {"/header.html" "/footer.html" "/login.html"
+                           "/shared/header.html" "/shared/footer.html"})
+```
+
+- **Alors** : *Set static* — nom `X-Robots-Tag`, valeur `noindex`
+
+**Et surtout pas de `<meta name="robots" content="noindex">` dans
+`header.html`.** Le fragment est injecté dans le DOM des 1489 pages ; Google
+indexe le DOM rendu ; la balise désindexerait le site entier. C'est le piège
+que cette règle contourne.
 
 ## Deux réglages à cocher dans la règle
 
