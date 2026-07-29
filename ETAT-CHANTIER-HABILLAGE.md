@@ -1,6 +1,7 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 29 juillet 2026, palier b) livré et vérifié en production.
+**Dernière mise à jour** : 29 juillet 2026, palier c) livré — `educatifs` habillée
+puis dotée du personnage, en deux temps.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
 ---
@@ -146,7 +147,24 @@ http.server.ThreadingHTTPServer(('127.0.0.1',8913),
 EOF
 ```
 
-Trois pièges déjà rencontrés, à ne pas re-diagnostiquer :
+Cinq pièges déjà rencontrés, à ne pas re-diagnostiquer :
+
+- **Le banc rapporte un viewport de 0×0** quand le JS tourne pendant que
+  l'onglet est en arrière-plan. Toute géométrie mesurée dans cet état est
+  fausse : le personnage sort à 0 px de large et les gardes ne se posent pas.
+  Deux parades. Une **sonde armée** — un `setInterval` qui attend
+  `innerWidth > 0`, fait son travail, dépose le résultat dans une variable —
+  puis un screenshot qui ramène l'onglet au premier plan, et on relit la
+  variable. Ou, pour un **chargement naturel observable**, une **iframe**
+  dimensionnée à la main pointant sur la page à tester : elle charge
+  normalement, à la bonne taille, et on l'inspecte depuis le parent.
+  Sans ça, on conclut « le personnage est absent en production » alors qu'il
+  est là. C'est arrivé au palier c).
+- **La copie de comparaison ne marche pas sur une app gardée.**
+  `git show main:apps/X/index.html > apps/X/zz-base.html` donne une page qui
+  **échappe au portillon** — `zts-lock-page.js` ne reconnaît pas le nom de
+  fichier. Supprimer la copie immédiatement, et ne jamais s'en servir comme
+  d'un accès.
 
 - **Le cache du navigateur** survit à `no-store` sur les sous-ressources déjà
   chargées. Changer de port force un rechargement propre.
@@ -171,15 +189,57 @@ Trois pièges déjà rencontrés, à ne pas re-diagnostiquer :
 - **`TICKET-TTF-COPIE-UNIQUE.md`** puis **`TICKET-GLYPHES-ZTS.md`**, dans cet
   ordre.
 
-## POINT DE REPRISE — 29 juillet, après le palier b)
+## POINT DE REPRISE — 29 juillet, après le palier c)
 
 ### Là où on s'arrête exactement
 
-**Le prochain geste est le palier c)** : activer `encourageur: true` sur
-**`apps/educatifs/` SEULEMENT** — elle porte le même `.cours-fab` que `sae`,
-c'est donc le second cas du risque connu. Puis les autres, une à la fois.
-Le retour arrière du 29 juillet a touché cinq apps parce qu'on avait
-généralisé d'un coup ; on ne recommence pas.
+**Le prochain geste est le palier d)** : `jeux` ou `suppleance`, les deux
+seules apps habillées en densité `travail` encore sans personnage. Une à la
+fois. `musique` et `plan-b-meteo` sont en `vitrine` : le personnage y est déjà
+actif par défaut, il n'y a rien à activer.
+
+Sur `jeux`, attention : elle porte déjà `fondSurEnveloppe: true` et un fond
+imposé en `!important` (D23). Deux mécanismes sur la même app, plus dur à
+diagnostiquer si ça tourne mal. **`suppleance` d'abord**, donc.
+
+### ~~Palier c)~~ — FAIT le 29 juillet, en deux temps
+
+**Le point de reprise se trompait** : il annonçait `educatifs` comme un simple
+« un mot de diff ». L'app **n'avait jamais été habillée** — aucune trace de
+`ztsh` ni de `ZTSShell.monter` dedans. Vérifier avant de promettre un palier.
+
+**Temps 1** (`5dcdd0c`) — les six lignes du contrat, densité `travail`, **sans
+encourageur**. **Temps 2** (`26ff6c6`) — le mot en plus. Deux mises en ligne,
+deux causes séparables.
+
+Prescan : `body` porte `background-color:#f5f5dc` **sans `!important`** → pas
+de `fondSurEnveloppe`. L'app charge `zts-ultra.css` puis `shared/zts-header.css`
+→ le CSS du shell vient après, vérifié dans `document.styleSheets`.
+
+Mesures du temps 2, aire de chevauchement calculée et non estimée :
+
+| Cas | Garde | Résultat |
+|---|---|---|
+| desktop 1280×720, tel quel | aucune | perso s'arrête à x=1184, `.cours-fab` à x=1190 |
+| après clic | — | banque chargée, 100 messages, bulle ouverte ; perso s'élargit à x=776, chevauchement 0 |
+| coin saturé 420×600 | — | **personnage effacé**, gardes remises à zéro |
+| retour au normal | basse 74 px | personnage revenu, chevauchement 0 |
+| mobile 375×812 | basse 203 px | perso y=497→597, `.cours-fab` y=742→796 |
+
+**Portillon vérifié à chaque mesure** : `#zts-locked-fullscreen` intact à
+z-index 99998, pleine largeur, ses trois boutons répondent au clic, défilement
+bloqué. Le shell plafonne à 350. Rien n'est affaibli.
+
+**Production, chargement naturel à 1280×800** : personnage présent, image
+chargée, perso x=900→1184, `.cours-fab` x=1190→1252, **chevauchement 0**,
+`ztsh-encouragements.js` non téléchargé au chargement, console propre.
+
+**Limite** : `educatifs` est derrière le portillon (D14). Sans compte réel, la
+liste fonctionnelle — cartes, filtres, modale, `.cours-fab` réellement cliqué —
+n'a pas été déroulée. Les mesures portent sur le montage, l'ordre des feuilles,
+la géométrie et le verrou. **Le bouton flottant existe et est mesurable dans le
+DOM même verrouillé** : c'est ce qui rend le test de collision possible malgré
+le portillon.
 
 ### ~~Palier a)~~ et ~~palier b)~~ — FAITS le 29 juillet
 
@@ -218,7 +278,9 @@ soulève le personnage. C'est le bon comportement.
 fois** après chargement complet. Si le bandeau de cookies est fermé ensuite, la
 garde reste posée jusqu'au rechargement et le personnage est un peu haut.
 Cosmétique. Un observateur permanent sur 46 apps coûterait plus que ça ne
-rapporte.
+rapporte. **Si on veut la fermer un jour** (décision de Joey, 29 juillet,
+basse priorité) : un seul re-mesurage déclenché sur le clic d'acceptation du
+bandeau suffit. Pas d'observateur permanent.
 
 ### Ce qui s'est passé le 29 juillet, dans l'ordre
 
@@ -239,10 +301,12 @@ une décision écrite. Cocher le prescan ne suffit pas.
 
 ### État de la production
 
-Cinq apps habillées et saines : `jeux`, `sae`, `musique`, `plan-b-meteo`,
-`suppleance`. Personnage en vitrine (`musique`, `plan-b-meteo`) **et sur `sae`
-depuis le palier b)**. `main` poussé à `7ce1087`, build vert, `Verifie
-l'habillage` au vert (seul avertissement : `jeux`, D23, antérieur).
+**Six** apps habillées et saines : `jeux`, `sae`, `musique`, `plan-b-meteo`,
+`suppleance`, **`educatifs`**. Personnage en vitrine (`musique`,
+`plan-b-meteo`) et en travail sur `sae` (palier b) et `educatifs` (palier c).
+Restent sans personnage : `jeux` et `suppleance`. `main` poussé à `26ff6c6`,
+build vert, `Verifie l'habillage` au vert (seul avertissement : `jeux`, D23,
+antérieur).
 
 ### Ce qui attend, dans l'ordre
 
