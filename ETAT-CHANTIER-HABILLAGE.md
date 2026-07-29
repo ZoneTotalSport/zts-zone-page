@@ -1,6 +1,6 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 28 juillet 2026, fond sur l'enveloppe vérifié au banc.
+**Dernière mise à jour** : 29 juillet 2026, pause demandée après le palier a) de la garde du personnage.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
 ---
@@ -170,6 +170,55 @@ Trois pièges déjà rencontrés, à ne pas re-diagnostiquer :
   d'empilement du header.
 - **`TICKET-TTF-COPIE-UNIQUE.md`** puis **`TICKET-GLYPHES-ZTS.md`**, dans cet
   ordre.
+
+## POINT DE REPRISE — 29 juillet, fin de session
+
+### Là où on s'arrête exactement
+
+**Le prochain geste est le palier b)** : activer `encourageur: true` sur
+**`apps/sae/` SEULEMENT**, pousser, vérifier en production. Puis `educatifs`,
+qui porte le même bouton flottant. **Seulement ensuite** les autres apps.
+Une app à la fois — le retour arrière du 29 juillet a touché cinq apps parce
+qu'on avait généralisé d'un coup.
+
+Le mécanisme est écrit et validé au banc (`0ca4f8b`), **et il est inerte en
+production** : `travail` et `projection` portent `encourageur: false`.
+
+### Ce qui s'est passé le 29 juillet, dans l'ordre
+
+1. Poussé : calque de fond fixe, webp 264 px, silence hors vitrine,
+   effacement, garde basse `.ztg-out`, rapport d'erreur de `monter()`.
+2. **Régression trouvée en production sur `sae`** : `.cours-fab` (54×54,
+   z-index 1000) recouvrait 2916 px² du personnage sur 11815, un quart.
+3. **Retour arrière** : `encourageur` remis à `false` en `travail` et
+   `projection`. Les cinq apps sont revenues à leur état d'avant.
+4. Garde générique écrite et validée au banc sur `sae`.
+
+### La leçon, à ne pas réapprendre
+
+Le prescan avait listé les six boutons flottants. La garde `.ztg-out` et
+l'effacement ont été écrits ; **la garde des boutons flottants a été oubliée**.
+Un prescan qui repère un risque ne vaut que si chaque ligne devient du code ou
+une décision écrite. Cocher le prescan ne suffit pas.
+
+### État de la production
+
+Cinq apps habillées et saines : `jeux`, `sae`, `musique`, `plan-b-meteo`,
+`suppleance`. Personnage en vitrine seulement (`musique`, `plan-b-meteo`).
+`main` poussé, build vert, `--vivant` au vert sur les cinq.
+
+### Ce qui attend, dans l'ordre
+
+1. **Palier b), c), d)** de la garde du personnage — ci-dessus.
+2. **Banc `tni`** — avant d'activer le fond marine en densité `projection`.
+   `tni` pose un `#gymBg` fixe à 15 % d'opacité ; le marine passerait au
+   travers, le `<canvas>` du tableau garde son blanc. À voir tourner.
+3. **L'accueil** — `index.html` n'a jamais reçu l'habillage. **Bloqué** : la
+   maquette `_maquettes/zts-final-marine.html` (md5 `fc6e6551ee6b97770b6f9b61aa9814b8`)
+   n'a jamais été déposée. Le dossier est vide. Ne rien reproduire de mémoire.
+4. **Temps 2** — suppression des apps sportives, après que Joey ait posé les
+   9 redirections (`redirections-cloudflare.csv`) et que je les aie vérifiées.
+5. **Vague 2** — 22 gabarits, protocole allégé décrit plus bas.
 
 ## Deux mécanismes décidés le 28 juillet
 
