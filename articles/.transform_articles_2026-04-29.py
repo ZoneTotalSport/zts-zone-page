@@ -13,7 +13,7 @@ Output: complete HTML file at original path.
 import re, html, os, sys, json
 from pathlib import Path
 
-ART_DIR = Path("/Users/admin/Desktop/Remotion 2/wix-deploy/articles")
+ART_DIR = Path("/Users/admin/dev/Remotion 2/wix-deploy/articles")
 
 # slug -> (hero_filename, category_fr, category_en, category_es, category_zh, badge_color)
 ARTICLES = {

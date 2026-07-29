@@ -1,5 +1,15 @@
 # Contexte du projet — Zone Total Sport
 
+## Emplacement du dépôt
+- **Chemin de travail** : `~/dev/Remotion 2/wix-deploy/`
+- **Déplacé du Bureau le 29 juillet 2026.** Le Bureau est synchronisé par
+  iCloud, qui a fait disparaître le dossier de travail une minute pendant une
+  opération. `git fsck` a d'ailleurs trouvé 82 fichiers parasites dans
+  `.git/objects/` — des doublons « … 2 » et des `tmp_obj_*` laissés par la
+  synchronisation. Nettoyés le 29 juillet, dépôt intègre.
+- **Ne jamais remettre un dépôt git sous iCloud** : la synchronisation duplique
+  et verrouille des fichiers de `.git/` pendant que git écrit dedans.
+
 ## Identité
 - **Site** : zonetotalsport.ca
 - **Mission** : plateforme 100% gratuite de ressources ÉPS / Camps de jour / Service de garde

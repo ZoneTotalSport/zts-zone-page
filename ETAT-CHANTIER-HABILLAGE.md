@@ -1,7 +1,7 @@
 # État du chantier d'habillage — reprise
 
 **Dernière mise à jour** : 28 juillet 2026, fond sur l'enveloppe vérifié au banc.
-**Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/Desktop/Remotion 2/wix-deploy/`
+**Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
 ---
 

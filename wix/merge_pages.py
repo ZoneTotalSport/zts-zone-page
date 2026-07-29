@@ -2,7 +2,7 @@
 """Merge 4 HTML files into one accueil.html with proper JS deduplication"""
 import re, os
 
-BASE = "/Users/admin/Desktop/Remotion 2/wix-deploy/wix"
+BASE = "/Users/admin/dev/Remotion 2/wix-deploy/wix"
 
 def read(name):
     with open(os.path.join(BASE, name), encoding='utf-8') as f:

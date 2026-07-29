@@ -50,7 +50,7 @@ doivent être traités ensemble.
 
 | App | Source | État |
 |---|---|---|
-| `apps/scoreboard/` | `/Users/admin/Desktop/Remotion 2/scoreboard-basketball/` | source présent, hors dépôt |
+| `apps/scoreboard/` | `/Users/admin/dev/Remotion 2/scoreboard-basketball/` | source présent, hors dépôt |
 | `apps/evaluation/` | **introuvable** | source absent |
 
 Toute modification de leur `index.html` est écrasée au prochain build. Les

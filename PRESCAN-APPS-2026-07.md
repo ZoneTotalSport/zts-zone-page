@@ -1,7 +1,7 @@
 # PRESCAN — Habillage shell ZTS
 
 **Date** : 25 juillet 2026
-**Repo** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/Desktop/Remotion 2/wix-deploy/` (branche `main`)
+**Repo** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/` (branche `main`)
 **Maquette de référence** : `/Users/admin/Downloads/zts-final-marine.html` (553 lignes)
 **Phase** : 0 — lecture seule. Aucun fichier d'app touché, aucun commit.
 
@@ -210,7 +210,7 @@ Le risque va dans le sens inverse de celui décrit dans le prompt : ce n'est pas
 
 ### 3.4 Les deux builds Vite — **le contrat ne s'y applique pas**
 
-`apps/scoreboard/` et `apps/evaluation/` sont des sorties de build : `index.html` minimal + `assets/index-<hash>.js`. Le source de `scoreboard` est `/Users/admin/Desktop/Remotion 2/scoreboard-basketball/` (Vite). Le source d'`evaluation` **n'est pas dans ce repo**.
+`apps/scoreboard/` et `apps/evaluation/` sont des sorties de build : `index.html` minimal + `assets/index-<hash>.js`. Le source de `scoreboard` est `/Users/admin/dev/Remotion 2/scoreboard-basketball/` (Vite). Le source d'`evaluation` **n'est pas dans ce repo**.
 
 Conséquences :
 - Ajouter les balises du shell dans `apps/scoreboard/index.html` serait **écrasé au prochain build**. Il faut modifier `scoreboard-basketball/index.html` puis rebuilder — ce qui change le hash du bundle et fait exploser le « diff sous 30 lignes ».
@@ -434,7 +434,7 @@ Identique à `nba-playoffs` : 2 373 lignes, `zts_nhl_zoom`, `.zoom-controls` à 
 - **Risque 3** : 2ᵉ app la plus visible, 5 collisions de classes, 12 sélecteurs, 4 impressions.
 
 #### `scoreboard` — risque 3, **build Vite**
-- **Chemin** `apps/scoreboard/` (`index.html` 95 lignes + `assets/index-Bi4bbmdW.js`, 280 Ko) · **Source Vite** : `/Users/admin/Desktop/Remotion 2/scoreboard-basketball/` · **URL** `/apps/scoreboard/` · **8 liens entrants** · **Densité** `travail`
+- **Chemin** `apps/scoreboard/` (`index.html` 95 lignes + `assets/index-Bi4bbmdW.js`, 280 Ko) · **Source Vite** : `/Users/admin/dev/Remotion 2/scoreboard-basketball/` · **URL** `/apps/scoreboard/` · **8 liens entrants** · **Densité** `travail`
 - **z-index** : **100000**, 10000 · **Classes** : `grid` · **Variables** : `--jaune`, `--orange`, `--rose`
 - **Stockage** : aucun · **Glisser-déposer** : 6 · **Réseau** : 3 `fetch`
 - **Fichiers médias** : `nba-horn.mp3`, `siren-blast.mp3`
