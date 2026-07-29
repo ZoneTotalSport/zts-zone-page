@@ -663,11 +663,14 @@
 .grille-t tr:nth-child(even) td{background:#f0f9ff}
 .grille-regle{font-style:italic;color:#64748b;margin:0 0 1.2rem !important}
 
+/* Conteneur d'impression : la grille y est clonee au niveau de <body>, sinon elle
+   reste enfouie sous <main> et disparait avec lui a l'impression. */
+#zone-print-grille{display:none}
 @media print{
-  body.print-grille main,body.print-grille header,body.print-grille footer,
-  body.print-grille .panier{display:none !important}
-  body.print-grille .grille{display:block !important;box-shadow:none;padding:0}
-  body.print-grille .grille-print,body.print-grille .wgt-tag{display:none !important}
+  body.print-grille > *{display:none !important}
+  body.print-grille > #zone-print-grille{display:block !important}
+  #zone-print-grille .grille{display:block !important;box-shadow:none;padding:0;border:0}
+  #zone-print-grille .grille-print,#zone-print-grille .wgt-tag{display:none !important}
 }
 </style>
 </head>
@@ -1476,9 +1479,26 @@
   /* ---------- 8. Impression de la grille ---------- */
   var gp = document.querySelector('.grille-print');
   if (gp) gp.addEventListener('click', function () {
+    var src = document.getElementById('grille-4-boutons');
+    if (!src) return;
+    var zone = document.getElementById('zone-print-grille');
+    if (!zone) {
+      zone = document.createElement('div');
+      zone.id = 'zone-print-grille';
+      document.body.appendChild(zone);
+    }
+    var clone = src.cloneNode(true);
+    clone.removeAttribute('id');
+    var b = clone.querySelector('.grille-print');
+    if (b) b.remove();
+    zone.innerHTML = '';
+    zone.appendChild(clone);
     document.body.classList.add('print-grille');
     print();
-    setTimeout(function () { document.body.classList.remove('print-grille'); }, 800);
+    setTimeout(function () {
+      document.body.classList.remove('print-grille');
+      zone.innerHTML = '';
+    }, 800);
   });
 
   /* ---------- 9. Repli si une photo ne charge pas ---------- */
