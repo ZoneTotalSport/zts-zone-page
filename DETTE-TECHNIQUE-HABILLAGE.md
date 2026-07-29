@@ -422,3 +422,26 @@ retour d'`includes.js`.
 **Non corrigé** : trancher demande de savoir laquelle des deux copies fait foi,
 et le `footer.html` racine de 205 Ko sent le reliquat d'un ancien pipeline.
 À reprendre avec le chantier de consolidation du design system (voir D16).
+
+### D26 — Sept apps portent la règle `#gymBg` sans l'élément
+
+`#gymBg { position:fixed; inset:0; z-index:0; background:url(gym-bg.png) …;
+opacity:1 }` est déclaré dans le CSS de **8 apps** — `agenda`, `educatifs`,
+`evaluation`, `jeux`, `musique`, `sae`, `suppleance`, `tni`.
+
+**L'élément n'existe dans le HTML que d'une seule : `tni`.** Sept règles ne
+s'appliquent donc à rien, et l'image `gym-bg.png` qu'elles référencent n'est
+jamais demandée.
+
+Repéré au prescan personnage/fond du 29 juillet, en cherchant ce qui pourrait
+recouvrir le marine du shell. Bonne nouvelle pour le chantier : sept obstacles
+qui n'existent pas.
+
+**Non corrigé, et volontairement hors de ce chantier.** Retirer sept blocs CSS
+morts est sans risque mais sans rapport avec l'habillage ; ça appartient au
+ménage du design system (voir D16). Consigné pour que le prochain qui cherche
+« pourquoi le fond de gymnase n'apparaît pas » trouve la réponse ici.
+
+Le cas `tni` est réel : opacité 0,15, donc translucide — le marine passerait au
+travers, teinté, et le `<canvas id="whiteboard">` garde son blanc en propre.
+Banc à faire avant d'activer le fond en densité projection.
