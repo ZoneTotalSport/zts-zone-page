@@ -242,6 +242,48 @@ son mode TBI, `tni` et `studio-jeu` leur plein écran. La règle générale :
 **quand une app se réorganise elle-même pour une tâche, le shell descend d'un
 cran de densité au lieu de discuter.**
 
+## Vague 2 — protocole allégé, sous condition stricte
+
+Décidé le 29 juillet. Rejouer 22 listes fonctionnelles complètes sur des
+gabarits identiques n'apprend rien ; l'allègement se paie par une condition
+qui, si elle tombe, fait tomber l'allègement avec elle.
+
+**Densité : `vitrine` pour les 22.** Ce sont des banques de contenu qu'on
+consulte, pas des outils qu'on pilote pendant un cours.
+
+| Lot | Apps | Protocole |
+|---|---|---|
+| Les 6 variantes | `journee-pedago`, `olympiades`, `rallyes`, `noms-de-clans`, `chansons-camp`, `roue-responsabilites` | **rejeu complet** |
+| 2 gabarits tirés au sort | parmi les 17 identiques | **rejeu complet** |
+| Les 15 autres | le reste des identiques | chargement, filtre, modale, console |
+
+**LA CONDITION.** Si le diff d'un seul des 17 n'est pas rigoureusement
+identique aux autres, **celui-là repasse en rejeu complet**. Le diff identique
+est ce qui justifie l'allègement ; sans lui, il n'y a plus d'argument.
+
+Vérification, à lancer après la migration des 17 :
+
+```bash
+for a in <les 17 slugs>; do
+  printf "%-22s %s\n" "$a" "$(git diff main -- apps/$a/index.html | grep '^+' | grep -v '^+++' | md5)"
+done | sort -k2 | uniq -c -f1
+```
+
+Une seule empreinte pour les 17 : l'allègement tient. Deux empreintes ou plus :
+les divergents repassent au rejeu complet.
+
+Points d'attention, tirés du prescan :
+
+- `olympiades` — l'état est en mémoire et se perd au rechargement. **C'est le
+  comportement actuel, à ne pas « corriger ».**
+- `journee-pedago`, `olympiades`, `rallyes` — impriment la page courante ; la
+  règle `@media print` du shell doit être vérifiée sur au moins une des trois.
+- `noms-de-clans` — ni modale ni recherche : la liste commune ne s'applique pas.
+- Les 24 portent `.ztg-out` : rejouer une liste complète **demande un compte
+  réel** (D14). À planifier avec Joey pour les 8 rejeux complets.
+- Aucune n'impose de fond en `!important` : la vague 2 est propre de ce côté.
+- `planification` ferme la marche, après les 22.
+
 ## Ce qu'il ne faut jamais faire
 
 - Ajouter un contournement du portillon dans `zts-gate.js` ou
