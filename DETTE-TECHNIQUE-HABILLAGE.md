@@ -395,3 +395,30 @@ barre à lui — il restyle `.zts-header`. Pas d'en-tête, pas de barre du haut.
 **À trancher avant de migrer l'app**, pas pendant. S’ajoute au dossier « risque
 3 maximum » du prescan (4 éléments fixes à droite, classe `metier` en collision,
 5 variables en collision, plein écran, écriture Firestore, mode TBI).
+
+### D25 — `header.html` et `footer.html` existent en deux exemplaires, et le chargeur de la copie racine est mort
+
+| Fichier | Taille | Date | Qui le récupère |
+|---|---|---|---|
+| `shared/header.html` | 1 563 o | 4 juin | `shared/zts.js:198` — **les 1489 pages** |
+| `header.html` (racine) | 4 354 o | 6 juillet | `includes.js:140` — **aucune page ne charge `includes.js`** |
+| `shared/footer.html` | 4 979 o | 13 juillet | `shared/zts.js:199` |
+| `footer.html` (racine) | 205 815 o | 13 juillet | `includes.js:146` — idem |
+
+La copie servie est celle de `shared/` : `injectPartial()`
+(`shared/zts.js:88-96`) construit son URL depuis le `src` de son propre script,
+donc `/shared/`. Les copies racine sont pourtant les plus récentes et les plus
+grosses — `footer.html` fait 205 Ko contre 5 Ko pour celle de `shared/`.
+
+Deux lectures possibles, et c'est bien le problème : soit on maintient une
+copie que personne ne sert, soit `includes.js` devait revenir et ne l'a jamais
+fait. Personne ne peut trancher en lisant le code.
+
+**Le piège concret** : j'ai conclu « fichiers orphelins, à rediriger en 301 »
+d'une recherche de liens entrants le 28 juillet. Faux — ils sont récupérés par
+du code, pas liés. Sur `header.html`, une 301 aurait cassé l'en-tête au premier
+retour d'`includes.js`.
+
+**Non corrigé** : trancher demande de savoir laquelle des deux copies fait foi,
+et le `footer.html` racine de 205 Ko sent le reliquat d'un ancien pipeline.
+À reprendre avec le chantier de consolidation du design system (voir D16).
