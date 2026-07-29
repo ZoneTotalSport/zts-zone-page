@@ -1,6 +1,6 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 29 juillet 2026, pause demandée après le palier a) de la garde du personnage.
+**Dernière mise à jour** : 29 juillet 2026, palier b) livré et vérifié en production.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
 ---
@@ -171,18 +171,54 @@ Trois pièges déjà rencontrés, à ne pas re-diagnostiquer :
 - **`TICKET-TTF-COPIE-UNIQUE.md`** puis **`TICKET-GLYPHES-ZTS.md`**, dans cet
   ordre.
 
-## POINT DE REPRISE — 29 juillet, fin de session
+## POINT DE REPRISE — 29 juillet, après le palier b)
 
 ### Là où on s'arrête exactement
 
-**Le prochain geste est le palier b)** : activer `encourageur: true` sur
-**`apps/sae/` SEULEMENT**, pousser, vérifier en production. Puis `educatifs`,
-qui porte le même bouton flottant. **Seulement ensuite** les autres apps.
-Une app à la fois — le retour arrière du 29 juillet a touché cinq apps parce
-qu'on avait généralisé d'un coup.
+**Le prochain geste est le palier c)** : activer `encourageur: true` sur
+**`apps/educatifs/` SEULEMENT** — elle porte le même `.cours-fab` que `sae`,
+c'est donc le second cas du risque connu. Puis les autres, une à la fois.
+Le retour arrière du 29 juillet a touché cinq apps parce qu'on avait
+généralisé d'un coup ; on ne recommence pas.
 
-Le mécanisme est écrit et validé au banc (`0ca4f8b`), **et il est inerte en
-production** : `travail` et `projection` portent `encourageur: false`.
+### ~~Palier a)~~ et ~~palier b)~~ — FAITS le 29 juillet
+
+**a)** Garde générique du personnage (`0ca4f8b`), poussée. Détection par
+géométrie, pas par liste de classes : on regarde ce qui coupe réellement le
+rectangle du personnage. Assez de place → on décale ; pas assez → **le shell
+s'efface**. Les voiles plein cadre (>60 % de la vue) sont ignorés.
+
+**b)** `encourageur: true` sur `apps/sae/` seule (`7ce1087`), poussée, build
+Pages au vert, **vérifiée en production**. Un seul mot change dans les six
+lignes du contrat. La densité reste `travail` : le personnage est **silencieux
+au chargement**, la banque de 100 messages (9,3 Ko) n'arrive qu'au premier clic.
+
+Ce que le banc a mesuré, quatre cas, la garde aux commandes :
+
+| Cas | Garde posée | Résultat |
+|---|---|---|
+| desktop 1280×720, sans bandeau | aucune | perso s'arrête à x=1176, `.cours-fab` commence à x=1182 |
+| desktop 1280×720, bandeau cookies | basse 74 px | perso remonte au-dessus du bandeau |
+| mobile 375×812, sans bandeau | droite 70 px | perso s'arrête à x=293, `.cours-fab` à x=305 |
+| mobile 375×812, bandeau (203 px, 25 % de la vue) | basse 203 px | perso de y=497 à 597, bandeau à partir de 609 ; les trois boutons du bandeau restent cliquables |
+| coin saturé 420×600 | — | **personnage effacé**, gardes remises à zéro |
+| retour au normal | basse 74 px | personnage revenu, aucun chevauchement |
+
+Vérifié aussi : clic → banque chargée (100 messages), message affiché, bulle
+ouverte, **toujours aucun chevauchement bulle déployée**. `sae` intacte
+(12 `<select>`, 30 cartes, console sans erreur). En production : personnage
+présent, casier présent, densité `travail`, `ztsh-encouragements.js` **non
+téléchargé au chargement**, console propre.
+
+**Le bandeau de cookies est un bloqueur légitime**, découvert au banc : à 25 %
+de la vue il passe sous le seuil des 60 %, la garde le prend donc en compte et
+soulève le personnage. C'est le bon comportement.
+
+**Limite connue, acceptée** : les gardes sont mesurées au montage puis **une
+fois** après chargement complet. Si le bandeau de cookies est fermé ensuite, la
+garde reste posée jusqu'au rechargement et le personnage est un peu haut.
+Cosmétique. Un observateur permanent sur 46 apps coûterait plus que ça ne
+rapporte.
 
 ### Ce qui s'est passé le 29 juillet, dans l'ordre
 
@@ -204,12 +240,13 @@ une décision écrite. Cocher le prescan ne suffit pas.
 ### État de la production
 
 Cinq apps habillées et saines : `jeux`, `sae`, `musique`, `plan-b-meteo`,
-`suppleance`. Personnage en vitrine seulement (`musique`, `plan-b-meteo`).
-`main` poussé, build vert, `--vivant` au vert sur les cinq.
+`suppleance`. Personnage en vitrine (`musique`, `plan-b-meteo`) **et sur `sae`
+depuis le palier b)**. `main` poussé à `7ce1087`, build vert, `Verifie
+l'habillage` au vert (seul avertissement : `jeux`, D23, antérieur).
 
 ### Ce qui attend, dans l'ordre
 
-1. **Palier b), c), d)** de la garde du personnage — ci-dessus.
+1. **Palier c) puis d)** de la garde du personnage — `educatifs` d'abord.
 2. **Banc `tni`** — avant d'activer le fond marine en densité `projection`.
    `tni` pose un `#gymBg` fixe à 15 % d'opacité ; le marine passerait au
    travers, le `<canvas>` du tableau garde son blanc. À voir tourner.
