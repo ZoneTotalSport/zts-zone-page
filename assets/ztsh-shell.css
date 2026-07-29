@@ -806,7 +806,13 @@ body[data-ztsh-densite="travail"] .ztsh-page.ztsh-fond::before { animation: none
 .ztsh-encourageur {
   position: fixed;
   right: 96px;
-  bottom: 18px;
+  /* Garde basse — .ztg-out, le bouton de déconnexion injecté par
+     shared/zts-gate.js sur 24 apps, occupe right:12px bottom:12px à
+     z-index:9998. Il passe donc AU-DESSUS du personnage (couche 300-399) et
+     se poserait dessus. Le rail avait le même problème et le règle par
+     --ztsh-rail-garde-bas ; le personnage a désormais la sienne, posée par
+     ZTSShell.monter() quand le portillon est détecté. */
+  bottom: calc(18px + var(--ztsh-perso-garde-bas, 0px));
   z-index: var(--ztsh-z-flottant);
   display: flex;
   align-items: flex-end;
@@ -1113,7 +1119,7 @@ body[data-ztsh-densite="projection"] .ztsh-metiers { display: none; }
   body[data-ztsh-densite="vitrine"] .ztsh-outil:focus-visible .ztsh-outil__info { transform: translate(-50%, 0); }
   /* Le ruban occupe le coin bas-gauche : la pause café remonte au-dessus. */
   .ztsh-cafe { bottom: 96px; max-width: 260px; }
-  .ztsh-encourageur { right: 12px; bottom: 12px; }
+  .ztsh-encourageur { right: 12px; bottom: calc(12px + var(--ztsh-perso-garde-bas, 0px)); }
   .ztsh-bulle { max-width: 200px; }
   .ztsh-perso { width: 96px; min-height: 96px; }
   .ztsh-perso__cri { font-size: 20px; }

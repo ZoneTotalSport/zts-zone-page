@@ -46,9 +46,15 @@
      du domaine : le site est servi sur zonetotalsport.ca et sur des
      sous-domaines, un chemin absolu de domaine casserait l'un des deux. */
   var PROFILS = {
-    ep:   { nom: 'ÉDUCATION PHYSIQUE', sous: 'Gymnase · PFEQ · SAÉ',    img: '/perso-ep.png',   cri: 'ON Y VA!' },
-    sdg:  { nom: 'SERVICE DE GARDE',   sous: 'Routines · jeux calmes',  img: '/perso-sdg.png',  cri: 'ON EMBARQUE!' },
-    camp: { nom: 'CAMP DE JOUR',       sous: 'Grands jeux · plein air', img: '/perso-camp.png', cri: 'DEHORS!' }
+    // img = repli PNG, webp = servi en premier. Les deux font 264 px de large,
+    // soit le double des 132 px d'affichage : au-delà on sert des pixels que
+    // personne ne voit. Les sources 500 et 857 px pesaient 209 à 250 Ko.
+    ep:   { nom: 'ÉDUCATION PHYSIQUE', sous: 'Gymnase · PFEQ · SAÉ',
+            webp: '/shared/img/perso/perso-ep-264.webp',   img: '/shared/img/perso/perso-ep-264.png',   cri: 'ON Y VA!' },
+    sdg:  { nom: 'SERVICE DE GARDE',   sous: 'Routines · jeux calmes',
+            webp: '/shared/img/perso/perso-sdg-264.webp',  img: '/shared/img/perso/perso-sdg-264.png',  cri: 'ON EMBARQUE!' },
+    camp: { nom: 'CAMP DE JOUR',       sous: 'Grands jeux · plein air',
+            webp: '/shared/img/perso/perso-camp-264.webp', img: '/shared/img/perso/perso-camp-264.png', cri: 'DEHORS!' }
   };
 
   /* Repli local de la pause café. Aucun réseau. */
@@ -101,9 +107,12 @@
     // Planificateur, banque, grilles, présences. Même identité, volume
     // réduit : ombres noires 4px, contours 2px, titres d'un cran plus bas,
     // animations coupées sauf survol.
-    travail:    { rail: true,  metierSelecteur: 'auto', encourageur: false, pauseCafe: false, fond: true },
+    travail:    { rail: true,  metierSelecteur: 'auto', encourageur: true,  pauseCafe: false, fond: true },
     // tni, studio-jeu, playoffs. Tokens seulement, l'app garde son plein cadre.
-    projection: { rail: false, metierSelecteur: false,  encourageur: false, pauseCafe: false, fond: false }
+    // Le personnage est là aussi, silencieux. Le fond marine reste OFF en
+    // projection tant que le banc sur tni n'a pas été fait (décision du
+    // 29 juillet) — tni pose un #gymBg fixe à 15 % d'opacité par-dessus.
+    projection: { rail: false, metierSelecteur: false,  encourageur: true,  pauseCafe: false, fond: false }
   };
 
   function normaliser(opts) {
@@ -136,8 +145,9 @@
     cfg.metierSelecteur = !!cfg.metierSelecteur;
 
     if (densite === 'projection') {
-      cfg.rail = false; cfg.encourageur = false; cfg.pauseCafe = false;
+      cfg.rail = false; cfg.pauseCafe = false;
       cfg.metierSelecteur = false; cfg.fond = false; cfg.fondSurEnveloppe = false;
+      // encourageur conservé : présent partout, silencieux hors vitrine.
     }
     return cfg;
   }
@@ -199,7 +209,16 @@
   function appliquerPersonnage(cle) {
     var p = PROFILS[cle] || PROFILS.ep;
     var imgs = document.querySelectorAll('.ztsh-perso__img, .ztsh-vedette__img');
-    for (var i = 0; i < imgs.length; i++) if (imgs[i].getAttribute('src') !== p.img) imgs[i].src = p.img;
+    for (var i = 0; i < imgs.length; i++) {
+      if (imgs[i].getAttribute('src') !== p.img) imgs[i].src = p.img;
+      // <picture> : la source webp doit suivre, sinon le navigateur garde
+      // l'ancienne — elle a la priorité sur le src de l'<img>.
+      var pic = imgs[i].parentNode;
+      if (pic && pic.tagName === 'PICTURE') {
+        var src = pic.querySelector('source');
+        if (src && src.getAttribute('srcset') !== p.webp) src.setAttribute('srcset', p.webp);
+      }
+    }
     var cris = document.querySelectorAll('.ztsh-perso__cri, .ztsh-vedette__cri');
     for (var j = 0; j < cris.length; j++) cris[j].textContent = p.cri;
   }
@@ -234,7 +253,13 @@
      Les 100 messages pèsent 8 Ko : fichier séparé, chargé seulement quand
      l'encourageur est demandé. Les apps de travail et de projection ne le
      téléchargent jamais. */
-  function construireEncourageur() {
+  /* Personnages déjà posés par les apps. Là où l'un existe, le shell s'efface :
+     deux personnages dans le même coin, ce n'est pas un défaut de style, c'est
+     une image confuse. Recensé le 29 juillet — planificateur et agenda. */
+  var PERSO_DE_L_APP = '.p-perso, .cal-mascot-float, [data-zts-perso]';
+
+  function construireEncourageur(cfg) {
+    if (document.querySelector(PERSO_DE_L_APP)) return null;
     var cle = metierCourant() || 'ep';
     var p = PROFILS[cle];
     var zone = el('div', 'ztsh-encourageur');
@@ -247,16 +272,23 @@
 
     var perso = el('button', 'ztsh-perso', {
       type: 'button', id: 'ztsh-perso',
-      'aria-label': 'Mr. Root t\'encourage — un nouveau message'
+      'aria-label': 'Un nouveau message d\'encouragement'
     });
-    var img = el('img', 'ztsh-perso__img', { src: p.img, alt: '', width: '500', height: '641' });
+    var pic = el('picture', '');
+    var srcWebp = document.createElement('source');
+    srcWebp.type = 'image/webp';
+    srcWebp.setAttribute('srcset', p.webp);
+    var img = el('img', 'ztsh-perso__img', {
+      src: p.img, alt: '', width: '264', height: '338', loading: 'lazy', decoding: 'async'
+    });
     // Dégradation : image absente → on retire l'encourageur, sans bruit.
     img.addEventListener('error', function () {
       if (zone.parentNode) zone.parentNode.removeChild(zone);
     });
+    pic.appendChild(srcWebp); pic.appendChild(img);
     var cri = el('span', 'ztsh-perso__cri', { 'aria-hidden': 'true' });
     cri.textContent = p.cri;
-    perso.appendChild(img); perso.appendChild(cri);
+    perso.appendChild(pic); perso.appendChild(cri);
 
     var restants = [], phrases = null;
     function prochain() {
@@ -271,25 +303,48 @@
       txt.textContent = restants.pop();
       bulle.classList.add('is-on');
     }
-    perso.addEventListener('click', prochain);
+    /* Le personnage est présent partout, mais il ne parle pas partout.
+       En travail et en projection il est SILENCIEUX : aucun message au
+       chargement, aucune bulle tant qu'on ne l'a pas cliqué. Il est là, il
+       n'interrompt pas un cours. En vitrine il garde son accueil.
 
-    // Chargement paresseux, tolérant à l'absence du fichier.
-    var s = document.createElement('script');
-    s.src = BASE + 'ztsh-encouragements.js';
-    s.async = true;
-    s.addEventListener('load', function () {
-      phrases = (window.ZTSH_ENCOURAGEMENTS || []).slice();
-      if (phrases.length) prochain();
-      else if (zone.parentNode) zone.parentNode.removeChild(zone);
+       Conséquence heureuse : la banque de 8 Ko n'a plus à être téléchargée au
+       montage. Elle arrive au premier clic, et seulement s'il y a un clic. */
+    var bavard = (cfg.densite === 'vitrine');
+    var demande = null;   // promesse de chargement, une seule fois
+
+    function chargerBanque() {
+      if (demande) return demande;
+      demande = new Promise(function (resoudre) {
+        var s = document.createElement('script');
+        s.src = BASE + 'ztsh-encouragements.js';
+        s.async = true;
+        s.addEventListener('load', function () {
+          phrases = (window.ZTSH_ENCOURAGEMENTS || []).slice();
+          resoudre(phrases.length > 0);
+        });
+        s.addEventListener('error', function () { resoudre(false); });
+        document.head.appendChild(s);
+        zone._ztshScript = s;
+      });
+      return demande;
+    }
+
+    perso.addEventListener('click', function () {
+      chargerBanque().then(function (ok) { if (ok) prochain(); });
     });
-    s.addEventListener('error', function () {
-      if (zone.parentNode) zone.parentNode.removeChild(zone);
-    });
-    document.head.appendChild(s);
+
+    if (bavard) {
+      chargerBanque().then(function (ok) {
+        // Banque absente ou vide : l'encourageur se retire, sans bruit.
+        if (ok) prochain();
+        else if (zone.parentNode) zone.parentNode.removeChild(zone);
+      });
+    }
 
     zone.appendChild(bulle);
     zone.appendChild(perso);
-    zone._ztshScript = s;
+    // _ztshScript est posé par chargerBanque(), au moment où le script existe.
     return zone;
   }
 
@@ -384,6 +439,13 @@
     document.body.classList.add('ztsh-on');
     document.body.setAttribute('data-ztsh-densite', cfg.densite);
 
+    // Portillon présent → le personnage se relève au-dessus de .ztg-out.
+    // Détection par le script plutôt que par le nœud : zts-gate.js injecte son
+    // bouton après coup, et monter() peut passer avant lui.
+    if (document.querySelector('script[src*="zts-gate"]')) {
+      document.documentElement.style.setProperty('--ztsh-perso-garde-bas', '58px');
+    }
+
     // Fond sur l'enveloppe : le marine et les rayons quittent <html> pour
     // .ztsh-page, qui est peinte apres le fond de body et repasse donc par
     // dessus un background !important. L'enveloppe s'isole (isolation:isolate)
@@ -419,7 +481,10 @@
       var rail = construireRail(cfg);
       if (rail) racine.appendChild(rail);
     }
-    if (cfg.encourageur) { etat.encourageur = construireEncourageur(); racine.appendChild(etat.encourageur); }
+    if (cfg.encourageur) {
+      etat.encourageur = construireEncourageur(cfg);
+      if (etat.encourageur) racine.appendChild(etat.encourageur);
+    }
     if (cfg.pauseCafe)   { etat.cafe        = construireCafe();        racine.appendChild(etat.cafe); }
 
     document.body.appendChild(racine);
