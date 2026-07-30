@@ -95,6 +95,30 @@
     } catch (e) { console.warn('[ZTS] partial manquant:', file, e); }
   }
 
+  /* ---------- MENU DE NAVIGATION (déroulants + tiroir mobile) ----------
+     Le header est injecté via innerHTML : un <script> inline dedans ne
+     s'exécuterait pas. On charge donc le module à part, après l'injection. */
+  function loadMenu() {
+    if (!document.querySelector('.zts-header__nav')) return Promise.resolve();
+
+    if (!document.getElementById('zts-menu-css')) {
+      const css = document.createElement('link');
+      css.id = 'zts-menu-css';
+      css.rel = 'stylesheet';
+      css.href = SHARED + 'zts-menu.css';
+      document.head.appendChild(css);
+    }
+    if (window.ZTSMenu) { window.ZTSMenu.init(); return Promise.resolve(); }
+
+    return new Promise(resolve => {
+      const s = document.createElement('script');
+      s.id = 'zts-menu-js';
+      s.src = SHARED + 'zts-menu.js';
+      s.onload = s.onerror = () => resolve();   // le header reste utilisable si ça échoue
+      document.head.appendChild(s);
+    });
+  }
+
   /* ---------- MODALES (ouverture/fermeture robustes) ---------- */
   function openModal(id) {
     const m = document.getElementById(id);
@@ -198,6 +222,7 @@
       injectPartial('[data-zts-header]', 'header.html'),
       injectPartial('[data-zts-footer]', 'footer.html')
     ]);
+    await loadMenu();            // avant applyI18n : les libellés du menu sont traduits aussi
     dict = await loadDict(lang);
     applyI18n(document);
     wireModals();
