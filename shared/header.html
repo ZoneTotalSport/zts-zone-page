@@ -1,10 +1,17 @@
 <!-- HEADER PARTAGÉ — injecté par zts.js dans [data-zts-header] -->
-<header class="zts-header">
-  <nav class="zts-header__nav">
-    <a class="zts-btn zts-btn--primary" href="{{ROOT}}index.html"><span class="em">🏠</span><span data-i18n="nav.home">Accueil</span></a>
-    <a class="zts-btn" href="https://zonetotalsport.ca/blog.html"><span class="em">✏️</span><span data-i18n="nav.blog">Blog</span></a>
-    <a class="zts-btn zts-btn--communaute" href="https://zonetotalsport.ca/aidons-nous/"><span class="em">🤝</span><span data-i18n="nav.community">Communauté</span></a>
-    <a class="zts-btn zts-btn--dons" href="#don"><span class="em">💛</span><span data-i18n="nav.donate">Dons</span></a>
+
+<!-- BANDE DE NAVIGATION — collée en haut, AU-DESSUS du bandeau.
+     Elle reste visible au défilement, contrairement au bandeau qui se replie. -->
+<div class="zts-topbar">
+  <nav class="zts-header__nav" aria-label="Navigation principale">
+    <!-- Les 6 entrées (Accueil · Outils pédagogiques ▾ · SAÉ ▾ · Planifications ▾ ·
+         Blog · Jeux) sont construites par shared/zts-menu.js et insérées ICI,
+         avant Connexion. Pour ajouter une app : une ligne dans zts-menu.js.
+         Communauté et Dons vivent maintenant dans le footer. -->
+    <noscript>
+      <a class="zts-btn zts-btn--primary" href="{{ROOT}}index.html"><span class="em">🏠</span>Accueil</a>
+      <a class="zts-btn" href="https://zonetotalsport.ca/blog.html"><span class="em">✏️</span>Blog</a>
+    </noscript>
 
     <a class="zts-btn zts-btn--login" href="#" id="zts-login-btn" data-auth="login"><span class="em">👤</span><span data-i18n="nav.login">Connexion</span></a>
 
@@ -13,7 +20,9 @@
       <button type="button" data-lang="en" data-i18n="lang.en">EN</button>
     </div>
   </nav>
+</div>
 
+<header class="zts-header">
   <div class="zts-header__brandwrap">
     <a class="zts-header__brand" href="{{ROOT}}index.html" aria-label="Zone Total Sport"><span class="w1">ZONE</span> <span class="w2">TOTAL</span> <span class="w3">SPORT</span></a>
     <div class="zts-header__meta">

@@ -1,0 +1,159 @@
+/* ============================================================
+   ZONE TOTAL SPORT — MENU DE NAVIGATION (zts-menu.css)
+   Menus déroulants du header + panneau mobile.
+   Chargé automatiquement par zts.js après l'injection du header.
+
+   Les panneaux sont posés sur <body> en position:fixed : .zts-header
+   a `overflow:hidden`, un panneau en absolute serait rogné.
+   ============================================================ */
+
+/* ---------- Bande de navigation, au-dessus du bandeau ----------
+   La nav est sortie de .zts-header (voir header.html) et forme sa propre
+   bande collée en haut. Le bandeau bleu est décalé vers le bas d'autant.
+   Ces deux règles arrivent APRÈS zts.css / zts-header.css dans la cascade
+   (feuille injectée par zts.js), donc elles l'emportent sans !important. */
+.zts-topbar {
+  position:fixed; top:0; left:0; right:0; z-index:210;
+  display:flex; justify-content:center;
+  padding:9px clamp(10px,2.5vw,28px);
+  background:#0F0F2E;
+  border-bottom:3px solid #000;
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+.zts-topbar .zts-header__nav { width:100%; max-width:1400px; gap:6px; }
+/* Dans une bande fine, les boutons penchés se font rogner : on les redresse. */
+.zts-topbar .zts-header__nav > * { rotate:0; }
+
+/* Version compacte des boutons : au gabarit d'origine, les 8 éléments
+   passaient sur trois lignes et la bande faisait 141px de haut. */
+.zts-topbar .zts-btn {
+  padding:7px 12px; font-size:14px; gap:6px; border-radius:12px;
+  box-shadow:0 3px 0 var(--zts-noir, #111);
+}
+.zts-topbar .zts-btn:hover  { transform:translateY(-2px); box-shadow:0 5px 0 var(--zts-noir, #111); }
+.zts-topbar .zts-btn:active { transform:translateY(1px);  box-shadow:0 2px 0 var(--zts-noir, #111); }
+.zts-topbar .zts-btn .em { font-size:1em; }
+.zts-topbar .zts-lang button { padding:5px 10px; font-size:13px; }
+
+/* Le bandeau descend sous la bande. --zts-topbar-h est publiée par zts-menu.js. */
+.zts-header { top:var(--zts-topbar-h, 62px); }
+
+.ztsm-wrap { position:relative; display:inline-flex; }
+
+/* Chevron du déclencheur */
+.ztsm-chev { display:inline-flex; transition:transform .2s; font-size:.8em; }
+.ztsm-chev svg { width:14px; height:14px; }
+[aria-expanded="true"] > .ztsm-chev { transform:rotate(180deg); }
+
+/* ---------- Panneau déroulant (desktop) ---------- */
+.ztsm-panel {
+  position:fixed; z-index:9100; padding:14px;
+  background:#0F0F2E; border:3px solid #000; border-radius:16px;
+  box-shadow:6px 6px 0 #000; color:#fff;
+  font-family:'Fredoka','Quicksand',system-ui,sans-serif;
+}
+.ztsm-panel[hidden] { display:none; }
+.ztsm-panel::before {                 /* flèche vers le bouton parent */
+  content:""; position:absolute; top:-11px; left:var(--ztsm-arrow,50%); margin-left:-11px;
+  border-left:11px solid transparent; border-right:11px solid transparent;
+  border-bottom:11px solid #000;
+}
+.ztsm-panel-title {
+  font-family:'Caveat','Patrick Hand',cursive; font-size:15px; letter-spacing:1px;
+  text-transform:uppercase; color:rgba(255,255,255,.5); margin:0 4px 10px; text-align:left;
+}
+.ztsm-grid { display:grid; grid-template-columns:1fr; gap:6px; }
+.ztsm-grid.is-wide { grid-template-columns:1fr 1fr; }
+
+/* ---------- Carte d'app ---------- */
+.ztsm-card {
+  display:flex; align-items:flex-start; gap:10px; text-align:left;
+  padding:9px 10px; border-radius:10px; min-height:44px; text-decoration:none;
+  transition:background .15s, transform .15s;
+}
+.ztsm-card:hover, .ztsm-card:focus-visible { background:rgba(255,255,255,.10); transform:translateX(3px); }
+.ztsm-card[aria-disabled="true"] { opacity:.55; cursor:not-allowed; }
+.ztsm-card[aria-disabled="true"]:hover { background:none; transform:none; }
+.ztsm-pill {
+  width:32px; height:32px; flex:0 0 32px; border:2px solid #000; border-radius:8px;
+  display:flex; align-items:center; justify-content:center; color:#0F0F2E;
+  font-weight:700; font-size:13px;
+}
+.ztsm-pill svg { width:17px; height:17px; stroke-width:2.5; }
+.ztsm-body { min-width:0; }
+.ztsm-name {
+  color:#fff; font-size:15px; line-height:1.25; font-weight:600;
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+}
+.ztsm-desc {
+  font-family:'Caveat','Patrick Hand',cursive; font-size:16px; line-height:1.2;
+  color:rgba(255,255,255,.65); margin-top:1px;
+}
+
+/* Badges */
+.ztsm-badge {
+  font-family:'Fredoka','Quicksand',sans-serif; font-weight:600; font-size:10px; line-height:1;
+  padding:3px 7px; border:1px solid #000; border-radius:999px; letter-spacing:.4px; white-space:nowrap;
+}
+.ztsm-badge.is-new  { background:#FFD700; color:#0F0F2E; }
+.ztsm-badge.is-soon { background:#6B7280; color:#fff; }
+
+/* Anneau de focus */
+.ztsm-panel :focus-visible, .ztsm-mob :focus-visible, .ztsm-burger:focus-visible {
+  outline:3px solid #00E5FF; outline-offset:2px; border-radius:8px;
+}
+
+/* ---------- Bascule mobile ---------- */
+.ztsm-burger { display:none; }
+@media (max-width:767px) {
+  .zts-header__nav > .ztsm-item { display:none; }   /* les 6 entrées passent dans le tiroir */
+  .ztsm-burger { display:inline-flex; }
+}
+
+/* ---------- Panneau mobile plein écran ---------- */
+.ztsm-mob {
+  position:fixed; inset:0; z-index:9500; background:#0F0F2E; color:#fff;
+  transform:translateX(100%); transition:transform .28s ease;
+  display:flex; flex-direction:column; overflow-y:auto;
+  font-family:'Fredoka','Quicksand',system-ui,sans-serif;
+}
+.ztsm-mob.is-open { transform:translateX(0); }
+.ztsm-mob[hidden] { display:none; }
+.ztsm-mob-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; border-bottom:2px solid rgba(255,255,255,.12);
+}
+.ztsm-mob-brand { font-family:'Luckiest Guy',cursive; font-size:19px; letter-spacing:.5px; }
+.ztsm-mob-close {
+  width:44px; height:44px; display:inline-flex; align-items:center; justify-content:center;
+  color:#fff; border:2px solid #000; border-radius:10px; background:rgba(255,255,255,.06);
+  font:inherit; font-size:20px; cursor:pointer; padding:0;
+}
+.ztsm-mob-list { padding:10px 12px 40px; }
+.ztsm-mob-row { position:relative; }
+.ztsm-mob-link, .ztsm-mob-acc {
+  width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:14px 12px; min-height:52px; color:#fff; font-size:18px; font-weight:600;
+  text-align:left; text-decoration:none; border-radius:12px;
+  background:none; border:0; font-family:inherit; cursor:pointer;
+}
+.ztsm-mob-link:hover, .ztsm-mob-acc:hover { background:rgba(255,255,255,.07); }
+.ztsm-mob-label { position:relative; display:inline-block; padding-bottom:4px; }
+.ztsm-mob-acc .ztsm-chev svg { width:18px; height:18px; }
+.ztsm-mob-sub { padding:2px 0 10px 8px; display:grid; gap:4px; }
+.ztsm-mob-sub[hidden] { display:none; }
+.ztsm-mob-sub .ztsm-card { min-height:48px; }
+
+/* ---------- État actif : barre jaune sous le libellé ---------- */
+.zts-header__nav .ztsm-item.is-active { position:relative; }
+.zts-header__nav .ztsm-item.is-active::after {
+  content:""; position:absolute; left:14px; right:14px; bottom:-5px;
+  height:3px; background:#FFD700; border-radius:2px;
+}
+.ztsm-mob-row.is-active .ztsm-mob-label::after {
+  content:""; position:absolute; left:0; right:0; bottom:0;
+  height:3px; background:#FFD700; border-radius:2px;
+}
+
+/* Grille 2 colonnes seulement si la place le permet */
+@media (max-width:600px) { .ztsm-grid.is-wide { grid-template-columns:1fr; } }
