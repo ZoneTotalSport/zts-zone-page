@@ -1,7 +1,7 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 29 juillet 2026, palier d) livré — `suppleance` a
-son personnage. Il ne reste que `jeux`.
+**Dernière mise à jour** : 31 juillet 2026, palier e) livré — **le chantier du
+personnage est clos**. Les six apps habillées ont leur Mr Root.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
 ---
@@ -116,9 +116,13 @@ La profondeur relative est conservée, donc tous les `../../` résolvent.
 ### 2. ~~Fusionner la vague 1~~ — FAIT le 27 juillet
 
 `vague/1-whitelist` est dans `main`, poussée, build Pages au vert, trois apps
-vérifiées en production. **Restent à fusionner : `pilote/plan-b-meteo` et
-`pilote/suppleance`**, après rebasage sur `main` (elles précèdent `549a143`).
-`pilote/nhl-playoffs` est abandonnée.
+vérifiées en production.
+
+**Correction du 31 juillet** : cette section disait « Restent à fusionner :
+`pilote/plan-b-meteo` et `pilote/suppleance` ». **C'est faux.** Les deux
+branches sont entièrement contenues dans `main` — `git rev-list --count
+main..pilote/plan-b-meteo` et `…suppleance` renvoient **0** l'une comme
+l'autre. Rien à fusionner. `pilote/nhl-playoffs` reste abandonnée.
 
 ### 3. Vagues suivantes
 
@@ -160,6 +164,11 @@ Cinq pièges déjà rencontrés, à ne pas re-diagnostiquer :
   normalement, à la bonne taille, et on l'inspecte depuis le parent.
   Sans ça, on conclut « le personnage est absent en production » alors qu'il
   est là. C'est arrivé au palier c).
+- **En émulation mobile, `innerWidth` ment.** Le banc a rapporté
+  `innerWidth: 792` alors que `document.documentElement.clientWidth` valait
+  `375` — c'est ce dernier qui pilote les media queries. Une sonde qui attend
+  `innerWidth === 375` ne se déclenche jamais. **Attendre sur
+  `document.documentElement.clientWidth`.** Vu au palier e).
 - **Une iframe posée hors écran ne déclenche pas le chargement paresseux.**
   L'image du personnage porte `loading="lazy"` : dans une iframe en
   `left:-9999px` elle ne se charge jamais et la sonde rapporte
@@ -195,17 +204,54 @@ Cinq pièges déjà rencontrés, à ne pas re-diagnostiquer :
 - **`TICKET-TTF-COPIE-UNIQUE.md`** puis **`TICKET-GLYPHES-ZTS.md`**, dans cet
   ordre.
 
-## POINT DE REPRISE — 29 juillet, après le palier d)
+## POINT DE REPRISE — 31 juillet, chantier du personnage CLOS
 
 ### Là où on s'arrête exactement
 
-**Le prochain geste est le palier e), le dernier** : `jeux`, seule app de
-densité `travail` encore sans personnage. `musique` et `plan-b-meteo` sont en
-`vitrine`, le personnage y est actif par défaut : rien à activer.
+**Le personnage est terminé.** Plus aucun palier. Les prochains chantiers sont
+listés plus bas dans « Ce qui attend » : banc `tni`, les deux tickets de
+police, la vague 2. L'accueil et le temps 2 restent bloqués sur Joey.
 
-**Attention sur `jeux`** : elle cumule `fondSurEnveloppe: true` et un fond
-imposé en `!important` (D23). Deux mécanismes sur la même app. Si le
-personnage y pose problème, isoler lequel des deux avant de conclure.
+### ~~Palier e)~~ — FAIT le 31 juillet, le dernier
+
+`jeux` (`2502a88`), un mot de diff, poussée, build vert, **vérifiée en
+production**. Gardée pour la fin parce qu'elle cumule `fondSurEnveloppe: true`
+et un fond imposé en `!important` (D23).
+
+**Les deux mécanismes cohabitent, mesuré.** `.ztsh-page` porte `ztsh-fond`,
+`isolation: isolate`, `min-height: 100vh`. Le personnage vit à z-index 350, le
+fond marine à −2 : trente-cinq étages d'écart, aucune interaction.
+
+> **Piège de mesure, à ne pas refaire** : lire
+> `getComputedStyle(env).backgroundColor` sur `.ztsh-page` renvoie
+> « transparent » et **ne prouve rien**. Le marine n'est pas sur le fond de
+> l'enveloppe, il est porté par `.ztsh-page.ztsh-fond::after` — calque fixe,
+> `inset: 0`, z-index −2, `pointer-events: none`. Les rayons sont sur
+> `::before` à −1. Mesurer `getComputedStyle(env, '::after')`.
+
+| Cas | Garde | Résultat |
+|---|---|---|
+| desktop 1280×720, tel quel | aucune | perso x=890→1174, casier x=16→503, chevauchement 0 |
+| après clic | — | 100 messages, bulle ouverte, perso s'élargit à x=766, chevauchement 0 |
+| coin saturé 420×600 | — | **personnage effacé, enveloppe intacte** |
+| retour au normal | — | personnage revenu, `isolation: isolate` toujours là |
+| mobile 375×812 | basse 154 px | perso au-dessus du casier, marine et `ztsh-fond` intacts |
+
+`jeux` ne porte **aucun bouton flottant**. Éléments fixes recensés :
+`header.zts-header` 40 %, `header.header` 11 %, `#ztsCookieBanner` 11 % en
+desktop et 40 % en mobile — aucun ne coupe la zone du personnage.
+
+**Production, chargement naturel à 1280×800** : personnage présent, image
+chargée, perso x=890→1174, chevauchement 0 avec le casier, `ztsh-fond` posée,
+marine `rgb(6,23,38)` sur `::after` à z−2, `isolation: isolate`, 1439
+`.game-card`, banque non téléchargée au chargement, console propre.
+
+**Vérifié avec le nouveau menu du header** (`5fed3b3`, arrivé d'une autre
+session pendant le palier — rebasé dessus). `shared/zts-menu.css` occupe
+z-index 210 pour la bande de nav, 9100 pour les panneaux déroulants, 9500 pour
+le plein écran mobile. L'échelle du shell est 300–399 : la bande passe
+**sous** le casier, les panneaux **au-dessus**. Le plein écran à 9500 couvre
+toute la vue, donc ignoré par la règle des 60 %. Aucun conflit.
 
 ### ~~Palier d)~~ — FAIT le 29 juillet
 
@@ -331,11 +377,11 @@ une décision écrite. Cocher le prescan ne suffit pas.
 ### État de la production
 
 **Six** apps habillées et saines : `jeux`, `sae`, `musique`, `plan-b-meteo`,
-`suppleance`, `educatifs`. Personnage actif sur **cinq** : `musique` et
+`suppleance`, `educatifs`. **Personnage actif sur les six** : `musique` et
 `plan-b-meteo` par la densité `vitrine`, `sae` (palier b), `educatifs`
-(palier c), `suppleance` (palier d). **Reste `jeux`, et c'est tout.**
-`main` poussé à `045a714`, build vert, `Verifie l'habillage` au vert (seul
-avertissement : `jeux`, D23, antérieur).
+(palier c), `suppleance` (palier d), `jeux` (palier e). `main` poussé à
+`2502a88`, build vert, `Verifie l'habillage` au vert (seul avertissement :
+`jeux`, D23, antérieur).
 
 ### Ce qui attend, dans l'ordre
 
