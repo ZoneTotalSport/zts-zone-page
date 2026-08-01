@@ -386,9 +386,11 @@ une décision écrite. Cocher le prescan ne suffit pas.
 ### Ce qui attend, dans l'ordre
 
 1. **Palier c) puis d)** de la garde du personnage — `educatifs` d'abord.
-2. **Banc `tni`** — avant d'activer le fond marine en densité `projection`.
-   `tni` pose un `#gymBg` fixe à 15 % d'opacité ; le marine passerait au
-   travers, le `<canvas>` du tableau garde son blanc. À voir tourner.
+2. ~~**Banc `tni`**~~ — **FAIT le 1er août. Il a trouvé un défaut, pas une
+   question de décor.** Voir « Ce que le banc tni a trouvé » ci-dessous. Le
+   correctif est écrit et validé au banc, **pas encore posé** : il touche
+   `assets/ztsh-shell.css`, partagé par les six apps en production. Attend le
+   feu vert de Joey.
 3. **L'accueil** — `index.html` n'a jamais reçu l'habillage. **Toujours
    bloqué**, mais on sait enfin où chercher. `_maquettes/` est vide. La
    maquette de référence (md5 `fc6e6551ee6b97770b6f9b61aa9814b8`) reste
@@ -409,6 +411,94 @@ une décision écrite. Cocher le prescan ne suffit pas.
 4. **Temps 2** — suppression des apps sportives, après que Joey ait posé les
    9 redirections (`redirections-cloudflare.csv`) et que je les aie vérifiées.
 5. **Vague 2** — 22 gabarits, protocole allégé décrit plus bas.
+
+## Ce que le banc `tni` a trouvé — 1er août
+
+**La question de départ était le décor. La réponse est un défaut.**
+
+On voulait savoir si le marine, activé en densité `projection`, passerait au
+travers du `#gymBg` de `tni` (fixe, `inset: 0`, opacité 15 %). La vraie
+trouvaille est ailleurs.
+
+### Le défaut
+
+Deux lignes voisines dans `monter()`, une seule est conditionnelle :
+
+```js
+if (cfg.fond) document.documentElement.classList.add('ztsh-on');  // <html> — conditionnel
+document.body.classList.add('ztsh-on');                           // <body> — TOUJOURS
+```
+
+Or c'est `<html>` qui porte le marine, et `body.ztsh-on` qui met le fond de
+l'app à `transparent` :
+
+```css
+html.ztsh-on { background-color: var(--ztsh-marine); /* + dégradés */ }
+body.ztsh-on { background: transparent; color: var(--ztsh-sur-marine); }
+```
+
+En densité `projection`, `cfg.fond` est forcé à `false` par `normaliser()`.
+Donc : **le shell efface le fond de l'app et ne met rien à la place.** Ni
+`<html>` ni `<body>` ne peignent quoi que ce soit.
+
+Mesuré sur `tni`, qui pose `body { background: var(--navy) }` — sans
+`!important`, donc sans défense :
+
+| État | `html` | `body` | Texte |
+|---|---|---|---|
+| `tni` seule, sans shell | transparent | `rgb(13,27,46)` navy | blanc |
+| **montée en `projection`** | **transparent** | **transparent** | `rgb(230,244,250)` |
+
+Le navy disparaît, la couleur du texte est réécrite au passage.
+
+### Pourquoi personne ne l'a vu
+
+**Aucune app en production ne tourne en `projection`.** `nba-playoffs` a été
+retirée de la vague 1, `nhl-playoffs` abandonnée, `tni` n'est pas habillée,
+`planificateur` pas migrée. Le défaut est **latent**, pas actif.
+
+Il serait devenu actif au premier montage en `projection` — et le premier
+prévu est `planificateur`, dont le mode `?v2=1` doit justement descendre en
+`projection` (D24, décidé le 28 juillet). On l'aurait livré avec.
+
+### Le correctif, écrit et validé au banc
+
+Ne pas surcharger : **restreindre le sélecteur**. La transparence de `body`
+n'a de sens que si `<html>` porte effectivement le marine.
+
+```css
+/* avant */  body.ztsh-on               { background: transparent; color: var(--ztsh-sur-marine); }
+/* après */  html.ztsh-on body.ztsh-on  { background: transparent; color: var(--ztsh-sur-marine); }
+```
+
+| Densité | Avant | Après |
+|---|---|---|
+| `projection` | body transparent, texte réécrit | **navy `rgb(13,27,46)` et texte blanc rendus à l'app** |
+| `travail` | transparent sur marine | **inchangé** |
+| `vitrine` | transparent sur marine | **inchangé** |
+
+**Une fausse piste, pour mémoire** : `background: revert` dans une règle plus
+spécifique ne marche pas. `revert` remonte à l'origine navigateur, pas à la
+règle d'auteur de l'app — `body` retombe sur « transparent » et le défaut
+reste entier. Il faut retirer la déclaration, pas la contredire.
+
+### Ce qu'on sait aussi, accessoirement
+
+Le `<canvas>` du tableau ne risquait rien : `#canvas-container` est opaque
+(`#ffffff`) à z-index 1, au-dessus du `#gymBg` à z-index 0. Aucun fond de
+shell ne peut le traverser. La crainte d'origine était infondée — c'est la
+ligne d'à côté qui posait problème.
+
+### Reste à décider
+
+Le correctif touche `assets/ztsh-shell.css`, **partagé par les six apps en
+production**. Le banc dit `travail` et `vitrine` inchangées. À poser quand
+Joey donne le feu vert, et à vérifier en production sur les six.
+
+Question ouverte, distincte : **faut-il un fond marine en `projection` ?**
+Une fois le défaut corrigé, l'app garde son propre fond, ce qui est
+probablement le bon comportement pour une surface de projection. Le marine en
+`projection` n'a plus l'air nécessaire.
 
 ## Deux mécanismes décidés le 28 juillet
 
