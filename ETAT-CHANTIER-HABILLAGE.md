@@ -389,23 +389,47 @@ une décision écrite. Cocher le prescan ne suffit pas.
 2. ~~**Banc `tni`**~~ — **FAIT. Il a trouvé un défaut, pas une question de
    décor.** Correctif posé et vérifié en production le 2 août (`f0f6ece`).
    Voir « Ce que le banc tni a trouvé » ci-dessous.
-3. **L'accueil** — `index.html` n'a jamais reçu l'habillage. **Toujours
-   bloqué**, mais on sait enfin où chercher. `_maquettes/` est vide. La
-   maquette de référence (md5 `fc6e6551ee6b97770b6f9b61aa9814b8`) reste
-   introuvable. **Trois versions voisines dorment à la corbeille**, toutes
-   titrées « ZTS — Direction C · WOW + personnages » :
+3. **L'accueil** — **DÉBLOQUÉ le 2 août.** La maquette de référence (md5
+   `fc6e6551…`) reste introuvable et `_maquettes/` est toujours vide, mais
+   **trois versions voisines dormaient à la corbeille**, toutes titrées
+   « ZTS — Direction C · WOW + personnages », datées du 25 juillet :
 
-   | Fichier | Empreinte | Taille | Heure (25 juillet) |
+   | Fichier | Taille | Heure | Ce qu'elle apporte |
    |---|---|---|---|
-   | `zts-final-marine.html` | `e23eeddb…` | 37,0 Ko | 9:00 |
-   | `zts-final-marine_1.html` | `5394bc1c…` | 37,3 Ko | 9:08 |
-   | `zts-final-marine_2.html` | `f10e09bc…` | 42,0 Ko | 9:12 |
+   | `zts-final-marine.html` | 37,0 Ko | 9:00 | onglets métier non colorés |
+   | `zts-final-marine_1.html` | 37,3 Ko | 9:08 | onglets colorés |
+   | **`zts-final-marine_2.html`** | **42,0 Ko** | **9:12** | **RETENUE** |
 
-   **Aucune ne correspond à l'empreinte consignée.** Ce sont des itérations
-   successives, pas la version retenue. Joey doit dire laquelle fait foi — ou
-   retrouver la bonne — avant qu'on touche à l'accueil. Ne rien reproduire de
-   mémoire, et ne pas choisir à sa place : trois candidates valent zéro
-   certitude.
+   **Joey a tranché : la 9:12 fait foi.** C'est la plus avancée, et pas
+   seulement par la taille — elle seule porte `body[data-metier]`, un bloc de
+   configuration `METIERS` (personnage et textes par métier), l'animation
+   `.bascule` au changement, et des `id` sur le hero pour que le texte se
+   refasse. C'est la version où le sélecteur de métier **refait vraiment la
+   page**, ce que promet la ligne du hero. Elle est aussi la seule dont les
+   chemins d'images sont relatifs à la racine (`/perso-ep.png`), donc prête
+   pour le dépôt — les deux autres pointent en dur vers le domaine.
+
+   Copies de travail dans le scratchpad de session ; **les originaux n'ont pas
+   été touchés dans la corbeille**.
+
+   > **Correction, pour ne pas la refaire** : j'ai d'abord rapporté que les
+   > compteurs des versions 2 et 3 étaient faux (222, 203…). C'était une
+   > erreur de lecture. **Les trois portent les mêmes vraies cibles** —
+   > `data-cible="1439"`, `"1790"`, `"333"`. Les chiffres vus à l'écran
+   > étaient l'animation de comptage saisie en plein vol. Il n'y a aucun
+   > compteur à corriger.
+
+4. **Le personnage flottant est retiré du site** — décision de Joey, 2 août
+   (`6087e83`). Mr. Root reste la mascotte : héros, images de marque,
+   maquette. C'est la bulle qui suit le lecteur qui disparaît. Les trois
+   densités portent `encourageur: false`, les quatre apps qui l'activaient
+   explicitement ont perdu le flag. Vérifié sur les six : aucun personnage
+   flottant, banque jamais téléchargée, image `perso-*-264` jamais demandée,
+   casier et pause café intacts.
+
+   Ce commit défait les paliers b) à e) de la même journée. **Les paliers
+   n'étaient pas une erreur** : la garde générique qu'ils ont produite
+   (`0ca4f8b`) reste écrite et testée si le personnage revient un jour.
 4. **Temps 2** — suppression des apps sportives, après que Joey ait posé les
    9 redirections (`redirections-cloudflare.csv`) et que je les aie vérifiées.
 5. **Vague 2** — 22 gabarits, protocole allégé décrit plus bas.
