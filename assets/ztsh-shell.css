@@ -268,7 +268,17 @@ html.ztsh-on {
   background-repeat: repeat, no-repeat, no-repeat;
   background-attachment: fixed, fixed, fixed;
 }
-body.ztsh-on {
+/* Sélecteur restreint à dessein — corrigé le 1er août, banc tni.
+   `monter()` pose `ztsh-on` sur <html> SEULEMENT si cfg.fond, mais sur <body>
+   TOUJOURS. En densité projection, où normaliser() force cfg.fond à false, la
+   version non restreinte de cette règle effaçait le fond de l'app sans que
+   rien ne le remplace : ni <html> ni <body> ne peignaient plus.
+   Mesuré sur tni — body passait de #0d1b2e à transparent.
+   La transparence de body n'a de sens que si <html> porte le marine ; on
+   n'écrit donc la règle que dans ce cas. Ne pas « corriger » par une surcharge
+   plus spécifique : `background: revert` remonte à l'origine navigateur, pas à
+   la règle d'auteur de l'app, et ne rend rien. */
+html.ztsh-on body.ztsh-on {
   background: transparent;
   color: var(--ztsh-sur-marine);
 }
