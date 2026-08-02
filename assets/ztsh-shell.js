@@ -103,7 +103,12 @@
   var DEFAUTS = {
     // Accueil, atterrissage. Ombres dures colorées, contours 3,5px, titres au
     // maximum.
-    vitrine:    { rail: true,  metierSelecteur: 'auto', encourageur: true,  pauseCafe: true,  fond: true },
+    // encourageur PASSE A false le 2 aout, sur decision de Joey : le
+    // personnage flottant est retire du site. Mr. Root reste la mascotte —
+    // heros, images de marque, maquette — mais plus de bulle qui suit le
+    // lecteur. Les trois densites sont donc a false ; l'option existe encore
+    // pour qui la demande explicitement, personne ne la demande.
+    vitrine:    { rail: true,  metierSelecteur: 'auto', encourageur: false, pauseCafe: true,  fond: true },
     // Planificateur, banque, grilles, présences. Même identité, volume
     // réduit : ombres noires 4px, contours 2px, titres d'un cran plus bas,
     // animations coupées sauf survol.
