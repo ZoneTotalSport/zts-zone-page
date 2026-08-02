@@ -1,7 +1,7 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 31 juillet 2026, palier e) livré — **le chantier du
-personnage est clos**. Les six apps habillées ont leur Mr Root.
+**Dernière mise à jour** : 2 août 2026, banc `tni` fait et son correctif posé.
+Le chantier du personnage est clos depuis le 31 juillet.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
 ---
@@ -386,11 +386,9 @@ une décision écrite. Cocher le prescan ne suffit pas.
 ### Ce qui attend, dans l'ordre
 
 1. **Palier c) puis d)** de la garde du personnage — `educatifs` d'abord.
-2. ~~**Banc `tni`**~~ — **FAIT le 1er août. Il a trouvé un défaut, pas une
-   question de décor.** Voir « Ce que le banc tni a trouvé » ci-dessous. Le
-   correctif est écrit et validé au banc, **pas encore posé** : il touche
-   `assets/ztsh-shell.css`, partagé par les six apps en production. Attend le
-   feu vert de Joey.
+2. ~~**Banc `tni`**~~ — **FAIT. Il a trouvé un défaut, pas une question de
+   décor.** Correctif posé et vérifié en production le 2 août (`f0f6ece`).
+   Voir « Ce que le banc tni a trouvé » ci-dessous.
 3. **L'accueil** — `index.html` n'a jamais reçu l'habillage. **Toujours
    bloqué**, mais on sait enfin où chercher. `_maquettes/` est vide. La
    maquette de référence (md5 `fc6e6551ee6b97770b6f9b61aa9814b8`) reste
@@ -489,16 +487,28 @@ Le `<canvas>` du tableau ne risquait rien : `#canvas-container` est opaque
 shell ne peut le traverser. La crainte d'origine était infondée — c'est la
 ligne d'à côté qui posait problème.
 
-### Reste à décider
+### Posé et vérifié en production — 2 août (`f0f6ece`)
 
-Le correctif touche `assets/ztsh-shell.css`, **partagé par les six apps en
-production**. Le banc dit `travail` et `vitrine` inchangées. À poser quand
-Joey donne le feu vert, et à vérifier en production sur les six.
+Feu vert de Joey. Build Pages au vert, la règle restreinte est en ligne.
 
-Question ouverte, distincte : **faut-il un fond marine en `projection` ?**
-Une fois le défaut corrigé, l'app garde son propre fond, ce qui est
-probablement le bon comportement pour une surface de projection. Le marine en
-`projection` n'a plus l'air nécessaire.
+**Les six apps, chargement naturel de la production, une iframe chacune** :
+`html.ztsh-on` posée, marine `rgb(6,23,38)`, casier et personnage présents,
+texte `rgb(230,244,250)`, sélecteur restreint bien présent dans la feuille.
+`body` transparent sur cinq ; `jeux` garde `rgb(248,250,252)` par son propre
+`!important` (D23), exactement comme avant. **Rien n'a changé pour elles** —
+c'était la condition du correctif.
+
+`tni` en `projection` : `body` garde son `rgb(13,27,46)` et son texte blanc.
+Le défaut est fermé.
+
+### Décidé le 2 août : pas de marine en `projection`
+
+Le correctif rend son fond à l'app, ce qui **est** le bon comportement pour
+une surface de projection : l'app occupe le plein cadre et décide de son
+décor. **L'idée d'un fond marine en `projection` est abandonnée.** Elle avait
+été mise en attente le 29 juillet « avant le banc tni » — le banc a répondu.
+
+`projection` reste donc : tokens seuls, aucun chrome, aucun fond imposé.
 
 ## Deux mécanismes décidés le 28 juillet
 
