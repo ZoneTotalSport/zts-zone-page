@@ -1,0 +1,257 @@
+/* ==========================================================================
+   ZTS — PATRON DE PAGE  ·  shared/zts-modele.css
+   --------------------------------------------------------------------------
+   Extrait de la maquette retenue le 2 août 2026 (« ZTS — Direction C · WOW +
+   personnages », version de 9:12). C'est le vocabulaire visuel commun des
+   pages du site : boutons, cartes, panneaux, titres, hero, compteurs, bande
+   défilante, sélecteur de métier.
+
+   CE QUE CE FICHIER NE FAIT PAS, ET POURQUOI
+   Le décor de fond, les rayons, la trame, le casier d'outils et la pause café
+   appartiennent au shell (`assets/ztsh-shell.css`, préfixe `ztsh-`). La barre
+   de navigation appartient au header partagé (`shared/zts-header.css`, préfixe
+   `ztsm-`). Ne pas les redéfinir ici : la maquette les portait parce qu'elle
+   était une page autonome, pas parce qu'ils sont du ressort du patron.
+
+   Le personnage flottant de la maquette (`.encourageur`) n'est PAS porté.
+   Décision de Joey du 2 août : Mr. Root reste la mascotte, la bulle qui suit
+   le lecteur disparaît.
+
+   PRÉFIXE `ztsp-` — choisi parce qu'il était libre au dépôt. Les noms génériques
+   de la maquette (`.btn`, `.card`, `.hero`, `.grid`) entreraient en collision
+   avec les 100 Ko de CSS de l'accueil et avec Tailwind. Tout est donc préfixé.
+
+   TOKENS — identité seulement. La règle du chantier tient ici aussi : on
+   rebase les couleurs et les polices, jamais les dimensions d'une page hôte.
+   ========================================================================== */
+
+:root {
+  /* ---- Identité, valeurs de la maquette du 2 août ---- */
+  --ztsp-cyan:      #00C2E8;
+  --ztsp-cyan-vif:  #3ADCFA;
+  --ztsp-cyan-dark: #075A6B;
+  --ztsp-jaune:     #FFFC00;
+  --ztsp-jaune-deep:#C4C200;
+  --ztsp-rose:      #FF0061;
+  --ztsp-lime:      #A3FF00;
+  --ztsp-orange:    #FFA200;
+  --ztsp-noir:      #08131E;
+  --ztsp-surface:   #FFFFFF;
+  --ztsp-ink:       #0C1720;
+  --ztsp-ink-soft:  #5B6773;
+  --ztsp-sur-fond:  #E6F4FA;
+  --ztsp-sur-fond-doux: #C4E1EE;
+
+  /* ---- Dimensions propres au patron. Ne remplacent aucun token d'hôte. ---- */
+  --ztsp-r-btn:  11px;
+  --ztsp-r-card: 16px;
+
+  /* ---- Polices ---- */
+  --ztsp-f-display: 'ZoneTotalSport', 'Luckiest Guy', system-ui, sans-serif;
+  --ztsp-f-titre:   'Luckiest Guy', system-ui, sans-serif;
+  --ztsp-f-punch:   'Bangers', system-ui, sans-serif;
+  --ztsp-f-corps:   'Nunito', system-ui, sans-serif;
+  --ztsp-f-note:    'Schoolbell', cursive;
+}
+
+/* ==========================================================================
+   1. BOUTONS
+   L'ombre est double : un aplat vertical qui donne l'épaisseur, un décalé qui
+   donne le relief BD. L'appui écrase les deux, c'est ce qui fait le « clac ».
+   ========================================================================== */
+.ztsp-btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--ztsp-f-titre); letter-spacing: .6px; font-size: 15px;
+  padding: 13px 25px 11px; border-radius: var(--ztsp-r-btn);
+  background: linear-gradient(180deg, var(--ztsp-cyan-vif), var(--ztsp-cyan));
+  color: #03323C; border: 3px solid var(--ztsp-noir);
+  box-shadow: 0 5px 0 var(--ztsp-cyan-dark), 5px 9px 0 rgba(0,0,0,.35);
+  transition: .09s; text-decoration: none; cursor: pointer;
+}
+.ztsp-btn:hover  { transform: translateY(-2px); box-shadow: 0 7px 0 var(--ztsp-cyan-dark), 6px 12px 0 rgba(0,0,0,.35); }
+.ztsp-btn:active { transform: translateY(4px);  box-shadow: 0 1px 0 var(--ztsp-cyan-dark), 2px 4px 0 rgba(0,0,0,.35); }
+.ztsp-btn:focus-visible { outline: 3px solid var(--ztsp-jaune); outline-offset: 4px; }
+.ztsp-btn--jaune {
+  background: linear-gradient(180deg, #FFFF7A, var(--ztsp-jaune)); color: #2B2A00;
+  box-shadow: 0 5px 0 var(--ztsp-jaune-deep), 5px 9px 0 rgba(0,0,0,.35);
+}
+.ztsp-btn--jaune:hover  { box-shadow: 0 7px 0 var(--ztsp-jaune-deep), 6px 12px 0 rgba(0,0,0,.35); }
+.ztsp-btn--jaune:active { box-shadow: 0 1px 0 var(--ztsp-jaune-deep), 2px 4px 0 rgba(0,0,0,.35); }
+.ztsp-btn--sm { font-size: 13px; padding: 9px 16px 7px; border-width: 2.5px; box-shadow: 0 4px 0 var(--ztsp-cyan-dark); }
+
+/* ==========================================================================
+   2. TITRES
+   `.ztsp-offset` a besoin d'un attribut data-txt identique à son texte : les
+   deux calques colorés sont des pseudo-éléments qui le reprennent.
+   ========================================================================== */
+.ztsp-offset {
+  position: relative; display: inline-block; font-family: var(--ztsp-f-titre);
+  font-size: clamp(38px, 6.2vw, 76px); line-height: .92; letter-spacing: 1px;
+  color: #fff; margin-top: 14px;
+}
+.ztsp-offset::before,
+.ztsp-offset::after { content: attr(data-txt); position: absolute; left: 0; top: 0; width: 100%; z-index: -1; }
+.ztsp-offset::before { color: var(--ztsp-cyan); transform: translate(-6px, 5px); }
+.ztsp-offset::after  { color: var(--ztsp-rose); transform: translate(6px, -4px); opacity: .85; z-index: -2; }
+
+.ztsp-eyebrow {
+  display: inline-block; font-family: var(--ztsp-f-punch); letter-spacing: 1.6px;
+  font-size: 17px; background: var(--ztsp-jaune); color: #2B2A00;
+  padding: 4px 13px 2px; border-radius: 7px; border: 3px solid var(--ztsp-noir);
+  transform: rotate(-1.6deg); box-shadow: 3px 3px 0 rgba(0,0,0,.45);
+}
+.ztsp-eyebrow--lime   { background: var(--ztsp-lime);   color: #1E3300; }
+.ztsp-eyebrow--orange { background: var(--ztsp-orange); color: #3D2400; }
+.ztsp-eyebrow--rose   { background: var(--ztsp-rose);   color: #fff; }
+
+.ztsp-sectitre {
+  font-family: var(--ztsp-f-titre); font-size: clamp(26px, 3.6vw, 42px);
+  letter-spacing: .6px; color: #fff; margin: 4px 0 2px;
+}
+.ztsp-sectrait { height: 4px; width: 96px; background: var(--ztsp-jaune); border: 2px solid var(--ztsp-noir); border-radius: 3px; margin-bottom: 18px; }
+
+/* ==========================================================================
+   3. HERO
+   ========================================================================== */
+.ztsp-hero { display: grid; grid-template-columns: 1.06fr .94fr; gap: 22px; align-items: center; margin: 10px 0 8px; }
+@media (max-width: 960px) { .ztsp-hero { grid-template-columns: 1fr; } }
+.ztsp-hero__sub { font-size: 17.5px; font-weight: 600; margin: 20px 0 22px; max-width: 46ch; color: var(--ztsp-sur-fond-doux); }
+
+.ztsp-vedette { position: relative; display: grid; place-items: center; min-height: clamp(300px, 42vw, 470px); }
+.ztsp-vedette img {
+  width: min(400px, 92%); aspect-ratio: 500/641; object-fit: contain;
+  filter: drop-shadow(-10px 12px 0 rgba(0,0,0,.42)); animation: ztsp-flotte 6.5s ease-in-out infinite;
+}
+.ztsp-vedette__halo {
+  position: absolute; width: min(400px, 88%); aspect-ratio: 1; border-radius: 50%; z-index: -1;
+  background: radial-gradient(circle, rgba(255,212,0,.30), transparent 66%);
+}
+.ztsp-vedette__cri {
+  position: absolute; top: 4%; left: 3%; z-index: 2; font-family: var(--ztsp-f-punch);
+  font-size: 38px; color: var(--ztsp-jaune); letter-spacing: 1.5px; transform: rotate(-11deg);
+  text-shadow: 3px 3px 0 var(--ztsp-noir), -2.5px -2.5px 0 var(--ztsp-noir),
+               2.5px -2.5px 0 var(--ztsp-noir), -2.5px 2.5px 0 var(--ztsp-noir);
+  animation: ztsp-pop 2.8s ease-in-out infinite;
+}
+@keyframes ztsp-flotte { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+@keyframes ztsp-pop    { 0%,100% { transform: rotate(-11deg) scale(1); } 50% { transform: rotate(-9deg) scale(1.08); } }
+
+/* ==========================================================================
+   4. COMPTEURS
+   `.ztsp-compteur__gros` porte data-cible ; l'animation de comptage est dans
+   zts-modele.js. Le chiffre affiché au repos doit rester la vraie valeur pour
+   que la page ait du sens sans JavaScript.
+   ========================================================================== */
+.ztsp-compteur { display: flex; align-items: flex-end; gap: 14px; margin-top: 28px; flex-wrap: wrap; }
+.ztsp-compteur__gros {
+  font-family: var(--ztsp-f-titre); font-size: clamp(46px, 6.6vw, 84px); line-height: .82;
+  color: var(--ztsp-jaune);
+  text-shadow: 5px 5px 0 var(--ztsp-noir), -2px -2px 0 var(--ztsp-noir),
+               2px -2px 0 var(--ztsp-noir), -2px 2px 0 var(--ztsp-noir);
+}
+.ztsp-compteur__quoi { font-family: var(--ztsp-f-punch); font-size: 19px; letter-spacing: 1.4px; color: #BFE9F6; padding-bottom: 9px; }
+
+.ztsp-ministats { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 18px; }
+.ztsp-ms { background: rgba(255,255,255,.09); border: 2.5px solid var(--ztsp-noir); border-radius: var(--ztsp-r-btn); padding: 8px 14px; box-shadow: 3px 3px 0 rgba(0,0,0,.4); }
+.ztsp-ms b { font-family: var(--ztsp-f-titre); font-size: 19px; display: block; line-height: 1; color: var(--ztsp-cyan-vif); }
+.ztsp-ms small { font-size: 10.5px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; color: #9FC3D4; }
+
+/* ==========================================================================
+   5. BANDE DÉFILANTE
+   La piste est dupliquée dans le HTML et l'animation la décale de 50 % : c'est
+   ce qui rend la boucle invisible. Ne pas retirer le second exemplaire.
+   ========================================================================== */
+.ztsp-bande { background: var(--ztsp-jaune); border-top: 3px solid var(--ztsp-noir); border-bottom: 3px solid var(--ztsp-noir); overflow: hidden; white-space: nowrap; padding: 7px 0; margin: 34px 0 26px; }
+.ztsp-bande__piste { display: inline-block; animation: ztsp-defile 26s linear infinite; font-family: var(--ztsp-f-punch); font-size: 19px; letter-spacing: 1.6px; color: #2B2A00; }
+.ztsp-bande__piste span { margin: 0 26px; }
+.ztsp-bande__piste b { color: var(--ztsp-cyan-dark); }
+@keyframes ztsp-defile { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .ztsp-bande__piste, .ztsp-vedette img, .ztsp-vedette__cri { animation: none; }
+}
+
+/* ==========================================================================
+   6. PANNEAUX ET CARTES
+   ========================================================================== */
+.ztsp-panneau { background: var(--ztsp-surface); border: 4px solid var(--ztsp-noir); border-radius: var(--ztsp-r-card); box-shadow: 8px 8px 0 rgba(0,0,0,.45); overflow: hidden; color: var(--ztsp-ink); }
+.ztsp-panneau__bandeau { background: var(--ztsp-noir); color: #fff; font-family: var(--ztsp-f-punch); letter-spacing: 1.4px; font-size: 17px; padding: 9px 16px 7px; display: flex; align-items: center; gap: 10px; }
+.ztsp-panneau__bandeau em { font-style: normal; color: var(--ztsp-jaune); }
+.ztsp-panneau__corps { padding: 18px 20px 22px; }
+.ztsp-panneau__titre { font-family: var(--ztsp-f-titre); font-size: 23px; line-height: 1.1; margin-bottom: 8px; color: var(--ztsp-ink); }
+
+.ztsp-grid { display: grid; gap: 18px; }
+.ztsp-grid--4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1050px) { .ztsp-grid--4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px)  { .ztsp-grid--4 { grid-template-columns: 1fr; } }
+
+.ztsp-card {
+  background: var(--ztsp-surface); color: var(--ztsp-ink); border: 3.5px solid var(--ztsp-noir);
+  border-radius: var(--ztsp-r-card); padding: 17px 17px 19px; box-shadow: 6px 6px 0 rgba(0,0,0,.45);
+  transition: .12s; display: block; text-decoration: none;
+}
+.ztsp-card:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 rgba(0,0,0,.45); }
+.ztsp-card h3 { font-family: var(--ztsp-f-titre); font-size: 20px; line-height: 1.1; margin: 9px 0 6px; }
+.ztsp-card p  { font-size: 14px; color: var(--ztsp-ink-soft); }
+.ztsp-card--jaune  { background: linear-gradient(180deg, #FFFF9E, var(--ztsp-jaune)); }
+.ztsp-card--rose   { background: linear-gradient(180deg, #FF6FA5, var(--ztsp-rose)); color: #fff; }
+.ztsp-card--lime   { background: linear-gradient(180deg, #D3FF8A, var(--ztsp-lime)); }
+.ztsp-card--orange { background: linear-gradient(180deg, #FFD48F, var(--ztsp-orange)); }
+.ztsp-card--rose p { color: rgba(255,255,255,.86); }
+
+.ztsp-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 11px; }
+.ztsp-tag { font-family: var(--ztsp-f-corps); font-weight: 900; font-size: 11px; letter-spacing: .5px; text-transform: uppercase; background: rgba(0,0,0,.08); border: 2px solid var(--ztsp-noir); border-radius: 6px; padding: 3px 8px; }
+.ztsp-note { font-family: var(--ztsp-f-note); font-size: 17px; color: var(--ztsp-ink-soft); }
+
+/* ==========================================================================
+   7. APPEL À L'ACTION
+   ========================================================================== */
+.ztsp-cta { background: linear-gradient(180deg, var(--ztsp-cyan-vif), var(--ztsp-cyan-dark)); border: 4px solid var(--ztsp-noir); border-radius: var(--ztsp-r-card); box-shadow: 10px 10px 0 rgba(0,0,0,.45); padding: 34px 28px; text-align: center; color: #03323C; }
+.ztsp-cta h2 { font-family: var(--ztsp-f-titre); font-size: clamp(28px, 4.4vw, 50px); line-height: 1; color: #fff; text-shadow: 4px 4px 0 var(--ztsp-noir); }
+.ztsp-cta p  { margin: 12px auto 22px; max-width: 60ch; font-weight: 700; color: #E9FBFF; }
+
+/* ==========================================================================
+   8. SÉLECTEUR DE MÉTIER
+   Le patron ne décide pas du métier : il réagit à `body[data-metier]`, posé
+   par zts-modele.js ou par l'app. C'est ce qui fait que « la page se refait ».
+   ========================================================================== */
+.ztsp-metiers { display: flex; gap: 11px; margin: 15px 0 24px; flex-wrap: wrap; }
+.ztsp-metier {
+  flex: 1; min-width: 260px; display: flex; align-items: center; gap: 11px;
+  padding: 12px 16px; border-radius: var(--ztsp-r-btn); border: 3px solid var(--ztsp-noir);
+  background: var(--ztsp-teinte); color: var(--ztsp-encre); text-align: left;
+  box-shadow: 4px 4px 0 rgba(0,0,0,.5); transition: .12s; opacity: .68; filter: saturate(.65);
+}
+.ztsp-metier:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 rgba(0,0,0,.5); opacity: .92; filter: saturate(.9); }
+.ztsp-metier__dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ztsp-noir); background: var(--ztsp-noir); flex: none; }
+.ztsp-metier b { font-family: var(--ztsp-f-titre); font-size: 15px; letter-spacing: .4px; display: block; }
+.ztsp-metier small { font-size: 12px; opacity: .8; }
+.ztsp-metier--ep  { --ztsp-teinte: linear-gradient(180deg, var(--ztsp-cyan-vif), var(--ztsp-cyan)); --ztsp-encre: #03323C; }
+.ztsp-metier--sdg { --ztsp-teinte: linear-gradient(180deg, #C9FF6B, var(--ztsp-lime));               --ztsp-encre: #1E3300; }
+.ztsp-metier--cdj { --ztsp-teinte: linear-gradient(180deg, #FFC661, var(--ztsp-orange));             --ztsp-encre: #3D2400; }
+.ztsp-metier[aria-pressed="true"] { opacity: 1; filter: none; transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--ztsp-jaune); }
+
+/* Le métier courant reteinte les accents de la page. */
+body[data-metier="sdg"] .ztsp-vedette__cri { color: var(--ztsp-lime); }
+body[data-metier="cdj"] .ztsp-vedette__cri { color: var(--ztsp-orange); }
+body[data-metier="sdg"] .ztsp-eyebrow { background: var(--ztsp-lime);   color: #1E3300; }
+body[data-metier="cdj"] .ztsp-eyebrow { background: var(--ztsp-orange); color: #3D2400; }
+body[data-metier="sdg"] .ztsp-vedette__halo { background: radial-gradient(circle, rgba(163,255,0,.28), transparent 66%); }
+body[data-metier="cdj"] .ztsp-vedette__halo { background: radial-gradient(circle, rgba(255,162,0,.30), transparent 66%); }
+
+.ztsp-bascule { animation: ztsp-bascule .42s ease; }
+@keyframes ztsp-bascule {
+  0%   { opacity: 0; transform: translateY(14px) scale(.94); }
+  60%  { opacity: 1; transform: translateY(-4px) scale(1.03); }
+  100% { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .ztsp-bascule { animation: none; } }
+
+/* ==========================================================================
+   9. IMPRESSION
+   Le patron est un décor d'écran. À l'impression, on rend la page lisible.
+   ========================================================================== */
+@media print {
+  .ztsp-bande, .ztsp-vedette__cri, .ztsp-vedette__halo, .ztsp-metiers { display: none !important; }
+  .ztsp-panneau, .ztsp-card { box-shadow: none !important; border-width: 1.5px !important; }
+  .ztsp-cta { background: none !important; box-shadow: none !important; color: #000 !important; }
+}
