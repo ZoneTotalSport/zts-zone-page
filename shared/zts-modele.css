@@ -74,6 +74,83 @@
 }
 
 /* ==========================================================================
+   0. DÉCOR DE PAGE — `body.ztsp-decor`
+   --------------------------------------------------------------------------
+   LA CLASSE VA SUR <html>, PAS SUR <body>. Le marine doit etre porte par la
+   racine : si body le porte, ses deux pseudo-elements en z-index negatif
+   passent derriere et le decor disparait. C'est le meme piege que
+   fondSurEnveloppe, deja paye le 28 juillet.
+
+   Le fond de la maquette : marine, trame de points, et les rayons jaunes qui
+   tournent lentement. Trois couches, comme dans la maquette, mais portées par
+   les deux pseudo-éléments de `body` plutôt que par trois nœuds — une page qui
+   veut le décor n'a rien à ajouter à son balisage, juste la classe.
+
+   OPT-IN. Sans la classe, rien ne change : aucune page n'hérite du décor par
+   accident.
+
+   ⚠ CONFLIT POSSIBLE AVEC L'HÔTE. Beaucoup de pages utilisent déjà
+   `body::before` / `body::after` pour leur propre décor. La classe l'emporte
+   par spécificité (0,1,2 contre 0,0,2), mais l'ancien décor doit être
+   neutralisé explicitement s'il portait autre chose que du fond.
+
+   Les rayons tournent en 140 s : assez lent pour qu'on ne le remarque pas
+   consciemment, assez présent pour que la page ne soit pas figée.
+   `prefers-reduced-motion` les arrête net.
+   ========================================================================== */
+html.ztsp-decor {
+  background-color: var(--ztsp-noir);
+  background-image:
+    radial-gradient(760px 420px at 88% 4%, rgba(255,212,0,.10), transparent 70%),
+    linear-gradient(163deg, #12879E 0%, #0C5C7D 28%, #0A3A5E 58%, #08243D 82%, #061726 100%);
+  background-repeat: no-repeat, no-repeat;
+  background-attachment: fixed, fixed;
+}
+/* body reste TRANSPARENT — c'est la condition pour que les deux couches
+   ci-dessous, en z-index negatif, restent visibles. Un fond opaque sur body
+   les recouvrirait : elles se resolvent dans le contexte d'empilement de la
+   racine et passent DERRIERE le fond de leur propre element. Meme piege que
+   fondSurEnveloppe, paye le 28 juillet. */
+html.ztsp-decor body {
+  background: transparent;
+  color: var(--ztsp-sur-fond);
+}
+/* Trame de points — la matière du fond. */
+html.ztsp-decor body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  opacity: .5;
+  background-image: radial-gradient(rgba(255,255,255,.16) 1.3px, transparent 1.4px);
+  background-size: 12px 12px;
+  /* Neutralise un decor d'hote qui aurait pose une image ici. */
+  background-color: transparent; filter: none; transition: none;
+}
+/* Rayons de soleil, en rotation lente. Le masque radial les fait disparaître
+   sur les bords : sans lui, la trame conique se voit jusqu'aux coins et le
+   fond devient bruyant. */
+html.ztsp-decor body::after {
+  content: ''; position: fixed;
+  top: -46vh; left: 50%; width: 150vmax; height: 150vmax;
+  z-index: -1; pointer-events: none; opacity: .20;
+  transform: translateX(-50%);
+  background: repeating-conic-gradient(from 0deg at 50% 50%,
+              rgba(255,212,0,.85) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 62%);
+          mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 62%);
+  animation: ztsp-tourne 140s linear infinite;
+}
+@keyframes ztsp-tourne { to { transform: translateX(-50%) rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  html.ztsp-decor body::after { animation: none; }
+}
+/* Le contenu doit passer au-dessus des deux couches. */
+html.ztsp-decor body > * { position: relative; z-index: 0; }
+
+@media print {
+  html.ztsp-decor { background: #fff !important; color: #000 !important; }
+  html.ztsp-decor body::before, html.ztsp-decor body::after { display: none !important; }
+}
+
+/* ==========================================================================
    1. BOUTONS
    L'ombre est double : un aplat vertical qui donne l'épaisseur, un décalé qui
    donne le relief BD. L'appui écrase les deux, c'est ce qui fait le « clac ».
