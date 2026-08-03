@@ -23,6 +23,25 @@
 
    TOKENS — identité seulement. La règle du chantier tient ici aussi : on
    rebase les couleurs et les polices, jamais les dimensions d'une page hôte.
+
+   ⚠ NE JAMAIS POSER `padding` NI `padding-top` SUR `body`
+   L'en-tête partagé est en `position: fixed`, hauteur variable. C'est
+   `shared/zts.js` (`adjustHeaderOffset`) qui réserve la place, en écrivant
+   `body.style.paddingTop = header.bottom + 12` au chargement et à chaque
+   redimensionnement. Une règle `body { padding: … }` dans une page ou dans ce
+   fichier écrase ce calcul, et le titre de l'app passe SOUS l'en-tête.
+   Mesuré le 2 août sur les six apps : l'écart entre le bas de l'en-tête et le
+   haut du titre va de 132 px (sae, educatifs, musique) à 284 px
+   (plan-b-meteo). Cette marge n'est pas acquise, elle est calculée.
+   Pour espacer une page, poser la marge sur un conteneur interne.
+
+   ⚠ RÉSERVER LES GOUTTIÈRES DU SHELL
+   Le casier d'outils occupe la droite et la pause café le coin bas-gauche,
+   tous deux en `position: fixed`. Une page qui n'en tient pas compte se fait
+   mordre son contenu. La maquette réservait `padding: 0 96px 130px 18px` sur
+   son conteneur de page. Le patron ne l'impose pas — il ne connaît pas la
+   mise en page de l'hôte — mais toute page qui monte le shell en densité
+   `vitrine` ou `travail` doit réserver ces gouttières elle-même.
    ========================================================================== */
 
 :root {
@@ -197,6 +216,43 @@
 .ztsp-card--lime   { background: linear-gradient(180deg, #D3FF8A, var(--ztsp-lime)); }
 .ztsp-card--orange { background: linear-gradient(180deg, #FFD48F, var(--ztsp-orange)); }
 .ztsp-card--rose p { color: rgba(255,255,255,.86); }
+
+/* ---- Les trois portes ----------------------------------------------------
+   L'entrée principale du site : Éducation physique, Service de garde, Camps
+   de jour. Une porte est une carte, mais avec trois exigences que la carte
+   ordinaire n'a pas.
+
+     1. Le métier doit se lire au premier coup d'œil. Le titre porte donc la
+        couleur du métier, pas l'encre neutre. Sans ça le métier ne se lit
+        plus qu'au bouton, et on perd l'entrée.
+     2. Les trois portes doivent finir à la même hauteur quel que soit le
+        nombre de tags — d'où la colonne flex et la marge auto sur le bouton.
+     3. Le personnage a besoin d'air et d'un halo, sinon la carte gagne en
+        densité ce qu'elle perd en présence.
+   -------------------------------------------------------------------------- */
+.ztsp-porte { display: flex; flex-direction: column; height: 100%; }
+.ztsp-porte__vignette { position: relative; display: grid; place-items: center; padding: 6px 0 2px; }
+.ztsp-porte__vignette::before {
+  content: ''; position: absolute; width: 168px; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle, var(--ztsp-porte-halo, rgba(0,194,232,.30)), transparent 68%);
+}
+.ztsp-porte__img { position: relative; width: 158px; aspect-ratio: 500/641; object-fit: contain; display: block; }
+.ztsp-porte__titre {
+  font-family: var(--ztsp-f-titre); font-size: 21px; line-height: 1.08; letter-spacing: .4px;
+  margin: 10px 0 6px; color: var(--ztsp-porte-encre, var(--ztsp-ink));
+}
+.ztsp-porte__role { font-size: 14px; color: var(--ztsp-ink-soft); }
+/* Pousse le bouton en bas : c'est ce qui aligne les trois portes. */
+.ztsp-porte__go { margin-top: auto; display: flex; width: 100%; justify-content: space-between; }
+.ztsp-porte .ztsp-tags { margin-bottom: 15px; }
+
+.ztsp-porte--ep  { --ztsp-porte-encre: #0079A8; --ztsp-porte-halo: rgba(0,194,232,.30); }
+.ztsp-porte--sdg { --ztsp-porte-encre: #3E7A00; --ztsp-porte-halo: rgba(163,255,0,.30); }
+.ztsp-porte--cdj { --ztsp-porte-encre: #B85C00; --ztsp-porte-halo: rgba(255,162,0,.32); }
+
+/* Le bouton reprend la couleur du métier — mêmes teintes que le sélecteur. */
+.ztsp-porte--sdg .ztsp-porte__go { background: linear-gradient(180deg, #C9FF6B, var(--ztsp-lime)); color: #1E3300; box-shadow: 0 4px 0 #6F9E00; }
+.ztsp-porte--cdj .ztsp-porte__go { background: linear-gradient(180deg, #FFC661, var(--ztsp-orange)); color: #3D2400; box-shadow: 0 4px 0 #A86A00; }
 
 .ztsp-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 11px; }
 .ztsp-tag { font-family: var(--ztsp-f-corps); font-weight: 900; font-size: 11px; letter-spacing: .5px; text-transform: uppercase; background: rgba(0,0,0,.08); border: 2px solid var(--ztsp-noir); border-radius: 6px; padding: 3px 8px; }
