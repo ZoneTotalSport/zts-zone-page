@@ -88,6 +88,12 @@
      inline : la home garde la priorité sur les conflits de base. -->
 <link rel="stylesheet" href="shared/zts.css">
 
+<!-- PATRON DE PAGE (préfixe ztsp-). Chargé après shared/zts.css et avant le
+     style inline, comme lui : la home garde le dernier mot. Le patron ne
+     touche à aucun sélecteur de la home — tout y est préfixé, y compris les
+     tokens — donc il ne peut pas entrer en conflit avec les 100 Ko qui suivent. -->
+<link rel="stylesheet" href="shared/zts-modele.css">
+
 <style>
   /* ============ RESET + BASE ============ */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1733,8 +1739,20 @@
   /* ============ PAUSE SYNDICALE - BOUTON FLOTTANT ============ */
   .pause-syndicale-btn {
     position: fixed;
-    bottom: 24px;
-    left: 24px;
+    /* Déplacé du coin bas-gauche au coin bas-droite le 2 août.
+       À gauche il recouvrait la deuxième ligne du titre du hero — invisible
+       tant que le fond était clair, criant sur le marine du patron.
+       À droite le coin est déjà pris : la mascotte occupe 130 px de haut à
+       partir de 24 px du bas, et le rail d'outils descend au-dessus d'elle.
+       On se cale donc au-dessus de la mascotte ET à gauche du rail :
+         bas  = 24 (marge) + 130 (mascotte) + 14 (respiration) = 168
+         droite = 110, pour finir avant le bord gauche du rail (mesuré à
+                  x=1178 sur une vue de 1280 ; le rail fait 86 px de large
+                  plus ses 16 px de marge)
+       Mesuré après coup : chevauchement 0 avec le rail, 0 avec la mascotte,
+       0 avec le titre et 0 avec les trois portes. */
+    bottom: 168px;
+    right: 110px;
     background: linear-gradient(135deg, var(--jaune), var(--orange));
     color: var(--ink);
     padding: 16px 24px;
@@ -2523,7 +2541,9 @@
     .serie-card { width: 52px; height: 118px; }
     .serie-card .label { font-size: 10px; }
     /* Flottants du bas : compacts pour ne plus recouvrir le texte du hero */
-    .pause-syndicale-btn { transform: scale(.72); transform-origin: bottom left; }
+    /* L'origine suit le bouton, passé à droite le 2 août : avec « bottom left »
+       la réduction le décollait du bord au lieu de l'y coller. */
+    .pause-syndicale-btn { transform: scale(.72); transform-origin: bottom right; }
     .mascot { width: 84px !important; height: 84px !important; }
     /* Décors .splash absolus → 2px de scroll horizontal fantôme sur iOS */
     html, body { overflow-x: clip; }
@@ -3013,75 +3033,95 @@
 <!-- Bannière logo+horloge désormais intégrée au header partagé -->
 
 <!-- HERO STAGE 1 : SÉLECTEUR 3 PORTES -->
-<section class="hero" id="stage1">
-  <span class="eyebrow"><span class="dot"></span> <span data-i18n="hero.eyebrow">1400+ jeux · 100% gratuit · primaire</span></span>
-  <h1 class="mega"><span data-i18n="hero.title1">Faire bouger les enfants,</span><br><span class="swipe" data-i18n="hero.title2">c'est notre mission!</span></h1>
-  <p class="lede" data-i18n="hero.lede">Une plateforme. Trois métiers. Choisis le tien et reçois exactement ce qu'il te faut — pour des journées qui roulent au primaire.</p>
+<section class="hero ztsp-hero-accueil" id="stage1">
+  <div class="ztsp-hero-accueil__col">
+  <span class="ztsp-eyebrow" data-i18n="hero.eyebrow">1400+ jeux · 100% gratuit · primaire</span>
 
-  <div class="portes">
+  <!-- Le titre est en deux calques décalés (cyan et rose) portés par des
+       pseudo-éléments qui reprennent data-txt. Ce data-txt est traduit lui
+       aussi via data-i18n-attr, sinon les calques resteraient en français
+       derrière un titre anglais. -->
+  <h1 class="ztsp-titre-accueil">
+    <span class="ztsp-offset" data-i18n="hero.title1" data-i18n-attr="data-txt:hero.title1"
+          data-txt="Faire bouger les enfants,">Faire bouger les enfants,</span><br>
+    <span class="ztsp-offset" data-i18n="hero.title2" data-i18n-attr="data-txt:hero.title2"
+          data-txt="c'est notre mission!">c'est notre mission!</span>
+  </h1>
+
+  <p class="ztsp-hero__sub" data-i18n="hero.lede">Une plateforme. Trois métiers. Choisis le tien et reçois exactement ce qu'il te faut — pour des journées qui roulent au primaire.</p>
+
+  <!-- LES TROIS PORTES — entrée principale du site.
+       Contenu, ordre et hiérarchie inchangés. data-metier et choisirMetier()
+       sont conservés tels quels : ce sont eux qui déclenchent la transition
+       balayée et la navigation vers le hub du métier. -->
+  <div class="ztsp-portes">
 
     <!-- PORTE ÉP -->
-    <div class="porte" data-metier="ep" onclick="choisirMetier('ep')">
-      <div class="splash"></div>
-      <span class="icone"><img src="perso-ep.png" data-i18n-attr="alt:porte.ep.alt" alt="Prof d'éducation physique"></span>
-      <h3 data-i18n="metier.ep">Éducation physique</h3>
-      <p class="role" data-i18n="porte.ep.role">Profs d'ÉP du primaire : cours béton, alignés PFEQ, prêts dès lundi matin.</p>
-      <div class="tags">
-        <span class="tag">SAÉ</span>
-        <span class="tag">PFEQ</span>
-        <span class="tag" data-i18n="tag.evaluation">Évaluation</span>
-        <span class="tag" data-i18n="tag.gymnase">Gymnase</span>
+    <div class="ztsp-card ztsp-porte ztsp-porte--ep" data-metier="ep" onclick="choisirMetier('ep')">
+      <span class="ztsp-porte__vignette"><img class="ztsp-porte__img" src="perso-ep.png" data-i18n-attr="alt:porte.ep.alt" alt="Prof d'éducation physique"></span>
+      <h3 class="ztsp-porte__titre" data-i18n="metier.ep">Éducation physique</h3>
+      <p class="ztsp-porte__role" data-i18n="porte.ep.role">Profs d'ÉP du primaire : cours béton, alignés PFEQ, prêts dès lundi matin.</p>
+      <div class="ztsp-tags">
+        <span class="ztsp-tag">SAÉ</span>
+        <span class="ztsp-tag">PFEQ</span>
+        <span class="ztsp-tag" data-i18n="tag.evaluation">Évaluation</span>
+        <span class="ztsp-tag" data-i18n="tag.gymnase">Gymnase</span>
       </div>
-      <div class="go">
+      <span class="ztsp-btn ztsp-btn--sm ztsp-porte__go">
         <span data-i18n="porte.ep.cta">C'est parti!</span>
-        <span class="arrow">→</span>
-      </div>
+        <span aria-hidden="true">→</span>
+      </span>
     </div>
 
     <!-- PORTE SDG -->
-    <div class="porte" data-metier="sdg" onclick="choisirMetier('sdg')">
-      <div class="splash"></div>
-      <span class="icone"><img src="perso-sdg.png" data-i18n-attr="alt:porte.sdg.alt" alt="Éducateur service de garde"></span>
-      <h3 data-i18n="metier.sdg">Service de garde</h3>
-      <p class="role" data-i18n="porte.sdg.role">Éducatrices qui animent 30 jeunes au primaire : routines, jeux, journées péda.</p>
-      <div class="tags">
-        <span class="tag" data-i18n="tag.routines">Routines</span>
-        <span class="tag" data-i18n="tag.jeux_calmes">Jeux calmes</span>
-        <span class="tag" data-i18n="tag.pluie">Pluie</span>
-        <span class="tag" data-i18n="tag.sos">SOS conflits</span>
+    <div class="ztsp-card ztsp-porte ztsp-porte--sdg" data-metier="sdg" onclick="choisirMetier('sdg')">
+      <span class="ztsp-porte__vignette"><img class="ztsp-porte__img" src="perso-sdg.png" data-i18n-attr="alt:porte.sdg.alt" alt="Éducateur service de garde"></span>
+      <h3 class="ztsp-porte__titre" data-i18n="metier.sdg">Service de garde</h3>
+      <p class="ztsp-porte__role" data-i18n="porte.sdg.role">Éducatrices qui animent 30 jeunes au primaire : routines, jeux, journées péda.</p>
+      <div class="ztsp-tags">
+        <span class="ztsp-tag" data-i18n="tag.routines">Routines</span>
+        <span class="ztsp-tag" data-i18n="tag.jeux_calmes">Jeux calmes</span>
+        <span class="ztsp-tag" data-i18n="tag.pluie">Pluie</span>
+        <span class="ztsp-tag" data-i18n="tag.sos">SOS conflits</span>
       </div>
-      <div class="go">
+      <span class="ztsp-btn ztsp-btn--sm ztsp-porte__go">
         <span data-i18n="porte.sdg.cta">On y va!</span>
-        <span class="arrow">→</span>
-      </div>
+        <span aria-hidden="true">→</span>
+      </span>
     </div>
 
     <!-- PORTE CAMP -->
-    <div class="porte" data-metier="camp" onclick="choisirMetier('camp')">
-      <div class="splash"></div>
-      <span class="icone"><img src="perso-camp.png" data-i18n-attr="alt:porte.camp.alt" alt="Animateur camp de jour"></span>
-      <h3 data-i18n="metier.camp">Camps de jour</h3>
-      <p class="role" data-i18n="porte.camp.role">Coordos & moniteurs : grands jeux, thèmes, plein air et plan B météo.</p>
-      <div class="tags">
-        <span class="tag" data-i18n="tag.grands_jeux">Grands jeux</span>
-        <span class="tag" data-i18n="tag.themes">Thèmes</span>
-        <span class="tag" data-i18n="tag.plein_air">Plein air</span>
-        <span class="tag" data-i18n="tag.planb">Plan B</span>
+    <div class="ztsp-card ztsp-porte ztsp-porte--cdj" data-metier="camp" onclick="choisirMetier('camp')">
+      <span class="ztsp-porte__vignette"><img class="ztsp-porte__img" src="perso-camp.png" data-i18n-attr="alt:porte.camp.alt" alt="Animateur camp de jour"></span>
+      <h3 class="ztsp-porte__titre" data-i18n="metier.camp">Camps de jour</h3>
+      <p class="ztsp-porte__role" data-i18n="porte.camp.role">Coordos & moniteurs : grands jeux, thèmes, plein air et plan B météo.</p>
+      <div class="ztsp-tags">
+        <span class="ztsp-tag" data-i18n="tag.grands_jeux">Grands jeux</span>
+        <span class="ztsp-tag" data-i18n="tag.themes">Thèmes</span>
+        <span class="ztsp-tag" data-i18n="tag.plein_air">Plein air</span>
+        <span class="ztsp-tag" data-i18n="tag.planb">Plan B</span>
       </div>
-      <div class="go">
+      <span class="ztsp-btn ztsp-btn--sm ztsp-porte__go">
         <span data-i18n="porte.camp.cta">En avant!</span>
-        <span class="arrow">→</span>
-      </div>
+        <span aria-hidden="true">→</span>
+      </span>
     </div>
 
   </div>
 
-  <div class="stats-bar">
-    <div class="stat"><div class="num" data-target="1439" data-suffix="">1 439</div><div class="label" data-i18n="stat.games">Jeux & fiches</div></div>
-    <div class="stat"><div class="num" data-target="1790" data-suffix="">1 790</div><div class="label" data-i18n="stat.sae">SAÉ PFEQ</div></div>
-    <div class="stat"><div class="num" id="statPros" data-target="300" data-suffix="+">300+</div><div class="label" data-i18n="stat.pros">Pros inscrits</div></div>
-    <div class="stat"><div class="num">100%</div><div class="label" data-i18n="stat.free">Gratuit, à vie</div></div>
+  <!-- COMPTEURS — data-target et data-suffix sont le contrat de animateOne(),
+       #statPros est mis à jour par le worker d'abonnés. Ne pas y toucher. -->
+  <div class="ztsp-compteur">
+    <div class="ztsp-compteur__gros" data-target="1439" data-suffix="">1 439</div>
+    <div class="ztsp-compteur__quoi" data-i18n="stat.games">Jeux & fiches</div>
   </div>
+
+  <div class="ztsp-ministats">
+    <div class="ztsp-ms"><b data-target="1790" data-suffix="">1 790</b><small data-i18n="stat.sae">SAÉ PFEQ</small></div>
+    <div class="ztsp-ms"><b id="statPros" data-target="300" data-suffix="+">300+</b><small data-i18n="stat.pros">Pros inscrits</small></div>
+    <div class="ztsp-ms"><b>100%</b><small data-i18n="stat.free">Gratuit, à vie</small></div>
+  </div>
+  </div><!-- /.ztsp-hero-accueil__col -->
 </section>
 
 <!-- SECTION AUJOURD'HUI AU MENU (adaptée par métier via JS) -->
@@ -3405,6 +3445,70 @@ function pcHowEN(){ return ''
         .zts-pause-question { font-size: 1.1rem; }
     }
 </style>
+
+<!-- ==========================================================================
+     HERO DE L'ACCUEIL AU PATRON — posé le 2 août 2026
+     --------------------------------------------------------------------------
+     Ce bloc vient APRÈS les styles de la home, donc il gagne à spécificité
+     égale. Il ne fait que trois choses : donner au hero le fond sur lequel le
+     patron a été dessiné, poser la grille des portes, et remettre l'alignement
+     à gauche que `section.hero { align-items: center }` écrasait.
+
+     POURQUOI UN FOND MARINE ICI, ET SEULEMENT ICI
+     Le titre du patron est blanc, avec deux calques décalés cyan et rose. Sur
+     le fond clair de la home il serait illisible. Le marine est donc posé sur
+     la section du hero, pas sur la page : le reste de l'accueil garde son
+     décor de gymnase.
+
+     CE QUE CE BLOC NE FAIT PAS
+     Aucun `padding` sur `body` — c'est `adjustHeaderOffset()` de shared/zts.js
+     qui réserve la place sous l'en-tête fixe, et l'écraser ferait passer le
+     titre dessous. Le retrait vertical du hero reste celui de `section.hero`
+     (460px), inchangé.
+     ========================================================================== -->
+<style>
+  section.hero.ztsp-hero-accueil {
+    align-items: stretch;
+    text-align: left;
+    position: relative;
+    isolation: isolate;
+    /* `section.hero` réservait 460px en haut pour la bannière fixe. Depuis que
+       shared/zts.js pose aussi `body { padding-top }` (281px mesurés), les
+       deux réservations s'additionnaient et laissaient ~700px de vide.
+       On ne garde ici que le retrait propre au hero. */
+    padding-top: 150px;
+    background-color: var(--ztsp-noir, #08131E);
+    background-image:
+      radial-gradient(rgba(255,255,255,.16) 1.3px, transparent 1.4px),
+      radial-gradient(760px 420px at 88% 4%, rgba(255,212,0,.10), transparent 70%),
+      linear-gradient(163deg, #12879E 0%, #0C5C7D 28%, #0A3A5E 58%, #08243D 82%, #061726 100%);
+    background-size: 12px 12px, auto, auto;
+    background-repeat: repeat, no-repeat, no-repeat;
+  }
+  /* Une seule colonne centrée, portée par un conteneur — pas par des marges
+     auto sur chaque enfant. Avec les marges auto, l'étiquette (largeur de son
+     contenu) se retrouvait centrée au lieu d'être calée à gauche.
+     La gouttière gauche laisse la place au bouton « Pause syndicale », fixe
+     en bas à gauche, qui recouvrait le titre. */
+  .ztsp-hero-accueil__col {
+    width: 100%; max-width: 1200px; margin: 0 auto;
+    padding-left: clamp(0px, 4vw, 56px);
+  }
+  .ztsp-titre-accueil { margin: 6px 0 0; }
+
+  .ztsp-hero-accueil .ztsp-portes {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; align-items: stretch; margin: 28px auto 8px;
+  }
+  @media (max-width: 900px) { .ztsp-hero-accueil .ztsp-portes { grid-template-columns: 1fr; } }
+
+  /* Les portes sont cliquables sans être des liens : le curseur doit le dire. */
+  .ztsp-hero-accueil .ztsp-porte { cursor: pointer; }
+
+  .ztsp-hero-accueil .ztsp-compteur  { margin-top: 34px; }
+  .ztsp-hero-accueil .ztsp-ministats { margin-bottom: 8px; }
+</style>
+
 <section id="ztsTodaySection">
     <div class="zts-today-header">
         <span class="zts-today-tag-pill">✨ AUJOURD'HUI</span>
@@ -3796,7 +3900,10 @@ function pcHowEN(){ return ''
     requestAnimationFrame(tick);
   }
   function animateCounters() {
-    document.querySelectorAll('.stat .num[data-target]').forEach(animateOne);
+    // Sélecteur élargi le 2 août : le hero est passé au patron (ztsp-) et ses
+    // compteurs ne portent plus .stat .num. On cible l'attribut, qui est le
+    // vrai contrat — animateOne ne lit que dataset.target et dataset.suffix.
+    document.querySelectorAll('#stage1 [data-target]').forEach(animateOne);
   }
   // Lance au chargement
   setTimeout(animateCounters, 400);
