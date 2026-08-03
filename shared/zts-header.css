@@ -24,60 +24,79 @@
 /* Box-sizing scopé au header (on évite le reset global qui casserait l'app) */
 .zts-header, .zts-header *, .zts-header *::before, .zts-header *::after { box-sizing:border-box; }
 
-/* ============ HEADER PARTAGÉ (.zts-header) — grand bandeau bleu dégradé ============ */
+/* ============ HEADER PARTAGÉ (.zts-header) — barre marine du patron ============
+   Refait le 3 août 2026 d'après la maquette retenue (version de 9:12).
+   Avant : un grand bandeau cyan à rayons jaunes, colonne centrée, titre
+   jusqu'à 104px, ~233px de haut. Après : une barre marine compacte, en ligne,
+   titre à 34px, ~70px de haut.
+
+   ⚠ CE FICHIER EST SERVI À 1500 PAGES. Toute modification ici se voit partout
+   en même temps. Vérifié au banc sur l'accueil, une app libre et une app
+   derrière le portillon, en desktop et en mobile, avant mise en ligne.
+
+   OPACITÉ À .92, PAS .66 — leçon du 27 juillet, déjà payée une fois.
+   À .66 la barre emprunte sa teinte au fond de la page : sur une app qui
+   impose `body{background:#f8fafc!important}` (D23, cas de jeux) elle virait
+   au gris sale. À .92 elle porte sa propre couleur quelle que soit la page.
+
+   La hauteur n'est câblée nulle part : shared/zts.js (adjustHeaderOffset)
+   mesure le bas réel de la barre à chaque chargement et pose le padding du
+   body en conséquence. Passer de 233px à 70px ne casse donc aucune page —
+   sauf celles qui ont câblé un dégagement en dur, corrigées à part. */
 .zts-header {
   position:fixed; top:0; left:0; right:0; z-index:200;
   margin:14px clamp(12px,2.5vw,28px);
-  background-color:#19C3FF;
-  background-image:repeating-conic-gradient(from 0deg at 92% 92%, #FFEA00 0deg 6deg, transparent 6deg 13deg);
-  border:5px solid var(--zts-noir);
-  border-radius:var(--r-4);
-  box-shadow:8px 8px 0 var(--zts-noir);
-  color:var(--ink);
+  background:rgba(6,23,38,.92);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  border:3px solid var(--zts-noir);
+  border-radius:16px;
+  box-shadow:6px 6px 0 rgba(0,194,232,.45);
+  color:#E6F4FA;
   overflow:hidden;
-  display:flex; flex-direction:column; align-items:center; text-align:center;
-  gap:20px;
-  padding:18px clamp(16px,3vw,40px) 24px;
+  display:flex; flex-direction:row; align-items:center; text-align:left;
+  gap:18px; flex-wrap:wrap;
+  padding:12px clamp(14px,2.4vw,22px);
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
+/* Trame de points, reprise du patron : elle donne la matière sans alourdir. */
 .zts-header::before {
-  content:""; position:absolute; inset:0; opacity:.12; pointer-events:none;
-  background-image:radial-gradient(#fff 2px, transparent 2px);
-  background-size:30px 30px;
+  content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.16) 1.3px, transparent 1.4px);
+  background-size:12px 12px;
 }
 .zts-header > * { position:relative; z-index:1; }
 .zts-header.hidden { transform:translateY(-130%); }
-.zts-header__brandwrap { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:14px; }
+/* En ligne, plus en colonne : le titre à gauche, l'horloge à sa suite. */
+.zts-header__brandwrap { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin:0; }
 .zts-header__brand {
-  display:flex; align-items:baseline; gap:10px;
-  font-family:var(--font-impact); letter-spacing:.02em;
-  font-size:clamp(48px,8.5vw,104px);
+  display:flex; align-items:baseline; gap:8px;
+  font-family:var(--font-impact); letter-spacing:.5px;
+  font-size:clamp(24px,2.6vw,34px);
   text-decoration:none; white-space:nowrap; line-height:1;
+  color:#fff;
 }
 .zts-header__brand span {
-  text-shadow:
-    3px 3px 0 var(--zts-noir), -2px -2px 0 var(--zts-noir),
-    2px -2px 0 var(--zts-noir), -2px 2px 0 var(--zts-noir),
-    0 2px 0 var(--zts-noir), 2px 0 0 var(--zts-noir),
-    7px 9px 0 rgba(26,26,46,.40);
   display:inline-block; transform-origin:center bottom; cursor:pointer;
   transition:transform .25s cubic-bezier(.34,1.56,.64,1);
 }
-.zts-header__brand .w1 { color:var(--jaune); }  /* ZONE  */
-.zts-header__brand .w2 { color:var(--cyan); }   /* TOTAL */
-.zts-header__brand .w3 { color:var(--jaune); }  /* SPORT */
-.zts-header__brand span:hover { transform:translateY(-9px) rotate(-3deg) scale(1.18); }
-.zts-header__meta { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; }
+/* Le mot du milieu en cyan, comme le logo de la maquette. Les contours noirs
+   de l'ancien bandeau tombent : ils étaient là pour tenir sur un fond cyan
+   clair, ils salissent un titre de 34px sur marine. */
+.zts-header__brand .w1 { color:#fff; }
+.zts-header__brand .w2 { color:var(--cyan); }
+.zts-header__brand .w3 { color:#fff; }
+.zts-header__brand span:hover { transform:translateY(-4px) rotate(-2deg) scale(1.08); }
+.zts-header__meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .zts-header__clock {
-  display:inline-flex; align-items:center; gap:8px;
-  font-family:var(--font-impact); color:var(--zts-noir);
-  font-size:clamp(22px,2.6vw,32px); letter-spacing:.05em;
-  background:rgba(255,255,255,.92);
-  border:3px solid var(--zts-noir); border-radius:var(--r-pill);
-  padding:5px 18px; box-shadow:3px 3px 0 var(--zts-noir);
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:var(--font-impact); color:#BFE9F6;
+  font-size:clamp(14px,1.5vw,18px); letter-spacing:.04em;
+  background:rgba(255,255,255,.09);
+  border:2px solid var(--zts-noir); border-radius:10px;
+  padding:4px 12px; box-shadow:3px 3px 0 rgba(0,0,0,.4);
   font-variant-numeric:tabular-nums;
 }
-.zts-header__sub { font-family:var(--font-fun); font-weight:700; color:rgba(255,255,255,.88); font-size:var(--fs-1); }
+.zts-header__sub { font-family:var(--font-fun); font-weight:800; color:#9FC3D4; font-size:12px; letter-spacing:.5px; text-transform:uppercase; }
 /* z-index:2 — la nav doit passer AU-DESSUS du bloc titre.
    `.zts-header > *` (plus haut) donne position:relative + z-index:1 a CHAQUE
    enfant du header : la nav et .zts-header__brandwrap se retrouvent a egalite,
@@ -87,11 +106,8 @@
    recouvrait le menu et interceptait le clic — « Deconnexion » ne recevait
    jamais l'evenement. Les deux blocs ne se chevauchent nulle part ailleurs. */
 .zts-header__nav { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center; z-index:2; }
-.zts-header__nav > *:nth-child(1) { rotate:-3deg; }
-.zts-header__nav > *:nth-child(2) { rotate:2deg; }
-.zts-header__nav > *:nth-child(3) { rotate:-2deg; }
-.zts-header__nav > *:nth-child(4) { rotate:2.5deg; }
-.zts-header__nav > *:nth-child(5) { rotate:-2deg; }
+/* Les rotations des boutons tombent avec le bandeau : elles fonctionnaient sur
+   une barre haute et centrée, elles bousculent une barre de 70px. */
 .zts-header .zts-btn--primary { background:#fff; color:var(--ink); }
 
 /* Boutons chunky 3D */
