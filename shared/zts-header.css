@@ -27,8 +27,8 @@
 /* ============ HEADER PARTAGÉ (.zts-header) — barre marine du patron ============
    Refait le 3 août 2026 d'après la maquette retenue (version de 9:12).
    Avant : un grand bandeau cyan à rayons jaunes, colonne centrée, titre
-   jusqu'à 104px, ~233px de haut. Après : une barre marine compacte, en ligne,
-   titre à 34px, ~70px de haut.
+   jusqu'à 104px sur fond cyan. Après : barre marine, meme colonne centree mais
+   ordre revu — « Pedagogie primaire » au-dessus, le titre, puis l'heure.
 
    ⚠ CE FICHIER EST SERVI À 1500 PAGES. Toute modification ici se voit partout
    en même temps. Vérifié au banc sur l'accueil, une app libre et une app
@@ -53,9 +53,9 @@
   box-shadow:6px 6px 0 rgba(0,194,232,.45);
   color:#E6F4FA;
   overflow:hidden;
-  display:flex; flex-direction:row; align-items:center; text-align:left;
-  gap:18px; flex-wrap:wrap;
-  padding:12px clamp(14px,2.4vw,22px);
+  display:flex; flex-direction:column; align-items:center; text-align:center;
+  gap:6px; flex-wrap:nowrap;
+  padding:16px clamp(14px,2.4vw,22px) 18px;
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
 /* Trame de points, reprise du patron : elle donne la matière sans alourdir. */
@@ -66,22 +66,21 @@
 }
 .zts-header > * { position:relative; z-index:1; }
 .zts-header.hidden { transform:translateY(-130%); }
-/* En ligne, plus en colonne : le titre à gauche, l'horloge à sa suite. */
-.zts-header__brandwrap { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin:0; }
+/* Colonne centree : « Pedagogie primaire » au-dessus, le titre, puis l'heure. */
+.zts-header__brandwrap { display:flex; flex-direction:column; align-items:center; gap:4px; margin:0; width:100%; }
 .zts-header__brand {
   display:flex; align-items:baseline; gap:8px;
-  font-family:var(--font-impact); letter-spacing:.5px;
-  font-size:clamp(24px,2.6vw,34px);
-  text-decoration:none; white-space:nowrap; line-height:1;
-  color:#fff;
+  font-family:var(--font-impact); letter-spacing:1px;
+  font-size:clamp(40px,7.4vw,92px);
+  text-decoration:none; white-space:nowrap; line-height:.96; color:#fff;
 }
 .zts-header__brand span {
   display:inline-block; transform-origin:center bottom; cursor:pointer;
   transition:transform .25s cubic-bezier(.34,1.56,.64,1);
 }
 /* Le mot du milieu en cyan, comme le logo de la maquette. Les contours noirs
-   de l'ancien bandeau tombent : ils étaient là pour tenir sur un fond cyan
-   clair, ils salissent un titre de 34px sur marine. */
+   de l'ancien bandeau tombent : ils tenaient un titre sur fond cyan clair ;
+   sur marine ils empatent les lettres. */
 .zts-header__brand .w1 { color:#fff; }
 .zts-header__brand .w2 { color:var(--cyan); }
 .zts-header__brand .w3 { color:#fff; }
@@ -90,13 +89,14 @@
 .zts-header__clock {
   display:inline-flex; align-items:center; gap:7px;
   font-family:var(--font-impact); color:#BFE9F6;
-  font-size:clamp(14px,1.5vw,18px); letter-spacing:.04em;
+  font-size:clamp(15px,1.9vw,22px); letter-spacing:.06em;
   background:rgba(255,255,255,.09);
-  border:2px solid var(--zts-noir); border-radius:10px;
-  padding:4px 12px; box-shadow:3px 3px 0 rgba(0,0,0,.4);
+  border:2px solid var(--zts-noir); border-radius:12px;
+  padding:5px 16px; box-shadow:3px 3px 0 rgba(0,0,0,.4);
+  margin-top:4px;
   font-variant-numeric:tabular-nums;
 }
-.zts-header__sub { font-family:var(--font-fun); font-weight:800; color:#9FC3D4; font-size:12px; letter-spacing:.5px; text-transform:uppercase; }
+.zts-header__sub { font-family:var(--font-impact); font-weight:400; color:var(--cyan); font-size:clamp(17px,3vw,38px); letter-spacing:2px; text-transform:uppercase; line-height:1; }
 /* z-index:2 — la nav doit passer AU-DESSUS du bloc titre.
    `.zts-header > *` (plus haut) donne position:relative + z-index:1 a CHAQUE
    enfant du header : la nav et .zts-header__brandwrap se retrouvent a egalite,
@@ -106,8 +106,7 @@
    recouvrait le menu et interceptait le clic — « Deconnexion » ne recevait
    jamais l'evenement. Les deux blocs ne se chevauchent nulle part ailleurs. */
 .zts-header__nav { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center; z-index:2; }
-/* Les rotations des boutons tombent avec le bandeau : elles fonctionnaient sur
-   une barre haute et centrée, elles bousculent une barre de 70px. */
+/* Les rotations des boutons de nav tombent : elles bousculaient la lecture. */
 .zts-header .zts-btn--primary { background:#fff; color:var(--ink); }
 
 /* Boutons chunky 3D */
