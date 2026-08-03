@@ -1739,8 +1739,20 @@
   /* ============ PAUSE SYNDICALE - BOUTON FLOTTANT ============ */
   .pause-syndicale-btn {
     position: fixed;
-    bottom: 24px;
-    left: 24px;
+    /* Déplacé du coin bas-gauche au coin bas-droite le 2 août.
+       À gauche il recouvrait la deuxième ligne du titre du hero — invisible
+       tant que le fond était clair, criant sur le marine du patron.
+       À droite le coin est déjà pris : la mascotte occupe 130 px de haut à
+       partir de 24 px du bas, et le rail d'outils descend au-dessus d'elle.
+       On se cale donc au-dessus de la mascotte ET à gauche du rail :
+         bas  = 24 (marge) + 130 (mascotte) + 14 (respiration) = 168
+         droite = 110, pour finir avant le bord gauche du rail (mesuré à
+                  x=1178 sur une vue de 1280 ; le rail fait 86 px de large
+                  plus ses 16 px de marge)
+       Mesuré après coup : chevauchement 0 avec le rail, 0 avec la mascotte,
+       0 avec le titre et 0 avec les trois portes. */
+    bottom: 168px;
+    right: 110px;
     background: linear-gradient(135deg, var(--jaune), var(--orange));
     color: var(--ink);
     padding: 16px 24px;
@@ -2529,7 +2541,9 @@
     .serie-card { width: 52px; height: 118px; }
     .serie-card .label { font-size: 10px; }
     /* Flottants du bas : compacts pour ne plus recouvrir le texte du hero */
-    .pause-syndicale-btn { transform: scale(.72); transform-origin: bottom left; }
+    /* L'origine suit le bouton, passé à droite le 2 août : avec « bottom left »
+       la réduction le décollait du bord au lieu de l'y coller. */
+    .pause-syndicale-btn { transform: scale(.72); transform-origin: bottom right; }
     .mascot { width: 84px !important; height: 84px !important; }
     /* Décors .splash absolus → 2px de scroll horizontal fantôme sur iOS */
     html, body { overflow-x: clip; }
