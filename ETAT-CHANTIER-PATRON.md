@@ -2,9 +2,9 @@
 
 **Dernière mise à jour** : 4 août 2026, fin de deuxième session.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `~/dev/Remotion 2/wix-deploy/`
-**`main`** : les quatre commits du 4 août, jusqu'à celui qui porte ce document.
-(Inutile d'y écrire une empreinte : elle serait toujours celle du commit
-précédent, ce qui a déjà semé la confusion en début de session.)
+**`main`** : à jour jusqu'au commit qui porte ce document. (Inutile d'y écrire
+une empreinte : elle serait toujours celle du commit précédent, ce qui a déjà
+semé la confusion en début de session.)
 
 Ce document couvre le chantier ouvert le 2 août : porter l'habillage de la
 maquette retenue sur tout le site. Le chantier précédent — montage du shell sur
@@ -147,7 +147,7 @@ l'accueil n'a plus d'état de métier depuis le retrait du stage 2,
 
 ## Ce qui reste à faire
 
-### 1. Le planificateur — décor posé, coquille v2 jamais vue
+### 1. Le planificateur — décor posé, coquille v2 vue et laissée en l'état
 
 **Fait le 4 août** : le swirl cyan-jaune qu'il définissait lui-même sur
 `body[data-metier]` est parti, remplacé par le décor du patron. Le **mode
@@ -161,16 +161,21 @@ dur** quel que soit `?metier=`. La mascotte `.p-perso`, en `top:88px` (hauteur
 de l'ancien en-tête), se cachait derrière le bandeau du patron ; elle s'aligne
 maintenant sur `body.paddingTop`, que `adjustHeaderOffset()` calcule.
 
-> **CE QUI N'A PAS PU ÊTRE VU : la coquille v2 connectée.** `V2.render()` pose
-> `body.pv2`, et avec elle **75+ règles de mise en page** — dont celles qui
-> masquent l'en-tête partagé, la bannière et le personnage. Elle ne se monte
-> qu'**après authentification Firebase**, impossible en local sans compte, et
-> je ne crée pas de compte. Tout ce qui est décrit ci-dessus concerne donc
-> **l'écran d'avant-connexion**. La coquille v2 garde son thème à deux accents
-> par métier (`camp → #FF6B00 + #B026FF`, `ep → #00E5FF + #1E90FF`,
-> `sdg → #39FF14 + #169B62`) et **n'a pas été touchée**.
-> **Pour la suite, il faut que Joey ouvre une session** — ou dise d'y aller à
-> l'aveugle sur le CSS.
+> **IL Y AVAIT DEUX SWIRLS, PAS UN.** Le premier passage n'avait enlevé que
+> celui de `body[data-metier]`. La coquille v2 en portait un **deuxième**,
+> indépendant, sur `body.pv2` — et comme elle ne se monte qu'après
+> authentification Firebase, il était invisible depuis un poste non connecté.
+> Vu en production avec la session de Joey ouverte : le décor était bien posé
+> sur `<html>` mais entièrement recouvert. Retiré le 4 août.
+> **La leçon** : une app à écran de connexion cache la moitié de son CSS. Ne
+> jamais conclure « habillée » depuis l'écran d'avant-connexion.
+
+**Ce que la coquille v2 garde, et pourquoi.** Ses ~200 règles forment un système
+cohérent : cartes blanches à bordure noire, ombres décalées, Bangers et
+Luckiest Guy, thème à deux accents par métier (`camp → #FF6B00 + #B026FF`,
+`ep → #00E5FF + #1E90FF`, `sdg → #39FF14 + #169B62`). C'est déjà le vocabulaire
+de la marque, pas un système étranger comme l'était le swirl. La réécrire au
+patron serait un chantier en soi — à décider, pas à enchaîner.
 
 **Cas particulier déjà connu** : il masque l'en-tête partagé en `?v2=1` (le
 défaut) et en mode intégré → premier cas d'app à deux densités (D24, 28 juillet).
@@ -221,8 +226,15 @@ L'accueil passe de 6403 px à 5661 px.
 ## Pièges de banc — à ne pas rediagnostiquer
 
 Ceux du chantier précédent restent valides (`ETAT-CHANTIER-HABILLAGE.md`).
-Trois de plus, payés le 4 août :
+Quatre de plus, payés le 4 août :
 
+- **Une app à écran de connexion cache la moitié de son CSS.** Le planificateur
+  monte sa coquille (et 200 règles avec) dans `V2.render()`, appelée seulement
+  après l'authentification Firebase. Depuis un poste non connecté on ne voit
+  que l'écran d'avant-connexion — et on peut croire une app habillée alors
+  qu'elle porte encore son ancien fond dessous. **Vérification** : chercher les
+  classes que le JS pose au montage (`classList.add`), lister les règles qui en
+  dépendent, et exiger une session ouverte avant de conclure.
 - **Une règle sur `body > *` écrase le positionnement de toute la page.** Voir
   la section ci-dessus. La leçon générale : dans une feuille partagée, ne rien
   déclarer sur `body > *` — on ne connaît pas les enfants de body des pages
