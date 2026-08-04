@@ -1,8 +1,10 @@
 # Chantier « patron » — refonte au modèle de la maquette
 
-**Dernière mise à jour** : 3 août 2026, fin de session.
+**Dernière mise à jour** : 4 août 2026, fin de session.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `~/dev/Remotion 2/wix-deploy/`
-**`main`** @ `f796bff`, poussé, build Pages au vert.
+**`main`** : les quatre commits du 4 août, jusqu'à celui qui porte ce document.
+(Inutile d'y écrire une empreinte : elle serait toujours celle du commit
+précédent, ce qui a déjà semé la confusion en début de session.)
 
 Ce document couvre le chantier ouvert le 2 août : porter l'habillage de la
 maquette retenue sur tout le site. Le chantier précédent — montage du shell sur
@@ -110,40 +112,42 @@ part.
 
 ---
 
+### L'accueil, uniformisé — les deux décisions de Joey sont tombées
+
+Joey a tranché le 4 août : le calendrier devient une **carte-lien vers le
+planificateur**, et la section pause devient **sobre comme les autres**. Les
+trois étapes du plan sont livrées.
+
+| Section | Avant | Maintenant |
+|---|---|---|
+| hero | transparent | inchangé |
+| menu du jour | dégradé `#0a0a18 → #2a1a4e`, 1105 px | transparent, 854 px |
+| calendrier | carte blanche à texte foncé, 898 px | carte-lien au patron, 368 px |
+| aujourd'hui | dégradé `#18181b → #0f0f2e`, 1704 px | transparent, 1013 px |
+| pause | dégradé `#FF2A7A → #8B5CF6`, 1291 px | transparent, 759 px |
+
+**La page passe de 9858 px à 6403 px.** Vérifié au banc : plus aucun enfant de
+`body` de plus de 120 px ne porte de fond opaque, zéro erreur console.
+
+Les trois polices de titre et les trois couleurs deviennent une :
+`.ztsp-eyebrow` + `.ztsp-sectitre` + `.ztsp-sectrait`. Les six règles qu'elles
+remplacent sont **supprimées**, pas neutralisées.
+
+> **LES CARTES TRANSLUCIDES ONT DÛ ÊTRE OPACIFIÉES.** `.menu-jour-card` et
+> `.zts-today-card` posaient du blanc à 4-5 %. Sur un dégradé uni c'était
+> invisible ; sur le décor, **les rayons tournent derrière le texte de la
+> carte** — le fond bouge sous les mots. Passées à `rgba(8,19,30,.55)`. À
+> prévoir pour toute carte translucide qu'on posera sur le décor.
+
+Le calendrier de présences n'est pas perdu : il vit dans le planificateur.
+Et sa carte-lien **corrige le défaut du paramètre de métier** (ci-dessous) —
+trois boutons, un par métier, chacun avec son `?metier=`. Pas de devinette :
+l'accueil n'a plus d'état de métier depuis le retrait du stage 2,
+`currentMetier()` y renvoie toujours `null`.
+
 ## Ce qui reste à faire
 
-### 1. Uniformiser l'accueil — diagnostic fait, décisions en attente
-
-**Cinq systèmes visuels cohabitent.** Trois sections posent un fond opaque
-par-dessus le décor :
-
-| Section | Fond | Hauteur |
-|---|---|---|
-| hero | transparent ✅ | 1766 px |
-| menu du jour | dégradé `#0a0a18` | 1105 px |
-| calendrier | transparent, carte blanche à texte foncé | 898 px |
-| aujourd'hui | dégradé `#18181b → #0f0f2e` | 1704 px |
-| pause | **dégradé `#FF2A7A → #8B5CF6`** rose-violet | 1291 px |
-
-**Trois polices de titre** (`Quicksand` sur le `h1` du hero, `Luckiest Guy`,
-`ZoneTotalSport`), **trois couleurs de titre**, **quatre styles de bouton**
-(rayons 11 / 12 / 14 / 18 px). **La page fait 9858 px** — presque dix écrans.
-
-**Plan proposé, dans cet ordre**
-1. Sortir le calendrier de présences (voir ci-dessous).
-2. Retirer les trois fonds opaques ; les sections se distinguent par
-   `.ztsp-sectitre` + `.ztsp-sectrait` et des `.ztsp-panneau`, comme la maquette.
-3. Uniformiser titres et boutons — en dernier, les couleurs dépendent du fond.
-
-**DEUX DÉCISIONS ATTENDUES DE JOEY**
-- **Le calendrier de présences** : retiré de l'accueil, ou remplacé par une
-  carte-lien vers le planificateur ? Son contenu — « Qui est là aujourd'hui? …
-  suis les présences de ton groupe » — est un outil de gestion de classe, pas un
-  contenu d'accueil.
-- **La section pause** : garde un accent coloré fort en panneau, ou devient
-  sobre comme les autres ?
-
-### 2. Le planificateur — jamais habillé
+### 1. Le planificateur — jamais habillé
 
 Vérifié en production : ni shell, ni patron, ni décor. Il garde **son propre
 système** — un thème à deux accents par métier :
@@ -160,17 +164,20 @@ cyan-jaune, qu'il définit lui-même.
 partagé en `?v2=1` et en mode intégré → premier cas d'app à deux densités
 (décision du 28 juillet, D24).
 
-> **DÉFAUT TROUVÉ, INDÉPENDANT DE L'HABILLAGE** : le calendrier de l'accueil
-> pointe vers `/apps/planificateur/` **sans paramètre de métier**, et l'app
-> retombe sur « camp ». Un prof d'ÉPS qui clique depuis l'accueil atterrit dans
-> une interface orange de camp de jour.
+> **DÉFAUT DU PARAMÈTRE DE MÉTIER — RÉGLÉ CÔTÉ ACCUEIL le 4 août.** Le
+> calendrier pointait vers `/apps/planificateur/` **sans paramètre**, et l'app
+> retombe sur « camp » : un prof d'ÉPS atterrissait dans une interface orange
+> de camp de jour. La carte-lien qui l'a remplacé passe `?metier=`.
+> **Le défaut reste entier ailleurs** : tout autre lien vers le planificateur
+> sans paramètre a le même effet. Le contrat est `?metier=ep|camp|sdg`, lu par
+> `init()` dans `apps/planificateur/app.js`. À vérifier au balayage des liens.
 
-### 3. Étendre le décor aux apps
+### 2. Étendre le décor aux apps
 
 Une ligne par app : la classe `ztsp-decor` sur son `<html>`. À faire quand
 l'accueil est stabilisé, pour ne pas propager un modèle qui bouge encore.
 
-### 4. Le skill `zts-app-mise-en-page`
+### 3. Le skill `zts-app-mise-en-page`
 
 À étendre avec le patron, pour que les prochaines apps naissent conformes.
 Pas commencé.
@@ -190,7 +197,22 @@ Cosmétique. À traquer proprement, pas en tâtonnant.
 ## Pièges de banc — à ne pas rediagnostiquer
 
 Ceux du chantier précédent restent valides (`ETAT-CHANTIER-HABILLAGE.md`).
-Trois de plus, payés cette session :
+Deux de plus, payés le 4 août :
+
+- **`box-sizing: border-box` mange les aplats fins.** `.ztsp-sectrait` fait 4 px
+  de haut avec un contour de 2 px : sous la règle universelle que posent presque
+  toutes les pages, les 4 px sont la hauteur TOTALE, les deux contours la
+  remplissent et il ne reste **aucun** jaune. Le trait se dessinait tout noir.
+  Parade : `box-sizing: content-box` sur l'élément. Vaut pour tout trait, tout
+  filet, toute barre de quelques pixels.
+- **Le panneau de prévisualisation garde le CSS en cache entre deux passes.**
+  J'ai corrigé `zts-modele.css`, rechargé, et lu `box-sizing: border-box` dans
+  le style calculé — la feuille servie était l'ancienne. Un `?cb=` sur l'URL de
+  la feuille l'a débloqué. **Vérifier la règle dans le CSSOM** (`document.
+  styleSheets`), pas seulement le style calculé, avant de conclure qu'un
+  correctif ne prend pas.
+
+Trois de la session précédente :
 
 - **Un commentaire HTML fermé par `*/` au lieu de `-->`** avale tout ce qui
   suit jusqu'au prochain `-->`. Symptôme : un bloc `<style>` entier absent des
