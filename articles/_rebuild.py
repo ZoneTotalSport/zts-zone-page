@@ -34,26 +34,10 @@ META = {
 
 # ===== TEMPLATE HEADER (mockup faithful) =====
 def render_header():
-    return '''<!-- ZTS HEADER REFONTE -->
-<header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 py-3 shadow-lg">
-  <div class="container mx-auto px-4 flex justify-between items-center">
-    <a href="https://zonetotalsport.ca/" class="flex flex-col items-start text-left group">
-      <h1 class="text-2xl md:text-3xl font-luckiest text-white flex items-center gap-2 text-outline">
-        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
-      </h1>
-      <span class="text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Pédagogie Primaire</span>
-    </a>
-    <nav class="flex items-center gap-2 md:gap-3">
-      <a href="../blog.html" class="hidden md:inline-flex items-center gap-2 text-white font-bold hover:bg-white/20 px-4 py-2 rounded-full transition-all">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i> Blog
-      </a>
-      <a href="https://zonetotalsport.ca/" class="bg-ztsYellow text-ztsDeep px-6 py-2 rounded-full font-luckiest text-lg hover:bg-white hover:scale-105 transition-all shadow-md">
-        ZTS <i data-lucide="trophy" class="inline w-5 h-5 ml-1"></i>
-      </a>
-    </nav>
-  </div>
-</header>
-<!-- /ZTS HEADER REFONTE -->'''
+    # Le header n'est plus code en dur dans chaque article : il est injecte
+    # par shared/zts.js dans cet hote (bande de nav + 3 menus deroulants).
+    # Rejouer ce script ne doit plus reintroduire l'ancienne version.
+    return '<div data-zts-header></div>'
 
 
 def render_hero(title, cat, time, date, author="Joey Root"):
@@ -170,7 +154,8 @@ def render_footer():
 
 
 # ===== Patterns =====
-RE_HEADER  = re.compile(r'<!-- ZTS HEADER REFONTE -->.*?<!-- /ZTS HEADER REFONTE -->', re.DOTALL)
+RE_HEADER  = re.compile(r'<!-- ZTS HEADER REFONTE -->.*?<!-- /ZTS HEADER REFONTE -->'
+                        r'|<div data-zts-header></div>', re.DOTALL)
 RE_HERO    = re.compile(r'<!-- ZTS HERO XXL -->.*?<!-- /ZTS HERO XXL -->', re.DOTALL)
 RE_SIDEBAR = re.compile(r'<!-- ZTS SIDEBAR REFONTE -->.*?<!-- /ZTS SIDEBAR REFONTE -->', re.DOTALL)
 RE_FOOTER  = re.compile(r'<!-- ZTS FOOTER REFONTE -->.*?<!-- /ZTS FOOTER REFONTE -->', re.DOTALL)

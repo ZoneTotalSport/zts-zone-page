@@ -47,6 +47,7 @@
 
   <link rel="stylesheet" href="/articles/articles.css">
 
+  <link rel="stylesheet" href="../shared/zts-header.css">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -320,7 +321,7 @@
   <link rel="stylesheet" href="/articles/articles-theme.css">
   <script src="/zts-lock-page.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
-<script src="/zts-newsletter.js" defer></script>
+<script id="zts-nl-loader" src="/zts-newsletter.js" defer></script>
   <script src="/zts-locked-fullscreen.js" defer></script>
   <script src="/zts-funnel.js" defer></script>
 <style>
@@ -678,26 +679,7 @@
 
   <!-- Scroll Progress Bar -->
   <div class="scroll-progress" id="scrollProgress" style="transform: scaleX(0)"></div>
-<!-- ZTS HEADER REFONTE -->
-<header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 py-3 shadow-lg">
-  <div class="container mx-auto px-4 flex justify-between items-center">
-    <a href="https://zonetotalsport.ca/" class="flex flex-col items-start text-left group">
-      <h1 class="text-2xl md:text-3xl font-luckiest text-white flex items-center gap-2 text-outline">
-        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
-      </h1>
-      <span class="text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Pédagogie Primaire</span>
-    </a>
-    <nav class="flex items-center gap-2 md:gap-3">
-      <a href="../blog.html" class="hidden md:inline-flex items-center gap-2 text-white font-bold hover:bg-white/20 px-4 py-2 rounded-full transition-all">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i> Blog
-      </a>
-      <a href="https://zonetotalsport.ca/" class="bg-ztsYellow text-ztsDeep px-6 py-2 rounded-full font-luckiest text-lg hover:bg-white hover:scale-105 transition-all shadow-md">
-        ZTS <i data-lucide="trophy" class="inline w-5 h-5 ml-1"></i>
-      </a>
-    </nav>
-  </div>
-</header>
-<!-- /ZTS HEADER REFONTE --><!-- ZTS HERO XXL -->
+<div data-zts-header></div><!-- ZTS HERO XXL -->
 <section class="relative hero-gradient pt-20 pb-32 overflow-hidden text-center">
   <div class="container mx-auto px-4 relative z-10">
     <div class="max-w-4xl mx-auto">
@@ -1671,5 +1653,6 @@
     if (ogd && descs[lang]) ogd.setAttribute("content", descs[lang]);
   });
   </script>
+  <script src="../shared/zts.js"></script>
 </body>
 </html>
