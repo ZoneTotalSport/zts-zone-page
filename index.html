@@ -1461,68 +1461,49 @@
     box-shadow: 7px 7px 0 var(--ink);
   }
 
-  /* ============ "AUJOURD'HUI AU MENU" SECTION ============ */
+  /* ============ "AUJOURD'HUI AU MENU" SECTION ============
+     FOND RETIRÉ le 4 août 2026 (chantier patron). Cette section posait un
+     dégradé opaque `#0a0a18 → #2a1a4e` sur 1105 px, encadré de deux traits de
+     6 px : le décor marine de la page s'arrêtait net à son entrée et
+     reprenait à sa sortie. Elle se distingue maintenant comme dans la
+     maquette — un titre `.ztsp-sectitre` et son trait — et laisse voir la
+     trame et les rayons.
+     La trame de points propre à la section (`::before`) part avec le fond :
+     elle doublait celle du décor. Le texte reste blanc, le marine est aussi
+     sombre que l'était le dégradé. */
   .menu-jour {
-    background: linear-gradient(135deg, #0a0a18 0%, #1a1a2e 50%, #2a1a4e 100%);
     color: white;
-    padding: 80px 32px;
-    margin: 60px 0;
+    padding: 60px 32px;
+    margin: 40px 0;
     position: relative;
-    overflow: hidden;
-    border-top: 6px solid var(--ink);
-    border-bottom: 6px solid var(--ink);
-  }
-  .menu-jour::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      radial-gradient(circle at 12% 20%, rgba(255,234,0,0.15) 6px, transparent 8px),
-      radial-gradient(circle at 88% 60%, rgba(0,229,255,0.15) 8px, transparent 10px),
-      radial-gradient(circle at 50% 85%, rgba(255,45,135,0.15) 6px, transparent 8px);
-    background-size: 300px 300px, 360px 360px, 280px 280px;
-    pointer-events: none;
   }
   .menu-jour-inner {
     max-width: 1280px; margin: 0 auto;
     position: relative; z-index: 1;
   }
-  .menu-jour .pill-top {
-    display: inline-block;
-    background: linear-gradient(90deg, var(--cyan), var(--rose));
-    color: white;
-    padding: 10px 24px;
-    border-radius: 999px;
-    font-family: var(--font-bang);
-    font-size: 18px;
-    letter-spacing: 0.06em;
-    margin-bottom: 14px;
-    box-shadow: 0 4px 14px rgba(0,229,255,0.4);
-  }
-  .menu-jour h2 {
-    font-family: var(--font-impact);
-    font-size: clamp(32px, 4vw, 50px);
-    line-height: 1;
-    letter-spacing: 0.02em;
-    margin-bottom: 14px;
-    text-align: center;
-    color: white;
-    text-shadow: 4px 4px 0 rgba(0,0,0,0.4);
-  }
+  /* `.pill-top` et `.menu-jour h2` SUPPRIMÉES le 4 août 2026. L'étiquette est
+     maintenant `.ztsp-eyebrow` et le titre `.ztsp-sectitre` — les valeurs
+     vivent au patron, plus en trois copies dans la page. La pilule
+     `border-radius:999px` était de toute façon dépréciée (CLAUDE.md). */
   .menu-jour-head { text-align: center; margin-bottom: 50px; }
   .menu-jour .date {
-    font-family: var(--font-hand);
-    font-size: 22px;
-    color: var(--cyan);
+    font-family: var(--ztsp-f-note);
+    font-size: 20px;
+    color: var(--ztsp-cyan-vif);
   }
   .menu-jour-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
   }
+  /* Le blanc à 4 % suffisait sur l'ancien dégradé uni. Sur le décor du patron
+     il laisse passer les rayons et la trame DERRIÈRE le texte de la carte :
+     le fond bouge lentement sous les mots. On repasse à un marine dense — la
+     carte redevient une surface, pas une vitre. Les couleurs internes
+     (cyan, jaune) restent celles d'un fond sombre, rien d'autre à reprendre. */
   .menu-jour-card {
-    background: rgba(255,255,255,0.04);
-    border: 2px solid rgba(255,255,255,0.12);
+    background: rgba(8,19,30,0.55);
+    border: 2px solid rgba(255,255,255,0.14);
     border-radius: 22px;
     padding: 32px;
     backdrop-filter: blur(8px);
@@ -3083,8 +3064,9 @@
 <section class="menu-jour" id="menuJour">
   <div class="menu-jour-inner">
     <div class="menu-jour-head">
-      <span class="pill-top" data-i18n="menu.pill">✨ AUJOURD'HUI AU MENU</span>
-      <h2 id="menuJourTitre">Ton cours ÉPS prêt en 30 secondes</h2>
+      <span class="ztsp-eyebrow" data-i18n="menu.pill">✨ AUJOURD'HUI AU MENU</span>
+      <h2 class="ztsp-sectitre" id="menuJourTitre">Ton cours ÉPS prêt en 30 secondes</h2>
+      <div class="ztsp-sectrait" aria-hidden="true"></div>
       <div class="date" id="menuJourDate"></div>
       <script>/* date du jour : robuste + isolée des autres <script> (s'affiche même si le reste du JS plante) */(function(){try{var el=document.getElementById('menuJourDate');if(!el)return;var n=new Date();var en=(typeof ztsLang!=='undefined'&&ztsLang==='en');var d=n.toLocaleDateString(en?'en-CA':'fr-CA',{weekday:'long',day:'numeric',month:'long'});el.textContent=d.charAt(0).toUpperCase()+d.slice(1);}catch(e){}})();</script>
     </div>
@@ -3254,14 +3236,19 @@
 
 <!-- ========== SECTION "AUJOURD'HUI" (Jeu + Météo + Défi) — trafic récurrent ========== -->
 <style>
-    #ztsTodaySection { background: linear-gradient(135deg, #18181b 0%, #0f0f2e 100%); padding: 60px 20px; position: relative; }
-    #ztsTodaySection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 20%, rgba(0,229,255,0.15), transparent 50%), radial-gradient(circle at 80% 80%, rgba(139,92,246,0.15), transparent 50%); pointer-events: none; }
+    /* FOND RETIRÉ le 4 août 2026 (chantier patron) — même raison que
+       `.menu-jour` : un dégradé opaque sur 1704 px qui coupait le décor.
+       Les deux halos radiaux du `::before` partaient avec, ils ne se lisaient
+       plus une fois le fond transparent. */
+    #ztsTodaySection { padding: 60px 20px; position: relative; }
     .zts-today-header { max-width: 1400px; margin: 0 auto 40px; text-align: center; position: relative; }
-    .zts-today-tag-pill { display: inline-block; background: linear-gradient(135deg, #00E5FF, #8B5CF6); color: #fff; padding: 12px 28px; border-radius: 28px; font-family: 'Luckiest Guy', cursive; font-size: 1.6rem; letter-spacing: 1.5px; margin-bottom: 14px; }
-    .zts-today-h2 { font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(2rem, 4vw, 3.2rem); margin: 0; letter-spacing: 0.5px; line-height: 1.15; }
-    .zts-today-date { font-family: 'Patrick Hand', cursive; color: #00E5FF; font-size: 1.5rem; margin-top: 10px; }
+    /* `.zts-today-tag-pill` et `.zts-today-h2` SUPPRIMÉES le 4 août 2026 —
+       remplacées par `.ztsp-eyebrow--rose` et `.ztsp-sectitre`. */
+    .zts-today-date { font-family: var(--ztsp-f-note); color: var(--ztsp-cyan-vif); font-size: 1.3rem; margin-top: 10px; }
     #ztsTodayGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; position: relative; }
-    .zts-today-card { background: rgba(255,255,255,0.05); border: 3px solid rgba(0,229,255,0.25); border-radius: 28px; padding: 32px 28px; transition: all 0.3s; }
+    /* Même correction que `.menu-jour-card` : sans fond dense, les rayons du
+       décor tournent derrière le texte de la carte. */
+    .zts-today-card { background: rgba(8,19,30,0.55); border: 3px solid rgba(0,229,255,0.28); border-radius: 28px; padding: 32px 28px; backdrop-filter: blur(8px); transition: all 0.3s; }
     .zts-today-card:hover { transform: translateY(-6px); border-color: rgba(0,229,255,0.55); box-shadow: 0 14px 50px rgba(0,229,255,0.25); }
     .zts-today-label { font-family: 'Luckiest Guy', cursive; color: #00E5FF; font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 18px; text-transform: uppercase; }
     .zts-today-body { color: #fff; font-family: 'Patrick Hand', cursive; font-size: 1.3rem; line-height: 1.55; }
@@ -3299,12 +3286,16 @@
         .zts-today-game-title, .zts-today-eph-title { font-size: 1.6rem; }
         .zts-today-body, .zts-today-game-desc, .zts-today-eph-desc { font-size: 1.15rem; }
     }
-    #ztsPauseSection { background: linear-gradient(135deg, #FF2A7A 0%, #8B5CF6 100%); padding: 50px 20px; position: relative; overflow: hidden; }
-    #ztsPauseSection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(255,234,0,0.2), transparent 40%); pointer-events: none; }
+    /* FOND RETIRÉ le 4 août 2026 — décision de Joey : la section pause devient
+       sobre comme les autres. Elle portait le dégradé rose-violet
+       `#FF2A7A → #8B5CF6` sur 1291 px, le plus voyant des cinq systèmes
+       visuels de l'accueil. Le rose et le violet restent, mais dans les cartes
+       (`.zts-pause-label`, `.zts-pause-author`) : un accent, plus un fond. */
+    #ztsPauseSection { padding: 50px 20px; position: relative; }
     .zts-pause-header { max-width: 1400px; margin: 0 auto 32px; text-align: center; position: relative; }
-    .zts-pause-tag { display: inline-block; background: #FFEA00; color: #18181b; padding: 12px 28px; border-radius: 28px; font-family: 'Luckiest Guy', cursive; font-size: 1.7rem; letter-spacing: 2px; margin-bottom: 10px; }
-    .zts-pause-h2 { font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin: 18px 0 0; letter-spacing: 0.5px; text-shadow: 3px 3px 0 rgba(0,0,0,0.18); line-height: 1.15; }
-    .zts-pause-sub { font-family: 'Swanky and Moo Moo', cursive; color: rgba(255,255,255,0.95); font-size: 1.5rem; margin-top: 12px; letter-spacing: 1.5px; }
+    /* `.zts-pause-tag` et `.zts-pause-h2` SUPPRIMÉES le 4 août 2026 —
+       remplacées par `.ztsp-eyebrow--lime` et `.ztsp-sectitre`. */
+    .zts-pause-sub { font-family: var(--ztsp-f-note); color: var(--ztsp-sur-fond-doux); font-size: 1.3rem; margin-top: 12px; letter-spacing: .6px; }
     #ztsPauseGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; position: relative; }
     .zts-pause-card { background: #fff; border-radius: 24px; padding: 32px 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 4px solid #18181b; position: relative; transition: transform 0.3s; }
     .zts-pause-card:hover { transform: translateY(-4px) rotate(-0.5deg); }
@@ -3393,20 +3384,36 @@
 
   .ztsp-hero-accueil .ztsp-compteur  { margin-top: 34px; }
   .ztsp-hero-accueil .ztsp-ministats { margin-bottom: 8px; }
+
+  /* ---- Les trois en-têtes de section, unifiés le 4 août 2026 --------------
+     `.ztsp-sectrait` est un trait calé à gauche : c'est l'alignement de la
+     maquette. Les trois sections de l'accueil sont centrées et leurs grilles
+     le sont aussi — on centre donc le trait ici plutôt que de recomposer
+     trois sections. Le patron n'a pas à connaître l'alignement de son hôte.
+     Les `<h2>` de ces sections portaient trois polices et trois couleurs
+     différentes ; ils portent maintenant tous `.ztsp-sectitre`. */
+  .menu-jour-head .ztsp-sectrait,
+  .zts-today-header .ztsp-sectrait,
+  .zts-pause-header .ztsp-sectrait { margin-left: auto; margin-right: auto; }
+  .menu-jour-head .ztsp-sectitre,
+  .zts-today-header .ztsp-sectitre,
+  .zts-pause-header .ztsp-sectitre { margin-top: 12px; }
 </style>
 
 <section id="ztsTodaySection">
     <div class="zts-today-header">
-        <span class="zts-today-tag-pill">✨ AUJOURD'HUI</span>
-        <h2 class="zts-today-h2">Ton inspiration du jour</h2>
+        <span class="ztsp-eyebrow ztsp-eyebrow--rose">✨ AUJOURD'HUI</span>
+        <h2 class="ztsp-sectitre">Ton inspiration du jour</h2>
+        <div class="ztsp-sectrait" aria-hidden="true"></div>
         <div class="zts-today-date" id="ztsTodayDate">&nbsp;</div>
     </div>
     <div id="ztsTodayGrid"></div>
 </section>
 <section id="ztsPauseSection">
     <div class="zts-pause-header">
-        <span class="zts-pause-tag">☕ PAUSE</span>
-        <h2 class="zts-pause-h2">Prends 30 secondes pour toi</h2>
+        <span class="ztsp-eyebrow ztsp-eyebrow--lime">☕ PAUSE</span>
+        <h2 class="ztsp-sectitre">Prends 30 secondes pour toi</h2>
+        <div class="ztsp-sectrait" aria-hidden="true"></div>
         <div class="zts-pause-sub">Une citation, une question. Du nouveau chaque jour.</div>
     </div>
     <div id="ztsPauseGrid"></div>
