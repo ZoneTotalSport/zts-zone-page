@@ -73,29 +73,12 @@
   <script src="analytics.js"></script>
   <script src="zts-lang.js" defer></script>
   <script src="cookie-consent.js" defer></script>
+  <link rel="stylesheet" href="shared/zts-header.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
 
   <!-- Header / Nav -->
-  <header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-      <a href="https://zonetotalsport.ca/" class="flex flex-col items-start shrink-0">
-        <h1 class="text-xl md:text-3xl font-lucky text-white flex items-center gap-2 text-outline">
-          ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
-        </h1>
-        <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Pédagogie Primaire</span>
-      </a>
-      <nav class="flex items-center gap-1 flex-wrap justify-end">
-        <a href="https://zonetotalsport.ca/" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline" data-i18n="navHome">Accueil</span></a>
-        <a href="https://zonetotalsport.ca/#apps-grid" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4"></i><span class="hidden sm:inline" data-i18n="navTools">Outils</span></a>
-        <a href="https://zonetotalsport.ca/#apps-grid" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="gamepad-2" class="w-4 h-4"></i><span class="hidden sm:inline" data-i18n="navGames">Jeux</span></a>
-        <a href="blog.html" class="nav-link text-white flex items-center gap-1.5 active-link"><i data-lucide="pen-line" class="w-4 h-4"></i><span data-i18n="navBlog">Blog</span></a>
-        <a href="wix/donation.html" class="nav-link text-pink bg-white/90 hover:bg-white flex items-center gap-1.5"><i data-lucide="heart" class="w-4 h-4"></i><span class="hidden sm:inline" data-i18n="navDonate">Dons</span></a>
-        <a href="#" class="nav-link flex items-center gap-1.5" id="zts-login-btn" data-auth="login" style="background:linear-gradient(135deg,#FF6B00,#FF9500);color:white;border:none;border-radius:9999px"><i data-lucide="user" class="w-4 h-4"></i><span>Connexion</span></a>
-        <div id="zts-lang-switcher" class="ml-2"></div>
-      </nav>
-    </div>
-  </header>
+<div data-zts-header></div>
 
   <!-- Hero XXL -->
   <section class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
@@ -439,12 +422,13 @@ window.addEventListener('load',function(){
 });
 </script>
 <script src="/firebase-auth.js"></script>
-<script src="/zts-newsletter.js" defer></script>
+<script id="zts-nl-loader" src="/zts-newsletter.js" defer></script>
 <script src="/zts-funnel.js" defer></script>
 <script src="/zts-locked-fullscreen.js" defer></script>
 <script src="/zts-lock.js?v=2"></script>
 <script src="telegram-notify.js"></script>
 <script src="/article-views.js"></script>
   <script src="cookie-consent.js" defer></script>
+  <script src="shared/zts.js"></script>
 </body>
 </html>

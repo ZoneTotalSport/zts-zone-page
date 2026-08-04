@@ -48,30 +48,12 @@ tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',zt
   .reply-box.show{display:flex}
 </style>
 <script src="../analytics.js" defer></script>
+  <link rel="stylesheet" href="../shared/zts-header.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
 
 <!-- ══════════ HEADER / NAV (identique blog) ══════════ -->
-<header class="bg-ztsBlue border-b-4 border-ztsDarkBlue sticky top-0 z-50 shadow-lg">
-  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-    <a href="../" class="flex flex-col items-start shrink-0">
-      <h1 class="text-xl md:text-3xl font-lucky text-white flex items-center gap-2 text-outline">
-        ZONE <span class="text-ztsYellow">TOTAL</span> SPORT
-      </h1>
-      <span class="hidden md:inline text-[10px] font-black text-ztsDeep uppercase tracking-[0.2em] leading-none">Communauté EPS</span>
-    </a>
-    <nav class="flex items-center gap-1 flex-wrap justify-end">
-      <a href="../" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="home" class="w-4 h-4"></i><span class="hidden sm:inline">Accueil</span></a>
-      <a href="../blog.html" class="nav-link text-white flex items-center gap-1.5"><i data-lucide="pen-line" class="w-4 h-4"></i><span class="hidden sm:inline">Blog</span></a>
-      <a href="#" class="nav-link text-white flex items-center gap-1.5 active-link"><i data-lucide="hand-helping" class="w-4 h-4"></i><span>Aidons-nous</span></a>
-      <a href="#" id="zts-login-btn" data-auth="login"
-         onclick="event.preventDefault();if(window.ztsShowLogin){window.ztsShowLogin()}else{alert('Chargement...');}"
-         class="nav-link text-ztsPink bg-white/90 hover:bg-white flex items-center gap-1.5">
-        <i data-lucide="user" class="w-4 h-4"></i><span id="navLoginLabel">Connexion</span>
-      </a>
-    </nav>
-  </div>
-</header>
+<div data-zts-header></div>
 
 <!-- ══════════ HERO XXL ══════════ -->
 <section class="relative hero-gradient pt-12 md:pt-16 pb-24 md:pb-32 overflow-hidden">
@@ -703,5 +685,6 @@ function esc(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 init();
 </script>
 
+  <script src="../shared/zts.js"></script>
 </body>
 </html>
