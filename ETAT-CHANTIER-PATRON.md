@@ -1,6 +1,6 @@
 # Chantier « patron » — refonte au modèle de la maquette
 
-**Dernière mise à jour** : 4 août 2026, fin de session.
+**Dernière mise à jour** : 4 août 2026, fin de deuxième session.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `~/dev/Remotion 2/wix-deploy/`
 **`main`** : les quatre commits du 4 août, jusqu'à celui qui porte ce document.
 (Inutile d'y écrire une empreinte : elle serait toujours celle du commit
@@ -147,22 +147,33 @@ l'accueil n'a plus d'état de métier depuis le retrait du stage 2,
 
 ## Ce qui reste à faire
 
-### 1. Le planificateur — jamais habillé
+### 1. Le planificateur — décor posé, coquille v2 jamais vue
 
-Vérifié en production : ni shell, ni patron, ni décor. Il garde **son propre
-système** — un thème à deux accents par métier :
+**Fait le 4 août** : le swirl cyan-jaune qu'il définissait lui-même sur
+`body[data-metier]` est parti, remplacé par le décor du patron. Le **mode
+intégré est préservé** — vérifié en iframe : `init()` écrit
+`documentElement.style.background='transparent'` en style inline, qui gagne sur
+la classe, et `body.zts-embed::before/::after{display:none}` éteint la trame et
+les rayons. Le hub garde son fond, rien à ajouter.
 
-```
-camp → #FF6B00 orange + #B026FF violet      ep → #00E5FF + #1E90FF
-sdg  → #39FF14 + #169B62
-```
+Corrigé au passage : l'étiquette et le `<title>` disaient **« Camp de jour » en
+dur** quel que soit `?metier=`. La mascotte `.p-perso`, en `top:88px` (hauteur
+de l'ancien en-tête), se cachait derrière le bandeau du patron ; elle s'aligne
+maintenant sur `body.paddingTop`, que `adjustHeaderOffset()` calcule.
 
-C'est pour ça que sa mise en page détonne. Il porte aussi encore l'ancien décor
-cyan-jaune, qu'il définit lui-même.
+> **CE QUI N'A PAS PU ÊTRE VU : la coquille v2 connectée.** `V2.render()` pose
+> `body.pv2`, et avec elle **75+ règles de mise en page** — dont celles qui
+> masquent l'en-tête partagé, la bannière et le personnage. Elle ne se monte
+> qu'**après authentification Firebase**, impossible en local sans compte, et
+> je ne crée pas de compte. Tout ce qui est décrit ci-dessus concerne donc
+> **l'écran d'avant-connexion**. La coquille v2 garde son thème à deux accents
+> par métier (`camp → #FF6B00 + #B026FF`, `ep → #00E5FF + #1E90FF`,
+> `sdg → #39FF14 + #169B62`) et **n'a pas été touchée**.
+> **Pour la suite, il faut que Joey ouvre une session** — ou dise d'y aller à
+> l'aveugle sur le CSS.
 
-**Il était déjà identifié comme un cas particulier** : il masque l'en-tête
-partagé en `?v2=1` et en mode intégré → premier cas d'app à deux densités
-(décision du 28 juillet, D24).
+**Cas particulier déjà connu** : il masque l'en-tête partagé en `?v2=1` (le
+défaut) et en mode intégré → premier cas d'app à deux densités (D24, 28 juillet).
 
 > **DÉFAUT DU PARAMÈTRE DE MÉTIER — RÉGLÉ CÔTÉ ACCUEIL le 4 août.** Le
 > calendrier pointait vers `/apps/planificateur/` **sans paramètre**, et l'app
@@ -184,20 +195,40 @@ Pas commencé.
 
 ---
 
-## Défaut connu, non réglé
+## Le vide sous la barre — trouvé, et ce n'était pas cosmétique
 
-**Un vide d'environ 200 px** entre la barre du haut et l'étiquette du hero. J'ai
-retiré `min-height:100vh` et `justify-content:center` de `section.hero`, ce qui
-en a enlevé une partie. Il subsiste un écart dont je n'ai pas trouvé l'origine :
-les enfants du body avant le hero mesurent 0 de haut, donc ça vient d'ailleurs.
-Cosmétique. À traquer proprement, pas en tâtonnant.
+L'écart d'environ 200 px entre la barre du haut et l'étiquette du hero venait
+de **`html.ztsp-decor body > * { position: relative; z-index: 0 }`**, une règle
+du patron censée « faire passer le contenu au-dessus des deux couches ».
+
+Avec 0,1,2 de spécificité, elle écrasait le `position: fixed` de **tout enfant
+direct de `body`**. Mesuré sur l'accueil : **onze éléments** retombés en
+`relative` — les trois modales, les trois panneaux du menu, le menu mobile, la
+mascotte, le bouton de pause syndicale, le balayage de couleur, la grille
+d'apps. Des éléments qui devaient être hors flux occupaient de la place : d'où
+le vide, et d'où des modales qui ne se superposaient plus.
+
+La règle était aussi **inutile** : l'ordre de peinture CSS place les enfants en
+z-index négatif (étape 2) avant les blocs du flux normal (étape 3). Le contenu
+passe déjà devant le décor. Elle est supprimée. Écart mesuré après : **0**.
+L'accueil passe de 6403 px à 5661 px.
+
+> C'est pour ça que « à traquer proprement, pas en tâtonnant » valait le coup :
+> le symptôme était cosmétique, la cause ne l'était pas.
 
 ---
 
 ## Pièges de banc — à ne pas rediagnostiquer
 
 Ceux du chantier précédent restent valides (`ETAT-CHANTIER-HABILLAGE.md`).
-Deux de plus, payés le 4 août :
+Trois de plus, payés le 4 août :
+
+- **Une règle sur `body > *` écrase le positionnement de toute la page.** Voir
+  la section ci-dessus. La leçon générale : dans une feuille partagée, ne rien
+  déclarer sur `body > *` — on ne connaît pas les enfants de body des pages
+  hôtes, et `position` en particulier n'est jamais anodin. Pour vérifier :
+  comparer, pour chaque enfant de `body`, le `position` calculé à celui que sa
+  propre règle demandait.
 
 - **`box-sizing: border-box` mange les aplats fins.** `.ztsp-sectrait` fait 4 px
   de haut avec un contour de 2 px : sous la règle universelle que posent presque
