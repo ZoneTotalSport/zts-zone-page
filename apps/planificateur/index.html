@@ -1,16 +1,27 @@
 <!DOCTYPE html>
-<html lang="fr-CA">
+<!-- `ztsp-decor` VA SUR <html>, PAS SUR <body> — les deux couches du décor sont
+     en z-index négatif ; posées sur les pseudo-éléments d'un body qui porte un
+     fond opaque, elles se résolvent dans le contexte d'empilement de la racine
+     et passent derrière ce fond. Piège payé le 28 juillet, puis le 3 août.
+     En mode intégré, `init()` (app.js) écrit `documentElement.style.background
+     = 'transparent'` en style inline : il gagne sur cette classe, le hub garde
+     son propre fond. Rien à ajouter pour ce cas. -->
+<html class="ztsp-decor" lang="fr-CA">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Planificateur Camp de jour — Zone Total Sport</title>
-  <meta name="description" content="Planificateur quotidien pour camps de jour. Roster, presences, departs. Gratuit.">
+  <!-- Titre neutre : l'app sert les trois métiers. Le script de bas de page le
+       précise selon `?metier=`. Celui-ci reste la valeur servie au robot
+       d'indexation, qui n'exécute pas toujours le JS. -->
+  <title>Planificateur — Zone Total Sport</title>
+  <meta name="description" content="Planificateur quotidien pour l'education physique, le camp de jour et le service de garde. Annee, cycle, presences. Gratuit.">
   <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../shared/zts.css">
+  <link rel="stylesheet" href="../../shared/zts-modele.css">
   <style>
 /* ═══ PLANIFICATEUR — styles app ═══ */
 
@@ -50,12 +61,53 @@ body.zts-embed .sem-root .sheet { background:transparent !important; border:none
 body.zts-embed.zts-full { background:linear-gradient(180deg, rgba(255,254,247,.55) 0%, rgba(255,254,247,.4) 40%, rgba(255,254,247,.62) 100%), url('/bg-gym.jpg') center/cover fixed !important; padding:18px !important; overflow:auto; }
 body.zts-embed.zts-full #app-root { background:#fff; border:5px solid var(--ink); border-radius:24px; box-shadow:10px 10px 0 var(--ink); max-width:1320px; margin:0 auto; padding:clamp(14px,2vw,28px); min-height:calc(100dvh - 36px); }
 
-/* Fond de marque SWIRL jaune+cyan UNIFORME sur toute la page (rayons larges depuis le coin bas-droit) */
-body[data-metier]{
-  background-color:var(--cyan);
-  background-image:repeating-conic-gradient(from 8deg at 92% 97%,var(--jaune) 0deg 12deg,var(--cyan) 12deg 24deg);
-  background-attachment:fixed;
+/* SWIRL JAUNE+CYAN RETIRÉ le 4 août 2026 (chantier patron). C'était le dernier
+   endroit du site à porter l'ancien décor : rayons cyan et jaunes en cône
+   depuis le coin bas-droit, posés en dur sur body[data-metier]. Le décor est
+   maintenant celui du patron — marine, trame, rayons jaunes en rotation — et
+   il vient de `html.ztsp-decor`, une seule fois pour tout le site.
+   `html.ztsp-decor body` (0,1,2) remettrait de toute façon ce fond à
+   transparent — il passe devant `body[data-metier]` (0,1,1). Mais on ne compte
+   pas là-dessus : une déclaration morte qu'une seule règle tient à distance
+   est une chausse-trappe pour la prochaine personne. On l'enlève. */
+
+/* ── La bannière de métier, au patron — SCOPÉE À CETTE APP ──────────────────
+   `.zts-metier-banner` vit dans shared/zts.css et sert une trentaine de pages
+   (les trois hubs et une douzaine d'apps). Son aplat #19C3FF pleine largeur
+   coupait le décor exactement comme les trois fonds de l'accueil. On ne la
+   change PAS à la source : ces pages n'ont pas encore le décor, et le cyan y
+   est encore le bon choix. Ce sera le chantier « étendre le décor aux apps ».
+   Ici, on la neutralise pour cette page seulement. */
+.zts-metier-banner{
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+  padding:0 !important;
+  display:block !important;
 }
+.zts-metier-banner h1{
+  font-family:var(--ztsp-f-titre); font-size:clamp(26px,3.6vw,42px);
+  letter-spacing:.6px; color:#fff; margin:10px 0 2px;
+  /* Le relief jaune à six ombres appartenait au fond cyan. Sur le marine il
+     fait du bruit : le titre du patron est blanc, net, sans contour. */
+  text-shadow:none;
+}
+/* L'étiquette reprend `.ztsp-eyebrow` — même forme que sur l'accueil. */
+.zts-metier-banner__pill{
+  font-family:var(--ztsp-f-punch); letter-spacing:1.6px; font-size:17px;
+  background:var(--ztsp-jaune); color:#2B2A00;
+  padding:4px 13px 2px; border-radius:7px; border:3px solid var(--ztsp-noir);
+  transform:rotate(-1.6deg); box-shadow:3px 3px 0 rgba(0,0,0,.45);
+}
+body[data-metier="sdg"] .zts-metier-banner__pill{ background:var(--ztsp-lime);   color:#1E3300; }
+body[data-metier="camp"] .zts-metier-banner__pill{ background:var(--ztsp-orange); color:#3D2400; }
+/* Le trait de section, ajouté sous le titre par le script de bas de page. */
+.zts-metier-banner .ztsp-sectrait{ margin-top:12px; }
+
+/* L'écran d'avant-connexion était gris sur fond clair : `opacity:.6` sur du
+   texte foncé. Sur le marine il faut l'inverse. */
+.p-empty{ color:var(--ztsp-sur-fond-doux); opacity:1; }
+.p-empty-text{ font-family:var(--ztsp-f-note); font-size:20px; }
 .zts-container{position:relative;z-index:1}
 /* Personnage EN HAUT À DROITE, interactif : survol = wiggle + bulle de bienvenue par métier */
 .p-perso{
@@ -728,9 +780,13 @@ body.pv2.tbi .pv2-gopt,body.pv2.tbi .pv2-fait{min-height:60px}
   </nav>
 
   <main class="zts-container" style="padding-top:var(--space-5);padding-bottom:var(--space-7);">
+    <!-- L'étiquette disait « Camp de jour » EN DUR, quel que soit `?metier=`.
+         Un prof d'ÉPS arrivant de l'accueil lisait « Camp de jour » sur une app
+         qui, elle, avait bien lu son métier (body[data-metier] était correct).
+         Elle est maintenant écrite par `poseLibelleMetier()`, plus bas. -->
     <section class="zts-metier-banner" style="margin-bottom:var(--space-5);">
       <div>
-        <span class="zts-metier-banner__pill">Camp de jour</span>
+        <span class="zts-metier-banner__pill" id="pMetierPill">Camp de jour</span>
         <h1 style="margin-top:8px;">Planificateur quotidien</h1>
       </div>
     </section>
@@ -800,5 +856,73 @@ body.pv2.tbi .pv2-gopt,body.pv2.tbi .pv2-fait{min-height:60px}
   <script src="semaine-grid.js" defer></script>
   <script src="app.js" defer></script>
   <script src="app-v2.js" defer></script>
+
+  <!-- LE LIBELLÉ DU MÉTIER, AVANT CONNEXION.
+       L'app sert trois métiers mais s'annonçait « Camp de jour » partout :
+       l'étiquette de la bannière et le <title> de l'onglet étaient en dur.
+       Ce bloc les aligne sur le métier réel, celui que `?metier=` a posé sur
+       `body[data-metier]`.
+
+       POURQUOI ICI ET PAS DANS app.js : cet écran-là est ce qu'on voit AVANT
+       de se connecter, et `init()` n'a pas encore tourné. Le script est donc
+       autonome et ne dépend d'aucun état de l'app — comme la date du jour de
+       l'accueil, isolée pour la même raison. Après connexion, la coquille v2
+       masque cette bannière (`body.pv2 .zts-metier-banner{display:none}`) et
+       gère le métier avec ses propres boutons : ce bloc ne la contredit pas.
+
+       Le <title> est indexé : on garde « Planificateur » en tête pour ne pas
+       casser la recherche, le métier vient en précision. -->
+  <script>(function(){
+    var LIB = {
+      ep:   { fr:'Éducation physique', en:'Physical education' },
+      camp: { fr:'Camp de jour',       en:'Day camp' },
+      sdg:  { fr:'Service de garde',   en:'Daycare' }
+    };
+    function pose(){
+      var m = document.body.getAttribute('data-metier');
+      var l = LIB[m]; if(!l) return;
+      var en = (typeof ztsLang !== 'undefined' && ztsLang === 'en');
+      var nom = en ? l.en : l.fr;
+      var pill = document.getElementById('pMetierPill');
+      if (pill) pill.textContent = nom;
+      document.title = (en ? 'Planner — ' : 'Planificateur — ') + nom + ' | Zone Total Sport';
+    }
+
+    // Le trait de section du patron, sous le titre de la bannière.
+    function poseTrait(){
+      var b = document.querySelector('.zts-metier-banner > div');
+      if (!b || b.querySelector('.ztsp-sectrait')) return;
+      var t = document.createElement('div');
+      t.className = 'ztsp-sectrait'; t.setAttribute('aria-hidden','true');
+      b.appendChild(t);
+    }
+
+    // LA MASCOTTE SE CACHAIT DERRIÈRE LE BANDEAU. `.p-perso` est en
+    // `position:fixed; top:88px` — 88 px était la hauteur de l'ancien en-tête.
+    // Celui du patron en fait plus de 300, et la mascotte disparaissait
+    // dessous. On ne remet pas une autre valeur en dur : c'est
+    // `adjustHeaderOffset()` (shared/zts.js) qui mesure l'en-tête et écrit le
+    // resultat dans `body.paddingTop`. On s'aligne sur ce calcul, donc sur la
+    // hauteur reelle, quelle que soit la densite de l'en-tete.
+    function caleMascotte(){
+      var p = document.querySelector('.p-perso'); if (!p) return;
+      var h = parseFloat(getComputedStyle(document.body).paddingTop) || 88;
+      p.style.top = Math.round(h + 12) + 'px';
+    }
+    // `init()` d'app.js lit `?metier=` et réécrit data-metier. Il est en `defer`
+    // donc il a déjà tourné quand ce script s'exécute — mais il attend aussi la
+    // base et l'authentification. On pose une fois tout de suite, et on suit
+    // l'attribut ensuite : c'est le seul contrat stable entre les deux.
+    pose(); poseTrait(); caleMascotte();
+    try {
+      new MutationObserver(pose).observe(document.body, {
+        attributes: true, attributeFilter: ['data-metier']
+      });
+    } catch(e) {}
+    // `adjustHeaderOffset` recalcule au chargement des polices et au
+    // redimensionnement : on le suit aux deux moments.
+    window.addEventListener('load', caleMascotte);
+    window.addEventListener('resize', caleMascotte);
+  })();</script>
 </body>
 </html>
