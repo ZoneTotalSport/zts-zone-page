@@ -3131,126 +3131,56 @@
   </div>
 </section>
 
-<!-- ========== CALENDRIER DE PRÉSENCES (sous Aujourd'hui au menu) ========== -->
-<section id="presenceCal">
+<!-- ========== PLANIFICATEUR — carte-lien =====================================
+     Décision de Joey du 4 août 2026 : le calendrier de présences quitte
+     l'accueil. Son contenu — « Qui est là aujourd'hui? … suis les présences de
+     ton groupe » — est un outil de gestion de classe, pas un contenu d'accueil.
+     Il est remplacé par une porte vers le planificateur, écrite au patron.
+
+     LE PARAMÈTRE DE MÉTIER N'EST PAS FACULTATIF. `apps/planificateur/app.js`
+     (init) lit `?metier=ep|camp|sdg` et retombe sur « camp » quand il manque.
+     L'ancien calendrier pointait vers `/apps/planificateur/` nu : un prof
+     d'ÉPS qui cliquait depuis l'accueil atterrissait dans une interface orange
+     de camp de jour. Et l'accueil n'a plus d'état de métier depuis le retrait
+     du stage 2 — `currentMetier()` y renvoie toujours null — donc on ne devine
+     pas : on offre les trois portes, chacune avec son paramètre.
+
+     Le calendrier lui-même n'est pas perdu : il vit dans le planificateur,
+     qui est sa place.
+     ========================================================================== -->
+<section id="planifPorte">
   <style>
-    #presenceCal{ padding:46px 20px; position:relative; z-index:2; }
-    #presenceCal .pc-inner{ max-width:760px; margin:0 auto; background:#fff; border:4px solid var(--ink); border-radius:28px; box-shadow:10px 10px 0 var(--ink); padding:clamp(20px,3vw,34px); text-align:center; }
-    #presenceCal .pc-pill{ display:inline-block; background:var(--cyan); color:var(--ink); border:3px solid var(--ink); border-radius:22px; padding:8px 20px; font-family:var(--font-impact); font-size:1.05rem; box-shadow:4px 4px 0 var(--ink); letter-spacing:.5px; }
-    #presenceCal h2{ font-family:var(--font-impact); font-size:clamp(1.6rem,4vw,2.6rem); color:var(--ink); margin:14px 0 4px; }
-    #presenceCal .pc-sub{ font-family:var(--font-fun); font-weight:600; color:#555; margin-bottom:20px; }
-    #presenceCal .pc-month{ font-family:var(--font-impact); font-size:1.35rem; color:var(--ink); margin-bottom:10px; text-transform:capitalize; }
-    #presenceCal .pc-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; max-width:520px; margin:0 auto; }
-    #presenceCal .pc-dow{ font-family:var(--font-impact); text-align:center; color:#9aa3ad; font-size:.9rem; padding:4px 0; }
-    #presenceCal .pc-day{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-family:var(--font-fun); font-weight:700; font-size:1.05rem; border:2px solid var(--ink); border-radius:11px; background:#FFFEF7; cursor:pointer; transition:transform .1s, box-shadow .1s, background .1s; text-decoration:none; color:var(--ink); }
-    #presenceCal .pc-day:hover{ transform:translate(-2px,-2px); box-shadow:3px 3px 0 var(--ink); background:var(--jaune); }
-    #presenceCal .pc-day.empty{ border:none; background:transparent; cursor:default; }
-    #presenceCal .pc-day.we{ background:#eef1f5; }
-    #presenceCal .pc-day.today{ background:var(--cyan); box-shadow:3px 3px 0 var(--ink); }
-    #presenceCal .pc-cta{ display:inline-flex; align-items:center; gap:10px; margin-top:20px; background:var(--jaune); color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 26px; font-family:var(--font-impact); font-size:1.15rem; text-decoration:none; transition:transform .12s, box-shadow .12s; }
-    #presenceCal .pc-cta:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
-    body.metier-camp #presenceCal .pc-pill, body.metier-camp #presenceCal .pc-day.today{ background:var(--orange); color:#fff; }
-    body.metier-sdg #presenceCal .pc-pill, body.metier-sdg #presenceCal .pc-day.today{ background:var(--vert); }
-    #presenceCal .pc-actions{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; align-items:center; }
-    #presenceCal .pc-how{ display:inline-flex; align-items:center; gap:8px; margin-top:20px; background:#fff; color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 24px; font-family:var(--font-impact); font-size:1.1rem; cursor:pointer; transition:transform .12s, box-shadow .12s; }
-    #presenceCal .pc-how:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); background:var(--cyan); }
-    /* Popup « Comment ça fonctionne ? » */
-    .pcHow-modal{ display:none; position:fixed; inset:0; z-index:1200; background:rgba(26,26,46,.62); padding:24px; overflow-y:auto; }
-    .pcHow-modal.open{ display:flex; }
-    .pcHow-inner{ position:relative; background:#fff; border:5px solid var(--ink); border-radius:26px; box-shadow:12px 12px 0 var(--ink); max-width:680px; width:100%; margin:auto; padding:clamp(22px,3vw,40px); font-family:var(--font-fun); }
-    .pcHow-close{ position:absolute; top:14px; right:14px; width:42px; height:42px; border:3px solid var(--ink); border-radius:50%; background:var(--rose,#FF2DAC); color:#fff; font-size:20px; cursor:pointer; box-shadow:3px 3px 0 var(--ink); }
-    .pcHow-inner h3{ font-family:var(--font-impact); font-size:clamp(1.5rem,4vw,2.2rem); color:var(--ink); margin:0 8px 8px 0; padding-right:40px; }
-    .pcHow-inner h4{ font-family:var(--font-impact); font-size:1.25rem; color:var(--ink); margin:24px 0 8px; }
-    .pcHow-inner p{ font-size:1.06rem; line-height:1.5; color:#333; margin:0 0 10px; }
-    .pcHow-steps{ list-style:none; padding:0; margin:0; counter-reset:s; }
-    .pcHow-steps li{ position:relative; padding:11px 0 11px 48px; font-size:1.05rem; line-height:1.45; border-bottom:2px dashed #e3e6ea; }
-    .pcHow-steps li::before{ counter-increment:s; content:counter(s); position:absolute; left:0; top:9px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:var(--cyan); border:3px solid var(--ink); border-radius:50%; font-family:var(--font-impact); box-shadow:2px 2px 0 var(--ink); }
-    .pcHow-ex{ background:#FFFEF7; border:3px solid var(--ink); border-radius:16px; box-shadow:4px 4px 0 var(--ink); padding:14px 16px; margin:10px 0; font-size:1.02rem; line-height:1.45; }
-    .pcHow-cta{ display:inline-flex; align-items:center; gap:8px; margin-top:22px; background:var(--jaune); color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 26px; font-family:var(--font-impact); font-size:1.1rem; text-decoration:none; }
-    .pcHow-cta:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
+    #planifPorte { padding: 46px 20px; position: relative; z-index: 2; }
+    #planifPorte .pp-inner { max-width: 760px; margin: 0 auto; }
+    #planifPorte .ztsp-panneau__corps { text-align: center; }
+    #planifPorte .pp-sub { font-family: var(--ztsp-f-corps); font-size: 16px; line-height: 1.5; color: var(--ztsp-ink-soft); margin: 0 0 6px; }
+    #planifPorte .pp-invite { font-family: var(--ztsp-f-note); font-size: 18px; color: var(--ztsp-ink); margin: 14px 0 14px; }
+    #planifPorte .pp-choix { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
   </style>
-  <div class="pc-inner">
-    <span class="pc-pill" id="pcPill">📅 CALENDRIER DE PRÉSENCES</span>
-    <h2 id="pcTitle">Qui est là aujourd'hui?</h2>
-    <p class="pc-sub" id="pcSub">Suis les présences de ton groupe, jour après jour.</p>
-    <div class="pc-month" id="pcMonth"></div>
-    <div class="pc-grid" id="pcGrid"></div>
-    <div class="pc-actions">
-      <a class="pc-cta" id="pcCta" href="/apps/planificateur/">Ouvrir le calendrier →</a>
-      <button class="pc-how" id="pcHowBtn" type="button" onclick="pcOpenHow()">❓ Comment ça fonctionne ?</button>
+  <div class="pp-inner ztsp-panneau">
+    <div class="ztsp-panneau__bandeau"><em>📅</em> <span id="ppBandeau">PLANIFICATEUR</span></div>
+    <div class="ztsp-panneau__corps">
+      <h2 class="ztsp-panneau__titre" id="ppTitre">Ton année, ton cycle, tes présences</h2>
+      <p class="pp-sub" id="ppSub">Planifie tes semaines, fais l'appel de ton groupe et garde le fil de chaque journée. Gratuit, rien à installer.</p>
+      <p class="pp-invite" id="ppInvite">Ouvre-le dans ta réalité&nbsp;:</p>
+      <div class="pp-choix">
+        <a class="ztsp-btn"           href="/apps/planificateur/?metier=ep"   id="ppEp">🏐 Éducation physique</a>
+        <a class="ztsp-btn ztsp-btn--orange" href="/apps/planificateur/?metier=camp" id="ppCamp">⛺ Camp de jour</a>
+        <a class="ztsp-btn ztsp-btn--lime"   href="/apps/planificateur/?metier=sdg"  id="ppSdg">🧩 Service de garde</a>
+      </div>
     </div>
   </div>
   <script>(function(){
-    var EN=(typeof ztsLang!=='undefined'&&ztsLang==='en');
-    var grid=document.getElementById('pcGrid'), mlabel=document.getElementById('pcMonth');
-    var dow=EN?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-    var months=EN?['January','February','March','April','May','June','July','August','September','October','November','December']
-                 :['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-    if(EN){ document.getElementById('pcPill').textContent='📅 ATTENDANCE CALENDAR'; document.getElementById('pcTitle').textContent="Who's here today?";
-      document.getElementById('pcSub').textContent='Track your group attendance, day after day.'; document.getElementById('pcCta').textContent='Open the calendar →'; }
-    var n=new Date(), y=n.getFullYear(), m=n.getMonth(), today=n.getDate();
-    mlabel.textContent=months[m]+' '+y;
-    var html=dow.map(function(d){return '<div class="pc-dow">'+d+'</div>';}).join('');
-    var first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
-    for(var i=0;i<first;i++) html+='<div class="pc-day empty"></div>';
-    for(var d=1;d<=days;d++){ var wd=new Date(y,m,d).getDay(); var cls='pc-day'+((wd===0||wd===6)?' we':'')+(d===today?' today':'');
-      html+='<a class="'+cls+'" href="/apps/planificateur/">'+d+'</a>'; }
-    grid.innerHTML=html;
+    if (typeof ztsLang === 'undefined' || ztsLang !== 'en') return;
+    document.getElementById('ppBandeau').textContent = 'PLANNER';
+    document.getElementById('ppTitre').textContent   = 'Your year, your cycle, your attendance';
+    document.getElementById('ppSub').textContent     = 'Plan your weeks, take your group’s attendance and keep track of each day. Free, nothing to install.';
+    document.getElementById('ppInvite').textContent  = 'Open it in your world:';
+    document.getElementById('ppEp').textContent      = '🏐 Physical education';
+    document.getElementById('ppCamp').textContent    = '⛺ Day camp';
+    document.getElementById('ppSdg').textContent     = '🧩 Daycare';
   })();</script>
 </section>
-
-<!-- POPUP « Comment ça fonctionne ? » du calendrier de présences -->
-<div class="pcHow-modal" id="pcHowModal" onclick="if(event.target===this) pcCloseHow()">
-  <div class="pcHow-inner">
-    <button class="pcHow-close" onclick="pcCloseHow()" aria-label="Fermer">✕</button>
-    <div id="pcHowBody"></div>
-  </div>
-</div>
-<script>
-function pcOpenHow(){ var EN=(typeof ztsLang!=='undefined'&&ztsLang==='en'); document.getElementById('pcHowBody').innerHTML=(EN?pcHowEN():pcHowFR()); document.getElementById('pcHowModal').classList.add('open'); document.body.style.overflow='hidden'; }
-function pcCloseHow(){ document.getElementById('pcHowModal').classList.remove('open'); document.body.style.overflow=''; }
-document.addEventListener('keydown',function(e){ if(e.key==='Escape') pcCloseHow(); });
-function pcHowFR(){ return ''
-+'<h3>📅 Comment fonctionne le calendrier de présences&nbsp;?</h3>'
-+'<p>C\'est un outil <b>100&nbsp;% gratuit</b> pour faire l\'appel de ton groupe et garder le fil de chaque journée — pensé pour les <b>animateurs de camp de jour</b>, les <b>éducatrices de service de garde</b> et les <b>profs d\'éducation physique</b>.</p>'
-+'<h4>🎯 À quoi ça sert</h4>'
-+'<p>Fini la feuille de papier qui se perd&nbsp;: tu vois d\'un coup d\'œil <b>qui est présent, qui est parti, avec qui</b>, et tu notes ce qui s\'est passé. Tout se synchronise <b>en temps réel</b> entre l\'animateur et le coordonnateur.</p>'
-+'<h4>👉 Étape par étape</h4>'
-+'<ol class="pcHow-steps">'
-+'<li><b>Crée ton groupe</b> (ex.&nbsp;«&nbsp;Les Dauphins&nbsp;»). Tu peux en avoir plusieurs.</li>'
-+'<li><b>Ajoute tes enfants</b>&nbsp;: prénom, photo, personnes autorisées à venir les chercher, et leurs <b>particularités</b> (allergie&nbsp;🥜, TSA&nbsp;🧩, asthme…) qui s\'affichent sous leur nom.</li>'
-+'<li><b>Le matin</b>, tu <b>tapes la photo</b> de chaque enfant qui arrive → il passe au vert «&nbsp;présent&nbsp;» avec l\'heure. Un appui long&nbsp;= absent.</li>'
-+'<li><b>Au départ</b>, tu indiques <b>qui vient le chercher</b> (avertissement si la personne n\'est pas autorisée), puis tu remplis le <b>journal de bord</b>&nbsp;: belle journée, pépin, objet perdu, comportement…</li>'
-+'<li><b>Le coordonnateur</b> voit tous les groupes en temps réel et peut <b>t\'écrire dans l\'app</b> («&nbsp;Le parent de Mia est à l\'accueil&nbsp;»).</li>'
-+'</ol>'
-+'<h4>💡 Exemples concrets</h4>'
-+'<div class="pcHow-ex"><b>Camp de jour —</b> Lundi 8&nbsp;h, 22 enfants arrivent. Tu tapes chaque visage&nbsp;= présent. Léo a une allergie&nbsp;: l\'icône&nbsp;🥜 est déjà sous son nom, impossible de l\'oublier. À 16&nbsp;h, sa mère vient le chercher&nbsp;: tu notes «&nbsp;Belle journée&nbsp;🌟&nbsp;» et qui vient le chercher.</div>'
-+'<div class="pcHow-ex"><b>Service de garde —</b> Un grand-parent non inscrit se présente pour Mia. L\'app affiche un&nbsp;⚠️ «&nbsp;hors-liste&nbsp;»&nbsp;: tu confirmes en toute sécurité et c\'est consigné.</div>'
-+'<div class="pcHow-ex"><b>Coordination —</b> La coordonnatrice cherche un enfant, voit qu\'il est parti à 15&nbsp;h avec son père, et lit le compte rendu de l\'animateur. Un&nbsp;❗ signifie qu\'il y a un message à transmettre au parent.</div>'
-+'<h4>📱 Où ça marche</h4>'
-+'<p>Sur <b>tablette et iPhone</b> directement au gymnase ou dans la cour, et sur ordinateur. <b>Rien à installer.</b></p>'
-+'<a class="pcHow-cta" href="/apps/planificateur/">Ouvrir le calendrier →</a>'; }
-function pcHowEN(){ return ''
-+'<h3>📅 How does the attendance calendar work?</h3>'
-+'<p>A <b>100% free</b> tool to take your group\'s attendance and keep track of each day — built for <b>day-camp counsellors</b>, <b>daycare educators</b> and <b>PE teachers</b>.</p>'
-+'<h4>🎯 What it\'s for</h4>'
-+'<p>No more lost paper sheets: see at a glance <b>who is here, who left, and with whom</b>, and log what happened during the day. Everything syncs <b>in real time</b> between the counsellor and the coordinator.</p>'
-+'<h4>👉 Step by step</h4>'
-+'<ol class="pcHow-steps">'
-+'<li><b>Create your group</b> (e.g. “The Dolphins”). You can have several.</li>'
-+'<li><b>Add your kids</b>: first name, photo, authorized pickup people, and their <b>special notes</b> (allergy 🥜, ASD 🧩, asthma…) shown under their name.</li>'
-+'<li><b>In the morning</b>, <b>tap each child\'s photo</b> as they arrive → they turn green “present” with the time. Long-press = absent.</li>'
-+'<li><b>At pickup</b>, set <b>who is picking them up</b> (a warning shows if the person isn\'t authorized), then fill the <b>logbook</b>: great day, mishap, lost item, behaviour…</li>'
-+'<li><b>The coordinator</b> sees every group in real time and can <b>message you in the app</b> (“Mia\'s parent is at the front desk”).</li>'
-+'</ol>'
-+'<h4>💡 Real examples</h4>'
-+'<div class="pcHow-ex"><b>Day camp —</b> Monday 8&nbsp;a.m., 22 kids arrive. You tap each face = present. Leo has an allergy: the 🥜 icon is already under his name — impossible to miss. At 4&nbsp;p.m. his mom picks him up: you log “Great day 🌟” and who picked him up.</div>'
-+'<div class="pcHow-ex"><b>Daycare —</b> An unregistered grandparent shows up for Mia. The app flags a&nbsp;⚠️ “off-list” pickup: you confirm safely and it\'s recorded.</div>'
-+'<div class="pcHow-ex"><b>Coordination —</b> The coordinator looks up a child, sees they left at 3&nbsp;p.m. with their dad, and reads the counsellor\'s log. A&nbsp;❗ means there\'s a message to pass on to the parent.</div>'
-+'<h4>📱 Where it works</h4>'
-+'<p>On <b>tablet and iPhone</b> right in the gym or schoolyard, and on desktop. <b>Nothing to install.</b></p>'
-+'<a class="pcHow-cta" href="/apps/planificateur/">Open the calendar →</a>'; }
-</script>
 
 <!-- STAGE 2 retiré : la grille d'apps par métier vit désormais dans les
      hubs (ep.html / service-de-garde.html / camps-de-jour.html) — source
