@@ -173,6 +173,23 @@ html.ztsp-decor body > * { position: relative; z-index: 0; }
 }
 .ztsp-btn--jaune:hover  { box-shadow: 0 7px 0 var(--ztsp-jaune-deep), 6px 12px 0 rgba(0,0,0,.35); }
 .ztsp-btn--jaune:active { box-shadow: 0 1px 0 var(--ztsp-jaune-deep), 2px 4px 0 rgba(0,0,0,.35); }
+
+/* Variantes par métier — mêmes teintes que `.ztsp-porte__go`, pour qu'un
+   bouton qui mène chez un métier porte partout la même couleur. Le cyan par
+   défaut est déjà celui de l'ÉPS : `.ztsp-btn` seul sert de variante « ep ». */
+.ztsp-btn--lime {
+  background: linear-gradient(180deg, #C9FF6B, var(--ztsp-lime)); color: #1E3300;
+  box-shadow: 0 5px 0 #6F9E00, 5px 9px 0 rgba(0,0,0,.35);
+}
+.ztsp-btn--lime:hover  { box-shadow: 0 7px 0 #6F9E00, 6px 12px 0 rgba(0,0,0,.35); }
+.ztsp-btn--lime:active { box-shadow: 0 1px 0 #6F9E00, 2px 4px 0 rgba(0,0,0,.35); }
+.ztsp-btn--orange {
+  background: linear-gradient(180deg, #FFC661, var(--ztsp-orange)); color: #3D2400;
+  box-shadow: 0 5px 0 #A86A00, 5px 9px 0 rgba(0,0,0,.35);
+}
+.ztsp-btn--orange:hover  { box-shadow: 0 7px 0 #A86A00, 6px 12px 0 rgba(0,0,0,.35); }
+.ztsp-btn--orange:active { box-shadow: 0 1px 0 #A86A00, 2px 4px 0 rgba(0,0,0,.35); }
+
 .ztsp-btn--sm { font-size: 13px; padding: 9px 16px 7px; border-width: 2.5px; box-shadow: 0 4px 0 var(--ztsp-cyan-dark); }
 
 /* ==========================================================================
@@ -204,7 +221,13 @@ html.ztsp-decor body > * { position: relative; z-index: 0; }
   font-family: var(--ztsp-f-titre); font-size: clamp(26px, 3.6vw, 42px);
   letter-spacing: .6px; color: #fff; margin: 4px 0 2px;
 }
-.ztsp-sectrait { height: 4px; width: 96px; background: var(--ztsp-jaune); border: 2px solid var(--ztsp-noir); border-radius: 3px; margin-bottom: 18px; }
+/* `box-sizing: content-box` N'EST PAS UN DÉTAIL. Presque toutes les pages du
+   site posent `box-sizing: border-box` en règle universelle. Avec elle, ces
+   4 px de haut sont la hauteur TOTALE : les 2 px de contour en haut et 2 px en
+   bas la remplissent à eux seuls et il ne reste pas un pixel de jaune — le
+   trait se dessine tout noir. Vu à l'œil le 4 août sur l'accueil.
+   `content-box` rend au trait ses 4 px d'aplat, contour en plus. */
+.ztsp-sectrait { box-sizing: content-box; height: 4px; width: 96px; background: var(--ztsp-jaune); border: 2px solid var(--ztsp-noir); border-radius: 3px; margin-bottom: 18px; }
 
 /* ==========================================================================
    3. HERO
