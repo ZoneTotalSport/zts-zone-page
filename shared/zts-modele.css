@@ -142,8 +142,25 @@ html.ztsp-decor body::after {
 @media (prefers-reduced-motion: reduce) {
   html.ztsp-decor body::after { animation: none; }
 }
-/* Le contenu doit passer au-dessus des deux couches. */
-html.ztsp-decor body > * { position: relative; z-index: 0; }
+/* ⚠ RÈGLE SUPPRIMÉE le 4 août 2026 — NE PAS LA REMETTRE.
+   Elle disait `html.ztsp-decor body > * { position: relative; z-index: 0 }`,
+   pour « faire passer le contenu au-dessus des deux couches ». Elle était à la
+   fois inutile et destructrice.
+
+   INUTILE : l'ordre de peinture CSS place les enfants en z-index négatif
+   (étape 2) AVANT les blocs du flux normal (étape 3). Le contenu passe déjà
+   devant le décor sans qu'on touche à son positionnement.
+
+   DESTRUCTRICE : avec 0,1,2 de spécificité, elle écrasait le `position: fixed`
+   de tout enfant direct de `body`. Mesuré sur l'accueil le 4 août : ONZE
+   éléments retombés en `relative` — les trois modales, les trois panneaux du
+   menu, le menu mobile, la mascotte, le bouton de pause, le balayage de
+   couleur, la grille d'apps. Une modale en `relative` ne se superpose plus :
+   elle rentre dans le flux et pousse la page vers le bas. En production depuis
+   le 3 août.
+
+   Si une page a besoin de remonter un élément au-dessus du décor, qu'elle le
+   fasse sur cet élément-là, pas sur tous les enfants de son body. */
 
 @media print {
   html.ztsp-decor { background: #fff !important; color: #000 !important; }
