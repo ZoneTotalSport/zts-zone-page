@@ -124,10 +124,43 @@ branches sont entièrement contenues dans `main` — `git rev-list --count
 main..pilote/plan-b-meteo` et `…suppleance` renvoient **0** l'une comme
 l'autre. Rien à fusionner. `pilote/nhl-playoffs` reste abandonnée.
 
-### 3. Vagues suivantes
+### 3. ~~Vague 2 — les 22 apps du gabarit~~ — FAITE le 4 août
 
-Ordre du prescan, amendé : les six apps de la whitelist d'abord (faites), puis
-les 22 gabarits, puis les apps custom par risque croissant.
+`activites-duree`, `bricolages`, `brise-glace`, `chansons-camp`, `comptines`,
+`echauffements`, `enigmes`, `grands-jeux`, `intervention-groupe`,
+`jeux-calmes`, `jeux-eau`, `jeux-par-theme`, `jeux-rapides`, `journee-pedago`,
+`noms-de-clans`, `olympiades`, `olympiades-scolaires`, `plan-b-pluie`,
+`rallyes`, `roue-responsabilites`, `sos-conflits`, `veillee-feu-de-camp`.
+
+**Six lignes chacune**, 132 insertions, zéro suppression. **Densité `travail`
+pour les 22** — ces apps sont ouvertes autant pendant le cours qu'en
+préparation (un prof ouvre « plan B pluie » au moment où il pleut), une
+invitation à la pause café n'y a pas sa place.
+
+> **Le combo gabarit + marine était inédit** : les six apps de la vague 1 sont
+> toutes des apps *custom*. Vérifié sur les 22 en iframe, sept critères chacune
+> — `html.ztsh-on`, `body.ztsh-on`, densité, fond `#061726`, body transparent,
+> enveloppe, rayons. **22/22.** Plus un contrôle visuel sur deux métiers,
+> `echauffements` (ep) et `veillee-feu-de-camp` (camp).
+
+`verifie-habillage.py` : **28 apps migrées, 0 bloquant.**
+
+### 4. Vague 3 — les apps custom
+
+Ordre du prescan : par risque croissant. Restent 14, dont deux builds Vite et
+plusieurs qui imposent leur fond (`fondSurEnveloppe` à prévoir) :
+
+| App | Fond propre | Note |
+|---|---|---|
+| `colorier`, `generateur`, `studio-jeu` | aucun | les plus simples, à faire en premier |
+| `agenda`, `performances`, `planification` | aucun | gabarit-like, CSS moyen |
+| `omnigroupe` | `#f1f5f9` | 267 Ko, la plus grosse |
+| `cours-maternelle` | dégradé crème | + `body.tbi` |
+| `grille` | image de fond | |
+| `moyens-action` | `#f8fafc` | |
+| `tni` | `var(--navy)` | densité projection, voir le banc du 1er août |
+| `transitions` | `#f8f9fa!important` | **`fondSurEnveloppe`** |
+| `nba-playoffs`, `nhl-playoffs` | sombre | apps sportives — vérifier si elles restent en ligne |
 
 `acrosport` est **exclue** — voir `TICKET-ACROSPORT-ENTETE.md`.
 `evaluation` et `scoreboard` sont **exclues** — builds Vite, source absente

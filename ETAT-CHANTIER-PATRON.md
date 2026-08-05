@@ -215,10 +215,10 @@ café, les densités, le repli `fondSurEnveloppe` pour les apps qui imposent leu
 fond en `!important`, la gestion `print` et plein écran. `ztsp-decor` ne sert
 qu'aux pages **hors shell**.
 
-État : **6 apps sur 46** montent le shell (`educatifs`, `jeux`, `musique`,
-`plan-b-meteo`, `sae`, `suppleance`). Ordre prévu : les 23 apps du gabarit
-partagé (risque 1), puis les apps custom par risque croissant. `acrosport`,
-`evaluation` et `scoreboard` sont exclues.
+État au 4 août : **28 apps montent le shell.** Les 6 de la vague 1 (apps custom)
+plus les **22 du gabarit**, montées le 4 août — voir `ETAT-CHANTIER-HABILLAGE.md`.
+Restent les 14 apps custom, par risque croissant. `acrosport`, `evaluation` et
+`scoreboard` sont exclues.
 
 ### 3. Le skill `zts-app-mise-en-page`
 
