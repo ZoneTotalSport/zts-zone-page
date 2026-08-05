@@ -188,10 +188,37 @@ défaut) et en mode intégré → premier cas d'app à deux densités (D24, 28 j
 > sans paramètre a le même effet. Le contrat est `?metier=ep|camp|sdg`, lu par
 > `init()` dans `apps/planificateur/app.js`. À vérifier au balayage des liens.
 
-### 2. Étendre le décor aux apps
+### 2. ~~Étendre le décor aux apps~~ — FAUSSE PISTE, corrigée le 4 août
 
-Une ligne par app : la classe `ztsp-decor` sur son `<html>`. À faire quand
-l'accueil est stabilisé, pour ne pas propager un modèle qui bouge encore.
+> **CE QUI ÉTAIT ÉCRIT ICI ÉTAIT FAUX** : « une ligne par app : la classe
+> `ztsp-decor` sur son `<html>` ». L'appliquer aurait créé un **troisième**
+> décor, empilé sur celui du shell.
+
+**Le décor existe déjà en deux exemplaires**, comme le header :
+
+| | Fichier | Sert |
+|---|---|---|
+| `html.ztsh-on` | `assets/ztsh-shell.css` | les 6 apps qui montent le shell |
+| `html.ztsp-decor` | `shared/zts-modele.css` | l'accueil et le planificateur |
+
+Même dégradé, même trame, mêmes rayons. **Les deux marines avaient divergé** —
+`#061726` au shell, `#08131E` au patron, parce que le patron réutilisait
+`--ztsp-noir` (l'encre des bordures) comme fond de page alors que son propre
+dégradé finissait sur `#061726`. Réalignés le 4 août sur un nouveau token
+`--ztsp-marine`. Un avertissement croisé est écrit dans chacun des deux
+fichiers.
+
+**La vraie suite est le chantier du shell, déjà en cours** — voir
+`ETAT-CHANTIER-HABILLAGE.md`, « Vagues suivantes ». Habiller une app = monter
+le shell dessus, ce qui apporte le décor **et** le casier d'outils, la pause
+café, les densités, le repli `fondSurEnveloppe` pour les apps qui imposent leur
+fond en `!important`, la gestion `print` et plein écran. `ztsp-decor` ne sert
+qu'aux pages **hors shell**.
+
+État : **6 apps sur 46** montent le shell (`educatifs`, `jeux`, `musique`,
+`plan-b-meteo`, `sae`, `suppleance`). Ordre prévu : les 23 apps du gabarit
+partagé (risque 1), puis les apps custom par risque croissant. `acrosport`,
+`evaluation` et `scoreboard` sont exclues.
 
 ### 3. Le skill `zts-app-mise-en-page`
 

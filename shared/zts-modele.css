@@ -55,6 +55,15 @@
   --ztsp-lime:      #A3FF00;
   --ztsp-orange:    #FFA200;
   --ztsp-noir:      #08131E;
+  /* ENCRE ≠ FOND DE PAGE. `--ztsp-noir` est l'encre : bordures, ombres BD,
+     bandeaux de panneau. Le fond du décor est un autre bleu, plus profond, et
+     il doit valoir EXACTEMENT `--ztsh-marine` du shell (assets/ztsh-shell.css)
+     — les deux peignent le même décor sur des pages différentes, et un écart
+     se voit quand on passe de l'accueil à une app.
+     Le décor utilisait `--ztsp-noir` comme fond alors que son propre dégradé
+     finit sur #061726 : incohérent avec lui-même autant qu'avec le shell.
+     ⚠ Si l'un des deux change, changer l'autre. */
+  --ztsp-marine:    #061726;
   --ztsp-surface:   #FFFFFF;
   --ztsp-ink:       #0C1720;
   --ztsp-ink-soft:  #5B6773;
@@ -97,12 +106,23 @@
    Les rayons tournent en 140 s : assez lent pour qu'on ne le remarque pas
    consciemment, assez présent pour que la page ne soit pas figée.
    `prefers-reduced-motion` les arrête net.
+
+   ⚠ LE DÉCOR EXISTE EN DEUX EXEMPLAIRES, comme le header.
+   Celui-ci sert les pages qui prennent le patron SANS le shell — l'accueil et
+   le planificateur au 4 août. `html.ztsh-on`, dans `assets/ztsh-shell.css`,
+   sert les six apps qui montent le shell. Même dégradé, même trame, mêmes
+   rayons, deux fichiers. TOUTE RETOUCHE DOIT ALLER DANS LES DEUX.
+
+   ⚠ NE PAS POSER CETTE CLASSE SUR UNE APP QUI MONTE LE SHELL — les deux
+   décors s'empileraient. Pour habiller une app, la voie décidée au chantier
+   précédent est le montage du shell, pas cette classe. Elle ne sert qu'aux
+   pages hors shell.
    ========================================================================== */
 html.ztsp-decor {
-  background-color: var(--ztsp-noir);
+  background-color: var(--ztsp-marine);
   background-image:
     radial-gradient(760px 420px at 88% 4%, rgba(255,212,0,.10), transparent 70%),
-    linear-gradient(163deg, #12879E 0%, #0C5C7D 28%, #0A3A5E 58%, #08243D 82%, #061726 100%);
+    linear-gradient(163deg, #12879E 0%, #0C5C7D 28%, #0A3A5E 58%, #08243D 82%, var(--ztsp-marine) 100%);
   background-repeat: no-repeat, no-repeat;
   background-attachment: fixed, fixed;
 }

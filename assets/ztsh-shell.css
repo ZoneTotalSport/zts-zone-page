@@ -258,6 +258,15 @@
 
    body reste donc transparent : les z-index négatifs des enfants restent
    visibles, et rien de ce que fait une app n'est masqué. */
+/* ⚠ LE DÉCOR EXISTE EN DEUX EXEMPLAIRES, comme le header.
+   Celui-ci sert les apps qui montent le shell. `html.ztsp-decor`, dans
+   shared/zts-modele.css, sert les pages qui prennent le patron sans le shell
+   — l'accueil et le planificateur au 4 août. Même dégradé, même trame, mêmes
+   rayons, deux fichiers.
+   Les deux marines ont divergé jusqu'au 4 août : #061726 ici, #08131E là-bas.
+   Réalignés. TOUTE RETOUCHE AU DÉCOR DOIT ALLER DANS LES DEUX.
+   Ne pas poser `ztsp-decor` sur une app qui monte le shell : les deux décors
+   s'empileraient. */
 html.ztsh-on {
   background-color: var(--ztsh-marine);
   background-image:
