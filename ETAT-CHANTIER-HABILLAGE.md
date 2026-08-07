@@ -1,6 +1,7 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 2 août 2026, banc `tni` fait et son correctif posé.
+**Dernière mise à jour** : 4 août 2026 — vague 2 livrée (22 apps du gabarit),
+premier lot de la vague 3 (3 apps custom). 31 apps montent le shell.
 Le chantier du personnage est clos depuis le 31 juillet.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
@@ -147,12 +148,33 @@ invitation à la pause café n'y a pas sa place.
 
 ### 4. Vague 3 — les apps custom
 
-Ordre du prescan : par risque croissant. Restent 14, dont deux builds Vite et
-plusieurs qui imposent leur fond (`fondSurEnveloppe` à prévoir) :
+**Premier lot fait le 4 août** : `colorier` (travail), `generateur` (travail),
+`studio-jeu` (projection). **31 apps montent le shell.**
+
+> **Variante du montage pour les custom** : le CSS du shell va après **le
+> dernier `<link>` du head**, pas seulement après les feuilles partagées. Une
+> app custom a sa propre feuille (`styles.css`) qui, sinon, passerait après le
+> shell et gagnerait la cascade sur ses surcharges. `colorier` la chargeait
+> justement en dernier.
+
+> **`studio-jeu` n'apporte rien de visible, et c'est voulu.** En densité
+> `projection` — celle que le shell prévoit pour elle nommément — aucun chrome
+> n'est monté et il n'y a pas de décor (décision du 2 août). Le montage pose le
+> marqueur de densité, borne le `box-sizing` du shell à son sous-arbre (cette
+> app ne charge aucun CSS partagé, un `*` la casserait) et donne un point
+> d'accroche. L'avertissement ENVELOPPE qu'elle lève est sans objet en
+> projection, où la marge du rail vaut 0.
+
+> **Densité : regarder la page avant de choisir.** J'avais mis `generateur` en
+> `vitrine` ; vu à l'écran, la page porte déjà un verrou plein écran, un funnel
+> et un cadenas, et `vitrine` y ajoutait un bouton « pause café » flottant
+> par-dessus. Passée à `travail`.
+
+Restent **11 apps**, dont deux builds Vite et plusieurs qui imposent leur fond
+(`fondSurEnveloppe` à prévoir) :
 
 | App | Fond propre | Note |
 |---|---|---|
-| `colorier`, `generateur`, `studio-jeu` | aucun | les plus simples, à faire en premier |
 | `agenda`, `performances`, `planification` | aucun | gabarit-like, CSS moyen |
 | `omnigroupe` | `#f1f5f9` | 267 Ko, la plus grosse |
 | `cours-maternelle` | dégradé crème | + `body.tbi` |
