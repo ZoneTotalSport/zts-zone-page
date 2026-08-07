@@ -531,11 +531,35 @@ body[data-metier] .rr-preset.active {
 .zts-modal__close:hover { transform:scale(1.08); }
 .zts-modal__title { font-family:var(--font-impact); font-size:var(--fs-4); margin-bottom:var(--space-3); }
 
-/* ============ FOOTER PARTAGÉ (.zts-footer) ============ */
+/* ============ FOOTER PARTAGÉ (.zts-footer) ============
+   LE VIOLET EST PARTI le 4 août 2026. `background:var(--violet)` (#8B5CF6)
+   posait un aplat mauve-rosé de près de 4000 px de haut au bas de chaque page.
+   Il datait d'avant le chantier : la barre du HAUT a été refaite en marine le
+   3 août, le shell a donné le décor marine à 30 apps, et le footer était resté
+   la seule grande surface violette du site. Il ne fermait plus rien, il
+   coupait.
+
+   MÊME RECETTE QUE LA BARRE DU HAUT, à dessein — `rgba(6,23,38,.92)`, la
+   valeur éprouvée du 27 juillet. Le haut et le bas de page se répondent, et
+   sur les pages qui portent le décor la trame reste très légèrement visible au
+   travers, ce qu'un aplat opaque tuerait.
+
+   ⚠ OPACITÉ À `.92`, JAMAIS `.66` — même leçon que pour la barre. À `.66` le
+   footer emprunte sa teinte au fond de la page : sur `jeux`, qui impose
+   `body{background:#f8fafc!important}`, il virerait au gris sale.
+
+   Les accents ne bougent pas : titres de colonne en jaune, cartes poussoirs
+   blanches, bordure noire épaisse. Ils étaient déjà lisibles sur le violet,
+   ils le restent sur le marine. */
 .zts-footer {
   position:relative; margin-top:var(--space-7);
-  background:var(--violet); color:#fff;
-  border-top:var(--bord-gros);
+  background:rgba(6,23,38,.92); color:#fff;
+  /* La bordure était `var(--bord-gros)`, donc noire. Elle séparait très bien
+     un footer violet du reste de la page ; sur le marine elle est noir sur
+     bleu nuit — invisible, et le footer commençait sans qu'on sache où. Le
+     jaune est la couleur qui signe déjà les titres du footer et le trait de
+     section du patron : il ferme la page au lieu de la trancher. */
+  border-top:4px solid var(--jaune);
   padding:var(--space-6) clamp(16px,4vw,48px) var(--space-5);
 }
 .zts-footer__pushcards {
