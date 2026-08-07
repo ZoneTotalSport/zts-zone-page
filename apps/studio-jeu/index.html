@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@500;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="studio.css?v=14">
+  <link rel="stylesheet" href="../../assets/ztsh-shell.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 </head>
 <body data-metier="eps">
@@ -172,5 +173,16 @@
 
   <script src="admin-gate.js?v=4"></script>
   <script type="module" src="studio.js?v=14"></script>
+
+  <!-- Densité `projection` : c'est celle que le shell prévoit pour cette app,
+       nommément (ztsh-shell.css §18). Aucun chrome n'est monté — ni casier, ni
+       pause café, ni décor : décision du 2 août, pas de marine en projection.
+       L'éditeur garde son plein cadre, c'est tout l'intérêt d'un studio de mise
+       en scène. Le montage n'apporte donc rien de visible : il pose le marqueur
+       `data-ztsh-densite`, borne le `box-sizing` du shell à son propre
+       sous-arbre — cette app ne charge AUCUN CSS partagé, un `*` la casserait —
+       et donne un point d'accroche si la densité change un jour. -->
+  <script src="../../assets/ztsh-shell.js"></script>
+  <script>ZTSShell.monter({ densite: 'projection' });</script>
 </body>
 </html>
