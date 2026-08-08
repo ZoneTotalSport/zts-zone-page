@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!-- ZONE TOTAL SPORT — Accueil (zonetotalsport.ca) -->
-<html lang="fr-CA">
+<html class="ztsp-decor" lang="fr-CA">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -88,6 +88,12 @@
      inline : la home garde la priorité sur les conflits de base. -->
 <link rel="stylesheet" href="shared/zts.css">
 
+<!-- PATRON DE PAGE (préfixe ztsp-). Chargé après shared/zts.css et avant le
+     style inline, comme lui : la home garde le dernier mot. Le patron ne
+     touche à aucun sélecteur de la home — tout y est préfixé, y compris les
+     tokens — donc il ne peut pas entrer en conflit avec les 100 Ko qui suivent. -->
+<link rel="stylesheet" href="shared/zts-modele.css">
+
 <style>
   /* ============ RESET + BASE ============ */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -138,63 +144,27 @@
     position: relative;
   }
 
-  /* IMAGE DE FOND - VRAIES PHOTOS faded selon le métier */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url('bg-gym.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    opacity: 0.45;
-    pointer-events: none;
-    z-index: 0;
-    transition: opacity 0.6s ease, background-image 0.3s ease;
-    filter: saturate(0.9);
-  }
+  /* ANCIEN DÉCOR — photo de gymnase, retirée le 3 août 2026.
+     Le fond de la page est desormais celui du patron : marine, trame de
+     points et rayons en rotation lente (body.ztsp-decor, shared/zts-modele.css).
+     La regle est conservee vide plutot que supprimee : d'autres regles plus
+     bas changeaient l'image selon le metier (body.metier-sdg, .metier-camp).
+     Les neutraliser au meme endroit evite de les chercher une par une. */
 
-  /* Voile blanc par-dessus pour adoucir et garder le contenu lisible */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(180deg,
-      rgba(255,254,247,0.55) 0%,
-      rgba(255,254,247,0.35) 40%,
-      rgba(255,254,247,0.65) 100%);
-    pointer-events: none;
-    z-index: 0;
-  }
+  /* ANCIEN VOILE BLANC — retire le 3 aout 2026 avec la photo de gymnase.
+     Il servait a adoucir la photo sous du texte fonce ; sur le marine du
+     patron il delaverait tout. Le pseudo-element est rendu au patron, qui y
+     pose les rayons en rotation. */
 
-  /* FONDS PAR MÉTIER — rayures fluo (comme le planificateur), 100% sans voile blanc */
-  body.metier-ep::before,
-  body.metier-sdg::before,
-  body.metier-camp::before {
-    opacity: 1;
-    filter: none;
-    background-size: auto;
-    background-repeat: repeat;
-  }
-  body.metier-ep::before {
-    background-color: var(--cyan);
-    background-image: repeating-conic-gradient(from 0deg at 88% 96%, var(--jaune) 0deg 7deg, transparent 7deg 14deg);
-  }
-  body.metier-camp::before {
-    background-color: var(--orange);
-    background-image: repeating-conic-gradient(from 0deg at 88% 96%, #C026FF 0deg 7deg, transparent 7deg 14deg);
-  }
-  body.metier-sdg::before {
-    background-color: var(--vert);
-    background-image: repeating-conic-gradient(from 0deg at 88% 96%, #FF2DAC 0deg 7deg, transparent 7deg 14deg);
-  }
-  /* Voile blanc retiré — fond 100% */
-  body.metier-ep::after,
-  body.metier-sdg::after,
-  body.metier-camp::after {
-    background: transparent;
-  }
+  /* FONDS PAR METIER — neutralises le 3 aout. Ils repeignaient body::before
+     en rayures fluo cyan/vert/orange par-dessus la photo. Le decor du patron
+     est unique et ne change pas avec le metier : c'est le propre d'un fond de
+     marque. Le metier se lit ailleurs — portes, titres, boutons. */
+  /* Cette regle mettait body::after a transparent pour retirer le voile blanc.
+     SUPPRIMEE le 3 aout : body::after appartient desormais au patron, qui y
+     dessine les rayons en rotation. La regle avait la meme specificite que
+     celle du patron (0,1,2) et venait apres — elle effacait les rayons des
+     qu'un metier etait choisi. Le voile, lui, n'existe plus du tout. */
 
   /* ============ DARK NAV BAR (top) — boutons chunky 3D ============ */
   .dark-nav {
@@ -1491,68 +1461,49 @@
     box-shadow: 7px 7px 0 var(--ink);
   }
 
-  /* ============ "AUJOURD'HUI AU MENU" SECTION ============ */
+  /* ============ "AUJOURD'HUI AU MENU" SECTION ============
+     FOND RETIRÉ le 4 août 2026 (chantier patron). Cette section posait un
+     dégradé opaque `#0a0a18 → #2a1a4e` sur 1105 px, encadré de deux traits de
+     6 px : le décor marine de la page s'arrêtait net à son entrée et
+     reprenait à sa sortie. Elle se distingue maintenant comme dans la
+     maquette — un titre `.ztsp-sectitre` et son trait — et laisse voir la
+     trame et les rayons.
+     La trame de points propre à la section (`::before`) part avec le fond :
+     elle doublait celle du décor. Le texte reste blanc, le marine est aussi
+     sombre que l'était le dégradé. */
   .menu-jour {
-    background: linear-gradient(135deg, #0a0a18 0%, #1a1a2e 50%, #2a1a4e 100%);
     color: white;
-    padding: 80px 32px;
-    margin: 60px 0;
+    padding: 60px 32px;
+    margin: 40px 0;
     position: relative;
-    overflow: hidden;
-    border-top: 6px solid var(--ink);
-    border-bottom: 6px solid var(--ink);
-  }
-  .menu-jour::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      radial-gradient(circle at 12% 20%, rgba(255,234,0,0.15) 6px, transparent 8px),
-      radial-gradient(circle at 88% 60%, rgba(0,229,255,0.15) 8px, transparent 10px),
-      radial-gradient(circle at 50% 85%, rgba(255,45,135,0.15) 6px, transparent 8px);
-    background-size: 300px 300px, 360px 360px, 280px 280px;
-    pointer-events: none;
   }
   .menu-jour-inner {
     max-width: 1280px; margin: 0 auto;
     position: relative; z-index: 1;
   }
-  .menu-jour .pill-top {
-    display: inline-block;
-    background: linear-gradient(90deg, var(--cyan), var(--rose));
-    color: white;
-    padding: 10px 24px;
-    border-radius: 999px;
-    font-family: var(--font-bang);
-    font-size: 18px;
-    letter-spacing: 0.06em;
-    margin-bottom: 14px;
-    box-shadow: 0 4px 14px rgba(0,229,255,0.4);
-  }
-  .menu-jour h2 {
-    font-family: var(--font-impact);
-    font-size: clamp(32px, 4vw, 50px);
-    line-height: 1;
-    letter-spacing: 0.02em;
-    margin-bottom: 14px;
-    text-align: center;
-    color: white;
-    text-shadow: 4px 4px 0 rgba(0,0,0,0.4);
-  }
+  /* `.pill-top` et `.menu-jour h2` SUPPRIMÉES le 4 août 2026. L'étiquette est
+     maintenant `.ztsp-eyebrow` et le titre `.ztsp-sectitre` — les valeurs
+     vivent au patron, plus en trois copies dans la page. La pilule
+     `border-radius:999px` était de toute façon dépréciée (CLAUDE.md). */
   .menu-jour-head { text-align: center; margin-bottom: 50px; }
   .menu-jour .date {
-    font-family: var(--font-hand);
-    font-size: 22px;
-    color: var(--cyan);
+    font-family: var(--ztsp-f-note);
+    font-size: 20px;
+    color: var(--ztsp-cyan-vif);
   }
   .menu-jour-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
   }
+  /* Le blanc à 4 % suffisait sur l'ancien dégradé uni. Sur le décor du patron
+     il laisse passer les rayons et la trame DERRIÈRE le texte de la carte :
+     le fond bouge lentement sous les mots. On repasse à un marine dense — la
+     carte redevient une surface, pas une vitre. Les couleurs internes
+     (cyan, jaune) restent celles d'un fond sombre, rien d'autre à reprendre. */
   .menu-jour-card {
-    background: rgba(255,255,255,0.04);
-    border: 2px solid rgba(255,255,255,0.12);
+    background: rgba(8,19,30,0.55);
+    border: 2px solid rgba(255,255,255,0.14);
     border-radius: 22px;
     padding: 32px;
     backdrop-filter: blur(8px);
@@ -1733,6 +1684,15 @@
   /* ============ PAUSE SYNDICALE - BOUTON FLOTTANT ============ */
   .pause-syndicale-btn {
     position: fixed;
+    /* Déplacé du coin bas-gauche au coin bas-droite le 2 août.
+       À gauche il recouvrait la deuxième ligne du titre du hero — invisible
+       tant que le fond était clair, criant sur le marine du patron.
+       À droite le coin est déjà pris : la mascotte occupe 130 px de haut à
+       partir de 24 px du bas, et le rail d'outils descend au-dessus d'elle.
+       Le 3 août, l'en-tête est passé de 233px à 68px : tout le hero a remonté
+       et le titre n'est plus dans la zone du coin bas-gauche. Le bouton y
+       revient donc, là où il gêne le moins — le coin bas-droite reste saturé
+       par la mascotte (130px) et le rail d'outils. */
     bottom: 24px;
     left: 24px;
     background: linear-gradient(135deg, var(--jaune), var(--orange));
@@ -2523,6 +2483,8 @@
     .serie-card { width: 52px; height: 118px; }
     .serie-card .label { font-size: 10px; }
     /* Flottants du bas : compacts pour ne plus recouvrir le texte du hero */
+    /* L'origine suit le bouton, passé à droite le 2 août : avec « bottom left »
+       la réduction le décollait du bord au lieu de l'y coller. */
     .pause-syndicale-btn { transform: scale(.72); transform-origin: bottom left; }
     .mascot { width: 84px !important; height: 84px !important; }
     /* Décors .splash absolus → 2px de scroll horizontal fantôme sur iOS */
@@ -2977,16 +2939,10 @@
 <div data-zts-header></div>
 
 <!-- SÉRIES SPORTIVES - colonne flottante à gauche -->
-<div class="series-dock">
-  <!-- Cartes Séries LNH + NBA retirées (demande Joey 2026-07-06) — saison finie.
-       Les pages /apps-nhl/ et /apps-nba/ restent en ligne (SEO), seules les
-       cartes de la home partent. FIFA (Coupe du monde 2026 en cours) reste. -->
-  <a class="serie-card fifa" href="apps-fifa/index.html" onclick="openSeries('fifa'); return false;" data-i18n-attr="title:series.see_fifa" title="Voir la Coupe du monde FIFA 2026">
-    <span class="dot-live"></span>
-    <div class="league-logo">⚽</div>
-    <div class="label" data-i18n="series.fifa_label">SOCCER FIFA</div>
-  </a>
-</div>
+<!-- DOCK DES SÉRIES — retiré le 3 août 2026, tournoi terminé.
+     LNH et NBA en étaient déjà sortis le 6 juillet pour la même raison ; FIFA
+     restait seul. La page /apps-fifa/ reste en ligne (SEO), comme les deux
+     autres — seule la carte de l'accueil part. -->
 
 <!-- MODAL SÉRIES -->
 <div class="series-modal" id="seriesModal" onclick="if(event.target===this) this.classList.remove('open')">
@@ -3013,83 +2969,104 @@
 <!-- Bannière logo+horloge désormais intégrée au header partagé -->
 
 <!-- HERO STAGE 1 : SÉLECTEUR 3 PORTES -->
-<section class="hero" id="stage1">
-  <span class="eyebrow"><span class="dot"></span> <span data-i18n="hero.eyebrow">1400+ jeux · 100% gratuit · primaire</span></span>
-  <h1 class="mega"><span data-i18n="hero.title1">Faire bouger les enfants,</span><br><span class="swipe" data-i18n="hero.title2">c'est notre mission!</span></h1>
-  <p class="lede" data-i18n="hero.lede">Une plateforme. Trois métiers. Choisis le tien et reçois exactement ce qu'il te faut — pour des journées qui roulent au primaire.</p>
+<section class="hero ztsp-hero-accueil" id="stage1">
+  <div class="ztsp-hero-accueil__col">
+  <span class="ztsp-eyebrow" data-i18n="hero.eyebrow">1400+ jeux · 100% gratuit · primaire</span>
 
-  <div class="portes">
+  <!-- Le titre est en deux calques décalés (cyan et rose) portés par des
+       pseudo-éléments qui reprennent data-txt. Ce data-txt est traduit lui
+       aussi via data-i18n-attr, sinon les calques resteraient en français
+       derrière un titre anglais. -->
+  <h1 class="ztsp-titre-accueil">
+    <span class="ztsp-offset" data-i18n="hero.title1" data-i18n-attr="data-txt:hero.title1"
+          data-txt="Faire bouger les enfants,">Faire bouger les enfants,</span><br>
+    <span class="ztsp-offset" data-i18n="hero.title2" data-i18n-attr="data-txt:hero.title2"
+          data-txt="c'est notre mission!">c'est notre mission!</span>
+  </h1>
+
+  <p class="ztsp-hero__sub" data-i18n="hero.lede">Une plateforme. Trois métiers. Choisis le tien et reçois exactement ce qu'il te faut — pour des journées qui roulent au primaire.</p>
+
+  <!-- LES TROIS PORTES — entrée principale du site.
+       Contenu, ordre et hiérarchie inchangés. data-metier et choisirMetier()
+       sont conservés tels quels : ce sont eux qui déclenchent la transition
+       balayée et la navigation vers le hub du métier. -->
+  <div class="ztsp-portes">
 
     <!-- PORTE ÉP -->
-    <div class="porte" data-metier="ep" onclick="choisirMetier('ep')">
-      <div class="splash"></div>
-      <span class="icone"><img src="perso-ep.png" data-i18n-attr="alt:porte.ep.alt" alt="Prof d'éducation physique"></span>
-      <h3 data-i18n="metier.ep">Éducation physique</h3>
-      <p class="role" data-i18n="porte.ep.role">Profs d'ÉP du primaire : cours béton, alignés PFEQ, prêts dès lundi matin.</p>
-      <div class="tags">
-        <span class="tag">SAÉ</span>
-        <span class="tag">PFEQ</span>
-        <span class="tag" data-i18n="tag.evaluation">Évaluation</span>
-        <span class="tag" data-i18n="tag.gymnase">Gymnase</span>
+    <div class="ztsp-card ztsp-porte ztsp-porte--ep" data-metier="ep" onclick="choisirMetier('ep')">
+      <span class="ztsp-porte__vignette"><img class="ztsp-porte__img" src="perso-ep.png" data-i18n-attr="alt:porte.ep.alt" alt="Prof d'éducation physique"></span>
+      <h3 class="ztsp-porte__titre" data-i18n="metier.ep">Éducation physique</h3>
+      <p class="ztsp-porte__role" data-i18n="porte.ep.role">Profs d'ÉP du primaire : cours béton, alignés PFEQ, prêts dès lundi matin.</p>
+      <div class="ztsp-tags">
+        <span class="ztsp-tag">SAÉ</span>
+        <span class="ztsp-tag">PFEQ</span>
+        <span class="ztsp-tag" data-i18n="tag.evaluation">Évaluation</span>
+        <span class="ztsp-tag" data-i18n="tag.gymnase">Gymnase</span>
       </div>
-      <div class="go">
+      <span class="ztsp-btn ztsp-btn--sm ztsp-porte__go">
         <span data-i18n="porte.ep.cta">C'est parti!</span>
-        <span class="arrow">→</span>
-      </div>
+        <span aria-hidden="true">→</span>
+      </span>
     </div>
 
     <!-- PORTE SDG -->
-    <div class="porte" data-metier="sdg" onclick="choisirMetier('sdg')">
-      <div class="splash"></div>
-      <span class="icone"><img src="perso-sdg.png" data-i18n-attr="alt:porte.sdg.alt" alt="Éducateur service de garde"></span>
-      <h3 data-i18n="metier.sdg">Service de garde</h3>
-      <p class="role" data-i18n="porte.sdg.role">Éducatrices qui animent 30 jeunes au primaire : routines, jeux, journées péda.</p>
-      <div class="tags">
-        <span class="tag" data-i18n="tag.routines">Routines</span>
-        <span class="tag" data-i18n="tag.jeux_calmes">Jeux calmes</span>
-        <span class="tag" data-i18n="tag.pluie">Pluie</span>
-        <span class="tag" data-i18n="tag.sos">SOS conflits</span>
+    <div class="ztsp-card ztsp-porte ztsp-porte--sdg" data-metier="sdg" onclick="choisirMetier('sdg')">
+      <span class="ztsp-porte__vignette"><img class="ztsp-porte__img" src="perso-sdg.png" data-i18n-attr="alt:porte.sdg.alt" alt="Éducateur service de garde"></span>
+      <h3 class="ztsp-porte__titre" data-i18n="metier.sdg">Service de garde</h3>
+      <p class="ztsp-porte__role" data-i18n="porte.sdg.role">Éducatrices qui animent 30 jeunes au primaire : routines, jeux, journées péda.</p>
+      <div class="ztsp-tags">
+        <span class="ztsp-tag" data-i18n="tag.routines">Routines</span>
+        <span class="ztsp-tag" data-i18n="tag.jeux_calmes">Jeux calmes</span>
+        <span class="ztsp-tag" data-i18n="tag.pluie">Pluie</span>
+        <span class="ztsp-tag" data-i18n="tag.sos">SOS conflits</span>
       </div>
-      <div class="go">
+      <span class="ztsp-btn ztsp-btn--sm ztsp-porte__go">
         <span data-i18n="porte.sdg.cta">On y va!</span>
-        <span class="arrow">→</span>
-      </div>
+        <span aria-hidden="true">→</span>
+      </span>
     </div>
 
     <!-- PORTE CAMP -->
-    <div class="porte" data-metier="camp" onclick="choisirMetier('camp')">
-      <div class="splash"></div>
-      <span class="icone"><img src="perso-camp.png" data-i18n-attr="alt:porte.camp.alt" alt="Animateur camp de jour"></span>
-      <h3 data-i18n="metier.camp">Camps de jour</h3>
-      <p class="role" data-i18n="porte.camp.role">Coordos & moniteurs : grands jeux, thèmes, plein air et plan B météo.</p>
-      <div class="tags">
-        <span class="tag" data-i18n="tag.grands_jeux">Grands jeux</span>
-        <span class="tag" data-i18n="tag.themes">Thèmes</span>
-        <span class="tag" data-i18n="tag.plein_air">Plein air</span>
-        <span class="tag" data-i18n="tag.planb">Plan B</span>
+    <div class="ztsp-card ztsp-porte ztsp-porte--cdj" data-metier="camp" onclick="choisirMetier('camp')">
+      <span class="ztsp-porte__vignette"><img class="ztsp-porte__img" src="perso-camp.png" data-i18n-attr="alt:porte.camp.alt" alt="Animateur camp de jour"></span>
+      <h3 class="ztsp-porte__titre" data-i18n="metier.camp">Camps de jour</h3>
+      <p class="ztsp-porte__role" data-i18n="porte.camp.role">Coordos & moniteurs : grands jeux, thèmes, plein air et plan B météo.</p>
+      <div class="ztsp-tags">
+        <span class="ztsp-tag" data-i18n="tag.grands_jeux">Grands jeux</span>
+        <span class="ztsp-tag" data-i18n="tag.themes">Thèmes</span>
+        <span class="ztsp-tag" data-i18n="tag.plein_air">Plein air</span>
+        <span class="ztsp-tag" data-i18n="tag.planb">Plan B</span>
       </div>
-      <div class="go">
+      <span class="ztsp-btn ztsp-btn--sm ztsp-porte__go">
         <span data-i18n="porte.camp.cta">En avant!</span>
-        <span class="arrow">→</span>
-      </div>
+        <span aria-hidden="true">→</span>
+      </span>
     </div>
 
   </div>
 
-  <div class="stats-bar">
-    <div class="stat"><div class="num" data-target="1439" data-suffix="">1 439</div><div class="label" data-i18n="stat.games">Jeux & fiches</div></div>
-    <div class="stat"><div class="num" data-target="1790" data-suffix="">1 790</div><div class="label" data-i18n="stat.sae">SAÉ PFEQ</div></div>
-    <div class="stat"><div class="num" id="statPros" data-target="300" data-suffix="+">300+</div><div class="label" data-i18n="stat.pros">Pros inscrits</div></div>
-    <div class="stat"><div class="num">100%</div><div class="label" data-i18n="stat.free">Gratuit, à vie</div></div>
+  <!-- COMPTEURS — data-target et data-suffix sont le contrat de animateOne(),
+       #statPros est mis à jour par le worker d'abonnés. Ne pas y toucher. -->
+  <div class="ztsp-compteur">
+    <div class="ztsp-compteur__gros" data-target="1439" data-suffix="">1 439</div>
+    <div class="ztsp-compteur__quoi" data-i18n="stat.games">Jeux & fiches</div>
   </div>
+
+  <div class="ztsp-ministats">
+    <div class="ztsp-ms"><b data-target="1790" data-suffix="">1 790</b><small data-i18n="stat.sae">SAÉ PFEQ</small></div>
+    <div class="ztsp-ms"><b id="statPros" data-target="300" data-suffix="+">300+</b><small data-i18n="stat.pros">Pros inscrits</small></div>
+    <div class="ztsp-ms"><b>100%</b><small data-i18n="stat.free">Gratuit, à vie</small></div>
+  </div>
+  </div><!-- /.ztsp-hero-accueil__col -->
 </section>
 
 <!-- SECTION AUJOURD'HUI AU MENU (adaptée par métier via JS) -->
 <section class="menu-jour" id="menuJour">
   <div class="menu-jour-inner">
     <div class="menu-jour-head">
-      <span class="pill-top" data-i18n="menu.pill">✨ AUJOURD'HUI AU MENU</span>
-      <h2 id="menuJourTitre">Ton cours ÉPS prêt en 30 secondes</h2>
+      <span class="ztsp-eyebrow" data-i18n="menu.pill">✨ AUJOURD'HUI AU MENU</span>
+      <h2 class="ztsp-sectitre" id="menuJourTitre">Ton cours ÉPS prêt en 30 secondes</h2>
+      <div class="ztsp-sectrait" aria-hidden="true"></div>
       <div class="date" id="menuJourDate"></div>
       <script>/* date du jour : robuste + isolée des autres <script> (s'affiche même si le reste du JS plante) */(function(){try{var el=document.getElementById('menuJourDate');if(!el)return;var n=new Date();var en=(typeof ztsLang!=='undefined'&&ztsLang==='en');var d=n.toLocaleDateString(en?'en-CA':'fr-CA',{weekday:'long',day:'numeric',month:'long'});el.textContent=d.charAt(0).toUpperCase()+d.slice(1);}catch(e){}})();</script>
     </div>
@@ -3136,126 +3113,56 @@
   </div>
 </section>
 
-<!-- ========== CALENDRIER DE PRÉSENCES (sous Aujourd'hui au menu) ========== -->
-<section id="presenceCal">
+<!-- ========== PLANIFICATEUR — carte-lien =====================================
+     Décision de Joey du 4 août 2026 : le calendrier de présences quitte
+     l'accueil. Son contenu — « Qui est là aujourd'hui? … suis les présences de
+     ton groupe » — est un outil de gestion de classe, pas un contenu d'accueil.
+     Il est remplacé par une porte vers le planificateur, écrite au patron.
+
+     LE PARAMÈTRE DE MÉTIER N'EST PAS FACULTATIF. `apps/planificateur/app.js`
+     (init) lit `?metier=ep|camp|sdg` et retombe sur « camp » quand il manque.
+     L'ancien calendrier pointait vers `/apps/planificateur/` nu : un prof
+     d'ÉPS qui cliquait depuis l'accueil atterrissait dans une interface orange
+     de camp de jour. Et l'accueil n'a plus d'état de métier depuis le retrait
+     du stage 2 — `currentMetier()` y renvoie toujours null — donc on ne devine
+     pas : on offre les trois portes, chacune avec son paramètre.
+
+     Le calendrier lui-même n'est pas perdu : il vit dans le planificateur,
+     qui est sa place.
+     ========================================================================== -->
+<section id="planifPorte">
   <style>
-    #presenceCal{ padding:46px 20px; position:relative; z-index:2; }
-    #presenceCal .pc-inner{ max-width:760px; margin:0 auto; background:#fff; border:4px solid var(--ink); border-radius:28px; box-shadow:10px 10px 0 var(--ink); padding:clamp(20px,3vw,34px); text-align:center; }
-    #presenceCal .pc-pill{ display:inline-block; background:var(--cyan); color:var(--ink); border:3px solid var(--ink); border-radius:22px; padding:8px 20px; font-family:var(--font-impact); font-size:1.05rem; box-shadow:4px 4px 0 var(--ink); letter-spacing:.5px; }
-    #presenceCal h2{ font-family:var(--font-impact); font-size:clamp(1.6rem,4vw,2.6rem); color:var(--ink); margin:14px 0 4px; }
-    #presenceCal .pc-sub{ font-family:var(--font-fun); font-weight:600; color:#555; margin-bottom:20px; }
-    #presenceCal .pc-month{ font-family:var(--font-impact); font-size:1.35rem; color:var(--ink); margin-bottom:10px; text-transform:capitalize; }
-    #presenceCal .pc-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; max-width:520px; margin:0 auto; }
-    #presenceCal .pc-dow{ font-family:var(--font-impact); text-align:center; color:#9aa3ad; font-size:.9rem; padding:4px 0; }
-    #presenceCal .pc-day{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-family:var(--font-fun); font-weight:700; font-size:1.05rem; border:2px solid var(--ink); border-radius:11px; background:#FFFEF7; cursor:pointer; transition:transform .1s, box-shadow .1s, background .1s; text-decoration:none; color:var(--ink); }
-    #presenceCal .pc-day:hover{ transform:translate(-2px,-2px); box-shadow:3px 3px 0 var(--ink); background:var(--jaune); }
-    #presenceCal .pc-day.empty{ border:none; background:transparent; cursor:default; }
-    #presenceCal .pc-day.we{ background:#eef1f5; }
-    #presenceCal .pc-day.today{ background:var(--cyan); box-shadow:3px 3px 0 var(--ink); }
-    #presenceCal .pc-cta{ display:inline-flex; align-items:center; gap:10px; margin-top:20px; background:var(--jaune); color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 26px; font-family:var(--font-impact); font-size:1.15rem; text-decoration:none; transition:transform .12s, box-shadow .12s; }
-    #presenceCal .pc-cta:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
-    body.metier-camp #presenceCal .pc-pill, body.metier-camp #presenceCal .pc-day.today{ background:var(--orange); color:#fff; }
-    body.metier-sdg #presenceCal .pc-pill, body.metier-sdg #presenceCal .pc-day.today{ background:var(--vert); }
-    #presenceCal .pc-actions{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; align-items:center; }
-    #presenceCal .pc-how{ display:inline-flex; align-items:center; gap:8px; margin-top:20px; background:#fff; color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 24px; font-family:var(--font-impact); font-size:1.1rem; cursor:pointer; transition:transform .12s, box-shadow .12s; }
-    #presenceCal .pc-how:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); background:var(--cyan); }
-    /* Popup « Comment ça fonctionne ? » */
-    .pcHow-modal{ display:none; position:fixed; inset:0; z-index:1200; background:rgba(26,26,46,.62); padding:24px; overflow-y:auto; }
-    .pcHow-modal.open{ display:flex; }
-    .pcHow-inner{ position:relative; background:#fff; border:5px solid var(--ink); border-radius:26px; box-shadow:12px 12px 0 var(--ink); max-width:680px; width:100%; margin:auto; padding:clamp(22px,3vw,40px); font-family:var(--font-fun); }
-    .pcHow-close{ position:absolute; top:14px; right:14px; width:42px; height:42px; border:3px solid var(--ink); border-radius:50%; background:var(--rose,#FF2DAC); color:#fff; font-size:20px; cursor:pointer; box-shadow:3px 3px 0 var(--ink); }
-    .pcHow-inner h3{ font-family:var(--font-impact); font-size:clamp(1.5rem,4vw,2.2rem); color:var(--ink); margin:0 8px 8px 0; padding-right:40px; }
-    .pcHow-inner h4{ font-family:var(--font-impact); font-size:1.25rem; color:var(--ink); margin:24px 0 8px; }
-    .pcHow-inner p{ font-size:1.06rem; line-height:1.5; color:#333; margin:0 0 10px; }
-    .pcHow-steps{ list-style:none; padding:0; margin:0; counter-reset:s; }
-    .pcHow-steps li{ position:relative; padding:11px 0 11px 48px; font-size:1.05rem; line-height:1.45; border-bottom:2px dashed #e3e6ea; }
-    .pcHow-steps li::before{ counter-increment:s; content:counter(s); position:absolute; left:0; top:9px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:var(--cyan); border:3px solid var(--ink); border-radius:50%; font-family:var(--font-impact); box-shadow:2px 2px 0 var(--ink); }
-    .pcHow-ex{ background:#FFFEF7; border:3px solid var(--ink); border-radius:16px; box-shadow:4px 4px 0 var(--ink); padding:14px 16px; margin:10px 0; font-size:1.02rem; line-height:1.45; }
-    .pcHow-cta{ display:inline-flex; align-items:center; gap:8px; margin-top:22px; background:var(--jaune); color:var(--ink); border:4px solid var(--ink); border-radius:18px; box-shadow:5px 5px 0 var(--ink); padding:14px 26px; font-family:var(--font-impact); font-size:1.1rem; text-decoration:none; }
-    .pcHow-cta:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
+    #planifPorte { padding: 46px 20px; position: relative; z-index: 2; }
+    #planifPorte .pp-inner { max-width: 760px; margin: 0 auto; }
+    #planifPorte .ztsp-panneau__corps { text-align: center; }
+    #planifPorte .pp-sub { font-family: var(--ztsp-f-corps); font-size: 16px; line-height: 1.5; color: var(--ztsp-ink-soft); margin: 0 0 6px; }
+    #planifPorte .pp-invite { font-family: var(--ztsp-f-note); font-size: 18px; color: var(--ztsp-ink); margin: 14px 0 14px; }
+    #planifPorte .pp-choix { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
   </style>
-  <div class="pc-inner">
-    <span class="pc-pill" id="pcPill">📅 CALENDRIER DE PRÉSENCES</span>
-    <h2 id="pcTitle">Qui est là aujourd'hui?</h2>
-    <p class="pc-sub" id="pcSub">Suis les présences de ton groupe, jour après jour.</p>
-    <div class="pc-month" id="pcMonth"></div>
-    <div class="pc-grid" id="pcGrid"></div>
-    <div class="pc-actions">
-      <a class="pc-cta" id="pcCta" href="/apps/planificateur/">Ouvrir le calendrier →</a>
-      <button class="pc-how" id="pcHowBtn" type="button" onclick="pcOpenHow()">❓ Comment ça fonctionne ?</button>
+  <div class="pp-inner ztsp-panneau">
+    <div class="ztsp-panneau__bandeau"><em>📅</em> <span id="ppBandeau">PLANIFICATEUR</span></div>
+    <div class="ztsp-panneau__corps">
+      <h2 class="ztsp-panneau__titre" id="ppTitre">Ton année, ton cycle, tes présences</h2>
+      <p class="pp-sub" id="ppSub">Planifie tes semaines, fais l'appel de ton groupe et garde le fil de chaque journée. Gratuit, rien à installer.</p>
+      <p class="pp-invite" id="ppInvite">Ouvre-le dans ta réalité&nbsp;:</p>
+      <div class="pp-choix">
+        <a class="ztsp-btn"           href="/apps/planificateur/?metier=ep"   id="ppEp">🏐 Éducation physique</a>
+        <a class="ztsp-btn ztsp-btn--orange" href="/apps/planificateur/?metier=camp" id="ppCamp">⛺ Camp de jour</a>
+        <a class="ztsp-btn ztsp-btn--lime"   href="/apps/planificateur/?metier=sdg"  id="ppSdg">🧩 Service de garde</a>
+      </div>
     </div>
   </div>
   <script>(function(){
-    var EN=(typeof ztsLang!=='undefined'&&ztsLang==='en');
-    var grid=document.getElementById('pcGrid'), mlabel=document.getElementById('pcMonth');
-    var dow=EN?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-    var months=EN?['January','February','March','April','May','June','July','August','September','October','November','December']
-                 :['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-    if(EN){ document.getElementById('pcPill').textContent='📅 ATTENDANCE CALENDAR'; document.getElementById('pcTitle').textContent="Who's here today?";
-      document.getElementById('pcSub').textContent='Track your group attendance, day after day.'; document.getElementById('pcCta').textContent='Open the calendar →'; }
-    var n=new Date(), y=n.getFullYear(), m=n.getMonth(), today=n.getDate();
-    mlabel.textContent=months[m]+' '+y;
-    var html=dow.map(function(d){return '<div class="pc-dow">'+d+'</div>';}).join('');
-    var first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
-    for(var i=0;i<first;i++) html+='<div class="pc-day empty"></div>';
-    for(var d=1;d<=days;d++){ var wd=new Date(y,m,d).getDay(); var cls='pc-day'+((wd===0||wd===6)?' we':'')+(d===today?' today':'');
-      html+='<a class="'+cls+'" href="/apps/planificateur/">'+d+'</a>'; }
-    grid.innerHTML=html;
+    if (typeof ztsLang === 'undefined' || ztsLang !== 'en') return;
+    document.getElementById('ppBandeau').textContent = 'PLANNER';
+    document.getElementById('ppTitre').textContent   = 'Your year, your cycle, your attendance';
+    document.getElementById('ppSub').textContent     = 'Plan your weeks, take your group’s attendance and keep track of each day. Free, nothing to install.';
+    document.getElementById('ppInvite').textContent  = 'Open it in your world:';
+    document.getElementById('ppEp').textContent      = '🏐 Physical education';
+    document.getElementById('ppCamp').textContent    = '⛺ Day camp';
+    document.getElementById('ppSdg').textContent     = '🧩 Daycare';
   })();</script>
 </section>
-
-<!-- POPUP « Comment ça fonctionne ? » du calendrier de présences -->
-<div class="pcHow-modal" id="pcHowModal" onclick="if(event.target===this) pcCloseHow()">
-  <div class="pcHow-inner">
-    <button class="pcHow-close" onclick="pcCloseHow()" aria-label="Fermer">✕</button>
-    <div id="pcHowBody"></div>
-  </div>
-</div>
-<script>
-function pcOpenHow(){ var EN=(typeof ztsLang!=='undefined'&&ztsLang==='en'); document.getElementById('pcHowBody').innerHTML=(EN?pcHowEN():pcHowFR()); document.getElementById('pcHowModal').classList.add('open'); document.body.style.overflow='hidden'; }
-function pcCloseHow(){ document.getElementById('pcHowModal').classList.remove('open'); document.body.style.overflow=''; }
-document.addEventListener('keydown',function(e){ if(e.key==='Escape') pcCloseHow(); });
-function pcHowFR(){ return ''
-+'<h3>📅 Comment fonctionne le calendrier de présences&nbsp;?</h3>'
-+'<p>C\'est un outil <b>100&nbsp;% gratuit</b> pour faire l\'appel de ton groupe et garder le fil de chaque journée — pensé pour les <b>animateurs de camp de jour</b>, les <b>éducatrices de service de garde</b> et les <b>profs d\'éducation physique</b>.</p>'
-+'<h4>🎯 À quoi ça sert</h4>'
-+'<p>Fini la feuille de papier qui se perd&nbsp;: tu vois d\'un coup d\'œil <b>qui est présent, qui est parti, avec qui</b>, et tu notes ce qui s\'est passé. Tout se synchronise <b>en temps réel</b> entre l\'animateur et le coordonnateur.</p>'
-+'<h4>👉 Étape par étape</h4>'
-+'<ol class="pcHow-steps">'
-+'<li><b>Crée ton groupe</b> (ex.&nbsp;«&nbsp;Les Dauphins&nbsp;»). Tu peux en avoir plusieurs.</li>'
-+'<li><b>Ajoute tes enfants</b>&nbsp;: prénom, photo, personnes autorisées à venir les chercher, et leurs <b>particularités</b> (allergie&nbsp;🥜, TSA&nbsp;🧩, asthme…) qui s\'affichent sous leur nom.</li>'
-+'<li><b>Le matin</b>, tu <b>tapes la photo</b> de chaque enfant qui arrive → il passe au vert «&nbsp;présent&nbsp;» avec l\'heure. Un appui long&nbsp;= absent.</li>'
-+'<li><b>Au départ</b>, tu indiques <b>qui vient le chercher</b> (avertissement si la personne n\'est pas autorisée), puis tu remplis le <b>journal de bord</b>&nbsp;: belle journée, pépin, objet perdu, comportement…</li>'
-+'<li><b>Le coordonnateur</b> voit tous les groupes en temps réel et peut <b>t\'écrire dans l\'app</b> («&nbsp;Le parent de Mia est à l\'accueil&nbsp;»).</li>'
-+'</ol>'
-+'<h4>💡 Exemples concrets</h4>'
-+'<div class="pcHow-ex"><b>Camp de jour —</b> Lundi 8&nbsp;h, 22 enfants arrivent. Tu tapes chaque visage&nbsp;= présent. Léo a une allergie&nbsp;: l\'icône&nbsp;🥜 est déjà sous son nom, impossible de l\'oublier. À 16&nbsp;h, sa mère vient le chercher&nbsp;: tu notes «&nbsp;Belle journée&nbsp;🌟&nbsp;» et qui vient le chercher.</div>'
-+'<div class="pcHow-ex"><b>Service de garde —</b> Un grand-parent non inscrit se présente pour Mia. L\'app affiche un&nbsp;⚠️ «&nbsp;hors-liste&nbsp;»&nbsp;: tu confirmes en toute sécurité et c\'est consigné.</div>'
-+'<div class="pcHow-ex"><b>Coordination —</b> La coordonnatrice cherche un enfant, voit qu\'il est parti à 15&nbsp;h avec son père, et lit le compte rendu de l\'animateur. Un&nbsp;❗ signifie qu\'il y a un message à transmettre au parent.</div>'
-+'<h4>📱 Où ça marche</h4>'
-+'<p>Sur <b>tablette et iPhone</b> directement au gymnase ou dans la cour, et sur ordinateur. <b>Rien à installer.</b></p>'
-+'<a class="pcHow-cta" href="/apps/planificateur/">Ouvrir le calendrier →</a>'; }
-function pcHowEN(){ return ''
-+'<h3>📅 How does the attendance calendar work?</h3>'
-+'<p>A <b>100% free</b> tool to take your group\'s attendance and keep track of each day — built for <b>day-camp counsellors</b>, <b>daycare educators</b> and <b>PE teachers</b>.</p>'
-+'<h4>🎯 What it\'s for</h4>'
-+'<p>No more lost paper sheets: see at a glance <b>who is here, who left, and with whom</b>, and log what happened during the day. Everything syncs <b>in real time</b> between the counsellor and the coordinator.</p>'
-+'<h4>👉 Step by step</h4>'
-+'<ol class="pcHow-steps">'
-+'<li><b>Create your group</b> (e.g. “The Dolphins”). You can have several.</li>'
-+'<li><b>Add your kids</b>: first name, photo, authorized pickup people, and their <b>special notes</b> (allergy 🥜, ASD 🧩, asthma…) shown under their name.</li>'
-+'<li><b>In the morning</b>, <b>tap each child\'s photo</b> as they arrive → they turn green “present” with the time. Long-press = absent.</li>'
-+'<li><b>At pickup</b>, set <b>who is picking them up</b> (a warning shows if the person isn\'t authorized), then fill the <b>logbook</b>: great day, mishap, lost item, behaviour…</li>'
-+'<li><b>The coordinator</b> sees every group in real time and can <b>message you in the app</b> (“Mia\'s parent is at the front desk”).</li>'
-+'</ol>'
-+'<h4>💡 Real examples</h4>'
-+'<div class="pcHow-ex"><b>Day camp —</b> Monday 8&nbsp;a.m., 22 kids arrive. You tap each face = present. Leo has an allergy: the 🥜 icon is already under his name — impossible to miss. At 4&nbsp;p.m. his mom picks him up: you log “Great day 🌟” and who picked him up.</div>'
-+'<div class="pcHow-ex"><b>Daycare —</b> An unregistered grandparent shows up for Mia. The app flags a&nbsp;⚠️ “off-list” pickup: you confirm safely and it\'s recorded.</div>'
-+'<div class="pcHow-ex"><b>Coordination —</b> The coordinator looks up a child, sees they left at 3&nbsp;p.m. with their dad, and reads the counsellor\'s log. A&nbsp;❗ means there\'s a message to pass on to the parent.</div>'
-+'<h4>📱 Where it works</h4>'
-+'<p>On <b>tablet and iPhone</b> right in the gym or schoolyard, and on desktop. <b>Nothing to install.</b></p>'
-+'<a class="pcHow-cta" href="/apps/planificateur/">Open the calendar →</a>'; }
-</script>
 
 <!-- STAGE 2 retiré : la grille d'apps par métier vit désormais dans les
      hubs (ep.html / service-de-garde.html / camps-de-jour.html) — source
@@ -3329,14 +3236,19 @@ function pcHowEN(){ return ''
 
 <!-- ========== SECTION "AUJOURD'HUI" (Jeu + Météo + Défi) — trafic récurrent ========== -->
 <style>
-    #ztsTodaySection { background: linear-gradient(135deg, #18181b 0%, #0f0f2e 100%); padding: 60px 20px; position: relative; }
-    #ztsTodaySection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 20%, rgba(0,229,255,0.15), transparent 50%), radial-gradient(circle at 80% 80%, rgba(139,92,246,0.15), transparent 50%); pointer-events: none; }
+    /* FOND RETIRÉ le 4 août 2026 (chantier patron) — même raison que
+       `.menu-jour` : un dégradé opaque sur 1704 px qui coupait le décor.
+       Les deux halos radiaux du `::before` partaient avec, ils ne se lisaient
+       plus une fois le fond transparent. */
+    #ztsTodaySection { padding: 60px 20px; position: relative; }
     .zts-today-header { max-width: 1400px; margin: 0 auto 40px; text-align: center; position: relative; }
-    .zts-today-tag-pill { display: inline-block; background: linear-gradient(135deg, #00E5FF, #8B5CF6); color: #fff; padding: 12px 28px; border-radius: 28px; font-family: 'Luckiest Guy', cursive; font-size: 1.6rem; letter-spacing: 1.5px; margin-bottom: 14px; }
-    .zts-today-h2 { font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(2rem, 4vw, 3.2rem); margin: 0; letter-spacing: 0.5px; line-height: 1.15; }
-    .zts-today-date { font-family: 'Patrick Hand', cursive; color: #00E5FF; font-size: 1.5rem; margin-top: 10px; }
+    /* `.zts-today-tag-pill` et `.zts-today-h2` SUPPRIMÉES le 4 août 2026 —
+       remplacées par `.ztsp-eyebrow--rose` et `.ztsp-sectitre`. */
+    .zts-today-date { font-family: var(--ztsp-f-note); color: var(--ztsp-cyan-vif); font-size: 1.3rem; margin-top: 10px; }
     #ztsTodayGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; position: relative; }
-    .zts-today-card { background: rgba(255,255,255,0.05); border: 3px solid rgba(0,229,255,0.25); border-radius: 28px; padding: 32px 28px; transition: all 0.3s; }
+    /* Même correction que `.menu-jour-card` : sans fond dense, les rayons du
+       décor tournent derrière le texte de la carte. */
+    .zts-today-card { background: rgba(8,19,30,0.55); border: 3px solid rgba(0,229,255,0.28); border-radius: 28px; padding: 32px 28px; backdrop-filter: blur(8px); transition: all 0.3s; }
     .zts-today-card:hover { transform: translateY(-6px); border-color: rgba(0,229,255,0.55); box-shadow: 0 14px 50px rgba(0,229,255,0.25); }
     .zts-today-label { font-family: 'Luckiest Guy', cursive; color: #00E5FF; font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 18px; text-transform: uppercase; }
     .zts-today-body { color: #fff; font-family: 'Patrick Hand', cursive; font-size: 1.3rem; line-height: 1.55; }
@@ -3374,12 +3286,16 @@ function pcHowEN(){ return ''
         .zts-today-game-title, .zts-today-eph-title { font-size: 1.6rem; }
         .zts-today-body, .zts-today-game-desc, .zts-today-eph-desc { font-size: 1.15rem; }
     }
-    #ztsPauseSection { background: linear-gradient(135deg, #FF2A7A 0%, #8B5CF6 100%); padding: 50px 20px; position: relative; overflow: hidden; }
-    #ztsPauseSection::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 80% 20%, rgba(255,234,0,0.2), transparent 40%); pointer-events: none; }
+    /* FOND RETIRÉ le 4 août 2026 — décision de Joey : la section pause devient
+       sobre comme les autres. Elle portait le dégradé rose-violet
+       `#FF2A7A → #8B5CF6` sur 1291 px, le plus voyant des cinq systèmes
+       visuels de l'accueil. Le rose et le violet restent, mais dans les cartes
+       (`.zts-pause-label`, `.zts-pause-author`) : un accent, plus un fond. */
+    #ztsPauseSection { padding: 50px 20px; position: relative; }
     .zts-pause-header { max-width: 1400px; margin: 0 auto 32px; text-align: center; position: relative; }
-    .zts-pause-tag { display: inline-block; background: #FFEA00; color: #18181b; padding: 12px 28px; border-radius: 28px; font-family: 'Luckiest Guy', cursive; font-size: 1.7rem; letter-spacing: 2px; margin-bottom: 10px; }
-    .zts-pause-h2 { font-family: 'ZoneTotalSport', 'Luckiest Guy', cursive; color: #fff; font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin: 18px 0 0; letter-spacing: 0.5px; text-shadow: 3px 3px 0 rgba(0,0,0,0.18); line-height: 1.15; }
-    .zts-pause-sub { font-family: 'Swanky and Moo Moo', cursive; color: rgba(255,255,255,0.95); font-size: 1.5rem; margin-top: 12px; letter-spacing: 1.5px; }
+    /* `.zts-pause-tag` et `.zts-pause-h2` SUPPRIMÉES le 4 août 2026 —
+       remplacées par `.ztsp-eyebrow--lime` et `.ztsp-sectitre`. */
+    .zts-pause-sub { font-family: var(--ztsp-f-note); color: var(--ztsp-sur-fond-doux); font-size: 1.3rem; margin-top: 12px; letter-spacing: .6px; }
     #ztsPauseGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; position: relative; }
     .zts-pause-card { background: #fff; border-radius: 24px; padding: 32px 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 4px solid #18181b; position: relative; transition: transform 0.3s; }
     .zts-pause-card:hover { transform: translateY(-4px) rotate(-0.5deg); }
@@ -3405,18 +3321,99 @@ function pcHowEN(){ return ''
         .zts-pause-question { font-size: 1.1rem; }
     }
 </style>
+
+<!-- ==========================================================================
+     HERO DE L'ACCUEIL AU PATRON — posé le 2 août 2026
+     --------------------------------------------------------------------------
+     Ce bloc vient APRÈS les styles de la home, donc il gagne à spécificité
+     égale. Il ne fait que trois choses : donner au hero le fond sur lequel le
+     patron a été dessiné, poser la grille des portes, et remettre l'alignement
+     à gauche que `section.hero { align-items: center }` écrasait.
+
+     POURQUOI UN FOND MARINE ICI, ET SEULEMENT ICI
+     Le titre du patron est blanc, avec deux calques décalés cyan et rose. Sur
+     le fond clair de la home il serait illisible. Le marine est donc posé sur
+     la section du hero, pas sur la page : le reste de l'accueil garde son
+     décor de gymnase.
+
+     CE QUE CE BLOC NE FAIT PAS
+     Aucun `padding` sur `body` — c'est `adjustHeaderOffset()` de shared/zts.js
+     qui réserve la place sous l'en-tête fixe, et l'écraser ferait passer le
+     titre dessous. Le retrait vertical du hero reste celui de `section.hero`
+     (460px), inchangé.
+     ========================================================================== -->
+<style>
+  section.hero.ztsp-hero-accueil {
+    align-items: stretch;
+    text-align: left;
+    /* `section.hero` impose min-height:100vh ET justify-content:center : le
+       contenu se retrouvait centre dans une boite d'un ecran de haut, d'ou un
+       grand vide sous la barre. Le hero n'a plus besoin de remplir l'ecran,
+       le decor s'en charge. */
+    min-height: 0;
+    justify-content: flex-start;
+    position: relative;
+    isolation: isolate;
+    /* `section.hero` réservait 460px pour l'ancien bandeau de 233px. La barre
+       du patron fait 68px et `adjustHeaderOffset` reserve deja la place sur
+       body (165px mesures). Il ne reste ici qu'une respiration. */
+    padding-top: 28px;
+    /* Le fond marine est passe sur la page entiere (body.ztsp-decor) le
+       3 aout : le hero n'a plus a le porter. On garde seulement l'isolation
+       et le retrait. */
+  }
+  /* Une seule colonne centrée, portée par un conteneur — pas par des marges
+     auto sur chaque enfant. Avec les marges auto, l'étiquette (largeur de son
+     contenu) se retrouvait centrée au lieu d'être calée à gauche.
+     La gouttière gauche laisse la place au bouton « Pause syndicale », fixe
+     en bas à gauche, qui recouvrait le titre. */
+  .ztsp-hero-accueil__col {
+    width: 100%; max-width: 1200px; margin: 0 auto;
+    padding-left: clamp(0px, 4vw, 56px);
+  }
+  .ztsp-titre-accueil { margin: 6px 0 0; }
+
+  .ztsp-hero-accueil .ztsp-portes {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 24px; align-items: stretch; margin: 28px auto 8px;
+  }
+  @media (max-width: 900px) { .ztsp-hero-accueil .ztsp-portes { grid-template-columns: 1fr; } }
+
+  /* Les portes sont cliquables sans être des liens : le curseur doit le dire. */
+  .ztsp-hero-accueil .ztsp-porte { cursor: pointer; }
+
+  .ztsp-hero-accueil .ztsp-compteur  { margin-top: 34px; }
+  .ztsp-hero-accueil .ztsp-ministats { margin-bottom: 8px; }
+
+  /* ---- Les trois en-têtes de section, unifiés le 4 août 2026 --------------
+     `.ztsp-sectrait` est un trait calé à gauche : c'est l'alignement de la
+     maquette. Les trois sections de l'accueil sont centrées et leurs grilles
+     le sont aussi — on centre donc le trait ici plutôt que de recomposer
+     trois sections. Le patron n'a pas à connaître l'alignement de son hôte.
+     Les `<h2>` de ces sections portaient trois polices et trois couleurs
+     différentes ; ils portent maintenant tous `.ztsp-sectitre`. */
+  .menu-jour-head .ztsp-sectrait,
+  .zts-today-header .ztsp-sectrait,
+  .zts-pause-header .ztsp-sectrait { margin-left: auto; margin-right: auto; }
+  .menu-jour-head .ztsp-sectitre,
+  .zts-today-header .ztsp-sectitre,
+  .zts-pause-header .ztsp-sectitre { margin-top: 12px; }
+</style>
+
 <section id="ztsTodaySection">
     <div class="zts-today-header">
-        <span class="zts-today-tag-pill">✨ AUJOURD'HUI</span>
-        <h2 class="zts-today-h2">Ton inspiration du jour</h2>
+        <span class="ztsp-eyebrow ztsp-eyebrow--rose">✨ AUJOURD'HUI</span>
+        <h2 class="ztsp-sectitre">Ton inspiration du jour</h2>
+        <div class="ztsp-sectrait" aria-hidden="true"></div>
         <div class="zts-today-date" id="ztsTodayDate">&nbsp;</div>
     </div>
     <div id="ztsTodayGrid"></div>
 </section>
 <section id="ztsPauseSection">
     <div class="zts-pause-header">
-        <span class="zts-pause-tag">☕ PAUSE</span>
-        <h2 class="zts-pause-h2">Prends 30 secondes pour toi</h2>
+        <span class="ztsp-eyebrow ztsp-eyebrow--lime">☕ PAUSE</span>
+        <h2 class="ztsp-sectitre">Prends 30 secondes pour toi</h2>
+        <div class="ztsp-sectrait" aria-hidden="true"></div>
         <div class="zts-pause-sub">Une citation, une question. Du nouveau chaque jour.</div>
     </div>
     <div id="ztsPauseGrid"></div>
@@ -3796,7 +3793,10 @@ function pcHowEN(){ return ''
     requestAnimationFrame(tick);
   }
   function animateCounters() {
-    document.querySelectorAll('.stat .num[data-target]').forEach(animateOne);
+    // Sélecteur élargi le 2 août : le hero est passé au patron (ztsp-) et ses
+    // compteurs ne portent plus .stat .num. On cible l'attribut, qui est le
+    // vrai contrat — animateOne ne lit que dataset.target et dataset.suffix.
+    document.querySelectorAll('#stage1 [data-target]').forEach(animateOne);
   }
   // Lance au chargement
   setTimeout(animateCounters, 400);

@@ -258,6 +258,15 @@
 
    body reste donc transparent : les z-index négatifs des enfants restent
    visibles, et rien de ce que fait une app n'est masqué. */
+/* ⚠ LE DÉCOR EXISTE EN DEUX EXEMPLAIRES, comme le header.
+   Celui-ci sert les apps qui montent le shell. `html.ztsp-decor`, dans
+   shared/zts-modele.css, sert les pages qui prennent le patron sans le shell
+   — l'accueil et le planificateur au 4 août. Même dégradé, même trame, mêmes
+   rayons, deux fichiers.
+   Les deux marines ont divergé jusqu'au 4 août : #061726 ici, #08131E là-bas.
+   Réalignés. TOUTE RETOUCHE AU DÉCOR DOIT ALLER DANS LES DEUX.
+   Ne pas poser `ztsp-decor` sur une app qui monte le shell : les deux décors
+   s'empileraient. */
 html.ztsh-on {
   background-color: var(--ztsh-marine);
   background-image:
@@ -268,7 +277,17 @@ html.ztsh-on {
   background-repeat: repeat, no-repeat, no-repeat;
   background-attachment: fixed, fixed, fixed;
 }
-body.ztsh-on {
+/* Sélecteur restreint à dessein — corrigé le 1er août, banc tni.
+   `monter()` pose `ztsh-on` sur <html> SEULEMENT si cfg.fond, mais sur <body>
+   TOUJOURS. En densité projection, où normaliser() force cfg.fond à false, la
+   version non restreinte de cette règle effaçait le fond de l'app sans que
+   rien ne le remplace : ni <html> ni <body> ne peignaient plus.
+   Mesuré sur tni — body passait de #0d1b2e à transparent.
+   La transparence de body n'a de sens que si <html> porte le marine ; on
+   n'écrit donc la règle que dans ce cas. Ne pas « corriger » par une surcharge
+   plus spécifique : `background: revert` remonte à l'origine navigateur, pas à
+   la règle d'auteur de l'app, et ne rend rien. */
+html.ztsh-on body.ztsh-on {
   background: transparent;
   color: var(--ztsh-sur-marine);
 }

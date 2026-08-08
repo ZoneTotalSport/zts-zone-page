@@ -25,6 +25,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../shared/zts.css">
+  <link rel="stylesheet" href="../../assets/ztsh-shell.css">
   <style>
     .jr-filters { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; margin-bottom:var(--space-4); }
     .jr-search {
@@ -80,6 +81,7 @@
 <body data-metier="sdg">
 
   <div data-zts-header></div>
+  <div class="ztsh-page">
 
   <nav class="zts-subnav">
     <a href="../../service-de-garde.html" data-i18n="subnav.back_metier">← Service de garde</a>
@@ -191,5 +193,9 @@
     document.addEventListener('zts:ready', jrRender);
     document.addEventListener('zts:langchange', jrRender);
   </script>
+  </div><!-- /.ztsh-page -->
+
+  <script src="../../assets/ztsh-shell.js"></script>
+  <script>ZTSShell.monter({ densite: 'travail' });</script>
 </body>
 </html>

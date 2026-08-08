@@ -190,67 +190,77 @@ img { max-width:100%; display:block; }
 a { color:inherit; }
 
 /* ============ HEADER PARTAGÉ (.zts-header) — grand bandeau bleu dégradé ============ */
+/* Refait le 3 aout 2026 d'apres la maquette retenue (version de 9:12).
+   Avant : grand bandeau cyan a rayons jaunes, colonne centree, titre jusqu'a
+   104px, ~233px de haut. Apres : barre marine compacte, en ligne, ~70px.
+
+   ATTENTION — CE BLOC EXISTE EN DOUBLE. shared/zts.css sert 1481 pages,
+   shared/zts-header.css en sert 30 (les apps). Les deux copies doivent rester
+   identiques. Toute retouche ici se repercute la-bas, et l'inverse.
+
+   OPACITE A .92, PAS .66 — lecon du 27 juillet. A .66 la barre emprunte sa
+   teinte au fond de la page : sur une app qui impose body{background:#f8fafc
+   !important} (D23, cas de jeux) elle virait au gris sale. */
 .zts-header {
   position:fixed; top:0; left:0; right:0; z-index:200;
   margin:14px clamp(12px,2.5vw,28px);
-  background-color:#19C3FF;
-  background-image:repeating-conic-gradient(from 0deg at 92% 92%, #FFEA00 0deg 6deg, transparent 6deg 13deg);
-  border:5px solid var(--zts-noir);
-  border-radius:var(--r-4);
-  box-shadow:8px 8px 0 var(--zts-noir);
-  color:var(--ink);
+  background:rgba(6,23,38,.92);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  border:3px solid var(--zts-noir);
+  border-radius:16px;
+  box-shadow:6px 6px 0 rgba(0,194,232,.45);
+  color:#E6F4FA;
   overflow:hidden;
   display:flex; flex-direction:column; align-items:center; text-align:center;
-  gap:20px;
-  padding:18px clamp(16px,3vw,40px) 24px;
+  gap:6px; flex-wrap:nowrap;
+  padding:16px clamp(14px,2.4vw,22px) 18px;
   transition:transform .35s cubic-bezier(.4,0,.2,1);
 }
-/* Header IDENTIQUE partout = celui de la home (rayon de soleil cyan + rayons jaunes,
-   défini sur .zts-header ci-dessus). Aucune surcharge par métier. */
+/* Header IDENTIQUE partout : barre marine du patron, définie sur .zts-header
+   ci-dessus. Aucune surcharge par métier. */
 /* Trame de points façon sticker (comme la fiche) */
 .zts-header::before {
-  content:""; position:absolute; inset:0; opacity:.12; pointer-events:none;
-  background-image:radial-gradient(#fff 2px, transparent 2px);
-  background-size:30px 30px;
+  content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.16) 1.3px, transparent 1.4px);
+  background-size:12px 12px;
 }
 .zts-header > * { position:relative; z-index:1; }
 .zts-header.hidden { transform:translateY(-130%); }
-.zts-header__brandwrap { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:14px; }
+/* Colonne centree : « Pedagogie primaire » au-dessus, le titre, puis l'heure. */
+.zts-header__brandwrap { display:flex; flex-direction:column; align-items:center; gap:4px; margin:0; width:100%; }
 .zts-header__brand {
   display:flex; align-items:baseline; gap:10px;
-  font-family:var(--font-impact); letter-spacing:.02em;
-  font-size:clamp(48px,8.5vw,104px);         /* titre XXXL */
-  text-decoration:none; white-space:nowrap; line-height:1;
+  font-family:var(--font-impact); letter-spacing:1px;
+  font-size:clamp(40px,7.4vw,92px);
+  text-decoration:none; white-space:nowrap; line-height:.96; color:#fff;
 }
 /* Mots fluo + contour noir épais + ombre portée BD prononcée */
 .zts-header__brand span {
-  text-shadow:
-    3px 3px 0 var(--zts-noir), -2px -2px 0 var(--zts-noir),
-    2px -2px 0 var(--zts-noir), -2px 2px 0 var(--zts-noir),
-    0 2px 0 var(--zts-noir), 2px 0 0 var(--zts-noir),
-    7px 9px 0 rgba(26,26,46,.40);
+  /* Les contours noirs tombent : ils tenaient un titre de 104px sur cyan
+     clair, ils salissent un titre de 34px sur marine. */
 }
-.zts-header__brand .w1 { color:var(--jaune); }   /* ZONE  — jaune */
-.zts-header__brand .w2 { color:var(--cyan); }    /* TOTAL — cyan  */
-.zts-header__brand .w3 { color:var(--jaune); }   /* SPORT — jaune */
+.zts-header__brand .w1 { color:#fff; }
+.zts-header__brand .w2 { color:var(--cyan); }
+.zts-header__brand .w3 { color:#fff; }
 /* Survol PAR MOT : le mot pointé pop et reste popé tant que la souris
    est dessus ; il reprend sa forme quand la souris le quitte. */
 .zts-header__brand span {
   display:inline-block; transform-origin:center bottom; cursor:pointer;
   transition:transform .25s cubic-bezier(.34,1.56,.64,1);
 }
-.zts-header__brand span:hover { transform:translateY(-9px) rotate(-3deg) scale(1.18); }
-.zts-header__meta { display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; }
+.zts-header__brand span:hover { transform:translateY(-4px) rotate(-2deg) scale(1.08); }
+.zts-header__meta { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .zts-header__clock {
   display:inline-flex; align-items:center; gap:8px;
-  font-family:var(--font-impact); color:var(--zts-noir);
-  font-size:clamp(22px,2.6vw,32px); letter-spacing:.05em;
-  background:rgba(255,255,255,.92);
-  border:3px solid var(--zts-noir); border-radius:var(--r-pill);
-  padding:5px 18px; box-shadow:3px 3px 0 var(--zts-noir);
+  font-family:var(--font-impact); color:#BFE9F6;
+  font-size:clamp(15px,1.9vw,22px); letter-spacing:.06em;
+  background:rgba(255,255,255,.09);
+  border:2px solid var(--zts-noir); border-radius:12px;
+  padding:5px 16px; box-shadow:3px 3px 0 rgba(0,0,0,.4);
+  margin-top:4px;
   font-variant-numeric:tabular-nums;
 }
-.zts-header__sub { font-family:var(--font-fun); font-weight:700; color:rgba(255,255,255,.88); font-size:var(--fs-1); }
+.zts-header__sub { font-family:var(--font-impact); font-weight:400; color:var(--cyan); font-size:clamp(17px,3vw,38px); letter-spacing:2px; text-transform:uppercase; line-height:1; }
 /* z-index:2 — la nav doit passer AU-DESSUS du bloc titre.
    `.zts-header > *` (plus haut) donne position:relative + z-index:1 a CHAQUE
    enfant du header : la nav et .zts-header__brandwrap se retrouvent a egalite,
@@ -261,11 +271,8 @@ a { color:inherit; }
    jamais l'evenement. Les deux blocs ne se chevauchent nulle part ailleurs. */
 .zts-header__nav { display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:center; z-index:2; }
 /* Boutons en angle façon stickers (rotation indépendante du hover) */
-.zts-header__nav > *:nth-child(1) { rotate:-3deg; }
-.zts-header__nav > *:nth-child(2) { rotate:2deg; }
-.zts-header__nav > *:nth-child(3) { rotate:-2deg; }
-.zts-header__nav > *:nth-child(4) { rotate:2.5deg; }
-.zts-header__nav > *:nth-child(5) { rotate:-2deg; }
+/* Les rotations des boutons tombent avec le bandeau : elles fonctionnaient
+   sur une barre haute et centree, elles bousculent une barre de 70px. */
 /* Sur fond bleu, le bouton Accueil (cyan) deviendrait fade → on le passe en blanc */
 .zts-header .zts-btn--primary { background:#fff; color:var(--ink); }
 
@@ -524,11 +531,35 @@ body[data-metier] .rr-preset.active {
 .zts-modal__close:hover { transform:scale(1.08); }
 .zts-modal__title { font-family:var(--font-impact); font-size:var(--fs-4); margin-bottom:var(--space-3); }
 
-/* ============ FOOTER PARTAGÉ (.zts-footer) ============ */
+/* ============ FOOTER PARTAGÉ (.zts-footer) ============
+   LE VIOLET EST PARTI le 4 août 2026. `background:var(--violet)` (#8B5CF6)
+   posait un aplat mauve-rosé de près de 4000 px de haut au bas de chaque page.
+   Il datait d'avant le chantier : la barre du HAUT a été refaite en marine le
+   3 août, le shell a donné le décor marine à 30 apps, et le footer était resté
+   la seule grande surface violette du site. Il ne fermait plus rien, il
+   coupait.
+
+   MÊME RECETTE QUE LA BARRE DU HAUT, à dessein — `rgba(6,23,38,.92)`, la
+   valeur éprouvée du 27 juillet. Le haut et le bas de page se répondent, et
+   sur les pages qui portent le décor la trame reste très légèrement visible au
+   travers, ce qu'un aplat opaque tuerait.
+
+   ⚠ OPACITÉ À `.92`, JAMAIS `.66` — même leçon que pour la barre. À `.66` le
+   footer emprunte sa teinte au fond de la page : sur `jeux`, qui impose
+   `body{background:#f8fafc!important}`, il virerait au gris sale.
+
+   Les accents ne bougent pas : titres de colonne en jaune, cartes poussoirs
+   blanches, bordure noire épaisse. Ils étaient déjà lisibles sur le violet,
+   ils le restent sur le marine. */
 .zts-footer {
   position:relative; margin-top:var(--space-7);
-  background:var(--violet); color:#fff;
-  border-top:var(--bord-gros);
+  background:rgba(6,23,38,.92); color:#fff;
+  /* La bordure était `var(--bord-gros)`, donc noire. Elle séparait très bien
+     un footer violet du reste de la page ; sur le marine elle est noir sur
+     bleu nuit — invisible, et le footer commençait sans qu'on sache où. Le
+     jaune est la couleur qui signe déjà les titres du footer et le trait de
+     section du patron : il ferme la page au lieu de la trancher. */
+  border-top:4px solid var(--jaune);
   padding:var(--space-6) clamp(16px,4vw,48px) var(--space-5);
 }
 .zts-footer__pushcards {

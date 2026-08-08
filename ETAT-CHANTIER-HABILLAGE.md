@@ -1,7 +1,8 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 29 juillet 2026, palier d) livré — `suppleance` a
-son personnage. Il ne reste que `jeux`.
+**Dernière mise à jour** : 4 août 2026 — vague 2 livrée (22 apps du gabarit),
+premier lot de la vague 3 (3 apps custom). 31 apps montent le shell.
+Le chantier du personnage est clos depuis le 31 juillet.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
 ---
@@ -116,14 +117,72 @@ La profondeur relative est conservée, donc tous les `../../` résolvent.
 ### 2. ~~Fusionner la vague 1~~ — FAIT le 27 juillet
 
 `vague/1-whitelist` est dans `main`, poussée, build Pages au vert, trois apps
-vérifiées en production. **Restent à fusionner : `pilote/plan-b-meteo` et
-`pilote/suppleance`**, après rebasage sur `main` (elles précèdent `549a143`).
-`pilote/nhl-playoffs` est abandonnée.
+vérifiées en production.
 
-### 3. Vagues suivantes
+**Correction du 31 juillet** : cette section disait « Restent à fusionner :
+`pilote/plan-b-meteo` et `pilote/suppleance` ». **C'est faux.** Les deux
+branches sont entièrement contenues dans `main` — `git rev-list --count
+main..pilote/plan-b-meteo` et `…suppleance` renvoient **0** l'une comme
+l'autre. Rien à fusionner. `pilote/nhl-playoffs` reste abandonnée.
 
-Ordre du prescan, amendé : les six apps de la whitelist d'abord (faites), puis
-les 22 gabarits, puis les apps custom par risque croissant.
+### 3. ~~Vague 2 — les 22 apps du gabarit~~ — FAITE le 4 août
+
+`activites-duree`, `bricolages`, `brise-glace`, `chansons-camp`, `comptines`,
+`echauffements`, `enigmes`, `grands-jeux`, `intervention-groupe`,
+`jeux-calmes`, `jeux-eau`, `jeux-par-theme`, `jeux-rapides`, `journee-pedago`,
+`noms-de-clans`, `olympiades`, `olympiades-scolaires`, `plan-b-pluie`,
+`rallyes`, `roue-responsabilites`, `sos-conflits`, `veillee-feu-de-camp`.
+
+**Six lignes chacune**, 132 insertions, zéro suppression. **Densité `travail`
+pour les 22** — ces apps sont ouvertes autant pendant le cours qu'en
+préparation (un prof ouvre « plan B pluie » au moment où il pleut), une
+invitation à la pause café n'y a pas sa place.
+
+> **Le combo gabarit + marine était inédit** : les six apps de la vague 1 sont
+> toutes des apps *custom*. Vérifié sur les 22 en iframe, sept critères chacune
+> — `html.ztsh-on`, `body.ztsh-on`, densité, fond `#061726`, body transparent,
+> enveloppe, rayons. **22/22.** Plus un contrôle visuel sur deux métiers,
+> `echauffements` (ep) et `veillee-feu-de-camp` (camp).
+
+`verifie-habillage.py` : **28 apps migrées, 0 bloquant.**
+
+### 4. Vague 3 — les apps custom
+
+**Premier lot fait le 4 août** : `colorier` (travail), `generateur` (travail),
+`studio-jeu` (projection). **31 apps montent le shell.**
+
+> **Variante du montage pour les custom** : le CSS du shell va après **le
+> dernier `<link>` du head**, pas seulement après les feuilles partagées. Une
+> app custom a sa propre feuille (`styles.css`) qui, sinon, passerait après le
+> shell et gagnerait la cascade sur ses surcharges. `colorier` la chargeait
+> justement en dernier.
+
+> **`studio-jeu` n'apporte rien de visible, et c'est voulu.** En densité
+> `projection` — celle que le shell prévoit pour elle nommément — aucun chrome
+> n'est monté et il n'y a pas de décor (décision du 2 août). Le montage pose le
+> marqueur de densité, borne le `box-sizing` du shell à son sous-arbre (cette
+> app ne charge aucun CSS partagé, un `*` la casserait) et donne un point
+> d'accroche. L'avertissement ENVELOPPE qu'elle lève est sans objet en
+> projection, où la marge du rail vaut 0.
+
+> **Densité : regarder la page avant de choisir.** J'avais mis `generateur` en
+> `vitrine` ; vu à l'écran, la page porte déjà un verrou plein écran, un funnel
+> et un cadenas, et `vitrine` y ajoutait un bouton « pause café » flottant
+> par-dessus. Passée à `travail`.
+
+Restent **11 apps**, dont deux builds Vite et plusieurs qui imposent leur fond
+(`fondSurEnveloppe` à prévoir) :
+
+| App | Fond propre | Note |
+|---|---|---|
+| `agenda`, `performances`, `planification` | aucun | gabarit-like, CSS moyen |
+| `omnigroupe` | `#f1f5f9` | 267 Ko, la plus grosse |
+| `cours-maternelle` | dégradé crème | + `body.tbi` |
+| `grille` | image de fond | |
+| `moyens-action` | `#f8fafc` | |
+| `tni` | `var(--navy)` | densité projection, voir le banc du 1er août |
+| `transitions` | `#f8f9fa!important` | **`fondSurEnveloppe`** |
+| `nba-playoffs`, `nhl-playoffs` | sombre | apps sportives — vérifier si elles restent en ligne |
 
 `acrosport` est **exclue** — voir `TICKET-ACROSPORT-ENTETE.md`.
 `evaluation` et `scoreboard` sont **exclues** — builds Vite, source absente
@@ -160,6 +219,11 @@ Cinq pièges déjà rencontrés, à ne pas re-diagnostiquer :
   normalement, à la bonne taille, et on l'inspecte depuis le parent.
   Sans ça, on conclut « le personnage est absent en production » alors qu'il
   est là. C'est arrivé au palier c).
+- **En émulation mobile, `innerWidth` ment.** Le banc a rapporté
+  `innerWidth: 792` alors que `document.documentElement.clientWidth` valait
+  `375` — c'est ce dernier qui pilote les media queries. Une sonde qui attend
+  `innerWidth === 375` ne se déclenche jamais. **Attendre sur
+  `document.documentElement.clientWidth`.** Vu au palier e).
 - **Une iframe posée hors écran ne déclenche pas le chargement paresseux.**
   L'image du personnage porte `loading="lazy"` : dans une iframe en
   `left:-9999px` elle ne se charge jamais et la sonde rapporte
@@ -195,17 +259,54 @@ Cinq pièges déjà rencontrés, à ne pas re-diagnostiquer :
 - **`TICKET-TTF-COPIE-UNIQUE.md`** puis **`TICKET-GLYPHES-ZTS.md`**, dans cet
   ordre.
 
-## POINT DE REPRISE — 29 juillet, après le palier d)
+## POINT DE REPRISE — 31 juillet, chantier du personnage CLOS
 
 ### Là où on s'arrête exactement
 
-**Le prochain geste est le palier e), le dernier** : `jeux`, seule app de
-densité `travail` encore sans personnage. `musique` et `plan-b-meteo` sont en
-`vitrine`, le personnage y est actif par défaut : rien à activer.
+**Le personnage est terminé.** Plus aucun palier. Les prochains chantiers sont
+listés plus bas dans « Ce qui attend » : banc `tni`, les deux tickets de
+police, la vague 2. L'accueil et le temps 2 restent bloqués sur Joey.
 
-**Attention sur `jeux`** : elle cumule `fondSurEnveloppe: true` et un fond
-imposé en `!important` (D23). Deux mécanismes sur la même app. Si le
-personnage y pose problème, isoler lequel des deux avant de conclure.
+### ~~Palier e)~~ — FAIT le 31 juillet, le dernier
+
+`jeux` (`2502a88`), un mot de diff, poussée, build vert, **vérifiée en
+production**. Gardée pour la fin parce qu'elle cumule `fondSurEnveloppe: true`
+et un fond imposé en `!important` (D23).
+
+**Les deux mécanismes cohabitent, mesuré.** `.ztsh-page` porte `ztsh-fond`,
+`isolation: isolate`, `min-height: 100vh`. Le personnage vit à z-index 350, le
+fond marine à −2 : trente-cinq étages d'écart, aucune interaction.
+
+> **Piège de mesure, à ne pas refaire** : lire
+> `getComputedStyle(env).backgroundColor` sur `.ztsh-page` renvoie
+> « transparent » et **ne prouve rien**. Le marine n'est pas sur le fond de
+> l'enveloppe, il est porté par `.ztsh-page.ztsh-fond::after` — calque fixe,
+> `inset: 0`, z-index −2, `pointer-events: none`. Les rayons sont sur
+> `::before` à −1. Mesurer `getComputedStyle(env, '::after')`.
+
+| Cas | Garde | Résultat |
+|---|---|---|
+| desktop 1280×720, tel quel | aucune | perso x=890→1174, casier x=16→503, chevauchement 0 |
+| après clic | — | 100 messages, bulle ouverte, perso s'élargit à x=766, chevauchement 0 |
+| coin saturé 420×600 | — | **personnage effacé, enveloppe intacte** |
+| retour au normal | — | personnage revenu, `isolation: isolate` toujours là |
+| mobile 375×812 | basse 154 px | perso au-dessus du casier, marine et `ztsh-fond` intacts |
+
+`jeux` ne porte **aucun bouton flottant**. Éléments fixes recensés :
+`header.zts-header` 40 %, `header.header` 11 %, `#ztsCookieBanner` 11 % en
+desktop et 40 % en mobile — aucun ne coupe la zone du personnage.
+
+**Production, chargement naturel à 1280×800** : personnage présent, image
+chargée, perso x=890→1174, chevauchement 0 avec le casier, `ztsh-fond` posée,
+marine `rgb(6,23,38)` sur `::after` à z−2, `isolation: isolate`, 1439
+`.game-card`, banque non téléchargée au chargement, console propre.
+
+**Vérifié avec le nouveau menu du header** (`5fed3b3`, arrivé d'une autre
+session pendant le palier — rebasé dessus). `shared/zts-menu.css` occupe
+z-index 210 pour la bande de nav, 9100 pour les panneaux déroulants, 9500 pour
+le plein écran mobile. L'échelle du shell est 300–399 : la bande passe
+**sous** le casier, les panneaux **au-dessus**. Le plein écran à 9500 couvre
+toute la vue, donc ignoré par la règle des 60 %. Aucun conflit.
 
 ### ~~Palier d)~~ — FAIT le 29 juillet
 
@@ -331,38 +432,162 @@ une décision écrite. Cocher le prescan ne suffit pas.
 ### État de la production
 
 **Six** apps habillées et saines : `jeux`, `sae`, `musique`, `plan-b-meteo`,
-`suppleance`, `educatifs`. Personnage actif sur **cinq** : `musique` et
+`suppleance`, `educatifs`. **Personnage actif sur les six** : `musique` et
 `plan-b-meteo` par la densité `vitrine`, `sae` (palier b), `educatifs`
-(palier c), `suppleance` (palier d). **Reste `jeux`, et c'est tout.**
-`main` poussé à `045a714`, build vert, `Verifie l'habillage` au vert (seul
-avertissement : `jeux`, D23, antérieur).
+(palier c), `suppleance` (palier d), `jeux` (palier e). `main` poussé à
+`2502a88`, build vert, `Verifie l'habillage` au vert (seul avertissement :
+`jeux`, D23, antérieur).
 
 ### Ce qui attend, dans l'ordre
 
 1. **Palier c) puis d)** de la garde du personnage — `educatifs` d'abord.
-2. **Banc `tni`** — avant d'activer le fond marine en densité `projection`.
-   `tni` pose un `#gymBg` fixe à 15 % d'opacité ; le marine passerait au
-   travers, le `<canvas>` du tableau garde son blanc. À voir tourner.
-3. **L'accueil** — `index.html` n'a jamais reçu l'habillage. **Toujours
-   bloqué**, mais on sait enfin où chercher. `_maquettes/` est vide. La
-   maquette de référence (md5 `fc6e6551ee6b97770b6f9b61aa9814b8`) reste
-   introuvable. **Trois versions voisines dorment à la corbeille**, toutes
-   titrées « ZTS — Direction C · WOW + personnages » :
+2. ~~**Banc `tni`**~~ — **FAIT. Il a trouvé un défaut, pas une question de
+   décor.** Correctif posé et vérifié en production le 2 août (`f0f6ece`).
+   Voir « Ce que le banc tni a trouvé » ci-dessous.
+3. **L'accueil** — **DÉBLOQUÉ le 2 août.** La maquette de référence (md5
+   `fc6e6551…`) reste introuvable et `_maquettes/` est toujours vide, mais
+   **trois versions voisines dormaient à la corbeille**, toutes titrées
+   « ZTS — Direction C · WOW + personnages », datées du 25 juillet :
 
-   | Fichier | Empreinte | Taille | Heure (25 juillet) |
+   | Fichier | Taille | Heure | Ce qu'elle apporte |
    |---|---|---|---|
-   | `zts-final-marine.html` | `e23eeddb…` | 37,0 Ko | 9:00 |
-   | `zts-final-marine_1.html` | `5394bc1c…` | 37,3 Ko | 9:08 |
-   | `zts-final-marine_2.html` | `f10e09bc…` | 42,0 Ko | 9:12 |
+   | `zts-final-marine.html` | 37,0 Ko | 9:00 | onglets métier non colorés |
+   | `zts-final-marine_1.html` | 37,3 Ko | 9:08 | onglets colorés |
+   | **`zts-final-marine_2.html`** | **42,0 Ko** | **9:12** | **RETENUE** |
 
-   **Aucune ne correspond à l'empreinte consignée.** Ce sont des itérations
-   successives, pas la version retenue. Joey doit dire laquelle fait foi — ou
-   retrouver la bonne — avant qu'on touche à l'accueil. Ne rien reproduire de
-   mémoire, et ne pas choisir à sa place : trois candidates valent zéro
-   certitude.
+   **Joey a tranché : la 9:12 fait foi.** C'est la plus avancée, et pas
+   seulement par la taille — elle seule porte `body[data-metier]`, un bloc de
+   configuration `METIERS` (personnage et textes par métier), l'animation
+   `.bascule` au changement, et des `id` sur le hero pour que le texte se
+   refasse. C'est la version où le sélecteur de métier **refait vraiment la
+   page**, ce que promet la ligne du hero. Elle est aussi la seule dont les
+   chemins d'images sont relatifs à la racine (`/perso-ep.png`), donc prête
+   pour le dépôt — les deux autres pointent en dur vers le domaine.
+
+   Copies de travail dans le scratchpad de session ; **les originaux n'ont pas
+   été touchés dans la corbeille**.
+
+   > **Correction, pour ne pas la refaire** : j'ai d'abord rapporté que les
+   > compteurs des versions 2 et 3 étaient faux (222, 203…). C'était une
+   > erreur de lecture. **Les trois portent les mêmes vraies cibles** —
+   > `data-cible="1439"`, `"1790"`, `"333"`. Les chiffres vus à l'écran
+   > étaient l'animation de comptage saisie en plein vol. Il n'y a aucun
+   > compteur à corriger.
+
+4. **Le personnage flottant est retiré du site** — décision de Joey, 2 août
+   (`6087e83`). Mr. Root reste la mascotte : héros, images de marque,
+   maquette. C'est la bulle qui suit le lecteur qui disparaît. Les trois
+   densités portent `encourageur: false`, les quatre apps qui l'activaient
+   explicitement ont perdu le flag. Vérifié sur les six : aucun personnage
+   flottant, banque jamais téléchargée, image `perso-*-264` jamais demandée,
+   casier et pause café intacts.
+
+   Ce commit défait les paliers b) à e) de la même journée. **Les paliers
+   n'étaient pas une erreur** : la garde générique qu'ils ont produite
+   (`0ca4f8b`) reste écrite et testée si le personnage revient un jour.
 4. **Temps 2** — suppression des apps sportives, après que Joey ait posé les
    9 redirections (`redirections-cloudflare.csv`) et que je les aie vérifiées.
 5. **Vague 2** — 22 gabarits, protocole allégé décrit plus bas.
+
+## Ce que le banc `tni` a trouvé — 1er août
+
+**La question de départ était le décor. La réponse est un défaut.**
+
+On voulait savoir si le marine, activé en densité `projection`, passerait au
+travers du `#gymBg` de `tni` (fixe, `inset: 0`, opacité 15 %). La vraie
+trouvaille est ailleurs.
+
+### Le défaut
+
+Deux lignes voisines dans `monter()`, une seule est conditionnelle :
+
+```js
+if (cfg.fond) document.documentElement.classList.add('ztsh-on');  // <html> — conditionnel
+document.body.classList.add('ztsh-on');                           // <body> — TOUJOURS
+```
+
+Or c'est `<html>` qui porte le marine, et `body.ztsh-on` qui met le fond de
+l'app à `transparent` :
+
+```css
+html.ztsh-on { background-color: var(--ztsh-marine); /* + dégradés */ }
+body.ztsh-on { background: transparent; color: var(--ztsh-sur-marine); }
+```
+
+En densité `projection`, `cfg.fond` est forcé à `false` par `normaliser()`.
+Donc : **le shell efface le fond de l'app et ne met rien à la place.** Ni
+`<html>` ni `<body>` ne peignent quoi que ce soit.
+
+Mesuré sur `tni`, qui pose `body { background: var(--navy) }` — sans
+`!important`, donc sans défense :
+
+| État | `html` | `body` | Texte |
+|---|---|---|---|
+| `tni` seule, sans shell | transparent | `rgb(13,27,46)` navy | blanc |
+| **montée en `projection`** | **transparent** | **transparent** | `rgb(230,244,250)` |
+
+Le navy disparaît, la couleur du texte est réécrite au passage.
+
+### Pourquoi personne ne l'a vu
+
+**Aucune app en production ne tourne en `projection`.** `nba-playoffs` a été
+retirée de la vague 1, `nhl-playoffs` abandonnée, `tni` n'est pas habillée,
+`planificateur` pas migrée. Le défaut est **latent**, pas actif.
+
+Il serait devenu actif au premier montage en `projection` — et le premier
+prévu est `planificateur`, dont le mode `?v2=1` doit justement descendre en
+`projection` (D24, décidé le 28 juillet). On l'aurait livré avec.
+
+### Le correctif, écrit et validé au banc
+
+Ne pas surcharger : **restreindre le sélecteur**. La transparence de `body`
+n'a de sens que si `<html>` porte effectivement le marine.
+
+```css
+/* avant */  body.ztsh-on               { background: transparent; color: var(--ztsh-sur-marine); }
+/* après */  html.ztsh-on body.ztsh-on  { background: transparent; color: var(--ztsh-sur-marine); }
+```
+
+| Densité | Avant | Après |
+|---|---|---|
+| `projection` | body transparent, texte réécrit | **navy `rgb(13,27,46)` et texte blanc rendus à l'app** |
+| `travail` | transparent sur marine | **inchangé** |
+| `vitrine` | transparent sur marine | **inchangé** |
+
+**Une fausse piste, pour mémoire** : `background: revert` dans une règle plus
+spécifique ne marche pas. `revert` remonte à l'origine navigateur, pas à la
+règle d'auteur de l'app — `body` retombe sur « transparent » et le défaut
+reste entier. Il faut retirer la déclaration, pas la contredire.
+
+### Ce qu'on sait aussi, accessoirement
+
+Le `<canvas>` du tableau ne risquait rien : `#canvas-container` est opaque
+(`#ffffff`) à z-index 1, au-dessus du `#gymBg` à z-index 0. Aucun fond de
+shell ne peut le traverser. La crainte d'origine était infondée — c'est la
+ligne d'à côté qui posait problème.
+
+### Posé et vérifié en production — 2 août (`f0f6ece`)
+
+Feu vert de Joey. Build Pages au vert, la règle restreinte est en ligne.
+
+**Les six apps, chargement naturel de la production, une iframe chacune** :
+`html.ztsh-on` posée, marine `rgb(6,23,38)`, casier et personnage présents,
+texte `rgb(230,244,250)`, sélecteur restreint bien présent dans la feuille.
+`body` transparent sur cinq ; `jeux` garde `rgb(248,250,252)` par son propre
+`!important` (D23), exactement comme avant. **Rien n'a changé pour elles** —
+c'était la condition du correctif.
+
+`tni` en `projection` : `body` garde son `rgb(13,27,46)` et son texte blanc.
+Le défaut est fermé.
+
+### Décidé le 2 août : pas de marine en `projection`
+
+Le correctif rend son fond à l'app, ce qui **est** le bon comportement pour
+une surface de projection : l'app occupe le plein cadre et décide de son
+décor. **L'idée d'un fond marine en `projection` est abandonnée.** Elle avait
+été mise en attente le 29 juillet « avant le banc tni » — le banc a répondu.
+
+`projection` reste donc : tokens seuls, aucun chrome, aucun fond imposé.
 
 ## Deux mécanismes décidés le 28 juillet
 

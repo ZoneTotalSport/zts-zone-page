@@ -25,6 +25,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../shared/zts.css">
+  <link rel="stylesheet" href="../../assets/ztsh-shell.css">
   <style>
     .rl-section { margin-bottom:var(--space-6); }
     .rl-h { font-family:var(--font-impact); font-size:var(--fs-4); margin:0 0 var(--space-3); }
@@ -84,6 +85,7 @@
 <body data-metier="camp">
 
   <div data-zts-header></div>
+  <div class="ztsh-page">
 
   <nav class="zts-subnav">
     <a href="../../camps-de-jour.html" data-i18n="subnav.back_metier">← Camps de jour</a>
@@ -227,5 +229,9 @@
     document.addEventListener('zts:ready', ()=>{ rlStatic(); rlGen(); });
     document.addEventListener('zts:langchange', ()=>{ rlStatic(); rlGen(); });
   </script>
+  </div><!-- /.ztsh-page -->
+
+  <script src="../../assets/ztsh-shell.js"></script>
+  <script>ZTSShell.monter({ densite: 'travail' });</script>
 </body>
 </html>
