@@ -69,11 +69,7 @@
               firebase.auth().signOut().catch(function() {});
               return;
             }
-            var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
-            if (isNew) {
-              fireSignupComplete('google');
-              window.location.href = '/bienvenue.html';
-            }
+            finaliserInscription(result, 'google');
           }
         }).catch(function() {});
         firebase.auth().onAuthStateChanged(function(user) {
@@ -619,11 +615,8 @@
   }
 
   // signup_complete : un seul envoi par creation REELLE de compte.
-  // On pose un flag sessionStorage SYNCHRONE (survit a la redirection vers
-  // /bienvenue.html), consomme par zts-funnel.js a l'arrivee. L'ancien appel
-  // direct a ztsTrackFunnel etait tue par le window.location.href qui suit
-  // immediatement (l'ecriture Firestore async n'avait pas le temps de partir).
-  // Lit et consomme la source d'attribution posee par locked_click_signup.
+  // Pose un flag sessionStorage SYNCHRONE (survit a la redirection vers
+  // /bienvenue.html), consomme par zts-funnel.js a l'arrivee.
   function fireSignupComplete(method) {
     var signup_source = 'direct';
     try {
@@ -637,6 +630,25 @@
         ts: Date.now()
       }));
     } catch (e) {}
+  }
+
+  // Finalisation unifiee : un seul point d'entree pour toutes les inscriptions.
+  // INVARIANT : fireSignupComplete() est synchrone et DOIT etre appele AVANT
+  // window.location.href — jamais dans un .then() separe.
+  function finaliserInscription(result, method) {
+    if (!result || !result.user) return;
+    var isNew = (result.additionalUserInfo && result.additionalUserInfo.isNewUser)
+      || (result.user.metadata.creationTime === result.user.metadata.lastSignInTime);
+    if (isNew) {
+      if (window.ztsTrackSignup) window.ztsTrackSignup(method, result.user.uid);
+      fireSignupComplete(method);   // synchrone — sessionStorage
+      if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
+      window.location.href = '/bienvenue.html';
+    } else {
+      if (window.ztsTrackLogin) window.ztsTrackLogin(method, result.user.uid);
+      if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
+      closeModal();
+    }
   }
 
   function handleSignup() {
@@ -656,10 +668,7 @@
         }).then(function() { return result; });
       })
       .then(function(result) {
-        if (window.ztsTrackSignup) window.ztsTrackSignup('email', result.user.uid);
-        fireSignupComplete('email');
-        if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
-        window.location.href = '/bienvenue.html';
+        finaliserInscription(result, 'email');
       })
       .catch(function(err) { showError(getErrorMsg(err.code)); setLoading(false); });
   }
@@ -676,17 +685,7 @@
     setLoading(true);
     firebase.auth().signInWithPopup(provider)
       .then(function(result) {
-        var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
-        if (isNew) {
-          if (window.ztsTrackSignup) window.ztsTrackSignup('google', result.user.uid);
-          fireSignupComplete('google');
-          if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
-          window.location.href = '/bienvenue.html';
-        } else {
-          if (window.ztsTrackLogin) window.ztsTrackLogin('google', result.user.uid);
-          if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
-          closeModal();
-        }
+        finaliserInscription(result, 'google');
       })
       .catch(function(err) {
         var msg = getErrorMsg(err.code);
