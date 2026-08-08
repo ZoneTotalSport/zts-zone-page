@@ -1,6 +1,6 @@
 /* CODE OREILLE — service worker minimal.
    Objectif : l'app doit s'ouvrir dans un gymnase ou un boisé, sans réseau. */
-const CACHE = 'code-oreille-v1';
+const CACHE = 'code-oreille-v2';
 const CORE = [
   './',
   './index.html',
@@ -8,6 +8,17 @@ const CORE = [
   './icon-192.png',
   './icon-512.png'
 ];
+
+/* respondWith() exige une Response. Rendre undefined fait échouer le handler
+   et le navigateur retombe sur le réseau — précisément ce qui manque hors
+   ligne. On répond donc toujours quelque chose. */
+function horsLigne() {
+  return new Response('', {
+    status: 504,
+    statusText: 'Hors ligne',
+    headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+  });
+}
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -35,22 +46,28 @@ self.addEventListener('fetch', e => {
       fetch(req)
         .then(r => {
           const copy = r.clone();
-          caches.open(CACHE).then(c => c.put('./index.html', copy));
+          caches.open(CACHE).then(c => c.put('./index.html', copy)).catch(() => {});
           return r;
         })
-        .catch(() => caches.match('./index.html'))
+        .catch(() => caches.match('./index.html').then(hit => hit || horsLigne()))
     );
     return;
   }
 
   // Reste (dont les polices Google) : cache d'abord, puis réseau + mise en cache.
   e.respondWith(
-    caches.match(req).then(hit => hit || fetch(req).then(r => {
-      if (r && (r.ok || r.type === 'opaque')) {
-        const copy = r.clone();
-        caches.open(CACHE).then(c => c.put(req, copy));
-      }
-      return r;
-    }).catch(() => hit))
+    caches.match(req).then(hit => {
+      if (hit) return hit;
+      return fetch(req)
+        .then(r => {
+          if (r && (r.ok || r.type === 'opaque')) {
+            const copy = r.clone();
+            caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {});
+          }
+          return r;
+        })
+        // Réseau mort et rien en cache : on rend une vraie Response, pas undefined.
+        .catch(() => horsLigne());
+    })
   );
 });
