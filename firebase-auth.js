@@ -57,29 +57,25 @@
         loadScript('https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js', function() {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-        // Recupere le resultat si on revient d'une redirection Google (mobile)
+        // DEPRECIE — 2026-08-08 · RETRAIT PREVU LE 2026-08-15
+        // Conserve 7 jours uniquement pour rattraper les sessions parties en
+        // signInWithRedirect avec le build precedent (un utilisateur peut revenir
+        // sur le site apres le deploiement avec un redirect en attente).
+        // Aucun nouveau flux n'emprunte ce chemin. Supprimer le bloc complet
+        // + l'import getRedirectResult apres le 2026-08-15.
         firebase.auth().getRedirectResult().then(function(result) {
           if (result && result.user) {
-            // Ce chargement suit une deconnexion volontaire : un resultat de
-            // redirection qui ressort ici est un fantome (cache SDK non purge,
-            // ITP Safari). On le refuse au lieu d'en faire une session.
             if (_signedOutAtLoad) {
-              console.warn('[ZTS Auth] getRedirectResult ignore : deconnexion volontaire en cours');
               firebase.auth().signOut().catch(function() {});
               return;
             }
             var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
             if (isNew) {
-              if (window.ztsTrackSignup) window.ztsTrackSignup('google_redirect', result.user.uid);
               fireSignupComplete('google');
-              if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
               window.location.href = '/bienvenue.html';
-            } else {
-              if (window.ztsTrackLogin) window.ztsTrackLogin('google_redirect', result.user.uid);
-              if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
             }
           }
-        }).catch(function(err) { console.error('[ZTS Auth] getRedirectResult:', err); });
+        }).catch(function() {});
         firebase.auth().onAuthStateChanged(function(user) {
           // Un vrai utilisateur present = la deconnexion appartient au passe.
           if (user) clearSignedOut();

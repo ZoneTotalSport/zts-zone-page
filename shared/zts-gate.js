@@ -239,11 +239,13 @@
       try {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        // DEPRECIE — 2026-08-08 · RETRAIT PREVU LE 2026-08-15
+        // Conserve 7 jours uniquement pour rattraper les sessions parties en
+        // signInWithRedirect avec le build precedent (un utilisateur peut revenir
+        // sur le site apres le deploiement avec un redirect en attente).
+        // Aucun nouveau flux n'emprunte ce chemin. Supprimer le bloc complet apres le 2026-08-15.
         firebase.auth().getRedirectResult().then(function (result) {
-          // Chargement qui suit une deconnexion volontaire : un resultat de
-          // redirection qui ressort ici est un fantome, pas une intention.
           if (result && result.user && _signedOutAtLoad) {
-            console.warn('[ZTS Gate] getRedirectResult ignore : deconnexion volontaire');
             firebase.auth().signOut().catch(function () {});
           }
         }).catch(function () {});
