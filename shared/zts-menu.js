@@ -39,9 +39,7 @@
       { name: 'Boîte à outils',      app: 'educatifs',  color: '#00E5FF', em: '🧰', icon: 'wrench',    desc: 'Fiches et générateurs' },
       { name: "Carnet d'évaluation", app: 'evaluation', color: '#8B5CF6', em: '📗', icon: 'book-open', desc: 'Suivi des élèves' },
       { name: 'Musique',             app: 'musique',    color: '#FF2A7A', em: '🎵', icon: 'music',     desc: 'Trames et minuteries' },
-      // Pas de DNS ni de dossier /apps/oreille/ pour l'instant : marqué BIENTÔT.
-      // Quand l'app existe -> remplacer par badge: 'nouveau'.
-      { name: 'Code Oreille',        app: 'oreille',    color: '#FFD700', em: '👂', icon: 'ear',       desc: 'Urgences et imprévus', badge: 'bientot' }
+      { name: 'Code Oreille',        app: 'code-oreille', color: '#FFD700', em: '👂', icon: 'ear',    desc: 'Quoi faire quand ça dérape', badge: 'nouveau' }
     ]},
 
     { id: 'sae', label: 'SAÉ', i18n: 'nav.sae', em: '📋',
