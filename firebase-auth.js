@@ -440,15 +440,20 @@
     'auth/email-already-in-use': 'Ce courriel est déjà utilisé. Essaie de te connecter !',
     'auth/weak-password': 'Le mot de passe doit avoir au moins 6 caractères.',
     'auth/too-many-requests': 'Trop de tentatives. Réessaie dans quelques minutes.',
-    'auth/popup-closed-by-user': 'Connexion Google annulée.',
-    'auth/network-request-failed': 'Erreur de connexion. Vérifie ton internet.',
+    'auth/cancelled-popup-request': null,
+    'auth/popup-closed-by-user': 'Connexion annulée.',
+    'auth/popup-blocked': 'Ton navigateur a bloqué la fenêtre de connexion. Autorise les fenêtres surgissantes, puis réessaie.',
+    'auth/network-request-failed': 'Connexion réseau perdue. Réessaie.',
+    'auth/unauthorized-domain': 'Domaine non autorisé. Contacte le support.',
     'auth/invalid-credential': 'Courriel ou mot de passe incorrect.',
     'auth/missing-password': 'Entre ton mot de passe.'
   };
 
   function getErrorMsg(code) {
-    console.log('[ZTS Auth] Error code:', code);
-    return ERROR_MESSAGES[code] || 'Erreur: ' + code;
+    console.warn('[ZTS Auth] Error code:', code);
+    var msg = ERROR_MESSAGES[code];
+    if (msg === null) return null;
+    return msg || 'La connexion a échoué. Réessaie dans un instant.';
   }
 
   // ── Current mode tracking ──
@@ -664,6 +669,11 @@
   }
 
   function handleGoogle() {
+    // Mode PWA standalone (ajout ecran accueil iOS) : pas de fenetre dispo
+    if (window.navigator.standalone === true) {
+      showError("Ouvre zonetotalsport.ca dans Safari pour te connecter avec Google, ou cree un compte par courriel.");
+      return;
+    }
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
@@ -683,7 +693,9 @@
         }
       })
       .catch(function(err) {
-        showError(getErrorMsg(err.code));
+        var msg = getErrorMsg(err.code);
+        if (msg) showError(msg);
+        console.warn('[ZTS Auth] Google:', err.code, err.message);
         setLoading(false);
       });
   }

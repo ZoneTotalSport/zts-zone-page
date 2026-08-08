@@ -135,14 +135,32 @@
   function showErr(msg) { var e = el('ztg-err'); if (e) e.textContent = msg || ''; }
   function busy(on) { var c = document.querySelector('#zts-gate .ztg-card'); if (c) c.classList.toggle('ztg-busy', !!on); }
 
+  function messageErreurAuth(code) {
+    switch (code) {
+      case 'auth/cancelled-popup-request': return null;
+      case 'auth/popup-closed-by-user': return 'Connexion annulée.';
+      case 'auth/popup-blocked': return 'Ton navigateur a bloqué la fenêtre de connexion. Autorise les fenêtres surgissantes, puis réessaie.';
+      case 'auth/network-request-failed': return 'Connexion réseau perdue. Réessaie.';
+      case 'auth/unauthorized-domain': return 'Domaine non autorisé. Contacte le support.';
+      default: return t().errGoogle;
+    }
+  }
+
   function doGoogle() {
+    // Mode PWA standalone (ajout ecran accueil iOS) : pas de fenetre dispo
+    if (window.navigator.standalone === true) {
+      showErr("Ouvre zonetotalsport.ca dans Safari pour te connecter avec Google, ou cree un compte par courriel.");
+      return;
+    }
     showErr(''); busy(true);
     clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     var p = new firebase.auth.GoogleAuthProvider();
     p.setCustomParameters({ prompt: 'select_account' });
     firebase.auth().signInWithPopup(p).catch(function (err) {
       busy(false);
-      showErr(t().errGoogle);
+      var msg = messageErreurAuth(err.code);
+      if (msg) showErr(msg);
+      console.warn('[ZTS Gate] Google:', err.code, err.message);
     });
   }
 

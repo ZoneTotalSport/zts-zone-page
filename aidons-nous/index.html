@@ -452,8 +452,13 @@ window.authDo = async function(mode){
 document.addEventListener('DOMContentLoaded',()=>{
   const gb=$('googleBtn');
   if(gb)gb.onclick=()=>{
+    if(window.navigator.standalone===true){$('authErr').textContent="Ouvre zonetotalsport.ca dans Safari pour te connecter avec Google, ou cree un compte par courriel.";$('authErr').classList.add('show');return;}
     const provider=new firebase.auth.GoogleAuthProvider();
-    firebase.auth().signInWithPopup(provider).then(()=>$('authModal').classList.remove('show')).catch(e=>{$('authErr').textContent=e.message;$('authErr').classList.add('show');});
+    firebase.auth().signInWithPopup(provider).then(()=>$('authModal').classList.remove('show')).catch(e=>{
+      if(e.code==='auth/cancelled-popup-request')return;
+      const msg=e.code==='auth/popup-closed-by-user'?'Connexion annulée.':e.code==='auth/popup-blocked'?'Ton navigateur a bloqué la fenêtre. Autorise les fenêtres surgissantes.':'La connexion a échoué. Réessaie.';
+      $('authErr').textContent=msg;$('authErr').classList.add('show');
+    });
   };
   lucide.createIcons();
 });
