@@ -14,7 +14,18 @@
 - **Site** : zonetotalsport.ca
 - **Mission** : plateforme 100% gratuite de ressources ÉPS / Camps de jour / Service de garde
 - **Stack** : GitHub Pages + Cloudflare + Firebase + Firestore
-- **Style visuel** : Pop Art bûcheron — Patrick Hand, Schoolbell, Ben-Day dots, bleu-violet, offset shadows, dashed borders
+- **Style visuel** : Pop Art bûcheron — Ben-Day dots, décor marine, offset shadows, dashed borders
+- **Polices (décision Joey 2026-08-04)** : TROIS pour ce qui s'affiche —
+  **Luckiest Guy** (titres), **Bangers** (étiquettes, boutons, notes),
+  **ZoneTotalSport.ttf** (signature) — et **Quicksand** pour ce qui se lit.
+  Sorties du site : Fredoka, Caveat, Nunito, Schoolbell, Patrick Hand,
+  Swanky and Moo Moo, Fredoka One, Georgia. Les tokens `--font-fun` et
+  `--font-hand` sont conservés en ALIAS de `--font-body` (appelés dans des
+  centaines de pages) — ne pas les supprimer, ne pas les repointer ailleurs.
+  ⚠ `ZoneTotalSport` doit être déclarée sous un nom distinct par contexte
+  (`ZoneTotalSportZTSH` au shell, `ZoneTotalSportZTSP` au patron) avec
+  `size-adjust:50%` : sans ça elle entre en collision avec les @font-face
+  locaux de jeux/moyens-action/studio-jeu et rend au double de sa taille.
 - **Mascotte** : Mr. Root (bûcheron sportif)
 
 ## Design — boutons (décision verrouillée 2026-07-05)

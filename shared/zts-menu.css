@@ -50,7 +50,7 @@
   position:fixed; z-index:9100; padding:14px;
   background:#0F0F2E; border:3px solid #000; border-radius:16px;
   box-shadow:6px 6px 0 #000; color:#fff;
-  font-family:'Fredoka','Quicksand',system-ui,sans-serif;
+  font-family:var(--font-body);
 }
 .ztsm-panel[hidden] { display:none; }
 .ztsm-panel::before {                 /* flèche vers le bouton parent */
@@ -59,7 +59,7 @@
   border-bottom:11px solid #000;
 }
 .ztsm-panel-title {
-  font-family:'Caveat','Patrick Hand',cursive; font-size:15px; letter-spacing:1px;
+  font-family:var(--font-bang); font-size:15px; letter-spacing:1px;
   text-transform:uppercase; color:rgba(255,255,255,.5); margin:0 4px 10px; text-align:left;
 }
 .ztsm-grid { display:grid; grid-template-columns:1fr; gap:6px; }
@@ -86,13 +86,13 @@
   display:flex; align-items:center; gap:6px; flex-wrap:wrap;
 }
 .ztsm-desc {
-  font-family:'Caveat','Patrick Hand',cursive; font-size:16px; line-height:1.2;
+  font-family:var(--font-bang); font-size:16px; line-height:1.2;
   color:rgba(255,255,255,.65); margin-top:1px;
 }
 
 /* Badges */
 .ztsm-badge {
-  font-family:'Fredoka','Quicksand',sans-serif; font-weight:600; font-size:10px; line-height:1;
+  font-family:var(--font-body); font-weight:600; font-size:10px; line-height:1;
   padding:3px 7px; border:1px solid #000; border-radius:999px; letter-spacing:.4px; white-space:nowrap;
 }
 .ztsm-badge.is-new  { background:#FFD700; color:#0F0F2E; }
@@ -115,7 +115,7 @@
   position:fixed; inset:0; z-index:9500; background:#0F0F2E; color:#fff;
   transform:translateX(100%); transition:transform .28s ease;
   display:flex; flex-direction:column; overflow-y:auto;
-  font-family:'Fredoka','Quicksand',system-ui,sans-serif;
+  font-family:var(--font-body);
 }
 .ztsm-mob.is-open { transform:translateX(0); }
 .ztsm-mob[hidden] { display:none; }

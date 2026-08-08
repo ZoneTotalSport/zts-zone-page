@@ -1,7 +1,7 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 4 août 2026 — vague 2 livrée (22 apps du gabarit),
-premier lot de la vague 3 (3 apps custom). 31 apps montent le shell.
+**Dernière mise à jour** : 4 août 2026 — CHANTIER TERMINÉ pour les apps.
+40 apps sur 45 montent le shell ; les 3 restantes sont des exclusions voulues.
 Le chantier du personnage est clos depuis le 31 juillet.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
@@ -146,47 +146,50 @@ invitation à la pause café n'y a pas sa place.
 
 `verifie-habillage.py` : **28 apps migrées, 0 bloquant.**
 
-### 4. Vague 3 — les apps custom
+### 4. ~~Vague 3 — les apps custom~~ — FAITE le 4 août
 
-**Premier lot fait le 4 août** : `colorier` (travail), `generateur` (travail),
-`studio-jeu` (projection). **31 apps montent le shell.**
+**40 apps sur 45 montent le shell. Le chantier d'habillage des apps est
+terminé.** Ne restent que trois cas, tous voulus :
 
-> **Variante du montage pour les custom** : le CSS du shell va après **le
-> dernier `<link>` du head**, pas seulement après les feuilles partagées. Une
-> app custom a sa propre feuille (`styles.css`) qui, sinon, passerait après le
-> shell et gagnerait la cascade sur ses surcharges. `colorier` la chargeait
-> justement en dernier.
+| App | Pourquoi elle reste dehors |
+|---|---|
+| `evaluation`, `scoreboard` | builds Vite, exclues au prescan (source absente pour la première) |
+| `planificateur` | porte le **patron** (`ztsp-decor`) et non le shell — cas à deux densités, D24 |
 
-> **`studio-jeu` n'apporte rien de visible, et c'est voulu.** En densité
-> `projection` — celle que le shell prévoit pour elle nommément — aucun chrome
-> n'est monté et il n'y a pas de décor (décision du 2 août). Le montage pose le
-> marqueur de densité, borne le `box-sizing` du shell à son sous-arbre (cette
-> app ne charge aucun CSS partagé, un `*` la casserait) et donne un point
-> d'accroche. L'avertissement ENVELOPPE qu'elle lève est sans objet en
-> projection, où la marge du rail vaut 0.
+`nba-playoffs` et `nhl-playoffs` ne sont plus des apps : ce sont des pages de
+redirection depuis le retrait des apps sportives.
 
-> **Densité : regarder la page avant de choisir.** J'avais mis `generateur` en
-> `vitrine` ; vu à l'écran, la page porte déjà un verrou plein écran, un funnel
-> et un cadenas, et `vitrine` y ajoutait un bouton « pause café » flottant
-> par-dessus. Passée à `travail`.
+Densités retenues : `agenda`, `performances`, `planification`, `omnigroupe`,
+`cours-maternelle`, `grille`, `moyens-action`, `colorier`, `generateur` en
+**travail** ; `tni` et `studio-jeu` en **projection** ; `transitions` en
+**travail + `fondSurEnveloppe`**.
 
-Restent **11 apps**, dont deux builds Vite et plusieurs qui imposent leur fond
-(`fondSurEnveloppe` à prévoir) :
+> **LES FONDS PROPRES SE NEUTRALISENT TOUT SEULS, SAUF EN `!important`.** Six
+> de ces apps posent un fond sur `body` (`#f1f5f9`, dégradé crème, image,
+> `#f8fafc`…). La règle `html.ztsh-on body.ztsh-on{background:transparent}` a
+> 0,2,2 de spécificité et passe devant un `body{…}` à 0,0,1 : rien à faire.
+> Seule `transitions` impose le sien en `!important` (D23) → `fondSurEnveloppe`,
+> vérifié à la mesure : `.ztsh-page` porte `ztsh-fond` et son calque rend
+> `rgb(6,23,38)`.
 
-| App | Fond propre | Note |
-|---|---|---|
-| `agenda`, `performances`, `planification` | aucun | gabarit-like, CSS moyen |
-| `omnigroupe` | `#f1f5f9` | 267 Ko, la plus grosse |
-| `cours-maternelle` | dégradé crème | + `body.tbi` |
-| `grille` | image de fond | |
-| `moyens-action` | `#f8fafc` | |
-| `tni` | `var(--navy)` | densité projection, voir le banc du 1er août |
-| `transitions` | `#f8f9fa!important` | **`fondSurEnveloppe`** |
-| `nba-playoffs`, `nhl-playoffs` | sombre | apps sportives — vérifier si elles restent en ligne |
+> **`tni` en projection ne pose PAS `html.ztsh-on`.** C'est correct : `cfg.fond`
+> est `false` à cette densité et l'app garde son plein cadre. **Ne pas le lire
+> comme un échec de montage** — c'est le piège de lecture le plus probable si
+> quelqu'un rejoue le balayage.
 
-`acrosport` est **exclue** — voir `TICKET-ACROSPORT-ENTETE.md`.
-`evaluation` et `scoreboard` sont **exclues** — builds Vite, source absente
-pour la première.
+> **UN DÉFAUT DE SCRIPT À NE PAS REFAIRE.** Mon script de montage insérait au
+> **premier** `</body>`. `omnigroupe` génère un export HTML complet dans un
+> template littéral JS, avec son propre `</body>` à la ligne 1646 : le montage
+> s'est retrouvé **dedans**, donc dans le fichier exporté et jamais dans l'app.
+> Rien ne se montait — et **le vérificateur ne pouvait pas le voir**, il cherche
+> la présence du code, pas sa position. Trouvé en mesurant les 9 apps en iframe
+> une par une, pas en lisant le rapport. Toujours insérer au **dernier**
+> `</body>`, et vérifier que le montage est à moins de 5 lignes de la fin.
+
+`verifie-habillage.py` : **40 apps, 0 bloquant.** Les 4 avertissements sont
+connus et voulus — `jeux` (light mode décidé), `studio-jeu` (enveloppe sans
+objet en projection), `transitions` (le `!important` que `fondSurEnveloppe`
+traite déjà).
 
 ## Comment tester une app
 

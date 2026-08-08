@@ -591,20 +591,10 @@
     }
   }
 
-  // ============================================
-  // MÉTÉO #menuJour : même source que daily.js (source unique, plus de météo en dur)
-  // ============================================
-  function updateMenuJourWeather(weather) {
-    if (!weather) return;
-    var tag = document.getElementById('meteoTag');
-    var note = document.getElementById('meteoNote');
-    var temp = document.querySelector('#menuJour .meteo-temp');
-    var loc = document.querySelector('#menuJour .meteo-loc');
-    if (tag) tag.textContent = L(weather.decision);
-    if (note) note.textContent = weather.reason;
-    if (temp) temp.innerHTML = '<span class="icon">' + weather.emoji + '</span>' + weather.temp + '°C';
-    if (loc) loc.textContent = weather.label + ' · ' + weather.city;
-  }
+  // MÉTÉO DE LA SECTION « AU MENU » — retirée le 4 août 2026 avec la section
+  // qu'elle alimentait (doublon de « Ton inspiration du jour », voir
+  // index.html). Ses gardes `if (tag)` l'empêchaient de planter une fois les
+  // champs disparus, mais elle n'avait plus rien à écrire.
 
   // ============================================
   // RENDU : injecte dans #ztsTodaySection
@@ -628,7 +618,6 @@
 
     // Lance en parallele
     var weather = await getWeather();
-    updateMenuJourWeather(weather);
     var game = getDailyGame();
 
     // Render cards
