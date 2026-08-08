@@ -22,7 +22,7 @@
   <!-- /ZTS-SEO -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Inter:wght@400;600;700;900&family=Fredoka:wght@400;500;600;700&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../shared/zts-header.css">
 <link rel="stylesheet" href="../../assets/ztsh-shell.css">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -53,7 +53,7 @@ tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',zt
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  font-family: 'Fredoka', system-ui, sans-serif;
+  font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
   color: var(--blanc);
   min-height: 100vh;
   overflow-x: hidden;
@@ -141,7 +141,7 @@ body {
   border: 2px solid var(--cyan);
   border-radius: 8px;
   padding: 8px 12px;
-  font-family: 'Fredoka', sans-serif;
+  font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -537,7 +537,7 @@ body {
   font-size: .85rem;
   color: #B8C4D6;
   line-height: 1.4;
-  font-family: 'Fredoka', sans-serif;
+  font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
 }
 .act-explain.missing {
   color: #F4A261;
@@ -750,7 +750,7 @@ body {
 /* ===== Blog-style header/hero (canonical) ===== */
 @font-face{font-family:'LuckiestGuyZTS';src:local('Luckiest Guy');unicode-range:U+0020-007F}
 @font-face{font-family:'LuckiestGuyZTS';src:local('Bangers');unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F;size-adjust:92%}
-.font-lucky{font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;letter-spacing:.05em}
+.font-lucky{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);letter-spacing:.05em}
 .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
 @keyframes ztsfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .animate-float{animation:ztsfloat 3s ease-in-out infinite}
@@ -782,7 +782,7 @@ body {
 .zts-hero-badge{display:inline-block;font-family:'Luckiest Guy',cursive;background:#FFFA00;color:#004A61;padding:6px 20px;border-radius:12px;font-size:14px;margin-bottom:20px;transform:rotate(-2deg);box-shadow:0 4px 12px rgba(0,0,0,.2)}
 .zts-hero-h1{font-family:'Luckiest Guy',cursive;font-size:clamp(48px,8vw,96px);text-transform:uppercase;line-height:1;text-shadow:2px 2px 0 rgba(0,0,0,.2);margin-bottom:20px;color:#fff}
 .zts-hero-h1 .accent{color:#FFFA00}
-.zts-hero-desc{font-family:'Love',cursive;color:#cffafe;font-size:18px;line-height:1.6;margin-bottom:32px;max-width:480px}
+.zts-hero-desc{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);color:#cffafe;font-size:18px;line-height:1.6;margin-bottom:32px;max-width:480px}
 @media(max-width:1023px){.zts-hero-desc{margin-left:auto;margin-right:auto}}
 .zts-hero-img-wrap{flex:1;position:relative;display:flex;justify-content:center;width:100%}
 .zts-hero-img{position:relative;z-index:10;border-radius:48px;overflow:hidden;border:10px solid #fff;box-shadow:0 25px 50px -12px rgba(0,0,0,.4);transform:rotate(3deg);transition:transform .7s;max-width:400px;width:100%}

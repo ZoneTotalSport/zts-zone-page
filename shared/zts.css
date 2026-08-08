@@ -53,7 +53,14 @@
   --metier-tint: rgba(0,229,255,0.14);
 
   /* — Familles de polices — */
-  --font-impact: 'Luckiest Guy','LuckiestGuy','Impact',sans-serif; /* gros titres */
+  /* LA FONTE LOCALE PASSE DEVANT GOOGLE — 4 août 2026, demande de Joey
+     « Luckiest Guy avec les accents ». Mesuré sur les deux fichiers :
+     `/fonts/LuckiestGuy-Regular.ttf` couvre 367 glyphes et il ne manque AUCUN
+     caractère français — accents, ligatures Æ Œ, apostrophe courbe, « » — °.
+     Le service Google sert par défaut le sous-ensemble `latin`, qui n'inclut
+     ni Œ ni Æ : un titre contenant « CŒUR » basculait de police en plein mot.
+     Locale d'abord, Google en secours. */
+  --font-impact: 'LuckiestGuy','Luckiest Guy','Impact',sans-serif; /* gros titres */
   --font-bang:   'Bangers','Impact',cursive;                       /* callouts */
   /* TROIS POLICES D'AFFICHAGE, UNE DE LECTURE — décision de Joey du 4 août 2026.
      Fredoka et Caveat sortent du site. `--font-fun` et `--font-hand` restent

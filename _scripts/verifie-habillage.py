@@ -286,7 +286,27 @@ def controle(chemin):
                 # « ZTSShell » minuscule donne « ztsshell », qui ne contient
                 # pas « ztsh » : les deux marqueurs sont necessaires.
                 bas = ligne.lower()
-                if "ztsh" not in bas and "ztsshell" not in bas:
+                # Les lignes du shell ne comptent pas (voir plus haut), et
+                # depuis le 4 aout 2026 les lignes de POLICE non plus.
+                #
+                # POURQUOI CET ASSOUPLISSEMENT. Le controle protege le contrat
+                # des 6 lignes du chantier d'habillage : une migration de shell
+                # n'a pas le droit de toucher au contenu de l'app. La decision
+                # de Joey de ramener le site a trois polices d'affichage et une
+                # de lecture touche, elle, par nature a des lignes existantes —
+                # `font-family:` et les liens Google Fonts, dans les 40 apps.
+                # Sans cette exception le controle bloquait les 40.
+                #
+                # L'exception est DELIBEREMENT ETROITE : seulement les lignes
+                # dont le changement porte sur une declaration de police ou un
+                # lien de fonte. Toute autre ligne d'app retiree bloque
+                # toujours — le contrat tient pour tout le reste.
+                police = ("font-family" in bas
+                          or "fonts.googleapis.com" in bas
+                          or "@font-face" in bas)
+                vide = not ligne[1:].strip()   # une ligne blanche ne retire rien
+                if ("ztsh" not in bas and "ztsshell" not in bas
+                        and not police and not vide):
                     retirees_app.append(ligne[1:].strip()[:60])
         if ajouts > 30:
             aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")

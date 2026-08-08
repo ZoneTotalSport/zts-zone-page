@@ -20,7 +20,7 @@
   <meta property="og:site_name" content="Zone Total Sport">
   <meta name="twitter:card" content="summary">
   <!-- /ZTS-SEO -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="../../shared/zts-header.css">
 <link rel="stylesheet" href="../../assets/ztsh-shell.css">
@@ -28,11 +28,6 @@
 <style>
 /* ═══ POLICES ═══ */
 @font-face{font-family:'Lucky';src:url('LuckiestGuy-Regular.ttf') format('truetype');font-display:swap;}
-@font-face{font-family:'Swanky';src:url('SwankyandMooMoo-Regular.ttf') format('truetype');font-display:swap;}
-@font-face{font-family:'Gloria';src:url('GloriaHallelujah-Regular.ttf') format('truetype');font-display:swap;}
-@font-face{font-family:'Girl';src:url('TheGirlNextDoor-Regular.ttf') format('truetype');font-display:swap;}
-@font-face{font-family:'Love';src:url('LoveYaLikeASister-Regular.ttf') format('truetype');font-display:swap;}
-@font-face{font-family:'Kranky';src:url('Kranky-Regular.ttf') format('truetype');font-display:swap;}
 
 :root{
   --c-cyan:#00C4FF;--c-yellow:#FFE600;--c-orange:#FF8C00;
@@ -45,19 +40,23 @@
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
-  font-family:'Inter',sans-serif;font-weight:600;
+  font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:600;
   color:var(--ink);background:linear-gradient(135deg,#FFFBF0 0%,#FFF8E1 100%);
   min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
 }
 
 /* ═══ TYPOGRAPHIE — UTILS ═══ */
-.f-lucky{font-family:'Lucky',cursive;letter-spacing:.04em;}
-.f-swanky{font-family:'Swanky',cursive;}
-.f-gloria{font-family:'Gloria',cursive;}
-.f-girl{font-family:'Girl',cursive;}
-.f-love{font-family:'Love',cursive;letter-spacing:.06em;}
+.f-lucky{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);letter-spacing:.04em;}
+/* Les quatre manuscrites locales (Swanky, Gloria, Girl, Love) sortent du
+   site le 4 août 2026 — trois polices d'affichage et une de lecture. Leurs
+   @font-face partent avec, les .ttf ne sont plus servis. Les classes restent
+   pour ne pas toucher au balisage : elles pointent la police de lecture. */
+.f-swanky{font-family:var(--font-body, 'Quicksand', sans-serif);}
+.f-gloria{font-family:var(--font-body, 'Quicksand', sans-serif);}
+.f-girl{font-family:var(--font-body, 'Quicksand', sans-serif);}
+.f-love{font-family:var(--font-body, 'Quicksand', sans-serif);letter-spacing:.06em;}
 
-h1,h2,h3,h4{margin:0;font-family:'Lucky',cursive;letter-spacing:.04em;font-weight:400;line-height:1.1;}
+h1,h2,h3,h4{margin:0;font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);letter-spacing:.04em;font-weight:400;line-height:1.1;}
 p{margin:0;line-height:1.55;}
 
 /* ═══ STICKER CARD — composant clé ═══ */
@@ -83,7 +82,7 @@ p{margin:0;line-height:1.55;}
 /* ═══ BADGE ═══ */
 .badge{
   display:inline-block;padding:4px 12px;border-radius:999px;
-  font-family:'Love',cursive;font-size:.85rem;letter-spacing:.08em;
+  font-family:var(--font-body, 'Quicksand', sans-serif);font-size:.85rem;letter-spacing:.08em;
   text-transform:uppercase;border:2px solid var(--ink);
 }
 .badge-cyan{background:var(--c-cyan);color:var(--ink);}
@@ -97,7 +96,7 @@ p{margin:0;line-height:1.55;}
 .btn{
   display:inline-flex;align-items:center;gap:8px;
   padding:12px 22px;border-radius:14px;
-  font-family:'Lucky',cursive;letter-spacing:.04em;font-size:1.1rem;
+  font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);letter-spacing:.04em;font-size:1.1rem;
   border:2px solid var(--ink);border-bottom-width:6px;border-right-width:6px;
   background:#fff;color:var(--ink);cursor:pointer;
   transition:transform .12s ease,border-width .12s ease;
@@ -117,7 +116,7 @@ p{margin:0;line-height:1.55;}
 .numbox{
   width:48px;height:48px;border-radius:50%;
   display:inline-flex;align-items:center;justify-content:center;
-  font-family:'Lucky',cursive;font-size:1.6rem;
+  font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.6rem;
   border:2px solid var(--ink);border-bottom-width:5px;border-right-width:5px;
   background:#fff;flex-shrink:0;
 }
@@ -135,8 +134,8 @@ p{margin:0;line-height:1.55;}
   border-radius:14px;display:flex;align-items:center;justify-content:center;
   font-size:1.6rem;color:var(--ink);transform:rotate(-6deg);
 }
-.app-title{font-family:'Lucky',cursive;font-size:1.6rem;letter-spacing:.04em;line-height:.95;}
-.app-subtitle{font-family:'Love',cursive;font-size:.85rem;color:var(--c-cyan);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
+.app-title{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.6rem;letter-spacing:.04em;line-height:.95;}
+.app-subtitle{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:.85rem;color:var(--c-cyan);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
 .toolbar{display:flex;gap:8px;flex-wrap:wrap;}
 .toolbar .btn{font-size:.9rem;padding:8px 14px;border-bottom-width:4px;border-right-width:4px;}
 
@@ -154,10 +153,10 @@ p{margin:0;line-height:1.55;}
 }
 .hero-main:hover{transform:translate(3px,3px);border-bottom-width:5px;border-right-width:5px;}
 .hero-main::before{content:'';position:absolute;right:-30px;top:-30px;width:200px;height:200px;background:rgba(255,255,255,.1);border-radius:50%;}
-.hero-tag{font-family:'Love',cursive;background:#fff;color:var(--ink);padding:6px 14px;border-radius:999px;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;display:inline-block;border:2px solid var(--ink);}
-.hero-title{font-family:'Lucky',cursive;font-size:clamp(2rem,5vw,3.5rem);margin-top:14px;}
-.hero-desc{font-family:'Girl',cursive;font-size:1.2rem;margin-top:14px;opacity:.95;line-height:1.4;}
-.hero-cta{font-family:'Lucky',cursive;background:#fff;color:var(--ink);display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:14px;border:2px solid var(--ink);border-bottom-width:6px;border-right-width:6px;margin-top:20px;align-self:flex-start;font-size:1.2rem;}
+.hero-tag{font-family:var(--font-body, 'Quicksand', sans-serif);background:#fff;color:var(--ink);padding:6px 14px;border-radius:999px;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;display:inline-block;border:2px solid var(--ink);}
+.hero-title{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:clamp(2rem,5vw,3.5rem);margin-top:14px;}
+.hero-desc{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.2rem;margin-top:14px;opacity:.95;line-height:1.4;}
+.hero-cta{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);background:#fff;color:var(--ink);display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:14px;border:2px solid var(--ink);border-bottom-width:6px;border-right-width:6px;margin-top:20px;align-self:flex-start;font-size:1.2rem;}
 
 .hero-side{display:grid;grid-template-rows:1fr 1fr;gap:16px;}
 .hero-stats{
@@ -165,11 +164,11 @@ p{margin:0;line-height:1.55;}
   border:2px solid var(--ink);border-bottom-width:8px;border-right-width:8px;
   border-radius:20px;padding:20px;display:flex;flex-direction:column;justify-content:center;
 }
-.hero-stats-num{font-family:'Lucky',cursive;font-size:3.5rem;line-height:1;color:var(--ink);}
-.hero-stats-label{font-family:'Lucky',cursive;font-size:1.1rem;color:var(--ink);}
+.hero-stats-num{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:3.5rem;line-height:1;color:var(--ink);}
+.hero-stats-label{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.1rem;color:var(--ink);}
 .bar{width:100%;height:10px;background:rgba(0,0,0,.15);border-radius:999px;overflow:hidden;margin-top:10px;}
 .bar-fill{height:100%;background:var(--ink);border-radius:999px;transition:width .6s ease;}
-.hero-stats-msg{font-family:'Girl',cursive;font-size:1rem;margin-top:6px;color:var(--ink);}
+.hero-stats-msg{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1rem;margin-top:6px;color:var(--ink);}
 
 .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .quick{
@@ -182,12 +181,12 @@ p{margin:0;line-height:1.55;}
 .quick-icon{font-size:2rem;display:block;margin-bottom:6px;}
 .quick-tbi{background:var(--c-purple-soft);}
 .quick-surprise{background:var(--c-orange-soft);}
-.quick-label{font-family:'Lucky',cursive;font-size:1.1rem;}
+.quick-label{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.1rem;}
 
 /* ═══ TABS TRIMESTRES ═══ */
 .trim-bar{display:flex;gap:10px;margin:30px 0 18px;flex-wrap:wrap;align-items:center;}
 .trim-btn{
-  font-family:'Swanky',cursive;font-size:1.4rem;padding:10px 20px;
+  font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.4rem;padding:10px 20px;
   background:#fff;border:2px solid var(--ink);border-bottom-width:5px;border-right-width:5px;
   border-radius:12px;cursor:pointer;color:var(--ink);
   transition:all .12s ease;
@@ -196,7 +195,7 @@ p{margin:0;line-height:1.55;}
 .trim-btn.active{background:var(--c-cyan);transform:translate(2px,2px);border-bottom-width:3px;border-right-width:3px;}
 .search-box{
   margin-left:auto;
-  font-family:'Inter',sans-serif;font-weight:600;
+  font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:600;
   padding:10px 16px;border:2px solid var(--ink);border-bottom-width:5px;border-right-width:5px;
   border-radius:12px;background:#fff;font-size:1rem;width:240px;outline:none;
 }
@@ -211,13 +210,13 @@ p{margin:0;line-height:1.55;}
   transition:all .15s ease;position:relative;
 }
 .course-card:hover{transform:translate(3px,3px);border-bottom-width:4px;border-right-width:4px;}
-.course-num{font-family:'Lucky',cursive;font-size:2.2rem;line-height:1;}
-.course-title{font-family:'Lucky',cursive;font-size:1.05rem;line-height:1.1;margin-top:auto;}
-.course-period{font-family:'Love',cursive;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;opacity:.85;}
+.course-num{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:2.2rem;line-height:1;}
+.course-title{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.05rem;line-height:1.1;margin-top:auto;}
+.course-period{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;opacity:.85;}
 .course-icon{font-size:1.8rem;}
 .course-card.done{background:var(--c-lime)!important;color:var(--ink);}
 .course-card.done .course-num,.course-card.done .course-title{text-decoration:none;}
-.course-card.done::after{content:'✓';position:absolute;top:8px;right:12px;font-family:'Lucky',cursive;font-size:1.4rem;}
+.course-card.done::after{content:'✓';position:absolute;top:8px;right:12px;font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.4rem;}
 
 /* ═══ MODAL OVERLAY ═══ */
 .overlay{
@@ -241,7 +240,7 @@ p{margin:0;line-height:1.55;}
 .welcome-hero{text-align:center;margin-bottom:24px;}
 .welcome-hero h1{font-size:clamp(2rem,5vw,3rem);margin:8px 0;}
 .welcome-hero .accent{color:var(--c-cyan);}
-.welcome-hero p{font-family:'Girl',cursive;font-size:1.2rem;margin-top:10px;color:var(--ink-soft);}
+.welcome-hero p{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.2rem;margin-top:10px;color:var(--ink-soft);}
 .welcome-mascot{width:140px;height:auto;display:block;margin:0 auto 12px;}
 .steps{display:grid;gap:14px;margin:24px 0;}
 .step{
@@ -249,8 +248,8 @@ p{margin:0;line-height:1.55;}
   padding:16px 18px;border-radius:16px;
   border:2px solid var(--ink);border-bottom-width:6px;border-right-width:6px;
 }
-.step h3{font-family:'Lucky',cursive;font-size:1.3rem;margin-bottom:4px;}
-.step p{font-family:'Girl',cursive;font-size:1.1rem;color:var(--ink);}
+.step h3{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.3rem;margin-bottom:4px;}
+.step p{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.1rem;color:var(--ink);}
 .step-1{background:var(--c-pink-soft);} .step-1 h3{color:var(--c-pink);}
 .step-2{background:var(--c-cyan-soft);} .step-2 h3{color:var(--c-cyan);}
 .step-3{background:var(--c-yellow-soft);} .step-3 h3{color:#B85C00;}
@@ -262,15 +261,15 @@ p{margin:0;line-height:1.55;}
 .lock-card{max-width:440px;width:100%;text-align:center;}
 .lock-card .logo-bolt{margin:0 auto 16px;width:64px;height:64px;font-size:2rem;}
 .lock-card h1{font-size:2rem;margin-bottom:6px;}
-.lock-card p{font-family:'Girl',cursive;font-size:1.1rem;color:var(--ink-soft);margin:6px 0 18px;}
+.lock-card p{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.1rem;color:var(--ink-soft);margin:6px 0 18px;}
 .lock-card input{
-  width:100%;padding:12px 18px;font-family:'Inter',sans-serif;font-weight:600;font-size:1rem;
+  width:100%;padding:12px 18px;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:600;font-size:1rem;
   border:2px solid var(--ink);border-bottom-width:6px;border-right-width:6px;border-radius:14px;
   outline:none;margin-bottom:10px;
 }
 .lock-card input:focus{border-color:var(--c-cyan);}
-.lock-msg{margin-top:10px;font-family:'Girl',cursive;font-size:1rem;}
-.lock-demo{margin-top:14px;display:inline-block;color:var(--c-cyan);font-family:'Love',cursive;text-decoration:underline;cursor:pointer;font-size:.95rem;}
+.lock-msg{margin-top:10px;font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1rem;}
+.lock-demo{margin-top:14px;display:inline-block;color:var(--c-cyan);font-family:var(--font-body, 'Quicksand', sans-serif);text-decoration:underline;cursor:pointer;font-size:.95rem;}
 
 /* ═══ COURSE PLAYER ═══ */
 #view-course{display:none;}
@@ -280,12 +279,12 @@ p{margin:0;line-height:1.55;}
   border-bottom:2px solid var(--ink);padding:12px 24px;
   display:flex;justify-content:space-between;align-items:center;gap:16px;
 }
-.player-nav-title{font-family:'Lucky',cursive;font-size:1.3rem;text-align:center;flex:1;color:var(--c-cyan);min-width:0;}
-.player-nav-id{font-family:'Love',cursive;font-size:.7rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.1em;display:block;margin-top:2px;}
+.player-nav-title{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.3rem;text-align:center;flex:1;color:var(--c-cyan);min-width:0;}
+.player-nav-id{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:.7rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.1em;display:block;margin-top:2px;}
 
 .player-tabs{display:flex;gap:8px;padding:16px 24px 0;flex-wrap:wrap;}
 .player-tab{
-  flex:1;min-width:140px;padding:12px 16px;font-family:'Swanky',cursive;font-size:1.2rem;
+  flex:1;min-width:140px;padding:12px 16px;font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.2rem;
   background:#fff;border:2px solid var(--ink);border-bottom-width:6px;border-right-width:6px;
   border-radius:14px;cursor:pointer;color:var(--ink);transition:all .12s;
 }
@@ -305,16 +304,16 @@ p{margin:0;line-height:1.55;}
   border:2px solid var(--ink);border-bottom-width:6px;border-right-width:6px;
   margin:0 auto 16px;
 }
-.player-activity-name{font-family:'Lucky',cursive;font-size:2rem;text-align:center;margin-bottom:8px;}
-.player-duree-tag{font-family:'Love',cursive;text-align:center;color:var(--c-orange);font-size:.95rem;text-transform:uppercase;letter-spacing:.1em;}
-.player-but{font-family:'Girl',cursive;text-align:center;color:var(--c-cyan);font-size:1.15rem;margin:10px 0 24px;}
+.player-activity-name{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:2rem;text-align:center;margin-bottom:8px;}
+.player-duree-tag{font-family:var(--font-body, 'Quicksand', sans-serif);text-align:center;color:var(--c-orange);font-size:.95rem;text-transform:uppercase;letter-spacing:.1em;}
+.player-but{font-family:var(--font-body, 'Quicksand', sans-serif);text-align:center;color:var(--c-cyan);font-size:1.15rem;margin:10px 0 24px;}
 
 .section-block{
   background:var(--card);border:2px solid var(--ink);border-bottom-width:7px;border-right-width:7px;
   border-radius:16px;padding:20px;margin-top:14px;
 }
-.section-block h4{font-family:'Lucky',cursive;font-size:1.25rem;display:flex;align-items:center;gap:10px;margin-bottom:6px;}
-.section-block .hint{font-family:'Love',cursive;font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft);margin-bottom:12px;}
+.section-block h4{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.25rem;display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.section-block .hint{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-soft);margin-bottom:12px;}
 
 .sec-demo{background:var(--c-purple-soft);}
 .sec-demo h4{color:var(--c-purple);}
@@ -336,7 +335,7 @@ p{margin:0;line-height:1.55;}
 .sec-adapt h4{color:var(--c-pink);}
 
 /* DÉMO text */
-#player-demo{font-family:'Girl',cursive;font-size:1.15rem;color:var(--ink);}
+#player-demo{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.15rem;color:var(--ink);}
 
 /* DÉROULEMENT — étapes */
 .step-item{
@@ -348,16 +347,16 @@ p{margin:0;line-height:1.55;}
 .step-item:hover{background:#fff;border-color:var(--c-yellow);}
 .step-item .step-num{
   width:32px;height:32px;border-radius:50%;background:var(--c-cyan);color:var(--ink);
-  display:flex;align-items:center;justify-content:center;font-family:'Lucky',cursive;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1rem;
   flex-shrink:0;border:2px solid var(--ink);
 }
-.step-item p{font-family:'Kranky',cursive;font-size:1.25rem;line-height:1.4;color:var(--ink);letter-spacing:.01em;}
+.step-item p{font-family:var(--font-bang, 'Bangers', Impact, cursive);font-size:1.25rem;line-height:1.4;color:var(--ink);letter-spacing:.01em;}
 .step-item.done{opacity:.5;}
 .step-item.done p{text-decoration:line-through;}
 
 /* CONSIGNES (verbatim) */
 .verbatim{
-  font-family:'Gloria',cursive;font-size:1.2rem;line-height:1.5;color:var(--ink);
+  font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.2rem;line-height:1.5;color:var(--ink);
   background:#fff;padding:14px 18px;border-radius:12px;border-left:5px solid var(--c-cyan);
   margin-bottom:10px;
 }
@@ -365,7 +364,7 @@ p{margin:0;line-height:1.55;}
 /* Listes — variantes, sécurité, erreurs, etc. */
 .section-block ul{list-style:none;padding:0;margin:0;}
 .section-block ul li{
-  font-family:'Girl',cursive;font-size:1.1rem;line-height:1.45;color:var(--ink);
+  font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.1rem;line-height:1.45;color:var(--ink);
   padding:10px 0;display:flex;gap:10px;align-items:flex-start;
   border-bottom:1px dashed rgba(0,0,0,.1);
 }
@@ -378,33 +377,33 @@ p{margin:0;line-height:1.55;}
   background:#fff;border:2px solid var(--ink);border-bottom-width:8px;border-right-width:8px;
   border-radius:18px;padding:20px;text-align:center;
 }
-.timer-card h4{font-family:'Lucky',cursive;font-size:1.2rem;margin-bottom:10px;}
-.timer-display{font-family:'Lucky',cursive;font-size:3.5rem;line-height:1;color:var(--ink);margin:8px 0 14px;font-variant-numeric:tabular-nums;}
+.timer-card h4{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.2rem;margin-bottom:10px;}
+.timer-display{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:3.5rem;line-height:1;color:var(--ink);margin:8px 0 14px;font-variant-numeric:tabular-nums;}
 .timer-presets{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;}
-.timer-preset{padding:6px 12px;font-family:'Lucky',cursive;font-size:.95rem;background:var(--c-yellow-soft);border:2px solid var(--ink);border-bottom-width:3px;border-right-width:3px;border-radius:8px;cursor:pointer;}
+.timer-preset{padding:6px 12px;font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:.95rem;background:var(--c-yellow-soft);border:2px solid var(--ink);border-bottom-width:3px;border-right-width:3px;border-radius:8px;cursor:pointer;}
 .timer-preset:hover{background:var(--c-yellow);}
 .timer-controls{display:flex;gap:8px;}
 .timer-controls button{flex:1;}
 .timer-custom{display:flex;gap:6px;align-items:center;margin-bottom:10px;}
-.timer-custom input{flex:1;padding:6px 10px;font-family:'Inter';font-weight:600;border:2px solid var(--ink);border-radius:8px;text-align:center;outline:none;}
+.timer-custom input{flex:1;padding:6px 10px;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:600;border:2px solid var(--ink);border-radius:8px;text-align:center;outline:none;}
 
 .side-card{
   background:#fff;border:2px solid var(--ink);border-bottom-width:7px;border-right-width:7px;
   border-radius:16px;padding:18px;
 }
-.side-card h4{font-family:'Lucky',cursive;font-size:1.15rem;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.side-card h4{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.15rem;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .side-card ul{list-style:none;padding:0;margin:0;}
 .side-card ul li{
-  font-family:'Girl',cursive;font-size:1.05rem;color:var(--ink);
+  font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.05rem;color:var(--ink);
   padding:8px 12px;background:var(--c-yellow-soft);border-radius:8px;margin-bottom:6px;
   display:flex;gap:8px;align-items:flex-start;
 }
 .side-card ul li i{color:var(--c-cyan);margin-top:4px;}
-.astuce-text{font-family:'Girl',cursive;font-size:1.1rem;font-style:italic;color:var(--ink);}
+.astuce-text{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.1rem;font-style:italic;color:var(--ink);}
 .side-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;}
 .side-meta-cell{padding:10px;background:var(--c-yellow-soft);border-radius:10px;}
-.side-meta-label{font-family:'Love',cursive;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);}
-.side-meta-val{font-family:'Lucky',cursive;font-size:1.1rem;color:var(--ink);}
+.side-meta-label{font-family:var(--font-body, 'Quicksand', sans-serif);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);}
+.side-meta-val{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1.1rem;color:var(--ink);}
 
 /* ═══ TBI MODE ═══ */
 #view-tbi{display:none;}
@@ -423,7 +422,7 @@ p{margin:0;line-height:1.55;}
 }
 .tbi-card.done .icon{background:var(--c-lime);}
 .tbi-card h3{font-size:1.6rem;}
-.tbi-card .play-tag{font-family:'Lucky',cursive;background:var(--ink);color:#fff;padding:8px 18px;border-radius:999px;display:inline-block;margin-top:10px;font-size:.95rem;}
+.tbi-card .play-tag{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);background:var(--ink);color:#fff;padding:8px 18px;border-radius:999px;display:inline-block;margin-top:10px;font-size:.95rem;}
 
 /* ═══ SURPRISE ═══ */
 #view-surprise{display:none;}
@@ -444,7 +443,7 @@ p{margin:0;line-height:1.55;}
   position:relative;border-bottom:2px solid var(--ink);margin:-32px -32px 20px;
 }
 .course-modal-header .icon{font-size:4rem;color:#fff;}
-.course-modal-header .badge-id{position:absolute;top:14px;left:14px;font-family:'Lucky',cursive;background:#fff;color:var(--ink);padding:4px 12px;border-radius:999px;border:2px solid var(--ink);}
+.course-modal-header .badge-id{position:absolute;top:14px;left:14px;font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);background:#fff;color:var(--ink);padding:4px 12px;border-radius:999px;border:2px solid var(--ink);}
 .course-modal-actions{display:flex;gap:10px;margin-top:18px;}
 .course-modal-actions .btn{flex:1;}
 
@@ -491,7 +490,7 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
 .zts-hero-badge{display:inline-block;font-family:'Luckiest Guy','Lucky',cursive;background:#FFFA00;color:#004A61;padding:6px 20px;border-radius:12px;font-size:14px;margin-bottom:20px;transform:rotate(-2deg);box-shadow:0 4px 12px rgba(0,0,0,.2)}
 .zts-hero-h1{font-family:'Luckiest Guy','Lucky',cursive;font-size:clamp(48px,8vw,96px);text-transform:uppercase;line-height:1;text-shadow:2px 2px 0 rgba(0,0,0,.2);margin-bottom:20px}
 .zts-hero-h1 .accent{color:#FFFA00}
-.zts-hero-desc{font-family:'Love Ya Like A Sister','Love','Gloria Hallelujah','Gloria',cursive;color:#cffafe;font-size:18px;line-height:1.6;margin-bottom:32px;max-width:480px}
+.zts-hero-desc{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);color:#cffafe;font-size:18px;line-height:1.6;margin-bottom:32px;max-width:480px}
 @media(max-width:1023px){.zts-hero-desc{margin-left:auto;margin-right:auto}}
 .zts-hero-img-wrap{flex:1;position:relative;display:flex;justify-content:center;width:100%}
 .zts-hero-img{position:relative;z-index:10;border-radius:48px;overflow:hidden;border:10px solid #fff;box-shadow:0 25px 50px -12px rgba(0,0,0,.4);transform:rotate(3deg);transition:transform .7s;max-width:400px;width:100%}
@@ -727,7 +726,7 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
   <div class="player-grid">
     <div id="player-poster" class="player-poster">
       <div style="text-align:center;position:relative;">
-        <span id="player-id-badge" class="badge badge-cyan" style="position:absolute;top:0;left:0;font-family:'Lucky',cursive;font-size:1rem;padding:6px 14px;">—</span>
+        <span id="player-id-badge" class="badge badge-cyan" style="position:absolute;top:0;left:0;font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);font-size:1rem;padding:6px 14px;">—</span>
       </div>
       <div class="player-icon-circle"><i id="player-main-icon" class="fa-solid fa-fire float"></i></div>
       <h2 id="player-activity-name" class="player-activity-name">—</h2>
@@ -833,24 +832,24 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
 
       <div id="player-intention-wrap" class="side-card hidden" style="background:var(--c-purple-soft);">
         <h4><i class="fa-solid fa-bullseye" style="color:var(--c-purple);"></i> Intention pédagogique</h4>
-        <p id="player-intention" style="font-family:'Girl',cursive;font-size:1.05rem;color:var(--ink);"></p>
+        <p id="player-intention" style="font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.05rem;color:var(--ink);"></p>
       </div>
 
       <div id="player-pfeq-wrap" class="side-card hidden">
         <h4><i class="fa-solid fa-graduation-cap" style="color:var(--c-cyan);"></i> PFEQ</h4>
-        <div id="player-pfeq-principale" style="margin-bottom:6px;font-family:'Girl',cursive;"></div>
-        <div id="player-pfeq-secondaire" style="font-family:'Girl',cursive;"></div>
+        <div id="player-pfeq-principale" style="margin-bottom:6px;font-family:var(--font-body, 'Quicksand', sans-serif);"></div>
+        <div id="player-pfeq-secondaire" style="font-family:var(--font-body, 'Quicksand', sans-serif);"></div>
       </div>
 
       <div id="player-prep-wrap" class="side-card hidden" style="background:var(--c-orange-soft);">
         <h4><i class="fa-solid fa-screwdriver-wrench" style="color:var(--c-orange);"></i> Préparation</h4>
         <div class="hint">Avant l'arrivée des élèves</div>
-        <ol id="player-prep" style="padding-left:20px;font-family:'Girl',cursive;font-size:1.05rem;"></ol>
+        <ol id="player-prep" style="padding-left:20px;font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.05rem;"></ol>
       </div>
 
       <div id="player-eval-wrap" class="side-card hidden">
         <h4><i class="fa-solid fa-clipboard-check" style="color:var(--c-cyan);"></i> Évaluation</h4>
-        <p id="player-eval" style="font-family:'Girl',cursive;font-size:1.05rem;"></p>
+        <p id="player-eval" style="font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.05rem;"></p>
       </div>
 
       <div id="player-liens-wrap" class="side-card hidden" style="background:var(--c-lime-soft);">
@@ -860,7 +859,7 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
 
       <div id="player-prolong-wrap" class="side-card hidden" style="background:var(--c-pink-soft);">
         <h4><i class="fa-solid fa-school" style="color:var(--c-pink);"></i> Prolongement</h4>
-        <p id="player-prolong" style="font-family:'Girl',cursive;font-size:1.05rem;"></p>
+        <p id="player-prolong" style="font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.05rem;"></p>
       </div>
     </aside>
   </div>
@@ -872,7 +871,7 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
     <i id="surprise-icon" class="fa-solid fa-dice"></i>
   </div>
   <h2 id="surprise-text" style="font-size:2.2rem;margin-bottom:8px;">Tirage au sort…</h2>
-  <p style="font-family:'Girl',cursive;font-size:1.2rem;color:var(--ink-soft);margin-bottom:24px;">Quelle aventure aujourd'hui ?</p>
+  <p style="font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.2rem;color:var(--ink-soft);margin-bottom:24px;">Quelle aventure aujourd'hui ?</p>
   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
     <button id="surprise-btn" class="btn btn-yellow btn-lg" onclick="rollSurprise()">DÉCOUVRIR !</button>
     <button class="btn btn-ghost" onclick="switchView('main')"><i class="fa-solid fa-arrow-left"></i> Retour</button>
@@ -888,7 +887,7 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
       <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <h3 id="modal-title" style="font-size:1.8rem;margin-bottom:8px;">—</h3>
-    <p id="modal-desc" style="font-family:'Girl',cursive;font-size:1.1rem;line-height:1.5;color:var(--ink-soft);margin-bottom:14px;">—</p>
+    <p id="modal-desc" style="font-family:var(--font-body, 'Quicksand', sans-serif);font-size:1.1rem;line-height:1.5;color:var(--ink-soft);margin-bottom:14px;">—</p>
     <div id="modal-pfeq" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
     <div class="course-modal-actions">
       <button id="modal-launch-btn" class="btn btn-cyan btn-lg"><i class="fa-solid fa-play"></i> LANCER</button>
@@ -903,7 +902,7 @@ body.tbi .sticker,body.tbi .course-card,body.tbi .step{background:#fff;}
   <div class="modal welcome">
     <button class="modal-close" onclick="(function(){var m=document.getElementById('aide-modal');m.classList.remove('show');m.style.display='none';})()"><i class="fa-solid fa-xmark"></i></button>
     <h2 style="font-size:2rem;color:var(--c-cyan);margin-bottom:6px;">Comment ça marche ?</h2>
-    <p style="font-family:'Girl',cursive;color:var(--ink-soft);margin-bottom:18px;">L'app en 4 étapes — pour profs débutants ou pressés.</p>
+    <p style="font-family:var(--font-body, 'Quicksand', sans-serif);color:var(--ink-soft);margin-bottom:18px;">L'app en 4 étapes — pour profs débutants ou pressés.</p>
     <div class="steps">
       <div class="step step-1"><div class="numbox" style="background:var(--c-pink);color:#fff;">1</div><div><h3>Choisis un cours</h3><p>Bento → <b>Cours du jour</b> ou un trimestre, ou tape une recherche.</p></div></div>
       <div class="step step-2"><div class="numbox" style="background:var(--c-cyan);color:var(--ink);">2</div><div><h3>Ouvre la fiche</h3><p>4 sections : 🔥 Mise en train, ▶️ Activité 1, ▶️ Activité 2, 🌙 Retour.</p></div></div>
@@ -980,7 +979,7 @@ window.renderGrid = function(){
   let list=COURS.filter(c=>c.groupe===currentTrim);
   if(q.length>=2)list=COURS.filter(c=>c.titre.toLowerCase().includes(q)||(c.intention||'').toLowerCase().includes(q));
   grid.innerHTML='';
-  if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;font-family:Girl,cursive;font-size:1.2rem;padding:40px;color:var(--ink-soft);">Aucun cours trouvé.</div>';return;}
+  if(!list.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;font-family:var(--font-body,'Quicksand',sans-serif);font-size:1.2rem;padding:40px;color:var(--ink-soft);">Aucun cours trouvé.</div>';return;}
   const PALETTE=[
     {bg:'var(--c-cyan-soft)',ic:'var(--c-cyan)'},
     {bg:'var(--c-yellow-soft)',ic:'#B85C00'},
@@ -1016,7 +1015,7 @@ window.renderGrid = function(){
 window.loadSection = function(sec){
   currentSection=sec;
   const c=COURS.find(x=>x.id===selectedCourseId);if(!c)return;
-  const a=c[sec];if(!a){document.getElementById('player-explanations').innerHTML='<p style="font-family:Girl,cursive;color:var(--ink-soft);font-style:italic;">Section non disponible pour ce cours.</p>';return;}
+  const a=c[sec];if(!a){document.getElementById('player-explanations').innerHTML='<p style="font-family:var(--font-body,'Quicksand',sans-serif);color:var(--ink-soft);font-style:italic;">Section non disponible pour ce cours.</p>';return;}
 
   document.querySelectorAll('.player-tab').forEach(t=>{
     t.classList.toggle('active',t.dataset.section===sec);

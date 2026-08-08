@@ -84,8 +84,16 @@
      qui déclarent la MÊME famille SANS `size-adjust` — le pilote projection a
      montré le logo rendu au double de sa taille. Même parade que le shell avec
      `ZoneTotalSportZTSH` : ici c'est `ZoneTotalSportZTSP`. */
-  --ztsp-f-display: 'ZoneTotalSportZTSP', 'Luckiest Guy', system-ui, sans-serif;
-  --ztsp-f-titre:   'Luckiest Guy', system-ui, sans-serif;
+  /* ⚠ ZoneTotalSport a DOUZE TROUS : Ù Ÿ Æ Œ ÿ æ œ ’ « » — °. Le navigateur
+     bascule de police PAR CARACTÈRE, donc un titre se retrouve à cheval sur
+     deux fontes en plein mot — « L’ÉCOLE » est le cas le plus fréquent, la
+     correction automatique des éditeurs produisant l'apostrophe courbe.
+     `LuckiestGuy` prend le relais et couvre les douze : le titre reste lisible,
+     mais le raccord se voit. Les dessiner est un ticket ouvert
+     (TICKET-GLYPHES-ZTS.md) — jusque-là, éviter ces caractères dans un titre
+     qui utilise la police de marque. */
+  --ztsp-f-display: 'ZoneTotalSportZTSP', 'LuckiestGuy', 'Luckiest Guy', system-ui, sans-serif;
+  --ztsp-f-titre:   'LuckiestGuy', 'Luckiest Guy', system-ui, sans-serif;
   --ztsp-f-punch:   'Bangers', system-ui, sans-serif;
   /* Nunito et Schoolbell sortent aussi (même décision) : le corps s'aligne sur
      `--font-body` du design system, et la note — dates, légendes — passe à

@@ -38,7 +38,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&family=Schoolbell&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS (pre-compiled static) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -55,7 +55,7 @@
     html { scroll-behavior: smooth; overflow-x: hidden; }
 
     body {
-      font-family: 'Schoolbell', 'Patrick Hand', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 1.5rem;
       background: url("../gym-bg.jpg") center/cover fixed; background-color: #ffffff;
       color: #1a1a2e;
@@ -85,13 +85,13 @@
       margin: 1.5rem 0 0.5rem;
     }
     .article-body p {
-      font-family: 'Patrick Hand', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 1.5rem; line-height: 1.85;
       color: #1a1a2e; margin-bottom: 1.25rem;
     }
     .article-body ul, .article-body ol {
       margin: 1rem 0 1.5rem 1.5rem;
-      font-family: 'Patrick Hand', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 1.2rem; line-height: 1.8;
     }
     .article-body li { margin-bottom: 0.5rem; font-size: 1.5rem; }
@@ -114,14 +114,14 @@
     .share-btn {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 10px 20px; border-radius: 25px;
-      font-family: 'Fredoka One', cursive; font-size: 0.85rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 0.85rem;
       transition: all 0.25s; cursor: pointer; border: 2px solid;
     }
     .share-btn:hover { transform: translateY(-2px); }
 
     .tag-pill {
       display: inline-block; padding: 6px 16px; border-radius: 25px;
-      font-family: 'Fredoka One', cursive; font-size: 1.8rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.8rem;
       background: #f3f4f6; color: #1a1a2e; transition: all 0.2s;
     }
     .tag-pill:hover { background: #00E5FF; color: #0F0F2E; transform: scale(1.05); }
@@ -135,7 +135,7 @@
     .copy-toast {
       position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
       background: #0F0F2E; color: #fff; padding: 12px 28px; border-radius: 25px;
-      font-family: 'Fredoka One', cursive; font-size: 0.9rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 0.9rem;
       box-shadow: 0 8px 30px rgba(0,0,0,0.25); z-index: 9999;
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       pointer-events: none;
@@ -168,7 +168,7 @@
   <script src="/zts-locked-fullscreen.js" defer></script>
   <script src="/zts-funnel.js" defer></script>
 <style>
-.zts-cta-inline{margin:2.5rem 0;padding:1.75rem;background:linear-gradient(135deg,#00C4FF 0%,#0086AD 100%);border:3px solid #000;border-radius:1.5rem;box-shadow:6px 6px 0 rgba(0,0,0,.15);color:#fff;font-family:'Inter',sans-serif}
+.zts-cta-inline{margin:2.5rem 0;padding:1.75rem;background:linear-gradient(135deg,#00C4FF 0%,#0086AD 100%);border:3px solid #000;border-radius:1.5rem;box-shadow:6px 6px 0 rgba(0,0,0,.15);color:#fff;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif)}
 .zts-cta-inline h3{margin:0 0 .5rem;font-family:'Luckiest Guy',cursive;font-size:1.6rem;line-height:1.1;color:#FFF000;letter-spacing:.02em}
 .zts-cta-inline .zts-cta-lead{margin:0 0 1.1rem;font-size:1.05rem;line-height:1.4;color:#fff;font-weight:500}
 .zts-cta-inline .zts-cta-lead strong{color:#FFF000}
@@ -180,7 +180,7 @@
 .zts-cta-inline .zts-cta-foot{margin:.85rem 0 0;font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600;letter-spacing:.03em}
 </style>
 <style>
-.zts-series-nav{margin:0 0 2rem;padding:1.2rem 1.4rem;background:#FFF7C2;border:3px solid #18181b;border-radius:1rem;box-shadow:5px 5px 0 #18181b;font-family:'Inter',sans-serif}
+.zts-series-nav{margin:0 0 2rem;padding:1.2rem 1.4rem;background:#FFF7C2;border:3px solid #18181b;border-radius:1rem;box-shadow:5px 5px 0 #18181b;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif)}
 .zts-series-nav h4{margin:0 0 .55rem;font-family:'Luckiest Guy',cursive;font-size:1.25rem;color:#003B4D;letter-spacing:.02em}
 .zts-series-nav ul{margin:0;padding-left:1.2rem;list-style:none}
 .zts-series-nav li{padding:.25rem 0;font-size:1rem;color:#18181b;font-weight:600}
@@ -599,12 +599,12 @@
         <input type="text" id="comment-name"
                placeholder="Ton prénom..."
                data-fr="Ton prénom..." data-en="Your first name..." data-es="Tu nombre..." data-zh="你的名字..."
-               style="font-family:'Schoolbell',cursive;padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none"
+               style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none"
                onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'">
         <textarea id="comment-text" rows="3"
                   placeholder="Écris ton commentaire..."
                   data-fr="Écris ton commentaire..." data-en="Write your comment..." data-es="Escribe tu comentario..." data-zh="写下你的评论..."
-                  style="font-family:'Schoolbell',cursive;padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none;resize:vertical"
+                  style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);padding:10px 16px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.1rem;outline:none;resize:vertical"
                   onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
         <button onclick="postComment()" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;padding:12px 24px;border:none;border-radius:999px;font-size:1.2rem;cursor:pointer;align-self:flex-start;transition:all 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
           <span data-i18n><span lang="fr">📤 Publier</span><span lang="en" hidden>📤 Post</span><span lang="es" hidden>📤 Publicar</span><span lang="zh" hidden>📤 发布</span></span>
@@ -766,13 +766,13 @@
       var l = document.documentElement.lang.slice(0,2);
       var emptyMsg = {fr:'Aucun commentaire encore. Sois le premier!', en:'No comments yet. Be the first!', es:'Aún no hay comentarios. ¡Sé el primero!', zh:'还没有评论。来当第一个吧!'}[l] || 'Aucun commentaire encore. Sois le premier!';
       if (comments.length === 0) {
-        list.innerHTML = '<p style="color:#999;font-family:Schoolbell,cursive;font-style:italic">' + emptyMsg + '</p>';
+        list.innerHTML = '<p style="color:#999;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-style:italic">' + emptyMsg + '</p>';
         return;
       }
       list.innerHTML = comments.map(function(c) {
         return '<div style="background:#f3f4f6;border-radius:12px;padding:12px 16px;margin-bottom:10px">' +
-          '<div style="font-family:Bangers,cursive;color:#0F0F2E;font-size:1.1rem">' + c.name + ' <span style="font-family:Schoolbell,cursive;color:#999;font-size:0.85rem">' + c.date + '</span></div>' +
-          '<p style="font-family:Schoolbell,cursive;color:#333;margin:4px 0 0;font-size:1.05rem">' + c.text + '</p></div>';
+          '<div style="font-family:Bangers,cursive;color:#0F0F2E;font-size:1.1rem">' + c.name + ' <span style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);color:#999;font-size:0.85rem">' + c.date + '</span></div>' +
+          '<p style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);color:#333;margin:4px 0 0;font-size:1.05rem">' + c.text + '</p></div>';
       }).join('');
     }
     renderComments();

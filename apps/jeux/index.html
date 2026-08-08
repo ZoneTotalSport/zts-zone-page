@@ -24,7 +24,7 @@
   <link rel="apple-touch-icon" href="favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Luckiest+Guy&family=Bangers&family=Gloria+Hallelujah&family=Swanky+and+Moo+Moo&family=The+Girl+Next+Door&family=Love+Ya+Like+A+Sister&family=Kranky&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="../../shared/zts-header.css">
   <link rel="stylesheet" href="../../assets/ztsh-shell.css">
@@ -36,7 +36,7 @@
   <style>
     @font-face{font-family:'LuckiestGuyZTS';src:local('Luckiest Guy');unicode-range:U+0020-007F}
     @font-face{font-family:'LuckiestGuyZTS';src:local('Bangers');unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F;size-adjust:92%}
-    .font-lucky{font-family:'LuckiestGuyZTS','Luckiest Guy','Bangers',cursive;letter-spacing:.05em}
+    .font-lucky{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);letter-spacing:.05em}
     .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
     @keyframes ztsfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
     .animate-float{animation:ztsfloat 3s ease-in-out infinite}
@@ -137,12 +137,12 @@
     .game-card .card-top{padding:20px 20px 12px!important;flex:1!important;display:flex!important;flex-direction:column!important;background:transparent!important}
     .game-card .card-number{align-self:flex-end!important;background:rgba(0,0,0,0.3)!important;color:#fff!important;font-family:'Luckiest Guy',cursive!important;letter-spacing:.05em!important;padding:4px 12px!important;border-radius:12px!important;font-size:13px!important;margin-bottom:12px!important}
     .game-card .card-title{font-family:'Luckiest Guy','Bangers',cursive!important;letter-spacing:.04em!important;font-size:22px!important;line-height:1.05!important;text-shadow:2px 2px 0 rgba(0,0,0,.2)!important;text-transform:uppercase!important;color:#fff!important;margin:0 0 10px!important}
-    .game-card .card-but{font-family:'Gloria Hallelujah',cursive!important;color:rgba(255,255,255,.95)!important;font-size:15px!important;line-height:1.35!important;-webkit-line-clamp:3!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+    .game-card .card-but{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif) !important;color:rgba(255,255,255,.95)!important;font-size:15px!important;line-height:1.35!important;-webkit-line-clamp:3!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
     /* Apply Gloria Hallelujah to ALL body text in app */
-    body,.modal,.modal *,.detail-section *,.detail-meta,.fav-list-item,.search-input,.sidebar,.category-btn,.cat-name,.material-tag,.tag,.detail-section li{font-family:'Gloria Hallelujah',cursive}
+    body,.modal,.modal *,.detail-section *,.detail-meta,.fav-list-item,.search-input,.sidebar,.category-btn,.cat-name,.material-tag,.tag,.detail-section li{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif)}
     /* Keep Luckiest Guy on titles/buttons */
     .font-lucky,h1,h2,h3,h4,.detail-title,.detail-section-title,.detail-number,.detail-cat-badge,.detail-fav-btn,.card-title,.card-number,.card-tag,.material-tag,.comp-badge,.results-count,.sort-select,.view-btn,.btn-reset,.search-input::placeholder{font-family:'Luckiest Guy','Bangers',cursive!important}
-    .search-input{font-family:'Gloria Hallelujah',cursive!important;font-size:18px!important}
+    .search-input{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif) !important;font-size:18px!important}
     .game-card .card-bottom{background:#fff!important;color:#1e293b!important;padding:14px 20px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;border:none!important}
     .game-card .card-tags{display:flex!important;gap:6px!important;flex-wrap:wrap!important}
     .game-card .card-tag{font-family:'Luckiest Guy',cursive!important;letter-spacing:.05em!important;font-size:11px!important;padding:4px 10px!important;border-radius:999px!important;background:#f1f5f9!important;color:#475569!important;text-transform:uppercase!important;border:none!important}
@@ -180,7 +180,7 @@
     .detail-print-btn{grid-column:1 / -1!important;justify-self:start!important}
     .detail-section{background:#f8fafc!important;border-radius:24px!important;padding:28px 32px!important;border-bottom:8px solid var(--cat,#0086AD)!important;border-right:8px solid rgba(0,0,0,.06)!important;color:#1e293b!important}
     .detail-section-title{font-family:'Luckiest Guy',cursive!important;font-size:28px!important;color:var(--cat,#0086AD)!important;margin-bottom:14px!important;letter-spacing:.05em!important;text-transform:uppercase!important;border-bottom:none!important}
-    .detail-section p,.detail-section li{font-size:21px!important;line-height:1.55!important;color:#334155!important;font-family:'Gloria Hallelujah',cursive!important}
+    .detail-section p,.detail-section li{font-size:21px!important;line-height:1.55!important;color:#334155!important;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif) !important}
     .detail-section ol,.detail-section ul{padding-left:24px!important}
     .detail-section li{margin-bottom:10px!important}
     .competency-grid{display:grid!important;gap:14px!important}
@@ -214,12 +214,12 @@
       border:none!important;border-bottom:5px solid #cbd5e1!important;border-right:5px solid #cbd5e1!important;
       border-radius:18px!important;padding:12px 16px!important;
       display:flex!important;align-items:center!important;gap:10px!important;
-      font-family:'Gloria Hallelujah',cursive!important;font-size:16px!important;
+      font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif) !important;font-size:16px!important;
       cursor:pointer!important;transition:transform .15s,background .15s!important;text-align:left!important
     }
     .category-btn:hover,.duration-btn:hover,.competence-btn:hover,.cycle-btn:hover,.material-filter-btn:hover{background:#e2e8f0!important;transform:translateY(-1px)!important}
     .category-btn .cat-icon{font-size:22px!important;flex-shrink:0!important}
-    .category-btn .cat-name{flex:1!important;font-family:'Gloria Hallelujah',cursive!important;font-size:16px!important;line-height:1.2!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+    .category-btn .cat-name{flex:1!important;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif) !important;font-size:16px!important;line-height:1.2!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
     .category-btn .cat-count,.duration-btn .duration-count,.competence-btn .competence-count{background:#fff!important;color:#475569!important;font-family:'Luckiest Guy',cursive!important;font-size:13px!important;padding:3px 10px!important;border-radius:999px!important;border:2px solid #cbd5e1!important;letter-spacing:.05em!important}
     /* Active state — colored */
     .category-btn.active,.duration-btn.active,.competence-btn.active,.cycle-btn.active{color:#fff!important;border-bottom-color:rgba(0,0,0,.18)!important;border-right-color:rgba(0,0,0,.18)!important}

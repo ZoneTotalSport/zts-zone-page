@@ -160,11 +160,17 @@
   /* Polices. --ztsh-f-corps ne sert QU'aux éléments .ztsh-* : le corps de
      texte des apps n'est jamais touché (agenda/colorier/generateur en Inter,
      cours-maternelle avec 6 @font-face locaux). */
-  --ztsh-f-display: 'ZoneTotalSportZTSH', 'Luckiest Guy', system-ui, sans-serif;
-  --ztsh-f-titre:   'Luckiest Guy', system-ui, sans-serif;
+  /* TROIS POLICES D'AFFICHAGE, UNE DE LECTURE — décision de Joey du 4 août 2026.
+     Nunito et Schoolbell sortent du site ; le corps rejoint Quicksand et la
+     note passe à Bangers, déjà retenue.
+     `LuckiestGuy` (la copie locale de /fonts/) passe DEVANT le nom Google :
+     elle couvre 367 glyphes sans un seul trou en français, là où le
+     sous-ensemble `latin` servi par Google n'a ni Œ ni Æ. */
+  --ztsh-f-display: 'ZoneTotalSportZTSH', 'LuckiestGuy', 'Luckiest Guy', system-ui, sans-serif;
+  --ztsh-f-titre:   'LuckiestGuy', 'Luckiest Guy', system-ui, sans-serif;
   --ztsh-f-punch:   'Bangers', system-ui, sans-serif;
-  --ztsh-f-corps:   'Nunito', system-ui, sans-serif;
-  --ztsh-f-note:    'Schoolbell', cursive;
+  --ztsh-f-corps:   'Quicksand', 'Helvetica Neue', system-ui, sans-serif;
+  --ztsh-f-note:    'Bangers', system-ui, cursive;
 
   /* Interlignage des gros titres. 1.05 minimum : les capitales accentuées
      dépassent de 20-30 % au-dessus des capitales normales (E 1852,
@@ -1406,9 +1412,12 @@ body.ztsh-on {
        --camp          #FF6B00                       #FFA200
        --metier-soft   #CCFAFF                       rgba(255,255,255,.12)
        --metier-tint   rgba(0,229,255,.14)           rgba(255,255,255,.09)
-       --font-fun      Fredoka                       Nunito
-       --font-body     Quicksand                     Nunito
-       --font-hand     Caveat, GloriaHallelujah      Schoolbell, Caveat
+       --font-fun      alias de --font-body          alias de --font-body
+       --font-body     Quicksand                     Quicksand
+       --font-hand     alias de --font-body          alias de --font-body
+       (ce tableau disait Fredoka / Nunito / Caveat / Schoolbell jusqu au
+        4 aout 2026 : ces quatre polices sont sorties du site, le shell ne
+        redefinit plus rien en typographie)
        --ombre-xl      6px 6px 0                     8px 8px 0
 
      Les seize tokens que les 23 gabarits consomment dans leurs classes
@@ -1462,11 +1471,14 @@ body.ztsh-on {
   --metier-soft: rgba(255, 255, 255, .12);
   --metier-tint: rgba(255, 255, 255, .09);
 
-  /* — Typographie. Quicksand cède à Nunito ; Patrick Hand ne survit nulle
-       part ; le manuscrit passe à Schoolbell. — */
-  --font-fun:  'Nunito', 'Helvetica Neue', sans-serif;
-  --font-body: 'Nunito', 'Helvetica Neue', sans-serif;
-  --font-hand: 'Schoolbell', 'Caveat', cursive;
+  /* — Typographie. Ce bloc redéfinissait les tokens du design system pour les
+       apps du shell : Nunito au corps, Schoolbell au manuscrit. Les deux
+       sortent du site le 4 août — tout revient à Quicksand, la seule police de
+       lecture. `--font-fun` et `--font-hand` restent en alias : ils sont
+       appelés dans des centaines de pages. — */
+  --font-body: 'Quicksand', 'Helvetica Neue', sans-serif;
+  --font-fun:  var(--font-body);
+  --font-hand: var(--font-body);
 
   /* — Ombre XL un cran plus marquée — */
   --ombre-xl: 8px 8px 0 #08131E;

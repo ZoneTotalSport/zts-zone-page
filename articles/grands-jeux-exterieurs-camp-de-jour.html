@@ -29,7 +29,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Patrick+Hand&family=Comic+Neue:wght@400;700&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61'},fontFamily:{luckiest:['"Luckiest Guy"','cursive']}}}}</script>
@@ -43,7 +43,7 @@
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     html{scroll-behavior:smooth;overflow-x:hidden}
-    body{font-family:'Nunito',system-ui,sans-serif;background:#EAF9FF}
+    body{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);background:#EAF9FF}
     .hero-gradient{background:linear-gradient(135deg,#00C4FF 0%,#0086AD 60%,#004A61 100%)}
     .text-outline{text-shadow:3px 3px 0 rgba(0,0,0,.18)}
     .scroll-progress{position:fixed;top:0;left:0;height:5px;width:100%;background:#FFF000;transform-origin:left;z-index:60}
@@ -83,7 +83,7 @@
     .g-card:hover{transform:translateY(-3px)}
     .g-card:nth-child(6n+1){background:#E0F7FF}.g-card:nth-child(6n+2){background:#FFF6C9}.g-card:nth-child(6n+3){background:#FFE0EC}.g-card:nth-child(6n+4){background:#EFE2FF}.g-card:nth-child(6n+5){background:#E6F9D8}.g-card:nth-child(6n+6){background:#FFE9CC}
     .g-name{font-family:'Luckiest Guy',cursive;font-size:1.18rem;color:#0F0F2E;line-height:1.06;letter-spacing:.3px}
-    .g-pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);width:min(265px,80vw);background:#0F0F2E;color:#fff;padding:13px 15px;border-radius:14px;font-family:'Nunito',sans-serif;font-weight:600;font-size:.95rem;line-height:1.4;opacity:0;visibility:hidden;transition:.16s;z-index:30;box-shadow:4px 4px 0 rgba(0,0,0,.3);pointer-events:none}
+    .g-pop{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%) translateY(6px);width:min(265px,80vw);background:#0F0F2E;color:#fff;padding:13px 15px;border-radius:14px;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:600;font-size:.95rem;line-height:1.4;opacity:0;visibility:hidden;transition:.16s;z-index:30;box-shadow:4px 4px 0 rgba(0,0,0,.3);pointer-events:none}
     .g-pop::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:9px solid transparent;border-top-color:#0F0F2E}
     .g-card:hover .g-pop,.g-card:focus .g-pop{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
     /* Fenêtre modale (fiche complète du jeu) */
@@ -98,7 +98,7 @@
     .g-modal-close:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0F0F2E}
     .g-modal-body{padding:20px 24px 26px}
     .g-meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
-    .g-chip{background:#FFF6C9;border:2px solid #0F0F2E;border-radius:999px;padding:5px 13px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.92rem;color:#0F0F2E}
+    .g-chip{background:#FFF6C9;border:2px solid #0F0F2E;border-radius:999px;padding:5px 13px;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:800;font-size:.92rem;color:#0F0F2E}
     .g-sec{margin-bottom:15px}
     .g-sec-h{font-family:'Luckiest Guy',cursive;color:#0086AD;font-size:1.12rem;letter-spacing:.3px;margin-bottom:5px}
     .g-sec p{font-size:1.05rem;line-height:1.5;color:#1f2d3d;margin:0}
@@ -223,7 +223,7 @@
       <div class="mt-10 pt-8 border-t-4 border-slate-100">
         <p class="font-luckiest text-xl text-center mb-4" style="color:#0086AD" data-i18n><span lang="fr">📣 Partage cet article</span><span lang="en" hidden>📣 Share this article</span></p>
         <div class="flex flex-wrap justify-center items-center gap-3">
-          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2Fgrands-jeux-exterieurs-camp-de-jour.html" target="_blank" rel="noopener" aria-label="Facebook" class="share-ic"><span style="font-family:Georgia,serif;font-weight:900;font-size:1.25rem">f</span></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2Fgrands-jeux-exterieurs-camp-de-jour.html" target="_blank" rel="noopener" aria-label="Facebook" class="share-ic"><span style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:900;font-size:1.25rem">f</span></a>
           <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2Fgrands-jeux-exterieurs-camp-de-jour.html" target="_blank" rel="noopener" aria-label="X (Twitter)" class="share-ic"><span style="font-weight:900;font-size:1.15rem">𝕏</span></a>
           <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fzonetotalsport.ca%2Farticles%2Fgrands-jeux-exterieurs-camp-de-jour.html" target="_blank" rel="noopener" aria-label="LinkedIn" class="share-ic"><span style="font-weight:900;font-size:.9rem">in</span></a>
           <a href="mailto:?subject=20%20grands%20jeux%20ext%C3%A9rieurs%20pour%20camp%20de%20jour&body=Je%20te%20partage%20cet%20article%20%3A%20https%3A%2F%2Fzonetotalsport.ca%2Farticles%2Fgrands-jeux-exterieurs-camp-de-jour.html" aria-label="Courriel" class="share-ic"><span style="font-size:1.15rem">✉️</span></a>
@@ -241,8 +241,8 @@
         <h3 class="font-luckiest" style="font-size:1.6rem;color:#0F0F2E;margin:0 0 16px" data-i18n><span lang="fr">💬 Commentaires</span><span lang="en" hidden>💬 Comments</span></h3>
         <div id="comments-list" style="margin-bottom:16px"></div>
         <div style="display:flex;flex-direction:column;gap:10px">
-          <input type="text" id="comment-name" placeholder="Ton prénom…" style="font-family:'Nunito',sans-serif;font-weight:600;padding:12px 16px;border:2px solid #cde9f5;border-radius:12px;font-size:1.05rem;outline:none">
-          <textarea id="comment-text" rows="3" placeholder="Écris ton commentaire…" style="font-family:'Nunito',sans-serif;font-weight:600;padding:12px 16px;border:2px solid #cde9f5;border-radius:12px;font-size:1.05rem;outline:none;resize:vertical"></textarea>
+          <input type="text" id="comment-name" placeholder="Ton prénom…" style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:600;padding:12px 16px;border:2px solid #cde9f5;border-radius:12px;font-size:1.05rem;outline:none">
+          <textarea id="comment-text" rows="3" placeholder="Écris ton commentaire…" style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:600;padding:12px 16px;border:2px solid #cde9f5;border-radius:12px;font-size:1.05rem;outline:none;resize:vertical"></textarea>
           <button onclick="postComment()" class="font-luckiest" style="background:linear-gradient(135deg,#00C4FF,#0086AD);color:#fff;padding:12px 24px;border:3px solid #0F0F2E;border-radius:999px;font-size:1.15rem;cursor:pointer;align-self:flex-start;box-shadow:3px 3px 0 #0F0F2E"><span data-i18n><span lang="fr">📤 Publier</span><span lang="en" hidden>📤 Post</span></span></button>
         </div>
       </div>

@@ -39,7 +39,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&family=Schoolbell&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Luckiest+Guy&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -56,7 +56,7 @@
     html { scroll-behavior: smooth; overflow-x: hidden; }
 
     body {
-      font-family: 'Comic Neue', 'Patrick Hand', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 2.1rem;
       background: url("../gym-bg.jpg") center/cover fixed; background-color: #ffffff;
       color: #1a1a2e;
@@ -79,7 +79,7 @@
     }
     .wix-nav-btn {
       display: inline-flex; align-items: center; gap: 10px;
-      font-family: 'Fredoka One', cursive; font-size: 1.8rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.8rem;
       padding: 16px 28px; border-radius: 30px;
       background: rgba(255,255,255,0.08); color: #fff;
       text-decoration: none; transition: all 0.25s;
@@ -123,7 +123,7 @@
       margin: 1.5rem 0 0.5rem;
     }
     .article-body p {
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 2.1rem;
       line-height: 1.85;
       color: #1a1a2e;
@@ -131,7 +131,7 @@
     }
     .article-body ul, .article-body ol {
       margin: 1rem 0 1.5rem 1.5rem;
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 1.95rem;
       line-height: 1.8;
     }
@@ -155,7 +155,7 @@
       border-radius: 0 12px 12px 0;
       font-style: italic;
       font-size: 1.95rem;
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       color: #1a1a2e;
     }
     .article-body img {
@@ -182,13 +182,13 @@
       width: 100%;
       border-collapse: collapse;
       margin: 1.5rem 0;
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 1.8rem;
     }
     .article-body table th {
       background: #0F0F2E;
       color: #fff;
-      font-family: 'Fredoka One', cursive;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);
       padding: 16px 20px;
       text-align: left;
       font-size: 1.65rem;
@@ -205,7 +205,7 @@
     .share-btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 14px 28px; border-radius: 25px;
-      font-family: 'Fredoka One', cursive; font-size: 1.35rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.35rem;
       transition: all 0.25s; cursor: pointer; border: 3px solid;
     }
     .share-btn:hover { transform: translateY(-2px); }
@@ -214,7 +214,7 @@
     .tag-pill {
       display: inline-block;
       padding: 10px 20px; border-radius: 25px;
-      font-family: 'Fredoka One', cursive; font-size: 1.35rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.35rem;
       background: #f3f4f6; color: #1a1a2e;
       transition: all 0.2s;
     }
@@ -231,7 +231,7 @@
     .copy-toast {
       position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
       background: #0F0F2E; color: #fff; padding: 12px 28px; border-radius: 25px;
-      font-family: 'Fredoka One', cursive; font-size: 1.4rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.4rem;
       box-shadow: 0 8px 30px rgba(0,0,0,0.25); z-index: 9999;
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       pointer-events: none;
@@ -243,7 +243,7 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 28px; border-radius: 16px; border: 4px solid #e5e7eb;
       background: rgba(255,255,255,0.95); cursor: pointer; transition: all 0.3s;
-      font-family: 'Fredoka One', cursive; font-size: 1.5rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.5rem;
     }
     .tab-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
     .tab-btn.active-blue { background: #2563EB; border-color: #2563EB; color: #fff; box-shadow: 0 8px 25px rgba(37,99,235,0.3); transform: translateY(-4px); }
@@ -262,7 +262,7 @@
     .solution-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
     .solution-number {
       width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-family: 'Fredoka One', cursive; font-size: 1.8rem; flex-shrink: 0;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.8rem; flex-shrink: 0;
       background: #f3f4f6; color: #0F0F2E; transition: all 0.3s;
     }
     .solution-card:hover .solution-number { background: #0F0F2E; color: #fff; }
@@ -270,7 +270,7 @@
     .examples-box {
       padding: 24px; border-radius: 12px; margin-top: 16px;
       border-left: 6px solid; font-size: 1.8rem;
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
     }
     .examples-box-blue { background: rgba(219,234,254,0.5); border-color: #2563EB; }
     .examples-box-orange { background: rgba(255,237,213,0.5); border-color: #F97316; }
@@ -325,7 +325,7 @@
   <script src="/zts-locked-fullscreen.js" defer></script>
   <script src="/zts-funnel.js" defer></script>
 <style>
-.zts-cta-inline{margin:2.5rem 0;padding:1.75rem;background:linear-gradient(135deg,#00C4FF 0%,#0086AD 100%);border:3px solid #000;border-radius:1.5rem;box-shadow:6px 6px 0 rgba(0,0,0,.15);color:#fff;font-family:'Inter',sans-serif}
+.zts-cta-inline{margin:2.5rem 0;padding:1.75rem;background:linear-gradient(135deg,#00C4FF 0%,#0086AD 100%);border:3px solid #000;border-radius:1.5rem;box-shadow:6px 6px 0 rgba(0,0,0,.15);color:#fff;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif)}
 .zts-cta-inline h3{margin:0 0 .5rem;font-family:'Luckiest Guy',cursive;font-size:1.6rem;line-height:1.1;color:#FFF000;letter-spacing:.02em}
 .zts-cta-inline .zts-cta-lead{margin:0 0 1.1rem;font-size:1.05rem;line-height:1.4;color:#fff;font-weight:500}
 .zts-cta-inline .zts-cta-lead strong{color:#FFF000}
@@ -337,7 +337,7 @@
 .zts-cta-inline .zts-cta-foot{margin:.85rem 0 0;font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600;letter-spacing:.03em}
 </style>
 <style>
-.zts-series-nav{margin:0 0 2rem;padding:1.2rem 1.4rem;background:#FFF7C2;border:3px solid #18181b;border-radius:1rem;box-shadow:5px 5px 0 #18181b;font-family:'Inter',sans-serif}
+.zts-series-nav{margin:0 0 2rem;padding:1.2rem 1.4rem;background:#FFF7C2;border:3px solid #18181b;border-radius:1rem;box-shadow:5px 5px 0 #18181b;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif)}
 .zts-series-nav h4{margin:0 0 .55rem;font-family:'Luckiest Guy',cursive;font-size:1.25rem;color:#003B4D;letter-spacing:.02em}
 .zts-series-nav ul{margin:0;padding-left:1.2rem;list-style:none}
 .zts-series-nav li{padding:.25rem 0;font-size:1rem;color:#18181b;font-weight:600}
@@ -573,7 +573,7 @@
 .panier{
   position:fixed;right:1rem;bottom:1rem;z-index:60;width:min(20rem,88vw);
   background:#fff;border-radius:1.5rem;padding:1rem 1.2rem 1.2rem;
-  box-shadow:0 20px 50px -12px rgba(0,74,97,.35);font-family:'Nunito',sans-serif;
+  box-shadow:0 20px 50px -12px rgba(0,74,97,.35);font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
   border-bottom:6px solid #e0f2fe;
 }
 .panier-t{margin:0 0 .6rem;font-family:'Bangers',cursive;
@@ -618,7 +618,7 @@
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;
   text-align:center;cursor:pointer;padding:1.6rem 1rem;background:#fff;
   border:3px solid #111;border-radius:10px;box-shadow:4px 4px 0 #111;color:#0F0F2E;
-  transition:transform .1s, box-shadow .1s;font-family:'Nunito',sans-serif;
+  transition:transform .1s, box-shadow .1s;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
 }
 .tro-carte:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #111}
 .tro-carte.on{background:#00E5FF;transform:translate(2px,2px);box-shadow:1px 1px 0 #111}
@@ -1610,13 +1610,13 @@
     var list = document.getElementById('comments-list');
     if (!list) return;
     if (comments.length === 0) {
-      list.innerHTML = '<p style="color:#999;font-family:Schoolbell,cursive;font-style:italic">Aucun commentaire encore. Sois le premier!</p>';
+      list.innerHTML = '<p style="color:#999;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-style:italic">Aucun commentaire encore. Sois le premier!</p>';
       return;
     }
     list.innerHTML = comments.map(function(c) {
       return '<div style="background:#f3f4f6;border-radius:12px;padding:12px 16px;margin-bottom:10px">' +
-        '<div style="font-family:Luckiest Guy,cursive;color:#0F0F2E;font-size:1.1rem">' + c.name + ' <span style="font-family:Schoolbell,cursive;color:#999;font-size:0.85rem">' + c.date + '</span></div>' +
-        '<p style="font-family:Schoolbell,cursive;color:#333;margin:4px 0 0;font-size:1.05rem">' + c.text + '</p></div>';
+        '<div style="font-family:Luckiest Guy,cursive;color:#0F0F2E;font-size:1.1rem">' + c.name + ' <span style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);color:#999;font-size:0.85rem">' + c.date + '</span></div>' +
+        '<p style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);color:#333;margin:4px 0 0;font-size:1.05rem">' + c.text + '</p></div>';
     }).join('');
   }
   renderComments();

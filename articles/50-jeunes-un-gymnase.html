@@ -39,7 +39,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Luckiest+Guy&family=Boogaloo&family=Patrick+Hand&family=Fredoka+One&family=Schoolbell&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Luckiest+Guy&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -56,7 +56,7 @@
     html { scroll-behavior: smooth; overflow-x: hidden; }
 
     body {
-      font-family: 'Comic Neue', 'Patrick Hand', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 2.1rem;
       background: url("../gym-bg.jpg") center/cover fixed; background-color: #ffffff;
       color: #1a1a2e;
@@ -79,7 +79,7 @@
     }
     .wix-nav-btn {
       display: inline-flex; align-items: center; gap: 10px;
-      font-family: 'Fredoka One', cursive; font-size: 1.8rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.8rem;
       padding: 16px 28px; border-radius: 30px;
       background: rgba(255,255,255,0.08); color: #fff;
       text-decoration: none; transition: all 0.25s;
@@ -123,7 +123,7 @@
       margin: 1.5rem 0 0.5rem;
     }
     .article-body p {
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 2.1rem;
       line-height: 1.85;
       color: #1a1a2e;
@@ -131,7 +131,7 @@
     }
     .article-body ul, .article-body ol {
       margin: 1rem 0 1.5rem 1.5rem;
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 1.95rem;
       line-height: 1.8;
     }
@@ -155,7 +155,7 @@
       border-radius: 0 12px 12px 0;
       font-style: italic;
       font-size: 1.95rem;
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       color: #1a1a2e;
     }
     .article-body img {
@@ -182,13 +182,13 @@
       width: 100%;
       border-collapse: collapse;
       margin: 1.5rem 0;
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
       font-size: 1.8rem;
     }
     .article-body table th {
       background: #0F0F2E;
       color: #fff;
-      font-family: 'Fredoka One', cursive;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif);
       padding: 16px 20px;
       text-align: left;
       font-size: 1.65rem;
@@ -205,7 +205,7 @@
     .share-btn {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 14px 28px; border-radius: 25px;
-      font-family: 'Fredoka One', cursive; font-size: 1.35rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.35rem;
       transition: all 0.25s; cursor: pointer; border: 3px solid;
     }
     .share-btn:hover { transform: translateY(-2px); }
@@ -214,7 +214,7 @@
     .tag-pill {
       display: inline-block;
       padding: 10px 20px; border-radius: 25px;
-      font-family: 'Fredoka One', cursive; font-size: 1.35rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.35rem;
       background: #f3f4f6; color: #1a1a2e;
       transition: all 0.2s;
     }
@@ -231,7 +231,7 @@
     .copy-toast {
       position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px);
       background: #0F0F2E; color: #fff; padding: 12px 28px; border-radius: 25px;
-      font-family: 'Fredoka One', cursive; font-size: 1.4rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.4rem;
       box-shadow: 0 8px 30px rgba(0,0,0,0.25); z-index: 9999;
       transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       pointer-events: none;
@@ -243,7 +243,7 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 28px; border-radius: 16px; border: 4px solid #e5e7eb;
       background: rgba(255,255,255,0.95); cursor: pointer; transition: all 0.3s;
-      font-family: 'Fredoka One', cursive; font-size: 1.5rem;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.5rem;
     }
     .tab-btn:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
     .tab-btn.active-blue { background: #2563EB; border-color: #2563EB; color: #fff; box-shadow: 0 8px 25px rgba(37,99,235,0.3); transform: translateY(-4px); }
@@ -262,7 +262,7 @@
     .solution-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
     .solution-number {
       width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-family: 'Fredoka One', cursive; font-size: 1.8rem; flex-shrink: 0;
+      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 1.8rem; flex-shrink: 0;
       background: #f3f4f6; color: #0F0F2E; transition: all 0.3s;
     }
     .solution-card:hover .solution-number { background: #0F0F2E; color: #fff; }
@@ -270,7 +270,7 @@
     .examples-box {
       padding: 24px; border-radius: 12px; margin-top: 16px;
       border-left: 6px solid; font-size: 1.8rem;
-      font-family: 'Comic Neue', cursive;
+      font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
     }
     .examples-box-blue { background: rgba(219,234,254,0.5); border-color: #2563EB; }
     .examples-box-orange { background: rgba(255,237,213,0.5); border-color: #F97316; }
@@ -325,7 +325,7 @@
   <script src="/zts-locked-fullscreen.js" defer></script>
   <script src="/zts-funnel.js" defer></script>
 <style>
-.zts-cta-inline{margin:2.5rem 0;padding:1.75rem;background:linear-gradient(135deg,#00C4FF 0%,#0086AD 100%);border:3px solid #000;border-radius:1.5rem;box-shadow:6px 6px 0 rgba(0,0,0,.15);color:#fff;font-family:'Inter',sans-serif}
+.zts-cta-inline{margin:2.5rem 0;padding:1.75rem;background:linear-gradient(135deg,#00C4FF 0%,#0086AD 100%);border:3px solid #000;border-radius:1.5rem;box-shadow:6px 6px 0 rgba(0,0,0,.15);color:#fff;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif)}
 .zts-cta-inline h3{margin:0 0 .5rem;font-family:'Luckiest Guy',cursive;font-size:1.6rem;line-height:1.1;color:#FFF000;letter-spacing:.02em}
 .zts-cta-inline .zts-cta-lead{margin:0 0 1.1rem;font-size:1.05rem;line-height:1.4;color:#fff;font-weight:500}
 .zts-cta-inline .zts-cta-lead strong{color:#FFF000}
@@ -337,7 +337,7 @@
 .zts-cta-inline .zts-cta-foot{margin:.85rem 0 0;font-size:.82rem;color:rgba(255,255,255,.85);font-weight:600;letter-spacing:.03em}
 </style>
 <style>
-.zts-series-nav{margin:0 0 2rem;padding:1.2rem 1.4rem;background:#FFF7C2;border:3px solid #18181b;border-radius:1rem;box-shadow:5px 5px 0 #18181b;font-family:'Inter',sans-serif}
+.zts-series-nav{margin:0 0 2rem;padding:1.2rem 1.4rem;background:#FFF7C2;border:3px solid #18181b;border-radius:1rem;box-shadow:5px 5px 0 #18181b;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif)}
 .zts-series-nav h4{margin:0 0 .55rem;font-family:'Luckiest Guy',cursive;font-size:1.25rem;color:#003B4D;letter-spacing:.02em}
 .zts-series-nav ul{margin:0;padding-left:1.2rem;list-style:none}
 .zts-series-nav li{padding:.25rem 0;font-size:1rem;color:#18181b;font-weight:600}
@@ -389,7 +389,7 @@
       <div class="article-body">
 
 
-<p style="font-size:2.1rem;color:#555;font-weight:500;margin-bottom:2rem;font-family:'Comic Neue',cursive">L'animation ou l'enseignement aupres de grands groupes d'enfants est souvent percu comme un defi de taille, voire une epreuve d'endurance olympique. Qu'il s'agisse du brouhaha constant qui resonne entre les murs d'un gymnase, de la difficulte herculenne a maintenir l'attention de 50 regards disperses en plein air, ou de la necessite absolue d'inclure des profils neurologiques et physiques tres varies, la tache exige bien plus que de la simple bonne volonte. Elle requiert une preparation minutieuse, des nerfs d'acier et des strategies eprouvees.</p>
+<p style="font-size:2.1rem;color:#555;font-weight:500;margin-bottom:2rem;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif)">L'animation ou l'enseignement aupres de grands groupes d'enfants est souvent percu comme un defi de taille, voire une epreuve d'endurance olympique. Qu'il s'agisse du brouhaha constant qui resonne entre les murs d'un gymnase, de la difficulte herculenne a maintenir l'attention de 50 regards disperses en plein air, ou de la necessite absolue d'inclure des profils neurologiques et physiques tres varies, la tache exige bien plus que de la simple bonne volonte. Elle requiert une preparation minutieuse, des nerfs d'acier et des strategies eprouvees.</p>
 
 <p>Les professionnels de l'education physique, des services de garde et des camps de jour partagent tous, sans toujours le realiser, une realite commune : ils doivent quotidiennement jongler avec des dynamiques de groupe hautement complexes. La theorie universitaire est une chose, mais se retrouver seul face a 50 enfants remplis d'energie en fin de journee en est une autre.</p>
       </div>      <!-- Bannière don ZTS -->
@@ -597,7 +597,7 @@
 
       <div style="text-align:center;margin-bottom:2.5rem">
         <h2 style="font-family:'Bangers',cursive;font-size:3.4rem;color:#0F0F2E;margin-bottom:0.5rem;border:none;padding:0">Des solutions concretes pour VOTRE realite</h2>
-        <p style="font-family:'Comic Neue',cursive;font-size:1.95rem;color:#555">Selectionnez votre corps de metier ci-dessous pour decouvrir le <strong>Top 7 des meilleures solutions appliquees</strong>.</p>
+        <p style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-size:1.95rem;color:#555">Selectionnez votre corps de metier ci-dessous pour decouvrir le <strong>Top 7 des meilleures solutions appliquees</strong>.</p>
       </div>
 
       <!-- Tab Buttons -->
@@ -622,7 +622,7 @@
       <!-- Placeholder -->
       <div id="tab-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;color:#999;border:2px dashed #e5e7eb;border-radius:16px;background:#fafafa;text-align:center">
         <i data-lucide="users" style="width:64px;height:64px;opacity:0.4;margin-bottom:16px"></i>
-        <p style="font-family:'Comic Neue',cursive;font-size:1.95rem">Cliquez sur l'un des boutons ci-dessus pour reveler les solutions.</p>
+        <p style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-size:1.95rem">Cliquez sur l'un des boutons ci-dessus pour reveler les solutions.</p>
       </div>
 
       <!-- ========== TAB ENSEIGNEMENT ========== -->
@@ -971,7 +971,7 @@
         </blockquote>
 
         <h3 style="margin-top:2rem">Outils pratiques et references verifiees</h3>
-        <p style="font-size:1.8rem;color:#888;font-style:italic;font-family:'Comic Neue',cursive">Les liens ci-dessous menent vers des guides officiels et des recherches ciblant specifiquement le croisement entre la gestion de groupe en activite physique/animation et l'inclusion des enfants ayant des besoins particuliers.</p>
+        <p style="font-size:1.8rem;color:#888;font-style:italic;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif)">Les liens ci-dessous menent vers des guides officiels et des recherches ciblant specifiquement le croisement entre la gestion de groupe en activite physique/animation et l'inclusion des enfants ayant des besoins particuliers.</p>
         <ol>
           <li><a href="https://inclusion-eps.uqam.ca/wp-content/uploads/sites/123/Enquete-provinciale-sur-les-pratiques-inclusives-en-enseignement-de-leducation-physique-et-a-la-sante-Rapport-provincial-primaire-et-secondaire..pdf" target="_blank" rel="noopener noreferrer">Enquete provinciale sur les pratiques inclusives en enseignement de l'education physique et a la sante</a> — Rapport de recherche (UQAM/UQTR).</li>
           <li><a href="https://campsquebec.com/upload/tools/outils-integration-reussie/Guide-de-soutien-a-limplantation-de-loutil-MPC_version-finale-web.pdf" target="_blank" rel="noopener noreferrer">Guide de soutien a l'implantation : Vers une integration reussie en camp</a> — Association des camps du Quebec (ACQ).</li>
@@ -1046,8 +1046,8 @@
       <h3 style="font-family:'Bangers',cursive;font-size:2.6rem;color:#0F0F2E;margin:0 0 16px">Commentaires</h3>
       <div id="comments-list" style="margin-bottom:16px"></div>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <input type="text" id="comment-name" placeholder="Ton prenom..." style="font-family:'Comic Neue',cursive;padding:18px 24px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.65rem;outline:none" onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'">
-        <textarea id="comment-text" placeholder="Ecris ton commentaire..." rows="3" style="font-family:'Comic Neue',cursive;padding:18px 24px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.65rem;outline:none;resize:vertical" onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+        <input type="text" id="comment-name" placeholder="Ton prenom..." style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);padding:18px 24px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.65rem;outline:none" onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'">
+        <textarea id="comment-text" placeholder="Ecris ton commentaire..." rows="3" style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);padding:18px 24px;border:2px solid #e5e7eb;border-radius:12px;font-size:1.65rem;outline:none;resize:vertical" onfocus="this.style.borderColor='#00E5FF'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
         <button onclick="postComment()" style="font-family:'Bangers',cursive;background:linear-gradient(135deg,#00E5FF,#0097A7);color:#fff;padding:20px 40px;border:none;border-radius:999px;font-size:1.8rem;cursor:pointer;align-self:flex-start;transition:all 0.2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Publier</button>
       </div>
     </div>
@@ -1209,13 +1209,13 @@
     var list = document.getElementById('comments-list');
     if (!list) return;
     if (comments.length === 0) {
-      list.innerHTML = '<p style="color:#999;font-family:Schoolbell,cursive;font-style:italic">Aucun commentaire encore. Sois le premier!</p>';
+      list.innerHTML = '<p style="color:#999;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-style:italic">Aucun commentaire encore. Sois le premier!</p>';
       return;
     }
     list.innerHTML = comments.map(function(c) {
       return '<div style="background:#f3f4f6;border-radius:12px;padding:12px 16px;margin-bottom:10px">' +
-        '<div style="font-family:Luckiest Guy,cursive;color:#0F0F2E;font-size:1.1rem">' + c.name + ' <span style="font-family:Schoolbell,cursive;color:#999;font-size:0.85rem">' + c.date + '</span></div>' +
-        '<p style="font-family:Schoolbell,cursive;color:#333;margin:4px 0 0;font-size:1.05rem">' + c.text + '</p></div>';
+        '<div style="font-family:Luckiest Guy,cursive;color:#0F0F2E;font-size:1.1rem">' + c.name + ' <span style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);color:#999;font-size:0.85rem">' + c.date + '</span></div>' +
+        '<p style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);color:#333;margin:4px 0 0;font-size:1.05rem">' + c.text + '</p></div>';
     }).join('');
   }
   renderComments();
