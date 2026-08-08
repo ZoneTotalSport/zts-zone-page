@@ -57,29 +57,21 @@
         loadScript('https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js', function() {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-        // Recupere le resultat si on revient d'une redirection Google (mobile)
+        // DEPRECIE — 2026-08-08 · RETRAIT PREVU LE 2026-08-15
+        // Conserve 7 jours uniquement pour rattraper les sessions parties en
+        // signInWithRedirect avec le build precedent (un utilisateur peut revenir
+        // sur le site apres le deploiement avec un redirect en attente).
+        // Aucun nouveau flux n'emprunte ce chemin. Supprimer le bloc complet
+        // + l'import getRedirectResult apres le 2026-08-15.
         firebase.auth().getRedirectResult().then(function(result) {
           if (result && result.user) {
-            // Ce chargement suit une deconnexion volontaire : un resultat de
-            // redirection qui ressort ici est un fantome (cache SDK non purge,
-            // ITP Safari). On le refuse au lieu d'en faire une session.
             if (_signedOutAtLoad) {
-              console.warn('[ZTS Auth] getRedirectResult ignore : deconnexion volontaire en cours');
               firebase.auth().signOut().catch(function() {});
               return;
             }
-            var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
-            if (isNew) {
-              if (window.ztsTrackSignup) window.ztsTrackSignup('google_redirect', result.user.uid);
-              fireSignupComplete('google');
-              if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
-              window.location.href = '/bienvenue.html';
-            } else {
-              if (window.ztsTrackLogin) window.ztsTrackLogin('google_redirect', result.user.uid);
-              if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
-            }
+            finaliserInscription(result, 'google');
           }
-        }).catch(function(err) { console.error('[ZTS Auth] getRedirectResult:', err); });
+        }).catch(function() {});
         firebase.auth().onAuthStateChanged(function(user) {
           // Un vrai utilisateur present = la deconnexion appartient au passe.
           if (user) clearSignedOut();
@@ -440,15 +432,20 @@
     'auth/email-already-in-use': 'Ce courriel est déjà utilisé. Essaie de te connecter !',
     'auth/weak-password': 'Le mot de passe doit avoir au moins 6 caractères.',
     'auth/too-many-requests': 'Trop de tentatives. Réessaie dans quelques minutes.',
-    'auth/popup-closed-by-user': 'Connexion Google annulée.',
-    'auth/network-request-failed': 'Erreur de connexion. Vérifie ton internet.',
+    'auth/cancelled-popup-request': null,
+    'auth/popup-closed-by-user': 'Connexion annulée.',
+    'auth/popup-blocked': 'Ton navigateur a bloqué la fenêtre de connexion. Autorise les fenêtres surgissantes, puis réessaie.',
+    'auth/network-request-failed': 'Connexion réseau perdue. Réessaie.',
+    'auth/unauthorized-domain': 'Domaine non autorisé. Contacte le support.',
     'auth/invalid-credential': 'Courriel ou mot de passe incorrect.',
     'auth/missing-password': 'Entre ton mot de passe.'
   };
 
   function getErrorMsg(code) {
-    console.log('[ZTS Auth] Error code:', code);
-    return ERROR_MESSAGES[code] || 'Erreur: ' + code;
+    console.warn('[ZTS Auth] Error code:', code);
+    var msg = ERROR_MESSAGES[code];
+    if (msg === null) return null;
+    return msg || 'La connexion a échoué. Réessaie dans un instant.';
   }
 
   // ── Current mode tracking ──
@@ -618,11 +615,8 @@
   }
 
   // signup_complete : un seul envoi par creation REELLE de compte.
-  // On pose un flag sessionStorage SYNCHRONE (survit a la redirection vers
-  // /bienvenue.html), consomme par zts-funnel.js a l'arrivee. L'ancien appel
-  // direct a ztsTrackFunnel etait tue par le window.location.href qui suit
-  // immediatement (l'ecriture Firestore async n'avait pas le temps de partir).
-  // Lit et consomme la source d'attribution posee par locked_click_signup.
+  // Pose un flag sessionStorage SYNCHRONE (survit a la redirection vers
+  // /bienvenue.html), consomme par zts-funnel.js a l'arrivee.
   function fireSignupComplete(method) {
     var signup_source = 'direct';
     try {
@@ -636,6 +630,25 @@
         ts: Date.now()
       }));
     } catch (e) {}
+  }
+
+  // Finalisation unifiee : un seul point d'entree pour toutes les inscriptions.
+  // INVARIANT : fireSignupComplete() est synchrone et DOIT etre appele AVANT
+  // window.location.href — jamais dans un .then() separe.
+  function finaliserInscription(result, method) {
+    if (!result || !result.user) return;
+    var isNew = (result.additionalUserInfo && result.additionalUserInfo.isNewUser)
+      || (result.user.metadata.creationTime === result.user.metadata.lastSignInTime);
+    if (isNew) {
+      if (window.ztsTrackSignup) window.ztsTrackSignup(method, result.user.uid);
+      fireSignupComplete(method);   // synchrone — sessionStorage
+      if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
+      window.location.href = '/bienvenue.html';
+    } else {
+      if (window.ztsTrackLogin) window.ztsTrackLogin(method, result.user.uid);
+      if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
+      closeModal();
+    }
   }
 
   function handleSignup() {
@@ -655,49 +668,30 @@
         }).then(function() { return result; });
       })
       .then(function(result) {
-        if (window.ztsTrackSignup) window.ztsTrackSignup('email', result.user.uid);
-        fireSignupComplete('email');
-        if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
-        window.location.href = '/bienvenue.html';
+        finaliserInscription(result, 'email');
       })
       .catch(function(err) { showError(getErrorMsg(err.code)); setLoading(false); });
   }
 
   function handleGoogle() {
+    // Mode PWA standalone (ajout ecran accueil iOS) : pas de fenetre dispo
+    if (window.navigator.standalone === true) {
+      showError("Ouvre zonetotalsport.ca dans Safari pour te connecter avec Google, ou cree un compte par courriel.");
+      return;
+    }
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     setLoading(true);
-    // Mobile (iOS/Android): utilise redirect car les popups sont souvent bloquees
-    var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) {
-      firebase.auth().signInWithRedirect(provider)
-        .catch(function(err) { console.error('[ZTS Auth] Google redirect error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
-      return;
-    }
     firebase.auth().signInWithPopup(provider)
       .then(function(result) {
-        var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
-        if (isNew) {
-          if (window.ztsTrackSignup) window.ztsTrackSignup('google', result.user.uid);
-          fireSignupComplete('google');
-          if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
-          window.location.href = '/bienvenue.html';
-        } else {
-          if (window.ztsTrackLogin) window.ztsTrackLogin('google', result.user.uid);
-          if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
-          closeModal();
-        }
+        finaliserInscription(result, 'google');
       })
       .catch(function(err) {
-        // Si popup bloquee sur desktop, fallback sur redirect
-        if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-          firebase.auth().signInWithRedirect(provider).catch(function(e2) {
-            console.error('[ZTS Auth] Redirect fallback error:', e2); showError('Erreur [' + (e2.code || 'unknown') + ']: ' + (e2.message || e2)); setLoading(false);
-          });
-          return;
-        }
-        console.error('[ZTS Auth] Google error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false);
+        var msg = getErrorMsg(err.code);
+        if (msg) showError(msg);
+        console.warn('[ZTS Auth] Google:', err.code, err.message);
+        setLoading(false);
       });
   }
 

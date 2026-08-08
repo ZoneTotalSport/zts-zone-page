@@ -135,21 +135,32 @@
   function showErr(msg) { var e = el('ztg-err'); if (e) e.textContent = msg || ''; }
   function busy(on) { var c = document.querySelector('#zts-gate .ztg-card'); if (c) c.classList.toggle('ztg-busy', !!on); }
 
+  function messageErreurAuth(code) {
+    switch (code) {
+      case 'auth/cancelled-popup-request': return null;
+      case 'auth/popup-closed-by-user': return 'Connexion annulée.';
+      case 'auth/popup-blocked': return 'Ton navigateur a bloqué la fenêtre de connexion. Autorise les fenêtres surgissantes, puis réessaie.';
+      case 'auth/network-request-failed': return 'Connexion réseau perdue. Réessaie.';
+      case 'auth/unauthorized-domain': return 'Domaine non autorisé. Contacte le support.';
+      default: return t().errGoogle;
+    }
+  }
+
   function doGoogle() {
+    // Mode PWA standalone (ajout ecran accueil iOS) : pas de fenetre dispo
+    if (window.navigator.standalone === true) {
+      showErr("Ouvre zonetotalsport.ca dans Safari pour te connecter avec Google, ou cree un compte par courriel.");
+      return;
+    }
     showErr(''); busy(true);
     clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     var p = new firebase.auth.GoogleAuthProvider();
-    // Sans select_account, Google resigne en silence le seul compte ouvert :
-    // aucun selecteur, session retablie en une seconde. C'etait la cause
-    // percue comme « impossible de se deconnecter ».
     p.setCustomParameters({ prompt: 'select_account' });
     firebase.auth().signInWithPopup(p).catch(function (err) {
       busy(false);
-      if (err && (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment')) {
-        firebase.auth().signInWithRedirect(p);
-      } else {
-        showErr(t().errGoogle);
-      }
+      var msg = messageErreurAuth(err.code);
+      if (msg) showErr(msg);
+      console.warn('[ZTS Gate] Google:', err.code, err.message);
     });
   }
 
@@ -228,11 +239,13 @@
       try {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+        // DEPRECIE — 2026-08-08 · RETRAIT PREVU LE 2026-08-15
+        // Conserve 7 jours uniquement pour rattraper les sessions parties en
+        // signInWithRedirect avec le build precedent (un utilisateur peut revenir
+        // sur le site apres le deploiement avec un redirect en attente).
+        // Aucun nouveau flux n'emprunte ce chemin. Supprimer le bloc complet apres le 2026-08-15.
         firebase.auth().getRedirectResult().then(function (result) {
-          // Chargement qui suit une deconnexion volontaire : un resultat de
-          // redirection qui ressort ici est un fantome, pas une intention.
           if (result && result.user && _signedOutAtLoad) {
-            console.warn('[ZTS Gate] getRedirectResult ignore : deconnexion volontaire');
             firebase.auth().signOut().catch(function () {});
           }
         }).catch(function () {});
