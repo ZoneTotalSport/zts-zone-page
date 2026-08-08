@@ -304,9 +304,17 @@ def controle(chemin):
                 police = ("font-family" in bas
                           or "fonts.googleapis.com" in bas
                           or "@font-face" in bas)
+                # Un selecteur `body > X` que l'ENVELOPPE du shell a casse.
+                # `monter()` insere <div class="ztsh-page"> entre body et le
+                # contenu : le combinateur enfant direct ne matche plus rien.
+                # Corriger ces selecteurs n'est pas une intrusion dans l'app,
+                # c'est reparer une regression que le chantier a causee.
+                # Vu sur `jeux` le 4 aout : la barre d'outils que
+                # `body>header.header{display:none}` masquait etait revenue.
+                enveloppe = "body>" in bas.replace(" ", "")
                 vide = not ligne[1:].strip()   # une ligne blanche ne retire rien
                 if ("ztsh" not in bas and "ztsshell" not in bas
-                        and not police and not vide):
+                        and not police and not vide and not enveloppe):
                     retirees_app.append(ligne[1:].strip()[:60])
         if ajouts > 30:
             aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")

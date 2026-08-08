@@ -41,9 +41,19 @@
     @keyframes ztsfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
     .animate-float{animation:ztsfloat 3s ease-in-out infinite}
     .text-outline{text-shadow:2px 2px 0px rgba(0,0,0,.2)}
+    /* ⚠ LES SELECTEURS `body > X` ONT ETE CASSES PAR LE MONTAGE DU SHELL.
+       `ZTSShell.monter()` insere une enveloppe `<div class="ztsh-page">` entre
+       `body` et le contenu de l'app. Le combinateur enfant DIRECT ne matche
+       donc plus rien : la barre d'outils que `body>header.header` devait
+       masquer est reapparue, en `position:fixed; top:0`, sous le header
+       partage — deux barres empilees, et le liseré de l'ancienne visible.
+       Le chemin reel est maintenant BODY > DIV.ztsh-page > HEADER.header.
+       Les trois selecteurs perdent leur `body >` : il n'y a qu'un seul
+       `header.header` et qu'une seule `section.hero-gradient` dans la page,
+       le combinateur n'apportait rien d'autre que cette fragilite. */
     /* Push existing toolbar below new ZTS header */
-    body>header.header{position:sticky;top:64px;z-index:40}
-    @media(min-width:768px){body>header.header{top:76px}}
+    header.header{position:sticky;top:64px;z-index:40}
+    @media(min-width:768px){header.header{top:76px}}
 
     /* === Body white + chunky colored game cards (style omnigroupe) === */
     body{background:#f8fafc!important}
@@ -67,7 +77,7 @@
     .game-card .card-top{padding:20px 20px 12px!important}
 
     /* Cacher entièrement l'ancienne toolbar colorée — search + boutons réinjectés dans la stats-bar */
-    body>header.header{display:none!important}
+    header.header{display:none!important}
     /* Stats bar XL avec barre de recherche centrée + boutons à droite */
     /* Wrapper qui contient stats-bar + filtres dans UNE seule grande carte chunky qui empiète sur le hero */
     #ztsControlCard{
@@ -82,8 +92,8 @@
     /* Réduire shadow droite des selects pour rester dans la case */
     #ztsFilterBar .zts-filter:last-child select{border-right-width:6px!important;box-shadow:3px 6px 0 rgba(0,0,0,.06)!important}
     /* Hide hero floating badge + image overflow so they don't compete with the control card */
-    body > section.hero-gradient .animate-float{display:none!important}
-    body > section.hero-gradient{padding-bottom:140px!important}
+    section.hero-gradient .animate-float{display:none!important}
+    section.hero-gradient{padding-bottom:140px!important}
     @media(max-width:900px){#ztsControlCard{margin:-60px 16px 0;padding:20px;border-radius:28px;border-bottom-width:10px;border-right-width:10px}}
     .stats-bar{display:flex!important;align-items:center!important;gap:18px!important;padding:0!important;background:transparent!important;border:none!important;box-shadow:none!important;margin:0!important;flex-wrap:wrap!important}
     .stats-left{flex:0 0 auto!important;display:flex!important;align-items:center!important;gap:12px!important}
@@ -638,7 +648,7 @@
     function move(){
       const statsLeft=document.querySelector('.stats-bar .stats-left');
       const statsRight=document.querySelector('.stats-bar .stats-right');
-      const searchSrc=document.querySelector('body>header.header .search-container');
+      const searchSrc=document.querySelector('header.header .search-container')  /* le 'body>' est tombe avec l'enveloppe du shell */;
       const lang=document.getElementById('langToggle');
       const rand=document.getElementById('randomBtn');
       const tim=document.getElementById('timerBtn');
