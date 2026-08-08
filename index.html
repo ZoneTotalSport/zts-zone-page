@@ -1315,151 +1315,6 @@
   /* ============ MODAL SÉRIES SPORTIVES ============ */
   .series-card { text-decoration: none; }
 
-  .series-modal {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.85);
-    backdrop-filter: blur(10px);
-    display: none;
-    align-items: center; justify-content: center;
-    z-index: 200;
-    padding: 20px;
-  }
-  .series-modal.open { display: flex; }
-
-  .series-modal-inner {
-    background: linear-gradient(135deg, #0a0a18 0%, #1a1a2e 50%, #0a0a18 100%);
-    max-width: 1100px; width: 100%;
-    border: 5px solid var(--ink);
-    border-radius: 24px;
-    padding: 48px 36px;
-    position: relative;
-    max-height: 92vh;
-    overflow-y: auto;
-    color: white;
-    box-shadow: 0 0 60px rgba(0,229,255,0.25);
-  }
-  .series-modal.open .series-modal-inner {
-    animation: series-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  @keyframes series-pop {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .series-close {
-    position: absolute;
-    top: 16px; right: 16px;
-    background: var(--rose);
-    color: white;
-    border: 3px solid white;
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    font-size: 20px;
-    font-family: var(--font-impact);
-    cursor: pointer;
-    box-shadow: 3px 3px 0 rgba(0,0,0,0.5);
-    z-index: 1;
-  }
-
-  .series-modal-head { text-align: center; margin-bottom: 32px; }
-  .series-badge {
-    display: inline-block;
-    background: var(--cyan); color: var(--ink);
-    padding: 8px 20px; border-radius: 999px;
-    font-family: var(--font-impact); font-size: 16px;
-    letter-spacing: 0.04em;
-    margin-bottom: 14px;
-    box-shadow: 3px 3px 0 var(--ink);
-  }
-  .series-modal-head h2 {
-    font-family: var(--font-impact);
-    font-size: clamp(28px, 4vw, 44px);
-    line-height: 1; color: white;
-    margin-bottom: 8px;
-    text-shadow: 3px 3px 0 rgba(0,0,0,0.5);
-  }
-  .series-modal-head p {
-    font-family: var(--font-fun);
-    color: var(--cyan);
-    font-size: 18px;
-  }
-
-  /* Tableau des séries */
-  .series-bracket {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-bottom: 28px;
-  }
-  @media (max-width: 700px) { .series-bracket { grid-template-columns: 1fr; } }
-
-  .conference {
-    background: rgba(255,255,255,0.04);
-    border: 2px solid rgba(255,255,255,0.15);
-    border-radius: 16px;
-    padding: 22px;
-  }
-  .conference-title {
-    font-family: var(--font-bang);
-    font-size: 16px;
-    color: var(--jaune);
-    letter-spacing: 0.06em;
-    margin-bottom: 14px;
-    text-align: center;
-    padding-bottom: 10px;
-    border-bottom: 2px solid rgba(255,234,0,0.3);
-  }
-  .matchup {
-    background: rgba(0,0,0,0.3);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 10px;
-  }
-  .matchup .team-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 6px 0;
-    font-family: var(--font-body); font-weight: 700;
-    font-size: 14px;
-  }
-  .matchup .team-row.winning { color: var(--vert); }
-  .matchup .team-row .score {
-    background: var(--ink);
-    color: white;
-    padding: 2px 10px;
-    border-radius: 6px;
-    font-family: var(--font-impact);
-    min-width: 32px;
-    text-align: center;
-  }
-  .matchup .team-row.winning .score {
-    background: var(--vert);
-    color: var(--ink);
-  }
-  .matchup-meta {
-    font-family: var(--font-fun);
-    font-size: 11px;
-    color: rgba(255,255,255,0.5);
-    margin-top: 4px;
-    text-align: center;
-  }
-
-  .series-cta-row { text-align: center; }
-  .series-cta {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--cyan); color: var(--ink);
-    padding: 14px 26px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-family: var(--font-impact); font-size: 16px;
-    letter-spacing: 0.02em;
-    border: 3px solid var(--ink);
-    box-shadow: 5px 5px 0 var(--ink);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .series-cta:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 7px 7px 0 var(--ink);
-  }
 
   /* ============ "AUJOURD'HUI AU MENU" SECTION ============
      FOND RETIRÉ le 4 août 2026 (chantier patron). Cette section posait un
@@ -2944,27 +2799,14 @@
      restait seul. La page /apps-fifa/ reste en ligne (SEO), comme les deux
      autres — seule la carte de l'accueil part. -->
 
-<!-- MODAL SÉRIES -->
-<div class="series-modal" id="seriesModal" onclick="if(event.target===this) this.classList.remove('open')">
-  <div class="series-modal-inner">
-    <button class="series-close" onclick="document.getElementById('seriesModal').classList.remove('open')">✕</button>
-    <div class="series-modal-head">
-      <span class="series-badge" id="seriesBadge">🏒 LNH</span>
-      <h2 id="seriesTitle" data-i18n="series.title_init">Séries éliminatoires LNH 2026</h2>
-      <p id="seriesSubtitle" data-i18n="series.sub_init">Coupe Stanley · Tour final</p>
-    </div>
-
-    <div class="series-content" id="seriesContent">
-      <!-- Injecté en JS -->
-    </div>
-
-    <div class="series-cta-row">
-      <a id="seriesExtLink" href="https://www.nhl.com/fr/playoffs" target="_blank" rel="noopener" class="series-cta" data-i18n="series.ext">
-        Voir le tableau complet sur le site officiel →
-      </a>
-    </div>
-  </div>
-</div>
+  <!-- LE DOCK DES SÉRIES SPORTIVES EST ENTIÈREMENT PARTI — 4 août 2026.
+       Le dock avait été retiré le 3 août, mais sa modale, ses ~250 lignes de
+       CSS et ses deux jeux de données de séries 2026 étaient restés :
+       `openSeries()` n'était plus appelée par rien, et rien n'ouvrait
+       `#seriesModal`. Tout est supprimé avec les apps LNH / NBA / FIFA.
+       Le bloc de `setLang()` qui re-rendait l'entête de cette modale part
+       aussi — il faisait `sm.classList` sans garde, et aurait planté à
+       chaque changement de langue une fois la modale retirée. -->
 
 <!-- Bannière logo+horloge désormais intégrée au header partagé -->
 
@@ -4206,102 +4048,7 @@
   }
 
   // ============ SÉRIES SPORTIVES - MODAL CONTENU ============
-  let SERIES_DATA = {
-    nhl: {
-      badge: '🏒 LNH',
-      title: 'Séries éliminatoires LNH 2026',
-      subtitle: 'En route vers la Coupe Stanley',
-      externalUrl: 'https://www.nhl.com/fr/playoffs',
-      bracket: [
-        {
-          conference: 'EST · Finale d\'association',
-          matchups: [
-            { teamA: 'Panthers de la Floride', scoreA: 3, teamB: 'Hurricanes de la Caroline', scoreB: 2, meta: 'Série 3-2 · Match 6 ce soir' }
-          ]
-        },
-        {
-          conference: 'OUEST · Finale d\'association',
-          matchups: [
-            { teamA: 'Stars de Dallas', scoreA: 2, teamB: 'Oilers d\'Edmonton', scoreB: 3, meta: 'Série 3-2 · Match 6 ce soir' }
-          ]
-        },
-        {
-          conference: 'EST · 2e tour (terminé)',
-          matchups: [
-            { teamA: 'Panthers', scoreA: 4, teamB: 'Maple Leafs', scoreB: 1, meta: 'Série gagnée 4-1' },
-            { teamA: 'Hurricanes', scoreA: 4, teamB: 'Capitals', scoreB: 2, meta: 'Série gagnée 4-2' }
-          ]
-        },
-        {
-          conference: 'OUEST · 2e tour (terminé)',
-          matchups: [
-            { teamA: 'Stars', scoreA: 4, teamB: 'Jets', scoreB: 2, meta: 'Série gagnée 4-2' },
-            { teamA: 'Oilers', scoreA: 4, teamB: 'Knights', scoreB: 1, meta: 'Série gagnée 4-1' }
-          ]
-        }
-      ]
-    },
-    nba: {
-      badge: '🏀 NBA',
-      title: 'Playoffs NBA 2026',
-      subtitle: 'Finale NBA — Spurs vs Knicks (dès le 5 juin)',
-      externalUrl: 'https://www.nba.com/playoffs',
-      bracket: [
-        {
-          conference: 'EST · Finale d\'association',
-          matchups: [
-            { teamA: 'Boston Celtics', scoreA: 2, teamB: 'Cleveland Cavaliers', scoreB: 3, meta: 'Série 3-2 · Match 6 ce soir' }
-          ]
-        },
-        {
-          conference: 'OUEST · Finale d\'association',
-          matchups: [
-            { teamA: 'Denver Nuggets', scoreA: 3, teamB: 'OKC Thunder', scoreB: 2, meta: 'Série 3-2 · Match 6 ce soir' }
-          ]
-        },
-        {
-          conference: 'EST · Demi-finale (terminé)',
-          matchups: [
-            { teamA: 'Celtics', scoreA: 4, teamB: 'Knicks', scoreB: 1, meta: 'Série gagnée 4-1' },
-            { teamA: 'Cavaliers', scoreA: 4, teamB: 'Pacers', scoreB: 3, meta: 'Série gagnée 4-3' }
-          ]
-        },
-        {
-          conference: 'OUEST · Demi-finale (terminé)',
-          matchups: [
-            { teamA: 'Nuggets', scoreA: 4, teamB: 'Timberwolves', scoreB: 2, meta: 'Série gagnée 4-2' },
-            { teamA: 'Thunder', scoreA: 4, teamB: 'Mavericks', scoreB: 2, meta: 'Série gagnée 4-2' }
-          ]
-        }
-      ]
-    },
-    fifa: {
-      badge: '⚽ FIFA',
-      title: 'Coupe du monde FIFA 2026',
-      subtitle: 'Canada · États-Unis · Mexique — 11 juin au 19 juillet',
-      externalUrl: 'https://www.fifa.com/fr/tournaments/mens/worldcup/canadamexicousa2026',
-      bracket: []
-    }
-  };
 
-  function openSeries(league) {
-    const data = SERIES_DATA[league];
-    if (!data) return;
-
-    document.getElementById('seriesModal').dataset.league = league;
-    document.getElementById('seriesBadge').textContent = data.badge;
-    document.getElementById('seriesTitle').textContent = data.title;
-    document.getElementById('seriesSubtitle').textContent = data.subtitle;
-    document.getElementById('seriesExtLink').href = data.externalUrl;
-
-    const content = document.getElementById('seriesContent');
-    const appPath = { nhl:'apps-nhl/index.html', nba:'apps-nba/index.html', fifa:'apps-fifa/index.html' }[league] || 'apps-nhl/index.html';
-    content.innerHTML = `
-      <iframe src="${appPath}" style="width:100%; height:78vh; border:4px solid var(--ink); border-radius:16px; background:#fff;" loading="lazy"></iframe>
-    `;
-
-    document.getElementById('seriesModal').classList.add('open');
-  }
 
   // ============ MENU BURGER MOBILE (header géré par le partagé) ============
   document.getElementById('burger')?.addEventListener('click', () => {
@@ -4476,7 +4223,7 @@
   function t(key){ const d = HOME_I18N[ztsLang] || HOME_I18N.fr; return (key in d) ? d[key] : (HOME_I18N.fr[key] ?? key); }
 
   // --- Conserve les données FR d'origine + miroirs EN ---
-  const METIERS_FR = METIERS, MENU_JOUR_FR = MENU_JOUR, QUOTES_FR = QUOTES, SERIES_FR = SERIES_DATA, APPS_DEFAULT_FR = APPS_DEFAULT;
+  const METIERS_FR = METIERS, MENU_JOUR_FR = MENU_JOUR, QUOTES_FR = QUOTES, APPS_DEFAULT_FR = APPS_DEFAULT;
 
   const APPS_DEFAULT_EN = [
     { icon:'🎲', name:'Die',       tool:'dice' },
@@ -4611,10 +4358,6 @@
     camp:["Summer is your season! ☀️","You're creating childhood memories.","Camp is pure magic. 🏕️","Grab the sunscreen and go!","Those big games — YOU bring them to life.","You're the hero of their summer."]
   };
 
-  const SERIES_EN = {
-    nhl:{ badge:'🏒 NHL', title:'NHL Playoffs 2026', subtitle:'On the road to the Stanley Cup', externalUrl:'https://www.nhl.com/playoffs', bracket:SERIES_FR.nhl.bracket },
-    nba:{ badge:'🏀 NBA', title:'NBA Playoffs 2026', subtitle:"Larry O'Brien Trophy on the line", externalUrl:'https://www.nba.com/playoffs', bracket:SERIES_FR.nba.bracket }
-  };
 
   // --- URLs confirmées (200) injectées dans les apps des métiers (FR+EN) ---
   // Retire l'état "soon" des apps dont l'URL est désormais connue.
@@ -4682,7 +4425,6 @@
     METIERS = EN?METIERS_EN:METIERS_FR;
     MENU_JOUR = EN?MENU_JOUR_EN:MENU_JOUR_FR;
     QUOTES = EN?QUOTES_EN:QUOTES_FR;
-    SERIES_DATA = EN?SERIES_EN:SERIES_FR;
     APPS_DEFAULT = EN?APPS_DEFAULT_EN:APPS_DEFAULT_FR;
 
     // Toggle visuel
@@ -4708,16 +4450,6 @@
     // Modale outil ouverte → re-render
     if (_openToolKey && document.getElementById('toolModal').classList.contains('open')) openTool(_openToolKey);
     // Modale séries ouverte → re-render entête
-    const sm = document.getElementById('seriesModal');
-    if (sm.classList.contains('open')){
-      const lg = sm.dataset.league;
-      if (lg && SERIES_DATA[lg]){
-        document.getElementById('seriesBadge').textContent = SERIES_DATA[lg].badge;
-        document.getElementById('seriesTitle').textContent = SERIES_DATA[lg].title;
-        document.getElementById('seriesSubtitle').textContent = SERIES_DATA[lg].subtitle;
-        document.getElementById('seriesExtLink').href = SERIES_DATA[lg].externalUrl;
-      }
-    }
   }
   window.ztsSetLang = setLang;
 
