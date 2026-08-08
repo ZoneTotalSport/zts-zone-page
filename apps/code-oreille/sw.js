@@ -1,6 +1,6 @@
 /* CODE OREILLE — service worker minimal.
    Objectif : l'app doit s'ouvrir dans un gymnase ou un boisé, sans réseau. */
-const CACHE = 'code-oreille-v2';
+const CACHE = 'code-oreille-v3';
 const CORE = [
   './',
   './index.html',

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Code Oreille — L'aide-mémoire des imprévus : 10 situations en gymnase, en camp et au service de garde | Zone Total Sport</title>
-<meta name="description" content="Quoi faire quand ça dérape : vomi, guêpes, alarme de feu, décompte qui ne balance pas. 10 fiches de gestion de groupe consultables hors ligne, pour prof d'ÉPS, animateur de camp et éducatrice de service de garde.">
+<title>Code Oreille — L'aide-mémoire des imprévus : 14 situations en gymnase, en camp et au service de garde | Zone Total Sport</title>
+<meta name="description" content="Quoi faire quand ça dérape : vomi, guêpes, alarme de feu, décompte qui ne balance pas. 14 fiches de gestion de groupe consultables hors ligne, pour prof d'ÉPS, animateur de camp et éducatrice de service de garde.">
 <meta name="theme-color" content="#004A61">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -129,6 +129,8 @@ button,input,textarea{font:inherit;color:inherit}
 .box .ico{width:26px;height:26px;flex:0 0 auto}
 .box-probleme{background:#FFE3F0;border-color:var(--pink);box-shadow:8px 8px 0 0 var(--pink)}
 .box-probleme h3{color:var(--pink)}
+.box-note{background:#EAF6FB;border-color:#0086AD}
+.box-note h3{color:#0086AD}
 .box-piege{background:var(--deep);color:#fff}
 .box-piege h3{color:var(--yellow)}
 .box-alerte{background:var(--yellow);border-width:6px}
@@ -366,114 +368,162 @@ footer .sig{display:block;margin-top:16px;color:var(--deep)}
    ======================================================================= */
 const SITUATIONS = [
 {
-  id:'vomi', titre:'Vomi', icon:'i-droplets', couleur:'orange',
-  probleme:"Ce n'est pas le vomi le problème, c'est l'effet domino : un enfant qui vomit, trois autres qui suivent par imitation.",
+  id:"vomi", titre:"Vomi", icon:"i-droplets", couleur:"orange",
+  probleme:"Le vomi est le seul incident contagieux par imitation. Chaque seconde où le groupe regarde la flaque augmente ton nombre de flaques.",
   solutions:[
-    {t:"CODE OREILLE, et le groupe tourne le dos", d:"Tu cries CODE OREILLE. Tout le monde se pose, dos au dégât, yeux sur toi. Le groupe arrête de regarder — l'effet domino tombe."},
-    {t:"Un seul adulte bouge", d:"Toi, tu restes avec le groupe. C'est l'autre adulte, ou un élève responsable, qui va chercher l'aide et la trousse. Jamais l'inverse."},
-    {t:"L'enfant garde sa dignité", d:"Tu l'accompagnes à l'écart sans commentaire et sans grimace. Un endroit assis, un sac Ziploc, un adulte. C'est tout."},
-    {t:"Tu ne nettoies pas", d:"Le nettoyage de fluides corporels revient au personnel d'entretien, avec l'équipement prévu. Toi, tu délimites la zone et tu appelles."}
+    {t:"CODE OREILLE, mais dos tourné", d:"« CODE OREILLE ! Tout le monde assis au mur du fond, face au mur. » C'est la seule situation où l'orientation compte. Ce qu'ils ne voient pas ne les fait pas vomir."},
+    {t:"Sors le groupe, pas la flaque", d:"Ton réflexe sera de nettoyer. Non — déplace le groupe dans le corridor ou dehors, et laisse la flaque à l'entretien. L'odeur gagne toujours."},
+    {t:"Un enfant accompagne, jamais l'enfant seul", d:"Le malade va au bureau avec un pair, pas tout seul en pleurant dans un corridor. Et il emporte un sac ou une poubelle — le trajet est rarement sec."},
+    {t:"Ne fais jamais nettoyer par les enfants", d:"Même « le grand qui veut aider ». C'est un risque biologique, c'est le travail de l'entretien, et ça se règle par un appel."}
   ],
-  piege:"Vouloir régler le dégât avant de replacer le groupe. En 20 secondes de dos tourné, tu perds les deux."
+  piege:"Dire « ce n'est rien, ça arrive ». L'enfant qui a vomi devant 25 personnes vit une humiliation sociale. Ta phrase : « Ça arrive à tout le monde, viens, on s'occupe de toi » — assez fort pour que le groupe l'entende."
 },
 {
-  id:'culotte', titre:'Culotte', icon:'i-shirt', couleur:'cyan',
-  probleme:"L'humiliation dure bien plus longtemps que la flaque : ton seul vrai enjeu, c'est que personne ne remarque.",
+  id:"culotte", titre:"Accident de culotte", icon:"i-shirt", couleur:"cyan",
+  probleme:"Ici l'urgence est sociale. Un pipi ne blesse personne. Une humiliation devant 25 témoins peut coûter des mois de refus de participer.",
   solutions:[
-    {t:"CODE OREILLE, et tu baisses le volume", d:"Pas d'annonce, pas de « tout le monde reste là ! ». Consigne normale, ton normal. Le calme, c'est ta couverture."},
-    {t:"Sortie discrète, avec un prétexte banal", d:"Tu envoies l'enfant porter un objet au secrétariat ou aux toilettes. Le short de rechange est dans ton kit — pas dans un local à l'autre bout."},
-    {t:"Le Ziploc", d:"Vêtement mouillé dans un sac fermé, glissé dans le sac de l'enfant. Jamais un sac transparent qui traîne à la vue de tous."},
-    {t:"Un mot aux parents, jamais devant les autres", d:"Message court et factuel à la fin de la journée. L'enfant doit savoir que tu vas le dire, et comment."}
+    {t:"Crée une diversion avant tout le reste", d:"« Tout le monde debout, 20 sauts, GO ! » Vingt secondes d'attention détournée, c'est tout ce qu'il te faut."},
+    {t:"Approche par le côté, à voix basse, sans nommer", d:"Tu ne dis jamais le mot. « Viens, on va aller régler ça. » L'enfant sait de quoi tu parles."},
+    {t:"Aie un kit, quelque part", d:"Un short et un sous-vêtement de rechange dans un Ziploc. Ça coûte 12 $ et ça sauve une journée deux fois par année."},
+    {t:"Gère le retour", d:"Devance les questions : « Il a eu un petit dégât, c'est réglé, on continue. » Ton ton neutre désamorce plus que ton silence."}
   ],
-  piege:"Demander à voix haute « qui a échappé de l'eau ? ». Tu viens de lancer exactement l'enquête que l'enfant redoute."
+  piege:"L'envoyer seul aux toilettes « pour être discret ». Il n'y arrivera pas, et il le sait. Quelqu'un l'accompagne."
 },
 {
-  id:'alarme', titre:'Alarme de feu', icon:'i-bell', couleur:'pink',
-  probleme:"Ce n'est pas l'évacuation qui est difficile, c'est le décompte : un enfant manquant transforme un exercice en crise.",
+  id:"alarme", titre:"Alarme de feu", icon:"i-bell", couleur:"pink",
+  probleme:"Le protocole d'évacuation est écrit pour une classe assise avec ses souliers. Ton groupe n'est jamais dans cette configuration.",
   solutions:[
-    {t:"CODE OREILLE avant de bouger", d:"Assis, mains vides, silence : c'est là que tu comptes. Compter debout, en mouvement, ne fonctionne jamais."},
-    {t:"Tu comptes deux fois", d:"Une fois avant de sortir, une fois au point de rassemblement. Le chiffre du départ, tu le dis à voix haute pour t'en souvenir."},
-    {t:"Les trois cachettes d'abord", d:"Vestiaire, toilettes, local de matériel. Tu vérifies ces trois points AVANT de faire sortir le groupe."},
-    {t:"Tu sors avec ta liste", d:"Au gymnase, garde la liste du groupe accrochée près de la porte. Pas dans ton bureau, pas dans ton ordi."}
+    {t:"Le décompte AVANT la porte, pas dehors", d:"Tu comptes en file, à l'intérieur, avant de sortir. Compter dehors au milieu de 400 personnes, c'est mathématiquement héroïque."},
+    {t:"Souliers : la règle des 10 secondes", d:"À portée de main immédiate, on les prend. Sinon on sort pieds nus. Un pied froid se réchauffe; une évacuation retardée, non."},
+    {t:"Piscine et vestiaire : serviettes, direction sortie", d:"Ne renvoie personne se rhabiller. Chacun prend une serviette en passant et sort. C'est inconfortable, c'est correct."},
+    {t:"Loin du bâtiment ? Tu ne rentres pas", d:"Tu vas au point le plus sécuritaire et tu envoies l'information, pas les enfants."}
   ],
-  piege:"Ramasser le matériel avant de sortir. Le ballon reste par terre. Toujours."
+  piege:"Partir chercher ta liste d'appel. Elle est dans ton téléphone, ou elle n'existe pas. Prends deux minutes lundi pour la photographier."
 },
 {
-  id:'nez', titre:'Saignement de nez', icon:'i-droplet', couleur:'yellow',
-  probleme:"Le sang affole le groupe plus que l'enfant — et la mauvaise position aggrave le saignement.",
+  id:"nez", titre:"Saignement de nez", icon:"i-droplet", couleur:"yellow",
+  probleme:"Ça paraît dix fois pire que ça l'est, et le vieux réflexe qu'on t'a enseigné est faux.",
   solutions:[
-    {t:"CODE OREILLE, puis tu assois le blessé", d:"Assis, tête légèrement penchée vers l'AVANT. Jamais vers l'arrière."},
-    {t:"Pince molle, 10 minutes sans relâcher", d:"On pince la partie molle du nez, pas l'os. Vérifier si ça a arrêté remet le compteur à zéro : tu attends vraiment 10 minutes."},
-    {t:"Gants et gaze de ton kit", d:"Tu ne touches pas du sang à mains nues, même cinq secondes, même « c'est juste un petit peu »."},
-    {t:"Tu appelles si…", d:"Ça dépasse 20 minutes, c'est arrivé après un coup à la tête, ou l'enfant prend un anticoagulant. Dans ces trois cas, tu ne gères plus seul."}
+    {t:"Tête vers l'AVANT, pas vers l'arrière", d:"On penche légèrement la tête vers l'avant pour que le sang s'écoule dehors plutôt que dans la gorge. La tête en arrière, c'est démodé."},
+    {t:"Pincer le haut des narines, 10 minutes, sans vérifier", d:"Dix minutes de pression continue. Ne relâche pas à la 4e minute pour voir — c'est exactement ce qui relance le saignement."},
+    {t:"Assis, pas couché", d:"Et le groupe reprend son activité pendant ce temps. Cet incident ne justifie pas d'arrêter le cours."},
+    {t:"Ça continue après 10 minutes ?", d:"On poursuit la pression au même endroit et on prévient un adulte responsable."}
   ],
-  piege:"Renverser la tête vers l'arrière. Le sang descend dans la gorge, l'enfant avale, l'enfant vomit — et tu viens de créer la situation n°1."
+  piege:"Laisser un autre enfant nettoyer les gouttes. Non. Sang = entretien."
 },
 {
-  id:'dent', titre:'Dent', icon:'i-smile', couleur:'cyan',
-  probleme:"Tu as environ 30 minutes : la dent se sauve ou se perd selon ce que tu fais dans la première minute.",
+  id:"dent", titre:"Dent", icon:"i-smile", couleur:"cyan",
+  probleme:"La marche à suivre est radicalement différente selon qu'il s'agit d'une dent de lait ou d'une dent permanente. Et à 8 ans, tu ne peux pas toujours savoir.",
   solutions:[
-    {t:"CODE OREILLE, puis tu récupères la dent", d:"Tu la prends par la couronne — la partie blanche. Jamais par la racine."},
-    {t:"Ne pas frotter, ne pas rincer à l'eau", d:"Du lait, de la salive ou du sérum physiologique. L'eau du robinet abîme les cellules de la racine."},
-    {t:"Dent de lait ≠ dent permanente", d:"Dent primaire : on ne la replace pas. Dent permanente : dentiste immédiatement, pendant que l'école appelle les parents et que tu gardes la dent au frais."},
-    {t:"Gaze mordue sur l'alvéole", d:"Pour l'hémorragie. L'enfant serre la gaze entre ses dents, assis, penché vers l'avant."}
+    {t:"Dent de lait : on ne la remet JAMAIS en place", d:"La racine touche le germe de la dent permanente. La réimplanter peut abîmer la dent définitive pour de bon."},
+    {t:"Dent permanente : le temps compte", d:"Elle se conserve dans du lait de préférence, sinon dans la salive. Jamais dans l'eau, jamais frottée."},
+    {t:"Dans le doute, conserve dans le lait et appelle", d:"Le lait ne nuit dans aucun des deux cas. C'est ta réponse par défaut."},
+    {t:"Compresse et parent, tout de suite", d:"Un morceau de gaze, l'enfant mord dessus, et tu appelles le parent — c'est lui qui décide de la suite avec un dentiste."}
   ],
-  piege:"Mettre la dent dans un mouchoir sec. Elle meurt en transport. Un Ziploc avec du lait, ça se trouve dans toutes les écoles du Québec."
+  piege:"Rincer la dent sous le robinet « pour la nettoyer ». Tu détruis les cellules qui permettraient de la sauver."
 },
 {
-  id:'guepes', titre:'Guêpes', icon:'i-bug', couleur:'yellow', exception:true,
-  probleme:"Une guêpe isolée pique un enfant. Un nid dérangé en pique quinze.",
+  id:"guepes", titre:"Guêpes", icon:"i-bug", couleur:"yellow", exception:true,
+  probleme:"La panique se propage plus vite que les guêpes, et un enfant qui court en hurlant en attire davantage. Seule exception de l'app : on ÉLOIGNE avant d'immobiliser.",
   solutions:[
-    {t:"Déplacer d'abord, oreille ensuite", d:"20 à 30 mètres, en marchant, sans courir ni frapper l'air. C'est SEULEMENT là que tu cries CODE OREILLE."},
-    {t:"Une seule consigne : on ne frappe pas", d:"Les gestes brusques déclenchent l'attaque. « Bras le long du corps, on marche » — répété, calme, en boucle."},
-    {t:"Les allergies se vérifient AVANT la sortie", d:"Qui a un auto-injecteur ? Où il est ? Qui sait s'en servir ? Ces trois réponses se prennent au départ, pas dans le boisé."},
-    {t:"Après la piqûre", d:"Retire le dard en grattant (carte, ongle), applique du froid, surveille 30 minutes. Respiration difficile, visage qui gonfle, urticaire diffuse → 911."}
+    {t:"Éloigner, pas immobiliser", d:"Ton mot-code devient une direction : « Tout le monde vers le terrain de soccer, on marche vite ! » On fait le code après, à 50 mètres."},
+    {t:"Marcher, ne pas frapper", d:"Les mouvements brusques aggravent. Tu le dis à voix forte et calme, et surtout tu le fais toi-même — ils t'imitent."},
+    {t:"Compter dès que vous êtes loin", d:"Le décompte est ta priorité une fois à distance, avant même de regarder les piqûres."},
+    {t:"Surveille l'allergie", d:"Difficulté à respirer, gonflement du visage ou des lèvres, plaques : c'est le 911 et l'auto-injecteur. Tu dois savoir avant la sortie qui en a un et où il est."}
   ],
-  piege:"Crier CODE OREILLE par réflexe. Quinze enfants assis immobiles à côté d'un nid, c'est une cible collective."
+  piege:"Retourner chercher un objet laissé sur place. Rien dans ce boisé ne vaut une deuxième vague."
 },
 {
-  id:'decompte', titre:'Décompte', icon:'i-users', couleur:'pink',
-  probleme:"Les 60 premières secondes décident de tout. Après, c'est la panique qui mène, et la panique compte mal.",
+  id:"decompte", titre:"Décompte", icon:"i-users", couleur:"pink",
+  probleme:"Neuf fois sur dix, c'est une erreur de comptage ou un enfant aux toilettes. Mais tu dois traiter la dixième fois correctement, et surtout vite.",
   solutions:[
-    {t:"CODE OREILLE total, puis tu recomptes", d:"Tout le monde assis, personne ne bouge. La moitié des « disparus » sont dans le groupe et se lèvent au deuxième décompte."},
-    {t:"Nom à voix haute, dernier endroit vu", d:"Tu demandes au groupe : qui l'a vu en dernier, et où exactement. Les enfants savent presque toujours."},
-    {t:"Tu ne pars pas chercher", d:"Tu restes avec le groupe, tu envoies un adulte. Un groupe laissé sans adulte, c'est un deuxième problème par-dessus le premier."},
-    {t:"Procédure du milieu à 5 minutes", d:"Pas à 20. Il vaut mieux annuler une alerte que la déclencher trop tard."}
+    {t:"Immobilise le groupe immédiatement", d:"Un groupe qui bouge est incomptable. Assis, en ligne, silence."},
+    {t:"Recompte par nom, pas par tête", d:"Tu appelles la liste. Les têtes bougent, les noms non. 40 secondes, et 90 % des fausses alertes tombent."},
+    {t:"Vérifie les trois classiques avant d'escalader", d:"Toilettes, fontaine, vestiaire. Tu envoies un adulte, pas un enfant."},
+    {t:"Escalade à la minute 2, pas à la minute 10", d:"Tu ne perds rien à alerter tôt et à annuler. Tu perds beaucoup à attendre par gêne."}
   ],
-  piege:"Recompter en marchant. Tu obtiens un chiffre différent à chaque essai et tu finis par ne plus croire ton propre décompte."
+  piege:"Continuer l'activité « pendant que je vérifie ». Non. Tout s'arrête tant que le compte n'est pas bon."
 },
 {
-  id:'blessure', titre:'Blessure', icon:'i-bandage', couleur:'orange',
-  probleme:"Ton premier réflexe décide si c'est une blessure ou une blessure aggravée — et déplacer un blessé, c'est le risque n°1.",
+  id:"blessure", titre:"Blessure", icon:"i-bandage", couleur:"orange",
+  probleme:"Ton cours de secourisme t'a formé pour un scénario à deux personnes. Le tien en a vingt-six.",
   solutions:[
-    {t:"CODE OREILLE, mais LOIN du blessé", d:"Les spectateurs empirent tout : le stress de l'enfant, l'espace de travail, ton attention."},
-    {t:"Tu ne déplaces pas", d:"Sauf danger immédiat. Tête, cou, dos, membre déformé : tu ne bouges rien, tu appelles."},
-    {t:"Tu observes et tu notes l'heure", d:"Mécanisme (comment c'est arrivé), ce que l'enfant dit, ce que tu vois. Ça sert au rapport et aux ambulanciers."},
-    {t:"Le groupe reprend une activité assise", d:"Un groupe occupé ne s'attroupe pas. Une activité calme, sur place, pendant que tu gères."}
+    {t:"CODE OREILLE avant de bouger", d:"Cinq secondes d'investissement. C'est le geste que personne ne fait et qui change tout."},
+    {t:"Agenouille-toi du bon côté", d:"Positionne-toi de façon à garder le groupe dans ton champ de vision. Ça ne coûte rien."},
+    {t:"Envoie deux enfants, jamais un", d:"Destination nommée et phrase à répéter : « blessure au gymnase, on a besoin d'un adulte. » Fais-la répéter avant qu'ils partent."},
+    {t:"Note cinq lignes dans les 30 minutes", d:"Heure, mécanisme, deux témoins, ce que tu as fait, qui a été prévenu. Ce n'est pas de la paperasse, c'est ta protection."}
   ],
-  piege:"Demander « es-tu correct ? » et accepter le oui. Un enfant de 8 ans dit oui pour ne pas déranger. Regarde — ne demande pas."
+  piege:"Trajet extérieur ou hors de vue pour les messagers. Dans ce cas, personne ne part — tu appelles toi-même."
 },
 {
-  id:'vetement', titre:'Vêtement déchiré', icon:'i-scissors', couleur:'cyan',
-  probleme:"Un pantalon fendu, ce n'est pas un problème de tissu, c'est un problème de regards.",
+  id:"vetement", titre:"Vêtement déchiré", icon:"i-scissors", couleur:"cyan",
+  probleme:"Urgence de dignité, zéro urgence de santé. Ta vitesse de réaction est tout.",
   solutions:[
-    {t:"CODE OREILLE, et tu donnes un point de fuite", d:"L'enfant se place dos au mur ou s'assoit — avant même que tu aies dit un mot sur la déchirure."},
-    {t:"Le rouleau de tape", d:"Il répare 90 % des déchirures assez bien pour finir la journée. C'est pour ça qu'il est dans le kit."},
-    {t:"Chandail noué à la taille", d:"La solution la plus rapide et la plus discrète. Le tien, s'il le faut."},
-    {t:"Zéro commentaire, zéro rire d'adulte", d:"Le ton que tu donnes est celui que le groupe copie. Si tu trouves ça banal, ils trouvent ça banal."}
+    {t:"Ton chandail. Immédiatement", d:"Autour de la taille, noué. Deux secondes, et le problème visuel disparaît."},
+    {t:"Diversion sonore, comme pour le pipi", d:"« Tout le monde debout, 20 sauts ! » Personne ne regarde."},
+    {t:"Ruban adhésif de gymnase", d:"Le rouleau de tape dans ton bureau règle plus de crises vestimentaires que tu ne le crois."},
+    {t:"Ne fais pas de blague", d:"Même une gentille. Surtout pas devant le groupe. Tu es la seule personne à qui l'enfant fait confiance sur ce coup-là."}
   ],
-  piege:"Envoyer l'enfant se changer seul en traversant la cour. Tu prolonges l'exposition au lieu de la couper."
+  piege:"L'envoyer s'asseoir sur le banc « en attendant ». Tu viens de créer une exposition prolongée. Règle et remets en jeu."
 },
 {
-  id:'fourire', titre:'Fou rire', icon:'i-laugh', couleur:'yellow',
-  probleme:"Ce n'est pas de l'insolence, c'est une contagion nerveuse : tu ne peux pas la punir, tu peux seulement la couper.",
+  id:"fourire", titre:"Fou rire", icon:"i-laugh", couleur:"yellow",
+  probleme:"Tu ne peux pas gagner par autorité. Réprimer un fou rire collectif, c'est l'alimenter.",
   solutions:[
-    {t:"CODE OREILLE", d:"Assis, mains vides, point fixe. Le fou rire a besoin de mouvement et de regards croisés — tu lui enlèves les deux."},
-    {t:"Sépare les yeux, pas les corps", d:"Deux enfants qui se regardent se relancent à l'infini. Tu les tournes. Tu ne les punis pas."},
-    {t:"30 secondes de silence, pas 5 minutes de sermon", d:"Le rire nerveux s'éteint tout seul si personne ne l'alimente. Ton sermon, c'est du carburant."},
-    {t:"Repars avec une consigne physique", d:"Courir, sauter, transporter. Le corps évacue ce que la parole entretient."}
+    {t:"Ris trois secondes avec eux", d:"Franchement. Un fou rire partagé s'éteint; un fou rire interdit dure vingt minutes."},
+    {t:"Puis change le canal physique", d:"Pas « on se calme » — une consigne motrice absorbante : course, transport de ballon, défi chronométré. Le corps ramène la tête."},
+    {t:"Baisse le volume au lieu de le monter", d:"Parle plus bas. Ils doivent se taire pour t'entendre. Ça fonctionne à peu près toujours."},
+    {t:"Accepte la perte de 90 secondes", d:"Ce n'est pas un échec de gestion de classe. C'est un mardi."}
   ],
-  piege:"Réagir avec colère. Un fou rire nourri par la réaction d'un adulte devient un affrontement — et là, tu as perdu le groupe pour la période."
+  piege:"Faire de l'enfant à l'origine du bruit un exemple. Tu transformes une anecdote de deux minutes en surnom de trois ans."
+},
+{
+  id:"intrus", titre:"Adulte inconnu", icon:"i-users", couleur:"pink", urgence:true,
+  probleme:"Tu es le seul témoin, et tu ne peux pas quitter vingt-cinq enfants pour aller vérifier qui c'est. Neuf fois sur dix c'est un parent perdu — c'est la dixième qui justifie la règle.",
+  solutions:[
+    {t:"Tu ne quittes pas ton groupe. Jamais", d:"C'est le principe qui ne bouge pas. Tout le reste se fait depuis ta position."},
+    {t:"Place-toi entre l'adulte et le groupe", d:"Rien d'agressif : tu te déplaces, c'est tout. Et tu gardes tes élèves dans ton champ de vision."},
+    {t:"Pose la question qui règle 90 % des cas", d:"« Vous vous êtes présenté au secrétariat ? » Au Québec, toute personne qui entre dans une école doit s'identifier. Un parent légitime répond oui, ou y va."},
+    {t:"Appelle, ne raccompagne pas", d:"Escorter, c'est laisser ton groupe. Tu appelles le secrétariat, tu donnes une description, tu continues."}
+  ],
+  piege:"Décider que « ça avait l'air correct » et ne rien signaler. Le signalement ne coûte rien et permet de recouper deux visites de la même personne.",
+  note:"Menace réelle ? Ce n'est plus le mot-code, c'est le protocole de confinement de ton école (PRES). Sache avant septembre où est ton point de confinement."
+},
+{
+  id:"fracture", titre:"Membre cassé", icon:"i-bandage", couleur:"orange", urgence:true,
+  probleme:"Ton réflexe sera de manipuler « pour voir si c'est cassé ». C'est exactement le geste à ne pas faire.",
+  solutions:[
+    {t:"CODE OREILLE d'abord", d:"Cinq secondes pour poser le groupe, sinon tu gères à l'aveugle."},
+    {t:"Immobilise dans la position trouvée", d:"On immobilise pour ne pas aggraver. Tu ne redresses rien, tu ne testes pas la mobilité."},
+    {t:"Froid, 20 minutes par heure", d:"Glace ou bloc réfrigérant, jamais directement sur la peau. Fracture fermée seulement."},
+    {t:"Os visible, tête, cou ou dos : 911", d:"On ne nettoie pas la plaie, on n'appuie pas sur l'os. L'enfant reste à jeun — il y a peut-être une chirurgie au bout."}
+  ],
+  piege:"« Bouge-le un peu, pour voir. » Tu viens peut-être de transformer une fracture simple en fracture déplacée.",
+  note:"Source : Naître et grandir, L'enfant qui s'est fracturé un os."
+},
+{
+  id:"hypo", titre:"Hypoglycémie", icon:"i-droplet", couleur:"cyan", urgence:true,
+  probleme:"Chez un enfant diabétique, pâleur + tremblements + confusion, c'est une hypoglycémie. Ton réflexe habituel — « va au secrétariat » — est ici la mauvaise réponse.",
+  solutions:[
+    {t:"Traite sur place. Tu ne l'envoies nulle part", d:"On traite l'hypoglycémie à l'endroit où elle se produit, et on ne laisse jamais l'élève seul. Le faire marcher peut faire chuter sa glycémie davantage."},
+    {t:"Le sucre rapide est dans SA trousse", d:"Jus, comprimés de glucose, bonbons, selon son plan de soins. Sa trousse doit être au gymnase avec lui, pas dans son casier."},
+    {t:"Ancre le groupe et envoie un adulte", d:"Tu restes avec lui pendant que quelqu'un d'autre alerte."},
+    {t:"Il ne réagit plus, il convulse : 911", d:"Urgence médicale. Rien par la bouche à un enfant qui ne réagit pas."}
+  ],
+  piege:"Croire qu'un élève autonome va s'en occuper seul. Même un enfant qui gère bien son diabète peut avoir besoin d'aide — le jugement part en premier.",
+  note:"Source : Le diabète à l'école (Diabète Canada). Sache dès le premier cours qui est diabétique et où est sa trousse."
+},
+{
+  id:"inconscient", titre:"Ne réagit pas", icon:"i-bandage", couleur:"pink", urgence:true,
+  probleme:"C'est la seule situation où le groupe passe vraiment en second. Et c'est celle où tu as le plus besoin qu'il soit déjà ancré.",
+  solutions:[
+    {t:"Vérifie la réaction : tape l'épaule, parle fort", d:"« Est-ce que ça va ? » Premier geste enseigné en RCR, et celui qu'on saute quand on panique."},
+    {t:"Deux personnes, deux missions, nommées à voix haute", d:"« Toi, le 911. Toi, le défibrillateur. » Pointer quelqu'un du doigt élimine l'effet spectateur."},
+    {t:"Pas de respiration, ou halètements : RCR immédiatement", d:"30 compressions, 2 insufflations, et tu répètes jusqu'à ce qu'il respire ou que les secours arrivent."},
+    {t:"Il respire et revient à lui : position latérale de sécurité", d:"Elle garde ses voies respiratoires ouvertes en attendant les secours."}
+  ],
+  piege:"Ancrer le groupe et rester seul avec lui sur les bras. Ici tu délègues : le premier adulte qui arrive prend le groupe et le sort.",
+  note:"Source : AboutKidsHealth (SickKids). Ces gestes ne remplacent pas une formation RCR à jour."
 }
 ];
 
@@ -522,10 +572,15 @@ function renderFiche(id){
   const s = SITUATIONS[i];
   $('#fiche-body').innerHTML = `
     <div class="banner b-${s.couleur}"><h2>${esc(s.titre)}</h2></div>
+    ${s.urgence ? `
+    <div class="box box-alerte">
+      <h3><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg> Ce n'est plus ordinaire</h3>
+      <p>Ici, le problème <strong>est</strong> l'incident, pas le groupe. Le mot-code ne sert qu'à te libérer les mains. <strong>En cas d'urgence vitale : 911.</strong></p>
+    </div>` : ''}
     ${s.exception ? `
     <div class="box box-alerte">
       <h3><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg> Exception</h3>
-      <p>La seule des 10 : ici tu <strong>ÉLOIGNES le groupe AVANT de crier CODE OREILLE</strong>. Dans les neuf autres situations, c'est l'inverse — l'oreille d'abord.</p>
+      <p>La seule de toutes : ici tu <strong>ÉLOIGNES le groupe AVANT de crier CODE OREILLE</strong>. Partout ailleurs c'est l'inverse — l'oreille d'abord.</p>
     </div>` : ''}
     <div class="box box-probleme">
       <h3>Le vrai problème</h3>
@@ -539,7 +594,12 @@ function renderFiche(id){
     <div class="box box-piege">
       <h3><svg class="ico" aria-hidden="true"><use href="#i-alert"/></svg> Le piège</h3>
       <p>${esc(s.piege)}</p>
-    </div>`;
+    </div>
+    ${s.note ? `
+    <div class="box box-note">
+      <h3>À savoir</h3>
+      <p>${esc(s.note)}</p>
+    </div>` : ''}`;
   show('fiche');
   window.scrollTo({top:0,behavior:'instant'});
 }
