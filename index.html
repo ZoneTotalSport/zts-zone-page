@@ -75,14 +75,14 @@
 }
 </script>
 
-<!-- POLICES GOOGLE FONTS : Combo Luckiest Guy + Bangers + Fredoka + Quicksand + Caveat -->
+<!-- POLICES : Luckiest Guy et Bangers pour ce qui s'affiche, Quicksand pour
+     ce qui se lit. La police de marque (ZoneTotalSport) vient de
+     shared/zts-modele.css, servie depuis /fonts/. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- DESIGN SYSTEM PARTAGÉ (header/footer unifiés). Chargé AVANT le style
      inline : la home garde la priorité sur les conflits de base. -->
@@ -124,11 +124,28 @@
     --accent-tint: rgba(26,26,46,0.06);
 
     /* FAMILLES DE POLICES */
-    --font-impact: 'Luckiest Guy', 'Impact', sans-serif;    /* Gros titres */
-    --font-bang:   'Bangers', 'Impact', cursive;             /* Sous-titres + callouts */
-    --font-fun:    'Fredoka', 'Helvetica Neue', sans-serif;  /* UI / sous-titres calmes */
-    --font-body:   'Quicksand', 'Helvetica Neue', sans-serif;/* Corps de texte */
-    --font-hand:   'Caveat', cursive;                        /* Accents manuscrits */
+    /* TROIS POLICES D'AFFICHAGE, UNE POLICE DE LECTURE — décision de Joey du
+       4 août 2026. La page en comptait NEUF : cinq chargées (Luckiest Guy,
+       Bangers, Fredoka, Quicksand, Caveat) et quatre appelées en dur SANS
+       jamais être chargées — Swanky and Moo Moo, Patrick Hand, Fredoka One et
+       Georgia retombaient donc sur des polices système, différentes d'un poste
+       à l'autre. C'est une bonne part de l'incohérence qu'on voyait à l'écran.
+
+       Ne restent que les trois polices de la marque pour tout ce qui s'affiche
+       — titres, étiquettes, boutons — et Quicksand pour ce qui se lit.
+       Luckiest Guy, Bangers et ZoneTotalSport sont des fontes d'affichage : un
+       paragraphe de règles de jeu composé dedans devient pénible à lire, d'où
+       la police de lecture qu'on garde à côté.
+
+       `--font-fun` et `--font-hand` sont conservés comme ALIAS plutôt que
+       supprimés : ils sont appelés à 29 endroits de la page. Les faire pointer
+       ici évite 29 remplacements et garde un seul point de vérité. */
+    --font-impact: 'Luckiest Guy', 'Impact', sans-serif;     /* Gros titres */
+    --font-bang:   'Bangers', 'Impact', cursive;             /* Étiquettes, boutons */
+    --font-marque: 'ZoneTotalSportZTSP', 'Luckiest Guy', sans-serif; /* Signature */
+    --font-body:   'Quicksand', 'Helvetica Neue', sans-serif;/* La seule à lire */
+    --font-fun:    var(--font-body);                         /* alias */
+    --font-hand:   var(--font-body);                         /* alias */
   }
 
   html { scroll-behavior: smooth; }
@@ -1326,215 +1343,16 @@
      La trame de points propre à la section (`::before`) part avec le fond :
      elle doublait celle du décor. Le texte reste blanc, le marine est aussi
      sombre que l'était le dégradé. */
-  .menu-jour {
-    color: white;
-    padding: 60px 32px;
-    margin: 40px 0;
-    position: relative;
-  }
-  .menu-jour-inner {
-    max-width: 1280px; margin: 0 auto;
-    position: relative; z-index: 1;
-  }
-  /* `.pill-top` et `.menu-jour h2` SUPPRIMÉES le 4 août 2026. L'étiquette est
-     maintenant `.ztsp-eyebrow` et le titre `.ztsp-sectitre` — les valeurs
-     vivent au patron, plus en trois copies dans la page. La pilule
-     `border-radius:999px` était de toute façon dépréciée (CLAUDE.md). */
-  .menu-jour-head { text-align: center; margin-bottom: 50px; }
-  .menu-jour .date {
-    font-family: var(--ztsp-f-note);
-    font-size: 20px;
-    color: var(--ztsp-cyan-vif);
-  }
-  .menu-jour-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
   /* Le blanc à 4 % suffisait sur l'ancien dégradé uni. Sur le décor du patron
      il laisse passer les rayons et la trame DERRIÈRE le texte de la carte :
      le fond bouge lentement sous les mots. On repasse à un marine dense — la
      carte redevient une surface, pas une vitre. Les couleurs internes
      (cyan, jaune) restent celles d'un fond sombre, rien d'autre à reprendre. */
-  .menu-jour-card {
-    background: rgba(8,19,30,0.55);
-    border: 2px solid rgba(255,255,255,0.14);
-    border-radius: 22px;
-    padding: 32px;
-    backdrop-filter: blur(8px);
-    transition: transform 0.25s ease, border-color 0.2s ease;
-  }
-  .menu-jour-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255,255,255,0.3);
-  }
-  .menu-jour-card h3 {
-    font-family: var(--font-bang);
-    font-size: 22px;
-    letter-spacing: 0.04em;
-    margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .menu-jour-card.meteo h3 { color: var(--cyan); }
-  .menu-jour-card.jeu h3   { color: var(--jaune); }
-  .menu-jour-card.defi h3  { color: var(--vert); }
 
-  .menu-jour-card .meteo-temp {
-    display: flex; align-items: center; gap: 14px;
-    font-family: var(--font-impact);
-    font-size: 52px;
-    color: var(--cyan);
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-  .menu-jour-card .meteo-temp .icon { font-size: 56px; }
-  .menu-jour-card .meteo-loc {
-    font-family: var(--font-fun);
-    font-size: 15px;
-    color: rgba(255,255,255,0.7);
-    margin-bottom: 14px;
-  }
-  .menu-jour-card .meteo-tag {
-    display: inline-block;
-    background: var(--vert);
-    color: var(--ink);
-    padding: 10px 18px;
-    border-radius: 12px;
-    font-family: var(--font-impact);
-    font-size: 18px;
-    letter-spacing: 0.02em;
-    margin-bottom: 18px;
-  }
-  .menu-jour-card .meteo-note {
-    font-family: var(--font-fun);
-    font-size: 14px;
-    color: rgba(255,255,255,0.65);
-    margin-bottom: 16px;
-  }
-  .menu-jour-card .suggestions-title {
-    font-family: var(--font-bang);
-    font-size: 14px;
-    color: var(--orange);
-    letter-spacing: 0.05em;
-    margin-bottom: 10px;
-  }
-  .menu-jour-card .suggestions-list {
-    list-style: none;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: rgba(255,255,255,0.85);
-  }
-  .menu-jour-card .suggestions-list li {
-    padding: 6px 0 6px 38px;
-    position: relative;
-    margin-bottom: 4px;
-  }
-  .menu-jour-card .suggestions-list .cyc {
-    position: absolute;
-    left: 0; top: 5px;
-    font-family: var(--font-impact);
-    background: var(--cyan);
-    color: var(--ink);
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-  }
-  .menu-jour-card .suggestions-list li:nth-child(2) .cyc { background: var(--orange); color: white; }
-  .menu-jour-card .suggestions-list li:nth-child(3) .cyc { background: #BA68C8; color: white; }
-  .menu-jour-card .suggestions-list .name { font-weight: 700; color: white; }
-  .menu-jour-card .suggestions-list .desc { font-size: 13px; color: rgba(255,255,255,0.6); display: block; margin-top: 2px; }
 
   /* Jeu du jour */
-  .menu-jour-card .jeu-tag {
-    display: inline-block;
-    background: var(--jaune);
-    color: var(--ink);
-    border: 2px solid var(--ink);
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-family: var(--font-bang);
-    font-size: 13px;
-    margin-bottom: 14px;
-  }
-  .menu-jour-card .jeu-name {
-    display: flex; align-items: center; gap: 10px;
-    font-family: var(--font-impact);
-    font-size: 38px;
-    color: var(--jaune);
-    line-height: 1;
-    margin-bottom: 14px;
-  }
-  .menu-jour-card .small-head {
-    font-family: var(--font-bang);
-    font-size: 13px;
-    color: rgba(255,255,255,0.55);
-    letter-spacing: 0.06em;
-    margin-bottom: 6px;
-  }
-  .menu-jour-card .jeu-desc {
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: rgba(255,255,255,0.85);
-    line-height: 1.5;
-    margin-bottom: 14px;
-  }
-  .menu-jour-card .tags-row {
-    display: flex; gap: 6px; flex-wrap: wrap;
-    margin-bottom: 18px;
-  }
-  .menu-jour-card .tags-row span {
-    background: rgba(0,229,255,0.15);
-    color: var(--cyan);
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-family: var(--font-fun);
-    font-size: 12px;
-    font-weight: 700;
-  }
-  .menu-jour-card .voir-tous {
-    display: block;
-    background: var(--cyan);
-    color: var(--ink);
-    padding: 12px;
-    border-radius: 12px;
-    font-family: var(--font-impact);
-    font-size: 15px;
-    text-align: center;
-    text-decoration: none;
-    border: 2px solid var(--ink);
-    transition: gap 0.2s ease;
-  }
-  .menu-jour-card .voir-tous:hover { background: white; }
 
   /* Défi du jour */
-  .menu-jour-card .defi-tag {
-    display: inline-block;
-    background: linear-gradient(90deg, var(--rose), #B83280);
-    color: white;
-    border: 2px solid var(--ink);
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-family: var(--font-bang);
-    font-size: 13px;
-    margin-bottom: 14px;
-  }
-  .menu-jour-card .defi-name {
-    font-family: var(--font-impact);
-    font-size: 30px;
-    color: var(--rose);
-    line-height: 1;
-    margin-bottom: 14px;
-  }
-  .menu-jour-card .defi-box {
-    background: linear-gradient(120deg, rgba(255,45,135,0.18), rgba(186,104,200,0.18));
-    border: 2px solid rgba(255,45,135,0.4);
-    border-radius: 12px;
-    padding: 14px;
-    font-family: var(--font-body);
-    font-size: 14px;
-    color: white;
-    margin-top: 8px;
-  }
 
   /* ============ PAUSE SYNDICALE - BOUTON FLOTTANT ============ */
   .pause-syndicale-btn {
@@ -2139,7 +1957,7 @@
     font-size: 240px;
     color: var(--accent);
     opacity: 0.3;
-    font-family: Georgia, serif;
+    font-family: var(--font-body);
     line-height: 1;
   }
   .temoignage .avatar {
@@ -2796,8 +2614,8 @@
 <!-- SÉRIES SPORTIVES - colonne flottante à gauche -->
 <!-- DOCK DES SÉRIES — retiré le 3 août 2026, tournoi terminé.
      LNH et NBA en étaient déjà sortis le 6 juillet pour la même raison ; FIFA
-     restait seul. La page /apps-fifa/ reste en ligne (SEO), comme les deux
-     autres — seule la carte de l'accueil part. -->
+     restait seul. Les cinq pages sportives ont ete supprimees le 4 aout ; il
+     ne reste a leurs URL qu'une page de redirection vers l'accueil. -->
 
   <!-- LE DOCK DES SÉRIES SPORTIVES EST ENTIÈREMENT PARTI — 4 août 2026.
        Le dock avait été retiré le 3 août, mais sa modale, ses ~250 lignes de
@@ -2903,57 +2721,21 @@
 </section>
 
 <!-- SECTION AUJOURD'HUI AU MENU (adaptée par métier via JS) -->
-<section class="menu-jour" id="menuJour">
-  <div class="menu-jour-inner">
-    <div class="menu-jour-head">
-      <span class="ztsp-eyebrow" data-i18n="menu.pill">✨ AUJOURD'HUI AU MENU</span>
-      <h2 class="ztsp-sectitre" id="menuJourTitre">Ton cours ÉPS prêt en 30 secondes</h2>
-      <div class="ztsp-sectrait" aria-hidden="true"></div>
-      <div class="date" id="menuJourDate"></div>
-      <script>/* date du jour : robuste + isolée des autres <script> (s'affiche même si le reste du JS plante) */(function(){try{var el=document.getElementById('menuJourDate');if(!el)return;var n=new Date();var en=(typeof ztsLang!=='undefined'&&ztsLang==='en');var d=n.toLocaleDateString(en?'en-CA':'fr-CA',{weekday:'long',day:'numeric',month:'long'});el.textContent=d.charAt(0).toUpperCase()+d.slice(1);}catch(e){}})();</script>
-    </div>
+  <!-- SECTION « AUJOURD'HUI AU MENU » SUPPRIMÉE — 4 août 2026, signalée par
+       Joey. Elle affichait Météo & plan / Jeu du jour / Défi du jour, soit
+       exactement les trois cartes de « Ton inspiration du jour » plus bas.
+       Les deux partageaient jusqu'aux MÊMES clés i18n (`menu.jeu_head`,
+       `menu.defi_head`) et montraient deux jeux et deux défis différents le
+       même jour — le site se contredisait à trois écrans d'intervalle.
 
-    <div class="menu-jour-grid">
+       C'est celle-ci qui part : l'autre est plus riche (suggestions par
+       cycle, éphéméride, vent) et vient de `daily.js`, source unique déjà
+       en place. Partent avec elle `MENU_JOUR`, `MENU_JOUR_EN` et
+       `renderMenuJour()`, qui ne servaient qu'à elle, plus 195 lignes de CSS.
 
-      <!-- MÉTÉO & PLAN -->
-      <div class="menu-jour-card meteo">
-        <h3 data-i18n="menu.meteo_head">☁️ MÉTÉO & PLAN</h3>
-        <div class="meteo-temp"><span class="icon">🌤️</span>—</div>
-        <div class="meteo-loc">Saint-Jean-sur-Richelieu</div>
-        <div class="meteo-tag" id="meteoTag">MÉTÉO</div>
-        <div class="meteo-note" id="meteoNote">Chargement…</div>
-        <div class="suggestions-title" id="suggTitle">★ SUGGESTIONS PAR CYCLE</div>
-        <ul class="suggestions-list" id="suggList">
-          <!-- Injecté en JS selon métier -->
-        </ul>
-      </div>
-
-      <!-- JEU DU JOUR -->
-      <div class="menu-jour-card jeu">
-        <h3 data-i18n="menu.jeu_head">🎮 JEU DU JOUR</h3>
-        <span class="jeu-tag" id="jeuTag">🏫 POUR LE GYMNASE</span>
-        <div class="jeu-name"><span>🏐</span><span id="jeuName">KINBALL</span></div>
-        <div class="small-head" data-i18n="menu.how_to_play">COMMENT JOUER</div>
-        <p class="jeu-desc" id="jeuDesc">Trois équipes de 4 joueurs avec un ballon géant. Une équipe nomme une couleur et frappe le ballon. L'équipe nommée doit l'attraper avant qu'il touche le sol.</p>
-        <div class="tags-row" id="jeuTags">
-          <span>Équipe</span><span>2e-3e cycle</span><span>Ballon géant</span>
-        </div>
-        <a class="voir-tous" id="voirTous" href="/jeux/" data-i18n="menu.see_games">VOIR 1400+ JEUX →</a>
-      </div>
-
-      <!-- DÉFI DU JOUR -->
-      <div class="menu-jour-card defi">
-        <h3 data-i18n="menu.defi_head">💪 DÉFI DU JOUR</h3>
-        <span class="defi-tag" id="defiTag">🏫 EN CLASSE & 🏠 À LA MAISON</span>
-        <div class="defi-name" id="defiName">COMPLIMENT CHAÎNE</div>
-        <p style="font-family: var(--font-body); color: rgba(255,255,255,0.85); font-size: 15px; margin-bottom: 12px;" id="defiDesc">Chacun complimente son voisin. Le voisin continue.</p>
-        <div class="small-head" data-i18n="menu.todo">À FAIRE AUJOURD'HUI</div>
-        <div class="defi-box" id="defiBox">Cercle de fin : un compliment de droite à gauche.</div>
-      </div>
-
-    </div>
-  </div>
-</section>
+       `updateMenuJourWeather()` de daily.js visait ses champs météo. Ses
+       gardes `if (tag)` l'empêchaient de planter, mais elle n'avait plus
+       rien à écrire : retirée là-bas aussi. -->
 
 <!-- ========== PLANIFICATEUR — carte-lien =====================================
      Décision de Joey du 4 août 2026 : le calendrier de présences quitte
@@ -3079,7 +2861,8 @@
 <!-- ========== SECTION "AUJOURD'HUI" (Jeu + Météo + Défi) — trafic récurrent ========== -->
 <style>
     /* FOND RETIRÉ le 4 août 2026 (chantier patron) — même raison que
-       `.menu-jour` : un dégradé opaque sur 1704 px qui coupait le décor.
+       l'ancienne section « au menu » : un dégradé opaque de 1704 px qui coupait
+       le décor.
        Les deux halos radiaux du `::before` partaient avec, ils ne se lisaient
        plus une fois le fond transparent. */
     #ztsTodaySection { padding: 60px 20px; position: relative; }
@@ -3088,37 +2871,37 @@
        remplacées par `.ztsp-eyebrow--rose` et `.ztsp-sectitre`. */
     .zts-today-date { font-family: var(--ztsp-f-note); color: var(--ztsp-cyan-vif); font-size: 1.3rem; margin-top: 10px; }
     #ztsTodayGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 28px; position: relative; }
-    /* Même correction que `.menu-jour-card` : sans fond dense, les rayons du
+    /* Sans fond dense, les rayons du
        décor tournent derrière le texte de la carte. */
     .zts-today-card { background: rgba(8,19,30,0.55); border: 3px solid rgba(0,229,255,0.28); border-radius: 28px; padding: 32px 28px; backdrop-filter: blur(8px); transition: all 0.3s; }
     .zts-today-card:hover { transform: translateY(-6px); border-color: rgba(0,229,255,0.55); box-shadow: 0 14px 50px rgba(0,229,255,0.25); }
-    .zts-today-label { font-family: 'Luckiest Guy', cursive; color: #00E5FF; font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 18px; text-transform: uppercase; }
-    .zts-today-body { color: #fff; font-family: 'Patrick Hand', cursive; font-size: 1.3rem; line-height: 1.55; }
-    .zts-today-weather-big { font-family: 'Luckiest Guy', cursive; font-size: 3.8rem; color: #00E5FF; margin-bottom: 6px; line-height: 1; }
+    .zts-today-label { font-family: var(--font-impact); color: #00E5FF; font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 18px; text-transform: uppercase; }
+    .zts-today-body { color: #fff; font-family: var(--font-body); font-size: 1.3rem; line-height: 1.55; }
+    .zts-today-weather-big { font-family: var(--font-impact); font-size: 3.8rem; color: #00E5FF; margin-bottom: 6px; line-height: 1; }
     .zts-today-weather-label { font-size: 1.35rem; color: #fff; opacity: 0.85; margin-bottom: 6px; }
     .zts-today-weather-details { font-size: 1.15rem; color: #fff; opacity: 0.65; margin-bottom: 18px; }
-    .zts-today-decision { display: inline-block; padding: 12px 26px; border-radius: 14px; font-family: 'Luckiest Guy', cursive; letter-spacing: 1.5px; color: #fff; margin-bottom: 10px; font-size: 1.5rem; }
+    .zts-today-decision { display: inline-block; padding: 12px 26px; border-radius: 14px; font-family: var(--font-impact); letter-spacing: 1.5px; color: #fff; margin-bottom: 10px; font-size: 1.5rem; }
     .zts-today-reason { font-size: 1.1rem; color: #fff; opacity: 0.8; }
     .zts-today-cycles { margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(0,229,255,0.2); }
-    .zts-today-cycle-label { font-family: 'Luckiest Guy', cursive; font-size: 0.95rem; letter-spacing: 1.5px; color: #FFEA00; margin-bottom: 10px; }
+    .zts-today-cycle-label { font-family: var(--font-impact); font-size: 0.95rem; letter-spacing: 1.5px; color: #FFEA00; margin-bottom: 10px; }
     .zts-today-cycle-item { font-size: 1rem; line-height: 1.4; color: #fff; margin-bottom: 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
-    .zts-today-cycle-item strong { color: #00E5FF; font-family: 'Fredoka One', cursive; }
-    .zts-today-cycle-badge { display: inline-block; font-family: 'Luckiest Guy', cursive; letter-spacing: 1px; color: #fff; padding: 3px 10px; border-radius: 10px; font-size: 0.85rem; flex-shrink: 0; }
+    .zts-today-cycle-item strong { color: #00E5FF; font-family: var(--font-impact); }
+    .zts-today-cycle-badge { display: inline-block; font-family: var(--font-impact); letter-spacing: 1px; color: #fff; padding: 3px 10px; border-radius: 10px; font-size: 0.85rem; flex-shrink: 0; }
     .zts-today-cycle-badge.c1 { background: #10B981; }
     .zts-today-cycle-badge.c2 { background: #F59E0B; }
     .zts-today-cycle-badge.c3 { background: #8B5CF6; }
-    .zts-today-context-badge { display: inline-block; font-family: 'Luckiest Guy', cursive; letter-spacing: 1.5px; padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; margin-bottom: 14px; border: 2px solid; }
+    .zts-today-context-badge { display: inline-block; font-family: var(--font-impact); letter-spacing: 1.5px; padding: 8px 16px; border-radius: 12px; font-size: 0.95rem; margin-bottom: 14px; border: 2px solid; }
     .zts-today-context-gym { background: rgba(255,234,0,0.18); color: #FFEA00; border-color: #FFEA00; }
     .zts-today-context-classroom { background: rgba(255,42,122,0.15); color: #FF6B9D; border-color: #FF2A7A; }
-    .zts-today-section-label { font-family: 'Luckiest Guy', cursive; letter-spacing: 1.5px; color: rgba(255,255,255,0.55); font-size: 0.9rem; margin: 14px 0 6px; text-transform: uppercase; }
-    .zts-today-game-title { font-family: 'Luckiest Guy', cursive; color: #FFEA00; font-size: 2rem; margin-bottom: 14px; letter-spacing: 0.8px; line-height: 1.15; }
+    .zts-today-section-label { font-family: var(--font-impact); letter-spacing: 1.5px; color: rgba(255,255,255,0.55); font-size: 0.9rem; margin: 14px 0 6px; text-transform: uppercase; }
+    .zts-today-game-title { font-family: var(--font-impact); color: #FFEA00; font-size: 2rem; margin-bottom: 14px; letter-spacing: 0.8px; line-height: 1.15; }
     .zts-today-game-desc { font-size: 1.2rem; margin-bottom: 16px; }
     .zts-today-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .zts-today-tag { background: rgba(0,229,255,0.18); color: #00E5FF; padding: 6px 14px; border-radius: 10px; font-size: 1rem; font-family: 'Fredoka One', cursive; }
-    .zts-today-cta { background: linear-gradient(135deg, #00E5FF, #0096C7); color: #0F0F2E; border: none; padding: 14px 22px; border-radius: 14px; font-family: 'Luckiest Guy', cursive; letter-spacing: 1.5px; cursor: pointer; font-size: 1.2rem; transition: all 0.2s; width: 100%; }
+    .zts-today-tag { background: rgba(0,229,255,0.18); color: #00E5FF; padding: 6px 14px; border-radius: 10px; font-size: 1rem; font-family: var(--font-impact); }
+    .zts-today-cta { background: linear-gradient(135deg, #00E5FF, #0096C7); color: #0F0F2E; border: none; padding: 14px 22px; border-radius: 14px; font-family: var(--font-impact); letter-spacing: 1.5px; cursor: pointer; font-size: 1.2rem; transition: all 0.2s; width: 100%; }
     .zts-today-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,229,255,0.5); }
-    .zts-today-eph-title { font-family: 'Luckiest Guy', cursive; color: #FF2A7A; font-size: 1.85rem; margin-bottom: 14px; line-height: 1.2; }
-    .zts-today-year { background: #FF2A7A; color: #fff; padding: 4px 12px; border-radius: 8px; font-size: 1.2rem; font-family: 'Fredoka One'; margin-right: 6px; }
+    .zts-today-eph-title { font-family: var(--font-impact); color: #FF2A7A; font-size: 1.85rem; margin-bottom: 14px; line-height: 1.2; }
+    .zts-today-year { background: #FF2A7A; color: #fff; padding: 4px 12px; border-radius: 8px; font-size: 1.2rem; font-family: var(--font-impact); margin-right: 6px; }
     .zts-today-eph-desc { font-size: 1.2rem; margin-bottom: 16px; }
     .zts-today-eph-activity { background: rgba(255,42,122,0.12); border-left: 4px solid #FF2A7A; padding: 16px 18px; border-radius: 12px; font-size: 1.15rem; line-height: 1.5; }
     @media (max-width: 640px) {
@@ -3141,21 +2924,21 @@
     #ztsPauseGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; position: relative; }
     .zts-pause-card { background: #fff; border-radius: 24px; padding: 32px 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 4px solid #18181b; position: relative; transition: transform 0.3s; }
     .zts-pause-card:hover { transform: translateY(-4px) rotate(-0.5deg); }
-    .zts-pause-label { font-family: 'Luckiest Guy', cursive; font-size: 1rem; letter-spacing: 2px; color: #FF2A7A; margin-bottom: 18px; }
+    .zts-pause-label { font-family: var(--font-impact); font-size: 1rem; letter-spacing: 2px; color: #FF2A7A; margin-bottom: 18px; }
     .zts-pause-quiz .zts-pause-label { color: #8B5CF6; }
-    .zts-pause-quote-text { font-family: 'Swanky and Moo Moo', cursive; font-size: 1.7rem; color: #18181b; line-height: 1.3; letter-spacing: 1.2px; }
-    .zts-pause-author { font-family: 'Swanky and Moo Moo', cursive; color: #8B5CF6; font-size: 1.3rem; margin-top: 16px; letter-spacing: 2px; text-align: right; }
-    .zts-pause-question { font-family: 'Swanky and Moo Moo', cursive; font-size: 1.5rem; color: #18181b; margin-bottom: 20px; line-height: 1.25; letter-spacing: 1.2px; }
-    .zts-pause-fact-text { font-family: 'Swanky and Moo Moo', cursive; font-size: 1.5rem; color: #18181b; line-height: 1.3; letter-spacing: 1.2px; }
-    .zts-pause-fact-date { font-family: 'Swanky and Moo Moo', cursive; color: #FF2A7A; font-size: 1.3rem; margin-top: 16px; letter-spacing: 2px; }
+    .zts-pause-quote-text { font-family: var(--font-bang); font-size: 1.7rem; color: #18181b; line-height: 1.3; letter-spacing: 1.2px; }
+    .zts-pause-author { font-family: var(--font-bang); color: #8B5CF6; font-size: 1.3rem; margin-top: 16px; letter-spacing: 2px; text-align: right; }
+    .zts-pause-question { font-family: var(--font-bang); font-size: 1.5rem; color: #18181b; margin-bottom: 20px; line-height: 1.25; letter-spacing: 1.2px; }
+    .zts-pause-fact-text { font-family: var(--font-bang); font-size: 1.5rem; color: #18181b; line-height: 1.3; letter-spacing: 1.2px; }
+    .zts-pause-fact-date { font-family: var(--font-bang); color: #FF2A7A; font-size: 1.3rem; margin-top: 16px; letter-spacing: 2px; }
     .zts-pause-fact .zts-pause-label { color: #FFAA00; }
     .zts-pause-choices { display: flex; flex-direction: column; gap: 10px; }
-    .zts-pause-choice { font-family: 'Patrick Hand', cursive; font-size: 1.15rem; background: #f3f4f6; color: #18181b; border: 3px solid #e5e7eb; padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; }
+    .zts-pause-choice { font-family: var(--font-body); font-size: 1.15rem; background: #f3f4f6; color: #18181b; border: 3px solid #e5e7eb; padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; }
     .zts-pause-choice:hover:not(:disabled) { background: #FFEA00; border-color: #18181b; transform: translateX(4px); }
     .zts-pause-choice:disabled { cursor: default; opacity: 0.6; }
     .zts-pause-choice.correct { background: #10B981 !important; color: #fff; border-color: #065f46; opacity: 1; }
     .zts-pause-choice.wrong { background: #EF4444 !important; color: #fff; border-color: #991b1b; }
-    .zts-pause-feedback { font-family: 'Patrick Hand', cursive; font-size: 1.05rem; color: #18181b; background: #FFEA00; padding: 14px 16px; border-radius: 12px; margin-top: 16px; border: 2px solid #18181b; line-height: 1.4; }
+    .zts-pause-feedback { font-family: var(--font-body); font-size: 1.05rem; color: #18181b; background: #FFEA00; padding: 14px 16px; border-radius: 12px; margin-top: 16px; border: 2px solid #18181b; line-height: 1.4; }
     @media (max-width: 640px) {
         #ztsPauseGrid { grid-template-columns: 1fr; }
         .zts-pause-card { padding: 24px 22px; }
@@ -3234,10 +3017,8 @@
      trois sections. Le patron n'a pas à connaître l'alignement de son hôte.
      Les `<h2>` de ces sections portaient trois polices et trois couleurs
      différentes ; ils portent maintenant tous `.ztsp-sectitre`. */
-  .menu-jour-head .ztsp-sectrait,
   .zts-today-header .ztsp-sectrait,
   .zts-pause-header .ztsp-sectrait { margin-left: auto; margin-right: auto; }
-  .menu-jour-head .ztsp-sectitre,
   .zts-today-header .ztsp-sectitre,
   .zts-pause-header .ztsp-sectitre { margin-top: 12px; }
 </style>
@@ -3282,7 +3063,7 @@
 
 <script>
 
-  // ============ LANGUE ACTIVE (déclarée tôt : utilisée par renderMenuJour) ============
+  // ============ LANGUE ACTIVE ============
   var ztsLang = (function(){
     var s = localStorage.getItem('zts_lang');
     if (s === 'fr' || s === 'en') return s;
@@ -3508,116 +3289,7 @@
   }
 
   // ============ CONTENU "AUJOURD'HUI AU MENU" PAR DÉFAUT + PAR MÉTIER ============
-  let MENU_JOUR = {
-    default: {
-      titre: 'Choisis ton métier pour ton menu du jour',
-      meteoTag: 'EXTÉRIEUR',
-      meteoNote: 'Temps idéal dehors',
-      suggTitle: '★ AUJOURD\'HUI ON A POUR TOI',
-      suggList: [
-        { cyc: 'ÉP', name: 'Banque de 1400+ jeux', desc: 'Filtrable par âge, matériel et compétence.' },
-        { cyc: 'SDG', name: 'SOS Intervention', desc: '100 solutions pour gérer une crise.' },
-        { cyc: 'CDJ', name: 'Grands jeux d\'été', desc: '50+ thèmes clé en main pour ton camp.' }
-      ],
-      jeuTag: '🏫 POUR TOUS',
-      jeuName: 'KINBALL',
-      jeuDesc: 'Trois équipes de 4 joueurs avec un ballon géant. Une équipe nomme une couleur et frappe le ballon. L\'équipe nommée doit l\'attraper avant qu\'il touche le sol.',
-      jeuTags: ['Équipe', 'Tous cycles', 'Ballon géant'],
-      defiTag: '🌟 DÉFI UNIVERSEL',
-      defiName: 'COMPLIMENT CHAÎNE',
-      defiDesc: 'Chacun complimente son voisin. Le voisin continue.',
-      defiBox: 'Cercle de fin : un compliment de droite à gauche.'
-    },
-    ep: {
-      titre: 'Ton cours ÉPS prêt en 30 secondes',
-      meteoTag: 'EXTÉRIEUR',
-      meteoNote: 'Temps idéal dehors',
-      suggTitle: '★ SUGGESTIONS PAR CYCLE',
-      suggList: [
-        { cyc: '1ER', name: 'Parcours cônes fous', desc: 'Slalom, sauts, courses entre 8-10 cônes colorés.' },
-        { cyc: '2E',  name: 'Chasse au trésor sportive', desc: 'Indices qui mènent à des défis physiques à chaque station.' },
-        { cyc: '3E',  name: 'Kin-ball modifié', desc: '3 équipes, gros ballon, stratégie coopérative.' }
-      ],
-      jeuTag: '🏫 POUR LE GYMNASE',
-      jeuName: 'KINBALL',
-      jeuDesc: 'Trois équipes de 4 joueurs avec un ballon géant. Une équipe nomme une couleur et frappe le ballon. L\'équipe nommée doit l\'attraper avant qu\'il touche le sol.',
-      jeuTags: ['Équipe', '2e-3e cycle', 'Ballon géant'],
-      defiTag: '🏫 EN CLASSE & 🏠 À LA MAISON',
-      defiName: 'COMPLIMENT CHAÎNE',
-      defiDesc: 'Chacun complimente son voisin. Le voisin continue.',
-      defiBox: 'Cercle de fin : un compliment de droite à gauche.'
-    },
-    sdg: {
-      titre: 'Ta journée SDG prête en 30 secondes',
-      meteoTag: 'INTÉRIEUR',
-      meteoNote: 'Plan B activé · pluie battante',
-      suggTitle: '★ SUGGESTIONS PAR GROUPE D\'ÂGE',
-      suggList: [
-        { cyc: '5-6',  name: 'Coin lecture animé', desc: 'Histoires interactives avec marionnettes ou mimes.' },
-        { cyc: '7-9',  name: 'Atelier bricolage', desc: 'Création libre avec matériaux recyclés. 45 min.' },
-        { cyc: '10-12', name: 'Tournoi société', desc: 'Jeux de plateau en équipes mixtes. Bonus stratégique.' }
-      ],
-      jeuTag: '🧸 POUR LE LOCAL SDG',
-      jeuName: 'LOUP-GAROU',
-      jeuDesc: 'Jeu de société sans matériel. Les villageois doivent démasquer les loups-garous avant qu\'ils ne dévorent tout le village. Ambiance et stratégie.',
-      jeuTags: ['Sans matériel', '8 ans +', 'Groupe 8-30'],
-      defiTag: '🧸 EN CERCLE',
-      defiName: 'MERCI EN CHAÎNE',
-      defiDesc: 'Chaque enfant dit merci pour quelque chose à son voisin.',
-      defiBox: 'Termine par un applaudissement collectif pour clôturer la journée.'
-    },
-    camp: {
-      titre: 'Ta journée camp prête en 30 secondes',
-      meteoTag: 'EXTÉRIEUR',
-      meteoNote: '☀️ Idéal pour grand jeu',
-      suggTitle: '★ SUGGESTIONS PAR ÂGE',
-      suggList: [
-        { cyc: '6-8',  name: 'Course aux trésors', desc: 'Indices simples, équipes de 4, parcours autour du camp.' },
-        { cyc: '9-11', name: 'Capture du drapeau', desc: 'Classique en 2 équipes. Stratégie + course.' },
-        { cyc: '12+',  name: 'Olympiades thématiques', desc: 'Épreuves variées avec système de points.' }
-      ],
-      jeuTag: '🏕️ POUR LE TERRAIN',
-      jeuName: 'CAPTURE DRAPEAU',
-      jeuDesc: 'Deux équipes, deux drapeaux à protéger ou capturer. Stratégie d\'équipe, course folle, prison à délivrer. Le classique des camps!',
-      jeuTags: ['Équipes', 'Plein air', '8 ans +'],
-      defiTag: '🏕️ CERCLE DE FEU',
-      defiName: 'LE PLUS BEAU MOMENT',
-      defiDesc: 'Chacun nomme son meilleur moment de la journée.',
-      defiBox: 'On termine en chantant la chanson du camp tous ensemble.'
-    }
-  };
 
-  function renderMenuJour(key) {
-    const m = MENU_JOUR[key] || MENU_JOUR.default;
-    document.getElementById('menuJourTitre').textContent = m.titre;
-    // Météo désormais pilotée par daily.js (source unique) -> updateMenuJourWeather()
-    document.getElementById('suggTitle').textContent = m.suggTitle;
-    document.getElementById('suggList').innerHTML = m.suggList.map(s =>
-      `<li><span class="cyc">${s.cyc}</span><span class="name">${s.name}</span><span class="desc">— ${s.desc}</span></li>`
-    ).join('');
-    document.getElementById('jeuTag').textContent = m.jeuTag;
-    document.getElementById('jeuName').textContent = m.jeuName;
-    document.getElementById('jeuDesc').textContent = m.jeuDesc;
-    document.getElementById('jeuTags').innerHTML = m.jeuTags.map(t => `<span>${t}</span>`).join('');
-    document.getElementById('defiTag').textContent = m.defiTag;
-    document.getElementById('defiName').textContent = m.defiName;
-    document.getElementById('defiDesc').textContent = m.defiDesc;
-    document.getElementById('defiBox').textContent = m.defiBox;
-
-    // Date du jour (selon la langue)
-    const now = new Date();
-    const EN = (typeof ztsLang !== 'undefined' && ztsLang === 'en');
-    const days = EN
-      ? ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
-      : ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-    const months = EN
-      ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-      : ['jan','fév','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
-    document.getElementById('menuJourDate').textContent = EN
-      ? `${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()}`
-      : `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
-  }
-  renderMenuJour('default');
 
   // ============ ANIMATIONS COUNTERS ============
   function animateOne(el) {
@@ -4111,7 +3783,7 @@
   /* =====================================================================
      ============ I18N HOME — FR / EN (contrôleur autonome) =============
      Couvre TOUT : statique (data-i18n) + données injectées par JS
-     (METIERS, MENU_JOUR, QUOTES, SERIES, TOOLS, APPS_DEFAULT).
+     (METIERS, QUOTES, TOOLS, APPS_DEFAULT).
      Clé partagée avec les apps : localStorage 'zts_lang'. Défaut FR.
      ===================================================================== */
 
@@ -4223,7 +3895,7 @@
   function t(key){ const d = HOME_I18N[ztsLang] || HOME_I18N.fr; return (key in d) ? d[key] : (HOME_I18N.fr[key] ?? key); }
 
   // --- Conserve les données FR d'origine + miroirs EN ---
-  const METIERS_FR = METIERS, MENU_JOUR_FR = MENU_JOUR, QUOTES_FR = QUOTES, APPS_DEFAULT_FR = APPS_DEFAULT;
+  const METIERS_FR = METIERS, QUOTES_FR = QUOTES, APPS_DEFAULT_FR = APPS_DEFAULT;
 
   const APPS_DEFAULT_EN = [
     { icon:'🎲', name:'Die',       tool:'dice' },
@@ -4332,24 +4004,6 @@
     }
   };
 
-  const MENU_JOUR_EN = {
-    default:{ titre:'Pick your role for your daily menu', meteoTag:'OUTDOOR', meteoNote:'Perfect weather outside', suggTitle:"★ TODAY WE'VE GOT FOR YOU",
-      suggList:[ {cyc:'PE',name:'Bank of 500 games',desc:'Filter by age, gear and skill.'},{cyc:'DC',name:'SOS Intervention',desc:'100 solutions to handle a crisis.'},{cyc:'CAMP',name:'Big summer games',desc:'50+ turnkey themes for your camp.'} ],
-      jeuTag:'🏫 FOR EVERYONE', jeuName:'KINBALL', jeuDesc:'Three teams of 4 players with a giant ball. One team calls a color and hits the ball. The named team must catch it before it touches the ground.', jeuTags:['Team','All grades','Giant ball'],
-      defiTag:'🌟 UNIVERSAL CHALLENGE', defiName:'COMPLIMENT CHAIN', defiDesc:'Each person compliments their neighbor. The neighbor continues.', defiBox:'Closing circle: one compliment passed right to left.' },
-    ep:{ titre:'Your PE class ready in 30 seconds', meteoTag:'OUTDOOR', meteoNote:'Perfect weather outside', suggTitle:'★ SUGGESTIONS BY GRADE',
-      suggList:[ {cyc:'G1',name:'Crazy cone course',desc:'Slalom, jumps, races among 8-10 colored cones.'},{cyc:'G2',name:'Sporty treasure hunt',desc:'Clues leading to a physical challenge at each station.'},{cyc:'G3',name:'Modified kin-ball',desc:'3 teams, big ball, cooperative strategy.'} ],
-      jeuTag:'🏫 FOR THE GYM', jeuName:'KINBALL', jeuDesc:'Three teams of 4 players with a giant ball. One team calls a color and hits the ball. The named team must catch it before it touches the ground.', jeuTags:['Team','Grades 2-3','Giant ball'],
-      defiTag:'🏫 IN CLASS & 🏠 AT HOME', defiName:'COMPLIMENT CHAIN', defiDesc:'Each person compliments their neighbor. The neighbor continues.', defiBox:'Closing circle: one compliment passed right to left.' },
-    sdg:{ titre:'Your daycare day ready in 30 seconds', meteoTag:'INDOOR', meteoNote:'Plan B on · pouring rain', suggTitle:'★ SUGGESTIONS BY AGE GROUP',
-      suggList:[ {cyc:'5-6',name:'Lively reading corner',desc:'Interactive stories with puppets or mime.'},{cyc:'7-9',name:'Craft workshop',desc:'Free creation with recycled materials. 45 min.'},{cyc:'10-12',name:'Board-game tournament',desc:'Board games in mixed teams. Strategy bonus.'} ],
-      jeuTag:'🧸 FOR THE DAYCARE ROOM', jeuName:'WEREWOLF', jeuDesc:'A no-gear social game. Villagers must unmask the werewolves before they devour the whole village. Atmosphere and strategy.', jeuTags:['No gear','Age 8+','Group 8-30'],
-      defiTag:'🧸 IN A CIRCLE', defiName:'THANK-YOU CHAIN', defiDesc:'Each child thanks their neighbor for something.', defiBox:'End with a group round of applause to close the day.' },
-    camp:{ titre:'Your camp day ready in 30 seconds', meteoTag:'OUTDOOR', meteoNote:'☀️ Perfect for a big game', suggTitle:'★ SUGGESTIONS BY AGE',
-      suggList:[ {cyc:'6-8',name:'Treasure race',desc:'Simple clues, teams of 4, course around camp.'},{cyc:'9-11',name:'Capture the flag',desc:'2-team classic. Strategy + running.'},{cyc:'12+',name:'Themed olympics',desc:'Varied events with a points system.'} ],
-      jeuTag:'🏕️ FOR THE FIELD', jeuName:'CAPTURE THE FLAG', jeuDesc:'Two teams, two flags to protect or capture. Team strategy, wild running, a jail to free. The camp classic!', jeuTags:['Teams','Outdoors','Age 8+'],
-      defiTag:'🏕️ CAMPFIRE CIRCLE', defiName:'BEST MOMENT', defiDesc:'Everyone names their best moment of the day.', defiBox:'End by singing the camp song all together.' }
-  };
 
   const QUOTES_EN = {
     general:["You're stronger than you think! 💪","One day at a time, one bite at a time.","Your smile changes a child's day. 😊","Breathe. You've got this in your blood.","There's no perfect teacher, just teachers who try.","Drink your coffee. The rest will follow. ☕","You make a REAL difference.","Don't give up, you're almost there!","The kids will remember you. Always.","Believe in yourself — they already believe in you.","Champion!","You change lives without even realizing it.","One crisis at a time. You'll make it.","You did great work today.","Small win = big win.","Tomorrow is another day. Get some rest.","You're not alone. Many of us admire you.","Today's chaos = tomorrow's memory.","You deserve your coffee. And your Friday wine. 🍷"],
@@ -4423,7 +4077,6 @@
     document.documentElement.lang = (ztsLang==='en') ? 'en' : 'fr-CA';
     const EN = ztsLang==='en';
     METIERS = EN?METIERS_EN:METIERS_FR;
-    MENU_JOUR = EN?MENU_JOUR_EN:MENU_JOUR_FR;
     QUOTES = EN?QUOTES_EN:QUOTES_FR;
     APPS_DEFAULT = EN?APPS_DEFAULT_EN:APPS_DEFAULT_FR;
 
@@ -4436,7 +4089,6 @@
     // Dynamique
     renderApps(APPS_DEFAULT);
     const key = currentMetier();
-    renderMenuJour(key || 'default');
     if (key){ applyMetierTexts(key); renderToolsGrid(METIERS[key].apps); }
 
     // Mascotte par défaut hors métier

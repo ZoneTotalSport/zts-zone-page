@@ -6,11 +6,21 @@
    par métier, contours noirs épais, ombres décalées (sticker).
    ============================================================ */
 
-/* ---------- POLICES (servies depuis apps-nhl/fonts/) ---------- */
-@font-face { font-family:'LuckiestGuy'; src:url('../apps-nhl/fonts/LuckiestGuy-Regular.ttf') format('truetype'); font-display:swap; }
-@font-face { font-family:'Kranky'; src:url('../apps-nhl/fonts/Kranky-Regular.ttf') format('truetype'); font-display:swap; }
-@font-face { font-family:'GloriaHallelujah'; src:url('../apps-nhl/fonts/GloriaHallelujah-Regular.ttf') format('truetype'); font-display:swap; }
-@font-face { font-family:'SwankyMooMoo'; src:url('../apps-nhl/fonts/SwankyandMooMoo-Regular.ttf') format('truetype'); font-display:swap; }
+/* ---------- POLICES ----------
+   ⚠ CES @font-face ÉTAIENT SERVIS DEPUIS `apps-nhl/fonts/`. Ce dossier a été
+   supprimé le 4 août avec les apps sportives : les quatre fichiers seraient
+   partis en 404 sur les 1472 pages qui chargent cette feuille. Défaut introduit
+   et corrigé le même jour.
+
+   Kranky, GloriaHallelujah et SwankyMooMoo ne sont plus déclarés du tout : ils
+   servaient de secours à Caveat et Swanky and Moo Moo, qui sortent du site
+   (décision de Joey, trois polices d'affichage et une de lecture).
+   LuckiestGuy reste, repointé sur la copie de `/fonts/` — la seule qui ait
+   jamais eu sa place à la racine.
+
+   LEÇON : ne jamais servir un asset partagé depuis le dossier d'une app. La
+   suppression de l'app emporte l'asset, et rien ne le signale. */
+@font-face { font-family:'LuckiestGuy'; src:url('/fonts/LuckiestGuy-Regular.ttf') format('truetype'); font-display:swap; }
 
 /* ============ DESIGN TOKENS ============ */
 :root {
@@ -45,9 +55,15 @@
   /* — Familles de polices — */
   --font-impact: 'Luckiest Guy','LuckiestGuy','Impact',sans-serif; /* gros titres */
   --font-bang:   'Bangers','Impact',cursive;                       /* callouts */
-  --font-fun:    'Fredoka','Helvetica Neue',sans-serif;            /* sous-titres UI */
-  --font-body:   'Quicksand','Helvetica Neue',sans-serif;          /* corps */
-  --font-hand:   'Caveat','GloriaHallelujah',cursive;              /* manuscrit */
+  /* TROIS POLICES D'AFFICHAGE, UNE DE LECTURE — décision de Joey du 4 août 2026.
+     Fredoka et Caveat sortent du site. `--font-fun` et `--font-hand` restent
+     déclarés en ALIAS plutôt que supprimés : ils sont appelés dans des
+     centaines de pages, et les retirer d'un coup laisserait autant de
+     `font-family` invalides. Un seul point de vérité, aucune page à toucher. */
+  --font-body:   'Quicksand','Helvetica Neue',sans-serif;          /* la seule à lire */
+  --font-marque: 'ZoneTotalSportZTSP','Luckiest Guy',sans-serif;   /* signature */
+  --font-fun:    var(--font-body);                                 /* alias */
+  --font-hand:   var(--font-body);                                 /* alias */
 
   /* — Contours + ombre BD (sticker) — */
   --bord:      3px solid var(--zts-noir);
@@ -144,7 +160,7 @@ body:has(main.hub-sheet) .zts-perso::after {
   transform:translateX(12px) scale(.9); transform-origin:right center;
   transition:opacity .2s, transform .2s; pointer-events:none;
   width:max-content; max-width:min(240px,58vw); white-space:normal; text-align:left;
-  font-family:'Fredoka',system-ui,sans-serif; font-weight:700; font-size:.95rem; line-height:1.25; color:var(--ink);
+  font-family:var(--font-body); font-weight:700; font-size:.95rem; line-height:1.25; color:var(--ink);
   background:#fff; border:4px solid var(--zts-noir); border-radius:16px; padding:9px 13px; box-shadow:5px 5px 0 var(--zts-noir);
 }
 body:has(main.hub-sheet) .zts-perso:hover::after { opacity:1; transform:translateX(0) scale(1); }

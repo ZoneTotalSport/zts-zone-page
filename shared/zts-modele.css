@@ -74,12 +74,34 @@
   --ztsp-r-btn:  11px;
   --ztsp-r-card: 16px;
 
-  /* ---- Polices ---- */
-  --ztsp-f-display: 'ZoneTotalSport', 'Luckiest Guy', system-ui, sans-serif;
+  /* ---- Polices ----
+     `--ztsp-f-display` appelait 'ZoneTotalSport' sans que personne ne la
+     déclare hors du shell : sur une page qui ne monte pas le shell — l'accueil
+     — elle retombait silencieusement sur Luckiest Guy. Le @font-face est
+     maintenant posé plus bas, sous un nom propre au patron.
+     ⚠ LE NOM DOIT RESTER DISTINCT. « ZoneTotalSport » tout court entre en
+     collision avec les @font-face locaux de jeux, moyens-action et studio-jeu,
+     qui déclarent la MÊME famille SANS `size-adjust` — le pilote projection a
+     montré le logo rendu au double de sa taille. Même parade que le shell avec
+     `ZoneTotalSportZTSH` : ici c'est `ZoneTotalSportZTSP`. */
+  --ztsp-f-display: 'ZoneTotalSportZTSP', 'Luckiest Guy', system-ui, sans-serif;
   --ztsp-f-titre:   'Luckiest Guy', system-ui, sans-serif;
   --ztsp-f-punch:   'Bangers', system-ui, sans-serif;
-  --ztsp-f-corps:   'Nunito', system-ui, sans-serif;
-  --ztsp-f-note:    'Schoolbell', cursive;
+  /* Nunito et Schoolbell sortent aussi (même décision) : le corps s'aligne sur
+     `--font-body` du design system, et la note — dates, légendes — passe à
+     Bangers, qui est déjà une des trois polices retenues. */
+  --ztsp-f-corps:   'Quicksand', 'Helvetica Neue', system-ui, sans-serif;
+  --ztsp-f-note:    'Bangers', system-ui, cursive;
+}
+
+/* La police de marque, pour les pages qui prennent le patron sans le shell.
+   `size-adjust: 50%` est repris tel quel du shell : sans lui, cette fonte rend
+   au double de la taille demandée et le titre déborde de son bloc. */
+@font-face {
+  font-family: 'ZoneTotalSportZTSP';
+  src: url('/fonts/ZoneTotalSport.ttf') format('truetype');
+  font-display: swap;
+  size-adjust: 50%;
 }
 
 /* ==========================================================================
