@@ -26,6 +26,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Fredoka:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../shared/zts.css">
+  <link rel="stylesheet" href="../../assets/ztsh-shell.css">
   <style>
     /* Sélecteur de métier */
     .pl-pick { display:grid; gap:var(--space-4); grid-template-columns:1fr; margin:var(--space-5) 0; }
@@ -158,6 +159,7 @@
 <body>
 
   <div data-zts-header></div>
+  <div class="ztsh-page">
 
   <nav class="zts-subnav">
     <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
@@ -741,5 +743,9 @@
     });
     document.addEventListener('zts:langchange', function(){ plStatic(); if(state.metier){ renderInfo(); buildLevels(); plRender(); } });
   </script>
+  </div><!-- /.ztsh-page -->
+
+  <script src="../../assets/ztsh-shell.js"></script>
+  <script>ZTSShell.monter({ densite: 'travail' });</script>
 </body>
 </html>
