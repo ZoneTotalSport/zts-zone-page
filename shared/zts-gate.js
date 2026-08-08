@@ -139,17 +139,10 @@
     showErr(''); busy(true);
     clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     var p = new firebase.auth.GoogleAuthProvider();
-    // Sans select_account, Google resigne en silence le seul compte ouvert :
-    // aucun selecteur, session retablie en une seconde. C'etait la cause
-    // percue comme « impossible de se deconnecter ».
     p.setCustomParameters({ prompt: 'select_account' });
     firebase.auth().signInWithPopup(p).catch(function (err) {
       busy(false);
-      if (err && (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment')) {
-        firebase.auth().signInWithRedirect(p);
-      } else {
-        showErr(t().errGoogle);
-      }
+      showErr(t().errGoogle);
     });
   }
 

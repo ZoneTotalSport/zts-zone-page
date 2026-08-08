@@ -668,13 +668,6 @@
     provider.setCustomParameters({ prompt: 'select_account' });
     clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     setLoading(true);
-    // Mobile (iOS/Android): utilise redirect car les popups sont souvent bloquees
-    var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile) {
-      firebase.auth().signInWithRedirect(provider)
-        .catch(function(err) { console.error('[ZTS Auth] Google redirect error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
-      return;
-    }
     firebase.auth().signInWithPopup(provider)
       .then(function(result) {
         var isNew = result.additionalUserInfo && result.additionalUserInfo.isNewUser;
@@ -690,14 +683,8 @@
         }
       })
       .catch(function(err) {
-        // Si popup bloquee sur desktop, fallback sur redirect
-        if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') {
-          firebase.auth().signInWithRedirect(provider).catch(function(e2) {
-            console.error('[ZTS Auth] Redirect fallback error:', e2); showError('Erreur [' + (e2.code || 'unknown') + ']: ' + (e2.message || e2)); setLoading(false);
-          });
-          return;
-        }
-        console.error('[ZTS Auth] Google error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false);
+        showError(getErrorMsg(err.code));
+        setLoading(false);
       });
   }
 

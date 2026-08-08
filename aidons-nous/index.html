@@ -452,10 +452,8 @@ window.authDo = async function(mode){
 document.addEventListener('DOMContentLoaded',()=>{
   const gb=$('googleBtn');
   if(gb)gb.onclick=()=>{
-    const isMobile=/iPhone|iPad|Android/i.test(navigator.userAgent);
     const provider=new firebase.auth.GoogleAuthProvider();
-    if(isMobile)firebase.auth().signInWithRedirect(provider);
-    else firebase.auth().signInWithPopup(provider).then(()=>$('authModal').classList.remove('show')).catch(e=>{$('authErr').textContent=e.message;$('authErr').classList.add('show');});
+    firebase.auth().signInWithPopup(provider).then(()=>$('authModal').classList.remove('show')).catch(e=>{$('authErr').textContent=e.message;$('authErr').classList.add('show');});
   };
   lucide.createIcons();
 });
