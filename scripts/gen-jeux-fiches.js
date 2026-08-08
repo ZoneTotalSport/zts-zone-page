@@ -110,7 +110,7 @@ function buildPage(g, slug, related) {
     '<meta property="og:description" content="' + esc(desc) + '">\n' +
     '<meta property="og:type" content="article">\n<meta property="og:url" content="' + BASE + '/jeux/' + slug + '.html">\n' +
     '<meta property="og:image" content="' + BASE + '/logo-zts.png">\n<meta property="og:site_name" content="Zone Total Sport">\n<meta property="og:locale" content="fr_CA">\n' +
-    '<meta name="twitter:card" content="summary_large_image">\n<link rel="icon" href="/favicon-bucheron.png">\n' +
+    '<meta name="twitter:card" content="summary_large_image">\n<link rel="icon" href="/favicon.png">\n' +
     '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
     '<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">\n' +
     '<link rel="stylesheet" href="/shared/zts.css">\n' +
@@ -238,7 +238,7 @@ if (LIMIT === Infinity) {
     '<link rel="canonical" href="' + BASE + '/jeux/">\n' +
     '<meta property="og:title" content="1400+ jeux d\'éducation physique au primaire">\n<meta property="og:description" content="Banque de ' + games.length + ' jeux ÉP avec règles complètes. Gratuit, aligné PFEQ.">\n' +
     '<meta property="og:image" content="' + BASE + '/logo-zts.png">\n<meta property="og:url" content="' + BASE + '/jeux/">\n<meta property="og:type" content="website">\n' +
-    '<link rel="icon" href="/favicon-bucheron.png">\n' +
+    '<link rel="icon" href="/favicon.png">\n' +
     '<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">\n' +
     '<link rel="stylesheet" href="/shared/zts.css">\n' +
     '<style>' + BODY_BG +
