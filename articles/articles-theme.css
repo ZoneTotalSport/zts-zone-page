@@ -5,21 +5,32 @@
 
 /* Nunito sort du site le 4 août 2026 — Quicksand est la seule police de
    lecture. ⚠ Les @import échappaient au balayage, qui ne visait que les
-   balises <link> : à vérifier séparément. */
-@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Quicksand:wght@400;500;600;700&display=swap');
+   balises <link> : à vérifier séparément. Fait le 9 août, voir ci-dessous.
 
-/* Police composite : Luckiest Guy pour ASCII + Bangers pour accents (Luckiest Guy ne supporte pas é/è/à/etc.) */
-@font-face{
-  font-family:'LuckiestGuyZTS';
-  src:local('Luckiest Guy');
-  unicode-range:U+0020-007F;
-}
-@font-face{
-  font-family:'LuckiestGuyZTS';
-  src:local('Bangers');
-  unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F;
-  size-adjust:92%;
-}
+   L'@IMPORT EST PARTI (9 août). Il tirait Luckiest Guy, Bangers et Quicksand
+   une deuxième fois. Bangers et Quicksand arrivent déjà par le <link> de
+   chaque article — vérifié sur les 25, seule `grands-jeux-exterieurs` n'a pas
+   Bangers et ne s'en sert pas non plus. Luckiest Guy arrive maintenant en
+   LOCAL par le @font-face de `shared/zts-header.css`.
+   Et un @import est pire qu'un <link> : le navigateur doit d'abord recevoir
+   CETTE feuille avant de découvrir la requête, donc deux allers-retours en
+   série au lieu de deux en parallèle. */
+
+/* LA POLICE COMPOSITE `LuckiestGuyZTS` A ÉTÉ SUPPRIMÉE — 9 août.
+   Elle découpait le texte en deux : Luckiest Guy pour l'ASCII, Bangers pour
+   les accents, « parce que Luckiest Guy ne supporte pas é/è/à ».
+
+   CETTE PRÉMISSE EST FAUSSE. Lecture de la table cmap de
+   `/fonts/LuckiestGuy-Regular.ttf` : 361 glyphes, et sur 37 caractères
+   français testés — É È Ê Ë À Â Î Ï Ô Ù Û Ü Ç, minuscules, Æ Œ æ œ Ÿ ÿ,
+   apostrophe courbe, « » — ° — il n'en manque AUCUN. Le trou était dans le
+   sous-ensemble `latin` servi par Google, pas dans la fonte.
+
+   Elle ne rendait rien de toute façon : `src:local(…)` ne cherche que les
+   fontes INSTALLÉES sur la machine du visiteur, jamais une police chargée
+   depuis le web. Et elle n'était appelée nulle part — déclarée deux fois,
+   utilisée zéro. Une police de secours à deux étages contre un défaut qui
+   n'existait pas. */
 
 :root{
   --zts-blue:#00C4FF;

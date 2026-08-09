@@ -6,12 +6,39 @@
    À utiliser avec : <div data-zts-header></div> + shared/zts.js
    ============================================================ */
 
+/* ---------- POLICE D'AFFICHAGE ----------
+   ⚠ CETTE DÉCLARATION MANQUAIT, ET C'EST CE QUI CASSAIT LES ACCENTS.
+   Le @font-face local ne vivait que dans `shared/zts.css`. Or les 25 articles
+   chargent CETTE feuille-ci et PAS `zts.css` : le nom 'LuckiestGuy' était donc
+   un nom mort dans leur pile de replis, et tout retombait sur le service
+   Google — dont le sous-ensemble `latin` par défaut n'a ni Œ ni Æ. Un titre
+   contenant « CŒUR » basculait de police en plein mot.
+   Même fichier, même nom que dans `zts.css` : les deux feuilles peuvent
+   cohabiter sur une page sans double téléchargement. */
+@font-face { font-family:'LuckiestGuy'; src:url('/fonts/LuckiestGuy-Regular.ttf') format('truetype'); font-display:swap; }
+
+/* ALIAS SOUS LE NOM DE GOOGLE — et ce n'est pas un doublon.
+   Le site compte des CENTAINES de `font-family:'Luckiest Guy'` écrits en dur,
+   qui court-circuitent `--font-impact` et n'ont donc jamais vu la fonte locale.
+   Les réécrire un par un serait un chantier à part ; les servir depuis le
+   MÊME fichier local règle tout d'un coup, sans toucher à une seule page.
+   Aucun téléchargement de plus : c'est le fichier déjà chargé au-dessus.
+   Pas de `size-adjust` ici — contrairement à `ZoneTotalSport`, c'est la vraie
+   Luckiest Guy, aux mêmes métriques que celle de Google. */
+@font-face { font-family:'Luckiest Guy'; src:url('/fonts/LuckiestGuy-Regular.ttf') format('truetype'); font-display:swap; }
+
 :root {
   --zts-noir:#1A1A2E; --ink:#1A1A2E; --paper:#FFFEF7;
   --cyan:#00E5FF; --jaune:#FFEA00; --orange:#FF6B00; --vert:#39FF14;
   --bleu:#1E90FF; --rose:#FF2D87; --violet:#8B5CF6;
   --metier:var(--cyan);
-  --font-impact:'Luckiest Guy','LuckiestGuy','Impact',sans-serif;
+  /* LOCALE D'ABORD — décision du 8 août (4c0811a), qui n'avait pas été
+     reportée ici. `/fonts/LuckiestGuy-Regular.ttf` couvre 361 glyphes et il ne
+     manque AUCUN caractère français : accents, Æ Œ, apostrophe courbe, « » — °
+     (vérifié dans la table cmap). Le service Google, lui, sert `latin` par
+     défaut, sans Œ ni Æ. Mettre Google en premier faisait basculer la police
+     en plein mot. L'ordre est maintenant celui de `shared/zts.css`. */
+  --font-impact:'LuckiestGuy','Luckiest Guy','Impact',sans-serif;
   /* Alias de la police de lecture — Fredoka sort du site (4 août 2026).
      ⚠ Ce token existe AUSSI dans shared/zts.css : le header est en double,
      toute retouche va dans les deux. */

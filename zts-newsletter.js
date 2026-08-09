@@ -120,31 +120,40 @@
     var s = document.createElement('style');
     s.id = 'zts-nl-css';
     s.textContent = [
-      '@import url("https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@600;800&display=swap");',
+      // L'@IMPORT EST PARTI — 9 août. Il tirait Nunito, SORTIE DU SITE le
+      // 4 août (Quicksand est la seule police de lecture), et Luckiest Guy
+      // depuis Google, dont le sous-ensemble `latin` n'a ni Œ ni Æ. Injecté
+      // par JS, il avait échappé au balayage des polices du 8 août, qui ne
+      // visait que les balises <link>. Il partait sur 26 pages, dont les
+      // 25 articles.
+      // Les deux polices viennent maintenant des tokens : Quicksand par le
+      // <link> de la page, Luckiest Guy par le @font-face LOCAL de
+      // shared/zts-header.css. Les replis nomment la famille locale d'abord,
+      // pour une page qui n'aurait ni zts.css ni zts-header.css.
       '.zts-nl-overlay{position:fixed;inset:0;z-index:99990;display:flex;align-items:center;justify-content:center;padding:18px;',
       'background:rgba(15,15,46,.72);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s;}',
       '.zts-nl-overlay.open{opacity:1;visibility:visible;}',
       '.zts-nl-card{position:relative;width:100%;max-width:440px;background:linear-gradient(165deg,#E0F7FF,#CFF3FF);',
       'border:3px solid #0F0F2E;border-radius:26px;box-shadow:8px 8px 0 #0F0F2E;padding:30px 26px 26px;',
-      'font-family:"Nunito",system-ui,sans-serif;transform:translateY(18px) scale(.96);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}',
+      'font-family:var(--font-body,"Quicksand",system-ui,sans-serif);transform:translateY(18px) scale(.96);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}',
       '.zts-nl-overlay.open .zts-nl-card{transform:translateY(0) scale(1);}',
       '.zts-nl-x{position:absolute;top:10px;right:12px;width:34px;height:34px;border-radius:50%;border:2px solid #0F0F2E;',
       'background:#fff;color:#0F0F2E;font-size:1.2rem;line-height:1;cursor:pointer;box-shadow:2px 2px 0 #0F0F2E;}',
       '.zts-nl-x:active{transform:translate(2px,2px);box-shadow:0 0 0 #0F0F2E;}',
-      '.zts-nl-kicker{display:inline-block;background:#FF2D87;color:#fff;font-family:"Luckiest Guy",cursive;font-size:.8rem;',
+      '.zts-nl-kicker{display:inline-block;background:#FF2D87;color:#fff;font-family:var(--font-impact,"LuckiestGuy","Luckiest Guy",cursive);font-size:.8rem;',
       'letter-spacing:1.5px;padding:5px 14px;border-radius:999px;border:2px solid #0F0F2E;box-shadow:2px 2px 0 #0F0F2E;transform:rotate(-3deg);}',
-      '.zts-nl-title{font-family:"Luckiest Guy",cursive;font-size:clamp(24px,5.5vw,32px);color:#0F0F2E;line-height:1.05;margin:14px 0 8px;}',
+      '.zts-nl-title{font-family:var(--font-impact,"LuckiestGuy","Luckiest Guy",cursive);font-size:clamp(24px,5.5vw,32px);color:#0F0F2E;line-height:1.05;margin:14px 0 8px;}',
       '.zts-nl-sub{font-size:1rem;color:#1a2540;opacity:.85;margin:0 0 16px;line-height:1.4;}',
       '.zts-nl-form{display:flex;flex-direction:column;gap:10px;}',
       '.zts-nl-form input{width:100%;box-sizing:border-box;padding:15px 16px;border:3px solid #0F0F2E;border-radius:14px;',
       'font-family:inherit;font-size:1.05rem;font-weight:700;background:#fff;color:#0F0F2E;}',
       '.zts-nl-form input:focus{outline:none;box-shadow:0 0 0 3px rgba(0,229,255,.5);}',
-      '.zts-nl-btn{cursor:pointer;font-family:"Luckiest Guy",cursive;font-size:1.15rem;letter-spacing:.5px;padding:15px;',
+      '.zts-nl-btn{cursor:pointer;font-family:var(--font-impact,"LuckiestGuy","Luckiest Guy",cursive);font-size:1.15rem;letter-spacing:.5px;padding:15px;',
       'border:3px solid #0F0F2E;border-radius:14px;background:#FFD700;color:#0F0F2E;box-shadow:4px 4px 0 #0F0F2E;}',
       '.zts-nl-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E;}',
       '.zts-nl-btn[disabled]{opacity:.6;cursor:default;}',
       '.zts-nl-full{margin:12px 0 0;background:none;border:none;color:#0F0F2E;text-decoration:underline;cursor:pointer;font-family:inherit;font-weight:700;font-size:.92rem;opacity:.8;}',
-      '.zts-nl-proof{margin:14px 0 0;text-align:center;font-family:"Luckiest Guy",cursive;color:#0F0F2E;font-size:.95rem;letter-spacing:.5px;}',
+      '.zts-nl-proof{margin:14px 0 0;text-align:center;font-family:var(--font-impact,"LuckiestGuy","Luckiest Guy",cursive);color:#0F0F2E;font-size:.95rem;letter-spacing:.5px;}',
       '.zts-nl-msg{margin:10px 0 0;font-weight:800;font-size:.98rem;text-align:center;}',
       '.zts-nl-msg.ok{color:#0a7d2e;}.zts-nl-msg.err{color:#c41d4a;}',
       '@media(max-width:480px){.zts-nl-card{padding:26px 18px 20px;box-shadow:6px 6px 0 #0F0F2E;}}'
