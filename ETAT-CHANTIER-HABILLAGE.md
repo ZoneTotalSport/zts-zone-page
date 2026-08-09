@@ -1,7 +1,9 @@
 # État du chantier d'habillage — reprise
 
-**Dernière mise à jour** : 4 août 2026 — CHANTIER TERMINÉ pour les apps.
-40 apps sur 45 montent le shell ; les 3 restantes sont des exclusions voulues.
+**Dernière mise à jour** : 9 août 2026 — CHANTIER TERMINÉ pour les apps.
+40 apps sur 46 montent le shell ; les 4 restantes sont des exclusions voulues.
+`code-oreille` a rejoint la liste le 9 août — dernière app non traitée, elle ne
+peut pas prendre le shell sans perdre son mode clair, voir « Vague 3 ».
 Le chantier du personnage est clos depuis le 31 juillet.
 **Dépôt** : `ZoneTotalSport/zts-zone-page` → `/Users/admin/dev/Remotion 2/wix-deploy/`
 
@@ -148,16 +150,53 @@ invitation à la pause café n'y a pas sa place.
 
 ### 4. ~~Vague 3 — les apps custom~~ — FAITE le 4 août
 
-**40 apps sur 45 montent le shell. Le chantier d'habillage des apps est
-terminé.** Ne restent que trois cas, tous voulus :
+**40 apps sur 46 montent le shell. Le chantier d'habillage des apps est
+terminé.** Ne restent que quatre cas, tous voulus :
 
 | App | Pourquoi elle reste dehors |
 |---|---|
 | `evaluation`, `scoreboard` | builds Vite, exclues au prescan (source absente pour la première) |
 | `planificateur` | porte le **patron** (`ztsp-decor`) et non le shell — cas à deux densités, D24 |
+| `code-oreille` | PWA hors-ligne à chrome complet — décision de Joey, 9 août, voir ci-dessous |
 
 `nba-playoffs` et `nhl-playoffs` ne sont plus des apps : ce sont des pages de
 redirection depuis le retrait des apps sportives.
+
+#### `code-oreille` — exclusion motivée, décidée le 9 août
+
+Elle n'avait jamais été montée. Trois blocages, mesurés avant de décider —
+**c'est la première app que le shell ne peut pas habiller sans la dénaturer**,
+et les trois raisons sont réutilisables telles quelles pour la suivante.
+
+1. **Le fond clair meurt.** L'app pose `body{background:#F8FAFC}` plus une
+   trame de points, **sans `!important`**. C'est justement ce qui la rend
+   sans défense : `html.ztsh-on body.ztsh-on{background:transparent}` a 0,2,2
+   de spécificité contre 0,0,1. Le marine gagne, la trame disparaît, et tout
+   le « ZTS Premium Lumineux » de l'app part avec.
+   > **À l'envers de D23** : sur `jeux` et `transitions`, le `!important`
+   > était le problème. Ici, son absence l'est. Une app en mode clair qui
+   > veut garder son fond sous le shell **doit** l'imposer — ou rester dehors.
+2. **Le casier recouvre la navigation.** En densité `travail` il est en
+   `bottom:16px; left:16px`, z-index 300+. La `.tabbar` de l'app est en
+   `inset:auto 0 0 0`, 78 px de haut, z-index 60 : le casier se pose dessus.
+   La garde générique du personnage (`0ca4f8b`) ne couvre pas ce cas — elle
+   protège le personnage, pas le rail.
+3. **Les deux barres du haut se percutent.** L'app a sa `.topbar` fixe à
+   132 px et calcule son `padding-top` dessus ; l'en-tête partagé exige
+   `<div data-zts-header></div>` et le `adjustHeaderOffset()` de `zts.js`.
+   Les réconcilier dépasse les **6 lignes du contrat**.
+
+**Et `projection` ne sauve rien.** Elle monterait proprement — depuis
+`f0f6ece` il n'y a pas de `html.ztsh-on`, donc le fond clair survit, et sans
+casier il n'y a pas de collision. Mais projection, c'est les tokens seuls, et
+l'app définit son propre `:root`. **Gain visible nul**, pour 114 Ko de CSS/JS
+sur une PWA dont le service worker ne précharge que cinq fichiers locaux et
+dont la raison d'être est de s'ouvrir dans un gymnase ou un boisé sans réseau.
+Monter pour la statistique aurait coûté à l'utilisateur sans rien lui rendre.
+
+L'app garde son lien de retour vers le site dans sa signature de pied de page
+(`index.html:338`). Elle reste atteignable depuis le menu partagé
+(`shared/zts-menu.js`) et depuis l'article `catastrophes-ordinaires`.
 
 Densités retenues : `agenda`, `performances`, `planification`, `omnigroupe`,
 `cours-maternelle`, `grille`, `moyens-action`, `colorier`, `generateur` en
