@@ -8,9 +8,21 @@ Chaque destination a été vérifiée le 9 août 2026 : les six cibles
 (`/`, `/apps/agenda/`, `/apps/generateur/`, `/apps/transitions/`,
 `/apps/jeux/`, `/apps/grille/`) répondent **200 sans aucun saut**.
 
-**Rien de ce CSV n'est encore en ligne** — mesuré le 9 août 2026 :
-`/apps-fifa/`, `/apps-nhl/`, `/apps-nba/` répondent toujours 200, et `agenda.`
-comme `ia.` traînent toujours leur double saut.
+**État au 9 août 2026 — liste `zts_sous_domaines_301` créée via l'API.**
+Les 12 items sont dans la liste, la règle Bulk Redirect est active.
+
+- **5 sous-domaines** (`generateur.`, `gym.`, `jeux.`, `agenda.`, `ia.`) :
+  301 opérants. `generateur.`, `gym.` et `jeux.` arrivent en un seul saut.
+  `agenda.` et `ia.` font encore 2 sauts : une ancienne Redirect Rule de zone
+  (sans trailing slash) s'évalue avant la Bulk Redirect — à supprimer dans le
+  dashboard (**Rules → Redirect Rules**) pour que la liste prenne le relais.
+- **7 items de chemins** (`/apps-nhl/`, `/apps-nba/`, `/apps-fifa/`,
+  `/apps/nhl-playoffs/`, `/apps/nba-playoffs/`, `/index-old.html`,
+  `/teasing.html`) : **inopérants tant que `zonetotalsport.ca` est en DNS only**
+  (pas de proxy Cloudflare sur le domaine principal). Les items sont prêts dans
+  la liste — ils s'activeront le jour du chantier proxy orange (prérequis :
+  SSL mode **Full**, pas Flexible, pour éviter les boucles de redirection).
+  En attendant, ces pages restent en 200 (contenu mort, aucun lien n'y pointe).
 
 ## Ce que contient le CSV
 
