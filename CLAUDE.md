@@ -14,7 +14,7 @@
 - **Site** : zonetotalsport.ca
 - **Mission** : plateforme 100% gratuite de ressources ÉPS / Camps de jour / Service de garde
 - **Stack** : GitHub Pages + Cloudflare + Firebase + Firestore
-- **Style visuel** : Pop Art bûcheron — Ben-Day dots, décor marine, offset shadows, dashed borders
+- **Style visuel** : Pop Art — Ben-Day dots, décor marine, offset shadows, dashed borders
 - **Polices (décision Joey 2026-08-04)** : TROIS pour ce qui s'affiche —
   **Luckiest Guy** (titres), **Bangers** (étiquettes, boutons, notes),
   **ZoneTotalSport.ttf** (signature) — et **Quicksand** pour ce qui se lit.
@@ -26,7 +26,15 @@
   (`ZoneTotalSportZTSH` au shell, `ZoneTotalSportZTSP` au patron) avec
   `size-adjust:50%` : sans ça elle entre en collision avec les @font-face
   locaux de jeux/moyens-action/studio-jeu et rend au double de sa taille.
-- **Mascotte** : Mr. Root (bûcheron sportif)
+- **Mascotte (décision Joey 2026-08-04)** : le **prof d'ÉPS en bleu** remplace le
+  bûcheron. Chandail cyan à écusson ÉPS, sifflet, espadrilles — là où le bûcheron
+  avait chemise à bretelles et bottes de travail. Référence :
+  `shared/img/perso/perso_eps.png`.
+  **Le remplacement est PARTIEL** : 17 visuels sur 43 sont passés au prof (lot 2 de
+  Cowork, généré avec nanobanana) plus le favicon. **26 restent en bûcheron** et
+  attendent un lot 3 — voir `ETAT-MASCOTTE.md`.
+  ⚠ Remplacer une image de mascotte SEULEMENT à dimensions égales, sinon la mise
+  en page bouge sans que rien ne le signale.
 
 ## Design — boutons (décision verrouillée 2026-07-05)
 - **`.zts-action`** (shared/zts.css) = standard **OBLIGATOIRE pour tout nouveau bouton
@@ -68,7 +76,7 @@ Trois corps de métier visés équitablement :
 1. Une seule action principale par écran (pas de pop-ups concurrents)
 2. Vocabulaire unifié — plus jamais "boîte à outils" en 4 endroits différents
 3. Toute ancienne URL = redirection 301 (jamais 404)
-4. Style Pop Art bûcheron cohérent partout
+4. Style Pop Art cohérent partout
 5. PWA hors-ligne quand pertinent
 
 ## Workflow Joey
