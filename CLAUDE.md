@@ -30,11 +30,16 @@
   bûcheron. Chandail cyan à écusson ÉPS, sifflet, espadrilles — là où le bûcheron
   avait chemise à bretelles et bottes de travail. Référence :
   `shared/img/perso/perso_eps.png`.
-  **Le remplacement est PARTIEL** : 17 visuels sur 43 sont passés au prof (lot 2 de
-  Cowork, généré avec nanobanana) plus le favicon. **26 restent en bûcheron** et
-  attendent un lot 3 — voir `ETAT-MASCOTTE.md`.
-  ⚠ Remplacer une image de mascotte SEULEMENT à dimensions égales, sinon la mise
-  en page bouge sans que rien ne le signale.
+  **Le remplacement est TERMINÉ depuis le 9 août** : lot 2 (17 visuels + favicon)
+  puis lot 3 (25 visuels, 73 fichiers). Ne restent en bûcheron que trois fichiers
+  qu'aucune page vivante n'appelle — voir `ETAT-MASCOTTE.md`.
+  ⚠ Remplacer une image de mascotte SEULEMENT à dimensions égales… **sauf quand le
+  CSS pilote la taille et que le rapport est identique** : ce qui doit rester
+  constant, c'est la mise en page, pas le nombre de pixels. `apps/tni` est passée
+  de 2500×2500 à 600×600 (4,4 Mo → 348 Ko) sans qu'un pixel de rendu bouge,
+  parce que `.intro-mascot` fixe `height:180px` et que les deux sont en 1:1.
+  ⚠ **Avant de commander une régénération d'assets, chercher sur le disque** :
+  le lot 3 existait depuis le 3 août dans `~/PROJETS_CLAUDE/_to_delete/`.
 
 ## Design — boutons (décision verrouillée 2026-07-05)
 - **`.zts-action`** (shared/zts.css) = standard **OBLIGATOIRE pour tout nouveau bouton
