@@ -1,17 +1,26 @@
 # Redirections à poser dans Cloudflare
 
-**Fichier prêt à importer : `redirections-cloudflare.csv`** — 9 lignes,
+**Fichier prêt à importer : `redirections-cloudflare.csv`** — 12 lignes,
 colonnes `source,destination,statut`. Cloudflare → **Rules → Bulk Redirects**
 → créer une liste → importer le CSV → créer la règle qui utilise la liste.
 
-Chaque destination a été vérifiée le 28 juillet 2026 : les trois cibles
-(`/`, `/apps/agenda/`, `/apps/generateur/`) répondent **200 sans aucun saut**.
+Chaque destination a été vérifiée le 9 août 2026 : les six cibles
+(`/`, `/apps/agenda/`, `/apps/generateur/`, `/apps/transitions/`,
+`/apps/jeux/`, `/apps/grille/`) répondent **200 sans aucun saut**.
+
+**Rien de ce CSV n'est encore en ligne** — mesuré le 9 août 2026 :
+`/apps-fifa/`, `/apps-nhl/`, `/apps-nba/` répondent toujours 200, et `agenda.`
+comme `ia.` traînent toujours leur double saut.
 
 ## Ce que contient le CSV
 
 **Les 5 pages sportives retirées** — détail plus bas : `/apps-nhl/`,
 `/apps-nba/`, `/apps-fifa/`, `/apps/nhl-playoffs/`, `/apps/nba-playoffs/` →
 l'accueil, où vivent désormais les matchs du jour.
+
+**Les 3 sous-domaines qui servaient encore l'app complète** — détail plus bas :
+`generateur.`, `gym.`, `jeux.` → `/apps/generateur/`, `/apps/transitions/`,
+`/apps/jeux/`.
 
 **Deux sauts en trop à corriger.** `agenda.` et `ia.` redirigent déjà, mais
 vers une cible **sans barre oblique finale** : GitHub Pages émet alors un
@@ -91,9 +100,14 @@ que cette règle contourne.
 ## Ce qui n'est PAS dans le CSV, et pourquoi
 
 **Les huit sous-domaines périmés de l'audit du 3 juillet redirigent déjà** —
-vérifié le 28 juillet : `educatifs`, `evaluation`, `grille`, `musique`, `tni`,
+re-vérifié le 9 août : `educatifs`, `evaluation`, `grille`, `musique`, `tni`,
 `sae`, `suppleance`, `agenda` répondent tous 301 vers `/apps/<nom>/`. Seuls
-`agenda` et `ia` traînaient le défaut de barre oblique, corrigé ci-dessus.
+`agenda` et `ia` traînent le défaut de barre oblique, corrigé ci-dessus.
+
+⚠ **L'audit du 8 août se trompait sur deux points**, mesurés le 9 août :
+`grille.` redirige bien (301, un seul saut) et la carte `/apps-fifa/` de
+l'accueil est partie depuis le 4 août (`9c64b0a`). Restaient trois vrais
+trous — `generateur.`, `gym.`, `jeux.` — traités ci-dessous.
 
 **Les vieilles URLs Wix `/en/…`** répondent 404 aujourd'hui. Une ligne
 `https://zonetotalsport.ca/en/` → `https://zonetotalsport.ca/`, avec
@@ -164,6 +178,96 @@ pages tierces pourraient encore appeler.
 
 ---
 
+## Détail : les trois sous-domaines qui servaient l'app complète
+
+**Créé le 9 août 2026.** Mesuré le même jour, sans mur d'aucune sorte :
+
+| Sous-domaine | Avant | Ce qu'il servait |
+|---|---|---|
+| `generateur.` | **200** | l'app Générateur IA en entier |
+| `gym.` | **200** | « Gestion et Transition dans le Gymnase » en entier |
+| `jeux.` | **200** | la SPA des 1439 jeux en entier |
+
+Huit autres sous-domaines (`sae`, `educatifs`, `musique`, `suppleance`,
+`evaluation`, `tni`, `grille`, `agenda`) répondaient déjà 301. Ces trois-là
+étaient les derniers à servir une copie parallèle du site : deux URL pour un
+même contenu, donc du contenu dupliqué pour Google et deux versions à
+maintenir.
+
+### Les cibles, et pourquoi `gym.` ne va pas vers `/apps/gym/`
+
+`/apps/gym/` **n'existe pas** — vérifié, 404. L'app du gymnase vit sous
+`/apps/transitions/`, et ce n'est pas une copie : c'est la **version
+suivante**. Comparaison des deux DOM, 9 août 2026 :
+
+| `gym.` — 5 onglets | `/apps/transitions/` |
+|---|---|
+| SIGNAUX — 8 cartes | Signaux Visuels — **14** cartes |
+| CHRONO | Chrono Transition |
+| ZONES | Zones Matériel |
+| STAFF | Capitaines de Transition |
+| GUIDE | 📖 Comment utiliser |
+| Plan du Gymnase | Plan du Gymnase |
+| — | **Trame Sonore** (absente de `gym.`) |
+
+Mêmes fichiers audio de part et d'autre (`assis.mp3`, `cocus.mp3`,
+`gameon.mp3`, `ranger.mp3`, ambiance gymnase). **Aucune fonction n'est perdue
+à la redirection** — c'est ce qui autorise la 301 plutôt qu'une republication
+de `gym.` sous `/apps/gym/`.
+
+| Source | Destination | Code |
+|---|---|---|
+| `generateur.zonetotalsport.ca/` | `zonetotalsport.ca/apps/generateur/` | 301 |
+| `gym.zonetotalsport.ca/` | `zonetotalsport.ca/apps/transitions/` | 301 |
+| `jeux.zonetotalsport.ca/` | `zonetotalsport.ca/apps/jeux/` | 301 |
+
+### Deux réglages, différents de ceux des pages sportives
+
+1. **Correspondance des sous-chemins : oui.** Les arborescences se
+   correspondent — `jeux./app.js` et `/apps/jeux/app.js` répondent 200 tous
+   les deux, `gym./index.html` et `/apps/transitions/index.html` aussi. Sans
+   ce réglage, tout lien profond retombe à la racine de l'app.
+2. **Conserver la chaîne de requête : oui.** C'est l'inverse du choix fait
+   pour les cinq pages sportives, et c'est voulu : `?lang=en`, `?lang=es`,
+   `?lang=zh` figurent au `sitemap.xml` pour `jeux.`, et `shared/zts-menu.js`
+   documente déjà (ligne 21) que les 301 existantes **jettent la query
+   string** — `?cycle=2` s'y perd. Ne pas répéter le défaut sur les trois
+   nouvelles.
+
+### Les cartes du hub ÉP, corrigées en même temps
+
+`ep.html` portait trois cartes vers les sous-domaines. Elles pointent
+maintenant vers le domaine principal :
+
+| Carte | Avant | Après |
+|---|---|---|
+| 🤖 Générateur SAÉ IA | `generateur.zonetotalsport.ca` | `/apps/generateur/` |
+| 🎮 Banque de jeux | `jeux.zonetotalsport.ca` | `/apps/jeux/` |
+| 🤸 App Gym | `gym.zonetotalsport.ca` | **carte retirée** |
+
+La carte 🤸 « App Gym » **part** : une fois repointée, elle menait au même
+`/apps/transitions/` que la carte 🧰 « Boîte à outils » déjà présente deux
+lignes plus haut — deux cartes, une seule destination. C'est la carte 🧰 qui
+reste, elle porte le titre réel de l'app, et sa description reprend les six
+outils (règle d'or n°2, vocabulaire unifié). Pour revenir en arrière : garder
+🤸 et retirer 🧰, une ligne dans chaque cas.
+
+### Ce qui reste à faire après la pose — pas dans ce lot
+
+- **`sitemap.xml`** déclare encore `generateur.`, `gym.` et `jeux.` en `<loc>`
+  (lignes 123, 153, 159), plus les alternates `hreflang` de `jeux.`. Une fois
+  la règle en ligne, ce sont des `<loc>` qui redirigent — avertissement GSC.
+  Le même défaut existe déjà pour les huit sous-domaines redirigés depuis
+  juillet : à traiter d'un coup, pas à la pièce.
+- **~1400 fiches de jeux** (`jeux/*.html`, ligne 35 de chacune) et
+  `shared/footer.html:45`, `service-de-garde.html:101`, `daily.js:655`,
+  `sports-news.html:458,638` pointent encore vers `jeux.zonetotalsport.ca`.
+  Elles continuent de fonctionner — un saut de plus, c'est tout. Le
+  générateur `scripts/gen-jeux-fiches.js:176` doit être corrigé **avant** la
+  prochaine régénération, sinon le lot repart avec l'ancienne URL.
+
+---
+
 # Les trois règles à saisir dans le tableau de bord
 
 ## a) Transform Rule — `X-Robots-Tag: noindex`
@@ -230,21 +334,31 @@ apparaître. Deux façons de vivre avec :
 ## c) Vérifications après coup — bloc copiable
 
 ```bash
-# 1. Les 9 redirections repondent 301 vers la bonne cible
+# 1. Les 12 redirections repondent 301 vers la bonne cible
 for u in apps-nhl apps-nba apps-fifa apps/nhl-playoffs apps/nba-playoffs index-old.html teasing.html; do
   printf "%-24s %s -> %s\n" "$u" \
     "$(curl -s -o /dev/null -w '%{http_code}' "https://zonetotalsport.ca/$u")" \
     "$(curl -s -o /dev/null -w '%{redirect_url}' "https://zonetotalsport.ca/$u")"
 done
-for s in agenda ia; do
+for s in agenda ia generateur gym jeux; do
   printf "%-24s %s -> %s\n" "$s." \
     "$(curl -s -o /dev/null -w '%{http_code}' "https://$s.zonetotalsport.ca/")" \
     "$(curl -s -o /dev/null -w '%{redirect_url}' "https://$s.zonetotalsport.ca/")"
 done
 
+# 1bis. Aucun sous-domaine ne sert plus une app en 200
+for s in sae educatifs musique suppleance evaluation tni grille agenda ia generateur gym jeux; do
+  c=$(curl -s -o /dev/null -w '%{http_code}' "https://$s.zonetotalsport.ca/")
+  [ "$c" = "301" ] || [ "$c" = "302" ] && printf "%-12s %s ok\n" "$s." "$c" || printf "%-12s %s ALERTE : sert encore l app\n" "$s." "$c"
+done
+
 # 2. Un seul saut, jamais deux
-curl -s -o /dev/null -w 'agenda : %{num_redirects} saut(s)\n' -L https://agenda.zonetotalsport.ca/
-curl -s -o /dev/null -w 'ia     : %{num_redirects} saut(s)\n' -L https://ia.zonetotalsport.ca/
+for s in agenda ia generateur gym jeux; do
+  curl -s -o /dev/null -w "$s : %{num_redirects} saut(s) -> %{url_effective}\n" -L "https://$s.zonetotalsport.ca/"
+done
+
+# 2bis. La query string survit sur les trois nouvelles
+curl -s -o /dev/null -w 'jeux ?lang=en -> %{redirect_url}\n' "https://jeux.zonetotalsport.ca/?lang=en"
 
 # 3. Les fragments repondent 200 AVEC le noindex, et rien d'autre ne le porte
 for u in header.html footer.html login.html shared/header.html shared/footer.html; do
