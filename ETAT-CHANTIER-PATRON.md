@@ -188,6 +188,56 @@ défaut) et en mode intégré → premier cas d'app à deux densités (D24, 28 j
 > sans paramètre a le même effet. Le contrat est `?metier=ep|camp|sdg`, lu par
 > `init()` dans `apps/planificateur/app.js`. À vérifier au balayage des liens.
 
+#### Balayage des liens — fait le 9 août
+
+Le défaut est reproduit et mesuré : `/apps/planificateur/` nu donne
+« Planificateur — **Camp de jour** », `?metier=ep` donne
+« Éducation physique ». C'est le `<title>` et `body.dataset.metier` qui
+changent, avant même l'authentification.
+
+**Le repli n'est pas « camp » tout court.** `app.js:1785` enchaîne
+`state.hubMetier || state.groupe.metier || 'camp'` : un utilisateur qui a déjà
+un groupe garde le métier de son groupe. Seul le **nouvel** utilisateur sans
+groupe et sans paramètre tombe sur camp. Le défaut est réel mais plus étroit
+que ce qui était écrit ici.
+
+**Ce qui est corrigé.** Le rail du shell portait `/apps/planificateur/` nu et
+il est présent sur **24 apps qui déclarent pourtant leur métier** en
+`body[data-metier]` — un prof dans `echauffements` (ep) cliquait PLAN et
+atterrissait en camp. L'entrée porte maintenant `suitMetier: true` et
+`resoudreHref()` colle le métier de la page. **On n'invente rien** : page sans
+métier, le lien reste nu et l'app garde son repli.
+
+> **LE RAIL EST CONSTRUIT UNE FOIS, LE MÉTIER PEUT CHANGER APRÈS.** Le
+> sélecteur du shell appelle `choisirMetier()` à tout moment ; sans
+> rafraîchissement le lien restait figé sur le métier du chargement et le
+> défaut revenait une interaction plus tard. `rafraichirLiensMetier()` est
+> appelée depuis `choisirMetier()`. La base est gardée en attribut
+> `data-ztsh-base` et **jamais relue depuis l'href courant** : deux
+> changements de suite empileraient `?metier=ep&metier=camp`. Vérifié au banc
+> sur quatre bascules consécutives.
+
+> **LES SIX LIENS DE `index.html` SONT DU CODE MORT — corrigés quand même.**
+> Les grilles `METIERS.{ep,sdg,camp}.apps` portaient six liens nus. Ils sont
+> passés à `?metier=`, mais **ils ne s'affichent jamais** : leur seul
+> consommateur est `renderToolsGrid(METIERS[key].apps)` à la ligne 4092, gardé
+> par `currentMetier()` — qui lit `body.metier-*`, une classe que **rien ne
+> pose plus** depuis le retrait du stage 2. `renderApps(APPS_DEFAULT)` ne sert
+> que les sept outils modaux. Vestige à supprimer dans une passe de ménage,
+> pas ici. Vérifié aussi qu'`APP_URL` (l. 4018) n'écrase pas ces `url`.
+
+**Ce qui reste nu, faute de métier connu** — et qu'on ne peut pas deviner :
+
+| Où | Nombre | Pourquoi |
+|---|---|---|
+| `shared/footer.html:43` | 1 lien, 1400+ pages | le pied de page ne porte aucun métier |
+| `articles/{avance-annee-scolaire,sae-course,rentree-scolaire}.html` | 6 CTA | `<body>` sans `data-metier` |
+
+Coller un métier arbitraire y serait pire que le repli actuel. **La vraie
+suite est côté app, et c'est une décision de Joey** : soit on garde le repli
+« camp », soit le planificateur affiche un choix de métier quand il n'a ni
+paramètre ni groupe. À trancher, pas à enchaîner.
+
 ### 2. ~~Étendre le décor aux apps~~ — FAUSSE PISTE, corrigée le 4 août
 
 > **CE QUI ÉTAIT ÉCRIT ICI ÉTAIT FAUX** : « une ligne par app : la classe

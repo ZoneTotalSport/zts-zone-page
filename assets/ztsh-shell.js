@@ -34,7 +34,10 @@
   var OUTILS_DEFAUT = [
     { cle: 'JEUX', info: 'Banque de jeux',        href: '/apps/jeux/',          vedette: true },
     { cle: 'SAÉ',  info: 'Banque de SAÉ PFEQ',    href: '/apps/sae/' },
-    { cle: 'PLAN', info: 'Planificateur',         href: '/apps/planificateur/' },
+    // suitMetier : le planificateur EXIGE ?metier=ep|camp|sdg. Sans le
+    // paramètre il retombe sur « camp » et un prof d'ÉPS atterrit dans une
+    // interface de camp de jour. Voir resoudreHref().
+    { cle: 'PLAN', info: 'Planificateur',         href: '/apps/planificateur/', suitMetier: true },
     { cle: 'CHRO', info: 'Transitions et chrono', href: '/apps/transitions/' },
     { cle: 'ÉQUI', info: 'Former les équipes',    href: '/apps/omnigroupe/' },
     { cle: 'TNI',  info: 'Tableau numérique',     href: '/apps/tni/' },
@@ -207,6 +210,7 @@
       }
     }
     appliquerPersonnage(cle);
+    rafraichirLiensMetier();
 
     // Signal seulement. Aucune app n'y réagit tant qu'elle n'a pas souscrit.
     document.dispatchEvent(new CustomEvent('zts:metier-change', {
@@ -233,6 +237,35 @@
   }
 
   /* ================================================================= RAIL */
+  /* Un outil marqué `suitMetier` reçoit le métier de la page quand elle en
+     porte un (`body[data-metier]`). Page sans métier — l'accueil, par exemple,
+     où metierCourant() renvoie toujours null — le lien reste nu et l'app garde
+     son repli. On n'invente pas un métier qu'on ne connaît pas. */
+  function avecMetier(href, m) {
+    if (!m) return href;
+    return href + (href.indexOf('?') === -1 ? '?' : '&') + 'metier=' + m;
+  }
+
+  function resoudreHref(o) {
+    var href = o.href || '#';
+    if (!o.suitMetier) return href;
+    return avecMetier(href, metierCourant());
+  }
+
+  /* Le rail est construit une fois, au montage ; le sélecteur de métier peut
+     changer le métier ensuite. Sans ce rafraîchissement, un lien `suitMetier`
+     resterait figé sur le métier du chargement — le défaut réapparaîtrait une
+     interaction plus tard. La base est gardée en attribut, jamais relue depuis
+     l'href courant : deux changements de suite l'empileraient. */
+  function rafraichirLiensMetier() {
+    if (!etat || !etat.racine) return;
+    var m = metierCourant();
+    var liens = etat.racine.querySelectorAll('[data-ztsh-base]');
+    for (var i = 0; i < liens.length; i++) {
+      liens[i].setAttribute('href', avecMetier(liens[i].getAttribute('data-ztsh-base'), m));
+    }
+  }
+
   function construireRail(cfg) {
     if (!cfg.outils.length) return null;
     var casier = el('nav', 'ztsh-casier', { 'aria-label': 'Outils Zone Total Sport' });
@@ -245,8 +278,9 @@
       // <a> et non <button> : ce sont des liens. Tab et Enter fonctionnent
       // nativement, aucun écouteur clavier n'est nécessaire.
       var a = el('a', 'ztsh-outil' + (o.vedette ? ' ztsh-outil--vedette' : ''), {
-        href: o.href || '#', title: o.info || o.cle
+        href: resoudreHref(o), title: o.info || o.cle
       });
+      if (o.suitMetier) a.setAttribute('data-ztsh-base', o.href || '#');
       a.appendChild(document.createTextNode(o.cle));
       if (o.info) {
         var info = el('span', 'ztsh-outil__info', { 'aria-hidden': 'true' });
