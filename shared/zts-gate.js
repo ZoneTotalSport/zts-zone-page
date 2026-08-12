@@ -58,16 +58,9 @@
   var ready = false;
   var leaving = false;  // deconnexion en cours : ne pas redessiner le mur
 
-  // ── Drapeau de deconnexion volontaire (partage avec firebase-auth.js) ──
-  // Meme cle, meme contrat : pose synchroniquement avant signOut(), lu au
-  // debut du chargement suivant. Empeche ce portillon de transformer un
-  // getRedirectResult() fantome en session.
-  var SIGNED_OUT_KEY = 'zts_signed_out';
-  function markSignedOut() { try { sessionStorage.setItem(SIGNED_OUT_KEY, '1'); } catch (e) {} }
-  function clearSignedOut() { try { sessionStorage.removeItem(SIGNED_OUT_KEY); } catch (e) {} }
-  var _signedOutAtLoad = (function () {
-    try { return sessionStorage.getItem(SIGNED_OUT_KEY) === '1'; } catch (e) { return false; }
-  })();
+  // Le drapeau `zts_signed_out`, partage avec firebase-auth.js, a ete retire
+  // le 2026-08-12 avec le chemin redirect : son unique lecteur etait le bloc
+  // getRedirectResult de boot(). Ne pas le reintroduire sans lecteur.
 
   function injectStyles() {
     if (document.getElementById('zts-gate-css')) return;
@@ -153,7 +146,6 @@
       return;
     }
     showErr(''); busy(true);
-    clearSignedOut();   // connexion volontaire : la garde ne s'applique plus
     var p = new firebase.auth.GoogleAuthProvider();
     p.setCustomParameters({ prompt: 'select_account' });
     firebase.auth().signInWithPopup(p).catch(function (err) {
@@ -170,7 +162,6 @@
     var pass = el('ztg-pass').value || '';
     showErr('');
     if (pass.length < 6) { showErr(L.errPass); return; }
-    clearSignedOut();   // connexion/inscription volontaire
     busy(true);
     var auth = firebase.auth();
     var op = (mode === 'signup')
@@ -192,7 +183,6 @@
     if (leaving) return;
     var g = el('zts-gate');
     if (user) {
-      clearSignedOut();
       if (g) g.hidden = true;
       addLogout(user);
       document.dispatchEvent(new CustomEvent('zts:auth', { detail: { user: user } }));
@@ -215,7 +205,6 @@
     // l'usager face au mur plein ecran sur l'outil qu'il utilisait.
     b.addEventListener('click', function () {
       leaving = true;
-      markSignedOut();
       firebase.auth().signOut()
         .catch(function (e) { console.error('[ZTS Gate] signOut:', e); })
         .then(function () { window.location.href = ROOT + 'index.html'; });
@@ -239,16 +228,6 @@
       try {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-        // DEPRECIE — 2026-08-08 · RETRAIT PREVU LE 2026-08-15
-        // Conserve 7 jours uniquement pour rattraper les sessions parties en
-        // signInWithRedirect avec le build precedent (un utilisateur peut revenir
-        // sur le site apres le deploiement avec un redirect en attente).
-        // Aucun nouveau flux n'emprunte ce chemin. Supprimer le bloc complet apres le 2026-08-15.
-        firebase.auth().getRedirectResult().then(function (result) {
-          if (result && result.user && _signedOutAtLoad) {
-            firebase.auth().signOut().catch(function () {});
-          }
-        }).catch(function () {});
         firebase.auth().onAuthStateChanged(function (user) { ready = true; onAuth(user); });
       } catch (e) { fail(); }
     });
