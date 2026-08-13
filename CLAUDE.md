@@ -123,8 +123,14 @@ fusionnées (voir zts-refonte-sequencage.md, Fusions #1 à #4).
 - `feat/biblio-camp-seed` (+2), `feat/planif-cal-unifie` (+1) : chantiers en attente.
 
 ## Dette technique
-- **Aucun pre-commit hook réel installé** (`.git/hooks/pre-commit` absent). Le scan de
-  secrets est manuel pour l'instant — mettre en place un hook (ex. gitleaks) plus tard.
+- **Hook pre-commit actif depuis le 27 juillet 2026** (`core.hooksPath = .githooks`,
+  fichier `.githooks/pre-commit` — et non `.git/hooks/`, d'où la confusion de la
+  note précédente qui le disait absent). Il enchaîne trois contrôles, secrets
+  d'abord : `_scripts/verifie-secrets.sh`, `verifie-habillage.py`,
+  `verifie-glyphes-ztsh.py`. **Sur un poste neuf, le hook ne s'installe pas tout
+  seul** : `git config core.hooksPath .githooks`, sinon les trois contrôles sont
+  muets. Depuis le 12 août les mêmes contrôles tournent aussi en CI, sans filtre
+  `paths` — le hook local reste contournable par `--no-verify`, la CI non.
 - **Toolchain Node installé le 2026-06-12** : Node v24.16.0 + npm + wrangler 4.100.0 sous
   `~/.local/node` (espace utilisateur, sans sudo/Homebrew). `wrangler login` OAuth fonctionnel
   (compte `zts@hotmail.ca`). Les workers `cf-worker/*` sont désormais déployables en CLI :

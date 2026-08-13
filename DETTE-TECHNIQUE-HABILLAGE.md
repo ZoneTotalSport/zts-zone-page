@@ -445,3 +445,92 @@ ménage du design system (voir D16). Consigné pour que le prochain qui cherche
 Le cas `tni` est réel : opacité 0,15, donc translucide — le marine passerait au
 travers, teinté, et le `<canvas id="whiteboard">` garde son blanc en propre.
 Banc à faire avant d'activer le fond en densité projection.
+
+### D22 bis — RÉGLÉE le 12 août 2026, et elle cachait un défaut plus grave
+
+Le filtre `paths` du workflow est **supprimé** (pas élargi : énumérer des
+chemins est ce qui avait créé le trou). Preuve du trou, obtenue par l'API
+plutôt que par lecture du YAML : `b257195` — le correctif de favicon sur
+**1441 fichiers** de `jeux/` et `scripts/` — n'a déclenché **aucun run**
+(`gh api …/actions/runs?head_sha=b257195` → `total_count: 0`).
+
+Second effet, qui ne se déduisait pas du YAML : **GitHub évalue `paths` sur
+l'ensemble du push, pas commit par commit.** `78b26d5`, qui ne touche qu'un
+`.md` racine, a bien été vérifié — parce qu'il voyageait avec `9a1d046`, qui
+touchait `assets/`. La couverture dépendait donc du groupage des commits, pas
+de leur contenu. Une protection qui varie selon ce qu'on pousse en même temps
+est plus trompeuse qu'une protection absente.
+
+### D27 — Trois motifs de `verifie-secrets.sh` n'ont jamais rien détecté
+
+**Corrigé le 12 août 2026, en même temps que D22.** Consigné parce que la
+famille de défaut se reproduira ailleurs.
+
+Le script faisait `grep -E -o "$pattern" "$file" 2>/dev/null`, **sans `--`**.
+Les motifs commençant par un tiret étaient donc lus comme des options :
+
+```
+$ grep -E -o "-----BEGIN PRIVATE KEY-----" fichier
+grep: unrecognized option `-----BEGIN PRIVATE KEY-----'
+→ sortie 2, avalée par 2>/dev/null
+```
+
+Trois des neuf motifs étaient morts : les trois en-têtes de clé privée (nue,
+RSA, OpenSSH), c'est-à-dire tous ceux qui commencent par une suite de tirets.
+**Une clé privée nue — `id_rsa`, un `.pem` — passait sans être vue.** Le cas
+enveloppé en JSON (le motif `private_key` suivi de l'en-tête) restait couvert,
+parce que celui-là commence par un guillemet : c'est ce qui a masqué le défaut,
+la fuite de compte de service GCP la plus courante étant justement celle-là.
+
+> Les motifs eux-mêmes ne sont pas recopiés ici : ce fichier est balayé comme
+> les autres, et les citer en toutes lettres obligerait à quatre exceptions
+> pour une page de documentation. Ils sont dans `_scripts/verifie-secrets.sh`.
+> Le bloc ci-dessus en garde **un seul**, sans quoi la démonstration ne montre
+> plus rien — il a sa ligne dans `EXCEPTIONS`.
+
+Contre-épreuve jouée : une clé privée nue indexée → **ancien script sortie 0**
+(aveugle), **nouveau script sortie 1** (refusé).
+
+Trois enseignements, au-delà du correctif :
+
+1. **`2>/dev/null` sur un `grep` piloté par des données efface la différence
+   entre « rien trouvé » et « je n'ai pas pu chercher ».** C'est ce qui a rendu
+   le défaut invisible pendant des mois.
+2. Le script porte désormais un **self-test** : chaque motif est essayé à vide
+   au démarrage, et une sortie ≥ 2 arrête tout. Il ne couvre plus le `--`
+   manquant (rendu impossible par construction) mais la moitié restante du
+   risque — un motif malformé ajouté plus tard, qui échouerait pareillement en
+   silence.
+3. **Un contrôle qui ne peut pas échouer bruyamment n'est pas un contrôle.**
+   Même famille que D18 et D22 : la panne est muette, donc elle dure.
+
+Deux exceptions légitimes sont apparues quand les motifs se sont mis à
+fonctionner, portées sur le **couple fichier + valeur** et jamais sur le
+fichier seul (dispenser un fichier entier laisserait passer une vraie clé
+collée dedans) : `.githooks/README.md` cite le motif qu'il documente, et
+`cf-worker/generateur/src/firestore.js:14` fait un `.replace()` qui retire
+l'en-tête d'une clé lue dans une variable d'environnement.
+
+### D28 — `telegram-notify.js` perd sa géolocalisation sous trafic, en silence
+
+`telegram-notify.js:125` et `:166` appellent `https://ipapi.co/json/` pour
+situer la visite. Le service est sur son palier gratuit : sous chargements
+répétés il répond **429**, et c'est aujourd'hui la seule erreur console des
+pages du site.
+
+```
+$ curl -o /dev/null -w "%{http_code}" https://ipapi.co/json/
+429
+```
+
+Relevé le 12 août pendant les essais du LOT 0 — mes propres chargements ont
+suffi à déclencher la limite, ce qui donne une idée du seuil.
+
+Conséquence : les notifications de visite arrivent quand même, **sans le pays
+ni la ville**, sans que rien ne le signale. Aucun impact visiteur.
+
+**Non corrigé** — hors périmètre du LOT 0. Trois issues, par coût croissant :
+laisser tomber la géolocalisation ; la mettre en cache dans `sessionStorage`
+(un appel par session au lieu d'un par page) ; ou la déplacer côté Worker,
+qui reçoit déjà `CF-IPCountry` de Cloudflare gratuitement — c'est la bonne
+réponse à terme, `notify.zonetotalsport.ca` répond 200 et voit déjà l'en-tête.

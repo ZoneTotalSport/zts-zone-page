@@ -1,17 +1,39 @@
-# Garde-fou du chantier d'habillage — voir DETTE-TECHNIQUE-HABILLAGE.md D18.
+# Garde-fous du depot — secrets, habillage, glyphes.
 #
-# Le mode de panne visé est silencieux : si assets/ztsh-shell.css est chargé
-# AVANT shared/zts.css ou zts-header.css, ses surcharges perdent la cascade et
-# l'habillage est partiellement inactif, sans aucune erreur ni en console ni à
-# l'œil. Ça se diagnostique comme « le shell ne marche pas » plutôt que comme
-# un ordre de balises.
-name: Verifie l'habillage
+# Deux modes de panne silencieux motivent ce workflow :
+#
+#   1. Un secret pousse est irreversible. C'est pour ca que l'etape secrets
+#      passe EN PREMIER, comme dans .githooks/pre-commit — le hook local est
+#      contournable par --no-verify, la CI ne l'est pas.
+#
+#   2. Si assets/ztsh-shell.css est charge AVANT shared/zts.css ou
+#      zts-header.css, ses surcharges perdent la cascade et l'habillage est
+#      partiellement inactif, sans aucune erreur ni en console ni a l'oeil.
+#      Ca se diagnostique comme « le shell ne marche pas » plutot que comme
+#      un ordre de balises. Voir DETTE-TECHNIQUE-HABILLAGE.md D18.
+#
+# PAS DE FILTRE `paths` — retire le 12 aout 2026 (D22). Il valait
+# ['apps/**', 'assets/ztsh-*', 'shared/**', '_scripts/verifie-*'] et laissait
+# la racine, jeux/ et articles/ sans aucun controle : firebase-auth.js,
+# firestore.rules, index.html, les scripts de verrou et locked-whitelist.json
+# passaient en CI sans etre regardes. Preuve : b257195 (le favicon de 1440
+# pages, 1441 fichiers) n'a declenche AUCUN run.
+#
+# Deuxieme raison, moins visible et plus penible : GitHub evalue `paths` sur
+# l'ENSEMBLE du push, pas commit par commit. Un commit racine etait donc
+# controle ou non selon ce qu'on se trouvait pousser avec lui — 78b26d5 (un
+# seul .md) a ete verifie parce qu'il voyageait avec 9a1d046, qui touchait
+# assets/. Une couverture qui depend du groupage des commits est moins fiable
+# qu'une absence de filtre. Enumerer des chemins est ce qui a cree le trou ;
+# on n'en ajoute donc pas, on supprime le filtre.
+#
+# Cout : ~35 s (secrets, arbre complet) + ~27 s (habillage + glyphes) sur
+# chaque push, au lieu d'a peu pres un push sur deux.
+name: Garde-fous du depot
 
 on:
   push:
-    paths: ['apps/**', 'assets/ztsh-*', 'shared/**', '_scripts/verifie-*']
   pull_request:
-    paths: ['apps/**', 'assets/ztsh-*', 'shared/**', '_scripts/verifie-*']
   workflow_dispatch:
 
 jobs:
@@ -25,6 +47,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      # --arbre est OBLIGATOIRE ici : la CI n'a pas d'index, et le mode indexe
+      # y trouverait zero fichier. Le script refuse ce cas (sortie 2) plutot
+      # que de rendre un vert qui n'a rien lu — mais autant ne pas l'y mettre.
+      - name: Detection de secrets
+        run: bash _scripts/verifie-secrets.sh --arbre
 
       - name: Conformite de l'habillage
         run: python3 _scripts/verifie-habillage.py
