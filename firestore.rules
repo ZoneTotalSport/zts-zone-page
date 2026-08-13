@@ -41,13 +41,27 @@ service cloud.firestore {
 
     // ─────────────────────────────────────────────────────────
     // leads — courriels captures par le popup newsletter (anonymes).
-    // Create-only cote client : email string, ts=serverTimestamp.
-    // Lecture/maj/suppression interdites (export via console Firebase).
+    // Create-only cote client. Lecture/maj/suppression interdites :
+    // l'export passe par la console Firebase.
+    //
+    // Unique ecrivain : zts-newsletter.js (saveLead). Depuis le 12 aout 2026,
+    // le succes de cette ecriture est ce qui decide de ce que voit le visiteur
+    // — le worker Resend est debranche. Une regle trop stricte ne perd donc
+    // plus seulement un lead : elle envoie quelqu'un vers le chemin d'echec.
+    // Toute modification ici se teste AVEC le pop-up, pas seulement au simulateur.
+    //
+    // `hasOnly` ferme la collection a l'ecriture libre : sans lui, n'importe
+    // qui peut y deposer des documents de 1 Mio, en anonyme, autant de fois
+    // qu'il veut. Les cinq cles sont exactement celles que saveLead envoie.
     // ─────────────────────────────────────────────────────────
     match /leads/{leadId} {
-      allow create: if request.resource.data.email is string
+      allow create: if request.resource.data.keys().hasOnly(['email', 'source', 'lang', 'page', 'ts'])
+                    && request.resource.data.email is string
                     && request.resource.data.email.size() > 3
                     && request.resource.data.email.size() < 200
+                    // Format : un @ unique, un point apres, aucune espace.
+                    // matches() est un match PLEIN en RE2 — pas besoin d'ancres.
+                    && request.resource.data.email.matches('[^@\\s]+@[^@\\s]+[.][^@\\s]+')
                     && request.resource.data.ts == request.time;
       allow read, update, delete: if false;
     }

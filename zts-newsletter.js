@@ -7,8 +7,25 @@
  * - Déclencheurs : exit-intent (desktop), 50% de scroll, ou 35s.
  * - Cap de fréquence : ne réapparaît pas avant DISMISS_DAYS après fermeture,
  *   jamais si déjà abonné ou déjà connecté.
- * - Soumission → worker Resend (zts-send-pdf) qui envoie l'accès par courriel.
+ * - Soumission → courriel écrit dans Firestore `leads`, puis accès donné TOUT
+ *   DE SUITE, en clair dans la confirmation.
  * - Bouton secondaire → compte complet (ztsShowSignup) avec courriel pré-rempli.
+ *
+ * PLUS AUCUN COURRIEL N'EST ENVOYE — 12 aout 2026.
+ * Le worker Resend (zts-send-pdf) est debranche : il repond
+ * {"ok":false,"error":"API key is invalid"}. Consequences de l'ancien code, qui
+ * faisait dependre le succes de CE worker :
+ *   1. le visiteur voyait « Oups, reessaie dans un instant » alors que son
+ *      courriel venait d'etre enregistre — il croyait avoir echoue ;
+ *   2. markDone() n'etait jamais appele, donc le pop-up revenait le harceler
+ *      a chaque visite, indefiniment ;
+ *   3. la confirmation promettait « verifie ta boite courriel » pour un
+ *      courriel qui ne partait pas.
+ * Le succes depend desormais de l'ECRITURE FIRESTORE, qui, elle, fonctionne
+ * (regles `leads` en place et verifiees en prod le 12 aout). L'acces est donne
+ * dans la modale : plus rien a attendre dans une boite de reception.
+ * Pour reactiver l'envoi un jour : remettre un appel au worker APRES la
+ * confirmation, en best-effort, et surtout PAS comme condition de succes.
  *
  * Aucune dépendance obligatoire. Si firebase-auth.js est présent, on saute les
  * membres connectés. Charger avec `defer`.
@@ -16,8 +33,8 @@
 (function () {
   'use strict';
 
-  var WORKER_URL = 'https://zts-send-pdf.zts-ccd.workers.dev';
   var APP_URL = 'https://zonetotalsport.ca/apps/cours-maternelle/?token=DEMO2026';
+  var SAVE_TIMEOUT_MS = 6000;   // au-dela, on ouvre l'acces sans attendre l'ecriture
   var DELAY_MS = 35000;
   var SCROLL_RATIO = 0.5;
   var DISMISS_DAYS = 10;
@@ -43,12 +60,12 @@
     fr: {
       kicker: 'CADEAU GRATUIT',
       title: 'Reçois tes 90 cours clé en main',
-      sub: 'Des jeux et idées testés au gymnase, droit dans ta boîte courriel. 100 % gratuit, pour toujours. Aucune carte de crédit.',
+      sub: 'Des jeux et idées testés au gymnase. Laisse ton courriel : l’accès s’ouvre tout de suite. 100 % gratuit, pour toujours.',
       ph: 'ton@courriel.ca',
-      btn: '🎁 Envoie-moi l’accès',
-      sending: 'Envoi…',
-      ok: '🎉 C’est parti! Vérifie ta boîte courriel (et tes indésirables).',
-      err: 'Oups, réessaie dans un instant.',
+      btn: '🎁 Débloque mes 90 cours',
+      sending: 'Un instant…',
+      ok: '🎉 C’est parti! Tes 90 cours t’attendent :',
+      okBtn: 'Ouvrir mes 90 cours →',
       bad: 'Entre un courriel valide.',
       full: 'Je veux plutôt créer mon compte complet',
       close: 'Fermer',
@@ -57,12 +74,12 @@
     en: {
       kicker: 'FREE GIFT',
       title: 'Get your 90 ready-to-use lessons',
-      sub: 'Gym-tested games and ideas, straight to your inbox. 100% free, forever. No credit card.',
+      sub: 'Gym-tested games and ideas. Leave your email — access opens right away. 100% free, forever.',
       ph: 'you@email.com',
-      btn: '🎁 Send me access',
-      sending: 'Sending…',
-      ok: '🎉 Done! Check your inbox (and spam folder).',
-      err: 'Oops, try again in a moment.',
+      btn: '🎁 Unlock my 90 lessons',
+      sending: 'One moment…',
+      ok: '🎉 Done! Your 90 lessons are waiting:',
+      okBtn: 'Open my 90 lessons →',
       bad: 'Enter a valid email.',
       full: 'I’d rather create my full account',
       close: 'Close',
@@ -97,20 +114,52 @@
     var s = document.createElement('script'); s.src = src; s.onload = cb;
     s.onerror = function () { cb(); }; document.head.appendChild(s);
   }
+  /* Ecrit le courriel dans `leads` et rend une promesse.
+     Avant le 12 aout 2026 cette fonction etait un tir-et-oublie : le resultat
+     de l'ecriture n'etait lu par personne, et c'est la reponse du worker Resend
+     qui decidait de ce que voyait le visiteur. Elle rend desormais une promesse,
+     parce que c'est ELLE qui decide.
+
+     La promesse se resout TOUJOURS au bout de SAVE_TIMEOUT_MS au plus : le SDK
+     Firestore se charge a la demande (les fiches de jeux ne l'embarquent pas),
+     et un reseau lent ne doit pas laisser le visiteur devant un bouton
+     desactive. Mieux vaut ouvrir l'acces sans avoir confirme l'ecriture que
+     retenir quelqu'un qui a fait ce qu'on lui demandait.
+
+     Regles : `leads` est create-only cote client (firestore.rules:47-53) —
+     email string de 3 a 200 caracteres, ts == request.time. Aucune lecture
+     publique : l'export passe par la console Firebase. */
   function saveLead(email) {
-    if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) return;
-    function write() {
-      try {
-        firebase.firestore().collection('leads').add({
-          email: email, source: 'newsletter_popup', lang: lang(),
-          page: location.pathname,
-          ts: firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(function () {});
-      } catch (e) {}
-    }
-    if (firebase.firestore) { write(); return; }
-    loadScript('https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js', function () {
-      if (firebase.firestore) write();
+    return new Promise(function (resolve, reject) {
+      var fini = false;
+      var minuteur = setTimeout(function () {
+        if (fini) return;
+        fini = true;
+        reject(new Error('delai-depasse'));
+      }, SAVE_TIMEOUT_MS);
+
+      function ok()  { if (fini) return; fini = true; clearTimeout(minuteur); resolve(); }
+      function ko(e) { if (fini) return; fini = true; clearTimeout(minuteur); reject(e || new Error('echec')); }
+
+      if (typeof firebase === 'undefined' || !firebase.apps || !firebase.apps.length) {
+        ko(new Error('firebase-absent')); return;
+      }
+      function write() {
+        try {
+          firebase.firestore().collection('leads').add({
+            email: email, source: 'newsletter_popup', lang: lang(),
+            page: location.pathname,
+            ts: firebase.firestore.FieldValue.serverTimestamp()
+          }).then(ok, ko);
+        } catch (e) { ko(e); }
+      }
+      if (firebase.firestore) { write(); return; }
+      // loadScript rappelle son callback MEME en cas d'erreur reseau : on
+      // reteste donc firebase.firestore plutot que de supposer le chargement.
+      loadScript('https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js', function () {
+        if (firebase.firestore) write();
+        else ko(new Error('firestore-indisponible'));
+      });
     });
   }
 
@@ -218,33 +267,55 @@
       var tr2 = t();
       var email = input.value.trim();
       if (!email || email.indexOf('@') < 1) { showMsg(tr2.bad, 'err'); return; }
-      btn.disabled = true; var label = btn.textContent; btn.textContent = tr2.sending;
+      btn.disabled = true; btn.textContent = tr2.sending;
       track('newsletter_submit', { source: 'popup' });
 
-      // Lead → Firestore (ta copie exportable)
-      saveLead(email);
-
-      // Envoi de l'accès par courriel via le worker Resend
-      fetch(WORKER_URL, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, lang: lang(), appUrl: APP_URL, pdf: '90cours' })
-      })
-      .then(function (r) { return r.json().catch(function () { return { ok: r.ok }; }); })
-      .then(function (res) {
-        if (res && res.ok) {
-          markDone();
+      // Le visiteur a donne son courriel : il obtient son acces, point. Que
+      // l'ecriture aboutisse ou non ne le regarde pas — c'est notre probleme,
+      // pas le sien. D'ou le meme ecran dans les deux cas, et markDone() dans
+      // les deux cas : le harceler a la visite suivante serait le punir d'un
+      // defaut qui n'est pas le sien.
+      // L'echec reste visible POUR NOUS, par un evenement de tunnel distinct.
+      saveLead(email)
+        .then(function () {
           track('newsletter_complete', { source: 'popup' });
-          form.style.display = 'none';
-          ov.querySelector('.zts-nl-full').style.display = 'none';
-          showMsg(t().ok, 'ok');
-          setTimeout(function () { ov.classList.remove('open'); setTimeout(function () { if (ov.parentNode) ov.remove(); }, 320); }, 3500);
-        } else {
-          btn.disabled = false; btn.textContent = label;
-          showMsg(t().err, 'err');
-        }
-      })
-      .catch(function () { btn.disabled = false; btn.textContent = label; showMsg(t().err, 'err'); });
+        })
+        .catch(function (e) {
+          track('newsletter_save_failed', { source: 'popup', reason: (e && e.message) || 'inconnu' });
+        })
+        .then(function () {
+          markDone();
+          donnerAcces();
+        });
     });
+
+    /* Confirmation : l'acces EN CLAIR, tout de suite. Plus de « verifie ta
+       boite courriel » — plus aucun courriel ne part (voir l'en-tete). */
+    function donnerAcces() {
+      form.style.display = 'none';
+      var plein = ov.querySelector('.zts-nl-full');
+      if (plein) plein.style.display = 'none';
+
+      var tr3 = t();
+      showMsg(tr3.ok, 'ok');
+
+      // Un lien, pas un bouton : il doit rester ouvrable dans un nouvel onglet
+      // et survivre a la fermeture de la modale.
+      if (!ov.querySelector('.zts-nl-go')) {
+        var a = document.createElement('a');
+        a.className = 'zts-nl-btn zts-nl-go';
+        a.href = APP_URL;
+        a.textContent = tr3.okBtn;
+        a.style.display = 'block';
+        a.style.textDecoration = 'none';
+        a.style.textAlign = 'center';
+        a.style.marginTop = '12px';
+        a.addEventListener('click', function () { track('newsletter_open_gift', { source: 'popup' }); });
+        msg.parentNode.insertBefore(a, msg.nextSibling);
+      }
+      // La modale ne se referme plus toute seule : le lien est l'objet meme de
+      // la visite, l'escamoter au bout de 3,5 s ferait perdre le cadeau.
+    }
 
     requestAnimationFrame(function () { requestAnimationFrame(function () { ov.classList.add('open'); }); });
     setTimeout(function () { if (ov.parentNode) ov.classList.add('open'); }, 60);
