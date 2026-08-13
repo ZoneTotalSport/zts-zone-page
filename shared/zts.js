@@ -23,6 +23,25 @@
     document.head.appendChild(_ztsNotif);
   }
 
+  /* ---------- ANALYTICS GA4 (site-wide) ----------
+     analytics.js n'était chargé que sur ~52 pages (blog/articles) : ni la home
+     ni les 1440 fiches de jeux → GA4 aveugle sur l'essentiel du trafic. On le
+     charge partout via zts.js. Le Consent Mode v2 (default deny, opt-in RGPD)
+     est géré dans analytics.js + cookie-consent.js, donc aucun cookie n'est
+     posé sans consentement.
+     Injection différée à DOMContentLoaded : sur les 52 pages qui incluent déjà
+     analytics.js en dur, la garde anti-double-chargement ne peut le détecter de
+     façon fiable qu'une fois le DOM parsé (sinon race → GA4 chargé 2×). */
+  function injectAnalytics() {
+    if (document.querySelector('script[src*="analytics.js"]')) return;
+    var _ztsGa = document.createElement('script');
+    _ztsGa.src = ROOT + 'analytics.js';
+    _ztsGa.defer = true;
+    document.head.appendChild(_ztsGa);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectAnalytics);
+  else injectAnalytics();
+
   const STORE_KEY = 'zts_lang';
   let dict = {};                 // dictionnaire de la langue active
   let lang = 'fr';
