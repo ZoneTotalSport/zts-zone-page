@@ -70,11 +70,23 @@
       e.preventDefault();
       e.stopPropagation();
       try { sessionStorage.setItem('zts_signup_source', 'locked_card'); } catch (e2) {}
-      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: kind || 'grid', slug: slug, cta_source: 'locked_card' });
+
+      // UN SEUL `locked_click_signup` PAR INTENTION — corrige le 2026-08-13.
+      // Ce clic-ci ouvre le pop-up plein ecran, il ne demande pas encore une
+      // inscription : c'est le pop-up qui fait l'offre, et c'est son bouton
+      // (zts-locked-fullscreen.js:105) qui emet l'evenement. Emettre ici AUSSI
+      // comptait deux fois la meme intention et gonflait le numerateur du
+      // tunnel sans qu'aucune inscription de plus n'ait ete tentee.
+      // Le pop-up trace deja son propre `locked_view` avec layer:'fullscreen',
+      // donc la sequence reste complete : vue -> clic -> inscription.
       if (window.ztsShowLockedFullscreen) {
         window.ztsShowLockedFullscreen({ source: kind || 'grid', slug: slug, targetUrl: url, closable: true });
         return;
       }
+
+      // Repli : pas de pop-up disponible, ce clic-ci EST la demande
+      // d'inscription — c'est le seul cas ou cet emetteur doit parler.
+      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: kind || 'grid', slug: slug, cta_source: 'locked_card' });
       if (url && window.ztsSetProtected) window.ztsSetProtected(url);
       if (window.ztsShowSignup) window.ztsShowSignup();
     });

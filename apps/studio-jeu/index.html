@@ -243,6 +243,15 @@
 
   </nav>
 
+  <!-- PAS de mur d'inscription ici — decision Joey, 2026-08-13.
+       admin-gate.js ne laisse passer qu'ADMIN_EMAILS : l'app est deja privee,
+       et elle n'a qu'un seul utilisateur. Un mur « compte gratuit » par-dessus
+       n'aurait ferme aucune porte ouverte, seulement ajoute quatre scripts et
+       une seconde barriere a un outil qui en a deja une plus stricte.
+       Le seul gain theorique — un inconnu ne telecharge plus l'editeur avant
+       d'etre refuse — ne valait pas la redondance.
+       zts-cadenas.js ne pose pas non plus de pastille sur le lien du pied de
+       page : son libelle porte deja « 🔒 Administrateur ». -->
   <script src="admin-gate.js?v=4"></script>
   <script type="module" src="studio.js?v=14"></script>
 

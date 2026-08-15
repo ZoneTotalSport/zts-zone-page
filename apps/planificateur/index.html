@@ -864,7 +864,16 @@ body.pv2.tbi .pv2-gopt,body.pv2.tbi .pv2-fait{min-height:60px}
   <div data-zts-footer></div>
 
   <script src="../../shared/zts.js"></script>
+  <!-- Verrou d'inscription — LOT 1 vague A, 2026-08-13.
+       Le planificateur etait l'une des 7 apps sans aucun verrou, alors qu'il
+       est l'outil le plus lourd du site et qu'il est expose par le pied de page
+       partage (~1489 pages). Meme patron que les 11 apps deja gardees.
+       Le mur est independant de D24 : il se pose par-dessus l'app, quel que
+       soit le mode (`?v2=1` plein ecran ou normal avec en-tete partage). -->
+  <script src="/zts-lock-page.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
+  <script src="/zts-locked-fullscreen.js" defer></script>
+  <script src="/zts-funnel.js" defer></script>
   <script src="dataStore.js" defer></script>
   <script src="tiroir-jeux.js" defer></script>
   <script src="semaine-grid.js" defer></script>

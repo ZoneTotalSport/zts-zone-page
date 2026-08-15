@@ -267,6 +267,20 @@
       nl.defer = true;
       document.body.appendChild(nl);
     }
+
+    // Pastilles « compte gratuit requis » sur le menu et le pied de page.
+    // Chargé ICI, après l'injection du chrome partagé, parce que c'est lui
+    // qu'il annote — 24 des 27 liens /apps/ du site vivent dans ces deux
+    // fragments, pas dans les pages. Il n'est PAS exclu des /apps/* : le menu
+    // y est aussi, et un visiteur déjà derrière un mur gagne à voir lesquelles
+    // des autres portes sont ouvertes.
+    if (!document.getElementById('zts-cad-loader')) {
+      var cad = document.createElement('script');
+      cad.id = 'zts-cad-loader';
+      cad.src = ROOT + 'zts-cadenas.js';
+      cad.defer = true;
+      document.body.appendChild(cad);
+    }
   }
 
   // API publique
