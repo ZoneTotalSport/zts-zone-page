@@ -751,9 +751,169 @@ Réponds UNIQUEMENT avec un JSON valide, sans texte autour : {"items":[{"name":"
   return json({ ok: true, items });
 }
 
+// ────────────────────────────────────────────────────────────
+// /decodage — proxy Anthropic durci pour « Zone — Décodage du corps »
+// (app privée de Joey, /apps/decodage/). Le bundle front appelle cette
+// route en fetch cross-origin credentials:"omit" et lit le corps Anthropic
+// BRUT ((await res.json()).content) : pas d'enveloppe {ok, data}.
+// Durcissements : system client JETÉ (copie serveur byte-identique au
+// bundle), modèle imposé, max_tokens plafonné, Origin filtré, quota KV
+// journalier par IP propre à cette app (préfixe deco:, ≠ compteur anon
+// mensuel du générateur).
+// DETTE ASSUMÉE : la route reste appelable anonymement — le bundle
+// n'envoie aucun jeton, la vraie correction (jeton Firebase vérifié ici)
+// imposerait de recompiler le bundle. Hors périmètre, voir
+// APP-DECODAGE-COMPLETE.md.
+// ────────────────────────────────────────────────────────────
+
+const DECODAGE_ORIGIN = "https://zonetotalsport.ca";
+const DECODAGE_MODEL = "claude-sonnet-4-6"; // imposé — le client ne choisit pas ;
+// pas de haiku : réponses en JSON strict, le front ne réessaie qu'une fois.
+const DECODAGE_MAX_TOKENS = 8000;
+const DECODAGE_QUOTA_JOUR = 50;
+const DECODAGE_MAX_MESSAGES = 40;
+const DECODAGE_MAX_CHARS = 60000;
+
+const SYSTEM_DECODAGE = `Tu es le guide de décodage de l'application « Zone — Décodage du corps », créée par Joey (ZoneTotalSport). Tu accompagnes l'utilisateur dans l'exploration du sens émotionnel de ses symptômes physiques selon sept approches : Dr Hamer (Médecine Nouvelle Germanique — DHS, 5 lois, feuillets embryonnaires, phases), Claude Sabbah (Biologie Totale — projet-sens, conflit programmant vs déclenchant, transgénérationnel, cycles mémorisés), Christian Flèche (décodage biologique — 4 étages de conflits, ressenti conflictuel), Jacques Martel (dictionnaire malaises-émotions, langage des oiseaux, 5 étapes, technique TIC), Claudia Rainville (Métamédecine — questionnement daté, symbolique du corps), la Médecine traditionnelle chinoise (5 éléments Bois/Feu/Terre/Métal/Eau, correspondance organes-émotions : Foie=colère, Cœur=joie excessive, Rate=rumination, Poumon=tristesse, Rein=peur; Yin/Yang, vide/plénitude, chaleur/froid, humidité; horloge des méridiens par plages de 2 h; rééquilibrage par alimentation énergétique, saisons, points d'acupression, respiration et qi gong) et Dr. Sebi (approche alcaline : le mucus et l'acidité comme terrain, aliments « électriques », grains alcalins comme quinoa/fonio/épeautre/teff, plantes signature : sea moss, bladderwrack, bardane, salsepareille, pissenlit, sureau; exclusion des transformés, laitages, viandes et hybrides).
+
+ANALYSE EXHAUSTIVE OBLIGATOIRE : le texte de l'utilisateur peut contenir plusieurs symptômes, des mots chargés, des blessures émotionnelles, des situations de vie, des dates, des côtés du corps (droite/gauche), des personnes. Tu dois TOUT prendre en compte : chaque symptôme nommé, chaque mot significatif (décode-les aussi par le langage des oiseaux quand ça s'applique), chaque détail de contexte. Si plusieurs symptômes ou éléments sont écrits, chaque texte d'interprétation les couvre TOUS, un par un, et cherche aussi le lien entre eux (les conflits qui les relient selon chaque approche). Ne laisse rien de côté : donne toutes les interprétations et toutes les solutions possibles en fonction de ce qui est écrit, même quand l'entrée n'est pas un symptôme physique (une blessure émotionnelle, un mot, un rêve, une situation — décode-la avec les mêmes grilles). IMPORTANT : chaque champ "texte" fait 2 à 4 phrases maximum, denses — le JSON doit TOUJOURS être complet et fermé.
+
+FORMAT DE RÉPONSE OBLIGATOIRE : réponds UNIQUEMENT avec un objet JSON valide, sans backticks, sans texte avant ou après, avec exactement cette structure :
+{"intro":"1-2 phrases chaleureuses sur le symptôme et son sens général","interpretations":[{"auteur":"Hamer","emoji":"🧠","texte":"feuillet embryonnaire, type de conflit biologique, sens biologique"},{"auteur":"Flèche","emoji":"🪶","texte":"étage, tonalité, ressenti conflictuel typique"},{"auteur":"Sabbah","emoji":"🌳","texte":"piste programmant/déclenchant, angle transgénérationnel"},{"auteur":"Martel","emoji":"📖","texte":"émotion du dictionnaire + langage des oiseaux si applicable"},{"auteur":"Rainville","emoji":"🌷","texte":"symbolique du corps + sa question datée typique"},{"auteur":"Médecine chinoise","emoji":"☯️","texte":"élément et organe (Zang/Fu), émotion associée, déséquilibre (vide/plénitude, chaleur/froid, humidité), plage de l'horloge des méridiens si pertinente"},{"auteur":"Dr. Sebi","emoji":"🌿","texte":"lecture terrain acidité/mucus de ce symptôme selon son approche"}],"solutions":[{"auteur":"Hamer / Flèche","emoji":"🧠","texte":"résolution du conflit, verbalisation du ressenti"},{"auteur":"Sabbah","emoji":"🌳","texte":"prise de conscience du cycle, travail sur l'arbre"},{"auteur":"Martel","emoji":"📖","texte":"les 5 étapes appliquées + une affirmation nouvelle concrète"},{"auteur":"Rainville","emoji":"🌷","texte":"changement d'attitude concret"},{"auteur":"Médecine chinoise","emoji":"☯️","texte":"rééquilibrage concret : aliments énergétiques précis, 1-2 points d'acupression nommés (ex. ST36, HT7), respiration ou qi gong adapté"},{"auteur":"Dr. Sebi","emoji":"🌿","texte":"aliments alcalins et plantes précises de son guide pour ce symptôme, aliments à retirer"}],"question":"UNE question d'introspection, la plus pertinente pour ce symptôme"}
+
+Si l'utilisateur répond ensuite à la question, renvoie le MÊME format JSON (avec "mode":"decodage") mais avec des interprétations et solutions AFFINÉES selon ses éléments personnels, et une nouvelle question qui creuse plus loin.
+
+Le message peut contenir « Approches qui m'interpellent le plus : … ». Dans ce cas, oriente davantage les textes vers CES approches (plus détaillées, plus personnalisées), mais donne quand même les réponses pour TOUTES les approches.
+
+MODE GUÉRISON : si le message commence par « GUÉRISON », renvoie UNIQUEMENT ce JSON (sans backticks) :
+{"mode":"guerison","intro":"1-2 phrases sur la blessure émotionnelle identifiée","questions":["4 à 6 questions puissantes à se poser pour aller au cœur de la blessure, inspirées des approches qui l'interpellent"],"actions":[{"auteur":"nom de l'approche","emoji":"…","texte":"quoi faire ICI ET MAINTENANT selon cette approche : geste concret, verbalisation, étape précise"}],"affirmation":"une affirmation nouvelle style Martel, personnalisée au vécu partagé"}
+Les actions couvrent toutes les approches mais commencent par celles qui l'interpellent, avec plus de profondeur.
+Ajoute "mode":"decodage" au JSON standard de décodage.
+Textes courts et denses, tutoiement, français québécois naturel.
+
+RÈGLE UNIQUE DE SÉCURITÉ : si le symptôme décrit sonne comme une urgence médicale (douleur thoracique intense, masse nouvelle, saignement inhabituel, symptômes neurologiques soudains, détresse respiratoire), mentionne UNE SEULE FOIS, en une phrase brève au début, que ce type de symptôme mérite une évaluation médicale rapide, puis poursuis le décodage normalement. Ne répète jamais cette mention et n'ajoute aucun autre avertissement médical dans la conversation.`;
+
+// CORS propres à /decodage : origine unique, POST seulement, PAS de
+// Allow-Credentials (le front est en credentials:"omit").
+function decodageCors() {
+  return {
+    "Access-Control-Allow-Origin": DECODAGE_ORIGIN,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Vary": "Origin",
+  };
+}
+
+function decodageJson(body, status) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json; charset=utf-8", ...decodageCors() },
+  });
+}
+
+function decodageErr(code, message, status) {
+  return decodageJson({ ok: false, code, message }, status);
+}
+
+function decodageDayKey(ip) {
+  const d = new Date();
+  const jour = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-${String(d.getUTCDate()).padStart(2, "0")}`;
+  return `deco:${ip}:${jour}`;
+}
+
+function validateDecodageMessages(messages) {
+  if (!Array.isArray(messages) || messages.length === 0) return "messages doit être un tableau non vide";
+  if (messages.length > DECODAGE_MAX_MESSAGES) return `messages : max ${DECODAGE_MAX_MESSAGES} entrées`;
+  let total = 0;
+  for (const m of messages) {
+    if (!m || typeof m !== "object") return "chaque message doit être un objet";
+    if (m.role !== "user" && m.role !== "assistant") return "role doit être user ou assistant";
+    if (typeof m.content !== "string") return "content doit être une string";
+    total += m.content.length;
+  }
+  if (total > DECODAGE_MAX_CHARS) return `messages : max ${DECODAGE_MAX_CHARS} caractères cumulés`;
+  return null;
+}
+
+async function handleDecodage(request, env) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: decodageCors() });
+  }
+  if (request.method !== "POST") {
+    return decodageErr("METHOD_NOT_ALLOWED", "POST seulement", 405);
+  }
+
+  // Filtre d'origine : app privée servie depuis zonetotalsport.ca uniquement.
+  if (request.headers.get("Origin") !== DECODAGE_ORIGIN) {
+    return decodageErr("FORBIDDEN", "Origine non autorisée", 403);
+  }
+
+  const apiKey = env.ANTHROPIC_API_KEY;
+  if (!apiKey) return decodageErr("CONFIG_MISSING", "ANTHROPIC_API_KEY manquante", 500);
+
+  let body;
+  try { body = await request.json(); } catch { return decodageErr("INVALID_INPUT", "Body JSON malformé", 400); }
+
+  const probleme = validateDecodageMessages(body?.messages);
+  if (probleme) return decodageErr("INVALID_INPUT", probleme, 400);
+
+  // Quota KV journalier par IP — AVANT tout appel Anthropic.
+  const ip = getClientIp(request);
+  const cle = decodageDayKey(ip);
+  let utilise = 0;
+  try {
+    utilise = parseInt((await env.ANON_QUOTA.get(cle)) || "0", 10) || 0;
+  } catch (e) {
+    return decodageErr("QUOTA_ERROR", "Impossible de vérifier le quota : " + e.message, 500);
+  }
+  if (utilise >= DECODAGE_QUOTA_JOUR) {
+    return decodageErr("QUOTA_EXCEEDED", `Limite quotidienne atteinte (${utilise}/${DECODAGE_QUOTA_JOUR}). Réessaie demain.`, 429);
+  }
+
+  // Appel Anthropic — system CLIENT JETÉ, copie serveur à la place.
+  const upstream = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: DECODAGE_MODEL,
+      max_tokens: Math.min(Number(body?.max_tokens) || DECODAGE_MAX_TOKENS, DECODAGE_MAX_TOKENS),
+      system: SYSTEM_DECODAGE,
+      messages: body.messages,
+    }),
+  });
+
+  if (upstream.ok) {
+    try {
+      await env.ANON_QUOTA.put(cle, String(utilise + 1), { expirationTtl: 86400 });
+    } catch (e) {
+      console.warn("Quota decodage increment failed:", e.message);
+    }
+  }
+
+  // Corps Anthropic BRUT, statut d'origine, en-têtes CORS.
+  return new Response(upstream.body, {
+    status: upstream.status,
+    headers: {
+      "Content-Type": upstream.headers.get("Content-Type") || "application/json; charset=utf-8",
+      ...decodageCors(),
+    },
+  });
+}
+
 export default {
   async fetch(request, env, ctx) {
     currentOrigin = request.headers.get("Origin");
+
+    // /decodage gère lui-même OPTIONS + CORS (origine unique, credentials omis)
+    // — placé avant le 204 générique pour que le préflight reçoive SES en-têtes.
+    if (new URL(request.url).pathname === "/decodage") {
+      try { return await handleDecodage(request, env); }
+      catch (e) { return decodageErr(e.code || "INTERNAL", e.message, 500); }
+    }
 
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders() });
