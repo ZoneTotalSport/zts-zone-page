@@ -171,6 +171,73 @@
 
   <div class="toast" id="toast"></div>
 
+  <!-- Mes outils — accès admin aux apps privées (décision Joey 2026-08).
+       Zone protégée par admin-gate.js comme le reste de la page : la garde
+       recouvre tout le body, ce bloc ne se protège pas tout seul.
+       Police : nom distinct ZoneTotalSportZTSA avec size-adjust:50% — la
+       page déclare déjà 'ZoneTotalSport' SANS size-adjust (studio.css §1,
+       titres 52px) ; réutiliser ce nom rendrait ces titres-ci au double
+       (CLAUDE.md, décision polices 2026-08-04). -->
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    @font-face{
+      font-family:'ZoneTotalSportZTSA';
+      src:url('https://zonetotalsport.ca/fonts/ZoneTotalSport.ttf') format('truetype');
+      font-display:swap;
+      size-adjust:50%;
+    }
+    .ztsadmin-outils{
+      display:flex; flex-direction:column; gap:14px;
+      max-width:640px; margin:32px auto 0; padding:0 16px; box-sizing:border-box;
+    }
+    .ztsadmin-outil{
+      display:block; text-decoration:none; box-sizing:border-box;
+      background:#00CFFF; color:#0B2A5B;
+      border:3px solid #0B2A5B; border-radius:10px;
+      box-shadow:4px 4px 0 #071B3D;
+      padding:16px 18px; min-height:44px;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .ztsadmin-outil--lime{ background:#A3FF00; }
+    .ztsadmin-outil:hover,
+    .ztsadmin-outil:focus-visible{
+      transform:translate(-2px,-2px); box-shadow:6px 6px 0 #071B3D;
+    }
+    .ztsadmin-outil:focus-visible{ outline:3px solid #FFFC00; outline-offset:3px; }
+    .ztsadmin-outil:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 #071B3D; }
+    .ztsadmin-outil__titre{
+      font-family:'ZoneTotalSportZTSA','Luckiest Guy',cursive;
+      font-size:22px; line-height:1.12; letter-spacing:.5px; margin:0;
+    }
+    .ztsadmin-outil__desc{
+      font-family:Nunito,system-ui,sans-serif; font-weight:600;
+      font-size:14px; line-height:1.4; margin:4px 0 0; opacity:.85;
+    }
+    @media (prefers-reduced-motion: reduce){
+      .ztsadmin-outil{ transition:none }
+      .ztsadmin-outil:hover,
+      .ztsadmin-outil:focus-visible,
+      .ztsadmin-outil:active{ transform:none }
+    }
+    /* Le body du studio est une colonne flex à hauteur fixe : sans ceci le
+       bloc serait comprimé par l'éditeur (flex:1) au lieu de s'afficher. */
+    .ztsadmin-outils{ flex-shrink:0; margin-bottom:28px; }
+  </style>
+
+  <nav class="ztsadmin-outils" aria-label="Mes outils">
+
+    <a class="ztsadmin-outil" href="/apps/studio-jeu/">
+      <p class="ztsadmin-outil__titre">Zone — Illustrateur de jeux</p>
+      <p class="ztsadmin-outil__desc">Générer l'illustration d'un jeu</p>
+    </a>
+
+    <a class="ztsadmin-outil ztsadmin-outil--lime" href="/apps/decodage/">
+      <p class="ztsadmin-outil__titre">Zone — Décodage du corps</p>
+      <p class="ztsadmin-outil__desc">Sens émotionnel et biologique d'un symptôme</p>
+    </a>
+
+  </nav>
+
   <script src="admin-gate.js?v=4"></script>
   <script type="module" src="studio.js?v=14"></script>
 
