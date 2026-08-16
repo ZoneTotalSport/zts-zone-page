@@ -19,6 +19,13 @@
     if (m) return { kind: 'article', slug: m[1] };
     m = p.match(/\/apps\/([^/]+)\/(?:index\.html)?$/);
     if (m) return { kind: 'resource', slug: m[1] };
+    // /jeux/foo.html -> foo — ajoute le 2026-08-15 (LOT 1, vague B).
+    // Sans cette ligne, poser ce script sur les 1440 fiches n'aurait RIEN fait :
+    // getSlug() retombait sur `return null` et init() sortait immediatement.
+    // `jeux/index.html` est exclu : c'est le hub de la banque, pas une fiche,
+    // et il doit rester ouvert (il n'expose que des titres et des liens).
+    m = p.match(/\/jeux\/([^/]+?)\.html$/);
+    if (m && m[1] !== 'index') return { kind: 'jeu', slug: m[1] };
     return null;
   }
 
@@ -45,6 +52,11 @@
     if (!info || !wl) return false;
     if (info.kind === 'article') return (wl.freeArticles || []).indexOf(info.slug) !== -1;
     if (info.kind === 'resource') return (wl.freeResources || []).indexOf(info.slug) !== -1;
+    // Les items vitrine vivent dans `freeItems`, indexe par famille — c'est le
+    // champ que la vague C fera lire aux deux SPA (jeux et sae). Il est
+    // introduit ici parce que les fiches statiques en ont besoin en premier :
+    // `freeResources` ne sait nommer que des apps entieres, pas des items.
+    if (info.kind === 'jeu') return (((wl.freeItems || {}).jeux) || []).indexOf(info.slug) !== -1;
     return false;
   }
 
@@ -100,22 +112,42 @@
     return best;
   }
 
+  // Le texte du CTA parle de ce qui est masque : « l'article » sur un article,
+  // les sections de la fiche sur un jeu. Un CTA qui promet « la suite de
+  // l'article » sur une fiche de jeu se decredibilise tout seul.
+  var CTA_TEXTES = {
+    article: {
+      titre: '🔒 La suite est réservée aux membres',
+      sous: 'Crée ton compte gratuit pour lire l’article au complet — et débloquer les 20+ outils. 100 % gratuit, pour toujours.',
+      bouton: '🔓 Lire la suite gratuitement'
+    },
+    jeu: {
+      titre: '🔒 La fiche complète est réservée aux membres',
+      sous: 'Variantes, consignes de sécurité, adaptations pour l’inclusion, rôle de l’enseignant, retour au calme : crée ton compte gratuit pour tout voir — sur cette fiche et sur les 1 438 autres. 100 % gratuit, pour toujours.',
+      bouton: '🔓 Voir la fiche complète'
+    }
+  };
+
   function buildCta(info) {
+    var tx = CTA_TEXTES[info.kind] || CTA_TEXTES.article;
     var d = document.createElement('div');
     d.className = 'zts-half-cta';
     d.innerHTML =
-      '<h3>🔒 La suite est réservée aux membres</h3>' +
-      '<p>Crée ton compte gratuit pour lire l’article au complet — et débloquer les 20+ outils. 100 % gratuit, pour toujours.</p>' +
+      '<h3>' + tx.titre + '</h3>' +
+      '<p>' + tx.sous + '</p>' +
       '<div class="zts-half-cta__btns">' +
-      '<button class="b1" data-act="signup">🔓 Lire la suite gratuitement</button>' +
+      '<button class="b1" data-act="signup">' + tx.bouton + '</button>' +
       '<button class="b2" data-act="login">Déjà membre? Se connecter</button>' +
       '</div>';
+    // UN SEUL locked_click_signup par intention : ce bouton-ci EST la demande
+    // d'inscription. Aucun autre emetteur sur la page (la fiche n'a ni carte
+    // verrouillee ni pop-up plein ecran).
     d.querySelector('[data-act=signup]').addEventListener('click', function () {
-      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: 'article', slug: info.slug });
+      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: info.kind, slug: info.slug });
       if (window.ztsShowSignup) window.ztsShowSignup();
     });
     d.querySelector('[data-act=login]').addEventListener('click', function () {
-      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_login', { source: 'article', slug: info.slug });
+      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_login', { source: info.kind, slug: info.slug });
       if (window.ztsShowLogin) window.ztsShowLogin();
     });
     return d;
@@ -145,18 +177,66 @@
   }
 
   function initArticleHalf(info) {
+    demiApercu(info, contentContainer, applyHalf);
+  }
+
+  // ===================== FICHE DE JEU TRONQUEE =====================
+  // Meme patron que les articles, sur une structure differente. La fiche est :
+  //   .fiche-wrap > .fiche-back, header.fiche-hero, nav.fiche-toc,
+  //                 section#der, .fiche-cols > 12 autres .fiche-sec, a.fiche-cta
+  // On garde visibles le heros (titre, categorie, but, chiffres cles) et les
+  // DEUX premieres sections — Deroulement et Materiel — de quoi juger le jeu et
+  // avoir envie du reste. Les onze suivantes passent en display:none, texte
+  // conserve dans le DOM (decision du 15 aout : le SEO prime, la vraie
+  // protection viendra du Worker a la vague D).
+  var SEC_VISIBLES = 2;
+
+  function ficheSections() {
+    var secs = document.querySelectorAll('.fiche-wrap .fiche-sec');
+    return secs.length ? secs : null;
+  }
+
+  function applyHalfFiche(_ignore, info) {
+    var secs = ficheSections();
+    if (!secs || secs.length <= SEC_VISIBLES) return;          // fiche trop courte
+    var hote = secs[SEC_VISIBLES].parentNode;
+    if (hote.getAttribute('data-zts-half') === '1') return;
+    for (var i = SEC_VISIBLES; i < secs.length; i++) secs[i].classList.add('zts-half-hidden');
+    // Le CTA se pose AVANT la premiere section masquee, dans son propre parent :
+    // la 3e section vit dans .fiche-cols (grille 2 colonnes), pas dans
+    // .fiche-wrap — inserer ailleurs le placerait hors du flux de lecture.
+    hote.insertBefore(buildCta(info), secs[SEC_VISIBLES]);
+    hote.setAttribute('data-zts-half', '1');
+  }
+
+  function revealAllFiche() {
+    var caches = document.querySelectorAll('.fiche-wrap .zts-half-hidden');
+    for (var i = 0; i < caches.length; i++) caches[i].classList.remove('zts-half-hidden');
+    var cta = document.querySelector('.fiche-wrap .zts-half-cta');
+    if (cta) cta.remove();
+    var hote = document.querySelector('.fiche-wrap [data-zts-half="1"]');
+    if (hote) hote.setAttribute('data-zts-half', '0');
+  }
+
+  // Tronc commun aux articles et aux fiches : couper tout de suite (pas de
+  // flash de contenu pour un anonyme), puis reveler si l'auth arrive avec un
+  // utilisateur. `locked_view` une seule fois, jamais pour un membre.
+  function demiApercu(info, trouverConteneur, couper, reveler) {
     injectHalfCss();
-    var c = contentContainer();
-    if (!c) return;
-    applyHalf(c, info);                          // optimiste : coupe tout de suite (pas de flash pour anonymes)
+    var c = trouverConteneur ? trouverConteneur() : null;
+    if (trouverConteneur && !c) return;
+    couper(c, info);
     var tracked = false;
     (function tick() {
       if (window.ztsOnAuth) {
         window.ztsOnAuth(function (user) {
-          if (user) { revealAll(c); }
+          if (user) { (reveler || revealAll)(c); }
           else {
-            applyHalf(c, info);
-            if (!tracked && window.ztsTrackFunnel) { tracked = true; window.ztsTrackFunnel('locked_view', { source: 'article', slug: info.slug }); }
+            couper(c, info);
+            if (!tracked && window.ztsTrackFunnel) {
+              tracked = true;
+              window.ztsTrackFunnel('locked_view', { source: info.kind, slug: info.slug });
+            }
           }
         });
         return;
@@ -165,12 +245,31 @@
     })();
   }
 
+  function initJeuHalf(info) {
+    demiApercu(info, null, applyHalfFiche, revealAllFiche);
+  }
+
   function init() {
     var info = getSlug();
     if (!info) return;
 
     // Articles → demi-aperçu pour tous (plus de plein écran bloquant)
     if (info.kind === 'article') { initArticleHalf(info); return; }
+
+    // Fiches de jeux → fiche tronquée, SAUF les trois vitrines (freeItems.jeux).
+    // On COUPE D'ABORD, on verifie ensuite : au premier passage la liste blanche
+    // vient du reseau, et attendre sa reponse montrerait la fiche entiere a un
+    // anonyme pendant tout l'aller-retour. Couper puis reveler une vitrine est
+    // le moindre mal — on montre moins, puis plus, jamais l'inverse.
+    if (info.kind === 'jeu') {
+      injectHalfCss();
+      applyHalfFiche(null, info);
+      loadWhitelist().then(function (wl) {
+        if (isFree(info, wl)) { revealAllFiche(); return; }   // vitrine : entiere
+        initJeuHalf(info);
+      });
+      return;
+    }
 
     // Ressources (apps) → verrou plein écran existant, inchangé
     Promise.all([
