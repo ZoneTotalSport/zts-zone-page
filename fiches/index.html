@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiches de jeu — Zone Total Sport</title>
+<meta name="description" content="Toutes les fiches de jeu d'éducation physique de Zone Total Sport : but, déroulement, matériel, variantes. Gratuit et imprimable.">
+<link rel="canonical" href="https://zonetotalsport.ca/fiches/">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Luckiest+Guy&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fiches/zts-fiche.css">
+<style>
+  body { margin: 0; background: #22ccf5; font-family: 'Quicksand', system-ui, sans-serif; font-weight: 600; color: #101010; }
+  .zts-entete { max-width: 1180px; margin: 0 auto; padding: 42px 20px 10px; text-align: center; }
+  .zts-entete h1 {
+    margin: 0; font-family: 'Luckiest Guy', cursive; font-size: 46px; line-height: 1.05; color: #fff;
+    -webkit-text-stroke: 3px #000; paint-order: stroke fill; text-shadow: 5px 5px 0 #000;
+  }
+  .zts-entete p { margin: 14px 0 0; font-size: 17px; }
+  .zts-filtres { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 24px 0 8px; }
+  .zts-filtre {
+    font-family: 'Bangers', cursive; font-size: 17px; letter-spacing: .5px; padding: 7px 16px 5px;
+    border: 3px solid #000; box-shadow: 4px 4px 0 #000; background: #fff; cursor: pointer;
+  }
+  .zts-filtre[aria-pressed="true"] { background: #FFF200; transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+  main { max-width: 1180px; margin: 0 auto; padding: 10px 20px 70px; }
+  .zts-groupe { margin-top: 38px; }
+  .zts-groupe > h2 {
+    display: inline-block; margin: 0 0 16px; font-family: 'Luckiest Guy', cursive; font-size: 24px;
+    letter-spacing: 1px; padding: 7px 16px 5px; border: 3px solid #000; box-shadow: 5px 5px 0 #000; color: #101010;
+  }
+  .zts-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px; }
+  .zts-carte {
+    display: block; background: #fff; border: 4px solid #000; box-shadow: 7px 7px 0 #101010;
+    text-decoration: none; color: #101010; overflow: hidden;
+  }
+  .zts-carte:hover { transform: translate(-3px, -3px); box-shadow: 10px 10px 0 #101010; }
+  .zts-vignette { aspect-ratio: 850 / 1100; background: #f2f2f2 center / cover no-repeat; border-bottom: 4px solid #000; }
+  .zts-carte h3 { margin: 0; padding: 12px 14px 4px; font-family: 'Luckiest Guy', cursive; font-size: 19px; line-height: 1.15; }
+  .zts-carte p { margin: 0; padding: 0 14px 14px; font-size: 14px; color: #3a4a54; }
+  .zts-vide { text-align: center; padding: 60px 20px; font-size: 17px; }
+</style>
+</head>
+<body>
+
+<header class="zts-entete">
+  <h1>Fiches de jeu</h1>
+  <p>Le but, le déroulement, le matériel et les variantes — prêts à imprimer.</p>
+  <div class="zts-filtres" id="zts-univers"></div>
+</header>
+
+<main id="zts-main">
+  <div class="zts-vide">Chargement des fiches…</div>
+</main>
+
+<script src="/fiches/zts-fiches-firebase.js"></script>
+<script>
+/**
+ * Index public des fiches publiees, groupe par categorie.
+ *
+ * Le filtre d'univers (ÉPS / Camps / SDG) et les categories reprennent la
+ * taxonomie deja portee par apps/jeux/data/jeux-merged.json : meme slugs,
+ * memes noms, memes couleurs, memes icones. La collection Firestore
+ * `sections` n'en est que la copie ordonnee (voir _scripts/zts-seed-sections.js).
+ */
+(function () {
+  'use strict';
+
+  // Passer a true le jour ou le Worker Cloudflare reecrit /fiches/{slug}.
+  var URLS_PROPRES = false;
+
+  var UNIVERS = [
+    { slug: '', nom: 'Tout', couleur: '#fff' },
+    { slug: 'eps', nom: 'ÉPS', couleur: '#00E5FF' },
+    { slug: 'camps', nom: 'Camps de jour', couleur: '#FF6B00' },
+    { slug: 'sdg', nom: 'Service de garde', couleur: '#39FF14' }
+  ];
+
+  var etat = { univers: '', fiches: [], sections: {} };
+
+  function lien(f) {
+    return URLS_PROPRES ? '/fiches/' + encodeURIComponent(f.slug)
+                        : '/fiches/fiche.html?f=' + encodeURIComponent(f.slug);
+  }
+
+  function texte(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : s;
+    return d.innerHTML;
+  }
+
+  function filtres() {
+    var box = document.getElementById('zts-univers');
+    box.innerHTML = '';
+    UNIVERS.forEach(function (u) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'zts-filtre';
+      b.textContent = u.nom;
+      b.setAttribute('aria-pressed', String(etat.univers === u.slug));
+      if (etat.univers === u.slug) b.style.background = u.couleur;
+      b.addEventListener('click', function () { etat.univers = u.slug; filtres(); dessiner(); });
+      box.appendChild(b);
+    });
+  }
+
+  function dessiner() {
+    var main = document.getElementById('zts-main');
+    var liste = etat.fiches.filter(function (f) {
+      return !etat.univers || f.univers === etat.univers;
+    });
+
+    if (!liste.length) {
+      main.innerHTML = '<div class="zts-vide">Aucune fiche publiée pour l’instant.</div>';
+      return;
+    }
+
+    // Groupement par categorie, dans l'ordre de la collection `sections`.
+    var parCat = {};
+    liste.forEach(function (f) {
+      var c = f.category || 'autres';
+      (parCat[c] = parCat[c] || []).push(f);
+    });
+    var cles = Object.keys(parCat).sort(function (a, b) {
+      var oa = etat.sections[a] ? etat.sections[a].ordre : 999;
+      var ob = etat.sections[b] ? etat.sections[b].ordre : 999;
+      return oa - ob;
+    });
+
+    main.innerHTML = cles.map(function (c) {
+      var s = etat.sections[c] || { nom: c, couleur: '#fff', icone: '' };
+      var cartes = parCat[c].map(function (f) {
+        return '<a class="zts-carte" href="' + lien(f) + '">' +
+          '<div class="zts-vignette" data-img="' + texte(f.imagePrincipale || '') + '"></div>' +
+          '<h3>' + texte(f.titre) + '</h3>' +
+          '<p>' + texte(f.sousTitre) + '</p></a>';
+      }).join('');
+      return '<section class="zts-groupe">' +
+        '<h2 style="background:' + texte(s.couleur || '#fff') + '">' +
+        texte((s.icone ? s.icone + ' ' : '') + (s.nom || c)) + '</h2>' +
+        '<div class="zts-grille">' + cartes + '</div></section>';
+    }).join('');
+
+    // Les vignettes sont resolues apres coup : une seule URL signee par
+    // image, en parallele, sans bloquer l'affichage de la grille.
+    Array.prototype.forEach.call(main.querySelectorAll('.zts-vignette[data-img]'), function (el) {
+      var p = el.getAttribute('data-img');
+      if (!p) return;
+      ZTSFichesDB.urlDe(p).then(function (u) {
+        if (u) el.style.backgroundImage = 'url("' + u + '")';
+      }).catch(function () {});
+    });
+  }
+
+  ZTSFichesDB.pret()
+    .then(function () {
+      return Promise.all([
+        ZTSFichesDB.listerPubliees(),
+        ZTSFichesDB.sections().catch(function () { return []; })
+      ]);
+    })
+    .then(function (r) {
+      etat.fiches = r[0].sort(function (a, b) {
+        return String(a.titre || '').localeCompare(String(b.titre || ''), 'fr');
+      });
+      r[1].forEach(function (s) { etat.sections[s.slug || s.id] = s; });
+      filtres();
+      dessiner();
+    })
+    .catch(function (e) {
+      document.getElementById('zts-main').innerHTML =
+        '<div class="zts-vide">Les fiches ne se chargent pas pour l’instant. Réessaie dans un instant.</div>';
+      if (window.console) console.error('[fiches]', e);
+    });
+})();
+</script>
+</body>
+</html>

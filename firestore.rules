@@ -347,6 +347,75 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ═════════════════════════════════════════════════════════
+    // FICHES DE JEU  (/fiches, /admin/fiches)
+    //
+    // Le document est SCINDE volontairement :
+    //
+    //   fiches/{id}               partie publique — titre, sous-titre,
+    //                             etiquettes, illustration de la page 1,
+    //                             univers, categorie, statut.
+    //   fiches/{id}/prive/contenu partie membre  — but du jeu, sections,
+    //                             image de la page 2.
+    //
+    // Une regle « lecture publique si statut == publie » posee sur un
+    // document UNIQUE ne protegerait rien : le deroulement complet partirait
+    // dans la meme reponse REST, et le mur d'inscription ne serait qu'un
+    // masquage cote navigateur. La coupure est donc dans la donnee.
+    //
+    // `statut` est recopie dans le document prive pour que sa regle de
+    // lecture n'ait pas besoin d'un get() sur le parent : une lecture
+    // facturee de moins a chaque affichage de fiche.
+    //
+    // Le pendant Storage de ces regles vit dans storage.rules
+    // (fiches/{id}/pub/* public, fiches/{id}/prive/* connecte). Les deux
+    // fichiers doivent bouger ensemble.
+    // ═════════════════════════════════════════════════════════
+
+    // Admin unique. Le custom claim est la reference ; le courriel est le
+    // repli tant que le claim n'est pas pose (_scripts/zts-admin-claim.js).
+    // Firebase Auth interdit deux comptes sur la meme adresse et ce compte
+    // existe : l'adresse ne peut pas etre revendiquee par quelqu'un d'autre.
+    function estAdminFiches() {
+      return request.auth != null && (
+        request.auth.token.admin == true ||
+        request.auth.token.email == 'zts@hotmail.ca'
+      );
+    }
+
+    // ── Sections de publication ──
+    // Lecture publique : l'index /fiches en a besoin pour nommer et colorer
+    // ses groupes avant toute connexion. Ecriture admin (seed + retouches).
+    match /sections/{sectionId} {
+      allow read: if true;
+      allow write: if estAdminFiches();
+    }
+
+    // ── Fiches ──
+    match /fiches/{ficheId} {
+      allow read: if resource.data.statut == 'publie' || estAdminFiches();
+
+      // Le slug entre dans une URL : on le contraint ici plutot que de
+      // faire confiance au navigateur. matches() est un match PLEIN en RE2.
+      allow create, update: if estAdminFiches()
+                    && request.resource.data.slug is string
+                    && request.resource.data.slug.size() > 0
+                    && request.resource.data.slug.size() <= 80
+                    && request.resource.data.slug.matches('[a-z0-9]+(-[a-z0-9]+)*')
+                    && request.resource.data.statut in ['brouillon', 'publie']
+                    && request.resource.data.titre is string
+                    && request.resource.data.titre.size() < 200;
+
+      allow delete: if estAdminFiches();
+
+      // ── Partie reservee aux membres ──
+      match /prive/{doc} {
+        allow read: if (request.auth != null && resource.data.statut == 'publie')
+                    || estAdminFiches();
+        allow write: if estAdminFiches();
+      }
+    }
+
     // ─────────────────────────────────────────────────────────
     // Tout le reste : interdit par defaut.
     // ─────────────────────────────────────────────────────────

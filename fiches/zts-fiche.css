@@ -1,0 +1,94 @@
+/**
+ * zts-fiche.css — habillage de page des fiches de jeu.
+ *
+ * Reprend a l'identique le <style> de la maquette « Fiche de jeu.dc.html »,
+ * avec deux ajustements imposes par le depot :
+ *
+ *  - la police de marque est declaree sous un nom DISTINCT
+ *    (ZoneTotalSportFiche) et pointe sur /fonts/ZoneTotalSport.ttf, la
+ *    copie de reference. Voir TICKET-TTF-COPIE-UNIQUE.md et l'avertissement
+ *    de CLAUDE.md : une @font-face nommee « ZoneTotalSport » entre en
+ *    collision avec celles de jeux/moyens-action/studio-jeu et rend au
+ *    double de sa taille.
+ *  - PAS de size-adjust ici : la maquette a ete composee contre la fonte
+ *    non ajustee (titre a font-size:24px). Ajouter size-adjust:50% comme
+ *    le shell diviserait toutes les tailles par deux.
+ */
+
+@font-face {
+  font-family: 'ZoneTotalSportFiche';
+  src: url('/fonts/ZoneTotalSport.ttf') format('truetype');
+  ascent-override: 92%;
+  descent-override: 26%;
+  line-gap-override: 0%;
+  font-display: swap;
+}
+
+body.zts-fiche-body {
+  margin: 0;
+  background: #22ccf5;
+}
+
+body.zts-fiche-body a { color: #0f7f9c; text-decoration: underline; }
+body.zts-fiche-body a:hover { color: #000; }
+
+/* ── Impression / export PDF ───────────────────────────────────────────
+ * Inchange : une feuille par page, interface masquee, marges nulles.
+ * C'est ce qui fait le « telecharger en PDF » — window.print().
+ */
+@media print {
+  body.zts-fiche-body { background: #fff; }
+  .zts-ui { display: none !important; }
+  .zts-page-wrap { break-after: page; page-break-after: always; margin: 0 !important; }
+  .zts-page-wrap:last-of-type { break-after: auto; page-break-after: auto; }
+  .zts-fiche { gap: 0 !important; padding: 0 !important; }
+}
+@page { margin: 0; size: auto; }
+
+/* ── Barre d'outils (editeur) ──────────────────────────────────────────
+ * Meme grammaire que .zts-action du depot : rectangle courbe, bordure
+ * 3px #000, ombre BD decalee, Bangers. Voir CLAUDE.md § Design boutons.
+ */
+.zts-barre {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 12px; background: #fff; border: 4px solid #000;
+  box-shadow: 8px 8px 0 #101010; padding: 14px 18px;
+}
+
+.zts-bouton {
+  font-family: 'Luckiest Guy', cursive; font-size: 15px; letter-spacing: 1px;
+  padding: 9px 18px 7px; border: 3px solid #000; box-shadow: 4px 4px 0 #000;
+  cursor: pointer; background: #fff; color: #101010; text-decoration: none;
+  display: inline-block; line-height: 1.2;
+}
+.zts-bouton:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #000; }
+.zts-bouton:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
+.zts-bouton[disabled] { opacity: .55; cursor: wait; transform: none; }
+.zts-bouton--jaune { background: #FFF200; }
+.zts-bouton--cyan { background: #22ccf5; }
+.zts-bouton--vert { background: #93FA00; }
+.zts-bouton--gris { color: #6b7a83; }
+
+.zts-sep { width: 3px; height: 30px; background: #101010; }
+
+.zts-champ {
+  font-family: 'Quicksand', system-ui, sans-serif; font-weight: 600; font-size: 14px;
+  border: 3px solid #000; border-radius: 10px; padding: 7px 10px; background: #fff;
+}
+
+/* Contour des zones editables en mode edition. */
+.zts-editable-on [data-champ] {
+  outline: 2px dashed #22ccf5;
+  outline-offset: 3px;
+  cursor: text;
+}
+.zts-editable-on image-slot[data-champ] { outline: none; }
+
+/* Bandeau d'etat (sauvegarde, erreurs). */
+.zts-etat {
+  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 60;
+  font-family: 'Quicksand', system-ui, sans-serif; font-weight: 700; font-size: 14px;
+  background: #101010; color: #FFF200; padding: 9px 18px; border: 3px solid #000;
+  box-shadow: 4px 4px 0 rgba(0,0,0,.35);
+}
+.zts-etat--erreur { color: #fff; background: #FF2D2D; }

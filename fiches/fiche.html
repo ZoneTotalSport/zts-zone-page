@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche de jeu — Zone Total Sport</title>
+<meta name="description" content="Fiche de jeu d'éducation physique : but, déroulement, matériel et variantes. Gratuit, imprimable en PDF.">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Luckiest+Guy&family=Comic+Neue:wght@400;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fiches/zts-fiche.css">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Zone Total Sport">
+<meta property="og:locale" content="fr_CA">
+</head>
+<body class="zts-fiche-body">
+
+<div id="zts-chargement" style="min-height:60vh;display:flex;align-items:center;justify-content:center;
+     font-family:'Luckiest Guy',cursive;font-size:22px;color:#101010;">Chargement de la fiche…</div>
+
+<div id="zts-racine"></div>
+
+<script src="/fiches/zts-fiche-modele.js"></script>
+<script src="/fiches/zts-image-slot.js"></script>
+<script src="/fiches/zts-fiches-firebase.js"></script>
+<script>
+/**
+ * Page publique d'une fiche : /fiches/{slug}
+ *
+ * Le slug est lu depuis le chemin d'URL si un Worker Cloudflare reecrit
+ * /fiches/{slug} vers ce fichier (voir FICHES.md), sinon depuis ?f={slug}.
+ * Les deux formes marchent en meme temps : rien a migrer le jour ou le
+ * Worker est deploye.
+ */
+(function () {
+  'use strict';
+
+  var URL_INSCRIPTION = 'https://zonetotalsport.ca/inscription';
+
+  function slugDeLUrl() {
+    var q = new URLSearchParams(location.search).get('f');
+    if (q) return q;
+    var m = location.pathname.match(/\/fiches\/([^\/?#]+)\/?$/);
+    if (m && m[1] && !/\.html?$/.test(m[1])) return decodeURIComponent(m[1]);
+    return '';
+  }
+
+  function echec(message) {
+    document.getElementById('zts-chargement').innerHTML =
+      '<div style="text-align:center;font-family:\'Quicksand\',sans-serif;font-weight:700;">' +
+      '<p style="font-family:\'Luckiest Guy\',cursive;font-size:26px;margin:0 0 10px;">' +
+      message + '</p><p><a href="/fiches/">Retour à toutes les fiches</a></p></div>';
+  }
+
+  function metaSociales(f) {
+    document.title = (f.titre || 'Fiche de jeu') + ' — Zone Total Sport';
+    var set = function (attr, cle, val) {
+      var el = document.querySelector('meta[' + attr + '="' + cle + '"]');
+      if (!el) { el = document.createElement('meta'); el.setAttribute(attr, cle); document.head.appendChild(el); }
+      el.setAttribute('content', val);
+    };
+    set('property', 'og:title', document.title);
+    set('property', 'og:url', 'https://zonetotalsport.ca/fiches/' + (f.slug || ''));
+    set('name', 'description', (f.sousTitre || '') + ' — fiche de jeu d’éducation physique.');
+    set('property', 'og:description', f.sousTitre || '');
+    var can = document.createElement('link');
+    can.rel = 'canonical';
+    can.href = 'https://zonetotalsport.ca/fiches/' + (f.slug || '');
+    document.head.appendChild(can);
+  }
+
+  /** Barre visiteur : retour, impression PDF pour les membres. */
+  function barre(estMembre) {
+    var html = '<div class="zts-ui" style="display:flex;justify-content:center;padding:20px 12px 0;">' +
+      '<div class="zts-barre">' +
+      '<a class="zts-bouton" href="/fiches/">← TOUTES LES FICHES</a>';
+    if (estMembre) {
+      html += '<button type="button" class="zts-bouton zts-bouton--jaune" id="zts-pdf">TÉLÉCHARGER EN PDF</button>';
+    } else {
+      html += '<a class="zts-bouton zts-bouton--jaune" href="' + URL_INSCRIPTION + '">INSCRIPTION GRATUITE</a>';
+    }
+    return html + '</div></div>';
+  }
+
+  ZTSFichesDB.pret().then(function () {
+    var slug = slugDeLUrl();
+    if (!slug) { echec('Fiche introuvable'); return; }
+
+    // Les images de la partie publique restent visibles pour tout le monde.
+    ZTSImageSlot.configurer({ resoudre: ZTSFichesDB.urlDe, editable: false });
+
+    return ZTSFichesDB.parSlug(slug).then(function (f) {
+      if (!f) { echec('Fiche introuvable'); return; }
+      if (f.statut !== 'publie' && !ZTSFichesDB.estAdmin()) { echec('Fiche non publiée'); return; }
+
+      return ZTSFichesDB.complete(f).then(function (fc) {
+        // `_complete` n'est vrai que si Firestore a REELLEMENT servi la
+        // partie membre : le mur suit la regle de securite, pas un drapeau
+        // local qu'on pourrait retourner depuis la console.
+        var estMembre = !!fc._complete;
+        metaSociales(fc);
+        document.getElementById('zts-chargement').style.display = 'none';
+        document.getElementById('zts-racine').innerHTML =
+          barre(estMembre) +
+          ZTSFiche.rendre(fc, {
+            mode: estMembre ? 'membre' : 'public',
+            signupUrl: URL_INSCRIPTION,
+            base: '/fiches/'
+          });
+        var pdf = document.getElementById('zts-pdf');
+        if (pdf) pdf.addEventListener('click', function () { window.print(); });
+      });
+    });
+  }).catch(function (e) {
+    echec('Chargement impossible');
+    if (window.console) console.error('[fiches]', e);
+  });
+})();
+</script>
+</body>
+</html>
