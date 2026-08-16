@@ -1,6 +1,6 @@
 /**
  * Générateur de fiches SEO statiques — 1 page par jeu (programmatic SEO).
- * Source : apps/jeux/data/jeux-merged.json (1439 jeux).
+ * Source : _data/jeux-merged.json (1439 jeux, hors arbre publie).
  * Sortie : /jeux/<slug>.html + /jeux/index.html + sitemap-jeux.xml.
  *
  * Usage :
@@ -12,7 +12,11 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, 'apps/jeux/data/jeux-merged.json');
+// La banque a quitte l'arbre publie le 2026-08-16 (LOT 1 vague D) : `_data/`
+// n'est pas servi par GitHub Pages (Jekyll exclut les dossiers `_`), mais reste
+// versionne et lisible ici, a la construction. Lecture DISQUE : ce script ne
+// passe pas par le Worker, il n'en a pas besoin.
+const SRC = path.join(ROOT, '_data/jeux-merged.json');
 const OUTDIR = path.join(ROOT, 'jeux');
 const BASE = 'https://zonetotalsport.ca';
 

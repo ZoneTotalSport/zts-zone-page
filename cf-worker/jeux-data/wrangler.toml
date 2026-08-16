@@ -1,0 +1,13 @@
+name = "zts-jeux-data"
+main = "src/worker.js"
+compatibility_date = "2025-05-01"
+
+# Les banques vivent dans `_data/` du depot : hors de l'arbre publie par
+# GitHub Pages (Jekyll exclut les dossiers `_` — verifie, /_scripts/… repond
+# 404 en prod), mais toujours versionnees et lisibles par les scripts de
+# construction. Le Worker les lit par l'API raw de GitHub, avec le cache du
+# bord devant : un aller-retour par heure et par edge, pas par visiteur.
+[vars]
+GITHUB_REPO = "ZoneTotalSport/zts-zone-page"
+GITHUB_REF = "main"
+FIREBASE_PROJECT_ID = "zone-total-sport"

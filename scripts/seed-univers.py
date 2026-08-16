@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Seed reproductible — ajoute le champ `univers[]` (eps|camps|sdg) à chaque jeu de
-apps/jeux/data/jeux-merged.json, par règles DÉTERMINISTES (aucune IA).
+_data/jeux-merged.json, par règles DÉTERMINISTES (aucune IA).
 
 Décisions (voir apps/planificateur/CLAUDE.md) :
   - Catalogue = JSON statique (pas Firestore). Le `slug`/`id` est la clé stable.
@@ -24,7 +24,8 @@ Format : JSON minifié UTF-8 (separators=(',',':'), ensure_ascii=False, sans new
 import json, re, sys, collections
 from pathlib import Path
 
-DATA = Path(__file__).resolve().parent.parent / "apps/jeux/data/jeux-merged.json"
+# Deplace hors de l'arbre publie le 2026-08-16 (LOT 1 vague D).
+DATA = Path(__file__).resolve().parent.parent / "_data/jeux-merged.json"
 
 MATERIEL_MINIMAL_MAX = 1
 NBJOUEURS_ELEVE_MIN  = 30
