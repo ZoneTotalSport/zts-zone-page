@@ -203,19 +203,21 @@ jq -r '.users | max_by(.createdAt|tonumber) | (.createdAt|tonumber/1000 | todate
 | Étape | Événement | Volume 30 j | Taux vers l'étape suivante |
 |---|---|---:|---:|
 | **Tunnel COMPTE (gate/CTA)** | | | |
-| 1. Vue du cadenas / CTA | `locked_view` (dont source `jeu`) | `____` | — |
-| 2. Clic « créer un compte » | `locked_click_signup` | `____` | `view → click : ___ %` |
-| 3. Inscription réelle | `signup_complete` | `____` | `click → signup : ___ %` |
-| **Global compte** | | | **`view → signup : ___ %`** |
+| 1. Vue du cadenas / CTA | `locked_view` (dont source `jeu`) | **123** | — |
+| 2. Clic « créer un compte » | `locked_click_signup` | **11** | `view → click : 8,9 %` |
+| 3. Inscription réelle | `signup_complete` | **4** | `click → signup : 36,4 %` |
+| **Global compte** | | | **`view → signup : 3,3 %`** |
 | **Tunnel COURRIEL (pop-up)** | | | |
-| Vue pop-up | `newsletter_view` | `____` | — |
-| Soumission | `newsletter_submit` | `____` | `view → submit : ___ %` |
-| Lead confirmé | `newsletter_complete` | `____` | — |
-| Bascule vers compte | `newsletter_to_signup` | `____` | — |
-| Leads stockés | collection `leads` (30 j) | `____` | — |
+| Vue pop-up | `newsletter_view` | **165** | — |
+| Soumission | `newsletter_submit` | **2** | `view → submit : 1,2 %` |
+| Lead confirmé | `newsletter_complete` | **2** | — |
+| Bascule vers compte | `newsletter_to_signup` | **0** | — |
+| Leads stockés | collection `leads` (30 j) | **5** | — |
 | **Repères** | | | |
-| Trafic générateur | `anonGenCount` (actifs 30 j) | `____` | — |
-| Comptes Auth (30 j) | `listUsers` créés < 30 j | `____` | (doit ≈ `signup_complete`) |
+| Trafic générateur | `anonGenCount` (actifs 30 j) | **0** ⚠️ | collection vide — voir baseline |
+| Comptes Auth (30 j) | `listUsers` créés < 30 j | **4** | = `signup_complete` ✅ |
+
+*Valeurs mesurées le 16 août 2026 — voir « BASELINE PRÉ-LOCKAGE » ci-dessous.*
 
 **Lecture croisée (le test décisif)** :
 - `newsletter_view ≈ 0` **et** `locked_view ≈ 0` → **TRAFIC** (personne n'arrive, ou les scripts
@@ -224,6 +226,83 @@ jq -r '.users | max_by(.createdAt|tonumber) | (.createdAt|tonumber/1000 | todate
   → le levier B (rééquilibrage pop-up) est le bon.
 - `locked_click_signup` / `newsletter_to_signup` **>** 0 mais `signup_complete ≈ 0` → **BUG du flux
   d'inscription** (priorité absolue avant toute optimisation).
+
+---
+
+## ✅ BASELINE PRÉ-LOCKAGE — 16 août 2026
+
+**Mesure réelle du 16 août 2026, 16 h 19 (America/Toronto).** Script du §1 exécuté avec
+une clé de compte de service, en **lecture seule** (aucun write Firestore). Fenêtre :
+30 jours glissants, **17 juillet → 16 août 2026**. *Le « dernier verrou du diagnostic »
+annoncé en tête de document est levé.*
+
+### Les trois nombres du tunnel
+
+| Étape | Événement | Volume 30 j | Taux |
+|---|---|---:|---:|
+| 1. Vue du cadenas / CTA | `locked_view` | **123** | — |
+| 2. Clic « créer un compte » | `locked_click_signup` | **11** | view → click : **8,9 %** |
+| 3. Inscription réelle | `signup_complete` | **4** | click → signup : **36,4 %** |
+| **Global compte** | | | **view → signup : 3,3 %** |
+
+`locked_view` par source (30 j) : `resource` 73 · `article` 32 · `hub` 12 · `menu` 4 ·
+`jeu` 2. Les 4 `signup_complete` sont tous attribués à `popup`.
+
+### Repères de la même passe
+
+| Repère | Valeur |
+|---|---|
+| `conversionFunnel` — total documents | **1 174** (depuis l'origine) |
+| Cumul historique | `locked_view` 722 · `locked_click_signup` 25 · `signup_complete` **4** |
+| Tunnel courriel 30 j | `newsletter_view` 165 · `submit` 2 · `complete` 2 · `to_signup` 0 |
+| Collection `leads` | 6 au total · **5** sur 30 j |
+| `anonGenCount` | **0 document** ⚠️ |
+| Firebase Auth | **337** comptes · **4** créés sur 30 j · dernier le **16 août 2026, 15 h 51 min 50 s** |
+
+### Ce que la baseline tranche (arbre de décision du §5)
+
+- `locked_view` = 123 ≠ 0 → ce **n'est pas** un problème de **TRAFIC** pur : le gate est vu.
+- `locked_click_signup` = 11 **et** `signup_complete` = 4 → **le flux d'inscription n'est
+  pas cassé**. L'hypothèse « **BUG TECHNIQUE** » du §5 est **écartée**.
+- `auth_créés_30j` (4) = `signup_complete` 30 j (4) → **le comptage funnel est exact**,
+  aucun décalage entre l'événement et la création de compte réelle.
+- Le goulot réel est en **entrée de tunnel** : seulement **8,9 %** des vues de gate
+  produisent un clic — et le volume absolu (123 vues en 30 j) reste le vrai plafond.
+  Le verdict bascule sur **CADRAGE / CONVERSION** (§7).
+- ⚠️ **`anonGenCount` est vide (0 document)** alors que le §1 la présente comme
+  « excellent proxy du TRAFIC réel ». Soit `apps/generateur/zts-anon-fingerprint.js`
+  n'écrit plus, soit la collection a été renommée. **Ce repère est inutilisable en
+  l'état — à vérifier.**
+- ⚠️ Auth = **337**, en dessous des « 350+ » communiqués (§2, réel supposé ≈ 390).
+  À recouper avec la comm produit.
+
+### Validation de bout en bout du 16 août 2026 (action 🥈 du §6)
+
+Une **inscription-test réelle a été effectuée depuis un iPhone le 16 août 2026**. Elle
+laisse une trace complète, datée et cohérente :
+
+| Preuve | Valeur |
+|---|---|
+| Document `conversionFunnel` | `yLhnJPiKROqrYsm8gmox` |
+| `event` | `signup_complete` |
+| `timestamp` | **2026-08-16 15 h 51 min 52 s** (America/Toronto) · `2026-08-16T19:51:52.016Z` |
+| `source` / `signup_source` | `auth` / `popup` |
+| `path` | `/bienvenue.html` |
+| Compte Auth correspondant | créé le **2026-08-16 à 15 h 51 min 50 s**, provider `password` |
+
+Les deux horodatages sont à **2 secondes** l'un de l'autre : l'événement funnel suit bien
+la création de compte réelle, sur appareil réel. Activité complète du 16 août :
+`locked_view` 6 · `locked_click_signup` 3 · `locked_close` 2 · `newsletter_view` 5 ·
+`newsletter_close` 1 · **`signup_complete` 1**.
+
+> **Conclusion — l'action 🥈 du §6 (« vérifier et réparer le flux d'inscription de bout en
+> bout ») est VALIDÉE en conditions réelles.** `signup_complete` se déclenche, il est
+> daté, et il correspond à un compte Auth créé 2 secondes plus tôt. Il n'y a **pas** de
+> bug du flux d'inscription. Le levier restant est le **cadrage** (§7) et le **volume
+> d'entrée** dans le tunnel.
+
+*Note : les documents `signup_complete` ne portent pas de champ `uid` (le schéma du §1 le
+prévoyait) — l'attribution compte ↔ événement se fait donc par horodatage, pas par clé.*
 
 ---
 
