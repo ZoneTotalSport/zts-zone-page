@@ -185,7 +185,14 @@ function buildPage(g, slug, related) {
     '<a class="fiche-cta" href="https://jeux.zonetotalsport.ca">🎮 Voir les 1400+ jeux dans l\'app gratuite →</a>\n' +
     relHtml +
     '</main>\n<div data-zts-footer></div>\n' +
-    '<script src="/shared/zts.js"></script>\n<script src="/firebase-auth.js" defer></script>\n<script src="/zts-funnel.js" defer></script>\n' +
+    // Verrou d'inscription — LOT 1 vague B, 2026-08-15.
+    // zts-lock-page.js tronque la fiche pour les anonymes : heros + Deroulement
+    // + Materiel visibles, le reste en display:none, texte conserve dans le DOM
+    // (le SEO prime ; la vraie protection viendra du Worker a la vague D).
+    // Les trois jeux vitrine de `freeItems.jeux` restent entiers.
+    // L'ordre importe : lock-page AVANT firebase-auth, comme sur les 11 apps
+    // deja gardees — il s'abonne a ztsOnAuth des qu'il existe.
+    '<script src="/zts-lock-page.js" defer></script>\n<script src="/shared/zts.js"></script>\n<script src="/firebase-auth.js" defer></script>\n<script src="/zts-funnel.js" defer></script>\n' +
     '</body>\n</html>\n';
 }
 
