@@ -18,6 +18,14 @@
   <!-- Garde admin — même mécanisme que la page administration (Studio Jeu) :
        Firebase Auth, seul le compte de Joey passe. Garde côté navigateur sur
        hébergement statique : elle contrôle l'accès à l'outil, pas les fichiers. -->
+  <!-- PAS de mur d'inscription ici — décision Joey, 2026-08-15, même statut
+       que Studio Jeu. admin-gate.js ne laisse passer qu'ADMIN_EMAILS : l'app
+       est déjà privée et n'a qu'un seul utilisateur. Un mur « compte gratuit »
+       par-dessus n'aurait fermé aucune porte ouverte, seulement ajouté quatre
+       scripts et une seconde barrière à un outil qui en a déjà une plus
+       stricte. La page est en `noindex, nofollow` et n'est liée nulle part
+       dans le chrome partagé : zts-cadenas.js n'a donc rien à y baliser.
+       Cette app est hors du périmètre du LOT 1 (lockage) pour cette raison. -->
   <script src="admin-gate.js?v=1"></script>
   <script src="app.js"></script>
 </body>

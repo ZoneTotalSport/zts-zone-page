@@ -50,7 +50,16 @@
   // « Jeux ») ; `.ztsm-panel` ses tiroirs deroulants ; `.ztsm-mob` le tiroir
   // mobile ; `.zts-footer` le pied de page. Verifie en navigateur : un
   // `.zts-nav` avait ete essaye d'abord, il ne correspondait a rien.
-  var ZONES = ['.zts-header__nav', '.ztsm-panel', '.ztsm-mob', '.zts-footer'];
+  //
+  // `#planifPorte` (le bloc « Planificateur » de l'accueil, trois boutons
+  // metier) est la seule zone HORS chrome partage. Elle est ici parce que ces
+  // trois boutons menent au planificateur, gate depuis le 13 aout : sans
+  // pastille, le meme outil aurait ete badge dans le menu et nu sur la page
+  // d'entree du site.
+  // NE PAS confondre avec `.ztsp-portes`, les trois portes METIER du hero :
+  // celles-la n'ont pas de href, elles appellent choisirMetier() — essayees
+  // d'abord comme zone, elles ne contiennent aucun lien.
+  var ZONES = ['.zts-header__nav', '.ztsm-panel', '.ztsm-mob', '.zts-footer', '#planifPorte'];
 
   var _wl = null;
   var _authed = false;
