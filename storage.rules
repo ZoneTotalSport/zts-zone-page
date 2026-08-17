@@ -25,12 +25,17 @@ service firebase.storage {
       );
     }
 
-    // 5 Mio : le client redimensionne a 1600 px et encode en JPEG avant
-    // d'envoyer (zts-image-slot.js), donc une image normale pese moins de
-    // 500 Ko. Le plafond n'est la que pour borner un client modifie.
+    // Deux types, et un seul de chaque cote de la barriere :
+    //   image/jpeg  photo opaque, aplatie sur blanc par le client ;
+    //   image/png   image DETOUREE — un personnage rendu dans DAZ Studio et
+    //               pose sur le decor de la fiche. Refuser le PNG ici
+    //               annulerait la conservation de l'alpha faite en amont.
+    // Le client redimensionne a 1600 px avant d'envoyer (zts-image-slot.js),
+    // donc une image normale pese moins de 500 Ko en JPEG, sous 1,5 Mo en
+    // PNG. Le plafond de 5 Mio n'est la que pour borner un client modifie.
     function imageValide() {
       return request.resource.size < 5 * 1024 * 1024
-             && request.resource.contentType == 'image/jpeg';
+             && request.resource.contentType.matches('image/(jpeg|png)');
     }
 
     // ── Fiches de jeu ──────────────────────────────────────────────────

@@ -7,8 +7,16 @@
  * Ici la case televerse vers Firebase Storage et ne garde que le CHEMIN
  * dans Firestore.
  *
- * La case remplit toujours son cadre (inset:0, object-fit:cover) : le cadre
- * noir et ses dimensions restent ceux du parent, jamais touches.
+ * La case occupe toujours tout son cadre (inset:0) : le cadre noir et ses
+ * dimensions restent ceux du parent, jamais touches. L'AJUSTEMENT de l'image
+ * a l'interieur, lui, depend de ce qu'elle est :
+ *
+ *   photo opaque -> JPEG, object-fit:cover, fond gris. Elle remplit le
+ *                   cadre, quitte a etre rognee.
+ *   detourage    -> PNG, object-fit:contain, fond transparent. C'est un
+ *                   personnage rendu dans DAZ Studio : le rogner lui
+ *                   couperait la tete, et lui poser un fond l'enfermerait
+ *                   dans le rectangle qu'on cherche justement a effacer.
  *
  * Attributs
  *   data-champ    chemin du champ dans la fiche (ex. sections.0.explications.1.imagePath)
@@ -45,11 +53,39 @@
     f.forEach(function (el) { el.rafraichir(); });
   }
 
+  /**
+   * L'image porte-t-elle une transparence VOULUE ?
+   *
+   * On regarde le canal alpha reel plutot que l'extension du fichier : DAZ
+   * Studio exporte des PNG dans les deux cas, opaques comme detoures, et un
+   * PNG opaque n'a aucune raison de peser trois fois le poids d'un JPEG.
+   *
+   * Le seuil de 16 pixels evite qu'un seul pixel a demi transparent — un
+   * bord antialiase, un artefact de retouche — fasse basculer une photo
+   * entiere en PNG.
+   */
+  function aDeLaTransparence(ctx, w, h) {
+    var data = ctx.getImageData(0, 0, w, h).data;
+    var n = 0;
+    for (var i = 3; i < data.length; i += 4) {
+      if (data[i] < 250 && ++n >= 16) return true;
+    }
+    return false;
+  }
+
   /* ── Redimensionnement cote client ───────────────────────────────────
    * Un enseignant depose une photo de 4 Mo prise au telephone ; sans ca on
    * la sert telle quelle a chaque visiteur. On ramene le cote long a
-   * LARGEUR_CIBLE et on encode en JPEG. Les images plus petites que la
-   * cible ne sont pas agrandies.
+   * LARGEUR_CIBLE.
+   *
+   * Le format de sortie depend de l'image, pas du fichier d'origine :
+   *
+   *   opaque   -> JPEG. Fond blanc pose d'abord, sinon un aplatissement
+   *               sans alpha vire au noir.
+   *   detouree -> PNG, SANS fond. C'est le cas d'un personnage rendu dans
+   *               DAZ Studio et depose sur le decor de la fiche : lui poser
+   *               un fond blanc l'enferme dans un rectangle et ruine le
+   *               montage.
    */
   function redimensionner(file) {
     return new Promise(function (resolve, reject) {
@@ -61,13 +97,26 @@
         var ratio = Math.min(1, LARGEUR_CIBLE / Math.max(img.width, img.height));
         var w = Math.round(img.width * ratio);
         var h = Math.round(img.height * ratio);
+        // Premiere passe : l'image seule, sur un canevas vide, pour pouvoir
+        // lire son alpha. Un fond pose avant la mesure la rendrait opaque.
         var cv = document.createElement('canvas');
         cv.width = w; cv.height = h;
         var ctx = cv.getContext('2d');
-        // Fond blanc : un PNG transparent aplati en JPEG devient noir sinon.
+        ctx.drawImage(img, 0, 0, w, h);
+
+        if (aDeLaTransparence(ctx, w, h)) {
+          cv.toBlob(function (blob) {
+            if (!blob) { reject(new Error('Conversion impossible.')); return; }
+            resolve(blob);
+          }, 'image/png');
+          return;
+        }
+
+        // Opaque : on repeint sur blanc DERRIERE, puis on encode en JPEG.
+        ctx.globalCompositeOperation = 'destination-over';
         ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, w, h);
-        ctx.drawImage(img, 0, 0, w, h);
+        ctx.globalCompositeOperation = 'source-over';
         cv.toBlob(function (blob) {
           if (!blob) { reject(new Error('Conversion impossible.')); return; }
           resolve(blob);
@@ -110,6 +159,8 @@
 
       this._img = document.createElement('img');
       this._img.alt = '';
+      // L'ajustement est decide dans rafraichir(), d'apres l'extension du
+      // chemin Storage : cover pour une photo, contain pour un detourage.
       this._img.style.cssText =
         'width:100%;height:100%;object-fit:cover;display:none;user-select:none;-webkit-user-drag:none;';
 
@@ -169,6 +220,9 @@
       this._vide.textContent = '';
 
       if (!path) {
+        // Retour au gris de remplissage : une case videe apres avoir porte
+        // un detourage garderait sinon le fond transparent.
+        this.style.background = '#f2f2f2';
         this._img.style.display = 'none';
         // Icone en SVG inline plutot qu'un emoji : meme dessin sur macOS,
         // Windows et Android, et neutre a l'impression.
@@ -195,6 +249,19 @@
       }
 
       this.style.cursor = config.editable ? 'pointer' : '';
+
+      /* Un .png ne sort de notre chaine que s'il porte de la transparence
+       * (voir redimensionner). Il est donc detoure, et deux choses en
+       * decoulent :
+       *  - `contain` : `cover` rognerait la tete et les pieds d'un
+       *    personnage vertical depose dans un cadre horizontal ;
+       *  - fond transparent : le gris de remplissage enfermerait le
+       *    detourage dans le rectangle qu'on vient justement d'enlever.
+       */
+      var detouree = /\.png$/i.test(path);
+      this._img.style.objectFit = detouree ? 'contain' : 'cover';
+      this.style.background = detouree ? 'transparent' : '#f2f2f2';
+
       Promise.resolve(config.resoudre(path)).then(function (url) {
         if (!url) throw new Error('URL introuvable');
         self._img.src = url;

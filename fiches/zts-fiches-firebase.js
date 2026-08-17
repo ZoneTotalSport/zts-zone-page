@@ -270,15 +270,32 @@
   function televerser(blob, ficheId, champ, onProgres) {
     var slotId = String(champ || 'image').replace(/[^a-zA-Z0-9]+/g, '-');
     var zone = CHAMPS_IMAGE_PUBLICS.indexOf(champ) !== -1 ? 'pub' : 'prive';
-    var path = 'fiches/' + ficheId + '/' + zone + '/' + slotId + '.jpg';
-    var tache = bucket().ref(path).put(blob, { contentType: 'image/jpeg' });
+
+    // Le type vient du blob, pas d'une constante : zts-image-slot.js sort du
+    // PNG quand l'image est detouree (rendu DAZ pose sur le decor) et du JPEG
+    // sinon. Coder .jpg en dur aplatissait le personnage sur un fond blanc.
+    var png = blob.type === 'image/png';
+    var type = png ? 'image/png' : 'image/jpeg';
+    var base = 'fiches/' + ficheId + '/' + zone + '/' + slotId;
+    var path = base + (png ? '.png' : '.jpg');
+    var autre = base + (png ? '.jpg' : '.png');
+
+    var tache = bucket().ref(path).put(blob, { contentType: type });
     return new Promise(function (res, rej) {
       tache.on('state_changed',
         function (s) {
           if (onProgres && s.totalBytes) onProgres((s.bytesTransferred / s.totalBytes) * 100);
         },
         rej,
-        function () { delete _cacheUrl[path]; res(path); });
+        function () {
+          delete _cacheUrl[path];
+          delete _cacheUrl[autre];
+          // Remplacer une photo par un detourage change l'extension : sans ce
+          // menage, l'ancien fichier resterait orphelin dans le bucket. Son
+          // absence est le cas normal — on ignore l'echec.
+          bucket().ref(autre).delete().catch(function () {});
+          res(path);
+        });
     });
   }
 
