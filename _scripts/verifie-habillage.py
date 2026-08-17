@@ -349,9 +349,25 @@ def controle(chemin):
                 mascotte = ("bucheron" in bas
                             or "bûcheron" in bas
                             or "lumberjack" in bas)
+                # `twitter:card` en doublon (LOT 1 vague F, 17 aout 2026,
+                # decision de Joey). Une app qui declare une grande carte
+                # (`summary_large_image`) ne peut pas garder l'ancienne ligne
+                # `summary` a cote : X n'a pas de regle publiee sur le doublon,
+                # donc le rendu de la carte devient INDETERMINE. Une devanture
+                # ne se joue pas aux des. C'est le seul cas ou ajouter sans
+                # retirer produit un resultat pire que le point de depart.
+                #
+                # AUSSI ETROITE QUE LA PRECEDENTE, a deux verrous : la ligne
+                # retiree doit etre exactement une declaration `twitter:card`
+                # a `summary`, ET l'app doit declarer `summary_large_image`
+                # ailleurs. Retirer la carte sans la remplacer bloque toujours.
+                carte_twitter = ('twitter:card' in bas
+                                 and 'summary_large_image' not in bas
+                                 and 'summary_large_image' in c.lower())
                 if ("ztsh" not in bas and "ztsshell" not in bas
                         and not police and not vide and not enveloppe
-                        and not migre_worker and not mascotte):
+                        and not migre_worker and not mascotte
+                        and not carte_twitter):
                     retirees_app.append(ligne[1:].strip()[:60])
         if ajouts > 30:
             aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")

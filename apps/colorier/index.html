@@ -19,19 +19,17 @@
        grande carte, ils retombent sur une vignette carree ecrasee. Un outil
        vitrine est ce qu'on partage EN PREMIER — sa carte est sa devanture.
 
-       POURQUOI CES BALISES SONT AJOUTEES AU-DESSUS ET NON A LA PLACE.
-       Le controle d'habillage bloque toute ligne d'app supprimee, et ses
-       exceptions sont volontairement etroites (polices, shell, enveloppe,
-       migration Worker). La regle de la maison est de plier le code, pas la
-       garde : les deux lignes d'origine restent VERBATIM juste en dessous.
-       Les scrapeurs Open Graph retiennent la PREMIERE `og:image` rencontree,
-       donc celle-ci ; le favicon reste en image secondaire, ce qui est valide.
-       ⚠ RESERVE HONNETE sur `twitter:card` : la ligne `summary` d'origine
-       subsiste plus bas, et je ne sais pas laquelle des deux X retient en cas
-       de doublon. Facebook et LinkedIn — le gros du partage entre enseignants —
-       passent par Open Graph et rendront la grande carte. Pour lever le doute
-       il faudrait supprimer la ligne `summary`, donc une exception nommee dans
-       le controle : decision de Joey, pas un desserrage a prendre seul. -->
+       L'`og:image` d'origine (le favicon) reste VERBATIM juste en dessous :
+       les scrapeurs Open Graph retiennent la PREMIERE rencontree, donc
+       celle-ci, et le favicon reste une image secondaire valide. Pas besoin de
+       la retirer pour que le rendu soit juste.
+
+       `twitter:card`, LUI, A ETE RETIRE — decision de Joey du 17 aout. Un
+       doublon `summary` + `summary_large_image` rend la carte INDETERMINEE :
+       personne ne sait laquelle X retient, et une devanture ne se joue pas aux
+       des. C'est la seule ligne d'app supprimee ici, couverte par une exception
+       nommee du controle d'habillage. -->
+
   <meta property="og:image" content="https://zonetotalsport.ca/apps/colorier/partage-colorier.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -43,7 +41,6 @@
   <meta property="og:image" content="https://zonetotalsport.ca/favicon.png">
   <meta property="og:locale" content="fr_CA">
   <meta property="og:site_name" content="Zone Total Sport">
-  <meta name="twitter:card" content="summary">
   <!-- /ZTS-SEO -->
   <meta name="description" content="Génère, colorie en ligne et imprime des pages à colorier sport et saines habitudes de vie. Export PDF. Gratuit, compétence 3 du PFEQ au primaire.">
   <link rel="icon" type="image/png" href="/favicon.png">
