@@ -1,10 +1,23 @@
 /**
- * zts-fiches-firebase.js — acces Firestore + Storage pour les fiches de jeu.
+ * zts-fiches-firebase.js — acces Firestore (texte) et R2 (images).
  *
  * Reprend le SDK compat 10.14.0 et la config du projet `zone-total-sport`
  * deja utilises par firebase-auth.js : meme app, meme version, aucune
- * seconde initialisation. On ajoute seulement firestore-compat et
- * storage-compat, que firebase-auth.js ne charge pas.
+ * seconde initialisation. On ajoute seulement firestore-compat, que
+ * firebase-auth.js ne charge pas.
+ *
+ * LES IMAGES NE SONT PAS DANS FIREBASE STORAGE (decision du 17 aout 2026).
+ * Creer un bucket Firebase exige Blaze, ce qui bascule TOUT le projet en
+ * facture a l'usage — Firestore compris, alors qu'il s'arrete aujourd'hui net
+ * au quota Spark. Et le palier Always Free des buckets *.firebasestorage.app
+ * ne couvre pas northamerica-northeast1, la region de la base. Les images
+ * vivent donc dans R2 (bucket `zts-fiches`) derriere le Worker
+ * `zts-fiches-img`, qui reproduit le modele pub/ prive/ de storage.rules —
+ * ce fichier reste dans le depot comme documentation de ce modele.
+ *
+ * Les deux moities du mur doivent rester coherentes : Firestore scinde le
+ * document (public / prive/contenu) pour le TEXTE, le Worker fait la meme
+ * coupure pour les IMAGES.
  *
  * Expose window.ZTSFichesDB.
  */
@@ -12,8 +25,17 @@
   'use strict';
 
   var SDK = 'https://www.gstatic.com/firebasejs/10.14.0/';
+  // Plus de firebase-storage-compat : les images passent par R2 et le Worker
+  // zts-fiches-img, pas par Firebase Storage. Le garder aurait telecharge du
+  // SDK pour rien a chaque ouverture de fiche.
   var MODULES = ['firebase-app-compat.js', 'firebase-auth-compat.js',
-                 'firebase-firestore-compat.js', 'firebase-storage-compat.js'];
+                 'firebase-firestore-compat.js'];
+
+  /* Worker des images. URL workers.dev, comme zts-jeux-data : aucun DNS a
+   * poser. Firestore stocke un CHEMIN et jamais une URL complete, donc passer
+   * plus tard a img.zonetotalsport.ca ne demandera que de changer cette
+   * constante — rien a migrer en base. */
+  var IMG_BASE = 'https://zts-fiches-img.zts-ccd.workers.dev';
 
   // Identique a firebase-auth.js — meme projet, meme app.
   var CONFIG = {
@@ -71,7 +93,6 @@
   }
 
   function db() { return global.firebase.firestore(); }
-  function bucket() { return global.firebase.storage(); }
 
   function horodatage() { return global.firebase.firestore.FieldValue.serverTimestamp(); }
 
@@ -242,16 +263,76 @@
 
   /* ── Storage ────────────────────────────────────────────────────────── */
 
+  /* Le chemin garde exactement la forme qu'il avait sous Firebase Storage —
+   * `fiches/{ficheId}/{zone}/{fichier}` — et c'est aussi la cle R2. Le Worker
+   * reconstruit la cle a partir de la route, donc les deux ne peuvent pas
+   * diverger. */
+  var RE_CHEMIN = /^fiches\/([^/]+)\/(pub|prive)\/([^/]+)$/;
+
+  function jeton() {
+    var u = global.firebase && global.firebase.auth().currentUser;
+    return u ? u.getIdToken() : Promise.resolve(null);
+  }
+
+  /* Cache des URL d'objet, POUR LE PRIVE SEULEMENT.
+   *
+   * Le public n'en a pas besoin : c'est une concatenation pure, et le
+   * navigateur cache la reponse. Le prive, lui, coute un fetch authentifie et
+   * un blob par image — sans cache, chaque redessin de l'editeur retelechargait
+   * toutes les illustrations de la fiche. */
   var _cacheUrl = {};
 
+  /**
+   * URL affichable pour un chemin d'image.
+   *
+   * PUBLIC  -> concatenation, servie telle quelle dans un <img src>.
+   * PRIVE   -> fetch authentifie puis blob: URL.
+   *
+   * Pourquoi cette asymetrie : un `<img src>` n'envoie AUCUN en-tete, donc
+   * jamais l'Authorization. Une URL nue vers /prive/ recevrait 401 a chaque
+   * illustration de membre. Firebase Storage reglait ca en glissant un jeton
+   * dans la query string de getDownloadURL() ; ici on recupere les octets avec
+   * le jeton et on les donne au navigateur sous forme de blob.
+   *
+   * Un chemin illisible renvoie '' plutot que de lever : la case affiche alors
+   * son placeholder, ce qui est le bon comportement pour un visiteur non
+   * connecte devant une image de membre.
+   */
   function urlDe(path) {
     if (!path) return Promise.resolve('');
+    var m = RE_CHEMIN.exec(path);
+    if (!m) return Promise.resolve('');
+
+    var url = IMG_BASE + '/img/' + encodeURIComponent(m[1]) + '/' + m[2] +
+              '/' + encodeURIComponent(m[3]);
+
+    if (m[2] === 'pub') return Promise.resolve(url);
+
     if (_cacheUrl[path]) return _cacheUrl[path];
-    _cacheUrl[path] = bucket().ref(path).getDownloadURL().catch(function (e) {
+    _cacheUrl[path] = jeton().then(function (t) {
+      if (!t) return '';
+      return fetch(url, { headers: { Authorization: 'Bearer ' + t } })
+        .then(function (r) {
+          if (!r.ok) throw new Error('image ' + r.status);
+          return r.blob();
+        })
+        .then(function (b) { return URL.createObjectURL(b); });
+    }).catch(function () {
       delete _cacheUrl[path];
-      throw e;
+      return '';
     });
     return _cacheUrl[path];
+  }
+
+  /** Libere les blob: URL d'une fiche. A appeler avant d'en charger une autre. */
+  function oublierImages() {
+    Object.keys(_cacheUrl).forEach(function (k) {
+      var p = _cacheUrl[k];
+      if (p && p.then) p.then(function (u) {
+        if (u && u.indexOf('blob:') === 0) URL.revokeObjectURL(u);
+      }).catch(function () {});
+      delete _cacheUrl[k];
+    });
   }
 
   // Seule l'illustration de la page 1 est publique : c'est elle qui sert de
@@ -263,9 +344,9 @@
    * stable : re-deposer une image ecrase l'ancienne au lieu d'empiler des
    * orphelins dans le bucket.
    *
-   * Le prefixe pub/ ou prive/ decide de la regle de lecture cote Storage.
-   * Sans ca, le mur ne tiendrait pas : l'identifiant de la fiche est public
-   * et les noms de fichiers sont derives du champ, donc devinables.
+   * Le prefixe pub/ ou prive/ decide de la regle de lecture du Worker. Sans
+   * ca, le mur ne tiendrait pas : l'identifiant de la fiche est public et les
+   * noms de fichiers sont derives du champ, donc devinables.
    */
   function televerser(blob, ficheId, champ, onProgres) {
     var slotId = String(champ || 'image').replace(/[^a-zA-Z0-9]+/g, '-');
@@ -280,22 +361,48 @@
     var path = base + (png ? '.png' : '.jpg');
     var autre = base + (png ? '.jpg' : '.png');
 
-    var tache = bucket().ref(path).put(blob, { contentType: type });
-    return new Promise(function (res, rej) {
-      tache.on('state_changed',
-        function (s) {
-          if (onProgres && s.totalBytes) onProgres((s.bytesTransferred / s.totalBytes) * 100);
-        },
-        rej,
-        function () {
+    var urlDeChemin = function (p) {
+      var m = RE_CHEMIN.exec(p);
+      return IMG_BASE + '/img/' + encodeURIComponent(m[1]) + '/' + m[2] +
+             '/' + encodeURIComponent(m[3]);
+    };
+
+    return jeton().then(function (t) {
+      if (!t) throw new Error('Connexion requise pour téléverser.');
+
+      // `fetch` ne rapporte pas la progression d'un envoi — seul XHR le fait,
+      // et seulement via upload.onprogress. On garde donc XHR ici : la barre
+      // de progression de <image-slot> existe et un rendu DAZ pese assez pour
+      // qu'elle serve.
+      return new Promise(function (res, rej) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('PUT', urlDeChemin(path), true);
+        xhr.setRequestHeader('Content-Type', type);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + t);
+        if (onProgres) {
+          xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable && e.total) onProgres((e.loaded / e.total) * 100);
+          };
+        }
+        xhr.onload = function () {
+          if (xhr.status < 200 || xhr.status >= 300) {
+            rej(new Error('Téléversement refusé (' + xhr.status + ')'));
+            return;
+          }
           delete _cacheUrl[path];
           delete _cacheUrl[autre];
           // Remplacer une photo par un detourage change l'extension : sans ce
           // menage, l'ancien fichier resterait orphelin dans le bucket. Son
           // absence est le cas normal — on ignore l'echec.
-          bucket().ref(autre).delete().catch(function () {});
+          fetch(urlDeChemin(autre), {
+            method: 'DELETE',
+            headers: { Authorization: 'Bearer ' + t }
+          }).catch(function () {});
           res(path);
-        });
+        };
+        xhr.onerror = function () { rej(new Error('Téléversement injoignable.')); };
+        xhr.send(blob);
+      });
     });
   }
 
@@ -330,7 +437,7 @@
     sauver: sauver, supprimer: supprimer, nouvelId: nouvelId,
     chargerPrive: chargerPrive, complete: complete,
     slugifier: slugifier, slugUnique: slugUnique,
-    urlDe: urlDe, televerser: televerser,
+    urlDe: urlDe, televerser: televerser, oublierImages: oublierImages,
     utilisateur: utilisateur, estAdmin: estAdmin, estConnecte: estConnecte,
     connexion: connexion, deconnexion: deconnexion,
     COURRIELS_ADMIN: COURRIELS_ADMIN

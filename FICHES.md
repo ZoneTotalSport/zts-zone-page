@@ -65,9 +65,15 @@ _scripts/
   zts-admin-claim.js       pose le custom claim admin (one-shot)
   zts-seed-sections.js     remplit la collection `sections`
 
-storage.rules              NOUVEAU — règles Storage
+cf-worker/fiches-img/
+  wrangler.toml            binding R2 `FICHES` → bucket `zts-fiches`
+  src/auth.js              vérification du jeton Firebase (dupliqué de jeux-data)
+  src/worker.js            GET pub/prive, PUT et DELETE admin
+
+storage.rules              CONSERVÉ mais PLUS DÉPLOYÉ — documente le modèle
+                           pub/ prive/ que le Worker reproduit
 firestore.rules            MODIFIÉ — blocs `fiches` et `sections`
-firebase.json              MODIFIÉ — bloc `storage`
+firebase.json              plus de bloc `storage` (voir §6)
 ```
 
 La police n'est **pas** dupliquée : `zts-fiche.css` pointe sur
@@ -93,7 +99,7 @@ fiches/{ficheId}                  ← lisible par tous si statut == 'publie'
   titre            string
   sousTitre        string
   badges           [{ texte, couleur, largeur? }]
-  imagePrincipale  string           chemin Storage (public)
+  imagePrincipale  string           chemin R2 (zone pub/), voir §6
   univers          'eps'|'camps'|'sdg'
   category         string           slug d'une section
   statut           'brouillon'|'publie'
@@ -101,11 +107,21 @@ fiches/{ficheId}                  ← lisible par tous si statut == 'publie'
 
 fiches/{ficheId}/prive/contenu    ← lisible seulement si connecté
   butDuJeu         string
-  imagePage2       string           chemin Storage (privé)
+  imagePage2       string           chemin R2 (zone prive/), voir §6
   sections         [ { titre, gabarit, orientation,
                        explications: [ { texte, imagePath } ] } ]
   statut           string           recopié, voir plus bas
 ```
+
+**Les chemins d'image** ont la forme `fiches/{ficheId}/{pub|prive}/{slotId}.{jpg|png}`
+— c'est à la fois ce que Firestore stocke et la clé dans R2, donc les deux ne
+peuvent pas diverger. Ce n'est **jamais** une URL complète : le domaine du
+Worker est une constante côté client (§6).
+
+**Les deux moitiés du mur doivent rester cohérentes.** Firestore scinde le
+document pour le TEXTE ; le Worker fait la même coupure pour les IMAGES. Une
+image de la page 2 rangée par erreur dans `pub/` percerait le mur sans que le
+document Firestore ait bougé d'un octet.
 
 **Pourquoi scinder.** Une règle « lecture publique si `statut == 'publie'` »
 posée sur un document unique ne protège rien : le déroulement complet part
@@ -201,30 +217,62 @@ Route Cloudflare : `zonetotalsport.ca/fiches/*`.
 
 ---
 
-## 6. À régler dans la console Firebase
+## 6. Les images ne sont PAS dans Firebase Storage
 
-Trois choses, dans cet ordre.
+**Décision du 17 août 2026.** Créer un bucket Firebase exige le forfait
+**Blaze**, qui bascule *tout* le projet en facturé à l'usage — Firestore
+compris, alors qu'il s'arrête aujourd'hui net au quota Spark. Et le palier
+« Always Free » des buckets `*.firebasestorage.app` ne couvre que
+US-CENTRAL1/EAST1/WEST1, jamais `northamerica-northeast1`, la région de la
+base.
 
-**1. Activer Cloud Storage.** Le projet `zone-total-sport` n'a aujourd'hui
-ni `storage.rules` ni bloc `storage` dans `firebase.json` — le produit n'a
-jamais été activé. Console → **Build → Storage → Commencer** → même région
-que Firestore (`northamerica-northeast1`). Le bucket est déjà nommé dans
-`firebase-auth.js` : `zone-total-sport.firebasestorage.app`.
+Les images vivent donc dans **Cloudflare R2**, bucket `zts-fiches`, derrière
+le Worker **`zts-fiches-img`**. R2 ne facture aucun trafic sortant.
 
-**2. Autoriser le domaine.** Console → **Authentication → Settings →
-Domaines autorisés** : `zonetotalsport.ca` doit y figurer (il y est
-probablement déjà, `firebase-auth.js` tourne en production).
+Le bloc `storage` a été retiré de `firebase.json` : tant qu'il y était,
+`firebase deploy` échouait **même en ne demandant que les règles Firestore**,
+parce que le CLI vérifie l'existence du bucket avant de déployer quoi que ce
+soit. `storage.rules` reste dans le dépôt — il documente le modèle
+`pub/` `prive/` que le Worker reproduit — mais il n'est plus déployé.
 
-**3. CORS du bucket**, seulement si les images ne s'affichent pas.
-Storage sert `Access-Control-Allow-Origin` par défaut sur les URL signées ;
-si un blocage apparaît :
+### Le Worker
 
-```bash
-cat > cors.json <<'JSON'
-[{"origin":["https://zonetotalsport.ca"],"method":["GET"],"maxAgeSeconds":3600}]
-JSON
-gcloud storage buckets update gs://zone-total-sport.firebasestorage.app --cors-file=cors.json
-```
+| Route | Qui |
+|---|---|
+| `GET /img/{ficheId}/pub/{fichier}` | tout le monde, cache du bord 24 h |
+| `GET /img/{ficheId}/prive/{fichier}` | jeton Firebase valide, cache navigateur seulement |
+| `PUT` · `DELETE /img/{ficheId}/{zone}/{fichier}` | admin (`claims.admin` ou `zts@hotmail.ca`) |
+
+**Deux chemins distincts, pas une URL dont le corps varie** — même
+raisonnement que `zts-jeux-data` : une URL unique qui dépend de
+`Authorization` imposerait `Vary: Authorization`, ce qui anéantit le cache du
+bord et risque de servir une image de membre à un anonyme si une couche ignore
+le `Vary`.
+
+**Bucket séparé de `zts-banques`** : les banques sont réécrites par la CI à
+chaque poussée sur `main` et sont régénérables depuis le dépôt ; les rendus DAZ
+ne le sont pas. Contenu jetable et contenu irremplaçable ne partagent pas un
+bucket.
+
+### Pourquoi une image privée passe par un `blob:`
+
+Un `<img src>` n'envoie **aucun en-tête**, donc jamais l'`Authorization` :
+une URL nue vers `/prive/` recevrait 401 à chaque illustration de membre.
+Firebase Storage réglait ça en glissant un jeton dans la query string de
+`getDownloadURL()`. Ici `urlDe()` récupère les octets avec le jeton puis les
+donne au navigateur sous forme de `blob:` URL. Le public, lui, reste une
+concaténation pure — donc cacheable par le navigateur et par le bord.
+
+C'est aussi pourquoi le cache `_cacheUrl` **survit** côté privé : sans lui,
+chaque redessin de l'éditeur retéléchargerait toutes les illustrations.
+`ZTSFichesDB.oublierImages()` libère les `blob:` avant de charger une autre
+fiche.
+
+### Ce qui reste à faire dans la console Firebase
+
+**Autoriser le domaine.** Console → **Authentication → Settings → Domaines
+autorisés** : `zonetotalsport.ca` doit y figurer (il y est probablement déjà,
+`firebase-auth.js` tourne en production).
 
 Le **custom claim** n'est pas requis pour démarrer : les règles acceptent le
 repli par courriel `zts@hotmail.ca`. Pour le poser proprement, voir §7.
@@ -251,18 +299,37 @@ git checkout main && git merge --ff-only feat/fiches-firebase && git push
 GitHub Pages reconstruit tout seul. Vérifie ensuite
 `https://zonetotalsport.ca/fiches/`.
 
-### b) Les règles — Firebase
+### b) Les règles Firestore — Firebase
 
 Règle d'or de `CLAUDE.md` : **commit d'abord, déploiement ensuite.**
 
 ```bash
 cd ~/dev/Remotion\ 2/wix-deploy
 firebase login                             # si nécessaire
-firebase deploy --only firestore:rules,storage --project zone-total-sport
+firebase deploy --only firestore:rules --project zone-total-sport
 ```
 
-Pour voir ce qui partirait sans rien envoyer :
-`firebase deploy --only firestore:rules --dry-run --project zone-total-sport`
+Pour voir ce qui partirait sans rien envoyer, ajoute `--dry-run`.
+
+**Pas de `--only storage`** : voir §6. Le bloc a été retiré de `firebase.json`
+et `storage.rules` n'est plus déployé.
+
+### b bis) Le Worker des images — Cloudflare
+
+```bash
+cd ~/dev/Remotion\ 2/wix-deploy/cf-worker/fiches-img
+export PATH="$HOME/.local/node/bin:$PATH"
+npm install                                # première fois seulement
+wrangler deploy
+```
+
+Sert sur `https://zts-fiches-img.zts-ccd.workers.dev`. Le client pointe dessus
+par la constante `IMG_BASE` de `fiches/zts-fiches-firebase.js`. Firestore
+stocke un **chemin**, jamais une URL complète : passer un jour à
+`img.zonetotalsport.ca` ne demandera que de changer cette constante et
+d'ajouter un domaine personnalisé — rien à migrer en base.
+
+Sonde : `curl https://zts-fiches-img.zts-ccd.workers.dev/health`
 
 ### c) Les sections — une fois
 

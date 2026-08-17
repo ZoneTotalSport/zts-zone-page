@@ -1,0 +1,24 @@
+name = "zts-fiches-img"
+main = "src/worker.js"
+compatibility_date = "2025-05-01"
+
+# Les images des fiches vivent dans R2, PAS dans Firebase Storage.
+#
+# Decision du 17 aout 2026 : creer un bucket Firebase exige Blaze, ce qui
+# bascule TOUT le projet en facture a l'usage — Firestore compris, alors qu'il
+# s'arrete aujourd'hui net au quota Spark. Et le palier Always Free des buckets
+# *.firebasestorage.app ne couvre pas northamerica-northeast1, la region de la
+# base. R2 ne facture aucun trafic sortant.
+#
+# Bucket SEPARE de `zts-banques` : les banques sont reecrites par la CI a
+# chaque poussee sur main et sont regenerables depuis le depot ; les rendus DAZ
+# de Joey ne le sont pas. Contenu jetable et contenu irremplacable ne partagent
+# pas un bucket — un `sync --delete` mal cadre dans publie-banques-r2.sh
+# emporterait les images.
+[[r2_buckets]]
+binding = "FICHES"
+bucket_name = "zts-fiches"
+
+# Public, pas un secret : sert a valider l'audience des jetons Firebase.
+[vars]
+FIREBASE_PROJECT_ID = "zone-total-sport"
