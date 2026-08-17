@@ -161,7 +161,24 @@
    */
   var CHAMPS_PUBLICS = ['slug', 'titre', 'sousTitre', 'badges',
                         'imagePrincipale', 'univers', 'category', 'statut'];
-  var CHAMPS_PRIVES = ['butDuJeu', 'sections', 'imagePage2'];
+  /* `styles`, `formes` et `reperes` viennent de l'editeur visuel.
+   *
+   *  styles  { <chemin de champ>: {font,size,stroke,word,shadow,color,
+   *            strokeColor,align,lh,ls,rot,z,hidden,dx,dy,w,hgt,altA,altB} }
+   *          Indexe par data-champ, PAS par chemin DOM : l'editeur produit
+   *          des cles positionnelles (p0-b2.1.0) que l'adaptateur traduit a
+   *          la sauvegarde. Une cle positionnelle se reattache au mauvais
+   *          element des qu'un div bouge dans le balisage.
+   *
+   *  formes  [ {id,page,type,x,y,w,h,thickness,fill,strokeColor,color,size,
+   *            stroke,shadow,rot,text,hiddenLayer, points[],closed,smooth} ]
+   *          `points` est serialise tel quel, en unites de page.
+   *
+   *  reperes { p0: {v:[x...], h:[y...]} } — mobilier d'atelier. Stocke pour
+   *          que Joey retrouve ses guides, jamais lu par les pages publiques.
+   */
+  var CHAMPS_PRIVES = ['butDuJeu', 'sections', 'imagePage2',
+                       'styles', 'formes', 'reperes'];
 
   /**
    * Sauve une fiche. Cree le document si `fiche.id` est absent, pour que le

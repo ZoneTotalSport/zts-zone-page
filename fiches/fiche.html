@@ -23,6 +23,7 @@
 <div id="zts-racine"></div>
 
 <script src="/fiches/zts-fiche-modele.js"></script>
+<script src="/fiches/zts-fiche-formes.js"></script>
 <script src="/fiches/zts-image-slot.js"></script>
 <script src="/fiches/zts-fiches-firebase.js"></script>
 <script>
@@ -102,13 +103,27 @@
         var estMembre = !!fc._complete;
         metaSociales(fc);
         document.getElementById('zts-chargement').style.display = 'none';
-        document.getElementById('zts-racine').innerHTML =
+        var racine = document.getElementById('zts-racine');
+        racine.innerHTML =
           barre(estMembre) +
           ZTSFiche.rendre(fc, {
             mode: estMembre ? 'membre' : 'public',
             signupUrl: URL_INSCRIPTION,
             base: '/fiches/'
           });
+
+        // Surcharges de style et formes dessinees dans l'editeur. L'ordre
+        // compte : les styles peuvent masquer un bloc ou en changer la
+        // taille, les formes se posent par-dessus le resultat.
+        var r1 = ZTSFormes.appliquerStyles(racine, fc.styles);
+        var r2 = ZTSFormes.dessiner(racine, fc.formes);
+        if (window.console && (r1.orphelins.length || r2.ignorees)) {
+          // Diagnostic, pas une erreur : une fiche dont la structure a
+          // change laisse forcement des cles sans cible.
+          console.info('[fiches] styles orphelins :', r1.orphelins,
+                       '. formes ignorees :', r2.ignorees);
+        }
+
         var pdf = document.getElementById('zts-pdf');
         if (pdf) pdf.addEventListener('click', function () { window.print(); });
       });
