@@ -171,37 +171,44 @@ async function lireWhitelist(env) {
   }
 }
 
-// Ramene une banque a un tableau d'items, quelle que soit sa forme.
-// `carte` : { categorie: { saes:[…] } | [ … ] } -> on aplatit en gardant la
-// categorie sur chaque item, sinon la liste publique n'est pas navigable.
-function aplatir(brut, banque) {
+// La charge publique conserve LA FORME de la source, et ne reduit que la
+// richesse des items. C'est une regle, pas un detail : une charge publique de
+// forme differente obligerait chaque consommateur a se dedoubler selon qu'il
+// est connecte ou non — l'app SAE lit `allData[categorie]`, elle doit lire
+// pareil dans les deux cas.
+function reduire(item, banque, vitrines) {
+  const slug = banque.slugDe(item);
+  if (vitrines.has(slug)) return { ...item, _slug: slug, _vitrine: true };
+  const out = { _slug: slug };
+  for (const champ of banque.liste) if (item[champ] !== undefined) out[champ] = item[champ];
+  return out;
+}
+
+function construirePublic(brut, banque, slugsVitrine) {
+  const vitrines = new Set(slugsVitrine || []);
+
   if (banque.forme === "tableau") {
-    return Array.isArray(brut) ? brut : (brut.jeux || brut.items || []);
+    const arr = Array.isArray(brut) ? brut : (brut.jeux || brut.items || []);
+    return arr.map((x) => reduire(x, banque, vitrines));
   }
+
   if (banque.forme === "carte") {
-    const out = [];
+    // { categorie: { saes:[…] } | [ … ] }  ->  meme carte, items reduits.
+    const out = {};
     for (const cat of Object.keys(brut)) {
       const v = brut[cat];
-      const arr = Array.isArray(v) ? v : (v.saes || v.sae || Object.values(v).find(Array.isArray) || []);
-      for (const item of arr) out.push({ ...item, _categorie: cat });
+      if (Array.isArray(v)) {
+        out[cat] = v.map((x) => reduire(x, banque, vitrines));
+      } else {
+        const clefTab = Object.keys(v).find((k) => Array.isArray(v[k]));
+        out[cat] = { ...v };
+        if (clefTab) out[cat][clefTab] = v[clefTab].map((x) => reduire(x, banque, vitrines));
+      }
     }
     return out;
   }
-  return [];
-}
 
-// Charge publique : tous les items reduits aux champs de liste, plus les
-// vitrines completes. Le reste du contenu ne sort pas d'ici.
-function construirePublic(items, banque, slugsVitrine) {
-  const vitrines = new Set(slugsVitrine || []);
-  return items.map((x) => {
-    const slug = banque.slugDe(x);
-    if (vitrines.has(slug)) return { ...x, _slug: slug, _vitrine: true };
-    const reduit = { _slug: slug };
-    if (x._categorie) reduit._categorie = x._categorie;
-    for (const champ of banque.liste) if (x[champ] !== undefined) reduit[champ] = x[champ];
-    return reduit;
-  });
+  return {};
 }
 
 async function servir(request, env, nomBanque, portee) {
@@ -236,11 +243,9 @@ async function servir(request, env, nomBanque, portee) {
   if (portee === "full") {
     corps = brut;                                   // tel quel, zero transformation
   } else {
-    const brutParse = JSON.parse(brut);
-    const liste = aplatir(brutParse, banque);
     const wl = await lireWhitelist(env);
     const slugs = ((wl.freeItems || {})[banque.vitrines]) || [];
-    corps = JSON.stringify(construirePublic(liste, banque, slugs));
+    corps = JSON.stringify(construirePublic(JSON.parse(brut), banque, slugs));
   }
 
   const etag = await etagDe(corps);
@@ -266,22 +271,23 @@ async function servir(request, env, nomBanque, portee) {
   });
 }
 
-// Un fichier de detail SAE : contenu complet, donc jeton obligatoire et cache
-// PRIVE. Le nom de fichier est valide par la regex de la route (pas de `..`,
-// pas de `/`) — la cle R2 est donc toujours `sae-detail/<nom>`, jamais ailleurs.
-async function servirDetailSae(request, env, fichier) {
+// Un fichier sous un prefixe R2 : contenu complet, donc jeton obligatoire et
+// cache PRIVE. Le nom de fichier est valide par la regex de la route (ni `..`,
+// ni `/`) — la cle R2 est donc toujours `<prefixe>/<nom>`, jamais ailleurs.
+// C'est cette validation en amont qui rend la concatenation sure.
+async function servirFichier(request, env, prefixe, fichier, quoi) {
   const membre = await verifyIdToken(request, env);
   if (!membre) {
     return err("compte_requis",
-      "Le detail des SAE demande un compte gratuit. Liste publique : /sae/public.json", 401);
+      `${quoi} demande un compte gratuit.`, 401);
   }
 
   let corps;
   try {
-    corps = await lireSource(env, `sae-detail/${fichier}`);
+    corps = await lireSource(env, `${prefixe}/${fichier}`);
   } catch (e) {
-    console.error("[jeux-data] detail SAE illisible:", e.message);
-    return err("source_illisible", "Fiche temporairement indisponible.", 502);
+    console.error("[jeux-data] fichier illisible:", e.message);
+    return err("source_illisible", "Fichier temporairement indisponible.", 502);
   }
 
   const etag = await etagDe(corps);
@@ -294,7 +300,7 @@ async function servirDetailSae(request, env, fichier) {
   return json(corps, 200, {
     ETag: etag,
     "Cache-Control": "private, max-age=3600",
-    "X-ZTS-Portee": "detail",
+    "X-ZTS-Portee": prefixe,
   });
 }
 
@@ -323,7 +329,12 @@ export default {
     // contenu complet des 1880 SAE, il n'y a pas de version publique a en
     // tirer. La liste, elle, passe par /sae/public.json.
     const d = url.pathname.match(/^\/sae\/detail\/([a-z0-9_-]+\.json)$/i);
-    if (d) return servirDetailSae(request, env, d[1]);
+    if (d) return servirFichier(request, env, "sae-detail", d[1], "Le detail des SAE");
+
+    // Les 7 fichiers de planification, appeles un par un par l'app. Jeton
+    // requis : contenu complet, app deja muree, pas de version resumee utile.
+    const pl = url.pathname.match(/^\/planification\/([a-z0-9_.-]+\.json)$/i);
+    if (pl) return servirFichier(request, env, "planification", pl[1], "Les planifications");
 
     const m = url.pathname.match(/^\/([a-z-]+)\/(public|full)\.json$/);
     if (!m) {

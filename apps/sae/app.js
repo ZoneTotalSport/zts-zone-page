@@ -78,9 +78,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadAllSAELight() {
   try {
-    const r = await fetch('data/sae-all-light.json');
-    if (!r.ok) throw new Error('Failed to load light data');
-    const allData = await r.json();
+    // Worker depuis le 2026-08-17 (LOT 1 vague D) : full.json pour un membre,
+    // public.json pour un anonyme. La charge publique conserve LA MEME FORME
+    // (carte par categorie) — `allData[key]` fonctionne dans les deux cas.
+    const allData = await window.ZTSBanques.sae();
 
     SAE_SOURCES.forEach(source => {
       const key = source.file.replace('.json', '');
@@ -108,9 +109,10 @@ async function loadDetail(sae) {
 
   if (!_detailCache[file]) {
     try {
-      const r = await fetch('data/sae-detail/' + file);
-      if (!r.ok) return sae;
-      _detailCache[file] = await r.json();
+      // Detail = contenu complet, donc jeton requis. Un anonyme sur une SAE
+      // non vitrine recevra 401 : on rend la SAE allegee telle quelle plutot
+      // que d'afficher une fiche vide.
+      _detailCache[file] = await window.ZTSBanques.saeDetail(file);
     } catch (e) {
       console.warn('Detail load failed:', file, e);
       return sae;

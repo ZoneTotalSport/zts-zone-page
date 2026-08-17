@@ -1,7 +1,7 @@
 /**
  * dataStore.js — couche données du Planificateur (Phase 3, biblio camp)
  *
- * 1) Banque camps : catalogue 1439 (apps/jeux/data/jeux-merged.json) +
+ * 1) Banque camps : catalogue 1439 (Worker zts-jeux-data, /jeux/full.json) +
  *    mini-banques (data/mini-banques-camp.json), fusionnés à la lecture,
  *    filtrés univers "camps", normalisés en fiche tiroir.
  * 2) Écritures journée : TOUT passe par ici (Journees.* de app.js),
@@ -17,7 +17,12 @@
 
 const PlanifData = (() => {
 
-  const CATALOGUE_URL = '../jeux/data/jeux-merged.json';
+  // La banque vient du Worker depuis le 2026-08-17 (LOT 1 vague D). L'app est
+  // gatee depuis la vague A : ses utilisateurs sont connectes, donc full.json.
+  // ZTSBanques gere le jeton expire — un planificateur laisse ouvert tout un
+  // apres-midi presenterait sinon un jeton perime et afficherait une banque
+  // VIDE a un membre legitime.
+  const CATALOGUE_VIA_WORKER = true;
   const MINIBANQUES_URL = 'data/mini-banques-camp.json';
 
   let _loadPromise = null;   // cache : un seul fetch par session
@@ -91,7 +96,9 @@ const PlanifData = (() => {
   function loadBanqueCamp() {
     if (_loadPromise) return _loadPromise;
     _loadPromise = Promise.all([
-      fetch(CATALOGUE_URL).then(r => { if (!r.ok) throw new Error('catalogue ' + r.status); return r.json(); }),
+      // ZTSBanques rend deja du JSON analyse (et a gere le jeton expire) :
+      // pas de `.ok` ni de `.json()` a enchainer ici, contrairement a un fetch.
+      window.ZTSBanques.jeux(),
       fetch(MINIBANQUES_URL).then(r => { if (!r.ok) throw new Error('mini-banques ' + r.status); return r.json(); }),
     ]).then(([cat, mb]) => {
       const items = [

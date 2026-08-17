@@ -313,8 +313,24 @@ def controle(chemin):
                 # `body>header.header{display:none}` masquait etait revenue.
                 enveloppe = "body>" in bas.replace(" ", "")
                 vide = not ligne[1:].strip()   # une ligne blanche ne retire rien
+                # Une app passee au Worker de donnees (LOT 1 vague D, 17 aout
+                # 2026) a forcement perdu son `fetch` d'origine : les banques ne
+                # sont plus des fichiers servis en clair, elles vivent dans R2
+                # derriere un jeton. Meme nature que l'assouplissement des
+                # polices ci-dessus — une decision transverse touche par
+                # necessite a des lignes existantes des apps.
+                #
+                # L'exception est ETROITE A DEUX TITRES : elle ne vaut que pour
+                # les apps qui appellent DESORMAIS ZTSBanques (donc celles qui
+                # ont reellement migre, pas les autres), et seulement pour les
+                # lignes qui parlent de `fetch` ou de `.json()` — l'appel et
+                # l'analyse de sa reponse. Toute autre ligne d'app retiree
+                # bloque toujours, y compris dans ces apps-la.
+                migre_worker = ("ztsbanques" in c.lower()
+                                and ("fetch" in bas or ".json()" in bas))
                 if ("ztsh" not in bas and "ztsshell" not in bas
-                        and not police and not vide and not enveloppe):
+                        and not police and not vide and not enveloppe
+                        and not migre_worker):
                     retirees_app.append(ligne[1:].strip()[:60])
         if ajouts > 30:
             aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")
