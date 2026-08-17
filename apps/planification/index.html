@@ -216,6 +216,8 @@
 
   <div data-zts-footer></div>
 
+  <script src="/zts-banques.js"></script>
+
   <script src="../../shared/zts.js"></script>
   <script src="../../shared/zts-gate.js"></script>
   <script>
@@ -293,9 +295,13 @@
       if(state.metier) plRender();
     });
 
+    // Worker depuis le 2026-08-17 (LOT 1 vague D). `file` valait « data/x.json » ;
+    // le Worker sert « /planification/x.json », jeton requis (app deja muree,
+    // contenu complet sans version resumee utile).
     function getJSON(file){
       if(state.cache[file]) return Promise.resolve(state.cache[file]);
-      return fetch(file).then(r=>r.json()).then(d=>{ state.cache[file]=d; return d; });
+      var nom = String(file).replace(/^.*\//, '');
+      return window.ZTSBanques.planification(nom).then(d=>{ state.cache[file]=d; return d; });
     }
 
     // ---------- statique ----------

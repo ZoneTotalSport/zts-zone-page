@@ -582,12 +582,31 @@
   </div>
 
   <!-- SCRIPTS -->
+  <script src="/zts-banques.js"></script>
   <script>
-    // Loader: fetch merged dataset before app.js runs
-    window.__GAMES_LOAD__ = fetch('data/jeux-merged.json')
-      .then(r => r.json())
+    // La banque vient du Worker depuis le 2026-08-17 (LOT 1 vague D) :
+    // /jeux/full.json pour un membre, /jeux/public.json pour un anonyme (les
+    // 3 jeux vitrine complets + les champs de liste des 1439). zts-banques.js
+    // choisit la portee et gere le jeton expire.
+    // La liste reste navigable sans compte : c'est un outil de vente.
+    window.__GAMES_LOAD__ = window.ZTSBanques.jeux()
       .then(data => { window.GAMES_DATA = data; })
       .catch(e => { console.error('Erreur chargement jeux:', e); window.GAMES_DATA = []; });
+
+    // Ajout LOT 1 vague D : on ne laisse PAS l'app se remplir d'un tableau vide
+    // EN SILENCE. Un membre dont le jeton a expire verrait sinon une banque
+    // vide sans savoir pourquoi — « il n'y a rien » au lieu de « ca n'a pas
+    // marche ». zts-banques.js rafraichit le jeton et reessaie une fois ; si ca
+    // echoue quand meme, le visiteur doit le lire. Instruction SEPAREE pour ne
+    // pas reecrire la chaine ci-dessus.
+    window.__GAMES_LOAD__ = window.__GAMES_LOAD__.then(function () {
+      if (window.GAMES_DATA && window.GAMES_DATA.length) return;
+      var d = document.createElement('div');
+      d.setAttribute('role', 'alert');
+      d.style.cssText = 'margin:16px;padding:14px 16px;border:3px solid #0F0F2E;border-radius:14px;background:#FFF3C4;font-weight:700;box-shadow:4px 4px 0 #0F0F2E';
+      d.textContent = 'La banque de jeux n\u2019a pas pu \u00eatre charg\u00e9e. Recharge la page \u2014 si tu es membre, reconnecte-toi.';
+      (document.body || document.documentElement).prepend(d);
+    });
   </script>
   <script>
     // Wait for data, then load app.js

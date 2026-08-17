@@ -1,15 +1,32 @@
 {
-  "_comment": "Slugs publics — accessibles aux visiteurs anonymes (SEO bait). Source de verite unique pour zts-lock.js et zts-lock-page.js.",
+  "_comment": "Slugs publics — accessibles aux visiteurs anonymes (SEO bait). Source de verite unique pour zts-lock.js, zts-lock-page.js et zts-cadenas.js.",
+  "_vitrines": "LOT 1, 2026-08-13 — les trois outils vitrine sont suppleance, musique et colorier. `jeux` et `sae` restent dans freeResources APRES la vague C, et c'est definitif : leur PAGE reste ouverte parce que la liste est l'outil de vente (1439 jeux et 1880 SAE navigables, filtrables, sans compte). Ce qui se ferme a la vague C, ce sont les FICHES — le mur est descendu d'un cran, de l'app vers l'item. Retirer `jeux` ou `sae` d'ici murerait la liste elle-meme et supprimerait l'argument de vente.",
   "freeResources": [
     "jeux",
     "sae",
     "suppleance",
     "musique",
-    "code-oreille"
+    "colorier"
   ],
+  "_freeResources_retires": "code-oreille — sorti le 2026-08-13. L'entree etait inerte : l'app ne chargeait aucun script de verrou, la liste blanche l'autorisait donc a passer une porte inexistante. Elle a recu le verrou standard dans le meme commit.",
   "freeArticles": [
     "faire-bouger-enfants",
     "comportements-perturbateurs",
     "catastrophes-ordinaires"
-  ]
+  ],
+  "_freeItems": "LOT 1 vague B, 2026-08-15 — items vitrine, par famille. `freeResources` ne sait nommer que des apps entieres ; ce champ nomme des ITEMS. Lu par zts-lock-page.js pour les fiches statiques /jeux/<slug>.html, et par les deux SPA a la vague C. Criteres du choix : 1 classique EPS, 1 grand jeu de camp, 1 jeu calme SDG, les trois notes 16/16 sur la completude (8 champs FR + leurs 8 pendants EN tous remplis).",
+  "freeItems": {
+    "jeux": [
+      "1-2-3-soleil",
+      "ballon-chasseur-classique",
+      "le-jardin-cooperatif"
+    ],
+    "sae": [
+      "dodgeball-de-la-caraibe-calypso-ball-et-rythme-des-iles",
+      "les-legendes-du-basketball-dans-les-pas-de-naismith",
+      "mon-corps-en-mouvement-initiation-au-circuit-de-stations"
+    ]
+  },
+  "_freeItems_sae": "LOT 1 vague C, 2026-08-17 — une SAE par cycle du primaire, les trois notees 16/16 sur la completude du DETAIL (16 champs mesures, dont cours, grille_evaluation, adaptations, english). 1er cycle : Dodgeball de la Caraibe (3 cours, C1). 2e cycle : Les Legendes du Basketball (4 cours, C1). 3e cycle : Mon corps en mouvement (4 cours, C3 — le seul des trois sur le mode de vie sain et actif, et le seul qui ne demande aucun materiel de sport). Ecarte volontairement : le Ballon chasseur classique (le jeu du meme nom est deja vitrine, on n'ouvre pas deux fois le meme contenu) et les SAE de duel/lutte/boxe, mieux notees mais moins universelles au primaire. Slugs verifies uniques sur les 1880 — 7 collisions existent ailleurs dans la banque, aucune ici.",
+  "_freeItems_slug": "Le slug est calcule par le Worker (`slugify(titre)`), PAS ecrit dans les donnees. Renommer le titre d'une SAE vitrine casse donc la vitrine en silence. Les trois titres exacts : « Dodgeball de la Caraibe — Calypso Ball et rythme des iles », « Les Legendes du Basketball — Dans les Pas de Naismith », « Mon corps en mouvement — Initiation au circuit de stations »."
 }

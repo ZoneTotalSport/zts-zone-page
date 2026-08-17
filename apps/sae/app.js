@@ -78,9 +78,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadAllSAELight() {
   try {
-    const r = await fetch('data/sae-all-light.json');
-    if (!r.ok) throw new Error('Failed to load light data');
-    const allData = await r.json();
+    // Worker depuis le 2026-08-17 (LOT 1 vague D) : full.json pour un membre,
+    // public.json pour un anonyme. La charge publique conserve LA MEME FORME
+    // (carte par categorie) — `allData[key]` fonctionne dans les deux cas.
+    const allData = await window.ZTSBanques.sae();
 
     SAE_SOURCES.forEach(source => {
       const key = source.file.replace('.json', '');
@@ -106,11 +107,18 @@ async function loadDetail(sae) {
   const idx = sae._idx;
   if (file == null || idx == null) return sae;
 
+  // Vague C : une SAE vitrine arrive DEJA complete — le Worker a fusionne son
+  // detail dans la charge publique. Sans ce retour, un anonyme declencherait un
+  // appel a /sae/detail/… qui ne peut que finir en 401, sur la seule fiche
+  // qu'on veut justement lui ouvrir sans friction.
+  if (Array.isArray(sae.cours) && sae.cours.length) return sae;
+
   if (!_detailCache[file]) {
     try {
-      const r = await fetch('data/sae-detail/' + file);
-      if (!r.ok) return sae;
-      _detailCache[file] = await r.json();
+      // Detail = contenu complet, donc jeton requis. Un anonyme sur une SAE
+      // non vitrine recevra 401 : on rend la SAE allegee telle quelle plutot
+      // que d'afficher une fiche vide.
+      _detailCache[file] = await window.ZTSBanques.saeDetail(file);
     } catch (e) {
       console.warn('Detail load failed:', file, e);
       return sae;
@@ -599,10 +607,25 @@ function updateStats() {
 
 // ===== MODAL =====
 
+// LOT 1 vague C — meme regle que dans la banque de jeux : la liste des 1880
+// SAE reste ouverte et filtrable, la FICHE demande un compte, sauf les trois
+// vitrines. On teste le contenu recu, pas la liste blanche (voir
+// zts-banques.js) : `tache_complexe` vient de la charge light d'un membre,
+// `cours` du detail fusionne d'une vitrine. Ni l'un ni l'autre chez l'anonyme
+// devant une SAE ordinaire.
+const CHAMPS_CONTENU_SAE = ['tache_complexe', 'cours', 'deroulement', 'materiel'];
+
 async function openModal(s) {
   const modal = document.getElementById('modal');
   const body = document.getElementById('modal-body');
   if (!modal || !body) return;
+
+  if (window.ZTSBanques && window.ZTSBanques.estVerrouille(s, CHAMPS_CONTENU_SAE)) {
+    // Le mur AVANT l'ouverture : pas de fenetre « Chargement… » qui s'ouvre
+    // pour se faire recouvrir aussitot.
+    window.ZTSBanques.murItem(s, 'sae');
+    return;
+  }
 
   // Show modal immediately with loading state
   modal.classList.remove('hidden');
@@ -1914,6 +1937,17 @@ function renderBrowserResults(container, results, type) {
       var already = cours[_activeSlotIndex].some(function(e) { return e.titre === titre; });
       if (already) {
         showToast('Deja dans ce cours !');
+        return;
+      }
+      // Vague C : « Ajouter a mon cours » est une deuxieme porte sur le meme
+      // contenu — elle recopie criteres_evaluation et intentions_pedagogiques
+      // dans le plan de cours. Sans ce garde-fou, un anonyme n'aurait pas la
+      // fiche mais aurait un slot a moitie rempli, sans savoir pourquoi. Les
+      // educatifs (`_isEducatif`) ne passent pas par la banque SAE : ils ne
+      // sont pas concernes.
+      if (!isEdu && window.ZTSBanques &&
+          window.ZTSBanques.estVerrouille(s, CHAMPS_CONTENU_SAE)) {
+        window.ZTSBanques.murItem(s, 'sae');
         return;
       }
       // Load detail if needed for criteres_evaluation

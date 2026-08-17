@@ -243,6 +243,19 @@ footer button{
 footer .sig{display:block;margin-top:16px;color:var(--deep)}
 .empty{text-align:center;padding:44px 12px;font-size:1.15rem}
 </style>
+
+<!-- Verrou d'inscription — LOT 1 vague A, 2026-08-13.
+     Cette app figurait dans `freeResources` de locked-whitelist.json, mais
+     l'entree etait INERTE : elle ne chargeait aucun script de verrou. La liste
+     blanche l'autorisait a passer une porte qui n'existait pas. Elle sort donc
+     de la liste blanche (les trois outils vitrine sont suppleance, musique et
+     colorier) et recoit le verrou standard.
+     Le menu partage l'expose sur ~1489 pages : c'etait la fuite la plus large
+     des trois apps non gardees. -->
+<script src="/zts-lock-page.js" defer></script>
+<script src="/firebase-auth.js" defer></script>
+<script src="/zts-locked-fullscreen.js" defer></script>
+<script src="/zts-funnel.js" defer></script>
 </head>
 <body>
 

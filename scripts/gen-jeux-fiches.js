@@ -1,6 +1,6 @@
 /**
  * Générateur de fiches SEO statiques — 1 page par jeu (programmatic SEO).
- * Source : apps/jeux/data/jeux-merged.json (1439 jeux).
+ * Source : _data/jeux-merged.json (1439 jeux, hors arbre publie).
  * Sortie : /jeux/<slug>.html + /jeux/index.html + sitemap-jeux.xml.
  *
  * Usage :
@@ -12,7 +12,11 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, 'apps/jeux/data/jeux-merged.json');
+// La banque a quitte l'arbre publie le 2026-08-16 (LOT 1 vague D) : `_data/`
+// n'est pas servi par GitHub Pages (Jekyll exclut les dossiers `_`), mais reste
+// versionne et lisible ici, a la construction. Lecture DISQUE : ce script ne
+// passe pas par le Worker, il n'en a pas besoin.
+const SRC = path.join(ROOT, '_data/jeux-merged.json');
 const OUTDIR = path.join(ROOT, 'jeux');
 const BASE = 'https://zonetotalsport.ca';
 
@@ -53,7 +57,7 @@ function clip(s, n) {
 
 // fond gymnase + voile, commun à toutes les pages /jeux/
 const BODY_BG =
-  "body{margin:0;font-family:'Quicksand',system-ui,sans-serif;min-height:100vh;" +
+  "body{margin:0;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);min-height:100vh;" +
   "background:linear-gradient(rgba(255,255,255,.82),rgba(255,255,255,.82)),url('/gym-bg.jpg') center/cover fixed;}";
 
 // ---------- rendu d'une fiche ----------
@@ -121,7 +125,7 @@ function buildPage(g, slug, related) {
     '<meta property="og:image" content="' + BASE + '/logo-zts.png">\n<meta property="og:site_name" content="Zone Total Sport">\n<meta property="og:locale" content="fr_CA">\n' +
     '<meta name="twitter:card" content="summary_large_image">\n<link rel="icon" href="/favicon.png">\n' +
     '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
-    '<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">\n' +
+    '<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">\n' +
     '<link rel="stylesheet" href="/shared/zts.css">\n' +
     '<script type="application/ld+json">' + JSON.stringify(howto) + '</script>\n' +
     '<script type="application/ld+json">' + JSON.stringify(breadcrumb) + '</script>\n' +
@@ -185,7 +189,14 @@ function buildPage(g, slug, related) {
     '<a class="fiche-cta" href="https://jeux.zonetotalsport.ca">🎮 Voir les 1400+ jeux dans l\'app gratuite →</a>\n' +
     relHtml +
     '</main>\n<div data-zts-footer></div>\n' +
-    '<script src="/shared/zts.js"></script>\n<script src="/firebase-auth.js" defer></script>\n<script src="/zts-funnel.js" defer></script>\n' +
+    // Verrou d'inscription — LOT 1 vague B, 2026-08-15.
+    // zts-lock-page.js tronque la fiche pour les anonymes : heros + Deroulement
+    // + Materiel visibles, le reste en display:none, texte conserve dans le DOM
+    // (le SEO prime ; la vraie protection viendra du Worker a la vague D).
+    // Les trois jeux vitrine de `freeItems.jeux` restent entiers.
+    // L'ordre importe : lock-page AVANT firebase-auth, comme sur les 11 apps
+    // deja gardees — il s'abonne a ztsOnAuth des qu'il existe.
+    '<script src="/zts-lock-page.js" defer></script>\n<script src="/shared/zts.js"></script>\n<script src="/firebase-auth.js" defer></script>\n<script src="/zts-funnel.js" defer></script>\n' +
     '</body>\n</html>\n';
 }
 
@@ -248,7 +259,7 @@ if (LIMIT === Infinity) {
     '<meta property="og:title" content="1400+ jeux d\'éducation physique au primaire">\n<meta property="og:description" content="Banque de ' + games.length + ' jeux ÉP avec règles complètes. Gratuit, aligné PFEQ.">\n' +
     '<meta property="og:image" content="' + BASE + '/logo-zts.png">\n<meta property="og:url" content="' + BASE + '/jeux/">\n<meta property="og:type" content="website">\n' +
     '<link rel="icon" href="/favicon.png">\n' +
-    '<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">\n' +
+    '<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">\n' +
     '<link rel="stylesheet" href="/shared/zts.css">\n' +
     '<style>' + BODY_BG +
     '.jx-wrap{max-width:1040px;margin:0 auto;padding:18px 16px 80px;}' +

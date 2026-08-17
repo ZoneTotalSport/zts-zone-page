@@ -31,13 +31,33 @@
      posé sans consentement.
      Injection différée à DOMContentLoaded : sur les 52 pages qui incluent déjà
      analytics.js en dur, la garde anti-double-chargement ne peut le détecter de
-     façon fiable qu'une fois le DOM parsé (sinon race → GA4 chargé 2×). */
+     façon fiable qu'une fois le DOM parsé (sinon race → GA4 chargé 2×).
+
+     ⚠ LES DEUX FICHIERS VONT ENSEMBLE — corrigé le 2026-08-16.
+     analytics.js pose `analytics_storage: denied` par DÉFAUT (Consent Mode v2,
+     opt-in RGPD) ; seul cookie-consent.js peut lever ce refus, et seulement si
+     le visiteur accepte la bannière. Injecter le premier sans le second donne
+     une page qui mesure avec le consentement refusé ET aucun moyen de
+     l'accorder : `gcs=G100` à perpétuité.
+     C'est ce qui est arrivé entre le 13 et le 16 août : la home, les 3 hubs et
+     les 1440 fiches ont reçu GA4 par ce chemin, sans bannière — donc sans
+     donnée exploitable. Mesuré en prod (`gcs=G100`, cookie-consent.js absent
+     du DOM de la page d'accueil).
+     Le refus par défaut, lui, reste tel quel : c'est le comportement RGPD
+     voulu, pas un défaut. Conséquence assumée — GA4 ne compte que les
+     visiteurs consentants, `conversionFunnel` (Firestore) les compte tous.
+     Les deux chiffres ne seront jamais égaux ; c'est Firestore qui fait foi
+     pour le tunnel. */
+  function injectScript(fichier, garde) {
+    if (document.querySelector('script[src*="' + garde + '"]')) return;
+    var s = document.createElement('script');
+    s.src = ROOT + fichier;
+    s.defer = true;
+    document.head.appendChild(s);
+  }
   function injectAnalytics() {
-    if (document.querySelector('script[src*="analytics.js"]')) return;
-    var _ztsGa = document.createElement('script');
-    _ztsGa.src = ROOT + 'analytics.js';
-    _ztsGa.defer = true;
-    document.head.appendChild(_ztsGa);
+    injectScript('analytics.js', 'analytics.js');
+    injectScript('cookie-consent.js', 'cookie-consent.js');
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectAnalytics);
   else injectAnalytics();
@@ -266,6 +286,20 @@
       nl.src = ROOT + 'zts-newsletter.js';
       nl.defer = true;
       document.body.appendChild(nl);
+    }
+
+    // Pastilles « compte gratuit requis » sur le menu et le pied de page.
+    // Chargé ICI, après l'injection du chrome partagé, parce que c'est lui
+    // qu'il annote — 24 des 27 liens /apps/ du site vivent dans ces deux
+    // fragments, pas dans les pages. Il n'est PAS exclu des /apps/* : le menu
+    // y est aussi, et un visiteur déjà derrière un mur gagne à voir lesquelles
+    // des autres portes sont ouvertes.
+    if (!document.getElementById('zts-cad-loader')) {
+      var cad = document.createElement('script');
+      cad.id = 'zts-cad-loader';
+      cad.src = ROOT + 'zts-cadenas.js';
+      cad.defer = true;
+      document.body.appendChild(cad);
     }
   }
 

@@ -917,7 +917,10 @@ body {
   const loading=document.getElementById('moyensLoading');
   const heroPill=document.getElementById('heroPillCount');
   let DATA;
-  try{const r=await fetch('data.json');DATA=await r.json();}
+  // Worker depuis le 2026-08-17 (LOT 1 vague D). Cette banque n'a PAS de
+  // charge publique : c'est un cube agrege, pas une liste d'items, et l'app est
+  // deja muree — aucun anonyme n'arrive jusqu'ici.
+  try{DATA=await window.ZTSBanques.moyensAction();}
   catch(e){loading.textContent='Erreur de chargement';return;}
 
   // Aggregate activity counts per moyen from buckets
@@ -993,6 +996,7 @@ body {
 })();
 </script>
 
+  <script src="/zts-banques.js"></script>
   <script src="../../shared/zts.js"></script>
   <script src="../../analytics.js"></script>
   <script src="../../cookie-consent.js" defer></script>

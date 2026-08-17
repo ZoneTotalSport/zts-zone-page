@@ -53,6 +53,7 @@ const i18n = {
     addToFav: 'Ajouter aux favoris',
     minutes: 'minutes',
     randomTitle: '🎲 JEU ALÉATOIRE !',
+    randomLocked: '🔒 Le déroulement de ce jeu est réservé aux membres — le compte est gratuit.',
     randomOpen: '📖 VOIR DÉTAILS',
     randomReroll: '🎲 AUTRE JEU',
     randomClose: '✖ FERMER',
@@ -81,6 +82,7 @@ const i18n = {
     addToFav: 'Add to favorites',
     minutes: 'minutes',
     randomTitle: '🎲 RANDOM GAME!',
+    randomLocked: '🔒 This game’s instructions are for members — the account is free.',
     randomOpen: '📖 VIEW DETAILS',
     randomReroll: '🎲 ANOTHER GAME',
     randomClose: '✖ CLOSE',
@@ -665,7 +667,21 @@ function createGameCard(game, index) {
 // ============================================================
 // GAME DETAIL MODAL
 // ============================================================
+// LOT 1 vague C — la liste reste ouverte, la FICHE se ferme.
+// Un anonyme recoit `/jeux/public.json` : les champs de liste pour les 1439,
+// et le jeu entier pour les trois vitrines. Ouvrir la fiche d'un jeu non
+// vitrine afficherait donc des sections vides — « il n'y a rien » plutot que
+// « il faut un compte ». On montre le mur a la place.
+const CHAMPS_CONTENU_JEU = ['but', 'deroulement', 'materiel', 'disposition'];
+
 function openGameDetail(game) {
+  if (window.ZTSBanques &&
+      window.ZTSBanques.estVerrouille(game, CHAMPS_CONTENU_JEU)) {
+    closeModal();                       // au cas ou une fiche etait ouverte
+    window.ZTSBanques.murItem(game, 'jeux');
+    return;
+  }
+
   const isFav = state.favorites.includes(game.id);
   const catName = getCatName(game.category);
 
@@ -817,7 +833,13 @@ function showRandomGame() {
 
   document.getElementById('randomTitle').textContent = t('randomTitle');
   document.getElementById('randomGameName').textContent = g(currentRandomGame, 'title');
-  document.getElementById('randomGameBut').textContent = g(currentRandomGame, 'but');
+  // Vague C : sans compte, `but` est absent pour 1436 des 1439 jeux. Une ligne
+  // vide donnerait l'impression d'une fiche cassee — on dit ce qui se passe.
+  // Le bouton « Voir la fiche » ouvre le mur, comme partout ailleurs.
+  document.getElementById('randomGameBut').textContent =
+    (window.ZTSBanques && window.ZTSBanques.estVerrouille(currentRandomGame, CHAMPS_CONTENU_JEU))
+      ? t('randomLocked')
+      : g(currentRandomGame, 'but');
   document.getElementById('randomOpenDetail').textContent = t('randomOpen');
   document.getElementById('randomReroll').textContent = t('randomReroll');
   document.getElementById('randomCloseBtn').textContent = t('randomClose');

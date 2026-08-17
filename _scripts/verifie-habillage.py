@@ -313,8 +313,61 @@ def controle(chemin):
                 # `body>header.header{display:none}` masquait etait revenue.
                 enveloppe = "body>" in bas.replace(" ", "")
                 vide = not ligne[1:].strip()   # une ligne blanche ne retire rien
+                # Une app passee au Worker de donnees (LOT 1 vague D, 17 aout
+                # 2026) a forcement perdu son `fetch` d'origine : les banques ne
+                # sont plus des fichiers servis en clair, elles vivent dans R2
+                # derriere un jeton. Meme nature que l'assouplissement des
+                # polices ci-dessus — une decision transverse touche par
+                # necessite a des lignes existantes des apps.
+                #
+                # L'exception est ETROITE A DEUX TITRES : elle ne vaut que pour
+                # les apps qui appellent DESORMAIS ZTSBanques (donc celles qui
+                # ont reellement migre, pas les autres), et seulement pour les
+                # lignes qui parlent de `fetch` ou de `.json()` — l'appel et
+                # l'analyse de sa reponse. Toute autre ligne d'app retiree
+                # bloque toujours, y compris dans ces apps-la.
+                migre_worker = ("ztsbanques" in c.lower()
+                                and ("fetch" in bas or ".json()" in bas))
+                # Le renommage de la mascotte (LOT 1 vague F, 17 aout 2026).
+                # Meme nature que les polices et la migration Worker : une
+                # decision de Joey du 4 aout — le prof d'EPS remplace le
+                # bucheron — qui touche par NECESSITE a des lignes de contenu
+                # existantes. On ne renomme pas une chaine visible sans editer
+                # sa ligne ; ici le controle bloquait un travail commande.
+                #
+                # L'EXCEPTION EST PLUS ETROITE QUE TOUTES LES AUTRES : elle ne
+                # vaut que pour une ligne retiree qui NOMME L'ANCIENNE
+                # MASCOTTE. Elle ne peut donc, par construction, autoriser que
+                # la disparition d'une mention du bucheron — jamais autre
+                # chose. « lumberjack » est inclus : les chaines EN portaient
+                # la meme mention, invisible a une recherche francaise.
+                #
+                # Elle deviendra inerte d'elle-meme quand la derniere mention
+                # aura disparu du site. Ne pas l'elargir : le jour ou il faut
+                # retirer une AUTRE ligne d'app, c'est une decision a prendre,
+                # pas une exception a etendre.
+                mascotte = ("bucheron" in bas
+                            or "bûcheron" in bas
+                            or "lumberjack" in bas)
+                # `twitter:card` en doublon (LOT 1 vague F, 17 aout 2026,
+                # decision de Joey). Une app qui declare une grande carte
+                # (`summary_large_image`) ne peut pas garder l'ancienne ligne
+                # `summary` a cote : X n'a pas de regle publiee sur le doublon,
+                # donc le rendu de la carte devient INDETERMINE. Une devanture
+                # ne se joue pas aux des. C'est le seul cas ou ajouter sans
+                # retirer produit un resultat pire que le point de depart.
+                #
+                # AUSSI ETROITE QUE LA PRECEDENTE, a deux verrous : la ligne
+                # retiree doit etre exactement une declaration `twitter:card`
+                # a `summary`, ET l'app doit declarer `summary_large_image`
+                # ailleurs. Retirer la carte sans la remplacer bloque toujours.
+                carte_twitter = ('twitter:card' in bas
+                                 and 'summary_large_image' not in bas
+                                 and 'summary_large_image' in c.lower())
                 if ("ztsh" not in bas and "ztsshell" not in bas
-                        and not police and not vide and not enveloppe):
+                        and not police and not vide and not enveloppe
+                        and not migre_worker and not mascotte
+                        and not carte_twitter):
                     retirees_app.append(ligne[1:].strip()[:60])
         if ajouts > 30:
             aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")
