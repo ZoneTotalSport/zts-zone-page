@@ -31,11 +31,17 @@
   var MODULES = ['firebase-app-compat.js', 'firebase-auth-compat.js',
                  'firebase-firestore-compat.js'];
 
-  /* Worker des images. URL workers.dev, comme zts-jeux-data : aucun DNS a
-   * poser. Firestore stocke un CHEMIN et jamais une URL complete, donc passer
-   * plus tard a img.zonetotalsport.ca ne demandera que de changer cette
-   * constante — rien a migrer en base. */
-  var IMG_BASE = 'https://zts-fiches-img.zts-ccd.workers.dev';
+  /* Worker des images, sur un domaine PERSONNALISE et pas sur workers.dev.
+   *
+   * Cloudflare decrit son sous-domaine workers.dev comme destine aux projets
+   * personnels non critiques et le traite comme un « Free website ». Ce Worker
+   * sert chaque illustration de chaque fiche, a des enseignants derriere des
+   * filtres de reseau scolaire — et workers.dev est une zone distincte de
+   * zonetotalsport.ca, donc hors des regles de cache du site.
+   *
+   * Firestore stocke un CHEMIN et jamais une URL complete : c'est ce qui rend
+   * ce changement de domaine gratuit, ici et pour le prochain. */
+  var IMG_BASE = 'https://img.zonetotalsport.ca';
 
   // Identique a firebase-auth.js — meme projet, meme app.
   var CONFIG = {

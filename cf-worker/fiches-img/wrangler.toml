@@ -2,6 +2,24 @@ name = "zts-fiches-img"
 main = "src/worker.js"
 compatibility_date = "2025-05-01"
 
+# Domaine personnalise, PAS workers.dev.
+#
+# Cloudflare decrit son sous-domaine workers.dev comme destine aux projets
+# personnels ou de loisir, non critiques, et le traite comme un « Free
+# website » : il recommande une route ou un domaine personnalise en
+# production. Ce Worker sert CHAQUE illustration de CHAQUE fiche, a des
+# enseignants derriere des filtres de reseau scolaire — et workers.dev est une
+# zone distincte de zonetotalsport.ca, donc hors des regles de cache du site.
+#
+# `workers_dev = false` ferme l'autre porte. La laisser ouverte rendrait les
+# memes images joignables sur deux hotes, dont un qui echappe a toute regle
+# posee plus tard sur la zone.
+workers_dev = false
+
+[[routes]]
+pattern = "img.zonetotalsport.ca"
+custom_domain = true
+
 # Les images des fiches vivent dans R2, PAS dans Firebase Storage.
 #
 # Decision du 17 aout 2026 : creer un bucket Firebase exige Blaze, ce qui

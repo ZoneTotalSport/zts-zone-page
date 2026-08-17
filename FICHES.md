@@ -3,7 +3,7 @@
 Branche `feat/fiches-firebase`. Livré le 16 août 2026.
 
 Portage sur Firebase de la maquette « Fiche de jeu.dc.html » : le contenu
-vit dans Firestore, les images dans Storage, l'édition est réservée à
+vit dans Firestore, les images dans R2 (§6), l'édition est réservée à
 l'admin, et la consultation publique s'arrête à la page 1.
 
 ---
@@ -46,8 +46,8 @@ fiches/
   fiche.html               page publique d'une fiche
   zts-fiche-modele.js      moteur de rendu (vanille, zéro dépendance)
   zts-fiche-formes.js      rendu des formes et des surcharges de style
-  zts-image-slot.js        <image-slot> : téléversement Storage
-  zts-fiches-firebase.js   accès Firestore + Storage
+  zts-image-slot.js        <image-slot> : téléversement vers le Worker R2
+  zts-fiches-firebase.js   accès Firestore (texte) et R2 (images)
   zts-fiche.css            habillage de page + CSS d'impression
   assets/
     fond-zts.png           fond portrait/paysage (inchangé)
@@ -133,7 +133,7 @@ est donc dans la donnée, pas dans l'affichage.
 n'ait pas besoin d'un `get()` sur le parent — une lecture facturée de moins
 à chaque affichage de fiche.
 
-Côté Storage, même découpe : `fiches/{id}/pub/*` est public (c'est la
+Côté images, même découpe : `fiches/{id}/pub/*` est public (c'est la
 vignette de l'index et l'image `og:`), `fiches/{id}/prive/*` demande une
 session. Sans ça le mur ne tiendrait pas : l'identifiant de la fiche est
 public et les noms de fichiers dérivent du champ, donc devinables.
@@ -268,6 +268,34 @@ chaque redessin de l'éditeur retéléchargerait toutes les illustrations.
 `ZTSFichesDB.oublierImages()` libère les `blob:` avant de charger une autre
 fiche.
 
+### Résidu assumé : le Worker ignore `statut`
+
+**Les deux moitiés du mur ne coupent pas au même endroit.** Firestore refuse
+le *texte* d'un brouillon même à un membre — la règle sur `prive/contenu`
+exige `auth != null && statut == 'publie'`. Le Worker, lui, ne connaît pas
+`statut` : il sert les *images* d'un brouillon à n'importe quel compte
+connecté. `grep -rn "statut\|publie\|brouillon" cf-worker/fiches-img/src/` ne
+renvoie rien, et c'est délibéré.
+
+**Pourquoi on l'accepte.** L'exposition est faible : un identifiant Firestore
+fait 20 caractères aléatoires, et le document *public* d'un brouillon est
+lui-même illisible aux membres. Rien n'est donc listable ni devinable — il
+faudrait déjà connaître l'identifiant exact d'un brouillon et le nom du champ.
+
+**Pourquoi on ne corrige pas.** Vérifier proprement demanderait une lecture
+Firestore **par image**. Une fiche porte 3 à 5 images par page : c'est de la
+latence sur chaque illustration, et des lectures facturées sur chaque
+consultation.
+
+**La porte de sortie, si on change d'avis.** Ne pas lire Firestore depuis le
+Worker. Écrire un objet témoin dans R2 au moment de publier —
+`fiches/{id}/.publie` — et faire un `HEAD` dessus dans le Worker avant de
+servir une image privée. Un `HEAD` R2 depuis le binding coûte une fraction
+d'une lecture Firestore et reste dans le même service. Le prix à payer est la
+cohérence : dépublier une fiche devrait alors supprimer le témoin, et un
+oubli laisserait le mur ouvert — c'est-à-dire exactement l'état d'aujourd'hui,
+mais avec du code en plus.
+
 ### Ce qui reste à faire dans la console Firebase
 
 **Autoriser le domaine.** Console → **Authentication → Settings → Domaines
@@ -323,13 +351,22 @@ npm install                                # première fois seulement
 wrangler deploy
 ```
 
-Sert sur `https://zts-fiches-img.zts-ccd.workers.dev`. Le client pointe dessus
-par la constante `IMG_BASE` de `fiches/zts-fiches-firebase.js`. Firestore
-stocke un **chemin**, jamais une URL complète : passer un jour à
-`img.zonetotalsport.ca` ne demandera que de changer cette constante et
-d'ajouter un domaine personnalisé — rien à migrer en base.
+Sert sur **`https://img.zonetotalsport.ca`** — domaine personnalisé déclaré
+en `[[routes]] custom_domain` dans `wrangler.toml`, avec `workers_dev = false`.
 
-Sonde : `curl https://zts-fiches-img.zts-ccd.workers.dev/health`
+**Pas de workers.dev.** Cloudflare décrit ce sous-domaine comme destiné aux
+projets personnels non critiques et le traite comme un « Free website ». Ce
+Worker sert chaque illustration de chaque fiche, à des enseignants derrière
+des filtres de réseau scolaire, et workers.dev est une zone distincte de
+`zonetotalsport.ca` — donc hors des règles de cache du site. `workers_dev =
+false` ferme l'autre porte : la laisser ouverte rendrait les mêmes images
+joignables sur deux hôtes, dont un qui échappe à toute règle posée sur la zone.
+
+Le client pointe dessus par la constante `IMG_BASE` de
+`fiches/zts-fiches-firebase.js`. Firestore stocke un **chemin**, jamais une
+URL complète : c'est ce qui rend un changement de domaine gratuit.
+
+Sonde : `curl https://img.zonetotalsport.ca/health`
 
 ### c) Les sections — une fois
 
