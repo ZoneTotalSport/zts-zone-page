@@ -109,20 +109,46 @@ en CI.
 
 ## Reste à faire
 
-- [ ] Pipeline CI de publication vers R2 (`wrangler r2`)
-- [ ] Worker `zts-jeux-data` : source R2 au lieu de `raw`
-- [ ] Route par chemin pour `sae-detail/<fichier>`, jeton requis
-- [ ] Basculer les 4 consommateurs (jeux, planificateur, sae, moyens-action)
-      **et** `planification`
-- [ ] Chemins profonds de `jeux.`, `generateur.` et `gym.` (API Cloudflare)
-- [ ] Note datée dans `apps/planificateur/CLAUDE.md`
+- [x] Pipeline CI de publication vers R2 (`_scripts/publie-banques-r2.sh`)
+- [x] Worker `zts-jeux-data` : source R2, plus aucune référence au dépôt
+- [x] Route par chemin `sae-detail/<f>` et `planification/<f>`, jeton requis
+- [x] Basculer les 5 consommateurs (jeux, planificateur, sae, moyens-action,
+      planification) via `zts-banques.js`
+- [ ] **Chemins profonds de `jeux.`, `generateur.` et `gym.`** (API Cloudflare)
+      + consigner la config dans `REDIRECTIONS-CLOUDFLARE.md`
+- [ ] **Note datée** dans `apps/planificateur/CLAUDE.md` (révision d'architecture)
+- [ ] **Rebase final sur `origin/main`** — la session parallèle avance ; Joey veut
+      les tests joués sur l'état réellement fusionné
+- [ ] **Tests finaux** : les six anciennes URL + `raw` → plus de données ;
+      les 4 apps fonctionnelles anonyme ET connecté ; membre → full en 200 puis 304
 
-### À la fusion finale — ne pas oublier
+### État au 17 août 2026 — branche `lot1/vague-a-cadenas`
 
-`wrangler.toml` du Worker portait `GITHUB_REF` pendant les essais, pour lire la
-branche. **Avec le passage à R2, cette variable disparaît entièrement** : plus
-de réf, plus de dépôt dans le chemin de lecture. S'il en reste une trace dans
-`wrangler.toml` à la fusion, c'est un oubli.
+Le Worker **est en ligne** (`https://zts-jeux-data.zts-ccd.workers.dev`), le
+bucket `zts-banques` contient les 43 objets. **Rien du site n'est en production**
+— `main` est intact, tout vit sur la branche.
+
+Mesuré en ligne, anonyme :
+
+| Route | Avant | Après |
+|---|---|---|
+| `/jeux/public.json` | 12 026 Ko en clair | **473 Ko**, 1439 items, 0 champ de contenu |
+| `/sae/public.json` | 2 880 Ko en clair | **721 Ko**, 1880 items, 0 champ pédagogique |
+| `/jeux/full.json`, `/sae/detail/…`, `/planification/…`, `/moyens-action/full.json` | ouverts | **401** |
+| ETag + `If-None-Match` | — | **304**, 0 octet |
+
+Les vitrines rendent 0 : le Worker lit `locked-whitelist.json` sur la
+**production**, qui n'a pas encore `freeItems`. La jointure est vérifiée bonne
+(les trois slugs existent avec les bons titres) — elles s'allumeront à la fusion,
+sans autre intervention.
+
+### À la fusion — trois choses à ne pas oublier
+
+1. **Le secret `CLOUDFLARE_API_TOKEN`** doit être en place dans les secrets
+   Actions, sinon l'étape de publication échoue (bruyamment, c'est voulu).
+2. **`freeItems`** arrive avec la branche : les vitrines s'allument d'elles-mêmes.
+3. Vérifier que `wrangler.toml` ne porte **aucun** `GITHUB_REF` / `GITHUB_REPO` —
+   leur réapparition serait une régression vers la lecture par `raw`.
 
 ## Deux petits fichiers laissés servis, volontairement
 
