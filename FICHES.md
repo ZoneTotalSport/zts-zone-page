@@ -178,6 +178,32 @@ L'ordre est celui du nombre de jeux par catégorie, décroissant :
 `prescolaire` (54), `exterieur` (50), `sans-materiel` (50),
 `individuels` (50).
 
+### Deux sources, et laquelle gagne
+
+`ZTSFichesDB.sections()` lit **Firestore d'abord**, et retombe sur
+`fiches/sections.json` — un fichier servi avec le site — si la collection est
+absente, vide ou illisible.
+
+Ce repli existe pour une raison précise : exiger une clé de compte de service,
+donc un passage par la console, **juste pour pouvoir choisir une catégorie
+dans un menu déroulant**, bloquait toute la publication. L'éditeur refuse de
+publier sans catégorie ; sans les sections, on ne publie rien du tout.
+
+Les deux sources sortent du même endroit — la taxonomie de
+`apps/jeux/data/jeux-merged.json` — donc elles ne peuvent pas se contredire au
+départ. Firestore garde la priorité parce que c'est là qu'on renomme,
+recolore ou réordonne une section **sans redéployer le site**. Si les deux
+divergent un jour, c'est que quelqu'un a édité Firestore, et c'est
+exactement ce qu'on veut.
+
+Effet de bord utile : le repli ne dépend plus de `jeux-merged.json` à
+l'exécution. LOT 1 vague D sort ce fichier de l'arbre publié vers R2 ; le
+seed devra suivre, mais l'éditeur, lui, n'en dépendra plus.
+
+Le seed (`_scripts/zts-seed-sections.js`, §7c) reste utile pour poser la
+collection Firestore et pouvoir l'ajuster ensuite — il n'est simplement plus
+un prérequis.
+
 ---
 
 ## 5. URLs

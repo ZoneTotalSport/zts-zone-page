@@ -167,9 +167,33 @@
       .then(function (s) { return s.docs.map(normaliser); });
   }
 
+  /**
+   * Sections de publication, avec repli sur un fichier servi avec le site.
+   *
+   * Firestore a la priorite : c'est la qu'on renomme, recolore ou reordonne
+   * une section sans redeployer. Mais exiger une cle de compte de service
+   * juste pour pouvoir choisir « Sports collectifs » dans un menu bloquait
+   * toute la publication ; `fiches/sections.json` leve cette dependance.
+   *
+   * Les deux sources sortent du meme endroit — la taxonomie de
+   * apps/jeux/data/jeux-merged.json — donc elles ne peuvent pas se
+   * contredire au depart. Si elles divergent un jour, c'est que quelqu'un a
+   * edite Firestore : c'est voulu, et Firestore gagne.
+   */
   function sections() {
     return db().collection('sections').orderBy('ordre').get()
-      .then(function (s) { return s.docs.map(normaliser); });
+      .then(function (s) {
+        if (s.empty) throw new Error('collection vide');
+        return s.docs.map(normaliser);
+      })
+      .catch(function () {
+        return fetch('/fiches/sections.json', { cache: 'no-cache' })
+          .then(function (r) {
+            if (!r.ok) throw new Error('sections.json introuvable');
+            return r.json();
+          })
+          .then(function (d) { return d.sections || []; });
+      });
   }
 
   /* ── Ecriture ───────────────────────────────────────────────────────── */
