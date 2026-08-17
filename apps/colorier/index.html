@@ -14,6 +14,32 @@
   <meta property="og:description" content="Génère, colorie en ligne et imprime des pages à colorier sur le sport et les saines habitudes de vie. Idéal pour la compétence 3 du PFEQ en éducation physique au primaire.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://zonetotalsport.ca/apps/colorier/">
+  <!-- Carte de partage 1200x630, LOT 1 vague F, 2026-08-17. L'ancienne carte
+       etait le favicon en 140x180 : Facebook, LinkedIn et X n'en font pas une
+       grande carte, ils retombent sur une vignette carree ecrasee. Un outil
+       vitrine est ce qu'on partage EN PREMIER — sa carte est sa devanture.
+
+       POURQUOI CES BALISES SONT AJOUTEES AU-DESSUS ET NON A LA PLACE.
+       Le controle d'habillage bloque toute ligne d'app supprimee, et ses
+       exceptions sont volontairement etroites (polices, shell, enveloppe,
+       migration Worker). La regle de la maison est de plier le code, pas la
+       garde : les deux lignes d'origine restent VERBATIM juste en dessous.
+       Les scrapeurs Open Graph retiennent la PREMIERE `og:image` rencontree,
+       donc celle-ci ; le favicon reste en image secondaire, ce qui est valide.
+       ⚠ RESERVE HONNETE sur `twitter:card` : la ligne `summary` d'origine
+       subsiste plus bas, et je ne sais pas laquelle des deux X retient en cas
+       de doublon. Facebook et LinkedIn — le gros du partage entre enseignants —
+       passent par Open Graph et rendront la grande carte. Pour lever le doute
+       il faudrait supprimer la ligne `summary`, donc une exception nommee dans
+       le controle : decision de Joey, pas un desserrage a prendre seul. -->
+  <meta property="og:image" content="https://zonetotalsport.ca/apps/colorier/partage-colorier.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Pages à colorier — Mr. Root dessine une page à colorier sur le sport. Outil gratuit de Zone Total Sport.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="🎨 Pages à colorier — Zone Total Sport">
+  <meta name="twitter:description" content="Génère, colorie en ligne et imprime des pages à colorier sur le sport et les saines habitudes de vie. Gratuit.">
+  <meta name="twitter:image" content="https://zonetotalsport.ca/apps/colorier/partage-colorier.png">
   <meta property="og:image" content="https://zonetotalsport.ca/favicon.png">
   <meta property="og:locale" content="fr_CA">
   <meta property="og:site_name" content="Zone Total Sport">
@@ -21,6 +47,23 @@
   <!-- /ZTS-SEO -->
   <meta name="description" content="Génère, colorie en ligne et imprime des pages à colorier sport et saines habitudes de vie. Export PDF. Gratuit, compétence 3 du PFEQ au primaire.">
   <link rel="icon" type="image/png" href="/favicon.png">
+  <!-- LOT 1 vague F, 2026-08-17 — la chaine de verrou standard, celle que
+       chargent deja `suppleance` et `musique`, les deux autres outils vitrine.
+       COLORIER RESTE OUVERT : son slug est dans `freeResources`
+       (locked-whitelist.json), et c'est `zts-lock-page.js` qui le laisse passer.
+       AVANT CE COMMIT, L'ENTREE DE LA LISTE BLANCHE ETAIT INERTE : l'app ne
+       chargeait aucun script de verrou, donc la liste l'autorisait a franchir
+       une porte qui n'existait pas. Exactement le defaut releve sur
+       `code-oreille` le 13 aout. Une decision d'ouverture qui ne gouverne rien
+       n'est pas une decision : c'est un oubli qui a l'air d'une decision.
+       Le gain n'est pas qu'administratif — `zts-funnel.js` et `firebase-auth.js`
+       apportent le tunnel et le cadenas du chrome partage. Sur un outil VITRINE,
+       c'est le coeur du sujet : le visiteur qui aime l'outil doit voir par ou
+       s'inscrire. -->
+  <script src="/zts-lock-page.js" defer></script>
+  <script src="/firebase-auth.js" defer></script>
+  <script src="/zts-locked-fullscreen.js" defer></script>
+  <script src="/zts-funnel.js" defer></script>
   <link rel="stylesheet" href="/zts-ultra.css">
   <link rel="stylesheet" href="../../shared/zts-header.css">
   <link rel="stylesheet" href="styles.css">
@@ -63,10 +106,10 @@
       <div class="zts-landing-hero-text">
         <div class="col-badge" data-i18n="hero_badge">🖍️ COLORIE EN LIGNE &amp; IMPRIME</div>
         <h1 class="zts-landing-title" data-i18n="hero_title">PAGES À COLORIER</h1>
-        <p class="zts-landing-subtitle" data-i18n="hero_subtitle">Décris un sport ou une saine habitude de vie. Le bûcheron dessine une page que tu peux colorier directement à l'écran, imprimer ou exporter en PDF.</p>
+        <p class="zts-landing-subtitle" data-i18n="hero_subtitle">Décris un sport ou une saine habitude de vie. Mr. Root dessine une page que tu peux colorier directement à l'écran, imprimer ou exporter en PDF.</p>
       </div>
       <div class="zts-landing-mascot-wrap">
-        <img src="/bucheron-generateur.png" alt="Bûcheron Mr Root" class="zts-landing-mascot">
+        <img src="/bucheron-generateur.png" alt="Mr. Root, la mascotte de Zone Total Sport" class="zts-landing-mascot">
       </div>
     </div>
   </section>
@@ -145,8 +188,8 @@
 
       <!-- LOADING -->
       <div id="loadingState" class="col-loading" hidden>
-        <img src="/bucheron-hero.png" alt="" class="col-loading-bucheron">
-        <p class="col-loading-msg" data-i18n="loading_msg">Le bûcheron taille ton dessin au trait...</p>
+        <img src="/bucheron-hero.png" alt="" class="col-loading-mascotte">
+        <p class="col-loading-msg" data-i18n="loading_msg">Mr. Root taille ton dessin au trait…</p>
         <div class="col-loading-dots"><span></span><span></span><span></span></div>
       </div>
 
@@ -194,7 +237,7 @@
 
       <!-- ERREUR -->
       <div id="errorState" class="col-error" hidden>
-        <h3 data-i18n="error_title">Oups, le bûcheron a glissé sur une bûche…</h3>
+        <h3 data-i18n="error_title">Oups, Mr. Root a échappé son crayon…</h3>
         <p id="errorMsg"></p>
         <button id="retryBtn" class="col-cta-btn col-cta-btn--small" data-i18n="error_retry">🔄 Réessayer</button>
       </div>
@@ -217,7 +260,7 @@
     const I18N = {
       fr: {
         hero_badge:'🖍️ COLORIE EN LIGNE & IMPRIME', hero_title:'PAGES À COLORIER',
-        hero_subtitle:"Décris un sport ou une saine habitude de vie. Le bûcheron dessine une page que tu peux colorier directement à l'écran, imprimer ou exporter en PDF.",
+        hero_subtitle:"Décris un sport ou une saine habitude de vie. Mr. Root dessine une page que tu peux colorier directement à l'écran, imprimer ou exporter en PDF.",
         step1_title:'Pige une idée', subject_ph:'ex. un joueur de soccer qui frappe le ballon',
         step2_title:'Que veux-tu colorier ?', custom_toggle:"✍️ J'écris ma propre idée", opt_choose:'— Choisir —',
         grp_sports:'🏀 Sports & équipements', grp_sante:'🥕 Saines habitudes de vie',
@@ -229,17 +272,17 @@
         h_fruits:'🍎 Panier de fruits', h_dents:'🪥 Hygiène des dents', h_etirement:"🧘 S'étirer",
         h_marche:'🚶 Bouger dehors', h_mains:'🧼 Laver ses mains', h_dejeuner:'🥣 Déjeuner santé', h_lait:'🥛 Produits laitiers',
         cta_generate:'DESSINER MA PAGE', quota_default:'15 dessins gratuits par jour.',
-        loading_msg:'Le bûcheron taille ton dessin au trait...',
+        loading_msg:'Mr. Root taille ton dessin au trait…',
         tool_fill:'REMPLIR', tool_brush:'PINCEAU', tool_eraser:'GOMME', tool_size:'Taille', tool_reset:'RECOMMENCER',
         btn_print:'IMPRIMER', btn_png:'PNG', btn_pdf:'PDF', btn_regen:'AUTRE VERSION',
         studio_hint:'Astuce : clique dans une zone avec le pot 🪣 pour la remplir. Imprime vierge pour colorier sur papier.',
         bank_title:'Banque de pages', bank_sub:'Des pages déjà créées — clique pour la colorier tout de suite (gratuit, instantané).',
-        error_title:'Oups, le bûcheron a glissé sur une bûche…', error_retry:'🔄 Réessayer',
+        error_title:'Oups, Mr. Root a échappé son crayon…', error_retry:'🔄 Réessayer',
         disclaimer:"Images générées par IA (Gemini) — destinées à un usage pédagogique. Les logos d'équipes sont réinterprétés de façon générique."
       },
       en: {
         hero_badge:'🖍️ COLOR ONLINE & PRINT', hero_title:'COLORING PAGES',
-        hero_subtitle:'Describe a sport or a healthy habit. The lumberjack draws a page you can color right on screen, print, or export as PDF.',
+        hero_subtitle:'Describe a sport or a healthy habit. Mr. Root draws a page you can color right on screen, print, or export as PDF.',
         step1_title:'Pick an idea', subject_ph:'e.g. a soccer player kicking the ball',
         step2_title:'What do you want to color?', custom_toggle:"✍️ I'll write my own idea", opt_choose:'— Choose —',
         grp_sports:'🏀 Sports & equipment', grp_sante:'🥕 Healthy lifestyle habits',
@@ -251,12 +294,12 @@
         h_fruits:'🍎 Fruit basket', h_dents:'🪥 Brushing teeth', h_etirement:'🧘 Stretching',
         h_marche:'🚶 Move outdoors', h_mains:'🧼 Washing hands', h_dejeuner:'🥣 Healthy breakfast', h_lait:'🥛 Dairy products',
         cta_generate:'DRAW MY PAGE', quota_default:'15 free drawings per day.',
-        loading_msg:'The lumberjack is carving your line art...',
+        loading_msg:'Mr. Root is carving your line art…',
         tool_fill:'FILL', tool_brush:'BRUSH', tool_eraser:'ERASER', tool_size:'Size', tool_reset:'RESTART',
         btn_print:'PRINT', btn_png:'PNG', btn_pdf:'PDF', btn_regen:'ANOTHER VERSION',
         studio_hint:'Tip: click inside an area with the bucket 🪣 to fill it. Print it blank to color on paper.',
         bank_title:'Page bank', bank_sub:'Pages already created — click one to color it right away (free, instant).',
-        error_title:'Oops, the lumberjack slipped on a log…', error_retry:'🔄 Try again',
+        error_title:'Oops, Mr. Root dropped his pencil…', error_retry:'🔄 Try again',
         disclaimer:'Images generated by AI (Gemini) — for educational use. Team logos are reinterpreted generically.'
       }
     };

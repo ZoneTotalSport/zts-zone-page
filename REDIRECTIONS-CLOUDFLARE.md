@@ -24,76 +24,74 @@ Les 12 items sont dans la liste, la règle Bulk Redirect est active.
   SSL mode **Full**, pas Flexible, pour éviter les boucles de redirection).
   En attendant, ces pages restent en 200 (contenu mort, aucun lien n'y pointe).
 
-### État au 17 août 2026 — bascule vers les règles de zone
+### État au 17 août 2026 — SCELLÉ. Les redirections passent aux règles de zone
 
-**Ce qui a changé ce jour-là.** La liste `zts_sous_domaines_301` ne préservait
-pas les sous-chemins : mesuré le matin, `jeux./app.js` et `generateur./app.js`
+**Ce qui a changé.** La liste `zts_sous_domaines_301` ne préservait pas les
+sous-chemins : mesuré le matin, `jeux./app.js` et `generateur./app.js`
 répondaient encore **200** et servaient la copie parallèle du site en
 profondeur. Cocher « Subpath matching » sur les items n'a rien produit — et la
 doc Cloudflare ne restreint aucun paramètre de Bulk Redirect selon le plan, ce
 n'était donc pas une limite du gratuit.
 
-La correction n'est pas passée par la liste mais par des **Redirect Rules de
-zone**, éditables au tableau de bord sans jeton d'API. **Cinq règles** :
+La correction est passée par des **Redirect Rules de zone**, éditables au
+tableau de bord sans jeton d'API. **Cinq règles, et les anciennes règles de
+juillet sont supprimées.**
 
-| Règle | Couvre |
-|---|---|
-| `souschemins-groupe` | les 7 sous-domaines dont le nom correspond au dossier d'app, par `substring(http.host, …)` |
-| 3 règles wildcard | `jeux.` → `/apps/jeux/`, `generateur.` → `/apps/generateur/`, `gym.` → `/apps/transitions/` — leurs cibles ne se déduisent pas du nom |
-| `ia` (conservée) | `ia.` → `/apps/generateur` |
-
-Les vieilles règles de juillet sont **supprimées**. La liste
-`zts_sous_domaines_301` reste en place mais ne sert plus que les racines
-qu'elle matche encore ; les règles de zone couvrent tout le reste, sous-chemins
-compris.
-
-**Mesuré après la bascule — les 5 sous-domaines à cible explicite :**
-
-| Sous-domaine | Racine | Sous-chemin | Query string |
-|---|---|---|---|
-| `jeux.` | 301 → `/apps/jeux/`, 1 saut | `/app.js` → `/apps/jeux/app.js` | conservée (`?lang=en`, `?v=2`) |
-| `generateur.` | 301 → `/apps/generateur/`, 1 saut | `/app.js` → `/apps/generateur/app.js` | conservée |
-| `gym.` | 301 → `/apps/transitions/`, 1 saut | `/index.html` → `/apps/transitions/index.html` | conservée |
-| `agenda.` | 301 → `/apps/agenda/`, 1 saut | — | — |
-| `ia.` | 301 → `/apps/generateur`, **2 sauts** | — | cible sans barre finale, défaut connu |
-
-Les chemins profonds sont donc scellés : `jeux./data/jeux/opposition.json`
-redirige au lieu de servir 16 Mo. C'était le dernier trou de la vague D.
-
-### ⛔ RÉGRESSION OUVERTE — 7 sous-domaines redirigent vers des 404
-
-**Mesuré le 17 août, après la bascule. Non corrigé à l'écriture de cette note.**
-
-`souschemins-groupe` retire **un caractère de trop** au nom d'hôte :
-
-| Sous-domaine | Cible produite | Cible attendue |
+| Règle | Couvre | Cible |
 |---|---|---|
-| `sae.` | `/apps/sa/` → **404** | `/apps/sae/` |
-| `educatifs.` | `/apps/educatif/` → **404** | `/apps/educatifs/` |
-| `musique.` | `/apps/musiqu/` → **404** | `/apps/musique/` |
-| `suppleance.` | `/apps/suppleanc/` → **404** | `/apps/suppleance/` |
-| `evaluation.` | `/apps/evaluatio/` → **404** | `/apps/evaluation/` |
-| `tni.` | `/apps/tn/` → **404** | `/apps/tni/` |
-| `grille.` | `/apps/grill/` → **404** | `/apps/grille/` |
+| `souschemins-groupe` | `sae`, `educatifs`, `musique`, `suppleance`, `evaluation`, `tni`, `grille` | `/apps/<nom>/` par `substring(http.host, 0, len(http.host) - 18)` |
+| wildcard `jeux` | `jeux.` + sous-chemins | `/apps/jeux/` |
+| wildcard `generateur` | `generateur.` + sous-chemins | `/apps/generateur/` |
+| wildcard `gym` | `gym.` + sous-chemins | `/apps/transitions/` |
+| `ia` (conservée) | `ia.` | `/apps/generateur` |
 
-Les 14 cibles ont été vérifiées une à une : les 7 tronquées répondent 404, les
-7 correctes répondent 200. Le défaut touche aussi les sous-chemins
-(`sae./app.js` → `/apps/sa/app.js`).
+**Les trois wildcards existent parce que leur cible ne se déduit pas du nom :**
+`gym.` va vers `transitions`, `ia.` vers `generateur`. Une règle par
+substitution ne pouvait pas les couvrir — c'est aussi pourquoi elles n'ont
+jamais cassé quand la règle groupée s'est trompée.
 
-**Le correctif tient dans une constante.** `.zonetotalsport.ca` fait
-**18 caractères**. Pour `sae.zonetotalsport.ca` (21 caractères), il faut garder
-les 3 premiers, donc une fin de `substring` à `len(http.host) - 18`. La règle
-utilise 19. Les trois règles wildcard ne sont pas concernées — elles portent
-leur cible en clair, ce qui est aussi pourquoi elles n'ont jamais cassé.
+**Mesuré après correction — les 12 sous-domaines, cible ET suivi :**
 
-**Pourquoi ça n'a pas été vu au contrôle.** Le contrôle a lu le *code de
-statut* : les 12 répondent bien 301. Il n'a pas lu la *destination*. C'est
-exactement ce que le bloc de vérification de fin de fichier attrape, à la
-condition de le jouer en entier — le point 1 imprime la cible, pas seulement le
-code, et le point 5 vérifie qu'aucune page vivante n'est tombée.
+| Sous-domaine | 301 vers | Fin de course | Sauts |
+|---|---|---|---|
+| `sae.` | `/apps/sae/` | **200** | 1 |
+| `educatifs.` | `/apps/educatifs/` | **200** | 1 |
+| `musique.` | `/apps/musique/` | **200** | 1 |
+| `suppleance.` | `/apps/suppleance/` | **200** | 1 |
+| `evaluation.` | `/apps/evaluation/` | **200** | 1 |
+| `tni.` | `/apps/tni/` | **200** | 1 |
+| `grille.` | `/apps/grille/` | **200** | 1 |
+| `agenda.` | `/apps/agenda/` | **200** | 1 |
+| `generateur.` | `/apps/generateur/` | **200** | 1 |
+| `gym.` | `/apps/transitions/` | **200** | 1 |
+| `jeux.` | `/apps/jeux/` | **200** | 1 |
+| `ia.` | `/apps/generateur` | **200** | **2** — cible sans barre finale, seul défaut restant |
 
-⚠ **Règle d'or n°3 : toute ancienne URL = redirection 301, jamais un 404.**
-Une 301 vers un 404 la viole autant qu'un 404 direct — elle la maquille.
+Sous-chemins vérifiés sur les deux familles de règles : `sae./app.js`,
+`musique./style.css`, `tni./index.html`, `grille./app.js`, `jeux./app.js`,
+`generateur./app.js`, `gym./index.html` redirigent tous vers le chemin complet.
+La query string survit (`?lang=en`, `?v=2`).
+
+`jeux./data/jeux/opposition.json` **redirige au lieu de servir 16 Mo** : c'était
+le dernier robinet ouvert de la vague D.
+
+Contrôle de non-régression : `/`, `promo.html`, `blog.html`, `repertoire.html`,
+`avis.html` et les quatre apps de banque répondent **200**. Aucune page vivante
+n'a été avalée par une expression trop large.
+
+### La leçon payée : lire la destination, pas le code de statut
+
+Une première version de `souschemins-groupe` retirait **19 caractères** au lieu
+des 18 de `.zonetotalsport.ca`. Les sept sous-domaines du groupe redirigeaient
+alors en 301 vers des chemins tronqués — `sae.` → `/apps/sa/`, `musique.` →
+`/apps/musiqu/` — **qui répondaient tous 404**. Les trois wildcards, portant
+leur cible en clair, étaient intacts.
+
+Le contrôle avait conclu « les 12 en 301 » : c'était vrai, et insuffisant.
+**Une 301 vers un 404 viole la règle d'or n°3 autant qu'un 404 direct — elle la
+maquille.** Le bloc de vérification en fin de ce fichier imprime la destination
+(point 1) et suit la redirection jusqu'au bout ; c'est ce qui a levé le défaut.
+Le jouer en entier, pas en diagonale.
 
 ## Ce que contient le CSV
 

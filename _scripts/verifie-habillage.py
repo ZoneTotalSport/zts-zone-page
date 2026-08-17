@@ -328,9 +328,30 @@ def controle(chemin):
                 # bloque toujours, y compris dans ces apps-la.
                 migre_worker = ("ztsbanques" in c.lower()
                                 and ("fetch" in bas or ".json()" in bas))
+                # Le renommage de la mascotte (LOT 1 vague F, 17 aout 2026).
+                # Meme nature que les polices et la migration Worker : une
+                # decision de Joey du 4 aout — le prof d'EPS remplace le
+                # bucheron — qui touche par NECESSITE a des lignes de contenu
+                # existantes. On ne renomme pas une chaine visible sans editer
+                # sa ligne ; ici le controle bloquait un travail commande.
+                #
+                # L'EXCEPTION EST PLUS ETROITE QUE TOUTES LES AUTRES : elle ne
+                # vaut que pour une ligne retiree qui NOMME L'ANCIENNE
+                # MASCOTTE. Elle ne peut donc, par construction, autoriser que
+                # la disparition d'une mention du bucheron — jamais autre
+                # chose. « lumberjack » est inclus : les chaines EN portaient
+                # la meme mention, invisible a une recherche francaise.
+                #
+                # Elle deviendra inerte d'elle-meme quand la derniere mention
+                # aura disparu du site. Ne pas l'elargir : le jour ou il faut
+                # retirer une AUTRE ligne d'app, c'est une decision a prendre,
+                # pas une exception a etendre.
+                mascotte = ("bucheron" in bas
+                            or "bûcheron" in bas
+                            or "lumberjack" in bas)
                 if ("ztsh" not in bas and "ztsshell" not in bas
                         and not police and not vide and not enveloppe
-                        and not migre_worker):
+                        and not migre_worker and not mascotte):
                     retirees_app.append(ligne[1:].strip()[:60])
         if ajouts > 30:
             aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")
