@@ -54,6 +54,30 @@ jobs:
       - name: Detection de secrets
         run: bash _scripts/verifie-secrets.sh --arbre
 
+      # Le seul rempart entre 112 Mo de banques et le web ouvert est une
+      # convention Jekyll : GitHub Pages n'exporte pas les dossiers prefixes
+      # `_`, donc `_data/` n'est pas servi. Poser un `.nojekyll` a la racine
+      # desactive Jekyll et REEXPOSE tout, instantanement et en silence — le
+      # site continuerait de marcher, personne ne verrait rien.
+      # C'est le patron maison : une panne muette se garde en CI.
+      # Si `.nojekyll` devient un jour necessaire, il faudra d'abord sortir les
+      # banques du depot (R2 seul, sans copie versionnee) — pas contourner ceci.
+      - name: Aucun .nojekyll (il reexposerait _data/)
+        run: |
+          if [ -e .nojekyll ]; then
+            echo "REFUSE — un .nojekyll est apparu a la racine."
+            echo
+            echo "Il desactive Jekyll, donc GitHub Pages se remet a servir les"
+            echo "dossiers prefixes '_'. Consequence immediate : les banques de"
+            echo "_data/ redeviennent telechargeables par n'importe qui, et le"
+            echo "verrou du LOT 1 vague D tombe sans que rien ne casse."
+            echo
+            echo "Voir LOT1-VAGUE-D.md. Si tu as vraiment besoin de .nojekyll,"
+            echo "sors d'abord les banques du depot."
+            exit 1
+          fi
+          echo "OK — pas de .nojekyll, _data/ reste hors de l'arbre publie."
+
       - name: Conformite de l'habillage
         run: python3 _scripts/verifie-habillage.py
 
