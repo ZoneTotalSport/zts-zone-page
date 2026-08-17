@@ -56,6 +56,9 @@
     { id: 'texte',  icone: 'T', titre: 'Texte',      w: 320, h: 70, text: 'Texte' }
   ];
 
+  var TOLERANCE = 7;       // px d'accrochage, comme la maquette
+  var CLE_VUE = 'zts-atelier-vue';
+
   var ctx = null;          // fourni par zts-editeur.js
   var actif = false;
   var construit = false;
@@ -64,6 +67,13 @@
   var outil = null;        // id d'outil de pose, ou null
   var onglet = 'transformer';
   var hist = { pile: [], pos: -1, gele: false };
+  var plume = null;        // trace en cours de saisie
+  var ancres = false;      // affichage des points d'ancrage
+
+  /* Reglages d'ATELIER, pas de document : la grille et les regles disent
+   * comment Joey travaille, elles ne font pas partie de la fiche. Elles
+   * vivent donc dans localStorage, la ou les reperes vivent dans la fiche. */
+  var vue = { grille: false, pas: 50, sous: 5, regles: false, magnetisme: false, aimant: true };
 
   var dom = {};
 
@@ -108,6 +118,92 @@
   }
 
   /**
+   * Reperes de la fiche : { p0: {v:[x…], h:[y…]}, … }.
+   * Ils voyagent AVEC le document — c'est le point de la section 9 de la
+   * maquette : Joey doit retrouver ses guides en rouvrant sa fiche. Les
+   * pages publiques ne les lisent jamais.
+   */
+  function reperes() {
+    var f = fiche();
+    if (!f.reperes) f.reperes = {};
+    return f.reperes;
+  }
+
+  /**
+   * Un index negatif signifie que la page visee n'existe plus (un
+   * gestionnaire pose avant un redessin). Mieux vaut ecrire dans la page 0
+   * que creer une cle « p-1 » que rien ne relira jamais.
+   */
+  function reperesPage(i) {
+    var r = reperes();
+    var c = 'p' + (i >= 0 ? i : 0);
+    if (!r[c]) r[c] = { v: [], h: [] };
+    if (!r[c].v) r[c].v = [];
+    if (!r[c].h) r[c].h = [];
+    return r[c];
+  }
+
+  /** Lecture seule — ne cree rien (meme raison que styleLu). */
+  function reperesLus(i) {
+    var f = fiche();
+    var r = (f && f.reperes && f.reperes['p' + i]) || {};
+    return { v: r.v || [], h: r.h || [] };
+  }
+
+  function chargerVue() {
+    try {
+      var v = JSON.parse(localStorage.getItem(CLE_VUE) || 'null');
+      if (v) Object.keys(vue).forEach(function (k) {
+        if (v[k] !== undefined) vue[k] = v[k];
+      });
+    } catch (e) { /* reglages illisibles : on garde les defauts */ }
+  }
+
+  function sauverVue() {
+    try { localStorage.setItem(CLE_VUE, JSON.stringify(vue)); } catch (e) {}
+  }
+
+  /* ══ Traces ════════════════════════════════════════════════════════════
+   *
+   * Un trace n'a ni x/y ni w/h : ses points sont en unites de page, en
+   * absolu. Tout ce qui deplace, redimensionne ou aligne doit donc passer
+   * par ces trois fonctions plutot que par les champs de geometrie.
+   */
+
+  function estTrace(sh) { return !!sh && sh.type === 'trace'; }
+
+  /** Boite englobante d'un trace, en unites de page. */
+  function boiteTrace(sh) {
+    var p = sh.points || [];
+    if (!p.length) return { x: 0, y: 0, w: 0, h: 0 };
+    var x1 = p[0][0], y1 = p[0][1], x2 = x1, y2 = y1;
+    p.forEach(function (q) {
+      if (q[0] < x1) x1 = q[0];
+      if (q[0] > x2) x2 = q[0];
+      if (q[1] < y1) y1 = q[1];
+      if (q[1] > y2) y2 = q[1];
+    });
+    return { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+  }
+
+  function deplacerTrace(sh, dx, dy) {
+    sh.points = (sh.points || []).map(function (q) {
+      return [Math.round(q[0] + dx), Math.round(q[1] + dy)];
+    });
+  }
+
+  /** Mise a l'echelle depuis le coin haut-gauche de la boite englobante. */
+  function echelonnerTrace(sh, w, h) {
+    var b = boiteTrace(sh);
+    var kx = b.w ? w / b.w : 1;
+    var ky = b.h ? h / b.h : 1;
+    sh.points = (sh.points || []).map(function (q) {
+      return [Math.round(b.x + (q[0] - b.x) * kx),
+              Math.round(b.y + (q[1] - b.y) * ky)];
+    });
+  }
+
+  /**
    * Identifiant de forme. Un compteur relu depuis le tableau, pas un
    * horodatage : deux formes posees dans la meme milliseconde auraient le
    * meme id, et l'une effacerait l'autre au redessin.
@@ -143,6 +239,7 @@
 
   function allerA(pos) {
     if (pos < 0 || pos >= hist.pile.length) return;
+    var avant = sel;
     hist.pos = pos;
     hist.gele = true;
     try {
@@ -150,9 +247,15 @@
     } finally {
       hist.gele = false;
     }
-    deselectionner();
-    majBarre();
-    majDock();
+    // On garde la selection si son objet a survecu a l'instantane : annuler
+    // un redimensionnement ne devrait pas obliger a re-cliquer la forme.
+    // Elle tombe si l'objet n'existe plus (annuler une creation).
+    sel = null;
+    if (avant) {
+      if (avant.genre === 'forme' && formeParId(avant.id)) sel = avant;
+      else if (avant.cle && ZTSFormes.elementDeCle(ctx.racine(), avant.cle)) sel = avant;
+    }
+    apresSelection();
   }
 
   function annuler() { if (hist.pos > 0) allerA(hist.pos - 1); }
@@ -218,7 +321,52 @@
     dom.dupliquer = bouton('⧉', 'Dupliquer (Ctrl+D)', dupliquer);
     dom.supprimer = bouton('✕', 'Supprimer (Suppr)', supprimerSelection);
     [dom.annuler, dom.refaire, sep(), dom.devant, dom.derriere, sep(),
-     dom.dupliquer, dom.supprimer].forEach(function (e) { r1.appendChild(e); });
+     dom.dupliquer, dom.supprimer, sep()].forEach(function (e) { r1.appendChild(e); });
+
+    // ── Vue : grille, regles, aimantation ──────────────────────────────
+    dom.vGrille = bouton('⊞', 'Grille', function () {
+      vue.grille = !vue.grille; sauverVue(); rafraichir();
+    });
+    dom.vRegles = bouton('⊟', 'Règles graduées', function () {
+      vue.regles = !vue.regles; sauverVue(); rafraichir();
+    });
+    dom.vAimant = bouton('🧲', 'Aimantation (Alt la neutralise)', function () {
+      vue.aimant = !vue.aimant; sauverVue(); majBarre();
+    });
+    dom.vMagnet = bouton('#', 'Ajouter la grille aux cibles d’accrochage', function () {
+      vue.magnetisme = !vue.magnetisme; sauverVue(); majBarre();
+    });
+    dom.vPas = champ('number', 'Pas de la grille (px)', function () {
+      vue.pas = Math.max(2, +dom.vPas.value || 50); sauverVue(); rafraichir();
+    }, { min: 2, max: 400, step: 1 });
+    dom.vSous = champ('number', 'Sous-divisions', function () {
+      vue.sous = Math.max(1, +dom.vSous.value || 1); sauverVue(); rafraichir();
+    }, { min: 1, max: 20, step: 1 });
+    [dom.vGrille, dom.vRegles, dom.vAimant, dom.vMagnet,
+     etiquette('Pas', dom.vPas), etiquette('÷', dom.vSous), sep()]
+      .forEach(function (e) { r1.appendChild(e); });
+
+    // ── Reperes ────────────────────────────────────────────────────────
+    r1.appendChild(titre('Repères'));
+    r1.appendChild(bouton('⇕', 'Ajouter un repère horizontal', function () { ajouterRepere('h'); }));
+    r1.appendChild(bouton('⇔', 'Ajouter un repère vertical', function () { ajouterRepere('v'); }));
+    r1.appendChild(bouton('∅', 'Vider les repères', viderReperes));
+    r1.appendChild(sep());
+
+    // ── Fichier ────────────────────────────────────────────────────────
+    r1.appendChild(bouton('↧', 'Exporter le document (JSON)', exporterJSON));
+    dom.fichier = document.createElement('input');
+    dom.fichier.type = 'file';
+    dom.fichier.accept = 'application/json,.json';
+    dom.fichier.style.display = 'none';
+    dom.fichier.addEventListener('change', function () {
+      if (dom.fichier.files && dom.fichier.files[0]) importerJSON(dom.fichier.files[0]);
+      dom.fichier.value = '';
+    });
+    r1.appendChild(dom.fichier);
+    r1.appendChild(bouton('↥', 'Importer un document (JSON)', function () {
+      dom.fichier.click();
+    }));
 
     dom.doc = document.createElement('span');
     dom.doc.className = 'doc';
@@ -268,6 +416,20 @@
      etiquette('Ép.', dom.epaisseur), etiquette('Ombre', dom.ombre), sep()]
       .forEach(function (e) { dom.grpForme.appendChild(e); });
     r.appendChild(dom.grpForme);
+
+    // Propre aux traces : ouvert/ferme et angles/courbes. Les points ne
+    // bougent pas — seule la generation du chemin change.
+    dom.grpTrace = document.createElement('span');
+    dom.grpTrace.style.cssText = 'display:inline-flex;align-items:center;gap:6px;';
+    dom.tFerme = bouton('⭕', 'Tracé fermé', function () {
+      majSel({ closed: !valeurSel('closed') }, 'Tracé fermé');
+    });
+    dom.tLisse = bouton('〜', 'Courbes plutôt qu’angles', function () {
+      majSel({ smooth: !valeurSel('smooth') }, 'Courbes');
+    });
+    [titre('Tracé'), dom.tFerme, dom.tLisse, sep()]
+      .forEach(function (e) { dom.grpTrace.appendChild(e); });
+    r.appendChild(dom.grpTrace);
 
     r.appendChild(titre('Aligner'));
     [['⇤', 'gauche'], ['⇔', 'centre-h'], ['⇥', 'droite'],
@@ -370,12 +532,22 @@
     var rail = panneau('zts-atl-rail');
     dom.outils = {};
 
-    var b = bouton('↖', 'Sélection (Échap)', function () { choisirOutil(null); });
+    var b = bouton('↖', 'Sélection (Échap)', function () {
+      choisirOutil(null);
+      arreterPlume();
+    });
     dom.outils[''] = b;
     rail.appendChild(b);
 
+    dom.bPlume = bouton('✒', 'Plume — clic : point · double-clic ou Entrée : terminer · Échap : annuler',
+      function () { plumeActive() ? arreterPlume() : commencerPlume(); });
+    rail.appendChild(dom.bPlume);
+    dom.bAncres = bouton('⁘', 'Points d’ancrage du tracé sélectionné', basculerAncres);
+    rail.appendChild(dom.bAncres);
+
     OUTILS.forEach(function (o) {
       var t = bouton(o.icone, o.titre + ' — clique ensuite dans une page', function () {
+        arreterPlume();
         choisirOutil(o.id);
       });
       dom.outils[o.id] = t;
@@ -509,6 +681,7 @@
 
   function apresSelection() {
     majCadre();
+    injecterAncres();
     majBarre();
     majDock();
     majEtat();
@@ -528,14 +701,15 @@
     var page = pageDe(el);
     if (!page) return;
 
-    var rp = page.getBoundingClientRect();
-    var re = el.getBoundingClientRect();
+    // `boite()` et non getBoundingClientRect() : le SVG d'un trace couvre la
+    // page entiere, le mesurer donnerait un cadre de 850x1100.
+    var b = boite(el);
     var cadre = document.createElement('div');
     cadre.className = 'zts-atl-cadre';
-    cadre.style.left = (re.left - rp.left) + 'px';
-    cadre.style.top = (re.top - rp.top) + 'px';
-    cadre.style.width = re.width + 'px';
-    cadre.style.height = re.height + 'px';
+    cadre.style.left = b.x + 'px';
+    cadre.style.top = b.y + 'px';
+    cadre.style.width = b.w + 'px';
+    cadre.style.height = b.h + 'px';
 
     var poignee = document.createElement('div');
     poignee.className = 'zts-atl-poignee';
@@ -549,12 +723,92 @@
     page.appendChild(cadre);
   }
 
+  /* ══ Aimantation ═══════════════════════════════════════════════════════
+   *
+   * Cibles d'accrochage, dans l'ordre de la maquette : bords, centres et
+   * marges de la page ; bords et centres des AUTRES formes ; reperes de la
+   * page ; lignes de grille quand le magnetisme est allume.
+   *
+   * Alt neutralise l'accrochage le temps d'un deplacement — c'est le geste
+   * standard, et sans lui il n'y a aucun moyen de poser quelque chose a
+   * 3 px d'un bord.
+   */
+
+  function ciblesAccrochage(page, idxPage, exclureId) {
+    var W = page.offsetWidth, H = page.offsetHeight;
+    var xs = [0, W, W / 2, MARGE_X, W - MARGE_X];
+    var ys = [0, H, H / 2, MARGE_Y, H - MARGE_Y];
+
+    formes().forEach(function (sh) {
+      if (sh.page !== idxPage || sh.id === exclureId || sh.hiddenLayer) return;
+      var b = estTrace(sh)
+        ? boiteTrace(sh)
+        : { x: sh.x || 0, y: sh.y || 0, w: sh.w || 0, h: sh.h || 0 };
+      xs.push(b.x, b.x + b.w, b.x + b.w / 2);
+      ys.push(b.y, b.y + b.h, b.y + b.h / 2);
+    });
+
+    var r = reperesLus(idxPage);
+    xs = xs.concat(r.v);
+    ys = ys.concat(r.h);
+
+    if (vue.magnetisme && vue.pas > 0) {
+      for (var x = 0; x <= W; x += vue.pas) xs.push(x);
+      for (var y = 0; y <= H; y += vue.pas) ys.push(y);
+    }
+    return { xs: xs, ys: ys };
+  }
+
+  /**
+   * Accroche une boite sur un axe.
+   * Les TROIS aretes comptent (debut, milieu, fin) : sans le milieu, on ne
+   * peut pas centrer une forme sur un repere, ce qui est justement l'usage
+   * le plus courant.
+   */
+  function accrocher(v, taille, cibles) {
+    var meilleur = null;
+    [0, taille / 2, taille].forEach(function (offset) {
+      cibles.forEach(function (c) {
+        var d = c - (v + offset);
+        if (Math.abs(d) > TOLERANCE) return;
+        if (!meilleur || Math.abs(d) < Math.abs(meilleur.d)) {
+          meilleur = { d: d, ligne: c };
+        }
+      });
+    });
+    return meilleur;
+  }
+
+  function retirerGuides(page) {
+    Array.prototype.forEach.call(page.querySelectorAll('.zts-atl-guide'),
+      function (g) { g.parentNode.removeChild(g); });
+  }
+
+  function montrerGuide(page, sens, v) {
+    var g = document.createElement('div');
+    g.className = 'zts-atl-guide zts-atl-guide--' + sens + ' zts-ui';
+    if (sens === 'v') g.style.left = v + 'px'; else g.style.top = v + 'px';
+    page.appendChild(g);
+  }
+
   /* ══ Deplacement et redimensionnement ══════════════════════════════════ */
 
-  /** Geometrie courante de la selection, en unites de page. */
+  /**
+   * Geometrie courante d'un element, en unites de page.
+   *
+   * Un TRACE fait exception : son SVG couvre la page entiere (c'est ce qui
+   * lui permet de deborder sans etre rogne), donc le mesurer donnerait
+   * 850x1100 a chaque fois. Sa boite, c'est celle de ses points.
+   */
   function boite(el) {
     var page = pageDe(el);
     var rp = page.getBoundingClientRect();
+    var idForme = el.getAttribute && el.getAttribute('data-forme');
+    var sh = idForme ? formeParId(idForme) : null;
+    if (estTrace(sh)) {
+      var bt = boiteTrace(sh);
+      return { page: page, x: bt.x, y: bt.y, w: bt.w, h: bt.h };
+    }
     var re = el.getBoundingClientRect();
     return {
       page: page,
@@ -580,8 +834,10 @@
     if (sel && sel.genre === 'forme') {
       var sh = formeParId(sel.id);
       if (!sh) return null;
+      var g = estTrace(sh) ? boiteTrace(sh)
+                           : { x: sh.x || 0, y: sh.y || 0, w: sh.w || 0, h: sh.h || 0 };
       return { page: null, virtuelle: !elementSelection(),
-               x: sh.x || 0, y: sh.y || 0, w: sh.w || 0, h: sh.h || 0 };
+               x: g.x, y: g.y, w: g.w, h: g.h };
     }
     var el = elementSelection();
     return el ? boite(el) : null;
@@ -589,40 +845,68 @@
 
   function commencerDeplacement(ev, el) {
     var b = boite(el);
+    var page = b.page;
+    var idxPage = indexPage(page);
     var depart = { x: ev.clientX, y: ev.clientY };
     var forme = sel.genre === 'forme' ? formeParId(sel.id) : null;
+    var trace = estTrace(forme);
     var cle = sel.cle;
     var lu = forme ? null : styleLu(cle);
-    var dx0 = forme ? (forme.x || 0) : (lu.dx || 0);
-    var dy0 = forme ? (forme.y || 0) : (lu.dy || 0);
+    // Un trace n'a pas d'origine propre : sa boite englobante en tient lieu.
+    var b0 = trace ? boiteTrace(forme) : null;
+    var dx0 = trace ? 0 : (forme ? (forme.x || 0) : (lu.dx || 0));
+    var dy0 = trace ? 0 : (forme ? (forme.y || 0) : (lu.dy || 0));
     var cadre = ctx.racine().querySelector('.zts-atl-cadre');
+    var cibles = ciblesAccrochage(page, idxPage, forme && forme.id);
+    var dernier = { dx: 0, dy: 0 };
 
-    function bouger(e) {
+    function ajuste(e) {
       var dx = e.clientX - depart.x;
       var dy = e.clientY - depart.y;
-      if (forme) {
-        el.style.left = (dx0 + dx) + 'px';
-        el.style.top = (dy0 + dy) + 'px';
+      retirerGuides(page);
+      if (e.altKey || !vue.aimant) return { dx: dx, dy: dy };
+
+      var ax = accrocher(b.x + dx, b.w, cibles.xs);
+      var ay = accrocher(b.y + dy, b.h, cibles.ys);
+      if (ax) { dx += ax.d; montrerGuide(page, 'v', ax.ligne); }
+      if (ay) { dy += ay.d; montrerGuide(page, 'h', ay.ligne); }
+      return { dx: dx, dy: dy };
+    }
+
+    function bouger(e) {
+      dernier = ajuste(e);
+      if (trace) {
+        el.style.transform = 'translate(' + dernier.dx + 'px,' + dernier.dy + 'px)';
+      } else if (forme) {
+        el.style.left = (dx0 + dernier.dx) + 'px';
+        el.style.top = (dy0 + dernier.dy) + 'px';
       } else {
-        el.style.transform = transformDe(lu, dx0 + dx, dy0 + dy);
+        el.style.transform = transformDe(lu, dx0 + dernier.dx, dy0 + dernier.dy);
       }
       if (cadre) {
-        cadre.style.left = (b.x + dx) + 'px';
-        cadre.style.top = (b.y + dy) + 'px';
+        cadre.style.left = (b.x + dernier.dx) + 'px';
+        cadre.style.top = (b.y + dernier.dy) + 'px';
       }
     }
 
     function finir(e) {
       document.removeEventListener('pointermove', bouger);
       document.removeEventListener('pointerup', finir);
-      var dx = e.clientX - depart.x;
-      var dy = e.clientY - depart.y;
-      if (!dx && !dy) return;
-      if (forme) { forme.x = Math.round(dx0 + dx); forme.y = Math.round(dy0 + dy); }
-      else {
+      retirerGuides(page);
+      var d = dernier;
+      if (!d.dx && !d.dy) return;
+      if (trace) {
+        // Le decalage est calcule sur la boite mesuree ; on le reporte sur
+        // les points, qui sont la seule verite du trace.
+        deplacerTrace(forme, b0.x + d.dx - boiteTrace(forme).x,
+                             b0.y + d.dy - boiteTrace(forme).y);
+      } else if (forme) {
+        forme.x = Math.round(dx0 + d.dx);
+        forme.y = Math.round(dy0 + d.dy);
+      } else {
         var s = style(cle);
-        s.dx = Math.round(dx0 + dx);
-        s.dy = Math.round(dy0 + dy);
+        s.dx = Math.round(dx0 + d.dx);
+        s.dy = Math.round(dy0 + d.dy);
       }
       valider('Déplacement');
     }
@@ -633,25 +917,47 @@
 
   function commencerRedimension(ev, el) {
     var b = boite(el);
+    var page = b.page;
     var depart = { x: ev.clientX, y: ev.clientY };
     var forme = sel.genre === 'forme' ? formeParId(sel.id) : null;
+    var trace = estTrace(forme);
     var cle = sel.cle;
     var cadre = ctx.racine().querySelector('.zts-atl-cadre');
+    var cibles = ciblesAccrochage(page, indexPage(page), forme && forme.id);
+    var dernier = { w: b.w, h: b.h };
 
-    function bouger(e) {
+    function ajuste(e) {
       var w = Math.max(8, b.w + (e.clientX - depart.x));
       var h = Math.max(4, b.h + (e.clientY - depart.y));
-      el.style.width = w + 'px';
-      el.style.height = h + 'px';
-      if (cadre) { cadre.style.width = w + 'px'; cadre.style.height = h + 'px'; }
+      retirerGuides(page);
+      if (e.altKey || !vue.aimant) return { w: w, h: h };
+      // Seul le bord qu'on tire s'accroche : le coin oppose ne bouge pas.
+      var ax = accrocher(b.x + w, 0, cibles.xs);
+      var ay = accrocher(b.y + h, 0, cibles.ys);
+      if (ax) { w += ax.d; montrerGuide(page, 'v', ax.ligne); }
+      if (ay) { h += ay.d; montrerGuide(page, 'h', ay.ligne); }
+      return { w: Math.max(8, w), h: Math.max(4, h) };
     }
 
-    function finir(e) {
+    function bouger(e) {
+      dernier = ajuste(e);
+      if (!trace) {
+        el.style.width = dernier.w + 'px';
+        el.style.height = dernier.h + 'px';
+      }
+      if (cadre) {
+        cadre.style.width = dernier.w + 'px';
+        cadre.style.height = dernier.h + 'px';
+      }
+    }
+
+    function finir() {
       document.removeEventListener('pointermove', bouger);
       document.removeEventListener('pointerup', finir);
-      var w = Math.round(Math.max(8, b.w + (e.clientX - depart.x)));
-      var h = Math.round(Math.max(4, b.h + (e.clientY - depart.y)));
-      if (forme) { forme.w = w; forme.h = h; }
+      retirerGuides(page);
+      var w = Math.round(dernier.w), h = Math.round(dernier.h);
+      if (trace) echelonnerTrace(forme, w, h);
+      else if (forme) { forme.w = w; forme.h = h; }
       else { var s = style(cle); s.w = w; s.hgt = h; }
       valider('Redimensionnement');
     }
@@ -699,6 +1005,389 @@
     selectionnerForme(sh.id);
   }
 
+  /* ══ Plume vectorielle ═════════════════════════════════════════════════
+   *
+   * Clic = pose un point · double-clic ou Entree = termine · Echap = annule.
+   * Le trace est un vrai <path> SVG ; les points sont serialises tels quels,
+   * en unites de page, donc directement reutilisables par le rendu public.
+   */
+
+  var NS = 'http://www.w3.org/2000/svg';
+
+  function commencerPlume() {
+    plume = null;
+    choisirOutil(null);
+    document.body.classList.add('zts-atelier-plume');
+    deselectionner();
+    majBarre();
+  }
+
+  function arreterPlume() {
+    if (plume && plume.svg && plume.svg.parentNode) {
+      plume.svg.parentNode.removeChild(plume.svg);
+    }
+    plume = null;
+    document.body.classList.remove('zts-atelier-plume');
+    majBarre();
+  }
+
+  function plumeActive() { return document.body.classList.contains('zts-atelier-plume'); }
+
+  /** Apercu du trace en cours, redessine a chaque point pose. */
+  function dessinerApercu() {
+    if (!plume) return;
+    plume.path.setAttribute('d', ZTSFormes.cheminTrace(plume.points, false, false));
+    Array.prototype.forEach.call(plume.svg.querySelectorAll('circle'),
+      function (c) { c.parentNode.removeChild(c); });
+    plume.points.forEach(function (p, i) {
+      var c = document.createElementNS(NS, 'circle');
+      c.setAttribute('cx', p[0]);
+      c.setAttribute('cy', p[1]);
+      c.setAttribute('r', 4);
+      c.setAttribute('fill', i === 0 ? '#FFF200' : '#fff');
+      c.setAttribute('stroke', '#22ccf5');
+      c.setAttribute('stroke-width', 2);
+      plume.svg.appendChild(c);
+    });
+  }
+
+  function plumePoint(page, x, y) {
+    if (!plume || plume.page !== page) {
+      if (plume) arreterPlume();
+      document.body.classList.add('zts-atelier-plume');
+      var svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('class', 'zts-atl-plume zts-ui');
+      svg.setAttribute('width', page.offsetWidth);
+      svg.setAttribute('height', page.offsetHeight);
+      svg.style.overflow = 'visible';
+      var path = document.createElementNS(NS, 'path');
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', '#22ccf5');
+      path.setAttribute('stroke-width', 2);
+      path.setAttribute('stroke-dasharray', '5 4');
+      svg.appendChild(path);
+      page.appendChild(svg);
+      plume = { page: page, idx: indexPage(page), points: [], svg: svg, path: path };
+    }
+    plume.points.push([Math.round(x), Math.round(y)]);
+    dessinerApercu();
+  }
+
+  /**
+   * Termine le trace. Moins de deux points ne fait pas une ligne : on jette
+   * plutot que de laisser un point invisible dans la fiche.
+   */
+  function plumeTerminer(ferme) {
+    if (!plume || plume.points.length < 2) { arreterPlume(); return; }
+    var sh = {
+      id: nouvelIdForme(),
+      page: plume.idx,
+      type: 'trace',
+      points: plume.points.slice(),
+      closed: !!ferme,
+      smooth: false,
+      thickness: 6,
+      strokeColor: '#101010',
+      fill: 'transparent'
+    };
+    arreterPlume();
+    formes().push(sh);
+    valider('Tracé');
+    selectionnerForme(sh.id);
+  }
+
+  /* ══ Points d'ancrage ══════════════════════════════════════════════════ */
+
+  function basculerAncres() {
+    ancres = !ancres;
+    rafraichir();
+  }
+
+  function retirerAncres() {
+    Array.prototype.forEach.call(ctx.racine().querySelectorAll('.zts-atl-ancre'),
+      function (a) { a.parentNode.removeChild(a); });
+  }
+
+  /**
+   * Poignees des points du trace selectionne.
+   * Uniquement sur la selection : les afficher pour tous les traces d'une
+   * page couvrirait le dessin de pastilles des qu'il y en a deux ou trois.
+   */
+  function injecterAncres() {
+    retirerAncres();
+    if (!ancres || !sel || sel.genre !== 'forme') return;
+    var sh = formeParId(sel.id);
+    if (!estTrace(sh)) return;
+    var el = elementSelection();
+    var page = el && pageDe(el);
+    if (!page) return;
+
+    (sh.points || []).forEach(function (p, i) {
+      var a = document.createElement('div');
+      a.className = 'zts-atl-ancre zts-ui' + (i === 0 ? ' premier' : '');
+      a.style.left = p[0] + 'px';
+      a.style.top = p[1] + 'px';
+      a.title = 'Point ' + (i + 1) + ' — glisse pour déplacer, double-clic pour retirer';
+      a.addEventListener('pointerdown', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        glisserAncre(ev, sh, i, page, a);
+      });
+      a.addEventListener('dblclick', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        // Sous deux points il ne reste plus de trace : on retire la forme.
+        if (sh.points.length <= 2) { selectionnerForme(sh.id); supprimerSelection(); return; }
+        sh.points.splice(i, 1);
+        valider('Point retiré');
+      });
+      page.appendChild(a);
+    });
+  }
+
+  function glisserAncre(ev, sh, i, page, poignee) {
+    var rp = page.getBoundingClientRect();
+    var cibles = ciblesAccrochage(page, indexPage(page), sh.id);
+    var pos = sh.points[i].slice();
+
+    function bouger(e) {
+      var x = e.clientX - rp.left;
+      var y = e.clientY - rp.top;
+      retirerGuides(page);
+      if (!e.altKey && vue.aimant) {
+        var ax = accrocher(x, 0, cibles.xs);
+        var ay = accrocher(y, 0, cibles.ys);
+        if (ax) { x += ax.d; montrerGuide(page, 'v', ax.ligne); }
+        if (ay) { y += ay.d; montrerGuide(page, 'h', ay.ligne); }
+      }
+      pos = [Math.round(x), Math.round(y)];
+      poignee.style.left = pos[0] + 'px';
+      poignee.style.top = pos[1] + 'px';
+    }
+
+    function finir() {
+      document.removeEventListener('pointermove', bouger);
+      document.removeEventListener('pointerup', finir);
+      retirerGuides(page);
+      sh.points[i] = pos;
+      valider('Point déplacé');
+    }
+
+    document.addEventListener('pointermove', bouger);
+    document.addEventListener('pointerup', finir);
+  }
+
+  /* ══ Grille, regles et reperes ═════════════════════════════════════════
+   *
+   * Mobilier d'atelier : jamais imprime (tout est en .zts-ui), jamais lu par
+   * les pages publiques. La grille et les regles sont des reglages de poste
+   * de travail (localStorage) ; les reperes appartiennent a la fiche.
+   */
+
+  function retirerMobilier() {
+    var racine = ctx.racine();
+    ['.zts-atl-grille', '.zts-atl-regle', '.zts-atl-repere', '.zts-atl-guide']
+      .forEach(function (s) {
+        Array.prototype.forEach.call(racine.querySelectorAll(s),
+          function (n) { n.parentNode.removeChild(n); });
+      });
+  }
+
+  function fondGrille() {
+    var pas = Math.max(2, vue.pas);
+    var sous = Math.max(1, vue.sous);
+    var petit = pas / sous;
+    var l = 'rgba(255,255,255,.13)';
+    var L = 'rgba(255,255,255,.30)';
+    return {
+      backgroundImage:
+        'linear-gradient(to right,' + L + ' 1px,transparent 1px),' +
+        'linear-gradient(to bottom,' + L + ' 1px,transparent 1px),' +
+        'linear-gradient(to right,' + l + ' 1px,transparent 1px),' +
+        'linear-gradient(to bottom,' + l + ' 1px,transparent 1px)',
+      backgroundSize:
+        pas + 'px ' + pas + 'px,' + pas + 'px ' + pas + 'px,' +
+        petit + 'px ' + petit + 'px,' + petit + 'px ' + petit + 'px'
+    };
+  }
+
+  /**
+   * Regle graduee le long d'un bord de page.
+   *
+   * Elle est posee dans le `.zts-page-wrap`, PAS dans la page : la page est
+   * en overflow:hidden, une regle a -18 px y serait purement et simplement
+   * rognee. Le wrap passe donc en position:relative et la regle se cale sur
+   * la position de la page a l'interieur.
+   */
+  function injecterRegle(wrap, page, idxPage, sens) {
+    var r = document.createElement('div');
+    r.className = 'zts-atl-regle zts-atl-regle--' + sens + ' zts-ui';
+    r.title = 'Clique pour poser un repère';
+
+    if (sens === 'h') {
+      r.style.left = page.offsetLeft + 'px';
+      r.style.right = 'auto';
+      r.style.width = page.offsetWidth + 'px';
+      r.style.top = (page.offsetTop - 18) + 'px';
+    } else {
+      r.style.top = page.offsetTop + 'px';
+      r.style.bottom = 'auto';
+      r.style.height = page.offsetHeight + 'px';
+      r.style.left = (page.offsetLeft - 18) + 'px';
+    }
+
+    var taille = sens === 'h' ? page.offsetWidth : page.offsetHeight;
+    var pas = Math.max(10, vue.pas);
+    for (var v = 0; v <= taille; v += pas) {
+      var t = document.createElement('i');
+      t.style[sens === 'h' ? 'left' : 'top'] = v + 'px';
+      r.appendChild(t);
+      var lab = document.createElement('span');
+      lab.textContent = v;
+      lab.style[sens === 'h' ? 'left' : 'top'] = v + 'px';
+      r.appendChild(lab);
+    }
+
+    r.addEventListener('click', function (ev) {
+      var rr = r.getBoundingClientRect();
+      var p = Math.round(sens === 'h' ? ev.clientX - rr.left : ev.clientY - rr.top);
+      var rp = reperesPage(idxPage);
+      (sens === 'h' ? rp.v : rp.h).push(p);
+      valider('Repère');
+    });
+    wrap.appendChild(r);
+  }
+
+  function injecterRepere(page, idxPage, sens, v, i) {
+    var d = document.createElement('div');
+    d.className = 'zts-atl-repere zts-atl-repere--' + sens + ' zts-ui';
+    d.style[sens === 'v' ? 'left' : 'top'] = v + 'px';
+    d.title = 'Glisse pour déplacer · double-clic pour effacer';
+
+    d.addEventListener('pointerdown', function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      var rp = page.getBoundingClientRect();
+      var pos = v;
+      function bouger(e) {
+        pos = Math.round(sens === 'v' ? e.clientX - rp.left : e.clientY - rp.top);
+        d.style[sens === 'v' ? 'left' : 'top'] = pos + 'px';
+      }
+      function finir() {
+        document.removeEventListener('pointermove', bouger);
+        document.removeEventListener('pointerup', finir);
+        var liste = reperesPage(idxPage)[sens === 'v' ? 'v' : 'h'];
+        liste[i] = pos;
+        valider('Repère déplacé');
+      }
+      document.addEventListener('pointermove', bouger);
+      document.addEventListener('pointerup', finir);
+    });
+
+    d.addEventListener('dblclick', function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      reperesPage(idxPage)[sens === 'v' ? 'v' : 'h'].splice(i, 1);
+      valider('Repère effacé');
+    });
+    page.appendChild(d);
+  }
+
+  function injecterMobilier() {
+    retirerMobilier();
+    var pages = ctx.racine().querySelectorAll('[data-page]');
+    Array.prototype.forEach.call(pages, function (page, i) {
+      if (vue.grille) {
+        var g = document.createElement('div');
+        g.className = 'zts-atl-grille zts-ui';
+        var f = fondGrille();
+        g.style.backgroundImage = f.backgroundImage;
+        g.style.backgroundSize = f.backgroundSize;
+        // Sous le contenu, au-dessus du fond de page.
+        page.insertBefore(g, page.firstChild);
+      }
+      if (vue.regles) {
+        var wrap = page.closest('.zts-page-wrap');
+        if (wrap) {
+          wrap.style.position = 'relative';
+          injecterRegle(wrap, page, i, 'h');
+          injecterRegle(wrap, page, i, 'v');
+        }
+      }
+      var r = reperesLus(i);
+      r.v.forEach(function (v, k) { injecterRepere(page, i, 'v', v, k); });
+      r.h.forEach(function (v, k) { injecterRepere(page, i, 'h', v, k); });
+    });
+  }
+
+  function viderReperes() {
+    fiche().reperes = {};
+    valider('Repères vidés');
+  }
+
+  /** Repere au milieu de la premiere page — le bouton « + REPÈRE ». */
+  function ajouterRepere(sens) {
+    var pages = ctx.racine().querySelectorAll('[data-page]');
+    var i = 0;
+    if (sel) {
+      var el = elementSelection();
+      var p = el && pageDe(el);
+      if (p) i = indexPage(p);
+    }
+    var page = pages[i];
+    if (!page) return;
+    var rp = reperesPage(i);
+    if (sens === 'v') rp.v.push(Math.round(page.offsetWidth / 2));
+    else rp.h.push(Math.round(page.offsetHeight / 2));
+    valider('Repère');
+  }
+
+  /* ══ Fichier ═══════════════════════════════════════════════════════════ */
+
+  /* Le document d'echange, c'est la fiche SANS ses identifiants : `id` et
+   * `slug` appartiennent a Firestore, pas au contenu. Reimporter un fichier
+   * dans une autre fiche ne doit pas en voler l'adresse. */
+  var CHAMPS_ECHANGE = ['titre', 'sousTitre', 'badges', 'butDuJeu', 'sections',
+                        'imagePrincipale', 'imagePage2', 'styles', 'formes',
+                        'reperes', 'univers', 'category'];
+
+  function exporterJSON() {
+    var f = fiche();
+    var out = {};
+    CHAMPS_ECHANGE.forEach(function (k) { if (f[k] !== undefined) out[k] = f[k]; });
+    var blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (global.ZTSFichesDB && global.ZTSFichesDB.slugifier
+      ? global.ZTSFichesDB.slugifier(f.titre) : 'fiche') || 'fiche';
+    a.download += '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 0);
+  }
+
+  function importerJSON(file) {
+    var lecteur = new FileReader();
+    lecteur.onload = function () {
+      var obj;
+      try { obj = JSON.parse(lecteur.result); }
+      catch (e) { global.alert('Fichier illisible : ce n’est pas du JSON.'); return; }
+      if (!obj || typeof obj !== 'object' || !obj.sections) {
+        global.alert('Ce fichier ne ressemble pas à une fiche.');
+        return;
+      }
+      // On PART de la fiche courante et on ecrase champ par champ : les
+      // champs absents du fichier (un vieil export, par exemple) gardent
+      // leur valeur au lieu de disparaitre.
+      var f = JSON.parse(JSON.stringify(fiche()));
+      CHAMPS_ECHANGE.forEach(function (k) { if (obj[k] !== undefined) f[k] = obj[k]; });
+      ctx.remplacer(f);
+      instantane('Import');
+    };
+    lecteur.readAsText(file);
+  }
+
   /* ══ Actions sur la selection ══════════════════════════════════════════ */
 
   /**
@@ -739,8 +1428,8 @@
     if (!src) return;
     var copie = JSON.parse(JSON.stringify(src));
     copie.id = nouvelIdForme();
-    copie.x = (copie.x || 0) + 16;
-    copie.y = (copie.y || 0) + 16;
+    if (estTrace(copie)) deplacerTrace(copie, 16, 16);
+    else { copie.x = (copie.x || 0) + 16; copie.y = (copie.y || 0) + 16; }
     formes().push(copie);
     valider('Duplication');
     selectionnerForme(copie.id);
@@ -791,7 +1480,8 @@
     if (sel.genre === 'forme') {
       var sh = formeParId(sel.id);
       if (!sh) return;
-      sh.x = Math.round(x); sh.y = Math.round(y);
+      if (estTrace(sh)) deplacerTrace(sh, x - b.x, y - b.y);
+      else { sh.x = Math.round(x); sh.y = Math.round(y); }
     } else {
       var s = style(sel.cle);
       s.dx = Math.round((s.dx || 0) + x - b.x);
@@ -835,6 +1525,13 @@
     var page = ev.target.closest ? ev.target.closest('[data-page]') : null;
     if (!page) return;
 
+    if (plumeActive()) {
+      var rq = page.getBoundingClientRect();
+      ev.preventDefault();
+      plumePoint(page, ev.clientX - rq.left, ev.clientY - rq.top);
+      return;
+    }
+
     if (outil) {
       var rp = page.getBoundingClientRect();
       poser(page, ev.clientX - rp.left, ev.clientY - rp.top);
@@ -872,6 +1569,15 @@
 
   function auDoubleClic(ev) {
     if (!actif) return;
+    if (plumeActive()) {
+      ev.preventDefault();
+      // Le double-clic a deja pose un point via ses deux pointerdown : on
+      // retire le doublon avant de fermer, sinon le trace finit sur deux
+      // points superposes.
+      if (plume && plume.points.length > 1) plume.points.pop();
+      plumeTerminer(false);
+      return;
+    }
     var ch = ev.target.closest ? ev.target.closest('[data-champ]') : null;
     if (!ch || ch.tagName === 'IMAGE-SLOT') return;
     ev.preventDefault();
@@ -895,7 +1601,13 @@
       dupliquer();
       return;
     }
+    if (ev.key === 'Enter' && plumeActive() && !dansUnChamp) {
+      ev.preventDefault();
+      plumeTerminer(ev.shiftKey);   // Maj+Entrée ferme le tracé
+      return;
+    }
     if (ev.key === 'Escape') {
+      if (plumeActive()) { arreterPlume(); return; }
       if (enEcriture) { arreterEcriture(); return; }
       if (outil) { choisirOutil(null); return; }
       deselectionner();
@@ -941,15 +1653,30 @@
 
     dom.rangeeObjet.style.display = sel ? '' : 'none';
     dom.grpForme.style.display = estForme ? '' : 'none';
+    dom.grpTrace.style.display = (type === 'trace') ? '' : 'none';
     dom.rangeeTexte.style.display = texteux ? '' : 'none';
     dom.altBoite.style.display = (sel && sel.cle === 'titre') ? '' : 'none';
 
+    // Etat des reglages d'atelier.
+    dom.vGrille.classList.toggle('actif', vue.grille);
+    dom.vRegles.classList.toggle('actif', vue.regles);
+    dom.vAimant.classList.toggle('actif', vue.aimant);
+    dom.vMagnet.classList.toggle('actif', vue.magnetisme);
+    dom.vPas.value = vue.pas;
+    dom.vSous.value = vue.sous;
+    dom.bPlume.classList.toggle('actif', plumeActive());
+    dom.bAncres.classList.toggle('actif', ancres);
+
     if (estForme) {
-      var fill = valeurSel('fill');
-      poserCouleur(dom.fill, fill, '#FFF200');
+      poserCouleur(dom.fill, valeurSel('fill'), '#FFF200');
       poserCouleur(dom.trait, valeurSel('strokeColor'), '#101010');
-      poserNombre(dom.epaisseur, valeurSel('thickness'), type === 'ligne' ? 6 : 3);
+      poserNombre(dom.epaisseur, valeurSel('thickness'),
+                  type === 'ligne' || type === 'trace' ? 6 : 3);
       poserNombre(dom.ombre, valeurSel('shadow'), 3);
+      if (type === 'trace') {
+        dom.tFerme.classList.toggle('actif', !!valeurSel('closed'));
+        dom.tLisse.classList.toggle('actif', !!valeurSel('smooth'));
+      }
     }
     if (texteux) {
       dom.police.value = valeurSel('font') || (estForme ? '' : 'zts');
@@ -1047,6 +1774,15 @@
   function poserGeo(quoi, v, b) {
     if (!sel) return;
     if (sel.genre === 'forme') {
+      var sh = formeParId(sel.id);
+      if (estTrace(sh)) {
+        if (quoi === 'x') deplacerTrace(sh, v - b.x, 0);
+        else if (quoi === 'y') deplacerTrace(sh, 0, v - b.y);
+        else if (quoi === 'w') echelonnerTrace(sh, Math.max(1, v), b.h);
+        else echelonnerTrace(sh, b.w, Math.max(1, v));
+        valider('Géométrie');
+        return;
+      }
       var m = { x: 'x', y: 'y', w: 'w', h: 'h' };
       var p = {};
       p[m[quoi]] = Math.round(v);
@@ -1137,6 +1873,7 @@
   /* ══ Cycle de vie ══════════════════════════════════════════════════════ */
 
   function activer() {
+    chargerVue();
     construire();
     actif = true;
     document.body.classList.add('zts-atelier-on');
@@ -1147,9 +1884,13 @@
 
   function desactiver() {
     arreterEcriture();
+    arreterPlume();
     choisirOutil(null);
     sel = null;
+    ancres = false;
     retirerCadre();
+    retirerAncres();
+    retirerMobilier();
     actif = false;
     document.body.classList.remove('zts-atelier-on');
     if (construit) {
@@ -1171,7 +1912,10 @@
       racine.addEventListener('dblclick', auDoubleClic);
       racine._ztsAtelier = true;
     }
+    // Le mobilier vit DANS les pages : un redessin l'emporte avec le reste.
+    injecterMobilier();
     majCadre();
+    injecterAncres();
     majBarre();
     majDock();
     majEtat();

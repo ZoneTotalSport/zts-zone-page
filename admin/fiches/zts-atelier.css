@@ -166,6 +166,75 @@ body.zts-atelier-on .zts-atl-ecrit { cursor: text; }
 /* L'outil « poser une forme » : le curseur dit ou on en est. */
 body.zts-atelier-outil .zts-page-wrap { cursor: crosshair; }
 
+/* Les traces sont rendus dans un SVG en pointer-events:none, qui couvre
+ * toute la page : en public, le rendre cliquable intercepterait les clics
+ * sur ce qu'il recouvre (le bouton SUITE, par exemple). On n'ouvre donc le
+ * pointage QUE dans l'atelier, et `painted` fait le reste : le trace ne
+ * repond que la ou il est reellement peint, pas dans le creux d'une courbe
+ * ouverte. */
+body.zts-atelier-on svg.zts-forme > path { pointer-events: painted; cursor: move; }
+
+/* ── Mobilier d'atelier : grille, regles, reperes, guides ─────────────── */
+
+/* Tout ce bloc est en .zts-ui — jamais imprime, jamais vu d'un visiteur. */
+
+/* z-index négatif : la grille se peint APRÈS le fond de la page et AVANT
+ * son contenu. Un z-index positif la ferait passer par-dessus le dessin. */
+.zts-atl-grille {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none;
+}
+
+/* Les règles vivent dans le .zts-page-wrap, pas dans la page : celle-ci est
+ * en overflow:hidden et les rognerait. Positions posées par le script. */
+.zts-atl-regle {
+  position: absolute; background: #262626; color: #8d8d8d;
+  font: 9px/1 'Quicksand', system-ui, sans-serif; z-index: 950;
+  cursor: pointer; overflow: hidden;
+}
+.zts-atl-regle--h { height: 18px; }
+.zts-atl-regle--v { width: 18px; }
+.zts-atl-regle span { position: absolute; }
+.zts-atl-regle--h span { top: 3px; transform: translateX(2px); }
+.zts-atl-regle--v span { left: 2px; transform: translateY(2px); }
+.zts-atl-regle i {
+  position: absolute; background: #555;
+}
+.zts-atl-regle--h i { bottom: 0; width: 1px; height: 5px; }
+.zts-atl-regle--v i { right: 0; height: 1px; width: 5px; }
+
+.zts-atl-repere {
+  position: absolute; z-index: 940; background: var(--atl-actif);
+}
+.zts-atl-repere--v { top: 0; bottom: 0; width: 1px; cursor: ew-resize; }
+.zts-atl-repere--h { left: 0; right: 0; height: 1px; cursor: ns-resize; }
+/* Une ligne de 1 px se attrape mal : on l'elargit sans l'epaissir. */
+.zts-atl-repere::after {
+  content: ''; position: absolute;
+}
+.zts-atl-repere--v::after { top: 0; bottom: 0; left: -4px; width: 9px; }
+.zts-atl-repere--h::after { left: 0; right: 0; top: -4px; height: 9px; }
+
+/* Guides d'aimantation — magenta, le temps du deplacement seulement. */
+.zts-atl-guide {
+  position: absolute; z-index: 960; background: #ff00c8; pointer-events: none;
+}
+.zts-atl-guide--v { top: 0; bottom: 0; width: 1px; }
+.zts-atl-guide--h { left: 0; right: 0; height: 1px; }
+
+/* ── Plume et points d'ancrage ────────────────────────────────────────── */
+
+body.zts-atelier-plume .zts-page-wrap { cursor: crosshair; }
+
+.zts-atl-plume { position: absolute; left: 0; top: 0; z-index: 970; pointer-events: none; }
+
+.zts-atl-ancre {
+  position: absolute; z-index: 980; width: 9px; height: 9px; margin: -5px 0 0 -5px;
+  background: #fff; border: 2px solid var(--atl-actif); border-radius: 50%;
+  cursor: grab; box-sizing: border-box;
+}
+.zts-atl-ancre:hover { background: var(--atl-jaune); }
+.zts-atl-ancre.premier { border-color: var(--atl-jaune); }
+
 @media print {
   .zts-atl, .zts-atl-cadre { display: none !important; }
   body.zts-atelier-on { background: #fff; }

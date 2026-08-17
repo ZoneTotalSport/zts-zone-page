@@ -359,8 +359,8 @@ fixes, tous en `.zts-ui` — donc absents de l'impression et du mode public :
 
 | Élément | Rôle |
 |---|---|
-| `#zts-atl-barre` | annuler/refaire, ordre, dupliquer, supprimer, nom du document, repli. Deux rangées contextuelles : **Objet** (fond, trait, épaisseur, ombre, alignement page) et **Caractère** (police, taille, couleur, contour, ombre, alignement, interligne, lettres, mots, titre alterné) |
-| `#zts-atl-rail` | sélection + 7 outils de pose : rectangle, cercle, ligne, flèche, boîte, étiquette, texte |
+| `#zts-atl-barre` | annuler/refaire, ordre, dupliquer, supprimer, grille, règles, aimantation, pas et sous-divisions, repères, export/import JSON, nom du document, repli. Deux rangées contextuelles : **Objet** (fond, trait, épaisseur, ombre, tracé ouvert/fermé et angles/courbes, alignement page) et **Caractère** (police, taille, couleur, contour, ombre, alignement, interligne, lettres, mots, titre alterné) |
+| `#zts-atl-rail` | sélection, plume, points d'ancrage + 7 outils de pose : rectangle, cercle, ligne, flèche, boîte, étiquette, texte |
 | `#zts-atl-dock` | 246 px, trois onglets : **Transformer** (X/Y/L/H, rotation, masquer), **Calques** (par page, œil / ▲▼ / ✕), **Historique** |
 | `#zts-atl-etat` | rappel des raccourcis + objet sélectionné |
 
@@ -368,13 +368,40 @@ Gestes : clic = sélectionner, glisser = déplacer, poignée jaune =
 redimensionner, double-clic = écrire, `Suppr` = effacer, `Échap` =
 désélectionner, `Ctrl+Z` / `Ctrl+Maj+Z`, `Ctrl+D` = dupliquer.
 
+**Plume** : clic pose un point, double-clic ou `Entrée` termine (`Maj+Entrée`
+ferme le tracé), `Échap` annule. Un tracé de moins de deux points est jeté
+plutôt que gardé comme point invisible. Le bouton **points d'ancrage**
+affiche les poignées du tracé sélectionné : glisser déplace un point,
+double-clic le retire.
+
+**Grille, règles, repères, aimantation** — la grille et les règles sont des
+réglages de **poste de travail** (`localStorage: zts-atelier-vue`) ; les
+**repères appartiennent à la fiche** (`fiche.reperes`), pour que tu les
+retrouves en la rouvrant. Un clic sur une règle pose un repère, on le glisse
+pour le déplacer, double-clic pour l'effacer. L'aimantation accroche à 7 px
+des bords, centres et marges de la page, des bords et centres des autres
+formes, et des repères ; le bouton `#` y ajoute les lignes de grille.
+**`Alt` la neutralise** le temps d'un déplacement. Les guides magenta ne
+s'affichent que pendant le geste.
+
+**Export / import JSON** — le document d'échange est la fiche **sans `id` ni
+`slug`** : ceux-là appartiennent à Firestore, réimporter un fichier dans une
+autre fiche ne doit pas en voler l'adresse. L'import écrase champ par champ
+plutôt que de remplacer le document, pour qu'un vieil export ne fasse pas
+disparaître les champs qu'il ne connaît pas.
+
 ### Ce que l'atelier écrit
 
 Rien de neuf : les deux champs étaient déjà acceptés par
 `zts-fiches-firebase.js` et déjà rendus par `zts-fiche-formes.js` côté
 public. L'atelier ferme la boucle.
 
-- `fiche.formes` — tableau, ordre du tableau = ordre de peinture.
+- `fiche.formes` — tableau, ordre du tableau = ordre de peinture. Un tracé
+  (`type: 'trace'`) n'a **ni x/y ni w/h** : ses `points` sont en unités de
+  page, en absolu. Déplacer, redimensionner ou aligner un tracé passe donc
+  par ses points, jamais par des champs de géométrie.
+- `fiche.reperes` — `{ p0: {v:[x…], h:[y…]} }`, mobilier d'atelier. Stocké
+  pour que tu retrouves tes guides ; jamais lu par les pages publiques.
 - `fiche.styles` — surcharges indexées par **clé explicite**, jamais par
   chemin d'indices DOM :
   - `sections.0.explications.1.texte` → `[data-champ]`
@@ -398,12 +425,18 @@ public. L'atelier ferme la boucle.
 3. **Un champ ne se supprime pas, il se masque.** L'effacer laisserait un
    trou que le modèle recréerait au rendu suivant.
 
-### Non couvert (étape 2)
+### Deux pièges à connaître
 
-Plume vectorielle et édition des points d'ancrage · grille, règles et
-repères (`fiche.reperes`) · magnétisme et guides · import/export JSON du
-document. Les tracés déjà posés restent **rendus** partout ; ils ne sont
-simplement pas sélectionnables, leur SVG étant en `pointer-events:none`.
+- **Le SVG d'un tracé couvre la page entière** — c'est ce qui lui permet de
+  déborder sans être rogné. Le mesurer donnerait donc 850×1100 à tous les
+  coups : sa boîte, c'est celle de ses points (`boiteTrace`). Même raison
+  pour laquelle il est en `pointer-events:none` en public — le rendre
+  cliquable intercepterait les clics sur ce qu'il recouvre, à commencer par
+  le bouton SUITE. L'atelier n'ouvre le pointage que sur son `<path>`, et
+  seulement là où il est **peint**.
+- **Les règles vivent dans le `.zts-page-wrap`, pas dans la page.** La page
+  est en `overflow:hidden` : une règle posée à −18 px y serait purement et
+  simplement rognée.
 
 ---
 
