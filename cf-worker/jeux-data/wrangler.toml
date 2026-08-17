@@ -2,12 +2,24 @@ name = "zts-jeux-data"
 main = "src/worker.js"
 compatibility_date = "2025-05-01"
 
-# Les banques vivent dans `_data/` du depot : hors de l'arbre publie par
-# GitHub Pages (Jekyll exclut les dossiers `_` — verifie, /_scripts/… repond
-# 404 en prod), mais toujours versionnees et lisibles par les scripts de
-# construction. Le Worker les lit par l'API raw de GitHub, avec le cache du
-# bord devant : un aller-retour par heure et par edge, pas par visiteur.
+# Les banques vivent dans R2, PAS dans le depot servi.
+#
+# Historique de la decision (LOT 1 vague D) : un premier essai les lisait par
+# `raw.githubusercontent.com` depuis `_data/`. Joey a releve l'angle mort — le
+# depot est PUBLIC, donc `raw` servait les 12 Mo a une requete anonyme, et
+# l'URL source etait ecrite en clair dans ce Worker lui-meme. Le deplacement
+# changeait une URL, il ne verrouillait rien. R2 ferme reellement.
+#
+# Il n'y a donc PLUS de GITHUB_REF ni de GITHUB_REPO : plus de reference au
+# depot dans le chemin de lecture. Si une de ces variables reapparait ici,
+# c'est une regression.
+#
+# Le versement est automatise : `_scripts/publie-banques-r2.sh`, appele par le
+# workflow « Garde-fous du depot » a chaque poussee sur main. Meme script en
+# local et en CI, pour qu'une desynchronisation soit impossible.
+[[r2_buckets]]
+binding = "BANQUES"
+bucket_name = "zts-banques"
+
 [vars]
-GITHUB_REPO = "ZoneTotalSport/zts-zone-page"
-GITHUB_REF = "main"
 FIREBASE_PROJECT_ID = "zone-total-sport"

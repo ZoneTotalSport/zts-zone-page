@@ -26,9 +26,11 @@
 //                 jamais le bord. Le planificateur garde sa banque une heure,
 //                 et l'ETag rend les rechargements gratuits (304).
 //
-// La source vit hors de l'arbre publie par GitHub Pages (`_data/`, exclu par
-// Jekyll — verifie : /_scripts/… repond 404 en prod). Le Worker la lit via
-// GitHub raw, avec cache. C'est ce qui rend le verrou reel plutot que decoratif.
+// La source vit dans R2, stockage prive, lu par le binding de ce Worker. Le
+// depot garde une copie versionnee dans `_data/` — hors de l'arbre publie par
+// Pages — mais PERSONNE ne la sert : c'est ce qui rend le verrou reel plutot
+// que decoratif. Residu assume : l'historique git reste clonable (voir
+// LOT1-VAGUE-D.md, « residu accepte »). On ferme l'acces commode.
 
 import { verifyIdToken } from "./auth.js";
 
@@ -49,27 +51,52 @@ const ALLOWED_ORIGINS = new Set([
 // item : de quoi naviguer, filtrer et avoir envie — jamais de quoi se passer
 // d'un compte. La liste reste un outil de vente, les fiches sont la valeur.
 const BANQUES = {
+  // Une banque « catalogue » : un tableau d'items, chacun avec un corps de
+  // valeur. Le patron deux-URL s'y applique naturellement.
   jeux: {
     source: "jeux-merged.json",
-    cle: "id",
+    forme: "tableau",
     slugDe: (x) => slugify(x.title),
     liste: ["id", "title", "titleEn", "category", "categoryName", "categoryIcon",
             "categoryColor", "ageMin", "ageMax", "duree", "niveauActivite"],
-    vitrines: "jeux",          // clef dans freeItems
+    vitrines: "jeux",
+    public: true,
   },
-  "moyens-action": {
-    source: "moyens-action.json",
-    cle: "id",
-    slugDe: (x) => slugify(x.titre || x.title || x.nom),
-    liste: ["id", "titre", "title", "nom", "categorie", "category", "niveau", "duree"],
-    vitrines: "moyensAction",
-  },
+
+  // sae-all-light n'est PAS un tableau : c'est une carte de 32 categories vers
+  // { saes: [...] } (ou un tableau nu selon la categorie). 1880 items au total.
+  // On aplatit pour la charge publique, en gardant la categorie sur chaque item
+  // — sans elle la liste n'est pas navigable.
+  // `tache_complexe` est volontairement HORS de `liste` : c'est du contenu
+  // pedagogique, pas un champ d'index.
   sae: {
     source: "sae-all-light.json",
-    cle: "id",
+    forme: "carte",
     slugDe: (x) => slugify(x.titre || x.title),
-    liste: ["id", "titre", "title", "cycle", "categorie", "category", "competence", "duree"],
+    liste: ["id", "titre", "cycle", "niveau", "duree_periodes", "duree_par_periode",
+            "competence_pfeq", "composante", "moyen_action", "espace"],
     vitrines: "sae",
+    public: true,
+  },
+
+  // PAS DE CHARGE PUBLIQUE, et ce n'est pas un oubli.
+  // moyens-action n'est pas une liste d'items : c'est un cube agrege
+  // { moyens[10], mois[13], years[9], buckets[1360], top_activities[100] }.
+  // Reduire ca a « des champs de liste » n'a aucun sens — il n'y a pas d'item
+  // a resumer. Et l'app est DEJA muree (zts-lock-page.js) : aucun anonyme n'y
+  // navigue, donc aucune charge publique a servir.
+  "moyens-action": {
+    source: "moyens-action.json",
+    forme: "opaque",
+    public: false,
+  },
+
+  // Meme raisonnement : l'app planification est muree, ses 7 fichiers sont du
+  // contenu complet sans version resumee utile.
+  planification: {
+    source: "planification/camp.json",   // route par chemin, voir servirFichier
+    forme: "opaque",
+    public: false,
   },
 };
 
@@ -84,7 +111,7 @@ function corsHeaders() {
   const allowed = currentOrigin && ALLOWED_ORIGINS.has(currentOrigin);
   return {
     "Access-Control-Allow-Origin": allowed ? currentOrigin : "https://zonetotalsport.ca",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
@@ -102,8 +129,12 @@ function json(body, status, extraHeaders) {
   });
 }
 
+// Les erreurs ne se mettent JAMAIS en cache. Sans ce `no-store`, Cloudflare a
+// garde un 405 au bord et l'a resservi apres correction et redeploiement — la
+// panne survivait au correctif. Une erreur transitoire (source illisible,
+// deploiement en cours) serait sinon servie a tout le monde pendant 24 h.
 function err(code, message, status) {
-  return json({ ok: false, code, message }, status);
+  return json({ ok: false, code, message }, status, { "Cache-Control": "no-store" });
 }
 
 // ETag fort, derive du contenu. Sert les 304 : un membre qui recharge le
@@ -114,15 +145,16 @@ async function etagDe(texte) {
   return `"${hex}"`;
 }
 
-// ── Source : GitHub raw, hors de l'arbre publie ──
-// `_data/` n'est pas servi par Pages (Jekyll exclut les dossiers `_`), mais il
-// reste dans le depot : le Worker le lit par l'API raw, avec le cache du bord
-// devant. Un seul aller-retour par heure et par edge, pas par visiteur.
-async function lireSource(env, fichier) {
-  const url = `https://raw.githubusercontent.com/${env.GITHUB_REPO}/${env.GITHUB_REF}/_data/${fichier}`;
-  const r = await fetch(url, { cf: { cacheTtl: 3600, cacheEverything: true } });
-  if (!r.ok) throw new Error(`source ${r.status} ${url}`);
-  return r.text();
+// ── Source : R2, et rien d'autre ──
+// Un premier essai lisait `raw.githubusercontent.com/<repo>/<ref>/_data/…`.
+// Le depot est PUBLIC : `raw` servait donc les 12 Mo a n'importe qui, et l'URL
+// etait ecrite en clair dans ce fichier meme, lui aussi public. Le verrou
+// n'existait pas. R2 est un stockage prive : c'est ce Worker, et lui seul, qui
+// peut lire le bucket — via son binding, sans URL publique.
+async function lireSource(env, cle) {
+  const objet = await env.BANQUES.get(cle);
+  if (!objet) throw new Error(`banque absente de R2 : ${cle}`);
+  return objet.text();
 }
 
 async function lireWhitelist(env) {
@@ -139,6 +171,25 @@ async function lireWhitelist(env) {
   }
 }
 
+// Ramene une banque a un tableau d'items, quelle que soit sa forme.
+// `carte` : { categorie: { saes:[…] } | [ … ] } -> on aplatit en gardant la
+// categorie sur chaque item, sinon la liste publique n'est pas navigable.
+function aplatir(brut, banque) {
+  if (banque.forme === "tableau") {
+    return Array.isArray(brut) ? brut : (brut.jeux || brut.items || []);
+  }
+  if (banque.forme === "carte") {
+    const out = [];
+    for (const cat of Object.keys(brut)) {
+      const v = brut[cat];
+      const arr = Array.isArray(v) ? v : (v.saes || v.sae || Object.values(v).find(Array.isArray) || []);
+      for (const item of arr) out.push({ ...item, _categorie: cat });
+    }
+    return out;
+  }
+  return [];
+}
+
 // Charge publique : tous les items reduits aux champs de liste, plus les
 // vitrines completes. Le reste du contenu ne sort pas d'ici.
 function construirePublic(items, banque, slugsVitrine) {
@@ -147,6 +198,7 @@ function construirePublic(items, banque, slugsVitrine) {
     const slug = banque.slugDe(x);
     if (vitrines.has(slug)) return { ...x, _slug: slug, _vitrine: true };
     const reduit = { _slug: slug };
+    if (x._categorie) reduit._categorie = x._categorie;
     for (const champ of banque.liste) if (x[champ] !== undefined) reduit[champ] = x[champ];
     return reduit;
   });
@@ -155,6 +207,13 @@ function construirePublic(items, banque, slugsVitrine) {
 async function servir(request, env, nomBanque, portee) {
   const banque = BANQUES[nomBanque];
   if (!banque) return err("banque_inconnue", `Banque « ${nomBanque} » inconnue.`, 404);
+
+  if (portee === "public" && banque.public === false) {
+    return err("pas_de_charge_publique",
+      "Cette banque n'a pas de version publique : l'app qui la consomme est " +
+      "deja derriere un mur, et ses donnees ne se resument pas en liste. " +
+      "Utiliser /" + nomBanque + "/full.json avec un compte.", 404);
+  }
 
   if (portee === "full") {
     const membre = await verifyIdToken(request, env);
@@ -177,8 +236,8 @@ async function servir(request, env, nomBanque, portee) {
   if (portee === "full") {
     corps = brut;                                   // tel quel, zero transformation
   } else {
-    const items = JSON.parse(brut);
-    const liste = Array.isArray(items) ? items : (items.jeux || items.items || []);
+    const brutParse = JSON.parse(brut);
+    const liste = aplatir(brutParse, banque);
     const wl = await lireWhitelist(env);
     const slugs = ((wl.freeItems || {})[banque.vitrines]) || [];
     corps = JSON.stringify(construirePublic(liste, banque, slugs));
@@ -207,6 +266,38 @@ async function servir(request, env, nomBanque, portee) {
   });
 }
 
+// Un fichier de detail SAE : contenu complet, donc jeton obligatoire et cache
+// PRIVE. Le nom de fichier est valide par la regex de la route (pas de `..`,
+// pas de `/`) — la cle R2 est donc toujours `sae-detail/<nom>`, jamais ailleurs.
+async function servirDetailSae(request, env, fichier) {
+  const membre = await verifyIdToken(request, env);
+  if (!membre) {
+    return err("compte_requis",
+      "Le detail des SAE demande un compte gratuit. Liste publique : /sae/public.json", 401);
+  }
+
+  let corps;
+  try {
+    corps = await lireSource(env, `sae-detail/${fichier}`);
+  } catch (e) {
+    console.error("[jeux-data] detail SAE illisible:", e.message);
+    return err("source_illisible", "Fiche temporairement indisponible.", 502);
+  }
+
+  const etag = await etagDe(corps);
+  if (request.headers.get("If-None-Match") === etag) {
+    return new Response(null, {
+      status: 304,
+      headers: { ETag: etag, "Cache-Control": "private, max-age=3600", ...corsHeaders() },
+    });
+  }
+  return json(corps, 200, {
+    ETag: etag,
+    "Cache-Control": "private, max-age=3600",
+    "X-ZTS-Portee": "detail",
+  });
+}
+
 export default {
   async fetch(request, env) {
     currentOrigin = request.headers.get("Origin");
@@ -214,8 +305,12 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
-    if (request.method !== "GET") {
-      return err("methode", "GET seulement.", 405);
+    // HEAD est accepte comme GET : c'est ainsi que les caches, les sondes et
+    // `curl -I` interrogent une ressource. Le refuser rendait la verification
+    // des en-tetes de cache impossible depuis l'exterieur.
+    const estHead = request.method === "HEAD";
+    if (request.method !== "GET" && !estHead) {
+      return err("methode", "GET ou HEAD seulement.", 405);
     }
 
     const url = new URL(request.url);
@@ -223,10 +318,20 @@ export default {
       return json({ ok: true, banques: Object.keys(BANQUES) }, 200);
     }
 
+    // Route par CHEMIN pour les 32 fichiers de sae-detail, appeles un par un
+    // par apps/sae/app.js a l'ouverture d'une fiche. Jeton REQUIS : c'est le
+    // contenu complet des 1880 SAE, il n'y a pas de version publique a en
+    // tirer. La liste, elle, passe par /sae/public.json.
+    const d = url.pathname.match(/^\/sae\/detail\/([a-z0-9_-]+\.json)$/i);
+    if (d) return servirDetailSae(request, env, d[1]);
+
     const m = url.pathname.match(/^\/([a-z-]+)\/(public|full)\.json$/);
     if (!m) {
-      return err("route", "Routes : /<banque>/public.json ou /<banque>/full.json", 404);
+      return err("route",
+        "Routes : /<banque>/public.json, /<banque>/full.json, /sae/detail/<fichier>.json", 404);
     }
-    return servir(request, env, m[1], m[2]);
+    const rep = await servir(request, env, m[1], m[2]);
+    // HEAD : memes en-tetes (dont ETag et Cache-Control), corps vide.
+    return estHead ? new Response(null, { status: rep.status, headers: rep.headers }) : rep;
   },
 };

@@ -83,3 +83,14 @@ jobs:
 
       - name: Glyphes de la police de marque
         run: python3 _scripts/verifie-glyphes-ztsh.py
+
+      # Publication des banques vers R2, APRES les controles.
+      # Elle ne tourne que sur main : une branche ne doit pas ecraser les
+      # banques que sert la production. Le script echoue bruyamment si le
+      # secret manque — patron maison, une panne muette se garde en CI.
+      - name: Publie les banques vers R2
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CI: "true"
+        run: bash _scripts/publie-banques-r2.sh
