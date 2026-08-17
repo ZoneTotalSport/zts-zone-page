@@ -8,10 +8,15 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
 
-  <!-- Fonts -->
+  <!-- Fonts — LES TROIS DU SITE, et elles seules.
+       Décision Joey du 4 août 2026 (voir CLAUDE.md et shared/zts.css) : Luckiest Guy
+       (titres) + Bangers (étiquettes, boutons, notes) + Quicksand (ce qui se lit).
+       Fredoka One et Patrick Hand sont SORTIES du site — c'est pourquoi on ne les
+       charge pas ici : les classes `font-fredoka` / `font-baloo` de cette page sont
+       remappées plus bas vers Bangers et Quicksand. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -28,11 +33,17 @@
             violet: { pop: '#8B5CF6' },
             dark: '#0F0F2E',
           },
+          /* Les quatre alias pointaient vers quatre familles dont DEUX n'étaient
+             jamais chargées (Fredoka One, Patrick Hand) : tout le texte en
+             `font-fredoka` / `font-baloo` retombait silencieusement sur cursive.
+             On les repointe vers les polices officielles du site plutôt que de
+             charger deux familles qui en sont sorties. */
           fontFamily: {
-            bangers: ['"Luckiest Guy"', 'cursive'],
-            boogaloo: ['Boogaloo', 'cursive'],
-            baloo: ['"Patrick Hand"', 'cursive'],
-            fredoka: ['"Fredoka One"', 'cursive'],
+            marque:   ['ZoneTotalSportNEWS', 'LuckiestGuy', '"Luckiest Guy"', 'sans-serif'],
+            bangers:  ['LuckiestGuy', '"Luckiest Guy"', 'Impact', 'sans-serif'],
+            boogaloo: ['Bangers', '"Luckiest Guy"', 'cursive'],
+            baloo:    ['Quicksand', '"Helvetica Neue"', 'sans-serif'],
+            fredoka:  ['Bangers', '"Luckiest Guy"', 'cursive'],
           },
         }
       }
@@ -42,9 +53,40 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- CHROME PARTAGÉ DU SITE (header + footer unifiés).
+       Chargé AVANT le style inline, exactement comme index.html : la page garde
+       le dernier mot sur les conflits. zts.css définit aussi --font-impact,
+       --font-body… que les règles plus bas appelaient déjà en var() sans qu'elles
+       existent sur cette page. -->
+  <link rel="stylesheet" href="shared/zts.css">
+  <link rel="stylesheet" href="shared/zts-header.css">
+
   <style>
+    /* ========== POLICE DE MARQUE ==========
+       Les TROIS polices d'affichage du site : ZoneTotalSport (signature),
+       Luckiest Guy (gros titres), Bangers (étiquettes, boutons, notes).
+       Quicksand reste la seule à lire.
+
+       ⚠ La famille est déclarée sous un nom PROPRE À CETTE PAGE
+       (`ZoneTotalSportNEWS`) et non sous 'ZoneTotalSport' : plusieurs apps
+       déclarent la même famille SANS `size-adjust`, et le nom nu entre en
+       collision avec elles. `size-adjust: 50%` est obligatoire — la fonte est
+       dessinée à ~2,4× l'em et rend au double sans lui. Même recette que
+       `ZoneTotalSportZTSH` (shell) et `ZoneTotalSportZTSP` (patron). */
+    @font-face {
+      font-family: 'ZoneTotalSportNEWS';
+      src: url('/fonts/ZoneTotalSport.ttf') format('truetype');
+      font-display: swap;
+      size-adjust: 50%;
+    }
+    :root {
+      --font-marque-news: 'ZoneTotalSportNEWS', 'LuckiestGuy', 'Luckiest Guy', sans-serif;
+    }
+
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; overflow-x: hidden; }
+    /* zts.css pose `html { background: var(--paper) }` (crème). Cette page est
+       sombre : on reprend le marine, sinon un rebond de scroll montre du crème. */
+    html { scroll-behavior: smooth; overflow-x: hidden; background: #0F0F2E; }
 
     body {
       font-family: var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);
@@ -54,14 +96,23 @@
       color: #1a1a2e;
       overflow-x: hidden;
     }
-    /* Mode iframe: cacher nav + reduire hero */
-    body.iframe-mode nav.sticky { display: none !important; }
+    /* Mode iframe : on efface tout le chrome du site et on compacte le hero.
+       Les sélecteurs visent le header/footer PARTAGÉS (.zts-topbar, .zts-header,
+       .zts-footer) puisque la page ne porte plus de nav en dur. */
+    body.iframe-mode .zts-topbar,
+    body.iframe-mode .zts-header,
+    body.iframe-mode .zts-footer,
+    body.iframe-mode [data-zts-header],
+    body.iframe-mode [data-zts-footer] { display: none !important; }
+    /* zts.js écrit padding-top en style inline pour dégager le header fixe.
+       En iframe le header est masqué : il faut un !important pour le battre. */
+    body.iframe-mode { padding-top: 0 !important; }
     body.iframe-mode .hero-gradient { padding: 16px 12px !important; }
     body.iframe-mode .hero-gradient h1 { font-size: 2rem !important; }
-    body.iframe-mode .hero-gradient p { display: none !important; }
-    body.iframe-mode .wix-nav-bar { display: none !important; }
+    body.iframe-mode .hero-gradient > div > p { display: none !important; }
     body.iframe-mode .scroll-progress { display: none !important; }
     body.iframe-mode main { max-width: 100% !important; padding: 8px 12px !important; }
+    body.iframe-mode .score-ticker { margin-top: 0; }
 
     a { text-decoration: none; color: inherit; }
     ::selection { background: #00E5FF; color: #0F0F2E; }
@@ -73,35 +124,12 @@
       z-index: 10000; transform-origin: left; will-change: transform;
     }
 
-    /* ========== NAV BAR ========== */
-    .wix-nav-bar {
-      background: linear-gradient(135deg, rgba(15,15,46,0.85), rgba(15,15,46,0.95));
-      border-radius: 16px; padding: 10px 20px;
-      backdrop-filter: blur(12px);
-      max-width: 960px; margin: 0 auto 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      border: 1px solid rgba(0,229,255,0.2);
-    }
-    .wix-nav-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-family: var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif); font-size: 0.8rem;
-      padding: 8px 16px; border-radius: 25px;
-      background: rgba(255,255,255,0.08); color: #fff;
-      text-decoration: none; transition: all 0.25s;
-      white-space: nowrap; border: 2px solid rgba(255,255,255,0.1);
-    }
-    .wix-nav-btn:hover { background: #00E5FF; color: #0F0F2E; border-color: #00E5FF; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,229,255,0.3); }
-    .wix-nav-btn.active { background: #00E5FF; color: #0F0F2E; border-color: #00E5FF; box-shadow: 0 2px 10px rgba(0,229,255,0.3); }
-    .wix-nav-btn.btn-donate-nav { background: linear-gradient(135deg, #FF2A7A, #FF6B9D); color: #fff; border-color: #FF2A7A; animation: donPulse 2s ease-in-out infinite; }
-    .wix-nav-btn.btn-donate-nav:hover { transform: translateY(-2px) scale(1.08); box-shadow: 0 4px 20px rgba(255,42,122,0.5); }
-        .wix-nav-btn.btn-login-nav { background: linear-gradient(135deg, #FF6B00, #FF9500); color: #fff; border-color: #FF6B00; }
-        .wix-nav-btn.btn-login-nav:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 4px 20px rgba(255,107,0,0.4); }
-    @keyframes donPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,42,122,0.4); } 50% { box-shadow: 0 0 15px 3px rgba(255,42,122,0.2); } }
-    @media (max-width: 768px) {
-      .wix-nav-btn span { display: none; }
-      .wix-nav-btn { padding: 8px 10px; font-size: 0.9rem; }
-      .wix-nav-bar { gap: 6px; padding: 8px 12px; border-radius: 12px; }
-    }
+    /* ========== NAV BAR ==========
+       La barre `wix-nav-bar` écrite en dur ici a été retirée : la page prend
+       maintenant le header partagé du site (shared/header.html, injecté par
+       shared/zts.js dans [data-zts-header]), comme index.html, blog.html, avis.html
+       et les six autres pages du site. Son habillage vit dans shared/zts-header.css
+       et shared/zts-menu.css — plus rien à dupliquer ici, plus rien à faire dériver. */
 
     /* ========== LANGUAGE SELECTOR ========== */
     .lang-btn {
@@ -165,6 +193,9 @@
       width: 38px; height: 38px; border-radius: 50%;
       background: #f3f4f6; border: 2px solid #e5e7eb;
       cursor: pointer; transition: all 0.2s;
+      /* Couleur explicite : ces boutons vivent dans un hero en `text-white`,
+         et le chevron héritait donc du blanc sur un fond gris clair — invisible. */
+      color: #0F0F2E;
     }
     .date-nav-btn:hover { background: #00E5FF; border-color: #00E5FF; color: #0F0F2E; }
 
@@ -363,12 +394,187 @@
       border: none;
     }
 
-    /* ========== EDU INFO CARD ========== */
+    /* ========== EDU INFO CARD / LE SAVAIS-TU ========== */
     .edu-card {
       background: linear-gradient(135deg, #EEF2FF, #F0FFFE);
       border-radius: 16px; padding: 20px 24px;
       border-left: 4px solid #8B5CF6;
     }
+    .fact-box {
+      margin-top: 14px; padding: 14px 16px;
+      background: rgba(255,255,255,0.72);
+      border-radius: 12px; border: 1px dashed rgba(139,92,246,0.35);
+    }
+    .fact-box .fact-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-bang, 'Bangers', cursive); font-size: 0.78rem;
+      letter-spacing: 0.04em; color: #8B5CF6; text-transform: uppercase;
+    }
+    .btn-fact {
+      margin-left: auto; border: none; background: transparent; cursor: pointer;
+      color: #8B5CF6; opacity: 0.6; transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-fact:hover { opacity: 1; transform: rotate(90deg); }
+
+    /* ========== TICKER (tableau indicateur d'aréna) ========== */
+    .score-ticker {
+      background: linear-gradient(180deg, #0A0A22, #12123A);
+      border-top: 2px solid rgba(0,229,255,0.35);
+      border-bottom: 2px solid rgba(0,229,255,0.35);
+      overflow: hidden; position: relative;
+      display: flex; align-items: stretch;
+    }
+    .score-ticker__label {
+      flex-shrink: 0; display: flex; align-items: center; gap: 7px;
+      padding: 0 16px; background: #FFD700; color: #0F0F2E;
+      font-family: var(--font-impact, 'Luckiest Guy', Impact, sans-serif);
+      font-size: 0.82rem; letter-spacing: 0.04em; z-index: 2;
+      box-shadow: 4px 0 14px rgba(0,0,0,0.45);
+    }
+    .score-ticker__viewport { overflow: hidden; flex: 1; }
+    .score-ticker__track {
+      display: inline-flex; align-items: center; gap: 0;
+      white-space: nowrap; will-change: transform;
+      animation: tickerScroll 60s linear infinite;
+    }
+    .score-ticker:hover .score-ticker__track,
+    .score-ticker__track:focus-within { animation-play-state: paused; }
+    @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .ticker-item {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 11px 20px; color: #fff;
+      font-family: var(--font-impact, 'Luckiest Guy', Impact, sans-serif);
+      font-size: 0.85rem; letter-spacing: 0.02em;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .ticker-item .tk-league { color: #00E5FF; font-size: 0.72rem; opacity: 0.85; }
+    .ticker-item .tk-score { color: #FFD700; }
+    .ticker-item .tk-win   { color: #00FF85; }
+    .ticker-item.is-live .tk-league { color: #FF2A7A; }
+    .ticker-item .tk-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #FF2A7A;
+      animation: dotBlink 1s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .score-ticker__track { animation: none; }
+      .score-ticker__viewport { overflow-x: auto; }
+    }
+    @media (max-width: 640px) {
+      .score-ticker__label span { display: none; }
+      .score-ticker__label { padding: 0 11px; }
+      .ticker-item { padding: 9px 14px; font-size: 0.78rem; }
+    }
+
+    /* ========== MATCH DU JOUR (carte héroïque) ========== */
+    .hero-game {
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, #0F0F2E 0%, #1A1A4E 55%, #0D2744 100%);
+      border-radius: 16px; padding: 26px 28px; margin-bottom: 26px;
+      border: 2px solid rgba(0,229,255,0.35);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.28);
+      cursor: pointer; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+    }
+    .hero-game:hover { transform: translateY(-3px); border-color: #00E5FF; box-shadow: 0 16px 50px rgba(0,229,255,0.22); }
+    .hero-game::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 15% 40%, rgba(0,229,255,0.16) 0%, transparent 60%),
+                  radial-gradient(ellipse at 85% 60%, rgba(255,107,0,0.14) 0%, transparent 60%);
+    }
+    .hero-game > * { position: relative; z-index: 1; }
+    .hero-game .hg-flag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 25px;
+      background: linear-gradient(135deg, #FF6B00, #FFD700); color: #0F0F2E;
+      font-family: var(--font-impact, 'Luckiest Guy', Impact, sans-serif); font-size: 0.78rem;
+      letter-spacing: 0.03em;
+    }
+    .hero-game .hg-team { font-family: var(--font-impact, 'Luckiest Guy', Impact, sans-serif); font-size: 1.05rem; color: #fff; }
+    .hero-game .hg-score { font-family: var(--font-impact, 'Luckiest Guy', Impact, sans-serif); font-size: 3rem; line-height: 1; color: #fff; }
+    .hero-game .hg-score.winner { color: #00FF85; }
+    .hero-game .team-logo { width: 64px; height: 64px; background: rgba(255,255,255,0.9); }
+    .hero-game .team-logo-placeholder { width: 64px; height: 64px; background: rgba(255,255,255,0.14); color: #fff; }
+    @media (max-width: 640px) {
+      .hero-game { padding: 18px 16px; }
+      .hero-game .hg-score { font-size: 2.1rem; }
+      .hero-game .team-logo, .hero-game .team-logo-placeholder { width: 46px; height: 46px; }
+    }
+
+    /* ========== COMPTE À REBOURS ========== */
+    .countdown {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      flex-wrap: wrap; margin-top: 16px;
+    }
+    .cd-unit {
+      min-width: 62px; padding: 8px 10px; border-radius: 12px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(0,229,255,0.28);
+      text-align: center;
+    }
+    .cd-unit .cd-num {
+      display: block; font-family: var(--font-impact, 'Luckiest Guy', Impact, sans-serif);
+      font-size: 1.8rem; line-height: 1; color: #00E5FF;
+      font-variant-numeric: tabular-nums;
+    }
+    .cd-unit .cd-lab {
+      display: block; margin-top: 3px;
+      font-family: var(--font-bang, 'Bangers', cursive); font-size: 0.68rem;
+      letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55);
+    }
+    .cd-sep { font-family: var(--font-impact, 'Luckiest Guy', Impact, sans-serif); font-size: 1.5rem; color: rgba(255,255,255,0.25); }
+
+    /* ========== FAVORI ==========
+       Une étoile par équipe, à côté de son sigle : on suit les Canadiens, pas
+       « le match ». Sur la carte du match du jour l'étoile passe en coin, faute
+       de place à côté des sigles. */
+    .fav-star {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: #f3f4f6; border: 1px solid #e5e7eb;
+      cursor: pointer; transition: all 0.2s; color: #b6bfcc; padding: 0;
+      line-height: 1; font-size: 0.8rem;
+    }
+    .fav-star:hover { transform: scale(1.22); border-color: #FFD700; color: #FFB300; }
+    .fav-star:focus-visible { outline: 2px solid #00E5FF; outline-offset: 2px; }
+    .fav-star.is-on { background: #FFD700; border-color: #FFD700; color: #0F0F2E; }
+    .hero-game .fav-star {
+      position: absolute; top: 12px; right: 12px; z-index: 3;
+      width: 30px; height: 30px; font-size: 0.95rem;
+      background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6);
+    }
+    .hero-game .fav-star.is-on { background: #FFD700; border-color: #FFD700; color: #0F0F2E; }
+    .score-card.is-fav {
+      border-color: #FFD700;
+      box-shadow: 0 4px 20px rgba(255,215,0,0.28), 0 2px 12px rgba(0,0,0,0.06);
+    }
+    .score-card.is-fav::before { background: linear-gradient(90deg, #FFD700, #FF6B00, #FFD700); opacity: 1; }
+    .fav-hint {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 25px; background: rgba(255,215,0,0.16);
+      border: 1px solid rgba(255,215,0,0.4); color: #8a6d00;
+      font-family: var(--font-bang, 'Bangers', cursive); font-size: 0.76rem; letter-spacing: 0.04em;
+    }
+
+    /* ========== ONGLETS ACTUALITÉS ========== */
+    .news-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .news-tab {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 25px; cursor: pointer;
+      font-family: var(--font-impact, 'Luckiest Guy', Impact, sans-serif); font-size: 0.82rem;
+      background: #f3f4f6; color: #1a1a2e; border: 2px solid transparent;
+      transition: all 0.22s;
+    }
+    .news-tab:hover { transform: translateY(-2px); box-shadow: 0 5px 16px rgba(0,0,0,0.1); }
+    .news-tab.active { background: #0F0F2E; color: #fff; border-color: #FFD700; }
+
+    /* Badges de source des nouvelles québécoises */
+    .src-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 12px; border-radius: 25px; color: #fff;
+      font-family: var(--font-bang, 'Bangers', cursive); font-size: 0.74rem;
+      letter-spacing: 0.05em; margin-bottom: 10px;
+    }
+    .src-badge.src-rds { background: #D6001C; }
+    .src-badge.src-tva { background: #0B4DA2; }
+    .src-badge.src-autre { background: #4B5563; }
 
     /* ========== LOADING SKELETON ========== */
     .skeleton {
@@ -417,8 +623,10 @@
     .refresh-badge.spinning svg { animation: spin 1s linear infinite; }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    /* ========== FOOTER ========== */
-    footer { background: #FFD700; }
+    /* ========== FOOTER ==========
+       Plus de règle ici : le footer partagé porte son propre habillage
+       (`.zts-footer` dans shared/zts.css). La règle `footer { background:#FFD700 }`
+       qui traînait visait l'ancienne copie manuelle, supprimée. */
 
     /* ========== RESPONSIVE ========== */
     @media (max-width: 640px) {
@@ -437,64 +645,34 @@
   <!-- Scroll Progress Bar -->
   <div class="scroll-progress" id="scrollProgress" style="transform: scaleX(0)"></div>
 
-  <!-- ===== NAV BAR ===== -->
-  <nav class="bg-dark/95 backdrop-blur-lg sticky top-0 z-50 py-3 px-4 md:px-10">
-    <div class="wix-nav-bar flex items-center justify-center gap-2 md:gap-3 flex-wrap">
-      <!-- Language selector -->
-      <div class="flex gap-1 mr-2">
-        <button class="lang-btn active" onclick="setLang('fr')" id="lang-fr">FR</button>
-        <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
-        <button class="lang-btn" onclick="setLang('zh')" id="lang-zh">中</button>
-      </div>
-      <a href="https://zonetotalsport.ca/" class="wix-nav-btn">
-        <i data-lucide="home" class="w-3.5 h-3.5"></i> <span data-i18n="nav_home">Accueil</span>
-      </a>
-      <a href="https://zonetotalsport.ca/apps/educatifs/" class="wix-nav-btn">
-        <i data-lucide="wrench" class="w-3.5 h-3.5"></i> <span data-i18n="nav_tools">Outils</span>
-      </a>
-      <a href="https://zonetotalsport.ca/apps/sae/" class="wix-nav-btn">
-        <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> <span data-i18n="nav_sae">S.A.E</span>
-      </a>
-      <a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fjeux.zonetotalsport.ca" class="wix-nav-btn">
-        <i data-lucide="gamepad-2" class="w-3.5 h-3.5"></i> <span data-i18n="nav_games">Jeux</span>
-      </a>
-      <a href="blog.html" class="wix-nav-btn">
-        <i data-lucide="pen-line" class="w-3.5 h-3.5"></i> <span data-i18n="nav_blog">Blog</span>
-      </a>
-      <a href="https://zonetotalsport.ca/apps/musique/" class="wix-nav-btn">
-        <i data-lucide="music" class="w-3.5 h-3.5"></i> <span data-i18n="nav_music">Musique</span>
-      </a>
-      <a href="sports-news.html" class="wix-nav-btn active">
-        <i data-lucide="newspaper" class="w-3.5 h-3.5"></i> <span data-i18n="nav_sports">Sports News</span>
-      </a>
-      <a href="https://zonetotalsport.ca/apps/evaluation/" class="wix-nav-btn">
-                <i data-lucide="book-open" class="w-3.5 h-3.5"></i> <span>Carnet</span>
-            </a>
-            <a href="avis.html" class="wix-nav-btn">
-        <i data-lucide="star" class="w-3.5 h-3.5"></i> <span data-i18n="nav_reviews">Avis</span>
-      </a>
-      <a href="wix/donation.html" class="wix-nav-btn btn-donate-nav">
-        <i data-lucide="heart" class="w-3.5 h-3.5"></i> <span data-i18n="nav_donate">Dons</span>
-      </a>
-
-            <a href="https://zonetotalsport.ca/apps/educatifs/" class="wix-nav-btn btn-login-nav" id="zts-login-btn" style="background: linear-gradient(135deg, #FF6B00, #FF9500); color: white; border: none;">
-                <i data-lucide="user" class="w-3.5 h-3.5"></i> <span>Connexion</span>
-            </button>
-    </div>
-  </nav>
+  <!-- ===== CHROME PARTAGÉ DU SITE =====
+       Le header vient de shared/header.html, injecté par shared/zts.js. La page
+       portait auparavant une copie figée de l'ancienne barre « wix-nav », restée
+       en arrière du site — et dont le bouton Connexion, fermé par </button> au
+       lieu de </a>, s'étendait sur 2214px et poussait toute la page hors écran.
+       Le bogue disparaît avec le bloc; la barre ne peut plus dériver. -->
+  <div data-zts-header></div>
 
   <!-- ===== HERO ===== -->
   <header class="hero-gradient py-16 px-6 text-white relative">
     <div class="hero-particles" id="heroParticles"></div>
     <div class="max-w-5xl mx-auto text-center relative z-10">
-      <!-- Live indicator -->
-      <div class="flex justify-center mb-6">
+      <!-- Live indicator + sélecteur de langue (FR/EN/中).
+           Le header partagé n'offre que FR/EN : la page garde son propre
+           sélecteur à trois langues et se cale sur `zts:langchange` quand la
+           bascule FR/EN du header est utilisée. -->
+      <div class="flex justify-center items-center gap-3 mb-6 flex-wrap">
         <div class="live-global" id="liveGlobalBadge" style="display:none;">
           <span class="live-dot"></span>
           <span data-i18n="live_games">Matchs en direct</span>
         </div>
+        <div class="flex gap-1">
+          <button class="lang-btn active" onclick="setLang('fr')" id="lang-fr">FR</button>
+          <button class="lang-btn" onclick="setLang('en')" id="lang-en">EN</button>
+          <button class="lang-btn" onclick="setLang('zh')" id="lang-zh">中</button>
+        </div>
       </div>
-      <h1 class="font-bangers text-5xl md:text-7xl mb-4 leading-none" style="letter-spacing: 0.03em;">
+      <h1 class="font-marque text-5xl md:text-7xl mb-4 leading-none" style="letter-spacing: 0.03em;">
         <span style="color:#00E5FF;" data-i18n="hero_sports">SPORTS</span>
         <span style="color:#00FF85;" class="mx-3">NEWS</span>
         <span style="color:#FF6B00;" data-i18n="hero_live">EN DIRECT</span>
@@ -520,6 +698,17 @@
     </div>
   </header>
 
+  <!-- ===== TICKER — bandeau des derniers résultats, style tableau d'aréna ===== -->
+  <div class="score-ticker" id="scoreTicker" style="display:none;">
+    <div class="score-ticker__label">
+      <i data-lucide="radio" class="w-4 h-4"></i>
+      <span data-i18n="ticker_label">Résultats</span>
+    </div>
+    <div class="score-ticker__viewport">
+      <div class="score-ticker__track" id="tickerTrack"></div>
+    </div>
+  </div>
+
   <!-- ===== MAIN CONTENT ===== -->
   <main class="max-w-7xl mx-auto px-4 md:px-8 py-10">
 
@@ -530,15 +719,25 @@
       </div>
     </div>
 
-    <!-- ===== EDU INFO CARD ===== -->
+    <!-- ===== EDU INFO CARD + LE SAVAIS-TU? DU JOUR ===== -->
     <div class="edu-card mb-10" id="eduCard">
       <div class="flex gap-3 items-start">
-        <div class="text-2xl mt-1">🏒</div>
-        <div>
+        <div class="text-2xl mt-1" id="eduEmoji">🏒</div>
+        <div class="flex-1">
           <h3 class="font-fredoka text-lg text-violet-pop mb-1" id="eduTitle">La LNH — Ligue Nationale de Hockey</h3>
           <p class="font-baloo text-sm text-dark/70" id="eduDesc">
             La LNH est la plus grande ligue professionnelle de hockey sur glace au monde. Elle regroupe 32 équipes au Canada et aux États-Unis. La saison régulière dure d'octobre à avril, suivie des séries éliminatoires. Le trophée ultime est la Coupe Stanley!
           </p>
+          <!-- Fait du jour : tourne avec la date, une entrée par ligue et par jour. -->
+          <div class="fact-box">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="fact-label">🧠 <span data-i18n="fact_label">Le savais-tu?</span></span>
+              <button class="btn-fact" id="btnNextFact" type="button" title="Un autre fait">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+            <p class="font-baloo text-sm text-dark/75" id="factText"></p>
+          </div>
         </div>
       </div>
     </div>
@@ -562,6 +761,11 @@
           </button>
         </div>
       </div>
+
+      <!-- Match du jour : mis en vedette au-dessus de la grille. Porte aussi le
+           compte à rebours quand aucun match n'est en cours. -->
+      <div id="heroGameHost"></div>
+
       <div id="scoresContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <!-- Skeletons -->
         <div class="skeleton-card"><div class="skeleton h-20 mb-3"></div><div class="skeleton h-4 w-2/3"></div></div>
@@ -578,6 +782,15 @@
         </div>
         <h2 data-i18n="news_title">Actualités</h2>
         <div class="sh-line" style="background: linear-gradient(90deg, #FFD700, transparent);"></div>
+        <div class="news-tabs">
+          <button class="news-tab active" id="tabEspn" data-newstab="espn">
+            <i data-lucide="globe" class="w-4 h-4"></i>
+            <span data-i18n="tab_espn">Ligues</span>
+          </button>
+          <button class="news-tab" id="tabQc" data-newstab="qc">
+            🇨🇦 <span data-i18n="tab_qc">Nouvelles QC</span>
+          </button>
+        </div>
       </div>
       <div id="newsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div class="skeleton-card"><div class="skeleton h-40 mb-3"></div><div class="skeleton h-4 mb-2"></div><div class="skeleton h-4 w-3/4"></div></div>
@@ -607,59 +820,13 @@
 
   </main>
 
-  <!-- ===== FOOTER ===== -->
-  <footer class="py-16 px-6 md:px-10">
-    <div class="max-w-7xl mx-auto">
-      <div class="grid md:grid-cols-4 gap-10 mb-12">
-        <div class="md:col-span-2">
-          <img src="logo-zts.png" alt="Zone Total Sport" class="h-14 w-auto mb-4">
-          <p class="text-dark/60 font-baloo text-sm max-w-sm mb-6" data-i18n="footer_desc">
-            La plateforme gratuite de ressources en éducation physique pour les enseignants du primaire au Québec.
-          </p>
-          <div class="flex gap-3">
-            <a href="https://www.facebook.com/zonetotalsportparMr.Roots/" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
-              <i data-lucide="facebook" class="w-5 h-5"></i>
-            </a>
-            <a href="https://www.instagram.com/zonetotalsportparmrroots/" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
-              <i data-lucide="instagram" class="w-5 h-5"></i>
-            </a>
-            <a href="https://www.youtube.com/@zonetotalsportparMrRoots" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
-              <i data-lucide="youtube" class="w-5 h-5"></i>
-            </a>
-            <a href="https://www.tiktok.com/@zonetotalsport" target="_blank" rel="noopener" class="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20 transition-colors text-dark">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.19a8.16 8.16 0 004.76 1.53v-3.45a4.85 4.85 0 01-1-.58z"/></svg>
-            </a>
-          </div>
-        </div>
-        <div>
-          <h4 class="font-bangers text-sm text-dark/50 uppercase tracking-widest mb-4" data-i18n="footer_nav">Navigation</h4>
-          <ul class="space-y-2">
-            <li><a href="https://zonetotalsport.ca/" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="nav_home">Accueil</a></li>
-            <li><a href="https://zonetotalsport.ca/?open=https%3A%2F%2Fjeux.zonetotalsport.ca" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="footer_games">Banque de jeux</a></li>
-            <li><a href="https://zonetotalsport.ca/apps/sae/" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="nav_sae">SAÉ</a></li>
-            <li><a href="blog.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="nav_blog">Blogue</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-bangers text-sm text-dark/50 uppercase tracking-widest mb-4" data-i18n="footer_info">Infos</h4>
-          <ul class="space-y-2">
-            <li><a href="politique.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="footer_privacy">Politique de confidentialité</a></li>
-            <li><a href="wix/donation.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="footer_donate">Faire un don</a></li>
-            <li><a href="avis.html" class="text-dark/70 font-baloo text-sm hover:text-dark transition-colors" data-i18n="footer_review">Laisser un avis</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-t border-dark/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p class="text-dark/40 font-baloo text-sm">&copy; 2026 Zone Total Sport. Tous droits réservés.</p>
-        <p class="text-dark/40 font-baloo text-sm">Fait avec &#x1F49B; au Québec</p>
-      </div>
-    </div>
-  </footer>
+  <!-- ===== FOOTER PARTAGÉ =====
+       Même source que index.html, ep.html, camps-de-jour.html et
+       service-de-garde.html : shared/footer.html, injecté par shared/zts.js.
+       La copie manuelle qui vivait ici avait déjà divergé du site (colonnes,
+       liens et pushcards différents). -->
+  <div data-zts-footer></div>
 
-  <!-- Sub-footer -->
-  <div class="bg-dark py-4 px-6 flex flex-col md:flex-row items-center justify-between gap-3">
-    <p class="text-white/30 font-baloo text-xs">zonetotalsport.ca — Ressources ÉPS pour enseignants au primaire</p>
-  </div>
 
   <!-- ===== MODAL — Game Detail ===== -->
   <div class="modal-overlay" id="modalGameDetail">
@@ -731,6 +898,15 @@
       read_more: 'Lire la suite',
       pts: 'PTS', gp: 'PJ', w: 'V', l: 'D', otl: 'DPr',
       rankings: 'Classement UFC',
+      ticker_label: 'Résultats',
+      fact_label: 'Le savais-tu?',
+      tab_espn: 'Ligues', tab_qc: 'Nouvelles QC',
+      game_of_day: 'Match du jour', next_game: 'Prochain match',
+      starts_in: 'Commence dans', its_on: "C'est parti!",
+      cd_days: 'jours', cd_hours: 'heures', cd_min: 'min', cd_sec: 'sec',
+      fav_add: 'Suivre cette équipe', fav_team: 'Ton équipe',
+      no_qc_news: 'Les nouvelles québécoises ne sont pas disponibles pour le moment.',
+      qc_note: 'Sources : RDS et TVA Sports, via Google Actualités.',
     },
     en: {
       nav_home: 'Home', nav_tools: 'Tools', nav_sae: 'S.A.E', nav_games: 'Games',
@@ -757,6 +933,15 @@
       read_more: 'Read more',
       pts: 'PTS', gp: 'GP', w: 'W', l: 'L', otl: 'OTL',
       rankings: 'UFC Rankings',
+      ticker_label: 'Scores',
+      fact_label: 'Did you know?',
+      tab_espn: 'Leagues', tab_qc: 'Quebec News',
+      game_of_day: 'Game of the day', next_game: 'Next game',
+      starts_in: 'Starts in', its_on: "It's on!",
+      cd_days: 'days', cd_hours: 'hours', cd_min: 'min', cd_sec: 'sec',
+      fav_add: 'Follow this team', fav_team: 'Your team',
+      no_qc_news: 'Quebec news is not available right now.',
+      qc_note: 'Sources: RDS and TVA Sports, via Google News.',
     },
     zh: {
       nav_home: '首页', nav_tools: '工具', nav_sae: 'SAÉ', nav_games: '游戏',
@@ -783,6 +968,15 @@
       read_more: '阅读更多',
       pts: '分', gp: '场', w: '胜', l: '负', otl: '超时负',
       rankings: 'UFC 排名',
+      ticker_label: '比分',
+      fact_label: '你知道吗？',
+      tab_espn: '联赛', tab_qc: '魁北克新闻',
+      game_of_day: '今日焦点战', next_game: '下一场比赛',
+      starts_in: '距开赛', its_on: '开赛了！',
+      cd_days: '天', cd_hours: '小时', cd_min: '分', cd_sec: '秒',
+      fav_add: '关注这支球队', fav_team: '你的球队',
+      no_qc_news: '暂时无法获取魁北克新闻。',
+      qc_note: '来源：RDS 和 TVA Sports，经由 Google 新闻。',
     }
   };
 
@@ -802,9 +996,12 @@
       else el.textContent = t(key);
     });
     updateEduCard();
+    updateDateDisplay();
     // Re-render scores and news with new lang
     renderScores(lastScoresData);
-    renderNews(lastNewsData);
+    if (currentNewsTab === 'qc') renderQcNews(lastQcNewsData);
+    else renderNews(lastNewsData);
+    lucide.createIcons();
   }
 
   // ============================================================
@@ -816,10 +1013,14 @@
     MLB_STATS: 'https://statsapi.mlb.com/api/v1',
   };
 
+  /* ⚠ `thingproxy.freeboard.io` a été RETIRÉ de cette liste le 17 août 2026 :
+     son domaine ne résout plus du tout (ERR_NAME_NOT_RESOLVED). Il ne servait
+     plus de secours — il coûtait la totalité du TIMEOUT_MS, soit 8 secondes
+     perdues sur CHAQUE appel où les deux premiers proxys échouaient, juste
+     avant de lever l'erreur de toute façon. */
   const CORS_PROXIES = [
     { url: (u) => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, parse: (r) => JSON.parse(r.contents) },
     { url: (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`, parse: (r) => r },
-    { url: (u) => `https://thingproxy.freeboard.io/fetch/${u}`, parse: (r) => r },
   ];
   const CORS_PROXY = 'https://api.allorigins.win/get?url=';
 
@@ -940,6 +1141,210 @@
   };
 
   // ============================================================
+  // « LE SAVAIS-TU? » — banque de faits, 30 par ligue
+  // ------------------------------------------------------------
+  // Faits courts, vérifiables et adaptés au primaire : une idée par fait,
+  // du concret (chiffres, distances, objets) plutôt que des palmarès qui
+  // vieillissent. La rotation est calée sur la DATE (voir factOfTheDay) —
+  // deux élèves qui ouvrent la page le même jour voient le même fait, et il
+  // change tout seul le lendemain.
+  // ============================================================
+  const FACTS = {
+    NHL: [
+      { fr: "La rondelle est gelée avant chaque match : une rondelle froide rebondit moins et glisse plus droit sur la glace.", en: "Pucks are frozen before every game: a cold puck bounces less and slides straighter on the ice.", zh: "每场比赛前冰球都会被冷冻：冷的冰球弹跳更少，在冰面上滑得更直。" },
+      { fr: "Une patinoire de la LNH mesure 200 pieds sur 85 — presque deux fois la longueur d'un gymnase d'école.", en: "An NHL rink is 200 feet by 85 — almost twice the length of a school gym.", zh: "NHL 冰场长 200 英尺、宽 85 英尺——差不多是学校体育馆的两倍长。" },
+      { fr: "La glace d'une patinoire n'a qu'environ 2 cm d'épaisseur, à peu près la largeur de ton pouce.", en: "Rink ice is only about 2 cm thick — roughly the width of your thumb.", zh: "冰场的冰层只有约 2 厘米厚，差不多是你拇指的宽度。" },
+      { fr: "Un lancer frappé peut dépasser 160 km/h : plus vite qu'une voiture sur l'autoroute.", en: "A slapshot can pass 160 km/h — faster than a car on the highway.", zh: "重射球速可超过每小时 160 公里，比高速公路上的汽车还快。" },
+      { fr: "La Coupe Stanley existe depuis 1892. C'est le plus vieux trophée remis à une équipe professionnelle en Amérique du Nord.", en: "The Stanley Cup dates back to 1892 — the oldest trophy awarded to a pro team in North America.", zh: "斯坦利杯始于 1892 年，是北美最古老的职业球队奖杯。" },
+      { fr: "Le nom de chaque joueur champion est gravé sur la Coupe Stanley. Elle porte plus de 3000 noms.", en: "Every winning player's name is engraved on the Stanley Cup — over 3,000 names so far.", zh: "每位夺冠球员的名字都刻在斯坦利杯上，至今已超过 3000 个名字。" },
+      { fr: "Un match se joue en trois périodes de 20 minutes, avec une pause pour refaire la glace entre chacune.", en: "A game has three 20-minute periods, with an ice resurfacing break between each.", zh: "比赛分三节，每节 20 分钟，每节之间休息并重新整理冰面。" },
+      { fr: "La surfaceuse qui lisse la glace s'appelle une Zamboni, du nom de son inventeur Frank Zamboni.", en: "The machine that smooths the ice is a Zamboni, named after its inventor Frank Zamboni.", zh: "整理冰面的机器叫做 Zamboni，以发明者弗兰克·赞博尼命名。" },
+      { fr: "Les gardiens de but portent près de 20 kg d'équipement — comme transporter un gros sac d'école rempli de livres.", en: "Goalies wear nearly 20 kg of gear — like carrying a backpack stuffed with books.", zh: "守门员的装备重近 20 公斤，就像背着装满书的大书包。" },
+      { fr: "Le masque de gardien a été popularisé par Jacques Plante, du Canadien de Montréal, en 1959.", en: "The goalie mask was popularized by Jacques Plante of the Montreal Canadiens in 1959.", zh: "守门员面具由蒙特利尔加拿大人队的雅克·普朗特在 1959 年推广开来。" },
+      { fr: "Un tour du chapeau, c'est trois buts par le même joueur dans un match. Les partisans lancent alors leur casquette sur la glace!", en: "A hat trick is three goals by one player in a game — fans throw their caps on the ice!", zh: "帽子戏法是指同一球员单场进三球，球迷会把帽子扔到冰面上！" },
+      { fr: "Le Canadien de Montréal a été fondé en 1909. C'est la plus ancienne équipe encore active de la LNH.", en: "The Montreal Canadiens were founded in 1909 — the oldest club still playing in the NHL.", zh: "蒙特利尔加拿大人队成立于 1909 年，是 NHL 中仍在参赛的最古老球队。" },
+      { fr: "Sur la glace, chaque équipe compte six joueurs : cinq patineurs et un gardien.", en: "Each team has six players on the ice: five skaters and a goalie.", zh: "每队冰上有六名球员：五名滑冰球员和一名守门员。" },
+      { fr: "Une présence sur la glace dure souvent moins de 45 secondes — l'effort est si intense qu'on change souvent.", en: "A shift often lasts under 45 seconds — the effort is so intense that players change constantly.", zh: "一次上场往往不到 45 秒——强度太大，所以球员频繁换人。" },
+      { fr: "Les lignes rouges et bleues sont peintes DANS la glace, puis recouvertes d'une nouvelle couche d'eau gelée.", en: "The red and blue lines are painted INTO the ice, then covered by a new frozen layer.", zh: "红线和蓝线是画在冰层里的，然后再覆盖一层新冻的冰。" },
+      { fr: "Le hors-jeu existe pour empêcher un joueur d'attendre seul près du but adverse.", en: "The offside rule exists so a player can't just wait alone near the other team's net.", zh: "越位规则的存在是为了防止球员独自守在对方球门前等球。" },
+      { fr: "Une rondelle pèse environ 170 grammes, à peu près le poids d'une pomme.", en: "A puck weighs about 170 grams — roughly the weight of an apple.", zh: "一个冰球约重 170 克，差不多是一个苹果的重量。" },
+      { fr: "Les 32 équipes de la LNH sont réparties entre le Canada (7) et les États-Unis (25).", en: "The NHL's 32 teams are split between Canada (7) and the United States (25).", zh: "NHL 的 32 支球队分布在加拿大（7 支）和美国（25 支）。" },
+      { fr: "En prolongation de saison régulière, il n'y a que trois patineurs par équipe : beaucoup plus d'espace pour attaquer.", en: "In regular-season overtime each team has only three skaters — far more space to attack.", zh: "常规赛加时每队只有三名滑冰球员，进攻空间大得多。" },
+      { fr: "Le trophée Vézina récompense le meilleur gardien. Il honore Georges Vézina, gardien du Canadien.", en: "The Vezina Trophy honours the best goalie, named after Canadiens netminder Georges Vezina.", zh: "维兹纳奖杯授予最佳守门员，以加拿大人队门将乔治·维兹纳命名。" },
+      { fr: "Un bâton de hockey est courbé pour lever la rondelle. Une lame trop courbée rend les revers difficiles.", en: "A hockey stick is curved to lift the puck — too much curve makes backhands hard.", zh: "球杆是弯的以便挑起冰球；弯度太大反手就难打了。" },
+      { fr: "Les arbitres portent des bandes noires et blanches pour être reconnus instantanément dans l'action.", en: "Referees wear black-and-white stripes so they're recognized instantly in the action.", zh: "裁判穿黑白条纹衫，是为了在比赛中一眼就能被认出来。" },
+      { fr: "Une punition mineure dure deux minutes. Pendant ce temps, l'équipe fautive joue à quatre contre cinq.", en: "A minor penalty lasts two minutes — the team plays four against five.", zh: "小罚为两分钟，期间受罚球队以四打五。" },
+      { fr: "Le jeu de puissance, c'est jouer avec un joueur de plus. Environ un but sur cinq est marqué ainsi.", en: "A power play means one extra player — about one goal in five is scored this way.", zh: "强打就是多打一人，大约每五个进球中有一个是这样打进的。" },
+      { fr: "Le hockey sur glace est devenu sport olympique en 1920, aux Jeux d'Anvers en Belgique.", en: "Ice hockey became an Olympic sport in 1920 at the Antwerp Games in Belgium.", zh: "冰球在 1920 年比利时安特卫普奥运会上成为奥运项目。" },
+      { fr: "Un filet de but mesure 6 pieds de large sur 4 pieds de haut — moins grand qu'il n'y paraît à la télé.", en: "A hockey net is 6 feet wide by 4 feet tall — smaller than it looks on TV.", zh: "球门宽 6 英尺、高 4 英尺，比电视上看起来要小。" },
+      { fr: "Patiner sollicite surtout les fessiers et les cuisses : c'est pour ça que les joueurs ont de grosses jambes.", en: "Skating works mostly the glutes and thighs — that's why players have powerful legs.", zh: "滑冰主要锻炼臀部和大腿肌肉，所以球员的腿很有力量。" },
+      { fr: "La mise au jeu ouvre chaque séquence. L'arbitre laisse tomber la rondelle entre deux joueurs.", en: "A faceoff starts each sequence: the referee drops the puck between two players.", zh: "每次开球由裁判把冰球扔在两名球员之间开始。" },
+      { fr: "Wayne Gretzky a été surnommé « La Merveille ». Il détient encore le record de points de la ligue.", en: "Wayne Gretzky was nicknamed \"The Great One\" and still holds the league's points record.", zh: "韦恩·格雷茨基绰号「伟大的人」，至今仍保持联盟得分纪录。" },
+      { fr: "Les séries éliminatoires se jouent au meilleur de sept matchs : il faut gagner quatre fois pour passer.", en: "Playoff rounds are best-of-seven: a team must win four games to advance.", zh: "季后赛采用七战四胜制，必须赢四场才能晋级。" },
+    ],
+    NBA: [
+      { fr: "Le panier est à 3,05 m du sol (10 pieds) — c'est la même hauteur depuis l'invention du sport en 1891.", en: "The rim sits 3.05 m (10 feet) high — unchanged since the sport was invented in 1891.", zh: "篮筐离地 3.05 米（10 英尺），自 1891 年发明这项运动以来从未改变。" },
+      { fr: "Le basketball a été inventé par James Naismith, un Canadien, avec deux paniers de pêches.", en: "Basketball was invented by James Naismith, a Canadian, using two peach baskets.", zh: "篮球由加拿大人詹姆斯·奈史密斯发明，最初用的是两个桃子篮。" },
+      { fr: "Au début, il fallait grimper chercher le ballon dans le panier : le fond n'était pas percé!", en: "At first someone had to climb up to fetch the ball — the baskets had no hole!", zh: "最初篮筐没有底洞，每次进球都得爬上去把球取出来！" },
+      { fr: "Un tir à trois points vaut trois points parce qu'il part de plus de 7 mètres du panier.", en: "A three-pointer is worth three because it's taken from over 7 metres out.", zh: "三分球值三分，因为出手点距篮筐超过 7 米。" },
+      { fr: "L'horloge des tirs donne 24 secondes pour tenter un panier. Sans elle, une équipe pourrait garder le ballon indéfiniment.", en: "The shot clock gives 24 seconds to attempt a basket — without it a team could hold the ball forever.", zh: "进攻时限为 24 秒；没有它，一支球队可以无限期控球。" },
+      { fr: "Un match de NBA dure 48 minutes, en quatre quarts de 12 minutes.", en: "An NBA game lasts 48 minutes, in four 12-minute quarters.", zh: "NBA 比赛共 48 分钟，分四节，每节 12 分钟。" },
+      { fr: "Un ballon de basket doit rebondir entre 1,2 et 1,4 m quand on le laisse tomber de 1,8 m.", en: "A basketball must bounce 1.2 to 1.4 m when dropped from 1.8 m.", zh: "篮球从 1.8 米高落下，须弹起 1.2 至 1.4 米。" },
+      { fr: "Les petits picots sur le ballon servent à l'agripper : sans eux, il glisserait des mains.", en: "The pebbles on a basketball give grip — without them it would slip out of your hands.", zh: "篮球表面的颗粒是为了增加摩擦，没有它球会从手中滑走。" },
+      { fr: "Le terrain de NBA mesure 28,7 m sur 15,2 m. Un aller-retour, c'est presque 60 mètres de course.", en: "An NBA court is 28.7 m by 15.2 m — one round trip is nearly 60 metres of running.", zh: "NBA 球场长 28.7 米、宽 15.2 米，来回跑一趟接近 60 米。" },
+      { fr: "Un joueur de NBA court en moyenne 4 km par match, en changeant de direction sans arrêt.", en: "An NBA player runs about 4 km per game, changing direction constantly.", zh: "NBA 球员每场平均跑动约 4 公里，并不断变向。" },
+      { fr: "Le dribble oblige à faire rebondir le ballon : marcher avec, c'est un marcher, et l'équipe perd la balle.", en: "You must bounce the ball while moving — walking with it is travelling, and you lose possession.", zh: "移动时必须运球，抱着球走属于走步，球权会被判给对方。" },
+      { fr: "La NBA compte 30 équipes, réparties en conférence de l'Est et conférence de l'Ouest.", en: "The NBA has 30 teams, split into Eastern and Western conferences.", zh: "NBA 共有 30 支球队，分为东部和西部联盟。" },
+      { fr: "Les Raptors de Toronto sont la seule équipe canadienne de la NBA depuis 2001.", en: "The Toronto Raptors have been the NBA's only Canadian team since 2001.", zh: "自 2001 年起，多伦多猛龙是 NBA 唯一的加拿大球队。" },
+      { fr: "Un lancer franc se tire à 4,57 m du panier, sans aucun adversaire pour te gêner.", en: "A free throw is shot from 4.57 m out, with no defender in your way.", zh: "罚球线距篮筐 4.57 米，没有防守球员干扰。" },
+      { fr: "Le meilleur angle pour un tir est d'environ 45 degrés : l'anneau paraît alors plus grand vu d'en haut.", en: "The best shooting arc is around 45 degrees — the rim looks bigger from above.", zh: "最佳投篮弧度约为 45 度，此时从上方看篮筐显得更大。" },
+      { fr: "Un contre, c'est bloquer le tir d'un adversaire sans le toucher, lui ni son bras.", en: "A block stops an opponent's shot without touching the shooter or their arm.", zh: "盖帽是封盖对手投篮，同时不能碰到投篮者或其手臂。" },
+      { fr: "Le rebond, c'est reprendre le ballon après un tir raté. Les grands joueurs en prennent plus de dix par match.", en: "A rebound is grabbing the ball after a missed shot — top players get more than ten a game.", zh: "篮板是投篮不中后抢到球，顶级球员每场能抓十个以上。" },
+      { fr: "Une passe décisive (assist) récompense le joueur qui donne le ballon à celui qui marque.", en: "An assist credits the player who passed to the one who scored.", zh: "助攻记给把球传给得分球员的那位球员。" },
+      { fr: "Le basketball est devenu sport olympique en 1936, aux Jeux de Berlin.", en: "Basketball became an Olympic sport in 1936 at the Berlin Games.", zh: "篮球在 1936 年柏林奥运会上成为奥运项目。" },
+      { fr: "Le basketball en fauteuil roulant suit presque les mêmes règles, avec le même panier à 3,05 m.", en: "Wheelchair basketball follows nearly the same rules, with the same 3.05 m rim.", zh: "轮椅篮球规则基本相同，篮筐同样是 3.05 米高。" },
+      { fr: "Un « triple-double », c'est atteindre dix ou plus dans trois catégories : points, rebonds, passes.", en: "A triple-double means reaching ten or more in three categories: points, rebounds, assists.", zh: "三双是指在得分、篮板、助攻三项中都达到两位数。" },
+      { fr: "Le panneau derrière l'anneau sert à faire ricocher le ballon : viser le petit carré aide beaucoup.", en: "The backboard lets you bank the ball in — aiming at the small square helps a lot.", zh: "篮板可以打板进球，瞄准那个小方框会容易很多。" },
+      { fr: "Le pivot est le seul déplacement permis sans dribbler : un pied reste collé au sol.", en: "The pivot is the only move allowed without dribbling — one foot stays planted.", zh: "中枢脚转身是不运球时唯一允许的移动，一只脚必须固定在地上。" },
+      { fr: "Cinq fautes personnelles (six en NBA) et le joueur doit quitter le match.", en: "Five personal fouls (six in the NBA) and a player is out of the game.", zh: "累计五次个人犯规（NBA 为六次）就必须离场。" },
+      { fr: "Le « dunk » demande de sauter assez haut pour amener la main au-dessus de 3,05 m.", en: "A dunk requires jumping high enough to bring your hand above 3.05 m.", zh: "扣篮需要跳得足够高，让手超过 3.05 米。" },
+      { fr: "La ligne des trois points a été adoptée par la NBA en 1979 pour rendre le jeu plus ouvert.", en: "The NBA adopted the three-point line in 1979 to open up the game.", zh: "NBA 于 1979 年引入三分线，让比赛更开阔。" },
+      { fr: "La « raquette » est la zone peinte sous le panier. On ne peut pas y rester plus de trois secondes en attaque.", en: "The paint is the coloured zone under the basket — you can't stay there over three seconds on offence.", zh: "禁区是篮下涂色区域，进攻时不能在里面停留超过三秒。" },
+      { fr: "Un ballon de basket officiel masculin mesure 75 cm de circonférence : il faut de grandes mains pour le tenir.", en: "A men's official ball is 75 cm around — you need big hands to palm it.", zh: "男子标准篮球周长 75 厘米，要有大手才能单手抓住。" },
+      { fr: "Le pointage moyen d'un match de NBA tourne autour de 110 à 115 points par équipe.", en: "An average NBA game sees around 110 to 115 points per team.", zh: "NBA 比赛平均每队得分在 110 至 115 分左右。" },
+      { fr: "Aux Jeux olympiques, un match dure 40 minutes plutôt que 48 : quatre quarts de 10 minutes.", en: "Olympic games last 40 minutes rather than 48: four 10-minute quarters.", zh: "奥运会比赛为 40 分钟而非 48 分钟：四节，每节 10 分钟。" },
+    ],
+    NFL: [
+      { fr: "Le terrain fait 100 verges entre les zones de but, soit environ 91 mètres.", en: "The field is 100 yards between end zones — about 91 metres.", zh: "两个端区之间的球场长 100 码，约 91 米。" },
+      { fr: "L'équipe qui attaque a quatre essais pour avancer de 10 verges. Sinon, elle rend le ballon.", en: "The offence gets four downs to gain 10 yards — otherwise it hands the ball over.", zh: "进攻方有四次进攻机会推进 10 码，否则就得交出球权。" },
+      { fr: "Un touché vaut six points, plus un ou deux points supplémentaires selon le convertissement choisi.", en: "A touchdown is worth six points, plus one or two more on the conversion.", zh: "达阵得 6 分，之后附加分可再得 1 或 2 分。" },
+      { fr: "Le ballon de football n'est pas rond : sa forme ovale le fait tourner sur lui-même et voler plus droit.", en: "A football isn't round — its oval shape makes it spiral and fly straighter.", zh: "橄榄球不是圆的：椭圆形让它旋转前进，飞得更直。" },
+      { fr: "Il y a 11 joueurs par équipe sur le terrain, mais une équipe compte 53 joueurs au total.", en: "Eleven players per side are on the field, but a roster holds 53 players.", zh: "场上每队 11 人，但整支球队共有 53 名球员。" },
+      { fr: "Le Super Bowl est l'émission la plus regardée aux États-Unis : plus de 100 millions de spectateurs.", en: "The Super Bowl is the most-watched U.S. broadcast — over 100 million viewers.", zh: "超级碗是美国收视率最高的节目，观众超过 1 亿。" },
+      { fr: "Le casque de football contient une coque rigide et des coussins qui absorbent les chocs.", en: "A football helmet has a hard shell plus padding that absorbs impact.", zh: "橄榄球头盔由硬壳和吸收冲击的内衬组成。" },
+      { fr: "Les lignes du terrain sont tracées tous les 5 verges pour repérer la progression d'un coup d'œil.", en: "Field lines are drawn every 5 yards so progress is readable at a glance.", zh: "球场每 5 码画一条线，一眼就能看出推进了多少。" },
+      { fr: "Le quart-arrière (quarterback) lance le ballon. C'est lui qui annonce le jeu à ses coéquipiers.", en: "The quarterback throws the ball and calls the play for his teammates.", zh: "四分卫负责传球，并向队友宣布战术。" },
+      { fr: "Un botté de placement réussi entre les poteaux vaut trois points.", en: "A field goal through the uprights is worth three points.", zh: "射门穿过门柱之间得 3 分。" },
+      { fr: "Les poteaux de but mesurent 5,6 mètres de large et s'élèvent à plus de 9 mètres de haut.", en: "The goalposts are 5.6 metres wide and rise over 9 metres high.", zh: "球门柱宽 5.6 米，高度超过 9 米。" },
+      { fr: "Le jeu s'arrête à chaque plaqué : un match de 60 minutes dure donc près de trois heures.", en: "Play stops on every tackle, so a 60-minute game takes nearly three hours.", zh: "每次擒抱后比赛暂停，所以 60 分钟的比赛要打近三小时。" },
+      { fr: "La zone des buts (end zone) fait 10 verges de profondeur à chaque bout du terrain.", en: "Each end zone is 10 yards deep at either end of the field.", zh: "球场两端的端区各有 10 码深。" },
+      { fr: "Le football américain descend du rugby : les deux sports ont un ancêtre commun.", en: "American football descends from rugby — the two share a common ancestor.", zh: "美式橄榄球源自英式橄榄球，两者有共同的起源。" },
+      { fr: "Un « sac du quart » (sack), c'est plaquer le quart-arrière avant qu'il ait pu lancer.", en: "A sack is tackling the quarterback before he can throw.", zh: "擒杀是指在四分卫传球前将他擒抱倒地。" },
+      { fr: "Les joueurs de ligne pèsent souvent plus de 140 kg : leur travail est de bloquer, pas de courir vite.", en: "Linemen often weigh over 140 kg — their job is blocking, not sprinting.", zh: "锋线球员体重常超过 140 公斤，他们的任务是阻挡而非快跑。" },
+      { fr: "Le drapeau jaune lancé par l'arbitre signale une pénalité pendant le jeu.", en: "The yellow flag an official throws signals a penalty during the play.", zh: "裁判抛出的黄旗表示比赛中出现了犯规。" },
+      { fr: "Un botté d'envoi (kickoff) ouvre chaque demie et suit chaque touché.", en: "A kickoff starts each half and follows every touchdown.", zh: "开球开始每个半场，也在每次达阵后进行。" },
+      { fr: "La NFL compte 32 équipes, réparties en Conférence américaine (AFC) et Conférence nationale (NFC).", en: "The NFL has 32 teams split between the AFC and the NFC.", zh: "NFL 共 32 支球队，分为美联（AFC）和国联（NFC）。" },
+      { fr: "Le Super Bowl porte un numéro en chiffres romains, une tradition depuis 1971.", en: "The Super Bowl is numbered in Roman numerals — a tradition since 1971.", zh: "超级碗用罗马数字编号，这个传统始于 1971 年。" },
+      { fr: "Un « touchback » ramène le ballon à la ligne de 25 verges quand il sort par la zone des buts.", en: "A touchback brings the ball to the 25-yard line when it leaves the end zone.", zh: "开球进入端区后被判回场，球回到 25 码线。" },
+      { fr: "L'interception, c'est attraper une passe destinée à l'adversaire : le ballon change de camp aussitôt.", en: "An interception is catching a pass meant for the other team — possession flips instantly.", zh: "拦截是接住对方的传球，球权立刻易手。" },
+      { fr: "Le Canada a sa propre ligue, la LCF, avec un terrain plus long et seulement trois essais.", en: "Canada has its own league, the CFL, with a longer field and only three downs.", zh: "加拿大有自己的联赛 CFL，球场更长，且只有三次进攻机会。" },
+      { fr: "Un receveur doit poser les deux pieds au sol dans les limites pour que la passe compte.", en: "A receiver must land both feet in bounds for the catch to count.", zh: "接球手必须双脚落在界内，接球才算成立。" },
+      { fr: "Les épaulettes répartissent les chocs sur toute la largeur des épaules plutôt qu'en un seul point.", en: "Shoulder pads spread impact across the shoulders instead of one point.", zh: "护肩把冲击力分散到整个肩部，而不是集中在一点。" },
+      { fr: "Le « hut! » crié par le quart-arrière est le signal de départ du jeu.", en: "The quarterback's \"hut!\" is the signal that starts the play.", zh: "四分卫喊的「hut！」是开球的信号。" },
+      { fr: "Chaque équipe dispose de trois temps d'arrêt par demie pour arrêter le chronomètre.", en: "Each team gets three timeouts per half to stop the clock.", zh: "每队每个半场有三次暂停机会来停止计时。" },
+      { fr: "Le trophée Vince Lombardi, remis au champion, est fabriqué en argent sterling.", en: "The Vince Lombardi Trophy given to the champion is made of sterling silver.", zh: "颁给冠军的文斯·隆巴迪奖杯由纯银制成。" },
+      { fr: "Une passe ne peut être lancée vers l'avant qu'une seule fois par jeu, et derrière la ligne de mêlée.", en: "Only one forward pass is allowed per play, thrown from behind the line of scrimmage.", zh: "每次进攻只允许一次向前传球，且必须在争球线后传出。" },
+      { fr: "Le « two-minute warning » est un arrêt automatique du jeu à deux minutes de la fin de chaque demie.", en: "The two-minute warning automatically stops play two minutes before each half ends.", zh: "两分钟警告是在每半场结束前两分钟自动暂停比赛。" },
+    ],
+    MLB: [
+      { fr: "Une balle de baseball contient 108 points de couture, cousus à la main un par un.", en: "A baseball has 108 stitches, sewn by hand one at a time.", zh: "一个棒球有 108 针缝线，全部由手工一针一针缝制。" },
+      { fr: "Les coutures ne sont pas décoratives : elles accrochent l'air et font courber la balle.", en: "The seams aren't decorative — they grip the air and make the ball curve.", zh: "缝线不是装饰：它们抓住空气，使球产生曲线。" },
+      { fr: "La distance entre le monticule et le marbre est de 18,44 mètres (60 pieds 6 pouces).", en: "The mound sits 18.44 metres (60 feet 6 inches) from home plate.", zh: "投手丘距本垒板 18.44 米（60 英尺 6 英寸）。" },
+      { fr: "Une balle rapide de 150 km/h met moins d'une demi-seconde à atteindre le frappeur.", en: "A 150 km/h fastball reaches the batter in under half a second.", zh: "时速 150 公里的快速球不到半秒就到达打者面前。" },
+      { fr: "Les buts forment un carré parfait de 27,4 mètres de côté (90 pieds).", en: "The bases form a perfect square 27.4 metres (90 feet) on each side.", zh: "垒包构成边长 27.4 米（90 英尺）的正方形。" },
+      { fr: "Un match compte neuf manches. S'il y a égalité, on joue des manches supplémentaires jusqu'au bris.", en: "A game has nine innings — if tied, extra innings are played until someone wins.", zh: "比赛共九局，若打平则进行延长赛直到分出胜负。" },
+      { fr: "La saison régulière compte 162 matchs par équipe : presque un match par jour d'avril à septembre.", en: "The regular season is 162 games per team — nearly one a day from April to September.", zh: "常规赛每队 162 场，从四月到九月几乎每天一场。" },
+      { fr: "La MLB est la plus ancienne des grandes ligues professionnelles nord-américaines.", en: "MLB is the oldest of the major North American professional leagues.", zh: "MLB 是北美主要职业联赛中历史最悠久的。" },
+      { fr: "Un circuit (home run) envoie la balle par-dessus la clôture : tous les coureurs marquent.", en: "A home run sends the ball over the fence — every runner scores.", zh: "全垒打把球击出围墙，所有跑垒员都得分。" },
+      { fr: "Trois prises et le frappeur est retiré. Quatre balles et il marche jusqu'au premier but.", en: "Three strikes and the batter is out; four balls and he walks to first base.", zh: "三好球出局，四坏球则保送上一垒。" },
+      { fr: "Le gant du receveur est le plus rembourré de tous : il encaisse plus de 100 lancers par match.", en: "The catcher's mitt is the most padded — it absorbs over 100 pitches a game.", zh: "捕手手套是护垫最厚的，每场要接超过 100 个投球。" },
+      { fr: "Un bâton de baseball professionnel est taillé dans un seul morceau de frêne ou d'érable.", en: "A pro bat is carved from a single piece of ash or maple.", zh: "职业球棒由一整块白蜡木或枫木削制而成。" },
+      { fr: "Le receveur fait des signes avec les doigts pour indiquer au lanceur quel type de balle lancer.", en: "The catcher flashes finger signs to tell the pitcher which pitch to throw.", zh: "捕手用手指打暗号告诉投手该投什么球。" },
+      { fr: "Une balle courbe peut dévier de plus de 40 cm sur son trajet vers le marbre.", en: "A curveball can break more than 40 cm on its way to the plate.", zh: "曲球在飞向本垒的途中可以偏移超过 40 厘米。" },
+      { fr: "Un « grand chelem », c'est un circuit avec les trois buts occupés : quatre points d'un coup.", en: "A grand slam is a home run with the bases loaded — four runs at once.", zh: "满贯全垒打是在满垒时击出全垒打，一次得四分。" },
+      { fr: "Les Blue Jays de Toronto sont la seule équipe canadienne de la MLB.", en: "The Toronto Blue Jays are MLB's only Canadian team.", zh: "多伦多蓝鸟队是 MLB 唯一的加拿大球队。" },
+      { fr: "Les Expos de Montréal ont joué dans la MLB de 1969 à 2004.", en: "The Montreal Expos played in MLB from 1969 to 2004.", zh: "蒙特利尔博览会队于 1969 至 2004 年间征战 MLB。" },
+      { fr: "Le monticule du lanceur est surélevé de 25 cm : ça donne un angle descendant à ses lancers.", en: "The pitcher's mound is raised 25 cm, giving his pitches a downward angle.", zh: "投手丘高出地面 25 厘米，使投球带有下坠角度。" },
+      { fr: "Un vol de but, c'est courir vers le but suivant pendant que le lanceur lance.", en: "A stolen base means running to the next base while the pitcher throws.", zh: "盗垒是趁投手投球时跑向下一个垒包。" },
+      { fr: "Il n'y a pas de chronomètre au baseball : un match se termine quand les manches sont jouées.", en: "There's no game clock in baseball — it ends when the innings are done.", zh: "棒球没有比赛计时器，打完所有局数才结束。" },
+      { fr: "Le baseball se joue à neuf joueurs en défensive, chacun avec une position numérotée.", en: "Nine players take the field on defence, each with a numbered position.", zh: "防守方场上九人，每个位置都有编号。" },
+      { fr: "La septième manche est traditionnellement l'occasion de se lever et de s'étirer entre partisans.", en: "The seventh inning is traditionally when fans stand up and stretch.", zh: "第七局传统上是球迷起立伸展的时刻。" },
+      { fr: "Un lanceur partant lance souvent plus de 90 balles avant d'être remplacé.", en: "A starting pitcher often throws over 90 pitches before being replaced.", zh: "先发投手常常投超过 90 球才被换下。" },
+      { fr: "La Série mondiale se joue au meilleur de sept matchs, chaque mois d'octobre.", en: "The World Series is a best-of-seven, played every October.", zh: "世界大赛采用七战四胜制，每年十月举行。" },
+      { fr: "Une balle frappée hors des lignes est une fausse balle : elle compte comme une prise, sauf à la troisième.", en: "A ball hit outside the lines is foul — it counts as a strike, except on the third.", zh: "击出边线外的球是界外球，算一个好球，但第三球除外。" },
+      { fr: "L'arbitre du marbre se place derrière le receveur et juge chaque lancer.", en: "The home-plate umpire stands behind the catcher and judges every pitch.", zh: "主审站在捕手后方，判定每一个投球。" },
+      { fr: "Une moyenne au bâton de ,300 est excellente : ça veut dire réussir 3 coups sûrs sur 10.", en: "A .300 batting average is excellent — three hits in every ten at-bats.", zh: "打击率 .300 已算优秀：十次打击中有三次安打。" },
+      { fr: "Un double-jeu retire deux joueurs sur une seule frappe : c'est le meilleur ami du lanceur.", en: "A double play retires two runners on one hit — a pitcher's best friend.", zh: "双杀一次守备解决两名跑者，是投手最好的朋友。" },
+      { fr: "Le baseball s'est développé au 19e siècle et est devenu sport olympique en 1992.", en: "Baseball grew in the 19th century and became an Olympic sport in 1992.", zh: "棒球在 19 世纪发展起来，1992 年成为奥运项目。" },
+      { fr: "Les balles usées sont retirées du jeu : une équipe en utilise souvent une centaine par match.", en: "Scuffed balls are removed from play — a game can use around a hundred.", zh: "磨损的球会被换下，一场比赛常常要用掉上百颗球。" },
+    ],
+    UFC: [
+      { fr: "Les combats se déroulent dans une cage à huit côtés, d'où le nom d'octogone.", en: "Fights happen in an eight-sided cage — hence the name octagon.", zh: "比赛在八边形笼中进行，因此称为「八角笼」。" },
+      { fr: "Le MMA combine plusieurs disciplines : boxe, lutte, judo, jiu-jitsu, karaté, muay-thaï.", en: "MMA blends several disciplines: boxing, wrestling, judo, jiu-jitsu, karate, muay thai.", zh: "综合格斗融合多种技艺：拳击、摔跤、柔道、柔术、空手道、泰拳。" },
+      { fr: "Un combat régulier compte trois rounds de cinq minutes. Un combat de championnat en compte cinq.", en: "A regular bout is three five-minute rounds; a title fight is five.", zh: "普通比赛为三回合，每回合五分钟；冠军战为五回合。" },
+      { fr: "Une soumission, c'est forcer l'adversaire à abandonner en tapant au sol avec la main.", en: "A submission forces the opponent to give up by tapping the mat.", zh: "降服是迫使对手拍垫认输。" },
+      { fr: "Les gants du MMA laissent les doigts libres pour permettre d'agripper et de lutter.", en: "MMA gloves leave the fingers free so fighters can grip and grapple.", zh: "综合格斗手套露出手指，以便抓握和缠斗。" },
+      { fr: "Les combattants sont regroupés par catégories de poids pour que les combats soient équitables.", en: "Fighters are grouped by weight class so bouts stay fair.", zh: "选手按体重级别分组，以保证比赛公平。" },
+      { fr: "La pesée a lieu la veille du combat : le poids doit être exactement dans la limite.", en: "The weigh-in is the day before — a fighter must hit the limit exactly.", zh: "称重在赛前一天进行，体重必须严格符合限制。" },
+      { fr: "L'arbitre peut arrêter un combat à tout moment s'il juge qu'un combattant ne se défend plus.", en: "The referee can stop a bout at any time if a fighter stops defending.", zh: "如果选手停止防守，裁判可以随时终止比赛。" },
+      { fr: "Le jiu-jitsu brésilien enseigne à se défendre au sol, même contre un adversaire plus fort.", en: "Brazilian jiu-jitsu teaches ground defence, even against a stronger opponent.", zh: "巴西柔术教人在地面防守，即使面对更强壮的对手。" },
+      { fr: "Trois juges notent chaque round. Le combattant qui domine le round obtient 10 points.", en: "Three judges score each round — the fighter who dominates gets 10 points.", zh: "三名裁判为每回合打分，占优的选手得 10 分。" },
+      { fr: "Le protège-dents est obligatoire : il protège les dents et amortit les chocs à la mâchoire.", en: "A mouthguard is mandatory — it protects teeth and cushions jaw impacts.", zh: "护齿是强制装备，既保护牙齿也缓冲下颌冲击。" },
+      { fr: "Les coups de coude et de genou sont permis en MMA, mais interdits dans plusieurs autres sports de combat.", en: "Elbows and knees are legal in MMA but banned in several other combat sports.", zh: "肘击和膝击在综合格斗中合法，但在其他一些格斗项目中被禁止。" },
+      { fr: "Frapper l'arrière de la tête ou la colonne vertébrale est interdit : ce sont des zones fragiles.", en: "Striking the back of the head or the spine is illegal — those areas are fragile.", zh: "击打后脑或脊柱是违规的，这些部位很脆弱。" },
+      { fr: "L'UFC a tenu son premier événement en 1993, avec très peu de règles à l'époque.", en: "The UFC held its first event in 1993, with very few rules back then.", zh: "UFC 于 1993 年举办首场赛事，当时规则很少。" },
+      { fr: "Les règles unifiées du MMA ont été adoptées en 2000 pour rendre le sport plus sécuritaire.", en: "The Unified Rules of MMA were adopted in 2000 to make the sport safer.", zh: "综合格斗统一规则于 2000 年通过，让这项运动更安全。" },
+      { fr: "La lutte olympique est la base la plus fréquente chez les champions de l'UFC.", en: "Olympic wrestling is the most common base among UFC champions.", zh: "奥运摔跤是 UFC 冠军中最常见的基础功底。" },
+      { fr: "Un « takedown » consiste à amener l'adversaire au sol tout en gardant le contrôle.", en: "A takedown brings the opponent to the mat while keeping control.", zh: "摔倒技是把对手带到地面同时保持控制。" },
+      { fr: "Le cardio est décisif : un combattant essoufflé au troisième round perd presque toujours.", en: "Cardio is decisive — a fighter gassed in the third round almost always loses.", zh: "体能至关重要：第三回合体力耗尽的选手几乎总是落败。" },
+      { fr: "L'octogone mesure environ 9 mètres de diamètre, un peu plus que la largeur d'une classe.", en: "The octagon is about 9 metres across — a bit wider than a classroom.", zh: "八角笼直径约 9 米，比一间教室稍宽一些。" },
+      { fr: "Les combattants s'entraînent souvent deux fois par jour, six jours sur sept.", en: "Fighters often train twice a day, six days a week.", zh: "选手常常一天训练两次，一周六天。" },
+      { fr: "Georges St-Pierre, de Saint-Isidore au Québec, a été champion dans deux catégories de poids.", en: "Georges St-Pierre, from Saint-Isidore, Quebec, was champion in two weight classes.", zh: "来自魁北克圣伊西多尔的乔治·圣皮埃尔曾在两个级别夺冠。" },
+      { fr: "La clé de bras en croix (armbar) utilise les jambes pour hyperétendre le coude adverse.", en: "The armbar uses the legs to hyperextend the opponent's elbow.", zh: "十字固用双腿使对手的肘关节过度伸展。" },
+      { fr: "L'étranglement arrière (rear-naked choke) est la soumission la plus fréquente en MMA.", en: "The rear-naked choke is the most common submission in MMA.", zh: "裸绞是综合格斗中最常见的降服技。" },
+      { fr: "Le salut et la poignée de main avant le combat font partie du respect entre athlètes.", en: "The pre-fight handshake and bow are part of the respect between athletes.", zh: "赛前握手与致意是选手之间相互尊重的一部分。" },
+      { fr: "Un KO technique (TKO) est décidé par l'arbitre, sans que le combattant soit inconscient.", en: "A TKO is called by the referee without the fighter being knocked out.", zh: "技术性击倒由裁判判定，选手并未失去意识。" },
+      { fr: "Les femmes combattent à l'UFC depuis 2013 : la première championne a été Ronda Rousey.", en: "Women have fought in the UFC since 2013 — Ronda Rousey was the first champion.", zh: "女子自 2013 年起参加 UFC，首位冠军是隆达·罗西。" },
+      { fr: "La ceinture de champion pèse environ 3 kg et est remise en jeu à chaque défense de titre.", en: "The championship belt weighs about 3 kg and is on the line at every title defence.", zh: "冠军腰带重约 3 公斤，每次卫冕战都要重新争夺。" },
+      { fr: "S'étirer et bien s'échauffer réduit fortement le risque de blessure — vrai pour tous les sports.", en: "Stretching and warming up properly cuts injury risk sharply — true for every sport.", zh: "充分拉伸和热身能大幅降低受伤风险——所有运动皆如此。" },
+      { fr: "Le muay-thaï est surnommé « l'art des huit membres » : poings, coudes, genoux et tibias.", en: "Muay thai is called \"the art of eight limbs\": fists, elbows, knees and shins.", zh: "泰拳被称为「八肢的艺术」：拳、肘、膝和胫。" },
+      { fr: "Un combattant peut gagner de quatre façons : KO, TKO, soumission ou décision des juges.", en: "A fighter can win four ways: KO, TKO, submission or judges' decision.", zh: "选手有四种获胜方式：击倒、技术性击倒、降服或裁判判定。" },
+    ],
+    MLS: [
+      { fr: "Un match de soccer dure 90 minutes, en deux demies de 45 minutes.", en: "A soccer match lasts 90 minutes, in two 45-minute halves.", zh: "一场足球比赛 90 分钟，分上下半场各 45 分钟。" },
+      { fr: "Le chronomètre ne s'arrête jamais : l'arbitre ajoute du temps à la fin de chaque demie.", en: "The clock never stops — the referee adds time at the end of each half.", zh: "计时从不停止，裁判在每半场结束时补时。" },
+      { fr: "Onze joueurs par équipe sur le terrain, dont un seul gardien qui peut toucher le ballon des mains.", en: "Eleven players a side, and only the goalkeeper may use their hands.", zh: "每队场上 11 人，只有守门员可以用手触球。" },
+      { fr: "Un terrain de soccer mesure environ 105 m sur 68 m — bien plus grand qu'un terrain de football.", en: "A soccer pitch is about 105 m by 68 m — much larger than a basketball court.", zh: "足球场约长 105 米、宽 68 米，比篮球场大得多。" },
+      { fr: "Un joueur de milieu de terrain court entre 10 et 12 km par match.", en: "A midfielder runs between 10 and 12 km per game.", zh: "中场球员每场比赛跑动 10 至 12 公里。" },
+      { fr: "Le soccer est le sport le plus pratiqué au monde : plus de 250 millions de joueurs.", en: "Soccer is the world's most played sport — over 250 million players.", zh: "足球是世界上参与人数最多的运动，球员超过 2.5 亿。" },
+      { fr: "Le CF Montréal et le Toronto FC représentent le Canada dans la MLS, avec les Whitecaps de Vancouver.", en: "CF Montréal and Toronto FC represent Canada in MLS, along with Vancouver Whitecaps.", zh: "蒙特利尔 CF、多伦多 FC 与温哥华白帽共同代表加拿大参加 MLS。" },
+      { fr: "La MLS a été fondée en 1996, après la Coupe du monde tenue aux États-Unis en 1994.", en: "MLS was founded in 1996, after the 1994 World Cup held in the United States.", zh: "MLS 成立于 1996 年，在 1994 年美国世界杯之后。" },
+      { fr: "Le hors-jeu s'applique quand un attaquant dépasse l'avant-dernier défenseur au moment de la passe.", en: "Offside applies when an attacker is past the second-last defender as the pass is made.", zh: "越位是指传球瞬间进攻球员超过了倒数第二名防守球员。" },
+      { fr: "Un carton jaune est un avertissement. Deux cartons jaunes égalent un carton rouge et l'expulsion.", en: "A yellow card is a warning; two yellows make a red and you're sent off.", zh: "黄牌是警告，两张黄牌等于一张红牌，将被罚下场。" },
+      { fr: "Un tir de pénalité se prend à 11 mètres du but, seul face au gardien.", en: "A penalty kick is taken from 11 metres, alone against the keeper.", zh: "点球在距球门 11 米处主罚，单独面对守门员。" },
+      { fr: "Le ballon officiel mesure environ 70 cm de circonférence et pèse près de 430 grammes.", en: "The official ball is about 70 cm around and weighs close to 430 grams.", zh: "标准足球周长约 70 厘米，重约 430 克。" },
+      { fr: "Un but mesure 7,32 m de large sur 2,44 m de haut : c'est plus large qu'une salle de classe.", en: "A goal is 7.32 m wide by 2.44 m high — wider than a classroom.", zh: "球门宽 7.32 米、高 2.44 米，比一间教室还宽。" },
+      { fr: "Une remise en touche se fait à deux mains, au-dessus de la tête, les deux pieds au sol.", en: "A throw-in uses both hands, over the head, with both feet on the ground.", zh: "界外球须双手过头掷出，双脚必须着地。" },
+      { fr: "Le gardien ne peut prendre le ballon à la main que dans sa surface de réparation.", en: "The keeper may only handle the ball inside their own penalty area.", zh: "守门员只能在本方禁区内用手触球。" },
+      { fr: "Un « coup du chapeau » au soccer, c'est aussi trois buts par le même joueur dans un match.", en: "A hat-trick in soccer is also three goals by one player in a match.", zh: "足球中的帽子戏法同样是指一名球员单场进三球。" },
+      { fr: "Les crampons sous les souliers évitent de glisser sur le gazon mouillé.", en: "The studs under the boots keep players from slipping on wet grass.", zh: "球鞋底的鞋钉能防止在湿草地上打滑。" },
+      { fr: "Le soccer s'appelle « football » presque partout dans le monde, sauf en Amérique du Nord.", en: "Soccer is called \"football\" almost everywhere except North America.", zh: "除北美外，足球在世界大部分地区都被称为 football。" },
+      { fr: "La Coupe du monde se tient tous les quatre ans. Elle sera coprésentée par le Canada en 2026.", en: "The World Cup happens every four years — Canada co-hosts in 2026.", zh: "世界杯每四年举办一次，加拿大将于 2026 年共同主办。" },
+      { fr: "Un coup franc peut être direct (on peut marquer) ou indirect (il faut d'abord toucher un autre joueur).", en: "A free kick can be direct (you may score) or indirect (another player must touch it first).", zh: "任意球分直接（可直接射门）和间接（须先触及另一名球员）。" },
+      { fr: "Le mur de joueurs se place à 9,15 mètres du ballon lors d'un coup franc.", en: "The defensive wall stands 9.15 metres from the ball on a free kick.", zh: "任意球时人墙须距球 9.15 米。" },
+      { fr: "Un coup de pied de coin est accordé quand un défenseur envoie le ballon derrière sa propre ligne de but.", en: "A corner kick is given when a defender puts the ball behind their own goal line.", zh: "当防守球员把球踢出本方底线时，判给角球。" },
+      { fr: "Une tête bien exécutée se frappe avec le front, jamais avec le dessus du crâne.", en: "A proper header uses the forehead, never the top of the skull.", zh: "正确的头球用前额顶球，绝不能用头顶。" },
+      { fr: "Les remplacements sont limités : en MLS, une équipe peut changer cinq joueurs par match.", en: "Substitutions are limited — in MLS a team may change five players per match.", zh: "换人有名额限制：MLS 每队每场可换五人。" },
+      { fr: "Le gardien porte un chandail de couleur différente pour que l'arbitre le distingue tout de suite.", en: "The keeper wears a different colour so the referee can spot them instantly.", zh: "守门员穿不同颜色的球衣，方便裁判立刻辨认。" },
+      { fr: "Le soccer se joue avec les pieds, mais aussi la tête, la poitrine et les cuisses.", en: "Soccer is played with the feet, but also the head, chest and thighs.", zh: "足球用脚踢，也可以用头、胸和大腿控球。" },
+      { fr: "La MLS compte maintenant plus de 29 clubs, aux États-Unis et au Canada.", en: "MLS now has more than 29 clubs across the United States and Canada.", zh: "MLS 目前在美国和加拿大共有 29 支以上的俱乐部。" },
+      { fr: "La Coupe MLS couronne le champion à la fin des séries éliminatoires, en décembre.", en: "MLS Cup crowns the champion at the end of the playoffs, in December.", zh: "MLS 杯在十二月季后赛结束时决出总冠军。" },
+      { fr: "Le soccer est un sport olympique depuis 1900, l'un des plus anciens des Jeux modernes.", en: "Soccer has been an Olympic sport since 1900, one of the oldest at the modern Games.", zh: "足球自 1900 年起成为奥运项目，是现代奥运会最古老的项目之一。" },
+      { fr: "Un match nul est fréquent au soccer : les buts sont rares, souvent moins de trois par match.", en: "Draws are common in soccer — goals are rare, often fewer than three a game.", zh: "足球比赛常出现平局：进球稀少，通常一场不到三个。" },
+    ],
+  };
+
+  // ============================================================
   // STATE
   // ============================================================
   let currentLeague = 'NHL';
@@ -947,12 +1352,423 @@
   let liveRefreshInterval = null;
   let lastScoresData = [];
   let lastNewsData = [];
+  let currentNewsTab = 'espn';   // 'espn' | 'qc'
+  let lastQcNewsData = null;     // null = pas encore chargé, [] = chargé et vide
+  let countdownTimer = null;
+  let factBump = 0;              // décalage manuel du bouton « un autre fait »
+
+  // ============================================================
+  // ÉQUIPE FAVORITE (localStorage)
+  // ------------------------------------------------------------
+  // Une seule équipe suivie à la fois : c'est ce qui permet d'ouvrir la page
+  // directement sur SA ligue. La valeur stockée est {league, team}.
+  // ============================================================
+  const FAV_KEY = 'zts_sports_fav';
+
+  function getFav() {
+    try {
+      const raw = localStorage.getItem(FAV_KEY);
+      if (!raw) return null;
+      const v = JSON.parse(raw);
+      return (v && v.league && v.team && CONFIG[v.league]) ? v : null;
+    } catch (e) { return null; }
+  }
+
+  function setFav(league, team) {
+    try {
+      const cur = getFav();
+      if (cur && cur.league === league && cur.team === team) {
+        localStorage.removeItem(FAV_KEY);   // deuxième clic = on retire
+      } else {
+        localStorage.setItem(FAV_KEY, JSON.stringify({ league, team }));
+      }
+    } catch (e) { /* stockage refusé (navigation privée) : le favori ne survit pas au reload */ }
+  }
+
+  function isFavGame(g) {
+    const f = getFav();
+    return !!f && f.league === g.league && (f.team === g.homeTeam || f.team === g.awayTeam);
+  }
+
+  // Appelé depuis l'étoile des cartes. stopPropagation : sinon le clic ouvre
+  // aussi la modale de détail du match, sur laquelle l'étoile est posée.
+  function toggleFav(ev, league, team) {
+    ev.stopPropagation();
+    setFav(league, team);
+    renderScores(lastScoresData);   // re-trie et repeint dans la foulée
+    renderHeroGame(lastScoresData);
+  }
+  window.toggleFav = toggleFav;
+
+  function favStarHtml(league, team) {
+    const f = getFav();
+    const on = !!f && f.league === league && f.team === team;
+    const label = on ? t('fav_team') : t('fav_add');
+    return `<button class="fav-star ${on ? 'is-on' : ''}" type="button"
+      title="${label} — ${team}" aria-label="${label} — ${team}" aria-pressed="${on}"
+      onclick="toggleFav(event, '${league}', '${team}')">${on ? '★' : '☆'}</button>`;
+  }
+
+  // Les matchs de l'équipe suivie remontent en tête de liste.
+  function sortWithFavFirst(games) {
+    const f = getFav();
+    if (!f) return games;
+    return games.slice().sort((a, b) => (isFavGame(b) ? 1 : 0) - (isFavGame(a) ? 1 : 0));
+  }
+
+  // ============================================================
+  // « LE SAVAIS-TU? » DU JOUR
+  // ------------------------------------------------------------
+  // L'index vient du numéro de jour depuis le 1er janvier 1970, pas de
+  // Math.random : le fait reste le même toute la journée pour tout le monde,
+  // et change de lui-même à minuit. Le décalage par ligue évite que les six
+  // ligues affichent le fait n° 12 le même jour.
+  // ============================================================
+  function factOfTheDay(league) {
+    const list = FACTS[league];
+    if (!list || !list.length) return '';
+    // Volontairement la date du JOUR, pas `currentDate` : c'est « le fait du
+    // jour », il ne doit pas changer parce qu'on feuillette les scores d'hier.
+    const now = new Date();
+    const dayIndex = Math.floor(
+      (now.getTime() - now.getTimezoneOffset() * 60000) / 86400000);
+    const leagueOffset = Object.keys(CONFIG).indexOf(league) * 7;
+    const fact = list[((dayIndex + leagueOffset + factBump) % list.length + list.length) % list.length];
+    return fact[currentLang] || fact.fr;
+  }
+
+  function updateFactCard() {
+    const el = document.getElementById('factText');
+    if (el) el.textContent = factOfTheDay(currentLeague);
+  }
+
+  // ============================================================
+  // NOUVELLES QUÉBÉCOISES (RDS + TVA Sports)
+  // ------------------------------------------------------------
+  // ⚠ Les flux RSS publics de rds.ca et tvasports.ca sont MORTS : les deux
+  // répondent 404 (vérifié le 17 août 2026). On passe donc par Google
+  // Actualités filtré par site, qui renvoie les mêmes articles avec titre,
+  // date et lien. Si un média rouvre son flux, il suffit de remettre son URL
+  // dans `feed` ci-dessous : le reste du code ne bouge pas.
+  // ============================================================
+  const QC_SOURCES = [
+    { key: 'rds', name: 'RDS', badge: 'src-rds',
+      feed: 'https://news.google.com/rss/search?q=site:rds.ca&hl=fr-CA&gl=CA&ceid=CA:fr' },
+    { key: 'tva', name: 'TVA Sports', badge: 'src-tva',
+      feed: 'https://news.google.com/rss/search?q=site:tvasports.ca&hl=fr-CA&gl=CA&ceid=CA:fr' },
+  ];
+
+  /* fetchWithProxy fait un JSON.parse d'office : inutilisable pour du XML.
+     Même liste de proxys, même temporisation, mais on rend le texte brut. */
+  async function fetchTextWithProxy(url) {
+    const TIMEOUT_MS = 8000;
+    function withTimeout(u, ms) {
+      const c = new AbortController();
+      const timer = setTimeout(() => c.abort(), ms);
+      return fetch(u, { signal: c.signal }).finally(() => clearTimeout(timer));
+    }
+    // allorigins renvoie du JSON qui ENVELOPPE le XML dans .contents
+    try {
+      const r = await withTimeout(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, TIMEOUT_MS);
+      if (r.ok) {
+        const j = await r.json();
+        if (j && typeof j.contents === 'string' && j.contents.length) return j.contents;
+      }
+    } catch (_) { /* on tente le suivant */ }
+    // Secours : ceux-ci renvoient le corps tel quel.
+    for (const build of [
+      (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+      (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+      (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+    ]) {
+      await new Promise(r => setTimeout(r, 300));
+      try {
+        const r = await withTimeout(build(url), TIMEOUT_MS);
+        if (r.ok) {
+          const txt = await r.text();
+          if (txt && txt.indexOf('<') !== -1) return txt;
+        }
+      } catch (_) { continue; }
+    }
+    throw new Error('Aucun proxy n\'a répondu pour ' + url);
+  }
+
+  // RSS → objets JS. DOMParser plutôt qu'une expression régulière : les titres
+  // contiennent des esperluettes et des accents encodés que le parseur défait
+  // correctement tout seul.
+  function parseRSS(xmlText, source) {
+    const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
+    if (doc.querySelector('parsererror')) return [];
+    return Array.from(doc.querySelectorAll('item')).map(item => {
+      const get = (tag) => {
+        const n = item.querySelector(tag);
+        return n ? (n.textContent || '').trim() : '';
+      };
+      // Google Actualités suffixe le titre du nom du média : « Titre - RDS ».
+      let title = get('title').replace(/\s+-\s+[^-]{2,24}$/, '').trim() || get('title');
+      return {
+        title,
+        link: get('link'),
+        pubDate: get('pubDate'),
+        source: get('source') || source.name,
+        sourceKey: source.key,
+        badge: source.badge,
+      };
+    }).filter(a => a.title && a.link);
+  }
+
+  async function fetchQcNews() {
+    // Promise.allSettled : un flux mort ne doit pas emporter l'autre.
+    const results = await Promise.allSettled(
+      QC_SOURCES.map(async src => parseRSS(await fetchTextWithProxy(src.feed), src))
+    );
+    const articles = [];
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled') articles.push(...r.value.slice(0, 8));
+      else console.warn('Flux QC indisponible :', QC_SOURCES[i].name, r.reason);
+    });
+    // Entrelacement RDS / TVA plutôt qu'un bloc de chaque : les deux marques
+    // restent visibles même si on ne lit que la première rangée.
+    const byKey = {};
+    articles.forEach(a => { (byKey[a.sourceKey] = byKey[a.sourceKey] || []).push(a); });
+    const keys = Object.keys(byKey);
+    const mixed = [];
+    for (let i = 0; i < 8; i++) keys.forEach(k => { if (byKey[k][i]) mixed.push(byKey[k][i]); });
+    return mixed.slice(0, 12);
+  }
+
+  function renderQcNews(articles) {
+    const container = document.getElementById('newsContainer');
+    if (!articles || !articles.length) {
+      container.innerHTML = `
+        <div class="col-span-full empty-state">
+          <div class="empty-icon">📰</div>
+          <p class="font-fredoka text-lg">${t('no_qc_news')}</p>
+        </div>`;
+      return;
+    }
+    const locale = currentLang === 'zh' ? 'zh-CN' : currentLang === 'en' ? 'en-CA' : 'fr-CA';
+    container.innerHTML = articles.map(a => {
+      let date = '';
+      if (a.pubDate) {
+        const d = new Date(a.pubDate);
+        if (!isNaN(d)) date = d.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+      }
+      return `<article class="news-card">
+        <div class="news-body">
+          <span class="src-badge ${a.badge || 'src-autre'}">${escapeHtml(a.source)}</span>
+          <h3 class="font-fredoka text-dark text-base leading-snug mb-2">${escapeHtml(a.title)}</h3>
+          <div class="flex items-center justify-between">
+            <span class="font-baloo text-xs text-dark/40">${date}</span>
+            <a href="${encodeURI(a.link)}" target="_blank" rel="noopener" class="font-fredoka text-sm" style="color:#00E5FF;">
+              ${t('read_more')} →
+            </a>
+          </div>
+        </div>
+      </article>`;
+    }).join('') + `
+      <p class="col-span-full font-baloo text-xs text-white/50 text-center mt-1">${t('qc_note')}</p>`;
+  }
+
+  // Les titres viennent d'un flux tiers : ils passent par là avant d'entrer
+  // dans le DOM par innerHTML.
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  async function loadQcNews(force) {
+    const container = document.getElementById('newsContainer');
+    if (lastQcNewsData && !force) { renderQcNews(lastQcNewsData); return; }
+    showNewsSkeletons();
+    try {
+      lastQcNewsData = await fetchQcNews();
+    } catch (e) {
+      console.error('loadQcNews:', e);
+      lastQcNewsData = [];
+    }
+    if (currentNewsTab === 'qc') renderQcNews(lastQcNewsData);
+  }
+
+  function switchNewsTab(tab) {
+    currentNewsTab = tab;
+    document.querySelectorAll('.news-tab').forEach(b =>
+      b.classList.toggle('active', b.dataset.newstab === tab));
+    if (tab === 'qc') loadQcNews(false);
+    else renderNews(lastNewsData);
+    lucide.createIcons();
+  }
+
+  // ============================================================
+  // TICKER — derniers résultats finaux qui défilent
+  // ============================================================
+  function renderTicker(games) {
+    const host = document.getElementById('scoreTicker');
+    const track = document.getElementById('tickerTrack');
+    if (!host || !track) return;
+
+    // Les matchs terminés d'abord (c'est un tableau de résultats), puis les
+    // matchs en cours pour que le bandeau ne soit pas vide en début de soirée.
+    const done = (games || []).filter(g => g.isFinal);
+    const live = (games || []).filter(g => g.isLive);
+    const items = done.concat(live);
+
+    if (!items.length) { host.style.display = 'none'; return; }
+    host.style.display = 'flex';
+
+    const cell = (g) => {
+      const homeWin = g.isFinal && g.homeScore > g.awayScore;
+      const awayWin = g.isFinal && g.awayScore > g.homeScore;
+      return `<span class="ticker-item ${g.isLive ? 'is-live' : ''}">
+        <span class="tk-league">${g.isLive ? '<span class="tk-dot"></span>' : ''}${escapeHtml(g.league)}</span>
+        <span class="${awayWin ? 'tk-win' : ''}">${escapeHtml(g.awayTeam)}</span>
+        <span class="tk-score">${g.awayScore ?? '-'} – ${g.homeScore ?? '-'}</span>
+        <span class="${homeWin ? 'tk-win' : ''}">${escapeHtml(g.homeTeam)}</span>
+      </span>`;
+    };
+    // La piste est doublée : l'animation translate de -50%, donc la seconde
+    // moitié prend exactement la place de la première et la boucle est invisible.
+    const half = items.map(cell).join('');
+    track.innerHTML = half + half;
+    // Vitesse proportionnelle au nombre de matchs : 12 résultats ne doivent pas
+    // défiler quatre fois plus vite que 3.
+    track.style.animationDuration = Math.max(18, items.length * 5) + 's';
+  }
+
+  // ============================================================
+  // MATCH DU JOUR + COMPTE À REBOURS
+  // ------------------------------------------------------------
+  // Priorité : (1) un match de l'équipe suivie, (2) un match en cours,
+  // (3) le prochain match à commencer, (4) le dernier résultat du jour.
+  // ============================================================
+  function pickHeroGame(games) {
+    if (!games || !games.length) return null;
+    const fav = games.filter(isFavGame);
+    const pool = fav.length ? fav : games;
+    return pool.find(g => g.isLive)
+        || pool.filter(g => !g.isLive && !g.isFinal)
+               .sort((a, b) => startTimeOf(a) - startTimeOf(b))[0]
+        || pool.find(g => g.isFinal)
+        || pool[0];
+  }
+
+  // L'heure de début n'est pas au même endroit selon l'API d'origine.
+  function startTimeOf(g) {
+    const raw = g.raw || {};
+    const iso = raw.startTimeUTC || raw.gameDate || raw.date
+             || raw.competitions?.[0]?.date || null;
+    const d = iso ? new Date(iso) : null;
+    return (d && !isNaN(d)) ? d.getTime() : Infinity;
+  }
+
+  function renderHeroGame(games) {
+    const host = document.getElementById('heroGameHost');
+    if (!host) return;
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+
+    const g = pickHeroGame(games);
+    if (!g) { host.innerHTML = ''; return; }
+
+    const cfg = CONFIG[g.league] || CONFIG[currentLeague];
+    const homeWin = g.isFinal && g.homeScore > g.awayScore;
+    const awayWin = g.isFinal && g.awayScore > g.homeScore;
+    const fav = isFavGame(g);
+
+    const logo = (src, abbr) => src
+      ? `<img src="${src}" alt="${escapeHtml(abbr)}" class="team-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+         <div class="team-logo-placeholder" style="display:none;">${escapeHtml(abbr)}</div>`
+      : `<div class="team-logo-placeholder">${escapeHtml(abbr)}</div>`;
+
+    let badge;
+    if (g.isLive)       badge = `<span class="live-badge"><span class="live-dot"></span>${escapeHtml(g.status)}</span>`;
+    else if (g.isFinal) badge = `<span class="final-badge">${t('status_final')}</span>`;
+    else                badge = `<span class="scheduled-badge">${escapeHtml(g.status)}</span>`;
+
+    // Compte à rebours seulement quand rien n'est en cours et que le match
+    // n'a pas encore commencé — sinon le bloc n'aurait rien à décompter.
+    const start = startTimeOf(g);
+    const showCountdown = !g.isLive && !g.isFinal && isFinite(start) && start > Date.now();
+
+    host.innerHTML = `<div class="hero-game" onclick="showGameDetail('${g.id}', '${g.league}')">
+      ${favStarHtml(g.league, g.homeTeam)}
+      <div class="flex items-center gap-3 flex-wrap mb-5">
+        <span class="hg-flag">🔥 <span>${fav ? t('fav_team') : t('game_of_day')}</span></span>
+        ${badge}
+        <span class="font-baloo text-xs text-white/40 ml-auto">${escapeHtml(g.venue || '')}</span>
+      </div>
+      <div class="flex items-center justify-center gap-6 md:gap-12">
+        <div class="flex flex-col items-center gap-2">
+          ${logo(g.awayLogo, g.awayTeam)}
+          <span class="hg-team">${escapeHtml(g.awayTeam)}</span>
+          <span class="hg-score ${awayWin ? 'winner' : ''}">${g.awayScore ?? '–'}</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span class="font-fredoka text-white/30 text-xl">VS</span>
+          <span class="font-baloo text-xs text-white/40 mt-1">${escapeHtml(cfg.emoji + ' ' + cfg.name)}</span>
+        </div>
+        <div class="flex flex-col items-center gap-2">
+          ${logo(g.homeLogo, g.homeTeam)}
+          <span class="hg-team">${escapeHtml(g.homeTeam)}</span>
+          <span class="hg-score ${homeWin ? 'winner' : ''}">${g.homeScore ?? '–'}</span>
+        </div>
+      </div>
+      ${showCountdown ? `
+      <p class="text-center font-fredoka text-sm text-white/50 mt-5" data-cd-label>${t('starts_in')}</p>
+      <div class="countdown" id="heroCountdown"></div>` : ''}
+    </div>`;
+
+    if (showCountdown) startCountdown(start);
+    lucide.createIcons();
+  }
+
+  function startCountdown(targetMs) {
+    const host = document.getElementById('heroCountdown');
+    if (!host) return;
+    const unit = (n, key) => `<span class="cd-unit"><span class="cd-num">${String(n).padStart(2, '0')}</span><span class="cd-lab">${t(key)}</span></span>`;
+
+    function tick() {
+      let left = targetMs - Date.now();
+      if (left <= 0) {
+        clearInterval(countdownTimer); countdownTimer = null;
+        host.innerHTML = `<span class="cd-unit" style="min-width:auto;padding:10px 18px;"><span class="cd-num" style="font-size:1.1rem;">${t('its_on')}</span></span>`;
+        const lab = document.querySelector('[data-cd-label]');
+        if (lab) lab.textContent = '';
+        loadScores();   // le match vient de commencer : on rafraîchit
+        return;
+      }
+      const d = Math.floor(left / 86400000); left -= d * 86400000;
+      const h = Math.floor(left / 3600000);  left -= h * 3600000;
+      const m = Math.floor(left / 60000);    left -= m * 60000;
+      const s = Math.floor(left / 1000);
+      host.innerHTML =
+        (d > 0 ? unit(d, 'cd_days') + '<span class="cd-sep">:</span>' : '') +
+        unit(h, 'cd_hours') + '<span class="cd-sep">:</span>' +
+        unit(m, 'cd_min')   + '<span class="cd-sep">:</span>' +
+        unit(s, 'cd_sec');
+    }
+    tick();
+    countdownTimer = setInterval(tick, 1000);
+  }
 
   // ============================================================
   // DATE UTILITIES
   // ============================================================
+  /* Date au format AAAA-MM-JJ dans le fuseau du VISITEUR.
+     `toISOString()` convertit en UTC : à partir de 20h au Québec (19h l'hiver)
+     il renvoyait déjà le lendemain, et la page annonçait les matchs de demain
+     sous « Aujourd'hui » — précisément à l'heure où on consulte les scores. */
   function formatDateAPI(date) {
-    return date.toISOString().split('T')[0];
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function isSameDay(a, b) {
+    return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
   }
 
   function formatDateDisplay(date) {
@@ -1018,9 +1834,11 @@
     const cfg = CONFIG[currentLeague];
     const edu = cfg.edu[currentLang] || cfg.edu.fr;
     const card = document.getElementById('eduCard');
-    document.getElementById('eduTitle').textContent = edu.emoji + ' ' + edu.title;
+    document.getElementById('eduEmoji').textContent = edu.emoji;
+    document.getElementById('eduTitle').textContent = edu.title;
     document.getElementById('eduDesc').textContent = edu.desc;
     card.style.borderLeftColor = cfg.dotColor;
+    updateFactCard();
   }
 
   // ============================================================
@@ -1209,6 +2027,11 @@
     const container = document.getElementById('scoresContainer');
     const liveGlobalBadge = document.getElementById('liveGlobalBadge');
 
+    // Bandeau et match du jour se calent sur les MÊMES données, dans l'ordre
+    // d'origine — le tri par favori ne concerne que la grille.
+    renderTicker(lastScoresData);
+    renderHeroGame(lastScoresData);
+
     if (!games || games.length === 0) {
       container.innerHTML = `
         <div class="col-span-full empty-state">
@@ -1222,7 +2045,7 @@
     const hasLive = games.some(g => g.isLive);
     liveGlobalBadge.style.display = hasLive ? 'inline-flex' : 'none';
 
-    container.innerHTML = games.map(g => {
+    container.innerHTML = sortWithFavFirst(games).map(g => {
       const homeWin = g.isFinal && g.homeScore > g.awayScore;
       const awayWin = g.isFinal && g.awayScore > g.homeScore;
       const homeLogo = g.homeLogo ? `<img src="${g.homeLogo}" alt="${g.homeTeam}" class="team-logo" onerror="if(this.dataset.tried){this.style.display='none';this.nextElementSibling.style.display='flex';}else{this.dataset.tried='1';this.src='${g.homeLogoFallback || ''}'||this.src;}">
@@ -1244,7 +2067,7 @@
 
       const periodInfo = (g.isLive && g.periodLabel) ? `<p class="font-fredoka text-xs text-dark/50 mt-1">${g.periodLabel}${g.clock ? ' · ' + g.clock : ''}</p>` : '';
 
-      return `<div class="score-card" onclick="showGameDetail('${g.id}', '${currentLeague}')">
+      return `<div class="score-card ${isFavGame(g) ? 'is-fav' : ''}" onclick="showGameDetail('${g.id}', '${currentLeague}')">
         <div class="flex items-center justify-between mb-4">
           ${badge}
           <span class="font-baloo text-xs text-dark/40">${g.venue || ''}</span>
@@ -1253,7 +2076,9 @@
           <!-- Away -->
           <div class="flex flex-col items-center gap-2 flex-1">
             ${awayLogo}
-            <span class="font-fredoka text-sm text-dark/70">${g.awayTeam}</span>
+            <span class="flex items-center gap-1 font-fredoka text-sm text-dark/70">
+              ${g.awayTeam} ${favStarHtml(g.league, g.awayTeam)}
+            </span>
             ${scoreAway}
           </div>
           <!-- VS -->
@@ -1264,7 +2089,9 @@
           <!-- Home -->
           <div class="flex flex-col items-center gap-2 flex-1">
             ${homeLogo}
-            <span class="font-fredoka text-sm text-dark/70">${g.homeTeam}</span>
+            <span class="flex items-center gap-1 font-fredoka text-sm text-dark/70">
+              ${g.homeTeam} ${favStarHtml(g.league, g.homeTeam)}
+            </span>
             ${scoreHome}
           </div>
         </div>
@@ -1949,7 +2776,10 @@
 
   async function loadNews() {
     const articles = await fetchNews();
-    renderNews(articles);
+    lastNewsData = articles || [];
+    // On ne peint que si l'onglet Ligues est celui qui est ouvert : sinon un
+    // chargement en arrière-plan écraserait les nouvelles québécoises affichées.
+    if (currentNewsTab === 'espn') renderNews(lastNewsData);
   }
 
   async function loadAll() {
@@ -1959,7 +2789,7 @@
       liveRefreshInterval = null;
     }
     showScoreSkeletons();
-    showNewsSkeletons();
+    if (currentNewsTab === 'espn') showNewsSkeletons();
     await Promise.all([loadScores(), loadNews()]);
     updateVideo();
     lucide.createIcons();
@@ -2009,7 +2839,31 @@
   // ============================================================
   // INIT
   // ============================================================
+  // Onglets d'actualités
+  document.querySelectorAll('.news-tab').forEach(btn => {
+    btn.addEventListener('click', () => switchNewsTab(btn.dataset.newstab));
+  });
+
+  // « Un autre fait » : avance d'un cran dans la banque, sans toucher à la
+  // rotation quotidienne (le lendemain, le fait du jour reprend sa place).
+  document.getElementById('btnNextFact').addEventListener('click', () => {
+    factBump++;
+    updateFactCard();
+  });
+
+  /* Le header partagé n'a que FR/EN. Quand on y bascule la langue, la page
+     suit — l'inverse n'est pas vrai pour le chinois, que le header ne connaît
+     pas. `ZTS` n'existe que si shared/zts.js a fini de s'initialiser. */
+  document.addEventListener('zts:langchange', (e) => {
+    const l = e.detail && e.detail.lang;
+    if ((l === 'fr' || l === 'en') && l !== currentLang) setLang(l);
+  });
+
   function init() {
+    // Ouvrir sur la ligue de l'équipe suivie, si elle est connue.
+    const fav = getFav();
+    if (fav && CONFIG[fav.league]) currentLeague = fav.league;
+
     initParticles();
     renderLeagueSelector();
     updateDateDisplay();
@@ -2023,11 +2877,19 @@
   </script>
 
 <script>
-// Detecter si on est dans un iframe et activer le mode compact
+// Detecter si on est dans un iframe et activer le mode compact.
+// Posé AVANT shared/zts.js : celui-ci écrit un padding-top inline calé sur le
+// header, et la règle `body.iframe-mode { padding-top:0 !important }` doit
+// pouvoir s'appliquer dès le premier calcul.
 if (window.self !== window.top) {
   document.body.classList.add('iframe-mode');
 }
 </script>
+<!-- Chrome partagé : injecte header.html et footer.html, gère l'i18n FR/EN du
+     header, l'horloge et le décalage sous l'en-tête fixe. Charge aussi
+     analytics.js et telegram-notify.js s'ils ne sont pas déjà là — les gardes
+     anti-double-chargement de zts.js couvrent les deux balises ci-dessous. -->
+<script src="shared/zts.js"></script>
 <script src="telegram-notify.js"></script>
   <script src="cookie-consent.js" defer></script>
 </body>
