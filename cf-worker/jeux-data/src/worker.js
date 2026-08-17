@@ -77,6 +77,13 @@ const BANQUES = {
             "competence_pfeq", "composante", "moyen_action", "espace"],
     vitrines: "sae",
     public: true,
+    // Vague C. La banque `sae` est la SEULE dont le contenu ne vit pas dans sa
+    // propre source : `sae-all-light.json` ne porte que l'index, la valeur est
+    // dans `sae-detail/<categorie>.json`, derriere jeton (servirFichier).
+    // Sans ce prefixe, une SAE vitrine serait « ouverte » et pourtant VIDE :
+    // l'anonyme recevrait l'item light entier et rien du contenu. On va donc
+    // chercher son detail au moment de batir la charge publique.
+    detailPrefixe: "sae-detail",
   },
 
   // PAS DE CHARGE PUBLIQUE, et ce n'est pas un oubli.
@@ -211,6 +218,57 @@ function construirePublic(brut, banque, slugsVitrine) {
   return {};
 }
 
+// ── Vague C : rendre les SAE vitrine reellement completes ──
+// `reduire` a rendu l'item light ENTIER pour une vitrine — mais l'item light
+// n'est qu'un index (664 o) : ni `cours`, ni `deroulement`, ni grille. La fiche
+// paraitrait ouverte et serait creuse. On lit donc le detail et on le fusionne.
+//
+// Trois garde-fous, dans cet ordre d'importance :
+//  1. `_idx` vient des donnees (verifie sur les 1880 : aucun decalage). On
+//     verifie quand meme l'`id` apres coup — un decalage futur publierait la
+//     MAUVAISE SAE en clair, ce qui est pire qu'une vitrine vide.
+//  2. Un fichier de detail illisible ne fait pas echouer la charge publique :
+//     on laisse l'item light. Une banque qui tombe pour trois vitrines serait
+//     un mauvais echange.
+//  3. Un seul fichier lu par categorie, et seulement si elle porte une vitrine
+//     — trois lectures R2 au plus, sur une reponse mise en cache 24 h au bord.
+async function enrichirVitrines(objet, env, prefixe) {
+  const tableauDe = (v) => {
+    if (Array.isArray(v)) return v;
+    if (v && typeof v === "object") {
+      const k = Object.keys(v).find((x) => Array.isArray(v[x]));
+      if (k) return v[k];
+    }
+    return null;
+  };
+
+  for (const cat of Object.keys(objet)) {
+    const arr = tableauDe(objet[cat]);
+    if (!arr) continue;
+    if (!arr.some((it) => it && it._vitrine)) continue;   // rien a enrichir ici
+
+    let detail;
+    try {
+      detail = tableauDe(JSON.parse(await lireSource(env, `${prefixe}/${cat}.json`)));
+    } catch (e) {
+      console.warn(`[jeux-data] detail vitrine illisible (${cat}):`, e.message);
+      continue;
+    }
+    if (!detail) continue;
+
+    for (const it of arr) {
+      if (!it || !it._vitrine || typeof it._idx !== "number") continue;
+      let d = detail[it._idx];
+      if (!d || d.id !== it.id) {
+        d = detail.find((x) => x && x.id === it.id);   // repli : l'id fait foi
+        if (d) console.warn(`[jeux-data] _idx decale pour ${it.id} (${cat})`);
+      }
+      if (d) Object.assign(it, d);
+      else console.warn(`[jeux-data] vitrine sans detail : ${it.id} (${cat})`);
+    }
+  }
+}
+
 async function servir(request, env, nomBanque, portee) {
   const banque = BANQUES[nomBanque];
   if (!banque) return err("banque_inconnue", `Banque « ${nomBanque} » inconnue.`, 404);
@@ -245,7 +303,11 @@ async function servir(request, env, nomBanque, portee) {
   } else {
     const wl = await lireWhitelist(env);
     const slugs = ((wl.freeItems || {})[banque.vitrines]) || [];
-    corps = JSON.stringify(construirePublic(JSON.parse(brut), banque, slugs));
+    const objet = construirePublic(JSON.parse(brut), banque, slugs);
+    if (banque.detailPrefixe && slugs.length) {
+      await enrichirVitrines(objet, env, banque.detailPrefixe);
+    }
+    corps = JSON.stringify(objet);
   }
 
   const etag = await etagDe(corps);

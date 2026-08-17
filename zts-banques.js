@@ -125,8 +125,54 @@
     return r.json();
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // VAGUE C — le mur au niveau de l'ITEM, pas de l'app.
+  //
+  // Les deux SPA restent ouvertes : leur liste EST l'argument de vente (1439
+  // jeux, 1880 SAE, filtrables sans compte). Ce qui se ferme, c'est la fiche.
+  //
+  // COMMENT ON SAIT QU'UN ITEM EST VERROUILLE — et pourquoi pas par la liste
+  // blanche. Le client POURRAIT relire `locked-whitelist.json` et comparer les
+  // slugs, mais ce serait une deuxieme source de verite, desynchronisable de
+  // celle du Worker : le jour ou les deux divergent, l'app promet une fiche que
+  // la charge ne contient pas. On lit donc CE QU'ON A RECU. Un item complet est
+  // complet ; un item reduit ne l'est pas. Le Worker reste seul juge.
+  //
+  // Ni `_vitrine` ni `_slug` ne servent de test : ils sont absents de la charge
+  // `full` d'un membre, dont tous les items sont pourtant complets.
+  function estVerrouille(item, champsDeContenu) {
+    if (!item) return false;
+    for (var i = 0; i < champsDeContenu.length; i++) {
+      if (item[champsDeContenu[i]] !== undefined) return false;
+    }
+    return true;
+  }
+
+  // Le mur plein ecran trace deja son propre `locked_view` (layer:'fullscreen',
+  // zts-locked-fullscreen.js). Ne pas en emettre un second ici : le tunnel
+  // compterait deux vues pour une.
+  function murItem(item, source) {
+    var slug = (item && (item._slug || item.id)) || null;
+    if (window.ztsShowLockedFullscreen) {
+      window.ztsShowLockedFullscreen({
+        source: source,
+        slug: slug,
+        targetUrl: window.location.pathname + window.location.search,
+        // Fermable : on est dans une SPA. Un mur non fermable piegerait le
+        // visiteur sur une liste qu'on vient de lui dire de parcourir.
+        closable: true
+      });
+      return true;
+    }
+    // Repli si le composant n'a pas charge : ne JAMAIS ouvrir la fiche vide.
+    if (window.ztsShowSignup) window.ztsShowSignup();
+    return false;
+  }
+
   root.ZTSBanques = {
     charge: charge,
+    estVerrouille: estVerrouille,
+    murItem: murItem,
     // Raccourcis lisibles pour les appelants.
     jeux: function () { return charge('/jeux/full.json', { public: '/jeux/public.json' }); },
     sae: function () { return charge('/sae/full.json', { public: '/sae/public.json' }); },
