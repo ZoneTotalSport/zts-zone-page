@@ -24,60 +24,76 @@ Les 12 items sont dans la liste, la règle Bulk Redirect est active.
   SSL mode **Full**, pas Flexible, pour éviter les boucles de redirection).
   En attendant, ces pages restent en 200 (contenu mort, aucun lien n'y pointe).
 
-### État au 17 août 2026 — les sous-chemins ne suivent PAS
+### État au 17 août 2026 — bascule vers les règles de zone
 
-Remesuré ce jour, anonyme :
+**Ce qui a changé ce jour-là.** La liste `zts_sous_domaines_301` ne préservait
+pas les sous-chemins : mesuré le matin, `jeux./app.js` et `generateur./app.js`
+répondaient encore **200** et servaient la copie parallèle du site en
+profondeur. Cocher « Subpath matching » sur les items n'a rien produit — et la
+doc Cloudflare ne restreint aucun paramètre de Bulk Redirect selon le plan, ce
+n'était donc pas une limite du gratuit.
 
-| Requête | Réponse |
+La correction n'est pas passée par la liste mais par des **Redirect Rules de
+zone**, éditables au tableau de bord sans jeton d'API. **Cinq règles** :
+
+| Règle | Couvre |
 |---|---|
-| `jeux.zonetotalsport.ca/` | 301 → `/apps/jeux/` |
-| `generateur.zonetotalsport.ca/` | 301 → `/apps/generateur/` |
-| `gym.zonetotalsport.ca/` | 301 → `/apps/transitions/` |
-| `jeux.zonetotalsport.ca/?lang=en` | 301 → `/apps/jeux/?lang=en` |
-| **`jeux.zonetotalsport.ca/app.js`** | **200 — sert encore le fichier** |
-| **`generateur.zonetotalsport.ca/app.js`** | **200 — sert encore le fichier** |
+| `souschemins-groupe` | les 7 sous-domaines dont le nom correspond au dossier d'app, par `substring(http.host, …)` |
+| 3 règles wildcard | `jeux.` → `/apps/jeux/`, `generateur.` → `/apps/generateur/`, `gym.` → `/apps/transitions/` — leurs cibles ne se déduisent pas du nom |
+| `ia` (conservée) | `ia.` → `/apps/generateur` |
 
-**La query string survit** (réglage n°2 de la section « Deux réglages » : fait).
-**La correspondance des sous-chemins, non** (réglage n°1 : pas fait). Seule la
-racine des trois sous-domaines redirige ; tout chemin profond continue de servir
-la copie parallèle du site. C'est exactement le contenu dupliqué que la vague
-devait fermer, et c'est le dernier trou de la liste `zts_sous_domaines_301`.
+Les vieilles règles de juillet sont **supprimées**. La liste
+`zts_sous_domaines_301` reste en place mais ne sert plus que les racines
+qu'elle matche encore ; les règles de zone couvrent tout le reste, sous-chemins
+compris.
 
-**Ce qu'il reste à faire, et pourquoi ce n'est pas fait ici.** Les trois items
-de la liste doivent passer à `subpath_matching: true` (en gardant
-`preserve_query_string: true`). Cela se fait sur la liste
-`zts_sous_domaines_301` — soit dans le tableau de bord (**Rules → Bulk
-Redirects → zts_sous_domaines_301**, cocher « Subpath matching » sur les trois
-lignes), soit par l'API :
+**Mesuré après la bascule — les 5 sous-domaines à cible explicite :**
 
-```bash
-# Jeton requis : permission « Account → Account Filter Lists → Edit ».
-# Le jeton OAuth de wrangler ne l'a PAS (workers/d1/kv seulement) — vérifié.
-export CF_TOKEN=...   # jeton d'API, pas la clé globale
-ACC=ccdcf14a003fcd8108e6494d75bcae37
+| Sous-domaine | Racine | Sous-chemin | Query string |
+|---|---|---|---|
+| `jeux.` | 301 → `/apps/jeux/`, 1 saut | `/app.js` → `/apps/jeux/app.js` | conservée (`?lang=en`, `?v=2`) |
+| `generateur.` | 301 → `/apps/generateur/`, 1 saut | `/app.js` → `/apps/generateur/app.js` | conservée |
+| `gym.` | 301 → `/apps/transitions/`, 1 saut | `/index.html` → `/apps/transitions/index.html` | conservée |
+| `agenda.` | 301 → `/apps/agenda/`, 1 saut | — | — |
+| `ia.` | 301 → `/apps/generateur`, **2 sauts** | — | cible sans barre finale, défaut connu |
 
-# 1. Retrouver l'id de la liste et ceux des trois items
-curl -s -H "Authorization: Bearer $CF_TOKEN" \
-  "https://api.cloudflare.com/client/v4/accounts/$ACC/rules/lists" \
-  | python3 -c "import sys,json;[print(l['id'],l['name'],l['kind']) for l in json.load(sys.stdin)['result']]"
+Les chemins profonds sont donc scellés : `jeux./data/jeux/opposition.json`
+redirige au lieu de servir 16 Mo. C'était le dernier trou de la vague D.
 
-LIST=<id de zts_sous_domaines_301>
-curl -s -H "Authorization: Bearer $CF_TOKEN" \
-  "https://api.cloudflare.com/client/v4/accounts/$ACC/rules/lists/$LIST/items?per_page=50" \
-  | python3 -m json.tool
+### ⛔ RÉGRESSION OUVERTE — 7 sous-domaines redirigent vers des 404
 
-# 2. PUT remplace la liste ENTIÈRE : renvoyer les 12 items, pas seulement 3.
-#    Un PUT partiel efface les neuf autres redirections.
-```
+**Mesuré le 17 août, après la bascule. Non corrigé à l'écriture de cette note.**
 
-⚠ **Le `PUT …/items` est un remplacement complet**, pas une fusion. Repartir du
-dump de l'étape 1, modifier les trois lignes, renvoyer les douze. C'est le
-piège qui coûte les 5 pages sportives et les 2 orphelins de la racine.
+`souschemins-groupe` retire **un caractère de trop** au nom d'hôte :
 
-⚠ **Cette modification touche la production**, contrairement au reste du LOT 1
-qui vit sur la branche. À poser sciemment, avec le bloc de vérification de la
-fin de ce fichier joué juste après (point 5 en particulier : aucune page vivante
-ne doit tomber).
+| Sous-domaine | Cible produite | Cible attendue |
+|---|---|---|
+| `sae.` | `/apps/sa/` → **404** | `/apps/sae/` |
+| `educatifs.` | `/apps/educatif/` → **404** | `/apps/educatifs/` |
+| `musique.` | `/apps/musiqu/` → **404** | `/apps/musique/` |
+| `suppleance.` | `/apps/suppleanc/` → **404** | `/apps/suppleance/` |
+| `evaluation.` | `/apps/evaluatio/` → **404** | `/apps/evaluation/` |
+| `tni.` | `/apps/tn/` → **404** | `/apps/tni/` |
+| `grille.` | `/apps/grill/` → **404** | `/apps/grille/` |
+
+Les 14 cibles ont été vérifiées une à une : les 7 tronquées répondent 404, les
+7 correctes répondent 200. Le défaut touche aussi les sous-chemins
+(`sae./app.js` → `/apps/sa/app.js`).
+
+**Le correctif tient dans une constante.** `.zonetotalsport.ca` fait
+**18 caractères**. Pour `sae.zonetotalsport.ca` (21 caractères), il faut garder
+les 3 premiers, donc une fin de `substring` à `len(http.host) - 18`. La règle
+utilise 19. Les trois règles wildcard ne sont pas concernées — elles portent
+leur cible en clair, ce qui est aussi pourquoi elles n'ont jamais cassé.
+
+**Pourquoi ça n'a pas été vu au contrôle.** Le contrôle a lu le *code de
+statut* : les 12 répondent bien 301. Il n'a pas lu la *destination*. C'est
+exactement ce que le bloc de vérification de fin de fichier attrape, à la
+condition de le jouer en entier — le point 1 imprime la cible, pas seulement le
+code, et le point 5 vérifie qu'aucune page vivante n'est tombée.
+
+⚠ **Règle d'or n°3 : toute ancienne URL = redirection 301, jamais un 404.**
+Une 301 vers un 404 la viole autant qu'un 404 direct — elle la maquille.
 
 ## Ce que contient le CSV
 
