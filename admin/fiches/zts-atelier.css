@@ -1,0 +1,172 @@
+/**
+ * zts-atelier.css — coque d'edition des fiches de jeu.
+ *
+ * Disposition de logiciel vectoriel, reprise de la maquette
+ * « Fiche de jeu.dc.html » (section 11 de CHANGEMENTS-pour-cowork.md) :
+ * barre superieure sombre, rail d'outils a gauche, dock a droite, barre
+ * d'etat en bas. Tout porte `.zts-ui` — donc deja masque a l'impression et
+ * en mode public par zts-fiche.css.
+ *
+ * Les quatre elements sont en position:fixed et leurs dimensions REELLES
+ * sont relues par appliquerDecalages() : c'est la seule chose a ajuster si
+ * un en-tete ou un pied de site vient s'inserer autour des pages.
+ *
+ * Ce fichier n'est charge que par /admin/fiches. Les pages publiques
+ * (/fiches) n'en voient rien.
+ */
+
+:root {
+  --atl-fond: #2b2b2b;
+  --atl-fond2: #333;
+  --atl-atelier: #3c3c3c;
+  --atl-trait: #1c1c1c;
+  --atl-texte: #e6e6e6;
+  --atl-attenue: #9a9a9a;
+  --atl-actif: #22ccf5;
+  --atl-jaune: #FFF200;
+}
+
+/* ── Corps en mode edition ────────────────────────────────────────────── */
+
+body.zts-atelier-on { background: var(--atl-atelier); }
+
+/* La barre d'outils du document reste collante, mais SOUS la barre de
+ * l'atelier : son `top` est recalcule par appliquerDecalages(). */
+body.zts-atelier-on #zts-barre-outils { background: transparent; }
+
+/* ── Chrome commun ────────────────────────────────────────────────────── */
+
+.zts-atl {
+  position: fixed; z-index: 70; box-sizing: border-box;
+  background: var(--atl-fond); color: var(--atl-texte);
+  font-family: 'Quicksand', system-ui, sans-serif; font-size: 12px;
+  border-color: var(--atl-trait); border-style: solid; border-width: 0;
+  user-select: none; -webkit-user-select: none;
+}
+
+.zts-atl button, .zts-atl select, .zts-atl input {
+  font-family: inherit; font-size: 12px; color: var(--atl-texte);
+  background: var(--atl-fond2); border: 1px solid var(--atl-trait);
+  border-radius: 4px; padding: 4px 7px; cursor: pointer;
+}
+.zts-atl input, .zts-atl select { cursor: auto; }
+.zts-atl button:hover { background: #4a4a4a; }
+.zts-atl button[disabled] { opacity: .38; cursor: default; }
+.zts-atl button[disabled]:hover { background: var(--atl-fond2); }
+.zts-atl button.actif { background: var(--atl-actif); color: #101010; border-color: #0f7f9c; }
+
+.zts-atl input[type="color"] { padding: 0; width: 26px; height: 24px; }
+.zts-atl input[type="number"], .zts-atl input[type="text"] { width: 52px; }
+.zts-atl label { display: inline-flex; align-items: center; gap: 4px; color: var(--atl-attenue); }
+
+.zts-atl-sep { width: 1px; align-self: stretch; background: #4a4a4a; margin: 0 3px; }
+.zts-atl-titre {
+  font-family: 'Bangers', cursive; font-size: 12px; letter-spacing: 1.4px;
+  color: var(--atl-attenue); text-transform: uppercase;
+}
+
+/* ── Barre superieure ─────────────────────────────────────────────────── */
+
+#zts-atl-barre { top: 0; left: 0; right: 0; border-bottom-width: 1px; }
+
+#zts-atl-barre .rangee {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: 5px 9px; min-height: 32px;
+}
+#zts-atl-barre .rangee + .rangee { border-top: 1px solid #414141; background: #303030; }
+#zts-atl-barre .doc {
+  margin-left: auto; margin-right: 6px; color: var(--atl-jaune);
+  font-family: 'Bangers', cursive; letter-spacing: 1px; font-size: 14px;
+}
+#zts-atl-corps[hidden] { display: none; }
+
+/* ── Rail d'outils ────────────────────────────────────────────────────── */
+
+#zts-atl-rail {
+  left: 0; width: 44px; border-right-width: 1px;
+  display: flex; flex-direction: column; gap: 3px; padding: 6px 4px; overflow-y: auto;
+}
+#zts-atl-rail button {
+  width: 36px; height: 32px; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; line-height: 1; padding: 0;
+}
+
+/* ── Dock ─────────────────────────────────────────────────────────────── */
+
+#zts-atl-dock {
+  right: 0; width: 246px; border-left-width: 1px;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+#zts-atl-dock .onglets { display: flex; border-bottom: 1px solid var(--atl-trait); }
+#zts-atl-dock .onglets button {
+  flex: 1; border-radius: 0; border: 0; border-right: 1px solid var(--atl-trait);
+  padding: 7px 2px; font-family: 'Bangers', cursive; letter-spacing: 1px; font-size: 12px;
+}
+#zts-atl-dock .onglets button:last-child { border-right: 0; }
+#zts-atl-dock .panneau { padding: 9px; overflow-y: auto; flex: 1; }
+#zts-atl-dock .grille2 {
+  display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 6px 5px; align-items: center;
+}
+#zts-atl-dock .grille2 input { width: 100%; box-sizing: border-box; }
+#zts-atl-dock .ligne { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+#zts-atl-dock .vide { color: var(--atl-attenue); font-style: italic; }
+
+/* Calques */
+.zts-atl-page-titre {
+  font-family: 'Bangers', cursive; letter-spacing: 1px; color: var(--atl-jaune);
+  margin: 10px 0 4px; font-size: 12px;
+}
+.zts-atl-page-titre:first-child { margin-top: 0; }
+.zts-atl-calque {
+  display: flex; align-items: center; gap: 4px; padding: 3px 4px;
+  border: 1px solid transparent; border-radius: 4px;
+}
+.zts-atl-calque:hover { background: #3a3a3a; }
+.zts-atl-calque.sel { background: #16506180; border-color: var(--atl-actif); }
+.zts-atl-calque .nom {
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
+}
+.zts-atl-calque.masque .nom { color: var(--atl-attenue); text-decoration: line-through; }
+.zts-atl-calque button { padding: 1px 5px; font-size: 11px; }
+
+/* Historique */
+.zts-atl-hist { display: block; width: 100%; text-align: left; margin-bottom: 3px; }
+.zts-atl-hist.courant { border-color: var(--atl-actif); color: var(--atl-actif); }
+
+/* ── Barre d'etat ─────────────────────────────────────────────────────── */
+
+#zts-atl-etat {
+  left: 0; right: 0; bottom: 0; border-top-width: 1px;
+  display: flex; align-items: center; gap: 14px; padding: 4px 10px;
+  color: var(--atl-attenue); font-size: 11.5px;
+}
+#zts-atl-etat .sel { color: var(--atl-actif); }
+
+/* ── Selection dans la page ───────────────────────────────────────────── */
+
+/* Le cadre de selection vit DANS la page (repere 850x1100), pas dans la
+ * fenetre : il suit donc le defilement sans un seul calcul. */
+.zts-atl-cadre {
+  position: absolute; z-index: 900; pointer-events: none;
+  outline: 2px solid var(--atl-actif); outline-offset: 1px;
+}
+.zts-atl-poignee {
+  position: absolute; right: -6px; bottom: -6px; width: 12px; height: 12px;
+  background: var(--atl-jaune); border: 2px solid #101010; border-radius: 2px;
+  pointer-events: auto; cursor: nwse-resize;
+}
+
+/* En mode atelier, le pointille cyan de zts-fiche.css devient du bruit :
+ * la selection suffit a montrer ce qui est modifiable. */
+body.zts-atelier-on .zts-editable-on [data-champ] { outline: none; }
+body.zts-atelier-on .zts-atl-vise { outline: 1px dashed #ffffff55; outline-offset: 2px; }
+body.zts-atelier-on .zts-forme { cursor: move; }
+body.zts-atelier-on .zts-atl-ecrit { cursor: text; }
+
+/* L'outil « poser une forme » : le curseur dit ou on en est. */
+body.zts-atelier-outil .zts-page-wrap { cursor: crosshair; }
+
+@media print {
+  .zts-atl, .zts-atl-cadre { display: none !important; }
+  body.zts-atelier-on { background: #fff; }
+}

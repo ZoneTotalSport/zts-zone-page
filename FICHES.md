@@ -45,6 +45,7 @@ fiches/
   index.html               /fiches — index public, groupé par catégorie
   fiche.html               page publique d'une fiche
   zts-fiche-modele.js      moteur de rendu (vanille, zéro dépendance)
+  zts-fiche-formes.js      rendu des formes et des surcharges de style
   zts-image-slot.js        <image-slot> : téléversement Storage
   zts-fiches-firebase.js   accès Firestore + Storage
   zts-fiche.css            habillage de page + CSS d'impression
@@ -57,6 +58,8 @@ fiches/
 admin/fiches/
   index.html               /admin/fiches — éditeur protégé
   zts-editeur.js           logique d'édition, sauvegarde, migration
+  zts-atelier.js           coque d'édition : barre, rail, dock, sélection
+  zts-atelier.css          habillage sombre de la coque (admin seulement)
 
 _scripts/
   zts-admin-claim.js       pose le custom claim admin (one-shot)
@@ -348,7 +351,63 @@ Autres normalisations, toutes réversibles :
 
 ---
 
-## 10. Ce qui reste
+## 10. L'atelier d'édition
+
+Le bouton **MODE ÉDITION** ouvre une coque de logiciel vectoriel, portée de
+la maquette (section 11 de `CHANGEMENTS-pour-cowork.md`). Quatre éléments
+fixes, tous en `.zts-ui` — donc absents de l'impression et du mode public :
+
+| Élément | Rôle |
+|---|---|
+| `#zts-atl-barre` | annuler/refaire, ordre, dupliquer, supprimer, nom du document, repli. Deux rangées contextuelles : **Objet** (fond, trait, épaisseur, ombre, alignement page) et **Caractère** (police, taille, couleur, contour, ombre, alignement, interligne, lettres, mots, titre alterné) |
+| `#zts-atl-rail` | sélection + 7 outils de pose : rectangle, cercle, ligne, flèche, boîte, étiquette, texte |
+| `#zts-atl-dock` | 246 px, trois onglets : **Transformer** (X/Y/L/H, rotation, masquer), **Calques** (par page, œil / ▲▼ / ✕), **Historique** |
+| `#zts-atl-etat` | rappel des raccourcis + objet sélectionné |
+
+Gestes : clic = sélectionner, glisser = déplacer, poignée jaune =
+redimensionner, double-clic = écrire, `Suppr` = effacer, `Échap` =
+désélectionner, `Ctrl+Z` / `Ctrl+Maj+Z`, `Ctrl+D` = dupliquer.
+
+### Ce que l'atelier écrit
+
+Rien de neuf : les deux champs étaient déjà acceptés par
+`zts-fiches-firebase.js` et déjà rendus par `zts-fiche-formes.js` côté
+public. L'atelier ferme la boucle.
+
+- `fiche.formes` — tableau, ordre du tableau = ordre de peinture.
+- `fiche.styles` — surcharges indexées par **clé explicite**, jamais par
+  chemin d'indices DOM :
+  - `sections.0.explications.1.texte` → `[data-champ]`
+  - `b:sections.0.explications.1.imagePath` → `[data-bloc]`, le **cadre**
+    de la case. C'est lui qu'on déplace : `<image-slot>` est en
+    `position:absolute;inset:0`, donc bouger la case sans son cadre
+    laisserait le contour noir sur place.
+
+`styles.titre.altA` / `.altB` sont à part : elles se posent au **rendu**
+(les `<span>` du titre sont regénérés par `titreColore`), pas par
+`appliquerStyle`. Le titre reste stocké en texte brut.
+
+### Trois points d'attention
+
+1. **`appliquerDecalages()`** est le seul endroit à ajuster si un en-tête ou
+   un pied de site vient s'insérer autour des pages. Tout s'y calcule à
+   partir des dimensions réelles du chrome, jamais de constantes — la barre
+   d'outils du document y est repoussée sous la barre de l'atelier.
+2. **Les dimensions de page ne doivent jamais bouger** (850×1100 portrait,
+   1100×850 paysage) : les coordonnées des formes sont en unités de page.
+3. **Un champ ne se supprime pas, il se masque.** L'effacer laisserait un
+   trou que le modèle recréerait au rendu suivant.
+
+### Non couvert (étape 2)
+
+Plume vectorielle et édition des points d'ancrage · grille, règles et
+repères (`fiche.reperes`) · magnétisme et guides · import/export JSON du
+document. Les tracés déjà posés restent **rendus** partout ; ils ne sont
+simplement pas sélectionnables, leur SVG étant en `pointer-events:none`.
+
+---
+
+## 11. Ce qui reste
 
 - **Pas encore lié** depuis la home ni le menu (`shared/zts-menu.js`).
   Volontaire : rien ne pointe vers `/fiches` tant que tu n'as pas publié une
@@ -356,7 +415,6 @@ Autres normalisations, toutes réversibles :
 - **`sitemap.xml`** — ajouter `/fiches/` quand des fiches seront publiées.
   Les fiches elles-mêmes sont dynamiques : leur indexation demandera soit le
   Worker (§5), soit une génération statique au moment de publier.
-- **Pas d'undo/redo** dans l'éditeur, comme dans `apps/studio-jeu`.
 - **Suppression d'image** — remplacer une image écrase l'ancienne au même
   chemin ; il n'y a pas de bouton « vider la case ». Le bucket ne se remplit
   pas d'orphelins, mais on ne peut pas revenir à une case vide sans passer

@@ -132,21 +132,32 @@
   }
 
   /**
-   * Titre en lettres alternees cyan / jaune, comme la maquette.
+   * Titre en lettres alternees, deux couleurs.
    * L'alternance porte sur les caracteres non blancs uniquement, et
-   * commence au cyan ; les espaces restent hors des <span>.
+   * commence par `a` ; les espaces restent hors des <span>.
+   *
+   * `a` et `b` viennent de `styles.titre.altA / .altB` quand l'atelier les a
+   * regles ; sans eux on retombe sur le cyan / jaune de la maquette. Le
+   * titre est stocke en TEXTE BRUT — les <span> sont regeneres au rendu.
    */
-  function titreColore(texte) {
+  function titreColore(texte, a, b) {
     var out = '';
     var i = 0;
+    var ca = a || CYAN, cb = b || JAUNE;
     var chars = Array.from(String(texte == null ? '' : texte));
     for (var k = 0; k < chars.length; k++) {
       var c = chars[k];
       if (/\s/.test(c)) { out += esc(c); continue; }
-      out += '<span style="color:' + (i % 2 === 0 ? CYAN : JAUNE) + '">' + esc(c) + '</span>';
+      out += '<span style="color:' + (i % 2 === 0 ? ca : cb) + '">' + esc(c) + '</span>';
       i++;
     }
     return out;
+  }
+
+  /** Couleurs alternees du titre, telles que reglees dans l'atelier. */
+  function altTitre(f) {
+    var s = f && f.styles && f.styles.titre;
+    return { a: s && s.altA, b: s && s.altB };
   }
 
   /** Case image : <image-slot> qui remplit son cadre. (ECART 3) */
@@ -156,8 +167,16 @@
       ' placeholder="' + esc(placeholder) + '"></image-slot>';
   }
 
+  /**
+   * `data-bloc` porte le MEME chemin que la case qu'il encadre, prefixe
+   * « b: » du cote des styles. C'est lui la cible deplacable : <image-slot>
+   * est en position:absolute;inset:0, donc bouger la case sans bouger son
+   * cadre laisserait le contour noir sur place. Cle explicite, jamais un
+   * chemin d'indices DOM — voir FICHES.md.
+   */
   function cadre(largeurCss, hauteur, ombre, chemin, placeholder, opts) {
-    return '<div style="' + largeurCss + 'height:' + hauteur + 'px;position:relative;' +
+    return '<div data-bloc="' + esc(chemin) + '" style="' + largeurCss +
+      'height:' + hauteur + 'px;position:relative;' +
       'border:5px solid #000;box-shadow:6px 6px 0 ' + ombre + ';">' +
       caseImage(chemin, placeholder, opts) + '</div>';
   }
@@ -220,14 +239,15 @@
           '<h1 data-champ="titre" style="margin:35px 0 0;' +
             "font-family:'ZoneTotalSportFiche',Bangers,cursive;font-size:24px;line-height:1.42;letter-spacing:3px;" +
             '-webkit-text-stroke:5px #000;paint-order:stroke fill;text-shadow:4px 4px 0 #000;' +
-            'text-wrap:balance;">' + titreColore(f.titre) + '</h1>' +
+            'text-wrap:balance;">' + titreColore(f.titre, o.altA, o.altB) + '</h1>' +
           '<p data-champ="sousTitre" style="margin:10px 0 0;' +
             "font-family:'Luckiest Guy',cursive;font-size:19px;letter-spacing:0.5px;color:" + NOIR + ';">' +
             typo(f.sousTitre) + '</p>' +
           '<div style="margin-top:12px;display:flex;justify-content:center;gap:8px;width:690px;height:51px;">' +
             badges + '</div>' +
         '</div>' +
-        '<div style="position:relative;height:700px;border:5px solid #000;box-shadow:8px 8px 0 ' + CYAN + ';">' +
+        '<div data-bloc="imagePrincipale" style="position:relative;height:700px;' +
+          'border:5px solid #000;box-shadow:8px 8px 0 ' + CYAN + ';">' +
           caseImage('imagePrincipale', 'Grande illustration du jeu — glisse ton image ici',
                     { chemin: f.imagePrincipale }) +
         '</div>' +
@@ -247,8 +267,8 @@
         '<h1 data-champ="titre" style="margin:0;text-align:center;' +
           "font-family:'ZoneTotalSportFiche',Bangers,cursive;font-size:24px;line-height:4;letter-spacing:3px;" +
           '-webkit-text-stroke:5px #000;paint-order:stroke fill;text-shadow:4px 4px 0 #000;' +
-          'width:982px;height:70px;">' + titreColore(f.titre) + '</h1>' +
-        '<div style="position:relative;height:490px;border:5px solid #000;' +
+          'width:982px;height:70px;">' + titreColore(f.titre, o.altA, o.altB) + '</h1>' +
+        '<div data-bloc="imagePage2" style="position:relative;height:490px;border:5px solid #000;' +
           'box-shadow:8px 8px 0 ' + CYAN + ';width:951px;">' +
           caseImage('imagePage2', 'Image du jeu pleine page — glisse ton image ici',
                     { chemin: f.imagePage2 }) +
@@ -398,6 +418,13 @@
     var toutVoir = mode !== 'public';
     o.suiteHref = toutVoir ? '#' : o.signupUrl;
 
+    // Les couleurs du titre alterne sont un style comme un autre, mais elles
+    // se posent au RENDU (dans les <span>) et non par appliquerStyle() : on
+    // les sort de `styles` ici plutot que de laisser chaque appelant y penser.
+    var alt = altTitre(f);
+    if (o.altA === undefined) o.altA = alt.a;
+    if (o.altB === undefined) o.altB = alt.b;
+
     var html = page1(f, o);
     if (toutVoir) {
       html += page2(f, o) + pagesSections(f, o);
@@ -474,6 +501,7 @@
     lire: lire,
     ecrire: ecrire,
     titreColore: titreColore,
+    altTitre: altTitre,
     GABARITS: GABARITS,
     COULEURS_BADGE: COULEURS_BADGE
   };

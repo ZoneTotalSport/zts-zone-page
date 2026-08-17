@@ -65,16 +65,30 @@
   }
 
   /**
+   * Resout une cle de style vers son element.
+   *
+   * Deux familles, toutes deux EXPLICITES — jamais un chemin d'indices DOM,
+   * qui se reattacherait au mauvais element des qu'un div bouge :
+   *   `<chemin>`     -> [data-champ]  texte editable ou <image-slot>
+   *   `b:<chemin>`   -> [data-bloc]   cadre d'image (le contour noir)
+   */
+  function elementDeCle(racine, cle) {
+    var bloc = cle.indexOf('b:') === 0;
+    var attr = bloc ? 'data-bloc' : 'data-champ';
+    var val = bloc ? cle.slice(2) : cle;
+    return racine.querySelector('[' + attr + '="' + val.replace(/"/g, '\\"') + '"]');
+  }
+
+  /**
    * Applique toutes les surcharges d'une fiche.
-   * Les cles sont des chemins de champ (`sections.0.explications.1.texte`),
-   * resolus par `[data-champ]`. Une cle qui ne resout rien est ignoree en
-   * silence : c'est le cas normal d'une fiche dont la structure a change.
+   * Une cle qui ne resout rien est ignoree en silence : c'est le cas normal
+   * d'une fiche dont la structure a change.
    */
   function appliquerStyles(racine, styles) {
     if (!styles) return { appliques: 0, orphelins: [] };
     var ok = 0, orphelins = [];
     Object.keys(styles).forEach(function (cle) {
-      var el = racine.querySelector('[data-champ="' + cle.replace(/"/g, '\\"') + '"]');
+      var el = elementDeCle(racine, cle);
       if (!el) { orphelins.push(cle); return; }
       appliquerStyle(el, styles[cle]);
       ok++;
@@ -272,6 +286,9 @@
       if (!page || sh.hiddenLayer) { ignorees++; return; }
       var el = elementForme(sh, page.offsetWidth, page.offsetHeight);
       if (!el) { ignorees++; return; }
+      // L'identifiant sert a retrouver la forme apres un redessin complet —
+      // l'index de la boucle ne suffit pas, les formes masquees sont sautees.
+      if (sh.id) el.setAttribute('data-forme', sh.id);
       // L'ordre de peinture est l'ordre du tableau, comme dans le panneau
       // CALQUES de l'editeur.
       el.style.zIndex = 10 + rang;
@@ -284,8 +301,10 @@
 
   global.ZTSFormes = {
     dessiner: dessiner,
+    elementForme: elementForme,
     appliquerStyles: appliquerStyles,
     appliquerStyle: appliquerStyle,
+    elementDeCle: elementDeCle,
     cheminTrace: cheminTrace,
     POLICE_ZTS: POLICE_ZTS
   };

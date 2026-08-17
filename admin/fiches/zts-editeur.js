@@ -187,7 +187,11 @@
     var champs = racine.querySelectorAll('[data-champ]');
     Array.prototype.forEach.call(champs, function (el) {
       if (el.tagName === 'IMAGE-SLOT') return;
-      el.contentEditable = etat.edition ? 'true' : 'false';
+      // En atelier, un clic SELECTIONNE et un double-clic ecrit : les champs
+      // restent donc non editables jusqu'a ce que l'atelier en ouvre un.
+      // Sans ca, impossible de glisser un titre — le clic poserait un
+      // curseur de saisie au lieu de prendre l'element.
+      el.contentEditable = 'false';
       if (!etat.edition) { el.oninput = null; el.onblur = null; return; }
 
       el.oninput = function () {
@@ -198,11 +202,13 @@
       };
       el.onblur = function () {
         // Le titre apparait deux fois (pages 1 et 2) : on recolorise les
-        // deux d'un coup, une fois la frappe finie.
+        // deux d'un coup, une fois la frappe finie. Les couleurs viennent de
+        // styles.titre quand l'atelier les a reglees.
         if (el.getAttribute('data-champ') !== 'titre') return;
+        var alt = ZTSFiche.altTitre(etat.fiche);
         Array.prototype.forEach.call(
           document.querySelectorAll('[data-champ="titre"]'), function (h) {
-            h.innerHTML = ZTSFiche.titreColore(etat.fiche.titre);
+            h.innerHTML = ZTSFiche.titreColore(etat.fiche.titre, alt.a, alt.b);
           });
       };
     });
@@ -211,14 +217,25 @@
 
   /* ══ Rendu ════════════════════════════════════════════════════════════ */
 
+  /**
+   * Redessine la zone de travail.
+   *
+   * L'ordre compte : les surcharges de style AVANT les formes, parce que
+   * `ZTSFormes.dessiner` lit `page.offsetWidth` — une surcharge posee apres
+   * mesurerait la page a ses dimensions d'avant. C'est le meme ordre que
+   * /fiches/fiche.html cote public, et il ne doit pas diverger.
+   */
   function dessiner() {
-    document.getElementById('zts-racine').innerHTML =
-      ZTSFiche.rendre(etat.fiche, {
-        mode: 'editeur',
-        signupUrl: URL_INSCRIPTION,
-        base: '/fiches/'
-      });
+    var racine = document.getElementById('zts-racine');
+    racine.innerHTML = ZTSFiche.rendre(etat.fiche, {
+      mode: 'editeur',
+      signupUrl: URL_INSCRIPTION,
+      base: '/fiches/'
+    });
+    ZTSFormes.appliquerStyles(racine, etat.fiche.styles);
+    ZTSFormes.dessiner(racine, etat.fiche.formes);
     brancherEdition();
+    if (ZTSAtelier.estActif()) ZTSAtelier.rafraichir();
     majBarre();
   }
 
@@ -251,6 +268,7 @@
     document.getElementById('zts-edition').addEventListener('click', function () {
       etat.edition = !etat.edition;
       brancherEdition();
+      if (etat.edition) ZTSAtelier.activer(); else ZTSAtelier.desactiver();
       majBarre();
     });
 
@@ -373,6 +391,25 @@
     document.addEventListener('zts-image', function (e) {
       ZTSFiche.ecrire(etat.fiche, e.detail.champ, e.detail.path);
       marquerSale();
+      if (ZTSAtelier.estActif()) ZTSAtelier.instantane('Image');
+    });
+
+    /* L'atelier ne connait pas Firestore : il lit et ecrit une fiche, et
+     * demande un redessin. Tout ce qui touche a la sauvegarde reste ici. */
+    ZTSAtelier.configurer({
+      racine: function () { return document.getElementById('zts-racine'); },
+      fiche: function () { return etat.fiche; },
+      change: marquerSale,
+      redessiner: dessiner,
+      remplacer: function (f) {
+        // L'identifiant ne fait pas partie de ce qu'on annule : le remonter
+        // d'un instantane pointerait les televersements vers l'ancien doc.
+        var id = etat.fiche && etat.fiche.id;
+        etat.fiche = f;
+        if (id) etat.fiche.id = id;
+        marquerSale();
+        dessiner();
+      }
     });
 
     brancherBarre();
