@@ -114,11 +114,17 @@ en CI.
 - [x] Route par chemin `sae-detail/<f>` et `planification/<f>`, jeton requis
 - [x] Basculer les 5 consommateurs (jeux, planificateur, sae, moyens-action,
       planification) via `zts-banques.js`
-- [ ] **Chemins profonds de `jeux.`, `generateur.` et `gym.`** (API Cloudflare)
-      + consigner la config dans `REDIRECTIONS-CLOUDFLARE.md`
-- [ ] **Note datée** dans `apps/planificateur/CLAUDE.md` (révision d'architecture)
-- [ ] **Rebase final sur `origin/main`** — la session parallèle avance ; Joey veut
-      les tests joués sur l'état réellement fusionné
+- [x] Consigner l'état réel des sous-chemins dans `REDIRECTIONS-CLOUDFLARE.md`
+      (mesuré le 17 août : query string OK, **sous-chemins NON**)
+- [ ] ⛔ **BLOQUÉ — chemins profonds de `jeux.`, `generateur.` et `gym.`.**
+      Il faut un **jeton d'API Cloudflare** avec « Account Filter Lists → Edit » ;
+      le jeton OAuth de wrangler ne porte que workers/kv/d1 — vérifié le 17 août.
+      Marche à suivre et pièges : `REDIRECTIONS-CLOUDFLARE.md`, section
+      « État au 17 août ». **Seule tâche du lot qui touche la production.**
+- [x] **Note datée** dans `apps/planificateur/CLAUDE.md` (révision d'architecture)
+- [x] **Rebase sur `origin/main`** — au 17 août la branche contient déjà tout
+      `origin/main` (`8963480`), 11 commits devant, 0 derrière. À **refaire**
+      juste avant la fusion : la session parallèle pousse sur `feat/fiches-atelier`
 - [ ] **Tests finaux** : les six anciennes URL + `raw` → plus de données ;
       les 4 apps fonctionnelles anonyme ET connecté ; membre → full en 200 puis 304
 

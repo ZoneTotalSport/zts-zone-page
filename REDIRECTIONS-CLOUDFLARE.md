@@ -24,6 +24,61 @@ Les 12 items sont dans la liste, la règle Bulk Redirect est active.
   SSL mode **Full**, pas Flexible, pour éviter les boucles de redirection).
   En attendant, ces pages restent en 200 (contenu mort, aucun lien n'y pointe).
 
+### État au 17 août 2026 — les sous-chemins ne suivent PAS
+
+Remesuré ce jour, anonyme :
+
+| Requête | Réponse |
+|---|---|
+| `jeux.zonetotalsport.ca/` | 301 → `/apps/jeux/` |
+| `generateur.zonetotalsport.ca/` | 301 → `/apps/generateur/` |
+| `gym.zonetotalsport.ca/` | 301 → `/apps/transitions/` |
+| `jeux.zonetotalsport.ca/?lang=en` | 301 → `/apps/jeux/?lang=en` |
+| **`jeux.zonetotalsport.ca/app.js`** | **200 — sert encore le fichier** |
+| **`generateur.zonetotalsport.ca/app.js`** | **200 — sert encore le fichier** |
+
+**La query string survit** (réglage n°2 de la section « Deux réglages » : fait).
+**La correspondance des sous-chemins, non** (réglage n°1 : pas fait). Seule la
+racine des trois sous-domaines redirige ; tout chemin profond continue de servir
+la copie parallèle du site. C'est exactement le contenu dupliqué que la vague
+devait fermer, et c'est le dernier trou de la liste `zts_sous_domaines_301`.
+
+**Ce qu'il reste à faire, et pourquoi ce n'est pas fait ici.** Les trois items
+de la liste doivent passer à `subpath_matching: true` (en gardant
+`preserve_query_string: true`). Cela se fait sur la liste
+`zts_sous_domaines_301` — soit dans le tableau de bord (**Rules → Bulk
+Redirects → zts_sous_domaines_301**, cocher « Subpath matching » sur les trois
+lignes), soit par l'API :
+
+```bash
+# Jeton requis : permission « Account → Account Filter Lists → Edit ».
+# Le jeton OAuth de wrangler ne l'a PAS (workers/d1/kv seulement) — vérifié.
+export CF_TOKEN=...   # jeton d'API, pas la clé globale
+ACC=ccdcf14a003fcd8108e6494d75bcae37
+
+# 1. Retrouver l'id de la liste et ceux des trois items
+curl -s -H "Authorization: Bearer $CF_TOKEN" \
+  "https://api.cloudflare.com/client/v4/accounts/$ACC/rules/lists" \
+  | python3 -c "import sys,json;[print(l['id'],l['name'],l['kind']) for l in json.load(sys.stdin)['result']]"
+
+LIST=<id de zts_sous_domaines_301>
+curl -s -H "Authorization: Bearer $CF_TOKEN" \
+  "https://api.cloudflare.com/client/v4/accounts/$ACC/rules/lists/$LIST/items?per_page=50" \
+  | python3 -m json.tool
+
+# 2. PUT remplace la liste ENTIÈRE : renvoyer les 12 items, pas seulement 3.
+#    Un PUT partiel efface les neuf autres redirections.
+```
+
+⚠ **Le `PUT …/items` est un remplacement complet**, pas une fusion. Repartir du
+dump de l'étape 1, modifier les trois lignes, renvoyer les douze. C'est le
+piège qui coûte les 5 pages sportives et les 2 orphelins de la racine.
+
+⚠ **Cette modification touche la production**, contrairement au reste du LOT 1
+qui vit sur la branche. À poser sciemment, avec le bloc de vérification de la
+fin de ce fichier joué juste après (point 5 en particulier : aucune page vivante
+ne doit tomber).
+
 ## Ce que contient le CSV
 
 **Les 5 pages sportives retirées** — détail plus bas : `/apps-nhl/`,

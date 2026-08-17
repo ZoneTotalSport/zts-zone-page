@@ -24,6 +24,33 @@ presences/{id}          { journeeId, groupeId, enfantId, statut, heureArrivee, h
 > La collection Firestore `jeux/{jeuId}` initialement prevue est **ABANDONNEE**.
 > Firestore ne garde que les **donnees vivantes** : blocs de planif, registre presence/depart, evaluations PFEQ.
 
+> **REVISION — 17 aout 2026 (LOT 1, vague D). La decision ci-dessus TIENT ;
+> seul le chemin d'acces change.**
+> Les banques restent des **fichiers statiques** — elles cessent seulement
+> d'etre servies **en clair**. Mesure : 112 Mo de banques structurees
+> repondaient a un simple `curl` anonyme, dont `jeux-merged.json` (12 Mo,
+> 1439 jeux). Le lockage est le pilier n°1 depuis le 10 aout, d'ou la revision.
+>
+> Ce qui change concretement pour cette app :
+> - Le fichier a quitte l'arbre publie : `apps/jeux/data/jeux-merged.json`
+>   n'existe plus. La source de verite est `_data/jeux-merged.json` (hors
+>   Jekyll, donc non servi), publiee vers **R2** par
+>   `_scripts/publie-banques-r2.sh` a chaque fusion sur `main`.
+> - Le planificateur ne fait plus `fetch` d'un chemin de donnees. Il passe par
+>   **`zts-banques.js`** (racine), qui appelle le Worker
+>   `https://zts-jeux-data.zts-ccd.workers.dev` en deux portees :
+>   `/<banque>/public.json` (anonyme, champs de liste) et
+>   `/<banque>/full.json` (jeton Firebase valide, banque entiere).
+>   `ZTSBanques.jeux()` demande `full` et se replie sur `public` faute de
+>   jeton — le planificateur etant gate depuis la vague A, c'est `full` qui
+>   sert en pratique.
+> - Ce module existe pour **le jeton expire** : l'app reste ouverte des heures,
+>   `getIdToken(false)` peut rendre un jeton perime, et sans reprise l'app
+>   afficherait une banque VIDE a un membre legitime. Une seule reprise, avec
+>   `getIdToken(true)`. Ne pas court-circuiter `zts-banques.js` par un `fetch`
+>   direct : c'est ce cas-la qu'on perdrait.
+> - Le `ref = slug` reste la cle stable. Rien du schema ne bouge.
+
 - `journees.blocs` et `grillesType.blocs` = tableaux embarques (atomique).
 - `presences` = collection separee (securite, requetee par jour ET enfant).
 - Relations par ID. Un bloc activite pointe vers la bibliotheque via `ref = slug` (string),
