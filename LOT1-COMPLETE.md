@@ -1,6 +1,7 @@
 # LOT 1 — LOCKAGE : fusionné en production le 17 août 2026
 
 **Fusion `b61ab6b`** (PR #9), branche `lot1/vague-a-cadenas`, 17 commits.
+**Correctif CI** : PR #11, fusionnée le 18 août.
 Worker `zts-jeux-data` redéployé à la main, version **`3000b10f`**.
 
 ## Ce qui est en production
@@ -75,34 +76,54 @@ la fusion, comme prévu depuis la vague D.
 `jeux.`, `sae.`, `musique.`, `generateur.`, `gym.` : **301 vers la bonne cible**,
 inchangés par la fusion.
 
-## ⛔ Ce qui a échoué, et n'est PAS corrigé
+## La publication CI vers R2 — cassée à la fusion, réparée le 18 août
 
-### La publication CI vers R2 : 43 échecs sur 43
+**Ce qui s'était passé.** Le workflow `Garde-fous du dépôt` a échoué sur `main`
+dès la fusion : 43 objets sur 43 en échec, chacun en ~4 ms. Le secret
+`CLOUDFLARE_API_TOKEN` n'était pas en cause.
 
-Le workflow `Garde-fous du dépôt` **échoue sur `main`** depuis la fusion.
+**Trois défauts, dont un seul avait été diagnostiqué :**
 
-**Cause : le workflow n'installe jamais `wrangler`.** Le script appelle
-`wrangler r2 object put` ; la commande n'existe pas sur le runner, donc chaque
-objet échoue en ~4 ms. Le secret `CLOUDFLARE_API_TOKEN` est bien présent et
-n'est pas en cause. L'étape ne tourne que sur `main` — elle n'avait donc jamais
-été exercée avant cette fusion, et les banques de la vague D avaient été montées
-**à la main**.
+1. **Le workflow n'installait pas `wrangler`.** Le script appelle
+   `wrangler r2 object put` ; le binaire n'est pas préinstallé sur les runners
+   GitHub. Chaque objet échouait sur une commande introuvable.
+2. **Le script avalait la sortie d'erreur de wrangler** (`2>&1` vers
+   `/dev/null`). C'est ce qui a rendu une panne triviale indiscernable de
+   43 pannes réseau, et ce qui a coûté le temps de diagnostic.
+3. **`--essai` n'appelait jamais wrangler** : il se contentait de lister des
+   noms de fichiers. Il serait donc passé au vert le jour même de la panne.
 
-**Impact réel aujourd'hui : nul.** Vérifié, pas supposé : les 43 objets que le
-script publie sont **octet pour octet** ceux montés à la vague D (`cd4bb89`).
-Les 134 fichiers de `_data/` qu'apporte la fusion sont tous dans
-`_data/sources/`, que le script ne publie pas. R2 et le dépôt sont donc en
-phase.
+**La vraie leçon n'est aucune des trois.** L'étape ne tournait **que sur
+`main`** : aucune PR ne pouvait la voir échouer, donc le défaut n'était
+découvrable qu'une fois en production.
 
-**Ce qui est cassé, c'est la garantie**, et elle compte : la vague D avait posé
-comme décision qu'*« une désynchronisation entre le dépôt et R2 doit être
-structurellement impossible, pas évitée par discipline »*. Aujourd'hui elle est
-évitée par hasard. **À corriger avant toute modification d'une banque** — sinon
-le site servira des données périmées sans que rien ne le signale.
+**Ce qui a été posé :**
 
-Le correctif tient en une étape d'installation dans le workflow, plus
-vraisemblablement `CLOUDFLARE_ACCOUNT_ID`. À faire sur une branche, avec un push
-de vérification sur `main` — c'est le seul endroit où l'étape s'exécute.
+- une étape d'installation de wrangler, épinglée au majeur ;
+- un garde-fou qui vérifie l'outil **avant** de compter des échecs — une cause
+  unique se lit une fois, en clair, pas 43 fois en creux ;
+- la sortie d'erreur de wrangler conservée et réaffichée sous chaque échec ;
+- `--essai` sonde désormais R2 **en lecture réelle** (liste des buckets), ce qui
+  prouve les trois choses qui avaient cassé : wrangler répond, le jeton ouvre
+  R2, le bucket existe ;
+- cet essai tourne **sur chaque PR**, en lecture seule — une branche ne doit
+  jamais écraser les banques que sert la production.
+
+**Vérifié de bout en bout :**
+
+| Étape | Résultat |
+|---|---|
+| En local, sans wrangler dans le PATH | **sortie 1**, un message unique nommant la cause |
+| Essai à blanc sur la PR #11, avec le jeton de la CI | `SONDE OK — le bucket « zts-banques » est accessible`, 43 objets vus, rien écrit |
+| Publication réelle au push sur `main` (`32131443228`) | **43 OK, 0 échec** — « Toutes les banques sont à jour dans R2 » |
+| Le Worker après republication | `/jeux/public.json` 200, `/sae/public.json` 200, **3 vitrines SAÉ à 4/3/4 cours**, `/jeux/full.json` toujours **401** |
+
+La sonde répondant avec le jeton de la CI, aucun `CLOUDFLARE_ACCOUNT_ID` n'est
+nécessaire : le jeton n'ouvre qu'un compte.
+
+**La garantie de la vague D est rétablie** : une désynchronisation entre le
+dépôt et R2 redevient structurellement impossible, et non plus évitée par
+discipline. C'était le dernier morceau de la vague D.
 
 ## Ce qui n'a pas pu être testé
 
@@ -124,19 +145,17 @@ ce qui reste à prouver, c'est le chemin passant.
 
 ## Reste ouvert, par ordre d'importance
 
-1. **La publication CI vers R2** — ci-dessus. Le seul point qui appelle une
-   correction.
-2. **`ia.` fait 2 sauts** : sa cible n'a pas de barre finale. Un caractère à
+1. **`ia.` fait 2 sauts** : sa cible n'a pas de barre finale. Un caractère à
    ajouter dans la règle de zone, au tableau de bord — je n'ai pas de jeton
    d'API pour le faire.
-3. **7 collisions de slugs dans la banque SAÉ** : deux SAÉ homonymes
+2. **7 collisions de slugs dans la banque SAÉ** : deux SAÉ homonymes
    deviendraient vitrines ensemble. Aucune ne touche les vitrines actuelles.
-4. **`sitemap.xml`** déclare encore `generateur.`, `gym.` et `jeux.` en `<loc>`
+3. **`sitemap.xml`** déclare encore `generateur.`, `gym.` et `jeux.` en `<loc>`
    alors qu'ils redirigent — avertissement GSC, à traiter avec les huit autres.
-5. **~1400 fiches et `sports-news.html`** pointent encore vers
+4. **~1400 fiches et `sports-news.html`** pointent encore vers
    `jeux.zonetotalsport.ca` : un saut de plus, rien de cassé. Corriger
    `scripts/gen-jeux-fiches.js:176` **avant** la prochaine régénération.
-6. **`teasing.html` et `index-old.html`** restent des relais jusqu'au chantier
+5. **`teasing.html` et `index-old.html`** restent des relais jusqu'au chantier
    proxy orange, où les 7 items de chemins s'activeront.
 
 ## Retour arrière, si jamais
