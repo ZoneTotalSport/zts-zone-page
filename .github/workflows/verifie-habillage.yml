@@ -84,6 +84,32 @@ jobs:
       - name: Glyphes de la police de marque
         run: python3 _scripts/verifie-glyphes-ztsh.py
 
+      # ── Outillage de la publication R2 ──
+      # AJOUTE LE 17 AOUT 2026, APRES PANNE. Cette etape manquait : le script
+      # appelle `wrangler r2 object put`, et wrangler n'est PAS preinstalle sur
+      # les runners GitHub. Resultat le jour de la fusion du LOT 1 : 43 objets
+      # sur 43 en echec, chacun en 4 ms, sans un mot sur la cause.
+      # Version epinglee au majeur : un saut de majeur de wrangler a deja
+      # change des commandes, et on ne veut pas l'apprendre un jour de fusion.
+      - name: Installe wrangler
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        run: npm install -g wrangler@4
+
+      # ── Essai a blanc sur les PR ──
+      # LA VRAIE LECON DU 17 AOUT n'est pas l'outil manquant, c'est que
+      # l'etape de publication ne tournait QUE sur main : aucune PR ne pouvait
+      # la voir echouer. Le defaut n'etait donc decouvrable qu'une fois en
+      # production. On sonde maintenant R2 sur chaque PR — en LECTURE SEULE,
+      # car une branche ne doit jamais ecraser les banques que sert la prod.
+      # Ce que l'essai prouve : wrangler existe, le jeton ouvre R2, le bucket
+      # est accessible. C'est-a-dire exactement les trois choses qui ont casse.
+      - name: Essai a blanc de la publication R2 (PR)
+        if: github.event_name == 'pull_request'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CI: "true"
+        run: bash _scripts/publie-banques-r2.sh --essai
+
       # Publication des banques vers R2, APRES les controles.
       # Elle ne tourne que sur main : une branche ne doit pas ecraser les
       # banques que sert la production. Le script echoue bruyamment si le
