@@ -892,6 +892,7 @@
       status_live: 'EN DIRECT', status_final: 'FINAL', status_scheduled: 'À VENIR',
       period: 'Période', overtime: 'Prolongation', shootout: 'Tirs de barrage',
       no_scores: 'Aucun match prévu pour cette journée.',
+      scores_injoignables: 'Impossible de joindre les scores en ce moment. Réessaie dans quelques minutes.',
       no_data: 'Données non disponibles.',
       no_news: 'Actualités non disponibles.',
       load_error: 'Erreur de chargement. Vérifiez votre connexion.',
@@ -927,6 +928,7 @@
       status_live: 'LIVE', status_final: 'FINAL', status_scheduled: 'UPCOMING',
       period: 'Period', overtime: 'Overtime', shootout: 'Shootout',
       no_scores: 'No games scheduled for this day.',
+      scores_injoignables: 'Scores are unreachable right now. Try again in a few minutes.',
       no_data: 'Data not available.',
       no_news: 'News not available.',
       load_error: 'Loading error. Check your connection.',
@@ -962,6 +964,7 @@
       status_live: '直播', status_final: '结束', status_scheduled: '即将开始',
       period: '节', overtime: '加时赛', shootout: '点球决胜',
       no_scores: '今天没有安排比赛。',
+      scores_injoignables: '目前无法获取比分，请几分钟后重试。',
       no_data: '数据不可用。',
       no_news: '新闻不可用。',
       load_error: '加载错误。请检查您的网络连接。',
@@ -992,13 +995,20 @@
     document.getElementById('lang-' + lang).classList.add('active');
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
+      /* Le chrome partagé emploie le MÊME attribut, avec des clés pointées
+         (`nav.home`, `lang.fr`) que shared/i18n/*.json traduit. Sans ce
+         garde-fou, la page les écrase par le NOM de la clé, puisque t()
+         retombe sur `key` pour tout ce qu'elle ne connaît pas — le header
+         affichait littéralement « nav.home » et « lang.fr ». C'est le pendant
+         exact du `key in dict` que applyI18n s'impose de son côté. */
+      if (!(key in TRANSLATIONS.fr)) return;
       if (el.tagName === 'INPUT') el.placeholder = t(key);
       else el.textContent = t(key);
     });
     updateEduCard();
     updateDateDisplay();
     // Re-render scores and news with new lang
-    renderScores(lastScoresData);
+    renderScores(scoresInjoignables ? null : lastScoresData);
     if (currentNewsTab === 'qc') renderQcNews(lastQcNewsData);
     else renderNews(lastNewsData);
     lucide.createIcons();
@@ -1351,6 +1361,11 @@
   let currentDate = new Date();
   let liveRefreshInterval = null;
   let lastScoresData = [];
+  /* Mémorise que le dernier chargement a ÉCHOUÉ, par opposition à « la ligue
+     n'a aucun match ce jour ». Sans ça, un simple changement de langue
+     retransformait le message d'erreur en « aucun match prévu » : setLang
+     re-rend avec lastScoresData, qui vaut [] dans les deux cas. */
+  let scoresInjoignables = false;
   let lastNewsData = [];
   let currentNewsTab = 'espn';   // 'espn' | 'qc'
   let lastQcNewsData = null;     // null = pas encore chargé, [] = chargé et vide
@@ -2024,6 +2039,7 @@
   // ============================================================
   function renderScores(games) {
     lastScoresData = games || [];
+    scoresInjoignables = (games === null);
     const container = document.getElementById('scoresContainer');
     const liveGlobalBadge = document.getElementById('liveGlobalBadge');
 
@@ -2032,7 +2048,23 @@
     renderTicker(lastScoresData);
     renderHeroGame(lastScoresData);
 
-    if (!games || games.length === 0) {
+    /* `null` et liste vide ne disent PAS la même chose : fetchScores rend null
+       quand tous les proxys ont échoué, et une liste vide quand la ligue n'a
+       réellement aucun match ce jour-là. Les confondre annonçait « aucun match
+       prévu » à un visiteur alors que la donnée n'avait simplement pas pu être
+       atteinte — un mensonge tranquille, et impossible à distinguer d'une vraie
+       journée sans match en hors-saison. */
+    if (games === null) {
+      container.innerHTML = `
+        <div class="col-span-full empty-state">
+          <div class="empty-icon">📡</div>
+          <p class="font-fredoka text-lg">${t('scores_injoignables')}</p>
+        </div>`;
+      liveGlobalBadge.style.display = 'none';
+      return;
+    }
+
+    if (games.length === 0) {
       container.innerHTML = `
         <div class="col-span-full empty-state">
           <div class="empty-icon">🏟️</div>
@@ -2854,15 +2886,33 @@
   /* Le header partagé n'a que FR/EN. Quand on y bascule la langue, la page
      suit — l'inverse n'est pas vrai pour le chinois, que le header ne connaît
      pas. `ZTS` n'existe que si shared/zts.js a fini de s'initialiser. */
-  document.addEventListener('zts:langchange', (e) => {
-    const l = e.detail && e.detail.lang;
+  function suivreLangueDuSite(l) {
     if ((l === 'fr' || l === 'en') && l !== currentLang) setLang(l);
+  }
+
+  document.addEventListener('zts:langchange', (e) => {
+    suivreLangueDuSite(e.detail && e.detail.lang);
+  });
+
+  /* Écouter le changement ne suffit PAS : au chargement, aucun événement n'est
+     émis pour une langue déjà mémorisée. La page démarrait donc toujours en
+     français pendant que le chrome partagé rendait en anglais — deux sélecteurs
+     côte à côte, contradictoires. `zts:ready` porte la langue retenue par
+     detectLang() (?lang=, puis zts_lang, puis navigator.language) ; on ne
+     redétecte rien ici, sous peine de voir les deux logiques diverger. */
+  document.addEventListener('zts:ready', (e) => {
+    suivreLangueDuSite(e.detail && e.detail.lang);
   });
 
   function init() {
     // Ouvrir sur la ligue de l'équipe suivie, si elle est connue.
     const fav = getFav();
     if (fav && CONFIG[fav.league]) currentLeague = fav.league;
+
+    /* Filet : si shared/zts.js a fini avant nous, `zts:ready` est déjà passé et
+       personne ne l'a entendu. Appeler getLang() ici ne peut pas nuire — tant
+       que zts.js n'a pas détecté, il rend 'fr', ce qui est déjà notre état. */
+    if (window.ZTS && typeof ZTS.getLang === 'function') suivreLangueDuSite(ZTS.getLang());
 
     initParticles();
     renderLeagueSelector();
