@@ -400,11 +400,38 @@
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
-    // Render appropriate step
-    if (mode === 'signup') {
-      renderStep1(content);
-    } else {
+    // ── Quel ecran ouvrir ──
+    // Le mur plein ecran demande deja le fournisseur AVANT d'appeler
+    // `ztsShowSignup({provider:'google'})`. Jusqu'ici la modale jetait ce
+    // choix et rouvrait sur l'ecran argumentaire : le visiteur devait
+    // recliquer « Google », puis choisir son compte. Trois clics pour une
+    // intention exprimee au premier.
+    //
+    // Quand le fournisseur est connu, on saute donc l'argumentaire — il a
+    // deja fait son travail, c'est lui qui a produit le clic — et on ouvre
+    // sur le formulaire, qui sert de repli VISIBLE si la fenetre Google est
+    // bloquee ou refermee.
+    var googleDemande = (mode === 'signup' && opts.provider === 'google');
+
+    if (mode !== 'signup') {
       renderStep2(content, 'login');
+    } else if (googleDemande) {
+      renderStep2(content, 'signup');
+    } else {
+      renderStep1(content);
+    }
+
+    // ── Google, dans le MEME geste de clic ──
+    // signInWithPopup doit partir du geste utilisateur, sinon le navigateur
+    // bloque la fenetre. On est encore dans le handler de clic du mur : cet
+    // appel est donc synchrone, sans `await` ni `setTimeout` avant lui.
+    //
+    // Si le SDK n'est pas encore charge, on ne declenche RIEN : un appel
+    // differe perdrait le geste et la fenetre serait bloquee. Le formulaire
+    // est deja affiche avec son bouton Google — le visiteur clique une fois,
+    // comme avant ce commit. Jamais pire, souvent mieux.
+    if (googleDemande && _authReady && typeof firebase !== 'undefined' && firebase.auth) {
+      handleGoogle();
     }
 
     // Open animation
