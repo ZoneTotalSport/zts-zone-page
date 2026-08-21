@@ -252,19 +252,53 @@
   }
 
   /* ---------- OFFSET sous le header fixe (hauteur variable) ---------- */
+  let reserveChrome = 0;   // dernière hauteur mesurée du chrome, bandeau déployé
+
   function adjustHeaderOffset() {
     const h = document.querySelector('.zts-header');
     if (!h) return;
-    // La carte flotte (marge + ombre décalée) → on cale sur son bord bas réel.
-    document.body.style.paddingTop = (h.getBoundingClientRect().bottom + 12) + 'px';
+    /* La carte flotte (marge + ombre décalée) → on cale sur son bord bas réel.
+
+       REPLIÉ, LE BANDEAU NE MESURE PLUS RIEN, et il faut s'y attendre des deux
+       façons : la règle du site le fait glisser (`transform:translateY(-130%)`,
+       que getBoundingClientRect intègre), et sur les pages qui chargent
+       Tailwind l'utilitaire `.hidden{display:none}` s'ajoute à la nôtre et le
+       sort carrément de la mise en page — là, offsetTop et offsetHeight tombent
+       à 0 eux aussi. Mesurer dans cet état réservait 12 px au lieu de ~358 : au
+       retour en haut de page, le bandeau revenait par-dessus le contenu.
+
+       On ne mesure donc QUE lorsque le bandeau est déployé, et on garde la
+       dernière réserve connue le reste du temps. */
+    if (!h.offsetHeight) {
+      if (reserveChrome) document.body.style.paddingTop = reserveChrome + 'px';
+      return;
+    }
+    reserveChrome = h.offsetTop + h.offsetHeight + 12;
+    document.body.style.paddingTop = reserveChrome + 'px';
   }
 
   /* ---------- HEADER hide-on-scroll ---------- */
   function hideHeaderOnScroll() {
     const h = document.querySelector('.zts-header');
     if (!h) return;
-    // Header visible UNIQUEMENT en haut de page ; caché dès qu'on descend.
-    const apply = () => h.classList.toggle('hidden', scrollY > 80);
+    /* Le bandeau se repliait à 80 px, un chiffre sans rapport avec sa taille.
+       Il est `fixed` : tant qu'il est là, il occupe les ~358 px qu'
+       `adjustHeaderOffset` a réservés en `padding-top` sur le body. Le replier
+       plus tôt vidait cette réserve sans la reprendre — il restait une bande
+       morte entre la barre de nav et le contenu, jusqu'à 106 px de haut, sur
+       TOUTES les pages du site, de 80 px de défilement jusqu'à ~190.
+
+       Le bon seuil est l'instant où le contenu vient toucher le bas de la barre
+       de nav : la réserve, moins la hauteur de cette barre. Replier là ne laisse
+       aucun trou, et ne déplace rien — la réserve reste intacte, donc pas de
+       saut de défilement. */
+    const seuil = () => {
+      const tb = document.querySelector('.zts-topbar');
+      const reserve = parseFloat(document.body.style.paddingTop);
+      if (!tb || !reserve) return 80;
+      return Math.max(0, reserve - tb.getBoundingClientRect().bottom);
+    };
+    const apply = () => h.classList.toggle('hidden', scrollY > seuil());
     addEventListener('scroll', apply, { passive: true });
     apply();
   }
