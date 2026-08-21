@@ -1,7 +1,10 @@
 /**
  * ZTS Zone - Firebase Auth System
- * Authentification complète avec popup modal design ZTS
+ * Authentification avec popup modal design ZTS (Pop Art, fond floute)
  * Firebase compat SDK (CDN) pour site statique
+ *
+ * V2 (2026-08-09) : modal 2 etapes (proposition de valeur → formulaire),
+ * fond floute translucide, mode wall pour les apps gatees.
  */
 (function(root) {
   'use strict';
@@ -56,342 +59,282 @@
     });
   }
 
-  // ── Inject Fonts + Styles ──
+  // ── CSS ──
+  var CSS = [
+    /* Polices auto-hebergees */
+    '@font-face{font-family:"ZTSDisplay";src:url("/fonts/ZoneTotalSport.ttf") format("truetype");',
+    '  font-display:swap;size-adjust:50%;unicode-range:U+0020-007E;}',
+    '@font-face{font-family:"ZTSDisplay";src:local("Luckiest Guy"),url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");',
+    '  font-display:swap;unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F,U+2C60-2C7F,U+A720-A7FF;}',
+    '@font-face{font-family:"ZTSLucky";src:local("Luckiest Guy"),url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");',
+    '  font-display:swap;}',
+
+    /* Overlay : fond floute translucide — le contenu reste visible derriere */
+    '.zts-auth-overlay{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;',
+    '  justify-content:center;background:rgba(15,15,46,.55);backdrop-filter:blur(14px);',
+    '  -webkit-backdrop-filter:blur(14px);opacity:0;visibility:hidden;',
+    '  transition:opacity .25s,visibility .25s;padding:20px;overflow-y:auto;}',
+    '.zts-auth-overlay.zts-open{opacity:1;visibility:visible}',
+
+    /* Card : blanc, pop art, ombres BD */
+    '.zts-auth-modal{position:relative;width:100%;max-width:480px;background:#fff;',
+    '  border:4px solid #0F0F2E;border-radius:24px;box-shadow:8px 8px 0 #0F0F2E;',
+    '  padding:28px 24px;text-align:center;overflow-y:auto;max-height:95vh;',
+    '  transform:scale(.92);opacity:0;',
+    '  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .25s;',
+    '  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;}',
+    '.zts-auth-overlay.zts-open .zts-auth-modal{transform:scale(1);opacity:1}',
+
+    /* Close */
+    '.zts-auth-close{position:absolute;top:12px;right:12px;z-index:10;width:36px;height:36px;',
+    '  border-radius:50%;border:3px solid #0F0F2E;background:#FFD700;color:#0F0F2E;',
+    '  font-size:1.2rem;line-height:1;cursor:pointer;display:flex;align-items:center;',
+    '  justify-content:center;transition:transform .15s;font-family:sans-serif;',
+    '  box-shadow:2px 2px 0 #0F0F2E;}',
+    '.zts-auth-close:hover{transform:rotate(-10deg) scale(1.1)}',
+    '.zts-auth-overlay.zts-wall .zts-auth-close{display:none}',
+
+    /* Mascot */
+    '.zts-auth-header{padding:0 0 4px;}',
+    '.zts-auth-header picture{display:inline-block;line-height:0;}',
+    '.zts-auth-mascot{height:130px;width:auto;object-fit:contain;border:none;box-shadow:none;',
+    '  filter:drop-shadow(0 4px 16px rgba(0,0,0,.25));margin-bottom:4px;}',
+
+    /* Title */
+    '.zts-auth-title{font-family:"ZTSDisplay","Luckiest Guy",cursive;',
+    '  font-size:clamp(1.5rem,4.5vw,2rem);color:#0F0F2E;margin:4px 0 6px;',
+    '  line-height:1.15;letter-spacing:.5px;}',
+
+    /* Subtitle */
+    '.zts-auth-sub{font-size:1rem;color:#374151;margin:0 0 14px;line-height:1.45;font-weight:500;}',
+
+    /* Stats row */
+    '.zts-auth-stats{display:flex;justify-content:center;gap:8px;margin:0 0 18px;flex-wrap:wrap;}',
+    '.zts-auth-stat{background:#E8F9FF;border:2px solid #0F0F2E;border-radius:12px;padding:6px 12px;text-align:center;}',
+    '.zts-auth-stat-num{font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:1.25rem;color:#0F0F2E;display:block;}',
+    '.zts-auth-stat-label{font-size:.7rem;color:#4B5563;display:block;font-weight:600;}',
+
+    /* CTA button (step 1) */
+    '.zts-auth-cta{width:100%;padding:16px;font-family:"ZTSDisplay","Luckiest Guy",cursive;',
+    '  font-size:1.2rem;letter-spacing:.5px;background:#00E5FF;color:#0F0F2E;',
+    '  border:3px solid #0F0F2E;border-radius:14px;box-shadow:5px 5px 0 #0F0F2E;',
+    '  cursor:pointer;transition:transform .15s,box-shadow .15s;}',
+    '.zts-auth-cta:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #0F0F2E}',
+    '.zts-auth-cta:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E}',
+
+    /* Login link */
+    '.zts-auth-login-link{display:block;margin-top:14px;color:#4B5563;font-size:.92rem;}',
+    '.zts-auth-login-link a,.zts-auth-login-link button{color:#1e3a8a;font-weight:700;',
+    '  text-decoration:underline;cursor:pointer;background:none;border:none;font-size:inherit;padding:0;}',
+
+    /* Social proof */
+    '.zts-auth-proof{margin-top:12px;font-size:.85rem;color:#6B7280;font-style:italic;}',
+
+    /* Back button (step 2) */
+    '.zts-auth-back{background:none;border:none;color:#4B5563;font-size:.9rem;cursor:pointer;',
+    '  padding:0;margin-bottom:10px;font-weight:600;}',
+    '.zts-auth-back:hover{color:#0F0F2E}',
+
+    /* Google button */
+    '.zts-auth-btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;',
+    '  padding:14px;border:3px solid #0F0F2E;border-radius:14px;background:#fff;color:#0F0F2E;',
+    '  font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:1rem;letter-spacing:.3px;',
+    '  cursor:pointer;box-shadow:4px 4px 0 #0F0F2E;transition:transform .15s,box-shadow .15s;}',
+    '.zts-auth-btn-google:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #0F0F2E}',
+    '.zts-auth-btn-google:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E}',
+    '.zts-auth-btn-google svg{width:20px;height:20px;}',
+    '.zts-auth-btn-google:disabled{opacity:.5;pointer-events:none}',
+
+    /* Or divider */
+    '.zts-auth-or{display:flex;align-items:center;gap:10px;margin:14px 0;color:#9CA3AF;font-weight:700;font-size:.8rem;}',
+    '.zts-auth-or::before,.zts-auth-or::after{content:"";flex:1;height:2px;background:#E5E7EB;}',
+
+    /* Form fields */
+    '.zts-auth-field{margin-bottom:12px;text-align:left;}',
+    '.zts-auth-field label{display:block;font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:.85rem;',
+    '  color:#0F0F2E;margin-bottom:4px;letter-spacing:.3px;}',
+    '.zts-auth-field input{width:100%;padding:12px 14px;border-radius:12px;border:2px solid #D1D5DB;',
+    '  background:#F9FAFB;color:#0F0F2E;font-family:system-ui;font-size:1rem;outline:none;',
+    '  transition:border-color .2s;box-sizing:border-box;}',
+    '.zts-auth-field input:focus{border-color:#00E5FF;background:#fff;box-shadow:0 0 0 3px rgba(0,229,255,.15)}',
+    '.zts-auth-field input::placeholder{color:#9CA3AF}',
+    '.zts-auth-row{display:flex;gap:10px;}',
+    '.zts-auth-row .zts-auth-field{flex:1;}',
+
+    /* Submit */
+    '.zts-auth-btn-primary{width:100%;padding:14px;font-family:"ZTSDisplay","Luckiest Guy",cursive;',
+    '  font-size:1.15rem;letter-spacing:.5px;background:linear-gradient(135deg,#00E5FF,#39FF14);',
+    '  color:#0F0F2E;border:3px solid #0F0F2E;border-radius:14px;box-shadow:5px 5px 0 #0F0F2E;',
+    '  cursor:pointer;transition:transform .15s,box-shadow .15s;',
+    '  display:flex;align-items:center;justify-content:center;gap:8px;}',
+    '.zts-auth-btn-primary:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #0F0F2E}',
+    '.zts-auth-btn-primary:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E}',
+    '.zts-auth-btn-primary:disabled{opacity:.5;pointer-events:none}',
+
+    /* Links */
+    '.zts-auth-links{display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:6px;}',
+    '.zts-auth-link{color:#1e3a8a;font-size:.85rem;cursor:pointer;text-decoration:underline;',
+    '  background:none;border:none;font-weight:600;padding:0;}',
+    '.zts-auth-link:hover{color:#0F0F2E}',
+
+    /* Error / Success */
+    '.zts-auth-error{background:#FEE2E2;border:2px solid #EF4444;color:#991B1B;border-radius:12px;',
+    '  padding:10px 14px;margin-bottom:12px;font-size:.9rem;display:none;text-align:center;font-weight:600;}',
+    '.zts-auth-error.show{display:block;animation:ztsShake .5s ease}',
+    '@keyframes ztsShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}',
+    '.zts-auth-success{background:#D1FAE5;border:2px solid #10B981;color:#065F46;border-radius:12px;',
+    '  padding:10px 14px;margin-bottom:12px;font-size:.9rem;display:none;text-align:center;font-weight:600;}',
+    '.zts-auth-success.show{display:block}',
+
+    /* Spinner */
+    '.zts-auth-spinner{display:inline-block;width:20px;height:20px;border:3px solid #D1D5DB;',
+    '  border-top-color:#0F0F2E;border-radius:50%;animation:ztsSpin .7s linear infinite;}',
+    '@keyframes ztsSpin{to{transform:rotate(360deg)}}',
+
+    /* User dropdown (header) */
+    '.zts-user-dropdown{position:relative;display:inline-flex;}',
+    '.zts-user-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:30px;',
+    '  background:linear-gradient(135deg,#39FF14,#00E5FF);color:#1a1a2e;',
+    '  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:.95rem;letter-spacing:1px;',
+    '  border:2px solid rgba(255,255,255,.3);cursor:pointer;transition:all .3s;text-decoration:none;}',
+    '.zts-user-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(57,255,20,.4)}',
+    '.zts-user-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:180px;',
+    '  background:rgba(15,15,46,.95);border-radius:14px;border:2px solid rgba(255,215,0,.3);',
+    '  backdrop-filter:blur(12px);padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px);',
+    '  transition:all .3s;z-index:100001;}',
+    '.zts-user-dropdown.open .zts-user-menu{opacity:1;visibility:visible;transform:translateY(0)}',
+    '.zts-user-menu-item{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;',
+    '  color:#fff;font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:.95rem;cursor:pointer;',
+    '  transition:background .2s;border:none;background:none;width:100%;text-align:left;}',
+    '.zts-user-menu-item:hover{background:rgba(255,255,255,.1)}',
+    '.zts-user-menu-item.logout{color:#FF2A7A}',
+
+    /* Responsive */
+    '@media(max-width:500px){',
+    '  .zts-auth-modal{padding:22px 16px;max-width:100%;border-radius:18px;box-shadow:5px 5px 0 #0F0F2E;}',
+    '  .zts-auth-mascot{height:100px;}',
+    '  .zts-auth-title{font-size:1.4rem;}',
+    '  .zts-auth-row{flex-direction:column;gap:0;}',
+    '  .zts-auth-cta{font-size:1.05rem;padding:14px;}',
+    '  .zts-auth-btn-primary{font-size:1rem;padding:12px;}',
+    '}'
+  ].join('\n');
+
   function injectStyles() {
     if (document.getElementById('zts-auth-styles')) return;
-
     var s = document.createElement('style');
     s.id = 'zts-auth-styles';
-    s.textContent = '\
-/* ── Polices ZTS auto-hebergees (plus de Google Fonts ici) ── */\
-/* ZoneTotalSport est dessinee sur un em double : size-adjust:50% la ramene\
-   a une echelle normale. Elle ne couvre que l ASCII (U+0020-007E), donc les\
-   accents (Prenom, Deja, Cree) tomberaient sur une police au gabarit\
-   different. On declare donc Luckiest Guy sur la MEME famille pour la plage\
-   accentuee : meme nom, meme taille apparente, aucun saut visuel. */\
-@font-face{font-family:"ZTSDisplay";src:url("/fonts/ZoneTotalSport.ttf") format("truetype");\
-  font-display:swap;size-adjust:50%;unicode-range:U+0020-007E;}\
-@font-face{font-family:"ZTSDisplay";src:local("Luckiest Guy"),url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");\
-  font-display:swap;unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F,U+2C60-2C7F,U+A720-A7FF;}\
-@font-face{font-family:"ZTSLucky";src:local("Luckiest Guy"),url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");\
-  font-display:swap;}\
-\
-/* ── Auth Overlay ── */\
-.zts-auth-overlay {\
-  position:fixed;inset:0;z-index:100000;\
-  display:flex;align-items:center;justify-content:center;\
-  background:rgba(0,0,0,0.78);\
-  opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s ease;\
-  padding:20px;\
-}\
-.zts-auth-overlay.zts-open{opacity:1;visibility:visible}\
-\
-/* ── Modal Container ── */\
-.zts-auth-modal{\
-  position:relative;width:100%;max-width:600px;\
-  background:url("/gym-bg.jpg") center/cover no-repeat;\
-  border-radius:28px;overflow:hidden;overflow-y:auto;max-height:95vh;\
-  border:4px solid #00E5FF;\
-  box-shadow:0 0 0 6px rgba(0,229,255,.15),0 20px 40px rgba(0,0,0,.5);\
-  transform:scale(.92) translateY(20px);opacity:0;\
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .25s ease;\
-  font-family:"ZTSLucky","Luckiest Guy",cursive;\
-}\
-.zts-auth-modal::before{\
-  content:"";position:absolute;inset:0;\
-  background:rgba(15,15,46,.9);\
-  z-index:0;\
-}\
-.zts-auth-modal>*{position:relative;z-index:1;}\
-.zts-auth-overlay.zts-open .zts-auth-modal{transform:scale(1) translateY(0);opacity:1}\
-\
-/* ── Close Button ── */\
-.zts-auth-close{\
-  position:absolute;top:14px;right:14px;z-index:10;\
-  width:42px;height:42px;border-radius:50%;border:3px solid rgba(255,255,255,.3);\
-  background:rgba(0,0,0,.3);color:#fff;font-size:1.5rem;line-height:1;\
-  cursor:pointer;display:flex;align-items:center;justify-content:center;\
-  transition:all .2s;font-family:sans-serif;\
-}\
-.zts-auth-close:hover{background:rgba(0,0,0,.6);transform:scale(1.15);border-color:#FFD700}\
-\
-/* ── Header ── */\
-.zts-auth-header{\
-  text-align:center;padding:20px 30px 6px;\
-}\
-/* <picture> reste inline par defaut : sa boite avale les espaces autour de\
-   l <img> et le personnage se retrouve decale a gauche. inline-block la colle\
-   a l image, le text-align:center du header fait le reste. */\
-.zts-auth-header picture{display:inline-block;line-height:0;}\
-.zts-auth-mascot{\
-  width:auto;height:170px;border-radius:0;object-fit:contain;\
-  border:none;box-shadow:none;filter:drop-shadow(0 4px 20px rgba(0,0,0,.5));\
-  margin-bottom:4px;\
-}\
-.zts-auth-title{\
-  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:2.6rem;color:#00E5FF;\
-  text-shadow:3px 3px 0 rgba(0,0,0,.4);margin:0;letter-spacing:1px;\
-}\
-.zts-auth-subtitle{\
-  font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:1.05rem;color:rgba(255,255,255,.9);\
-  margin:8px 0 0;\
-}\
-\
-/* ── Stats Row ── */\
-.zts-auth-stats{\
-  display:flex;justify-content:center;gap:12px;padding:12px 20px;flex-wrap:wrap;\
-}\
-.zts-auth-stat{\
-  background:rgba(255,255,255,.15);border-radius:12px;padding:8px 14px;\
-  text-align:center;border:1px solid rgba(255,255,255,.2);\
-}\
-.zts-auth-stat-num{\
-  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:1.5rem;color:#00E5FF;\
-  display:block;text-shadow:1px 1px 0 rgba(0,0,0,.3);\
-}\
-.zts-auth-stat-label{\
-  font-size:.75rem;color:rgba(255,255,255,.85);display:block;\
-}\
-\
-/* ── Form ── */\
-.zts-auth-form-wrap{\
-  padding:10px 30px 20px;\
-}\
-.zts-auth-form-card{\
-  background:rgba(255,255,255,.12);border-radius:20px;padding:24px;\
-  border:1px solid rgba(255,255,255,.2);\
-}\
-.zts-auth-row{display:flex;gap:10px;}\
-.zts-auth-row .zts-auth-field{flex:1;}\
-.zts-auth-field{\
-  margin-bottom:14px;\
-}\
-.zts-auth-field label{\
-  display:block;font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:.95rem;letter-spacing:.5px;\
-  color:#fff;margin-bottom:6px;text-shadow:1px 1px 0 rgba(0,0,0,.15);\
-}\
-.zts-auth-field input{\
-  width:100%;padding:16px 20px;border-radius:14px;border:2px solid rgba(0,229,255,.3);\
-  background:rgba(255,255,255,.1);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;\
-  font-size:1.05rem;outline:none;transition:all .3s;\
-}\
-.zts-auth-field input::placeholder{color:rgba(255,255,255,.5)}\
-.zts-auth-field input:focus{border-color:#00E5FF;background:rgba(255,255,255,.2);box-shadow:0 0 15px rgba(0,229,255,.3)}\
-\
-/* ── Buttons ── */\
-.zts-auth-btn{\
-  width:100%;padding:18px;border-radius:16px;border:none;cursor:pointer;\
-  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:1.3rem;letter-spacing:1px;\
-  transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;\
-}\
-.zts-auth-btn-primary{\
-  background:linear-gradient(135deg,#00E5FF,#8B5CF6);color:#fff;\
-  box-shadow:0 4px 20px rgba(0,229,255,.4);\
-}\
-.zts-auth-btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 30px rgba(0,229,255,.6)}\
-.zts-auth-btn-primary:active{transform:translateY(0)}\
-\
-.zts-auth-btn-google{\
-  background:rgba(255,255,255,.95);color:#333;margin-top:12px;\
-  font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:1.05rem;letter-spacing:.3px;\
-}\
-.zts-auth-btn-google:hover{background:#fff;transform:translateY(-2px);box-shadow:0 4px 20px rgba(255,255,255,.4)}\
-.zts-auth-btn-google svg{width:20px;height:20px;}\
-\
-/* ── Links ── */\
-.zts-auth-links{\
-  display:flex;justify-content:space-between;align-items:center;\
-  padding:0 8px;margin-top:12px;\
-}\
-.zts-auth-link{\
-  color:#00E5FF;font-size:1.05rem;cursor:pointer;text-decoration:underline;\
-  background:none;border:none;font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:.9rem;\
-  transition:color .2s;\
-}\
-.zts-auth-link:hover{color:#fff}\
-\
-/* ── Error ── */\
-.zts-auth-error{\
-  background:rgba(255,42,122,.25);border:1px solid rgba(255,42,122,.5);\
-  color:#fff;border-radius:12px;padding:10px 16px;margin-bottom:12px;\
-  font-size:.9rem;display:none;text-align:center;\
-}\
-.zts-auth-error.show{display:block;animation:ztsShake .5s ease}\
-@keyframes ztsShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}\
-\
-/* ── Success ── */\
-.zts-auth-success{\
-  background:rgba(57,255,20,.2);border:1px solid rgba(57,255,20,.5);\
-  color:#fff;border-radius:12px;padding:10px 16px;margin-bottom:12px;\
-  font-size:.9rem;display:none;text-align:center;\
-}\
-.zts-auth-success.show{display:block}\
-\
-/* ── Feature Cards ── */\
-.zts-auth-features{\
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 30px 10px;\
-}\
-.zts-auth-feat{\
-  border-radius:14px;padding:12px;text-align:center;\
-  border:1px solid rgba(255,255,255,.15);\
-  transition:transform .3s;\
-}\
-.zts-auth-feat:hover{transform:translateY(-3px)}\
-.zts-auth-feat-icon{font-size:1.5rem;margin-bottom:4px;display:block;}\
-.zts-auth-feat-text{font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:.78rem;color:#fff;letter-spacing:1px;}\
-.zts-auth-feat-blue{background:rgba(0,229,255,.2);}\
-.zts-auth-feat-green{background:rgba(57,255,20,.2);}\
-.zts-auth-feat-orange{background:rgba(255,107,0,.3);}\
-.zts-auth-feat-pink{background:rgba(255,42,122,.2);}\
-\
-/* ── Social Proof ── */\
-.zts-auth-proof{\
-  text-align:center;padding:12px 30px 24px;\
-  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:1.15rem;color:#FFD700;\
-  text-shadow:1px 1px 0 rgba(0,0,0,.3);letter-spacing:1.5px;\
-}\
-\
-/* ── Spinner ── */\
-.zts-auth-spinner{\
-  display:inline-block;width:20px;height:20px;\
-  border:3px solid rgba(255,255,255,.3);border-top-color:#FFD700;\
-  border-radius:50%;animation:ztsSpin .7s linear infinite;\
-}\
-@keyframes ztsSpin{to{transform:rotate(360deg)}}\
-\
-/* ── User Dropdown ── */\
-.zts-user-dropdown{\
-  position:relative;display:inline-flex;\
-}\
-.zts-user-btn{\
-  display:flex;align-items:center;gap:6px;\
-  padding:8px 16px;border-radius:30px;\
-  background:linear-gradient(135deg,#39FF14,#00E5FF);\
-  color:#1a1a2e;font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:.95rem;\
-  letter-spacing:1px;border:2px solid rgba(255,255,255,.3);\
-  cursor:pointer;transition:all .3s;text-decoration:none;\
-}\
-.zts-user-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(57,255,20,.4)}\
-.zts-user-menu{\
-  position:absolute;top:calc(100% + 8px);right:0;min-width:180px;\
-  background:rgba(15,15,46,.95);border-radius:14px;border:2px solid rgba(255,215,0,.3);\
-  backdrop-filter:blur(12px);padding:8px;opacity:0;visibility:hidden;\
-  transform:translateY(-8px);transition:all .3s;z-index:100001;\
-}\
-.zts-user-dropdown.open .zts-user-menu{opacity:1;visibility:visible;transform:translateY(0)}\
-.zts-user-menu-item{\
-  display:flex;align-items:center;gap:8px;padding:10px 14px;\
-  border-radius:10px;color:#fff;font-family:"ZTSLucky","Luckiest Guy",cursive;\
-  font-size:.95rem;cursor:pointer;transition:background .2s;border:none;background:none;width:100%;text-align:left;\
-}\
-.zts-user-menu-item:hover{background:rgba(255,255,255,.1)}\
-.zts-user-menu-item.logout{color:#FF2A7A}\
-\
-/* ── Responsive ── */\
-@media(max-width:600px){\
-  .zts-auth-modal{max-width:100%;border-radius:20px;}\
-  .zts-auth-title{font-size:1.9rem;}\
-  .zts-auth-subtitle{font-size:.92rem;}\
-  .zts-auth-stats{gap:6px;}\
-  .zts-auth-stat{padding:6px 10px;}\
-  .zts-auth-stat-num{font-size:1.2rem;}\
-  .zts-auth-form-wrap{padding:8px 18px 16px;}\
-  .zts-auth-form-card{padding:16px;}\
-  .zts-auth-features{gap:6px;padding:0 18px 8px;}\
-  .zts-auth-mascot{height:150px;width:auto;}\
-  .zts-auth-row{flex-direction:column;gap:0;}\
-  .zts-auth-btn{font-size:1.12rem;padding:16px;}\
-  .zts-auth-field label{font-size:.88rem;}\
-  .zts-auth-field input{font-size:1rem;padding:14px 16px;}\
-}';
+    s.textContent = CSS;
     document.head.appendChild(s);
   }
 
   // ── Google SVG Icon ──
   var GOOGLE_SVG = '<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>';
 
-  // ── Build Modal HTML ──
-  function buildModalHTML(mode) {
+  // ── Preuve sociale (compteur d'abonnes) ──
+  // ── Preuve sociale : un chiffre reel, jamais fige ──
+  // Le compte vient du worker `zone-subscriber-count`, jamais du code : un
+  // nombre ecrit en dur vieillit en silence et ment un peu plus chaque jour.
+  //
+  // La version d'origine lancait UN fetch au chargement du script et gardait
+  // le resultat dans une variable. Deux consequences : une modale ouverte
+  // avant la reponse affichait le repli generique et ne se corrigeait jamais,
+  // et une page laissee ouverte une journee servait le chiffre du matin.
+  //
+  // Ici : la valeur est relue A L'OUVERTURE, et le noeud est mis a jour quand
+  // la reponse arrive — meme si elle arrive apres l'affichage. Le worker
+  // repond `cache-control: max-age=300`, donc rouvrir la modale dix fois de
+  // suite ne fait pas dix appels reseau : le navigateur sert son cache.
+  var PROOF_URL = 'https://zone-subscriber-count.zts-ccd.workers.dev/';
+  var PROOF_REPLI = 'Rejoins les profs d\'ÉPS du Québec';
+  var _proofText = PROOF_REPLI;
+
+  function formateProof(total) {
+    return total.toLocaleString('fr-CA') + '+ enseignants utilisent la Zone';
+  }
+
+  // Rafraichit `_proofText`, puis ecrit dans le noeud s'il est encore la.
+  // Le garde-fou `total > 50` vient de la version d'origine : il evite
+  // d'afficher « 3+ enseignants » si le worker repond un compte partiel.
+  function rafraichitProof() {
+    try {
+      fetch(PROOF_URL)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (!d || typeof d.total !== 'number' || d.total <= 50) return;
+          _proofText = formateProof(d.total);
+          var n = document.getElementById('ztsProof');
+          if (n) n.textContent = _proofText;   // la modale peut avoir ete fermee
+        })
+        .catch(function() {});                 // le repli reste affiche
+    } catch (e) {}
+  }
+
+  // ── Step 1 : proposition de valeur ──
+  function buildStep1HTML() {
+    return '<div class="zts-auth-header">' +
+      '<picture>' +
+        '<source srcset="/shared/img/perso/perso_eps.webp" type="image/webp">' +
+        '<img src="/shared/img/perso/perso_eps.png" alt="Le prof d\'education physique" class="zts-auth-mascot">' +
+      '</picture>' +
+    '</div>' +
+    '<h2 class="zts-auth-title">Débloque la Zone!</h2>' +
+    '<p class="zts-auth-sub">Ton compte gratuit te donne accès à ' +
+      '<strong>1\u00a0439 jeux</strong>, <strong>~1\u00a0880 SAÉ</strong> ' +
+      'et tous les outils pour l\'ÉPS, les camps et le service de garde.</p>' +
+    '<div class="zts-auth-stats">' +
+      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">1\u00a0439</span><span class="zts-auth-stat-label">Jeux</span></div>' +
+      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">~1\u00a0880</span><span class="zts-auth-stat-label">SAÉ</span></div>' +
+      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">20+</span><span class="zts-auth-stat-label">Outils</span></div>' +
+      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">0$</span><span class="zts-auth-stat-label">Gratuit</span></div>' +
+    '</div>' +
+    '<button class="zts-auth-cta" id="ztsAuthCta">Créer mon compte gratuit</button>' +
+    '<div class="zts-auth-login-link">Déjà membre? <button id="ztsStep1Login">Connexion</button></div>' +
+    '<div class="zts-auth-proof" id="ztsProof"></div>';
+  }
+
+  // ── Step 2 : formulaire ──
+  function buildStep2HTML(mode) {
     var isLogin = mode === 'login';
-    return '\
-<div class="zts-auth-overlay" id="ztsAuthOverlay">\
-  <div class="zts-auth-modal">\
-    <button class="zts-auth-close" id="ztsAuthClose" aria-label="Fermer">&times;</button>\
-    \
-    <div class="zts-auth-header">\
-      <picture>\
-        <source srcset="/shared/img/perso/perso_eps.webp" type="image/webp">\
-        <img src="/shared/img/perso/perso_eps.png" alt="Le prof d\'education physique de Zone Total Sport" class="zts-auth-mascot">\
-      </picture>\
-      <h2 class="zts-auth-title">' + (isLogin ? 'Content de te revoir!' : 'Rejoins la Zone!') + '</h2>\
-      <p class="zts-auth-subtitle">' + (isLogin ? 'Connecte-toi pour accéder à toutes les ressources' : 'Crée ton compte gratuit en quelques secondes') + '</p>\
-    </div>\
-    \
-    <div class="zts-auth-stats">\
-      <div class="zts-auth-stat"><span class="zts-auth-stat-num">500+</span><span class="zts-auth-stat-label">Jeux</span></div>\
-      <div class="zts-auth-stat"><span class="zts-auth-stat-num">128</span><span class="zts-auth-stat-label">SAÉ</span></div>\
-      <div class="zts-auth-stat"><span class="zts-auth-stat-num">IA</span><span class="zts-auth-stat-label">Générateur</span></div>\
-      <div class="zts-auth-stat"><span class="zts-auth-stat-num">0$</span><span class="zts-auth-stat-label">Gratuit</span></div>\
-    </div>\
-    \
-    <div class="zts-auth-form-wrap">\
-      <div class="zts-auth-form-card">\
-        <div class="zts-auth-error" id="ztsAuthError"></div>\
-        <div class="zts-auth-success" id="ztsAuthSuccess"></div>\
-        \
-        <form id="ztsAuthForm" autocomplete="on">\
-          ' + (!isLogin ? '\
-          <div class="zts-auth-row">\
-            <div class="zts-auth-field">\
-              <label>Prénom</label>\
-              <input type="text" id="ztsFirstName" placeholder="Ton prénom" required autocomplete="given-name">\
-            </div>\
-            <div class="zts-auth-field">\
-              <label>Nom</label>\
-              <input type="text" id="ztsLastName" placeholder="Ton nom" required autocomplete="family-name">\
-            </div>\
-          </div>\
-          ' : '') + '\
-          <div class="zts-auth-field">\
-            <label>Courriel</label>\
-            <input type="email" id="ztsEmail" placeholder="ton@courriel.com" required autocomplete="email">\
-          </div>\
-          <div class="zts-auth-field">\
-            <label>Mot de passe</label>\
-            <div style="position:relative">\
-              <input type="password" id="ztsPassword" placeholder="' + (isLogin ? 'Ton mot de passe' : 'Minimum 6 caractères') + '" required autocomplete="' + (isLogin ? 'current-password' : 'new-password') + '" minlength="6" style="padding-right:44px;width:100%">\
-              <button type="button" id="ztsTogglePw" aria-label="Afficher le mot de passe" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;border:none;cursor:pointer;padding:6px;font-size:1.25rem;color:#6b7280;line-height:1">&#x1F441;</button>\
-            </div>\
-          </div>\
-          \
-          <button type="submit" class="zts-auth-btn zts-auth-btn-primary" id="ztsAuthSubmit">\
-            ' + (isLogin ? '&#x1F3C3; Se connecter' : '&#x1F680; Créer mon compte') + '\
-          </button>\
-        </form>\
-        \
-        <button class="zts-auth-btn zts-auth-btn-google" id="ztsGoogleBtn">\
-          ' + GOOGLE_SVG + '\
-          ' + (isLogin ? 'Se connecter avec Google' : "S'inscrire avec Google") + '\
-        </button>\
-        \
-        <div class="zts-auth-links">\
-          ' + (isLogin
-            ? '<button class="zts-auth-link" id="ztsForgotPw">Mot de passe oublié ?</button><button class="zts-auth-link" id="ztsToggleMode">Pas de compte ? Inscris-toi !</button>'
-            : '<span></span><button class="zts-auth-link" id="ztsToggleMode">Déjà un compte ? Connecte-toi !</button>') + '\
-        </div>\
-      </div>\
-    </div>\
-    \
-    <div class="zts-auth-features">\
-      <div class="zts-auth-feat zts-auth-feat-blue"><span class="zts-auth-feat-icon">&#x1F3C0;</span><span class="zts-auth-feat-text">+500 jeux sportifs</span></div>\
-      <div class="zts-auth-feat zts-auth-feat-green"><span class="zts-auth-feat-icon">&#x1F916;</span><span class="zts-auth-feat-text">Générateur IA</span></div>\
-      <div class="zts-auth-feat zts-auth-feat-orange"><span class="zts-auth-feat-icon">&#x1F4DA;</span><span class="zts-auth-feat-text">SAÉ + Outils</span></div>\
-      <div class="zts-auth-feat zts-auth-feat-pink"><span class="zts-auth-feat-icon">&#x1F389;</span><span class="zts-auth-feat-text">100% gratuit</span></div>\
-    </div>\
-    \
-    <div class="zts-auth-proof">&#x1F3C6; 2 300+ enseignants utilisent la Zone !</div>\
-  </div>\
-</div>';
+    var html = '<div class="zts-auth-error" id="ztsAuthError"></div>' +
+      '<div class="zts-auth-success" id="ztsAuthSuccess"></div>' +
+      '<button class="zts-auth-btn-google" id="ztsGoogleBtn">' + GOOGLE_SVG +
+        (isLogin ? ' Se connecter avec Google' : ' S\'inscrire avec Google') + '</button>' +
+      '<div class="zts-auth-or">ou</div>' +
+      '<form id="ztsAuthForm" autocomplete="on">';
+    if (!isLogin) {
+      html += '<div class="zts-auth-row">' +
+        '<div class="zts-auth-field"><label>Prénom</label>' +
+          '<input type="text" id="ztsFirstName" placeholder="Ton prénom" required autocomplete="given-name"></div>' +
+        '<div class="zts-auth-field"><label>Nom</label>' +
+          '<input type="text" id="ztsLastName" placeholder="Ton nom" required autocomplete="family-name"></div>' +
+      '</div>';
+    }
+    html += '<div class="zts-auth-field"><label>Courriel</label>' +
+        '<input type="email" id="ztsEmail" placeholder="ton@courriel.com" required autocomplete="email"></div>' +
+      '<div class="zts-auth-field"><label>Mot de passe</label>' +
+        '<div style="position:relative">' +
+          '<input type="password" id="ztsPassword" placeholder="' +
+            (isLogin ? 'Ton mot de passe' : 'Minimum 6 caractères') +
+            '" required autocomplete="' + (isLogin ? 'current-password' : 'new-password') +
+            '" minlength="6" style="padding-right:44px">' +
+          '<button type="button" id="ztsTogglePw" aria-label="Afficher le mot de passe" ' +
+            'style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;' +
+            'border:none;cursor:pointer;padding:6px;font-size:1.25rem;color:#6b7280;line-height:1">&#x1F441;</button>' +
+        '</div></div>' +
+      '<button type="submit" class="zts-auth-btn-primary" id="ztsAuthSubmit">' +
+        (isLogin ? 'Se connecter' : 'Créer mon compte') + '</button>' +
+    '</form>' +
+    '<div class="zts-auth-links">';
+    if (isLogin) {
+      html += '<button class="zts-auth-link" id="ztsForgotPw">Mot de passe oublié?</button>' +
+        '<button class="zts-auth-link" id="ztsToggleMode">Pas de compte? Inscris-toi</button>';
+    } else {
+      html += '<span></span>' +
+        '<button class="zts-auth-link" id="ztsToggleMode">Déjà un compte? Connecte-toi</button>';
+    }
+    html += '</div>';
+    return html;
   }
 
   // ── Firebase Error Messages (FR) ──
@@ -400,7 +343,7 @@
     'auth/user-disabled': 'Ce compte a été désactivé.',
     'auth/user-not-found': 'Aucun compte trouvé avec ce courriel.',
     'auth/wrong-password': 'Mot de passe incorrect.',
-    'auth/email-already-in-use': 'Ce courriel est déjà utilisé. Essaie de te connecter !',
+    'auth/email-already-in-use': 'Ce courriel est déjà utilisé. Essaie de te connecter!',
     'auth/weak-password': 'Le mot de passe doit avoir au moins 6 caractères.',
     'auth/too-many-requests': 'Trop de tentatives. Réessaie dans quelques minutes.',
     'auth/cancelled-popup-request': null,
@@ -419,26 +362,52 @@
     return msg || 'La connexion a échoué. Réessaie dans un instant.';
   }
 
-  // ── Current mode tracking ──
+  // ── Modal state ──
   var _currentMode = 'login';
+  var _wallMode = false;
 
-  // ── Show/Hide Modal ──
-  function showModal(mode) {
+  // ── Show Modal ──
+  function showModal(mode, opts) {
+    opts = opts || {};
     _currentMode = mode;
+    _wallMode = !!opts.wall;
+
     // Remove existing
     var existing = document.getElementById('ztsAuthOverlay');
     if (existing) existing.remove();
 
-    // Inject
-    var wrapper = document.createElement('div');
-    wrapper.innerHTML = buildModalHTML(mode);
-    document.body.appendChild(wrapper.firstElementChild);
+    // Create overlay
+    var overlay = document.createElement('div');
+    overlay.className = 'zts-auth-overlay' + (_wallMode ? ' zts-wall' : '');
+    overlay.id = 'ztsAuthOverlay';
 
-    var overlay = document.getElementById('ztsAuthOverlay');
+    var modal = document.createElement('div');
+    modal.className = 'zts-auth-modal';
 
-    // Open with small delay for animation.
-    // rAF pour la transition fluide + fallback setTimeout au cas où rAF est
-    // gelé (onglet en arrière-plan) → la modale s'affiche quand même.
+    // Close button (hidden in wall mode via CSS)
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'zts-auth-close';
+    closeBtn.id = 'ztsAuthClose';
+    closeBtn.setAttribute('aria-label', 'Fermer');
+    closeBtn.innerHTML = '&times;';
+    modal.appendChild(closeBtn);
+
+    // Content container
+    var content = document.createElement('div');
+    content.id = 'ztsAuthContent';
+    modal.appendChild(content);
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Render appropriate step
+    if (mode === 'signup') {
+      renderStep1(content);
+    } else {
+      renderStep2(content, 'login');
+    }
+
+    // Open animation
     requestAnimationFrame(function() {
       requestAnimationFrame(function() {
         overlay.classList.add('zts-open');
@@ -448,34 +417,72 @@
       if (overlay && overlay.parentNode) overlay.classList.add('zts-open');
     }, 60);
 
-    // Close button (always available — protected mode only affects post-signup redirect)
-    function closeFromUser() {
-      if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_close', { source: 'auth_modal' });
-      closeModal();
-    }
-    document.getElementById('ztsAuthClose').addEventListener('click', closeFromUser);
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay) closeFromUser();
-    });
-
-    // ESC key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeFromUser();
-    });
-
-    // Toggle mode
-    var toggleBtn = document.getElementById('ztsToggleMode');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', function() {
+    // Close handlers (only if not wall)
+    if (!_wallMode) {
+      closeBtn.addEventListener('click', function() {
+        if (root.ztsTrackFunnel) root.ztsTrackFunnel('locked_close', { source: 'auth_modal' });
         closeModal();
-        setTimeout(function() { showModal(mode === 'login' ? 'signup' : 'login'); }, 200);
       });
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+          if (root.ztsTrackFunnel) root.ztsTrackFunnel('locked_close', { source: 'auth_modal' });
+          closeModal();
+        }
+      });
+      document.addEventListener('keydown', _escHandler);
     }
+  }
 
-    // Forgot password
-    var forgotBtn = document.getElementById('ztsForgotPw');
-    if (forgotBtn) {
-      forgotBtn.addEventListener('click', handleForgotPassword);
+  function renderStep1(container) {
+    container.innerHTML = buildStep1HTML();
+
+    // Preuve sociale : on affiche ce qu'on a deja, puis on redemande.
+    var proof = document.getElementById('ztsProof');
+    if (proof) proof.textContent = _proofText;
+    rafraichitProof();
+
+    // AUCUN `locked_click_signup` ICI. La version d'origine en emettait un
+    // (`cta_source: 'step1_cta'`), ce qui aurait ete un CINQUIEME emetteur et
+    // aurait refait, dans la modale, le double comptage retire du site le
+    // 13 aout 2026.
+    //
+    // Les quatre chemins qui ouvrent cette modale emettent DEJA l'evenement
+    // avant de l'ouvrir : zts-lock.js:89 (en repli), zts-locked-fullscreen.js:105,
+    // zts-lock-page.js:146, shared/zts-unlock.js:98. Passer de l'ecran
+    // argumentaire au formulaire n'est pas une nouvelle intention, c'est la
+    // meme qui avance d'un ecran — la compter deux fois gonflerait le
+    // numerateur du tunnel sans une inscription de plus.
+    //
+    // Si on veut un jour mesurer la conversion de l'ecran argumentaire lui-meme,
+    // c'est un evenement DISTINCT qu'il faut, pas celui-ci.
+    document.getElementById('ztsAuthCta').addEventListener('click', function() {
+      renderStep2(container, 'signup');
+    });
+
+    // Login link → login form
+    document.getElementById('ztsStep1Login').addEventListener('click', function() {
+      renderStep2(container, 'login');
+    });
+  }
+
+  function renderStep2(container, mode) {
+    _currentMode = mode;
+    var isLogin = mode === 'login';
+
+    // Back button (only for signup mode, to go back to step 1)
+    var backHTML = !isLogin
+      ? '<button class="zts-auth-back" id="ztsBack">← Retour</button>'
+      : '';
+
+    var titleHTML = '<h2 class="zts-auth-title" style="font-size:clamp(1.2rem,3.5vw,1.5rem);margin:0 0 14px;">' +
+      (isLogin ? 'Content de te revoir!' : 'Crée ton compte') + '</h2>';
+
+    container.innerHTML = backHTML + titleHTML + buildStep2HTML(mode);
+
+    // Back to step 1
+    var backBtn = document.getElementById('ztsBack');
+    if (backBtn) {
+      backBtn.addEventListener('click', function() { renderStep1(container); });
     }
 
     // Form submit
@@ -484,18 +491,20 @@
       if (mode === 'login') handleLogin(); else handleSignup();
     });
 
-    // Google button
+    // Google button — AUCUN await avant signInWithPopup
     document.getElementById('ztsGoogleBtn').addEventListener('click', handleGoogle);
 
-    // Pré-remplissage du courriel (depuis la bande d'inscription de la home)
-    try {
-      var prefill = sessionStorage.getItem('zts_signup_prefill_email');
-      if (prefill) {
-        var emailInput = document.getElementById('ztsEmail');
-        if (emailInput) emailInput.value = prefill;
-        sessionStorage.removeItem('zts_signup_prefill_email');
-      }
-    } catch (e) {}
+    // Toggle mode
+    var toggleBtn = document.getElementById('ztsToggleMode');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function() {
+        renderStep2(container, isLogin ? 'signup' : 'login');
+      });
+    }
+
+    // Forgot password
+    var forgotBtn = document.getElementById('ztsForgotPw');
+    if (forgotBtn) forgotBtn.addEventListener('click', handleForgotPassword);
 
     // Toggle password visibility
     var togglePwBtn = document.getElementById('ztsTogglePw');
@@ -514,28 +523,42 @@
         }
       });
     }
+
+    // Pre-fill email
+    try {
+      var prefill = sessionStorage.getItem('zts_signup_prefill_email');
+      if (prefill) {
+        var emailInput = document.getElementById('ztsEmail');
+        if (emailInput) emailInput.value = prefill;
+        sessionStorage.removeItem('zts_signup_prefill_email');
+      }
+    } catch (e) {}
   }
 
   function closeModal() {
+    // Wall mode : ne ferme que si l'utilisateur est authentifie
+    if (_wallMode && !_user) return;
     var overlay = document.getElementById('ztsAuthOverlay');
     if (!overlay) return;
-    // If protected mode and user just logged in, redirect to resource
+    // Protected mode redirect
     if (_protectedMode && _user && _protectedHref) {
       var href = _protectedHref;
       _protectedMode = false;
       _protectedHref = null;
+      _wallMode = false;
       window.location.href = href;
       return;
     }
     _protectedMode = false;
     _protectedHref = null;
+    _wallMode = false;
     overlay.classList.remove('zts-open');
     document.removeEventListener('keydown', _escHandler);
     setTimeout(function() { if (overlay.parentNode) overlay.remove(); }, 500);
   }
 
   function _escHandler(e) {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape' && !_wallMode) closeModal();
   }
 
   // ── Show Error/Success ──
@@ -553,18 +576,17 @@
     if (el) { el.textContent = msg; el.classList.add('show'); }
   }
 
-  // ── Loading State ──
   function setLoading(loading) {
     var btn = document.getElementById('ztsAuthSubmit');
     var gBtn = document.getElementById('ztsGoogleBtn');
     if (!btn) return;
     if (loading) {
       btn.disabled = true;
-      btn.innerHTML = '<span class="zts-auth-spinner"></span> Chargement...';
+      btn.innerHTML = '<span class="zts-auth-spinner"></span>';
       if (gBtn) gBtn.disabled = true;
     } else {
       btn.disabled = false;
-      btn.innerHTML = _currentMode === 'login' ? '&#x1F3C3; Se connecter' : '&#x1F680; Créer mon compte';
+      btn.innerHTML = _currentMode === 'login' ? 'Se connecter' : 'Créer mon compte';
       if (gBtn) gBtn.disabled = false;
     }
   }
@@ -577,16 +599,19 @@
     setLoading(true);
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(function(result) {
-        if (window.ztsTrackLogin) window.ztsTrackLogin('email', result.user.uid);
-        if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
+        if (root.ztsTrackLogin) root.ztsTrackLogin('email', result.user.uid);
+        if (root.ztsNotifyLogin) root.ztsNotifyLogin(result.user);
         closeModal();
       })
-      .catch(function(err) { console.error('[ZTS Auth] Full error:', err); showError('Erreur [' + (err.code || 'unknown') + ']: ' + (err.message || err)); setLoading(false); });
+      .catch(function(err) {
+        console.error('[ZTS Auth] Full error:', err);
+        showError(getErrorMsg(err.code) || ('Erreur: ' + (err.message || err)));
+        setLoading(false);
+      });
   }
 
-  // signup_complete : un seul envoi par creation REELLE de compte.
-  // Pose un flag sessionStorage SYNCHRONE (survit a la redirection vers
-  // /bienvenue.html), consomme par zts-funnel.js a l'arrivee.
+  // signup_complete : pose un flag sessionStorage SYNCHRONE (survit a la
+  // redirection vers /bienvenue.html), consomme par zts-funnel.js a l'arrivee.
   function fireSignupComplete(method) {
     var signup_source = 'direct';
     try {
@@ -610,13 +635,13 @@
     var isNew = (result.additionalUserInfo && result.additionalUserInfo.isNewUser)
       || (result.user.metadata.creationTime === result.user.metadata.lastSignInTime);
     if (isNew) {
-      if (window.ztsTrackSignup) window.ztsTrackSignup(method, result.user.uid);
+      if (root.ztsTrackSignup) root.ztsTrackSignup(method, result.user.uid);
       fireSignupComplete(method);   // synchrone — sessionStorage
-      if (window.ztsNotifySignup) window.ztsNotifySignup(result.user);
+      if (root.ztsNotifySignup) root.ztsNotifySignup(result.user);
       window.location.href = '/bienvenue.html';
     } else {
-      if (window.ztsTrackLogin) window.ztsTrackLogin(method, result.user.uid);
-      if (window.ztsNotifyLogin) window.ztsNotifyLogin(result.user);
+      if (root.ztsTrackLogin) root.ztsTrackLogin(method, result.user.uid);
+      if (root.ztsNotifyLogin) root.ztsNotifyLogin(result.user);
       closeModal();
     }
   }
@@ -645,12 +670,13 @@
   function handleGoogle() {
     // Mode PWA standalone (ajout ecran accueil iOS) : pas de fenetre dispo
     if (window.navigator.standalone === true) {
-      showError("Ouvre zonetotalsport.ca dans Safari pour te connecter avec Google, ou cree un compte par courriel.");
+      showError("Ouvre zonetotalsport.ca dans Safari pour te connecter avec Google, ou crée un compte par courriel.");
       return;
     }
     var provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     setLoading(true);
+    // AUCUN await avant signInWithPopup — appel synchrone dans le handler de clic
     firebase.auth().signInWithPopup(provider)
       .then(function(result) {
         finaliserInscription(result, 'google');
@@ -665,9 +691,9 @@
 
   function handleForgotPassword() {
     var email = document.getElementById('ztsEmail').value.trim();
-    if (!email) { showError('Entre ton courriel pour reinitialiser ton mot de passe.'); return; }
+    if (!email) { showError('Entre ton courriel pour réinitialiser.'); return; }
     firebase.auth().sendPasswordResetEmail(email)
-      .then(function() { showSuccess('Courriel de reinitialisation envoye! Verifie ta boite.'); })
+      .then(function() { showSuccess('Courriel de réinitialisation envoyé!'); })
       .catch(function(err) { showError(getErrorMsg(err.code)); });
   }
 
@@ -680,22 +706,20 @@
       var displayName = user.displayName || user.email.split('@')[0];
       var firstName = displayName.split(' ')[0];
 
-      // Replace button with user dropdown
       var dropdown = document.createElement('div');
       dropdown.className = 'zts-user-dropdown';
       dropdown.id = 'zts-login-btn';
-      dropdown.innerHTML = '\
-        <button class="zts-user-btn" id="ztsUserToggle">\
-          <span style="font-size:1.2em">&#x1F44B;</span> Salut, ' + firstName + '!\
-        </button>\
-        <div class="zts-user-menu">\
-          <button class="zts-user-menu-item" onclick="window.ztsShowProfile&&window.ztsShowProfile()">&#x1F464; Mon profil</button>\
-          <button class="zts-user-menu-item logout" onclick="window.ztsLogout()">&#x1F6AA; Deconnexion</button>\
-        </div>';
+      dropdown.innerHTML =
+        '<button class="zts-user-btn" id="ztsUserToggle">' +
+          '<span style="font-size:1.2em">&#x1F44B;</span> Salut, ' + firstName + '!' +
+        '</button>' +
+        '<div class="zts-user-menu">' +
+          '<button class="zts-user-menu-item" onclick="window.ztsShowProfile&&window.ztsShowProfile()">&#x1F464; Mon profil</button>' +
+          '<button class="zts-user-menu-item logout" onclick="window.ztsLogout()">&#x1F6AA; Déconnexion</button>' +
+        '</div>';
 
       loginBtn.replaceWith(dropdown);
 
-      // Toggle dropdown
       var toggle = document.getElementById('ztsUserToggle');
       if (toggle) {
         toggle.addEventListener('click', function(e) {
@@ -705,7 +729,6 @@
         document.addEventListener('click', function() { dropdown.classList.remove('open'); });
       }
     } else {
-      // Restore login button
       var existing = document.getElementById('zts-login-btn');
       if (existing && existing.classList.contains('zts-user-dropdown')) {
         var btn = document.createElement('a');
@@ -758,21 +781,36 @@
 
   // ── Global API ──
   root.ztsShowLogin = function() { showModal('login'); };
-  root.ztsShowSignup = function() { showModal('signup'); };
+  root.ztsShowSignup = function(opts) { showModal('signup', opts); };
+
+  // Wall = mur bloquant pour les apps gatees. Non fermable, se retire
+  // automatiquement quand l'utilisateur s'authentifie.
+  root.ztsShowWall = function() {
+    // Deja authentifie → pas de mur
+    if (_authReady && _user) return;
+    showModal('signup', { wall: true });
+    // Auto-close quand l'auth reussit
+    root.ztsOnAuth(function(user) {
+      if (user && _wallMode) {
+        _wallMode = false;
+        var overlay = document.getElementById('ztsAuthOverlay');
+        if (overlay) {
+          overlay.classList.remove('zts-wall', 'zts-open');
+          setTimeout(function() { if (overlay.parentNode) overlay.remove(); }, 400);
+        }
+      }
+    });
+  };
+
   root.ztsLogout = function() {
     function done() {
-      // Purge nos caches de session (attribution signup) par hygiene.
       try {
         sessionStorage.removeItem('zts_signup_pending');
         sessionStorage.removeItem('zts_signup_source');
       } catch (e) {}
-      // Hard redirect vers l'accueil : re-init propre, aucun user restaure.
       window.location.href = '/';
     }
     if (typeof firebase === 'undefined' || !firebase.auth) { done(); return; }
-    // On AWAIT signOut() avant le redirect : sinon la navigation tue le
-    // nettoyage async de la persistance (IndexedDB) et l'utilisateur est
-    // restaure au prochain chargement = le "Salut" revient (bug).
     firebase.auth().signOut()
       .catch(function(e) { console.error('[ZTS Auth] signOut:', e); })
       .then(done);
@@ -791,7 +829,6 @@
   function init() {
     injectStyles();
     initFirebase();
-    // Wait for DOM fully loaded to bind
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', function() {
         bindDataAttributes();
@@ -801,9 +838,7 @@
       bindDataAttributes();
       bindProtectedLinks();
     }
-
-    // Header/footer partagés injectés async par zts.js → re-lier après injection
-    // (sinon #zts-login-btn et [data-auth] n'existent pas encore au 1er bind).
+    // Header/footer partages injectes async par zts.js → re-lier apres injection
     document.addEventListener('zts:ready', function() {
       bindDataAttributes();
       bindProtectedLinks();
@@ -814,4 +849,3 @@
   init();
 
 })(window);
-
