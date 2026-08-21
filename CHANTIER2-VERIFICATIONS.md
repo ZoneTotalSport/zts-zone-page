@@ -289,11 +289,40 @@ de wrangler. `.gitignore` passe à `.wrangler/` + `**/.wrangler/`, qui vaut
 partout et plus seulement sous `cf-worker/`. **Pas de réécriture d'historique**,
 conformément à la décision « fuite archiviste acceptée » de la vague D.
 
+## 8. Consigné pour le LOT 2 — le lead magnet est invisible
+
+**Zéro génération anonyme réussie en trois mois.** Le §3 a écarté toutes les
+causes techniques : la chaîne fonctionne de bout en bout, le mur ne se déclenche
+pas à tort, le Worker répond. Ce qui reste n'est pas un défaut de code.
+
+Le générateur est l'outil le plus coûteux du site et le seul qui donne à
+essayer avant de s'inscrire. C'est le lead magnet — sauf que personne
+n'arrive dessus sans compte. **Sa mise en avant entre au périmètre du LOT 2**,
+avec les descriptions vendeuses et le travail de vitrine.
+
+Ce qu'on sait déjà, et qui oriente le travail :
+
+- Les 3 essais gratuits ne sont annoncés **nulle part** hors de la page du
+  générateur. Un visiteur doit déjà être arrivé pour apprendre qu'il peut
+  essayer.
+- `ia.zonetotalsport.ca` — le sous-domaine qui porte le nom que les gens
+  taperaient — redirige en **deux sauts** (§2).
+- Rien ne mesurait l'échec : c'est ce que corrige `anon_fp_error` (§7b). Le
+  prochain zéro sera lisible.
+
+**À ne pas refaire au moment de mesurer** : la collection `anonGenCount`
+contient un document de test du 21 août, celui de mon empreinte
+(`3c09bbbd…b027a`, `count: 1`). Il est ineffaçable — `allow delete: if false`.
+Le premier vrai visiteur sera le **deuxième** document.
+
+**Fait depuis** : le désaccord des plafonds est tranché — le client s'aligne
+sur le Worker, 3 essais partout (branche `lot2/aligne-limite-anonyme`).
+
 ## Ce que je n'ai pas fait, et pourquoi
 
 - **La barre finale de `ia.`** — tableau de bord Cloudflare, pas de jeton d'API,
   et les actions dashboard te reviennent.
-- **Le désaccord des plafonds 3 (Worker) / 2 (client)** — ta consigne : chantier
-  propre, ça touche un point de conversion.
+- ~~Le désaccord des plafonds 3 (Worker) / 2 (client)~~ — **tranché le 21 août** :
+  le client s'aligne sur le Worker. Voir `lot2/aligne-limite-anonyme`.
 - **Les trois littéraux « 3 » de `index.html`** — le contrôle d'habillage les
   protège, et il demande une décision plutôt qu'une exception de plus.
