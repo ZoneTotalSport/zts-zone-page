@@ -23,7 +23,7 @@
     '.zts-lock-overlay:hover .zts-lock-cta{transform:scale(1.05)}' +
     '.zts-lock-icon{width:56px;height:56px;background:linear-gradient(135deg,#FFD700,#FFA500);border:3px solid #000;border-radius:14px;box-shadow:4px 4px 0 #000;display:flex;align-items:center;justify-content:center;transition:transform .3s cubic-bezier(.34,1.56,.64,1);margin-bottom:10px}' +
     '.zts-lock-icon svg{width:28px;height:28px;stroke:#000;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}' +
-    '.zts-lock-cta{font-family:"Patrick Hand","Luckiest Guy",cursive;font-size:.9rem;color:#fff;background:rgba(0,196,255,.25);border:2px dashed rgba(255,215,0,.8);border-radius:10px;padding:6px 14px;letter-spacing:.5px;text-align:center;transition:transform .25s;text-shadow:1px 1px 0 rgba(0,0,0,.3);max-width:90%;line-height:1.2}' +
+    '.zts-lock-cta{font-family:var(--ztsh-f-corps,"Quicksand",system-ui,sans-serif);font-size:.9rem;color:#fff;background:rgba(0,196,255,.25);border:2px dashed rgba(255,215,0,.8);border-radius:10px;padding:6px 14px;letter-spacing:.5px;text-align:center;transition:transform .25s;text-shadow:1px 1px 0 rgba(0,0,0,.3);max-width:90%;line-height:1.2}' +
     '.zts-lock-cta small{display:block;font-size:.7rem;opacity:.9;margin-top:3px;letter-spacing:0}' +
     '.zts-lock-card{position:relative;overflow:hidden}' +
     '.zts-lock-card>a,.zts-lock-card>div:not(.zts-lock-overlay){pointer-events:none}' +
