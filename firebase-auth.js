@@ -232,6 +232,96 @@
   var GOOGLE_SVG = '<svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>';
 
   // ── Preuve sociale (compteur d'abonnes) ──
+  // ── La langue : UNE seule definition pour tout le tunnel ──
+  // L'algorithme vit dans shared/zts.js (`ZTS.langue`) : ?lang= d'abord, puis
+  // le choix memorise, puis la langue du navigateur. On l'appelle quand il est
+  // la ; sinon on refait EXACTEMENT le meme calcul, parce que ce module peut
+  // s'executer avant shared/zts.js selon l'ordre des balises de la page.
+  //
+  // Repondre « fr » par defaut serait plus court et FAUX : c'est precisement
+  // ce qui faisait voir a un anglophone le cadenas dans une langue et le mur
+  // dans l'autre, sur la meme page. Les trois versions divergentes de cette
+  // fonction — localStorage seul, ZTS.getLang() seul, trois niveaux — sont
+  // remplacees par ce bloc, identique dans chaque module.
+  function lang() {
+    try { if (window.ZTS && ZTS.langue) return ZTS.langue(); } catch (e) {}
+    try {
+      var q = new URLSearchParams(location.search).get('lang');
+      if (q === 'en' || q === 'fr') return q;
+    } catch (e) {}
+    try {
+      var saved = localStorage.getItem('zts_lang');
+      if (saved === 'en' || saved === 'fr') return saved;
+    } catch (e) {}
+    return (navigator.language || 'fr').toLowerCase().indexOf('en') === 0 ? 'en' : 'fr';
+  }
+
+  // ── Les chaines de la modale, FR et EN ──
+  // Elles vivent ICI et non dans shared/i18n/{fr,en}.json, contrairement au
+  // reste du site : ce dictionnaire-la est charge par `fetch` depuis
+  // shared/zts.js, donc de facon ASYNCHRONE. La modale, elle, se dessine sur
+  // un clic — parfois avant que le fetch ait repondu, parfois sur une page ou
+  // shared/zts.js arrive apres firebase-auth.js. Une modale a moitie traduite
+  // serait pire que pas de traduction. Meme patron que zts-cadenas.js,
+  // shared/zts-gate.js et shared/zts-unlock.js, deja bilingues ainsi.
+  var T = {
+    fr: {
+      titreStep1: 'Débloque la Zone!',
+      sousStep1: 'Ton compte gratuit te donne accès à <strong>1\u00a0439 jeux</strong>, <strong>~1\u00a0880 SAÉ</strong> et tous les outils pour l\'ÉPS, les camps et le service de garde.',
+      statJeux: 'Jeux', statSae: 'SAÉ', statOutils: 'Outils', statGratuit: 'Gratuit',
+      cta: 'Créer mon compte gratuit',
+      dejaMembre: 'Déjà membre? ', connexion: 'Connexion',
+      mascotteAlt: 'Le prof d\'éducation physique',
+      googleSignup: ' S\'inscrire avec Google', googleLogin: ' Se connecter avec Google',
+      ou: 'ou',
+      prenom: 'Prénom', phPrenom: 'Ton prénom',
+      nom: 'Nom', phNom: 'Ton nom',
+      courriel: 'Courriel', phCourriel: 'ton@courriel.com',
+      motDePasse: 'Mot de passe', phMdpLogin: 'Ton mot de passe', phMdpSignup: 'Minimum 6 caractères',
+      afficherMdp: 'Afficher le mot de passe', masquerMdp: 'Masquer le mot de passe',
+      soumettreLogin: 'Se connecter', soumettreSignup: 'Créer mon compte',
+      mdpOublie: 'Mot de passe oublié?',
+      versSignup: 'Pas de compte? Inscris-toi', versLogin: 'Déjà un compte? Connecte-toi',
+      titreLogin: 'Content de te revoir!', titreSignup: 'Crée ton compte',
+      retour: '← Retour', fermer: 'Fermer',
+      champsManquants: 'Remplis tous les champs!',
+      courrielPourReset: 'Entre ton courriel pour réinitialiser.',
+      resetEnvoye: 'Courriel de réinitialisation envoyé!',
+      echecGenerique: 'La connexion a échoué. Réessaie dans un instant.',
+      pwaSafari: 'Ouvre zonetotalsport.ca dans Safari pour te connecter avec Google, ou crée un compte par courriel.',
+      proofRepli: 'Rejoins les profs d\'ÉPS du Québec',
+      proofChiffre: function (n) { return n + '+ enseignants utilisent la Zone'; }
+    },
+    en: {
+      titreStep1: 'Unlock the Zone!',
+      sousStep1: 'Your free account gives you <strong>1,439 games</strong>, <strong>~1,880 ready-to-teach PE units</strong> and every tool for PE, camps and after-school care.',
+      statJeux: 'Games', statSae: 'Units', statOutils: 'Tools', statGratuit: 'Free',
+      cta: 'Create my free account',
+      dejaMembre: 'Already a member? ', connexion: 'Sign in',
+      mascotteAlt: 'The physical education teacher',
+      googleSignup: ' Sign up with Google', googleLogin: ' Sign in with Google',
+      ou: 'or',
+      prenom: 'First name', phPrenom: 'Your first name',
+      nom: 'Last name', phNom: 'Your last name',
+      courriel: 'Email', phCourriel: 'you@email.com',
+      motDePasse: 'Password', phMdpLogin: 'Your password', phMdpSignup: 'At least 6 characters',
+      afficherMdp: 'Show password', masquerMdp: 'Hide password',
+      soumettreLogin: 'Sign in', soumettreSignup: 'Create my account',
+      mdpOublie: 'Forgot your password?',
+      versSignup: 'No account? Sign up', versLogin: 'Already have an account? Sign in',
+      titreLogin: 'Good to see you again!', titreSignup: 'Create your account',
+      retour: '← Back', fermer: 'Close',
+      champsManquants: 'Fill in every field!',
+      courrielPourReset: 'Enter your email to reset it.',
+      resetEnvoye: 'Reset email sent!',
+      echecGenerique: 'Sign-in failed. Try again in a moment.',
+      pwaSafari: 'Open zonetotalsport.ca in Safari to sign in with Google, or create an account by email.',
+      proofRepli: 'Join the PE teachers of Quebec',
+      proofChiffre: function (n) { return n + '+ teachers use the Zone'; }
+    }
+  };
+  function t() { return T[lang()] || T.fr; }
+
   // ── Preuve sociale : un chiffre reel, jamais fige ──
   // Le compte vient du worker `zone-subscriber-count`, jamais du code : un
   // nombre ecrit en dur vieillit en silence et ment un peu plus chaque jour.
@@ -246,11 +336,15 @@
   // repond `cache-control: max-age=300`, donc rouvrir la modale dix fois de
   // suite ne fait pas dix appels reseau : le navigateur sert son cache.
   var PROOF_URL = 'https://zone-subscriber-count.zts-ccd.workers.dev/';
-  var PROOF_REPLI = 'Rejoins les profs d\'ÉPS du Québec';
-  var _proofText = PROOF_REPLI;
+  var _proofTotal = null;   // dernier chiffre connu, null tant qu'on n'a rien
 
-  function formateProof(total) {
-    return total.toLocaleString('fr-CA') + '+ enseignants utilisent la Zone';
+  // Le texte se RECALCULE a chaque lecture : sinon un changement de langue
+  // laisserait la phrase figee dans l'ancienne, comme le compteur du
+  // generateur avant le 21 aout.
+  function proofTexte() {
+    var d = t();
+    if (typeof _proofTotal !== 'number') return d.proofRepli;
+    return d.proofChiffre(_proofTotal.toLocaleString(lang() === 'en' ? 'en-CA' : 'fr-CA'));
   }
 
   // Rafraichit `_proofText`, puis ecrit dans le noeud s'il est encore la.
@@ -262,9 +356,9 @@
         .then(function(r) { return r.json(); })
         .then(function(d) {
           if (!d || typeof d.total !== 'number' || d.total <= 50) return;
-          _proofText = formateProof(d.total);
+          _proofTotal = d.total;
           var n = document.getElementById('ztsProof');
-          if (n) n.textContent = _proofText;   // la modale peut avoir ete fermee
+          if (n) n.textContent = proofTexte();   // la modale peut avoir ete fermee
         })
         .catch(function() {});                 // le repli reste affiche
     } catch (e) {}
@@ -272,94 +366,119 @@
 
   // ── Step 1 : proposition de valeur ──
   function buildStep1HTML() {
+    var d = t();
     return '<div class="zts-auth-header">' +
       '<picture>' +
         '<source srcset="/shared/img/perso/perso_eps.webp" type="image/webp">' +
-        '<img src="/shared/img/perso/perso_eps.png" alt="Le prof d\'education physique" class="zts-auth-mascot">' +
+        '<img src="/shared/img/perso/perso_eps.png" alt="' + d.mascotteAlt + '" class="zts-auth-mascot">' +
       '</picture>' +
     '</div>' +
-    '<h2 class="zts-auth-title">Débloque la Zone!</h2>' +
-    '<p class="zts-auth-sub">Ton compte gratuit te donne accès à ' +
-      '<strong>1\u00a0439 jeux</strong>, <strong>~1\u00a0880 SAÉ</strong> ' +
-      'et tous les outils pour l\'ÉPS, les camps et le service de garde.</p>' +
+    '<h2 class="zts-auth-title">' + d.titreStep1 + '</h2>' +
+    '<p class="zts-auth-sub">' + d.sousStep1 + '</p>' +
     '<div class="zts-auth-stats">' +
-      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">1\u00a0439</span><span class="zts-auth-stat-label">Jeux</span></div>' +
-      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">~1\u00a0880</span><span class="zts-auth-stat-label">SAÉ</span></div>' +
-      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">20+</span><span class="zts-auth-stat-label">Outils</span></div>' +
-      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">0$</span><span class="zts-auth-stat-label">Gratuit</span></div>' +
+      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">1\u00a0439</span><span class="zts-auth-stat-label">' + d.statJeux + '</span></div>' +
+      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">~1\u00a0880</span><span class="zts-auth-stat-label">' + d.statSae + '</span></div>' +
+      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">20+</span><span class="zts-auth-stat-label">' + d.statOutils + '</span></div>' +
+      '<div class="zts-auth-stat"><span class="zts-auth-stat-num">0$</span><span class="zts-auth-stat-label">' + d.statGratuit + '</span></div>' +
     '</div>' +
-    '<button class="zts-auth-cta" id="ztsAuthCta">Créer mon compte gratuit</button>' +
-    '<div class="zts-auth-login-link">Déjà membre? <button id="ztsStep1Login">Connexion</button></div>' +
+    '<button class="zts-auth-cta" id="ztsAuthCta">' + d.cta + '</button>' +
+    '<div class="zts-auth-login-link">' + d.dejaMembre + '<button id="ztsStep1Login">' + d.connexion + '</button></div>' +
     '<div class="zts-auth-proof" id="ztsProof"></div>';
   }
 
   // ── Step 2 : formulaire ──
   function buildStep2HTML(mode) {
+    var d = t();
     var isLogin = mode === 'login';
     var html = '<div class="zts-auth-error" id="ztsAuthError"></div>' +
       '<div class="zts-auth-success" id="ztsAuthSuccess"></div>' +
       '<button class="zts-auth-btn-google" id="ztsGoogleBtn">' + GOOGLE_SVG +
-        (isLogin ? ' Se connecter avec Google' : ' S\'inscrire avec Google') + '</button>' +
-      '<div class="zts-auth-or">ou</div>' +
+        (isLogin ? d.googleLogin : d.googleSignup) + '</button>' +
+      '<div class="zts-auth-or">' + d.ou + '</div>' +
       '<form id="ztsAuthForm" autocomplete="on">';
     if (!isLogin) {
       html += '<div class="zts-auth-row">' +
-        '<div class="zts-auth-field"><label>Prénom</label>' +
-          '<input type="text" id="ztsFirstName" placeholder="Ton prénom" required autocomplete="given-name"></div>' +
-        '<div class="zts-auth-field"><label>Nom</label>' +
-          '<input type="text" id="ztsLastName" placeholder="Ton nom" required autocomplete="family-name"></div>' +
+        '<div class="zts-auth-field"><label>' + d.prenom + '</label>' +
+          '<input type="text" id="ztsFirstName" placeholder="' + d.phPrenom + '" required autocomplete="given-name"></div>' +
+        '<div class="zts-auth-field"><label>' + d.nom + '</label>' +
+          '<input type="text" id="ztsLastName" placeholder="' + d.phNom + '" required autocomplete="family-name"></div>' +
       '</div>';
     }
-    html += '<div class="zts-auth-field"><label>Courriel</label>' +
-        '<input type="email" id="ztsEmail" placeholder="ton@courriel.com" required autocomplete="email"></div>' +
-      '<div class="zts-auth-field"><label>Mot de passe</label>' +
+    html += '<div class="zts-auth-field"><label>' + d.courriel + '</label>' +
+        '<input type="email" id="ztsEmail" placeholder="' + d.phCourriel + '" required autocomplete="email"></div>' +
+      '<div class="zts-auth-field"><label>' + d.motDePasse + '</label>' +
         '<div style="position:relative">' +
           '<input type="password" id="ztsPassword" placeholder="' +
-            (isLogin ? 'Ton mot de passe' : 'Minimum 6 caractères') +
+            (isLogin ? d.phMdpLogin : d.phMdpSignup) +
             '" required autocomplete="' + (isLogin ? 'current-password' : 'new-password') +
             '" minlength="6" style="padding-right:44px">' +
-          '<button type="button" id="ztsTogglePw" aria-label="Afficher le mot de passe" ' +
+          '<button type="button" id="ztsTogglePw" aria-label="' + d.afficherMdp + '" ' +
             'style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:transparent;' +
             'border:none;cursor:pointer;padding:6px;font-size:1.25rem;color:#6b7280;line-height:1">&#x1F441;</button>' +
         '</div></div>' +
       '<button type="submit" class="zts-auth-btn-primary" id="ztsAuthSubmit">' +
-        (isLogin ? 'Se connecter' : 'Créer mon compte') + '</button>' +
+        (isLogin ? d.soumettreLogin : d.soumettreSignup) + '</button>' +
     '</form>' +
     '<div class="zts-auth-links">';
     if (isLogin) {
-      html += '<button class="zts-auth-link" id="ztsForgotPw">Mot de passe oublié?</button>' +
-        '<button class="zts-auth-link" id="ztsToggleMode">Pas de compte? Inscris-toi</button>';
+      html += '<button class="zts-auth-link" id="ztsForgotPw">' + d.mdpOublie + '</button>' +
+        '<button class="zts-auth-link" id="ztsToggleMode">' + d.versSignup + '</button>';
     } else {
       html += '<span></span>' +
-        '<button class="zts-auth-link" id="ztsToggleMode">Déjà un compte? Connecte-toi</button>';
+        '<button class="zts-auth-link" id="ztsToggleMode">' + d.versLogin + '</button>';
     }
     html += '</div>';
     return html;
   }
 
   // ── Firebase Error Messages (FR) ──
+  // Les 14 entrees de `main` sont conservees telles quelles cote FR — dont le
+  // `null` de `auth/cancelled-popup-request`, qui TAIT volontairement l'erreur
+  // levee quand le visiteur ouvre deux fenetres de connexion.
   var ERROR_MESSAGES = {
-    'auth/invalid-email': 'Adresse courriel invalide.',
-    'auth/user-disabled': 'Ce compte a été désactivé.',
-    'auth/user-not-found': 'Aucun compte trouvé avec ce courriel.',
-    'auth/wrong-password': 'Mot de passe incorrect.',
-    'auth/email-already-in-use': 'Ce courriel est déjà utilisé. Essaie de te connecter!',
-    'auth/weak-password': 'Le mot de passe doit avoir au moins 6 caractères.',
-    'auth/too-many-requests': 'Trop de tentatives. Réessaie dans quelques minutes.',
-    'auth/cancelled-popup-request': null,
-    'auth/popup-closed-by-user': 'Connexion annulée.',
-    'auth/popup-blocked': 'Ton navigateur a bloqué la fenêtre de connexion. Autorise les fenêtres surgissantes, puis réessaie.',
-    'auth/network-request-failed': 'Connexion réseau perdue. Réessaie.',
-    'auth/unauthorized-domain': 'Domaine non autorisé. Contacte le support.',
-    'auth/invalid-credential': 'Courriel ou mot de passe incorrect.',
-    'auth/missing-password': 'Entre ton mot de passe.'
+    fr: {
+      'auth/invalid-email': 'Adresse courriel invalide.',
+      'auth/user-disabled': 'Ce compte a été désactivé.',
+      'auth/user-not-found': 'Aucun compte trouvé avec ce courriel.',
+      'auth/wrong-password': 'Mot de passe incorrect.',
+      'auth/email-already-in-use': 'Ce courriel est déjà utilisé. Essaie de te connecter!',
+      'auth/weak-password': 'Le mot de passe doit avoir au moins 6 caractères.',
+      'auth/too-many-requests': 'Trop de tentatives. Réessaie dans quelques minutes.',
+      'auth/cancelled-popup-request': null,
+      'auth/popup-closed-by-user': 'Connexion annulée.',
+      'auth/popup-blocked': 'Ton navigateur a bloqué la fenêtre de connexion. Autorise les fenêtres surgissantes, puis réessaie.',
+      'auth/network-request-failed': 'Connexion réseau perdue. Réessaie.',
+      'auth/unauthorized-domain': 'Domaine non autorisé. Contacte le support.',
+      'auth/invalid-credential': 'Courriel ou mot de passe incorrect.',
+      'auth/missing-password': 'Entre ton mot de passe.'
+    },
+    en: {
+      'auth/invalid-email': 'Invalid email address.',
+      'auth/user-disabled': 'This account has been disabled.',
+      'auth/user-not-found': 'No account found with that email.',
+      'auth/wrong-password': 'Wrong password.',
+      'auth/email-already-in-use': 'That email is already in use. Try signing in!',
+      'auth/weak-password': 'Your password needs at least 6 characters.',
+      'auth/too-many-requests': 'Too many attempts. Try again in a few minutes.',
+      'auth/cancelled-popup-request': null,
+      'auth/popup-closed-by-user': 'Sign-in cancelled.',
+      'auth/popup-blocked': 'Your browser blocked the sign-in window. Allow pop-ups, then try again.',
+      'auth/network-request-failed': 'Network connection lost. Try again.',
+      'auth/unauthorized-domain': 'Domain not allowed. Contact support.',
+      'auth/invalid-credential': 'Wrong email or password.',
+      'auth/missing-password': 'Enter your password.'
+    }
   };
 
   function getErrorMsg(code) {
     console.warn('[ZTS Auth] Error code:', code);
-    var msg = ERROR_MESSAGES[code];
+    var table = ERROR_MESSAGES[lang()] || ERROR_MESSAGES.fr;
+    var msg = table[code];
+    // `null` est une valeur VOULUE : ne rien afficher. `undefined` veut dire
+    // « code inconnu » et tombe sur le message generique plus bas. Les
+    // distinguer est ce qui garde `auth/cancelled-popup-request` silencieux.
     if (msg === null) return null;
-    return msg || 'La connexion a échoué. Réessaie dans un instant.';
+    return msg || t().echecGenerique;
   }
 
   // ── Modal state ──
@@ -388,7 +507,7 @@
     var closeBtn = document.createElement('button');
     closeBtn.className = 'zts-auth-close';
     closeBtn.id = 'ztsAuthClose';
-    closeBtn.setAttribute('aria-label', 'Fermer');
+    closeBtn.setAttribute('aria-label', t().fermer);
     closeBtn.innerHTML = '&times;';
     modal.appendChild(closeBtn);
 
@@ -465,7 +584,7 @@
 
     // Preuve sociale : on affiche ce qu'on a deja, puis on redemande.
     var proof = document.getElementById('ztsProof');
-    if (proof) proof.textContent = _proofText;
+    if (proof) proof.textContent = proofTexte();
     rafraichitProof();
 
     // AUCUN `locked_click_signup` ICI. La version d'origine en emettait un
@@ -498,11 +617,11 @@
 
     // Back button (only for signup mode, to go back to step 1)
     var backHTML = !isLogin
-      ? '<button class="zts-auth-back" id="ztsBack">← Retour</button>'
+      ? '<button class="zts-auth-back" id="ztsBack">' + t().retour + '</button>'
       : '';
 
     var titleHTML = '<h2 class="zts-auth-title" style="font-size:clamp(1.2rem,3.5vw,1.5rem);margin:0 0 14px;">' +
-      (isLogin ? 'Content de te revoir!' : 'Crée ton compte') + '</h2>';
+      (isLogin ? t().titreLogin : t().titreSignup) + '</h2>';
 
     container.innerHTML = backHTML + titleHTML + buildStep2HTML(mode);
 
@@ -542,11 +661,11 @@
         if (pw.type === 'password') {
           pw.type = 'text';
           togglePwBtn.innerHTML = '&#x1F648;';
-          togglePwBtn.setAttribute('aria-label', 'Masquer le mot de passe');
+          togglePwBtn.setAttribute('aria-label', t().masquerMdp);
         } else {
           pw.type = 'password';
           togglePwBtn.innerHTML = '&#x1F441;';
-          togglePwBtn.setAttribute('aria-label', 'Afficher le mot de passe');
+          togglePwBtn.setAttribute('aria-label', t().afficherMdp);
         }
       });
     }
@@ -613,7 +732,7 @@
       if (gBtn) gBtn.disabled = true;
     } else {
       btn.disabled = false;
-      btn.innerHTML = _currentMode === 'login' ? 'Se connecter' : 'Créer mon compte';
+      btn.innerHTML = _currentMode === 'login' ? t().soumettreLogin : t().soumettreSignup;
       if (gBtn) gBtn.disabled = false;
     }
   }
@@ -622,7 +741,7 @@
   function handleLogin() {
     var email = document.getElementById('ztsEmail').value.trim();
     var password = document.getElementById('ztsPassword').value;
-    if (!email || !password) { showError('Remplis tous les champs!'); return; }
+    if (!email || !password) { showError(t().champsManquants); return; }
     setLoading(true);
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(function(result) {
@@ -679,7 +798,7 @@
     var email = document.getElementById('ztsEmail').value.trim();
     var password = document.getElementById('ztsPassword').value;
     if (!firstName.trim() || !lastName.trim() || !email || !password) {
-      showError('Remplis tous les champs!'); return;
+      showError(t().champsManquants); return;
     }
     setLoading(true);
     firebase.auth().createUserWithEmailAndPassword(email, password)
@@ -697,7 +816,7 @@
   function handleGoogle() {
     // Mode PWA standalone (ajout ecran accueil iOS) : pas de fenetre dispo
     if (window.navigator.standalone === true) {
-      showError("Ouvre zonetotalsport.ca dans Safari pour te connecter avec Google, ou crée un compte par courriel.");
+      showError(t().pwaSafari);
       return;
     }
     var provider = new firebase.auth.GoogleAuthProvider();
@@ -718,9 +837,9 @@
 
   function handleForgotPassword() {
     var email = document.getElementById('ztsEmail').value.trim();
-    if (!email) { showError('Entre ton courriel pour réinitialiser.'); return; }
+    if (!email) { showError(t().courrielPourReset); return; }
     firebase.auth().sendPasswordResetEmail(email)
-      .then(function() { showSuccess('Courriel de réinitialisation envoyé!'); })
+      .then(function() { showSuccess(t().resetEnvoye); })
       .catch(function(err) { showError(getErrorMsg(err.code)); });
   }
 
@@ -807,6 +926,19 @@
   }
 
   // ── Global API ──
+  // Changement de langue pendant que la modale est ouverte : on redessine
+  // l'ecran courant. Sans ca, le visiteur qui bascule FR/EN garde une modale
+  // dans l'ancienne langue jusqu'a la fermer — meme patron que
+  // zts-cadenas.js, zts-gate.js et zts-unlock.js.
+  document.addEventListener('zts:langchange', function () {
+    var overlay = document.getElementById('ztsAuthOverlay');
+    if (!overlay) return;
+    var content = document.getElementById('ztsAuthContent');
+    if (!content) return;
+    if (document.getElementById('ztsAuthCta')) renderStep1(content);
+    else renderStep2(content, _currentMode);
+  });
+
   root.ztsShowLogin = function() { showModal('login'); };
   root.ztsShowSignup = function(opts) { showModal('signup', opts); };
 

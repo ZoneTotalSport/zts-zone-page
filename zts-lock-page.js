@@ -72,8 +72,9 @@
     }
     // Fallback minimal si zts-locked-fullscreen.js pas encore charge
     var d = document.createElement('div');
-    d.style.cssText = 'position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1e3a8a,#6d28d9);display:flex;align-items:center;justify-content:center;padding:20px;font-family:"Patrick Hand",cursive;color:#fff;text-align:center';
-    d.innerHTML = '<div style="max-width:500px"><h1 style="font-size:2rem;margin-bottom:1rem">Cette page est réservée aux membres</h1><p style="margin-bottom:1.5rem">Inscris-toi gratuitement et reçois 90 cours d\'ÉPS clé en main</p><button id="zts-lock-fallback-btn" style="background:#FFD700;border:3px solid #000;border-radius:14px;padding:12px 24px;font-family:inherit;font-size:1.2rem;cursor:pointer;box-shadow:4px 4px 0 #000">S\'inscrire</button></div>';
+    d.style.cssText = 'position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1e3a8a,#6d28d9);display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--ztsh-f-corps,"Quicksand",system-ui,sans-serif);color:#fff;text-align:center';
+    var r = t();
+    d.innerHTML = '<div style="max-width:500px"><h1 style="font-size:2rem;margin-bottom:1rem">' + r.replTitre + '</h1><p style="margin-bottom:1.5rem">' + r.replSous + '</p><button id="zts-lock-fallback-btn" style="background:#FFD700;border:3px solid #000;border-radius:14px;padding:12px 24px;font-family:inherit;font-size:1.2rem;cursor:pointer;box-shadow:4px 4px 0 #000">' + r.replBouton + '</button></div>';
     document.body.appendChild(d);
     var btn = d.querySelector('#zts-lock-fallback-btn');
     btn.addEventListener('click', function () { if (window.ztsShowSignup) window.ztsShowSignup(); });
@@ -92,10 +93,10 @@
       'border:3px solid #0F0F2E;background:linear-gradient(160deg,#E0F7FF,#CFF3FF);box-shadow:6px 6px 0 #0F0F2E;}' +
       '.zts-half-cta::before{content:"";position:absolute;left:0;right:0;top:-90px;height:90px;pointer-events:none;' +
       'background:linear-gradient(180deg,rgba(255,255,255,0),#fff);}' +
-      '.zts-half-cta h3{font-family:"Luckiest Guy",cursive;font-size:clamp(22px,4vw,30px);color:#0F0F2E;margin:0 0 8px;line-height:1.1;}' +
-      '.zts-half-cta p{font-family:"Comic Neue","Patrick Hand",cursive;font-size:1.15rem;color:#0F0F2E;opacity:.85;margin:0 auto 18px;max-width:46ch;}' +
+      '.zts-half-cta h3{font-family:var(--ztsh-f-titre,"Luckiest Guy",system-ui,sans-serif);font-size:clamp(22px,4vw,30px);color:#0F0F2E;margin:0 0 8px;line-height:1.1;}' +
+      '.zts-half-cta p{font-family:var(--ztsh-f-corps,"Quicksand",system-ui,sans-serif);font-size:1.15rem;color:#0F0F2E;opacity:.85;margin:0 auto 18px;max-width:46ch;}' +
       '.zts-half-cta__btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}' +
-      '.zts-half-cta button{cursor:pointer;font-family:"Luckiest Guy",cursive;font-size:1.1rem;padding:13px 26px;' +
+      '.zts-half-cta button{cursor:pointer;font-family:var(--ztsh-f-titre,"Luckiest Guy",system-ui,sans-serif);font-size:1.1rem;padding:13px 26px;' +
       'border-radius:999px;border:3px solid #0F0F2E;box-shadow:4px 4px 0 #0F0F2E;}' +
       '.zts-half-cta .b1{background:#FFD700;color:#0F0F2E;}.zts-half-cta .b2{background:#fff;color:#0F0F2E;}' +
       '.zts-half-cta button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E;}';
@@ -115,21 +116,69 @@
   // Le texte du CTA parle de ce qui est masque : « l'article » sur un article,
   // les sections de la fiche sur un jeu. Un CTA qui promet « la suite de
   // l'article » sur une fiche de jeu se decredibilise tout seul.
+  // ── La langue : UNE seule definition pour tout le tunnel ──
+  // L'algorithme vit dans shared/zts.js (`ZTS.langue`) : ?lang= d'abord, puis
+  // le choix memorise, puis la langue du navigateur. On l'appelle quand il est
+  // la ; sinon on refait EXACTEMENT le meme calcul, parce que ce module peut
+  // s'executer avant shared/zts.js selon l'ordre des balises de la page.
+  //
+  // Repondre « fr » par defaut serait plus court et FAUX : c'est precisement
+  // ce qui faisait voir a un anglophone le cadenas dans une langue et le mur
+  // dans l'autre, sur la meme page. Les trois versions divergentes de cette
+  // fonction — localStorage seul, ZTS.getLang() seul, trois niveaux — sont
+  // remplacees par ce bloc, identique dans chaque module.
+  function lang() {
+    try { if (window.ZTS && ZTS.langue) return ZTS.langue(); } catch (e) {}
+    try {
+      var q = new URLSearchParams(location.search).get('lang');
+      if (q === 'en' || q === 'fr') return q;
+    } catch (e) {}
+    try {
+      var saved = localStorage.getItem('zts_lang');
+      if (saved === 'en' || saved === 'fr') return saved;
+    } catch (e) {}
+    return (navigator.language || 'fr').toLowerCase().indexOf('en') === 0 ? 'en' : 'fr';
+  }
+
   var CTA_TEXTES = {
-    article: {
-      titre: '🔒 La suite est réservée aux membres',
-      sous: 'Crée ton compte gratuit pour lire l’article au complet — et débloquer les 20+ outils. 100 % gratuit, pour toujours.',
-      bouton: '🔓 Lire la suite gratuitement'
+    fr: {
+      article: {
+        titre: '🔒 La suite est réservée aux membres',
+        sous: 'Crée ton compte gratuit pour lire l’article au complet — et débloquer les 20+ outils. 100 % gratuit, pour toujours.',
+        bouton: '🔓 Lire la suite gratuitement'
+      },
+      jeu: {
+        titre: '🔒 La fiche complète est réservée aux membres',
+        sous: 'Variantes, consignes de sécurité, adaptations pour l’inclusion, rôle de l’enseignant, retour au calme : crée ton compte gratuit pour tout voir — sur cette fiche et sur les 1 438 autres. 100 % gratuit, pour toujours.',
+        bouton: '🔓 Voir la fiche complète'
+      },
+      dejaMembre: 'Déjà membre? Se connecter',
+      replTitre: 'Cette page est réservée aux membres',
+      replSous: 'Inscris-toi gratuitement et reçois 90 cours d\'ÉPS clé en main',
+      replBouton: 'S\'inscrire'
     },
-    jeu: {
-      titre: '🔒 La fiche complète est réservée aux membres',
-      sous: 'Variantes, consignes de sécurité, adaptations pour l’inclusion, rôle de l’enseignant, retour au calme : crée ton compte gratuit pour tout voir — sur cette fiche et sur les 1 438 autres. 100 % gratuit, pour toujours.',
-      bouton: '🔓 Voir la fiche complète'
+    en: {
+      article: {
+        titre: '🔒 The rest is for members',
+        sous: 'Create your free account to read the full article — and unlock the 20+ tools. 100% free, forever.',
+        bouton: '🔓 Read the rest, free'
+      },
+      jeu: {
+        titre: '🔒 The full sheet is for members',
+        sous: 'Variations, safety guidelines, inclusion adaptations, the teacher’s role, cool-down: create your free account to see it all — on this sheet and on the 1,438 others. 100% free, forever.',
+        bouton: '🔓 See the full sheet'
+      },
+      dejaMembre: 'Already a member? Sign in',
+      replTitre: 'This page is for members',
+      replSous: 'Sign up free and get 90 ready-to-teach PE lessons',
+      replBouton: 'Sign up'
     }
   };
+  function t() { return CTA_TEXTES[lang()] || CTA_TEXTES.fr; }
 
   function buildCta(info) {
-    var tx = CTA_TEXTES[info.kind] || CTA_TEXTES.article;
+    var d0 = t();
+    var tx = d0[info.kind] || d0.article;
     var d = document.createElement('div');
     d.className = 'zts-half-cta';
     d.innerHTML =
@@ -137,7 +186,7 @@
       '<p>' + tx.sous + '</p>' +
       '<div class="zts-half-cta__btns">' +
       '<button class="b1" data-act="signup">' + tx.bouton + '</button>' +
-      '<button class="b2" data-act="login">Déjà membre? Se connecter</button>' +
+      '<button class="b2" data-act="login">' + d0.dejaMembre + '</button>' +
       '</div>';
     // UN SEUL locked_click_signup par intention : ce bouton-ci EST la demande
     // d'inscription. Aucun autre emetteur sur la page (la fiche n'a ni carte
