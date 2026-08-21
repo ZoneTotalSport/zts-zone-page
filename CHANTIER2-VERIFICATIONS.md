@@ -1,9 +1,11 @@
 # Chantier 2 — vérifications post-LOT 1
 
-**21 août 2026. Lecture seule**, sauf le ménage d'entête de
-`_scripts/publie-banques-r2.sh` (commit `42dae47`, à part).
+**21 août 2026.** Les §1 et §2 sont en **lecture seule**. Le §3 se termine par
+**un test qui écrit en production**, joué avec l'accord de Joey : une génération
+anonyme réelle, qui a créé un document **ineffaçable** dans `anonGenCount`. Le
+§7 livre trois greffes de code.
 
-Rien n'a été écrit en production : ni R2, ni Firestore, ni Cloudflare.
+R2 et Cloudflare n'ont pas été touchés.
 
 ---
 
@@ -108,16 +110,58 @@ Trois candidats, par ordre de vraisemblance, non départagés :
 2. Le trafic anonyme sur `/apps/generateur/` est simplement nul ou quasi nul.
 3. Un échec systématique du Worker sur le chemin anonyme.
 
-**Le test qui tranche est une vraie génération anonyme, et je ne l'ai pas
-joué** : il crée un document que `allow delete: if false` rend **définitivement
-ineffaçable**, et il consomme un appel LLM. Ça demande ton accord.
+### VERDICT DU TEST — la chaîne fonctionne, de bout en bout
 
-**Un point aggravant, à traiter quel que soit le diagnostic.** `getCount()` et
-`increment()` finissent tous deux par un `.catch()` qui bascule en silence sur
-`localStorage` (`zts-anon-fingerprint.js:88` et `:117`). Si l'écriture échouait
-vraiment, **rien ne le dirait** — ni console, ni UI, ni compteur. C'est
-précisément le mode de panne muette que le LOT 1 a passé son temps à retirer
-ailleurs. Trois mois de zéro n'ont alerté personne pour cette raison.
+Test joué le 21 août, avec ton accord, en anonyme sur la production.
+Bannière de témoins **refusée** d'abord, puis parcours réel : sélection
+type/univers, contexte saisi, clic sur GÉNÉRER.
+
+**Réponse du Worker — `POST https://api.zonetotalsport.ca/generate` → `200`**
+
+```json
+{"ok":true,"type":"jeu","univers":"eps",
+ "modele_utilise":"claude-haiku-4-5-20251001",
+ "tokens":{"input":770,"output":786},
+ "generationId":null,
+ "quota":{"scope":"anon","used":1,"max":3,"month_key":"2026-08"}}
+```
+
+Pas de 429, pas de 401. La fiche s'est affichée (*Les Gardiens des Zones*),
+aucun mur, aucune erreur.
+
+**Document créé dans `anonGenCount`** — ce qui n'était jamais arrivé :
+
+| Champ | Valeur |
+|---|---|
+| id | `3c09bbbd68c9…b027a` (l'empreinte) |
+| `count` | **1** |
+| `firstSeen` / `lastSeen` | 2026-08-21 11:41:43 UTC |
+| Taille de la collection | **1** (elle était à 0) |
+
+**Ce document est permanent** — `allow delete: if false`. Il est à moi, pas
+à un vrai visiteur : à retirer si un jour tu comptes les empreintes réelles.
+
+**Ce que le verdict change.** Mon hypothèse la plus probable — le quota par IP
+épuisé — est **réfutée** : le Worker répond `used: 1, max: 3` pour cette IP,
+donc le compteur anonyme partait de zéro et rien ne bloquait. Les maillons
+sont tous fonctionnels, y compris l'écriture Firestore et la règle `create`.
+
+Il ne reste que l'explication ordinaire : **en trois mois, aucun visiteur
+anonyme n'est allé jusqu'à une génération réussie.** Soit le trafic anonyme du
+générateur est nul, soit ceux qui l'utilisent sont connectés — auquel cas
+`incAnonCount()` est sauté et le quota part dans `userQuotas`. Ce n'est pas une
+panne : c'est un chiffre d'usage, et il est mauvais.
+
+**Le vrai défaut est qu'on ne pouvait pas le savoir.** Un zéro silencieux et une
+panne d'écriture muette se ressemblaient trait pour trait, et il a fallu jouer
+une génération à la main pour les distinguer. C'est ce que corrige la greffe
+(b) plus bas.
+
+**Un désaccord de plafonds, découvert par le test.** Le Worker accorde **3**
+essais anonymes par IP et par mois ; le mur client tombe à **2**
+(`ANON_LIMIT`). Le troisième essai que le serveur autorise n'est donc jamais
+atteignable. Conformément à ta consigne, **le Worker n'est pas touché ici** —
+c'est un point de conversion, il mérite son chantier.
 
 ## 4. Défaut collatéral — le compteur affiché ment (cosmétique)
 
@@ -170,7 +214,7 @@ urgence. C'est du cache d'outil qui n'a rien à faire dans l'historique.
 | B4 | `/apps/sae/` liste puis SAÉ vitrine (*Les Légendes du Basketball*) | Liste **1880 SAÉ** ; la vitrine s'ouvre entière **avec ses cours** ; une SAÉ ordinaire donne le mur. |
 | B5 | `/apps/planificateur/` | Mur **non fermable**, défilement bloqué, texte « réservée aux membres gratuits ». |
 | B6 | Inscription depuis un mur | Après création : arrivée sur **`/bienvenue.html`** (drapeau `sessionStorage`). Pas la page d'accueil. |
-| B7 | `/apps/generateur/` — générer 3 fois de suite | Essais 1 et 2 passent ; le **3e** déclenche le mur plein écran. Et : un document apparaît dans `anonGenCount` — **c'est le test décisif du §3**. |
+| B7 | `/apps/generateur/` — générer 3 fois de suite | Essais 1 et 2 passent ; le **3e** déclenche le mur plein écran. ✅ **Joué le 21 août** — voir §3. Reste à confirmer le mur au 3e essai, que le test n'a pas poussé jusque-là. |
 
 ### C — iPhone, connecté (le tunnel du LOT 0, jamais joué)
 
@@ -187,11 +231,69 @@ urgence. C'est du cache d'outil qui n'a rien à faire dans l'historique.
 
 ---
 
+## 7. Greffes livrées sur la même branche
+
+| Commit | Objet |
+|---|---|
+| `12fac9d` | Le compteur affiche la limite qui bloque vraiment |
+| `7c870b5` | Les deux replis de `zts-anon-fingerprint.js` ne sont plus muets |
+| `c2c2e0f` | `.wrangler/` sort du suivi, à la racine aussi |
+
+### (a) Le compteur — le conflit `defer` / `DOMContentLoaded`, réglé au bon endroit
+
+Le point d'accroche existait **déjà** : l'i18n de `index.html` appelle
+`window.ztsGenApplyI18n()` après chaque rendu, précisément pour rendre la main
+aux textes calculés. `app.js` ne l'avait jamais défini. Il l'est maintenant.
+
+Rien n'est neutralisé : l'i18n continue de traduire tout ce qui est figé, puis
+`app.js` recalcule ce qui se calcule. Le noeud `#quotaHint` perd son
+`data-i18n` — un noeud dont le contenu est un **nombre** ne peut pas porter une
+traduction figée. Effet de bord réparé au passage : le changement de langue
+laissait l'indice de contexte et le compteur en français.
+
+Le plafond vient d'`ANON_LIMIT`, plus du Worker ; le nombre déjà consommé vient
+du Worker, plus fiable que `localStorage`.
+
+**Mécanisme vérifié sur la page de production**, avant/après :
+
+| Étape | Texte de `#quotaHint` |
+|---|---|
+| Valeur calculée par `app.js` | `Tu peux générer 2 fois sans inscription (1/3 utilisés).` |
+| Après un passage de l'i18n — **défaut reproduit** | `Tu peux générer 3 fois sans inscription.` |
+| Après retrait de `data-i18n`, i18n rejouée — **correctif** | `Tu peux générer 2 fois sans inscription.` |
+
+Et `window.ztsGenApplyI18n` vaut bien `undefined` en production : le contrat
+n'existait que d'un côté.
+
+**Ce qui n'est PAS fait, et pourquoi.** Les trois littéraux « 3 » de
+`index.html` (la valeur d'attente du `<p>` et les deux `quota_default`) restent
+en place. Les modifier retire des lignes d'app, ce que le contrôle d'habillage
+bloque hors de ses exceptions — et `_scripts/verifie-habillage.py` dit
+lui-même, en toutes lettres, de ne pas les élargir sans décision. J'ai donc
+laissé la décision. Sans effet visible après le premier rendu, `app.js`
+réécrivant le noeud ; reste la fenêtre avant l'exécution du script, où « 3 »
+s'affiche encore. **Un mot de toi et je les change avec `--no-verify`.**
+
+### (b) Les replis muets
+
+`console.error` avec l'erreur d'origine, plus un événement `conversionFunnel`
+(`anon_fp_error`, avec la phase — `lecture` ou `ecriture`). La console est le
+canal qui ne dépend de rien ; l'événement Firestore est un *best effort*, il
+tombera avec Firestore — d'où les deux. Le repli sur `localStorage` ne change
+pas : un visiteur n'a pas à subir une panne de compteur.
+
+### (c) `.wrangler/`
+
+`git rm --cached` — le fichier reste sur le disque, c'est le cache de travail
+de wrangler. `.gitignore` passe à `.wrangler/` + `**/.wrangler/`, qui vaut
+partout et plus seulement sous `cf-worker/`. **Pas de réécriture d'historique**,
+conformément à la décision « fuite archiviste acceptée » de la vague D.
+
 ## Ce que je n'ai pas fait, et pourquoi
 
 - **La barre finale de `ia.`** — tableau de bord Cloudflare, pas de jeton d'API,
   et les actions dashboard te reviennent.
-- **La génération anonyme réelle** (§3) — elle crée un document ineffaçable en
-  production. Ton accord d'abord.
-- **`.wrangler/` hors du dépôt** (§5) — écriture, hors périmètre du chantier.
-- **Le correctif du compteur à « 3 fois »** (§4) — écriture, hors périmètre.
+- **Le désaccord des plafonds 3 (Worker) / 2 (client)** — ta consigne : chantier
+  propre, ça touche un point de conversion.
+- **Les trois littéraux « 3 » de `index.html`** — le contrôle d'habillage les
+  protège, et il demande une décision plutôt qu'une exception de plus.
