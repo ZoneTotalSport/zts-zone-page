@@ -69,7 +69,11 @@
       bad: 'Entre un courriel valide.',
       full: 'Je veux plutôt créer mon compte complet',
       close: 'Fermer',
-      proof: '🏆 328 profs sont déjà dans la Zone'
+      // `proof` est le REPLI, volontairement sans chiffre : mieux vaut une
+      // phrase vraie qu'un nombre faux. `proofChiffre` sert quand le worker
+      // repond. Voir le bloc « preuve sociale » plus bas.
+      proof: '🏆 Rejoins les profs du Québec déjà dans la Zone',
+      proofChiffre: function (n) { return '🏆 ' + n + ' profs sont déjà dans la Zone'; }
     },
     en: {
       kicker: 'FREE GIFT',
@@ -83,10 +87,51 @@
       bad: 'Enter a valid email.',
       full: 'I’d rather create my full account',
       close: 'Close',
-      proof: '🏆 328 teachers are already in the Zone'
+      proof: '🏆 Join the Quebec teachers already in the Zone',
+      proofChiffre: function (n) { return '🏆 ' + n + ' teachers are already in the Zone'; }
     }
   };
   function t() { return T[lang()]; }
+
+  // ── Preuve sociale : le chiffre vient du worker, jamais du code ──
+  // Ces deux lignes disaient « 328 profs », ecrit en dur, depuis assez
+  // longtemps pour que le worker en annonce 340. Le §D de LOT0-COMPLETE.md
+  // signalait deja ce defaut dans zts-jeux-cta.js ; il vivait aussi ici, dans
+  // le pop-up que voit TOUT visiteur du site — pas seulement ceux qui butent
+  // sur un mur.
+  //
+  // Meme patron que la modale V2 : on affiche ce qu'on a, on redemande a
+  // l'ouverture, et on met le noeud a jour quand la reponse arrive. Le worker
+  // repond `cache-control: max-age=300`, donc ouvrir le pop-up dix fois ne
+  // fait pas dix appels.
+  //
+  // SI LE WORKER NE REPOND PAS, on garde la phrase sans chiffre. Un nombre
+  // ecrit en dur « au cas ou » serait exactement le defaut qu'on retire.
+  var PROOF_URL = 'https://zone-subscriber-count.zts-ccd.workers.dev/';
+  var _proofTotal = null;
+
+  function proofTexte() {
+    var tr = t();
+    if (typeof _proofTotal !== 'number') return tr.proof;
+    return tr.proofChiffre(_proofTotal.toLocaleString(lang() === 'en' ? 'en-CA' : 'fr-CA'));
+  }
+
+  function rafraichitProof() {
+    try {
+      fetch(PROOF_URL)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          // `> 50` : garde-fou repris de la modale V2. Un compte partiel
+          // afficherait « 3 profs sont deja dans la Zone », ce qui dessert
+          // plus qu'une phrase sans chiffre.
+          if (!d || typeof d.total !== 'number' || d.total <= 50) return;
+          _proofTotal = d.total;
+          var n = document.querySelector('.zts-nl-proof');
+          if (n) n.textContent = proofTexte();   // le pop-up peut avoir ete ferme
+        })
+        .catch(function () {});                  // le repli reste affiche
+    } catch (e) {}
+  }
 
   // ── Fréquence
   function recentlyDismissed() {
@@ -228,9 +273,12 @@
         '</form>' +
         '<div class="zts-nl-msg" hidden></div>' +
         '<button type="button" class="zts-nl-full">' + tr.full + '</button>' +
-        '<p class="zts-nl-proof">' + tr.proof + '</p>' +
+        '<p class="zts-nl-proof">' + proofTexte() + '</p>' +
       '</div>';
     document.body.appendChild(ov);
+    // On affiche ce qu'on a deja, puis on redemande : le noeud existe
+    // maintenant, la reponse pourra l'ecrire meme si elle arrive apres.
+    rafraichitProof();
 
     var card = ov.querySelector('.zts-nl-card');
     var input = ov.querySelector('input');

@@ -96,6 +96,9 @@
       '.zts-half-cta h3{font-family:var(--ztsh-f-titre,"Luckiest Guy",system-ui,sans-serif);font-size:clamp(22px,4vw,30px);color:#0F0F2E;margin:0 0 8px;line-height:1.1;}' +
       '.zts-half-cta p{font-family:var(--ztsh-f-corps,"Quicksand",system-ui,sans-serif);font-size:1.15rem;color:#0F0F2E;opacity:.85;margin:0 auto 18px;max-width:46ch;}' +
       '.zts-half-cta__btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}' +
+      '.zts-half-cta__genia{font-family:var(--ztsh-f-corps,"Quicksand",system-ui,sans-serif);' +
+      'font-size:.95rem;color:#0F0F2E;opacity:.9;margin:16px auto 0;max-width:46ch;}' +
+      '.zts-half-cta__genia a{color:#0F0F2E;font-weight:bold;text-decoration:underline;}' +
       '.zts-half-cta button{cursor:pointer;font-family:var(--ztsh-f-titre,"Luckiest Guy",system-ui,sans-serif);font-size:1.1rem;padding:13px 26px;' +
       'border-radius:999px;border:3px solid #0F0F2E;box-shadow:4px 4px 0 #0F0F2E;}' +
       '.zts-half-cta .b1{background:#FFD700;color:#0F0F2E;}.zts-half-cta .b2{background:#fff;color:#0F0F2E;}' +
@@ -153,6 +156,9 @@
         bouton: '🔓 Voir la fiche complète'
       },
       dejaMembre: 'Déjà membre? Se connecter',
+      // Nombre lu de window.ztsAnonLimit, jamais ecrit ici.
+      genia: function (n) { return n + ' essais gratuits de l\'assistant IA, sans compte'; },
+      geniaLien: 'Essayer →',
       replTitre: 'Cette page est réservée aux membres',
       replSous: 'Inscris-toi gratuitement et reçois 90 cours d\'ÉPS clé en main',
       replBouton: 'S\'inscrire'
@@ -169,6 +175,8 @@
         bouton: '🔓 See the full sheet'
       },
       dejaMembre: 'Already a member? Sign in',
+      genia: function (n) { return n + ' free AI assistant tries, no account'; },
+      geniaLien: 'Try it →',
       replTitre: 'This page is for members',
       replSous: 'Sign up free and get 90 ready-to-teach PE lessons',
       replBouton: 'Sign up'
@@ -176,7 +184,30 @@
   };
   function t() { return CTA_TEXTES[lang()] || CTA_TEXTES.fr; }
 
+  // Le plafond appartient a zts-anon-fingerprint.js (window.ztsAnonLimit).
+  // Un seul lecteur ici, un seul repli.
+  function plafondAnon() {
+    return (typeof window.ztsAnonLimit === 'number' && window.ztsAnonLimit > 0) ? window.ztsAnonLimit : 3;
+  }
+
+  // Bascule FR/EN apres le rendu : on remplace le bloc en place.
+  // Le demi-mur n'ecoutait pas `zts:langchange` — il etait donc bilingue au
+  // CHARGEMENT seulement, et restait dans sa langue de depart si le visiteur
+  // touchait le selecteur. Le mur plein ecran et la modale, eux, redessinent
+  // depuis la vague B ; celui-ci manquait a l'appel.
+  //
+  // On ne reconstruit QUE le bloc, jamais le mur entier : buildCta n'emet
+  // aucun evenement, donc rien n'est compte deux fois.
+  var _dernierInfo = null;
+  document.addEventListener('zts:langchange', function () {
+    if (!_dernierInfo) return;
+    var vieux = document.querySelector('.zts-half-cta');
+    if (!vieux || !vieux.parentNode) return;
+    vieux.parentNode.replaceChild(buildCta(_dernierInfo), vieux);
+  });
+
   function buildCta(info) {
+    _dernierInfo = info;
     var d0 = t();
     var tx = d0[info.kind] || d0.article;
     var d = document.createElement('div');
@@ -187,13 +218,21 @@
       '<div class="zts-half-cta__btns">' +
       '<button class="b1" data-act="signup">' + tx.bouton + '</button>' +
       '<button class="b2" data-act="login">' + d0.dejaMembre + '</button>' +
-      '</div>';
+      '</div>' +
+      '<p class="zts-half-cta__genia">' + d0.genia(plafondAnon()) +
+        ' <a data-act="genia" href="/apps/generateur/">' + d0.geniaLien + '</a></p>';
     // UN SEUL locked_click_signup par intention : ce bouton-ci EST la demande
     // d'inscription. Aucun autre emetteur sur la page (la fiche n'a ni carte
     // verrouillee ni pop-up plein ecran).
     d.querySelector('[data-act=signup]').addEventListener('click', function () {
       if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: info.kind, slug: info.slug });
       if (window.ztsShowSignup) window.ztsShowSignup();
+    });
+    // Le lien porte son href : on trace, on ne bloque pas la navigation.
+    d.querySelector('[data-act=genia]').addEventListener('click', function () {
+      if (window.ztsTrackFunnel) {
+        window.ztsTrackFunnel('genia_click', { source: 'mur-genia', layer: info.kind, slug: info.slug });
+      }
     });
     d.querySelector('[data-act=login]').addEventListener('click', function () {
       if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_login', { source: info.kind, slug: info.slug });

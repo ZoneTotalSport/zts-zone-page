@@ -308,6 +308,16 @@
       document.body.appendChild(pt);
     }
 
+    // Carte du générateur — même raison d'être ici que le partage : elle lit
+    // ses chaînes par ZTS.t(), donc après le dictionnaire.
+    if (!document.getElementById('zts-genia-loader')) {
+      const gi = document.createElement('script');
+      gi.id = 'zts-genia-loader';
+      gi.src = SHARED + 'zts-genia.js';
+      gi.defer = true;
+      document.body.appendChild(gi);
+    }
+
     // Capture courriel site-wide (le script s'auto-exclut des /apps/*)
     if (!document.getElementById('zts-nl-loader')) {
       var nl = document.createElement('script');

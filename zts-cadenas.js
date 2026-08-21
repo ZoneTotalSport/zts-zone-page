@@ -189,7 +189,14 @@
     ZONES.forEach(function (zone) {
       document.querySelectorAll(zone + ' a[href]').forEach(function (a) {
         var href = a.getAttribute('href') || '';
-        if (_authed || !exigeCompte(href)) {
+        // Sortie explicite : `data-zts-cad="non"`. Pose sur un lien dont la
+        // page annonce elle-meme ses conditions — la carte du generateur du
+        // pied dit « sans creer de compte », une pastille « compte gratuit
+        // requis » collee dessus la contredirait mot pour mot.
+        // La whitelist n'est PAS le bon levier ici : `freeResources` sert
+        // aussi a zts-lock.js pour decider des murs, l'elargir ouvrirait
+        // autre chose que la pastille.
+        if (_authed || a.getAttribute('data-zts-cad') === 'non' || !exigeCompte(href)) {
           var p = a.querySelector('.zts-cad');
           if (p) p.remove();
           return;

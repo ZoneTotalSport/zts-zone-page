@@ -40,6 +40,9 @@
     '.zts-lf-login{font-size:.95rem;color:#4b5563;margin:8px 0 12px}' +
     '.zts-lf-login a{color:#1e3a8a;font-weight:bold;text-decoration:underline;cursor:pointer}' +
     '.zts-lf-social{font-size:.88rem;color:#6b7280;font-style:italic;margin-top:6px}' +
+    '.zts-lf-genia{font-size:.92rem;color:#1e3a8a;background:#EEF6FF;border:2px dashed #93c5fd;' +
+    'border-radius:11px;padding:8px 12px;margin:2px 0 10px}' +
+    '.zts-lf-genia a{color:#1e3a8a;font-weight:bold;text-decoration:underline}' +
     '@media(max-width:480px){.zts-lf-box{padding:24px 18px}.zts-lf-btn{flex:1 1 100%;max-width:100%}}';
 
   function injectStyles() {
@@ -104,7 +107,11 @@
       dejaLabel: 'Déjà membre ? ',
       dejaLien: 'Connecte-toi',
       social:   'Rejoins les profs du Québec qui utilisent la Zone chaque semaine',
-      fermer:   'Fermer'
+      fermer:   'Fermer',
+      // Le nombre vient de window.ztsAnonLimit, jamais du texte : c'est le
+      // meme plafond que celui du mur du generateur, deux lignes plus haut.
+      genia:    function (n) { return n + ' essais gratuits de l\'assistant IA, sans compte'; },
+      geniaLien: 'Essayer →'
     },
     en: {
       titreArticle:   'This article is for free members',
@@ -119,19 +126,25 @@
       dejaLabel: 'Already a member? ',
       dejaLien: 'Sign in',
       social:   'Join the Quebec teachers who use the Zone every week',
-      fermer:   'Close'
+      fermer:   'Close',
+      genia:    function (n) { return n + ' free AI assistant tries, no account'; },
+      geniaLien: 'Try it →'
     }
   };
   function t() { return T[lang()] || T.fr; }
+
+  // SEUL lecteur du plafond anonyme dans ce fichier. Le proprietaire est
+  // zts-anon-fingerprint.js, qui l'expose en window.ztsAnonLimit ; le repli
+  // vaut ce que vaut le sien, et il est ecrit une seule fois.
+  function plafondAnon() {
+    return (typeof window.ztsAnonLimit === 'number' && window.ztsAnonLimit > 0) ? window.ztsAnonLimit : 3;
+  }
 
   function noun(source) {
     var d = t();
     if (source === 'article') return d.titreArticle;
     if (source === 'resource') return d.titreRessource;
-    if (source === 'generator') {
-      var n = (typeof window.ztsAnonLimit === 'number' && window.ztsAnonLimit > 0) ? window.ztsAnonLimit : 3;
-      return d.titreGenerateur(n);
-    }
+    if (source === 'generator') return d.titreGenerateur(plafondAnon());
     return d.titreDefaut;
   }
 
@@ -159,6 +172,9 @@
         '<button class="zts-lf-btn zts-lf-btn-email" data-action="email">' + d.courriel + '</button>' +
       '</div>' +
       '<div class="zts-lf-login">' + d.dejaLabel + '<a data-action="login">' + d.dejaLien + '</a></div>' +
+      (opts.source === 'generator' ? '' :
+        '<div class="zts-lf-genia">' + d.genia(plafondAnon()) +
+        ' <a data-action="genia" href="/apps/generateur/">' + d.geniaLien + '</a></div>') +
       '<div class="zts-lf-social">' + d.social + '</div>';
 
     // Replace placeholder text with emojis (avoid encoding issues in source)
@@ -221,6 +237,12 @@
         fireSignup(act, opts.targetUrl);
       } else if (act === 'login') {
         fireLogin();
+      } else if (act === 'genia') {
+        // On ne bloque PAS la navigation : le lien porte son href, le clic
+        // le suit. L'evenement part avant, comme les autres du mur.
+        if (window.ztsTrackFunnel) {
+          window.ztsTrackFunnel('genia_click', { source: 'mur-genia', layer: opts.source || 'inconnu' });
+        }
       } else if (e.target.classList && e.target.classList.contains('zts-lf-close')) {
         close();
       }
