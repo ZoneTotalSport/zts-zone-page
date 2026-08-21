@@ -15,7 +15,13 @@
 (function () {
   'use strict';
 
-  var LIMIT = 2;
+  // SEULE definition du plafond anonyme cote client. app.js la lit via
+  // window.ztsAnonLimit — il en portait une copie, et les deux ont diverge.
+  //
+  // 3, pour s'aligner sur le Worker, qui accorde 3 essais anonymes par IP et
+  // par mois. Tant que ce nombre valait 2, le 3e essai que le serveur
+  // autorisait n'etait jamais atteignable.
+  var LIMIT = 3;
   var FP_KEY = 'zts_anon_fp_v1';
   var COUNT_CACHE_KEY = 'zts_anon_count_v1';
   var FIRESTORE_CDN = 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js';
@@ -144,7 +150,11 @@
         });
       }).then(function (next) {
         try { localStorage.setItem(COUNT_CACHE_KEY, String(next)); } catch (e) {}
-        return { count: next, blocked: next > LIMIT };
+        // `>=` et non `>` : checkBlocked() dit `count >= LIMIT`, et deux
+        // definitions du meme seuil finissent toujours par diverger. Champ
+        // inutilise par app.js aujourd'hui — raison de plus pour qu'il ne
+        // mente pas le jour ou quelqu'un s'en servira.
+        return { count: next, blocked: next >= LIMIT };
       });
     }).catch(function (err) {
       // Le plus grave des deux : c'est CETTE ecriture qui alimente
@@ -157,7 +167,7 @@
       try { cur = parseInt(localStorage.getItem(COUNT_CACHE_KEY) || '0', 10); } catch (e) {}
       var next = cur + 1;
       try { localStorage.setItem(COUNT_CACHE_KEY, String(next)); } catch (e) {}
-      return { count: next, blocked: next > LIMIT };
+      return { count: next, blocked: next >= LIMIT };
     });
   }
 

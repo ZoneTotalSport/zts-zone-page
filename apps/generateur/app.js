@@ -11,7 +11,20 @@
     : 'https://api.zonetotalsport.ca/generate';
 
   const ANON_GENS_KEY = 'zts_anon_generations';
-  const ANON_LIMIT = 2; // Sprint Cadenas V2 : fingerprint Firestore (zts-anon-fingerprint.js) remplace localStorage
+  // Le plafond anonyme n'est PAS defini ici. Il vit dans
+  // zts-anon-fingerprint.js — c'est ce fichier qui fait tomber le mur — et il
+  // s'expose en `window.ztsAnonLimit`. app.js en portait une copie ; les deux
+  // ont diverge, et le compteur a annonce un plafond que le mur ne respectait
+  // pas. Une valeur, un proprietaire.
+  //
+  // Lecture PARESSEUSE, pas au chargement : les deux scripts sont en `defer`
+  // et zts-anon-fingerprint.js vient en premier, mais figer la valeur ici
+  // rendrait le repli silencieux le jour ou l'ordre des balises changerait.
+  const ANON_LIMIT_REPLI = 3; // = LIMIT de zts-anon-fingerprint.js
+  function anonLimit() {
+    const l = window.ztsAnonLimit;
+    return (typeof l === 'number' && l > 0) ? l : ANON_LIMIT_REPLI;
+  }
   const MAX_GENS_DISPLAY = 12;
 
   const API_BASE = API_URL.replace(/\/generate$/, '');
@@ -222,7 +235,7 @@
       connecte: 'Signed in: 10 free generations/month.',
       dernier: '⚠️ Last free try — sign up to keep generating.',
       epuise: 'Sign up for free to keep generating.',
-      restants: (n) => `You can generate ${n} more times without signing up.`,
+      restants: (n) => `You can generate ${n} times without signing up.`,
     },
   };
 
@@ -247,14 +260,13 @@
       return;
     }
 
-    // DEUX limites coexistent et ne sont PAS d'accord : le Worker accorde 3
-    // essais anonymes par IP et par mois (`quota.max`), le mur client tombe a
-    // ANON_LIMIT = 2. Le visiteur rencontre le mur client — c'est donc lui
-    // qu'on annonce. Afficher le max du Worker promettait un essai de plus
-    // qui n'arrive jamais. `quota.used` du Worker reste la meilleure source
-    // pour le nombre DEJA consomme ; seul le plafond vient d'ici.
+    // Le plafond annonce est celui du MUR (window.ztsAnonLimit), pas celui du
+    // Worker. Les deux valent 3 depuis cet alignement, mais c'est le mur que
+    // le visiteur rencontre : si l'un des deux redevient plus bas, c'est
+    // toujours lui qu'il faut annoncer. `quota.used` du Worker reste la
+    // meilleure source pour le nombre DEJA consomme.
     const used = (quota && typeof quota.used === 'number') ? quota.used : getAnonCount();
-    const remaining = Math.max(0, ANON_LIMIT - used);
+    const remaining = Math.max(0, anonLimit() - used);
     if (remaining === 0) $quotaHint.textContent = t.epuise;
     else if (remaining === 1) $quotaHint.textContent = t.dernier;
     else $quotaHint.textContent = t.restants(remaining);
