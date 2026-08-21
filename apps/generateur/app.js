@@ -26,6 +26,7 @@
     contexte: '',
     isGenerating: false,
     lastResult: null,
+    lastQuota: null,
   };
 
   // ──────────────────────────────────────────────────────────
@@ -199,28 +200,64 @@
     return Promise.resolve({ count: getAnonCount() + 1, blocked: false });
   }
 
+  function langueCourante() {
+    try {
+      return (window.ZTS && ZTS.getLang && ZTS.getLang())
+        || (new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'fr');
+    } catch (e) { return 'fr'; }
+  }
+
+  // Ces phrases vivent ici, et non dans la table I18N de index.html, parce
+  // qu'elles portent un NOMBRE calcule. Une traduction figee ne peut pas.
+  const QUOTA_T = {
+    fr: {
+      credits: (l, m) => `Crédits restants ce mois : ${l} / ${m}`,
+      connecte: 'Connecté : 10 générations gratuites/mois.',
+      dernier: '⚠️ Dernier essai gratuit — inscris-toi pour générer sans limite.',
+      epuise: 'Inscris-toi gratuitement pour continuer à générer.',
+      restants: (n) => `Tu peux générer ${n} fois sans inscription.`,
+    },
+    en: {
+      credits: (l, m) => `Credits left this month: ${l} / ${m}`,
+      connecte: 'Signed in: 10 free generations/month.',
+      dernier: '⚠️ Last free try — sign up to keep generating.',
+      epuise: 'Sign up for free to keep generating.',
+      restants: (n) => `You can generate ${n} more times without signing up.`,
+    },
+  };
+
   function updateQuotaHint(quota) {
+    if (quota) state.lastQuota = quota;
+    else quota = state.lastQuota;
+
+    const t = QUOTA_T[langueCourante()] || QUOTA_T.fr;
+
+    // L'i18n statique de index.html reapplique `data-i18n` sur chaque rendu.
+    // Ce noeud en portait un — `quota_default` — et son texte fige ecrasait
+    // le nombre calcule ici : app.js est en `defer`, donc init() tourne AVANT
+    // DOMContentLoaded, et l'i18n repassait juste apres. Un noeud dont le
+    // contenu se calcule ne peut pas porter une traduction figee ; on retire
+    // l'attribut, et window.ztsGenApplyI18n (plus bas) prend le relais au
+    // changement de langue.
+    $quotaHint.removeAttribute('data-i18n');
+
     const uid = getUid();
-    if (quota) {
-      const left = quota.max - quota.used;
-      if (uid) {
-        $quotaHint.textContent = `Crédits restants ce mois : ${left} / ${quota.max}`;
-      } else {
-        $quotaHint.textContent = `Tu peux générer ${left} fois sans inscription (${quota.used}/${quota.max} utilisés).`;
-      }
+    if (uid) {
+      $quotaHint.textContent = quota ? t.credits(quota.max - quota.used, quota.max) : t.connecte;
       return;
     }
-    if (uid) {
-      $quotaHint.textContent = 'Connecté : 10 générations gratuites/mois.';
-    } else {
-      const used = getAnonCount();
-      const remaining = Math.max(0, ANON_LIMIT - used);
-      if (used >= ANON_LIMIT - 1 && remaining > 0) {
-        $quotaHint.textContent = '⚠️ Dernier essai gratuit — inscris-toi pour générer sans limite.';
-      } else {
-        $quotaHint.textContent = `Tu peux générer ${remaining} fois sans inscription.`;
-      }
-    }
+
+    // DEUX limites coexistent et ne sont PAS d'accord : le Worker accorde 3
+    // essais anonymes par IP et par mois (`quota.max`), le mur client tombe a
+    // ANON_LIMIT = 2. Le visiteur rencontre le mur client — c'est donc lui
+    // qu'on annonce. Afficher le max du Worker promettait un essai de plus
+    // qui n'arrive jamais. `quota.used` du Worker reste la meilleure source
+    // pour le nombre DEJA consomme ; seul le plafond vient d'ici.
+    const used = (quota && typeof quota.used === 'number') ? quota.used : getAnonCount();
+    const remaining = Math.max(0, ANON_LIMIT - used);
+    if (remaining === 0) $quotaHint.textContent = t.epuise;
+    else if (remaining === 1) $quotaHint.textContent = t.dernier;
+    else $quotaHint.textContent = t.restants(remaining);
   }
 
   // ──────────────────────────────────────────────────────────
@@ -1375,6 +1412,16 @@
     setupZoom();
     updatePlaceholder();
     updateQuotaHint();
+
+    // Contrat attendu par l'i18n statique de index.html, qui l'appelle apres
+    // chaque application de `data-i18n` (`zts:ready`, `zts:langchange`,
+    // DOMContentLoaded). Il etait invoque mais n'a jamais ete defini : les
+    // textes calcules — indice de contexte et compteur de quota — restaient
+    // donc ceux du HTML, dans la langue du HTML.
+    window.ztsGenApplyI18n = function () {
+      updatePlaceholder();
+      updateQuotaHint();
+    };
     refreshGenerationsGrid();
 
     // Si Firebase devient dispo plus tard, refresh + migration anon→Firestore

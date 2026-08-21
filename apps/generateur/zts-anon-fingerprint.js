@@ -79,6 +79,36 @@
     });
   }
 
+  // ── Un repli ne doit jamais etre muet ──
+  // Les deux `.catch()` ci-dessous basculent sur localStorage quand Firestore
+  // ne repond pas. C'est le bon comportement — le visiteur n'a pas a subir une
+  // panne de compteur — mais ils AVALAIENT l'erreur. Consequence mesurable :
+  // du 18 mai au 21 aout 2026, la collection `anonGenCount` est restee a zero
+  // document sans que rien, nulle part, ne le signale. Trois mois d'un chiffre
+  // qui ne pouvait pas alerter, parce qu'un zero silencieux ressemble trait
+  // pour trait a « personne n'est venu ».
+  //
+  // On ne peut pas distinguer les deux depuis le client. Ce qu'on peut faire,
+  // c'est rendre l'echec AUDIBLE : la console pour qui regarde en direct, et
+  // un evenement `conversionFunnel` pour qui regarde apres coup. Le repli lui
+  // -meme ne change pas.
+  function signaleEchec(phase, err) {
+    try {
+      console.error('[zts-anon-fp] ' + phase + ' — Firestore indisponible, '
+                    + 'repli sur localStorage. Le compteur anonyme ne monte pas.', err);
+    } catch (e) {}
+    // Best effort : si Firestore est en panne, cette ecriture echoue aussi.
+    // La console reste le canal qui, lui, ne depend de rien.
+    try {
+      if (window.ztsTrackFunnel) {
+        window.ztsTrackFunnel('anon_fp_error', {
+          source: 'generateur',
+          layer: phase,
+        });
+      }
+    } catch (e) {}
+  }
+
   function getCount() {
     return Promise.all([getFingerprint(), getDb()]).then(function (vals) {
       var fp = vals[0], db = vals[1];
@@ -89,8 +119,9 @@
         try { localStorage.setItem(COUNT_CACHE_KEY, String(c)); } catch (e) {}
         return c;
       });
-    }).catch(function () {
-      // Fallback localStorage si Firestore indisponible
+    }).catch(function (err) {
+      signaleEchec('lecture', err);
+      // Repli localStorage si Firestore indisponible
       try { return parseInt(localStorage.getItem(COUNT_CACHE_KEY) || '0', 10); } catch (e) { return 0; }
     });
   }
@@ -115,8 +146,13 @@
         try { localStorage.setItem(COUNT_CACHE_KEY, String(next)); } catch (e) {}
         return { count: next, blocked: next > LIMIT };
       });
-    }).catch(function () {
-      // Fallback : incremente localStorage seulement
+    }).catch(function (err) {
+      // Le plus grave des deux : c'est CETTE ecriture qui alimente
+      // `anonGenCount`. Si elle tombe, le compteur serveur reste a zero et
+      // le mur ne s'appuie plus que sur un localStorage qu'un visiteur efface
+      // en deux clics.
+      signaleEchec('ecriture', err);
+      // Repli : incremente localStorage seulement
       var cur = 0;
       try { cur = parseInt(localStorage.getItem(COUNT_CACHE_KEY) || '0', 10); } catch (e) {}
       var next = cur + 1;

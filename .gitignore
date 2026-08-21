@@ -1,3 +1,13 @@
+# Cache local de wrangler. La regle existait pour cf-worker/ mais PAS pour la
+# racine : .wrangler/cache/wrangler-account.json est donc parti dans un depot
+# public avec ff9c082 (identifiant de compte Cloudflare et nom du compte).
+#
+# Ce n'est pas un secret — un account id se lit dans les URL du tableau de bord
+# et n'ouvre rien sans jeton — mais c'est du cache d'outil, et il n'a rien a
+# faire dans l'historique. Motif racine, pas seulement cf-worker/.
+.wrangler/
+**/.wrangler/
+
 cf-worker/.wrangler/
 cf-worker/node_modules/
 cf-worker/**/.wrangler/
