@@ -66,19 +66,35 @@
   let dict = {};                 // dictionnaire de la langue active
   let lang = 'fr';
 
-  /* ---------- LANGUE ---------- */
-  function detectLang() {
+  /* ---------- LANGUE ----------
+     SEULE definition de « quelle langue voit ce visiteur ». Trois modules du
+     tunnel en avaient chacun la leur, et elles ne repondaient pas pareil :
+     zts-gate.js lisait localStorage seul, zts-unlock.js ZTS.getLang() seul,
+     zts-cadenas.js avait trois niveaux. Un anglophone qui n'avait jamais
+     touche au selecteur voyait donc le cadenas en anglais et le mur des apps
+     en francais, sur la meme page.
+
+     `langue()` est exposee en `ZTS.langue`. Les modules l'appellent quand elle
+     existe ; ils portent le MEME corps en repli, parce qu'ils peuvent
+     s'executer avant shared/zts.js selon l'ordre des balises de leur page
+     (apps/generateur/index.html charge firebase-auth.js 90 lignes avant
+     shared/zts.js). Un repli qui renverrait « fr » par defaut recreerait la
+     divergence qu'on vient de retirer, au pire moment : au premier rendu. */
+  function langue() {
     // 1) Paramètre d'URL ?lang= (priorité : liens hreflang, partages, Googlebot).
     try {
       const q = new URLSearchParams(location.search).get('lang');
       if (q === 'fr' || q === 'en') { localStorage.setItem(STORE_KEY, q); return q; }
     } catch (e) { /* URLSearchParams indispo : on ignore */ }
     // 2) Choix mémorisé.
-    const saved = localStorage.getItem(STORE_KEY);
-    if (saved === 'fr' || saved === 'en') return saved;
+    try {
+      const saved = localStorage.getItem(STORE_KEY);
+      if (saved === 'fr' || saved === 'en') return saved;
+    } catch (e) { /* localStorage bloque (navigation privee stricte) */ }
     // 3) Langue du navigateur.
     return (navigator.language || 'fr').toLowerCase().startsWith('en') ? 'en' : 'fr';
   }
+  const detectLang = langue;
 
   async function loadDict(l) {
     try {
@@ -305,7 +321,7 @@
 
   // API publique
   window.ZTS = {
-    t, setLang, getLang: () => lang, applyI18n,
+    t, setLang, getLang: () => lang, langue, applyI18n,
     openModal, closeModal, setMetier, countUp,
     paths: { shared: SHARED, root: ROOT }
   };

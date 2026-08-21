@@ -70,9 +70,27 @@
     fr: { titre: 'Compte gratuit requis', court: 'Compte gratuit' },
     en: { titre: 'Free account required', court: 'Free account' }
   };
+  // ── La langue : UNE seule definition pour tout le tunnel ──
+  // L'algorithme vit dans shared/zts.js (`ZTS.langue`) : ?lang= d'abord, puis
+  // le choix memorise, puis la langue du navigateur. On l'appelle quand il est
+  // la ; sinon on refait EXACTEMENT le meme calcul, parce que ce module peut
+  // s'executer avant shared/zts.js selon l'ordre des balises de la page.
+  //
+  // Repondre « fr » par defaut serait plus court et FAUX : c'est precisement
+  // ce qui faisait voir a un anglophone le cadenas dans une langue et le mur
+  // dans l'autre, sur la meme page. Les trois versions divergentes de cette
+  // fonction — localStorage seul, ZTS.getLang() seul, trois niveaux — sont
+  // remplacees par ce bloc, identique dans chaque module.
   function lang() {
-    try { if (window.ZTS && ZTS.getLang) return ZTS.getLang() === 'en' ? 'en' : 'fr'; } catch (e) {}
-    try { if (localStorage.getItem('zts_lang') === 'en') return 'en'; } catch (e) {}
+    try { if (window.ZTS && ZTS.langue) return ZTS.langue(); } catch (e) {}
+    try {
+      var q = new URLSearchParams(location.search).get('lang');
+      if (q === 'en' || q === 'fr') return q;
+    } catch (e) {}
+    try {
+      var saved = localStorage.getItem('zts_lang');
+      if (saved === 'en' || saved === 'fr') return saved;
+    } catch (e) {}
     return (navigator.language || 'fr').toLowerCase().indexOf('en') === 0 ? 'en' : 'fr';
   }
   function t() { return T[lang()]; }
