@@ -7,9 +7,14 @@
 # exactement ce que ce script existe pour empecher.
 #
 # Usage :
-#   bash _scripts/publie-banques-r2.sh              # publie ce qui a change
-#   bash _scripts/publie-banques-r2.sh --tout       # republie tout, sans comparer
+#   bash _scripts/publie-banques-r2.sh              # publie les 43 banques
 #   bash _scripts/publie-banques-r2.sh --essai      # sonde R2 en lecture, n'ecrit rien
+#
+# La publication est INTEGRALE, jamais incrementale : les 43 objets remontent
+# a chaque fois. A cette taille (~30 Mo, ~60 s) comparer couterait une lecture
+# R2 par objet pour economiser des ecritures qui ne genent personne. L'entete
+# a annonce un mode incremental et un drapeau --tout pendant que le code
+# poussait tout : ni l'un ni l'autre n'a jamais existe.
 #
 # En CI, `CLOUDFLARE_API_TOKEN` doit exister. En local, l'OAuth de wrangler suffit.
 
@@ -20,11 +25,9 @@ BUCKET="zts-banques"
 RACINE="$(cd "$(dirname "$0")/.." && pwd)"
 DATA="$RACINE/_data"
 
-TOUT=0
 ESSAI=0
 for a in "$@"; do
   case "$a" in
-    --tout)  TOUT=1 ;;
     --essai) ESSAI=1 ;;
     *) echo "Option inconnue : $a"; exit 2 ;;
   esac
@@ -83,9 +86,6 @@ if [ ! -d "$DATA" ]; then
   echo "ERREUR — $DATA introuvable. Les banques ont-elles ete deplacees ?"
   exit 1
 fi
-
-# Somme locale d'un fichier, pour ne pousser que ce qui a change.
-empreinte() { shasum -a 256 "$1" 2>/dev/null | cut -d' ' -f1; }
 
 pousse() {
   local chemin="$1" cle="$2"
