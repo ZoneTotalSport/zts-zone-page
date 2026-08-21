@@ -295,6 +295,19 @@
     });
     document.dispatchEvent(new CustomEvent('zts:ready', { detail: { lang } }));
 
+    // Partage — chargé ICI, après l'injection du chrome ET le chargement du
+    // dictionnaire : le module lit ses chaînes par ZTS.t(), il ne peut donc
+    // pas se monter avant. Il se monte tout seul sur `zts:ready`, émis juste
+    // au-dessus, et sur tout `[data-zts-partage]` — le pied de page en porte
+    // un, /bienvenue.html aussi.
+    if (!document.getElementById('zts-partage-loader')) {
+      const pt = document.createElement('script');
+      pt.id = 'zts-partage-loader';
+      pt.src = SHARED + 'zts-partage.js';
+      pt.defer = true;
+      document.body.appendChild(pt);
+    }
+
     // Capture courriel site-wide (le script s'auto-exclut des /apps/*)
     if (!document.getElementById('zts-nl-loader')) {
       var nl = document.createElement('script');
