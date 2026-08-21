@@ -1,7 +1,22 @@
 # LOT 2 CONVERSION — prescan
 
-**21 août 2026. Lecture seule.** Aucun code livré, rien en production.
-Base : `main` à `f362d89` (PR #16 fusionnée).
+**21 août 2026.** Écrit en lecture seule avant tout code, sur `main` à
+`f362d89`. Fusionné plus tard, avec le §6 ajouté et l'état des vagues ci-dessous.
+
+**Où on en est** — le plan du §4 a été validé tel quel, puis :
+
+| Vague | État |
+|---|---|
+| **A** — modale V2 | **fusionnée** (PR #17, `b3e8195`), vérifiée en production |
+| **B** — `lang()` unique puis tunnel bilingue | **fusionnée** (PR #18, `682200d`) |
+| **C** — bouton de partage | en cours |
+| **D** — mise en avant du générateur | à faire |
+
+Ce qui suit est le prescan d'origine, laissé tel qu'il a été écrit — y compris
+ses deux annonces qui se sont révélées fausses, corrigées dans les rapports de
+vague : la table d'erreurs n'a rien perdu à la fusion du stash, et
+`font-patrick` pointait déjà sur une police vivante (le vrai problème était
+Fredoka, injectée depuis Google Fonts par `zts-locked-fullscreen.js`).
 
 ---
 
@@ -242,3 +257,38 @@ Les deux surfaces du §(d), une fois le tunnel stable et bilingue.
 - **`font-patrick` dans `bienvenue.html`** — Patrick Hand est sortie du site le
   4 août. À vérifier si l'alias Tailwind pointe encore quelque part, comme les
   alias `font-fredoka` / `font-baloo` repointés dans la branche news.
+
+## 6. Docs parasites à soustraire des mesures
+
+*(ajouté le 21 août, après les vagues A et B)*
+
+**Deux documents de production ont été créés par mes tests, et aucun des deux
+n'est supprimable côté client.** Ils vivent ici, en un seul endroit, pour que
+toute baseline future les retranche.
+
+| Collection | Repère | Créé le | Pourquoi il existe |
+|---|---|---|---|
+| `anonGenCount` | id `3c09bbbd68c94bde504e434b1b29663801e395b7b55e5e91d8598c287cbb027a`, `count: 1` | 21 août 2026, 11:41:43 UTC | Le test décisif du §3 : une vraie génération anonyme, jouée avec accord. C'est **le premier document de la collection** — le premier vrai visiteur sera donc le **deuxième**. |
+| `conversionFunnel` | `event: 'signup_complete'`, `path: '/blog.html'`, `uid: null`, `method: 'google'`, `signup_source: 'popup'` | 21 août 2026, vague B | Le test de l'invariant du tunnel. Un vrai `signup_complete` arrive sur `/bienvenue.html` **avec un uid** — c'est ce couple qui l'identifie. |
+
+`allow delete: if false` sur les deux collections : ils ne partiront pas.
+
+### La règle qui en sort
+
+**Tout test qui traverse une écriture Firestore doit stuber l'écriture.** Le
+worker `zone-subscriber-count` refuse les origines hors production, ce qui rend
+ses tests inoffensifs par accident ; **Firestore, lui, accepte localhost** — ses
+règles ne regardent pas l'origine. C'est ce qui a produit le second document :
+un test local a écrit en production sans le dire.
+
+Le patron à reprendre est celui de la vérification prod post-PR #17 :
+
+```js
+const vraiFunnel = window.ztsTrackFunnel;
+window.ztsTrackFunnel = function (e, x) { journal.push(e); };   // rien n'est ecrit
+// ... le test ...
+window.ztsTrackFunnel = vraiFunnel;
+```
+
+Même chose pour `signInWithPopup` et pour toute écriture directe
+`db.collection(...).add()`. On mesure l'appel, on ne laisse pas de trace.
