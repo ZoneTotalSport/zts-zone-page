@@ -283,6 +283,28 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // voyages — PWA privee « Cap Prochain Voyage » (skoolie).
+    // 1 doc par voyage, owner-only via uid. Les depenses vivent
+    // en sous-collection voyages/{id}/expenses/{id}.
+    // ─────────────────────────────────────────────────────────
+    match /voyages/{voyageId} {
+      allow read, update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // ── Depenses de voyage ──
+    // Declarees en motif RECURSIF et non imbriquees sous
+    // /voyages/{voyageId} : une regle imbriquee ne s'applique PAS
+    // aux requetes collectionGroup, dont l'ecran comparatif a
+    // besoin pour lire les depenses de tous les voyages d'un coup.
+    // Chaque depense porte donc son propre uid (denormalise du
+    // voyage parent) — la regle n'a ainsi aucun get() a payer.
+    match /{path=**}/expenses/{expenseId} {
+      allow read, update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // ─────────────────────────────────────────────────────────
     // familles — PWA privee « La Banque » (points/dollars des enfants).
     // Membres = max 2 parents. Un parent qui connait le familleId
     // (code d'invitation) peut uniquement s'ajouter lui-meme.
