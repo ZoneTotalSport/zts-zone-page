@@ -380,7 +380,23 @@
   <div data-zts-footer></div>
 
   <script src="../../shared/zts.js"></script>
+
+  <!-- Verrou d'inscription — 2026-08-22.
+       Cette app etait servie SANS aucun script de verrou : ni zts-gate.js, ni
+       zts-lock-page.js. Un anonyme entrait et s'en servait.
+
+       POURQUOI L'AUDIT DU 15 AOUT NE L'A PAS VUE : il a parcouru les LIENS du
+       chrome partage (menu, pied, portes du hero) — 27 destinations — pas les
+       dossiers sur le disque. `performances` n'est liee de nulle part dans le
+       chrome, donc elle n'a jamais figure dans la liste auditee. Elle existait
+       pourtant depuis le 8 juillet.
+
+       Elle n'est PAS une vitrine : son absence de `freeResources` suffit a la
+       murer, il ne manquait que le script qui lit cette liste. -->
+  <script src="/zts-lock-page.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
+  <script src="/zts-locked-fullscreen.js" defer></script>
+  <script src="/zts-funnel.js" defer></script>
   <script src="app.js" defer></script>
   </div><!-- /.ztsh-page -->
 
