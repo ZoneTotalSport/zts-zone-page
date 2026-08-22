@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { STYLES, C, Carte, BoutonCyan, champStyle, URL_API } from "./ui.jsx";
+import PerteDePoids from "./perte-de-poids.jsx";
 
 /* ═══════════════ ZONE — DÉCODAGE DU CORPS · habillage ZTS ═══════════════
    Identité zonetotalsport.ca : dégradé cyan → bleu marin, titres
@@ -6,29 +8,6 @@ import { useState, useRef, useEffect } from "react";
    arrondis avec ombrage, accents #FFFC00 #A3FF00 #FFA200 #FF0061.
 ══════════════════════════════════════════════════════════════════════════ */
 
-const STYLES = `
-@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@500;700;800&display=swap');
-@font-face{
-  font-family:'ZoneTotalSport';
-  src:url('https://zonetotalsport.ca/fonts/ZoneTotalSport.ttf') format('truetype');
-  size-adjust:50%;font-display:swap;
-}
-.zts-titre{font-family:'ZoneTotalSport','Luckiest Guy',cursive;line-height:1.12;letter-spacing:.5px}
-.ztsh-rays{
-  position:fixed;inset:-50%;width:200%;height:200%;pointer-events:none;z-index:0;
-  background:repeating-conic-gradient(from 0deg,
-    rgba(255,252,0,.07) 0deg 9deg, transparent 9deg 24deg);
-  animation:ztshTourne 90s linear infinite;
-}
-@keyframes ztshTourne{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion: reduce){.ztsh-rays{animation:none}}
-`;
-
-const C = {
-  cyan: "#00CFFF", marine: "#0B2A5B", marineFonce: "#071B3D",
-  jaune: "#FFFC00", lime: "#A3FF00", orange: "#FFA200", rose: "#FF0061",
-  encre: "#0B2A5B", blanc: "#FFFFFF",
-};
 
 /* ─────────────── DICTIONNAIRE CROISÉ (rapport #1) ─────────────── */
 const SYSTEMES = {
@@ -397,27 +376,6 @@ Textes courts et denses, tutoiement, français québécois naturel.
 
 RÈGLE UNIQUE DE SÉCURITÉ : si le symptôme décrit sonne comme une urgence médicale (douleur thoracique intense, masse nouvelle, saignement inhabituel, symptômes neurologiques soudains, détresse respiratoire), mentionne UNE SEULE FOIS, en une phrase brève au début, que ce type de symptôme mérite une évaluation médicale rapide, puis poursuis le décodage normalement. Ne répète jamais cette mention et n'ajoute aucun autre avertissement médical dans la conversation.`;
 
-/* ─────────────── COMPOSANTS ─────────────── */
-function Carte({ children, couleur = C.cyan, style = {} }) {
-  return (
-    <div style={{
-      background: C.blanc, border: `3px solid ${C.marine}`, borderRadius: 14,
-      boxShadow: `5px 5px 0 ${couleur}`, padding: 16, marginBottom: 16, ...style
-    }}>{children}</div>
-  );
-}
-
-function BoutonCyan({ children, onClick, disabled, style = {} }) {
-  return (
-    <button onClick={onClick} disabled={disabled} style={{
-      fontFamily: "'ZoneTotalSport','Luckiest Guy',cursive", fontSize: 18, letterSpacing: ".5px",
-      padding: "10px 20px", cursor: "pointer", color: C.marine,
-      background: C.cyan, border: `3px solid ${C.marine}`, borderRadius: 10,
-      boxShadow: `4px 4px 0 ${C.marineFonce}`, ...style
-    }}>{children}</button>
-  );
-}
-
 function Chat({ prefill = "" }) {
   const [historique, setHistorique] = useState([]); // messages API
   const [resultat, setResultat] = useState(null);   // dernier JSON parsé
@@ -448,7 +406,7 @@ function Chat({ prefill = "" }) {
     let ok = false;
     for (let essai = 0; essai < 2 && !ok; essai++) {
       try {
-        const res = await fetch("https://api.zonetotalsport.ca/decodage", {
+        const res = await fetch(URL_API, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ max_tokens: 8000, system: SYSTEM_PROMPT, messages: msgs }),
@@ -493,11 +451,7 @@ function Chat({ prefill = "" }) {
 
   const recommencer = () => { setHistorique([]); setResultat(null); setSymptome(""); setReponse(""); setInterpelle([]); setErreur(null); sessionRef.current = null; };
 
-  const champ = {
-    width: "100%", boxSizing: "border-box", fontFamily: "Nunito", fontWeight: 600, fontSize: 16,
-    padding: "12px 14px", border: `3px solid ${C.marine}`, borderRadius: 10, outline: "none",
-    background: C.blanc, color: C.marine, resize: "vertical",
-  };
+  const champ = champStyle;
 
   /* ── Écran 1 : Commençons ── */
   if (!resultat && !loading) {
@@ -694,7 +648,19 @@ function Historique() {
                     <div style={{ fontSize: 12.5, color: "#5b7396", fontWeight: 800 }}>{dateFr(e.quand)}</div>
                     <p style={{ margin: "4px 0", fontWeight: 800 }}>✍️ Toi : {e.demande}</p>
                     {e.interpelle?.length > 0 && <p style={{ margin: "2px 0", fontSize: 13.5, fontWeight: 700, color: "#d68500" }}>✓ T'interpellaient : {e.interpelle.join(", ")}</p>}
-                    {e.resultat?.mode === "guerison" ? (
+                    {e.resultat?.mode === "poids" ? (
+                      <div style={{ fontSize: 14.5 }}>
+                        {e.resultat.alerte
+                          ? <p style={{ margin: "4px 0", fontWeight: 700 }}>💗 {e.resultat.alerte}</p>
+                          : <>
+                              {e.resultat.intro && <p style={{ margin: "4px 0", fontWeight: 700 }}>{e.resultat.intro}</p>}
+                              {e.resultat.lectures?.map((l, j) => <p key={j} style={{ margin: "2px 0 2px 10px" }}>{l.emoji} <b>{l.approche} :</b> {l.texte}</p>)}
+                              {e.resultat.pistes?.length > 0 && <p style={{ margin: "4px 0 2px", fontWeight: 800 }}>🧵 Fils à tirer :</p>}
+                              {e.resultat.pistes?.map((p, j) => <p key={j} style={{ margin: "2px 0 2px 10px" }}>· {p}</p>)}
+                              {e.resultat.questions?.map((q, j) => <p key={j} style={{ margin: "2px 0 2px 10px", fontWeight: 700 }}>💭 {q}</p>)}
+                            </>}
+                      </div>
+                    ) : e.resultat?.mode === "guerison" ? (
                       <div style={{ fontSize: 14.5 }}>
                         <p style={{ margin: "4px 0", fontWeight: 700 }}>🌅 Guérison — {e.resultat.intro}</p>
                         {e.resultat.questions?.map((q, j) => <p key={j} style={{ margin: "2px 0 2px 10px" }}>💭 {q}</p>)}
@@ -884,6 +850,12 @@ function Accueil({ aller }) {
           <p style={{ margin: "6px 0 0" }}>Nomme ton symptôme, réponds aux questions une à une, reçois les pistes de libération selon chaque approche.</p>
         </div>
       </Carte>
+      <Carte couleur={C.rose} style={{ cursor: "pointer" }}>
+        <div onClick={() => aller("poids")}>
+          <div className="zts-titre" style={{ fontSize: 20, color: C.marine }}>⚖️ PERTE DE POIDS — LE DÉCLIC</div>
+          <p style={{ margin: "6px 0 0" }}>Un parcours de questions sur ce que le poids protège, remplace ou retient. Aucun chiffre, aucune diète — du vécu.</p>
+        </div>
+      </Carte>
       <Carte couleur={C.orange} style={{ cursor: "pointer" }}>
         <div onClick={() => aller("dico")}>
           <div className="zts-titre" style={{ fontSize: 20, color: C.marine }}>📖 DICTIONNAIRE CROISÉ</div>
@@ -907,6 +879,7 @@ export default function App() {
   const NAV = [
     ["accueil", "🏠", "Accueil"],
     ["chat", "💬", "Décodage"],
+    ["poids", "⚖️", "Poids"],
     ["histo", "🗂️", "Historique"],
     ["dico", "📖", "Dico"],
     ["approches", "🧑‍🏫", "Approches"],
@@ -921,19 +894,23 @@ export default function App() {
         display: "flex", flexDirection: "column" }}>
         {page === "accueil" && <Accueil aller={setPage} />}
         {page === "chat" && <Chat prefill={prefill} />}
+        {page === "poids" && <PerteDePoids />}
         {page === "histo" && <Historique />}
         {page === "dico" && <Dictionnaire decoderPhrase={decoderPhrase} />}
         {page === "approches" && <Approches />}
       </div>
+      {/* Six entrées depuis l'ajout de l'onglet Poids : la barre défile
+          horizontalement plutôt que de déborder sur les écrans étroits. */}
       <div style={{ position: "sticky", bottom: 0, zIndex: 2, background: C.marineFonce, borderTop: `3px solid ${C.cyan}`,
-        display: "flex", justifyContent: "space-around", padding: "8px 4px" }}>
+        display: "flex", justifyContent: "space-around", gap: 2, padding: "8px 4px",
+        overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
         {NAV.map(([id, emoji, label]) => (
           <button key={id} onClick={() => setPage(id)} style={{
-            fontFamily: "'ZoneTotalSport','Luckiest Guy',cursive", fontSize: 13, letterSpacing: ".5px",
-            background: page === id ? C.cyan : "transparent",
+            fontFamily: "'ZoneTotalSport','Luckiest Guy',cursive", fontSize: 12.5, letterSpacing: ".5px",
+            flex: "0 0 auto", background: page === id ? C.cyan : "transparent",
             color: page === id ? C.marine : "#8fc9e8",
             border: page === id ? `2.5px solid ${C.marine}` : "2.5px solid transparent",
-            borderRadius: 10, padding: "6px 12px", cursor: "pointer",
+            borderRadius: 10, padding: "6px 7px", cursor: "pointer",
             boxShadow: page === id ? `3px 3px 0 #000` : "none" }}>
             <div style={{ fontSize: 20 }}>{emoji}</div>{label}
           </button>
