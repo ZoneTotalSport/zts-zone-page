@@ -219,6 +219,10 @@ function Ressources() {
         📞 Info-Social — 811, option 2<br />
         <span style={{ fontWeight: 600, fontSize: 14 }}>Intervenant psychosocial, 24 h sur 24</span>
       </p>
+      <p style={{ margin: "4px 0", fontWeight: 800 }}>
+        📞 Prévention du suicide — 988<br />
+        <span style={{ fontWeight: 600, fontSize: 14 }}>Appel ou texto, gratuit, 24 h sur 24</span>
+      </p>
       <p style={{ margin: "8px 0 0", lineHeight: 1.5, fontSize: 14 }}>
         Pour l'alimentation elle-même : une nutritionniste (Ordre des diététistes-nutritionnistes
         du Québec) ou ton médecin.
