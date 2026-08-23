@@ -36,10 +36,19 @@
 
     { id: 'outils', label: 'Outils pédagogiques', i18n: 'nav.tools', em: '🧰',
       title: 'Outils pédagogiques', items: [
-      { name: 'Boîte à outils',      app: 'educatifs',  color: '#00E5FF', em: '🧰', icon: 'wrench',    desc: 'Fiches et générateurs' },
-      { name: "Carnet d'évaluation", app: 'evaluation', color: '#8B5CF6', em: '📗', icon: 'book-open', desc: 'Suivi des élèves' },
-      { name: 'Musique',             app: 'musique',    color: '#FF2A7A', em: '🎵', icon: 'music',     desc: 'Trames et minuteries' },
-      { name: 'Code Oreille',        app: 'code-oreille', color: '#FFD700', em: '👂', icon: 'ear',    desc: 'Quoi faire quand ça dérape', badge: 'nouveau' }
+      { name: 'Boîte à outils',      app: 'educatifs',  color: '#00E5FF', em: '🧰', icon: 'wrench',    desc: 'Fiches et générateurs',
+        i18n: 'menu.educatifs.nom', i18nDesc: 'menu.educatifs.desc' },
+      { name: "Carnet d'évaluation", app: 'evaluation', color: '#8B5CF6', em: '📗', icon: 'book-open', desc: 'Suivi des élèves',
+        i18n: 'menu.evaluation.nom', i18nDesc: 'menu.evaluation.desc' },
+      { name: 'Musique',             app: 'musique',    color: '#FF2A7A', em: '🎵', icon: 'music',     desc: 'Trames et minuteries',
+        i18n: 'menu.musique.nom', i18nDesc: 'menu.musique.desc' },
+      // « Code Oreille » est un NOM PROPRE : pas de cle pour le nom, donc pas
+      // de traduction — c'est precisement a ca que sert le mecanisme opt-in.
+      // Seule la description passe en anglais.
+      { name: 'Code Oreille',        app: 'code-oreille', color: '#FFD700', em: '👂', icon: 'ear',    desc: 'Quoi faire quand ça dérape', badge: 'nouveau',
+        i18nDesc: 'menu.codeoreille.desc' },
+      { name: 'Inventaire du matériel', app: 'inventaire', color: '#FFA200', em: '📦', icon: 'package', desc: 'Photo + IA, QR, liste d\'achats', badge: 'nouveau',
+        i18n: 'menu.inventaire.nom', i18nDesc: 'menu.inventaire.desc' }
     ]},
 
     { id: 'sae', label: 'SAÉ', i18n: 'nav.sae', em: '📋',
@@ -74,6 +83,30 @@
     return n;
   }
 
+  /* Texte d'une carte, traduisible SI l'entree declare une cle.
+     ────────────────────────────────────────────────────────────────────
+     OPT-IN VOLONTAIRE. Jusqu'ici les noms et descriptions des cartes
+     etaient ecrits en dur : les quatre entrees historiques s'affichent en
+     francais y compris quand le site est en anglais. Les traduire d'office
+     changerait quatre libelles sans que personne l'ait demande.
+
+     Une entree SANS cle se comporte donc exactement comme avant. Une entree
+     AVEC cle est resolue tout de suite par ZTS.t — le menu se construit
+     apres applyI18n(document) et ne serait pas repeint autrement — et porte
+     `data-i18n`, ce qui la fait suivre les bascules de langue ulterieures.
+
+     Le noeud retourne est un <span> : `applyI18n` ecrit dans textContent, et
+     ecrire dans celui de `.ztsm-name` effacerait le badge NOUVEAU qui vit a
+     cote. */
+  function txt(cle, secours) {
+    var valeur = secours;
+    if (cle && window.ZTS && typeof ZTS.t === 'function') valeur = ZTS.t(cle, secours);
+    if (!cle) return document.createTextNode(secours);
+    var n = el('span', null, valeur);
+    n.setAttribute('data-i18n', cle);
+    return n;
+  }
+
   // Icône : Lucide si disponible, sinon emoji (cas majoritaire sur le site).
   function iconNode(item) {
     if (HAS_LUCIDE && item.icon) {
@@ -101,6 +134,15 @@
     return false;
   }
 
+  /* Types de badge. Ajouter une entree ici suffit a en creer un nouveau ;
+     une carte le porte en declarant `badge: '<cle>'`.
+     `bientot` conserve son nom d'origine — quatre entrees du menu et
+     zts-menu.css s'y referent deja par `is-soon`. */
+  var BADGES = {
+    nouveau: { cls: 'is-new',  i18n: 'menu.badge.nouveau', secours: 'NOUVEAU' },
+    bientot: { cls: 'is-soon', i18n: 'menu.badge.bientot', secours: 'BIENTÔT' }
+  };
+
   /* ====================== Carte d'app ====================== */
 
   function buildCard(item) {
@@ -119,12 +161,33 @@
 
     var body = el('span', 'ztsm-body');
     var name = el('span', 'ztsm-name');
-    name.appendChild(document.createTextNode(item.name));
-    if (item.badge === 'nouveau') name.appendChild(el('span', 'ztsm-badge is-new', 'NOUVEAU'));
-    if (soon)                     name.appendChild(el('span', 'ztsm-badge is-soon', 'BIENTÔT'));
+    name.appendChild(txt(item.i18n, item.name));
     body.appendChild(name);
-    body.appendChild(el('span', 'ztsm-desc', item.desc));
+    var desc = el('span', 'ztsm-desc');
+    desc.appendChild(txt(item.i18nDesc, item.desc));
+    body.appendChild(desc);
     node.appendChild(body);
+
+    /* Le badge est un enfant de la CARTE, pas du nom.
+       ──────────────────────────────────────────────────────────────────
+       Il vivait dans `.ztsm-name`, qui est un flex a retour a la ligne : le
+       badge y passait a la ligne des que le nom etait long, et il y cotoyait
+       la pastille « compte gratuit » que zts-cadenas.js injecte au meme
+       endroit. Deux etiquettes qui se disputent la meme boite.
+
+       En enfant de la carte, il se pose en absolu dans le coin superieur
+       droit et ne pousse plus rien : l'alignement des autres cartes ne
+       bouge pas, qu'elles aient un badge ou non.
+
+       MECANISME REUTILISABLE, pas du cas particulier : c'est la cle
+       `badge` de l'entree qui decide, et le retirer efface le badge. Un
+       nouveau type de badge se declare dans BADGES ci-dessous. */
+    if (BADGES[item.badge]) {
+      var b = BADGES[item.badge];
+      var etiq = el('span', 'ztsm-badge ' + b.cls);
+      etiq.appendChild(txt(b.i18n, b.secours));
+      node.appendChild(etiq);
+    }
 
     return node;
   }

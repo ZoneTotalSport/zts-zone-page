@@ -67,6 +67,9 @@
 
 /* ---------- Carte d'app ---------- */
 .ztsm-card {
+  /* `relative` sert d'ancre au badge du coin superieur droit. Sans effet sur
+     les cartes qui n'en ont pas : rien d'autre n'y est positionne. */
+  position:relative;
   display:flex; align-items:flex-start; gap:10px; text-align:left;
   padding:9px 10px; border-radius:10px; min-height:44px; text-decoration:none;
   transition:background .15s, transform .15s;
@@ -90,13 +93,28 @@
   color:rgba(255,255,255,.65); margin-top:1px;
 }
 
-/* Badges */
+/* Badges — coin superieur droit de la carte.
+   ────────────────────────────────────────────────────────────────────────
+   En ABSOLU, et c'est la raison d'etre du changement : le badge vivait dans
+   `.ztsm-name`, un flex a retour a la ligne, ou il passait a la ligne des que
+   le nom etait long et ou il cotoyait la pastille « compte gratuit ». Sorti
+   du flux, il ne pousse plus rien — les cartes sans badge gardent exactement
+   l'alignement qu'elles avaient.
+
+   `pointer-events:none` : le badge couvre un coin de la carte, qui est un
+   lien. Sans cette ligne, le clic tombe dessus et ne suit pas le lien. */
 .ztsm-badge {
-  font-family:var(--font-body); font-weight:600; font-size:10px; line-height:1;
-  padding:3px 7px; border:1px solid #000; border-radius:999px; letter-spacing:.4px; white-space:nowrap;
+  position:absolute; top:5px; right:7px; z-index:1; pointer-events:none;
+  font-family:var(--font-body); font-weight:700; font-size:9.5px; line-height:1;
+  padding:3px 6px; border:1px solid #000; border-radius:5px;
+  letter-spacing:.5px; white-space:nowrap;
 }
-.ztsm-badge.is-new  { background:#FFD700; color:#0F0F2E; }
+/* Jaune maison #FFFC00 sur texte marine, coins legerement arrondis. */
+.ztsm-badge.is-new  { background:#FFFC00; color:#0B2B40; }
 .ztsm-badge.is-soon { background:#6B7280; color:#fff; }
+/* Le badge occupe le coin : la description s'arrete avant lui plutot que de
+   passer dessous. 64px = largeur du plus long libelle (« BIENTÔT ») + marge. */
+.ztsm-card:has(.ztsm-badge) .ztsm-body { padding-right:64px; }
 
 /* Anneau de focus */
 .ztsm-panel :focus-visible, .ztsm-mob :focus-visible, .ztsm-burger:focus-visible {
