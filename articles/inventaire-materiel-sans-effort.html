@@ -474,6 +474,73 @@
   background:rgba(239,68,68,.08);border-radius:.6rem;padding:.55rem .8rem}
 .zts-friction strong{color:#991B1B}
 
+/* ══════════════════════════════════════════════════════════════════════════
+   PASSE TYPOGRAPHIQUE — mesuree au navigateur, pas estimee.
+   Tout est porte par l'article : aucun fichier partage n'est touche.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ---- 1. PUNCHLINE : reparer la collision de cascade ----
+   `.zts-prose p:first-of-type` (0,2,1) bat `.zts-prose blockquote p` (0,1,2).
+   Le <p> d'une punchline etant seul dans son blockquote, il heritait du style
+   du PARAGRAPHE D'ACCROCHE : italique, barre cyan, margin-bottom 2rem et
+   padding .5rem. 40px de vide ajoutes aux 40px de padding = 80px sous une
+   phrase d'une ligne. On restaure l'intention du theme, en local. */
+.zts-prose blockquote p,
+.zts-prose blockquote p:first-of-type{
+  font-size:1.5rem;          /* 24px — etait 20px (1.25rem du lead) */
+  font-style:normal;         /* etait italique */
+  font-weight:400;
+  border-left:0;             /* supprime la barre cyan du lead */
+  padding:0;                 /* etait .5rem 0 .5rem 1.5rem */
+  margin:0;                  /* etait 0 0 2rem : la source du vide */
+  line-height:1.25;          /* >= 1.05 : capitales accentuees preservees */
+}
+.zts-prose blockquote{padding:2rem;margin:2rem 0}
+/* Le guillemet decoratif faisait 128px pour des citations longues. */
+.zts-prose blockquote::before{font-size:5rem;top:-.6rem;right:.9rem}
+
+/* ---- 2. AUCUN ENCADRE NE FINIT SUR UNE MARGE MORTE ----
+   Le dernier enfant d'une boite garde sinon son margin-bottom de paragraphe
+   (24 a 32px) A L'INTERIEUR du padding. Mesure avant correction : 68px de
+   vide dans .tip-box, 61px dans .zts-cycle, 41px dans la table des matieres. */
+/* Specificite : le theme utilise `.zts-prose <classe>` (0,2,0) et
+   `.zts-prose p` (0,1,1). On prefixe donc par `.zts-prose` pour passer devant
+   au lieu de sortir l'artillerie `!important`. */
+.zts-prose .zts-toc > :last-child, .zts-prose .tip-box > :last-child,
+.zts-prose .zts-cta-inline > :last-child, .zts-prose .zts-stat > :last-child,
+.zts-prose .zts-cycle > :last-child, .zts-prose .zts-shelf > :last-child,
+.zts-prose .zts-timeline > :last-child, .zts-prose .examples-box > :last-child,
+.zts-prose .solution-details > div > :last-child,
+.zts-prose .problem-item > div > :last-child,
+.zts-prose .tab-content > :last-child,
+.zts-prose .zts-toc ol > li:last-child,
+.zts-prose .examples-box ul > li:last-child,
+.zts-prose .zts-cycle-loop, .zts-prose .zts-timeline .zts-tl-list{margin-bottom:0}
+.zts-prose .tip-box{padding:1.5rem 1.8rem;margin:2rem 0}
+.zts-prose .tip-box p{margin:0}
+.zts-prose .zts-cycle{padding:1.4rem;margin:2rem 0}
+.zts-prose .zts-cta-inline{margin:2rem 0}
+.zts-prose .zts-toc{padding:1.3rem 1.6rem}
+
+/* ---- 3. HIERARCHIE : une echelle, mesuree ----
+   H1 72 > H2 38.4 > titre d'onglet 35.2 > chiffre 33.6 > H3 30.4
+   > summary 27.2 > punchline 24 > H4 22.4 > corps 19.2
+   Le titre de panneau d'onglet valait 30.4px, exactement comme un H3 de
+   section, pendant que ses propres <summary> faisaient 33.6px en Bangers :
+   la carte pesait plus lourd que le panneau qui la contient. */
+.tab-content > div > h3{font-size:2.2rem !important;line-height:1.15}
+.solution-details summary{font-size:1.7rem;line-height:1.25}
+.zts-stat b{line-height:1.1}          /* etait 1 : les accents des capitales rognaient */
+
+/* ---- 4. RYTHME VERTICAL ----
+   Les marges de blocs voisins fusionnent, donc on ne cumule pas : on aligne
+   les encadres sur 2rem et on garde 3rem au-dessus des H2 pour que la coupure
+   de section reste lisible sans creer d'ecran vide. */
+.zts-article-centered .article-body > h2{margin-top:3rem}
+.zts-article-centered .article-body > h2:first-child{margin-top:0}
+.zts-prose h3{margin-top:2.25rem}
+.zts-table-wrap{margin:1.75rem 0}
+
 /* ---- Figures d'images ---- */
 .zts-fig{margin:2.5rem 0}
 .zts-fig figcaption{margin-top:.7rem;text-align:center;font-size:.9rem;color:#64748B;
