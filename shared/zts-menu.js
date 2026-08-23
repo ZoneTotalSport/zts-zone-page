@@ -127,6 +127,15 @@
     return false;
   }
 
+  /* Types de badge. Ajouter une entree ici suffit a en creer un nouveau ;
+     une carte le porte en declarant `badge: '<cle>'`.
+     `bientot` conserve son nom d'origine — quatre entrees du menu et
+     zts-menu.css s'y referent deja par `is-soon`. */
+  var BADGES = {
+    nouveau: { cls: 'is-new',  i18n: 'menu.badge.nouveau', secours: 'NOUVEAU' },
+    bientot: { cls: 'is-soon', i18n: 'menu.badge.bientot', secours: 'BIENTÔT' }
+  };
+
   /* ====================== Carte d'app ====================== */
 
   function buildCard(item) {
@@ -146,13 +155,32 @@
     var body = el('span', 'ztsm-body');
     var name = el('span', 'ztsm-name');
     name.appendChild(txt(item.i18n, item.name));
-    if (item.badge === 'nouveau') name.appendChild(el('span', 'ztsm-badge is-new', 'NOUVEAU'));
-    if (soon)                     name.appendChild(el('span', 'ztsm-badge is-soon', 'BIENTÔT'));
     body.appendChild(name);
     var desc = el('span', 'ztsm-desc');
     desc.appendChild(txt(item.i18nDesc, item.desc));
     body.appendChild(desc);
     node.appendChild(body);
+
+    /* Le badge est un enfant de la CARTE, pas du nom.
+       ──────────────────────────────────────────────────────────────────
+       Il vivait dans `.ztsm-name`, qui est un flex a retour a la ligne : le
+       badge y passait a la ligne des que le nom etait long, et il y cotoyait
+       la pastille « compte gratuit » que zts-cadenas.js injecte au meme
+       endroit. Deux etiquettes qui se disputent la meme boite.
+
+       En enfant de la carte, il se pose en absolu dans le coin superieur
+       droit et ne pousse plus rien : l'alignement des autres cartes ne
+       bouge pas, qu'elles aient un badge ou non.
+
+       MECANISME REUTILISABLE, pas du cas particulier : c'est la cle
+       `badge` de l'entree qui decide, et le retirer efface le badge. Un
+       nouveau type de badge se declare dans BADGES ci-dessous. */
+    if (BADGES[item.badge]) {
+      var b = BADGES[item.badge];
+      var etiq = el('span', 'ztsm-badge ' + b.cls);
+      etiq.appendChild(txt(b.i18n, b.secours));
+      node.appendChild(etiq);
+    }
 
     return node;
   }
