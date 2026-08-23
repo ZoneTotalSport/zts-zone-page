@@ -185,3 +185,67 @@ reste à voir, c'est la page elle-même.
 5. Onglet Historique : la lecture du parcours poids apparaît à côté des
    décodages.
 6. La police ZoneTotalSport rend bien dans les titres du module.
+
+---
+
+# Mise à jour du 22 août 2026 — banque de 50 questions
+
+Branche `feat/decodage-poids-50-questions`, deux commits, **déployés**.
+
+## Ce qui change
+
+Le contenu sort du code. `apps/decodage/src/questions-poids.json` porte
+désormais 12 axes, **50 questions** (contre 32), l'ordre des 21 jours et des
+textes d'aide. Le JSX ne garde que l'émoji et la couleur de chaque axe.
+Éditer une question ne demande plus de toucher au code.
+
+L'axe « Les bénéfices secondaires » passe de 3 à 5 questions, dont les deux
+qui manquaient : « Si tu n'avais plus cette raison-là, quelle serait la vraie
+raison ? » et « Pour chaque service rendu : de quelle autre façon pourrais-tu
+l'obtenir ? ».
+
+## La migration, et pourquoi elle n'était pas mécanique
+
+Les ids du JSON **ne correspondent pas** aux clés de la v1, qui étaient
+positionnelles (`axe:index`). Trois pièges, chacun silencieux :
+
+| Piège | Effet d'un décalage naïf |
+|---|---|
+| `douceur` → `manque`, `habite` → `corps` | 6 réponses orphelines, perdues |
+| Question insérée en 2ᵉ position dans `regard` | 2 réponses collées sous la mauvaise question |
+| Journal rangé par numéro de jour, ordre des jours changé | chaque note sous une autre question |
+
+D'où une table explicite (`MIGRATION_V1`) et un marqueur `VERSION_STOCKAGE`.
+
+**Vérifié au navigateur** sur un état v1 semé à la main : chaque réponse
+retombe sous le bon libellé, `regard-2` (la question insérée) reste vide, les
+résonances suivent les axes renommés, le journal suit ses questions, et
+`v: 2` est estampillé.
+
+**Défaut trouvé par ce test** : une note pouvait migrer vers une question
+sortie du fil des 21 jours — conservée en mémoire, mais injoignable à
+l'écran. Elle est maintenant ressortie sous « Gardé hors du fil », en bas de
+la liste du parcours.
+
+## Nouveau garde-fou : les violences subies
+
+Le JSON marque l'axe « protection » `arret_securite: true`. C'est de la
+documentation : la règle vit dans `SYSTEM_POIDS`. La nouvelle question « Y
+a-t-il un moment où tu n'as pas pu te défendre ? » invite à nommer des
+violences, et l'IA a désormais l'ordre d'**arrêter** — pas de conflit
+biologique, pas de bénéfice, pas de sens, pas de mémoire de lignée
+là-dedans, et jamais le moindre sous-entendu que la personne y serait pour
+quelque chose.
+
+**Testé en ligne** (worker `e1260474`) avec un récit d'inceste subi à 11 ans :
+la réponse se réduit au seul champ `alerte`, aucune lecture, orientation vers
+SOS violence conjugale, la ligne agressions sexuelles et Info-Social, et la
+phrase « ce qui t'a été fait — pas ce que tu vaux ».
+
+**Testé aussi** : un parcours normal avec `benefices-4` et `benefices-5`
+remplis. La lecture creuse la vraie raison et propose des voies
+relationnelles (dire non soi-même, sans avoir besoin d'une raison physique).
+Balayage du texte rendu : aucune diète, aucune calorie, aucune portion, aucun
+aliment, aucun exercice prescrit, aucun chiffre corporel.
+
+Banc worker : **30/30** (10 contrôles ajoutés).
