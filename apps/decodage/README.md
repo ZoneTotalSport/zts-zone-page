@@ -46,7 +46,8 @@ source du fichier en ligne, pas une réécriture approchante.
 | `src/index.jsx` | Point d'entrée : shim `window.storage` → `localStorage` (préfixe `ztsdeco:`) puis montage React. |
 | `src/app.jsx` | Coquille, navigation, Chat (décodage IA), Historique, Dictionnaire, Approches. |
 | `src/ui.jsx` | Jetons visuels partagés : palette `C`, `STYLES`, `Carte`, `BoutonCyan`, `champStyle`, `URL_API`. |
-| `src/perte-de-poids.jsx` | Le 8e onglet — module « perte de poids : le déclic émotionnel ». |
+| `src/perte-de-poids.jsx` | Le 8e onglet — module « perte de poids : le déclic émotionnel ». Interface seulement. |
+| `src/questions-poids.json` | **La banque de questions du module** : 12 axes, 50 questions, et l'ordre des 21 jours. C'est ici qu'on édite le contenu, jamais dans le JSX. |
 | `app.js` | Bundle compilé, **servi en production**. Ne jamais l'éditer à la main. |
 | `admin-gate.js` | Porte Firebase Auth, copie de celle de Studio Jeu. |
 
@@ -105,6 +106,40 @@ Le point 4 vit **dans le worker**. Une retouche du bundle seule ne le change
 pas ; une retouche du worker seule non plus. Toucher à l'un des deux sans
 l'autre laisse un garde-fou à moitié en place.
 
+## La banque de questions du module poids
+
+`src/questions-poids.json` est la source de vérité du contenu : ajouter,
+retirer ou reformuler une question s'y fait, puis `./construire.sh`. Le JSX
+ne contient que l'habillage (émoji et couleur par axe).
+
+**Chaque question porte un `id` stable, et cet id EST la clé de sauvegarde.**
+Ajouter une question ne casse rien. Renommer un id efface silencieusement la
+réponse déjà écrite dessous — c'est le seul geste vraiment dangereux dans ce
+fichier.
+
+`parcours_21_jours` est une liste d'ids : elle définit l'ordre du fil. Un id
+inconnu y est ignoré (le fil raccourcit) plutôt que de faire planter l'écran.
+Sortir une question du fil ne perd pas les notes déjà écrites dessus : elles
+réapparaissent sous « Gardé hors du fil », en bas de la liste du parcours.
+
+`arret_securite` et `note_ia` sur un axe sont **de la documentation**, pas du
+code : la règle correspondante doit être écrite dans `SYSTEM_POIDS`, côté
+worker. Aujourd'hui l'axe « protection » porte `arret_securite: true` pour les
+violences subies, et le prompt applique l'arrêt.
+
+### Migration du stockage
+
+`VERSION_STOCKAGE` dans `perte-de-poids.jsx` vaut 2. La v1 rangeait les
+réponses sous des clés positionnelles (`axe:index`) et le journal sous des
+numéros de jour; la v2 range tout sous les `id` du JSON. La table
+`MIGRATION_V1` fait la conversion au premier chargement. Elle n'est pas
+mécanique : deux axes ont été renommés (`douceur` → `manque`,
+`habite` → `corps`) et l'axe `regard` a reçu une question insérée en 2e
+position, donc ses réponses 2 et 3 glissent vers `regard-3` et `regard-4`.
+
+Si une prochaine version rebat encore les ids, il faut une v3 et une nouvelle
+table — ne pas se contenter de changer le JSON.
+
 ## Stockage
 
 Tout passe par `window.storage`, un seul mécanisme, servi par `localStorage`
@@ -113,8 +148,8 @@ sous le préfixe `ztsdeco:`.
 | Clé | Contenu |
 |---|---|
 | `decodage:<horodatage>` | Une session d'historique. Écrite par le Chat **et** par la lecture IA du module poids (`mode:"poids"`), pour qu'elles apparaissent au même endroit. |
-| `poids:questionnaire` | Brouillon des 12 axes : réponses, résonances, dernier axe ouvert. |
-| `poids:parcours` | Journal du fil des 21 jours. |
+| `poids:questionnaire` | Brouillon des 12 axes : réponses par id de question, résonances par id d'axe, dernier axe ouvert, numéro de version. |
+| `poids:parcours` | Journal du fil, rangé par id de question (plus par numéro de jour depuis la v2). |
 
 Les clés `poids:` sont volontairement hors du préfixe `decodage:` : l'écran
 Historique liste `decodage:` et n'a pas à voir passer les brouillons.
