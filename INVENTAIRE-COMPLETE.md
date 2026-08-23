@@ -1,6 +1,6 @@
 # ZONE INVENTAIRE — rapport de livraison
 
-**Branche** `app/inventaire` · 9 commits · 23 août 2026
+**Branche** `app/inventaire` · 12 commits · 23 août 2026
 **Non fusionné, non déployé.** Deux déploiements restent à ta charge (§5).
 
 ---
@@ -13,6 +13,9 @@
 | `apps/inventaire/styles.css` | Tableau large, cartes mobiles, feuille d'impression |
 | `apps/inventaire/dataStore.js` | Seul point de contact avec Firestore et le Worker |
 | `apps/inventaire/qr.js` | Encodeur de codes QR, écrit ici, sans dépendance |
+| `fonts/Bangers-Regular.ttf` | Sortie de `apps/jeux/` pour être servie à tous |
+| `fonts/IndieFlower-Regular.ttf` + OFL | Fournie par Joey |
+| `fonts/AnnieUseYourTelescope-Regular.ttf` + OFL | Fournie par Joey |
 | `apps/inventaire/app.js` | Interface, photos, i18n FR/EN, achats, CSV |
 | `cf-worker/generateur/src/generateur-worker.js` | Route `/inventaire-vision` (ajout) |
 | `firestore.rules` | Blocs `inventaires` et `inventaireItems` (ajout) |
@@ -110,6 +113,64 @@ qu'un simple décodage réussi ne montre pas.
 
 ---
 
+## 2c. Refonte « feuille d'inventaire » (23 août)
+
+Le tableau occupe l'écran dès l'arrivée ; hero, cartes de compteurs et boîte de
+capture ont disparu au profit d'**une seule rangée d'outils**. Chaque cellule
+est une case du site — coins arrondis, trait noir, ombre dure. En-tête de
+colonnes figé, rangée de totaux figée, colonne de numéros, badge d'état
+compact, et une rangée vide toujours prête en bas.
+
+**Édition comme un tableur** : clic pour ouvrir, `Entrée` valide, `Échap`
+annule, `Tab` / `Maj+Tab` circulent. Aucune modale pour un champ simple. La
+feuille affiche du **texte**, pas des champs : douze colonnes d'`<input>` sur
+deux cents objets font 2400 champs dans le document, que le clavier traverse
+tous même quand on ne veut rien changer. Le champ n'apparaît qu'où l'on clique.
+
+**Typographie**, toutes auto-hébergées, zéro CDN :
+
+| Face | Rôle |
+|---|---|
+| ZoneTotalSport | rangée d'en-tête et pastilles — **texte fixe uniquement** |
+| Luckiest Guy | badges, boutons, flèches de tri |
+| Bangers | rangée de totaux |
+| Annie Use Your Telescope | colonne Notes |
+| Indie Flower | la mention « clique ici pour ajouter » |
+
+ZoneTotalSport n'a que **144 points de code** et il lui manque `’ « » — ° Æ Œ
+Ù Ÿ`. Elle ne touche donc jamais à du texte saisi : un inventaire nommé
+« L'école du Ruisseau » basculerait de police en plein mot. Les flèches ▲▼ ne
+sont pas dedans non plus — elles gardent Luckiest Guy, pour la même raison.
+
+**Téléphone : la feuille, pas des cartes.** À 375 px elle reste lisible dès
+lors que photo et nom sont gelées à gauche. Sans défilement vertical propre en
+revanche — mesuré : le header partagé réserve 236 px et la barre d'outils 184,
+il ne restait que 225 px, soit trois rangées. La page défile donc, et **l'en-tête
+de colonnes s'en va au défilement sur téléphone** : une boîte à défilement
+horizontal ne peut pas héberger un `sticky` vertical de page. Les deux colonnes
+gelées et la barre de totaux collée en bas en tiennent lieu.
+
+### ⚠ Défaut du shell trouvé au passage — il vous concerne au-delà de cette app
+
+`assets/ztsh-shell.css:1192` masque `[class^="ztsh-"]` à l'impression pour
+escamoter son chrome. Le sélecteur attrape trois choses de plus :
+
+- `.ztsh-page`, l'enveloppe de **tout** le contenu ;
+- `<body>`, à qui `monter()` donne `class="ztsh-on"` ;
+- `<html>`, à qui il donne la **même** classe dès que `cfg.fond`.
+
+Résultat : **les 41 apps migrées impriment une page entièrement blanche.**
+Quinze d'entre elles ont pourtant des règles d'impression écrites exprès.
+Le signe que c'est un oubli : deux lignes plus bas, le même bloc donne à
+`html.ztsh-on` un fond blanc — on ne peint pas le fond d'un élément masqué.
+
+**Je n'ai pas touché au fichier partagé** : il sert 41 apps et le corriger est
+votre décision. Zone Inventaire rend la main au contenu depuis sa propre
+feuille (elle est chargée après, donc elle gagne). Les trois lignes sont
+prêtes à être remontées dans le shell si vous le souhaitez.
+
+---
+
 ## 3. Deux choix de conception à connaître
 
 **Un document Firestore par objet, pas un par inventaire.** Un document
@@ -186,7 +247,7 @@ Le worker utilise `env.SONNET_MODEL`, soit `claude-sonnet-4-6` selon le
 
 ---
 
-## 6. Banc d'essai manuel — 23 tests
+## 6. Banc d'essai manuel — 30 tests
 
 Je ne peux pas jouer ces tests : ils demandent un compte, un iPhone, et le
 worker déployé.
@@ -266,8 +327,31 @@ worker déployé.
     version papier. ⚠ **Si ton navigateur bloque les fenêtres, autorise-la** —
     la planche s'ouvre dans une fenêtre à elle.
 
+### La feuille (refonte)
+23. **Édition au clavier.** Clique une cellule, tape, `Tab` : la suivante
+    s'ouvre. `Maj+Tab` revient. `Échap` annule sans rien écrire. `Entrée`
+    valide et referme. Attendu : jamais de modale, jamais de saut de ligne.
+24. **Édition au doigt (iPhone).** Tape une cellule : le champ s'ouvre à sa
+    place et le clavier monte. Vérifie que la page ne zoome pas au focus.
+25. **En-tête figé et totaux figés.** Sur ordinateur, avec 20 objets ou plus :
+    fais défiler la feuille. Attendu : la rangée d'en-tête reste en haut, la
+    rangée jaune de totaux reste en bas, et les totaux suivent tes
+    modifications de quantité en direct.
+26. **Rangée vide.** Clique la ligne pointillée du bas. Attendu : un objet est
+    créé et son nom s'ouvre directement en édition.
+27. **Prix.** Tape `12,75` avec une virgule. Attendu : `12,75 $`, pas `13 $`
+    ni un refus.
+28. **Impression.** `Ctrl+P`. Attendu : nom de l'inventaire et date en tête,
+    grille noire sur blanc, rangée de totaux incluse, **aucun** bouton, barre
+    d'outils, en-tête de site ni pied de page, et pas la ligne « clique ici
+    pour ajouter ».
+29. **Téléphone à 375 px.** Attendu : photo et nom restent collés à gauche
+    quand tu fais glisser le tableau horizontalement ; aucun débordement de la
+    page elle-même ; la barre jaune de totaux reste visible au-dessus du ruban
+    d'outils du site.
+
 ### Langue et réseau
-23. **Bascule FR/EN et hors-ligne.** Passe en EN : en-têtes, états (`New`,
+30. **Bascule FR/EN et hors-ligne.** Passe en EN : en-têtes, états (`New`,
     `Good condition`, `OK`, `To replace`), liste d'achats. Puis **coupe le
     wifi** et recharge : tes objets s'affichent depuis le cache, avec
     « 📴 Hors ligne : lecture seule. » ; toute modification est refusée.
