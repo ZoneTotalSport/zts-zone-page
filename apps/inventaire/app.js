@@ -54,7 +54,7 @@
       nouveau: '+ Nouvel inventaire', renommer: '✏️ Renommer', supprInv: '🗑️ Supprimer',
       capTitre: '📷 Ajouter un objet',
       capNote: 'Prends la photo de l’objet. Elle est réduite sur ton appareil avant l’envoi : rien de lourd ne quitte le téléphone.',
-      prendre: '📷 Prendre une photo', televerser: '🖼️ Choisir une image', vide: '➕ Ligne vide',
+      prendre: '📷 Prendre une photo', televerser: '🖼️ Choisir une image', ligneVide: '➕ Ligne vide',
       chercher: 'Rechercher…',
       toutesCat: 'Toutes les catégories', tousUniv: 'Tous les univers', tousEtats: 'Tous les états',
       reset: '↺ Réinitialiser',
@@ -96,7 +96,7 @@
       achatsTitre: 'Liste d’achats', achatsVide: 'Rien à acheter : aucune quantité à acheter et aucun objet à remplacer.',
       achatsRaison: { qte: 'à acheter', etat: 'à remplacer' },
       achatsTotal: (n, v) => n + ' article(s) — total estimé ' + v,
-      achatsNote: 'Généré depuis',
+      achatsNote: 'Généré depuis :',
       // Invites
       pNom: 'Nom de l’inventaire (ex. : Gymnase école Saint-Jean)',
       pUniv: 'Univers — tape 1 pour Éducation physique, 2 pour Camp de jour, 3 pour Service de garde',
@@ -114,7 +114,7 @@
       nouveau: '+ New inventory', renommer: '✏️ Rename', supprInv: '🗑️ Delete',
       capTitre: '📷 Add an item',
       capNote: 'Take a photo of the item. It is resized on your device before upload: nothing heavy leaves the phone.',
-      prendre: '📷 Take a photo', televerser: '🖼️ Choose an image', vide: '➕ Blank row',
+      prendre: '📷 Take a photo', televerser: '🖼️ Choose an image', ligneVide: '➕ Blank row',
       chercher: 'Search…',
       toutesCat: 'All categories', tousUniv: 'All settings', tousEtats: 'All conditions',
       reset: '↺ Reset',
@@ -154,7 +154,7 @@
       achatsTitre: 'Shopping list', achatsVide: 'Nothing to buy: no quantity to buy and no item to replace.',
       achatsRaison: { qte: 'to buy', etat: 'to replace' },
       achatsTotal: (n, v) => n + ' item(s) — estimated total ' + v,
-      achatsNote: 'Generated from',
+      achatsNote: 'Generated from:',
       pNom: 'Inventory name (e.g. Saint-Jean School gym)',
       pUniv: 'Setting — type 1 for Physical education, 2 for Day camp, 3 for After-school care',
       pSupprInv: (n) => 'Delete inventory "' + n + '" and ALL its items? This cannot be undone.',
@@ -276,7 +276,7 @@
     $('invCapNote').textContent = l.capNote;
     $('invPrendre').textContent = l.prendre;
     $('invTeleverser').textContent = l.televerser;
-    $('invVide').textContent = l.vide;
+    $('invVide').textContent = l.ligneVide;
     $('invSearch').placeholder = l.chercher;
     $('invReset').textContent = l.reset;
     $('invAchats').textContent = l.achats;
@@ -431,6 +431,12 @@
     peintInventaires();
     peintStats();
     peintTableau();
+    // La liste d'achats est du HTML fige : sans ce rappel, basculer FR/EN
+    // pendant qu'elle est ouverte repeignait les boutons dans la nouvelle
+    // langue et laissait le contenu dans l'ancienne. Constate au banc du
+    // 23 aout 2026 : titre « SHOPPING LIST » au-dessus de boutons francais.
+    const ma = $('invModalAchats');
+    if (ma && ma.classList.contains('open')) peintAchats();
   }
 
   /* ======================================================================
@@ -695,7 +701,7 @@
     const total_ = liste.reduce((t, x) => t + x.qte, 0);
     const html =
       '<h2 class="zts-modal__title inv-modal__titre">🛒 ' + esc(l.achatsTitre) + '</h2>' +
-      '<p class="inv-achats__l"><span>' + esc(l.achatsNote) + ' : ' +
+      '<p class="inv-achats__l"><span>' + esc(l.achatsNote) + ' ' +
       esc(iv ? iv.nom : '') + '</span></p>' + corps +
       '<div class="inv-achats__tot">' + esc(l.achatsTotal(total_, dev.format(total))) + '</div>';
     $('invAchatsBody').innerHTML = html;

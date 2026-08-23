@@ -224,6 +224,43 @@
 }
 .inv-table tbody tr:nth-child(even) { background: var(--inv-surface-alt); }
 
+/* Largeurs minimales par colonne.
+   Constate au banc du 23 aout 2026, ecran 1280 px : douze colonnes se
+   partageaient la largeur a parts egales, et « Ballon de basketball »
+   s'affichait « Ballon de bask » dans un champ de 90 px. Le tableau prend
+   maintenant la place qu'il lui faut et defile horizontalement dans son
+   conteneur — le scroll horizontal que le cahier des charges refuse ne
+   concerne QUE le mode mobile, ou l'affichage passe en cartes. */
+.inv-table { min-width: 1240px; }
+/* Les largeurs vont sur th ET td. Mesure du 23 aout 2026 : posee sur le seul
+   <td>, `width: 108px` donnait une colonne de 65 px — en table-layout auto,
+   la largeur d'un td n'est qu'une suggestion, et c'est la PREMIERE rangee,
+   donc le <th>, qui gouverne la repartition. */
+.inv-table th[data-col="photo"],
+.inv-table td[data-col="photo"]       { min-width: 118px; }
+.inv-table th[data-col="nom"],
+.inv-table td[data-col="nom"]         { min-width: 170px; }
+.inv-table th[data-col="marque"],
+.inv-table td[data-col="marque"]      { min-width: 110px; }
+.inv-table th[data-col="description"],
+.inv-table td[data-col="description"] { min-width: 210px; }
+.inv-table th[data-col="categorie"],
+.inv-table td[data-col="categorie"]   { min-width: 150px; }
+.inv-table th[data-col="emplacement"],
+.inv-table td[data-col="emplacement"] { min-width: 150px; }
+.inv-table th[data-col="qteMain"],
+.inv-table th[data-col="qteAcheter"],
+.inv-table td[data-col="qteMain"],
+.inv-table td[data-col="qteAcheter"]  { min-width: 96px; }
+.inv-table th[data-col="etat"],
+.inv-table td[data-col="etat"]        { min-width: 138px; }
+.inv-table th[data-col="prix"],
+.inv-table td[data-col="prix"]        { min-width: 112px; }
+.inv-table th[data-col="notes"],
+.inv-table td[data-col="notes"]       { min-width: 170px; }
+.inv-table th[data-col="actions"],
+.inv-table td[data-col="actions"]     { min-width: 116px; }
+
 /* Champs editables en ligne : invisibles au repos, cadres au focus. */
 .inv-in,
 .inv-ta,
@@ -252,7 +289,7 @@
   box-shadow: 0 0 0 3px rgba(0, 194, 232, .25);
 }
 .inv-ta { resize: vertical; min-height: 34px; line-height: 1.35; }
-.inv-in--nb { text-align: center; max-width: 84px; }
+.inv-in--nb { text-align: center; max-width: 92px; }
 .inv-in--nom { font-weight: 800; }
 .inv-sel { cursor: pointer; }
 
@@ -364,11 +401,15 @@
     margin-bottom: 14px;
   }
   .inv-table tbody tr:nth-child(even) { background: var(--inv-surface); }
+  .inv-table { min-width: 0; }
   .inv-table td {
     flex: 1 1 100%;
+    width: auto;
+    min-width: 0;
     padding: 5px 0;
     border-top: 0;
   }
+  .inv-table th[data-col], .inv-table td[data-col] { width: auto; min-width: 0; }
   /* Photo en haut de la carte, pleine largeur. */
   .inv-table td[data-col="photo"] { order: -1; margin-bottom: 6px; }
   .inv-table td[data-col="photo"]::before { display: none; }
@@ -503,7 +544,8 @@
     overflow: visible !important;
     background: #FFF !important;
   }
-  .inv-table { display: table !important; width: 100% !important; font-size: 9pt; }
+  .inv-table { display: table !important; width: 100% !important; min-width: 0 !important; font-size: 9pt; }
+  .inv-table td, .inv-table th { width: auto !important; min-width: 0 !important; }
   .inv-table thead { display: table-header-group !important; }
   .inv-table tbody { display: table-row-group !important; }
   .inv-table tr { display: table-row !important; break-inside: avoid; }
