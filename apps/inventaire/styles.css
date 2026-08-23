@@ -1,0 +1,539 @@
+/* ==========================================================================
+   ZONE INVENTAIRE — feuille propre a l'app.
+   --------------------------------------------------------------------------
+   REGLES DE CONTACT (identiques a celles du shell) :
+     · tout est prefixe .inv-  — classes comme variables
+     · aucun selecteur de type nu ; les rares selecteurs de balise sont
+       toujours descendants de .inv-table ou .inv-wrap
+     · z-index bornes SOUS 300 (le chrome du shell occupe 300-399)
+     · aucun !important hors du bloc @media print
+     · aucun fond pose sur body — le marine de html.ztsh-on doit rester visible
+     · TOUT EN px, jamais en rem
+
+   Les tokens viennent de assets/ztsh-shell.css (--ztsh-*) et de
+   shared/zts.css (--space-*, --r-*). On n'en redefinit aucun ; on ajoute.
+   ========================================================================== */
+
+:root {
+  /* Bascule tableau <-> cartes. 900px : en dessous, une ligne de 12 colonnes
+     ne tient plus sans scroll horizontal, que le cahier des charges refuse. */
+  --inv-bascule: 900px;
+
+  --inv-surface:      #FFFFFF;
+  --inv-surface-alt:  #F2F8FB;   /* ligne paire */
+  --inv-ink:          #0C1720;
+  --inv-ink-doux:     #5B6773;
+  --inv-trait:        #C8DCE6;
+
+  /* Les quatre etats. Ordre et valeurs fixes par Joey le 23 aout 2026. */
+  --inv-neuf:      #A3FF00;
+  --inv-bon:       #00C2E8;
+  --inv-ok:        #FFFC00;
+  --inv-remplacer: #FF0061;
+}
+
+/* ==========================================================================
+   1. ENVELOPPE
+   ========================================================================== */
+.inv-wrap {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-7);
+  color: var(--ztsh-sur-marine, #E6F4FA);
+}
+
+/* ==========================================================================
+   2. HERO
+   ========================================================================== */
+.inv-hero { margin-bottom: 22px; }
+/* .ztsh-titre n'accepte pas ’ « » — ° Æ Œ Ù Ÿ (§2 du shell) : le texte de ce
+   titre est ecrit en ponctuation droite, ici comme dans app.js. */
+.inv-h1 { font-size: 38px; margin: 10px 0 0; }
+.inv-intro {
+  margin: 10px 0 0;
+  max-width: 66ch;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--ztsh-sur-marine-doux, #C4E1EE);
+}
+
+/* ==========================================================================
+   3. BARRE D'INVENTAIRES
+   ========================================================================== */
+.inv-barre {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.inv-lbl {
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 15px;
+  letter-spacing: .6px;
+  color: var(--ztsh-jaune, #FFFC00);
+}
+.inv-select {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--inv-ink);
+  background: var(--inv-surface);
+  padding: 10px 14px;
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 11px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, .35);
+  max-width: 100%;
+}
+.inv-select--gros { min-width: 240px; flex: 1 1 240px; }
+
+.inv-btn--danger {
+  background: linear-gradient(180deg, #FF4D8C, #FF0061);
+  color: #FFFFFF;
+  box-shadow: 0 5px 0 #8A0035, 5px 9px 0 rgba(0, 0, 0, .35);
+}
+
+/* ==========================================================================
+   4. COMPTEURS
+   ========================================================================== */
+.inv-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.inv-stat {
+  flex: 1 1 150px;
+  background: var(--inv-surface);
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, .35);
+  padding: 12px 14px;
+}
+.inv-stat__nb {
+  display: block;
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 30px;
+  line-height: 1.05;
+  color: var(--inv-ink);
+}
+.inv-stat__quoi {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--inv-ink-doux);
+}
+.inv-stat--alerte { background: #FFF0F5; border-color: var(--inv-remplacer); }
+.inv-stat--alerte .inv-stat__nb { color: #B0004A; }
+
+/* ==========================================================================
+   5. CAPTURE
+   ========================================================================== */
+.inv-capture {
+  background: rgba(255, 255, 255, .07);
+  border: 3px dashed var(--ztsh-cyan, #00C2E8);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.inv-sectitre {
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 21px;
+  letter-spacing: .5px;
+  margin: 0 0 6px;
+  color: #FFFFFF;
+}
+.inv-capnote {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ztsh-sur-marine-doux, #C4E1EE);
+}
+.inv-capbtns { display: flex; flex-wrap: wrap; gap: 10px; }
+.inv-msg {
+  margin: 12px 0 0;
+  min-height: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ztsh-jaune, #FFFC00);
+}
+.inv-msg--erreur { color: #FF8FB5; }
+
+/* ==========================================================================
+   6. FILTRES ET ACTIONS
+   ========================================================================== */
+.inv-filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.inv-search {
+  flex: 1 1 220px;
+  min-width: 170px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--inv-ink);
+  background: var(--inv-surface);
+  padding: 10px 14px;
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 11px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, .35);
+}
+.inv-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+
+/* ==========================================================================
+   7. TABLEAU — mode large (>= 900px)
+   ========================================================================== */
+.inv-tablewrap {
+  background: var(--inv-surface);
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 16px;
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, .35);
+  overflow-x: auto;          /* filet de securite ; en cartes il ne sert plus */
+}
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--inv-ink);
+  font-size: 14px;
+}
+.inv-table th {
+  background: var(--ztsh-noir, #08131E);
+  color: #FFFFFF;
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: .5px;
+  text-align: left;
+  white-space: nowrap;
+  padding: 10px 8px;
+  cursor: pointer;
+  user-select: none;
+}
+.inv-table th:hover { background: #123246; }
+.inv-table th[data-tri="non"] { cursor: default; }
+.inv-table th[data-tri="non"]:hover { background: var(--ztsh-noir, #08131E); }
+.inv-tri { color: var(--ztsh-jaune, #FFFC00); }
+.inv-table td {
+  padding: 6px 8px;
+  border-top: 2px solid var(--inv-trait);
+  vertical-align: middle;
+}
+.inv-table tbody tr:nth-child(even) { background: var(--inv-surface-alt); }
+
+/* Champs editables en ligne : invisibles au repos, cadres au focus. */
+.inv-in,
+.inv-ta,
+.inv-sel {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--inv-ink);
+  background: transparent;
+  padding: 6px 7px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+}
+.inv-in:hover,
+.inv-ta:hover,
+.inv-sel:hover { border-color: var(--inv-trait); }
+.inv-in:focus,
+.inv-ta:focus,
+.inv-sel:focus {
+  outline: none;
+  background: #FFFFFF;
+  border-color: var(--ztsh-cyan, #00C2E8);
+  box-shadow: 0 0 0 3px rgba(0, 194, 232, .25);
+}
+.inv-ta { resize: vertical; min-height: 34px; line-height: 1.35; }
+.inv-in--nb { text-align: center; max-width: 84px; }
+.inv-in--nom { font-weight: 800; }
+.inv-sel { cursor: pointer; }
+
+/* Vignette + pastille +N */
+.inv-vignette {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  padding: 0;
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 11px;
+  background: #E3EEF4;
+  cursor: pointer;
+  overflow: hidden;
+  flex: none;
+}
+.inv-vignette img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.inv-vignette__vide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 24px;
+}
+.inv-vignette__plus {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  z-index: 1;
+  padding: 1px 6px;
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 12px;
+  color: var(--inv-ink);
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--ztsh-noir, #08131E);
+  border-radius: 999px;
+}
+.inv-photocell { display: flex; align-items: center; gap: 8px; }
+.inv-mini {
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 12px;
+  line-height: 1;
+  color: var(--inv-ink);
+  background: var(--ztsh-cyan, #00C2E8);
+  border: 2px solid var(--ztsh-noir, #08131E);
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.inv-mini--suppr { background: #FFC9DC; }
+
+/* Etat : le <select> porte la couleur de la valeur choisie. */
+.inv-sel--etat {
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 13px;
+  letter-spacing: .4px;
+  text-align: center;
+  border-color: var(--ztsh-noir, #08131E);
+  border-radius: 999px;
+  min-width: 118px;
+}
+.inv-sel--etat[data-etat="neuf"]      { background: var(--inv-neuf);      color: #14260B; }
+.inv-sel--etat[data-etat="bon"]       { background: var(--inv-bon);       color: #03323C; }
+.inv-sel--etat[data-etat="ok"]        { background: var(--inv-ok);        color: #2B2B00; }
+.inv-sel--etat[data-etat="remplacer"] { background: var(--inv-remplacer); color: #FFFFFF; }
+
+.inv-empty {
+  margin: 18px 0;
+  padding: 22px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ztsh-sur-marine-doux, #C4E1EE);
+}
+.inv-printtitre { display: none; }
+
+/* ==========================================================================
+   8. TABLEAU — mode cartes (< 900px)
+   --------------------------------------------------------------------------
+   Meme DOM, meme rendu JS : seule la mise en page change. Un second gabarit
+   de rendu aurait double la surface de bugs pour rien.
+   `data-lbl` porte l'intitule de colonne, reinjecte devant chaque champ.
+   ========================================================================== */
+@media (max-width: 899px) {
+  .inv-tablewrap {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow-x: visible;
+  }
+  .inv-table,
+  .inv-table thead,
+  .inv-table tbody,
+  .inv-table tr,
+  .inv-table td { display: block; width: auto; }
+  .inv-table thead { display: none; }
+  .inv-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    background: var(--inv-surface);
+    border: 3px solid var(--ztsh-noir, #08131E);
+    border-radius: 16px;
+    box-shadow: 5px 5px 0 rgba(0, 0, 0, .35);
+    padding: 12px;
+    margin-bottom: 14px;
+  }
+  .inv-table tbody tr:nth-child(even) { background: var(--inv-surface); }
+  .inv-table td {
+    flex: 1 1 100%;
+    padding: 5px 0;
+    border-top: 0;
+  }
+  /* Photo en haut de la carte, pleine largeur. */
+  .inv-table td[data-col="photo"] { order: -1; margin-bottom: 6px; }
+  .inv-table td[data-col="photo"]::before { display: none; }
+  .inv-table td[data-col="photo"] .inv-vignette { width: 96px; height: 96px; }
+  /* Les quatre champs courts se partagent la largeur. */
+  .inv-table td[data-col="qteMain"],
+  .inv-table td[data-col="qteAcheter"],
+  .inv-table td[data-col="prix"] { flex: 1 1 30%; }
+  .inv-table td::before {
+    content: attr(data-lbl);
+    display: block;
+    margin-bottom: 2px;
+    font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+    font-size: 11px;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    color: var(--inv-ink-doux);
+  }
+  .inv-in,
+  .inv-ta,
+  .inv-sel {
+    background: #F7FBFD;
+    border-color: var(--inv-trait);
+    font-size: 16px;    /* 16px minimum : en dessous, iOS zoome au focus */
+  }
+  .inv-in--nb { max-width: none; text-align: left; }
+  .inv-h1 { font-size: 28px; }
+}
+
+/* ==========================================================================
+   9. MODALES
+   ========================================================================== */
+.inv-modal { width: min(760px, 100%); }
+.inv-modal__titre { margin-bottom: 10px; }
+.inv-modal__btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+.inv-visio {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: #E3EEF4;
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 14px;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.inv-visio__img { max-width: 100%; max-height: 62vh; display: block; }
+.inv-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--inv-ink);
+  background: rgba(255, 255, 255, .92);
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.inv-nav--prec { left: 8px; }
+.inv-nav--suiv { right: 8px; }
+.inv-nav[hidden] { display: none; }
+.inv-visio__compte {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--inv-ink-doux);
+}
+
+/* Liste d'achats */
+.inv-achats__cat {
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 17px;
+  letter-spacing: .4px;
+  margin: 16px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 3px solid var(--ztsh-cyan, #00C2E8);
+  color: var(--inv-ink);
+}
+.inv-achats__l {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--inv-trait);
+  font-size: 15px;
+  color: var(--inv-ink);
+}
+.inv-achats__q { font-weight: 800; white-space: nowrap; }
+.inv-achats__tot {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 3px solid var(--ztsh-noir, #08131E);
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 18px;
+  color: var(--inv-ink);
+}
+
+/* ==========================================================================
+   10. IMPRESSION
+   --------------------------------------------------------------------------
+   Seul bloc autorise a employer !important (meme convention que le shell).
+   Le tableau reprend sa forme large quelle que soit la largeur d'ecran : une
+   feuille de papier n'a pas de mode carte.
+   ========================================================================== */
+@media print {
+  .inv-noprint { display: none !important; }
+  .inv-wrap { color: #000 !important; padding: 0 !important; }
+  .inv-printtitre {
+    display: block !important;
+    font-family: 'LuckiestGuy', system-ui, sans-serif;
+    font-size: 20pt;
+    color: #000 !important;
+    margin: 0 0 10px;
+  }
+  .inv-stats { margin-bottom: 12px !important; }
+  .inv-stat {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    background: #FFF !important;
+  }
+  .inv-tablewrap {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    background: #FFF !important;
+  }
+  .inv-table { display: table !important; width: 100% !important; font-size: 9pt; }
+  .inv-table thead { display: table-header-group !important; }
+  .inv-table tbody { display: table-row-group !important; }
+  .inv-table tr { display: table-row !important; break-inside: avoid; }
+  .inv-table td,
+  .inv-table th {
+    display: table-cell !important;
+    border: 1px solid #000 !important;
+    background: #FFF !important;
+    color: #000 !important;
+    padding: 3px 4px !important;
+  }
+  .inv-table td::before { display: none !important; }
+  .inv-table th { font-size: 8pt; }
+  .inv-in,
+  .inv-ta,
+  .inv-sel {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #000 !important;
+    -webkit-appearance: none;
+    appearance: none;
+    font-size: 9pt !important;
+    padding: 0 !important;
+  }
+  .inv-sel--etat { border-radius: 0 !important; min-width: 0 !important; }
+  .inv-vignette { width: 44px !important; height: 44px !important; border-width: 1px !important; }
+  .inv-vignette__plus,
+  .inv-mini { display: none !important; }
+  .inv-achats__cat,
+  .inv-achats__l,
+  .inv-achats__tot { color: #000 !important; }
+}
