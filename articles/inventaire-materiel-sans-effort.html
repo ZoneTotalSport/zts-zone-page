@@ -546,6 +546,25 @@
 .zts-prose h3{margin-top:2.25rem}
 .zts-table-wrap{margin:1.75rem 0}
 
+/* ---- Grille de fonctionnalites de l'app (section solution gagnante) ---- */
+.zts-appgrid{margin:2rem 0;padding:1.5rem;border:3px solid var(--zts-deep,#004A61);
+  border-radius:1.5rem;background:#F8FDFF;box-shadow:6px 6px 0 rgba(0,196,255,.22)}
+.zts-appgrid-title{font-family:var(--font-impact,'Luckiest Guy',Impact,sans-serif);
+  font-size:1.15rem;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--zts-deep,#004A61);margin:0 0 1.1rem;text-align:center}
+.zts-app-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;
+  margin:0;padding:0;list-style:none}
+.zts-app-tiles li{position:relative;margin:0;padding:1rem 1.1rem;background:#fff;
+  border:2.5px solid #0F0F2E;border-radius:1rem}
+.zts-app-tiles li::before{content:none}
+.zts-app-tiles i{display:block;width:26px;height:26px;color:var(--zts-blue-dark,#0086AD);
+  margin-bottom:.5rem}
+.zts-app-tiles strong{display:block;color:#0F0F2E;font-size:1rem;line-height:1.3;
+  margin-bottom:.25rem}
+.zts-app-tiles span{display:block;font-size:.93rem;line-height:1.45;color:#475569}
+@media(max-width:900px){.zts-app-tiles{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.zts-app-tiles{grid-template-columns:1fr}}
+
 /* ---- Figures d'images ---- */
 .zts-fig{margin:2.5rem 0}
 .zts-fig figcaption{margin-top:.7rem;text-align:center;font-size:.9rem;color:#64748B;
@@ -610,6 +629,7 @@
     <li><a href="#solutions"><span lang="fr">Neuf solutions, trois milieux</span><span lang="en">Nine solutions, three settings</span><span lang="zh">九个方案，三种场景</span><span lang="es">Nueve soluciones, tres entornos</span></a></li>
     <li><a href="#tableau"><span lang="fr">Le tableau comparatif</span><span lang="en">The comparison table</span><span lang="zh">对照表</span><span lang="es">La tabla comparativa</span></a></li>
     <li><a href="#plan-7-jours"><span lang="fr">Ton plan sur 7 jours</span><span lang="en">Your 7-day plan</span><span lang="zh">你的 7 天计划</span><span lang="es">Tu plan de 7 días</span></a></li>
+    <li><a href="#zone-inventaire"><span lang="fr">La solution gagnante : Zone Inventaire</span><span lang="en">The winning move: Zone Inventaire</span><span lang="zh">制胜方案：Zone Inventaire</span><span lang="es">La solución ganadora: Zone Inventaire</span></a></li>
     <li><a href="#conclusion"><span lang="fr">Reprends ton temps</span><span lang="en">Take your time back</span><span lang="zh">把时间拿回来</span><span lang="es">Recupera tu tiempo</span></a></li>
   </ol>
 </nav>
@@ -1143,6 +1163,59 @@
   </ol>
 </figure>
 
+<h2 id="zone-inventaire"><span lang="fr">La solution gagnante : Zone Inventaire</span><span lang="en">The winning move: Zone Inventaire</span><span lang="zh">制胜方案：Zone Inventaire</span><span lang="es">La solución ganadora: Zone Inventaire</span></h2>
+
+<p><span lang="fr">Tout ce que tu viens de lire tient sans application : un marqueur, des étiquettes et une fiche plastifiée suffisent. Mais les trois gestes qui coûtent vraiment — écrire ce qu'on a, tenir la liste à jour, retrouver un objet — sont exactement ceux qu'une machine fait mieux qu'un humain pressé un vendredi soir. C'est pour ça qu'on a construit <strong>Zone Inventaire</strong>, pensée pour les trois métiers de cet article : l'éducation physique, le service de garde et le camp de jour.</span><span lang="en">Everything you've just read works without an app: a marker, some labels and a laminated sheet will do. But the three moves that actually cost you — writing down what you own, keeping the list current, finding an item again — are exactly the ones a machine does better than a rushed human on a Friday evening. That's why we built <strong>Zone Inventaire</strong>, designed for the three roles in this article: physical education, after-school programs and day camp.</span><span lang="zh">你刚读到的一切，不用任何应用也能做到：一支记号笔、一些标签和一张覆膜卡片就够了。但真正耗掉你时间的三件事——把有什么写下来、让清单保持最新、把某件东西找回来——恰恰是机器比周五晚上疲于奔命的人做得更好的事。所以我们做了 <strong>Zone Inventaire</strong>，专为本文提到的三种岗位设计：体育教育、课后托管和夏令营。</span><span lang="es">Todo lo que acabas de leer funciona sin aplicación: un rotulador, unas etiquetas y una ficha plastificada bastan. Pero los tres gestos que de verdad cuestan —escribir lo que tienes, mantener la lista al día, volver a encontrar un objeto— son exactamente los que una máquina hace mejor que un humano con prisa un viernes por la tarde. Por eso construimos <strong>Zone Inventaire</strong>, pensada para los tres oficios de este artículo: educación física, servicio de cuidado escolar y campamento de día.</span></p>
+
+<figure class="zts-appgrid" role="group">
+  <figcaption class="zts-appgrid-title"><span lang="fr">Ce que l'app fait à ta place</span><span lang="en">What the app does for you</span><span lang="zh">这个应用替你做的事</span><span lang="es">Lo que la app hace por ti</span></figcaption>
+  <ul class="zts-app-tiles">
+    <li class="zts-app-tile">
+      <i data-lucide="camera" aria-hidden="true"></i>
+      <strong><span lang="fr">Photographie, l'IA identifie</span><span lang="en">Snap it, the AI names it</span><span lang="zh">拍照，AI 识别</span><span lang="es">Fotografía, la IA identifica</span></strong><span><span lang="fr">Tu photographies l'objet ; l'app propose son nom, sa marque et une description. Tu corriges si besoin, tu valides. Fini la saisie à l'aveugle.</span><span lang="en">Photograph the item; the app suggests its name, brand and a description. Correct it if needed, confirm. No more blind typing.</span><span lang="zh">给器材拍张照，应用会给出名称、品牌和描述。需要就改，确认即可。不用再盲打录入。</span><span lang="es">Fotografías el objeto; la app propone su nombre, su marca y una descripción. Lo corriges si hace falta y validas. Se acabó teclear a ciegas.</span></span>
+    </li>
+    <li class="zts-app-tile">
+      <i data-lucide="table" aria-hidden="true"></i>
+      <strong><span lang="fr">Une feuille, éditable dans la cellule</span><span lang="en">A sheet you edit in the cell</span><span lang="zh">可直接在单元格里编辑的表</span><span lang="es">Una hoja, editable en la celda</span></strong><span><span lang="fr">Ça se manipule comme un chiffrier : clic pour ouvrir la cellule, Entrée pour valider. Les totaux du haut bougent immédiatement.</span><span lang="en">It behaves like a spreadsheet: click to open a cell, Enter to confirm. The totals up top move immediately.</span><span lang="zh">用起来就像表格软件：点击打开单元格，回车确认。顶部的合计立刻跟着变。</span><span lang="es">Se maneja como una hoja de cálculo: clic para abrir la celda, Intro para validar. Los totales de arriba se mueven al instante.</span></span>
+    </li>
+    <li class="zts-app-tile">
+      <i data-lucide="circle-dot" aria-hidden="true"></i>
+      <strong><span lang="fr">Quatre états, quatre couleurs</span><span lang="en">Four states, four colours</span><span lang="zh">四种状态，四种颜色</span><span lang="es">Cuatro estados, cuatro colores</span></strong><span><span lang="fr">Neuf, Bon état, OK, À remplacer. Filtre d'un clic sur « À remplacer » et tu as ta commande d'automne, sans la chercher.</span><span lang="en">New, Good condition, OK, To replace. One click filters on “To replace” and you have your fall order, without hunting for it.</span><span lang="zh">全新、状态良好、尚可、待更换。一键筛选「待更换」，秋季采购单就出来了，不用再翻找。</span><span lang="es">Nuevo, Buen estado, OK, Para reponer. Un clic filtra por «Para reponer» y tienes tu pedido de otoño sin buscarlo.</span></span>
+    </li>
+    <li class="zts-app-tile">
+      <i data-lucide="qr-code" aria-hidden="true"></i>
+      <strong><span lang="fr">Codes QR par objet et par bac</span><span lang="en">QR codes per item and per shelf</span><span lang="zh">按器材和按位置的二维码</span><span lang="es">Códigos QR por objeto y por sitio</span></strong><span><span lang="fr">Planches d'étiquettes imprimables. La caméra native ouvre le lien : aucun lecteur à installer, aucune formation à donner.</span><span lang="en">Printable label sheets. The native camera opens the link: no scanner app to install, no training to run.</span><span lang="zh">可打印的标签页。手机原生相机直接打开链接：不用装扫码应用，也不用培训。</span><span lang="es">Planchas de etiquetas imprimibles. La cámara nativa abre el enlace: sin lector que instalar, sin formación que dar.</span></span>
+    </li>
+    <li class="zts-app-tile">
+      <i data-lucide="calendar-days" aria-hidden="true"></i>
+      <strong><span lang="fr">Un onglet par année scolaire</span><span lang="en">One tab per school year</span><span lang="zh">每学年一个标签页</span><span lang="es">Una pestaña por curso escolar</span></strong><span><span lang="fr">L'inventaire de l'an dernier ne disparaît pas : il passe dans son onglet. Tu compares deux rentrées au lieu de repartir de zéro.</span><span lang="en">Last year's inventory doesn't vanish: it moves to its own tab. You compare two Septembers instead of starting over.</span><span lang="zh">去年的清单不会消失：它会移到自己的标签页。你可以对比两个学年，而不是从头再来。</span><span lang="es">El inventario del año pasado no desaparece: pasa a su pestaña. Comparas dos inicios de curso en vez de empezar de cero.</span></span>
+    </li>
+    <li class="zts-app-tile">
+      <i data-lucide="smartphone" aria-hidden="true"></i>
+      <strong><span lang="fr">iPhone, tablette, ordi — FR et EN</span><span lang="en">iPhone, tablet, desktop — FR and EN</span><span lang="zh">iPhone、平板、电脑 —— 法英双语</span><span lang="es">iPhone, tableta, ordenador — FR e IN</span></strong><span><span lang="fr">Tu comptes debout dans le local avec ton téléphone, tu corriges assis au bureau. C'est la même liste.</span><span lang="en">Count standing in the storage room on your phone, fix it sitting at your desk. Same list.</span><span lang="zh">站在器材室里用手机清点，回办公桌前坐下修改。是同一份清单。</span><span lang="es">Cuentas de pie en el almacén con el móvil y corriges sentado en el despacho. Es la misma lista.</span></span>
+    </li>
+  </ul>
+</figure>
+
+<figure class="zts-shelf" role="group">
+  <figcaption class="zts-shelf-title"><span lang="fr">Des piliers de l'article aux boutons de l'app</span><span lang="en">From the article's pillars to the app's buttons</span><span lang="zh">从文章的支柱到应用的按钮</span><span lang="es">De los pilares del artículo a los botones de la app</span></figcaption>
+  <ul class="zts-shelf-list">
+  <li class="zts-shelf-row zts-shelf-yeux"><span class="zts-shelf-lvl"><span lang="fr">Pilier 4 · Le QR</span><span lang="en">Pillar 4 · QR</span><span lang="zh">支柱四 · 二维码</span><span lang="es">Pilar 4 · QR</span></span><span class="zts-shelf-txt"><span lang="fr">Le pilier disait « colle un code QR à l'entrée du local ». L'app imprime la planche, par objet et par emplacement, et la caméra du téléphone fait le reste.</span><span lang="en">The pillar said “stick a QR code at the storage room door.” The app prints the sheet, per item and per location, and the phone camera does the rest.</span><span lang="zh">那条支柱说「在器材室门口贴一个二维码」。应用直接打印整版标签，按器材和按位置分好，剩下的交给手机相机。</span><span lang="es">El pilar decía «pega un código QR en la entrada del almacén». La app imprime la plancha, por objeto y por ubicación, y la cámara del móvil hace el resto.</span></span></li>
+  <li class="zts-shelf-row zts-shelf-sol"><span class="zts-shelf-lvl"><span lang="fr">Pilier 1 · La quarantaine</span><span lang="en">Pillar 1 · Quarantine</span><span lang="zh">支柱一 · 隔离区</span><span lang="es">Pilar 1 · Cuarentena</span></span><span class="zts-shelf-txt"><span lang="fr">Le bac « À réparer ou à évaluer » devient l'état <strong>À remplacer</strong>. Le matériel douteux sort de la liste utile sans quitter l'inventaire — et alimente la liste d'achats tout seul.</span><span lang="en">The “to repair or assess” bin becomes the <strong>To replace</strong> state. Questionable gear leaves the usable list without leaving the inventory — and feeds the purchase list on its own.</span><span lang="zh">那个「待修 / 待评估」箱子，在应用里就是<strong>待更换</strong>状态。可疑器材从可用清单里移出，但没有离开库存——而且会自动进入采购单。</span><span lang="es">La caja «para reparar o evaluar» se convierte en el estado <strong>Para reponer</strong>. El material dudoso sale de la lista útil sin salir del inventario, y alimenta la lista de compras por su cuenta.</span></span></li>
+  <li class="zts-shelf-row zts-shelf-taille"><span class="zts-shelf-lvl"><span lang="fr">Pilier 3 · Le rotatif</span><span lang="en">Pillar 3 · Cycle counting</span><span lang="zh">支柱三 · 轮转盘点</span><span lang="es">Pilar 3 · El rotativo</span></span><span class="zts-shelf-txt"><span lang="fr">Cinq minutes par semaine sur une seule catégorie, et la feuille reste juste toute l'année — parce que la correction se fait dans la cellule, sur place, pas dans un fichier resté au bureau.</span><span lang="en">Five minutes a week on one category, and the sheet stays accurate all year — because the fix happens in the cell, on the spot, not in a file left back at the office.</span><span lang="zh">每周五分钟，只清点一个类别，清单就能全年保持准确——因为修改就在单元格里当场完成，而不是回到办公室改那份文件。</span><span lang="es">Cinco minutos por semana sobre una sola categoría, y la hoja se mantiene exacta todo el año, porque la corrección se hace en la celda, en el sitio, no en un archivo que se quedó en la oficina.</span></span></li>
+  </ul>
+</figure>
+
+<aside class="zts-cta-inline" role="complementary" aria-label="Ouvrir Zone Inventaire">
+      <h3><span lang="fr">Essaie-la sur ton propre local</span><span lang="en">Try it on your own storage room</span><span lang="zh">用你自己的器材室试试</span><span lang="es">Pruébala en tu propio almacén</span></h3>
+      <p class="zts-cta-lead"><span lang="fr">Commence par <strong>un seul bac</strong>. Photographie cinq objets, imprime une planche de QR, colle-les. Si ça te fait gagner dix minutes sur ce bac-là, ça t'en fera gagner des heures sur le local.</span><span lang="en">Start with <strong>one bin</strong>. Photograph five items, print a QR sheet, stick the labels on. If it saves you ten minutes on that bin, it will save you hours on the whole room.</span><span lang="zh">先从<strong>一个箱子</strong>开始。拍五件器材，打印一版二维码，贴上去。如果这一个箱子能帮你省下十分钟，整个器材室就能省下好几个小时。</span><span lang="es">Empieza por <strong>una sola caja</strong>. Fotografía cinco objetos, imprime una plancha de QR y pégalos. Si te ahorra diez minutos en esa caja, te ahorrará horas en todo el almacén.</span></p>
+      <div class="zts-cta-btns">
+        <a class="zts-cta-btn zts-cta-btn-primary" href="/apps/inventaire/"><span lang="fr">Ouvrir Zone Inventaire</span><span lang="en">Open Zone Inventaire</span><span lang="zh">打开 Zone Inventaire</span><span lang="es">Abrir Zone Inventaire</span></a>
+        <a class="zts-cta-btn zts-cta-btn-secondary" href="#plan-7-jours"><span lang="fr">Revoir le plan de 7 jours</span><span lang="en">Back to the 7-day plan</span><span lang="zh">回看 7 天计划</span><span lang="es">Volver al plan de 7 días</span></a>
+      </div>
+      <p class="zts-cta-foot"><span lang="fr">Gratuit · aucune carte de crédit · fonctionne sur le téléphone que tu as déjà.</span><span lang="en">Free · no credit card · works on the phone you already own.</span><span lang="zh">免费 · 无需信用卡 · 用你现有的手机就能跑。</span><span lang="es">Gratis · sin tarjeta de crédito · funciona en el móvil que ya tienes.</span></p>
+    </aside>
+
 <h2 id="conclusion"><span lang="fr">Reprends ton temps</span><span lang="en">Take your time back</span><span lang="zh">把时间拿回来</span><span lang="es">Recupera tu tiempo</span></h2>
 
 <p><span lang="fr">Gérer du matériel n'est pas ton métier. Ta valeur est dans la qualité des séances que tu donnes, dans le plaisir que tu transmets et dans la sécurité des environnements que tu crées pour les jeunes.</span><span lang="en">Managing equipment isn't your job. Your value is in the quality of the sessions you lead, the enjoyment you pass on and the safety of the environments you build for kids.</span><span lang="zh">管理器材并不是你的本职。你的价值在于你上的课的质量、你传递的乐趣，以及你为孩子们营造的安全环境。</span><span lang="es">Gestionar material no es tu oficio. Tu valor está en la calidad de las sesiones que das, en el disfrute que transmites y en la seguridad de los entornos que creas para los jóvenes.</span></p>
@@ -1222,15 +1295,12 @@
 
     <aside class="zts-cta-inline" role="complementary" aria-label="Zone Inventaire">
       <h3><span lang="fr">Ton local, dans ta poche</span><span lang="en">Your storage room, in your pocket</span><span lang="zh">你的器材室，装进口袋</span><span lang="es">Tu almacén, en el bolsillo</span></h3>
-      <p class="zts-cta-lead"><span lang="fr">On construit <strong>Zone Inventaire</strong> : tu photographies un bac, l'app identifie le matériel, compte, et garde ton inventaire à jour. Gratuit, comme le reste de la Zone.</span><span lang="en">We're building <strong>Zone Inventaire</strong>: photograph a bin, the app identifies the equipment, counts it, and keeps your inventory current. Free, like everything else in the Zone.</span><span lang="zh">我们正在开发 <strong>Zone Inventaire</strong>：拍下一个收纳箱，应用自动识别器材、清点数量，并让你的清单保持最新。和 Zone 的其他工具一样，完全免费。</span><span lang="es">Estamos construyendo <strong>Zone Inventaire</strong>: fotografías una caja, la app identifica el material, lo cuenta y mantiene tu inventario al día. Gratis, como el resto de la Zone.</span></p>
+      <p class="zts-cta-lead"><span lang="fr"><strong>Zone Inventaire</strong> est en ligne, et gratuite comme le reste de la Zone. Le plus dur reste le jour 1 — mais tu n'as plus à le faire avec un chiffrier.</span><span lang="en"><strong>Zone Inventaire</strong> is live, and free like everything else in the Zone. Day 1 is still the hard part — but you no longer have to do it with a spreadsheet.</span><span lang="zh"><strong>Zone Inventaire</strong> 已经上线，和 Zone 的其他工具一样免费。最难的仍然是「第 1 天」——但你不必再靠一张表格来完成它。</span><span lang="es"><strong>Zone Inventaire</strong> ya está en línea, y es gratis como el resto de la Zone. El Día 1 sigue siendo lo más duro, pero ya no tienes que hacerlo con una hoja de cálculo.</span></p>
       <div class="zts-cta-btns">
-        <a class="zts-cta-btn zts-cta-btn-primary" href="https://zonetotalsport.ca/?src=article-inventaire#joinZone"><span lang="fr">Être averti du lancement</span><span lang="en">Get launch updates</span><span lang="zh">获取上线通知</span><span lang="es">Avisarme del lanzamiento</span></a>
+        <a class="zts-cta-btn zts-cta-btn-primary" href="/apps/inventaire/"><span lang="fr">Ouvrir Zone Inventaire</span><span lang="en">Open Zone Inventaire</span><span lang="zh">打开 Zone Inventaire</span><span lang="es">Abrir Zone Inventaire</span></a>
         <a class="zts-cta-btn zts-cta-btn-secondary" href="../blog.html"><span lang="fr">Lire d'autres articles →</span><span lang="en">Read more articles →</span><span lang="zh">阅读更多文章 →</span><span lang="es">Leer más artículos →</span></a>
-        <!-- A ACTIVER au deploiement de l'app (apps/inventaire/) :
-        <a class="zts-cta-btn zts-cta-btn-secondary" href="/apps/inventaire/"><span lang="fr">Ouvrir Zone Inventaire →</span><span lang="en">Open Zone Inventaire →</span><span lang="zh">打开 Zone Inventaire →</span><span lang="es">Abrir Zone Inventaire →</span></a>
-        -->
       </div>
-      <p class="zts-cta-foot"><span lang="fr">En chantier · aucune carte de crédit, jamais.</span><span lang="en">In progress · no credit card, ever.</span><span lang="zh">开发中 · 永不需要信用卡。</span><span lang="es">En construcción · sin tarjeta de crédito, nunca.</span></p>
+      <p class="zts-cta-foot"><span lang="fr">Gratuit · aucune carte de crédit, jamais.</span><span lang="en">Free · no credit card, ever.</span><span lang="zh">免费 · 永不需要信用卡。</span><span lang="es">Gratis · sin tarjeta de crédito, nunca.</span></p>
     </aside>
 
   </article>
