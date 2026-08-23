@@ -246,6 +246,32 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // inventaire — app /apps/inventaire/ (inventaire de materiel
+    // photographie et identifie par l'IA). Owner-only via uid, meme
+    // patron que `performances` et `plans` ci-dessus.
+    //
+    // DEUX collections. `inventaires` porte le lieu (nom, univers) ;
+    // `inventaireItems` porte un objet PAR DOCUMENT, parce que les
+    // vignettes sont stockees en data-URI dans le document et qu'un
+    // document plafonne a 1 048 576 octets — tout un gymnase dans un
+    // seul doc serait refuse des le douzieme objet.
+    //
+    // Firestore ne supprime pas en cascade : la suppression d'un
+    // inventaire efface ses objets cote client, un par un. La regle
+    // `delete` de inventaireItems est donc necessaire, et suffisante :
+    // elle ne laisse effacer que ses propres objets.
+    // ─────────────────────────────────────────────────────────
+    match /inventaires/{id} {
+      allow read, update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /inventaireItems/{id} {
+      allow read, update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // ─────────────────────────────────────────────────────────
     // budget — app privee familiale. Deux types d'espaces :
     //  • COMMUN  (budget/root-famille) : partage entre les membres. Self-join
     //    controle (un 2e membre peut s'ajouter lui-meme, plafond 2 personnes).

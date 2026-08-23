@@ -752,6 +752,92 @@ Réponds UNIQUEMENT avec un JSON valide, sans texte autour : {"items":[{"name":"
 }
 
 // ────────────────────────────────────────────────────────────
+// /inventaire-vision — identifie un objet de MATÉRIEL sur une photo, pour
+// /apps/inventaire/. Même forme que /nutrition-photo : jeton Firebase
+// obligatoire, image en base64, réponse en JSON strict.
+//
+// ⚠ MIROIR DU CLIENT. `CATEGORIES_INVENTAIRE` est la même liste de clés que
+// dans apps/inventaire/app.js. C'est ELLE qui fait foi : le worker refuse
+// toute autre valeur et retombe sur "autre". Ajouter une catégorie d'un seul
+// côté donne soit une clé que le <select> ne sait pas afficher, soit une
+// catégorie que l'IA ne choisira jamais.
+//
+// La langue vient du client (`lang`) : l'app est bilingue, et le nom comme la
+// description doivent sortir dans la langue affichée à l'écran.
+// ────────────────────────────────────────────────────────────
+const CATEGORIES_INVENTAIRE = [
+  "ballons", "manipulation", "cones-dossards", "sport-collectif",
+  "gymnastique", "jeux-societe", "bricolage", "eau", "plein-air",
+  "premiers-soins", "audio-techno", "mobilier", "rangement", "livres", "autre",
+];
+
+async function handleInventaireVision(request, env) {
+  const verified = await verifyIdToken(request, env);
+  if (!verified?.uid) return err("UNAUTHORIZED", "Connexion requise", 401);
+
+  let body;
+  try { body = await request.json(); } catch { return err("INVALID_INPUT", "Body JSON malformé"); }
+  const image = (body?.image || "").toString();
+  const mediaType = (body?.mediaType || "image/jpeg").toString();
+  const lang = body?.lang === "en" ? "en" : "fr";
+  if (!image || image.length < 50) return err("INVALID_INPUT", "image base64 requise");
+  // Le client réduit à 1200 px / qualité .72, ce qui donne ~120 Ko en base64.
+  // 7 Mo est donc très large : c'est un garde-fou contre l'envoi d'un original
+  // de 12 Mpx, pas un seuil que l'app atteint.
+  if (image.length > 7000000) return err("INVALID_INPUT", "image trop grande (réduis la qualité)");
+  if (!["image/jpeg", "image/png", "image/webp"].includes(mediaType)) {
+    return err("INVALID_INPUT", "format image non supporté");
+  }
+
+  const apiKey = env.ANTHROPIC_API_KEY;
+  if (!apiKey) return err("CONFIG_MISSING", "ANTHROPIC_API_KEY manquante", 500);
+  const client = new Anthropic({ apiKey });
+
+  const langue = lang === "en"
+    ? "Answer in ENGLISH."
+    : "Réponds en FRANÇAIS du Québec.";
+  const system = `Tu identifies du MATÉRIEL d'éducation physique, de camp de jour ou de service de garde à partir d'une photo.
+${langue}
+Réponds UNIQUEMENT avec un JSON valide, sans texte autour :
+{"nom":"...","marque":"","description":"","categorie":"autre"}
+- nom : le nom courant de l'objet, 2 à 5 mots, sans marque.
+- marque : uniquement si un logo ou un nom de marque est LISIBLE sur la photo. Sinon chaîne vide. N'invente jamais une marque.
+- description : une seule phrase courte (max 15 mots) — couleur, taille, matière, état visible.
+- categorie : EXACTEMENT une valeur de cette liste, rien d'autre : ${CATEGORIES_INVENTAIRE.join(", ")}.
+Si l'objet est illisible ou absent, mets nom vide et categorie "autre".`;
+
+  let resp;
+  try {
+    resp = await Promise.race([
+      client.messages.create({
+        model: env.SONNET_MODEL,
+        max_tokens: 400,
+        system,
+        messages: [{ role: "user", content: [
+          { type: "image", source: { type: "base64", media_type: mediaType, data: image } },
+          { type: "text", text: "Identifie cet objet de matériel, en JSON." },
+        ] }],
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error("timeout"), { code: "TIMEOUT" })), TIMEOUT_MS)),
+    ]);
+  } catch (e) { return err(e.code || "AI_ERROR", "Échec IA : " + e.message, 502); }
+
+  const brut = extractJson(resp?.content?.[0]?.text || "") || {};
+  // Normalisation stricte : ce que le client reçoit ne dépend jamais de ce que
+  // le modèle a bien voulu produire. Les longueurs sont bornées ici et non
+  // côté client, parce que c'est ici que ça compte pour le poids du document
+  // Firestore que l'app écrira ensuite.
+  const txt = (v, n) => (typeof v === "string" ? v : "").trim().slice(0, n);
+  const objet = {
+    nom: txt(brut.nom, 120),
+    marque: txt(brut.marque, 60),
+    description: txt(brut.description, 240),
+    categorie: CATEGORIES_INVENTAIRE.includes(brut.categorie) ? brut.categorie : "autre",
+  };
+  return json({ ok: true, objet });
+}
+
+// ────────────────────────────────────────────────────────────
 // /decodage — proxy Anthropic durci pour « Zone — Décodage du corps »
 // (app privée de Joey, /apps/decodage/). Le bundle front appelle cette
 // route en fetch cross-origin credentials:"omit" et lit le corps Anthropic
@@ -1009,6 +1095,11 @@ export default {
 
     if (url.pathname === "/nutrition-photo" && request.method === "POST") {
       try { return await handleNutritionPhoto(request, env); }
+      catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
+    }
+
+    if (url.pathname === "/inventaire-vision" && request.method === "POST") {
+      try { return await handleInventaireVision(request, env); }
       catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
     }
 
