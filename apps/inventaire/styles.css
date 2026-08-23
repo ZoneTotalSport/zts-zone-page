@@ -237,18 +237,23 @@
   box-shadow: var(--inv-ombre);
   padding: 4px 9px;
 }
+/* Les pastilles passent en Bangers, comme la rangee de totaux : ce sont les
+   memes chiffres, lus au meme moment. ZoneTotalSport y etait a 9,5 px rendus
+   — la police de marque est dessinee pour des titres, pas pour une etiquette
+   de trois lettres, et elle y devenait un gribouillis. */
 .inv-pill__nb {
-  font-family: var(--inv-f-titre);
-  font-size: 13px;
+  font-family: var(--inv-f-punch);
+  font-size: 17px;
+  letter-spacing: .3px;
   color: var(--inv-ink);
 }
 .inv-pill__q {
-  font-family: var(--inv-f-marque);
-  font-size: 19px;          /* environ 9,5 px rendus */
+  font-family: var(--inv-f-punch);
+  font-size: 13px;
   font-weight: 400;
   color: var(--inv-ink-doux);
   text-transform: uppercase;
-  letter-spacing: .4px;
+  letter-spacing: .5px;
 }
 .inv-pill--alerte { background: #FFF0F5; border-color: var(--inv-remplacer); }
 .inv-pill--alerte .inv-pill__nb { color: #B0004A; }
@@ -312,7 +317,7 @@
   border-collapse: separate;
   border-spacing: 0 var(--inv-gap);
   width: 100%;
-  min-width: 1402px;
+  min-width: 1398px;
   font-size: 13.5px;
   /* `fixed` est indispensable : en mise en page auto, une largeur de cellule
      n'est qu'une suggestion et le contenu elargit la table sans limite.
@@ -397,11 +402,14 @@
                font-family: var(--inv-f-titre);
                font-size: 13px; color: var(--inv-ink-doux); }
 .inv-c-photo { width: 56px; }
-.inv-c-nom   { width: 196px; font-weight: 800; }
-.inv-c-marque { width: 104px; }
-.inv-c-description { width: 172px; }
-.inv-c-categorie { width: 140px; }
-.inv-c-emplacement { width: 150px; }
+.inv-c-nom   { width: 180px; font-weight: 800; }
+.inv-c-marque { width: 96px; }
+.inv-c-description { width: 150px; }
+.inv-c-categorie { width: 128px; }
+.inv-c-emplacement { width: 132px; }
+/* Date en ISO : le seul format qui se trie comme du texte et qui ne se lit
+   pas 03/04 ici et 04/03 ailleurs. */
+.inv-c-date { width: 100px; }
 /* Les CHIFFRES restent en lineale. Un 1 et un 7 manuscrits se confondent, et
    c'est dans ces trois colonnes qu'une erreur de lecture coute le plus cher. */
 .inv-c-qteMain { width: 68px; text-align: center; font-weight: 800; }
@@ -415,7 +423,7 @@
 /* Les notes sont manuscrites — c'est la colonne « griffonne dans la marge ».
    17 px et non 13 : une ecriture a la main rend plus petit qu'une lineale a
    taille egale, et cette colonne doit rester lisible d'un coup d'oeil. */
-.inv-c-notes { width: 136px; }
+.inv-c-notes { width: 120px; }
 .inv-table td.inv-c-notes { font-family: var(--inv-f-note); font-size: 17px; }
 /* En edition, retour a une police lisible : on ecrit dans un champ, on ne
    calligraphie pas. */
@@ -603,7 +611,7 @@
     padding: 0 6px 6px;
     -webkit-overflow-scrolling: touch;
   }
-  .inv-table { min-width: 760px; font-size: 13px; }
+  .inv-table { min-width: 868px; font-size: 13px; }
   .inv-table th { position: static; }
   .inv-table tfoot { display: none; }
 
@@ -628,11 +636,15 @@
   .inv-c-description { width: 170px; }
   .inv-c-categorie { width: 130px; }
   .inv-c-emplacement { width: 140px; }
+  .inv-c-date { width: 108px; }
   .inv-c-notes { width: 150px; }
   .inv-c-actions { width: 70px; }
 
   /* Barre de totaux du telephone, collee au bas de l'ecran. `--inv-bas` est
      la place que prend le ruban du shell, mesuree en JS. */
+  .inv-onglets { gap: 4px; padding: 0 6px; }
+  .inv-ong { font-size: 14px; padding: 7px 11px 6px; }
+
   .inv-totmob {
     display: flex;
     gap: 8px;
@@ -728,6 +740,51 @@
   font-size: 18px;
   color: var(--inv-ink);
 }
+
+/* ==========================================================================
+   8b. ONGLETS D'ANNEES
+   --------------------------------------------------------------------------
+   En bas, centres, comme les onglets de feuilles d'un tableur. L'onglet actif
+   se raccroche visuellement a la feuille : son bord haut disparait et il
+   remonte de 2 px, exactement comme une languette de classeur.
+   ========================================================================== */
+.inv-onglets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: -2px;
+  padding: 0 8px;
+}
+.inv-ong {
+  font-family: var(--inv-f-punch);
+  font-size: 15px;
+  letter-spacing: .4px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 8px 15px 7px;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+  background: rgba(255, 255, 255, .12);
+  border: 2px solid var(--inv-trait);
+  border-top: 0;
+  border-radius: 0 0 var(--inv-r) var(--inv-r);
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, .30);
+}
+.inv-ong:hover { background: rgba(255, 255, 255, .22); }
+.inv-ong[aria-selected="true"] {
+  background: var(--ztsh-jaune, #FFFC00);
+  color: #2B2B00;
+  padding-bottom: 9px;
+  box-shadow: 2px 4px 0 rgba(0, 0, 0, .34);
+}
+/* L'onglet « + » ouvre l'annee suivante. Cyan : c'est une action, pas un
+   etat — meme code couleur que les boutons du site. */
+.inv-ong--plus {
+  background: linear-gradient(180deg, #3ADCFA, #00C2E8);
+  color: #03323C;
+}
+.inv-ong--plus:hover { background: linear-gradient(180deg, #6BE8FF, #16CFF5); }
 
 /* ==========================================================================
    9b. CATEGORIES (ajout C) ET CODES QR (ajout D)

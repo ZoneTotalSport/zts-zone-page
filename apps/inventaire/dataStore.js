@@ -8,9 +8,9 @@
  * MODELE DE DONNEES — deux collections plates, owner-only par `uid`, sur le
  * modele de `performances` et `plans` (firestore.rules) :
  *
- *   inventaires/{id}      { uid, nom, univers, categories[], cree, maj }
+ *   inventaires/{id}      { uid, nom, univers, annee, date, categories[], cree, maj }
  *   inventaireItems/{id}  { uid, invId, photos[], nom, marque, description,
- *                           categorie, emplacement, qteMain, qteAcheter,
+ *                           categorie, emplacement, date, qteMain, qteAcheter,
  *                           etat, prix, notes, cree, maj }
  *
  * POURQUOI DEUX COLLECTIONS et pas un tableau d'objets dans le doc
@@ -22,6 +22,18 @@
  * Firestore des le douzieme objet. Un document PAR OBJET tient, et la garde
  * `verifiePoids` refuse l'ajout avant que Firestore ne le fasse — avec un
  * message lisible plutot qu'une erreur de quota.
+ *
+ * UN INVENTAIRE = UN LIEU ET UNE ANNEE (23 aout 2026). Le classeur, c'est le
+ * LIEU — « Gymnase Saint-Jean » ; les feuilles, ce sont les ANNEES, en onglets
+ * au bas de l'ecran, comme dans un tableur. Deux documents qui portent le meme
+ * `nom` sont deux annees du meme lieu.
+ *
+ * Le lien se fait donc par le NOM et non par un identifiant de lieu. C'est le
+ * choix le moins couteux : pas de deuxieme collection, pas de jointure, et
+ * renommer un lieu se fait deja en une operation puisque le renommage
+ * s'applique a toutes ses annees d'un coup (voir renommeInventaire).
+ * Contrepartie assumee : deux lieux ne peuvent pas porter exactement le meme
+ * nom — ils deviendraient un seul classeur.
  *
  * LES CATEGORIES VIVENT DANS LE DOCUMENT D'INVENTAIRE, pas dans une
  * collection a part (23 aout 2026, ajout C). Chaque lieu a les siennes, elles
@@ -71,6 +83,28 @@ const InvData = (() => {
     { id: 'livres',          fr: 'Livres et albums',         en: 'Books' },
     { id: 'autre',           fr: 'Autre',                    en: 'Other' }
   ];
+
+  /**
+   * Annee SCOLAIRE courante, « 2026-2027 ».
+   * Le decoupage tombe au 1er juillet et non au 1er janvier : un inventaire
+   * de gymnase se fait a la rentree ou a la fin des classes, et personne au
+   * Quebec n'appelle « 2026 » l'annee qui commence en septembre 2026.
+   * @param {number} [decalage] 0 = courante, 1 = la suivante
+   */
+  function anneeScolaire(decalage) {
+    const d = new Date();
+    let debut = d.getFullYear();
+    if (d.getMonth() < 6) debut -= 1;          // janvier a juin : annee entamee
+    debut += (decalage || 0);
+    return debut + '-' + (debut + 1);
+  }
+
+  /** L'annee scolaire qui suit « 2026-2027 » -> « 2027-2028 ». */
+  function anneeSuivante(a) {
+    const m = /^(\d{4})-(\d{4})$/.exec(String(a || ''));
+    if (!m) return anneeScolaire(1);
+    return (+m[1] + 1) + '-' + (+m[2] + 1);
+  }
 
   function categoriesDefaut() {
     return CATEGORIES_DEFAUT.map((c) => Object.assign({}, c));
@@ -202,9 +236,13 @@ const InvData = (() => {
     const out = s.docs.map((x) => {
       const d = Object.assign({ id: x.id }, x.data());
       d.categories = normaliseCategories(d.categories);
+      d.date = dateIso(d.date);
+      d.annee = String(d.annee || '').slice(0, 12) || anneeScolaire();
       return d;
     });
-    out.sort((a, b) => (a.nom || '').localeCompare(b.nom || '', 'fr'));
+    // Trie par lieu, puis par annee : c'est l'ordre des onglets.
+    out.sort((a, b) => (a.nom || '').localeCompare(b.nom || '', 'fr') ||
+                       (a.annee || '').localeCompare(b.annee || ''));
     cache.ecrireListe(out);
     return out;
   }
@@ -215,6 +253,11 @@ const InvData = (() => {
       uid: uid(),
       nom: String(nom || '').slice(0, 120),
       univers: univers || 'ep',
+      annee: anneeScolaire(),
+      // Date de l'inventaire : vide a la creation. Tant qu'elle l'est,
+      // l'impression retombe sur la date du jour — mais c'est bien la date
+      // SAISIE qui fait foi des qu'il y en a une.
+      date: '',
       categories: categoriesDefaut(),
       cree: Date.now(),
       maj: Date.now()
@@ -279,7 +322,70 @@ const InvData = (() => {
     return touches.length;
   }
 
+  /**
+   * Ouvre une NOUVELLE ANNEE a partir d'une annee existante : meme lieu, memes
+   * categories, et une copie de tous les objets.
+   *
+   * CE QUI EST REPRIS, ET CE QUI NE L'EST PAS. On recopie les objets, leurs
+   * photos, leurs quantites en main, leur etat et leurs notes : c'est le meme
+   * gymnase, le meme materiel, et repartir d'une feuille vide chaque annee
+   * viderait la fonction de son sens. En revanche `qteAcheter` repart a ZERO —
+   * la liste d'achats de l'an dernier a ete passee, la retrainer d'annee en
+   * annee ferait racheter deux fois. La date de chaque objet est conservee :
+   * c'est sa date d'achat, elle ne change pas parce qu'on tourne la page.
+   *
+   * Copie par lots de 400, plafond d'un batch Firestore etant de 500.
+   * @returns {Promise<{inv:Object, copies:number}>}
+   */
+  async function ouvrirAnnee(invId, annee) {
+    const source = (await listeInventaires()).find((x) => x.id === invId);
+    if (!source) throw new Error('INVENTAIRE_INTROUVABLE');
+    const d = await db();
+    const doc = {
+      uid: uid(),
+      nom: source.nom,
+      univers: source.univers,
+      annee: String(annee || anneeSuivante(source.annee)).slice(0, 12),
+      date: '',
+      categories: normaliseCategories(source.categories),
+      cree: Date.now(),
+      maj: Date.now()
+    };
+    const ref = await d.collection(COL_INV).add(doc);
+    const neuf = Object.assign({ id: ref.id }, doc);
+
+    const s = await d.collection(COL_ITEM)
+      .where('uid', '==', uid()).where('invId', '==', invId).get();
+    const objets = s.docs.map((x) => x.data());
+    const restants = objets.slice();
+    while (restants.length) {
+      const lot = d.batch();
+      restants.splice(0, 400).forEach((o) => {
+        const copie = Object.assign(normalise(o), {
+          uid: uid(), invId: ref.id, qteAcheter: 0, cree: o.cree || Date.now(), maj: Date.now()
+        });
+        lot.set(d.collection(COL_ITEM).doc(), copie);
+      });
+      await lot.commit();
+    }
+    return { inv: neuf, copies: objets.length };
+  }
+
   /* ── Objets ───────────────────────────────────────────────────────────── */
+
+  /**
+   * Ramene n'importe quelle entree a « AAAA-MM-JJ » ou a la chaine vide.
+   * Une date invalide devient vide plutot que d'etre conservee telle quelle :
+   * une valeur a moitie juste dans un champ de date est pire que pas de date.
+   */
+  function dateIso(v) {
+    const t = String(v == null ? '' : v).trim().slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return '';
+    const d = new Date(t + 'T12:00:00');
+    if (isNaN(d.getTime())) return '';
+    // Rejette le 31 fevrier, que la seule expression reguliere laisserait passer.
+    return d.toISOString().slice(0, 10) === t ? t : '';
+  }
 
   function normalise(o) {
     return {
@@ -293,6 +399,11 @@ const InvData = (() => {
       // categorie a ete supprimee ou que l'IA n'a pas su ranger.
       categorie:   String(o.categorie || '').slice(0, 60),
       emplacement: String(o.emplacement || ''),
+      // Date en ISO court, ou chaine vide. Le format ISO n'est pas un detail :
+      // c'est le seul qui se trie comme du texte, qui alimente <input
+      // type="date"> sans conversion, et qui ne se lit pas 03/04 a Montreal et
+      // 04/03 ailleurs. L'affichage, lui, se localise a la lecture.
+      date:        dateIso(o.date),
       qteMain:     Number.isFinite(+o.qteMain) ? Math.max(0, Math.round(+o.qteMain)) : 0,
       qteAcheter:  Number.isFinite(+o.qteAcheter) ? Math.max(0, Math.round(+o.qteAcheter)) : 0,
       etat:        ['neuf', 'bon', 'ok', 'remplacer'].indexOf(o.etat) >= 0 ? o.etat : 'bon',
@@ -409,9 +520,10 @@ const InvData = (() => {
     MAX_PHOTOS, MAX_DOC,
     listeInventaires, creerInventaire, majInventaire, supprimerInventaire,
     categoriesDefaut, nouvelIdCategorie, normaliseCategories,
+    anneeScolaire, anneeSuivante, ouvrirAnnee,
     majCategories, reassignerCategorie,
     listeItems, creerItem, majItem, supprimerItem,
-    normalise, verifiePoids, poids,
+    normalise, verifiePoids, poids, dateIso,
     vision
   };
 })();

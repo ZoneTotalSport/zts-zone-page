@@ -89,6 +89,13 @@
                l'univers appartient a l'INVENTAIRE. C'est le moins frequent des
                quatre filtres, et le sortir rend a la barre les 111 px qui lui
                manquaient pour tenir sur une rangee. -->
+          <!-- Date de l'inventaire : « inventaire fait le … ». Elle vit ici
+               parce qu'on la saisit une fois par comptage, pas a chaque
+               geste — et parce que la barre d'outils est pleine. C'est elle
+               qui s'imprime en tete de feuille. -->
+          <label class="inv-menu__lbl" for="invDateInv" id="invDateLbl"></label>
+          <input type="date" class="inv-o inv-menu__sel" id="invDateInv">
+          <hr class="inv-menu__tr">
           <label class="inv-menu__lbl" for="invFUniv" id="invFUnivLbl"></label>
           <select class="inv-o inv-menu__sel" id="invFUniv"></select>
           <hr class="inv-menu__tr">
@@ -141,6 +148,11 @@
         <tfoot id="invTfoot"></tfoot>
       </table>
     </div>
+    <!-- ══ ONGLETS D'ANNEES ══════════════════════════════════════════════
+         En bas et centres, comme les onglets de feuilles d'un tableur. Le
+         classeur, c'est le LIEU ; chaque onglet, une annee scolaire. -->
+    <div class="inv-onglets inv-noprint" id="invOnglets" role="tablist"></div>
+
     <!-- Rangee de totaux du telephone : sur petit ecran la feuille n'a pas de
          defilement vertical propre, donc <tfoot> ne peut pas se figer. Cette
          barre-la le peut, parce qu'elle est dans le flux de la page. -->

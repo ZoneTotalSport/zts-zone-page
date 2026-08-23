@@ -38,6 +38,7 @@
     { c: 'description', tri: true,  ed: 'txt' },
     { c: 'categorie',   tri: true,  ed: 'cat' },
     { c: 'emplacement', tri: true,  ed: 'txt' },
+    { c: 'date',        tri: true,  ed: 'date' },
     { c: 'qteMain',     tri: true,  ed: 'nb' },
     { c: 'qteAcheter',  tri: true,  ed: 'nb' },
     { c: 'etat',        tri: true,  ed: 'etat' },
@@ -65,10 +66,21 @@
         // Apostrophe DROITE, pas courbe : ce libelle est rendu en
         // ZoneTotalSport, qui n'a pas le U+2019.
         photo: '', nom: "Nom de l'objet", marque: 'Marque', description: 'Description',
-        categorie: 'Catégorie', emplacement: 'Emplacement', qteMain: 'Qté',
+        categorie: 'Catégorie', emplacement: 'Emplacement', date: 'Date',
+        qteMain: 'Qté',
         qteAcheter: 'Achat', etat: 'État', prix: 'Prix', notes: 'Notes', actions: ''
       },
-      colLong: { photo: 'Photo', qteMain: 'Quantité en main', qteAcheter: 'Quantité à acheter', prix: 'Prix unitaire ($)' },
+      colLong: { photo: 'Photo', date: 'Date d’achat ou de dernière vérification',
+                 qteMain: 'Quantité en main', qteAcheter: 'Quantité à acheter',
+                 prix: 'Prix unitaire ($)' },
+      dateInv: 'Inventaire fait le', dateInvVide: 'Aucune date saisie',
+      // Onglets d'annees
+      ongPlus: '+ Année', ongPlusTitre: 'Ouvrir l’année suivante',
+      ongConfirme: (a, n) => 'Ouvrir l’année ' + a + ' en reprenant les ' + n +
+        ' objet' + (n > 1 ? 's' : '') + ' de cette feuille ?\n\nLes quantités en main, les photos, ' +
+        'l’état et les notes sont repris. Les quantités À ACHETER repartent à zéro.',
+      ongFaite: (a, n) => '✅ Année ' + a + ' ouverte — ' + n + ' objet(s) repris.',
+      ongEnCours: '⏳ Ouverture de la nouvelle année…',
       nonClasse: '— Non classé —',
       // Feuille (refonte du 23 août)
       menu: 'Autres actions', ajoutPhoto: '📷 Ajouter par photo',
@@ -162,10 +174,20 @@
       col: {
         num: '#',
         photo: '', nom: 'Item name', marque: 'Brand', description: 'Description',
-        categorie: 'Category', emplacement: 'Location', qteMain: 'Qty',
+        categorie: 'Category', emplacement: 'Location', date: 'Date',
+        qteMain: 'Qty',
         qteAcheter: 'Buy', etat: 'Condition', prix: 'Price', notes: 'Notes', actions: ''
       },
-      colLong: { photo: 'Photo', qteMain: 'Quantity on hand', qteAcheter: 'Quantity to buy', prix: 'Unit price ($)' },
+      colLong: { photo: 'Photo', date: 'Purchase or last-check date',
+                 qteMain: 'Quantity on hand', qteAcheter: 'Quantity to buy',
+                 prix: 'Unit price ($)' },
+      dateInv: 'Inventory taken on', dateInvVide: 'No date entered',
+      ongPlus: '+ Year', ongPlusTitre: 'Open the next year',
+      ongConfirme: (a, n) => 'Open year ' + a + ' carrying over the ' + n +
+        ' item' + (n > 1 ? 's' : '') + ' of this sheet?\n\nQuantities on hand, photos, ' +
+        'condition and notes are carried over. TO BUY quantities reset to zero.',
+      ongFaite: (a, n) => '✅ Year ' + a + ' opened — ' + n + ' item(s) carried over.',
+      ongEnCours: '⏳ Opening the new year…',
       nonClasse: '— Uncategorized —',
       menu: 'More actions', ajoutPhoto: '📷 Add by photo',
       tousLieux: 'Location', chercher2: '🔍 Search…',
@@ -433,6 +455,9 @@
     $('invSupprInv').textContent = l.supprInv;
     $('invReset').textContent = l.reset;
     $('invFUnivLbl').textContent = l.tousUniv;
+    $('invDateLbl').textContent = l.dateInv;
+    const ivd = invCourant();
+    $('invDateInv').value = (ivd && ivd.date) || '';
     // Modales — inchangees
     $('invCatsTitre').textContent = l.catsTitre;
     $('invCatsNote').textContent = l.catsNote;
@@ -478,14 +503,40 @@
     $('invFLoc').value = S.f.loc;
   }
 
+  /** Les annees d'un lieu, de la plus ancienne a la plus recente. */
+  function anneesDe(nom) {
+    return S.inventaires.filter((x) => x.nom === nom)
+      .sort((a, b) => (a.annee || '').localeCompare(b.annee || ''));
+  }
+
+  /** Un inventaire par LIEU : celui de l'annee la plus recente. */
+  function lieux() {
+    const vus = new Map();
+    S.inventaires.forEach((iv) => {
+      const p = vus.get(iv.nom);
+      if (!p || (iv.annee || '') > (p.annee || '')) vus.set(iv.nom, iv);
+    });
+    return Array.from(vus.values())
+      .sort((a, b) => (a.nom || '').localeCompare(b.nom || '', 'fr'));
+  }
+
   function peintInventaires() {
     const l = L();
-    $('invSel').innerHTML = S.inventaires.map((iv) =>
-      '<option value="' + esc(iv.id) + '"' + (iv.id === S.invId ? ' selected' : '') + '>' +
+    // Le selecteur du haut liste les LIEUX, pas les annees : le classeur, pas
+    // les feuilles. Les annees sont en onglets au bas de l'ecran.
+    const courant = invCourant();
+    $('invSel').innerHTML = lieux().map((iv) =>
+      '<option value="' + esc(iv.id) + '"' +
+      (courant && iv.nom === courant.nom ? ' selected' : '') + '>' +
       esc(iv.nom) + ' — ' + esc(l.univ[iv.univers] || iv.univers) + '</option>').join('');
+    peintOnglets();
     const iv = invCourant();
     $('invPrintTitre').textContent = iv ? iv.nom + ' — ' + (l.univ[iv.univers] || '') : '';
-    $('invPrintDate').textContent = new Date().toLocaleDateString(
+    // La date de l'inventaire l'emporte sur celle du jour : une feuille
+    // imprimee trois jours apres le comptage doit porter la date du COMPTAGE.
+    const iso = (iv && iv.date) || aujourdhui();
+    const jour = new Date(iso + 'T12:00:00');
+    $('invPrintDate').textContent = L().dateInv + ' ' + jour.toLocaleDateString(
       lang() === 'en' ? 'en-CA' : 'fr-CA', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
@@ -494,6 +545,42 @@
   // univers revient donc a masquer les objets quand l'inventaire courant n'est
   // pas de cet univers — le tableau se vide d'un coup, ce qui est le
   // comportement attendu et non un bug.
+  function peintOnglets() {
+    const l = L(), iv = invCourant();
+    const hote = $('invOnglets');
+    if (!iv) { hote.innerHTML = ''; return; }
+    const annees = anneesDe(iv.nom);
+    hote.innerHTML = annees.map((a) =>
+      '<button class="inv-ong" type="button" role="tab" data-inv="' + esc(a.id) + '" ' +
+      'aria-selected="' + (a.id === iv.id ? 'true' : 'false') + '">' + esc(a.annee) + '</button>'
+    ).join('') +
+      '<button class="inv-ong inv-ong--plus" type="button" id="invOngPlus" ' +
+      'title="' + esc(l.ongPlusTitre) + '">' + esc(l.ongPlus) + '</button>';
+  }
+
+  /**
+   * Ouvre l'annee suivante en reprenant les objets. On demande confirmation :
+   * la copie peut porter sur des centaines d'objets et leurs photos, et c'est
+   * la seule operation de l'app qui ecrit autant d'un coup.
+   */
+  async function ouvreAnneeSuivante() {
+    if (bloqueSiHorsLigne()) return;
+    const l = L(), iv = invCourant();
+    if (!iv) return;
+    const annees = anneesDe(iv.nom);
+    const derniere = annees[annees.length - 1];
+    const cible = InvData.anneeSuivante(derniere.annee);
+    if (!confirm(l.ongConfirme(cible, S.items.length))) return;
+    msg(l.ongEnCours);
+    try {
+      const r = await InvData.ouvrirAnnee(derniere.id, cible);
+      S.inventaires.push(r.inv);
+      InvData.cache.ecrireListe(S.inventaires);
+      await changeInventaire(r.inv.id);
+      msg(l.ongFaite(cible, r.copies));
+    } catch (e) { msg(l.mErrSauve(e.message), true); }
+  }
+
   function filtres() {
     const q = S.f.q.trim().toLowerCase();
     const iv = invCourant();
@@ -524,6 +611,14 @@
   // — personne ne lit la valeur d'un gymnase a la cenne pres — mais le prix
   // d'un objet, si : « 12,75 $ » affiche « 13 $ » donne l'impression que la
   // saisie a ete refusee.
+  /** Date du jour en ISO, dans le fuseau LOCAL — toISOString() donnerait la
+      veille pour tout ce qui se fait apres 20 h a Montreal. */
+  function aujourdhui() {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+
   function devise() {
     return new Intl.NumberFormat(lang() === 'en' ? 'en-CA' : 'fr-CA',
       { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
@@ -628,6 +723,11 @@
         (o.categorie ? esc(t) : '<span class="inv-vide-txt">' + esc(t) + '</span>') + '</td>';
     }
 
+    if (k.c === 'date') {
+      return '<td class="' + cls + edt + '"' + attr + '>' +
+        (o.date ? esc(o.date) : '<span class="inv-vide-txt">' + esc(l.videCell) + '</span>') + '</td>';
+    }
+
     if (k.c === 'prix') {
       return '<td class="' + cls + edt + '"' + attr + '>' +
         (o.prix == null ? '<span class="inv-vide-txt">' + esc(l.videCell) + '</span>'
@@ -717,7 +817,11 @@
     // Oublier `haut` dans ce calcul la faisait finir 49 px SOUS le ruban du
     // shell, qui recouvrait alors la rangee de totaux — celle qui doit
     // justement rester visible.
-    const dispo = Math.max(300, Math.round(window.innerHeight - hautPx - bas - 8));
+    // Les onglets d'annees vivent SOUS la feuille : leur hauteur se retire
+    // aussi, sinon la derniere rangee du tableau passe dessous.
+    const ong = $('invOnglets');
+    const hOng = ong && ong.children.length ? Math.round(ong.getBoundingClientRect().height) + 6 : 0;
+    const dispo = Math.max(300, Math.round(window.innerHeight - hautPx - bas - hOng - 8));
     document.documentElement.style.setProperty('--inv-max', dispo + 'px');
   }
 
@@ -798,6 +902,8 @@
       // taper un point sur un clavier francais.
       const t = String(v).replace(',', '.').trim();
       o.prix = t === '' ? null : Math.max(0, +t || 0);
+    } else if (champ === 'date') {
+      o.date = InvData.dateIso(v);
     } else {
       o[champ] = String(v);
     }
@@ -836,6 +942,13 @@
       ctrl = document.createElement('select');
       ctrl.innerHTML = optionsHtml(ETATS, L().etat, o.etat);
       ctrl.value = o.etat;
+    } else if (type === 'date') {
+      // Le selecteur natif du navigateur : sur iPhone c'est la roulette de
+      // dates, sur ordinateur le petit calendrier. Rien a ecrire, et le
+      // format rendu est toujours l'ISO attendu par dataStore.
+      ctrl = document.createElement('input');
+      ctrl.type = 'date';
+      ctrl.value = o.date || '';
     } else {
       ctrl = document.createElement('input');
       ctrl.type = 'text';
@@ -950,7 +1063,8 @@
       marque: (vu && vu.marque) || '',
       description: (vu && vu.description) || '',
       categorie: connue ? vu.categorie : '',
-      emplacement: '', qteMain: 1, qteAcheter: 0, etat: 'bon', prix: null, notes: ''
+      emplacement: '', date: aujourdhui(), qteMain: 1, qteAcheter: 0,
+      etat: 'bon', prix: null, notes: ''
     };
     try {
       const cree = await InvData.creerItem(S.invId, brut);
@@ -1531,7 +1645,11 @@
     const l = L();
     const cols = COLONNES.filter((k) => k.c !== 'photo' && k.c !== 'actions');
     const entete = cols.map((k) => l.col[k.c]).concat([l.photos]);
-    const lignes = [entete].concat(filtres().map((o) =>
+    const iv = invCourant();
+    // Une ligne d'en-tete avant le tableau : sans elle, un CSV ouvert six mois
+    // plus tard ne dit plus de quel lieu ni de quelle date il parle.
+    const chapeau = [[(iv ? iv.nom : ''), l.dateInv, (iv && iv.date) || aujourdhui()], []];
+    const lignes = chapeau.concat([entete]).concat(filtres().map((o) =>
       cols.map((k) => {
         if (k.c === 'categorie') return libCatId(o.categorie);
         if (k.c === 'etat') return l.etat[o.etat] || o.etat;
@@ -1616,8 +1734,14 @@
     const univers = demandeUnivers(iv.univers);
     if (univers == null) return;
     try {
-      await InvData.majInventaire(iv.id, { nom: nom.trim(), univers: univers });
-      iv.nom = nom.trim(); iv.univers = univers;
+      // Le nom relie les annees entre elles : le changer sur une seule
+      // detacherait cette annee de son classeur. On renomme donc TOUTES les
+      // annees du lieu d'un coup.
+      const soeurs = anneesDe(iv.nom);
+      for (const s of soeurs) {
+        await InvData.majInventaire(s.id, { nom: nom.trim(), univers: univers });
+        s.nom = nom.trim(); s.univers = univers;
+      }
       S.inventaires.sort((a, b) => (a.nom || '').localeCompare(b.nom || '', 'fr'));
       InvData.cache.ecrireListe(S.inventaires);
       peintInventaires();
@@ -1755,6 +1879,13 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ouvreMenu(false); });
 
     $('invSel').addEventListener('change', (e) => changeInventaire(e.target.value));
+    $('invOnglets').addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      if (b.id === 'invOngPlus') { ouvreAnneeSuivante(); return; }
+      const id = b.getAttribute('data-inv');
+      if (id && id !== S.invId) changeInventaire(id);
+    });
     $('invNouveau').addEventListener('click', nouvelInventaire);
     $('invRenommer').addEventListener('click', renommeInventaire);
     $('invSupprInv').addEventListener('click', supprimeInventaire);
@@ -1784,6 +1915,19 @@
     $('invFUniv').addEventListener('change', (e) => { S.f.univ = e.target.value; peintTableau(); });
     $('invFEtat').addEventListener('change', (e) => { S.f.etat = e.target.value; peintTableau(); });
     $('invFLoc').addEventListener('change', (e) => { S.f.loc = e.target.value; peintTableau(); });
+    $('invDateInv').addEventListener('change', async (e) => {
+      if (bloqueSiHorsLigne()) return;
+      const iv = invCourant();
+      if (!iv) return;
+      const d = InvData.dateIso(e.target.value);
+      try {
+        await InvData.majInventaire(iv.id, { date: d });
+        iv.date = d;
+        InvData.cache.ecrireListe(S.inventaires);
+        peintInventaires();
+        msg(L().mSauve);
+      } catch (err) { msg(L().mErrSauve(err.message), true); }
+    });
     $('invReset').addEventListener('click', () => {
       S.f = { q: '', cat: '*', univ: '*', etat: '*', loc: '*' };
       $('invSearch').value = '';
