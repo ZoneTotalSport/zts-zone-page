@@ -76,6 +76,16 @@ const attendus = [
   ["hypothèses, pas d'affirmations", /TOUT en hypothèses/],
   ["fin en 3 questions", /se termine TOUJOURS par les 3 questions/],
   ["français québécois, tutoiement", /français québécois, tutoiement/],
+  ["filet violences subies", /VIOLENCES SUBIES/],
+  ["ne jamais décoder une violence", /Tu ne décodes JAMAIS une violence/],
+  ["SOS violence conjugale", /1 800 363-9010/],
+  ["ligne agressions sexuelles", /1 888 933-9007/],
+  ["filet idées suicidaires", /IDÉES SUICIDAIRES/],
+  ["988 en premier", /988/],
+  ["50 questions annoncées", /12 axes, 50 questions/],
+  ["benefices-4 traitée", /quelle serait la vraie raison/],
+  ["benefices-5 traitée", /de quelle autre façon pourrais-tu l'obtenir/],
+  ["benefices-5 n'ouvre pas la porte aux conseils", /AUCUN conseil alimentaire ou sportif/],
 ];
 for (const [nom, re] of attendus) verifie(nom, re.test(sysPoids));
 
