@@ -67,78 +67,84 @@
     <a href="../../service-de-garde.html">← Service de garde</a>
   </nav>
 
-  <main class="zts-container inv-wrap">
+  <main class="inv-wrap" id="invWrap">
 
-    <!-- ── Hero ──────────────────────────────────────────────────────── -->
-    <section class="inv-hero inv-noprint">
-      <span class="ztsh-etiquette" id="invPill">Inventaire</span>
-      <h1 class="ztsh-titre inv-h1" id="invTitre">INVENTAIRE DU MATÉRIEL</h1>
-      <p class="inv-intro" id="invIntro"></p>
-    </section>
-
-    <!-- ── Barre d'inventaires ───────────────────────────────────────── -->
-    <section class="inv-barre inv-noprint">
-      <label class="inv-lbl" for="invSel" id="invSelLbl">Inventaire</label>
-      <select class="inv-select inv-select--gros" id="invSel"></select>
-      <button class="ztsh-btn ztsh-btn--sm" id="invNouveau" type="button"></button>
-      <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invRenommer" type="button"></button>
-      <button class="ztsh-btn ztsh-btn--sm inv-btn--danger" id="invSupprInv" type="button"></button>
-    </section>
-
-    <!-- ── Compteurs ─────────────────────────────────────────────────── -->
-    <section class="inv-stats" id="invStats"></section>
-
-    <!-- ── Capture ───────────────────────────────────────────────────── -->
-    <section class="inv-capture inv-noprint">
-      <h2 class="inv-sectitre" id="invCapTitre"></h2>
-      <p class="inv-capnote" id="invCapNote"></p>
-      <div class="inv-capbtns">
-        <button class="ztsh-btn" id="invPrendre" type="button"></button>
-        <button class="ztsh-btn ztsh-btn--jaune" id="invTeleverser" type="button"></button>
-        <button class="ztsh-btn ztsh-btn--sm" id="invVide" type="button"></button>
+    <!-- ══ BARRE D'OUTILS — une seule rangee sur ordinateur ═══════════════
+         Tous les identifiants d'avant la refonte sont conserves : app.js
+         continue de les cabler sans un seul changement de selecteur. Ce qui
+         change ici, c'est la mise en page, pas le contrat. -->
+    <div class="inv-outils inv-noprint">
+      <select class="inv-o inv-o--inv" id="invSel" aria-label="Inventaire"></select>
+      <input type="search" class="inv-o inv-o--q" id="invSearch">
+      <select class="inv-o inv-o--f" id="invFCat"></select>
+      <select class="inv-o inv-o--f" id="invFEtat"></select>
+      <select class="inv-o inv-o--f" id="invFLoc"></select>
+      <button class="inv-bt inv-bt--photo" id="invPrendre" type="button"></button>
+      <div class="inv-menu">
+        <button class="inv-bt inv-bt--j inv-bt--pt" id="invMenu" type="button"
+                aria-haspopup="true" aria-expanded="false">⋯</button>
+        <div class="inv-menu__liste" id="invMenuListe" hidden role="menu">
+          <!-- Le filtre par univers vit ici et non dans la barre : il ne peut
+               que vider la feuille entiere ou la laisser intacte, puisque
+               l'univers appartient a l'INVENTAIRE. C'est le moins frequent des
+               quatre filtres, et le sortir rend a la barre les 111 px qui lui
+               manquaient pour tenir sur une rangee. -->
+          <label class="inv-menu__lbl" for="invFUniv" id="invFUnivLbl"></label>
+          <select class="inv-o inv-menu__sel" id="invFUniv"></select>
+          <hr class="inv-menu__tr">
+          <button class="inv-menu__i" id="invTeleverser" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invVide" type="button" role="menuitem"></button>
+          <hr class="inv-menu__tr">
+          <button class="inv-menu__i" id="invGererCats" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invAchats" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invPlanche" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invCsv" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invImprimer" type="button" role="menuitem"></button>
+          <hr class="inv-menu__tr">
+          <button class="inv-menu__i" id="invNouveau" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invRenommer" type="button" role="menuitem"></button>
+          <button class="inv-menu__i inv-menu__i--dgr" id="invSupprInv" type="button" role="menuitem"></button>
+          <hr class="inv-menu__tr">
+          <button class="inv-menu__i" id="invReset" type="button" role="menuitem"></button>
+        </div>
       </div>
-      <!-- capture="environment" ouvre directement la camera arriere sur
-           iPhone/tablette. Le second champ, SANS capture, laisse choisir dans
-           la photothèque ou un fichier sur ordinateur : les deux chemins
-           demandes par le cahier des charges. -->
-      <input type="file" id="invFileCam" accept="image/*" capture="environment" hidden>
-      <input type="file" id="invFileLib" accept="image/*" hidden>
-      <input type="file" id="invFileAjout" accept="image/*" hidden>
-      <input type="file" id="invFileAjoutCam" accept="image/*" capture="environment" hidden>
-      <p class="inv-msg" id="invMsg" role="status" aria-live="polite"></p>
-    </section>
+      <div class="inv-pills" id="invStats"></div>
+    </div>
+
+    <!-- Champs de fichier : hors flux, jamais visibles. -->
+    <input type="file" id="invFileCam" accept="image/*" capture="environment" hidden>
+    <input type="file" id="invFileLib" accept="image/*" hidden>
+    <input type="file" id="invFileAjout" accept="image/*" hidden>
+    <input type="file" id="invFileAjoutCam" accept="image/*" capture="environment" hidden>
+
+    <p class="inv-msg inv-noprint" id="invMsg" role="status" aria-live="polite"></p>
 
     <!-- ── Banniere d'arrivee par code QR ─────────────────────────────── -->
     <div class="inv-cible inv-noprint" id="invCible" hidden>
       <span id="invCibleTxt"></span>
-      <button class="ztsh-btn ztsh-btn--sm" id="invCibleTout" type="button"></button>
+      <button class="inv-bt inv-bt--pt" id="invCibleTout" type="button"></button>
     </div>
 
-    <!-- ── Filtres ───────────────────────────────────────────────────── -->
-    <section class="inv-filtres inv-noprint">
-      <input type="search" class="inv-search" id="invSearch">
-      <select class="inv-select" id="invFCat"></select>
-      <select class="inv-select" id="invFUniv"></select>
-      <select class="inv-select" id="invFEtat"></select>
-      <button class="ztsh-btn ztsh-btn--sm" id="invReset" type="button"></button>
-      <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invGererCats" type="button"></button>
-    </section>
-
-    <div class="inv-actions inv-noprint">
-      <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invAchats" type="button"></button>
-      <button class="ztsh-btn ztsh-btn--sm" id="invCsv" type="button"></button>
-      <button class="ztsh-btn ztsh-btn--sm" id="invImprimer" type="button"></button>
-      <button class="ztsh-btn ztsh-btn--sm" id="invPlanche" type="button"></button>
+    <!-- ══ EN-TETE D'IMPRESSION ═══════════════════════════════════════════
+         Invisible a l'ecran, il ouvre la feuille sur le papier : nom de
+         l'inventaire et date, comme une vraie feuille d'inventaire. -->
+    <div class="inv-printtete">
+      <h1 id="invPrintTitre"></h1>
+      <span id="invPrintDate"></span>
     </div>
 
-    <!-- ── Tableau ───────────────────────────────────────────────────── -->
-    <h2 class="inv-printtitre" id="invPrintTitre"></h2>
-    <div class="inv-tablewrap">
+    <!-- ══ LA FEUILLE ════════════════════════════════════════════════════ -->
+    <div class="inv-feuille" id="invFeuille">
       <table class="inv-table" id="invTable">
         <thead id="invThead"></thead>
         <tbody id="invTbody"></tbody>
+        <tfoot id="invTfoot"></tfoot>
       </table>
     </div>
+    <!-- Rangee de totaux du telephone : sur petit ecran la feuille n'a pas de
+         defilement vertical propre, donc <tfoot> ne peut pas se figer. Cette
+         barre-la le peut, parce qu'elle est dans le flux de la page. -->
+    <div class="inv-totmob inv-noprint" id="invTotMob"></div>
     <p class="inv-empty" id="invEmpty" hidden></p>
 
   </main>

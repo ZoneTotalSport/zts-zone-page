@@ -26,20 +26,23 @@
   const UNIVERS = ['ep', 'camp', 'sdg'];
   const ETATS   = ['neuf', 'bon', 'ok', 'remplacer'];
 
-  // Colonnes du tableau, dans l'ordre exige par le cahier des charges.
-  // tri:false = colonne non triable (photo, actions).
+  // Colonnes de la feuille. `ed` dit COMMENT la cellule s'edite :
+  //   'txt'  champ texte      'nb' entier      'prix' decimal
+  //   'cat'  menu de categorie 'etat' menu d'etat
+  // Une colonne sans `ed` ne s'edite pas — numero de rangee, photo, actions.
   const COLONNES = [
+    { c: 'num',         tri: false },
     { c: 'photo',       tri: false },
-    { c: 'nom',         tri: true, type: 'txt' },
-    { c: 'marque',      tri: true, type: 'txt' },
-    { c: 'description', tri: true, type: 'zone' },
-    { c: 'categorie',   tri: true, type: 'cat' },
-    { c: 'emplacement', tri: true, type: 'txt' },
-    { c: 'qteMain',     tri: true, type: 'nb' },
-    { c: 'qteAcheter',  tri: true, type: 'nb' },
-    { c: 'etat',        tri: true, type: 'etat' },
-    { c: 'prix',        tri: true, type: 'prix' },
-    { c: 'notes',       tri: true, type: 'zone' },
+    { c: 'nom',         tri: true,  ed: 'txt' },
+    { c: 'marque',      tri: true,  ed: 'txt' },
+    { c: 'description', tri: true,  ed: 'txt' },
+    { c: 'categorie',   tri: true,  ed: 'cat' },
+    { c: 'emplacement', tri: true,  ed: 'txt' },
+    { c: 'qteMain',     tri: true,  ed: 'nb' },
+    { c: 'qteAcheter',  tri: true,  ed: 'nb' },
+    { c: 'etat',        tri: true,  ed: 'etat' },
+    { c: 'prix',        tri: true,  ed: 'prix' },
+    { c: 'notes',       tri: true,  ed: 'txt' },
     { c: 'actions',     tri: false }
   ];
 
@@ -58,11 +61,22 @@
       reset: '↺ Réinitialiser',
       achats: '🛒 Liste d’achats', csv: '⬇️ Export CSV', imprimer: '🖨️ Imprimer',
       col: {
-        photo: 'Photo', nom: 'Nom de l’objet', marque: 'Marque', description: 'Description',
-        categorie: 'Catégorie', emplacement: 'Emplacement', qteMain: 'Qté en main',
-        qteAcheter: 'Qté à acheter', etat: 'État', prix: 'Prix ($)', notes: 'Notes', actions: ''
+        num: '#',
+        // Apostrophe DROITE, pas courbe : ce libelle est rendu en
+        // ZoneTotalSport, qui n'a pas le U+2019.
+        photo: '', nom: "Nom de l'objet", marque: 'Marque', description: 'Description',
+        categorie: 'Catégorie', emplacement: 'Emplacement', qteMain: 'Qté',
+        qteAcheter: 'Achat', etat: 'État', prix: 'Prix', notes: 'Notes', actions: ''
       },
+      colLong: { photo: 'Photo', qteMain: 'Quantité en main', qteAcheter: 'Quantité à acheter', prix: 'Prix unitaire ($)' },
       nonClasse: '— Non classé —',
+      // Feuille (refonte du 23 août)
+      menu: 'Autres actions', ajoutPhoto: '📷 Ajouter par photo',
+      tousLieux: 'Emplacement', chercher2: '🔍 Rechercher…',
+      nouvelleLigne: '+ Clique ici pour ajouter un objet…',
+      totObjets: (n) => n + ' objet' + (n > 1 ? 's' : ''),
+      totQte: 'Σ qté', totAch: 'à acheter', totVal: 'valeur',
+      videCell: '—',
       // Catégories (ajout C)
       gererCats: '🏷️ Gérer les catégories',
       catsTitre: '🏷️ Catégories de cet inventaire',
@@ -100,7 +114,7 @@
       cibleInvIntrouvable: '⚠️ Cet inventaire n’existe plus ou ne t’appartient pas.',
       univ: { ep: 'Éducation physique', camp: 'Camp de jour', sdg: 'Service de garde' },
       etat: { neuf: 'Neuf', bon: 'Bon état', ok: 'OK', remplacer: 'À remplacer' },
-      stat: { objets: 'objets', valeur: 'valeur du parc', racheter: 'à racheter', photos: 'photos' },
+      stat: { objets: 'objets', valeur: 'valeur', racheter: 'à racheter', photos: 'photos' },
       vide: 'Aucun objet ne correspond. Prends une photo pour commencer.',
       videInv: 'Cet inventaire est vide. Prends une photo pour ajouter ton premier objet.',
       // Messages
@@ -146,11 +160,19 @@
       reset: '↺ Reset',
       achats: '🛒 Shopping list', csv: '⬇️ Export CSV', imprimer: '🖨️ Print',
       col: {
-        photo: 'Photo', nom: 'Item name', marque: 'Brand', description: 'Description',
-        categorie: 'Category', emplacement: 'Location', qteMain: 'Qty on hand',
-        qteAcheter: 'Qty to buy', etat: 'Condition', prix: 'Price ($)', notes: 'Notes', actions: ''
+        num: '#',
+        photo: '', nom: 'Item name', marque: 'Brand', description: 'Description',
+        categorie: 'Category', emplacement: 'Location', qteMain: 'Qty',
+        qteAcheter: 'Buy', etat: 'Condition', prix: 'Price', notes: 'Notes', actions: ''
       },
+      colLong: { photo: 'Photo', qteMain: 'Quantity on hand', qteAcheter: 'Quantity to buy', prix: 'Unit price ($)' },
       nonClasse: '— Uncategorized —',
+      menu: 'More actions', ajoutPhoto: '📷 Add by photo',
+      tousLieux: 'Location', chercher2: '🔍 Search…',
+      nouvelleLigne: '+ Click here to add an item…',
+      totObjets: (n) => n + ' item' + (n > 1 ? 's' : ''),
+      totQte: 'Σ qty', totAch: 'to buy', totVal: 'value',
+      videCell: '—',
       gererCats: '🏷️ Manage categories',
       catsTitre: '🏷️ Categories in this inventory',
       catsNote: 'Rename, add, reorder. Items follow automatically: they are linked by id, not by label. If English is empty, the French label is shown in both languages.',
@@ -185,7 +207,7 @@
       cibleInvIntrouvable: '⚠️ This inventory no longer exists, or is not yours.',
       univ: { ep: 'Physical education', camp: 'Day camp', sdg: 'After-school care' },
       etat: { neuf: 'New', bon: 'Good condition', ok: 'OK', remplacer: 'To replace' },
-      stat: { objets: 'items', valeur: 'inventory value', racheter: 'to buy', photos: 'photos' },
+      stat: { objets: 'items', valeur: 'value', racheter: 'to buy', photos: 'photos' },
       vide: 'No item matches. Take a photo to get started.',
       videInv: 'This inventory is empty. Take a photo to add your first item.',
       mAnalyse: '🔎 AI is reading the photo…',
@@ -228,7 +250,8 @@
     invId: null,
     items: [],
     tri: { col: 'nom', sens: 1 },
-    f: { q: '', cat: '*', univ: '*', etat: '*' },
+    f: { q: '', cat: '*', univ: '*', etat: '*', loc: '*' },
+    edite: null,              // { id, champ } de la cellule ouverte
     horsLigne: false,
     photo: { itemId: null, index: 0 },
     // Ciblage par code QR : `item` fixe un objet unique, `loc` un
@@ -393,26 +416,24 @@
 
   function peintTextes() {
     const l = L();
-    $('invPill').textContent = l.pill;
-    $('invTitre').textContent = l.titre;
-    $('invIntro').textContent = l.intro;
-    $('invSelLbl').textContent = l.selLbl;
+    $('invSearch').placeholder = l.chercher2;
+    $('invPrendre').textContent = l.ajoutPhoto;
+    $('invMenu').setAttribute('aria-label', l.menu);
+    $('invCibleTout').textContent = l.cibleTout;
+    // Menu ⋯ — les memes actions qu'avant, rangees au lieu d'etaler l'ecran.
+    $('invTeleverser').textContent = l.televerser;
+    $('invVide').textContent = l.ligneVide;
+    $('invGererCats').textContent = l.gererCats;
+    $('invAchats').textContent = l.achats;
+    $('invPlanche').textContent = l.planche;
+    $('invCsv').textContent = l.csv;
+    $('invImprimer').textContent = l.imprimer;
     $('invNouveau').textContent = l.nouveau;
     $('invRenommer').textContent = l.renommer;
     $('invSupprInv').textContent = l.supprInv;
-    $('invCapTitre').textContent = l.capTitre;
-    $('invCapNote').textContent = l.capNote;
-    $('invPrendre').textContent = l.prendre;
-    $('invTeleverser').textContent = l.televerser;
-    $('invVide').textContent = l.ligneVide;
-    $('invSearch').placeholder = l.chercher;
     $('invReset').textContent = l.reset;
-    $('invAchats').textContent = l.achats;
-    $('invCsv').textContent = l.csv;
-    $('invImprimer').textContent = l.imprimer;
-    $('invGererCats').textContent = l.gererCats;
-    $('invPlanche').textContent = l.planche;
-    $('invCibleTout').textContent = l.cibleTout;
+    $('invFUnivLbl').textContent = l.tousUniv;
+    // Modales — inchangees
     $('invCatsTitre').textContent = l.catsTitre;
     $('invCatsNote').textContent = l.catsNote;
     $('invCatsLblFr').textContent = l.catsFr;
@@ -437,17 +458,24 @@
     // Filtres
     $('invFCat').innerHTML = '<option value="*">' + esc(l.toutesCat) + '</option>' +
       cats().map((c) => '<option value="' + esc(c.id) + '">' + esc(libCat(c)) + '</option>').join('');
-    // Une categorie supprimee pendant que son filtre etait actif laisserait un
-    // <select> sans option correspondante, donc un filtre invisible qui vide
-    // le tableau. On revient a « toutes ».
     if (S.f.cat !== '*' && !cats().some((c) => c.id === S.f.cat)) S.f.cat = '*';
     $('invFCat').value = S.f.cat;
+
     $('invFUniv').innerHTML = '<option value="*">' + esc(l.tousUniv) + '</option>' +
       optionsHtml(UNIVERS, l.univ, S.f.univ);
     $('invFUniv').value = S.f.univ;
+
     $('invFEtat').innerHTML = '<option value="*">' + esc(l.tousEtats) + '</option>' +
       optionsHtml(ETATS, l.etat, S.f.etat);
     $('invFEtat').value = S.f.etat;
+
+    // Filtre par emplacement — nouveau, il remplace le ciblage cache que
+    // seuls les codes QR savaient poser.
+    const locs = emplacements();
+    $('invFLoc').innerHTML = '<option value="*">' + esc(l.tousLieux) + '</option>' +
+      locs.map((e) => '<option value="' + esc(e) + '">' + esc(e) + '</option>').join('');
+    if (S.f.loc !== '*' && locs.indexOf(S.f.loc) < 0) S.f.loc = '*';
+    $('invFLoc').value = S.f.loc;
   }
 
   function peintInventaires() {
@@ -457,6 +485,8 @@
       esc(iv.nom) + ' — ' + esc(l.univ[iv.univers] || iv.univers) + '</option>').join('');
     const iv = invCourant();
     $('invPrintTitre').textContent = iv ? iv.nom + ' — ' + (l.univ[iv.univers] || '') : '';
+    $('invPrintDate').textContent = new Date().toLocaleDateString(
+      lang() === 'en' ? 'en-CA' : 'fr-CA', { year: 'numeric', month: 'long', day: 'numeric' });
   }
 
   // Le filtre par univers porte sur l'INVENTAIRE, pas sur l'objet : un objet
@@ -471,6 +501,7 @@
     let out = S.items.filter((o) =>
       (!S.cible.item || o.id === S.cible.item) &&
       (!S.cible.loc || (o.emplacement || '').trim() === S.cible.loc) &&
+      (S.f.loc === '*' || (o.emplacement || '').trim() === S.f.loc) &&
       (S.f.cat === '*' || o.categorie === S.f.cat) &&
       (S.f.etat === '*' || o.etat === S.f.etat) &&
       (!q || [o.nom, o.marque, o.description, o.emplacement, o.notes]
@@ -489,95 +520,205 @@
     return out;
   }
 
-  function peintStats() {
-    const l = L();
+  // Deux formats, deux usages. Les pastilles et la rangee de totaux arrondissent
+  // — personne ne lit la valeur d'un gymnase a la cenne pres — mais le prix
+  // d'un objet, si : « 12,75 $ » affiche « 13 $ » donne l'impression que la
+  // saisie a ete refusee.
+  function devise() {
+    return new Intl.NumberFormat(lang() === 'en' ? 'en-CA' : 'fr-CA',
+      { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
+  }
+  function deviseSou() {
+    return new Intl.NumberFormat(lang() === 'en' ? 'en-CA' : 'fr-CA',
+      { style: 'currency', currency: 'CAD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  /** Compteurs de l'inventaire ENTIER, pas de la vue filtree. */
+  function totaux() {
     const n = S.items.length;
-    const valeur = S.items.reduce((t, o) =>
+    const qte = S.items.reduce((t, o) => t + (+o.qteMain || 0), 0);
+    const ach = S.items.reduce((t, o) => t + (+o.qteAcheter || 0), 0);
+    const val = S.items.reduce((t, o) =>
       t + ((o.prix == null ? 0 : +o.prix) * Math.max(1, +o.qteMain || 0)), 0);
     const racheter = S.items.filter((o) => (+o.qteAcheter || 0) > 0 || o.etat === 'remplacer').length;
-    const photos = S.items.reduce((t, o) => t + (o.photos ? o.photos.length : 0), 0);
-    const dev = new Intl.NumberFormat(lang() === 'en' ? 'en-CA' : 'fr-CA',
-      { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 });
+    return { n, qte, ach, val, racheter };
+  }
+
+  function peintStats() {
+    const l = L(), t = totaux(), dev = devise();
     $('invStats').innerHTML = [
-      ['📦', n, l.stat.objets, ''],
-      ['💰', dev.format(valeur), l.stat.valeur, ''],
-      ['🛒', racheter, l.stat.racheter, racheter > 0 ? ' inv-stat--alerte' : ''],
-      ['📷', photos, l.stat.photos, '']
+      ['📦', t.n, l.stat.objets, ''],
+      ['💰', dev.format(t.val), l.stat.valeur, ''],
+      ['🛒', t.racheter, l.stat.racheter, t.racheter > 0 ? ' inv-pill--alerte' : '']
     ].map(([ico, nb, quoi, cls]) =>
-      '<div class="inv-stat' + cls + '"><span class="inv-stat__nb">' + ico + ' ' + esc(nb) +
-      '</span><span class="inv-stat__quoi">' + esc(quoi) + '</span></div>').join('');
+      '<div class="inv-pill' + cls + '"><span class="inv-pill__nb">' + ico + ' ' + esc(nb) +
+      '</span><span class="inv-pill__q">' + esc(quoi) + '</span></div>').join('');
   }
 
   function peintEntete() {
     const l = L();
     $('invThead').innerHTML = '<tr>' + COLONNES.map((k) => {
-      const fleche = (S.tri.col === k.c && k.tri) ? ' <span class="inv-tri">' + (S.tri.sens > 0 ? '▲' : '▼') + '</span>' : '';
-      return '<th data-col="' + k.c + '" data-tri="' + (k.tri ? 'oui' : 'non') + '" scope="col">' +
+      const fleche = (S.tri.col === k.c && k.tri)
+        ? ' <span class="inv-tri">' + (S.tri.sens > 0 ? '▲' : '▼') + '</span>' : '';
+      const long = (l.colLong && l.colLong[k.c]) || l.col[k.c];
+      return '<th class="inv-c-' + k.c + '" data-col="' + k.c + '" data-tri="' +
+        (k.tri ? 'oui' : 'non') + '" scope="col" title="' + esc(long) + '">' +
         esc(l.col[k.c]) + fleche + '</th>';
     }).join('') + '</tr>';
   }
 
-  function celluleHtml(o, k, l) {
+  /** Rangee de totaux figee au bas de la feuille. */
+  function peintTotaux() {
+    const l = L(), t = totaux(), dev = devise();
+    const val = {
+      num: 'Σ', nom: l.totObjets(t.n), qteMain: t.qte, qteAcheter: t.ach,
+      prix: dev.format(t.val)
+    };
+    $('invTfoot').innerHTML = '<tr>' + COLONNES.map((k) =>
+      '<td class="inv-c-' + k.c + '">' + esc(val[k.c] == null ? '' : val[k.c]) + '</td>').join('') + '</tr>';
+    // Sur telephone, <tfoot> ne peut pas se figer (voir la feuille de style) :
+    // cette barre-la porte les memes chiffres.
+    $('invTotMob').innerHTML =
+      '<span>' + esc(l.totObjets(t.n)) + '</span>' +
+      '<span>' + esc(l.totQte) + ' ' + t.qte + '</span>' +
+      '<span>' + esc(l.totAch) + ' ' + t.ach + '</span>' +
+      '<span>' + esc(dev.format(t.val)) + '</span>';
+  }
+
+  /* ── Contenu d'une cellule, en LECTURE ────────────────────────────────
+     La feuille affiche du TEXTE, pas des champs de saisie. Un tableau de
+     douze colonnes de <input> pese lourd a l'affichage, se lit comme un
+     formulaire et non comme une feuille, et le clavier y saute de champ en
+     champ meme quand on ne veut rien changer. Le champ n'apparait qu'a
+     l'endroit ou l'on clique — voir ouvreEdition(). ------------------- */
+  function celluleHtml(o, k, l, rang) {
     const id = esc(o.id);
-    const lbl = ' data-col="' + k.c + '" data-lbl="' + esc(l.col[k.c]) + '"';
+    const cls = 'inv-c-' + k.c;
+    const edt = k.ed ? ' inv-ed' : '';
+    const attr = k.ed ? ' data-id="' + id + '" data-champ="' + k.c + '"' : '';
+
+    if (k.c === 'num') return '<td class="' + cls + '">' + rang + '</td>';
+
     if (k.c === 'photo') {
       const n = o.photos ? o.photos.length : 0;
       const vue = n
         ? '<img src="' + esc(o.photos[0]) + '" alt="' + esc(o.nom || l.objetSansNom) + '">'
-        : '<span class="inv-vignette__vide">📷</span>';
-      const plus = n > 1 ? '<span class="inv-vignette__plus">+' + (n - 1) + '</span>' : '';
-      return '<td' + lbl + '><div class="inv-photocell">' +
-        '<button class="inv-vignette" type="button" data-act="voir" data-id="' + id + '" ' +
-        'aria-label="' + esc(l.voirPhotos) + '">' + vue + plus + '</button>' +
-        '<button class="inv-mini" type="button" data-act="addphoto" data-id="' + id + '">' +
-        esc(l.ajouterPhoto) + '</button></div></td>';
+        : '📷';
+      const plus = n > 1 ? '<span class="inv-vg__plus">+' + (n - 1) + '</span>' : '';
+      return '<td class="' + cls + '"><button class="inv-vg" type="button" data-act="voir" ' +
+        'data-id="' + id + '" aria-label="' + esc(l.voirPhotos) + '">' + vue + plus + '</button></td>';
     }
+
     if (k.c === 'actions') {
-      return '<td' + lbl + '><div class="inv-photocell">' +
-        '<button class="inv-mini" type="button" data-act="qr" data-id="' + id + '">🔳 ' +
-        esc(l.qr) + '</button>' +
-        '<button class="inv-mini inv-mini--suppr" type="button" data-act="suppr" data-id="' + id +
-        '">🗑️ ' + esc(l.supprimer) + '</button></div></td>';
+      return '<td class="' + cls + '">' +
+        '<button class="inv-ic" type="button" data-act="qr" data-id="' + id + '" ' +
+        'title="' + esc(l.qr) + '">🔳</button>' +
+        '<button class="inv-ic" type="button" data-act="suppr" data-id="' + id + '" ' +
+        'title="' + esc(l.supprimer) + '">🗑️</button></td>';
     }
-    if (k.type === 'zone') {
-      return '<td' + lbl + '><textarea class="inv-ta" rows="1" data-id="' + id + '" data-champ="' +
-        k.c + '">' + esc(o[k.c] || '') + '</textarea></td>';
+
+    if (k.c === 'etat') {
+      return '<td class="' + cls + edt + '"' + attr + '><span class="inv-bd inv-bd--' +
+        esc(o.etat) + '">' + esc(l.etat[o.etat] || o.etat) + '</span></td>';
     }
-    if (k.type === 'cat') {
-      return '<td' + lbl + '><select class="inv-sel" data-id="' + id + '" data-champ="categorie">' +
-        optionsCats(o.categorie) + '</select></td>';
+
+    if (k.c === 'categorie') {
+      const t = libCatId(o.categorie);
+      return '<td class="' + cls + edt + '"' + attr + '>' +
+        (o.categorie ? esc(t) : '<span class="inv-vide-txt">' + esc(t) + '</span>') + '</td>';
     }
-    if (k.type === 'etat') {
-      return '<td' + lbl + '><select class="inv-sel inv-sel--etat" data-etat="' + esc(o.etat) +
-        '" data-id="' + id + '" data-champ="etat">' + optionsHtml(ETATS, l.etat, o.etat) +
-        '</select></td>';
+
+    if (k.c === 'prix') {
+      return '<td class="' + cls + edt + '"' + attr + '>' +
+        (o.prix == null ? '<span class="inv-vide-txt">' + esc(l.videCell) + '</span>'
+                        : esc(deviseSou().format(+o.prix))) + '</td>';
     }
-    if (k.type === 'nb') {
-      return '<td' + lbl + '><input class="inv-in inv-in--nb" type="number" min="0" step="1" ' +
-        'inputmode="numeric" data-id="' + id + '" data-champ="' + k.c + '" value="' +
-        esc(o[k.c] == null ? 0 : o[k.c]) + '"></td>';
+
+    if (k.c === 'qteMain' || k.c === 'qteAcheter') {
+      return '<td class="' + cls + edt + '"' + attr + '>' + esc(o[k.c] == null ? 0 : o[k.c]) + '</td>';
     }
-    if (k.type === 'prix') {
-      return '<td' + lbl + '><input class="inv-in inv-in--nb" type="number" min="0" step="0.01" ' +
-        'inputmode="decimal" data-id="' + id + '" data-champ="prix" value="' +
-        esc(o.prix == null ? '' : o.prix) + '"></td>';
-    }
-    return '<td' + lbl + '><input class="inv-in' + (k.c === 'nom' ? ' inv-in--nom' : '') +
-      '" type="text" data-id="' + id + '" data-champ="' + k.c + '" value="' +
-      esc(o[k.c] || '') + '"></td>';
+
+    const v = o[k.c] || '';
+    return '<td class="' + cls + edt + '"' + attr + '>' +
+      (v ? esc(v) : '<span class="inv-vide-txt">' + esc(l.videCell) + '</span>') + '</td>';
   }
 
   function peintTableau() {
     const l = L();
     const liste = filtres();
     peintEntete();
-    $('invTbody').innerHTML = liste.map((o) =>
-      '<tr data-id="' + esc(o.id) + '">' +
-      COLONNES.map((k) => celluleHtml(o, k, l)).join('') + '</tr>').join('');
+    peintTotaux();
+
+    let html = liste.map((o, i) =>
+      '<tr data-id="' + esc(o.id) + '"' + (S.cible.item === o.id ? ' data-vise="oui"' : '') + '>' +
+      COLONNES.map((k) => celluleHtml(o, k, l, i + 1)).join('') + '</tr>').join('');
+
+    // Rangee vide toujours prete, comme au bas d'une feuille de calcul.
+    // Elle ne s'affiche pas sous un ciblage par code QR : la vue est alors
+    // volontairement reduite a un objet, ajouter une rangee n'y a pas de sens.
+    if (!S.cible.item && !S.cible.loc) {
+      html += '<tr class="inv-neuve" data-neuve="oui">' + COLONNES.map((k) =>
+        '<td class="inv-c-' + k.c + '">' +
+        (k.c === 'num' ? (liste.length + 1) : (k.c === 'nom' ? esc(l.nouvelleLigne) : '')) +
+        '</td>').join('') + '</tr>';
+    }
+    $('invTbody').innerHTML = html;
+
     const vide = liste.length === 0;
     $('invEmpty').hidden = !vide;
     $('invEmpty').textContent = S.items.length === 0 ? l.videInv : l.vide;
-    $('invTable').hidden = vide;
+    dimensionne();
+  }
+
+  /* ── Hauteur de la feuille ────────────────────────────────────────────
+     Elle se CALCULE, elle ne se code pas en dur. Un `calc(100vh - 250px)`
+     suppose une barre d'outils d'une hauteur donnee — or elle se replie sur
+     trois rangees a 375 px et sur une seule a 1440 px — et il suppose aussi
+     que rien n'occupe le bas de l'ecran, alors que le ruban d'outils du shell
+     y tient 149 px sur telephone. Les deux valeurs sont mesurees.
+     ------------------------------------------------------------------- */
+  function dimensionne() {
+    const f = $('invFeuille');
+    if (!f) return;
+    const rail = document.querySelector('.ztsh-casier');
+    const bas = rail
+      ? Math.max(12, Math.round(window.innerHeight - rail.getBoundingClientRect().top + 8))
+      : 12;
+    document.documentElement.style.setProperty('--inv-bas', bas + 'px');
+    // Hauteur de la barre de navigation fixe : c'est sous elle que la feuille
+    // vient s'amarrer.
+    const haut = document.querySelector('.zts-topbar');
+    const hautPx = haut ? Math.round(haut.getBoundingClientRect().height) + 6 : 76;
+    document.documentElement.style.setProperty('--inv-haut', hautPx + 'px');
+    // Sous 900 px la feuille prend sa hauteur naturelle : c'est la page qui
+    // defile, et lui imposer un plafond la reduirait a trois rangees.
+    // De la place sous la feuille, pour que la page puisse defiler assez loin
+    // pour l'amener s'amarrer — et pour que le ruban ne recouvre jamais la
+    // derniere rangee.
+    $('invWrap').style.paddingBottom = (bas + 24) + 'px';
+    if (window.innerWidth < 900) {
+      document.documentElement.style.setProperty('--inv-max', 'none');
+      return;
+    }
+    // La hauteur vise l'ECRAN, pas la position de la feuille dans la page.
+    //
+    // Mesure du 23 aout, fenetre de 900 px : le header partage reserve 327 px
+    // de padding sur <body>, la sous-navigation 62 et la barre d'outils 85 —
+    // la feuille commencait a 521 px et il ne lui restait que 289 px, soit
+    // quatre rangees sur un grand ecran.
+    //
+    // En la dimensionnant sur la fenetre, elle depasse d'abord sous la ligne
+    // de flottaison ; un petit coup de molette suffit alors a l'amener en
+    // place, le header du site se replie de lui-meme (hideHeaderOnScroll) et
+    // la feuille occupe exactement l'ecran. On ne fait defiler la page a la
+    // place de personne — ce serait le genre d'automatisme qui donne
+    // l'impression que la page est cassee.
+    // Une fois amarree, la feuille occupe de `haut` a `innerHeight - bas`.
+    // Oublier `haut` dans ce calcul la faisait finir 49 px SOUS le ruban du
+    // shell, qui recouvrait alors la rangee de totaux — celle qui doit
+    // justement rester visible.
+    const dispo = Math.max(300, Math.round(window.innerHeight - hautPx - bas - 8));
+    document.documentElement.style.setProperty('--inv-max', dispo + 'px');
   }
 
   function peintTout() {
@@ -585,10 +726,6 @@
     peintInventaires();
     peintStats();
     peintTableau();
-    // La liste d'achats est du HTML fige : sans ce rappel, basculer FR/EN
-    // pendant qu'elle est ouverte repeignait les boutons dans la nouvelle
-    // langue et laissait le contenu dans l'ancienne. Constate au banc du
-    // 23 aout 2026 : titre « SHOPPING LIST » au-dessus de boutons francais.
     peintCible();
     const ma = $('invModalAchats');
     if (ma && ma.classList.contains('open')) peintAchats();
@@ -615,6 +752,10 @@
   // regroupe : 700 ms apres la derniere touche, un seul appel part avec le
   // dernier etat de l'objet. Le modele local, lui, est a jour tout de suite —
   // les compteurs suivent la frappe.
+  // Une frappe par caractere = une ecriture Firestore par caractere. On
+  // regroupe : 700 ms apres la derniere touche, un seul appel part avec le
+  // dernier etat de l'objet. Le modele local, lui, est a jour tout de suite —
+  // les compteurs suivent la frappe.
   function planifie(id) {
     if (enAttente.has(id)) clearTimeout(enAttente.get(id));
     enAttente.set(id, setTimeout(() => {
@@ -628,27 +769,158 @@
     }, 700));
   }
 
-  function surChamp(e) {
-    const el = e.target;
-    const id = el.getAttribute('data-id');
-    const champ = el.getAttribute('data-champ');
-    if (!id || !champ) return;
+  /* ======================================================================
+     5b. EDITION DANS LA CELLULE — comme un tableur
+     ----------------------------------------------------------------------
+     Un clic ouvre la cellule, Entree valide, Echap annule, Tab passe a la
+     suivante. Aucune modale pour un champ simple.
+
+     UNE SEULE cellule est ouverte a la fois. C'est ce qui permet a la feuille
+     de rester du texte : douze colonnes de <input> par rangee, sur deux cents
+     objets, c'est 2400 champs dans le document, et le clavier qui les
+     traverse tous meme quand on ne veut rien changer.
+     ====================================================================== */
+
+  /** Valeur brute a mettre dans le champ, par type de colonne. */
+  function valeurBrute(o, champ) {
+    if (champ === 'prix') return o.prix == null ? '' : String(o.prix);
+    if (champ === 'qteMain' || champ === 'qteAcheter') return String(o[champ] == null ? 0 : o[champ]);
+    return o[champ] == null ? '' : String(o[champ]);
+  }
+
+  /** Ecrit la valeur saisie dans le modele local. Retourne true si ca change. */
+  function poseValeur(o, champ, v) {
+    const avant = valeurBrute(o, champ);
+    if (champ === 'qteMain' || champ === 'qteAcheter') {
+      o[champ] = Math.max(0, Math.round(+v || 0));
+    } else if (champ === 'prix') {
+      // La virgule decimale est la norme au Quebec : la refuser obligerait a
+      // taper un point sur un clavier francais.
+      const t = String(v).replace(',', '.').trim();
+      o.prix = t === '' ? null : Math.max(0, +t || 0);
+    } else {
+      o[champ] = String(v);
+    }
+    return valeurBrute(o, champ) !== avant;
+  }
+
+  /** Cellules editables de la feuille, dans l'ordre de lecture. */
+  function cellulesEditables() {
+    return Array.prototype.slice.call($('invTbody').querySelectorAll('td[data-champ]'));
+  }
+
+  /**
+   * Ouvre une cellule en edition.
+   * @param {HTMLElement} td
+   * @param {boolean} [toutSelectionner] true au clic, false a l'arrivee par Tab
+   */
+  function ouvreEdition(td, toutSelectionner) {
+    if (!td || td.classList.contains('inv-edit')) return;
+    if (bloqueSiHorsLigne()) return;
+    fermeEdition(true);
+
+    const id = td.getAttribute('data-id');
+    const champ = td.getAttribute('data-champ');
     const o = item(id);
     if (!o) return;
-    if (bloqueSiHorsLigne()) return;
 
-    if (champ === 'qteMain' || champ === 'qteAcheter') {
-      o[champ] = Math.max(0, Math.round(+el.value || 0));
-    } else if (champ === 'prix') {
-      o.prix = el.value === '' ? null : Math.max(0, +el.value || 0);
+    const col = COLONNES.find((k) => k.c === champ);
+    const type = col ? col.ed : 'txt';
+    let ctrl;
+
+    if (type === 'cat') {
+      ctrl = document.createElement('select');
+      ctrl.innerHTML = optionsCats(o.categorie);
+      ctrl.value = o.categorie || '';
+    } else if (type === 'etat') {
+      ctrl = document.createElement('select');
+      ctrl.innerHTML = optionsHtml(ETATS, L().etat, o.etat);
+      ctrl.value = o.etat;
     } else {
-      o[champ] = el.value;
+      ctrl = document.createElement('input');
+      ctrl.type = 'text';
+      if (type === 'nb') { ctrl.inputMode = 'numeric'; }
+      if (type === 'prix') { ctrl.inputMode = 'decimal'; }
+      ctrl.value = valeurBrute(o, champ);
     }
-    if (champ === 'etat') el.setAttribute('data-etat', o.etat);
-    // Les compteurs dependent de qte, prix et etat : ils se remettent a jour
-    // a la frappe, sans attendre l'ecriture differee.
-    if (champ === 'qteMain' || champ === 'qteAcheter' || champ === 'prix' || champ === 'etat') peintStats();
-    planifie(id);
+
+    S.edite = { id: id, champ: champ };
+    td.classList.add('inv-edit');
+    td.textContent = '';
+    td.appendChild(ctrl);
+    ctrl.focus();
+    if (ctrl.select && toutSelectionner !== false) { try { ctrl.select(); } catch (e) {} }
+
+    // Un menu se valide des le choix : attendre Entree sur un <select> serait
+    // une etape de plus pour rien.
+    if (ctrl.tagName === 'SELECT') {
+      ctrl.addEventListener('change', () => fermeEdition(true));
+    }
+    ctrl.addEventListener('blur', () => fermeEdition(true));
+    ctrl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter')  { e.preventDefault(); fermeEdition(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); fermeEdition(false); }
+      else if (e.key === 'Tab') {
+        e.preventDefault();
+        const cible = voisineEditable(td, e.shiftKey ? -1 : 1);
+        fermeEdition(true);
+        if (cible) ouvreEdition(cible, true);
+      }
+    });
+  }
+
+  function voisineEditable(td, pas) {
+    const liste = cellulesEditables();
+    const i = liste.indexOf(td);
+    if (i < 0) return null;
+    return liste[i + pas] || null;
+  }
+
+  /**
+   * Referme la cellule ouverte.
+   * @param {boolean} valider true = Entree/Tab/perte de focus, false = Echap
+   */
+  function fermeEdition(valider) {
+    const td = $('invTbody').querySelector('td.inv-edit');
+    if (!td) { S.edite = null; return; }
+    const ctrl = td.querySelector('input, select');
+    const id = td.getAttribute('data-id');
+    const champ = td.getAttribute('data-champ');
+    const o = item(id);
+    S.edite = null;
+    td.classList.remove('inv-edit');
+
+    if (o && valider && ctrl) {
+      const change = poseValeur(o, champ, ctrl.value);
+      if (change) {
+        planifie(id);
+        // Les colonnes qui alimentent les compteurs et les filtres refont
+        // toute la feuille ; les autres ne repeignent que leur cellule, pour
+        // que le curseur ne saute pas d'une rangee a l'autre au clavier.
+        if (champ === 'qteMain' || champ === 'qteAcheter' || champ === 'prix' ||
+            champ === 'etat' || champ === 'categorie' || champ === 'emplacement') {
+          peintStats(); peintTextes(); peintTableau();
+          return;
+        }
+      }
+    }
+    // Redessiner la seule cellule.
+    const l = L(), col = COLONNES.find((k) => k.c === champ);
+    if (o && col) {
+      const tmp = document.createElement('tbody');
+      tmp.innerHTML = '<tr>' + celluleHtml(o, col, l, 0) + '</tr>';
+      td.parentNode.replaceChild(tmp.querySelector('td'), td);
+    }
+  }
+
+  /** Clic dans la feuille : ouvrir une cellule, ou creer la rangee vide. */
+  function surFeuille(e) {
+    const b = e.target.closest('[data-act]');
+    if (b) return;                                  // bouton : gere ailleurs
+    const neuve = e.target.closest('tr[data-neuve]');
+    if (neuve) { ligneVide(); return; }
+    const td = e.target.closest('td[data-champ]');
+    if (td) ouvreEdition(td, true);
   }
 
   /* ======================================================================
@@ -707,8 +979,11 @@
       InvData.cache.ecrire(S.invId, S.items);
       peintStats(); peintTableau();
       msg('');
-      const champ = document.querySelector('tr[data-id="' + cree.id + '"] .inv-in--nom');
-      if (champ) champ.focus();
+      // La nouvelle rangee s'ouvre directement sur son nom : ajouter une
+      // ligne et devoir ensuite la chercher pour la nommer serait une etape
+      // de trop sur une feuille.
+      const cel = document.querySelector('tr[data-id="' + cree.id + '"] td[data-champ="nom"]');
+      if (cel) ouvreEdition(cel, true);
     } catch (e) { msg(l.mErrSauve(e.message), true); }
   }
 
@@ -1433,8 +1708,7 @@
 
   function cable() {
     const tbody = $('invTbody');
-    tbody.addEventListener('input', surChamp);
-    tbody.addEventListener('change', surChamp);
+    tbody.addEventListener('click', surFeuille);
     tbody.addEventListener('click', (e) => {
       const b = e.target.closest('[data-act]');
       if (!b) return;
@@ -1460,6 +1734,25 @@
       S.tri.col = c;
       peintTableau();
     });
+
+    // Menu ⋯ : ouverture, fermeture au clic ailleurs ou a Echap, et
+    // fermeture apres chaque action — sinon il reste ouvert par-dessus la
+    // feuille pendant qu'une modale s'affiche derriere.
+    const menu = $('invMenuListe');
+    function ouvreMenu(ouvrir) {
+      menu.hidden = !ouvrir;
+      $('invMenu').setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
+    }
+    $('invMenu').addEventListener('click', (e) => { e.stopPropagation(); ouvreMenu(menu.hidden); });
+    menu.addEventListener('click', (e) => {
+      // Un clic sur le <select> du menu ne doit pas le refermer sous le doigt.
+      if (e.target.closest('select, label')) return;
+      ouvreMenu(false);
+    });
+    document.addEventListener('click', (e) => {
+      if (!menu.hidden && !e.target.closest('.inv-menu')) ouvreMenu(false);
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ouvreMenu(false); });
 
     $('invSel').addEventListener('change', (e) => changeInventaire(e.target.value));
     $('invNouveau').addEventListener('click', nouvelInventaire);
@@ -1490,8 +1783,9 @@
     $('invFCat').addEventListener('change', (e) => { S.f.cat = e.target.value; peintTableau(); });
     $('invFUniv').addEventListener('change', (e) => { S.f.univ = e.target.value; peintTableau(); });
     $('invFEtat').addEventListener('change', (e) => { S.f.etat = e.target.value; peintTableau(); });
+    $('invFLoc').addEventListener('change', (e) => { S.f.loc = e.target.value; peintTableau(); });
     $('invReset').addEventListener('click', () => {
-      S.f = { q: '', cat: '*', univ: '*', etat: '*' };
+      S.f = { q: '', cat: '*', univ: '*', etat: '*', loc: '*' };
       $('invSearch').value = '';
       peintTextes(); peintTableau();
     });
@@ -1565,6 +1859,11 @@
         if (e.key === 'ArrowRight') navigue(1);
       }
     });
+
+    // La hauteur de la feuille depend de la fenetre et de la position de la
+    // barre d'outils : les deux bougent au redimensionnement et a la rotation.
+    window.addEventListener('resize', dimensionne);
+    window.addEventListener('orientationchange', () => setTimeout(dimensionne, 250));
 
     window.addEventListener('online', () => {
       S.horsLigne = false;
