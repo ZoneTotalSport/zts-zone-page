@@ -115,6 +115,11 @@
   /* Deux manuscrites, deux roles. */
   --inv-f-main:   'IndieFlowerZTS', 'Bradley Hand', cursive;   /* rangee vide */
   --inv-f-note:   'AnnieZTS', 'Bradley Hand', cursive;         /* colonne Notes */
+  /* Le CORPS de la feuille, demande par Joey le 23 aout : les donnees sont
+     ecrites a la main, comme sur une feuille d'inventaire papier. Taille
+     relevee a 16 px — une manuscrite rend plus petit qu'une lineale a taille
+     egale, et une colonne de donnees doit rester lisible d'un coup d'oeil. */
+  --inv-f-corps:  'IndieFlowerZTS', 'Bradley Hand', cursive;
 }
 
 /* ==========================================================================
@@ -378,6 +383,8 @@
   box-shadow: var(--inv-ombre);
   color: var(--inv-ink);
   vertical-align: middle;
+  font-family: var(--inv-f-corps);
+  font-size: 16px;
 }
 .inv-table tbody tr:hover td { background: var(--inv-surface-alt); }
 .inv-table tbody tr[data-vise="oui"] td { box-shadow: var(--inv-ombre), 0 0 0 3px var(--ztsh-jaune, #FFFC00); }
@@ -395,14 +402,21 @@
 .inv-c-description { width: 172px; }
 .inv-c-categorie { width: 140px; }
 .inv-c-emplacement { width: 150px; }
+/* Les CHIFFRES restent en lineale. Un 1 et un 7 manuscrits se confondent, et
+   c'est dans ces trois colonnes qu'une erreur de lecture coute le plus cher. */
 .inv-c-qteMain { width: 68px; text-align: center; font-weight: 800; }
 .inv-c-qteAcheter { width: 82px; text-align: center; font-weight: 800; }
+.inv-table td.inv-c-qteMain,
+.inv-table td.inv-c-qteAcheter,
+.inv-table td.inv-c-prix,
+.inv-table td.inv-c-num { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; }
 .inv-c-etat  { width: 112px; }
-.inv-c-prix  { width: 84px; text-align: right; }
+.inv-c-prix  { width: 84px; text-align: right; font-weight: 700; }
 /* Les notes sont manuscrites — c'est la colonne « griffonne dans la marge ».
    17 px et non 13 : une ecriture a la main rend plus petit qu'une lineale a
    taille egale, et cette colonne doit rester lisible d'un coup d'oeil. */
-.inv-c-notes { width: 136px; font-family: var(--inv-f-note); font-size: 17px; }
+.inv-c-notes { width: 136px; }
+.inv-table td.inv-c-notes { font-family: var(--inv-f-note); font-size: 17px; }
 /* En edition, retour a une police lisible : on ecrit dans un champ, on ne
    calligraphie pas. */
 .inv-table td.inv-c-notes.inv-edit input { font-family: inherit; font-size: 14px; }
@@ -424,6 +438,8 @@
 }
 .inv-edit input,
 .inv-edit select {
+  font-family: system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  font-size: 14px;
   width: 100%;
   height: 34px;
   border: 0;
