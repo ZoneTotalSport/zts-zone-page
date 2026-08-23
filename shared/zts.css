@@ -111,17 +111,29 @@
    pour les hubs (racine) ET les apps (/apps/<nom>/). Défaut = gymnase (ep). — */
 html { background: var(--paper); }
 body[data-metier] { background: transparent; }
-/* FOND UNIFORME = photo de gymnase estompée (comme la page d'accueil), identique pour les 3 métiers.
+/* FOND UNIFORME = photo de gymnase estompée, identique pour les 3 métiers.
    Calques : photo ::before (-3) → voile crème ::after (-2) → perso .zts-perso (-1) → contenu (≥0).
    Le personnage reste différent par métier (géré plus bas) — seul le FOND est uniformisé. */
-body[data-metier]::before {
+html:not(.ztsp-decor) body[data-metier]::before {
   content:''; position:fixed; inset:0; z-index:-3;
   background-image:url('/bg-gym.jpg');
   background-size:cover; background-position:center; background-repeat:no-repeat; background-attachment:fixed;
   opacity:.45; filter:saturate(.9);
 }
-/* Voile crème par-dessus pour adoucir et garder le contenu lisible (comme la home) */
-body[data-metier]::after {
+/* ⚠ `html:not(.ztsp-decor)` AJOUTÉ le 23 août 2026. Les trois hubs métier
+   (ep, service-de-garde, camps-de-jour) prennent désormais le décor du patron
+   — marine, trame de points, rayons — comme la page d'accueil, qui a quitté la
+   photo de gymnase le 3 août 2026. Le commentaire ci-dessus disait « comme la
+   page d'accueil » : c'était vrai avant le 3 août, plus après.
+   Le garde est en `:not()` plutôt qu'une surcharge : `html.ztsp-decor body::before`
+   a EXACTEMENT la même spécificité (0,1,2) que `body[data-metier]::before`, donc
+   une simple surcharge dépendrait de l'ordre des fichiers et laisserait passer
+   les propriétés que le patron ne redéclare pas (`opacity:.45`,
+   `background-repeat:no-repeat`, `inset:0`) — la trame ne se répéterait pas et
+   le voile crème resterait en travers des rayons.
+   Les apps sous /apps/ n'ont PAS la classe : elles gardent le gymnase. */
+/* Voile crème par-dessus pour adoucir et garder le contenu lisible */
+html:not(.ztsp-decor) body[data-metier]::after {
   content:''; position:fixed; inset:0; z-index:-2;
   background:linear-gradient(180deg, rgba(255,254,247,.55) 0%, rgba(255,254,247,.35) 40%, rgba(255,254,247,.65) 100%);
 }
