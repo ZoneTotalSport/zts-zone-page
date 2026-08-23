@@ -36,10 +36,17 @@
 
     { id: 'outils', label: 'Outils pédagogiques', i18n: 'nav.tools', em: '🧰',
       title: 'Outils pédagogiques', items: [
-      { name: 'Boîte à outils',      app: 'educatifs',  color: '#00E5FF', em: '🧰', icon: 'wrench',    desc: 'Fiches et générateurs' },
-      { name: "Carnet d'évaluation", app: 'evaluation', color: '#8B5CF6', em: '📗', icon: 'book-open', desc: 'Suivi des élèves' },
-      { name: 'Musique',             app: 'musique',    color: '#FF2A7A', em: '🎵', icon: 'music',     desc: 'Trames et minuteries' },
-      { name: 'Code Oreille',        app: 'code-oreille', color: '#FFD700', em: '👂', icon: 'ear',    desc: 'Quoi faire quand ça dérape', badge: 'nouveau' },
+      { name: 'Boîte à outils',      app: 'educatifs',  color: '#00E5FF', em: '🧰', icon: 'wrench',    desc: 'Fiches et générateurs',
+        i18n: 'menu.educatifs.nom', i18nDesc: 'menu.educatifs.desc' },
+      { name: "Carnet d'évaluation", app: 'evaluation', color: '#8B5CF6', em: '📗', icon: 'book-open', desc: 'Suivi des élèves',
+        i18n: 'menu.evaluation.nom', i18nDesc: 'menu.evaluation.desc' },
+      { name: 'Musique',             app: 'musique',    color: '#FF2A7A', em: '🎵', icon: 'music',     desc: 'Trames et minuteries',
+        i18n: 'menu.musique.nom', i18nDesc: 'menu.musique.desc' },
+      // « Code Oreille » est un NOM PROPRE : pas de cle pour le nom, donc pas
+      // de traduction — c'est precisement a ca que sert le mecanisme opt-in.
+      // Seule la description passe en anglais.
+      { name: 'Code Oreille',        app: 'code-oreille', color: '#FFD700', em: '👂', icon: 'ear',    desc: 'Quoi faire quand ça dérape', badge: 'nouveau',
+        i18nDesc: 'menu.codeoreille.desc' },
       { name: 'Inventaire du matériel', app: 'inventaire', color: '#FFA200', em: '📦', icon: 'package', desc: 'Photo + IA, QR, liste d\'achats', badge: 'nouveau',
         i18n: 'menu.inventaire.nom', i18nDesc: 'menu.inventaire.desc' }
     ]},
