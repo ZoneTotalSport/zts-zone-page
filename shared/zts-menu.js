@@ -39,7 +39,9 @@
       { name: 'Boîte à outils',      app: 'educatifs',  color: '#00E5FF', em: '🧰', icon: 'wrench',    desc: 'Fiches et générateurs' },
       { name: "Carnet d'évaluation", app: 'evaluation', color: '#8B5CF6', em: '📗', icon: 'book-open', desc: 'Suivi des élèves' },
       { name: 'Musique',             app: 'musique',    color: '#FF2A7A', em: '🎵', icon: 'music',     desc: 'Trames et minuteries' },
-      { name: 'Code Oreille',        app: 'code-oreille', color: '#FFD700', em: '👂', icon: 'ear',    desc: 'Quoi faire quand ça dérape', badge: 'nouveau' }
+      { name: 'Code Oreille',        app: 'code-oreille', color: '#FFD700', em: '👂', icon: 'ear',    desc: 'Quoi faire quand ça dérape', badge: 'nouveau' },
+      { name: 'Inventaire du matériel', app: 'inventaire', color: '#FFA200', em: '📦', icon: 'package', desc: 'Photo + IA, QR, liste d\'achats', badge: 'nouveau',
+        i18n: 'menu.inventaire.nom', i18nDesc: 'menu.inventaire.desc' }
     ]},
 
     { id: 'sae', label: 'SAÉ', i18n: 'nav.sae', em: '📋',
@@ -71,6 +73,30 @@
     var n = document.createElement(tag);
     if (cls) n.className = cls;
     if (text != null) n.textContent = text;      // textContent : jamais d'innerHTML
+    return n;
+  }
+
+  /* Texte d'une carte, traduisible SI l'entree declare une cle.
+     ────────────────────────────────────────────────────────────────────
+     OPT-IN VOLONTAIRE. Jusqu'ici les noms et descriptions des cartes
+     etaient ecrits en dur : les quatre entrees historiques s'affichent en
+     francais y compris quand le site est en anglais. Les traduire d'office
+     changerait quatre libelles sans que personne l'ait demande.
+
+     Une entree SANS cle se comporte donc exactement comme avant. Une entree
+     AVEC cle est resolue tout de suite par ZTS.t — le menu se construit
+     apres applyI18n(document) et ne serait pas repeint autrement — et porte
+     `data-i18n`, ce qui la fait suivre les bascules de langue ulterieures.
+
+     Le noeud retourne est un <span> : `applyI18n` ecrit dans textContent, et
+     ecrire dans celui de `.ztsm-name` effacerait le badge NOUVEAU qui vit a
+     cote. */
+  function txt(cle, secours) {
+    var valeur = secours;
+    if (cle && window.ZTS && typeof ZTS.t === 'function') valeur = ZTS.t(cle, secours);
+    if (!cle) return document.createTextNode(secours);
+    var n = el('span', null, valeur);
+    n.setAttribute('data-i18n', cle);
     return n;
   }
 
@@ -119,11 +145,13 @@
 
     var body = el('span', 'ztsm-body');
     var name = el('span', 'ztsm-name');
-    name.appendChild(document.createTextNode(item.name));
+    name.appendChild(txt(item.i18n, item.name));
     if (item.badge === 'nouveau') name.appendChild(el('span', 'ztsm-badge is-new', 'NOUVEAU'));
     if (soon)                     name.appendChild(el('span', 'ztsm-badge is-soon', 'BIENTÔT'));
     body.appendChild(name);
-    body.appendChild(el('span', 'ztsm-desc', item.desc));
+    var desc = el('span', 'ztsm-desc');
+    desc.appendChild(txt(item.i18nDesc, item.desc));
+    body.appendChild(desc);
     node.appendChild(body);
 
     return node;
