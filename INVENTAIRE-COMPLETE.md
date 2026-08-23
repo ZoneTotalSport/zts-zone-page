@@ -1,6 +1,6 @@
 # ZONE INVENTAIRE — rapport de livraison
 
-**Branche** `app/inventaire` · 5 commits · 23 août 2026
+**Branche** `app/inventaire` · 9 commits · 23 août 2026
 **Non fusionné, non déployé.** Deux déploiements restent à ta charge (§5).
 
 ---
@@ -12,6 +12,7 @@
 | `apps/inventaire/index.html` | Coquille habillée, densité `travail` |
 | `apps/inventaire/styles.css` | Tableau large, cartes mobiles, feuille d'impression |
 | `apps/inventaire/dataStore.js` | Seul point de contact avec Firestore et le Worker |
+| `apps/inventaire/qr.js` | Encodeur de codes QR, écrit ici, sans dépendance |
 | `apps/inventaire/app.js` | Interface, photos, i18n FR/EN, achats, CSV |
 | `cf-worker/generateur/src/generateur-worker.js` | Route `/inventaire-vision` (ajout) |
 | `firestore.rules` | Blocs `inventaires` et `inventaireItems` (ajout) |
@@ -49,6 +50,63 @@ de document.
 `OK` jaune #FFFC00 · `À remplacer` rose #FF0061. EN : `New` · `Good
 condition` · `OK` · `To replace`. Filtre rapide par état, et « À remplacer »
 alimente la liste d'achats au même titre qu'une quantité à acheter > 0.
+
+**Ajout C — catégories personnalisables.** Elles appartiennent à l'inventaire,
+pas au code : renommage, ajout, suppression, réordonnancement, libellés FR et
+EN. **C'est l'identifiant qui relie un objet à sa catégorie, jamais le
+libellé** — renommer ne touche aucun objet. Supprimer une catégorie utilisée
+passe par une modale de réassignation obligatoire. Un libellé anglais vide
+retombe sur le français. L'IA suggère mais **ne crée jamais** de catégorie :
+si aucune ne convient, elle propose un libellé et l'app demande
+« Ajouter "X" ? » en un tap.
+
+**Ajout D — codes QR.** Un QR par objet et un par emplacement, encodant une
+URL du site. Aucun lecteur à écrire : la caméra native ouvre le lien, le mur
+`zts-gate` fait son travail, et l'app rejoue les paramètres après connexion.
+Planche d'étiquettes de 45 mm imprimable, avec quatre portées.
+
+---
+
+## 2b. L'encodeur QR — pourquoi il est écrit ici
+
+Aucune librairie QR n'existait dans le dépôt. Plutôt que de coller un fichier
+tiers téléchargé, `qr.js` implémente la norme publique ISO/IEC 18004 : pas de
+CDN, pas de licence tierce à suivre, pas de mise à jour à surveiller. **Rien
+n'y est copié d'ailleurs.**
+
+Périmètre volontairement étroit : **mode octet seulement, versions 1 à 10**.
+Une chaîne de chiffres serait plus compacte en mode numérique — OpenCV place
+`0123456789`×5 en version 2 là où ce fichier prend la version 4. Le symbole
+reste juste, seulement plus grand, et les URL de l'app ne sont pas numériques.
+Au-delà de la version 10, la fonction lève plutôt que de tronquer : un code
+tronqué scannerait et renverrait **la mauvaise fiche**.
+
+**Trois défauts trouvés à l'écriture, aucun visible à l'œil nu** — je les
+signale parce qu'ils disent à quel point un QR faux ressemble à un QR juste :
+
+1. Les deux copies de l'information de format étaient écrites bit à l'envers.
+   Le code BCH(15,5) a une distance minimale de 7 : le miroir binaire d'un mot
+   valide n'est jamais un mot valide. **Zéro code décodait.**
+2. La copie 2 du format écrasait le module sombre et décalait sa rangée d'une
+   colonne.
+3. Les motifs d'alignement centrés **sur** la synchronisation étaient sautés.
+   40 modules de fonction passaient au flux de données. Invisible avant la
+   version 7 — d'où des petits codes parfaits et des grands tous muets.
+
+**Vérification, par trois chemins indépendants :**
+
+| Contrôle | Résultat |
+|---|---|
+| Carte des modules de fonction v1→v10, contre une carte réécrite depuis la norme et contre le compte arithmétique | identique, 10/10 versions |
+| Décodage par OpenCV 4.13 | 65/65. Les 3 restants sont des textes qu'OpenCV ne décode pas non plus depuis **son propre** encodeur |
+| Comparaison matrice contre matrice avec l'encodeur d'OpenCV | identiques au module près partout où le choix de masque coïncide — à un bit de bourrage près, où c'est OpenCV qui s'écarte de la norme |
+| **Décodeur indépendant réécrit en Python, syndromes Reed-Solomon vérifiés nuls** | **68/68**, y compris les 3 qu'OpenCV refuse |
+| `svg()` reproduit `matrice()`, marge calme comprise | 12/12 |
+| **À la taille d'impression** : 40 étiquettes réelles, de 30 mm à 150 dpi jusqu'à 50 mm, avec flou gaussien de 3 et 5 px | **240 décodages sur 240** |
+
+Les syndromes RS nuls sont la preuve la plus forte du lot : ils établissent que
+les mots de code et leur correction d'erreur sont exactement cohérents, ce
+qu'un simple décodage réussi ne montre pas.
 
 ---
 
@@ -91,13 +149,21 @@ vrai code sans créer de compte. Je ne crée pas de comptes.
 | Tri | croissant/décroissant vérifié sur `qteMain`, `prix`, `nom`, `etat` |
 | Filtres, recherche | conformes |
 | Liste d'achats | groupée par catégorie, sous-totaux, total 288,96 $ |
-| Bascule FR/EN | en-têtes, états, liste d'achats, boutons |
+| Bascule FR/EN | en-têtes, états, liste d'achats, boutons, catégories |
+| **Catégories (C)** | renommage FR+EN suivi par les objets, identifiant inchangé, repli EN vide → FR, ajout, réordonnancement, suppression vide, suppression utilisée avec réassignation de 2 objets, filtre nettoyé quand sa catégorie disparaît |
+| **Nettoyage des libellés côté worker** | 8 entrées hostiles : guillemets, sauts de ligne, balises, doublons, id vide, libellé vide, bourrage à 68 entrées → 37 sorties propres, aucun caractère de structure |
+| **Codes QR (D)** | modale objet, planche sur les 4 portées (5 / 2 / 1 / 4 étiquettes), arrivée par `?item=`, par `?loc=`, sur objet supprimé, sur inventaire inconnu, et rejeu depuis `sessionStorage` sans paramètres d'URL |
 
 **Quatre défauts trouvés et corrigés** (commit `7db1b3a`) : clé i18n `vide` en
 double qui mettait le message d'état vide dans un bouton ; largeurs de colonnes
 ignorées (il fallait `min-width` sur `th` **et** `td`) ; espace avant
 deux-points appliqué à l'anglais ; liste d'achats figée dans l'ancienne langue
 après une bascule.
+
+**Trois autres défauts** trouvés au banc des ajouts C et D : une élision
+collée (« lesenvoyer »), des champs de catégorie à 15 px sur mobile — sous les
+16 px, iOS zoome au focus et ne dézoome jamais — et, dans `qr.js`, les trois
+défauts d'encodage décrits au §2b.
 
 ---
 
@@ -120,7 +186,7 @@ Le worker utilise `env.SONNET_MODEL`, soit `claude-sonnet-4-6` selon le
 
 ---
 
-## 6. Banc d'essai manuel — 14 tests
+## 6. Banc d'essai manuel — 23 tests
 
 Je ne peux pas jouer ces tests : ils demandent un compte, un iPhone, et le
 worker déployé.
@@ -167,8 +233,41 @@ worker déployé.
     une valeur par colonne. `Ctrl+P` sur le tableau : en-têtes répétés, pas de
     cadre de champ, boutons absents.
 
+### Catégories (ajout C)
+14. **Renommer.** Ouvre « Gérer les catégories », renomme « Ballons » en
+    « Ballons et balles » en FR **et** en EN. Attendu : tous ses objets suivent
+    immédiatement, dans les deux langues. Recharge : ça tient.
+15. **Anglais vide.** Vide le champ EN d'une catégorie et passe l'app en
+    anglais. Attendu : le libellé **français** s'affiche, pas l'identifiant.
+16. **Supprimer une catégorie utilisée.** Attendu : modale de réassignation,
+    avec le nombre d'objets, et la catégorie à supprimer **absente** de la
+    liste des destinations. Après confirmation : les objets sont dans la
+    nouvelle catégorie, aucun orphelin.
+17. **Suggestion de l'IA.** Photographie un objet qui ne rentre dans aucune de
+    tes catégories. Attendu : « L'IA propose une catégorie qui n'existe pas
+    encore : "X" » et un bouton « ➕ Ajouter "X" ? ». **Rien ne doit être créé
+    tant que tu n'as pas touché le bouton.**
+
+### Codes QR (ajout D)
+18. **Scanner depuis un iPhone.** Imprime la planche, scanne une étiquette
+    avec l'appareil photo natif (pas une app tierce). Attendu : Safari ouvre
+    l'app sur la fiche de l'objet, avec la bannière jaune.
+19. **Scanner sans être connecté.** Déconnecte-toi, puis scanne. Attendu : le
+    mur d'inscription apparaît ; **après connexion, tu arrives sur la bonne
+    fiche**, pas sur la liste générique.
+20. **Étiquette d'emplacement.** Scanne un QR d'emplacement. Attendu : la
+    liste filtrée sur ce bac ou cette remise.
+21. **Objet supprimé.** Supprime un objet dont tu as l'étiquette imprimée,
+    puis scanne-la. Attendu : « Cet objet n'existe plus — il a été supprimé »
+    et **l'inventaire complet**, jamais un tableau vide.
+22. **Impression de la planche.** Imprime en PDF les quatre portées. Attendu :
+    des étiquettes de 45 mm, des QR **nets** (ce sont des vecteurs), aucune
+    étiquette coupée en bas de page. Scanne le PDF affiché à l'écran, puis la
+    version papier. ⚠ **Si ton navigateur bloque les fenêtres, autorise-la** —
+    la planche s'ouvre dans une fenêtre à elle.
+
 ### Langue et réseau
-14. **Bascule FR/EN et hors-ligne.** Passe en EN : en-têtes, états (`New`,
+23. **Bascule FR/EN et hors-ligne.** Passe en EN : en-têtes, états (`New`,
     `Good condition`, `OK`, `To replace`), liste d'achats. Puis **coupe le
     wifi** et recharge : tes objets s'affichent depuis le cache, avec
     « 📴 Hors ligne : lecture seule. » ; toute modification est refusée.
@@ -182,6 +281,16 @@ worker déployé.
 directe et acceptée de « zéro Google Fonts ». Si le rendu te déplaît, la vraie
 solution est d'auto-héberger Quicksand dans `/fonts/` — une décision qui
 concerne les 47 apps, pas celle-ci seule.
+
+**Les libellés de catégorie entrent dans le prompt de l'IA.** C'est une
+conséquence directe de l'ajout C : la liste doit venir du client, puisqu'elle
+varie par inventaire. Le worker en borne le nombre, la longueur et les
+caractères, et le prompt dit en clair que ce sont des données. Mais à dire
+franchement, **ce nettoyage empêche de casser la structure du prompt, pas
+d'écrire une phrase impérative dans un libellé**. La garde qui compte est
+ailleurs, et elle est absolue : quoi que le modèle réponde, seule une
+catégorie de la liste envoyée est retenue. Le pire cas est donc une
+identification ratée, jamais une action non voulue.
 
 **Je n'ai pas pu tester le vrai chemin IA.** Le worker n'est pas déployé, et je
 ne crée pas de compte. Le handler est calqué ligne à ligne sur
