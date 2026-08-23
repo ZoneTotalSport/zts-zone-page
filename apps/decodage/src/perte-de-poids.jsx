@@ -1,10 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { C, Carte, BoutonCyan, champStyle, URL_API } from "./ui.jsx";
+import BANQUE from "./questions-poids.json";
 
 /* ═══════════ PERTE DE POIDS — LE DÉCLIC ÉMOTIONNEL ═══════════
    8e onglet de « Zone — Décodage du corps ». Ce n'est pas une huitième
    école de décodage : c'est un parcours transversal qui pioche dans les
    sept approches déjà présentes dans l'app.
+
+   LA BANQUE DE QUESTIONS EST DANS questions-poids.json, pas ici.
+   Ce fichier n'est que l'interface. Pour ajouter, retirer ou reformuler
+   une question, ou pour changer l'ordre des 21 jours, on touche au JSON —
+   jamais au code. Chaque question porte un `id` STABLE : c'est lui la clé
+   de sauvegarde. Renommer un id casse les réponses déjà écrites; en
+   ajouter un ne casse rien.
 
    GARDE-FOUS STRUCTURELS — à ne pas contourner en modifiant ce fichier :
    · ZÉRO CHIFFRE de corps. Aucun champ de poids, d'IMC, de poids cible, de
@@ -13,163 +21,131 @@ import { C, Carte, BoutonCyan, champStyle, URL_API } from "./ui.jsx";
    · ZÉRO PLAN ALIMENTAIRE. Aucune diète, aucun jeûne, aucune restriction,
      aucun aliment à éviter, aucun exercice prescrit — ni ici, ni dans la
      réponse de l'IA (voir SYSTEM_POIDS, côté worker).
-   · AUCUN JUGEMENT CORPOREL dans les textes d'interface. On parle de vécu,
-     de protection, de besoin — jamais de « kilos en trop », de « mauvaises
-     habitudes » ni de « il faut ».
-   · FILET TROUBLES ALIMENTAIRES : encart de ressources toujours visible, et
-     consigne d'arrêt dans le prompt système côté worker.
+   · AUCUN JUGEMENT CORPOREL dans les textes d'interface.
+   · FILET TROUBLES ALIMENTAIRES ET VIOLENCES : encart de ressources sur
+     l'accueil du module, et consignes d'arrêt dans le prompt système.
 ═══════════════════════════════════════════════════════════════════ */
 
-/* ─────────────── LES 12 AXES ─────────────── */
-export const AXES = [
-  {
-    id: "temps", titre: "La ligne du temps", emoji: "🕰️", couleur: C.cyan,
-    cadre: "Le poids a une date d'arrivée. Ce qui l'entoure raconte souvent plus que lui.",
-    questions: [
-      "À quel moment de ta vie le poids est-il arrivé ou a-t-il changé ?",
-      "Que se passait-il dans ta vie dans les 6 à 12 mois avant ce moment ?",
-      "Y a-t-il eu des périodes où le poids est reparti tout seul ? Qu'est-ce qui était différent ?",
-    ],
-  },
-  {
-    id: "protection", titre: "La protection", emoji: "🛡️", couleur: C.lime,
-    cadre: "Et si le corps faisait quelque chose pour toi plutôt que contre toi ?",
-    questions: [
-      "Si ton corps te protégeait de quelque chose, ce serait de quoi ?",
-      "De quoi ou de qui aurais-tu besoin de te protéger, encore aujourd'hui ?",
-      "Qu'est-ce qui te ferait peur si tu occupais moins d'espace ?",
-    ],
-  },
-  {
-    id: "douceur", titre: "Le manque et la douceur", emoji: "🍯", couleur: C.orange,
-    cadre: "Manger sans faim, c'est chercher autre chose. Reste à savoir quoi.",
-    questions: [
-      "Quand tu manges sans faim, tu cherches quoi exactement ?",
-      "Qu'est-ce qui manque de doux dans ta vie en ce moment ?",
-      "Qui te nourrissait, enfant — au sens large ?",
-    ],
-  },
-  {
-    id: "morceau", titre: "Le morceau à obtenir", emoji: "🎣", couleur: C.rose,
-    cadre: "Vouloir sans obtenir, perdre sans digérer : deux faims différentes.",
-    questions: [
-      "Y a-t-il quelque chose que tu veux très fort et que tu n'arrives pas à obtenir ?",
-      "Y a-t-il quelque chose que tu as perdu et que tu n'as jamais digéré ?",
-    ],
-  },
-  {
-    id: "territoire", titre: "Territoire et espace", emoji: "🗺️", couleur: C.jaune,
-    cadre: "Occuper de l'espace dans une pièce, dans une conversation, dans une vie.",
-    questions: [
-      "Où, dans ta vie, as-tu l'impression de ne pas avoir ta place ?",
-      "Es-tu à l'aise de prendre de la place — parler, décider, déranger ?",
-    ],
-  },
-  {
-    id: "regard", titre: "Le regard des autres", emoji: "👁️", couleur: C.cyan,
-    cadre: "Ce que les autres ont dit reste parfois plus longtemps que ce qu'ils ont vu.",
-    questions: [
-      "Qui, dans ton histoire, a commenté ton corps ?",
-      "Qu'est-ce que tu imagines que les gens pensent en te voyant ?",
-      "Si personne ne te regardait, est-ce que le poids serait encore un enjeu ?",
-    ],
-  },
-  {
-    id: "identite", titre: "Identité et fidélité", emoji: "🎭", couleur: C.lime,
-    cadre: "Un enjeu qui dure longtemps finit par ressembler à une identité.",
-    questions: [
-      "Depuis combien de temps « la personne qui a un problème de poids » fait partie de qui tu es ?",
-      "Qui serais-tu sans ça ? Qu'est-ce que ça changerait dans tes relations ?",
-    ],
-  },
-  {
-    id: "loyautes", titre: "Loyautés familiales", emoji: "🌳", couleur: C.orange,
-    cadre: "Certaines histoires commencent avant nous.",
-    questions: [
-      "Qui, dans ta famille, portait le même enjeu ?",
-      "Y a-t-il eu des mémoires de manque, de privation, de famine, de guerre dans ton histoire familiale ?",
-      "Est-ce que maigrir serait trahir quelqu'un ?",
-    ],
-  },
-  {
-    id: "revolte", titre: "Interdit et révolte", emoji: "⛓️", couleur: C.rose,
-    cadre: "Là où quelqu'un décide à notre place, quelque chose en nous résiste.",
-    questions: [
-      "Combien de régimes ? Qu'est-ce qui s'est passé à chaque fois que tu as arrêté ?",
-      "Que ressens-tu quand on te dit ce que tu dois manger ?",
-      "Qui, dans ta vie, a décidé pour toi ?",
-    ],
-  },
-  {
-    id: "benefices", titre: "Bénéfices secondaires", emoji: "🎁", couleur: C.jaune,
-    cadre: "Question inconfortable, posée sans jugement : ce qui reste sert souvent à quelque chose.",
-    questions: [
-      "Question inconfortable : qu'est-ce que ce poids t'apporte de bon ?",
-      "Qu'est-ce qu'il te permet d'éviter ?",
-      "Qu'est-ce qu'on n'exige plus de toi à cause de lui ?",
-    ],
-  },
-  {
-    id: "habite", titre: "Le corps habité", emoji: "🫂", couleur: C.cyan,
-    cadre: "Habiter son corps ou le traîner : ce n'est pas la même vie.",
-    questions: [
-      "À quand remonte la dernière fois où tu t'es senti bien dans ton corps ?",
-      "Y a-t-il des zones que tu évites de toucher ou de regarder ?",
-      "Ton corps, tu l'habites ou tu le traînes ?",
-    ],
-  },
-  {
-    id: "retention", titre: "La rétention", emoji: "🪢", couleur: C.lime,
-    cadre: "Retenir, c'est parfois la seule façon qu'on a trouvée d'être en sécurité.",
-    questions: [
-      "Qu'est-ce que tu retiens, dans ta vie, que tu n'arrives pas à laisser partir ?",
-      "Te sens-tu en sécurité, aujourd'hui, dans ton présent ?",
-    ],
-  },
-];
+/* Habillage par axe — la couleur et l'émoji ne sont pas des données de
+   contenu, ils restent ici. Un axe inconnu retombe sur du cyan. */
+const HABILLAGE = {
+  temps: { emoji: "🕰️", couleur: C.cyan },
+  protection: { emoji: "🛡️", couleur: C.lime },
+  manque: { emoji: "🍯", couleur: C.orange },
+  morceau: { emoji: "🎣", couleur: C.rose },
+  territoire: { emoji: "🗺️", couleur: C.jaune },
+  regard: { emoji: "👁️", couleur: C.cyan },
+  identite: { emoji: "🎭", couleur: C.lime },
+  loyautes: { emoji: "🌳", couleur: C.orange },
+  revolte: { emoji: "⛓️", couleur: C.rose },
+  benefices: { emoji: "🎁", couleur: C.jaune },
+  corps: { emoji: "🫂", couleur: C.cyan },
+  retention: { emoji: "🪢", couleur: C.lime },
+};
 
-/* Le corpus : toutes les questions des 12 axes, à plat. */
-export const CORPUS = AXES.flatMap(a => a.questions.map((q, i) => ({
-  cle: `${a.id}:${i}`, axe: a.id, axeTitre: a.titre, emoji: a.emoji, couleur: a.couleur, texte: q,
+export const AXES = [...BANQUE.axes]
+  .sort((a, b) => (a.numero || 0) - (b.numero || 0))
+  .map(a => ({ ...a, ...(HABILLAGE[a.id] || { emoji: "•", couleur: C.cyan }) }));
+
+/* Le corpus : toutes les questions, à plat, retrouvables par id. */
+export const CORPUS = AXES.flatMap(a => a.questions.map(q => ({
+  ...q, axe: a.id, axeTitre: a.titre, emoji: a.emoji, couleur: a.couleur,
 })));
+const PAR_ID = new Map(CORPUS.map(q => [q.id, q]));
 
-/* Le fil des 21 jours : tour par tour à travers les 12 axes, pour que les
-   trois premières semaines ne restent pas coincées sur un seul thème.
-   Ordre déterministe — un rechargement ne rebat pas les cartes. */
-export const FIL_21 = (() => {
-  const fil = [];
-  const max = Math.max(...AXES.map(a => a.questions.length));
-  for (let tour = 0; tour < max && fil.length < 21; tour++) {
-    for (const a of AXES) {
-      if (fil.length >= 21) break;
-      if (a.questions[tour]) fil.push(`${a.id}:${tour}`);
-    }
-  }
-  return fil.map(cle => CORPUS.find(q => q.cle === cle));
-})();
+/* Le fil des 21 jours vient du JSON. Un id inconnu est ignoré plutôt que
+   de faire planter l'écran — le fil est alors juste plus court. */
+export const FIL_21 = (BANQUE.parcours_21_jours || [])
+  .map(id => PAR_ID.get(id))
+  .filter(Boolean);
 
 /* ─────────────── PERSISTANCE ───────────────
    Même mécanisme que le reste de l'app (window.storage, shim localStorage
    préfixe ztsdeco:). Préfixe `poids:` distinct de `decodage:` pour que
-   l'écran Historique, qui liste `decodage:`, ne récupère pas les brouillons.
-   Les lectures IA, elles, sont écrites en `decodage:` pour apparaître dans
-   l'historique commun. */
+   l'écran Historique, qui liste `decodage:`, ne récupère pas les
+   brouillons. Les lectures IA, elles, sont écrites en `decodage:` pour
+   apparaître dans l'historique commun. */
 const CLE_QUESTIONNAIRE = "poids:questionnaire";
 const CLE_PARCOURS = "poids:parcours";
+const VERSION_STOCKAGE = 2;
 
-async function lire(cle, defaut) {
+/* ── Migration v1 → v2 ──
+   La v1 sauvegardait sous des clés POSITIONNELLES (`axe:index`), calculées
+   depuis un tableau écrit en dur dans le code. La v2 sauvegarde sous les
+   `id` du JSON. Sans cette table, trois choses se seraient perdues en
+   silence :
+     · deux axes ont changé de nom  (douceur → manque, habite → corps);
+     · l'axe `regard` a reçu une question INSÉRÉE en 2e position, donc les
+       réponses 2 et 3 de la v1 glissent vers regard-3 et regard-4 — un
+       décalage naïf de +1 les aurait collées sous la mauvaise question;
+     · le journal des 21 jours était rangé par NUMÉRO DE JOUR, et l'ordre
+       des jours a changé : rangé par id, il suit sa question. */
+const MIGRATION_V1 = {
+  "temps:0": "temps-1", "temps:1": "temps-2", "temps:2": "temps-3",
+  "protection:0": "protection-1", "protection:1": "protection-2", "protection:2": "protection-3",
+  "douceur:0": "manque-1", "douceur:1": "manque-2", "douceur:2": "manque-3",
+  "morceau:0": "morceau-1", "morceau:1": "morceau-2",
+  "territoire:0": "territoire-1", "territoire:1": "territoire-2",
+  "regard:0": "regard-1", "regard:1": "regard-3", "regard:2": "regard-4",
+  "identite:0": "identite-1", "identite:1": "identite-2",
+  "loyautes:0": "loyautes-1", "loyautes:1": "loyautes-2", "loyautes:2": "loyautes-3",
+  "revolte:0": "revolte-1", "revolte:1": "revolte-2", "revolte:2": "revolte-3",
+  "benefices:0": "benefices-1", "benefices:1": "benefices-2", "benefices:2": "benefices-3",
+  "habite:0": "corps-1", "habite:1": "corps-2", "habite:2": "corps-3",
+  "retention:0": "retention-1", "retention:1": "retention-2",
+};
+const MIGRATION_AXES_V1 = { douceur: "manque", habite: "corps" };
+/* L'ancien fil des 21 jours, dans l'ordre où il était calculé : question 1
+   des 12 axes, puis question 2 des 9 premiers. */
+const FIL_V1 = [
+  "temps:0", "protection:0", "douceur:0", "morceau:0", "territoire:0", "regard:0",
+  "identite:0", "loyautes:0", "revolte:0", "benefices:0", "habite:0", "retention:0",
+  "temps:1", "protection:1", "douceur:1", "morceau:1", "territoire:1", "regard:1",
+  "identite:1", "loyautes:1", "revolte:1",
+];
+
+function migrerQuestionnaire(brut) {
+  if (!brut) return { reponses: {}, scores: {}, axe: 0, v: VERSION_STOCKAGE };
+  if (brut.v === VERSION_STOCKAGE) {
+    return { reponses: brut.reponses || {}, scores: brut.scores || {}, axe: brut.axe || 0, v: VERSION_STOCKAGE };
+  }
+  const reponses = {};
+  for (const [cle, texte] of Object.entries(brut.reponses || {})) {
+    const id = MIGRATION_V1[cle] || (PAR_ID.has(cle) ? cle : null);
+    if (id) reponses[id] = texte;
+  }
+  const scores = {};
+  for (const [axe, n] of Object.entries(brut.scores || {})) {
+    scores[MIGRATION_AXES_V1[axe] || axe] = n;
+  }
+  return { reponses, scores, axe: 0, v: VERSION_STOCKAGE };
+}
+
+function migrerParcours(brut) {
+  if (!brut) return { notes: {}, v: VERSION_STOCKAGE };
+  if (brut.v === VERSION_STOCKAGE) return { notes: brut.notes || {}, v: VERSION_STOCKAGE };
+  const notes = {};
+  for (const [jour, texte] of Object.entries(brut.jours || {})) {
+    const ancienneCle = FIL_V1[Number(jour)];
+    const id = ancienneCle && MIGRATION_V1[ancienneCle];
+    if (id) notes[id] = texte;
+  }
+  return { notes, v: VERSION_STOCKAGE };
+}
+
+async function lire(cle) {
   try {
     const r = await window.storage.get(cle);
-    return r?.value ? JSON.parse(r.value) : defaut;
-  } catch (e) { return defaut; }
+    return r?.value ? JSON.parse(r.value) : null;
+  } catch (e) { return null; }
 }
 async function ecrire(cle, valeur) {
   try { await window.storage.set(cle, JSON.stringify(valeur)); } catch (e) { /* best-effort */ }
 }
 
-/* Sauvegarde continue, temporisée : on écrit 500 ms après la dernière frappe
-   plutôt qu'à chaque caractère. `pret` évite d'écraser le disque avec l'état
-   vide avant que le chargement initial soit terminé. */
+/* Sauvegarde continue, temporisée : on écrit 500 ms après la dernière
+   frappe plutôt qu'à chaque caractère. `pret` évite d'écraser le disque
+   avec l'état vide avant que le chargement initial soit terminé. */
 function useSauvegardeContinue(cle, valeur, pret) {
   const minuterie = useRef(null);
   useEffect(() => {
@@ -223,6 +199,10 @@ function Ressources() {
         📞 Prévention du suicide — 988<br />
         <span style={{ fontWeight: 600, fontSize: 14 }}>Appel ou texto, gratuit, 24 h sur 24</span>
       </p>
+      <p style={{ margin: "4px 0", fontWeight: 800 }}>
+        📞 SOS violence conjugale — 1&nbsp;800&nbsp;363-9010<br />
+        <span style={{ fontWeight: 600, fontSize: 14 }}>24 h sur 24 · et 1 888 933-9007 pour les agressions sexuelles</span>
+      </p>
       <p style={{ margin: "8px 0 0", lineHeight: 1.5, fontSize: 14 }}>
         Pour l'alimentation elle-même : une nutritionniste (Ordre des diététistes-nutritionnistes
         du Québec) ou ton médecin.
@@ -263,8 +243,8 @@ function AccueilPoids({ aller, avancement }) {
         <div onClick={() => aller("questionnaire")}>
           <div className="zts-titre" style={{ fontSize: 20, color: C.marine }}>🧭 LE QUESTIONNAIRE DU DÉCLIC</div>
           <p style={{ margin: "6px 0 0", lineHeight: 1.5 }}>
-            Les 12 axes, un écran à la fois. Tu peux sortir quand tu veux : tes réponses
-            restent là où tu les as laissées.
+            {CORPUS.length} questions sur {AXES.length} axes, un écran à la fois. Tu peux
+            sortir quand tu veux : tes réponses restent là où tu les as laissées.
           </p>
           {axesRepondus > 0 && (
             <p style={{ margin: "8px 0 0", fontWeight: 800, color: "#0a7fa0", fontSize: 14 }}>
@@ -338,7 +318,7 @@ function Questionnaire({ etat, setEtat, aller }) {
   useEffect(() => { hautRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, [i]);
   useEffect(() => { setEtat(e => ({ ...e, axe: i })); }, [i]);
 
-  const majReponse = (cle, texte) => setEtat(e => ({ ...e, reponses: { ...e.reponses, [cle]: texte } }));
+  const majReponse = (id, texte) => setEtat(e => ({ ...e, reponses: { ...e.reponses, [id]: texte } }));
   const majScore = (n) => setEtat(e => ({ ...e, scores: { ...e.scores, [axe.id]: n } }));
 
   const score = etat.scores[axe.id] ?? 0;
@@ -358,22 +338,22 @@ function Questionnaire({ etat, setEtat, aller }) {
         <div className="zts-titre" style={{ fontSize: 21, color: C.marine, marginBottom: 4 }}>
           {axe.emoji} {axe.titre.toUpperCase()}
         </div>
-        <p style={{ margin: "0 0 14px", fontSize: 14.5, fontWeight: 700, color: "#5b7396", lineHeight: 1.45 }}>{axe.cadre}</p>
+        <p style={{ margin: "0 0 14px", fontSize: 14.5, fontWeight: 700, color: "#5b7396", lineHeight: 1.45 }}>{axe.cadrage}</p>
 
-        {axe.questions.map((q, j) => {
-          const cle = `${axe.id}:${j}`;
-          return (
-            <div key={cle} style={{ marginBottom: 14 }}>
-              <label htmlFor={`q-${cle}`} style={{ display: "block", fontWeight: 800, color: C.marine, marginBottom: 6, lineHeight: 1.4 }}>{q}</label>
-              <textarea
-                id={`q-${cle}`} rows={3} value={etat.reponses[cle] || ""}
-                onChange={e => majReponse(cle, e.target.value)}
-                placeholder="Dans tes mots, sans te censurer…"
-                style={champStyle}
-              />
-            </div>
-          );
-        })}
+        {axe.questions.map(q => (
+          <div key={q.id} style={{ marginBottom: 14 }}>
+            <label htmlFor={`q-${q.id}`} style={{ display: "block", fontWeight: 800, color: C.marine, marginBottom: q.aide ? 2 : 6, lineHeight: 1.4 }}>{q.texte}</label>
+            {q.aide && (
+              <p style={{ margin: "0 0 6px", fontSize: 13.5, fontWeight: 600, color: "#5b7396", lineHeight: 1.4 }}>{q.aide}</p>
+            )}
+            <textarea
+              id={`q-${q.id}`} rows={3} value={etat.reponses[q.id] || ""}
+              onChange={e => majReponse(q.id, e.target.value)}
+              placeholder="Dans tes mots, sans te censurer…"
+              style={champStyle}
+            />
+          </div>
+        ))}
 
         <div style={{ borderTop: `2px dashed ${axe.couleur}`, paddingTop: 12, marginTop: 4 }}>
           <Curseur valeur={score} onChange={majScore} couleur={axe.couleur} />
@@ -408,7 +388,7 @@ function Questionnaire({ etat, setEtat, aller }) {
 /* ─────────────── SYNTHÈSE ─────────────── */
 function ecrits(etat, axe) {
   return axe.questions
-    .map((q, j) => ({ q, r: (etat.reponses[`${axe.id}:${j}`] || "").trim() }))
+    .map(q => ({ q: q.texte, r: (etat.reponses[q.id] || "").trim() }))
     .filter(x => x.r);
 }
 
@@ -473,9 +453,9 @@ function Synthese({ etat, aller }) {
               Ce qui ressort le plus fort chez toi, c'est {x.axe.titre.toLowerCase()}
               {x.score > 0 ? ` (résonance ${x.score}/10)` : ""}. Voici les questions à continuer de porter.
             </p>
-            {x.axe.questions.map((q, j) => (
-              <p key={j} style={{ margin: "6px 0", lineHeight: 1.5 }}>
-                <b style={{ color: "#d68500" }}>·</b> {q}
+            {x.axe.questions.map(q => (
+              <p key={q.id} style={{ margin: "6px 0", lineHeight: 1.5 }}>
+                <b style={{ color: "#d68500" }}>·</b> {q.texte}
               </p>
             ))}
             {rep.length > 0 && (
@@ -496,7 +476,6 @@ function Synthese({ etat, aller }) {
       <BoutonCyan onClick={() => aller("questionnaire")} style={{ width: "100%", background: C.orange, fontSize: 15, marginBottom: 16 }}>
         RETOURNER AU QUESTIONNAIRE
       </BoutonCyan>
-
     </div>
   );
 }
@@ -573,7 +552,7 @@ function LectureIA({ etat, aller }) {
     return (
       <div>
         <Titre>🔍 LECTURE CROISÉE</Titre>
-          <Carte couleur={C.cyan}>
+        <Carte couleur={C.cyan}>
           <p style={{ margin: "0 0 10px", lineHeight: 1.55 }}>
             Tes réponses et tes résonances vont être relues par les approches déjà dans
             l'app : Hamer et Sabbah pour le conflit biologique, Martel et Rainville pour
@@ -595,9 +574,10 @@ function LectureIA({ etat, aller }) {
     );
   }
 
-  /* Filet de sécurité : quand l'IA nomme une détresse ou un comportement
-     alimentaire à risque, elle arrête le décodage. On n'affiche alors que
-     son message et les ressources — pas de lecture, pas de pistes. */
+  /* Filet de sécurité : quand l'IA nomme une détresse, un comportement
+     alimentaire à risque ou des violences subies, elle arrête le décodage.
+     On n'affiche alors que son message et les ressources — pas de lecture,
+     pas de pistes. */
   if (resultat.alerte) {
     return (
       <div>
@@ -654,20 +634,36 @@ function LectureIA({ etat, aller }) {
       <BoutonCyan onClick={() => aller("accueil")} style={{ width: "100%", background: C.orange, fontSize: 15, marginBottom: 16 }}>
         RETOUR AU MODULE
       </BoutonCyan>
-
     </div>
   );
 }
 
 /* ─────────────── LE FIL DES 21 JOURS ─────────────── */
 function Parcours({ etat, setEtat, aller }) {
-  const premierVide = FIL_21.findIndex((_, i) => !(etat.jours[i] || "").trim());
+  const premierVide = FIL_21.findIndex(q => !(etat.notes[q.id] || "").trim());
   const [jour, setJour] = useState(() => (premierVide === -1 ? 0 : premierVide));
   const [liste, setListe] = useState(false);
   const q = FIL_21[jour];
-  const deposees = FIL_21.filter((_, i) => (etat.jours[i] || "").trim()).length;
+  const deposees = FIL_21.filter(x => (etat.notes[x.id] || "").trim()).length;
+  /* Le fil vient du JSON et peut changer. Une note écrite sur une question
+     sortie du fil reste en mémoire : on la ressort ici plutôt que de la
+     laisser injoignable. */
+  const dansLeFil = new Set(FIL_21.map(x => x.id));
+  const horsFil = Object.entries(etat.notes)
+    .filter(([id, texte]) => texte.trim() && !dansLeFil.has(id) && PAR_ID.has(id))
+    .map(([id, texte]) => ({ q: PAR_ID.get(id), texte }));
 
-  const majJour = (texte) => setEtat(e => ({ ...e, jours: { ...e.jours, [jour]: texte } }));
+  const majNote = (texte) => setEtat(e => ({ ...e, notes: { ...e.notes, [q.id]: texte } }));
+
+  if (!q) {
+    return (
+      <div>
+        <Titre taille={24}>📅 UNE QUESTION PAR JOUR</Titre>
+        <Carte couleur={C.cyan}><p style={{ margin: 0 }}>Le fil des 21 jours est vide — vérifie `parcours_21_jours` dans questions-poids.json.</p></Carte>
+        <BoutonCyan onClick={() => aller("accueil")} style={{ width: "100%", background: C.orange }}>RETOUR AU MODULE</BoutonCyan>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -675,7 +671,7 @@ function Parcours({ etat, setEtat, aller }) {
 
       <p style={{ color: "#bfe9ff", fontWeight: 700, fontSize: 13.5, textAlign: "center", margin: "0 0 12px", lineHeight: 1.5 }}>
         {deposees === 0
-          ? "Vingt et une questions, une par jour. Aucun compte à tenir, aucune série à ne pas briser."
+          ? `${FIL_21.length} questions, une par jour. Aucun compte à tenir, aucune série à ne pas briser.`
           : `${deposees} note${deposees > 1 ? "s" : ""} déposée${deposees > 1 ? "s" : ""}. Reprends quand ça te convient — sauter un jour ne casse rien.`}
       </p>
 
@@ -684,10 +680,13 @@ function Parcours({ etat, setEtat, aller }) {
           <div className="zts-titre" style={{ fontSize: 19, color: C.marine }}>JOUR {jour + 1}</div>
           <span style={{ fontWeight: 800, fontSize: 13, color: "#5b7396" }}>{q.emoji} {q.axeTitre}</span>
         </div>
-        <label htmlFor="journal" style={{ display: "block", fontWeight: 800, color: C.marine, marginBottom: 10, lineHeight: 1.45, fontSize: 16 }}>
+        <label htmlFor="journal" style={{ display: "block", fontWeight: 800, color: C.marine, marginBottom: q.aide ? 2 : 10, lineHeight: 1.45, fontSize: 16 }}>
           {q.texte}
         </label>
-        <textarea id="journal" rows={6} value={etat.jours[jour] || ""} onChange={e => majJour(e.target.value)}
+        {q.aide && (
+          <p style={{ margin: "0 0 10px", fontSize: 13.5, fontWeight: 600, color: "#5b7396", lineHeight: 1.4 }}>{q.aide}</p>
+        )}
+        <textarea id="journal" rows={6} value={etat.notes[q.id] || ""} onChange={e => majNote(e.target.value)}
           placeholder="Ton journal du jour — personne d'autre ne le lit." style={champStyle} />
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
           <BoutonCyan onClick={() => setJour(n => Math.max(0, n - 1))} disabled={jour === 0}
@@ -708,9 +707,9 @@ function Parcours({ etat, setEtat, aller }) {
       {liste && (
         <Carte couleur={C.cyan}>
           {FIL_21.map((x, i) => {
-            const ecrit = (etat.jours[i] || "").trim();
+            const ecrit = (etat.notes[x.id] || "").trim();
             return (
-              <div key={x.cle} onClick={() => { setJour(i); setListe(false); }}
+              <div key={x.id} onClick={() => { setJour(i); setListe(false); }}
                 style={{
                   padding: "8px 6px", cursor: "pointer", borderBottom: i < FIL_21.length - 1 ? "2px dashed #dceef6" : "none",
                   background: i === jour ? "#FFFDE0" : "transparent",
@@ -725,10 +724,25 @@ function Parcours({ etat, setEtat, aller }) {
         </Carte>
       )}
 
+      {horsFil.length > 0 && (
+        <Carte couleur={C.orange}>
+          <div className="zts-titre" style={{ fontSize: 17, color: C.marine, marginBottom: 4 }}>🗒️ GARDÉ HORS DU FIL</div>
+          <p style={{ margin: "0 0 10px", fontSize: 14, fontWeight: 700, color: "#5b7396", lineHeight: 1.45 }}>
+            Des notes écrites sur des questions qui ne sont plus dans le fil des
+            {" "}{FIL_21.length} jours. Rien n'est effacé — elles sont juste ici.
+          </p>
+          {horsFil.map(({ q, texte }) => (
+            <div key={q.id} style={{ marginBottom: 10, paddingLeft: 10, borderLeft: `4px solid ${q.couleur}` }}>
+              <div style={{ fontWeight: 800, color: C.marine, fontSize: 14, lineHeight: 1.4 }}>{q.emoji} {q.texte}</div>
+              <p style={{ margin: "4px 0 0", lineHeight: 1.5, fontSize: 14.5, fontStyle: "italic" }}>« {texte} »</p>
+            </div>
+          ))}
+        </Carte>
+      )}
+
       <BoutonCyan onClick={() => aller("accueil")} style={{ width: "100%", background: C.orange, fontSize: 15, marginBottom: 16 }}>
         RETOUR AU MODULE
       </BoutonCyan>
-
     </div>
   );
 }
@@ -737,15 +751,13 @@ function Parcours({ etat, setEtat, aller }) {
 export default function PerteDePoids() {
   const [vue, setVue] = useState("accueil");
   const [pret, setPret] = useState(false);
-  const [questionnaire, setQuestionnaire] = useState({ reponses: {}, scores: {}, axe: 0 });
-  const [parcours, setParcours] = useState({ jours: {} });
+  const [questionnaire, setQuestionnaire] = useState({ reponses: {}, scores: {}, axe: 0, v: VERSION_STOCKAGE });
+  const [parcours, setParcours] = useState({ notes: {}, v: VERSION_STOCKAGE });
 
   useEffect(() => {
     (async () => {
-      const q = await lire(CLE_QUESTIONNAIRE, null);
-      const p = await lire(CLE_PARCOURS, null);
-      if (q) setQuestionnaire({ reponses: q.reponses || {}, scores: q.scores || {}, axe: q.axe || 0 });
-      if (p) setParcours({ jours: p.jours || {} });
+      setQuestionnaire(migrerQuestionnaire(await lire(CLE_QUESTIONNAIRE)));
+      setParcours(migrerParcours(await lire(CLE_PARCOURS)));
       setPret(true);
     })();
   }, []);
@@ -759,7 +771,7 @@ export default function PerteDePoids() {
 
   const avancement = {
     axesRepondus: AXES.filter(a => ecrits(questionnaire, a).length || (questionnaire.scores[a.id] ?? 0) > 0).length,
-    notesDeposees: FIL_21.filter((_, i) => (parcours.jours[i] || "").trim()).length,
+    notesDeposees: Object.values(parcours.notes).filter(t => (t || "").trim()).length,
   };
 
   return (
