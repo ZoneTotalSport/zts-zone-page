@@ -241,12 +241,40 @@
     return d;
   }
 
+  // ⚠ ÉCHAPPATOIRE : `data-zts-toujours-visible`
+  //
+  // Un bloc portant cet attribut n'est jamais masqué par le demi-aperçu, ET il
+  // ne compte pas dans le calcul de la coupure. Les deux vont ensemble : si un
+  // bloc exempté restait compté, il achèterait du contenu gratuit au lecteur —
+  // une promo toujours visible ferait grossir la moitié offerte.
+  //
+  // À QUOI ÇA SERT. Un article peut vouloir montrer une promo, un encadré
+  // d'outil ou un appel à l'action à TOUS les visiteurs, y compris ceux qui ne
+  // sont pas connectés — ce sont justement eux qu'on cherche à convertir. Sans
+  // l'attribut, la moitié basse tombe derrière le mur et l'appât devient une
+  // récompense réservée à ceux qui n'en ont plus besoin.
+  //
+  // COMMENT S'EN SERVIR. Poser l'attribut sur chaque ENFANT DIRECT de
+  // `.article-body` qui compose le bloc — le titre, les paragraphes, les
+  // encadrés, le CTA. Un enfant oublié sera masqué et coupera le bloc en deux.
+  //
+  //   <h2 id="…" data-zts-toujours-visible>…</h2>
+  //   <figure class="…" data-zts-toujours-visible>…</figure>
+  //   <aside class="zts-cta-inline" data-zts-toujours-visible>…</aside>
+  //
+  // Premier usage : la section « Zone Inventaire » de
+  // articles/inventaire-materiel-sans-effort.html (23 août 2026).
+  //
+  // CE QU'IL NE FAUT PAS EN FAIRE. Exempter le corps de l'article viderait le
+  // mur de son sens. L'échappatoire est faite pour de la promo, pas du contenu.
   function applyHalf(container, info) {
     if (!container || container.getAttribute('data-zts-half') === '1') return;
     var kids = [];
     for (var i = 0; i < container.children.length; i++) {
       var el = container.children[i];
-      if (!el.classList.contains('zts-half-cta')) kids.push(el);
+      if (el.classList.contains('zts-half-cta')) continue;
+      if (el.hasAttribute('data-zts-toujours-visible')) continue;
+      kids.push(el);
     }
     if (kids.length < 4) return;               // article trop court → laissé entier
     var cut = Math.ceil(kids.length / 2);
