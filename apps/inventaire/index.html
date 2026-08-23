@@ -108,6 +108,12 @@
       <p class="inv-msg" id="invMsg" role="status" aria-live="polite"></p>
     </section>
 
+    <!-- ── Banniere d'arrivee par code QR ─────────────────────────────── -->
+    <div class="inv-cible inv-noprint" id="invCible" hidden>
+      <span id="invCibleTxt"></span>
+      <button class="ztsh-btn ztsh-btn--sm" id="invCibleTout" type="button"></button>
+    </div>
+
     <!-- ── Filtres ───────────────────────────────────────────────────── -->
     <section class="inv-filtres inv-noprint">
       <input type="search" class="inv-search" id="invSearch">
@@ -115,12 +121,14 @@
       <select class="inv-select" id="invFUniv"></select>
       <select class="inv-select" id="invFEtat"></select>
       <button class="ztsh-btn ztsh-btn--sm" id="invReset" type="button"></button>
+      <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invGererCats" type="button"></button>
     </section>
 
     <div class="inv-actions inv-noprint">
       <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invAchats" type="button"></button>
       <button class="ztsh-btn ztsh-btn--sm" id="invCsv" type="button"></button>
       <button class="ztsh-btn ztsh-btn--sm" id="invImprimer" type="button"></button>
+      <button class="ztsh-btn ztsh-btn--sm" id="invPlanche" type="button"></button>
     </div>
 
     <!-- ── Tableau ───────────────────────────────────────────────────── -->
@@ -154,6 +162,66 @@
     </div>
   </div>
 
+  <!-- ── Modale : gestion des categories ─────────────────────────────── -->
+  <div class="zts-modal inv-noprint" id="invModalCats" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title inv-modal__titre" id="invCatsTitre"></h2>
+      <p class="inv-catnote" id="invCatsNote"></p>
+      <div class="inv-catentete">
+        <span id="invCatsLblFr"></span>
+        <span id="invCatsLblEn"></span>
+      </div>
+      <div id="invCatsListe"></div>
+      <div class="inv-modal__btns">
+        <button class="ztsh-btn ztsh-btn--sm" id="invCatsAjout" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modale : reassignation avant suppression d'une categorie ────── -->
+  <div class="zts-modal inv-noprint" id="invModalReassign" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal inv-modal--etroite">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title inv-modal__titre" id="invReTitre"></h2>
+      <p class="inv-catnote" id="invReTxt"></p>
+      <select class="inv-select inv-select--gros" id="invReVers"></select>
+      <div class="inv-modal__btns">
+        <button class="ztsh-btn ztsh-btn--sm inv-btn--danger" id="invReOk" type="button"></button>
+        <button class="ztsh-btn ztsh-btn--sm" id="invReAnnuler" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modale : un code QR ─────────────────────────────────────────── -->
+  <div class="zts-modal inv-noprint" id="invModalQR" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal inv-modal--etroite">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title inv-modal__titre" id="invQRTitre"></h2>
+      <div class="inv-qr" id="invQRImg"></div>
+      <p class="inv-qr__url" id="invQRUrl"></p>
+      <div class="inv-modal__btns">
+        <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invQRImpr" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modale : planche d'etiquettes ───────────────────────────────── -->
+  <div class="zts-modal inv-noprint" id="invModalPlanche" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal inv-modal--etroite">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title inv-modal__titre" id="invPlTitre"></h2>
+      <label class="inv-lbl inv-lbl--sombre" for="invPlPortee" id="invPlLblPortee"></label>
+      <select class="inv-select inv-select--gros" id="invPlPortee"></select>
+      <label class="inv-lbl inv-lbl--sombre" for="invPlValeur" id="invPlLblValeur"></label>
+      <select class="inv-select inv-select--gros" id="invPlValeur"></select>
+      <p class="inv-catnote" id="invPlCompte"></p>
+      <div class="inv-modal__btns">
+        <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invPlImpr" type="button"></button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Modale liste d'achats ───────────────────────────────────────── -->
   <div class="zts-modal" id="invModalAchats" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="zts-modal__inner inv-modal">
@@ -174,6 +242,7 @@
   <script src="../../shared/zts-gate.js"></script>
   <script src="../../assets/ztsh-shell.js"></script>
   <script>ZTSShell.monter({ densite: 'travail' });</script>
+  <script src="qr.js"></script>
   <script src="dataStore.js"></script>
   <script src="app.js"></script>
 </body>

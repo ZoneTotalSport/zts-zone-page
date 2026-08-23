@@ -14,16 +14,14 @@
      1. REFERENTIELS
      ====================================================================== */
 
-  // ⚠ MIROIR DU WORKER. La meme liste de cles vit dans
-  // cf-worker/generateur/src/generateur-worker.js (handleInventaireVision) :
-  // c'est elle que l'IA a le droit de retourner. Ajouter une categorie ici
-  // sans l'ajouter la-bas donne une categorie que l'IA ne choisira jamais ;
-  // l'inverse donne une cle que le <select> ne sait pas afficher.
-  const CATEGORIES = [
-    'ballons', 'manipulation', 'cones-dossards', 'sport-collectif',
-    'gymnastique', 'jeux-societe', 'bricolage', 'eau', 'plein-air',
-    'premiers-soins', 'audio-techno', 'mobilier', 'rangement', 'livres', 'autre'
-  ];
+  // LES CATEGORIES NE SONT PLUS FIGEES ICI (ajout C, 23 aout 2026). Elles
+  // appartiennent a l'inventaire courant, l'usager les renomme, en ajoute et
+  // en supprime, et elles portent un libelle FR et un libelle EN. La liste de
+  // depart d'un inventaire neuf vit dans dataStore.js — un seul endroit.
+  //
+  // Une categorie vide ('') est un etat LEGITIME : « non classe ». C'est ce
+  // que porte un objet dont la categorie a ete supprimee sans reassignation,
+  // ou que l'IA n'a pas su ranger.
 
   const UNIVERS = ['ep', 'camp', 'sdg'];
   const ETATS   = ['neuf', 'bon', 'ok', 'remplacer'];
@@ -64,14 +62,42 @@
         categorie: 'Catégorie', emplacement: 'Emplacement', qteMain: 'Qté en main',
         qteAcheter: 'Qté à acheter', etat: 'État', prix: 'Prix ($)', notes: 'Notes', actions: ''
       },
-      cat: {
-        ballons: 'Ballons', manipulation: 'Matériel de manipulation',
-        'cones-dossards': 'Cônes et dossards', 'sport-collectif': 'Sports collectifs',
-        gymnastique: 'Gymnastique', 'jeux-societe': 'Jeux de société', bricolage: 'Bricolage',
-        eau: 'Matériel d’eau', 'plein-air': 'Plein air', 'premiers-soins': 'Premiers soins',
-        'audio-techno': 'Audio et techno', mobilier: 'Mobilier', rangement: 'Rangement',
-        livres: 'Livres et albums', autre: 'Autre'
-      },
+      nonClasse: '— Non classé —',
+      // Catégories (ajout C)
+      gererCats: '🏷️ Gérer les catégories',
+      catsTitre: '🏷️ Catégories de cet inventaire',
+      catsNote: 'Renomme, ajoute, réordonne. Les objets suivent automatiquement : c’est l’identifiant qui les relie, pas le libellé. Si l’anglais est vide, le français s’affiche dans les deux langues.',
+      catsFr: 'Français', catsEn: 'English',
+      catsAjout: '+ Nouvelle catégorie', catsNeuve: 'Nouvelle catégorie',
+      catsObjets: (n) => n + ' objet' + (n > 1 ? 's' : ''),
+      catsMonter: 'Monter', catsDescendre: 'Descendre', catsSuppr: 'Supprimer',
+      catsUneSeule: '⚠️ Il faut garder au moins une catégorie.',
+      reTitre: '🗃️ Réassigner avant de supprimer',
+      reTxt: (nom, n) => '« ' + nom + ' » contient ' + n + ' objet' + (n > 1 ? 's' : '') +
+        '. Choisis où ' + (n > 1 ? 'les ' : 'l’') + 'envoyer avant de supprimer la catégorie.',
+      reOk: 'Réassigner et supprimer', reAnnuler: 'Annuler',
+      reFait: (n, nom) => '✅ ' + n + ' objet(s) déplacé(s) vers « ' + nom + ' ».',
+      iaNouvelle: (x) => 'L’IA propose une catégorie qui n’existe pas encore : « ' + x + ' ».',
+      iaAjouter: (x) => '➕ Ajouter « ' + x + ' » ?',
+      // Codes QR (ajout D)
+      qr: 'QR', qrTitre: '🔳 Code QR',
+      qrImpr: '🖨️ Imprimer cette étiquette',
+      qrScan: 'Scanne-le avec l’appareil photo du téléphone : il ouvre cette fiche.',
+      planche: '🔳 Imprimer les QR',
+      plTitre: '🔳 Planche d’étiquettes QR',
+      plPortee: 'Quoi imprimer', plValeur: 'Lequel',
+      plTous: 'Tous les objets', plCat: 'Une catégorie', plLoc: 'Un emplacement',
+      plLocs: 'Les emplacements seuls',
+      plImpr: '🖨️ Imprimer la planche',
+      plCompte: (n) => n + ' étiquette' + (n > 1 ? 's' : ''),
+      plVide: 'Rien à imprimer pour cette sélection.',
+      plSansLoc: 'Aucun emplacement saisi dans cet inventaire.',
+      // Arrivee par QR (ajout D)
+      cibleItem: (n) => '🔳 Arrivé par code QR : « ' + n + ' ».',
+      cibleLoc: (n) => '🔳 Arrivé par code QR : emplacement « ' + n + ' ».',
+      cibleTout: '↺ Voir tout l’inventaire',
+      cibleIntrouvable: '⚠️ Cet objet n’existe plus — il a été supprimé. Voici l’inventaire complet.',
+      cibleInvIntrouvable: '⚠️ Cet inventaire n’existe plus ou ne t’appartient pas.',
       univ: { ep: 'Éducation physique', camp: 'Camp de jour', sdg: 'Service de garde' },
       etat: { neuf: 'Neuf', bon: 'Bon état', ok: 'OK', remplacer: 'À remplacer' },
       stat: { objets: 'objets', valeur: 'valeur du parc', racheter: 'à racheter', photos: 'photos' },
@@ -124,14 +150,39 @@
         categorie: 'Category', emplacement: 'Location', qteMain: 'Qty on hand',
         qteAcheter: 'Qty to buy', etat: 'Condition', prix: 'Price ($)', notes: 'Notes', actions: ''
       },
-      cat: {
-        ballons: 'Balls', manipulation: 'Manipulative equipment',
-        'cones-dossards': 'Cones and pinnies', 'sport-collectif': 'Team sports',
-        gymnastique: 'Gymnastics', 'jeux-societe': 'Board games', bricolage: 'Craft supplies',
-        eau: 'Water equipment', 'plein-air': 'Outdoors', 'premiers-soins': 'First aid',
-        'audio-techno': 'Audio and tech', mobilier: 'Furniture', rangement: 'Storage',
-        livres: 'Books', autre: 'Other'
-      },
+      nonClasse: '— Uncategorized —',
+      gererCats: '🏷️ Manage categories',
+      catsTitre: '🏷️ Categories in this inventory',
+      catsNote: 'Rename, add, reorder. Items follow automatically: they are linked by id, not by label. If English is empty, the French label is shown in both languages.',
+      catsFr: 'Français', catsEn: 'English',
+      catsAjout: '+ New category', catsNeuve: 'New category',
+      catsObjets: (n) => n + ' item' + (n > 1 ? 's' : ''),
+      catsMonter: 'Move up', catsDescendre: 'Move down', catsSuppr: 'Delete',
+      catsUneSeule: '⚠️ You must keep at least one category.',
+      reTitre: '🗃️ Reassign before deleting',
+      reTxt: (nom, n) => '"' + nom + '" holds ' + n + ' item' + (n > 1 ? 's' : '') +
+        '. Choose where to move ' + (n > 1 ? 'them' : 'it') + ' before deleting the category.',
+      reOk: 'Reassign and delete', reAnnuler: 'Cancel',
+      reFait: (n, nom) => '✅ ' + n + ' item(s) moved to "' + nom + '".',
+      iaNouvelle: (x) => 'The AI suggests a category that does not exist yet: "' + x + '".',
+      iaAjouter: (x) => '➕ Add "' + x + '"?',
+      qr: 'QR', qrTitre: '🔳 QR code',
+      qrImpr: '🖨️ Print this label',
+      qrScan: 'Scan it with the phone camera: it opens this record.',
+      planche: '🔳 Print QR codes',
+      plTitre: '🔳 QR label sheet',
+      plPortee: 'What to print', plValeur: 'Which one',
+      plTous: 'All items', plCat: 'One category', plLoc: 'One location',
+      plLocs: 'Locations only',
+      plImpr: '🖨️ Print the sheet',
+      plCompte: (n) => n + ' label' + (n > 1 ? 's' : ''),
+      plVide: 'Nothing to print for this selection.',
+      plSansLoc: 'No location entered in this inventory.',
+      cibleItem: (n) => '🔳 Arrived by QR code: "' + n + '".',
+      cibleLoc: (n) => '🔳 Arrived by QR code: location "' + n + '".',
+      cibleTout: '↺ Show the whole inventory',
+      cibleIntrouvable: '⚠️ This item no longer exists — it was deleted. Here is the full inventory.',
+      cibleInvIntrouvable: '⚠️ This inventory no longer exists, or is not yours.',
       univ: { ep: 'Physical education', camp: 'Day camp', sdg: 'After-school care' },
       etat: { neuf: 'New', bon: 'Good condition', ok: 'OK', remplacer: 'To replace' },
       stat: { objets: 'items', valeur: 'inventory value', racheter: 'to buy', photos: 'photos' },
@@ -179,19 +230,96 @@
     tri: { col: 'nom', sens: 1 },
     f: { q: '', cat: '*', univ: '*', etat: '*' },
     horsLigne: false,
-    photo: { itemId: null, index: 0 }
+    photo: { itemId: null, index: 0 },
+    // Ciblage par code QR : `item` fixe un objet unique, `loc` un
+    // emplacement. Ce sont des filtres a part des filtres visibles, pour que
+    // « Réinitialiser » ne les efface pas par surprise et que la banniere
+    // reste le seul moyen de les lever.
+    cible: { item: null, loc: null },
+    cibleDemandee: null,      // parametres d'URL, en attente du chargement
+    catsBrouillon: null,      // liste en cours d'edition dans la modale
+    reassign: null,           // { index, nb } pendant la reassignation
+    planche: { portee: 'tous', valeur: '' }
   };
 
   const $ = (id) => document.getElementById(id);
   const enAttente = new Map();   // id -> timer de sauvegarde differee
 
-  function msg(txt, erreur) {
+  // `action` ajoute un bouton a cote du message — c'est le « Ajouter "X" ? »
+  // en un tap demande par l'ajout C. On passe par un vrai <button> cree en
+  // JS plutot que par de l'HTML injecte : le libelle vient du modele, donc
+  // d'un texte qu'on ne controle pas.
+  function msg(txt, erreur, action) {
     const el = $('invMsg');
     el.textContent = txt || '';
     el.classList.toggle('inv-msg--erreur', !!erreur);
+    if (action) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ztsh-btn ztsh-btn--sm inv-msg__act';
+      b.textContent = action.texte;
+      b.addEventListener('click', action.onclic);
+      el.appendChild(b);
+    }
   }
 
   function invCourant() { return S.inventaires.find((x) => x.id === S.invId) || null; }
+
+  /** Categories de l'inventaire courant, dans leur ordre d'affichage. */
+  function cats() {
+    const iv = invCourant();
+    return (iv && Array.isArray(iv.categories)) ? iv.categories : [];
+  }
+
+  /**
+   * Libelle d'une categorie dans la langue courante.
+   * L'anglais vide retombe sur le francais — c'est la regle demandee : on
+   * n'oblige personne a traduire ses quinze categories pour utiliser l'app.
+   */
+  function libCat(c) {
+    if (!c) return '';
+    if (lang() === 'en') return c.en || c.fr || c.id;
+    return c.fr || c.en || c.id;
+  }
+
+  /** Libelle a partir d'un identifiant. Vide ou inconnu => « non classe ». */
+  function libCatId(id) {
+    if (!id) return L().nonClasse;
+    const c = cats().find((x) => x.id === id);
+    return c ? libCat(c) : L().nonClasse;
+  }
+
+  /**
+   * Options d'un <select> de categorie. L'entree « non classe » n'apparait
+   * que si elle est REELLEMENT utilisee : la proposer partout inviterait a
+   * declasser des objets, alors que c'est un etat de transition.
+   */
+  function optionsCats(choisie) {
+    const liste = cats();
+    const connue = liste.some((c) => c.id === choisie);
+    let html = '';
+    if (!connue) {
+      html += '<option value=""' + (choisie ? '' : ' selected') + '>' +
+        esc(L().nonClasse) + '</option>';
+    }
+    return html + liste.map((c) =>
+      '<option value="' + esc(c.id) + '"' + (c.id === choisie ? ' selected' : '') + '>' +
+      esc(libCat(c)) + '</option>').join('');
+  }
+
+  /** Nombre d'objets par identifiant de categorie, dans l'inventaire courant. */
+  function compteCats() {
+    const n = {};
+    S.items.forEach((o) => { const k = o.categorie || ''; n[k] = (n[k] || 0) + 1; });
+    return n;
+  }
+
+  /** Emplacements distincts saisis, tries. */
+  function emplacements() {
+    const vus = new Set();
+    S.items.forEach((o) => { const e = (o.emplacement || '').trim(); if (e) vus.add(e); });
+    return Array.from(vus).sort((a, b) => a.localeCompare(b, lang(), { numeric: true }));
+  }
   function item(id) { return S.items.find((x) => x.id === id) || null; }
 
   /* ======================================================================
@@ -282,6 +410,23 @@
     $('invAchats').textContent = l.achats;
     $('invCsv').textContent = l.csv;
     $('invImprimer').textContent = l.imprimer;
+    $('invGererCats').textContent = l.gererCats;
+    $('invPlanche').textContent = l.planche;
+    $('invCibleTout').textContent = l.cibleTout;
+    $('invCatsTitre').textContent = l.catsTitre;
+    $('invCatsNote').textContent = l.catsNote;
+    $('invCatsLblFr').textContent = l.catsFr;
+    $('invCatsLblEn').textContent = l.catsEn;
+    $('invCatsAjout').textContent = l.catsAjout;
+    $('invReTitre').textContent = l.reTitre;
+    $('invReOk').textContent = l.reOk;
+    $('invReAnnuler').textContent = l.reAnnuler;
+    $('invQRTitre').textContent = l.qrTitre;
+    $('invQRImpr').textContent = l.qrImpr;
+    $('invPlTitre').textContent = l.plTitre;
+    $('invPlLblPortee').textContent = l.plPortee;
+    $('invPlLblValeur').textContent = l.plValeur;
+    $('invPlImpr').textContent = l.plImpr;
     $('invAchatsCsv').textContent = l.csv;
     $('invAchatsImpr').textContent = l.imprimer;
     $('invPhotoPrincipale').textContent = l.principale;
@@ -291,7 +436,11 @@
 
     // Filtres
     $('invFCat').innerHTML = '<option value="*">' + esc(l.toutesCat) + '</option>' +
-      optionsHtml(CATEGORIES, l.cat, S.f.cat);
+      cats().map((c) => '<option value="' + esc(c.id) + '">' + esc(libCat(c)) + '</option>').join('');
+    // Une categorie supprimee pendant que son filtre etait actif laisserait un
+    // <select> sans option correspondante, donc un filtre invisible qui vide
+    // le tableau. On revient a « toutes ».
+    if (S.f.cat !== '*' && !cats().some((c) => c.id === S.f.cat)) S.f.cat = '*';
     $('invFCat').value = S.f.cat;
     $('invFUniv').innerHTML = '<option value="*">' + esc(l.tousUniv) + '</option>' +
       optionsHtml(UNIVERS, l.univ, S.f.univ);
@@ -320,6 +469,8 @@
     const iv = invCourant();
     if (S.f.univ !== '*' && (!iv || iv.univers !== S.f.univ)) return [];
     let out = S.items.filter((o) =>
+      (!S.cible.item || o.id === S.cible.item) &&
+      (!S.cible.loc || (o.emplacement || '').trim() === S.cible.loc) &&
       (S.f.cat === '*' || o.categorie === S.f.cat) &&
       (S.f.etat === '*' || o.etat === S.f.etat) &&
       (!q || [o.nom, o.marque, o.description, o.emplacement, o.notes]
@@ -332,7 +483,7 @@
         return (x - y) * s;
       }
       if (c === 'etat')      { return (ETATS.indexOf(x) - ETATS.indexOf(y)) * s; }
-      if (c === 'categorie') { x = L().cat[x] || x; y = L().cat[y] || y; }
+      if (c === 'categorie') { x = libCatId(x); y = libCatId(y); }
       return String(x || '').localeCompare(String(y || ''), lang(), { numeric: true }) * s;
     });
     return out;
@@ -382,8 +533,11 @@
         esc(l.ajouterPhoto) + '</button></div></td>';
     }
     if (k.c === 'actions') {
-      return '<td' + lbl + '><button class="inv-mini inv-mini--suppr" type="button" ' +
-        'data-act="suppr" data-id="' + id + '">🗑️ ' + esc(l.supprimer) + '</button></td>';
+      return '<td' + lbl + '><div class="inv-photocell">' +
+        '<button class="inv-mini" type="button" data-act="qr" data-id="' + id + '">🔳 ' +
+        esc(l.qr) + '</button>' +
+        '<button class="inv-mini inv-mini--suppr" type="button" data-act="suppr" data-id="' + id +
+        '">🗑️ ' + esc(l.supprimer) + '</button></div></td>';
     }
     if (k.type === 'zone') {
       return '<td' + lbl + '><textarea class="inv-ta" rows="1" data-id="' + id + '" data-champ="' +
@@ -391,7 +545,7 @@
     }
     if (k.type === 'cat') {
       return '<td' + lbl + '><select class="inv-sel" data-id="' + id + '" data-champ="categorie">' +
-        optionsHtml(CATEGORIES, l.cat, o.categorie) + '</select></td>';
+        optionsCats(o.categorie) + '</select></td>';
     }
     if (k.type === 'etat') {
       return '<td' + lbl + '><select class="inv-sel inv-sel--etat" data-etat="' + esc(o.etat) +
@@ -435,8 +589,13 @@
     // pendant qu'elle est ouverte repeignait les boutons dans la nouvelle
     // langue et laissait le contenu dans l'ancienne. Constate au banc du
     // 23 aout 2026 : titre « SHOPPING LIST » au-dessus de boutons francais.
+    peintCible();
     const ma = $('invModalAchats');
     if (ma && ma.classList.contains('open')) peintAchats();
+    // Meme raison : ces modales sont du HTML fige. Sans ce rappel, une
+    // bascule FR/EN les laisserait dans l'ancienne langue.
+    if ($('invModalCats').classList.contains('open')) peintCats();
+    if ($('invModalPlanche').classList.contains('open')) peintPlanche();
   }
 
   /* ======================================================================
@@ -506,15 +665,19 @@
 
     msg(l.mAnalyse);
     let vu = null, erreurIA = '';
-    try { vu = await InvData.vision(prep.base64, prep.mediaType, lang()); }
+    try { vu = await InvData.vision(prep.base64, prep.mediaType, lang(), cats()); }
     catch (e) { erreurIA = e.message || 'IA'; }
 
+    // Le worker ne renvoie une categorie que si elle EXISTE dans la liste
+    // envoyee. Sinon il propose un libelle dans `nouvelle` — et l'app ne cree
+    // rien toute seule : elle demande, en un tap.
+    const connue = vu && vu.categorie && cats().some((c) => c.id === vu.categorie);
     const brut = {
       photos: [prep.vignette],
       nom: (vu && vu.nom) || '',
       marque: (vu && vu.marque) || '',
       description: (vu && vu.description) || '',
-      categorie: (vu && CATEGORIES.indexOf(vu.categorie) >= 0) ? vu.categorie : 'autre',
+      categorie: connue ? vu.categorie : '',
       emplacement: '', qteMain: 1, qteAcheter: 0, etat: 'bon', prix: null, notes: ''
     };
     try {
@@ -522,7 +685,9 @@
       S.items.unshift(cree);
       InvData.cache.ecrire(S.invId, S.items);
       peintStats(); peintTableau();
-      msg(erreurIA ? l.mEchecIA(erreurIA) : l.mAjoute(cree.nom || l.objetSansNom), !!erreurIA);
+      if (erreurIA) { msg(l.mEchecIA(erreurIA), true); }
+      else if (!connue && vu && vu.nouvelle) { proposeCategorie(vu.nouvelle, cree.id); }
+      else { msg(l.mAjoute(cree.nom || l.objetSansNom)); }
     } catch (e) {
       if (e.message === 'DOC_TROP_LOURD') {
         msg(l.mTropLourd(Math.round(e.info.poids / 1024), Math.round(e.info.max / 1024)), true);
@@ -654,6 +819,352 @@
   }
 
   /* ======================================================================
+     7b. CATEGORIES (ajout C)
+     ====================================================================== */
+
+  /**
+   * Proposition de l'IA pour une categorie qui n'existe pas. Rien n'est cree
+   * tant que l'usager n'a pas touche le bouton.
+   */
+  function proposeCategorie(libelle, itemId) {
+    const l = L();
+    const propre = String(libelle || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+    if (!propre) { msg(l.mAjoute(l.objetSansNom)); return; }
+    msg(l.iaNouvelle(propre), false, {
+      texte: l.iaAjouter(propre),
+      onclic: async function () {
+        if (bloqueSiHorsLigne()) return;
+        const iv = invCourant();
+        if (!iv) return;
+        const neuve = { id: InvData.nouvelIdCategorie(), fr: propre, en: '' };
+        try {
+          iv.categories = await InvData.majCategories(iv.id, cats().concat([neuve]));
+          InvData.cache.ecrireListe(S.inventaires);
+          const o = item(itemId);
+          if (o) {
+            o.categorie = neuve.id;
+            await InvData.majItem(itemId, { categorie: neuve.id }, o);
+            InvData.cache.ecrire(S.invId, S.items);
+          }
+          peintTextes(); peintTableau();
+          msg(l.mSauve);
+        } catch (e) { msg(l.mErrSauve(e.message), true); }
+      }
+    });
+  }
+
+  /**
+   * Liste editable. Le brouillon `S.catsBrouillon` vit dans l'etat le temps
+   * de la modale : on n'ecrit pas dans Firestore a chaque frappe, et fermer
+   * la modale sans rien changer n'ecrit rien du tout.
+   */
+  function peintCats() {
+    const l = L(), n = compteCats(), liste = S.catsBrouillon || [];
+    $('invCatsListe').innerHTML = liste.map((c, i) =>
+      '<div class="inv-catl" data-i="' + i + '">' +
+        '<div class="inv-catl__ordre">' +
+          '<button class="inv-mini" type="button" data-cat="haut" data-i="' + i + '" ' +
+            'aria-label="' + esc(l.catsMonter) + '"' + (i === 0 ? ' disabled' : '') + '>▲</button>' +
+          '<button class="inv-mini" type="button" data-cat="bas" data-i="' + i + '" ' +
+            'aria-label="' + esc(l.catsDescendre) + '"' +
+            (i === liste.length - 1 ? ' disabled' : '') + '>▼</button>' +
+        '</div>' +
+        '<input class="inv-in inv-catl__champ" type="text" data-cat="fr" data-i="' + i +
+          '" value="' + esc(c.fr) + '">' +
+        '<input class="inv-in inv-catl__champ" type="text" data-cat="en" data-i="' + i +
+          '" value="' + esc(c.en) + '">' +
+        '<span class="inv-catl__nb">' + esc(l.catsObjets(n[c.id] || 0)) + '</span>' +
+        '<button class="inv-mini inv-mini--suppr" type="button" data-cat="suppr" data-i="' + i +
+          '">🗑️</button>' +
+      '</div>').join('');
+  }
+
+  async function enregistreCats() {
+    const iv = invCourant();
+    if (!iv || !S.catsBrouillon) return;
+    try {
+      iv.categories = await InvData.majCategories(iv.id, S.catsBrouillon);
+      S.catsBrouillon = iv.categories.map((c) => Object.assign({}, c));
+      InvData.cache.ecrireListe(S.inventaires);
+      peintTextes(); peintStats(); peintTableau(); peintCats();
+      msg(L().mSauve);
+    } catch (e) { msg(L().mErrSauve(e.message), true); }
+  }
+
+  function ouvreCats() {
+    S.catsBrouillon = cats().map((c) => Object.assign({}, c));
+    peintTextes(); peintCats();
+    ZTS.openModal('invModalCats');
+  }
+
+  function surCats(e) {
+    const el = e.target.closest('[data-cat]');
+    if (!el) return;
+    const quoi = el.getAttribute('data-cat');
+    const i = +el.getAttribute('data-i');
+    const liste = S.catsBrouillon;
+    if (!liste || !liste[i]) return;
+
+    if (quoi === 'fr' || quoi === 'en') {
+      liste[i][quoi] = el.value.slice(0, 60);
+      planifieCats();
+      return;
+    }
+    if (bloqueSiHorsLigne()) return;
+    if (quoi === 'haut' && i > 0) {
+      liste.splice(i - 1, 0, liste.splice(i, 1)[0]);
+      peintCats(); enregistreCats();
+    } else if (quoi === 'bas' && i < liste.length - 1) {
+      liste.splice(i + 1, 0, liste.splice(i, 1)[0]);
+      peintCats(); enregistreCats();
+    } else if (quoi === 'suppr') {
+      supprimeCat(i);
+    }
+  }
+
+  // Meme raison que pour le tableau : une frappe par caractere ne doit pas
+  // faire une ecriture Firestore par caractere.
+  let _tCats = null;
+  function planifieCats() {
+    if (bloqueSiHorsLigne()) return;
+    clearTimeout(_tCats);
+    _tCats = setTimeout(enregistreCats, 700);
+  }
+
+  function ajouteCat() {
+    if (bloqueSiHorsLigne()) return;
+    S.catsBrouillon.push({ id: InvData.nouvelIdCategorie(), fr: L().catsNeuve, en: '' });
+    peintCats();
+    enregistreCats();
+    const champs = $('invCatsListe').querySelectorAll('[data-cat="fr"]');
+    const dernier = champs[champs.length - 1];
+    if (dernier) { dernier.focus(); dernier.select(); }
+  }
+
+  /**
+   * Suppression. Une categorie VIDE part directement ; une categorie utilisee
+   * passe par la modale de reassignation — on ne declasse jamais des objets
+   * dans le dos de l'usager.
+   */
+  function supprimeCat(i) {
+    const l = L(), liste = S.catsBrouillon;
+    if (liste.length <= 1) { msg(l.catsUneSeule, true); return; }
+    const cat = liste[i];
+    const nb = compteCats()[cat.id] || 0;
+    if (nb === 0) {
+      liste.splice(i, 1);
+      peintCats(); enregistreCats();
+      return;
+    }
+    S.reassign = { index: i, nb: nb };
+    $('invReTxt').textContent = l.reTxt(libCat(cat), nb);
+    $('invReVers').innerHTML = liste
+      .filter((c, k) => k !== i)
+      .map((c) => '<option value="' + esc(c.id) + '">' + esc(libCat(c)) + '</option>').join('');
+    ZTS.openModal('invModalReassign');
+  }
+
+  async function confirmeReassign() {
+    if (bloqueSiHorsLigne()) return;
+    const l = L(), r = S.reassign, liste = S.catsBrouillon;
+    if (!r || !liste[r.index]) return;
+    const de = liste[r.index].id;
+    const vers = $('invReVers').value;
+    const nomVers = libCatId(vers);
+    try {
+      const n = await InvData.reassignerCategorie(S.invId, de, vers);
+      S.items.forEach((o) => { if ((o.categorie || '') === de) o.categorie = vers; });
+      liste.splice(r.index, 1);
+      S.reassign = null;
+      ZTS.closeModal('invModalReassign');
+      await enregistreCats();
+      InvData.cache.ecrire(S.invId, S.items);
+      msg(l.reFait(n, nomVers));
+    } catch (e) { msg(l.mErrSauve(e.message), true); }
+  }
+
+  /* ======================================================================
+     7c. CODES QR (ajout D)
+     ====================================================================== */
+
+  // L'URL pointe vers le SITE, pas vers un format maison : la camera native
+  // de n'importe quel telephone ouvre un lien sans qu'on ait de lecteur a
+  // ecrire. Le mur zts-gate fait ensuite son travail, et l'app rejoue les
+  // parametres apres la connexion (voir `lisCible`).
+  const BASE_QR = 'https://zonetotalsport.ca/apps/inventaire/';
+
+  function urlItem(id) {
+    return BASE_QR + '?inv=' + encodeURIComponent(S.invId) + '&item=' + encodeURIComponent(id);
+  }
+  function urlLoc(emplacement) {
+    return BASE_QR + '?inv=' + encodeURIComponent(S.invId) + '&loc=' + encodeURIComponent(emplacement);
+  }
+
+  function ouvreQR(url, titre) {
+    const l = L();
+    $('invQRTitre').textContent = titre;
+    // Niveau M : une etiquette collee sur un bac se salit et se corne.
+    $('invQRImg').innerHTML = ZTSQR.svg(url, { taille: 260, niveau: 'M' });
+    $('invQRUrl').textContent = l.qrScan;
+    $('invQRImg').setAttribute('data-url', url);
+    $('invQRImg').setAttribute('data-titre', titre);
+    ZTS.openModal('invModalQR');
+  }
+
+  /**
+   * Etiquettes a imprimer, selon la portee choisie.
+   * @returns {Array<{url:string, titre:string, sous:string}>}
+   */
+  function etiquettes() {
+    const iv = invCourant();
+    const nomInv = iv ? iv.nom : '';
+    const p = S.planche;
+    if (p.portee === 'locs') {
+      return emplacements().map((e) => ({ url: urlLoc(e), titre: e, sous: nomInv }));
+    }
+    let liste = S.items.slice();
+    if (p.portee === 'cat') liste = liste.filter((o) => (o.categorie || '') === p.valeur);
+    if (p.portee === 'loc') liste = liste.filter((o) => (o.emplacement || '').trim() === p.valeur);
+    return liste.map((o) => ({
+      url: urlItem(o.id),
+      titre: o.nom || L().objetSansNom,
+      sous: [o.emplacement, nomInv].filter(Boolean).join(' · ')
+    }));
+  }
+
+  function peintPlanche() {
+    const l = L(), p = S.planche;
+    $('invPlPortee').innerHTML = [
+      ['tous', l.plTous], ['cat', l.plCat], ['loc', l.plLoc], ['locs', l.plLocs]
+    ].map(([v, t]) => '<option value="' + v + '"' + (v === p.portee ? ' selected' : '') + '>' +
+      esc(t) + '</option>').join('');
+
+    const sel = $('invPlValeur');
+    if (p.portee === 'cat') {
+      sel.hidden = false; $('invPlLblValeur').hidden = false;
+      sel.innerHTML = cats().map((c) => '<option value="' + esc(c.id) + '">' + esc(libCat(c)) +
+        '</option>').join('');
+      if (!cats().some((c) => c.id === p.valeur)) p.valeur = cats().length ? cats()[0].id : '';
+      sel.value = p.valeur;
+    } else if (p.portee === 'loc') {
+      const locs = emplacements();
+      sel.hidden = false; $('invPlLblValeur').hidden = false;
+      sel.innerHTML = locs.map((e) => '<option value="' + esc(e) + '">' + esc(e) + '</option>').join('');
+      if (locs.indexOf(p.valeur) < 0) p.valeur = locs[0] || '';
+      sel.value = p.valeur;
+    } else {
+      sel.hidden = true; $('invPlLblValeur').hidden = true;
+    }
+
+    const n = etiquettes().length;
+    $('invPlCompte').textContent = n ? l.plCompte(n)
+      : (p.portee === 'locs' ? l.plSansLoc : l.plVide);
+    $('invPlImpr').disabled = n === 0;
+  }
+
+  /**
+   * Planche d'etiquettes, dans une fenetre a elle.
+   *
+   * Meme choix que pour la liste d'achats, et pour la meme raison : masquer
+   * toute la page derriere un @media print demanderait des selecteurs de type
+   * nus sur le document entier, ce que la convention du depot interdit, et se
+   * battrait avec le chrome du shell. Une page neuve n'a aucun de ces
+   * problemes — et elle est ecrite en MILLIMETRES, ce qui est le seul moyen
+   * d'obtenir vraiment 45 mm sur le papier.
+   *
+   * Les QR sont des SVG : un vecteur ne pixelise a aucune resolution
+   * d'imprimante. C'est ce qui repond a « QR nets, pas flous ».
+   */
+  function imprimePlanche(liste, titrePage) {
+    const l = L();
+    const f = window.open('', '_blank');
+    if (!f) return;   // bloqueur de fenetres : la modale reste lisible a l'ecran
+    const cellules = liste.map((e) =>
+      '<div class="et">' +
+        ZTSQR.svg(e.url, { taille: 118, niveau: 'M' }) +
+        '<div class="t">' + escHtml(e.titre) + '</div>' +
+        '<div class="s">' + escHtml(e.sous) + '</div>' +
+      '</div>').join('');
+    f.document.write('<!DOCTYPE html><html lang="' + (lang() === 'en' ? 'en' : 'fr-CA') +
+      '"><head><meta charset="UTF-8"><title>' + escHtml(titrePage) + '</title><style>' +
+      '@page{size:letter;margin:8mm}' +
+      'body{font-family:system-ui,-apple-system,"Helvetica Neue",sans-serif;margin:0;color:#000}' +
+      '.g{display:grid;grid-template-columns:repeat(auto-fill,45mm);gap:3mm;justify-content:center}' +
+      '.et{width:45mm;height:52mm;box-sizing:border-box;border:0.3mm dashed #999;border-radius:2mm;' +
+      'padding:2mm;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;' +
+      'break-inside:avoid;page-break-inside:avoid;overflow:hidden}' +
+      '.et svg{width:31mm;height:31mm;display:block}' +
+      '.t{font-size:8.5pt;font-weight:700;line-height:1.15;text-align:center;margin-top:1.5mm;' +
+      'max-height:9mm;overflow:hidden}' +
+      '.s{font-size:6.5pt;line-height:1.15;text-align:center;color:#444;margin-top:0.8mm;' +
+      'max-height:6mm;overflow:hidden}' +
+      'h1{font-size:12pt;margin:0 0 4mm}' +
+      '@media print{h1{display:none}.et{border-color:#ccc}}' +
+      '</style></head><body><h1>' + escHtml(titrePage) + ' — ' + liste.length + '</h1>' +
+      '<div class="g">' + cellules + '</div></body></html>');
+    f.document.close();
+    f.focus();
+    // Laisser le temps a la fenetre de poser sa mise en page avant d'ouvrir
+    // le dialogue d'impression : sans ce delai, Safari imprime une page vide.
+    setTimeout(() => f.print(), 300);
+  }
+
+  // esc() sert dans des attributs ; ici on ecrit dans du contenu. Meme jeu de
+  // remplacements, nom distinct pour que l'intention reste lisible.
+  function escHtml(x) { return esc(x); }
+
+  /* ── Arrivee par code QR ──────────────────────────────────────────────
+     Les parametres sont copies dans sessionStorage DES LE CHARGEMENT, avant
+     que le mur d'inscription n'ait rendu quoi que ce soit. zts-gate.js ne
+     navigue pas — il pose un calque — donc l'URL survit d'elle-meme au
+     tunnel ; mais une connexion par redirection, ici ou plus tard, effacerait
+     la barre d'adresse. La copie coute trois lignes et rend le parcours
+     insensible a ce detail d'implementation du mur. -------------------- */
+
+  const CLE_CIBLE = 'zts_inv_cible';
+
+  function capteCible() {
+    try {
+      const q = new URLSearchParams(location.search);
+      const c = {
+        inv: q.get('inv') || '',
+        item: q.get('item') || '',
+        loc: q.get('loc') || ''
+      };
+      if (c.inv || c.item || c.loc) {
+        sessionStorage.setItem(CLE_CIBLE, JSON.stringify(c));
+        return c;
+      }
+      const garde = sessionStorage.getItem(CLE_CIBLE);
+      return garde ? JSON.parse(garde) : null;
+    } catch (e) { return null; }
+  }
+
+  function oublieCible() {
+    try { sessionStorage.removeItem(CLE_CIBLE); } catch (e) {}
+  }
+
+  function peintCible() {
+    const l = L(), b = $('invCible');
+    if (S.cible.item) {
+      const o = item(S.cible.item);
+      b.hidden = false;
+      $('invCibleTxt').textContent = l.cibleItem(o ? (o.nom || l.objetSansNom) : '');
+    } else if (S.cible.loc) {
+      b.hidden = false;
+      $('invCibleTxt').textContent = l.cibleLoc(S.cible.loc);
+    } else {
+      b.hidden = true;
+    }
+  }
+
+  function leveCible() {
+    S.cible = { item: null, loc: null };
+    oublieCible();
+    peintCible(); peintTableau();
+  }
+
+  /* ======================================================================
      8. LISTE D'ACHATS, CSV, IMPRESSION
      ====================================================================== */
 
@@ -685,8 +1196,12 @@
     const parCat = {};
     liste.forEach((x) => { (parCat[x.o.categorie] = parCat[x.o.categorie] || []).push(x); });
     let total = 0;
-    const corps = CATEGORIES.filter((c) => parCat[c]).map((c) =>
-      '<h3 class="inv-achats__cat">' + esc(l.cat[c]) + '</h3>' +
+    // Les categories gardent l'ordre de l'inventaire ; les objets « non
+    // classes », s'il y en a, ferment la liste.
+    const ordre = cats().map((c) => c.id).filter((c) => parCat[c]);
+    if (parCat['']) ordre.push('');
+    const corps = ordre.map((c) =>
+      '<h3 class="inv-achats__cat">' + esc(libCatId(c)) + '</h3>' +
       parCat[c].map((x) => {
         const sousTotal = (x.o.prix == null ? 0 : +x.o.prix) * x.qte;
         total += sousTotal;
@@ -743,7 +1258,7 @@
     const entete = cols.map((k) => l.col[k.c]).concat([l.photos]);
     const lignes = [entete].concat(filtres().map((o) =>
       cols.map((k) => {
-        if (k.c === 'categorie') return l.cat[o.categorie] || o.categorie;
+        if (k.c === 'categorie') return libCatId(o.categorie);
         if (k.c === 'etat') return l.etat[o.etat] || o.etat;
         if (k.c === 'prix') return o.prix == null ? '' : String(o.prix).replace('.', ',');
         return o[k.c];
@@ -756,7 +1271,7 @@
     const lignes = [[l.col.nom, l.col.marque, l.col.categorie, l.col.emplacement,
       l.col.qteAcheter, l.col.prix, l.col.etat]];
     aAcheter().forEach((x) => lignes.push([
-      x.o.nom || l.objetSansNom, x.o.marque, l.cat[x.o.categorie] || x.o.categorie,
+      x.o.nom || l.objetSansNom, x.o.marque, libCatId(x.o.categorie),
       x.o.emplacement, x.qte, x.o.prix == null ? '' : String(x.o.prix).replace('.', ','),
       l.etat[x.o.etat] || x.o.etat
     ]));
@@ -867,6 +1382,32 @@
     } catch (e) { msg(l.mErrSauve(e.message), true); }
   }
 
+  /**
+   * Applique le ciblage venu d'un code QR, une fois les objets charges.
+   *
+   * Les deux cas limites du cahier des charges sont ici :
+   *  · `?item=` sur un objet supprime -> message clair, et l'inventaire
+   *    complet s'affiche. On ne laisse jamais un tableau vide sans
+   *    explication : de l'exterieur, ca ressemble a une panne.
+   *  · arrivee sans etre connecte -> rien a faire ici, `capteCible()` a mis
+   *    les parametres de cote avant le mur, et cette fonction ne tourne
+   *    qu'apres.
+   */
+  function appliqueCible() {
+    const c = S.cibleDemandee;
+    if (!c) return;
+    S.cibleDemandee = null;
+    oublieCible();
+    const l = L();
+    if (c.item) {
+      const existe = S.items.some((o) => o.id === c.item);
+      if (!existe) { S.cible = { item: null, loc: null }; msg(l.cibleIntrouvable, true); return; }
+      S.cible = { item: c.item, loc: null };
+    } else if (c.loc) {
+      S.cible = { item: null, loc: c.loc };
+    }
+  }
+
   async function changeInventaire(id) {
     S.invId = id;
     try { localStorage.setItem('zts_inv_courant', id); } catch (e) {}
@@ -876,8 +1417,9 @@
     try {
       S.items = await InvData.listeItems(id);
       S.horsLigne = false;
+      appliqueCible();
       peintTout();
-      msg('');
+      if (!$('invMsg').textContent) msg('');
     } catch (e) {
       S.horsLigne = true;
       if (!cache) { S.items = []; peintTout(); }
@@ -900,6 +1442,10 @@
       const act = b.getAttribute('data-act');
       if (act === 'voir') ouvrePhotos(id);
       if (act === 'suppr') supprimeItem(id);
+      if (act === 'qr') {
+        const o = item(id);
+        ouvreQR(urlItem(id), (o && o.nom) || L().objetSansNom);
+      }
       if (act === 'addphoto') {
         S.photo.itemId = id;
         $('invFileAjoutCam').click();   // camera arriere
@@ -949,6 +1495,38 @@
       $('invSearch').value = '';
       peintTextes(); peintTableau();
     });
+
+    // ── Categories (ajout C) ──
+    $('invGererCats').addEventListener('click', ouvreCats);
+    $('invCatsAjout').addEventListener('click', ajouteCat);
+    $('invCatsListe').addEventListener('input', surCats);
+    $('invCatsListe').addEventListener('click', surCats);
+    $('invReOk').addEventListener('click', confirmeReassign);
+    $('invReAnnuler').addEventListener('click', () => {
+      S.reassign = null; ZTS.closeModal('invModalReassign');
+    });
+
+    // ── Codes QR (ajout D) ──
+    $('invPlanche').addEventListener('click', () => {
+      S.planche.portee = 'tous';
+      peintPlanche(); ZTS.openModal('invModalPlanche');
+    });
+    $('invPlPortee').addEventListener('change', (e) => {
+      S.planche.portee = e.target.value; S.planche.valeur = ''; peintPlanche();
+    });
+    $('invPlValeur').addEventListener('change', (e) => {
+      S.planche.valeur = e.target.value; peintPlanche();
+    });
+    $('invPlImpr').addEventListener('click', () => {
+      const iv = invCourant();
+      imprimePlanche(etiquettes(), (iv ? iv.nom : '') + ' — ' + L().plTitre.replace(/^\S+\s/, ''));
+    });
+    $('invQRImpr').addEventListener('click', () => {
+      const z = $('invQRImg');
+      imprimePlanche([{ url: z.getAttribute('data-url'), titre: z.getAttribute('data-titre'),
+                        sous: (invCourant() || {}).nom || '' }], z.getAttribute('data-titre'));
+    });
+    $('invCibleTout').addEventListener('click', leveCible);
 
     $('invAchats').addEventListener('click', () => { peintAchats(); ZTS.openModal('invModalAchats'); });
     $('invAchatsCsv').addEventListener('click', exportCsvAchats);
@@ -1003,6 +1581,11 @@
      ====================================================================== */
 
   async function demarre() {
+    // AVANT le mur : les parametres d'URL sont mis de cote tout de suite, pour
+    // qu'une connexion par redirection ne les emporte pas.
+    const cible = capteCible();
+    S.cibleDemandee = cible;
+
     peintTextes();
     cable();
     await InvData.pret();          // zts-gate.js a laisse passer un utilisateur
@@ -1019,10 +1602,25 @@
       msg(l.mHorsLigne, true);
     }
     if (!S.inventaires.length) { peintTout(); return; }
+
+    // Un code QR designe SON inventaire : il l'emporte sur le dernier
+    // inventaire consulte, sinon scanner une etiquette du gymnase depuis la
+    // page du camp de jour n'afficherait rien.
     let vise = null;
-    try { vise = localStorage.getItem('zts_inv_courant'); } catch (e) {}
-    const existe = S.inventaires.some((x) => x.id === vise);
-    await changeInventaire(existe ? vise : S.inventaires[0].id);
+    if (cible && cible.inv) {
+      if (S.inventaires.some((x) => x.id === cible.inv)) {
+        vise = cible.inv;
+      } else {
+        S.cibleDemandee = null;
+        oublieCible();
+        msg(L().cibleInvIntrouvable, true);
+      }
+    }
+    if (!vise) {
+      try { vise = localStorage.getItem('zts_inv_courant'); } catch (e) {}
+      if (!S.inventaires.some((x) => x.id === vise)) vise = S.inventaires[0].id;
+    }
+    await changeInventaire(vise);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', demarre);

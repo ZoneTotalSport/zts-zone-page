@@ -8,7 +8,7 @@
  * MODELE DE DONNEES — deux collections plates, owner-only par `uid`, sur le
  * modele de `performances` et `plans` (firestore.rules) :
  *
- *   inventaires/{id}      { uid, nom, univers, cree, maj }
+ *   inventaires/{id}      { uid, nom, univers, categories[], cree, maj }
  *   inventaireItems/{id}  { uid, invId, photos[], nom, marque, description,
  *                           categorie, emplacement, qteMain, qteAcheter,
  *                           etat, prix, notes, cree, maj }
@@ -22,6 +22,13 @@
  * Firestore des le douzieme objet. Un document PAR OBJET tient, et la garde
  * `verifiePoids` refuse l'ajout avant que Firestore ne le fasse — avec un
  * message lisible plutot qu'une erreur de quota.
+ *
+ * LES CATEGORIES VIVENT DANS LE DOCUMENT D'INVENTAIRE, pas dans une
+ * collection a part (23 aout 2026, ajout C). Chaque lieu a les siennes, elles
+ * se lisent avec l'inventaire — donc sans deuxieme aller-retour reseau au
+ * chargement — et quinze categories a deux libelles pesent environ 1 Ko, tres
+ * loin du plafond du document. Une collection separee aurait ajoute une
+ * requete, un index et des regles pour aucun gain.
  *
  * Script classique, pas un module : charge AVANT app.js.
  */
@@ -38,6 +45,67 @@ const InvData = (() => {
   const MAX_DOC      = 900000;
   const CACHE_PREFIX = 'zts_inv_cache_';
   const CACHE_LISTE  = 'zts_inv_liste';
+
+  // Point de DEPART, pas une liste fermee : l'usager renomme, ajoute et
+  // supprime a sa guise (ajout C). Ces quinze-la sont seulement ce qu'un
+  // inventaire tout neuf contient a sa creation, choisies pour couvrir les
+  // trois univers du site.
+  //
+  // Les identifiants sont stables et ne changent JAMAIS quand un libelle
+  // change : c'est `id` que les objets portent, et renommer « Ballons » en
+  // « Ballons et balles » ne doit toucher aucun objet.
+  const CATEGORIES_DEFAUT = [
+    { id: 'ballons',         fr: 'Ballons',                  en: 'Balls' },
+    { id: 'manipulation',    fr: 'Matériel de manipulation', en: 'Manipulative equipment' },
+    { id: 'cones-dossards',  fr: 'Cônes et dossards',        en: 'Cones and pinnies' },
+    { id: 'sport-collectif', fr: 'Sports collectifs',        en: 'Team sports' },
+    { id: 'gymnastique',     fr: 'Gymnastique',              en: 'Gymnastics' },
+    { id: 'jeux-societe',    fr: 'Jeux de société',          en: 'Board games' },
+    { id: 'bricolage',       fr: 'Bricolage',                en: 'Craft supplies' },
+    { id: 'eau',             fr: "Matériel d'eau",           en: 'Water equipment' },
+    { id: 'plein-air',       fr: 'Plein air',                en: 'Outdoors' },
+    { id: 'premiers-soins',  fr: 'Premiers soins',           en: 'First aid' },
+    { id: 'audio-techno',    fr: 'Audio et techno',          en: 'Audio and tech' },
+    { id: 'mobilier',        fr: 'Mobilier',                 en: 'Furniture' },
+    { id: 'rangement',       fr: 'Rangement',                en: 'Storage' },
+    { id: 'livres',          fr: 'Livres et albums',         en: 'Books' },
+    { id: 'autre',           fr: 'Autre',                    en: 'Other' }
+  ];
+
+  function categoriesDefaut() {
+    return CATEGORIES_DEFAUT.map((c) => Object.assign({}, c));
+  }
+
+  // Identifiant d'une categorie creee par l'usager. Prefixe `c-` pour qu'on
+  // voie d'un coup d'oeil ce qui vient de la liste de depart et ce qui a ete
+  // ajoute. Le compteur exclut toute collision au sein d'une meme session,
+  // que l'horloge seule ne garantit pas quand on ajoute deux categories dans
+  // la meme milliseconde.
+  let _seqCat = 0;
+  function nouvelIdCategorie() {
+    return 'c-' + Date.now().toString(36) + '-' + (++_seqCat).toString(36);
+  }
+
+  // Un inventaire cree avant l'ajout C n'a pas de champ `categories`. Plutot
+  // que d'ecrire une migration, on rend la liste de depart a la lecture : le
+  // document se met a jour de lui-meme a la premiere modification.
+  function normaliseCategories(liste) {
+    if (!Array.isArray(liste) || !liste.length) return categoriesDefaut();
+    const vues = new Set();
+    const out = [];
+    liste.forEach((c) => {
+      if (!c || typeof c !== 'object') return;
+      const id = String(c.id || '').slice(0, 60);
+      if (!id || vues.has(id)) return;
+      vues.add(id);
+      out.push({
+        id: id,
+        fr: String(c.fr || '').slice(0, 60),
+        en: String(c.en || '').slice(0, 60)
+      });
+    });
+    return out.length ? out : categoriesDefaut();
+  }
 
   let _db = null;
   let _user = null;
@@ -131,7 +199,11 @@ const InvData = (() => {
   async function listeInventaires() {
     const d = await db();
     const s = await d.collection(COL_INV).where('uid', '==', uid()).get();
-    const out = s.docs.map((x) => Object.assign({ id: x.id }, x.data()));
+    const out = s.docs.map((x) => {
+      const d = Object.assign({ id: x.id }, x.data());
+      d.categories = normaliseCategories(d.categories);
+      return d;
+    });
     out.sort((a, b) => (a.nom || '').localeCompare(b.nom || '', 'fr'));
     cache.ecrireListe(out);
     return out;
@@ -143,6 +215,7 @@ const InvData = (() => {
       uid: uid(),
       nom: String(nom || '').slice(0, 120),
       univers: univers || 'ep',
+      categories: categoriesDefaut(),
       cree: Date.now(),
       maj: Date.now()
     };
@@ -171,6 +244,41 @@ const InvData = (() => {
     cache.oublier(id);
   }
 
+  /**
+   * Remplace la liste de categories d'un inventaire.
+   * @param {string} id
+   * @param {Array<{id:string,fr:string,en:string}>} cats
+   */
+  async function majCategories(id, cats) {
+    const propre = normaliseCategories(cats);
+    const d = await db();
+    await d.collection(COL_INV).doc(id).update({ categories: propre, maj: Date.now() });
+    return propre;
+  }
+
+  /**
+   * Deplace tous les objets d'une categorie vers une autre. `vers` peut etre
+   * la chaine vide : les objets deviennent « non classes ».
+   *
+   * Par lots de 400 — le plafond d'un batch Firestore est de 500 operations,
+   * et une categorie d'un gros gymnase peut compter plus d'objets que ca.
+   * @returns {Promise<number>} nombre d'objets deplaces
+   */
+  async function reassignerCategorie(invId, de, vers) {
+    const d = await db();
+    const s = await d.collection(COL_ITEM)
+      .where('uid', '==', uid()).where('invId', '==', invId).get();
+    const touches = s.docs.filter((x) => (x.data().categorie || '') === de);
+    const restants = touches.slice();
+    while (restants.length) {
+      const lot = d.batch();
+      restants.splice(0, 400).forEach((x) =>
+        lot.update(x.ref, { categorie: vers || '', maj: Date.now() }));
+      await lot.commit();
+    }
+    return touches.length;
+  }
+
   /* ── Objets ───────────────────────────────────────────────────────────── */
 
   function normalise(o) {
@@ -179,7 +287,11 @@ const InvData = (() => {
       nom:         String(o.nom || ''),
       marque:      String(o.marque || ''),
       description: String(o.description || ''),
-      categorie:   String(o.categorie || 'autre'),
+      // Aucune validation contre une liste ici : depuis l'ajout C, les
+      // categories appartiennent a l'inventaire et changent. Une chaine vide
+      // est LEGITIME — c'est « non classe », l'etat d'un objet dont la
+      // categorie a ete supprimee ou que l'IA n'a pas su ranger.
+      categorie:   String(o.categorie || '').slice(0, 60),
       emplacement: String(o.emplacement || ''),
       qteMain:     Number.isFinite(+o.qteMain) ? Math.max(0, Math.round(+o.qteMain)) : 0,
       qteAcheter:  Number.isFinite(+o.qteAcheter) ? Math.max(0, Math.round(+o.qteAcheter)) : 0,
@@ -253,14 +365,35 @@ const InvData = (() => {
    * @param {string} base64     image SANS le prefixe data:
    * @param {string} mediaType  image/jpeg | image/png | image/webp
    * @param {string} lang       'fr' | 'en' — la langue des champs retournes
+   * @param {Array} cats        categories de CET inventaire, envoyees au
+   *                            modele pour qu'il choisisse parmi celles-la.
+   *
+   * DEPUIS L'AJOUT C, LA LISTE VIENT DU CLIENT. Elle ne peut plus etre figee
+   * dans le worker : chaque inventaire a la sienne, et l'usager la modifie.
+   * Le worker borne ce qu'il accepte (nombre, longueur, jeu de caracteres) et
+   * n'attribue jamais une categorie hors de la liste recue — voir
+   * handleInventaireVision.
+   *
+   * Le modele ne CREE jamais de categorie : s'il n'en trouve aucune qui
+   * convienne, il propose un libelle dans `nouvelle`, et c'est l'usager qui
+   * decide, en un tap.
+   * @returns {Promise<{nom,marque,description,categorie,nouvelle}|null>}
    */
-  async function vision(base64, mediaType, lang) {
+  async function vision(base64, mediaType, lang, cats) {
     if (!_user) throw new Error('NON_CONNECTE');
     const jeton = await _user.getIdToken();
     const res = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + jeton },
-      body: JSON.stringify({ image: base64, mediaType: mediaType, lang: lang === 'en' ? 'en' : 'fr' })
+      body: JSON.stringify({
+        image: base64,
+        mediaType: mediaType,
+        lang: lang === 'en' ? 'en' : 'fr',
+        categories: (Array.isArray(cats) ? cats : []).slice(0, 40).map((c) => ({
+          id: String(c.id || '').slice(0, 60),
+          nom: String((lang === 'en' ? c.en : c.fr) || c.fr || c.id || '').slice(0, 60)
+        }))
+      })
     });
     if (!res.ok) {
       let m = 'HTTP ' + res.status;
@@ -275,6 +408,8 @@ const InvData = (() => {
     pret, uid, connecte, cache,
     MAX_PHOTOS, MAX_DOC,
     listeInventaires, creerInventaire, majInventaire, supprimerInventaire,
+    categoriesDefaut, nouvelIdCategorie, normaliseCategories,
+    majCategories, reassignerCategorie,
     listeItems, creerItem, majItem, supprimerItem,
     normalise, verifiePoids, poids,
     vision

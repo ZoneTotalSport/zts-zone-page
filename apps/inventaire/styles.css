@@ -515,6 +515,121 @@
 }
 
 /* ==========================================================================
+   9b. CATEGORIES (ajout C) ET CODES QR (ajout D)
+   ========================================================================== */
+
+/* Banniere d'arrivee par code QR. Jaune plein, texte fonce : c'est un etat
+   TEMPORAIRE de la page, il doit se voir sans se confondre avec le contenu. */
+.inv-cible {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  background: var(--ztsh-jaune, #FFFC00);
+  color: var(--inv-ink);
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, .35);
+  font-size: 15px;
+  font-weight: 700;
+}
+.inv-cible[hidden] { display: none; }
+
+/* Bouton d'action colle au message — le « Ajouter "X" ? » en un tap. */
+.inv-msg__act { margin-left: 10px; vertical-align: middle; }
+
+.inv-lbl--sombre { display: block; margin: 12px 0 4px; color: var(--inv-ink-doux); }
+.inv-modal--etroite { width: min(520px, 100%); }
+.inv-catnote {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--inv-ink-doux);
+}
+
+/* Une ligne de categorie : ordre, libelle FR, libelle EN, compte, corbeille. */
+.inv-catentete,
+.inv-catl {
+  display: grid;
+  grid-template-columns: 52px 1fr 1fr 88px 44px;
+  gap: 8px;
+  align-items: center;
+}
+.inv-catentete {
+  margin-bottom: 4px;
+  padding: 0 0 4px;
+  font-family: var(--ztsh-f-titre, 'LuckiestGuy', system-ui, sans-serif);
+  font-size: 12px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--inv-ink-doux);
+  border-bottom: 2px solid var(--inv-trait);
+}
+/* Les deux intitules se placent au-dessus des deux champs, pas de la colonne
+   d'ordre : ils sautent la premiere piste de la grille. */
+.inv-catentete span:first-child { grid-column: 2; }
+.inv-catl { padding: 5px 0; border-bottom: 1px dashed var(--inv-trait); }
+.inv-catl__ordre { display: flex; gap: 3px; }
+.inv-catl__ordre .inv-mini { padding: 5px 6px; }
+.inv-catl__ordre .inv-mini[disabled] { opacity: .35; cursor: default; }
+.inv-catl__champ {
+  background: #F7FBFD;
+  border-color: var(--inv-trait);
+  font-size: 15px;
+}
+.inv-catl__nb {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--inv-ink-doux);
+  text-align: right;
+}
+
+/* Le QR affiche seul dans sa modale. */
+.inv-qr {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  background: #FFFFFF;
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 14px;
+}
+.inv-qr svg { display: block; width: 260px; height: 260px; max-width: 100%; }
+.inv-qr__url {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--inv-ink-doux);
+}
+
+@media (max-width: 899px) {
+  /* Sur telephone, cinq colonnes ne tiennent pas : la ligne se plie en deux
+     rangees et l'intitule de colonnes disparait, chaque champ portant deja
+     son sens par sa place. */
+  .inv-catentete { display: none; }
+  .inv-catl {
+    grid-template-columns: 52px 1fr 44px;
+    grid-template-areas:
+      "ordre fr    suppr"
+      "ordre en    nb";
+    row-gap: 5px;
+    padding: 10px 0;
+  }
+  .inv-catl__ordre { grid-area: ordre; flex-direction: column; }
+  /* 16 px minimum, comme les champs du tableau : en dessous, iOS zoome la
+     page au focus et ne la degzoome jamais. La regle de la section 8 ne
+     suffit pas — `.inv-catl__champ` est declaree plus bas a specificite
+     egale, donc elle gagnait avec ses 15 px. */
+  .inv-catl__champ { font-size: 16px; }
+  .inv-catl__champ:nth-of-type(1) { grid-area: fr; }
+  .inv-catl__champ:nth-of-type(2) { grid-area: en; }
+  .inv-catl__nb { grid-area: nb; text-align: left; }
+  .inv-catl .inv-mini--suppr { grid-area: suppr; }
+}
+
+/* ==========================================================================
    10. IMPRESSION
    --------------------------------------------------------------------------
    Seul bloc autorise a employer !important (meme convention que le shell).
@@ -523,6 +638,7 @@
    ========================================================================== */
 @media print {
   .inv-noprint { display: none !important; }
+  .inv-cible { display: none !important; }
   .inv-wrap { color: #000 !important; padding: 0 !important; }
   .inv-printtitre {
     display: block !important;
