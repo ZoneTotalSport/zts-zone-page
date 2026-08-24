@@ -70,11 +70,45 @@ touchée :
   `uid`, donc une règle plus stricte que l'autre : elle s'appuie sur
   l'identifiant et non sur un champ.
 
-> ⚠ **Le déploiement reste à faire, depuis ce worktree et jamais depuis
-> `main`.** Il demande le compte de Joey :
-> ```
-> firebase deploy --only firestore:rules
-> ```
+### Déploiement — FAIT le 24 août 2026
+
+Déployé depuis `~/dev/zts-rencontres`, branche `app/rencontres`, jamais depuis
+`main`. `firestore.rules compiled successfully` puis `released rules
+firestore.rules to cloud.firestore`.
+
+**Vérification préalable, avant d'envoyer quoi que ce soit.** Déployer des
+règles remplace le ruleset **entier** de la production : une branche en retard
+sur `main` republierait les anciennes règles des autres apps. C'est le piège
+de juillet, nommé au §1 du cahier. Deux contrôles :
+
+1. `git log $(git merge-base origin/main HEAD)..origin/main -- firestore.rules`
+   → **vide**. Le fichier n'a pas bougé sur `main` depuis ma base.
+2. `git diff origin/main -- firestore.rules`, commentaires et lignes vides
+   retirés → **7 lignes, toutes en `+`**, exactement les deux blocs. Zéro
+   suppression, zéro modification ailleurs.
+
+### Vérification des règles déployées — 15 cas, 0 échec
+
+Jouées contre le ruleset **déployé**, via l'API `firebaserules …:test` — celle
+que le bac à sable de la console Firebase utilise. Elle simule un `uid`
+arbitraire, donc aucun compte n'a été créé.
+
+| Cas | Attendu | Résultat |
+|---|---|---|
+| A crée / relit / modifie / supprime **sa** rencontre | ALLOW | ✅ ×4 |
+| B lit / modifie / supprime la rencontre de **A** | DENY | ✅ ×3 |
+| B crée une rencontre **au nom de A** | DENY | ✅ |
+| Anonyme lit / crée une rencontre | DENY | ✅ ×2 |
+| A lit et écrit **ses** dossiers | ALLOW | ✅ ×2 |
+| B lit / écrit les dossiers de **A** | DENY | ✅ ×2 |
+| A écrit sous `users/A/rencontres/…` | DENY | ✅ |
+
+**La lecture croisée entre deux `uid` est refusée dans les deux collections.**
+
+Le dernier cas est la preuve du §2B du prescan : le chemin écarté,
+`users/{uid}/rencontres/{id}`, est bien **refusé** même pour son propre
+propriétaire. La décision 1 n'était pas une préférence de style — l'autre
+chemin ne fonctionnait pas.
 
 ### L'app
 
@@ -105,8 +139,7 @@ ne connaît que `RencData.*`.
   statiquement, **pas vue tourner**.
 - **`PROMPT-ZONE-RENCONTRES-V2.md`** — le collage est arrivé vide. Le fichier
   n'a pas été recréé. §10 (brief de l'article) et §11 (banc d'essai) manquent.
-- **Déployer les règles Firestore** (voir vague B). Tant que ce n'est pas
-  fait, l'app écrit dans le vide : chaque enregistrement renverra
-  `permission-denied`, et les notes resteront dans le brouillon local.
+- ~~Déployer les règles Firestore~~ — **fait le 24 août**, et vérifié en 15
+  cas contre le ruleset déployé.
 - **Je ne crée pas de compte.** Le tunnel anonyme → inscription → retour app
   reste à ta charge, comme les 4 tests de `LOT1-COMPLETE.md`.
