@@ -340,6 +340,21 @@
     if (bt) { bt.classList.remove('is-sale'); bt.textContent = '✓ Enregistré'; }
   }
 
+  /**
+   * Etat NEUTRE : rien a enregistrer, mais rien n'a ete enregistre non plus.
+   *
+   * C'est la nuance qui manquait. Une rencontre neuve et vide affichait
+   * « ✓ Enregistré » — vu a l'ecran le 24 aout. Le bouton disait vrai au sens
+   * technique (aucun travail en attente) et FAUX au sens de celui qui le lit :
+   * rien n'avait ete ecrit nulle part. Un indicateur d'enregistrement qui
+   * ment, meme par omission, ne vaut rien le jour ou l'usager s'y fie.
+   */
+  function marqueNeutre() {
+    sale = false;
+    var bt = id('rencSauver');
+    if (bt) { bt.classList.remove('is-sale'); bt.textContent = '💾 Enregistrer'; }
+  }
+
   /** Ecrit le brouillon local. Ne touche jamais au reseau. */
   function sauveLocal() {
     if (!courante) return true;
@@ -520,7 +535,7 @@
       marqueSale();
       etat('Rencontre non enregistrée retrouvée sur cet appareil. Vérifie, puis enregistre.', 'attente');
     } else {
-      marquePropre();
+      marqueNeutre();
       etat('');
       var t = id('rencTitre');
       if (t) t.focus();

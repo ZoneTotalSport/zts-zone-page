@@ -11,9 +11,12 @@
      · aucun fond pose sur html, body ou .ztsh-page — le marine du shell et
        ses rayons doivent rester visibles dessous (controle 6)
      · TOUT EN px, jamais en rem — meme regle que apps/inventaire
-     · z-index : rien au-dessus de 299. La plage 300-399 appartient au shell
-       (--ztsh-z-metiers 310, --ztsh-z-rail 340, --ztsh-z-flottant 350) et le
-       mur d'inscription vit encore plus haut, a 99999.
+     · z-index : LA PLAGE 300-399 APPARTIENT AU SHELL et reste vide de notre
+       cote (--ztsh-z-metiers 310, --ztsh-casier 340, --ztsh-z-flottant 350).
+       Le contenu de l'app plafonne a 45. Une seule chose passe au-dessus du
+       shell — le TIROIR sous 900 px, a 9400 — et le §7 dit pourquoi. Au-dessus
+       encore : le menu mobile du site (9500) puis le mur (99999), dans cet
+       ordre, et c'est le bon.
    ========================================================================== */
 
 /* ==========================================================================
@@ -76,7 +79,12 @@
 .renc-wrap {
   max-width: 1560px;
   margin: 0 auto;
-  padding: 10px 12px 24px;
+  /* La marge du bas degage le casier du shell — `.ztsh-casier`, fixe en bas a
+     gauche, z-index 340, environ 74 px de haut. Sans elle, le dernier element
+     de la colonne de gauche passe dessous. On prend la garde que le shell
+     publie lui-meme plutot qu'un nombre en dur : si elle change la-bas, la
+     marge suit. */
+  padding: 10px 12px var(--ztsh-rail-garde-bas, 96px);
   font-family: var(--renc-f-corps);
   color: var(--ztsh-sur-marine, #E6F4FA);
 }
@@ -608,13 +616,25 @@
 @media (max-width: 900px) {
   .renc-corps { grid-template-columns: minmax(0, 1fr); }
   .renc-bt--rail { display: block; }
+  /* Le tiroir couvre toute la hauteur : rien a degager pour le casier. */
 
   .renc-rail {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    z-index: 45;
+    /* 9400, ET C'EST MESURE, pas choisi au hasard. A 45, le tiroir s'ouvrait
+       SOUS le bandeau du site (.zts-header, z 200), sous la bande de
+       navigation (.zts-topbar, 210) et sous le casier du shell (340) : la
+       moitie haute du panneau — « Mes dossiers », le bouton de creation, les
+       deux dossiers — etait recouverte, c'est-a-dire tout ce pour quoi on
+       l'ouvre. Constate a 375 px le 24 aout.
+
+       Le site tranche deja la question pour son propre tiroir mobile :
+       shared/zts-menu.css pose .ztsm-mob a 9500. On se range JUSTE EN DESSOUS.
+       L'ordre qui en resulte est celui qu'on veut : le menu du site couvre le
+       tiroir de l'app, et le mur d'inscription couvre les deux. */
+    z-index: 9400;
     width: min(310px, 86vw);
     overflow-y: auto;
     border-radius: 0 var(--renc-r) var(--renc-r) 0;
