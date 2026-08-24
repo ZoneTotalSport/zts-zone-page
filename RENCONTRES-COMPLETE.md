@@ -238,11 +238,57 @@ accents, et le redémarrage sur `onend` avec de vrais silences.
 - `whisper-large-v3-turbo` d'abord (il accepte l'indication de langue), repli
   automatique sur `@cf/openai/whisper`.
 
-> ⚠ **NON DÉPLOYÉ.** Déployer ce worker touche **aussi** le générateur, la
-> vision de l'inventaire et le décodage. Ce n'est pas une décision que je prends
-> seul.
+### Déployé le 24 août 2026 — version `d766b69d`
+
+**Contrôle avant l'envoi.** `origin/main` n'avait pas touché à
+`cf-worker/generateur/` depuis ma base ; le diff est **additif à 100 %** —
+288 insertions, **0 suppression** — et ne contient que le binding AI, la route
+Whisper et le quota en minutes.
+
+### ⚠ Un défaut trouvé en éprouvant pour de vrai
+
+`vad_filter: "true"` **entre guillemets** fait répondre 400 à Workers AI :
+*Type mismatch of '/vad_filter', 'boolean' not in 'string'*. Comme l'échec du
+modèle de tête est rattrapé par le repli — c'est son rôle — **chaque
+transcription serait silencieusement partie sur `@cf/openai/whisper`**. Aucune
+erreur à l'écran, aucune ligne en console : juste un modèle plus lent et sans
+indication de langue, pour toujours.
+
+Mesuré sur une phrase fr-CA de 9,4 s synthétisée en local (voix Amélie, fr_CA),
+16 kHz mono 16 bits — le format exact que produit le client :
+
+| | |
+|---|---|
+| **Dit** | Premier point à l'ordre du jour : l'horaire des surveillances de la cour pour la période trois. Marie-Ève s'occupe du gymnase, et François vérifie le matériel avant la récréation. |
+| **turbo, `language:fr`** — 1 219 ms | …période **3**. Marie-Ève s'occupe du gymnase, et François vérifie le matériel… → **deux écarts**, le « : » en virgule et « trois » en 3 |
+| **repli** — 5 928 ms | **Premiers points**… l'horaire des **surveillance**… **Marie-Eve Socut du** gymnase, et **François Verifi** le matériel… |
+
+Quatre fois et demie plus lent, et les deux prénoms abîmés. L'indication de
+langue n'était pas un détail de confort. **Corrigé** (`bb2a1361`) et redéployé.
+
+`@cf/openai/whisper-large-v3-turbo` **est présent sur le compte** (vérifié à
+`wrangler ai models`).
+
+### Après le déploiement
+
+- `GET /health` → 200, `zts-generateur 0.4.0 prod`.
+- `POST /rencontres-transcription` **sans jeton** → **401**, `UNAUTHORIZED`.
+- **Le générateur passe toujours** : une génération anonyme complète, modèle
+  `claude-haiku-4-5`, et son quota mensuel répond `{scope:anon, used:2, max:3}`.
+- **KV, namespace de production** : une seule clé, `anon:<ip>:2026-08` — celle
+  du générateur. **Aucune clé `renc:`**, ce qui est juste : aucune
+  transcription n'est encore passée par la route. Les deux compteurs vivent
+  dans le même namespace mais dans des espaces de clés séparés.
+
+> ⏳ **Le débit du quota en minutes n'est pas encore constaté en vrai.** La
+> route exige un jeton Firebase, et je ne crée pas de compte. Il faut un jeton
+> de Joey — sur `zonetotalsport.ca`, connecté, dans la console :
+> ```js
+> await firebase.auth().currentUser.getIdToken()
 > ```
-> cd cf-worker/generateur && wrangler deploy --env production
+> Puis la clé se lit :
+> ```
+> wrangler kv key get "renc:<uid>:2026-08-24" --namespace-id 3f1ca3dec85e4472930beea526ff9273 --remote
 > ```
 
 ### Navigateur — mesuré
@@ -280,10 +326,10 @@ micro identique sur Safari et sur Chrome.
   cas contre le ruleset déployé.
 - **Je ne crée pas de compte.** Le tunnel anonyme → inscription → retour app
   reste à ta charge, comme les 4 tests de `LOT1-COMPLETE.md`.
-- **Déployer `zts-generateur`** (voir vague D) — il porte aussi le générateur,
-  la vision de l'inventaire et le décodage.
-- **Confirmer que `whisper-large-v3-turbo` est disponible** sur le compte : ça
-  ne se constate qu'au premier appel réel.
+- ~~Déployer `zts-generateur`~~ — **fait**, version `d766b69d`.
+- ~~Confirmer `whisper-large-v3-turbo`~~ — **présent et éprouvé**.
+- **Un jeton Firebase**, pour constater le débit du quota en minutes (voir
+  vague D). Je ne crée pas de compte.
 - **Le micro sur une vraie machine** : dictée fr-CA avec accents, et les
   silences d'une vraie rencontre pour éprouver le redémarrage sur `onend`.
 
