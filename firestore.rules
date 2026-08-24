@@ -272,6 +272,59 @@ service cloud.firestore {
     }
 
     // ─────────────────────────────────────────────────────────
+    // rencontres — app /apps/rencontres/ (comptes rendus de comite et de
+    // rencontre statutaire). Owner-only via `uid`, meme patron que
+    // performances, plans, inventaires et inventaireItems.
+    //
+    // POURQUOI PAS users/{uid}/rencontres/{id}, qui etait le chemin propose.
+    // La regle `match /users/{uid}` ci-dessus n'a PAS de `{document=**}` :
+    // elle ne couvre donc pas les sous-collections, qui tombent dans le
+    // `allow read, write: if false` final de ce fichier. Chaque
+    // enregistrement aurait renvoye permission-denied. Le corriger en
+    // ouvrant `users/{uid}/{document=**}` aurait ouvert d'un coup TOUTES les
+    // futures sous-collections de `users`, y compris celles que
+    // /entrainement pourrait y poser. Une collection plate, c'est la meme
+    // securite avec la portee minimale. Decision de Joey, 24 aout 2026.
+    //
+    // Un document porte tout le compte rendu : notes, transcription, sortie
+    // IA et actions. Pas de scission facon inventaireItems — un verbatim de
+    // 90 minutes pese environ 80 Ko de texte, tres loin du plafond de
+    // 1 048 576 octets, et l'audio n'est JAMAIS stocke : il est transcrit
+    // puis jete. Le garde `verifiePoids` de dataStore.js refuse malgre tout
+    // l'ecriture avant Firestore, avec un message lisible.
+    // ─────────────────────────────────────────────────────────
+    match /rencontres/{id} {
+      allow read, update, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // rencontresDossiers — UN document par utilisateur, dont l'identifiant
+    // EST son uid. Il ne porte qu'une chose : la liste de ses dossiers de
+    // classement.
+    //
+    // EXTENSION DE LA DECISION DU 24 AOUT, a signaler et non a glisser. Joey
+    // a tranche `rencontres/{id}` ; il faut malgre tout un endroit ou vit un
+    // dossier VIDE — celui que l'usager vient de creer et qui ne contient
+    // encore aucune rencontre. Le deduire du champ `dossier` des rencontres
+    // ne le permet pas : un dossier sans rencontre n'existerait nulle part et
+    // disparaitrait au rechargement.
+    //
+    // POURQUOI UN SEUL DOCUMENT et pas une collection de dossiers : meme
+    // raisonnement que les categories d'apps/inventaire, qui vivent dans le
+    // document d'inventaire. Une dizaine de noms pesent environ 1 Ko, ils se
+    // lisent une fois au chargement, et une collection separee aurait ajoute
+    // une requete, un index et des regles pour aucun gain.
+    //
+    // La regle est plus stricte que celle des rencontres : elle s'appuie sur
+    // l'IDENTIFIANT du document et non sur un champ. Un usager ne peut donc
+    // pas ecrire dans le document d'un autre, meme en forgeant le contenu.
+    // ─────────────────────────────────────────────────────────
+    match /rencontresDossiers/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ─────────────────────────────────────────────────────────
     // budget — app privee familiale. Deux types d'espaces :
     //  • COMMUN  (budget/root-famille) : partage entre les membres. Self-join
     //    controle (un 2e membre peut s'ajouter lui-meme, plafond 2 personnes).
