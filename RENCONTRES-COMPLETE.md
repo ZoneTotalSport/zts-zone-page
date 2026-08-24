@@ -130,6 +130,96 @@ ne connaît que `RencData.*`.
 
 ---
 
+## Tour visuel des vagues A et B (24 août 2026)
+
+Chrome, `http://localhost:8796`, 1280 px puis 375 px. **Commit `bf587060`.**
+
+### Deux vrais défauts, corrigés
+
+1. **Le bouton d'enregistrement mentait sur une rencontre neuve** — il
+   affichait « ✓ Enregistré » dès l'ouverture d'une fiche vide. Vrai au sens
+   technique, faux au sens de qui le lit : rien n'avait été écrit nulle part.
+   Troisième état ajouté, `marqueNeutre()`.
+2. **Le tiroir mobile s'ouvrait sous le chrome du site** — à 375 px, `z-index`
+   45 le plaçait sous `.zts-header` (200), `.zts-topbar` (210) et le casier du
+   shell (340). « Mes dossiers », le bouton de création et les deux dossiers
+   étaient recouverts : tout ce pour quoi on ouvre le tiroir. Passé à **9400**,
+   juste sous `.ztsm-mob` (9500), le tiroir mobile du site. La plage 300-399 du
+   shell reste vide de notre côté.
+
+### Deux fausses alertes, écartées à la mesure
+
+Notées pour que personne ne les rouvre :
+
+- Le tiroir *semblait* ne pas s'ouvrir. Les lectures tombaient pendant la
+  transition de .22 s, et `getComputedStyle` rend alors la valeur interpolée.
+  Transitions coupées : −316 px fermé, 0 ouvert, −316 refermé.
+- Les accents *semblaient* manquer dans le titre en LuckiestGuy. Comparé au
+  pixel sur canvas : « É » fait 1298 pixels contre 1150 pour « E », et son
+  sommet monte de 17 px. L'accent est là — la capture à 800 px était trop
+  petite.
+
+### Vérifié
+
+Mur affiché en anonyme · les deux jeux d'onglets (un seul panneau visible,
+`aria-selected` cohérent) · tiroir à 375 px, aucun débordement horizontal ·
+sous-titre du micro dans **les deux branches** (globales supprimées puis
+`app.js` rejoué : « transcription à la fin », et le mot « repli » absent du
+rendu) · polices servies depuis `/fonts/`, zéro requête Google · 12 commandes
+désactivées nommant chacune sa vague.
+
+**Console :** 3 erreurs, **aucune de l'app** — `zone-subscriber-count` (CORS,
+origine `localhost`) et un 429 du même hôte. `apps/inventaire` sort les mêmes
+sur ce serveur : c'est le chrome partagé, pas nous.
+
+---
+
+## Vague C — le micro (24 août 2026)
+
+**Commit :** `2ce8e51b` · `transcription.js` (318 l.) + panneau + câblage.
+
+Consentement mémorisé, `MediaRecorder` toujours actif, texte en direct quand
+le navigateur le porte, minuteur, redémarrage sur `onend`.
+
+### Ce qui a demandé le plus d'attention
+
+- **Le format audio ne se devine pas.** Un `mimeType` non supporté passe à
+  `MediaRecorder` sans erreur **et produit un fichier vide**. On interroge
+  `isTypeSupported` (webm/opus, puis mp4/aac pour Safari) et on relit
+  `recorder.mimeType`, que le navigateur a pu changer.
+- **Tranches de 5 s, pas un seul bloc final.** Un onglet qui meurt à la 58e
+  minute ne doit pas emporter 58 minutes d'audio.
+- **Chrome coupe la reconnaissance vocale sur les silences**, et une rencontre
+  *est* faite de silences. Relance sur `onend`, avec un compteur : six relances
+  qui retombent aussitôt = elle ne repartira pas.
+- **`stop()` sur un enregistreur en pause** ne déclenche pas toujours un
+  dernier `ondataavailable` : on reprend une fraction de seconde avant
+  d'arrêter. Et le flux est coupé piste par piste, sinon la pastille rouge de
+  l'onglet reste allumée.
+
+### Banc
+
+Le micro est **bloqué dans le panneau de prévisualisation**. Le chemin refusé
+est donc vérifié pour de vrai : message exact, boutons rendus à leur état.
+
+Pour le reste, la **source — et elle seule** — a été remplacée par un flux
+synthétique d'`AudioContext` : un vrai `MediaStream`, aucun périphérique, et
+tout le chemin de production derrière.
+
+| | |
+|---|---|
+| Démarrer | état `enregistre`, pastille allumée |
+| 3 s | `00:03` |
+| Pause 1,5 s | `00:03` — **le minuteur ne compte que l'enregistré** |
+| Reprise | `00:05` |
+| Terminer | état `arrêt`, pastille éteinte |
+| Blob | **113 199 octets, `audio/webm;codecs=opus`, 5 s** — concorde |
+
+**Restent à jouer sur une vraie machine** (§11) : la dictée en français avec
+accents, et le redémarrage sur `onend` avec de vrais silences.
+
+---
+
 ## Reste à la charge de Joey
 
 - **Un slot de prévisualisation.** `preview_start` refuse — 5 serveurs pour ce
@@ -143,3 +233,27 @@ ne connaît que `RencData.*`.
   cas contre le ruleset déployé.
 - **Je ne crée pas de compte.** Le tunnel anonyme → inscription → retour app
   reste à ta charge, comme les 4 tests de `LOT1-COMPLETE.md`.
+- **Le micro sur une vraie machine** : dictée fr-CA avec accents, et les
+  silences d'une vraie rencontre pour éprouver le redémarrage sur `onend`.
+
+---
+
+## Trouvé au passage — HORS PÉRIMÈTRE, non corrigé
+
+⚠ **Un jeton de bot Telegram est écrit en clair dans `telegram-notify.js`**
+(ligne 9, `var BOT_TOKEN = '…'`). Le fichier est **commité** et servi en
+JavaScript de navigateur sur les pages du site : n'importe quel visiteur peut
+le lire dans la source et prendre la main sur le bot — envoyer des messages,
+lire les mises à jour.
+
+Repéré parce que le jeton apparaît **dans la console** quand l'appel échoue
+(CORS sur `localhost`), sur `apps/inventaire` comme ailleurs.
+
+`_scripts/verifie-secrets.sh` ne l'attrape pas : ses 9 motifs ne couvrent pas
+la forme d'un jeton Telegram (`<chiffres>:<base64url>`).
+
+Fichier partagé, hors du périmètre de ce chantier : **non corrigé**. La marche
+à suivre est la même que pour n'importe quel secret publié — révoquer le jeton
+auprès de `@BotFather`, le sortir du client (un Worker le porte, comme
+`ANTHROPIC_API_KEY` pour `zts-generateur`), puis ajouter le motif au contrôle
+de secrets. Décision de Joey.
