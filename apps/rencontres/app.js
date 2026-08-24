@@ -9,12 +9,14 @@
  *   A  onglets, tiroir du rail, menu ⋯, etat du reseau, detection vocale.
  *   B  dossiers, liste, editeur de notes, autosauvegarde locale 10 s,
  *      ecriture Firestore au blur et au bouton, restauration apres plantage.
+ *   C  micro : consentement, MediaRecorder toujours actif, texte en direct
+ *      quand le navigateur le porte, minuteur, redemarrage sur onend.
  *
- * Les commandes des vagues C a H sont a l'ecran mais desactivees, et chacune
+ * Les commandes des vagues D a H sont a l'ecran mais desactivees, et chacune
  * NOMME sa vague dans son title — voir pasEncore().
  *
  * Script classique, pas un module : charge apres shared/zts.js, zts-gate.js,
- * le montage du shell et dataStore.js.
+ * le montage du shell, dataStore.js et transcription.js.
  */
 (function () {
   'use strict';
@@ -543,6 +545,159 @@
   }
 
   /* ==================================================================== */
+  /* Micro (vague C)                                                      */
+  /* ==================================================================== */
+
+  var audioEnAttente = null;   // le blob capture, en attente de la vague D
+
+  var SOUCIS = {
+    'texte-direct-refuse':
+      "Le navigateur n'autorise pas l'écriture en direct. L'enregistrement continue : le texte s'écrira à la fin.",
+    'texte-direct-reseau':
+      "Réseau instable — l'écriture en direct s'est interrompue. L'enregistrement continue.",
+    'texte-direct-arrete':
+      "L'écriture en direct s'est arrêtée. L'enregistrement continue : le texte s'écrira à la fin.",
+    'enregistrement-interrompu':
+      "⚠ L'enregistrement a été interrompu. Ce qui a été capté jusqu'ici est conservé.",
+    'arret-impossible':
+      "⚠ L'arrêt de l'enregistrement a échoué. Recharge la page ; ce qui est déjà transcrit est conservé."
+  };
+
+  var MICRO_ERREURS = {
+    MICRO_REFUSE: "Le micro a été refusé. Autorise-le dans la barre d'adresse, puis redémarre.",
+    MICRO_ABSENT: "Aucun micro détecté sur cet appareil.",
+    MICRO_INDISPONIBLE: "Ce navigateur ne donne pas accès au micro.",
+    ENREGISTREUR_INDISPONIBLE: "Ce navigateur ne sait pas enregistrer l'audio.",
+    MICRO_ERREUR: "Le micro n'a pas pu démarrer."
+  };
+
+  function etatMicro(texte, ton) {
+    var n = id('rencMicEtat');
+    if (!n) return;
+    n.textContent = texte || '';
+    n.dataset.ton = ton || '';
+  }
+
+  function boutonsMicro() {
+    var e = RencMicro.etat();
+    var d = id('rencMicDemarrer'), p = id('rencMicPause'), a = id('rencMicArret');
+    if (!d) return;
+    d.disabled = (e !== 'arret');
+    p.disabled = (e === 'arret');
+    a.disabled = (e === 'arret');
+    p.textContent = (e === 'pause') ? '▶ Reprendre' : '⏸ Pause';
+    var rec = id('rencRec');
+    if (rec) rec.hidden = (e !== 'enregistre');
+  }
+
+  function cableMicro() {
+    var zone = id('rencMicTexte');
+    var mode = id('rencMicMode');
+    if (!zone || !mode) return;
+
+    if (!RencMicro.disponible) {
+      mode.textContent = "Ce navigateur ne donne pas accès au micro. Les deux autres façons de capturer restent ouvertes : écrire à la main, ou déposer un enregistrement.";
+      ['rencMicDemarrer', 'rencMicPause', 'rencMicArret'].forEach(function (c) {
+        var n = id(c); if (n) n.disabled = true;
+      });
+      return;
+    }
+
+    // Ce que l'usager VERRA, jamais de quelle interface dispose son
+    // navigateur. Les deux phrases se valent : aucune n'annonce un manque.
+    mode.textContent = RencMicro.direct
+      ? "Le texte s'écrit à l'écran pendant la rencontre."
+      : "Le texte s'écrit une fois l'enregistrement terminé.";
+
+    RencMicro.sur('minuteur', function (s) {
+      var c = id('rencChrono');
+      if (c) c.textContent = RencMicro.formate(s);
+    });
+
+    RencMicro.sur('etat', boutonsMicro);
+
+    RencMicro.sur('texte', function (fini, provisoire) {
+      // textContent pour le fini, un <span> pour le provisoire : c'est du
+      // texte dicte, il n'a aucune raison d'etre interprete comme du balisage.
+      zone.textContent = fini;
+      if (provisoire) {
+        var sp = document.createElement('span');
+        sp.className = 'renc-provisoire';
+        sp.textContent = (fini ? ' ' : '') + provisoire;
+        zone.appendChild(sp);
+      }
+      zone.scrollTop = zone.scrollHeight;
+      if (courante) {
+        courante.transcription = fini;
+        var brut = id('rencBrut');
+        if (brut) brut.textContent = fini;
+        marqueSale();
+      }
+    });
+
+    RencMicro.sur('souci', function (code) {
+      etatMicro(SOUCIS[code] || code, code.indexOf('enregistrement') === 0 ? 'alerte' : 'attente');
+    });
+
+    RencMicro.sur('audio', function (blob, info) {
+      audioEnAttente = { blob: blob, secondes: info.secondes, mime: info.mime };
+      // VAGUE D — l'envoi au worker et la transcription Whisper se branchent
+      // ici. D'ici la, on ne fait pas semblant : on dit ce qu'on a.
+      var mn = Math.max(1, Math.round(info.secondes / 60));
+      etatMicro('Enregistrement terminé — ' + RencMicro.formate(info.secondes)
+        + ' (' + Math.round(blob.size / 1024) + ' Ko). La transcription par le serveur arrive à la vague D ; '
+        + (RencMicro.direct
+            ? 'le texte capté en direct est déjà dans « Original ».'
+            : 'garde cet onglet ouvert, l\'audio est en mémoire.'), 'attente');
+      if (sale) sauveServeur(true);
+      return mn;
+    });
+
+    // ── Consentement ──
+    var bloc = id('rencConsent'), coche = id('rencConsentOk');
+    if (coche) {
+      coche.addEventListener('change', function () {
+        if (coche.checked) {
+          RencMicro.donneConsentement();
+          if (bloc) bloc.hidden = true;
+          etatMicro('');
+        }
+      });
+    }
+
+    id('rencMicDemarrer').addEventListener('click', async function () {
+      if (!RencMicro.consentementDonne()) {
+        if (bloc) bloc.hidden = false;
+        etatMicro('Coche la case ci-dessus avant de démarrer.', 'attente');
+        if (coche) coche.focus();
+        return;
+      }
+      if (!courante) nouvelle(null);
+      etatMicro('');
+      try {
+        await RencMicro.demarre();
+        etatMicro('');
+      } catch (e) {
+        etatMicro(MICRO_ERREURS[e.message] || MICRO_ERREURS.MICRO_ERREUR, 'alerte');
+      }
+      boutonsMicro();
+    });
+
+    id('rencMicPause').addEventListener('click', function () {
+      if (RencMicro.etat() === 'pause') RencMicro.reprend();
+      else RencMicro.pause();
+      boutonsMicro();
+    });
+
+    id('rencMicArret').addEventListener('click', function () {
+      RencMicro.arrete();
+      boutonsMicro();
+    });
+
+    boutonsMicro();
+  }
+
+  /* ==================================================================== */
   /* Ce qui n'est pas encore branche                                      */
   /* ==================================================================== */
 
@@ -594,6 +749,9 @@
     // droit qu'a du synchrone : localStorage en est, une ecriture Firestore
     // non — elle serait tuee par la navigation.
     window.addEventListener('beforeunload', function (e) {
+      // Le micro d'abord : sans ca, la pastille rouge de l'onglet reste
+      // allumee et le peripherique reste pris apres la fermeture.
+      if (window.RencMicro && RencMicro.etat() !== 'arret') RencMicro.arrete();
       if (!sale || !courante) return;
       sauveLocal();
       // On ne bloque PAS la fermeture : le brouillon est deja ecrit, retenir
@@ -627,6 +785,7 @@
     cableReseau();
     cableFormat();
     cableSaisie();
+    cableMicro();
 
     dossiers = RencData.dossiersDefaut();
     dessineDossiers();
