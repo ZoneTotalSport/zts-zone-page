@@ -11,7 +11,8 @@
  *   rencontres/{id}            { uid, titre, date, type, dossier, animateur,
  *                                secretaire, participants[], notesBrutes,
  *                                transcription, sortieIA, sortieMode,
- *                                actions[], cree, maj }
+ *                                actions[{quoi, qui, echeance, fait}],
+ *                                cree, maj }
  *   rencontresDossiers/{uid}   { uid, dossiers[], maj }
  *
  * POURQUOI PAS users/{uid}/rencontres/{id}, qui etait le chemin propose. La
@@ -264,10 +265,15 @@ const RencData = (() => {
    */
   function normaliseAction(a) {
     if (!a || typeof a !== 'object') return null;
-    const t = texte(a.texte, 400).trim();
-    if (!t) return null;
+    // `quoi`, et pas `texte` : c'est le nom fixe par le §1 du cahier v2, et
+    // c'est celui que la vue « Mes actions » de la vague H attendra. Renommer
+    // un champ apres qu'il soit en production coute une migration ; le faire
+    // maintenant ne coute rien. On accepte `texte` en lecture pour ne pas
+    // perdre les rencontres ecrites avant ce correctif.
+    const q = texte(a.quoi || a.texte, 400).trim();
+    if (!q) return null;
     return {
-      texte: t,
+      quoi: q,
       qui: texte(a.qui, 80),
       echeance: dateIso(a.echeance),
       fait: !!a.fait
