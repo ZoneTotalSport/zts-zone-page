@@ -2,6 +2,29 @@ name = "zts-notify"
 main = "notify-worker.js"
 compatibility_date = "2025-01-01"
 
+# LES TROIS DECLENCHEURS, RELEVES SUR LA PRODUCTION LE 24 AOUT 2026.
+#
+# Seul le domaine personnalise etait declare ici. La route de zone et le cron
+# existaient sur le remote depuis le 18 juin, poses au tableau de bord, et un
+# `wrangler deploy` les aurait EFFACES — wrangler aligne le remote sur le
+# fichier, il ne fusionne pas. C'est l'avertissement de divergence que Joey a
+# vu, et il a eu raison d'annuler.
 routes = [
-  { pattern = "notify.zonetotalsport.ca", custom_domain = true }
+  { pattern = "notify.zonetotalsport.ca", custom_domain = true },
+  { pattern = "zonetotalsport.ca/api/notify*", zone_name = "zonetotalsport.ca" }
 ]
+
+# Rapport quotidien a 13 h UTC — 9 h a Montreal l'ete, 8 h l'hiver. Il est
+# servi par le handler `scheduled` de notify-worker.js, qui appelle
+# runDailyReport() : visites de la veille, entonnoir d'inscription, envoi ntfy
+# et Telegram. Sans cette declaration, le deploiement supprimait le cron et le
+# rapport s'arretait en silence — personne ne remarque un message qui N'ARRIVE
+# PAS.
+[triggers]
+crons = ["0 13 * * *"]
+
+# Secrets, a poser avec `wrangler secret put` (voir DEPLOY.md) :
+#   TELEGRAM_BOT_TOKEN  TELEGRAM_CHAT_ID  NTFY_TOPIC
+#   FIREBASE_SERVICE_ACCOUNT  TEST_KEY
+# Aucun ne s'ecrit dans ce fichier. `_scripts/verifie-secrets.sh` refuse
+# desormais un jeton Telegram recolle dans le depot.
