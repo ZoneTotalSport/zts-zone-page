@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr-CA">
+<!-- `ztsp-decor` VA SUR <html>, PAS SUR <body> : les deux couches du decor
+     sont des pseudo-elements de body en z-index negatif. Si body porte le
+     marine, elles passent derriere son propre fond et disparaissent.
+     Voir shared/zts-modele.css §0. -->
+<html class="ztsp-decor" lang="fr-CA">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -321,6 +325,7 @@
   </script>
   <script src="../analytics.js"></script>
   <link rel="stylesheet" href="/articles/articles-theme.css">
+  <link rel="stylesheet" href="/shared/zts-modele.css">
   <script src="/zts-lock-page.js" defer></script>
   <script src="/assets/zts-partage-article.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
