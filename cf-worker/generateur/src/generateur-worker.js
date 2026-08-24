@@ -14,6 +14,7 @@ import {
   getAccessToken,
 } from "./firestore.js";
 import { verifyIdToken, logUidMismatch } from "./auth.js";
+import { handleRencontres } from "./rencontres.js";
 
 // CORS — whitelist stricte. `*` retiré pour bloquer les appels cross-origin
 // depuis des sites tiers. Le worker isole chaque requête, donc la variable
@@ -1135,6 +1136,21 @@ export default {
     if (url.pathname === "/nutrition-photo" && request.method === "POST") {
       try { return await handleNutritionPhoto(request, env); }
       catch (e) { return err(e.code || "INTERNAL", e.message, 500); }
+    }
+
+    // Transcription audio de /apps/rencontres/. Le corps est du WAV BRUT et
+    // non du JSON : un segment de 5 minutes pese 9,6 Mo, et l'encoder en
+    // base64 pour le decoder aussitot ajouterait 3,2 Mo de memoire sur un
+    // worker qui en a 128. Les metadonnees passent par la query string.
+    if (url.pathname === "/rencontres-transcription" && request.method === "POST") {
+      try {
+        return await handleRencontres(request, env, {
+          err, json, verifie: verifyIdToken,
+        });
+      } catch (e) {
+        console.error("[rencontres]", e?.stack || e);
+        return err("INTERNAL", "Erreur interne", 500);
+      }
     }
 
     if (url.pathname === "/inventaire-vision" && request.method === "POST") {

@@ -12,6 +12,10 @@ SONNET_MODEL = "claude-sonnet-4-6"
 QUOTA_FREE_MONTH = "10"
 QUOTA_ANON_MONTH = "3"
 MAX_OUTPUT_TOKENS = "2000"
+# Plafond QUOTIDIEN de transcription, en minutes d'audio, par utilisateur.
+# DISTINCT de QUOTA_FREE_MONTH : les deux compteurs ne se vident jamais l'un
+# l'autre. Une rencontre de 90 min tient dans la journee, deux non.
+QUOTA_MINUTES_JOUR = "120"
 FIREBASE_PROJECT_ID = "zone-total-sport"
 ENVIRONMENT = "prod"
 
@@ -23,6 +27,12 @@ ENVIRONMENT = "prod"
 binding = "ANON_QUOTA"
 id = "3dc369766df54fafadd52bb232f34573"
 preview_id = "d523ae6dd61e4bba9521fa88d4e2ccfb"
+
+# Workers AI — Whisper, pour /rencontres-transcription.
+# Le meme binding doit exister dans LES TROIS environnements : un deploiement
+# `--env production` ne voit pas le bloc de tete.
+[ai]
+binding = "AI"
 
 # ────────────────────────────────────────────────────────────────────
 # DEV : `wrangler dev --env dev` ou `wrangler deploy --env dev`
@@ -37,6 +47,10 @@ SONNET_MODEL = "claude-sonnet-4-6"
 QUOTA_FREE_MONTH = "10"
 QUOTA_ANON_MONTH = "3"
 MAX_OUTPUT_TOKENS = "2000"
+# Plafond QUOTIDIEN de transcription, en minutes d'audio, par utilisateur.
+# DISTINCT de QUOTA_FREE_MONTH : les deux compteurs ne se vident jamais l'un
+# l'autre. Une rencontre de 90 min tient dans la journee, deux non.
+QUOTA_MINUTES_JOUR = "120"
 FIREBASE_PROJECT_ID = "zone-total-sport"
 ENVIRONMENT = "dev"
 
@@ -44,6 +58,9 @@ ENVIRONMENT = "dev"
 binding = "ANON_QUOTA"
 id = "3dc369766df54fafadd52bb232f34573"
 preview_id = "d523ae6dd61e4bba9521fa88d4e2ccfb"
+
+[env.dev.ai]
+binding = "AI"
 
 # ────────────────────────────────────────────────────────────────────
 # PRODUCTION : `wrangler deploy --env production`
@@ -58,12 +75,19 @@ SONNET_MODEL = "claude-sonnet-4-6"
 QUOTA_FREE_MONTH = "10"
 QUOTA_ANON_MONTH = "3"
 MAX_OUTPUT_TOKENS = "2000"
+# Plafond QUOTIDIEN de transcription, en minutes d'audio, par utilisateur.
+# DISTINCT de QUOTA_FREE_MONTH : les deux compteurs ne se vident jamais l'un
+# l'autre. Une rencontre de 90 min tient dans la journee, deux non.
+QUOTA_MINUTES_JOUR = "120"
 FIREBASE_PROJECT_ID = "zone-total-sport"
 ENVIRONMENT = "prod"
 
 [[env.production.kv_namespaces]]
 binding = "ANON_QUOTA"
 id = "3f1ca3dec85e4472930beea526ff9273"
+
+[env.production.ai]
+binding = "AI"
 
 [[env.production.routes]]
 pattern = "api.zonetotalsport.ca"
