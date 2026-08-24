@@ -60,6 +60,11 @@ EXCEPTIONS=(
   # .replace() qui retire l'en-tete d'une cle lue dans une variable
   # d'environnement — la cle elle-meme n'est pas dans le depot.
   'cf-worker/generateur/src/firestore.js::-----BEGIN PRIVATE KEY-----'
+  # Meme cas, meme raison : le worker notify signe ses jetons Firestore avec
+  # la cle de FIREBASE_SERVICE_ACCOUNT, un SECRET Cloudflare, et retire son
+  # en-tete PEM avant de l'importer. Ajoute le 24 aout 2026 au rapatriement du
+  # worker deploye. La cle n'est pas dans le depot, seul le marqueur l'est.
+  'cf-worker/notify-worker.js::-----BEGIN PRIVATE KEY-----'
   # D27 montre le message d'erreur de grep : sans le motif en clair dans le
   # bloc de code, la demonstration ne montre plus rien. UNE seule occurrence
   # y est tolérée — les deux autres en-tetes y sont decrits en prose.
