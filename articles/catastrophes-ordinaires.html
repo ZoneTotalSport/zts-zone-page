@@ -351,6 +351,16 @@
   }
 
   /* ---------- Articles reliés ---------- */
+  /* Seul titre de tout le blogue pose HORS carte : il vit dans une <section>
+     nue, sous l'article. Ecrit pour le fond clair d'avant, il tombait a
+     1,86:1 sur le marine (#004A61 sur #061726) — mesure au navigateur le
+     24 aout 2026, le reste des 26 articles etant conforme.
+     Recolore plutot qu'enveloppe : lui poser une carte le detacherait des
+     trois cartes d'articles qu'il annonce.
+     `!important` obligatoire : le titre porte la classe utilitaire
+     `.text-ztsDeep`, qu'articles-theme.css declare elle-meme en `!important`
+     (ligne 49). Sans lui la regle ne prend pas, verifie au navigateur. */
+  html.ztsp-decor #relies-t { color: var(--ztsp-sur-fond) !important; }
   .rel-grid { display: grid; grid-template-columns: 1fr; gap: 1.75rem; }
   @media (min-width: 768px) { .rel-grid { grid-template-columns: repeat(3, 1fr); } }
   .rel-card {

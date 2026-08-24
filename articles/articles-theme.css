@@ -64,6 +64,17 @@ body{
 .font-luckiest{font-family:var(--font-impact, 'LuckiestGuy', 'Luckiest Guy', Impact, sans-serif) !important;letter-spacing:.05em}
 .text-outline{text-shadow:2px 2px 0 rgba(0,0,0,.2)}
 .hero-gradient{background:radial-gradient(circle at top right,#00C4FF,#0086AD,#004A61)}
+/* TETE D'ARTICLE — transparente sous le decor, depuis le 24 aout 2026.
+   Le degrade cyan couvrait les ~400 premiers pixels et coupait le decor du
+   patron juste sous l'en-tete : l'article demarrait sur une bande cyan la ou
+   l'accueil montre deja ses rayons. Transparent, le marine et les rayons
+   passent jusqu'en haut.
+   Le contenu de la tete etait deja concu pour un fond fonce (le degrade
+   finissait sur #004A61) : titre en blanc, badge et avatar en jaune, date en
+   cyan-200. Verifie au navigateur sur le marine, tout reste au-dessus de
+   4,5:1. Rien a recolorer.
+   Garde `html.ztsp-decor` : sans la classe, la tete garde son degrade. */
+html.ztsp-decor .hero-gradient{background:transparent}
 
 /* Override des polices legacy → Luckiest Guy / Inter */
 .font-bangers,.font-fredoka,.font-baloo,.font-lucky,.font-hand,.font-schoolbell,.font-comic{
