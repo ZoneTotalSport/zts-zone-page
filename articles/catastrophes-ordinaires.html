@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr-CA">
+<!-- `ztsp-decor` VA SUR <html>, PAS SUR <body> : les deux couches du decor
+     sont des pseudo-elements de body en z-index negatif. Si body porte le
+     marine, elles passent derriere son propre fond et disparaissent.
+     Voir shared/zts-modele.css §0. -->
+<html class="ztsp-decor" lang="fr-CA">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -129,6 +133,7 @@
 
   <script src="../analytics.js"></script>
   <link rel="stylesheet" href="/articles/articles-theme.css">
+  <link rel="stylesheet" href="/shared/zts-modele.css">
   <script src="/zts-lock-page.js" defer></script>
   <script src="/assets/zts-partage-article.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
@@ -346,6 +351,16 @@
   }
 
   /* ---------- Articles reliés ---------- */
+  /* Seul titre de tout le blogue pose HORS carte : il vit dans une <section>
+     nue, sous l'article. Ecrit pour le fond clair d'avant, il tombait a
+     1,86:1 sur le marine (#004A61 sur #061726) — mesure au navigateur le
+     24 aout 2026, le reste des 26 articles etant conforme.
+     Recolore plutot qu'enveloppe : lui poser une carte le detacherait des
+     trois cartes d'articles qu'il annonce.
+     `!important` obligatoire : le titre porte la classe utilitaire
+     `.text-ztsDeep`, qu'articles-theme.css declare elle-meme en `!important`
+     (ligne 49). Sans lui la regle ne prend pas, verifie au navigateur. */
+  html.ztsp-decor #relies-t { color: var(--ztsp-sur-fond) !important; }
   .rel-grid { display: grid; grid-template-columns: 1fr; gap: 1.75rem; }
   @media (min-width: 768px) { .rel-grid { grid-template-columns: repeat(3, 1fr); } }
   .rel-card {

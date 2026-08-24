@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr-CA">
+<!-- `ztsp-decor` VA SUR <html>, PAS SUR <body> : les deux couches du decor
+     sont des pseudo-elements de body en z-index negatif. Si body porte le
+     marine, elles passent derriere son propre fond et disparaissent.
+     Voir shared/zts-modele.css §0. -->
+<html class="ztsp-decor" lang="fr-CA">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -66,11 +70,37 @@
     .nav-link{transition:all .2s;padding:8px 14px;border-radius:9999px;font-size:.9rem;white-space:nowrap;font-weight:700}
     .nav-link:hover{background:rgba(255,255,255,.2)}
     .nav-link.active-link{background:#FFF000;color:#004A61}
+
+    /* CONTRASTE SUR LE DECOR — 24 aout 2026.
+       Contrairement aux articles, l'index n'a pas une seule carte `zts-prose`
+       qui porte tout : deux textes vivent directement sur le fond de page, et
+       ils etaient ecrits pour le fond clair d'avant.
+       Mesure au navigateur sur le marine #061726 : « Les articles » en
+       `text-ztsDeep` (#004A61) tombait a 1,5:1, « Aucun article trouve » en
+       `text-slate-400` (#94A3B8) a 5,8:1 mais delave.
+       Pas d'enveloppe ici : envelopper un titre isole et un message d'etat
+       dans une carte alourdirait la page pour rien. On les recolore, comme le
+       fait le patron pour le texte courant (`--ztsp-sur-fond`).
+       Tout le reste de l'index est deja dans une carte opaque — cartes
+       d'article, barre de filtres, chiffres, espace outils, pied de page. */
+    html.ztsp-decor #articlesHeading{color:var(--ztsp-sur-fond)}
+    html.ztsp-decor #noResults{color:var(--ztsp-sur-fond-doux)}
+
+    /* TETE DE L'INDEX — transparente, comme celle des articles depuis le
+       24 aout 2026 (articles/articles-theme.css). Elle etait restee au
+       degrade cyan quand les 26 articles l'ont perdu : l'ecart se voyait en
+       passant de l'index a un article. Le marine et les rayons passent
+       maintenant jusqu'en haut des deux cotes.
+       La tete etait deja ecrite pour un fond fonce — son degrade finissait
+       sur #004A61 — et tout y reste au-dessus de 4,5:1 sur le marine,
+       mesure au navigateur. Rien a recolorer. */
+    html.ztsp-decor .hero-gradient{background:transparent}
   </style>
   <script src="analytics.js"></script>
   <script src="zts-lang.js" defer></script>
   <script src="cookie-consent.js" defer></script>
   <link rel="stylesheet" href="shared/zts-header.css">
+  <link rel="stylesheet" href="/shared/zts-modele.css">
 </head>
 <body class="bg-slate-50 text-slate-900">
 
@@ -139,7 +169,7 @@
     <div class="grid lg:grid-cols-12 gap-10 lg:gap-16">
 
       <div class="lg:col-span-8">
-        <h3 class="text-3xl md:text-4xl font-lucky text-ztsDeep mb-10 md:mb-12 flex items-center gap-4">
+        <h3 id="articlesHeading" class="text-3xl md:text-4xl font-lucky text-ztsDeep mb-10 md:mb-12 flex items-center gap-4">
           <i data-lucide="target" class="text-ztsYellow w-10 h-10 md:w-12 md:h-12 drop-shadow-sm"></i> <span data-i18n="articlesTitle">Les articles</span>
         </h3>
         <div id="grid" class="grid md:grid-cols-2 gap-8 md:gap-10"></div>

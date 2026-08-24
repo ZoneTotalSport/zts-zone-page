@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr-CA">
+<!-- `ztsp-decor` VA SUR <html>, PAS SUR <body> : les deux couches du decor
+     sont des pseudo-elements de body en z-index negatif. Si body porte le
+     marine, elles passent derriere son propre fond et disparaissent.
+     Voir shared/zts-modele.css §0. -->
+<html class="ztsp-decor" lang="fr-CA">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,6 +41,7 @@
   <script>tailwind.config={theme:{extend:{colors:{ztsBlue:'#00C4FF',ztsYellow:'#FFF000',ztsDarkBlue:'#0086AD',ztsDeep:'#004A61'},fontFamily:{luckiest:['"Luckiest Guy"','cursive']}}}}</script>
   <link rel="stylesheet" href="/articles/articles.css">
   <link rel="stylesheet" href="../shared/zts-header.css">
+  <link rel="stylesheet" href="/shared/zts-modele.css">
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"20 grands jeux extérieurs pour camp de jour","inLanguage":"fr-CA","datePublished":"2026-06-06","author":{"@type":"Person","name":"Joey Root"},"publisher":{"@type":"Organization","name":"Zone Total Sport","url":"https://zonetotalsport.ca"},"description":"20 grands jeux extérieurs clé en main pour animer un camp de jour, par tranche d'âge.","mainEntityOfPage":"https://zonetotalsport.ca/articles/grands-jeux-exterieurs-camp-de-jour.html","keywords":"grands jeux camp de jour, jeux extérieurs camp, activités camp de jour, animation camp"}</script>
@@ -47,6 +52,9 @@
     html{scroll-behavior:smooth;overflow-x:hidden}
     body{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);background:#EAF9FF}
     .hero-gradient{background:linear-gradient(135deg,#00C4FF 0%,#0086AD 60%,#004A61 100%)}
+    /* Tete transparente sous le decor — meme regle que articles-theme.css,
+       reprise ici parce que cet article ne charge pas le theme. */
+    html.ztsp-decor .hero-gradient{background:transparent}
     .text-outline{text-shadow:3px 3px 0 rgba(0,0,0,.18)}
     .scroll-progress{position:fixed;top:0;left:0;height:5px;width:100%;background:#FFF000;transform-origin:left;z-index:60}
     .lang-btn{font-family:'Luckiest Guy',cursive;padding:.2rem .7rem;border-radius:999px;border:2px solid #fff;color:#fff;background:transparent;cursor:pointer;font-size:.9rem;line-height:1.4}
