@@ -51,6 +51,51 @@ Le mot « repli » ne paraît nulle part dans l'interface.
 
 ---
 
+## Vague B — les notes, et la survie au plantage (24 août 2026)
+
+**Commits :** `9d99c3fe` (règles) · `0fe8128b` (app)
+
+### Règles Firestore — non déployées
+
+Deux blocs ajoutés à `firestore.rules`, +53 lignes, aucune ligne existante
+touchée :
+
+- `rencontres/{id}` — owner-only via le champ `uid`, patron `performances` /
+  `plans` / `inventaires`. Décision 1.
+- `rencontresDossiers/{uid}` — **extension de la décision 1, signalée.** Il
+  faut un endroit où vit un dossier **vide** : celui que l'usager vient de
+  créer et qui ne contient encore aucune rencontre. Le déduire du champ
+  `dossier` des rencontres ne le permet pas — il disparaîtrait au
+  rechargement. Un seul document par usager, dont l'identifiant **est** son
+  `uid`, donc une règle plus stricte que l'autre : elle s'appuie sur
+  l'identifiant et non sur un champ.
+
+> ⚠ **Le déploiement reste à faire, depuis ce worktree et jamais depuis
+> `main`.** Il demande le compte de Joey :
+> ```
+> firebase deploy --only firestore:rules
+> ```
+
+### L'app
+
+`dataStore.js` (428 l.) est le seul fichier qui parle à Firestore ; `app.js`
+ne connaît que `RencData.*`.
+
+- Dossiers, liste triée par date, filtre par dossier.
+- Éditeur de notes : titres, listes, gras, cases à cocher. Collage assaini.
+- **Autosauvegarde locale toutes les 10 s**, écriture Firestore au blur d'un
+  champ et au bouton. Écrire chez Firestore toutes les 10 s ferait 360
+  écritures facturées pour un comité d'une heure.
+- **Restauration après plantage** : le brouillon local porte son horodatage et
+  gagne sur la copie serveur quand il est plus récent. Il n'est effacé
+  qu'après une écriture réussie.
+- Le brouillon d'une rencontre neuve **déménage** au premier enregistrement,
+  sinon il ressuscite au chargement suivant comme un doublon.
+
+`verifie-habillage.py` : 0 bloquant.
+
+---
+
 ## Reste à la charge de Joey
 
 - **Un slot de prévisualisation.** `preview_start` refuse — 5 serveurs pour ce
@@ -60,3 +105,8 @@ Le mot « repli » ne paraît nulle part dans l'interface.
   statiquement, **pas vue tourner**.
 - **`PROMPT-ZONE-RENCONTRES-V2.md`** — le collage est arrivé vide. Le fichier
   n'a pas été recréé. §10 (brief de l'article) et §11 (banc d'essai) manquent.
+- **Déployer les règles Firestore** (voir vague B). Tant que ce n'est pas
+  fait, l'app écrit dans le vide : chaque enregistrement renverra
+  `permission-denied`, et les notes resteront dans le brouillon local.
+- **Je ne crée pas de compte.** Le tunnel anonyme → inscription → retour app
+  reste à ta charge, comme les 4 tests de `LOT1-COMPLETE.md`.
