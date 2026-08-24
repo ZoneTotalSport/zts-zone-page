@@ -77,12 +77,19 @@ async function transcris(env, buf, langue) {
   }
 
   // 1 — le modele de tete, avec l'indication de langue.
+  //
+  // `vad_filter` EST UN BOOLEEN, PAS UNE CHAINE. Avec "true" entre guillemets,
+  // Workers AI repond 400 « Type mismatch of '/vad_filter', 'boolean' not in
+  // 'string' » — et comme l'echec est rattrape juste en dessous, le modele de
+  // tete n'aurait JAMAIS servi : chaque transcription serait silencieusement
+  // partie au repli, plus lent et sans indication de langue. Constate le
+  // 24 aout 2026 en essayant la route pour de vrai, jamais visible autrement.
   try {
     const sortie = await env.AI.run(MODELE_TETE, {
       audio: base64(buf),
       task: "transcribe",
       language: langue === "en" ? "en" : "fr",
-      vad_filter: "true",
+      vad_filter: true,
     });
     const t = texteDe(sortie);
     if (t) return { texte: t, modele: MODELE_TETE };
