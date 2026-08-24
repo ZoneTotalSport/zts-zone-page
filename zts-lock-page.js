@@ -271,6 +271,35 @@
   // moities et deux CTA : le lecteur verrait la premiere moitie de l'intro,
   // un mur, puis la premiere moitie de la conclusion. L'article se lit en
   // continu, il doit se couper en continu.
+  // ⚠ ÉCHAPPATOIRE : `data-zts-toujours-visible`
+  //
+  // Un bloc portant cet attribut n'est jamais masqué par le demi-aperçu, ET il
+  // ne compte pas dans le calcul de la coupure. Les deux vont ensemble : si un
+  // bloc exempté restait compté, il achèterait du contenu gratuit au lecteur —
+  // une promo toujours visible ferait grossir la moitié offerte.
+  //
+  // À QUOI ÇA SERT. Un article peut vouloir montrer une promo, un encadré
+  // d'outil ou un appel à l'action à TOUS les visiteurs, y compris ceux qui ne
+  // sont pas connectés — ce sont justement eux qu'on cherche à convertir. Sans
+  // l'attribut, la moitié basse tombe derrière le mur et l'appât devient une
+  // récompense réservée à ceux qui n'en ont plus besoin.
+  //
+  // COMMENT S'EN SERVIR. Poser l'attribut sur chaque ENFANT DIRECT d'un
+  // conteneur de contenu qui compose le bloc — le titre, les paragraphes, les
+  // encadrés, le CTA. Un enfant oublié sera masqué et coupera le bloc en deux.
+  //
+  //   <h2 id="…" data-zts-toujours-visible>…</h2>
+  //   <figure class="…" data-zts-toujours-visible>…</figure>
+  //   <aside class="zts-cta-inline" data-zts-toujours-visible>…</aside>
+  //
+  // Premier usage : la section « Zone Inventaire » de
+  // articles/inventaire-materiel-sans-effort.html (23 août 2026).
+  //
+  // CE QU'IL NE FAUT PAS EN FAIRE. Exempter le corps de l'article viderait le
+  // mur de son sens. L'échappatoire est faite pour de la promo, pas du contenu.
+  //
+  // L'exemption vit dans la boucle multi-conteneurs : elle s'applique donc
+  // à tous les squelettes d'un même article, pas seulement au premier.
   function applyHalf(containers, info) {
     if (!containers || !containers.length) return;
     if (containers[0].getAttribute('data-zts-half') === '1') return;
@@ -279,7 +308,9 @@
     for (var c = 0; c < containers.length; c++) {
       var enfants = containers[c].children;
       for (var i = 0; i < enfants.length; i++) {
-        if (!enfants[i].classList.contains('zts-half-cta')) kids.push(enfants[i]);
+        if (enfants[i].classList.contains('zts-half-cta')) continue;
+        if (enfants[i].hasAttribute('data-zts-toujours-visible')) continue;
+        kids.push(enfants[i]);
       }
     }
     if (kids.length < 4) return;               // article trop court → laissé entier
