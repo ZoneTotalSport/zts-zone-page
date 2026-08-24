@@ -1,20 +1,57 @@
 # Prompts d'images — article « Inventaire du matériel »
 
 Article : `articles/inventaire-materiel-sans-effort.html`
-Génération : Nano Banana / Gemini · Style : pop art ZTS · Format : 16:9
+Génération : Nano Banana / Gemini · Style : **photo documentaire ZTS** · Livré : 8/8
+
+> **Ce fichier est la référence de style des prochains articles.** Il a été
+> réécrit après la livraison pour décrire le style réellement retenu. La
+> première version imposait une illustration pop art (contours noirs, trames de
+> points, personnage récurrent à la tuque bleue) ; ce parti a été abandonné au
+> profit de la photo documentaire, décision prise sur la série livrée. Ne pas
+> ressortir l'ancien bloc pop art : les deux styles ne cohabitent pas dans un
+> même blogue.
+
+---
+
+## Le bloc de style
+
+À préfixer à **chaque** prompt de scène, sans modification. C'est lui qui tient
+la série ensemble d'un article à l'autre.
+
+```
+Documentary photography, realistic, natural available light. Real Quebec elementary school setting: cinder-block walls, varnished hardwood gym floor with painted court lines, worn municipal equipment. Candid unposed moment, mid-action, people often seen from behind or in three-quarter view, faces rarely front-facing. Muted natural palette — wood tones, beige block, cool window light — with color coming only from the equipment itself (balls, bins, pinnies). Shallow depth of field, 35mm look. No text, no logo, no signage in image. No studio lighting, no stock-photo smiles, no illustration or 3D render.
+```
+
+**Ce que le bloc garantit** — l'unité de la série tient à quatre choses, dans
+cet ordre : la lumière (naturelle, jamais d'appoint), le décor (bloc de béton +
+plancher de gymnase verni), le cadrage (candide, de dos ou de trois quarts), et
+la couleur (neutre partout sauf le matériel). Si un prompt de scène contredit
+l'un des quatre, c'est le bloc qui gagne.
+
+**Ce qu'il faut éviter** — le sourire de banque d'images, l'éclairage de studio,
+le sujet qui regarde l'objectif, le gymnase neuf et vide. Les locaux de nos
+lecteurs sont usés ; les images doivent l'être aussi.
+
+### Format
+
+Les 8 images livrées sont en **4:3** (2400 × 1792 à la source), sauf le hero en
+**16:9** (2752 × 1536). Ce n'était pas le plan initial, mais le résultat se tient :
+le hero panoramique ouvre l'article, les sept autres respirent en hauteur dans
+la colonne de texte. **Pour les prochains articles, reprendre cette règle :
+16:9 pour le hero, 4:3 pour les images de corps.**
 
 ---
 
 ## Mode d'emploi
 
-1. Générer les 8 images avec les prompts ci-dessous (le bloc de style est **déjà
-   préfixé** à chacun — copier le bloc complet, sans le titre).
+1. Générer les images avec le bloc de style + le prompt de scène.
 2. Déposer les PNG dans un dossier connecté ; les noms de sortie n'ont pas
    d'importance, la correspondance se fait par le numéro.
-3. Conversion et intégration : `cwebp -q 82 -resize 1600 0`, puis
-   décommenter le `<figure>` de l'emplacement correspondant dans le HTML.
+3. Convertir en webp (voir la commande en fin de fichier) vers
+   `articles/images/`, sous le nom `inventaire-materiel-NN-slug.webp`.
+4. Décommenter le `<figure>` correspondant dans le HTML.
 
-Chaque emplacement est déjà réservé dans l'article sous la forme :
+Chaque emplacement est réservé dans l'article sous la forme :
 
 ```html
 <!-- IMG 3 : Trois piles, pas quatre... -->
@@ -23,8 +60,12 @@ Chaque emplacement est déjà réservé dans l'article sous la forme :
 -->
 ```
 
-Le `alt` et la légende sont **déjà écrits** dans le commentaire, dans les
-quatre langues — rien à rédiger au moment de l'activation.
+⚠ **Les `alt` sont à revalider après génération.** Ceux d'origine décrivaient les
+scènes prévues ; ils ont dû être réécrits pour décrire les photos réellement
+produites. Un `alt` qui décrit une image qui n'existe pas est pire que pas
+d'`alt` du tout. Les `alt` ci-dessous sont les versions **finales, en place dans
+l'article**. Même vigilance pour les légendes : deux d'entre elles (2 et 6) ont
+été réécrites parce qu'elles s'appuyaient sur un détail visuel absent de la photo.
 
 Pour vérifier les images 5, 6 et 7 une fois intégrées, il faut cliquer le
 bouton d'onglet correspondant (ou ouvrir la page sur `#eps`, `#sdg` ou
@@ -57,37 +98,29 @@ sont dans le flux normal de l'article, visibles immédiatement.
 > supplémentaire au-dessus entrerait en concurrence avec les boutons et
 > repousserait les onglets hors de l'écran.
 
-> **Note sur les images 6 et 7** — le bloc de style impose le personnage
-> récurrent (l'enseignant à la tuque bleue), mais ces deux scènes ne le
-> mettent pas en vedette : la 6 montre une éducatrice de service de garde, la 7
-> des moniteurs adolescents. Une phrase de désambiguïsation est ajoutée à la fin
-> de ces deux prompts pour éviter que le modèle glisse l'enseignant dans le
-> cadre. Si tu préfères l'y voir apparaître en arrière-plan, supprime simplement
-> cette dernière phrase.
-
-> **Cohérence de série** — les images 5, 6 et 7 étant désormais dans trois
-> onglets frères, elles se retrouvent côte à côte quand un lecteur clique les
-> trois boutons à la suite. Garde le même cadrage large et la même densité de
-> personnages entre les trois : c'est ce qui fera lire le trio comme une série
-> plutôt que comme trois illustrations sans rapport.
+> **Cohérence de série** — les images 5, 6 et 7 étant dans trois onglets frères,
+> elles se retrouvent côte à côte quand un lecteur clique les trois boutons à la
+> suite. Garder le même cadrage large et la même densité de personnages entre
+> les trois : c'est ce qui fait lire le trio comme une série plutôt que comme
+> trois photos sans rapport.
 
 ---
 
 ## 1 — Hero / couverture
 
-`inventaire-materiel-01-hero.webp`
+`inventaire-materiel-01-hero.webp` · 16:9
 
 ```
-Pop art illustration, bold black outlines, halftone dots, vibrant flat colors. Palette: cyan and navy blue base with accents yellow #FFFC00, lime #A3FF00, orange #FFA200, pink #FF0061. Recurring character: friendly male PE teacher wearing a blue beanie (tuque), athletic sports shirt, whistle around neck. Consistent character across all images. No text in image. 16:9.
+[bloc de style]
 
-The PE teacher opens a storage room door on Friday evening; a chaotic avalanche of deflated balls, tangled hula hoops and cones spills out; his face shows comic despair; dramatic lighting from the hallway.
+Late Friday afternoon in an empty school gym. A teacher in a jacket, sports bag on his shoulder, stands with his back to us in front of an open metal storage cabinet. The shelves are overloaded with balls, hula hoops and cones; a dozen balls have already rolled out onto the hardwood floor at his feet. Long low light from the high windows, dust in the air. He is simply looking at it, not reacting.
 ```
 
-**Alt intégré** (attribut `alt`, français — un attribut HTML ne peut pas être multilingue,
-et `zts-lang.js` ne bascule que les `<span lang>`) :
-> Un enseignant d'éducation physique ouvre la porte du local de rangement et reçoit une avalanche de matériel.
+**Alt** (français — un attribut HTML ne peut pas être multilingue, et
+`zts-lang.js` ne bascule que les `<span lang>`) :
+> Un enseignant, sac de sport à l'épaule, ouvre la porte d'une armoire de rangement dans un gymnase ; des ballons et des cerceaux débordent des tablettes et roulent sur le plancher.
 
-**Légende intégrée** (`<figcaption>`, les 4 langues, déjà dans le commentaire) :
+**Légende** (`<figcaption>`, les 4 langues) :
 
 | Langue | Légende |
 |---|---|
@@ -100,44 +133,45 @@ et `zts-lang.js` ne bascule que les `<span lang>`) :
 
 ## 2 — Le cercle vicieux
 
-`inventaire-materiel-02-cercle-vicieux.webp`
+`inventaire-materiel-02-cercle-vicieux.webp` · 4:3
 
 ```
-Pop art illustration, bold black outlines, halftone dots, vibrant flat colors. Palette: cyan and navy blue base with accents yellow #FFFC00, lime #A3FF00, orange #FFA200, pink #FF0061. Recurring character: friendly male PE teacher wearing a blue beanie (tuque), athletic sports shirt, whistle around neck. Consistent character across all images. No text in image. 16:9.
+[bloc de style]
 
-Circular diagram scene: the teacher runs on a giant hamster wheel made of clipboards, spreadsheets and broken equipment, loop composition, exhausted expression.
+A teacher sits alone at a folding table set up in the middle of an empty gym, seen from behind and slightly to the side, head in both hands. In front of him: tall stacks of paper, binders and a basketball resting on the pile. Storage bins full of equipment on the floor around him. Fluorescent tube overhead, cold light. Exhaustion, not drama.
 ```
 
-**Alt intégré** (attribut `alt`, français — un attribut HTML ne peut pas être multilingue,
-et `zts-lang.js` ne bascule que les `<span lang>`) :
-> L'enseignant court dans une roue de hamster faite de presse-papiers et de matériel brisé.
+**Alt** :
+> Un enseignant assis à une table de gymnase, la tête dans les mains, devant des piles de paperasse et des bacs de matériel posés au sol.
 
-**Légende intégrée** (`<figcaption>`, les 4 langues, déjà dans le commentaire) :
+**Légende** :
 
 | Langue | Légende |
 |---|---|
-| Français | La roue tourne. C'est elle qu'il faut casser, pas toi. |
-| English | The wheel keeps turning. It's the wheel you need to break, not yourself. |
-| 中文 | 轮子一直在转。该被打破的是轮子，不是你。 |
-| Español | La rueda gira. Hay que romper la rueda, no a ti. |
+| Français | Recompter à la main chaque année : c'est ce cycle-là qu'il faut casser, pas toi. |
+| English | Counting it all by hand year after year: that's the cycle to break, not yourself. |
+| 中文 | 年复一年用手清点：该被打破的是这个循环，不是你。 |
+| Español | Volver a contarlo todo a mano cada año: ese es el ciclo que hay que romper, no tú. |
+
+> Légende réécrite après livraison : la version d'origine parlait d'une roue qui
+> tourne, image absente de la photo finale.
 
 ---
 
 ## 3 — Le grand tri
 
-`inventaire-materiel-03-grand-tri.webp`
+`inventaire-materiel-03-grand-tri.webp` · 4:3
 
 ```
-Pop art illustration, bold black outlines, halftone dots, vibrant flat colors. Palette: cyan and navy blue base with accents yellow #FFFC00, lime #A3FF00, orange #FFA200, pink #FF0061. Recurring character: friendly male PE teacher wearing a blue beanie (tuque), athletic sports shirt, whistle around neck. Consistent character across all images. No text in image. 16:9.
+[bloc de style]
 
-The teacher triumphantly sorts equipment into three big labeled bins (keep / repair / donate visual icons, no text), garbage bag of dead stock beside him, satisfied grin.
+Close low-angle shot of three storage bins lined up on a gym floor — grey, yellow and green — each with a strip of masking tape as a label. A pair of adult hands lowers a worn volleyball into the third bin. Basketballs and tangled nets fill the first, ropes and tape the second, folded pinnies the third. Only the hands and the legs of the person are in frame. Window light from the left.
 ```
 
-**Alt intégré** (attribut `alt`, français — un attribut HTML ne peut pas être multilingue,
-et `zts-lang.js` ne bascule que les `<span lang>`) :
+**Alt** :
 > L'enseignant trie le matériel dans trois grands bacs identifiés : garder, réparer, donner.
 
-**Légende intégrée** (`<figcaption>`, les 4 langues, déjà dans le commentaire) :
+**Légende** :
 
 | Langue | Légende |
 |---|---|
@@ -150,19 +184,18 @@ et `zts-lang.js` ne bascule que les `<span lang>`) :
 
 ## 4 — Zonage couleur
 
-`inventaire-materiel-04-zonage-couleur.webp`
+`inventaire-materiel-04-zonage-couleur.webp` · 4:3
 
 ```
-Pop art illustration, bold black outlines, halftone dots, vibrant flat colors. Palette: cyan and navy blue base with accents yellow #FFFC00, lime #A3FF00, orange #FFA200, pink #FF0061. Recurring character: friendly male PE teacher wearing a blue beanie (tuque), athletic sports shirt, whistle around neck. Consistent character across all images. No text in image. 16:9.
+[bloc de style]
 
-Bright organized storage room with color-coded shelves (red, blue, green zones), shadow-board silhouettes behind hanging equipment, the teacher gives a thumbs up.
+Interior of a tidy equipment room seen through the open doorway. Metal shelving on both sides, each shelf edge taped in a different colour — blue, yellow, red, green. Balls sorted by size, stacks of yellow cones, folded red pinnies. On the back wall, a pegboard with painted silhouettes behind the hanging racquets and hoops. Skylight above, everything legible at a glance. No people.
 ```
 
-**Alt intégré** (attribut `alt`, français — un attribut HTML ne peut pas être multilingue,
-et `zts-lang.js` ne bascule que les `<span lang>`) :
+**Alt** :
 > Local de rangement organisé avec des étagères à code couleur et des silhouettes peintes derrière le matériel suspendu.
 
-**Légende intégrée** (`<figcaption>`, les 4 langues, déjà dans le commentaire) :
+**Légende** :
 
 | Langue | Légende |
 |---|---|
@@ -175,19 +208,18 @@ et `zts-lang.js` ne bascule que les `<span lang>`) :
 
 ## 5 — Brigade élèves (ÉPS)
 
-`inventaire-materiel-05-brigade-eleves.webp`
+`inventaire-materiel-05-brigade-eleves.webp` · 4:3
 
 ```
-Pop art illustration, bold black outlines, halftone dots, vibrant flat colors. Palette: cyan and navy blue base with accents yellow #FFFC00, lime #A3FF00, orange #FFA200, pink #FF0061. Recurring character: friendly male PE teacher wearing a blue beanie (tuque), athletic sports shirt, whistle around neck. Consistent character across all images. No text in image. 16:9.
+[bloc de style]
 
-Two proud elementary kids counting basketballs in a rolling cart while the teacher high-fives them, gym background.
+Two elementary students in team pinnies, hands on a bin full of basketballs, counting. Beside them an adult holds a clipboard and writes the numbers on a tally sheet — only the forearms and hands of the adult are visible. Gym floor with painted lines, open storage room door in the background. Cropped tight, nobody's face fully shown. Ordinary and busy, not celebratory.
 ```
 
-**Alt intégré** (attribut `alt`, français — un attribut HTML ne peut pas être multilingue,
-et `zts-lang.js` ne bascule que les `<span lang>`) :
-> Deux élèves du primaire comptent des ballons de basketball dans un chariot pendant que l'enseignant les félicite.
+**Alt** :
+> Deux élèves en dossard comptent des ballons de basketball dans un bac pendant qu'un adulte inscrit les quantités sur une feuille fixée à une planchette.
 
-**Légende intégrée** (`<figcaption>`, les 4 langues, déjà dans le commentaire) :
+**Légende** :
 
 | Langue | Légende |
 |---|---|
@@ -200,44 +232,47 @@ et `zts-lang.js` ne bascule que les `<span lang>`) :
 
 ## 6 — Chariot service de garde
 
-`inventaire-materiel-06-chariot-sdg.webp`
+`inventaire-materiel-06-chariot-sdg.webp` · 4:3
 
 ```
-Pop art illustration, bold black outlines, halftone dots, vibrant flat colors. Palette: cyan and navy blue base with accents yellow #FFFC00, lime #A3FF00, orange #FFA200, pink #FF0061. Recurring character: friendly male PE teacher wearing a blue beanie (tuque), athletic sports shirt, whistle around neck. Consistent character across all images. No text in image. 16:9.
+[bloc de style]
 
-A daycare educator pushes a closed rolling themed cart full of foam balls and jump ropes across a schoolyard, kids playing in background. The recurring PE teacher does not appear in this image.
+An adult pushes a wheeled wire cage cart across an asphalt schoolyard, seen from behind at chest height. The cart is loaded with soccer balls, jump ropes and pool noodles; one hand steadies a ball on top. Long shadows, low golden sun, hopscotch chalk and a play structure in the soft background. Only the torso and arms of the adult are in frame.
 ```
 
-**Alt intégré** (attribut `alt`, français — un attribut HTML ne peut pas être multilingue,
-et `zts-lang.js` ne bascule que les `<span lang>`) :
-> Une éducatrice de service de garde pousse un chariot fermé rempli de ballons mousse et de cordes à sauter dans une cour d'école.
+**Alt** :
+> Une personne pousse un chariot à roulettes rempli de ballons, de cordes à sauter et de frites de piscine sur l'asphalte d'une cour d'école.
 
-**Légende intégrée** (`<figcaption>`, les 4 langues, déjà dans le commentaire) :
+**Légende** :
 
 | Langue | Légende |
 |---|---|
-| Français | Un chariot fermé, un contenu écrit sur le couvercle, une personne responsable. |
-| English | One closed cart, contents written on the lid, one person responsible. |
-| 中文 | 一辆封闭推车，盖子上写着清单，一个明确的负责人。 |
-| Español | Un carro cerrado, el contenido escrito en la tapa, una persona responsable. |
+| Français | Un chariot par thème, un contenu connu d'avance, une personne responsable au retour. |
+| English | One cart per theme, a known set of contents, one person accountable when it comes back. |
+| 中文 | 每个主题一辆推车，清单事先明确，归还时有一个负责人。 |
+| Español | Un carro por tema, un contenido conocido de antemano, una persona responsable al devolverlo. |
+
+> Légende réécrite après livraison : la version d'origine décrivait un chariot
+> fermé à couvercle, alors que la photo montre un chariot grillagé ouvert. Le
+> texte de la solution, lui, continue de recommander le chariot fermé — c'est
+> un conseil, pas une description de l'image.
 
 ---
 
 ## 7 — Blitz du vendredi (camp)
 
-`inventaire-materiel-07-blitz-vendredi.webp`
+`inventaire-materiel-07-blitz-vendredi.webp` · 4:3
 
 ```
-Pop art illustration, bold black outlines, halftone dots, vibrant flat colors. Palette: cyan and navy blue base with accents yellow #FFFC00, lime #A3FF00, orange #FFA200, pink #FF0061. Recurring character: friendly male PE teacher wearing a blue beanie (tuque), athletic sports shirt, whistle around neck. Consistent character across all images. No text in image. 16:9.
+[bloc de style]
 
-Teen camp counselors racing to pack labeled duffel bags, stopwatch floating above, playful competition energy, summer park setting. The recurring PE teacher does not appear in this image.
+Teen camp counselors in yellow pinnies packing up at the end of the day in a summer park. One holds a stopwatch clearly in view, another passes a red racquet to a pair of open hands, a third holds a volleyball. A blue bin in the foreground already holds balls, racquets and a rolled orange net. Warm afternoon light through trees, picnic table behind. Movement, mid-gesture, faces cropped out.
 ```
 
-**Alt intégré** (attribut `alt`, français — un attribut HTML ne peut pas être multilingue,
-et `zts-lang.js` ne bascule que les `<span lang>`) :
-> Des moniteurs de camp adolescents se dépêchent de remplir des sacs identifiés, un chronomètre au-dessus d'eux.
+**Alt** :
+> Des moniteurs de camp en dossard jaune rangent ballons et raquettes dans un bac bleu à l'extérieur, l'un d'eux tenant un chronomètre bien en vue.
 
-**Légende intégrée** (`<figcaption>`, les 4 langues, déjà dans le commentaire) :
+**Légende** :
 
 | Langue | Légende |
 |---|---|
@@ -250,19 +285,18 @@ et `zts-lang.js` ne bascule que les `<span lang>`) :
 
 ## 8 — Après / victoire
 
-`inventaire-materiel-08-victoire.webp`
+`inventaire-materiel-08-victoire.webp` · 4:3
 
 ```
-Pop art illustration, bold black outlines, halftone dots, vibrant flat colors. Palette: cyan and navy blue base with accents yellow #FFFC00, lime #A3FF00, orange #FFA200, pink #FF0061. Recurring character: friendly male PE teacher wearing a blue beanie (tuque), athletic sports shirt, whistle around neck. Consistent character across all images. No text in image. 16:9.
+[bloc de style]
 
-The teacher relaxes in a spotless storage room, feet up on a bin, phone in hand showing a checkmark, golden light, total zen.
+Same gym as image 1, but immaculate. Wide shot: an ordered wall of metal shelving holding colour-sorted bins, mats stacked flat, balls in tidy rows. A teacher walks into the open storage room carrying a small bundle of pinnies, seen from behind, unhurried. A second open door shows a tool wall. Clean hardwood, bright daylight, nothing on the floor.
 ```
 
-**Alt intégré** (attribut `alt`, français — un attribut HTML ne peut pas être multilingue,
-et `zts-lang.js` ne bascule que les `<span lang>`) :
-> L'enseignant se détend dans un local de rangement impeccable, les pieds sur un bac, téléphone à la main.
+**Alt** :
+> Un enseignant entre dans un local de rangement impeccable : étagères alignées, bacs de couleur identifiés, ballons rangés et plancher de gymnase dégagé.
 
-**Légende intégrée** (`<figcaption>`, les 4 langues, déjà dans le commentaire) :
+**Légende** :
 
 | Langue | Légende |
 |---|---|
@@ -271,18 +305,26 @@ et `zts-lang.js` ne bascule que les `<span lang>`) :
 | 中文 | 之后的某个周五下午 4 点半。同一个器材室，同一个时间，不一样的人生。 |
 | Español | El viernes de las 16 h 30 de después. Mismo almacén, misma hora, otra vida. |
 
+> L'image 8 doit répondre à l'image 1 : même décor, même heure, état inverse.
+> C'est la seule contrainte de composition imposée entre deux images de la série.
+
 ---
 
-## Conversion webp (commande de référence)
+## Conversion webp (ce qui a été fait)
+
+Redimensionnement à 1600 px de large, qualité 80, Lanczos. Résultat sur la
+série : **27,1 Mo → 1,3 Mo (−95 %)**, entre 117 et 307 ko par image.
 
 ```bash
 cd articles/images
 for i in 01-hero 02-cercle-vicieux 03-grand-tri 04-zonage-couleur \
          05-brigade-eleves 06-chariot-sdg 07-blitz-vendredi 08-victoire; do
-  cwebp -q 82 -resize 1600 0 "source-$i.png" -o "inventaire-materiel-$i.webp"
+  cwebp -q 80 -resize 1600 0 "source-$i.png" -o "inventaire-materiel-$i.webp"
 done
 ```
 
-L'image 1 sert aussi de `og:image` (URL absolue dans le `<head>`) et d'image de
-carte sur `blog.html` — c'est la seule dont le nom est référencé ailleurs que
-dans le corps de l'article.
+Les `<img>` portent les dimensions **réelles** après conversion (`width`/`height`),
+pas une valeur théorique : 1600 × 893 pour le hero, 1600 × 1195 pour les sept
+autres. C'est ce qui évite le saut de mise en page au chargement. Si une image
+est régénérée dans un autre rapport, il faut remesurer et corriger ces
+attributs — les laisser faux est pire que les omettre.
