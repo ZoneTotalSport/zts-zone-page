@@ -220,6 +220,53 @@ accents, et le redémarrage sur `onend` avec de vrais silences.
 
 ---
 
+## Vague D — Whisper (24 août 2026)
+
+**Commits :** `153b0e46` (worker) · `9d9e043a` (navigateur)
+
+### Worker
+
+- **Binding Workers AI dans les trois environnements.** Le bloc de tête ne
+  suffit pas : `wrangler deploy --env production` ne le voit pas. Essai à blanc
+  sur les trois → `env.AI  AI` chaque fois.
+- **Quota en minutes d'audio**, `renc:{uid}:{jour}` dans KV, plafond
+  `QUOTA_MINUTES_JOUR = 120`. **Séparé de celui du générateur** : clé, plafond
+  et remise à zéro différents — ils ne peuvent pas se vider l'un l'autre.
+- Débit **après** succès ; plafond vérifié **avant** l'appel.
+- Corps en **WAV brut**, pas en JSON : 9,6 Mo par segment, +3,2 Mo si base64,
+  sur un worker qui a 128 Mo.
+- `whisper-large-v3-turbo` d'abord (il accepte l'indication de langue), repli
+  automatique sur `@cf/openai/whisper`.
+
+> ⚠ **NON DÉPLOYÉ.** Déployer ce worker touche **aussi** le générateur, la
+> vision de l'inventaire et le décodage. Ce n'est pas une décision que je prends
+> seul.
+> ```
+> cd cf-worker/generateur && wrangler deploy --env production
+> ```
+
+### Navigateur — mesuré
+
+WAV stéréo 44,1 kHz de 12 minutes (121 Mo) passé dans le vrai chemin :
+
+| | |
+|---|---|
+| Après décodage | 1 canal, 16 000 Hz, 720 s |
+| Mémoire | **242 Mo évités, 44 Mo occupés** |
+| Segments | 298 + 300 + 122 s = **720 s, rien de perdu** |
+| Taille des segments | 9,09 / 9,16 / 3,72 Mo — sous le plafond de 12 |
+| Coupes | **8,02 s dans le cycle de 10 s** — dans le creux de silence |
+| Temps | décodage 3,4 s, découpage 0,7 s |
+
+La coupe au silence balaie 5 s de part et d'autre par fenêtres de 20 ms.
+**Pas de chevauchement** : il ferait apparaître les mêmes mots deux fois, ce
+qui se voit plus qu'une coupe nette.
+
+Le micro et le fichier partagent le **même tuyau** : c'est ce qui rend le mode
+micro identique sur Safari et sur Chrome.
+
+---
+
 ## Reste à la charge de Joey
 
 - **Un slot de prévisualisation.** `preview_start` refuse — 5 serveurs pour ce
@@ -233,6 +280,10 @@ accents, et le redémarrage sur `onend` avec de vrais silences.
   cas contre le ruleset déployé.
 - **Je ne crée pas de compte.** Le tunnel anonyme → inscription → retour app
   reste à ta charge, comme les 4 tests de `LOT1-COMPLETE.md`.
+- **Déployer `zts-generateur`** (voir vague D) — il porte aussi le générateur,
+  la vision de l'inventaire et le décodage.
+- **Confirmer que `whisper-large-v3-turbo` est disponible** sur le compte : ça
+  ne se constate qu'au premier appel réel.
 - **Le micro sur une vraie machine** : dictée fr-CA avec accents, et les
   silences d'une vraie rencontre pour éprouver le redémarrage sur `onend`.
 
