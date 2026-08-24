@@ -13,8 +13,10 @@
  *      quand le navigateur le porte, minuteur, redemarrage sur onend.
  *   D  transcription : depot d'un fichier, decodage 16 kHz mono, decoupage au
  *      silence, envoi segment par segment, devis et quota en minutes.
+ *   E  traitement IA : mot a mot par blocs, compte rendu structure, resume
+ *      d'un passage selectionne.
  *
- * Les commandes des vagues E a H sont a l'ecran mais desactivees, et chacune
+ * Les commandes des vagues F a H sont a l'ecran mais desactivees, et chacune
  * NOMME sa vague dans son title — voir pasEncore().
  *
  * Script classique, pas un module : charge apres shared/zts.js, zts-gate.js,
@@ -906,6 +908,211 @@
   }
 
   /* ==================================================================== */
+  /* Traitement IA (vague E)                                              */
+  /* ==================================================================== */
+
+  var iaEnCours = false;
+
+  /* Le mot a mot part PAR BLOCS. Une rencontre de 90 minutes fait environ
+     13 000 mots : nettoyee d'un coup, la sortie depasserait tout plafond
+     raisonnable et reviendrait tronquee AU MILIEU D'UNE PHRASE — la pire des
+     sorties, parce qu'elle a l'air complete.
+
+     La coupe se fait sur une FIN DE PHRASE quand il y en a une a portee, pas
+     au mot le plus proche : couper « ...on decide que » | « ...Marie s'en
+     occupe » donnerait deux blocs dont aucun ne se tient, et le modele
+     ponctuerait chacun comme s'il etait entier. */
+  var MOTS_PAR_BLOC = 1500;
+
+  function blocs(texte) {
+    var mots = String(texte || '').trim().split(/\s+/).filter(Boolean);
+    if (!mots.length) return [];
+    var out = [];
+    var i = 0;
+    while (i < mots.length) {
+      var fin = Math.min(i + MOTS_PAR_BLOC, mots.length);
+      if (fin < mots.length) {
+        // On recule jusqu'a un mot qui termine une phrase, dans les 150
+        // derniers mots du bloc. Au-dela on coupe net : mieux vaut un bloc
+        // un peu long qu'une recherche qui remonte au debut.
+        var recul = fin;
+        while (recul > i + MOTS_PAR_BLOC - 150 && !/[.!?…]["»)]?$/.test(mots[recul - 1])) recul--;
+        if (recul > i + MOTS_PAR_BLOC - 150) fin = recul;
+      }
+      out.push(mots.slice(i, fin).join(' '));
+      i = fin;
+    }
+    return out;
+  }
+
+  function modeleChoisi() {
+    var c = id('rencSonnet');
+    return (c && c.checked) ? 'sonnet' : 'haiku';
+  }
+
+  /** Le texte de depart : la transcription si elle existe, sinon les notes. */
+  function texteSource() {
+    if (courante && courante.transcription && courante.transcription.trim()) {
+      return courante.transcription.trim();
+    }
+    var n = id('rencNotes');
+    return n ? (n.innerText || '').trim() : '';
+  }
+
+  function echappe(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  /** Le compte rendu structure, rendu en HTML — celui que l'usager editera. */
+  function rendStructure(s) {
+    var h = [];
+    if (s.resume) h.push('<h2>Résumé</h2><p>' + echappe(s.resume).replace(/\n+/g, '<br>') + '</p>');
+    function bloc(titre, items) {
+      if (!items || !items.length) return;
+      h.push('<h2>' + titre + '</h2><ul>'
+        + items.map(function (x) { return '<li>' + echappe(x) + '</li>'; }).join('') + '</ul>');
+    }
+    bloc('Points discutés', s.points);
+    bloc('Décisions prises', s.decisions);
+    if (s.actions && s.actions.length) {
+      // Les actions sont des CASES A COCHER, pas des puces : c'est ce qui les
+      // rend vivantes, et c'est ce que la vue « Mes actions » de la vague H
+      // relira.
+      h.push('<h2>Actions à faire</h2>');
+      h.push(s.actions.map(function (a) {
+        var q = echappe(a.quoi);
+        var qui = a.qui ? ' <b>— ' + echappe(a.qui) + '</b>' : '';
+        var ech = a.echeance ? ' <b>(' + echappe(a.echeance) + ')</b>' : '';
+        return '<div><input type="checkbox"'
+          + (a.fait ? ' checked' : '') + '> ' + q + qui + ech + '</div>';
+      }).join(''));
+    }
+    bloc('Points reportés à la prochaine rencontre', s.reportes);
+    return h.join('');
+  }
+
+  function iaOccupee(oui, texte) {
+    iaEnCours = oui;
+    ['rencVerbatim', 'rencStructure', 'rencPassage'].forEach(function (c) {
+      var n = id(c);
+      if (n) n.disabled = oui;
+    });
+    etat(texte || '', oui ? 'attente' : '');
+  }
+
+  function messageIA(e) {
+    if (e && e.code === 'QUOTA_IA') return e.message;
+    return '⚠ ' + (e && e.message ? e.message : e);
+  }
+
+  async function faisVerbatim() {
+    if (iaEnCours || !courante) return;
+    var source = texteSource();
+    if (!source) { etat('Il n\'y a encore rien à nettoyer.', 'attente'); return; }
+    var parts = blocs(source);
+    iaOccupee(true, 'Mot à mot — bloc 1 sur ' + parts.length + '…');
+
+    var faits = [];
+    for (var i = 0; i < parts.length; i++) {
+      try {
+        var r = await RencData.traiteIA('verbatim', parts[i], modeleChoisi(), lang());
+        faits.push(r.texte || '');
+        appliqueSortie(faits.join('\n\n'), 'verbatim');
+        if (i + 1 < parts.length) {
+          iaOccupee(true, 'Mot à mot — bloc ' + (i + 2) + ' sur ' + parts.length
+            + ' (' + r.restantJour + ' traitements restants aujourd\'hui)…');
+        }
+      } catch (e) {
+        // Ce qui est deja nettoye RESTE. Un mot a mot a moitie fait vaut
+        // mieux qu'un ecran vide, et l'usager peut relancer.
+        iaOccupee(false, messageIA(e)
+          + (faits.length ? ' — les ' + faits.length + ' premiers blocs sont conservés.' : ''));
+        if (sale) sauveServeur(true);
+        return;
+      }
+    }
+    iaOccupee(false, 'Mot à mot terminé. Le texte reste modifiable à la main.');
+    if (sale) sauveServeur(true);
+  }
+
+  async function faisStructure() {
+    if (iaEnCours || !courante) return;
+    var source = texteSource();
+    if (!source) { etat('Il n\'y a encore rien à résumer.', 'attente'); return; }
+    iaOccupee(true, 'Compte rendu en préparation…');
+    try {
+      var r = await RencData.traiteIA('structure', source, modeleChoisi(), lang());
+      courante.actions = (r.sortie && r.sortie.actions) || [];
+      appliqueSortie(rendStructure(r.sortie || {}), 'structure');
+      iaOccupee(false, 'Compte rendu prêt — '
+        + courante.actions.length + ' action' + (courante.actions.length > 1 ? 's' : '')
+        + ' à faire. Tout reste modifiable.');
+      if (sale) sauveServeur(true);
+    } catch (e) {
+      iaOccupee(false, messageIA(e));
+    }
+  }
+
+  /** Le résumé d'un seul passage, selectionne dans l'onglet « Original ». */
+  async function faisPassage() {
+    if (iaEnCours || !courante) return;
+    var sel = String(window.getSelection ? window.getSelection().toString() : '').trim();
+    if (sel.length < 40) {
+      etat('Sélectionne d\'abord un passage dans « Original » (au moins quelques phrases).', 'attente');
+      return;
+    }
+    iaOccupee(true, 'Résumé du passage…');
+    try {
+      var r = await RencData.traiteIA('passage', sel, modeleChoisi(), lang());
+      // Le resume s'AJOUTE au compte rendu, il ne l'ecrase pas : on resume un
+      // point precis EN PLUS du reste, jamais a la place.
+      var z = id('rencSortie');
+      var p = document.createElement('p');
+      p.textContent = r.texte || '';
+      z.appendChild(p);
+      marqueSale();
+      iaOccupee(false, 'Résumé ajouté au bas du compte rendu.');
+      if (sale) sauveServeur(true);
+    } catch (e) {
+      iaOccupee(false, messageIA(e));
+    }
+  }
+
+  /** Ecrit dans l'onglet « Compte rendu » et bascule dessus. */
+  function appliqueSortie(html, mode) {
+    var z = id('rencSortie');
+    if (!z) return;
+    z.innerHTML = assainit(html);
+    if (courante) {
+      courante.sortieIA = z.innerHTML;
+      courante.sortieMode = mode;
+    }
+    var ong = id('ongResultat');
+    if (ong && id('panResultat').hidden) ong.click();
+    marqueSale();
+  }
+
+  function cableIA() {
+    var v = id('rencVerbatim'), st = id('rencStructure'), p = id('rencPassage');
+    if (v) v.addEventListener('click', faisVerbatim);
+    if (st) st.addEventListener('click', faisStructure);
+    if (p) p.addEventListener('click', faisPassage);
+
+    // Le bouton « résumer un passage » n'apparait que quand il y a un passage
+    // selectionne. Un bouton qui exige une selection invisible et qui ronchonne
+    // quand elle manque est une devinette ; celui-ci se montre au bon moment.
+    document.addEventListener('selectionchange', function () {
+      if (!p) return;
+      var brut = id('rencBrut');
+      var sel = window.getSelection();
+      var dedans = sel && sel.rangeCount && brut
+        && brut.contains(sel.getRangeAt(0).commonAncestorContainer);
+      p.hidden = !(dedans && String(sel).trim().length >= 40);
+    });
+  }
+
+  /* ==================================================================== */
   /* Ce qui n'est pas encore branche                                      */
   /* ==================================================================== */
 
@@ -995,6 +1202,7 @@
     cableSaisie();
     cableMicro();
     cableImport();
+    cableIA();
 
     dossiers = RencData.dossiersDefaut();
     dessineDossiers();
@@ -1015,7 +1223,6 @@
       if (bt) bt.addEventListener('click', function () { nouvelle(null); });
     });
 
-    ['rencVerbatim', 'rencStructure'].forEach(function (c) { pasEncore(c, 'E'); });
     ['rencEnvoyer', 'rencCopier', 'rencPdf', 'rencTxt', 'rencMd', 'rencPartage']
       .forEach(function (c) { pasEncore(c, 'G'); });
     ['rencNouveauDossier', 'rencSupprimer', 'rencCherche'].forEach(function (c) { pasEncore(c, 'F'); });

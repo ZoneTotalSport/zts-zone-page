@@ -49,6 +49,7 @@ const RencData = (() => {
   // a Workers AI ; le navigateur ne transporte qu'un jeton Firebase. Aucune
   // cle cote client, jamais.
   const API_TRANS = 'https://api.zonetotalsport.ca/rencontres-transcription';
+  const API_IA    = 'https://api.zonetotalsport.ca/rencontres-ia';
 
   // Plafond Firestore : 1 048 576 octets. On s'arrete a 900 000 pour laisser
   // la place aux index et a l'encodage UTF-8 des accents.
@@ -490,9 +491,33 @@ const RencData = (() => {
     return await res.json();
   }
 
+  /**
+   * Traitement IA d'un compte rendu.
+   *
+   * @param {'verbatim'|'structure'|'passage'} mode
+   * @param {string} texte   pour `verbatim`, UN BLOC — voir RencIA.blocs()
+   * @param {'haiku'|'sonnet'} modele
+   * @returns {Promise<Object>} `{texte}` pour verbatim et passage,
+   *                            `{sortie:{resume,points,decisions,actions,reportes}}`
+   *                            pour structure
+   */
+  async function traiteIA(mode, texte, modele, lang) {
+    const res = await fetch(API_IA, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (await jeton()) },
+      body: JSON.stringify({
+        mode: mode, texte: texte,
+        modele: modele === 'sonnet' ? 'sonnet' : 'haiku',
+        lang: lang === 'en' ? 'en' : 'fr'
+      })
+    });
+    if (!res.ok) throw await lisErreur(res);
+    return await res.json();
+  }
+
   return {
     pret, uid, connecte, enLigne, jeton,
-    devisTranscription, transcrisSegment,
+    devisTranscription, transcrisSegment, traiteIA,
     MAX_DOC, TYPES, NEUVE,
     brouillon, fusionne,
     dossiersDefaut, nouvelIdDossier, normaliseDossiers,

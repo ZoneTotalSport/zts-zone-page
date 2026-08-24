@@ -14,7 +14,7 @@ import {
   getAccessToken,
 } from "./firestore.js";
 import { verifyIdToken, logUidMismatch } from "./auth.js";
-import { handleRencontres } from "./rencontres.js";
+import { handleRencontres, handleRencontresIA } from "./rencontres.js";
 
 // CORS — whitelist stricte. `*` retiré pour bloquer les appels cross-origin
 // depuis des sites tiers. Le worker isole chaque requête, donc la variable
@@ -1149,6 +1149,18 @@ export default {
         });
       } catch (e) {
         console.error("[rencontres]", e?.stack || e);
+        return err("INTERNAL", "Erreur interne", 500);
+      }
+    }
+
+    // Traitement IA d'un compte rendu : mot a mot, structure, ou resume d'un
+    // passage. Compteur quotidien PROPRE (`rencia`), distinct de celui du
+    // generateur comme de celui des minutes de transcription.
+    if (url.pathname === "/rencontres-ia" && request.method === "POST") {
+      try {
+        return await handleRencontresIA(request, env, { err, json, verifie: verifyIdToken });
+      } catch (e) {
+        console.error("[rencontres-ia]", e?.stack || e);
         return err("INTERNAL", "Erreur interne", 500);
       }
     }

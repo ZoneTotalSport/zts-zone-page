@@ -166,3 +166,31 @@ export async function debitTranscription(env, uid, secondes) {
   await env.ANON_QUOTA.put(key, String(minutes), { expirationTtl: 60 * 60 * 24 * 3 });
   return { uid, jour, minutes, max, restant: Math.max(0, max - minutes) };
 }
+
+// ────────────────────────────────────────────────────────────
+// Compteur QUOTIDIEN generique — un prefixe, un plafond.
+//
+// Meme raisonnement que le compteur de minutes ci-dessus : chaque fonction a
+// SON compteur, avec sa cle et son plafond, pour qu'aucune ne puisse assecher
+// les autres. Transcrire beaucoup un mardi ne doit pas empecher de produire un
+// compte rendu le meme jour, ni de generer une SAE.
+//
+// Utilise par /rencontres-ia sous le prefixe `rencia`.
+// ────────────────────────────────────────────────────────────
+
+export async function readDailyCount(env, prefixe, uid, max) {
+  const jour = currentDayKey();
+  const raw = await env.ANON_QUOTA.get(`${prefixe}:${uid}:${jour}`);
+  const utilise = raw ? parseInt(raw, 10) : 0;
+  return { jour, utilise, max, restant: Math.max(0, max - utilise) };
+}
+
+export async function incrementDailyCount(env, prefixe, uid, max) {
+  const jour = currentDayKey();
+  const key = `${prefixe}:${uid}:${jour}`;
+  const raw = await env.ANON_QUOTA.get(key);
+  const utilise = (raw ? parseInt(raw, 10) : 0) + 1;
+  // TTL de 3 jours : la cle s'efface d'elle-meme, aucun menage a faire.
+  await env.ANON_QUOTA.put(key, String(utilise), { expirationTtl: 60 * 60 * 24 * 3 });
+  return { jour, utilise, max, restant: Math.max(0, max - utilise) };
+}
