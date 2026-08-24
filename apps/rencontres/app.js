@@ -3,33 +3,27 @@
  *
  * REGLE DE CE FICHIER : il ne parle JAMAIS a Firestore ni au Worker
  * directement. Tout passe par RencData.* (dataStore.js), sur le meme patron
- * que apps/inventaire et apps/planificateur. A la vague A, dataStore.js
- * n'existe pas encore et l'app tient en memoire : les points d'accrochage
- * sont marques « VAGUE B » et ce sont les seuls endroits a rouvrir.
+ * que apps/inventaire et apps/planificateur.
  *
- * VAGUE A — ce qui est reellement branche ici :
- *   · les deux series d'onglets (capture, sortie) ;
- *   · le tiroir du rail sous 900 px ;
- *   · le menu ⋯ ;
- *   · l'etat du reseau ;
- *   · la DETECTION de la reconnaissance vocale, qui decide de ce que l'onglet
- *     micro annonce a l'usager.
+ * VAGUES LIVREES ICI
+ *   A  onglets, tiroir du rail, menu ⋯, etat du reseau, detection vocale.
+ *   B  dossiers, liste, editeur de notes, autosauvegarde locale 10 s,
+ *      ecriture Firestore au blur et au bouton, restauration apres plantage.
  *
- * Script classique, pas un module : charge apres shared/zts.js, zts-gate.js
- * et le montage du shell.
+ * Les commandes des vagues C a H sont a l'ecran mais desactivees, et chacune
+ * NOMME sa vague dans son title — voir pasEncore().
+ *
+ * Script classique, pas un module : charge apres shared/zts.js, zts-gate.js,
+ * le montage du shell et dataStore.js.
  */
 (function () {
   'use strict';
 
-  /* ── Dossiers de depart ───────────────────────────────────────────────
-     Deux, exactement ceux du cahier. Ce ne sont pas des categories fermees :
-     l'usager en ajoute, en renomme et en supprime a la vague F. Les
-     identifiants sont stables et ne bougent JAMAIS quand un libelle change —
-     c'est `id` que les rencontres portent. */
-  var DOSSIERS_DEFAUT = [
-    { id: 'comites',     nom: 'Comités' },
-    { id: 'statutaires', nom: 'Statutaires' }
-  ];
+  /* Toutes les 10 secondes, comme demande au cahier. Ce n'est PAS une
+     ecriture Firestore : c'est le brouillon local. Ecrire au serveur toutes
+     les 10 s pendant un comite d'une heure ferait 360 ecritures facturees
+     pour une seule rencontre. */
+  var AUTO_MS = 10000;
 
   /* ── Reconnaissance vocale : presente ou absente ──────────────────────
      `webkitSpeechRecognition` n'existe NI sur Firefox NI sur Safari. Sur un
@@ -40,23 +34,24 @@
      facons de transcrire : l'une ecrit pendant la rencontre, l'autre a la
      fin. L'usager de Safari n'a pas une version abimee de l'app, il a une
      version qui transcrit apres coup. Le mot « repli » vit dans ce
-     commentaire et nulle part ailleurs.
-
-     La detection sert a deux choses, ici et a la vague C : le sous-titre de
-     l'onglet micro, et le choix du chemin de capture. */
+     commentaire et nulle part ailleurs. */
   var DIRECT = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
+  var dossiers   = [];
+  var rencontres = [];
+  var courante   = null;    // la rencontre ouverte ; `id` null tant qu'elle est neuve
+  var sale       = false;   // du travail que le serveur n'a pas encore vu
+  var dossierActif = null;  // null = tous les dossiers
+  var pretServeur  = false;
+
   function id(x) { return document.getElementById(x); }
+  function lang() { try { return (window.ZTS && ZTS.langue) ? ZTS.langue() : 'fr'; } catch (e) { return 'fr'; } }
+  function nomDossier(d) { return (lang() === 'en' ? d.en : d.fr) || d.fr || d.id; }
 
   /* ==================================================================== */
   /* Onglets                                                              */
   /* ==================================================================== */
 
-  /**
-   * Cable un groupe d'onglets ARIA. `paires` associe le bouton au panneau.
-   * Un seul panneau visible ; `aria-selected` et `hidden` restent d'accord,
-   * ce qui evite qu'un lecteur d'ecran annonce deux onglets actifs.
-   */
   function cableOnglets(paires) {
     var boutons = paires.map(function (p) { return id(p[0]); }).filter(Boolean);
 
@@ -80,8 +75,7 @@
       bt.addEventListener('keydown', function (e) {
         if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
         e.preventDefault();
-        var i = boutons.indexOf(bt);
-        var n = boutons.length;
+        var i = boutons.indexOf(bt), n = boutons.length;
         var suivant = boutons[((i + (e.key === 'ArrowRight' ? 1 : -1)) % n + n) % n];
         suivant.focus();
         suivant.click();
@@ -101,20 +95,19 @@
       rail.classList.toggle('is-ouvert', ouvert);
       bt.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
     }
+    window.__rencFermeTiroir = function () { pose(false); };
 
     bt.addEventListener('click', function (e) {
       e.stopPropagation();
       pose(!rail.classList.contains('is-ouvert'));
     });
-    // Un clic dans le rail ne le referme pas : on y choisit un dossier PUIS
-    // une rencontre, deux gestes.
     rail.addEventListener('click', function (e) { e.stopPropagation(); });
     document.addEventListener('click', function () { pose(false); });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && rail.classList.contains('is-ouvert')) { pose(false); bt.focus(); }
     });
-    // Au retour en deux colonnes, le rail redevient une colonne : la classe
-    // n'a plus de sens et laisserait un `transform` orphelin.
+    // Au retour en deux colonnes, la classe n'a plus de sens et laisserait un
+    // `transform` orphelin.
     window.addEventListener('resize', function () {
       if (window.innerWidth > 900) pose(false);
     }, { passive: true });
@@ -132,7 +125,6 @@
       liste.hidden = !ouvert;
       bt.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
     }
-
     bt.addEventListener('click', function (e) { e.stopPropagation(); pose(liste.hidden); });
     liste.addEventListener('click', function (e) { e.stopPropagation(); });
     document.addEventListener('click', function () { pose(false); });
@@ -141,8 +133,7 @@
     });
 
     // Partage natif : le bouton n'apparait que la ou il fonctionne. Un
-    // bouton « Partager » inerte sur ordinateur serait pire que pas de
-    // bouton du tout.
+    // bouton « Partager » inerte sur ordinateur serait pire que pas de bouton.
     var partage = id('rencPartage');
     if (partage && typeof navigator.share === 'function') partage.hidden = false;
   }
@@ -154,24 +145,265 @@
   function cableReseau() {
     var bandeau = id('rencReseau');
     if (!bandeau) return;
-    function relis() { bandeau.hidden = navigator.onLine !== false; }
+    function relis() {
+      bandeau.hidden = navigator.onLine !== false;
+      // Le retour du reseau est le bon moment pour pousser ce qui attend.
+      if (navigator.onLine !== false && sale && courante) sauveServeur(true);
+    }
     window.addEventListener('online', relis);
     window.addEventListener('offline', relis);
     relis();
   }
 
   /* ==================================================================== */
-  /* Rail : dossiers et liste                                             */
+  /* Assainissement du contenu editable                                   */
   /* ==================================================================== */
 
-  var dossierActif = null;   // null = tous les dossiers
+  /* La liste est VOLONTAIREMENT COURTE. Un compte rendu de comite se lit, il
+     ne se met pas en page — et tout ce qui entre ici devra ressortir en texte
+     brut pour le courriel (vague G) et a l'impression. Ce qui n'est pas dans
+     cette liste est remplace par son texte, jamais supprime : personne ne
+     perd un paragraphe parce qu'il l'a colle depuis Word. */
+  var BALISES_OK = ['H1', 'H2', 'H3', 'P', 'DIV', 'BR', 'UL', 'OL', 'LI',
+                    'B', 'STRONG', 'I', 'EM', 'U'];
+
+  /**
+   * Nettoie du HTML colle ou saisi. Aucun attribut n'est conserve, a une
+   * exception pres : `type="checkbox"` et `checked` sur les <input>, qui
+   * portent les cases a cocher des actions a faire.
+   *
+   * Un `style=` conserve laisserait entrer des polices et des couleurs de
+   * Word ; un `href` laisserait entrer un `javascript:`. On n'en garde aucun.
+   */
+  function assainit(html) {
+    var bac = document.implementation.createHTMLDocument('').body;
+    bac.innerHTML = String(html || '');
+
+    (function marche(noeud) {
+      var enfants = Array.prototype.slice.call(noeud.childNodes);
+      enfants.forEach(function (n) {
+        if (n.nodeType === 3) return;                      // texte : intact
+        if (n.nodeType !== 1) { n.remove(); return; }      // commentaire, etc.
+        marche(n);
+
+        if (n.tagName === 'INPUT') {
+          if (n.getAttribute('type') !== 'checkbox') { n.remove(); return; }
+          var coche = n.hasAttribute('checked') || n.checked;
+          var neuf = document.createElement('input');
+          neuf.setAttribute('type', 'checkbox');
+          if (coche) neuf.setAttribute('checked', '');
+          n.replaceWith(neuf);
+          return;
+        }
+
+        if (BALISES_OK.indexOf(n.tagName) === -1) {
+          // On remplace la balise par son CONTENU : le texte survit.
+          n.replaceWith.apply(n, Array.prototype.slice.call(n.childNodes));
+          return;
+        }
+        // Balise autorisee : on la vide de tous ses attributs.
+        Array.prototype.slice.call(n.attributes)
+          .forEach(function (a) { n.removeAttribute(a.name); });
+      });
+    })(bac);
+
+    return bac.innerHTML;
+  }
+
+  function cableCollage(zone) {
+    if (!zone) return;
+    zone.addEventListener('paste', function (e) {
+      var dt = e.clipboardData;
+      if (!dt) return;
+      e.preventDefault();
+      var html = dt.getData('text/html');
+      var propre = html ? assainit(html)
+                        : String(dt.getData('text/plain') || '')
+                            .replace(/[&<>]/g, function (c) {
+                              return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c];
+                            })
+                            .replace(/\n/g, '<br>');
+      document.execCommand('insertHTML', false, propre);
+    });
+  }
+
+  /* ── Barre de mise en forme ───────────────────────────────────────────
+     `execCommand` est deprecie et n'a pas de remplacant : l'API Editing
+     moderne n'est implementee nulle part. Tous les editeurs legers du web
+     l'utilisent encore, y compris en 2026. Le jour ou il disparait vraiment,
+     c'est CE bloc qu'il faut reecrire, et lui seul. */
+  function cableFormat() {
+    var barre = document.querySelector('.renc-format');
+    var zone = id('rencNotes');
+    if (!barre || !zone) return;
+
+    barre.addEventListener('click', function (e) {
+      var bt = e.target.closest('button[data-cmd]');
+      if (!bt) return;
+      e.preventDefault();
+      zone.focus();
+      var cmd = bt.getAttribute('data-cmd');
+      if (cmd === 'bold')    document.execCommand('bold');
+      else if (cmd === 'ul') document.execCommand('insertUnorderedList');
+      else if (cmd === 'ol') document.execCommand('insertOrderedList');
+      else if (cmd === 'h2') {
+        // Bascule : un deuxieme clic sur un titre le rend au paragraphe.
+        var bloc = document.queryCommandValue('formatBlock');
+        document.execCommand('formatBlock', false,
+          /h2/i.test(String(bloc)) ? 'p' : 'h2');
+      } else if (cmd === 'case') {
+        document.execCommand('insertHTML', false, '<input type="checkbox">&nbsp;');
+      }
+      marqueSale();
+    });
+    // Un `mousedown` sur la barre ferait perdre le focus — donc la selection
+    // — avant que le clic n'arrive.
+    barre.addEventListener('mousedown', function (e) { e.preventDefault(); });
+  }
+
+  /* ==================================================================== */
+  /* Formulaire <-> objet                                                 */
+  /* ==================================================================== */
+
+  var CHAMPS = ['rencTitre', 'rencDate', 'rencType', 'rencDossier',
+                'rencAnimateur', 'rencSecretaire', 'rencParticipants'];
+
+  function lisFormulaire() {
+    var base = courante || {};
+    return Object.assign({}, base, {
+      titre:        (id('rencTitre')        || {}).value || '',
+      date:         (id('rencDate')         || {}).value || '',
+      type:         (id('rencType')         || {}).value || 'comite',
+      dossier:      (id('rencDossier')      || {}).value || '',
+      animateur:    (id('rencAnimateur')    || {}).value || '',
+      secretaire:   (id('rencSecretaire')   || {}).value || '',
+      participants: (id('rencParticipants') || {}).value || '',
+      notesBrutes:  (id('rencNotes')  || {}).innerHTML || '',
+      sortieIA:     (id('rencSortie') || {}).innerHTML || ''
+    });
+  }
+
+  function posteFormulaire(doc) {
+    doc = doc || {};
+    if (id('rencTitre'))      id('rencTitre').value      = doc.titre || '';
+    if (id('rencDate'))       id('rencDate').value       = doc.date || RencData.aujourdhui();
+    if (id('rencType'))       id('rencType').value       = doc.type || 'comite';
+    if (id('rencAnimateur'))  id('rencAnimateur').value  = doc.animateur || '';
+    if (id('rencSecretaire')) id('rencSecretaire').value = doc.secretaire || '';
+    if (id('rencParticipants')) {
+      id('rencParticipants').value = Array.isArray(doc.participants)
+        ? doc.participants.join(', ') : (doc.participants || '');
+    }
+    remplitSelectDossiers(doc.dossier || '');
+    if (id('rencNotes'))  id('rencNotes').innerHTML  = assainit(doc.notesBrutes || '');
+    if (id('rencSortie')) id('rencSortie').innerHTML = assainit(doc.sortieIA || '');
+    if (id('rencBrut'))   id('rencBrut').textContent = doc.transcription || '';
+  }
+
+  function remplitSelectDossiers(choisi) {
+    var sel = id('rencDossier');
+    if (!sel) return;
+    sel.textContent = '';
+    var vide = document.createElement('option');
+    vide.value = '';
+    vide.textContent = '— non classée —';
+    sel.appendChild(vide);
+    dossiers.forEach(function (d) {
+      var o = document.createElement('option');
+      o.value = d.id;
+      o.textContent = nomDossier(d);
+      sel.appendChild(o);
+    });
+    sel.value = choisi || '';
+  }
+
+  /* ==================================================================== */
+  /* Sauvegarde                                                           */
+  /* ==================================================================== */
+
+  function etat(texte, ton) {
+    var n = id('rencEtat');
+    if (!n) return;
+    n.textContent = texte || '';
+    n.dataset.ton = ton || '';
+  }
+
+  function marqueSale() {
+    sale = true;
+    var bt = id('rencSauver');
+    if (bt) { bt.classList.add('is-sale'); bt.textContent = '💾 Enregistrer'; }
+  }
+
+  function marquePropre() {
+    sale = false;
+    var bt = id('rencSauver');
+    if (bt) { bt.classList.remove('is-sale'); bt.textContent = '✓ Enregistré'; }
+  }
+
+  /** Ecrit le brouillon local. Ne touche jamais au reseau. */
+  function sauveLocal() {
+    if (!courante) return true;
+    var ok = RencData.brouillon.ecrire(courante.id || RencData.NEUVE, lisFormulaire());
+    if (!ok) {
+      // Un brouillon qu'on croit ecrit et qui ne l'est pas, c'est exactement
+      // la panne qu'on cherche a eviter. On le DIT.
+      etat('⚠ Le stockage de cet appareil est plein : le brouillon local n\'a pas pu être écrit. Enregistre maintenant.', 'alerte');
+    }
+    return ok;
+  }
+
+  /**
+   * Ecrit au serveur. `silencieux` sert aux ecritures declenchees par un blur
+   * ou par le retour du reseau : elles ne doivent pas crier « Enregistré »
+   * en plein milieu d'une phrase.
+   */
+  async function sauveServeur(silencieux) {
+    if (!courante || !pretServeur) return;
+    if (!RencData.enLigne()) {
+      etat('Pas de réseau — tes notes restent sur cet appareil et partiront au retour de la connexion.', 'attente');
+      return;
+    }
+    var doc = lisFormulaire();
+    var verdict = RencData.verifiePoids(doc);
+    if (!verdict.ok) {
+      etat('⚠ Ce compte rendu dépasse la taille d\'un document ('
+        + Math.round(verdict.poids / 1024) + ' Ko sur ' + Math.round(verdict.max / 1024)
+        + ' Ko). Coupe-le en deux rencontres.', 'alerte');
+      return;
+    }
+    try {
+      etat('Enregistrement…');
+      var ecrit = courante.id
+        ? await RencData.majRencontre(courante.id, doc)
+        : await RencData.creerRencontre(doc);
+      // Une rencontre neuve vient de recevoir son identifiant : le brouillon
+      // qui vivait sous la cle « neuve » doit demenager, sinon il ressuscite
+      // au prochain chargement comme une SECONDE rencontre.
+      if (!courante.id) RencData.brouillon.oublier(RencData.NEUVE);
+      courante = ecrit;
+      RencData.brouillon.oublier(ecrit.id);
+      marquePropre();
+      etat(silencieux ? '' : 'Enregistré.');
+      await rafraichitListe();
+    } catch (e) {
+      // On NE vide PAS le brouillon local : c'est tout ce qui reste.
+      etat('⚠ L\'enregistrement a échoué (' + (e.message || e)
+        + '). Tes notes restent sur cet appareil ; réessaie.', 'alerte');
+    }
+  }
+
+  /* ==================================================================== */
+  /* Rail : dossiers et liste                                             */
+  /* ==================================================================== */
 
   function dessineDossiers() {
     var hote = id('rencDossiers');
     if (!hote) return;
     hote.textContent = '';
 
-    var tous = [{ id: null, nom: 'Toutes mes rencontres' }].concat(DOSSIERS_DEFAUT);
+    var tous = [{ id: null, fr: 'Toutes mes rencontres', en: 'All my meetings' }]
+      .concat(dossiers);
+
     tous.forEach(function (d) {
       var li = document.createElement('li');
       var bt = document.createElement('button');
@@ -179,7 +411,7 @@
       bt.className = 'renc-dossier' + (d.id === dossierActif ? ' is-actif' : '');
       // textContent et jamais innerHTML : un nom de dossier est saisi par
       // l'usager, il n'a aucune raison d'etre interprete comme du balisage.
-      bt.textContent = (d.id === null ? '📚 ' : '📁 ') + d.nom;
+      bt.textContent = (d.id === null ? '📚 ' : '📁 ') + nomDossier(d);
       bt.addEventListener('click', function () {
         dossierActif = d.id;
         dessineDossiers();
@@ -190,55 +422,109 @@
     });
   }
 
-  /* VAGUE B — la liste se remplira de RencData.listeRencontres(). Tant
-     qu'elle est vide, c'est le message d'accueil qui parle. */
+  var LIBELLE_TYPE = { comite: 'Comité', statutaire: 'Statutaire', autre: 'Autre' };
+
   function dessineListe() {
     var hote = id('rencListe'), vide = id('rencListeVide');
     if (!hote) return;
     hote.textContent = '';
-    if (vide) vide.hidden = hote.children.length > 0;
+
+    var enAttente = RencData.brouillon.enAttente();
+    var visibles = rencontres.filter(function (r) {
+      return dossierActif === null || (r.dossier || '') === dossierActif;
+    });
+
+    visibles.forEach(function (r) {
+      var li = document.createElement('li');
+      var bt = document.createElement('button');
+      bt.type = 'button';
+      bt.className = 'renc-item'
+        + (courante && courante.id === r.id ? ' is-actif' : '')
+        + (enAttente.indexOf(r.id) >= 0 ? ' is-sale' : '');
+
+      var n = document.createElement('span');
+      n.className = 'renc-item__n';
+      n.textContent = r.titre || 'Sans titre';
+      bt.appendChild(n);
+
+      var m = document.createElement('span');
+      m.className = 'renc-item__m';
+      var pastille = document.createElement('span');
+      pastille.className = 'renc-pastille';
+      pastille.setAttribute('data-type', r.type || 'comite');
+      m.appendChild(pastille);
+      m.appendChild(document.createTextNode(
+        (r.date || '') + ' · ' + (LIBELLE_TYPE[r.type] || 'Comité')));
+      bt.appendChild(m);
+
+      bt.addEventListener('click', function () { ouvre(r); });
+      li.appendChild(bt);
+      hote.appendChild(li);
+    });
+
+    if (vide) vide.hidden = visibles.length > 0;
+  }
+
+  async function rafraichitListe() {
+    if (!pretServeur) return;
+    try {
+      rencontres = await RencData.listeRencontres();
+      dessineListe();
+    } catch (e) {
+      etat('⚠ La liste n\'a pas pu être relue (' + (e.message || e) + ').', 'alerte');
+    }
   }
 
   /* ==================================================================== */
   /* Ouvrir une rencontre                                                 */
   /* ==================================================================== */
 
-  function ouvreFiche() {
+  function montreFiche() {
     var accueil = id('rencAccueil'), fiche = id('rencFiche');
-    if (!accueil || !fiche) return;
-    accueil.hidden = true;
-    fiche.hidden = false;
-
-    var date = id('rencDate');
-    // Date du jour en ISO court. `toISOString()` seul renverrait la veille
-    // apres 20 h a Montreal : il travaille en UTC. On decale de l'offset
-    // local avant de couper.
-    if (date && !date.value) {
-      var d = new Date();
-      date.value = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-        .toISOString().slice(0, 10);
-    }
-
-    var dossier = id('rencDossier');
-    if (dossier && !dossier.options.length) {
-      DOSSIERS_DEFAUT.forEach(function (o) {
-        var opt = document.createElement('option');
-        opt.value = o.id;
-        opt.textContent = o.nom;
-        dossier.appendChild(opt);
-      });
-    }
-
-    var titre = id('rencTitre');
-    if (titre) titre.focus();
-
-    // VAGUE B — l'autosauvegarde et l'ecriture Firestore se branchent ici.
-    etat('Brouillon local. L\'enregistrement arrive à la vague B.');
+    if (accueil) accueil.hidden = true;
+    if (fiche) fiche.hidden = false;
+    if (window.__rencFermeTiroir) window.__rencFermeTiroir();
   }
 
-  function etat(texte) {
-    var n = id('rencEtat');
-    if (n) n.textContent = texte || '';
+  /**
+   * Ouvre une rencontre existante. Le brouillon local gagne s'il est plus
+   * recent que la copie serveur — c'est la seule facon de rendre a quelqu'un
+   * les notes qu'il a prises juste avant que son navigateur ne meure.
+   */
+  function ouvre(doc) {
+    if (sale && courante) sauveLocal();
+    var local = RencData.brouillon.lire(doc.id);
+    var r = RencData.fusionne(doc, local);
+    courante = r.doc;
+    posteFormulaire(courante);
+    montreFiche();
+    dessineListe();
+    if (r.restaure) {
+      marqueSale();
+      etat('Notes retrouvées sur cet appareil — elles sont plus récentes que la dernière version enregistrée. Vérifie, puis enregistre.', 'attente');
+    } else {
+      marquePropre();
+      etat('');
+    }
+  }
+
+  /** Une rencontre neuve. Rien n'est ecrit au serveur avant une saisie. */
+  function nouvelle(brouillonExistant) {
+    if (sale && courante) sauveLocal();
+    courante = brouillonExistant || RencData.normalise({ date: RencData.aujourdhui() });
+    if (!brouillonExistant) courante.id = null;
+    posteFormulaire(courante);
+    montreFiche();
+    dessineListe();
+    if (brouillonExistant) {
+      marqueSale();
+      etat('Rencontre non enregistrée retrouvée sur cet appareil. Vérifie, puis enregistre.', 'attente');
+    } else {
+      marquePropre();
+      etat('');
+      var t = id('rencTitre');
+      if (t) t.focus();
+    }
   }
 
   /* ==================================================================== */
@@ -248,7 +534,7 @@
   /**
    * Desactive une commande dont la vague n'est pas livree, en DISANT laquelle.
    * Un bouton qui ne fait rien sans expliquer pourquoi est un defaut ; un
-   * bouton grise qui nomme sa vague est un chantier lisible.
+   * bouton grise qui nomme son echeance est un chantier lisible.
    */
   function pasEncore(cle, vague) {
     var n = id(cle);
@@ -261,21 +547,80 @@
   /* Demarrage                                                            */
   /* ==================================================================== */
 
+  function cableSaisie() {
+    // Chaque frappe salit ; l'ecriture SERVEUR n'a lieu qu'au blur ou au
+    // bouton. Le blur d'un champ de formulaire est le moment naturel : on
+    // vient de finir de le remplir.
+    CHAMPS.forEach(function (c) {
+      var n = id(c);
+      if (!n) return;
+      n.addEventListener('input',  marqueSale);
+      n.addEventListener('change', marqueSale);
+      n.addEventListener('blur', function () { if (sale) sauveServeur(true); });
+    });
+
+    ['rencNotes', 'rencSortie'].forEach(function (c) {
+      var z = id(c);
+      if (!z) return;
+      z.addEventListener('input', marqueSale);
+      z.addEventListener('blur', function () { if (sale) sauveServeur(true); });
+      cableCollage(z);
+    });
+
+    var bt = id('rencSauver');
+    if (bt) bt.addEventListener('click', function () { sauveServeur(false); });
+
+    // Le battement des 10 secondes. Il n'ecrit QUE si quelque chose a change
+    // — un minuteur qui reecrit le meme brouillon 360 fois par heure use le
+    // stockage pour rien.
+    setInterval(function () { if (sale) sauveLocal(); }, AUTO_MS);
+
+    // Dernier filet avant la fermeture de l'onglet. `beforeunload` n'a le
+    // droit qu'a du synchrone : localStorage en est, une ecriture Firestore
+    // non — elle serait tuee par la navigation.
+    window.addEventListener('beforeunload', function (e) {
+      if (!sale || !courante) return;
+      sauveLocal();
+      // On ne bloque PAS la fermeture : le brouillon est deja ecrit, retenir
+      // quelqu'un avec une boite de dialogue serait gratuit.
+    });
+  }
+
+  async function chargeApresAuth() {
+    try {
+      dossiers = await RencData.lireDossiers();
+    } catch (e) {
+      // Un echec de lecture des dossiers ne doit pas empecher de prendre des
+      // notes : on retombe sur les deux dossiers de depart.
+      dossiers = RencData.dossiersDefaut();
+    }
+    pretServeur = true;
+    dessineDossiers();
+    await rafraichitListe();
+
+    // Une rencontre neuve laissee en plan par un plantage : elle n'a pas
+    // d'identifiant serveur, donc rien ne la ramenerait autrement.
+    var orpheline = RencData.brouillon.lire(RencData.NEUVE);
+    if (orpheline && (orpheline.titre || orpheline.notesBrutes)) nouvelle(orpheline);
+  }
+
   function demarre() {
     cableOnglets([['ongNotes', 'panNotes'], ['ongMicro', 'panMicro'], ['ongImport', 'panImport']]);
     cableOnglets([['ongResultat', 'panResultat'], ['ongBrut', 'panBrut']]);
     cableTiroir();
     cableMenu();
     cableReseau();
+    cableFormat();
+    cableSaisie();
+
+    dossiers = RencData.dossiersDefaut();
     dessineDossiers();
     dessineListe();
 
     // Le libelle de l'onglet micro depend du navigateur, et il annonce ce que
     // l'usager VERRA — pas de quelle interface de programmation il dispose.
     var sous = id('ongMicroSous');
-    if (sous) {
-      sous.textContent = DIRECT ? 'transcription en direct' : 'transcription à la fin';
-    }
+    if (sous) sous.textContent = DIRECT ? 'transcription en direct' : 'transcription à la fin';
     var micro = id('ongMicro');
     if (micro) {
       micro.title = DIRECT
@@ -284,7 +629,7 @@
     }
 
     [id('rencNouvelle'), id('rencNouvelle2')].forEach(function (bt) {
-      if (bt) bt.addEventListener('click', ouvreFiche);
+      if (bt) bt.addEventListener('click', function () { nouvelle(null); });
     });
 
     ['rencVerbatim', 'rencStructure'].forEach(function (c) { pasEncore(c, 'E'); });
@@ -293,11 +638,21 @@
     ['rencNouveauDossier', 'rencSupprimer', 'rencCherche'].forEach(function (c) { pasEncore(c, 'F'); });
     pasEncore('rencMesActions', 'H');
 
-    // zts-gate.js emet `zts:auth` une fois le mur franchi. Rien n'en depend a
-    // la vague A ; l'ecouteur est pose des maintenant pour que la vague B
-    // n'ait qu'a remplir le corps.
+    // zts-gate.js emet `zts:auth` une fois le mur franchi. Tant qu'il ne l'a
+    // pas emis, l'app est dessinee mais ne parle a personne.
     document.addEventListener('zts:auth', function () {
-      // VAGUE B — RencData.pret() puis premier chargement de la liste.
+      RencData.pret().then(chargeApresAuth);
+    });
+    // Filet : si `zts:auth` avait ete emis AVANT que cet ecouteur ne soit
+    // pose, l'app resterait vide sans jamais rien dire. dataStore.js ecoute
+    // l'evenement des son chargement, donc la promesse, elle, est deja
+    // resolue dans ce cas.
+    if (RencData.connecte()) RencData.pret().then(chargeApresAuth);
+
+    // Le nom des dossiers suit la langue du site.
+    document.addEventListener('zts:langchange', function () {
+      dessineDossiers();
+      if (courante) remplitSelectDossiers(courante.dossier || '');
     });
   }
 

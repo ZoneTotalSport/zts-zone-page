@@ -129,6 +129,11 @@
 .renc-champ:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
 
 .renc-bt--neuf    { background: var(--ztsh-cyan, #00C2E8); }
+.renc-bt--sauve   { background: var(--ztsh-jaune, #FFFC00); }
+/* Le bouton d'enregistrement change d'aspect quand il y a du travail non
+   ecrit au serveur. Ce n'est pas decoratif : c'est le seul signal qui dise
+   « ce que tu vois n'est pas encore parti ». */
+.renc-bt--sauve.is-sale { background: var(--ztsh-rose, #FF0061); color: #FFFFFF; }
 .renc-bt--actions { background: var(--ztsh-lime, #A3FF00); }
 .renc-bt--pt      { padding: 10px 12px 8px; font-size: 17px; }
 
@@ -419,8 +424,15 @@
   min-height: 16px;
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.4;
   color: var(--renc-ink-doux);
 }
+/* Deux tons, et deux seulement. « alerte » quand quelque chose est PERDU ou
+   risque de l'etre ; « attente » quand rien n'est perdu mais que l'usager a
+   un geste a faire. Tout le reste est une information neutre et reste gris —
+   une interface qui crie a chaque enregistrement n'est plus lue. */
+.renc-etat[data-ton="alerte"]  { color: #B00034; }
+.renc-etat[data-ton="attente"] { color: #8A5B00; }
 
 /* ── Onglets ──────────────────────────────────────────────────────────── */
 .renc-onglets { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -500,6 +512,45 @@
 .renc-notes ul, .renc-sortie ul,
 .renc-notes ol, .renc-sortie ol { padding-left: 22px; margin: 8px 0; }
 .renc-notes li, .renc-sortie li { margin: 3px 0; }
+
+/* ── Barre de mise en forme ───────────────────────────────────────────── */
+.renc-format { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
+.renc-format button {
+  font-family: var(--renc-f-corps);
+  font-weight: 800;
+  font-size: 14px;
+  min-width: 34px;
+  cursor: pointer;
+  padding: 6px 9px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: 8px;
+  box-shadow: var(--renc-ombre);
+}
+.renc-format button:hover  { background: var(--renc-surface-alt); }
+.renc-format button:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 rgba(8, 19, 30, .30); }
+.renc-format button:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+
+/* Les cases a cocher des notes et du compte rendu. Assez grandes pour un
+   doigt : une action a faire se coche souvent sur telephone, en sortant de
+   la rencontre. */
+.renc-notes input[type="checkbox"],
+.renc-sortie input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  margin-right: 7px;
+  vertical-align: -2px;
+  accent-color: var(--ztsh-cyan, #00C2E8);
+}
+
+/* Une rencontre dont le brouillon local est plus recent que la copie
+   serveur. La pastille n'a pas de couleur de type : elle dit un ETAT. */
+.renc-item.is-sale .renc-item__m::after {
+  content: '• non enregistrée';
+  color: #B00034;
+  font-weight: 800;
+}
 
 .renc-attente {
   padding: 26px 18px;

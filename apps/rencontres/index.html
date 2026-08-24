@@ -91,6 +91,7 @@
       <button class="renc-bt renc-bt--neuf" id="rencNouvelle" type="button">+ Nouvelle rencontre</button>
       <input type="search" class="renc-o renc-o--q" id="rencCherche"
              placeholder="Chercher…" aria-label="Chercher dans mes rencontres">
+      <button class="renc-bt renc-bt--sauve" id="rencSauver" type="button">💾 Enregistrer</button>
       <span class="renc-espace"></span>
       <button class="renc-bt renc-bt--actions" id="rencMesActions" type="button">✅ Mes actions</button>
       <div class="renc-menu">
@@ -220,6 +221,18 @@
           </div>
 
           <div class="renc-panneau" id="panNotes" role="tabpanel" aria-labelledby="ongNotes">
+            <!-- Mise en forme volontairement PAUVRE : titres, listes, gras,
+                 cases a cocher. Rien de plus. Un compte rendu de comite se
+                 lit, il ne se met pas en page — et tout ce qui est ajoute ici
+                 devra etre assaini a la lecture, converti en texte pour le
+                 courriel, et rendu a l'impression. -->
+            <div class="renc-format renc-noprint" role="toolbar" aria-label="Mise en forme">
+              <button type="button" data-cmd="h2"    title="Titre">T</button>
+              <button type="button" data-cmd="bold"  title="Gras"><b>G</b></button>
+              <button type="button" data-cmd="ul"    title="Liste à puces">•</button>
+              <button type="button" data-cmd="ol"    title="Liste numérotée">1.</button>
+              <button type="button" data-cmd="case"  title="Case à cocher">☑</button>
+            </div>
             <div class="renc-notes" id="rencNotes" contenteditable="true" spellcheck="true"
                  role="textbox" aria-multiline="true" aria-label="Notes de la rencontre"
                  data-vide="Écris ici. Les points discutés, les décisions, ce qui reste à faire…"></div>
@@ -281,6 +294,7 @@
   <script src="../../shared/zts-gate.js"></script>
   <script src="../../assets/ztsh-shell.js"></script>
   <script>ZTSShell.monter({ densite: 'travail' });</script>
+  <script src="dataStore.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
