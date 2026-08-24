@@ -106,14 +106,39 @@
     document.head.appendChild(s);
   }
 
-  function contentContainer() {
-    // Le vrai contenu est le .article-body le plus rempli (le 1er est souvent vide).
-    var bodies = document.querySelectorAll('.article-body'), best = null, max = -1;
-    for (var i = 0; i < bodies.length; i++) {
-      var n = bodies[i].children.length;
-      if (n > max) { max = n; best = bodies[i]; }
-    }
-    return best;
+  // TOUS les conteneurs de contenu, pas seulement le plus rempli.
+  //
+  // Cette fonction ne retenait qu'un seul .article-body — celui qui avait le
+  // plus d'enfants — et laissait les autres entierement visibles. Deux articles
+  // en profitaient, mesures en anonyme le 24 aout 2026 :
+  //
+  //   50-jeunes-un-gymnase porte TROIS .article-body freres (2, 19 et 7
+  //   enfants). Seul celui de 19 etait mure. Entre les deux derniers vit toute
+  //   la section des 21 strategies, dans aucun conteneur : 93 % de l'article
+  //   etait lisible sans compte.
+  //
+  //   un-jeu-trois-versions n'a AUCUN .article-body — son contenu vit dans un
+  //   <div class="zts-inc">. La fonction rendait null, demiApercu() sortait
+  //   sans rien faire : 100 % lisible.
+  //
+  // On retourne donc la LISTE des conteneurs, et applyHalf() coupe sur
+  // l'ensemble concatene. Un article qui gagnera demain un troisieme squelette
+  // sera couvert sans qu'on ait a y toucher.
+  //
+  // Le repli .zts-inc est deliberement etroit. Poser la classe .article-body
+  // sur ce conteneur serait plus court et FAUX : cette classe porte le style
+  // de la typographie d'article. Mesure sur un-jeu-trois-versions — les
+  // citations passeraient de 17 a 31,2 px et les h3 changeraient de police.
+  // C'est au verrou de connaitre les deux structures, pas aux articles de se
+  // deguiser pour lui plaire.
+  function contentContainers() {
+    var trouves = document.querySelectorAll('.article-body');
+    if (!trouves.length) trouves = document.querySelectorAll('article.zts-prose > .zts-inc');
+    var out = [];
+    for (var i = 0; i < trouves.length; i++) out.push(trouves[i]);
+    // null et non [] : demiApercu() teste la valeur, et un tableau vide est
+    // vrai en JavaScript — il passerait le garde et couperait dans le vide.
+    return out.length ? out : null;
   }
 
   // Le texte du CTA parle de ce qui est masque : « l'article » sur un article,
@@ -241,6 +266,11 @@
     return d;
   }
 
+  // La coupure se calcule sur les enfants de TOUS les conteneurs mis bout a
+  // bout, pas conteneur par conteneur. Couper chacun en deux donnerait deux
+  // moities et deux CTA : le lecteur verrait la premiere moitie de l'intro,
+  // un mur, puis la premiere moitie de la conclusion. L'article se lit en
+  // continu, il doit se couper en continu.
   // ⚠ ÉCHAPPATOIRE : `data-zts-toujours-visible`
   //
   // Un bloc portant cet attribut n'est jamais masqué par le demi-aperçu, ET il
@@ -254,8 +284,8 @@
   // l'attribut, la moitié basse tombe derrière le mur et l'appât devient une
   // récompense réservée à ceux qui n'en ont plus besoin.
   //
-  // COMMENT S'EN SERVIR. Poser l'attribut sur chaque ENFANT DIRECT de
-  // `.article-body` qui compose le bloc — le titre, les paragraphes, les
+  // COMMENT S'EN SERVIR. Poser l'attribut sur chaque ENFANT DIRECT d'un
+  // conteneur de contenu qui compose le bloc — le titre, les paragraphes, les
   // encadrés, le CTA. Un enfant oublié sera masqué et coupera le bloc en deux.
   //
   //   <h2 id="…" data-zts-toujours-visible>…</h2>
@@ -267,33 +297,46 @@
   //
   // CE QU'IL NE FAUT PAS EN FAIRE. Exempter le corps de l'article viderait le
   // mur de son sens. L'échappatoire est faite pour de la promo, pas du contenu.
-  function applyHalf(container, info) {
-    if (!container || container.getAttribute('data-zts-half') === '1') return;
+  //
+  // L'exemption vit dans la boucle multi-conteneurs : elle s'applique donc
+  // à tous les squelettes d'un même article, pas seulement au premier.
+  function applyHalf(containers, info) {
+    if (!containers || !containers.length) return;
+    if (containers[0].getAttribute('data-zts-half') === '1') return;
+
     var kids = [];
-    for (var i = 0; i < container.children.length; i++) {
-      var el = container.children[i];
-      if (el.classList.contains('zts-half-cta')) continue;
-      if (el.hasAttribute('data-zts-toujours-visible')) continue;
-      kids.push(el);
+    for (var c = 0; c < containers.length; c++) {
+      var enfants = containers[c].children;
+      for (var i = 0; i < enfants.length; i++) {
+        if (enfants[i].classList.contains('zts-half-cta')) continue;
+        if (enfants[i].hasAttribute('data-zts-toujours-visible')) continue;
+        kids.push(enfants[i]);
+      }
     }
     if (kids.length < 4) return;               // article trop court → laissé entier
+
     var cut = Math.ceil(kids.length / 2);
     for (var j = cut; j < kids.length; j++) kids[j].classList.add('zts-half-hidden');
-    container.insertBefore(buildCta(info), kids[cut]);
-    container.setAttribute('data-zts-half', '1');
+    // Le CTA se pose dans le parent reel du premier enfant masque, pas dans
+    // containers[0] : avec plusieurs squelettes, la coupure tombe souvent dans
+    // le deuxieme ou le troisieme.
+    kids[cut].parentNode.insertBefore(buildCta(info), kids[cut]);
+    for (var k = 0; k < containers.length; k++) containers[k].setAttribute('data-zts-half', '1');
   }
 
-  function revealAll(container) {
-    if (!container) return;
-    var h = container.querySelectorAll('.zts-half-hidden');
-    for (var i = 0; i < h.length; i++) h[i].classList.remove('zts-half-hidden');
-    var cta = container.querySelector('.zts-half-cta');
-    if (cta) cta.remove();
-    container.setAttribute('data-zts-half', '0');
+  function revealAll(containers) {
+    if (!containers || !containers.length) return;
+    for (var c = 0; c < containers.length; c++) {
+      var h = containers[c].querySelectorAll('.zts-half-hidden');
+      for (var i = 0; i < h.length; i++) h[i].classList.remove('zts-half-hidden');
+      var cta = containers[c].querySelector('.zts-half-cta');
+      if (cta) cta.remove();
+      containers[c].setAttribute('data-zts-half', '0');
+    }
   }
 
   function initArticleHalf(info) {
-    demiApercu(info, contentContainer, applyHalf);
+    demiApercu(info, contentContainers, applyHalf);
   }
 
   // ===================== FICHE DE JEU TRONQUEE =====================
@@ -369,8 +412,30 @@
     var info = getSlug();
     if (!info) return;
 
-    // Articles → demi-aperçu pour tous (plus de plein écran bloquant)
-    if (info.kind === 'article') { initArticleHalf(info); return; }
+    // Articles → demi-aperçu, SAUF ceux de la liste blanche (freeArticles).
+    //
+    // Ce `return` tombait avant tout appel a loadWhitelist(). isFree() n'etait
+    // donc jamais consulte pour un article, et freeArticles ne servait a rien :
+    // les trois slugs choisis comme appats SEO etaient mures comme les autres.
+    // Mesure du 24 aout 2026 sur faire-bouger-enfants, present dans la liste :
+    // 4 815 mots visibles sur 9 010, soit 53 % — il devrait etre entier.
+    // Les branches `jeu` et `resource`, elles, consultaient bien la liste.
+    //
+    // Meme ordre que la branche `jeu` juste dessous, et pour la meme raison :
+    // on COUPE D'ABORD, on verifie ensuite. Au premier passage la liste vient
+    // du reseau ; attendre sa reponse montrerait l'article entier a un anonyme
+    // pendant tout l'aller-retour. Couper puis reveler une vitrine est le
+    // moindre mal — on montre moins, puis plus, jamais l'inverse.
+    if (info.kind === 'article') {
+      injectHalfCss();
+      var conteneurs = contentContainers();
+      if (conteneurs) applyHalf(conteneurs, info);
+      loadWhitelist().then(function (wl) {
+        if (isFree(info, wl)) { revealAll(conteneurs); return; }   // vitrine : entier
+        initArticleHalf(info);
+      });
+      return;
+    }
 
     // Fiches de jeux → fiche tronquée, SAUF les trois vitrines (freeItems.jeux).
     // On COUPE D'ABORD, on verifie ensuite : au premier passage la liste blanche

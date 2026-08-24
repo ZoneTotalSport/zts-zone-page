@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<!-- App — Zone Inventaire (transversale : EP, camp de jour, service de garde).
+     Gabarit partage + habillage ztsh-shell, densite travail.
+     AUCUN <link> Google Fonts : decision de Joey du 23 aout 2026. Les titres
+     et les boutons prennent les fontes LOCALES declarees par shared/zts.css
+     (LuckiestGuy) et assets/ztsh-shell.css (ZoneTotalSportZTSH, size-adjust
+     50%). Le corps de texte retombe donc sur la pile systeme : Quicksand ne
+     vit que chez Google et n'est PAS dans /fonts/. C'est assume. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zone Inventaire — matériel photographié et identifié par l'IA — Zone Total Sport</title>
+  <!-- ZTS-SEO -->
+  <meta name="description" content="Inventorie ton matériel en le photographiant : l'IA identifie l'objet, la marque et la catégorie. Gymnase, camp de jour, service de garde. Liste d'achats automatique, export CSV. Gratuit.">
+  <link rel="canonical" href="https://zonetotalsport.ca/apps/inventaire/">
+  <link rel="alternate" hreflang="fr-CA" href="https://zonetotalsport.ca/apps/inventaire/">
+  <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/apps/inventaire/">
+  <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/apps/inventaire/?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/apps/inventaire/">
+  <meta property="og:title" content="Zone Inventaire — Zone Total Sport">
+  <meta property="og:description" content="Photographie ton matériel, l'IA l'identifie. Inventaire par lieu, liste d'achats automatique, export CSV. ÉPS, camp de jour, service de garde.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zonetotalsport.ca/apps/inventaire/">
+  <meta property="og:image" content="https://zonetotalsport.ca/favicon.png">
+  <meta property="og:locale" content="fr_CA">
+  <meta property="og:site_name" content="Zone Total Sport">
+  <meta name="twitter:card" content="summary">
+  <!-- /ZTS-SEO -->
+  <link rel="icon" href="../../favicon.png">
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <link rel="stylesheet" href="../../assets/ztsh-shell.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- ZTS-JSONLD -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Zone Inventaire — Zone Total Sport",
+  "description": "Inventaire de matériel par photo : l'IA identifie l'objet, la marque et la catégorie. Multi-inventaires par lieu, liste d'achats automatique, export CSV et impression.",
+  "url": "https://zonetotalsport.ca/apps/inventaire/",
+  "applicationCategory": "EducationApplication",
+  "operatingSystem": "Web",
+  "inLanguage": ["fr-CA", "en"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Zone Total Sport",
+    "url": "https://zonetotalsport.ca/",
+    "logo": "https://zonetotalsport.ca/favicon.png"
+  }
+}
+  </script>
+  <!-- /ZTS-JSONLD -->
+</head>
+<body>
+
+  <div data-zts-header></div>
+
+  <div class="ztsh-page">
+  <nav class="zts-subnav inv-noprint">
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+    <a href="../../ep.html">← Éducation physique</a>
+    <a href="../../camps-de-jour.html">← Camps de jour</a>
+    <a href="../../service-de-garde.html">← Service de garde</a>
+  </nav>
+
+  <main class="inv-wrap" id="invWrap">
+
+    <!-- ══ BARRE D'OUTILS — une seule rangee sur ordinateur ═══════════════
+         Tous les identifiants d'avant la refonte sont conserves : app.js
+         continue de les cabler sans un seul changement de selecteur. Ce qui
+         change ici, c'est la mise en page, pas le contrat. -->
+    <div class="inv-outils inv-noprint">
+      <select class="inv-o inv-o--inv" id="invSel" aria-label="Inventaire"></select>
+      <input type="search" class="inv-o inv-o--q" id="invSearch">
+      <select class="inv-o inv-o--f" id="invFCat"></select>
+      <select class="inv-o inv-o--f" id="invFEtat"></select>
+      <select class="inv-o inv-o--f" id="invFLoc"></select>
+      <button class="inv-bt inv-bt--photo" id="invPrendre" type="button"></button>
+      <div class="inv-menu">
+        <button class="inv-bt inv-bt--j inv-bt--pt" id="invMenu" type="button"
+                aria-haspopup="true" aria-expanded="false">⋯</button>
+        <div class="inv-menu__liste" id="invMenuListe" hidden role="menu">
+          <!-- Le filtre par univers vit ici et non dans la barre : il ne peut
+               que vider la feuille entiere ou la laisser intacte, puisque
+               l'univers appartient a l'INVENTAIRE. C'est le moins frequent des
+               quatre filtres, et le sortir rend a la barre les 111 px qui lui
+               manquaient pour tenir sur une rangee. -->
+          <!-- Date de l'inventaire : « inventaire fait le … ». Elle vit ici
+               parce qu'on la saisit une fois par comptage, pas a chaque
+               geste — et parce que la barre d'outils est pleine. C'est elle
+               qui s'imprime en tete de feuille. -->
+          <label class="inv-menu__lbl" for="invDateInv" id="invDateLbl"></label>
+          <input type="date" class="inv-o inv-menu__sel" id="invDateInv">
+          <hr class="inv-menu__tr">
+          <label class="inv-menu__lbl" for="invFUniv" id="invFUnivLbl"></label>
+          <select class="inv-o inv-menu__sel" id="invFUniv"></select>
+          <hr class="inv-menu__tr">
+          <button class="inv-menu__i" id="invTeleverser" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invVide" type="button" role="menuitem"></button>
+          <hr class="inv-menu__tr">
+          <button class="inv-menu__i" id="invGererCats" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invAchats" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invPlanche" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invCsv" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invImprimer" type="button" role="menuitem"></button>
+          <hr class="inv-menu__tr">
+          <button class="inv-menu__i" id="invNouveau" type="button" role="menuitem"></button>
+          <button class="inv-menu__i" id="invRenommer" type="button" role="menuitem"></button>
+          <button class="inv-menu__i inv-menu__i--dgr" id="invSupprInv" type="button" role="menuitem"></button>
+          <hr class="inv-menu__tr">
+          <button class="inv-menu__i" id="invReset" type="button" role="menuitem"></button>
+        </div>
+      </div>
+      <div class="inv-pills" id="invStats"></div>
+    </div>
+
+    <!-- Champs de fichier : hors flux, jamais visibles. -->
+    <input type="file" id="invFileCam" accept="image/*" capture="environment" hidden>
+    <input type="file" id="invFileLib" accept="image/*" hidden>
+    <input type="file" id="invFileAjout" accept="image/*" hidden>
+    <input type="file" id="invFileAjoutCam" accept="image/*" capture="environment" hidden>
+
+    <p class="inv-msg inv-noprint" id="invMsg" role="status" aria-live="polite"></p>
+
+    <!-- ── Banniere d'arrivee par code QR ─────────────────────────────── -->
+    <div class="inv-cible inv-noprint" id="invCible" hidden>
+      <span id="invCibleTxt"></span>
+      <button class="inv-bt inv-bt--pt" id="invCibleTout" type="button"></button>
+    </div>
+
+    <!-- ══ EN-TETE D'IMPRESSION ═══════════════════════════════════════════
+         Invisible a l'ecran, il ouvre la feuille sur le papier : nom de
+         l'inventaire et date, comme une vraie feuille d'inventaire. -->
+    <div class="inv-printtete">
+      <h1 id="invPrintTitre"></h1>
+      <span id="invPrintDate"></span>
+    </div>
+
+    <!-- ══ LA FEUILLE ════════════════════════════════════════════════════ -->
+    <div class="inv-feuille" id="invFeuille">
+      <table class="inv-table" id="invTable">
+        <thead id="invThead"></thead>
+        <tbody id="invTbody"></tbody>
+        <tfoot id="invTfoot"></tfoot>
+      </table>
+    </div>
+    <!-- ══ ONGLETS D'ANNEES ══════════════════════════════════════════════
+         En bas et centres, comme les onglets de feuilles d'un tableur. Le
+         classeur, c'est le LIEU ; chaque onglet, une annee scolaire. -->
+    <div class="inv-onglets inv-noprint" id="invOnglets" role="tablist"></div>
+
+    <!-- Rangee de totaux du telephone : sur petit ecran la feuille n'a pas de
+         defilement vertical propre, donc <tfoot> ne peut pas se figer. Cette
+         barre-la le peut, parce qu'elle est dans le flux de la page. -->
+    <div class="inv-totmob inv-noprint" id="invTotMob"></div>
+    <p class="inv-empty" id="invEmpty" hidden></p>
+
+  </main>
+
+  <!-- ── Modale photos ───────────────────────────────────────────────── -->
+  <div class="zts-modal inv-noprint" id="invModalPhoto" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title inv-modal__titre" id="invPhotoTitre"></h2>
+      <div class="inv-visio">
+        <button class="inv-nav inv-nav--prec" id="invPhotoPrec" type="button" aria-label="Précédente">‹</button>
+        <img class="inv-visio__img" id="invPhotoImg" alt="">
+        <button class="inv-nav inv-nav--suiv" id="invPhotoSuiv" type="button" aria-label="Suivante">›</button>
+      </div>
+      <p class="inv-visio__compte" id="invPhotoCompte"></p>
+      <div class="inv-modal__btns">
+        <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invPhotoPrincipale" type="button"></button>
+        <button class="ztsh-btn ztsh-btn--sm" id="invPhotoAjout" type="button"></button>
+        <button class="ztsh-btn ztsh-btn--sm inv-btn--danger" id="invPhotoSuppr" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modale : gestion des categories ─────────────────────────────── -->
+  <div class="zts-modal inv-noprint" id="invModalCats" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title inv-modal__titre" id="invCatsTitre"></h2>
+      <p class="inv-catnote" id="invCatsNote"></p>
+      <div class="inv-catentete">
+        <span id="invCatsLblFr"></span>
+        <span id="invCatsLblEn"></span>
+      </div>
+      <div id="invCatsListe"></div>
+      <div class="inv-modal__btns">
+        <button class="ztsh-btn ztsh-btn--sm" id="invCatsAjout" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modale : reassignation avant suppression d'une categorie ────── -->
+  <div class="zts-modal inv-noprint" id="invModalReassign" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal inv-modal--etroite">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title inv-modal__titre" id="invReTitre"></h2>
+      <p class="inv-catnote" id="invReTxt"></p>
+      <select class="inv-select inv-select--gros" id="invReVers"></select>
+      <div class="inv-modal__btns">
+        <button class="ztsh-btn ztsh-btn--sm inv-btn--danger" id="invReOk" type="button"></button>
+        <button class="ztsh-btn ztsh-btn--sm" id="invReAnnuler" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modale : un code QR ─────────────────────────────────────────── -->
+  <div class="zts-modal inv-noprint" id="invModalQR" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal inv-modal--etroite">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title inv-modal__titre" id="invQRTitre"></h2>
+      <div class="inv-qr" id="invQRImg"></div>
+      <p class="inv-qr__url" id="invQRUrl"></p>
+      <div class="inv-modal__btns">
+        <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invQRImpr" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modale : planche d'etiquettes ───────────────────────────────── -->
+  <div class="zts-modal inv-noprint" id="invModalPlanche" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal inv-modal--etroite">
+      <button class="zts-modal__close" data-close aria-label="Fermer">✕</button>
+      <h2 class="zts-modal__title inv-modal__titre" id="invPlTitre"></h2>
+      <label class="inv-lbl inv-lbl--sombre" for="invPlPortee" id="invPlLblPortee"></label>
+      <select class="inv-select inv-select--gros" id="invPlPortee"></select>
+      <label class="inv-lbl inv-lbl--sombre" for="invPlValeur" id="invPlLblValeur"></label>
+      <select class="inv-select inv-select--gros" id="invPlValeur"></select>
+      <p class="inv-catnote" id="invPlCompte"></p>
+      <div class="inv-modal__btns">
+        <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invPlImpr" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modale liste d'achats ───────────────────────────────────────── -->
+  <div class="zts-modal" id="invModalAchats" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="zts-modal__inner inv-modal">
+      <button class="zts-modal__close inv-noprint" data-close aria-label="Fermer">✕</button>
+      <div id="invAchatsBody"></div>
+      <div class="inv-modal__btns inv-noprint">
+        <button class="ztsh-btn ztsh-btn--sm" id="invAchatsCsv" type="button"></button>
+        <button class="ztsh-btn ztsh-btn--sm ztsh-btn--jaune" id="invAchatsImpr" type="button"></button>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /.ztsh-page -->
+
+  <div data-zts-footer></div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script src="../../assets/ztsh-shell.js"></script>
+  <script>ZTSShell.monter({ densite: 'travail' });</script>
+  <script src="qr.js"></script>
+  <script src="dataStore.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

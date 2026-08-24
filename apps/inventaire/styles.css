@@ -1,0 +1,1039 @@
+/* ==========================================================================
+   ZONE INVENTAIRE — la feuille d'inventaire.
+   --------------------------------------------------------------------------
+   REFONTE DU 23 AOUT 2026. L'app ne ressemblait pas a ce qu'elle est : des
+   cartes, des zones, des compteurs en gros pave, et le tableau en bas. Elle
+   ressemble maintenant a une feuille d'inventaire — le tableau occupe l'ecran
+   des l'arrivee, tout le reste tient dans une barre d'outils d'une rangee.
+
+   L'IDENTITE ZTS NE BOUGE PAS. Chaque cellule est une case du site : coins
+   arrondis, trait noir net, ombre portee dure — le style des boutons cyan,
+   applique a une grille. Fond clair dans les cases pour que le contenu se
+   lise ; les couleurs vives restent aux badges d'etat, aux boutons et aux
+   accents.
+
+   REGLES DE CONTACT (inchangees) :
+     · tout est prefixe .inv-  — classes comme variables
+     · aucun selecteur de type nu ; les selecteurs de balise sont toujours
+       descendants de .inv-table ou .inv-wrap
+     · z-index bornes SOUS 300 (le chrome du shell occupe 300-399)
+     · aucun !important hors du bloc @media print
+     · aucun fond pose sur body — le marine de html.ztsh-on doit rester visible
+     · TOUT EN px, jamais en rem
+   ========================================================================== */
+
+/* ==========================================================================
+   0. POLICES — toutes AUTO-HEBERGEES, aucun <link> Google Fonts
+   --------------------------------------------------------------------------
+   Trois faces, trois roles, et rien qui parte sur un CDN :
+
+     ZoneTotalSportZTSH  la marque. Declaree par assets/ztsh-shell.css avec
+                         son size-adjust:50% obligatoire. On la REUTILISE, on
+                         ne la redeclare pas — un second @font-face de la meme
+                         famille sans size-adjust ferait doubler la taille.
+     LuckiestGuy         entetes de colonnes, badges, boutons, pastilles.
+                         Declaree par shared/zts.css depuis /fonts/.
+     Bangers             la rangee de totaux, et elle seule. Ajoutee ici a
+                         /fonts/ : le depot l'avait, mais enfermee dans
+                         apps/jeux/, d'ou aucune autre app ne peut la servir.
+
+   ⚠ ZoneTotalSport NE SERT JAMAIS a du texte saisi par l'usager. Il lui
+   manque douze caracteres — ’ « » — ° Æ Œ Ù Ÿ ÿ æ œ — et le navigateur
+   bascule PAR CARACTERE : un inventaire nomme « L'ecole du Ruisseau » se
+   retrouverait a cheval sur deux polices en plein mot. Les noms d'inventaire,
+   d'objet et d'emplacement sont donc en LuckiestGuy ou en police systeme, qui
+   couvrent le francais sans trou.
+
+     IndieFlowerZTS      la mention « clique ici pour ajouter un objet ».
+     AnnieZTS            la colonne Notes. Les deux fournies par Joey le
+                         23 aout, licences OFL conservees dans /fonts/.
+
+   Schoolbell n'est ni dans le depot ni sur cette machine, et on ne telecharge
+   rien : Indie Flower tient le role d'ecriture a la main.
+   ========================================================================== */
+@font-face {
+  font-family: 'BangersZTS';
+  src: url('/fonts/Bangers-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+/* Indie Flower — fournie par Joey le 23 aout, licence OFL conservee a cote du
+   fichier (/fonts/OFL-IndieFlower.txt). Couverture verifiee : 350 points de
+   code, AUCUN trou en francais, accents et ligatures compris. Elle ne sert
+   qu'a la mention manuscrite de la rangee vide : une ecriture a la main dans
+   une colonne de donnees serait illisible a 13 px. */
+@font-face {
+  font-family: 'IndieFlowerZTS';
+  src: url('/fonts/IndieFlower-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+/* Annie Use Your Telescope — fournie par Joey le 23 aout, OFL conservee.
+   349 points de code, aucun trou en francais. Elle habille la colonne NOTES,
+   et elle seule : une note griffonnee dans la marge d'une feuille, c'est
+   exactement ce qu'est cette colonne. Il lui manque le Σ, sans consequence —
+   le Σ vit dans la rangee de totaux, qui est en Bangers. */
+@font-face {
+  font-family: 'AnnieZTS';
+  src: url('/fonts/AnnieUseYourTelescope-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+:root {
+  /* Bascule feuille large <-> feuille de telephone. */
+  --inv-bascule: 900px;
+
+  --inv-surface:      #FFFFFF;
+  --inv-surface-alt:  #EEF6FA;   /* survol de rangee */
+  --inv-ink:          #0C1720;
+  --inv-ink-doux:     #5B6773;
+  --inv-trait:        #08131E;
+  --inv-marine:       #0B2B40;   /* entete de colonnes */
+  --inv-num:          #E3EEF4;   /* colonne des numeros de rangee */
+
+  /* Les quatre etats. Ordre et valeurs fixes par Joey le 23 aout 2026. */
+  --inv-neuf:      #A3FF00;
+  --inv-bon:       #00C2E8;
+  --inv-ok:        #FFFC00;
+  --inv-remplacer: #FF0061;
+
+  /* Geometrie de la feuille. Une rangee = 52 px, un interligne = 7 px :
+     l'ombre portee respire sans que la feuille se vide. */
+  --inv-h:      52px;
+  --inv-gap:    7px;
+  --inv-r:      9px;
+  --inv-ombre:  2px 2px 0 rgba(8, 19, 30, .30);
+
+  /* Hauteur disponible pour la feuille. Calculee en JS — voir dimensionne()
+     dans app.js : elle depend de la hauteur du header partage, du repli de la
+     barre d'outils et de la place que prend le ruban du shell. Aucune de ces
+     trois valeurs n'est connue a l'ecriture du CSS. */
+  --inv-max:    60vh;
+
+  /* Roles typographiques de la feuille. */
+  --inv-f-titre:  'LuckiestGuy', 'Luckiest Guy', system-ui, sans-serif;
+  --inv-f-marque: 'ZoneTotalSportZTSH', 'LuckiestGuy', system-ui, sans-serif;
+  --inv-f-punch:  'BangersZTS', 'Bangers', 'LuckiestGuy', system-ui, sans-serif;
+  /* Deux manuscrites, deux roles. */
+  --inv-f-main:   'IndieFlowerZTS', 'Bradley Hand', cursive;   /* rangee vide */
+  --inv-f-note:   'AnnieZTS', 'Bradley Hand', cursive;         /* colonne Notes */
+  /* Le CORPS de la feuille, demande par Joey le 23 aout : les donnees sont
+     ecrites a la main, comme sur une feuille d'inventaire papier. Taille
+     relevee a 16 px — une manuscrite rend plus petit qu'une lineale a taille
+     egale, et une colonne de donnees doit rester lisible d'un coup d'oeil. */
+  --inv-f-corps:  'IndieFlowerZTS', 'Bradley Hand', cursive;
+}
+
+/* ==========================================================================
+   1. ENVELOPPE
+   ========================================================================== */
+.inv-wrap {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 10px 12px 20px;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+}
+
+/* ==========================================================================
+   2. BARRE D'OUTILS — une seule rangee
+   --------------------------------------------------------------------------
+   Le hero, les trois cartes de compteurs et la zone de capture ont disparu :
+   ils repoussaient la feuille sous la ligne de flottaison. Les compteurs
+   deviennent des pastilles en bout de barre, la capture devient un bouton, et
+   tout le reste passe dans le menu ⋯.
+   ========================================================================== */
+.inv-outils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 9px;
+}
+.inv-o {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--inv-ink);
+  background: var(--inv-surface);
+  padding: 9px 12px;
+  border: 2px solid var(--inv-trait);
+  border-radius: var(--inv-r);
+  box-shadow: var(--inv-ombre);
+  max-width: 100%;
+}
+.inv-o--inv { min-width: 160px; max-width: 220px; font-weight: 800; }
+.inv-o--q   { flex: 1 1 130px; min-width: 105px; max-width: 170px; }
+.inv-o--f   { min-width: 0; max-width: 104px; padding: 9px 8px; }
+.inv-o:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+
+.inv-bt {
+  font-family: var(--inv-f-titre);
+  font-size: 14px;
+  letter-spacing: .4px;
+  line-height: 1.1;
+  cursor: pointer;
+  padding: 10px 14px 8px;
+  border: 2px solid var(--inv-trait);
+  border-radius: var(--inv-r);
+  color: #03323C;
+  background: linear-gradient(180deg, #3ADCFA, #00C2E8);
+  box-shadow: 0 3px 0 #075A6B, 3px 6px 0 rgba(0, 0, 0, .30);
+}
+.inv-bt--j  { background: linear-gradient(180deg, #FFFE7A, #FFFC00); color: #2B2B00;
+              box-shadow: 0 3px 0 #C4C200, 3px 6px 0 rgba(0, 0, 0, .30); }
+.inv-bt--pt { padding: 9px 12px 7px; font-size: 13px; }
+.inv-bt:active { transform: translateY(2px); box-shadow: 0 1px 0 #075A6B, 1px 2px 0 rgba(0, 0, 0, .30); }
+
+/* Menu ⋯ */
+.inv-menu { position: relative; }
+.inv-menu__liste {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;              /* au-dessus de la feuille, loin sous les 300 */
+  min-width: 232px;
+  padding: 6px;
+  background: var(--inv-surface);
+  border: 2px solid var(--inv-trait);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, .35);
+}
+.inv-menu__liste[hidden] { display: none; }
+.inv-menu__i {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--inv-ink);
+  background: none;
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 10px;
+  cursor: pointer;
+}
+.inv-menu__i:hover { background: var(--inv-surface-alt); }
+.inv-menu__i--dgr { color: #B0004A; }
+.inv-menu__lbl {
+  display: block;
+  padding: 4px 10px 2px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--inv-ink-doux);
+}
+.inv-menu__sel { width: calc(100% - 8px); margin: 0 4px 4px; }
+.inv-menu__tr { border: 0; border-top: 2px solid var(--inv-num); margin: 5px 2px; }
+
+/* Pastilles de compteurs */
+.inv-pills { display: flex; gap: 5px; margin-left: auto; flex: 0 0 auto; }
+.inv-pill {
+  display: flex;
+  gap: 5px;
+  align-items: baseline;
+  background: var(--inv-surface);
+  border: 2px solid var(--inv-trait);
+  border-radius: 999px;
+  box-shadow: var(--inv-ombre);
+  padding: 4px 9px;
+}
+/* Les pastilles passent en Bangers, comme la rangee de totaux : ce sont les
+   memes chiffres, lus au meme moment. ZoneTotalSport y etait a 9,5 px rendus
+   — la police de marque est dessinee pour des titres, pas pour une etiquette
+   de trois lettres, et elle y devenait un gribouillis. */
+.inv-pill__nb {
+  font-family: var(--inv-f-punch);
+  font-size: 17px;
+  letter-spacing: .3px;
+  color: var(--inv-ink);
+}
+.inv-pill__q {
+  font-family: var(--inv-f-punch);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--inv-ink-doux);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.inv-pill--alerte { background: #FFF0F5; border-color: var(--inv-remplacer); }
+.inv-pill--alerte .inv-pill__nb { color: #B0004A; }
+
+.inv-msg {
+  margin: 0 0 8px;
+  min-height: 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ztsh-jaune, #FFFC00);
+}
+.inv-msg--erreur { color: #FF8FB5; }
+.inv-msg__act { margin-left: 10px; vertical-align: middle; }
+
+/* Banniere d'arrivee par code QR */
+.inv-cible {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+  padding: 10px 12px;
+  background: var(--ztsh-jaune, #FFFC00);
+  color: var(--inv-ink);
+  border: 2px solid var(--inv-trait);
+  border-radius: var(--inv-r);
+  box-shadow: var(--inv-ombre);
+  font-size: 14px;
+  font-weight: 700;
+}
+.inv-cible[hidden] { display: none; }
+
+/* ==========================================================================
+   3. LA FEUILLE — mode large
+   --------------------------------------------------------------------------
+   Boite a defilement propre : c'est ce qui permet a l'entete de colonnes de
+   se figer en haut ET a la rangee de totaux de se figer en bas, comme dans un
+   tableur. Sa hauteur vient de --inv-max, calculee en JS.
+   ========================================================================== */
+/* La feuille s'AMARRE sous la barre de navigation du site.
+   Sans ca, faire defiler la page pour amener la feuille en place la faisait
+   passer SOUS la barre du haut (.zts-topbar, 71 px, position fixe) : la
+   rangee d'entete disparaissait derriere elle, alors qu'elle est justement ce
+   qui doit rester visible. `--inv-haut` est mesuree en JS — la barre change
+   de hauteur selon la largeur d'ecran. */
+.inv-feuille {
+  position: sticky;
+  top: var(--inv-haut, 76px);
+  background: rgba(255, 255, 255, .10);
+  border: 2px solid var(--inv-trait);
+  border-radius: 14px;
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, .32);
+  padding: 0 8px 8px;
+  max-height: var(--inv-max);
+  overflow: auto;
+}
+.inv-table {
+  /* `separate` avec un espacement VERTICAL seulement : c'est ce qui donne les
+     rangees de cases detachees plutot qu'une grille collee. */
+  border-collapse: separate;
+  border-spacing: 0 var(--inv-gap);
+  width: 100%;
+  min-width: 1398px;
+  font-size: 13.5px;
+  /* `fixed` est indispensable : en mise en page auto, une largeur de cellule
+     n'est qu'une suggestion et le contenu elargit la table sans limite.
+     Mesure du 23 aout : 1747 px au lieu de 1370. Le texte ne s'enroule pas
+     pour autant, parce que chaque cellule est en `nowrap` + ellipse — c'est
+     exactement le comportement d'un tableur. */
+  table-layout: fixed;
+}
+.inv-table th,
+.inv-table td { box-sizing: border-box; }
+
+/* ── Entete de colonnes, fige ───────────────────────────────────────────── */
+.inv-table th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: 42px;
+  padding: 0 9px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* LA police de marque, ici et nulle part ailleurs a l'ecran. Les libelles
+     de colonnes sont du texte FIXE que l'on controle : ils ont ete verifies
+     glyphe par glyphe contre la cmap de ZoneTotalSport.ttf, en FR et en EN.
+     Le size-adjust:50% vient de la declaration du shell — d'ou une taille
+     ecrite ici a 25px pour un rendu d'environ 12,5. */
+  font-family: var(--inv-f-marque);
+  font-weight: 400;
+  font-size: 29px;          /* size-adjust:50% => environ 14,5 px rendus */
+  letter-spacing: .3px;
+  color: #FFFFFF;
+  background: var(--inv-marine);
+  border: 2px solid var(--inv-trait);
+  border-radius: var(--inv-r);
+  box-shadow: var(--inv-ombre);
+  cursor: pointer;
+  user-select: none;
+}
+/* ⚠ NE PAS decorer <tr> avec ::before ou ::after. Un pseudo-element sur une
+   rangee de tableau est compte comme UNE CELLULE de plus par l'algorithme de
+   mise en page : toutes les largeurs se decalent d'une colonne. Constate le
+   23 aout sur la maquette, et invisible autrement qu'en mesurant. */
+.inv-table th:hover { background: #123246; }
+.inv-table th[data-tri="non"] { cursor: default; }
+.inv-table th[data-tri="non"]:hover { background: var(--inv-marine); }
+/* ▲ et ▼ n'existent pas dans ZoneTotalSport (verifie : U+25B2 et U+25BC
+   absents de la cmap). Sans cette regle, le navigateur bascule de police au
+   milieu du libelle de colonne — le defaut exact que le shell decrit a son
+   paragraphe 2. */
+.inv-tri {
+  font-family: var(--inv-f-titre);
+  font-size: 12px;
+  color: var(--ztsh-jaune, #FFFC00);
+}
+
+/* ── Rangees ────────────────────────────────────────────────────────────── */
+.inv-table td {
+  height: var(--inv-h);
+  max-height: var(--inv-h);
+  padding: 0 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--inv-surface);
+  border: 2px solid var(--inv-trait);
+  border-radius: var(--inv-r);
+  box-shadow: var(--inv-ombre);
+  color: var(--inv-ink);
+  vertical-align: middle;
+  font-family: var(--inv-f-corps);
+  font-size: 16px;
+}
+.inv-table tbody tr:hover td { background: var(--inv-surface-alt); }
+.inv-table tbody tr[data-vise="oui"] td { box-shadow: var(--inv-ombre), 0 0 0 3px var(--ztsh-jaune, #FFFC00); }
+
+/* Colonnes */
+/* Largeurs calees sur la rangee d'ENTETE, la plus large : c'est elle qui
+   porte la police de marque, et `table-layout: fixed` fait gouverner la
+   premiere rangee. Somme = 1402 px, sous les 1416 de la feuille a 1440. */
+.inv-c-num   { width: 40px; text-align: center; background: var(--inv-num);
+               font-family: var(--inv-f-titre);
+               font-size: 13px; color: var(--inv-ink-doux); }
+.inv-c-photo { width: 56px; }
+.inv-c-nom   { width: 180px; font-weight: 800; }
+.inv-c-marque { width: 96px; }
+.inv-c-description { width: 150px; }
+.inv-c-categorie { width: 128px; }
+.inv-c-emplacement { width: 132px; }
+/* Date en ISO : le seul format qui se trie comme du texte et qui ne se lit
+   pas 03/04 ici et 04/03 ailleurs. */
+.inv-c-date { width: 100px; }
+/* Les CHIFFRES restent en lineale. Un 1 et un 7 manuscrits se confondent, et
+   c'est dans ces trois colonnes qu'une erreur de lecture coute le plus cher. */
+.inv-c-qteMain { width: 68px; text-align: center; font-weight: 800; }
+.inv-c-qteAcheter { width: 82px; text-align: center; font-weight: 800; }
+.inv-table td.inv-c-qteMain,
+.inv-table td.inv-c-qteAcheter,
+.inv-table td.inv-c-prix,
+.inv-table td.inv-c-num { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; }
+.inv-c-etat  { width: 112px; }
+.inv-c-prix  { width: 84px; text-align: right; font-weight: 700; }
+/* Les notes sont manuscrites — c'est la colonne « griffonne dans la marge ».
+   17 px et non 13 : une ecriture a la main rend plus petit qu'une lineale a
+   taille egale, et cette colonne doit rester lisible d'un coup d'oeil. */
+.inv-c-notes { width: 120px; }
+.inv-table td.inv-c-notes { font-family: var(--inv-f-note); font-size: 17px; }
+/* En edition, retour a une police lisible : on ecrit dans un champ, on ne
+   calligraphie pas. */
+.inv-table td.inv-c-notes.inv-edit input { font-family: inherit; font-size: 14px; }
+.inv-c-actions { width: 60px; }
+
+/* Cellules editables : rien ne les distingue au repos — c'est une feuille,
+   pas un formulaire — mais le survol annonce qu'on peut ecrire. */
+.inv-ed { cursor: text; }
+.inv-table tbody tr:hover .inv-ed { background: #F7FBFD; }
+.inv-vide-txt { color: #A9B7C0; font-style: italic; font-weight: 400; }
+
+/* Cellule en cours d'edition. Le cadre cyan reprend le focus des boutons. */
+.inv-table td.inv-edit {
+  background: var(--inv-surface);
+  outline: 3px solid var(--ztsh-cyan, #00C2E8);
+  outline-offset: -2px;
+  box-shadow: 0 0 0 4px rgba(0, 194, 232, .28), var(--inv-ombre);
+  padding: 0 7px;
+}
+.inv-edit input,
+.inv-edit select {
+  font-family: system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  width: 100%;
+  height: 34px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-align: inherit;
+}
+.inv-edit select { cursor: pointer; }
+
+/* Vignette */
+.inv-vg {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 2px solid var(--inv-trait);
+  border-radius: 7px;
+  background: #D9E8F0;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+}
+.inv-vg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.inv-vg__plus {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  z-index: 1;
+  padding: 0 4px;
+  font-family: var(--inv-f-titre);
+  font-size: 9px;
+  color: var(--inv-ink);
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 1.5px solid var(--inv-trait);
+  border-radius: 999px;
+}
+
+/* Badge d'etat — compact, dans la cellule */
+.inv-bd {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 2px solid var(--inv-trait);
+  border-radius: 999px;
+  font-family: var(--inv-f-titre);
+  font-size: 11.5px;
+  letter-spacing: .3px;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.inv-bd--neuf      { background: var(--inv-neuf);      color: #14260B; }
+.inv-bd--bon       { background: var(--inv-bon);       color: #03323C; }
+.inv-bd--ok        { background: var(--inv-ok);        color: #2B2B00; }
+.inv-bd--remplacer { background: var(--inv-remplacer); color: #FFFFFF; }
+
+/* Icones d'action dans la derniere colonne */
+.inv-ic {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 2px 2px;
+  line-height: 1;
+}
+
+/* Rangee vide, toujours prete au bas de la feuille */
+.inv-table tr.inv-neuve td {
+  background: rgba(255, 255, 255, .55);
+  border-style: dashed;
+  box-shadow: none;
+  color: var(--inv-ink-doux);
+  font-family: var(--inv-f-main);
+  font-size: 17px;
+  font-weight: 400;
+  font-style: normal;
+  cursor: text;
+}
+.inv-table tr.inv-neuve:hover td { background: rgba(255, 255, 255, .78); }
+
+/* Rangee de totaux, figee en bas */
+.inv-table tfoot td {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  height: 44px;
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--inv-trait);
+  border-radius: var(--inv-r);
+  box-shadow: var(--inv-ombre);
+  /* Bangers, plus large et plus criarde que LuckiestGuy : la rangee de
+     totaux est un resultat, pas une etiquette de colonne. */
+  font-family: var(--inv-f-punch);
+  font-size: 15px;
+  letter-spacing: .4px;
+  color: #2B2B00;
+}
+
+.inv-empty {
+  margin: 14px 0;
+  padding: 18px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ztsh-sur-marine-doux, #C4E1EE);
+}
+.inv-printtete { display: none; }
+.inv-totmob { display: none; }
+
+/* ==========================================================================
+   4. LA FEUILLE — telephone (< 900 px)
+   --------------------------------------------------------------------------
+   ON GARDE LA FEUILLE, pas des cartes empilees : a 375 px elle reste tout a
+   fait lisible des lors que les colonnes photo et nom sont GELEES a gauche.
+   Verifie a l'ecran avant de trancher.
+
+   PAS de defilement vertical propre ici. Mesure a 375 px : le header partage
+   reserve 236 px de padding sur <body> et la barre d'outils 184 — il ne
+   restait que 225 px de feuille, soit trois rangees. La feuille prend donc sa
+   hauteur naturelle et c'est la PAGE qui defile.
+
+   Le prix a payer, et il faut le dire : une boite a defilement horizontal ne
+   peut pas heberger un `position: sticky` vertical de page. L'entete de
+   colonnes s'en va donc au defilement sur telephone. Ce qui tient lieu de
+   reperes, ce sont les deux colonnes gelees et la barre de totaux collee en
+   bas de l'ecran.
+   ========================================================================== */
+@media (max-width: 899px) {
+  .inv-wrap { padding: 8px 8px 16px; }
+
+  /* Trois rangees de barre d'outils, pas six. */
+  .inv-o, .inv-bt { font-size: 16px; }   /* 16 px : sous ce seuil, iOS zoome */
+  .inv-o--inv { min-width: 0; flex: 1 1 100%; order: 1; }
+  .inv-o--q   { flex: 1 1 110px; order: 2; }
+  .inv-bt--photo { order: 3; flex: 0 0 auto; padding: 9px 11px 7px; }
+  .inv-menu { order: 4; }
+  .inv-o--f { order: 5; flex: 1 1 28%; min-width: 0; padding: 8px 4px; font-size: 14px; }
+  .inv-pills { display: none; }          /* les totaux les portent, en bas */
+
+  /* La sous-navigation prend DEUX rangees de gros boutons sur telephone —
+     160 px mesures, presque autant que la barre d'outils. Les memes liens
+     restent atteignables par le header du site et par le ruban du shell : sur
+     un ecran de 812 px, la feuille en a plus besoin qu'elle. */
+  .zts-subnav { display: none; }
+
+  /* La police de marque est LARGE : a 14,5 px l'entete « Nom de l'objet »
+     mangeait la moitie de l'ecran. On descend a 12 px rendus. */
+  .inv-table th { font-size: 24px; height: 36px; }
+
+  .inv-feuille {
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 0 6px 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .inv-table { min-width: 868px; font-size: 13px; }
+  .inv-table th { position: static; }
+  .inv-table tfoot { display: none; }
+
+  .inv-c-num { display: none; }
+  .inv-table th.inv-c-photo,
+  .inv-table td.inv-c-photo { position: sticky; left: 0; z-index: 4; width: 46px; }
+  .inv-table th.inv-c-nom,
+  .inv-table td.inv-c-nom { position: sticky; left: 46px; z-index: 4; width: 150px; }
+  /* Une cellule gelee doit etre OPAQUE, sinon les colonnes qui defilent
+     dessous transparaissent au travers. */
+  .inv-table tbody td.inv-c-photo,
+  .inv-table tbody td.inv-c-nom { background: var(--inv-surface); }
+  .inv-table tbody tr:hover td.inv-c-photo,
+  .inv-table tbody tr:hover td.inv-c-nom { background: var(--inv-surface-alt); }
+  .inv-table thead th.inv-c-photo,
+  .inv-table thead th.inv-c-nom { background: var(--inv-marine); }
+  /* Le trait d'ombre marque la frontiere entre le gele et le defilant. */
+  .inv-table th.inv-c-nom,
+  .inv-table td.inv-c-nom { box-shadow: var(--inv-ombre), 6px 0 10px -4px rgba(0, 0, 0, .55); }
+
+  .inv-c-marque { width: 100px; }
+  .inv-c-description { width: 170px; }
+  .inv-c-categorie { width: 130px; }
+  .inv-c-emplacement { width: 140px; }
+  .inv-c-date { width: 108px; }
+  .inv-c-notes { width: 150px; }
+  .inv-c-actions { width: 70px; }
+
+  /* Barre de totaux du telephone, collee au bas de l'ecran. `--inv-bas` est
+     la place que prend le ruban du shell, mesuree en JS. */
+  .inv-onglets { gap: 4px; padding: 0 6px; }
+  .inv-ong { font-size: 14px; padding: 7px 11px 6px; }
+
+  .inv-totmob {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    bottom: var(--inv-bas, 16px);
+    z-index: 5;
+    margin-top: 8px;
+    padding: 9px 12px;
+    background: var(--ztsh-jaune, #FFFC00);
+    border: 2px solid var(--inv-trait);
+    border-radius: var(--inv-r);
+    box-shadow: var(--inv-ombre);
+    font-family: var(--inv-f-punch);
+    font-size: 14px;
+    letter-spacing: .3px;
+    color: #2B2B00;
+  }
+}
+
+/* ==========================================================================
+   9. MODALES
+   ========================================================================== */
+.inv-modal { width: min(760px, 100%); }
+.inv-modal__titre { margin-bottom: 10px; }
+.inv-modal__btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+.inv-visio {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: #E3EEF4;
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 14px;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+.inv-visio__img { max-width: 100%; max-height: 62vh; display: block; }
+.inv-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--inv-ink);
+  background: rgba(255, 255, 255, .92);
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.inv-nav--prec { left: 8px; }
+.inv-nav--suiv { right: 8px; }
+.inv-nav[hidden] { display: none; }
+.inv-visio__compte {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--inv-ink-doux);
+}
+
+/* Liste d'achats */
+.inv-achats__cat {
+  font-family: var(--inv-f-titre);
+  font-size: 17px;
+  letter-spacing: .4px;
+  margin: 16px 0 6px;
+  padding-bottom: 4px;
+  border-bottom: 3px solid var(--ztsh-cyan, #00C2E8);
+  color: var(--inv-ink);
+}
+.inv-achats__l {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--inv-trait);
+  font-size: 15px;
+  color: var(--inv-ink);
+}
+.inv-achats__q { font-weight: 800; white-space: nowrap; }
+.inv-achats__tot {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 3px solid var(--ztsh-noir, #08131E);
+  font-family: var(--inv-f-titre);
+  font-size: 18px;
+  color: var(--inv-ink);
+}
+
+/* ==========================================================================
+   8b. ONGLETS D'ANNEES
+   --------------------------------------------------------------------------
+   En bas, centres, comme les onglets de feuilles d'un tableur. L'onglet actif
+   se raccroche visuellement a la feuille : son bord haut disparait et il
+   remonte de 2 px, exactement comme une languette de classeur.
+   ========================================================================== */
+.inv-onglets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: -2px;
+  padding: 0 8px;
+}
+.inv-ong {
+  font-family: var(--inv-f-punch);
+  font-size: 15px;
+  letter-spacing: .4px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 8px 15px 7px;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+  background: rgba(255, 255, 255, .12);
+  border: 2px solid var(--inv-trait);
+  border-top: 0;
+  border-radius: 0 0 var(--inv-r) var(--inv-r);
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, .30);
+}
+.inv-ong:hover { background: rgba(255, 255, 255, .22); }
+.inv-ong[aria-selected="true"] {
+  background: var(--ztsh-jaune, #FFFC00);
+  color: #2B2B00;
+  padding-bottom: 9px;
+  box-shadow: 2px 4px 0 rgba(0, 0, 0, .34);
+}
+/* L'onglet « + » ouvre l'annee suivante. Cyan : c'est une action, pas un
+   etat — meme code couleur que les boutons du site. */
+.inv-ong--plus {
+  background: linear-gradient(180deg, #3ADCFA, #00C2E8);
+  color: #03323C;
+}
+.inv-ong--plus:hover { background: linear-gradient(180deg, #6BE8FF, #16CFF5); }
+
+/* ==========================================================================
+   9b. CATEGORIES (ajout C) ET CODES QR (ajout D)
+   ========================================================================== */
+
+/* Banniere d'arrivee par code QR. Jaune plein, texte fonce : c'est un etat
+   TEMPORAIRE de la page, il doit se voir sans se confondre avec le contenu. */
+.inv-cible {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  background: var(--ztsh-jaune, #FFFC00);
+  color: var(--inv-ink);
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 14px;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, .35);
+  font-size: 15px;
+  font-weight: 700;
+}
+.inv-cible[hidden] { display: none; }
+
+/* Bouton d'action colle au message — le « Ajouter "X" ? » en un tap. */
+.inv-msg__act { margin-left: 10px; vertical-align: middle; }
+
+.inv-lbl--sombre { display: block; margin: 12px 0 4px; color: var(--inv-ink-doux); }
+.inv-modal--etroite { width: min(520px, 100%); }
+.inv-catnote {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--inv-ink-doux);
+}
+
+/* Une ligne de categorie : ordre, libelle FR, libelle EN, compte, corbeille. */
+.inv-catentete,
+.inv-catl {
+  display: grid;
+  grid-template-columns: 52px 1fr 1fr 88px 44px;
+  gap: 8px;
+  align-items: center;
+}
+.inv-catentete {
+  margin-bottom: 4px;
+  padding: 0 0 4px;
+  font-family: var(--inv-f-titre);
+  font-size: 12px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--inv-ink-doux);
+  border-bottom: 2px solid var(--inv-trait);
+}
+/* Les deux intitules se placent au-dessus des deux champs, pas de la colonne
+   d'ordre : ils sautent la premiere piste de la grille. */
+.inv-catentete span:first-child { grid-column: 2; }
+.inv-catl { padding: 5px 0; border-bottom: 1px dashed var(--inv-trait); }
+.inv-catl__ordre { display: flex; gap: 3px; }
+.inv-catl__ordre .inv-mini { padding: 5px 6px; }
+.inv-catl__ordre .inv-mini[disabled] { opacity: .35; cursor: default; }
+.inv-catl__champ {
+  background: #F7FBFD;
+  border-color: var(--inv-trait);
+  font-size: 15px;
+}
+.inv-catl__nb {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--inv-ink-doux);
+  text-align: right;
+}
+
+/* Le QR affiche seul dans sa modale. */
+.inv-qr {
+  display: flex;
+  justify-content: center;
+  padding: 14px;
+  background: #FFFFFF;
+  border: 3px solid var(--ztsh-noir, #08131E);
+  border-radius: 14px;
+}
+.inv-qr svg { display: block; width: 260px; height: 260px; max-width: 100%; }
+.inv-qr__url {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--inv-ink-doux);
+}
+
+@media (max-width: 899px) {
+  /* Sur telephone, cinq colonnes ne tiennent pas : la ligne se plie en deux
+     rangees et l'intitule de colonnes disparait, chaque champ portant deja
+     son sens par sa place. */
+  .inv-catentete { display: none; }
+  .inv-catl {
+    grid-template-columns: 52px 1fr 44px;
+    grid-template-areas:
+      "ordre fr    suppr"
+      "ordre en    nb";
+    row-gap: 5px;
+    padding: 10px 0;
+  }
+  .inv-catl__ordre { grid-area: ordre; flex-direction: column; }
+  /* 16 px minimum, comme les champs du tableau : en dessous, iOS zoome la
+     page au focus et ne la degzoome jamais. La regle de la section 8 ne
+     suffit pas — `.inv-catl__champ` est declaree plus bas a specificite
+     egale, donc elle gagnait avec ses 15 px. */
+  .inv-catl__champ { font-size: 16px; }
+  .inv-catl__champ:nth-of-type(1) { grid-area: fr; }
+  .inv-catl__champ:nth-of-type(2) { grid-area: en; }
+  .inv-catl__nb { grid-area: nb; text-align: left; }
+  .inv-catl .inv-mini--suppr { grid-area: suppr; }
+}
+
+/* ==========================================================================
+   10. IMPRESSION — une vraie feuille d'inventaire sur papier
+   --------------------------------------------------------------------------
+   Seul bloc autorise a employer !important, meme convention que le shell.
+   Sur le papier : en-tete avec le nom de l'inventaire et la date, grille
+   complete noire sur blanc, rangee de totaux comprise, et rien d'autre —
+   ni barre d'outils, ni boutons, ni ombres, ni couleurs de fond.
+   ========================================================================== */
+@media print {
+  /* ⚠ DEFAUT DU SHELL, REPARE ICI ET NON LA-BAS.
+     assets/ztsh-shell.css:1192 masque `[class^="ztsh-"]` a l'impression pour
+     escamoter son chrome. Le selecteur en attrape deux autres :
+
+       .ztsh-page   l'ENVELOPPE de tout le contenu, posee par monter() ;
+       <body>       dont monter() fait `class="ztsh-on"` ;
+       <html>       a qui monter() pose la MEME classe des que cfg.fond.
+
+     Trois classes qui commencent par « ztsh- », donc trois elements mis a
+     display:none — dont la racine du document. Les 41 apps migrees impriment
+     une page ENTIEREMENT BLANCHE. Constate en recopiant le bloc print du
+     shell en feuille d'ecran, puis en remontant la chaine des parents :
+     HTML.ztsh-on display=none.
+
+     Le signe que c'est un oubli et non une intention : deux lignes plus bas,
+     le meme bloc donne a `html.ztsh-on` un fond blanc — on ne peint pas le
+     fond d'un element qu'on vient de masquer.
+
+     La reparation appartient au shell, pas a cette app : c'est un fichier
+     partage par 41 apps et le corriger est une decision de Joey. En attendant,
+     ces deux regles rendent la main au contenu. Elles gagnent parce que
+     styles.css est charge APRES ztsh-shell.css et que les selecteurs ont au
+     moins la meme specificite.
+
+     `body.ztsh-on` est un selecteur de type — que la convention interdit — mais
+     qualifie par une classe d'opt-in, exactement l'exception que le shell
+     s'autorise lui-meme a son paragraphe d'entete. */
+  html.ztsh-on { display: block !important; }
+  body.ztsh-on { display: block !important; }
+  .ztsh-page { display: block !important; }
+
+  /* Ni shared/zts.css ni shared/zts-header.css n'ont la moindre regle
+     d'impression : sans ces lignes, le header du site, sa sous-navigation, le
+     pied de page complet et le bouton de deconnexion sortent sur le papier
+     avant la feuille. Verifie a l'apercu. */
+  .zts-header,
+  .zts-subnav,
+  .zts-topbar,
+  .ztg-out,
+  [data-zts-header],
+  [data-zts-footer] { display: none !important; }
+
+  .inv-noprint { display: none !important; }
+  .inv-wrap { color: #000 !important; padding: 0 !important; max-width: none !important; }
+
+  /* En-tete de feuille */
+  .inv-printtete {
+    display: flex !important;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 6px;
+    padding-bottom: 4px;
+    border-bottom: 1.5pt solid #000;
+  }
+  .inv-printtete h1 {
+    font-family: 'LuckiestGuy', system-ui, sans-serif;
+    font-size: 16pt;
+    margin: 0;
+    color: #000 !important;
+  }
+  .inv-printtete span { font-size: 9pt; color: #000 !important; }
+
+  /* La boite a defilement redevient un bloc : sur papier, rien ne defile. */
+  .inv-feuille {
+    max-height: none !important;
+    overflow: visible !important;
+    background: #FFF !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  /* Grille pleine, collee : c'est le rendu d'une feuille imprimee, pas des
+     cases detachees. Les coins arrondis et les ombres n'ont pas de sens a
+     l'encre. */
+  .inv-table {
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: 8.5pt;
+    table-layout: auto !important;
+  }
+  .inv-table thead { display: table-header-group !important; }
+  .inv-table tfoot { display: table-footer-group !important; }
+  .inv-table tr { break-inside: avoid; page-break-inside: avoid; }
+  .inv-table th,
+  .inv-table td {
+    position: static !important;
+    height: auto !important;
+    max-height: none !important;
+    width: auto !important;
+    padding: 3px 4px !important;
+    border: 0.5pt solid #000 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #FFF !important;
+    color: #000 !important;
+    white-space: normal !important;
+    vertical-align: top;
+  }
+  .inv-table th { font-size: 8pt; font-weight: 700; background: #E8E8E8 !important; }
+  .inv-table tfoot td { font-size: 9pt; font-weight: 700; background: #E8E8E8 !important; }
+
+  /* Le badge d'etat devient du texte encadre, lisible en noir et blanc. */
+  .inv-bd {
+    border: 0.5pt solid #000 !important;
+    border-radius: 0 !important;
+    background: #FFF !important;
+    color: #000 !important;
+    padding: 0 3px !important;
+    font-size: 7.5pt;
+  }
+  .inv-vg { width: 34px !important; height: 34px !important; border-width: 0.5pt !important; }
+  .inv-vg__plus, .inv-ic { display: none !important; }
+  /* La colonne d'actions ne veut rien dire sur papier, et la rangee
+     « clique ici pour ajouter » non plus : c'est une invitation a cliquer,
+     pas une ligne d'inventaire. */
+  .inv-c-actions { display: none !important; }
+  .inv-table tr.inv-neuve { display: none !important; }
+
+  .inv-achats__cat,
+  .inv-achats__l,
+  .inv-achats__tot { color: #000 !important; }
+}
