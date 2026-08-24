@@ -275,7 +275,36 @@
           </div>
 
           <div class="renc-panneau" id="panImport" role="tabpanel" aria-labelledby="ongImport" hidden>
-            <p class="renc-attente">Le dépôt de fichier arrive à la vague D.</p>
+            <div class="renc-depot" id="rencDepot" tabindex="0" role="button"
+                 aria-label="Déposer un enregistrement, ou choisir un fichier">
+              <span class="renc-depot__em">📁</span>
+              <span class="renc-depot__t">Dépose ton enregistrement ici</span>
+              <span class="renc-depot__d">
+                Zoom, Teams, Google Meet ou n'importe quel enregistreur.<br>
+                mp3 · m4a · wav · mp4 · webm — ou clique pour choisir.
+              </span>
+              <input type="file" id="rencFichier" accept="audio/*,video/mp4,video/webm,.m4a,.mp3,.wav,.mp4,.webm" hidden>
+            </div>
+
+            <!-- Le devis : duree detectee, cout en minutes, ce qu'il reste au
+                 compteur du jour. Affiche AVANT que quoi que ce soit ne parte,
+                 comme le demande le §3C. -->
+            <div class="renc-devis" id="rencDevis" hidden>
+              <p class="renc-devis__l" id="rencDevisDuree"></p>
+              <p class="renc-devis__l" id="rencDevisQuota"></p>
+              <p class="renc-devis__avert" id="rencDevisAvert" hidden></p>
+              <div class="renc-devis__b">
+                <button class="renc-bt renc-bt--neuf" id="rencLancer" type="button">Lancer la transcription</button>
+                <button class="renc-bt" id="rencAnnuler" type="button">Annuler</button>
+              </div>
+            </div>
+
+            <div class="renc-avance" id="rencAvance" hidden>
+              <div class="renc-avance__piste"><span class="renc-avance__jauge" id="rencJauge"></span></div>
+              <p class="renc-avance__l" id="rencAvanceTexte" role="status" aria-live="polite"></p>
+            </div>
+
+            <p class="renc-etat" id="rencImportEtat" role="status" aria-live="polite"></p>
           </div>
 
           <!-- ══ IA ═══════════════════════════════════════════════════════ -->

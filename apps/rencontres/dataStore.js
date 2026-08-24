@@ -45,6 +45,11 @@ const RencData = (() => {
   const COL_RENC = 'rencontres';
   const COL_DOSS = 'rencontresDossiers';
 
+  // Le worker `zts-generateur` sert api.zonetotalsport.ca. C'est LUI qui parle
+  // a Workers AI ; le navigateur ne transporte qu'un jeton Firebase. Aucune
+  // cle cote client, jamais.
+  const API_TRANS = 'https://api.zonetotalsport.ca/rencontres-transcription';
+
   // Plafond Firestore : 1 048 576 octets. On s'arrete a 900 000 pour laisser
   // la place aux index et a l'encodage UTF-8 des accents.
   const MAX_DOC = 900000;
@@ -421,8 +426,73 @@ const RencData = (() => {
     return touchees.length;
   }
 
+  /* ══════════════════════════════════════════════════════════════════════
+     TRANSCRIPTION — le reseau, et rien que le reseau
+
+     Le decodage, le reechantillonnage et le decoupage vivent dans
+     transcription.js : ce sont des calculs, ils ne regardent pas cette
+     couche. Ce qui est ici, c'est ce qui SORT de la machine — et c'est
+     precisement ce que ce fichier a pour regle de centraliser.
+     ══════════════════════════════════════════════════════════════════════ */
+
+  async function jeton() {
+    if (!_user) throw new Error('NON_CONNECTE');
+    return await _user.getIdToken();
+  }
+
+  async function lisErreur(res) {
+    let m = 'HTTP ' + res.status;
+    let code = '';
+    try { const j = await res.json(); m = j.message || j.error || m; code = j.code || ''; }
+    catch (e) {}
+    const err = new Error(m);
+    err.statut = res.status;
+    err.code = code;
+    return err;
+  }
+
+  /**
+   * Ce que la transcription coutera, et ce qu'il reste au compteur du jour.
+   * Appele AVANT de lancer quoi que ce soit : l'usager voit la duree detectee
+   * et l'etat de son quota avant d'appuyer.
+   * @returns {Promise<{secondes,minutesDemandees,minutesRestantes,plafondJour,suffisant,longue}>}
+   */
+  async function devisTranscription(secondes) {
+    const res = await fetch(API_TRANS + '?action=devis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (await jeton()) },
+      body: JSON.stringify({ secondes: secondes })
+    });
+    if (!res.ok) throw await lisErreur(res);
+    return await res.json();
+  }
+
+  /**
+   * Envoie UN segment et rend son texte.
+   *
+   * Le corps est le WAV BRUT, pas du JSON : un segment de 5 minutes pese
+   * 9,6 Mo, et l'encoder en base64 en ajouterait 3,2 — sur un worker borne a
+   * 128 Mo de memoire, ce n'est pas cosmetique. Les metadonnees passent donc
+   * par la query string.
+   *
+   * @param {ArrayBuffer} wav  WAV 16 kHz mono 16 bits
+   */
+  async function transcrisSegment(wav, secondes, index, lang) {
+    const q = '?action=segment&secondes=' + encodeURIComponent(Math.round(secondes))
+            + '&index=' + encodeURIComponent(index)
+            + '&lang=' + (lang === 'en' ? 'en' : 'fr');
+    const res = await fetch(API_TRANS + q, {
+      method: 'POST',
+      headers: { 'Content-Type': 'audio/wav', 'Authorization': 'Bearer ' + (await jeton()) },
+      body: wav
+    });
+    if (!res.ok) throw await lisErreur(res);
+    return await res.json();
+  }
+
   return {
-    pret, uid, connecte, enLigne,
+    pret, uid, connecte, enLigne, jeton,
+    devisTranscription, transcrisSegment,
     MAX_DOC, TYPES, NEUVE,
     brouillon, fusionne,
     dossiersDefaut, nouvelIdDossier, normaliseDossiers,

@@ -11,8 +11,10 @@
  *      ecriture Firestore au blur et au bouton, restauration apres plantage.
  *   C  micro : consentement, MediaRecorder toujours actif, texte en direct
  *      quand le navigateur le porte, minuteur, redemarrage sur onend.
+ *   D  transcription : depot d'un fichier, decodage 16 kHz mono, decoupage au
+ *      silence, envoi segment par segment, devis et quota en minutes.
  *
- * Les commandes des vagues D a H sont a l'ecran mais desactivees, et chacune
+ * Les commandes des vagues E a H sont a l'ecran mais desactivees, et chacune
  * NOMME sa vague dans son title — voir pasEncore().
  *
  * Script classique, pas un module : charge apres shared/zts.js, zts-gate.js,
@@ -548,8 +550,6 @@
   /* Micro (vague C)                                                      */
   /* ==================================================================== */
 
-  var audioEnAttente = null;   // le blob capture, en attente de la vague D
-
   var SOUCIS = {
     'texte-direct-refuse':
       "Le navigateur n'autorise pas l'écriture en direct. L'enregistrement continue : le texte s'écrira à la fin.",
@@ -640,17 +640,15 @@
     });
 
     RencMicro.sur('audio', function (blob, info) {
-      audioEnAttente = { blob: blob, secondes: info.secondes, mime: info.mime };
-      // VAGUE D — l'envoi au worker et la transcription Whisper se branchent
-      // ici. D'ici la, on ne fait pas semblant : on dit ce qu'on a.
-      var mn = Math.max(1, Math.round(info.secondes / 60));
+      // L'enregistrement rejoint EXACTEMENT le meme tuyau qu'un fichier
+      // depose : meme decodage 16 kHz mono, meme decoupage, meme devis, meme
+      // quota. C'est ce qui rend le mode micro identique sur Safari et sur
+      // Chrome — d'un cote le texte s'est deja ecrit pendant la rencontre, de
+      // l'autre il arrive maintenant, et le resultat de reference est le meme.
       etatMicro('Enregistrement terminé — ' + RencMicro.formate(info.secondes)
-        + ' (' + Math.round(blob.size / 1024) + ' Ko). La transcription par le serveur arrive à la vague D ; '
-        + (RencMicro.direct
-            ? 'le texte capté en direct est déjà dans « Original ».'
-            : 'garde cet onglet ouvert, l\'audio est en mémoire.'), 'attente');
-      if (sale) sauveServeur(true);
-      return mn;
+        + '. Préparation de la transcription…', 'attente');
+      id('ongImport').click();
+      prepare(blob, 'enregistrement.' + (String(info.mime).indexOf('mp4') >= 0 ? 'm4a' : 'webm'));
     });
 
     // ── Consentement ──
@@ -695,6 +693,216 @@
     });
 
     boutonsMicro();
+  }
+
+  /* ==================================================================== */
+  /* Transcription (vague D)                                              */
+  /* ==================================================================== */
+
+  var enCours = false;          // une transcription tourne : on n'en lance pas deux
+  var aTranscrire = null;       // { segments, secondes, nom }
+
+  function duree(s) {
+    var m = Math.round(s / 60);
+    if (m < 60) return m + ' minute' + (m > 1 ? 's' : '');
+    var h = Math.floor(m / 60), r = m % 60;
+    return h + ' h' + (r ? ' ' + (r < 10 ? '0' : '') + r : '');
+  }
+
+  function etatImport(texte, ton) {
+    var n = id('rencImportEtat');
+    if (!n) return;
+    n.textContent = texte || '';
+    n.dataset.ton = ton || '';
+  }
+
+  /**
+   * Prend un fichier ou un blob, le decode, le decoupe, demande le devis et
+   * montre ce que ca va couter. Rien ne part avant que l'usager n'appuie.
+   */
+  async function prepare(source, nom) {
+    if (enCours) { etatImport('Une transcription est déjà en cours.', 'attente'); return; }
+    if (nom && !RencAudio.formatAccepte(nom)) {
+      etatImport('Format non reconnu. Accepte : mp3, m4a, wav, mp4, webm.', 'alerte');
+      return;
+    }
+    if (!RencData.enLigne()) {
+      etatImport('La transcription a besoin du réseau. Tes notes, elles, continuent de fonctionner.', 'attente');
+      return;
+    }
+
+    id('rencDevis').hidden = true;
+    etatImport('Lecture du fichier…');
+    var buffer;
+    try {
+      buffer = await RencAudio.decode(source);
+    } catch (e) {
+      var m = {
+        AUDIO_INDISPONIBLE: "Ce navigateur ne sait pas décoder l'audio.",
+        LECTURE_IMPOSSIBLE: 'Le fichier n\'a pas pu être lu.',
+        FORMAT_ILLISIBLE: "Ce fichier n'a pas pu être décodé. Essaie un .mp3 ou un .m4a."
+      };
+      etatImport(m[e.message] || 'Le fichier n\'a pas pu être décodé.', 'alerte');
+      return;
+    }
+
+    var secondes = buffer.length / RencAudio.TAUX;
+    etatImport('Découpage…');
+    var segments;
+    try {
+      segments = RencAudio.segmente(buffer);
+    } catch (e) {
+      etatImport('Le découpage a échoué — le fichier est peut-être trop long pour cet appareil.', 'alerte');
+      return;
+    }
+    // Le buffer decode pese jusqu'a 115 Mo : on lache la reference des que les
+    // segments sont faits, sinon il reste en memoire toute la transcription.
+    buffer = null;
+
+    var devis;
+    try {
+      devis = await RencData.devisTranscription(Math.round(secondes));
+    } catch (e) {
+      etatImport('Le serveur n\'a pas répondu (' + (e.message || e) + ').', 'alerte');
+      return;
+    }
+
+    aTranscrire = { segments: segments, secondes: secondes, nom: nom || 'enregistrement' };
+    etatImport('');
+
+    id('rencDevisDuree').textContent = 'Durée détectée : ' + duree(secondes)
+      + ' — ' + segments.length + ' segment' + (segments.length > 1 ? 's' : '') + '.';
+    id('rencDevisQuota').textContent = 'Coût : ' + devis.minutesDemandees
+      + ' minutes sur les ' + devis.minutesRestantes + ' qu\'il te reste aujourd\'hui'
+      + ' (plafond ' + devis.plafondJour + ' par jour).';
+
+    var avert = id('rencDevisAvert');
+    if (devis.longue) {
+      avert.hidden = false;
+      avert.textContent = '⚠ Plus de 90 minutes. La transcription prendra un moment, '
+        + 'et elle consomme une bonne part de ton quota du jour. Garde cet onglet ouvert.';
+    } else {
+      avert.hidden = true;
+    }
+
+    id('rencLancer').disabled = !devis.suffisant;
+    if (!devis.suffisant) {
+      avert.hidden = false;
+      avert.textContent = 'Il ne reste pas assez de minutes aujourd\'hui pour cet enregistrement. '
+        + 'Le compteur repart demain — ou découpe le fichier en deux.';
+    }
+    id('rencDevis').hidden = false;
+  }
+
+  /** Envoie les segments un par un, dans l'ordre, et recolle le texte. */
+  async function lance() {
+    if (!aTranscrire || enCours) return;
+    enCours = true;
+    id('rencDevis').hidden = true;
+    id('rencAvance').hidden = false;
+    if (!courante) nouvelle(null);
+
+    var segments = aTranscrire.segments;
+    var morceaux = [];
+    var faits = 0;
+
+    function avance(texte) {
+      id('rencJauge').style.width = Math.round((faits / segments.length) * 100) + '%';
+      id('rencAvanceTexte').textContent = texte;
+    }
+    avance('Envoi du segment 1 sur ' + segments.length + '…');
+
+    for (var i = 0; i < segments.length; i++) {
+      var seg = segments[i];
+      try {
+        var rep = await RencData.transcrisSegment(seg.wav, seg.secondes, seg.index, lang());
+        morceaux.push(rep.texte || '');
+        // Le texte s'ecrit au fur et a mesure : sur une rencontre d'une heure,
+        // attendre douze segments sans rien voir donne l'impression d'un
+        // plantage.
+        appliqueTranscription(morceaux.join(' ').replace(/\s+/g, ' ').trim());
+        faits++;
+        avance(faits < segments.length
+          ? 'Segment ' + (faits + 1) + ' sur ' + segments.length + '…'
+          : 'Dernier segment…');
+      } catch (e) {
+        // On garde ce qui est deja transcrit : la moitie d'un compte rendu
+        // vaut infiniment mieux que rien, et l'usager peut relancer le reste.
+        enCours = false;
+        id('rencAvance').hidden = true;
+        var q = (e.code === 'QUOTA_MINUTES');
+        etatImport((q ? '' : '⚠ ') + (e.message || e)
+          + (faits ? ' — les ' + faits + ' premier' + (faits > 1 ? 's' : '') + ' segment'
+             + (faits > 1 ? 's sont' : ' est') + ' conservé' + (faits > 1 ? 's' : '')
+             + ' dans « Original ».' : ''), q ? 'attente' : 'alerte');
+        if (sale) sauveServeur(true);
+        return;
+      }
+    }
+
+    enCours = false;
+    aTranscrire = null;
+    id('rencAvance').hidden = true;
+    etatImport('Transcription terminée. Le texte est dans « Original » — les deux boutons de traitement arrivent à la vague E.', 'attente');
+    if (sale) sauveServeur(true);
+  }
+
+  /** Pose le texte transcrit dans la rencontre ouverte et dans l'onglet Original. */
+  function appliqueTranscription(texte) {
+    if (!courante) return;
+    courante.transcription = texte;
+    var brut = id('rencBrut');
+    if (brut) brut.textContent = texte;
+    marqueSale();
+  }
+
+  function cableImport() {
+    var zone = id('rencDepot'), champ = id('rencFichier');
+    if (!zone || !champ) return;
+
+    zone.addEventListener('click', function () { champ.click(); });
+    zone.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); champ.click(); }
+    });
+    champ.addEventListener('change', function () {
+      var f = champ.files && champ.files[0];
+      if (f) prepare(f, f.name);
+      // On vide le champ : sans ca, redeposer LE MEME fichier n'emet aucun
+      // evenement `change` et l'app a l'air morte.
+      champ.value = '';
+    });
+
+    ['dragenter', 'dragover'].forEach(function (n) {
+      zone.addEventListener(n, function (e) {
+        e.preventDefault(); e.stopPropagation();
+        zone.classList.add('is-survol');
+      });
+    });
+    ['dragleave', 'drop'].forEach(function (n) {
+      zone.addEventListener(n, function (e) {
+        e.preventDefault(); e.stopPropagation();
+        zone.classList.remove('is-survol');
+      });
+    });
+    zone.addEventListener('drop', function (e) {
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) prepare(f, f.name);
+    });
+    // Un fichier lache A COTE de la zone ouvrirait le lecteur du navigateur et
+    // ferait perdre la page — et avec elle la rencontre en cours.
+    ['dragover', 'drop'].forEach(function (n) {
+      window.addEventListener(n, function (e) {
+        if (zone.contains(e.target)) return;
+        e.preventDefault();
+      });
+    });
+
+    id('rencLancer').addEventListener('click', lance);
+    id('rencAnnuler').addEventListener('click', function () {
+      aTranscrire = null;
+      id('rencDevis').hidden = true;
+      etatImport('');
+    });
   }
 
   /* ==================================================================== */
@@ -786,6 +994,7 @@
     cableFormat();
     cableSaisie();
     cableMicro();
+    cableImport();
 
     dossiers = RencData.dossiersDefaut();
     dessineDossiers();

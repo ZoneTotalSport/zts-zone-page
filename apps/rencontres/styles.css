@@ -660,6 +660,73 @@
    tout seul. */
 .renc-provisoire { color: var(--renc-ink-doux); font-style: italic; }
 
+/* ==========================================================================
+   6ter. IMPORT
+   ========================================================================== */
+.renc-depot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 34px 20px;
+  cursor: pointer;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 3px dashed var(--renc-trait);
+  border-radius: var(--renc-r);
+}
+.renc-depot.is-survol { background: #DFF6FC; border-color: var(--ztsh-cyan, #00C2E8); }
+.renc-depot:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 3px; }
+.renc-depot__em { font-size: 34px; line-height: 1; }
+.renc-depot__t { font-family: var(--renc-f-titre); font-size: 19px; letter-spacing: .4px; }
+.renc-depot__d { font-size: 13px; line-height: 1.5; color: var(--renc-ink-doux); }
+
+.renc-devis {
+  margin-top: 10px;
+  padding: 14px 16px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-devis[hidden], .renc-avance[hidden], .renc-devis__avert[hidden] { display: none; }
+.renc-devis__l { font-size: 14px; font-weight: 700; margin: 0 0 5px; }
+.renc-devis__avert {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--renc-trait);
+  border-radius: 8px;
+}
+.renc-devis__b { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.renc-avance { margin-top: 10px; }
+.renc-avance__piste {
+  height: 15px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.renc-avance__jauge {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--ztsh-cyan, #00C2E8);
+  transition: width .3s ease;
+}
+.renc-avance__l {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 7px 0 0;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+}
+
 .renc-attente {
   padding: 26px 18px;
   text-align: center;

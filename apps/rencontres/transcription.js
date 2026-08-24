@@ -316,3 +316,183 @@ const RencMicro = (() => {
     sur: function (quoi, f) { rappels[quoi] = f; }
   };
 })();
+
+
+/* ============================================================================
+   RencAudio — decoder, reechantillonner, decouper.
+   ----------------------------------------------------------------------------
+   AUCUN RESEAU ICI. Ce module transforme un fichier en segments prets a
+   partir ; c'est dataStore.js qui les envoie. Le partage est le meme que
+   partout dans ce dossier : un seul fichier parle au serveur.
+
+   POURQUOI TOUT CA SE FAIT DANS LE NAVIGATEUR (§3C du cahier v2). Un Worker
+   Cloudflare est borne en TEMPS PROCESSEUR. Decoder un .m4a de 60 minutes est
+   du calcul pur, et c'est la seule partie du travail que le navigateur fait
+   mieux : le fichier est deja dans sa memoire, son processeur ne facture rien,
+   et l'audio ne traverse pas le reseau deux fois.
+
+   POURQUOI 16 kHz MONO AVANT LE DECOUPAGE, ET NON APRES. Un fichier de 60
+   minutes en stereo 44,1 kHz decode tel quel occupe 60x60x44100x2x4 octets, un
+   peu plus de 1,2 Go de memoire — un portable d'ecole n'en a pas la moitie de
+   libre, et l'onglet meurt. En demandant a l'OfflineAudioContext de decoder
+   DIRECTEMENT a 16 kHz, le meme fichier tient dans 230 Mo, puis 115 une fois
+   ramene en mono. C'est la contrainte posee par Joey le 24 aout, et elle fait
+   la difference entre « ca marche » et « ca marche sur ma machine ».
+
+   16 kHz mono n'est pas une degradation : c'est exactement ce que Whisper
+   consomme. Envoyer du 44,1 kHz stereo ferait transiter cinq fois plus
+   d'octets pour que le modele les jette.
+   ========================================================================== */
+
+const RencAudio = (() => {
+
+  const TAUX = 16000;          // ce que Whisper attend
+  const SEGMENT_S = 300;       // 5 minutes
+  const RECHERCHE_S = 5;       // fenetre de recherche d'un silence a la coupe
+  const LONGUE_S = 90 * 60;    // au-dela, on previent
+
+  const FORMATS_OK = ['.mp3', '.m4a', '.wav', '.mp4', '.webm', '.ogg', '.aac'];
+
+  function formatAccepte(nom) {
+    const n = String(nom || '').toLowerCase();
+    return FORMATS_OK.some((e) => n.endsWith(e));
+  }
+
+  /**
+   * Decode un fichier et rend un AudioBuffer 16 kHz MONO.
+   *
+   * Le taux est impose par le contexte lui-meme : `decodeAudioData` d'un
+   * OfflineAudioContext reechantillonne pendant le decodage. C'est la que se
+   * joue la memoire — reechantillonner APRES aurait deja fait exploser
+   * l'onglet.
+   *
+   * Le mixage en mono passe par un second rendu plutot que par une moyenne a
+   * la main : le graphe audio le fait en natif, sans copier deux canaux de
+   * plusieurs centaines de mega-octets en JavaScript.
+   */
+  async function decode(fichier) {
+    const Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!Ctx) throw new Error('AUDIO_INDISPONIBLE');
+
+    let brut;
+    try { brut = await fichier.arrayBuffer(); }
+    catch (e) { throw new Error('LECTURE_IMPOSSIBLE'); }
+
+    // Un contexte d'une seule image : il ne sert qu'a porter le decodeur et
+    // son taux d'echantillonnage.
+    const sonde = new Ctx(1, 1, TAUX);
+    let decode16;
+    try {
+      decode16 = await sonde.decodeAudioData(brut);
+    } catch (e) {
+      throw new Error('FORMAT_ILLISIBLE');
+    }
+
+    if (decode16.numberOfChannels === 1) return decode16;
+
+    const mono = new Ctx(1, decode16.length, TAUX);
+    const src = mono.createBufferSource();
+    src.buffer = decode16;
+    src.connect(mono.destination);
+    src.start();
+    return await mono.startRendering();
+  }
+
+  /**
+   * Cherche l'endroit le plus SILENCIEUX autour d'une coupe visee.
+   *
+   * Couper au milieu d'un mot donne deux moities qu'aucun modele ne recolle :
+   * la fin du segment perd une syllabe, le debut du suivant commence sur un
+   * fragment. On balaie cinq secondes de part et d'autre par fenetres de
+   * 20 ms et on coupe la ou l'energie est la plus faible — entre deux phrases,
+   * dans la vraie vie.
+   *
+   * On ne fait PAS de chevauchement : il ferait apparaitre les memes mots deux
+   * fois dans le compte rendu, ce qui est plus visible qu'une coupe nette.
+   */
+  function coupeAuSilence(donnees, vise, borneMin, borneMax) {
+    const fenetre = Math.round(TAUX * 0.02);
+    const debut = Math.max(borneMin, vise - TAUX * RECHERCHE_S);
+    const fin = Math.min(borneMax - fenetre, vise + TAUX * RECHERCHE_S);
+    if (fin <= debut) return vise;
+
+    let meilleur = vise, minimum = Infinity;
+    for (let i = debut; i < fin; i += fenetre) {
+      let somme = 0;
+      for (let j = i; j < i + fenetre; j++) somme += donnees[j] * donnees[j];
+      if (somme < minimum) { minimum = somme; meilleur = i; }
+    }
+    return meilleur;
+  }
+
+  /**
+   * Encode une tranche de l'AudioBuffer en WAV 16 bits mono.
+   * En-tete de 44 octets, PCM signe petit-boutiste — le format le plus
+   * universellement lu, et celui que Whisper prend sans discuter.
+   */
+  function wav(donnees, debut, fin) {
+    const n = fin - debut;
+    const tampon = new ArrayBuffer(44 + n * 2);
+    const vue = new DataView(tampon);
+    const txt = (pos, s) => { for (let i = 0; i < s.length; i++) vue.setUint8(pos + i, s.charCodeAt(i)); };
+
+    txt(0, 'RIFF');
+    vue.setUint32(4, 36 + n * 2, true);
+    txt(8, 'WAVE');
+    txt(12, 'fmt ');
+    vue.setUint32(16, 16, true);          // taille du bloc fmt
+    vue.setUint16(20, 1, true);           // PCM
+    vue.setUint16(22, 1, true);           // mono
+    vue.setUint32(24, TAUX, true);
+    vue.setUint32(28, TAUX * 2, true);    // octets par seconde
+    vue.setUint16(32, 2, true);           // alignement de bloc
+    vue.setUint16(34, 16, true);          // bits par echantillon
+    txt(36, 'data');
+    vue.setUint32(40, n * 2, true);
+
+    let p = 44;
+    for (let i = debut; i < fin; i++) {
+      // Bornage avant conversion : un echantillon a 1.02 deviendrait un
+      // craquement en repassant par le bas de l'entier signe.
+      const v = Math.max(-1, Math.min(1, donnees[i]));
+      vue.setInt16(p, v < 0 ? v * 0x8000 : v * 0x7FFF, true);
+      p += 2;
+    }
+    return tampon;
+  }
+
+  /**
+   * Decoupe un AudioBuffer en segments de ~5 minutes, coupes au silence.
+   * @returns {Array<{wav:ArrayBuffer, secondes:number, index:number}>}
+   */
+  function segmente(buffer) {
+    const donnees = buffer.getChannelData(0);
+    const total = donnees.length;
+    const pas = SEGMENT_S * TAUX;
+    const out = [];
+    let debut = 0, index = 0;
+
+    while (debut < total) {
+      let fin = debut + pas;
+      if (fin >= total) fin = total;
+      else fin = coupeAuSilence(donnees, fin, debut + Math.round(pas / 2), total);
+      out.push({
+        wav: wav(donnees, debut, fin),
+        secondes: (fin - debut) / TAUX,
+        index: index++
+      });
+      debut = fin;
+    }
+    return out;
+  }
+
+  return {
+    TAUX: TAUX,
+    SEGMENT_S: SEGMENT_S,
+    LONGUE_S: LONGUE_S,
+    formatAccepte: formatAccepte,
+    decode: decode,
+    segmente: segmente,
+    wav: wav
+  };
+})();
