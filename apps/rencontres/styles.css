@@ -1,0 +1,640 @@
+/* ==========================================================================
+   ZONE RENCONTRES — feuille de l'app
+   --------------------------------------------------------------------------
+   Chargee APRES shared/zts.css et assets/ztsh-shell.css. Cet ordre est
+   verifie par _scripts/verifie-habillage.py (controle 1) et il n'est pas
+   negociable : c'est ici que se posent les surcharges.
+
+   CONTRAINTES DU CHANTIER, tenues ligne a ligne :
+     · aucun <link> Google Fonts, aucune @font-face nouvelle
+     · aucun !important hors du bloc @media print de la fin
+     · aucun fond pose sur html, body ou .ztsh-page — le marine du shell et
+       ses rayons doivent rester visibles dessous (controle 6)
+     · TOUT EN px, jamais en rem — meme regle que apps/inventaire
+     · z-index : rien au-dessus de 299. La plage 300-399 appartient au shell
+       (--ztsh-z-metiers 310, --ztsh-z-rail 340, --ztsh-z-flottant 350) et le
+       mur d'inscription vit encore plus haut, a 99999.
+   ========================================================================== */
+
+/* ==========================================================================
+   0. POLICES — aucune declaration ici, et c'est voulu
+   --------------------------------------------------------------------------
+   Les deux polices d'affichage de l'app sont deja servies depuis /fonts/ par
+   des feuilles chargees plus haut :
+
+     LuckiestGuy          shared/zts.css:23 — titres, boutons, etiquettes.
+     ZoneTotalSportZTSH   assets/ztsh-shell.css:94 — la marque, AVEC son
+                          size-adjust:50%. La redeclarer sans cet ajustement
+                          la ferait rendre au double de sa taille : c'est
+                          exactement le defaut qui a fait deborder le logo du
+                          header au pilote projection.
+
+   Bangers n'est PAS chargee sur cette page. Les tokens du shell qui
+   l'appellent — --ztsh-f-punch, --ztsh-f-note — retomberaient donc en
+   system-ui : ils ne sont utilises nulle part dans ce fichier. Les boutons
+   sont en LuckiestGuy.
+
+   Le CORPS de texte retombe sur la pile systeme. Quicksand ne vit que chez
+   Google et n'est pas dans /fonts/ ; la charger depuis un CDN violerait la
+   regle. Choix identique a celui d'apps/inventaire, et assume : un compte
+   rendu se lit, il ne se contemple pas.
+   ========================================================================== */
+
+:root {
+  /* Bascule deux colonnes <-> une colonne. Sous ce seuil, le rail devient un
+     tiroir et le bouton « ☰ Mes rencontres » apparait. */
+  --renc-bascule: 900px;
+
+  --renc-surface:     #FFFFFF;
+  --renc-surface-alt: #EEF6FA;   /* survol de rangee, fond de panneau */
+  --renc-ink:         #0C1720;
+  --renc-ink-doux:    #5B6773;
+  --renc-trait:       #08131E;
+  --renc-marine:      #0B2B40;
+
+  /* Les trois types de rencontre. Un type = une couleur, tenue partout :
+     pastille du rail, liseré de la fiche, puce du compte rendu imprime. */
+  --renc-comite:     #00C2E8;
+  --renc-statutaire: #FFA200;
+  --renc-autre:      #A3FF00;
+
+  --renc-r:     10px;
+  --renc-ombre: 2px 2px 0 rgba(8, 19, 30, .30);
+  --renc-ombre-forte: 4px 4px 0 var(--renc-trait);
+
+  --renc-f-titre: 'LuckiestGuy', 'Luckiest Guy', system-ui, sans-serif;
+  --renc-f-corps: 'Quicksand', 'Helvetica Neue', system-ui, sans-serif;
+}
+
+/* ==========================================================================
+   1. ENVELOPPE
+   --------------------------------------------------------------------------
+   Aucun fond : le marine du shell passe au travers, comme prevu. La couleur
+   de texte par defaut est celle du shell pour le fond marine — les zones
+   blanches la reprennent a leur compte plus bas.
+   ========================================================================== */
+.renc-wrap {
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 10px 12px 24px;
+  font-family: var(--renc-f-corps);
+  color: var(--ztsh-sur-marine, #E6F4FA);
+}
+
+/* ==========================================================================
+   2. BARRE D'OUTILS
+   ========================================================================== */
+.renc-outils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.renc-espace { flex: 1 1 auto; }
+
+.renc-o {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  padding: 9px 12px;
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+  max-width: 100%;
+}
+.renc-o--q { flex: 0 1 200px; min-width: 120px; }
+
+.renc-bt {
+  font-family: var(--renc-f-titre);
+  font-size: 14px;
+  letter-spacing: .4px;
+  line-height: 1.1;
+  cursor: pointer;
+  padding: 10px 14px 8px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+  transition: transform .12s, box-shadow .12s;
+}
+.renc-bt:hover  { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 rgba(8, 19, 30, .30); }
+.renc-bt:active { transform: translate(1px, 1px);  box-shadow: 1px 1px 0 rgba(8, 19, 30, .30); }
+.renc-bt:disabled { opacity: .5; cursor: default; transform: none; }
+.renc-bt:focus-visible,
+.renc-o:focus-visible,
+.renc-champ:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+
+.renc-bt--neuf    { background: var(--ztsh-cyan, #00C2E8); }
+.renc-bt--actions { background: var(--ztsh-lime, #A3FF00); }
+.renc-bt--pt      { padding: 10px 12px 8px; font-size: 17px; }
+
+/* Le bouton du tiroir n'existe que sous la bascule — regle en fin de fichier. */
+.renc-bt--rail { display: none; }
+
+.renc-bt--gros {
+  font-size: 19px;
+  padding: 14px 22px 11px;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: var(--renc-ombre-forte);
+  margin-top: 18px;
+}
+.renc-bt--gros:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--renc-trait); }
+.renc-bt--gros:active { transform: translate(2px, 2px);  box-shadow: 2px 2px 0 var(--renc-trait); }
+
+.renc-mini {
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 5px 9px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: 8px;
+}
+.renc-mini:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+
+/* ── Menu ⋯ ────────────────────────────────────────────────────────────
+   z-index 40 : bien au-dessus du contenu de l'app, bien en dessous des
+   300-399 du shell. Un menu d'app n'a aucune raison de passer par-dessus le
+   rail du site. */
+.renc-menu { position: relative; }
+.renc-menu__liste {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  min-width: 250px;
+  padding: 6px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-menu__liste[hidden] { display: none; }
+.renc-menu__liste button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--renc-ink);
+  background: none;
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 10px;
+  cursor: pointer;
+}
+.renc-menu__liste button:hover { background: var(--renc-surface-alt); }
+.renc-menu__liste button.is-danger { color: #B00034; }
+.renc-menu__liste hr { border: 0; border-top: 2px solid var(--renc-surface-alt); margin: 5px 2px; }
+
+/* ==========================================================================
+   3. BANDEAU RESEAU
+   --------------------------------------------------------------------------
+   Il annonce ce qui MARCHE ENCORE, pas ce qui est tombe. Un usager qui perd
+   le reseau au milieu d'un comite a besoin de savoir qu'il peut continuer a
+   ecrire, pas d'apprendre qu'il est hors ligne — il le sait deja.
+   ========================================================================== */
+.renc-reseau {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--renc-ink);
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+}
+.renc-reseau[hidden] { display: none; }
+
+/* ==========================================================================
+   4. DEUX COLONNES
+   ========================================================================== */
+.renc-corps {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+/* ── Rail ─────────────────────────────────────────────────────────────── */
+.renc-rail {
+  padding: 12px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+  color: var(--renc-ink);
+}
+.renc-rail__tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.renc-rail__titre {
+  font-family: var(--renc-f-titre);
+  font-size: 15px;
+  letter-spacing: .6px;
+  margin: 0;
+  color: var(--renc-marine);
+}
+.renc-rail__titre--liste { margin: 16px 0 8px; }
+
+.renc-dossiers,
+.renc-liste { list-style: none; margin: 0; padding: 0; }
+
+.renc-dossier,
+.renc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--renc-ink);
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 8px 9px;
+  cursor: pointer;
+}
+.renc-dossier:hover,
+.renc-item:hover { background: var(--renc-surface-alt); }
+.renc-dossier.is-actif,
+.renc-item.is-actif { background: var(--renc-surface-alt); border-color: var(--renc-trait); }
+.renc-dossier:focus-visible,
+.renc-item:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 1px; }
+
+/* Cible de depot du glisser-deposer (vague F). Le style vit ici des
+   maintenant pour que la vague F n'ait pas a rouvrir la feuille. */
+.renc-dossier.is-cible { border-color: var(--ztsh-cyan, #00C2E8); background: #DFF6FC; }
+
+.renc-item { flex-direction: column; align-items: stretch; gap: 2px; }
+.renc-item__n { font-size: 14px; line-height: 1.25; }
+.renc-item__m {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--renc-ink-doux);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.renc-pastille {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--renc-trait);
+  flex: none;
+}
+.renc-pastille[data-type="comite"]     { background: var(--renc-comite); }
+.renc-pastille[data-type="statutaire"] { background: var(--renc-statutaire); }
+.renc-pastille[data-type="autre"]      { background: var(--renc-autre); }
+
+.renc-vide {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--renc-ink-doux);
+  padding: 6px 9px 2px;
+  margin: 0;
+}
+.renc-vide[hidden] { display: none; }
+.renc-vide__aide { font-size: 12px; opacity: .85; }
+
+/* ==========================================================================
+   5. DETAIL — accueil
+   ========================================================================== */
+.renc-detail { min-width: 0; }
+
+.renc-accueil {
+  padding: 26px 22px 30px;
+  text-align: center;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+  color: var(--renc-ink);
+}
+.renc-accueil[hidden] { display: none; }
+.renc-accueil__titre {
+  font-family: var(--renc-f-titre);
+  /* 1.05 minimum : sous ce seuil les capitales accentuees se font couper —
+     un E monte a 1852 unites d'em, un E accent aigu a 2227. */
+  line-height: 1.05;
+  font-size: 34px;
+  letter-spacing: 1px;
+  color: var(--renc-marine);
+  margin: 0 0 8px;
+}
+.renc-accueil__sous {
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 52ch;
+  margin: 0 auto 22px;
+  color: var(--renc-ink-doux);
+}
+.renc-accueil__trois {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  text-align: left;
+}
+.renc-carte-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  background: var(--renc-surface-alt);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+}
+.renc-carte-mode__em { font-size: 26px; line-height: 1; }
+.renc-carte-mode__n  { font-family: var(--renc-f-titre); font-size: 17px; letter-spacing: .4px; }
+.renc-carte-mode__d  { font-size: 13px; line-height: 1.45; color: var(--renc-ink-doux); }
+
+/* ==========================================================================
+   6. DETAIL — la fiche
+   ========================================================================== */
+.renc-fiche {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--renc-ink);
+}
+.renc-fiche[hidden] { display: none; }
+
+.renc-entete {
+  padding: 12px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-entete__ligne { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+.renc-lab {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 150px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--renc-ink-doux);
+}
+.renc-lab--large { display: flex; margin-top: 8px; }
+
+.renc-champ {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  padding: 9px 11px;
+  border: 2px solid var(--renc-trait);
+  border-radius: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.renc-champ--titre {
+  font-family: var(--renc-f-titre);
+  font-size: 21px;
+  letter-spacing: .3px;
+  padding: 11px 12px 8px;
+}
+
+.renc-etat {
+  margin: 9px 0 0;
+  min-height: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--renc-ink-doux);
+}
+
+/* ── Onglets ──────────────────────────────────────────────────────────── */
+.renc-onglets { display: flex; flex-wrap: wrap; gap: 6px; }
+.renc-onglet {
+  font-family: var(--renc-f-titre);
+  font-size: 14px;
+  letter-spacing: .4px;
+  cursor: pointer;
+  padding: 9px 14px 7px;
+  color: var(--renc-ink);
+  background: var(--renc-surface-alt);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+}
+.renc-onglet.is-actif { background: var(--ztsh-cyan, #00C2E8); }
+.renc-onglet:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+.renc-onglets--sortie .renc-onglet.is-actif { background: var(--ztsh-jaune, #FFFC00); }
+
+/* Sous-titre de l'onglet micro. Il ne dit pas quelle interface de
+   programmation porte le navigateur, il dit ce que l'usager verra : le texte
+   s'ecrit pendant la rencontre, ou a la fin. Deux facons de transcrire, et
+   aucune des deux n'est presentee comme abimee. */
+.renc-onglet--micro { text-align: left; line-height: 1.15; }
+.renc-onglet__sous {
+  display: block;
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0;
+  opacity: .78;
+}
+.renc-onglet__sous:empty { display: none; }
+
+.renc-panneau[hidden] { display: none; }
+
+/* ── Zones de saisie ──────────────────────────────────────────────────
+   Le texte de substitution passe par data-vide plutot que par un
+   placeholder : un contenteditable n'en a pas. Il disparait des que le
+   noeud porte quoi que ce soit — d'ou :empty, qui ne matche pas une zone
+   contenant ne serait-ce qu'une espace. */
+.renc-notes,
+.renc-sortie {
+  min-height: 260px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+  overflow-wrap: break-word;
+}
+.renc-notes:focus-visible,
+.renc-sortie:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+.renc-notes:empty::before,
+.renc-sortie:empty::before {
+  content: attr(data-vide);
+  color: var(--renc-ink-doux);
+  font-style: italic;
+}
+.renc-sortie--brut { background: var(--renc-surface-alt); white-space: pre-wrap; }
+
+.renc-notes h1, .renc-sortie h1,
+.renc-notes h2, .renc-sortie h2,
+.renc-notes h3, .renc-sortie h3 {
+  font-family: var(--renc-f-titre);
+  line-height: 1.05;
+  letter-spacing: .3px;
+  color: var(--renc-marine);
+  margin: 18px 0 8px;
+}
+.renc-notes h1, .renc-sortie h1 { font-size: 22px; }
+.renc-notes h2, .renc-sortie h2 { font-size: 18px; }
+.renc-notes h3, .renc-sortie h3 { font-size: 16px; }
+.renc-notes ul, .renc-sortie ul,
+.renc-notes ol, .renc-sortie ol { padding-left: 22px; margin: 8px 0; }
+.renc-notes li, .renc-sortie li { margin: 3px 0; }
+
+.renc-attente {
+  padding: 26px 18px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--renc-ink-doux);
+  background: var(--renc-surface);
+  border: 2px dashed var(--renc-trait);
+  border-radius: var(--renc-r);
+  margin: 0;
+}
+
+/* ── Boutons IA ───────────────────────────────────────────────────────── */
+.renc-ia { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.renc-bt--ia {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  padding: 10px 16px 9px;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-bt--ia2 { background: var(--ztsh-lime, #A3FF00); }
+.renc-bt--ia:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--renc-trait); }
+.renc-bt--ia:active { transform: translate(2px, 2px);  box-shadow: 2px 2px 0 var(--renc-trait); }
+.renc-bt__sous {
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0;
+  opacity: .8;
+}
+
+.renc-bascule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 8px 12px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+}
+
+/* ==========================================================================
+   7. UNE SEULE COLONNE — le rail devient un tiroir
+   --------------------------------------------------------------------------
+   z-index 45 : au-dessus du menu ⋯ (40), sous le shell (300+).
+   ========================================================================== */
+@media (max-width: 900px) {
+  .renc-corps { grid-template-columns: minmax(0, 1fr); }
+  .renc-bt--rail { display: block; }
+
+  .renc-rail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 45;
+    width: min(310px, 86vw);
+    overflow-y: auto;
+    border-radius: 0 var(--renc-r) var(--renc-r) 0;
+    transform: translateX(-102%);
+    transition: transform .22s ease;
+  }
+  .renc-rail.is-ouvert { transform: translateX(0); }
+  .renc-accueil__titre { font-size: 27px; }
+}
+
+/* ==========================================================================
+   8. IMPRESSION
+   --------------------------------------------------------------------------
+   ⚠ DEFAUT DU SHELL, CONTOURNE ICI ET NON LA-BAS.
+
+   assets/ztsh-shell.css:1192 masque `[class^="ztsh-"]` a l'impression pour
+   escamoter son chrome. Le selecteur en attrape trois de plus :
+
+     .ztsh-page   l'ENVELOPPE de tout le contenu ;
+     <body>       a qui monter() donne class="ztsh-on" ;
+     <html>       a qui il donne la MEME classe des que cfg.fond.
+
+   Resultat : les 41 apps migrees impriment une page ENTIEREMENT BLANCHE.
+   Le signe que c'est un oubli et non une intention : deux lignes plus bas, le
+   meme bloc peint en blanc le fond de `html.ztsh-on`. On ne peint pas le fond
+   d'un element qu'on vient de masquer.
+
+   Ces trois lignes rendent la main au contenu, depuis la feuille de l'app,
+   chargee apres le shell. C'est le meme contournement que apps/inventaire —
+   deja pret a etre remonte dans le shell le jour ou Joey tranche, ce qui
+   reparerait les 40 autres apps d'un coup. Le shell reste intact.
+
+   C'est aussi le seul endroit de ce fichier ou !important est permis.
+   ========================================================================== */
+@media print {
+  html.ztsh-on { display: block !important; }
+  body.ztsh-on { display: block !important; }
+  .ztsh-page   { display: block !important; }
+
+  /* Le header du site, la sous-nav et les commandes ne s'impriment pas :
+     ni shared/zts.css ni shared/zts-header.css n'ont la moindre regle
+     d'impression, c'est donc a l'app de le faire. */
+  [data-zts-header],
+  [data-zts-footer],
+  .renc-noprint,
+  .renc-rail,
+  .renc-accueil { display: none !important; }
+
+  .renc-wrap { max-width: none; padding: 0; color: #000 !important; }
+  .renc-corps { display: block; }
+
+  .renc-entete,
+  .renc-notes,
+  .renc-sortie {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    min-height: 0;
+    background: transparent !important;
+    color: #000 !important;
+  }
+  .renc-champ {
+    border: 0;
+    padding: 0;
+    font-weight: 700;
+    background: transparent !important;
+    color: #000 !important;
+  }
+  /* Une coupure au milieu d'une decision rend le compte rendu illisible. */
+  .renc-sortie h1,
+  .renc-sortie h2,
+  .renc-sortie h3 { break-after: avoid; page-break-after: avoid; }
+  .renc-sortie li { break-inside: avoid; page-break-inside: avoid; }
+}

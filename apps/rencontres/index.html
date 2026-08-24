@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<!-- App — Zone Rencontres (transversale : EP, camp de jour, service de garde).
+     Compte rendu de comite et de rencontre statutaire : notes a la main,
+     micro en direct, ou depot d'un enregistrement Zoom / Teams / Meet.
+
+     PAS DE data-metier SUR <body> — decision du prompt, meme logique que
+     jeux, sae et generateur : l'app sert les trois univers, elle s'adapte par
+     le vocabulaire et non par une page dediee.
+
+     AUCUN <link> Google Fonts. Les deux polices d'affichage sont deja servies
+     depuis /fonts/ par des feuilles chargees plus haut : LuckiestGuy vient de
+     shared/zts.css, ZoneTotalSportZTSH de assets/ztsh-shell.css avec son
+     size-adjust:50% obligatoire. On les REUTILISE, on ne les redeclare pas.
+     Le corps de texte retombe sur la pile systeme — Quicksand ne vit que chez
+     Google et n'est pas dans /fonts/. Meme choix assume que apps/inventaire. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zone Rencontres — comptes rendus de comité sans y passer la soirée — Zone Total Sport</title>
+  <!-- ZTS-SEO -->
+  <meta name="description" content="Prends tes notes, dicte au micro ou dépose l'enregistrement de ta rencontre Zoom, Teams ou Meet. L'IA en tire un verbatim propre ou un compte rendu structuré, avec les décisions et les actions à faire. Gratuit.">
+  <link rel="canonical" href="https://zonetotalsport.ca/apps/rencontres/">
+  <link rel="alternate" hreflang="fr-CA" href="https://zonetotalsport.ca/apps/rencontres/">
+  <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/apps/rencontres/">
+  <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/apps/rencontres/?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/apps/rencontres/">
+  <meta property="og:title" content="Zone Rencontres — Zone Total Sport">
+  <meta property="og:description" content="Notes, micro ou enregistrement importé : ton compte rendu de comité est écrit avant que tu sortes du local. Décisions et actions à faire, classées par dossier.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zonetotalsport.ca/apps/rencontres/">
+  <meta property="og:image" content="https://zonetotalsport.ca/favicon.png">
+  <meta property="og:locale" content="fr_CA">
+  <meta property="og:site_name" content="Zone Total Sport">
+  <meta name="twitter:card" content="summary">
+  <!-- /ZTS-SEO -->
+  <link rel="icon" href="../../favicon.png">
+
+  <!-- ORDRE DE CHARGEMENT NON NEGOCIABLE (controle 1 de verifie-habillage.py) :
+       shared/zts.css, puis assets/ztsh-shell.css, puis la feuille de l'app.
+       Le shell surcharge zts.css ; l'inverser rend l'habillage partiellement
+       inactif SANS la moindre erreur visible. -->
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <link rel="stylesheet" href="../../assets/ztsh-shell.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- ZTS-JSONLD -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Zone Rencontres — Zone Total Sport",
+  "description": "Compte rendu de rencontre : prise de notes, transcription au micro, import d'un enregistrement Zoom, Teams ou Meet, verbatim ou compte rendu structuré par l'IA, classement par dossiers et envoi par courriel.",
+  "url": "https://zonetotalsport.ca/apps/rencontres/",
+  "applicationCategory": "EducationApplication",
+  "operatingSystem": "Web",
+  "inLanguage": ["fr-CA", "en"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Zone Total Sport",
+    "url": "https://zonetotalsport.ca/",
+    "logo": "https://zonetotalsport.ca/favicon.png"
+  }
+}
+  </script>
+  <!-- /ZTS-JSONLD -->
+</head>
+<body>
+
+  <div data-zts-header></div>
+
+  <div class="ztsh-page">
+  <nav class="zts-subnav renc-noprint">
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+    <a href="../../ep.html">← Éducation physique</a>
+    <a href="../../camps-de-jour.html">← Camps de jour</a>
+    <a href="../../service-de-garde.html">← Service de garde</a>
+  </nav>
+
+  <main class="renc-wrap" id="rencWrap">
+
+    <!-- ══ BARRE D'OUTILS ════════════════════════════════════════════════
+         Une seule rangee sur ordinateur. Sur telephone elle porte en plus le
+         bouton « ☰ Mes rencontres », seul moyen d'atteindre le rail : les
+         deux colonnes ne tiennent pas cote a cote sous 900 px. -->
+    <div class="renc-outils renc-noprint">
+      <button class="renc-bt renc-bt--rail" id="rencBascule" type="button"
+              aria-controls="rencRail" aria-expanded="false">☰ Mes rencontres</button>
+      <button class="renc-bt renc-bt--neuf" id="rencNouvelle" type="button">+ Nouvelle rencontre</button>
+      <input type="search" class="renc-o renc-o--q" id="rencCherche"
+             placeholder="Chercher…" aria-label="Chercher dans mes rencontres">
+      <span class="renc-espace"></span>
+      <button class="renc-bt renc-bt--actions" id="rencMesActions" type="button">✅ Mes actions</button>
+      <div class="renc-menu">
+        <button class="renc-bt renc-bt--pt" id="rencMenu" type="button"
+                aria-haspopup="true" aria-expanded="false" aria-label="Autres actions">⋯</button>
+        <div class="renc-menu__liste" id="rencMenuListe" hidden role="menu">
+          <button type="button" role="menuitem" id="rencEnvoyer">✉️ Envoyer par courriel</button>
+          <button type="button" role="menuitem" id="rencCopier">📋 Copier le compte rendu</button>
+          <button type="button" role="menuitem" id="rencPdf">🖨️ Imprimer / PDF</button>
+          <button type="button" role="menuitem" id="rencTxt">⬇️ Exporter en .txt</button>
+          <button type="button" role="menuitem" id="rencMd">⬇️ Exporter en .md</button>
+          <button type="button" role="menuitem" id="rencPartage" hidden>📤 Partager</button>
+          <hr>
+          <button type="button" role="menuitem" id="rencSupprimer" class="is-danger">🗑️ Supprimer cette rencontre</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ETAT RESEAU ═══════════════════════════════════════════════════
+         Demande explicitement au point 6.5 du cahier : les notes a la main
+         fonctionnent hors ligne, la transcription non. Le bandeau ne dit donc
+         pas « hors ligne », il dit ce qui MARCHE ENCORE. -->
+    <p class="renc-reseau renc-noprint" id="rencReseau" hidden role="status">
+      📴 Pas de réseau. Tes notes continuent de s'enregistrer sur cet appareil ;
+      la transcription et l'IA reprendront au retour de la connexion.
+    </p>
+
+    <div class="renc-corps">
+
+      <!-- ══ RAIL — dossiers et liste ═════════════════════════════════════ -->
+      <aside class="renc-rail" id="rencRail" aria-label="Mes dossiers et mes rencontres">
+        <div class="renc-rail__tete">
+          <h2 class="renc-rail__titre">MES DOSSIERS</h2>
+          <button class="renc-mini" id="rencNouveauDossier" type="button">➕ Nouveau dossier</button>
+        </div>
+        <ul class="renc-dossiers" id="rencDossiers"></ul>
+        <h2 class="renc-rail__titre renc-rail__titre--liste">RENCONTRES</h2>
+        <ul class="renc-liste" id="rencListe"></ul>
+        <p class="renc-vide" id="rencListeVide">
+          Aucune rencontre pour l'instant.<br>
+          <span class="renc-vide__aide">Le bouton « + Nouvelle rencontre » en crée une.</span>
+        </p>
+      </aside>
+
+      <!-- ══ DETAIL ═══════════════════════════════════════════════════════ -->
+      <section class="renc-detail" id="rencDetail" aria-label="La rencontre ouverte">
+
+        <!-- Accueil : ce qu'on voit tant qu'aucune rencontre n'est ouverte. -->
+        <div class="renc-accueil" id="rencAccueil">
+          <h1 class="renc-accueil__titre">ZONE RENCONTRES</h1>
+          <p class="renc-accueil__sous">
+            Comité, rencontre statutaire, rencontre de parents. Tu prends les notes,
+            tu parles, ou tu déposes l'enregistrement — le compte rendu s'écrit.
+          </p>
+          <div class="renc-accueil__trois">
+            <div class="renc-carte-mode">
+              <span class="renc-carte-mode__em">✍️</span>
+              <span class="renc-carte-mode__n">Écrire</span>
+              <span class="renc-carte-mode__d">Tes notes, sauvegardées toutes les 10 secondes. Fonctionne sans réseau.</span>
+            </div>
+            <div class="renc-carte-mode">
+              <span class="renc-carte-mode__em">🎤</span>
+              <span class="renc-carte-mode__n">Parler</span>
+              <span class="renc-carte-mode__d">Le micro écoute la rencontre et écrit à ta place.</span>
+            </div>
+            <div class="renc-carte-mode">
+              <span class="renc-carte-mode__em">📁</span>
+              <span class="renc-carte-mode__n">Déposer</span>
+              <span class="renc-carte-mode__d">Ton fichier Zoom, Teams ou Meet, déposé ici et transcrit.</span>
+            </div>
+          </div>
+          <button class="renc-bt renc-bt--gros" id="rencNouvelle2" type="button">+ Nouvelle rencontre</button>
+        </div>
+
+        <!-- L'editeur. Cache tant qu'aucune rencontre n'est ouverte. -->
+        <article class="renc-fiche" id="rencFiche" hidden>
+
+          <!-- En-tete : les six champs du cahier. -->
+          <div class="renc-entete">
+            <input class="renc-champ renc-champ--titre" id="rencTitre" type="text"
+                   placeholder="Titre de la rencontre" aria-label="Titre de la rencontre"
+                   maxlength="140">
+            <div class="renc-entete__ligne">
+              <label class="renc-lab">Date
+                <input class="renc-champ" id="rencDate" type="date" aria-label="Date de la rencontre">
+              </label>
+              <label class="renc-lab">Type
+                <select class="renc-champ" id="rencType" aria-label="Type de rencontre">
+                  <option value="comite">Comité</option>
+                  <option value="statutaire">Statutaire</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </label>
+              <label class="renc-lab">Dossier
+                <select class="renc-champ" id="rencDossier" aria-label="Dossier de classement"></select>
+              </label>
+            </div>
+            <div class="renc-entete__ligne">
+              <label class="renc-lab">Animateur
+                <input class="renc-champ" id="rencAnimateur" type="text" maxlength="80" placeholder="Qui anime">
+              </label>
+              <label class="renc-lab">Secrétaire
+                <input class="renc-champ" id="rencSecretaire" type="text" maxlength="80" placeholder="Qui prend les notes">
+              </label>
+            </div>
+            <label class="renc-lab renc-lab--large">Participants
+              <input class="renc-champ" id="rencParticipants" type="text" maxlength="400"
+                     placeholder="Séparés par des virgules">
+            </label>
+            <p class="renc-etat" id="rencEtat" role="status" aria-live="polite"></p>
+          </div>
+
+          <!-- ══ CAPTURE — trois onglets ════════════════════════════════════
+               Le nom de l'onglet 🎤 est ecrit par app.js au chargement : il
+               annonce « transcription en direct » quand le navigateur porte la
+               reconnaissance vocale, « transcription a la fin » sinon. Ce sont
+               DEUX FACONS DE TRANSCRIRE, pas une bonne et une degradee : le
+               mot « repli » ne paraitra jamais a l'ecran. -->
+          <div class="renc-onglets renc-noprint" role="tablist" aria-label="Comment capturer la rencontre">
+            <button class="renc-onglet is-actif" id="ongNotes" type="button" role="tab"
+                    aria-selected="true" aria-controls="panNotes">✍️ Notes</button>
+            <button class="renc-onglet renc-onglet--micro" id="ongMicro" type="button" role="tab"
+                    aria-selected="false" aria-controls="panMicro">🎤 Micro<span
+                    class="renc-onglet__sous" id="ongMicroSous"></span></button>
+            <button class="renc-onglet" id="ongImport" type="button" role="tab"
+                    aria-selected="false" aria-controls="panImport">📁 Importer</button>
+          </div>
+
+          <div class="renc-panneau" id="panNotes" role="tabpanel" aria-labelledby="ongNotes">
+            <div class="renc-notes" id="rencNotes" contenteditable="true" spellcheck="true"
+                 role="textbox" aria-multiline="true" aria-label="Notes de la rencontre"
+                 data-vide="Écris ici. Les points discutés, les décisions, ce qui reste à faire…"></div>
+          </div>
+
+          <div class="renc-panneau" id="panMicro" role="tabpanel" aria-labelledby="ongMicro" hidden>
+            <p class="renc-attente">Le micro arrive à la vague C.</p>
+          </div>
+
+          <div class="renc-panneau" id="panImport" role="tabpanel" aria-labelledby="ongImport" hidden>
+            <p class="renc-attente">Le dépôt de fichier arrive à la vague D.</p>
+          </div>
+
+          <!-- ══ IA ═══════════════════════════════════════════════════════ -->
+          <div class="renc-ia renc-noprint">
+            <button class="renc-bt renc-bt--ia" id="rencVerbatim" type="button">
+              📝 Mot à mot
+              <span class="renc-bt__sous">Nettoyé, rien de reformulé</span>
+            </button>
+            <button class="renc-bt renc-bt--ia renc-bt--ia2" id="rencStructure" type="button">
+              🗂️ Structuré
+              <span class="renc-bt__sous">Résumé, décisions, actions</span>
+            </button>
+            <label class="renc-bascule">
+              <input type="checkbox" id="rencSonnet">
+              <span>Modèle plus fin</span>
+            </label>
+          </div>
+
+          <!-- ══ SORTIE ═══════════════════════════════════════════════════
+               L'original brut vit dans son propre onglet et n'est jamais
+               ecrase par l'IA : c'est la seule facon de laisser quelqu'un
+               relancer un traitement apres avoir edite le resultat. -->
+          <div class="renc-onglets renc-onglets--sortie renc-noprint" role="tablist"
+               aria-label="Ce qui est affiché">
+            <button class="renc-onglet is-actif" id="ongResultat" type="button" role="tab"
+                    aria-selected="true" aria-controls="panResultat">Compte rendu</button>
+            <button class="renc-onglet" id="ongBrut" type="button" role="tab"
+                    aria-selected="false" aria-controls="panBrut">Original</button>
+          </div>
+
+          <div class="renc-panneau" id="panResultat" role="tabpanel" aria-labelledby="ongResultat">
+            <div class="renc-sortie" id="rencSortie" contenteditable="true" spellcheck="true"
+                 role="textbox" aria-multiline="true" aria-label="Compte rendu"
+                 data-vide="Le compte rendu s'écrira ici. Il reste modifiable à la main avant l'envoi."></div>
+          </div>
+
+          <div class="renc-panneau" id="panBrut" role="tabpanel" aria-labelledby="ongBrut" hidden>
+            <div class="renc-sortie renc-sortie--brut" id="rencBrut" aria-label="Texte original"></div>
+          </div>
+
+        </article>
+      </section>
+    </div>
+  </main>
+  </div>
+
+  <script src="../../shared/zts.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script src="../../assets/ztsh-shell.js"></script>
+  <script>ZTSShell.monter({ densite: 'travail' });</script>
+  <script src="app.js"></script>
+</body>
+</html>
