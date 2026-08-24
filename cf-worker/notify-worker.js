@@ -11,8 +11,23 @@
  */
 
 const NTFY_TOPIC = 'zts-joey-9k3mq7xv4p';
-const TELEGRAM_BOT = '8629738673:AAHOU6Gq1pUE1h2K0QJ-edYcS2rw1snk_uI';
-const TELEGRAM_CHAT = '897290762';
+
+// LE JETON N'EST PLUS DANS LE CODE. Il vit dans un secret Cloudflare, meme
+// patron qu'ANTHROPIC_API_KEY pour zts-generateur :
+//
+//     wrangler secret put TELEGRAM_BOT_TOKEN
+//     wrangler secret put TELEGRAM_CHAT_ID
+//
+// Avant le 24 aout 2026 il etait ecrit ici EN CLAIR, dans un fichier commite
+// — et pire, la meme valeur etait dans telegram-notify.js, servi en
+// JavaScript de navigateur sur les pages du site. N'importe quel visiteur
+// pouvait le lire dans la source et prendre la main sur le bot. Le jeton a ete
+// revoque aupres de @BotFather ; celui qui le remplace ne doit JAMAIS
+// reapparaitre dans le depot.
+//
+// Le motif <chiffres>:<35 caracteres base64url> a ete ajoute a
+// _scripts/verifie-secrets.sh le meme jour : un jeton Telegram recolle ici
+// bloquerait desormais le commit.
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -21,7 +36,7 @@ const CORS = {
 };
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     // robots.txt valide (webhook interne -> jamais indexé). Corrige l'erreur
     // critique GSC : auparavant le worker renvoyait 'OK' sur /robots.txt.
     if (request.method === 'GET' && new URL(request.url).pathname === '/robots.txt') {
@@ -64,12 +79,22 @@ export default {
       body: fullMsg,
     }).catch(() => {});
 
-    const tgText = `<b>${escapeHtml(title)}</b>\n${escapeHtml(fullMsg)}`;
-    const tgP = fetch(`https://api.telegram.org/bot${TELEGRAM_BOT}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: TELEGRAM_CHAT, text: tgText, parse_mode: 'HTML' }),
-    }).catch(() => {});
+    // Sans secret configure, on ne tente rien vers Telegram — et on le DIT en
+    // journal plutot que de laisser un `fetch` partir vers `/botundefined/`,
+    // qui repondrait 404 en silence.
+    const jeton = env && env.TELEGRAM_BOT_TOKEN;
+    const salon = env && env.TELEGRAM_CHAT_ID;
+    let tgP = Promise.resolve();
+    if (jeton && salon) {
+      const tgText = `<b>${escapeHtml(title)}</b>\n${escapeHtml(fullMsg)}`;
+      tgP = fetch(`https://api.telegram.org/bot${jeton}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: salon, text: tgText, parse_mode: 'HTML' }),
+      }).catch(() => {});
+    } else {
+      console.warn('[notify] TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID absent — ntfy seul.');
+    }
 
     await Promise.allSettled([ntfyP, tgP]);
 
