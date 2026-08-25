@@ -481,13 +481,32 @@ qui circulent ailleurs seraient tombés à côté.
 Trois essais que je ne peux pas jouer : il faut un vrai micro, un vrai
 enregistrement de réunion, et un vrai compte. **Une action par ligne.** Coche à
 mesure, et rapporte-moi ce que tu observes — surtout si ça diffère de ce qui
-est écrit à droite.
+est écrit en italique.
+
+### ⚠ D'abord : l'adresse, et pourquoi c'est celle-là
+
+L'app n'est pas encore en production : les essais se font sur le serveur local,
+déjà démarré.
+
+> ## `http://localhost:8787/apps/rencontres/`
+
+**Le port 8787 n'est pas un détail.** Le worker `api.zonetotalsport.ca`
+n'autorise que trois origines pour les essais locaux — `localhost:8000`,
+`localhost:8787` et leurs équivalents `127.0.0.1`. Depuis n'importe quel autre
+port, il répond `access-control-allow-origin: https://zonetotalsport.ca` et le
+navigateur **bloque l'appel avant même qu'il parte**.
+
+Concrètement : sur un autre port, les essais 1 et 2 s'arrêteraient net à la
+transcription, avec une erreur rouge en console et rien à l'écran. Vérifié le
+25 août — depuis 8787, l'appel atteint le worker ; depuis 8796, non.
+
+Si le serveur n'est plus là quand tu commences, dis-le-moi, je le relance.
 
 ### Essai 1 — La dictée québécoise (10 minutes)
 
 *À faire sur un ordinateur, dans Chrome.*
 
-1. Ouvre `https://zonetotalsport.ca/apps/rencontres/` et connecte-toi.
+1. Ouvre `http://localhost:8787/apps/rencontres/` et connecte-toi.
 2. Clique **+ Nouvelle rencontre**.
 3. Écris un titre : « Essai micro ».
 4. Clique l'onglet **🎤 Micro**. → *Sous le mot « Micro », tu dois lire
@@ -545,7 +564,8 @@ jamais dans le passé.* Rapporte-moi les actions produites.
 *À faire dans une fenêtre de navigation privée, pour être vraiment anonyme.*
 
 1. Ouvre une **fenêtre privée** (⇧⌘N sur Mac, Ctrl+⇧+N sur Windows).
-2. Va sur `https://zonetotalsport.ca/`.
+2. Va sur `http://localhost:8787/` — **pas** sur le vrai site : la carte
+   n'y est pas encore.
 3. Descends jusqu'à la section **« Quoi de neuf »**.
    → *La première carte doit être 📝 **Zone Rencontres**, datée du 25 août.*
 4. Clique la carte.
