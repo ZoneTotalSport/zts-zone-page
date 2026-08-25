@@ -347,10 +347,72 @@
     return { iso: y + '-' + m + '-' + day, mmdd: m + '-' + day, year: y, month: +m, day: +day, full: d };
   }
 
-  function getDayOfYear(d) {
-    var start = new Date(d.getFullYear(), 0, 0);
-    var diff = d - start;
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  /* ==========================================================================
+     LE NUMERO DE JOUR, ET L'INDEX QUI EN DECOULE
+     --------------------------------------------------------------------------
+     `getDayOfYear` faisait `(maintenant - 31 decembre 00:00) / 86 400 000`.
+     Deux defauts, corriges ici.
+
+     1. HEURE AVANCEE. Les deux bornes etaient des dates LOCALES. Du deuxieme
+        dimanche de mars au premier dimanche de novembre, l'ecart contient une
+        heure de moins que le nombre de jours reel : entre minuit et 1 h du
+        matin, la division tombait sous l'entier et le site servait encore le
+        contenu de la veille. Huit mois par an, la journee changeait a 1 h.
+        `Date.UTC` ne connait pas les fuseaux : la division redevient exacte.
+
+     2. LE MEME JOUR REVENAIT CHAQUE ANNEE. Les trois banques comptent
+        exactement 365 entrees, et l'index etait `jour_de_l_annee % 365`. Le
+        25 aout 2027 resservait donc, au caractere pres, la citation, le quiz
+        et le defi du 25 aout 2026. « Du nouveau chaque jour » tenait un an,
+        pas deux.
+
+     D'ou `indexDuJour`, qui compte les jours en absolu ET ajoute l'annee. Le
+     +annee est ce qui casse la boucle : 365 jours plus tard le compteur de
+     jours retombe sur le meme reste, mais l'annee a avance de 1, donc la
+     banque est lue ailleurs.
+
+     MESURE, plutot que promis : sur les douze prochaines annees civiles, une
+     banque de 365 sort ses 365 entrees, chacune une fois — sauf les annees
+     bissextiles, ou un jour de plus qu'il n'y a d'entrees force forcement un
+     rappel. Et une date donnee ne resert la meme entree qu'en 2336, soit
+     310 ans.
+
+     Ca reste DETERMINISTE — tous les visiteurs voient la meme chose le meme
+     jour, ce qui etait le point de depart de cette section et ne change pas.
+     ========================================================================== */
+  function numeroDeJour() {
+    var d = new Date();
+    return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
+  }
+
+  /* ON N'AVANCE PAS D'UN CRAN PAR JOUR, ON SAUTE.
+     Les banques sont RANGEES PAR THEME : quiz-sportif.json sert six questions
+     de hockey d'affilee aux index 84 a 89, et blagues-citations.json alterne
+     blague / citation / fait de trois en trois. Avancer d'un cran par jour
+     donnait une semaine de hockey de suite — different chaque jour sur le
+     papier, mais pas au ressenti, et c'est le ressenti qui compte pour
+     quelqu'un qui revient tous les matins.
+
+     Un pas de 137 traverse la banque a chaque fois. Il doit etre PREMIER AVEC
+     la taille, sinon la marche ne visite qu'une fraction des entrees — avec
+     une banque de 137 elements pile, elle resterait bloquee sur une seule.
+     D'ou `pasPour`, qui redescend jusqu'a trouver un pas valide. Pour 365
+     (= 5 x 73), 137 passe directement. */
+  function pgcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
+
+  function pasPour(taille) {
+    var p = 137;
+    while (p > 1 && pgcd(p, taille) !== 1) p--;
+    return p;
+  }
+
+  /* `decalage` sert a desynchroniser deux tirages faits le meme jour dans la
+     meme banque — sans lui, le fait du jour et le defi du jour sortiraient le
+     meme conseil. */
+  function indexDuJour(taille, decalage) {
+    if (!taille) return 0;
+    var n = numeroDeJour() * pasPour(taille) + new Date().getFullYear() + (decalage || 0);
+    return ((n % taille) + taille) % taille;
   }
 
   // ============================================
@@ -424,9 +486,7 @@
     var lang = window.currentLang || 'fr';
     var games = (window.gamesI18n && window.gamesI18n[lang]) || (window.gamesI18n && window.gamesI18n.fr);
     if (!games || !games.length) return null;
-    var dayNum = getDayOfYear(new Date());
-    var idx = dayNum % games.length;
-    var game = games[idx];
+    var game = games[indexDuJour(games.length, 0)];
     return game;
   }
 
@@ -446,8 +506,11 @@
         var e = ephemerides[today.mmdd];
         return { type: 'event', year: e.year, title: e.title, desc: e.desc, activity: e.activity };
       }
-      var dayNum = getDayOfYear(today.full);
-      var conseil = conseils[dayNum % conseils.length];
+      // Decalage 0 ici, 181 pour le defi : les deux puisent dans la meme
+      // banque et s'afficheraient cote a cote sur l'accueil. En pratique
+      // ephemerides.json couvre les 366 dates, donc ce repli ne sert jamais —
+      // raison de plus pour qu'il ne casse pas le jour ou il servira.
+      var conseil = conseils[indexDuJour(conseils.length, 0)];
       return { type: 'tip', title: conseil.title, desc: conseil.desc, activity: conseil.activity };
     } catch(e) {
       console.warn('[ZTS Daily] Ephemeride load failed:', e);
@@ -467,10 +530,9 @@
       ]);
       var blagues = await blagRes.json();
       var quiz = await quizRes.json();
-      var dayNum = getDayOfYear(today.full);
       return {
-        blague: blagues[dayNum % blagues.length],
-        quiz: quiz[dayNum % quiz.length]
+        blague: blagues[indexDuJour(blagues.length, 0)],
+        quiz: quiz[indexDuJour(quiz.length, 0)]
       };
     } catch(e) {
       console.warn('[ZTS Daily] Pause load failed:', e);
@@ -552,10 +614,9 @@
     var bucket = ACTIVITIES_BY_CYCLE[decisionKey];
     if (!bucket || !bucket[cycle]) return null;
     var list = bucket[cycle];
-    var dayNum = getDayOfYear(new Date());
     // Offset different par cycle pour varier les 3 lignes
     var offset = cycle === 'c1' ? 0 : cycle === 'c2' ? 1 : 2;
-    return list[(dayNum + offset) % list.length];
+    return list[indexDuJour(list.length, offset)];
   }
 
   function renderCycleSuggestions(decisionKey) {
@@ -583,8 +644,7 @@
     try {
       var res = await fetch('conseils-eps.json?v=1');
       var conseils = await res.json();
-      var dayNum = getDayOfYear(new Date());
-      return conseils[dayNum % conseils.length];
+      return conseils[indexDuJour(conseils.length, 181)];
     } catch(e) {
       console.warn('[ZTS Daily] Defi load failed:', e);
       return null;
