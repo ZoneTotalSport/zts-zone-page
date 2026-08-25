@@ -25,7 +25,8 @@ const PlanifData = (() => {
   const CATALOGUE_VIA_WORKER = true;
   const MINIBANQUES_URL = 'data/mini-banques.json';
 
-  const _caches = {};        // cache par univers : un seul fetch par univers et par session
+  const _caches = {};        // banque normalisée, par univers
+  let _brut = null;          // sources brutes : un seul fetch pour TOUS les univers
 
   // ── Normalisation ────────────────────────────────────────
 
@@ -103,15 +104,24 @@ const PlanifData = (() => {
 
   /* Un univers = un cache. `loadBanqueCamp()` reste exposé : le tiroir et
      d'éventuels appels tiers continuent de marcher sans modification. */
-  function loadBanque(univers) {
-    const u = univers || 'camps';
-    if (_caches[u]) return _caches[u];
-    _caches[u] = Promise.all([
+  /* Les sources brutes sont les MÊMES pour tous les univers — seul le filtre
+     change. Les charger une fois pour toutes évite de retélécharger le
+     catalogue et le fichier de mini-banques à chaque univers consulté. */
+  function sourcesBrutes() {
+    if (_brut) return _brut;
+    _brut = Promise.all([
       // ZTSBanques rend deja du JSON analyse (et a gere le jeton expire) :
       // pas de `.ok` ni de `.json()` a enchainer ici, contrairement a un fetch.
       window.ZTSBanques.jeux(),
       fetch(MINIBANQUES_URL).then(r => { if (!r.ok) throw new Error('mini-banques ' + r.status); return r.json(); }),
-    ]).then(([cat, mb]) => {
+    ]).catch(err => { _brut = null; throw err; });
+    return _brut;
+  }
+
+  function loadBanque(univers) {
+    const u = univers || 'camps';
+    if (_caches[u]) return _caches[u];
+    _caches[u] = sourcesBrutes().then(([cat, mb]) => {
       const items = [
         ...cat.filter(j => (j.univers || []).includes(u)).map(fromCatalogue),
         ...mb.filter(e => (e.univers || []).includes(u)).map(fromMiniBanque),
