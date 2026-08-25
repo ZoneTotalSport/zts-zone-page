@@ -301,6 +301,11 @@
 
   function posteFormulaire(doc) {
     doc = doc || {};
+    // « Supprimer » n'a de sens que sur une rencontre qui existe deja au
+    // serveur. Sur une rencontre neuve, le bouton rouge n'efface rien et
+    // vole l'attention juste au-dessus de la seule vraie action de l'ecran.
+    var sup = id('rencSupprimerFiche');
+    if (sup) sup.hidden = !doc.id;
     if (id('rencTitre'))      id('rencTitre').value      = doc.titre || '';
     if (id('rencDate'))       id('rencDate').value       = doc.date || RencData.aujourdhui();
     if (id('rencType'))       id('rencType').value       = doc.type || 'comite';
@@ -416,6 +421,9 @@
       if (!courante.id) RencData.brouillon.oublier(RencData.NEUVE);
       courante = ecrit;
       RencData.brouillon.oublier(ecrit.id);
+      // Elle existe au serveur : « Supprimer » redevient une action reelle.
+      var sup = id('rencSupprimerFiche');
+      if (sup) sup.hidden = !ecrit.id;
       marquePropre();
       etat(silencieux ? '' : 'Enregistré.');
       await rafraichitListe();
@@ -780,11 +788,9 @@
   /* Ouvrir une rencontre                                                 */
   /* ==================================================================== */
 
-  function montreFiche() {
-    var accueil = id('rencAccueil'), fiche = id('rencFiche');
-    if (accueil) accueil.hidden = true;
-    if (fiche) fiche.hidden = false;
+  function montreFiche(quel) {
     if (window.__rencFermeTiroir) window.__rencFermeTiroir();
+    poseEcran(quel || 'avant');
   }
 
   /**
@@ -802,7 +808,7 @@
     pointCourant = -1;
     texteParPoint = null;
     dessineOdj();
-    montreFiche();
+    montreFiche(ecranDe(courante));
     dessineListe();
     if (r.restaure) {
       marqueSale();
@@ -823,7 +829,8 @@
     pointCourant = -1;
     texteParPoint = null;
     dessineOdj();
-    montreFiche();
+    annonceTitre();
+    montreFiche('avant');
     dessineListe();
     if (brouillonExistant) {
       marqueSale();
@@ -878,7 +885,11 @@
   var credits = { minutes: null, minutesMax: null, ia: null, iaMax: null };
 
   function dessineCredits() {
-    var n = id('rencCredits');
+    // Deux hotes, un seul visible : la barre d'outils sur la liste, la barre
+    // de retour dans une rencontre. Le compteur ne quitte jamais l'ecran.
+    var n = (ecran === 'liste') ? id('rencCredits') : id('rencCredits2');
+    var autre = (ecran === 'liste') ? id('rencCredits2') : id('rencCredits');
+    if (autre) autre.hidden = true;
     if (!n) return;
     if (credits.minutes === null && credits.ia === null) { n.hidden = true; return; }
     var bouts = [];
@@ -993,6 +1004,7 @@
      section 14 de politique.html et la section 9 de l'article. On ne casse
      pas une promesse ecrite pour un cas rare : c'est en dette v2. */
   async function termineEnregistrement(blob, info) {
+    poseEcran('apres');
     etatMicro('Enregistrement terminé — ' + RencMicro.formate(info.secondes) + '.', 'attente');
 
     // Le point en cours se ferme sur la duree totale : sans ca son `fin`
@@ -1126,6 +1138,7 @@
         // On revient aux NOTES des que ca tourne : c'est la qu'on ecrit
         // pendant une rencontre. La bande garde le minuteur et l'arret a
         // portee, et le texte capte continue de s'accumuler dans son panneau.
+        poseEcran('pendant');
         var ong = id('ongNotes');
         if (ong) ong.click();
         var z = id('rencNotes');
@@ -1141,7 +1154,17 @@
           rendCourant(d0);
         }
       } catch (e) {
-        etatMicro(MICRO_ERREURS[e.message] || MICRO_ERREURS.MICRO_ERREUR, 'alerte');
+        // LE MICRO A ECHOUE, MAIS LA RENCONTRE COMMENCE QUAND MEME. On passe
+        // a l'ecran « pendant » avec les notes : prendre des notes a la main
+        // reste possible, et c'est exactement ce que quelqu'un fera si le
+        // micro est refuse. L'echec du micro n'est pas l'echec de la
+        // rencontre.
+        poseEcran('pendant');
+        var ong2 = id('ongNotes');
+        if (ong2) ong2.click();
+        var msg = MICRO_ERREURS[e.message] || MICRO_ERREURS.MICRO_ERREUR;
+        etatMicro(msg, 'alerte');
+        etat(msg + ' Tes notes fonctionnent quand même — écris ici.', 'alerte');
       }
       boutonsMicro();
     });
@@ -1381,8 +1404,14 @@
     // Le texte range par point, garde pour le passage structure.
     texteParPoint = Object.keys(parPoint).length ? parPoint : null;
     await sauveServeur(true);
-    etatImport('✓ Transcription terminée et enregistrée. Le texte est dans « Original »'
-      + (auto ? '. Tu peux maintenant en tirer un mot à mot ou un compte rendu structuré — ou le laisser tel quel.' : '.'));
+    etatImport('');
+    poseEcran('apres');
+    if (id('rencFiniTitre')) id('rencFiniTitre').textContent = 'Transcription terminée et enregistrée.';
+    if (id('rencFiniSous')) {
+      id('rencFiniSous').textContent = auto
+        ? 'Rien ne se perdra plus — tu peux fermer. Le texte est dans « Original ».'
+        : 'Le texte est dans « Original ».';
+    }
     // Les deux boutons de traitement se signalent, une fois, sur une
     // rencontre deja en surete. C'est le seul moment ou un choix a du sens.
     ['rencVerbatim', 'rencStructure'].forEach(function (c) {
@@ -1528,6 +1557,13 @@
     if (!t || t.value.trim()) return false;
     t.value = titreParDefaut((id('rencDate') || {}).value);
     return true;
+  }
+
+  /** Le meme titre, mais en gris dans le champ vide : l'usager VOIT d'avance
+      ce qui sera inscrit s'il n'ecrit rien, au lieu de le decouvrir apres. */
+  function annonceTitre() {
+    var t = id('rencTitre');
+    if (t) t.placeholder = titreParDefaut((id('rencDate') || {}).value);
   }
 
   function modeleChoisi() {
@@ -1791,9 +1827,7 @@
       if (courante && courante.id === cible.id) {
         courante = null;
         marquePropre();
-        id('rencFiche').hidden = true;
-        id('rencActionsVue').hidden = true;
-        id('rencAccueil').hidden = false;
+        poseEcran('liste');
       }
       await rafraichitListe();
       etat('« ' + (cible.titre || 'Sans titre') + ' » supprimée.');
@@ -2059,6 +2093,162 @@
         }
       }
     });
+  }
+
+  /* ==================================================================== */
+  /* LES TROIS MOMENTS                                                    */
+  /* ==================================================================== */
+
+  /* UNE SEULE REGLE : l'ecran ne montre que ce qui sert MAINTENANT.
+     ────────────────────────────────────────────────────────────────────
+     Ce qui ne sert pas n'est ni grise ni rapetisse — il est ABSENT, range
+     derriere un geste. L'app savait deja tout faire ; elle montrait tout en
+     meme temps, et c'est ca qui la rendait difficile.
+
+     AUCUNE FONCTION N'EST RETIREE. Les dossiers, la recherche, les gabarits,
+     les presences, les exports, l'ordre du jour : tout existe encore. Ce
+     module ne fait que decider QUAND chaque chose parait. La preuve : il ne
+     contient pas une ligne de logique metier.
+
+       liste    l'accueil de l'app — dossiers, recherche, liste
+       avant    preparer — les champs, l'ordre du jour, UN bouton
+       pendant  capturer — le minuteur, l'arret, les notes, les points
+       apres    finaliser — le compte rendu, deux boutons, les envois
+       actions  la vue transversale « Mes actions » */
+
+  var ecran = 'liste';
+
+  function poseEcran(nom) {
+    ecran = nom;
+    var w = id('rencWrap');
+    if (w) w.setAttribute('data-ecran', nom);
+
+    var dansRencontre = (nom !== 'liste');
+    var retour = id('rencRetour');
+    if (retour) retour.hidden = !dansRencontre;
+
+    // Le rappel de OU on est. En pleine rencontre, le titre suffit ; sur
+    // « Mes actions », c'est le nom de la vue.
+    var ou = id('rencRetourOu');
+    if (ou) {
+      ou.textContent = nom === 'actions' ? 'MES ACTIONS'
+        : (dansRencontre ? ((id('rencTitre') || {}).value || 'Rencontre').toUpperCase() : '');
+    }
+
+    if (id('rencAccueil'))    id('rencAccueil').hidden    = dansRencontre || rencontres.length > 0;
+    if (id('rencFiche'))      id('rencFiche').hidden      = (nom !== 'avant' && nom !== 'pendant' && nom !== 'apres');
+    if (id('rencActionsVue')) id('rencActionsVue').hidden = (nom !== 'actions');
+    if (id('rencPied'))       id('rencPied').hidden       = (nom !== 'apres');
+    if (id('rencFini'))       id('rencFini').hidden       = (nom !== 'apres');
+    if (id('rencResume'))     id('rencResume').hidden     = (nom !== 'apres');
+
+    // L'en-tete se replie a chaque arrivee sur APRES : on y vient pour lire
+    // le compte rendu, pas pour relire les champs.
+    if (w) w.classList.remove('entete-ouverte');
+    if (nom === 'apres') dessineResume();
+
+    // Le compteur de credits suit l'ecran : dans la barre d'outils sur la
+    // liste, dans la barre de retour ailleurs. Un seul des deux est visible.
+    dessineCredits();
+    if (window.scrollTo) window.scrollTo(0, 0);
+  }
+
+  /** Le resume d'une ligne de l'ecran APRES. */
+  function dessineResume() {
+    var n = id('rencResumeTexte');
+    if (!n) return;
+    var r = lisFormulaire();
+    var d = dossiers.filter(function (x) { return x.id === r.dossier; })[0];
+    // La date en clair : « 25 août 2026 », pas « 2026-08-25 ». L'ISO trie et
+    // se stocke ; il ne se lit pas.
+    var quand = r.date;
+    try {
+      var dd = new Date(r.date + 'T12:00:00');
+      if (!isNaN(dd.getTime())) {
+        quand = dd.toLocaleDateString(lang() === 'en' ? 'en-CA' : 'fr-CA',
+          { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+    } catch (e) {}
+    var bouts = [r.titre || 'Sans titre', quand || ''];
+    if (LIBELLE_TYPE[r.type]) bouts.push(LIBELLE_TYPE[r.type]);
+    if (d) bouts.push(nomDossier(d));
+    var p = String(r.participants || '').trim();
+    if (p) bouts.push(p.split(',').length + ' participants');
+    n.textContent = bouts.filter(Boolean).join('  ·  ');
+  }
+
+  /** Ou en est cette rencontre ? Une rencontre qui a du contenu s'ouvre a la
+      fin ; une rencontre vide s'ouvre au debut. */
+  function ecranDe(r) {
+    if (!r) return 'avant';
+    var aDuTexte = (r.transcription && r.transcription.trim())
+      || (r.sortieIA && r.sortieIA.trim())
+      || (r.notesBrutes && r.notesBrutes.replace(/<[^>]*>/g, '').trim());
+    return aDuTexte ? 'apres' : 'avant';
+  }
+
+  function cableEcrans() {
+    var b = id('rencRetourBt');
+    if (b) b.addEventListener('click', function () {
+      // Quitter une rencontre en cours d'enregistrement serait perdre le fil :
+      // on demande, une fois.
+      if (typeof RencMicro !== 'undefined' && RencMicro.etat() !== 'arret') {
+        if (!window.confirm('L\'enregistrement est en cours.\n\nRevenir à la liste ne l\'arrête pas, mais tu ne verras plus le minuteur. Continuer ?')) return;
+      }
+      if (sale) sauveServeur(true);
+      poseEcran('liste');
+      dessineListe();
+    });
+
+    var go = id('rencCommencer');
+    if (go) go.addEventListener('click', function () { id('rencMicDemarrer').click(); });
+
+    var imp = id('rencOuvrirImport');
+    if (imp) imp.addEventListener('click', function () {
+      // L'import n'a pas de « pendant » : le fichier est deja enregistre.
+      poseEcran('apres');
+      id('ongImport').click();
+      id('rencDepot').scrollIntoView({ block: 'center' });
+    });
+
+    var mod = id('rencModifierEntete');
+    if (mod) mod.addEventListener('click', function () {
+      var w = id('rencWrap');
+      if (w) w.classList.add('entete-ouverte');
+      var t = id('rencTitre');
+      if (t) t.focus();
+    });
+
+    var vo = id('rencVoirOriginal');
+    if (vo) vo.addEventListener('click', function () { id('ongBrut').click(); });
+
+    // Le pied reprend les commandes du menu ⋯, sans les dupliquer : il rejoue
+    // le clic de l'original. Une seule implementation, un seul endroit ou se
+    // tromper.
+    [['rencEnvoyer2', 'rencEnvoyer'], ['rencCopier2', 'rencCopier'], ['rencPdf2', 'rencPdf'],
+     ['rencTxt2', 'rencTxt'], ['rencMd2', 'rencMd'], ['rencPartage2', 'rencPartage'],
+     ['rencSuite2', 'rencSuite'], ['rencGabarit2', 'rencGabarit'], ['rencSupprimer2', 'rencSupprimer']
+    ].forEach(function (paire) {
+      var n = id(paire[0]), src = id(paire[1]);
+      if (n && src) n.addEventListener('click', function () { src.click(); });
+    });
+    var part = id('rencPartage2');
+    if (part && typeof navigator.share === 'function') part.hidden = false;
+
+    // Le menu ⋯ du pied, meme comportement que celui de la barre d'outils.
+    var bt2 = id('rencMenu2'), liste2 = id('rencMenuListe2');
+    if (bt2 && liste2) {
+      function pose(ouvert) {
+        liste2.hidden = !ouvert;
+        bt2.setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+      }
+      bt2.addEventListener('click', function (e) { e.stopPropagation(); pose(liste2.hidden); });
+      liste2.addEventListener('click', function (e) { e.stopPropagation(); });
+      document.addEventListener('click', function () { pose(false); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !liste2.hidden) { pose(false); bt2.focus(); }
+      });
+    }
   }
 
   /* ==================================================================== */
@@ -2380,17 +2570,14 @@
   }
 
   function ouvreActions() {
-    id('rencAccueil').hidden = true;
-    id('rencFiche').hidden = true;
-    id('rencActionsVue').hidden = false;
     if (window.__rencFermeTiroir) window.__rencFermeTiroir();
+    poseEcran('actions');
     dessineActions();
   }
 
   function fermeActions() {
-    id('rencActionsVue').hidden = true;
-    if (courante) id('rencFiche').hidden = false;
-    else id('rencAccueil').hidden = false;
+    poseEcran(courante ? ecranDe(courante) : 'liste');
+    if (!courante) dessineListe();
   }
 
   function dessineActions() {
@@ -2613,7 +2800,8 @@
     courante = neuve;
     posteFormulaire(courante);
     dessinePresences();
-    montreFiche();
+    dessineOdj();
+    montreFiche('avant');
     marqueSale();
     var quoi = [];
     if (reportes.length) quoi.push(reportes.length + ' point' + (reportes.length > 1 ? 's' : '') + ' reporté' + (reportes.length > 1 ? 's' : ''));
@@ -2722,6 +2910,10 @@
       n.addEventListener('blur', function () { if (sale) sauveServeur(true); });
     });
 
+    // Changer la date change le titre propose : le gris doit suivre.
+    var champDate = id('rencDate');
+    if (champDate) champDate.addEventListener('change', annonceTitre);
+
     ['rencNotes', 'rencSortie'].forEach(function (c) {
       var z = id(c);
       if (!z) return;
@@ -2788,11 +2980,13 @@
     cableSortie();
     cableSuivi();
     cableOdj();
+    cableEcrans();
     cableEntonnoir();
 
     dossiers = RencData.dossiersDefaut();
     dessineDossiers();
     dessineListe();
+    poseEcran('liste');
 
     // Le libelle de l'onglet micro depend du navigateur, et il annonce ce que
     // l'usager VERRA — pas de quelle interface de programmation il dispose.

@@ -79,12 +79,21 @@
     <a href="../../service-de-garde.html">← Service de garde</a>
   </nav>
 
-  <main class="renc-wrap" id="rencWrap">
+  <main class="renc-wrap" id="rencWrap" data-ecran="liste">
 
     <!-- ══ BARRE D'OUTILS ════════════════════════════════════════════════
          Une seule rangee sur ordinateur. Sur telephone elle porte en plus le
          bouton « ☰ Mes rencontres », seul moyen d'atteindre le rail : les
          deux colonnes ne tiennent pas cote a cote sous 900 px. -->
+    <!-- ══ RETOUR ══════════════════════════════════════════════════════
+         Le seul chemin hors d'une rencontre. Il remplace le rail de dossiers,
+         qui ne vit plus que sur l'ecran de la liste. -->
+    <div class="renc-retour renc-noprint" id="rencRetour" hidden>
+      <button class="renc-bt" id="rencRetourBt" type="button">← Mes rencontres</button>
+      <span class="renc-retour__ou" id="rencRetourOu"></span>
+      <span class="renc-credits" id="rencCredits2" hidden role="status" aria-live="polite"></span>
+    </div>
+
     <div class="renc-outils renc-noprint">
       <button class="renc-bt renc-bt--rail" id="rencBascule" type="button"
               aria-controls="rencRail" aria-expanded="false">☰ Mes rencontres</button>
@@ -201,7 +210,14 @@
         <article class="renc-fiche" id="rencFiche" hidden>
 
           <!-- En-tete : les six champs du cahier. -->
-          <div class="renc-entete">
+          <!-- Le resume d'une ligne, sur l'ecran APRES : l'identite de la
+               rencontre sans ses six champs. « Modifier » rouvre l'en-tete. -->
+          <div class="renc-resume renc-noprint" id="rencResume" hidden>
+            <span id="rencResumeTexte"></span>
+            <button class="renc-lien renc-lien--sombre" id="rencModifierEntete" type="button">Modifier</button>
+          </div>
+
+          <div class="renc-entete" id="rencEntete">
             <input class="renc-champ renc-champ--titre" id="rencTitre" type="text"
                    placeholder="Titre de la rencontre" aria-label="Titre de la rencontre"
                    maxlength="140">
@@ -259,6 +275,20 @@
                passe SOUS les notes : le rail des dossiers occupe deja une
                colonne, et trois colonnes sur un portable de 13 pouces ne se
                lisent plus. -->
+          <!-- ══ COMMENCER ═══════════════════════════════════════════════
+               L'ecran « avant » n'a qu'une action. Le consentement s'affiche
+               au-dessus au premier enregistrement, et le depot d'un fichier
+               est un LIEN — pas un onglet, pas un bouton concurrent. -->
+          <div class="renc-demarrer renc-noprint" id="rencDemarrer">
+            <button class="renc-bt renc-demarrer__go" id="rencCommencer" type="button">
+              🎤 Commencer la rencontre
+            </button>
+            <p class="renc-demarrer__ou">
+              ou <button class="renc-lien" id="rencOuvrirImport" type="button">importer un enregistrement Zoom, Teams ou Meet</button>
+            </p>
+            <p class="renc-etat" id="rencDemarrerEtat" role="status" aria-live="polite"></p>
+          </div>
+
           <div class="renc-travail">
           <div class="renc-travail__gauche">
           <div class="renc-bande renc-noprint" id="rencBande" hidden>
@@ -419,6 +449,15 @@
           </aside>
           </div>
 
+          <!-- ══ C'EST EN SURETE ═════════════════════════════════════════ -->
+          <div class="renc-fini renc-noprint" id="rencFini" hidden>
+            <span class="renc-fini__coche" aria-hidden="true">✓</span>
+            <span>
+              <b id="rencFiniTitre">Transcription terminée et enregistrée.</b>
+              <span id="rencFiniSous">Rien ne se perdra plus — tu peux fermer.</span>
+            </span>
+          </div>
+
           <div class="renc-ia renc-noprint">
             <button class="renc-bt renc-bt--ia" id="rencVerbatim" type="button">
               📝 Mot à mot
@@ -461,6 +500,30 @@
 
           <div class="renc-panneau" id="panBrut" role="tabpanel" aria-labelledby="ongBrut" hidden>
             <div class="renc-sortie renc-sortie--brut" id="rencBrut" aria-label="Texte original"></div>
+          </div>
+
+          <!-- ══ ENVOYER ET EXPORTER ═════════════════════════════════════
+               Tout est a un clic, rien n'est dans le chemin. Le secondaire —
+               gabarits, presences, suppression — vit derriere le ⋯, a droite. -->
+          <div class="renc-pied renc-noprint" id="rencPied" hidden>
+            <button class="renc-bt renc-bt--neuf" id="rencEnvoyer2" type="button">✉️ Envoyer par courriel</button>
+            <button class="renc-bt" id="rencCopier2" type="button">Copier</button>
+            <button class="renc-bt" id="rencPdf2" type="button">PDF</button>
+            <button class="renc-bt" id="rencTxt2" type="button">.txt</button>
+            <button class="renc-bt" id="rencMd2" type="button">.md</button>
+            <button class="renc-bt" id="rencPartage2" type="button" hidden>Partager</button>
+            <span class="renc-espace"></span>
+            <div class="renc-menu">
+              <button class="renc-bt renc-bt--pt" id="rencMenu2" type="button"
+                      aria-haspopup="true" aria-expanded="false" aria-label="Autres actions">⋯</button>
+              <div class="renc-menu__liste renc-menu__liste--haut" id="rencMenuListe2" hidden role="menu">
+                <button type="button" role="menuitem" id="rencSuite2">🔁 Créer la suite de cette rencontre</button>
+                <button type="button" role="menuitem" id="rencGabarit2">📋 Partir d'un gabarit d'ordre du jour</button>
+                <button type="button" role="menuitem" id="rencVoirOriginal">📄 Voir le texte original</button>
+                <hr>
+                <button type="button" role="menuitem" id="rencSupprimer2" class="is-danger">🗑️ Supprimer cette rencontre</button>
+              </div>
+            </div>
           </div>
 
         </article>

@@ -90,6 +90,189 @@
 }
 
 /* ==========================================================================
+   1bis. LES TROIS MOMENTS — CE QUI EST À L'ÉCRAN, ET RIEN D'AUTRE
+   --------------------------------------------------------------------------
+   Une seule règle tient tout ce fichier : l'écran ne montre que ce qui sert
+   MAINTENANT. Ce qui ne sert pas n'est ni grisé ni rapetissé — il est ABSENT,
+   rangé derrière un geste.
+
+     liste    la liste des rencontres, ses dossiers, sa recherche. L'accueil.
+     avant    préparer : les champs, l'ordre du jour, UN bouton.
+     pendant  capturer : le minuteur, l'arrêt, les notes, les points.
+     apres    finaliser : le compte rendu, deux boutons, les envois.
+     actions  la vue transversale « Mes actions ».
+
+   AUCUNE FONCTION N'A ÉTÉ RETIRÉE. Tout ce qui existait existe encore ; ce
+   qui change, c'est le moment où ça paraît. La preuve : ce bloc ne contient
+   que des règles d'affichage.
+   ========================================================================== */
+
+/* — l'accueil de l'app : la liste, ses outils, rien de la fiche — */
+.renc-wrap[data-ecran="liste"] .renc-retour,
+.renc-wrap[data-ecran="liste"] .renc-detail { display: none; }
+.renc-wrap[data-ecran="liste"] .renc-corps { grid-template-columns: minmax(0, 1fr); }
+
+/* — dans une rencontre : plus de rail, plus de barre d'outils — */
+.renc-wrap:not([data-ecran="liste"]) .renc-outils,
+.renc-wrap:not([data-ecran="liste"]) .renc-rail { display: none; }
+.renc-wrap:not([data-ecran="liste"]) .renc-corps { grid-template-columns: minmax(0, 1fr); }
+
+/* — AVANT : préparer — */
+.renc-wrap[data-ecran="avant"] .renc-bande,
+.renc-wrap[data-ecran="avant"] .renc-onglets,
+.renc-wrap[data-ecran="avant"] #panNotes,
+.renc-wrap[data-ecran="avant"] #panMicro,
+.renc-wrap[data-ecran="avant"] .renc-ia,
+.renc-wrap[data-ecran="avant"] .renc-fini,
+.renc-wrap[data-ecran="avant"] #panResultat,
+.renc-wrap[data-ecran="avant"] #panBrut,
+.renc-wrap[data-ecran="avant"] .renc-pied { display: none; }
+
+/* — PENDANT : capturer. Presque rien. — */
+.renc-wrap[data-ecran="pendant"] .renc-entete,
+.renc-wrap[data-ecran="pendant"] .renc-onglets,
+.renc-wrap[data-ecran="pendant"] #panMicro,
+.renc-wrap[data-ecran="pendant"] #panImport,
+.renc-wrap[data-ecran="pendant"] .renc-demarrer,
+.renc-wrap[data-ecran="pendant"] .renc-ia,
+.renc-wrap[data-ecran="pendant"] .renc-fini,
+.renc-wrap[data-ecran="pendant"] #panResultat,
+.renc-wrap[data-ecran="pendant"] #panBrut,
+.renc-wrap[data-ecran="pendant"] .renc-pied { display: none; }
+/* Les notes sont TOUJOURS là — c'est ça, « plus de mode à choisir ». */
+.renc-wrap[data-ecran="pendant"] #panNotes { display: block; }
+
+/* — APRÈS : finaliser. C'est ici que la richesse apparaît — mais « la
+     richesse » n'est pas « tout ». Le compte rendu doit être la première
+     chose que l'œil trouve, donc l'en-tête se replie en une ligne et le
+     panneau d'ordre du jour s'efface : le compte rendu le reprend déjà,
+     point par point. — */
+.renc-wrap[data-ecran="apres"] .renc-bande,
+.renc-wrap[data-ecran="apres"] .renc-onglets,
+.renc-wrap[data-ecran="apres"] #panMicro,
+.renc-wrap[data-ecran="apres"] .renc-odj,
+.renc-wrap[data-ecran="apres"] .renc-demarrer { display: none; }
+.renc-wrap[data-ecran="apres"] .renc-travail.a-odj { grid-template-columns: minmax(0, 1fr); }
+.renc-wrap[data-ecran="apres"] #panResultat { display: block; }
+/* L'en-tete replie, et son depli a la demande. */
+.renc-wrap[data-ecran="apres"] .renc-entete { display: none; }
+.renc-wrap[data-ecran="apres"] .renc-resume { display: flex; }
+.renc-wrap[data-ecran="apres"].entete-ouverte .renc-entete { display: block; }
+.renc-wrap[data-ecran="apres"].entete-ouverte .renc-resume { display: none; }
+
+.renc-resume {
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+}
+.renc-resume[hidden] { display: none; }
+.renc-resume span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.renc-lien--sombre { flex: none; color: #19527a; }
+
+/* — Mes actions : rien d'autre — */
+.renc-wrap[data-ecran="actions"] .renc-retour { display: flex; }
+
+/* La barre de retour. Un seul chemin hors d'une rencontre, toujours au même
+   endroit, sur les trois écrans. */
+.renc-retour {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.renc-retour[hidden] { display: none; }
+.renc-retour__ou {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--renc-f-titre);
+  font-size: 15px;
+  letter-spacing: .5px;
+  color: var(--ztsh-jaune, #FFFC00);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── L'unique action de l'écran AVANT ─────────────────────────────────── */
+.renc-demarrer { text-align: center; }
+/* Double classe VOLONTAIRE : `.renc-bt` est declare plus bas dans ce fichier,
+   donc a specificite egale il gagnait et ecrasait la taille comme la couleur.
+   Le gros bouton doit gagner — c'est la seule action de l'ecran.
+   Cyan comme l'ancien bouton d'enregistrement qu'il remplace ; le lime reste
+   la couleur de « Mes actions », qui est une navigation, pas un geste. */
+.renc-bt.renc-demarrer__go {
+  display: block;
+  width: 100%;
+  font-size: 27px;
+  letter-spacing: .6px;
+  padding: 26px 20px 22px;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: 6px 6px 0 var(--renc-trait);
+}
+.renc-bt.renc-demarrer__go:hover  { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--renc-trait); }
+.renc-bt.renc-demarrer__go:active { transform: translate(3px, 3px);  box-shadow: 3px 3px 0 var(--renc-trait); }
+.renc-demarrer__ou {
+  margin: 22px 0 0;
+  font-size: 14px;
+  color: var(--ztsh-sur-marine-doux, #C4E1EE);
+}
+/* L'import est un LIEN, pas un bouton : il ne doit jamais concurrencer
+   l'action principale du regard. */
+.renc-lien {
+  font: inherit;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+  background: none;
+  border: 0;
+  /* Le lien reste visuellement fin, mais la zone touchable fait 44px de haut :
+     les marges negatives rendent au voisin l'espace que le padding lui prend. */
+  padding: 12px 10px;
+  margin: -12px -10px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.renc-lien:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 3px; }
+
+/* ── Le bandeau de fin ────────────────────────────────────────────────── */
+.renc-fini {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 16px;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+  background: rgba(163, 255, 0, .16);
+  border: 2px solid var(--ztsh-lime, #A3FF00);
+  border-radius: var(--renc-r);
+}
+.renc-fini[hidden] { display: none; }
+.renc-fini__coche { font-family: var(--renc-f-titre); font-size: 24px; color: var(--ztsh-lime, #A3FF00); line-height: 1; }
+.renc-fini b { display: block; font-size: 16px; }
+.renc-fini span span { font-size: 13px; opacity: .85; }
+
+/* ── Le pied d'envoi ──────────────────────────────────────────────────── */
+.renc-pied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 12px;
+  background: rgba(255, 255, 255, .07);
+  border: 2px solid rgba(255, 255, 255, .18);
+  border-radius: var(--renc-r);
+}
+.renc-pied[hidden] { display: none; }
+/* Le menu du pied s'ouvre VERS LE HAUT : en bas de page, une liste qui
+   descend sort de l'écran. */
+.renc-menu__liste--haut { top: auto; bottom: calc(100% + 6px); }
+
+/* ==========================================================================
    2. BARRE D'OUTILS
    ========================================================================== */
 .renc-outils {
@@ -1267,4 +1450,23 @@
   .renc-sortie h2,
   .renc-sortie h3 { break-after: avoid; page-break-after: avoid; }
   .renc-sortie li { break-inside: avoid; page-break-inside: avoid; }
+}
+
+/* ── Doigts ───────────────────────────────────────────────────────────────
+   Les petits boutons secondaires (actions de dossier, gabarit d'ordre du
+   jour) mesurent moins de 44px : confortable a la souris, rate au doigt.
+   On ne les grossit QUE sur ecran tactile, pour ne pas alourdir le rail au
+   bureau. Les actions de dossier sont aussi rendues visibles en permanence :
+   sans survol, une opacite 0 qui attend un hover ne se revele jamais. */
+@media (pointer: coarse) {
+  .renc-bt,
+  .renc-mini,
+  .renc-dossier,
+  .renc-supprimer,
+  .renc-format button { min-height: 44px; }
+  .renc-mini,
+  .renc-format button,
+  .renc-doss-act,
+  .renc-item-jeter { min-width: 44px; min-height: 44px; }
+  .renc-doss-act { opacity: 1; }
 }
