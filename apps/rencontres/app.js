@@ -968,7 +968,11 @@
   var aTranscrire = null;       // { segments, secondes, nom }
 
   function duree(s) {
-    var m = Math.round(s / 60);
+    // « 0 minute » pour un enregistrement de vingt secondes : vu au banc, et
+    // ca fait douter de la lecture du fichier au moment precis ou l'usager
+    // decide s'il lance. On nomme le cas court au lieu d'arrondir a zero.
+    if (s < 45) return 'moins d\'une minute';
+    var m = Math.round(s / 60) || 1;
     if (m < 60) return m + ' minute' + (m > 1 ? 's' : '');
     var h = Math.floor(m / 60), r = m % 60;
     return h + ' h' + (r ? ' ' + (r < 10 ? '0' : '') + r : '');
