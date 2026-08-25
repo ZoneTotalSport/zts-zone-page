@@ -2,7 +2,7 @@
  * dataStore.js — couche données du Planificateur (Phase 3, biblio camp)
  *
  * 1) Banque camps : catalogue 1439 (Worker zts-jeux-data, /jeux/full.json) +
- *    mini-banques (data/mini-banques-camp.json), fusionnés à la lecture,
+ *    mini-banques (data/mini-banques.json), fusionnés à la lecture,
  *    filtrés univers "camps", normalisés en fiche tiroir.
  * 2) Écritures journée : TOUT passe par ici (Journees.* de app.js),
  *    jamais de Firestore direct depuis l'UI du tiroir.
@@ -23,9 +23,9 @@ const PlanifData = (() => {
   // apres-midi presenterait sinon un jeton perime et afficherait une banque
   // VIDE a un membre legitime.
   const CATALOGUE_VIA_WORKER = true;
-  const MINIBANQUES_URL = 'data/mini-banques-camp.json';
+  const MINIBANQUES_URL = 'data/mini-banques.json';
 
-  let _loadPromise = null;   // cache : un seul fetch par session
+  const _caches = {};        // cache par univers : un seul fetch par univers et par session
 
   // ── Normalisation ────────────────────────────────────────
 
@@ -71,10 +71,18 @@ const PlanifData = (() => {
     };
   }
 
+  /* Depuis le seed SDG, la banque porte des NOMBRES : `ageMin`/`ageMax` et
+     `dureeMin` sont des champs de premier niveau, plus des chaînes rangées
+     dans `tags` ('5-7', '~45 min'). On lit les nombres quand ils sont là et
+     on retombe sur l'ancien format sinon : une banque servie depuis un cache
+     de navigateur peut encore être l'ancienne. */
   function fromMiniBanque(e) {
     const t = e.tags || {};
     const lieu = lieuFlags(t.espace);
-    const [a1, a2] = parseAgeTag(t.age);
+    const [a1, a2] = (e.ageMin != null || e.ageMax != null)
+      ? [e.ageMin ?? null, e.ageMax ?? null]
+      : parseAgeTag(t.age);
+    const dmin = (typeof e.dureeMin === 'number') ? e.dureeMin : null;
     return {
       ref: e.slug,
       titre: e.title || '',
@@ -83,8 +91,8 @@ const PlanifData = (() => {
       interieur: lieu.interieur, exterieur: lieu.exterieur,
       sansMateriel: t.materiel === 'aucun',
       nbJoueurs: '',
-      duree: e.duree || '',
-      dureeMin: null,
+      duree: dmin ? `${dmin} min` : (e.duree || ''),
+      dureeMin: dmin,
       materielCourt: (e.materiel && e.materiel[0]) ? String(e.materiel[0]).split(',')[0] : 'Aucun',
       icon: e.icon || '🎯',
       source: e.source || 'mini-banque',
@@ -93,23 +101,28 @@ const PlanifData = (() => {
 
   // ── Chargement fusionné (lazy, 1 fois) ───────────────────
 
-  function loadBanqueCamp() {
-    if (_loadPromise) return _loadPromise;
-    _loadPromise = Promise.all([
+  /* Un univers = un cache. `loadBanqueCamp()` reste exposé : le tiroir et
+     d'éventuels appels tiers continuent de marcher sans modification. */
+  function loadBanque(univers) {
+    const u = univers || 'camps';
+    if (_caches[u]) return _caches[u];
+    _caches[u] = Promise.all([
       // ZTSBanques rend deja du JSON analyse (et a gere le jeton expire) :
       // pas de `.ok` ni de `.json()` a enchainer ici, contrairement a un fetch.
       window.ZTSBanques.jeux(),
       fetch(MINIBANQUES_URL).then(r => { if (!r.ok) throw new Error('mini-banques ' + r.status); return r.json(); }),
     ]).then(([cat, mb]) => {
       const items = [
-        ...cat.filter(j => (j.univers || []).includes('camps')).map(fromCatalogue),
-        ...mb.filter(e => (e.univers || []).includes('camps')).map(fromMiniBanque),
+        ...cat.filter(j => (j.univers || []).includes(u)).map(fromCatalogue),
+        ...mb.filter(e => (e.univers || []).includes(u)).map(fromMiniBanque),
       ].filter(x => x.ref && x.titre);
       items.sort((a, b) => a.titre.localeCompare(b.titre, 'fr'));
       return items;
-    }).catch(err => { _loadPromise = null; throw err; });
-    return _loadPromise;
+    }).catch(err => { _caches[u] = null; throw err; });
+    return _caches[u];
   }
+
+  function loadBanqueCamp() { return loadBanque('camps'); }
 
   // ── Filtres (inconnu = matche tout : ne jamais cacher du contenu) ──
 
@@ -191,5 +204,5 @@ const PlanifData = (() => {
     return blocIdCible;
   }
 
-  return { loadBanqueCamp, filterBanque, trousJournee, premierTrou, insererJeu, remplirBloc, AGE_TRANCHES };
+  return { loadBanque, loadBanqueCamp, filterBanque, trousJournee, premierTrou, insererJeu, remplirBloc, AGE_TRANCHES };
 })();
