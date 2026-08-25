@@ -12,7 +12,7 @@
  *                                secretaire, participants[], notesBrutes,
  *                                transcription, sortieIA, sortieMode,
  *                                actions[{quoi, qui, echeance, fait}],
- *                                cree, maj }
+ *                                presences{nom:bool}, cree, maj }
  *   rencontresDossiers/{uid}   { uid, dossiers[], maj }
  *
  * POURQUOI PAS users/{uid}/rencontres/{id}, qui etait le chemin propose. La
@@ -334,7 +334,20 @@ const RencData = (() => {
       sortieMode:    (o.sortieMode === 'verbatim' || o.sortieMode === 'structure')
                        ? o.sortieMode : '',
       actions:     (Array.isArray(o.actions) ? o.actions : [])
-                     .map(normaliseAction).filter(Boolean).slice(0, 200)
+                     .map(normaliseAction).filter(Boolean).slice(0, 200),
+      // Presences : un objet { « nom » : true|false }, et non un tableau de
+      // presents. La difference compte — un tableau ne distingue pas « absent »
+      // de « pas encore pointe », et une liste de presences qui ne dit pas qui
+      // manquait ne sert a rien.
+      presences:   (function (v) {
+        if (!v || typeof v !== 'object' || Array.isArray(v)) return {};
+        const out = {};
+        Object.keys(v).slice(0, 60).forEach((k) => {
+          const nom = String(k).trim().slice(0, 80);
+          if (nom) out[nom] = !!v[k];
+        });
+        return out;
+      })(o.presences)
     };
   }
 

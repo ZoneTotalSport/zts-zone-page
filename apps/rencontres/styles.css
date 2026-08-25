@@ -769,6 +769,100 @@
   color: var(--ztsh-sur-marine, #E6F4FA);
 }
 
+/* ==========================================================================
+   6quater. PRESENCES ET « MES ACTIONS »
+   ========================================================================== */
+.renc-presences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 2px dashed var(--renc-surface-alt);
+}
+.renc-presences[hidden] { display: none; }
+.renc-pres {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 5px 10px 5px 7px;
+  color: var(--renc-ink);
+  background: var(--renc-surface-alt);
+  border: 2px solid var(--renc-trait);
+  border-radius: 999px;
+}
+/* Present = plein, absent = pale. On lit la salle d'un coup d'oeil. */
+.renc-pres.is-la { background: var(--ztsh-lime, #A3FF00); }
+.renc-pres input { width: 15px; height: 15px; margin: 0; accent-color: var(--renc-trait); }
+
+.renc-actions { color: var(--renc-ink); }
+.renc-actions[hidden] { display: none; }
+.renc-actions__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.renc-actions__titre {
+  font-family: var(--renc-f-titre);
+  line-height: 1.05;
+  font-size: 27px;
+  letter-spacing: .8px;
+  margin: 0;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+}
+.renc-actions__bascule { display: inline-flex; margin-bottom: 12px; }
+
+.renc-groupe {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-groupe__t {
+  font-family: var(--renc-f-titre);
+  font-size: 16px;
+  letter-spacing: .4px;
+  margin: 0 0 8px;
+  color: var(--renc-marine);
+}
+/* Le retard se voit. C'est la seule couleur d'alerte de la vue. */
+.renc-groupe.is-retard { border-color: var(--ztsh-rose, #FF0061); }
+.renc-groupe.is-retard .renc-groupe__t { color: #B00034; }
+
+.renc-act {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 7px 4px;
+  border-top: 2px solid var(--renc-surface-alt);
+}
+.renc-act:first-of-type { border-top: 0; }
+.renc-act input { width: 18px; height: 18px; margin-top: 2px; flex: none; accent-color: var(--ztsh-cyan, #00C2E8); }
+.renc-act__c { min-width: 0; }
+.renc-act__q { font-size: 14px; font-weight: 700; line-height: 1.35; }
+.renc-act.is-faite .renc-act__q { text-decoration: line-through; opacity: .55; }
+.renc-act__m { font-size: 12px; font-weight: 600; color: var(--renc-ink-doux); }
+/* Le nom de la rencontre est un LIEN : de l'action, on retourne au contexte
+   qui l'a produite. Une liste d'actions sans retour au compte rendu oblige a
+   se souvenir de quoi il s'agissait. */
+.renc-act__ou {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: #19527a;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .renc-attente {
   padding: 26px 18px;
   text-align: center;

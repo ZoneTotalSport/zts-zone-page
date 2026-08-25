@@ -104,6 +104,9 @@
         <button class="renc-bt renc-bt--pt" id="rencMenu" type="button"
                 aria-haspopup="true" aria-expanded="false" aria-label="Autres actions">⋯</button>
         <div class="renc-menu__liste" id="rencMenuListe" hidden role="menu">
+          <button type="button" role="menuitem" id="rencSuite">🔁 Créer la suite de cette rencontre</button>
+          <button type="button" role="menuitem" id="rencGabarit">📋 Partir d'un gabarit d'ordre du jour</button>
+          <hr>
           <button type="button" role="menuitem" id="rencEnvoyer">✉️ Envoyer par courriel</button>
           <button type="button" role="menuitem" id="rencCopier">📋 Copier le compte rendu</button>
           <button type="button" role="menuitem" id="rencPdf">🖨️ Imprimer / PDF</button>
@@ -172,6 +175,23 @@
           <button class="renc-bt renc-bt--gros" id="rencNouvelle2" type="button">+ Nouvelle rencontre</button>
         </div>
 
+        <!-- ══ MES ACTIONS ══════════════════════════════════════════════
+             Toutes les cases a cocher de toutes les rencontres, au meme
+             endroit. C'est ce qui fait qu'un compte rendu cesse d'etre un
+             document qu'on classe et qu'on oublie. -->
+        <section class="renc-actions" id="rencActionsVue" hidden aria-label="Mes actions">
+          <div class="renc-actions__tete">
+            <h1 class="renc-actions__titre">MES ACTIONS</h1>
+            <button class="renc-bt" id="rencFermerActions" type="button">← Retour</button>
+          </div>
+          <label class="renc-bascule renc-actions__bascule">
+            <input type="checkbox" id="rencVoirFaites">
+            <span>Montrer aussi ce qui est fait</span>
+          </label>
+          <div id="rencActionsListe"></div>
+          <p class="renc-vide" id="rencActionsVide" hidden></p>
+        </section>
+
         <!-- L'editeur. Cache tant qu'aucune rencontre n'est ouverte. -->
         <article class="renc-fiche" id="rencFiche" hidden>
 
@@ -207,6 +227,11 @@
               <input class="renc-champ" id="rencParticipants" type="text" maxlength="400"
                      placeholder="Séparés par des virgules">
             </label>
+            <!-- La liste de presences se construit des participants. Elle ne
+                 s'affiche que quand il y en a : une case a cocher devant du
+                 vide n'apprend rien a personne. -->
+            <div class="renc-presences" id="rencPresences" hidden
+                 role="group" aria-label="Présences"></div>
             <p class="renc-etat" id="rencEtat" role="status" aria-live="polite"></p>
           </div>
 

@@ -19,9 +19,8 @@
  *      une rencontre, recherche plein texte, filtre par type.
  *   G  sortie : courriel, copie, impression PDF, export .txt et .md, partage
  *      natif.
- *
- * Les commandes de la vague H sont a l'ecran mais desactivees, et chacune
- * NOMME sa vague dans son title — voir pasEncore().
+ *   H  suivi : vue « Mes actions », gabarits d'ordre du jour, chainage des
+ *      rencontres recurrentes, liste de presences.
  *
  * Script classique, pas un module : charge apres shared/zts.js, zts-gate.js,
  * le montage du shell, dataStore.js et transcription.js.
@@ -199,9 +198,16 @@
         if (n.tagName === 'INPUT') {
           if (n.getAttribute('type') !== 'checkbox') { n.remove(); return; }
           var coche = n.hasAttribute('checked') || n.checked;
+          // `data-a` est le SEUL attribut conserve avec `type` et `checked` :
+          // il porte le rang de l'action dans `actions[]`. Sans lui, cocher
+          // une case dans le compte rendu ne pourrait etre rattache a rien, et
+          // la vue « Mes actions » afficherait le contraire de l'ecran. On le
+          // borne a des chiffres : c'est un rang, pas un champ libre.
+          var rang = n.getAttribute('data-a');
           var neuf = document.createElement('input');
           neuf.setAttribute('type', 'checkbox');
           if (coche) neuf.setAttribute('checked', '');
+          if (rang && /^\d{1,3}$/.test(rang)) neuf.setAttribute('data-a', rang);
           n.replaceWith(neuf);
           return;
         }
@@ -773,6 +779,7 @@
     var r = RencData.fusionne(doc, local);
     courante = r.doc;
     posteFormulaire(courante);
+    dessinePresences();
     montreFiche();
     dessineListe();
     if (r.restaure) {
@@ -790,6 +797,7 @@
     courante = brouillonExistant || RencData.normalise({ date: RencData.aujourdhui() });
     if (!brouillonExistant) courante.id = null;
     posteFormulaire(courante);
+    dessinePresences();
     montreFiche();
     dessineListe();
     if (brouillonExistant) {
@@ -1235,11 +1243,11 @@
       // rend vivantes, et c'est ce que la vue « Mes actions » de la vague H
       // relira.
       h.push('<h2>Actions à faire</h2>');
-      h.push(s.actions.map(function (a) {
+      h.push(s.actions.map(function (a, i) {
         var q = echappe(a.quoi);
         var qui = a.qui ? ' <b>— ' + echappe(a.qui) + '</b>' : '';
         var ech = a.echeance ? ' <b>(' + echappe(a.echeance) + ')</b>' : '';
-        return '<div><input type="checkbox"'
+        return '<div><input type="checkbox" data-a="' + i + '"'
           + (a.fait ? ' checked' : '') + '> ' + q + qui + ech + '</div>';
       }).join(''));
     }
@@ -1645,20 +1653,353 @@
   }
 
   /* ==================================================================== */
-  /* Ce qui n'est pas encore branche                                      */
+  /* Suivi : actions, presences, gabarits, chainage (vague H)             */
   /* ==================================================================== */
 
-  /**
-   * Desactive une commande dont la vague n'est pas livree, en DISANT laquelle.
-   * Un bouton qui ne fait rien sans expliquer pourquoi est un defaut ; un
-   * bouton grise qui nomme son echeance est un chantier lisible.
-   */
-  function pasEncore(cle, vague) {
-    var n = id(cle);
-    if (!n) return;
-    n.disabled = true;
-    n.title = 'Arrive à la vague ' + vague + '.';
+  /* ── Presences ─────────────────────────────────────────────────────────
+     Construites des participants, et REUTILISEES d'une rencontre a l'autre
+     par le chainage. Un objet { nom: true|false } et non un tableau de
+     presents : un tableau ne distingue pas « absent » de « pas encore
+     pointe », et une liste qui ne dit pas qui manquait ne sert a rien. */
+
+  function dessinePresences() {
+    var hote = id('rencPresences');
+    if (!hote || !courante) return;
+    var noms = String((id('rencParticipants') || {}).value || '')
+      .split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+    hote.textContent = '';
+    hote.hidden = !noms.length;
+    if (!noms.length) return;
+
+    var etatP = courante.presences || {};
+    noms.forEach(function (nom) {
+      var l = document.createElement('label');
+      l.className = 'renc-pres' + (etatP[nom] ? ' is-la' : '');
+      var c = document.createElement('input');
+      c.type = 'checkbox';
+      c.checked = !!etatP[nom];
+      c.addEventListener('change', function () {
+        courante.presences = courante.presences || {};
+        courante.presences[nom] = c.checked;
+        l.classList.toggle('is-la', c.checked);
+        marqueSale();
+      });
+      l.appendChild(c);
+      l.appendChild(document.createTextNode(nom));
+      hote.appendChild(l);
+    });
   }
+
+  /* ── Cocher une action DANS le compte rendu ───────────────────────────
+     La case cochee a l'ecran et l'entree de `actions[]` doivent dire la meme
+     chose, sinon « Mes actions » affiche le contraire du compte rendu. C'est
+     `data-a` qui les relie. */
+  function cableCasesSortie() {
+    var z = id('rencSortie');
+    if (!z) return;
+    z.addEventListener('change', function (e) {
+      var c = e.target;
+      if (!c || c.tagName !== 'INPUT' || c.type !== 'checkbox') return;
+      // On garde l'attribut d'accord avec la propriete : c'est l'attribut
+      // qu'`innerHTML` serialise, et donc lui seul qui survit a
+      // l'enregistrement.
+      if (c.checked) c.setAttribute('checked', ''); else c.removeAttribute('checked');
+      var rang = c.getAttribute('data-a');
+      if (rang !== null && courante && Array.isArray(courante.actions)) {
+        var a = courante.actions[Number(rang)];
+        if (a) a.fait = c.checked;
+      }
+      marqueSale();
+      sauveServeur(true);
+    });
+  }
+
+  /* ── La vue « Mes actions » ────────────────────────────────────────────
+     Toutes les cases a cocher de toutes les rencontres. C'est ce qui fait
+     qu'un compte rendu cesse d'etre un document qu'on classe et qu'on oublie
+     — le §9.1 du cahier l'appelle l'argument massue, et il a raison : c'est
+     la seule vue qui donne une raison de revenir demain. */
+
+  function jourISO(d) {
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  }
+
+  function groupeEcheance(ech, aujourdhui, dans7) {
+    if (!ech) return { cle: 'sans', rang: 3, titre: 'Sans échéance' };
+    if (ech < aujourdhui) return { cle: 'retard', rang: 0, titre: 'En retard' };
+    if (ech === aujourdhui) return { cle: 'jour', rang: 1, titre: "Aujourd'hui" };
+    if (ech <= dans7) return { cle: 'semaine', rang: 2, titre: 'Dans les 7 prochains jours' };
+    return { cle: 'apres', rang: 4, titre: 'Plus tard' };
+  }
+
+  function ouvreActions() {
+    id('rencAccueil').hidden = true;
+    id('rencFiche').hidden = true;
+    id('rencActionsVue').hidden = false;
+    if (window.__rencFermeTiroir) window.__rencFermeTiroir();
+    dessineActions();
+  }
+
+  function fermeActions() {
+    id('rencActionsVue').hidden = true;
+    if (courante) id('rencFiche').hidden = false;
+    else id('rencAccueil').hidden = false;
+  }
+
+  function dessineActions() {
+    var hote = id('rencActionsListe'), vide = id('rencActionsVide');
+    if (!hote) return;
+    hote.textContent = '';
+    var voirFaites = !!(id('rencVoirFaites') || {}).checked;
+
+    var auj = jourISO(new Date());
+    var d7 = jourISO(new Date(Date.now() + 7 * 86400000));
+
+    var tout = [];
+    rencontres.forEach(function (r) {
+      (r.actions || []).forEach(function (a, i) {
+        if (!voirFaites && a.fait) return;
+        tout.push({ r: r, a: a, i: i, g: groupeEcheance(a.echeance, auj, d7) });
+      });
+    });
+
+    if (!tout.length) {
+      vide.hidden = false;
+      // Trois situations, trois messages. « Tout est coche » devant zero
+      // rencontre serait faux, et « aucune action » devant dix rencontres
+      // toutes reglees serait injuste.
+      if (!rencontres.length) {
+        vide.textContent = 'Aucune rencontre pour l\'instant. Les actions apparaissent ici dès qu\'un compte rendu structuré en produit.';
+      } else if (voirFaites) {
+        vide.textContent = 'Aucune action dans tes ' + rencontres.length
+          + ' rencontre' + (rencontres.length > 1 ? 's' : '')
+          + '. Le bouton « Structuré » en tire des comptes rendus.';
+      } else {
+        vide.textContent = 'Rien à faire — tout est coché. 🎉';
+      }
+      return;
+    }
+    vide.hidden = true;
+
+    // Le retard d'abord, puis aujourd'hui, puis la semaine. L'ordre n'est pas
+    // chronologique : il est URGENT d'abord.
+    tout.sort(function (x, y) {
+      return x.g.rang - y.g.rang
+        || String(x.a.echeance || '').localeCompare(String(y.a.echeance || ''))
+        || String(y.r.date || '').localeCompare(String(x.r.date || ''));
+    });
+
+    var courantG = null, boite = null;
+    tout.forEach(function (o) {
+      if (!courantG || courantG !== o.g.cle) {
+        courantG = o.g.cle;
+        boite = document.createElement('div');
+        boite.className = 'renc-groupe' + (o.g.cle === 'retard' ? ' is-retard' : '');
+        var t = document.createElement('p');
+        t.className = 'renc-groupe__t';
+        t.textContent = o.g.titre;
+        boite.appendChild(t);
+        hote.appendChild(boite);
+      }
+      boite.appendChild(ligneAction(o));
+    });
+  }
+
+  function ligneAction(o) {
+    var l = document.createElement('div');
+    l.className = 'renc-act' + (o.a.fait ? ' is-faite' : '');
+
+    var c = document.createElement('input');
+    c.type = 'checkbox';
+    c.checked = !!o.a.fait;
+    c.setAttribute('aria-label', o.a.quoi);
+    c.addEventListener('change', function () { bascule(o, c.checked, l); });
+    l.appendChild(c);
+
+    var corps = document.createElement('div');
+    corps.className = 'renc-act__c';
+    var q = document.createElement('div');
+    q.className = 'renc-act__q';
+    q.textContent = o.a.quoi;
+    corps.appendChild(q);
+
+    var m = document.createElement('div');
+    m.className = 'renc-act__m';
+    if (o.a.qui) m.appendChild(document.createTextNode(o.a.qui + ' · '));
+    if (o.a.echeance) m.appendChild(document.createTextNode(o.a.echeance + ' · '));
+    var lien = document.createElement('button');
+    lien.type = 'button';
+    lien.className = 'renc-act__ou';
+    lien.textContent = o.r.titre || 'Sans titre';
+    lien.addEventListener('click', function () { fermeActions(); ouvre(o.r); });
+    m.appendChild(lien);
+    corps.appendChild(m);
+
+    l.appendChild(corps);
+    return l;
+  }
+
+  /** Coche ou decoche une action depuis la vue transversale. */
+  async function bascule(o, fait, ligne) {
+    o.a.fait = fait;
+    ligne.classList.toggle('is-faite', fait);
+    // Si la rencontre est ouverte a l'ecran, sa case doit suivre — sinon les
+    // deux vues se contredisent sous les yeux de l'usager.
+    if (courante && courante.id === o.r.id) {
+      if (Array.isArray(courante.actions) && courante.actions[o.i]) {
+        courante.actions[o.i].fait = fait;
+      }
+      var c = document.querySelector('#rencSortie input[data-a="' + o.i + '"]');
+      if (c) {
+        c.checked = fait;
+        if (fait) c.setAttribute('checked', ''); else c.removeAttribute('checked');
+        courante.sortieIA = id('rencSortie').innerHTML;
+      }
+      marqueSale();
+    }
+    try {
+      var doc = Object.assign({}, o.r);
+      if (courante && courante.id === o.r.id) doc = lisFormulaire();
+      doc.actions = o.r.actions;
+      await RencData.majRencontre(o.r.id, doc);
+      if (courante && courante.id === o.r.id) marquePropre();
+    } catch (e) {
+      etat('⚠ La case n\'a pas pu être enregistrée (' + (e.message || e) + ').', 'alerte');
+    }
+  }
+
+  /* ── Gabarits d'ordre du jour ──────────────────────────────────────────
+     Volontairement COURTS. Un gabarit de trente lignes se supprime au lieu de
+     se remplir ; celui-ci donne la charpente et laisse la place. */
+  var GABARITS = [
+    { nom: 'Rencontre statutaire', pts: ['Retour sur la dernière rencontre', 'Suivis et informations', 'Points de l\'équipe', 'Varia', 'Prochaine rencontre'] },
+    { nom: 'Comité (EHDAA, activités, cour d\'école)', pts: ['Ouverture et présences', 'Adoption de l\'ordre du jour', 'Suivi des dossiers', 'Nouveaux dossiers', 'Décisions', 'Prochaine rencontre'] },
+    { nom: 'Rencontre de parents', pts: ['Accueil', 'Portrait de l\'élève', 'Forces et défis', 'Ce qu\'on met en place', 'Suivi convenu'] },
+    { nom: 'Coordination de camp', pts: ['Retour sur la semaine', 'Groupes et animateurs', 'Sécurité et incidents', 'Sorties et matériel', 'Semaine à venir'] }
+  ];
+
+  function choisitGabarit() {
+    if (!courante) { etat('Ouvre ou crée une rencontre d\'abord.', 'attente'); return; }
+    var m = 'Quel gabarit ?\n\n' + GABARITS.map(function (g, i) {
+      return (i + 1) + '. ' + g.nom;
+    }).join('\n') + '\n\nTape un numéro.';
+    var r = window.prompt(m, '1');
+    if (r === null) return;
+    var g = GABARITS[Number(r) - 1];
+    if (!g) { etat('Numéro inconnu.', 'attente'); return; }
+
+    var html = '<h2>Ordre du jour</h2><ul>'
+      + g.pts.map(function (p) { return '<li>' + echappe(p) + '</li>'; }).join('') + '</ul>';
+    var z = id('rencNotes');
+    // On AJOUTE, on n'ecrase pas : quelqu'un qui a deja commence a prendre des
+    // notes ne doit pas les perdre parce qu'il a voulu la charpente.
+    z.innerHTML = assainit(html + (z.innerHTML || ''));
+    id('ongNotes').click();
+    marqueSale();
+    etat('Gabarit « ' + g.nom + ' » ajouté en tête des notes.');
+  }
+
+  /* ── Chainage : creer la suite ─────────────────────────────────────────
+     Ce qui se recopie : le cadre (titre, type, dossier, animateur,
+     secretaire, participants, presences remises a zero) plus LES POINTS
+     REPORTES et LES ACTIONS NON COCHEES. Ce qui ne se recopie pas : les
+     notes, la transcription et le compte rendu — ils appartiennent a la
+     rencontre passee. */
+  function creeLaSuite() {
+    if (!courante) { etat('Ouvre une rencontre d\'abord.', 'attente'); return; }
+    var source = lisFormulaire();
+    var restantes = (courante.actions || []).filter(function (a) { return !a.fait; });
+
+    // Les points reportes sont dans le compte rendu, sous leur titre. On les
+    // relit dans le HTML plutot que de les redemander a l'IA.
+    var reportes = [];
+    var z = id('rencSortie');
+    if (z) {
+      var enfants = z.children, dedans = false;
+      for (var i = 0; i < enfants.length; i++) {
+        var e = enfants[i];
+        if (/^H[1-3]$/.test(e.tagName)) {
+          dedans = /report/i.test(e.textContent);
+          continue;
+        }
+        if (dedans && (e.tagName === 'UL' || e.tagName === 'OL')) {
+          for (var j = 0; j < e.children.length; j++) {
+            var t = (e.children[j].textContent || '').trim();
+            if (t) reportes.push(t);
+          }
+        }
+      }
+    }
+
+    var presences = {};
+    Object.keys(courante.presences || {}).forEach(function (n) { presences[n] = false; });
+
+    var neuve = RencData.normalise({
+      titre: source.titre, type: source.type, dossier: source.dossier,
+      animateur: source.animateur, secretaire: source.secretaire,
+      participants: source.participants, presences: presences,
+      date: RencData.aujourdhui()
+    });
+    neuve.id = null;
+
+    var html = '';
+    if (reportes.length) {
+      html += '<h2>Reporté de la rencontre précédente</h2><ul>'
+        + reportes.map(function (p) { return '<li>' + echappe(p) + '</li>'; }).join('') + '</ul>';
+    }
+    if (restantes.length) {
+      html += '<h2>Actions encore ouvertes</h2>'
+        + restantes.map(function (a) {
+            var qui = a.qui ? ' <b>— ' + echappe(a.qui) + '</b>' : '';
+            var ech = a.echeance ? ' <b>(' + echappe(a.echeance) + ')</b>' : '';
+            return '<div><input type="checkbox"> ' + echappe(a.quoi) + qui + ech + '</div>';
+          }).join('');
+    }
+    neuve.notesBrutes = html;
+    // Les actions ouvertes suivent aussi dans `actions[]` : sans ca elles
+    // disparaitraient de « Mes actions » a la seconde ou l'on cree la suite.
+    neuve.actions = restantes.map(function (a) {
+      return { quoi: a.quoi, qui: a.qui, echeance: a.echeance, fait: false };
+    });
+
+    if (sale) sauveLocal();
+    courante = neuve;
+    posteFormulaire(courante);
+    dessinePresences();
+    montreFiche();
+    marqueSale();
+    var quoi = [];
+    if (reportes.length) quoi.push(reportes.length + ' point' + (reportes.length > 1 ? 's' : '') + ' reporté' + (reportes.length > 1 ? 's' : ''));
+    if (restantes.length) quoi.push(restantes.length + ' action' + (restantes.length > 1 ? 's' : '') + ' encore ouverte' + (restantes.length > 1 ? 's' : ''));
+    etat(quoi.length
+      ? 'Suite créée avec ' + quoi.join(' et ') + '. Enregistre quand tu veux.'
+      : 'Suite créée — rien n\'était en attente.');
+  }
+
+  function cableSuivi() {
+    var a = id('rencMesActions');
+    if (a) a.addEventListener('click', ouvreActions);
+    var f = id('rencFermerActions');
+    if (f) f.addEventListener('click', fermeActions);
+    var v = id('rencVoirFaites');
+    if (v) v.addEventListener('change', dessineActions);
+    var g = id('rencGabarit');
+    if (g) g.addEventListener('click', choisitGabarit);
+    var s = id('rencSuite');
+    if (s) s.addEventListener('click', creeLaSuite);
+    var p = id('rencParticipants');
+    if (p) p.addEventListener('input', dessinePresences);
+    cableCasesSortie();
+  }
+
+  /* pasEncore() a vecu ici de la vague A a la vague G : elle grisait une
+     commande non livree en NOMMANT sa vague dans son title. Toutes les vagues
+     etant livrees, elle n'a plus d'appelant — et une fonction sans appelant
+     est du code mort, pas une reserve. Retiree a la vague H.
+
+     Son histoire, si la question revient : un bouton qui ne fait rien sans
+     expliquer pourquoi est un defaut ; un bouton grise qui nomme son echeance
+     est un chantier lisible. */
 
   /* ==================================================================== */
   /* Demarrage                                                            */
@@ -1736,6 +2077,7 @@
     cableImport();
     cableIA();
     cableSortie();
+    cableSuivi();
 
     dossiers = RencData.dossiersDefaut();
     dessineDossiers();
@@ -1766,7 +2108,6 @@
     });
     var ft = id('rencFType');
     if (ft) ft.addEventListener('change', dessineListe);
-    pasEncore('rencMesActions', 'H');
 
     // zts-gate.js emet `zts:auth` une fois le mur franchi. Tant qu'il ne l'a
     // pas emis, l'app est dessinee mais ne parle a personne.
