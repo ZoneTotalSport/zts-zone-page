@@ -171,3 +171,42 @@
 }
 .zts-lang button:hover { color:var(--ink); }
 .zts-lang button.active { background:var(--metier); color:var(--zts-noir); }
+
+
+/* ==========================================================================
+   IMPRESSION — LE CHROME PARTAGÉ NE VA PAS SUR LA FEUILLE
+   --------------------------------------------------------------------------
+   Posé le 25 août 2026, en même temps que le correctif du §20 de
+   `assets/ztsh-shell.css`.
+
+   Jusqu'à ce jour-là, les 41 apps montées sur le shell imprimaient une page
+   entièrement blanche : le balai `[class^="ztsh-"]` du shell emportait aussi
+   `.ztsh-page`, l'enveloppe de tout le contenu. Personne ne pouvait donc
+   voir que l'en-tête partagé, lui, n'avait JAMAIS été retiré à l'impression
+   — il était masqué par un défaut plus gros. Réparer le shell sans poser ce
+   bloc-ci aurait mis la barre de navigation sur la feuille de coloriage d'un
+   enfant.
+
+   POURQUOI DEUX FOIS. Ce bloc est écrit à l'identique dans `shared/zts.css`
+   et dans `shared/zts-header.css`. Les 40 apps du shell se répartissent
+   exactement entre les deux feuilles — 26 chargent l'une, 14 chargent
+   l'autre, aucune ne charge les deux — et les pages hors apps (accueil,
+   blogue, articles) en chargent une aussi. Le poser une seule fois
+   laisserait une moitié du site sans correctif.
+
+   Le pied de page part avec l'en-tête : il ne porte que de la navigation.
+   Si tu veux garder l'adresse du site sur les fiches distribuées, retire
+   les deux sélecteurs `footer` de ce bloc, dans les deux fichiers.
+   ========================================================================== */
+@media print {
+  [data-zts-header], .zts-topbar, .zts-header,
+  [data-zts-footer], .zts-footer { display: none !important; }
+
+  /* `shared/zts.js` pose sur `body` un `padding-top` EN LIGNE, calculé pour
+     dégager l'en-tête fixe — 302 px sur les apps, 321 px sur l'accueil. À
+     l'impression l'en-tête part, le padding restait : environ 8 cm de blanc
+     en haut de la première feuille, sur toutes les pages du site. Un
+     `!important` d'une feuille d'auteur bat bien un style en ligne sans
+     `!important` — c'est la seule façon de reprendre la main ici. */
+  body { padding-top: 0 !important; }
+}
