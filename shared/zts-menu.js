@@ -60,8 +60,7 @@
 
     { id: 'plan', label: 'Planifications', i18n: 'nav.planning', em: '📅',
       title: 'Planifier son année', items: [
-      { name: 'Zone Total Planner',         app: 'planner',    color: '#FFD700', em: '📅', icon: 'calendar', desc: 'Planification annuelle', badge: 'bientot' },
-      { name: 'Grille d’évaluation 1 clic', app: 'evaluation', color: '#8B5CF6', em: '📊', icon: 'table',    desc: 'Fichier Excel' }
+      { name: 'Zone Total Planner', app: 'planificateur', color: '#FFD700', em: '📅', icon: 'calendar', desc: 'Planification annuelle', badge: 'bientot' }
     ]},
 
     { id: 'blog', label: 'Blog', i18n: 'nav.blog', em: '✏️',
