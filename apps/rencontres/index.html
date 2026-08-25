@@ -100,6 +100,11 @@
       <button class="renc-bt renc-bt--sauve" id="rencSauver" type="button">💾 Enregistrer</button>
       <span class="renc-espace"></span>
       <button class="renc-bt renc-bt--actions" id="rencMesActions" type="button">✅ Mes actions</button>
+      <!-- L'ETAT DES CREDITS, VISIBLE EN PERMANENCE. Il ne coute aucun appel
+           de modele : c'est une lecture de compteur. Il est la pour qu'on
+           n'ait jamais a se demander « est-ce que ca va me couter quelque
+           chose » — c'est gratuit et plafonne, autant que ca se voie. -->
+      <span class="renc-credits" id="rencCredits" hidden role="status" aria-live="polite"></span>
       <div class="renc-menu">
         <button class="renc-bt renc-bt--pt" id="rencMenu" type="button"
                 aria-haspopup="true" aria-expanded="false" aria-label="Autres actions">⋯</button>
@@ -233,6 +238,20 @@
             <div class="renc-presences" id="rencPresences" hidden
                  role="group" aria-label="Présences"></div>
             <p class="renc-etat" id="rencEtat" role="status" aria-live="polite"></p>
+          </div>
+
+          <!-- ══ BANDE D'ENREGISTREMENT ═══════════════════════════════════
+               ELLE VIT HORS DES ONGLETS, ET C'EST TOUT SON INTERET. Tant que
+               le micro tourne, elle reste a l'ecran quel que soit l'onglet
+               ouvert — on peut donc ecrire ses notes pendant que ca
+               enregistre, sans perdre de vue le minuteur ni le bouton
+               d'arret. -->
+          <div class="renc-bande renc-noprint" id="rencBande" hidden>
+            <span class="renc-rec" id="rencRec2" aria-hidden="true"></span>
+            <span class="renc-chrono" id="rencChrono2">00:00</span>
+            <button class="renc-bt" id="rencMicPause2" type="button">⏸ Pause</button>
+            <button class="renc-bt renc-bt--rec" id="rencMicArret2" type="button">⏹ Terminer</button>
+            <span class="renc-bande__vu" id="rencBandeVu"></span>
           </div>
 
           <!-- ══ CAPTURE — trois onglets ════════════════════════════════════

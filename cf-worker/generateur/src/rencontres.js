@@ -136,6 +136,14 @@ export async function handleRencontres(request, env, { err, json, verifie }) {
     const minutes = Math.ceil(secondes / 6) / 10;
     const q = await readTranscriptionQuota(env, uid);
 
+    // LES DEUX COMPTEURS, PAS SEULEMENT CELUI DES MINUTES. Le client affiche
+    // l'etat courant en permanence — « 118 min · 38 traitements restants » —
+    // pour que personne n'ait a redouter un cout cache. Ca lui coute une
+    // lecture KV de plus et RIEN d'autre : aucun appel a un modele, ni ici ni
+    // ailleurs. Avec `secondes: 0`, cette route devient un simple etat.
+    const maxIA = parseInt(env.QUOTA_IA_JOUR || "40", 10);
+    const qia = await readDailyCount(env, "rencia", uid, maxIA);
+
     return json({
       ok: true,
       secondes,
@@ -143,6 +151,8 @@ export async function handleRencontres(request, env, { err, json, verifie }) {
       minutesRestantes: q.restant,
       plafondJour: q.max,
       suffisant: minutes <= q.restant,
+      iaRestantJour: qia.restant,
+      iaPlafondJour: qia.max,
       // Le client dit quoi faire de ces deux-la ; le worker ne fait que les
       // constater.
       longue: secondes > SECONDES_AVERTISSEMENT,

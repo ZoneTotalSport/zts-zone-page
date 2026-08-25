@@ -632,6 +632,59 @@
 }
 .renc-consent__c input { width: 19px; height: 19px; flex: none; margin-top: 1px; }
 
+/* ── Compteur de credits ──────────────────────────────────────────────
+   Discret mais toujours la. Il devient ambre puis rose quand il reste peu :
+   l'usager doit voir venir la limite, pas la decouvrir en la heurtant. */
+.renc-credits {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  padding: 7px 11px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.renc-credits[hidden] { display: none; }
+.renc-credits.is-bas   { background: var(--ztsh-jaune, #FFFC00); }
+.renc-credits.is-vide  { background: var(--ztsh-rose, #FF0061); color: #FFFFFF; }
+
+/* ── Bande d'enregistrement ───────────────────────────────────────────
+   Collee sous la barre d'outils, elle survit au changement d'onglet : c'est
+   ce qui permet d'ECRIRE SES NOTES pendant que le micro tourne. */
+.renc-bande {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  color: var(--renc-ink);
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-bande[hidden] { display: none; }
+.renc-bande .renc-chrono { font-size: 22px; margin-left: 0; }
+
+/* Le temoin de captation. Il n'est PAS le compte rendu : c'est la preuve que
+   ca entend, rien de plus. Gris, petit, sur une seule ligne qui defile — la
+   version propre arrive a la fin. */
+.renc-bande__vu {
+  flex: 1 1 220px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  font-style: italic;
+  color: #5B6773;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: left;
+}
+
 .renc-micro {
   padding: 14px;
   background: var(--renc-surface);

@@ -836,6 +836,83 @@
     MICRO_ERREUR: "Le micro n'a pas pu démarrer."
   };
 
+  /* ── Compteur de credits ───────────────────────────────────────────────
+     « 118 min · 38 traitements IA restants aujourd'hui », en permanence.
+
+     IL NE COUTE AUCUN APPEL DE MODELE. Les deux nombres viennent du devis,
+     qui n'est qu'une lecture de compteur — on l'appelle une fois au
+     chargement avec `secondes: 0`, puis on rafraichit avec ce que RENDENT les
+     reponses de transcription et de traitement. Aucune requete
+     supplementaire pendant le travail.
+
+     POURQUOI L'AFFICHER. Un outil gratuit mais plafonne ou le plafond est
+     invisible se comporte, pour celui qui l'utilise, comme un outil au cout
+     inconnu — et on hesite avant chaque geste. Le montrer coute une pastille
+     et supprime la question. */
+
+  var credits = { minutes: null, minutesMax: null, ia: null, iaMax: null };
+
+  function dessineCredits() {
+    var n = id('rencCredits');
+    if (!n) return;
+    if (credits.minutes === null && credits.ia === null) { n.hidden = true; return; }
+    var bouts = [];
+    if (credits.minutes !== null) bouts.push(credits.minutes + ' min');
+    if (credits.ia !== null) bouts.push(credits.ia + ' traitement' + (credits.ia > 1 ? 's' : '') + ' IA');
+    n.textContent = bouts.join(' · ') + ' restants aujourd\'hui';
+    n.title = 'Ce qu\'il te reste aujourd\'hui : '
+      + (credits.minutes !== null ? credits.minutes + ' minutes de transcription sur ' + credits.minutesMax : '')
+      + (credits.ia !== null ? ', et ' + credits.ia + ' traitements de compte rendu sur ' + credits.iaMax : '')
+      + '. Les compteurs repartent demain. C\'est gratuit — le plafond est là pour que ça le reste.';
+    // Deux seuils, pour voir venir la limite au lieu de la heurter.
+    var basMin = credits.minutesMax ? credits.minutes <= credits.minutesMax * 0.15 : false;
+    var basIA  = credits.iaMax ? credits.ia <= credits.iaMax * 0.15 : false;
+    n.classList.toggle('is-vide', credits.minutes === 0 || credits.ia === 0);
+    n.classList.toggle('is-bas', !(credits.minutes === 0 || credits.ia === 0) && (basMin || basIA));
+    n.hidden = false;
+  }
+
+  /**
+   * Met a jour ce qu'une reponse du serveur vient de nous apprendre.
+   *
+   * TROIS ROUTES, TROIS FORMES, ET `plafondJour` NE VEUT PAS DIRE LA MEME
+   * CHOSE DANS LES TROIS. C'est le plafond des MINUTES pour le devis et pour
+   * un segment, celui des TRAITEMENTS pour /rencontres-ia. On tranche sur le
+   * champ qui n'existe que dans l'une :
+   *
+   *   restantJour     -> reponse de /rencontres-ia   (plafondJour = IA)
+   *   iaRestantJour   -> reponse du devis            (plafondJour = minutes)
+   *   ni l'un ni l'autre -> reponse d'un segment     (plafondJour = minutes)
+   *
+   * Une premiere version testait `iaPlafondJour === undefined` pour decider,
+   * ce qui rendait le plafond des minutes NULL des que le devis renvoyait les
+   * deux compteurs — et l'infobulle affichait « sur null ». Vu au banc.
+   */
+  function noteCredits(r) {
+    if (!r) return;
+    var estIA = (typeof r.restantJour === 'number');
+
+    if (estIA) {
+      credits.ia = r.restantJour;
+      if (typeof r.plafondJour === 'number') credits.iaMax = r.plafondJour;
+    } else {
+      if (typeof r.minutesRestantes === 'number') credits.minutes = r.minutesRestantes;
+      if (typeof r.plafondJour === 'number') credits.minutesMax = r.plafondJour;
+      if (typeof r.iaRestantJour === 'number') credits.ia = r.iaRestantJour;
+      if (typeof r.iaPlafondJour === 'number') credits.iaMax = r.iaPlafondJour;
+    }
+    dessineCredits();
+  }
+
+  async function litCredits() {
+    try {
+      noteCredits(await RencData.devisTranscription(0));
+    } catch (e) {
+      // Un compteur qu'on n'a pas pu lire ne s'invente pas : on n'affiche rien
+      // plutot qu'un chiffre faux.
+    }
+  }
+
   function etatMicro(texte, ton) {
     var n = id('rencMicEtat');
     if (!n) return;
@@ -853,6 +930,18 @@
     p.textContent = (e === 'pause') ? '▶ Reprendre' : '⏸ Pause';
     var rec = id('rencRec');
     if (rec) rec.hidden = (e !== 'enregistre');
+
+    /* LA BANDE EST CE QUI REND LES NOTES UTILISABLES PENDANT L'ENREGISTREMENT.
+       Les commandes du panneau micro disparaissent des qu'on passe a l'onglet
+       Notes — c'est le principe d'un onglet. La bande, elle, vit HORS des
+       onglets : minuteur, pause et arret restent sous la main quel que soit
+       l'ecran, et on peut ecrire tout en gardant l'oeil dessus. */
+    var bande = id('rencBande');
+    if (bande) bande.hidden = (e === 'arret');
+    var p2 = id('rencMicPause2');
+    if (p2) p2.textContent = p.textContent;
+    var rec2 = id('rencRec2');
+    if (rec2) rec2.hidden = (e !== 'enregistre');
   }
 
   function cableMicro() {
@@ -875,8 +964,11 @@
       : "Le texte s'écrit une fois l'enregistrement terminé.";
 
     RencMicro.sur('minuteur', function (s) {
+      var t = RencMicro.formate(s);
       var c = id('rencChrono');
-      if (c) c.textContent = RencMicro.formate(s);
+      if (c) c.textContent = t;
+      var c2 = id('rencChrono2');
+      if (c2) c2.textContent = t;
     });
 
     RencMicro.sur('etat', boutonsMicro);
@@ -892,6 +984,13 @@
         zone.appendChild(sp);
       }
       zone.scrollTop = zone.scrollHeight;
+      // Le temoin de la bande : les derniers mots entendus, et rien de plus.
+      // Ce n'est pas le compte rendu, c'est la preuve que ca capte.
+      var vu = id('rencBandeVu');
+      if (vu) {
+        var tout = (fini + ' ' + (provisoire || '')).trim();
+        vu.textContent = tout.slice(-140);
+      }
       if (courante) {
         courante.transcription = fini;
         var brut = id('rencBrut');
@@ -940,6 +1039,13 @@
       try {
         await RencMicro.demarre();
         etatMicro('');
+        // On revient aux NOTES des que ca tourne : c'est la qu'on ecrit
+        // pendant une rencontre. La bande garde le minuteur et l'arret a
+        // portee, et le texte capte continue de s'accumuler dans son panneau.
+        var ong = id('ongNotes');
+        if (ong) ong.click();
+        var z = id('rencNotes');
+        if (z) z.focus();
       } catch (e) {
         etatMicro(MICRO_ERREURS[e.message] || MICRO_ERREURS.MICRO_ERREUR, 'alerte');
       }
@@ -956,6 +1062,13 @@
       RencMicro.arrete();
       boutonsMicro();
     });
+
+    // Les commandes de la bande ne dupliquent pas la logique : elles
+    // rejouent le clic des boutons du panneau. Une seule implementation.
+    var p2 = id('rencMicPause2');
+    if (p2) p2.addEventListener('click', function () { id('rencMicPause').click(); });
+    var a2 = id('rencMicArret2');
+    if (a2) a2.addEventListener('click', function () { id('rencMicArret').click(); });
 
     boutonsMicro();
   }
@@ -1031,6 +1144,7 @@
     var devis;
     try {
       devis = await RencData.devisTranscription(Math.round(secondes));
+      noteCredits(devis);
     } catch (e) {
       etatImport('Le serveur n\'a pas répondu (' + (e.message || e) + ').', 'alerte');
       return;
@@ -1085,6 +1199,7 @@
       var seg = segments[i];
       try {
         var rep = await RencData.transcrisSegment(seg.wav, seg.secondes, seg.index, lang());
+        noteCredits(rep);
         morceaux.push(rep.texte || '');
         // Le texte s'ecrit au fur et a mesure : sur une rencontre d'une heure,
         // attendre douze segments sans rien voir donne l'impression d'un
@@ -1289,6 +1404,7 @@
     for (var i = 0; i < parts.length; i++) {
       try {
         var r = await RencData.traiteIA('verbatim', parts[i], modeleChoisi(), lang(), dateRencontre());
+        noteCredits(r);
         faits.push(r.texte || '');
         appliqueSortie(faits.join('\n\n'), 'verbatim');
         if (i + 1 < parts.length) {
@@ -1315,6 +1431,7 @@
     iaOccupee(true, 'Compte rendu en préparation…');
     try {
       var r = await RencData.traiteIA('structure', source, modeleChoisi(), lang(), dateRencontre());
+      noteCredits(r);
       courante.actions = (r.sortie && r.sortie.actions) || [];
       appliqueSortie(rendStructure(r.sortie || {}), 'structure');
       iaOccupee(false, 'Compte rendu prêt — '
@@ -1337,6 +1454,7 @@
     iaOccupee(true, 'Résumé du passage…');
     try {
       var r = await RencData.traiteIA('passage', sel, modeleChoisi(), lang(), dateRencontre());
+      noteCredits(r);
       // Le resume s'AJOUTE au compte rendu, il ne l'ecrase pas : on resume un
       // point precis EN PLUS du reste, jamais a la place.
       var z = id('rencSortie');
@@ -2123,6 +2241,7 @@
       dossiers = RencData.dossiersDefaut();
     }
     pretServeur = true;
+    litCredits();
     dessineDossiers();
     await rafraichitListe();
 
