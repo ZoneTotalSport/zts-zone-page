@@ -339,19 +339,48 @@
       '👁️ Popup vu: ' + (session.popupsShown.length ? 'oui (' + session.popupsShown.join(', ') + ')' : 'non') + '\n' +
       '✅ Popup converti: ' + (session.popupsConverted.length ? 'oui' : 'non');
 
-    // sendBeacon pour garantir l'envoi avant unload — vers le WORKER, qui
-    // attend { title, message, priority, tags }. Il partait auparavant droit
-    // chez Telegram, jeton dans l'URL : c'est ce depart-la qui rendait la
-    // publication du jeton inevitable.
+    // ── L'envoi de fin de session ──────────────────────────────────────
+    //
+    // ⚠ PAS DE navigator.sendBeacon ICI, ET SURTOUT PAS DE RETOUR EN ARRIERE.
+    //
+    // sendBeacon envoie TOUJOURS en mode d'identifiants « include ». Une
+    // reponse qui autorise « * » — c'est le cas du Worker, et c'est le bon
+    // reglage pour un point d'entree public — devient alors interdite :
+    //
+    //   « The value of the 'Access-Control-Allow-Origin' header in the
+    //     response must not be the wildcard '*' when the request's
+    //     credentials mode is 'include' »
+    //
+    // Le defaut a ete introduit le 24 aout 2026 en faisant pointer ce beacon
+    // vers le Worker plutot que vers api.telegram.org (chantier du jeton).
+    // Il visait deja Telegram avant, et echouait DEJA de la meme facon : ce
+    // resume de fin de session n'est donc probablement jamais parti. Le
+    // changement l'a seulement rendu visible, sur notre propre domaine.
+    //
+    // `fetch` avec `keepalive` fait le meme travail — la requete survit a la
+    // fermeture de l'onglet — sans imposer les identifiants. Verifie depuis
+    // https://zonetotalsport.ca le 24 aout : sendBeacon echoue en CORS,
+    // fetch keepalive repond 200 {"ok":true}.
+    //
+    // Les identifiants ne servaient a rien ici : le Worker ne lit aucun
+    // cookie. Les retirer est la correction, pas un contournement.
+    var clean = stripHtml(text);
+    var charge = JSON.stringify({
+      title: clean.split('\n')[0] || 'ZTS',
+      message: clean.split('\n').slice(1).join('\n') || clean,
+      priority: 3,
+      tags: 'wave'
+    });
     try {
-      var clean = stripHtml(text);
-      var blob = new Blob([JSON.stringify({
-        title: clean.split('\n')[0] || 'ZTS',
-        message: clean.split('\n').slice(1).join('\n') || clean,
-        priority: 3,
-        tags: 'wave'
-      })], { type: 'application/json' });
-      if (!navigator.sendBeacon(WORKER_URL, blob)) sendTelegram(text);
+      fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: charge,
+        // Firefox n'a `keepalive` que depuis la version 121. Sans lui la
+        // requete part quand meme et sera peut-etre coupee a la fermeture —
+        // c'est-a-dire exactement ce qu'on avait, en moins pire.
+        keepalive: true
+      }).catch(function () {});
     } catch (e) {
       sendTelegram(text);
     }
