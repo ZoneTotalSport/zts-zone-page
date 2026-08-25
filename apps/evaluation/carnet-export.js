@@ -255,17 +255,31 @@
     return n;
   }
 
-  var BTN = 'position:fixed;right:14px;bottom:14px;z-index:2147483000;' +
+  /* `bottom` est pose par placer(), pas ici : l'app React affiche une barre de
+     navigation fixe en bas (Tableau de bord · Mes Groupes · Evaluation & Outils
+     · Jeux · Parametres) dont la hauteur varie avec le zoom et la largeur. Un
+     `bottom` fige recouvrait l'onglet « Evaluation & Outils ». */
+  var BTN = 'position:fixed;right:14px;z-index:2147483000;' +
     'background:#4F46E5;color:#fff;border:none;border-radius:999px;' +
     'padding:11px 17px;font:600 14px/1 system-ui,sans-serif;cursor:pointer;' +
     'box-shadow:0 4px 14px rgba(0,0,0,.28)';
 
-  var PANNEAU = 'position:fixed;right:14px;bottom:64px;z-index:2147483000;' +
+  var PANNEAU = 'position:fixed;right:14px;z-index:2147483000;' +
     'background:#fff;color:#0f172a;border-radius:14px;padding:16px;width:290px;' +
     'font:14px/1.45 system-ui,sans-serif;box-shadow:0 10px 34px rgba(0,0,0,.3)';
 
   var ACTION = 'display:block;width:100%;margin-top:8px;padding:10px;' +
     'border:none;border-radius:9px;font:600 14px/1 system-ui,sans-serif;cursor:pointer';
+
+  /* Cles qui ne prouvent RIEN.
+     ──────────────────────────────────────────────────────────────────
+     Ces trois-la existent chez quiconque a simplement ouvert la page :
+     - `landed` est ecrite des la premiere visite (landing vue) ;
+     - `zoom` est reecrite par React a chaque chargement ;
+     - `lang` l'est des qu'on touche au selecteur de langue.
+     Les compter comme « donnees » affichait le bouton a un visiteur avec
+     zero groupe. Constate en conditions reelles. */
+  var CLES_NEUTRES = ['carneteps-landed', 'carneteps-zoom', 'carneteps-lang'];
 
   /* Y a-t-il seulement quelque chose a sauvegarder ?
      ──────────────────────────────────────────────────────────────────
@@ -276,23 +290,63 @@
      pour lui cacher la porte de sortie.
 
      On ne sonde donc PAS l'etat du mur (fragile, et il repondrait a la
-     mauvaise question). On regarde s'il existe la moindre cle `carneteps-`.
-     Rien a sauvegarder → rien a afficher. */
+     mauvaise question). On cherche une cle `carneteps-` qui ne soit pas une
+     simple preference d'affichage. Rien a sauvegarder → rien a afficher.
+
+     A NOTER : ces trois cles restent EXPORTEES quand le bouton s'affiche.
+     Elles ne declenchent pas l'affichage, ce qui est une autre question que
+     leur presence dans le fichier. Le principe tient : le registre classe,
+     il n'exclut jamais. */
   function aDesDonnees() {
     for (var i = 0; i < localStorage.length; i++) {
       var k = localStorage.key(i);
-      if (k && k.indexOf(PREFIXE) === 0) return true;
+      if (!k || k.indexOf(PREFIXE) !== 0) continue;
+      if (CLES_NEUTRES.indexOf(k) === -1) return true;
     }
     return false;
+  }
+
+  /* Hauteur de la barre fixe collee au bas de l'ecran, s'il y en a une.
+     ──────────────────────────────────────────────────────────────────
+     On ne cherche PAS une classe : le bundle est minifie, ses noms changent a
+     chaque build. On sonde la pile d'elements sous trois points du bas du
+     viewport et on retient le premier ancetre `fixed`/`sticky` qui touche le
+     bas. Nos propres noeuds portent `data-carnet-export` et sont ignores —
+     sinon le bouton se mesurerait lui-meme.
+
+     Aucune barre trouvee (bureau, page muree) → 0, et le bouton reprend sa
+     place normale en bas. */
+  function hauteurBarreBasse() {
+    if (!document.elementsFromPoint) return 0;
+    var y = window.innerHeight - 4;
+    var xs = [0.25, 0.5, 0.75], max = 0;
+    for (var i = 0; i < xs.length; i++) {
+      var pile = document.elementsFromPoint(Math.round(window.innerWidth * xs[i]), y) || [];
+      for (var j = 0; j < pile.length; j++) {
+        var n = pile[j];
+        if (!n || n === document.body || n === document.documentElement) continue;
+        if (n.closest && n.closest('[data-carnet-export]')) continue;
+        var st = window.getComputedStyle(n);
+        if (st.position !== 'fixed' && st.position !== 'sticky') continue;
+        var r = n.getBoundingClientRect();
+        if (r.bottom < window.innerHeight - 2) continue;      // ne touche pas le bas
+        if (r.height <= 0 || r.height > window.innerHeight / 2) continue;  // garde-fou
+        if (r.height > max) max = r.height;
+        break;
+      }
+    }
+    return Math.round(max);
   }
 
   function monterUI() {
     if (!aDesDonnees()) return;
     var btn = el('button', BTN, '💾 Sauvegarde complète');
     btn.type = 'button';
+    btn.setAttribute('data-carnet-export', 'bouton');   // ignore par hauteurBarreBasse()
 
     var pan = el('div', PANNEAU);
     pan.hidden = true;
+    pan.setAttribute('data-carnet-export', 'panneau');
 
     var titre = el('div', 'font-weight:700;margin-bottom:4px', 'Sauvegarde complète');
     var sous  = el('div', 'font-size:12.5px;color:#475569;margin-bottom:10px',
@@ -312,7 +366,20 @@
     pan.appendChild(bExp);  pan.appendChild(bImp);
     pan.appendChild(etat);  pan.appendChild(fichier);
 
-    btn.addEventListener('click', function () { pan.hidden = !pan.hidden; });
+    /* Pose le bouton JUSTE AU-DESSUS de la barre de navigation de l'app.
+       Rejoue a plusieurs moments : React monte sa barre apres nous, et sa
+       hauteur suit le zoom (le Carnet a un reglage de zoom) et la rotation. */
+    function placer() {
+      var h = hauteurBarreBasse();
+      var bas = h ? h + 12 : 14;
+      btn.style.bottom = bas + 'px';
+      pan.style.bottom = (bas + btn.offsetHeight + 12) + 'px';
+    }
+
+    btn.addEventListener('click', function () {
+      placer();                                  // la barre a pu bouger entre-temps
+      pan.hidden = !pan.hidden;
+    });
 
     bExp.addEventListener('click', function () {
       etat.textContent = 'Préparation…';
@@ -355,6 +422,14 @@
 
     document.body.appendChild(btn);
     document.body.appendChild(pan);
+
+    placer();
+    // React monte sa barre apres nous : on repasse. Deux essais suffisent —
+    // le clic replace de toute facon avant d'ouvrir le panneau.
+    setTimeout(placer, 400);
+    setTimeout(placer, 1600);
+    window.addEventListener('resize', placer);
+    window.addEventListener('orientationchange', placer);
   }
 
   // API exposee : la recette et le futur importeur s'en servent sans l'UI.
