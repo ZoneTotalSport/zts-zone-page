@@ -254,6 +254,13 @@
                ouvert — on peut donc ecrire ses notes pendant que ca
                enregistre, sans perdre de vue le minuteur ni le bouton
                d'arret. -->
+          <!-- ══ ZONE DE TRAVAIL — capture a gauche, ordre du jour a droite ══
+               Le panneau ne prend la droite que sur ordinateur. Sous 900 px il
+               passe SOUS les notes : le rail des dossiers occupe deja une
+               colonne, et trois colonnes sur un portable de 13 pouces ne se
+               lisent plus. -->
+          <div class="renc-travail">
+          <div class="renc-travail__gauche">
           <div class="renc-bande renc-noprint" id="rencBande" hidden>
             <span class="renc-rec" id="rencRec2" aria-hidden="true"></span>
             <span class="renc-chrono" id="rencChrono2">00:00</span>
@@ -382,6 +389,36 @@
           </div>
 
           <!-- ══ IA ═══════════════════════════════════════════════════════ -->
+          </div>
+
+          <!-- ══ ORDRE DU JOUR ═════════════════════════════════════════════
+               Facultatif, et c'est important : sans lui, l'app se comporte
+               exactement comme avant. Il n'apparait que lorsqu'il existe. -->
+          <aside class="renc-odj" id="rencOdj" aria-label="Ordre du jour">
+            <div class="renc-odj__tete">
+              <h2 class="renc-odj__titre">ORDRE DU JOUR</h2>
+              <button class="renc-mini" id="rencOdjVider" type="button" hidden>Effacer</button>
+            </div>
+
+            <!-- Etat 1 : il n'y en a pas encore -->
+            <div class="renc-odj__depart" id="rencOdjDepart">
+              <p class="renc-odj__aide">Colle tes points, un par ligne. Ils deviendront des cases à cocher que tu suivras pendant la rencontre.</p>
+              <textarea class="renc-odj__saisie" id="rencOdjSaisie" rows="6"
+                        placeholder="Horaire des surveillances&#10;Budget du matériel&#10;Sorties d'automne&#10;Varia"></textarea>
+              <div class="renc-odj__btns">
+                <button class="renc-bt renc-bt--neuf" id="rencOdjCreer" type="button">Créer les points</button>
+                <button class="renc-mini" id="rencOdjFichier" type="button">📄 Depuis un fichier</button>
+                <button class="renc-mini" id="rencOdjGabarit" type="button">📋 Gabarit</button>
+              </div>
+              <input type="file" id="rencOdjFichierInput" accept=".txt,.md,text/plain,text/markdown" hidden>
+            </div>
+
+            <!-- Etat 2 : la liste des points -->
+            <ol class="renc-odj__liste" id="rencOdjListe"></ol>
+            <p class="renc-odj__pied" id="rencOdjPied" hidden></p>
+          </aside>
+          </div>
+
           <div class="renc-ia renc-noprint">
             <button class="renc-bt renc-bt--ia" id="rencVerbatim" type="button">
               📝 Mot à mot

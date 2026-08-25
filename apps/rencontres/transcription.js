@@ -463,26 +463,62 @@ const RencAudio = (() => {
 
   /**
    * Decoupe un AudioBuffer en segments de ~5 minutes, coupes au silence.
-   * @returns {Array<{wav:ArrayBuffer, secondes:number, index:number}>}
+   *
+   * AVEC UN ORDRE DU JOUR, LES COUPES TOMBENT SUR LES BASCULES DE POINTS. Le
+   * decoupage par horodatage REMPLACE le decoupage en tranches — il ne s'y
+   * ajoute pas : c'est la meme quantite d'audio envoyee a Whisper, coupee
+   * ailleurs. C'est ce qui rend le mode « ordre du jour » gratuit en jetons.
+   *
+   * Un point qui dure plus de cinq minutes est SOUS-COUPE comme avant ; un
+   * point de quarante secondes fait un petit morceau. Chaque segment garde le
+   * rang du point auquel il appartient, et c'est ce rang qui etiquette le
+   * texte avant l'unique passage IA.
+   *
+   * @param {AudioBuffer} buffer
+   * @param {Array<{debut:number, fin:number}>} [bornes]
+   *        en SECONDES depuis le debut de l'enregistrement, dans l'ordre
+   * @returns {Array<{wav:ArrayBuffer, secondes:number, index:number, point:number}>}
    */
-  function segmente(buffer) {
+  function segmente(buffer, bornes) {
     const donnees = buffer.getChannelData(0);
     const total = donnees.length;
     const pas = SEGMENT_S * TAUX;
     const out = [];
-    let debut = 0, index = 0;
+    let index = 0;
 
-    while (debut < total) {
-      let fin = debut + pas;
-      if (fin >= total) fin = total;
-      else fin = coupeAuSilence(donnees, fin, debut + Math.round(pas / 2), total);
-      out.push({
-        wav: wav(donnees, debut, fin),
-        secondes: (fin - debut) / TAUX,
-        index: index++
+    /* Les tranches de premier niveau : une par point s'il y a un ordre du
+       jour, une seule sinon. Une borne qui deborde la fin reelle de
+       l'enregistrement est ramenee dedans — quelqu'un peut avoir coche un
+       point apres l'arret, ou l'audio peut etre plus court que le minuteur si
+       l'enregistreur a saute une tranche. */
+    let tranches;
+    if (Array.isArray(bornes) && bornes.length) {
+      tranches = [];
+      bornes.forEach(function (b, rang) {
+        const d = Math.max(0, Math.min(total, Math.round((b.debut || 0) * TAUX)));
+        const f = Math.max(d, Math.min(total, Math.round((b.fin == null ? total / TAUX : b.fin) * TAUX)));
+        if (f - d >= TAUX) tranches.push({ d: d, f: f, point: rang });   // moins d'une seconde : rien a transcrire
       });
-      debut = fin;
+      if (!tranches.length) tranches = [{ d: 0, f: total, point: 0 }];
+    } else {
+      tranches = [{ d: 0, f: total, point: -1 }];
     }
+
+    tranches.forEach(function (tr) {
+      let debut = tr.d;
+      while (debut < tr.f) {
+        let fin = debut + pas;
+        if (fin >= tr.f) fin = tr.f;
+        else fin = coupeAuSilence(donnees, fin, debut + Math.round(pas / 2), tr.f);
+        out.push({
+          wav: wav(donnees, debut, fin),
+          secondes: (fin - debut) / TAUX,
+          index: index++,
+          point: tr.point
+        });
+        debut = fin;
+      }
+    });
     return out;
   }
 

@@ -12,7 +12,9 @@
  *                                secretaire, participants[], notesBrutes,
  *                                transcription, sortieIA, sortieMode,
  *                                actions[{quoi, qui, echeance, fait}],
- *                                presences{nom:bool}, cree, maj }
+ *                                presences{nom:bool},
+ *                                ordreDuJour[{texte, fait, debut, fin}],
+ *                                cree, maj }
  *   rencontresDossiers/{uid}   { uid, dossiers[], maj }
  *
  * POURQUOI PAS users/{uid}/rencontres/{id}, qui etait le chemin propose. La
@@ -335,6 +337,22 @@ const RencData = (() => {
                        ? o.sortieMode : '',
       actions:     (Array.isArray(o.actions) ? o.actions : [])
                      .map(normaliseAction).filter(Boolean).slice(0, 200),
+      /* L'ORDRE DU JOUR, ET SES HORODATAGES.
+         Chaque point porte `debut` et `fin` en SECONDES depuis le debut de
+         l'enregistrement — pas en heure d'horloge. C'est ce qui permet de
+         decouper l'audio dessus : une heure d'horloge serait inutilisable, il
+         faudrait connaitre l'instant exact ou l'enregistrement a commence, et
+         une pause de dix minutes fausserait tout. Les secondes enregistrees,
+         elles, correspondent exactement a la position dans le fichier. */
+      ordreDuJour: (Array.isArray(o.ordreDuJour) ? o.ordreDuJour : [])
+        .map((x) => {
+          if (!x || typeof x !== 'object') return null;
+          const t = String(x.texte || '').trim().slice(0, 300);
+          if (!t) return null;
+          const num = (v) => (Number.isFinite(+v) && +v >= 0) ? Math.round(+v) : null;
+          return { texte: t, fait: !!x.fait, debut: num(x.debut), fin: num(x.fin) };
+        })
+        .filter(Boolean).slice(0, 60),
       // Presences : un objet { « nom » : true|false }, et non un tableau de
       // presents. La difference compte — un tableau ne distingue pas « absent »
       // de « pas encore pointe », et une liste de presences qui ne dit pas qui
@@ -531,7 +549,7 @@ const RencData = (() => {
    *                            `{sortie:{resume,points,decisions,actions,reportes}}`
    *                            pour structure
    */
-  async function traiteIA(mode, texte, modele, lang, dateRencontre) {
+  async function traiteIA(mode, texte, modele, lang, dateRencontre, points) {
     const res = await fetch(API_IA, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (await jeton()) },
@@ -541,7 +559,13 @@ const RencData = (() => {
         lang: lang === 'en' ? 'en' : 'fr',
         // La date ancre les echeances relatives : « avant le 30 septembre »
         // n'a de sens que rapporte au jour de la rencontre.
-        dateRencontre: dateIso(dateRencontre)
+        dateRencontre: dateIso(dateRencontre),
+        // Les intitules de l'ordre du jour, quand il y en a un. Le worker
+        // rend alors un compte rendu SECTIONNE par point plutot qu'a plat —
+        // et c'est toujours UN SEUL appel.
+        points: Array.isArray(points)
+          ? points.map((p) => String(p || '').trim().slice(0, 300)).filter(Boolean).slice(0, 60)
+          : undefined
       })
     });
     if (!res.ok) throw await lisErreur(res);

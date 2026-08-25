@@ -799,6 +799,9 @@
     courante = r.doc;
     posteFormulaire(courante);
     dessinePresences();
+    pointCourant = -1;
+    texteParPoint = null;
+    dessineOdj();
     montreFiche();
     dessineListe();
     if (r.restaure) {
@@ -817,6 +820,9 @@
     if (!brouillonExistant) courante.id = null;
     posteFormulaire(courante);
     dessinePresences();
+    pointCourant = -1;
+    texteParPoint = null;
+    dessineOdj();
     montreFiche();
     dessineListe();
     if (brouillonExistant) {
@@ -989,6 +995,15 @@
   async function termineEnregistrement(blob, info) {
     etatMicro('Enregistrement terminé — ' + RencMicro.formate(info.secondes) + '.', 'attente');
 
+    // Le point en cours se ferme sur la duree totale : sans ca son `fin`
+    // resterait vide et son audio ne serait rattache a rien.
+    var ptsFin = odj();
+    if (pointCourant >= 0 && ptsFin[pointCourant] && ptsFin[pointCourant].fin == null) {
+      if (ptsFin[pointCourant].debut == null) ptsFin[pointCourant].debut = 0;
+      ptsFin[pointCourant].fin = info.secondes;
+      dessineOdj();
+    }
+
     // 1 — mettre la rencontre en surete AVANT tout le reste.
     if (!courante) nouvelle(null);
     proposeTitre();
@@ -1056,10 +1071,19 @@
       zone.scrollTop = zone.scrollHeight;
       // Le temoin de la bande : les derniers mots entendus, et rien de plus.
       // Ce n'est pas le compte rendu, c'est la preuve que ca capte.
+      var tout = (fini + ' ' + (provisoire || '')).trim();
       var vu = id('rencBandeVu');
-      if (vu) {
-        var tout = (fini + ' ' + (provisoire || '')).trim();
-        vu.textContent = tout.slice(-140);
+      if (vu) vu.textContent = tout.slice(-140);
+      // Et sous le point courant, ou il donne l'impression que « ca se
+      // structure en direct » — sans une seule requete.
+      dernierBrut = tout.slice(-260);
+      var zb = id('rencOdjBrut');
+      if (zb) {
+        zb.textContent = '';
+        var t2 = document.createElement('b');
+        t2.textContent = 'Ce qui se dit';
+        zb.appendChild(t2);
+        zb.appendChild(document.createTextNode(dernierBrut || '…'));
       }
       if (courante) {
         courante.transcription = fini;
@@ -1106,6 +1130,16 @@
         if (ong) ong.click();
         var z = id('rencNotes');
         if (z) z.focus();
+        // Le point de depart : le PREMIER NON COCHE. L'usager peut ensuite
+        // cliquer n'importe lequel — une vraie rencontre ne suit jamais
+        // l'ordre du jour dans l'ordre.
+        var pts = odj();
+        if (pts.length) {
+          var d0 = 0;
+          for (var k = 0; k < pts.length; k++) if (!pts[k].fait) { d0 = k; break; }
+          pointCourant = -1;          // pour que rendCourant ne ferme rien
+          rendCourant(d0);
+        }
       } catch (e) {
         etatMicro(MICRO_ERREURS[e.message] || MICRO_ERREURS.MICRO_ERREUR, 'alerte');
       }
@@ -1193,9 +1227,23 @@
 
     var secondes = buffer.length / RencAudio.TAUX;
     etatImport('Découpage…');
+    /* LES BORNES DE L'ORDRE DU JOUR REMPLACENT LES TRANCHES DE CINQ MINUTES —
+       elles ne s'y ajoutent pas. Meme quantite d'audio envoyee a Whisper,
+       coupee ailleurs : c'est ce qui rend ce mode gratuit en jetons.
+
+       Elles ne servent que dans le parcours automatique : un fichier importe
+       n'a pas d'horodatage a lui. Un point sans `debut` n'a jamais ete
+       courant — il n'a pas d'audio, et il sera dit « non aborde ». */
+    var bornes = null;
+    if (auto) {
+      var avecAudio = odj().filter(function (p) { return p.debut != null; });
+      if (avecAudio.length) {
+        bornes = odj().map(function (p) { return { debut: p.debut, fin: p.fin }; });
+      }
+    }
     var segments;
     try {
-      segments = RencAudio.segmente(buffer);
+      segments = RencAudio.segmente(buffer, bornes);
     } catch (e) {
       etatImport('Le découpage a échoué — le fichier est peut-être trop long pour cet appareil.', 'alerte');
       return;
@@ -1276,6 +1324,8 @@
     var segments = aTranscrire.segments;
     var morceaux = [];
     var faits = 0;
+    // Le texte de chaque point, dans l'ordre des points. `-1` = mode libre.
+    var parPoint = {};
 
     function avance(texte) {
       id('rencJauge').style.width = Math.round((faits / segments.length) * 100) + '%';
@@ -1293,6 +1343,11 @@
         var rep = await RencData.transcrisSegment(seg.wav, seg.secondes, seg.index, lang());
         noteCredits(rep);
         morceaux.push(rep.texte || '');
+        // Chaque morceau sait a quel point de l'ordre du jour il appartient :
+        // c'est ce rang qui etiquettera le texte avant l'unique passage IA.
+        if (seg.point >= 0) {
+          parPoint[seg.point] = ((parPoint[seg.point] || '') + ' ' + (rep.texte || '')).trim();
+        }
         // Le texte s'ecrit au fur et a mesure : sur une rencontre d'une heure,
         // attendre douze segments sans rien voir donne l'impression d'un
         // plantage.
@@ -1323,6 +1378,8 @@
     enCours = false;
     aTranscrire = null;
     id('rencAvance').hidden = true;
+    // Le texte range par point, garde pour le passage structure.
+    texteParPoint = Object.keys(parPoint).length ? parPoint : null;
     await sauveServeur(true);
     etatImport('✓ Transcription terminée et enregistrée. Le texte est dans « Original »'
       + (auto ? '. Tu peux maintenant en tirer un mot à mot ou un compte rendu structuré — ou le laisser tel quel.' : '.'));
@@ -1401,6 +1458,7 @@
   /* ==================================================================== */
 
   var iaEnCours = false;
+  var texteParPoint = null;   // { rang: texte } quand un ordre du jour a servi
 
   /* Le mot a mot part PAR BLOCS. Une rencontre de 90 minutes fait environ
      13 000 mots : nettoyee d'un coup, la sortie depasserait tout plafond
@@ -1491,10 +1549,50 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
+  /** Une liste d'actions en cases a cocher, numerotees pour « Mes actions ». */
+  function rendActions(liste, depart) {
+    return liste.map(function (a, i) {
+      var qui = a.qui ? ' <b>— ' + echappe(a.qui) + '</b>' : '';
+      var ech = a.echeance ? ' <b>(' + echappe(a.echeance) + ')</b>' : '';
+      return '<div><input type="checkbox" data-a="' + (depart + i) + '"'
+        + (a.fait ? ' checked' : '') + '> ' + echappe(a.quoi) + qui + ech + '</div>';
+    }).join('');
+  }
+
   /** Le compte rendu structure, rendu en HTML — celui que l'usager editera. */
   function rendStructure(s) {
     var h = [];
     if (s.resume) h.push('<h2>Résumé</h2><p>' + echappe(s.resume).replace(/\n+/g, '<br>') + '</p>');
+
+    /* AVEC UN ORDRE DU JOUR, LE COMPTE RENDU SUIT LES POINTS. Un point sans
+       parole enregistree est dit « non abordé » plutot qu'omis : c'est
+       l'information la plus utile du document pour qui prepare la rencontre
+       suivante. */
+    if (Array.isArray(s.sections) && s.sections.length) {
+      var rang = 0;
+      s.sections.forEach(function (sec, i) {
+        h.push('<h2>' + (i + 1) + ' · ' + echappe(sec.titre || 'Point ' + (i + 1)) + '</h2>');
+        if (!sec.aborde) {
+          h.push('<p><b>Non abordé.</b></p>');
+          return;
+        }
+        if (sec.discussion) h.push('<p>' + echappe(sec.discussion).replace(/\n+/g, '<br>') + '</p>');
+        if (sec.decisions && sec.decisions.length) {
+          h.push('<h3>Décisions</h3><ul>' + sec.decisions.map(function (d) {
+            return '<li>' + echappe(d) + '</li>'; }).join('') + '</ul>');
+        }
+        if (sec.actions && sec.actions.length) {
+          h.push('<h3>Actions à faire</h3>' + rendActions(sec.actions, rang));
+          rang += sec.actions.length;
+        }
+      });
+      if (s.reportes && s.reportes.length) {
+        h.push('<h2>Points reportés à la prochaine rencontre</h2><ul>'
+          + s.reportes.map(function (x) { return '<li>' + echappe(x) + '</li>'; }).join('') + '</ul>');
+      }
+      return h.join('');
+    }
+
     function bloc(titre, items) {
       if (!items || !items.length) return;
       h.push('<h2>' + titre + '</h2><ul>'
@@ -1507,13 +1605,7 @@
       // rend vivantes, et c'est ce que la vue « Mes actions » de la vague H
       // relira.
       h.push('<h2>Actions à faire</h2>');
-      h.push(s.actions.map(function (a, i) {
-        var q = echappe(a.quoi);
-        var qui = a.qui ? ' <b>— ' + echappe(a.qui) + '</b>' : '';
-        var ech = a.echeance ? ' <b>(' + echappe(a.echeance) + ')</b>' : '';
-        return '<div><input type="checkbox" data-a="' + i + '"'
-          + (a.fait ? ' checked' : '') + '> ' + q + qui + ech + '</div>';
-      }).join(''));
+      h.push(rendActions(s.actions, 0));
     }
     bloc('Points reportés à la prochaine rencontre', s.reportes);
     return h.join('');
@@ -1564,19 +1656,54 @@
     if (sale) sauveServeur(true);
   }
 
+  /**
+   * LE TEXTE ETIQUETE PAR POINT. C'est tout ce que le mode « ordre du jour »
+   * change a l'appel : le meme passage structure, le meme et unique appel,
+   * mais l'entree porte des reperes que le modele n'a plus a deviner.
+   */
+  function sourceEtiquetee() {
+    var pts = odj();
+    if (!pts.length || !texteParPoint) return null;
+    var bouts = [];
+    pts.forEach(function (p, i) {
+      var t = (texteParPoint[i] || '').trim();
+      bouts.push('=== POINT ' + (i + 1) + ' : ' + p.texte + ' ===\n'
+        + (t || '(aucune parole enregistrée sur ce point)'));
+    });
+    return bouts.join('\n\n');
+  }
+
   async function faisStructure() {
     if (iaEnCours || !courante) return;
-    var source = texteSource();
+    var pts = odj();
+    var etiquete = sourceEtiquetee();
+    var source = etiquete || texteSource();
     if (!source) { etat('Il n\'y a encore rien à résumer.', 'attente'); return; }
-    iaOccupee(true, 'Compte rendu en préparation…');
+    iaOccupee(true, etiquete
+      ? 'Compte rendu en préparation, point par point…'
+      : 'Compte rendu en préparation…');
     try {
-      var r = await RencData.traiteIA('structure', source, modeleChoisi(), lang(), dateRencontre());
+      var r = await RencData.traiteIA('structure', source, modeleChoisi(), lang(),
+        dateRencontre(), etiquete ? pts.map(function (p) { return p.texte; }) : null);
       noteCredits(r);
-      courante.actions = (r.sortie && r.sortie.actions) || [];
-      appliqueSortie(rendStructure(r.sortie || {}), 'structure');
+      var sortie = r.sortie || {};
+      // Avec des sections, les actions de tous les points sont rassemblees :
+      // c'est `actions[]` que la vue « Mes actions » relit.
+      var toutes = [];
+      if (Array.isArray(sortie.sections)) {
+        sortie.sections.forEach(function (sec) {
+          (sec.actions || []).forEach(function (a) { toutes.push(a); });
+        });
+      }
+      courante.actions = toutes.length ? toutes : (sortie.actions || []);
+      appliqueSortie(rendStructure(sortie), 'structure');
+      var nonAbordes = Array.isArray(sortie.sections)
+        ? sortie.sections.filter(function (x) { return !x.aborde; }).length : 0;
       iaOccupee(false, 'Compte rendu prêt — '
-        + courante.actions.length + ' action' + (courante.actions.length > 1 ? 's' : '')
-        + ' à faire. Tout reste modifiable.');
+        + courante.actions.length + ' action' + (courante.actions.length > 1 ? 's' : '') + ' à faire'
+        + (nonAbordes ? ', ' + nonAbordes + ' point' + (nonAbordes > 1 ? 's' : '')
+            + ' non abordé' + (nonAbordes > 1 ? 's' : '') : '')
+        + '. Tout reste modifiable.');
       if (sale) sauveServeur(true);
     } catch (e) {
       iaOccupee(false, messageIA(e));
@@ -1931,6 +2058,244 @@
           etat('⚠ Le partage a échoué (' + (err.message || err) + ').', 'alerte');
         }
       }
+    });
+  }
+
+  /* ==================================================================== */
+  /* Ordre du jour guide                                                  */
+  /* ==================================================================== */
+
+  /* CE QUE CE MODE AJOUTE, ET CE QU'IL NE COUTE PAS.
+     ────────────────────────────────────────────────────────────────────
+     L'usager donne ses points, les coche a mesure, et l'app note l'INSTANT
+     de chaque bascule — en secondes depuis le debut de l'enregistrement, pas
+     en heure d'horloge : c'est la position dans le fichier audio.
+
+     A l'arret, le decoupage se fait sur ces instants AU LIEU des tranches de
+     cinq minutes. Meme quantite d'audio envoyee a Whisper, coupee ailleurs.
+     Et l'unique passage structure recoit le texte deja etiquete par point.
+     ZERO appel ajoute — c'est la contrainte du chantier, et elle tient parce
+     que le decoupage REMPLACE l'ancien au lieu de s'y ajouter.
+
+     Le mode libre reste le defaut : sans ordre du jour, tout se comporte
+     exactement comme avant. */
+
+  var pointCourant = -1;   // rang du point en cours, -1 = aucun
+
+  function odj() {
+    return (courante && Array.isArray(courante.ordreDuJour)) ? courante.ordreDuJour : [];
+  }
+
+  /** Secondes ecoulees d'enregistrement, ou null si le micro ne tourne pas. */
+  function instant() {
+    /* ⚠ PAS `window.RencMicro`. RencMicro est declare `const` au premier
+       niveau de son fichier : un `const` de premier niveau N'EST PAS une
+       propriete de window — seul `var` l'est. `window.RencMicro` vaut donc
+       toujours undefined, et le garde retournait null a chaque appel : aucun
+       horodatage n'etait pose, et le message disait « reglé » sans heure.
+       Constate au banc du 25 aout. Le nom nu, lui, est bien dans la portee. */
+    return (typeof RencMicro !== 'undefined' && RencMicro.etat() !== 'arret')
+      ? RencMicro.secondes() : null;
+  }
+
+  function mmss(s) {
+    if (s == null) return '';
+    var m = Math.floor(s / 60), r = s % 60;
+    return m + ':' + (r < 10 ? '0' : '') + r;
+  }
+
+  function dessineOdj() {
+    var panneau = id('rencOdj'), liste = id('rencOdjListe'), depart = id('rencOdjDepart');
+    var travail = document.querySelector('.renc-travail');
+    if (!panneau || !liste) return;
+
+    var points = odj();
+    // Le panneau ne s'affiche que si la rencontre est ouverte. La grille ne
+    // se dedouble que s'il y a des points — sinon la capture garde toute la
+    // largeur, et le mode libre reste ce qu'il etait.
+    panneau.hidden = !courante;
+    if (travail) travail.classList.toggle('a-odj', !!courante && points.length > 0);
+    if (depart) depart.hidden = points.length > 0;
+    var vider = id('rencOdjVider');
+    if (vider) vider.hidden = points.length === 0;
+
+    liste.textContent = '';
+    points.forEach(function (p, i) {
+      var li = document.createElement('li');
+      li.className = 'renc-point'
+        + (p.fait ? ' is-fait' : '')
+        + (i === pointCourant ? ' is-courant' : '');
+
+      var c = document.createElement('input');
+      c.type = 'checkbox';
+      c.className = 'renc-point__case';
+      c.checked = !!p.fait;
+      c.setAttribute('aria-label', (p.fait ? 'Rouvrir' : 'Marquer comme réglé') + ' : ' + p.texte);
+      c.addEventListener('change', function () { basculePoint(i, c.checked); });
+      li.appendChild(c);
+
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'renc-point__t';
+      b.appendChild(document.createTextNode(p.texte));
+      if (p.debut != null) {
+        var h = document.createElement('span');
+        h.className = 'renc-point__h';
+        h.textContent = mmss(p.debut) + (p.fin != null ? ' → ' + mmss(p.fin) : ' → en cours');
+        b.appendChild(h);
+      }
+      // Cliquer le libelle rend le point COURANT — une vraie rencontre ne
+      // suit jamais l'ordre du jour dans l'ordre.
+      b.addEventListener('click', function () { rendCourant(i); });
+      li.appendChild(b);
+
+      liste.appendChild(li);
+
+      // Le brut s'accumule sous le point courant, et sous lui seul.
+      if (i === pointCourant) {
+        var brut = document.createElement('li');
+        brut.className = 'renc-odj__brut';
+        brut.id = 'rencOdjBrut';
+        var t = document.createElement('b');
+        t.textContent = 'Ce qui se dit';
+        brut.appendChild(t);
+        brut.appendChild(document.createTextNode(dernierBrut || '…'));
+        liste.appendChild(brut);
+      }
+    });
+
+    var pied = id('rencOdjPied');
+    if (pied) {
+      var faits = points.filter(function (p) { return p.fait; }).length;
+      pied.hidden = !points.length;
+      pied.textContent = points.length
+        ? faits + ' point' + (faits > 1 ? 's' : '') + ' réglé' + (faits > 1 ? 's' : '')
+          + ' sur ' + points.length + '. Coche un point quand il est réglé — ça n\'interrompt jamais l\'enregistrement.'
+        : '';
+    }
+  }
+
+  var dernierBrut = '';
+
+  /** Rend un point courant, et horodate la bascule si ca enregistre. */
+  function rendCourant(i) {
+    var points = odj();
+    if (!points[i]) return;
+    var t = instant();
+    if (pointCourant >= 0 && points[pointCourant] && t != null && points[pointCourant].fin == null) {
+      points[pointCourant].fin = t;
+    }
+    pointCourant = i;
+    if (t != null && points[i].debut == null) points[i].debut = t;
+    dernierBrut = '';
+    marqueSale();
+    dessineOdj();
+  }
+
+  /**
+   * Cocher ferme le point et passe au premier non regle. Decocher le rouvre
+   * et efface son heure de fin — une fausse manoeuvre a la minute 3 ne doit
+   * pas fausser une heure de decoupage.
+   */
+  function basculePoint(i, fait) {
+    var points = odj();
+    if (!points[i]) return;
+    var t = instant();
+    points[i].fait = fait;
+
+    if (fait) {
+      if (t != null) {
+        if (points[i].debut == null) points[i].debut = 0;
+        points[i].fin = t;
+      }
+      // Au suivant : le premier non regle apres celui-ci, sinon le premier
+      // non regle tout court.
+      var suiv = -1, j;
+      for (j = i + 1; j < points.length; j++) if (!points[j].fait) { suiv = j; break; }
+      if (suiv === -1) for (j = 0; j < points.length; j++) if (!points[j].fait) { suiv = j; break; }
+      if (suiv >= 0) {
+        rendCourant(suiv);
+        etat('« ' + points[i].texte + ' » réglé' + (t != null ? ' à ' + mmss(t) : '')
+          + '. Au suivant : ' + points[suiv].texte + '.');
+        return;
+      }
+      pointCourant = -1;
+      etat('Tous les points sont réglés.' + (t != null ? ' L\'enregistrement continue.' : ''));
+    } else {
+      points[i].fin = null;
+      etat('« ' + points[i].texte +' » rouvert.');
+    }
+    marqueSale();
+    dessineOdj();
+  }
+
+  /** Cree les points a partir d'un texte, une ligne par point. */
+  function creeOdj(texte) {
+    if (!courante) { etat('Ouvre ou crée une rencontre d\'abord.', 'attente'); return; }
+    var lignes = String(texte || '').split(/\r?\n/)
+      .map(function (l) {
+        // « 1. », « 1) », « - », « • » : la numerotation vient de la liste,
+        // pas du texte. La laisser donnerait « 1. 1. Horaire ».
+        return l.replace(/^\s*(?:\d+\s*[.)\-]|[-–—•*])\s*/, '').trim();
+      })
+      .filter(Boolean)
+      .slice(0, 60);
+    if (!lignes.length) { etat('Aucun point trouvé — une ligne par point.', 'attente'); return; }
+
+    courante.ordreDuJour = lignes.map(function (l) {
+      return { texte: l.slice(0, 300), fait: false, debut: null, fin: null };
+    });
+    pointCourant = 0;
+    marqueSale();
+    dessineOdj();
+    etat(lignes.length + ' point' + (lignes.length > 1 ? 's' : '') + ' créé'
+      + (lignes.length > 1 ? 's' : '') + '. Coche-les à mesure pendant la rencontre.');
+    sauveServeur(true);
+  }
+
+  function cableOdj() {
+    var creer = id('rencOdjCreer');
+    if (creer) creer.addEventListener('click', function () {
+      creeOdj((id('rencOdjSaisie') || {}).value);
+      var z = id('rencOdjSaisie');
+      if (z) z.value = '';
+    });
+
+    var vider = id('rencOdjVider');
+    if (vider) vider.addEventListener('click', function () {
+      if (!courante) return;
+      if (!window.confirm('Effacer l\'ordre du jour ?\n\nLes points et leurs horodatages partent. '
+        + 'Tes notes, ta transcription et ton compte rendu restent.')) return;
+      courante.ordreDuJour = [];
+      pointCourant = -1;
+      marqueSale();
+      dessineOdj();
+      sauveServeur(true);
+      etat('Ordre du jour effacé.');
+    });
+
+    var fich = id('rencOdjFichier'), input = id('rencOdjFichierInput');
+    if (fich && input) {
+      fich.addEventListener('click', function () { input.click(); });
+      input.addEventListener('change', function () {
+        var f = input.files && input.files[0];
+        input.value = '';
+        if (!f) return;
+        f.text().then(function (t) { creeOdj(t); })
+          .catch(function () { etat('Le fichier n\'a pas pu être lu.', 'alerte'); });
+      });
+    }
+
+    var gab = id('rencOdjGabarit');
+    if (gab) gab.addEventListener('click', function () {
+      var m = 'Quel gabarit ?\n\n' + GABARITS.map(function (g, i) {
+        return (i + 1) + '. ' + g.nom;
+      }).join('\n') + '\n\nTape un numéro.';
+      var r = window.prompt(m, '1');
+      if (r === null) return;
+      var g = GABARITS[Number(r) - 1];
+      if (!g) { etat('Numéro inconnu.', 'attente'); return; }
+      creeOdj(g.pts.join('\n'));
     });
   }
 
@@ -2379,7 +2744,10 @@
     window.addEventListener('beforeunload', function (e) {
       // Le micro d'abord : sans ca, la pastille rouge de l'onglet reste
       // allumee et le peripherique reste pris apres la fermeture.
-      if (window.RencMicro && RencMicro.etat() !== 'arret') RencMicro.arrete();
+      // Meme piege que dans instant() : `window.RencMicro` est toujours
+      // undefined, donc le micro n'etait PAS coupe a la fermeture de l'onglet
+      // — la pastille rouge restait allumee et le peripherique restait pris.
+      if (typeof RencMicro !== 'undefined' && RencMicro.etat() !== 'arret') RencMicro.arrete();
       if (!sale || !courante) return;
       sauveLocal();
       // On ne bloque PAS la fermeture : le brouillon est deja ecrit, retenir
@@ -2419,6 +2787,7 @@
     cableIA();
     cableSortie();
     cableSuivi();
+    cableOdj();
     cableEntonnoir();
 
     dossiers = RencData.dossiersDefaut();
