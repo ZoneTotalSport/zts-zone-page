@@ -6,9 +6,19 @@
 (function() {
   'use strict';
 
-  var BOT_TOKEN = '8629738673:AAHOU6Gq1pUE1h2K0QJ-edYcS2rw1snk_uI';
-  var CHAT_ID = '897290762';
-  var API_URL = 'https://api.telegram.org/bot' + BOT_TOKEN + '/sendMessage';
+  // AUCUN JETON ICI, ET IL NE DOIT JAMAIS Y EN AVOIR.
+  //
+  // Jusqu'au 24 aout 2026, ce fichier portait le jeton du bot Telegram en
+  // clair. Il est servi en JavaScript de navigateur sur les pages du site :
+  // n'importe quel visiteur pouvait le lire dans la source — et il
+  // s'AFFICHAIT dans la console des que l'appel echouait — puis prendre la
+  // main sur le bot, envoyer des messages, lire les mises a jour.
+  //
+  // Tout passe desormais par le Worker notify.zonetotalsport.ca, qui porte le
+  // jeton en secret Cloudflare (meme patron qu'ANTHROPIC_API_KEY pour
+  // zts-generateur). Le navigateur ne connait plus que l'URL du Worker.
+  //
+  // Le jeton compromis a ete revoque aupres de @BotFather.
 
   // ── ntfy.sh : push notif phone (alternative Telegram) ──
   // Topic prive, dur a deviner. Installer app ntfy + s'abonner a ce topic.
@@ -61,13 +71,17 @@
         throw new Error('worker not ok');
       })
       .catch(function() {
-        // 2) Fallback: direct ntfy + Telegram (marche pour browsers permissifs)
+        // 2) Repli : ntfy seulement.
+        //
+        // L'appel DIRECT a Telegram qui vivait ici a disparu avec le jeton —
+        // c'est lui qui obligeait a le publier dans le navigateur. Ce que le
+        // repli perd : sur un navigateur qui bloque le Worker, la notification
+        // Telegram ne part plus, seul ntfy passe. Ce que le repli gagne : le
+        // jeton n'est plus lisible par les 1500 pages du site.
+        //
+        // Le troc est assume. Un canal de notification degrade pour Joey ne
+        // vaut pas un bot ouvert a tous.
         if (ntfyMeta !== false) sendNtfy(firstLine, rest, meta.priority, meta.tags);
-        fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'HTML' })
-        }).catch(function(){});
       });
   }
 
@@ -325,11 +339,48 @@
       '👁️ Popup vu: ' + (session.popupsShown.length ? 'oui (' + session.popupsShown.join(', ') + ')' : 'non') + '\n' +
       '✅ Popup converti: ' + (session.popupsConverted.length ? 'oui' : 'non');
 
-    // sendBeacon pour garantir l'envoi avant unload
+    // ── L'envoi de fin de session ──────────────────────────────────────
+    //
+    // ⚠ PAS DE navigator.sendBeacon ICI, ET SURTOUT PAS DE RETOUR EN ARRIERE.
+    //
+    // sendBeacon envoie TOUJOURS en mode d'identifiants « include ». Une
+    // reponse qui autorise « * » — c'est le cas du Worker, et c'est le bon
+    // reglage pour un point d'entree public — devient alors interdite :
+    //
+    //   « The value of the 'Access-Control-Allow-Origin' header in the
+    //     response must not be the wildcard '*' when the request's
+    //     credentials mode is 'include' »
+    //
+    // Le defaut a ete introduit le 24 aout 2026 en faisant pointer ce beacon
+    // vers le Worker plutot que vers api.telegram.org (chantier du jeton).
+    // Il visait deja Telegram avant, et echouait DEJA de la meme facon : ce
+    // resume de fin de session n'est donc probablement jamais parti. Le
+    // changement l'a seulement rendu visible, sur notre propre domaine.
+    //
+    // `fetch` avec `keepalive` fait le meme travail — la requete survit a la
+    // fermeture de l'onglet — sans imposer les identifiants. Verifie depuis
+    // https://zonetotalsport.ca le 24 aout : sendBeacon echoue en CORS,
+    // fetch keepalive repond 200 {"ok":true}.
+    //
+    // Les identifiants ne servaient a rien ici : le Worker ne lit aucun
+    // cookie. Les retirer est la correction, pas un contournement.
+    var clean = stripHtml(text);
+    var charge = JSON.stringify({
+      title: clean.split('\n')[0] || 'ZTS',
+      message: clean.split('\n').slice(1).join('\n') || clean,
+      priority: 3,
+      tags: 'wave'
+    });
     try {
-      var blob = new Blob([JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'HTML' })],
-                         { type: 'application/json' });
-      navigator.sendBeacon(API_URL, blob);
+      fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: charge,
+        // Firefox n'a `keepalive` que depuis la version 121. Sans lui la
+        // requete part quand meme et sera peut-etre coupee a la fermeture —
+        // c'est-a-dire exactement ce qu'on avait, en moins pire.
+        keepalive: true
+      }).catch(function () {});
     } catch (e) {
       sendTelegram(text);
     }

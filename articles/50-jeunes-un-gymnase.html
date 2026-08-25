@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html lang="fr-CA">
+<!-- `ztsp-decor` VA SUR <html>, PAS SUR <body> : les deux couches du decor
+     sont des pseudo-elements de body en z-index negatif. Si body porte le
+     marine, elles passent derriere son propre fond et disparaissent.
+     Voir shared/zts-modele.css §0. -->
+<html class="ztsp-decor" lang="fr-CA">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -321,6 +325,7 @@
   </script>
   <script src="../analytics.js"></script>
   <link rel="stylesheet" href="/articles/articles-theme.css">
+  <link rel="stylesheet" href="/shared/zts-modele.css">
   <script src="/zts-lock-page.js" defer></script>
   <script src="/assets/zts-partage-article.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
@@ -596,15 +601,15 @@
     <!-- ============================== -->
     <!-- SECTION INTERACTIVE : SOLUTIONS -->
     <!-- ============================== -->
-    <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10 mb-8 border border-gray-100" id="solutions-section">
+    <div class="article-body bg-white rounded-2xl shadow-xl p-8 md:p-10 mb-8 border border-gray-100" id="solutions-section">
 
-      <div style="text-align:center;margin-bottom:2.5rem">
+      <div data-zts-toujours-visible style="text-align:center;margin-bottom:2.5rem">
         <h2 style="font-family:'Bangers',cursive;font-size:3.4rem;color:#0F0F2E;margin-bottom:0.5rem;border:none;padding:0">Des solutions concretes pour VOTRE realite</h2>
         <p style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-size:1.95rem;color:#555">Selectionnez votre corps de metier ci-dessous pour decouvrir le <strong>Top 7 des meilleures solutions appliquees</strong>.</p>
       </div>
 
       <!-- Tab Buttons -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem">
+      <div data-zts-toujours-visible style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem">
         <button class="tab-btn" onclick="showTab('enseignement')" id="btn-enseignement">
           <i data-lucide="book-open" style="width:40px;height:40px;margin-bottom:8px"></i>
           <span style="font-size:1.65rem">Solutions pour l'Enseignement</span>
@@ -623,13 +628,13 @@
       </div>
 
       <!-- Placeholder -->
-      <div id="tab-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;color:#999;border:2px dashed #e5e7eb;border-radius:16px;background:#fafafa;text-align:center">
+      <div data-zts-toujours-visible id="tab-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 2rem;color:#999;border:2px dashed #e5e7eb;border-radius:16px;background:#fafafa;text-align:center">
         <i data-lucide="users" style="width:64px;height:64px;opacity:0.4;margin-bottom:16px"></i>
         <p style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-size:1.95rem">Cliquez sur l'un des boutons ci-dessus pour reveler les solutions.</p>
       </div>
 
       <!-- ========== TAB ENSEIGNEMENT ========== -->
-      <div class="tab-content" id="tab-enseignement" style="background:#EFF6FF;border:2px solid #BFDBFE;border-radius:16px;padding:2rem">
+      <div data-zts-toujours-visible class="tab-content" id="tab-enseignement" style="background:#EFF6FF;border:2px solid #BFDBFE;border-radius:16px;padding:2rem">
         <div style="text-align:center;margin-bottom:2rem">
           <i data-lucide="book-open" style="width:32px;height:32px;color:#2563EB;margin-bottom:8px"></i>
           <h3 style="font-family:'Bangers',cursive;font-size:2.85rem;color:#1E3A8A;margin:0">Top 7 : Solutions pour l'Enseignement (Education Physique)</h3>
@@ -1104,6 +1109,28 @@
 
     // Tab switching
     function showTab(tab) {
+      // Un onglet derriere le mur : le clic ne peut pas l'ouvrir.
+      //
+      // Depuis que la section porte data-zts-toujours-visible sur son en-tete,
+      // ses boutons et le premier onglet seulement, les deux autres restent
+      // masques pour un visiteur anonyme. Sans ce garde, cliquer dessus faisait
+      // disparaitre le placeholder et n'affichait RIEN : le lecteur se
+      // retrouvait devant un vide, sans meme l'invitation de depart.
+      //
+      // .zts-half-hidden pose display:none en !important, ce qui l'emporte sur
+      // le style en ligne pose plus bas — l'onglet ne s'ouvrira pas, quoi qu'on
+      // fasse ici. On transforme donc le clic en demande d'inscription : c'est
+      // le moment ou le lecteur veut precisement ce qui est derriere le mur.
+      var cible = document.getElementById('tab-' + tab);
+      if (cible && cible.classList.contains('zts-half-hidden')) {
+        if (window.ztsTrackFunnel) {
+          window.ztsTrackFunnel('locked_click_signup', { source: 'article', slug: '50-jeunes-un-gymnase' });
+        }
+        if (window.ztsShowSignup) { window.ztsShowSignup(); return; }
+        // Pas de modale disponible : on laisse au moins le lecteur ou il etait.
+        return;
+      }
+
       // Hide all tabs and placeholder
       document.getElementById('tab-placeholder').style.display = 'none';
       document.querySelectorAll('.tab-content').forEach(function(el) {

@@ -84,6 +84,13 @@ jobs:
       - name: Glyphes de la police de marque
         run: python3 _scripts/verifie-glyphes-ztsh.py
 
+      # « Quoi de neuf » de l'accueil ne lit qu'un fichier tenu a la main.
+      # Rien ne casse quand il derive : une date fausse ou une URL morte
+      # s'affiche aussi bien qu'une entree juste. Meme patron que le reste
+      # d'ici — la panne muette se garde en CI.
+      - name: Coherence de « Quoi de neuf »
+        run: python3 _scripts/verifie-nouveautes.py
+
       # ── Outillage de la publication R2 ──
       # AJOUTE LE 17 AOUT 2026, APRES PANNE. Cette etape manquait : le script
       # appelle `wrangler r2 object put`, et wrangler n'est PAS preinstalle sur

@@ -37,6 +37,17 @@ PATTERNS=(
   'sk-ant-[a-zA-Z0-9_-]{40,}'
   'sk-[a-zA-Z0-9]{48}'
   'AIza[0-9A-Za-z_-]{35}'
+  # Jeton de bot Telegram : <identifiant numerique>:<35 caracteres base64url>.
+  # Ajoute le 24 aout 2026, apres en avoir trouve un EN CLAIR dans
+  # telegram-notify.js — un fichier servi en JavaScript de navigateur sur les
+  # pages du site, ou n'importe quel visiteur pouvait le lire. Les neuf motifs
+  # precedents ne couvraient pas cette forme.
+  #
+  # La longueur EXACTE de 35 est ce qui rend le motif sur : un
+  # `[A-Za-z0-9_-]{30,}` ouvert attraperait des identifiants et des sommes de
+  # controle parfaitement anodins, et un controle qui crie a tort finit
+  # contourne.
+  '[0-9]{8,12}:[A-Za-z0-9_-]{35}'
 )
 
 # Exceptions portees sur le COUPLE fichier + motif, jamais sur le fichier seul :
@@ -49,6 +60,11 @@ EXCEPTIONS=(
   # .replace() qui retire l'en-tete d'une cle lue dans une variable
   # d'environnement — la cle elle-meme n'est pas dans le depot.
   'cf-worker/generateur/src/firestore.js::-----BEGIN PRIVATE KEY-----'
+  # Meme cas, meme raison : le worker notify signe ses jetons Firestore avec
+  # la cle de FIREBASE_SERVICE_ACCOUNT, un SECRET Cloudflare, et retire son
+  # en-tete PEM avant de l'importer. Ajoute le 24 aout 2026 au rapatriement du
+  # worker deploye. La cle n'est pas dans le depot, seul le marqueur l'est.
+  'cf-worker/notify-worker.js::-----BEGIN PRIVATE KEY-----'
   # D27 montre le message d'erreur de grep : sans le motif en clair dans le
   # bloc de code, la demonstration ne montre plus rien. UNE seule occurrence
   # y est tolérée — les deux autres en-tetes y sont decrits en prose.
@@ -112,8 +128,24 @@ echo "secrets : $NB fichier(s), mode $MODE, ${#PATTERNS[@]} motifs."
 
 # ── Balayage : un grep par motif sur toute la liste ──
 # Un grep par FICHIER coutait ~20 000 processus sur l'arbre complet (plus de
-# 5 minutes). Un grep par MOTIF descend a 9 invocations, ~37 s. `-I` remplace
+# 5 minutes). Un grep par MOTIF descend a 10 invocations, ~37 s. `-I` remplace
 # l'ancien test `file --mime` : grep saute les binaires tout seul.
+#
+# `-H` N'EST PAS DECORATIF — defaut trouve le 24 aout 2026. Quand la liste ne
+# contient QU'UN SEUL fichier, grep n'ecrit pas son nom : la sortie devient
+# `LIGNE:correspondance` au lieu de `FICHIER:LIGNE:correspondance`. Le decoupage
+# ci-dessous prenait donc le NUMERO DE LIGNE pour un nom de fichier, et les deux
+# garde-fous qui s'appuient dessus tombaient d'un coup :
+#
+#   · l'auto-exception `$MOI` ne matchait plus — le script se bloquait
+#     lui-meme des qu'on le committait seul, ce qui est arrive avec ce
+#     commit-ci ;
+#   · les EXCEPTIONS, toutes portees sur le couple fichier::valeur, ne
+#     matchaient plus non plus — committer `.githooks/README.md` seul aurait
+#     ete refuse de la meme facon.
+#
+# Le defaut ne se voyait qu'en mode indexe, sur un commit a un seul fichier :
+# la CI, qui balaie 2400 fichiers, ne pouvait pas le rencontrer.
 FOUND=0
 for pattern in "${PATTERNS[@]}"; do
   while IFS= read -r ligne; do
@@ -137,7 +169,7 @@ for pattern in "${PATTERNS[@]}"; do
     echo "   motif  : $pattern"
     echo "   valeur : ${trouve:0:12}…"
     FOUND=1
-  done < <(liste_fichiers | xargs -0 grep -EIno -- "$pattern" 2>/dev/null | sort -u)
+  done < <(liste_fichiers | xargs -0 grep -EIHno -- "$pattern" 2>/dev/null | sort -u)
 done
 
 if [ "$FOUND" -eq 1 ]; then
