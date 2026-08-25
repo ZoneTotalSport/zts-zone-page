@@ -3117,8 +3117,50 @@
     /* `.zts-pause-tag` et `.zts-pause-h2` SUPPRIMÉES le 4 août 2026 —
        remplacées par `.ztsp-eyebrow--lime` et `.ztsp-sectitre`. */
     .zts-pause-sub { font-family: var(--ztsp-f-note); color: var(--ztsp-sur-fond-doux); font-size: 1.3rem; margin-top: 12px; letter-spacing: .6px; }
-    #ztsPauseGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; position: relative; }
+    /* PLANCHER A 300 px, PAS 360. Borner la largeur de la grille pour degager
+       le rail (regle juste dessous) la ramene a 1040 px sur un ecran de
+       1280 : avec un plancher de 360, `auto-fit` n'y logeait plus que DEUX
+       colonnes et le quiz tombait tout seul sur une deuxieme ligne. A 300, le
+       trio tient a partir de 1188 px de fenetre — a 20 px pres, le meme seuil
+       qu'avant ce chantier. */
+    #ztsPauseGrid { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; position: relative; }
+    /* Le rail d'outils (`.apps-section`, fixed a droite des 901 px) couvrait
+       le bord droit de la carte du quiz : les quatre boutons de reponse
+       etaient amputes, et le clic partait dans le rail au lieu du bouton. Ce
+       n'est pas qu'un defaut d'apparence ici — c'est la seule carte des trois
+       sur laquelle on clique. Meme correctif que « Quoi de neuf » : on borne
+       la LARGEUR de la grille, pas la marge de la section, pour que le titre
+       reste sur l'axe des sections voisines.
+       240 = 2 x 120, et 120 = 16 (ecart du rail au bord) + 86 (rail) + 18.
+       « Aujourd'hui » a exactement le meme probleme et n'est PAS corrige ici :
+       ses cartes ne sont pas cliquables, et ce chantier-ci porte sur la
+       pause. */
+    @media (min-width: 901px) { #ztsPauseGrid { max-width: min(1400px, calc(100vw - 240px)); } }
+    /* ======================================================================
+       LES TROIS CARTES SONT PEINTES — 25 aout 2026, demande de Joey.
+       Cyan, jaune, cyan, dans l'ordre d'affichage : citation, fait
+       historique, quiz. Les couleurs sont celles du patron
+       (--ztsp-cyan-vif, --ztsp-jaune), pas des teintes inventees.
+
+       LA COULEUR EST ACCROCHEE AU TYPE DE CARTE, PAS A SA POSITION.
+       `:nth-child` aurait été plus court, mais la carte du fait historique
+       n'est rendue QUE si `getEphemeride()` repond (daily.js) : le jour ou
+       elle manque, le quiz changerait de couleur en glissant d'un cran.
+       Une carte garde sa couleur, meme quand sa voisine tombe.
+
+       TOUS LES TEXTES ONT ETE REMESURES SUR LEUR NOUVEAU FOND. Trois
+       accents ne passaient plus :
+         · l'etiquette du fait historique, #FFAA00 sur le jaune — 1,2:1,
+           illisible, c'etait de l'orange sur du jaune ;
+         · l'etiquette de la citation, #FF2A7A sur le cyan — 2,4:1 ;
+         · l'auteur et l'etiquette du quiz, #8B5CF6 sur le cyan — 3,1:1.
+       Ils passent a l'encre du patron, qui garde le trait pop-art sans
+       demander au lecteur de plisser les yeux. Les gros textes (citation,
+       question, fait) etaient deja en #18181b : ils gagnent au change.
+       ====================================================================== */
     .zts-pause-card { background: #fff; border-radius: 24px; padding: 32px 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 4px solid #18181b; position: relative; transition: transform 0.3s; }
+    .zts-pause-quote, .zts-pause-quiz { background: linear-gradient(180deg, #B6F0FF, var(--ztsp-cyan-vif)); }
+    .zts-pause-fact                   { background: linear-gradient(180deg, #FFFF9E, var(--ztsp-jaune)); }
     .zts-pause-card:hover { transform: translateY(-4px) rotate(-0.5deg); }
     .zts-pause-label { font-family: var(--font-impact); font-size: 1rem; letter-spacing: 2px; color: #FF2A7A; margin-bottom: 18px; }
     .zts-pause-quiz .zts-pause-label { color: #8B5CF6; }
@@ -3128,12 +3170,35 @@
     .zts-pause-fact-text { font-family: var(--font-bang); font-size: 1.5rem; color: #18181b; line-height: 1.3; letter-spacing: 1.2px; }
     .zts-pause-fact-date { font-family: var(--font-bang); color: #FF2A7A; font-size: 1.3rem; margin-top: 16px; letter-spacing: 2px; }
     .zts-pause-fact .zts-pause-label { color: #FFAA00; }
+
+    /* Les accents recolores, apres les regles d'origine pour gagner a
+       specificite egale. Une seule ligne par cas, rien d'autre ne bouge. */
+    .zts-pause-quote .zts-pause-label,
+    .zts-pause-quiz  .zts-pause-label,
+    .zts-pause-fact  .zts-pause-label,
+    .zts-pause-fact  .zts-pause-fact-date,
+    .zts-pause-quote .zts-pause-author { color: var(--ztsp-noir); }
+
     .zts-pause-choices { display: flex; flex-direction: column; gap: 10px; }
-    .zts-pause-choice { font-family: var(--font-body); font-size: 1.15rem; background: #f3f4f6; color: #18181b; border: 3px solid #e5e7eb; padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; }
+    /* Les choix passent au blanc franc : sur le cyan, le gris #f3f4f6 se
+       lisait comme une zone eteinte, et sa bordure #e5e7eb disparaissait
+       completement. Bordure a l'encre du patron, comme les boutons du site. */
+    .zts-pause-choice { font-family: var(--font-body); font-size: 1.15rem; background: #fff; color: #18181b; border: 3px solid var(--ztsp-noir); padding: 12px 16px; border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; }
     .zts-pause-choice:hover:not(:disabled) { background: #FFEA00; border-color: #18181b; transform: translateX(4px); }
-    .zts-pause-choice:disabled { cursor: default; opacity: 0.6; }
-    .zts-pause-choice.correct { background: #10B981 !important; color: #fff; border-color: #065f46; opacity: 1; }
-    .zts-pause-choice.wrong { background: #EF4444 !important; color: #fff; border-color: #991b1b; }
+    /* ETATS DU QUIZ, REMESURES UNE FOIS LA REPONSE DONNEE.
+       Les trois etaient sous le seuil, et le fond cyan de la carte l'a rendu
+       visible : `opacity: .6` delave le bouton ENTIER, texte compris, et il
+       se fond desormais dans le cyan au lieu du blanc.
+         · mauvaise reponse   1,95:1  (rouge delave, texte blanc)
+         · bonne reponse      2,54:1  (blanc sur #10B981, jamais passe)
+         · choix non retenus  4,44:1
+       Le delave part : un bouton eteint se signale par sa teinte, pas en
+       effacant son texte. Le vert et le rouge sont assombris juste assez
+       pour porter du blanc. La bonne reponse gardait deja `opacity: 1` —
+       la mauvaise ne l'avait pas, c'etait un oubli, pas une intention. */
+    .zts-pause-choice:disabled { cursor: default; opacity: 1; background: #EDF1F4; color: #3B4652; }
+    .zts-pause-choice.correct { background: #0B6E4F !important; color: #fff; border-color: #063D2C; opacity: 1; }
+    .zts-pause-choice.wrong { background: #B3161C !important; color: #fff; border-color: #6B0C10; opacity: 1; }
     .zts-pause-feedback { font-family: var(--font-body); font-size: 1.05rem; color: #18181b; background: #FFEA00; padding: 14px 16px; border-radius: 12px; margin-top: 16px; border: 2px solid #18181b; line-height: 1.4; }
     @media (max-width: 640px) {
         #ztsPauseGrid { grid-template-columns: 1fr; }
