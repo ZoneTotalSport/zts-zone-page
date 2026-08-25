@@ -2007,6 +2007,64 @@
      est un chantier lisible. */
 
   /* ==================================================================== */
+  /* Entonnoir d'inscription                                              */
+  /* ==================================================================== */
+
+  /* CE QUE CE BLOC COUVRE, ET CE QU'IL NE COUVRE PAS.
+     ────────────────────────────────────────────────────────────────────
+     `shared/zts-gate.js` — le mur des apps — ne trace RIEN. Verifie le
+     25 aout 2026 : aucun appel a ztsTrackFunnel, aucun a gtag. Les 26 apps
+     qui l'utilisent sont donc absentes de l'entonnoir, la ou les 19 qui
+     passent par zts-lock-page.js y sont.
+
+     On emet ici les deux evenements que l'app PEUT constater sans toucher au
+     fichier partage :
+
+       locked_view          le mur s'affiche a un anonyme
+       locked_click_signup  il appuie sur « Creer mon compte » ou sur Google
+
+     `signup_complete` MANQUE ENCORE, et il faut le dire. Il est pose par
+     firebase-auth.js — que le mur des apps ne charge pas : le gate fait sa
+     propre authentification. Le boucler demanderait de modifier zts-gate.js,
+     donc de decider pour les 26 apps. C'est une decision de Joey, pas un
+     ajout a glisser dans un chantier d'app. */
+
+  function cableEntonnoir() {
+    if (typeof window.ztsTrackFunnel !== 'function') return;
+    var mur = id('zts-gate');
+    if (!mur) return;
+
+    var vu = false;
+    function regarde() {
+      var visible = !mur.hidden && getComputedStyle(mur).display !== 'none';
+      if (visible && !vu) {
+        vu = true;
+        window.ztsTrackFunnel('locked_view', { source: 'app', slug: 'rencontres', layer: 'gate' });
+      }
+    }
+
+    // Le mur se dessine puis se cache si la session est deja ouverte : on
+    // observe l'attribut plutot que de mesurer une fois au chargement, sinon
+    // on tracerait un « mur vu » a chaque visite d'un membre.
+    if (window.MutationObserver) {
+      new MutationObserver(regarde).observe(mur, { attributes: true, attributeFilter: ['hidden', 'style'] });
+    }
+    setTimeout(regarde, 1200);
+
+    // Les deux boutons vivent dans le DOM du mur, redessine a chaque bascule
+    // entre « creer un compte » et « se connecter » : on ecoute au niveau du
+    // mur, pas sur les boutons eux-memes.
+    mur.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('#ztg-submit, #ztg-google');
+      if (!b) return;
+      window.ztsTrackFunnel('locked_click_signup', {
+        source: 'app', slug: 'rencontres', layer: 'gate',
+        provider: b.id === 'ztg-google' ? 'google' : 'email'
+      });
+    });
+  }
+
+  /* ==================================================================== */
   /* Demarrage                                                            */
   /* ==================================================================== */
 
@@ -2083,6 +2141,7 @@
     cableIA();
     cableSortie();
     cableSuivi();
+    cableEntonnoir();
 
     dossiers = RencData.dossiersDefaut();
     dessineDossiers();

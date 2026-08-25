@@ -390,6 +390,12 @@
   </div>
 
   <script src="../../shared/zts.js"></script>
+  <!-- zts-funnel.js expose window.ztsTrackFunnel. shared/zts-gate.js ne trace
+       RIEN de lui-meme — les 26 apps qui l'utilisent n'alimentent donc pas
+       l'entonnoir, contrairement aux 19 qui passent par zts-lock-page.js.
+       Charge ici pour que l'app emette au moins `locked_view` et
+       `locked_click_signup` ; voir cableEntonnoir() dans app.js. -->
+  <script src="../../zts-funnel.js"></script>
   <script src="../../shared/zts-gate.js"></script>
   <script src="../../assets/ztsh-shell.js"></script>
   <script>ZTSShell.monter({ densite: 'travail' });</script>
