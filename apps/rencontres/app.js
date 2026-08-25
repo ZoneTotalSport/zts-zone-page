@@ -17,8 +17,10 @@
  *      d'un passage selectionne.
  *   F  classement : creer, renommer et supprimer un dossier, glisser-deposer
  *      une rencontre, recherche plein texte, filtre par type.
+ *   G  sortie : courriel, copie, impression PDF, export .txt et .md, partage
+ *      natif.
  *
- * Les commandes des vagues G et H sont a l'ecran mais desactivees, et chacune
+ * Les commandes de la vague H sont a l'ecran mais desactivees, et chacune
  * NOMME sa vague dans son title — voir pasEncore().
  *
  * Script classique, pas un module : charge apres shared/zts.js, zts-gate.js,
@@ -1384,6 +1386,265 @@
   }
 
   /* ==================================================================== */
+  /* Sortie : courriel, copie, PDF, exports (vague G)                     */
+  /* ==================================================================== */
+
+  var CLE_DESTINATAIRES = 'zts_renc_destinataires';
+
+  var LIBELLE_TYPE_LONG = {
+    comite: 'Comité', statutaire: 'Rencontre statutaire', autre: 'Rencontre'
+  };
+
+  /**
+   * Convertit le compte rendu en TEXTE. Ce n'est pas cosmetique : c'est ce qui
+   * part par courriel, ce qui atterrit dans le presse-papiers et ce qui
+   * s'exporte. Un `innerText` brut perdrait les puces et les cases a cocher —
+   * or « fait » ou « pas fait » est justement l'information.
+   *
+   * @param {'txt'|'md'} format
+   */
+  function htmlVersTexte(html, format) {
+    var bac = document.implementation.createHTMLDocument('').body;
+    bac.innerHTML = assainit(html || '');
+    var out = [];
+
+    function marche(n, dansListe, rang) {
+      var i;
+      for (i = 0; i < n.childNodes.length; i++) {
+        var e = n.childNodes[i];
+        if (e.nodeType === 3) {
+          var t = e.textContent.replace(/\s+/g, ' ');
+          if (t.trim()) { out.push(t); continue; }
+          // UN NOEUD DE TEXTE FAIT D'ESPACES N'EST PAS DU VIDE. Entre
+          // « </b> <b> », c'est la seule chose qui separe deux mots — le jeter
+          // collait « Marie-Eve(2026-09-08) ». On le reduit a une espace, et
+          // seulement si ce qui precede n'en a pas deja une.
+          if (out.length && !/\s$/.test(out[out.length - 1])) out.push(' ');
+          continue;
+        }
+        if (e.nodeType !== 1) continue;
+        var tag = e.tagName;
+
+        if (tag === 'INPUT' && e.getAttribute('type') === 'checkbox') {
+          // En Markdown, une case a cocher n'est reconnue que dans une PUCE :
+          // `[x]` tout seul s'affiche tel quel, `- [x]` devient une vraie case
+          // dans GitHub, Obsidian, Notion et les autres.
+          var coche = e.hasAttribute('checked') || e.checked;
+          out.push((format === 'md' ? '- ' : '') + (coche ? '[x] ' : '[ ] '));
+          continue;
+        }
+        if (tag === 'BR') { out.push('\n'); continue; }
+        if (/^H[1-3]$/.test(tag)) {
+          var niveau = Number(tag.slice(1));
+          out.push('\n\n');
+          // Le titre du document prend `#` : les sections commencent donc a
+          // `##`, sinon la hierarchie du fichier est fausse des la premiere.
+          if (format === 'md') out.push('#'.repeat(niveau) + ' ');
+          marche(e, false, 0);
+          // En .txt, un titre se souligne : c'est ce qui le distingue quand il
+          // n'y a pas de mise en forme du tout.
+          if (format !== 'md') {
+            var texteTitre = out[out.length - 1] || '';
+            out.push('\n' + '-'.repeat(Math.min(60, String(texteTitre).trim().length)));
+          }
+          out.push('\n');
+          continue;
+        }
+        if (tag === 'UL' || tag === 'OL') {
+          out.push('\n');
+          var num = 1;
+          for (var j = 0; j < e.children.length; j++) {
+            if (e.children[j].tagName !== 'LI') continue;
+            out.push(tag === 'OL' ? (num++) + '. ' : '- ');
+            marche(e.children[j], true, 0);
+            out.push('\n');
+          }
+          continue;
+        }
+        if (tag === 'P' || tag === 'DIV') {
+          out.push('\n');
+          marche(e, dansListe, rang);
+          out.push('\n');
+          continue;
+        }
+        if ((tag === 'B' || tag === 'STRONG') && format === 'md') {
+          out.push('**'); marche(e, dansListe, rang); out.push('**');
+          continue;
+        }
+        marche(e, dansListe, rang);
+      }
+    }
+    marche(bac, false, 0);
+    return out.join('')
+      // Les espaces doubles viennent des marqueurs de case a cocher suivis
+      // d'un noeud de texte qui commence lui-meme par une espace. On les
+      // reduit APRES coup plutot que de compliquer la marche.
+      .replace(/[ \t]{2,}/g, ' ')
+      .replace(/[ \t]+\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  /** L'en-tete du compte rendu, en texte. */
+  function enteteTexte(format) {
+    var r = lisFormulaire();
+    var l = [];
+    var titre = (r.titre || 'Compte rendu').trim();
+    if (format === 'md') l.push('# ' + titre);
+    else l.push(titre.toUpperCase(), '='.repeat(Math.min(60, titre.length)));
+    l.push('');
+    l.push((LIBELLE_TYPE_LONG[r.type] || 'Rencontre') + ' — ' + (r.date || ''));
+    var d = dossiers.filter(function (x) { return x.id === r.dossier; })[0];
+    if (d) l.push('Dossier : ' + nomDossier(d));
+    if (r.animateur) l.push('Animateur : ' + r.animateur);
+    if (r.secretaire) l.push('Secrétaire : ' + r.secretaire);
+    var p = String(r.participants || '').trim();
+    if (p) l.push('Participants : ' + p);
+    return l.join('\n');
+  }
+
+  /** Le compte rendu complet, pret a partir. */
+  function rendu(format) {
+    var corps = htmlVersTexte((id('rencSortie') || {}).innerHTML, format);
+    if (!corps) corps = htmlVersTexte((id('rencNotes') || {}).innerHTML, format);
+    return enteteTexte(format) + '\n\n' + corps + '\n';
+  }
+
+  function sujetCourriel() {
+    var r = lisFormulaire();
+    return (r.titre || 'Compte rendu') + ' — ' + (r.date || '');
+  }
+
+  async function copie(texte) {
+    try {
+      await navigator.clipboard.writeText(texte);
+      return true;
+    } catch (e) {
+      // Le presse-papiers est refuse hors d'un geste de l'usager, et sur
+      // certains navigateurs sans HTTPS. On retombe sur la vieille methode
+      // plutot que d'echouer : c'est le bouton le plus utile de la barre.
+      try {
+        var z = document.createElement('textarea');
+        z.value = texte;
+        z.setAttribute('readonly', '');
+        z.style.position = 'fixed';
+        z.style.top = '-1000px';
+        document.body.appendChild(z);
+        z.select();
+        var ok = document.execCommand('copy');
+        z.remove();
+        return ok;
+      } catch (e2) { return false; }
+    }
+  }
+
+  function telecharge(nom, texte, type) {
+    var b = new Blob([texte], { type: type + ';charset=utf-8' });
+    var u = URL.createObjectURL(b);
+    var a = document.createElement('a');
+    a.href = u;
+    a.download = nom;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    // On libere l'URL, mais pas tout de suite : Safari annule le
+    // telechargement si l'objet disparait avant qu'il ait commence.
+    setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+  }
+
+  function nomFichier(ext) {
+    var r = lisFormulaire();
+    var base = (r.titre || 'compte-rendu')
+      .toLowerCase()
+      .normalize ? (r.titre || 'compte-rendu').toLowerCase().normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') : (r.titre || 'compte-rendu').toLowerCase();
+    base = base.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'compte-rendu';
+    return base + '-' + (r.date || '') + '.' + ext;
+  }
+
+  /* ── Courriel ──────────────────────────────────────────────────────────
+     `mailto:` tronque : la limite pratique tourne autour de 2 000 caracteres,
+     moins sur Outlook, et un compte rendu structure les depasse presque
+     toujours. On n'essaie donc PAS de faire passer le corps entier : le
+     courriel porte l'en-tete et une phrase, le compte rendu complet va dans le
+     presse-papiers, et l'interface le DIT. C'est le §7 du cahier. */
+  async function envoieCourriel() {
+    if (!courante) return;
+    var memoire = '';
+    try { memoire = localStorage.getItem(CLE_DESTINATAIRES) || ''; } catch (e) {}
+    var dest = window.prompt(
+      'À qui envoyer ce compte rendu ?\n(adresses séparées par des virgules)', memoire);
+    if (dest === null) return;
+    dest = dest.trim();
+    try { if (dest) localStorage.setItem(CLE_DESTINATAIRES, dest); } catch (e) {}
+
+    var complet = rendu('txt');
+    var colle = await copie(complet);
+
+    var corps = enteteTexte('txt') + '\n\n'
+      + (colle
+          ? 'Le compte rendu complet est dans ton presse-papiers : colle-le ici (Ctrl+V ou Cmd+V).'
+          : 'Le compte rendu complet suit — copie-le depuis l\'application.')
+      + '\n';
+
+    var url = 'mailto:' + encodeURIComponent(dest)
+      + '?subject=' + encodeURIComponent(sujetCourriel())
+      + '&body=' + encodeURIComponent(corps);
+    window.location.href = url;
+
+    etat(colle
+      ? 'Courriel ouvert. Le compte rendu complet est dans le presse-papiers — colle-le dans le message.'
+      : '⚠ Le presse-papiers a été refusé. Utilise « Copier le compte rendu », puis colle dans le courriel.',
+      colle ? 'attente' : 'alerte');
+  }
+
+  function cableSortie() {
+    var e = id('rencEnvoyer');
+    if (e) e.addEventListener('click', envoieCourriel);
+
+    var c = id('rencCopier');
+    if (c) c.addEventListener('click', async function () {
+      var ok = await copie(rendu('txt'));
+      etat(ok ? 'Compte rendu copié — colle-le où tu veux.'
+              : '⚠ La copie a été refusée par le navigateur.', ok ? '' : 'alerte');
+    });
+
+    var p = id('rencPdf');
+    if (p) p.addEventListener('click', function () {
+      // Le bloc @media print de styles.css rend la main au contenu : sans lui
+      // les 41 apps migrees impriment une page blanche.
+      window.print();
+    });
+
+    var t = id('rencTxt');
+    if (t) t.addEventListener('click', function () {
+      telecharge(nomFichier('txt'), rendu('txt'), 'text/plain');
+      etat('Fichier .txt téléchargé.');
+    });
+
+    var m = id('rencMd');
+    if (m) m.addEventListener('click', function () {
+      telecharge(nomFichier('md'), rendu('md'), 'text/markdown');
+      etat('Fichier .md téléchargé.');
+    });
+
+    var s = id('rencPartage');
+    if (s) s.addEventListener('click', async function () {
+      if (typeof navigator.share !== 'function') return;
+      try {
+        await navigator.share({ title: sujetCourriel(), text: rendu('txt') });
+        etat('Partagé.');
+      } catch (err) {
+        // L'usager qui ferme la feuille de partage declenche une erreur
+        // « AbortError ». Ce n'est pas une panne, c'est un renoncement.
+        if (err && err.name !== 'AbortError') {
+          etat('⚠ Le partage a échoué (' + (err.message || err) + ').', 'alerte');
+        }
+      }
+    });
+  }
+
+  /* ==================================================================== */
   /* Ce qui n'est pas encore branche                                      */
   /* ==================================================================== */
 
@@ -1474,6 +1735,7 @@
     cableMicro();
     cableImport();
     cableIA();
+    cableSortie();
 
     dossiers = RencData.dossiersDefaut();
     dessineDossiers();
@@ -1494,8 +1756,6 @@
       if (bt) bt.addEventListener('click', function () { nouvelle(null); });
     });
 
-    ['rencEnvoyer', 'rencCopier', 'rencPdf', 'rencTxt', 'rencMd', 'rencPartage']
-      .forEach(function (c) { pasEncore(c, 'G'); });
     var nd = id('rencNouveauDossier');
     if (nd) nd.addEventListener('click', nouveauDossier);
     var sup = id('rencSupprimer');
