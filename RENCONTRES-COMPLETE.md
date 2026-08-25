@@ -359,6 +359,67 @@ puisque rien n'est encore passé par les routes authentifiées.
 
 ---
 
+## Banc d'essai authentifié (25 août 2026)
+
+Joué avec un jeton Firebase fourni par Joey — **son compte personnel**
+(`zts@hotmail.ca`, uid `HuhfoyPfTRbjA22Ee98MTCLo1m72`), pas un compte jetable.
+Le jeton a été effacé du disque après les essais.
+
+> ⚠ Cloudflare a d'abord répondu **1010** aux appels : sa vérification
+> d'intégrité de navigateur refuse la signature de `python-urllib`. Les essais
+> passent par `curl`, comme les appels témoins.
+
+| Essai | Résultat |
+|---|---|
+| `devis` 9 s | `0.2` min demandées, 120 restantes, `suffisant: true` |
+| **Segment audio réel** — WAV fr-CA 9,4 s, 16 kHz mono, 301 538 o | **`@cf/openai/whisper-large-v3-turbo`** en 2 726 ms |
+| Texte rendu | « Premier point à l'ordre du jour, l'horaire des surveillances… Marie-Ève s'occupe du gymnase, et François vérifie le matériel avant la récréation. » |
+| **IA mot à mot** | hésitations retirées (« euh », « fait que là », « pis »), ponctuation et paragraphes ajoutés, rien de reformulé |
+| **IA structuré** | résumé, 4 points, 1 décision, 1 action avec responsable, 2 reportés |
+| Quota minutes en KV | `renc:<uid>:2026-08-25` = **0.2** |
+| Quota IA en KV | `rencia:<uid>:2026-08-25` = **2** |
+| Écriture Firestore réelle | **200**, relecture **200** |
+| Écriture au nom d'un autre `uid` | **403 `PERMISSION_DENIED`** |
+| Sans jeton | **401** sur les deux routes |
+
+Les quatre compteurs coexistent dans le même namespace sans se toucher :
+`anon:` (générateur), `deco:` (décodage), `renc:` et `rencia:`.
+
+**Ménage fait et vérifié** : le document d'essai est supprimé,
+`rencontres/` rend **0 document** pour ce `uid`, et `rencontresDossiers/<uid>`
+répond `NOT_FOUND` — je n'en ai jamais créé.
+
+*Note : après suppression, une relecture rend **403** et non 404. C'est normal —
+la règle de lecture s'appuie sur `resource.data.uid`, qui n'existe plus. Le 403
+confirme la disparition.*
+
+### ⚠ Un défaut que seule l'épreuve réelle pouvait montrer
+
+Sur « réserve le gymnase **avant le 30 septembre** », le modèle a rendu
+l'échéance **2024-09-30** — une date **passée**, dont il a inventé l'année
+faute de savoir quand la rencontre avait lieu.
+
+Ce n'est pas cosmétique : une échéance au passé arrive dans « Mes actions »
+sous l'étiquette **en retard**, en rouge, en tête de liste. L'usager voit une
+urgence qui n'existe pas, sur une action qu'il vient de créer.
+
+**Deux verrous** (`59a988fe`, déployé en `19cc6c11`) : la date de la rencontre
+part avec la demande et ancre la consigne, **et** le worker jette toute
+échéance antérieure à la rencontre — la consigne guide le modèle, le filtre ne
+lui fait pas confiance.
+
+| Même extrait, même modèle | Échéance rendue |
+|---|---|
+| sans date — « avant le 30 septembre » | `2025-09-30` ❌ |
+| sans date — « la semaine prochaine » | *(vide)* |
+| avec `dateRencontre: 2026-08-25` — « avant le 30 septembre » | **`2026-09-30`** ✅ |
+| avec `dateRencontre: 2026-08-25` — « la semaine prochaine » | **`2026-09-01`** ✅ |
+
+L'ancrage ne corrige pas seulement l'année : il rend exploitables les dates
+relatives, que le modèle laissait tomber faute de point de départ.
+
+---
+
 ## Reste à la charge de Joey
 
 - **Un slot de prévisualisation.** `preview_start` refuse — 5 serveurs pour ce
@@ -374,17 +435,7 @@ puisque rien n'est encore passé par les routes authentifiées.
   reste à ta charge, comme les 4 tests de `LOT1-COMPLETE.md`.
 - ~~Déployer `zts-generateur`~~ — **fait**, version `d766b69d`.
 - ~~Confirmer `whisper-large-v3-turbo`~~ — **présent et éprouvé**.
-- **Un jeton Firebase.** Les deux routes authentifiées —
-  `/rencontres-transcription` et `/rencontres-ia` — ne sont vérifiées que
-  jusqu'au 401. Le débit des compteurs `renc:` et `rencia:` en KV, la sortie
-  verbatim et la sortie structurée restent à éprouver.
-  **Je ne crée pas de compte et je ne saisis pas de mot de passe**, y compris
-  jetable. Il faut donc soit un jeton de Joey, soit un compte d'essai créé par
-  lui :
-  ```js
-  await firebase.auth().currentUser.getIdToken()
-  ```
-  Le jeton vaut une heure — largement de quoi jouer les quatre essais.
+- ~~Un jeton Firebase~~ — **fourni le 25 août, les quatre essais sont joués.**
 - **Le micro sur une vraie machine** : dictée fr-CA avec accents, et les
   silences d'une vraie rencontre pour éprouver le redémarrage sur `onend`.
 
