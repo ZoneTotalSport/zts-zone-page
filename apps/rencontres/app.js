@@ -394,6 +394,9 @@
       etat('Pas de réseau — tes notes restent sur cet appareil et partiront au retour de la connexion.', 'attente');
       return;
     }
+    // Avant d'ecrire : si le titre est vide, on en propose un. La liste ne
+    // doit pas se remplir de « Sans titre ».
+    proposeTitre();
     var doc = lisFormulaire();
     var verdict = RencData.verifiePoids(doc);
     if (!verdict.ok) {
@@ -720,7 +723,23 @@
         for (var i = 0; i < c.length; i++) c[i].classList.remove('is-cible');
       });
 
+      li.className = 'renc-item-l';
       li.appendChild(bt);
+
+      // La corbeille de la rangee. Elle vit dans le DOM en permanence pour
+      // rester atteignable au clavier ; c'est l'opacite qui l'efface au repos.
+      var jeter = document.createElement('button');
+      jeter.type = 'button';
+      jeter.className = 'renc-item-jeter';
+      jeter.textContent = '🗑️';
+      jeter.title = 'Supprimer « ' + (r.titre || 'Sans titre') + ' »';
+      jeter.setAttribute('aria-label', jeter.title);
+      jeter.addEventListener('click', function (e) {
+        e.stopPropagation();
+        supprimeRencontre(r);
+      });
+      li.appendChild(jeter);
+
       hote.appendChild(li);
     });
 
@@ -972,8 +991,7 @@
 
     // 1 — mettre la rencontre en surete AVANT tout le reste.
     if (!courante) nouvelle(null);
-    var t = id('rencTitre');
-    if (t && !t.value.trim()) t.value = 'Rencontre du ' + ((id('rencDate') || {}).value || '');
+    proposeTitre();
     marqueSale();
     try {
       await sauveServeur(true);
@@ -1421,6 +1439,39 @@
     return (id('rencDate') || {}).value || '';
   }
 
+  /**
+   * Le titre qu'on PROPOSE quand l'usager n'en a pas mis.
+   *
+   * « Sans titre » est un aveu d'echec affiche dans la liste : trois
+   * rencontres « Sans titre » ne se distinguent plus, et il faut les ouvrir
+   * une par une pour savoir laquelle jeter. « Rencontre du 25 août » est
+   * toujours plus parlant, et ca ne coute rien a produire.
+   *
+   * L'annee n'est ecrite que si elle n'est pas l'annee courante : « Rencontre
+   * du 25 août » se lit mieux que « Rencontre du 25 août 2026 », et le jour
+   * ou ca compte — une vieille rencontre — l'annee reapparait d'elle-meme.
+   */
+  function titreParDefaut(iso) {
+    var d = iso ? new Date(iso + 'T12:00:00') : new Date();
+    if (isNaN(d.getTime())) d = new Date();
+    var opts = { day: 'numeric', month: 'long' };
+    if (d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+    var quand;
+    try { quand = d.toLocaleDateString(lang() === 'en' ? 'en-CA' : 'fr-CA', opts); }
+    catch (e) { quand = iso || ''; }
+    return (lang() === 'en' ? 'Meeting of ' : 'Rencontre du ') + quand;
+  }
+
+  /** Remplit le champ titre s'il est vide. On le POSE dans le champ plutot
+      que de l'inventer au moment d'ecrire : l'usager voit ce qui sera
+      enregistre, et peut encore le changer. */
+  function proposeTitre() {
+    var t = id('rencTitre');
+    if (!t || t.value.trim()) return false;
+    t.value = titreParDefaut((id('rencDate') || {}).value);
+    return true;
+  }
+
   function modeleChoisi() {
     var c = id('rencSonnet');
     return (c && c.checked) ? 'sonnet' : 'haiku';
@@ -1591,19 +1642,34 @@
     });
   }
 
-  /** Supprimer LA RENCONTRE ouverte. Sans retour possible : on le dit. */
-  async function supprimeRencontre() {
-    if (!courante || !courante.id) { etat('Rien à supprimer.', 'attente'); return; }
-    if (!window.confirm('Supprimer « ' + (courante.titre || 'Sans titre')
-      + ' » ?\n\nLe compte rendu, la transcription et les actions partent avec.'
-      + ' C\'est sans retour.')) return;
+  /**
+   * Supprimer une rencontre. UNE SEULE FONCTION pour les trois portes — la
+   * corbeille de la liste, le bouton de la fiche, l'entree du menu ⋯ — parce
+   * qu'une suppression qui se comporte differemment selon l'endroit d'ou on
+   * l'a lancee est une suppression a laquelle on ne fait plus confiance.
+   *
+   * @param {Object} [r] la rencontre a supprimer ; par defaut, celle ouverte
+   */
+  async function supprimeRencontre(r) {
+    var cible = r || courante;
+    if (!cible || !cible.id) { etat('Rien à supprimer.', 'attente'); return; }
+
+    // La question de Joey, mot pour mot, avec le titre pour qu'on sache
+    // laquelle on jette.
+    if (!window.confirm('Supprimer « ' + (cible.titre || 'Sans titre')
+      + ' » ?\n\nElle sera effacée définitivement.')) return;
+
     try {
-      await RencData.supprimerRencontre(courante.id);
-      courante = null;
-      id('rencFiche').hidden = true;
-      id('rencAccueil').hidden = false;
+      await RencData.supprimerRencontre(cible.id);
+      if (courante && courante.id === cible.id) {
+        courante = null;
+        marquePropre();
+        id('rencFiche').hidden = true;
+        id('rencActionsVue').hidden = true;
+        id('rencAccueil').hidden = false;
+      }
       await rafraichitListe();
-      etat('Rencontre supprimée.');
+      etat('« ' + (cible.titre || 'Sans titre') + ' » supprimée.');
     } catch (e) {
       etat('⚠ La suppression a échoué (' + (e.message || e) + ').', 'alerte');
     }
@@ -2376,8 +2442,9 @@
 
     var nd = id('rencNouveauDossier');
     if (nd) nd.addEventListener('click', nouveauDossier);
-    var sup = id('rencSupprimer');
-    if (sup) sup.addEventListener('click', supprimeRencontre);
+    [id('rencSupprimer'), id('rencSupprimerFiche')].forEach(function (b) {
+      if (b) b.addEventListener('click', function () { supprimeRencontre(null); });
+    });
     ['rencCherche', 'rencFType'].forEach(function (c) {
       var n = id(c);
       if (n) n.addEventListener('input', dessineListe);

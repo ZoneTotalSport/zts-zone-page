@@ -469,6 +469,57 @@
   padding: 11px 12px 8px;
 }
 
+/* Le pied de l'en-tete : l'etat a gauche, la suppression a droite. */
+.renc-entete__pied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 9px;
+}
+.renc-entete__pied .renc-etat { margin-top: 0; flex: 1 1 220px; }
+
+/* Visible sans etre tapageuse : elle ne prend la couleur du danger qu'au
+   survol. Une suppression qui crie en permanence finit par etre ignoree ;
+   une suppression cachee, elle, n'existe pas. */
+.renc-supprimer {
+  flex: none;
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 7px 11px;
+  color: #B00034;
+  background: var(--renc-surface);
+  border: 2px solid #B00034;
+  border-radius: 8px;
+}
+.renc-supprimer:hover { background: #B00034; color: #FFFFFF; }
+.renc-supprimer:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+
+/* Dans la liste : meme discipline que les commandes de dossier — presente
+   dans le DOM en permanence pour le clavier, effacee a l'opacite au repos. */
+.renc-item-l { display: flex; align-items: stretch; gap: 2px; }
+.renc-item-l .renc-item { flex: 1 1 auto; min-width: 0; }
+.renc-item-jeter {
+  flex: none;
+  align-self: center;
+  font-size: 13px;
+  line-height: 1;
+  padding: 6px 7px;
+  cursor: pointer;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  opacity: 0;
+  transition: opacity .12s;
+}
+.renc-item-l:hover .renc-item-jeter,
+.renc-item-jeter:focus-visible { opacity: 1; }
+.renc-item-jeter:hover { background: #FFE3EA; border-color: #B00034; }
+.renc-item-jeter:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 1px; }
+
 .renc-etat {
   margin: 9px 0 0;
   min-height: 16px;
