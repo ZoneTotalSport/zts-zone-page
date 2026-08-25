@@ -120,16 +120,47 @@ ${isMobile ? "\u{1F4F1} Mobile" : "\u{1F4BB} Desktop"}`;
     //
     // Les messages d'erreur ne portent qu'un code de statut ("telegram 401") :
     // aucun secret ne peut fuir par la.
+    // ── LE TRAFIC EST COMPTE, PLUS ANNONCE ────────────────────────────────
+    // Decision de Joey, 25 aout 2026, apres le diagnostic du meme jour :
+    // ntfy.sh rendait « daily message quota reached » (429). La cause est le
+    // volume, pas un reglage — le palier gratuit plafonne a quelques centaines
+    // de messages par jour, et CHAQUE visite en envoyait. A 50-70 visites
+    // quotidiennes, plus autant de resumes de fin de session, le quota partait
+    // avant la fin de la journee et TOUT tombait ensuite, conversions
+    // comprises. Un canal d'alerte noye par sa propre routine n'alerte plus.
+    //
+    // LA COUPURE EST ICI, PAS DANS LE NAVIGATEUR, ET C'EST LE POINT CRUCIAL.
+    // Retirer l'appel cote client aurait aussi tue `incrementVisit()` : c'est
+    // ce meme POST qui alimente `analyticsDaily`, la seule serie de
+    // frequentation du site — 67 jours sans trou au 25 aout. On garde donc
+    // l'evenement, on garde le comptage, on coupe seulement les deux canaux.
+    //
+    // CE QUI CONTINUE DE SONNER : inscription, connexion, avis, clic d'app
+    // sans compte, et le rapport quotidien de 13 h UTC. Autrement dit tout ce
+    // qui demande une reaction. Le volume, lui, se lit dans Firestore.
+    //
+    // POUR REVENIR EN ARRIERE : supprimer ce bloc `if`. Une ligne de garde,
+    // rien d'autre n'a bouge.
+    const trafic = /visiteur/i.test(title);
+    if (trafic) {
+      ctx.waitUntil(incrementVisit(env).catch((e) => {
+        console.warn("compteur de visites: " + (e && e.message || e));
+      }));
+      return new Response(JSON.stringify({
+        ok: true,
+        compte: true,
+        ntfy: "muet (trafic)",
+        telegram: "muet (trafic)"
+      }), {
+        headers: { "Content-Type": "application/json", ...CORS }
+      });
+    }
+
     const ntfyP = sendNtfy(env, { title, body: fullMsg, priority, tags });
     const tgP = sendTelegram(env, {
       html: `<b>${escapeHtml(title)}</b>
 ${escapeHtml(fullMsg)}`
     });
-    if (/visiteur/i.test(title)) {
-      ctx.waitUntil(incrementVisit(env).catch((e) => {
-        console.warn("compteur de visites: " + (e && e.message || e));
-      }));
-    }
     const [rNtfy, rTg] = await Promise.allSettled([ntfyP, tgP]);
     const etat = (r) => r.status === "fulfilled" ? "ok" : "echec: " + (r.reason && r.reason.message || r.reason);
     if (rNtfy.status === "rejected") console.warn("ntfy: " + (rNtfy.reason && rNtfy.reason.message || rNtfy.reason));
