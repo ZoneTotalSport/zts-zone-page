@@ -1208,6 +1208,11 @@
     return out;
   }
 
+  /** La date de la rencontre ouverte — elle ancre les echeances relatives. */
+  function dateRencontre() {
+    return (id('rencDate') || {}).value || '';
+  }
+
   function modeleChoisi() {
     var c = id('rencSonnet');
     return (c && c.checked) ? 'sonnet' : 'haiku';
@@ -1279,7 +1284,7 @@
     var faits = [];
     for (var i = 0; i < parts.length; i++) {
       try {
-        var r = await RencData.traiteIA('verbatim', parts[i], modeleChoisi(), lang());
+        var r = await RencData.traiteIA('verbatim', parts[i], modeleChoisi(), lang(), dateRencontre());
         faits.push(r.texte || '');
         appliqueSortie(faits.join('\n\n'), 'verbatim');
         if (i + 1 < parts.length) {
@@ -1305,7 +1310,7 @@
     if (!source) { etat('Il n\'y a encore rien à résumer.', 'attente'); return; }
     iaOccupee(true, 'Compte rendu en préparation…');
     try {
-      var r = await RencData.traiteIA('structure', source, modeleChoisi(), lang());
+      var r = await RencData.traiteIA('structure', source, modeleChoisi(), lang(), dateRencontre());
       courante.actions = (r.sortie && r.sortie.actions) || [];
       appliqueSortie(rendStructure(r.sortie || {}), 'structure');
       iaOccupee(false, 'Compte rendu prêt — '
@@ -1327,7 +1332,7 @@
     }
     iaOccupee(true, 'Résumé du passage…');
     try {
-      var r = await RencData.traiteIA('passage', sel, modeleChoisi(), lang());
+      var r = await RencData.traiteIA('passage', sel, modeleChoisi(), lang(), dateRencontre());
       // Le resume s'AJOUTE au compte rendu, il ne l'ecrase pas : on resume un
       // point precis EN PLUS du reste, jamais a la place.
       var z = id('rencSortie');

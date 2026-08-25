@@ -525,18 +525,23 @@ const RencData = (() => {
    * @param {'verbatim'|'structure'|'passage'} mode
    * @param {string} texte   pour `verbatim`, UN BLOC — voir RencIA.blocs()
    * @param {'haiku'|'sonnet'} modele
+   * @param {string} lang
+   * @param {string} dateRencontre  AAAA-MM-JJ — ancre les echeances relatives
    * @returns {Promise<Object>} `{texte}` pour verbatim et passage,
    *                            `{sortie:{resume,points,decisions,actions,reportes}}`
    *                            pour structure
    */
-  async function traiteIA(mode, texte, modele, lang) {
+  async function traiteIA(mode, texte, modele, lang, dateRencontre) {
     const res = await fetch(API_IA, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (await jeton()) },
       body: JSON.stringify({
         mode: mode, texte: texte,
         modele: modele === 'sonnet' ? 'sonnet' : 'haiku',
-        lang: lang === 'en' ? 'en' : 'fr'
+        lang: lang === 'en' ? 'en' : 'fr',
+        // La date ancre les echeances relatives : « avant le 30 septembre »
+        // n'a de sens que rapporte au jour de la rencontre.
+        dateRencontre: dateIso(dateRencontre)
       })
     });
     if (!res.ok) throw await lisErreur(res);
