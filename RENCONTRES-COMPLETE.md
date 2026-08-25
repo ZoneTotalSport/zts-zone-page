@@ -591,6 +591,30 @@ Sinon, décris simplement ce que tu vois — ça suffit.
 
 ---
 
+## Dette v2 — décidée, non codée
+
+**Garder l'audio en `IndexedDB` local quand le quota du jour ne suffit pas.**
+
+Le cas : quelqu'un enregistre 38 minutes alors qu'il ne lui reste que 4 minutes
+de quota. Aujourd'hui la rencontre et les notes sont enregistrées, le message
+explique, et le bouton de transcription reste offert **tant que l'onglet vit**.
+S'il ferme, l'audio est perdu — il faut réenregistrer.
+
+Le faire survivre demanderait de l'écrire quelque part. **On ne le fait pas**,
+et c'est délibéré : la section 14 de `politique.html` et la section 9 de
+l'article promettent toutes deux que l'audio n'est jamais stocké. On ne casse
+pas une promesse écrite pour un cas rare.
+
+> ⚠ **Si cette dette est un jour levée, la section 14 de `politique.html` doit
+> être réécrite avant** — et la section 9 de l'article avec elle, puisque les
+> deux disent la même chose mot pour mot. Un stockage local reste un stockage :
+> le dire autrement serait mentir par omission.
+
+Les deux autres dettes du §9.5 du cahier restent inchangées : rappels d'actions
+par courriel via cron, et identification des locuteurs.
+
+---
+
 ## Ce qui reste ouvert, et qui n'appartient pas à ce chantier
 
 - **L'angle mort de `zts-gate.js`** — le mur des apps n'émet aucun événement

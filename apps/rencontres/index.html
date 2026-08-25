@@ -317,9 +317,17 @@
                 <span class="renc-rec" id="rencRec" hidden aria-hidden="true"></span>
               </div>
               <p class="renc-micro__mode" id="rencMicMode"></p>
+              <!-- CE QUE CETTE ZONE EST, ET CE QU'ELLE N'EST PAS.
+                   C'est la sortie BRUTE du moteur du navigateur : sans
+                   ponctuation, sans majuscules, avec les hesitations. Ce n'est
+                   pas le compte rendu, et la presenter comme tel donne
+                   l'impression que l'app travaille mal. On la nomme pour ce
+                   qu'elle est — un temoin que ca capte — et on l'attenue
+                   visuellement pour que l'oeil n'y cherche pas un resultat. -->
+              <p class="renc-micro__etiq" id="rencMicEtiq"></p>
               <div class="renc-micro__texte" id="rencMicTexte"
-                   role="textbox" aria-multiline="true" aria-label="Ce que le micro entend"
-                   data-vide="Le texte apparaîtra ici."></div>
+                   role="log" aria-live="off" aria-label="Ce que le micro entend, texte brut"
+                   data-vide="Les mots apparaîtront ici à mesure."></div>
               <p class="renc-etat" id="rencMicEtat" role="status" aria-live="polite"></p>
             </div>
           </div>
@@ -353,6 +361,14 @@
               <div class="renc-avance__piste"><span class="renc-avance__jauge" id="rencJauge"></span></div>
               <p class="renc-avance__l" id="rencAvanceTexte" role="status" aria-live="polite"></p>
             </div>
+
+            <!-- Le bouton de repli du parcours automatique. Il ne parait que
+                 quand la transcription n'a PAS pu partir toute seule — quota
+                 du jour epuise. L'audio vit alors en memoire, et seulement en
+                 memoire : voir la dette v2 au bas de RENCONTRES-COMPLETE.md. -->
+            <button class="renc-bt renc-bt--neuf renc-bt--gros" id="rencTranscrire" type="button" hidden>
+              🎙️ Lancer la transcription maintenant
+            </button>
 
             <p class="renc-etat" id="rencImportEtat" role="status" aria-live="polite"></p>
           </div>

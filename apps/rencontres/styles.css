@@ -733,17 +733,33 @@
   margin: 10px 0 8px;
 }
 
+/* L'etiquette du temoin. Elle dit ce que la zone est AVANT qu'on la lise. */
+.renc-micro__etiq {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: var(--renc-ink-doux);
+  margin: 0 0 5px;
+}
+
+/* LE TEMOIN, PAS LE RESULTAT. Gris, plus petit, adouci : l'oeil doit y lire
+   « ca capte » et non « voila mon compte rendu ». Le brut de Web Speech n'a
+   ni ponctuation ni majuscules — le presenter comme un texte fini fait croire
+   que l'app travaille mal, alors qu'elle n'a simplement pas encore travaille. */
 .renc-micro__texte {
-  min-height: 190px;
-  max-height: 46vh;
+  min-height: 150px;
+  max-height: 38vh;
   overflow-y: auto;
-  padding: 14px 16px;
-  font-size: 15px;
-  line-height: 1.6;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #5B6773;
   background: var(--renc-surface-alt);
-  border: 2px solid var(--renc-trait);
+  border: 2px dashed var(--renc-trait);
   border-radius: var(--renc-r);
   overflow-wrap: break-word;
+  opacity: .92;
 }
 .renc-micro__texte:empty::before {
   content: attr(data-vide);
@@ -940,6 +956,17 @@
   box-shadow: var(--renc-ombre-forte);
 }
 .renc-bt--ia2 { background: var(--ztsh-lime, #A3FF00); }
+/* Les deux boutons de traitement se signalent UNE FOIS, quand la transcription
+   vient de finir et que la rencontre est deja en surete. C'est le seul moment
+   ou le choix a du sens ; le reste du temps ils attendent sans rien demander. */
+.renc-bt--ia.is-propose { animation: renc-propose 1.1s ease-in-out 3; }
+@keyframes renc-propose {
+  0%, 100% { box-shadow: var(--renc-ombre-forte); }
+  50%      { box-shadow: 0 0 0 6px rgba(255, 252, 0, .85), var(--renc-ombre-forte); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .renc-bt--ia.is-propose { animation: none; box-shadow: 0 0 0 4px var(--ztsh-jaune, #FFFC00), var(--renc-ombre-forte); }
+}
 .renc-bt--passage { background: var(--ztsh-jaune, #FFFC00); }
 .renc-bt--passage[hidden] { display: none; }
 .renc-bt--ia:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--renc-trait); }

@@ -944,6 +944,50 @@
     if (rec2) rec2.hidden = (e !== 'enregistre');
   }
 
+  /* ── ⏹ TERMINER : UN SEUL GESTE ────────────────────────────────────────
+     Entre l'arret et « c'est en surete », il y avait six gestes et trois
+     decisions — et quatre facons de tout perdre, dont la pire : appuyer sur
+     ⏹, fermer le portable, et decouvrir qu'il ne reste rien parce que l'audio
+     ne vivait qu'en memoire.
+
+     Desormais l'usager appuie sur ⏹ et peut fermer. Dans l'ordre :
+
+       1. la rencontre est ECRITE AU SERVEUR tout de suite, avec ses notes,
+          AVANT que la transcription ne commence — c'est ce qui met le travail
+          de la rencontre en surete independamment de la suite ;
+       2. la transcription part seule, sans devis : apres avoir parle une
+          heure, il n'y a plus de choix a faire ;
+       3. chaque segment transcrit est ecrit a mesure ;
+       4. a l'arrivee, les deux boutons de traitement se proposent, sur une
+          rencontre deja enregistree.
+
+     L'AUDIO N'EST JAMAIS STOCKE, ni ici ni ailleurs. Quand le quota du jour
+     ne suffit pas, il reste en memoire et le bouton de transcription reste
+     offert TANT QUE L'ONGLET VIT — pas au-dela. Le faire survivre a la
+     fermeture demanderait de l'ecrire quelque part, ce qui contredirait la
+     section 14 de politique.html et la section 9 de l'article. On ne casse
+     pas une promesse ecrite pour un cas rare : c'est en dette v2. */
+  async function termineEnregistrement(blob, info) {
+    etatMicro('Enregistrement terminé — ' + RencMicro.formate(info.secondes) + '.', 'attente');
+
+    // 1 — mettre la rencontre en surete AVANT tout le reste.
+    if (!courante) nouvelle(null);
+    var t = id('rencTitre');
+    if (t && !t.value.trim()) t.value = 'Rencontre du ' + ((id('rencDate') || {}).value || '');
+    marqueSale();
+    try {
+      await sauveServeur(true);
+      etatImport('Rencontre enregistrée. Préparation de la transcription…');
+    } catch (e) {
+      etatImport('⚠ La rencontre n\'a pas pu être enregistrée (' + (e.message || e)
+        + '). Tes notes restent sur cet appareil.', 'alerte');
+    }
+
+    // 2 — enchainer la transcription, sans rien demander.
+    id('ongImport').click();
+    prepare(blob, 'enregistrement.' + (String(info.mime).indexOf('mp4') >= 0 ? 'm4a' : 'webm'), true);
+  }
+
   function cableMicro() {
     var zone = id('rencMicTexte');
     var mode = id('rencMicMode');
@@ -959,9 +1003,17 @@
 
     // Ce que l'usager VERRA, jamais de quelle interface dispose son
     // navigateur. Les deux phrases se valent : aucune n'annonce un manque.
+    // Deux phrases, aucune des deux ne s'excuse. Elles disent QUAND le texte
+    // arrive, jamais qu'une version serait moins bonne que l'autre.
     mode.textContent = RencMicro.direct
-      ? "Le texte s'écrit à l'écran pendant la rencontre."
+      ? "Tu verras les mots défiler pendant que ça enregistre. La version propre — ponctuée, sans les « euh » — arrive à la fin."
       : "Le texte s'écrit une fois l'enregistrement terminé.";
+    var etiq = id('rencMicEtiq');
+    if (etiq) {
+      etiq.textContent = RencMicro.direct
+        ? 'Texte brut — la version propre arrive à la fin'
+        : 'Le texte apparaîtra ici à la fin de l\'enregistrement';
+    }
 
     RencMicro.sur('minuteur', function (s) {
       var t = RencMicro.formate(s);
@@ -1003,17 +1055,7 @@
       etatMicro(SOUCIS[code] || code, code.indexOf('enregistrement') === 0 ? 'alerte' : 'attente');
     });
 
-    RencMicro.sur('audio', function (blob, info) {
-      // L'enregistrement rejoint EXACTEMENT le meme tuyau qu'un fichier
-      // depose : meme decodage 16 kHz mono, meme decoupage, meme devis, meme
-      // quota. C'est ce qui rend le mode micro identique sur Safari et sur
-      // Chrome — d'un cote le texte s'est deja ecrit pendant la rencontre, de
-      // l'autre il arrive maintenant, et le resultat de reference est le meme.
-      etatMicro('Enregistrement terminé — ' + RencMicro.formate(info.secondes)
-        + '. Préparation de la transcription…', 'attente');
-      id('ongImport').click();
-      prepare(blob, 'enregistrement.' + (String(info.mime).indexOf('mp4') >= 0 ? 'm4a' : 'webm'));
-    });
+    RencMicro.sur('audio', termineEnregistrement);
 
     // ── Consentement ──
     var bloc = id('rencConsent'), coche = id('rencConsentOk');
@@ -1102,7 +1144,10 @@
    * Prend un fichier ou un blob, le decode, le decoupe, demande le devis et
    * montre ce que ca va couter. Rien ne part avant que l'usager n'appuie.
    */
-  async function prepare(source, nom) {
+  /**
+   * @param {boolean} auto  parcours du micro : rien a decider, tout s'enchaine
+   */
+  async function prepare(source, nom, auto) {
     if (enCours) { etatImport('Une transcription est déjà en cours.', 'attente'); return; }
     if (nom && !RencAudio.formatAccepte(nom)) {
       etatImport('Format non reconnu. Accepte : mp3, m4a, wav, mp4, webm.', 'alerte');
@@ -1153,6 +1198,29 @@
     aTranscrire = { segments: segments, secondes: secondes, nom: nom || 'enregistrement' };
     etatImport('');
 
+    /* ── PARCOURS AUTOMATIQUE ────────────────────────────────────────────
+       Apres un enregistrement au micro, l'usager n'a plus de choix a faire :
+       il vient de parler une heure, l'audio est la, le transcrire est la
+       seule suite qui a du sens. On ne lui montre donc PAS le devis — c'est
+       une decision qui n'existe plus — et tout s'enchaine.
+
+       Le devis reste affiche avant un IMPORT de fichier : la, il choisit
+       encore, et il a le droit de savoir avant. */
+    if (auto) {
+      id('rencDevis').hidden = true;
+      if (devis.suffisant) { await lance(true); return; }
+      // Quota epuise : on n'abandonne rien. La rencontre est deja enregistree
+      // (voir termineEnregistrement), les notes sont en surete, et le bouton
+      // reste offert tant que l'onglet vit.
+      id('rencTranscrire').hidden = false;
+      etatImport('Il te reste ' + devis.minutesRestantes + ' minute'
+        + (devis.minutesRestantes > 1 ? 's' : '') + ' aujourd\'hui, et cet enregistrement en demande '
+        + devis.minutesDemandees + '. Ta rencontre et tes notes sont enregistrées. '
+        + 'Laisse cet onglet ouvert et lance la transcription toi-même quand tu veux — '
+        + 'ou réenregistre demain, le compteur repart.', 'attente');
+      return;
+    }
+
     id('rencDevisDuree').textContent = 'Durée détectée : ' + duree(secondes)
       + ' — ' + segments.length + ' segment' + (segments.length > 1 ? 's' : '') + '.';
     id('rencDevisQuota').textContent = 'Coût : ' + devis.minutesDemandees
@@ -1178,10 +1246,12 @@
   }
 
   /** Envoie les segments un par un, dans l'ordre, et recolle le texte. */
-  async function lance() {
+  /** @param {boolean} auto  vrai quand l'enchainement vient du micro */
+  async function lance(auto) {
     if (!aTranscrire || enCours) return;
     enCours = true;
     id('rencDevis').hidden = true;
+    id('rencTranscrire').hidden = true;
     id('rencAvance').hidden = false;
     if (!courante) nouvelle(null);
 
@@ -1191,9 +1261,13 @@
 
     function avance(texte) {
       id('rencJauge').style.width = Math.round((faits / segments.length) * 100) + '%';
-      id('rencAvanceTexte').textContent = texte;
+      // « Tu peux fermer » n'est dit que si c'est VRAI — donc seulement dans
+      // le parcours automatique, ou chaque segment est ecrit au serveur des
+      // qu'il arrive.
+      id('rencAvanceTexte').textContent = texte
+        + (auto ? ' Tu peux fermer, on garde tout ce qui est déjà transcrit.' : '');
     }
-    avance('Envoi du segment 1 sur ' + segments.length + '…');
+    avance('Transcription en cours — segment 1 sur ' + segments.length + '.');
 
     for (var i = 0; i < segments.length; i++) {
       var seg = segments[i];
@@ -1206,8 +1280,12 @@
         // plantage.
         appliqueTranscription(morceaux.join(' ').replace(/\s+/g, ' ').trim());
         faits++;
+        // CHAQUE SEGMENT EST ECRIT AU SERVEUR DES QU'IL ARRIVE. C'est ce qui
+        // rend vraie la phrase « tu peux fermer » : partir a mi-chemin ne
+        // perd que ce qui restait a transcrire, jamais ce qui l'est deja.
+        if (auto) { try { await sauveServeur(true); } catch (e) {} }
         avance(faits < segments.length
-          ? 'Segment ' + (faits + 1) + ' sur ' + segments.length + '…'
+          ? 'Transcription en cours — segment ' + (faits + 1) + ' sur ' + segments.length + '.'
           : 'Dernier segment…');
       } catch (e) {
         // On garde ce qui est deja transcrit : la moitie d'un compte rendu
@@ -1227,8 +1305,17 @@
     enCours = false;
     aTranscrire = null;
     id('rencAvance').hidden = true;
-    etatImport('Transcription terminée. Le texte est dans « Original » — les deux boutons de traitement arrivent à la vague E.', 'attente');
-    if (sale) sauveServeur(true);
+    await sauveServeur(true);
+    etatImport('✓ Transcription terminée et enregistrée. Le texte est dans « Original »'
+      + (auto ? '. Tu peux maintenant en tirer un mot à mot ou un compte rendu structuré — ou le laisser tel quel.' : '.'));
+    // Les deux boutons de traitement se signalent, une fois, sur une
+    // rencontre deja en surete. C'est le seul moment ou un choix a du sens.
+    ['rencVerbatim', 'rencStructure'].forEach(function (c) {
+      var n = id(c);
+      if (!n) return;
+      n.classList.add('is-propose');
+      setTimeout(function () { n.classList.remove('is-propose'); }, 6000);
+    });
   }
 
   /** Pose le texte transcrit dans la rencontre ouverte et dans l'onglet Original. */
@@ -1281,7 +1368,9 @@
       });
     });
 
-    id('rencLancer').addEventListener('click', lance);
+    id('rencLancer').addEventListener('click', function () { lance(false); });
+    var tr = id('rencTranscrire');
+    if (tr) tr.addEventListener('click', function () { lance(true); });
     id('rencAnnuler').addEventListener('click', function () {
       aTranscrire = null;
       id('rencDevis').hidden = true;
