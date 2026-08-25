@@ -313,6 +313,52 @@ micro identique sur Safari et sur Chrome.
 
 ---
 
+## Vague E — les deux traitements IA (24 août 2026)
+
+**Commit :** `ea187894` · **Déployé** le même jour, version `575922d7`.
+
+Trois modes : `verbatim` (texte), `structure` (JSON normalisé), `passage`
+(3-5 phrases). **Quatrième compteur, encore distinct** : `rencia:{uid}:{jour}`,
+plafond 40/jour.
+
+**Le mot à mot part par blocs.** 90 min ≈ 13 000 mots ≈ 18 000 jetons en
+sortie : aucun plafond ne tient ça, et le demander rendrait un texte coupé au
+milieu d'une phrase — la pire des sorties, parce qu'elle *a l'air* complète.
+Découpage en blocs de ~1 500 mots, coupés sur une fin de phrase.
+
+Éprouvé sur 12 000 mots : **8 blocs, 7 coupes sur 7 tombent sur une fin de
+phrase, 0 mot perdu**, plus gros bloc 8 374 car. (plafond worker 24 000). Cas
+limites tenus : vide, 3 mots, 3 000 mots sans ponctuation.
+
+### Contrôle de déploiement
+
+`origin/main` n'avait pas touché à `cf-worker/generateur/`. Diff **552
+insertions, 0 suppression** : deux blocs de route + un import dans le point
+d'entrée, trois variables et le binding `[ai]` dans les trois environnements,
+et deux fichiers neufs. Rien d'autre.
+
+### Appels témoins après déploiement
+
+| | |
+|---|---|
+| `/health` | 200 — `zts-generateur 0.4.0 prod` |
+| `/generate` | génération complète, `claude-haiku-4-5`, quota `{anon, 3/3}` |
+| `/inventaire-vision` sans jeton | **401** — garde intacte |
+| `/decodage` mauvaise origine | **403** |
+| `/decodage` bonne origine | réponse réelle, `claude-sonnet-4-6` |
+| `/rencontres-transcription` sans jeton | **401** |
+| `/rencontres-ia` sans jeton | **401** |
+
+**KV de production : deux clés, `anon:<ip>:2026-08` et `deco:<ip>:2026-08-25`.**
+Les compteurs ne se touchent pas. Aucune clé `renc:` ni `rencia:` — juste,
+puisque rien n'est encore passé par les routes authentifiées.
+
+> ⚠ **J'ai consommé le 3ᵉ et dernier essai anonyme du générateur pour cette IP
+> ce mois-ci** (`used: 3/3`). C'est le prix de l'appel témoin ; le compteur
+> repart le 1er septembre.
+
+---
+
 ## Reste à la charge de Joey
 
 - **Un slot de prévisualisation.** `preview_start` refuse — 5 serveurs pour ce
@@ -328,8 +374,17 @@ micro identique sur Safari et sur Chrome.
   reste à ta charge, comme les 4 tests de `LOT1-COMPLETE.md`.
 - ~~Déployer `zts-generateur`~~ — **fait**, version `d766b69d`.
 - ~~Confirmer `whisper-large-v3-turbo`~~ — **présent et éprouvé**.
-- **Un jeton Firebase**, pour constater le débit du quota en minutes (voir
-  vague D). Je ne crée pas de compte.
+- **Un jeton Firebase.** Les deux routes authentifiées —
+  `/rencontres-transcription` et `/rencontres-ia` — ne sont vérifiées que
+  jusqu'au 401. Le débit des compteurs `renc:` et `rencia:` en KV, la sortie
+  verbatim et la sortie structurée restent à éprouver.
+  **Je ne crée pas de compte et je ne saisis pas de mot de passe**, y compris
+  jetable. Il faut donc soit un jeton de Joey, soit un compte d'essai créé par
+  lui :
+  ```js
+  await firebase.auth().currentUser.getIdToken()
+  ```
+  Le jeton vaut une heure — largement de quoi jouer les quatre essais.
 - **Le micro sur une vraie machine** : dictée fr-CA avec accents, et les
   silences d'une vraie rencontre pour éprouver le redémarrage sur `onend`.
 
