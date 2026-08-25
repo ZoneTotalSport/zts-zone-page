@@ -1190,9 +1190,35 @@ body[data-ztsh-densite="projection"] .ztsh-metiers { display: none; }
    n'existe pas. Elles ne sont pas concernées.)
    ========================================================================== */
 @media print {
+  /* TROIS PORTEURS DU PREFIXE NE SONT PAS DU CHROME, ET LE BALAI LES PRENAIT.
+     Corrige le 25 aout 2026. Jusque-la, les 41 apps montees sur le shell
+     imprimaient une feuille ENTIEREMENT BLANCHE — y compris les 15 qui ont
+     ecrit leurs propres regles @media print et n'ont jamais compris pourquoi
+     elles ne servaient a rien.
+
+     `[class^="ztsh-"]` et `[class*=" ztsh-"]` attrapent :
+       · `.ztsh-page`  — l'enveloppe de TOUT le contenu de l'app, ecrite dans
+                         le HTML des 40 apps qui la portent. La masquer, c'est
+                         masquer la page ;
+       · `body.ztsh-on` — pose par monter() ;
+       · `html.ztsh-on` — pose par monter() des que cfg.fond.
+
+     Le signe que c'etait un oubli et pas une intention : les deux lignes
+     suivantes peignent en blanc le fond de `html.ztsh-on` et de
+     `body.ztsh-on`. On ne peint pas le fond de ce qu'on vient de masquer.
+
+     Les deux exclusions suffisent, et rien d'autre ne change. Le chrome
+     ajoute par le shell — casier, metiers, cafe, bulle, perso, plateau,
+     outil, declencheur, encourageur, rayons — porte son prefixe sans jamais
+     porter `ztsh-page` ni `ztsh-on` : il tombe comme avant.
+
+     Les calques de decor de l'enveloppe (`.ztsh-page.ztsh-fond::before` et
+     `::after`) etaient deja retires par le bloc @media print du §12,
+     ligne 355. Rien a ajouter ici : l'enveloppe redevient visible sans
+     ramener le marine sur la feuille. */
   .ztsh-shell,
-  [class^="ztsh-"],
-  [class*=" ztsh-"] { display: none !important; }
+  [class^="ztsh-"]:not(.ztsh-page):not(.ztsh-on),
+  [class*=" ztsh-"]:not(.ztsh-page):not(.ztsh-on) { display: none !important; }
   html.ztsh-on { background: #fff !important; background-image: none !important; }
   body.ztsh-on { background: #fff !important; color: #000 !important; }
 }
