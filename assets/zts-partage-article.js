@@ -126,6 +126,81 @@
     document.head.appendChild(s);
   }
 
+  // ── LOGOS DE MARQUE, EN SVG INLINE ──
+  // Les trois premiers cercles — Facebook, X, LinkedIn — sont poses par les
+  // articles avec une icone lucide (`<i data-lucide="facebook">`). LUCIDE NE
+  // LES SERT PLUS : les icones de marque sont sorties du paquet en 2024, elles
+  // vivent depuis dans un paquet separe. `lucide.createIcons()` ne trouve donc
+  // rien a poser et laisse les <i> VIDES — trois cercles cyan pales sans
+  // dessin sur chaque article. Constate au navigateur le 24 aout 2026 :
+  // unpkg lucide@latest expose 2031 icones, et aucune des quatre marques
+  // (facebook, twitter, linkedin, instagram). `mail` et `link`, generiques,
+  // sont toujours la — d'ou le courriel et « Copier le lien » qui, eux,
+  // s'affichaient. Le defaut n'a rien a voir avec le decor du 24 aout : il
+  // date du jour ou lucide@latest a bascule.
+  //
+  // On ne va PAS chercher le paquet de marque : une dependance CDN de plus
+  // pour trois dessins, sur une page lue par des enfants, alors que le reste
+  // du bloc est deja en SVG inline sans aucun tiers.
+  //
+  // Traces repris de Simple Icons (CC0, domaine public). `fill:currentColor`
+  // pour que le survol du cercle les recolore comme les autres.
+  var MARQUES = {
+    facebook: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
+    twitter:  '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932L18.901 1.153zm-1.291 19.49h2.039L6.486 3.24H4.298L17.61 20.643z"/></svg>',
+    linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.454C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/></svg>'
+  };
+  // `x` est le nom que lucide donnerait a la croix : les articles ecrivent
+  // `twitter`. On accepte les deux graphies pour le meme dessin.
+  MARQUES['x'] = MARQUES.twitter;
+
+  /**
+   * Pose le logo dans les trois cercles de marque.
+   *
+   * ON RECONNAIT LE LIEN PAR SON href, PAS PAR SON CONTENU. Les articles
+   * portent deux habillages qui ne se ressemblent pas : 25 posent une icone
+   * lucide (`<i data-lucide="facebook">`), et grands-jeux-exterieurs, seul de
+   * son gabarit, pose une INITIALE typographique (`<span>f</span>`,
+   * « 𝕏 », « in ») dans des pastilles `.share-ic`. Chercher les <i> n'aurait
+   * repare que le premier groupe. L'URL sharer, elle, est commune aux deux —
+   * c'est deja l'ancre que `monte()` utilise pour se reperer.
+   *
+   * Le courriel et « Copier le lien » ne sont PAS touches : le premier groupe
+   * les rend par lucide (icones generiques, toujours servies) et le second par
+   * un emoji. Les deux s'affichent.
+   *
+   * Les dimensions sont posees en attributs autant qu'en classes : un <svg>
+   * sans dimension prend 300x150 par defaut et ferait exploser le cercle sur
+   * le gabarit qui n'a pas Tailwind.
+   */
+  var SHARERS = [
+    [/facebook\.com\/sharer/i,               'facebook'],
+    [/(twitter\.com|x\.com)\/intent/i,       'twitter'],
+    [/linkedin\.com\/shar/i,                  'linkedin']
+  ];
+
+  function poseLogos(racine) {
+    var liens = racine.querySelectorAll('a[href]');
+    for (var i = 0; i < liens.length; i++) {
+      var a = liens[i];
+      var href = a.getAttribute('href') || '';
+      var nom = null;
+      for (var j = 0; j < SHARERS.length; j++) {
+        if (SHARERS[j][0].test(href)) { nom = SHARERS[j][1]; break; }
+      }
+      if (!nom) continue;
+      if (a.querySelector('svg')) continue;    // deja dessine : on ne repasse pas
+      var ancienne = a.querySelector('i[data-lucide]');
+      var classe = ancienne ? ancienne.className : '';
+      a.innerHTML = MARQUES[nom];
+      var svg = a.querySelector('svg');
+      if (!svg) continue;
+      if (classe) svg.setAttribute('class', classe);
+      svg.setAttribute('width', '20');
+      svg.setAttribute('height', '20');
+    }
+  }
+
   var SVG = {
     partager: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>',
     whatsapp: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 016.988 2.896 9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.885-9.885 9.885M20.52 3.449C18.24 1.245 15.24 0 12.045 0 5.463 0 .104 5.359.101 11.945c0 2.096.549 4.142 1.593 5.945L0 24l6.335-1.652a11.93 11.93 0 005.71 1.454h.005c6.581 0 11.94-5.358 11.943-11.945A11.86 11.86 0 0020.52 3.45"/></svg>'
@@ -270,6 +345,11 @@
       neuf.type = 'button';
       neuf.addEventListener('click', function () { copier(url); });
     }
+
+    // Les trois logos de marque, que lucide ne sert plus (voir MARQUES).
+    // AVANT createIcons : une fois le <i> remplace par son <svg>, lucide n'a
+    // plus rien a y faire, dans un sens comme dans l'autre.
+    poseLogos(rangee);
 
     // Les cercles d'origine portent des icones lucide. Celles qu'on vient
     // d'inserer sont en SVG inline et n'en ont pas besoin, mais un article
