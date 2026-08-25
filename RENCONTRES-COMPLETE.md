@@ -420,43 +420,189 @@ relatives, que le modèle laissait tomber faute de point de départ.
 
 ---
 
-## Reste à la charge de Joey
+## `politique.html` — section 14 (25 août 2026)
 
-- **Un slot de prévisualisation.** `preview_start` refuse — 5 serveurs pour ce
-  dossier, tous appartenant à d'autres sessions. Le tour visuel de la vague A
-  (mur en anonyme, deux jeux d'onglets, tiroir à 375 px, sous-titre du micro,
-  console vide) n'a donc **pas** été fait. La vague A est commitée et vérifiée
-  statiquement, **pas vue tourner**.
-- **`PROMPT-ZONE-RENCONTRES-V2.md`** — le collage est arrivé vide. Le fichier
-  n'a pas été recréé. §10 (brief de l'article) et §11 (banc d'essai) manquent.
-- ~~Déployer les règles Firestore~~ — **fait le 24 août**, et vérifié en 15
-  cas contre le ruleset déployé.
-- **Je ne crée pas de compte.** Le tunnel anonyme → inscription → retour app
-  reste à ta charge, comme les 4 tests de `LOT1-COMPLETE.md`.
-- ~~Déployer `zts-generateur`~~ — **fait**, version `d766b69d`.
-- ~~Confirmer `whisper-large-v3-turbo`~~ — **présent et éprouvé**.
-- ~~Un jeton Firebase~~ — **fourni le 25 août, les quatre essais sont joués.**
-- **Le micro sur une vraie machine** : dictée fr-CA avec accents, et les
-  silences d'une vraie rencontre pour éprouver le redémarrage sur `onend`.
+Commit atomique, annulable seul. La formulation est **celle de la section 9 de
+l'article, mot pour mot** — l'article dit s'aligner sur la politique, il faut
+donc que les deux disent la même chose, sinon c'est l'article qui devient
+menteur.
+
+Une précision existe ici et pas dans l'article, parce que c'est sa place : la
+transcription passe par un service d'IA hébergé par **Cloudflare**, le temps de
+la conversion seulement. Une politique nomme son sous-traitant ; un article de
+blogue n'a pas à le faire.
+
+Ajoutée en **14**, pas insérée près de la « Conservation » : l'y insérer aurait
+obligé à renuméroter six sections et six ancres, et les liens `#s8` à `#s13`
+qui circulent ailleurs seraient tombés à côté.
 
 ---
 
-## Trouvé au passage — HORS PÉRIMÈTRE, non corrigé
+## Banc d'essai du §11 — ce qui est joué
 
-⚠ **Un jeton de bot Telegram est écrit en clair dans `telegram-notify.js`**
-(ligne 9, `var BOT_TOKEN = '…'`). Le fichier est **commité** et servi en
-JavaScript de navigateur sur les pages du site : n'importe quel visiteur peut
-le lire dans la source et prendre la main sur le bot — envoyer des messages,
-lire les mises à jour.
+| Contrôle | Résultat |
+|---|---|
+| `verifie-habillage.py` | **0 bloquant** |
+| `verifie-partage-articles.py` | **0 bloquant** sur 27 articles |
+| `verifie-nouveautes.py` | **OK**, 10 mises en ligne |
+| `verifie-glyphes-ztsh.py` | **OK** |
+| `verifie-secrets.sh --arbre` | **OK**, 2 400 fichiers |
+| Segment audio réel → Whisper | `whisper-large-v3-turbo`, 2 726 ms, texte fr-CA correct |
+| Libellé « à la fin » sans `SpeechRecognition` | globales supprimées, `app.js` rejoué → libellé correct, mot « repli » absent |
+| Quota minutes | `renc:<uid>` = **0.2** après 9,4 s |
+| Quota IA | `rencia:<uid>` = **2** après deux traitements |
+| Plafonds distincts | 4 clés KV coexistent : `anon:`, `deco:`, `renc:`, `rencia:` |
+| Découpage 16 kHz mono | 12 min stéréo 44,1 kHz → **242 Mo évités**, 720 s recollés sans perte, coupes dans le silence |
+| Avertissement > 90 min | affiché, **bouton toujours actif** — un avertissement qui bloque n'est plus un avertissement |
+| Quota insuffisant | message distinct, **bouton désactivé** |
+| Glisser-déposer entre dossiers | cible surlignée, écriture serveur, message d'état, filtre à jour |
+| Recherche plein texte | « budget », mot enfoui dans les notes → la bonne rencontre, 14 cas 0 échec |
+| `mailto` + copie | courriel ouvert, compte rendu complet au presse-papiers |
+| **Export PDF non blanc** | règles `@media print` recopiées en écran : `html`, `body`, `.ztsh-page`, la fiche et le compte rendu **restent visibles** ; header, rail et barre d'outils disparaissent |
+| Parcours anonyme jusqu'au mur | carte « Quoi de neuf » → `/apps/rencontres/` → mur affiché |
+| Événements GA4 | `locked_view` et `locked_click_signup` émis |
+| Règles Firestore | écriture 200, lecture croisée **403**, 15 cas au simulateur |
+| Console | **aucune erreur de l'app** |
+| `git diff --stat` | **25 fichiers, tous dans le périmètre du §6** |
 
-Repéré parce que le jeton apparaît **dans la console** quand l'appel échoue
-(CORS sur `localhost`), sur `apps/inventaire` comme ailleurs.
+### Deux défauts trouvés au banc, corrigés
 
-`_scripts/verifie-secrets.sh` ne l'attrape pas : ses 9 motifs ne couvrent pas
-la forme d'un jeton Telegram (`<chiffres>:<base64url>`).
+- **« Durée détectée : 0 minute »** pour un enregistrement de 20 s. L'arrondi
+  disait vrai et donnait tort : au moment où l'usager décide s'il lance, lire
+  « 0 minute » fait douter que le fichier ait été lu. Devenu « moins d'une
+  minute ».
+- **L'échéance d'une action inventait son année** — voir le banc authentifié
+  plus haut.
 
-Fichier partagé, hors du périmètre de ce chantier : **non corrigé**. La marche
-à suivre est la même que pour n'importe quel secret publié — révoquer le jeton
-auprès de `@BotFather`, le sortir du client (un Worker le porte, comme
-`ANTHROPIC_API_KEY` pour `zts-generateur`), puis ajouter le motif au contrôle
-de secrets. Décision de Joey.
+---
+
+## Ce qui reste à faire, à la main — checklist
+
+Trois essais que je ne peux pas jouer : il faut un vrai micro, un vrai
+enregistrement de réunion, et un vrai compte. **Une action par ligne.** Coche à
+mesure, et rapporte-moi ce que tu observes — surtout si ça diffère de ce qui
+est écrit à droite.
+
+### Essai 1 — La dictée québécoise (10 minutes)
+
+*À faire sur un ordinateur, dans Chrome.*
+
+1. Ouvre `https://zonetotalsport.ca/apps/rencontres/` et connecte-toi.
+2. Clique **+ Nouvelle rencontre**.
+3. Écris un titre : « Essai micro ».
+4. Clique l'onglet **🎤 Micro**. → *Sous le mot « Micro », tu dois lire
+   « transcription en direct ».*
+5. Un encadré jaune apparaît. Coche **« J'ai compris, et j'informe les
+   participants »**. → *L'encadré disparaît.*
+6. Clique **▶ Démarrer**. Le navigateur demande le micro : accepte.
+   → *Un point rouge clignote, le chronomètre part.*
+7. **Parle une minute**, normalement, en québécois. Dis des prénoms avec
+   accents (Marie-Ève, François, Josée) et une date (« avant le 30
+   septembre »). **Fais deux pauses de dix secondes sans parler** — c'est le
+   moment le plus important de l'essai.
+   → *Le texte s'écrit à l'écran pendant que tu parles.*
+8. Clique **⏸ Pause**, attends 15 secondes, clique **▶ Reprendre**.
+   → *Le chronomètre s'arrête pendant la pause et repart après.*
+9. Clique **⏹ Terminer**.
+   → *L'app bascule sur l'onglet Importer et prépare la transcription.*
+10. Attends que la barre de progression finisse, puis clique l'onglet
+    **Original**.
+
+**À me rapporter :** le texte obtenu, tel quel — copie-colle-le. Je veux voir
+si les prénoms accentués passent, et **surtout si le texte continue après tes
+deux silences** : c'est le redémarrage automatique que je n'ai pas pu éprouver.
+
+### Essai 2 — Une vraie rencontre d'une heure (15 minutes, dont 10 d'attente)
+
+*Il te faut un fichier audio d'une vraie réunion — un enregistrement Zoom ou
+Teams, ou même un mémo vocal de ton téléphone. Une heure environ.*
+
+1. Dans l'app, clique **+ Nouvelle rencontre**, puis l'onglet **📁 Importer**.
+2. **Glisse ton fichier** dans le cadre pointillé.
+   → *« Lecture du fichier… », puis « Découpage… ». Sur une heure d'audio, ça
+   peut prendre 20 à 30 secondes — c'est ton ordinateur qui travaille.*
+3. Un encadré blanc apparaît avec la durée détectée et le coût en minutes.
+   → *La durée doit correspondre à la vraie longueur de ta réunion.*
+   → *Si elle dépasse 90 minutes, un encadré jaune te prévient.*
+4. **Note l'heure** et clique **Lancer la transcription**.
+5. Laisse l'onglet ouvert et fais autre chose. → *La barre avance segment par
+   segment, et le texte se remplit au fur et à mesure dans « Original ».*
+6. Quand c'est fini, **note l'heure** de nouveau.
+
+**À me rapporter :**
+- la **durée du fichier** et le **temps que la transcription a pris** — c'est
+  ce chiffre-là qui manque à la FAQ de l'article ;
+- si le texte se **suit** d'un bout à l'autre, ou si tu vois des phrases
+  coupées ou répétées entre deux morceaux ;
+- le format de ton fichier (`.m4a`, `.mp3`, `.mp4`…) et s'il a été refusé.
+
+*Ensuite, dans la même rencontre :* clique **🗂️ Structuré**, attends, et
+regarde la section **Actions à faire**. → *Les échéances doivent être en 2026,
+jamais dans le passé.* Rapporte-moi les actions produites.
+
+### Essai 3 — Le tunnel d'inscription (5 minutes)
+
+*À faire dans une fenêtre de navigation privée, pour être vraiment anonyme.*
+
+1. Ouvre une **fenêtre privée** (⇧⌘N sur Mac, Ctrl+⇧+N sur Windows).
+2. Va sur `https://zonetotalsport.ca/`.
+3. Descends jusqu'à la section **« Quoi de neuf »**.
+   → *La première carte doit être 📝 **Zone Rencontres**, datée du 25 août.*
+4. Clique la carte.
+   → *Tu arrives sur l'app, et le mur « Crée ton compte gratuit » s'affiche
+   par-dessus.*
+5. Crée un compte avec une adresse que tu contrôles (ou clique **Continuer
+   avec Google**).
+6. → *Le mur disparaît et l'app s'ouvre, sans que tu aies à recliquer.*
+7. Clique **+ Nouvelle rencontre**, écris un titre, puis clique ailleurs.
+   → *Le bouton 💾 passe de rose à « ✓ Enregistré ».*
+8. **Recharge la page** (⌘R).
+   → *Ta rencontre est toujours là, dans la liste de gauche.*
+
+**À me rapporter :** si le mur s'est bien effacé tout seul après l'inscription,
+et si la rencontre a survécu au rechargement. Ce sont les deux points où le
+parcours peut casser.
+
+### Si quelque chose cloche
+
+Dans les trois essais : **fais une capture d'écran** et, si tu sais le faire,
+ouvre la console (⌥⌘I, onglet *Console*) et copie-moi les lignes en rouge.
+Sinon, décris simplement ce que tu vois — ça suffit.
+
+---
+
+## Ce qui reste ouvert, et qui n'appartient pas à ce chantier
+
+- **L'angle mort de `zts-gate.js`** — le mur des apps n'émet aucun événement
+  d'entonnoir, donc **26 apps sur 45 sont invisibles** dans les chiffres
+  d'inscription. Chantier séparé décidé : `fix/gate-funnel`, après la mise en
+  prod. À garder en tête en lisant les métriques du 28 août.
+- **La source de `zts-notify`** est perdue — le dépôt porte la sortie
+  d'esbuild rapatriée. Si elle réapparaît, c'est elle qu'il faut committer.
+- **Les 41 apps migrées impriment une page blanche** — contourné localement
+  ici et dans l'inventaire, jamais corrigé dans le shell.
+- **`ipapi.co` refuse le CORS** depuis la production : les notifications du
+  site n'ont plus de ville. Préexistant, sans rapport avec ce chantier.
+
+---
+
+## État de la branche
+
+`app/rencontres`, worktree `~/dev/zts-rencontres`.
+
+**29 commits · 25 fichiers · 7 107 insertions · 1 suppression** — et cette
+suppression est la ligne du menu partagé qui a reçu une virgule pour accueillir
+la suivante.
+
+Vérifié : **aucun fichier hors du périmètre annoncé au §6 du prescan.**
+
+### Déjà en production
+
+- Règles Firestore, déployées et vérifiées en 15 cas.
+- Worker `zts-generateur` version `19cc6c11` — routes Whisper et IA, binding
+  Workers AI, quotas en minutes et en traitements.
+
+### Reste à fusionner
+
+Le reste de la branche : l'app, l'article, les quatre portes d'entrée, la
+section de politique.
