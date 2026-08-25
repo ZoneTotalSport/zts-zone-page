@@ -15,8 +15,10 @@
  *      silence, envoi segment par segment, devis et quota en minutes.
  *   E  traitement IA : mot a mot par blocs, compte rendu structure, resume
  *      d'un passage selectionne.
+ *   F  classement : creer, renommer et supprimer un dossier, glisser-deposer
+ *      une rencontre, recherche plein texte, filtre par type.
  *
- * Les commandes des vagues F a H sont a l'ecran mais desactivees, et chacune
+ * Les commandes des vagues G et H sont a l'ecran mais desactivees, et chacune
  * NOMME sa vague dans son title — voir pasEncore().
  *
  * Script classique, pas un module : charge apres shared/zts.js, zts-gate.js,
@@ -423,36 +425,251 @@
     hote.textContent = '';
 
     var tous = [{ id: null, fr: 'Toutes mes rencontres', en: 'All my meetings' }]
-      .concat(dossiers);
+      .concat(dossiers)
+      .concat([{ id: '', fr: 'Non classées', en: 'Unfiled' }]);
 
     tous.forEach(function (d) {
       var li = document.createElement('li');
+      li.className = 'renc-dossier-l';
+
       var bt = document.createElement('button');
       bt.type = 'button';
       bt.className = 'renc-dossier' + (d.id === dossierActif ? ' is-actif' : '');
+      var lib = document.createElement('span');
       // textContent et jamais innerHTML : un nom de dossier est saisi par
       // l'usager, il n'a aucune raison d'etre interprete comme du balisage.
-      bt.textContent = (d.id === null ? '📚 ' : '📁 ') + nomDossier(d);
+      lib.textContent = (d.id === null ? '📚 ' : (d.id === '' ? '🗂️ ' : '📁 ')) + nomDossier(d);
+      bt.appendChild(lib);
       bt.addEventListener('click', function () {
         dossierActif = d.id;
         dessineDossiers();
         dessineListe();
       });
       li.appendChild(bt);
+
+      // Cible de depot. « Toutes mes rencontres » n'en est pas une : y
+      // deposer quelque chose ne voudrait rien dire.
+      if (d.id !== null) cibleDepot(bt, d.id);
+
+      // Renommer et supprimer, seulement sur un vrai dossier.
+      if (d.id !== null && d.id !== '') {
+        li.appendChild(commandeDossier('✏️', 'Renommer ' + nomDossier(d), function () {
+          renommeSurPlace(li, bt, d);
+        }));
+        li.appendChild(commandeDossier('🗑️', 'Supprimer ' + nomDossier(d), function () {
+          supprimeDossier(d);
+        }));
+      }
       hote.appendChild(li);
     });
   }
 
+  function commandeDossier(emoji, titre, action) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'renc-doss-act';
+    b.textContent = emoji;
+    b.title = titre;
+    b.setAttribute('aria-label', titre);
+    b.addEventListener('click', function (e) { e.stopPropagation(); action(); });
+    return b;
+  }
+
+  /* ── Renommer sur place ────────────────────────────────────────────────
+     Pas de prompt() : on renomme la ou on lit. L'identifiant du dossier ne
+     bouge JAMAIS — c'est lui que les rencontres portent, et renommer
+     « Comites » en « Comites d'ecole » ne doit toucher aucune rencontre. */
+  function renommeSurPlace(li, bouton, d, estNouveau) {
+    if (li.querySelector('.renc-doss-edit')) return;
+    var champ = document.createElement('input');
+    champ.type = 'text';
+    champ.className = 'renc-doss-edit';
+    champ.value = nomDossier(d);
+    champ.maxLength = 60;
+    li.replaceChild(champ, bouton);
+    champ.focus();
+    champ.select();
+
+    var fini = false;
+    function termine(garder) {
+      if (fini) return;
+      fini = true;
+      var nom = champ.value.trim().slice(0, 60);
+
+      // ANNULER LA CREATION DOIT VRAIMENT L'ANNULER. Le dossier est deja dans
+      // le tableau quand le champ s'ouvre — c'est ce qui permet de le dessiner
+      // — donc Echap, ou un nom vide, doit l'en RETIRER. Sans ca, renoncer
+      // laissait derriere un dossier appele « Nouveau dossier », exactement ce
+      // que l'edition sur place devait eviter. Vu au navigateur le 24 aout.
+      if (estNouveau && (!garder || !nom)) {
+        dossiers = dossiers.filter(function (x) { return x.id !== d.id; });
+        dessineDossiers();
+        return;
+      }
+      if (garder && nom && (estNouveau || nom !== nomDossier(d))) {
+        var cible = dossiers.filter(function (x) { return x.id === d.id; })[0];
+        if (cible) {
+          if (lang() === 'en') cible.en = nom; else cible.fr = nom;
+          // Un dossier cree en francais n'a pas de libelle anglais : on pose
+          // le meme des deux cotes plutot que de laisser un trou.
+          if (!cible.en) cible.en = nom;
+          if (!cible.fr) cible.fr = nom;
+          enregistreDossiers(estNouveau ? 'Dossier créé.' : 'Dossier renommé.');
+          return;
+        }
+      }
+      dessineDossiers();
+    }
+    champ.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); termine(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); termine(false); }
+    });
+    champ.addEventListener('blur', function () { termine(true); });
+  }
+
+  /* ── Supprimer un dossier ──────────────────────────────────────────────
+     SUPPRIMER UN DOSSIER N'EFFACE JAMAIS SON CONTENU — exigence du §6 du
+     cahier. Les rencontres deviennent « non classees », et le message le dit
+     AVANT, avec leur nombre : c'est la seule facon que la confirmation veuille
+     dire quelque chose. */
+  async function supprimeDossier(d) {
+    var dedans = rencontres.filter(function (r) { return (r.dossier || '') === d.id; }).length;
+    var m = 'Supprimer le dossier « ' + nomDossier(d) + ' » ?';
+    m += dedans
+      ? '\n\nSes ' + dedans + ' rencontre' + (dedans > 1 ? 's deviennent' : ' devient')
+        + ' « non classée' + (dedans > 1 ? 's' : '') + ' ». Aucune n\'est effacée.'
+      : '\n\nIl est vide.';
+    if (!window.confirm(m)) return;
+
+    try {
+      if (dedans) await RencData.reassignerDossier(d.id, '');
+      dossiers = dossiers.filter(function (x) { return x.id !== d.id; });
+      if (dossierActif === d.id) dossierActif = null;
+      await RencData.majDossiers(dossiers);
+      await rafraichitListe();
+      dessineDossiers();
+      etat(dedans
+        ? 'Dossier supprimé — ' + dedans + ' rencontre' + (dedans > 1 ? 's sont' : ' est')
+          + ' maintenant « non classée' + (dedans > 1 ? 's' : '') + ' ».'
+        : 'Dossier supprimé.');
+    } catch (e) {
+      etat('⚠ La suppression a échoué (' + (e.message || e) + ').', 'alerte');
+    }
+  }
+
+  function nouveauDossier() {
+    var nom = 'Nouveau dossier';
+    var d = { id: RencData.nouvelIdDossier(), fr: nom, en: nom };
+    dossiers.push(d);
+    dessineDossiers();
+    // On ouvre tout de suite le champ : personne ne veut d'un dossier qui
+    // s'appelle « Nouveau dossier ».
+    var lignes = id('rencDossiers').children;
+    var li = lignes[lignes.length - 2];   // avant « Non classées »
+    if (li) renommeSurPlace(li, li.querySelector('.renc-dossier'), d, true);
+    else dossiers = dossiers.filter(function (x) { return x.id !== d.id; });
+  }
+
+  async function enregistreDossiers(message) {
+    try {
+      dossiers = await RencData.majDossiers(dossiers);
+      dessineDossiers();
+      remplitSelectDossiers(courante ? (courante.dossier || '') : '');
+      if (message) etat(message);
+    } catch (e) {
+      etat('⚠ Les dossiers n\'ont pas pu être enregistrés (' + (e.message || e) + ').', 'alerte');
+      dessineDossiers();
+    }
+  }
+
+  /* ── Glisser-deposer ───────────────────────────────────────────────────
+     `dragover` DOIT appeler preventDefault, sinon le navigateur refuse le
+     depot sans rien dire — c'est le piege classique de cette API. */
+  function cibleDepot(noeud, idDossier) {
+    noeud.addEventListener('dragover', function (e) {
+      if (!porte) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      noeud.classList.add('is-cible');
+    });
+    noeud.addEventListener('dragleave', function () { noeud.classList.remove('is-cible'); });
+    noeud.addEventListener('drop', function (e) {
+      e.preventDefault();
+      noeud.classList.remove('is-cible');
+      if (porte) deplace(porte, idDossier);
+    });
+  }
+
+  var porte = null;   // la rencontre en cours de deplacement
+
+  async function deplace(r, versDossier) {
+    if ((r.dossier || '') === (versDossier || '')) return;
+    var nom = versDossier
+      ? (dossiers.filter(function (x) { return x.id === versDossier; })[0] || {})
+      : null;
+    try {
+      await RencData.majRencontre(r.id, Object.assign({}, r, { dossier: versDossier || '' }));
+      r.dossier = versDossier || '';
+      if (courante && courante.id === r.id) {
+        courante.dossier = r.dossier;
+        remplitSelectDossiers(r.dossier);
+      }
+      dessineListe();
+      etat('« ' + (r.titre || 'Sans titre') + ' » → '
+        + (nom ? nomDossier(nom) : 'non classées') + '.');
+    } catch (e) {
+      etat('⚠ Le déplacement a échoué (' + (e.message || e) + ').', 'alerte');
+    }
+  }
+
   var LIBELLE_TYPE = { comite: 'Comité', statutaire: 'Statutaire', autre: 'Autre' };
+
+  /* Recherche plein texte, cote client, sur les rencontres deja chargees —
+     v1 assumee au §6 du cahier. Elle regarde TOUT ce qui porte du sens :
+     titre, participants, animateur, secretaire, notes, transcription et
+     compte rendu. Chercher « surveillances » doit trouver la rencontre ou le
+     mot n'a ete prononce qu'une fois, pas seulement celle qui l'a dans son
+     titre.
+
+     Les balises sont retirees avant la comparaison : sans ca, chercher « div »
+     ou « input » ramenerait tout ce qui contient une case a cocher. */
+  function sansBalises(html) {
+    return String(html || '').replace(/<[^>]*>/g, ' ');
+  }
+
+  function normaliseRecherche(t) {
+    t = String(t || '').toLowerCase();
+    // Les accents sont retires des DEUX cotes : personne ne tape « périodè »,
+    // et beaucoup tapent « periode ».
+    try { return t.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+    catch (e) { return t; }
+  }
+
+  function correspond(r, q) {
+    if (!q) return true;
+    var foin = normaliseRecherche([
+      r.titre, r.animateur, r.secretaire,
+      (r.participants || []).join(' '),
+      sansBalises(r.notesBrutes), r.transcription, sansBalises(r.sortieIA)
+    ].join(' '));
+    // Tous les mots doivent etre presents, pas seulement le premier : une
+    // recherche a deux mots sert precisement a resserrer.
+    return normaliseRecherche(q).split(/\s+/).filter(Boolean)
+      .every(function (mot) { return foin.indexOf(mot) !== -1; });
+  }
 
   function dessineListe() {
     var hote = id('rencListe'), vide = id('rencListeVide');
     if (!hote) return;
     hote.textContent = '';
 
+    var q = (id('rencCherche') || {}).value || '';
+    var type = (id('rencFType') || {}).value || '';
     var enAttente = RencData.brouillon.enAttente();
     var visibles = rencontres.filter(function (r) {
-      return dossierActif === null || (r.dossier || '') === dossierActif;
+      if (dossierActif !== null && (r.dossier || '') !== dossierActif) return false;
+      if (type && (r.type || 'comite') !== type) return false;
+      return correspond(r, q);
     });
 
     visibles.forEach(function (r) {
@@ -479,11 +696,47 @@
       bt.appendChild(m);
 
       bt.addEventListener('click', function () { ouvre(r); });
+
+      bt.draggable = true;
+      bt.addEventListener('dragstart', function (e) {
+        porte = r;
+        bt.classList.add('is-porte');
+        e.dataTransfer.effectAllowed = 'move';
+        // Certains navigateurs refusent de commencer un glisser sans donnee.
+        try { e.dataTransfer.setData('text/plain', r.id); } catch (err) {}
+      });
+      bt.addEventListener('dragend', function () {
+        porte = null;
+        bt.classList.remove('is-porte');
+        var c = document.querySelectorAll('.renc-dossier.is-cible');
+        for (var i = 0; i < c.length; i++) c[i].classList.remove('is-cible');
+      });
+
       li.appendChild(bt);
       hote.appendChild(li);
     });
 
-    if (vide) vide.hidden = visibles.length > 0;
+    if (vide) {
+      vide.hidden = visibles.length > 0;
+      // Le message d'absence doit dire POURQUOI la liste est vide. « Aucune
+      // rencontre » devant un filtre actif fait croire a une perte de donnees.
+      if (!visibles.length) {
+        var filtre = q || type || dossierActif !== null;
+        vide.innerHTML = '';
+        var l1 = document.createElement('span');
+        l1.textContent = rencontres.length && filtre
+          ? 'Aucune rencontre ne correspond.'
+          : 'Aucune rencontre pour l\'instant.';
+        vide.appendChild(l1);
+        vide.appendChild(document.createElement('br'));
+        var l2 = document.createElement('span');
+        l2.className = 'renc-vide__aide';
+        l2.textContent = rencontres.length && filtre
+          ? 'Il y en a ' + rencontres.length + ' en tout — enlève un filtre pour les revoir.'
+          : 'Le bouton « + Nouvelle rencontre » en crée une.';
+        vide.appendChild(l2);
+      }
+    }
   }
 
   async function rafraichitListe() {
@@ -1112,6 +1365,24 @@
     });
   }
 
+  /** Supprimer LA RENCONTRE ouverte. Sans retour possible : on le dit. */
+  async function supprimeRencontre() {
+    if (!courante || !courante.id) { etat('Rien à supprimer.', 'attente'); return; }
+    if (!window.confirm('Supprimer « ' + (courante.titre || 'Sans titre')
+      + ' » ?\n\nLe compte rendu, la transcription et les actions partent avec.'
+      + ' C\'est sans retour.')) return;
+    try {
+      await RencData.supprimerRencontre(courante.id);
+      courante = null;
+      id('rencFiche').hidden = true;
+      id('rencAccueil').hidden = false;
+      await rafraichitListe();
+      etat('Rencontre supprimée.');
+    } catch (e) {
+      etat('⚠ La suppression a échoué (' + (e.message || e) + ').', 'alerte');
+    }
+  }
+
   /* ==================================================================== */
   /* Ce qui n'est pas encore branche                                      */
   /* ==================================================================== */
@@ -1225,7 +1496,16 @@
 
     ['rencEnvoyer', 'rencCopier', 'rencPdf', 'rencTxt', 'rencMd', 'rencPartage']
       .forEach(function (c) { pasEncore(c, 'G'); });
-    ['rencNouveauDossier', 'rencSupprimer', 'rencCherche'].forEach(function (c) { pasEncore(c, 'F'); });
+    var nd = id('rencNouveauDossier');
+    if (nd) nd.addEventListener('click', nouveauDossier);
+    var sup = id('rencSupprimer');
+    if (sup) sup.addEventListener('click', supprimeRencontre);
+    ['rencCherche', 'rencFType'].forEach(function (c) {
+      var n = id(c);
+      if (n) n.addEventListener('input', dessineListe);
+    });
+    var ft = id('rencFType');
+    if (ft) ft.addEventListener('change', dessineListe);
     pasEncore('rencMesActions', 'H');
 
     // zts-gate.js emet `zts:auth` une fois le mur franchi. Tant qu'il ne l'a

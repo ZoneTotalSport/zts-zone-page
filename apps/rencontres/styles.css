@@ -114,6 +114,7 @@
   max-width: 100%;
 }
 .renc-o--q { flex: 0 1 200px; min-width: 120px; }
+.renc-o--f { max-width: 150px; }
 
 .renc-bt {
   font-family: var(--renc-f-titre);
@@ -313,6 +314,47 @@
 .renc-pastille[data-type="comite"]     { background: var(--renc-comite); }
 .renc-pastille[data-type="statutaire"] { background: var(--renc-statutaire); }
 .renc-pastille[data-type="autre"]      { background: var(--renc-autre); }
+
+/* ── Dossier : la rangee porte ses deux commandes ─────────────────────
+   Elles sont dans le DOM en permanence — pas de `display:none` au repos —
+   pour rester atteignables au clavier et annoncees par un lecteur d'ecran.
+   C'est l'opacite qui les efface, et le survol ou le focus les rend. */
+.renc-dossier-l { display: flex; align-items: center; gap: 2px; }
+.renc-dossier-l .renc-dossier { flex: 1 1 auto; min-width: 0; }
+.renc-dossier-l .renc-dossier span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.renc-doss-act {
+  flex: none;
+  font-size: 13px;
+  line-height: 1;
+  padding: 5px 6px;
+  cursor: pointer;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  opacity: 0;
+  transition: opacity .12s;
+}
+.renc-dossier-l:hover .renc-doss-act,
+.renc-doss-act:focus-visible { opacity: 1; }
+.renc-doss-act:hover { background: var(--renc-surface-alt); border-color: var(--renc-trait); }
+.renc-doss-act:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 1px; }
+
+/* Le champ de renommage remplace le libelle sur place — pas de fenetre, pas
+   de prompt() : on renomme la ou on lit. */
+.renc-doss-edit {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--renc-ink);
+  padding: 7px 8px;
+  border: 2px solid var(--ztsh-cyan, #00C2E8);
+  border-radius: 8px;
+}
+
+/* Une rencontre qu'on deplace. */
+.renc-item.is-porte { opacity: .45; }
 
 .renc-vide {
   font-size: 13px;

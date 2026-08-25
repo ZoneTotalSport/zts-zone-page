@@ -149,6 +149,21 @@ const RencData = (() => {
   });
 
   function uid() { return _user ? _user.uid : null; }
+
+  /**
+   * Le garde-fou des ecritures. Sans lui, une session expiree fait remonter le
+   * message BRUT du SDK jusqu'a l'ecran — vu au navigateur le 24 aout :
+   * « Function CollectionReference.doc() cannot be called with an empty path ».
+   * C'est du charabia pour un enseignant, et ca ne dit pas quoi faire.
+   *
+   * Le mur d'inscription rend ce cas rare, pas impossible : un jeton expire
+   * pendant qu'une rencontre est ouverte, et la premiere ecriture tombe ici.
+   */
+  function exigeUid() {
+    const u = uid();
+    if (!u) throw new Error('Ta session a expiré. Recharge la page pour te reconnecter — tes notes sont sur cet appareil, rien n\'est perdu.');
+    return u;
+  }
   function pret() { return _pret; }
   function connecte() { return !!_user; }
   function enLigne() { return navigator.onLine !== false; }
@@ -344,15 +359,15 @@ const RencData = (() => {
 
   async function lireDossiers() {
     const d = await db();
-    const s = await d.collection(COL_DOSS).doc(uid()).get();
+    const s = await d.collection(COL_DOSS).doc(exigeUid()).get();
     return normaliseDossiers(s.exists ? s.data().dossiers : null);
   }
 
   async function majDossiers(liste) {
     const propre = normaliseDossiers(liste);
     const d = await db();
-    await d.collection(COL_DOSS).doc(uid()).set({
-      uid: uid(), dossiers: propre, maj: Date.now()
+    await d.collection(COL_DOSS).doc(exigeUid()).set({
+      uid: exigeUid(), dossiers: propre, maj: Date.now()
     });
     return propre;
   }
@@ -363,7 +378,7 @@ const RencData = (() => {
 
   async function listeRencontres() {
     const d = await db();
-    const s = await d.collection(COL_RENC).where('uid', '==', uid()).get();
+    const s = await d.collection(COL_RENC).where('uid', '==', exigeUid()).get();
     const out = s.docs.map((x) => Object.assign({ id: x.id }, x.data()));
     // Tri par date decroissante, puis par derniere modification : la
     // rencontre d'aujourd'hui est en haut, et deux rencontres du meme jour se
@@ -376,7 +391,7 @@ const RencData = (() => {
   async function creerRencontre(data) {
     const d = await db();
     const doc = Object.assign(normalise(data), {
-      uid: uid(), cree: Date.now(), maj: Date.now()
+      uid: exigeUid(), cree: Date.now(), maj: Date.now()
     });
     const v = verifiePoids(doc);
     if (!v.ok) { const e = new Error('DOC_TROP_LOURD'); e.info = v; throw e; }
@@ -391,7 +406,7 @@ const RencData = (() => {
    * recreer.
    */
   async function majRencontre(id, data) {
-    const doc = Object.assign(normalise(data), { uid: uid(), maj: Date.now() });
+    const doc = Object.assign(normalise(data), { uid: exigeUid(), maj: Date.now() });
     const v = verifiePoids(doc);
     if (!v.ok) { const e = new Error('DOC_TROP_LOURD'); e.info = v; throw e; }
     const d = await db();
@@ -415,7 +430,7 @@ const RencData = (() => {
    */
   async function reassignerDossier(de, vers) {
     const d = await db();
-    const s = await d.collection(COL_RENC).where('uid', '==', uid()).get();
+    const s = await d.collection(COL_RENC).where('uid', '==', exigeUid()).get();
     const touchees = s.docs.filter((x) => (x.data().dossier || '') === de);
     const restantes = touchees.slice();
     while (restantes.length) {
