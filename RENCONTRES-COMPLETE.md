@@ -650,3 +650,69 @@ Vérifié : **aucun fichier hors du périmètre annoncé au §6 du prescan.**
 
 Le reste de la branche : l'app, l'article, les quatre portes d'entrée, la
 section de politique.
+
+## Simplification — les trois écrans (25 août 2026, `b82976b4`)
+
+Mandat de Joey : *« l'écran ne montre que ce qui sert MAINTENANT »*. Aucune
+fonction retirée, aucun appel IA ajouté.
+
+Un attribut `data-ecran` sur `.renc-wrap` pilote quatre états et le CSS décide
+quoi afficher. `ecranDe()` choisit l'écran d'ouverture d'après le contenu : une
+rencontre qui porte déjà du texte s'ouvre à la fin, une rencontre vide au début.
+
+| | liste | avant | pendant | après |
+|---|---|---|---|---|
+| retour / outils / rail | — / VU / VU | VU / — / — | VU / — / — | VU / — / — |
+| en-tête / résumé 1 ligne | — / — | VU / — | — / — | — / VU |
+| ordre du jour / gros bouton | — / — | VU / VU | VU / — | — / — |
+| bande d'enreg. / **onglets** / notes | — / **—** / — | — / **—** / — | VU / **—** / VU | — / **—** / — |
+| IA / bandeau fini / compte rendu / pied | tous — | tous — | tous — | tous VU |
+
+**Les onglets de capture ne sont montrés sur AUCUN des quatre écrans** —
+ils disparaissent comme concept visible, exactement ce qui était demandé.
+
+### Rapport QA — condensé
+
+Portée : les 4 écrans à 375 px (tactile émulé) et 1280 px, angles 1, 3, 4, 5,
+10, 12. Limites : le micro est bloqué dans le panneau navigateur, donc le
+chemin d'enregistrement réel reste l'essai 1 de Joey.
+
+**🔴 Bloquant : aucun.**
+
+**🟠 Majeurs — 2 trouvés, 2 corrigés :**
+- [S-01] `.renc-demarrer__go` était écrasé par `.renc-bt`, déclaré plus bas à
+  spécificité égale : le gros bouton de l'écran AVANT rendait en petit et en
+  gris au lieu de 27 px cyan. Passé en `.renc-bt.renc-demarrer__go`.
+  Vérifié : 1256×82, `rgb(0,194,232)`, 27 px.
+- [S-02] « Supprimer cette rencontre » s'affichait sur une rencontre neuve, où
+  il n'efface rien, juste au-dessus de la seule vraie action. Masqué tant qu'il
+  n'y a pas d'identifiant serveur, réaffiché au premier enregistrement.
+
+**🟡 Mineurs — 2 trouvés, 2 corrigés :**
+- [S-03] Tous les boutons de l'app passaient sous 44 px au doigt (37 px pour
+  `.renc-bt`, 33 px pour la barre de mise en forme, 29 px pour la corbeille).
+  Bloc `@media (pointer: coarse)` — sur écran tactile seulement, pour ne pas
+  alourdir le rail au bureau. Les actions de dossier passent aussi en
+  `opacity: 1` : une opacité 0 qui attend un survol ne se révèle jamais sans
+  souris. Vérifié : plus aucune cible sous 44 px sur les 4 écrans.
+- [S-04] Le titre proposé n'apparaissait qu'après l'enregistrement. Il est
+  maintenant visible en gris dans le champ vide et suit la date :
+  « Rencontre du 25 août » / « Rencontre du 14 novembre 2025 ».
+
+**⚪ Cosmétique — 1, non corrigé :**
+- [S-05] Le rail d'outils flottant du shell (JEUX / SAÉ / PLAN…) peut recouvrir
+  le lien « importer un enregistrement » selon le défilement. Comportement du
+  shell partagé, présent sur les 42 apps migrées — ne se corrige pas ici.
+
+**Angles rejoués après modification :**
+- *Fonctionnel* — rencontre avec texte → ouvre à APRÈS ; rencontre vide →
+  AVANT ; « Mes actions » → retour rend l'écran d'où on venait ; import →
+  saute à APRÈS avec la zone de dépôt atteignable.
+- *Résilience* — micro refusé → on va quand même à PENDANT, notes éditables,
+  message explicite. Le chemin « notes seulement » survit.
+- *Responsive* — 0 débordement horizontal aux 4 écrans, 375 px et 1280 px.
+- *Console* — aucune erreur venant de l'app. Restent le compteur d'abonnés
+  (CORS, normal hors production) et des 401 dus au faux jeton du banc.
+
+**Verdict : prêt pour l'essai 1 de Joey.** Les contrôles du dépôt passent
+(secrets OK, habillage 0 bloquant, glyphes OK).
