@@ -1,0 +1,59 @@
+{
+  "_lisezmoi": [
+    "LES MISES EN LIGNE DU SITE — source unique de la section « Quoi de neuf » de l'accueil.",
+    "",
+    "POURQUOI CE FICHIER EXISTE PLUTOT QU'UNE LECTURE DES PAGES.",
+    "Les dates d'articles existent deja, mais dans un tableau JS INLINE au milieu",
+    "de blog.html (const POSTS). Les lire depuis l'accueil voudrait dire aller",
+    "chercher blog.html en entier et le decouper a la regex a chaque chargement —",
+    "casse au premier reformatage. Et les apps, elles, n'ont AUCUNE date nulle",
+    "part : ni shared/zts-menu.js, ni les trois hubs ne portent autre chose qu'un",
+    "badge « nouveau » sans echeance. La date de premier commit d'un dossier",
+    "apps/X/ n'est pas non plus la date de mise en ligne. Seul un humain la sait.",
+    "",
+    "COMMENT AJOUTER UNE MISE EN LIGNE : une ligne EN HAUT de « nouveautes ».",
+    "L'accueil trie par date decroissante et affiche les 3 premieres. A date",
+    "egale, c'est l'ordre du fichier qui tranche — d'ou l'ajout en tete.",
+    "",
+    "CHAMPS. titre {fr,en} · type « app » ou « article » · date AAAA-MM-JJ ·",
+    "url absolue depuis la racine du site · emoji.",
+    "",
+    "REGLE, decidee le 25 aout 2026 : une app n'entre ici que si elle est deja",
+    "listee dans shared/zts-menu.js ou dans un des trois hubs metier. Envoyer du",
+    "monde vers une app qu'aucun menu n'assume, c'est un cul-de-sac.",
+    "Deux apps sont en ligne mais volontairement absentes de cette liste pour",
+    "cette raison : /apps/decodage/ et /apps/studio-jeu/.",
+    "",
+    "_scripts/verifie-nouveautes.py tient ces regles, et tourne en CI."
+  ],
+
+  "nouveautes": [
+    { "titre": { "fr": "Inventaire du matériel", "en": "Equipment inventory" },
+      "type": "app",     "date": "2026-08-23", "url": "/apps/inventaire/", "emoji": "📦" },
+
+    { "titre": { "fr": "Faire l'inventaire de ton matériel sans y perdre tes fins de semaine",
+                 "en": "Take stock of your equipment without losing your weekends" },
+      "type": "article", "date": "2026-08-23", "url": "/articles/inventaire-materiel-sans-effort.html", "emoji": "📦" },
+
+    { "titre": { "fr": "Code Oreille", "en": "Code Oreille" },
+      "type": "app",     "date": "2026-08-08", "url": "/apps/code-oreille/", "emoji": "👂" },
+
+    { "titre": { "fr": "Vomi, guêpes et alarme de feu : le guide des catastrophes ordinaires",
+                 "en": "Vomit, wasps and fire alarms: the ordinary disaster handbook" },
+      "type": "article", "date": "2026-07-29", "url": "/articles/catastrophes-ordinaires.html", "emoji": "👂" },
+
+    { "titre": { "fr": "Un seul jeu, trois versions : inclure sans séparer le groupe",
+                 "en": "One game, three versions: include without splitting the group" },
+      "type": "article", "date": "2026-07-27", "url": "/articles/un-jeu-trois-versions.html", "emoji": "🎮" },
+
+    { "titre": { "fr": "Performances élèves", "en": "Student performances" },
+      "type": "app",     "date": "2026-07-08", "url": "/apps/performances/", "emoji": "🎥" },
+
+    { "titre": { "fr": "Pages à colorier", "en": "Coloring pages" },
+      "type": "app",     "date": "2026-06-13", "url": "/apps/colorier/", "emoji": "🎨" },
+
+    { "titre": { "fr": "20 grands jeux extérieurs pour camp de jour",
+                 "en": "20 great outdoor games for day camp" },
+      "type": "article", "date": "2026-06-06", "url": "/articles/grands-jeux-exterieurs-camp-de-jour.html", "emoji": "🏕" }
+  ]
+}

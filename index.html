@@ -2788,6 +2788,202 @@
   })();</script>
 </section>
 
+<!-- ==========================================================================
+     QUOI DE NEUF — les 3 dernieres mises en ligne, apps et articles confondus
+     --------------------------------------------------------------------------
+     Posee le 25 aout 2026. Elle vit ENTRE la porte du planificateur et
+     « Aujourd'hui » : la page raconte porte -> outil -> contenu frais, et ce
+     bloc ouvre la zone contenu que « Aujourd'hui » et « Pause » poursuivent.
+     Devant le hero elle passerait avant les trois portes, qui sont l'entree
+     principale du site ; tout en bas, personne ne la verrait.
+
+     SOURCE : shared/nouveautes.json, un fichier tenu a la main a chaque
+     publication. Le POURQUOI est ecrit en tete de ce fichier-la, pas ici.
+     Ce bloc ne fait que lire, trier par date decroissante et garder 3.
+
+     A DATE EGALE, C'EST L'ORDRE DU FICHIER QUI TRANCHE. Array.prototype.sort
+     est stable depuis ES2019 partout ou le site tourne, donc deux entrees du
+     meme jour sortent dans l'ordre ou elles sont ecrites. C'est le cas le
+     23 aout 2026 : l'app Inventaire et l'article sur l'inventaire sont sortis
+     ensemble, et l'app passe devant parce qu'elle est ecrite devant.
+
+     LA SECTION NAIT CACHEE. Sans ca, un JSON injoignable laisserait un titre
+     de section suivi d'un trou. `hidden` ne tombe qu'une fois trois cartes
+     construites. Les autres blocs de l'accueil (Aujourd'hui, Pause) marchent
+     deja comme ca : pas de contenu sans JS, et c'est assume.
+     ========================================================================== -->
+<style>
+  #ztsNeufSection { padding: 56px 20px; position: relative; z-index: 2; }
+  .zts-neuf-header { max-width: 1180px; margin: 0 auto 34px; text-align: center; }
+  .zts-neuf-header .ztsp-sectrait { margin-left: auto; margin-right: auto; }
+  .zts-neuf-header .ztsp-sectitre { margin-top: 12px; }
+  .zts-neuf-sub { font-family: var(--ztsp-f-note); color: var(--ztsp-sur-fond-doux); font-size: 1.3rem; margin-top: 10px; letter-spacing: .6px; }
+
+  #ztsNeufGrid { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  /* UNE COLONNE JUSQU'A 1050 px, PAS 900. A 920 px de large les trois cartes
+     tombaient a 213 px chacune et le titre d'article se cassait sur six
+     lignes. Une colonne pleine se lit mieux qu'un trio ecrase. */
+  @media (max-width: 1050px) { #ztsNeufGrid { grid-template-columns: 1fr; } }
+
+  /* LE RAIL D'OUTILS PASSE PAR-DESSUS, IL FAUT LUI LAISSER SA COLONNE.
+     `.apps-section` est en `position: fixed; right: 16px` et mesure 86 px de
+     large des 901 px de large (en dessous il repasse dans le flux, ligne
+     2108 d'ici). Sans degagement, 52 px de la troisieme carte passent SOUS
+     le rail a 1280 px : le badge se fait couper, et surtout ces 52 px ne
+     sont plus cliquables — c'est le rail qui recoit le clic.
+
+     LE DEGAGEMENT EST SUR LA GRILLE, PAS SUR LA SECTION. Une marge droite
+     posee sur la section decalait tout le bloc vers la gauche, titre
+     compris : « Les 3 dernieres nouveautes » ne tombait plus sur le meme axe
+     que « Ton inspiration du jour » juste en dessous, et ca se voyait.
+     En bornant la LARGEUR de la grille, elle reste centree sous un titre
+     centre, et se retire des deux cotes a la fois.
+     240 = 120 de chaque cote, et 120 = 16 (ecart du rail au bord) + 86
+     (rail) + 18 (jeu). vw plutot que % parce que le rail, lui, se place par
+     rapport a la fenetre.
+
+     Le meme chevauchement existe deja sur les trois portes du hero, sur
+     « Aujourd'hui » et sur « Pause », dont les grilles montent a 1400 px.
+     Signale a Joey, pas corrige ici : ce n'est pas ce chantier. */
+  @media (min-width: 901px) { #ztsNeufGrid { max-width: min(1180px, calc(100vw - 240px)); } }
+
+  /* La carte EST une .ztsp-card du patron — fond blanc, bord noir, ombre dure
+     et le meme decalage au survol que les portes. On n'ajoute que la colonne
+     flex, qui aligne les trois « Ouvrir » sur une meme ligne quelle que soit
+     la longueur du titre. */
+  .zts-neuf-card { display: flex; flex-direction: column; }
+  .zts-neuf-tete { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .zts-neuf-emoji { font-size: 34px; line-height: 1; }
+
+  /* Le type se lit AVANT le titre : c'est la seule chose qui distingue une app
+     d'un article quand les deux parlent du meme sujet le meme jour. */
+  .zts-neuf-type {
+    font-family: var(--ztsp-f-corps); font-weight: 900; font-size: 11px; letter-spacing: .9px;
+    text-transform: uppercase; border: 2px solid var(--ztsp-noir); border-radius: 6px;
+    padding: 4px 9px 3px; box-shadow: 2px 2px 0 rgba(0,0,0,.4); flex: none;
+  }
+  /* MESURE AU NAVIGATEUR, PAS A L'OEIL. Le badge « Article » etait blanc sur
+     le rose du patron : 3,87:1, sous le seuil de 4,5:1 — et c'est du 11 px,
+     donc aucune indulgence « grand texte » ne s'applique. L'encre du patron
+     (--ztsp-noir, #08131E) sur le meme rose donne 4,83:1, mesure au
+     navigateur. Le rose reste, seule l'encre change. */
+  .zts-neuf-type--app     { background: var(--ztsp-cyan-vif); color: #03323C; }
+  .zts-neuf-type--article { background: var(--ztsp-rose);     color: var(--ztsp-noir); }
+
+  .zts-neuf-card h3 { margin: 12px 0 8px; }
+  .zts-neuf-date { font-family: var(--ztsp-f-note); font-size: 17px; letter-spacing: .8px; color: var(--ztsp-ink-soft); }
+  .zts-neuf-go {
+    margin-top: auto; padding-top: 14px; font-family: var(--ztsp-f-titre);
+    font-size: 15px; letter-spacing: .5px; color: var(--ztsp-cyan-dark);
+  }
+  .zts-neuf-card:hover .zts-neuf-go { color: var(--ztsp-rose); }
+  @media (prefers-reduced-motion: reduce) { .zts-neuf-card { transition: none; } }
+</style>
+
+<section id="ztsNeufSection" hidden>
+  <div class="zts-neuf-header">
+    <span class="ztsp-eyebrow ztsp-eyebrow--orange" id="ztsNeufOeil">🆕 QUOI DE NEUF</span>
+    <h2 class="ztsp-sectitre" id="ztsNeufTitre">Les 3 dernières nouveautés</h2>
+    <div class="ztsp-sectrait" aria-hidden="true"></div>
+    <div class="zts-neuf-sub" id="ztsNeufSub">Apps et articles, du plus récent au moins récent.</div>
+  </div>
+  <div id="ztsNeufGrid"></div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  /* LA LANGUE SE LIT AU MOMENT DE RENDRE, PAS AU CHARGEMENT DU BLOC.
+     Premiere version : `var EN = ztsLang === 'en'` en tete d'IIFE. Elle ne
+     marchait jamais en anglais, pour deux raisons a la fois :
+       — `var ztsLang` est declaree dans le <script> de la home, PLUS BAS que
+         ce bloc-ci. Le hoisting de `var` est par script, pas entre scripts :
+         au moment ou ce bloc s'evalue, `ztsLang` n'existe pas encore.
+       — et setLang() rebascule la page en direct, sans rechargement. Une
+         valeur lue une fois pour toutes serait fausse des le premier clic
+         sur EN.
+     D'ou `estAnglais()`, appelee a chaque rendu, avec la meme regle de repli
+     que la home (localStorage puis navigator.language). */
+  function estAnglais() {
+    if (typeof ztsLang !== 'undefined') return ztsLang === 'en';
+    var s = localStorage.getItem('zts_lang');
+    if (s === 'fr' || s === 'en') return s === 'en';
+    return (navigator.language || 'fr').toLowerCase().indexOf('en') === 0;
+  }
+
+  /* Mois ecrits a la main plutot qu'Intl.DateTimeFormat : `new Date('2026-08-23')`
+     est lu en UTC puis rendu dans le fuseau du visiteur, donc la date recule
+     d'un jour partout a l'ouest de Greenwich — au Quebec, tout le temps.
+     On ne construit aucune Date : on decoupe la chaine. */
+  var MOIS_FR = ['janvier','février','mars','avril','mai','juin',
+                 'juillet','août','septembre','octobre','novembre','décembre'];
+  var MOIS_EN = ['January','February','March','April','May','June',
+                 'July','August','September','October','November','December'];
+
+  function dateLisible(iso, en) {
+    var p = String(iso).split('-');
+    if (p.length !== 3) return iso;
+    var jour = parseInt(p[2], 10), mois = parseInt(p[1], 10) - 1;
+    if (isNaN(jour) || mois < 0 || mois > 11) return iso;
+    return en ? MOIS_EN[mois] + ' ' + jour + ', ' + p[0]
+              : jour + ' ' + MOIS_FR[mois] + ' ' + p[0];
+  }
+
+  function txt(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  var ETIQ = { app:     { fr: 'App',     en: 'App' },
+               article: { fr: 'Article', en: 'Article' } };
+
+  var TROIS = null;   // les 3 retenues, une fois le JSON lu
+
+  function rendre() {
+    if (!TROIS || !TROIS.length) return;
+    var en = estAnglais();
+
+    document.getElementById('ztsNeufGrid').innerHTML = TROIS.map(function (n) {
+      var type  = (n.type === 'app') ? 'app' : 'article';
+      var titre = txt((en ? (n.titre.en || n.titre.fr) : n.titre.fr) || '');
+      return '<a class="ztsp-card zts-neuf-card" href="' + txt(n.url) + '">'
+           +   '<div class="zts-neuf-tete">'
+           +     '<span class="zts-neuf-emoji" aria-hidden="true">' + txt(n.emoji || '✨') + '</span>'
+           +     '<span class="zts-neuf-type zts-neuf-type--' + type + '">' + ETIQ[type][en ? 'en' : 'fr'] + '</span>'
+           +   '</div>'
+           +   '<h3>' + titre + '</h3>'
+           +   '<p class="zts-neuf-date"><time datetime="' + txt(n.date) + '">' + txt(dateLisible(n.date, en)) + '</time></p>'
+           +   '<span class="zts-neuf-go">' + (en ? 'Open →' : 'Ouvrir →') + '</span>'
+           + '</a>';
+    }).join('');
+
+    document.getElementById('ztsNeufOeil').textContent  = en ? '🆕 WHAT’S NEW' : '🆕 QUOI DE NEUF';
+    document.getElementById('ztsNeufTitre').textContent = en ? 'The 3 latest releases' : 'Les 3 dernières nouveautés';
+    document.getElementById('ztsNeufSub').textContent   = en ? 'Apps and articles, newest first.'
+                                                             : 'Apps et articles, du plus récent au moins récent.';
+    document.getElementById('ztsNeufSection').hidden = false;
+  }
+
+  /* setLang() de la home rebascule la page sans rechargement. Elle appelle
+     ceci si elle le trouve — d'ou l'exposition, et le garde de son cote. */
+  window.ztsNeufRender = rendre;
+
+  fetch('/shared/nouveautes.json', { cache: 'no-cache' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (data) {
+      TROIS = ((data && data.nouveautes) || [])
+        .filter(function (n) { return n && n.date && n.url && n.titre && n.titre.fr; })
+        .slice()                               // sort() mute : on garde le JSON intact
+        .sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; })
+        .slice(0, 3);
+      rendre();
+    })
+    .catch(function () { /* JSON injoignable : la section reste cachee, pas de trou. */ });
+})();
+</script>
+
 <!-- STAGE 2 retiré : la grille d'apps par métier vit désormais dans les
      hubs (ep.html / service-de-garde.html / camps-de-jour.html) — source
      de vérité unique. Les portes du hero naviguent vers le hub. -->
@@ -4085,6 +4281,10 @@
 
     // Statique
     applyStatic(document);
+
+    // « Quoi de neuf » se redessine avec le reste. Garde : la section peut
+    // etre absente (JSON injoignable), setLang() ne doit pas casser pour ca.
+    if (typeof window.ztsNeufRender === 'function') window.ztsNeufRender();
 
     // Dynamique
     renderApps(APPS_DEFAULT);
