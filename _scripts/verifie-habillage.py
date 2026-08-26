@@ -279,6 +279,31 @@ def controle(chemin):
             cwd=RACINE, capture_output=True, text=True, timeout=10,
         ).stdout
         ajouts, retirees_app = 0, []
+
+        # LE CONTENU AJOUTE, DEBARRASSE DE SES BALISES.
+        #
+        # Sert a la derniere exception ci-dessous (traduction). On assemble le
+        # TEXTE VISIBLE et les VALEURS D'ATTRIBUT de toutes les lignes
+        # ajoutees : c'est ce qui permet de distinguer une ligne SUPPRIMEE
+        # d'une ligne simplement REECRITE autour du meme contenu.
+        def contenu(l):
+            # On ne tente PAS d'analyser du HTML : une ligne de diff est
+            # souvent un FRAGMENT de balise, et un analyseur y trebuche
+            # (`aria-expanded="false">A` restait un seul mot). Tout ce qui
+            # n'est pas une lettre, un chiffre ou une apostrophe devient une
+            # separation. Il ne reste que des mots — c'est tout ce qu'on
+            # compare.
+            import re as _re
+            return " ".join(_re.sub(r"[^0-9A-Za-zÀ-ÿ']+", " ", l).split())
+
+        def mots(l):
+            return {m for m in contenu(l).lower().split() if len(m) >= 2}
+
+        mots_ajoutes = mots(" ".join(
+            l[1:] for l in out.split("\n")
+            if l.startswith("+") and not l.startswith("+++")
+        ))
+
         for ligne in out.split("\n"):
             if ligne.startswith("+") and not ligne.startswith("+++"):
                 ajouts += 1
@@ -364,10 +389,44 @@ def controle(chemin):
                 carte_twitter = ('twitter:card' in bas
                                  and 'summary_large_image' not in bas
                                  and 'summary_large_image' in c.lower())
+                # LA TRADUCTION DE L'INTERFACE (26 aout 2026, demande de
+                # Joey : « mets-la 100 % en anglais quand on clique EN »).
+                #
+                # Meme nature que les trois exceptions ci-dessus : une decision
+                # qui touche par NECESSITE a des lignes existantes. Poser un
+                # `data-i18n` sur un bouton, ou envelopper un texte dans un
+                # <span> pour pouvoir le traduire, REECRIT sa ligne — git y
+                # voit une suppression suivie d'un ajout, alors que rien n'a
+                # disparu de l'app.
+                #
+                # ELLE NE PEUT PAS AUTORISER UNE VRAIE SUPPRESSION, et c'est ce
+                # qui la rend sure : elle exige que le CONTENU de la ligne
+                # retiree — son texte visible et ses valeurs d'attribut — se
+                # retrouve du cote AJOUTE. Une ligne reellement supprimee n'a,
+                # par definition, son contenu nulle part dans les ajouts : elle
+                # bloque toujours. L'exception ne dit donc pas « on peut
+                # retirer », elle dit « ceci n'etait pas un retrait ».
+                #
+                # Le second verrou : l'app doit reellement declarer de la
+                # traduction. Sans `data-i18n` dans le fichier, l'exception
+                # n'existe pas.
+                # On compare les MOTS, pas la chaine : poser un attribut
+                # change l'ordre du texte sur la ligne sans rien retirer.
+                # Il faut que TOUS les mots de la ligne retiree se retrouvent
+                # du cote ajoute, et qu'au moins un soit assez long pour etre
+                # signifiant — sinon une ligne faite de « de la le » passerait
+                # par hasard.
+                garde = mots(ligne[1:])
+                traduction = (
+                    "data-i18n" in c
+                    and garde
+                    and garde <= mots_ajoutes
+                    and any(len(m) >= 4 for m in garde)
+                )
                 if ("ztsh" not in bas and "ztsshell" not in bas
                         and not police and not vide and not enveloppe
                         and not migre_worker and not mascotte
-                        and not carte_twitter):
+                        and not carte_twitter and not traduction):
                     retirees_app.append(ligne[1:].strip()[:60])
         if ajouts > 30:
             aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")

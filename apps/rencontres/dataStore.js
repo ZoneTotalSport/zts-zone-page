@@ -163,7 +163,9 @@ const RencData = (() => {
    */
   function exigeUid() {
     const u = uid();
-    if (!u) throw new Error('Ta session a expiré. Recharge la page pour te reconnecter — tes notes sont sur cet appareil, rien n\'est perdu.');
+    // Le texte vient du dictionnaire de l'app : ce message atteint l'ecran.
+    // « session » est aussi un mot technique — il ne dit rien a personne.
+    if (!u) throw new Error(RencI18n.t('etat.reconnecte'));
     return u;
   }
   function pret() { return _pret; }

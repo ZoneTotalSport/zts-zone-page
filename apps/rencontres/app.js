@@ -55,6 +55,14 @@
 
   function id(x) { return document.getElementById(x); }
   function lang() { try { return (window.ZTS && ZTS.langue) ? ZTS.langue() : 'fr'; } catch (e) { return 'fr'; } }
+
+  /* Raccourcis vers le dictionnaire de l'app (i18n.js).
+     MAJUSCULE VOLONTAIRE : `t` est deja le nom de 17 variables locales dans
+     ce fichier (`var t = id('rencTitre')`, etc.). Un raccourci nomme `t`
+     serait masque dans chacune de ces portees et planterait a l'appel.
+     Le dictionnaire est charge AVANT ce fichier — voir l'ordre des <script>. */
+  function T(cle, trous) { return RencI18n.t(cle, trous); }
+  function TN(un, plusieurs, nb, trous) { return RencI18n.tn(un, plusieurs, nb, trous); }
   function nomDossier(d) { return (lang() === 'en' ? d.en : d.fr) || d.fr || d.id; }
 
   /* ==================================================================== */
@@ -327,7 +335,7 @@
     sel.textContent = '';
     var vide = document.createElement('option');
     vide.value = '';
-    vide.textContent = '— non classée —';
+    vide.textContent = T('entete.nonClassee');
     sel.appendChild(vide);
     dossiers.forEach(function (d) {
       var o = document.createElement('option');
@@ -358,7 +366,7 @@
   function marquePropre() {
     sale = false;
     var bt = id('rencSauver');
-    if (bt) { bt.classList.remove('is-sale'); bt.textContent = '✓ Enregistré'; }
+    if (bt) { bt.classList.remove('is-sale'); bt.textContent = T('outils.enregistre'); }
   }
 
   /**
@@ -383,7 +391,7 @@
     if (!ok) {
       // Un brouillon qu'on croit ecrit et qui ne l'est pas, c'est exactement
       // la panne qu'on cherche a eviter. On le DIT.
-      etat('⚠ La mémoire de cet appareil est pleine : la copie de secours n\'a pas pu s\'écrire. Enregistre maintenant.', 'alerte');
+      etat(T('etat.memoirePleine'), 'alerte');
     }
     return ok;
   }
@@ -396,7 +404,7 @@
   async function sauveServeur(silencieux) {
     if (!courante || !pretServeur) return;
     if (!RencData.enLigne()) {
-      etat('Pas de réseau — tes notes restent sur cet appareil et partiront au retour de la connexion.', 'attente');
+      etat(T('etat.pasDeReseau'), 'attente');
       return;
     }
     // Avant d'ecrire : si le titre est vide, on en propose un. La liste ne
@@ -405,9 +413,8 @@
     var doc = lisFormulaire();
     var verdict = RencData.verifiePoids(doc);
     if (!verdict.ok) {
-      etat('⚠ Ce compte rendu dépasse la taille d\'un document ('
-        + Math.round(verdict.poids / 1024) + ' Ko sur ' + Math.round(verdict.max / 1024)
-        + ' Ko). Coupe-le en deux rencontres.', 'alerte');
+      etat(T('etat.tropGros', { poids: Math.round(verdict.poids / 1024),
+                              max:   Math.round(verdict.max / 1024) }), 'alerte');
       return;
     }
     try {
@@ -425,12 +432,11 @@
       var sup = id('rencSupprimerFiche');
       if (sup) sup.hidden = !ecrit.id;
       marquePropre();
-      etat(silencieux ? '' : 'Enregistré.');
+      etat(silencieux ? '' : T('etat.enregistre'));
       await rafraichitListe();
     } catch (e) {
       // On NE vide PAS le brouillon local : c'est tout ce qui reste.
-      etat('⚠ L\'enregistrement a échoué (' + (e.message || e)
-        + '). Tes notes restent sur cet appareil ; réessaie.', 'alerte');
+      etat(T('etat.echecEcriture', { erreur: (e.message || e) }), 'alerte');
     }
   }
 
@@ -475,7 +481,7 @@
         li.appendChild(commandeDossier('✏️', 'Renommer ' + nomDossier(d), function () {
           renommeSurPlace(li, bt, d);
         }));
-        li.appendChild(commandeDossier('🗑️', 'Supprimer ' + nomDossier(d), function () {
+        li.appendChild(commandeDossier('🗑️', T('rail.supprimerDossier', { nom: nomDossier(d) }), function () {
           supprimeDossier(d);
         }));
       }
@@ -533,7 +539,7 @@
           // le meme des deux cotes plutot que de laisser un trou.
           if (!cible.en) cible.en = nom;
           if (!cible.fr) cible.fr = nom;
-          enregistreDossiers(estNouveau ? 'Dossier créé.' : 'Dossier renommé.');
+          enregistreDossiers(T(estNouveau ? 'dossier.cree' : 'dossier.renomme'));
           return;
         }
       }
@@ -553,11 +559,10 @@
      dire quelque chose. */
   async function supprimeDossier(d) {
     var dedans = rencontres.filter(function (r) { return (r.dossier || '') === d.id; }).length;
-    var m = 'Supprimer le dossier « ' + nomDossier(d) + ' » ?';
+    var m = T('dossier.supprQuestion', { nom: nomDossier(d) });
     m += dedans
-      ? '\n\nSes ' + dedans + ' rencontre' + (dedans > 1 ? 's deviennent' : ' devient')
-        + ' « non classée' + (dedans > 1 ? 's' : '') + ' ». Aucune n\'est effacée.'
-      : '\n\nIl est vide.';
+      ? '\n\n' + TN('dossier.supprAvecUne', 'dossier.supprAvecPlusieurs', dedans)
+      : '\n\n' + T('dossier.supprVide');
     if (!window.confirm(m)) return;
 
     try {
@@ -568,11 +573,10 @@
       await rafraichitListe();
       dessineDossiers();
       etat(dedans
-        ? 'Dossier supprimé — ' + dedans + ' rencontre' + (dedans > 1 ? 's sont' : ' est')
-          + ' maintenant « non classée' + (dedans > 1 ? 's' : '') + ' ».'
-        : 'Dossier supprimé.');
+        ? TN('dossier.supprimeAvecUne', 'dossier.supprimeAvecPlusieurs', dedans)
+        : T('dossier.supprime'));
     } catch (e) {
-      etat('⚠ La suppression a échoué (' + (e.message || e) + ').', 'alerte');
+      etat(T('etat.echecSuppression', { erreur: (e.message || e) }), 'alerte');
     }
   }
 
@@ -596,7 +600,7 @@
       remplitSelectDossiers(courante ? (courante.dossier || '') : '');
       if (message) etat(message);
     } catch (e) {
-      etat('⚠ Les dossiers n\'ont pas pu être enregistrés (' + (e.message || e) + ').', 'alerte');
+      etat(T('etat.echecDossiers', { erreur: (e.message || e) }), 'alerte');
       dessineDossiers();
     }
   }
@@ -634,14 +638,14 @@
         remplitSelectDossiers(r.dossier);
       }
       dessineListe();
-      etat('« ' + (r.titre || 'Sans titre') + ' » → '
-        + (nom ? nomDossier(nom) : 'non classées') + '.');
+      etat(T('etat.deplacee', { titre: r.titre || T('rail.sansTitre'),
+                              dossier: nom ? nomDossier(nom) : T('dossier.nonClassees') }));
     } catch (e) {
-      etat('⚠ Le déplacement a échoué (' + (e.message || e) + ').', 'alerte');
+      etat(T('etat.echecDeplacement', { erreur: (e.message || e) }), 'alerte');
     }
   }
 
-  var LIBELLE_TYPE = { comite: 'Comité', statutaire: 'Statutaire', autre: 'Autre' };
+  function libelleType(k) { return T('type.' + (k === 'comite' ? 'comite' : k === 'statutaire' ? 'statutaire' : 'autre')); }
 
   /* Recherche plein texte, cote client, sur les rencontres deja chargees —
      v1 assumee au §6 du cahier. Elle regarde TOUT ce qui porte du sens :
@@ -701,7 +705,7 @@
 
       var n = document.createElement('span');
       n.className = 'renc-item__n';
-      n.textContent = r.titre || 'Sans titre';
+      n.textContent = r.titre || T('rail.sansTitre');
       bt.appendChild(n);
 
       var m = document.createElement('span');
@@ -711,7 +715,7 @@
       pastille.setAttribute('data-type', r.type || 'comite');
       m.appendChild(pastille);
       m.appendChild(document.createTextNode(
-        (r.date || '') + ' · ' + (LIBELLE_TYPE[r.type] || 'Comité')));
+        (r.date || '') + ' · ' + libelleType(r.type)));
       bt.appendChild(m);
 
       bt.addEventListener('click', function () { ouvre(r); });
@@ -740,7 +744,7 @@
       jeter.type = 'button';
       jeter.className = 'renc-item-jeter';
       jeter.textContent = '🗑️';
-      jeter.title = 'Supprimer « ' + (r.titre || 'Sans titre') + ' »';
+      jeter.title = T('rail.jeter', { titre: r.titre || T('rail.sansTitre') });
       jeter.setAttribute('aria-label', jeter.title);
       jeter.addEventListener('click', function (e) {
         e.stopPropagation();
@@ -759,16 +763,14 @@
         var filtre = q || type || dossierActif !== null;
         vide.innerHTML = '';
         var l1 = document.createElement('span');
-        l1.textContent = rencontres.length && filtre
-          ? 'Aucune rencontre ne correspond.'
-          : 'Aucune rencontre pour l\'instant.';
+        l1.textContent = T(rencontres.length && filtre ? 'rail.videFiltre' : 'rail.vide');
         vide.appendChild(l1);
         vide.appendChild(document.createElement('br'));
         var l2 = document.createElement('span');
         l2.className = 'renc-vide__aide';
         l2.textContent = rencontres.length && filtre
-          ? 'Il y en a ' + rencontres.length + ' en tout — enlève un filtre pour les revoir.'
-          : 'Le bouton « + Nouvelle rencontre » en crée une.';
+          ? T('rail.videFiltreAide', { nb: rencontres.length })
+          : T('rail.videAide');
         vide.appendChild(l2);
       }
     }
@@ -780,7 +782,7 @@
       rencontres = await RencData.listeRencontres();
       dessineListe();
     } catch (e) {
-      etat('⚠ La liste n\'a pas pu être relue (' + (e.message || e) + ').', 'alerte');
+      etat(T('etat.echecListe', { erreur: (e.message || e) }), 'alerte');
     }
   }
 
@@ -812,7 +814,7 @@
     dessineListe();
     if (r.restaure) {
       marqueSale();
-      etat('Notes retrouvées sur cet appareil — elles sont plus récentes que la dernière version enregistrée. Vérifie, puis enregistre.', 'attente');
+      etat(T('etat.retrouve'), 'attente');
     } else {
       marquePropre();
       etat('');
@@ -834,7 +836,7 @@
     dessineListe();
     if (brouillonExistant) {
       marqueSale();
-      etat('Rencontre non enregistrée retrouvée sur cet appareil. Vérifie, puis enregistre.', 'attente');
+      etat(T('etat.brouillon'), 'attente');
     } else {
       marqueNeutre();
       etat('');
@@ -847,25 +849,22 @@
   /* Micro (vague C)                                                      */
   /* ==================================================================== */
 
+  /* Les deux tables ne portent plus les phrases, seulement les CLES : le
+     texte vit dans i18n.js, comme tout le reste. */
   var SOUCIS = {
-    'texte-direct-refuse':
-      "Le navigateur n'autorise pas l'écriture en direct. L'enregistrement continue : le texte s'écrira à la fin.",
-    'texte-direct-reseau':
-      "Réseau instable — l'écriture en direct s'est interrompue. L'enregistrement continue.",
-    'texte-direct-arrete':
-      "L'écriture en direct s'est arrêtée. L'enregistrement continue : le texte s'écrira à la fin.",
-    'enregistrement-interrompu':
-      "⚠ L'enregistrement a été interrompu. Ce qui a été capté jusqu'ici est conservé.",
-    'arret-impossible':
-      "⚠ L'arrêt de l'enregistrement a échoué. Recharge la page ; ce qui est déjà transcrit est conservé."
+    'texte-direct-refuse':       'souci.directRefuse',
+    'texte-direct-reseau':       'souci.directReseau',
+    'texte-direct-arrete':       'souci.directArrete',
+    'enregistrement-interrompu': 'souci.interrompu',
+    'arret-impossible':          'souci.arretImpossible'
   };
 
   var MICRO_ERREURS = {
-    MICRO_REFUSE: "Le micro a été refusé. Autorise-le dans la barre d'adresse, puis redémarre.",
-    MICRO_ABSENT: "Aucun micro détecté sur cet appareil.",
-    MICRO_INDISPONIBLE: "Ce navigateur ne donne pas accès au micro.",
-    ENREGISTREUR_INDISPONIBLE: "Ce navigateur ne sait pas enregistrer l'audio.",
-    MICRO_ERREUR: "Le micro n'a pas pu démarrer."
+    MICRO_REFUSE:              'micro.refuseCourt',
+    MICRO_ABSENT:              'micro.absent',
+    MICRO_INDISPONIBLE:        'micro.indisponible',
+    ENREGISTREUR_INDISPONIBLE: 'micro.enregIndisponible',
+    MICRO_ERREUR:              'micro.erreur'
   };
 
   /* ── Compteur de credits ───────────────────────────────────────────────
@@ -896,10 +895,12 @@
     if (credits.minutes !== null) bouts.push(credits.minutes + ' min');
     if (credits.ia !== null) bouts.push(credits.ia + ' compte' + (credits.ia > 1 ? 's' : '') + ' rendu' + (credits.ia > 1 ? 's' : ''));
     n.textContent = bouts.join(' · ') + ' restants aujourd\'hui';
-    n.title = 'Ce qu\'il te reste aujourd\'hui : '
-      + (credits.minutes !== null ? credits.minutes + ' minutes de micro sur ' + credits.minutesMax : '')
-      + (credits.ia !== null ? ', et ' + credits.ia + ' comptes rendus sur ' + credits.iaMax : '')
-      + '. Tout repart à neuf demain. C\'est gratuit, et ça le reste.';
+    n.title = T('credits.detail', {
+      minutes:    credits.minutes === null ? '—' : credits.minutes,
+      minutesMax: credits.minutesMax === null ? '—' : credits.minutesMax,
+      ia:         credits.ia === null ? '—' : credits.ia,
+      iaMax:      credits.iaMax === null ? '—' : credits.iaMax
+    });
     // Deux seuils, pour voir venir la limite au lieu de la heurter.
     var basMin = credits.minutesMax ? credits.minutes <= credits.minutesMax * 0.15 : false;
     var basIA  = credits.iaMax ? credits.ia <= credits.iaMax * 0.15 : false;
@@ -1005,7 +1006,7 @@
      pas une promesse ecrite pour un cas rare : c'est en dette v2. */
   async function termineEnregistrement(blob, info) {
     poseEcran('apres');
-    etatMicro('Enregistrement terminé — ' + RencMicro.formate(info.secondes) + '.', 'attente');
+    etatMicro(T('micro.termine', { duree: RencMicro.formate(info.secondes) }), 'attente');
 
     // Le point en cours se ferme sur la duree totale : sans ca son `fin`
     // resterait vide et son audio ne serait rattache a rien.
@@ -1022,10 +1023,9 @@
     marqueSale();
     try {
       await sauveServeur(true);
-      etatImport('Rencontre enregistrée. On prépare ton texte…');
+      etatImport(T('depot.prepare'));
     } catch (e) {
-      etatImport('⚠ La rencontre n\'a pas pu être enregistrée (' + (e.message || e)
-        + '). Tes notes restent sur cet appareil.', 'alerte');
+      etatImport(T('etat.echecRencontre', { erreur: (e.message || e) }), 'alerte');
     }
 
     // 2 — enchainer la transcription, sans rien demander.
@@ -1039,7 +1039,7 @@
     if (!zone || !mode) return;
 
     if (!RencMicro.disponible) {
-      mode.textContent = "Ce navigateur ne donne pas accès au micro. Les deux autres façons de capturer restent ouvertes : écrire à la main, ou déposer un enregistrement.";
+      mode.textContent = T('micro.pasDeMicroIci');
       ['rencMicDemarrer', 'rencMicPause', 'rencMicArret'].forEach(function (c) {
         var n = id(c); if (n) n.disabled = true;
       });
@@ -1050,14 +1050,10 @@
     // navigateur. Les deux phrases se valent : aucune n'annonce un manque.
     // Deux phrases, aucune des deux ne s'excuse. Elles disent QUAND le texte
     // arrive, jamais qu'une version serait moins bonne que l'autre.
-    mode.textContent = RencMicro.direct
-      ? "Tu verras les mots défiler pendant que ça enregistre. La version propre — ponctuée, sans les « euh » — arrive à la fin."
-      : "Le texte s'écrit une fois l'enregistrement terminé.";
+    mode.textContent = T(RencMicro.direct ? 'micro.modeDirect' : 'micro.modeFin');
     var etiq = id('rencMicEtiq');
     if (etiq) {
-      etiq.textContent = RencMicro.direct
-        ? 'Texte brut — la version propre arrive à la fin'
-        : 'Le texte apparaîtra ici à la fin de l\'enregistrement';
+      etiq.textContent = T(RencMicro.direct ? 'micro.etiqDirect' : 'micro.etiqFin');
     }
 
     RencMicro.sur('minuteur', function (s) {
@@ -1093,7 +1089,7 @@
       if (zb) {
         zb.textContent = '';
         var t2 = document.createElement('b');
-        t2.textContent = 'Ce qui se dit';
+        t2.textContent = T('odj.ceQuiSeDit');
         zb.appendChild(t2);
         zb.appendChild(document.createTextNode(dernierBrut || '…'));
       }
@@ -1106,7 +1102,7 @@
     });
 
     RencMicro.sur('souci', function (code) {
-      etatMicro(SOUCIS[code] || code, code.indexOf('enregistrement') === 0 ? 'alerte' : 'attente');
+      etatMicro(SOUCIS[code] ? T(SOUCIS[code]) : code, code.indexOf('enregistrement') === 0 ? 'alerte' : 'attente');
     });
 
     RencMicro.sur('audio', termineEnregistrement);
@@ -1126,7 +1122,7 @@
     id('rencMicDemarrer').addEventListener('click', async function () {
       if (!RencMicro.consentementDonne()) {
         if (bloc) bloc.hidden = false;
-        etatMicro('Coche la case ci-dessus avant de démarrer.', 'attente');
+        etatMicro(T('consent.rappel'), 'attente');
         if (coche) coche.focus();
         return;
       }
@@ -1162,9 +1158,9 @@
         poseEcran('pendant');
         var ong2 = id('ongNotes');
         if (ong2) ong2.click();
-        var msg = MICRO_ERREURS[e.message] || MICRO_ERREURS.MICRO_ERREUR;
+        var msg = T(MICRO_ERREURS[e.message] || MICRO_ERREURS.MICRO_ERREUR);
         etatMicro(msg, 'alerte');
-        etat(msg + ' Tes notes fonctionnent quand même — écris ici.', 'alerte');
+        etat(msg + ' ' + T('micro.notesMarchentQuandMeme'), 'alerte');
       }
       boutonsMicro();
     });
@@ -1223,33 +1219,33 @@
    * @param {boolean} auto  parcours du micro : rien a decider, tout s'enchaine
    */
   async function prepare(source, nom, auto) {
-    if (enCours) { etatImport('On est déjà en train d\'écrire ton texte.', 'attente'); return; }
+    if (enCours) { etatImport(T('depot.dejaEnCours'), 'attente'); return; }
     if (nom && !RencAudio.formatAccepte(nom)) {
-      etatImport('Format non reconnu. Accepte : mp3, m4a, wav, mp4, webm.', 'alerte');
+      etatImport(T('depot.mauvaisFormat'), 'alerte');
       return;
     }
     if (!RencData.enLigne()) {
-      etatImport('Écrire ton texte demande Internet. Tes notes, elles, continuent de fonctionner.', 'attente');
+      etatImport(T('depot.besoinReseau'), 'attente');
       return;
     }
 
     id('rencDevis').hidden = true;
-    etatImport('Lecture du fichier…');
+    etatImport(T('depot.lecture'));
     var buffer;
     try {
       buffer = await RencAudio.decode(source);
     } catch (e) {
       var m = {
         AUDIO_INDISPONIBLE: "Ce navigateur ne sait pas décoder l'audio.",
-        LECTURE_IMPOSSIBLE: 'Le fichier n\'a pas pu être lu.',
-        FORMAT_ILLISIBLE: "Ce fichier n'a pas pu être décodé. Essaie un .mp3 ou un .m4a."
+        LECTURE_IMPOSSIBLE: 'depot.lectureImpossible',
+        FORMAT_ILLISIBLE:   'depot.formatIllisible'
       };
-      etatImport(m[e.message] || 'Le fichier n\'a pas pu être décodé.', 'alerte');
+      etatImport(T(m[e.message] || 'depot.decodageEchec'), 'alerte');
       return;
     }
 
     var secondes = buffer.length / RencAudio.TAUX;
-    etatImport('Découpage…');
+    etatImport(T('depot.decoupage'));
     /* LES BORNES DE L'ORDRE DU JOUR REMPLACENT LES TRANCHES DE CINQ MINUTES —
        elles ne s'y ajoutent pas. Meme quantite d'audio envoyee a Whisper,
        coupee ailleurs : c'est ce qui rend ce mode gratuit en jetons.
@@ -1268,7 +1264,7 @@
     try {
       segments = RencAudio.segmente(buffer, bornes);
     } catch (e) {
-      etatImport('On n\'a pas réussi à lire ce fichier — il est peut-être trop long pour cet appareil.', 'alerte');
+      etatImport(T('depot.illisible'), 'alerte');
       return;
     }
     // Le buffer decode pese jusqu'a 115 Mo : on lache la reference des que les
@@ -1280,7 +1276,7 @@
       devis = await RencData.devisTranscription(Math.round(secondes));
       noteCredits(devis);
     } catch (e) {
-      etatImport('Ça n\'a pas répondu. Réessaie dans un moment. (' + (e.message || e) + ')', 'alerte');
+      etatImport(T('depot.sansReponse', { erreur: (e.message || e) }), 'alerte');
       return;
     }
 
@@ -1302,23 +1298,21 @@
       // (voir termineEnregistrement), les notes sont en surete, et le bouton
       // reste offert tant que l'onglet vit.
       id('rencTranscrire').hidden = false;
-      etatImport('Il te reste ' + devis.minutesRestantes + ' minute'
-        + (devis.minutesRestantes > 1 ? 's' : '') + ' aujourd\'hui, et cet enregistrement en demande '
-        + devis.minutesDemandees + '. Ta rencontre et tes notes sont enregistrées. '
-        + 'Laisse cette page ouverte et demande-le quand tu veux — '
-        + 'ou réenregistre demain, le compteur repart.', 'attente');
+      etatImport(T('depot.pasAssezMaisSauve', {
+        reste: devis.minutesRestantes, demande: devis.minutesDemandees
+      }), 'attente');
       return;
     }
 
-    id('rencDevisDuree').textContent = 'Enregistrement de ' + duree(secondes) + '.';
-    id('rencDevisQuota').textContent = 'Ça prend ' + devis.minutesDemandees
-      + ' de tes ' + devis.minutesRestantes + ' minutes gratuites d\'aujourd\'hui.';
+    id('rencDevisDuree').textContent = T('depot.duree', { duree: duree(secondes) });
+    id('rencDevisQuota').textContent = T('depot.cout', {
+      demande: devis.minutesDemandees, reste: devis.minutesRestantes
+    });
 
     var avert = id('rencDevisAvert');
     if (devis.longue) {
       avert.hidden = false;
-      avert.textContent = '⚠ Plus de 90 minutes. Ça va prendre un bon moment, et ça utilise '
-        + 'une bonne part de tes minutes gratuites du jour. Garde cette page ouverte.';
+      avert.textContent = T('depot.long');
     } else {
       avert.hidden = true;
     }
@@ -1326,8 +1320,7 @@
     id('rencLancer').disabled = !devis.suffisant;
     if (!devis.suffisant) {
       avert.hidden = false;
-      avert.textContent = 'Il ne reste pas assez de minutes aujourd\'hui pour cet enregistrement. '
-        + 'Le compteur repart demain — ou découpe le fichier en deux.';
+      avert.textContent = T('depot.pasAssez');
     }
     id('rencDevis').hidden = false;
   }
@@ -1354,9 +1347,9 @@
       // le parcours automatique, ou chaque segment est ecrit au serveur des
       // qu'il arrive.
       id('rencAvanceTexte').textContent = texte
-        + (auto ? ' Tu peux fermer, on garde tout ce qui est déjà écrit.' : '');
+        + (auto ? T('depot.tuPeuxFermer') : '');
     }
-    avance('On écrit ton texte… 1 morceau sur ' + segments.length + '.');
+    avance(T('depot.enCours', { faits: 1, total: segments.length }));
 
     for (var i = 0; i < segments.length; i++) {
       var seg = segments[i];
@@ -1379,8 +1372,8 @@
         // perd que ce qui restait a transcrire, jamais ce qui l'est deja.
         if (auto) { try { await sauveServeur(true); } catch (e) {} }
         avance(faits < segments.length
-          ? 'On écrit ton texte… ' + (faits + 1) + ' morceaux sur ' + segments.length + '.'
-          : 'Presque fini…');
+          ? T('depot.enCours', { faits: faits + 1, total: segments.length })
+          : T('depot.presqueFini'));
       } catch (e) {
         // On garde ce qui est deja transcrit : la moitie d'un compte rendu
         // vaut infiniment mieux que rien, et l'usager peut relancer le reste.
@@ -1388,9 +1381,8 @@
         id('rencAvance').hidden = true;
         var q = (e.code === 'QUOTA_MINUTES');
         etatImport((q ? '' : '⚠ ') + (e.message || e)
-          + (faits ? ' — les ' + faits + ' premier' + (faits > 1 ? 's' : '') + ' segment'
-             + (faits > 1 ? 's sont' : ' est') + ' conservé' + (faits > 1 ? 's' : '')
-             + ' dans « Original ».' : ''), q ? 'attente' : 'alerte');
+          + (faits ? ' ' + TN('depot.gardeUn', 'depot.gardePlusieurs', faits) : ''),
+          q ? 'attente' : 'alerte');
         if (sale) sauveServeur(true);
         return;
       }
@@ -1404,11 +1396,9 @@
     await sauveServeur(true);
     etatImport('');
     poseEcran('apres');
-    if (id('rencFiniTitre')) id('rencFiniTitre').textContent = 'C\'est écrit, et c\'est enregistré.';
+    if (id('rencFiniTitre')) id('rencFiniTitre').textContent = T('fini.titre');
     if (id('rencFiniSous')) {
-      id('rencFiniSous').textContent = auto
-        ? 'Rien ne se perdra plus — tu peux fermer. Le texte est dans « Original ».'
-        : 'Le texte est dans « Original ».';
+      id('rencFiniSous').textContent = T(auto ? 'fini.sousAuto' : 'fini.sousImport');
     }
     // Les deux boutons de traitement se signalent, une fois, sur une
     // rencontre deja en surete. C'est le seul moment ou un choix a du sens.
@@ -1544,7 +1534,7 @@
     var quand;
     try { quand = d.toLocaleDateString(lang() === 'en' ? 'en-CA' : 'fr-CA', opts); }
     catch (e) { quand = iso || ''; }
-    return (lang() === 'en' ? 'Meeting of ' : 'Rencontre du ') + quand;
+    return T('entete.titreDefaut', { quand: quand });
   }
 
   /** Remplit le champ titre s'il est vide. On le POSE dans le champ plutot
@@ -1596,7 +1586,7 @@
   /** Le compte rendu structure, rendu en HTML — celui que l'usager editera. */
   function rendStructure(s) {
     var h = [];
-    if (s.resume) h.push('<h2>Résumé</h2><p>' + echappe(s.resume).replace(/\n+/g, '<br>') + '</p>');
+    if (s.resume) h.push('<h2>' + echappe(T('cr.resume')) + '</h2><p>' + echappe(s.resume).replace(/\n+/g, '<br>') + '</p>');
 
     /* AVEC UN ORDRE DU JOUR, LE COMPTE RENDU SUIT LES POINTS. Un point sans
        parole enregistree est dit « non abordé » plutot qu'omis : c'est
@@ -1605,23 +1595,23 @@
     if (Array.isArray(s.sections) && s.sections.length) {
       var rang = 0;
       s.sections.forEach(function (sec, i) {
-        h.push('<h2>' + (i + 1) + ' · ' + echappe(sec.titre || 'Point ' + (i + 1)) + '</h2>');
+        h.push('<h2>' + (i + 1) + ' · ' + echappe(sec.titre || T('cr.point', { nb: i + 1 })) + '</h2>');
         if (!sec.aborde) {
-          h.push('<p><b>Non abordé.</b></p>');
+          h.push('<p><b>' + echappe(T('cr.nonAborde')) + '</b></p>');
           return;
         }
         if (sec.discussion) h.push('<p>' + echappe(sec.discussion).replace(/\n+/g, '<br>') + '</p>');
         if (sec.decisions && sec.decisions.length) {
-          h.push('<h3>Décisions</h3><ul>' + sec.decisions.map(function (d) {
+          h.push('<h3>' + echappe(T('cr.decisions')) + '</h3><ul>' + sec.decisions.map(function (d) {
             return '<li>' + echappe(d) + '</li>'; }).join('') + '</ul>');
         }
         if (sec.actions && sec.actions.length) {
-          h.push('<h3>Actions à faire</h3>' + rendActions(sec.actions, rang));
+          h.push('<h3>' + echappe(T('cr.actions')) + '</h3>' + rendActions(sec.actions, rang));
           rang += sec.actions.length;
         }
       });
       if (s.reportes && s.reportes.length) {
-        h.push('<h2>Points reportés à la prochaine rencontre</h2><ul>'
+        h.push('<h2>' + echappe(T('cr.reportes')) + '</h2><ul>'
           + s.reportes.map(function (x) { return '<li>' + echappe(x) + '</li>'; }).join('') + '</ul>');
       }
       return h.join('');
@@ -1632,16 +1622,16 @@
       h.push('<h2>' + titre + '</h2><ul>'
         + items.map(function (x) { return '<li>' + echappe(x) + '</li>'; }).join('') + '</ul>');
     }
-    bloc('Points discutés', s.points);
-    bloc('Décisions prises', s.decisions);
+    bloc(echappe(T('cr.pointsDiscutes')), s.points);
+    bloc(echappe(T('cr.decisionsPrises')), s.decisions);
     if (s.actions && s.actions.length) {
       // Les actions sont des CASES A COCHER, pas des puces : c'est ce qui les
       // rend vivantes, et c'est ce que la vue « Mes actions » de la vague H
       // relira.
-      h.push('<h2>Actions à faire</h2>');
+      h.push('<h2>' + echappe(T('cr.actions')) + '</h2>');
       h.push(rendActions(s.actions, 0));
     }
-    bloc('Points reportés à la prochaine rencontre', s.reportes);
+    bloc(echappe(T('cr.reportes')), s.reportes);
     return h.join('');
   }
 
@@ -1662,9 +1652,9 @@
   async function faisVerbatim() {
     if (iaEnCours || !courante) return;
     var source = texteSource();
-    if (!source) { etat('Il n\'y a encore rien à nettoyer.', 'attente'); return; }
+    if (!source) { etat(T('ia.rienANettoyer'), 'attente'); return; }
     var parts = blocs(source);
-    iaOccupee(true, 'Mot à mot — bloc 1 sur ' + parts.length + '…');
+    iaOccupee(true, T('ia.verbatimBloc', { n: 1, total: parts.length }));
 
     var faits = [];
     for (var i = 0; i < parts.length; i++) {
@@ -1674,19 +1664,20 @@
         faits.push(r.texte || '');
         appliqueSortie(faits.join('\n\n'), 'verbatim');
         if (i + 1 < parts.length) {
-          iaOccupee(true, 'Mot à mot — bloc ' + (i + 2) + ' sur ' + parts.length
-            + ' (' + r.restantJour + ' traitements restants aujourd\'hui)…');
+          iaOccupee(true, T('ia.verbatimBlocReste', {
+            n: i + 2, total: parts.length, reste: r.restantJour
+          }));
         }
       } catch (e) {
         // Ce qui est deja nettoye RESTE. Un mot a mot a moitie fait vaut
         // mieux qu'un ecran vide, et l'usager peut relancer.
         iaOccupee(false, messageIA(e)
-          + (faits.length ? ' — les ' + faits.length + ' premiers blocs sont conservés.' : ''));
+          + (faits.length ? ' ' + TN('ia.gardeUn', 'ia.gardePlusieurs', faits.length) : ''));
         if (sale) sauveServeur(true);
         return;
       }
     }
-    iaOccupee(false, 'Mot à mot terminé. Le texte reste modifiable à la main.');
+    iaOccupee(false, T('ia.verbatimFini'));
     if (sale) sauveServeur(true);
   }
 
@@ -1702,7 +1693,7 @@
     pts.forEach(function (p, i) {
       var t = (texteParPoint[i] || '').trim();
       bouts.push('=== POINT ' + (i + 1) + ' : ' + p.texte + ' ===\n'
-        + (t || '(aucune parole enregistrée sur ce point)'));
+        + (t || T('ia.aucuneParole')));
     });
     return bouts.join('\n\n');
   }
@@ -1712,10 +1703,8 @@
     var pts = odj();
     var etiquete = sourceEtiquetee();
     var source = etiquete || texteSource();
-    if (!source) { etat('Il n\'y a encore rien à résumer.', 'attente'); return; }
-    iaOccupee(true, etiquete
-      ? 'Compte rendu en préparation, point par point…'
-      : 'Compte rendu en préparation…');
+    if (!source) { etat(T('ia.rienAResumer'), 'attente'); return; }
+    iaOccupee(true, T(etiquete ? 'ia.preparePoints' : 'ia.prepare'));
     try {
       var r = await RencData.traiteIA('structure', source, modeleChoisi(), lang(),
         dateRencontre(), etiquete ? pts.map(function (p) { return p.texte; }) : null);
@@ -1733,11 +1722,10 @@
       appliqueSortie(rendStructure(sortie), 'structure');
       var nonAbordes = Array.isArray(sortie.sections)
         ? sortie.sections.filter(function (x) { return !x.aborde; }).length : 0;
-      iaOccupee(false, 'Compte rendu prêt — '
-        + courante.actions.length + ' action' + (courante.actions.length > 1 ? 's' : '') + ' à faire'
-        + (nonAbordes ? ', ' + nonAbordes + ' point' + (nonAbordes > 1 ? 's' : '')
-            + ' non abordé' + (nonAbordes > 1 ? 's' : '') : '')
-        + '. Tout reste modifiable.');
+      iaOccupee(false, T('ia.pret', {
+        actions: TN('ia.uneAction', 'ia.desActions', courante.actions.length),
+        points:  nonAbordes ? ', ' + TN('ia.unNonAborde', 'ia.desNonAbordes', nonAbordes) : ''
+      }));
       if (sale) sauveServeur(true);
     } catch (e) {
       iaOccupee(false, messageIA(e));
@@ -1749,10 +1737,10 @@
     if (iaEnCours || !courante) return;
     var sel = String(window.getSelection ? window.getSelection().toString() : '').trim();
     if (sel.length < 40) {
-      etat('Sélectionne d\'abord un passage dans « Original » (au moins quelques phrases).', 'attente');
+      etat(T('ia.selectionneDabord'), 'attente');
       return;
     }
-    iaOccupee(true, 'Résumé du passage…');
+    iaOccupee(true, T('ia.resumePassage'));
     try {
       var r = await RencData.traiteIA('passage', sel, modeleChoisi(), lang(), dateRencontre());
       noteCredits(r);
@@ -1763,7 +1751,7 @@
       p.textContent = r.texte || '';
       z.appendChild(p);
       marqueSale();
-      iaOccupee(false, 'Résumé ajouté au bas du compte rendu.');
+      iaOccupee(false, T('ia.resumeAjoute'));
       if (sale) sauveServeur(true);
     } catch (e) {
       iaOccupee(false, messageIA(e));
@@ -1813,12 +1801,11 @@
    */
   async function supprimeRencontre(r) {
     var cible = r || courante;
-    if (!cible || !cible.id) { etat('Rien à supprimer.', 'attente'); return; }
+    if (!cible || !cible.id) { etat(T('etat.rienASupprimer'), 'attente'); return; }
 
     // La question de Joey, mot pour mot, avec le titre pour qu'on sache
     // laquelle on jette.
-    if (!window.confirm('Supprimer « ' + (cible.titre || 'Sans titre')
-      + ' » ?\n\nElle sera effacée définitivement.')) return;
+    if (!window.confirm(T('confirme.supprimer', { titre: cible.titre || T('rail.sansTitre') }))) return;
 
     try {
       await RencData.supprimerRencontre(cible.id);
@@ -1828,9 +1815,9 @@
         poseEcran('liste');
       }
       await rafraichitListe();
-      etat('« ' + (cible.titre || 'Sans titre') + ' » supprimée.');
+      etat(T('etat.supprimee', { titre: cible.titre || T('rail.sansTitre') }));
     } catch (e) {
-      etat('⚠ La suppression a échoué (' + (e.message || e) + ').', 'alerte');
+      etat(T('etat.echecSuppression', { erreur: (e.message || e) }), 'alerte');
     }
   }
 
@@ -1840,9 +1827,9 @@
 
   var CLE_DESTINATAIRES = 'zts_renc_destinataires';
 
-  var LIBELLE_TYPE_LONG = {
-    comite: 'Comité', statutaire: 'Rencontre statutaire', autre: 'Rencontre'
-  };
+  function libelleTypeLong(k) {
+    return T('type.' + (k === 'comite' ? 'comiteLong' : k === 'statutaire' ? 'statutaireLong' : 'autreLong'));
+  }
 
   /**
    * Convertit le compte rendu en TEXTE. Ce n'est pas cosmetique : c'est ce qui
@@ -1942,13 +1929,13 @@
     if (format === 'md') l.push('# ' + titre);
     else l.push(titre.toUpperCase(), '='.repeat(Math.min(60, titre.length)));
     l.push('');
-    l.push((LIBELLE_TYPE_LONG[r.type] || 'Rencontre') + ' — ' + (r.date || ''));
+    l.push(libelleTypeLong(r.type) + ' — ' + (r.date || ''));
     var d = dossiers.filter(function (x) { return x.id === r.dossier; })[0];
-    if (d) l.push('Dossier : ' + nomDossier(d));
-    if (r.animateur) l.push('Animateur : ' + r.animateur);
-    if (r.secretaire) l.push('Secrétaire : ' + r.secretaire);
+    if (d) l.push(T('entete.dossier') + ' : ' + nomDossier(d));
+    if (r.animateur) l.push(T('entete.animateur') + ' : ' + r.animateur);
+    if (r.secretaire) l.push(T('entete.secretaire') + ' : ' + r.secretaire);
     var p = String(r.participants || '').trim();
-    if (p) l.push('Participants : ' + p);
+    if (p) l.push(T('entete.participants') + ' : ' + p);
     return l.join('\n');
   }
 
@@ -2021,8 +2008,7 @@
     if (!courante) return;
     var memoire = '';
     try { memoire = localStorage.getItem(CLE_DESTINATAIRES) || ''; } catch (e) {}
-    var dest = window.prompt(
-      'À qui envoyer ce compte rendu ?\n(adresses séparées par des virgules)', memoire);
+    var dest = window.prompt(T('courriel.aQui'), memoire);
     if (dest === null) return;
     dest = dest.trim();
     try { if (dest) localStorage.setItem(CLE_DESTINATAIRES, dest); } catch (e) {}
@@ -2031,9 +2017,7 @@
     var colle = await copie(complet);
 
     var corps = enteteTexte('txt') + '\n\n'
-      + (colle
-          ? 'Le compte rendu complet est dans ton presse-papiers : colle-le ici (Ctrl+V ou Cmd+V).'
-          : 'Le compte rendu complet suit — copie-le depuis l\'application.')
+      + T(colle ? 'courriel.corpsColle' : 'courriel.corpsSuit')
       + '\n';
 
     var url = 'mailto:' + encodeURIComponent(dest)
@@ -2041,10 +2025,7 @@
       + '&body=' + encodeURIComponent(corps);
     window.location.href = url;
 
-    etat(colle
-      ? 'Courriel ouvert. Le compte rendu complet est dans le presse-papiers — colle-le dans le message.'
-      : '⚠ Le presse-papiers a été refusé. Utilise « Copier le compte rendu », puis colle dans le courriel.',
-      colle ? 'attente' : 'alerte');
+    etat(T(colle ? 'courriel.ouvert' : 'courriel.presseRefuse'), colle ? 'attente' : 'alerte');
   }
 
   function cableSortie() {
@@ -2054,8 +2035,7 @@
     var c = id('rencCopier');
     if (c) c.addEventListener('click', async function () {
       var ok = await copie(rendu('txt'));
-      etat(ok ? 'Compte rendu copié — colle-le où tu veux.'
-              : '⚠ La copie a été refusée par le navigateur.', ok ? '' : 'alerte');
+      etat(T(ok ? 'pied.copieOk' : 'pied.copieRefusee'), ok ? '' : 'alerte');
     });
 
     var p = id('rencPdf');
@@ -2068,13 +2048,13 @@
     var t = id('rencTxt');
     if (t) t.addEventListener('click', function () {
       telecharge(nomFichier('txt'), rendu('txt'), 'text/plain');
-      etat('Fichier .txt téléchargé.');
+      etat(T('pied.txtFait'));
     });
 
     var m = id('rencMd');
     if (m) m.addEventListener('click', function () {
       telecharge(nomFichier('md'), rendu('md'), 'text/markdown');
-      etat('Fichier .md téléchargé.');
+      etat(T('pied.mdFait'));
     });
 
     var s = id('rencPartage');
@@ -2082,12 +2062,12 @@
       if (typeof navigator.share !== 'function') return;
       try {
         await navigator.share({ title: sujetCourriel(), text: rendu('txt') });
-        etat('Partagé.');
+        etat(T('pied.partage'));
       } catch (err) {
         // L'usager qui ferme la feuille de partage declenche une erreur
         // « AbortError ». Ce n'est pas une panne, c'est un renoncement.
         if (err && err.name !== 'AbortError') {
-          etat('⚠ Le partage a échoué (' + (err.message || err) + ').', 'alerte');
+          etat(T('pied.partageEchec', { erreur: (err.message || err) }), 'alerte');
         }
       }
     });
@@ -2168,12 +2148,12 @@
       }
     } catch (e) {}
     var bouts = [r.titre || 'Sans titre', quand || ''];
-    if (LIBELLE_TYPE[r.type]) bouts.push(LIBELLE_TYPE[r.type]);
+    if (r.type) bouts.push(libelleType(r.type));
     if (d) bouts.push(nomDossier(d));
     var p = String(r.participants || '').trim();
     if (p) {
       var nb = p.split(',').filter(function (x) { return x.trim(); }).length;
-      if (nb) bouts.push(nb + ' participant' + (nb > 1 ? 's' : ''));
+      if (nb) bouts.push(TN('entete.nbParticipant', 'entete.nbParticipants', nb));
     }
     n.textContent = bouts.filter(Boolean).join('  ·  ');
   }
@@ -2199,7 +2179,7 @@
    */
   function retourListe() {
     if (typeof RencMicro !== 'undefined' && RencMicro.etat() !== 'arret') {
-      if (!window.confirm('L\'enregistrement est en cours.\n\nL\'arrêter et enregistrer ?')) return;
+      if (!window.confirm(T('confirme.quitter'))) return;
       var stop = id('rencMicArret');
       if (stop) stop.click();
     }
@@ -2372,7 +2352,7 @@
       c.type = 'checkbox';
       c.className = 'renc-point__case';
       c.checked = !!p.fait;
-      c.setAttribute('aria-label', (p.fait ? 'Rouvrir' : 'Marquer comme réglé') + ' : ' + p.texte);
+      c.setAttribute('aria-label', T(p.fait ? 'odj.rouvrir' : 'odj.marquerRegle') + ' : ' + p.texte);
       c.addEventListener('change', function () { basculePoint(i, c.checked); });
       li.appendChild(c);
 
@@ -2383,7 +2363,7 @@
       if (p.debut != null) {
         var h = document.createElement('span');
         h.className = 'renc-point__h';
-        h.textContent = mmss(p.debut) + (p.fin != null ? ' → ' + mmss(p.fin) : ' → en cours');
+        h.textContent = mmss(p.debut) + ' → ' + (p.fin != null ? mmss(p.fin) : T('odj.enCours'));
         b.appendChild(h);
       }
       // Cliquer le libelle rend le point COURANT — une vraie rencontre ne
@@ -2399,7 +2379,7 @@
         brut.className = 'renc-odj__brut';
         brut.id = 'rencOdjBrut';
         var t = document.createElement('b');
-        t.textContent = 'Ce qui se dit';
+        t.textContent = T('odj.ceQuiSeDit');
         brut.appendChild(t);
         brut.appendChild(document.createTextNode(dernierBrut || '…'));
         liste.appendChild(brut);
@@ -2411,8 +2391,7 @@
       var faits = points.filter(function (p) { return p.fait; }).length;
       pied.hidden = !points.length;
       pied.textContent = points.length
-        ? faits + ' point' + (faits > 1 ? 's' : '') + ' réglé' + (faits > 1 ? 's' : '')
-          + ' sur ' + points.length + '. Coche un point quand il est réglé — ça n\'interrompt jamais l\'enregistrement.'
+        ? TN('odj.piedUn', 'odj.piedPlusieurs', faits, { total: points.length })
         : '';
     }
   }
@@ -2462,10 +2441,10 @@
         return;
       }
       pointCourant = -1;
-      etat('Tous les points sont réglés.' + (t != null ? ' L\'enregistrement continue.' : ''));
+      etat(T('odj.toutRegle') + (t != null ? ' ' + T('odj.enregContinue') : ''));
     } else {
       points[i].fin = null;
-      etat('« ' + points[i].texte +' » rouvert.');
+      etat(T('odj.rouvert', { texte: points[i].texte }));
     }
     marqueSale();
     dessineOdj();
@@ -2473,7 +2452,7 @@
 
   /** Cree les points a partir d'un texte, une ligne par point. */
   function creeOdj(texte) {
-    if (!courante) { etat('Ouvre ou crée une rencontre d\'abord.', 'attente'); return; }
+    if (!courante) { etat(T('odj.ouvreDabord'), 'attente'); return; }
     var lignes = String(texte || '').split(/\r?\n/)
       .map(function (l) {
         // « 1. », « 1) », « - », « • » : la numerotation vient de la liste,
@@ -2482,7 +2461,7 @@
       })
       .filter(Boolean)
       .slice(0, 60);
-    if (!lignes.length) { etat('Aucun point trouvé — une ligne par point.', 'attente'); return; }
+    if (!lignes.length) { etat(T('odj.aucunPoint'), 'attente'); return; }
 
     courante.ordreDuJour = lignes.map(function (l) {
       return { texte: l.slice(0, 300), fait: false, debut: null, fin: null };
@@ -2490,8 +2469,7 @@
     pointCourant = 0;
     marqueSale();
     dessineOdj();
-    etat(lignes.length + ' point' + (lignes.length > 1 ? 's' : '') + ' créé'
-      + (lignes.length > 1 ? 's' : '') + '. Coche-les à mesure pendant la rencontre.');
+    etat(TN('odj.creeUn', 'odj.creePlusieurs', lignes.length));
     sauveServeur(true);
   }
 
@@ -2506,14 +2484,13 @@
     var vider = id('rencOdjVider');
     if (vider) vider.addEventListener('click', function () {
       if (!courante) return;
-      if (!window.confirm('Effacer l\'ordre du jour ?\n\nLes points et leurs horodatages partent. '
-        + 'Tes notes, ta transcription et ton compte rendu restent.')) return;
+      if (!window.confirm(T('odj.effacerQuestion'))) return;
       courante.ordreDuJour = [];
       pointCourant = -1;
       marqueSale();
       dessineOdj();
       sauveServeur(true);
-      etat('Ordre du jour effacé.');
+      etat(T('odj.efface'));
     });
 
     var fich = id('rencOdjFichier'), input = id('rencOdjFichierInput');
@@ -2524,19 +2501,20 @@
         input.value = '';
         if (!f) return;
         f.text().then(function (t) { creeOdj(t); })
-          .catch(function () { etat('Le fichier n\'a pas pu être lu.', 'alerte'); });
+          .catch(function () { etat(T('odj.fichierIllisible'), 'alerte'); });
       });
     }
 
     var gab = id('rencOdjGabarit');
     if (gab) gab.addEventListener('click', function () {
-      var m = 'Quel gabarit ?\n\n' + GABARITS.map(function (g, i) {
+      var LES = gabarits();
+      var m = T('gab.question') + '\n\n' + LES.map(function (g, i) {
         return (i + 1) + '. ' + g.nom;
-      }).join('\n') + '\n\nTape un numéro.';
+      }).join('\n') + '\n\n' + T('gab.tapeNumero');
       var r = window.prompt(m, '1');
       if (r === null) return;
-      var g = GABARITS[Number(r) - 1];
-      if (!g) { etat('Numéro inconnu.', 'attente'); return; }
+      var g = LES[Number(r) - 1];
+      if (!g) { etat(T('odj.numeroInconnu'), 'attente'); return; }
       creeOdj(g.pts.join('\n'));
     });
   }
@@ -2614,11 +2592,11 @@
   }
 
   function groupeEcheance(ech, aujourdhui, dans7) {
-    if (!ech) return { cle: 'sans', rang: 3, titre: 'Sans échéance' };
-    if (ech < aujourdhui) return { cle: 'retard', rang: 0, titre: 'En retard' };
-    if (ech === aujourdhui) return { cle: 'jour', rang: 1, titre: "Aujourd'hui" };
-    if (ech <= dans7) return { cle: 'semaine', rang: 2, titre: 'Dans les 7 prochains jours' };
-    return { cle: 'apres', rang: 4, titre: 'Plus tard' };
+    if (!ech) return { cle: 'sans', rang: 3, titre: T('ech.sans') };
+    if (ech < aujourdhui) return { cle: 'retard', rang: 0, titre: T('ech.retard') };
+    if (ech === aujourdhui) return { cle: 'jour', rang: 1, titre: T('ech.jour') };
+    if (ech <= dans7) return { cle: 'semaine', rang: 2, titre: T('ech.semaine') };
+    return { cle: 'apres', rang: 4, titre: T('ech.apres') };
   }
 
   function ouvreActions() {
@@ -2655,13 +2633,11 @@
       // rencontre serait faux, et « aucune action » devant dix rencontres
       // toutes reglees serait injuste.
       if (!rencontres.length) {
-        vide.textContent = 'Aucune rencontre pour l\'instant. Les actions apparaissent ici dès qu\'un compte rendu structuré en produit.';
+        vide.textContent = T('actions.videSansRencontre');
       } else if (voirFaites) {
-        vide.textContent = 'Aucune action dans tes ' + rencontres.length
-          + ' rencontre' + (rencontres.length > 1 ? 's' : '')
-          + '. Le bouton « Structuré » en tire des comptes rendus.';
+        vide.textContent = TN('actions.videUne', 'actions.videPlusieurs', rencontres.length);
       } else {
-        vide.textContent = 'Rien à faire — tout est coché. 🎉';
+        vide.textContent = T('actions.toutCoche');
       }
       return;
     }
@@ -2750,31 +2726,39 @@
       await RencData.majRencontre(o.r.id, doc);
       if (courante && courante.id === o.r.id) marquePropre();
     } catch (e) {
-      etat('⚠ La case n\'a pas pu être enregistrée (' + (e.message || e) + ').', 'alerte');
+      etat(T('actions.echecCase', { erreur: (e.message || e) }), 'alerte');
     }
   }
 
   /* ── Gabarits d'ordre du jour ──────────────────────────────────────────
      Volontairement COURTS. Un gabarit de trente lignes se supprime au lieu de
      se remplir ; celui-ci donne la charpente et laisse la place. */
-  var GABARITS = [
-    { nom: 'Rencontre statutaire', pts: ['Retour sur la dernière rencontre', 'Suivis et informations', 'Points de l\'équipe', 'Varia', 'Prochaine rencontre'] },
-    { nom: 'Comité (EHDAA, activités, cour d\'école)', pts: ['Ouverture et présences', 'Adoption de l\'ordre du jour', 'Suivi des dossiers', 'Nouveaux dossiers', 'Décisions', 'Prochaine rencontre'] },
-    { nom: 'Rencontre de parents', pts: ['Accueil', 'Portrait de l\'élève', 'Forces et défis', 'Ce qu\'on met en place', 'Suivi convenu'] },
-    { nom: 'Coordination de camp', pts: ['Retour sur la semaine', 'Groupes et animateurs', 'Sécurité et incidents', 'Sorties et matériel', 'Semaine à venir'] }
-  ];
+  /* Les gabarits ne portent que des CLES. Leur contenu vit dans i18n.js, et
+     `gabarits()` les resout dans la langue du moment — un gabarit choisi en
+     anglais doit poser des points en anglais. */
+  var GABARITS_CLES = ['statutaire', 'comite', 'parents', 'camp'];
+
+  function gabarits() {
+    return GABARITS_CLES.map(function (k) {
+      return {
+        nom: T('gab.' + k + '.nom'),
+        pts: T('gab.' + k + '.pts').split('|')
+      };
+    });
+  }
 
   function choisitGabarit() {
-    if (!courante) { etat('Ouvre ou crée une rencontre d\'abord.', 'attente'); return; }
-    var m = 'Quel gabarit ?\n\n' + GABARITS.map(function (g, i) {
+    if (!courante) { etat(T('odj.ouvreDabord'), 'attente'); return; }
+    var LES = gabarits();
+    var m = T('gab.question') + '\n\n' + LES.map(function (g, i) {
       return (i + 1) + '. ' + g.nom;
-    }).join('\n') + '\n\nTape un numéro.';
+    }).join('\n') + '\n\n' + T('gab.tapeNumero');
     var r = window.prompt(m, '1');
     if (r === null) return;
-    var g = GABARITS[Number(r) - 1];
-    if (!g) { etat('Numéro inconnu.', 'attente'); return; }
+    var g = LES[Number(r) - 1];
+    if (!g) { etat(T('odj.numeroInconnu'), 'attente'); return; }
 
-    var html = '<h2>Ordre du jour</h2><ul>'
+    var html = '<h2>' + echappe(T('odj.titreTexte')) + '</h2><ul>'
       + g.pts.map(function (p) { return '<li>' + echappe(p) + '</li>'; }).join('') + '</ul>';
     var z = id('rencNotes');
     // On AJOUTE, on n'ecrase pas : quelqu'un qui a deja commence a prendre des
@@ -2782,7 +2766,7 @@
     z.innerHTML = assainit(html + (z.innerHTML || ''));
     id('ongNotes').click();
     marqueSale();
-    etat('Gabarit « ' + g.nom + ' » ajouté en tête des notes.');
+    etat(T('gab.ajoute', { nom: g.nom }));
   }
 
   /* ── Chainage : creer la suite ─────────────────────────────────────────
@@ -2792,7 +2776,7 @@
      notes, la transcription et le compte rendu — ils appartiennent a la
      rencontre passee. */
   function creeLaSuite() {
-    if (!courante) { etat('Ouvre une rencontre d\'abord.', 'attente'); return; }
+    if (!courante) { etat(T('suite.ouvreDabord'), 'attente'); return; }
     var source = lisFormulaire();
     var restantes = (courante.actions || []).filter(function (a) { return !a.fait; });
 
@@ -2830,7 +2814,7 @@
 
     var html = '';
     if (reportes.length) {
-      html += '<h2>Reporté de la rencontre précédente</h2><ul>'
+      html += '<h2>' + echappe(T('suite.reporteDe')) + '</h2><ul>'
         + reportes.map(function (p) { return '<li>' + echappe(p) + '</li>'; }).join('') + '</ul>';
     }
     if (restantes.length) {
@@ -2856,11 +2840,11 @@
     montreFiche('avant');
     marqueSale();
     var quoi = [];
-    if (reportes.length) quoi.push(reportes.length + ' point' + (reportes.length > 1 ? 's' : '') + ' reporté' + (reportes.length > 1 ? 's' : ''));
-    if (restantes.length) quoi.push(restantes.length + ' action' + (restantes.length > 1 ? 's' : '') + ' encore ouverte' + (restantes.length > 1 ? 's' : ''));
+    if (reportes.length) quoi.push(TN('suite.unPoint', 'suite.desPoints', reportes.length));
+    if (restantes.length) quoi.push(TN('suite.uneAction', 'suite.desActions', restantes.length));
     etat(quoi.length
-      ? 'Suite créée avec ' + quoi.join(' et ') + '. Enregistre quand tu veux.'
-      : 'Suite créée — rien n\'était en attente.');
+      ? T('suite.creeeAvec', { quoi: quoi.join(T('suite.et')) })
+      : T('suite.creeeVide'));
   }
 
   function cableSuivi() {
@@ -3018,6 +3002,36 @@
     if (orpheline && (orpheline.titre || orpheline.notesBrutes)) nouvelle(orpheline);
   }
 
+  /**
+   * Le libelle de l'onglet micro depend du navigateur, et il annonce ce que
+   * l'usager VERRA — pas de quelle interface de programmation il dispose.
+   * Extrait de `demarre()` parce qu'un changement de langue doit le refaire.
+   */
+  function nommeOngletMicro() {
+    var sous = id('ongMicroSous');
+    if (sous) sous.textContent = T(DIRECT ? 'capture.microDirect' : 'capture.microFin');
+    var micro = id('ongMicro');
+    if (micro) micro.title = T(DIRECT ? 'capture.microTitreDirect' : 'capture.microTitreFin');
+  }
+
+  /** Tout ce qui porte du texte, refait dans la langue courante. */
+  function rafraichitLangue() {
+    RencI18n.applique(document);
+    dessineDossiers();
+    dessineListe();
+    dessineCredits();
+    dessineOdj();
+    if (courante) {
+      remplitSelectDossiers(courante.dossier || '');
+      dessinePresences();
+      annonceTitre();
+      if (ecran === 'apres') dessineResume();
+    }
+    if (ecran === 'actions') dessineActions();
+    // Le nom de l'onglet micro depend du navigateur ET de la langue.
+    nommeOngletMicro();
+  }
+
   function demarre() {
     cableOnglets([['ongNotes', 'panNotes'], ['ongMicro', 'panMicro'], ['ongImport', 'panImport']]);
     cableOnglets([['ongResultat', 'panResultat'], ['ongBrut', 'panBrut']]);
@@ -3049,16 +3063,7 @@
     dessineListe();
     poseEcran('liste');
 
-    // Le libelle de l'onglet micro depend du navigateur, et il annonce ce que
-    // l'usager VERRA — pas de quelle interface de programmation il dispose.
-    var sous = id('ongMicroSous');
-    if (sous) sous.textContent = DIRECT ? 'transcription en direct' : 'transcription à la fin';
-    var micro = id('ongMicro');
-    if (micro) {
-      micro.title = DIRECT
-        ? 'Le texte s\'écrit pendant la rencontre.'
-        : 'Le texte s\'écrit une fois l\'enregistrement terminé.';
-    }
+    nommeOngletMicro();
 
     [id('rencNouvelle'), id('rencNouvelle2')].forEach(function (bt) {
       if (bt) bt.addEventListener('click', function () { nouvelle(null); });
@@ -3087,11 +3092,19 @@
     // resolue dans ce cas.
     if (RencData.connecte()) RencData.pret().then(chargeApresAuth);
 
-    // Le nom des dossiers suit la langue du site.
-    document.addEventListener('zts:langchange', function () {
-      dessineDossiers();
-      if (courante) remplitSelectDossiers(courante.dossier || '');
-    });
+    /* CHANGEMENT DE LANGUE — le bouton FR/EN de l'en-tete.
+       Deux moities, et il faut les deux : `RencI18n.applique()` refait le HTML
+       statique (data-i18n), et les fonctions de dessin refont tout ce que le
+       JavaScript a ecrit — liste, dossiers, resume, credits, ordre du jour,
+       actions. Ne refaire que la premiere laisserait une page a moitie
+       traduite, ce qui est pire que pas traduite du tout : on ne sait plus
+       quelle moitie croire. */
+    document.addEventListener('zts:langchange', rafraichitLangue);
+
+    // Premier passage : le dictionnaire s'applique des le chargement, sans
+    // attendre un clic. Un anglophone arrive par ?lang=en ou par son choix
+    // memorise — il ne doit pas voir le francais une fraction de seconde.
+    rafraichitLangue();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', demarre);
