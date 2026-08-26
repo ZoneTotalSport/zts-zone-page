@@ -132,6 +132,7 @@ const V2 = (() => {
 
   function post() {
     // Plus de montage semaine-grid en v2 : la vue Semaine est native (renderSemaineV2).
+    majBadgeJeux();          // le badge du tiroir Jeux porte un compte reel, pas une constante
   }
 
   // ── VUE SEMAINE v2 : aperçu des 5 journées planifiées (source unique = journees/blocs) ──
@@ -462,6 +463,24 @@ const V2 = (() => {
   }
 
   // ── VUE JOUR v2 : grille PÉRIODE | GROUPE | DÉROULEMENT | FAIT ✓ ──
+  /* Compte reel de la banque de l'univers courant, pose apres rendu.
+     ──────────────────────────────────────────────────────────────────
+     Le badge portait `970` ECRIT EN DUR. Le chiffre etait juste pour les
+     camps a un instant donne, et faux partout ailleurs : SDG en sert 177,
+     l'EPS 1274. Il serait redevenu faux pour les camps a la premiere
+     activite ajoutee. Un compte affiche doit etre compte, pas recopie.
+     Silencieux en cas d'echec : un badge sans chiffre vaut mieux qu'un
+     mauvais chiffre, et le tiroir reste ouvrable. */
+  const UNIVERS_DE_METIER = { camp: 'camps', sdg: 'sdg', ep: 'eps' };
+  function majBadgeJeux() {
+    const n = document.querySelector('[data-badge-jeux]');
+    if (!n || typeof PlanifData === 'undefined') return;
+    const u = UNIVERS_DE_METIER[document.body.dataset.metier] || 'camps';
+    PlanifData.loadBanque(u)
+      .then(items => { const c = document.querySelector('[data-badge-jeux]'); if (c) c.textContent = items.length; })
+      .catch(() => { const c = document.querySelector('[data-badge-jeux]'); if (c) c.textContent = '·'; });
+  }
+
   function renderJourV2() {
     const isToday = state.currentDate === todayISO();
     const blocs = [...state.journeeBlocs].sort((a, b) => a.ordre - b.ordre);
@@ -520,7 +539,7 @@ const V2 = (() => {
 
     // ── Tuiles tiroirs (sous la journée SEULEMENT) ──
     h += `<div class="pv2-dock"><h6>MES TIROIRS</h6><div class="pv2-dgrid">
-      <div class="pv2-mod" data-action="open-tiroir-jeux" style="background-image:radial-gradient(circle at 30% 25%, rgba(255,255,255,.35) 0 8%, transparent 9%), linear-gradient(135deg, var(--m1), var(--m2));"><span class="pv2-mbadge">970</span><div class="mico">🎲</div><div class="mlabel">JEUX</div></div>
+      <div class="pv2-mod" data-action="open-tiroir-jeux" style="background-image:radial-gradient(circle at 30% 25%, rgba(255,255,255,.35) 0 8%, transparent 9%), linear-gradient(135deg, var(--m1), var(--m2));"><span class="pv2-mbadge" data-badge-jeux>…</span><div class="mico">🎲</div><div class="mlabel">JEUX</div></div>
       <div class="pv2-mod" data-action="open-presences-modal" style="background-image:linear-gradient(135deg,#2ecc71,#169B62);"><div class="mico">✅</div><div class="mlabel">PRÉSENCES</div></div>
       <div class="pv2-mod" data-action="v2-planb" style="background-image:linear-gradient(160deg,#5dade2,#1E3A5F);"><div class="mico">🌧️</div><div class="mlabel">PLAN B</div></div>
       <div class="pv2-mod" data-action="v2-stub" data-msg="🎵 Musique : minuteur + ambiance — prochain tiroir sur ce gabarit" style="background-image:linear-gradient(135deg,#B026FF,#6C1FA8);"><div class="mico">🎵</div><div class="mlabel">MUSIQUE</div></div>

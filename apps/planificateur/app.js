@@ -2088,8 +2088,15 @@ async function init() {
         await loadGroupeData(); state.currentDate=todayISO();
         state.view = VUE_MAP[(_params.get('vue')||'').toLowerCase()] || 'journee';
         if(state.view==='calendrier') await loadCalendarData(); else await loadJourneeData();
-        // v2 : la page principale est le calendrier MENSUEL
-        if(state.v2 && !_params.get('vue')){ state.view='mois'; await loadCalendarData(); }
+        /* v2 : la page principale est la JOURNEE, pas le mois.
+           ──────────────────────────────────────────────────────────────
+           Le mois etait un cul-de-sac : aucune tuile de tiroir n'y est
+           rendue (elles ne vivent que sous la journee), donc un utilisateur
+           atterrissait sur un ecran sans rien a faire — et sans acces a la
+           banque de jeux. « L'ecran d'ouverture = aujourd'hui » : on ouvre
+           la ou il y a quelque chose a faire. Le mois reste a un tap, rien
+           n'est retire. */
+        if(state.v2 && !_params.get('vue')){ state.view='journee'; await loadJourneeData(); }
         if(state.v2 && typeof V2!=='undefined'){ try{ await V2.loadGroupes(); }catch(e){} }
       }
       if(state.role==='coordo' && state.orgId){ state.coordoDate=todayISO(); await loadCoordoData(); }
