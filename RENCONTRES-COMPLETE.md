@@ -716,3 +716,46 @@ chemin d'enregistrement réel reste l'essai 1 de Joey.
 
 **Verdict : prêt pour l'essai 1 de Joey.** Les contrôles du dépôt passent
 (secrets OK, habillage 0 bloquant, glyphes OK).
+
+## FUSIONNÉ ET EN PRODUCTION (2026-08-26)
+
+**PR #48 fusionnée** — commit de fusion `3ca367e3`.
+https://github.com/ZoneTotalSport/zts-zone-page/pull/48
+
+CI au vert avant fusion : `verifie` ×2 + Cloudflare Pages. Build Pages
+`33002892404` terminé en succès.
+
+### Deux défauts vus en intégrant `main` (`31a48c4d`)
+
+- Le `::before` de la barre collante faisait `-50vw`/`+50vw` : un élément de
+  200vw qui portait le `scrollWidth` du document à 1908 px pour un écran de
+  1280. Écrêté par le `overflow-x:hidden` du body — donc **aucun défilement
+  latéral réel** — mais un navigateur qui propage l'overflow autrement aurait
+  sorti une barre latérale. Isolé en comparant avec `apps/inventaire`, qui
+  mesurait 1280 propre. Ramené à ±12 px.
+- « 1 participants » dans le résumé d'en-tête. Accord corrigé.
+
+### Tour de production — tout vérifié en anonyme
+
+| Point | Résultat |
+|---|---|
+| App derrière son mur | HTTP 200 ; `zts-gate` en `fixed` z-index 99999, couvre 1280×900 ; **0 bouton de l'app atteignable**, la liste ne rend rien |
+| Les 4 fichiers de l'app | 200 — app.js 131 ko, styles.css 58 ko, transcription.js 21 ko, dataStore.js 25 ko |
+| Carte « Quoi de neuf » | Les 2 entrées en tête, du 25 août : l'app puis l'article |
+| Menu partagé | Carte « 📝 Zone Rencontres · Compte gratuit · NOUVEAU », 407×63, **cliquable**, sous « Outils pédagogiques » |
+| Les 3 univers | Carte `.zts-app-card` **visible** avec badge « Nouveau » sur `ep`, `camps-de-jour`, `service-de-garde` — accroche différente sur chacune |
+| Article + demi-mur | **51 % visible en anonyme** (976 mots lisibles sur 1913), les 2 blocs `data-zts-toujours-visible` affichés, invitation présente |
+| `politique.html` §14 | « Enregistrements audio (Zone Rencontres) » — l'audio « sert à produire le texte, puis il est détruit » |
+| Sitemap | L'app et l'article, avec leurs alternates fr/en |
+| Routes du worker | `/rencontres-transcription` et `/rencontres-ia` → **401 sans jeton** |
+| Console de prod | **aucune erreur** |
+
+⚠ **Le demi-mur mesure 51 %, pas 52 %.** L'écart vient du comptage des mots
+au navigateur, pas d'un réglage : la coupe tombe entre deux blocs et le
+dernier bloc visible fait pencher l'arrondi. Rien à corriger.
+
+### Ce qui reste à la main de Joey
+
+Les tests « connecté » — je ne crée pas de compte. Listés plus haut dans ce
+document. L'essai 2 (enregistrement réel d'une heure, chronométré) donnerait
+le chiffre qui manque encore à la FAQ de l'article.
