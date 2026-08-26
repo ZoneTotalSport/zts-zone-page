@@ -158,6 +158,35 @@
     .game-card .card-fav{background:#f1f5f9!important;border:none!important;font-size:20px!important;width:36px!important;height:36px!important;border-radius:999px!important;cursor:pointer!important;color:#FFD000!important;display:flex!important;align-items:center!important;justify-content:center!important}
     .game-card .card-fav:hover{background:#FFD000!important;color:#fff!important}
 
+    /* ══ CONTRASTE DES CARTES ═════════════════════════════════════════════
+       Les cartes sont peintes avec la couleur de leur categorie et le texte
+       etait BLANC EN DUR. Sur les 18 couleurs, 15 ne portent pas le blanc :
+       les duels (#FFD000) tombaient a 1,47:1, les Ameriques-Europe (#22D3EE)
+       a 1,81:1, les cooperatifs a 2,01:1 — la ou il en faut 4,5.
+
+       `--cat-encre`, `--cat-voile` et `--cat-ombre` sont poses par
+       `encreLisible()` dans app.js, d'apres la LUMINANCE de la couleur : noir
+       ou blanc, celui des deux qui contraste le plus. Mesure apres correctif :
+       18 categories sur 18 au-dessus de 4,5, la pire a 4,89:1.
+
+       Ce bloc SURCHARGE les regles ci-dessus au lieu de les modifier — le
+       controle d'habillage n'admet aucune suppression dans une app, et un
+       correctif de couleur n'a pas a faire plier un garde-fou partage. */
+    .game-card,
+    .game-card .card-title,
+    .game-card .card-but,
+    .game-card .card-tag.duration,
+    .detail-number,
+    .detail-cat-badge { color: var(--cat-encre, #fff) !important }
+    .game-card .card-number {
+      background: var(--cat-voile, rgba(0,0,0,.3)) !important;
+      color: var(--cat-encre, #fff) !important
+    }
+    /* L'ombre portee disparait sous une encre foncee : une ombre sombre sous
+       du texte sombre ne fait qu'empater. `--cat-ombre` vaut `none` la. */
+    .game-card .card-title,
+    .detail-number { text-shadow: var(--cat-ombre, 2px 2px 0 rgba(0,0,0,.2)) !important }
+
     /* List view = same look but full width */
     .game-grid.list-view{grid-template-columns:1fr!important}
     .game-grid.list-view .game-card{min-height:auto!important;flex-direction:row!important}
