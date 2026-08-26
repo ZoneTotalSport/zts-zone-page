@@ -89,7 +89,7 @@
          Le seul chemin hors d'une rencontre. Il remplace le rail de dossiers,
          qui ne vit plus que sur l'ecran de la liste. -->
     <div class="renc-retour renc-noprint" id="rencRetour" hidden>
-      <button class="renc-bt" id="rencRetourBt" type="button">← Mes rencontres</button>
+      <button class="renc-bt renc-retour__bt" id="rencRetourBt" type="button">← Retour à mes rencontres</button>
       <span class="renc-retour__ou" id="rencRetourOu"></span>
       <span class="renc-credits" id="rencCredits2" hidden role="status" aria-live="polite"></span>
     </div>
@@ -196,7 +196,10 @@
         <section class="renc-actions" id="rencActionsVue" hidden aria-label="Mes actions">
           <div class="renc-actions__tete">
             <h1 class="renc-actions__titre">MES ACTIONS</h1>
-            <button class="renc-bt" id="rencFermerActions" type="button">← Retour</button>
+            <!-- Le retour vit dans la barre collante, en haut a gauche, sur
+                 TOUS les ecrans. Un deuxieme retour a un autre endroit apprend
+                 a chercher au lieu d'apprendre le geste. -->
+            <button class="renc-bt" id="rencFermerActions" type="button" hidden>← Retour à mes rencontres</button>
           </div>
           <label class="renc-bascule renc-actions__bascule">
             <input type="checkbox" id="rencVoirFaites">
@@ -294,8 +297,8 @@
           <div class="renc-bande renc-noprint" id="rencBande" hidden>
             <span class="renc-rec" id="rencRec2" aria-hidden="true"></span>
             <span class="renc-chrono" id="rencChrono2">00:00</span>
-            <button class="renc-bt" id="rencMicPause2" type="button">⏸ Pause</button>
-            <button class="renc-bt renc-bt--rec" id="rencMicArret2" type="button">⏹ Terminer</button>
+            <button class="renc-bt renc-bande__pause" id="rencMicPause2" type="button">⏸ Pause</button>
+            <button class="renc-bt renc-bande__stop" id="rencMicArret2" type="button">⏹ Terminer la rencontre</button>
             <span class="renc-bande__vu" id="rencBandeVu"></span>
           </div>
 
@@ -322,11 +325,11 @@
                  devra etre assaini a la lecture, converti en texte pour le
                  courriel, et rendu a l'impression. -->
             <div class="renc-format renc-noprint" role="toolbar" aria-label="Mise en forme">
-              <button type="button" data-cmd="h2"    title="Titre">T</button>
-              <button type="button" data-cmd="bold"  title="Gras"><b>G</b></button>
-              <button type="button" data-cmd="ul"    title="Liste à puces">•</button>
-              <button type="button" data-cmd="ol"    title="Liste numérotée">1.</button>
-              <button type="button" data-cmd="case"  title="Case à cocher">☑</button>
+              <button type="button" data-cmd="h2"    title="Titre"           aria-label="Titre">T</button>
+              <button type="button" data-cmd="bold"  title="Gras"            aria-label="Gras"><b>G</b></button>
+              <button type="button" data-cmd="ul"    title="Liste à puces"   aria-label="Liste à puces">•</button>
+              <button type="button" data-cmd="ol"    title="Liste numérotée" aria-label="Liste numérotée">1.</button>
+              <button type="button" data-cmd="case"  title="Case à cocher"   aria-label="Case à cocher">☑</button>
             </div>
             <div class="renc-notes" id="rencNotes" contenteditable="true" spellcheck="true"
                  role="textbox" aria-multiline="true" aria-label="Notes de la rencontre"
@@ -343,8 +346,8 @@
               <p class="renc-consent__t">Avant de démarrer</p>
               <p class="renc-consent__p">
                 Assurez-vous d'informer les participants que la rencontre est
-                enregistrée et transcrite. L'enregistrement sert à produire le
-                texte, puis il est détruit — seul le compte rendu est conservé,
+                enregistrée et transcrite. L'enregistrement sert à écrire le
+                texte, puis il est effacé — seul le compte rendu est conservé,
                 dans votre compte.
               </p>
               <label class="renc-consent__c">
@@ -397,7 +400,7 @@
               <p class="renc-devis__l" id="rencDevisQuota"></p>
               <p class="renc-devis__avert" id="rencDevisAvert" hidden></p>
               <div class="renc-devis__b">
-                <button class="renc-bt renc-bt--neuf" id="rencLancer" type="button">Lancer la transcription</button>
+                <button class="renc-bt renc-bt--neuf" id="rencLancer" type="button">Écrire mon texte</button>
                 <button class="renc-bt" id="rencAnnuler" type="button">Annuler</button>
               </div>
             </div>
@@ -412,7 +415,7 @@
                  du jour epuise. L'audio vit alors en memoire, et seulement en
                  memoire : voir la dette v2 au bas de RENCONTRES-COMPLETE.md. -->
             <button class="renc-bt renc-bt--neuf renc-bt--gros" id="rencTranscrire" type="button" hidden>
-              🎙️ Lancer la transcription maintenant
+              🎙️ Écrire mon texte maintenant
             </button>
 
             <p class="renc-etat" id="rencImportEtat" role="status" aria-live="polite"></p>
@@ -453,19 +456,19 @@
           <div class="renc-fini renc-noprint" id="rencFini" hidden>
             <span class="renc-fini__coche" aria-hidden="true">✓</span>
             <span>
-              <b id="rencFiniTitre">Transcription terminée et enregistrée.</b>
+              <b id="rencFiniTitre">C'est écrit, et c'est enregistré.</b>
               <span id="rencFiniSous">Rien ne se perdra plus — tu peux fermer.</span>
             </span>
           </div>
 
           <div class="renc-ia renc-noprint">
-            <button class="renc-bt renc-bt--ia" id="rencVerbatim" type="button">
-              📝 Mot à mot
-              <span class="renc-bt__sous">Nettoyé, rien de reformulé</span>
+            <button class="renc-bt renc-bt--ia renc-bt--ia2 renc-bt--ia-choix" id="rencStructure" type="button">
+              🗂️ Écrire le compte rendu
+              <span class="renc-bt__sous">Résumé, décisions, qui fait quoi</span>
             </button>
-            <button class="renc-bt renc-bt--ia renc-bt--ia2" id="rencStructure" type="button">
-              🗂️ Structuré
-              <span class="renc-bt__sous">Résumé, décisions, actions</span>
+            <button class="renc-bt renc-bt--ia" id="rencVerbatim" type="button">
+              📝 Écrire tout ce qui a été dit
+              <span class="renc-bt__sous">Mot à mot, rien de reformulé</span>
             </button>
             <!-- « Résumer un passage » n'apparait que quand il y a un passage
                  selectionne dans l'onglet « Original ». Un bouton qui exige une

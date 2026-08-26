@@ -383,7 +383,7 @@
     if (!ok) {
       // Un brouillon qu'on croit ecrit et qui ne l'est pas, c'est exactement
       // la panne qu'on cherche a eviter. On le DIT.
-      etat('⚠ Le stockage de cet appareil est plein : le brouillon local n\'a pas pu être écrit. Enregistre maintenant.', 'alerte');
+      etat('⚠ La mémoire de cet appareil est pleine : la copie de secours n\'a pas pu s\'écrire. Enregistre maintenant.', 'alerte');
     }
     return ok;
   }
@@ -894,12 +894,12 @@
     if (credits.minutes === null && credits.ia === null) { n.hidden = true; return; }
     var bouts = [];
     if (credits.minutes !== null) bouts.push(credits.minutes + ' min');
-    if (credits.ia !== null) bouts.push(credits.ia + ' traitement' + (credits.ia > 1 ? 's' : '') + ' IA');
+    if (credits.ia !== null) bouts.push(credits.ia + ' compte' + (credits.ia > 1 ? 's' : '') + ' rendu' + (credits.ia > 1 ? 's' : ''));
     n.textContent = bouts.join(' · ') + ' restants aujourd\'hui';
     n.title = 'Ce qu\'il te reste aujourd\'hui : '
-      + (credits.minutes !== null ? credits.minutes + ' minutes de transcription sur ' + credits.minutesMax : '')
-      + (credits.ia !== null ? ', et ' + credits.ia + ' traitements de compte rendu sur ' + credits.iaMax : '')
-      + '. Les compteurs repartent demain. C\'est gratuit — le plafond est là pour que ça le reste.';
+      + (credits.minutes !== null ? credits.minutes + ' minutes de micro sur ' + credits.minutesMax : '')
+      + (credits.ia !== null ? ', et ' + credits.ia + ' comptes rendus sur ' + credits.iaMax : '')
+      + '. Tout repart à neuf demain. C\'est gratuit, et ça le reste.';
     // Deux seuils, pour voir venir la limite au lieu de la heurter.
     var basMin = credits.minutesMax ? credits.minutes <= credits.minutesMax * 0.15 : false;
     var basIA  = credits.iaMax ? credits.ia <= credits.iaMax * 0.15 : false;
@@ -1022,7 +1022,7 @@
     marqueSale();
     try {
       await sauveServeur(true);
-      etatImport('Rencontre enregistrée. Préparation de la transcription…');
+      etatImport('Rencontre enregistrée. On prépare ton texte…');
     } catch (e) {
       etatImport('⚠ La rencontre n\'a pas pu être enregistrée (' + (e.message || e)
         + '). Tes notes restent sur cet appareil.', 'alerte');
@@ -1223,13 +1223,13 @@
    * @param {boolean} auto  parcours du micro : rien a decider, tout s'enchaine
    */
   async function prepare(source, nom, auto) {
-    if (enCours) { etatImport('Une transcription est déjà en cours.', 'attente'); return; }
+    if (enCours) { etatImport('On est déjà en train d\'écrire ton texte.', 'attente'); return; }
     if (nom && !RencAudio.formatAccepte(nom)) {
       etatImport('Format non reconnu. Accepte : mp3, m4a, wav, mp4, webm.', 'alerte');
       return;
     }
     if (!RencData.enLigne()) {
-      etatImport('La transcription a besoin du réseau. Tes notes, elles, continuent de fonctionner.', 'attente');
+      etatImport('Écrire ton texte demande Internet. Tes notes, elles, continuent de fonctionner.', 'attente');
       return;
     }
 
@@ -1268,7 +1268,7 @@
     try {
       segments = RencAudio.segmente(buffer, bornes);
     } catch (e) {
-      etatImport('Le découpage a échoué — le fichier est peut-être trop long pour cet appareil.', 'alerte');
+      etatImport('On n\'a pas réussi à lire ce fichier — il est peut-être trop long pour cet appareil.', 'alerte');
       return;
     }
     // Le buffer decode pese jusqu'a 115 Mo : on lache la reference des que les
@@ -1280,7 +1280,7 @@
       devis = await RencData.devisTranscription(Math.round(secondes));
       noteCredits(devis);
     } catch (e) {
-      etatImport('Le serveur n\'a pas répondu (' + (e.message || e) + ').', 'alerte');
+      etatImport('Ça n\'a pas répondu. Réessaie dans un moment. (' + (e.message || e) + ')', 'alerte');
       return;
     }
 
@@ -1305,22 +1305,20 @@
       etatImport('Il te reste ' + devis.minutesRestantes + ' minute'
         + (devis.minutesRestantes > 1 ? 's' : '') + ' aujourd\'hui, et cet enregistrement en demande '
         + devis.minutesDemandees + '. Ta rencontre et tes notes sont enregistrées. '
-        + 'Laisse cet onglet ouvert et lance la transcription toi-même quand tu veux — '
+        + 'Laisse cette page ouverte et demande-le quand tu veux — '
         + 'ou réenregistre demain, le compteur repart.', 'attente');
       return;
     }
 
-    id('rencDevisDuree').textContent = 'Durée détectée : ' + duree(secondes)
-      + ' — ' + segments.length + ' segment' + (segments.length > 1 ? 's' : '') + '.';
-    id('rencDevisQuota').textContent = 'Coût : ' + devis.minutesDemandees
-      + ' minutes sur les ' + devis.minutesRestantes + ' qu\'il te reste aujourd\'hui'
-      + ' (plafond ' + devis.plafondJour + ' par jour).';
+    id('rencDevisDuree').textContent = 'Enregistrement de ' + duree(secondes) + '.';
+    id('rencDevisQuota').textContent = 'Ça prend ' + devis.minutesDemandees
+      + ' de tes ' + devis.minutesRestantes + ' minutes gratuites d\'aujourd\'hui.';
 
     var avert = id('rencDevisAvert');
     if (devis.longue) {
       avert.hidden = false;
-      avert.textContent = '⚠ Plus de 90 minutes. La transcription prendra un moment, '
-        + 'et elle consomme une bonne part de ton quota du jour. Garde cet onglet ouvert.';
+      avert.textContent = '⚠ Plus de 90 minutes. Ça va prendre un bon moment, et ça utilise '
+        + 'une bonne part de tes minutes gratuites du jour. Garde cette page ouverte.';
     } else {
       avert.hidden = true;
     }
@@ -1356,9 +1354,9 @@
       // le parcours automatique, ou chaque segment est ecrit au serveur des
       // qu'il arrive.
       id('rencAvanceTexte').textContent = texte
-        + (auto ? ' Tu peux fermer, on garde tout ce qui est déjà transcrit.' : '');
+        + (auto ? ' Tu peux fermer, on garde tout ce qui est déjà écrit.' : '');
     }
-    avance('Transcription en cours — segment 1 sur ' + segments.length + '.');
+    avance('On écrit ton texte… 1 morceau sur ' + segments.length + '.');
 
     for (var i = 0; i < segments.length; i++) {
       var seg = segments[i];
@@ -1381,8 +1379,8 @@
         // perd que ce qui restait a transcrire, jamais ce qui l'est deja.
         if (auto) { try { await sauveServeur(true); } catch (e) {} }
         avance(faits < segments.length
-          ? 'Transcription en cours — segment ' + (faits + 1) + ' sur ' + segments.length + '.'
-          : 'Dernier segment…');
+          ? 'On écrit ton texte… ' + (faits + 1) + ' morceaux sur ' + segments.length + '.'
+          : 'Presque fini…');
       } catch (e) {
         // On garde ce qui est deja transcrit : la moitie d'un compte rendu
         // vaut infiniment mieux que rien, et l'usager peut relancer le reste.
@@ -1406,7 +1404,7 @@
     await sauveServeur(true);
     etatImport('');
     poseEcran('apres');
-    if (id('rencFiniTitre')) id('rencFiniTitre').textContent = 'Transcription terminée et enregistrée.';
+    if (id('rencFiniTitre')) id('rencFiniTitre').textContent = 'C\'est écrit, et c\'est enregistré.';
     if (id('rencFiniSous')) {
       id('rencFiniSous').textContent = auto
         ? 'Rien ne se perdra plus — tu peux fermer. Le texte est dans « Original ».'
@@ -2187,18 +2185,69 @@
     return aDuTexte ? 'apres' : 'avant';
   }
 
+  /**
+   * Le seul chemin hors d'une rencontre — et il doit marcher de PARTOUT.
+   *
+   * Si le micro tourne, on ne part pas en douce : partir sans rien dire
+   * laisserait un enregistrement orphelin qui continue de tourner pendant
+   * qu'on regarde autre chose, et dont le texte n'irait nulle part. On
+   * demande, et si c'est oui on ARRETE pour de bon — ce qui declenche le
+   * meme chemin que le bouton « Terminer la rencontre », donc l'ecriture.
+   */
+  function retourListe() {
+    if (typeof RencMicro !== 'undefined' && RencMicro.etat() !== 'arret') {
+      if (!window.confirm('L\'enregistrement est en cours.\n\nL\'arrêter et enregistrer ?')) return;
+      var stop = id('rencMicArret');
+      if (stop) stop.click();
+    }
+    if (sale) sauveServeur(true);
+    poseEcran('liste');
+    dessineListe();
+  }
+
+  /**
+   * Le decalage de la barre collante.
+   *
+   * Le chrome du shell (barre de navigation + banniere) est en
+   * `position:fixed` et sa hauteur change avec la largeur de l'ecran. Une
+   * barre `sticky top:0` se glisserait dessous et disparaitrait — le defaut
+   * qu'on repare. On mesure donc ce qui occupe REELLEMENT le haut, et on le
+   * pose dans `--renc-collant`.
+   *
+   * Sont ecartes : le decor (rayons, trame) qui est plus large que l'ecran et
+   * ne bloque pas les clics, et tout ce qui n'est pas ancre en haut.
+   */
+  function poseCollant() {
+    var w = id('rencWrap');
+    if (!w) return;
+    var bas = 0;
+    var tous = document.body.querySelectorAll('*');
+    for (var i = 0; i < tous.length; i++) {
+      var n = tous[i], c = window.getComputedStyle(n);
+      if (c.position !== 'fixed') continue;
+      if (c.pointerEvents === 'none' || c.visibility === 'hidden') continue;
+      var r = n.getBoundingClientRect();
+      if (r.height < 8) continue;
+      // Une barre de chrome est une BANDE. Un element qui couvre la moitie de
+      // l'ecran est un voile, un tiroir ou une fenetre — pas du chrome, et le
+      // prendre pour tel collait la barre de retour hors de l'ecran.
+      if (r.height > window.innerHeight * 0.5) continue;
+      if (r.width < window.innerWidth * 0.5) continue;   // pas une barre
+      if (r.width > window.innerWidth * 1.05) continue;  // le decor
+      // Ancre dans le HAUT de l'ecran. Le seuil est genereux a dessein : la
+      // banniere du shell commence a 85px, pas a 0 — un seuil serre la
+      // laissait passer et la barre se serait collee DESSOUS, invisible.
+      if (r.top > window.innerHeight * 0.4) continue;
+      // Le casier d'outils est en bas : il n'occupe pas le haut.
+      if (r.top > 0 && r.bottom > window.innerHeight * 0.75) continue;
+      if (r.bottom > bas) bas = r.bottom;
+    }
+    w.style.setProperty('--renc-collant', Math.round(bas) + 'px');
+  }
+
   function cableEcrans() {
     var b = id('rencRetourBt');
-    if (b) b.addEventListener('click', function () {
-      // Quitter une rencontre en cours d'enregistrement serait perdre le fil :
-      // on demande, une fois.
-      if (typeof RencMicro !== 'undefined' && RencMicro.etat() !== 'arret') {
-        if (!window.confirm('L\'enregistrement est en cours.\n\nRevenir à la liste ne l\'arrête pas, mais tu ne verras plus le minuteur. Continuer ?')) return;
-      }
-      if (sale) sauveServeur(true);
-      poseEcran('liste');
-      dessineListe();
-    });
+    if (b) b.addEventListener('click', retourListe);
 
     var go = id('rencCommencer');
     if (go) go.addEventListener('click', function () { id('rencMicDemarrer').click(); });
@@ -2981,6 +3030,15 @@
     cableSuivi();
     cableOdj();
     cableEcrans();
+
+    // Le decalage de la barre collante : au demarrage, puis chaque fois que la
+    // largeur change (le chrome du shell ne fait pas la meme hauteur sur un
+    // telephone et sur un portable). Le second passage rattrape le chrome que
+    // le shell dessine apres nous.
+    poseCollant();
+    window.setTimeout(poseCollant, 400);
+    window.addEventListener('load', poseCollant);
+    window.addEventListener('resize', poseCollant, { passive: true });
     cableEntonnoir();
 
     dossiers = RencData.dossiersDefaut();

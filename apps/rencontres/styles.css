@@ -117,6 +117,11 @@
 .renc-wrap:not([data-ecran="liste"]) .renc-rail { display: none; }
 .renc-wrap:not([data-ecran="liste"]) .renc-corps { grid-template-columns: minmax(0, 1fr); }
 
+/* — LISTE : une seule action evidente. « Enregistrer » n'a rien a enregistrer
+     tant qu'aucune rencontre n'est ouverte : il brouillait le seul geste qui
+     compte ici, « + Nouvelle rencontre ». — */
+.renc-wrap[data-ecran="liste"] #rencSauver { display: none; }
+
 /* — AVANT : préparer — */
 .renc-wrap[data-ecran="avant"] .renc-bande,
 .renc-wrap[data-ecran="avant"] .renc-onglets,
@@ -155,6 +160,27 @@
 .renc-wrap[data-ecran="apres"] .renc-travail.a-odj { grid-template-columns: minmax(0, 1fr); }
 .renc-wrap[data-ecran="apres"] #panResultat { display: block; }
 /* L'en-tete replie, et son depli a la demande. */
+/* L'ORDRE DE LECTURE. Dans le HTML, les notes viennent avant le compte
+   rendu — c'est le bon ordre pendant la rencontre, et le mauvais apres :
+   on ouvrait sur une zone de notes vide, le compte rendu hors de l'ecran.
+   On ne deplace rien dans le HTML (les autres ecrans en dependent), on
+   reordonne A L'AFFICHAGE, et seulement ici. */
+.renc-wrap[data-ecran="apres"] .renc-fiche {
+  display: flex;
+  flex-direction: column;
+}
+.renc-wrap[data-ecran="apres"] .renc-resume          { order: 0; }
+.renc-wrap[data-ecran="apres"] .renc-entete          { order: 1; }
+.renc-wrap[data-ecran="apres"] .renc-fini            { order: 2; }
+.renc-wrap[data-ecran="apres"] .renc-ia              { order: 3; }
+.renc-wrap[data-ecran="apres"] .renc-onglets--sortie { order: 4; }
+.renc-wrap[data-ecran="apres"] #panResultat          { order: 5; }
+.renc-wrap[data-ecran="apres"] #panBrut              { order: 6; }
+/* Les notes prises a la main restent la — c'est le texte de l'usager, on ne
+   le cache pas — mais SOUS le compte rendu. */
+.renc-wrap[data-ecran="apres"] .renc-travail         { order: 7; }
+.renc-wrap[data-ecran="apres"] .renc-pied            { order: 8; }
+
 .renc-wrap[data-ecran="apres"] .renc-entete { display: none; }
 .renc-wrap[data-ecran="apres"] .renc-resume { display: flex; }
 .renc-wrap[data-ecran="apres"].entete-ouverte .renc-entete { display: block; }
@@ -174,21 +200,61 @@
 }
 .renc-resume[hidden] { display: none; }
 .renc-resume span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.renc-lien--sombre { flex: none; color: #19527a; }
+/* Double classe VOLONTAIRE : `.renc-lien` est declare plus bas dans ce
+   fichier et donne la couleur claire du fond marine. A specificite egale il
+   gagnait, et « Modifier » s'affichait en blanc sur la carte blanche —
+   contraste mesure 1,12:1, autant dire absent. */
+.renc-lien.renc-lien--sombre { flex: none; color: #19527a; }
 
 /* — Mes actions : rien d'autre — */
 .renc-wrap[data-ecran="actions"] .renc-retour { display: flex; }
 
 /* La barre de retour. Un seul chemin hors d'une rencontre, toujours au même
    endroit, sur les trois écrans. */
+/* LA BARRE DE RETOUR. Elle etait correcte et INTROUVABLE : posee en haut du
+   document, elle sortait de l'ecran des qu'on defilait de trois lignes, et
+   on se retrouvait enferme dans une rencontre sans porte visible.
+   Elle est maintenant COLLANTE. Le decalage vient d'app.js (`--renc-collant`)
+   parce que le chrome du shell est en `position:fixed` et que sa hauteur
+   change avec la largeur : un `top:0` en dur la ferait glisser dessous. */
 .renc-retour {
+  position: sticky;
+  top: var(--renc-collant, 0px);
+  z-index: 30;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  margin: 0 0 10px;
+  padding: 8px 0;
+  /* Le fond opaque est OBLIGATOIRE : sans lui, le texte qui defile passe au
+     travers de la barre et les deux deviennent illisibles. Il deborde de la
+     largeur du contenu pour couvrir toute la bande. */
+  background: var(--ztsh-marine, #061726);
+  box-shadow: 0 6px 0 -3px rgba(0, 0, 0, .35);
+}
+.renc-retour::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: -50vw;
+  right: -50vw;
+  background: inherit;
 }
 .renc-retour[hidden] { display: none; }
+/* Le geste qui sort d'ici doit se voir de loin : c'est celui qu'on cherche
+   quand on est perdu. Cyan, borde, avec les mots au complet. */
+.renc-bt.renc-retour__bt {
+  font-size: 17px;
+  padding: 11px 18px;
+  color: #111111;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: 4px 4px 0 var(--renc-trait);
+}
+.renc-bt.renc-retour__bt:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--renc-trait); }
+.renc-bt.renc-retour__bt:active { transform: translate(2px, 2px);  box-shadow: 2px 2px 0 var(--renc-trait); }
 .renc-retour__ou {
   flex: 1 1 auto;
   min-width: 0;
@@ -514,9 +580,12 @@
   background: none;
   border: 2px solid transparent;
   border-radius: 7px;
-  opacity: 0;
+  opacity: .75;
   transition: opacity .12s;
 }
+/* Elles etaient a `opacity: 0` jusqu'au survol. Sans souris — et meme AVEC,
+   si on ne pense pas a survoler — renommer ou supprimer un dossier devenait
+   une devinette. Une action qu'il faut deviner n'existe pas. */
 .renc-dossier-l:hover .renc-doss-act,
 .renc-doss-act:focus-visible { opacity: 1; }
 .renc-doss-act:hover { background: var(--renc-surface-alt); border-color: var(--renc-trait); }
@@ -695,7 +764,7 @@
   background: none;
   border: 2px solid transparent;
   border-radius: 7px;
-  opacity: 0;
+  opacity: .75;
   transition: opacity .12s;
 }
 .renc-item-l:hover .renc-item-jeter,
@@ -1469,4 +1538,27 @@
   .renc-doss-act,
   .renc-item-jeter { min-width: 44px; min-height: 44px; }
   .renc-doss-act { opacity: 1; }
+}
+
+/* ── UNE action evidente par ecran ────────────────────────────────────────
+   PENDANT : deux boutons de meme taille, c'est deux actions principales. Le
+   geste qu'on cherche en sortant d'une rencontre, c'est « Terminer ». */
+.renc-bt.renc-bande__stop {
+  font-size: 19px;
+  padding: 12px 20px;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: 4px 4px 0 var(--renc-trait);
+}
+.renc-bt.renc-bande__pause {
+  font-size: 14px;
+  background: var(--renc-surface, #FFFEF7);
+  opacity: .9;
+}
+
+/* APRES : « Ecrire le compte rendu » est ce que presque tout le monde veut.
+   Il passe premier et prend du poids ; le mot a mot reste offert, en second. */
+.renc-bt.renc-bt--ia-choix {
+  font-size: 19px;
+  padding: 14px 20px;
+  box-shadow: 5px 5px 0 var(--renc-trait);
 }
