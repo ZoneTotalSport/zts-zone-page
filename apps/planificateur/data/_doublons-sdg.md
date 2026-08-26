@@ -1,4 +1,4 @@
-# DOUBLONS D'EXTRACTION — SDG vs catalogue 1439
+# DOUBLONS D'EXTRACTION — SDG et ÉPS vs catalogue 1439
 
 > Généré par `_generate-mini-banques.js`. Activités NON ajoutées car un jeu
 > au titre fortement similaire existe déjà dans `_data/jeux-merged.json`.
@@ -6,7 +6,12 @@
 
 | Activité écartée | Source | ≈ Jeu du catalogue | id catalogue | similarité |
 |---|---|---|---|---|
-| Statues musicales | jeux-rapides | LE DUEL DES STATUES MUSICALES | `pfeq_291` | 0.73 |
-| Le nœud humain | jeux-rapides | LE NŒUD HUMAIN | `pfeq_120` | 1.00 |
-| Salade de fruits | jeux-rapides | La Salade de Fruits | `PRESC_030` | 0.91 |
-| Le miroir | jeux-rapides | Le Miroir | `COOP_002` | 1.00 |
+| Hélicoptères | echauffements | HÉLICOPTÈRES (HELICOPTERS) | `pfeq_411` | 0.65 |
+| Parachute coopératif | intervention-groupe | Le Parachute Coopératif | `COOP_014` | 0.93 |
+| Saut en longueur | olympiades-scolaires | Saut en longueur | `IND_004` | 1.00 |
+| Lancer de précision | olympiades-scolaires | Kolap (Lancer de précision polynésien) | `AAO_056` | 0.68 |
+| Course en sac | olympiades-scolaires | Le Carreras de Sacos (Course en sac — Amérique du Sud) | `AM-EU-042` | 0.39 |
+| Saut en hauteur (élastique) | olympiades-scolaires | Saut en hauteur | `IND_005` | 0.74 |
+| Lancer dans le cerceau | olympiades-scolaires | Le Lancé dans le Cerceau | `PRESC_024` | 0.86 |
+| Tir à la corde | olympiades-scolaires | Tir à la corde assis | `OPP_034` | 0.81 |
+| Yoga des animaux | plan-b-meteo | Le Yoga des Animaux | `PRESC_011` | 0.91 |

@@ -215,6 +215,131 @@ function construireSDG() {
   return out;
 }
 
+
+/* ═══════════════ MAPPINGS ÉPS ═══════════════
+   Six apps, trois formes de contenu différentes — `steps` classique,
+   `q`/`a` pour les énigmes, `ly`/`gest` pour les comptines. Le mapping
+   normalise sans déformer, et signale ce qui ne rentre pas.
+
+   `pfeq` et `niveau` : AUCUNE de ces six sources ne les porte. On ne les
+   invente donc pas — le mandat disait « quand la source les donne ». Les
+   fiches ÉPS sortent avec `ageMin`/`ageMax` seulement. */
+
+const EPS = {
+  /* echauffements — `zone` (global/cardio/haut/bas) + `age`.
+     `zone` est le tag propre à l'ÉPS du vocabulaire gelé : il passe tel quel.
+     `fonction: echauffement` est posé — c'est le sujet même de l'app, au même
+     titre que `energie: calme` pour les jeux calmes. */
+  echauffements: (e) => {
+    const [a1, a2] = bornesAge(e.age);
+    const ZONE = { global: 'global', cardio: 'cardio', haut: 'haut', bas: 'bas' };
+    const tags = { type: 'echauffement', espace: 'partout', materiel: 'aucun', fonction: 'echauffement' };
+    poser(tags, 'zone', ZONE[e.zone]);
+    if (e.zone && !ZONE[e.zone]) arbitrer('echauffements', 'zone', e.zone, 'hors vocabulaire zone ÉPS');
+    return { tags, ageMin: a1, ageMax: a2 };
+  },
+
+  /* enigmes — `type` natif (devinette/logique/charade) + `age`.
+     ⚠ FORME PARTICULIÈRE : ni `d` ni `steps`, mais `q` (question) et `a`
+     (réponse). Le schéma n'a pas de champ pour ce couple. On place la
+     question dans `but` — c'est ce qu'un enseignant doit lire pour choisir —
+     et la réponse dans `deroulement`. Signalé à l'arbitrage : ce n'est pas
+     l'usage prévu de ces deux champs. */
+  enigmes: (e) => {
+    const [a1, a2] = bornesAge(e.age);
+    if (e.type) arbitrer('enigmes', 'type (natif)', e.type,
+      'nature de l\'énigme (devinette/logique/charade) — pas de dimension au vocabulaire');
+    arbitrer('enigmes', 'q + a', '(question et réponse)',
+      'le schéma n\'a pas de champ question/réponse : q → `but`, a → `deroulement`');
+    return {
+      tags: { type: 'enigme', espace: 'partout', materiel: 'aucun', energie: 'calme' },
+      ageMin: a1, ageMax: a2,
+      but: e.fr.q, butEn: e.en && e.en.q,
+      etapes: e.fr.a ? [e.fr.a] : [], etapesEn: (e.en && e.en.a) ? [e.en.a] : [],
+    };
+  },
+
+  /* comptines — `usage` (rassemblement/mouvement/retour) + `age`.
+     ⚠ FORME PARTICULIÈRE : `ly` (paroles) et `gest` (geste), pas de `d` ni
+     `steps`. On suit le précédent des chansons de camp : les paroles vont
+     dans `deroulement`, en un seul bloc avec leurs sauts de ligne. `gest`
+     décrit ce que le groupe fait — il tient lieu de `but`. */
+  comptines: (e) => {
+    const [a1, a2] = bornesAge(e.age);
+    const FONCTION = { rassemblement: 'ralliement', retour: 'retour-au-calme' };
+    const tags = { type: 'comptine', espace: 'partout', materiel: 'aucun' };
+    poser(tags, 'fonction', FONCTION[e.usage]);
+    if (e.usage && !FONCTION[e.usage]) arbitrer('comptines', 'usage', e.usage,
+      'hors vocabulaire fonction (echauffement/ralliement/retour-au-calme/transition)');
+    return {
+      tags, ageMin: a1, ageMax: a2,
+      but: e.fr.gest, butEn: e.en && e.en.gest,
+      etapes: e.fr.ly ? [e.fr.ly] : [], etapesEn: (e.en && e.en.ly) ? [e.en.ly] : [],
+    };
+  },
+
+  /* intervention-groupe — `cat` (sos/inclusif). Pas de tag d'âge.
+     Même `say` que sos-conflits : phrase-clé à dire, sans champ d'accueil. */
+  'intervention-groupe': (e) => {
+    if (e.cat) arbitrer('intervention-groupe', 'cat', e.cat,
+      'sos vs inclusif — deux natures d\'intervention, pas de dimension au vocabulaire');
+    if (e.fr.say) arbitrer('intervention-groupe', 'say', String(e.fr.say).slice(0, 46) + '…',
+      'phrase-clé à dire — aucun champ du schéma ne la porte');
+    return { tags: { type: 'intervention', espace: 'partout', materiel: 'aucun' }, ageMin: null, ageMax: null };
+  },
+
+  /* olympiades-scolaires — `type` (course/saut/lancer/relais) + `format`
+     (individuel/equipe). Pas de tag d'âge. `note` porte le barème de points. */
+  'olympiades-scolaires': (e) => {
+    if (e.type) arbitrer('olympiades-scolaires', 'type (natif)', e.type,
+      'famille d\'épreuve (course/saut/lancer/relais) — le champ `type` porte déjà « olympiade »');
+    if (e.format) arbitrer('olympiades-scolaires', 'format', e.format,
+      'individuel vs équipe — dimension distincte de `groupe` (petit/grand/tous)');
+    if (e.fr.note) arbitrer('olympiades-scolaires', 'note', String(e.fr.note).slice(0, 46) + '…',
+      'barème de pointage — aucun champ du schéma ne le porte');
+    return { tags: { type: 'olympiade', espace: 'exterieur', materiel: 'leger' }, ageMin: null, ageMax: null };
+  },
+
+  /* plan-b-meteo — `meteo` (pluie/canicule/froid/vent) + `lieu`
+     (ext/gym/classe). Les deux entrent dans le vocabulaire gelé sans forcer :
+     `meteo` au sens « CONÇU POUR », qui est bien la raison d'être de l'app. */
+  'plan-b-meteo': (e) => {
+    const METEO = { pluie: 'pluie', canicule: 'canicule', froid: 'froid', vent: 'vent' };
+    const LIEU = { gym: { espace: 'interieur', lieu: 'gym' }, classe: { espace: 'interieur', lieu: 'classe' }, ext: { espace: 'exterieur' } };
+    const tags = { type: 'plan-b', materiel: 'aucun' };
+    poser(tags, 'meteo', METEO[e.meteo]);
+    if (e.meteo && !METEO[e.meteo]) arbitrer('plan-b-meteo', 'meteo', e.meteo, 'hors vocabulaire meteo');
+    const l = LIEU[e.lieu];
+    if (l) { poser(tags, 'espace', l.espace); poser(tags, 'lieu', l.lieu); }
+    else if (e.lieu) arbitrer('plan-b-meteo', 'lieu', e.lieu, 'hors vocabulaire espace/lieu');
+    return { tags, ageMin: null, ageMax: null };
+  },
+};
+
+function construireEPS() {
+  const out = [];
+  for (const [app, mapper] of Object.entries(EPS)) {
+    for (const e of lireSource(app)) {
+      const m = mapper(e);
+      out.push(fiche({
+        src: app,
+        titre: e.fr.n, titreEn: e.en && e.en.n,
+        but: m.but !== undefined ? m.but : e.fr.d,
+        butEn: m.butEn !== undefined ? m.butEn : (e.en && e.en.d),
+        etapes: m.etapes !== undefined ? m.etapes : (e.fr.steps || []),
+        etapesEn: m.etapesEn !== undefined ? m.etapesEn : ((e.en && e.en.steps) || []),
+        materiel: m.materiel, materielEn: m.materielEn,
+        icon: e.icon,
+        univers: ['eps'],
+        tags: m.tags,
+        ageMin: m.ageMin, ageMax: m.ageMax,
+        dureeMin: m.dureeMin,
+      }));
+    }
+  }
+  return out;
+}
+
 /* ═══════════════ Migration des 61 camps ═══════════════
 
    Même schéma pour toute la banque : « une banque, un schéma, pas deux
@@ -380,13 +505,40 @@ function main() {
   const { out: camps, estimations } = migrerCamps(anciennes);
   console.log(`Camps migrées    : ${camps.length}`);
 
-  const sdgBrut = construireSDG();
-  console.log(`SDG extraites    : ${sdgBrut.length}`);
+  /* SDG : déjà extraites lors de la passe précédente. On les relit de la
+     banque plutôt que de les reconstruire — leurs doublons ont été écartés
+     une fois, et rejouer la détection donnerait le même résultat pour un
+     coût inutile. Absentes (1re passe) → on extrait. */
+  const dejaLa = fs.existsSync(path.join(__dirname, 'mini-banques.json'))
+    ? JSON.parse(fs.readFileSync(path.join(__dirname, 'mini-banques.json'), 'utf8'))
+    : [];
+  const sdgDejaLa = dejaLa.filter(e => (e.univers || []).includes('sdg') && !(e.univers || []).includes('camps'));
+  let sdg, doublons = [];
+  if (sdgDejaLa.length) {
+    sdg = sdgDejaLa;
+    console.log(`SDG (déjà en banque) : ${sdg.length}`);
+  } else {
+    const sdgBrut = construireSDG();
+    console.log(`SDG extraites    : ${sdgBrut.length}`);
+    const r = detecterDoublons(sdgBrut);
+    sdg = r.gardees; doublons = r.doublons;
+    console.log(`SDG gardées      : ${sdg.length}  (${doublons.length} doublon(s) écarté(s))`);
+  }
 
-  const { gardees: sdg, doublons } = detecterDoublons(sdgBrut);
-  console.log(`SDG gardées      : ${sdg.length}  (${doublons.length} doublon(s) écarté(s))`);
+  const epsDejaLa = dejaLa.filter(e => (e.univers || []).includes('eps'));
+  let eps, doublonsEps = [];
+  if (epsDejaLa.length) {
+    eps = epsDejaLa;
+    console.log(`ÉPS (déjà en banque) : ${eps.length}`);
+  } else {
+    const epsBrut = construireEPS();
+    console.log(`ÉPS extraites    : ${epsBrut.length}`);
+    const r = detecterDoublons(epsBrut);
+    eps = r.gardees; doublonsEps = r.doublons;
+    console.log(`ÉPS gardées      : ${eps.length}  (${doublonsEps.length} doublon(s) écarté(s))`);
+  }
 
-  const banque = [...camps, ...sdg].sort((a, b) => a.slug.localeCompare(b.slug, 'fr'));
+  const banque = [...camps, ...sdg, ...eps].sort((a, b) => a.slug.localeCompare(b.slug, 'fr'));
   fs.writeFileSync(SORTIE, JSON.stringify(banque, null, 2) + '\n', 'utf8');
   console.log(`\n→ ${path.relative(RACINE, SORTIE)} : ${banque.length} fiches`);
 
@@ -395,16 +547,25 @@ function main() {
   console.log('  par univers :', parUnivers);
 
   // Rapport de doublons, même forme que DOUBLONS-EXTRACTION.md
-  let md = '# DOUBLONS D\'EXTRACTION — SDG vs catalogue 1439\n\n';
+  /* Le rapport de doublons est une TRACE : il documente ce qui a été écarté et
+     pourquoi. Une relance qui ne redétecte rien (tout est déjà en banque) ne
+     doit pas l'effacer — sinon la trace disparaît au premier `node` de
+     confort. On ne réécrit que si cette passe a réellement détecté. */
+  const tousDoublons = [...doublons, ...doublonsEps];
+  if (!tousDoublons.length && fs.existsSync(RAPPORT_DOUBLONS)) {
+    console.log('  rapport de doublons : inchangé (aucune détection cette passe)');
+  } else {
+  let md = '# DOUBLONS D\'EXTRACTION — SDG et ÉPS vs catalogue 1439\n\n';
   md += '> Généré par `_generate-mini-banques.js`. Activités NON ajoutées car un jeu\n';
   md += '> au titre fortement similaire existe déjà dans `_data/jeux-merged.json`.\n';
   md += '> Mêmes règles que la passe camps.\n\n';
-  if (!doublons.length) md += 'Aucun doublon détecté.\n';
+  if (!tousDoublons.length) md += 'Aucun doublon détecté lors de cette passe (déjà écartés en banque).\n';
   else {
     md += '| Activité écartée | Source | ≈ Jeu du catalogue | id catalogue | similarité |\n|---|---|---|---|---|\n';
-    for (const d of doublons) md += `| ${d.fiche} | ${d.source} | ${d.titre} | \`${d.id}\` | ${d.r.toFixed(2)} |\n`;
+    for (const d of tousDoublons) md += `| ${d.fiche} | ${d.source} | ${d.titre} | \`${d.id}\` | ${d.r.toFixed(2)} |\n`;
   }
   fs.writeFileSync(RAPPORT_DOUBLONS, md, 'utf8');
+  }
 
   // Sorties de travail (non committées) : à arbitrer + estimations E3
   fs.writeFileSync(path.join(__dirname, '_a-arbitrer.json'), JSON.stringify(aArbitrer, null, 2), 'utf8');
