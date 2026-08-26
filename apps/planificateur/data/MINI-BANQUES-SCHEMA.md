@@ -134,13 +134,37 @@ Une famille d'activité, qui suit la source dont elle vient.
 |---|---|
 | `camps` | `pedago` · `chanson` · `veillee` · `brise-glace` · `jeu-eau` · `jeu-theme` · `rallye` · `grand-jeu` |
 | `sdg` | `jeu-calme` · `plan-b` · `bricolage` · `jeu-rapide` · `activite-duree` · `intervention` |
+| `eps` | `echauffement` · `enigme` · `comptine` · `intervention` · `plan-b` · `olympiade` |
 
-### Propre à l'ÉPS *(déclaré, pas encore peuplé)*
+`intervention` et `plan-b` servent SDG **et** ÉPS : même famille d'activité, deux
+univers. C'est voulu — le vocabulaire décrit la nature, pas la provenance.
 
-| Tag | Valeurs |
-|---|---|
-| `zone` | `global` · `cardio` · `haut` · `bas` |
-| `pfeq` | compétence 1 · 2 · 3 — **optionnel**, ne bloque pas une extraction |
+### Propre à l'ÉPS
+
+| Tag | Valeurs | État |
+|---|---|---|
+| `zone` | `global` · `cardio` · `haut` · `bas` | **peuplé** — 7 fiches, depuis `echauffements` |
+| `pfeq` | compétence 1 · 2 · 3 | **vide** — voir ci-dessous |
+
+> **Aucune des six sources ÉPS ne porte de `pfeq` ni de niveau scolaire.** Le
+> mandat disait « quand la source les donne » : elles ne les donnent pas, donc
+> rien n'a été inventé. Les fiches ÉPS sortent avec `ageMin`/`ageMax` seulement.
+> Peupler `pfeq` demanderait un jugement pédagogique fiche par fiche — c'est un
+> travail d'enseignant, pas d'extraction.
+
+### Formes de contenu particulières
+
+Deux sources ÉPS ne suivent pas le patron `d` + `steps` :
+
+| Source | Forme native | Traitement |
+|---|---|---|
+| `comptines` | `ly` (paroles) + `gest` (geste) | `gest` → `but`, `ly` → `deroulement` en un bloc. **Suit le précédent des chansons de camp** |
+| `enigmes` | `q` (question) + `a` (réponse) | **`q` → `but`, `a` → `deroulement`** — arbitré et accepté (Joey, 2026-08-26) |
+
+> **Pourquoi pas un champ `solution` ?** Le détournement est réel mais bénin :
+> la fiche s'adresse à l'animateur, pas aux enfants. Qu'un enseignant voie la
+> réponse en lisant sa carte est exactement ce qu'il veut. Ajouter un champ pour
+> une poignée de fiches serait du gonflement de schéma.
 
 ---
 
