@@ -159,7 +159,12 @@ Deux sources ÉPS ne suivent pas le patron `d` + `steps` :
 | Source | Forme native | Traitement |
 |---|---|---|
 | `comptines` | `ly` (paroles) + `gest` (geste) | `gest` → `but`, `ly` → `deroulement` en un bloc. **Suit le précédent des chansons de camp** |
-| `enigmes` | `q` (question) + `a` (réponse) | `q` → `but`, `a` → `deroulement`. ⚠️ Ce n'est pas l'usage prévu de ces champs — signalé à l'arbitrage |
+| `enigmes` | `q` (question) + `a` (réponse) | **`q` → `but`, `a` → `deroulement`** — arbitré et accepté (Joey, 2026-08-26) |
+
+> **Pourquoi pas un champ `solution` ?** Le détournement est réel mais bénin :
+> la fiche s'adresse à l'animateur, pas aux enfants. Qu'un enseignant voie la
+> réponse en lisant sa carte est exactement ce qu'il veut. Ajouter un champ pour
+> une poignée de fiches serait du gonflement de schéma.
 
 ---
 
