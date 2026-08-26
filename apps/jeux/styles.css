@@ -285,7 +285,10 @@ body {
 }
 
 .search-input::placeholder {
-  color: var(--text-muted);
+  /* `--text-muted` donnait 3,19:1 sur le fond du champ — sous les 4,5 requis,
+     et c'est le seul texte visible tant qu'on n'a rien tape. Un ton plus
+     fonce, qui reste discret sans devenir illisible. */
+  color: var(--text-placeholder, #5A6B7B);
   font-size: 1rem;
 }
 

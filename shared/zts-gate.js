@@ -92,7 +92,13 @@
       '#zts-gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;',
       'padding:20px;background:rgba(12,22,48,.86);backdrop-filter:blur(4px);font-family:var(--font-body,system-ui);}',
       '#zts-gate[hidden]{display:none;}',
-      '.ztg-card{width:100%;max-width:420px;background:#fff;border:var(--bord,3px solid #1a1a1a);',
+      /* LA COULEUR DU TEXTE EST OBLIGATOIRE ICI. Le shell pose
+         `color:#E6F4FA` sur <body> — juste pour son fond marine, mais
+         herite par tout descendant qui n'en declare pas. Cette carte a un
+         fond BLANC : sans `color`, son titre et son sous-titre sortaient en
+         bleu tres pale sur blanc, contraste 1,12:1. Sur les 42 apps
+         verrouillees, c'est le premier ecran que voit un visiteur. */
+      '.ztg-card{width:100%;max-width:420px;background:#fff;color:#1a1a1a;border:var(--bord,3px solid #1a1a1a);',
       'border-radius:var(--r-3,22px);box-shadow:var(--ombre,6px 6px 0 #1a1a1a);padding:26px 24px;text-align:center;}',
       '.ztg-badge{display:inline-block;font-family:var(--font-fun,inherit);font-weight:700;font-size:13px;',
       'background:var(--metier,#19B5C9);border:2px solid #1a1a1a;border-radius:999px;padding:3px 12px;margin-bottom:10px;}',

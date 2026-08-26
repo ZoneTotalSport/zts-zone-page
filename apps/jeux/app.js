@@ -629,12 +629,50 @@ function renderGameGrid() {
   dom.gameGrid.classList.toggle('list-view', state.viewMode === 'list');
 }
 
+/**
+ * L'ENCRE LISIBLE SUR UNE COULEUR DE CATEGORIE.
+ *
+ * La carte est peinte avec la couleur de sa categorie et le texte etait
+ * BLANC EN DUR. Sur les 18 couleurs, 15 ne portent pas le blanc : le jaune
+ * `#FFD000` tombait a 1,47:1, le cyan `#22D3EE` a 1,81:1, le vert des
+ * cooperatifs a 2,01:1 — la ou il en faut 4,5. C'est le defaut signale.
+ *
+ * On choisit donc l'encre d'apres la couleur, au lieu de la supposer. Noir ou
+ * blanc, celui des deux qui contraste le plus : c'est le calcul du WCAG, et
+ * il donne toujours au moins 4,5:1 face a une couleur de cette palette.
+ * Une couleur ajoutee demain sera traitee sans qu'on y revienne.
+ */
+function encreLisible(couleur) {
+  const m = String(couleur || '').trim().replace('#', '');
+  const hex = m.length === 3 ? m.split('').map(c => c + c).join('') : m;
+  if (!/^[0-9a-f]{6}$/i.test(hex)) return { encre: '#FFFFFF', voile: 'rgba(0,0,0,.30)' };
+  const lin = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const L = 0.2126 * lin(parseInt(hex.slice(0, 2), 16))
+          + 0.7152 * lin(parseInt(hex.slice(2, 4), 16))
+          + 0.0722 * lin(parseInt(hex.slice(4, 6), 16));
+  const surBlanc = (1.05) / (L + 0.05);        // contraste du BLANC sur la couleur
+  const surNoir  = (L + 0.05) / 0.05;          // contraste du NOIR  sur la couleur
+  return surNoir > surBlanc
+    // Couleur CLAIRE : encre foncee. L'ombre portee du titre disparait —
+    // une ombre sombre sous une encre sombre ne fait qu'empater le texte.
+    ? { encre: '#0C1720', voile: 'rgba(255,255,255,.55)', ombre: 'none' }
+    // Couleur FONCEE : encre blanche, et l'ombre BD du style ZTS reste.
+    : { encre: '#FFFFFF', voile: 'rgba(0,0,0,.30)', ombre: '2px 2px 0 rgba(0,0,0,.2)' };
+}
+
 function createGameCard(game, index) {
   const card = document.createElement('div');
   card.className = 'game-card';
   card.style.animationDelay = `${Math.min(index * 0.03, 0.3)}s`;
   const catCfg = CATEGORIES[game.category] || {};
-  if (catCfg.color) card.style.setProperty('--cat', catCfg.color);
+  if (catCfg.color) {
+    card.style.setProperty('--cat', catCfg.color);
+    // Le CSS lit ces deux-la : voir `.game-card` dans index.html.
+    const lis = encreLisible(catCfg.color);
+    card.style.setProperty('--cat-encre', lis.encre);
+    card.style.setProperty('--cat-voile', lis.voile);
+    card.style.setProperty('--cat-ombre', lis.ombre);
+  }
   card.onclick = () => openGameDetail(game);
 
   const isFav = state.favorites.includes(game.id);
@@ -775,6 +813,17 @@ function openGameDetail(game) {
   `;
 
   dom.modalBody.innerHTML = html;
+  /* La fiche porte les MEMES quatre variables que la carte : son numero et son
+     badge de categorie sont peints avec `--cat`, et leur texte etait blanc en
+     dur — 3,71:1 sur le rouge, moins encore sur le jaune. */
+  const catFiche = CATEGORIES[game.category] || {};
+  if (catFiche.color) {
+    const lisF = encreLisible(catFiche.color);
+    dom.modalBody.style.setProperty('--cat', catFiche.color);
+    dom.modalBody.style.setProperty('--cat-encre', lisF.encre);
+    dom.modalBody.style.setProperty('--cat-voile', lisF.voile);
+    dom.modalBody.style.setProperty('--cat-ombre', lisF.ombre);
+  }
   dom.modalOverlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
