@@ -2171,7 +2171,10 @@
     if (LIBELLE_TYPE[r.type]) bouts.push(LIBELLE_TYPE[r.type]);
     if (d) bouts.push(nomDossier(d));
     var p = String(r.participants || '').trim();
-    if (p) bouts.push(p.split(',').length + ' participants');
+    if (p) {
+      var nb = p.split(',').filter(function (x) { return x.trim(); }).length;
+      if (nb) bouts.push(nb + ' participant' + (nb > 1 ? 's' : ''));
+    }
     n.textContent = bouts.filter(Boolean).join('  ·  ');
   }
 

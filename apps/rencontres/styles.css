@@ -233,14 +233,20 @@
   background: var(--ztsh-marine, #061726);
   box-shadow: 0 6px 0 -3px rgba(0, 0, 0, .35);
 }
+/* Le fond deborde LEGEREMENT de la barre pour couvrir les ombres portees des
+   cartes qui passent dessous. Surtout pas de `-50vw` : ca fabrique un element
+   de 200vw de large qui gonfle le `scrollWidth` du document a 1908px. Il est
+   ecrete par le `overflow-x:hidden` du body, donc invisible ici — mais un
+   navigateur qui propage l'overflow autrement sortirait une barre de
+   defilement laterale sur toute l'app. Douze pixels suffisent. */
 .renc-retour::before {
   content: '';
   position: absolute;
   z-index: -1;
   top: 0;
   bottom: 0;
-  left: -50vw;
-  right: -50vw;
+  left: -12px;
+  right: -12px;
   background: inherit;
 }
 .renc-retour[hidden] { display: none; }
