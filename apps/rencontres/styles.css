@@ -1,0 +1,1570 @@
+/* ==========================================================================
+   ZONE RENCONTRES — feuille de l'app
+   --------------------------------------------------------------------------
+   Chargee APRES shared/zts.css et assets/ztsh-shell.css. Cet ordre est
+   verifie par _scripts/verifie-habillage.py (controle 1) et il n'est pas
+   negociable : c'est ici que se posent les surcharges.
+
+   CONTRAINTES DU CHANTIER, tenues ligne a ligne :
+     · aucun <link> Google Fonts, aucune @font-face nouvelle
+     · aucun !important hors du bloc @media print de la fin
+     · aucun fond pose sur html, body ou .ztsh-page — le marine du shell et
+       ses rayons doivent rester visibles dessous (controle 6)
+     · TOUT EN px, jamais en rem — meme regle que apps/inventaire
+     · z-index : LA PLAGE 300-399 APPARTIENT AU SHELL et reste vide de notre
+       cote (--ztsh-z-metiers 310, --ztsh-casier 340, --ztsh-z-flottant 350).
+       Le contenu de l'app plafonne a 45. Une seule chose passe au-dessus du
+       shell — le TIROIR sous 900 px, a 9400 — et le §7 dit pourquoi. Au-dessus
+       encore : le menu mobile du site (9500) puis le mur (99999), dans cet
+       ordre, et c'est le bon.
+   ========================================================================== */
+
+/* ==========================================================================
+   0. POLICES — aucune declaration ici, et c'est voulu
+   --------------------------------------------------------------------------
+   Les deux polices d'affichage de l'app sont deja servies depuis /fonts/ par
+   des feuilles chargees plus haut :
+
+     LuckiestGuy          shared/zts.css:23 — titres, boutons, etiquettes.
+     ZoneTotalSportZTSH   assets/ztsh-shell.css:94 — la marque, AVEC son
+                          size-adjust:50%. La redeclarer sans cet ajustement
+                          la ferait rendre au double de sa taille : c'est
+                          exactement le defaut qui a fait deborder le logo du
+                          header au pilote projection.
+
+   Bangers n'est PAS chargee sur cette page. Les tokens du shell qui
+   l'appellent — --ztsh-f-punch, --ztsh-f-note — retomberaient donc en
+   system-ui : ils ne sont utilises nulle part dans ce fichier. Les boutons
+   sont en LuckiestGuy.
+
+   Le CORPS de texte retombe sur la pile systeme. Quicksand ne vit que chez
+   Google et n'est pas dans /fonts/ ; la charger depuis un CDN violerait la
+   regle. Choix identique a celui d'apps/inventaire, et assume : un compte
+   rendu se lit, il ne se contemple pas.
+   ========================================================================== */
+
+:root {
+  /* Bascule deux colonnes <-> une colonne. Sous ce seuil, le rail devient un
+     tiroir et le bouton « ☰ Mes rencontres » apparait. */
+  --renc-bascule: 900px;
+
+  --renc-surface:     #FFFFFF;
+  --renc-surface-alt: #EEF6FA;   /* survol de rangee, fond de panneau */
+  --renc-ink:         #0C1720;
+  --renc-ink-doux:    #5B6773;
+  --renc-trait:       #08131E;
+  --renc-marine:      #0B2B40;
+
+  /* Les trois types de rencontre. Un type = une couleur, tenue partout :
+     pastille du rail, liseré de la fiche, puce du compte rendu imprime. */
+  --renc-comite:     #00C2E8;
+  --renc-statutaire: #FFA200;
+  --renc-autre:      #A3FF00;
+
+  --renc-r:     10px;
+  --renc-ombre: 2px 2px 0 rgba(8, 19, 30, .30);
+  --renc-ombre-forte: 4px 4px 0 var(--renc-trait);
+
+  --renc-f-titre: 'LuckiestGuy', 'Luckiest Guy', system-ui, sans-serif;
+  --renc-f-corps: 'Quicksand', 'Helvetica Neue', system-ui, sans-serif;
+}
+
+/* ==========================================================================
+   1. ENVELOPPE
+   --------------------------------------------------------------------------
+   Aucun fond : le marine du shell passe au travers, comme prevu. La couleur
+   de texte par defaut est celle du shell pour le fond marine — les zones
+   blanches la reprennent a leur compte plus bas.
+   ========================================================================== */
+.renc-wrap {
+  max-width: 1560px;
+  margin: 0 auto;
+  /* La marge du bas degage le casier du shell — `.ztsh-casier`, fixe en bas a
+     gauche, z-index 340, environ 74 px de haut. Sans elle, le dernier element
+     de la colonne de gauche passe dessous. On prend la garde que le shell
+     publie lui-meme plutot qu'un nombre en dur : si elle change la-bas, la
+     marge suit. */
+  padding: 10px 12px var(--ztsh-rail-garde-bas, 96px);
+  font-family: var(--renc-f-corps);
+  color: var(--ztsh-sur-marine, #E6F4FA);
+}
+
+/* ==========================================================================
+   1bis. LES TROIS MOMENTS — CE QUI EST À L'ÉCRAN, ET RIEN D'AUTRE
+   --------------------------------------------------------------------------
+   Une seule règle tient tout ce fichier : l'écran ne montre que ce qui sert
+   MAINTENANT. Ce qui ne sert pas n'est ni grisé ni rapetissé — il est ABSENT,
+   rangé derrière un geste.
+
+     liste    la liste des rencontres, ses dossiers, sa recherche. L'accueil.
+     avant    préparer : les champs, l'ordre du jour, UN bouton.
+     pendant  capturer : le minuteur, l'arrêt, les notes, les points.
+     apres    finaliser : le compte rendu, deux boutons, les envois.
+     actions  la vue transversale « Mes actions ».
+
+   AUCUNE FONCTION N'A ÉTÉ RETIRÉE. Tout ce qui existait existe encore ; ce
+   qui change, c'est le moment où ça paraît. La preuve : ce bloc ne contient
+   que des règles d'affichage.
+   ========================================================================== */
+
+/* — l'accueil de l'app : la liste, ses outils, rien de la fiche — */
+.renc-wrap[data-ecran="liste"] .renc-retour,
+.renc-wrap[data-ecran="liste"] .renc-detail { display: none; }
+.renc-wrap[data-ecran="liste"] .renc-corps { grid-template-columns: minmax(0, 1fr); }
+
+/* — dans une rencontre : plus de rail, plus de barre d'outils — */
+.renc-wrap:not([data-ecran="liste"]) .renc-outils,
+.renc-wrap:not([data-ecran="liste"]) .renc-rail { display: none; }
+.renc-wrap:not([data-ecran="liste"]) .renc-corps { grid-template-columns: minmax(0, 1fr); }
+
+/* — LISTE : une seule action evidente. « Enregistrer » n'a rien a enregistrer
+     tant qu'aucune rencontre n'est ouverte : il brouillait le seul geste qui
+     compte ici, « + Nouvelle rencontre ». — */
+.renc-wrap[data-ecran="liste"] #rencSauver { display: none; }
+
+/* — AVANT : préparer — */
+.renc-wrap[data-ecran="avant"] .renc-bande,
+.renc-wrap[data-ecran="avant"] .renc-onglets,
+.renc-wrap[data-ecran="avant"] #panNotes,
+.renc-wrap[data-ecran="avant"] #panMicro,
+.renc-wrap[data-ecran="avant"] .renc-ia,
+.renc-wrap[data-ecran="avant"] .renc-fini,
+.renc-wrap[data-ecran="avant"] #panResultat,
+.renc-wrap[data-ecran="avant"] #panBrut,
+.renc-wrap[data-ecran="avant"] .renc-pied { display: none; }
+
+/* — PENDANT : capturer. Presque rien. — */
+.renc-wrap[data-ecran="pendant"] .renc-entete,
+.renc-wrap[data-ecran="pendant"] .renc-onglets,
+.renc-wrap[data-ecran="pendant"] #panMicro,
+.renc-wrap[data-ecran="pendant"] #panImport,
+.renc-wrap[data-ecran="pendant"] .renc-demarrer,
+.renc-wrap[data-ecran="pendant"] .renc-ia,
+.renc-wrap[data-ecran="pendant"] .renc-fini,
+.renc-wrap[data-ecran="pendant"] #panResultat,
+.renc-wrap[data-ecran="pendant"] #panBrut,
+.renc-wrap[data-ecran="pendant"] .renc-pied { display: none; }
+/* Les notes sont TOUJOURS là — c'est ça, « plus de mode à choisir ». */
+.renc-wrap[data-ecran="pendant"] #panNotes { display: block; }
+
+/* — APRÈS : finaliser. C'est ici que la richesse apparaît — mais « la
+     richesse » n'est pas « tout ». Le compte rendu doit être la première
+     chose que l'œil trouve, donc l'en-tête se replie en une ligne et le
+     panneau d'ordre du jour s'efface : le compte rendu le reprend déjà,
+     point par point. — */
+.renc-wrap[data-ecran="apres"] .renc-bande,
+.renc-wrap[data-ecran="apres"] .renc-onglets,
+.renc-wrap[data-ecran="apres"] #panMicro,
+.renc-wrap[data-ecran="apres"] .renc-odj,
+.renc-wrap[data-ecran="apres"] .renc-demarrer { display: none; }
+.renc-wrap[data-ecran="apres"] .renc-travail.a-odj { grid-template-columns: minmax(0, 1fr); }
+.renc-wrap[data-ecran="apres"] #panResultat { display: block; }
+/* L'en-tete replie, et son depli a la demande. */
+/* L'ORDRE DE LECTURE. Dans le HTML, les notes viennent avant le compte
+   rendu — c'est le bon ordre pendant la rencontre, et le mauvais apres :
+   on ouvrait sur une zone de notes vide, le compte rendu hors de l'ecran.
+   On ne deplace rien dans le HTML (les autres ecrans en dependent), on
+   reordonne A L'AFFICHAGE, et seulement ici. */
+.renc-wrap[data-ecran="apres"] .renc-fiche {
+  display: flex;
+  flex-direction: column;
+}
+.renc-wrap[data-ecran="apres"] .renc-resume          { order: 0; }
+.renc-wrap[data-ecran="apres"] .renc-entete          { order: 1; }
+.renc-wrap[data-ecran="apres"] .renc-fini            { order: 2; }
+.renc-wrap[data-ecran="apres"] .renc-ia              { order: 3; }
+.renc-wrap[data-ecran="apres"] .renc-onglets--sortie { order: 4; }
+.renc-wrap[data-ecran="apres"] #panResultat          { order: 5; }
+.renc-wrap[data-ecran="apres"] #panBrut              { order: 6; }
+/* Les notes prises a la main restent la — c'est le texte de l'usager, on ne
+   le cache pas — mais SOUS le compte rendu. */
+.renc-wrap[data-ecran="apres"] .renc-travail         { order: 7; }
+.renc-wrap[data-ecran="apres"] .renc-pied            { order: 8; }
+
+.renc-wrap[data-ecran="apres"] .renc-entete { display: none; }
+.renc-wrap[data-ecran="apres"] .renc-resume { display: flex; }
+.renc-wrap[data-ecran="apres"].entete-ouverte .renc-entete { display: block; }
+.renc-wrap[data-ecran="apres"].entete-ouverte .renc-resume { display: none; }
+
+.renc-resume {
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+}
+.renc-resume[hidden] { display: none; }
+.renc-resume span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Double classe VOLONTAIRE : `.renc-lien` est declare plus bas dans ce
+   fichier et donne la couleur claire du fond marine. A specificite egale il
+   gagnait, et « Modifier » s'affichait en blanc sur la carte blanche —
+   contraste mesure 1,12:1, autant dire absent. */
+.renc-lien.renc-lien--sombre { flex: none; color: #19527a; }
+
+/* — Mes actions : rien d'autre — */
+.renc-wrap[data-ecran="actions"] .renc-retour { display: flex; }
+
+/* La barre de retour. Un seul chemin hors d'une rencontre, toujours au même
+   endroit, sur les trois écrans. */
+/* LA BARRE DE RETOUR. Elle etait correcte et INTROUVABLE : posee en haut du
+   document, elle sortait de l'ecran des qu'on defilait de trois lignes, et
+   on se retrouvait enferme dans une rencontre sans porte visible.
+   Elle est maintenant COLLANTE. Le decalage vient d'app.js (`--renc-collant`)
+   parce que le chrome du shell est en `position:fixed` et que sa hauteur
+   change avec la largeur : un `top:0` en dur la ferait glisser dessous. */
+.renc-retour {
+  position: sticky;
+  top: var(--renc-collant, 0px);
+  z-index: 30;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+  padding: 8px 0;
+  /* Le fond opaque est OBLIGATOIRE : sans lui, le texte qui defile passe au
+     travers de la barre et les deux deviennent illisibles. Il deborde de la
+     largeur du contenu pour couvrir toute la bande. */
+  background: var(--ztsh-marine, #061726);
+  box-shadow: 0 6px 0 -3px rgba(0, 0, 0, .35);
+}
+/* Le fond deborde LEGEREMENT de la barre pour couvrir les ombres portees des
+   cartes qui passent dessous. Surtout pas de `-50vw` : ca fabrique un element
+   de 200vw de large qui gonfle le `scrollWidth` du document a 1908px. Il est
+   ecrete par le `overflow-x:hidden` du body, donc invisible ici — mais un
+   navigateur qui propage l'overflow autrement sortirait une barre de
+   defilement laterale sur toute l'app. Douze pixels suffisent. */
+.renc-retour::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: -12px;
+  right: -12px;
+  background: inherit;
+}
+.renc-retour[hidden] { display: none; }
+/* Le geste qui sort d'ici doit se voir de loin : c'est celui qu'on cherche
+   quand on est perdu. Cyan, borde, avec les mots au complet. */
+.renc-bt.renc-retour__bt {
+  font-size: 17px;
+  padding: 11px 18px;
+  color: #111111;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: 4px 4px 0 var(--renc-trait);
+}
+.renc-bt.renc-retour__bt:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--renc-trait); }
+.renc-bt.renc-retour__bt:active { transform: translate(2px, 2px);  box-shadow: 2px 2px 0 var(--renc-trait); }
+.renc-retour__ou {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--renc-f-titre);
+  font-size: 15px;
+  letter-spacing: .5px;
+  color: var(--ztsh-jaune, #FFFC00);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── L'unique action de l'écran AVANT ─────────────────────────────────── */
+.renc-demarrer { text-align: center; }
+/* Double classe VOLONTAIRE : `.renc-bt` est declare plus bas dans ce fichier,
+   donc a specificite egale il gagnait et ecrasait la taille comme la couleur.
+   Le gros bouton doit gagner — c'est la seule action de l'ecran.
+   Cyan comme l'ancien bouton d'enregistrement qu'il remplace ; le lime reste
+   la couleur de « Mes actions », qui est une navigation, pas un geste. */
+.renc-bt.renc-demarrer__go {
+  display: block;
+  width: 100%;
+  font-size: 27px;
+  letter-spacing: .6px;
+  padding: 26px 20px 22px;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: 6px 6px 0 var(--renc-trait);
+}
+.renc-bt.renc-demarrer__go:hover  { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--renc-trait); }
+.renc-bt.renc-demarrer__go:active { transform: translate(3px, 3px);  box-shadow: 3px 3px 0 var(--renc-trait); }
+.renc-demarrer__ou {
+  margin: 22px 0 0;
+  font-size: 14px;
+  color: var(--ztsh-sur-marine-doux, #C4E1EE);
+}
+/* L'import est un LIEN, pas un bouton : il ne doit jamais concurrencer
+   l'action principale du regard. */
+.renc-lien {
+  font: inherit;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+  background: none;
+  border: 0;
+  /* Le lien reste visuellement fin, mais la zone touchable fait 44px de haut :
+     les marges negatives rendent au voisin l'espace que le padding lui prend. */
+  padding: 12px 10px;
+  margin: -12px -10px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.renc-lien:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 3px; }
+
+/* ── Le bandeau de fin ────────────────────────────────────────────────── */
+.renc-fini {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 16px;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+  background: rgba(163, 255, 0, .16);
+  border: 2px solid var(--ztsh-lime, #A3FF00);
+  border-radius: var(--renc-r);
+}
+.renc-fini[hidden] { display: none; }
+.renc-fini__coche { font-family: var(--renc-f-titre); font-size: 24px; color: var(--ztsh-lime, #A3FF00); line-height: 1; }
+.renc-fini b { display: block; font-size: 16px; }
+.renc-fini span span { font-size: 13px; opacity: .85; }
+
+/* ── Le pied d'envoi ──────────────────────────────────────────────────── */
+.renc-pied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 12px;
+  background: rgba(255, 255, 255, .07);
+  border: 2px solid rgba(255, 255, 255, .18);
+  border-radius: var(--renc-r);
+}
+.renc-pied[hidden] { display: none; }
+/* Le menu du pied s'ouvre VERS LE HAUT : en bas de page, une liste qui
+   descend sort de l'écran. */
+.renc-menu__liste--haut { top: auto; bottom: calc(100% + 6px); }
+
+/* ==========================================================================
+   2. BARRE D'OUTILS
+   ========================================================================== */
+.renc-outils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.renc-espace { flex: 1 1 auto; }
+
+.renc-o {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  padding: 9px 12px;
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+  max-width: 100%;
+}
+.renc-o--q { flex: 0 1 200px; min-width: 120px; }
+.renc-o--f { max-width: 150px; }
+
+.renc-bt {
+  font-family: var(--renc-f-titre);
+  font-size: 14px;
+  letter-spacing: .4px;
+  line-height: 1.1;
+  cursor: pointer;
+  padding: 10px 14px 8px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+  transition: transform .12s, box-shadow .12s;
+}
+.renc-bt:hover  { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 rgba(8, 19, 30, .30); }
+.renc-bt:active { transform: translate(1px, 1px);  box-shadow: 1px 1px 0 rgba(8, 19, 30, .30); }
+.renc-bt:disabled { opacity: .5; cursor: default; transform: none; }
+.renc-bt:focus-visible,
+.renc-o:focus-visible,
+.renc-champ:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+
+.renc-bt--neuf    { background: var(--ztsh-cyan, #00C2E8); }
+.renc-bt--sauve   { background: var(--ztsh-jaune, #FFFC00); }
+/* Le bouton d'enregistrement change d'aspect quand il y a du travail non
+   ecrit au serveur. Ce n'est pas decoratif : c'est le seul signal qui dise
+   « ce que tu vois n'est pas encore parti ». */
+.renc-bt--sauve.is-sale { background: var(--ztsh-rose, #FF0061); color: #FFFFFF; }
+.renc-bt--actions { background: var(--ztsh-lime, #A3FF00); }
+.renc-bt--pt      { padding: 10px 12px 8px; font-size: 17px; }
+
+/* Le bouton du tiroir n'existe que sous la bascule — regle en fin de fichier. */
+.renc-bt--rail { display: none; }
+
+.renc-bt--gros {
+  font-size: 19px;
+  padding: 14px 22px 11px;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: var(--renc-ombre-forte);
+  margin-top: 18px;
+}
+.renc-bt--gros:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--renc-trait); }
+.renc-bt--gros:active { transform: translate(2px, 2px);  box-shadow: 2px 2px 0 var(--renc-trait); }
+
+.renc-mini {
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 5px 9px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: 8px;
+}
+.renc-mini:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+
+/* ── Menu ⋯ ────────────────────────────────────────────────────────────
+   z-index 40 : bien au-dessus du contenu de l'app, bien en dessous des
+   300-399 du shell. Un menu d'app n'a aucune raison de passer par-dessus le
+   rail du site. */
+.renc-menu { position: relative; }
+.renc-menu__liste {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 40;
+  min-width: 250px;
+  padding: 6px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-menu__liste[hidden] { display: none; }
+.renc-menu__liste button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--renc-ink);
+  background: none;
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 10px;
+  cursor: pointer;
+}
+.renc-menu__liste button:hover { background: var(--renc-surface-alt); }
+.renc-menu__liste button.is-danger { color: #B00034; }
+.renc-menu__liste hr { border: 0; border-top: 2px solid var(--renc-surface-alt); margin: 5px 2px; }
+
+/* ==========================================================================
+   3. BANDEAU RESEAU
+   --------------------------------------------------------------------------
+   Il annonce ce qui MARCHE ENCORE, pas ce qui est tombe. Un usager qui perd
+   le reseau au milieu d'un comite a besoin de savoir qu'il peut continuer a
+   ecrire, pas d'apprendre qu'il est hors ligne — il le sait deja.
+   ========================================================================== */
+.renc-reseau {
+  margin: 0 0 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--renc-ink);
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+}
+.renc-reseau[hidden] { display: none; }
+
+/* ==========================================================================
+   4. DEUX COLONNES
+   ========================================================================== */
+.renc-corps {
+  display: grid;
+  grid-template-columns: 288px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+/* ── Rail ─────────────────────────────────────────────────────────────── */
+.renc-rail {
+  padding: 12px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+  color: var(--renc-ink);
+}
+.renc-rail__tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.renc-rail__titre {
+  font-family: var(--renc-f-titre);
+  font-size: 15px;
+  letter-spacing: .6px;
+  margin: 0;
+  color: var(--renc-marine);
+}
+.renc-rail__titre--liste { margin: 16px 0 8px; }
+
+.renc-dossiers,
+.renc-liste { list-style: none; margin: 0; padding: 0; }
+
+.renc-dossier,
+.renc-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--renc-ink);
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 8px 9px;
+  cursor: pointer;
+}
+.renc-dossier:hover,
+.renc-item:hover { background: var(--renc-surface-alt); }
+.renc-dossier.is-actif,
+.renc-item.is-actif { background: var(--renc-surface-alt); border-color: var(--renc-trait); }
+.renc-dossier:focus-visible,
+.renc-item:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 1px; }
+
+/* Cible de depot du glisser-deposer (vague F). Le style vit ici des
+   maintenant pour que la vague F n'ait pas a rouvrir la feuille. */
+.renc-dossier.is-cible { border-color: var(--ztsh-cyan, #00C2E8); background: #DFF6FC; }
+
+.renc-item { flex-direction: column; align-items: stretch; gap: 2px; }
+.renc-item__n { font-size: 14px; line-height: 1.25; }
+.renc-item__m {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--renc-ink-doux);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.renc-pastille {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--renc-trait);
+  flex: none;
+}
+.renc-pastille[data-type="comite"]     { background: var(--renc-comite); }
+.renc-pastille[data-type="statutaire"] { background: var(--renc-statutaire); }
+.renc-pastille[data-type="autre"]      { background: var(--renc-autre); }
+
+/* ── Dossier : la rangee porte ses deux commandes ─────────────────────
+   Elles sont dans le DOM en permanence — pas de `display:none` au repos —
+   pour rester atteignables au clavier et annoncees par un lecteur d'ecran.
+   C'est l'opacite qui les efface, et le survol ou le focus les rend. */
+.renc-dossier-l { display: flex; align-items: center; gap: 2px; }
+.renc-dossier-l .renc-dossier { flex: 1 1 auto; min-width: 0; }
+.renc-dossier-l .renc-dossier span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.renc-doss-act {
+  flex: none;
+  font-size: 13px;
+  line-height: 1;
+  padding: 5px 6px;
+  cursor: pointer;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  opacity: .75;
+  transition: opacity .12s;
+}
+/* Elles etaient a `opacity: 0` jusqu'au survol. Sans souris — et meme AVEC,
+   si on ne pense pas a survoler — renommer ou supprimer un dossier devenait
+   une devinette. Une action qu'il faut deviner n'existe pas. */
+.renc-dossier-l:hover .renc-doss-act,
+.renc-doss-act:focus-visible { opacity: 1; }
+.renc-doss-act:hover { background: var(--renc-surface-alt); border-color: var(--renc-trait); }
+.renc-doss-act:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 1px; }
+
+/* Le champ de renommage remplace le libelle sur place — pas de fenetre, pas
+   de prompt() : on renomme la ou on lit. */
+.renc-doss-edit {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--renc-ink);
+  padding: 7px 8px;
+  border: 2px solid var(--ztsh-cyan, #00C2E8);
+  border-radius: 8px;
+}
+
+/* Une rencontre qu'on deplace. */
+.renc-item.is-porte { opacity: .45; }
+
+.renc-vide {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--renc-ink-doux);
+  padding: 6px 9px 2px;
+  margin: 0;
+}
+.renc-vide[hidden] { display: none; }
+.renc-vide__aide { font-size: 12px; opacity: .85; }
+
+/* ==========================================================================
+   5. DETAIL — accueil
+   ========================================================================== */
+.renc-detail { min-width: 0; }
+
+.renc-accueil {
+  padding: 26px 22px 30px;
+  text-align: center;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+  color: var(--renc-ink);
+}
+.renc-accueil[hidden] { display: none; }
+.renc-accueil__titre {
+  font-family: var(--renc-f-titre);
+  /* 1.05 minimum : sous ce seuil les capitales accentuees se font couper —
+     un E monte a 1852 unites d'em, un E accent aigu a 2227. */
+  line-height: 1.05;
+  font-size: 34px;
+  letter-spacing: 1px;
+  color: var(--renc-marine);
+  margin: 0 0 8px;
+}
+.renc-accueil__sous {
+  font-size: 15px;
+  line-height: 1.5;
+  max-width: 52ch;
+  margin: 0 auto 22px;
+  color: var(--renc-ink-doux);
+}
+.renc-accueil__trois {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  text-align: left;
+}
+.renc-carte-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  background: var(--renc-surface-alt);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+}
+.renc-carte-mode__em { font-size: 26px; line-height: 1; }
+.renc-carte-mode__n  { font-family: var(--renc-f-titre); font-size: 17px; letter-spacing: .4px; }
+.renc-carte-mode__d  { font-size: 13px; line-height: 1.45; color: var(--renc-ink-doux); }
+
+/* ==========================================================================
+   6. DETAIL — la fiche
+   ========================================================================== */
+.renc-fiche {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--renc-ink);
+}
+.renc-fiche[hidden] { display: none; }
+
+.renc-entete {
+  padding: 12px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-entete__ligne { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+.renc-lab {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 150px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--renc-ink-doux);
+}
+.renc-lab--large { display: flex; margin-top: 8px; }
+
+.renc-champ {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  padding: 9px 11px;
+  border: 2px solid var(--renc-trait);
+  border-radius: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.renc-champ--titre {
+  font-family: var(--renc-f-titre);
+  font-size: 21px;
+  letter-spacing: .3px;
+  padding: 11px 12px 8px;
+}
+
+/* Le pied de l'en-tete : l'etat a gauche, la suppression a droite. */
+.renc-entete__pied {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 9px;
+}
+.renc-entete__pied .renc-etat { margin-top: 0; flex: 1 1 220px; }
+
+/* Visible sans etre tapageuse : elle ne prend la couleur du danger qu'au
+   survol. Une suppression qui crie en permanence finit par etre ignoree ;
+   une suppression cachee, elle, n'existe pas. */
+.renc-supprimer {
+  flex: none;
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 7px 11px;
+  color: #B00034;
+  background: var(--renc-surface);
+  border: 2px solid #B00034;
+  border-radius: 8px;
+}
+.renc-supprimer:hover { background: #B00034; color: #FFFFFF; }
+.renc-supprimer:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+
+/* Dans la liste : meme discipline que les commandes de dossier — presente
+   dans le DOM en permanence pour le clavier, effacee a l'opacite au repos. */
+.renc-item-l { display: flex; align-items: stretch; gap: 2px; }
+.renc-item-l .renc-item { flex: 1 1 auto; min-width: 0; }
+.renc-item-jeter {
+  flex: none;
+  align-self: center;
+  font-size: 13px;
+  line-height: 1;
+  padding: 6px 7px;
+  cursor: pointer;
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  opacity: .75;
+  transition: opacity .12s;
+}
+.renc-item-l:hover .renc-item-jeter,
+.renc-item-jeter:focus-visible { opacity: 1; }
+.renc-item-jeter:hover { background: #FFE3EA; border-color: #B00034; }
+.renc-item-jeter:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 1px; }
+
+.renc-etat {
+  margin: 9px 0 0;
+  min-height: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--renc-ink-doux);
+}
+/* Deux tons, et deux seulement. « alerte » quand quelque chose est PERDU ou
+   risque de l'etre ; « attente » quand rien n'est perdu mais que l'usager a
+   un geste a faire. Tout le reste est une information neutre et reste gris —
+   une interface qui crie a chaque enregistrement n'est plus lue. */
+.renc-etat[data-ton="alerte"]  { color: #B00034; }
+.renc-etat[data-ton="attente"] { color: #8A5B00; }
+
+/* ── Onglets ──────────────────────────────────────────────────────────── */
+.renc-onglets { display: flex; flex-wrap: wrap; gap: 6px; }
+.renc-onglet {
+  font-family: var(--renc-f-titre);
+  font-size: 14px;
+  letter-spacing: .4px;
+  cursor: pointer;
+  padding: 9px 14px 7px;
+  color: var(--renc-ink);
+  background: var(--renc-surface-alt);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre);
+}
+.renc-onglet.is-actif { background: var(--ztsh-cyan, #00C2E8); }
+.renc-onglet:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+.renc-onglets--sortie .renc-onglet.is-actif { background: var(--ztsh-jaune, #FFFC00); }
+
+/* Sous-titre de l'onglet micro. Il ne dit pas quelle interface de
+   programmation porte le navigateur, il dit ce que l'usager verra : le texte
+   s'ecrit pendant la rencontre, ou a la fin. Deux facons de transcrire, et
+   aucune des deux n'est presentee comme abimee. */
+.renc-onglet--micro { text-align: left; line-height: 1.15; }
+.renc-onglet__sous {
+  display: block;
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0;
+  opacity: .78;
+}
+.renc-onglet__sous:empty { display: none; }
+
+.renc-panneau[hidden] { display: none; }
+
+/* ── Zones de saisie ──────────────────────────────────────────────────
+   Le texte de substitution passe par data-vide plutot que par un
+   placeholder : un contenteditable n'en a pas. Il disparait des que le
+   noeud porte quoi que ce soit — d'ou :empty, qui ne matche pas une zone
+   contenant ne serait-ce qu'une espace. */
+.renc-notes,
+.renc-sortie {
+  min-height: 260px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+  overflow-wrap: break-word;
+}
+.renc-notes:focus-visible,
+.renc-sortie:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+.renc-notes:empty::before,
+.renc-sortie:empty::before {
+  content: attr(data-vide);
+  color: var(--renc-ink-doux);
+  font-style: italic;
+}
+.renc-sortie--brut { background: var(--renc-surface-alt); white-space: pre-wrap; }
+
+.renc-notes h1, .renc-sortie h1,
+.renc-notes h2, .renc-sortie h2,
+.renc-notes h3, .renc-sortie h3 {
+  font-family: var(--renc-f-titre);
+  line-height: 1.05;
+  letter-spacing: .3px;
+  color: var(--renc-marine);
+  margin: 18px 0 8px;
+}
+.renc-notes h1, .renc-sortie h1 { font-size: 22px; }
+.renc-notes h2, .renc-sortie h2 { font-size: 18px; }
+.renc-notes h3, .renc-sortie h3 { font-size: 16px; }
+.renc-notes ul, .renc-sortie ul,
+.renc-notes ol, .renc-sortie ol { padding-left: 22px; margin: 8px 0; }
+.renc-notes li, .renc-sortie li { margin: 3px 0; }
+
+/* ── Barre de mise en forme ───────────────────────────────────────────── */
+.renc-format { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 7px; }
+.renc-format button {
+  font-family: var(--renc-f-corps);
+  font-weight: 800;
+  font-size: 14px;
+  min-width: 34px;
+  cursor: pointer;
+  padding: 6px 9px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: 8px;
+  box-shadow: var(--renc-ombre);
+}
+.renc-format button:hover  { background: var(--renc-surface-alt); }
+.renc-format button:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 rgba(8, 19, 30, .30); }
+.renc-format button:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+
+/* Les cases a cocher des notes et du compte rendu. Assez grandes pour un
+   doigt : une action a faire se coche souvent sur telephone, en sortant de
+   la rencontre. */
+.renc-notes input[type="checkbox"],
+.renc-sortie input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  margin-right: 7px;
+  vertical-align: -2px;
+  accent-color: var(--ztsh-cyan, #00C2E8);
+}
+
+/* Une rencontre dont le brouillon local est plus recent que la copie
+   serveur. La pastille n'a pas de couleur de type : elle dit un ETAT. */
+.renc-item.is-sale .renc-item__m::after {
+  content: '• non enregistrée';
+  color: #B00034;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   6-ODJ. ORDRE DU JOUR
+   --------------------------------------------------------------------------
+   Le panneau prend la droite sur ordinateur et passe SOUS les notes en
+   dessous de 900 px — voir §7. Le rail des dossiers occupe deja une colonne :
+   trois colonnes sur un portable de 13 pouces ne se lisent plus.
+   ========================================================================== */
+.renc-travail { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.renc-travail__gauche { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+/* La grille ne se dedouble que lorsqu'un ordre du jour existe. Sans lui, la
+   capture garde toute la largeur — c'est le mode par defaut. */
+.renc-travail.a-odj { grid-template-columns: minmax(0, 1fr) 292px; }
+
+.renc-odj {
+  padding: 12px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+  align-self: start;
+}
+.renc-odj[hidden] { display: none; }
+.renc-odj__tete { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.renc-odj__titre {
+  font-family: var(--renc-f-titre);
+  font-size: 15px;
+  letter-spacing: .6px;
+  margin: 0;
+  color: var(--renc-marine);
+}
+.renc-odj__aide { font-size: 12px; line-height: 1.45; color: var(--renc-ink-doux); margin: 0 0 8px; }
+.renc-odj__saisie {
+  width: 100%;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--renc-ink);
+  padding: 9px 10px;
+  border: 2px solid var(--renc-trait);
+  border-radius: 8px;
+  resize: vertical;
+}
+.renc-odj__saisie:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+.renc-odj__btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.renc-odj__depart[hidden] { display: none; }
+
+.renc-odj__liste { list-style: none; margin: 0; padding: 0; counter-reset: odj; }
+.renc-odj__liste:empty { display: none; }
+
+/* Un point. La case et le libelle sont un SEUL bouton : cliquer n'importe ou
+   sur la ligne rend le point courant — une vraie rencontre ne suit jamais
+   l'ordre du jour dans l'ordre. La case, elle, a sa propre zone de clic. */
+.renc-point { display: flex; align-items: flex-start; gap: 7px; padding: 6px 5px; border-radius: 8px; }
+.renc-point + .renc-point { border-top: 2px solid var(--renc-surface-alt); }
+.renc-point__case {
+  flex: none;
+  width: 21px; height: 21px;
+  margin-top: 1px;
+  cursor: pointer;
+  accent-color: var(--ztsh-cyan, #00C2E8);
+}
+.renc-point__t {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--renc-ink);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.renc-point__t:focus-visible,
+.renc-point__case:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 2px; }
+.renc-point__h { display: block; font-size: 11px; font-weight: 700; color: #0086AD; }
+
+/* LE POINT COURANT. C'est le seul aplat de couleur du panneau : l'oeil doit
+   le trouver sans chercher, en pleine rencontre, du coin de l'oeil. */
+.renc-point.is-courant {
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--renc-trait);
+  box-shadow: var(--renc-ombre);
+}
+.renc-point.is-courant + .renc-point { border-top: 0; }
+.renc-point.is-fait .renc-point__t { text-decoration: line-through; color: var(--renc-ink-doux); }
+.renc-point.is-fait .renc-point__h { text-decoration: none; }
+
+/* Le brut qui s'accumule SOUS le point courant. C'est lui qui donne
+   l'impression que « ca se structure en direct » — sans une seule requete. */
+.renc-odj__brut {
+  margin: 5px 0 7px 28px;
+  padding: 7px 9px;
+  font-size: 11.5px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--renc-ink-doux);
+  background: var(--renc-surface-alt);
+  border: 1.5px dashed var(--renc-trait);
+  border-radius: 7px;
+  max-height: 116px;
+  overflow: hidden;
+}
+.renc-odj__brut[hidden] { display: none; }
+.renc-odj__brut b {
+  display: block;
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: #0086AD;
+  margin-bottom: 3px;
+}
+.renc-odj__pied { font-size: 11.5px; line-height: 1.4; color: var(--renc-ink-doux); margin: 9px 0 0; }
+.renc-odj__pied[hidden] { display: none; }
+
+/* ==========================================================================
+   6bis. MICRO
+   ========================================================================== */
+.renc-consent {
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  color: var(--renc-ink);
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-consent[hidden] { display: none; }
+.renc-consent__t {
+  font-family: var(--renc-f-titre);
+  font-size: 17px;
+  letter-spacing: .4px;
+  margin: 0 0 6px;
+}
+.renc-consent__p { font-size: 14px; line-height: 1.5; margin: 0 0 10px; }
+.renc-consent__c {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.renc-consent__c input { width: 19px; height: 19px; flex: none; margin-top: 1px; }
+
+/* ── Compteur de credits ──────────────────────────────────────────────
+   Discret mais toujours la. Il devient ambre puis rose quand il reste peu :
+   l'usager doit voir venir la limite, pas la decouvrir en la heurtant. */
+.renc-credits {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  padding: 7px 11px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.renc-credits[hidden] { display: none; }
+.renc-credits.is-bas   { background: var(--ztsh-jaune, #FFFC00); }
+.renc-credits.is-vide  { background: var(--ztsh-rose, #FF0061); color: #FFFFFF; }
+
+/* ── Bande d'enregistrement ───────────────────────────────────────────
+   Collee sous la barre d'outils, elle survit au changement d'onglet : c'est
+   ce qui permet d'ECRIRE SES NOTES pendant que le micro tourne. */
+.renc-bande {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  color: var(--renc-ink);
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-bande[hidden] { display: none; }
+.renc-bande .renc-chrono { font-size: 22px; margin-left: 0; }
+
+/* Le temoin de captation. Il n'est PAS le compte rendu : c'est la preuve que
+   ca entend, rien de plus. Gris, petit, sur une seule ligne qui defile — la
+   version propre arrive a la fin. */
+.renc-bande__vu {
+  flex: 1 1 220px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  font-style: italic;
+  color: #5B6773;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;
+  text-align: left;
+}
+
+.renc-micro {
+  padding: 14px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+  color: var(--renc-ink);
+}
+.renc-micro__barre { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.renc-bt--rec { background: var(--ztsh-cyan, #00C2E8); }
+
+/* Le minuteur en chiffres tabulaires : sans ca, chaque seconde change la
+   largeur du bloc et le compteur tremble. */
+.renc-chrono {
+  font-family: var(--renc-f-titre);
+  font-size: 25px;
+  line-height: 1;
+  letter-spacing: 1px;
+  margin-left: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* La pastille d'enregistrement. Le clignotement s'arrete pour qui a demande
+   moins d'animation — un point rouge qui pulse en continu pendant une heure
+   est exactement ce que ce reglage vise. */
+.renc-rec {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: var(--ztsh-rose, #FF0061);
+  border: 2px solid var(--renc-trait);
+  animation: renc-pulse 1.4s ease-in-out infinite;
+}
+.renc-rec[hidden] { display: none; }
+@keyframes renc-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) {
+  .renc-rec { animation: none; }
+  .renc-rail { transition: none; }
+}
+
+/* Ce que l'onglet annonce en une ligne : le texte s'ecrit pendant, ou a la
+   fin. Deux facons de transcrire, aucune presentee comme abimee. */
+.renc-micro__mode {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--renc-ink-doux);
+  margin: 10px 0 8px;
+}
+
+/* L'etiquette du temoin. Elle dit ce que la zone est AVANT qu'on la lise. */
+.renc-micro__etiq {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: var(--renc-ink-doux);
+  margin: 0 0 5px;
+}
+
+/* LE TEMOIN, PAS LE RESULTAT. Gris, plus petit, adouci : l'oeil doit y lire
+   « ca capte » et non « voila mon compte rendu ». Le brut de Web Speech n'a
+   ni ponctuation ni majuscules — le presenter comme un texte fini fait croire
+   que l'app travaille mal, alors qu'elle n'a simplement pas encore travaille. */
+.renc-micro__texte {
+  min-height: 150px;
+  max-height: 38vh;
+  overflow-y: auto;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #5B6773;
+  background: var(--renc-surface-alt);
+  border: 2px dashed var(--renc-trait);
+  border-radius: var(--renc-r);
+  overflow-wrap: break-word;
+  opacity: .92;
+}
+.renc-micro__texte:empty::before {
+  content: attr(data-vide);
+  color: var(--renc-ink-doux);
+  font-style: italic;
+}
+/* Le provisoire, ce que le moteur n'a pas encore arrete. Il change sous les
+   yeux : le montrer en gris evite de faire croire que le texte final bouge
+   tout seul. */
+.renc-provisoire { color: var(--renc-ink-doux); font-style: italic; }
+
+/* ==========================================================================
+   6ter. IMPORT
+   ========================================================================== */
+.renc-depot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 34px 20px;
+  cursor: pointer;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 3px dashed var(--renc-trait);
+  border-radius: var(--renc-r);
+}
+.renc-depot.is-survol { background: #DFF6FC; border-color: var(--ztsh-cyan, #00C2E8); }
+.renc-depot:focus-visible { outline: 3px solid var(--ztsh-jaune, #FFFC00); outline-offset: 3px; }
+.renc-depot__em { font-size: 34px; line-height: 1; }
+.renc-depot__t { font-family: var(--renc-f-titre); font-size: 19px; letter-spacing: .4px; }
+.renc-depot__d { font-size: 13px; line-height: 1.5; color: var(--renc-ink-doux); }
+
+.renc-devis {
+  margin-top: 10px;
+  padding: 14px 16px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-devis[hidden], .renc-avance[hidden], .renc-devis__avert[hidden] { display: none; }
+.renc-devis__l { font-size: 14px; font-weight: 700; margin: 0 0 5px; }
+.renc-devis__avert {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  background: var(--ztsh-jaune, #FFFC00);
+  border: 2px solid var(--renc-trait);
+  border-radius: 8px;
+}
+.renc-devis__b { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.renc-avance { margin-top: 10px; }
+.renc-avance__piste {
+  height: 15px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.renc-avance__jauge {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--ztsh-cyan, #00C2E8);
+  transition: width .3s ease;
+}
+.renc-avance__l {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 7px 0 0;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+}
+
+/* ==========================================================================
+   6quater. PRESENCES ET « MES ACTIONS »
+   ========================================================================== */
+.renc-presences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 9px;
+  padding-top: 9px;
+  border-top: 2px dashed var(--renc-surface-alt);
+}
+.renc-presences[hidden] { display: none; }
+.renc-pres {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 5px 10px 5px 7px;
+  color: var(--renc-ink);
+  background: var(--renc-surface-alt);
+  border: 2px solid var(--renc-trait);
+  border-radius: 999px;
+}
+/* Present = plein, absent = pale. On lit la salle d'un coup d'oeil. */
+.renc-pres.is-la { background: var(--ztsh-lime, #A3FF00); }
+.renc-pres input { width: 15px; height: 15px; margin: 0; accent-color: var(--renc-trait); }
+
+.renc-actions { color: var(--renc-ink); }
+.renc-actions[hidden] { display: none; }
+.renc-actions__tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.renc-actions__titre {
+  font-family: var(--renc-f-titre);
+  line-height: 1.05;
+  font-size: 27px;
+  letter-spacing: .8px;
+  margin: 0;
+  color: var(--ztsh-sur-marine, #E6F4FA);
+}
+.renc-actions__bascule { display: inline-flex; margin-bottom: 12px; }
+
+.renc-groupe {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-groupe__t {
+  font-family: var(--renc-f-titre);
+  font-size: 16px;
+  letter-spacing: .4px;
+  margin: 0 0 8px;
+  color: var(--renc-marine);
+}
+/* Le retard se voit. C'est la seule couleur d'alerte de la vue. */
+.renc-groupe.is-retard { border-color: var(--ztsh-rose, #FF0061); }
+.renc-groupe.is-retard .renc-groupe__t { color: #B00034; }
+
+.renc-act {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 7px 4px;
+  border-top: 2px solid var(--renc-surface-alt);
+}
+.renc-act:first-of-type { border-top: 0; }
+.renc-act input { width: 18px; height: 18px; margin-top: 2px; flex: none; accent-color: var(--ztsh-cyan, #00C2E8); }
+.renc-act__c { min-width: 0; }
+.renc-act__q { font-size: 14px; font-weight: 700; line-height: 1.35; }
+.renc-act.is-faite .renc-act__q { text-decoration: line-through; opacity: .55; }
+.renc-act__m { font-size: 12px; font-weight: 600; color: var(--renc-ink-doux); }
+/* Le nom de la rencontre est un LIEN : de l'action, on retourne au contexte
+   qui l'a produite. Une liste d'actions sans retour au compte rendu oblige a
+   se souvenir de quoi il s'agissait. */
+.renc-act__ou {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: #19527a;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.renc-attente {
+  padding: 26px 18px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--renc-ink-doux);
+  background: var(--renc-surface);
+  border: 2px dashed var(--renc-trait);
+  border-radius: var(--renc-r);
+  margin: 0;
+}
+
+/* ── Boutons IA ───────────────────────────────────────────────────────── */
+.renc-ia { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.renc-bt--ia {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  padding: 10px 16px 9px;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: var(--renc-ombre-forte);
+}
+.renc-bt--ia2 { background: var(--ztsh-lime, #A3FF00); }
+/* Les deux boutons de traitement se signalent UNE FOIS, quand la transcription
+   vient de finir et que la rencontre est deja en surete. C'est le seul moment
+   ou le choix a du sens ; le reste du temps ils attendent sans rien demander. */
+.renc-bt--ia.is-propose { animation: renc-propose 1.1s ease-in-out 3; }
+@keyframes renc-propose {
+  0%, 100% { box-shadow: var(--renc-ombre-forte); }
+  50%      { box-shadow: 0 0 0 6px rgba(255, 252, 0, .85), var(--renc-ombre-forte); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .renc-bt--ia.is-propose { animation: none; box-shadow: 0 0 0 4px var(--ztsh-jaune, #FFFC00), var(--renc-ombre-forte); }
+}
+.renc-bt--passage { background: var(--ztsh-jaune, #FFFC00); }
+.renc-bt--passage[hidden] { display: none; }
+.renc-bt--ia:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--renc-trait); }
+.renc-bt--ia:active { transform: translate(2px, 2px);  box-shadow: 2px 2px 0 var(--renc-trait); }
+.renc-bt__sous {
+  font-family: var(--renc-f-corps);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0;
+  opacity: .8;
+}
+
+.renc-bascule {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 8px 12px;
+  color: var(--renc-ink);
+  background: var(--renc-surface);
+  border: 2px solid var(--renc-trait);
+  border-radius: var(--renc-r);
+}
+
+/* ==========================================================================
+   7. UNE SEULE COLONNE — le rail devient un tiroir
+   --------------------------------------------------------------------------
+   z-index 45 : au-dessus du menu ⋯ (40), sous le shell (300+).
+   ========================================================================== */
+@media (max-width: 900px) {
+  .renc-corps { grid-template-columns: minmax(0, 1fr); }
+  /* Le panneau passe SOUS les notes. Trois colonnes — dossiers, capture,
+     ordre du jour — ne tiennent pas sur un portable de 13 pouces. */
+  .renc-travail.a-odj { grid-template-columns: minmax(0, 1fr); }
+  .renc-bt--rail { display: block; }
+  /* Le tiroir couvre toute la hauteur : rien a degager pour le casier. */
+
+  .renc-rail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    /* 9400, ET C'EST MESURE, pas choisi au hasard. A 45, le tiroir s'ouvrait
+       SOUS le bandeau du site (.zts-header, z 200), sous la bande de
+       navigation (.zts-topbar, 210) et sous le casier du shell (340) : la
+       moitie haute du panneau — « Mes dossiers », le bouton de creation, les
+       deux dossiers — etait recouverte, c'est-a-dire tout ce pour quoi on
+       l'ouvre. Constate a 375 px le 24 aout.
+
+       Le site tranche deja la question pour son propre tiroir mobile :
+       shared/zts-menu.css pose .ztsm-mob a 9500. On se range JUSTE EN DESSOUS.
+       L'ordre qui en resulte est celui qu'on veut : le menu du site couvre le
+       tiroir de l'app, et le mur d'inscription couvre les deux. */
+    z-index: 9400;
+    width: min(310px, 86vw);
+    overflow-y: auto;
+    border-radius: 0 var(--renc-r) var(--renc-r) 0;
+    transform: translateX(-102%);
+    transition: transform .22s ease;
+  }
+  .renc-rail.is-ouvert { transform: translateX(0); }
+  .renc-accueil__titre { font-size: 27px; }
+}
+
+/* ==========================================================================
+   8. IMPRESSION
+   --------------------------------------------------------------------------
+   ⚠ DEFAUT DU SHELL, CONTOURNE ICI ET NON LA-BAS.
+
+   assets/ztsh-shell.css:1192 masque `[class^="ztsh-"]` a l'impression pour
+   escamoter son chrome. Le selecteur en attrape trois de plus :
+
+     .ztsh-page   l'ENVELOPPE de tout le contenu ;
+     <body>       a qui monter() donne class="ztsh-on" ;
+     <html>       a qui il donne la MEME classe des que cfg.fond.
+
+   Resultat : les 41 apps migrees impriment une page ENTIEREMENT BLANCHE.
+   Le signe que c'est un oubli et non une intention : deux lignes plus bas, le
+   meme bloc peint en blanc le fond de `html.ztsh-on`. On ne peint pas le fond
+   d'un element qu'on vient de masquer.
+
+   Ces trois lignes rendent la main au contenu, depuis la feuille de l'app,
+   chargee apres le shell. C'est le meme contournement que apps/inventaire —
+   deja pret a etre remonte dans le shell le jour ou Joey tranche, ce qui
+   reparerait les 40 autres apps d'un coup. Le shell reste intact.
+
+   C'est aussi le seul endroit de ce fichier ou !important est permis.
+   ========================================================================== */
+@media print {
+  html.ztsh-on { display: block !important; }
+  body.ztsh-on { display: block !important; }
+  .ztsh-page   { display: block !important; }
+
+  /* Le header du site, la sous-nav et les commandes ne s'impriment pas :
+     ni shared/zts.css ni shared/zts-header.css n'ont la moindre regle
+     d'impression, c'est donc a l'app de le faire. */
+  [data-zts-header],
+  [data-zts-footer],
+  .renc-noprint,
+  .renc-rail,
+  .renc-accueil { display: none !important; }
+
+  .renc-wrap { max-width: none; padding: 0; color: #000 !important; }
+  .renc-corps { display: block; }
+
+  .renc-entete,
+  .renc-notes,
+  .renc-sortie {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    min-height: 0;
+    background: transparent !important;
+    color: #000 !important;
+  }
+  .renc-champ {
+    border: 0;
+    padding: 0;
+    font-weight: 700;
+    background: transparent !important;
+    color: #000 !important;
+  }
+  /* Une coupure au milieu d'une decision rend le compte rendu illisible. */
+  .renc-sortie h1,
+  .renc-sortie h2,
+  .renc-sortie h3 { break-after: avoid; page-break-after: avoid; }
+  .renc-sortie li { break-inside: avoid; page-break-inside: avoid; }
+}
+
+/* ── Doigts ───────────────────────────────────────────────────────────────
+   Les petits boutons secondaires (actions de dossier, gabarit d'ordre du
+   jour) mesurent moins de 44px : confortable a la souris, rate au doigt.
+   On ne les grossit QUE sur ecran tactile, pour ne pas alourdir le rail au
+   bureau. Les actions de dossier sont aussi rendues visibles en permanence :
+   sans survol, une opacite 0 qui attend un hover ne se revele jamais. */
+@media (pointer: coarse) {
+  .renc-bt,
+  .renc-mini,
+  .renc-dossier,
+  .renc-supprimer,
+  .renc-format button { min-height: 44px; }
+  .renc-mini,
+  .renc-format button,
+  .renc-doss-act,
+  .renc-item-jeter { min-width: 44px; min-height: 44px; }
+  .renc-doss-act { opacity: 1; }
+}
+
+/* ── UNE action evidente par ecran ────────────────────────────────────────
+   PENDANT : deux boutons de meme taille, c'est deux actions principales. Le
+   geste qu'on cherche en sortant d'une rencontre, c'est « Terminer ». */
+.renc-bt.renc-bande__stop {
+  font-size: 19px;
+  padding: 12px 20px;
+  background: var(--ztsh-cyan, #00C2E8);
+  box-shadow: 4px 4px 0 var(--renc-trait);
+}
+.renc-bt.renc-bande__pause {
+  font-size: 14px;
+  background: var(--renc-surface, #FFFEF7);
+  opacity: .9;
+}
+
+/* APRES : « Ecrire le compte rendu » est ce que presque tout le monde veut.
+   Il passe premier et prend du poids ; le mot a mot reste offert, en second. */
+.renc-bt.renc-bt--ia-choix {
+  font-size: 19px;
+  padding: 14px 20px;
+  box-shadow: 5px 5px 0 var(--renc-trait);
+}

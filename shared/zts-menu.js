@@ -48,7 +48,9 @@
       { name: 'Code Oreille',        app: 'code-oreille', color: '#FFD700', em: '👂', icon: 'ear',    desc: 'Quoi faire quand ça dérape', badge: 'nouveau',
         i18nDesc: 'menu.codeoreille.desc' },
       { name: 'Inventaire du matériel', app: 'inventaire', color: '#FFA200', em: '📦', icon: 'package', desc: 'Photo + IA, QR, liste d\'achats', badge: 'nouveau',
-        i18n: 'menu.inventaire.nom', i18nDesc: 'menu.inventaire.desc' }
+        i18n: 'menu.inventaire.nom', i18nDesc: 'menu.inventaire.desc' },
+      { name: 'Zone Rencontres',     app: 'rencontres', color: '#00C2E8', em: '📝', icon: 'clipboard-pen', desc: 'Comptes rendus de comité', badge: 'nouveau',
+        i18n: 'menu.rencontres.nom', i18nDesc: 'menu.rencontres.desc' }
     ]},
 
     { id: 'sae', label: 'SAÉ', i18n: 'nav.sae', em: '📋',

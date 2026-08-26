@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<!-- App — Zone Rencontres (transversale : EP, camp de jour, service de garde).
+     Compte rendu de comite et de rencontre statutaire : notes a la main,
+     micro en direct, ou depot d'un enregistrement Zoom / Teams / Meet.
+
+     PAS DE data-metier SUR <body> — decision du prompt, meme logique que
+     jeux, sae et generateur : l'app sert les trois univers, elle s'adapte par
+     le vocabulaire et non par une page dediee.
+
+     AUCUN <link> Google Fonts. Les deux polices d'affichage sont deja servies
+     depuis /fonts/ par des feuilles chargees plus haut : LuckiestGuy vient de
+     shared/zts.css, ZoneTotalSportZTSH de assets/ztsh-shell.css avec son
+     size-adjust:50% obligatoire. On les REUTILISE, on ne les redeclare pas.
+     Le corps de texte retombe sur la pile systeme — Quicksand ne vit que chez
+     Google et n'est pas dans /fonts/. Meme choix assume que apps/inventaire. -->
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zone Rencontres — comptes rendus de comité sans y passer la soirée — Zone Total Sport</title>
+  <!-- ZTS-SEO -->
+  <meta name="description" content="Prends tes notes, dicte au micro ou dépose l'enregistrement de ta rencontre Zoom, Teams ou Meet. L'IA en tire un verbatim propre ou un compte rendu structuré, avec les décisions et les actions à faire. Gratuit.">
+  <link rel="canonical" href="https://zonetotalsport.ca/apps/rencontres/">
+  <link rel="alternate" hreflang="fr-CA" href="https://zonetotalsport.ca/apps/rencontres/">
+  <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/apps/rencontres/">
+  <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/apps/rencontres/?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/apps/rencontres/">
+  <meta property="og:title" content="Zone Rencontres — Zone Total Sport">
+  <meta property="og:description" content="Notes, micro ou enregistrement importé : ton compte rendu de comité est écrit avant que tu sortes du local. Décisions et actions à faire, classées par dossier.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zonetotalsport.ca/apps/rencontres/">
+  <meta property="og:image" content="https://zonetotalsport.ca/favicon.png">
+  <meta property="og:locale" content="fr_CA">
+  <meta property="og:site_name" content="Zone Total Sport">
+  <meta name="twitter:card" content="summary">
+  <!-- /ZTS-SEO -->
+  <link rel="icon" href="../../favicon.png">
+
+  <!-- ORDRE DE CHARGEMENT NON NEGOCIABLE (controle 1 de verifie-habillage.py) :
+       shared/zts.css, puis assets/ztsh-shell.css, puis la feuille de l'app.
+       Le shell surcharge zts.css ; l'inverser rend l'habillage partiellement
+       inactif SANS la moindre erreur visible. -->
+  <link rel="stylesheet" href="../../shared/zts.css">
+  <link rel="stylesheet" href="../../assets/ztsh-shell.css">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- ZTS-JSONLD -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Zone Rencontres — Zone Total Sport",
+  "description": "Compte rendu de rencontre : prise de notes, transcription au micro, import d'un enregistrement Zoom, Teams ou Meet, verbatim ou compte rendu structuré par l'IA, classement par dossiers et envoi par courriel.",
+  "url": "https://zonetotalsport.ca/apps/rencontres/",
+  "applicationCategory": "EducationApplication",
+  "operatingSystem": "Web",
+  "inLanguage": ["fr-CA", "en"],
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Zone Total Sport",
+    "url": "https://zonetotalsport.ca/",
+    "logo": "https://zonetotalsport.ca/favicon.png"
+  }
+}
+  </script>
+  <!-- /ZTS-JSONLD -->
+</head>
+<body>
+
+  <div data-zts-header></div>
+
+  <div class="ztsh-page">
+  <nav class="zts-subnav renc-noprint">
+    <a href="../../index.html" data-i18n="subnav.back_home">← Accueil</a>
+    <a href="../../ep.html">← Éducation physique</a>
+    <a href="../../camps-de-jour.html">← Camps de jour</a>
+    <a href="../../service-de-garde.html">← Service de garde</a>
+  </nav>
+
+  <main class="renc-wrap" id="rencWrap" data-ecran="liste">
+
+    <!-- ══ BARRE D'OUTILS ════════════════════════════════════════════════
+         Une seule rangee sur ordinateur. Sur telephone elle porte en plus le
+         bouton « ☰ Mes rencontres », seul moyen d'atteindre le rail : les
+         deux colonnes ne tiennent pas cote a cote sous 900 px. -->
+    <!-- ══ RETOUR ══════════════════════════════════════════════════════
+         Le seul chemin hors d'une rencontre. Il remplace le rail de dossiers,
+         qui ne vit plus que sur l'ecran de la liste. -->
+    <div class="renc-retour renc-noprint" id="rencRetour" hidden>
+      <button class="renc-bt renc-retour__bt" id="rencRetourBt" type="button">← Retour à mes rencontres</button>
+      <span class="renc-retour__ou" id="rencRetourOu"></span>
+      <span class="renc-credits" id="rencCredits2" hidden role="status" aria-live="polite"></span>
+    </div>
+
+    <div class="renc-outils renc-noprint">
+      <button class="renc-bt renc-bt--rail" id="rencBascule" type="button"
+              aria-controls="rencRail" aria-expanded="false">☰ Mes rencontres</button>
+      <button class="renc-bt renc-bt--neuf" id="rencNouvelle" type="button">+ Nouvelle rencontre</button>
+      <input type="search" class="renc-o renc-o--q" id="rencCherche"
+             placeholder="Chercher…" aria-label="Chercher dans mes rencontres">
+      <select class="renc-o renc-o--f" id="rencFType" aria-label="Filtrer par type">
+        <option value="">Tous les types</option>
+        <option value="comite">Comité</option>
+        <option value="statutaire">Statutaire</option>
+        <option value="autre">Autre</option>
+      </select>
+      <button class="renc-bt renc-bt--sauve" id="rencSauver" type="button">💾 Enregistrer</button>
+      <span class="renc-espace"></span>
+      <button class="renc-bt renc-bt--actions" id="rencMesActions" type="button">✅ Mes actions</button>
+      <!-- L'ETAT DES CREDITS, VISIBLE EN PERMANENCE. Il ne coute aucun appel
+           de modele : c'est une lecture de compteur. Il est la pour qu'on
+           n'ait jamais a se demander « est-ce que ca va me couter quelque
+           chose » — c'est gratuit et plafonne, autant que ca se voie. -->
+      <span class="renc-credits" id="rencCredits" hidden role="status" aria-live="polite"></span>
+      <div class="renc-menu">
+        <button class="renc-bt renc-bt--pt" id="rencMenu" type="button"
+                aria-haspopup="true" aria-expanded="false" aria-label="Autres actions">⋯</button>
+        <div class="renc-menu__liste" id="rencMenuListe" hidden role="menu">
+          <button type="button" role="menuitem" id="rencSuite">🔁 Créer la suite de cette rencontre</button>
+          <button type="button" role="menuitem" id="rencGabarit">📋 Partir d'un gabarit d'ordre du jour</button>
+          <hr>
+          <button type="button" role="menuitem" id="rencEnvoyer">✉️ Envoyer par courriel</button>
+          <button type="button" role="menuitem" id="rencCopier">📋 Copier le compte rendu</button>
+          <button type="button" role="menuitem" id="rencPdf">🖨️ Imprimer / PDF</button>
+          <button type="button" role="menuitem" id="rencTxt">⬇️ Exporter en .txt</button>
+          <button type="button" role="menuitem" id="rencMd">⬇️ Exporter en .md</button>
+          <button type="button" role="menuitem" id="rencPartage" hidden>📤 Partager</button>
+          <hr>
+          <button type="button" role="menuitem" id="rencSupprimer" class="is-danger">🗑️ Supprimer cette rencontre</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ETAT RESEAU ═══════════════════════════════════════════════════
+         Demande explicitement au point 6.5 du cahier : les notes a la main
+         fonctionnent hors ligne, la transcription non. Le bandeau ne dit donc
+         pas « hors ligne », il dit ce qui MARCHE ENCORE. -->
+    <p class="renc-reseau renc-noprint" id="rencReseau" hidden role="status">
+      📴 Pas de réseau. Tes notes continuent de s'enregistrer sur cet appareil ;
+      la transcription et l'IA reprendront au retour de la connexion.
+    </p>
+
+    <div class="renc-corps">
+
+      <!-- ══ RAIL — dossiers et liste ═════════════════════════════════════ -->
+      <aside class="renc-rail" id="rencRail" aria-label="Mes dossiers et mes rencontres">
+        <div class="renc-rail__tete">
+          <h2 class="renc-rail__titre">MES DOSSIERS</h2>
+          <button class="renc-mini" id="rencNouveauDossier" type="button">➕ Nouveau dossier</button>
+        </div>
+        <ul class="renc-dossiers" id="rencDossiers"></ul>
+        <h2 class="renc-rail__titre renc-rail__titre--liste">RENCONTRES</h2>
+        <ul class="renc-liste" id="rencListe"></ul>
+        <p class="renc-vide" id="rencListeVide">
+          Aucune rencontre pour l'instant.<br>
+          <span class="renc-vide__aide">Le bouton « + Nouvelle rencontre » en crée une.</span>
+        </p>
+      </aside>
+
+      <!-- ══ DETAIL ═══════════════════════════════════════════════════════ -->
+      <section class="renc-detail" id="rencDetail" aria-label="La rencontre ouverte">
+
+        <!-- Accueil : ce qu'on voit tant qu'aucune rencontre n'est ouverte. -->
+        <div class="renc-accueil" id="rencAccueil">
+          <h1 class="renc-accueil__titre">ZONE RENCONTRES</h1>
+          <p class="renc-accueil__sous">
+            Comité, rencontre statutaire, rencontre de parents. Tu prends les notes,
+            tu parles, ou tu déposes l'enregistrement — le compte rendu s'écrit.
+          </p>
+          <div class="renc-accueil__trois">
+            <div class="renc-carte-mode">
+              <span class="renc-carte-mode__em">✍️</span>
+              <span class="renc-carte-mode__n">Écrire</span>
+              <span class="renc-carte-mode__d">Tes notes, sauvegardées toutes les 10 secondes. Fonctionne sans réseau.</span>
+            </div>
+            <div class="renc-carte-mode">
+              <span class="renc-carte-mode__em">🎤</span>
+              <span class="renc-carte-mode__n">Parler</span>
+              <span class="renc-carte-mode__d">Le micro écoute la rencontre et écrit à ta place.</span>
+            </div>
+            <div class="renc-carte-mode">
+              <span class="renc-carte-mode__em">📁</span>
+              <span class="renc-carte-mode__n">Déposer</span>
+              <span class="renc-carte-mode__d">Ton fichier Zoom, Teams ou Meet, déposé ici et transcrit.</span>
+            </div>
+          </div>
+          <button class="renc-bt renc-bt--gros" id="rencNouvelle2" type="button">+ Nouvelle rencontre</button>
+        </div>
+
+        <!-- ══ MES ACTIONS ══════════════════════════════════════════════
+             Toutes les cases a cocher de toutes les rencontres, au meme
+             endroit. C'est ce qui fait qu'un compte rendu cesse d'etre un
+             document qu'on classe et qu'on oublie. -->
+        <section class="renc-actions" id="rencActionsVue" hidden aria-label="Mes actions">
+          <div class="renc-actions__tete">
+            <h1 class="renc-actions__titre">MES ACTIONS</h1>
+            <!-- Le retour vit dans la barre collante, en haut a gauche, sur
+                 TOUS les ecrans. Un deuxieme retour a un autre endroit apprend
+                 a chercher au lieu d'apprendre le geste. -->
+            <button class="renc-bt" id="rencFermerActions" type="button" hidden>← Retour à mes rencontres</button>
+          </div>
+          <label class="renc-bascule renc-actions__bascule">
+            <input type="checkbox" id="rencVoirFaites">
+            <span>Montrer aussi ce qui est fait</span>
+          </label>
+          <div id="rencActionsListe"></div>
+          <p class="renc-vide" id="rencActionsVide" hidden></p>
+        </section>
+
+        <!-- L'editeur. Cache tant qu'aucune rencontre n'est ouverte. -->
+        <article class="renc-fiche" id="rencFiche" hidden>
+
+          <!-- En-tete : les six champs du cahier. -->
+          <!-- Le resume d'une ligne, sur l'ecran APRES : l'identite de la
+               rencontre sans ses six champs. « Modifier » rouvre l'en-tete. -->
+          <div class="renc-resume renc-noprint" id="rencResume" hidden>
+            <span id="rencResumeTexte"></span>
+            <button class="renc-lien renc-lien--sombre" id="rencModifierEntete" type="button">Modifier</button>
+          </div>
+
+          <div class="renc-entete" id="rencEntete">
+            <input class="renc-champ renc-champ--titre" id="rencTitre" type="text"
+                   placeholder="Titre de la rencontre" aria-label="Titre de la rencontre"
+                   maxlength="140">
+            <div class="renc-entete__ligne">
+              <label class="renc-lab">Date
+                <input class="renc-champ" id="rencDate" type="date" aria-label="Date de la rencontre">
+              </label>
+              <label class="renc-lab">Type
+                <select class="renc-champ" id="rencType" aria-label="Type de rencontre">
+                  <option value="comite">Comité</option>
+                  <option value="statutaire">Statutaire</option>
+                  <option value="autre">Autre</option>
+                </select>
+              </label>
+              <label class="renc-lab">Dossier
+                <select class="renc-champ" id="rencDossier" aria-label="Dossier de classement"></select>
+              </label>
+            </div>
+            <div class="renc-entete__ligne">
+              <label class="renc-lab">Animateur
+                <input class="renc-champ" id="rencAnimateur" type="text" maxlength="80" placeholder="Qui anime">
+              </label>
+              <label class="renc-lab">Secrétaire
+                <input class="renc-champ" id="rencSecretaire" type="text" maxlength="80" placeholder="Qui prend les notes">
+              </label>
+            </div>
+            <label class="renc-lab renc-lab--large">Participants
+              <input class="renc-champ" id="rencParticipants" type="text" maxlength="400"
+                     placeholder="Séparés par des virgules">
+            </label>
+            <!-- La liste de presences se construit des participants. Elle ne
+                 s'affiche que quand il y en a : une case a cocher devant du
+                 vide n'apprend rien a personne. -->
+            <div class="renc-presences" id="rencPresences" hidden
+                 role="group" aria-label="Présences"></div>
+            <div class="renc-entete__pied">
+              <p class="renc-etat" id="rencEtat" role="status" aria-live="polite"></p>
+              <!-- La suppression, VISIBLE. Elle vivait dans le menu ⋯ : Joey
+                   ne l'a pas trouvee, et il avait raison de ne pas la
+                   chercher la. Une action qu'on doit deviner n'existe pas. -->
+              <button class="renc-supprimer" id="rencSupprimerFiche" type="button">
+                🗑️ Supprimer cette rencontre
+              </button>
+            </div>
+          </div>
+
+          <!-- ══ BANDE D'ENREGISTREMENT ═══════════════════════════════════
+               ELLE VIT HORS DES ONGLETS, ET C'EST TOUT SON INTERET. Tant que
+               le micro tourne, elle reste a l'ecran quel que soit l'onglet
+               ouvert — on peut donc ecrire ses notes pendant que ca
+               enregistre, sans perdre de vue le minuteur ni le bouton
+               d'arret. -->
+          <!-- ══ ZONE DE TRAVAIL — capture a gauche, ordre du jour a droite ══
+               Le panneau ne prend la droite que sur ordinateur. Sous 900 px il
+               passe SOUS les notes : le rail des dossiers occupe deja une
+               colonne, et trois colonnes sur un portable de 13 pouces ne se
+               lisent plus. -->
+          <!-- ══ COMMENCER ═══════════════════════════════════════════════
+               L'ecran « avant » n'a qu'une action. Le consentement s'affiche
+               au-dessus au premier enregistrement, et le depot d'un fichier
+               est un LIEN — pas un onglet, pas un bouton concurrent. -->
+          <div class="renc-demarrer renc-noprint" id="rencDemarrer">
+            <button class="renc-bt renc-demarrer__go" id="rencCommencer" type="button">
+              🎤 Commencer la rencontre
+            </button>
+            <p class="renc-demarrer__ou">
+              ou <button class="renc-lien" id="rencOuvrirImport" type="button">importer un enregistrement Zoom, Teams ou Meet</button>
+            </p>
+            <p class="renc-etat" id="rencDemarrerEtat" role="status" aria-live="polite"></p>
+          </div>
+
+          <div class="renc-travail">
+          <div class="renc-travail__gauche">
+          <div class="renc-bande renc-noprint" id="rencBande" hidden>
+            <span class="renc-rec" id="rencRec2" aria-hidden="true"></span>
+            <span class="renc-chrono" id="rencChrono2">00:00</span>
+            <button class="renc-bt renc-bande__pause" id="rencMicPause2" type="button">⏸ Pause</button>
+            <button class="renc-bt renc-bande__stop" id="rencMicArret2" type="button">⏹ Terminer la rencontre</button>
+            <span class="renc-bande__vu" id="rencBandeVu"></span>
+          </div>
+
+          <!-- ══ CAPTURE — trois onglets ════════════════════════════════════
+               Le nom de l'onglet 🎤 est ecrit par app.js au chargement : il
+               annonce « transcription en direct » quand le navigateur porte la
+               reconnaissance vocale, « transcription a la fin » sinon. Ce sont
+               DEUX FACONS DE TRANSCRIRE, pas une bonne et une degradee : le
+               mot « repli » ne paraitra jamais a l'ecran. -->
+          <div class="renc-onglets renc-noprint" role="tablist" aria-label="Comment capturer la rencontre">
+            <button class="renc-onglet is-actif" id="ongNotes" type="button" role="tab"
+                    aria-selected="true" aria-controls="panNotes">✍️ Notes</button>
+            <button class="renc-onglet renc-onglet--micro" id="ongMicro" type="button" role="tab"
+                    aria-selected="false" aria-controls="panMicro">🎤 Micro<span
+                    class="renc-onglet__sous" id="ongMicroSous"></span></button>
+            <button class="renc-onglet" id="ongImport" type="button" role="tab"
+                    aria-selected="false" aria-controls="panImport">📁 Importer</button>
+          </div>
+
+          <div class="renc-panneau" id="panNotes" role="tabpanel" aria-labelledby="ongNotes">
+            <!-- Mise en forme volontairement PAUVRE : titres, listes, gras,
+                 cases a cocher. Rien de plus. Un compte rendu de comite se
+                 lit, il ne se met pas en page — et tout ce qui est ajoute ici
+                 devra etre assaini a la lecture, converti en texte pour le
+                 courriel, et rendu a l'impression. -->
+            <div class="renc-format renc-noprint" role="toolbar" aria-label="Mise en forme">
+              <button type="button" data-cmd="h2"    title="Titre"           aria-label="Titre">T</button>
+              <button type="button" data-cmd="bold"  title="Gras"            aria-label="Gras"><b>G</b></button>
+              <button type="button" data-cmd="ul"    title="Liste à puces"   aria-label="Liste à puces">•</button>
+              <button type="button" data-cmd="ol"    title="Liste numérotée" aria-label="Liste numérotée">1.</button>
+              <button type="button" data-cmd="case"  title="Case à cocher"   aria-label="Case à cocher">☑</button>
+            </div>
+            <div class="renc-notes" id="rencNotes" contenteditable="true" spellcheck="true"
+                 role="textbox" aria-multiline="true" aria-label="Notes de la rencontre"
+                 data-vide="Écris ici. Les points discutés, les décisions, ce qui reste à faire…"></div>
+          </div>
+
+          <div class="renc-panneau" id="panMicro" role="tabpanel" aria-labelledby="ongMicro" hidden>
+
+            <!-- CONSENTEMENT — au premier enregistrement seulement, puis
+                 memorise sur l'appareil. Ce n'est pas une case legale : c'est
+                 un rappel. L'app n'a aucun moyen de prevenir les participants
+                 a la place de celui qui enregistre. -->
+            <div class="renc-consent" id="rencConsent" hidden>
+              <p class="renc-consent__t">Avant de démarrer</p>
+              <p class="renc-consent__p">
+                Assurez-vous d'informer les participants que la rencontre est
+                enregistrée et transcrite. L'enregistrement sert à écrire le
+                texte, puis il est effacé — seul le compte rendu est conservé,
+                dans votre compte.
+              </p>
+              <label class="renc-consent__c">
+                <input type="checkbox" id="rencConsentOk">
+                <span>J'ai compris, et j'informe les participants.</span>
+              </label>
+            </div>
+
+            <div class="renc-micro">
+              <div class="renc-micro__barre">
+                <button class="renc-bt renc-bt--rec" id="rencMicDemarrer" type="button">▶ Démarrer</button>
+                <button class="renc-bt" id="rencMicPause" type="button" disabled>⏸ Pause</button>
+                <button class="renc-bt" id="rencMicArret" type="button" disabled>⏹ Terminer</button>
+                <span class="renc-chrono" id="rencChrono" role="timer" aria-live="off">00:00</span>
+                <span class="renc-rec" id="rencRec" hidden aria-hidden="true"></span>
+              </div>
+              <p class="renc-micro__mode" id="rencMicMode"></p>
+              <!-- CE QUE CETTE ZONE EST, ET CE QU'ELLE N'EST PAS.
+                   C'est la sortie BRUTE du moteur du navigateur : sans
+                   ponctuation, sans majuscules, avec les hesitations. Ce n'est
+                   pas le compte rendu, et la presenter comme tel donne
+                   l'impression que l'app travaille mal. On la nomme pour ce
+                   qu'elle est — un temoin que ca capte — et on l'attenue
+                   visuellement pour que l'oeil n'y cherche pas un resultat. -->
+              <p class="renc-micro__etiq" id="rencMicEtiq"></p>
+              <div class="renc-micro__texte" id="rencMicTexte"
+                   role="log" aria-live="off" aria-label="Ce que le micro entend, texte brut"
+                   data-vide="Les mots apparaîtront ici à mesure."></div>
+              <p class="renc-etat" id="rencMicEtat" role="status" aria-live="polite"></p>
+            </div>
+          </div>
+
+          <div class="renc-panneau" id="panImport" role="tabpanel" aria-labelledby="ongImport" hidden>
+            <div class="renc-depot" id="rencDepot" tabindex="0" role="button"
+                 aria-label="Déposer un enregistrement, ou choisir un fichier">
+              <span class="renc-depot__em">📁</span>
+              <span class="renc-depot__t">Dépose ton enregistrement ici</span>
+              <span class="renc-depot__d">
+                Zoom, Teams, Google Meet ou n'importe quel enregistreur.<br>
+                mp3 · m4a · wav · mp4 · webm — ou clique pour choisir.
+              </span>
+              <input type="file" id="rencFichier" accept="audio/*,video/mp4,video/webm,.m4a,.mp3,.wav,.mp4,.webm" hidden>
+            </div>
+
+            <!-- Le devis : duree detectee, cout en minutes, ce qu'il reste au
+                 compteur du jour. Affiche AVANT que quoi que ce soit ne parte,
+                 comme le demande le §3C. -->
+            <div class="renc-devis" id="rencDevis" hidden>
+              <p class="renc-devis__l" id="rencDevisDuree"></p>
+              <p class="renc-devis__l" id="rencDevisQuota"></p>
+              <p class="renc-devis__avert" id="rencDevisAvert" hidden></p>
+              <div class="renc-devis__b">
+                <button class="renc-bt renc-bt--neuf" id="rencLancer" type="button">Écrire mon texte</button>
+                <button class="renc-bt" id="rencAnnuler" type="button">Annuler</button>
+              </div>
+            </div>
+
+            <div class="renc-avance" id="rencAvance" hidden>
+              <div class="renc-avance__piste"><span class="renc-avance__jauge" id="rencJauge"></span></div>
+              <p class="renc-avance__l" id="rencAvanceTexte" role="status" aria-live="polite"></p>
+            </div>
+
+            <!-- Le bouton de repli du parcours automatique. Il ne parait que
+                 quand la transcription n'a PAS pu partir toute seule — quota
+                 du jour epuise. L'audio vit alors en memoire, et seulement en
+                 memoire : voir la dette v2 au bas de RENCONTRES-COMPLETE.md. -->
+            <button class="renc-bt renc-bt--neuf renc-bt--gros" id="rencTranscrire" type="button" hidden>
+              🎙️ Écrire mon texte maintenant
+            </button>
+
+            <p class="renc-etat" id="rencImportEtat" role="status" aria-live="polite"></p>
+          </div>
+
+          <!-- ══ IA ═══════════════════════════════════════════════════════ -->
+          </div>
+
+          <!-- ══ ORDRE DU JOUR ═════════════════════════════════════════════
+               Facultatif, et c'est important : sans lui, l'app se comporte
+               exactement comme avant. Il n'apparait que lorsqu'il existe. -->
+          <aside class="renc-odj" id="rencOdj" aria-label="Ordre du jour">
+            <div class="renc-odj__tete">
+              <h2 class="renc-odj__titre">ORDRE DU JOUR</h2>
+              <button class="renc-mini" id="rencOdjVider" type="button" hidden>Effacer</button>
+            </div>
+
+            <!-- Etat 1 : il n'y en a pas encore -->
+            <div class="renc-odj__depart" id="rencOdjDepart">
+              <p class="renc-odj__aide">Colle tes points, un par ligne. Ils deviendront des cases à cocher que tu suivras pendant la rencontre.</p>
+              <textarea class="renc-odj__saisie" id="rencOdjSaisie" rows="6"
+                        placeholder="Horaire des surveillances&#10;Budget du matériel&#10;Sorties d'automne&#10;Varia"></textarea>
+              <div class="renc-odj__btns">
+                <button class="renc-bt renc-bt--neuf" id="rencOdjCreer" type="button">Créer les points</button>
+                <button class="renc-mini" id="rencOdjFichier" type="button">📄 Depuis un fichier</button>
+                <button class="renc-mini" id="rencOdjGabarit" type="button">📋 Gabarit</button>
+              </div>
+              <input type="file" id="rencOdjFichierInput" accept=".txt,.md,text/plain,text/markdown" hidden>
+            </div>
+
+            <!-- Etat 2 : la liste des points -->
+            <ol class="renc-odj__liste" id="rencOdjListe"></ol>
+            <p class="renc-odj__pied" id="rencOdjPied" hidden></p>
+          </aside>
+          </div>
+
+          <!-- ══ C'EST EN SURETE ═════════════════════════════════════════ -->
+          <div class="renc-fini renc-noprint" id="rencFini" hidden>
+            <span class="renc-fini__coche" aria-hidden="true">✓</span>
+            <span>
+              <b id="rencFiniTitre">C'est écrit, et c'est enregistré.</b>
+              <span id="rencFiniSous">Rien ne se perdra plus — tu peux fermer.</span>
+            </span>
+          </div>
+
+          <div class="renc-ia renc-noprint">
+            <button class="renc-bt renc-bt--ia renc-bt--ia2 renc-bt--ia-choix" id="rencStructure" type="button">
+              🗂️ Écrire le compte rendu
+              <span class="renc-bt__sous">Résumé, décisions, qui fait quoi</span>
+            </button>
+            <button class="renc-bt renc-bt--ia" id="rencVerbatim" type="button">
+              📝 Écrire tout ce qui a été dit
+              <span class="renc-bt__sous">Mot à mot, rien de reformulé</span>
+            </button>
+            <!-- « Résumer un passage » n'apparait que quand il y a un passage
+                 selectionne dans l'onglet « Original ». Un bouton qui exige une
+                 selection invisible et qui ronchonne quand elle manque est une
+                 devinette ; celui-ci se montre au bon moment. -->
+            <button class="renc-bt renc-bt--passage" id="rencPassage" type="button" hidden>
+              ✂️ Résumer ce passage
+            </button>
+            <label class="renc-bascule">
+              <input type="checkbox" id="rencSonnet">
+              <span>Modèle plus fin</span>
+            </label>
+          </div>
+
+          <!-- ══ SORTIE ═══════════════════════════════════════════════════
+               L'original brut vit dans son propre onglet et n'est jamais
+               ecrase par l'IA : c'est la seule facon de laisser quelqu'un
+               relancer un traitement apres avoir edite le resultat. -->
+          <div class="renc-onglets renc-onglets--sortie renc-noprint" role="tablist"
+               aria-label="Ce qui est affiché">
+            <button class="renc-onglet is-actif" id="ongResultat" type="button" role="tab"
+                    aria-selected="true" aria-controls="panResultat">Compte rendu</button>
+            <button class="renc-onglet" id="ongBrut" type="button" role="tab"
+                    aria-selected="false" aria-controls="panBrut">Original</button>
+          </div>
+
+          <div class="renc-panneau" id="panResultat" role="tabpanel" aria-labelledby="ongResultat">
+            <div class="renc-sortie" id="rencSortie" contenteditable="true" spellcheck="true"
+                 role="textbox" aria-multiline="true" aria-label="Compte rendu"
+                 data-vide="Le compte rendu s'écrira ici. Il reste modifiable à la main avant l'envoi."></div>
+          </div>
+
+          <div class="renc-panneau" id="panBrut" role="tabpanel" aria-labelledby="ongBrut" hidden>
+            <div class="renc-sortie renc-sortie--brut" id="rencBrut" aria-label="Texte original"></div>
+          </div>
+
+          <!-- ══ ENVOYER ET EXPORTER ═════════════════════════════════════
+               Tout est a un clic, rien n'est dans le chemin. Le secondaire —
+               gabarits, presences, suppression — vit derriere le ⋯, a droite. -->
+          <div class="renc-pied renc-noprint" id="rencPied" hidden>
+            <button class="renc-bt renc-bt--neuf" id="rencEnvoyer2" type="button">✉️ Envoyer par courriel</button>
+            <button class="renc-bt" id="rencCopier2" type="button">Copier</button>
+            <button class="renc-bt" id="rencPdf2" type="button">PDF</button>
+            <button class="renc-bt" id="rencTxt2" type="button">.txt</button>
+            <button class="renc-bt" id="rencMd2" type="button">.md</button>
+            <button class="renc-bt" id="rencPartage2" type="button" hidden>Partager</button>
+            <span class="renc-espace"></span>
+            <div class="renc-menu">
+              <button class="renc-bt renc-bt--pt" id="rencMenu2" type="button"
+                      aria-haspopup="true" aria-expanded="false" aria-label="Autres actions">⋯</button>
+              <div class="renc-menu__liste renc-menu__liste--haut" id="rencMenuListe2" hidden role="menu">
+                <button type="button" role="menuitem" id="rencSuite2">🔁 Créer la suite de cette rencontre</button>
+                <button type="button" role="menuitem" id="rencGabarit2">📋 Partir d'un gabarit d'ordre du jour</button>
+                <button type="button" role="menuitem" id="rencVoirOriginal">📄 Voir le texte original</button>
+                <hr>
+                <button type="button" role="menuitem" id="rencSupprimer2" class="is-danger">🗑️ Supprimer cette rencontre</button>
+              </div>
+            </div>
+          </div>
+
+        </article>
+      </section>
+    </div>
+  </main>
+  </div>
+
+  <script src="../../shared/zts.js"></script>
+  <!-- zts-funnel.js expose window.ztsTrackFunnel. shared/zts-gate.js ne trace
+       RIEN de lui-meme — les 26 apps qui l'utilisent n'alimentent donc pas
+       l'entonnoir, contrairement aux 19 qui passent par zts-lock-page.js.
+       Charge ici pour que l'app emette au moins `locked_view` et
+       `locked_click_signup` ; voir cableEntonnoir() dans app.js. -->
+  <script src="../../zts-funnel.js"></script>
+  <script src="../../shared/zts-gate.js"></script>
+  <script src="../../assets/ztsh-shell.js"></script>
+  <script>ZTSShell.monter({ densite: 'travail' });</script>
+  <script src="dataStore.js"></script>
+  <script src="transcription.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
