@@ -100,19 +100,76 @@ var notify_worker_default = {
     const devLine = `
 ${isMobile ? "\u{1F4F1} Mobile" : "\u{1F4BB} Desktop"}`;
     const fullMsg = message + geoLine + devLine;
-    const ntfyP = sendNtfy(env, { title, body: fullMsg, priority, tags }).catch(() => {
-    });
+    // LES ECHECS DE CANAL NE SONT PLUS AVALES — 25 aout 2026.
+    //
+    // Avant : `.catch(() => {})` sur les deux envois, `.catch(() => {})` sur le
+    // compteur, et `{ ok: true }` rendu quoi qu'il arrive. Un jeton revoque, un
+    // topic ntfy renomme, un chat_id invalide : le navigateur voyait 200,
+    // `wrangler tail` ne voyait aucune exception, et personne n'apprenait rien.
+    // Les deux fonctions levaient pourtant bien sur un non-2xx.
+    //
+    // Le 25 aout, il a fallu lire Firestore a la main pour etablir que la
+    // chaine marchait. C'est le genre de verification qu'un `curl` doit
+    // suffire a faire.
+    //
+    // LE CODE HTTP RESTE 200 EN TOUTES CIRCONSTANCES, VOLONTAIREMENT :
+    // telegram-notify.js teste `res.ok` — le statut HTTP, pas ce corps-ci — et
+    // bascule sur son repli ntfy direct s'il n'est pas bon. Rendre 502 sur un
+    // echec Telegram declencherait ce repli alors que ntfy vient peut-etre de
+    // passer. La verite va dans le corps, pas dans le statut.
+    //
+    // Les messages d'erreur ne portent qu'un code de statut ("telegram 401") :
+    // aucun secret ne peut fuir par la.
+    // ── LE TRAFIC EST COMPTE, PLUS ANNONCE ────────────────────────────────
+    // Decision de Joey, 25 aout 2026, apres le diagnostic du meme jour :
+    // ntfy.sh rendait « daily message quota reached » (429). La cause est le
+    // volume, pas un reglage — le palier gratuit plafonne a quelques centaines
+    // de messages par jour, et CHAQUE visite en envoyait. A 50-70 visites
+    // quotidiennes, plus autant de resumes de fin de session, le quota partait
+    // avant la fin de la journee et TOUT tombait ensuite, conversions
+    // comprises. Un canal d'alerte noye par sa propre routine n'alerte plus.
+    //
+    // LA COUPURE EST ICI, PAS DANS LE NAVIGATEUR, ET C'EST LE POINT CRUCIAL.
+    // Retirer l'appel cote client aurait aussi tue `incrementVisit()` : c'est
+    // ce meme POST qui alimente `analyticsDaily`, la seule serie de
+    // frequentation du site — 67 jours sans trou au 25 aout. On garde donc
+    // l'evenement, on garde le comptage, on coupe seulement les deux canaux.
+    //
+    // CE QUI CONTINUE DE SONNER : inscription, connexion, avis, clic d'app
+    // sans compte, et le rapport quotidien de 13 h UTC. Autrement dit tout ce
+    // qui demande une reaction. Le volume, lui, se lit dans Firestore.
+    //
+    // POUR REVENIR EN ARRIERE : supprimer ce bloc `if`. Une ligne de garde,
+    // rien d'autre n'a bouge.
+    const trafic = /visiteur/i.test(title);
+    if (trafic) {
+      ctx.waitUntil(incrementVisit(env).catch((e) => {
+        console.warn("compteur de visites: " + (e && e.message || e));
+      }));
+      return new Response(JSON.stringify({
+        ok: true,
+        compte: true,
+        ntfy: "muet (trafic)",
+        telegram: "muet (trafic)"
+      }), {
+        headers: { "Content-Type": "application/json", ...CORS }
+      });
+    }
+
+    const ntfyP = sendNtfy(env, { title, body: fullMsg, priority, tags });
     const tgP = sendTelegram(env, {
       html: `<b>${escapeHtml(title)}</b>
 ${escapeHtml(fullMsg)}`
-    }).catch(() => {
     });
-    if (/visiteur/i.test(title)) {
-      ctx.waitUntil(incrementVisit(env).catch(() => {
-      }));
-    }
-    await Promise.allSettled([ntfyP, tgP]);
-    return new Response(JSON.stringify({ ok: true }), {
+    const [rNtfy, rTg] = await Promise.allSettled([ntfyP, tgP]);
+    const etat = (r) => r.status === "fulfilled" ? "ok" : "echec: " + (r.reason && r.reason.message || r.reason);
+    if (rNtfy.status === "rejected") console.warn("ntfy: " + (rNtfy.reason && rNtfy.reason.message || rNtfy.reason));
+    if (rTg.status === "rejected") console.warn("telegram: " + (rTg.reason && rTg.reason.message || rTg.reason));
+    return new Response(JSON.stringify({
+      ok: rNtfy.status === "fulfilled" || rTg.status === "fulfilled",
+      ntfy: etat(rNtfy),
+      telegram: etat(rTg)
+    }), {
       headers: { "Content-Type": "application/json", ...CORS }
     });
   }
@@ -122,7 +179,10 @@ async function sendNtfy(env, { title, body, priority = "3", tags = "" }) {
   const headers = { "Title": title, "Priority": String(priority), "Tags": tags };
   if (env.NTFY_TOKEN) headers["Authorization"] = `Bearer ${env.NTFY_TOKEN}`;
   const r = await fetch(`https://ntfy.sh/${env.NTFY_TOPIC}`, { method: "POST", headers, body });
-  if (!r.ok) throw new Error("ntfy " + r.status);
+  // Le statut seul ne suffit pas a agir : un 429 de ntfy porte sa fenetre
+  // d'attente dans le corps. On remonte les 200 premiers caracteres — le nom
+  // du topic est un secret, mais il n'apparait pas dans la reponse d'erreur.
+  if (!r.ok) throw new Error("ntfy " + r.status + " — " + (await r.text().catch(() => "")).slice(0, 200));
 }
 __name(sendNtfy, "sendNtfy");
 async function sendTelegram(env, { html }) {
@@ -134,7 +194,14 @@ async function sendTelegram(env, { html }) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: html, parse_mode: "HTML" })
   });
-  if (!r.ok) throw new Error("telegram " + r.status);
+  // « telegram 400 » ne dit pas s'il s'agit d'un chat introuvable, d'un jeton
+  // revoque ou d'un HTML mal ferme. La reponse de l'API porte un champ
+  // `description` qui, lui, le dit — et qui ne contient jamais le jeton :
+  // celui-ci voyage dans l'URL, pas dans le corps rendu.
+  if (!r.ok) {
+    const detail = await r.json().then((j) => j && j.description || "").catch(() => "");
+    throw new Error("telegram " + r.status + (detail ? " — " + detail : ""));
+  }
 }
 __name(sendTelegram, "sendTelegram");
 async function sendStats(payload, env) {

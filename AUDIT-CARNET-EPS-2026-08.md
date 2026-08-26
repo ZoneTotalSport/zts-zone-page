@@ -271,11 +271,13 @@ Export CSV également disponible (`text/csv`) pour les rapports.
    (nom, école), `carneteps-schedule` (grille horaire), `carneteps-games`
    (banque de jeux perso), `carneteps-etape-dates` (dates des étapes),
    `carneteps-landed`. Elles ne figurent pas dans `He`.
-3. **Inversement**, `He` sauvegarde 11 clés que la V2 React **ne lit plus**
-   (`toggles`, `pfeq`, `voice`, `photos`, `title`, `colorMeanings`,
-   `evalColors`, `stt`, `mode`, `lastGroup`, et `photos` en localStorage) —
-   héritage de la V1 vanilla. Sans effet nocif, mais le backup ne reflète pas
-   l'app réelle.
+3. **Inversement**, `He` sauvegarde **10 clés** que la V2 React **ne lit plus**
+   (`photos`, `voice`, `toggles`, `pfeq`, `evalColors`, `colorMeanings`, `stt`,
+   `title`, `lastGroup`, `mode`) — héritage de la V1 vanilla, qui les écrit
+   toutes activement. Sans effet nocif, mais le backup ne reflète pas l'app
+   réelle. Vérifié exhaustivement : la V2 ne référence que 5 clés via `He`
+   (`groups`, `data`, `attendance`, `custom`, `evalLabels`) et 7 en littéral
+   (`lang`, `zoom`, `profile`, `schedule`, `games`, `etape-dates`, `landed`).
 
 **Conséquence directe :** on ne peut pas fonder la migration sur le fichier de
 backup existant. Il faut un exporteur dédié.
@@ -401,3 +403,162 @@ dans le Planificateur (risque 8).
 
 Et l'étape 1 ne demande **aucune** rétro-ingénierie du bundle : un script à part,
 chargé par `index.html`, lit les deux magasins et produit le JSON v2.
+
+---
+
+# ANNEXE A — Le format d'export (`carnet-export.js`)
+
+**Livré le 2026-08-25 · mandat A-bis · `apps/evaluation/carnet-export.js`**
+
+Ceci est un **contrat**, pas une note d'implémentation. L'importeur du futur
+onglet ÉVALUATION lira ce format tel quel, des mois après son écriture. Toute
+modification de forme impose de monter `version`.
+
+## A.1 Ce que le fichier corrige
+
+L'export livré avec l'app (« Télécharger .json ») ne sauvegarde pas les photos
+d'élèves — elles sont en IndexedDB, il ne lit que `localStorage` — et il oublie
+5 clés que la V2 écrit activement. `carnet-export.js` ajoute un **second chemin
+complet à côté**, sans toucher au bundle (la source Vite est perdue). L'ancien
+bouton continue de fonctionner.
+
+## A.2 Principe : découverte, pas liste blanche
+
+L'export **ne travaille pas sur une liste de clés écrite en dur**. Il balaye tout
+`localStorage` et prend **toute clé préfixée `carneteps-`**. Le registre du
+fichier sert uniquement à **classer** ce qui a été trouvé — jamais à filtrer.
+
+Conséquence : une clé inconnue, oubliée ou ajoutée demain part quand même dans le
+fichier, rangée sous `unknown`. *Un exporteur qui filtre sur une liste est un
+exporteur qui perdra des données le jour où la liste prendra du retard.*
+
+## A.3 Structure
+
+```json
+{
+  "format":     "zts-carnet-eps-export",
+  "version":    2,
+  "source":     "carnet-eps",
+  "appVersion": "BqzDoR3c",
+  "exportedAt": "2026-08-25T12:49:15.306Z",
+  "origin":     "https://zonetotalsport.ca/apps/evaluation/index.html",
+  "counts":     { "active": 12, "legacy": 5, "unknown": 1, "photos": 4 },
+  "localStorage": {
+    "active":  { "carneteps-groups": "…", "…": "…" },
+    "legacy":  { "carneteps-title": "…",  "…": "…" },
+    "unknown": { "carneteps-experimental-truc": "…" }
+  },
+  "photos": { "st-1": "data:image/png;base64,…" }
+}
+```
+
+| Champ | Rôle |
+|---|---|
+| `format` | Signature fixe. Un fichier sans elle est traité comme l'ancien format plat. |
+| `version` | Version du **format**. Un import refuse une version supérieure à la sienne. |
+| `source` | `"carnet-eps"` — quelle app a produit le fichier. |
+| `appVersion` | Hash du bundle (`index-<hash>.js`). **Quatre générations ont été publiées sans source versionnée** : savoir laquelle a produit un fichier évite la rétro-ingénierie le jour où un import se comporte mal. |
+| `exportedAt` | ISO 8601 UTC. |
+| `origin` | URL d'origine — distingue un export de prod d'un export de test. |
+| `counts` | Compte par catégorie. Permet à l'importeur d'annoncer ce qu'il va faire **avant** de le faire. |
+| `localStorage` | Valeurs **brutes**, telles que stockées. Jamais re-parsées : re-sérialiser, c'est risquer d'altérer la donnée. |
+| `photos` | `{studentId: dataURL}` depuis IndexedDB. **C'est le trou de l'export livré.** |
+
+## A.4 Registre des clés — le contrat détaillé
+
+### `active` — lues et écrites par la V2 React (12)
+
+| Clé | Forme | Note |
+|---|---|---|
+| `carneteps-groups` | `[{id,name,level,color,students:[{id,name}]}]` | |
+| `carneteps-data` | `{groupId:{date:{studentId:{critereKey:valeur}}}}` | |
+| `carneteps-attendance` | `{groupId:{date:{studentId:'present'\|'absent'\|'retard'}}}` | |
+| `carneteps-custom` | `Array` — critères créés par l'enseignant | |
+| `carneteps-evallabels` | `Object` — libellés d'échelle personnalisés | |
+| `carneteps-lang` | `'fr'\|'en'\|'es'\|'ru'\|'zh'` | |
+| `carneteps-zoom` | `String` | |
+| `carneteps-profile` | `{nom, école}` | **absente de l'export livré** |
+| `carneteps-schedule` | `Object` — grille horaire | **absente de l'export livré** |
+| `carneteps-games` | `Array` — banque de jeux perso | **absente de l'export livré** |
+| `carneteps-etape-dates` | `Object` — dates des étapes | **absente de l'export livré** |
+| `carneteps-landed` | `'1'` — landing déjà vue | **absente de l'export livré** |
+
+### `legacy` — inertes en V2, vivantes en V1 vanilla (10 + 1 préfixe)
+
+Déclarées dans la table de backup de la V2 mais **jamais lues par elle**. La V1
+(`apps/evaluation/app.js`) les écrit toutes activement : un enseignant venu de la
+V1 a de vraies données dedans.
+
+**Elles sont exportées, pas jetées.** Les écarter serait exactement la perte de
+données que ce fichier répare. Elles sont simplement rangées à part, pour que
+l'importeur sache qu'elles ne reflètent pas l'app actuelle.
+
+`carneteps-photos` (photos d'avant la migration vers IndexedDB, ou repli si
+IndexedDB est indisponible) · `carneteps-voice` · `carneteps-toggles` ·
+`carneteps-pfeq` · `carneteps-evalcolors` · `carneteps-colormeanings` ·
+`carneteps-color-meanings` · `carneteps-stt` · `carneteps-title` ·
+`carneteps-lastgroup` · `carneteps-mode` · `carneteps-conflicts-<groupId>`
+(préfixe dynamique, banc de retrait).
+
+> ⚠️ **Bug latent trouvé dans la V1 — les deux orthographes sont prises.**
+> Le code de la V1 lit et écrit `carneteps-colormeanings` (sans tiret,
+> `app.js:1744` et `1747`), mais son export, son import et son « tout effacer »
+> utilisent `carneteps-color-meanings` (avec tiret, `app.js:2115`, `2153`,
+> `2176`). **La V1 n'a donc jamais sauvegardé ses propres significations de
+> couleurs, et n'a jamais effacé la bonne clé.** L'exporteur prend les deux.
+
+### `unknown` — tout le reste
+
+Toute clé `carneteps-*` absente du registre. Non filtrée, non perdue.
+
+## A.5 Import
+
+Restaure **les deux magasins**. Écrit par-dessus l'existant **sans effacer ce qui
+n'est pas dans le fichier** : un import est une restauration, pas une remise à
+zéro. Pour repartir propre, il faut effacer d'abord — le geste reste explicite.
+
+Accepte aussi **l'ancien format plat** produit par le bouton livré avec l'app,
+pour ne pas rejeter les sauvegardes déjà faites par les enseignants.
+
+Refuse, avec un message en français : JSON illisible, fichier d'une autre
+application, version supérieure à celle qu'il sait lire, objet vide.
+
+## A.6 Recette — passée le 2026-08-25
+
+Cycle exigé : **export → effacement complet des deux magasins → import →
+trombinoscope intact.**
+
+| Étape | Résultat |
+|---|---|
+| Jeu d'essai | 18 clés (12 actives, 5 héritées, 1 inconnue) + 4 photos, dont **une orpheline** (élève supprimé) |
+| Export | `counts` : 12 / 5 / 1 / 4 — **aucune clé perdue**, orpheline comprise |
+| Effacement | `localStorage.clear()` + `deleteDatabase` → **0 clé, 0 photo** |
+| Import | 18 clés, 4 photos restaurées |
+| **Fidélité** | **18/18 valeurs et 4/4 photos identiques au bit près** |
+
+Cas de bord vérifiés : ancien format plat accepté · JSON illisible refusé ·
+fichier d'une autre app refusé · version 99 refusée · objet vide refusé.
+
+## A.7 Affichage
+
+Bouton flottant, qui **n'apparaît que s'il existe au moins une clé
+`carneteps-*`**. La page est murée : un visiteur non connecté n'a rien saisi et
+n'a que faire d'un bouton de sauvegarde. Mais un enseignant qui a des données et
+dont la session a expiré en a précisément besoin — c'est le pire moment pour lui
+cacher la porte de sortie. On ne sonde donc pas l'état du mur : on regarde s'il y
+a quelque chose à sauvegarder.
+
+## A.8 API pour l'importeur du Planificateur
+
+`window.CarnetExport` expose `construire()` (retourne le paquet sans le
+télécharger), `exporter()`, `importer(texte)`, `lirePhotos()` et `registre`.
+L'importeur peut donc consommer le format **sans passer par l'interface**.
+
+## A.9 Reste à faire, non couvert ici
+
+- **Volume.** Une photo fait ~400 px en base64. 150 photos ≈ 7 Mo de JSON. Pas
+  bloquant, mais à chiffrer avant d'ouvrir l'import Firestore.
+- **Ids non stables** (`Date.now()`+aléatoire, locaux à un appareil) : la
+  déduplication à l'import reste à construire côté Planificateur (§3, étape 2).
+- **Découpage `name` → `prenom`/`nom`** : écran de correspondance manuel, non
+  fourni par l'exporteur — c'est une décision humaine, pas une transformation.

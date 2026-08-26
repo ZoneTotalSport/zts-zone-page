@@ -136,6 +136,10 @@
       'box-shadow:0 -4px 20px rgba(0,0,0,0.3);transform:translateY(100%);',
       'transition:transform .4s cubic-bezier(.4,0,.2,1)}',
       '#ztsCookieBanner.show{transform:translateY(0)}',
+      // Elle est en position:fixed, donc elle se serait posee sur CHAQUE
+      // page imprimee. Invisible jusqu'au 25 aout 2026 : les apps du shell
+      // sortaient une feuille blanche, il n'y avait rien a salir.
+      '@media print{#ztsCookieBanner{display:none !important}}',
       '#ztsCookieBanner .cb-text{flex:1;min-width:240px;font-size:0.9rem;line-height:1.4}',
       '#ztsCookieBanner .cb-title{font-weight:700;font-size:1rem;margin-bottom:2px}',
       '#ztsCookieBanner .cb-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}',

@@ -58,9 +58,17 @@ const TiroirJeux = (() => {
     document.body.style.overflow = '';
   }
 
+  /* Le métier courant décide de l'univers servi. `body[data-metier]` est posé
+     par l'app depuis `?metier=` ; sans lui on reste sur les camps, qui étaient
+     le seul univers jusqu'au seed SDG. */
+  const UNIVERS = { camp: 'camps', sdg: 'sdg', ep: 'eps' };
+  function universCourant() {
+    return UNIVERS[document.body.dataset.metier] || 'camps';
+  }
+
   function charger() {
     T.loading = true; T.error = null;
-    PlanifData.loadBanqueCamp()
+    PlanifData.loadBanque(universCourant())
       .then(items => { T.items = items; })
       .catch(err => { T.error = err.message || String(err); })
       .finally(() => { T.loading = false; paint(); });
