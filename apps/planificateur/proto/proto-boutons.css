@@ -110,7 +110,7 @@ code, kbd, samp{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.9
 .menu[data-ouvert="1"]>button .fleche{transform:rotate(180deg)}
 .menu[data-ouvert="1"]>button{background:var(--cyan);color:#03323C}
 .menu-liste{
-  display:none;position:absolute;top:calc(100% + 7px);left:0;z-index:70;
+  display:none;position:fixed;z-index:200;
   min-width:230px;padding:7px;
   background:#fff;border:3px solid var(--noir);border-radius:13px;
   box-shadow:5px 6px 0 var(--noir);
@@ -128,19 +128,25 @@ code, kbd, samp{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.9
   color:var(--ink-soft);letter-spacing:0;margin-top:1px;
 }
 .menu-liste button[aria-current="true"] .quoi{color:#04414D}
-/* Les portes restent CÔTE À CÔTE et compactes, à toutes les largeurs.
-   La version « pleine largeur empilée » étalait la barre sur six lignes :
-   c'était pire que les 21 boutons de départ. */
-.ecrans-nav{gap:5px;padding:8px 12px}
-#nav>button, .menu>button{
-  font-size:13px; letter-spacing:.4px; padding:5px 11px;
+/* UNE SEULE LIGNE. Joey, deux fois : « un à côté de l'autre à l'horizontal,
+   pas un en dessous de l'autre ». Donc `nowrap`, et la barre défile
+   latéralement plutôt que de s'enrouler. Les panneaux sont en `position:fixed`
+   (placés en JS) : un conteneur qui défile couperait un enfant `absolute`. */
+.ecrans-nav{
+  gap:5px; padding:8px 12px;
+  flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden;
+  scrollbar-width:thin;
 }
+.ecrans-nav::-webkit-scrollbar{height:6px}
+.ecrans-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:99px}
+#nav>button, .menu>button{
+  font-size:12.5px; letter-spacing:.3px; padding:5px 10px; white-space:nowrap; flex:none;
+}
+.menu{flex:none}
 .menu>button .fleche{font-size:8px;opacity:.8}
-.menu-liste{ max-width:min(280px, calc(100vw - 26px)) }
-@media(max-width:520px){
-  #nav>button, .menu>button{ font-size:11.5px; padding:4px 8px; letter-spacing:.2px }
+@media(max-width:560px){
+  #nav>button, .menu>button{ font-size:11px; padding:4px 8px; letter-spacing:.1px }
   .ecrans-nav{gap:4px;padding:7px 10px}
-  .menu-liste{ left:auto; right:0 }
 }
 
 /* La note du journal de bord : écrite à la main, elle aussi. */

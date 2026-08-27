@@ -1220,15 +1220,15 @@ peindreCahier();
    Chaque menu est nommé par CE QU'ON Y CHERCHE, pas par une catégorie floue. */
 const MENUS = [
   {direct:'e-accueil', lab:'🏠 ACCUEIL'},
-  {direct:'e-cahier',  lab:'📔 MON CAHIER'},
-  {lab:'📅 MA CLASSE', quoi:[
+  {direct:'e-cahier',  lab:'📔 CAHIER'},
+  {lab:'📅 CLASSE', quoi:[
     ['e-journee','📋 Ma journée','Les blocs du cours, un par un'],
     ['e-presences','✅ Présences','Qui est là, qui est parti'],
     ['e-cours','🏀 Fiche de cours','Le gabarit papier à remplir'],
     ['e-groupes','👥 Mes groupes','Classes, journal, historique'],
     ['e-planb','🌧️ Plan B','Il pleut, le gym est pris'],
   ]},
-  {lab:'🗓️ MON CALENDRIER', quoi:[
+  {lab:'🗓️ CALENDRIER', quoi:[
     ['e-semaine','🗓️ Semaine','Périodes 1 à 6'],
     ['e-mois','📅 Mois','Jours-cycle et notes'],
     ['e-annee','📚 Année','Compétences, moyens, activités'],
@@ -1240,7 +1240,7 @@ const MENUS = [
     ['e-tests','🏃 Tests','Chrono, navette, Léger-Boucher'],
     ['e-noter','⭐ Noter','Un mot rapide sur le groupe'],
   ]},
-  {lab:'🎲 MES OUTILS', quoi:[
+  {lab:'🎲 OUTILS', quoi:[
     ['e-jeux','🎲 Jeux','Piger dans la banque'],
     ['e-partage','📤 Partage','Envoyer à un collègue'],
     ['e-messages','💬 Messages','Le coordo, valider ma semaine'],
@@ -1272,6 +1272,7 @@ const MENUS = [
       const on = box.dataset.ouvert!=='1';
       fermerTous(box); box.dataset.ouvert = on?'1':'0';
       t.setAttribute('aria-expanded', String(on));
+      if (on) placerMenu(box);
     });
     const liste=el('div','menu-liste');
     m.quoi.forEach(([id,lab,quoi])=>{
@@ -1286,7 +1287,20 @@ const MENUS = [
   });
   document.addEventListener('click', e=>{ if(!e.target.closest('.menu')) fermerTous(); });
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') fermerTous(); });
+  /* La barre défile à l'horizontale : un `overflow-x` coupe tout enfant en
+     position absolue. Le panneau est donc en `fixed`, placé à l'ouverture. */
+  window.addEventListener('resize', ()=>fermerTous());
+  window.addEventListener('scroll', ()=>fermerTous(), true);
+  n.addEventListener('scroll', ()=>fermerTous());
 })();
+function placerMenu(box){
+  const t=box.querySelector('button').getBoundingClientRect();
+  const l=box.querySelector('.menu-liste');
+  const large=Math.min(280, window.innerWidth-26);
+  l.style.width=large+'px';
+  l.style.top=(t.bottom+7)+'px';
+  l.style.left=Math.max(12, Math.min(t.left, window.innerWidth-large-12))+'px';
+}
 
 /* `allerA` marque l'écran courant : on reporte la marque sur la porte du menu
    qui le contient, sinon on ne sait plus où on est. */
@@ -1303,4 +1317,132 @@ const MENUS = [
     });
   };
   window.allerA(lire('ecran','e-accueil'));
+})();
+
+/* ═════════ 12. CARNET DE NOTES — la grille dense ═════════
+   Joey : « la mise en page comme iDoceo, un cahier de notes, un agenda ? »
+   Voici la pièce qui manquait : la GRILLE. Élèves en lignes, une colonne par
+   jour évalué. Les colonnes ne se créent pas à la main — elles sortent des
+   clés `kctx()` déjà écrites. Évaluer un jour fait apparaître sa colonne. */
+function joursEvalues(gr){
+  const pref = P+'j:', jours=new Set();
+  Object.keys(localStorage).forEach(k=>{
+    if (!k.startsWith(pref)) return;
+    const m=/^protog2:j:(\d{4}-\d{2}-\d{2}):g(\d+):(ev|evc):/.exec(k);
+    if (m && +m[2]===gr) jours.add(m[1]);
+  });
+  return [...jours].sort();
+}
+function notesDuJour(iso, gr, i){
+  const md=ctxDate, mg=ctxGroupe; ctxDate=iso; ctxGroupe=gr;
+  const par={};
+  /* ⚠ DEUX BARÈMES DANS LA MÊME APP. `VALEUR` (proto.js) note sur 5 — A=5 —
+     tandis que les critères fins sont sur 100. Sans le ×20, tout le carnet
+     s'affichait « E » : un A valait 5, donc la note la plus basse. */
+  COMPS.forEach(c=>{ const v=lire(kctx('ev:'+i+':'+c.id),null); if(v) par[c.id]=VALEUR[v]*20; });
+  const fins=[];
+  critsChoisis().forEach(cle=>{ const v=lire(kctx('evc:'+i+':'+cle),null); if(v!==null) fins.push(v); });
+  ctxDate=md; ctxGroupe=mg;
+  const tout=[...Object.values(par), ...fins];
+  return {par, fins, moy: tout.length ? Math.round(tout.reduce((a,b)=>a+b,0)/tout.length) : null};
+}
+const classeNote = v => v==null?'vide':(v>=90?'n100':v>=70?'n80':v>=50?'n60':v>=30?'n40':'n20');
+const lettreNote = v => v==null?'—':(v>=90?'A':v>=70?'B':v>=50?'C':v>=30?'D':'E');
+const jourCourt = iso => { const d=dateDeIso(iso); return d.getDate()+' '+MOIS_FR[d.getMonth()].slice(0,4); };
+
+function peindreCarnet(){
+  const h=$('#carHote'); if(!h) return;
+  const gr=ctxGroupe, jours=joursEvalues(gr);
+  $('#carGroupe').textContent=nomGroupe(gr);
+  $('#carPeriode').textContent = jours.length
+    ? jours.length+' journée'+(jours.length>1?'s':'')+' évaluée'+(jours.length>1?'s':'')
+    : 'aucune évaluation encore';
+  h.innerHTML='';
+  if (!jours.length){
+    h.appendChild(el('div','aide-un-mot','📊 Dès que tu poses une cote dans ÉVALUER, sa colonne apparaît ici.'));
+    return;
+  }
+  const parComp = lire('carVue','comp')==='comp';
+  const t=el('table','carnet');
+  const thead=el('thead');
+  const r1=el('tr'); r1.appendChild(Object.assign(el('th',null,'Élève'),{rowSpan:parComp?2:1}));
+  jours.forEach(j=>{ const th=el('th',null,jourCourt(j)); if(parComp) th.colSpan=3; r1.appendChild(th); });
+  r1.appendChild(Object.assign(el('th',null,'MOYENNE'),{rowSpan:parComp?2:1}));
+  thead.appendChild(r1);
+  if (parComp){
+    const r2=el('tr');
+    jours.forEach(()=> ['C1','C2','C3'].forEach(c=> r2.appendChild(el('th','sous',c))));
+    thead.appendChild(r2);
+  }
+  t.appendChild(thead);
+  const tb=el('tbody');
+  ELEVES.forEach((nom,i)=>{
+    const tr=el('tr'); tr.appendChild(el('th',null,nom));
+    const tout=[];
+    jours.forEach(j=>{
+      const n=notesDuJour(j,gr,i);
+      if (parComp){
+        COMPS.forEach(c=>{
+          const v=n.par[c.id]!==undefined?n.par[c.id]:null;
+          const td=el('td', classeNote(v), lettreNote(v));
+          td.title=nom+' — '+jourLisible(j)+' — '+c.nom+(v!=null?' — '+v+'/100':' — pas de cote');
+          tr.appendChild(td);
+        });
+      } else {
+        const td=el('td', classeNote(n.moy), n.moy!=null?String(n.moy):'—');
+        td.title=nom+' — '+jourLisible(j)+(n.moy!=null?' — moyenne '+n.moy+'/100':' — rien noté');
+        tr.appendChild(td);
+      }
+      if (n.moy!=null) tout.push(n.moy);
+    });
+    const moy = tout.length ? Math.round(tout.reduce((a,b)=>a+b,0)/tout.length) : null;
+    const tdm=el('td','moy '+classeNote(moy), moy!=null?(lettreNote(moy)+' '+moy):'—');
+    tdm.title = moy!=null ? nom+' — moyenne sur '+tout.length+' journée(s)' : nom+' — pas encore évalué';
+    tr.appendChild(tdm);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); h.appendChild(t);
+  const lg=el('div','carnet-legende');
+  [['n100','A · 90-100'],['n80','B · 70-89'],['n60','C · 50-69'],['n40','D · 30-49'],['n20','E · 0-29']]
+    .forEach(([c,l])=>{ const x=el('span',c,l); lg.appendChild(x); });
+  h.appendChild(lg);
+}
+(function carnetBoutons(){
+  if (!$('#carComp')) return;
+  const maj=()=>{
+    const v=lire('carVue','comp');
+    $('#carComp').setAttribute('aria-pressed',String(v==='comp'));
+    $('#carJour').setAttribute('aria-pressed',String(v!=='comp'));
+    peindreCarnet();
+  };
+  $('#carComp').addEventListener('click',()=>{ ecrire('carVue','comp'); maj(); });
+  $('#carJour').addEventListener('click',()=>{ ecrire('carVue','jour'); maj(); });
+  $('#carCsv').addEventListener('click',()=>{
+    const gr=ctxGroupe, jours=joursEvalues(gr);
+    const ech=v=>'"'+String(v).replace(/"/g,'""')+'"';
+    const l=[['Élève'].concat(jours.map(jourLisible)).concat(['Moyenne'])];
+    ELEVES.forEach((nom,i)=>{
+      const r=[nom]; const tout=[];
+      jours.forEach(j=>{ const n=notesDuJour(j,gr,i); r.push(n.moy!=null?n.moy:''); if(n.moy!=null)tout.push(n.moy); });
+      r.push(tout.length?Math.round(tout.reduce((a,b)=>a+b,0)/tout.length):'');
+      l.push(r);
+    });
+    telecharger('carnet-'+nomGroupe(gr)+'-'+aujourdhuiISO()+'.csv','﻿'+l.map(r=>r.map(ech).join(';')).join('\n'),'text/csv');
+  });
+  maj();
+})();
+/* Le carnet et le cahier se rafraîchissent quand on arrive dessus. */
+(function carnetVivant(){
+  const base=window.allerA;
+  window.allerA=function(id){ base(id); if(id==='e-carnet') peindreCarnet(); };
+})();
+/* Le menu ÉVALUER accueille le carnet. */
+(function carnetDansMenu(){
+  const m=[...document.querySelectorAll('#nav .menu')].find(x=>x.querySelector('[data-va="e-evaluation"]'));
+  if (!m) return;
+  const b=el('button'); b.type='button'; b.dataset.va='e-carnet';
+  b.innerHTML='<span>📊 Carnet de notes</span><span class="quoi">La grille, une ligne par élève</span>';
+  b.addEventListener('click',e=>{ e.stopPropagation(); m.dataset.ouvert='0'; allerA('e-carnet'); });
+  const liste=m.querySelector('.menu-liste');
+  liste.insertBefore(b, liste.children[1]);
 })();

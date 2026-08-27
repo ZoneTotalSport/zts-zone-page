@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=13">
-<link rel="stylesheet" href="proto-fusion.css?v=13">
-<link rel="stylesheet" href="proto-boutons.css?v=13">
+<link rel="stylesheet" href="proto.css?v=16">
+<link rel="stylesheet" href="proto-fusion.css?v=16">
+<link rel="stylesheet" href="proto-boutons.css?v=16">
 </head>
 <body>
 
@@ -88,6 +88,9 @@
     <button type="button" class="tuile" data-va="e-cahier">
       <span class="emo">📔</span>MON CAHIER
       <span class="aide">Tout ce que j'ai fait ce jour-là</span></button>
+    <button type="button" class="tuile" data-va="e-carnet">
+      <span class="emo">📊</span>CARNET DE NOTES
+      <span class="aide">Toutes mes cotes, une ligne par élève</span></button>
     <button type="button" class="tuile" data-va="e-tests">
       <span class="emo">🏃</span>TESTS
       <span class="aide">Chrono, navette, Léger-Boucher</span></button>
@@ -331,6 +334,23 @@
   </div>
 </section>
 
+<!-- ═══════════════ CARNET DE NOTES ═══════════════ -->
+<section class="ecran" id="e-carnet">
+  <h1 class="titre">Carnet de notes</h1>
+  <div class="aide-un-mot"><span class="emo">📊</span>
+    Une ligne par élève, une colonne par jour où tu as évalué. Les colonnes
+    apparaissent toutes seules — tu n'en crées aucune.</div>
+  <div class="pan">
+    <h2>Groupe <span id="carGroupe"></span> · <span id="carPeriode"></span></h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <button type="button" class="mini" id="carComp" aria-pressed="true">PAR COMPÉTENCE</button>
+      <button type="button" class="mini" id="carJour" aria-pressed="false">UNE NOTE PAR JOUR</button>
+      <button type="button" class="mini mini--jaune" id="carCsv">📊 EXPORTER</button>
+    </div>
+    <div id="carHote" style="overflow:auto"></div>
+  </div>
+</section>
+
 <!-- ═══════════════ CAHIER ═══════════════ -->
 <section class="ecran" id="e-cahier">
   <h1 class="titre">Mon cahier</h1>
@@ -570,7 +590,7 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=13"></script>
-<script src="proto-fusion.js?v=13"></script>
+<script src="proto.js?v=16"></script>
+<script src="proto-fusion.js?v=16"></script>
 </body>
 </html>

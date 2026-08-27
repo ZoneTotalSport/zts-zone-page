@@ -278,3 +278,28 @@ body.tbi .pr-nom{font-size:17px}
 @media(max-width:760px){ .cahier-semaine{grid-template-columns:1fr} .cahier-sect{padding-left:0}
   .cahier-sect::before{position:static;display:block;width:auto;text-align:left;margin-bottom:4px}
   .cahier-sect::after{display:none} }
+
+/* ==========================================================================
+   CARNET DE NOTES — la grille dense, façon carnet d'enseignant.
+   Élèves en lignes, une colonne par jour évalué. Les colonnes naissent des
+   données : aucune n'est créée à la main.
+   ========================================================================== */
+.carnet{border-collapse:separate;border-spacing:0;font-size:13px}
+.carnet th,.carnet td{border:1px solid #B9C6CE;padding:4px 6px;text-align:center;white-space:nowrap}
+.carnet thead th{
+  position:sticky;top:0;z-index:2;background:var(--noir);color:var(--jaune);
+  font-family:var(--f-titre);font-size:12px;letter-spacing:.2px;
+}
+.carnet thead th.sous{background:#22333F;color:#CFEAF5;font-size:11px}
+.carnet tbody th{
+  position:sticky;left:0;z-index:1;background:#F4FAFD;color:var(--ink);
+  text-align:left;font-weight:800;min-width:120px;
+}
+.carnet tbody tr:nth-child(even) td{background:#FAFDFF}
+.carnet tbody tr:nth-child(even) th{background:#EDF6FA}
+.carnet .moy{font-family:var(--f-titre);font-size:15px;background:#FFFEE0!important}
+.carnet .vide{color:#B9C6CE}
+.carnet .n100{background:#8CE05F}.carnet .n80{background:#C7F0A8}
+.carnet .n60{background:#FFF07A}.carnet .n40{background:#FFC98A}.carnet .n20{background:#FF9C8F}
+.carnet-legende{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;font-size:12px;font-weight:700}
+.carnet-legende span{border:2px solid var(--noir);border-radius:8px;padding:1px 9px;color:var(--ink)}
