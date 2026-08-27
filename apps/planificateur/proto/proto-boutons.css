@@ -154,3 +154,33 @@ code, kbd, samp{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.9
 .cah-jour ul{ font-family:var(--f-main); font-size:14px }
 .cah-jour .rien{ font-family:var(--f-note); font-size:14px }
 .menu-liste .quoi{ font-family:var(--f-note); font-size:13px; font-weight:400 }
+
+/* ==========================================================================
+   LES NOMS D'ÉLÈVES — Annie Use Your Telescope, partout.
+   Joey : « c'est cette police pour les noms, pas de San Francisco ». Ils
+   héritaient de la pile système faute de déclaration ; l'en-tête juste
+   au-dessus était en Luckiest Guy, d'où le décalage visible.
+   Vérifié contre la table cmap : les 36 prénoms et noms de famille sont
+   couverts, accents compris — aucune bascule de police en plein mot.
+   La fonte est fine : on monte la taille et on relâche la graisse plutôt
+   que de la faire grossir en gras synthétique.
+   ========================================================================== */
+.carnet tbody th,           /* carnet de notes  */
+.eval-tbl td.nom,           /* grille d'évaluation */
+.test-tbl td.nom,           /* Léger-Boucher */
+.bull-carte h3,             /* bulletin */
+.banc-place b,              /* banc de retrait */
+.pr-nom,                    /* carte de présence */
+.pr-sub{                    /* nom de famille, sous le prénom */
+  font-family:var(--f-note);
+  font-weight:400;
+  letter-spacing:.2px;
+}
+.carnet tbody th{ font-size:16px }
+.eval-tbl td.nom, .test-tbl td.nom{ font-size:16px }
+.bull-carte h3{ font-size:23px }
+.banc-place b{ font-size:18px }
+.pr-nom{ font-size:17px }
+.pr-sub{ font-size:13px }
+/* Le nom reste lisible une fois la carte passée en noir et blanc. */
+.pr-carte--parti .pr-nom, .pr-carte--absent .pr-nom{ color:#4E5C64 }
