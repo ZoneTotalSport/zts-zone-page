@@ -36,7 +36,7 @@ demande de Joey du 27 août : voir tous les boutons plutôt qu'un menu.
 | 10 | **Évaluation** | Les 3 compétences du PFEQ en ÉPS, cotées A→E d'une touche. Reclic = on enlève. Compteur et moyenne de groupe en direct. |
 | 11 | **Bulletin** | Une carte par élève, construite **depuis l'ÉVALUATION** : cotes, jauges, commentaire proposé selon le résultat le plus faible. Prêt à imprimer. |
 | 12 | **Partage** | Quoi partager (8 cases), ce que le collègue peut faire (regarder / copier / modifier), lien, code à 8 caractères, aperçu de QR. |
-| 13 | **Présences** | Photo + nom par enfant. Tap : attendu → présent → départ ; appui long = absent. **Parti ou absent, la photo ET le nom passent en noir et blanc.** Jour et heure de départ, « porté par » à l'arrivée, « parti avec » au départ avec garde hors-liste, humeur, message au parent, particularités, rapport à envoyer. |
+| 13 | **Présences** | **Grosse photo, petit nom** — on reconnaît l'enfant au visage, pas au texte. Tap : attendu → présent → départ ; appui long = absent. **Parti ou absent, la photo ET le nom passent en noir et blanc.** Jour et heure de départ, « porté par » à l'arrivée, « parti avec » au départ avec garde hors-liste, humeur, message au parent, particularités, rapport à envoyer. |
 | 14-16 | Plan B · Noter · Réglages | inchangés. |
 
 ## Les deux chaînes qui se recalculent seules

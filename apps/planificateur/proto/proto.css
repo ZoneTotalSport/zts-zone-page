@@ -557,20 +557,22 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
 .pr-resume .parti{background:#DDE4E8;color:#33434D}
 .pr-resume .absent{background:var(--rose);color:#2A0010}
 
-.pr-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pr-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
 .pr-carte{
   position:relative;background:#fff;color:var(--ink);
   border:var(--bord);border-radius:14px;box-shadow:3px 4px 0 var(--noir);
-  padding:10px 8px 8px;text-align:center;
+  padding:7px 7px 7px;text-align:center;
 }
 .pr-tap{cursor:pointer;display:block;width:100%;background:none;border:0;padding:0;color:inherit;font:inherit}
+/* La photo est le sujet : elle prend toute la largeur de la carte. Le nom
+   passe dessous, en petit — on reconnaît l'enfant au visage, pas au texte. */
 .pr-photo{
-  width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 6px;
-  border:3px solid var(--noir);background:#EDF3F6;
+  width:100%;aspect-ratio:1;height:auto;object-fit:cover;display:block;margin:0 0 6px;
+  border:3px solid var(--noir);border-radius:13px;background:#EDF3F6;
 }
-.pr-nom{font-family:var(--f-titre);font-size:16px;letter-spacing:.3px;line-height:1.1}
-.pr-sub{font-size:12px;font-weight:700;color:var(--ink-soft);margin-top:2px}
-.pr-heure{font-family:var(--f-punch);letter-spacing:.8px;font-size:13px;margin-top:3px}
+.pr-nom{font-family:var(--f-titre);font-size:13px;letter-spacing:.2px;line-height:1.1}
+.pr-sub{font-size:10px;font-weight:700;color:var(--ink-soft);margin-top:1px;line-height:1.2}
+.pr-heure{font-family:var(--f-punch);letter-spacing:.6px;font-size:12px;margin-top:2px}
 .pr-heure.arrivee{color:#2C7A16}
 .pr-heure.depart{color:#33434D}
 
@@ -585,19 +587,29 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
 .pr-carte--absent .pr-photo{opacity:.55}
 .pr-carte--present{background:#F4FFEA}
 
+/* Pastilles posées SUR la photo.
+   ⚠ DEUX PIÈGES PAYÉS ICI, tous deux invisibles au code seul :
+   1. `z-index` est OBLIGATOIRE. `filter:grayscale()` sur .pr-photo crée un
+      CONTEXTE D'EMPILEMENT ; la photo, qui vient après le badge dans le DOM,
+      se peignait PAR-DESSUS lui. Les pastilles existaient, mesurables, et ne
+      se voyaient pas. Seul le cas « absent » les laissait deviner — sa photo
+      est à opacity:.55, on voyait à travers.
+   2. Le badge « parti » était #DDE4E8 : gris pâle sur une photo passée en
+      gris. Fond foncé obligatoire. */
 .pr-badge{
-  position:absolute;top:6px;left:6px;width:24px;height:24px;line-height:20px;
-  border:2px solid var(--noir);border-radius:50%;font-size:14px;font-weight:900;
+  position:absolute;top:12px;left:12px;width:30px;height:30px;line-height:26px;z-index:2;
+  border:3px solid var(--noir);border-radius:50%;font-size:16px;font-weight:900;
+  box-shadow:0 2px 0 rgba(0,0,0,.3);
 }
-.pr-badge--present{background:#8CE05F;color:#12330A}
-.pr-badge--parti{background:#DDE4E8;color:#26333B}
+.pr-badge--present{background:#57C21E;color:#0E2A05}   /* blanc sur ce vert ne donnait que 2.30 */
+.pr-badge--parti{background:#33434D;color:#fff}
 .pr-badge--absent{background:var(--rose);color:#2A0010}
 .pr-flag{
-  position:absolute;top:6px;right:6px;min-width:24px;height:24px;line-height:20px;
-  border:2px solid var(--noir);border-radius:50%;background:var(--jaune);color:var(--ink);
-  font-weight:900;font-size:13px;
+  position:absolute;top:12px;right:12px;min-width:30px;height:30px;line-height:26px;z-index:2;
+  border:3px solid var(--noir);border-radius:50%;background:var(--jaune);color:var(--ink);
+  font-weight:900;font-size:15px;box-shadow:0 2px 0 rgba(0,0,0,.3);
 }
-.pr-partic{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:3px;font-size:13px}
+.pr-partic{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:2px;font-size:12px}
 .pr-porte{
   display:block;width:100%;margin-top:7px;cursor:pointer;
   font-family:var(--f-punch);letter-spacing:.7px;font-size:12px;
@@ -662,7 +674,7 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
 }
 .m-humeur[aria-pressed="true"]{background:var(--jaune);box-shadow:inset 0 0 0 2px var(--noir)}
 .m-tete{display:flex;gap:12px;align-items:center;margin-bottom:14px}
-.m-tete .pr-photo{margin:0}
+.m-tete .pr-photo{width:64px;height:64px;aspect-ratio:auto;flex:none;margin:0;border-radius:12px}
 .m-pied{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .m-valider{
   font-family:var(--f-titre);font-size:16px;letter-spacing:.4px;cursor:pointer;
