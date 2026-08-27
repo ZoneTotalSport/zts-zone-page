@@ -44,7 +44,6 @@ const BLOC_COULEURS = ['#FF6B00','#00C2E8','#A3FF00','#FF0061','#8B5CF6','#FFC10
 const BLOC_POLICES = [
   ['default','Standard',''],
   ['titre',"Gros titre","'LuckiestGuy',sans-serif"],
-  ['punch','Punch',"'Bangers',sans-serif"],
 ];
 let pressePapierBloc = null;
 let blocActif = null;
@@ -228,7 +227,7 @@ enrichirTousLesBlocs();
   const hote=$('#e-journee .pan'); if(!hote) return;
   const barre=el('div'); barre.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px';
   const live=el('button','mini mini--rose','▶ DÉMARRER LA SÉANCE'); live.type='button';
-  const etat=el('span'); etat.style.cssText='font-family:var(--f-punch);letter-spacing:1px;align-self:center';
+  const etat=el('span'); etat.style.cssText='font-family:var(--f-titre);letter-spacing:1px;align-self:center';
   let debut=lire('live',null);
   let tic=null;
   function peindre(){
@@ -302,7 +301,7 @@ function peindreCriteres(){
 function libelleCrit(cle){
   const [k,i]=cle.split('|'); return (CRITERES[k]||[])[+i] || cle;
 }
-function coteCrit(i,cle){ return lire('evc:'+i+':'+cle, null); }
+function coteCrit(i,cle){ return lire(kctx('evc:'+i+':'+cle), null); }
 function peindreGrilleCrit(){
   const hote=$('#evGrille'); if(!hote) return;
   const crits=critsChoisis();
@@ -324,8 +323,8 @@ function peindreGrilleCrit(){
         if (coteCrit(i,cle)===val) b.style.background = teinteVal(val);
         b.addEventListener('click',()=>{
           const actuel=coteCrit(i,cle);
-          if (actuel===val){ try{localStorage.removeItem(P+'evc:'+i+':'+cle);}catch(e){} }
-          else ecrire('evc:'+i+':'+cle,val);
+          if (actuel===val){ try{localStorage.removeItem(P+kctx('evc:'+i+':'+cle));}catch(e){} }
+          else ecrire(kctx('evc:'+i+':'+cle),val);
           peindreGrilleCrit();
         });
         grp.appendChild(b);
@@ -405,7 +404,7 @@ const cs = n => Math.floor(n/600)+':'+String(Math.floor(n/10)%60).padStart(2,'0'
 
   /* ── Léger-Boucher ── */
   let lDep=0, lTic=null;
-  const resultats = ()=> lire('leger', {});
+  const resultats = ()=> lire(kctx('leger'), {});
   function secondes(){ return lDep ? (Date.now()-lDep)/1000 : 0; }
   function peindreLeger(){
     const e=etatLeger(secondes());
@@ -424,7 +423,7 @@ const cs = n => Math.floor(n/600)+':'+String(Math.floor(n/10)%60).padStart(2,'0'
   $('#lgRaz').addEventListener('click',()=>{
     if(!confirm('Effacer les résultats du test ?')) return;
     lDep=0; if(lTic){clearInterval(lTic);lTic=null;}
-    ecrire('leger',{}); $('#lgGo').textContent='▶ PARTIR LE TEST';
+    ecrire(kctx('leger'),{}); $('#lgGo').textContent='▶ PARTIR LE TEST';
     $('#lgGo').classList.remove('gros-bouton--stop'); peindreLeger(); peindreCorpsLeger();
   });
   function peindreCorpsLeger(){
@@ -442,7 +441,7 @@ const cs = n => Math.floor(n/600)+':'+String(Math.floor(n/10)%60).padStart(2,'0'
       b.addEventListener('click',()=>{
         const q=resultats();
         if (q[i]) delete q[i]; else q[i]=etatLeger(secondes());
-        ecrire('leger',q); peindreCorpsLeger();
+        ecrire(kctx('leger'),q); peindreCorpsLeger();
       });
       td.appendChild(b); tr.appendChild(td);
       h.appendChild(tr);
@@ -519,7 +518,7 @@ function groupeActif(){ return lire('groupeActif', 0); }
       const t=b.querySelector('.bloc-titre').textContent.trim();
       if (t) lignes.push([jourLisible(aujourdhuiISO()), (b.classList.contains('fait')?'✔ ':'· ')+t]);
     });
-    Object.keys(lire('leger',{})).length && lignes.push([jourLisible(aujourdhuiISO()),'🏃 Test Léger-Boucher — '+Object.keys(lire('leger',{})).length+' résultats']);
+    Object.keys(lire(kctx('leger'),{})).length && lignes.push([jourLisible(aujourdhuiISO()),'🏃 Test Léger-Boucher — '+Object.keys(lire(kctx('leger'),{})).length+' résultats']);
     const parti=ENFANTS.filter((e,i)=>presDe(i).statut==='parti').length;
     if (parti) lignes.push([jourLisible(aujourdhuiISO()), '✅ Présences — '+parti+' départ(s) notés']);
     if (!lignes.length){ h.appendChild(el('p',null,'Rien encore. L’historique se remplit tout seul.')); return; }
@@ -683,9 +682,9 @@ function appliquerIcs(txt, nom){
 
 /* ═════════ 7. PRÉSENCES + : émulation, tenue, banc de retrait ═════════ */
 const TENUE=[['tshirt','👕','T-shirt'],['short','🩳','Short'],['souliers','👟','Souliers']];
-function etoilesDe(i){ return lire('etoile:'+i,0); }
-function tenueDe(i){ return lire('tenue:'+i,{}); }
-function bancDe(){ return lire('banc',{}); }
+function etoilesDe(i){ return lire(kctx('etoile:'+i),0); }
+function tenueDe(i){ return lire(kctx('tenue:'+i),{}); }
+function bancDe(){ return lire(kctx('banc'),{}); }
 
 const _peindrePresencesBase = peindrePresences;
 peindrePresences = function(){
@@ -698,7 +697,7 @@ peindrePresences = function(){
       b.className = etoilesDe(i)>=k ? 'on':'';
       b.title = k+' étoile'+(k>1?'s':'')+' pour '+ENFANTS[i].p;
       b.addEventListener('click',ev=>{ ev.stopPropagation();
-        ecrire('etoile:'+i, etoilesDe(i)===k ? k-1 : k); peindrePresences(); });
+        ecrire(kctx('etoile:'+i), etoilesDe(i)===k ? k-1 : k); peindrePresences(); });
       et.appendChild(b);
     }
     c.appendChild(et);
@@ -708,7 +707,7 @@ peindrePresences = function(){
       const b=el('button',null,emo); b.type='button';
       b.className = t[k]?'on':''; b.title=lab+(t[k]?' ✓':' — non');
       b.addEventListener('click',ev=>{ ev.stopPropagation();
-        const q=tenueDe(i); q[k]=!q[k]; ecrire('tenue:'+i,q); peindrePresences(); });
+        const q=tenueDe(i); q[k]=!q[k]; ecrire(kctx('tenue:'+i),q); peindrePresences(); });
       tn.appendChild(b);
     });
     c.appendChild(tn);
@@ -719,7 +718,7 @@ peindrePresences = function(){
       if (q[i]) delete q[i];
       else { const m=parseInt(prompt('Combien de minutes sur le banc ?','5'),10); if(!m||m<=0) return;
              q[i]={fin: Date.now()+m*60000}; }
-      ecrire('banc',q); peindrePresences(); peindreBanc();
+      ecrire(kctx('banc'),q); peindrePresences(); peindreBanc();
     });
     c.appendChild(bc);
   });
@@ -747,14 +746,14 @@ function peindreBanc(){
     d.appendChild(el('b',null,ENFANTS[+i].p));
     d.appendChild(el('span','cpt', Math.floor(reste/60)+':'+String(reste%60).padStart(2,'0')));
     const x=el('button','mini','↩ IL REVIENT'); x.type='button';
-    x.addEventListener('click',()=>{ const w=bancDe(); delete w[i]; ecrire('banc',w); peindrePresences(); });
+    x.addEventListener('click',()=>{ const w=bancDe(); delete w[i]; ecrire(kctx('banc'),w); peindrePresences(); });
     d.appendChild(x); h.appendChild(d);
   });
 }
 setInterval(()=>{
   const q=bancDe(); let change=false;
   Object.keys(q).forEach(i=>{ if (q[i].fin<=Date.now()){ delete q[i]; change=true; } });
-  if (change){ ecrire('banc',q); peindrePresences(); }
+  if (change){ ecrire(kctx('banc'),q); peindrePresences(); }
   else if ($('#prBanc') && Object.keys(q).length) peindreBanc();
 }, 1000);
 peindrePresences();
@@ -990,4 +989,318 @@ document.addEventListener('keydown', e=>{
     a.textContent=lab; a.style.textDecoration='none';
     h.appendChild(a);
   });
+})();
+
+/* ═════════ 10. CAHIER DE CONSIGNATION — ce qui relie tout ═════════
+   Joey : « comme un cahier de consignation / un agenda pédagogique, le tout
+   interconnecté — si j'évalue un groupe, ça le garde à la bonne place ».
+
+   Le mécanisme tient en une ligne : TOUT ce qui appartient à une séance est
+   rangé sous `kctx()` = jour + groupe. Les présences, les cotes, les tests,
+   les blocs de la journée. Le cahier ne recopie rien : il RELIT cette clé.
+   Changer de jour dans la barre du haut change la page — et l'app entière
+   suit, parce qu'elle lit la même clé. */
+
+const UN_JOUR = 86400000;
+function isoDe(d){ const D=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+D(d.getMonth()+1)+'-'+D(d.getDate()); }
+function dateDeIso(iso){ const [y,m,j]=iso.split('-').map(Number); return new Date(y,m-1,j); }
+function nomGroupe(i){ const g=groupes()[i]; return g?g.nom:'—'; }
+
+function poserContexte(iso, gr){
+  if (iso) ctxDate = iso;
+  if (gr!==undefined) ctxGroupe = gr;
+  ecrire('ctxDate', ctxDate); ecrire('ctxGroupe', ctxGroupe);
+  peindreCtxBarre();
+  remonterJournee();                 // la journée du nouveau jour
+  enrichirTousLesBlocs();
+  peindrePresences();
+  if (typeof compterEval==='function') compterEval();
+  if (typeof peindreCriteres==='function'){ peindreCriteres(); peindreGrilleCrit(); }
+  if (typeof peindreBulletin==='function') peindreBulletin();
+  if (typeof peindreJournal==='function') peindreJournal();
+  if (typeof peindreHistorique==='function') peindreHistorique();
+  peindreCahier();
+}
+function peindreCtxBarre(){
+  const j=$('#ctxJour'); if(!j) return;
+  j.textContent = jourLisible(ctxDate);
+  const sel=$('#ctxGroupeSel');
+  sel.innerHTML='';
+  groupes().forEach((g,i)=>{
+    if (g.arch && i!==ctxGroupe) return;
+    const o=document.createElement('option'); o.value=i; o.textContent=g.nom;
+    if (i===ctxGroupe) o.selected=true;
+    sel.appendChild(o);
+  });
+}
+(function barreContexte(){
+  if (!$('#ctxBarre')) return;
+  $('#ctxPrec').addEventListener('click',()=> poserContexte(isoDe(new Date(dateDeIso(ctxDate).getTime()-UN_JOUR))));
+  $('#ctxSuiv').addEventListener('click',()=> poserContexte(isoDe(new Date(dateDeIso(ctxDate).getTime()+UN_JOUR))));
+  $('#ctxAuj').addEventListener('click',()=> poserContexte(aujourdhuiISO()));
+  $('#ctxGroupeSel').addEventListener('change', e=> poserContexte(null, +e.target.value));
+  peindreCtxBarre();
+})();
+
+/* ── ce que le cahier va relire, jour par jour ── */
+function releveDuJour(iso, gr){
+  const memeD=ctxDate, memeG=ctxGroupe;
+  ctxDate=iso; ctxGroupe=gr;                     // on se place sur la page…
+  const r={blocs:[], presences:{present:0,parti:0,absent:0,attendu:0}, departs:[],
+           cotes:0, crits:0, leger:0, etoiles:0, bancs:0, obs:[]};
+  (lire(kctx('ord'), null)||[]).forEach(id=>{
+    const t=lire('ed:'+id+'-t',''); if(!t) return;
+    r.blocs.push({titre:t, fait:!!lire('ck:'+id+'-f',false), type:(lire('opt:'+id,{}).type||'activite')});
+  });
+  ENFANTS.forEach((e,i)=>{
+    const p=lire(kctx('pres2:'+i), null);
+    if (!p) { r.presences.attendu++; return; }
+    r.presences[p.statut]=(r.presences[p.statut]||0)+1;
+    if (p.statut==='parti') r.departs.push({qui:e.p, h:p.heureDepart, avec:p.partiAvec, hors:p.horsListe, msg:p.messageParent});
+    COMPS.forEach(c=>{ if (lire(kctx('ev:'+i+':'+c.id),null)) r.cotes++; });
+    critsChoisis().forEach(c=>{ if (lire(kctx('evc:'+i+':'+c),null)!==null) r.crits++; });
+    if (lire(kctx('etoile:'+i),0)) r.etoiles+=lire(kctx('etoile:'+i),0);
+    const o=lire('ed:'+kctx('ev-obs-'+i),''); if(o) r.obs.push(e.p+' — '+o);
+  });
+  r.leger=Object.keys(lire(kctx('leger'),{})).length;
+  r.bancs=Object.keys(lire(kctx('banc'),{})).length;
+  ctxDate=memeD; ctxGroupe=memeG;                // …et on remet où on était
+  return r;
+}
+function rienDeRien(r){
+  return !r.blocs.length && !r.cotes && !r.crits && !r.leger && !r.departs.length
+      && r.presences.present===0 && r.presences.parti===0 && r.presences.absent===0;
+}
+
+function peindreCahier(){
+  const h=$('#cahHote'); if(!h) return;
+  h.innerHTML='';
+  if (lire('cahVue','jour')==='semaine'){ peindreCahierSemaine(h); return; }
+  const r=releveDuJour(ctxDate, ctxGroupe);
+  const page=el('div','cahier');
+  const tete=el('div','cahier-tete');
+  tete.appendChild(el('h2',null, jourLisible(ctxDate)));
+  tete.appendChild(el('span','gr','GROUPE '+nomGroupe(ctxGroupe)));
+  page.appendChild(tete);
+  const corps=el('div','cahier-corps'); page.appendChild(corps);
+
+  const sect=(titre, remplir, versEcran)=>{
+    const s=el('div','cahier-sect'); s.dataset.titre=titre;
+    remplir(s);
+    if (versEcran){
+      const b=el('button','cahier-lien','↗ OUVRIR'); b.type='button';
+      b.style.marginTop='6px';
+      b.addEventListener('click',()=>allerA(versEcran));
+      s.appendChild(b);
+    }
+    corps.appendChild(s);
+  };
+
+  sect('CE QUE\nJ\'AI FAIT', s=>{
+    if (!r.blocs.length){ s.appendChild(el('div','cahier-vide','Rien de planifié pour ce jour.')); return; }
+    r.blocs.forEach(b=>{
+      const d=el('div','cahier-item '+(b.fait?'fait':'pas'));
+      d.appendChild(el('span','p', b.fait?'✔':'○'));
+      d.appendChild(el('span',null, (BLOC_TYPES[b.type]||BLOC_TYPES.activite).emo+' '+b.titre));
+      s.appendChild(d);
+    });
+  }, 'e-journee');
+
+  sect('QUI\nÉTAIT LÀ', s=>{
+    const p=r.presences;
+    if (!p.present && !p.parti && !p.absent){ s.appendChild(el('div','cahier-vide','Présences pas encore prises.')); return; }
+    const puces=el('div','cahier-puces');
+    puces.appendChild(el('span','cahier-puce vert', p.present+' présent'+(p.present>1?'s':'')));
+    puces.appendChild(el('span','cahier-puce gris', p.parti+' parti'+(p.parti>1?'s':'')));
+    if (p.absent) puces.appendChild(el('span','cahier-puce rose', p.absent+' absent'+(p.absent>1?'s':'')));
+    if (r.bancs) puces.appendChild(el('span','cahier-puce', '🪑 '+r.bancs+' au banc'));
+    if (r.etoiles) puces.appendChild(el('span','cahier-puce', '⭐ '+r.etoiles+' étoiles données'));
+    s.appendChild(puces);
+    r.departs.forEach(d=>{
+      const x=el('div','cahier-item');
+      x.appendChild(el('span','p','↑'));
+      x.appendChild(el('span',null, d.qui+' est parti à '+(d.h||'?')+(d.avec?' avec '+d.avec:'')
+        +(d.hors?' ⚠ hors liste':'')+(d.msg?' — message au parent : '+d.msg:'')));
+      s.appendChild(x);
+    });
+  }, 'e-presences');
+
+  sect('CE QUE\nJ\'AI NOTÉ', s=>{
+    if (!r.cotes && !r.crits && !r.obs.length){ s.appendChild(el('div','cahier-vide','Aucune évaluation ce jour-là.')); return; }
+    const puces=el('div','cahier-puces');
+    if (r.cotes) puces.appendChild(el('span','cahier-puce vert', r.cotes+' cote'+(r.cotes>1?'s':'')+' par compétence'));
+    if (r.crits) puces.appendChild(el('span','cahier-puce vert', r.crits+' cote'+(r.crits>1?'s':'')+' par critère'));
+    s.appendChild(puces);
+    r.obs.forEach(o=>{
+      const x=el('div','cahier-item'); x.appendChild(el('span','p','✎')); x.appendChild(el('span',null,o)); s.appendChild(x);
+    });
+  }, 'e-evaluation');
+
+  sect('LES\nTESTS', s=>{
+    if (!r.leger){ s.appendChild(el('div','cahier-vide','Aucun test passé ce jour-là.')); return; }
+    const d=el('div','cahier-item'); d.appendChild(el('span','p','🏃'));
+    d.appendChild(el('span',null,'Navette Léger-Boucher — '+r.leger+' élève(s) mesuré(s)'));
+    s.appendChild(d);
+  }, 'e-tests');
+
+  sect('MON MOT\nDU JOUR', s=>{
+    const l=lire('journal:'+ctxGroupe, []).filter(e=> e.quand.startsWith(jourLisible(ctxDate)));
+    if (!l.length){ s.appendChild(el('div','cahier-vide','Rien écrit au journal pour ce jour.')); return; }
+    l.forEach(e=>{ const x=el('div','cahier-item'); x.appendChild(el('span','p','📝'));
+      x.appendChild(el('span',null,e.txt)); s.appendChild(x); });
+  }, 'e-groupes');
+
+  if (rienDeRien(r)){
+    const v=el('div','aide-un-mot'); v.style.marginTop='14px';
+    v.innerHTML='<span class="emo">👆</span>Cette page est vide. Va prendre les présences ou '
+      +'planifier ta journée : tout reviendra s\'écrire ici tout seul.';
+    h.appendChild(page); h.appendChild(v); return;
+  }
+  h.appendChild(page);
+}
+
+function peindreCahierSemaine(h){
+  const d=dateDeIso(ctxDate);
+  const lundi=new Date(d); lundi.setDate(d.getDate()-((d.getDay()+6)%7));
+  const grille=el('div','cahier-semaine');
+  for (let i=0;i<5;i++){
+    const j=new Date(lundi.getTime()+i*UN_JOUR), iso=isoDe(j);
+    const r=releveDuJour(iso, ctxGroupe);
+    const c=el('div','cah-jour'); c.setAttribute('aria-current', String(iso===ctxDate));
+    c.appendChild(el('h4',null, ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'][i]+' '+j.getDate()));
+    if (rienDeRien(r)) c.appendChild(el('div','rien','—'));
+    else {
+      const u=document.createElement('ul');
+      r.blocs.slice(0,3).forEach(b=> u.appendChild(el('li',null,(b.fait?'✔ ':'○ ')+b.titre)));
+      if (r.presences.present||r.presences.parti) u.appendChild(el('li',null,'✅ '+(r.presences.present+r.presences.parti)+' présents'));
+      if (r.cotes+r.crits) u.appendChild(el('li',null,'⭐ '+(r.cotes+r.crits)+' cotes'));
+      if (r.leger) u.appendChild(el('li',null,'🏃 test'));
+      c.appendChild(u);
+    }
+    c.addEventListener('click',()=> poserContexte(iso));
+    grille.appendChild(c);
+  }
+  const boite=el('div','cahier');
+  const tete=el('div','cahier-tete');
+  tete.appendChild(el('h2',null,'Semaine du '+jourLisible(isoDe(lundi))));
+  tete.appendChild(el('span','gr','GROUPE '+nomGroupe(ctxGroupe)));
+  boite.appendChild(tete);
+  const corps=el('div','cahier-corps'); corps.style.paddingTop='16px';
+  corps.appendChild(grille); boite.appendChild(corps);
+  h.appendChild(boite);
+}
+
+(function cahierBoutons(){
+  if (!$('#cahJour')) return;
+  const maj=()=>{
+    const v=lire('cahVue','jour');
+    $('#cahJour').setAttribute('aria-pressed',String(v==='jour'));
+    $('#cahSemaine').setAttribute('aria-pressed',String(v==='semaine'));
+    peindreCahier();
+  };
+  $('#cahJour').addEventListener('click',()=>{ ecrire('cahVue','jour'); maj(); });
+  $('#cahSemaine').addEventListener('click',()=>{ ecrire('cahVue','semaine'); maj(); });
+  $('#cahImprimer').addEventListener('click',()=>window.print());
+  maj();
+})();
+
+/* Le cahier se rafraîchit dès qu'on revient dessus — il relit, il ne stocke pas. */
+(function cahierVivant(){
+  const base = allerA;
+  window.allerA = function(id){ base(id); if (id==='e-cahier') peindreCahier(); };
+})();
+peindreCtxBarre();
+peindreCahier();
+
+/* ═════════ 11. LA BARRE DU HAUT — 6 portes, pas 21 boutons ═════════
+   Joey : « quelques boutons avec menu déroulant, on classe les fonctionnalités
+   qui semblent semblables ». Ce n'est pas le retour du bouton PLUS : l'accueil
+   montre toujours toutes les tuiles. C'est la barre qui se resserre.
+   Chaque menu est nommé par CE QU'ON Y CHERCHE, pas par une catégorie floue. */
+const MENUS = [
+  {direct:'e-accueil', lab:'🏠 ACCUEIL'},
+  {direct:'e-cahier',  lab:'📔 MON CAHIER'},
+  {lab:'📅 MA CLASSE', quoi:[
+    ['e-journee','📋 Ma journée','Les blocs du cours, un par un'],
+    ['e-presences','✅ Présences','Qui est là, qui est parti'],
+    ['e-cours','🏀 Fiche de cours','Le gabarit papier à remplir'],
+    ['e-groupes','👥 Mes groupes','Classes, journal, historique'],
+    ['e-planb','🌧️ Plan B','Il pleut, le gym est pris'],
+  ]},
+  {lab:'🗓️ MON CALENDRIER', quoi:[
+    ['e-semaine','🗓️ Semaine','Périodes 1 à 6'],
+    ['e-mois','📅 Mois','Jours-cycle et notes'],
+    ['e-annee','📚 Année','Compétences, moyens, activités'],
+    ['e-calendrier','📆 Calendrier scolaire','Congés et pédagogiques'],
+  ]},
+  {lab:'⭐ ÉVALUER', quoi:[
+    ['e-evaluation','📝 Évaluation','Les 3 compétences et les critères'],
+    ['e-bulletin','🎓 Bulletin','La synthèse d’étape'],
+    ['e-tests','🏃 Tests','Chrono, navette, Léger-Boucher'],
+    ['e-noter','⭐ Noter','Un mot rapide sur le groupe'],
+  ]},
+  {lab:'🎲 MES OUTILS', quoi:[
+    ['e-jeux','🎲 Jeux','Piger dans la banque'],
+    ['e-partage','📤 Partage','Envoyer à un collègue'],
+    ['e-messages','💬 Messages','Le coordo, valider ma semaine'],
+    ['e-temps','⏱️ Mon temps','Heures travaillées'],
+  ]},
+  {lab:'⚙️ RÉGLAGES', quoi:[
+    ['e-reglages','⚙️ Réglages','Cycle, étapes, zoom, langue'],
+    ['e-donnees','💾 Mes données','Sauvegarder, exporter, importer'],
+  ]},
+];
+(function barreEnMenus(){
+  const n=$('#nav'); if(!n) return;
+  n.innerHTML='';
+  const fermerTous = sauf => $$('.menu', n).forEach(m=>{ if(m!==sauf) m.dataset.ouvert='0'; });
+
+  MENUS.forEach(m=>{
+    if (m.direct){
+      const b=el('button',null,m.lab); b.type='button'; b.dataset.va=m.direct;
+      b.addEventListener('click',()=>{ fermerTous(); allerA(m.direct); });
+      n.appendChild(b); return;
+    }
+    const box=el('div','menu'); box.dataset.ouvert='0';
+    const t=el('button'); t.type='button';
+    t.innerHTML='<span></span><span class="fleche">▼</span>';
+    t.firstChild.textContent=m.lab;
+    t.setAttribute('aria-expanded','false');
+    t.addEventListener('click',e=>{
+      e.stopPropagation();
+      const on = box.dataset.ouvert!=='1';
+      fermerTous(box); box.dataset.ouvert = on?'1':'0';
+      t.setAttribute('aria-expanded', String(on));
+    });
+    const liste=el('div','menu-liste');
+    m.quoi.forEach(([id,lab,quoi])=>{
+      const b=el('button'); b.type='button'; b.dataset.va=id;
+      b.innerHTML='<span></span><span class="quoi"></span>';
+      b.firstChild.textContent=lab; b.lastChild.textContent=quoi;
+      b.addEventListener('click',e=>{ e.stopPropagation(); fermerTous(); box.dataset.ouvert='0';
+        t.setAttribute('aria-expanded','false'); allerA(id); });
+      liste.appendChild(b);
+    });
+    box.appendChild(t); box.appendChild(liste); n.appendChild(box);
+  });
+  document.addEventListener('click', e=>{ if(!e.target.closest('.menu')) fermerTous(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') fermerTous(); });
+})();
+
+/* `allerA` marque l'écran courant : on reporte la marque sur la porte du menu
+   qui le contient, sinon on ne sait plus où on est. */
+(function marquerLaPorte(){
+  const base = window.allerA;
+  window.allerA = function(id){
+    base(id);
+    $$('#nav [data-va]').forEach(b=> b.setAttribute('aria-current', String(b.dataset.va===id)));
+    $$('#nav .menu').forEach(m=>{
+      const dedans = !!m.querySelector('[data-va="'+id+'"]');
+      m.querySelector('button').setAttribute('aria-current', String(dedans));
+      if (dedans) m.querySelector('button').style.boxShadow='3px 3px 0 var(--noir), 0 0 0 3px var(--orange)';
+      else m.querySelector('button').style.boxShadow='';
+    });
+  };
+  window.allerA(lire('ecran','e-accueil'));
 })();

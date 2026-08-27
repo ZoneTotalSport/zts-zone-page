@@ -1,0 +1,150 @@
+/* ==========================================================================
+   BOUTONS — une seule forme dans toute l'app.
+   Demande de Joey, 27 août : « bouton rectangle avec coin arrondi pour tous
+   les boutons, avec ombrage et trait ».
+
+   Une seule règle plutôt que quarante retouches : tout ce qui se clique prend
+   le rectangle arrondi, le trait noir et l'ombre portée. Chargé EN DERNIER,
+   donc il gagne sur les feuilles précédentes sans avoir à les réécrire.
+
+   Trois exceptions, volontaires :
+   · .pr-tap   — c'est la carte d'élève entière, pas un bouton ;
+   · .metier   — un personnage détouré ; un cadre l'enfermerait ;
+   · .poignee  — une prise de glisser-déposer, pas une commande.
+   ========================================================================== */
+
+.wrap button, .tiroir button, .dock button, .modale button,
+.ctx-barre button, .proto-bar button, .ecrans-nav button,
+.wrap a.grp-puce{
+  border:3px solid var(--noir);
+  border-radius:11px;
+  box-shadow:3px 3px 0 var(--noir);
+  transition:transform .09s ease, box-shadow .09s ease;
+}
+.wrap button:hover, .tiroir button:hover, .dock button:hover, .modale button:hover,
+.ctx-barre button:hover, .proto-bar button:hover, .ecrans-nav button:hover{
+  transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--noir);
+}
+.wrap button:active, .tiroir button:active, .dock button:active, .modale button:active,
+.ctx-barre button:active, .proto-bar button:active, .ecrans-nav button:active{
+  transform:translate(2px,2px); box-shadow:1px 1px 0 var(--noir);
+}
+.wrap button:focus-visible, .tiroir button:focus-visible, .dock button:focus-visible,
+.modale button:focus-visible, .ctx-barre button:focus-visible,
+.proto-bar button:focus-visible, .ecrans-nav button:focus-visible{
+  outline:3px solid var(--orange); outline-offset:3px;
+}
+/* les exceptions reprennent leur apparence */
+.pr-tap, .pr-tap:hover, .pr-tap:active,
+.metier, .metier:hover, .metier:active{
+  border:0 !important; box-shadow:none !important; border-radius:0 !important; transform:none !important;
+}
+.metier:hover{ transform:translateY(-3px) !important; }
+.metier[aria-pressed="true"]{ transform:translateY(-3px) !important; }
+
+/* Les tuiles gardent leur grand rayon : ce sont des cartes, pas des commandes,
+   et leur ombre est déjà celle de la charte. */
+.tuile, .tuile:hover, .tuile:active{ border-radius:20px; border-width:3px }
+.tuile{ box-shadow:var(--ombre) }
+.tuile:hover{ transform:translateY(-3px); box-shadow:7px 8px 0 var(--noir) }
+.tuile:active{ transform:translateY(3px); box-shadow:2px 2px 0 var(--noir) }
+
+/* ── ce qui était rond ou en pilule devient rectangle arrondi ── */
+.ecrans-nav button{ border-radius:11px }
+.pastille-coul{ border-radius:8px; width:30px; height:26px }
+.pr-badge, .pr-flag{ border-radius:9px; width:auto; min-width:30px; padding:0 6px }
+.pr-etoiles button{
+  filter:none; opacity:1; width:26px; height:24px; line-height:18px; font-size:13px;
+  border:3px solid var(--noir); border-radius:8px; box-shadow:2px 2px 0 var(--noir);
+  background:#EDF3F6; color:var(--ink);
+}
+.pr-etoiles button.on{ background:var(--jaune) }
+.pr-tenue button{ filter:none; opacity:1; border-radius:8px; width:26px; height:24px; line-height:18px }
+.pr-tenue button:not(.on){ background:#EDF3F6; opacity:.55 }
+.cote, .ech-case{ border-radius:8px; box-shadow:2px 2px 0 var(--noir) }
+.cote{ width:28px; height:28px; line-height:22px }
+
+/* pastilles d'information : même forme, sans l'ombre (elles ne se cliquent pas) */
+.etiq, .cahier-puce, .pr-resume span, .tuile .badge, .crit-compte, .bloc-type,
+.grp-puce, .legende .pastille{
+  border-radius:9px;
+}
+.grp-puce{ border-width:3px; box-shadow:3px 3px 0 var(--noir); padding:5px 8px 5px 13px }
+.grp-puce button{ box-shadow:2px 2px 0 var(--noir); border-radius:7px }
+.laps li, .part-journal li, .cyc-nom, .hist-ligne, .journal-entree{ border-radius:11px }
+
+/* gros boutons : ombre plus marquée, ils portent l'action principale */
+.gros-bouton, .marquer, .m-valider{
+  border-radius:13px; box-shadow:4px 5px 0 var(--noir);
+}
+.gros-bouton:active, .marquer:active, .m-valider:active{
+  transform:translate(2px,3px); box-shadow:1px 2px 0 var(--noir);
+}
+.m-valider:disabled, .gros-bouton:disabled{ box-shadow:2px 2px 0 #7C8B93; transform:none }
+
+/* le tiroir et la barre du haut sont sur fond sombre : le trait noir s'y perd,
+   on lui ajoute un liseré clair pour qu'il se détache. */
+.tiroir button, .dock button, .ecrans-nav button, .proto-bar button{
+  box-shadow:3px 3px 0 var(--noir), 0 0 0 1px rgba(255,255,255,.22);
+}
+.tiroir button:active, .dock button:active, .ecrans-nav button:active, .proto-bar button:active{
+  box-shadow:1px 1px 0 var(--noir), 0 0 0 1px rgba(255,255,255,.22);
+}
+
+/* Deux polices, et rien d'autre : ZoneTotalSport (marque et titres de page) et
+   Luckiest Guy (titres, boutons, étiquettes). Le corps prend la pile système.
+   `code` retombait sur du serif Times — la seule troisième fonte à traîner. */
+code, kbd, samp{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.94em }
+
+/* ==========================================================================
+   BARRE DE NAVIGATION — 6 portes au lieu de 21 boutons.
+   Demande de Joey : « quelques boutons avec menu déroulant, on classe les
+   fonctionnalités qui se ressemblent ».
+   Ce n'est PAS le retour du bouton PLUS : l'accueil montre toujours toutes
+   les tuiles en toutes lettres. Seule la barre du haut se resserre, et
+   chaque menu est nommé par ce qu'on y cherche, pas par une catégorie floue.
+   ========================================================================== */
+.menu{position:relative}
+.menu>button{display:inline-flex;gap:6px;align-items:center}
+.menu>button .fleche{font-size:10px;transition:transform .12s}
+.menu[data-ouvert="1"]>button .fleche{transform:rotate(180deg)}
+.menu[data-ouvert="1"]>button{background:var(--cyan);color:#03323C}
+.menu-liste{
+  display:none;position:absolute;top:calc(100% + 7px);left:0;z-index:70;
+  min-width:230px;padding:7px;
+  background:#fff;border:3px solid var(--noir);border-radius:13px;
+  box-shadow:5px 6px 0 var(--noir);
+}
+.menu[data-ouvert="1"] .menu-liste{display:block}
+.menu-liste button{
+  display:block;width:100%;text-align:left;margin:0 0 5px;
+  font-family:var(--f-titre);font-size:14px;letter-spacing:.3px;
+  background:#F1F7FA;color:var(--ink);
+}
+.menu-liste button:last-child{margin-bottom:0}
+.menu-liste button[aria-current="true"]{background:var(--cyan);color:#03323C}
+.menu-liste .quoi{
+  display:block;font-family:system-ui,sans-serif;font-size:11px;font-weight:700;
+  color:var(--ink-soft);letter-spacing:0;margin-top:1px;
+}
+.menu-liste button[aria-current="true"] .quoi{color:#04414D}
+/* Les portes restent CÔTE À CÔTE et compactes, à toutes les largeurs.
+   La version « pleine largeur empilée » étalait la barre sur six lignes :
+   c'était pire que les 21 boutons de départ. */
+.ecrans-nav{gap:5px;padding:8px 12px}
+#nav>button, .menu>button{
+  font-size:13px; letter-spacing:.4px; padding:5px 11px;
+}
+.menu>button .fleche{font-size:8px;opacity:.8}
+.menu-liste{ max-width:min(280px, calc(100vw - 26px)) }
+@media(max-width:520px){
+  #nav>button, .menu>button{ font-size:11.5px; padding:4px 8px; letter-spacing:.2px }
+  .ecrans-nav{gap:4px;padding:7px 10px}
+  .menu-liste{ left:auto; right:0 }
+}
+
+/* La note du journal de bord : écrite à la main, elle aussi. */
+.journal-entree>div:not(.quand){ font-family:var(--f-main); font-size:17px }
+.cah-jour ul{ font-family:var(--f-main); font-size:14px }
+.cah-jour .rien{ font-family:var(--f-note); font-size:14px }
+.menu-liste .quoi{ font-family:var(--f-note); font-size:13px; font-weight:400 }

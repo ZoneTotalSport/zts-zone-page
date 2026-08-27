@@ -14,6 +14,16 @@
 'use strict';
 
 const P = 'protog2:';
+
+/* ═════════ LE CONTEXTE — ce qui fait tenir l'app ensemble ═════════
+   Un cahier de consignation range tout par JOUR et par GROUPE. Ici, la même
+   idée : `ctxDate` et `ctxGroupe` forment la clé sous laquelle se consigne
+   tout ce qui appartient à une séance — présences, cotes, tests, blocs.
+   Changer de jour ou de groupe change la page du cahier ; rien ne se mélange,
+   rien ne se perd. `kctx()` est le seul endroit où cette règle est écrite. */
+let ctxDate = null;      // 'AAAA-MM-JJ' — posé au démarrage
+let ctxGroupe = 0;       // index dans la liste des groupes
+function kctx(cle){ return 'j:'+ctxDate+':g'+ctxGroupe+':'+cle; }
 const lire  = (k, d) => { try { const v = localStorage.getItem(P+k); return v===null?d:JSON.parse(v); } catch(e){ return d; } };
 const ecrire= (k, v) => { try { localStorage.setItem(P+k, JSON.stringify(v)); } catch(e){ prevenirQuota(); } };
 const $  = (s,r=document)=>r.querySelector(s);
@@ -211,6 +221,10 @@ function choisirFichier(bloc, type){
 }
 
 /* ═════════ blocs ═════════ */
+ctxDate = lire('ctxDate', null) || (function(){ const d=new Date();
+  const D=n=>String(n).padStart(2,'0');
+  return d.getFullYear()+'-'+D(d.getMonth()+1)+'-'+D(d.getDate()); })();
+ctxGroupe = lire('ctxGroupe', 0);
 let seqBloc = lire('seqBloc', 0);
 function nouvelId(){ seqBloc++; ecrire('seqBloc', seqBloc); return 'b'+seqBloc; }
 
@@ -309,15 +323,18 @@ function faireBloc(o){
 /* N'enregistre QUE les hôtes déjà montés. Sans le drapeau `pret`, monter le
    premier hôte écrivait un ordre VIDE pour le second, qui se retrouvait ensuite
    sans aucun bloc au chargement suivant. */
+/* La journée est datée : son ordre de blocs vit sous le contexte. La fiche de
+   cours, elle, est un gabarit — elle reste hors contexte, volontairement. */
+function cleOrdre(h){ return h==='blocsJournee' ? kctx('ord') : 'ord:'+h; }
 function sauverBlocs(){
   ['blocsJournee','blocsCours'].forEach(h=>{
     const n = document.getElementById(h); if(!n || !n.dataset.pret) return;
-    ecrire('ord:'+h, $$('.bloc', n).map(b=>b.id));
+    ecrire(cleOrdre(h), $$('.bloc', n).map(b=>b.id));
   });
 }
 function monterBlocs(hoteId, defauts, opts){
   const hote = document.getElementById(hoteId);
-  const ordre = lire('ord:'+hoteId, null) || [];
+  const ordre = lire(cleOrdre(hoteId), null) || [];
   const neuf = !ordre.length;
   const src = neuf ? defauts.map(d=>({...d, id:nouvelId()})) : ordre.map(id=>({id}));
   if (neuf) src.forEach(o=> ecrire('min:'+o.id, o.duree||0));  // la durée de départ survit au rechargement
@@ -325,16 +342,40 @@ function monterBlocs(hoteId, defauts, opts){
   hote.dataset.pret = '1';
   if (neuf) sauverBlocs();
 }
-monterBlocs('blocsJournee', [
+/* Les blocs d'exemple ne sont posés qu'UNE FOIS, sur la toute première page
+   ouverte. Sinon chaque nouvelle date les recréait : Joey se serait retrouvé
+   avec « Échauffement — le miroir » tous les jours de l'année. */
+const JOURNEE_EXEMPLE = [
   {titre:'Échauffement — le miroir', desc:'2 par 2, un mène, l’autre suit. On change au signal.', duree:180},
   {titre:'Ballon chasseur — 4 coins', desc:'4 équipes, 6 ballons. Éliminé = tour de gym puis retour.', duree:600},
   {titre:'Retour au calme', desc:'Étirements, on nomme un bon coup du cours.', duree:180},
-]);
+];
+function defautsJournee(){
+  if (lire('seedFait', false)) return [];
+  ecrire('seedFait', true);
+  return JOURNEE_EXEMPLE;
+}
+monterBlocs('blocsJournee', defautsJournee());
 monterBlocs('blocsCours', [
   {titre:'Mise en train',  desc:'', duree:300},
   {titre:'Corps du cours', desc:'', duree:1800},
   {titre:'Retour',         desc:'', duree:300},
 ], {illu:true});
+/* Recharge la journée du contexte courant : on vide l'hôte et on remonte. */
+function remonterJournee(){
+  const hote = $('#blocsJournee'); if (!hote) return;
+  $$('.bloc', hote).forEach(b=> minuteries.delete(b.id));
+  hote.innerHTML=''; delete hote.dataset.pret;
+  monterBlocs('blocsJournee', defautsJournee());
+  const vide = !$$('.bloc', hote).length;
+  let inv = $('#journeeVide');
+  if (vide && !inv){
+    inv = el('div','aide-un-mot'); inv.id='journeeVide';
+    inv.innerHTML = '<span class="emo">📄</span>Page blanche pour ce jour. '
+      + 'Touche <b>+ AJOUTER UN BLOC</b>, ou <b>PIGER DANS LES JEUX</b>.';
+    hote.parentNode.insertBefore(inv, hote);
+  } else if (!vide && inv){ inv.remove(); }
+}
 $('#addBloc').addEventListener('click', ()=>{
   const b = faireBloc({id:nouvelId(), titre:'', desc:'', duree:0});
   $('#blocsJournee').appendChild(b); sauverBlocs(); b.querySelector('.bloc-titre').focus();
@@ -744,11 +785,11 @@ function photoDe(i){
   return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
 }
 function presDe(i){
-  return lire('pres2:'+i, {statut:'attendu', heureArrivee:'', dateDepart:'', heureDepart:'',
+  return lire(kctx('pres2:'+i), {statut:'attendu', heureArrivee:'', dateDepart:'', heureDepart:'',
                            arriveAvec:'', partiAvec:'', lienParti:'', horsListe:false,
                            humeur:'', note:'', messageParent:''});
 }
-function poserPres(i,p){ ecrire('pres2:'+i, p); peindrePresences(); }
+function poserPres(i,p){ ecrire(kctx('pres2:'+i), p); peindrePresences(); }
 const D2 = n => String(n).padStart(2,'0');
 function maintenantHM(){ const d=new Date(); return D2(d.getHours())+':'+D2(d.getMinutes()); }
 function aujourdhuiISO(){ const d=new Date(); return d.getFullYear()+'-'+D2(d.getMonth()+1)+'-'+D2(d.getDate()); }
@@ -986,7 +1027,7 @@ $('#prEnvoyer').addEventListener('click', async ()=>{
 });
 $('#prRaz').addEventListener('click', ()=>{
   if(!confirm('Remettre tout le groupe en « attendu » ?')) return;
-  ENFANTS.forEach((e,i)=>{ try{ localStorage.removeItem(P+'pres2:'+i); }catch(err){} });
+  ENFANTS.forEach((e,i)=>{ try{ localStorage.removeItem(P+kctx('pres2:'+i)); }catch(err){} });
   peindrePresences();
 });
 
@@ -1009,7 +1050,7 @@ const COMPS = [
   {id:'c2', nom:'C2 · Interagir'},
   {id:'c3', nom:'C3 · Sain et actif'},
 ];
-function coteDe(i,c){ return lire('ev:'+i+':'+c, null); }
+function coteDe(i,c){ return lire(kctx('ev:'+i+':'+c), null); }
 (function evaluation(){
   const h = $('#evalCorps');
   ELEVES.forEach((nom,i)=>{
@@ -1025,8 +1066,8 @@ function coteDe(i,c){ return lire('ev:'+i+':'+c, null); }
         b.addEventListener('click', ()=>{
           const actuel = coteDe(i,cp.id);
           const neuf = actuel===c ? null : c;          // reclic = on enlève
-          if (neuf) ecrire('ev:'+i+':'+cp.id, neuf);
-          else { try{ localStorage.removeItem(P+'ev:'+i+':'+cp.id); }catch(e){} }
+          if (neuf) ecrire(kctx('ev:'+i+':'+cp.id), neuf);
+          else { try{ localStorage.removeItem(P+kctx('ev:'+i+':'+cp.id)); }catch(e){} }
           [...grp.children].forEach(x=> x.setAttribute('aria-pressed', String(x.dataset.c===neuf)));
           compterEval();
         });
@@ -1035,14 +1076,14 @@ function coteDe(i,c){ return lire('ev:'+i+':'+c, null); }
       td.appendChild(grp); tr.appendChild(td);
     });
     const tdo = el('td');
-    tdo.innerHTML = '<div contenteditable data-k="ev-obs-'+i+'" data-vide="…" style="font-size:13px"></div>';
+    tdo.innerHTML = '<div contenteditable data-k="'+kctx('ev-obs-'+i)+'" data-vide="…" style="font-size:13px"></div>';
     tr.appendChild(tdo);
     h.appendChild(tr);
   });
   brancherEditables(h);
   $('#evVider').addEventListener('click', ()=>{
     if (!confirm('Effacer toutes les cotes du groupe ?')) return;
-    ELEVES.forEach((n,i)=> COMPS.forEach(cp=>{ try{ localStorage.removeItem(P+'ev:'+i+':'+cp.id); }catch(e){} }));
+    ELEVES.forEach((n,i)=> COMPS.forEach(cp=>{ try{ localStorage.removeItem(P+kctx('ev:'+i+':'+cp.id)); }catch(e){} }));
     $$('#evalCorps .cote').forEach(b=> b.setAttribute('aria-pressed','false'));
     compterEval();
   });

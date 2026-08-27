@@ -13,6 +13,7 @@
   padding:10px 14px;margin:0 0 16px;font-weight:800;font-size:15px;
 }
 .aide-un-mot .emo{font-size:26px;line-height:1}
+.aide-un-mot{font-family:var(--f-note);font-size:18px;font-weight:400}
 
 /* ---- options d'un bloc, ouvertes SUR le bloc ---- */
 .bloc-options{
@@ -23,7 +24,7 @@
 .bloc-options.on{display:flex}
 .bloc-options .grp{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .bloc-options .titre{
-  font-family:var(--f-punch);letter-spacing:1px;font-size:12px;color:var(--ink-soft);
+  font-family:var(--f-titre);letter-spacing:1px;font-size:12px;color:var(--ink-soft);
   width:100%;margin-bottom:-3px;
 }
 .pastille-coul{
@@ -32,7 +33,7 @@
 .pastille-coul[aria-pressed="true"]{box-shadow:0 0 0 3px var(--orange)}
 .bloc--depot{outline:4px dashed var(--lime);outline-offset:4px;background:#F2FFE2}
 .bloc-type{
-  display:inline-flex;gap:5px;align-items:center;font-family:var(--f-punch);
+  display:inline-flex;gap:5px;align-items:center;font-family:var(--f-titre);
   letter-spacing:.8px;font-size:12px;border:2px solid var(--noir);border-radius:999px;
   padding:1px 9px;background:#fff;color:var(--ink);
 }
@@ -53,18 +54,18 @@
 .crit-liste input{margin-top:2px;width:17px;height:17px;accent-color:#2FA51E;flex:none}
 .crit-plein{opacity:.45}
 .crit-compte{
-  font-family:var(--f-punch);letter-spacing:1px;font-size:14px;
+  font-family:var(--f-titre);letter-spacing:1px;font-size:14px;
   background:var(--noir);color:var(--jaune);border-radius:999px;padding:2px 12px;
 }
 .ech-btn{
-  cursor:pointer;font-family:var(--f-punch);letter-spacing:.8px;font-size:13px;
+  cursor:pointer;font-family:var(--f-titre);letter-spacing:.8px;font-size:13px;
   border:2px solid var(--noir);border-radius:9px;padding:4px 11px;
   background:#F1F7FA;color:var(--ink);
 }
 .ech-btn[aria-pressed="true"]{background:var(--cyan);color:#03323C}
 .ech-case{
   min-width:34px;height:30px;line-height:24px;cursor:pointer;padding:0 6px;
-  font-family:var(--f-punch);letter-spacing:.5px;font-size:14px;
+  font-family:var(--f-titre);letter-spacing:.5px;font-size:14px;
   border:2px solid var(--noir);border-radius:8px;background:#F1F7FA;color:var(--ink);
 }
 .ech-case[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--noir);font-weight:900}
@@ -98,7 +99,7 @@
   background:#E4F8FD;color:var(--ink);
 }
 .palier-affiche b{display:block;font-family:var(--f-titre);font-size:22px}
-.palier-affiche span{font-family:var(--f-punch);letter-spacing:.8px;font-size:11px;color:var(--ink-soft)}
+.palier-affiche span{font-family:var(--f-titre);letter-spacing:.8px;font-size:11px;color:var(--ink-soft)}
 .test-tbl{width:100%;border-collapse:separate;border-spacing:3px;margin-top:10px}
 .test-tbl th{background:var(--noir);color:var(--jaune);border-radius:8px;font-family:var(--f-titre);font-size:12px;padding:5px}
 .test-tbl td{background:#fff;color:var(--ink);border:2px solid var(--noir);border-radius:8px;padding:3px 6px;font-size:13px;text-align:center}
@@ -117,17 +118,16 @@
   cursor:pointer;border:2px solid var(--noir);border-radius:7px;background:#F1F7FA;color:var(--ink);
   font-size:11px;padding:0 6px;line-height:18px;
 }
-.journal-entree{
   background:#FFFDEB;color:var(--ink);border:2px solid var(--noir);border-radius:11px;
   padding:9px 11px;margin-bottom:8px;
 }
-.journal-entree .quand{font-family:var(--f-punch);letter-spacing:1px;font-size:12px;color:var(--ink-soft)}
+.journal-entree .quand{font-family:var(--f-titre);letter-spacing:1px;font-size:12px;color:var(--ink-soft)}
 .hist-ligne{
   display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:center;
   border:2px solid var(--noir);border-radius:10px;padding:6px 10px;margin-bottom:6px;
   background:#fff;color:var(--ink);font-size:13px;
 }
-.hist-ligne b{font-family:var(--f-punch);letter-spacing:.8px}
+.hist-ligne b{font-family:var(--f-titre);letter-spacing:.8px}
 
 /* ---- DONNÉES ---- */
 .don-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
@@ -145,7 +145,7 @@
   background:#fff;color:var(--ink);
 }
 .msg.moi{align-self:flex-end;background:#DFFCA8}
-.msg .qui{font-family:var(--f-punch);letter-spacing:.9px;font-size:11px;color:var(--ink-soft);display:block}
+.msg .qui{font-family:var(--f-titre);letter-spacing:.9px;font-size:11px;color:var(--ink-soft);display:block}
 
 /* ---- PRÉSENCES : émulation, tenue, banc ---- */
 .pr-etoiles{display:flex;gap:2px;justify-content:center;margin-top:4px}
@@ -178,7 +178,7 @@
 .reg-ligne>b{min-width:150px;font-size:14px}
 .cyc-noms{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin-top:8px}
 .cyc-nom{border:2px solid var(--noir);border-radius:9px;padding:4px 7px;background:#F4FAFD;color:var(--ink);font-size:13px}
-.cyc-nom b{display:block;font-family:var(--f-punch);letter-spacing:1px;font-size:11px;color:var(--ink-soft)}
+.cyc-nom b{display:block;font-family:var(--f-titre);letter-spacing:1px;font-size:11px;color:var(--ink-soft)}
 
 /* zoom appliqué au contenu */
 body[data-zoom="90"] .wrap{font-size:.9em}
@@ -195,3 +195,86 @@ body.tbi .pr-nom{font-size:17px}
   .palier-affiche{grid-template-columns:repeat(2,1fr)}
   .hist-ligne{grid-template-columns:1fr}
 }
+
+/* ==========================================================================
+   CAHIER DE CONSIGNATION — la barre de contexte et la page du jour.
+   Demande de Joey : « comme un cahier de consignation / un agenda pédagogique,
+   le tout interconnecté ». La barre dit TOUJOURS où on écrit ; le cahier
+   rassemble ce qui a été consigné ce jour-là, pour ce groupe-là.
+   ========================================================================== */
+.ctx-barre{
+  position:sticky;top:96px;z-index:54;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  background:var(--jaune);color:var(--ink);border-bottom:var(--bord);
+  padding:7px 14px;font-family:var(--f-titre);letter-spacing:.3px;font-size:16px;
+}
+.ctx-barre button{
+  cursor:pointer;font-family:var(--f-titre);letter-spacing:1px;font-size:14px;
+  border:2px solid var(--noir);border-radius:9px;padding:3px 11px;
+  background:#fff;color:var(--ink);
+}
+.ctx-barre button:hover{background:var(--cyan-vif)}
+.ctx-barre .jour{min-width:190px;text-align:center}
+.ctx-barre select{
+  font-family:var(--f-titre);font-size:16px;border:2px solid var(--noir);border-radius:9px;
+  padding:3px 8px;background:#fff;color:var(--ink);cursor:pointer;
+}
+.ctx-barre .ou{font-family:var(--f-titre);letter-spacing:1px;font-size:12px;opacity:.65}
+@media(max-width:760px){ .ctx-barre{position:static;font-size:14px} .ctx-barre .jour{min-width:0;flex:1} }
+
+/* ── la page du cahier ── */
+.cahier{
+  background:#FFFDF3;color:var(--ink);border:var(--bord);border-radius:6px;
+  box-shadow:var(--ombre);padding:0;overflow:hidden;
+}
+.cahier-tete{
+  background:var(--noir);color:var(--jaune);padding:10px 16px;
+  display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;
+}
+.cahier-tete h2{font-family:var(--f-titre);font-size:23px;margin:0;letter-spacing:.4px;color:var(--jaune)}
+.cahier-tete .gr{font-family:var(--f-titre);letter-spacing:1px;font-size:15px;color:#BFE9F6}
+.cahier-corps{padding:0 16px 16px}
+/* la réglure : ce qui fait « cahier » */
+.cahier-sect{
+  border-bottom:2px solid #D9CFA8;padding:12px 0 12px 92px;position:relative;
+  background-image:repeating-linear-gradient(transparent,transparent 27px,#EDE4C8 27px,#EDE4C8 28px);
+}
+.cahier-sect:last-child{border-bottom:0}
+.cahier-sect::before{
+  content:attr(data-titre);position:absolute;left:0;top:12px;width:80px;
+  font-family:var(--f-titre);letter-spacing:1px;font-size:12px;color:#8A7A4A;
+  text-align:right;line-height:1.15;
+}
+.cahier-sect::after{
+  content:'';position:absolute;left:86px;top:0;bottom:0;width:2px;background:#E0A9A9;
+}
+.cahier-vide{color:#6E6650;font-weight:600;font-family:var(--f-note);font-size:17px}
+.cahier-item{display:flex;gap:8px;align-items:flex-start;line-height:28px;font-weight:600;
+  font-family:var(--f-main);font-size:17px}
+.cahier-item .p{flex:none;width:20px;text-align:center}
+.cahier-item.fait{color:#3E7A34}
+.cahier-item.pas{color:#6E6134}   /* #8A7A4A ne donnait que 4.15 sur le papier crème */
+.cahier-puces{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.cahier-puce{
+  border:2px solid var(--noir);border-radius:999px;padding:0 10px;font-size:13px;font-weight:800;
+  background:#fff;color:var(--ink);line-height:24px;
+}
+.cahier-puce.vert{background:#DFFCA8}
+.cahier-puce.gris{background:#DDE4E8}
+.cahier-puce.rose{background:#FFD0DE}
+.cahier-lien{
+  cursor:pointer;border:2px solid var(--noir);border-radius:9px;padding:2px 10px;
+  background:#E4F8FD;color:var(--ink);font-family:var(--f-titre);letter-spacing:.8px;font-size:12px;
+}
+.cahier-semaine{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.cah-jour{
+  border:2px solid var(--noir);border-radius:11px;background:#fff;color:var(--ink);
+  padding:8px;min-height:110px;cursor:pointer;
+}
+.cah-jour[aria-current="true"]{box-shadow:0 0 0 3px var(--orange)}
+.cah-jour h4{font-family:var(--f-titre);font-size:14px;margin:0 0 5px;letter-spacing:.2px}
+.cah-jour .rien{color:#6E6650;font-style:italic;font-size:12px}  /* #9A8F70 ne donnait que 3.21 sur blanc */
+.cah-jour ul{margin:0;padding-left:14px;font-size:12px;font-weight:600}
+@media(max-width:760px){ .cahier-semaine{grid-template-columns:1fr} .cahier-sect{padding-left:0}
+  .cahier-sect::before{position:static;display:block;width:auto;text-align:left;margin-bottom:4px}
+  .cahier-sect::after{display:none} }

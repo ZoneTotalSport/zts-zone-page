@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css">
-<link rel="stylesheet" href="proto-fusion.css">
+<link rel="stylesheet" href="proto.css?v=13">
+<link rel="stylesheet" href="proto-fusion.css?v=13">
+<link rel="stylesheet" href="proto-boutons.css?v=13">
 </head>
 <body>
 
@@ -18,6 +19,17 @@
 </div>
 
 <nav class="ecrans-nav" id="nav" aria-label="Écrans du proto"></nav>
+
+<div class="ctx-barre" id="ctxBarre">
+  <button type="button" id="ctxPrec" aria-label="Jour précédent">◀</button>
+  <span class="jour" id="ctxJour">—</span>
+  <button type="button" id="ctxSuiv" aria-label="Jour suivant">▶</button>
+  <button type="button" id="ctxAuj">AUJOURD'HUI</button>
+  <span class="ou">J'ÉCRIS DANS</span>
+  <select id="ctxGroupeSel" aria-label="Groupe"></select>
+  <span style="flex:1"></span>
+  <button type="button" data-va="e-cahier">📔 MON CAHIER</button>
+</div>
 
 <div class="wrap">
 
@@ -73,6 +85,9 @@
     <button type="button" class="tuile" id="btnImprimer">
       <span class="emo">🖨️</span>IMPRIMER
       <span class="aide">L'écran courant sur papier</span></button>
+    <button type="button" class="tuile" data-va="e-cahier">
+      <span class="emo">📔</span>MON CAHIER
+      <span class="aide">Tout ce que j'ai fait ce jour-là</span></button>
     <button type="button" class="tuile" data-va="e-tests">
       <span class="emo">🏃</span>TESTS
       <span class="aide">Chrono, navette, Léger-Boucher</span></button>
@@ -316,6 +331,20 @@
   </div>
 </section>
 
+<!-- ═══════════════ CAHIER ═══════════════ -->
+<section class="ecran" id="e-cahier">
+  <h1 class="titre">Mon cahier</h1>
+  <div class="aide-un-mot"><span class="emo">📔</span>
+    Tout ce que tu fais ailleurs vient s'écrire ici, à la bonne date et au bon groupe.
+    Tu n'as jamais à le recopier.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+    <button type="button" class="mini" id="cahJour" aria-pressed="true">📄 LA PAGE DU JOUR</button>
+    <button type="button" class="mini" id="cahSemaine" aria-pressed="false">📆 MA SEMAINE</button>
+    <button type="button" class="mini mini--jaune" id="cahImprimer">🖨️ IMPRIMER</button>
+  </div>
+  <div id="cahHote"></div>
+</section>
+
 <!-- ═══════════════ TESTS ═══════════════ -->
 <section class="ecran" id="e-tests">
   <h1 class="titre">Tests</h1>
@@ -541,7 +570,7 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js"></script>
-<script src="proto-fusion.js"></script>
+<script src="proto.js?v=13"></script>
+<script src="proto-fusion.js?v=13"></script>
 </body>
 </html>

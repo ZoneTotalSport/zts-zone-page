@@ -14,6 +14,53 @@ python3 -m http.server 8788
 # → http://localhost:8788/apps/planificateur/proto/
 ```
 
+## Le cahier de consignation — ce qui relie tout
+
+**Une clé commune : le jour + le groupe.** La barre jaune du haut la montre en
+permanence (« jeudi 27 août · j'écris dans 5A ») et la change. Tout ce qui
+appartient à une séance se range dessous : présences, cotes, tests, blocs de la
+journée, étoiles, banc de retrait.
+
+L'écran **MON CAHIER** ne recopie rien — il **relit** cette clé et présente la
+page du jour, réglure et marge comprises : ce que j'ai fait · qui était là ·
+ce que j'ai noté · les tests · mon mot du jour. Chaque section a un bouton qui
+ouvre l'écran d'où vient l'information. Une vue **MA SEMAINE** montre les cinq
+jours d'un coup.
+
+Conséquence directe : évaluer un groupe le range **à la bonne date et au bon
+groupe**, sans rien ressaisir. Changer de jour ou de groupe change la page ;
+revenir la retrouve intacte.
+
+Une journée neuve démarre **vide**, avec une invitation — les blocs d'exemple ne
+sont posés qu'une seule fois, à la toute première ouverture.
+
+## La barre du haut — 6 portes, pas 21 boutons
+
+Les écrans sont groupés par **ce qu'on y cherche** : Ma classe · Mon calendrier ·
+Évaluer · Mes outils · Réglages, plus Accueil et Mon cahier en accès direct.
+Chaque entrée porte son explication en une ligne. **Aucun écran n'est
+injoignable** — vérifié à la recette.
+
+Ce n'est pas le retour du bouton PLUS : l'accueil montre toujours toutes les
+tuiles en toutes lettres.
+
+## Quatre polices, et pas une de plus
+
+| Police | Rôle |
+|---|---|
+| `ZoneTotalSport.ttf` | la marque et les titres de page |
+| `LuckiestGuy` | titres de section, boutons, étiquettes |
+| `IndieFlower` | **ce que l'utilisateur écrit** — tous les champs, et le cahier |
+| `AnnieUseYourTelescope` | les notes et les phrases d'aide |
+
+Le corps de texte prend la pile système : aucune police de corps n'est
+auto-hébergée, c'est la doctrine « zéro Google Fonts » du site. Bangers et
+Quicksand ont été retirées à la demande de Joey.
+
+Poser la manuscrite sur les champs a un effet utile au-delà du décor : on
+distingue d'un coup d'œil **ce que l'app affiche** de **ce que le prof a
+inscrit**.
+
 ## Rien n'est caché
 
 **Il n'y a pas de bouton « PLUS ».** Les 16 outils sont sur l'accueil, en
