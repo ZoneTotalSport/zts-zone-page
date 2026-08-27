@@ -1246,7 +1246,9 @@ function peindreQr(code){
 }
 
 /* ═════════ départ ═════════ */
-$('#btnImprimer').addEventListener('click', ()=> window.print());
+/* La tuile IMPRIMER a quitté l'accueil (devenu l'agenda) : elle vit maintenant
+   dans le menu OUTILS. On ne s'accroche que si elle est là. */
+const _imp = $('#btnImprimer'); if (_imp) _imp.addEventListener('click', ()=> window.print());
 $('#btnVider').addEventListener('click', ()=>{
   if (!confirm('Effacer toute la saisie du proto ? (rien d’autre n’est touché)')) return;
   Object.keys(localStorage).filter(k=>k.startsWith(P)).forEach(k=>localStorage.removeItem(k));

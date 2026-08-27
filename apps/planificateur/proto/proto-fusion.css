@@ -298,8 +298,71 @@ body.tbi .pr-nom{font-size:17px}
 .carnet tbody tr:nth-child(even) td{background:#FAFDFF}
 .carnet tbody tr:nth-child(even) th{background:#EDF6FA}
 .carnet .moy{font-family:var(--f-titre);font-size:15px;background:#FFFEE0!important}
-.carnet .vide{color:#B9C6CE}
+.carnet .vide{color:#5E6E78}     /* #B9C6CE ne donnait que 1.70 */
 .carnet .n100{background:#8CE05F}.carnet .n80{background:#C7F0A8}
 .carnet .n60{background:#FFF07A}.carnet .n40{background:#FFC98A}.carnet .n20{background:#FF9C8F}
 .carnet-legende{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;font-size:12px;font-weight:700}
 .carnet-legende span{border:2px solid var(--noir);border-radius:8px;padding:1px 9px;color:var(--ink)}
+
+/* ==========================================================================
+   AGENDA — l'écran d'ouverture.
+   Joey : « à la place [des tuiles], mets l'affichage de base comme un agenda,
+   les modèles que je t'ai donnés ». Structure transposée du gabarit papier
+   « Planification de la semaine » : la colonne des périodes avec leurs heures,
+   les cinq jours en colonnes, et la bande samedi / dimanche / commentaires.
+   Ici les cases ne sont pas vides : elles montrent ce qui est CONSIGNÉ.
+   ========================================================================== */
+.agenda{
+  background:#fff;color:var(--ink);border:var(--bord);border-radius:16px;
+  box-shadow:var(--ombre);overflow:hidden;margin-bottom:18px;
+}
+.agenda-tete{
+  background:var(--noir);color:var(--jaune);padding:9px 14px;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+}
+.agenda-tete h2{font-family:var(--f-titre);font-size:20px;margin:0;color:var(--jaune);flex:1;min-width:180px}
+.agenda-grille{display:grid;grid-template-columns:96px repeat(5,1fr);gap:4px;padding:10px}
+.ag-coin{}
+.ag-jour{
+  border:2px solid var(--noir);border-radius:9px;padding:5px;text-align:center;
+  background:var(--jaune);color:var(--ink);cursor:pointer;
+}
+.ag-jour[aria-current="true"]{background:var(--cyan);color:#03323C;box-shadow:inset 0 0 0 3px var(--noir)}
+.ag-jour b{display:block;font-family:var(--f-titre);font-size:14px;letter-spacing:.2px;line-height:1.1}
+.ag-jour .d{font-size:11px;font-weight:800}
+.ag-jour .cyc{
+  display:inline-block;margin-top:2px;font-family:var(--f-titre);font-size:11px;
+  border:2px solid var(--noir);border-radius:7px;padding:0 6px;background:#fff;color:var(--ink);
+}
+.ag-per{
+  border:2px solid var(--noir);border-radius:9px;background:#CFF1FB;color:var(--ink);
+  text-align:center;padding:4px 3px;font-family:var(--f-titre);font-size:12px;line-height:1.1;
+}
+.ag-per small{display:block;font-family:system-ui,sans-serif;font-weight:700;font-size:10px;margin-top:2px}
+.ag-pause{
+  grid-column:1/-1;border:2px dashed var(--noir);border-radius:8px;background:#F2F7FA;
+  color:var(--ink-soft);text-align:center;font-family:var(--f-titre);font-size:11px;padding:2px;
+}
+.ag-case{
+  border:2px solid var(--noir);border-radius:9px;background:#FAFDFF;color:var(--ink);
+  min-height:52px;padding:4px 5px;cursor:pointer;font-size:12px;
+}
+.ag-case:hover{background:#E4F8FD}
+.ag-case[data-auj="1"]{background:#FFFEE0}
+.ag-case .t{display:block;font-weight:800;line-height:1.25;font-family:var(--f-main);font-size:14px}
+.ag-case .rien{color:#5C6970;font-family:var(--f-note);font-size:14px}
+.ag-case .bar{height:5px;border-radius:99px;border:2px solid var(--noir);margin:0 0 3px}
+.agenda-bas{display:grid;grid-template-columns:1fr 1fr 1.6fr;gap:8px;padding:0 10px 12px}
+.agenda-bas>div{border:2px solid var(--noir);border-radius:10px;padding:6px 8px;background:#fff;color:var(--ink)}
+.agenda-bas b{font-family:var(--f-titre);font-size:13px;display:block;margin-bottom:3px}
+.agenda-bas .we{background:#FFFDEB}
+.ag-resume{display:flex;gap:6px;flex-wrap:wrap;padding:0 10px 12px}
+.ag-resume span{
+  border:2px solid var(--noir);border-radius:9px;padding:2px 10px;font-size:12px;font-weight:800;
+  background:#F1F7FA;color:var(--ink);
+}
+@media(max-width:760px){
+  .agenda-grille{grid-template-columns:64px repeat(5,1fr);gap:3px;padding:7px;font-size:11px}
+  .ag-jour b{font-size:11px} .ag-case{min-height:44px;font-size:11px} .ag-case .t{font-size:12px}
+  .agenda-bas{grid-template-columns:1fr}
+}

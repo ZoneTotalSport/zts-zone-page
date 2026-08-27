@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=16">
-<link rel="stylesheet" href="proto-fusion.css?v=16">
-<link rel="stylesheet" href="proto-boutons.css?v=16">
+<link rel="stylesheet" href="proto.css?v=20">
+<link rel="stylesheet" href="proto-fusion.css?v=20">
+<link rel="stylesheet" href="proto-boutons.css?v=20">
 </head>
 <body>
 
@@ -36,7 +36,7 @@
 <!-- ═══════════════ 1. ACCUEIL ═══════════════ -->
 <section class="ecran on" id="e-accueil">
   <h1 class="titre">Bonjour !</h1>
-  <p class="sous">Choisis ton métier. Tout l'outil est là, en toutes lettres — rien n'est caché derrière un menu.</p>
+  <p class="sous">Ta semaine d'un coup d'œil. Touche une journée pour l'ouvrir.</p>
 
   <div class="metiers" id="metiers">
     <button type="button" class="metier" data-metier="eps"  aria-pressed="true">
@@ -47,75 +47,7 @@
       <img src="/perso-sdg.png" alt="">SERVICE DE GARDE</button>
   </div>
 
-  <div class="tuiles">
-    <button type="button" class="tuile" data-va="e-jeux">
-      <span class="emo">🎲</span>JEUX
-      <span class="badge" id="badgeJeux">1274</span>
-      <span class="aide">Piger une activité dans la banque</span></button>
-    <button type="button" class="tuile" data-va="e-presences">
-      <span class="emo">✅</span>PRÉSENCES
-      <span class="aide">Qui est là aujourd'hui</span></button>
-    <button type="button" class="tuile" data-va="e-journee">
-      <span class="emo">📋</span><span id="tuile3">MES COURS</span>
-      <span class="aide" id="tuile3aide">Le plan de la journée, bloc par bloc</span></button>
-    <button type="button" class="tuile" data-va="e-planb">
-      <span class="emo">🌧️</span>PLAN B
-      <span class="aide">Il pleut&nbsp;? Le gym est pris&nbsp;?</span></button>
-    <button type="button" class="tuile" data-va="e-noter">
-      <span class="emo">⭐</span>NOTER
-      <span class="aide">Un mot sur le groupe, vite fait</span></button>
-    <button type="button" class="tuile" data-va="e-cours">
-      <span class="emo">🏀</span>FICHE DE COURS
-      <span class="aide">Le gabarit papier : 3 blocs et leurs durées</span></button>
-    <button type="button" class="tuile" data-va="e-semaine">
-      <span class="emo">🗓️</span>SEMAINE
-      <span class="aide">Périodes 1 à 6, du lundi au vendredi</span></button>
-    <button type="button" class="tuile" data-va="e-mois">
-      <span class="emo">📅</span>MOIS
-      <span class="aide">Jours-cycle et journées spéciales</span></button>
-    <button type="button" class="tuile" data-va="e-annee">
-      <span class="emo">📚</span>ANNÉE
-      <span class="aide">Compétence, moyen d'action, activité</span></button>
-    <button type="button" class="tuile" data-va="e-calendrier">
-      <span class="emo">📆</span>CALENDRIER
-      <span class="aide">Août à juin, congés et pédagogiques</span></button>
-    <button type="button" class="tuile" data-va="e-temps">
-      <span class="emo">⏱️</span>MON TEMPS
-      <span class="aide">Heures travaillées et signatures</span></button>
-    <button type="button" class="tuile" id="btnImprimer">
-      <span class="emo">🖨️</span>IMPRIMER
-      <span class="aide">L'écran courant sur papier</span></button>
-    <button type="button" class="tuile" data-va="e-cahier">
-      <span class="emo">📔</span>MON CAHIER
-      <span class="aide">Tout ce que j'ai fait ce jour-là</span></button>
-    <button type="button" class="tuile" data-va="e-carnet">
-      <span class="emo">📊</span>CARNET DE NOTES
-      <span class="aide">Toutes mes cotes, une ligne par élève</span></button>
-    <button type="button" class="tuile" data-va="e-tests">
-      <span class="emo">🏃</span>TESTS
-      <span class="aide">Chrono, navette, Léger-Boucher</span></button>
-    <button type="button" class="tuile" data-va="e-groupes">
-      <span class="emo">👥</span>MES GROUPES
-      <span class="aide">Mes classes, mes élèves, mon journal</span></button>
-    <button type="button" class="tuile" data-va="e-messages">
-      <span class="emo">💬</span>MESSAGES
-      <span class="aide">Écrire au coordo, valider ma semaine</span></button>
-    <button type="button" class="tuile" data-va="e-donnees">
-      <span class="emo">💾</span>MES DONNÉES
-      <span class="aide">Sauvegarder, exporter, importer</span></button>
-    <button type="button" class="tuile" data-va="e-reglages">
-      <span class="emo">⚙️</span>RÉGLAGES
-      <span class="aide">Métier, sons, horaire de l'école</span></button>
-    <button type="button" class="tuile" data-va="e-evaluation">
-      <span class="emo">📝</span>ÉVALUATION
-      <span class="aide">Coter les 3 compétences du PFEQ</span></button>
-    <button type="button" class="tuile" data-va="e-bulletin">
-      <span class="emo">🎓</span>BULLETIN
-      <span class="aide">La synthèse d'étape, prête à imprimer</span></button>
-    <button type="button" class="tuile" data-va="e-partage">
-      <span class="emo">📤</span>PARTAGE
-      <span class="aide">Envoyer une planif à un collègue</span></button>
-  </div>
+  <div id="agendaHote"></div>
 </section>
 
 <!-- ═══════════════ 2. MA JOURNÉE ═══════════════ -->
@@ -590,7 +522,7 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=16"></script>
-<script src="proto-fusion.js?v=16"></script>
+<script src="proto.js?v=20"></script>
+<script src="proto-fusion.js?v=20"></script>
 </body>
 </html>

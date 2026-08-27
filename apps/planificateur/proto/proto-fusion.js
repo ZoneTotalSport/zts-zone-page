@@ -1054,10 +1054,15 @@ function releveDuJour(iso, gr){
     r.blocs.push({titre:t, fait:!!lire('ck:'+id+'-f',false), type:(lire('opt:'+id,{}).type||'activite')});
   });
   ENFANTS.forEach((e,i)=>{
+    /* ⚠ Le comptage des cotes était DANS la branche « a une présence » : un
+       `return` plus haut le sautait. Évaluer sans avoir pris les présences —
+       le cas courant — ne comptait donc rien. Les deux relevés sont séparés. */
     const p=lire(kctx('pres2:'+i), null);
-    if (!p) { r.presences.attendu++; return; }
-    r.presences[p.statut]=(r.presences[p.statut]||0)+1;
-    if (p.statut==='parti') r.departs.push({qui:e.p, h:p.heureDepart, avec:p.partiAvec, hors:p.horsListe, msg:p.messageParent});
+    if (!p) r.presences.attendu++;
+    else {
+      r.presences[p.statut]=(r.presences[p.statut]||0)+1;
+      if (p.statut==='parti') r.departs.push({qui:e.p, h:p.heureDepart, avec:p.partiAvec, hors:p.horsListe, msg:p.messageParent});
+    }
     COMPS.forEach(c=>{ if (lire(kctx('ev:'+i+':'+c.id),null)) r.cotes++; });
     critsChoisis().forEach(c=>{ if (lire(kctx('evc:'+i+':'+c),null)!==null) r.crits++; });
     if (lire(kctx('etoile:'+i),0)) r.etoiles+=lire(kctx('etoile:'+i),0);
@@ -1445,4 +1450,149 @@ function peindreCarnet(){
   b.addEventListener('click',e=>{ e.stopPropagation(); m.dataset.ouvert='0'; allerA('e-carnet'); });
   const liste=m.querySelector('.menu-liste');
   liste.insertBefore(b, liste.children[1]);
+})();
+
+/* ═════════ 13. L'AGENDA — l'écran d'ouverture ═════════
+   Joey : « à la place [des tuiles], l'affichage de base comme un agenda, les
+   modèles que je t'ai donnés ». Les 22 tuiles faisaient doublon avec la barre
+   du haut. L'accueil devient donc la SEMAINE, transposée du gabarit papier :
+   la colonne des périodes avec leurs heures, cinq jours en colonnes, la bande
+   samedi / dimanche / commentaires.
+   Différence avec le papier : les cases ne sont pas vides. Elles montrent ce
+   qui est consigné sous `kctx()` — donc l'agenda se remplit tout seul. */
+const AG_PERIODES = [
+  {n:1, h:'8:00 à 8:50'}, {n:2, h:'8:50 à 9:40'}, {pause:'Récréation'},
+  {n:3, h:'10:00 à 10:50'}, {n:4, h:'10:50 à 11:40'}, {pause:'Dîner'},
+  {n:5, h:'13:05 à 13:55'}, {pause:'Récréation'}, {n:6, h:'14:15 à 15:05'},
+];
+let agLundi = null;
+
+function lundiDe(iso){
+  const d=dateDeIso(iso); d.setDate(d.getDate()-((d.getDay()+6)%7)); return isoDe(d);
+}
+function blocsDuJour(iso){
+  const md=ctxDate; ctxDate=iso;
+  const out=(lire(kctx('ord'), null)||[]).map(id=>({
+    id, titre:lire('ed:'+id+'-t',''), fait:!!lire('ck:'+id+'-f',false),
+    type:(lire('opt:'+id,{}).type||'activite'), coul:(lire('opt:'+id,{}).coul||'')
+  })).filter(b=>b.titre);
+  ctxDate=md; return out;
+}
+function peindreAgenda(){
+  const h=$('#agendaHote'); if(!h) return;
+  if (!agLundi) agLundi = lundiDe(ctxDate);
+  h.innerHTML='';
+  const boite=el('div','agenda');
+
+  const tete=el('div','agenda-tete');
+  const t=el('h2',null,'Semaine du '+jourLisible(agLundi));
+  const prec=el('button','mini','◀ SEMAINE'); prec.type='button';
+  const suiv=el('button','mini','SEMAINE ▶'); suiv.type='button';
+  const auj=el('button','mini mini--jaune','CETTE SEMAINE'); auj.type='button';
+  prec.addEventListener('click',()=>{ agLundi=isoDe(new Date(dateDeIso(agLundi).getTime()-7*UN_JOUR)); peindreAgenda(); });
+  suiv.addEventListener('click',()=>{ agLundi=isoDe(new Date(dateDeIso(agLundi).getTime()+7*UN_JOUR)); peindreAgenda(); });
+  auj.addEventListener('click',()=>{ agLundi=lundiDe(aujourdhuiISO()); peindreAgenda(); });
+  tete.appendChild(t); tete.appendChild(prec); tete.appendChild(auj); tete.appendChild(suiv);
+  boite.appendChild(tete);
+
+  const jours=[];
+  for (let i=0;i<5;i++) jours.push(isoDe(new Date(dateDeIso(agLundi).getTime()+i*UN_JOUR)));
+
+  const g=el('div','agenda-grille');
+  g.appendChild(el('div','ag-coin'));
+  jours.forEach(iso=>{
+    const d=dateDeIso(iso);
+    const c=el('div','ag-jour');
+    c.setAttribute('aria-current', String(iso===ctxDate));
+    c.innerHTML='<b></b><span class="d"></span>';
+    c.querySelector('b').textContent=JOURS_FR[d.getDay()].toUpperCase();
+    c.querySelector('.d').textContent=d.getDate()+' '+MOIS_FR[d.getMonth()].slice(0,4);
+    const cy=cycles[iso];
+    if (cy){ const s=el('span','cyc','Jour '+cy); c.appendChild(s); }
+    else if (marques[iso]){
+      const cat=(CATS.find(x=>x[0]===marques[iso])||['',''])[1];
+      const s=el('span','cyc',cat.slice(0,14)); s.style.background='#FFE9A8'; c.appendChild(s);
+    }
+    c.title='Ouvrir '+jourLisible(iso);
+    c.addEventListener('click',()=>{ poserContexte(iso); allerA('e-journee'); });
+    g.appendChild(c);
+  });
+
+  AG_PERIODES.forEach(p=>{
+    if (p.pause){ g.appendChild(Object.assign(el('div','ag-pause',p.pause),{})); return; }
+    const per=el('div','ag-per','Période '+p.n);
+    per.appendChild(el('small',null,p.h)); g.appendChild(per);
+    jours.forEach(iso=>{
+      const c=el('div','ag-case');
+      if (iso===aujourdhuiISO()) c.dataset.auj='1';
+      const bl=blocsDuJour(iso);
+      const b=bl[p.n-1];                       // le n-ième bloc consigné tient la n-ième période
+      if (b){
+        const bar=el('div','bar');
+        bar.style.background = b.coul || (BLOC_TYPES[b.type]||BLOC_TYPES.activite).coul;
+        c.appendChild(bar);
+        const s=el('span','t',(b.fait?'✔ ':'')+b.titre);
+        c.appendChild(s);
+      } else {
+        c.appendChild(el('span','rien','—'));
+      }
+      c.title = jourLisible(iso)+' · période '+p.n+(b?' — '+b.titre:' — rien de consigné');
+      c.addEventListener('click',()=>{ poserContexte(iso); allerA('e-journee'); });
+      g.appendChild(c);
+    });
+  });
+  boite.appendChild(g);
+
+  /* la bande du bas, comme sur le gabarit papier */
+  const bas=el('div','agenda-bas');
+  const sam=isoDe(new Date(dateDeIso(agLundi).getTime()+5*UN_JOUR));
+  const dim=isoDe(new Date(dateDeIso(agLundi).getTime()+6*UN_JOUR));
+  [['Samedi','ag-sam-'+sam,'we'],['Dimanche','ag-dim-'+dim,'we'],['Commentaires','ag-com-'+agLundi,'']]
+    .forEach(([lab,cle,cls])=>{
+      const d=el('div',cls);
+      d.innerHTML='<b></b><div contenteditable data-k="'+cle+'" data-vide="…" style="min-height:34px"></div>';
+      d.querySelector('b').textContent=lab;
+      bas.appendChild(d);
+    });
+  boite.appendChild(bas);
+  brancherEditables(bas);
+
+  /* ce que la semaine contient déjà */
+  const res=el('div','ag-resume');
+  let nb=0, pres=0, cotes=0;
+  jours.forEach(iso=>{
+    const r=releveDuJour(iso, ctxGroupe);
+    nb+=r.blocs.length; pres+=r.presences.present+r.presences.parti; cotes+=r.cotes+r.crits;
+  });
+  res.appendChild(el('span',null,'📋 '+nb+' bloc'+(nb>1?'s':'')+' planifié'+(nb>1?'s':'')));
+  res.appendChild(el('span',null,'✅ '+pres+' présence'+(pres>1?'s':'')+' prise'+(pres>1?'s':'')));
+  res.appendChild(el('span',null,'⭐ '+cotes+' cote'+(cotes>1?'s':'')+' posée'+(cotes>1?'s':'')));
+  const v=lire('semaineValidee',null);
+  if (v) res.appendChild(el('span',null,'✔ semaine validée'));
+  boite.appendChild(res);
+
+  h.appendChild(boite);
+}
+
+/* L'agenda suit le contexte et se rafraîchit quand on revient à l'accueil. */
+(function agendaVivant(){
+  const basePoser = poserContexte;
+  window.poserContexte = function(iso, gr){
+    basePoser(iso, gr);
+    if (iso) agLundi = lundiDe(ctxDate);
+    peindreAgenda();
+  };
+  const baseAller = window.allerA;
+  window.allerA = function(id){ baseAller(id); if (id==='e-accueil') peindreAgenda(); };
+})();
+peindreAgenda();
+
+/* IMPRIMER n'était qu'une tuile : il rejoint le menu OUTILS. */
+(function imprimerDansMenu(){
+  const m=[...document.querySelectorAll('#nav .menu')].find(x=>x.querySelector('[data-va="e-jeux"]'));
+  if (!m) return;
+  const b=el('button'); b.type='button';
+  b.innerHTML='<span>🖨️ Imprimer</span><span class="quoi">L’écran courant sur papier</span>';
+  b.addEventListener('click',e=>{ e.stopPropagation(); m.dataset.ouvert='0'; window.print(); });
+  m.querySelector('.menu-liste').appendChild(b);
 })();
