@@ -23,7 +23,7 @@
 <!-- ═══════════════ 1. ACCUEIL ═══════════════ -->
 <section class="ecran on" id="e-accueil">
   <h1 class="titre">Bonjour !</h1>
-  <p class="sous">Choisis ton métier, puis touche une grosse tuile. Rien d'autre à comprendre.</p>
+  <p class="sous">Choisis ton métier. Tout l'outil est là, en toutes lettres — rien n'est caché derrière un menu.</p>
 
   <div class="metiers" id="metiers">
     <button type="button" class="metier" data-metier="eps"  aria-pressed="true">
@@ -51,9 +51,39 @@
     <button type="button" class="tuile" data-va="e-noter">
       <span class="emo">⭐</span>NOTER
       <span class="aide">Un mot sur le groupe, vite fait</span></button>
-    <button type="button" class="tuile tuile--plus" data-va="e-plus">
-      <span class="emo">⋯</span>PLUS
-      <span class="aide">Tout le reste est rangé ici</span></button>
+    <button type="button" class="tuile" data-va="e-cours">
+      <span class="emo">🏀</span>FICHE DE COURS
+      <span class="aide">Le gabarit papier : 3 blocs et leurs durées</span></button>
+    <button type="button" class="tuile" data-va="e-semaine">
+      <span class="emo">🗓️</span>SEMAINE
+      <span class="aide">Périodes 1 à 6, du lundi au vendredi</span></button>
+    <button type="button" class="tuile" data-va="e-mois">
+      <span class="emo">📅</span>MOIS
+      <span class="aide">Jours-cycle et journées spéciales</span></button>
+    <button type="button" class="tuile" data-va="e-annee">
+      <span class="emo">📚</span>ANNÉE
+      <span class="aide">Compétence, moyen d'action, activité</span></button>
+    <button type="button" class="tuile" data-va="e-calendrier">
+      <span class="emo">📆</span>CALENDRIER
+      <span class="aide">Août à juin, congés et pédagogiques</span></button>
+    <button type="button" class="tuile" data-va="e-temps">
+      <span class="emo">⏱️</span>MON TEMPS
+      <span class="aide">Heures travaillées et signatures</span></button>
+    <button type="button" class="tuile" id="btnImprimer">
+      <span class="emo">🖨️</span>IMPRIMER
+      <span class="aide">L'écran courant sur papier</span></button>
+    <button type="button" class="tuile" data-va="e-reglages">
+      <span class="emo">⚙️</span>RÉGLAGES
+      <span class="aide">Métier, sons, horaire de l'école</span></button>
+    <button type="button" class="tuile" data-va="e-evaluation">
+      <span class="emo">📝</span>ÉVALUATION
+      <span class="aide">Coter les 3 compétences du PFEQ</span></button>
+    <button type="button" class="tuile" data-va="e-bulletin">
+      <span class="emo">🎓</span>BULLETIN
+      <span class="aide">La synthèse d'étape, prête à imprimer</span></button>
+    <button type="button" class="tuile" data-va="e-partage">
+      <span class="emo">📤</span>PARTAGE
+      <span class="aide">Envoyer une planif à un collègue</span></button>
   </div>
 </section>
 
@@ -196,18 +226,80 @@
   </div>
 </section>
 
-<!-- ═══════════════ 10. PLUS ═══════════════ -->
-<section class="ecran" id="e-plus">
-  <h1 class="titre">Plus</h1>
-  <p class="sous">Rien n'a été retiré de l'app — tout ce qui encombrait l'accueil est rangé ici.</p>
-  <div class="plus-liste">
-    <button type="button" class="tuile" data-va="e-semaine"><span class="emo">🗓️</span>VOIR AUTREMENT<span class="aide">Semaine · Mois · Année</span></button>
-    <button type="button" class="tuile" data-va="e-presences"><span class="emo">👥</span>MON GROUPE<span class="aide">Élèves, équipes, présences</span></button>
-    <button type="button" class="tuile" data-va="e-temps"><span class="emo">⏱️</span>MON TEMPS<span class="aide">Heures travaillées et signatures</span></button>
-    <button type="button" class="tuile" data-va="e-calendrier"><span class="emo">📆</span>CALENDRIER<span class="aide">Jours-cycle et journées spéciales</span></button>
-    <button type="button" class="tuile" id="btnImprimer"><span class="emo">🖨️</span>IMPRIMER<span class="aide">L'écran courant sur papier</span></button>
-    <button type="button" class="tuile bientot" disabled><span class="emo">🚧</span>BIENTÔT<span class="aide">Évaluation · Bulletins · Partage</span></button>
-    <button type="button" class="tuile" data-va="e-reglages"><span class="emo">⚙️</span>RÉGLAGES<span class="aide">Métier, sons, horaire de l'école</span></button>
+<!-- ═══════════════ ÉVALUATION ═══════════════ -->
+<section class="ecran" id="e-evaluation">
+  <h1 class="titre">Évaluation</h1>
+  <p class="sous">Une touche par compétence. La cote se pose, se change, s'enlève — rien à valider.</p>
+  <div class="pan">
+    <h2>Groupe <span contenteditable data-k="ev-gr" data-vide="5A"></span> ·
+        étape <span contenteditable data-k="ev-etape" data-vide="1"></span> ·
+        <span contenteditable data-k="ev-quoi" data-vide="Basketball — dribble"></span></h2>
+    <div class="comp-rappel">
+      <div class="c1"><b>C1 · Agir</b>Agir dans divers contextes de pratique d'activités physiques.</div>
+      <div class="c2"><b>C2 · Interagir</b>Interagir dans divers contextes de pratique d'activités physiques.</div>
+      <div class="c3"><b>C3 · Sain et actif</b>Adopter un mode de vie sain et actif.</div>
+    </div>
+    <table class="eval-tbl">
+      <thead><tr>
+        <th style="width:26%">Élève</th>
+        <th class="c1">C1 · Agir</th><th class="c2">C2 · Interagir</th><th class="c3">C3 · Sain et actif</th>
+        <th style="width:22%">Observation</th>
+      </tr></thead>
+      <tbody id="evalCorps"></tbody>
+    </table>
+    <div class="eval-pied">
+      <b>Cotes posées :</b><span class="gros" id="evPosees">0</span>
+      <b>sur</b><span class="gros" id="evTotal">0</span>
+      <b>· Moyenne du groupe :</b><span class="gros" id="evMoyenne">—</span>
+      <button type="button" class="mini mini--jaune" id="evVider">TOUT EFFACER</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ BULLETIN ═══════════════ -->
+<section class="ecran" id="e-bulletin">
+  <h1 class="titre">Bulletin</h1>
+  <p class="sous">Construit tout seul à partir de l'ÉVALUATION. Rien à ressaisir.</p>
+  <div class="pan">
+    <div class="bull-tete">
+      <b>École&nbsp;:</b><span contenteditable data-k="bu-ecole" data-vide="Riverside"></span>
+      <b>Étape&nbsp;:</b><span contenteditable data-k="bu-etape" data-vide="1"></span>
+      <b>Enseignant·e&nbsp;:</b><span contenteditable data-k="bu-prof" data-vide="Joey"></span>
+      <button type="button" class="mini mini--lime" id="buImprimer">🖨️ IMPRIMER LES BULLETINS</button>
+    </div>
+    <div id="bullHote"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ PARTAGE ═══════════════ -->
+<section class="ecran" id="e-partage">
+  <h1 class="titre">Partage</h1>
+  <p class="sous">Choisis ce que tu envoies, puis donne le code ou le lien. Le collègue n'a pas besoin de compte.</p>
+  <div class="pan">
+    <h2>1 · Qu'est-ce que je partage&nbsp;?</h2>
+    <div class="part-quoi" id="partQuoi"></div>
+    <h2>2 · Le collègue peut…</h2>
+    <div class="part-droits" id="partDroits">
+      <button type="button" class="mini" data-droit="lire" aria-pressed="true">👁️ SEULEMENT REGARDER</button>
+      <button type="button" class="mini" data-droit="copier" aria-pressed="false">📋 COPIER CHEZ LUI</button>
+      <button type="button" class="mini" data-droit="modifier" aria-pressed="false">✏️ MODIFIER AVEC MOI</button>
+    </div>
+    <h2>3 · Voilà</h2>
+    <div class="part-lien">
+      <code id="partLien">—</code>
+      <button type="button" class="mini mini--jaune" id="partCopier">COPIER LE LIEN</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 170px;gap:14px;margin-top:14px;align-items:center">
+      <div>
+        <div class="part-code" id="partCode">— — — —</div>
+        <p style="margin:8px 0 0;font-size:13px">Le collègue entre ce code dans son app. Il expire
+          dans <span contenteditable data-k="pa-expire" data-vide="7"></span> jours.</p>
+        <button type="button" class="mini mini--rose" id="partNouveau" style="margin-top:8px">NOUVEAU CODE</button>
+      </div>
+      <div id="partQrHote"></div>
+    </div>
+    <h2 style="margin-top:16px">Déjà partagé</h2>
+    <ul class="part-journal" id="partJournal"></ul>
   </div>
 </section>
 

@@ -43,13 +43,20 @@ function brancherEditables(racine=document){
 }
 
 /* ═════════ navigation ═════════ */
+/* Plus de tuile « PLUS » : tout est en toutes lettres, sur l'accueil ET ici. */
 const ECRANS = [
   ['e-accueil','🏠 ACCUEIL'], ['e-journee','📋 MA JOURNÉE'], ['e-jeux','🎲 JEUX'],
-  ['e-semaine','🗓️ SEMAINE'], ['e-mois','📅 MOIS'], ['e-annee','📚 ANNÉE'],
-  ['e-cours','🏀 MON COURS'], ['e-calendrier','📆 CALENDRIER'],
-  ['e-temps','⏱️ MON TEMPS'], ['e-plus','⋯ PLUS'],
+  ['e-presences','✅ PRÉSENCES'], ['e-planb','🌧️ PLAN B'], ['e-noter','⭐ NOTER'],
+  ['e-cours','🏀 FICHE DE COURS'], ['e-semaine','🗓️ SEMAINE'], ['e-mois','📅 MOIS'],
+  ['e-annee','📚 ANNÉE'], ['e-calendrier','📆 CALENDRIER'], ['e-temps','⏱️ MON TEMPS'],
+  ['e-evaluation','📝 ÉVALUATION'], ['e-bulletin','🎓 BULLETIN'], ['e-partage','📤 PARTAGE'],
+  ['e-reglages','⚙️ RÉGLAGES'],
 ];
 function allerA(id){
+  /* garde : un écran mémorisé qui n'existe plus (e-plus, retiré) laisserait la
+     page entièrement vide. */
+  if (!document.getElementById(id)) id = 'e-accueil';
+  if (id === 'e-bulletin') peindreBulletin();
   $$('.ecran').forEach(s=> s.classList.toggle('on', s.id===id));
   $$('#nav button').forEach(b=> b.setAttribute('aria-current', String(b.dataset.va===id)));
   window.scrollTo({top:0,behavior:'instant'});
@@ -681,8 +688,9 @@ function calculerTemps(){
 }
 
 /* ═════════ présences / réglages ═════════ */
+const ELEVES = ['Alexis','Béatrice','Charlie','Dahlia','Émile','Farah','Gabriel','Hugo','Inès','Jade','Kevin','Léa','Malik','Noémie','Olivier','Priya','Quentin','Rosalie'];
 (function presences(){
-  const noms = ['Alexis','Béatrice','Charlie','Dahlia','Émile','Farah','Gabriel','Hugo','Inès','Jade','Kevin','Léa','Malik','Noémie','Olivier','Priya','Quentin','Rosalie'];
+  const noms = ELEVES;
   const h = $('#presencesHote');
   noms.forEach((nom,i)=>{
     const b = el('button','tuile',nom); b.type='button';
@@ -702,6 +710,210 @@ function calculerTemps(){
   brancherEditables(h);
 })();
 
+
+/* ═════════ ÉVALUATION — les 3 compétences du PFEQ en ÉPS ═════════ */
+const COTES = ['A','B','C','D','E'];
+const VALEUR = {A:5,B:4,C:3,D:2,E:1};
+const COMPS = [
+  {id:'c1', nom:'C1 · Agir'},
+  {id:'c2', nom:'C2 · Interagir'},
+  {id:'c3', nom:'C3 · Sain et actif'},
+];
+function coteDe(i,c){ return lire('ev:'+i+':'+c, null); }
+(function evaluation(){
+  const h = $('#evalCorps');
+  ELEVES.forEach((nom,i)=>{
+    const tr = el('tr');
+    const td0 = el('td','nom',nom); tr.appendChild(td0);
+    COMPS.forEach(cp=>{
+      const td = el('td');
+      const grp = el('div','cotes');
+      COTES.forEach(c=>{
+        const b = el('button','cote',c); b.type='button'; b.dataset.c=c;
+        b.setAttribute('aria-pressed', String(coteDe(i,cp.id)===c));
+        b.title = nom+' — '+cp.nom+' — cote '+c;
+        b.addEventListener('click', ()=>{
+          const actuel = coteDe(i,cp.id);
+          const neuf = actuel===c ? null : c;          // reclic = on enlève
+          if (neuf) ecrire('ev:'+i+':'+cp.id, neuf);
+          else { try{ localStorage.removeItem(P+'ev:'+i+':'+cp.id); }catch(e){} }
+          [...grp.children].forEach(x=> x.setAttribute('aria-pressed', String(x.dataset.c===neuf)));
+          compterEval();
+        });
+        grp.appendChild(b);
+      });
+      td.appendChild(grp); tr.appendChild(td);
+    });
+    const tdo = el('td');
+    tdo.innerHTML = '<div contenteditable data-k="ev-obs-'+i+'" data-vide="…" style="font-size:13px"></div>';
+    tr.appendChild(tdo);
+    h.appendChild(tr);
+  });
+  brancherEditables(h);
+  $('#evVider').addEventListener('click', ()=>{
+    if (!confirm('Effacer toutes les cotes du groupe ?')) return;
+    ELEVES.forEach((n,i)=> COMPS.forEach(cp=>{ try{ localStorage.removeItem(P+'ev:'+i+':'+cp.id); }catch(e){} }));
+    $$('#evalCorps .cote').forEach(b=> b.setAttribute('aria-pressed','false'));
+    compterEval();
+  });
+})();
+function compterEval(){
+  let n=0, somme=0;
+  const total = ELEVES.length * COMPS.length;
+  ELEVES.forEach((nom,i)=> COMPS.forEach(cp=>{
+    const c = coteDe(i,cp.id); if(c){ n++; somme += VALEUR[c]; }
+  }));
+  $('#evPosees').textContent = n;
+  $('#evTotal').textContent  = total;
+  if (!n){ $('#evMoyenne').textContent = '—'; return; }
+  const moy = somme/n;
+  const lettre = COTES[Math.max(0, Math.min(4, 5 - Math.round(moy)))];
+  $('#evMoyenne').textContent = lettre + ' (' + moy.toFixed(1) + '/5)';
+}
+
+/* ═════════ BULLETIN — se construit depuis l'ÉVALUATION ═════════ */
+const MOTS = {
+  A:"Dépasse les attentes. Constant, engagé, entraîne le groupe.",
+  B:"Répond aux attentes avec aisance. Progrès nets cette étape.",
+  C:"Répond aux attentes. Continue le travail amorcé.",
+  D:"Répond partiellement aux attentes. Un soutien ciblé aiderait.",
+  E:"Ne répond pas encore aux attentes. Rencontre à prévoir.",
+};
+function peindreBulletin(){
+  const h = $('#bullHote'); h.innerHTML='';
+  ELEVES.forEach((nom,i)=>{
+    const carte = el('div','bull-carte');
+    carte.appendChild(el('h3',null,nom));
+    let somme=0, n=0, pire=null;
+    COMPS.forEach(cp=>{
+      const c = coteDe(i,cp.id);
+      const li = el('div','bull-ligne');
+      const v = c ? VALEUR[c] : 0;
+      if (c){ somme+=v; n++; if(!pire || v<VALEUR[pire]) pire=c; }
+      li.innerHTML = '<span class="lab"></span>'
+        + '<span class="res"></span>'
+        + '<span class="jauge"><i></i></span>';
+      li.querySelector('.lab').textContent = cp.nom;
+      const res = li.querySelector('.res');
+      res.textContent = c || '—';
+      /* classList.add('') lève — une cote C (valeur 3) n'a pas de classe. */
+      const teinte = v>=4 ? 'bon' : v<=2 ? 'faible' : '';
+      if (c && teinte) res.classList.add(teinte);
+      li.querySelector('.jauge i').style.width = (v/5*100)+'%';
+      carte.appendChild(li);
+    });
+    const com = el('div','bull-com');
+    const suggere = n ? MOTS[pire] : 'Aucune cote posée pour cette étape.';
+    com.innerHTML = '<span class="lab">COMMENTAIRE</span>'
+      + '<div contenteditable data-k="bu-com-'+i+'" data-vide="…"></div>';
+    carte.appendChild(com);
+    h.appendChild(carte);
+    const zone = com.querySelector('[contenteditable]');
+    zone.dataset.vide = suggere;                     // proposition, pas imposition
+    const bt = el('button','mini mini--lime','↩ REPRENDRE LA PROPOSITION'); bt.type='button';
+    bt.style.marginTop='6px';
+    bt.addEventListener('click', ()=>{ zone.textContent = suggere; zone.dispatchEvent(new Event('input')); });
+    carte.appendChild(bt);
+  });
+  brancherEditables(h);
+}
+$('#buImprimer').addEventListener('click', ()=> window.print());
+
+/* ═════════ PARTAGE ═════════ */
+const PARTAGEABLE = [
+  ['journee','📋 Ma journée'], ['cours','🏀 Fiche de cours'], ['semaine','🗓️ La semaine'],
+  ['mois','📅 Le mois'], ['annee','📚 L’année'], ['calendrier','📆 Le calendrier'],
+  ['evaluation','📝 L’évaluation'], ['bulletin','🎓 Les bulletins'],
+];
+let droit = lire('pa-droit','lire');
+let graine = lire('pa-graine', 1);
+(function partage(){
+  const h = $('#partQuoi');
+  PARTAGEABLE.forEach(([id,lab])=>{
+    const l = el('label');
+    l.innerHTML = '<input type="checkbox" data-k="pa-'+id+'"><span></span>';
+    l.querySelector('span').textContent = lab;
+    h.appendChild(l);
+    l.querySelector('input').addEventListener('change', majPartage);
+  });
+  brancherEditables(h);
+  $$('#partDroits .mini').forEach(b=> b.addEventListener('click', ()=>{
+    droit = b.dataset.droit; ecrire('pa-droit', droit);
+    $$('#partDroits .mini').forEach(x=> x.setAttribute('aria-pressed', String(x.dataset.droit===droit)));
+    majPartage();
+  }));
+  $$('#partDroits .mini').forEach(x=> x.setAttribute('aria-pressed', String(x.dataset.droit===droit)));
+  $('#partNouveau').addEventListener('click', ()=>{ graine++; ecrire('pa-graine',graine); majPartage(); });
+  $('#partCopier').addEventListener('click', async ()=>{
+    const t = $('#partLien').textContent;
+    try { await navigator.clipboard.writeText(t); $('#partCopier').textContent='COPIÉ ✓';
+          setTimeout(()=>$('#partCopier').textContent='COPIER LE LIEN', 1400); }
+    catch(e){ $('#partCopier').textContent='COPIE REFUSÉE'; }
+  });
+  majPartage();
+})();
+/* Code déterministe : pas de Math.random, pour que le code ne change pas
+   à chaque repeinture — seul le bouton NOUVEAU CODE le fait bouger. */
+function codeDepuis(n){
+  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // ni I ni O ni 0 ni 1
+  /* Les bits BAS d'un LCG alternent presque sans entropie : `x % 32` sortait
+     « TAAAA2AA ». On prend les bits hauts. */
+  let x = (n*2654435761 + 0x9E3779B9) >>> 0, out='';
+  for (let i=0;i<8;i++){
+    x = (Math.imul(x,1103515245) + 12345) >>> 0;
+    out += A[(x >>> 17) % A.length];
+  }
+  return out;
+}
+function majPartage(){
+  /* On lit `checked` dans le DOM, PAS localStorage : le listener qui persiste
+     la case est celui de brancherEditables, posé APRÈS celui-ci. Lire le
+     stockage donnait le lien d'AVANT le clic — un cran de retard. */
+  const choisis = PARTAGEABLE.filter(([id])=>{
+    const n = $('#partQuoi input[data-k="pa-'+id+'"]');
+    return n && n.checked;
+  });
+  const code = codeDepuis(graine);
+  $('#partCode').textContent = code.slice(0,4)+' '+code.slice(4);
+  const q = choisis.map(([id])=>id).join(',');
+  $('#partLien').textContent = choisis.length
+    ? 'https://planificateur.zonetotalsport.ca/p/'+code.toLowerCase()+'?d='+droit+'&q='+q
+    : '— coche au moins une chose à partager —';
+  peindreQr(code);
+  const j = $('#partJournal'); j.innerHTML='';
+  if (!choisis.length){ j.appendChild(el('li',null,'Rien de partagé pour l’instant.')); return; }
+  const motDroit = {lire:'peut regarder', copier:'peut copier', modifier:'peut modifier'}[droit];
+  choisis.forEach(([id,lab])=>{
+    j.appendChild(el('li',null, lab.replace(/^\S+\s/,'') + ' — le collègue ' + motDroit + '.'));
+  });
+}
+/* Aperçu de code QR : motif DÉTERMINISTE dérivé du code, avec les trois
+   marqueurs d'angle. Ce n'est PAS un vrai QR lisible — c'est la place qu'il
+   prendra. La génération réelle se fera à l'implémentation. */
+function peindreQr(code){
+  const N=21, hote=$('#partQrHote');
+  let x=0; for (let i=0;i<code.length;i++) x = ((x*31) + code.charCodeAt(i)) >>> 0;
+  let d='';
+  const marqueur=(cx,cy)=>{
+    for(let a=0;a<7;a++) for(let b=0;b<7;b++){
+      const bord = a===0||a===6||b===0||b===6;
+      const coeur = a>=2&&a<=4&&b>=2&&b<=4;
+      if (bord||coeur) d += 'M'+(cx+a)+' '+(cy+b)+'h1v1h-1z';
+    }
+  };
+  for (let a=0;a<N;a++) for (let b=0;b<N;b++){
+    const dansCoin = (a<8&&b<8)||(a>N-9&&b<8)||(a<8&&b>N-9);
+    if (dansCoin) continue;
+    x = (x*1103515245 + 12345) >>> 0;
+    if ((x>>>16) & 1) d += 'M'+a+' '+b+'h1v1h-1z';
+  }
+  marqueur(0,0); marqueur(N-7,0); marqueur(0,N-7);
+  hote.innerHTML = '<svg class="part-qr" viewBox="0 0 '+N+' '+N+'" role="img" '
+    + 'aria-label="Aperçu de code QR — non lisible, maquette"><path d="'+d+'" fill="#08131E"/></svg>'
+    + '<p style="text-align:center;font-size:11px;margin:6px 0 0;color:var(--sur-fond-doux)">'
+    + 'aperçu — le vrai QR viendra à l’implémentation</p>';
+}
+
 /* ═════════ départ ═════════ */
 $('#btnImprimer').addEventListener('click', ()=> window.print());
 $('#btnVider').addEventListener('click', ()=>{
@@ -711,6 +923,8 @@ $('#btnVider').addEventListener('click', ()=>{
 });
 brancherEditables();
 calculerTemps();
+compterEval();
+peindreBulletin();
 poserMetier(lire('metier','eps'));
 peindreCalendrier();
 peindreMois();

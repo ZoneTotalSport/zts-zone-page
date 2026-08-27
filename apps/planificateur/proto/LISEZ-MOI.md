@@ -14,7 +14,13 @@ python3 -m http.server 8788
 # → http://localhost:8788/apps/planificateur/proto/
 ```
 
-## Ce qu'il montre — 10 écrans
+## Rien n'est caché
+
+**Il n'y a pas de bouton « PLUS ».** Les 16 outils sont sur l'accueil, en
+toutes lettres, et repris un par un dans la barre de navigation. C'est la
+demande de Joey du 27 août : voir tous les boutons plutôt qu'un menu.
+
+## Ce qu'il montre — 16 écrans
 
 | # | Écran | Ce qu'on valide |
 |---|-------|-----------------|
@@ -27,13 +33,21 @@ python3 -m http.server 8788
 | 7 | **Mon cours** | Planification journalière : Cours, 1er/2e/3e cycle, Début, Durée, 3 blocs Titre/Descriptif/Durée + Illustration. |
 | 8 | **Calendrier** | Août → juin, 7 catégories dans la légende, clic pour catégoriser, deuxième clic pour annuler. |
 | 9 | **Mon temps** | Date/Activité/Temps, total calculé tout seul, `total − reconnu = de plus`, signatures. |
-| 10 | **Plus** | Voir autrement · Mon groupe · Mon temps · Calendrier · Imprimer · BIENTÔT · Réglages. |
+| 10 | **Évaluation** | Les 3 compétences du PFEQ en ÉPS, cotées A→E d'une touche. Reclic = on enlève. Compteur et moyenne de groupe en direct. |
+| 11 | **Bulletin** | Une carte par élève, construite **depuis l'ÉVALUATION** : cotes, jauges, commentaire proposé selon le résultat le plus faible. Prêt à imprimer. |
+| 12 | **Partage** | Quoi partager (8 cases), ce que le collègue peut faire (regarder / copier / modifier), lien, code à 8 caractères, aperçu de QR. |
+| 13-16 | Présences · Plan B · Noter · Réglages | inchangés. |
 
-## Le point d'articulation
+## Les deux chaînes qui se recalculent seules
 
 Le **CALENDRIER est la source unique des jours-cycle**. Marquer une journée y
 recalcule d'un coup les romains du MOIS, ceux de l'ANNÉE et les compteurs
 « N jours école » de chaque mois. Rien à ressaisir ailleurs.
+
+Deuxième chaîne : **l'ÉVALUATION alimente le BULLETIN.** Une cote posée met à
+jour la carte de l'élève, sa jauge et le commentaire proposé — le proposé suit
+la compétence la plus faible, et un bouton le recopie dans le champ sans jamais
+l'imposer. Rien à ressaisir.
 
 Les compteurs mensuels reproduisent le gabarit papier sur **10 mois sur 11**.
 Seul mai diffère (19 contre 18) : le pied de page du gabarit annonce
@@ -54,6 +68,19 @@ affirme.
    préréglages et met le champ en lecture seule. Vérifié : édition tentée
    pendant le décompte, le compte a continué (2:57 → 2:55).
 
+## Police de marque
+
+`ZoneTotalSport.ttf` est déclarée sous le nom **`ZoneTotalSportPROTO`** — un nom
+distinct est obligatoire, « ZoneTotalSport » tout court entre en collision avec
+les `@font-face` de `jeux`, `moyens-action`, `nhl-playoffs` et `studio-jeu`, qui
+déclarent la même famille **sans** `size-adjust`. Et `size-adjust:50%` est
+obligatoire : la police est dessinée à ~2,4× l'em.
+
+Elle porte les **titres de page** et la marque « PROTO G2 », rien d'autre.
+⚠ Elle a **douze trous** — `Ù Ÿ Æ Œ ÿ æ œ ’ « » — °` — et le navigateur bascule
+**par caractère**. Elle ne touche donc jamais du texte saisi par l'utilisateur.
+Les 14 titres du proto ont été vérifiés contre la table cmap : **tous couverts**.
+
 ## Sons
 
 `son/buzzer-nba.mp3` (25 Ko) et `son/buzzer-arena.mp3` (49 Ko), tirés des
@@ -68,6 +95,14 @@ Les originaux embarquaient une pochette : 522 Ko à eux deux, 73 Ko après.
 **Non vérifié : personne n'a encore _entendu_ ces sons.** Le proto confirme
 qu'ils se décodent et jouent jusqu'au bout (4,81 s et 9,69 s, sans erreur), pas
 qu'ils sonnent juste.
+
+## Ce qui n'est PAS réel dans le partage
+
+Le lien, le code et le QR sont **produits localement, sans réseau**. Le code est
+déterministe (pas de `Math.random`) pour ne pas changer à chaque repeinture :
+seul le bouton NOUVEAU CODE le fait bouger. Le QR est un **aperçu** — un motif
+déterministe avec ses trois marqueurs d'angle, pas un code lisible. Il montre la
+place que le vrai prendra.
 
 ## Limite connue, volontairement reproduite
 
