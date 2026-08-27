@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
 <link rel="stylesheet" href="proto.css">
+<link rel="stylesheet" href="proto-fusion.css">
 </head>
 <body>
 
@@ -72,6 +73,18 @@
     <button type="button" class="tuile" id="btnImprimer">
       <span class="emo">🖨️</span>IMPRIMER
       <span class="aide">L'écran courant sur papier</span></button>
+    <button type="button" class="tuile" data-va="e-tests">
+      <span class="emo">🏃</span>TESTS
+      <span class="aide">Chrono, navette, Léger-Boucher</span></button>
+    <button type="button" class="tuile" data-va="e-groupes">
+      <span class="emo">👥</span>MES GROUPES
+      <span class="aide">Mes classes, mes élèves, mon journal</span></button>
+    <button type="button" class="tuile" data-va="e-messages">
+      <span class="emo">💬</span>MESSAGES
+      <span class="aide">Écrire au coordo, valider ma semaine</span></button>
+    <button type="button" class="tuile" data-va="e-donnees">
+      <span class="emo">💾</span>MES DONNÉES
+      <span class="aide">Sauvegarder, exporter, importer</span></button>
     <button type="button" class="tuile" data-va="e-reglages">
       <span class="emo">⚙️</span>RÉGLAGES
       <span class="aide">Métier, sons, horaire de l'école</span></button>
@@ -303,6 +316,136 @@
   </div>
 </section>
 
+<!-- ═══════════════ TESTS ═══════════════ -->
+<section class="ecran" id="e-tests">
+  <h1 class="titre">Tests</h1>
+  <div class="aide-un-mot"><span class="emo">👆</span>
+    Un seul gros bouton par test. Tu pars, tu arrêtes, c'est noté.</div>
+
+  <div class="test-boite">
+    <h2>⏱️ Chronomètre</h2>
+    <p class="quoi">Pour tout chronométrer. Le bouton TOUR garde le temps de chaque passage.</p>
+    <div class="gros-chrono" id="chLect">0:00,0</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button type="button" class="gros-bouton" id="chGo">▶ PARTIR</button>
+      <button type="button" class="gros-bouton gros-bouton--gris" id="chTour">⚑ TOUR</button>
+      <button type="button" class="gros-bouton gros-bouton--gris" id="chRaz">↺ REMETTRE À ZÉRO</button>
+    </div>
+    <ul class="laps" id="chLaps"></ul>
+  </div>
+
+  <div class="test-boite">
+    <h2>🏃 Navette Léger-Boucher</h2>
+    <p class="quoi">Le minuteur donne le rythme. Quand un élève s'arrête, touche son nom :
+       son palier, sa distance et sa vitesse sont calculés tout seuls.</p>
+    <div class="palier-affiche">
+      <div><b id="lgPalier">0</b><span>palier</span></div>
+      <div><b id="lgNavette">0</b><span>navettes</span></div>
+      <div><b id="lgDist">0 m</b><span>distance</span></div>
+      <div><b id="lgVit">8,0</b><span>km/h</span></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button type="button" class="gros-bouton" id="lgGo">▶ PARTIR LE TEST</button>
+      <button type="button" class="gros-bouton gros-bouton--gris" id="lgRaz">↺ RECOMMENCER</button>
+      <span id="lgTemps" style="font-family:var(--f-titre);font-size:22px">0:00</span>
+    </div>
+    <table class="test-tbl"><thead><tr>
+      <th style="width:34%">Élève</th><th>Palier</th><th>Navettes</th><th>Distance</th><th>km/h</th><th></th>
+    </tr></thead><tbody id="lgCorps"></tbody></table>
+  </div>
+</section>
+
+<!-- ═══════════════ MES GROUPES ═══════════════ -->
+<section class="ecran" id="e-groupes">
+  <h1 class="titre">Mes groupes</h1>
+  <div class="aide-un-mot"><span class="emo">👆</span>
+    Touche un groupe pour t'en occuper. Le ✎ le renomme, le 📦 le range sans l'effacer.</div>
+  <div class="pan">
+    <h2>Mes classes</h2>
+    <div class="grp-liste" id="grpListe"></div>
+    <button type="button" class="mini mini--lime" id="grpAdd">+ AJOUTER UN GROUPE</button>
+    <button type="button" class="mini" id="grpArchives" aria-pressed="false">📦 VOIR LES RANGÉS</button>
+  </div>
+  <div class="pan pan--jaune">
+    <h2>📓 Mon journal de bord</h2>
+    <p style="margin:0 0 10px;font-weight:700">Ce que tu écris ici reste attaché au groupe choisi.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <input class="m-saisie" id="jbTexte" placeholder="Aujourd'hui, le groupe a…" style="flex:1;min-width:220px">
+      <button type="button" class="mini mini--lime" id="jbAdd">+ NOTER</button>
+    </div>
+    <div id="jbListe"></div>
+  </div>
+  <div class="pan pan--cyan">
+    <h2>🕘 Historique</h2>
+    <p style="margin:0 0 10px;font-weight:700">Ce que ce groupe a fait, du plus récent au plus ancien.</p>
+    <div id="histListe"></div>
+  </div>
+  <div class="pan">
+    <h2>📐 Gabarits — copier une semaine</h2>
+    <p style="margin:0 0 10px;font-weight:700">Choisis une semaine, dis où la recopier. Rien n'est écrasé sans que tu le voies.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <b>Copier la semaine du</b>
+      <input class="m-saisie" type="date" id="gabDe" style="width:auto">
+      <b>vers la semaine du</b>
+      <input class="m-saisie" type="date" id="gabVers" style="width:auto">
+      <button type="button" class="mini mini--lime" id="gabGo">📋 RECOPIER</button>
+    </div>
+    <div id="gabResultat" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ MESSAGES ═══════════════ -->
+<section class="ecran" id="e-messages">
+  <h1 class="titre">Messages</h1>
+  <div class="aide-un-mot"><span class="emo">👆</span>
+    Écris ton message, touche ENVOYER. « Valider ma semaine » prévient le coordo que tu as fini.</div>
+  <div class="pan">
+    <h2>Avec le coordonnateur</h2>
+    <div class="msg-fil" id="msgFil"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input class="m-saisie" id="msgTexte" placeholder="Ton message…" style="flex:1;min-width:220px">
+      <button type="button" class="mini mini--lime" id="msgGo">ENVOYER</button>
+    </div>
+  </div>
+  <div class="pan pan--jaune">
+    <h2>✅ Valider ma semaine</h2>
+    <p style="margin:0 0 10px;font-weight:700">Quand ta semaine est prête, ce bouton la marque terminée et prévient le coordo.</p>
+    <button type="button" class="m-valider" id="valSemaine">✔ MA SEMAINE EST PRÊTE</button>
+    <div id="valEtat" style="margin-top:10px;font-weight:800"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ MES DONNÉES ═══════════════ -->
+<section class="ecran" id="e-donnees">
+  <h1 class="titre">Mes données</h1>
+  <div class="aide-un-mot"><span class="emo">⚠️</span>
+    Tes photos et tes pièces jointes vivent sur CET appareil. Fais une sauvegarde avant de changer de tablette.</div>
+  <div class="don-grille">
+    <div class="don-carte">
+      <h3>💾 Sauvegarder tout</h3>
+      <p>Un seul fichier avec tout ce que tu as saisi. À garder sur une clé ou dans le nuage.</p>
+      <button type="button" class="mini mini--lime" id="donSauver">TÉLÉCHARGER MA SAUVEGARDE</button>
+    </div>
+    <div class="don-carte">
+      <h3>↩️ Restaurer</h3>
+      <p>Reprends une sauvegarde. Ce qui est à l'écran sera remplacé — on te demande avant.</p>
+      <button type="button" class="mini" id="donRestaurer">CHOISIR UN FICHIER</button>
+    </div>
+    <div class="don-carte">
+      <h3>📊 Exporter en tableur</h3>
+      <p>Les présences et les cotes, en CSV, pour Excel ou Google Sheets.</p>
+      <button type="button" class="mini" id="donCsvPres">PRÉSENCES (CSV)</button>
+      <button type="button" class="mini" id="donCsvEval" style="margin-top:6px">ÉVALUATION (CSV)</button>
+    </div>
+    <div class="don-carte">
+      <h3>📆 Importer un calendrier</h3>
+      <p>Le fichier <code>.ics</code> de ton centre de services. Congés et journées pédagogiques sont reconnus tout seuls.</p>
+      <button type="button" class="mini" id="donIcs">CHOISIR UN FICHIER .ICS</button>
+    </div>
+  </div>
+  <pre class="pr-rapport" id="donJournal" hidden></pre>
+</section>
+
 <!-- écrans secondaires -->
 <section class="ecran" id="e-presences">
   <h1 class="titre">Présences</h1>
@@ -399,5 +542,6 @@
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
 <script src="proto.js"></script>
+<script src="proto-fusion.js"></script>
 </body>
 </html>
