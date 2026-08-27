@@ -540,3 +540,133 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
   .bull-ligne .jauge{grid-column:1/-1}
   .eval-tbl{display:block;overflow-x:auto}
 }
+
+/* ==========================================================================
+   PRÉSENCES — porté de apps/planificateur/app.js (renderPresenceCard).
+   Statuts : attendu · présent · parti · absent.
+   ⚠ « parti » et « absent » passent la PHOTO ET LE NOM en noir et blanc :
+   c'est le repère visuel demandé, il doit tenir sans lire une seule étiquette.
+   ========================================================================== */
+.pr-resume{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.pr-resume span{
+  font-family:var(--f-punch);letter-spacing:1px;font-size:14px;
+  border:2px solid var(--noir);border-radius:999px;padding:3px 12px;
+  background:#F1F7FA;color:var(--ink);
+}
+.pr-resume .present{background:#DFFCA8;color:#1E3300}
+.pr-resume .parti{background:#DDE4E8;color:#33434D}
+.pr-resume .absent{background:var(--rose);color:#2A0010}
+
+.pr-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pr-carte{
+  position:relative;background:#fff;color:var(--ink);
+  border:var(--bord);border-radius:14px;box-shadow:3px 4px 0 var(--noir);
+  padding:10px 8px 8px;text-align:center;
+}
+.pr-tap{cursor:pointer;display:block;width:100%;background:none;border:0;padding:0;color:inherit;font:inherit}
+.pr-photo{
+  width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 6px;
+  border:3px solid var(--noir);background:#EDF3F6;
+}
+.pr-nom{font-family:var(--f-titre);font-size:16px;letter-spacing:.3px;line-height:1.1}
+.pr-sub{font-size:12px;font-weight:700;color:var(--ink-soft);margin-top:2px}
+.pr-heure{font-family:var(--f-punch);letter-spacing:.8px;font-size:13px;margin-top:3px}
+.pr-heure.arrivee{color:#2C7A16}
+.pr-heure.depart{color:#33434D}
+
+/* ── le noir et blanc ── */
+.pr-carte--parti,
+.pr-carte--absent{background:#F2F5F7}
+.pr-carte--parti .pr-photo,
+.pr-carte--absent .pr-photo{filter:grayscale(1) contrast(.9)}
+.pr-carte--parti .pr-nom,
+.pr-carte--absent .pr-nom{color:#5A6870}
+.pr-carte--absent .pr-nom{text-decoration:line-through}
+.pr-carte--absent .pr-photo{opacity:.55}
+.pr-carte--present{background:#F4FFEA}
+
+.pr-badge{
+  position:absolute;top:6px;left:6px;width:24px;height:24px;line-height:20px;
+  border:2px solid var(--noir);border-radius:50%;font-size:14px;font-weight:900;
+}
+.pr-badge--present{background:#8CE05F;color:#12330A}
+.pr-badge--parti{background:#DDE4E8;color:#26333B}
+.pr-badge--absent{background:var(--rose);color:#2A0010}
+.pr-flag{
+  position:absolute;top:6px;right:6px;min-width:24px;height:24px;line-height:20px;
+  border:2px solid var(--noir);border-radius:50%;background:var(--jaune);color:var(--ink);
+  font-weight:900;font-size:13px;
+}
+.pr-partic{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:3px;font-size:13px}
+.pr-porte{
+  display:block;width:100%;margin-top:7px;cursor:pointer;
+  font-family:var(--f-punch);letter-spacing:.7px;font-size:12px;
+  border:2px solid var(--noir);border-radius:9px;padding:3px 6px;
+  background:#FFFEE0;color:var(--ink);
+}
+.pr-porte:hover{background:var(--jaune)}
+.pr-absent-btn{
+  display:block;width:100%;margin-top:5px;cursor:pointer;
+  font-family:var(--f-punch);letter-spacing:.7px;font-size:11px;
+  border:2px solid var(--noir);border-radius:9px;padding:2px 6px;
+  background:#F1F7FA;color:var(--ink);
+}
+.pr-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pr-rapport{
+  margin-top:12px;white-space:pre-wrap;font-size:13px;line-height:1.5;
+  background:#04121D;color:#BFE9F6;border:var(--bord);border-radius:12px;padding:12px;
+  font-family:ui-monospace,Menlo,monospace;overflow-x:auto;
+}
+
+/* ── modale ── */
+.modale{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
+.modale[hidden]{display:none}
+.modale-fond{position:absolute;inset:0;background:rgba(4,14,24,.72)}
+.modale-boite{
+  position:relative;z-index:1;width:min(520px,100%);max-height:88vh;overflow:auto;
+  background:#fff;color:var(--ink);border:var(--bord);border-radius:18px;
+  box-shadow:8px 10px 0 rgba(0,0,0,.45);padding:18px;
+}
+.modale-boite h2{font-family:var(--f-titre);font-size:22px;margin:0 0 12px;letter-spacing:.4px;color:var(--ink)}
+.modale-x{
+  position:absolute;top:10px;right:10px;cursor:pointer;
+  border:2px solid var(--noir);border-radius:9px;background:var(--rose);color:#2A0010;
+  font-family:var(--f-punch);font-size:14px;padding:2px 9px;
+}
+.m-champ{margin-bottom:12px}
+.m-lab{display:block;font-family:var(--f-punch);letter-spacing:1px;font-size:12px;color:var(--ink-soft);margin-bottom:4px}
+.m-saisie{
+  width:100%;font-family:var(--f-corps);font-size:15px;font-weight:700;
+  border:2px solid var(--noir);border-radius:9px;padding:7px 9px;
+  background:#fff;color:var(--ink);
+}
+.m-personnes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.m-personne{
+  cursor:pointer;font-family:var(--f-corps);font-weight:800;font-size:13px;
+  border:2px solid var(--noir);border-radius:10px;padding:6px 10px;
+  background:#F1F7FA;color:var(--ink);
+}
+.m-personne .lien{opacity:.6;font-weight:600}
+.m-personne[aria-pressed="true"]{background:#DFFCA8;box-shadow:inset 0 0 0 2px var(--noir)}
+.m-avert{
+  background:#FFE3DA;color:#6B1B00;border:2px solid var(--orange);border-radius:10px;
+  padding:9px 11px;font-size:13px;font-weight:700;margin-bottom:12px;
+}
+.m-avert[hidden]{display:none}
+.m-avert label{display:flex;gap:8px;align-items:center;margin-top:7px;cursor:pointer}
+.m-humeurs{display:flex;gap:6px;flex-wrap:wrap}
+.m-humeur{
+  cursor:pointer;font-family:var(--f-corps);font-weight:800;font-size:13px;
+  border:2px solid var(--noir);border-radius:10px;padding:6px 10px;
+  background:#F1F7FA;color:var(--ink);display:flex;gap:5px;align-items:center;
+}
+.m-humeur[aria-pressed="true"]{background:var(--jaune);box-shadow:inset 0 0 0 2px var(--noir)}
+.m-tete{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.m-tete .pr-photo{margin:0}
+.m-pied{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.m-valider{
+  font-family:var(--f-titre);font-size:16px;letter-spacing:.4px;cursor:pointer;
+  background:var(--lime);color:#1E3300;border:var(--bord);border-radius:12px;padding:8px 18px;
+  box-shadow:0 4px 0 #6EA800;
+}
+.m-valider:disabled{background:#DDE4E8;color:#5A6870;box-shadow:0 4px 0 #A9B6BD;cursor:not-allowed}

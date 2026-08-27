@@ -306,8 +306,19 @@
 <!-- écrans secondaires -->
 <section class="ecran" id="e-presences">
   <h1 class="titre">Présences</h1>
-  <p class="sous">Une touche par élève. Vert = présent.</p>
-  <div class="pan"><div id="presencesHote" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px"></div></div>
+  <p class="sous">Touche la carte : attendu → présent → départ. Appui long = absent.
+     Parti ou absent, la photo et le nom passent en noir et blanc.</p>
+  <div class="pan">
+    <h2>Groupe <span contenteditable data-k="pr-gr" data-vide="5A"></span> ·
+        <span id="prDate"></span></h2>
+    <div class="pr-resume" id="prResume"></div>
+    <div class="pr-grille" id="prGrille"></div>
+    <div class="pr-actions">
+      <button type="button" class="mini mini--lime" id="prEnvoyer">📤 ENVOYER LE RAPPORT</button>
+      <button type="button" class="mini" id="prRaz">↺ REMETTRE À ZÉRO</button>
+    </div>
+    <pre class="pr-rapport" id="prRapport" hidden></pre>
+  </div>
 </section>
 
 <section class="ecran" id="e-planb">
@@ -355,6 +366,16 @@
     <div id="listeJeux"></div>
   </div>
 </aside>
+
+<!-- ═══════════════ MODALE ═══════════════ -->
+<div class="modale" id="modale" hidden>
+  <div class="modale-fond" data-fermer></div>
+  <div class="modale-boite" role="dialog" aria-modal="true" aria-labelledby="modaleTitre">
+    <button type="button" class="modale-x" data-fermer aria-label="Fermer">✕</button>
+    <h2 id="modaleTitre"></h2>
+    <div id="modaleCorps"></div>
+  </div>
+</div>
 
 <!-- ═══════════════ DOCK BUZZER ═══════════════ -->
 <div class="dock">

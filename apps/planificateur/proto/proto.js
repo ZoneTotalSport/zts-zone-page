@@ -688,18 +688,308 @@ function calculerTemps(){
 }
 
 /* ═════════ présences / réglages ═════════ */
-const ELEVES = ['Alexis','Béatrice','Charlie','Dahlia','Émile','Farah','Gabriel','Hugo','Inès','Jade','Kevin','Léa','Malik','Noémie','Olivier','Priya','Quentin','Rosalie'];
-(function presences(){
-  const noms = ELEVES;
-  const h = $('#presencesHote');
-  noms.forEach((nom,i)=>{
-    const b = el('button','tuile',nom); b.type='button';
-    b.style.cssText='font-family:var(--f-corps);font-weight:800;font-size:15px;padding:10px;text-align:center';
-    const maj = ()=>{ const p = lire('pres:'+i, true); b.style.background = p ? '#DFFCA8' : '#FFD9D2'; b.textContent = (p?'✔ ':'✕ ')+nom; };
-    b.addEventListener('click', ()=>{ ecrire('pres:'+i, !lire('pres:'+i,true)); maj(); });
-    maj(); h.appendChild(b);
+/* ═════════ PRÉSENCES ═════════
+   Porté de apps/planificateur/app.js — la fonction existait déjà là-bas et le
+   proto ne la montrait pas. Modèle repris tel quel : statut attendu/present/
+   parti/absent, heure d'arrivée, JOUR + heure de départ, « porté par » à
+   l'arrivée, « parti avec » au départ avec garde hors-liste, humeur de fin de
+   journée, message au parent, particularités.
+   ⚠ Parti ou absent = photo ET nom en NOIR ET BLANC (proto.css). */
+const LIENS = ['mère','père','grand-mère','grand-père','gardien(ne)','autre'];
+const PARTICULARITES = {
+  tsa:'🧩 TSA', tdah:'⚡ TDAH', allergie:'🥜 Allergie', asthme:'💨 Asthme',
+  anxiete:'💧 Anxiété', diabete:'🩸 Diabète', dys:'🔤 Dys', langage:'💬 Langage',
+};
+const HUMEURS = [
+  {k:'belle',     emoji:'🌟', label:'Belle journée'},
+  {k:'ordinaire', emoji:'🙂', label:'Ordinaire'},
+  {k:'pepin',     emoji:'⚠️', label:'Pépin'},
+];
+const ENFANTS = [
+  {p:'Alexis',  n:'Tremblay', part:['tdah'],            aut:[['Marie Tremblay','mère'],['Luc Tremblay','père']]},
+  {p:'Béatrice',n:'Roy',      part:[],                  aut:[['Sophie Roy','mère'],['Jeanne Roy','grand-mère']]},
+  {p:'Charlie', n:'Gagnon',   part:['tsa','langage'],   aut:[['Éric Gagnon','père']]},
+  {p:'Dahlia',  n:'Nadeau',   part:['allergie'],        aut:[['Nadia Nadeau','mère'],['Paul Côté','gardien(ne)']]},
+  {p:'Émile',   n:'Bouchard', part:[],                  aut:[['Julie Bouchard','mère']]},
+  {p:'Farah',   n:'Haddad',   part:['asthme'],          aut:[['Amir Haddad','père'],['Leila Haddad','mère']]},
+  {p:'Gabriel', n:'Fortin',   part:[],                  aut:[['Manon Fortin','mère']]},
+  {p:'Hugo',    n:'Lavoie',   part:['anxiete'],         aut:[['Denis Lavoie','père'],['Rita Lavoie','grand-mère']]},
+  {p:'Inès',    n:'Belanger', part:[],                  aut:[['Carla Belanger','mère']]},
+  {p:'Jade',    n:'Pelletier',part:['diabete'],         aut:[['Yves Pelletier','père'],['Anne Simard','gardien(ne)']]},
+  {p:'Kevin',   n:'Ouellet',  part:[],                  aut:[['Sylvie Ouellet','mère']]},
+  {p:'Léa',     n:'Morin',    part:['dys'],             aut:[['Guy Morin','père']]},
+  {p:'Malik',   n:'Diallo',   part:[],                  aut:[['Aminata Diallo','mère'],['Ousmane Diallo','père']]},
+  {p:'Noémie',  n:'Caron',    part:[],                  aut:[['Chantal Caron','mère']]},
+  {p:'Olivier', n:'Dubé',     part:['tdah','anxiete'],  aut:[['Steve Dubé','père'],['Lise Dubé','grand-mère']]},
+  {p:'Priya',   n:'Sharma',   part:[],                  aut:[['Ravi Sharma','père']]},
+  {p:'Quentin', n:'Girard',   part:[],                  aut:[['Nathalie Girard','mère']]},
+  {p:'Rosalie', n:'Beaulieu', part:['allergie','tsa'],  aut:[['Marc Beaulieu','père'],['Ève Beaulieu','mère']]},
+];
+/* ÉVALUATION et BULLETIN lisent la même liste — une seule source de vérité. */
+const ELEVES = ENFANTS.map(e=>e.p);
+
+const TEINTES = ['#00C2E8','#FFA200','#A3FF00','#FF0061','#8B5CF6','#25D8C0'];
+/* Avatar : la vraie photo si Joey en a déposé une, sinon une pastille à
+   initiale. Il FAUT une image dans les deux cas — c'est elle qui se décolore. */
+function photoDe(i){
+  const perso = lire('pr-photo:'+i, null);
+  if (perso) return perso;
+  const e = ENFANTS[i], t = TEINTES[i % TEINTES.length];
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+    + '<rect width="64" height="64" fill="'+t+'"/>'
+    + '<circle cx="32" cy="25" r="12" fill="rgba(255,255,255,.85)"/>'
+    + '<path d="M8 64c0-14 11-22 24-22s24 8 24 22z" fill="rgba(255,255,255,.85)"/>'
+    + '<text x="32" y="30" font-family="Arial,sans-serif" font-size="15" font-weight="bold"'
+    + ' text-anchor="middle" fill="'+t+'">'+e.p[0]+e.n[0]+'</text></svg>';
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
+}
+function presDe(i){
+  return lire('pres2:'+i, {statut:'attendu', heureArrivee:'', dateDepart:'', heureDepart:'',
+                           arriveAvec:'', partiAvec:'', lienParti:'', horsListe:false,
+                           humeur:'', note:'', messageParent:''});
+}
+function poserPres(i,p){ ecrire('pres2:'+i, p); peindrePresences(); }
+const D2 = n => String(n).padStart(2,'0');
+function maintenantHM(){ const d=new Date(); return D2(d.getHours())+':'+D2(d.getMinutes()); }
+function aujourdhuiISO(){ const d=new Date(); return d.getFullYear()+'-'+D2(d.getMonth()+1)+'-'+D2(d.getDate()); }
+const JOURS_FR=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const MOIS_FR=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function jourLisible(iso){
+  if(!iso) return '';
+  const [y,m,j]=iso.split('-').map(Number); const d=new Date(y,m-1,j);
+  return JOURS_FR[d.getDay()]+' '+j+' '+MOIS_FR[m-1];
+}
+
+function peindrePresences(){
+  const h=$('#prGrille'); if(!h) return;
+  h.innerHTML='';
+  const cpt={attendu:0,present:0,parti:0,absent:0};
+  ENFANTS.forEach((e,i)=>{
+    const p=presDe(i); cpt[p.statut]++;
+    const c=el('div','pr-carte pr-carte--'+p.statut);
+    const tap=el('button','pr-tap'); tap.type='button';
+    tap.title = p.statut==='attendu' ? 'Marquer présent'
+              : p.statut==='present' ? 'Noter le départ'
+              : p.statut==='parti'   ? 'Revoir le départ' : 'Remettre en attente';
+    const img=el('img','pr-photo'); img.src=photoDe(i); img.alt='';
+    tap.appendChild(img);
+    tap.appendChild(el('div','pr-nom', e.p));
+    tap.appendChild(el('div','pr-sub', e.n));
+    if (e.part.length){
+      const pp=el('div','pr-partic');
+      e.part.forEach(k=>{ const x=el('span',null,(PARTICULARITES[k]||k).split(' ')[0]); x.title=PARTICULARITES[k]||k; pp.appendChild(x); });
+      tap.appendChild(pp);
+    }
+    if (p.statut==='present' && p.heureArrivee)
+      tap.appendChild(el('div','pr-heure arrivee','↓ '+p.heureArrivee));
+    if (p.statut==='parti'){
+      tap.appendChild(el('div','pr-heure depart','↑ '+(p.heureDepart||'—')));
+      if (p.dateDepart) tap.appendChild(el('div','pr-sub', jourLisible(p.dateDepart)));
+      if (p.partiAvec)  tap.appendChild(el('div','pr-sub','avec '+p.partiAvec));
+      const hu=HUMEURS.find(x=>x.k===p.humeur);
+      if (hu) tap.appendChild(el('div','pr-sub', hu.emoji+' '+hu.label));
+    }
+    const badge=el('span','pr-badge pr-badge--'+p.statut);
+    badge.textContent = p.statut==='present'?'✓':p.statut==='parti'?'↑':p.statut==='absent'?'✗':'';
+    if (p.statut!=='attendu') c.appendChild(badge);
+    if (p.statut==='parti' && p.horsListe){
+      const f=el('span','pr-flag','⚠'); f.title='Départ hors liste des personnes autorisées'; c.appendChild(f);
+    } else if (p.statut==='parti' && p.messageParent){
+      const f=el('span','pr-flag','!'); f.title='Message à transmettre : '+p.messageParent; c.appendChild(f);
+    }
+    tap.addEventListener('click', ()=> tapPresence(i));
+    /* appui long = absent, comme dans l'app */
+    let minuteur=null;
+    const partir=()=>{ minuteur=setTimeout(()=>{ minuteur=null; marquerAbsent(i); }, 550); };
+    const finir =()=>{ if(minuteur){ clearTimeout(minuteur); minuteur=null; } };
+    tap.addEventListener('mousedown',partir); tap.addEventListener('touchstart',partir,{passive:true});
+    ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=>tap.addEventListener(ev,finir));
+    c.appendChild(tap);
+
+    if (p.statut==='present'){
+      const b=el('button','pr-porte'); b.type='button';
+      b.textContent = '👋 ' + (p.arriveAvec ? ('porté par '+p.arriveAvec) : 'porté par ?');
+      b.addEventListener('click', e2=>{ e2.stopPropagation();
+        const k=LIENS.indexOf(p.arriveAvec);
+        const q={...p, arriveAvec: LIENS[(k+1) % LIENS.length]};
+        poserPres(i,q);
+      });
+      c.appendChild(b);
+    }
+    if (p.statut==='attendu'){
+      const b=el('button','pr-absent-btn','✗ ABSENT'); b.type='button';
+      b.addEventListener('click', e2=>{ e2.stopPropagation(); marquerAbsent(i); });
+      c.appendChild(b);
+    }
+    h.appendChild(c);
   });
-})();
+  const r=$('#prResume'); r.innerHTML='';
+  r.appendChild(el('span','present', cpt.present+' présent'+(cpt.present>1?'s':'')));
+  r.appendChild(el('span',null,     cpt.attendu+' attendu'+(cpt.attendu>1?'s':'')));
+  r.appendChild(el('span','parti',  cpt.parti+' parti'+(cpt.parti>1?'s':'')));
+  if (cpt.absent) r.appendChild(el('span','absent', cpt.absent+' absent'+(cpt.absent>1?'s':'')));
+  const d=$('#prDate'); if(d) d.textContent = jourLisible(aujourdhuiISO());
+}
+function marquerAbsent(i){
+  const p=presDe(i);
+  poserPres(i, p.statut==='absent' ? {...p,statut:'attendu'} : {...p, statut:'absent', heureArrivee:'', heureDepart:''});
+}
+function tapPresence(i){
+  const p=presDe(i);
+  if (p.statut==='attendu') poserPres(i,{...p,statut:'present',heureArrivee:maintenantHM()});
+  else if (p.statut==='absent') poserPres(i,{...p,statut:'attendu'});
+  else ouvrirDepart(i);
+}
+
+/* ── modale ── */
+function ouvrirModale(titre){
+  $('#modaleTitre').textContent=titre;
+  $('#modale').hidden=false;
+  return $('#modaleCorps');
+}
+function fermerModale(){ $('#modale').hidden=true; $('#modaleCorps').innerHTML=''; }
+document.addEventListener('click', e=>{ if(e.target.closest('[data-fermer]')) fermerModale(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('#modale').hidden) fermerModale(); });
+
+function ouvrirDepart(i){
+  const e=ENFANTS[i], p=presDe(i);
+  let choisie = p.partiAvec || '';
+  let lien    = p.lienParti || '';
+  let humeur  = p.humeur || '';
+  const corps = ouvrirModale('Départ de '+e.p);
+  corps.innerHTML = `
+    <div class="m-tete">
+      <img class="pr-photo" alt="" src="${photoDe(i)}">
+      <div><div class="pr-nom">${e.p} ${e.n}</div>
+        <div class="pr-sub">Arrivée : ${p.heureArrivee||'—'}${p.arriveAvec?' · porté par '+p.arriveAvec:''}</div></div>
+    </div>
+    <div class="m-champ"><label class="m-lab" for="dpJour">Jour du départ</label>
+      <input class="m-saisie" type="date" id="dpJour" value="${p.dateDepart||aujourdhuiISO()}"></div>
+    <div class="m-champ"><label class="m-lab" for="dpHeure">Heure du départ</label>
+      <input class="m-saisie" type="time" id="dpHeure" value="${p.heureDepart||maintenantHM()}"></div>
+    <div class="m-champ"><span class="m-lab">Parti avec — personnes autorisées</span>
+      <div class="m-personnes" id="dpPersonnes"></div>
+      <label class="m-lab" for="dpAutre">Ou une autre personne</label>
+      <input class="m-saisie" id="dpAutre" placeholder="Nom de la personne" value="">
+    </div>
+    <div class="m-avert" id="dpAvert" hidden>
+      ⚠ Cette personne n'est PAS dans la liste des personnes autorisées.
+      <label><input type="checkbox" id="dpConfirme"> Je confirme ce départ hors liste</label>
+    </div>
+    <div class="m-champ"><span class="m-lab">📓 Comment s'est passée la journée ?</span>
+      <div class="m-humeurs" id="dpHumeurs"></div></div>
+    <div class="m-champ"><label class="m-lab" for="dpNote">Note de la journée</label>
+      <input class="m-saisie" id="dpNote" value="${(p.note||'').replace(/"/g,'&quot;')}"></div>
+    <div class="m-champ"><label class="m-lab" for="dpMsg">Message à transmettre au parent</label>
+      <input class="m-saisie" id="dpMsg" value="${(p.messageParent||'').replace(/"/g,'&quot;')}"></div>
+    <div class="m-pied">
+      <button type="button" class="m-valider" id="dpOk">✔ CONFIRMER LE DÉPART</button>
+      <button type="button" class="mini" data-fermer>ANNULER</button>
+      ${p.statut==='parti'?'<button type="button" class="mini mini--rose" id="dpRetour">↩ IL EST ENCORE LÀ</button>':''}
+    </div>`;
+
+  const hp=$('#dpPersonnes');
+  e.aut.forEach(([nom,l])=>{
+    const b=el('button','m-personne'); b.type='button';
+    b.innerHTML='<span></span> <span class="lien"></span>';
+    b.children[0].textContent=nom; b.children[1].textContent='('+l+')';
+    b.setAttribute('aria-pressed', String(choisie===nom));
+    b.addEventListener('click',()=>{
+      choisie = choisie===nom ? '' : nom; lien = choisie ? l : '';
+      $('#dpAutre').value='';
+      [...hp.children].forEach(x=>x.setAttribute('aria-pressed','false'));
+      if (choisie) b.setAttribute('aria-pressed','true');
+      majAvert();
+    });
+    hp.appendChild(b);
+  });
+  const hh=$('#dpHumeurs');
+  HUMEURS.forEach(x=>{
+    const b=el('button','m-humeur'); b.type='button';
+    b.innerHTML='<span></span><span></span>';
+    b.children[0].textContent=x.emoji; b.children[1].textContent=x.label;
+    b.setAttribute('aria-pressed', String(humeur===x.k));
+    b.addEventListener('click',()=>{ humeur = humeur===x.k ? '' : x.k;
+      [...hh.children].forEach(y=>y.setAttribute('aria-pressed','false'));
+      if(humeur) b.setAttribute('aria-pressed','true'); });
+    hh.appendChild(b);
+  });
+  function nomAutre(){ return $('#dpAutre').value.trim(); }
+  function horsListe(){
+    const a=nomAutre();
+    if (!a) return false;
+    return !e.aut.some(([n])=> n.toLowerCase()===a.toLowerCase());
+  }
+  function majAvert(){
+    const hl=horsListe();
+    $('#dpAvert').hidden = !hl;
+    const conf=$('#dpConfirme');
+    $('#dpOk').disabled = hl && !(conf && conf.checked);
+  }
+  $('#dpAutre').addEventListener('input', ()=>{
+    if (nomAutre()){ choisie=''; lien=''; [...hp.children].forEach(x=>x.setAttribute('aria-pressed','false')); }
+    majAvert();
+  });
+  corps.addEventListener('change', ev=>{ if(ev.target.id==='dpConfirme') majAvert(); });
+  majAvert();
+
+  $('#dpOk').addEventListener('click', ()=>{
+    const a=nomAutre();
+    poserPres(i, {...p, statut:'parti',
+      dateDepart:$('#dpJour').value, heureDepart:$('#dpHeure').value,
+      partiAvec: a || choisie, lienParti: a ? 'autre' : lien,
+      horsListe: horsListe(), humeur,
+      note:$('#dpNote').value.trim(), messageParent:$('#dpMsg').value.trim()});
+    fermerModale();
+  });
+  const retour=$('#dpRetour');
+  if (retour) retour.addEventListener('click', ()=>{
+    poserPres(i, {...p, statut:'present', heureDepart:'', dateDepart:'', partiAvec:'', horsListe:false});
+    fermerModale();
+  });
+}
+
+/* ── rapport ── */
+function rapportPresences(){
+  const l=[], gr=lire('ed:pr-gr','5A')||'5A';
+  l.push('PRÉSENCES — groupe '+gr);
+  l.push(jourLisible(aujourdhuiISO()));
+  l.push('');
+  const par={present:[],parti:[],absent:[],attendu:[]};
+  ENFANTS.forEach((e,i)=>{
+    const p=presDe(i); const nom=e.p+' '+e.n;
+    if (p.statut==='present') par.present.push('  • '+nom+' — arrivé à '+(p.heureArrivee||'?')+(p.arriveAvec?' (porté par '+p.arriveAvec+')':''));
+    else if (p.statut==='parti'){
+      let t='  • '+nom+' — parti '+jourLisible(p.dateDepart)+' à '+(p.heureDepart||'?');
+      if (p.partiAvec) t+=' avec '+p.partiAvec+(p.horsListe?' ⚠ HORS LISTE':'');
+      const hu=HUMEURS.find(x=>x.k===p.humeur); if(hu) t+=' — '+hu.label;
+      if (p.messageParent) t+='\n      ! message au parent : '+p.messageParent;
+      par.parti.push(t);
+    }
+    else if (p.statut==='absent') par.absent.push('  • '+nom);
+    else par.attendu.push('  • '+nom);
+  });
+  const bloc=(titre,arr)=>{ if(!arr.length) return; l.push(titre+' ('+arr.length+')'); l.push(...arr); l.push(''); };
+  bloc('ABSENTS', par.absent);
+  bloc('PAS ENCORE ARRIVÉS', par.attendu);
+  bloc('PRÉSENTS', par.present);
+  bloc('DÉJÀ PARTIS', par.parti);
+  return l.join('\n');
+}
+$('#prEnvoyer').addEventListener('click', async ()=>{
+  const txt=rapportPresences();
+  const zone=$('#prRapport'); zone.hidden=false; zone.textContent=txt;
+  const b=$('#prEnvoyer');
+  try { await navigator.clipboard.writeText(txt); b.textContent='📋 COPIÉ — colle-le où tu veux'; }
+  catch(e){ b.textContent='📋 COPIE REFUSÉE — sélectionne le texte'; }
+  setTimeout(()=>b.textContent='📤 ENVOYER LE RAPPORT', 2600);
+});
+$('#prRaz').addEventListener('click', ()=>{
+  if(!confirm('Remettre tout le groupe en « attendu » ?')) return;
+  ENFANTS.forEach((e,i)=>{ try{ localStorage.removeItem(P+'pres2:'+i); }catch(err){} });
+  peindrePresences();
+});
+
 (function reglages(){
   const h = $('#reglagesHoraire');
   PERIODES.filter(p=>p[0]==='p').forEach(p=>{
@@ -923,6 +1213,7 @@ $('#btnVider').addEventListener('click', ()=>{
 });
 brancherEditables();
 calculerTemps();
+peindrePresences();
 compterEval();
 peindreBulletin();
 poserMetier(lire('metier','eps'));

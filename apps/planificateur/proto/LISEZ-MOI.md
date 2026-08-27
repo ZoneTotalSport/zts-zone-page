@@ -36,7 +36,8 @@ demande de Joey du 27 août : voir tous les boutons plutôt qu'un menu.
 | 10 | **Évaluation** | Les 3 compétences du PFEQ en ÉPS, cotées A→E d'une touche. Reclic = on enlève. Compteur et moyenne de groupe en direct. |
 | 11 | **Bulletin** | Une carte par élève, construite **depuis l'ÉVALUATION** : cotes, jauges, commentaire proposé selon le résultat le plus faible. Prêt à imprimer. |
 | 12 | **Partage** | Quoi partager (8 cases), ce que le collègue peut faire (regarder / copier / modifier), lien, code à 8 caractères, aperçu de QR. |
-| 13-16 | Présences · Plan B · Noter · Réglages | inchangés. |
+| 13 | **Présences** | Photo + nom par enfant. Tap : attendu → présent → départ ; appui long = absent. **Parti ou absent, la photo ET le nom passent en noir et blanc.** Jour et heure de départ, « porté par » à l'arrivée, « parti avec » au départ avec garde hors-liste, humeur, message au parent, particularités, rapport à envoyer. |
+| 14-16 | Plan B · Noter · Réglages | inchangés. |
 
 ## Les deux chaînes qui se recalculent seules
 
@@ -95,6 +96,21 @@ Les originaux embarquaient une pochette : 522 Ko à eux deux, 73 Ko après.
 **Non vérifié : personne n'a encore _entendu_ ces sons.** Le proto confirme
 qu'ils se décodent et jouent jusqu'au bout (4,81 s et 9,69 s, sans erreur), pas
 qu'ils sonnent juste.
+
+## Les présences sont PORTÉES de l'app, pas inventées
+
+L'écran reprend le modèle de `apps/planificateur/app.js` (`renderPresenceCard`,
+`openDepartModal`) : statuts `attendu / present / parti / absent`, `heureArrivee`,
+`heureDepart`, `arriveAvec`, `partiAvec`, `horsListe`, humeur de fin de journée,
+message au parent, personnes autorisées, particularités. **Rien n'a été
+simplifié au passage** — la première version du proto montrait un écran réduit
+à 18 boutons vert/rouge, ce qui était une lacune de la maquette, pas une perte
+dans l'app.
+
+Ce qui n'y est pas : les photos réelles des enfants (le proto dessine une
+pastille à initiales, qui se décolore comme une vraie photo) et l'envoi vers le
+coordonnateur — ici le rapport est **copié dans le presse-papier**, rien ne part
+sur le réseau.
 
 ## Ce qui n'est PAS réel dans le partage
 
