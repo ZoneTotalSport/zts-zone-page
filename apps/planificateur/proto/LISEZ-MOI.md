@@ -14,6 +14,26 @@ python3 -m http.server 8788
 # → http://localhost:8788/apps/planificateur/proto/
 ```
 
+## Ce qui a été RETIRÉ — cinq redondances, zéro fonction perdue
+
+Joey trouvait l'app encore difficile à comprendre et m'a autorisé à retirer
+les doublons. Cinq écrans ont disparu, aucune fonction avec :
+
+| Retiré | Pourquoi ce n'était qu'un doublon |
+|---|---|
+| **Semaine** | L'accueil est la MÊME grille période × jour. Ses colonnes « Gr: » et « # cours » répétaient le contexte : la barre jaune dit déjà dans quel groupe on écrit, et chaque en-tête de jour porte son jour-cycle. |
+| **Fiche de cours** | Trois blocs à remplir, alors que MA JOURNÉE en a déjà, avec les médias et les minuteries en plus. Son en-tête (Cours · cycles · début · durée) a migré en tête de MA JOURNÉE. |
+| **Noter** | Une zone de texte libre — exactement le journal de bord de MES GROUPES, qui lui est daté et rattaché au groupe. |
+| **Plan B** | Trois boutons qui ouvraient le tiroir des jeux avec un filtre. Le filtre est maintenant un bouton **dans** le tiroir. |
+| **Cahier › Ma semaine** | L'accueil EST l'agenda de la semaine. Deux écrans pour la même vue. |
+
+**L'écran ÉVALUATION** empilait aussi deux grilles sur les mêmes élèves —
+les 3 compétences et les critères fins. Une bascule, une seule grille à la fois.
+
+**22 écrans → 18. La barre : 7 portes, dont 4 en accès direct** — Ma semaine ·
+Ma journée · Présences · Mon cahier, les quatre gestes d'une journée. Le reste
+est rangé sous Évaluer · Calendrier · Plus.
+
 ## Le cahier de consignation — ce qui relie tout
 
 **Une clé commune : le jour + le groupe.** La barre jaune du haut la montre en

@@ -217,7 +217,7 @@ document.addEventListener('paste', e=>{
 
 function enrichirTousLesBlocs(){ $$('.bloc').forEach(enrichirBloc); }
 enrichirTousLesBlocs();
-['blocsJournee','blocsCours'].forEach(id=>{
+['blocsJournee'].forEach(id=>{
   const h=document.getElementById(id); if(!h) return;
   new MutationObserver(()=>enrichirTousLesBlocs()).observe(h,{childList:true});
 });
@@ -532,10 +532,10 @@ function groupeActif(){ return lire('groupeActif', 0); }
     const de=$('#gabDe').value, vers=$('#gabVers').value;
     const r=$('#gabResultat');
     if (!de || !vers){ r.innerHTML='<div class="m-avert" style="display:block">Choisis les deux semaines.</div>'; return; }
-    const cases=$$('#semaineHote .case [contenteditable]').filter(n=>n.textContent.trim()).length;
+    const cases=blocsDuJour(de).length;
     r.innerHTML='<div class="aide-un-mot" style="margin:0"><span class="emo">✅</span>'
       + 'La semaine du <b>'+jourLisible(de)+'</b> serait recopiée vers le <b>'+jourLisible(vers)+'</b> — '
-      + cases+' case(s) remplie(s). <b>Rien n’est écrasé dans le proto</b> : la vraie copie se fera à l’implémentation.</div>';
+      + cases+' bloc(s) planifié(s). <b>Rien n’est écrasé dans le proto</b> : la vraie copie se fera à l’implémentation.</div>';
   });
 })();
 
@@ -1081,7 +1081,8 @@ function rienDeRien(r){
 function peindreCahier(){
   const h=$('#cahHote'); if(!h) return;
   h.innerHTML='';
-  if (lire('cahVue','jour')==='semaine'){ peindreCahierSemaine(h); return; }
+  /* La vue semaine du cahier a été retirée : l'accueil EST l'agenda de la
+     semaine. Deux écrans pour la même chose, c'était une redondance. */
   const r=releveDuJour(ctxDate, ctxGroupe);
   const page=el('div','cahier');
   const tete=el('div','cahier-tete');
@@ -1165,49 +1166,9 @@ function peindreCahier(){
   h.appendChild(page);
 }
 
-function peindreCahierSemaine(h){
-  const d=dateDeIso(ctxDate);
-  const lundi=new Date(d); lundi.setDate(d.getDate()-((d.getDay()+6)%7));
-  const grille=el('div','cahier-semaine');
-  for (let i=0;i<5;i++){
-    const j=new Date(lundi.getTime()+i*UN_JOUR), iso=isoDe(j);
-    const r=releveDuJour(iso, ctxGroupe);
-    const c=el('div','cah-jour'); c.setAttribute('aria-current', String(iso===ctxDate));
-    c.appendChild(el('h4',null, ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'][i]+' '+j.getDate()));
-    if (rienDeRien(r)) c.appendChild(el('div','rien','—'));
-    else {
-      const u=document.createElement('ul');
-      r.blocs.slice(0,3).forEach(b=> u.appendChild(el('li',null,(b.fait?'✔ ':'○ ')+b.titre)));
-      if (r.presences.present||r.presences.parti) u.appendChild(el('li',null,'✅ '+(r.presences.present+r.presences.parti)+' présents'));
-      if (r.cotes+r.crits) u.appendChild(el('li',null,'⭐ '+(r.cotes+r.crits)+' cotes'));
-      if (r.leger) u.appendChild(el('li',null,'🏃 test'));
-      c.appendChild(u);
-    }
-    c.addEventListener('click',()=> poserContexte(iso));
-    grille.appendChild(c);
-  }
-  const boite=el('div','cahier');
-  const tete=el('div','cahier-tete');
-  tete.appendChild(el('h2',null,'Semaine du '+jourLisible(isoDe(lundi))));
-  tete.appendChild(el('span','gr','GROUPE '+nomGroupe(ctxGroupe)));
-  boite.appendChild(tete);
-  const corps=el('div','cahier-corps'); corps.style.paddingTop='16px';
-  corps.appendChild(grille); boite.appendChild(corps);
-  h.appendChild(boite);
-}
-
 (function cahierBoutons(){
-  if (!$('#cahJour')) return;
-  const maj=()=>{
-    const v=lire('cahVue','jour');
-    $('#cahJour').setAttribute('aria-pressed',String(v==='jour'));
-    $('#cahSemaine').setAttribute('aria-pressed',String(v==='semaine'));
-    peindreCahier();
-  };
-  $('#cahJour').addEventListener('click',()=>{ ecrire('cahVue','jour'); maj(); });
-  $('#cahSemaine').addEventListener('click',()=>{ ecrire('cahVue','semaine'); maj(); });
-  $('#cahImprimer').addEventListener('click',()=>window.print());
-  maj();
+  const i=$('#cahImprimer'); if (i) i.addEventListener('click',()=>window.print());
+  peindreCahier();
 })();
 
 /* Le cahier se rafraîchit dès qu'on revient dessus — il relit, il ne stocke pas. */
@@ -1224,34 +1185,27 @@ peindreCahier();
    montre toujours toutes les tuiles. C'est la barre qui se resserre.
    Chaque menu est nommé par CE QU'ON Y CHERCHE, pas par une catégorie floue. */
 const MENUS = [
-  {direct:'e-accueil', lab:'🏠 ACCUEIL'},
-  {direct:'e-cahier',  lab:'📔 CAHIER'},
-  {lab:'📅 CLASSE', quoi:[
-    ['e-journee','📋 Ma journée','Les blocs du cours, un par un'],
-    ['e-presences','✅ Présences','Qui est là, qui est parti'],
-    ['e-cours','🏀 Fiche de cours','Le gabarit papier à remplir'],
-    ['e-groupes','👥 Mes groupes','Classes, journal, historique'],
-    ['e-planb','🌧️ Plan B','Il pleut, le gym est pris'],
+  {direct:'e-accueil',   lab:'🏠 MA SEMAINE'},
+  {direct:'e-journee',   lab:'📋 MA JOURNÉE'},
+  {direct:'e-presences', lab:'✅ PRÉSENCES'},
+  {direct:'e-cahier',    lab:'📔 MON CAHIER'},
+  {lab:'⭐ ÉVALUER', quoi:[
+    ['e-evaluation','📝 Évaluation','Poser mes cotes du jour'],
+    ['e-carnet','📊 Carnet de notes','Toutes mes cotes, en grille'],
+    ['e-bulletin','🎓 Bulletin','La synthèse d’étape'],
+    ['e-tests','🏃 Tests','Chrono, navette, Léger-Boucher'],
   ]},
   {lab:'🗓️ CALENDRIER', quoi:[
-    ['e-semaine','🗓️ Semaine','Périodes 1 à 6'],
     ['e-mois','📅 Mois','Jours-cycle et notes'],
     ['e-annee','📚 Année','Compétences, moyens, activités'],
     ['e-calendrier','📆 Calendrier scolaire','Congés et pédagogiques'],
   ]},
-  {lab:'⭐ ÉVALUER', quoi:[
-    ['e-evaluation','📝 Évaluation','Les 3 compétences et les critères'],
-    ['e-bulletin','🎓 Bulletin','La synthèse d’étape'],
-    ['e-tests','🏃 Tests','Chrono, navette, Léger-Boucher'],
-    ['e-noter','⭐ Noter','Un mot rapide sur le groupe'],
-  ]},
-  {lab:'🎲 OUTILS', quoi:[
+  {lab:'⋯ PLUS', quoi:[
     ['e-jeux','🎲 Jeux','Piger dans la banque'],
-    ['e-partage','📤 Partage','Envoyer à un collègue'],
+    ['e-groupes','👥 Mes groupes','Classes, journal, historique'],
     ['e-messages','💬 Messages','Le coordo, valider ma semaine'],
+    ['e-partage','📤 Partage','Envoyer à un collègue'],
     ['e-temps','⏱️ Mon temps','Heures travaillées'],
-  ]},
-  {lab:'⚙️ RÉGLAGES', quoi:[
     ['e-reglages','⚙️ Réglages','Cycle, étapes, zoom, langue'],
     ['e-donnees','💾 Mes données','Sauvegarder, exporter, importer'],
   ]},
@@ -1442,15 +1396,7 @@ function peindreCarnet(){
   window.allerA=function(id){ base(id); if(id==='e-carnet') peindreCarnet(); };
 })();
 /* Le menu ÉVALUER accueille le carnet. */
-(function carnetDansMenu(){
-  const m=[...document.querySelectorAll('#nav .menu')].find(x=>x.querySelector('[data-va="e-evaluation"]'));
-  if (!m) return;
-  const b=el('button'); b.type='button'; b.dataset.va='e-carnet';
-  b.innerHTML='<span>📊 Carnet de notes</span><span class="quoi">La grille, une ligne par élève</span>';
-  b.addEventListener('click',e=>{ e.stopPropagation(); m.dataset.ouvert='0'; allerA('e-carnet'); });
-  const liste=m.querySelector('.menu-liste');
-  liste.insertBefore(b, liste.children[1]);
-})();
+
 
 /* ═════════ 13. L'AGENDA — l'écran d'ouverture ═════════
    Joey : « à la place [des tuiles], l'affichage de base comme un agenda, les
@@ -1588,11 +1534,50 @@ function peindreAgenda(){
 peindreAgenda();
 
 /* IMPRIMER n'était qu'une tuile : il rejoint le menu OUTILS. */
-(function imprimerDansMenu(){
-  const m=[...document.querySelectorAll('#nav .menu')].find(x=>x.querySelector('[data-va="e-jeux"]'));
-  if (!m) return;
-  const b=el('button'); b.type='button';
-  b.innerHTML='<span>🖨️ Imprimer</span><span class="quoi">L’écran courant sur papier</span>';
-  b.addEventListener('click',e=>{ e.stopPropagation(); m.dataset.ouvert='0'; window.print(); });
-  m.querySelector('.menu-liste').appendChild(b);
+
+
+/* ── PLAN B rejoint le tiroir des jeux ──
+   L'écran PLAN B n'était que trois boutons ouvrant ce même tiroir avec un
+   filtre. Un bouton dans le tiroir fait la même chose, sans un écran de plus. */
+(function planBDansTiroir(){
+  const b=$('#tiroirPlanB'); if(!b) return;
+  b.addEventListener('click',()=>{
+    const f='Plan B';
+    if (actifs.has(f)) actifs.delete(f); else actifs.add(f);
+    const on=actifs.has(f);
+    b.setAttribute('aria-pressed',String(on));
+    b.textContent = on ? '🌧️ PLAN B — filtre actif, touche pour tout revoir'
+                       : '🌧️ PLAN B — il pleut, le gym est pris';
+    $$('#filtres .mini').forEach(x=>{ if(x.textContent===f) x.setAttribute('aria-pressed',String(on)); });
+    peindreJeux();
+  });
+})();
+
+/* ── ÉVALUATION : une seule grille à la fois ──
+   L'écran empilait la grille des 3 compétences ET celle des critères fins :
+   deux tableaux d'affilée sur les mêmes élèves, personne ne savait lequel
+   remplir. Une bascule, une grille. */
+(function evaluationUneGrille(){
+  const ecran=$('#e-evaluation'); if(!ecran) return;
+  const pans=$$('.pan', ecran); if (pans.length<2) return;
+  const simple=pans[0], fin=pans[1];
+  const barre=el('div'); barre.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px';
+  const b1=el('button','mini','⭐ LES 3 COMPÉTENCES'); b1.type='button';
+  const b2=el('button','mini','🔬 DES CRITÈRES PRÉCIS'); b2.type='button';
+  const aide=el('div','aide-un-mot');
+  const maj=()=>{
+    const v=lire('evMode','simple');
+    simple.style.display = v==='simple' ? '' : 'none';
+    fin.style.display    = v==='simple' ? 'none' : '';
+    b1.setAttribute('aria-pressed', String(v==='simple'));
+    b2.setAttribute('aria-pressed', String(v!=='simple'));
+    aide.innerHTML = v==='simple'
+      ? '<span class="emo">👆</span>Une touche par compétence, pour tout le groupe. C’est le plus rapide.'
+      : '<span class="emo">🔬</span>Quand tu veux entrer dans le détail : choisis jusqu’à 5 critères, puis cote-les.';
+  };
+  b1.addEventListener('click',()=>{ ecrire('evMode','simple'); maj(); });
+  b2.addEventListener('click',()=>{ ecrire('evMode','fin'); maj(); peindreCriteres(); peindreGrilleCrit(); });
+  barre.appendChild(b1); barre.appendChild(b2);
+  ecran.insertBefore(aide, simple); ecran.insertBefore(barre, aide);
+  maj();
 })();

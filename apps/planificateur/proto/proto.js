@@ -90,13 +90,16 @@ const METIERS = {
   camp: {tuile3:'MA JOURNÉE',  aide:'Le déroulement de la journée',    badge:970},
   sdg : {tuile3:'MA PÉRIODE',  aide:'Le bloc du service de garde',     badge:177},
 };
+/* Les tuiles de l'accueil ont laissé place à l'agenda : les cibles de
+   `poserMetier` peuvent ne plus exister. On ne touche que ce qui est là. */
 function poserMetier(m){
   const d = METIERS[m] || METIERS.eps;
-  $('#tuile3').textContent = d.tuile3;
-  $('#tuile3aide').textContent = d.aide;
-  $('#badgeJeux').textContent = d.badge;
+  const pose = (sel,val)=>{ const n=$(sel); if(n) n.textContent = val; };
+  pose('#tuile3', d.tuile3); pose('#tuile3aide', d.aide); pose('#badgeJeux', d.badge);
+  pose('#metierCompte', d.badge+' fiches pour ce métier');
   $$('#metiers .metier').forEach(b=> b.setAttribute('aria-pressed', String(b.dataset.metier===m)));
   ecrire('metier', m);
+  if (typeof peindreAgenda === 'function') peindreAgenda();
 }
 $$('#metiers .metier').forEach(b=> b.addEventListener('click',()=>poserMetier(b.dataset.metier)));
 
@@ -327,7 +330,7 @@ function faireBloc(o){
    cours, elle, est un gabarit — elle reste hors contexte, volontairement. */
 function cleOrdre(h){ return h==='blocsJournee' ? kctx('ord') : 'ord:'+h; }
 function sauverBlocs(){
-  ['blocsJournee','blocsCours'].forEach(h=>{
+  ['blocsJournee'].forEach(h=>{
     const n = document.getElementById(h); if(!n || !n.dataset.pret) return;
     ecrire(cleOrdre(h), $$('.bloc', n).map(b=>b.id));
   });
@@ -356,11 +359,7 @@ function defautsJournee(){
   return JOURNEE_EXEMPLE;
 }
 monterBlocs('blocsJournee', defautsJournee());
-monterBlocs('blocsCours', [
-  {titre:'Mise en train',  desc:'', duree:300},
-  {titre:'Corps du cours', desc:'', duree:1800},
-  {titre:'Retour',         desc:'', duree:300},
-], {illu:true});
+
 /* Recharge la journée du contexte courant : on vide l'hôte et on remonte. */
 function remonterJournee(){
   const hote = $('#blocsJournee'); if (!hote) return;
@@ -654,35 +653,11 @@ const PERIODES = [
   ['p',5,'13:05 à 13:55'], ['r',0,'Récréation'], ['p',6,'14:15 à 15:05'],
 ];
 const JOURS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi'];
-(function semaine(){
-  const t = el('table','tbl');
-  const th = el('tr'); th.appendChild(el('th'));
-  JOURS.forEach(j=>{ const c=el('th'); const d=el('div','jour-tete',j); c.appendChild(d); th.appendChild(c); });
-  const tb = el('tbody'); tb.appendChild(th);
-  PERIODES.forEach((per,i)=>{
-    const tr = el('tr');
-    if (per[0]==='r'){
-      const td = el('td'); td.appendChild(el('div','pause',per[2])); tr.appendChild(td);
-      JOURS.forEach(()=>{ const c=el('td'); c.appendChild(el('div','pause','—')); tr.appendChild(c); });
-    } else {
-      const td = el('td');
-      const p = el('div','per','Période '+per[1]);
-      p.appendChild(el('small',null,per[2])); td.appendChild(p); tr.appendChild(td);
-      JOURS.forEach(j=>{
-        const c = el('td'); const b = el('div','case');
-        const k = 'sem-'+j+'-'+per[1];
-        b.innerHTML = '<div class="gr">'
-          + '<span>Gr: <span contenteditable data-k="'+k+'-g" data-vide="—"></span></span>'
-          + '<span># cycle <span contenteditable data-k="'+k+'-c" data-vide="—"></span></span></div>'
-          + '<span class="act-lab">Activité :</span>'
-          + '<div class="act" contenteditable data-k="'+k+'-a" data-vide="…"></div>';
-        c.appendChild(b); tr.appendChild(c);
-      });
-    }
-    tb.appendChild(tr);
-  });
-  t.appendChild(tb); $('#semaineHote').appendChild(t); brancherEditables(t);
-})();
+/* La grille SEMAINE a été retirée : l'agenda de l'accueil est la MÊME grille
+   période × jour. Ses colonnes « Gr: » et « # cours » faisaient doublon avec
+   le contexte — la barre jaune dit déjà dans quel groupe on écrit, et
+   l'en-tête de chaque jour porte son jour-cycle. Rien n'est perdu. */
+
 
 /* ═════════ MON TEMPS ═════════ */
 function ligneTemps(i){
