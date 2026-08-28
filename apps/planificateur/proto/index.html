@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=39">
-<link rel="stylesheet" href="proto-fusion.css?v=39">
-<link rel="stylesheet" href="proto-boutons.css?v=39">
-<link rel="stylesheet" href="proto-seance.css?v=39">
-<link rel="stylesheet" href="proto-simple.css?v=39">
+<link rel="stylesheet" href="proto.css?v=42">
+<link rel="stylesheet" href="proto-fusion.css?v=42">
+<link rel="stylesheet" href="proto-boutons.css?v=42">
+<link rel="stylesheet" href="proto-seance.css?v=42">
+<link rel="stylesheet" href="proto-simple.css?v=42">
 </head>
 <body>
 
@@ -207,7 +207,17 @@
 <section class="ecran" id="e-tests">
   <h1 class="titre">Tests</h1>
   <div class="aide-un-mot"><span class="emo">👆</span>
-    Un seul gros bouton par test. Tu pars, tu arrêtes, c'est noté.</div>
+    Choisis le groupe, puis lance le test. Chaque groupe garde ses propres
+    résultats — rien ne se mélange.</div>
+
+  <div class="pan">
+    <h2>Quel groupe ?</h2>
+    <div class="grp-liste" id="tsGroupes"></div>
+    <div class="reg-ligne" style="margin-top:10px">
+      <b>Date du test</b>
+      <input class="m-saisie" type="date" id="tsDate" style="width:auto">
+    </div>
+  </div>
 
   <div class="test-boite">
     <h2>⏱️ Chronomètre</h2>
@@ -222,23 +232,45 @@
   </div>
 
   <div class="test-boite">
-    <h2>🏃 Navette Léger-Boucher</h2>
-    <p class="quoi">Le minuteur donne le rythme. Quand un élève s'arrête, touche son nom :
-       son palier, sa distance et sa vitesse sont calculés tout seuls.</p>
+    <h2>🏃 Test Léger-Boucher</h2>
+    <p class="quoi">Le test de paliers, pour l'endurance. Le minuteur donne le rythme ;
+      quand un élève s'arrête, touche son nom — palier, distance et vitesse sont calculés.</p>
     <div class="palier-affiche">
       <div><b id="lgPalier">0</b><span>palier</span></div>
       <div><b id="lgNavette">0</b><span>navettes</span></div>
       <div><b id="lgDist">0 m</b><span>distance</span></div>
-      <div><b id="lgVit">8,0</b><span>km/h</span></div>
+      <div><b id="lgVit">8</b><span>km/h</span></div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <button type="button" class="gros-bouton" id="lgGo">▶ PARTIR LE TEST</button>
-      <button type="button" class="gros-bouton gros-bouton--gris" id="lgRaz">↺ RECOMMENCER</button>
+      <button type="button" class="gros-bouton gros-bouton--gris" id="lgRaz">↺ EFFACER CE GROUPE</button>
       <span id="lgTemps" style="font-family:var(--f-titre);font-size:22px">0:00</span>
     </div>
     <table class="test-tbl"><thead><tr>
-      <th style="width:34%">Élève</th><th>Palier</th><th>Navettes</th><th>Distance</th><th>km/h</th><th></th>
+      <th style="width:32%">Élève</th><th>Palier</th><th>Navettes</th><th>Distance</th><th>km/h</th><th></th>
     </tr></thead><tbody id="lgCorps"></tbody></table>
+  </div>
+
+  <div class="test-boite">
+    <h2>🔁 Course navette</h2>
+    <p class="quoi">Le test de vitesse : le plus d'allers-retours possible dans le temps donné.
+      Touche <b>+1</b> à chaque aller-retour réussi.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+      <b>Durée</b>
+      <input class="m-saisie" id="nvDuree" value="30 s" style="width:110px"
+             title="Écris ce que tu veux : 30 s, 1:00, 2 min">
+      <b>Distance</b>
+      <input class="m-saisie" id="nvDist" value="20" type="number" min="1" max="100" style="width:90px">
+      <span>m par aller-retour</span>
+    </div>
+    <div class="gros-chrono" id="nvLect">0:30</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button type="button" class="gros-bouton" id="nvGo">▶ PARTIR</button>
+      <button type="button" class="gros-bouton gros-bouton--gris" id="nvRaz">↺ EFFACER CE GROUPE</button>
+    </div>
+    <table class="test-tbl"><thead><tr>
+      <th style="width:44%">Élève</th><th>Allers-retours</th><th>Distance</th><th></th>
+    </tr></thead><tbody id="nvCorps"></tbody></table>
   </div>
 </section>
 
@@ -381,10 +413,11 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=39"></script>
-<script src="proto-fusion.js?v=39"></script>
-<script src="proto-seance.js?v=39"></script>
-<script src="proto-simple.js?v=39"></script>
-<script src="proto-annee.js?v=39"></script>
+<script src="proto.js?v=42"></script>
+<script src="proto-fusion.js?v=42"></script>
+<script src="proto-seance.js?v=42"></script>
+<script src="proto-simple.js?v=42"></script>
+<script src="proto-tests.js?v=42"></script>
+<script src="proto-annee.js?v=42"></script>
 </body>
 </html>

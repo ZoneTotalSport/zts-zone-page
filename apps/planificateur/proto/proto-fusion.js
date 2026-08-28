@@ -206,91 +206,12 @@ function teinteVal(v){ return v>=100?'#8CE05F':v>=80?'#B9F09A':v>=60?'#FFF07A':v
 
 /* ═════════ 3. TESTS — chrono, laps, Léger-Boucher ═════════ */
 /* Table extraite du bundle du Carnet : 22 paliers (0 à 21). */
-const LEGER=[{n:0,nav:7,v:8,t:9},{n:1,nav:8,v:8.5,t:8.471},{n:2,nav:8,v:9,t:8},{n:3,nav:8,v:9.5,t:7.579},{n:4,nav:8,v:10,t:7.2},{n:5,nav:9,v:10.5,t:6.857},{n:6,nav:9,v:11,t:6.545},{n:7,nav:10,v:11.5,t:6.261},{n:8,nav:10,v:12,t:6},{n:9,nav:10,v:12.5,t:5.76},{n:10,nav:11,v:13,t:5.538},{n:11,nav:11,v:13.5,t:5.333},{n:12,nav:11,v:14,t:5.143},{n:13,nav:12,v:14.5,t:4.966},{n:14,nav:12,v:15,t:4.8},{n:15,nav:13,v:15.5,t:4.645},{n:16,nav:13,v:16,t:4.5},{n:17,nav:13,v:16.5,t:4.364},{n:18,nav:13,v:17,t:4.235},{n:19,nav:14,v:17.5,t:4.114},{n:20,nav:14,v:18,t:4},{n:21,nav:15,v:18.5,t:3.892}];
-function etatLeger(sec){
-  let t=0,d=0;
-  for (const p of LEGER){
-    for (let i=1;i<=p.nav;i++){
-      if (t+p.t > sec) return {palier:p.n, navette:i, distance:d, vitesse:p.v};
-      t+=p.t; d+=20;
-    }
-  }
-  return {palier:21, navette:16, distance:5060, vitesse:18.5};
-}
+/* La table Léger-Boucher et son calcul vivent dans proto-tests.js — une
+   seule déclaration, sinon les deux scripts s'annulent. */
 const cs = n => Math.floor(n/600)+':'+String(Math.floor(n/10)%60).padStart(2,'0')+','+(n%10);
 
-(function tests(){
-  if (!$('#chLect')) return;
-  /* ── chronomètre — un seul intervalle, même garde que les minuteries ── */
-  let dep=0, fige=0, tic=null;
-  const lect=$('#chLect'), go=$('#chGo');
-  const dixiemes = ()=> fige + (dep ? Math.floor((Date.now()-dep)/100) : 0);
-  function peindre(){ lect.textContent = cs(dixiemes()); }
-  function demarrer(){ if(tic) return; tic=setInterval(peindre,100); }
-  go.addEventListener('click',()=>{
-    if (dep){ fige=dixiemes(); dep=0; clearInterval(tic); tic=null; go.textContent='▶ REPARTIR';
-              go.classList.remove('gros-bouton--stop'); }
-    else { dep=Date.now(); demarrer(); go.textContent='⏸ ARRÊTER'; go.classList.add('gros-bouton--stop'); }
-    peindre();
-  });
-  $('#chRaz').addEventListener('click',()=>{
-    dep=0; fige=0; if(tic){clearInterval(tic);tic=null;}
-    go.textContent='▶ PARTIR'; go.classList.remove('gros-bouton--stop');
-    $('#chLaps').innerHTML=''; peindre();
-  });
-  $('#chTour').addEventListener('click',()=>{
-    const n=$('#chLaps').children.length+1;
-    $('#chLaps').appendChild(el('li',null,'Tour '+n+' · '+cs(dixiemes())));
-  });
-  peindre();
-
-  /* ── Léger-Boucher ── */
-  let lDep=0, lTic=null;
-  const resultats = ()=> lire(kctx('leger'), {});
-  function secondes(){ return lDep ? (Date.now()-lDep)/1000 : 0; }
-  function peindreLeger(){
-    const e=etatLeger(secondes());
-    $('#lgPalier').textContent=e.palier; $('#lgNavette').textContent=e.navette;
-    $('#lgDist').textContent=e.distance+' m'; $('#lgVit').textContent=String(e.vitesse).replace('.',',');
-    const s=Math.floor(secondes());
-    $('#lgTemps').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
-  }
-  $('#lgGo').addEventListener('click',()=>{
-    if (lDep){ lDep=0; clearInterval(lTic); lTic=null; $('#lgGo').textContent='▶ PARTIR LE TEST';
-               $('#lgGo').classList.remove('gros-bouton--stop'); }
-    else { lDep=Date.now(); if(!lTic) lTic=setInterval(peindreLeger,200);
-           $('#lgGo').textContent='■ ARRÊTER LE TEST'; $('#lgGo').classList.add('gros-bouton--stop'); }
-    peindreLeger();
-  });
-  $('#lgRaz').addEventListener('click',()=>{
-    if(!confirm('Effacer les résultats du test ?')) return;
-    lDep=0; if(lTic){clearInterval(lTic);lTic=null;}
-    ecrire(kctx('leger'),{}); $('#lgGo').textContent='▶ PARTIR LE TEST';
-    $('#lgGo').classList.remove('gros-bouton--stop'); peindreLeger(); peindreCorpsLeger();
-  });
-  function peindreCorpsLeger(){
-    const h=$('#lgCorps'); h.innerHTML=''; const r=resultats();
-    ELEVES.forEach((nom,i)=>{
-      const tr=el('tr'); tr.appendChild(el('td','nom',nom));
-      const d=r[i];
-      ['palier','navette','distance','vitesse'].forEach(k=>{
-        const v=d ? (k==='distance'? d[k]+' m' : k==='vitesse' ? String(d[k]).replace('.',',') : d[k]) : '—';
-        tr.appendChild(el('td',null,String(v)));
-      });
-      const td=el('td');
-      const b=el('button','mini', d?'↺':'⏹ IL ARRÊTE'); b.type='button';
-      b.title = d ? 'Effacer le résultat de '+nom : nom+' vient de s’arrêter';
-      b.addEventListener('click',()=>{
-        const q=resultats();
-        if (q[i]) delete q[i]; else q[i]=etatLeger(secondes());
-        ecrire(kctx('leger'),q); peindreCorpsLeger();
-      });
-      td.appendChild(b); tr.appendChild(td);
-      h.appendChild(tr);
-    });
-  }
-  peindreLeger(); peindreCorpsLeger();
-})();
+/* Les tests sont réécrits dans proto-tests.js : un groupe à la fois, et
+   Léger-Boucher séparé de la course navette. */
 
 /* ═════════ 4. MES GROUPES ═════════ */
 function groupes(){ return lire('groupes', [{nom:'5A',arch:false},{nom:'5B',arch:false},{nom:'6A',arch:false}]); }
