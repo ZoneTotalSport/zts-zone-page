@@ -31,7 +31,10 @@
   });
 })();
 
-/* ═════════ 1. BLOCS — les options vivent SUR le bloc ═════════ */
+/* ══ Ce qui reste de l'ancien système de blocs ══
+   Seules trois choses servent encore : les types (l'agenda colore ses cases
+   avec), la réduction d'images et le plafond de taille. Le reste — options,
+   copier/coller, boutons de médias — a été retiré à la demande de Joey. */
 const BLOC_TYPES = {
   activite:  {lab:'Activité',   emo:'🎯', coul:'#FF6B00'},
   garde:     {lab:'Garde',      emo:'🛡️', coul:'#4CAF50'},
@@ -40,159 +43,7 @@ const BLOC_TYPES = {
   recre:     {lab:'Récréation', emo:'🏃', coul:'#8BC34A'},
   transition:{lab:'Transition', emo:'➡️', coul:'#9E9E9E'},
 };
-const BLOC_COULEURS = ['#FF6B00','#00C2E8','#A3FF00','#FF0061','#8B5CF6','#FFC107','#9E9E9E'];
-const BLOC_POLICES = [
-  ['default','Standard',''],
-  ['titre',"Gros titre","'LuckiestGuy',sans-serif"],
-];
-let pressePapierBloc = null;
-let blocActif = null;
-
-function optionsBloc(id){ return lire('opt:'+id, {type:'activite', coul:'', police:'default'}); }
-function appliquerOptions(b){
-  const o = optionsBloc(b.id), t = BLOC_TYPES[o.type] || BLOC_TYPES.activite;
-  let barre = b.querySelector('.bloc-barre');
-  if (!barre){ barre = el('div','bloc-barre'); b.insertBefore(barre, b.firstChild); }
-  barre.style.background = o.coul || t.coul;
-  let et = b.querySelector('.bloc-type');
-  if (!et){ et = el('span','bloc-type'); b.querySelector('.bloc-tete').insertBefore(et, b.querySelector('.chk')); }
-  et.textContent = t.emo+' '+t.lab;
-  const p = BLOC_POLICES.find(x=>x[0]===o.police);
-  b.querySelector('.bloc-titre').style.fontFamily = (p && p[2]) || '';
-}
-
-function enrichirBloc(b){
-  if (b.dataset.enrichi) return; b.dataset.enrichi='1';
-  const id = b.id;
-
-  /* ── panneau d'options, replié ── */
-  const pan = el('div','bloc-options');
-  pan.innerHTML = `
-    <span class="titre">C'EST QUOI ?</span>
-    <span class="grp" data-types></span>
-    <span class="titre">DE QUELLE COULEUR ?</span>
-    <span class="grp" data-couls></span>
-    <span class="titre">ET AVEC ÇA</span>
-    <span class="grp">
-      <button type="button" class="mini" data-up>↑ MONTER</button>
-      <button type="button" class="mini" data-down>↓ DESCENDRE</button>
-      <button type="button" class="mini" data-copier>⧉ COPIER</button>
-      <button type="button" class="mini mini--lime" data-coller>📋 COLLER APRÈS</button>
-      <button type="button" class="mini" data-police>🅰 POLICE</button>
-    </span>`;
-  const ht = pan.querySelector('[data-types]');
-  Object.entries(BLOC_TYPES).forEach(([k,t])=>{
-    const x = el('button','mini', t.emo+' '+t.lab); x.type='button'; x.dataset.t=k;
-    x.addEventListener('click',()=>{
-      const o=optionsBloc(id); o.type=k; ecrire('opt:'+id,o); appliquerOptions(b);
-      [...ht.children].forEach(y=>y.setAttribute('aria-pressed',String(y.dataset.t===k)));
-    });
-    ht.appendChild(x);
-  });
-  const hc = pan.querySelector('[data-couls]');
-  BLOC_COULEURS.forEach(c=>{
-    const x = el('button','pastille-coul'); x.type='button'; x.style.background=c; x.dataset.c=c;
-    x.title='Couleur '+c;
-    x.addEventListener('click',()=>{
-      const o=optionsBloc(id); o.coul = (o.coul===c) ? '' : c; ecrire('opt:'+id,o); appliquerOptions(b);
-      [...hc.children].forEach(y=>y.setAttribute('aria-pressed',String(y.dataset.c===o.coul)));
-    });
-    hc.appendChild(x);
-  });
-  b.appendChild(pan);
-
-  /* ── bouton qui ouvre les options, posé dans le pied du bloc ── */
-  const ouvre = el('button','mini','⚙ OPTIONS'); ouvre.type='button';
-  ouvre.setAttribute('aria-expanded','false');
-  ouvre.addEventListener('click', ()=>{
-    const on = pan.classList.toggle('on');
-    ouvre.setAttribute('aria-expanded', String(on));
-    ouvre.textContent = on ? '⚙ FERMER LES OPTIONS' : '⚙ OPTIONS';
-    if (on){
-      const o=optionsBloc(id);
-      [...ht.children].forEach(y=>y.setAttribute('aria-pressed',String(y.dataset.t===o.type)));
-      [...hc.children].forEach(y=>y.setAttribute('aria-pressed',String(y.dataset.c===o.coul)));
-    }
-  });
-  b.querySelector('.medias').appendChild(ouvre);
-
-  /* ── actions du panneau ── */
-  pan.addEventListener('click', e=>{
-    const t=e.target.closest('button'); if(!t) return;
-    const parent=b.parentNode;
-    if (t.hasAttribute('data-up')   && b.previousElementSibling){ parent.insertBefore(b,b.previousElementSibling); sauverBlocs(); }
-    else if (t.hasAttribute('data-down') && b.nextElementSibling){ parent.insertBefore(b.nextElementSibling,b); sauverBlocs(); }
-    else if (t.hasAttribute('data-copier')){
-      pressePapierBloc = {titre:b.querySelector('.bloc-titre').textContent,
-                          desc:b.querySelector('.bloc-desc').textContent,
-                          duree:(minuteries.get(id)||{}).reste||0, opt:optionsBloc(id)};
-      t.textContent='⧉ COPIÉ ✓'; setTimeout(()=>t.textContent='⧉ COPIER',1400);
-    }
-    else if (t.hasAttribute('data-coller')){
-      if (!pressePapierBloc){ alert("Rien à coller : touche d'abord COPIER sur un bloc."); return; }
-      const neuf = faireBloc({id:nouvelId(), titre:pressePapierBloc.titre, desc:pressePapierBloc.desc, duree:pressePapierBloc.duree});
-      ecrire('min:'+neuf.id, pressePapierBloc.duree);
-      ecrire('opt:'+neuf.id, {...pressePapierBloc.opt});
-      parent.insertBefore(neuf, b.nextSibling);
-      enrichirBloc(neuf); appliquerOptions(neuf); sauverBlocs();
-    }
-    else if (t.hasAttribute('data-police')){
-      const o=optionsBloc(id);
-      const i=BLOC_POLICES.findIndex(x=>x[0]===o.police);
-      o.police = BLOC_POLICES[(i+1)%BLOC_POLICES.length][0];
-      ecrire('opt:'+id,o); appliquerOptions(b);
-      t.textContent='🅰 '+BLOC_POLICES.find(x=>x[0]===o.police)[1].toUpperCase();
-    }
-  });
-
-  /* ── zone de dépôt : le bloc accepte les fichiers ET le texte lâchés ── */
-  b.addEventListener('dragover', e=>{
-    if (!e.dataTransfer) return;
-    const t=[...(e.dataTransfer.types||[])];
-    if (t.includes('Files')){ e.preventDefault(); e.stopPropagation(); b.classList.add('bloc--depot'); }
-  }, true);
-  b.addEventListener('dragleave', ()=> b.classList.remove('bloc--depot'), true);
-  b.addEventListener('drop', e=>{
-    if (!e.dataTransfer) return;
-    const f=[...(e.dataTransfer.files||[])];
-    if (f.length){
-      e.preventDefault(); e.stopPropagation(); b.classList.remove('bloc--depot');
-      f.forEach(x=>avalerFichier(b,x));
-      return;
-    }
-    const txt=e.dataTransfer.getData('text/plain')||'';
-    if (txt && !document.getElementById(txt)){          // pas un id de bloc → c'est du texte
-      e.preventDefault(); e.stopPropagation(); b.classList.remove('bloc--depot');
-      const d=b.querySelector('.bloc-desc');
-      d.textContent = (d.textContent?d.textContent+'\n':'')+txt;
-      d.dispatchEvent(new Event('input'));
-    }
-  }, true);
-  b.addEventListener('click', ()=>{ blocActif = b; });
-
-  appliquerOptions(b);
-}
-
-/* Réduction d'image : au-delà de 300 Ko, 1400 px et JPEG 0,82 — la règle de
-   app-v2.js:619. Plafond 2,5 Mo pour le reste, comme l'app. */
 const PLAFOND = 2.5*1024*1024;
-function avalerFichier(bloc, f){
-  const type = f.type.startsWith('image/') ? 'image'
-             : f.type.startsWith('video/') ? 'video'
-             : f.type.startsWith('audio/') ? 'audio' : 'pdf';
-  if (type==='image' && f.size > 300*1024){
-    reduireImage(f, 1400, .82).then(data => ajouterMedia(bloc,{type,nom:f.name,data}))
-      .catch(()=> ajouterMedia(bloc,{type,nom:f.name,data:null}));
-    return;
-  }
-  if (f.size > PLAFOND){
-    alert('« '+f.name+' » pèse '+Math.round(f.size/1024/1024*10)/10+' Mo.\nLe maximum est 2,5 Mo — seul le nom sera gardé.');
-    ajouterMedia(bloc,{type,nom:f.name,data:null}); return;
-  }
-  const r=new FileReader();
-  r.onload=()=>ajouterMedia(bloc,{type,nom:f.name,data:r.result});
-  r.readAsDataURL(f);
-}
 function reduireImage(f, max, q){
   return new Promise((ok,ko)=>{
     const img=new Image(), u=URL.createObjectURL(f);
@@ -207,20 +58,6 @@ function reduireImage(f, max, q){
     img.src=u;
   });
 }
-/* Coller (Ctrl+V) dans le dernier bloc touché — comme app-v2.js:1290 */
-document.addEventListener('paste', e=>{
-  if (!blocActif || !e.clipboardData) return;
-  if (document.activeElement && document.activeElement.isContentEditable) return;
-  const f=[...(e.clipboardData.files||[])];
-  if (f.length){ e.preventDefault(); f.forEach(x=>avalerFichier(blocActif,x)); }
-});
-
-function enrichirTousLesBlocs(){ $$('.bloc').forEach(enrichirBloc); }
-enrichirTousLesBlocs();
-['blocsJournee'].forEach(id=>{
-  const h=document.getElementById(id); if(!h) return;
-  new MutationObserver(()=>enrichirTousLesBlocs()).observe(h,{childList:true});
-});
 
 /* ── Live et TBI, posés dans MA JOURNÉE ── */
 /* Joey : « enlève tous les boutons » de MA JOURNÉE. La séance en direct et le
@@ -886,7 +723,6 @@ if (new URLSearchParams(location.search).get('embed')==='1'){
 
 /* ═════════ raccourcis clavier ═════════ */
 document.addEventListener('keydown', e=>{
-  if (e.key==='Escape'){ $$('.bloc-options.on').forEach(p=>p.classList.remove('on')); }
 });
 
 /* ═════════ 9. LES QUATRE DERNIÈRES LIGNES DU CONTRAT ═════════ */

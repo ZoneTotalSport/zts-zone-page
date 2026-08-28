@@ -28,24 +28,28 @@ function ligneJournee(b, i){
   const n=el('div','jr-ligne'+(neuve?' jr-ligne--neuve':''));
   n.innerHTML='<span class="prise" draggable="true" title="Glisser pour replacer">⠿</span>'
     +'<div><div class="ti" contenteditable data-vide="'+(neuve?'Écris ici pour ajouter…':'Titre')+'"></div>'
-    +'<div class="de" contenteditable data-vide="Ce qu’on fait…"></div></div>'
-    +'<div class="du" contenteditable data-vide="min"></div>';
+    +'<div class="de" contenteditable data-vide="Ce qu’on fait…"></div>'
+    +'<div class="jr-images"></div></div>'
+    +'<div class="du" contenteditable data-vide="à toi"></div>';
   const ti=n.querySelector('.ti'), de=n.querySelector('.de'), du=n.querySelector('.du');
   ti.textContent=b.titre||''; de.textContent=b.desc||''; du.textContent=b.duree||'';
+  peindreImagesLigne(n, b, i);
+  if (!neuve) brancherDepotImages(n, i);
 
   const enregistre=()=>{
     const t=ti.textContent.trim(), s=de.textContent.trim(), u=du.textContent.trim();
     const l=jrLire();
     if (neuve){
       if (!t && !s) return;                       // rien écrit : on ne crée rien
-      l.push({titre:t,desc:s,duree:u}); jrEcrire(l); peindreJournee();
+      l.push({titre:t,desc:s,duree:u,medias:[]}); jrEcrire(l); peindreJournee();
       const lignes=$$('#jrListe .jr-ligne');
       const cible=lignes[lignes.length-2];
       if (cible) placerCurseurFin(cible.querySelector(t?'.de':'.ti'));
       return;
     }
-    if (!t && !s && !u){ l.splice(i,1); jrEcrire(l); peindreJournee(); return; }  // vidée = effacée
-    l[i]={titre:t,desc:s,duree:u}; jrEcrire(l);
+    const med=(l[i]&&l[i].medias)||[];
+    if (!t && !s && !u && !med.length){ l.splice(i,1); jrEcrire(l); peindreJournee(); return; }  // vidée = effacée
+    l[i]={titre:t,desc:s,duree:u,medias:med}; jrEcrire(l);
   };
   [ti,de,du].forEach(x=>{
     x.addEventListener('blur', enregistre);
@@ -150,3 +154,63 @@ function symboleDe(val){
   window.allerA = function(id){ baseAller(id); if (id==='e-journee') peindreJournee(); };
   peindreJournee();
 })();
+
+
+/* ═════════ GLISSER-DÉPOSER D'IMAGES ═════════
+   Joey : « je veux seulement un glisse-dépose pour image, le reste éditable. »
+   Aucun bouton : on lâche le fichier sur la ligne. Un clic sur la vignette la
+   retire. Le sélecteur de fichier reste accessible en touchant la zone vide,
+   pour les tablettes où il n'y a rien à glisser. */
+function peindreImagesLigne(n, b, i){
+  const h=n.querySelector('.jr-images'); if(!h) return;
+  h.innerHTML='';
+  const med=(b&&b.medias)||[];
+  med.forEach((m,k)=>{
+    const f=el('figure','jr-vig');
+    if (m.type==='image'&&m.data) f.innerHTML='<img alt="" src="'+m.data+'">';
+    else if (m.type==='video'&&m.data) f.innerHTML='<video src="'+m.data+'" muted></video>';
+    else f.innerHTML='<div class="doc">'+(m.type==='pdf'?'📄':m.type==='video'?'🎬':'🖼️')+'</div>';
+    f.title=m.nom+' — touche pour retirer';
+    f.addEventListener('click',()=>{
+      const l=jrLire(); (l[i].medias||[]).splice(k,1); jrEcrire(l); peindreJournee(); });
+    h.appendChild(f);
+  });
+  if (i>=0 && !med.length){
+    const z=el('div','jr-depot','＋ glisse une image ici');
+    z.addEventListener('click',()=>choisirFichierLigne(i));
+    h.appendChild(z);
+  }
+}
+function ajouteMediaLigne(i, m){
+  const l=jrLire(); if(!l[i]) return;
+  l[i].medias=l[i].medias||[]; l[i].medias.push(m); jrEcrire(l); peindreJournee();
+}
+function avaleFichierLigne(i, f){
+  const type = f.type.startsWith('image/') ? 'image'
+             : f.type.startsWith('video/') ? 'video'
+             : f.type.startsWith('audio/') ? 'audio' : 'pdf';
+  if (type==='image'){
+    reduireImage(f,1400,.82).then(d=>ajouteMediaLigne(i,{type,nom:f.name,data:d}))
+      .catch(()=>ajouteMediaLigne(i,{type,nom:f.name,data:null}));
+    return;
+  }
+  if (f.size > 2.5*1024*1024){ ajouteMediaLigne(i,{type,nom:f.name,data:null}); return; }
+  const r=new FileReader(); r.onload=()=>ajouteMediaLigne(i,{type,nom:f.name,data:r.result});
+  r.readAsDataURL(f);
+}
+function choisirFichierLigne(i){
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*,video/*,application/pdf';
+  inp.addEventListener('change',()=>{ [...inp.files].forEach(f=>avaleFichierLigne(i,f)); });
+  inp.click();
+}
+function brancherDepotImages(n, i){
+  n.addEventListener('dragover', e=>{
+    if (![...(e.dataTransfer.types||[])].includes('Files')) return;
+    e.preventDefault(); e.stopPropagation(); n.classList.add('jr-recoit'); }, true);
+  n.addEventListener('dragleave', ()=> n.classList.remove('jr-recoit'), true);
+  n.addEventListener('drop', e=>{
+    const f=[...(e.dataTransfer.files||[])]; if(!f.length) return;
+    e.preventDefault(); e.stopPropagation(); n.classList.remove('jr-recoit');
+    f.forEach(x=>avaleFichierLigne(i,x));
+  }, true);
+}

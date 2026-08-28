@@ -42,10 +42,12 @@ function poserSeance(iso, per, s){
 /* Une séance neuve part de la structure d'une vraie planification :
    ARRIVÉE → ce qu'on fait pendant → FIN DU COURS. */
 function seanceVide(grId){
+  /* ⚠ AUCUNE DURÉE IMPOSÉE. Joey : « le temps, c'est à la discrétion de
+     l'internaute ». Les étapes naissent sans durée ; il met la sienne. */
   return {gr:grId, minuterie:0, pres:{}, evalCrits:[], notes:{}, seq:0, etapes:[
-    {id:1, phase:'arrivee', titre:'Arrivée au gymnase', desc:'Rang, appel, consigne du jour.', duree:300, medias:[], fait:false},
-    {id:2, phase:'pendant', titre:'',                  desc:'',                                duree:1800, medias:[], fait:false},
-    {id:3, phase:'fin',     titre:'Retour au calme',   desc:'Étirements, on nomme un bon coup du cours.', duree:300, medias:[], fait:false},
+    {id:1, phase:'arrivee', titre:'Arrivée',      desc:'', duree:0, medias:[], fait:false},
+    {id:2, phase:'pendant', titre:'',             desc:'', duree:0, medias:[], fait:false},
+    {id:3, phase:'fin',     titre:'Fin du cours', desc:'', duree:0, medias:[], fait:false},
   ]};
 }
 const PHASES = [
@@ -281,15 +283,16 @@ function volet(quoi){
     const box=el('div','se-cours');
     box.innerHTML='<h4>⏱️ Minuterie de ce cours</h4>'
       +'<p style="font-family:var(--f-note);font-size:17px;margin:0 0 10px">'
-      +'Le temps que tu poses ici est <b>consigné pour le groupe '+(grpDe(s.gr)||{nom:'?'}).nom+'</b>, à cette période.</p>'
+      +'Écris le temps que tu veux — <b>7</b>, <b>2:30</b>, <b>1h30</b>. Les chiffres à côté ne sont que des raccourcis. '
+      +'Il est <b>consigné pour le groupe '+(grpDe(s.gr)||{nom:'?'}).nom+'</b>, à cette période.</p>'
       +'<div class="minuterie" data-verrou="0" id="seMin"><span class="chrono">0:00</span>'
+      +'<input class="saisie" value="0:00" aria-label="Combien de temps" title="Écris ce que tu veux : 7, 2:30, 1h30">'
       +'<button type="button" class="mini mini--lime" data-go>▶ PARTIR</button>'
       +'<span class="presets">'
-      +'<button type="button" class="mini" data-set="300">5 min</button>'
-      +'<button type="button" class="mini" data-set="600">10 min</button>'
-      +'<button type="button" class="mini" data-set="900">15 min</button>'
-      +'<button type="button" class="mini" data-set="1200">20 min</button></span>'
-      +'<input class="saisie" value="0:00" aria-label="Durée"></div>';
+      +'<button type="button" class="mini" data-set="300">5</button>'
+      +'<button type="button" class="mini" data-set="600">10</button>'
+      +'<button type="button" class="mini" data-set="900">15</button>'
+      +'<button type="button" class="mini" data-set="1200">20</button></span></div>';
     d.appendChild(box);
     const id='seance-'+iso+'-'+per;
     if (!minuteries.has(id)) minuteries.set(id,{finA:0,reste:s.minuterie||0,tourne:false,noeud:$('#seMin')});
@@ -498,7 +501,7 @@ function peindrePlanification(d, s, iso, per){
 
   const cpt=el('div','pres-compte');
   cpt.innerHTML='<span></span><span class="l"></span>';
-  cpt.children[0].textContent='⏱️ '+Math.round(total/60)+' min au total';
+  cpt.children[0].textContent = total ? '⏱️ '+Math.round(total/60)+' min au total' : '⏱️ durées à remplir';
   cpt.children[1].textContent='✔ '+faits+' / '+s.etapes.length+' terminée'+(faits>1?'s':'');
   d.appendChild(cpt);
 
@@ -519,7 +522,7 @@ function peindrePlanification(d, s, iso, per){
       const lien=el('button','etape-lien'); lien.type='button';
       lien.innerHTML='<span class="ti"></span><span class="du"></span>';
       lien.querySelector('.ti').textContent = e.titre || '(sans titre — touche pour le nommer)';
-      lien.querySelector('.du').textContent = Math.round((e.duree||0)/60)+' min'
+      lien.querySelector('.du').textContent = (e.duree ? Math.round(e.duree/60)+' min' : 'durée à toi')
         + ((e.medias||[]).length ? ' · 🖼️ '+e.medias.length : '');
       lien.addEventListener('click',()=> ouvrirEtape(e.id));
       l.appendChild(chk); l.appendChild(lien);
@@ -542,7 +545,7 @@ function peindrePlanification(d, s, iso, per){
         majSeance(x=>{ x.seq=(x.seq||0)+1;
           const nid=Math.max(0,...x.etapes.map(y=>y.id))+1;
           const k=x.etapes.map(y=>y.phase).lastIndexOf('pendant');
-          x.etapes.splice(k+1,0,{id:nid,phase:'pendant',titre:'',desc:'',duree:600,medias:[],fait:false}); });
+          x.etapes.splice(k+1,0,{id:nid,phase:'pendant',titre:'',desc:'',duree:0,medias:[],fait:false}); });
         volet('cours');
       });
       bar.appendChild(pige); bar.appendChild(add); box.appendChild(bar);
@@ -563,18 +566,19 @@ function ouvrirEtape(id){
       <input class="m-saisie" id="etTitre" value=""></div>
     <div class="m-champ"><label class="m-lab" for="etDesc">Ce qu’on fait — explique-le comme à un remplaçant</label>
       <textarea class="m-saisie" id="etDesc" rows="4" style="font-family:var(--f-main);font-size:17px"></textarea></div>
-    <div class="m-champ"><label class="m-lab" for="etDuree">Durée (minutes)</label>
-      <input class="m-saisie" id="etDuree" type="number" min="0" max="180" style="width:110px"></div>
-    <div class="m-champ"><span class="m-lab">Illustrations</span>
+    <div class="m-champ"><label class="m-lab" for="etDuree">Combien de temps ? (à ta discrétion)</label>
+      <input class="m-saisie" id="etDuree" type="number" min="0" max="240" placeholder="minutes" style="width:130px"></div>
+    <div class="m-champ"><span class="m-lab">Illustrations — glisse-les ici</span>
       <div class="se-illus" id="etIllus"></div>
-      <button type="button" class="mini" id="etAjout" style="margin-top:8px">🖼️ AJOUTER UNE IMAGE, UNE VIDÉO OU UN PDF</button></div>
+      <div class="jr-depot" id="etDepot" style="margin-top:8px;text-align:center;padding:14px">
+        ＋ glisse une image, une vidéo ou un PDF — ou touche ici</div></div>
     <div class="m-pied">
       <button type="button" class="m-valider" id="etFait"></button>
       <button type="button" class="mini mini--jaune" id="etMin">⏱️ LANCER CETTE DURÉE</button>
     </div>`;
   $('#etTitre').value=e.titre||'';
   $('#etDesc').value=e.desc||'';
-  $('#etDuree').value=Math.round((e.duree||0)/60);
+  $('#etDuree').value = e.duree ? Math.round(e.duree/60) : '';
   const enregistre=()=> majSeanceSansRedessin(x=>{ const y=etapeDe(x,id);
     y.titre=$('#etTitre').value.trim(); y.desc=$('#etDesc').value;
     y.duree=Math.max(0,(parseInt($('#etDuree').value,10)||0)*60); });
@@ -592,7 +596,16 @@ function ouvrirEtape(id){
     if (m){ poserTemps(mid, seanceDe(iso,per).minuterie); }
   });
   $('#etRetour').addEventListener('click',()=>{ enregistre(); fermerModale(); ouvrirSeance(iso,per); volet('cours'); });
-  $('#etAjout').addEventListener('click',()=>{
+  const zone=$('#etDepot');
+  zone.addEventListener('dragover', ev=>{ if(![...(ev.dataTransfer.types||[])].includes('Files'))return;
+    ev.preventDefault(); zone.style.background='#F2FFE2'; });
+  zone.addEventListener('dragleave', ()=> zone.style.background='');
+  zone.addEventListener('drop', ev=>{
+    const fs=[...(ev.dataTransfer.files||[])]; if(!fs.length) return;
+    ev.preventDefault(); zone.style.background=''; enregistre();
+    fs.forEach(f=>avaleFichierEtape(id,f));
+  });
+  zone.addEventListener('click',()=>{
     enregistre();
     const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*,video/*,application/pdf';
     inp.addEventListener('change',()=>{ const f=inp.files[0]; if(!f) return;
@@ -736,3 +749,14 @@ peindreAgenda = function(){
 
 peindrePalette();
 peindreAgenda();
+
+
+/* Dépôt d'images sur une étape — même chemin que le sélecteur de fichier. */
+function avaleFichierEtape(id, f){
+  const type = f.type.startsWith('video/') ? 'video' : f.type.startsWith('image/') ? 'image' : 'pdf';
+  const pousse = data => { majSeanceSansRedessin(x=>{ const y=etapeDe(x,id); y.medias=y.medias||[];
+      y.medias.push({type, nom:f.name, data}); }); peindreIllus(id); };
+  if (type==='image') reduireImage(f,1400,.82).then(pousse).catch(()=>pousse(null));
+  else if (f.size < 2.5*1024*1024){ const r=new FileReader(); r.onload=()=>pousse(r.result); r.readAsDataURL(f); }
+  else { alert('« '+f.name+' » dépasse 2,5 Mo — seul le nom sera gardé.'); pousse(null); }
+}

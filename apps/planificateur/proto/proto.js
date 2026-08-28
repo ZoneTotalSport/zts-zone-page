@@ -231,159 +231,19 @@ ctxGroupe = lire('ctxGroupe', 0);
 let seqBloc = lire('seqBloc', 0);
 function nouvelId(){ seqBloc++; ecrire('seqBloc', seqBloc); return 'b'+seqBloc; }
 
-function faireBloc(o){
-  const b = el('div','bloc'); b.id = o.id; b.draggable = false;
-  b.innerHTML = `
-    <div class="bloc-tete">
-      <span class="poignee" draggable="true" title="Glisser pour replacer">⠿</span>
-      <span class="bloc-titre" contenteditable data-k="${o.id}-t" data-vide="Titre du bloc"></span>
-      <label class="chk"><input type="checkbox" data-k="${o.id}-f"> FAIT</label>
-      <button type="button" class="mini mini--rose" data-sup title="Retirer ce bloc">✕</button>
-    </div>
-    <div class="bloc-desc" contenteditable data-k="${o.id}-d" data-vide="Descriptif — matériel, consignes, variantes…"></div>
-    <div class="medias">
-      <button type="button" class="mini" data-med="image">🖼️ IMAGE</button>
-      <button type="button" class="mini" data-med="video">🎬 VIDÉO</button>
-      <button type="button" class="mini" data-med="pdf">📄 PDF</button>
-      <button type="button" class="mini mini--jaune" data-med="jeu">🎲 JEU</button>
-    </div>
-    <div class="illu-lab"></div>
-    <div class="media-liste"></div>
-    <div class="minuterie" data-verrou="0">
-      <span class="chrono">0:00</span>
-      <button type="button" class="mini mini--lime" data-go>▶ PARTIR</button>
-      <button type="button" class="mini" data-raz>↺</button>
-      <span class="presets">
-        <button type="button" class="mini" data-set="60">1 min</button>
-        <button type="button" class="mini" data-set="120">2 min</button>
-        <button type="button" class="mini" data-set="300">5 min</button>
-        <button type="button" class="mini" data-set="600">10 min</button>
-        <button type="button" class="mini" data-pas="-300">−5</button>
-        <button type="button" class="mini" data-pas="-60">−1</button>
-        <button type="button" class="mini" data-pas="60">+1</button>
-        <button type="button" class="mini" data-pas="300">+5</button>
-      </span>
-      <input class="saisie" value="0:00" aria-label="Durée — « 7 » ou « 2:30 »">
-    </div>`;
-  if (o.titre) { const t=b.querySelector('.bloc-titre'); if(lire('ed:'+o.id+'-t',null)===null){ t.textContent=o.titre; ecrire('ed:'+o.id+'-t',o.titre); } }
-  if (o.desc)  { const d=b.querySelector('.bloc-desc');  if(lire('ed:'+o.id+'-d',null)===null){ d.textContent=o.desc;  ecrire('ed:'+o.id+'-d',o.desc);  } }
-
-  if (o.illu) b.querySelector('.illu-lab').textContent = 'Illustration :';
-  brancherEditables(b);
-  const chk = b.querySelector('.chk input');
-  const majFait = ()=> b.classList.toggle('fait', chk.checked);
-  chk.addEventListener('change', majFait); majFait();
-
-  minuteries.set(o.id, {finA:0, reste:lire('min:'+o.id, o.duree||0), tourne:false, noeud:b.querySelector('.minuterie')});
-  peindreMinuterie(o.id); verrou(o.id,false);
-  peindreMedias(b);
-
-  b.addEventListener('click', e=>{
-    const t = e.target.closest('button'); if(!t) return;
-    const m = minuteries.get(o.id);
-    if (t.dataset.med !== undefined){
-      if (t.dataset.med==='jeu') ouvrirTiroir(b); else choisirFichier(b, t.dataset.med);
-    } else if (t.dataset.go !== undefined){
-      if (m.tourne){ m.tourne=false; verrou(o.id,false); peindreMinuterie(o.id); }
-      else if (m.reste>0){ m.finA = Date.now() + m.reste*1000; m.tourne=true; verrou(o.id,true); demarrerHorloge(); peindreMinuterie(o.id); }
-    } else if (t.dataset.raz !== undefined){
-      if (m.tourne){ m.tourne=false; verrou(o.id,false); }
-      poserTemps(o.id, 0); ecrire('min:'+o.id, 0);
-    } else if (t.dataset.set !== undefined){
-      poserTemps(o.id, +t.dataset.set); ecrire('min:'+o.id, minuteries.get(o.id).reste);
-    } else if (t.dataset.pas !== undefined){
-      poserTemps(o.id, m.reste + (+t.dataset.pas)); ecrire('min:'+o.id, minuteries.get(o.id).reste);
-    } else if (t.dataset.sup !== undefined){
-      if (confirm('Retirer ce bloc ?')) { minuteries.delete(o.id); b.remove(); sauverBlocs(); }
-    }
-  });
-  const saisie = b.querySelector('.saisie');
-  const appliquerSaisie = ()=>{
-    const s = lireDuree(saisie.value);
-    if (s === null){ saisie.value = mmss(minuteries.get(o.id).reste); return; }
-    poserTemps(o.id, s); ecrire('min:'+o.id, minuteries.get(o.id).reste);
-  };
-  saisie.addEventListener('change', appliquerSaisie);
-  saisie.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); appliquerSaisie(); saisie.blur(); }});
-  saisie.value = mmss(minuteries.get(o.id).reste);
-
-  /* glisser-déposer */
-  const poignee = b.querySelector('.poignee');
-  poignee.addEventListener('dragstart', e=>{ b.classList.add('drag'); e.dataTransfer.setData('text/plain', b.id); e.dataTransfer.effectAllowed='move'; });
-  poignee.addEventListener('dragend',   ()=> b.classList.remove('drag'));
-  b.addEventListener('dragover', e=>{ e.preventDefault(); b.classList.add('over'); });
-  b.addEventListener('dragleave',()=> b.classList.remove('over'));
-  b.addEventListener('drop', e=>{
-    e.preventDefault(); b.classList.remove('over');
-    const src = document.getElementById(e.dataTransfer.getData('text/plain'));
-    if (!src || src===b || src.parentNode!==b.parentNode) return;
-    const apres = [...b.parentNode.children].indexOf(src) < [...b.parentNode.children].indexOf(b);
-    b.parentNode.insertBefore(src, apres ? b.nextSibling : b);
-    sauverBlocs();
-  });
-  return b;
-}
-/* N'enregistre QUE les hôtes déjà montés. Sans le drapeau `pret`, monter le
-   premier hôte écrivait un ordre VIDE pour le second, qui se retrouvait ensuite
-   sans aucun bloc au chargement suivant. */
-/* La journée est datée : son ordre de blocs vit sous le contexte. La fiche de
-   cours, elle, est un gabarit — elle reste hors contexte, volontairement. */
-function cleOrdre(h){ return h==='blocsJournee' ? kctx('ord') : 'ord:'+h; }
-function sauverBlocs(){
-  ['blocsJournee'].forEach(h=>{
-    const n = document.getElementById(h); if(!n || !n.dataset.pret) return;
-    ecrire(cleOrdre(h), $$('.bloc', n).map(b=>b.id));
-  });
-}
-/* MA JOURNÉE n'utilise plus les blocs : elle est devenue une simple liste
-   qu'on écrit et qu'on glisse (proto-simple.js). Le montage ne fait donc
-   rien si son hôte n'existe pas. */
-function monterBlocs(hoteId, defauts, opts){
-  const hote = document.getElementById(hoteId);
-  if (!hote) return;
-  const ordre = lire(cleOrdre(hoteId), null) || [];
-  const neuf = !ordre.length;
-  const src = neuf ? defauts.map(d=>({...d, id:nouvelId()})) : ordre.map(id=>({id}));
-  if (neuf) src.forEach(o=> ecrire('min:'+o.id, o.duree||0));  // la durée de départ survit au rechargement
-  src.forEach(o=> hote.appendChild(faireBloc({...o, ...(opts||{})})));
-  hote.dataset.pret = '1';
-  if (neuf) sauverBlocs();
-}
-/* Les blocs d'exemple ne sont posés qu'UNE FOIS, sur la toute première page
-   ouverte. Sinon chaque nouvelle date les recréait : Joey se serait retrouvé
-   avec « Échauffement — le miroir » tous les jours de l'année. */
-const JOURNEE_EXEMPLE = [
-  {titre:'Échauffement — le miroir', desc:'2 par 2, un mène, l’autre suit. On change au signal.', duree:180},
-  {titre:'Ballon chasseur — 4 coins', desc:'4 équipes, 6 ballons. Éliminé = tour de gym puis retour.', duree:600},
-  {titre:'Retour au calme', desc:'Étirements, on nomme un bon coup du cours.', duree:180},
-];
-function defautsJournee(){
-  if (lire('seedFait', false)) return [];
-  ecrire('seedFait', true);
-  return JOURNEE_EXEMPLE;
-}
-monterBlocs('blocsJournee', defautsJournee());
-
-/* Recharge la journée du contexte courant : on vide l'hôte et on remonte. */
+/* ══ LES BLOCS ONT ÉTÉ SUPPRIMÉS ══
+   Joey, 28 août : « je ne veux pas ça » — les boutons IMAGE / VIDÉO / PDF /
+   JEU / OPTIONS posés sous chaque bloc. « Je veux seulement un glisse-dépose
+   pour image, le reste éditable. »
+   MA JOURNÉE est devenue une liste de lignes qu'on écrit et qu'on glisse
+   (proto-simple.js), et les images s'y déposent. Le code des blocs est retiré
+   plutôt que laissé dormant : ce qui n'existe pas ne peut pas réapparaître. */
+function sauverBlocs(){}
+function monterBlocs(){}
 function remonterJournee(){
-  const hote = $('#blocsJournee'); if (!hote) return;
-  $$('.bloc', hote).forEach(b=> minuteries.delete(b.id));
-  hote.innerHTML=''; delete hote.dataset.pret;
-  monterBlocs('blocsJournee', defautsJournee());
-  const vide = !$$('.bloc', hote).length;
-  let inv = $('#journeeVide');
-  if (vide && !inv){
-    inv = el('div','aide-un-mot'); inv.id='journeeVide';
-    inv.innerHTML = '<span class="emo">📄</span>Page blanche pour ce jour. '
-      + 'Touche <b>+ AJOUTER UN BLOC</b>, ou <b>PIGER DANS LES JEUX</b>.';
-    hote.parentNode.insertBefore(inv, hote);
-  } else if (!vide && inv){ inv.remove(); }
+  if (typeof peindreJournee === 'function') peindreJournee();
 }
-const _add = $('#addBloc');
-if (_add) _add.addEventListener('click', ()=>{
-  const b = faireBloc({id:nouvelId(), titre:'', desc:'', duree:0});
-  $('#blocsJournee').appendChild(b); sauverBlocs(); b.querySelector('.bloc-titre').focus();
-});
+function enrichirTousLesBlocs(){}
 
 /* ═════════ tiroir jeux ═════════ */
 const JEUX = [
