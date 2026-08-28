@@ -163,3 +163,28 @@
 @media(hover:none){
   .ag-vider,.pastille-gr .modif,.se-vider,.th-x{opacity:1}
 }
+
+/* ═════ 5. SE LIRE DE LOIN, DANS UN GYMNASE ═════
+   Joey, 28 août : « mets ça pour qu'on puisse voir de loin dans un gymnase,
+   c'est très compacté, peux-tu grossir le tout ? »
+
+   ⚠ LE RÉGLAGE DE ZOOM NE FAISAIT RIEN. Il posait `font-size` en `em` sur
+   `.wrap`, alors que le proto écrit ses tailles en PIXELS d'un bout à l'autre :
+   changer le corps du parent ne bougeait pas une seule règle. Encore un
+   réglage qui tournait à vide, comme le style des jours-cycle.
+
+   `zoom` agit sur la mise en page ELLE-MÊME — pixels compris — et se pose sur
+   `body` pour emporter aussi la barre de contexte et les fenêtres, qui vivent
+   hors de `.wrap`. Un `transform:scale()` ne conviendrait pas : il déforme
+   sans redonner la largeur, et la page déborderait de côté.
+
+   ⚠ LES MEDIA QUERIES NE VOIENT PAS LE ZOOM. À 170 % sur un iPad, la fenêtre
+   fait toujours 768 px pour le CSS alors que le contenu en occupe 1300. C'est
+   pourquoi `.agenda` défile dans son cadre À TOUTES LES TAILLES, et plus
+   seulement sous 620 px : sans ça, la semaine déborderait de la page dès qu'on
+   monte d'un cran. */
+body[data-zoom="100"]{zoom:1}
+body[data-zoom="120"]{zoom:1.2}
+body[data-zoom="145"]{zoom:1.45}
+body[data-zoom="170"]{zoom:1.7}
+.agenda{overflow-x:auto;-webkit-overflow-scrolling:touch}

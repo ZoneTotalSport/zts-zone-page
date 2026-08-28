@@ -436,3 +436,33 @@ jamais de côté — vérifié à 375, 768 et 1440 px.
 ⚠ **44 px est le minimum tactile d'Apple** : cases de cote, crochets, ✕ et ✎ le
 respectent sous 620 px. Et `@media(hover:none)` rend visible tout ce qui ne se
 révélait qu'au survol — un doigt ne survole pas.
+
+## Se lire de loin, dans un gymnase
+
+Joey : « mets ça pour qu'on puisse voir de loin dans un gymnase, c'est très
+compacté, peux-tu grossir le tout ? »
+
+⚠ **LE RÉGLAGE DE ZOOM NE FAISAIT RIEN.** Il posait `font-size` en `em` sur
+`.wrap`, alors que le proto écrit ses tailles **en pixels** d'un bout à l'autre :
+changer le corps du parent ne bougeait pas une seule règle. Encore un réglage
+qui tournait à vide, comme le style des jours-cycle.
+
+Il agit maintenant par la propriété **`zoom`**, posée sur `body` — donc les
+fenêtres et la barre de contexte, qui vivent hors de `.wrap`, suivent aussi.
+Un `transform:scale()` ne conviendrait pas : il déforme sans redonner la
+largeur, et la page déborderait de côté.
+
+**Les quatre paliers se disent par la distance de lecture**, pas par un
+adjectif : *De près · Un peu loin · 🏀 GYMNASE · 🏀 GYMNASE +*. **Le défaut part
+à 120 %** — un prof lit son plan de loin, un ballon à la main ; « de près » est
+l'exception.
+
+⚠ **Les media queries ne voient pas le zoom.** À 170 % sur un iPad, la fenêtre
+fait toujours 768 px pour le CSS alors que le contenu en occupe 1300. C'est
+pourquoi `.agenda` défile dans son cadre **à toutes les tailles**, et plus
+seulement sous 620 px.
+
+⚠ **`zoom` piège tout calcul de position en pixels.** `placerMenu()` divise
+désormais par le facteur : le rectangle rendu est déjà zoomé, et l'élément
+qu'on positionne le remultiplierait. Aucun menu déroulant n'existe aujourd'hui,
+mais le jour où l'un revient il tomberait à côté.

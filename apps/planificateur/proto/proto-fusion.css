@@ -185,9 +185,10 @@
 .cyc-nom b{display:block;font-family:var(--f-titre);letter-spacing:1px;font-size:11px;color:var(--ink-soft)}
 
 /* zoom appliqué au contenu */
-body[data-zoom="90"] .wrap{font-size:.9em}
-body[data-zoom="110"] .wrap{font-size:1.1em}
-body[data-zoom="125"] .wrap{font-size:1.25em}
+/* ⚠ CES TROIS RÈGLES NE FAISAIENT RIEN et sont gardées vides pour qu'on ne les
+   réécrive pas : elles posaient `font-size` en `em` alors que tout le proto
+   écrit ses tailles en PIXELS. Le zoom agit désormais par la propriété `zoom`,
+   dans proto-papier.css. */
 /* mode TBI : tout grossit, pour la projection */
 body.tbi{font-size:20px}
 body.tbi .tuile{font-size:22px}

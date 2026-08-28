@@ -537,11 +537,14 @@ const STYLES_CYCLE = {
 
   /* zoom */
   const hz=$('#zoomBtns');
-  [['90','Petit'],['100','Normal'],['110','Grand'],['125','Très grand']].forEach(([v,lab])=>{
+  /* ⚠ LES PALIERS SE DISENT PAR LA DISTANCE, pas par un adjectif. Joey :
+     « mets ça pour qu'on puisse voir de loin dans un gymnase ». « Grand » ne
+     répond pas à la question qu'il se pose ; « Gymnase » oui. */
+  [['100','De près'],['120','Un peu loin'],['145','🏀 GYMNASE'],['170','🏀 GYMNASE +']].forEach(([v,lab])=>{
     const b=el('button','mini',lab); b.type='button';
     b.addEventListener('click',()=>{ ecrire('zoom',v); appliquerZoom();
       $$('#zoomBtns .mini').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); });
-    b.setAttribute('aria-pressed', String(v===lire('zoom','100')));
+    b.setAttribute('aria-pressed', String(v===lire('zoom','120')));
     hz.appendChild(b);
   });
   /* langue */
@@ -559,7 +562,9 @@ const STYLES_CYCLE = {
     const u=new URL(location.href); u.searchParams.set('embed','1'); location.href=u.toString();
   });
 })();
-function appliquerZoom(){ document.body.dataset.zoom = lire('zoom','100'); }
+/* ⚠ LE RÉGLAGE PART À 120, PAS À 100. Joey lit son plan de loin, un ballon à
+   la main : la taille « de près » est l'exception, pas la règle. */
+function appliquerZoom(){ document.body.dataset.zoom = lire('zoom','120'); }
 appliquerZoom();
 
 /* mode intégré : ?embed=1 masque le chrome, comme dans l'app */
@@ -951,10 +956,17 @@ const MENUS = [
 function placerMenu(box){
   const t=box.querySelector('button').getBoundingClientRect();
   const l=box.querySelector('.menu-liste');
-  const large=Math.min(280, window.innerWidth-26);
+  /* ⚠ `zoom` sur <body> (le mode GYMNASE) piège ce calcul : le rectangle rendu
+     est déjà en pixels zoomés, et la liste, descendante du même body, les
+     remultiplierait. On divise donc par le facteur avant d'écrire.
+     Aujourd'hui aucun menu déroulant n'existe — les cinq portes sont des liens
+     directs — mais le jour où l'un revient, il tomberait à côté sans ça. */
+  const z=parseFloat(getComputedStyle(document.body).zoom)||1;
+  const vw=window.innerWidth/z;
+  const large=Math.min(280, vw-26);
   l.style.width=large+'px';
-  l.style.top=(t.bottom+7)+'px';
-  l.style.left=Math.max(12, Math.min(t.left, window.innerWidth-large-12))+'px';
+  l.style.top=((t.bottom+7)/z)+'px';
+  l.style.left=Math.max(12, Math.min(t.left/z, vw-large-12))+'px';
 }
 
 /* `allerA` marque l'écran courant : on reporte la marque sur la porte du menu
