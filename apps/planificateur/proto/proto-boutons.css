@@ -184,3 +184,52 @@ code, kbd, samp{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.9
 .pr-sub{ font-size:13px }
 /* Le nom reste lisible une fois la carte passée en noir et blanc. */
 .pr-carte--parti .pr-nom, .pr-carte--absent .pr-nom{ color:#4E5C64 }
+
+/* ==========================================================================
+   L'EN-TÊTE — celui de zonetotalsport.ca.
+   Joey : « le top en rose, je n'aime pas ; mets-le en mise en page
+   zonetotalsport.ca ». La bande rose du proto laisse la place au bandeau du
+   site : fond marine translucide, cadre noir, ombre cyan, la marque en trois
+   mots dont TOTAL en cyan. Recette reprise de shared/zts-header.css.
+   ========================================================================== */
+.zts-tete{
+  position:sticky;top:0;z-index:200;
+  margin:12px clamp(10px,2.2vw,24px);
+  background:rgba(6,23,38,.94);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border:3px solid var(--noir);border-radius:16px;
+  box-shadow:6px 6px 0 rgba(0,194,232,.45);
+  color:#E6F4FA;
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:5px;
+  padding:12px clamp(12px,2.2vw,20px) 14px;
+}
+.zts-sub{
+  font-family:var(--f-titre);font-weight:400;color:var(--cyan);
+  font-size:clamp(13px,2vw,22px);letter-spacing:2px;text-transform:uppercase;line-height:1;
+}
+.zts-marque{
+  display:flex;align-items:baseline;gap:8px;text-decoration:none;
+  font-family:var(--f-display);letter-spacing:1px;
+  font-size:clamp(30px,5.6vw,68px);line-height:.96;color:#fff;white-space:nowrap;
+}
+.zts-marque span{display:inline-block;transform-origin:center bottom;cursor:pointer;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.zts-marque .w1,.zts-marque .w3{color:#fff}
+.zts-marque .w2{color:var(--cyan)}
+.zts-marque span:hover{transform:translateY(-4px) rotate(-2deg) scale(1.08)}
+.zts-tete-pied{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;margin-top:2px}
+.zts-heure{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--f-titre);color:#BFE9F6;font-size:clamp(13px,1.7vw,19px);letter-spacing:.06em;
+  background:rgba(255,255,255,.09);border:2px solid var(--noir);border-radius:12px;
+  padding:3px 13px;box-shadow:3px 3px 0 rgba(0,0,0,.4);font-variant-numeric:tabular-nums;
+}
+.zts-btn{
+  font-family:var(--f-titre);font-size:14px;letter-spacing:.5px;cursor:pointer;
+  background:#2A3447;color:#E6F4FA;border:3px solid var(--noir);border-radius:12px;
+  padding:5px 15px;box-shadow:3px 3px 0 var(--noir);
+}
+.zts-btn:hover{background:var(--cyan);color:#03323C}
+/* la nav du proto se recolle sous l'en-tête */
+.ecrans-nav{top:0}
+@media(max-width:560px){ .zts-tete{margin:8px;padding:9px 10px 11px} }

@@ -303,3 +303,11 @@ barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOI
   if (orphelins.length) console.warn('[proto] écrans sans porte :', orphelins);
   else console.info('[proto] tous les écrans ont une porte.');
 })();
+
+/* l'heure de l'en-tête, comme sur le site */
+(function horloge(){
+  const n=document.querySelector('[data-heure]'); if(!n) return;
+  const D=x=>String(x).padStart(2,'0');
+  const tic=()=>{ const d=new Date(); n.textContent=D(d.getHours())+':'+D(d.getMinutes())+':'+D(d.getSeconds()); };
+  tic(); setInterval(tic,1000);
+})();
