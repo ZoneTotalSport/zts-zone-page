@@ -743,3 +743,31 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
   border:2px solid var(--noir);border-radius:8px;
   font-family:var(--f-titre);font-size:14px;line-height:1;
 }
+
+/* ═════ LE CALENDRIER PASSE À LA MANUSCRITE ═════
+   Joey, 28 août : « je n'aime pas la police dans calendrier, remplace-la par
+   Annie Use Your Telescope. » Les tableaux héritaient de `--f-corps`, la seule
+   police d'écran qui restait dans un proto autrement entièrement manuscrit.
+   ⚠ Les titres de mois gardent LuckiestGuy : c'est la police de titre de tout
+   le proto, et il ne l'a pas visée. On remplace le CORPS, pas les titres.
+   ⚠ Annie est dessinée petit — les cellules tenaient en 8 à 12 px, illisible.
+   Les tailles montent en même temps, sans casser une grille de onze mois. */
+#e-calendrier .cal-mois table,
+#e-calendrier .cal-mois th,
+#e-calendrier .cal-mois td,
+#e-calendrier .legende,
+#e-calendrier .legende button,
+#e-calendrier .mois-jt,
+#e-calendrier .mois-case,
+#e-calendrier .mois-bas,
+#e-calendrier .sous{font-family:var(--f-note)}
+#e-calendrier .cal-mois table{font-size:15px}
+#e-calendrier .cal-mois th{font-size:12px;padding:3px;letter-spacing:.2px}
+#e-calendrier .cal-mois td{height:34px;font-weight:400}
+#e-calendrier .cal-mois td .r{font-size:11px;font-weight:400}
+#e-calendrier .cal-mois tfoot td{font-size:13px;font-weight:400}
+#e-calendrier .legende button{font-size:16px}
+#e-calendrier .mois-case .n{font-family:var(--f-note);font-size:21px}
+#e-calendrier .mois-case .rom{font-family:var(--f-note);font-size:15px}
+#e-calendrier .mois-case .spec{font-family:var(--f-note);font-size:13px;letter-spacing:0}
+#e-calendrier .mois-case .note{font-size:14px}

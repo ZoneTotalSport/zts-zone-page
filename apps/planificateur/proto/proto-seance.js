@@ -877,15 +877,25 @@ function ouvrirPiece(k, id){
 }
 /* Le même dépôt sert aux deux gestes : poser une pièce neuve, ou déplacer une
    étape déjà là. `avantId` null = à la fin de la phase. */
-function accepterDepot(n, ph, avantId){
+function accepterDepot(n, ph, avantId, surEtape){
+  /* Trois choses peuvent tomber ici : une pièce neuve, une étape qu'on déplace,
+     et — sur une étape seulement — des FICHIERS. Joey : « si je mets une image
+     dans planification, peut-on voir l'image ? » Oui : on la lâche sur l'étape,
+     et sa vignette s'affiche dans la planification même. */
   const bon=t=>{ const l=[...(t||[])];
-    return l.indexOf('text/zts-piece')>=0 || l.indexOf('text/zts-etape')>=0; };
+    return l.indexOf('text/zts-piece')>=0 || l.indexOf('text/zts-etape')>=0
+        || (surEtape!=null && l.indexOf('Files')>=0); };
   n.addEventListener('dragover', ev=>{ if(!bon(ev.dataTransfer.types)) return;
     ev.preventDefault(); ev.stopPropagation(); n.classList.add('survol'); });
   n.addEventListener('dragleave', ()=> n.classList.remove('survol'));
   n.addEventListener('drop', ev=>{
     if(!bon(ev.dataTransfer.types)) return;
     ev.preventDefault(); ev.stopPropagation(); n.classList.remove('survol');
+    const fs=[...(ev.dataTransfer.files||[])];
+    if (surEtape!=null && fs.length){
+      fs.forEach(f=> avaleFichierEtape(surEtape, f, ()=>volet('cours')));
+      return;
+    }
     const k=ev.dataTransfer.getData('text/zts-piece');
     if (k){ pieceEnMain=null; ajouterPiece(k, ph, avantId); return; }
     const id=parseInt(ev.dataTransfer.getData('text/zts-etape'),10);
@@ -971,7 +981,7 @@ function peindrePlanification(d, s, iso, per){
       l.addEventListener('dragstart', ev=>{ l.classList.add('drag');
         ev.dataTransfer.setData('text/zts-etape',String(e.id)); ev.dataTransfer.effectAllowed='move'; });
       l.addEventListener('dragend', ()=> l.classList.remove('drag'));
-      accepterDepot(l, ph, e.id);
+      accepterDepot(l, ph, e.id, e.id);
 
       const chk=el('button','etape-chk', e.fait?'✔':'○'); chk.type='button';
       chk.title=e.fait?'Marquer non terminée':'Marquer terminée';
@@ -986,7 +996,24 @@ function peindrePlanification(d, s, iso, per){
       lien.querySelector('.du').textContent=(e.duree ? Math.round(e.duree/60)+' min'
                                              : (k==='libre' ? 'durée à toi' : P.quoi))
         + ((e.medias||[]).length ? ' · 🖼️ '+e.medias.length : '');
-      lien.title = (k==='libre') ? 'Ouvrir cette activité' : 'Ouvrir ' + P.lab.toLowerCase();
+      /* ⚠ LES IMAGES SE VOIENT ICI, pas seulement dans le détail de l'étape.
+         Une planification illustrée ne sert à rien si l'illustration est à un
+         clic de distance : c'est la feuille qu'on regarde en donnant le cours. */
+      if ((e.medias||[]).length){
+        const vig=el('span','vig');
+        e.medias.slice(0,6).forEach(m=>{
+          if (m.type==='image' && m.data){
+            const im=document.createElement('img'); im.src=m.data; im.alt=m.nom||''; vig.appendChild(im);
+          } else {
+            const d=el('span','doc', m.type==='pdf'?'📄':m.type==='video'?'🎬':'🖼️');
+            d.title=m.nom||''; vig.appendChild(d);
+          }
+        });
+        if ((e.medias||[]).length>6) vig.appendChild(el('span','doc','+'+((e.medias.length)-6)));
+        lien.appendChild(vig);
+      }
+      lien.title = ((k==='libre') ? 'Ouvrir cette activité' : 'Ouvrir ' + P.lab.toLowerCase())
+                 + ' — ou lâche une image dessus';
       lien.addEventListener('click', ()=> (k==='libre') ? ouvrirEtape(e.id) : ouvrirPiece(k, e.id));
       l.appendChild(lien);
 
@@ -1220,10 +1247,11 @@ peindreAgenda();
 
 
 /* Dépôt d'images sur une étape — même chemin que le sélecteur de fichier. */
-function avaleFichierEtape(id, f){
+function avaleFichierEtape(id, f, apres){
   const type = f.type.startsWith('video/') ? 'video' : f.type.startsWith('image/') ? 'image' : 'pdf';
   const pousse = data => { majSeanceSansRedessin(x=>{ const y=etapeDe(x,id); y.medias=y.medias||[];
-      y.medias.push({type, nom:f.name, data}); }); peindreIllus(id); };
+      y.medias.push({type, nom:f.name, data}); });
+    if (apres) apres(); else peindreIllus(id); };
   if (type==='image') reduireImage(f,1400,.82).then(pousse).catch(()=>pousse(null));
   else if (f.size < 2.5*1024*1024){ const r=new FileReader(); r.onload=()=>pousse(r.result); r.readAsDataURL(f); }
   else { alert('« '+f.name+' » dépasse 2,5 Mo — seul le nom sera gardé.'); pousse(null); }
