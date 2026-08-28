@@ -1241,6 +1241,21 @@ peindreAgenda = function(){
   peindrePalette();
   /* le bouton que Joey a demandé, à côté des flèches de semaine */
   const tete=$('#agendaHote .agenda-tete');
+  /* le + et le − que Joey a demandés, SUR la semaine */
+  if (tete && !tete.querySelector('.ag-zoom')){
+    const z=el('div','ag-zoom');
+    const moins=el('button','zbtn','−'); moins.type='button';
+    moins.title='Plus petit'; moins.setAttribute('aria-label','Réduire la taille');
+    const plus=el('button','zbtn','+'); plus.type='button';
+    plus.title='Plus gros — pour lire de loin'; plus.setAttribute('aria-label','Agrandir');
+    const val=el('span','zval');
+    const maj=()=>{ val.textContent=(typeof zoomActuel==='function'?zoomActuel():100)+' %'; };
+    moins.addEventListener('click',()=>{ zoomer(-1); maj(); });
+    plus.addEventListener('click',()=>{ zoomer(+1); maj(); });
+    z.appendChild(moins); z.appendChild(val); z.appendChild(plus);
+    maj();
+    tete.appendChild(z);
+  }
   if (tete && !tete.querySelector('[data-plansem]')){
     const b=el('button','mini mini--lime','📝 PLANIFICATION DE LA SEMAINE');
     b.type='button'; b.dataset.plansem='1';

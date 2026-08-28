@@ -373,3 +373,76 @@ button, input, select, textarea, optgroup{font-family:inherit}
   flex-wrap:wrap;justify-content:center;white-space:normal;
 }
 .proto-bar{overflow-x:clip}
+
+/* ═════ 10. DE GROS BOUTONS, FACILES À VISER ═════
+   Joey : « je veux que ce soit des gros boutons plaisants et faciles à naviguer
+   sur cette app ; tous les boutons, les personnages, "Bonjour", c'est petit. »
+
+   ⚠ ON NE GROSSIT PAS `button` EN BLOC. Les ✕ d'une case, le ✎ d'un groupe, les
+   pastilles de couleur sont des commandes MINUSCULES PAR DESSEIN : les passer à
+   48 px écraserait la case qu'elles habitent. On grossit les boutons qu'on VISE
+   — ceux qui portent un mot — et on laisse les autres tranquilles. */
+.mini{
+  font-size:19px;padding:9px 18px;min-height:52px;border-radius:15px;
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+}
+.m-valider,.gros-bouton{font-size:22px;padding:13px 26px;min-height:60px;border-radius:16px}
+.ecrans-nav button{font-size:20px;padding:11px 20px;min-height:56px;border-radius:15px}
+.proto-bar button,.zts-btn{font-size:19px;padding:10px 20px;min-height:52px}
+.legende button{font-size:19px;padding:9px 13px;min-height:52px}
+.ctx-barre button{font-size:19px;padding:8px 17px;min-height:50px;border-radius:14px}
+.ctx-barre select,.m-saisie{min-height:50px;font-size:20px}
+.dock button{min-height:48px;font-size:18px}
+.pastille-gr{padding:8px 13px;min-height:54px;border-radius:15px}
+.se-action{padding:16px 16px 14px}
+.plan-piece{padding:11px 13px;min-height:88px}
+.ev-gab button{font-size:19px;padding:11px 14px;min-height:60px}
+.note-choix button{font-size:19px;min-height:60px}
+
+/* « Bonjour ! » et les trois personnages : c'est la porte d'entrée. */
+.titre{font-size:clamp(44px,6vw,72px);line-height:1.05}
+.metier{font-size:21px;letter-spacing:1.2px}
+.metier img{width:150px;height:150px}
+.metiers{gap:26px;margin-bottom:26px}
+
+/* ── le + / − de la semaine ── */
+.ag-zoom{display:inline-flex;align-items:center;gap:6px}
+.ag-zoom .zbtn{
+  width:52px;height:52px;cursor:pointer;line-height:1;
+  font-family:var(--f-titre);font-size:28px;
+  background:var(--jaune);color:var(--ink);
+  border:3px solid var(--noir);border-radius:14px;box-shadow:3px 3px 0 var(--noir);
+}
+.ag-zoom .zbtn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--noir)}
+.ag-zoom .zval{
+  min-width:88px;text-align:center;font-family:var(--f-titre);font-size:19px;
+  color:var(--jaune);letter-spacing:.5px;
+}
+
+/* les deux paliers que seul le + peut atteindre */
+html[data-zoom="230"]{zoom:2.3}
+html[data-zoom="300"]{zoom:3}
+
+/* ⚠ `#nav > button` GAGNAIT SUR `.ecrans-nav button`. Un sélecteur qui porte un
+   ID (1,0,1) l'emporte sur deux classes (0,1,1), quel que soit l'ordre des
+   fichiers : les boutons du menu restaient à 12,5 px pendant que ce fichier en
+   demandait 20. On répond avec le même poids.
+   ⚠ Leçon générale : dans ce proto, vérifier qu'une règle GAGNE, pas seulement
+   qu'elle est écrite en dernier. */
+#nav>button, .menu>button{
+  font-size:20px;padding:11px 20px;min-height:56px;border-radius:15px;
+}
+
+/* ═════ L'EN-TÊTE D'UN JOUR RESPIRE ═════
+   Joey : « c'est compacté, la date et journée pédagogique ou jour-cycle,
+   peux-tu corriger ? »
+   Les trois informations se serraient sur deux lignes, la pastille collée à la
+   date. Chacune prend maintenant sa ligne : le JOUR, la DATE, puis ce que la
+   journée EST — c'est l'ordre dans lequel on les cherche. */
+.agenda-grille .ag-jour{padding:9px 8px 10px;line-height:1.25}
+.agenda-grille .ag-jour b{display:block;margin-bottom:2px}
+.agenda-grille .ag-jour .d{display:block;margin-bottom:5px}
+.agenda-grille .ag-jour .cyc{
+  display:block;width:fit-content;margin:0 auto;
+  padding:3px 12px;line-height:1.15;white-space:nowrap;
+}

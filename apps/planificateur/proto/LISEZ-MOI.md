@@ -541,3 +541,33 @@ ligne.
 chose que la fenêtre réelle une fois la page défilée.** Ne pas conclure d'une
 capture noire qu'il y a un trou dans la page — mesurer, et laisser l'écran de
 Joey juger.
+
+## De gros boutons, et le + / − sur la semaine
+
+Joey : « je veux de gros boutons plaisants et faciles à naviguer ; tous les
+boutons, les personnages, "Bonjour", c'est petit. Pour le menu semaine,
+affiche-le avec un + pour zoomer et un − pour dézoomer. »
+
+**Le + et le − sont SUR la semaine**, avec le pourcentage entre les deux. Aller
+dans RÉGLAGES pour ajuster ce qu'on regarde en ce moment même n'a aucun sens.
+Ils marchent sur une échelle fine — 100 · 120 · 145 · 170 · 200 · 230 · 260 ·
+300 — dont les quatre paliers nommés de RÉGLAGES font partie ; les deux restent
+d'accord.
+
+⚠ **On ne grossit pas `button` en bloc.** Les ✕ d'une case, le ✎ d'un groupe,
+les pastilles de couleur sont minuscules **par dessein** : à 52 px, elles
+écraseraient la case qu'elles habitent. Seuls grossissent les boutons qui
+portent un mot.
+
+⚠ **`#nav > button` gagnait sur `.ecrans-nav button`.** Un sélecteur qui porte
+un ID (1,0,1) l'emporte sur deux classes (0,1,1) **quel que soit l'ordre des
+fichiers** : les boutons du menu restaient à 12,5 px pendant que
+`proto-papier.css` en demandait 20. Leçon générale pour ce proto : vérifier
+qu'une règle **gagne**, pas seulement qu'elle est écrite en dernier.
+
+## L'en-tête d'un jour respire
+
+Les trois informations se serraient sur deux lignes, la pastille collée à la
+date. Chacune prend sa ligne : le **JOUR**, la **DATE**, puis ce que la journée
+**EST** (jour-cycle, journée pédagogique) — c'est l'ordre dans lequel on les
+cherche.

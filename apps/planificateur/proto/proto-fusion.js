@@ -548,6 +548,7 @@ const STYLES_CYCLE = {
     const b=el('button','mini',lab); b.type='button';
     b.addEventListener('click',()=>{ ecrire('zoom',v); appliquerZoom();
       $$('#zoomBtns .mini').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); });
+    b.dataset.z=v;
     b.setAttribute('aria-pressed', String(v===lire('zoom','200')));
     hz.appendChild(b);
   });
@@ -568,6 +569,25 @@ const STYLES_CYCLE = {
 })();
 /* ⚠ LE RÉGLAGE PART À 120, PAS À 100. Joey lit son plan de loin, un ballon à
    la main : la taille « de près » est l'exception, pas la règle. */
+/* ═════ LES PALIERS DE ZOOM, ET LE + / − ═════
+   Joey : « pour le menu semaine, affiche-le avec un + pour zoomer et un − pour
+   dézoomer. » Aller dans RÉGLAGES pour ajuster ce qu'on regarde en ce moment
+   même n'a aucun sens : la commande doit être SUR la semaine.
+   Les quatre paliers nommés de RÉGLAGES restent des raccourcis ; le + et le −
+   marchent sur cette échelle plus fine, dont ils font partie. */
+const ZOOMS = [100,120,145,170,200,230,260,300];
+function zoomActuel(){ return parseInt(lire('zoom','200'),10) || 200; }
+function zoomer(sens){
+  const v=zoomActuel();
+  let i=ZOOMS.indexOf(v);
+  if (i<0){ i=0; ZOOMS.forEach((z,k)=>{ if (Math.abs(z-v) < Math.abs(ZOOMS[i]-v)) i=k; }); }
+  const j=Math.max(0, Math.min(ZOOMS.length-1, i+sens));
+  ecrire('zoom', String(ZOOMS[j]));
+  appliquerZoom();
+  if (typeof peindreAgenda==='function') peindreAgenda();
+  $$('#zoomBtns .mini').forEach(b=> b.setAttribute('aria-pressed',
+      String(b.dataset.z===String(ZOOMS[j]))));
+}
 function appliquerZoom(){
   const z = lire('zoom','200');
   /* ⚠ LE ZOOM SE POSE SUR <html>, PAS SUR <body> : une mise à l'échelle du
