@@ -1136,6 +1136,10 @@ peindreAgenda = function(){
   peindrePalette();
   const g=$('#agendaHote .agenda-grille'); if(!g) return;
   const jours=[]; for(let i=0;i<5;i++) jours.push(isoDe(new Date(dateDeIso(agLundi).getTime()+i*UN_JOUR)));
+  /* ⚠ `data-col` est posé ICI, pas déduit en CSS. Les rangées de pause
+     occupent toute la largeur en un seul enfant : toute arithmétique
+     `nth-child` se décale dès la première récréation. Voir proto-papier.css. */
+  $$('.ag-jour', g).forEach((n,i)=> n.dataset.col=i);
   const cases=$$('.ag-case', g);
   let k=0;
   periodesAgenda().filter(p=>!p.pause).forEach(p=>{
@@ -1144,6 +1148,8 @@ peindreAgenda = function(){
       c.dataset.iso=iso; c.dataset.per=p.n;
       const s=seanceDe(iso,p.n);
       c.innerHTML='';
+      c.dataset.col=jours.indexOf(iso);
+      c.classList.toggle('ag-case--plein', !!s);
       if (s){
         const gr=grpDe(s.gr)||{nom:'?',coul:'#9E9E9E',emo:'❓',img:''};
         const b=el('button','ag-seance'); b.type='button';

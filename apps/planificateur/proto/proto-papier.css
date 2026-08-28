@@ -1,0 +1,165 @@
+/* ==========================================================================
+   LE PAPIER — la grammaire des gabarits imprimés de Joey, portée à l'écran.
+   Joey, 28 août, en montrant ses trois feuilles (Septembre 2025, Planification
+   de la semaine, Ma planification annuelle) : « je veux ce style partout dans
+   l'app », et, au choix proposé : GARDER LE MARINE, PRENDRE LA MISE EN PAGE.
+
+   Le fond marine et ses rayons ne bougent donc pas — c'est le décor de
+   zonetotalsport.ca, demandé plus tôt le même jour. Ce qui change, c'est la
+   grammaire À L'INTÉRIEUR des panneaux blancs, reprise du papier :
+
+     1. les colonnes de jours alternent JAUNE et CYAN, une couleur par jour ;
+     2. une case À REMPLIR porte le pâle de sa colonne et un POINTILLÉ ;
+     3. une case REMPLIE repasse en trait plein — le pointillé veut dire
+        « il n'y a rien ici », et rien d'autre ;
+     4. chaque encadré porte un bandeau de titre coloré, comme « Jour cycle »
+        et « Note » au bas de la feuille du mois.
+
+   ⚠ CE FICHIER SE CHARGE EN DERNIER. Il surcharge des règles de
+   proto-fusion.css et de proto.css à spécificité égale : l'ordre est ce qui le
+   fait gagner. Le déplacer plus haut le rend silencieusement inopérant.
+   ========================================================================== */
+
+/* ── les cinq teintes du papier ── */
+:root{
+  --pap-jaune:#FFFCDC;  --pap-jaune-trait:#D9A400;
+  --pap-cyan:#DFF6FD;   --pap-cyan-trait:#2FA7C9;
+}
+
+/* ═════ 1. L'AGENDA DE LA SEMAINE ═════ */
+
+/* Les en-têtes de jour alternent, comme les cinq colonnes du gabarit.
+   ⚠ `data-col` est posé en JS, PAS en `nth-child` : les rangées de pause
+   occupent toute la largeur en un seul enfant, et toute arithmétique de
+   position se décale dès la première récréation. */
+.agenda-grille .ag-jour[data-col="0"],
+.agenda-grille .ag-jour[data-col="2"],
+.agenda-grille .ag-jour[data-col="4"]{background:var(--jaune);color:var(--ink)}
+.agenda-grille .ag-jour[data-col="1"],
+.agenda-grille .ag-jour[data-col="3"]{background:var(--cyan);color:#03323C}
+/* Le jour courant garde sa couleur de colonne et se marque d'un cadre noir :
+   le repeindre en cyan cassait l'alternance qu'on vient d'installer. */
+.agenda-grille .ag-jour[aria-current="true"]{
+  box-shadow:inset 0 0 0 4px var(--noir), 3px 3px 0 var(--noir);
+}
+
+/* Une case vide prend le pâle de sa colonne, en pointillé : à remplir. */
+.agenda-grille .ag-case[data-col="0"],
+.agenda-grille .ag-case[data-col="2"],
+.agenda-grille .ag-case[data-col="4"]{
+  background:var(--pap-jaune);border:3px dashed var(--pap-jaune-trait);
+}
+.agenda-grille .ag-case[data-col="1"],
+.agenda-grille .ag-case[data-col="3"]{
+  background:var(--pap-cyan);border:3px dashed var(--pap-cyan-trait);
+}
+/* Une case OCCUPÉE repasse en trait plein. Le pointillé ne dit qu'une chose :
+   il n'y a rien ici. */
+.agenda-grille .ag-case.ag-case--plein{
+  background:#fff;border:3px solid var(--noir);
+}
+.agenda-grille .ag-case:hover{filter:brightness(.97)}
+.agenda-grille .ag-case[data-auj="1"]{box-shadow:inset 0 0 0 3px var(--noir)}
+
+/* Le rail des périodes : les boîtes cyan de la colonne de gauche. */
+.ag-per{background:var(--cyan);color:#03323C;border-width:3px;font-size:14px}
+/* ⚠ Cette heure était en `system-ui` — une des dernières polices d'écran
+   d'un proto entièrement manuscrit. */
+.ag-per small{font-family:var(--f-note);font-size:14px;font-weight:400}
+.ag-pause{font-size:13px;letter-spacing:.5px;background:#fff}
+
+/* Samedi · Dimanche · Commentaires : un bandeau de titre, comme au papier. */
+.agenda-bas>div{padding:0;overflow:hidden;border-width:3px}
+.agenda-bas>div>b{
+  display:block;background:var(--cyan);color:#03323C;
+  border-bottom:3px solid var(--noir);padding:3px 8px;
+  font-family:var(--f-titre);font-size:15px;letter-spacing:.4px;text-align:center;
+}
+.agenda-bas>div:nth-child(2)>b{background:var(--jaune);color:var(--ink)}
+.agenda-bas>div>[contenteditable]{padding:6px 8px}
+
+/* ═════ 2. LE CALENDRIER DU MOIS ═════ */
+.cal-mois th:nth-child(odd){background:var(--jaune);color:var(--ink)}
+.cal-mois th:nth-child(even){background:var(--cyan);color:#03323C}
+.cal-mois tbody td:not(.hors){
+  background:var(--pap-jaune);border:2px dashed var(--pap-jaune-trait);
+}
+.cal-mois tbody td:not(.hors):nth-child(even){
+  background:var(--pap-cyan);border-color:var(--pap-cyan-trait);
+}
+/* ⚠ ON REDIT LES CATÉGORIES ICI, APRÈS l'alternance. Elles vivent dans
+   proto.css, plus haut dans l'ordre de chargement : sans ce rappel, le pâle
+   des colonnes recouvrirait les congés et les pédagogiques, c'est-à-dire
+   exactement l'information que le calendrier existe pour porter. */
+.cal-mois tbody td.c-conge   {background:#BFEFFB;border:2px solid var(--noir)}
+.cal-mois tbody td.c-pedago  {background:#FFFAB8;border:2px solid var(--noir)}
+.cal-mois tbody td.c-cssdhr  {background:#BFEFFB;border:2px solid var(--noir)}
+.cal-mois tbody td.c-congres {background:#C9F5B5;border:2px solid var(--noir)}
+.cal-mois tbody td.c-force   {background:#FF9C8F;border:2px solid var(--noir)}
+.cal-mois tbody td.c-premiere{background:#FF7BE8;border:2px solid var(--noir)}
+.cal-mois tbody td.c-derniere{background:#FF2FA8;border:2px solid var(--noir)}
+.cal-mois tfoot td{background:var(--cyan);color:#03323C;border-top:3px solid var(--noir)}
+
+/* ═════ 3. LES ENCADRÉS À BANDEAU, partout ailleurs ═════
+   Le bandeau de titre coloré du papier, réutilisable : c'est lui qui donne aux
+   trois feuilles leur air de famille. */
+.pap-cadre{
+  border:3px solid var(--noir);border-radius:12px;overflow:hidden;
+  background:#fff;color:var(--ink);
+}
+.pap-cadre>h4{
+  margin:0;padding:4px 10px;background:var(--cyan);color:#03323C;
+  border-bottom:3px solid var(--noir);
+  font-family:var(--f-titre);font-size:16px;letter-spacing:.4px;
+}
+.pap-cadre--jaune>h4{background:var(--jaune);color:var(--ink)}
+.pap-cadre>.corps{padding:9px 10px}
+
+@media(max-width:760px){
+  .agenda-grille .ag-case{border-width:2px}
+}
+
+/* ═════ 4. PLEINE LARGEUR, ET LE TACTILE ═════
+   Joey, 28 août : « grossis la page, c'est compacté, permets pleine largeur de
+   l'écran — et assure-toi que ça fonctionne sur iPhone et iPad aussi. »
+
+   ⚠ `.wrap` était bloqué à 1180 px : sur un grand écran, un tiers de la place
+   restait vide pendant que la grille de la semaine se serrait. La marge suit
+   maintenant la largeur au lieu d'être un mur. */
+.wrap{max-width:none;padding:18px clamp(10px,2.2vw,40px)}
+.modale-boite{width:min(1600px,97vw);padding:clamp(12px,1.6vw,22px)}
+
+/* ── iPad, en portrait comme en paysage ── */
+@media(max-width:1024px){
+  .agenda-grille{grid-template-columns:74px repeat(5,1fr);gap:3px;padding:7px}
+  .ag-per{font-size:13px}
+  .se-actions{grid-template-columns:repeat(auto-fit,minmax(132px,1fr))}
+  .plan-palette{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))}
+}
+
+/* ── iPhone ──
+   ⚠ La semaine en cinq colonnes est ILLISIBLE sur 375 px : chaque case
+   tomberait sous 50 px de large. On la fait DÉFILER horizontalement dans son
+   propre cadre plutôt que de l'écraser — la page, elle, ne défile jamais de
+   côté. */
+@media(max-width:620px){
+  .wrap{padding:12px 8px}
+  .agenda{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .agenda-grille{min-width:660px}
+  .agenda-bas{grid-template-columns:1fr;padding:0 8px 10px}
+  .modale-boite{width:100vw;max-height:100vh;border-radius:0;border-left:0;border-right:0}
+  .se-actions{grid-template-columns:1fr 1fr}
+  .plan-palette{grid-template-columns:1fr 1fr}
+  .gril{display:block;overflow-x:auto}
+  .ctx-cyc{font-size:13px;padding:2px 7px}
+  /* ⚠ 44 px, c'est le minimum tactile d'Apple. En dessous, on rate la cible. */
+  .ech-cycle{height:44px;min-width:52px}
+  .etape-chk,.etape-sup,.etape-reg{min-height:44px}
+  .pres-note{min-width:32px;min-height:32px}
+}
+
+/* ⚠ Le survol n'existe pas sous un doigt : tout ce qui ne se révélait qu'au
+   survol doit rester visible sur un écran tactile. */
+@media(hover:none){
+  .ag-vider,.pastille-gr .modif,.se-vider,.th-x{opacity:1}
+}

@@ -397,3 +397,42 @@ démonstration, à corriger là.
 Le chiffre sur une pastille de groupe. ⚠ Il compte la semaine **qui est à
 l'écran**, pas la semaine courante — c'est celle que le prof regarde quand il se
 pose la question.
+
+## La grammaire du papier — `proto-papier.css`
+
+Joey a montré ses trois gabarits imprimés et demandé « ce style partout ». Au
+choix proposé, il a retenu : **garder le marine, prendre la mise en page**. Le
+décor de zonetotalsport.ca ne bouge donc pas ; ce qui change vit à l'intérieur
+des panneaux blancs :
+
+1. les colonnes de jours alternent **jaune et cyan**, une couleur par jour ;
+2. une case **à remplir** porte le pâle de sa colonne et un **pointillé** ;
+3. une case **remplie** repasse en trait plein — le pointillé ne veut dire
+   qu'une chose : il n'y a rien ici ;
+4. chaque encadré porte un **bandeau de titre coloré** (`.pap-cadre`).
+
+⚠ **`proto-papier.css` se charge en DERNIER.** Il surcharge des règles de
+`proto-fusion.css` et de `proto.css` à spécificité égale : c'est l'ordre qui le
+fait gagner. Le déplacer plus haut le rend silencieusement inopérant.
+
+⚠ **`data-col` est posé en JS, pas déduit en `nth-child`.** Les rangées de pause
+(récréation, dîner) occupent toute la largeur en un seul enfant : toute
+arithmétique de position se décale dès la première récréation.
+
+⚠ **Les catégories du calendrier sont redites après l'alternance.** Elles vivent
+dans `proto.css`, plus haut : sans ce rappel, le pâle des colonnes recouvrirait
+congés et pédagogiques — exactement l'information que le calendrier porte.
+
+## Pleine largeur, iPhone et iPad
+
+`.wrap` était bloqué à **1180 px** : sur un grand écran, un tiers de la place
+restait vide pendant que la grille de la semaine se serrait. La marge suit
+maintenant la largeur (`clamp`), et la modale monte à 1600 px.
+
+⚠ **Sur iPhone, la semaine DÉFILE dans son cadre** au lieu d'être écrasée : à
+375 px, cinq colonnes tomberaient sous 50 px chacune. La page, elle, ne défile
+jamais de côté — vérifié à 375, 768 et 1440 px.
+
+⚠ **44 px est le minimum tactile d'Apple** : cases de cote, crochets, ✕ et ✎ le
+respectent sous 620 px. Et `@media(hover:none)` rend visible tout ce qui ne se
+révélait qu'au survol — un doigt ne survole pas.
