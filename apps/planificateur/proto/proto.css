@@ -30,6 +30,11 @@
    oublié, et fausse toute comparaison de tailles ensuite. */
 @font-face{font-family:'IndieFlower';src:url('/fonts/IndieFlower-Regular.ttf') format('truetype');font-display:swap;size-adjust:112%}
 @font-face{font-family:'AnnieTelescope';src:url('/fonts/AnnieUseYourTelescope-Regular.ttf') format('truetype');font-display:swap;size-adjust:124%}
+/* Bangers rejoint les cinq. Joey, 28 août : « je veux mes polices de caractère
+   seulement — Annie, Indie Flower, Bangers, Luckiest Guy et ZoneTotalSport. »
+   Elle est condensée et haute : c'est celle qui porte le plus loin dans un
+   gymnase, d'où son rôle ci-dessous (`--f-large`). */
+@font-face{font-family:'Bangers';src:url('/fonts/Bangers-Regular.ttf') format('truetype');font-display:swap}
 
 :root{
   --cyan:#00C2E8; --cyan-vif:#3ADCFA; --cyan-dark:#075A6B;
@@ -38,14 +43,26 @@
   --noir:#08131E; --marine:#061726;
   --surface:#FFFFFF; --ink:#0C1720; --ink-soft:#5B6773;
   --sur-fond:#E6F4FA; --sur-fond-doux:#C4E1EE;
-  --f-display:'ZoneTotalSportPROTO','LuckiestGuy','Luckiest Guy',system-ui,sans-serif;
-  --f-titre:'LuckiestGuy','Luckiest Guy',system-ui,sans-serif;
-  --f-main:'IndieFlower',system-ui,cursive;        /* ce que J'ÉCRIS */
-  --f-note:'AnnieTelescope',system-ui,cursive;     /* les notes et les aides */
+  /* ⚠ CINQ POLICES, ET AUCUNE AUTRE. Joey, 28 août : « je veux mes polices de
+     caractère seulement, pas d'autre genre : Annie, Indie Flower, Bangers,
+     Luckiest Guy et ZoneTotalSport.ttf. »
+     Les `system-ui` qui traînaient en repli sont retirés. Il ne reste que
+     `cursive` en tout dernier recours : ce n'est pas une police, c'est le
+     filet du navigateur si un .ttf ne se charge pas — sans lui, un fichier
+     manquant donnerait du texte invisible.
+     ⚠ ZoneTotalSport n'a que 144 glyphes : JAMAIS pour du texte courant, elle
+     ne sert qu'au nom de la marque. */
+  --f-display:'ZoneTotalSportPROTO','LuckiestGuy','Bangers',cursive;
+  --f-titre:'LuckiestGuy','Bangers',cursive;
+  --f-large:'Bangers','LuckiestGuy',cursive;       /* ce qui se lit de LOIN */
+  --f-main:'IndieFlower','AnnieTelescope',cursive; /* ce que J'ÉCRIS */
+  --f-note:'AnnieTelescope','IndieFlower',cursive; /* les notes et les aides */
   /* Aucune police de corps auto-hébergée : Joey n'en veut que deux, et
      Luckiest Guy ne se lit pas en paragraphe. Le corps prend donc la pile
      système — c'est déjà la doctrine « zéro Google Fonts » du site. */
-  --f-corps:system-ui,-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  /* ⚠ C'ÉTAIT LA DERNIÈRE POLICE D'ÉCRAN du proto, et elle tenait le corps de
+     texte de toute l'app. Elle passe à la manuscrite comme le reste. */
+  --f-corps:'AnnieTelescope','IndieFlower',cursive;
   --bord:3px solid var(--noir);
   --ombre:5px 5px 0 var(--noir);
   --r:16px;
@@ -559,7 +576,7 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
   background:#0B2438;color:var(--sur-fond);border:var(--bord);border-radius:12px;padding:12px;
 }
 .part-lien code{
-  flex:1;min-width:200px;font-family:ui-monospace,Menlo,monospace;font-size:13px;
+  flex:1;min-width:200px;font-family:var(--f-note);font-size:16px;
   background:#04121D;color:#8FE8FF;border:2px solid var(--noir);border-radius:8px;padding:8px 10px;
   overflow-wrap:anywhere;
 }
@@ -669,7 +686,7 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
 .pr-rapport{
   margin-top:12px;white-space:pre-wrap;font-size:13px;line-height:1.5;
   background:#04121D;color:#BFE9F6;border:var(--bord);border-radius:12px;padding:12px;
-  font-family:ui-monospace,Menlo,monospace;overflow-x:auto;
+  font-family:var(--f-note);overflow-x:auto;
 }
 
 /* ── modale ── */

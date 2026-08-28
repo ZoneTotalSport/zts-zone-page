@@ -183,10 +183,10 @@
    pourquoi `.agenda` défile dans son cadre À TOUTES LES TAILLES, et plus
    seulement sous 620 px : sans ça, la semaine déborderait de la page dès qu'on
    monte d'un cran. */
-body[data-zoom="100"]{zoom:1}
-body[data-zoom="120"]{zoom:1.2}
-body[data-zoom="145"]{zoom:1.45}
-body[data-zoom="170"]{zoom:1.7}
+html[data-zoom="100"]{zoom:1}
+html[data-zoom="120"]{zoom:1.2}
+html[data-zoom="145"]{zoom:1.45}
+html[data-zoom="170"]{zoom:1.7}
 .agenda{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
 /* ═════ 6. LISIBLE SUR UN TBI ═════
@@ -303,3 +303,73 @@ body{font-size:19px}
   display:block;margin-top:3px;font-family:var(--f-main);font-size:17px;
   line-height:1.2;max-height:3.6em;overflow:hidden;
 }
+
+/* ═════ 8. LE FOND DU GYMNASE ═════
+   Joey : « je ne vois pas ce qui est écrit sur mon tableau blanc numérique dans
+   le gymnase, c'est trop petit ; je veux que ce soit lisible par moi DANS LE
+   FOND de mon gymnase. »
+
+   ⚠ Un TBI ne se lit pas à la distance d'un bureau. À dix mètres, il faut des
+   caractères de quatre à six centimètres de haut : sur un écran de 75 pouces
+   en 1920 px, cela veut dire 45 à 65 pixels CSS. 170 % n'y arrivait pas.
+   Les paliers montent donc à 260 %, et le défaut à 200 %.
+
+   ⚠ ET ON GROSSIT AUSSI CE QUI EST DANS LA CASE. Le zoom seul garde les
+   proportions : le nom du groupe restait petit à côté de sa case. Ce sont les
+   trois choses qu'on lit de loin — le GROUPE, le JOUR, et ce qu'on a ÉCRIT —
+   qui passent devant ; les compteurs restent lisibles sans réclamer la place. */
+html[data-zoom="200"]{zoom:2}
+html[data-zoom="260"]{zoom:2.6}
+
+/* ce qu'on lit du fond du gymnase */
+.ag-seance .gr{font-size:25px;gap:6px}
+.ag-seance .gr .img{font-size:22px}
+.ag-seance img.img{width:26px;height:26px}
+.ag-seance .cours{font-size:19px;line-height:1.2}
+.ag-seance .plan{font-size:20px;max-height:4.4em}
+.ag-seance .puces span{font-size:16px;padding:1px 7px}
+.ag-jour b{font-size:23px}
+.ag-jour .d{font-size:18px}
+.ag-jour .cyc{font-size:17px}
+.ag-per{font-size:19px}
+.ag-per small{font-size:17px}
+.ag-case{min-height:92px}
+
+/* Le titre de la semaine et la barre du haut suivent : c'est ce qui dit OÙ on
+   est quand on lève les yeux depuis l'autre bout du gymnase. */
+.agenda-tete h2{font-size:30px}
+.ctx-barre .jour{font-size:26px}
+.ctx-cyc{font-size:22px}
+
+/* ═════ 9. BANGERS POUR CE QUI SE LIT DE LOIN ═════
+   Elle est condensée et haute : à largeur égale, elle donne les plus GRANDES
+   lettres des cinq. C'est donc elle qui porte le nom du groupe, le jour et la
+   période — les trois choses qu'on cherche des yeux depuis le fond du gymnase.
+   Le reste ne bouge pas : LuckiestGuy garde les titres, les manuscrites gardent
+   ce qu'on écrit. */
+.ag-jour b{font-family:var(--f-large);letter-spacing:.5px}
+.ag-seance .gr{font-family:var(--f-large);letter-spacing:.5px}
+.ag-per{font-family:var(--f-large);letter-spacing:.5px}
+.ctx-cyc{font-family:var(--f-large);letter-spacing:1px}
+.pastille-gr{font-family:var(--f-large);letter-spacing:.5px}
+
+/* ⚠ LES BOUTONS ET LES CHAMPS N'HÉRITENT PAS DE LA POLICE. C'est une règle du
+   navigateur, pas un oubli du proto : un <button> sans `font-family` explicite
+   retombe sur la police du système — Arial ici. Cinquante-cinq éléments du
+   proto étaient dans ce cas, dont le ✎ de chaque groupe.
+   Une seule ligne les ramène tous. Les règles qui nomment déjà une police
+   gagnent toujours : elles sont plus spécifiques que ce sélecteur d'élément. */
+button, input, select, textarea, optgroup{font-family:inherit}
+
+/* ⚠ AU PALIER LE PLUS FORT, LA FENÊTRE NE FAIT PLUS QUE ~490 px POUR LE CSS :
+   à 260 %, un écran de 1280 px n'en offre plus que 492 aux règles. Le mot
+   ZONE TOTAL SPORT, en `white-space:nowrap` avec un plancher de 30 px,
+   dépassait alors de quelques pixels et faisait déborder TOUTE LA PAGE de
+   côté — 1298 px de contenu pour 1280 de fenêtre.
+   Il a le droit de rétrécir et de passer à la ligne ; la page, elle, n'a pas
+   le droit de défiler horizontalement. */
+.zts-marque{
+  font-size:clamp(20px,5.6vw,68px);max-width:100%;
+  flex-wrap:wrap;justify-content:center;white-space:normal;
+}
+.proto-bar{overflow-x:clip}

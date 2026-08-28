@@ -540,11 +540,15 @@ const STYLES_CYCLE = {
   /* ⚠ LES PALIERS SE DISENT PAR LA DISTANCE, pas par un adjectif. Joey :
      « mets ça pour qu'on puisse voir de loin dans un gymnase ». « Grand » ne
      répond pas à la question qu'il se pose ; « Gymnase » oui. */
-  [['100','De près'],['120','Un peu loin'],['145','🏀 GYMNASE'],['170','🏀 GYMNASE +']].forEach(([v,lab])=>{
+  /* ⚠ LES PALIERS ONT ÉTÉ REMONTÉS. Joey, devant son TBI : « je ne vois pas ce
+     qui est écrit dans le gymnase, je veux que ce soit lisible par moi dans le
+     FOND de mon gymnase. » 170 % ne suffit pas à dix mètres : le dernier
+     palier va maintenant à 260 %, et le défaut à 200. */
+  [['100','De près'],['145','En classe'],['200','🏀 GYMNASE'],['260','🏀 FOND DU GYMNASE']].forEach(([v,lab])=>{
     const b=el('button','mini',lab); b.type='button';
     b.addEventListener('click',()=>{ ecrire('zoom',v); appliquerZoom();
       $$('#zoomBtns .mini').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); });
-    b.setAttribute('aria-pressed', String(v===lire('zoom','145')));
+    b.setAttribute('aria-pressed', String(v===lire('zoom','200')));
     hz.appendChild(b);
   });
   /* langue */
@@ -564,7 +568,20 @@ const STYLES_CYCLE = {
 })();
 /* ⚠ LE RÉGLAGE PART À 120, PAS À 100. Joey lit son plan de loin, un ballon à
    la main : la taille « de près » est l'exception, pas la règle. */
-function appliquerZoom(){ document.body.dataset.zoom = lire('zoom','145'); }
+function appliquerZoom(){
+  const z = lire('zoom','200');
+  /* ⚠ LE ZOOM SE POSE SUR <html>, PAS SUR <body> : une mise à l'échelle du
+     document entier appartient à la racine. Sur `body`, tout ce qui est
+     `sticky` ou `fixed` — le bandeau, la nav, la barre de contexte, les
+     fenêtres — se raccroche à un conteneur qui n'est plus à la même échelle
+     que la fenêtre, et le calcul devient fragile.
+     ⚠ À 200 % et plus, l'outil de capture d'écran du navigateur intégré ne
+     rend PAS la même chose que la fenêtre réelle une fois la page défilée :
+     ne pas conclure d'une capture noire qu'il y a un trou dans la page.
+     Le seul juge fiable à ces paliers, c'est l'écran de Joey. */
+  document.documentElement.dataset.zoom = z;
+  document.body.dataset.zoom = z;
+}
 appliquerZoom();
 
 /* mode intégré : ?embed=1 masque le chrome, comme dans l'app */

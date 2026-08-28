@@ -699,7 +699,15 @@ function photoDe(i){
     + '<rect width="64" height="64" fill="'+t+'"/>'
     + '<circle cx="32" cy="25" r="12" fill="rgba(255,255,255,.85)"/>'
     + '<path d="M8 64c0-14 11-22 24-22s24 8 24 22z" fill="rgba(255,255,255,.85)"/>'
-    + '<text x="32" y="30" font-family="Arial,sans-serif" font-size="15" font-weight="bold"'
+    /* ⚠ CETTE PASTILLE NE PEUT PAS PORTER LES POLICES DE JOEY, et ce n'est pas
+       un oubli : le SVG part en `data:` dans un <img>, donc dans un document
+       ISOLÉ, qui n'a accès à aucune @font-face de la page. Y nommer Bangers ne
+       ferait que la remplacer par ce que le système a sous la main.
+       Embarquer le .ttf en base64 dans chaque pastille pèserait ~100 ko PAR
+       ÉLÈVE. On laisse donc le générique — deux initiales dans une pastille de
+       couleur, ce n'est pas du texte qu'on lit. Une vraie photo la remplace de
+       toute façon dès qu'il y en a une. */
+    + '<text x="32" y="30" font-family="sans-serif" font-size="15" font-weight="bold"'
     + ' text-anchor="middle" fill="'+t+'">'+e.p[0]+e.n[0]+'</text></svg>';
   return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
 }

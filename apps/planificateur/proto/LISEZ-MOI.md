@@ -496,3 +496,48 @@ Le bloc 6 de `proto-papier.css` corrige les proportions — le texte secondaire
 ⚠ **Plancher : plus rien sous 17 px.** Un TBI se regarde à trois mètres ; ce qui
 passait à un bureau n'y passe pas. Et le zoom part maintenant à **145 %
 (🏀 GYMNASE)**.
+
+## Cinq polices, et aucune autre
+
+Joey : « je veux mes polices de caractère seulement, pas d'autre genre : Annie,
+Indie Flower, Bangers, Luckiest Guy et ZoneTotalSport.ttf. »
+
+Les cinq sont chargées depuis `/fonts/` — **Bangers rejoint la maquette**. Tous
+les `system-ui`, `Segoe UI`, `Helvetica`, `Arial` et `monospace` en repli ont
+été retirés, y compris `--f-corps`, qui tenait encore le corps de texte de
+toute l'app. Il ne reste que `cursive` en tout dernier recours : ce n'est pas
+une police, c'est le filet du navigateur si un `.ttf` ne se charge pas.
+
+⚠ **Les boutons et les champs n'héritent pas de la police** — c'est une règle du
+navigateur, pas un oubli. Cinquante-cinq éléments retombaient sur Arial, dont
+le ✎ de chaque groupe. `button, input, select, textarea, optgroup{font-family:
+inherit}` les ramène tous.
+
+⚠ **La pastille à initiales d'un élève ne peut pas porter ces polices.** Son SVG
+part en `data:` dans un `<img>`, donc dans un document isolé, sans accès aux
+`@font-face` de la page ; y embarquer le `.ttf` pèserait ~100 ko par élève. Deux
+initiales dans une pastille de couleur — et une vraie photo la remplace dès
+qu'il y en a une.
+
+**Bangers porte ce qui se lit de loin** : nom du groupe, jour, période,
+jour-cycle. Condensée et haute, elle donne les plus grandes lettres des cinq à
+largeur égale.
+
+## Le fond du gymnase
+
+Paliers : *De près (100 %) · En classe (145 %) · 🏀 GYMNASE (200 %) ·
+🏀 FOND DU GYMNASE (260 %)*. **Défaut : 200 %.**
+
+⚠ **Le zoom se pose sur `<html>`, pas sur `<body>`** : une mise à l'échelle du
+document appartient à la racine. Sur `body`, tout ce qui est `sticky` ou
+`fixed` se raccroche à un conteneur qui n'est plus à l'échelle de la fenêtre.
+
+⚠ **À 260 %, un écran de 1280 px n'offre plus que 492 px aux règles CSS.** Le
+mot ZONE TOTAL SPORT, en `nowrap` avec un plancher de 30 px, faisait déborder
+toute la page de côté. Il a maintenant le droit de rétrécir et de passer à la
+ligne.
+
+⚠ **À ces paliers, l'outil de capture du navigateur intégré ne rend pas la même
+chose que la fenêtre réelle une fois la page défilée.** Ne pas conclure d'une
+capture noire qu'il y a un trou dans la page — mesurer, et laisser l'écran de
+Joey juger.
