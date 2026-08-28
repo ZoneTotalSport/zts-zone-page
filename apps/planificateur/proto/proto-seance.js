@@ -253,6 +253,12 @@ function peindreActionsSeance(){
            +nPres.filter(x=>x==='sans').length+' sans · '+nPres.filter(x=>x==='absent').length+' absents'
          : 'pas encore prises',
      faite: nPres.length>0},
+    {k:'jeux', emo:'🎲', lab:'JEUX',
+     etat:'piger dans la banque',
+     faite:false},
+    {k:'message', emo:'💬', lab:'MESSAGE',
+     etat: (s.message||'').trim() ? s.message.slice(0,34) : 'rien à signaler',
+     faite: !!(s.message||'').trim()},
     {k:'evaluation', emo:'📝', lab:'ÉVALUATION',
      etat: (s.evalCrits||[]).length
         ? (s.evalCrits.length+' critère(s) · '+Object.keys(s.notes||{}).length+' à revoir')
@@ -278,6 +284,26 @@ function volet(quoi){
   const d=$('#seDetail'); if(!d) return; d.innerHTML='';
 
   if (quoi==='cours'){ peindrePlanification(d, s, iso, per); return; }
+
+  if (quoi==='jeux'){
+    cibleSeance={iso,per};
+    fermerModale(); ouvrirTiroir(null); return;
+  }
+
+  if (quoi==='message'){
+    const box=el('div','se-cours');
+    box.innerHTML='<h4>💬 Un mot sur ce cours</h4>'
+      +'<p style="font-family:var(--f-note);font-size:17px;margin:0 0 10px">'
+      +'Ce que tu écris ici reste attaché au groupe et à la date. On le retrouve '
+      +'dans MES GROUPES, avec toute l’année.</p>'
+      +'<div class="desc" contenteditable id="seMsg" data-vide="Ex. : beau travail d’équipe aujourd’hui…" '
+      +'style="min-height:90px"></div>';
+    d.appendChild(box);
+    const z=$('#seMsg'); z.textContent=s.message||'';
+    z.addEventListener('input',()=> majSeanceSansRedessin(x=>x.message=z.textContent));
+    z.addEventListener('blur',()=> peindreActionsSeance());
+    return;
+  }
 
   if (quoi==='minuterie'){
     const box=el('div','se-cours');

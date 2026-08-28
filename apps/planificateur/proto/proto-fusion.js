@@ -1026,30 +1026,16 @@ peindreCahier();
    qui semblent semblables ». Ce n'est pas le retour du bouton PLUS : l'accueil
    montre toujours toutes les tuiles. C'est la barre qui se resserre.
    Chaque menu est nommé par CE QU'ON Y CHERCHE, pas par une catégorie floue. */
+/* CINQ PORTES. Joey, 28 août : « en haut je veux seulement ma semaine,
+   calendrier, mes groupes, mon temps — et partage / réglages / mes données
+   ensemble. » Tout le reste — la journée, les présences, l'évaluation, les
+   jeux, les messages — vit DANS la séance, qu'on ouvre depuis la semaine. */
 const MENUS = [
-  {direct:'e-accueil',   lab:'🏠 MA SEMAINE'},
-  {direct:'e-journee',   lab:'📋 MA JOURNÉE'},
-  {direct:'e-presences', lab:'✅ PRÉSENCES'},
-  {lab:'⭐ ÉVALUER', quoi:[
-    ['e-evaluation','📝 Évaluation','Poser mes cotes du jour'],
-    ['e-carnet','📊 Carnet de notes','Toutes mes cotes, en grille'],
-    ['e-bulletin','🎓 Bulletin','La synthèse d’étape'],
-    ['e-tests','🏃 Tests','Chrono, navette, Léger-Boucher'],
-  ]},
-  {lab:'🗓️ CALENDRIER', quoi:[
-    ['e-mois','📅 Mois','Jours-cycle et notes'],
-    ['e-annee','📚 Année','Compétences, moyens, activités'],
-    ['e-calendrier','📆 Calendrier scolaire','Congés et pédagogiques'],
-  ]},
-  {lab:'⋯ PLUS', quoi:[
-    ['e-jeux','🎲 Jeux','Piger dans la banque'],
-    ['e-groupes','👥 Mes groupes','Classes, journal, historique'],
-    ['e-messages','💬 Messages','Le coordo, valider ma semaine'],
-    ['e-partage','📤 Partage','Envoyer à un collègue'],
-    ['e-temps','⏱️ Mon temps','Heures travaillées'],
-    ['e-reglages','⚙️ Réglages','Cycle, étapes, zoom, langue'],
-    ['e-donnees','💾 Mes données','Sauvegarder, exporter, importer'],
-  ]},
+  {direct:'e-accueil',    lab:'🏠 MA SEMAINE'},
+  {direct:'e-calendrier', lab:'📆 CALENDRIER'},
+  {direct:'e-groupes',    lab:'👥 MES GROUPES'},
+  {direct:'e-temps',      lab:'⏱️ MON TEMPS'},
+  {direct:'e-reglages',   lab:'⚙️ RÉGLAGES'},
 ];
 (function barreEnMenus(){
   const n=$('#nav'); if(!n) return;

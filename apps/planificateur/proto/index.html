@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=33">
-<link rel="stylesheet" href="proto-fusion.css?v=33">
-<link rel="stylesheet" href="proto-boutons.css?v=33">
-<link rel="stylesheet" href="proto-seance.css?v=33">
-<link rel="stylesheet" href="proto-simple.css?v=33">
+<link rel="stylesheet" href="proto.css?v=38">
+<link rel="stylesheet" href="proto-fusion.css?v=38">
+<link rel="stylesheet" href="proto-boutons.css?v=38">
+<link rel="stylesheet" href="proto-seance.css?v=38">
+<link rel="stylesheet" href="proto-simple.css?v=38">
 </head>
 <body>
 
@@ -52,28 +52,9 @@
   <div id="agendaHote"></div>
 </section>
 
-<!-- ═══════════════ 2. MA JOURNÉE ═══════════════ -->
-<section class="ecran" id="e-journee">
-  <h1 class="titre">Ma journée</h1>
-  <div class="aide-un-mot"><span class="emo">✍️</span>
-    Écris directement dans les lignes. Glisse le ⠿ pour changer l'ordre.
-    Une ligne vidée disparaît.</div>
-  <div class="pan">
-    <h2><span id="jrDate"></span></h2>
-    <div class="jr-liste" id="jrListe"></div>
-  </div>
-</section>
 
-<!-- ═══════════════ 3. JEUX ═══════════════ -->
-<section class="ecran" id="e-jeux">
-  <h1 class="titre">Jeux</h1>
-  <p class="sous">Le tiroir s'ouvre à droite. Les filtres restent fermés tant qu'on n'y touche pas.</p>
-  <div class="pan">
-    <h2>La banque en un geste</h2>
-    <p style="margin:0 0 12px">Une seule porte d'entrée : le tiroir. Il s'ouvre depuis n'importe quel écran, on cherche, on <b>AJOUTE</b>, il se referme et le jeu est dans la journée.</p>
-    <button type="button" class="mini mini--rose" data-tiroir>OUVRIR LE TIROIR</button>
-  </div>
-</section>
+
+
 
 
 
@@ -152,35 +133,7 @@
   </div>
 </section>
 
-<!-- ═══════════════ ÉVALUATION ═══════════════ -->
-<section class="ecran" id="e-evaluation">
-  <h1 class="titre">Évaluation</h1>
-  <p class="sous">Une touche par compétence. La cote se pose, se change, s'enlève — rien à valider.</p>
-  <div class="pan">
-    <h2>Groupe <span contenteditable data-k="ev-gr" data-vide="5A"></span> ·
-        étape <span contenteditable data-k="ev-etape" data-vide="1"></span> ·
-        <span contenteditable data-k="ev-quoi" data-vide="Basketball — dribble"></span></h2>
-    <div class="comp-rappel">
-      <div class="c1"><b>C1 · Agir</b>Agir dans divers contextes de pratique d'activités physiques.</div>
-      <div class="c2"><b>C2 · Interagir</b>Interagir dans divers contextes de pratique d'activités physiques.</div>
-      <div class="c3"><b>C3 · Sain et actif</b>Adopter un mode de vie sain et actif.</div>
-    </div>
-    <table class="eval-tbl">
-      <thead><tr>
-        <th style="width:26%">Élève</th>
-        <th class="c1">C1 · Agir</th><th class="c2">C2 · Interagir</th><th class="c3">C3 · Sain et actif</th>
-        <th style="width:22%">Observation</th>
-      </tr></thead>
-      <tbody id="evalCorps"></tbody>
-    </table>
-    <div class="eval-pied">
-      <b>Cotes posées :</b><span class="gros" id="evPosees">0</span>
-      <b>sur</b><span class="gros" id="evTotal">0</span>
-      <b>· Moyenne du groupe :</b><span class="gros" id="evMoyenne">—</span>
-      <button type="button" class="mini mini--jaune" id="evVider">TOUT EFFACER</button>
-    </div>
-  </div>
-</section>
+
 
 <!-- ═══════════════ BULLETIN ═══════════════ -->
 <section class="ecran" id="e-bulletin">
@@ -326,26 +279,7 @@
   </div>
 </section>
 
-<!-- ═══════════════ MESSAGES ═══════════════ -->
-<section class="ecran" id="e-messages">
-  <h1 class="titre">Messages</h1>
-  <div class="aide-un-mot"><span class="emo">👆</span>
-    Écris ton message, touche ENVOYER. « Valider ma semaine » prévient le coordo que tu as fini.</div>
-  <div class="pan">
-    <h2>Avec le coordonnateur</h2>
-    <div class="msg-fil" id="msgFil"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <input class="m-saisie" id="msgTexte" placeholder="Ton message…" style="flex:1;min-width:220px">
-      <button type="button" class="mini mini--lime" id="msgGo">ENVOYER</button>
-    </div>
-  </div>
-  <div class="pan pan--jaune">
-    <h2>✅ Valider ma semaine</h2>
-    <p style="margin:0 0 10px;font-weight:700">Quand ta semaine est prête, ce bouton la marque terminée et prévient le coordo.</p>
-    <button type="button" class="m-valider" id="valSemaine">✔ MA SEMAINE EST PRÊTE</button>
-    <div id="valEtat" style="margin-top:10px;font-weight:800"></div>
-  </div>
-</section>
+
 
 <!-- ═══════════════ MES DONNÉES ═══════════════ -->
 <section class="ecran" id="e-donnees">
@@ -379,22 +313,7 @@
 </section>
 
 <!-- écrans secondaires -->
-<section class="ecran" id="e-presences">
-  <h1 class="titre">Présences</h1>
-  <p class="sous">Touche la carte : attendu → présent → départ. Appui long = absent.
-     Parti ou absent, la photo et le nom passent en noir et blanc.</p>
-  <div class="pan">
-    <h2>Groupe <span contenteditable data-k="pr-gr" data-vide="5A"></span> ·
-        <span id="prDate"></span></h2>
-    <div class="pr-resume" id="prResume"></div>
-    <div class="pr-grille" id="prGrille"></div>
-    <div class="pr-actions">
-      <button type="button" class="mini mini--lime" id="prEnvoyer">📤 ENVOYER LE RAPPORT</button>
-      <button type="button" class="mini" id="prRaz">↺ REMETTRE À ZÉRO</button>
-    </div>
-    <pre class="pr-rapport" id="prRapport" hidden></pre>
-  </div>
-</section>
+
 
 
 
@@ -460,9 +379,10 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=33"></script>
-<script src="proto-fusion.js?v=33"></script>
-<script src="proto-seance.js?v=33"></script>
-<script src="proto-simple.js?v=33"></script>
+<script src="proto.js?v=38"></script>
+<script src="proto-fusion.js?v=38"></script>
+<script src="proto-seance.js?v=38"></script>
+<script src="proto-simple.js?v=38"></script>
+<script src="proto-annee.js?v=38"></script>
 </body>
 </html>

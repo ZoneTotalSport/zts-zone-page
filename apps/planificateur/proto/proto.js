@@ -856,7 +856,7 @@ function rapportPresences(){
   bloc('DÉJÀ PARTIS', par.parti);
   return l.join('\n');
 }
-$('#prEnvoyer').addEventListener('click', async ()=>{
+const _env=$('#prEnvoyer'); if (_env) _env.addEventListener('click', async ()=>{
   const txt=rapportPresences();
   const zone=$('#prRapport'); zone.hidden=false; zone.textContent=txt;
   const b=$('#prEnvoyer');
@@ -864,7 +864,7 @@ $('#prEnvoyer').addEventListener('click', async ()=>{
   catch(e){ b.textContent='📋 COPIE REFUSÉE — sélectionne le texte'; }
   setTimeout(()=>b.textContent='📤 ENVOYER LE RAPPORT', 2600);
 });
-$('#prRaz').addEventListener('click', ()=>{
+const _raz=$('#prRaz'); if (_raz) _raz.addEventListener('click', ()=>{
   if(!confirm('Remettre tout le groupe en « attendu » ?')) return;
   ENFANTS.forEach((e,i)=>{ try{ localStorage.removeItem(P+kctx('pres2:'+i)); }catch(err){} });
   peindrePresences();
@@ -891,7 +891,7 @@ const COMPS = [
 ];
 function coteDe(i,c){ return lire(kctx('ev:'+i+':'+c), null); }
 (function evaluation(){
-  const h = $('#evalCorps');
+  const h = $('#evalCorps'); if(!h) return;
   ELEVES.forEach((nom,i)=>{
     const tr = el('tr');
     const td0 = el('td','nom',nom); tr.appendChild(td0);
@@ -928,6 +928,7 @@ function coteDe(i,c){ return lire(kctx('ev:'+i+':'+c), null); }
   });
 })();
 function compterEval(){
+  if (!$('#evPosees')) return;
   let n=0, somme=0;
   const total = ELEVES.length * COMPS.length;
   ELEVES.forEach((nom,i)=> COMPS.forEach(cp=>{
