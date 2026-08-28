@@ -361,8 +361,11 @@ function peindreActionsSeance(){
      etat: (s.message||'').trim() ? s.message.slice(0,34) : 'rien à signaler',
      faite: !!(s.message||'').trim()},
     {k:'evaluation', emo:'📝', lab:'ÉVALUATION',
+     /* « posée(s) », pas « à revoir » : une cote au maximum s'enregistre
+        depuis que rien n'est coloré d'avance. Ce qui est SOUS le maximum se
+        compte avec `cotesSousMax()`, dans le portrait. */
      etat: (s.evalCrits||[]).length
-        ? (s.evalCrits.length+' critère(s) · '+Object.keys(s.notes||{}).length+' à revoir')
+        ? (s.evalCrits.length+' critère(s) · '+Object.keys(s.notes||{}).length+' cote(s) posée(s)')
         : 'rien de configuré',
      faite: (s.evalCrits||[]).length>0},
   ];
@@ -462,7 +465,8 @@ function volet(quoi){
     d.appendChild(c);
     const aide=el('div','aide-un-mot');
     aide.innerHTML='<span class="emo">👕</span>Tout le monde a son linge. <b>Touche seulement ceux qui manquent</b> : '
-      +'une fois pour « pas de linge », deux fois pour « absent ».';
+      +'une fois pour « pas de linge », deux fois pour « absent ». '
+      +'Le <b>✎</b> d’une carte note l’élève pour cette période — la note se range dans le portrait du groupe.';
     d.appendChild(aide);
     const tout=el('button','mini','↺ TOUT LE MONDE A SON LINGE'); tout.type='button';
     tout.style.marginBottom='10px';
@@ -485,7 +489,20 @@ function volet(quoi){
           if (n==='linge') delete x.pres[i]; else x.pres[i]=n; });
         volet('presences');
       });
-      gr.appendChild(b);
+      /* ✎ noter CET élève, à CETTE période. La note file au PORTRAIT, et si
+         elle est marquée « à suivre », elle remonte d'elle-même à la prochaine
+         séance du groupe. Le bouton est un frère de la carte, pas un enfant :
+         un <button> dans un <button> ne survit pas au navigateur. */
+      const cel=el('div','pres-case'); cel.appendChild(b);
+      const nte=(s.notesEl||{})[i];
+      const no=el('button','pres-note'+(nte?' pres-note--pleine':''),
+                  nte ? ((nte.suivi&&!nte.regle) ? '⚑' : '📌') : '✎');
+      no.type='button';
+      no.title = nte ? ELEVES[i]+' — '+nte.t : 'Noter '+ELEVES[i]+' pour cette période';
+      no.addEventListener('click', ev=>{ ev.stopPropagation();
+        if (typeof noterEleve==='function') noterEleve(i); });
+      cel.appendChild(no);
+      gr.appendChild(cel);
     });
     d.appendChild(gr);
     return;
@@ -522,14 +539,23 @@ function volet(quoi){
         const c=el('td'); const grp=el('div','cotes');
         ech.v.forEach(([sym,lab,val])=>{
           const b=el('button','ech-case',sym); b.type='button';
-          const actuel=(s.notes||{})[i+'|'+cle] !== undefined
-                       ? (s.notes||{})[i+'|'+cle] : maxFacon();
-          b.setAttribute('aria-pressed', String(actuel===val));
-          if (actuel===val) b.style.background=teinteVal(val);
-          b.title=ELEVES[i]+' — '+libelleCrit(cle)+(lab?' — '+lab:'')+' ('+val+'/100)';
+          /* ⚠ RIEN N'EST COLORÉ TANT QU'ON N'A PAS CLIQUÉ. Joey, 28 août :
+             « par défaut pour évaluation, ne mets rien, pas de couleurs ;
+             seulement si on clique dessus il a une couleur. »
+             La règle « tout le monde part au maximum » reste vraie pour LIRE
+             une cote absente — elle ne se PEINT simplement plus d'avance.
+             Conséquence : le maximum s'enregistre lui aussi maintenant, sinon
+             le clic sur ++ n'aurait jamais de couleur. Un second clic sur le
+             même palier le retire, et la case redevient vierge. */
+          const actuel=(s.notes||{})[i+'|'+cle];
+          const pris = actuel!==undefined && actuel===val;
+          b.setAttribute('aria-pressed', String(pris));
+          if (pris) b.style.background=teinteVal(val);
+          b.title=ELEVES[i]+' — '+libelleCrit(cle)+(lab?' — '+lab:'')+' ('+val+'/100)'
+                  +(pris?' — retoucher pour effacer':'');
           b.addEventListener('click',()=>{
             majSeance(x=>{ x.notes=x.notes||{}; const k=i+'|'+cle;
-              if (val===maxFacon()) delete x.notes[k];   // au max = rien à consigner
+              if (x.notes[k]===val) delete x.notes[k];   // reclic = on efface
               else x.notes[k]=val; });
             volet('evaluation');
           });

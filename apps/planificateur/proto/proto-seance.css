@@ -284,3 +284,75 @@
 .se-coul[aria-pressed="true"]{box-shadow:1px 1px 0 var(--noir),0 0 0 3px var(--jaune)}
 .se-coul--photo{background:#fff;color:var(--ink);font-size:14px}
 .pastille-gr.survol{box-shadow:3px 3px 0 var(--noir),0 0 0 4px var(--lime)}
+
+/* ═════ LA COULEUR D'UNE PORTE DIT UNE SEULE CHOSE ═════
+   Joey, 28 août : « si je coche la case, le bouton devient bleu cyan pâle ;
+   s'il n'est pas coché, c'est blanc. »
+   ⚠ Le vert de `.faite` disait autre chose (« cette fonction a des données »)
+   et brouillait le message. Il est neutralisé ici plutôt que supprimé plus
+   haut : la présence de données se voit maintenant au ✕ qui apparaît.
+   ⚠ #E6F4FA est aussi la couleur d'ENCRE que le shell pose sur le marine.
+   En FOND, il faut donc redire l'encre — sinon un descendant qui n'en déclare
+   pas hérite du bleu pâle et s'efface. Voir project_contraste_shell_heritage. */
+.se-action.faite{background:#fff}
+.se-action.dans-plan{background:#E6F4FA;color:var(--ink);box-shadow:4px 4px 0 var(--noir)}
+.se-action.dans-plan .etat{color:#3C5A66}
+
+/* ── le ✕ qui jette ce qu'une porte a consigné ── */
+.se-vider{
+  position:absolute;bottom:5px;right:6px;cursor:pointer;line-height:1;
+  font-size:11px;padding:1px 5px;
+  background:var(--rose);color:#2A0010;border:2px solid var(--noir);border-radius:7px;
+}
+.se-vider:hover{background:#FF4D8D}
+.se-vider:focus-visible{outline:3px solid var(--jaune);outline-offset:2px}
+
+/* ── le bandeau « à suivre », et les suivis du portrait ── */
+.se-suivis{
+  border:3px solid var(--noir);border-radius:14px;padding:10px 12px;margin-bottom:14px;
+  background:#FFF3C4;color:var(--ink);
+}
+.se-suivis h4{font-family:var(--f-titre);font-size:17px;margin:0 0 8px;letter-spacing:.3px}
+.suivi{
+  display:flex;gap:9px;align-items:center;margin-bottom:6px;
+  background:#fff;border:3px solid var(--noir);border-radius:12px;padding:6px 8px;
+}
+.suivi img{width:42px;height:42px;flex:none;border-radius:9px;border:2px solid var(--noir);object-fit:cover}
+.suivi .txt{flex:1;min-width:0}
+.suivi .txt b{font-family:var(--f-titre);font-size:16px;letter-spacing:.2px}
+.suivi .quoi{font-family:var(--f-note);font-size:17px;line-height:1.25}
+.suivi .quand{font-family:var(--f-note);font-size:14px;color:var(--ink-soft)}
+
+/* ── noter un élève ── */
+.pres-case{position:relative;display:flex}
+.pres-case>.pres-el{flex:1;width:100%}
+.pres-note{
+  position:absolute;top:4px;right:4px;z-index:2;cursor:pointer;line-height:1;
+  font-size:12px;padding:2px 5px;
+  background:#fff;color:var(--ink);border:2px solid var(--noir);border-radius:8px;
+  box-shadow:1px 1px 0 var(--noir);
+}
+.pres-note--pleine{background:var(--jaune)}
+.ne-qui{display:flex;gap:11px;align-items:center;margin-bottom:12px}
+.ne-qui img{width:62px;height:62px;border-radius:12px;border:3px solid var(--noir);object-fit:cover}
+.ne-qui b{font-family:var(--f-titre);font-size:22px;letter-spacing:.3px}
+.ne-qui .quand{font-family:var(--f-note);font-size:17px;color:var(--ink-soft)}
+.ne-suivi{
+  display:flex;gap:9px;align-items:flex-start;cursor:pointer;margin-bottom:12px;
+  background:#FFF3C4;border:3px solid var(--noir);border-radius:12px;padding:9px 11px;
+}
+.ne-suivi input{width:22px;height:22px;flex:none;margin-top:2px}
+.ne-suivi b{font-family:var(--f-titre);font-size:16px;letter-spacing:.2px}
+.ne-suivi small{display:block;font-family:var(--f-note);font-size:15px;color:var(--ink-soft);line-height:1.25}
+
+/* ── le portrait ── */
+.pt-note{margin-bottom:4px;max-width:280px}
+.pt-note .q{display:block;font-family:var(--f-note);font-size:16px;line-height:1.2}
+.pt-note .d{display:block;font-family:var(--f-note);font-size:13px;color:var(--ink-soft)}
+.pt-per{
+  border:3px solid var(--noir);border-radius:12px;padding:8px 10px;margin-bottom:7px;
+  background:#F1F7FA;color:var(--ink);
+}
+.pt-per--ici{background:#E6F4FA;box-shadow:0 0 0 3px var(--jaune)}
+.pt-per .quand{font-family:var(--f-titre);font-size:15px;letter-spacing:.3px;margin-bottom:3px}
+.pt-per .quoi{font-family:var(--f-note);font-size:16px;line-height:1.25}

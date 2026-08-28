@@ -226,3 +226,50 @@ disparaît. La même chose se lâche sur une pastille de la palette.
 ⚠ La couleur et la photo appartiennent au **groupe**, pas à la séance : posées
 ici, elles changent aussi dans la palette et dans les cases de l'agenda. C'est
 le but — reconnaître un groupe à un visage plutôt qu'à un ballon générique.
+
+## Le portrait du groupe, les notes d'élèves et les suivis — 28 août
+
+**Une 8ᵉ porte : 📔 PORTRAIT DU GROUPE.** Elle réunit tout ce qui a été
+consigné pour ce groupe, toutes dates confondues — absences, oublis de linge,
+cotes sous le maximum, mots de cours, notes d'élèves — plus le fil des périodes.
+
+⚠ **Rien ne se saisit dans le portrait.** Il relit les séances déjà écrites et
+les recompose. Ne pas le confondre avec le **dossier de MES GROUPES**, où le
+prof saisit à la main des absences et des incidents : là-bas c'est de la
+saisie, ici c'est du cumul. Les deux se complètent.
+
+**Noter un élève** : le ✎ sur sa carte, dans PRÉSENCES (ou « ✎ NOTER » dans le
+portrait). Une note par élève et par période — c'est le geste réel de quelqu'un
+qui voit six groupes par jour. La note porte une case **⚑ à suivre**.
+
+**Le suivi remonte tout seul.** Une note marquée « à suivre » s'affiche en tête
+de **la prochaine séance de ce groupe** — pas de la période suivante dans la
+journée : un prof d'ÉPS revoit 101 deux jours plus tard, c'est là que le rappel
+sert. Le drapeau reste levé, séance après séance, jusqu'au ✔ RÉGLÉ. La note,
+elle, reste au portrait pour toujours.
+
+## Deux signaux distincts sur une porte, à ne pas confondre
+
+| | Ce que ça veut dire | Effet |
+|---|---|---|
+| **☑ la case** (coin haut) | cette fonction est **dans la planification** | décocher la retire de la planification |
+| **✕ le bouton rose** (coin bas) | cette fonction a **consigné quelque chose** ici | l'effacer jette ces données, la case ne bouge pas |
+
+On peut vouloir garder les présences dans son cours **et** effacer celles
+d'hier. C'est pour ça qu'il y a deux gestes.
+
+**La couleur d'une porte ne dit qu'une chose** : cochée → cyan pâle ; pas
+cochée → blanc. Le vert de « cette fonction a des données » a été neutralisé,
+il brouillait le message ; cette information se lit désormais au ✕.
+
+## L'évaluation ne colore rien d'avance
+
+Une case d'échelle reste **vierge tant qu'on n'a pas cliqué**. La règle « tout
+le monde part au maximum » reste vraie pour LIRE une cote absente — elle ne se
+peint simplement plus.
+
+⚠ Conséquence directe : **le maximum s'enregistre lui aussi** maintenant, sinon
+un clic sur ++ n'aurait jamais de couleur. Compter les clés de `s.notes` compte
+donc les élèves qui vont très bien. Ce qui est **sous** le maximum se compte
+avec `cotesSousMax()` (`proto-portrait.js`). Un second clic sur le même palier
+efface la cote.
