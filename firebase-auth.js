@@ -17,8 +17,16 @@
     projectId: "zone-total-sport",
     storageBucket: "zone-total-sport.firebasestorage.app",
     messagingSenderId: "681359040455",
-    appId: "1:681359040455:web:80c9f584583824cc8cc3e2",
-    measurementId: "G-09S9R1HJ94"
+    appId: "1:681359040455:web:80c9f584583824cc8cc3e2"
+    // PROPRIETE GA4 INERTE — ne pas reactiver sans decider laquelle porte
+    // l'historique. G-09S9R1HJ94 n'existe que comme measurementId dans ce
+    // firebaseConfig : aucun analytics-compat n'est charge, aucun
+    // firebase.analytics(), aucun getAnalytics() nulle part dans le depot
+    // (verifie le 28 aout 2026). C'est G-C2L5PD388L, via analytics.js
+    // injecte par le chrome partage, qui recoit tout le trafic.
+    // Commente plutot que supprime : un firebaseConfig ampute souleve une
+    // question a la prochaine copie depuis la console Firebase.
+    // measurementId: "G-09S9R1HJ94"
   };
 
   var _user = null;
