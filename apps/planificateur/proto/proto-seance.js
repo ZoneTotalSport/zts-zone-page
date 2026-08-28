@@ -166,6 +166,26 @@ function coursDeLaSemaine(){
   return n;
 }
 
+/* ═════════ AJOUTER UNE PÉRIODE LIBRE À MA SEMAINE ═════════
+   Joey, 28 août : « permets d'ajouter une période libre dans le tableau ma
+   semaine. » Une ligne de plus, pour ce que l'horaire officiel ne prévoit pas —
+   récupération, surveillance, une période de planification.
+
+   ⚠ ELLE S'AJOUTE TOUJOURS À LA FIN, jamais au milieu. Le NUMÉRO d'une période
+   est la clé sous laquelle les séances sont rangées (`se:<jour>:p<n>`) : en
+   insérer une au milieu renumérote toutes celles qui suivent, et les cours déjà
+   consignés se retrouveraient dans la mauvaise case. Pour la déplacer, il y a
+   le glisser-déposer de l'horaire, dans RÉGLAGES — et là, c'est un choix
+   conscient. */
+function ajouterPeriodeLibre(){
+  if (typeof horaire !== 'function'){ alert('L’horaire n’est pas disponible.'); return; }
+  const nom=prompt('Nom de cette ligne :','Période libre'); if (nom===null) return;
+  const h=prompt('Ses heures, si tu veux (facultatif) :',''); if (h===null) return;
+  const l=horaire();
+  l.push({t:'p', nom:(nom.trim()||'Période libre'), h:h.trim(), libre:true});
+  poserHoraire(l);   /* repeint l'horaire ET l'agenda */
+}
+
 /* ═════════ PLANIFIER TOUTE LA SEMAINE D'UN SEUL ÉCRAN ═════════
    Joey, 28 août : « mets un bouton planification de la semaine ; lorsqu'on
    pèse dessus, ça affiche les 2 ou 3 cours de la semaine, l'enseignant peut
@@ -1255,6 +1275,12 @@ peindreAgenda = function(){
     z.appendChild(moins); z.appendChild(val); z.appendChild(plus);
     maj();
     tete.appendChild(z);
+  }
+  if (tete && !tete.querySelector('[data-libre]')){
+    const b=el('button','mini','＋ PÉRIODE LIBRE'); b.type='button'; b.dataset.libre='1';
+    b.title='Ajouter une ligne à ma semaine — récupération, surveillance, ce que je veux';
+    b.addEventListener('click', ajouterPeriodeLibre);
+    tete.appendChild(b);
   }
   if (tete && !tete.querySelector('[data-plansem]')){
     const b=el('button','mini mini--lime','📝 PLANIFICATION DE LA SEMAINE');

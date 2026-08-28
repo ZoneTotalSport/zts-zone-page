@@ -571,3 +571,20 @@ Les trois informations se serraient sur deux lignes, la pastille collée à la
 date. Chacune prend sa ligne : le **JOUR**, la **DATE**, puis ce que la journée
 **EST** (jour-cycle, journée pédagogique) — c'est l'ordre dans lequel on les
 cherche.
+
+## ＋ PÉRIODE LIBRE
+
+Un bouton dans l'en-tête de la semaine ajoute une ligne au tableau, pour ce que
+l'horaire officiel ne prévoit pas — récupération, surveillance, une période de
+planification. On lui donne son nom et ses heures ; elle apparaît en pointillé
+dans le rail, pour se distinguer de l'horaire de l'école.
+
+⚠ **Elle s'ajoute TOUJOURS À LA FIN, jamais au milieu.** Le numéro d'une période
+est la clé sous laquelle les séances sont rangées (`se:<jour>:p<n>`) : en
+insérer une au milieu renumérote toutes celles qui suivent, et les cours déjà
+consignés se retrouveraient dans la mauvaise case. Pour la déplacer, il y a le
+glisser-déposer de l'horaire dans RÉGLAGES — là, c'est un choix conscient.
+
+⚠ **Défaut corrigé au passage : le rail disait toujours « Période N »**, même
+quand le prof avait renommé sa ligne dans RÉGLAGES. Son nom ne se rendait pas
+jusqu'à l'agenda.

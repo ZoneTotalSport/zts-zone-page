@@ -1160,7 +1160,7 @@ function periodesAgenda(){
     const l = horaire();
     return l.map((x,i)=> x.t==='r'
       ? {pause: x.nom + (x.h ? ' · '+x.h : '')}
-      : {n: numPeriode(l,i), h: x.h || '—'});
+      : {n: numPeriode(l,i), h: x.h || '—', nom: x.nom, libre: !!x.libre});
   }
   return [{n:1,h:'8:00 à 8:50'},{n:2,h:'8:50 à 9:40'},{pause:'Récréation'},
           {n:3,h:'10:00 à 10:50'},{n:4,h:'10:50 à 11:40'},{pause:'Dîner'},
@@ -1221,7 +1221,9 @@ function peindreAgenda(){
 
   periodesAgenda().forEach(p=>{
     if (p.pause){ g.appendChild(Object.assign(el('div','ag-pause',p.pause),{})); return; }
-    const per=el('div','ag-per','Période '+p.n);
+    /* ⚠ LE RAIL DISAIT TOUJOURS « Période N », même quand le prof avait renommé
+       sa ligne dans RÉGLAGES : son nom ne se rendait pas jusqu'à l'agenda. */
+    const per=el('div','ag-per'+(p.libre?' ag-per--libre':''), p.nom || ('Période '+p.n));
     per.appendChild(el('small',null,p.h)); g.appendChild(per);
     jours.forEach(iso=>{
       const c=el('div','ag-case');
