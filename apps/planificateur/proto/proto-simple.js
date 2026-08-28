@@ -89,22 +89,51 @@ function placerCurseurFin(n){
 /* ⚠ TROIS colonnes par palier : [symbole, ce que ça veut dire, valeur/100].
    La grille d'évaluation déstructure `[sym, lab, val]` — avec deux colonnes,
    la valeur arrivait `undefined` et aucune case ne se marquait. */
-const FACONS = {
-  etoiles: {lab:'⭐ Étoiles',  quoi:'Trois étoiles, comme au primaire',
-            v:[['⭐⭐⭐','très bien',100],['⭐⭐','bien',66],['⭐','à travailler',33],['—','pas fait',0]]},
-  lettres: {lab:'🔤 Lettres',  quoi:'A · B · C · D · E',
-            v:[['A','',100],['B','',80],['C','',60],['D','',40],['E','',20]]},
-  chiffres:{lab:'🔢 Chiffres', quoi:'5 · 4 · 3 · 2 · 1',
-            v:[['5','',100],['4','',80],['3','',60],['2','',40],['1','',20]]},
-  couleurs:{lab:'🎨 Couleurs', quoi:'Vert · bleu · jaune · orange · rouge',
-            v:[['🟢','très bien',100],['🔵','bien',80],['🟡','correct',60],
-               ['🟠','à travailler',40],['🔴','difficile',20]]},
+/* ═════════ COMMENT JE NOTE — la façon ET le nombre de niveaux ═════════
+   Joey : « permets de choisir le nombre — étoiles, lettres, chiffres ou
+   couleurs — selon ce que veut l'internaute ». Les paliers ne sont donc plus
+   figés : on choisit combien, de 2 à 6, et les symboles se fabriquent.
+   La valeur reste sur 100 : le meilleur vaut 100, le dernier 100/n. */
+const NIVEAUX_MIN = 2, NIVEAUX_MAX = 6;
+const LETTRES_ECH  = ['A','B','C','D','E','F'];
+const COULEURS_ECH = ['🟢','🔵','🟡','🟠','🔴','⚫'];
+const MOTS_ECH     = ['très bien','bien','correct','à travailler','difficile','pas fait'];
+
+function nbNiveaux(){
+  return Math.max(NIVEAUX_MIN, Math.min(NIVEAUX_MAX, lire('nbNiveaux', 3)));
+}
+function faconNom(){ return lire('facon','etoiles'); }
+/* Les paliers se fabriquent : [symbole, ce que ça veut dire, valeur sur 100] */
+function paliers(){
+  const n=nbNiveaux(), k=faconNom(), out=[];
+  for (let i=0;i<n;i++){
+    const val=Math.round(100*(n-i)/n);
+    let sym;
+    if (k==='etoiles')       sym='⭐'.repeat(n-i);
+    else if (k==='lettres')  sym=LETTRES_ECH[i];
+    else if (k==='chiffres') sym=String(n-i);
+    else {
+      /* vert → rouge ; le noir n'entre qu'à six niveaux, sinon un barème à
+         trois crans finissait sur ⚫, ce qui ne veut rien dire. */
+      const haut = (n>=6 ? 5 : 4);
+      sym = COULEURS_ECH[Math.round(i*haut/(n-1))];
+    }
+    const mot = MOTS_ECH[Math.round(i*(MOTS_ECH.length-1)/(n-1))];
+    out.push([sym, mot, val]);
+  }
+  return out;
+}
+const FACONS_META = {
+  etoiles: {lab:'⭐ Étoiles',  quoi:'des étoiles, comme au primaire'},
+  lettres: {lab:'🔤 Lettres',  quoi:'A · B · C…'},
+  chiffres:{lab:'🔢 Chiffres', quoi:'du plus grand au plus petit'},
+  couleurs:{lab:'🎨 Couleurs', quoi:'vert · bleu · jaune · orange · rouge'},
 };
-function facon(){ return FACONS[lire('facon','etoiles')] || FACONS.etoiles; }
-function maxFacon(){ return facon().v[0][2]; }
+function facon(){ return {lab:FACONS_META[faconNom()].lab, v:paliers()}; }
+function maxFacon(){ return paliers()[0][2]; }
 function symboleDe(val){
-  const f=facon(); let best=f.v[0];
-  f.v.forEach(x=>{ if (Math.abs(x[2]-val) < Math.abs(best[2]-val)) best=x; });
+  const v=paliers(); let best=v[0];
+  v.forEach(x=>{ if (Math.abs(x[2]-val) < Math.abs(best[2]-val)) best=x; });
   return best[0];
 }
 
@@ -124,26 +153,44 @@ function symboleDe(val){
   const box=el('div','reg-section');
   box.innerHTML='<h3>⭐ Comment je note</h3>'
     +'<p style="margin:0 0 10px;font-family:var(--f-note);font-size:17px">'
-    +'Le même barème, dit de quatre façons. <b>Tout le monde part au maximum</b> — '
+    +'Choisis la façon <b>et</b> le nombre de niveaux. <b>Tout le monde part au maximum</b> — '
     +'tu ne descends que ceux qui doivent l’être.</p>'
+    +'<div class="reg-ligne"><b>Combien de niveaux ?</b>'
+    +'<button type="button" class="mini" data-niv="-">−</button>'
+    +'<span id="nivCompte" style="font-family:var(--f-titre);font-size:22px"></span>'
+    +'<button type="button" class="mini" data-niv="+">+</button></div>'
     +'<div class="note-choix" id="faconChoix"></div>';
   ecran.appendChild(box);
-  const h=$('#faconChoix');
-  Object.entries(FACONS).forEach(([k,f])=>{
-    const b=el('button'); b.type='button';
-    b.innerHTML='<span></span><small></small><span class="note-apercu"></span>';
-    b.children[0].textContent=f.lab; b.children[1].textContent=f.quoi;
-    f.v.forEach(([sym])=> b.children[2].appendChild(el('span',null,sym)));
-    b.setAttribute('aria-pressed', String(k===lire('facon','etoiles')));
-    b.addEventListener('click',()=>{
+  function peindre(){
+    $('#nivCompte').textContent=nbNiveaux();
+    const h=$('#faconChoix'); h.innerHTML='';
+    Object.entries(FACONS_META).forEach(([k,f])=>{
+      const b=el('button'); b.type='button';
+      b.innerHTML='<span></span><small></small><span class="note-apercu"></span>';
+      b.children[0].textContent=f.lab; b.children[1].textContent=f.quoi;
+      const avant=faconNom();
       ecrire('facon',k);
-      $$('#faconChoix button').forEach(x=>x.setAttribute('aria-pressed','false'));
-      b.setAttribute('aria-pressed','true');
-      if (seanceOuverte && !$('#modale').hidden) volet('evaluation');
-      peindreAgenda();
+      paliers().forEach(([sym,mot,val])=>{
+        const x=el('span',null,sym); x.title=mot+' — '+val+'/100';
+        b.children[2].appendChild(x);
+      });
+      ecrire('facon',avant);
+      b.setAttribute('aria-pressed', String(k===faconNom()));
+      b.addEventListener('click',()=>{ ecrire('facon',k); peindre(); repercuter(); });
+      h.appendChild(b);
     });
-    h.appendChild(b);
+  }
+  function repercuter(){
+    if (typeof seanceOuverte!=='undefined' && seanceOuverte && !$('#modale').hidden) volet('evaluation');
+    if (typeof peindreAgenda==='function') peindreAgenda();
+  }
+  box.addEventListener('click',e=>{
+    const t=e.target.closest('[data-niv]'); if(!t) return;
+    let n=nbNiveaux()+(t.dataset.niv==='+'?1:-1);
+    ecrire('nbNiveaux', Math.max(NIVEAUX_MIN, Math.min(NIVEAUX_MAX, n)));
+    peindre(); repercuter();
   });
+  peindre();
 })();
 
 /* ═════════ brancher MA JOURNÉE sur le contexte ═════════ */

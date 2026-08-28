@@ -70,3 +70,21 @@
 }
 .jr-depot:hover{border-color:var(--lime);color:var(--ink);background:#F2FFE2}
 .jr-ligne.jr-recoit{outline:4px dashed var(--lime);outline-offset:3px;background:#F2FFE2}
+
+/* ── l'horaire se règle comme une liste ── */
+.hor-liste{display:flex;flex-direction:column;gap:7px}
+.hor-ligne{
+  display:grid;grid-template-columns:26px 26px 1fr 1.1fr 36px;gap:8px;align-items:center;
+  background:#fff;color:var(--ink);border:3px solid var(--noir);border-radius:11px;
+  box-shadow:2px 2px 0 var(--noir);padding:6px 9px;
+}
+.hor-ligne--pause{background:#FFFDEB;border-style:dashed}
+.hor-ligne .prise{cursor:grab;font-size:18px;color:#8A97A0;text-align:center;user-select:none}
+.hor-ligne .hor-quoi{font-size:17px;text-align:center}
+.hor-ligne .hor-nom{font-family:var(--f-titre);font-size:16px}
+.hor-ligne .hor-h{font-family:var(--f-main);font-size:16px}
+.hor-ligne .hor-sup{padding:1px 7px;font-size:11px}
+.hor-ligne.drag{opacity:.4}
+.hor-ligne.over{outline:4px dashed var(--orange);outline-offset:2px}
+@media(max-width:620px){ .hor-ligne{grid-template-columns:22px 22px 1fr 30px}
+  .hor-ligne .hor-h{grid-column:3/5} }

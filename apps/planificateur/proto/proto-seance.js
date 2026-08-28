@@ -678,7 +678,7 @@ peindreAgenda = function(){
   const jours=[]; for(let i=0;i<5;i++) jours.push(isoDe(new Date(dateDeIso(agLundi).getTime()+i*UN_JOUR)));
   const cases=$$('.ag-case', g);
   let k=0;
-  AG_PERIODES.filter(p=>!p.pause).forEach(p=>{
+  periodesAgenda().filter(p=>!p.pause).forEach(p=>{
     jours.forEach(iso=>{
       const c=cases[k++]; if(!c) return;
       c.dataset.iso=iso; c.dataset.per=p.n;

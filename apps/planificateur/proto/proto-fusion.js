@@ -1154,11 +1154,21 @@ function peindreCarnet(){
    samedi / dimanche / commentaires.
    Différence avec le papier : les cases ne sont pas vides. Elles montrent ce
    qui est consigné sous `kctx()` — donc l'agenda se remplit tout seul. */
-const AG_PERIODES = [
-  {n:1, h:'8:00 à 8:50'}, {n:2, h:'8:50 à 9:40'}, {pause:'Récréation'},
-  {n:3, h:'10:00 à 10:50'}, {n:4, h:'10:50 à 11:40'}, {pause:'Dîner'},
-  {n:5, h:'13:05 à 13:55'}, {pause:'Récréation'}, {n:6, h:'14:15 à 15:05'},
-];
+/* ⚠ L'horaire est une DONNÉE, plus une liste figée. Une fonction, pas une
+   `const` : un `const` au niveau global n'est pas une propriété de window, on
+   ne peut donc pas l'intercepter — ma première tentative n'avait aucun effet
+   et l'agenda gardait ses six périodes. */
+function periodesAgenda(){
+  if (typeof horaire === 'function'){
+    const l = horaire();
+    return l.map((x,i)=> x.t==='r'
+      ? {pause: x.nom + (x.h ? ' · '+x.h : '')}
+      : {n: numPeriode(l,i), h: x.h || '—'});
+  }
+  return [{n:1,h:'8:00 à 8:50'},{n:2,h:'8:50 à 9:40'},{pause:'Récréation'},
+          {n:3,h:'10:00 à 10:50'},{n:4,h:'10:50 à 11:40'},{pause:'Dîner'},
+          {n:5,h:'13:05 à 13:55'},{pause:'Récréation'},{n:6,h:'14:15 à 15:05'}];
+}
 let agLundi = null;
 
 function lundiDe(iso){
@@ -1210,7 +1220,7 @@ function peindreAgenda(){
     g.appendChild(c);
   });
 
-  AG_PERIODES.forEach(p=>{
+  periodesAgenda().forEach(p=>{
     if (p.pause){ g.appendChild(Object.assign(el('div','ag-pause',p.pause),{})); return; }
     const per=el('div','ag-per','Période '+p.n);
     per.appendChild(el('small',null,p.h)); g.appendChild(per);
