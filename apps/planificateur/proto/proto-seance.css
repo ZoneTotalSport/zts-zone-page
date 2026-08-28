@@ -356,3 +356,47 @@
 .pt-per--ici{background:#E6F4FA;box-shadow:0 0 0 3px var(--jaune)}
 .pt-per .quand{font-family:var(--f-titre);font-size:15px;letter-spacing:.3px;margin-bottom:3px}
 .pt-per .quoi{font-family:var(--f-note);font-size:16px;line-height:1.25}
+
+/* ═════ L'ÉVALUATION EN UNE SEULE CASE ═════
+   Cinq boutons par élève ET par critère débordaient de l'écran. Il n'en reste
+   qu'un, qui tourne d'un cran par clic. La légende dit l'ordre du tour — sans
+   elle, une case vierge ne raconte rien. */
+.ev-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.ev-mien{flex:1;min-width:190px;max-width:380px}
+.ev-legende{
+  display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:11px;
+  font-family:var(--f-note);font-size:15px;color:var(--ink-soft);
+}
+.ev-legende .p{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:32px;height:27px;padding:0 5px;background:#fff;color:var(--ink);
+  border:3px solid var(--noir);border-radius:9px;
+  font-family:var(--f-titre);font-size:14px;letter-spacing:.5px;
+}
+.ev-legende .p--vide{border-style:dashed;color:var(--ink-soft)}
+.ech-cycle{
+  display:block;width:100%;min-width:46px;height:38px;cursor:pointer;
+  font-family:var(--f-titre);font-size:16px;letter-spacing:.5px;
+  background:#fff;color:var(--ink);
+  border:3px solid var(--noir);border-radius:10px;box-shadow:2px 2px 0 var(--noir);
+}
+.ech-cycle--vide{background:#F7FBFD;border-style:dashed;box-shadow:none}
+.ech-cycle:hover{outline:3px solid var(--jaune);outline-offset:1px}
+/* l'en-tête d'une colonne : son nom, et le ✕ qui la retire */
+.gril th{position:relative;padding:5px 20px 5px 6px}
+.gril th .ti{display:block;line-height:1.15}
+.gril th .ti--mien{cursor:pointer;text-decoration:underline dotted}
+.th-x{
+  position:absolute;top:3px;right:3px;cursor:pointer;line-height:1;
+  font-size:9px;padding:1px 4px;
+  background:var(--rose);color:#2A0010;border:2px solid var(--noir);border-radius:6px;
+}
+/* Une colonne de cotes n'a plus besoin de largeur : elle ne porte qu'une case.
+   On la serre, et le nom du critère s'enroule au-dessus plutôt que d'étirer
+   toute la table — c'est là qu'est l'économie de place demandée. */
+.gril td.el{width:210px}
+.gril td:not(.el){width:96px}
+.gril th{max-width:120px}
+/* ⚠ `overflow-wrap:anywhere` coupait AU MILIEU des mots — « DÉMAR QUAGE ».
+   `break-word` ne coupe que si le mot seul déborde de sa colonne. */
+.gril th .ti{overflow-wrap:break-word}

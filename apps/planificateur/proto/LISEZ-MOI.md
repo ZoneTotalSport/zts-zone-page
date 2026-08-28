@@ -273,3 +273,34 @@ un clic sur ++ n'aurait jamais de couleur. Compter les clés de `s.notes` compte
 donc les élèves qui vont très bien. Ce qui est **sous** le maximum se compte
 avec `cotesSousMax()` (`proto-portrait.js`). Un second clic sur le même palier
 efface la cote.
+
+## L'évaluation en une seule case — 28 août
+
+Cinq boutons par élève **et** par critère débordaient de l'écran. Il n'en reste
+**qu'un**, qui tourne d'un cran par clic :
+
+```
+vierge → ++ → + → +/- → - → -- → vierge
+```
+
+Chaque cran porte sa couleur. **Clic droit : on recule d'un cran** — sans lui,
+revenir de « -- » à « ++ » obligerait à refaire tout le tour.
+
+⚠ **Une légende est obligatoire au-dessus de la grille.** Une case vierge ne
+raconte rien : sans la légende, personne ne devine qu'un deuxième clic donne
+« + ». Elle se construit à partir de `facon().v`, donc elle suit le réglage
+d'échelle et le nombre de niveaux.
+
+## Personnaliser les critères
+
+- **Un critère à moi** s'écrit directement au-dessus de la grille (Entrée ou
+  « + AJOUTER »). Il est stocké `moi|<texte>` et son en-tête est **cliquable
+  pour le renommer**, en pointillé.
+- **Le ✕ d'un en-tête** retire la colonne et ses cotes.
+- ⚠ **« ✎ CHANGER CE QUE J'ÉVALUE » vidait `evalCrits` avant d'ouvrir** : il
+  fallait perdre sa grille pour avoir le droit de la retoucher. Il ouvre
+  maintenant `choisirCriteres()`, qui recharge la liste existante.
+
+⚠ **La clé d'une cote est `<élève>|<critère>` et le critère contient lui-même
+des « | »** (`moi|texte`, `agir|10`, `1|2|3`). On coupe donc au **premier** `|`
+seulement — partout où l'on retrouve les cotes d'une colonne.

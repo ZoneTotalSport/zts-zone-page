@@ -517,17 +517,83 @@ function volet(quoi){
       d.appendChild(gabarits());
       return;
     }
-    const bar=el('div'); bar.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px';
+    const bar=el('div','ev-bar');
     const chg=el('button','mini','✎ CHANGER CE QUE J’ÉVALUE'); chg.type='button';
-    chg.addEventListener('click',()=>{ majSeance(x=>x.evalCrits=[]); volet('evaluation'); });
-    bar.appendChild(chg); d.appendChild(bar);
-    /* ⚠ TOUT LE MONDE PART AU MAXIMUM. Une case sans note affiche le meilleur
-       symbole : le prof ne descend que ceux qui doivent l'être, il ne coche
-       pas 30 élèves pour dire qu'ils vont bien. */
+    /* ⚠ CE BOUTON VIDAIT `evalCrits` AVANT D'OUVRIR le choix : il fallait
+       perdre sa grille pour avoir le droit de la retoucher. `choisirCriteres()`
+       recharge la liste existante — on ouvre dessus, sans rien jeter. */
+    chg.addEventListener('click',()=> choisirCriteres());
+    bar.appendChild(chg);
+    /* écrire un critère à soi sans quitter la grille */
+    const champ=document.createElement('input');
+    champ.className='m-saisie ev-mien';
+    champ.placeholder='Un critère à moi… (Entrée pour ajouter)';
+    champ.setAttribute('aria-label','Écrire un critère à moi');
+    const add=el('button','mini mini--lime','+ AJOUTER'); add.type='button';
+    const poser=()=>{ const v=champ.value.trim(); if(!v) return;
+      majSeance(x=>{ x.evalCrits=[...(x.evalCrits||[]), 'moi|'+v]; });
+      volet('evaluation'); };
+    add.addEventListener('click', poser);
+    champ.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); poser(); } });
+    bar.appendChild(champ); bar.appendChild(add);
+    d.appendChild(bar);
+
     const ech={v: facon().v};
+    /* ⚠ SANS LÉGENDE, UNE CASE VIERGE NE DIT PAS CE QU'ELLE CACHE. La grille
+       n'a plus qu'une case par croisement : l'ordre du tour doit être écrit
+       quelque part, sinon personne ne devine qu'un deuxième clic donne « + ». */
+    const leg=el('div','ev-legende');
+    leg.appendChild(el('span','l','Un clic à la fois :'));
+    ech.v.forEach(([sym,lab,val])=>{
+      const q=el('span','p',sym); q.style.background=teinteVal(val);
+      q.title=lab+' ('+val+'/100)';
+      leg.appendChild(q);
+    });
+    const rien=el('span','p p--vide','∅'); rien.title='Rien de noté';
+    leg.appendChild(rien);
+    leg.appendChild(el('span','l','puis on recommence. Clic droit : reculer.'));
+    d.appendChild(leg);
+
     const t=el('table','gril');
     const th=el('tr'); th.appendChild(el('th',null,'Élève'));
-    crits.forEach(c=> th.appendChild(el('th',null, libelleCrit(c))));
+    crits.forEach(c=>{
+      const h=el('th');
+      const amoi = String(c).indexOf('moi|')===0;
+      const lab=el('span','ti'+(amoi?' ti--mien':''), libelleCrit(c));
+      if (amoi){
+        lab.title='Renommer ce critère';
+        lab.addEventListener('click',()=>{
+          const v=prompt('Renommer ce critère :', libelleCrit(c)); if(v===null) return;
+          const nv=v.trim(); if(!nv || nv===libelleCrit(c)) return;
+          majSeance(y=>{
+            y.evalCrits=(y.evalCrits||[]).map(z=> z===c ? 'moi|'+nv : z);
+            /* ⚠ la clé d'une cote est `<élève>|<critère>` et le critère
+               contient LUI-MÊME des « | ». On coupe au PREMIER seulement. */
+            Object.keys(y.notes||{}).forEach(kk=>{
+              const coupe=kk.indexOf('|');
+              if (kk.slice(coupe+1)===c){
+                y.notes[kk.slice(0,coupe)+'|moi|'+nv]=y.notes[kk];
+                delete y.notes[kk];
+              }});
+          });
+          volet('evaluation');
+        });
+      }
+      h.appendChild(lab);
+      const x=el('button','th-x','✕'); x.type='button';
+      x.title='Retirer « '+libelleCrit(c)+' » de la grille';
+      x.addEventListener('click',()=>{
+        if(!confirm('Retirer « '+libelleCrit(c)+' » ?\n\nLes cotes de cette colonne seront perdues.')) return;
+        majSeance(y=>{
+          y.evalCrits=(y.evalCrits||[]).filter(z=>z!==c);
+          Object.keys(y.notes||{}).forEach(kk=>{
+            if (kk.slice(kk.indexOf('|')+1)===c) delete y.notes[kk]; });
+        });
+        volet('evaluation');
+      });
+      h.appendChild(x);
+      th.appendChild(h);
+    });
     const tb=el('tbody'); tb.appendChild(th);
     g.eleves.forEach(i=>{
       const tr=el('tr'); const td=el('td','el');
@@ -535,33 +601,42 @@ function volet(quoi){
       const im=document.createElement('img'); im.src=visageDe(i); im.alt='';
       v.appendChild(im); v.appendChild(el('b',null,ELEVES[i]));
       td.appendChild(v); tr.appendChild(td);
+      /* ═════ UNE SEULE CASE, QUI TOURNE ═════
+         Joey, 28 août : « pour économiser de la place, permets de peser sur la
+         petite case et les symboles apparaissent avec la bonne couleur : un
+         premier clic et ++ apparaît, on repèse et ça affiche + avec l'autre
+         vert, etc. »
+         Cinq boutons par élève ET par critère mangeaient toute la largeur ; il
+         n'en reste qu'un. Le tour : vierge → ++ → + → +/- → - → -- → vierge.
+         ⚠ RIEN N'EST COLORÉ TANT QU'ON N'A PAS CLIQUÉ. La règle « tout le monde
+         part au maximum » reste vraie pour LIRE une cote absente — elle ne se
+         peint simplement plus d'avance.
+         ⚠ Le clic droit RECULE d'un cran : sans lui, revenir de « -- » à « ++ »
+         obligerait à refaire tout le tour. */
       crits.forEach(cle=>{
-        const c=el('td'); const grp=el('div','cotes');
-        ech.v.forEach(([sym,lab,val])=>{
-          const b=el('button','ech-case',sym); b.type='button';
-          /* ⚠ RIEN N'EST COLORÉ TANT QU'ON N'A PAS CLIQUÉ. Joey, 28 août :
-             « par défaut pour évaluation, ne mets rien, pas de couleurs ;
-             seulement si on clique dessus il a une couleur. »
-             La règle « tout le monde part au maximum » reste vraie pour LIRE
-             une cote absente — elle ne se PEINT simplement plus d'avance.
-             Conséquence : le maximum s'enregistre lui aussi maintenant, sinon
-             le clic sur ++ n'aurait jamais de couleur. Un second clic sur le
-             même palier le retire, et la case redevient vierge. */
-          const actuel=(s.notes||{})[i+'|'+cle];
-          const pris = actuel!==undefined && actuel===val;
-          b.setAttribute('aria-pressed', String(pris));
-          if (pris) b.style.background=teinteVal(val);
-          b.title=ELEVES[i]+' — '+libelleCrit(cle)+(lab?' — '+lab:'')+' ('+val+'/100)'
-                  +(pris?' — retoucher pour effacer':'');
-          b.addEventListener('click',()=>{
-            majSeance(x=>{ x.notes=x.notes||{}; const k=i+'|'+cle;
-              if (x.notes[k]===val) delete x.notes[k];   // reclic = on efface
-              else x.notes[k]=val; });
-            volet('evaluation');
-          });
-          grp.appendChild(b);
-        });
-        c.appendChild(grp); tr.appendChild(c);
+        const c=el('td');
+        const k=i+'|'+cle;
+        const cote=(s.notes||{})[k];
+        const idx=(cote===undefined) ? -1 : ech.v.findIndex(x=>x[2]===cote);
+        const b=el('button','ech-cycle'+(idx<0?' ech-cycle--vide':'')); b.type='button';
+        b.textContent = idx>=0 ? ech.v[idx][0] : '';
+        if (idx>=0) b.style.background=teinteVal(ech.v[idx][2]);
+        b.title=ELEVES[i]+' — '+libelleCrit(cle)+' — '
+                +(idx>=0 ? (ech.v[idx][1]||ech.v[idx][0])+' ('+ech.v[idx][2]+'/100)' : 'rien de noté')
+                +'. Touche pour le cran suivant, clic droit pour reculer.';
+        b.setAttribute('aria-label', b.title);
+        const tourner=dir=>{
+          const n=ech.v.length;
+          let j=idx+dir;
+          if (j>=n)  j=-1;          // après le dernier cran, la case se vide
+          if (j<-1)  j=n-1;         // et en reculant depuis le vide, on repart de la fin
+          majSeance(x=>{ x.notes=x.notes||{};
+            if (j<0) delete x.notes[k]; else x.notes[k]=ech.v[j][2]; });
+          volet('evaluation');
+        };
+        b.addEventListener('click',()=> tourner(1));
+        b.addEventListener('contextmenu', ev=>{ ev.preventDefault(); tourner(-1); });
+        c.appendChild(b); tr.appendChild(c);
       });
       tb.appendChild(tr);
     });
