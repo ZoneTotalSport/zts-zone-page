@@ -335,8 +335,12 @@ function sauverBlocs(){
     ecrire(cleOrdre(h), $$('.bloc', n).map(b=>b.id));
   });
 }
+/* MA JOURNÉE n'utilise plus les blocs : elle est devenue une simple liste
+   qu'on écrit et qu'on glisse (proto-simple.js). Le montage ne fait donc
+   rien si son hôte n'existe pas. */
 function monterBlocs(hoteId, defauts, opts){
   const hote = document.getElementById(hoteId);
+  if (!hote) return;
   const ordre = lire(cleOrdre(hoteId), null) || [];
   const neuf = !ordre.length;
   const src = neuf ? defauts.map(d=>({...d, id:nouvelId()})) : ordre.map(id=>({id}));
@@ -375,7 +379,8 @@ function remonterJournee(){
     hote.parentNode.insertBefore(inv, hote);
   } else if (!vide && inv){ inv.remove(); }
 }
-$('#addBloc').addEventListener('click', ()=>{
+const _add = $('#addBloc');
+if (_add) _add.addEventListener('click', ()=>{
   const b = faireBloc({id:nouvelId(), titre:'', desc:'', duree:0});
   $('#blocsJournee').appendChild(b); sauverBlocs(); b.querySelector('.bloc-titre').focus();
 });
@@ -443,10 +448,9 @@ function peindreJeux(){
     add.style.marginTop='6px';
     add.addEventListener('click', ()=>{
       if (blocCible){ ajouterMedia(blocCible, {type:'jeu', nom:j.n}); }
-      else {
-        const b = faireBloc({id:nouvelId(), titre:j.n, desc:j.d, duree:j.t*60});
-        $('#blocsJournee').appendChild(b); sauverBlocs();
-        ecrire('min:'+b.id, j.t*60);
+      else if (typeof jrLire === 'function'){
+        const l = jrLire(); l.push({titre:j.n, desc:j.d, duree:String(j.t)});
+        jrEcrire(l); if (typeof peindreJournee==='function') peindreJournee();
       }
       fermerTiroir(); allerA('e-journee');
     });

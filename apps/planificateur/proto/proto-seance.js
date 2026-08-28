@@ -10,6 +10,7 @@
    ========================================================================== */
 'use strict';
 
+function cleNoteCase(iso, per){ return 'agnote:'+iso+':p'+per; }
 const PALETTE_COUL = ['#00C2E8','#FFA200','#A3FF00','#FF0061','#8B5CF6','#25D8C0','#FFC107','#FF6B00'];
 const PALETTE_EMO  = ['🏀','⚽','🏐','🏸','🤾','🎾','🥍','🏓'];
 
@@ -251,8 +252,9 @@ function peindreActionsSeance(){
          : 'pas encore prises',
      faite: nPres.length>0},
     {k:'evaluation', emo:'📝', lab:'ÉVALUATION',
-     etat: (s.evalCrits||[]).length ? (s.evalCrits.length+' critère(s) · '+Object.keys(s.notes||{}).length+' note(s)')
-                                    : 'rien de configuré',
+     etat: (s.evalCrits||[]).length
+        ? (s.evalCrits.length+' critère(s) · '+Object.keys(s.notes||{}).length+' à revoir')
+        : 'rien de configuré',
      faite: (s.evalCrits||[]).length>0},
   ];
   act.forEach(a=>{
@@ -314,22 +316,29 @@ function volet(quoi){
   }
 
   if (quoi==='presences'){
-    const ETATS=[['attendu','—','à pointer'],['linge','👕','a son linge'],['sans','🚫','pas de linge'],['absent','✗','absent']];
-    const cpt={linge:0,sans:0,absent:0,attendu:0};
-    g.eleves.forEach(i=>{ cpt[(s.pres||{})[i]||'attendu']++; });
+    /* ⚠ TOUT LE MONDE A SON LINGE PAR DÉFAUT. `pres` ne garde que les
+       EXCEPTIONS : un élève absent de la table a son linge. C'est le geste
+       réel d'un prof — il pointe ceux qui manquent, pas les autres. */
+    const ETATS=[['linge','👕','a son linge'],['sans','🚫','pas de linge'],['absent','✗','absent']];
+    const cpt={linge:0,sans:0,absent:0};
+    g.eleves.forEach(i=>{ cpt[(s.pres||{})[i]||'linge']++; });
     const c=el('div','pres-compte');
-    c.innerHTML='<span class="l"></span><span class="s"></span><span class="a"></span><span></span>';
+    c.innerHTML='<span class="l"></span><span class="s"></span><span class="a"></span>';
     c.children[0].textContent='👕 '+cpt.linge+' avec linge';
     c.children[1].textContent='🚫 '+cpt.sans+' sans linge';
     c.children[2].textContent='✗ '+cpt.absent+' absent'+(cpt.absent>1?'s':'');
-    c.children[3].textContent='— '+cpt.attendu+' à pointer';
     d.appendChild(c);
     const aide=el('div','aide-un-mot');
-    aide.innerHTML='<span class="emo">👆</span>Touche un visage : <b>a son linge</b> → <b>pas de linge</b> → <b>absent</b> → à pointer.';
+    aide.innerHTML='<span class="emo">👕</span>Tout le monde a son linge. <b>Touche seulement ceux qui manquent</b> : '
+      +'une fois pour « pas de linge », deux fois pour « absent ».';
     d.appendChild(aide);
+    const tout=el('button','mini','↺ TOUT LE MONDE A SON LINGE'); tout.type='button';
+    tout.style.marginBottom='10px';
+    tout.addEventListener('click',()=>{ majSeance(x=>x.pres={}); volet('presences'); });
+    d.appendChild(tout);
     const gr=el('div','pres-grille');
     g.eleves.forEach(i=>{
-      const et=(s.pres||{})[i]||'attendu';
+      const et=(s.pres||{})[i]||'linge';
       const b=el('button','pres-el pres-el--'+et); b.type='button';
       const im=document.createElement('img'); im.src=visageDe(i); im.alt='';
       b.appendChild(im);
@@ -338,10 +347,10 @@ function volet(quoi){
       b.appendChild(el('div','etat', e[1]+' '+e[2]));
       b.title=ELEVES[i]+' — '+e[2];
       b.addEventListener('click',()=>{
-        const ordre=['attendu','linge','sans','absent'];
+        const ordre=['linge','sans','absent'];
         const k=ordre.indexOf(et);
-        majSeance(x=>{ x.pres=x.pres||{}; const n=ordre[(k+1)%4];
-          if (n==='attendu') delete x.pres[i]; else x.pres[i]=n; });
+        majSeance(x=>{ x.pres=x.pres||{}; const n=ordre[(k+1)%3];
+          if (n==='linge') delete x.pres[i]; else x.pres[i]=n; });
         volet('presences');
       });
       gr.appendChild(b);
@@ -363,7 +372,10 @@ function volet(quoi){
     const chg=el('button','mini','✎ CHANGER CE QUE J’ÉVALUE'); chg.type='button';
     chg.addEventListener('click',()=>{ majSeance(x=>x.evalCrits=[]); volet('evaluation'); });
     bar.appendChild(chg); d.appendChild(bar);
-    const ech=ECHELLES[echelle];
+    /* ⚠ TOUT LE MONDE PART AU MAXIMUM. Une case sans note affiche le meilleur
+       symbole : le prof ne descend que ceux qui doivent l'être, il ne coche
+       pas 30 élèves pour dire qu'ils vont bien. */
+    const ech={v: facon().v};
     const t=el('table','gril');
     const th=el('tr'); th.appendChild(el('th',null,'Élève'));
     crits.forEach(c=> th.appendChild(el('th',null, libelleCrit(c))));
@@ -378,13 +390,15 @@ function volet(quoi){
         const c=el('td'); const grp=el('div','cotes');
         ech.v.forEach(([sym,lab,val])=>{
           const b=el('button','ech-case',sym); b.type='button';
-          const actuel=(s.notes||{})[i+'|'+cle];
+          const actuel=(s.notes||{})[i+'|'+cle] !== undefined
+                       ? (s.notes||{})[i+'|'+cle] : maxFacon();
           b.setAttribute('aria-pressed', String(actuel===val));
           if (actuel===val) b.style.background=teinteVal(val);
           b.title=ELEVES[i]+' — '+libelleCrit(cle)+(lab?' — '+lab:'')+' ('+val+'/100)';
           b.addEventListener('click',()=>{
             majSeance(x=>{ x.notes=x.notes||{}; const k=i+'|'+cle;
-              if (x.notes[k]===val) delete x.notes[k]; else x.notes[k]=val; });
+              if (val===maxFacon()) delete x.notes[k];   // au max = rien à consigner
+              else x.notes[k]=val; });
             volet('evaluation');
           });
           grp.appendChild(b);
@@ -659,7 +673,13 @@ peindreAgenda = function(){
           poserSeance(iso,p.n,null); });
         c.appendChild(x);
       } else {
-        c.appendChild(el('span','rien','—'));
+        /* MON CAHIER a été retiré : la case elle-même s'écrit. */
+        const n=el('div','ag-note'); n.contentEditable='true';
+        n.dataset.vide='—'; n.dataset.k=cleNoteCase(iso,p.n);
+        n.textContent=lire('ed:'+n.dataset.k,'')||'';
+        n.addEventListener('click',e=>e.stopPropagation());
+        n.addEventListener('input',()=>ecrire('ed:'+n.dataset.k, n.textContent));
+        c.appendChild(n);
       }
       /* déposer un groupe */
       c.addEventListener('dragover', e=>{

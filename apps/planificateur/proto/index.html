@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=27">
-<link rel="stylesheet" href="proto-fusion.css?v=27">
-<link rel="stylesheet" href="proto-boutons.css?v=27">
-<link rel="stylesheet" href="proto-seance.css?v=27">
+<link rel="stylesheet" href="proto.css?v=30">
+<link rel="stylesheet" href="proto-fusion.css?v=30">
+<link rel="stylesheet" href="proto-boutons.css?v=30">
+<link rel="stylesheet" href="proto-seance.css?v=30">
+<link rel="stylesheet" href="proto-simple.css?v=30">
 </head>
 <body>
 
@@ -29,7 +30,6 @@
   <span class="ou">J'ÉCRIS DANS</span>
   <select id="ctxGroupeSel" aria-label="Groupe"></select>
   <span style="flex:1"></span>
-  <button type="button" data-va="e-cahier">📔 MON CAHIER</button>
 </div>
 
 <div class="wrap">
@@ -55,26 +55,12 @@
 <!-- ═══════════════ 2. MA JOURNÉE ═══════════════ -->
 <section class="ecran" id="e-journee">
   <h1 class="titre">Ma journée</h1>
-  <p class="sous">Glisse les blocs pour les replacer. Coche quand c'est fait.</p>
+  <div class="aide-un-mot"><span class="emo">✍️</span>
+    Écris directement dans les lignes. Glisse le ⠿ pour changer l'ordre.
+    Une ligne vidée disparaît.</div>
   <div class="pan">
-    <h2>Mon cours</h2>
-    <div class="cours-tete" style="margin-bottom:14px">
-      <div><b>Cours&nbsp;:</b>
-        <div contenteditable data-k="c-cours" data-vide="Basketball — le dribble"></div>
-        <div class="cycles">
-          <label><input type="checkbox" data-k="c-cy1"> 1<sup>er</sup> cycle</label>
-          <label><input type="checkbox" data-k="c-cy2"> 2<sup>e</sup> cycle</label>
-          <label><input type="checkbox" data-k="c-cy3"> 3<sup>e</sup> cycle</label>
-        </div></div>
-      <div><b>Début&nbsp;:</b><div contenteditable data-k="c-debut" data-vide="10:00"></div></div>
-      <div class="duree-boite"><div contenteditable data-k="c-duree" data-vide="50"
-        style="font-family:var(--f-titre);font-size:22px"></div>Durée</div>
-    </div>
-    <div class="blocs" id="blocsJournee"></div>
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-      <button type="button" class="mini mini--lime" id="addBloc">+ AJOUTER UN BLOC</button>
-      <button type="button" class="mini" data-tiroir>🎲 PIGER DANS LES JEUX</button>
-    </div>
+    <h2><span id="jrDate"></span></h2>
+    <div class="jr-liste" id="jrListe"></div>
   </div>
 </section>
 
@@ -260,17 +246,7 @@
   </div>
 </section>
 
-<!-- ═══════════════ CAHIER ═══════════════ -->
-<section class="ecran" id="e-cahier">
-  <h1 class="titre">Mon cahier</h1>
-  <div class="aide-un-mot"><span class="emo">📔</span>
-    Tout ce que tu fais ailleurs vient s'écrire ici, à la bonne date et au bon groupe.
-    Tu n'as jamais à le recopier.</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-    <button type="button" class="mini mini--jaune" id="cahImprimer">🖨️ IMPRIMER</button>
-  </div>
-  <div id="cahHote"></div>
-</section>
+
 
 <!-- ═══════════════ TESTS ═══════════════ -->
 <section class="ecran" id="e-tests">
@@ -484,8 +460,9 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=27"></script>
-<script src="proto-fusion.js?v=27"></script>
-<script src="proto-seance.js?v=27"></script>
+<script src="proto.js?v=30"></script>
+<script src="proto-fusion.js?v=30"></script>
+<script src="proto-seance.js?v=30"></script>
+<script src="proto-simple.js?v=30"></script>
 </body>
 </html>

@@ -223,8 +223,11 @@ enrichirTousLesBlocs();
 });
 
 /* ── Live et TBI, posés dans MA JOURNÉE ── */
+/* Joey : « enlève tous les boutons » de MA JOURNÉE. La séance en direct et le
+   mode tableau blanc sont donc posés dans les RÉGLAGES, pas sur l'écran de
+   travail quotidien. */
 (function liveEtTbi(){
-  const hote=$('#e-journee .pan'); if(!hote) return;
+  const hote=$('#e-reglages'); if(!hote) return;
   const barre=el('div'); barre.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px';
   const live=el('button','mini mini--rose','▶ DÉMARRER LA SÉANCE'); live.type='button';
   const etat=el('span'); etat.style.cssText='font-family:var(--f-titre);letter-spacing:1px;align-self:center';
@@ -247,8 +250,10 @@ enrichirTousLesBlocs();
     tbi.setAttribute('aria-pressed',String(on)); tbi.textContent = on?'📺 QUITTER LE TABLEAU BLANC':'📺 MODE TABLEAU BLANC'; };
   tbi.addEventListener('click',()=>{ ecrire('tbi',!lire('tbi',false)); majTbi(); });
   majTbi();
+  const boite=el('div','reg-section');
+  boite.innerHTML='<h3>▶ Pendant le cours</h3>';
   barre.appendChild(live); barre.appendChild(etat); barre.appendChild(tbi);
-  hote.insertBefore(barre, hote.querySelector('.blocs'));
+  boite.appendChild(barre); hote.appendChild(boite);
   peindre();
 })();
 
@@ -1049,9 +1054,8 @@ function releveDuJour(iso, gr){
   ctxDate=iso; ctxGroupe=gr;                     // on se place sur la page…
   const r={blocs:[], presences:{present:0,parti:0,absent:0,attendu:0}, departs:[],
            cotes:0, crits:0, leger:0, etoiles:0, bancs:0, obs:[]};
-  (lire(kctx('ord'), null)||[]).forEach(id=>{
-    const t=lire('ed:'+id+'-t',''); if(!t) return;
-    r.blocs.push({titre:t, fait:!!lire('ck:'+id+'-f',false), type:(lire('opt:'+id,{}).type||'activite')});
+  (lire(kctx('jr'), null)||[]).forEach(b=>{
+    if (b && b.titre) r.blocs.push({titre:b.titre, fait:false, type:'activite'});
   });
   ENFANTS.forEach((e,i)=>{
     /* ⚠ Le comptage des cotes était DANS la branche « a une présence » : un
@@ -1078,6 +1082,8 @@ function rienDeRien(r){
       && r.presences.present===0 && r.presences.parti===0 && r.presences.absent===0;
 }
 
+/* MON CAHIER a été retiré : il vit dans MA SEMAINE, dont les cases
+   s'écrivent directement. La fonction reste sans effet. */
 function peindreCahier(){
   const h=$('#cahHote'); if(!h) return;
   h.innerHTML='';
@@ -1174,7 +1180,7 @@ function peindreCahier(){
 /* Le cahier se rafraîchit dès qu'on revient dessus — il relit, il ne stocke pas. */
 (function cahierVivant(){
   const base = allerA;
-  window.allerA = function(id){ base(id); if (id==='e-cahier') peindreCahier(); };
+  window.allerA = function(id){ base(id); };
 })();
 peindreCtxBarre();
 peindreCahier();
@@ -1188,7 +1194,6 @@ const MENUS = [
   {direct:'e-accueil',   lab:'🏠 MA SEMAINE'},
   {direct:'e-journee',   lab:'📋 MA JOURNÉE'},
   {direct:'e-presences', lab:'✅ PRÉSENCES'},
-  {direct:'e-cahier',    lab:'📔 MON CAHIER'},
   {lab:'⭐ ÉVALUER', quoi:[
     ['e-evaluation','📝 Évaluation','Poser mes cotes du jour'],
     ['e-carnet','📊 Carnet de notes','Toutes mes cotes, en grille'],
@@ -1418,10 +1423,8 @@ function lundiDe(iso){
 }
 function blocsDuJour(iso){
   const md=ctxDate; ctxDate=iso;
-  const out=(lire(kctx('ord'), null)||[]).map(id=>({
-    id, titre:lire('ed:'+id+'-t',''), fait:!!lire('ck:'+id+'-f',false),
-    type:(lire('opt:'+id,{}).type||'activite'), coul:(lire('opt:'+id,{}).coul||'')
-  })).filter(b=>b.titre);
+  const out=(lire(kctx('jr'), null)||[]).filter(b=>b&&b.titre)
+    .map(b=>({titre:b.titre, fait:false, type:'activite', coul:''}));
   ctxDate=md; return out;
 }
 function peindreAgenda(){

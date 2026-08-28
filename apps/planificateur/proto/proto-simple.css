@@ -1,0 +1,56 @@
+/* ==========================================================================
+   SIMPLIFICATION — demandée par Joey le 28 août.
+   « Dans ma journée, mets simplement glisse-dépose. Je trouve que c'est
+   tellement chargé et compliqué. Permets simplement d'éditer, enlève tous
+   les boutons. »
+   Donc : MA JOURNÉE n'a plus AUCUN bouton. On écrit dans la ligne, on glisse
+   la poignée, on vide une ligne pour l'effacer. Les médias, la minuterie et
+   les couleurs vivent dans la séance de l'agenda, là où on en a besoin.
+   ========================================================================== */
+.jr-liste{display:flex;flex-direction:column;gap:8px}
+.jr-ligne{
+  display:grid;grid-template-columns:30px 1fr 82px;gap:9px;align-items:start;
+  background:#fff;color:var(--ink);border:3px solid var(--noir);border-radius:13px;
+  box-shadow:3px 3px 0 var(--noir);padding:9px 11px;
+}
+.jr-ligne .prise{
+  cursor:grab;font-size:21px;color:#8A97A0;user-select:none;text-align:center;
+  line-height:1.4;align-self:center;
+}
+.jr-ligne .prise:active{cursor:grabbing}
+.jr-ligne .ti{font-family:var(--f-titre);font-size:18px;letter-spacing:.2px}
+.jr-ligne .de{font-family:var(--f-main);font-size:17px;margin-top:3px}
+.jr-ligne .du{
+  font-family:var(--f-titre);font-size:17px;text-align:center;align-self:center;
+  background:#E4F8FD;border:2px solid var(--noir);border-radius:9px;padding:3px;
+}
+.jr-ligne.drag{opacity:.4}
+.jr-ligne.over{outline:4px dashed var(--orange);outline-offset:3px}
+.jr-ligne--neuve{border-style:dashed;background:#FAFDFF;box-shadow:none}
+.jr-ligne--neuve .prise{opacity:.3}
+@media(max-width:560px){ .jr-ligne{grid-template-columns:26px 1fr 66px;gap:7px} }
+
+/* ── les cases de l'agenda s'écrivent directement ── */
+.ag-note{
+  display:block;width:100%;font-family:var(--f-main);font-size:14px;line-height:1.2;
+  min-height:18px;margin-top:3px;
+}
+.ag-note:empty::before{content:attr(data-vide);color:#8A97A0;font-family:var(--f-note);font-size:14px}
+
+/* ── réglage de la façon de noter ── */
+.note-choix{display:flex;gap:8px;flex-wrap:wrap}
+.note-choix button{
+  cursor:pointer;padding:8px 12px;border:3px solid var(--noir);border-radius:12px;
+  box-shadow:3px 3px 0 var(--noir);background:#F1F7FA;color:var(--ink);
+  font-family:var(--f-titre);font-size:15px;text-align:left;
+}
+.note-choix button[aria-pressed="true"]{background:var(--lime);color:#1E3300}
+.note-choix button small{
+  display:block;font-family:var(--f-note);font-size:15px;font-weight:400;color:var(--ink-soft);
+}
+.note-apercu{
+  display:flex;gap:4px;margin-top:5px;font-family:var(--f-titre);font-size:15px;
+}
+.note-apercu span{
+  border:2px solid var(--noir);border-radius:7px;padding:0 7px;background:#fff;color:var(--ink);
+}
