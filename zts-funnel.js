@@ -113,6 +113,12 @@
           source: 'auth',
           method: data.method || 'unknown',
           signup_source: data.signup_source || 'direct',
+          // Parametre d'evenement, PAS une dimension personnalisee. Ne pas
+          // l'enregistrer comme telle dans GA4 : 1440 fiches + 27 articles
+          // feraient plafonner la cardinalite et rempliraient (other). La
+          // question « quelle fiche convertit » se lit dans Firestore, ou le
+          // champ `slug` ci-dessous porte la meme valeur sans plafond.
+          signup_slug: data.signup_slug || null,
         });
       }
     } catch (e) {}
@@ -125,7 +131,10 @@
         return db.collection('conversionFunnel').add({
           event: 'signup_complete',
           source: 'auth',
-          slug: null,
+          // `slug: null` etait code en dur depuis l'origine : le schema
+          // reservait la place, personne ne la remplissait. C'est ce champ qui
+          // repond a « quelle fiche, quel article convertit ».
+          slug: data.signup_slug ? String(data.signup_slug) : null,
           layer: null,
           provider: null,
           method: data.method ? String(data.method) : null,
