@@ -202,7 +202,10 @@ function symboleDe(val){
   const basePoser = window.poserContexte;
   window.poserContexte = function(iso, gr){ basePoser(iso, gr); peindreJournee(); };
   const baseAller = window.allerA;
-  window.allerA = function(id){ baseAller(id); if (id==='e-journee') peindreJournee(); };
+  /* ⚠ Cet enrobage repeignait `e-journee`, un écran retiré : la condition
+     n'était jamais vraie. On garde l'enrobage — d'autres s'y greffent — mais
+     plus la branche morte. */
+  window.allerA = function(id){ baseAller(id); };
   peindreJournee();
 })();
 

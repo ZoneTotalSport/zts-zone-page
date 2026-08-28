@@ -93,66 +93,14 @@ function ouvrirJour(iso){
   ecran.insertBefore(z, ecran.querySelector('.pan'));
 })();
 
-/* ═════════ E. L'HISTORIQUE D'UN ÉLÈVE ═════════ */
-function toutesLesSeances(){
-  const out=[];
-  Object.keys(localStorage).forEach(k=>{
-    const m=/^protog2:se:(\d{4}-\d{2}-\d{2}):p(\d+)$/.exec(k);
-    if (!m) return;
-    try { out.push({iso:m[1], per:+m[2], s:JSON.parse(localStorage.getItem(k))}); } catch(e){}
-  });
-  return out.sort((a,b)=> a.iso===b.iso ? a.per-b.per : (a.iso<b.iso?1:-1));
-}
-function dossierEleve(i){
-  const oublis=[], absences=[], mots=[];
-  toutesLesSeances().forEach(({iso,per,s})=>{
-    if (!s || !grpDe(s.gr)) return;
-    if (!(grpDe(s.gr).eleves||[]).includes(i)) return;
-    const et=(s.pres||{})[i];
-    if (et==='sans')   oublis.push({iso,per,gr:grpDe(s.gr).nom});
-    if (et==='absent') absences.push({iso,per,gr:grpDe(s.gr).nom});
-    if ((s.message||'').trim()) mots.push({iso,per,gr:grpDe(s.gr).nom,txt:s.message.trim()});
-  });
-  return {oublis, absences, mots};
-}
-function ouvrirDossier(i){
-  const d=dossierEleve(i);
-  const corps=ouvrirModale(ELEVES[i]);
-  corps.innerHTML=`
-    <div class="se-tete" style="background:#F4FAFD;color:var(--ink)">
-      <img class="img" alt="" src="${visageDe(i)}">
-      <div><h3>${ELEVES[i]}</h3>
-        <div class="quand">depuis le début de l'année</div></div>
-    </div>
-    <div class="pres-compte" style="margin-bottom:14px">
-      <span class="s">🚫 ${d.oublis.length} oubli${d.oublis.length>1?'s':''} de linge</span>
-      <span class="a">✗ ${d.absences.length} absence${d.absences.length>1?'s':''}</span>
-      <span>💬 ${d.mots.length} mot${d.mots.length>1?'s':''}</span>
-    </div>
-    <div id="dosCorps"></div>`;
-  const h=$('#dosCorps');
-  const section=(titre, liste, rendu)=>{
-    const box=el('div','se-cours'); box.style.marginBottom='12px';
-    box.appendChild(el('h4',null,titre));
-    if (!liste.length){ box.appendChild(el('div','cahier-vide','Rien à signaler. Tant mieux.')); }
-    else liste.forEach(x=> box.appendChild(rendu(x)));
-    h.appendChild(box);
-  };
-  const ligne=x=>{
-    const n=el('div','hist-ligne');
-    n.appendChild(el('b',null, jourLisible(x.iso)));
-    n.appendChild(el('span',null,'période '+x.per+' · groupe '+x.gr));
-    return n;
-  };
-  section('🚫 Oublis de linge ('+d.oublis.length+')', d.oublis, ligne);
-  section('✗ Absences ('+d.absences.length+')', d.absences, ligne);
-  section('💬 Ce que j’ai noté ('+d.mots.length+')', d.mots, x=>{
-    const n=el('div','journal-entree');
-    n.appendChild(el('div','quand', jourLisible(x.iso)+' · période '+x.per+' · groupe '+x.gr));
-    n.appendChild(el('div',null,x.txt));
-    return n;
-  });
-}
+/* ═════════ E. L'HISTORIQUE D'UN ÉLÈVE — RETIRÉ ═════════
+   ⚠ Ici vivaient `toutesLesSeances()`, `dossierEleve()` et `ouvrirDossier()`.
+   Ils étaient MORTS : proto-dossiers.js définit les deux derniers sous les mêmes
+   noms et se charge APRÈS ce fichier — ses versions gagnaient à tous les coups.
+   Celles d'ici n'ont plus jamais tourné depuis que MES GROUPES a été refait en
+   trois niveaux. Retirées plutôt que laissées dormantes : deux fonctions du même
+   nom dans un projet, c'est un piège qui finit toujours par se refermer.
+   Le dossier d'un élève vit désormais dans proto-dossiers.js, et lui seul. */
 
 /* ═════════ F. PARTAGE + DONNÉES REJOIGNENT LES RÉGLAGES ═════════ */
 (function regrouperReglages(){
@@ -192,7 +140,7 @@ barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOI
 /* et le chemin du retour, depuis chacun */
 [['e-carnet','e-groupes','← MES GROUPES'],['e-bulletin','e-groupes','← MES GROUPES'],
  ['e-mois','e-calendrier','← CALENDRIER'],['e-annee','e-calendrier','← CALENDRIER'],
- ['e-tests','e-accueil','← MA SEMAINE'],['e-journee','e-accueil','← MA SEMAINE'],
+ ['e-tests','e-accueil','← MA SEMAINE'],   /* 'e-journee' retiré : l'écran n'existe plus */
  ['e-evaluation','e-accueil','← MA SEMAINE'],['e-presences','e-accueil','← MA SEMAINE'],
  ['e-messages','e-accueil','← MA SEMAINE'],['e-jeux','e-accueil','← MA SEMAINE'],
 ].forEach(([de,vers,lab])=> barreLiens(de,[[vers,lab]]));

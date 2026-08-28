@@ -53,15 +53,15 @@ function brancherEditables(racine=document){
 }
 
 /* ═════════ navigation ═════════ */
-/* Plus de tuile « PLUS » : tout est en toutes lettres, sur l'accueil ET ici. */
-const ECRANS = [
-  ['e-accueil','🏠 ACCUEIL'], ['e-journee','📋 MA JOURNÉE'], ['e-jeux','🎲 JEUX'],
-  ['e-presences','✅ PRÉSENCES'], ['e-planb','🌧️ PLAN B'], ['e-noter','⭐ NOTER'],
-  ['e-cours','🏀 FICHE DE COURS'], ['e-semaine','🗓️ SEMAINE'], ['e-mois','📅 MOIS'],
-  ['e-annee','📚 ANNÉE'], ['e-calendrier','📆 CALENDRIER'], ['e-temps','⏱️ MON TEMPS'],
-  ['e-evaluation','📝 ÉVALUATION'], ['e-bulletin','🎓 BULLETIN'], ['e-partage','📤 PARTAGE'],
-  ['e-reglages','⚙️ RÉGLAGES'],
-];
+/* ⚠ LA TABLE `ECRANS` ET SA BARRE ONT ÉTÉ RETIRÉES — IL Y AVAIT DEUX
+   NAVIGATIONS, ET LA PREMIÈRE ÉTAIT EFFACÉE PAR LA SECONDE.
+   Elle fabriquait seize boutons dans `#nav` ; `barreEnMenus()`, dans
+   proto-fusion.js, fait `n.innerHTML=''` juste après et repose les CINQ portes
+   de `MENUS`. Les seize boutons n'ont donc jamais été vus par personne.
+   Pire : HUIT de leurs seize cibles n'existent plus (e-journee, e-jeux,
+   e-presences, e-planb, e-noter, e-cours, e-semaine, e-evaluation) — c'était
+   une carte du proto d'avant la refonte en cinq portes.
+   `MENUS` est désormais la seule source de la navigation. */
 function allerA(id){
   /* garde : un écran mémorisé qui n'existe plus (e-plus, retiré) laisserait la
      page entièrement vide. */
@@ -72,13 +72,6 @@ function allerA(id){
   window.scrollTo({top:0,behavior:'instant'});
   ecrire('ecran', id);
 }
-(function nav(){
-  const n = $('#nav');
-  ECRANS.forEach(([id,lab])=>{
-    const b = el('button',null,lab); b.type='button'; b.dataset.va=id;
-    b.addEventListener('click',()=>allerA(id)); n.appendChild(b);
-  });
-})();
 document.addEventListener('click', e=>{
   const t = e.target.closest('[data-va]'); if(!t) return;
   allerA(t.dataset.va);
@@ -90,12 +83,19 @@ const METIERS = {
   camp: {tuile3:'MA JOURNÉE',  aide:'Le déroulement de la journée',    badge:970},
   sdg : {tuile3:'MA PÉRIODE',  aide:'Le bloc du service de garde',     badge:177},
 };
-/* Les tuiles de l'accueil ont laissé place à l'agenda : les cibles de
-   `poserMetier` peuvent ne plus exister. On ne touche que ce qui est là. */
+/* ⚠ CE QUE LES TROIS MÉTIERS CHANGENT VRAIMENT : LE NOMBRE, ET RIEN D'AUTRE.
+   Joey l'a vu tout de suite — « ÉPS et les deux autres corps de métiers sont
+   pareils ». C'est exact. `poserMetier` visait aussi `#tuile3`, `#tuile3aide` et
+   `#badgeJeux`, trois éléments des anciennes tuiles d'accueil, remplacées par
+   l'agenda : ces trois lignes ne touchaient plus rien depuis des semaines et
+   entretenaient l'illusion que le bouton faisait quelque chose.
+   Elles sont retirées. Le sélecteur reste — il dit à qui l'app s'adresse et
+   affiche le compte de fiches du métier — mais le code ne prétend plus en faire
+   davantage. Si les trois métiers doivent VRAIMENT différer (vocabulaire,
+   écrans, gabarits), c'est une décision de contenu, pas un correctif. */
 function poserMetier(m){
   const d = METIERS[m] || METIERS.eps;
   const pose = (sel,val)=>{ const n=$(sel); if(n) n.textContent = val; };
-  pose('#tuile3', d.tuile3); pose('#tuile3aide', d.aide); pose('#badgeJeux', d.badge);
   pose('#metierCompte', d.badge+' fiches pour ce métier');
   $$('#metiers .metier').forEach(b=> b.setAttribute('aria-pressed', String(b.dataset.metier===m)));
   ecrire('metier', m);
@@ -312,7 +312,7 @@ function peindreJeux(){
         const l = jrLire(); l.push({titre:j.n, desc:j.d, duree:String(j.t)});
         jrEcrire(l); if (typeof peindreJournee==='function') peindreJournee();
       }
-      fermerTiroir(); allerA('e-journee');
+      fermerTiroir(); allerA('e-accueil');   /* 'e-journee' n'existe plus */
     });
     c.appendChild(add); h.appendChild(c);
   });

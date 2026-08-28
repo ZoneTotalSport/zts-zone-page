@@ -140,9 +140,11 @@ function peindreCriteres(){
   const cpt=$('#evCompte');
   if (cpt) cpt.textContent = choisis.size+' / '+MAX_CRITERES+' choisis';
 }
-function libelleCrit(cle){
-  const [k,i]=cle.split('|'); return (CRITERES[k]||[])[+i] || cle;
-}
+/* ⚠ `libelleCrit()` ÉTAIT DÉFINI ICI AUSSI, et ne servait à rien : proto-pfeq.js
+   en donne une version qui sait lire les TROIS formats de clé (`moi|texte`,
+   l'ancien `agir|12` des gabarits, et la clé PFEQ à trois parties) et se charge
+   après ce fichier. Celle-ci était systématiquement écrasée — et elle aurait
+   rendu « moi » pour tout critère écrit à la main. Retirée. */
 function coteCrit(i,cle){ return lire(kctx('evc:'+i+':'+cle), null); }
 function peindreGrilleCrit(){
   const hote=$('#evGrille'); if(!hote) return;
@@ -864,7 +866,7 @@ function peindreCahier(){
       d.appendChild(el('span',null, (BLOC_TYPES[b.type]||BLOC_TYPES.activite).emo+' '+b.titre));
       s.appendChild(d);
     });
-  }, 'e-journee');
+  }, 'e-accueil');   /* était 'e-journee', un écran retiré */
 
   sect('QUI\nÉTAIT LÀ', s=>{
     const p=r.presences;
@@ -1214,8 +1216,13 @@ function peindreAgenda(){
       const cat=(CATS.find(x=>x[0]===marques[iso])||['',''])[1];
       const s=el('span','cyc',cat.slice(0,14)); s.style.background='#FFE9A8'; c.appendChild(s);
     }
-    c.title='Ouvrir '+jourLisible(iso);
-    c.addEventListener('click',()=>{ poserContexte(iso); allerA('e-journee'); });
+    /* ⚠ CECI ENVOYAIT VERS `e-journee`, UN ÉCRAN QUI N'EXISTE PLUS. `allerA()` a
+       un garde qui renvoie alors à l'accueil : toucher un en-tête de jour
+       remontait donc la page en haut, sans rien ouvrir, et sans une erreur pour
+       le dire. Toucher un jour POSE LE CONTEXTE — la barre jaune suit — et rien
+       de plus. C'est ce que ça a toujours voulu dire. */
+    c.title='Écrire dans '+jourLisible(iso);
+    c.addEventListener('click',()=> poserContexte(iso));
     g.appendChild(c);
   });
 
@@ -1239,8 +1246,13 @@ function peindreAgenda(){
       } else {
         c.appendChild(el('span','rien','—'));
       }
+      /* ⚠ MÊME PIÈGE, ET IL SE VOYAIT : cliquer une case VIDE de la semaine
+         renvoyait à l'accueil et remontait la page. Pire, proto-seance.js pose
+         SON propre gestionnaire sur la même case — les deux partaient ensemble.
+         Ici on ne fait plus que poser le contexte ; c'est proto-seance.js qui
+         décide ce qu'une case fait, et lui seul. */
       c.title = jourLisible(iso)+' · période '+p.n+(b?' — '+b.titre:' — rien de consigné');
-      c.addEventListener('click',()=>{ poserContexte(iso); allerA('e-journee'); });
+      c.addEventListener('click',()=> poserContexte(iso));
       g.appendChild(c);
     });
   });

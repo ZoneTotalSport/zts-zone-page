@@ -588,3 +588,41 @@ glisser-déposer de l'horaire dans RÉGLAGES — là, c'est un choix conscient.
 ⚠ **Défaut corrigé au passage : le rail disait toujours « Période N »**, même
 quand le prof avait renommé sa ligne dans RÉGLAGES. Son nom ne se rendait pas
 jusqu'à l'agenda.
+
+## Revue de redondances — 28 août
+
+Joey : « prends le temps de regarder toute l'app, j'ai l'impression qu'il y a des
+redondances et/ou des choses qui se ressemblent ou sont pareilles. » Il avait
+raison. Six trouvailles, toutes corrigées.
+
+**1. Deux navigations, la première effacée par la seconde.** `ECRANS` fabriquait
+seize boutons dans `#nav` ; `barreEnMenus()` faisait `innerHTML=''` juste après
+et reposait les cinq portes. Les seize n'ont jamais été vus. **Huit de leurs
+cibles n'existaient même plus.** `MENUS` est désormais la seule source.
+
+**2. `e-journee` n'existe plus, et six endroits y envoyaient encore.** `allerA()`
+se rabat sur l'accueil : toucher une case vide de la semaine **remontait la page
+en haut** sans rien ouvrir. Une case vide met maintenant le curseur dans sa note.
+
+**3. `dossierEleve()` et `ouvrirDossier()` étaient écrits deux fois** —
+proto-annee.js et proto-dossiers.js. Le second gagnait (chargé après) ; les 55
+lignes du premier ne tournaient plus depuis la refonte de MES GROUPES.
+
+**4. `libelleCrit()` était écrit deux fois** — proto-fusion.js et proto-pfeq.js.
+Celle de fusion aurait rendu « moi » pour tout critère écrit à la main.
+
+**5. `toutesSeances()` était écrit deux fois — et c'était MOI, la veille.**
+proto-portrait.js écrasait celle de proto-dossiers.js **et triait à l'envers** :
+le dossier d'un élève listait ses absences de la plus ancienne à la plus
+récente. Une seule définition subsiste ; le portrait remet dans l'ordre du
+calendrier ce qu'il affiche. ⚠ C'est le piège des deux `const` du même nom, en
+version fonction — et il s'est refermé sur moi.
+
+**6. Les trois métiers ne changent qu'un nombre.** `poserMetier()` visait aussi
+`#tuile3`, `#tuile3aide` et `#badgeJeux` — trois éléments des anciennes tuiles
+d'accueil, remplacées par l'agenda. Ces lignes ne touchaient plus rien et
+entretenaient l'illusion que le bouton faisait quelque chose.
+
+⚠ **Ce qui n'est PAS un défaut, vérifié** : `e-partage` et `e-donnees` ne sont
+plus des écrans, mais leur contenu est déplacé dans RÉGLAGES par
+`regrouperReglages()` et **plus rien ne pointe vers eux**.

@@ -18,23 +18,21 @@
    ========================================================================== */
 'use strict';
 
-/* ═════════ relire toutes les séances écrites ═════════ */
-function toutesSeances(){
-  const out=[];
-  for (let i=0;i<localStorage.length;i++){
-    const brut=localStorage.key(i);
-    if (!brut || brut.indexOf(P+'se:')!==0) continue;
-    const cle=brut.slice(P.length);
-    const m=/^se:(\d{4}-\d{2}-\d{2}):p(\d+)$/.exec(cle);
-    if (!m) continue;
-    const s=lire(cle,null); if(!s) continue;
-    out.push({iso:m[1], per:+m[2], s});
-  }
-  /* le fil du groupe se lit dans l'ordre du calendrier */
-  out.sort((a,b)=> a.iso===b.iso ? a.per-b.per : (a.iso<b.iso?-1:1));
-  return out;
+/* ═════════ relire toutes les séances écrites ═════════
+   ⚠ J'AVAIS ÉCRIT ICI UNE SECONDE `toutesSeances()`, alors que proto-dossiers.js
+   en définissait déjà une. Ce fichier étant chargé APRÈS, la mienne écrasait la
+   sienne en silence — et elle triait dans l'ordre INVERSE. Le dossier d'un élève
+   de MES GROUPES listait donc ses absences du plus ancien au plus récent au lieu
+   du contraire, sans qu'aucune erreur ne le signale.
+   Une seule définition subsiste, celle de proto-dossiers.js, dans SON ordre
+   (le plus récent d'abord). Le portrait remet dans l'ordre du calendrier ce
+   qu'il affiche, puisque c'est un fil chronologique. C'est exactement le piège
+   des deux `const` du même nom, en version fonction. */
+function seancesDuGroupe(grId){
+  return toutesSeances()
+    .filter(x=> x.s && x.s.gr===grId)
+    .sort((a,b)=> a.iso===b.iso ? a.per-b.per : (a.iso<b.iso?-1:1));
 }
-function seancesDuGroupe(grId){ return toutesSeances().filter(x=>x.s.gr===grId); }
 
 /* Les cotes STRICTEMENT sous le maximum — les seules qui disent « à revoir ».
    ⚠ Depuis que rien n'est coloré d'avance, une cote au maximum s'enregistre

@@ -1364,7 +1364,17 @@ peindreAgenda = function(){
           poserSeance(iso,p.n, seanceVide(grpEnMain));
           grpEnMain=null; peindrePalette();
         } else if (!seanceDe(iso,p.n)){
-          poserContexte(iso); allerA('e-journee');
+          /* ⚠ CECI ENVOYAIT VERS `e-journee`, un écran retiré : `allerA()` se
+             rabattait sur l'accueil et REMONTAIT LA PAGE EN HAUT. Toucher une
+             case vide donnait donc l'impression que l'app perdait sa place.
+             La case porte déjà de quoi écrire — on y met le curseur. */
+          /* ⚠ `poserContexte()` REPEINT L'AGENDA : la case qu'on vient de
+             toucher n'existe déjà plus quand la ligne suivante s'exécute, et
+             mettre le curseur dedans le posait sur un noeud détaché — aucun
+             effet, aucune erreur. On va chercher la case NEUVE. */
+          poserContexte(iso);
+          const frais=$('.ag-case[data-iso="'+iso+'"][data-per="'+p.n+'"] .ag-note');
+          if (frais) frais.focus();
         }
       });
     });
