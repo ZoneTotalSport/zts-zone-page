@@ -1,0 +1,161 @@
+/* ==========================================================================
+   LA SÉANCE — l'unité de travail réelle.
+   Joey, 28 août : « je glisse-dépose chacun des groupes dans l'agenda, chaque
+   groupe a sa couleur et son image ; un clic dépose toutes les fonctionnalités.
+   Je clique le cours et il s'affiche avec les explications, illustrations et
+   la durée. Si j'ajoute un timer, ça se consigne pour le cours du groupe 101.
+   Si je clique évaluation, le popup apparaît et je configure ce que j'évalue.
+   Si je pèse sur présence, je vois qui a son linge d'éducation physique, qui
+   ne l'a pas, et qui était absent. »
+
+   ⚠ CE QUE ÇA CORRIGE : le proto rangeait tout par (jour + groupe), un seul
+   groupe par jour. Un prof d'ÉPS voit SIX groupes dans une journée, un par
+   période. La clé est donc (jour + période), et le groupe est posé dedans.
+   ========================================================================== */
+
+/* ── la palette de groupes, qu'on glisse dans l'agenda ── */
+.palette{
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  background:#0B2438;color:var(--sur-fond);border:var(--bord);border-radius:14px;
+  padding:10px 12px;margin-bottom:14px;
+}
+.palette .quoi{
+  font-family:var(--f-note);font-size:16px;color:var(--sur-fond-doux);
+  width:100%;margin-bottom:2px;
+}
+.pastille-gr{
+  display:flex;gap:7px;align-items:center;cursor:grab;user-select:none;
+  border:3px solid var(--noir);border-radius:11px;padding:5px 11px 5px 7px;
+  box-shadow:3px 3px 0 var(--noir);font-family:var(--f-titre);font-size:16px;
+}
+.pastille-gr:active{cursor:grabbing;transform:translate(2px,2px);box-shadow:1px 1px 0 var(--noir)}
+.pastille-gr .img{font-size:20px;line-height:1}
+.pastille-gr img.img{width:26px;height:26px;border-radius:6px;border:2px solid var(--noir);object-fit:cover}
+.pastille-gr.drag{opacity:.45}
+.palette .modif{
+  cursor:pointer;border:2px solid var(--noir);border-radius:8px;background:#F1F7FA;color:var(--ink);
+  font-size:11px;padding:0 6px;line-height:20px;margin-left:2px;
+}
+
+/* ── la case d'agenda qui porte une séance ── */
+.ag-case{position:relative}
+.ag-case.survol{outline:4px dashed var(--lime);outline-offset:3px;background:#F2FFE2}
+.ag-seance{
+  display:block;width:100%;text-align:left;cursor:pointer;
+  border:3px solid var(--noir);border-radius:9px;padding:4px 6px;
+  box-shadow:2px 2px 0 var(--noir);
+}
+.ag-seance .gr{
+  display:flex;gap:5px;align-items:center;font-family:var(--f-titre);font-size:14px;line-height:1.1;
+}
+.ag-seance .gr .img{font-size:15px}
+.ag-seance img.img{width:18px;height:18px;border-radius:4px;border:1px solid var(--noir);object-fit:cover}
+.ag-seance .cours{
+  display:block;font-family:var(--f-main);font-size:13px;line-height:1.15;margin-top:2px;
+}
+.ag-seance .puces{display:flex;gap:3px;margin-top:3px;flex-wrap:wrap}
+.ag-seance .puces span{
+  font-size:10px;font-weight:800;border:2px solid var(--noir);border-radius:6px;
+  padding:0 4px;line-height:15px;background:#fff;color:var(--ink);
+}
+.ag-vider{
+  position:absolute;top:2px;right:2px;cursor:pointer;line-height:1;z-index:2;
+  background:var(--rose);color:#2A0010;border:2px solid var(--noir);border-radius:6px;
+  font-size:10px;padding:0 4px;
+}
+
+/* ── le panneau de séance ── */
+.se-tete{
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  border:3px solid var(--noir);border-radius:13px;padding:10px 12px;margin-bottom:14px;
+}
+.se-tete .img{font-size:34px;line-height:1}
+.se-tete img.img{width:52px;height:52px;border-radius:10px;border:3px solid var(--noir);object-fit:cover}
+.se-tete h3{font-family:var(--f-titre);font-size:24px;margin:0;letter-spacing:.3px}
+.se-tete .quand{font-family:var(--f-note);font-size:17px}
+.se-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.se-action{
+  cursor:pointer;text-align:left;padding:12px 12px 10px;
+  border:3px solid var(--noir);border-radius:14px;box-shadow:4px 4px 0 var(--noir);
+  background:#fff;color:var(--ink);font-family:var(--f-titre);font-size:17px;letter-spacing:.2px;
+}
+.se-action .emo{display:block;font-size:26px;line-height:1;margin-bottom:5px}
+.se-action .etat{
+  display:block;font-family:var(--f-note);font-size:15px;font-weight:400;
+  color:var(--ink-soft);margin-top:3px;letter-spacing:0;
+}
+.se-action.faite{background:#DFFCA8}
+.se-cours{
+  border:3px solid var(--noir);border-radius:14px;padding:12px;background:#fff;color:var(--ink);
+}
+.se-cours h4{font-family:var(--f-titre);font-size:19px;margin:0 0 6px}
+.se-cours .desc{font-family:var(--f-main);font-size:17px;line-height:1.35}
+.se-illus{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.se-illus figure{margin:0;width:120px;border:2px solid var(--noir);border-radius:10px;overflow:hidden;background:#F1F7FA}
+.se-illus img,.se-illus video{width:100%;height:78px;object-fit:cover;display:block}
+.se-illus .doc{height:78px;display:flex;align-items:center;justify-content:center;font-size:32px}
+.se-illus figcaption{font-size:11px;font-weight:700;padding:3px 4px;color:var(--ink);word-break:break-word}
+
+/* ── présences : le linge d'ÉPS ── */
+.pres-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px}
+.pres-el{
+  border:3px solid var(--noir);border-radius:13px;overflow:hidden;background:#fff;color:var(--ink);
+  box-shadow:3px 3px 0 var(--noir);text-align:center;
+}
+.pres-el img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border-bottom:3px solid var(--noir)}
+.pres-el .nom{font-family:var(--f-note);font-size:16px;padding:3px 2px 0;line-height:1.1}
+.pres-el .etat{font-family:var(--f-titre);font-size:12px;padding:1px 2px 4px}
+.pres-el--linge{background:#DFFCA8}
+.pres-el--sans{background:#FFE9C2}
+.pres-el--absent{background:#F2F5F7}
+.pres-el--absent img{filter:grayscale(1);opacity:.5}
+.pres-el--absent .nom{color:#5A6870;text-decoration:line-through}
+.pres-el--attendu img{filter:grayscale(.55);opacity:.8}
+.pres-compte{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.pres-compte span{
+  border:3px solid var(--noir);border-radius:10px;padding:3px 11px;
+  font-family:var(--f-titre);font-size:14px;background:#fff;color:var(--ink);
+}
+.pres-compte .l{background:#DFFCA8}.pres-compte .s{background:#FFE9C2}.pres-compte .a{background:#FFD0DE}
+
+/* ── grille d'évaluation avec visages ── */
+.ev-gab{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.ev-gab button{
+  cursor:pointer;text-align:left;padding:8px 11px;
+  border:3px solid var(--noir);border-radius:12px;box-shadow:3px 3px 0 var(--noir);
+  background:#F1F7FA;color:var(--ink);font-family:var(--f-titre);font-size:15px;
+}
+.ev-gab button[aria-pressed="true"]{background:var(--lime);color:#1E3300}
+.ev-gab button small{display:block;font-family:var(--f-note);font-size:14px;font-weight:400;color:var(--ink-soft)}
+.gril{border-collapse:separate;border-spacing:3px;width:100%}
+.gril th{background:var(--noir);color:var(--jaune);border-radius:8px;font-family:var(--f-titre);font-size:12px;padding:5px}
+.gril td{background:#fff;color:var(--ink);border:2px solid var(--noir);border-radius:9px;padding:3px}
+.gril td.el{text-align:left;min-width:150px}
+.gril .visage{display:flex;gap:7px;align-items:center}
+.gril .visage img{width:38px;height:38px;border-radius:8px;border:2px solid var(--noir);object-fit:cover;flex:none}
+.gril .visage b{font-family:var(--f-note);font-size:16px;font-weight:400}
+@media(max-width:760px){ .se-actions{grid-template-columns:1fr 1fr} }
+
+/* ── les étapes de la planification : des liens qu'on touche ── */
+.etape{display:flex;gap:7px;align-items:stretch;margin-bottom:6px}
+.etape-chk{
+  flex:none;width:38px;cursor:pointer;font-size:17px;font-weight:900;
+  border:3px solid var(--noir);border-radius:10px;background:#F1F7FA;color:var(--ink);
+  box-shadow:2px 2px 0 var(--noir);
+}
+.etape--faite .etape-chk{background:#8CE05F;color:#0E2A05}
+.etape-lien{
+  flex:1;text-align:left;cursor:pointer;padding:7px 10px;
+  border:3px solid var(--noir);border-radius:10px;box-shadow:2px 2px 0 var(--noir);
+  background:#FFFEE0;color:var(--ink);
+}
+.etape-lien:hover{background:var(--jaune)}
+.etape-lien .ti{display:block;font-family:var(--f-titre);font-size:16px;letter-spacing:.2px;line-height:1.15}
+.etape-lien .du{display:block;font-family:var(--f-note);font-size:15px;color:var(--ink-soft)}
+.etape--faite .etape-lien{background:#EAFBE7}
+.etape--faite .etape-lien .ti{text-decoration:line-through;color:#3E7A34}
+.etape-sup{
+  flex:none;width:32px;cursor:pointer;font-size:12px;
+  border:3px solid var(--noir);border-radius:10px;background:var(--rose);color:#2A0010;
+  box-shadow:2px 2px 0 var(--noir);
+}
