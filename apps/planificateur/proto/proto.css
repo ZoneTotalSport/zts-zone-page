@@ -20,8 +20,16 @@
    illisibles en paragraphe — mais de « main » : ce que l'utilisateur écrit,
    et le cahier de consignation. On distingue ainsi d'un coup d'œil ce que
    l'app affiche de ce que le prof a inscrit. */
-@font-face{font-family:'IndieFlower';src:url('/fonts/IndieFlower-Regular.ttf') format('truetype');font-display:swap}
-@font-face{font-family:'AnnieTelescope';src:url('/fonts/AnnieUseYourTelescope-Regular.ttf') format('truetype');font-display:swap}
+/* ⚠ ELLES SONT DESSINÉES PETIT. Joey, 28 août : « grossis partout cette
+   police, c'est encore un peu petit. » Leur hauteur d'x est bien plus basse
+   que celle d'une police d'écran : à 17 px nominal, AnnieUseYourTelescope se
+   lit comme du 13.
+   `size-adjust` corrige à la SOURCE — une seule ligne, tout le proto suit, et
+   les tailles écrites dans les règles redeviennent honnêtes. C'est la bonne
+   place pour ce réglage : gonfler règle par règle laisse toujours un coin
+   oublié, et fausse toute comparaison de tailles ensuite. */
+@font-face{font-family:'IndieFlower';src:url('/fonts/IndieFlower-Regular.ttf') format('truetype');font-display:swap;size-adjust:112%}
+@font-face{font-family:'AnnieTelescope';src:url('/fonts/AnnieUseYourTelescope-Regular.ttf') format('truetype');font-display:swap;size-adjust:124%}
 
 :root{
   --cyan:#00C2E8; --cyan-vif:#3ADCFA; --cyan-dark:#075A6B;

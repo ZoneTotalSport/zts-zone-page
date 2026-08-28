@@ -315,3 +315,17 @@ difficile à lire. » Les en-têtes tenaient en 12 px et les noms d'élèves en
 ajoutée à `proto-seance.css` doit respecter ce plancher. Le bloc « LISIBILITÉ »
 en fin de fichier est la référence : la case de cote est à 23 px, le nom d'un
 élève à 20 px, un en-tête de colonne à 15 px.
+
+## Les manuscrites sont dessinées petit — `size-adjust`
+
+Joey, 28 août : « grossis partout cette police, c'est encore un peu petit. »
+La hauteur d'x d'AnnieUseYourTelescope est bien plus basse que celle d'une
+police d'écran : à 17 px nominal, elle se lit comme du 13.
+
+Corrigé **à la source**, dans les `@font-face` de `proto.css` :
+`size-adjust:124%` pour AnnieTelescope, `112%` pour IndieFlower.
+
+⚠ **C'est la bonne place pour ce réglage.** Gonfler règle par règle laisse
+toujours un coin oublié et fausse ensuite toute comparaison de tailles : deux
+règles écrites « 17 px » ne se liraient plus pareil selon la police. Ici, une
+ligne, tout le proto suit, et les tailles écrites redeviennent honnêtes.
