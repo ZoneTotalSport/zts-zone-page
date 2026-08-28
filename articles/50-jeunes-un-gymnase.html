@@ -1126,6 +1126,16 @@
         if (window.ztsTrackFunnel) {
           window.ztsTrackFunnel('locked_click_signup', { source: 'article', slug: '50-jeunes-un-gymnase' });
         }
+        // MEME PROVENANCE QUE LE DEMI-MUR STANDARD. Cet onglet est un
+        // QUATRIEME emetteur, en ligne dans la page : zts-lock-page.js ne le
+        // voit pas, donc le correctif d'attribution ne l'atteignait pas. Sans
+        // ces deux lignes, l'article le plus lu du blogue continuerait de
+        // verser ses inscriptions dans 'direct'.
+        // La consommation des cles reste chez fireSignupComplete().
+        try {
+          sessionStorage.setItem('zts_signup_source', 'demi_mur_article');
+          sessionStorage.setItem('zts_signup_slug', '50-jeunes-un-gymnase');
+        } catch (e) {}
         if (window.ztsShowSignup) { window.ztsShowSignup(); return; }
         // Pas de modale disponible : on laisse au moins le lecteur ou il etait.
         return;

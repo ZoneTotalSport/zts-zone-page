@@ -17,8 +17,16 @@
     projectId: "zone-total-sport",
     storageBucket: "zone-total-sport.firebasestorage.app",
     messagingSenderId: "681359040455",
-    appId: "1:681359040455:web:80c9f584583824cc8cc3e2",
-    measurementId: "G-09S9R1HJ94"
+    appId: "1:681359040455:web:80c9f584583824cc8cc3e2"
+    // PROPRIETE GA4 INERTE — ne pas reactiver sans decider laquelle porte
+    // l'historique. G-09S9R1HJ94 n'existe que comme measurementId dans ce
+    // firebaseConfig : aucun analytics-compat n'est charge, aucun
+    // firebase.analytics(), aucun getAnalytics() nulle part dans le depot
+    // (verifie le 28 aout 2026). C'est G-C2L5PD388L, via analytics.js
+    // injecte par le chrome partage, qui recoit tout le trafic.
+    // Commente plutot que supprime : un firebaseConfig ampute souleve une
+    // question a la prochaine copie depuis la console Firebase.
+    // measurementId: "G-09S9R1HJ94"
   };
 
   var _user = null;
@@ -760,14 +768,34 @@
   // redirection vers /bienvenue.html), consomme par zts-funnel.js a l'arrivee.
   function fireSignupComplete(method) {
     var signup_source = 'direct';
+    var signup_slug = null;
     try {
       signup_source = sessionStorage.getItem('zts_signup_source') || 'direct';
+      // LE SLUG N'APPARTIENT QU'AUX DEMI-MURS, ET C'EST UNE GARDE, PAS UN DETAIL.
+      // Les trois autres emetteurs ('locked_card', 'popup', 'newsletter_popup')
+      // posent une source sans jamais poser de slug. Sans ce test, un slug
+      // survivant d'un demi-mur abandonne se collerait a l'inscription suivante :
+      // visiteur qui clique le CTA de catastrophes-ordinaires, n'acheve pas,
+      // navigue, puis s'inscrit dix minutes plus tard par le pop-up newsletter
+      // -> le pop-up ecrase la source, mais le slug de l'article survivrait et
+      // crediterait une conversion que l'article n'a pas produite. C'est
+      // precisement le chiffre qui decide lesquels des 27 articles meritent un
+      // frere : il ne peut pas etre gonfle.
+      if (signup_source.indexOf('demi_mur_') === 0) {
+        signup_slug = sessionStorage.getItem('zts_signup_slug') || null;
+      }
+      // LES DEUX CLES SE CONSOMMENT DANS TOUS LES CAS, y compris quand le slug
+      // vient d'etre ignore. Un seul point de verite pour le nettoyage : un
+      // quatrieme emetteur ajoute plus tard n'a rien a savoir de cette regle,
+      // il lui suffit de poser sa source.
       sessionStorage.removeItem('zts_signup_source');
+      sessionStorage.removeItem('zts_signup_slug');
     } catch (e) {}
     try {
       sessionStorage.setItem('zts_signup_pending', JSON.stringify({
         method: method,
         signup_source: signup_source,
+        signup_slug: signup_slug,
         ts: Date.now()
       }));
     } catch (e) {}
@@ -966,6 +994,7 @@
       try {
         sessionStorage.removeItem('zts_signup_pending');
         sessionStorage.removeItem('zts_signup_source');
+        sessionStorage.removeItem('zts_signup_slug');
       } catch (e) {}
       window.location.href = '/';
     }
