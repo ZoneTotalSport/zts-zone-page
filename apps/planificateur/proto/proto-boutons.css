@@ -193,7 +193,10 @@ code, kbd, samp{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:.9
    mots dont TOTAL en cyan. Recette reprise de shared/zts-header.css.
    ========================================================================== */
 .zts-tete{
-  position:sticky;top:0;z-index:200;
+  /* Le bandeau DÉFILE, la barre de navigation reste collée — comme sur le
+     site, où le header se replie et la topbar demeure. Les deux en `sticky`
+     à top:0 se recouvraient. */
+  position:relative;z-index:200;
   margin:12px clamp(10px,2.2vw,24px);
   background:rgba(6,23,38,.94);
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);

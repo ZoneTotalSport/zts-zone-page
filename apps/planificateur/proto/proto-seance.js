@@ -773,6 +773,7 @@ peindreAgenda = function(){
   }, true);
 })();
 
+peindreCtxBarre();   /* GRP() existe maintenant */
 peindrePalette();
 peindreAgenda();
 

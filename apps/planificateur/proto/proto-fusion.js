@@ -213,94 +213,15 @@ const cs = n => Math.floor(n/600)+':'+String(Math.floor(n/10)%60).padStart(2,'0'
 /* Les tests sont réécrits dans proto-tests.js : un groupe à la fois, et
    Léger-Boucher séparé de la course navette. */
 
-/* ═════════ 4. MES GROUPES ═════════ */
-function groupes(){ return lire('groupes', [{nom:'5A',arch:false},{nom:'5B',arch:false},{nom:'6A',arch:false}]); }
-function groupeActif(){ return lire('groupeActif', 0); }
-(function mesGroupes(){
-  if (!$('#grpListe')) return;
-  let voirArchives=false;
-  function peindre(){
-    const h=$('#grpListe'); h.innerHTML='';
-    groupes().forEach((g,i)=>{
-      if (g.arch && !voirArchives) return;
-      const p=el('div','grp-puce'+(g.arch?' archive':''));
-      p.setAttribute('aria-current', String(i===groupeActif()));
-      const nom=el('span',null,g.nom);
-      nom.style.cursor='pointer';
-      nom.addEventListener('click',()=>{ ecrire('groupeActif',i); peindre(); peindreJournal(); peindreHistorique(); });
-      p.appendChild(nom);
-      const ren=el('button',null,'✎'); ren.type='button'; ren.title='Renommer';
-      ren.addEventListener('click',()=>{ const n=prompt('Nouveau nom du groupe :',g.nom); if(!n) return;
-        const l=groupes(); l[i].nom=n.trim(); ecrire('groupes',l); peindre(); });
-      const arc=el('button',null,g.arch?'↩':'📦'); arc.type='button'; arc.title=g.arch?'Remettre en service':'Ranger sans effacer';
-      arc.addEventListener('click',()=>{ const l=groupes(); l[i].arch=!l[i].arch; ecrire('groupes',l); peindre(); });
-      p.appendChild(ren); p.appendChild(arc);
-      h.appendChild(p);
-    });
-  }
-  $('#grpAdd').addEventListener('click',()=>{
-    const n=prompt('Nom du nouveau groupe :','6B'); if(!n) return;
-    const l=groupes(); l.push({nom:n.trim(),arch:false}); ecrire('groupes',l); peindre();
-  });
-  $('#grpArchives').addEventListener('click',()=>{
-    voirArchives=!voirArchives;
-    $('#grpArchives').setAttribute('aria-pressed',String(voirArchives));
-    $('#grpArchives').textContent = voirArchives?'📦 CACHER LES RANGÉS':'📦 VOIR LES RANGÉS';
-    peindre();
-  });
-  peindre();
-
-  /* journal de bord, par groupe */
-  window.peindreJournal=function(){
-    const h=$('#jbListe'); if(!h) return; h.innerHTML='';
-    const l=lire('journal:'+groupeActif(), []);
-    if (!l.length){ h.appendChild(el('p',null,'Rien de noté pour ce groupe.')); return; }
-    l.slice().reverse().forEach((e,idx)=>{
-      const d=el('div','journal-entree');
-      d.appendChild(el('div','quand', e.quand));
-      d.appendChild(el('div',null, e.txt));
-      const x=el('button','mini mini--rose','✕'); x.type='button'; x.style.marginTop='6px';
-      x.addEventListener('click',()=>{ const q=lire('journal:'+groupeActif(),[]);
-        q.splice(l.length-1-idx,1); ecrire('journal:'+groupeActif(),q); peindreJournal(); });
-      d.appendChild(x); h.appendChild(d);
-    });
-  };
-  $('#jbAdd').addEventListener('click',()=>{
-    const t=$('#jbTexte').value.trim(); if(!t) return;
-    const l=lire('journal:'+groupeActif(),[]);
-    l.push({quand:jourLisible(aujourdhuiISO())+' · '+maintenantHM(), txt:t});
-    ecrire('journal:'+groupeActif(),l); $('#jbTexte').value=''; peindreJournal();
-  });
-  peindreJournal();
-
-  /* historique : construit à partir de ce que l'app sait déjà */
-  window.peindreHistorique=function(){
-    const h=$('#histListe'); if(!h) return; h.innerHTML='';
-    const lignes=[];
-    $$('#blocsJournee .bloc').forEach(b=>{
-      const t=b.querySelector('.bloc-titre').textContent.trim();
-      if (t) lignes.push([jourLisible(aujourdhuiISO()), (b.classList.contains('fait')?'✔ ':'· ')+t]);
-    });
-    Object.keys(lire(kctx('leger'),{})).length && lignes.push([jourLisible(aujourdhuiISO()),'🏃 Test Léger-Boucher — '+Object.keys(lire(kctx('leger'),{})).length+' résultats']);
-    const parti=ENFANTS.filter((e,i)=>presDe(i).statut==='parti').length;
-    if (parti) lignes.push([jourLisible(aujourdhuiISO()), '✅ Présences — '+parti+' départ(s) notés']);
-    if (!lignes.length){ h.appendChild(el('p',null,'Rien encore. L’historique se remplit tout seul.')); return; }
-    lignes.forEach(([q,t])=>{ const d=el('div','hist-ligne');
-      d.appendChild(el('b',null,q)); d.appendChild(el('span',null,t)); h.appendChild(d); });
-  };
-  peindreHistorique();
-
-  /* gabarits : recopier une semaine */
-  $('#gabGo').addEventListener('click',()=>{
-    const de=$('#gabDe').value, vers=$('#gabVers').value;
-    const r=$('#gabResultat');
-    if (!de || !vers){ r.innerHTML='<div class="m-avert" style="display:block">Choisis les deux semaines.</div>'; return; }
-    const cases=blocsDuJour(de).length;
-    r.innerHTML='<div class="aide-un-mot" style="margin:0"><span class="emo">✅</span>'
-      + 'La semaine du <b>'+jourLisible(de)+'</b> serait recopiée vers le <b>'+jourLisible(vers)+'</b> — '
-      + cases+' bloc(s) planifié(s). <b>Rien n’est écrasé dans le proto</b> : la vraie copie se fera à l’implémentation.</div>';
-  });
-})();
+/* ══ MES GROUPES a été refait ══
+   Joey : « le bouton mes groupes, je ne le trouve pas clair. Mettons : on voit
+   tous les groupes en haut, je clique sur un groupe, là on voit les élèves ; si
+   je clique sur l'image d'un élève, on voit ses absences avec les dates, ses
+   oublis de linge avec les dates, ce qui lui est arrivé au gymnase. »
+   L'écran portait deux listes de groupes concurrentes — les vrais (101, 102…)
+   et une ancienne (5A, 5B, 6A) — plus un journal, un historique, des gabarits
+   et un plan de session. Trois de ces quatre faisaient doublon avec la séance.
+   Tout est réécrit dans proto-dossiers.js. */
 
 /* ═════════ 5. MESSAGES et validation de semaine ═════════ */
 (function messages(){
@@ -767,7 +688,13 @@ const UN_JOUR = 86400000;
 function isoDe(d){ const D=n=>String(n).padStart(2,'0');
   return d.getFullYear()+'-'+D(d.getMonth()+1)+'-'+D(d.getDate()); }
 function dateDeIso(iso){ const [y,m,j]=iso.split('-').map(Number); return new Date(y,m-1,j); }
-function nomGroupe(i){ const g=groupes()[i]; return g?g.nom:'—'; }
+/* ⚠ `groupes()` était l'ANCIENNE liste (5A, 5B, 6A), supprimée avec la refonte
+   de MES GROUPES. La barre de contexte l'appelait encore : ReferenceError au
+   chargement, qui tuait proto-fusion.js — donc `agLundi` jamais déclaré, donc
+   les deux scripts suivants morts, donc la barre de navigation restait celle
+   d'avant. Une seule liste désormais : GRP(). */
+function nomGroupe(i){ if (typeof GRP!=='function') return '—';
+  const g=GRP()[i]; return g?g.nom:'—'; }
 
 function poserContexte(iso, gr){
   if (iso) ctxDate = iso;
@@ -786,11 +713,14 @@ function poserContexte(iso, gr){
 }
 function peindreCtxBarre(){
   const j=$('#ctxJour'); if(!j) return;
+  /* GRP() vit dans proto-seance.js, chargé APRÈS ce fichier : au premier
+     passage il n'existe pas encore. On sort sans bruit ; proto-seance.js
+     rappelle cette fonction une fois en place. */
+  if (typeof GRP !== 'function') return;
   j.textContent = jourLisible(ctxDate);
   const sel=$('#ctxGroupeSel');
   sel.innerHTML='';
-  groupes().forEach((g,i)=>{
-    if (g.arch && i!==ctxGroupe) return;
+  GRP().forEach((g,i)=>{
     const o=document.createElement('option'); o.value=i; o.textContent=g.nom;
     if (i===ctxGroupe) o.selected=true;
     sel.appendChild(o);
@@ -1182,6 +1112,8 @@ function blocsDuJour(iso){
 }
 function peindreAgenda(){
   const h=$('#agendaHote'); if(!h) return;
+  /* Même raison que peindreCtxBarre : GRP() arrive avec proto-seance.js. */
+  if (typeof GRP !== 'function') return;
   if (!agLundi) agLundi = lundiDe(ctxDate);
   h.innerHTML='';
   const boite=el('div','agenda');

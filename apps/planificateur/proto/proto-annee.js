@@ -154,38 +154,6 @@ function ouvrirDossier(i){
   });
 }
 
-/* la liste des élèves, avec leurs compteurs, dans MES GROUPES */
-(function dossiersDansGroupes(){
-  const ecran=$('#e-groupes'); if(!ecran) return;
-  const pan=el('div','pan');
-  pan.innerHTML='<h2>🧑‍🤝‍🧑 Mes élèves — leur année</h2>'
-    +'<p style="font-family:var(--f-note);font-size:17px;margin:0 0 12px">'
-    +'Touche un élève : ses oublis de linge, ses absences et ce que tu as noté, avec les dates.</p>'
-    +'<div class="pres-grille" id="dosGrille"></div>';
-  ecran.insertBefore(pan, ecran.children[2] || null);
-  window.peindreDossiers=function(){
-    const h=$('#dosGrille'); if(!h) return; h.innerHTML='';
-    ELEVES.forEach((nom,i)=>{
-      const d=dossierEleve(i);
-      const b=el('button','pres-el'); b.type='button';
-      const im=document.createElement('img'); im.src=visageDe(i); im.alt=''; b.appendChild(im);
-      b.appendChild(el('div','nom',nom));
-      const e=el('div','etat');
-      e.textContent = (d.oublis.length?'🚫'+d.oublis.length+' ':'')
-                    + (d.absences.length?'✗'+d.absences.length+' ':'')
-                    + (d.mots.length?'💬'+d.mots.length:'')
-                    || '— rien à signaler';
-      b.appendChild(e);
-      b.title=nom+' — '+d.oublis.length+' oubli(s), '+d.absences.length+' absence(s), '+d.mots.length+' mot(s)';
-      b.addEventListener('click',()=> ouvrirDossier(i));
-      h.appendChild(b);
-    });
-  };
-  peindreDossiers();
-  const base=window.allerA;
-  window.allerA=function(id){ base(id); if(id==='e-groupes') peindreDossiers(); };
-})();
-
 /* ═════════ F. PARTAGE + DONNÉES REJOIGNENT LES RÉGLAGES ═════════ */
 (function regrouperReglages(){
   const reg=$('#e-reglages'); if(!reg) return;
@@ -219,7 +187,7 @@ function barreLiens(hoteId, liens, avant){
   });
   ec.insertBefore(b, avant ? ec.querySelector(avant) : ec.children[1]);
 }
-barreLiens('e-groupes', [['e-carnet','📊 CARNET DE NOTES'],['e-bulletin','🎓 BULLETINS']]);
+barreLiens('e-groupes', [['e-carnet','📊 CARNET DE NOTES'],['e-bulletin','🎓 BULLETINS']], '.pan');
 barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOIR L’ANNÉE']]);
 /* et le chemin du retour, depuis chacun */
 [['e-carnet','e-groupes','← MES GROUPES'],['e-bulletin','e-groupes','← MES GROUPES'],

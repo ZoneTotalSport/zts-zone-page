@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=45">
-<link rel="stylesheet" href="proto-fusion.css?v=45">
-<link rel="stylesheet" href="proto-boutons.css?v=45">
-<link rel="stylesheet" href="proto-seance.css?v=45">
-<link rel="stylesheet" href="proto-simple.css?v=45">
+<link rel="stylesheet" href="proto.css?v=50">
+<link rel="stylesheet" href="proto-fusion.css?v=50">
+<link rel="stylesheet" href="proto-boutons.css?v=50">
+<link rel="stylesheet" href="proto-seance.css?v=50">
+<link rel="stylesheet" href="proto-simple.css?v=50">
 </head>
 <body>
 
@@ -278,38 +278,16 @@
 <section class="ecran" id="e-groupes">
   <h1 class="titre">Mes groupes</h1>
   <div class="aide-un-mot"><span class="emo">👆</span>
-    Touche un groupe pour t'en occuper. Le ✎ le renomme, le 📦 le range sans l'effacer.</div>
+    Touche un groupe pour voir ses élèves. Touche un élève pour voir son année.</div>
+
   <div class="pan">
-    <h2>Mes classes</h2>
-    <div class="grp-liste" id="grpListe"></div>
-    <button type="button" class="mini mini--lime" id="grpAdd">+ AJOUTER UN GROUPE</button>
-    <button type="button" class="mini" id="grpArchives" aria-pressed="false">📦 VOIR LES RANGÉS</button>
+    <h2>Mes groupes</h2>
+    <div class="grp-liste" id="mgGroupes"></div>
   </div>
-  <div class="pan pan--jaune">
-    <h2>📓 Mon journal de bord</h2>
-    <p style="margin:0 0 10px;font-weight:700">Ce que tu écris ici reste attaché au groupe choisi.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
-      <input class="m-saisie" id="jbTexte" placeholder="Aujourd'hui, le groupe a…" style="flex:1;min-width:220px">
-      <button type="button" class="mini mini--lime" id="jbAdd">+ NOTER</button>
-    </div>
-    <div id="jbListe"></div>
-  </div>
-  <div class="pan pan--cyan">
-    <h2>🕘 Historique</h2>
-    <p style="margin:0 0 10px;font-weight:700">Ce que ce groupe a fait, du plus récent au plus ancien.</p>
-    <div id="histListe"></div>
-  </div>
+
   <div class="pan">
-    <h2>📐 Gabarits — copier une semaine</h2>
-    <p style="margin:0 0 10px;font-weight:700">Choisis une semaine, dis où la recopier. Rien n'est écrasé sans que tu le voies.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <b>Copier la semaine du</b>
-      <input class="m-saisie" type="date" id="gabDe" style="width:auto">
-      <b>vers la semaine du</b>
-      <input class="m-saisie" type="date" id="gabVers" style="width:auto">
-      <button type="button" class="mini mini--lime" id="gabGo">📋 RECOPIER</button>
-    </div>
-    <div id="gabResultat" style="margin-top:10px"></div>
+    <h2 id="mgTitre">Les élèves</h2>
+    <div class="pres-grille" id="mgEleves"></div>
   </div>
 </section>
 
@@ -413,12 +391,13 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=45"></script>
-<script src="proto-fusion.js?v=45"></script>
-<script src="proto-seance.js?v=45"></script>
-<script src="proto-simple.js?v=45"></script>
-<script src="proto-tests.js?v=45"></script>
-<script src="proto-annee.js?v=45"></script>
-<script src="proto-horaire.js?v=45"></script>
+<script src="proto.js?v=50"></script>
+<script src="proto-fusion.js?v=50"></script>
+<script src="proto-seance.js?v=50"></script>
+<script src="proto-simple.js?v=50"></script>
+<script src="proto-tests.js?v=50"></script>
+<script src="proto-annee.js?v=50"></script>
+<script src="proto-horaire.js?v=50"></script>
+<script src="proto-dossiers.js?v=50"></script>
 </body>
 </html>
