@@ -304,3 +304,14 @@ d'échelle et le nombre de niveaux.
 ⚠ **La clé d'une cote est `<élève>|<critère>` et le critère contient lui-même
 des « | »** (`moi|texte`, `agir|10`, `1|2|3`). On coupe donc au **premier** `|`
 seulement — partout où l'on retrouve les cotes d'une colonne.
+
+## Plancher de lisibilité — 28 août
+
+Joey, devant la grille d'évaluation : « grossis les écritures, c'est petit et
+difficile à lire. » Les en-têtes tenaient en 12 px et les noms d'élèves en
+16 px, dans une police manuscrite qui pardonne mal.
+
+⚠ **Aucun texte du panneau de séance ne descend plus sous 15 px.** Toute règle
+ajoutée à `proto-seance.css` doit respecter ce plancher. Le bloc « LISIBILITÉ »
+en fin de fichier est la référence : la case de cote est à 23 px, le nom d'un
+élève à 20 px, un en-tête de colonne à 15 px.
