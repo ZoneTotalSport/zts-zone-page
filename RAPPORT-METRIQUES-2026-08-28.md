@@ -760,6 +760,39 @@ tests).
 **Aucun compte Auth n'a été créé** : 354 avant, 354 après. Le stub de
 `createUserWithEmailAndPassword` a tenu sur les six parcours d'inscription joués.
 
+### Deux documents de plus, à la vérification de production (20 h 21)
+
+Après la fusion de #53, la recette de production demandée par Joey a coûté
+**deux documents supplémentaires**, pour la même raison exactement :
+
+| Horodatage (UTC) | Événement | `source` | Cause |
+|---|---|---|---|
+| 2026-08-28 20:21:43 | `locked_view` | `menu` | chargement de `/articles/color-run.html` |
+| 2026-08-28 20:21:43 | `locked_view` | `article` (slug `color-run`) | idem |
+
+**La page de fiche, elle, n'a rien écrit** : le stub de `ztsTrackFunnel` a été
+posé avant que l'observateur du mur ne déclenche, et le `locked_view` de
+`le-mouton-perdu` a été intercepté au lieu d'être écrit. La différence entre les
+deux pages tient à quelques centaines de millisecondes — **ce qui confirme, s'il
+le fallait, qu'un stub posé depuis la console est une course qu'on perd une fois
+sur deux.** En production, où le fichier servi n'est pas modifiable, c'est le
+seul levier disponible : il faut compter avec 1 à 2 `locked_view` par page
+visitée en recette.
+
+**Total des documents parasites écrits par la recette du 28 août : 5.**
+Trois au §7.7 (19 h 53 → 19 h 54), deux ici (20 h 21). **Aucun n'est un
+`signup_complete`** — le comptage du §7.2 reste intact, seul `locked_view` du
+28 août est gonflé.
+
+> ⚠️ **Deux autres documents, à 20 h 18 h 36 et 20 h 19 h 10** (`locked_view`
+> `menu` puis `article`/`respect-eps`), ne sont **pas attribuables avec
+> certitude**. Ils tombent pendant la fusion de #53, alors qu'aucun navigateur
+> n'était piloté et que le serveur local était arrêté. L'hypothèse la plus
+> simple est un vrai visiteur sur un article réel — à 88 visites/jour, deux vues
+> en vingt minutes est le rythme attendu. **Ils ne sont donc pas comptés comme
+> parasites, mais ils sont signalés :** en cas de doute sur le 28 août, les
+> écarter change le total de 2.
+
 ## 7.8 Ce que la PR change, et les deux découvertes qu'elle a forcées
 
 **Découverte 1 — les trois « appâts SEO » ne sont pas murés, et c'est voulu.**
