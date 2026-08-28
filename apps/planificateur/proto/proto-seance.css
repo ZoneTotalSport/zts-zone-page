@@ -219,3 +219,68 @@
   .pf-corps{grid-template-columns:1fr}
   .pf-themes{max-height:none}
 }
+
+/* ═════ COMPOSER LA PLANIFICATION — les pièces ═════
+   On glisse une pièce dans une phase, ou on coche sa case sur la porte.
+   ⚠ `.se-action` reçoit `position:relative` ICI, après sa règle d'origine :
+   la case à cocher se pose dans son coin. */
+.plan-palette{display:grid;grid-template-columns:repeat(auto-fit,minmax(134px,1fr));gap:8px;margin:0 0 12px}
+.plan-piece{
+  cursor:grab;text-align:left;padding:7px 9px;background:#F1F7FA;color:var(--ink);
+  border:3px solid var(--noir);border-radius:12px;box-shadow:2px 2px 0 var(--noir);
+  -webkit-user-select:none;user-select:none;
+}
+.plan-piece .emo{display:block;font-size:20px;line-height:1}
+.plan-piece b{display:block;font-family:var(--f-titre);font-size:15px;letter-spacing:.2px}
+.plan-piece small{display:block;font-family:var(--f-note);font-size:13px;color:var(--ink-soft);line-height:1.2}
+.plan-piece--dedans{background:#DFFCA8}
+.plan-piece--main{box-shadow:2px 2px 0 var(--noir),0 0 0 4px var(--jaune)}
+.plan-piece.drag{opacity:.45}
+.plan-depot{
+  margin-top:9px;padding:11px;text-align:center;cursor:pointer;
+  border:3px dashed var(--noir);border-radius:12px;background:#FFFEE0;color:var(--ink-soft);
+  font-family:var(--f-titre);font-size:14px;letter-spacing:.4px;
+}
+.plan-depot--pret{background:var(--jaune);color:var(--ink)}
+.plan-phase.survol,.plan-depot.survol{background:#F2FFE2;color:var(--ink)}
+.etape[draggable="true"]{cursor:grab}
+.etape.drag{opacity:.45}
+.etape.survol{box-shadow:0 -5px 0 -1px var(--lime)}
+.etape--piece .etape-lien{background:#EAF6FF}
+.etape-reg{
+  flex:none;width:32px;cursor:pointer;font-size:13px;
+  border:3px solid var(--noir);border-radius:10px;background:#fff;color:var(--ink);
+  box-shadow:2px 2px 0 var(--noir);
+}
+/* ── la case à cocher d'une porte ── */
+.se-action{position:relative}
+.se-action[data-k]:not([data-k="cours"]){padding-right:34px}
+.se-case{
+  position:absolute;top:6px;right:7px;line-height:1;font-size:20px;cursor:pointer;
+  padding:1px 3px;border-radius:7px;
+}
+.se-case:hover{background:var(--jaune)}
+.se-case:focus-visible{outline:3px solid var(--jaune);outline-offset:2px}
+.se-action.dans-plan{box-shadow:4px 4px 0 var(--noir),0 0 0 3px var(--lime)}
+
+/* ── l'en-tête de la séance : sa photo, sa couleur ── */
+.se-photo{
+  flex:none;width:62px;height:62px;cursor:pointer;padding:0;overflow:hidden;color:inherit;
+  display:flex;align-items:center;justify-content:center;
+  border:3px solid var(--noir);border-radius:12px;background:rgba(255,255,255,.55);
+  box-shadow:2px 2px 0 var(--noir);
+}
+.se-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.se-photo .emo{font-size:32px;line-height:1}
+.se-photo.vide{border-style:dashed}
+.se-photo.survol{background:var(--jaune);box-shadow:2px 2px 0 var(--noir),0 0 0 4px var(--lime)}
+.se-qui{flex:1 1 200px;min-width:0}
+.se-parure{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.se-parure-lab{font-family:var(--f-titre);font-size:13px;letter-spacing:.5px;margin-right:2px}
+.se-coul{
+  width:26px;height:26px;cursor:pointer;padding:0;line-height:1;font-size:12px;
+  border:3px solid var(--noir);border-radius:8px;box-shadow:1px 1px 0 var(--noir);
+}
+.se-coul[aria-pressed="true"]{box-shadow:1px 1px 0 var(--noir),0 0 0 3px var(--jaune)}
+.se-coul--photo{background:#fff;color:var(--ink);font-size:14px}
+.pastille-gr.survol{box-shadow:3px 3px 0 var(--noir),0 0 0 4px var(--lime)}

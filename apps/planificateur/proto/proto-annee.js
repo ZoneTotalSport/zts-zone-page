@@ -206,10 +206,13 @@ barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOI
     const h=$('#seActions'); if(!h) return;
     if (h.querySelector('[data-tests]')) return;
     const b=el('button','se-action'); b.type='button'; b.dataset.tests='1';
+    b.dataset.k='tests';   /* pour la case à cocher de la planification */
     b.innerHTML='<span class="emo">🏃</span><span class="lab">TESTS</span>'
       +'<span class="etat">chrono, navette, Léger-Boucher</span>';
     b.addEventListener('click',()=>{ fermerModale(); allerA('e-tests'); });
     h.appendChild(b);
+    /* la tuile arrive APRÈS le passage de decorerPortes() : on le rappelle. */
+    if (typeof decorerPortes==='function') decorerPortes();
   };
 })();
 

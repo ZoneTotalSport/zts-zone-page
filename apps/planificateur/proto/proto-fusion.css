@@ -7,12 +7,16 @@
    ========================================================================== */
 
 /* ---- bandeau d'aide en tête d'écran : la phrase qui dit quoi faire ---- */
+/* ⚠ C'ÉTAIT UN `display:flex` AVEC UN `gap`. Chaque <b> du texte devenait
+   alors un élément flex à part, et la phrase se disloquait en colonnes
+   espacées — illisible dès qu'une aide mettait deux mots en gras. En bloc,
+   l'emoji tient la tête de ligne et le texte coule normalement. */
 .aide-un-mot{
-  display:flex;gap:10px;align-items:center;
+  display:block;
   background:#FFFEE0;color:var(--ink);border:var(--bord);border-radius:14px;
   padding:10px 14px;margin:0 0 16px;font-weight:800;font-size:15px;
 }
-.aide-un-mot .emo{font-size:26px;line-height:1}
+.aide-un-mot .emo{font-size:26px;line-height:1;margin-right:9px;vertical-align:-4px}
 .aide-un-mot{font-family:var(--f-note);font-size:18px;font-weight:400}
 
 /* ---- options d'un bloc, ouvertes SUR le bloc ---- */

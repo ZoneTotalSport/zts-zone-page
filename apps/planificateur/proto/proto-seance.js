@@ -45,9 +45,9 @@ function seanceVide(grId){
   /* ⚠ AUCUNE DURÉE IMPOSÉE. Joey : « le temps, c'est à la discrétion de
      l'internaute ». Les étapes naissent sans durée ; il met la sienne. */
   return {gr:grId, minuterie:0, pres:{}, evalCrits:[], notes:{}, seq:0, etapes:[
-    {id:1, phase:'arrivee', titre:'Arrivée',      desc:'', duree:0, medias:[], fait:false},
-    {id:2, phase:'pendant', titre:'',             desc:'', duree:0, medias:[], fait:false},
-    {id:3, phase:'fin',     titre:'Fin du cours', desc:'', duree:0, medias:[], fait:false},
+    {id:1, phase:'arrivee', piece:'libre', titre:'Arrivée',      desc:'', duree:0, medias:[], fait:false},
+    {id:2, phase:'pendant', piece:'libre', titre:'',             desc:'', duree:0, medias:[], fait:false},
+    {id:3, phase:'fin',     piece:'libre', titre:'Fin du cours', desc:'', duree:0, medias:[], fait:false},
   ]};
 }
 const PHASES = [
@@ -55,6 +55,32 @@ const PHASES = [
   ['pendant','🏃 PENDANT LA PÉRIODE','Les activités, dans l’ordre'],
   ['fin',    '🏁 FIN DU COURS',  'Le retour au calme, le rangement'],
 ];
+
+/* ═════ LES PIÈCES — ce qu'on met DANS la planification ═════
+   Joey, 28 août : « permet de choisir ce qui est dans la planification — genre
+   évaluation, glisser-déposer le temps, etc. » et « permet d'enlever des
+   éléments en décochant ».
+   Chaque étape porte donc une `piece`. `libre` est l'activité écrite à la main ;
+   les autres BRANCHENT l'étape sur une porte de la séance — la toucher pendant
+   le cours ouvre cette porte. Deux gestes pour composer, pas un :
+   on GLISSE une pièce dans une phase, ou on COCHE sa case en haut ; on la
+   décoche pour l'enlever.
+   ⚠ Les clés sont EXACTEMENT celles de `volet()` — 'minuterie', 'presences',
+   'jeux', 'evaluation', 'message' — sauf 'tests', qui n'est pas un volet mais
+   un écran ('e-tests'), et 'libre', qui n'ouvre rien. Renommer une clé casse
+   `ouvrirPiece()` en silence. */
+const PIECES = {
+  libre:      {emo:'✏️', lab:'ACTIVITÉ',   titre:'',                     quoi:'À écrire soi-même',        ph:'pendant'},
+  minuterie:  {emo:'⏱️', lab:'LE TEMPS',   titre:'Le temps',             quoi:'Une durée qu’on lance',      ph:'pendant'},
+  presences:  {emo:'✅', lab:'PRÉSENCES',  titre:'Prendre les présences', quoi:'Qui est là, qui a son linge', ph:'arrivee'},
+  jeux:       {emo:'🎲', lab:'UN JEU',     titre:'Un jeu',               quoi:'Pigé dans la banque',       ph:'pendant'},
+  evaluation: {emo:'📝', lab:'ÉVALUATION', titre:'Évaluer',              quoi:'Les critères, la grille',    ph:'pendant'},
+  message:    {emo:'💬', lab:'UN MOT',     titre:'Un mot sur le cours',  quoi:'Ce qu’on retient',           ph:'fin'},
+  tests:      {emo:'🏃', lab:'UN TEST',    titre:'Un test',              quoi:'Navette, Léger-Boucher',     ph:'pendant'},
+};
+const ORDRE_PIECES = ['libre','minuterie','presences','jeux','evaluation','message','tests'];
+function pieceDe(e){ return (e && e.piece && PIECES[e.piece]) ? e.piece : 'libre'; }
+let pieceEnMain = null;
 
 /* ── l'image d'un élève : sa photo, ou sa pastille à initiales ── */
 function visageDe(i){ return photoDe(i); }
@@ -87,6 +113,7 @@ function peindrePalette(){
       e.dataTransfer.effectAllowed='copy';
     });
     b.addEventListener('dragend', ()=> b.classList.remove('drag'));
+    photoDeposable(b, g.id);   /* lâcher une photo dessus l'habille aussi */
     /* Sans souris : on touche le groupe, puis la case. */
     b.addEventListener('click', ()=>{
       grpEnMain = (grpEnMain===g.id) ? null : g.id;
@@ -209,19 +236,93 @@ function ouvrirSeance(iso, per){
   const corps=ouvrirModale('Période '+per);
   corps.innerHTML=`
     <div class="se-tete" id="seTete">
-      <span class="img"></span>
-      <div><h3></h3><div class="quand"></div></div>
+      <button type="button" class="se-photo" id="sePhoto"></button>
+      <div class="se-qui"><h3></h3><div class="quand"></div></div>
+      <div class="se-parure" id="seParure"></div>
     </div>
     <div class="se-actions" id="seActions"></div>
     <div id="seDetail"></div>`;
-  const tete=$('#seTete');
-  tete.style.background=g.coul; tete.style.color=encreSur(g.coul);
-  if (g.img){ const im=document.createElement('img'); im.className='img'; im.src=g.img; im.alt='';
-              tete.replaceChild(im, tete.querySelector('.img')); }
-  else tete.querySelector('.img').textContent=g.emo;
-  tete.querySelector('h3').textContent='Groupe '+g.nom;
-  tete.querySelector('.quand').textContent=jourLisible(iso)+' · période '+per+' · '+g.eleves.length+' élèves';
+  peindreTeteSeance();
   peindreActionsSeance();
+}
+
+/* ═════ L'EN-TÊTE DE LA SÉANCE — sa couleur, sa photo ═════
+   Joey, 28 août : « dans le header, choix couleur ou choix photos ; et à la
+   place d'un ballon, glisser-déposer une image de l'enseignant·e, pour
+   faciliter la navigation des groupes. »
+   ⚠ La couleur et la photo appartiennent au GROUPE, pas à la séance : changées
+   ici, elles changent AUSSI dans la palette et dans les cases de l'agenda.
+   C'est exactement le but — on reconnaît son groupe à un visage, pas à un
+   ballon générique. */
+function peindreTeteSeance(){
+  if (typeof seanceOuverte==='undefined' || !seanceOuverte) return;
+  const {iso,per}=seanceOuverte; const s=seanceDe(iso,per); if(!s) return;
+  const g=grpDe(s.gr);
+  const tete=$('#seTete'); if(!tete) return;
+  const coul = g ? g.coul : '#9E9E9E';
+  tete.style.background=coul; tete.style.color=encreSur(coul);
+  tete.querySelector('h3').textContent = g ? 'Groupe '+g.nom : 'Groupe retiré';
+  tete.querySelector('.quand').textContent =
+    jourLisible(iso)+' · période '+per+' · '+((g&&g.eleves.length)||0)+' élèves';
+
+  /* ⚠ ON REMPLACE LE BOUTON, on ne le vide pas. `peindreTeteSeance()` est
+     rappelée à chaque changement de couleur ou de photo : rebrancher `click`
+     sur le MÊME noeud empilait les écouteurs, et le sélecteur de fichier
+     s'ouvrait deux fois, puis trois. Un clone sans enfant ne garde rien. */
+  const vieux=$('#sePhoto'); const ph=vieux.cloneNode(false);
+  vieux.replaceWith(ph);
+  ph.className='se-photo'+((g&&g.img)?'':' vide');
+  if (g && g.img){ const im=document.createElement('img'); im.src=g.img; im.alt=''; ph.appendChild(im); }
+  else ph.appendChild(el('span','emo', g?g.emo:'❓'));
+  const par=$('#seParure'); par.innerHTML='';
+  if (!g){ ph.title='Ce groupe a été retiré.'; return; }
+
+  ph.title='Glisse ici une photo de l’enseignant·e ou du groupe — ou touche pour la choisir.';
+  ph.addEventListener('click', ()=> choisirPhotoGroupe(g.id));
+  photoDeposable(ph, g.id);
+
+  par.appendChild(el('span','se-parure-lab','SA COULEUR'));
+  PALETTE_COUL.forEach(c=>{
+    const b=el('button','se-coul'); b.type='button'; b.style.background=c;
+    b.setAttribute('aria-pressed', String(c===g.coul));
+    b.title='Mettre le groupe '+g.nom+' de cette couleur';
+    b.addEventListener('click', ()=> majGroupe(g.id, x=>x.coul=c));
+    par.appendChild(b);
+  });
+  const ph2=el('button','se-coul se-coul--photo', g.img?'✕':'📷'); ph2.type='button';
+  ph2.title = g.img ? 'Retirer la photo et revenir à l’image' : 'Choisir une photo';
+  ph2.addEventListener('click', ()=> g.img ? majGroupe(g.id, x=>x.img='') : choisirPhotoGroupe(g.id));
+  par.appendChild(ph2);
+}
+/* Écrire sur un groupe, et le répercuter PARTOUT où il se montre. */
+function majGroupe(id, f){
+  const l=GRP(); const g=l.find(x=>x.id===id); if(!g) return;
+  f(g); poserGRP(l);
+  peindreAgenda();                      /* repeint aussi la palette */
+  if (seanceOuverte && $('#modale') && !$('#modale').hidden) peindreTeteSeance();
+}
+function choisirPhotoGroupe(id){
+  const i=document.createElement('input'); i.type='file'; i.accept='image/*';
+  i.addEventListener('change',()=>{ const f=i.files[0]; if(f) avalePhotoGroupe(id,f); });
+  i.click();
+}
+function avalePhotoGroupe(id, f){
+  if (!/^image\//.test(f.type||'')){ alert('« '+f.name+' » n’est pas une image.'); return; }
+  /* 240 px de côté : la même taille que les photos choisies dans MES GROUPES —
+     assez pour une pastille, assez petit pour tenir dans localStorage. */
+  reduireImage(f,240,.8).then(d=> majGroupe(id, g=>g.img=d))
+                        .catch(()=> alert('Impossible de lire « '+f.name+' ».'));
+}
+/* Une zone où l'on peut LÂCHER la photo d'un groupe. */
+function photoDeposable(n, id){
+  n.addEventListener('dragover', ev=>{
+    if ([...(ev.dataTransfer.types||[])].indexOf('Files')<0) return;
+    ev.preventDefault(); ev.stopPropagation(); n.classList.add('survol'); });
+  n.addEventListener('dragleave', ()=> n.classList.remove('survol'));
+  n.addEventListener('drop', ev=>{
+    const f=(ev.dataTransfer.files||[])[0]; if(!f) return;
+    ev.preventDefault(); ev.stopPropagation(); n.classList.remove('survol');
+    avalePhotoGroupe(id, f); });
 }
 function majSeance(f){
   const {iso,per}=seanceOuverte; const s=seanceDe(iso,per); f(s);
@@ -267,6 +368,7 @@ function peindreActionsSeance(){
   ];
   act.forEach(a=>{
     const b=el('button','se-action'+(a.faite?' faite':'')); b.type='button';
+    b.dataset.k=a.k;
     b.innerHTML='<span class="emo"></span><span class="lab"></span><span class="etat"></span>';
     b.querySelector('.emo').textContent=a.emo;
     b.querySelector('.lab').textContent=a.lab;
@@ -275,6 +377,7 @@ function peindreActionsSeance(){
     h.appendChild(b);
   });
   volet(lire('seVolet','cours'));
+  decorerPortes();
 }
 
 function volet(quoi){
@@ -485,15 +588,157 @@ let cibleSeance = null;
    Chaque étape est donc un LIEN : on le touche, son détail s'ouvre. */
 function etapeDe(s, id){ return (s.etapes||[]).find(e=>e.id===id); }
 
+/* ── poser, déplacer, retirer une pièce ── */
+
+/* Les séances d'avant ce chantier n'ont pas de `piece` : on la pose sans rien
+   perdre. Appelé au rendu ET sur la copie enregistrée — `seanceDe()` rend un
+   objet neuf à chaque appel, muter celui du rendu n'écrit rien. */
+function migrerPieces(s){
+  let bouge=false;
+  (s.etapes||[]).forEach(e=>{ if(!e.piece){ e.piece='libre'; bouge=true; } });
+  return bouge;
+}
+/* Où atterrit une pièce quand la phase visée est vide ? Pas au tout début :
+   on respecte l'ordre ARRIVÉE → PENDANT → FIN. */
+function finDePhase(etapes, ph){
+  const der=etapes.map(e=>e.phase).lastIndexOf(ph);
+  if (der>=0) return der+1;
+  const rang=PHASES.findIndex(x=>x[0]===ph);
+  for (let i=0;i<etapes.length;i++)
+    if (PHASES.findIndex(x=>x[0]===etapes[i].phase) > rang) return i;
+  return etapes.length;
+}
+function placerEtape(x, et, ph, avantId){
+  let j = (avantId!=null) ? x.etapes.findIndex(y=>y.id===avantId) : -1;
+  if (j<0) j = finDePhase(x.etapes, ph);
+  et.phase=ph; x.etapes.splice(j,0,et);
+}
+function ajouterPiece(k, ph, avantId){
+  const P=PIECES[k]||PIECES.libre;
+  majSeance(x=>{
+    const nid=Math.max(0,...x.etapes.map(y=>y.id))+1;
+    placerEtape(x, {id:nid, phase:ph, piece:k, titre:P.titre||'', desc:'',
+                    duree:0, medias:[], fait:false}, ph, avantId);
+  });
+}
+function deplacerEtape(id, ph, avantId){
+  if (id===avantId) return;
+  majSeance(x=>{
+    const i=x.etapes.findIndex(y=>y.id===id); if(i<0) return;
+    const [et]=x.etapes.splice(i,1);
+    placerEtape(x, et, ph, avantId);
+  });
+}
+function etapesDeLaPiece(s, k){ return (s.etapes||[]).filter(e=>pieceDe(e)===k); }
+/* Une étape où quelque chose a été écrit ne s'en va pas sans qu'on le demande. */
+function etapeRemplie(e){ return !!(e.desc || (e.medias||[]).length || e.duree || e.fait); }
+function retirerEtape(id){
+  const {iso,per}=seanceOuverte; const s=seanceDe(iso,per);
+  const e=etapeDe(s,id); if(!e) return;
+  if (etapeRemplie(e) && !confirm('Retirer « '+(e.titre||PIECES[pieceDe(e)].lab)+' » de la planification ?')) return;
+  majSeance(x=>x.etapes=x.etapes.filter(y=>y.id!==id));
+}
+/* Cocher la case d'une porte pose sa pièce ; la décocher la retire. */
+function basculerPiece(k){
+  const {iso,per}=seanceOuverte; const s=seanceDe(iso,per);
+  const dedans=etapesDeLaPiece(s,k);
+  if (!dedans.length){ ajouterPiece(k, PIECES[k].ph, null); return; }
+  if (dedans.some(etapeRemplie)
+      && !confirm('Retirer '+PIECES[k].lab+' de la planification ? Ce qui y est écrit sera effacé.')) return;
+  const ids=dedans.map(e=>e.id);
+  majSeance(x=>x.etapes=x.etapes.filter(y=>ids.indexOf(y.id)<0));
+}
+/* Toucher une étape branchée ouvre SA porte. */
+function ouvrirPiece(k, id){
+  const {iso,per}=seanceOuverte;
+  if (k==='tests'){ fermerModale(); allerA('e-tests'); return; }
+  if (k==='minuterie'){
+    /* la durée écrite sur l'étape devient celle de la minuterie — c'est tout
+       l'intérêt de glisser LE TEMPS à un endroit précis du cours. */
+    const e=etapeDe(seanceDe(iso,per), id);
+    if (e && e.duree){
+      majSeanceSansRedessin(x=>x.minuterie=e.duree);
+      volet('minuterie');
+      const mid='seance-'+iso+'-'+per;
+      if (minuteries.has(mid)) poserTemps(mid, e.duree);
+      return;
+    }
+  }
+  volet(k);
+}
+/* Le même dépôt sert aux deux gestes : poser une pièce neuve, ou déplacer une
+   étape déjà là. `avantId` null = à la fin de la phase. */
+function accepterDepot(n, ph, avantId){
+  const bon=t=>{ const l=[...(t||[])];
+    return l.indexOf('text/zts-piece')>=0 || l.indexOf('text/zts-etape')>=0; };
+  n.addEventListener('dragover', ev=>{ if(!bon(ev.dataTransfer.types)) return;
+    ev.preventDefault(); ev.stopPropagation(); n.classList.add('survol'); });
+  n.addEventListener('dragleave', ()=> n.classList.remove('survol'));
+  n.addEventListener('drop', ev=>{
+    if(!bon(ev.dataTransfer.types)) return;
+    ev.preventDefault(); ev.stopPropagation(); n.classList.remove('survol');
+    const k=ev.dataTransfer.getData('text/zts-piece');
+    if (k){ pieceEnMain=null; ajouterPiece(k, ph, avantId); return; }
+    const id=parseInt(ev.dataTransfer.getData('text/zts-etape'),10);
+    if (id) deplacerEtape(id, ph, avantId);
+  });
+}
+
+/* ═════ COCHER CE QUI ENTRE DANS LA PLANIFICATION ═════
+   Les cases de la séance portent une case à cocher : cochée, la pièce est dans
+   la planification ; décochée, elle n'y est pas. Idempotent — TESTS est ajouté
+   après coup par proto-annee.js, qui rappelle cette fonction. */
+function decorerPortes(){
+  if (typeof seanceOuverte==='undefined' || !seanceOuverte) return;
+  const {iso,per}=seanceOuverte; const s=seanceDe(iso,per); if(!s) return;
+  $$('.se-action[data-k]').forEach(b=>{
+    const k=b.dataset.k; if (k==='cours' || !PIECES[k]) return;
+    const dedans=etapesDeLaPiece(s,k).length>0;
+    let c=b.querySelector('.se-case');
+    if (!c){
+      c=el('span','se-case'); c.setAttribute('role','checkbox'); c.tabIndex=0;
+      const bascule=ev=>{ ev.stopPropagation(); ev.preventDefault(); basculerPiece(k); };
+      c.addEventListener('click', bascule);
+      c.addEventListener('keydown', ev=>{ if(ev.key===' '||ev.key==='Enter') bascule(ev); });
+      b.appendChild(c);
+    }
+    c.textContent = dedans ? '☑' : '☐';
+    c.setAttribute('aria-checked', String(dedans));
+    c.title = (dedans?'Retirer ':'Mettre ')+PIECES[k].lab+(dedans?' de':' dans')+' la planification';
+    b.classList.toggle('dans-plan', dedans);
+  });
+}
+
 function peindrePlanification(d, s, iso, per){
   if (!s.etapes){ majSeance(x=>{ const v=seanceVide(x.gr); x.etapes=v.etapes; x.seq=v.seq; }); return; }
+  if (migrerPieces(s)) majSeanceSansRedessin(x=>migrerPieces(x));
   const total=(s.etapes||[]).reduce((a,e)=>a+(e.duree||0),0);
   const faits=(s.etapes||[]).filter(e=>e.fait).length;
 
   const chapeau=el('div','aide-un-mot');
-  chapeau.innerHTML='<span class="emo">👆</span>Touche une étape pour l’ouvrir : son explication, ses images, sa durée. '
-    +'Coche-la quand c’est fait.';
+  chapeau.innerHTML='<span class="emo">👆</span>Compose ton cours : <b>glisse une pièce</b> dans une phase, '
+    +'ou <b>coche-la</b> dans les cases du haut — <b>décoche</b> pour l’enlever. '
+    +'Une étape se glisse pour changer de place, se touche pour s’ouvrir.';
   d.appendChild(chapeau);
+
+  const pal=el('div','plan-palette');
+  ORDRE_PIECES.forEach(k=>{
+    const P=PIECES[k], n=etapesDeLaPiece(s,k).length;
+    const c=el('div','plan-piece'+(pieceEnMain===k?' plan-piece--main':'')+(n?' plan-piece--dedans':''));
+    c.draggable=true; c.dataset.piece=k;
+    c.innerHTML='<span class="emo"></span><b></b><small></small>';
+    c.querySelector('.emo').textContent=P.emo;
+    c.querySelector('b').textContent=P.lab+(n>1?' ×'+n:'');
+    c.querySelector('small').textContent=P.quoi;
+    c.title=P.lab+' — glisse-moi dans une phase, ou touche-moi puis touche la phase.';
+    c.addEventListener('dragstart', ev=>{ c.classList.add('drag');
+      ev.dataTransfer.setData('text/zts-piece',k); ev.dataTransfer.effectAllowed='copy'; });
+    c.addEventListener('dragend', ()=> c.classList.remove('drag'));
+    /* sans souris : on touche la pièce, puis la phase. */
+    c.addEventListener('click', ()=>{ pieceEnMain=(pieceEnMain===k)?null:k; volet('cours'); });
+    pal.appendChild(c);
+  });
+  d.appendChild(pal);
 
   const cpt=el('div','pres-compte');
   cpt.innerHTML='<span></span><span class="l"></span>';
@@ -502,50 +747,59 @@ function peindrePlanification(d, s, iso, per){
   d.appendChild(cpt);
 
   PHASES.forEach(([ph,lab,quoi])=>{
-    const box=el('div','se-cours'); box.style.marginBottom='12px';
-    const t=el('h4',null,lab); box.appendChild(t);
+    const box=el('div','se-cours plan-phase'); box.style.marginBottom='12px';
+    box.appendChild(el('h4',null,lab));
     const sq=el('div'); sq.style.cssText='font-family:var(--f-note);font-size:15px;color:var(--ink-soft);margin:-4px 0 8px';
     sq.textContent=quoi; box.appendChild(sq);
+    accepterDepot(box, ph, null);
 
     const liste=s.etapes.filter(e=>e.phase===ph);
     if (!liste.length) box.appendChild(el('div','cahier-vide','Rien pour l’instant.'));
     liste.forEach(e=>{
-      const l=el('div','etape'+(e.fait?' etape--faite':''));
+      const k=pieceDe(e), P=PIECES[k];
+      const l=el('div','etape'+(e.fait?' etape--faite':'')+(k!=='libre'?' etape--piece':''));
+      l.draggable=true; l.dataset.et=e.id;
+      l.addEventListener('dragstart', ev=>{ l.classList.add('drag');
+        ev.dataTransfer.setData('text/zts-etape',String(e.id)); ev.dataTransfer.effectAllowed='move'; });
+      l.addEventListener('dragend', ()=> l.classList.remove('drag'));
+      accepterDepot(l, ph, e.id);
+
       const chk=el('button','etape-chk', e.fait?'✔':'○'); chk.type='button';
       chk.title=e.fait?'Marquer non terminée':'Marquer terminée';
-      chk.addEventListener('click',ev=>{ ev.stopPropagation();
-        majSeance(x=>{ const y=etapeDe(x,e.id); y.fait=!y.fait; }); volet('cours'); });
+      chk.addEventListener('click', ev=>{ ev.stopPropagation();
+        majSeance(x=>{ const y=etapeDe(x,e.id); y.fait=!y.fait; }); });
+      l.appendChild(chk);
+
       const lien=el('button','etape-lien'); lien.type='button';
       lien.innerHTML='<span class="ti"></span><span class="du"></span>';
-      lien.querySelector('.ti').textContent = e.titre || '(sans titre — touche pour le nommer)';
-      lien.querySelector('.du').textContent = (e.duree ? Math.round(e.duree/60)+' min' : 'durée à toi')
+      lien.querySelector('.ti').textContent=(k!=='libre' ? P.emo+' ' : '')
+        + (e.titre || (k!=='libre' ? P.lab : '(sans titre — touche pour le nommer)'));
+      lien.querySelector('.du').textContent=(e.duree ? Math.round(e.duree/60)+' min'
+                                             : (k==='libre' ? 'durée à toi' : P.quoi))
         + ((e.medias||[]).length ? ' · 🖼️ '+e.medias.length : '');
-      lien.addEventListener('click',()=> ouvrirEtape(e.id));
-      l.appendChild(chk); l.appendChild(lien);
-      if (ph==='pendant'){
-        const x=el('button','etape-sup','✕'); x.type='button'; x.title='Retirer cette activité';
-        x.addEventListener('click',ev=>{ ev.stopPropagation();
-          if(!confirm('Retirer « '+(e.titre||'cette activité')+' » ?')) return;
-          majSeance(y=>y.etapes=y.etapes.filter(z=>z.id!==e.id)); volet('cours'); });
-        l.appendChild(x);
+      lien.title = (k==='libre') ? 'Ouvrir cette activité' : 'Ouvrir ' + P.lab.toLowerCase();
+      lien.addEventListener('click', ()=> (k==='libre') ? ouvrirEtape(e.id) : ouvrirPiece(k, e.id));
+      l.appendChild(lien);
+
+      if (k!=='libre'){
+        const reg=el('button','etape-reg','✎'); reg.type='button';
+        reg.title='Son titre, son explication, sa durée, ses images';
+        reg.addEventListener('click', ev=>{ ev.stopPropagation(); ouvrirEtape(e.id); });
+        l.appendChild(reg);
       }
+      const sup=el('button','etape-sup','✕'); sup.type='button'; sup.title='Retirer de la planification';
+      sup.addEventListener('click', ev=>{ ev.stopPropagation(); retirerEtape(e.id); });
+      l.appendChild(sup);
       box.appendChild(l);
     });
 
-    if (ph==='pendant'){
-      const bar=el('div'); bar.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:9px';
-      const pige=el('button','mini mini--lime','🎲 PIGER UN JEU'); pige.type='button';
-      pige.addEventListener('click',()=>{ cibleSeance={iso,per}; fermerModale(); ouvrirTiroir(null); allerA('e-jeux'); });
-      const add=el('button','mini','+ AUTRE ACTIVITÉ'); add.type='button';
-      add.addEventListener('click',()=>{
-        majSeance(x=>{ x.seq=(x.seq||0)+1;
-          const nid=Math.max(0,...x.etapes.map(y=>y.id))+1;
-          const k=x.etapes.map(y=>y.phase).lastIndexOf('pendant');
-          x.etapes.splice(k+1,0,{id:nid,phase:'pendant',titre:'',desc:'',duree:0,medias:[],fait:false}); });
-        volet('cours');
-      });
-      bar.appendChild(pige); bar.appendChild(add); box.appendChild(bar);
-    }
+    const dep=el('div','plan-depot'+(pieceEnMain?' plan-depot--pret':''));
+    dep.textContent = pieceEnMain ? '👆 touche ici pour poser '+PIECES[pieceEnMain].lab
+                                  : '＋ glisse une pièce ici';
+    accepterDepot(dep, ph, null);
+    dep.addEventListener('click', ()=>{ if(!pieceEnMain) return;
+      const k=pieceEnMain; pieceEnMain=null; ajouterPiece(k, ph, null); });
+    box.appendChild(dep);
     d.appendChild(box);
   });
 }
@@ -730,12 +984,13 @@ peindreAgenda = function(){
     const {iso,per}=cibleSeance; cibleSeance=null;
     const s=seanceDe(iso,per); if(!s){ fermerTiroir(); return; }
     /* la première activité vide accueille le jeu ; sinon on en ajoute une */
-    const vide=(s.etapes||[]).find(x=>x.phase==='pendant' && !x.titre);
-    if (vide){ vide.titre=j.n; vide.desc=j.d; vide.duree=(j.t||15)*60; }
+    const vide=(s.etapes||[]).find(x=>pieceDe(x)==='jeux' && !x.desc)
+             || (s.etapes||[]).find(x=>x.phase==='pendant' && !x.titre);
+    if (vide){ vide.piece='jeux'; vide.titre=j.n; vide.desc=j.d; vide.duree=(j.t||15)*60; }
     else {
       const nid=Math.max(0,...s.etapes.map(y=>y.id))+1;
       const k=s.etapes.map(y=>y.phase).lastIndexOf('pendant');
-      s.etapes.splice(k+1,0,{id:nid,phase:'pendant',titre:j.n,desc:j.d,duree:(j.t||15)*60,medias:[],fait:false});
+      s.etapes.splice(k+1,0,{id:nid,phase:'pendant',piece:'jeux',titre:j.n,desc:j.d,duree:(j.t||15)*60,medias:[],fait:false});
     }
     ecrire(cleSeance(iso,per), s);
     fermerTiroir(); peindreAgenda(); allerA('e-accueil');

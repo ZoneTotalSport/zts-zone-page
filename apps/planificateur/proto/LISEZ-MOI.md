@@ -193,3 +193,36 @@ Les pièces jointes des blocs vivent en `localStorage`, comme dans l'app réelle
 Elles ne suivent pas d'un appareil à l'autre et un vidage de navigateur les
 détruit. Le proto le dit tout haut quand la mémoire déborde — c'est le point le
 plus lourd du `CONTRAT-FONCTIONNEL-FUSION-2026-08.md`.
+
+## Composer la planification — 28 août
+
+La planification n'est plus une liste figée : on choisit **ce qu'il y a
+dedans**. Chaque étape porte une **pièce** (`PIECES`, dans `proto-seance.js`) —
+`libre` est l'activité qu'on écrit soi-même, les six autres branchent l'étape
+sur une porte de la séance.
+
+Trois gestes, tous équivalents :
+
+1. **Glisser** une pièce de la palette dans une phase (ARRIVÉE · PENDANT · FIN).
+2. **Cocher** sa case sur la tuile de la porte, en haut du panneau ; **décocher**
+   la retire — c'est la demande de Joey mot pour mot.
+3. **Toucher** la pièce puis la phase, pour qui n'a pas de souris.
+
+Les étapes se **glissent entre elles** pour changer d'ordre ou de phase. Toucher
+une étape branchée ouvre sa porte ; son ✎ ouvre son titre, sa durée, ses images.
+Une durée écrite sur la pièce **LE TEMPS** est celle que la minuterie prend
+quand on la touche.
+
+⚠ Les clés de `PIECES` sont **exactement** celles de `volet()`. `tests` est la
+seule exception : ce n'est pas un volet mais l'écran `e-tests`. Renommer une clé
+casse `ouvrirPiece()` sans un mot dans la console.
+
+## L'en-tête de la séance — sa couleur, sa photo
+
+Le bandeau de la séance porte les huit couleurs du groupe et un emplacement de
+photo : on y **lâche une image** (l'enseignant·e, le groupe) et le ballon
+disparaît. La même chose se lâche sur une pastille de la palette.
+
+⚠ La couleur et la photo appartiennent au **groupe**, pas à la séance : posées
+ici, elles changent aussi dans la palette et dans les cases de l'agenda. C'est
+le but — reconnaître un groupe à un visage plutôt qu'à un ballon générique.
