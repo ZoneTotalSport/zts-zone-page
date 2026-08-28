@@ -223,16 +223,15 @@ function planSemaine(){
   const corps=ouvrirModale('Planification de la semaine du '+jourLisible(agLundi));
   corps.innerHTML='';
   const aide=el('div','aide-un-mot');
-  aide.innerHTML='<span class="emo">\u270D\ufe0f</span>Écris ici <b>ce que tu veux</b>, cours par cours. '
-    +'En enregistrant, chaque texte se pose sur son cours dans la semaine — '
-    +'et un clic sur le cours le rouvre directement sur sa planification.';
+  aide.innerHTML='<span class="emo">\u270D\ufe0f</span>Une fiche par cours de la semaine, '
+    +'<b>dans la forme de ton gabarit papier</b>. Ce que tu écris ici est le cours lui-même : '
+    +'il apparaît aussitôt dans <b>MA SEMAINE</b>, et un clic sur la case le rouvre.';
   corps.appendChild(aide);
 
   if (!liste.length){
-    const v=el('div','cahier-vide',
+    corps.appendChild(el('div','cahier-vide',
       'Aucun cours dans cette semaine. Glisse d’abord un groupe dans une case de l’agenda : '
-      +'c’est ce qui crée un cours.');
-    corps.appendChild(v);
+      +'c’est ce qui crée un cours.'));
     const f=el('button','mini','← RETOUR À MA SEMAINE'); f.type='button';
     f.addEventListener('click',()=>{ fermerModale(); allerA('e-accueil'); });
     corps.appendChild(f);
@@ -240,43 +239,205 @@ function planSemaine(){
   }
 
   const hote=el('div');
-  liste.forEach(x=>{
-    const g=grpDe(x.s.gr) || {nom:'Groupe retiré', coul:'#9E9E9E', emo:'❓', img:''};
-    const c=el('div','pap-cadre ps-cours');
-    const h=el('h4');
-    h.style.background=g.coul; h.style.color=encreSur(g.coul);
-    const qui=el('span','qui');
-    if (g.img){ const im=document.createElement('img'); im.src=g.img; im.alt=''; qui.appendChild(im); }
-    else qui.appendChild(el('span',null,g.emo));
-    qui.appendChild(el('b',null,g.nom));
-    h.appendChild(qui);
-    h.appendChild(el('span',null, jourLisible(x.iso)+' · période '+x.per
-                    +' · '+((g.eleves||[]).length)+' élèves'));
-    c.appendChild(h);
-    const z=el('div','ps-zone'); z.contentEditable='true';
-    z.dataset.vide='Écris ici, comme sur ta feuille…';
-    z.dataset.iso=x.iso; z.dataset.per=String(x.per);
-    z.textContent=x.s.plan||'';
-    z.addEventListener('blur',()=> ecrirePlan(z.dataset.iso, +z.dataset.per, z.textContent));
-    c.appendChild(z);
-    hote.appendChild(c);
-  });
+  liste.forEach(x=> hote.appendChild(ficheDeCours(x.iso, x.per)));
   corps.appendChild(hote);
 
   const pied=el('div','ps-pied');
-  const ok=el('button','m-valider','✔ ENREGISTRER ET VOIR MA SEMAINE'); ok.type='button';
-  ok.addEventListener('click',()=>{
-    $$('.ps-zone', hote).forEach(z=> ecrirePlan(z.dataset.iso, +z.dataset.per, z.textContent));
-    fermerModale(); peindreAgenda(); allerA('e-accueil');
-  });
-  const annul=el('button','mini','FERMER'); annul.type='button';
-  annul.addEventListener('click',()=>{
-    $$('.ps-zone', hote).forEach(z=> ecrirePlan(z.dataset.iso, +z.dataset.per, z.textContent));
-    fermerModale();
-  });
-  pied.appendChild(ok); pied.appendChild(annul);
+  const ok=el('button','m-valider','✔ TERMINÉ — VOIR MA SEMAINE'); ok.type='button';
+  ok.addEventListener('click',()=>{ fermerModale(); peindreAgenda(); allerA('e-accueil'); });
+  const fermer=el('button','mini','FERMER'); fermer.type='button';
+  fermer.addEventListener('click',()=> fermerModale());
+  pied.appendChild(ok); pied.appendChild(fermer);
   pied.appendChild(el('span','cahier-vide', liste.length+' cours cette semaine'));
   corps.appendChild(pied);
+}
+
+/* ═════════ UNE FICHE DE COURS, DANS LA FORME DU GABARIT PAPIER ═════════
+   Joey, 28 août, gabarit « Planification journalière » à l'appui : « selon le
+   nombre de périodes dans l'horaire, ça s'affiche comme ça pour chaque groupe ;
+   lorsque c'est terminé ça s'affiche automatiquement dans MA SEMAINE. »
+
+   La feuille dit : Cours · cycle · début · durée, puis des blocs
+   Titre / Descriptif / Durée / Illustration. On la reproduit à l'écran.
+
+   ⚠ CE N'EST PAS UN NOUVEAU STOCKAGE. Chaque bloc EST une étape de la séance,
+   celles-là mêmes que la planification affiche et que la minuterie lance. Écrire
+   ici, c'est écrire le cours — d'où le « ça s'affiche automatiquement dans MA
+   SEMAINE » : il n'y a rien à recopier, c'est la même donnée vue autrement.
+   ⚠ `blur` ENREGISTRE, comme partout ailleurs dans ce proto : on ne perd pas
+   vingt minutes d'écriture sur une fenêtre fermée par erreur.
+   ⚠ La feuille montre TROIS blocs. On en montre au moins trois, et toujours un
+   de libre à la fin : une feuille qui n'a plus de ligne vide donne l'impression
+   qu'on a fini alors qu'on n'a pas commencé. */
+const CYCLES_SCO = ['1er cycle','2e cycle','3e cycle'];
+
+function heureDeLaPeriode(per){
+  const p=(periodesAgenda()||[]).find(x=>x.n===per);
+  return p ? (p.h||'') : '';
+}
+function ficheDeCours(iso, per){
+  const s=seanceDe(iso,per);
+  const g=grpDe(s.gr) || {nom:'Groupe retiré', coul:'#9E9E9E', emo:'❓', img:'', eleves:[]};
+  const c=el('div','pap-cadre fiche');
+
+  /* ── l'en-tête : le groupe, le jour, la période ── */
+  const h=el('h4');
+  h.style.background=g.coul; h.style.color=encreSur(g.coul);
+  const qui=el('span','qui');
+  if (g.img){ const im=document.createElement('img'); im.src=g.img; im.alt=''; qui.appendChild(im); }
+  else qui.appendChild(el('span',null,g.emo));
+  qui.appendChild(el('b',null,g.nom));
+  h.appendChild(qui);
+  h.appendChild(el('span',null, jourLisible(iso)+' · période '+per+' · '+(g.eleves||[]).length+' élèves'));
+  c.appendChild(h);
+
+  /* ── la bande « Cours · cycle · début · durée » ── */
+  const bande=el('div','fiche-bande');
+
+  const bcyc=el('div','fiche-champ');
+  bcyc.appendChild(el('span','lab','Cycle'));
+  const zc=el('div','fiche-cycles');
+  CYCLES_SCO.forEach((nom,i)=>{
+    const b=el('button','cyc-case'); b.type='button';
+    const pris=!!((s.cycles||[])[i]);
+    b.textContent=(pris?'☑ ':'☐ ')+nom;
+    b.setAttribute('aria-pressed', String(pris));
+    b.addEventListener('click',()=>{
+      const se=seanceDe(iso,per); se.cycles=se.cycles||[false,false,false];
+      se.cycles[i]=!se.cycles[i]; ecrire(cleSeance(iso,per), se);
+      const on=se.cycles[i];
+      b.textContent=(on?'☑ ':'☐ ')+nom; b.setAttribute('aria-pressed', String(on));
+    });
+    zc.appendChild(b);
+  });
+  bcyc.appendChild(zc); bande.appendChild(bcyc);
+
+  const bdeb=el('div','fiche-champ');
+  bdeb.appendChild(el('span','lab','Début du cours'));
+  const deb=document.createElement('input');
+  deb.className='m-saisie'; deb.value=s.debut || heureDeLaPeriode(per);
+  deb.placeholder='ex. 8:00';
+  deb.addEventListener('change',()=>{ const se=seanceDe(iso,per);
+    se.debut=deb.value.trim(); ecrire(cleSeance(iso,per), se); });
+  bdeb.appendChild(deb); bande.appendChild(bdeb);
+
+  const bdur=el('div','fiche-champ');
+  bdur.appendChild(el('span','lab','Durée totale'));
+  const tot=el('div','fiche-total');
+  const majTotal=()=>{ const se=seanceDe(iso,per);
+    const m=Math.round((se.etapes||[]).reduce((a,e)=>a+(e.duree||0),0)/60);
+    tot.textContent = m ? m+' min' : '— '; };
+  majTotal();
+  bdur.appendChild(tot); bande.appendChild(bdur);
+  c.appendChild(bande);
+
+  /* ── les blocs : Titre · Descriptif · Durée · Illustration ── */
+  const zone=el('div','fiche-blocs');
+  const redessine=()=>{
+    zone.innerHTML='';
+    const se=seanceDe(iso,per);
+    const blocs=(se.etapes||[]).filter(e=>e.phase==='pendant');
+    const n=Math.max(3, blocs.length+1);
+    for (let k=0;k<n;k++) zone.appendChild(blocFiche(iso, per, blocs[k]||null, majTotal, redessine));
+    const plus=el('button','mini mini--lime','＋ AJOUTER UN BLOC'); plus.type='button';
+    plus.addEventListener('click',()=>{
+      const y=seanceDe(iso,per);
+      const nid=Math.max(0,...(y.etapes||[]).map(z=>z.id))+1;
+      const der=y.etapes.map(z=>z.phase).lastIndexOf('pendant');
+      y.etapes.splice(der+1,0,{id:nid,phase:'pendant',piece:'libre',titre:'',desc:'',
+                               duree:0,medias:[],fait:false});
+      ecrire(cleSeance(iso,per), y); redessine();
+    });
+    zone.appendChild(plus);
+  };
+  redessine();
+  c.appendChild(zone);
+  return c;
+}
+
+/* Un bloc. `et` vaut null pour une ligne encore vide : l'étape ne naît qu'au
+   premier mot écrit — sinon la séance se remplirait d'étapes fantômes que la
+   planification et la minuterie afficheraient pour rien. */
+function blocFiche(iso, per, et, majTotal, redessine){
+  const b=el('div','fiche-bloc');
+  const gauche=el('div','fiche-g');
+  const droite=el('div','fiche-d');
+
+  const naitre=()=>{
+    if (et) return et;
+    const y=seanceDe(iso,per);
+    const nid=Math.max(0,...(y.etapes||[]).map(z=>z.id))+1;
+    const der=y.etapes.map(z=>z.phase).lastIndexOf('pendant');
+    const neuf={id:nid,phase:'pendant',piece:'libre',titre:'',desc:'',duree:0,medias:[],fait:false};
+    y.etapes.splice(der+1,0,neuf); ecrire(cleSeance(iso,per), y);
+    et=neuf; return et;
+  };
+  const enregistre=(f)=>{ const y=seanceDe(iso,per); const z=etapeDe(y, naitre().id);
+    if(!z) return; f(z); ecrire(cleSeance(iso,per), y); majTotal(); };
+
+  const ct=el('div','fiche-champ');
+  ct.appendChild(el('span','lab','Titre'));
+  const ti=document.createElement('input'); ti.className='m-saisie';
+  ti.value=(et&&et.titre)||''; ti.placeholder='Le nom de l’activité';
+  ti.addEventListener('change',()=> enregistre(z=> z.titre=ti.value.trim()));
+  ct.appendChild(ti); gauche.appendChild(ct);
+
+  const cd=el('div','fiche-champ');
+  cd.appendChild(el('span','lab','Descriptif'));
+  const de=document.createElement('textarea'); de.className='m-saisie'; de.rows=5;
+  de.value=(et&&et.desc)||''; de.placeholder='Explique-le comme à un remplaçant…';
+  de.addEventListener('change',()=> enregistre(z=> z.desc=de.value));
+  cd.appendChild(de); gauche.appendChild(cd);
+
+  const cu=el('div','fiche-champ fiche-duree');
+  cu.appendChild(el('span','lab','Durée'));
+  const du=document.createElement('input'); du.className='m-saisie'; du.type='number';
+  du.min=0; du.max=240; du.placeholder='min';
+  du.value=(et&&et.duree)?Math.round(et.duree/60):'';
+  du.addEventListener('change',()=> enregistre(z=> z.duree=Math.max(0,(parseInt(du.value,10)||0)*60)));
+  cu.appendChild(du); gauche.appendChild(cu);
+
+  const ci=el('div','fiche-champ');
+  ci.appendChild(el('span','lab','Illustration'));
+  const vig=el('div','fiche-vig');
+  ((et&&et.medias)||[]).forEach((m,k)=>{
+    const f=document.createElement('figure');
+    if (m.type==='image'&&m.data) f.innerHTML='<img alt="" src="'+m.data+'">';
+    else f.innerHTML='<div class="doc">'+(m.type==='pdf'?'📄':m.type==='video'?'🎬':'🖼️')+'</div>';
+    const x=el('button','etape-sup','✕'); x.type='button'; x.title='Retirer';
+    x.addEventListener('click',()=>{ enregistre(z=> z.medias.splice(k,1)); redessine(); });
+    f.appendChild(x); vig.appendChild(f);
+  });
+  const dep=el('div','fiche-depot','＋ glisse une image ici — ou touche');
+  const avale=fs=>{ if(!fs.length) return;
+    const id=naitre().id;
+    fs.forEach(f=> avaleFichierEtape(id, f, ()=>{ majTotal(); redessine(); })); };
+  dep.addEventListener('dragover', ev=>{
+    if ([...(ev.dataTransfer.types||[])].indexOf('Files')<0) return;
+    ev.preventDefault(); ev.stopPropagation(); dep.classList.add('survol'); });
+  dep.addEventListener('dragleave', ()=> dep.classList.remove('survol'));
+  dep.addEventListener('drop', ev=>{
+    ev.preventDefault(); ev.stopPropagation(); dep.classList.remove('survol');
+    avale([...(ev.dataTransfer.files||[])]); });
+  dep.addEventListener('click',()=>{
+    const i=document.createElement('input'); i.type='file';
+    i.accept='image/*,video/*,application/pdf'; i.multiple=true;
+    i.addEventListener('change',()=> avale([...i.files]));
+    i.click(); });
+  ci.appendChild(vig); ci.appendChild(dep); droite.appendChild(ci);
+
+  if (et){
+    const sup=el('button','mini mini--rose','🗑 RETIRER CE BLOC'); sup.type='button';
+    sup.addEventListener('click',()=>{
+      if (!confirm('Retirer « '+(et.titre||'ce bloc')+' » ?')) return;
+      const y=seanceDe(iso,per); y.etapes=y.etapes.filter(z=>z.id!==et.id);
+      ecrire(cleSeance(iso,per), y); majTotal(); redessine();
+    });
+    droite.appendChild(sup);
+  }
+
+  b.appendChild(gauche); b.appendChild(droite);
+  return b;
 }
 
 /* ═════════ la palette de groupes, au-dessus de l'agenda ═════════ */

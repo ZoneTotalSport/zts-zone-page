@@ -450,3 +450,55 @@ html[data-zoom="300"]{zoom:3}
 /* Une période ajoutée à la main se distingue de l'horaire officiel : même
    forme, mais en pointillé — c'est une ligne que le prof s'est donnée. */
 .ag-per--libre{background:var(--pap-jaune);border-style:dashed;border-color:var(--pap-jaune-trait)}
+
+/* ═════ 11. LA FICHE DE COURS — le gabarit « Planification journalière » ═════
+   Deux colonnes comme sur la feuille : à gauche ce qu'on écrit (titre,
+   descriptif, durée), à droite l'illustration. Un trait jaune épais sépare les
+   blocs, exactement comme le papier. */
+.fiche{margin-bottom:18px}
+.fiche-bande{
+  display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;
+  padding:11px 13px;background:var(--pap-cyan);border-bottom:3px solid var(--noir);
+}
+.fiche-champ{display:flex;flex-direction:column;gap:4px;flex:1;min-width:170px}
+.fiche-champ .lab{
+  font-family:var(--f-titre);font-size:15px;letter-spacing:.4px;color:var(--ink);
+}
+.fiche-cycles{display:flex;gap:6px;flex-wrap:wrap}
+.cyc-case{
+  cursor:pointer;font-family:var(--f-note);font-size:17px;padding:7px 12px;min-height:46px;
+  background:#fff;color:var(--ink);border:3px solid var(--noir);border-radius:11px;
+  box-shadow:2px 2px 0 var(--noir);
+}
+.cyc-case[aria-pressed="true"]{background:var(--jaune)}
+.fiche-total{
+  font-family:var(--f-titre);font-size:24px;color:var(--ink);
+  background:#fff;border:3px solid var(--noir);border-radius:11px;
+  padding:7px 14px;text-align:center;min-height:46px;
+}
+.fiche-blocs{padding:12px 13px}
+.fiche-bloc{
+  display:grid;grid-template-columns:1.25fr 1fr;gap:12px;
+  padding:12px;margin-bottom:12px;
+  border:3px solid var(--noir);border-radius:13px;background:#fff;
+  box-shadow:0 4px 0 var(--jaune);
+}
+.fiche-g,.fiche-d{display:flex;flex-direction:column;gap:9px}
+.fiche-bloc textarea.m-saisie{font-family:var(--f-main);font-size:19px;line-height:1.35}
+.fiche-duree{flex:0 0 auto;max-width:150px}
+.fiche-vig{display:flex;gap:7px;flex-wrap:wrap}
+.fiche-vig figure{
+  margin:0;width:104px;border:3px solid var(--noir);border-radius:10px;
+  overflow:hidden;background:#F1F7FA;
+}
+.fiche-vig img{width:100%;height:74px;object-fit:cover;display:block}
+.fiche-vig .doc{height:74px;display:flex;align-items:center;justify-content:center;font-size:30px}
+.fiche-vig .etape-sup{width:100%;border-radius:0;border-width:0;border-top:3px solid var(--noir)}
+.fiche-depot{
+  flex:1;min-height:104px;display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:12px;cursor:pointer;
+  border:3px dashed var(--pap-cyan-trait);border-radius:12px;background:var(--pap-cyan);
+  color:var(--ink);font-family:var(--f-titre);font-size:16px;letter-spacing:.3px;
+}
+.fiche-depot.survol{background:var(--jaune);border-color:var(--noir)}
+@media(max-width:900px){ .fiche-bloc{grid-template-columns:1fr} }

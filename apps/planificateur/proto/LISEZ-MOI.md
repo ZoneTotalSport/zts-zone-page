@@ -626,3 +626,30 @@ entretenaient l'illusion que le bouton faisait quelque chose.
 ⚠ **Ce qui n'est PAS un défaut, vérifié** : `e-partage` et `e-donnees` ne sont
 plus des écrans, mais leur contenu est déplacé dans RÉGLAGES par
 `regrouperReglages()` et **plus rien ne pointe vers eux**.
+
+## La fiche de cours — le gabarit « Planification journalière » à l'écran
+
+Joey, gabarit papier à l'appui : « selon le nombre de périodes dans l'horaire,
+ça s'affiche comme ça pour chaque groupe ; lorsque c'est terminé ça s'affiche
+automatiquement dans MA SEMAINE. »
+
+L'écran **📝 PLANIFICATION DE LA SEMAINE** montre désormais **une fiche par
+cours**, dans la forme de la feuille :
+
+- **Cycle** (1er · 2e · 3e), **Début du cours** (repris de l'horaire de la
+  période), **Durée totale** (calculée, elle se met à jour en écrivant) ;
+- puis des blocs **Titre · Descriptif · Durée** à gauche, **Illustration** à
+  droite — l'image se lâche directement dans le bloc.
+
+⚠ **Ce n'est PAS un nouveau stockage.** Chaque bloc **EST** une étape de la
+séance — celles que la planification affiche et que la minuterie lance. Écrire
+ici, c'est écrire le cours : d'où le « ça s'affiche automatiquement dans MA
+SEMAINE ». Il n'y a rien à recopier, c'est la même donnée vue autrement.
+
+⚠ **Une ligne vide ne crée rien.** L'étape ne naît qu'au premier mot écrit —
+sinon la séance se remplirait d'étapes fantômes que la planification et la
+minuterie afficheraient pour rien.
+
+⚠ **Toujours au moins trois blocs, et toujours un vide à la fin** — comme la
+feuille. Une feuille sans ligne libre donne l'impression qu'on a fini alors
+qu'on n'a pas commencé.
