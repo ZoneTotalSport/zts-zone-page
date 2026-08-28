@@ -1,0 +1,1335 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Campagne ZTS — les 81 posts</title>
+<style>
+  :root{
+    --marine:#0F1B3C; --marine2:#162550; --cyan:#22D3EE; --jaune:#FFD700;
+    --encre:#0F0F2E; --blanc:#F5F9FF; --gris:#9BB0D4; --vert:#34D399;
+    --fb:#1877F2; --li:#0A66C2; --x:#111827;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--marine);color:var(--blanc);
+    font-family:"Quicksand",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+  header{padding:28px 20px 18px;border-bottom:3px solid var(--cyan);background:var(--marine2)}
+  h1{margin:0 0 6px;font-size:1.9rem;letter-spacing:.5px}
+  .sous{color:var(--gris);font-size:.95rem;margin:0}
+  .barre{display:flex;gap:8px;flex-wrap:wrap;padding:16px 20px;background:var(--marine2);
+    border-bottom:1px solid #24365f;position:sticky;top:0;z-index:5}
+  .filtre{background:transparent;color:var(--blanc);border:2px solid #2c4176;border-radius:999px;
+    padding:7px 15px;font:inherit;font-size:.88rem;cursor:pointer}
+  .rech{flex:1;min-width:190px;background:#0b1430;color:var(--blanc);border:2px solid #2c4176;
+    border-radius:999px;padding:7px 15px;font:inherit;font-size:.88rem}
+  .filtre[aria-pressed="true"]{background:var(--cyan);color:var(--encre);border-color:var(--cyan);font-weight:700}
+  main{max-width:860px;margin:0 auto;padding:22px 20px 80px}
+  .vide{border:2px dashed #2c4176;border-radius:16px;padding:34px 26px;text-align:center;color:var(--gris)}
+  .vide strong{color:var(--jaune);display:block;font-size:1.15rem;margin-bottom:10px}
+  .vide code{background:#0b1430;padding:2px 6px;border-radius:5px;color:var(--cyan);font-size:.9em}
+  article{background:var(--marine2);border:2px solid #24365f;border-radius:16px;
+    padding:18px 18px 14px;margin:0 0 16px}
+  article.prochain{border-color:var(--jaune);box-shadow:0 0 0 3px rgba(255,215,0,.18)}
+  .tete{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .rang{background:#0b1430;color:var(--gris);border-radius:8px;padding:3px 9px;font-size:.8rem;font-weight:700}
+  .reseau{border-radius:8px;padding:3px 10px;font-size:.8rem;font-weight:700;color:#fff}
+  .reseau.facebook{background:var(--fb)} .reseau.linkedin{background:var(--li)}
+  .reseau.x{background:var(--x);border:1px solid #374151}
+  .quand{color:var(--gris);font-size:.86rem}
+  .badge-prochain{background:var(--jaune);color:var(--encre);border-radius:8px;padding:3px 10px;
+    font-size:.78rem;font-weight:800;letter-spacing:.4px}
+  .texte{white-space:pre-wrap;background:#0b1430;border:1px solid #24365f;border-radius:12px;
+    padding:14px;font-size:.96rem;margin:0 0 12px}
+  .pied{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .copier{background:var(--cyan);color:var(--encre);border:2px solid var(--encre);border-radius:11px;
+    padding:9px 18px;font:inherit;font-weight:800;cursor:pointer;box-shadow:3px 3px 0 var(--encre)}
+  .copier:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--encre)}
+  .copier.ok{background:var(--vert)}
+  .copier.ko{background:#F87171;color:var(--encre)}
+  .titre-article{color:var(--cyan);font-weight:700;font-size:.95rem;margin:0 0 8px}
+  .appat{background:#7C3AED;color:#fff;border-radius:8px;padding:3px 9px;font-size:.76rem;font-weight:700}
+  .meta{color:var(--gris);font-size:.84rem}
+  .meta code{background:#0b1430;padding:2px 6px;border-radius:5px;color:var(--jaune);font-size:.92em}
+  .meta a{color:var(--cyan)}
+  @media (max-width:560px){ h1{font-size:1.5rem} main{padding:16px 14px 60px} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Campagne ZTS — les 81 posts</h1>
+  <p class="sous">Ordonnés par calendrier. Le prochain post à publier est en haut, encadré en jaune.
+     Mardi&nbsp;Facebook · jeudi&nbsp;LinkedIn · dimanche&nbsp;X.</p>
+</header>
+
+<div class="barre" id="barre"></div>
+<main id="liste"></main>
+
+<script>
+/* Les 81 posts, versés depuis calendrier-posts-zts.csv le 28 août 2026.
+   27 semaines x 3 plateformes. Triés par date : le premier affiché est
+   toujours le prochain à publier. Pour modifier un texte, éditer le CSV
+   (campagne/calendrier-posts-zts.csv) puis régénérer, ou corriger ici. */
+
+const POSTS = [
+ {
+  "semaine": 1,
+  "date": "2026-09-01",
+  "date_fr": "mardi 1 sept. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS + service de garde",
+  "article": "Faire bouger les enfants au primaire : 10 leviers",
+  "slug": "faire-bouger-enfants",
+  "appat_seo": true,
+  "texte": "Y'a des semaines où t'as l'impression que les enfants passent plus de temps assis qu'en mouvement, même à l'école.\nOn a rassemblé 10 leviers concrets pour faire bouger les jeunes du primaire : des jeux à essayer dès demain, des rituels actifs entre deux périodes, pis des idées qui marchent même quand t'as pas de gymnase de libre.\nRien de théorique là-dedans : c'est du testé sur le plancher.\nToi, c'est quoi ton truc no 1 pour réveiller un groupe amorphe un mardi après-midi ?\n👉 https://zonetotalsport.ca/articles/faire-bouger-enfants.html",
+  "lien": "https://zonetotalsport.ca/articles/faire-bouger-enfants.html",
+  "image": "promo/faire-bouger-enfants-carre.webp"
+ },
+ {
+  "semaine": 1,
+  "date": "2026-09-03",
+  "date_fr": "jeudi 3 sept. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS + service de garde",
+  "article": "Faire bouger les enfants au primaire : 10 leviers",
+  "slug": "faire-bouger-enfants",
+  "appat_seo": true,
+  "texte": "La sédentarité chez les 5-12 ans n'est pas seulement une question de temps d'éducation physique : elle se joue aussi dans les transitions, les récréations et les moments creux de la journée.\nCet article rassemble 10 leviers applicables dès la semaine prochaine, autant pour un cours structuré au gymnase que pour une plage d'animation en service de garde.\nChaque levier est accompagné d'exemples de jeux et de rituels actifs testés en milieu scolaire primaire.\nL'objectif n'est pas d'ajouter une tâche de plus, mais de récupérer du mouvement là où il y en avait déjà la place.\nÀ lire et à partager avec votre équipe-école.\nhttps://zonetotalsport.ca/articles/faire-bouger-enfants.html",
+  "lien": "https://zonetotalsport.ca/articles/faire-bouger-enfants.html",
+  "image": "promo/faire-bouger-enfants-carre.webp"
+ },
+ {
+  "semaine": 1,
+  "date": "2026-09-06",
+  "date_fr": "dimanche 6 sept. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS + service de garde",
+  "article": "Faire bouger les enfants au primaire : 10 leviers",
+  "slug": "faire-bouger-enfants",
+  "appat_seo": true,
+  "texte": "10 leviers pour faire bouger les enfants au primaire : des jeux à essayer demain, des rituels actifs entre les cours, zéro théorie.\nArticle complet, gratuit, sans compte :\nhttps://zonetotalsport.ca/articles/faire-bouger-enfants.html\n#ÉPS #servicedegarde",
+  "lien": "https://zonetotalsport.ca/articles/faire-bouger-enfants.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/faire-bouger-enfants.jpg)"
+ },
+ {
+  "semaine": 2,
+  "date": "2026-09-08",
+  "date_fr": "mardi 8 sept. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Comportements perturbateurs en EPS : que faire ?",
+  "slug": "comportements-perturbateurs",
+  "appat_seo": true,
+  "texte": "Le petit qui lance le ballon dans le plafond pendant les consignes. Celui qui part à courir avant le signal. Celui qui teste, juste pour voir.\nOn a mis noir sur blanc comment repérer les déclencheurs avant l'explosion, à quel moment intervenir (et surtout quand se taire), pis comment éviter que ça monte en escalade devant les 27 autres.\nC'est du terrain, pas de la théorie de bac.\nTon pire déclencheur à toi, c'est lequel : les transitions, le matériel, ou l'attente du tour ?\n👉 https://zonetotalsport.ca/articles/comportements-perturbateurs.html",
+  "lien": "https://zonetotalsport.ca/articles/comportements-perturbateurs.html",
+  "image": "promo/comportements-perturbateurs-carre.webp"
+ },
+ {
+  "semaine": 2,
+  "date": "2026-09-10",
+  "date_fr": "jeudi 10 sept. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Comportements perturbateurs en EPS : que faire ?",
+  "slug": "comportements-perturbateurs",
+  "appat_seo": true,
+  "texte": "En éducation physique, un comportement perturbateur ne commence presque jamais au moment où on le voit : il commence dans la transition d'avant, dans l'attente d'un tour, ou dans une consigne trop longue.\nCet article propose une lecture en trois temps — identifier les déclencheurs, choisir le moment d'intervention, désamorcer sans escalade — avec des outils applicables dans un gymnase bruyant et un groupe complet.\nIl s'adresse autant aux enseignants d'éducation physique qu'aux personnes qui animent de grands groupes en contexte parascolaire.\nUne ressource utile en début d'année, quand le cadre se pose encore.\nhttps://zonetotalsport.ca/articles/comportements-perturbateurs.html",
+  "lien": "https://zonetotalsport.ca/articles/comportements-perturbateurs.html",
+  "image": "promo/comportements-perturbateurs-carre.webp"
+ },
+ {
+  "semaine": 2,
+  "date": "2026-09-13",
+  "date_fr": "dimanche 13 sept. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Comportements perturbateurs en EPS : que faire ?",
+  "slug": "comportements-perturbateurs",
+  "appat_seo": true,
+  "texte": "Repérer le déclencheur avant l'explosion, intervenir au bon moment, éviter l'escalade devant les 27 autres.\nGuide complet sur les comportements perturbateurs au gymnase, gratuit :\nhttps://zonetotalsport.ca/articles/comportements-perturbateurs.html\n#ÉPS #gestiondeclasse",
+  "lien": "https://zonetotalsport.ca/articles/comportements-perturbateurs.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/comportements-perturbateurs.jpg)"
+ },
+ {
+  "semaine": 3,
+  "date": "2026-09-15",
+  "date_fr": "mardi 15 sept. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS + camp de jour + service de garde",
+  "article": "Vomi, guêpes et alarme de feu : le guide des catastrophes ordinaires",
+  "slug": "catastrophes-ordinaires",
+  "appat_seo": true,
+  "texte": "Le vomi en plein milieu du gymnase. La guêpe dans le local. L'alarme de feu pendant que la moitié du groupe est en maillot.\nTa formation ne t'a jamais parlé de ça. Nous, oui.\nOn a documenté 14 situations que tout le monde vit pis dont personne ne parle, avec 3 à 4 solutions concrètes pour chacune — incluant le fameux réflexe « Code Oreille » pour gérer sans paniquer devant 25 témoins.\nLaquelle t'est déjà arrivée ? (On sait que t'en as une.)\n👉 https://zonetotalsport.ca/articles/catastrophes-ordinaires.html",
+  "lien": "https://zonetotalsport.ca/articles/catastrophes-ordinaires.html",
+  "image": "promo/catastrophes-ordinaires-carre.webp"
+ },
+ {
+  "semaine": 3,
+  "date": "2026-09-17",
+  "date_fr": "jeudi 17 sept. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS + camp de jour + service de garde",
+  "article": "Vomi, guêpes et alarme de feu : le guide des catastrophes ordinaires",
+  "slug": "catastrophes-ordinaires",
+  "appat_seo": true,
+  "texte": "Il existe une catégorie d'imprévus dont on ne parle jamais en formation initiale : l'accident corporel devant un groupe, l'insecte qui déclenche une panique collective, l'évacuation au moment le plus inopportun de la journée.\nCes situations sont pourtant fréquentes, et la qualité de la réponse tient presque entièrement à ce qui a été préparé d'avance.\nCet article documente 14 scénarios réels avec, pour chacun, trois à quatre pistes d'intervention concrètes, plus un protocole simple pour préserver la dignité de l'enfant devant témoins.\nUtile en éducation physique, en camp de jour comme en service de garde — les trois milieux vivent exactement les mêmes scènes.\nhttps://zonetotalsport.ca/articles/catastrophes-ordinaires.html",
+  "lien": "https://zonetotalsport.ca/articles/catastrophes-ordinaires.html",
+  "image": "promo/catastrophes-ordinaires-carre.webp"
+ },
+ {
+  "semaine": 3,
+  "date": "2026-09-20",
+  "date_fr": "dimanche 20 sept. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS + camp de jour + service de garde",
+  "article": "Vomi, guêpes et alarme de feu : le guide des catastrophes ordinaires",
+  "slug": "catastrophes-ordinaires",
+  "appat_seo": true,
+  "texte": "Vomi en plein gymnase, guêpe dans le local, alarme de feu au pire moment : 14 situations que ta formation n'a jamais couvertes, avec des solutions.\nGratuit, sans compte :\nhttps://zonetotalsport.ca/articles/catastrophes-ordinaires.html\n#ÉPS #campdejour #servicedegarde",
+  "lien": "https://zonetotalsport.ca/articles/catastrophes-ordinaires.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/catastrophes-ordinaires.jpg)"
+ },
+ {
+  "semaine": 4,
+  "date": "2026-09-22",
+  "date_fr": "mardi 22 sept. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Rentrée scolaire en EPS : guide de démarrage",
+  "slug": "rentree-scolaire",
+  "appat_seo": false,
+  "texte": "La première semaine en éducation physique, c'est là que se joue le reste de l'année. Pas dans le contenu : dans les routines.\nL'article couvre ce qu'il faut installer dès les premiers cours — les signaux, les règles, le rangement, l'entrée et la sortie du gymnase — pis le matériel à prévoir avant que tout le monde se garroche dessus.\nUn cadre posé en septembre, c'est des mois de gestion en moins.\nTa première activité de l'année avec un nouveau groupe, c'est quoi ?\n👉 https://zonetotalsport.ca/articles/rentree-scolaire.html",
+  "lien": "https://zonetotalsport.ca/articles/rentree-scolaire.html",
+  "image": "promo/rentree-scolaire-carre.webp"
+ },
+ {
+  "semaine": 4,
+  "date": "2026-09-24",
+  "date_fr": "jeudi 24 sept. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Rentrée scolaire en EPS : guide de démarrage",
+  "slug": "rentree-scolaire",
+  "appat_seo": false,
+  "texte": "En éducation physique, la première semaine détermine une large part de l'année : les routines installées à ce moment-là deviennent les automatismes du groupe pour les dix mois suivants.\nCet article détaille ce qui mérite d'être posé dès les premiers cours — signaux d'arrêt et de regroupement, règles de circulation, protocole d'entrée et de sortie du gymnase, gestion du matériel — ainsi que la préparation matérielle à faire en amont.\nIl aborde également le volet professionnel de la rentrée pour les personnes en début de carrière : dossier au centre de services scolaire, préparation aux entrevues, stratégies de réseautage.\nhttps://zonetotalsport.ca/articles/rentree-scolaire.html",
+  "lien": "https://zonetotalsport.ca/articles/rentree-scolaire.html",
+  "image": "promo/rentree-scolaire-carre.webp"
+ },
+ {
+  "semaine": 4,
+  "date": "2026-09-27",
+  "date_fr": "dimanche 27 sept. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Rentrée scolaire en EPS : guide de démarrage",
+  "slug": "rentree-scolaire",
+  "appat_seo": false,
+  "texte": "La première semaine en ÉPS se joue dans les routines, pas dans le contenu.\nSignaux, règles, entrée et sortie du gymnase, matériel à prévoir : le guide de démarrage d'année :\nhttps://zonetotalsport.ca/articles/rentree-scolaire.html\n#ÉPS #rentréescolaire",
+  "lien": "https://zonetotalsport.ca/articles/rentree-scolaire.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/rentree-scolaire.jpg)"
+ },
+ {
+  "semaine": 5,
+  "date": "2026-09-29",
+  "date_fr": "mardi 29 sept. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "service de garde + ÉPS + camp de jour",
+  "article": "Jeux inclusifs : un seul jeu, trois versions",
+  "slug": "un-jeu-trois-versions",
+  "appat_seo": false,
+  "texte": "Un jour, pour « inclure » un enfant, je lui ai donné une tâche à part pendant que les autres jouaient. J'étais fier de moi. Sauf que je venais de fabriquer l'exclusion en pensant faire de l'inclusion.\nL'article explique la méthode des 4 boutons — ZONE, RYTHME, RÔLE, RETOUR — pour adapter un jeu sans jamais sortir l'enfant du groupe, avec 30 solutions concrètes réparties entre le gymnase, le camp de jour pis le service de garde.\nÇa t'est déjà arrivé, toi, de réaliser après coup que ton adaptation isolait au lieu d'inclure ?\n👉 https://zonetotalsport.ca/articles/un-jeu-trois-versions.html",
+  "lien": "https://zonetotalsport.ca/articles/un-jeu-trois-versions.html",
+  "image": "promo/un-jeu-trois-versions-carre.webp"
+ },
+ {
+  "semaine": 5,
+  "date": "2026-10-01",
+  "date_fr": "jeudi 1 oct. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "service de garde + ÉPS + camp de jour",
+  "article": "Jeux inclusifs : un seul jeu, trois versions",
+  "slug": "un-jeu-trois-versions",
+  "appat_seo": false,
+  "texte": "Adapter une activité pour un enfant à besoins particuliers tourne souvent au piège : en créant une version « spéciale », on retire l'enfant du jeu commun tout en croyant l'inclure.\nCet article propose une méthode en quatre variables — la zone, le rythme, le rôle et le retour — qui permet de faire coexister trois niveaux de difficulté dans un seul et même jeu.\nUn exemple filé (le ballon chasseur) montre le principe décliné en gymnase, en camp de jour et en service de garde, suivi de 30 solutions concrètes, dix par milieu.\nLa dernière section propose trois gestes applicables dès le prochain lundi, sans matériel supplémentaire.\nParticulièrement pertinent pour les équipes de service de garde scolaire qui accueillent des groupes très hétérogènes en fin de journée.\nhttps://zonetotalsport.ca/articles/un-jeu-trois-versions.html",
+  "lien": "https://zonetotalsport.ca/articles/un-jeu-trois-versions.html",
+  "image": "promo/un-jeu-trois-versions-carre.webp"
+ },
+ {
+  "semaine": 5,
+  "date": "2026-10-04",
+  "date_fr": "dimanche 4 oct. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "service de garde + ÉPS + camp de jour",
+  "article": "Jeux inclusifs : un seul jeu, trois versions",
+  "slug": "un-jeu-trois-versions",
+  "appat_seo": false,
+  "texte": "Adapter un jeu pour un enfant à besoins particuliers sans créer une activité à part : la méthode des 4 boutons + 30 solutions terrain.\nhttps://zonetotalsport.ca/articles/un-jeu-trois-versions.html\n#servicedegarde #inclusion #ÉPS",
+  "lien": "https://zonetotalsport.ca/articles/un-jeu-trois-versions.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/un-jeu-trois-versions.jpg)"
+ },
+ {
+  "semaine": 6,
+  "date": "2026-10-06",
+  "date_fr": "mardi 6 oct. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Jeux de course pour le 1er cycle : 12 idées EPS",
+  "slug": "jeux-course-1er-cycle",
+  "appat_seo": false,
+  "texte": "« On court-tu encore ? » — la phrase qui tue en 1re année.\nLe problème, c'est rarement la course : c'est de courir pour rien. On a rassemblé 12 jeux de course pour le 1er cycle, avec un bagage moteur léger et des variantes pour relancer sans tout réexpliquer : attrape la souris, les feux de circulation, l'invasion, le mur de résistance…\nSimples à monter, faciles à comprendre en 30 secondes.\nTon classique de 1re-2e année qui fonctionne toujours, c'est lequel ?\n👉 https://zonetotalsport.ca/articles/jeux-course-1er-cycle.html",
+  "lien": "https://zonetotalsport.ca/articles/jeux-course-1er-cycle.html",
+  "image": "promo/jeux-course-1er-cycle-carre.webp"
+ },
+ {
+  "semaine": 6,
+  "date": "2026-10-08",
+  "date_fr": "jeudi 8 oct. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Jeux de course pour le 1er cycle : 12 idées EPS",
+  "slug": "jeux-course-1er-cycle",
+  "appat_seo": false,
+  "texte": "Au 1er cycle du primaire, la course est souvent utilisée comme remplissage : on fait courir parce qu'il faut dépenser de l'énergie, sans intention motrice claire.\nCet article propose 12 jeux de course construits sur un bagage moteur volontairement léger — les consignes tiennent en une trentaine de secondes — avec, pour chacun, des variantes permettant de relancer le jeu sans réexpliquer.\nL'ensemble couvre plusieurs familles : poursuite, invasion, relais d'obstacles, jeux de capture et de stratégie.\nUne base solide pour bâtir une séquence de début d'année en éducation physique au primaire.\nhttps://zonetotalsport.ca/articles/jeux-course-1er-cycle.html",
+  "lien": "https://zonetotalsport.ca/articles/jeux-course-1er-cycle.html",
+  "image": "promo/jeux-course-1er-cycle-carre.webp"
+ },
+ {
+  "semaine": 6,
+  "date": "2026-10-11",
+  "date_fr": "dimanche 11 oct. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Jeux de course pour le 1er cycle : 12 idées EPS",
+  "slug": "jeux-course-1er-cycle",
+  "appat_seo": false,
+  "texte": "12 jeux de course pour le 1er cycle : bagage moteur léger, consignes de 30 secondes, variantes pour relancer.\nPour ne plus jamais faire courir « pour rien » :\nhttps://zonetotalsport.ca/articles/jeux-course-1er-cycle.html\n#ÉPS #éducationphysique #primaire",
+  "lien": "https://zonetotalsport.ca/articles/jeux-course-1er-cycle.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/jeux-course-1er-cycle.jpg)"
+ },
+ {
+  "semaine": 7,
+  "date": "2026-10-13",
+  "date_fr": "mardi 13 oct. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "camp de jour + ÉPS",
+  "article": "Courbe du plaisir : combien de temps un jeu en EPS",
+  "slug": "courbe-plaisir-jeu",
+  "appat_seo": false,
+  "texte": "Tu connais le moment. Le jeu roule, tout le monde embarque… pis d'un coup, ça s'effrite. Deux qui chialent, trois qui s'assoient.\nC'est pas ton groupe le problème : c'est la courbe du plaisir. Chaque jeu monte, plafonne, pis redescend — le truc, c'est d'arrêter avant la descente.\nL'article explique comment lire les signaux, quand relancer, pis quand changer complètement d'activité.\nToi, tu le sens comment que c'est le temps d'arrêter un jeu ?\n👉 https://zonetotalsport.ca/articles/courbe-plaisir-jeu.html",
+  "lien": "https://zonetotalsport.ca/articles/courbe-plaisir-jeu.html",
+  "image": "promo/courbe-plaisir-jeu-carre.webp"
+ },
+ {
+  "semaine": 7,
+  "date": "2026-10-15",
+  "date_fr": "jeudi 15 oct. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "camp de jour + ÉPS",
+  "article": "Courbe du plaisir : combien de temps un jeu en EPS",
+  "slug": "courbe-plaisir-jeu",
+  "appat_seo": false,
+  "texte": "L'engagement dans un jeu suit une courbe en U inversé : montée, plateau, puis décrochage. La compétence d'animation ne consiste pas à trouver le jeu parfait, mais à reconnaître le sommet de cette courbe et à arrêter juste avant.\nCet article détaille les causes de désorganisation d'une activité (écart de compétences, conflits, pression des pairs), les signaux observables du décrochage, et les leviers pour prolonger le plateau : variation des défis, rétroaction, rotation des rôles.\nC'est une compétence directement transférable en camp de jour, où une même journée enchaîne huit à dix activités et où le coût d'un jeu qui s'étire est immédiat.\nhttps://zonetotalsport.ca/articles/courbe-plaisir-jeu.html",
+  "lien": "https://zonetotalsport.ca/articles/courbe-plaisir-jeu.html",
+  "image": "promo/courbe-plaisir-jeu-carre.webp"
+ },
+ {
+  "semaine": 7,
+  "date": "2026-10-18",
+  "date_fr": "dimanche 18 oct. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "camp de jour + ÉPS",
+  "article": "Courbe du plaisir : combien de temps un jeu en EPS",
+  "slug": "courbe-plaisir-jeu",
+  "appat_seo": false,
+  "texte": "Un jeu monte, plafonne, puis s'effrite. Le secret : arrêter avant la descente.\nLa courbe du plaisir, les signaux à lire et quand relancer un groupe qui décroche :\nhttps://zonetotalsport.ca/articles/courbe-plaisir-jeu.html\n#campdejour #animation #ÉPS",
+  "lien": "https://zonetotalsport.ca/articles/courbe-plaisir-jeu.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/courbe-plaisir-jeu.jpg)"
+ },
+ {
+  "semaine": 8,
+  "date": "2026-10-20",
+  "date_fr": "mardi 20 oct. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS + camp de jour + service de garde",
+  "article": "Grands groupes en gymnase : 21 stratégies EPS",
+  "slug": "50-jeunes-un-gymnase",
+  "appat_seo": false,
+  "texte": "Deux groupes fusionnés, un remplaçant qui ne s'est pas présenté, pis te v'là avec 50 jeunes dans un gymnase prévu pour 25.\nOn a compilé 21 stratégies pour survivre — pis même bien travailler — dans cette situation-là : le bruit, le manque de matériel, les écarts de niveaux, la surcharge sensorielle, les transitions qui virent au chaos.\nSept stratégies pour l'ÉPS, sept pour le camp de jour, sept pour le service de garde. Tout testé sur le terrain.\nC'est quoi ton record personnel de jeunes dans un gymnase ?\n👉 https://zonetotalsport.ca/articles/50-jeunes-un-gymnase.html",
+  "lien": "https://zonetotalsport.ca/articles/50-jeunes-un-gymnase.html",
+  "image": "promo/50-jeunes-un-gymnase-carre.webp"
+ },
+ {
+  "semaine": 8,
+  "date": "2026-10-22",
+  "date_fr": "jeudi 22 oct. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS + camp de jour + service de garde",
+  "article": "Grands groupes en gymnase : 21 stratégies EPS",
+  "slug": "50-jeunes-un-gymnase",
+  "appat_seo": false,
+  "texte": "Les grands groupes en gymnase ne sont plus l'exception : fusion de classes, absence non remplacée, journée pédagogique, période de pluie en camp — la situation revient plusieurs fois par mois.\nCet article part de sept problématiques documentées (acoustique, matériel insuffisant, écarts de compétences motrices, surcharge sensorielle, transitions, fatigue de fin de journée) et propose 21 stratégies réparties par métier.\nLa structure est volontairement séparée : ce qui fonctionne en enseignement structuré n'est pas ce qui fonctionne en animation, et l'article assume cette distinction plutôt que de la lisser.\nLes besoins particuliers (TDAH, TSA, limitation motrice) sont traités dès la conception des activités, pas en correctif.\nhttps://zonetotalsport.ca/articles/50-jeunes-un-gymnase.html",
+  "lien": "https://zonetotalsport.ca/articles/50-jeunes-un-gymnase.html",
+  "image": "promo/50-jeunes-un-gymnase-carre.webp"
+ },
+ {
+  "semaine": 8,
+  "date": "2026-10-25",
+  "date_fr": "dimanche 25 oct. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS + camp de jour + service de garde",
+  "article": "Grands groupes en gymnase : 21 stratégies EPS",
+  "slug": "50-jeunes-un-gymnase",
+  "appat_seo": false,
+  "texte": "50 jeunes dans un gymnase prévu pour 25 : 21 stratégies pour le bruit, le matériel, les écarts de niveaux et les transitions.\n7 pour l'ÉPS, 7 pour le camp, 7 pour le SDG :\nhttps://zonetotalsport.ca/articles/50-jeunes-un-gymnase.html\n#ÉPS #gestiondeclasse",
+  "lien": "https://zonetotalsport.ca/articles/50-jeunes-un-gymnase.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/Images%20article%2050%20jeunes%20gymnase%20/image%201%20article%20blig%2050%20jeunes%201%20gymnase.png)"
+ },
+ {
+  "semaine": 9,
+  "date": "2026-10-27",
+  "date_fr": "mardi 27 oct. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Respect en EPS : installer une culture saine",
+  "slug": "respect-eps",
+  "appat_seo": false,
+  "texte": "Le respect, ça ne s'affiche pas sur un carton au mur : ça s'installe, semaine après semaine, avec des rituels.\nL'article propose cinq outils pédagogiques concrets pour bâtir une vraie culture de respect au gymnase — dont la fiche réflexive à choix multiples, celle qui fait réfléchir l'élève au lieu de le punir dans le vide.\nIl y a aussi des exemples de conséquences qui ont du sens, pas juste des punitions.\nTon rituel d'ouverture de cours, il ressemble à quoi ?\n👉 https://zonetotalsport.ca/articles/respect-eps.html",
+  "lien": "https://zonetotalsport.ca/articles/respect-eps.html",
+  "image": "promo/respect-eps-carre.webp"
+ },
+ {
+  "semaine": 9,
+  "date": "2026-10-29",
+  "date_fr": "jeudi 29 oct. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Respect en EPS : installer une culture saine",
+  "slug": "respect-eps",
+  "appat_seo": false,
+  "texte": "Le respect en éducation physique est rarement un problème de règles : les règles existent presque toujours. C'est un problème de rituels — ce qui est répété assez souvent pour devenir une norme de groupe.\nCet article présente cinq outils pédagogiques éprouvés au primaire (lettres, présentations d'élèves, journaux de bord, affiches co-construites, fiches réflexives à choix multiples) et explique comment les articuler à un système de conséquences cohérent.\nLa fiche réflexive, en particulier, déplace la logique de la sanction vers la responsabilisation, sans allonger le temps de gestion pendant le cours.\nhttps://zonetotalsport.ca/articles/respect-eps.html",
+  "lien": "https://zonetotalsport.ca/articles/respect-eps.html",
+  "image": "promo/respect-eps-carre.webp"
+ },
+ {
+  "semaine": 9,
+  "date": "2026-11-01",
+  "date_fr": "dimanche 1 nov. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Respect en EPS : installer une culture saine",
+  "slug": "respect-eps",
+  "appat_seo": false,
+  "texte": "Le respect au gymnase, ça s'installe avec des rituels, pas avec une affiche.\n5 outils pédagogiques concrets, dont la fiche réflexive qui fait réfléchir au lieu de punir dans le vide :\nhttps://zonetotalsport.ca/articles/respect-eps.html\n#ÉPS #climatscolaire",
+  "lien": "https://zonetotalsport.ca/articles/respect-eps.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/respect-eps.jpg)"
+ },
+ {
+  "semaine": 10,
+  "date": "2026-11-03",
+  "date_fr": "mardi 3 nov. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Élèves cotés en EPS : adapter ses cours",
+  "slug": "eleves-cotes-eps",
+  "appat_seo": false,
+  "texte": "T'as un élève coté dans ton groupe, un plan d'intervention de trois pages, pis 40 minutes pour faire bouger 26 jeunes. On fait quoi, concrètement ?\nL'article passe à travers les grandes familles de cotes — troubles du comportement, déficiences intellectuelles et motrices, enjeux sensoriels et de communication — avec des adaptations qui fonctionnent en gymnase, sans sortir l'élève du groupe.\nC'est du pratique, pas du copier-coller de politique ministérielle.\nTon adaptation la plus payante jusqu'à maintenant, c'était quoi ?\n👉 https://zonetotalsport.ca/articles/eleves-cotes-eps.html",
+  "lien": "https://zonetotalsport.ca/articles/eleves-cotes-eps.html",
+  "image": "promo/eleves-cotes-eps-carre.webp"
+ },
+ {
+  "semaine": 10,
+  "date": "2026-11-05",
+  "date_fr": "jeudi 5 nov. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Élèves cotés en EPS : adapter ses cours",
+  "slug": "eleves-cotes-eps",
+  "appat_seo": false,
+  "texte": "Les plans d'intervention sont écrits pour la classe. Le gymnase, lui, a ses propres contraintes : grand espace, bruit, déplacements rapides, matériel partagé, transitions nombreuses.\nCet article traduit les principales familles de cotes — troubles du comportement, déficiences intellectuelles, déficiences motrices, enjeux sensoriels et de communication — en adaptations concrètes applicables pendant un cours d'éducation physique.\nLe principe directeur reste le même du début à la fin : adapter l'activité plutôt que retirer l'élève, et conserver la participation au jeu commun comme critère de réussite de l'adaptation.\nhttps://zonetotalsport.ca/articles/eleves-cotes-eps.html",
+  "lien": "https://zonetotalsport.ca/articles/eleves-cotes-eps.html",
+  "image": "promo/eleves-cotes-eps-carre.webp"
+ },
+ {
+  "semaine": 10,
+  "date": "2026-11-08",
+  "date_fr": "dimanche 8 nov. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Élèves cotés en EPS : adapter ses cours",
+  "slug": "eleves-cotes-eps",
+  "appat_seo": false,
+  "texte": "Un élève coté, un plan d'intervention de 3 pages et 40 minutes pour faire bouger 26 jeunes : on fait quoi concrètement ?\nAdaptations par famille de cotes, applicables en gymnase :\nhttps://zonetotalsport.ca/articles/eleves-cotes-eps.html\n#ÉPS #inclusion",
+  "lien": "https://zonetotalsport.ca/articles/eleves-cotes-eps.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/eleves-cotes-eps.jpg)"
+ },
+ {
+  "semaine": 11,
+  "date": "2026-11-10",
+  "date_fr": "mardi 10 nov. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Syndrome du gymnase : repérer l'épuisement EPS",
+  "slug": "syndrome-gymnase",
+  "appat_seo": false,
+  "texte": "Tu cries plus fort qu'avant. Tu commences à trouver tes groupes « pénibles ». Tu comptes les jours jusqu'au congé pédagogique.\nCe n'est pas juste de la fatigue de novembre. L'article décrit 8 signes du syndrome du gymnase — l'épuisement professionnel version prof d'éducation physique — pis 5 réflexes pour désamorcer avant de frapper le mur.\nÇa se lit en 10 minutes, pis ça vaut la peine même si tu penses que ça ne s'adresse pas à toi.\nTu le reconnais, ce moment-là dans l'année ?\n👉 https://zonetotalsport.ca/articles/syndrome-gymnase.html",
+  "lien": "https://zonetotalsport.ca/articles/syndrome-gymnase.html",
+  "image": "promo/syndrome-gymnase-carre.webp"
+ },
+ {
+  "semaine": 11,
+  "date": "2026-11-12",
+  "date_fr": "jeudi 12 nov. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Syndrome du gymnase : repérer l'épuisement EPS",
+  "slug": "syndrome-gymnase",
+  "appat_seo": false,
+  "texte": "L'épuisement professionnel en éducation physique prend une forme particulière : bruit constant, charge vocale, grands groupes, isolement dans l'école, et une fatigue physique qui masque longtemps la fatigue psychologique.\nCet article décrit huit signes précurseurs observables et cinq réflexes de désamorçage applicables avant que la situation ne devienne un arrêt de travail.\nIl s'adresse autant aux enseignants qu'aux directions, qui sont souvent les mieux placées pour repérer ces signaux chez un membre de leur équipe et intervenir tôt.\nhttps://zonetotalsport.ca/articles/syndrome-gymnase.html",
+  "lien": "https://zonetotalsport.ca/articles/syndrome-gymnase.html",
+  "image": "promo/syndrome-gymnase-carre.webp"
+ },
+ {
+  "semaine": 11,
+  "date": "2026-11-15",
+  "date_fr": "dimanche 15 nov. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Syndrome du gymnase : repérer l'épuisement EPS",
+  "slug": "syndrome-gymnase",
+  "appat_seo": false,
+  "texte": "Crier plus fort qu'avant, trouver ses groupes « pénibles », compter les jours : 8 signes du syndrome du gymnase et 5 réflexes pour désamorcer avant le mur.\nhttps://zonetotalsport.ca/articles/syndrome-gymnase.html\n#ÉPS #santéautravail",
+  "lien": "https://zonetotalsport.ca/articles/syndrome-gymnase.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/syndrome-gymnase.jpg)"
+ },
+ {
+  "semaine": 12,
+  "date": "2026-11-17",
+  "date_fr": "mardi 17 nov. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Classes difficiles en EPS : poser le cadre (1/3)",
+  "slug": "classes-difficiles-partie-1",
+  "appat_seo": false,
+  "texte": "Y'a des groupes qui te font douter de ton choix de carrière. On a écrit un guide en trois parties pour ceux-là.\nLa partie 1 s'attaque au début : comprendre d'où vient le comportement (famille, besoins non comblés, opposition), bâtir une vraie relation de confiance, pis poser le cadre dès la première minute de cours.\nParce qu'un cadre installé en septembre, c'est trois mois de gestion en moins.\nTon premier cours avec un groupe difficile, tu le commences comment ?\n👉 https://zonetotalsport.ca/articles/classes-difficiles-partie-1.html",
+  "lien": "https://zonetotalsport.ca/articles/classes-difficiles-partie-1.html",
+  "image": "promo/classes-difficiles-partie-1-carre.webp"
+ },
+ {
+  "semaine": 12,
+  "date": "2026-11-19",
+  "date_fr": "jeudi 19 nov. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Classes difficiles en EPS : poser le cadre (1/3)",
+  "slug": "classes-difficiles-partie-1",
+  "appat_seo": false,
+  "texte": "Premier volet d'un guide en trois parties sur les groupes difficiles en éducation physique.\nCette première partie porte sur ce qui précède l'intervention : identifier les causes probables d'un comportement (contexte familial, besoins non satisfaits, difficultés d'apprentissage, trouble oppositionnel), construire une relation de confiance authentique, et poser un cadre lisible dès les premières minutes du premier cours.\nLe postulat de départ est simple : la gestion de classe se joue davantage en septembre qu'en janvier, et un cadre installé tôt réduit mécaniquement le volume d'interventions du reste de l'année.\nhttps://zonetotalsport.ca/articles/classes-difficiles-partie-1.html",
+  "lien": "https://zonetotalsport.ca/articles/classes-difficiles-partie-1.html",
+  "image": "promo/classes-difficiles-partie-1-carre.webp"
+ },
+ {
+  "semaine": 12,
+  "date": "2026-11-22",
+  "date_fr": "dimanche 22 nov. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Classes difficiles en EPS : poser le cadre (1/3)",
+  "slug": "classes-difficiles-partie-1",
+  "appat_seo": false,
+  "texte": "Guide en 3 volets sur les classes difficiles en ÉPS. Partie 1 : comprendre d'où vient le comportement, bâtir la confiance, poser le cadre dès la 1re minute.\nhttps://zonetotalsport.ca/articles/classes-difficiles-partie-1.html\n#ÉPS #gestiondeclasse",
+  "lien": "https://zonetotalsport.ca/articles/classes-difficiles-partie-1.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/classes-difficiles-partie-1.jpg)"
+ },
+ {
+  "semaine": 13,
+  "date": "2026-11-24",
+  "date_fr": "mardi 24 nov. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Classes difficiles en EPS : stratégies (2/3)",
+  "slug": "classes-difficiles-partie-2",
+  "appat_seo": false,
+  "texte": "Partie 2 du guide sur les classes difficiles : cette fois, on est dans le feu de l'action.\nRègles claires, routines prévisibles, renforcement positif qui ne sonne pas faux, gestion du temps, transitions qui ne dégénèrent pas. Des stratégies d'intervention à appliquer en direct, pendant que le cours roule.\nLa partie 1 posait le cadre; celle-ci, c'est le mode d'emploi quand ça déborde quand même.\nLes transitions, c'est-tu ton point faible à toi aussi ?\n👉 https://zonetotalsport.ca/articles/classes-difficiles-partie-2.html",
+  "lien": "https://zonetotalsport.ca/articles/classes-difficiles-partie-2.html",
+  "image": "promo/classes-difficiles-partie-2-carre.webp"
+ },
+ {
+  "semaine": 13,
+  "date": "2026-11-26",
+  "date_fr": "jeudi 26 nov. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Classes difficiles en EPS : stratégies (2/3)",
+  "slug": "classes-difficiles-partie-2",
+  "appat_seo": false,
+  "texte": "Deuxième volet du guide sur les groupes difficiles en éducation physique, consacré à l'intervention en temps réel.\nOn y traite des routines qui rendent le cours prévisible, du renforcement positif appliqué avec assez de précision pour rester crédible, de la gestion du temps et des transitions — le moment où se produit la majorité des débordements.\nLa dernière section aborde l'adaptation pédagogique comme levier de gestion : une activité mal calibrée génère plus de comportements difficiles qu'un manque d'autorité.\nÀ lire à la suite de la partie 1, qui porte sur l'installation du cadre.\nhttps://zonetotalsport.ca/articles/classes-difficiles-partie-2.html",
+  "lien": "https://zonetotalsport.ca/articles/classes-difficiles-partie-2.html",
+  "image": "promo/classes-difficiles-partie-2-carre.webp"
+ },
+ {
+  "semaine": 13,
+  "date": "2026-11-29",
+  "date_fr": "dimanche 29 nov. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Classes difficiles en EPS : stratégies (2/3)",
+  "slug": "classes-difficiles-partie-2",
+  "appat_seo": false,
+  "texte": "Classes difficiles en ÉPS, partie 2 : les stratégies d'intervention en direct. Routines prévisibles, renforcement positif, transitions qui ne dégénèrent pas.\nhttps://zonetotalsport.ca/articles/classes-difficiles-partie-2.html\n#ÉPS #gestiondeclasse",
+  "lien": "https://zonetotalsport.ca/articles/classes-difficiles-partie-2.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/classes-difficiles-partie-2.jpg)"
+ },
+ {
+  "semaine": 14,
+  "date": "2026-12-01",
+  "date_fr": "mardi 1 déc. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Classes difficiles en EPS : durer (3/3)",
+  "slug": "classes-difficiles-partie-3",
+  "appat_seo": false,
+  "texte": "Partie 3, la plus rare : comment on se relève d'un cours qui a mal viré, pis comment on tient jusqu'en juin.\nOn parle de gestion de conflits, de collaboration avec les parents, d'observation ciblée des comportements qui reviennent, pis de la fatigue qui s'accumule quand on recommence chaque semaine avec le même groupe.\nC'est la partie que personne n'écrit, parce qu'elle parle de durée plutôt que de trucs.\nAprès une séance qui vire mal, tu fais quoi pour décrocher ?\n👉 https://zonetotalsport.ca/articles/classes-difficiles-partie-3.html",
+  "lien": "https://zonetotalsport.ca/articles/classes-difficiles-partie-3.html",
+  "image": "promo/classes-difficiles-partie-3-carre.webp"
+ },
+ {
+  "semaine": 14,
+  "date": "2026-12-03",
+  "date_fr": "jeudi 3 déc. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Classes difficiles en EPS : durer (3/3)",
+  "slug": "classes-difficiles-partie-3",
+  "appat_seo": false,
+  "texte": "Troisième et dernier volet du guide sur les groupes difficiles en éducation physique. Celui-ci porte sur la durée plutôt que sur la technique.\nIl aborde la gestion des conflits dans le groupe, l'observation ciblée des comportements récurrents, la collaboration avec les parents comme partenaires plutôt que comme instance de sanction, et l'articulation entre apprentissage moteur, régulation émotionnelle et compétences sociales.\nLa question sous-jacente est celle de la soutenabilité : ce qui fonctionne une semaine et ce qui tient encore en mai ne sont pas toujours les mêmes pratiques.\nhttps://zonetotalsport.ca/articles/classes-difficiles-partie-3.html",
+  "lien": "https://zonetotalsport.ca/articles/classes-difficiles-partie-3.html",
+  "image": "promo/classes-difficiles-partie-3-carre.webp"
+ },
+ {
+  "semaine": 14,
+  "date": "2026-12-06",
+  "date_fr": "dimanche 6 déc. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Classes difficiles en EPS : durer (3/3)",
+  "slug": "classes-difficiles-partie-3",
+  "appat_seo": false,
+  "texte": "Classes difficiles en ÉPS, partie 3 : se relever d'une séance ratée et tenir jusqu'en juin.\nConflits, collaboration avec les parents, observation ciblée, durabilité :\nhttps://zonetotalsport.ca/articles/classes-difficiles-partie-3.html\n#ÉPS #viedenseignant",
+  "lien": "https://zonetotalsport.ca/articles/classes-difficiles-partie-3.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/classes-difficiles-partie-3.jpg)"
+ },
+ {
+  "semaine": 15,
+  "date": "2026-12-08",
+  "date_fr": "mardi 8 déc. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Système d'émulation par dollars en classe",
+  "slug": "systeme-emulation-dollar",
+  "appat_seo": false,
+  "texte": "La motivation en éducation physique, ça se travaille comme le reste. Un système d'émulation par dollars, bien monté, ça change l'ambiance d'un groupe en quelques semaines.\nL'article explique comment le mettre en place sans y passer tes soirées : ce qui mérite un dollar, les niveaux de progression, les défis individuels pis collectifs, pis les récompenses qui fonctionnent vraiment (indice : c'est rarement du matériel).\nTu peux démarrer dès lundi matin.\nT'as déjà essayé un système de points ? Ça a tenu combien de temps ?\n👉 https://zonetotalsport.ca/articles/systeme-emulation-dollar.html",
+  "lien": "https://zonetotalsport.ca/articles/systeme-emulation-dollar.html",
+  "image": "promo/systeme-emulation-dollar-carre.webp"
+ },
+ {
+  "semaine": 15,
+  "date": "2026-12-10",
+  "date_fr": "jeudi 10 déc. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Système d'émulation par dollars en classe",
+  "slug": "systeme-emulation-dollar",
+  "appat_seo": false,
+  "texte": "Le manque de motivation en éducation physique est un phénomène courant, et souvent mal traité : on ajoute de la compétition là où il faudrait de la progression visible.\nCet article détaille la mise en place d'un système d'émulation par dollars à l'échelle d'un groupe : critères d'attribution liés à la participation, à l'effort et à l'attitude, système de niveaux pour rendre la progression individuelle lisible, et défis collectifs pour éviter que le dispositif ne devienne purement individualiste.\nLe volet économie de classe (coupons, échanges, récompenses) est décrit avec assez de précision pour être implanté sans phase pilote.\nhttps://zonetotalsport.ca/articles/systeme-emulation-dollar.html",
+  "lien": "https://zonetotalsport.ca/articles/systeme-emulation-dollar.html",
+  "image": "promo/systeme-emulation-dollar-carre.webp"
+ },
+ {
+  "semaine": 15,
+  "date": "2026-12-13",
+  "date_fr": "dimanche 13 déc. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Système d'émulation par dollars en classe",
+  "slug": "systeme-emulation-dollar",
+  "appat_seo": false,
+  "texte": "Un système d'émulation par dollars en ÉPS : ce qui mérite un dollar, les niveaux, les défis collectifs et les récompenses qui fonctionnent vraiment.\nPrêt à démarrer lundi matin :\nhttps://zonetotalsport.ca/articles/systeme-emulation-dollar.html\n#ÉPS #motivation",
+  "lien": "https://zonetotalsport.ca/articles/systeme-emulation-dollar.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/systeme-emulation-dollar.png)"
+ },
+ {
+  "semaine": 16,
+  "date": "2026-12-15",
+  "date_fr": "mardi 15 déc. 2026",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Nawatobi : corde à sauter japonaise en gymnase",
+  "slug": "nawatobi",
+  "appat_seo": false,
+  "texte": "Une corde à sauter, un tremplin, pis des noms de mouvements en japonais : le nawatobi, c'est le genre d'activité qui fait taire un gymnase au complet.\nArrivé au Québec au début des années 90, ça combine technique, rythme pis travail d'équipe — pis ça impressionne autant les élèves que les parents lors des présentations.\nL'article couvre les bases techniques, les formations, la sécurité pis une progression pensée pour le primaire.\nTu l'as déjà essayé avec tes groupes ?\n👉 https://zonetotalsport.ca/articles/nawatobi.html",
+  "lien": "https://zonetotalsport.ca/articles/nawatobi.html",
+  "image": "promo/nawatobi-carre.webp"
+ },
+ {
+  "semaine": 16,
+  "date": "2026-12-17",
+  "date_fr": "jeudi 17 déc. 2026",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Nawatobi : corde à sauter japonaise en gymnase",
+  "slug": "nawatobi",
+  "appat_seo": false,
+  "texte": "Le nawatobi, forme japonaise du saut à la corde pratiquée sur tremplin, a été introduit au Québec au début des années 1990 et reste peu documenté en français.\nCet article en présente les origines, la nomenclature des mouvements par type de rotation, les formations de groupe, les règles de sécurité, ainsi qu'une progression par catégories construite autour de routines de vingt sauts.\nC'est une activité intéressante à plusieurs titres en milieu scolaire : faible coût de matériel, forte composante rythmique et coopérative, et rendu spectaculaire lors des présentations de fin d'étape.\nhttps://zonetotalsport.ca/articles/nawatobi.html",
+  "lien": "https://zonetotalsport.ca/articles/nawatobi.html",
+  "image": "promo/nawatobi-carre.webp"
+ },
+ {
+  "semaine": 16,
+  "date": "2026-12-20",
+  "date_fr": "dimanche 20 déc. 2026",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Nawatobi : corde à sauter japonaise en gymnase",
+  "slug": "nawatobi",
+  "appat_seo": false,
+  "texte": "Le nawatobi — corde à sauter japonaise sur tremplin — est arrivé au Québec au début des années 90.\nBases techniques, formations, sécurité et progression primaire :\nhttps://zonetotalsport.ca/articles/nawatobi.html\n#ÉPS #éducationphysique",
+  "lien": "https://zonetotalsport.ca/articles/nawatobi.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/nawatobi.png)"
+ },
+ {
+  "semaine": 17,
+  "date": "2027-01-05",
+  "date_fr": "mardi 5 janv. 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Foobaskill : sport hybride soccer-basket en EPS",
+  "slug": "foobaskill",
+  "appat_seo": false,
+  "texte": "Le petit qui est bon au soccer mais nul au basket. L'autre, c'est l'inverse. Le foobaskill règle ça : un terrain divisé, deux disciplines dans le même match.\nInventé en 2017 par trois profs d'éducation physique suisses, ça mélange soccer et basketball avec un système de pointage qui force la coopération.\nL'article donne les règles complètes, la progression, les éducatifs pis les adaptations pour le primaire.\nÇa te tenterait de l'essayer avec ton 3e cycle ?\n👉 https://zonetotalsport.ca/articles/foobaskill.html",
+  "lien": "https://zonetotalsport.ca/articles/foobaskill.html",
+  "image": "promo/foobaskill-carre.webp"
+ },
+ {
+  "semaine": 17,
+  "date": "2027-01-07",
+  "date_fr": "jeudi 7 janv. 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Foobaskill : sport hybride soccer-basket en EPS",
+  "slug": "foobaskill",
+  "appat_seo": false,
+  "texte": "Le foobaskill est un sport hybride développé en 2017 par trois enseignants d'éducation physique suisses : le terrain est divisé en deux zones, une par discipline, et les équipes alternent entre soccer et basketball au cours d'un même match.\nL'intérêt pédagogique tient au système de pointage, qui rend une équipe forte dans une seule discipline structurellement incapable de gagner seule — ce qui redistribue les rôles au sein du groupe.\nL'article couvre les règles, les bénéfices moteurs et cognitifs, une progression d'apprentissage et les adaptations nécessaires au primaire.\nhttps://zonetotalsport.ca/articles/foobaskill.html",
+  "lien": "https://zonetotalsport.ca/articles/foobaskill.html",
+  "image": "promo/foobaskill-carre.webp"
+ },
+ {
+  "semaine": 17,
+  "date": "2027-01-10",
+  "date_fr": "dimanche 10 janv. 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Foobaskill : sport hybride soccer-basket en EPS",
+  "slug": "foobaskill",
+  "appat_seo": false,
+  "texte": "Le foobaskill : soccer et basketball dans le même match, terrain divisé, pointage qui force la coopération. Inventé en 2017 par trois profs d'ÉPS suisses.\nRègles, progression, éducatifs, adaptations primaire :\nhttps://zonetotalsport.ca/articles/foobaskill.html\n#ÉPS #sportscolaire",
+  "lien": "https://zonetotalsport.ca/articles/foobaskill.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/foobaskill.png)"
+ },
+ {
+  "semaine": 18,
+  "date": "2027-01-12",
+  "date_fr": "mardi 12 janv. 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Émulation par dollars à l'échelle de l'école",
+  "slug": "systeme-emulation-dollars-ecole",
+  "appat_seo": false,
+  "texte": "Quand le système d'émulation fonctionne dans ta classe, la question suivante arrive vite : est-ce qu'on l'étend à l'école au complet ?\nL'article couvre le déploiement à grande échelle : comment coordonner plusieurs profs sans que ça devienne un cauchemar administratif, comment fonctionne la semaine des achats d'activités, pis pourquoi il ne faut surtout pas mettre de limite quotidienne.\nLa suite logique du modèle classe.\nÇa existe-tu déjà, un système comme ça, dans ton école ?\n👉 https://zonetotalsport.ca/articles/systeme-emulation-dollars-ecole.html",
+  "lien": "https://zonetotalsport.ca/articles/systeme-emulation-dollars-ecole.html",
+  "image": "promo/systeme-emulation-dollars-ecole-carre.webp"
+ },
+ {
+  "semaine": 18,
+  "date": "2027-01-14",
+  "date_fr": "jeudi 14 janv. 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Émulation par dollars à l'échelle de l'école",
+  "slug": "systeme-emulation-dollars-ecole",
+  "appat_seo": false,
+  "texte": "Passer d'un système d'émulation de classe à un dispositif à l'échelle de l'école change la nature du projet : ce n'est plus une pratique pédagogique individuelle, c'est un chantier d'équipe-école.\nCet article traite des conditions de réussite du déploiement : critères d'attribution partagés entre les enseignants, absence de plafond quotidien pour soutenir la persévérance, et organisation de la « semaine des achats d'activités » — compilation, allocation, planification logistique.\nIl précise également le rôle attendu de chaque enseignant dans l'observation et le suivi, qui est la principale cause d'essoufflement des systèmes de ce type après quelques mois.\nhttps://zonetotalsport.ca/articles/systeme-emulation-dollars-ecole.html",
+  "lien": "https://zonetotalsport.ca/articles/systeme-emulation-dollars-ecole.html",
+  "image": "promo/systeme-emulation-dollars-ecole-carre.webp"
+ },
+ {
+  "semaine": 18,
+  "date": "2027-01-17",
+  "date_fr": "dimanche 17 janv. 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Émulation par dollars à l'échelle de l'école",
+  "slug": "systeme-emulation-dollars-ecole",
+  "appat_seo": false,
+  "texte": "Étendre un système d'émulation par dollars à l'école entière : coordination entre profs, semaine des achats d'activités, durabilité.\nLa suite logique du modèle classe :\nhttps://zonetotalsport.ca/articles/systeme-emulation-dollars-ecole.html\n#ÉPS #équipeécole",
+  "lien": "https://zonetotalsport.ca/articles/systeme-emulation-dollars-ecole.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/systeme-emulation-dollars-ecole.jpg)"
+ },
+ {
+  "semaine": 19,
+  "date": "2027-01-19",
+  "date_fr": "mardi 19 janv. 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "SAÉ course primaire : situation prête à utiliser",
+  "slug": "sae-course",
+  "appat_seo": false,
+  "texte": "Une SAÉ sur la course, complète, prête à utiliser : 8 cours, objectifs différenciés par année, fiche élève incluse, critères alignés sur le PFEQ.\nPas besoin de la réécrire — juste de l'imprimer pis de l'adapter à ton contexte. On explique aussi comment garder la motivation quand on travaille la course sur plusieurs semaines (le vrai défi).\nTu la travailles comment, toi, la course, en début d'année ?\n👉 https://zonetotalsport.ca/articles/sae-course.html",
+  "lien": "https://zonetotalsport.ca/articles/sae-course.html",
+  "image": "promo/sae-course-carre.webp"
+ },
+ {
+  "semaine": 19,
+  "date": "2027-01-21",
+  "date_fr": "jeudi 21 janv. 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "SAÉ course primaire : situation prête à utiliser",
+  "slug": "sae-course",
+  "appat_seo": false,
+  "texte": "Une situation d'apprentissage et d'évaluation complète sur la course au primaire, structurée en huit cours, avec des objectifs différenciés selon le niveau et une fiche élève prête à imprimer.\nLes critères d'évaluation sont alignés sur le Programme de formation de l'école québécoise, ce qui permet de l'intégrer directement à une planification annuelle plutôt que de la traiter comme une activité isolée.\nL'article traite aussi d'un enjeu rarement abordé dans les SAÉ publiées : le maintien de la motivation quand la même compétence motrice est travaillée sur plusieurs semaines consécutives.\nhttps://zonetotalsport.ca/articles/sae-course.html",
+  "lien": "https://zonetotalsport.ca/articles/sae-course.html",
+  "image": "promo/sae-course-carre.webp"
+ },
+ {
+  "semaine": 19,
+  "date": "2027-01-24",
+  "date_fr": "dimanche 24 janv. 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "SAÉ course primaire : situation prête à utiliser",
+  "slug": "sae-course",
+  "appat_seo": false,
+  "texte": "Une SAÉ sur la course prête à utiliser : 8 cours, objectifs différenciés par année, fiche élève incluse, critères alignés sur le PFEQ.\nhttps://zonetotalsport.ca/articles/sae-course.html\n#ÉPS #SAÉ #PFEQ",
+  "lien": "https://zonetotalsport.ca/articles/sae-course.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/sae-course.jpg)"
+ },
+ {
+  "semaine": 20,
+  "date": "2027-01-26",
+  "date_fr": "mardi 26 janv. 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS + service de garde",
+  "article": "Les comptes rendus de rencontre sans y passer ta soirée",
+  "slug": "comptes-rendus-rencontres",
+  "appat_seo": false,
+  "texte": "Comité, rencontre statutaire, rencontre de parents. Tu prends des notes, pis tu passes ta soirée à les remettre au propre. Chaque fois.\nL'article montre trois façons de capturer une rencontre selon son type — écrire, parler, ou déposer l'enregistrement — pis comment le compte rendu s'écrit ensuite, décisions et actions comprises. Avec une vue « Mes actions » pour ne plus rien échapper d'une rencontre à l'autre.\nTes comptes rendus, tu les fais quand, honnêtement ? Le soir même ou trois jours plus tard ?\n👉 https://zonetotalsport.ca/articles/comptes-rendus-rencontres.html",
+  "lien": "https://zonetotalsport.ca/articles/comptes-rendus-rencontres.html",
+  "image": "promo/comptes-rendus-rencontres-carre.webp"
+ },
+ {
+  "semaine": 20,
+  "date": "2027-01-28",
+  "date_fr": "jeudi 28 janv. 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS + service de garde",
+  "article": "Les comptes rendus de rencontre sans y passer ta soirée",
+  "slug": "comptes-rendus-rencontres",
+  "appat_seo": false,
+  "texte": "Le compte rendu de rencontre est une tâche à faible valeur perçue et à coût réel élevé : elle est presque toujours reportée, puis exécutée de mémoire, plusieurs jours après la rencontre.\nCet article propose trois modes de capture selon le type de rencontre — prise de notes, dictée, dépôt d'un enregistrement — et distingue deux formats de sortie : la transcription mot à mot et le compte rendu structuré, qui ne servent pas les mêmes usages.\nLa partie la plus utile concerne le suivi : une vue transversale des actions engagées, qui permet de reprendre un dossier d'une rencontre à l'autre sans relire l'ensemble des documents.\nhttps://zonetotalsport.ca/articles/comptes-rendus-rencontres.html",
+  "lien": "https://zonetotalsport.ca/articles/comptes-rendus-rencontres.html",
+  "image": "promo/comptes-rendus-rencontres-carre.webp"
+ },
+ {
+  "semaine": 20,
+  "date": "2027-01-31",
+  "date_fr": "dimanche 31 janv. 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS + service de garde",
+  "article": "Les comptes rendus de rencontre sans y passer ta soirée",
+  "slug": "comptes-rendus-rencontres",
+  "appat_seo": false,
+  "texte": "Comité, statutaire, rencontre de parents : capturer la rencontre en écrivant, en parlant ou en déposant l'enregistrement — le compte rendu s'écrit ensuite, décisions et actions comprises.\nhttps://zonetotalsport.ca/articles/comptes-rendus-rencontres.html\n#éducation #productivité",
+  "lien": "https://zonetotalsport.ca/articles/comptes-rendus-rencontres.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/comptes-rendus-rencontres.jpg)"
+ },
+ {
+  "semaine": 21,
+  "date": "2027-02-02",
+  "date_fr": "mardi 2 févr. 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Bienfaits du sport pour les enfants : guide EPS",
+  "slug": "bienfaits-sport-enfants",
+  "appat_seo": false,
+  "texte": "Quand un parent ou une direction te demande « à quoi ça sert vraiment, l'éducation physique ? », ça peut être utile d'avoir les arguments à portée de main.\nOn a rassemblé sur une seule page les bienfaits du sport chez les enfants du primaire : santé physique, santé mentale, confiance en soi, développement social. Avec des données, pas juste des impressions.\nPrès d'un enfant sur quatre est en surpoids ou obèse — ça met la conversation en perspective.\nTu utilises quoi comme argument quand on coupe dans tes périodes ?\n👉 https://zonetotalsport.ca/articles/bienfaits-sport-enfants.html",
+  "lien": "https://zonetotalsport.ca/articles/bienfaits-sport-enfants.html",
+  "image": "promo/bienfaits-sport-enfants-carre.webp"
+ },
+ {
+  "semaine": 21,
+  "date": "2027-02-04",
+  "date_fr": "jeudi 4 févr. 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Bienfaits du sport pour les enfants : guide EPS",
+  "slug": "bienfaits-sport-enfants",
+  "appat_seo": false,
+  "texte": "Les enseignants d'éducation physique doivent régulièrement justifier la valeur de leur discipline — devant une direction, un conseil d'établissement, ou des parents.\nCet article rassemble en une page les effets documentés de l'activité physique chez les enfants du primaire : bénéfices sur la santé physique et la prévention, réduction du stress et de l'anxiété, développement de la confiance en soi, et acquisition de compétences sociales.\nLes repères de fréquence hebdomadaire y sont précisés, ce qui en fait un document utilisable tel quel en appui à une demande de ressources ou de temps d'enseignement.\nhttps://zonetotalsport.ca/articles/bienfaits-sport-enfants.html",
+  "lien": "https://zonetotalsport.ca/articles/bienfaits-sport-enfants.html",
+  "image": "promo/bienfaits-sport-enfants-carre.webp"
+ },
+ {
+  "semaine": 21,
+  "date": "2027-02-07",
+  "date_fr": "dimanche 7 févr. 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Bienfaits du sport pour les enfants : guide EPS",
+  "slug": "bienfaits-sport-enfants",
+  "appat_seo": false,
+  "texte": "« Près d'un enfant sur quatre est en surpoids ou obèse. »\nLes bienfaits du sport au primaire — santé physique, mentale, émotionnelle, sociale — rassemblés sur une page :\nhttps://zonetotalsport.ca/articles/bienfaits-sport-enfants.html\n#ÉPS #santédesjeunes",
+  "lien": "https://zonetotalsport.ca/articles/bienfaits-sport-enfants.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/bienfaits-sport-enfants.jpg)"
+ },
+ {
+  "semaine": 22,
+  "date": "2027-02-09",
+  "date_fr": "mardi 9 févr. 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "camp de jour + ÉPS",
+  "article": "Color Run à l'école : guide complet d'organisation",
+  "slug": "color-run",
+  "appat_seo": false,
+  "texte": "Imagine 1000 élèves habillés en blanc qui virent arc-en-ciel en 45 minutes. C'est l'événement dont on parle encore en juin.\nSauf qu'une Color Run, ça se prépare 4 à 6 mois d'avance : budget, parcours, sécurité, poudre, stations, bénévoles. On a mis tout ça dans un guide complet, étape par étape, avec les affaires auxquelles personne ne pense la première fois.\nTon école ou ton camp en a déjà fait une ? Raconte comment ça s'est passé.\n👉 https://zonetotalsport.ca/articles/color-run.html",
+  "lien": "https://zonetotalsport.ca/articles/color-run.html",
+  "image": "promo/color-run-carre.webp"
+ },
+ {
+  "semaine": 22,
+  "date": "2027-02-11",
+  "date_fr": "jeudi 11 févr. 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "camp de jour + ÉPS",
+  "article": "Color Run à l'école : guide complet d'organisation",
+  "slug": "color-run",
+  "appat_seo": false,
+  "texte": "Une Color Run réussie ressemble à une fête spontanée. Elle est en réalité le résultat de quatre à six mois de planification : budget, choix de date, tracé du parcours, protocole de sécurité, approvisionnement en poudre, recrutement et briefing des bénévoles.\nCe guide décompose l'événement en étapes ordonnées, avec les points de friction que l'on découvre généralement à la première édition : gestion des vents dominants aux stations de couleur, circulation des groupes, nettoyage, et communication aux parents.\nApplicable en milieu scolaire comme en camp de jour, pour une centaine de participants comme pour un millier.\nhttps://zonetotalsport.ca/articles/color-run.html",
+  "lien": "https://zonetotalsport.ca/articles/color-run.html",
+  "image": "promo/color-run-carre.webp"
+ },
+ {
+  "semaine": 22,
+  "date": "2027-02-14",
+  "date_fr": "dimanche 14 févr. 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "camp de jour + ÉPS",
+  "article": "Color Run à l'école : guide complet d'organisation",
+  "slug": "color-run",
+  "appat_seo": false,
+  "texte": "1000 élèves en blanc qui deviennent arc-en-ciel : la Color Run, ça se prépare 4 à 6 mois d'avance.\nGuide complet — budget, parcours, sécurité, stations, bénévoles :\nhttps://zonetotalsport.ca/articles/color-run.html\n#campdejour #événementscolaire",
+  "lien": "https://zonetotalsport.ca/articles/color-run.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/color-run.jpg)"
+ },
+ {
+  "semaine": 23,
+  "date": "2027-02-16",
+  "date_fr": "mardi 16 févr. 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "camp de jour",
+  "article": "20 grands jeux extérieurs pour camp de jour",
+  "slug": "grands-jeux-exterieurs-camp-de-jour",
+  "appat_seo": false,
+  "texte": "Fin d'après-midi, 30 degrés, un groupe qui commence à s'étioler dans le gazon. Faut sortir un gros jeu, pis vite.\nOn a monté 20 grands jeux extérieurs clé en main pour les camps de jour : poursuites, jeux d'eau pour la canicule, jeux coopératifs, pis des grands jeux thématiques classés par groupe d'âge.\nTout est gratuit, pas de compte à créer, juste à lire pis à sortir dehors.\nTon grand jeu qui marche à tous les coups, c'est lequel ?\n👉 https://zonetotalsport.ca/articles/grands-jeux-exterieurs-camp-de-jour.html",
+  "lien": "https://zonetotalsport.ca/articles/grands-jeux-exterieurs-camp-de-jour.html",
+  "image": "promo/grands-jeux-exterieurs-camp-de-jour-carre.webp"
+ },
+ {
+  "semaine": 23,
+  "date": "2027-02-18",
+  "date_fr": "jeudi 18 févr. 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "camp de jour",
+  "article": "20 grands jeux extérieurs pour camp de jour",
+  "slug": "grands-jeux-exterieurs-camp-de-jour",
+  "appat_seo": false,
+  "texte": "Un groupe qui s'ennuie devient, en quelques minutes, un groupe difficile à animer. C'est vrai en camp de jour plus qu'ailleurs, parce que la journée est longue et l'espace, ouvert.\nCet article rassemble 20 grands jeux extérieurs prêts à animer, organisés par intention : brûler de l'énergie, rafraîchir un groupe en canicule, souder une équipe en début de semaine, ou marquer une fin de session.\nChaque jeu est présenté avec son groupe d'âge cible et le matériel réellement nécessaire — rien qui demande un budget d'achat.\nUne ressource utile pour les coordonnateurs qui préparent la banque d'activités de leur équipe d'animation.\nhttps://zonetotalsport.ca/articles/grands-jeux-exterieurs-camp-de-jour.html",
+  "lien": "https://zonetotalsport.ca/articles/grands-jeux-exterieurs-camp-de-jour.html",
+  "image": "promo/grands-jeux-exterieurs-camp-de-jour-carre.webp"
+ },
+ {
+  "semaine": 23,
+  "date": "2027-02-21",
+  "date_fr": "dimanche 21 févr. 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "camp de jour",
+  "article": "20 grands jeux extérieurs pour camp de jour",
+  "slug": "grands-jeux-exterieurs-camp-de-jour",
+  "appat_seo": false,
+  "texte": "20 grands jeux extérieurs clé en main pour ton camp de jour : poursuite, eau, coopération, grands jeux thématiques, classés par âge.\nGratuit :\nhttps://zonetotalsport.ca/articles/grands-jeux-exterieurs-camp-de-jour.html\n#campdejour #animation",
+  "lien": "https://zonetotalsport.ca/articles/grands-jeux-exterieurs-camp-de-jour.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/grands-jeux-exterieurs-camp-de-jour.jpg)"
+ },
+ {
+  "semaine": 24,
+  "date": "2027-02-23",
+  "date_fr": "mardi 23 févr. 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Harcèlement envers les enseignants : agir",
+  "slug": "harcelement-enseignants",
+  "appat_seo": false,
+  "texte": "On parle beaucoup d'intimidation entre élèves. Beaucoup moins de ce que vivent certains enseignants — de la part de collègues, de parents, parfois de la direction.\nL'article aide à reconnaître les signes du harcèlement psychologique en milieu scolaire, explique quoi documenter, à qui s'adresser, et quels recours existent réellement.\nPersonne ne devrait avoir à gérer ça tout seul.\nEst-ce qu'on en parle assez, dans nos écoles ? Si le sujet te concerne ou concerne quelqu'un autour de toi, ça vaut la lecture.\n👉 https://zonetotalsport.ca/articles/harcelement-enseignants.html",
+  "lien": "https://zonetotalsport.ca/articles/harcelement-enseignants.html",
+  "image": "promo/harcelement-enseignants-carre.webp"
+ },
+ {
+  "semaine": 24,
+  "date": "2027-02-25",
+  "date_fr": "jeudi 25 févr. 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Harcèlement envers les enseignants : agir",
+  "slug": "harcelement-enseignants",
+  "appat_seo": false,
+  "texte": "Le harcèlement psychologique en milieu scolaire est bien documenté lorsqu'il touche les élèves, beaucoup moins lorsqu'il vise le personnel enseignant.\nCet article définit ce que recouvre le harcèlement psychologique au travail dans le contexte scolaire, décrit ses manifestations et ses effets sur la santé, puis détaille les démarches concrètes : documentation des faits, signalement interne, recours externes disponibles.\nIl aborde également le rôle des politiques d'établissement dans la prévention.\nUne ressource à connaître, et à transmettre à une personne qui en aurait besoin.\nhttps://zonetotalsport.ca/articles/harcelement-enseignants.html",
+  "lien": "https://zonetotalsport.ca/articles/harcelement-enseignants.html",
+  "image": "promo/harcelement-enseignants-carre.webp"
+ },
+ {
+  "semaine": 24,
+  "date": "2027-02-28",
+  "date_fr": "dimanche 28 févr. 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Harcèlement envers les enseignants : agir",
+  "slug": "harcelement-enseignants",
+  "appat_seo": false,
+  "texte": "Harcèlement psychologique envers les enseignants : reconnaître les signes, documenter, savoir à qui s'adresser et quels recours existent.\nUn sujet dont on parle trop peu :\nhttps://zonetotalsport.ca/articles/harcelement-enseignants.html\n#éducation #santéautravail",
+  "lien": "https://zonetotalsport.ca/articles/harcelement-enseignants.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/harcelement-enseignants.jpg)"
+ },
+ {
+  "semaine": 25,
+  "date": "2027-03-02",
+  "date_fr": "mardi 2 mars 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Suppléance en école : guide pratique terrain",
+  "slug": "suppleance-ecoles",
+  "appat_seo": false,
+  "texte": "Arriver dans une école que tu ne connais pas, avec six groupes différents dans la journée pis un plan de cours écrit à la main sur un post-it. Bienvenue en suppléance.\nL'article rassemble ce qui fait la différence : quoi préparer avant d'arriver, comment accueillir un groupe qui va te tester dans les 90 premières secondes, comment gérer les comportements sans historique, pis quoi laisser comme compte rendu à la fin.\nDu concret pour ceux qui commencent — pis des rappels pour les autres.\nTa pire journée de suppléance, elle ressemblait à quoi ?\n👉 https://zonetotalsport.ca/articles/suppleance-ecoles.html",
+  "lien": "https://zonetotalsport.ca/articles/suppleance-ecoles.html",
+  "image": "promo/suppleance-ecoles-carre.webp"
+ },
+ {
+  "semaine": 25,
+  "date": "2027-03-04",
+  "date_fr": "jeudi 4 mars 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Suppléance en école : guide pratique terrain",
+  "slug": "suppleance-ecoles",
+  "appat_seo": false,
+  "texte": "La suppléance concentre en une journée toutes les difficultés du métier : groupe inconnu, absence d'historique relationnel, planification incomplète, et un test systématique de la part des élèves dans les premières minutes.\nCe guide couvre le cycle complet : activation du dossier auprès d'un centre de services scolaire, préparation avant l'arrivée, accueil et installation du climat, gestion des comportements sans connaissance préalable du groupe, et rédaction d'un compte rendu utile à l'enseignant titulaire.\nUtile aux personnes qui débutent en suppléance, et aux écoles qui souhaitent mieux les accueillir.\nhttps://zonetotalsport.ca/articles/suppleance-ecoles.html",
+  "lien": "https://zonetotalsport.ca/articles/suppleance-ecoles.html",
+  "image": "promo/suppleance-ecoles-carre.webp"
+ },
+ {
+  "semaine": 25,
+  "date": "2027-03-07",
+  "date_fr": "dimanche 7 mars 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Suppléance en école : guide pratique terrain",
+  "slug": "suppleance-ecoles",
+  "appat_seo": false,
+  "texte": "Six groupes inconnus dans la même journée, un plan écrit sur un post-it : le guide pratique de la suppléance au primaire.\nPréparation, accueil, gestion sans historique, compte rendu :\nhttps://zonetotalsport.ca/articles/suppleance-ecoles.html\n#suppléance #éducation",
+  "lien": "https://zonetotalsport.ca/articles/suppleance-ecoles.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/suppleance-ecoles.png)"
+ },
+ {
+  "semaine": 26,
+  "date": "2027-03-09",
+  "date_fr": "mardi 9 mars 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "service de garde + ÉPS + camp de jour",
+  "article": "Inventaire du matériel sportif : la méthode éclair",
+  "slug": "inventaire-materiel-sans-effort",
+  "appat_seo": false,
+  "texte": "L'inventaire du matériel, c'est l'affaire qu'on repousse jusqu'à ce qu'on la fasse un samedi, dans un local poussiéreux, en sacrant.\nOn propose une autre méthode : 4 piliers (tri radical, zonage visuel, micro-inventaires rotatifs, numérisation), 9 solutions adaptées au gymnase, au service de garde pis au camp, avec un plan de 7 jours pour tout démarrer.\nUn objet sans adresse est un objet en sursis — c'est pas mal ça, l'idée.\nTon local à matériel, il ressemble à quoi honnêtement en ce moment ?\n👉 https://zonetotalsport.ca/articles/inventaire-materiel-sans-effort.html",
+  "lien": "https://zonetotalsport.ca/articles/inventaire-materiel-sans-effort.html",
+  "image": "promo/inventaire-materiel-sans-effort-carre.webp"
+ },
+ {
+  "semaine": 26,
+  "date": "2027-03-11",
+  "date_fr": "jeudi 11 mars 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "service de garde + ÉPS + camp de jour",
+  "article": "Inventaire du matériel sportif : la méthode éclair",
+  "slug": "inventaire-materiel-sans-effort",
+  "appat_seo": false,
+  "texte": "L'inventaire du matériel est une tâche invisible : jamais planifiée, jamais rémunérée, et pourtant refaite chaque année dans l'urgence de juin.\nCet article propose de sortir de la logique du grand tableau annuel — statique, obsolète en deux semaines — au profit de quatre piliers : tri radical, zonage visuel du local, micro-inventaires rotatifs et numérisation légère.\nNeuf solutions concrètes sont déclinées par milieu (gymnase scolaire, service de garde, camp de jour), suivies d'un plan d'implantation étalé sur sept jours.\nPertinent pour les techniciennes et responsables de service de garde qui gèrent un local partagé entre plusieurs équipes.\nhttps://zonetotalsport.ca/articles/inventaire-materiel-sans-effort.html",
+  "lien": "https://zonetotalsport.ca/articles/inventaire-materiel-sans-effort.html",
+  "image": "promo/inventaire-materiel-sans-effort-carre.webp"
+ },
+ {
+  "semaine": 26,
+  "date": "2027-03-14",
+  "date_fr": "dimanche 14 mars 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "service de garde + ÉPS + camp de jour",
+  "article": "Inventaire du matériel sportif : la méthode éclair",
+  "slug": "inventaire-materiel-sans-effort",
+  "appat_seo": false,
+  "texte": "« Un objet sans adresse est un objet en sursis. »\n4 piliers, 9 solutions terrain et un plan de 7 jours pour faire l'inventaire du matériel sans y perdre tes fins de semaine :\nhttps://zonetotalsport.ca/articles/inventaire-materiel-sans-effort.html\n#servicedegarde #ÉPS",
+  "lien": "https://zonetotalsport.ca/articles/inventaire-materiel-sans-effort.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/inventaire-materiel-sans-effort.jpg)"
+ },
+ {
+  "semaine": 27,
+  "date": "2027-03-16",
+  "date_fr": "mardi 16 mars 2027",
+  "heure": "19:00",
+  "reseau": "facebook",
+  "univers": "ÉPS",
+  "article": "Préparer l'année scolaire en EPS : checklist d'été",
+  "slug": "avance-annee-scolaire",
+  "appat_seo": false,
+  "texte": "Juin arrive, pis avec lui la tentation de tout fermer pis de partir. Sauf que deux ou trois heures investies maintenant, c'est une rentrée pas mal plus douce en août.\nL'article propose une checklist d'été : revoir la planification annuelle, préparer les documents du parascolaire, faire l'inventaire pis passer les commandes pendant qu'il reste du budget, pis faire un vrai bilan de l'année.\nRien d'héroïque — juste les affaires qui coûtent trois fois plus cher à faire en août.\nTu en fais-tu, toi, de la préparation d'été ? Ou tu débranches complètement ?\n👉 https://zonetotalsport.ca/articles/avance-annee-scolaire.html",
+  "lien": "https://zonetotalsport.ca/articles/avance-annee-scolaire.html",
+  "image": "promo/avance-annee-scolaire-carre.webp"
+ },
+ {
+  "semaine": 27,
+  "date": "2027-03-18",
+  "date_fr": "jeudi 18 mars 2027",
+  "heure": "07:30",
+  "reseau": "linkedin",
+  "univers": "ÉPS",
+  "article": "Préparer l'année scolaire en EPS : checklist d'été",
+  "slug": "avance-annee-scolaire",
+  "appat_seo": false,
+  "texte": "La fin d'année scolaire est le moment le moins coûteux pour préparer la suivante : le contexte est encore frais, le matériel est sous les yeux, et les budgets ne sont pas tous fermés.\nCette checklist d'été couvre quatre chantiers : révision de la planification annuelle à la lumière de ce qui a réellement fonctionné, préparation administrative du parascolaire et des tournois, inventaire du matériel avec commandes budgétisées, et bilan professionnel personnel.\nUne planification structurée reste la colonne vertébrale d'un programme d'éducation physique cohérent — et elle se construit mieux en juin qu'à la mi-août.\nhttps://zonetotalsport.ca/articles/avance-annee-scolaire.html",
+  "lien": "https://zonetotalsport.ca/articles/avance-annee-scolaire.html",
+  "image": "promo/avance-annee-scolaire-carre.webp"
+ },
+ {
+  "semaine": 27,
+  "date": "2027-03-21",
+  "date_fr": "dimanche 21 mars 2027",
+  "heure": "10:00",
+  "reseau": "x",
+  "univers": "ÉPS",
+  "article": "Préparer l'année scolaire en EPS : checklist d'été",
+  "slug": "avance-annee-scolaire",
+  "appat_seo": false,
+  "texte": "Deux ou trois heures en juin = une rentrée pas mal plus douce en août.\nChecklist d'été pour l'ÉPS : planification annuelle, parascolaire, inventaire, commandes avant la fin du budget :\nhttps://zonetotalsport.ca/articles/avance-annee-scolaire.html\n#ÉPS #planification",
+  "lien": "https://zonetotalsport.ca/articles/avance-annee-scolaire.html",
+  "image": "carte OG automatique (https://zonetotalsport.ca/articles/images/heroes/avance-annee-scolaire.jpg)"
+ }
+];
+
+const NOMS = { facebook:"Facebook", linkedin:"LinkedIn", x:"X" };
+
+function parDate(a,b){ return (a.date+ (a.heure||"")).localeCompare(b.date+(b.heure||"")); }
+
+let FILTRE = 'tous';
+function rendre(filtre, q){
+  FILTRE = filtre;
+  q = (q||'').toLowerCase();
+  const liste = document.getElementById('liste');
+  const posts = POSTS.slice().sort(parDate);
+
+  if(!posts.length){
+    liste.innerHTML = '<div class="vide"><strong>Aucun post chargé.</strong>' +
+      'Ouvre ce fichier dans un éditeur et colle les 81 posts dans le tableau ' +
+      '<code>const POSTS = [ ... ]</code>, en haut du bloc &lt;script&gt;. ' +
+      'Le modèle exact est en commentaire juste au-dessus.</div>';
+    return;
+  }
+
+  // prochain = premier post dont la date/heure n'est pas passée
+  const maintenant = new Date();
+  const prochain = posts.find(p => new Date(p.date + 'T' + (p.heure||'00:00')) >= maintenant);
+
+  const visibles = posts.filter(p => (filtre === 'tous' || p.reseau === filtre) &&
+    (!q || ((p.article||'') + ' ' + (p.slug||'') + ' ' + (p.texte||'')).toLowerCase().indexOf(q) > -1));
+  liste.innerHTML = '';
+  visibles.forEach((p, i) => {
+    const rang = posts.indexOf(p) + 1;
+    const est = (p === prochain);
+    const el = document.createElement('article');
+    if(est) el.className = 'prochain';
+    const tete = document.createElement('div');
+    tete.className = 'tete';
+    tete.innerHTML =
+      '<span class="rang">#' + rang + ' · S' + (p.semaine||'?') + '</span>' +
+      '<span class="reseau ' + (p.reseau||'') + '">' + (NOMS[p.reseau]||p.reseau||'?') + '</span>' +
+      '<span class="quand">' + (p.date_fr || p.date || '') + (p.heure ? ' · ' + p.heure : '') + '</span>' +
+      (p.appat_seo ? '<span class="appat">★ appât SEO</span>' : '') +
+      (est ? '<span class="badge-prochain">PROCHAIN</span>' : '');
+    el.appendChild(tete);
+
+    if(p.article){
+      const h = document.createElement('div');
+      h.className = 'titre-article';
+      h.textContent = p.article + (p.univers ? '  —  ' + p.univers : '');
+      el.appendChild(h);
+    }
+
+    const txt = document.createElement('div');
+    txt.className = 'texte';
+    txt.textContent = p.texte || '(texte manquant)';
+    el.appendChild(txt);
+
+    const pied = document.createElement('div');
+    pied.className = 'pied';
+    const btn = document.createElement('button');
+    btn.className = 'copier';
+    btn.textContent = 'Copier le post';
+    btn.addEventListener('click', function(){
+      const t = p.texte || '';
+      // Repli obligatoire : navigator.clipboard REJETTE quand la page n'a pas
+      // le focus (onglet en arriere-plan, panneau de previsualisation). Sans
+      // repli, le bouton ne dit rien et on croit que le clic n'a pas pris.
+      function repli(){
+        try{
+          const z = document.createElement('textarea');
+          z.value = t; z.setAttribute('readonly','');
+          z.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+          document.body.appendChild(z); z.select(); z.setSelectionRange(0, t.length);
+          const ok = document.execCommand('copy');
+          document.body.removeChild(z);
+          return ok;
+        }catch(e){ return false; }
+      }
+      function dire(ok){
+        btn.textContent = ok ? '✔ Copié' : '✖ Échec — copie à la main';
+        btn.classList.toggle('ok', ok); btn.classList.toggle('ko', !ok);
+        setTimeout(function(){
+          btn.textContent = 'Copier le post';
+          btn.classList.remove('ok','ko');
+        }, ok ? 1800 : 3500);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t).then(function(){ dire(true); },
+                                             function(){ dire(repli()); });
+      } else {
+        dire(repli());
+      }
+    });
+    pied.appendChild(btn);
+    const m = document.createElement('span');
+    m.className = 'meta';
+    let bits = [];
+    if(p.lien)  bits.push('<a target="_blank" rel="noopener" href="' + p.lien + '">ouvrir l\'article</a>');
+    if(p.image) bits.push('image : <code>' + p.image + '</code>');
+    m.innerHTML = bits.join(' · ');
+    pied.appendChild(m);
+    el.appendChild(pied);
+    liste.appendChild(el);
+  });
+}
+
+(function barre(){
+  const b = document.getElementById('barre');
+  const rech = document.createElement('input');
+  rech.type = 'search'; rech.placeholder = 'chercher un article, un mot du post…';
+  rech.className = 'rech';
+  rech.addEventListener('input', function(){ rendre(FILTRE, rech.value.trim().toLowerCase()); });
+  setTimeout(function(){ b.appendChild(rech); }, 0);
+  [['tous','Tous'],['facebook','Facebook'],['linkedin','LinkedIn'],['x','X']].forEach(function(f,i){
+    const bt = document.createElement('button');
+    bt.className = 'filtre'; bt.textContent = f[1];
+    bt.setAttribute('aria-pressed', i===0 ? 'true' : 'false');
+    bt.addEventListener('click', function(){
+      b.querySelectorAll('.filtre').forEach(function(o){ o.setAttribute('aria-pressed','false'); });
+      bt.setAttribute('aria-pressed','true');
+      rendre(f[0]);
+    });
+    b.appendChild(bt);
+  });
+})();
+
+rendre('tous');
+</script>
+</body>
+</html>
