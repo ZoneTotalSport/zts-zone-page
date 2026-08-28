@@ -329,3 +329,29 @@ Corrigé **à la source**, dans les `@font-face` de `proto.css` :
 toujours un coin oublié et fausse ensuite toute comparaison de tailles : deux
 règles écrites « 17 px » ne se liraient plus pareil selon la police. Ici, une
 ligne, tout le proto suit, et les tailles écrites redeviennent honnêtes.
+
+## Une couleur par groupe, sans fin — et les rayons de l'accueil
+
+**Les couleurs.** L'ancien code faisait `PALETTE_COUL[n % 8]` : le 9ᵉ groupe
+reprenait la couleur du 1ᵉʳ. Joey en avait neuf, avec deux paires identiques.
+
+`couleurLibre()` sert d'abord les huit couleurs choisies à la main, tant qu'il
+en reste une de libre. Ensuite elle **fabrique** : plus grand trou dans le
+cercle des teintes déjà posées, on se place au milieu. Deux groupes n'ont donc
+jamais la même couleur, et l'écart se resserre doucement au lieu de boucler.
+Même principe pour les emoji (`emojiLibre()`, 20 pictogrammes).
+
+- **🎨 TOUTES DIFFÉRENTES**, dans la palette, répare les groupes déjà créés du
+  temps où l'on bouclait sur huit.
+- Le **sélecteur natif** dans l'en-tête de séance et dans « personnaliser un
+  groupe » donne le reste de l'infini — les huit pastilles ne sont qu'un
+  raccourci.
+
+**Le fond.** Le marine et la trame de points étaient déjà copiés du patron ;
+il **manquait la troisième couche** — les rayons jaunes en rotation lente
+(140 s), et ce sont eux qu'on remarque. Valeurs reprises telles quelles de
+`html.ztsp-decor body::after` (`shared/zts-modele.css`).
+
+⚠ Le proto **recopie** plutôt que d'importer `zts-modele.css` : c'est une
+maquette autonome, charger tout le patron l'exposerait à des chocs de règles
+qu'aucun de ses écrans n'a été conçu pour absorber.

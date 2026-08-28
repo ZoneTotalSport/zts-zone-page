@@ -68,6 +68,30 @@ body::before{
   background-image:radial-gradient(rgba(255,255,255,.16) 1.3px,transparent 1.4px);
   background-size:12px 12px;
 }
+/* ═════ LES RAYONS — la troisième couche du décor de zonetotalsport.ca ═════
+   Joey, 28 août : « background comme le background de la page d'accueil ».
+   Le marine et la trame de points étaient déjà là, copiés du patron ; il
+   MANQUAIT les rayons jaunes en rotation lente, et c'est eux qu'on remarque.
+   Valeurs reprises telles quelles de `html.ztsp-decor body::after`
+   (shared/zts-modele.css) — le proto est une maquette autonome, il recopie
+   plutôt que d'importer tout le patron et de risquer un choc de règles.
+   ⚠ Le masque radial n'est pas décoratif : sans lui, la trame conique se voit
+   jusque dans les coins et le fond devient bruyant.
+   140 s par tour : assez lent pour ne pas se remarquer, assez présent pour que
+   la page ne soit pas figée. `prefers-reduced-motion` l'arrête net. */
+body::after{
+  content:'';position:fixed;
+  top:-46vh;left:50%;width:150vmax;height:150vmax;
+  z-index:-1;pointer-events:none;opacity:.20;
+  transform:translateX(-50%);
+  background:repeating-conic-gradient(from 0deg at 50% 50%,
+             rgba(255,212,0,.85) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 62%);
+          mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 62%);
+  animation:proto-rayons 140s linear infinite;
+}
+@keyframes proto-rayons{ to{ transform:translateX(-50%) rotate(360deg); } }
+@media (prefers-reduced-motion:reduce){ body::after{animation:none} }
 
 /* ---------- bandeau proto ---------- */
 .proto-bar{

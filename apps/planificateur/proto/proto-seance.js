@@ -12,7 +12,71 @@
 
 function cleNoteCase(iso, per){ return 'agnote:'+iso+':p'+per; }
 const PALETTE_COUL = ['#00C2E8','#FFA200','#A3FF00','#FF0061','#8B5CF6','#25D8C0','#FFC107','#FF6B00'];
-const PALETTE_EMO  = ['🏀','⚽','🏐','🏸','🤾','🎾','🥍','🏓'];
+const PALETTE_EMO  = ['🏀','⚽','🏐','🏸','🤾','🎾','🥍','🏓',
+                      '🏈','⚾','🥏','🏒','🏑','🤸','🏊','🚴','🤺','🥋','🧗','🤼'];
+
+/* ═════ UNE COULEUR DIFFÉRENTE PAR GROUPE, SANS FIN ═════
+   Joey, 28 août : « mets encore plus de couleurs, une couleur différente par
+   groupe — il existe une infinité de couleurs. » Il avait neuf groupes et deux
+   paires identiques : l'ancien code faisait `PALETTE_COUL[n % 8]`, donc le 9ᵉ
+   groupe reprenait la couleur du 1ᵉʳ.
+   Les huit couleurs choisies à la main passent d'abord, tant qu'il en reste
+   une de libre. Ensuite on FABRIQUE : on cherche le plus grand trou dans le
+   cercle des teintes déjà posées et on se place en plein milieu. Deux groupes
+   n'ont donc jamais la même couleur, et l'écart se resserre doucement au lieu
+   de boucler. */
+function teinteDe(hex){
+  const m=/^#([0-9a-fA-F]{6})$/.exec(String(hex||'')); if(!m) return null;
+  const n=parseInt(m[1],16), r=(n>>16)/255, v=((n>>8)&255)/255, b=(n&255)/255;
+  const max=Math.max(r,v,b), min=Math.min(r,v,b), d=max-min;
+  if (!d) return null;                       /* un gris n'a pas de teinte */
+  let h = (max===r) ? ((v-b)/d)%6 : (max===v) ? (b-r)/d+2 : (r-v)/d+4;
+  h*=60; return (h%360+360)%360;
+}
+function hslHex(h,s,l){
+  s/=100; l/=100;
+  const k=n=>(n+h/30)%12, a=s*Math.min(l,1-l);
+  const f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));
+  return '#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('');
+}
+function couleurLibre(liste){
+  const prises=new Set((liste||[]).map(g=>String(g.coul||'').toUpperCase()));
+  const dispo=PALETTE_COUL.find(c=>!prises.has(c.toUpperCase()));
+  if (dispo) return dispo;                   /* les huit d'abord */
+  const h=(liste||[]).map(g=>teinteDe(g.coul)).filter(x=>x!==null).sort((a,b)=>a-b);
+  if (!h.length) return PALETTE_COUL[0];
+  let milieu=h[0]+180, plusGrand=-1;
+  for (let i=0;i<h.length;i++){
+    const a=h[i], b=(i+1<h.length) ? h[i+1] : h[0]+360;
+    if (b-a > plusGrand){ plusGrand=b-a; milieu=a+(b-a)/2; }
+  }
+  const t=((milieu%360)+360)%360;
+  /* La clarté suit la teinte : un jaune pur à 56 % éblouit, un bleu à 56 %
+     s'assombrit trop. On les rapproche de la vivacité des huit d'origine. */
+  const clarte = (t>40 && t<75) ? 50 : (t>200 && t<280) ? 62 : 56;
+  return hslHex(t, 92, clarte);
+}
+function emojiLibre(liste){
+  const pris=new Set((liste||[]).map(g=>g.emo));
+  return PALETTE_EMO.find(e=>!pris.has(e)) || PALETTE_EMO[(liste||[]).length % PALETTE_EMO.length];
+}
+/* Rendre toutes les couleurs distinctes d'un coup — pour les groupes déjà
+   créés du temps où l'on bouclait sur huit. */
+function couleursToutesDifferentes(){
+  const l=GRP(); const vues=new Set(), emos=new Set(); let n=0;
+  l.forEach(g=>{
+    const c=String(g.coul||'').toUpperCase();
+    if (!c || vues.has(c)){ g.coul=couleurLibre(l); n++; }
+    vues.add(String(g.coul).toUpperCase());
+    if (!g.img){
+      if (emos.has(g.emo)) g.emo=emojiLibre(l);
+      emos.add(g.emo);
+    }
+  });
+  poserGRP(l); peindreAgenda();
+  if (seanceOuverte && $('#modale') && !$('#modale').hidden && $('#seTete')) peindreTeteSeance();
+  alert(n ? n+' groupe(s) ont reçu une couleur bien à eux.' : 'Chaque groupe avait déjà sa couleur.');
+}
 
 /* Chaque groupe a sa couleur, son image, et SES élèves. */
 function GRP(){
@@ -127,12 +191,15 @@ function peindrePalette(){
     const nom=prompt('Nom du groupe :','301'); if(!nom) return;
     const l=GRP();
     l.push({id:'g'+(l.length+1)+'_'+l.length, nom:nom.trim(),
-            coul:PALETTE_COUL[l.length % PALETTE_COUL.length],
-            emo:PALETTE_EMO[l.length % PALETTE_EMO.length], img:'',
+            coul:couleurLibre(l), emo:emojiLibre(l), img:'',
             eleves:ELEVES.map((x,i)=>i).slice(0,6)});
     poserGRP(l); peindrePalette();
   });
   h.appendChild(plus);
+  const arc=el('button','mini mini--jaune','🎨 TOUTES DIFFÉRENTES'); arc.type='button';
+  arc.title='Donner une couleur bien à lui à chaque groupe qui en partage une';
+  arc.addEventListener('click', couleursToutesDifferentes);
+  h.appendChild(arc);
   if (grpEnMain){
     const a=el('span',null,'👆 touche une case pour y poser '+grpDe(grpEnMain).nom);
     a.style.cssText='font-family:var(--f-note);font-size:16px;color:var(--jaune)';
@@ -190,6 +257,13 @@ function modifierGroupe(id){
     b.addEventListener('click',()=>{ coul=c; [...hc.children].forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); });
     hc.appendChild(b);
   });
+  const libre=document.createElement('input');
+  libre.type='color'; libre.className='m-personne'; libre.value=coul;
+  libre.style.cssText='min-width:46px;height:34px;padding:2px;cursor:pointer';
+  libre.title='N’importe quelle autre couleur';
+  libre.addEventListener('input',()=>{ coul=libre.value;
+    [...hc.children].forEach(x=>{ if(x.setAttribute) x.setAttribute('aria-pressed','false'); }); });
+  hc.appendChild(libre);
   const he=$('#gEmos');
   PALETTE_EMO.forEach(e=>{
     const b=el('button','m-personne',e); b.type='button'; b.style.fontSize='19px';
@@ -289,6 +363,13 @@ function peindreTeteSeance(){
     b.addEventListener('click', ()=> majGroupe(g.id, x=>x.coul=c));
     par.appendChild(b);
   });
+  /* ⚠ « Il existe une infinité de couleurs » : les huit pastilles ne sont
+     qu'un raccourci. Le sélecteur natif donne le reste. */
+  const libre=document.createElement('input');
+  libre.type='color'; libre.className='se-coul se-coul--libre'; libre.value=g.coul;
+  libre.title='N’importe quelle autre couleur';
+  libre.addEventListener('input', ()=> majGroupe(g.id, x=>x.coul=libre.value));
+  par.appendChild(libre);
   const ph2=el('button','se-coul se-coul--photo', g.img?'✕':'📷'); ph2.type='button';
   ph2.title = g.img ? 'Retirer la photo et revenir à l’image' : 'Choisir une photo';
   ph2.addEventListener('click', ()=> g.img ? majGroupe(g.id, x=>x.img='') : choisirPhotoGroupe(g.id));

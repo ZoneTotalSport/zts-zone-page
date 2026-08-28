@@ -64,8 +64,7 @@ function peindreMesGroupes(){
     const nom=prompt('Nom du groupe :','301'); if(!nom) return;
     const l=GRP();
     l.push({id:'g'+Date.now().toString(36), nom:nom.trim(),
-            coul:PALETTE_COUL[l.length % PALETTE_COUL.length],
-            emo:PALETTE_EMO[l.length % PALETTE_EMO.length], img:'',
+            coul:couleurLibre(l), emo:emojiLibre(l), img:'',
             eleves:[]});
     poserGRP(l); peindreMesGroupes(); peindrePalette();
   });
