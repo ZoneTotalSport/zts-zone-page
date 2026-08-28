@@ -71,8 +71,25 @@ pop-up s'affiche. **Stubber `window.ztsTrackFunnel` depuis la console arrive
 toujours trop tard** : au moment où la console répond, les documents sont déjà
 partis.
 
-> **Le stub se pose dans le FICHIER SERVI, avant le premier chargement.**
-> Jamais depuis la console.
+> **La règle complète : toute ouverture de page prod-like écrit dans le tunnel.
+> Le stub se pose AVANT le premier chargement, peu importe qui déclenche le
+> chargement.** Jamais depuis la console.
+
+**⚠️ `preview_start` ouvre `http://localhost:<port>/` AVANT toute navigation.**
+Si le `cwd` est la racine du dépôt, c'est la page d'accueil ZTS complète qui se
+charge — `zts-cadenas.js` et `zts-newsletter.js` compris — et deux documents
+partent en production avant que la moindre commande soit tapée. Naviguer vers la
+bonne page **ensuite** n'annule rien. Servir depuis un sous-dossier, ou accepter
+le coût et le déclarer.
+
+Trois prises le 28 août 2026, par trois portes différentes : un stub console posé
+trop tard, une recette de production où le fichier servi n'est pas modifiable, et
+l'ouverture automatique de la racine par `preview_start`. **Ce n'est pas de la
+malchance, c'est un motif** — la page écrit toute seule, l'outil n'a rien à
+demander. Bilan : 7 documents parasites, tous des `locked_view` /
+`newsletter_view`, aucun `signup_complete`. Bénin en août sur un tunnel presque
+vide ; **en septembre, avec le trafic de la campagne, ces parasites deviennent
+indiscernables du vrai signal.**
 
 Recette qui fonctionne, vérifiée le 28 août 2026 (PR #53) :
 
