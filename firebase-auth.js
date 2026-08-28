@@ -760,14 +760,34 @@
   // redirection vers /bienvenue.html), consomme par zts-funnel.js a l'arrivee.
   function fireSignupComplete(method) {
     var signup_source = 'direct';
+    var signup_slug = null;
     try {
       signup_source = sessionStorage.getItem('zts_signup_source') || 'direct';
+      // LE SLUG N'APPARTIENT QU'AUX DEMI-MURS, ET C'EST UNE GARDE, PAS UN DETAIL.
+      // Les trois autres emetteurs ('locked_card', 'popup', 'newsletter_popup')
+      // posent une source sans jamais poser de slug. Sans ce test, un slug
+      // survivant d'un demi-mur abandonne se collerait a l'inscription suivante :
+      // visiteur qui clique le CTA de catastrophes-ordinaires, n'acheve pas,
+      // navigue, puis s'inscrit dix minutes plus tard par le pop-up newsletter
+      // -> le pop-up ecrase la source, mais le slug de l'article survivrait et
+      // crediterait une conversion que l'article n'a pas produite. C'est
+      // precisement le chiffre qui decide lesquels des 27 articles meritent un
+      // frere : il ne peut pas etre gonfle.
+      if (signup_source.indexOf('demi_mur_') === 0) {
+        signup_slug = sessionStorage.getItem('zts_signup_slug') || null;
+      }
+      // LES DEUX CLES SE CONSOMMENT DANS TOUS LES CAS, y compris quand le slug
+      // vient d'etre ignore. Un seul point de verite pour le nettoyage : un
+      // quatrieme emetteur ajoute plus tard n'a rien a savoir de cette regle,
+      // il lui suffit de poser sa source.
       sessionStorage.removeItem('zts_signup_source');
+      sessionStorage.removeItem('zts_signup_slug');
     } catch (e) {}
     try {
       sessionStorage.setItem('zts_signup_pending', JSON.stringify({
         method: method,
         signup_source: signup_source,
+        signup_slug: signup_slug,
         ts: Date.now()
       }));
     } catch (e) {}
@@ -966,6 +986,7 @@
       try {
         sessionStorage.removeItem('zts_signup_pending');
         sessionStorage.removeItem('zts_signup_source');
+        sessionStorage.removeItem('zts_signup_slug');
       } catch (e) {}
       window.location.href = '/';
     }
