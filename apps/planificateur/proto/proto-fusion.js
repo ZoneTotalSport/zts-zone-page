@@ -491,6 +491,7 @@ const STYLES_CYCLE = {
     const t=e.target.closest('[data-cyc]'); if(!t) return;
     let n=lire('cycLen',6) + (t.dataset.cyc==='+'?1:-1);
     n=Math.max(2,Math.min(10,n)); ecrire('cycLen',n); majLen();
+    if (typeof rafraichirCycles==='function') rafraichirCycles();
   });
   /* style d'affichage */
   const hs=$('#cycStyles');
@@ -499,7 +500,8 @@ const STYLES_CYCLE = {
     b.setAttribute('aria-pressed',String(k===lire('cycStyle','romains')));
     b.addEventListener('click',()=>{ ecrire('cycStyle',k);
       $$('#cycStyles .mini').forEach(x=>x.setAttribute('aria-pressed','false'));
-      b.setAttribute('aria-pressed','true'); peindreNoms(); });
+      b.setAttribute('aria-pressed','true'); peindreNoms();
+      if (typeof rafraichirCycles==='function') rafraichirCycles(); });
     hs.appendChild(b);
   });
   function peindreNoms(){
@@ -513,6 +515,10 @@ const STYLES_CYCLE = {
       h.appendChild(d);
     }
     brancherEditables(h);
+    /* un nom écrit à la main doit se voir tout de suite dans la barre du haut
+       et dans l'agenda — un seul écouteur délégué suffit. */
+    if (!h.dataset.branche2){ h.dataset.branche2='1';
+      h.addEventListener('input',()=>{ if (typeof rafraichirCycles==='function') rafraichirCycles(); }); }
   }
   majLen();
 
@@ -718,6 +724,18 @@ function peindreCtxBarre(){
      rappelle cette fonction une fois en place. */
   if (typeof GRP !== 'function') return;
   j.textContent = jourLisible(ctxDate);
+  /* Joey, 28 août : « où je peux mettre jour cycle en haut ? à côté de la
+     date ? » — ici. C'est la seule barre qui suit l'utilisateur d'un écran à
+     l'autre, et le jour-cycle est ce qu'un prof cherche en premier le matin. */
+  const cy=$('#ctxCycle');
+  if (cy){
+    const txt = (typeof jourCycleLisible==='function') ? jourCycleLisible(ctxDate) : '';
+    cy.textContent = txt;
+    cy.hidden = !txt;
+    cy.className = 'ctx-cyc' + (cycles[ctxDate] ? '' : ' ctx-cyc--hors');
+    cy.title = cycles[ctxDate] ? 'Jour-cycle, calculé depuis le calendrier scolaire'
+                               : 'Pas de jour-cycle : cette journée est hors classe';
+  }
   const sel=$('#ctxGroupeSel');
   sel.innerHTML='';
   GRP().forEach((g,i)=>{

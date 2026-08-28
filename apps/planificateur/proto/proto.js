@@ -331,10 +331,39 @@ const CATS = [
 ];
 const HORS_ECOLE = new Set(['conge','pedago','cssdhr','congres','force']);
 const MOIS_NOMS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-const ANNEE_MOIS = [[2025,7],[2025,8],[2025,9],[2025,10],[2025,11],[2026,0],[2026,1],[2026,2],[2026,3],[2026,4],[2026,5]];
-const DEBUT = '2025-08-25', FIN = '2026-06-30';
 const ROM = ['I','II','III','IV','V','VI'];
 const iso = (y,m,d)=> y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+
+/* ═════ L'ANNÉE SCOLAIRE SUIT L'HORLOGE ═════
+   ⚠ Le calendrier semé plus bas est le VRAI calendrier CSSDHR 2025-2026. Mais
+   un proto ouvert en août 2026 tombait sur une semaine SITUÉE APRÈS la fin de
+   cette année-là : aucun jour-cycle nulle part, et toute la mécanique avait
+   l'air morte alors qu'elle marchait.
+   On décale donc les marques d'un nombre entier de SEMAINES — 364 jours par
+   année — pour retomber sur l'année scolaire en cours. Les jours de la semaine
+   sont préservés (un lundi reste un lundi) ; les dates glissent d'un ou deux
+   jours.
+   ⚠ CE N'EST DONC PAS LE VRAI CALENDRIER DE L'ANNÉE EN COURS, et il ne faut pas
+   le laisser croire : c'est de la donnée de démonstration. L'écran CALENDRIER
+   est là pour la corriger, et il le dit lui-même quand le décalage est actif. */
+const SEED_AN = 2025;
+function anneeScolaireCourante(){
+  const d = new Date();
+  return (d.getMonth() >= 7) ? d.getFullYear() : d.getFullYear()-1;   // août = rentrée
+}
+const AN_SCOLAIRE  = anneeScolaireCourante();
+const DECALAGE_ANS = AN_SCOLAIRE - SEED_AN;
+function decalerIso(k){
+  if (!DECALAGE_ANS) return k;
+  const [y,m,j] = k.split('-').map(Number);
+  const d = new Date(y, m-1, j);
+  d.setDate(d.getDate() + DECALAGE_ANS*364);      /* 52 semaines pile */
+  return iso(d.getFullYear(), d.getMonth(), d.getDate());
+}
+const ANNEE_MOIS = [[AN_SCOLAIRE,7],[AN_SCOLAIRE,8],[AN_SCOLAIRE,9],[AN_SCOLAIRE,10],[AN_SCOLAIRE,11],
+                    [AN_SCOLAIRE+1,0],[AN_SCOLAIRE+1,1],[AN_SCOLAIRE+1,2],[AN_SCOLAIRE+1,3],
+                    [AN_SCOLAIRE+1,4],[AN_SCOLAIRE+1,5]];
+const DEBUT = decalerIso('2025-08-25'), FIN = decalerIso('2026-06-30');
 
 const SEED = {
   '2025-08-25':'pedago','2025-08-26':'pedago','2025-08-27':'pedago','2025-08-28':'pedago','2025-08-29':'premiere',
@@ -351,24 +380,72 @@ const SEED = {
   '2026-06-05':'force','2026-06-23':'derniere','2026-06-24':'conge',
   '2026-06-25':'pedago','2026-06-26':'pedago','2026-06-29':'pedago','2026-06-30':'pedago',
 };
-let marques = lire('cal', null) || {...SEED};
+const SEED_DECALE = (()=>{ const o={};
+  Object.keys(SEED).forEach(k=> o[decalerIso(k)] = SEED[k]); return o; })();
+let marques = lire('cal', null) || {...SEED_DECALE};
 let catActive = 'conge';
-let cycles = {};                         // iso → 'I'..'VI'
+let cycles  = {};                        // iso → le libellé affiché
+let cyclesI = {};                        // iso → l'index 0-based, la vérité
 
+/* ═════ LE JOUR-CYCLE — un seul endroit décide de son nom ═════
+   ⚠ `recalculerCycles()` écrivait `ROM[i % 6]` en dur. Ni la LONGUEUR du cycle
+   ni le STYLE réglés dans RÉGLAGES n'arrivaient jusqu'ici : un prof en cycle de
+   9 jours, ou qui nomme ses journées, réglait dans le vide.
+   ⚠ Et `cycles` ne se remplissait qu'au premier affichage du CALENDRIER —
+   avant d'y être allé, l'agenda n'avait aucun jour-cycle à montrer. On calcule
+   maintenant au démarrage, et à chaque fois qu'un réglage bouge. */
+function longueurCycle(){ return Math.max(2, Math.min(10, lire('cycLen',6))); }
+function libelleCycle(i){
+  const perso = lire('ed:cycnom-'+i, '');
+  if (perso && String(perso).trim()) return String(perso).trim();
+  const st = lire('cycStyle','romains');
+  /* STYLES_CYCLE vit dans proto-fusion.js, chargé après : au tout premier
+     appel il n'existe pas encore, on retombe sur les chiffres romains. */
+  const table = (typeof STYLES_CYCLE!=='undefined' && STYLES_CYCLE[st]) ? STYLES_CYCLE[st].v : ROM;
+  return table[i] || String(i+1);
+}
 function recalculerCycles(){
-  cycles = {}; let i = 0;
+  cycles = {}; cyclesI = {}; let i = 0;
+  const n = longueurCycle();
   ANNEE_MOIS.forEach(([y,m])=>{
-    const n = new Date(y, m+1, 0).getDate();
-    for (let d=1; d<=n; d++){
+    const nb = new Date(y, m+1, 0).getDate();
+    for (let d=1; d<=nb; d++){
       const k = iso(y,m,d), jour = new Date(y,m,d).getDay();
       if (jour===0 || jour===6) continue;
       if (k < DEBUT || k > FIN) continue;
       if (HORS_ECOLE.has(marques[k])) continue;
-      cycles[k] = ROM[i % 6]; i++;
+      cyclesI[k] = i % n; cycles[k] = libelleCycle(i % n); i++;
     }
   });
   return i;
 }
+/* Ce qu'on écrit à côté d'une date : son jour-cycle, ou pourquoi il n'y en a pas. */
+function jourCycleLisible(k){
+  if (cycles[k]) return 'JOUR '+cycles[k];
+  if (marques[k]) return String((CATS.find(x=>x[0]===marques[k])||['',''])[1]).toUpperCase();
+  const j = dateDeIso(k).getDay();
+  if (j===0 || j===6) return 'FIN DE SEMAINE';
+  return '';
+}
+/* Recalculer ET repeindre partout où un jour-cycle se montre. */
+function rafraichirCycles(){
+  recalculerCycles();
+  if (typeof peindreCtxBarre==='function') peindreCtxBarre();
+  if (typeof peindreAgenda==='function')   peindreAgenda();
+  if (typeof peindreCalendrier==='function' && $('#calGrille')) peindreCalendrier();
+  if (typeof peindreMois==='function' && $('#moisHote')) peindreMois();
+}
+/* Dire ce que vaut la donnée affichée : décalée = à corriger. */
+(function avisCalendrier(){
+  const t=$('#calAnnee'); if(t) t.textContent = AN_SCOLAIRE+' – '+(AN_SCOLAIRE+1);
+  const a=$('#calAvis'); if(!a || !DECALAGE_ANS) return;
+  a.hidden=false;
+  a.innerHTML='<span class="emo">⚠️</span>Ces marques sont le calendrier CSSDHR <b>'
+    +SEED_AN+' – '+(SEED_AN+1)+'</b> décalé de '+DECALAGE_ANS+' an(s) pour tomber sur '
+    +'l’année en cours. Les jours de la semaine sont justes, <b>les dates ne le sont pas</b> : '
+    +'c’est de la donnée de démonstration. Corrige-les ici — ce sont elles qui placent les jours-cycle.';
+})();
+
 function peindreCalendrier(){
   const total = recalculerCycles();
   $('#calCompte').textContent = total + ' jours-cycle';
@@ -449,13 +526,16 @@ function peindreMois(){
   }
   brancherEditables(h);
   const cpt = $('#moisCompte'); cpt.innerHTML='';
-  ROM.forEach(r=>{
+  /* ⚠ Ce décompte suivait ROM en dur : il affichait six lignes romaines même
+     dans un cycle de neuf jours nommés à la main. Il suit maintenant le
+     réglage, comme tout le reste. */
+  for (let r=0; r<longueurCycle(); r++){
     let n2 = 0;
-    Object.entries(cycles).forEach(([k,v])=>{ if (v===r && k.startsWith(y+'-'+String(m+1).padStart(2,'0'))) n2++; });
-    const l = el('div',null,'– Jour '+r+' = '+n2);
+    Object.entries(cyclesI).forEach(([k,v])=>{ if (v===r && k.startsWith(y+'-'+String(m+1).padStart(2,'0'))) n2++; });
+    const l = el('div',null,'– Jour '+libelleCycle(r)+' = '+n2);
     l.style.cssText='border:2px solid var(--noir);border-radius:6px;background:#fff;color:var(--ink);padding:2px 8px;margin-bottom:4px;font-weight:800';
     cpt.appendChild(l);
-  });
+  }
 }
 $('#moisPrec').addEventListener('click',()=>{ moisIdx=(moisIdx+ANNEE_MOIS.length-1)%ANNEE_MOIS.length; peindreMois(); });
 $('#moisSuiv').addEventListener('click',()=>{ moisIdx=(moisIdx+1)%ANNEE_MOIS.length; peindreMois(); });

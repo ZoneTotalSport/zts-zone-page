@@ -355,3 +355,45 @@ il **manquait la troisième couche** — les rayons jaunes en rotation lente
 ⚠ Le proto **recopie** plutôt que d'importer `zts-modele.css` : c'est une
 maquette autonome, charger tout le patron l'exposerait à des chocs de règles
 qu'aucun de ses écrans n'a été conçu pour absorber.
+
+## Le jour-cycle — en haut, dans la semaine, et vraiment réglable
+
+**En haut, à côté de la date** (`#ctxCycle`, barre de contexte) : c'est la seule
+barre qui suit l'utilisateur d'un écran à l'autre, et le jour-cycle est ce qu'un
+prof cherche en premier le matin. Quand il n'y en a pas, la pastille dit
+pourquoi — « JOURNÉE PÉDAGOGIQUE », « FIN DE SEMAINE ».
+
+**Dans la semaine** : chaque en-tête de jour porte le sien, placé d'après le
+calendrier scolaire — congés et journées pédagogiques ne consomment pas de
+jour-cycle.
+
+⚠ **Deux défauts corrigés en même temps** :
+1. `recalculerCycles()` écrivait `ROM[i % 6]` en dur. Ni la longueur du cycle
+   (2 à 10) ni le style (romains, chiffres, lettres, noms) réglés dans RÉGLAGES
+   n'arrivaient jusqu'au calendrier. `libelleCycle()` est maintenant le seul
+   endroit qui décide comment un jour-cycle s'écrit, et le décompte du mois le
+   suit.
+2. Les jours-cycle ne se calculaient qu'au **premier affichage du CALENDRIER**.
+   Avant d'y être allé, l'agenda et la barre du haut n'avaient rien à montrer.
+   Ils se calculent au démarrage, et `rafraichirCycles()` repeint tout dès
+   qu'un réglage bouge.
+
+## ⚠ L'année scolaire semée est DÉCALÉE, pas réelle
+
+Le calendrier semé est le vrai calendrier CSSDHR **2025-2026**. Un proto ouvert
+en août 2026 tombait donc sur une semaine postérieure à la fin de cette
+année-là : aucun jour-cycle nulle part, et toute la mécanique avait l'air morte.
+
+Les marques sont maintenant décalées d'un nombre entier de **semaines**
+(364 jours par année) pour retomber sur l'année en cours. Les jours de la
+semaine sont préservés, **les dates glissent d'un ou deux jours**.
+
+⚠ **Ce n'est donc pas le vrai calendrier de l'année en cours.** L'écran
+CALENDRIER le dit lui-même dès que le décalage est actif : c'est de la donnée de
+démonstration, à corriger là.
+
+## Combien de cours par groupe, dans la semaine affichée
+
+Le chiffre sur une pastille de groupe. ⚠ Il compte la semaine **qui est à
+l'écran**, pas la semaine courante — c'est celle que le prof regarde quand il se
+pose la question.

@@ -149,6 +149,23 @@ let pieceEnMain = null;
 /* ── l'image d'un élève : sa photo, ou sa pastille à initiales ── */
 function visageDe(i){ return photoDe(i); }
 
+/* ═════════ combien de cours par groupe, dans la semaine AFFICHÉE ═════════
+   Joey, 28 août : « peux-tu indiquer pour chaque cours dans l'affichage
+   semaine combien chaque groupe a un cours ? »
+   ⚠ On compte la semaine QUI EST À L'ÉCRAN, pas la semaine courante : c'est
+   celle que le prof regarde quand il se pose la question. Le compte se refait
+   donc à chaque repeinture de l'agenda, y compris en changeant de semaine. */
+function coursDeLaSemaine(){
+  const n={};
+  if (typeof agLundi==='undefined' || !agLundi) return n;
+  const jours=[];
+  for (let i=0;i<5;i++) jours.push(isoDe(new Date(dateDeIso(agLundi).getTime()+i*UN_JOUR)));
+  periodesAgenda().filter(p=>!p.pause).forEach(p=>{
+    jours.forEach(j=>{ const se=seanceDe(j,p.n); if (se && se.gr) n[se.gr]=(n[se.gr]||0)+1; });
+  });
+  return n;
+}
+
 /* ═════════ la palette de groupes, au-dessus de l'agenda ═════════ */
 function peindrePalette(){
   let h=$('#palette');
@@ -159,15 +176,25 @@ function peindrePalette(){
     h=p;
   }
   h.innerHTML='';
-  const q=el('div','quoi','Glisse un groupe dans une case de l’agenda. Un clic dessus ensuite ouvre tout le cours.');
+  const q=el('div','quoi','Glisse un groupe dans une case de l’agenda. Un clic dessus ensuite ouvre tout le cours. '
+    +'Le chiffre sur un groupe dit combien de cours il a dans la semaine affichée.');
   h.appendChild(q);
+  const compte=coursDeLaSemaine();
   GRP().forEach(g=>{
     const b=el('div','pastille-gr'); b.draggable=true; b.dataset.gr=g.id;
     b.style.background=g.coul; b.style.color=encreSur(g.coul);
     if (g.img){ const im=document.createElement('img'); im.className='img'; im.src=g.img; im.alt=''; b.appendChild(im); }
     else b.appendChild(el('span','img',g.emo));
     b.appendChild(el('span',null,g.nom));
-    b.title=g.nom+' — '+g.eleves.length+' élèves. Glisse-moi dans l’agenda.';
+    const nb=compte[g.id]||0;
+    if (nb){
+      const c=el('span','pastille-nb',String(nb));
+      c.title=nb+' cours cette semaine-là';
+      b.appendChild(c);
+    }
+    b.title=g.nom+' — '+g.eleves.length+' élèves · '
+      +(nb ? nb+' cours dans la semaine affichée' : 'aucun cours dans la semaine affichée')
+      +'. Glisse-moi dans l’agenda.';
     const m=el('button','modif','✎'); m.type='button'; m.title='Personnaliser ce groupe';
     m.addEventListener('click', e=>{ e.stopPropagation(); modifierGroupe(g.id); });
     b.appendChild(m);
@@ -1180,6 +1207,13 @@ peindreAgenda = function(){
   }, true);
 })();
 
+/* ⚠ LES JOURS-CYCLE SE CALCULENT ICI, AU DÉMARRAGE. Ils ne se remplissaient
+   qu'au premier affichage du CALENDRIER : avant d'y être allé, l'agenda et la
+   barre du haut n'avaient rien à montrer. C'est le calendrier scolaire
+   (`marques`) qui décide — congés et journées pédagogiques ne consomment pas
+   de jour-cycle. Appelé ici parce que STYLES_CYCLE, dans proto-fusion.js,
+   existe enfin : le style choisi est donc respecté dès la première peinture. */
+recalculerCycles();
 peindreCtxBarre();   /* GRP() existe maintenant */
 peindrePalette();
 peindreAgenda();

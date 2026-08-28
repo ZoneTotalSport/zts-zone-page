@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=67">
-<link rel="stylesheet" href="proto-fusion.css?v=67">
-<link rel="stylesheet" href="proto-boutons.css?v=67">
-<link rel="stylesheet" href="proto-seance.css?v=67">
-<link rel="stylesheet" href="proto-simple.css?v=67">
+<link rel="stylesheet" href="proto.css?v=69">
+<link rel="stylesheet" href="proto-fusion.css?v=69">
+<link rel="stylesheet" href="proto-boutons.css?v=69">
+<link rel="stylesheet" href="proto-seance.css?v=69">
+<link rel="stylesheet" href="proto-simple.css?v=69">
 </head>
 <body>
 
@@ -27,6 +27,7 @@
 <div class="ctx-barre" id="ctxBarre">
   <button type="button" id="ctxPrec" aria-label="Jour précédent">◀</button>
   <span class="jour" id="ctxJour">—</span>
+  <span class="ctx-cyc" id="ctxCycle"></span>
   <button type="button" id="ctxSuiv" aria-label="Jour suivant">▶</button>
   <button type="button" id="ctxAuj">AUJOURD'HUI</button>
   <span class="ou">J'ÉCRIS DANS</span>
@@ -96,7 +97,8 @@
   <h1 class="titre">Calendrier scolaire</h1>
   <p class="sous">Choisis une catégorie dans la légende, puis touche les journées. Un deuxième clic annule.</p>
   <div class="pan">
-    <h2>2025 – 2026 · <span id="calCompte"></span></h2>
+    <h2><span id="calAnnee">2025 – 2026</span> · <span id="calCompte"></span></h2>
+    <div class="aide-un-mot" id="calAvis" hidden></div>
     <div style="display:grid;grid-template-columns:1fr 260px;gap:14px;align-items:start">
       <div class="cal-grille" id="calGrille"></div>
       <div>
@@ -391,15 +393,15 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=67"></script>
-<script src="proto-fusion.js?v=67"></script>
-<script src="proto-seance.js?v=67"></script>
-<script src="proto-simple.js?v=67"></script>
-<script src="proto-tests.js?v=67"></script>
-<script src="proto-annee.js?v=67"></script>
-<script src="proto-horaire.js?v=67"></script>
-<script src="proto-dossiers.js?v=67"></script>
-<script src="proto-pfeq.js?v=67"></script>
-<script src="proto-portrait.js?v=67"></script>
+<script src="proto.js?v=69"></script>
+<script src="proto-fusion.js?v=69"></script>
+<script src="proto-seance.js?v=69"></script>
+<script src="proto-simple.js?v=69"></script>
+<script src="proto-tests.js?v=69"></script>
+<script src="proto-annee.js?v=69"></script>
+<script src="proto-horaire.js?v=69"></script>
+<script src="proto-dossiers.js?v=69"></script>
+<script src="proto-pfeq.js?v=69"></script>
+<script src="proto-portrait.js?v=69"></script>
 </body>
 </html>
