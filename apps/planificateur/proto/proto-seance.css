@@ -159,3 +159,63 @@
   border:3px solid var(--noir);border-radius:10px;background:var(--rose);color:#2A0010;
   box-shadow:2px 2px 0 var(--noir);
 }
+
+/* ── le parcours du Programme de formation ── */
+.pf-comps{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+.pf-comp{
+  cursor:pointer;text-align:left;padding:9px 11px;
+  border:3px solid var(--noir);border-radius:12px;box-shadow:3px 3px 0 var(--noir);
+}
+.pf-comp b{display:block;font-family:var(--f-titre);font-size:17px;letter-spacing:.2px}
+.pf-comp small{display:block;font-family:var(--f-note);font-size:14px;line-height:1.2;opacity:.85}
+.pf-comp[aria-pressed="true"]{box-shadow:3px 3px 0 var(--noir),0 0 0 4px var(--jaune)}
+.pf-intention{
+  background:#FFFEE0;color:var(--ink);border:3px solid var(--noir);border-radius:12px;
+  padding:9px 12px;margin-bottom:12px;font-family:var(--f-note);font-size:17px;line-height:1.3;
+}
+.pf-intention b{display:block;font-family:var(--f-titre);font-size:14px;letter-spacing:.5px;margin-bottom:2px}
+.pf-corps{display:grid;grid-template-columns:minmax(210px,1fr) 1.5fr;gap:12px}
+.pf-themes{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow:auto}
+.pf-theme{
+  position:relative;cursor:pointer;text-align:left;padding:7px 10px;
+  border:3px solid var(--noir);border-radius:11px;box-shadow:2px 2px 0 var(--noir);
+  background:#F1F7FA;color:var(--ink);
+}
+.pf-theme b{display:block;font-family:var(--f-titre);font-size:15px}
+.pf-theme small{display:block;font-family:var(--f-note);font-size:14px;color:var(--ink-soft)}
+.pf-theme[aria-pressed="true"]{background:var(--cyan);color:#03323C}
+.pf-theme[aria-pressed="true"] small{color:#04414D}
+.pf-n{
+  position:absolute;top:6px;right:8px;background:var(--lime);color:#1E3300;
+  border:2px solid var(--noir);border-radius:8px;padding:0 7px;
+  font-family:var(--f-titre);font-size:13px;
+}
+.pf-sous{
+  border:3px solid var(--noir);border-radius:12px;padding:10px;background:#fff;color:var(--ink);
+  max-height:320px;overflow:auto;
+}
+.pf-sous-titre{font-family:var(--f-titre);font-size:16px;margin-bottom:8px}
+.pf-case{
+  display:flex;gap:9px;align-items:flex-start;cursor:pointer;margin-bottom:5px;
+  border:2px solid var(--noir);border-radius:9px;padding:5px 8px;
+  background:#F7FBFD;color:var(--ink);font-size:15px;font-weight:600;
+}
+.pf-case:has(input:checked){background:#DFFCA8;box-shadow:inset 0 0 0 2px var(--noir)}
+.pf-case input{width:18px;height:18px;accent-color:#2FA51E;flex:none;margin-top:2px}
+.pf-liste{display:flex;gap:6px;flex-wrap:wrap;min-height:32px}
+.pf-puce{
+  display:flex;gap:6px;align-items:center;
+  border:3px solid var(--noir);border-radius:10px;padding:3px 5px 3px 10px;
+  background:#DFFCA8;color:var(--ink);font-size:14px;font-weight:700;
+  box-shadow:2px 2px 0 var(--noir);
+}
+.pf-puce--moi{background:#FFFEE0}
+.pf-puce button{
+  cursor:pointer;border:2px solid var(--noir);border-radius:6px;background:var(--rose);color:#2A0010;
+  font-size:11px;padding:0 5px;line-height:17px;
+}
+@media(max-width:760px){
+  .pf-comps{grid-template-columns:1fr}
+  .pf-corps{grid-template-columns:1fr}
+  .pf-themes{max-height:none}
+}

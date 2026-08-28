@@ -97,6 +97,8 @@ function placerCurseurFin(n){
 const NIVEAUX_MIN = 2, NIVEAUX_MAX = 6;
 const LETTRES_ECH  = ['A','B','C','D','E','F'];
 const COULEURS_ECH = ['🟢','🔵','🟡','🟠','🔴','⚫'];
+/* Les symboles du Carnet ÉPS : ++ · + · +/- · - · -- */
+const SYMBOLES_ECH = ['++','+','+/-','-','--','∅'];
 const MOTS_ECH     = ['très bien','bien','correct','à travailler','difficile','pas fait'];
 
 function nbNiveaux(){
@@ -112,6 +114,7 @@ function paliers(){
     if (k==='etoiles')       sym='⭐'.repeat(n-i);
     else if (k==='lettres')  sym=LETTRES_ECH[i];
     else if (k==='chiffres') sym=String(n-i);
+    else if (k==='symboles'){ const haut=(n>=6?5:4); sym=SYMBOLES_ECH[Math.round(i*haut/(n-1))]; }
     else {
       /* vert → rouge ; le noir n'entre qu'à six niveaux, sinon un barème à
          trois crans finissait sur ⚫, ce qui ne veut rien dire. */
@@ -127,6 +130,7 @@ const FACONS_META = {
   etoiles: {lab:'⭐ Étoiles',  quoi:'des étoiles, comme au primaire'},
   lettres: {lab:'🔤 Lettres',  quoi:'A · B · C…'},
   chiffres:{lab:'🔢 Chiffres', quoi:'du plus grand au plus petit'},
+  symboles:{lab:'➕ Symboles', quoi:'++ · + · +/- · - · --'},
   couleurs:{lab:'🎨 Couleurs', quoi:'vert · bleu · jaune · orange · rouge'},
 };
 function facon(){ return {lab:FACONS_META[faconNom()].lab, v:paliers()}; }

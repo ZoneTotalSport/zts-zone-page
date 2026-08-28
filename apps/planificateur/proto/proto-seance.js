@@ -470,38 +470,8 @@ function gabarits(){
   h.appendChild(perso);
   return h;
 }
-function choisirCriteres(){
-  const {iso,per}=seanceOuverte; const s=seanceDe(iso,per);
-  let choisis=new Set(s.evalCrits||[]);
-  const corps=ouvrirModale('Qu’est-ce que j’évalue ?');
-  corps.innerHTML='<div class="aide-un-mot"><span class="emo">✋</span>Cinq critères au maximum — au-delà, la grille devient illisible en plein gymnase.</div>'
-    +'<div class="crit-cols" id="chCols"></div>'
-    +'<div class="m-pied"><button type="button" class="m-valider" id="chOk">✔ UTILISER CES CRITÈRES</button>'
-    +'<button type="button" class="mini" data-fermer>ANNULER</button></div>';
-  const h=$('#chCols');
-  Object.entries(CRITERES).forEach(([k,liste])=>{
-    const col=el('div','crit-col '+COMPS_META[k].cls);
-    col.appendChild(el('h3',null,COMPS_META[k].lab));
-    const box=el('div','crit-liste');
-    liste.forEach((txt,i)=>{
-      const cle=k+'|'+i; const l=el('label');
-      const c=document.createElement('input'); c.type='checkbox'; c.checked=choisis.has(cle);
-      c.addEventListener('change',()=>{
-        if (c.checked){ if(choisis.size>=MAX_CRITERES){ c.checked=false; return; } choisis.add(cle); }
-        else choisis.delete(cle);
-      });
-      l.appendChild(c); l.appendChild(el('span',null,txt)); box.appendChild(l);
-    });
-    col.appendChild(box); h.appendChild(col);
-  });
-  $('#chOk').addEventListener('click',()=>{
-    const l=[...choisis];
-    fermerModale();
-    ouvrirSeance(iso,per);
-    majSeance(x=>x.evalCrits=l);
-    volet('evaluation');
-  });
-}
+/* `choisirCriteres()` est réécrit dans proto-pfeq.js : le parcours complet
+   du Programme de formation, compétence → intention → thème → sous-thèmes. */
 
 /* ── piger un jeu POUR une séance ── */
 let cibleSeance = null;
