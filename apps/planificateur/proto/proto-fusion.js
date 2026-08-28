@@ -544,7 +544,7 @@ const STYLES_CYCLE = {
     const b=el('button','mini',lab); b.type='button';
     b.addEventListener('click',()=>{ ecrire('zoom',v); appliquerZoom();
       $$('#zoomBtns .mini').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); });
-    b.setAttribute('aria-pressed', String(v===lire('zoom','120')));
+    b.setAttribute('aria-pressed', String(v===lire('zoom','145')));
     hz.appendChild(b);
   });
   /* langue */
@@ -564,7 +564,7 @@ const STYLES_CYCLE = {
 })();
 /* ⚠ LE RÉGLAGE PART À 120, PAS À 100. Joey lit son plan de loin, un ballon à
    la main : la taille « de près » est l'exception, pas la règle. */
-function appliquerZoom(){ document.body.dataset.zoom = lire('zoom','120'); }
+function appliquerZoom(){ document.body.dataset.zoom = lire('zoom','145'); }
 appliquerZoom();
 
 /* mode intégré : ?embed=1 masque le chrome, comme dans l'app */

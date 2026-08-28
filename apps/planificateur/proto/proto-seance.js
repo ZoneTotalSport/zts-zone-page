@@ -166,6 +166,99 @@ function coursDeLaSemaine(){
   return n;
 }
 
+/* ═════════ PLANIFIER TOUTE LA SEMAINE D'UN SEUL ÉCRAN ═════════
+   Joey, 28 août : « mets un bouton planification de la semaine ; lorsqu'on
+   pèse dessus, ça affiche les 2 ou 3 cours de la semaine, l'enseignant peut
+   écrire ce qu'il veut en détail ; quand c'est fini d'écrire on sauvegarde et
+   les cours se placent dans l'affichage semaine ; l'enseignant clique dessus,
+   la planification est affichée automatiquement. »
+
+   C'est le geste du dimanche soir : on ne veut pas ouvrir six fenêtres, on veut
+   UNE page où l'on écrit ses trois cours à la suite, comme sur la feuille
+   papier. Le texte s'appelle `s.plan` — libre, sans structure imposée, à côté
+   des étapes qui, elles, restent structurées. Les deux cohabitent : celui qui
+   veut des étapes minutées les garde, celui qui veut écrire écrit.
+
+   ⚠ ON ENREGISTRE AUSSI À LA SORTIE DE CHAQUE ZONE, pas seulement au bouton.
+   Le bouton est ce que Joey a demandé ; le `blur` est ce qui évite de perdre
+   vingt minutes d'écriture sur une fenêtre fermée par erreur. */
+function coursDeLaSemaineListe(){
+  const out=[];
+  if (typeof agLundi==='undefined' || !agLundi) return out;
+  const jours=[];
+  for (let i=0;i<5;i++) jours.push(isoDe(new Date(dateDeIso(agLundi).getTime()+i*UN_JOUR)));
+  periodesAgenda().filter(p=>!p.pause).forEach(p=>{
+    jours.forEach(j=>{ const se=seanceDe(j,p.n); if (se) out.push({iso:j, per:p.n, s:se}); });
+  });
+  out.sort((a,b)=> a.iso===b.iso ? a.per-b.per : (a.iso<b.iso?-1:1));
+  return out;
+}
+function ecrirePlan(iso, per, txt){
+  const se=seanceDe(iso, per); if(!se) return;
+  se.plan=String(txt||'').trim();
+  ecrire(cleSeance(iso, per), se);
+}
+function planSemaine(){
+  const liste=coursDeLaSemaineListe();
+  const corps=ouvrirModale('Planification de la semaine du '+jourLisible(agLundi));
+  corps.innerHTML='';
+  const aide=el('div','aide-un-mot');
+  aide.innerHTML='<span class="emo">\u270D\ufe0f</span>Écris ici <b>ce que tu veux</b>, cours par cours. '
+    +'En enregistrant, chaque texte se pose sur son cours dans la semaine — '
+    +'et un clic sur le cours le rouvre directement sur sa planification.';
+  corps.appendChild(aide);
+
+  if (!liste.length){
+    const v=el('div','cahier-vide',
+      'Aucun cours dans cette semaine. Glisse d’abord un groupe dans une case de l’agenda : '
+      +'c’est ce qui crée un cours.');
+    corps.appendChild(v);
+    const f=el('button','mini','← RETOUR À MA SEMAINE'); f.type='button';
+    f.addEventListener('click',()=>{ fermerModale(); allerA('e-accueil'); });
+    corps.appendChild(f);
+    return;
+  }
+
+  const hote=el('div');
+  liste.forEach(x=>{
+    const g=grpDe(x.s.gr) || {nom:'Groupe retiré', coul:'#9E9E9E', emo:'❓', img:''};
+    const c=el('div','pap-cadre ps-cours');
+    const h=el('h4');
+    h.style.background=g.coul; h.style.color=encreSur(g.coul);
+    const qui=el('span','qui');
+    if (g.img){ const im=document.createElement('img'); im.src=g.img; im.alt=''; qui.appendChild(im); }
+    else qui.appendChild(el('span',null,g.emo));
+    qui.appendChild(el('b',null,g.nom));
+    h.appendChild(qui);
+    h.appendChild(el('span',null, jourLisible(x.iso)+' · période '+x.per
+                    +' · '+((g.eleves||[]).length)+' élèves'));
+    c.appendChild(h);
+    const z=el('div','ps-zone'); z.contentEditable='true';
+    z.dataset.vide='Écris ici, comme sur ta feuille…';
+    z.dataset.iso=x.iso; z.dataset.per=String(x.per);
+    z.textContent=x.s.plan||'';
+    z.addEventListener('blur',()=> ecrirePlan(z.dataset.iso, +z.dataset.per, z.textContent));
+    c.appendChild(z);
+    hote.appendChild(c);
+  });
+  corps.appendChild(hote);
+
+  const pied=el('div','ps-pied');
+  const ok=el('button','m-valider','✔ ENREGISTRER ET VOIR MA SEMAINE'); ok.type='button';
+  ok.addEventListener('click',()=>{
+    $$('.ps-zone', hote).forEach(z=> ecrirePlan(z.dataset.iso, +z.dataset.per, z.textContent));
+    fermerModale(); peindreAgenda(); allerA('e-accueil');
+  });
+  const annul=el('button','mini','FERMER'); annul.type='button';
+  annul.addEventListener('click',()=>{
+    $$('.ps-zone', hote).forEach(z=> ecrirePlan(z.dataset.iso, +z.dataset.per, z.textContent));
+    fermerModale();
+  });
+  pied.appendChild(ok); pied.appendChild(annul);
+  pied.appendChild(el('span','cahier-vide', liste.length+' cours cette semaine'));
+  corps.appendChild(pied);
+}
+
 /* ═════════ la palette de groupes, au-dessus de l'agenda ═════════ */
 function peindrePalette(){
   let h=$('#palette');
@@ -940,6 +1033,18 @@ function peindrePlanification(d, s, iso, per){
     +'Une étape se glisse pour changer de place, se touche pour s’ouvrir.';
   d.appendChild(chapeau);
 
+  /* Ce que le prof a écrit pour ce cours, modifiable ici aussi. Le même texte
+     qu'à l'écran « planification de la semaine » — une seule vérité. */
+  const libre=el('div','pap-cadre pap-cadre--jaune');
+  libre.style.marginBottom='12px';
+  libre.appendChild(el('h4',null,'✍️ MA PLANIFICATION, EN MOTS'));
+  const z=el('div','ps-zone'); z.contentEditable='true';
+  z.dataset.vide='Écris ici ce que tu veux pour ce cours…';
+  z.textContent=s.plan||'';
+  z.addEventListener('blur',()=> ecrirePlan(iso, per, z.textContent));
+  libre.appendChild(z);
+  d.appendChild(libre);
+
   const pal=el('div','plan-palette');
   ORDRE_PIECES.forEach(k=>{
     const P=PIECES[k], n=etapesDeLaPiece(s,k).length;
@@ -1134,6 +1239,15 @@ const _agendaBase = peindreAgenda;
 peindreAgenda = function(){
   _agendaBase();
   peindrePalette();
+  /* le bouton que Joey a demandé, à côté des flèches de semaine */
+  const tete=$('#agendaHote .agenda-tete');
+  if (tete && !tete.querySelector('[data-plansem]')){
+    const b=el('button','mini mini--lime','📝 PLANIFICATION DE LA SEMAINE');
+    b.type='button'; b.dataset.plansem='1';
+    b.title='Écrire les cours de cette semaine, tous à la suite';
+    b.addEventListener('click', planSemaine);
+    tete.appendChild(b);
+  }
   const g=$('#agendaHote .agenda-grille'); if(!g) return;
   const jours=[]; for(let i=0;i<5;i++) jours.push(isoDe(new Date(dateDeIso(agLundi).getTime()+i*UN_JOUR)));
   /* ⚠ `data-col` est posé ICI, pas déduit en CSS. Les rangées de pause
@@ -1161,6 +1275,8 @@ peindreAgenda = function(){
         b.appendChild(tete);
         const et=(s.etapes||[]).filter(e=>e.phase==='pendant'&&e.titre);
         b.appendChild(el('span','cours', et.length ? et.map(e=>e.titre).join(' · ') : 'planification'));
+        /* ce que le prof a écrit se lit DANS la case, pas seulement dedans */
+        if ((s.plan||'').trim()) b.appendChild(el('span','plan', s.plan.trim()));
         const pu=el('div','puces');
         const faits=(s.etapes||[]).filter(e=>e.fait).length, tot=(s.etapes||[]).length;
         if (tot) pu.appendChild(el('span',null,'✔ '+faits+'/'+tot));
@@ -1170,7 +1286,11 @@ peindreAgenda = function(){
         if (s.minuterie) pu.appendChild(el('span',null,'⏱️'));
         if (pu.children.length) b.appendChild(pu);
         b.title='Groupe '+gr.nom+' — '+jourLisible(iso)+', période '+p.n;
-        b.addEventListener('click', ev=>{ ev.stopPropagation(); ouvrirSeance(iso,p.n); });
+        /* ⚠ « L'enseignant clique dessus, la planification est affichée
+           automatiquement. » On force donc le volet, au lieu de rouvrir sur le
+           dernier consulté — c'est la planification qu'on vient chercher. */
+        b.addEventListener('click', ev=>{ ev.stopPropagation();
+          ecrire('seVolet','cours'); ouvrirSeance(iso,p.n); });
         c.appendChild(b);
         const x=el('button','ag-vider','✕'); x.type='button'; x.title='Retirer ce groupe de la case';
         x.addEventListener('click', ev=>{ ev.stopPropagation();

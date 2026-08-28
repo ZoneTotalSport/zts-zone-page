@@ -466,3 +466,33 @@ seulement sous 620 px.
 désormais par le facteur : le rectangle rendu est déjà zoomé, et l'élément
 qu'on positionne le remultiplierait. Aucun menu déroulant n'existe aujourd'hui,
 mais le jour où l'un revient il tomberait à côté.
+
+## 📝 PLANIFICATION DE LA SEMAINE — le geste du dimanche soir
+
+Un bouton dans l'en-tête de l'agenda. Il ouvre **une seule page** où les deux ou
+trois cours de la semaine affichée se suivent : un encadré par cours, en-tête à
+la couleur du groupe, et une grande zone où l'on **écrit ce qu'on veut**, sans
+structure imposée.
+
+En enregistrant, chaque texte se pose sur son cours : il se lit **dans la case**
+de la semaine, et un clic sur le cours **rouvre directement la planification**
+— plus le dernier volet consulté.
+
+Le texte s'appelle `s.plan`. Il vit **à côté** des étapes, qui restent
+structurées : qui veut des étapes minutées les garde, qui veut écrire écrit.
+Le même texte se modifie aux deux endroits — une seule vérité.
+
+⚠ **On enregistre aussi à la sortie de chaque zone (`blur`)**, pas seulement au
+bouton. Le bouton est ce qui a été demandé ; le `blur` est ce qui évite de
+perdre vingt minutes d'écriture sur une fenêtre fermée par erreur.
+
+## Lisible sur un TBI
+
+⚠ **Le zoom ne suffisait pas, et c'est logique** : il grossit tout dans les mêmes
+proportions, donc un texte déjà trop petit **par rapport à sa boîte** le reste.
+Le bloc 6 de `proto-papier.css` corrige les proportions — le texte secondaire
+(l'état d'une porte, la durée d'une étape) rattrape le texte principal.
+
+⚠ **Plancher : plus rien sous 17 px.** Un TBI se regarde à trois mètres ; ce qui
+passait à un bureau n'y passe pas. Et le zoom part maintenant à **145 %
+(🏀 GYMNASE)**.
