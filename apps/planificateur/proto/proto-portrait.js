@@ -223,7 +223,7 @@ function voletPortrait(d){
   [['🗓 '+hist.length+' période'+(hist.length>1?'s':''),''],
    ['✗ '+Object.keys(st).reduce((a,i)=>a+st[i].abs,0)+' absence(s)','a'],
    ['🚫 '+Object.keys(st).reduce((a,i)=>a+st[i].sans,0)+' oubli(s) de linge','s'],
-   ['📝 '+nCotes+' cote(s) sous le maximum',''],
+   ['📝 '+nCotes+' cote(s) à revoir',''],
    ['💬 '+nMots+' mot(s) de cours',''],
   ].forEach(([txt,cls])=> cpt.appendChild(el('span',cls,txt)));
   d.appendChild(cpt);
@@ -255,10 +255,28 @@ function voletPortrait(d){
   /* ── les élèves, un par ligne ── */
   const be=el('div','se-cours'); be.style.marginBottom='12px';
   be.appendChild(el('h4',null,'👥 LES ÉLÈVES DE '+g.nom));
+  const dit=el('div');
+  dit.style.cssText='font-family:var(--f-note);font-size:16px;color:var(--ink-soft);margin:-4px 0 9px;line-height:1.25';
+  dit.textContent='Le cumul de toutes les périodes de ce groupe. « À revoir » compte '
+    +'les fois où tu as donné autre chose que le meilleur niveau.';
+  be.appendChild(dit);
   const t=el('table','gril');
   const tb=el('tbody');
   const th=el('tr');
-  ['Élève','Absences','Linge oublié','Cotes sous le max','Ce que j’ai noté',''].forEach(x=> th.appendChild(el('th',null,x)));
+  /* ⚠ « Cotes sous le max » ne voulait rien dire pour personne — Joey : « c'est
+     quoi au juste, ça ? » C'est du vocabulaire de programmeur. Chaque colonne
+     porte maintenant un nom qu'on lit sans traduire, et son explication en
+     infobulle. */
+  [['Élève',''],
+   ['Absences','Combien de fois cet élève a été marqué absent, toutes périodes confondues'],
+   ['Linge oublié','Combien de fois il ou elle est arrivé sans son linge d’éducation physique'],
+   ['À revoir','Combien de fois tu lui as donné autre chose que le meilleur niveau, tous critères et toutes périodes confondus'],
+   ['Ce que j’ai noté','Tes notes écrites sur cet élève, avec leur date'],
+   ['','']].forEach(([x,quoi])=>{
+    const h=el('th',null,x);
+    if (quoi) h.title=quoi;
+    th.appendChild(h);
+  });
   tb.appendChild(th);
   g.eleves.forEach(i=>{
     const tr=el('tr'); const td=el('td','el');
@@ -309,7 +327,7 @@ function voletPortrait(d){
     if (act.length) bouts.push('📋 '+act.join(' · '));
     if ((x.s.evalCrits||[]).length) bouts.push('📝 '+x.s.evalCrits.length+' critère(s) · '
                                     +Object.keys(x.s.notes||{}).length+' cote(s) posée(s) · '
-                                    +cotesSousMax(x.s).length+' sous le maximum');
+                                    +cotesSousMax(x.s).length+' à revoir');
     if (x.s.minuterie) bouts.push('⏱️ '+mmss(x.s.minuterie));
     if ((x.s.message||'').trim()) bouts.push('💬 '+x.s.message.trim());
     const nn=Object.keys(x.s.notesEl||{}).length;
