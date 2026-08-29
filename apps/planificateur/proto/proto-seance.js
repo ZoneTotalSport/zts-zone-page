@@ -1420,21 +1420,23 @@ const _agendaBase = peindreAgenda;
 peindreAgenda = function(){
   _agendaBase();
   peindrePalette();
-  /* le bouton que Joey a demandé, à côté des flèches de semaine */
   const tete=$('#agendaHote .agenda-tete');
-  /* le + et le − que Joey a demandés, SUR la semaine */
-  if (tete && !tete.querySelector('.ag-zoom')){
-    const z=el('div','ag-zoom');
-    const moins=el('button','zbtn','−'); moins.type='button';
-    moins.title='Plus petit'; moins.setAttribute('aria-label','Réduire la taille');
-    const plus=el('button','zbtn','+'); plus.type='button';
-    plus.title='Plus gros — pour lire de loin'; plus.setAttribute('aria-label','Agrandir');
-    const val=el('span','zval');
-    const maj=()=>{ val.textContent=(typeof zoomActuel==='function'?zoomActuel():100)+' %'; };
-    moins.addEventListener('click',()=>{ zoomer(-1); maj(); });
-    plus.addEventListener('click',()=>{ zoomer(+1); maj(); });
-    z.appendChild(moins); z.appendChild(val); z.appendChild(plus);
-    maj();
+  /* ═════ LA TAILLE, SUR LA GRILLE, EN QUATRE DISTANCES ═════
+     ⚠ ICI VIVAIT LE − / 200 % / +. Il faisait doublon avec les quatre paliers
+     nommés des RÉGLAGES, et il parlait en pourcentages : un prof ne se demande
+     pas « 230 ou 260 ? », il se demande « est-ce que je le lis du fond du
+     gymnase ? ». Les quatre distances sont donc remontées ICI, sur ce qu'elles
+     grossissent, et il n'en reste qu'un jeu dans toute l'app. */
+  if (tete && !tete.querySelector('.ag-tailles')){
+    const z=el('div','ag-tailles');
+    z.appendChild(el('span','lab','TAILLE'));
+    TAILLES.forEach(([v,lab])=>{
+      const b=el('button','mini',lab); b.type='button'; b.dataset.z=v;
+      b.title='Écriture lisible : '+lab.toLowerCase();
+      b.setAttribute('aria-pressed', String(String(zoomActuel())===v));
+      b.addEventListener('click',()=> poserTaille(v));
+      z.appendChild(b);
+    });
     tete.appendChild(z);
   }
   if (tete && !tete.querySelector('[data-libre]')){
@@ -1444,9 +1446,13 @@ peindreAgenda = function(){
     tete.appendChild(b);
   }
   if (tete && !tete.querySelector('[data-plansem]')){
-    const b=el('button','mini mini--lime','📝 PLANIFICATION DE LA SEMAINE');
+    /* ⚠ IL S'APPELAIT « PLANIFICATION DE LA SEMAINE », À DIX CENTIMÈTRES DE
+       « Cette semaine, j'enseigne… » : deux noms presque identiques pour deux
+       choses différentes — une ligne de session d'un côté, les fiches détaillées
+       de chaque cours de l'autre. Il dit maintenant ce qu'il fait. */
+    const b=el('button','mini mini--lime','📝 ÉCRIRE MES COURS, UN PAR UN');
     b.type='button'; b.dataset.plansem='1';
-    b.title='Écrire les cours de cette semaine, tous à la suite';
+    b.title='La fiche complète de chaque cours de la semaine, à la suite';
     b.addEventListener('click', planSemaine);
     tete.appendChild(b);
   }

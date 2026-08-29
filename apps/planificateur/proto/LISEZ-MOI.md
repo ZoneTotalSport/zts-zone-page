@@ -2,7 +2,117 @@
 
 Maquette de **validation visuelle**, pas du code de production. Rien n'est
 branché sur Firestore : toute la saisie vit en `localStorage`, sous le préfixe
-`protog2:`, et se jette d'un clic (bouton « Vider ma saisie » en haut à droite).
+`protog2:`, et se jette en deux gestes (RÉGLAGES › MES DONNÉES › « Vider ma saisie »).
+
+## ⚠ G3 — LA SIMPLIFICATION (29 août 2026) : trois onglets, une barre
+
+Mandat de Joey : « qu'un enfant de 10 ans l'utilise sans aide. AUCUNE perte de
+fonction — tout ce qui existe est conservé, seulement déplacé ou fusionné. »
+
+**Tout ce qui suit s'ajoute au reste de ce document, et le corrige là où il
+décrit encore cinq onglets ou une barre de buzzer.**
+
+### La barre : trois onglets, plus cinq
+
+| Onglet | Ce qu'on y fait | Fréquence |
+|---|---|---|
+| **📋 AUJOURD'HUI** | Sa journée, période par période. Écran d'ouverture. | six fois par jour |
+| **🗓️ MA SEMAINE** | La grille, inchangée. On y glisse ses groupes. | une fois par semaine |
+| **⋯ PLUS** | Calendrier · Mes groupes · Mon temps · Réglages · Partage · Vue coordonnateur · Mes autres outils | trois fois par année |
+
+La règle qui décide de la place d'une chose : **à quelle fréquence s'en sert-on ?**
+Rien n'a été coupé : ⋯ PLUS mène aux sept écrans, chacun avec son « ← PLUS ».
+
+### Neuf doublons ramenés à un seul exemplaire
+
+| Il y en avait deux | Il n'en reste qu'un |
+|---|---|
+| Barre jaune ◀ jour ▶ **et** ◀ semaine ▶ dans la grille | **Une barre contextuelle** : jour sur AUJOURD'HUI, semaine sur MA SEMAINE, cachée ailleurs |
+| Menu « J'ÉCRIS DANS » **et** jetons colorés | **Les jetons.** Toucher un jeton pose `ctxGroupe` (le carnet a les siens) |
+| − / 200 % / + sur la grille **et** 4 paliers dans RÉGLAGES | **Les 4 distances, sur la grille** — De près · En classe · 🏀 GYMNASE · 🏀 FOND DU GYMNASE |
+| Barre de buzzer collée en bas de CHAQUE écran **et** section « Son du buzzer » | **Le buzzer dans la minuterie du tiroir 🎲 JEUX**, avec elle |
+| « Mon plan de session » (Semaine 1…6, sans date) **et** la semaine affichée | **Une clé par semaine réelle** : `ed:sqw-<lundi>`. Les deux écrans écrivent dedans |
+| Vue coordonnateur écrite **deux fois** (dont une morte, visant `#e-messages`) | **La version complète**, sur son écran, depuis ⋯ PLUS |
+| « Mon horaire » (vivant) **et** « Horaire de l'école » (mort, clés `ed:hor-N` que rien ne relit) | **« 🕐 Mon horaire »**, celui qui alimente vraiment l'agenda |
+| `nav2()` posait 4 boutons **effacés** par `barreEnMenus()` | La barre à trois onglets, seule source |
+| Deux contrôles d'accès tournant **trop tôt** | Un seul, en fin de chargement, dans `proto-g3.js` |
+
+### Ce qui a DÉMÉNAGÉ (rien n'est perdu)
+
+- **▶ DÉMARRER LA SÉANCE** et **📺 MODE TABLEAU BLANC** : RÉGLAGES → 📋 AUJOURD'HUI.
+  Ce sont les gestes du DÉBUT d'un cours, pas des réglages.
+- **⭐ Comment je note** : RÉGLAGES → MES GROUPES, avec le carnet et les bulletins.
+  Les trois répondent à la même question.
+- **📤 Partager avec un collègue** : ressorti des RÉGLAGES, sa propre tuile.
+  **💾 Mes données** y reste — sauvegarde, restauration, vidage.
+- **🧹 Vider ma saisie** : bandeau → RÉGLAGES › MES DONNÉES, **en deux temps**
+  (le 1ᵉʳ geste arme, le 2ᵉ efface, ça se désarme seul après 10 s).
+- **👤 Pour qui est cette app** (les 3 métiers) : MA SEMAINE → RÉGLAGES.
+- **🔗 Mes autres outils** : accueil → son écran, depuis ⋯ PLUS.
+
+### Le bug bloquant, corrigé
+
+« Touche une journée pour l'ouvrir » était écrit sous le titre et **ne faisait
+rien** : le geste visait `e-journee`, un écran retiré ; le garde d'`allerA()`
+renvoyait à l'accueil en remontant la page. Il existe maintenant un écran de
+journée. **Toucher un en-tête de jour ouvre 📋 AUJOURD'HUI sur ce jour.**
+
+### Règle des trois touches — mesurée, pas supposée
+
+| Geste quotidien | Touches depuis l'ouverture |
+|---|---|
+| Écrire un cours | **1** (le cours du jour) — 2 pour un autre jour |
+| Piger un jeu | **2** (🎲 JEUX · AJOUTER) |
+| Partir la minuterie | **3** (🎲 JEUX · 10 · ▶ PARTIR) |
+
+**6 éléments interactifs permanents** avant le contenu : 3 onglets + 3 boutons
+de la barre contextuelle.
+
+### Neuf défauts trouvés à l'audit et corrigés
+
+1. **`[hidden]` ne cachait rien** sur un `display:flex`/`inline-flex` nommé —
+   la barre restait visible sur RÉGLAGES, la pastille de jour-cycle survivait
+   à `cy.hidden=true`. Une règle `[hidden]{display:none!important}` pour toute
+   la famille. *(défaut antérieur pour la pastille)*
+2. **`.ctx-barre{top:96px}`** — la hauteur d'un bandeau qui n'est plus collant.
+   Bande de fond entre la nav et la barre, **titre recouvert au défilement**.
+   La hauteur se MESURE (`--h-nav`, `calerLaBarre()`). *(antérieur)*
+3. **`.zts-tete{z-index:200}` recouvrait le tiroir (80) et la fenêtre de séance
+   (120)** : le chrono et ▶ PARTIR disparaissaient sous le logo. *(antérieur)*
+4. **Le samedi ressemblait à un mardi** — six périodes vides un jour sans école.
+   Une carte dit pourquoi et offre ▶ PROCHAIN JOUR DE CLASSE.
+5. **Piège n° 18 payé une 2ᵉ fois** : à 200 % sur un iPad de 768 px, les media
+   queries croient 768 pendant que le contenu en a 384 — ⋯ PLUS sortait de
+   l'écran **sur une tablette**. On calcule la largeur EFFECTIVE et on la publie
+   en `html[data-etroit="1"]`, qui remplace les media queries.
+6. **La date passait SOUS sa pastille** sur téléphone (`nowrap` + `flex-shrink`,
+   aucun débordement de page pour le signaler). `grouperLaDate()` les tient
+   ensemble ; elles prennent leur rangée.
+7. **La minuterie restait verte après avoir sonné** : `peindreMinuterie()` est
+   appelée AVANT que `tourne` passe à false, et l'intervalle s'arrête juste
+   après — le bouton affichait « ⏸ PAUSE » sur une minuterie finie. *(antérieur)*
+8. **« ← PLUS » atterrissait au MILIEU de RÉGLAGES** : `barreLiens()` insère à
+   `children[1]`, et d'autres fichiers insèrent après lui au même endroit.
+   Remis en tête une fois tout le monde passé.
+9. **La barre jaune faisait 405 px de haut** à 🏀 FOND DU GYMNASE sur tablette,
+   figée en permanence. Sur peu de place, elle défile avec la page.
+
+### Pièges laissés par ce chantier — ils reviendront
+
+- ⚠ **`peindrePlanSession()` ne peut PAS être appelée depuis son IIFE** :
+  `lundiPlan()` lit `agLundi`, `UN_JOUR`, `isoDe`, tous déclarés plus bas dans
+  `proto-fusion.js`. Un `let`/`const` en zone morte n'est pas « undefined » —
+  le lire LÈVE, et `typeof` lève aussi. C'est `proto-g3.js` qui l'appelle.
+- ⚠ **Les jetons écoutent le clic sur le CONTENEUR, en capture.** Posé sur le
+  jeton, l'écouteur tournerait après celui de `proto-seance.js`, qui repeint
+  toute la palette : sur un noeud déjà détaché. (Piège n° 12, 2ᵉ fois.)
+- ⚠ **Les trois boutons de la barre contextuelle sont des CLONES.**
+  `barreContexte()` leur a posé des écouteurs « jour » qu'on ne peut pas
+  retirer ; sans le clone, ◀ reculerait d'un jour ET d'une semaine.
+- ⚠ **`innerWidth` vaut 0 pendant une réémulation de fenêtre.** Sans garde,
+  l'app se croit sur un téléphone et y reste.
+- ⚠ **Le buzzer a été vu JOUER (`play()` appelé, minuterie menée à zéro), pas
+  ENTENDU.** Le point reste ouvert.
 
 ## Ouvrir
 

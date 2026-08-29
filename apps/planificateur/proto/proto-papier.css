@@ -502,3 +502,187 @@ html[data-zoom="300"]{zoom:3}
 }
 .fiche-depot.survol{background:var(--jaune);border-color:var(--noir)}
 @media(max-width:900px){ .fiche-bloc{grid-template-columns:1fr} }
+
+/* ==========================================================================
+   G3 — LA SIMPLIFICATION : trois onglets, une barre, une taille.
+   Ce bloc arrive en toute fin du dernier fichier chargé : il gagne par
+   l'ordre, donc à spécificité ÉGALE seulement. Chaque règle ci-dessous vise
+   une classe qui n'existe nulle part ailleurs — sauf les quatre dernières,
+   qui corrigent des règles nommées, et le disent.
+   ========================================================================== */
+
+/* ═════ `hidden` DOIT VOULOIR DIRE CACHÉ ═════
+   ⚠ PIÈGE PAYÉ DEUX FOIS. L'attribut `hidden` ne pose qu'un `display:none`
+   dans la feuille du NAVIGATEUR : la moindre règle d'auteur qui nomme un
+   `display` le bat. `.ctx-barre{display:flex}` et `.ctx-cyc{display:inline-flex}`
+   le battaient toutes les deux — la barre restait visible sur RÉGLAGES, et la
+   pastille de jour-cycle survivait à `cy.hidden = true` (défaut ANTÉRIEUR à ce
+   chantier : sur une journée sans cycle, une pastille vide s'affichait déjà).
+   Une seule ligne règle la famille entière, celles à venir comprises. */
+[hidden]{display:none !important}
+
+/* ═════ 📋 AUJOURD'HUI ═════ */
+.auj-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px}
+.auj-liste{display:flex;flex-direction:column;gap:9px}
+.auj-per{
+  display:grid;grid-template-columns:190px 1fr;gap:12px;align-items:stretch;
+  background:#fff;color:var(--ink);border:3px solid var(--noir);border-radius:13px;
+  box-shadow:4px 4px 0 var(--noir);padding:9px 11px;
+}
+.auj-per .quand{display:flex;flex-direction:column;justify-content:center;gap:2px}
+.auj-per .quand b{font-family:var(--f-large);font-size:26px;letter-spacing:.6px;line-height:1}
+.auj-per .quand .h{font-family:var(--f-note);font-size:18px;color:var(--ink-soft)}
+.auj-pause{
+  font-family:var(--f-titre);letter-spacing:1px;font-size:17px;
+  background:var(--jaune);color:var(--ink);border:3px solid var(--noir);border-radius:11px;
+  padding:5px 13px;text-align:center;
+}
+.auj-cours{
+  display:block;width:100%;text-align:left;cursor:pointer;
+  border:3px solid var(--noir);border-radius:11px;padding:8px 11px;
+  box-shadow:3px 3px 0 var(--noir);
+}
+.auj-cours .gr{display:flex;gap:8px;align-items:center;font-family:var(--f-large);
+  font-size:28px;letter-spacing:.6px;line-height:1}
+.auj-cours .gr .img{font-size:26px}
+.auj-cours img.img{width:34px;height:34px;border-radius:8px;border:2px solid var(--noir);object-fit:cover}
+.auj-cours .gr .nb{font-family:var(--f-note);font-size:17px;letter-spacing:0;opacity:.85}
+.auj-cours .quoi{display:block;font-family:var(--f-main);font-size:20px;line-height:1.2;margin-top:4px}
+.auj-cours .puces{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.auj-cours .puces span{
+  font-size:14px;font-weight:800;border:2px solid var(--noir);border-radius:7px;
+  padding:1px 7px;background:#fff;color:var(--ink);
+}
+.auj-vide{
+  width:100%;cursor:pointer;font-family:var(--f-note);font-size:19px;
+  background:#F3F8FB;color:var(--ink-soft);
+  border:3px dashed var(--noir);border-radius:11px;padding:10px;
+}
+.auj-vide:hover{background:var(--cyan-vif);color:var(--ink)}
+@media(max-width:760px){
+  .auj-per{grid-template-columns:1fr;gap:7px}
+  .auj-per .quand{flex-direction:row;align-items:baseline;gap:9px}
+}
+
+/* ═════ ⋯ PLUS — de grosses tuiles, rien d'autre ═════ */
+.plus-tuiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:13px}
+.plus-tuile{
+  display:block;text-align:left;cursor:pointer;
+  background:#fff;color:var(--ink);border:3px solid var(--noir);border-radius:15px;
+  box-shadow:5px 5px 0 var(--noir);padding:14px 16px;
+}
+.plus-tuile:hover{background:var(--cyan-vif)}
+.plus-tuile .emo{display:block;font-size:34px;line-height:1;margin-bottom:5px}
+.plus-tuile b{display:block;font-family:var(--f-large);font-size:29px;letter-spacing:.6px;line-height:1.05}
+.plus-tuile .quoi{
+  display:block;font-family:var(--f-note);font-size:18px;line-height:1.2;
+  color:var(--ink-soft);margin-top:4px;letter-spacing:0;
+}
+
+/* ═════ LA TAILLE, SUR LA GRILLE ═════ */
+.ag-tailles{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ag-tailles .lab{
+  font-family:var(--f-titre);letter-spacing:1px;font-size:13px;color:var(--sur-fond-doux);
+}
+
+/* ═════ LA LIGNE DE SESSION, SUR LA SEMAINE ═════ */
+.plan-sem{margin:0 0 12px}
+.plan-sem>h4{background:var(--jaune);color:var(--ink)}
+.plan-sem-corps{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 10px}
+.plan-sem-corps>[contenteditable]{
+  flex:1;min-width:220px;font-family:var(--f-main);font-size:22px;line-height:1.2;
+  border-bottom:2px dashed var(--noir);padding:2px 3px;
+}
+.hist-ligne[data-ici="1"]{box-shadow:0 0 0 3px var(--jaune)}
+
+/* ═════ LE TIROIR : MINUTERIE ET BUZZER ═════ */
+.tiroir-min{
+  background:#0B2438;border:3px solid var(--noir);border-radius:13px;
+  padding:10px 11px;margin-bottom:12px;
+}
+.tiroir-min h3{
+  margin:0 0 8px;font-family:var(--f-titre);letter-spacing:1px;font-size:17px;color:var(--jaune);
+}
+.buzz{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:10px;
+  padding-top:9px;border-top:3px solid rgba(255,255,255,.22)}
+.buzz-lab{font-family:var(--f-titre);letter-spacing:1px;font-size:14px;color:var(--sur-fond)}
+.buzz-choix,.buzz-vols{display:flex;gap:6px;align-items:center}
+.buzz-vol{width:110px;accent-color:var(--cyan)}
+.buzz-vol-lab{font-family:var(--f-titre);font-size:14px;color:var(--sur-fond)}
+
+/* ═════ VIDER MA SAISIE, EN DEUX TEMPS ═════ */
+.don-carte--danger{border-color:var(--rose);box-shadow:4px 4px 0 var(--rose)}
+.don-carte--danger h3{color:#B3004A}
+
+/* ═════ LE JETON DU GROUPE COURANT ═════
+   La palette dit désormais DEUX choses : quel groupe j'ai en main (cadre
+   jaune, posé en JS) et dans quel groupe j'écris (ce liseré-ci). */
+.pastille-gr[data-courant="1"]{outline:4px solid var(--cyan);outline-offset:3px}
+
+/* ═════ CE QUE LA DISPARITION DU DOCK LIBÈRE ═════
+   ⚠ `body{padding-bottom:120px}` réservait la place de la barre du bas, qui
+   n'existe plus : sans cette ligne, la page garde un trou de 120 px sous son
+   dernier élément. */
+body{padding-bottom:26px}
+.auj-hors{
+  display:flex;gap:11px;align-items:center;flex-wrap:wrap;margin:0 0 14px;
+  background:#FFE9A8;color:var(--ink);border:3px solid var(--noir);border-radius:13px;
+  box-shadow:4px 4px 0 var(--noir);padding:10px 13px;
+}
+.auj-hors b{font-family:var(--f-large);font-size:26px;letter-spacing:.6px}
+.auj-hors span{font-family:var(--f-note);font-size:18px;flex:1;min-width:200px}
+
+/* ⚠ voir `calerLaBarre()` : la barre jaune se colle SOUS la nav, dont la
+   hauteur change avec la taille choisie. `96px` était la hauteur d'un bandeau
+   qui n'est plus collant depuis longtemps. */
+.ctx-barre{top:var(--h-nav,42px)}
+
+/* ═════ SUR UN TÉLÉPHONE ═════
+   ⚠ TROIS ONGLETS QUI NE TIENNENT PAS, C'EST DEUX ONGLETS. La barre défile à
+   l'horizontale (`nowrap` + `overflow-x`) : à 375 px, ⋯ PLUS sortait de
+   l'écran et rien ne disait qu'il existait. Trois colonnes égales : les trois
+   portes sont toujours là, quelle que soit la largeur.
+   ⚠ Et la date se cassait en trois lignes au milieu de la barre jaune —
+   « jeudi / 27 / août ». Elle prend sa propre rangée, d'un bloc. */
+html[data-etroit="1"] .ecrans-nav{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:5px;
+  overflow:visible;flex-wrap:wrap;
+}
+html[data-etroit="1"] #nav>button{
+  font-size:15px;padding:8px 5px;min-height:48px;
+  white-space:normal;line-height:1.05;flex:none;width:100%;
+}
+html[data-etroit="1"] .ctx-barre{flex-wrap:wrap;row-gap:7px}
+html[data-etroit="1"] .auj-cours .gr{font-size:24px}
+html[data-etroit="1"] .plus-tuiles{grid-template-columns:1fr}
+html[data-etroit="1"] .auj-per{grid-template-columns:1fr;gap:7px}
+html[data-etroit="1"] .auj-per .quand{flex-direction:row;align-items:baseline;gap:9px}
+
+/* voir `grouperLaDate()` : la date et sa pastille de jour-cycle ne se séparent
+   plus. Sur un écran étroit, elles prennent leur propre rangée. */
+.ctx-quand{display:flex;gap:10px;align-items:center;min-width:0}
+html[data-etroit="1"] .ctx-quand{flex:1 0 100%;order:-1;flex-wrap:wrap;row-gap:4px}
+/* ⚠ `white-space:nowrap` + `flex-shrink` = TEXTE QUI DÉBORDE SOUS LE VOISIN.
+   La date passait SOUS la pastille, illisible, sans qu'aucun débordement de
+   page ne le signale. On la rétrécit pour qu'elles tiennent côte à côte, et
+   `flex-wrap` sert de filet si un libellé plus long arrive. */
+html[data-etroit="1"] .ctx-barre .jour{flex:0 1 auto;font-size:17px}
+html[data-etroit="1"] .ctx-cyc{font-size:13px;padding:2px 8px}
+
+/* ⚠ SUR PEU DE PLACE, LA BARRE NE SE COLLE PLUS. À 🏀 FOND DU GYMNASE sur une
+   tablette, la largeur utile tombe à 295 px : la barre jaune s'enroule sur
+   trois rangées, soit 405 px de haut — presque la moitié de l'écran, figée en
+   permanence par-dessus le contenu. Elle défile avec la page ; les trois
+   onglets, eux, restent collés. */
+html[data-etroit="1"] .ctx-barre{position:static}
+
+/* ═════ L'EMPILEMENT — LE BANDEAU PASSAIT PAR-DESSUS LES PANNEAUX ═════
+   ⚠ `.zts-tete` est à `z-index:200`, le tiroir à 80 et la fenêtre de séance à
+   120 : le bandeau ZONE TOTAL SPORT recouvrait le HAUT des deux. Invisible
+   tant que le tiroir commençait par un champ de recherche ; criant depuis que
+   la minuterie y est posée — le chrono et le bouton ▶ PARTIR disparaissaient
+   sous le logo. On remonte les deux panneaux au-dessus du bandeau plutôt que
+   de descendre le bandeau : rien d'autre ne change de place.
+   Défaut ANTÉRIEUR à ce chantier ; il touchait aussi la fenêtre de séance. */
+.tiroir{z-index:210}
+.modale{z-index:220}

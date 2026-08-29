@@ -152,10 +152,14 @@ function symboleDe(val){
 /* ═════════ 4. LES CASES DE MA SEMAINE S'ÉCRIVENT ═════════ */
 
 /* ═════════ le réglage de la façon de noter ═════════ */
+/* ⚠ CETTE SECTION ÉTAIT DANS LES RÉGLAGES, loin des deux écrans qu'elle
+   gouverne. Carnet de notes, bulletins et façon de noter forment UNE question
+   — « comment j'évalue ce groupe » — et se répondent au même endroit :
+   MES GROUPES. */
 (function reglageFacon(){
-  const ecran=$('#e-reglages'); if(!ecran) return;
-  const box=el('div','reg-section');
-  box.innerHTML='<h3>⭐ Comment je note</h3>'
+  const ecran=$('#e-groupes'); if(!ecran) return;
+  const box=el('div','pan pan--jaune');
+  box.innerHTML='<h2>⭐ Comment je note</h2>'
     +'<p style="margin:0 0 10px;font-family:var(--f-note);font-size:17px">'
     +'Choisis la façon <b>et</b> le nombre de niveaux. <b>Tout le monde part au maximum</b> — '
     +'tu ne descends que ceux qui doivent l’être.</p>'

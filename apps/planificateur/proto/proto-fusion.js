@@ -19,17 +19,13 @@
    ========================================================================== */
 'use strict';
 
-/* ═════════ la nav apprend les nouveaux écrans ═════════ */
-(function nav2(){
-  const n=$('#nav'); if(!n) return;
-  [['e-tests','🏃 TESTS'],['e-groupes','👥 MES GROUPES'],
-   ['e-messages','💬 MESSAGES'],['e-donnees','💾 MES DONNÉES']].forEach(([id,lab])=>{
-    if (n.querySelector('[data-va="'+id+'"]')) return;
-    const b=el('button',null,lab); b.type='button'; b.dataset.va=id;
-    b.addEventListener('click',()=>allerA(id));
-    n.insertBefore(b, n.querySelector('[data-va="e-reglages"]'));
-  });
-})();
+/* ═════════ la nav apprend les nouveaux écrans — RETIRÉ ═════════
+   ⚠ `nav2()` posait quatre boutons de plus dans `#nav`, puis `barreEnMenus()`
+   faisait `n.innerHTML=''` : ils n'ont JAMAIS été vus, exactement comme les
+   seize de `ECRANS` avant eux. Deux de leurs quatre cibles n'existent d'ailleurs
+   plus (`e-messages` retiré, `e-donnees` fondu dans RÉGLAGES).
+   La barre à trois onglets est la seule source de navigation ; TESTS et
+   MES GROUPES gardent leurs portes — la séance pour l'un, ⋯ PLUS pour l'autre. */
 
 /* ══ Ce qui reste de l'ancien système de blocs ══
    Seules trois choses servent encore : les types (l'agenda colore ses cases
@@ -59,12 +55,13 @@ function reduireImage(f, max, q){
   });
 }
 
-/* ── Live et TBI, posés dans MA JOURNÉE ── */
-/* Joey : « enlève tous les boutons » de MA JOURNÉE. La séance en direct et le
-   mode tableau blanc sont donc posés dans les RÉGLAGES, pas sur l'écran de
-   travail quotidien. */
+/* ── Live et TBI, sur AUJOURD'HUI ── */
+/* ⚠ ILS ÉTAIENT DANS LES RÉGLAGES. Démarrer sa séance et basculer le tableau
+   blanc sont les deux gestes du DÉBUT DU COURS : les chercher dans un écran de
+   configuration, une fois par cours, six fois par jour, n'a aucun sens.
+   Ils vivent maintenant sur l'écran d'ouverture, à portée immédiate. */
 (function liveEtTbi(){
-  const hote=$('#e-reglages'); if(!hote) return;
+  const hote=$('#aujActions'); if(!hote) return;
   const barre=el('div'); barre.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px';
   const live=el('button','mini mini--rose','▶ DÉMARRER LA SÉANCE'); live.type='button';
   const etat=el('span'); etat.style.cssText='font-family:var(--f-titre);letter-spacing:1px;align-self:center';
@@ -87,10 +84,9 @@ function reduireImage(f, max, q){
     tbi.setAttribute('aria-pressed',String(on)); tbi.textContent = on?'📺 QUITTER LE TABLEAU BLANC':'📺 MODE TABLEAU BLANC'; };
   tbi.addEventListener('click',()=>{ ecrire('tbi',!lire('tbi',false)); majTbi(); });
   majTbi();
-  const boite=el('div','reg-section');
-  boite.innerHTML='<h3>▶ Pendant le cours</h3>';
+  barre.style.margin='0';
   barre.appendChild(live); barre.appendChild(etat); barre.appendChild(tbi);
-  boite.appendChild(barre); hote.appendChild(boite);
+  hote.appendChild(barre);
   peindre();
 })();
 
@@ -470,8 +466,8 @@ const STYLES_CYCLE = {
       <div id="etapes"></div>
     </div>
     <div class="reg-section">
-      <h3>🔍 Taille de l'écriture</h3>
-      <div class="reg-ligne" id="zoomBtns"></div>
+      <h3>👤 Pour qui est cette app</h3>
+      <div id="reglagesMetiers"></div>
     </div>
     <div class="reg-section">
       <h3>🌍 Langue</h3>
@@ -537,23 +533,11 @@ const STYLES_CYCLE = {
     n.addEventListener('change',()=>ecrire('dt:'+n.dataset.k, n.value));
   });
 
-  /* zoom */
-  const hz=$('#zoomBtns');
-  /* ⚠ LES PALIERS SE DISENT PAR LA DISTANCE, pas par un adjectif. Joey :
-     « mets ça pour qu'on puisse voir de loin dans un gymnase ». « Grand » ne
-     répond pas à la question qu'il se pose ; « Gymnase » oui. */
-  /* ⚠ LES PALIERS ONT ÉTÉ REMONTÉS. Joey, devant son TBI : « je ne vois pas ce
-     qui est écrit dans le gymnase, je veux que ce soit lisible par moi dans le
-     FOND de mon gymnase. » 170 % ne suffit pas à dix mètres : le dernier
-     palier va maintenant à 260 %, et le défaut à 200. */
-  [['100','De près'],['145','En classe'],['200','🏀 GYMNASE'],['260','🏀 FOND DU GYMNASE']].forEach(([v,lab])=>{
-    const b=el('button','mini',lab); b.type='button';
-    b.addEventListener('click',()=>{ ecrire('zoom',v); appliquerZoom();
-      $$('#zoomBtns .mini').forEach(x=>x.setAttribute('aria-pressed','false')); b.setAttribute('aria-pressed','true'); });
-    b.dataset.z=v;
-    b.setAttribute('aria-pressed', String(v===lire('zoom','200')));
-    hz.appendChild(b);
-  });
+  /* le sélecteur de métier a quitté MA SEMAINE : il se règle une fois, pas
+     tous les lundis. Le noeud est DÉPLACÉ, pas recopié — les écouteurs de
+     proto.js le suivent. */
+  const hm=$('#reglagesMetiers'), met=$('#metiers'), cpt=$('#metierCompte');
+  if (hm && met){ hm.appendChild(met); if (cpt) hm.appendChild(cpt); }
   /* langue */
   const hl=$('#langBtns');
   [['fr','🇨🇦 Français'],['en','🇬🇧 English']].forEach(([v,lab])=>{
@@ -571,24 +555,22 @@ const STYLES_CYCLE = {
 })();
 /* ⚠ LE RÉGLAGE PART À 120, PAS À 100. Joey lit son plan de loin, un ballon à
    la main : la taille « de près » est l'exception, pas la règle. */
-/* ═════ LES PALIERS DE ZOOM, ET LE + / − ═════
-   Joey : « pour le menu semaine, affiche-le avec un + pour zoomer et un − pour
-   dézoomer. » Aller dans RÉGLAGES pour ajuster ce qu'on regarde en ce moment
-   même n'a aucun sens : la commande doit être SUR la semaine.
-   Les quatre paliers nommés de RÉGLAGES restent des raccourcis ; le + et le −
-   marchent sur cette échelle plus fine, dont ils font partie. */
-const ZOOMS = [100,120,145,170,200,230,260,300];
+/* ═════ LA TAILLE — UN SEUL SYSTÈME, QUATRE DISTANCES ═════
+   ⚠ IL Y EN AVAIT DEUX, ET ILS NE DISAIENT PAS LA MÊME CHOSE. Sur la semaine,
+   un − / 200 % / + parcourait huit paliers ; dans RÉGLAGES, quatre boutons
+   nommés par la distance en visaient quatre. Régler par l'un déplaçait
+   l'autre sans le dire, et « 230 % » ne répond à aucune question qu'un prof
+   se pose. Il ne reste que les quatre distances, POSÉES SUR LA GRILLE — là où
+   l'on voit ce qu'on grossit.
+   ⚠ Les paliers intermédiaires (120, 170, 230, 300) gardent leur règle CSS :
+   une saisie déjà enregistrée sur l'un d'eux continue de s'afficher. */
+const TAILLES = [['100','De près'],['145','En classe'],
+                 ['200','🏀 GYMNASE'],['260','🏀 FOND DU GYMNASE']];
 function zoomActuel(){ return parseInt(lire('zoom','200'),10) || 200; }
-function zoomer(sens){
-  const v=zoomActuel();
-  let i=ZOOMS.indexOf(v);
-  if (i<0){ i=0; ZOOMS.forEach((z,k)=>{ if (Math.abs(z-v) < Math.abs(ZOOMS[i]-v)) i=k; }); }
-  const j=Math.max(0, Math.min(ZOOMS.length-1, i+sens));
-  ecrire('zoom', String(ZOOMS[j]));
+function poserTaille(v){
+  ecrire('zoom', String(v));
   appliquerZoom();
   if (typeof peindreAgenda==='function') peindreAgenda();
-  $$('#zoomBtns .mini').forEach(b=> b.setAttribute('aria-pressed',
-      String(b.dataset.z===String(ZOOMS[j]))));
 }
 function appliquerZoom(){
   const z = lire('zoom','200');
@@ -608,8 +590,10 @@ appliquerZoom();
 
 /* mode intégré : ?embed=1 masque le chrome, comme dans l'app */
 if (new URLSearchParams(location.search).get('embed')==='1'){
-  document.querySelector('.proto-bar').style.display='none';
-  document.querySelector('.dock').style.display='none';
+  /* ⚠ `.proto-bar` et `.dock` n'existent plus : sans le garde, cette ligne
+     levait et tuait la fin du fichier. */
+  ['.proto-bar','.dock','.zts-tete'].forEach(sel=>{
+    const n=document.querySelector(sel); if (n) n.style.display='none'; });
   document.body.style.paddingBottom='0';
 }
 
@@ -647,33 +631,67 @@ document.addEventListener('keydown', e=>{
   peindreJeux();
 })();
 
-/* ── b) Vue séquentielle : le plan de session, semaine par semaine ── */
+/* ── b) Le plan de session — LA SOURCE UNIQUE de « ce que j'enseigne cette
+   semaine » ──
+   ⚠ IL Y AVAIT DEUX ENDROITS POUR LA MÊME PHRASE. Ici, « Semaine 1…6 », des
+   numéros sans date, dans MES GROUPES ; et là-bas, la semaine affichée de MA
+   SEMAINE, qui n'en savait rien. Deux textes, jamais le même, aucun lien.
+   La ligne est désormais rangée sous le LUNDI de sa semaine (`sqw-<iso>`) :
+   MES GROUPES en montre la suite, MA SEMAINE en montre UNE — la semaine
+   affichée — et les deux écrivent dans la même case.
+   ⚠ Le contenu des anciennes clés `sq-<i>` est REPRIS, pas jeté : voir
+   `migrerPlanDeSession()` dans proto-g3.js. */
+/* ⚠ ANCRÉ SUR LA SEMAINE RÉELLE, PAS SUR CELLE QU'ON REGARDE. Ancré sur
+   `agLundi`, le plan de session se décalait tout entier dès qu'on feuilletait
+   MA SEMAINE : « Semaine 1 » changeait de sens sans qu'on y touche. La liste
+   part de la semaine courante et avance ; MA SEMAINE, elle, écrit dans la
+   semaine affichée, quelle qu'elle soit — c'est la même clé de chaque côté. */
+function lundiPlan(i){
+  return isoDe(new Date(dateDeIso(lundiDe(aujourdhuiISO())).getTime()+i*7*UN_JOUR));
+}
+function clePlanSemaine(iso){ return 'sqw-'+iso; }
+function semaineLisible(iso){
+  const d=dateDeIso(iso), f=new Date(d.getTime()+4*UN_JOUR);
+  return d.getDate()+' '+MOIS_FR[d.getMonth()].slice(0,4)+' → '+f.getDate()+' '+MOIS_FR[f.getMonth()].slice(0,4);
+}
 (function sequentielle(){
   const ecran=$('#e-groupes'); if(!ecran) return;
   const pan=el('div','pan pan--cyan');
   pan.innerHTML='<h2>📈 Mon plan de session</h2>'
-    +'<p style="margin:0 0 10px;font-weight:700">Ce que tu enseignes, dans l’ordre, du début à la fin de l’étape. '
-    +'Une ligne par semaine.</p><div id="sqListe"></div>'
+    +'<p style="margin:0 0 10px;font-weight:700">Ce que tu enseignes, dans l’ordre, semaine après semaine. '
+    +'C’est le MÊME texte que celui de <b>MA SEMAINE</b> — écris-le d’un côté, il apparaît de l’autre.</p>'
+    +'<div id="sqListe"></div>'
     +'<button type="button" class="mini mini--lime" id="sqAdd" style="margin-top:8px">+ AJOUTER UNE SEMAINE</button>';
   ecran.appendChild(pan);
-  function peindre(){
-    const h=$('#sqListe'); h.innerHTML='';
+  window.peindrePlanSession = function(){
+    const h=$('#sqListe'); if(!h) return; h.innerHTML='';
     const n=lire('sqN',6);
     for (let i=0;i<n;i++){
+      const iso=lundiPlan(i);
       const d=el('div','hist-ligne');
-      d.innerHTML='<b>Semaine '+(i+1)+'</b>'
-        +'<div contenteditable data-k="sq-'+i+'" data-vide="Ex. : basketball — le dribble, puis la passe"></div>';
+      if (iso===lundiPlan(0)) d.dataset.ici='1';
+      d.innerHTML='<b></b><div contenteditable data-k="'+clePlanSemaine(iso)+'" '
+        +'data-vide="Ex. : basketball — le dribble, puis la passe"></div>';
+      d.querySelector('b').textContent='Semaine du '+semaineLisible(iso);
       h.appendChild(d);
     }
     brancherEditables(h);
-  }
-  $('#sqAdd').addEventListener('click',()=>{ ecrire('sqN', lire('sqN',6)+1); peindre(); });
-  peindre();
+  };
+  $('#sqAdd').addEventListener('click',()=>{ ecrire('sqN', lire('sqN',6)+1); peindrePlanSession(); });
+  /* ⚠ ON NE PEINT PAS ICI. `lundiPlan()` lit `agLundi`, `UN_JOUR`, `isoDe` —
+     tous déclarés PLUS BAS dans ce fichier. Un `let`/`const` pas encore
+     initialisé n'est pas « undefined » : le lire LÈVE, et `typeof` lève aussi.
+     C'est proto-g3.js qui appelle `peindrePlanSession()`, une fois tout en
+     place. Piège de la même famille que le n° 4 du journal. */
 })();
 
 /* ── c) Rôle coordonnateur : la même app, vue d'en haut ── */
+/* ⚠ CE BLOC VISAIT `#e-messages`, UN ÉCRAN RETIRÉ : il n'a jamais rien peint.
+   La vue coordonnateur avait donc été refaite en double, en plus court, sur
+   l'accueil (proto-annee.js). C'est cette version-ci qu'on garde — elle est la
+   plus complète — et elle a maintenant son écran, ouvert depuis ⋯ PLUS. */
 (function coordo(){
-  const ecran=$('#e-messages'); if(!ecran) return;
+  const ecran=$('#e-coordo'); if(!ecran) return;
   const pan=el('div','pan');
   pan.innerHTML='<h2>👑 Je suis coordonnateur</h2>'
     +'<p style="margin:0 0 10px;font-weight:700">Bascule pour voir où en sont les équipes. '
@@ -701,15 +719,16 @@ document.addEventListener('keydown', e=>{
   }
   $('#coordoGo').addEventListener('click',()=>{ ecrire('coordo', !lire('coordo',false)); peindre(); });
   peindre();
-  const vs=$('#valSemaine'); if (vs) vs.addEventListener('click', peindre);
+  /* ⚠ `#valSemaine` n'existe pas — le bouton s'appelle `#valSem`. Le rafraîchi
+     ne s'est donc jamais fait après une validation. */
+  const vs=$('#valSem'); if (vs) vs.addEventListener('click', peindre);
 })();
 
 /* ── d) Les autres outils du site, à portée de main ── */
 (function autresOutils(){
-  const ecran=$('#e-accueil'); if(!ecran) return;
-  const pan=el('div','pan pan--cyan'); pan.style.marginTop='18px';
+  const ecran=$('#e-outils'); if(!ecran) return;      /* était l'accueil */
+  const pan=el('div','pan pan--cyan');
   pan.innerHTML='<h2>🔗 Mes autres outils Zone Total Sport</h2>'
-    +'<p style="margin:0 0 10px;font-weight:700">Ils vivent dans leur propre app. Le lien les ouvre.</p>'
     +'<div class="grp-liste" id="autresListe"></div>';
   ecran.appendChild(pan);
   const h=pan.querySelector('#autresListe');
@@ -780,20 +799,17 @@ function peindreCtxBarre(){
     cy.title = cycles[ctxDate] ? 'Jour-cycle, calculé depuis le calendrier scolaire'
                                : 'Pas de jour-cycle : cette journée est hors classe';
   }
-  const sel=$('#ctxGroupeSel');
-  sel.innerHTML='';
-  GRP().forEach((g,i)=>{
-    const o=document.createElement('option'); o.value=i; o.textContent=g.nom;
-    if (i===ctxGroupe) o.selected=true;
-    sel.appendChild(o);
-  });
+  /* ⚠ LE MENU « J'ÉCRIS DANS » A ÉTÉ RETIRÉ. Il y avait DEUX sélecteurs de
+     groupe qui ne se parlaient pas : ce menu déroulant, et les jetons colorés
+     au-dessus de l'agenda. On garde les jetons — on reconnaît son groupe à sa
+     couleur, pas à une ligne de liste — et ce sont eux qui posent `ctxGroupe`
+     (voir `jetonsPosentLeContexte()`, proto-g3.js). */
 }
 (function barreContexte(){
   if (!$('#ctxBarre')) return;
   $('#ctxPrec').addEventListener('click',()=> poserContexte(isoDe(new Date(dateDeIso(ctxDate).getTime()-UN_JOUR))));
   $('#ctxSuiv').addEventListener('click',()=> poserContexte(isoDe(new Date(dateDeIso(ctxDate).getTime()+UN_JOUR))));
   $('#ctxAuj').addEventListener('click',()=> poserContexte(aujourdhuiISO()));
-  $('#ctxGroupeSel').addEventListener('change', e=> poserContexte(null, +e.target.value));
   peindreCtxBarre();
 })();
 
@@ -943,12 +959,16 @@ peindreCahier();
    calendrier, mes groupes, mon temps — et partage / réglages / mes données
    ensemble. » Tout le reste — la journée, les présences, l'évaluation, les
    jeux, les messages — vit DANS la séance, qu'on ouvre depuis la semaine. */
+/* ⚠ TROIS ONGLETS, PAS CINQ. Les cinq portes mélangeaient deux rythmes : ce
+   qu'on touche six fois par jour (sa journée, sa semaine) et ce qu'on règle
+   trois fois par année (le calendrier, les groupes, le temps, les réglages).
+   Le quotidien passe devant — AUJOURD'HUI d'abord, MA SEMAINE ensuite — et
+   tout le reste entre derrière ⋯ PLUS, une liste de grosses tuiles. Rien n'est
+   perdu : ⋯ PLUS mène aux sept écrans, et chacun garde son chemin de retour. */
 const MENUS = [
-  {direct:'e-accueil',    lab:'🏠 MA SEMAINE'},
-  {direct:'e-calendrier', lab:'📆 CALENDRIER'},
-  {direct:'e-groupes',    lab:'👥 MES GROUPES'},
-  {direct:'e-temps',      lab:'⏱️ MON TEMPS'},
-  {direct:'e-reglages',   lab:'⚙️ RÉGLAGES'},
+  {direct:'e-aujourdhui', lab:'📋 AUJOURD’HUI'},
+  {direct:'e-accueil',    lab:'🗓️ MA SEMAINE'},
+  {direct:'e-plus',       lab:'⋯ PLUS'},
 ];
 (function barreEnMenus(){
   const n=$('#nav'); if(!n) return;
@@ -1022,7 +1042,7 @@ function placerMenu(box){
       else m.querySelector('button').style.boxShadow='';
     });
   };
-  window.allerA(lire('ecran','e-accueil'));
+  window.allerA(lire('ecran','e-aujourdhui'));
 })();
 
 /* ═════════ 12. CARNET DE NOTES — la grille dense ═════════
@@ -1187,15 +1207,15 @@ function peindreAgenda(){
   h.innerHTML='';
   const boite=el('div','agenda');
 
+  /* ⚠ IL Y AVAIT DEUX NAVIGATIONS TEMPORELLES À L'ÉCRAN EN MÊME TEMPS : la
+     barre jaune (◀ jour ▶) collée en haut, et ces trois boutons de semaine
+     posés dans la grille. Deux paires de flèches qui ne font pas la même
+     chose, à trente pixels l'une de l'autre. Les flèches de semaine sont
+     remontées DANS la barre jaune, qui devient contextuelle : elle parle du
+     jour sur AUJOURD'HUI, de la semaine sur MA SEMAINE, et disparaît ailleurs.
+     Voir `majBarreContexte()`, proto-g3.js. */
   const tete=el('div','agenda-tete');
-  const t=el('h2',null,'Semaine du '+jourLisible(agLundi));
-  const prec=el('button','mini','◀ SEMAINE'); prec.type='button';
-  const suiv=el('button','mini','SEMAINE ▶'); suiv.type='button';
-  const auj=el('button','mini mini--jaune','CETTE SEMAINE'); auj.type='button';
-  prec.addEventListener('click',()=>{ agLundi=isoDe(new Date(dateDeIso(agLundi).getTime()-7*UN_JOUR)); peindreAgenda(); });
-  suiv.addEventListener('click',()=>{ agLundi=isoDe(new Date(dateDeIso(agLundi).getTime()+7*UN_JOUR)); peindreAgenda(); });
-  auj.addEventListener('click',()=>{ agLundi=lundiDe(aujourdhuiISO()); peindreAgenda(); });
-  tete.appendChild(t); tete.appendChild(prec); tete.appendChild(auj); tete.appendChild(suiv);
+  tete.appendChild(el('h2',null,'Semaine du '+jourLisible(agLundi)));
   boite.appendChild(tete);
 
   const jours=[];
@@ -1216,13 +1236,15 @@ function peindreAgenda(){
       const cat=(CATS.find(x=>x[0]===marques[iso])||['',''])[1];
       const s=el('span','cyc',cat.slice(0,14)); s.style.background='#FFE9A8'; c.appendChild(s);
     }
-    /* ⚠ CECI ENVOYAIT VERS `e-journee`, UN ÉCRAN QUI N'EXISTE PLUS. `allerA()` a
-       un garde qui renvoie alors à l'accueil : toucher un en-tête de jour
-       remontait donc la page en haut, sans rien ouvrir, et sans une erreur pour
-       le dire. Toucher un jour POSE LE CONTEXTE — la barre jaune suit — et rien
-       de plus. C'est ce que ça a toujours voulu dire. */
-    c.title='Écrire dans '+jourLisible(iso);
-    c.addEventListener('click',()=> poserContexte(iso));
+    /* ⚠ LE BUG LE PLUS VISIBLE DU PROTO. « Touche une journée pour l'ouvrir »
+       est écrit en toutes lettres sous le titre, et toucher un en-tête de jour
+       ne faisait RIEN : le geste visait `e-journee`, un écran retiré, et le
+       garde d'`allerA()` renvoyait à l'accueil en remontant la page. Le
+       correctif d'étape suivant s'était contenté de poser le contexte —
+       toujours rien à l'écran. Il existe maintenant un écran de journée :
+       AUJOURD'HUI. Toucher un jour l'ouvre SUR CE JOUR. */
+    c.title='Ouvrir '+jourLisible(iso);
+    c.addEventListener('click',()=>{ poserContexte(iso); allerA('e-aujourdhui'); });
     g.appendChild(c);
   });
 

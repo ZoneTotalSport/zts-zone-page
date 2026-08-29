@@ -103,10 +103,14 @@ function ouvrirJour(iso){
    Le dossier d'un élève vit désormais dans proto-dossiers.js, et lui seul. */
 
 /* ═════════ F. PARTAGE + DONNÉES REJOIGNENT LES RÉGLAGES ═════════ */
+/* ⚠ LE PARTAGE RESSORT DES RÉGLAGES. Il y était entré quand la barre n'avait
+   que cinq portes et qu'il fallait bien le ranger quelque part ; ⋯ PLUS lui
+   donne maintenant sa propre tuile, et « partager avec un collègue » n'est pas
+   un réglage. MES DONNÉES reste dans les réglages : sauvegarde, restauration
+   et vidage y sont à leur place. */
 (function regrouperReglages(){
   const reg=$('#e-reglages'); if(!reg) return;
-  [['e-partage','📤 Partager avec un collègue'],
-   ['e-donnees','💾 Mes données']].forEach(([id,titre])=>{
+  [['e-donnees','💾 Mes données']].forEach(([id,titre])=>{
     const ec=document.getElementById(id); if(!ec) return;
     const box=el('div','reg-section');
     box.appendChild(el('h3',null,titre));
@@ -137,12 +141,18 @@ function barreLiens(hoteId, liens, avant){
 }
 barreLiens('e-groupes', [['e-carnet','📊 CARNET DE NOTES'],['e-bulletin','🎓 BULLETINS']], '.pan');
 barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOIR L’ANNÉE']]);
-/* et le chemin du retour, depuis chacun */
+/* et le chemin du retour, depuis chacun.
+   ⚠ LES SEPT ÉCRANS DE ⋯ PLUS EN ONT BESOIN EUX AUSSI : sans porte de retour,
+   une tuile mène à un cul-de-sac dont on ne sort qu'en cherchant l'onglet. */
 [['e-carnet','e-groupes','← MES GROUPES'],['e-bulletin','e-groupes','← MES GROUPES'],
  ['e-mois','e-calendrier','← CALENDRIER'],['e-annee','e-calendrier','← CALENDRIER'],
- ['e-tests','e-accueil','← MA SEMAINE'],   /* 'e-journee' retiré : l'écran n'existe plus */
+ ['e-tests','e-aujourdhui','← AUJOURD’HUI'],
  ['e-evaluation','e-accueil','← MA SEMAINE'],['e-presences','e-accueil','← MA SEMAINE'],
  ['e-messages','e-accueil','← MA SEMAINE'],['e-jeux','e-accueil','← MA SEMAINE'],
+ ['e-calendrier','e-plus','← PLUS'],['e-groupes','e-plus','← PLUS'],
+ ['e-temps','e-plus','← PLUS'],['e-reglages','e-plus','← PLUS'],
+ ['e-partage','e-plus','← PLUS'],['e-coordo','e-plus','← PLUS'],
+ ['e-outils','e-plus','← PLUS'],
 ].forEach(([de,vers,lab])=> barreLiens(de,[[vers,lab]]));
 
 /* les tests rejoignent la séance */
@@ -179,6 +189,12 @@ barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOI
    Restaient deux choses qui ne sont pas des messages de cours — valider sa
    semaine, et la vue coordonnateur. Elles trouvent leur place ici : on valide
    sa semaine depuis sa semaine. */
+/* ⚠ LA VUE COORDONNATEUR ÉTAIT ÉCRITE DEUX FOIS. Une version complète dans
+   proto-fusion.js, qui ne tournait pas — elle visait `#e-messages`, un écran
+   retiré — et cette version-ci, plus courte, refaite ici parce que l'autre
+   semblait absente. On garde la complète, qui a maintenant son écran (⋯ PLUS
+   › Vue coordonnateur), et ce bouton disparaît. Valider sa semaine reste ici :
+   ça, c'est bien un geste de la semaine. */
 (function validerDansLaSemaine(){
   const ecran=$('#e-accueil'); if(!ecran) return;
   const pan=el('div','pan pan--jaune');
@@ -187,9 +203,7 @@ barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOI
     +'Quand tout est planifié, ce bouton la marque terminée et prévient le coordonnateur.</p>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
     +'<button type="button" class="m-valider" id="valSem">✔ MA SEMAINE EST PRÊTE</button>'
-    +'<button type="button" class="mini" id="coordoSem">👑 VUE COORDONNATEUR</button>'
-    +'<span id="valEtat2" style="font-weight:800"></span></div>'
-    +'<div id="coordoVue2" style="margin-top:12px"></div>';
+    +'<span id="valEtat2" style="font-weight:800"></span></div>';
   ecran.appendChild(pan);
   const maj=()=>{
     const v=lire('semaineValidee',null);
@@ -198,30 +212,14 @@ barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOI
   };
   $('#valSem').addEventListener('click',()=>{
     ecrire('semaineValidee', jourLisible(aujourdhuiISO())+' à '+maintenantHM()); maj(); });
-  $('#coordoSem').addEventListener('click',()=>{
-    const on=!lire('coordo2',false); ecrire('coordo2',on);
-    const v=$('#coordoVue2'); v.innerHTML='';
-    $('#coordoSem').textContent = on ? '↩ REVENIR À MA VUE' : '👑 VUE COORDONNATEUR';
-    if (!on) return;
-    [['Joey — 5A', lire('semaineValidee',null)],['Sophie — 4B','jeudi 27 août'],
-     ['Marc — 6A',null],['Ana — 3A',null]].forEach(([nom,quand])=>{
-      const d=el('div','hist-ligne');
-      d.appendChild(el('b',null,nom));
-      d.appendChild(el('span',null, quand ? '✅ semaine validée le '+quand : '⏳ pas encore validée'));
-      v.appendChild(d);
-    });
-  });
   maj();
 })();
 
 /* contrôle final : plus aucun écran sans porte */
-(function controleAcces(){
-  const cibles=new Set([...document.querySelectorAll('[data-va]')].map(b=>b.dataset.va));
-  cibles.add('e-tests');
-  const orphelins=[...document.querySelectorAll('.ecran')].map(s=>s.id).filter(id=>!cibles.has(id));
-  if (orphelins.length) console.warn('[proto] écrans sans porte :', orphelins);
-  else console.info('[proto] tous les écrans ont une porte.');
-})();
+/* ⚠ LE CONTRÔLE A ÉTÉ DÉPLACÉ EN FIN DE CHARGEMENT (proto-g3.js). Ici, il
+   tournait avant que la barre à trois onglets et les tuiles de ⋯ PLUS aient
+   posé leurs `data-va` : il criait à l'orphelin sur des écrans parfaitement
+   joignables, et on apprenait à ignorer son avertissement. */
 
 /* l'heure de l'en-tête, comme sur le site */
 (function horloge(){

@@ -65,7 +65,7 @@ function brancherEditables(racine=document){
 function allerA(id){
   /* garde : un écran mémorisé qui n'existe plus (e-plus, retiré) laisserait la
      page entièrement vide. */
-  if (!document.getElementById(id)) id = 'e-accueil';
+  if (!document.getElementById(id)) id = 'e-aujourdhui';
   if (id === 'e-bulletin') peindreBulletin();
   $$('.ecran').forEach(s=> s.classList.toggle('on', s.id===id));
   $$('#nav button').forEach(b=> b.setAttribute('aria-current', String(b.dataset.va===id)));
@@ -121,7 +121,13 @@ function tic(){
     const reste = Math.max(0, Math.round((m.finA - t)/1000));
     m.reste = reste;
     peindreMinuterie(id);
-    if (reste === 0){ m.tourne = false; verrou(id,false); sonner(); proposerFait(id); }
+    /* ⚠ LA MINUTERIE RESTAIT VERTE APRÈS AVOIR SONNÉ. `peindreMinuterie()` est
+       appelée AVANT ce bloc : quand le décompte touche zéro, `tourne` passe à
+       false mais plus personne ne repeint — `arreterHorlogeSiVide()` coupe
+       l'intervalle juste après. L'anneau lime restait allumé et le bouton
+       affichait encore « ⏸ PAUSE » sur une minuterie arrêtée. Défaut ANTÉRIEUR
+       à ce chantier, trouvé en poussant un décompte jusqu'au buzzer. */
+    if (reste === 0){ m.tourne = false; verrou(id,false); peindreMinuterie(id); sonner(); }
   });
   arreterHorlogeSiVide();
 }
@@ -157,34 +163,35 @@ function lireDuree(txt){
   if ((mm = t.match(/^(\d+(?:\.\d+)?)\s*(?:min|m)?$/))) return Math.round(parseFloat(mm[1])*60);
   return null;
 }
-let dernierFini = null;
-function proposerFait(id){ dernierFini = id; $('#btnMarquer').hidden = false; }
-$('#btnMarquer').addEventListener('click', ()=>{
-  if (dernierFini){
-    const b = document.getElementById(dernierFini);
-    if (b){ const c = b.querySelector('.chk input'); c.checked = true; c.dispatchEvent(new Event('change',{bubbles:true})); }
-  }
-  $('#btnMarquer').hidden = true; dernierFini = null;
-});
+/* ⚠ « MARQUER FAIT » A ÉTÉ RETIRÉ AVEC LE DOCK, et il était déjà mort :
+   `dernierFini` recevait un identifiant de MINUTERIE ('seance-2026-08-29-3'),
+   jamais un id de bloc — et les blocs n'existent plus depuis longtemps.
+   `document.getElementById()` rendait donc toujours null, le bouton
+   n'apparaissait que pour ne rien faire. */
 
-/* ═════════ buzzer ═════════ */
+/* ═════════ buzzer ═════════
+   ⚠ IL NE VIT PLUS DANS UNE BARRE GLOBALE. Joey : le buzzer se règle là où on
+   s'en sert — dans la minuterie du tiroir JEUX — et nulle part ailleurs. Les
+   commandes sont donc désignées par CLASSE, pas par identifiant : plusieurs
+   panneaux peuvent coexister sans que l'un vole les écouteurs de l'autre. */
 let sonChoisi = lire('son','nba'), muet = lire('muet',false), volume = lire('vol',70);
 function appliquerSon(){
-  $$('#buzzChoix .mini').forEach(b=> b.setAttribute('aria-pressed', String(b.dataset.son===sonChoisi)));
-  $('#btnMuet').textContent = muet ? '🔇' : '🔊';
-  $('#btnMuet').setAttribute('aria-pressed', String(muet));
-  $('#vol').value = volume; $('#volLab').innerHTML = volume+'&nbsp;%';
-  [$('#sonNba'),$('#sonArena')].forEach(a=> a.volume = muet ? 0 : volume/100);
+  $$('.buzz-choix .mini').forEach(b=> b.setAttribute('aria-pressed', String(b.dataset.son===sonChoisi)));
+  $$('.buzz-muet').forEach(b=>{ b.textContent = muet ? '🔇' : '🔊';
+                                b.setAttribute('aria-pressed', String(muet)); });
+  $$('.buzz-vol').forEach(n=> n.value = volume);
+  $$('.buzz-vol-lab').forEach(n=> n.innerHTML = volume+'&nbsp;%');
+  [$('#sonNba'),$('#sonArena')].forEach(a=>{ if (a) a.volume = muet ? 0 : volume/100; });
 }
 function sonner(){
   if (muet || sonChoisi==='mute') return;
   const a = sonChoisi==='arena' ? $('#sonArena') : $('#sonNba');
   try { a.currentTime = 0; a.play().catch(()=>{}); } catch(e){}
 }
-$$('#buzzChoix .mini').forEach(b=> b.addEventListener('click',()=>{ sonChoisi=b.dataset.son; ecrire('son',sonChoisi); appliquerSon(); }));
-$('#btnMuet').addEventListener('click', ()=>{ muet=!muet; ecrire('muet',muet); appliquerSon(); });
-$('#vol').addEventListener('input', e=>{ volume=+e.target.value; ecrire('vol',volume); appliquerSon(); });
-$('#btnEssai').addEventListener('click', sonner);
+$$('.buzz-choix .mini').forEach(b=> b.addEventListener('click',()=>{ sonChoisi=b.dataset.son; ecrire('son',sonChoisi); appliquerSon(); }));
+$$('.buzz-muet').forEach(b=> b.addEventListener('click', ()=>{ muet=!muet; ecrire('muet',muet); appliquerSon(); }));
+$$('.buzz-vol').forEach(n=> n.addEventListener('input', e=>{ volume=+e.target.value; ecrire('vol',volume); appliquerSon(); }));
+$$('.buzz-essai').forEach(b=> b.addEventListener('click', sonner));
 appliquerSon();
 
 /* ═════════ médias ═════════ */
@@ -958,15 +965,13 @@ const _raz=$('#prRaz'); if (_raz) _raz.addEventListener('click', ()=>{
   peindrePresences();
 });
 
-(function reglages(){
-  const h = $('#reglagesHoraire');
-  PERIODES.filter(p=>p[0]==='p').forEach(p=>{
-    const r = el('div'); r.style.cssText='display:flex;gap:10px;align-items:center;margin-bottom:6px';
-    r.innerHTML = '<b style="width:100px">Période '+p[1]+'</b><div contenteditable data-k="hor-'+p[1]+'" data-vide="'+p[2]+'" style="flex:1"></div>';
-    h.appendChild(r);
-  });
-  brancherEditables(h);
-})();
+/* ⚠ LE SECOND ÉDITEUR D'HORAIRE A ÉTÉ RETIRÉ. Il remplissait
+   `#reglagesHoraire` depuis la table figée `PERIODES` et écrivait sous
+   `ed:hor-1…6` — des clés que RIEN ne relit. Deux « horaires » se suivaient
+   dans les RÉGLAGES : celui-ci, sans effet, et « 🕐 Mon horaire »
+   (proto-horaire.js), qui gouverne vraiment les lignes de MA SEMAINE.
+   Le prof pouvait donc corriger ses heures dans le mauvais des deux.
+   Piège n° 17 du journal — « un réglage qui existe n'agit pas forcément ». */
 
 
 /* ═════════ ÉVALUATION — les 3 compétences du PFEQ en ÉPS ═════════ */
@@ -1177,11 +1182,30 @@ function peindreQr(code){
 /* La tuile IMPRIMER a quitté l'accueil (devenu l'agenda) : elle vit maintenant
    dans le menu OUTILS. On ne s'accroche que si elle est là. */
 const _imp = $('#btnImprimer'); if (_imp) _imp.addEventListener('click', ()=> window.print());
-$('#btnVider').addEventListener('click', ()=>{
-  if (!confirm('Effacer toute la saisie du proto ? (rien d’autre n’est touché)')) return;
-  Object.keys(localStorage).filter(k=>k.startsWith(P)).forEach(k=>localStorage.removeItem(k));
-  location.reload();
-});
+/* ⚠ IL A QUITTÉ LE BANDEAU. Un bouton qui efface tout n'a rien à faire à côté
+   de l'horloge, visible sur chaque écran : il vit dans RÉGLAGES › MES DONNÉES.
+   ⚠ ET IL DEMANDE DEUX FOIS. Le premier geste arme, le second efface — un
+   `confirm()` seul se clique par réflexe. Dix secondes plus tard, il se
+   désarme tout seul. */
+(function viderEnDeuxTemps(){
+  const b = $('#btnVider'); if (!b) return;
+  const etat = $('#viderEtat');
+  let arme = null;
+  const desarmer = ()=>{ clearTimeout(arme); arme = null;
+    b.textContent = 'VIDER MA SAISIE';
+    if (etat) etat.textContent = ''; };
+  b.addEventListener('click', ()=>{
+    if (!arme){
+      b.textContent = '⚠ CONFIRMER : TOUT EFFACER';
+      if (etat) etat.textContent = 'Touche une deuxième fois pour effacer. Sinon, ça s’annule seul.';
+      arme = setTimeout(desarmer, 10000);
+      return;
+    }
+    desarmer();
+    Object.keys(localStorage).filter(k=>k.startsWith(P)).forEach(k=>localStorage.removeItem(k));
+    location.reload();
+  });
+})();
 brancherEditables();
 calculerTemps();
 peindrePresences();
@@ -1191,4 +1215,4 @@ poserMetier(lire('metier','eps'));
 peindreCalendrier();
 peindreMois();
 peindreAnnee();
-allerA(lire('ecran','e-accueil'));
+allerA(lire('ecran','e-aujourdhui'));

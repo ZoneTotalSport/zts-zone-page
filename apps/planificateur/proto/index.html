@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=88">
-<link rel="stylesheet" href="proto-fusion.css?v=88">
-<link rel="stylesheet" href="proto-boutons.css?v=88">
-<link rel="stylesheet" href="proto-seance.css?v=88">
-<link rel="stylesheet" href="proto-simple.css?v=88">
-<link rel="stylesheet" href="proto-papier.css?v=88">
+<link rel="stylesheet" href="proto.css?v=100">
+<link rel="stylesheet" href="proto-fusion.css?v=100">
+<link rel="stylesheet" href="proto-boutons.css?v=100">
+<link rel="stylesheet" href="proto-seance.css?v=100">
+<link rel="stylesheet" href="proto-simple.css?v=100">
+<link rel="stylesheet" href="proto-papier.css?v=100">
 </head>
 <body>
 
@@ -19,7 +19,6 @@
   <a class="zts-marque" href="#" aria-label="Zone Total Sport"><span class="w1">ZONE</span> <span class="w2">TOTAL</span> <span class="w3">SPORT</span></a>
   <div class="zts-tete-pied">
     <span class="zts-heure">🕐 <span data-heure>--:--:--</span></span>
-    <button type="button" class="zts-btn" id="btnVider">Vider ma saisie</button>
   </div>
 </header>
 
@@ -31,17 +30,23 @@
   <span class="ctx-cyc" id="ctxCycle"></span>
   <button type="button" id="ctxSuiv" aria-label="Jour suivant">▶</button>
   <button type="button" id="ctxAuj">AUJOURD'HUI</button>
-  <span class="ou">J'ÉCRIS DANS</span>
-  <select id="ctxGroupeSel" aria-label="Groupe"></select>
   <span style="flex:1"></span>
 </div>
 
 <div class="wrap">
 
-<!-- ═══════════════ 1. ACCUEIL ═══════════════ -->
-<section class="ecran on" id="e-accueil">
-  <h1 class="titre">Bonjour !</h1>
-  <p class="sous">Ta semaine d'un coup d'œil. Touche une journée pour l'ouvrir.</p>
+<!-- ═══════════════ 0. AUJOURD'HUI ═══════════════ -->
+<section class="ecran on" id="e-aujourdhui">
+  <h1 class="titre" id="aujTitre">Aujourd'hui</h1>
+  <p class="sous" id="aujSous">Tes périodes de la journée. Touche-en une pour ouvrir le cours.</p>
+  <div class="auj-actions" id="aujActions"></div>
+  <div id="aujHote"></div>
+</section>
+
+<!-- ═══════════════ 1. MA SEMAINE ═══════════════ -->
+<section class="ecran" id="e-accueil">
+  <h1 class="titre">Ma semaine</h1>
+  <p class="sous">Glisse un groupe dans une case. Touche un en-tête de jour pour l'ouvrir.</p>
 
   <div class="metiers" id="metiers">
     <button type="button" class="metier" data-metier="eps"  aria-pressed="true">
@@ -61,6 +66,48 @@
 
 
 
+
+
+<!-- ═══════════════ ⋯ PLUS ═══════════════ -->
+<section class="ecran" id="e-plus">
+  <h1 class="titre">Plus</h1>
+  <p class="sous">Tout ce qui ne sert pas tous les jours. Touche une tuile.</p>
+  <div class="plus-tuiles">
+    <button type="button" class="plus-tuile" data-va="e-calendrier">
+      <span class="emo">📆</span><b>Calendrier scolaire</b>
+      <span class="quoi">Congés, journées pédagogiques, jours-cycle</span></button>
+    <button type="button" class="plus-tuile" data-va="e-groupes">
+      <span class="emo">👥</span><b>Mes groupes</b>
+      <span class="quoi">Les élèves, le carnet de notes, les bulletins, ma façon de noter</span></button>
+    <button type="button" class="plus-tuile" data-va="e-temps">
+      <span class="emo">⏱️</span><b>Mon temps</b>
+      <span class="quoi">Les heures travaillées, à faire signer</span></button>
+    <button type="button" class="plus-tuile" data-va="e-reglages">
+      <span class="emo">⚙️</span><b>Réglages</b>
+      <span class="quoi">L'horaire, les jours-cycle, les étapes, mes données</span></button>
+    <button type="button" class="plus-tuile" data-va="e-partage">
+      <span class="emo">📤</span><b>Partager avec un collègue</b>
+      <span class="quoi">Un lien ou un code, sans qu'il ait un compte</span></button>
+    <button type="button" class="plus-tuile" data-va="e-coordo">
+      <span class="emo">👑</span><b>Vue coordonnateur</b>
+      <span class="quoi">Où en sont les équipes</span></button>
+    <button type="button" class="plus-tuile" data-va="e-outils">
+      <span class="emo">🔗</span><b>Mes autres outils ZTS</b>
+      <span class="quoi">Musique, coloriage, SAÉ, éducatifs</span></button>
+  </div>
+</section>
+
+<!-- ═══════════════ VUE COORDONNATEUR ═══════════════ -->
+<section class="ecran" id="e-coordo">
+  <h1 class="titre">Vue coordonnateur</h1>
+  <p class="sous">La même app, vue d'en haut. Rien ne change pour les équipes.</p>
+</section>
+
+<!-- ═══════════════ MES AUTRES OUTILS ═══════════════ -->
+<section class="ecran" id="e-outils">
+  <h1 class="titre">Mes autres outils</h1>
+  <p class="sous">Ils vivent dans leur propre app. Le lien les ouvre.</p>
+</section>
 
 <!-- ═══════════════ 5. MOIS ═══════════════ -->
 <section class="ecran" id="e-mois">
@@ -318,6 +365,12 @@
       <button type="button" class="mini" id="donCsvPres">PRÉSENCES (CSV)</button>
       <button type="button" class="mini" id="donCsvEval" style="margin-top:6px">ÉVALUATION (CSV)</button>
     </div>
+    <div class="don-carte don-carte--danger">
+      <h3>🧹 Vider ma saisie</h3>
+      <p>Efface TOUT ce que tu as écrit dans ce proto. On te le demande deux fois — c'est sans retour.</p>
+      <button type="button" class="mini mini--rose" id="btnVider">VIDER MA SAISIE</button>
+      <span id="viderEtat" style="display:block;margin-top:6px;font-weight:800"></span>
+    </div>
     <div class="don-carte">
       <h3>📆 Importer un calendrier</h3>
       <p>Le fichier <code>.ics</code> de ton centre de services. Congés et journées pédagogiques sont reconnus tout seuls.</p>
@@ -334,16 +387,13 @@
 
 
 
+<!-- ⚠ « Horaire de l'école » A ÉTÉ RETIRÉ : c'était un SECOND éditeur d'horaire,
+     mort. Il écrivait sous `ed:hor-1…6` et se peignait depuis la table figée
+     `PERIODES` ; rien dans l'app ne relit ces clés. Le prof y tapait ses heures
+     et l'agenda n'en savait rien. Le seul horaire vivant est « 🕐 Mon horaire »
+     (proto-horaire.js), celui qui alimente MA SEMAINE et AUJOURD'HUI. -->
 <section class="ecran" id="e-reglages">
   <h1 class="titre">Réglages</h1>
-  <div class="pan">
-    <h2>Horaire de l'école</h2>
-    <div id="reglagesHoraire"></div>
-  </div>
-  <div class="pan pan--cyan">
-    <h2>Son du buzzer</h2>
-    <p style="margin:0">Se règle dans la barre du bas, visible partout dans l'app.</p>
-  </div>
 </section>
 
 </div><!-- /wrap -->
@@ -355,6 +405,35 @@
     <button type="button" class="mini mini--rose" id="fermerTiroir">FERMER</button>
   </div>
   <div class="tiroir-corps">
+    <div class="tiroir-min">
+      <h3>⏱️ Minuterie</h3>
+      <div class="minuterie" data-verrou="0" id="minTiroir">
+        <span class="chrono">0:00</span>
+        <input class="saisie" value="0:00" aria-label="Combien de temps"
+               title="Écris ce que tu veux : 7, 2:30, 1h30">
+        <button type="button" class="mini mini--lime" data-go>▶ PARTIR</button>
+        <span class="presets">
+          <button type="button" class="mini" data-set="300">5</button>
+          <button type="button" class="mini" data-set="600">10</button>
+          <button type="button" class="mini" data-set="900">15</button>
+          <button type="button" class="mini" data-set="1200">20</button>
+        </span>
+      </div>
+      <div class="buzz">
+        <span class="buzz-lab">🔔 BUZZER</span>
+        <span class="buzz-choix">
+          <button type="button" class="mini" data-son="nba"   aria-pressed="true">NBA</button>
+          <button type="button" class="mini" data-son="arena" aria-pressed="false">ARÉNA</button>
+          <button type="button" class="mini" data-son="mute"  aria-pressed="false">SILENCIEUX</button>
+        </span>
+        <span class="buzz-vols">
+          <button type="button" class="mini buzz-muet" aria-pressed="false">🔊</button>
+          <input type="range" class="buzz-vol" min="0" max="100" value="70" aria-label="Volume">
+          <span class="buzz-vol-lab">70&nbsp;%</span>
+        </span>
+        <button type="button" class="mini mini--jaune buzz-essai">ESSAYER</button>
+      </div>
+    </div>
     <input class="recherche" id="rech" type="search" placeholder="Chercher un jeu…">
     <button type="button" class="mini mini--rose" id="tiroirPlanB" style="width:100%;margin-top:10px">🌧️ PLAN B — il pleut, le gym est pris</button>
     <button type="button" class="filtres-tete" id="filtresTete" aria-expanded="false">▸ FILTRES</button>
@@ -373,36 +452,19 @@
   </div>
 </div>
 
-<!-- ═══════════════ DOCK BUZZER ═══════════════ -->
-<div class="dock">
-  <span>🔔 BUZZER</span>
-  <div class="grp" id="buzzChoix">
-    <button type="button" class="mini" data-son="nba"   aria-pressed="true">NBA</button>
-    <button type="button" class="mini" data-son="arena" aria-pressed="false">ARÉNA</button>
-    <button type="button" class="mini" data-son="mute"  aria-pressed="false">SILENCIEUX</button>
-  </div>
-  <div class="grp">
-    <button type="button" class="mini" id="btnMuet" aria-pressed="false">🔊</button>
-    <input type="range" id="vol" min="0" max="100" value="70" aria-label="Volume">
-    <span id="volLab">70&nbsp;%</span>
-  </div>
-  <button type="button" class="mini mini--jaune" id="btnEssai">ESSAYER</button>
-  <span class="spacer" style="flex:1"></span>
-  <button type="button" class="marquer" id="btnMarquer" hidden>✔ MARQUER FAIT</button>
-</div>
-
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=88"></script>
-<script src="proto-fusion.js?v=88"></script>
-<script src="proto-seance.js?v=88"></script>
-<script src="proto-simple.js?v=88"></script>
-<script src="proto-tests.js?v=88"></script>
-<script src="proto-annee.js?v=88"></script>
-<script src="proto-horaire.js?v=88"></script>
-<script src="proto-dossiers.js?v=88"></script>
-<script src="proto-pfeq.js?v=88"></script>
-<script src="proto-portrait.js?v=88"></script>
+<script src="proto.js?v=100"></script>
+<script src="proto-fusion.js?v=100"></script>
+<script src="proto-seance.js?v=100"></script>
+<script src="proto-simple.js?v=100"></script>
+<script src="proto-tests.js?v=100"></script>
+<script src="proto-annee.js?v=100"></script>
+<script src="proto-horaire.js?v=100"></script>
+<script src="proto-dossiers.js?v=100"></script>
+<script src="proto-pfeq.js?v=100"></script>
+<script src="proto-portrait.js?v=100"></script>
+<script src="proto-g3.js?v=100"></script>
 </body>
 </html>
