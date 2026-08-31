@@ -898,8 +898,140 @@ helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 �
 helpValidation:'冲突验证',helpAutoSave:'自动保存',helpGotIt:'明白了!',
 clickToPlace:'点击安排',needsMore:'需要',selectClassFor:'选择班级',addClassesFirst:'⚠️ 请先添加班级！',needMin:'分钟'}
 };
-function t(k){return I[lang]?.[k]||I.fr[k]||k}
-function applyI18n(){document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;if(I[lang]?.[k])el.innerHTML=I[lang][k]})}
+
+/* =======================================================================
+   LE VOCABULAIRE DE CHAQUE GABARIT
+   -----------------------------------------------------------------------
+   Un service de garde n'a pas de « matieres » et un camp n'a pas de
+   « titulaires ». Plutot que de renommer les champs — ce qui casserait les
+   horaires deja enregistres — on ne change QUE les mots affiches.
+
+   La table n'est PAS une traduction de plus : c'est une COUCHE au-dessus de
+   `I`. Une cle absente ici retombe sur le mot d'ecole, dans la langue
+   courante. C'est ce qui permet de n'ecrire que les mots qui different.
+
+   L'ecole, elle, n'a pas d'entree du tout : ses mots SONT les mots de base.
+   `t()` reprend alors exactement le chemin d'avant — c'est la preuve la plus
+   courte que le mode Ecole est inchange.
+   ======================================================================= */
+const MOTS={
+  sdg:{
+    fr:{appTitle:'GRILLE DU SERVICE DE GARDE',schoolName:'Nom du service',tplFait:'Modèle de départ chargé!',specRoom:'Local',heroEyebrow:'Service de garde · Primaire',
+      heroTitle:'Ton horaire<span>de service de garde!</span>',
+      heroDesc:'Fini le casse-tête des tableaux de service! Configure tes blocs en 30 secondes, clique sur un jour pour placer tes éducateurs et tes groupes. Le % de tâche se calcule en temps réel. Ratios, locaux partagés, surveillances du midi — tout y est. Sauvegarde automatique et impression pour ta direction.',
+      cptCours:'Blocs',coursesPlaced:'blocs placés',autoSuccess:'blocs placés!',
+      btnSpecialistes:'Éducateurs',btnClasses:'Groupes',
+      specSubject:'Service',classTitulaire:'Responsable',subjectsTitle:'Services (min/cycle)',
+      noSpec:'Aucun éducateur',noClass:'Aucun groupe — ajoutez des groupes !',
+      typ_spec:'éducateur',typ_titulaire:'responsable',
+      autoAddFirst:'Ajoutez éducateurs et groupes.',
+      survAide:'Les éducateurs sont déjà là. Ajoute le personnel qui prend des surveillances.',
+      helpTitle:'Comment utiliser<span>la grille du service de garde</span>'},
+    en:{appTitle:'DAYCARE SCHEDULE',schoolName:'Service name',tplFait:'Starter template loaded!',specRoom:'Room',heroEyebrow:'Daycare · Elementary',
+      heroTitle:'Your daycare<span>schedule made easy!</span>',
+      heroDesc:'No more staffing-board headaches! Set your blocks up in 30 seconds, click a day to place your educators and groups. Workload % is computed live. Ratios, shared rooms, midday supervision — it is all here. Auto-save and printing for your principal.',
+      cptCours:'Blocks',coursesPlaced:'blocks placed',autoSuccess:'blocks placed!',
+      btnSpecialistes:'Educators',btnClasses:'Groups',
+      specSubject:'Service',classTitulaire:'Lead',subjectsTitle:'Services (min/cycle)',
+      noSpec:'No educator',noClass:'No group — add groups!',
+      typ_spec:'educator',typ_titulaire:'lead',
+      autoAddFirst:'Add educators and groups.',
+      survAide:'Educators are already listed. Add the staff who take supervision duties.',
+      helpTitle:'How to use<span>the daycare schedule</span>'},
+    es:{appTitle:'HORARIO DEL SERVICIO DE GUARDERÍA',schoolName:'Nombre del servicio',tplFait:'¡Plantilla inicial cargada!',specRoom:'Local',heroEyebrow:'Guardería · Primaria',
+      heroTitle:'¡Tu horario<span>de guardería!</span>',
+      heroDesc:'¡Se acabó el rompecabezas de los turnos! Configura tus bloques en 30 segundos, haz clic en un día para colocar a tus educadores y grupos. El % de tarea se calcula en tiempo real. Ratios, locales compartidos, vigilancias del mediodía — todo está aquí. Guardado automático e impresión para tu dirección.',
+      cptCours:'Bloques',coursesPlaced:'bloques colocados',autoSuccess:'¡bloques colocados!',
+      btnSpecialistes:'Educadores',btnClasses:'Grupos',
+      specSubject:'Servicio',classTitulaire:'Responsable',subjectsTitle:'Servicios (min/ciclo)',
+      noSpec:'Ningún educador',noClass:'Ningún grupo — ¡agregue grupos!',
+      typ_spec:'educador',typ_titulaire:'responsable',
+      autoAddFirst:'Agregue educadores y grupos.',
+      survAide:'Los educadores ya están en la lista. Agregue el personal que hace vigilancias.',
+      helpTitle:'Cómo usar<span>el horario de guardería</span>'},
+    zh:{appTitle:'课后托管时间表',schoolName:'服务名称',tplFait:'已加载起始模板！',specRoom:'场地',heroEyebrow:'课后托管 · 小学',
+      heroTitle:'你的课后托管<span>时间表!</span>',
+      heroDesc:'告别排班烦恼！30秒配置时段，点击日期安排辅导员和班组。工作量百分比实时计算。师生比、共用场地、午间值班——一应俱全。自动保存，可打印交给校长。',
+      cptCours:'时段',coursesPlaced:'时段已安排',autoSuccess:'时段已安排！',
+      btnSpecialistes:'辅导员',btnClasses:'班组',
+      specSubject:'服务',classTitulaire:'负责人',subjectsTitle:'服务(分钟/周期)',
+      noSpec:'没有辅导员',noClass:'没有班组——请先添加！',
+      typ_spec:'辅导员',typ_titulaire:'负责人',
+      autoAddFirst:'请先添加辅导员和班组。',
+      survAide:'辅导员已列入。请添加承担值班的其他人员。',
+      helpTitle:'如何使用<span>课后托管时间表</span>'}
+  },
+  camp:{
+    fr:{appTitle:'GRILLE DU CAMP DE JOUR',schoolName:'Nom du camp',tplFait:'Modèle de départ chargé!',specRoom:'Plateau',heroEyebrow:'Camp de jour · Été',
+      heroTitle:'Ton horaire<span>de camp de jour!</span>',
+      heroDesc:'Fini le casse-tête de la programmation! Configure tes blocs en 30 secondes, clique sur un jour pour placer tes moniteurs et tes groupes d\'âge. Le % de tâche se calcule en temps réel. Plateaux partagés, sorties, surveillances du dîner — tout y est. Sauvegarde automatique et impression pour ta coordination.',
+      cptCours:'Activités',coursesPlaced:'activités placées',autoSuccess:'activités placées!',
+      btnSpecialistes:'Moniteurs',btnClasses:'Groupes',btnLocaux:'Plateaux',
+      specSubject:'Activité',classLevel:'Groupe d\'âge',classTitulaire:'Responsable',
+      subjectsTitle:'Activités (min/cycle)',roomName:'Nom du plateau',
+      noSpec:'Aucun moniteur',noClass:'Aucun groupe — ajoutez des groupes !',noRoom:'Aucun plateau',
+      typ_spec:'moniteur',typ_titulaire:'responsable',
+      autoAddFirst:'Ajoutez moniteurs et groupes.',
+      survAide:'Les moniteurs sont déjà là. Ajoute le personnel qui prend des surveillances.',
+      helpTitle:'Comment utiliser<span>la grille du camp de jour</span>'},
+    en:{appTitle:'DAY CAMP SCHEDULE',schoolName:'Camp name',tplFait:'Starter template loaded!',specRoom:'Area',heroEyebrow:'Day camp · Summer',
+      heroTitle:'Your day camp<span>schedule made easy!</span>',
+      heroDesc:'No more programming headaches! Set your blocks up in 30 seconds, click a day to place your counsellors and age groups. Workload % is computed live. Shared areas, outings, lunch supervision — it is all here. Auto-save and printing for your coordinator.',
+      cptCours:'Activities',coursesPlaced:'activities placed',autoSuccess:'activities placed!',
+      btnSpecialistes:'Counsellors',btnClasses:'Groups',btnLocaux:'Areas',
+      specSubject:'Activity',classLevel:'Age group',classTitulaire:'Lead',
+      subjectsTitle:'Activities (min/cycle)',roomName:'Area name',
+      noSpec:'No counsellor',noClass:'No group — add groups!',noRoom:'No area',
+      typ_spec:'counsellor',typ_titulaire:'lead',
+      autoAddFirst:'Add counsellors and groups.',
+      survAide:'Counsellors are already listed. Add the staff who take supervision duties.',
+      helpTitle:'How to use<span>the day camp schedule</span>'},
+    es:{appTitle:'HORARIO DEL CAMPAMENTO',schoolName:'Nombre del campamento',tplFait:'¡Plantilla inicial cargada!',specRoom:'Espacio',heroEyebrow:'Campamento · Verano',
+      heroTitle:'¡Tu horario<span>de campamento!</span>',
+      heroDesc:'¡Se acabó el rompecabezas de la programación! Configura tus bloques en 30 segundos, haz clic en un día para colocar a tus monitores y grupos de edad. El % de tarea se calcula en tiempo real. Espacios compartidos, salidas, vigilancias del almuerzo — todo está aquí. Guardado automático e impresión para tu coordinación.',
+      cptCours:'Actividades',coursesPlaced:'actividades colocadas',autoSuccess:'¡actividades colocadas!',
+      btnSpecialistes:'Monitores',btnClasses:'Grupos',btnLocaux:'Espacios',
+      specSubject:'Actividad',classLevel:'Grupo de edad',classTitulaire:'Responsable',
+      subjectsTitle:'Actividades (min/ciclo)',roomName:'Nombre del espacio',
+      noSpec:'Ningún monitor',noClass:'Ningún grupo — ¡agregue grupos!',noRoom:'Ningún espacio',
+      typ_spec:'monitor',typ_titulaire:'responsable',
+      autoAddFirst:'Agregue monitores y grupos.',
+      survAide:'Los monitores ya están en la lista. Agregue el personal que hace vigilancias.',
+      helpTitle:'Cómo usar<span>el horario del campamento</span>'},
+    zh:{appTitle:'日间营时间表',schoolName:'营地名称',tplFait:'已加载起始模板！',specRoom:'场地',heroEyebrow:'日间营 · 夏季',
+      heroTitle:'你的日间营<span>时间表!</span>',
+      heroDesc:'告别排程烦恼！30秒配置时段，点击日期安排营辅导员和年龄组。工作量百分比实时计算。共用场地、外出活动、午餐值班——一应俱全。自动保存，可打印交给协调人。',
+      cptCours:'活动',coursesPlaced:'活动已安排',autoSuccess:'活动已安排！',
+      btnSpecialistes:'营辅导员',btnClasses:'班组',btnLocaux:'场地',
+      specSubject:'活动',classLevel:'年龄组',classTitulaire:'负责人',
+      subjectsTitle:'活动(分钟/周期)',roomName:'场地名称',
+      noSpec:'没有营辅导员',noClass:'没有班组——请先添加！',noRoom:'没有场地',
+      typ_spec:'营辅导员',typ_titulaire:'负责人',
+      autoAddFirst:'请先添加营辅导员和班组。',
+      survAide:'营辅导员已列入。请添加承担值班的其他人员。',
+      helpTitle:'如何使用<span>日间营时间表</span>'}
+  }
+};
+/* Le vocabulaire du gabarit ACTIF, ou null. Le `try` n'est pas de la
+   prudence decorative : `S` et `GABARITS` sont declares plus bas dans le
+   meme script, et une lecture avant leur ligne leverait une ReferenceError.
+   Aucun appel ne se produit avant le chargement — mais si un jour il s'en
+   glisse un, il doit rendre le mot d'ecole, pas casser la page. */
+function motsGabarit(){
+  try{const g=GABARITS[S.metier];return (g&&g.mots)||null}catch(e){return null}
+}
+/* Chaine de repli, du plus precis au plus general :
+   mot du gabarit dans la langue -> mot du gabarit en francais
+   -> mot de base dans la langue -> mot de base en francais -> la cle.
+   Le gabarit Ecole n'ayant pas de table, il saute les deux premiers crans. */
+function t(k){
+  const M=motsGabarit();
+  if(M){
+    const v=(M[lang]&&M[lang][k]!==undefined)?M[lang][k]:(M.fr?M.fr[k]:undefined);
+    if(v!==undefined&&v!==null)return v;
+  }
+  return I[lang]?.[k]||I.fr[k]||k}
+function applyI18n(){document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;const v=t(k);if(v!==k)el.innerHTML=v})}
 
 // STATE
 const DEF_PER=[{type:'period',num:1,start:'08:20',end:'09:10'},{type:'period',num:2,start:'09:15',end:'10:05'},{type:'recess',label:'Récré',start:'10:05',end:'10:20'},{type:'period',num:3,start:'10:20',end:'11:10'},{type:'lunch',label:'Dîner',start:'11:10',end:'12:40'},{type:'period',num:4,start:'12:40',end:'13:30'},{type:'period',num:5,start:'13:35',end:'14:25'}];
@@ -942,8 +1074,31 @@ const GABARITS={
   ep:{
     id:'ep',
     perso:'perso-ep',
+    // L'ecole n'a pas de table de mots : les siens SONT les mots de base.
+    mots: null,
     // Les accesseurs pointent les champs EXISTANTS. Pas une copie, pas un
     // renommage : la meme donnee, lue par un autre chemin.
+    ressources: E=>E.specialists,
+    demandeurs: E=>E.classes,
+    lieux:      E=>E.rooms
+  },
+  /* Etape 2 : les deux autres metiers EXISTENT — ils ont leur personnage et
+     leurs mots — mais ils lisent encore les memes champs que l'ecole. C'est
+     voulu : le moteur ne bouge pas d'une ligne a cette etape. Leurs regles
+     propres (ratio, capacite, contrainte dure) arrivent aux etapes 3 et 4,
+     par les deux points d'extension, pas par une refonte. */
+  sdg:{
+    id:'sdg',
+    perso:'perso-sdg',
+    mots: MOTS.sdg,
+    ressources: E=>E.specialists,
+    demandeurs: E=>E.classes,
+    lieux:      E=>E.rooms
+  },
+  camp:{
+    id:'camp',
+    perso:'perso-camp',
+    mots: MOTS.camp,
     ressources: E=>E.specialists,
     demandeurs: E=>E.classes,
     lieux:      E=>E.rooms
