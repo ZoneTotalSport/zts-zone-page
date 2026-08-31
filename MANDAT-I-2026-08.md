@@ -173,9 +173,12 @@ l'améliorer. Toute régression sur une de ces lignes = bloquant.**
 
 1. **On ne touche à rien** (voir §1). Habillage et fonctions additifs ; rollback
    d'une fonction = retirer une ligne.
-2. **Enfant de 10 ans.** Chaque nouvelle fonction = un gros bouton (picto + un
+2. ⚠ **ABROGÉE LE 31 AOÛT — voir §10.1 pour le texte qui fait foi.**
+   ~~**Enfant de 10 ans.** Chaque nouvelle fonction = un gros bouton (picto + un
    mot) dans un écran existant, ou une entrée sous PLUS. **Aucun nouvel onglet
-   aux 3 de G2. Maximum 3 nouvelles entrées sous PLUS.**
+   aux 3 de G2. Maximum 3 nouvelles entrées sous PLUS.**~~
+   Le principe « enfant de 10 ans » reste entier ; seule la limite d'onglets et
+   d'entrées PLUS tombe.
 3. **L'IA est UN bouton « ✨ ».** Dans le tiroir JEUX (sur une fiche), dans MA
    SEMAINE (case vide ou séance) et sur la tuile PLAN B. **Jamais d'écran « IA »,
    jamais de champ de prompt libre visible par défaut.**
@@ -603,12 +606,13 @@ de CE document, pas du §1.4.**
 🏅 MON PARASCOLAIRE · 🔗 MES AUTRES APPS (menu déroulant) · ⋯ PLUS · ⚙️ (roue, à
 l'extrême droite). 📤 Partager est dans l'en-tête.
 
-⚠ **La règle « aucun nouvel onglet aux 3 de G2 » (§2.2) ne correspond plus à la
-réalité** : il n'y a plus 3 onglets mais 9 portes, à la demande explicite de Joey.
-**À faire trancher par Joey avant le prescan.**
+✅ **TRANCHÉ le 31 août (§10.1)** : la barre existante fait foi, le Mandat I
+n'ajoute AUCUNE porte (seule exception : le bouton 🛡️ SIGNALER du lot C sur
+MA JOURNÉE). Le nombre de portes est un chantier UX reporté APRÈS le Mandat I.
 
 ⚠ **MON PARASCOLAIRE EXISTE DÉJÀ** comme porte de la barre (l'ancien « Mon temps
-travaillé » renommé, contenu intact). Le lot D s'y greffe.
+travaillé » renommé, contenu intact). Le lot D s'y greffe — **D1 est déjà fait et
+D6 est l'écran actuel tel quel** (§10.3).
 
 ## ⚠ Le modèle a changé : l'horaire est le PATRON (commit `ff16ee0a`)
 C'est le changement le plus important. Une séance n'existait que si on avait
@@ -687,11 +691,41 @@ Entrée `zts-proto` dans `~/.claude/launch.json`. ⚠ Le serveur meurt avec la
 session — le relancer, ce n'est pas une panne.
 
 ## ⚠ Ce qui attend Joey (avant le prescan)
-1. **Valider visuellement le proto** dans son état actuel.
-2. **Trancher la contradiction du §2.2** : « aucun nouvel onglet aux 3 de G2 »
-   contre les 9 portes qu'il a lui-même demandées.
-3. **Pousser ou non les 14 commits** de `proto/g2` (`origin` est resté à
-   `627f7242`).
+1. **Valider visuellement le proto** dans son état actuel — bloqué tant que le
+   **bug P0 d'affichage au scroll** n'est pas réglé (G3-STABILISATION, §10.5).
+2. ~~Trancher la contradiction du §2.2~~ — **TRANCHÉ le 31 août, voir §10.1.**
+3. ~~Pousser ou non les 14 commits~~ — **POUSSÉ le 31 août**, `origin/proto/g2`
+   est à jour ; règle permanente au §10.4.
 4. Les points en attente d'avant : **E3** (durées des 61 camps, 9ᵉ rappel), les
    **3 métiers** (doivent-ils vraiment différer ?), le **buzzer jamais ENTENDU**
    (vu jouer, `play()` appelé — le son reste à confirmer).
+
+---
+
+## 10. AMENDEMENTS — 31 août 2026 (tranchés par Joey, font foi sur le texte ci-dessus)
+
+### 10.1 §2.2 REMPLACÉ (contradiction réglée)
+L'ancienne règle « aucun nouvel onglet aux 3 de G2, maximum 3 entrées sous PLUS » est abrogée. Nouvelle règle 2 :
+« La barre de navigation existante du proto fait foi. Le Mandat I n'ajoute AUCUNE porte à la barre. Tout ce que le mandat crée (lots A, B, C, D) se range sous PLUS ou s'intègre à une porte existante — seule exception : le bouton rapide 🛡️ SIGNALER sur MA JOURNÉE, prévu au lot C. Le nombre de portes lui-même est un chantier UX distinct, reporté APRÈS la livraison du Mandat I : aucune session ne le rouvre pendant. »
+
+### 10.2 §1.4 PÉRIMÉ — l'« ÉTAT RÉEL DU PROTO AU 31 AOÛT » fait foi
+Le §1.4 décrit le proto d'avant les trois jours de chantier G3. En cas de conflit entre le §1.4 et la section « ÉTAT RÉEL DU PROTO AU 31 AOÛT » de ce fichier, l'état réel gagne, toujours. Table de correspondance minimale :
+- « AUJOURD'HUI » dans ce mandat = la porte 📋 MA JOURNÉE actuelle.
+- « les 3 onglets de G2 », « l'écran 6 tuiles », « la tuile PLAN B » = leurs équivalents actuels (PLAN B vit dans le tiroir JEUX).
+- Le prescan §3.7 (plan de placement UX) livre la table de correspondance COMPLÈTE vocabulaire-du-mandat → portes-réelles avant tout code; toute ambiguïté de placement se règle là, pas en improvisant.
+
+### 10.3 Lot D — greffé, pas créé
+MON PARASCOLAIRE existe déjà comme porte de la barre (l'ancien « Mon temps travaillé » renommé, contenu intact). Conséquences :
+- D1 « remplace l'entrée MON TEMPS » : DÉJÀ FAIT, ne pas refaire.
+- D6 « Mes heures » = l'écran actuel (tableau Date/Activité/Temps, calcul total − reconnu, signatures, envoi courriel/copie/CSV), exactement tel quel; les ajouts D6 se construisent autour.
+- Les sous-lots D2 à D5 et D7-D8 s'ajoutent DANS cette porte existante.
+
+### 10.4 Git — obligatoire avant la Phase 0
+- Pousser immédiatement les 14 commits locaux de proto/g2 (origin est resté à 627f7242). GitHub identique au local avant toute Phase 0.
+- Règle permanente pour ce mandat : pousser après chaque lot fusionné; jamais plus de 3 commits d'avance sur origin.
+
+### 10.5 Coordination inter-sessions
+- La Phase 0 (lecture seule) peut démarrer dès que les 14 commits sont poussés.
+- AUCUN code des lots avant que les mandats G3-STABILISATION (bug P0 d'affichage au scroll + build G3 réellement servi sur localhost) et G3-FICHE (fiche de cours en 2 modes) soient CLOS : le P0 rend toute validation visuelle de Joey impossible, et la fiche de cours est un point d'ancrage des lots A et B.
+- Une seule session code à la fois sur proto/g2. Au départ de toute session : git status; s'il y a des fichiers modifiés qu'elle n'a pas écrits elle-même → STOP et rapport à Joey.
+- Les « pièges » se réfèrent par TITRE, jamais par numéro (les numérotations divergent entre sessions).
