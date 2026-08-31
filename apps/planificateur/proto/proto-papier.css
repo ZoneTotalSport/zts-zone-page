@@ -593,13 +593,21 @@ html[data-zoom="300"]{zoom:3}
 .nav-fin{
   display:flex;gap:6px;align-items:stretch;margin-left:auto;flex:0 0 auto;
 }
-.nav-tbtn{
-  cursor:pointer;width:48px;
-  font-family:var(--f-titre);font-size:28px;line-height:1;
+/* ═════ LE − / + SOUS LA DATE ═════
+   ⚠ Il était dans le coin droit de la barre ; Joey l'a voulu sous la date.
+   Il vit donc dans la ligne qui suit le titre, avec le « ↩ REVENIR À… ».
+   Deux exemplaires — un par écran daté — tenus par CLASSE, jamais par `id`. */
+.taille-crans{display:inline-flex;gap:6px}
+.taille-crans button{
+  cursor:pointer;width:44px;height:38px;
+  font-family:var(--f-titre);font-size:24px;line-height:1;
   display:flex;align-items:center;justify-content:center;
-  border-radius:16px;
+  background:#fff;color:var(--ink);
+  border:3px solid var(--noir);border-radius:12px;box-shadow:3px 3px 0 var(--noir);
 }
-.nav-tbtn:disabled{opacity:.35;cursor:default}
+.taille-crans button:hover:not(:disabled){background:var(--cyan-vif)}
+.taille-crans button:active:not(:disabled){transform:translate(2px,2px);box-shadow:1px 1px 0 var(--noir)}
+.taille-crans button:disabled{opacity:.35;cursor:default}
 /* la roue ferme la marche du bloc de droite */
 .nav-fin .nav-roue{
   cursor:pointer;min-width:0;padding:9px 17px;border-radius:16px;
@@ -920,7 +928,7 @@ html[data-etroit="1"] .ecrans-nav{grid-template-columns:repeat(5,1fr);gap:4px}
 }
 .tn-fleche:hover{background:var(--cyan-vif)}
 .tn-fleche:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--noir)}
-.tn-retour{display:flex;justify-content:center;margin:0 0 4px;min-height:0}
+.tn-retour{display:flex;justify-content:center;align-items:center;gap:10px;margin:0 0 6px;min-height:0}
 .tn-retour button[hidden]{display:none}
 
 
@@ -951,6 +959,6 @@ html[data-etroit="1"] #nav .menu--apps>button .ico{font-size:24px}
    propre rangée ; puis, une fois `auto` retiré, ses voisines en `flex:1 1 86px`
    s'étiraient pour remplir la rangée et ne lui laissaient plus la place. Elle
    partage donc la même souplesse qu'elles et se range au bout de la rangée. */
-html[data-etroit="1"] .nav-fin{margin-left:0;flex:1 1 100%;justify-content:flex-end}
-html[data-etroit="1"] .nav-tbtn{width:64px;font-size:21px}
-html[data-etroit="1"] .nav-fin .nav-roue{padding:7px 18px}
+html[data-etroit="1"] .nav-fin{margin-left:auto;flex:0 0 auto}
+html[data-etroit="1"] .nav-fin .nav-roue{padding:7px 14px}
+html[data-etroit="1"] .taille-crans button{width:40px;height:36px;font-size:21px}

@@ -674,14 +674,24 @@ function zoomerTaille(sens){
   const i=Math.max(0, Math.min(ZOOMS.length-1, crantTaille()+sens));
   poserTaille(ZOOMS[i]);
 }
+/* ⚠ IL Y EN A DEUX — un sous la date de MA JOURNÉE, un sous celle de MA
+   SEMAINE. On les désigne donc par CLASSE, jamais par identifiant : un `id`
+   en double ne renvoie que le premier, et le second serait resté figé. */
 function majBoutonsTaille(){
   const i=crantTaille(), v=ZOOMS[i];
-  const m=$('#tailleMoins'), p=$('#taillePlus');
-  if (m){ m.disabled = i===0;
-          m.title='Plus petit — actuellement '+v+' %, lisible '+DISTANCES[v]; }
-  if (p){ p.disabled = i===ZOOMS.length-1;
-          p.title='Plus gros — actuellement '+v+' %, lisible '+DISTANCES[v]; }
+  $$('.taille-moins').forEach(m=>{ m.disabled = i===0;
+    m.title='Plus petit — actuellement '+v+' %, lisible '+DISTANCES[v]; });
+  $$('.taille-plus').forEach(p=>{ p.disabled = i===ZOOMS.length-1;
+    p.title='Plus gros — actuellement '+v+' %, lisible '+DISTANCES[v]; });
 }
+(function cransSousLaDate(){
+  /* un seul écouteur délégué : les deux exemplaires sont dans la page dès le
+     départ, mais un troisième pourrait naître un jour. */
+  document.addEventListener('click', e=>{
+    if (e.target.closest('.taille-moins')) zoomerTaille(-1);
+    else if (e.target.closest('.taille-plus')) zoomerTaille(+1);
+  });
+})();
 function appliquerZoom(){
   const z = lire('zoom','200');
   /* ⚠ LE ZOOM SE POSE SUR <html>, PAS SUR <body> : une mise à l'échelle du
@@ -1108,21 +1118,16 @@ function partDeBarre(lab){ return Math.max(1, (String(lab||'').length)/8); }
 
   MENUS.forEach(m=>{
     if (m.fin){
+      /* ⚠ LE − / + A QUITTÉ LA BARRE POUR SE POSER SOUS LA DATE. Joey : « le
+         petit + −, mets-le en dessous de la date. » Il ne reste ici que la
+         roue dentelée, « complètement à droite de l'écran » comme demandé. */
       const z=el('div','nav-fin');
-      const moins=el('button','nav-tbtn','−'); moins.type='button';
-      moins.id='tailleMoins'; moins.setAttribute('aria-label','Écriture plus petite');
-      const plus=el('button','nav-tbtn','+'); plus.type='button';
-      plus.id='taillePlus'; plus.setAttribute('aria-label','Écriture plus grosse');
-      moins.addEventListener('click',()=> zoomerTaille(-1));
-      plus.addEventListener('click',()=> zoomerTaille(+1));
-      /* « La petite roue dentelée réglage dans une petite case complètement à
-         droite de l'écran. » Elle ferme la marche. */
       const roue=el('button','nav-roue'); roue.type='button';
       roue.dataset.va='e-reglages'; roue.title='Réglages';
       roue.setAttribute('aria-label','Réglages');
       roue.appendChild(el('span','ico','⚙️'));
       roue.addEventListener('click',()=>{ fermerTous(); allerA('e-reglages'); });
-      z.appendChild(moins); z.appendChild(plus); z.appendChild(roue);
+      z.appendChild(roue);
       n.appendChild(z); return;
     }
     if (m.apps){
