@@ -405,26 +405,62 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
      revenir à la casse naturelle. Les majuscules accentuées sont couvertes
      (FÉVRIER, AOÛT, DÉCEMBRE : vérifié sur les 145 glyphes). */
   text-transform:uppercase;
-  padding:10px 4px 8px;background:var(--noir);color:var(--jaune);text-align:center;
+  padding:12px 4px 12px;color:var(--jaune);text-align:center;
+  /* ⚠ LE FOND PASSE DU NOIR AU MARINE, ET C'EST NÉCESSAIRE, pas décoratif :
+     le contour demandé est NOIR (charte : titre jaune, trait noir). Sur un
+     bandeau noir, un trait noir et une ombre noire sont invisibles — on aurait
+     écrit trois règles pour aucun effet. Le marine est la couleur de fond de
+     la charte, le contraste jaune/marine reste franc. */
+  background:var(--marine);
+  /* le trait : `paint-order` met le contour DERRIÈRE le remplissage, sinon il
+     mange l'intérieur des lettres et la police de marque devient illisible */
+  -webkit-text-stroke:4px var(--noir);
+  paint-order:stroke fill;
+  /* l'ombrage : une ombre nette décalée, comme les titres du proto
+     (h1.titre, proto.css) — plus une ombre douce pour décoller du fond */
+  text-shadow:4px 5px 0 var(--noir), 0 2px 10px rgba(0,0,0,.45);
 }
-.annee-cal table{table-layout:fixed}
+.annee-cal table{table-layout:fixed;font-size:19px}
+/* ⚠ TOUTES CES TAILLES SONT PROPRES À `.annee-cal` — MON MOIS garde les
+   siennes. Joey : « c'est en pattes de mouche ». Le mini-calendrier de l'année
+   héritait des 12px et des cases de 26px du petit calendrier de MON MOIS, où
+   il n'y a qu'un mois à l'écran ; ici on lit une année entière. */
+/* ⚠ TOUT EN POURCENTAGES, ET LA SOMME FAIT 100. Premier essai : 74px par jour
+   PLUS 26/31/38% pour les champs — le total dépassait la largeur, le navigateur
+   redistribuait à sa façon, les jours doublaient et « Moyen d'action » se
+   repliait sur deux lignes. Avec `table-layout:fixed`, les largeurs sont un
+   partage : 5 jours × 6.6 + 2 (flèche) + 15.5 + 21.7 + 27.8 = 100. */
 .annee-cal td:nth-child(-n+5),
-.annee-cal th:nth-child(-n+5){width:46px}
-.annee-cal .an-fl{width:26px;text-align:center;font-size:17px;
+.annee-cal th:nth-child(-n+5){width:6.6%}
+.annee-cal tbody td{height:54px;font-size:19px}
+.annee-cal thead th{font-size:14px;padding:6px 2px;letter-spacing:.5px}
+/* le chiffre romain du jour-cycle : lisible, mais toujours en retrait */
+.annee-cal td .r{font-size:12px;top:2px;right:4px}
+.annee-cal .an-fl{width:2%;text-align:center;font-size:22px;
   color:var(--ink-soft);border:none;background:transparent}
-.annee-cal .an-th{background:#fff;border:none;font-size:12px;
+.annee-cal .an-th{background:#fff;border:none;font-size:16px;
   font-family:var(--f-corps);text-align:left;padding:4px 6px 2px}
 .annee-cal .an-th--c{color:#3E9B00}
 .annee-cal .an-th--m{color:#B36A00}
 .annee-cal .an-th--a{color:#008C7A}
-.annee-cal .an-th--fl{width:26px}
-.annee-cal .an-ch{border:none;padding:3px 4px;vertical-align:middle}
-.annee-cal .an-ch .ch{min-height:26px}
-/* les trois colonnes de saisie se partagent ce qui reste, dans les mêmes
+.annee-cal .an-th--fl{width:2%}
+.annee-cal .an-ch{border:none;padding:6px 6px;vertical-align:middle}
+/* de la place pour écrire ET pour relire : une ligne confortable, pas un filet */
+.annee-cal .an-ch .ch{min-height:42px;font-size:17px;line-height:1.35;padding:7px 10px}
+/* les trois colonnes de saisie se partagent les 65 % restants, dans les mêmes
    proportions qu'avant (1 / 1.4 / 1.8) */
-.annee-cal .an-ch:nth-child(7){width:26%}
-.annee-cal .an-ch:nth-child(8){width:31%}
-.annee-cal .an-ch:nth-child(9){width:38%}
+.annee-cal .an-ch:nth-child(7),.annee-cal .an-th--c{width:15.5%}
+.annee-cal .an-ch:nth-child(8),.annee-cal .an-th--m{width:21.7%}
+.annee-cal .an-ch:nth-child(9),.annee-cal .an-th--a{width:27.8%}
+/* un titre de colonne ne se coupe pas en deux : « Moyen d'action » tient sur
+   une ligne, quitte à réduire un peu la police sur les écrans serrés */
+.annee-cal .an-th{white-space:nowrap}
+/* ⚠ PAS DE `min-width` SUR CETTE TABLE. Posé pour forcer le défilement en
+   écran étroit, il entrait en conflit avec le `width:100%` de `.mini-cal
+   table` : la largeur calculée retombait à 960px, les colonnes en pourcentage
+   se résolvaient dessus, et tout sortait rendu au double — 1920px de table
+   dans un panneau de 1474, « Activité » coupée à droite.
+   Le défilement est déjà assuré par `overflow-x:auto` sur `.annee-cal`. */
 /* les lignes du calendrier reçoivent leur hauteur du JS (alignerAnnee) ;
    26 px n'est plus qu'un plancher pour les mois sans séance */
 .mini-cal td{vertical-align:middle}
