@@ -201,6 +201,25 @@ les groupes apparaissent aussi dans MON MOIS et MON ANNÉE.
 | 📅 MON MOIS | **Une pastille par cours, dans la case du jour.** Un clic ouvre la même fenêtre. |
 | 📚 MON ANNÉE | Les groupes de la semaine, en tête de sa rangée (`101 ×4`), pour compter. |
 
+### Toucher un ONGLET de groupe
+
+⚠ **« Quand je pèse un groupe il n'y a rien qui se passe. »** Il se passait
+quelque chose — le groupe devenait courant et se retrouvait « en main » — mais
+l'indice disait *« touche une case pour y poser 202 »*, et **il n'y a de cases
+que sur MA SEMAINE**. Sur MA JOURNÉE, MON MOIS et MON ANNÉE, le geste armait un
+dépôt impossible : un liseré, une phrase, et un cul-de-sac.
+
+Le même geste fait maintenant la seule chose utile là où l'on est :
+
+| Où | Ce que fait le clic sur un onglet |
+|---|---|
+| 🗓️ **MA SEMAINE** | On prend le groupe **en main** pour le poser dans une case — le geste tactile, sans souris, qu'il faut garder. |
+| **Partout ailleurs** | On **ouvre le groupe** : son cours du jour affiché s'il en a un (bouton ✅ OUVRIR LE COURS — PÉRIODE n, qui mène aux présences), ses élèves en pastilles (un visage → son année), et ✎ PERSONNALISER · 👥 MES GROUPES. |
+
+⚠ C'est l'écouteur en **capture sur le conteneur** qui rend ça possible : il
+voit le clic avant l'onglet, et peut donc l'**empêcher** d'arriver au
+gestionnaire « prendre en main » hors de MA SEMAINE.
+
 ⚠ **MON MOIS ET MON ANNÉE NE CONNAISSAIENT PAS LES GROUPES DU TOUT.** Ils ne
 lisaient que le calendrier scolaire — jours-cycle, congés, pédagogiques, la note
 du jour — et ignoraient les séances, c'est-à-dire l'essentiel de ce que le prof

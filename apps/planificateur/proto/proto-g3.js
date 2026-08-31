@@ -637,6 +637,99 @@ const OUTILS = [
    « 101 » en main et « 202 » dans le menu, sans qu'un pixel le dise.
    Le menu est retiré. Toucher un jeton fait les deux : il prend le groupe en
    main POUR le poser, et il devient le groupe courant. */
+/* ═════════ TOUCHER UN GROUPE ═════════
+   ⚠ « QUAND JE PÈSE UN GROUPE IL N'Y A RIEN QUI SE PASSE. » Il se passait
+   quelque chose — le groupe devenait courant et se retrouvait « en main » —
+   mais l'indice disait « touche une case pour y poser 202 », et **il n'y a de
+   cases que sur MA SEMAINE**. Sur MA JOURNÉE, MON MOIS, MON ANNÉE, le geste
+   armait un dépôt impossible : un liseré, une phrase, et un cul-de-sac.
+
+   Le même geste fait donc la seule chose utile là où l'on est :
+   · sur 🗓️ MA SEMAINE → on prend le groupe EN MAIN pour le poser dans une
+     case (c'est le geste tactile, sans souris, qu'il faut garder) ;
+   · PARTOUT AILLEURS → on OUVRE le groupe : ses élèves, et son cours du jour
+     s'il en a un. C'est ce que Joey a décrit — « les groupes servent à
+     afficher les élèves, prendre les présences, évaluer, prendre des notes ». */
+function ouvrirGroupe(id){
+  const g=grpDe(id); if(!g) return;
+  mgGroupe=id; ecrire('mgGroupe', id);      /* le dossier d'élève lit cette clé */
+
+  const corps=ouvrirModale('Groupe '+g.nom);
+  corps.innerHTML='<div class="se-tete" id="grTete"></div>'
+    +'<div id="grCours"></div>'
+    +'<div class="pres-grille" id="grEleves"></div>'
+    +'<div class="m-pied" id="grPied"></div>';
+
+  const tete=$('#grTete');
+  tete.style.background=g.coul; tete.style.color=encreSur(g.coul);
+  const ph=el('div','se-photo');
+  if (g.img){ const im=document.createElement('img'); im.src=g.img; im.alt=''; ph.appendChild(im); }
+  else ph.appendChild(el('span','emo', g.emo));
+  tete.appendChild(ph);
+  const qui=el('div','se-qui');
+  qui.appendChild(el('h3',null,'Groupe '+g.nom));
+  qui.appendChild(el('div','quand',(g.eleves||[]).length+' élève'
+    +((g.eleves||[]).length>1?'s':'')+' · '+jourLisible(ctxDate)));
+  tete.appendChild(qui);
+
+  /* ── son cours du jour affiché, s'il y en a un ── */
+  const hc=$('#grCours');
+  const duJour=seancesDuJour(ctxDate).filter(x=> x.s && x.s.gr===id);
+  if (duJour.length){
+    const aide=el('div','aide-un-mot');
+    aide.innerHTML='<span class="emo">✅</span>Ce groupe a '
+      +(duJour.length>1 ? duJour.length+' cours' : 'un cours')+' ce jour-là. '
+      +'Ouvre-le pour les présences, l’évaluation et les notes.';
+    hc.appendChild(aide);
+    const z=el('div','gr-cours-liste');
+    duJour.forEach(({per})=>{
+      const b=el('button','m-valider','✅ OUVRIR LE COURS — PÉRIODE '+per); b.type='button';
+      b.addEventListener('click',()=>{ fermerModale();
+        ecrire('seVolet','presences'); ouvrirSeance(ctxDate, per); });
+      z.appendChild(b);
+    });
+    hc.appendChild(z);
+  } else {
+    const v=el('div','aide-un-mot');
+    v.innerHTML='<span class="emo">📅</span>Aucun cours de ce groupe le '
+      +jourLisible(ctxDate)+'. Ses élèves sont quand même là — touche un visage '
+      +'pour voir son année.';
+    hc.appendChild(v);
+  }
+
+  /* ── ses élèves, comme dans MES GROUPES ── */
+  const he=$('#grEleves');
+  if (!(g.eleves||[]).length){
+    he.appendChild(el('div','aide-un-mot',
+      '👆 Ce groupe n’a pas encore d’élèves. Le ✎ de son onglet permet d’en ajouter.'));
+  }
+  (g.eleves||[]).forEach(i=>{
+    const d=(typeof dossierEleve==='function') ? dossierEleve(i) : {absences:[],oublis:[],notes:[]};
+    const b=el('button','pres-el'); b.type='button';
+    const im=document.createElement('img'); im.src=visageDe(i); im.alt=''; b.appendChild(im);
+    b.appendChild(el('div','nom', ELEVES[i]));
+    const e=el('div','etat');
+    const bouts=[];
+    if (d.absences.length) bouts.push('✗'+d.absences.length);
+    if (d.oublis.length)   bouts.push('🚫'+d.oublis.length);
+    if (d.notes.length)    bouts.push('📝'+d.notes.length);
+    e.textContent = bouts.length ? bouts.join(' ') : '— rien à signaler';
+    b.appendChild(e);
+    b.title=ELEVES[i]+' — '+d.absences.length+' absence(s), '+d.oublis.length+' oubli(s) de linge';
+    b.addEventListener('click',()=> ouvrirDossier(i));
+    he.appendChild(b);
+  });
+
+  const pied=$('#grPied');
+  const mod=el('button','mini','✎ PERSONNALISER LE GROUPE'); mod.type='button';
+  mod.addEventListener('click',()=>{ fermerModale(); modifierGroupe(id); });
+  const tout=el('button','mini','👥 MES GROUPES'); tout.type='button';
+  tout.addEventListener('click',()=>{ fermerModale(); allerA('e-groupes'); });
+  const fermer=el('button','mini mini--rose','FERMER'); fermer.type='button';
+  fermer.addEventListener('click', fermerModale);
+  pied.appendChild(mod); pied.appendChild(tout); pied.appendChild(fermer);
+}
+
 (function jetonsPosentLeContexte(){
   const base = peindrePalette;
   window.peindrePalette = peindrePalette = function(){
@@ -648,17 +741,25 @@ const OUTILS = [
     });
     /* ⚠ EN PHASE DE CAPTURE, ET SUR LE CONTENEUR. Le jeton porte déjà un
        écouteur (proto-seance.js) qui, lui, REPEINT toute la palette : posé sur
-       le jeton, notre écouteur s'exécuterait après, sur un noeud déjà détaché,
-       et la marque « groupe courant » resterait un tour en retard. Le
-       conteneur en capture voit le clic AVANT le jeton. */
+       le jeton, notre écouteur s'exécuterait après, sur un noeud déjà détaché.
+       Le conteneur en capture voit le clic AVANT le jeton — et peut donc aussi
+       l'EMPÊCHER d'arriver, ce dont on a besoin hors de MA SEMAINE. */
     if (h.dataset.g3) return; h.dataset.g3='1';
     h.addEventListener('click', e=>{
       const b=e.target.closest('.pastille-gr'); if(!b) return;
       if (e.target.closest('.modif')) return;      /* le ✎ ouvre la fiche, pas le contexte */
       const i=GRP().findIndex(g=>g.id===b.dataset.gr);
-      if (i<0 || i===ctxGroupe) return;
-      ctxGroupe=i; ecrire('ctxGroupe', i);
-      if (typeof peindreCarnet==='function') peindreCarnet();
+      if (i<0) return;
+      if (i!==ctxGroupe){
+        ctxGroupe=i; ecrire('ctxGroupe', i);
+        if (typeof peindreCarnet==='function') peindreCarnet();
+      }
+      if (lire('ecran','e-aujourdhui')==='e-accueil') return;   /* MA SEMAINE : on le prend en main */
+      /* ailleurs, « prendre en main » n'a aucune case où aboutir */
+      e.stopPropagation(); e.preventDefault();
+      grpEnMain=null;
+      peindrePalette();
+      ouvrirGroupe(b.dataset.gr);
     }, true);
   };
 })();
