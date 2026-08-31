@@ -232,6 +232,17 @@
        HERO — le langage de l'accueil : eyebrow jaune, titre Luckiest Guy a
        contour noir, personnage EPS. Se replie des qu'une ecole existe.
        ====================================================================== */
+    /* Le choix du metier, en petit, dans les Reglages : trois pastilles. */
+    .zgm-mini{display:flex; gap:6px; flex-wrap:wrap}
+    .zgm-mini button{
+      font-family:var(--f-titre); font-size:13px; letter-spacing:.4px;
+      padding:8px 12px; min-height:40px; cursor:pointer;
+      border:2.5px solid var(--encre); border-radius:var(--r-btn);
+      background:var(--card); color:var(--text); box-shadow:var(--ombre-petite);
+    }
+    .zgm-mini button[aria-pressed="true"]{background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00}
+    .zgm-mini button:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
+
     .hero{display:flex; justify-content:center; padding:10px 16px 4px}
     .hero.hidden{display:none}
     .hero-box{
@@ -751,7 +762,7 @@
 <section class="hero" id="heroSection">
   <div class="hero-box">
     <div class="hb-left">
-      <picture>
+      <picture data-perso>
         <source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp">
         <img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="eager" decoding="async">
       </picture>
@@ -1475,10 +1486,70 @@ function showWelcome(){
   if(h&&(demandeurs().length||ressources().length))h.classList.add('hidden');
 }
 
+/* =======================================================================
+   LE CHOIX DU METIER
+   -----------------------------------------------------------------------
+   Trois cartes, trois personnages, un seul effet : `S.metier`. Tout le reste
+   — les mots, le personnage du hero, l'attribut lu par les feuilles
+   partagees — en decoule. Aucune donnee n'est convertie : changer de metier
+   change ce qu'on LIT de l'horaire, jamais ce qu'il contient.
+   ======================================================================= */
+
+/* L'attribut que les feuilles partagees lisent pour teinter un accent.
+   Valeurs : 'ep' / 'sdg' / 'camp'. JAMAIS 'eps' — le bug connu de
+   studio-jeu, ou un 's' de trop eteint toutes les regles d'accent. */
+function appliquerMetier(){
+  const g=gabarit();
+  if(document.body)document.body.setAttribute('data-metier',g.id);
+  majPerso();
+  document.querySelectorAll('.zgm-carte,.zgm-mini button').forEach(b=>{
+    b.setAttribute('aria-pressed', b.dataset.m===g.id ? 'true' : 'false')});
+}
+/* Une seule source pour le personnage : `gabarit().perso`. Les cartes du
+   choix, elles, gardent chacune le leur — c'est leur raison d'etre. */
+function majPerso(){
+  const g=gabarit();
+  document.querySelectorAll('picture[data-perso]').forEach(pic=>{
+    const so=pic.querySelector('source'),im=pic.querySelector('img');
+    if(so)so.srcset='../../shared/img/perso/'+g.perso+'-264.webp';
+    if(im)im.src='../../shared/img/perso/'+g.perso+'-264.png';
+  });
+}
+/* Le nom affichable d'un metier — 'ep' -> la cle 'metierEp'. */
+function nomMetier(id){return t('metier'+id.charAt(0).toUpperCase()+id.slice(1))}
+
+function choisirMetier(id){
+  if(!GABARITS[id])return;
+  S.metier=id;
+  // La reponse est donnee : l'ecran ne se reposera plus la question.
+  S.metierChoisi=true;
+  save();
+  const ec=document.getElementById('metierChoix');if(ec)ec.hidden=true;
+  appliquerMetier();applyI18n();renderAll();
+  toast('✅ '+t('metierOk')+' — '+nomMetier(id));
+}
+/* Depuis les Reglages : meme effet, mais la modale doit se redessiner pour
+   afficher les mots du nouveau metier. */
+function changerMetierReglages(id){
+  if(!GABARITS[id]||id===S.metier)return;
+  S.metier=id;S.metierChoisi=true;save();
+  appliquerMetier();applyI18n();renderAll();
+  closeModals();openSetupModal();
+  toast('✅ '+t('metierOk')+' — '+nomMetier(id));
+}
+/* L'ecran ne s'ouvre qu'a un VRAI premier passage : rien de configure, et
+   aucune reponse deja donnee. Une ecole qui rouvre son horaire ne doit pas
+   retomber sur une question a laquelle elle a repondu en aout. */
+function montrerChoixMetier(){
+  const ec=document.getElementById('metierChoix');if(!ec)return;
+  const vide=!ressources().length&&!demandeurs().length;
+  ec.hidden=!(vide&&!S.metierChoisi);
+}
+
 function showHelp(){
   closeModals();const ov=document.createElement('div');ov.className='modal';ov.id='helpOv';
   ov.innerHTML=`<div class="mbox" style="max-width:860px"><div class="hero-box" style="gap:16px">
-    <div class="hb-left"><picture><source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp"><img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="lazy" decoding="async"></picture></div>
+    <div class="hb-left"><picture data-perso><source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp"><img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="lazy" decoding="async"></picture></div>
     <div class="hb-right" style="max-height:80vh;overflow-y:auto">
       <h2>${t('helpTitle')}</h2>
       <div class="hb-desc" style="margin-bottom:10px">${t('helpBody')}</div>
@@ -1492,10 +1563,15 @@ function showHelp(){
         <button class="hb-btn main" onclick="closeModals()">👍 ${t('helpGotIt')}</button>
       </div>
     </div></div></div>`;
-  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
+  document.body.appendChild(ov);majPerso();ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
 function useTemplate(){
-  S.metier='ep';
+  /* Le modele ne CHOISIT pas le metier : il remplit celui qui est choisi.
+     Ecraser a 'ep' ici renverrait un camp a l'ecole des qu'il clique
+     « Commencer ». Les jeux de depart propres a chaque metier viennent a
+     l'etape 4 ; d'ici la, le modele d'ecole sert de point de depart commun. */
+  if(!S.metier||!GABARITS[S.metier])S.metier='ep';
+  S.metierChoisi=true;
   S.school={name:'Mon école',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',periods:JSON.parse(JSON.stringify(DEF_PER))};
   // Une tache pleine, c'est tout le cycle : 9 jours x 5 periodes = 45.
   // L'ancienne valeur en dur (30) ne correspondait a aucune journee reelle.
@@ -1525,6 +1601,7 @@ function openSetupModal(){
   let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);min-width:30px">P${p.num}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
   let sRows=S.subjects.map((su,i)=>`<tr><td><span class="cdot" style="background:${su.color}"></span><input type="text" value="${su.name}" data-si="${i}" data-sf="name" style="border:none;background:transparent;font-weight:600;width:120px"></td>${levs.map(l=>`<td><input type="number" value="${su.min[l]||0}" min="0" data-si="${i}" data-sl="${l}" style="width:42px;text-align:center;border:1px solid #eee;border-radius:3px;padding:2px"></td>`).join('')}<td><button class="btn r sm" data-delsub="${i}">✕</button></td></tr>`).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:720px"><h3>⚙️ ${t('configSchool')}</h3>
+    <div class="fr"><label>${t('metierLabel')}</label><div class="zgm-mini">${Object.keys(GABARITS).map(id=>`<button type="button" data-m="${id}" aria-pressed="${S.metier===id?'true':'false'}" onclick="changerMetierReglages('${id}')">${nomMetier(id)}</button>`).join('')}</div></div>
     <div class="fr"><label>${t('schoolName')}</label><input type="text" id="sN" value="${S.school.name}" style="flex:1"></div>
     <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,7,8,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
     <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||tache100Defaut()}" min="1" max="200" step="1" style="width:70px" oninput="const e=document.getElementById('sT100Note');if(e)e.textContent=t('tache100Manuel')"><button type="button" class="btn o sm" id="sT100R" title="${t('tache100Auto')}">↺</button> <small id="sT100Note" style="color:var(--muted);font-family:var(--f-note);font-size:14px">${S.school.tache100Manuel?t('tache100Manuel'):t('tache100Auto')}</small> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
@@ -1819,7 +1896,7 @@ function importerJSON(input){
       migrer();
       if(p.lang&&I[p.lang]){lang=p.lang;localStorage.setItem('gh_lang',lang);
         const sel=document.getElementById('langSel');if(sel)sel.value=lang}
-      save();showWelcome();renderAll();
+      save();appliquerMetier();showWelcome();montrerChoixMetier();renderAll();
       toast('📂 '+t('importOk')+' — '+demandeurs().length+' / '+ressources().length);
     }catch(e){toast('❌ '+(e.message||t('importErr')),4000)}
   };
@@ -1992,7 +2069,7 @@ function assurerStructures(){
 function renderAll(){assurerStructures();resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
 
 document.addEventListener('DOMContentLoaded',()=>{
-  load();applyI18n();renderAll();showWelcome();calerSousHeader();
+  load();appliquerMetier();applyI18n();renderAll();showWelcome();montrerChoixMetier();calerSousHeader();
   // Le header partage se monte en differe (zts-menu.js) et sa hauteur change
   // au redimensionnement : on remesure plutot que de figer une valeur.
   window.addEventListener('load',calerSousHeader);
