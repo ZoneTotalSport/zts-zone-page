@@ -76,6 +76,14 @@ from html.parser import HTMLParser
 RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APPS = os.path.join(RACINE, "apps")
 CSS_AVANT = ["shared/zts.css", "zts-header.css", "zts-ultra.css"]
+
+# Apps qui ont quitte la vague d'habillage pour une refonte assumee. Le
+# controle « aucune ligne retiree » ne s'y applique plus ; il redevient un
+# avertissement. Voir le commentaire au controle 5. Une entree ici doit
+# nommer la decision et sa date — pas de ligne muette.
+REFONDUES = {
+    "grille": "refonte PR 2, 31 aout 2026",
+}
 DENSITES = ["vitrine", "travail", "projection"]
 
 # Controle 6 — fond impose en !important
@@ -372,10 +380,35 @@ def controle(chemin):
         if ajouts > 30:
             aver.append(f"DIFF : {ajouts} lignes ajoutees, au-dela des 30 du contrat.")
         if retirees_app:
-            bloq.append(
-                f"DIFF : {len(retirees_app)} ligne(s) de l'app SUPPRIMEE(S) — "
-                f"p. ex. « {retirees_app[0]} »"
-            )
+            # APPS SORTIES DE LA VAGUE D'HABILLAGE (Joey, 31 aout 2026).
+            #
+            # Ce controle protege une promesse precise : pendant la vague, un
+            # habillage AJOUTE et ne retire rien. Il mesure cette promesse en
+            # lignes, contre `main`.
+            #
+            # `grille` a quitte cette vague. Elle a ete REFONDUE — mise en page
+            # reprise sur l'accueil, impression reecrite, mobile debloque,
+            # selecteur de langue restaure. Une refonte retire forcement des
+            # lignes : l'ancien bloc <style>, l'ancien corps de page, la regle
+            # d'impression qui masquait un element supprime le 3 juin.
+            #
+            # « Additif » garde tout son sens pour elle, mais au niveau du
+            # CONTRAT FONCTIONNEL, pas du nombre de lignes : 100 % des
+            # fonctions preservees, verifie a chaque commit par le banc d'essai
+            # (57 fonctions, 6 modales, 4 langues, mur et SEO hors diff).
+            #
+            # L'exemption tombe d'elle-meme quand la refonte atteint `main` :
+            # le diff se vide. La laisser en place ne rouvre donc aucune porte.
+            if nom not in REFONDUES:
+                bloq.append(
+                    f"DIFF : {len(retirees_app)} ligne(s) de l'app SUPPRIMEE(S) — "
+                    f"p. ex. « {retirees_app[0]} »"
+                )
+            else:
+                aver.append(
+                    f"DIFF : {len(retirees_app)} ligne(s) retiree(s) — app refondue, "
+                    f"hors contrat d'habillage additif ({REFONDUES[nom]})."
+                )
     except Exception:
         pass
 
