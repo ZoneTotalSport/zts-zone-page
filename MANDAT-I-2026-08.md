@@ -283,7 +283,7 @@ tap, `{{prenom}}` depuis la liste du groupe.
 ### A7 — Modèles familles
 Trois gabarits à la charte exportés en PDF : diplôme (olympiades / défi /
 persévérance), autorisation de sortie (camps, zone signature), mot de bienvenue.
-**Si Studio Jeu peut les produire, brancher plutôt que dupliquer.**
+⚠ **TRANCHÉ §12.3 : HTML → PDF dans le Planificateur, même moteur que A1 et C4. Studio Jeu n'est PAS branché** — trois gabarits statiques ne le justifient pas.
 
 ---
 
@@ -455,7 +455,7 @@ parents, photo d'équipe). Champs communs : transport (autobus / parents / à pi
 quoi apporter, notes, résultat (pointage libre, saisi après coup). Vue liste
 chronologique + injection dans MOIS/MA SEMAINE (D1). **Export .ics** de la saison
 et **PDF « Horaire de saison »** à remettre aux parents (charte, une page).
-**Un événement coché « fait » génère automatiquement une ligne d'heures (D6).**
+⚠ **AMENDÉ §12.5** : un événement coché « fait » **ouvre une ligne d'heures PRÉREMPLIE, à confirmer d'un tap et ajustable** — jamais de ligne créée toute seule dans un relevé signé.
 
 ### D5 — Cahier pédagogique illustré
 Une page par séance (pratique ou partie), créée **en un tap** depuis l'événement :
@@ -475,8 +475,9 @@ que B1 mais pour une séance parascolaire.
 ### D6 — Mes heures (l'ancien « Mon temps travaillé », INTACT)
 Le tableau Date / Activité / Temps, le calcul **Temps total − Temps reconnu** et
 les **signatures direction/responsable** restent **exactement tels quels**.
-Ajouts autour : lignes générées automatiquement par les événements « faits »
-(durée réelle, incluant déplacement si coché), lignes manuelles toujours
+Ajouts autour : lignes **proposées** par les événements « faits » — ⚠ **§12.5 :
+préremplies et confirmées d'un tap, jamais écrites d'office** — (durée réelle,
+incluant déplacement si coché), lignes manuelles toujours
 possibles, filtre par activité et par période, total par activité, **PDF « Relevé
 d'heures » signé** (page existante) avec en annexe optionnelle l'horaire de saison
 et le cahier. Rappel discret sur AUJOURD'HUI le dernier vendredi de chaque mois :
@@ -588,27 +589,25 @@ exclure).**
 
 ## 9. Questions à trancher au prescan (recommandation ; Joey tranche)
 
-> **État au 31 août, après le prescan.** Le détail des recommandations est au
-> §9 de `PRESCAN-MANDAT-I-2026-08.md` ; les décisions sont au §11.
+> ✅ **LES SEPT SONT TRANCHÉES** (31 août). Décisions aux §11 et §12 ; le
+> raisonnement est au §9 de `PRESCAN-MANDAT-I-2026-08.md`.
 
-1. ⏳ **OUVERTE** — palier Cadenas et quota mensuel. Recommandation du prescan :
-   anonyme 0, gratuit connecté 10/mois, payant 150/mois, **compteur propre**
-   (§11.1). Chiffres à confirmer par Joey.
-2. ⏳ **OUVERTE** — N fiches de contexte. Recommandation : **8 fiches élaguées**
-   (~3 555 tokens ; une fiche pleine en fait ~2 400 à elle seule).
-3. ✅ **TRANCHÉE §11.2** — sous-document privé `enfants/{id}/prive/sante`,
-   propriétaire seul.
-4. ⏳ **OUVERTE** — modèles familles. Recommandation : **HTML → PDF** pour
-   A1/A5/C4/D4/D6 ; Studio Jeu seulement pour A7, **s'il sait déjà le faire**
-   (non vérifié).
-5. ⏳ **OUVERTE** — ordre des lots. Recommandation : celui du mandat, mais
-   **une seule session code à la fois sur `proto/g2`** (§10.5), donc pas de
-   worktrees parallèles sans nouvelle décision.
-6. ✅ **TRANCHÉE §11.4** — **v2 dès le départ**, destinataire lu côté serveur.
-7. ✅ **TRANCHÉE (bande)** — le prescan §8.2 le démontre : `agenda-bas` est hors
-   grille et porte déjà Samedi/Dimanche/Commentaires. ⏳ **Le second volet reste
-   OUVERT** : un événement « fait » génère-t-il une ligne d'heures
-   automatiquement (§D4) ou sur confirmation ?
+1. ✅ **§12.2** — anonyme et gratuit : **0** (le ✨ mène au mur du Cadenas) ;
+   payant : **100/mois** tous types confondus (~2 $/usager) ; admin : illimité
+   mais journalisé. **Compteur distinct** (§11.1). Chiffres de départ, à revoir
+   après un mois de données réelles.
+2. ✅ **§12.1** — **8 fiches élaguées** (~3 555 tokens).
+3. ✅ **§11.2** — sous-document privé `enfants/{id}/prive/sante`, propriétaire
+   seul, coordonnateur exclu.
+4. ✅ **§12.3** — **HTML → PDF dans le Planificateur**, même moteur que A1 et C4.
+   Studio Jeu **non branché** (on y reviendra si les modèles deviennent
+   éditables).
+5. ✅ **§12.4** — **séquentiel**, A1-A2 → C → D → A3-A7 → B. **Pas de worktrees
+   parallèles** : la règle « une seule session à la fois » prime sur la vitesse.
+6. ✅ **§11.4** — **v2 dès le départ**, destinataire lu côté serveur.
+7. ✅ **§8.2 du prescan (bande)** + ✅ **§12.5 (heures)** — la bande « Après
+   l'école » va dans `agenda-bas`, hors grille ; et les heures se génèrent
+   **sur CONFIRMATION**, jamais automatiquement.
 
 ---
 ---
@@ -852,3 +851,80 @@ Réponse au risque **R-1** du prescan.
 ### 11.7 Le verrou tient
 **Aucun code des lots** avant la clôture de **G3-STABILISATION** et de
 **G3-FICHE** (§10.5). Ces décisions préparent le travail ; elles ne l'ouvrent pas.
+
+---
+
+## 12. DÉCISIONS FINALES PRÉ-CODE — 31 août 2026 (tranchées par Joey)
+
+**Avec le §11, plus aucune question du §9 n'est ouverte.** Le prescan est clos ;
+il ne reste que le verrou G3.
+
+### 12.1 N = 8 fiches élaguées
+Accepté tel que recommandé (prescan §5.3, ~3 555 tokens de contexte). Champs
+gardés : `id`, `title`, `but`, `materiel`, `duree`, `dureeMin`, `espace`,
+`niveau`, `ageMin`, `ageMax`, `nbJoueursMin`, `nbJoueursMax`, `deroulement`,
+`intentionsC1/C2/C3`, `consignesSecurite`. **Tout le reste est retiré**, en
+particulier les quatre champs anglais (`titleEn`, `butEn`, `deroulementEn`,
+`variantesEn`) et les métadonnées d'affichage (`categoryIcon`, `categoryColor`).
+
+### 12.2 Quotas IA — point de départ, à réviser après un mois de vraies données
+
+| Palier | Quota | Comportement |
+|---|---|---|
+| **Anonyme et gratuit** | **0 génération** | Le bouton ✨ **existe et se voit**, mais mène au **mur du Cadenas**. Il ne disparaît pas : il vend. |
+| **Payant** | **100 générations / mois**, tous types confondus | ~1,9 ¢ l'action la plus chère (B1) ⇒ **plafond ~2 $ / usager / mois** |
+| **Admin (Joey)** | illimité | **journalisé exactement pareil** — le journal de coût ne fait pas d'exception |
+
+⚠ **Compteur DISTINCT** de `QUOTA_FREE_MONTH`, `QUOTA_ANON_MONTH`,
+`QUOTA_MINUTES_JOUR` et `QUOTA_IA_JOUR` (§11.1). Un seul compteur pour les 7
+actions : pas de sous-quota par action.
+
+**Ces chiffres sont un point de départ assumé, pas une vérité.** Après un mois
+d'usage réel, les relire avec le journal de coût en main.
+
+### 12.3 A7 — HTML → PDF dans le Planificateur
+Les trois gabarits familles (diplôme, autorisation de sortie, mot de bienvenue)
+sont produits par **le même moteur PDF que A1 et C4** — impression navigateur,
+aucune dépendance nouvelle.
+
+**Studio Jeu n'est pas branché.** Trois gabarits statiques ne le justifient pas.
+On l'y branchera **si un jour les modèles deviennent éditables** ; d'ici là, la
+dépendance coûterait plus qu'elle ne rapporte.
+
+**Conséquence de méthode** : le moteur HTML→PDF sert **quatre lots** (A1, A5, A7,
+C4, D4, D6). Il se construit **une fois**, au lot A1, en pensant dès le départ à
+ses autres appelants. C'est la pièce la plus réutilisée du mandat.
+
+### 12.4 Ordre des lots — séquentiel, celui du mandat
+**A1-A2 → C → D → A3-A7 → B.**
+
+**Pas de worktrees parallèles.** La règle « une seule session code à la fois sur
+`proto/g2` » (§10.5) **prime sur la vitesse**. Au départ de chaque session :
+`git status` ; des fichiers modifiés qu'elle n'a pas écrits elle-même →
+**STOP et rapport à Joey**.
+
+### 12.5 Heures parascolaires — sur CONFIRMATION, jamais automatique
+**Amende le §D4** (« Un événement coché "fait" génère automatiquement une ligne
+d'heures ») et le §D6.
+
+Cocher « fait » sur un événement **ouvre une ligne d'heures préremplie** — durée
+prévue, activité, date — **et rien de plus**. Un tap pour confirmer. La ligne
+reste **ajustable avant** confirmation (la durée réelle diffère souvent de la
+durée prévue).
+
+**La raison, qui vaut plus que la règle** : un relevé signé par la direction ne
+doit contenir **que des lignes que Joey a validées lui-même**. Une ligne
+apparue toute seule dans un document signé est un problème, pas une commodité.
+
+### 12.6 Les deux garde-fous sont APPROUVÉS et NON NÉGOCIABLES
+1. **`--env dev` obligatoire sur `zts-generateur`.** Il est en production
+   (générateur de SAÉ, transcription, comptes rendus). Jamais de
+   `wrangler deploy` sans `--env` : il aligne le remote sur le fichier au lieu
+   de fusionner, et effacerait routes et crons.
+2. **Patron `performances` / `users` pour `enfants/{id}/prive/sante`** —
+   `request.auth.uid`, owner-only. **Jamais le patron des groupes** : c'est lui
+   qui donne la lecture au coordonnateur, et c'est précisément ce qu'on ferme.
+
+### 12.7 Le verrou G3 tient
+**Aucun code des lots** avant la clôture de **G3-STABILISATION** et de
+**G3-FICHE**. Toutes les décisions sont prises ; **il ne manque que ça.**

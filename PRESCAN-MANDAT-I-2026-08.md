@@ -521,10 +521,10 @@ semaine sur le calendrier scolaire.
 
 ## 9. Risques et questions à trancher
 
-> ✅ **JOEY A TRANCHÉ LE 31 AOÛT.** R-1, R-2, R-3, R-4, Q-1 (volet règles), Q-6 et
-> Q-7 sont réglés — décisions au **§11 du mandat**, résumées sous chaque entrée
-> ci-dessous. Les recommandations d'origine sont conservées telles quelles : elles
-> disent *pourquoi* la décision a été prise.
+> ✅ **TOUT EST TRANCHÉ (31 août).** Les quatre risques et les sept questions ont
+> leur décision — **§11 et §12 du mandat**, résumées sous chaque entrée ci-dessous.
+> Les recommandations d'origine sont conservées telles quelles : elles disent
+> *pourquoi* la décision a été prise. **Il ne reste que le verrou G3.**
 
 ### Risques
 
@@ -582,13 +582,14 @@ n'est pas ajouté (ou le proto servi sur 8765).
 
 | # | Question | Recommandation |
 |---|---|---|
-| Q-1 | Palier Cadenas pour l'IA | ⏳ chiffres à confirmer : **gratuit connecté = 10/mois**, anonyme = 0 — mais **compteur distinct** de ceux du générateur (§11.1). ✅ **Le volet « règles de `enfants` » est TRANCHÉ (§11.2)** : sous-document privé `enfants/{id}/prive/sante`, coordonnateur exclu |
-| Q-2 | N fiches de contexte | **8 fiches élaguées** (~3 555 tokens) — §5.3 |
-| Q-3 | Studio Jeu ou HTML→PDF | **HTML→PDF (impression navigateur)** pour A1/A5/C4/D4/D6 : aucune dépendance, imprimable en noir et blanc, et A5 en a besoin de toute façon. Studio Jeu reste pour A7 (diplômes illustrés), **s'il sait déjà le faire** — non vérifié dans ce prescan |
-| Q-4 | Ordre des lots | **Celui du mandat** : A1-A2 → C → D → A3-A7 → B. ⚠ **Mais B0 (le Worker) conditionne tout le lot B** : le trancher tôt (R-2), même si le code vient plus tard |
+| Q-1 | Palier Cadenas pour l'IA | ✅ **TRANCHÉ §12.2** — anonyme **et gratuit : 0** (le ✨ reste visible et mène au mur), payant **100/mois** tous types confondus (~2 $/usager), admin illimité mais journalisé. **Compteur distinct** (§11.1). Chiffres de départ, à revoir après un mois. ✅ Volet « règles de `enfants` » : **§11.2**, sous-document privé |
+| Q-2 | N fiches de contexte | ✅ **TRANCHÉ §12.1 — 8 fiches élaguées** (~3 555 tokens), tel que recommandé |
+| Q-3 | Studio Jeu ou HTML→PDF | ✅ **TRANCHÉ §12.3 — HTML→PDF pour tout, A7 compris.** Studio Jeu **n'est pas branché** : trois gabarits statiques ne justifient pas la dépendance. ⚠ **Le moteur sert A1, A5, A7, C4, D4 et D6 — il se construit une fois, au lot A1** |
+| Q-4 | Ordre des lots | ✅ **TRANCHÉ §12.4 — séquentiel**, A1-A2 → C → D → A3-A7 → B, **sans worktrees parallèles**. B0 est déjà tranché (§11.1), donc le lot B n'attend plus de décision |
 | Q-5 | `mailto:` v1 ou canal serveur | ✅ **TRANCHÉ §11.4 — v2 dès le départ.** R-4 est réglé par la lecture serveur du destinataire, donc la raison d'attendre tombe |
 | Q-6 | Bande « Après l'école » ou badge | ✅ **TRANCHÉ — BANDE.** Le §8.2 le démontre : `agenda-bas` est hors grille et contient déjà Samedi/Dimanche |
 | Q-7 | Où vivent les restrictions médicales | ✅ **TRANCHÉ §11.2 — sous-document privé** `enfants/{id}/prive/sante`, propriétaire seul, coordonnateur exclu. Le picto ⚠️ se calcule côté client depuis ce sous-document, donc il n'apparaît que pour l'enseignant |
+| **+** | **Heures parascolaires : auto ou confirmées ?** | ✅ **TRANCHÉ §12.5 — sur CONFIRMATION.** Cocher « fait » **préremplit** une ligne (durée prévue, activité, date) ; un tap confirme, et elle reste ajustable avant. **Un relevé signé ne contient que des lignes validées par Joey** |
 
 ---
 
@@ -597,10 +598,10 @@ n'est pas ajouté (ou le proto servi sur 8765).
 Conformément au §3 du mandat et à l'amendement §10.5 :
 
 - **Aucun code des lots** avant la clôture de **G3-STABILISATION** et **G3-FICHE**.
-- ✅ **Joey a tranché le 31 août** (§11 du mandat) : un seul Worker, sous-document
-  privé pour la santé, R2 pour les pièces d'incident, C4 en v2 à destinataire
-  serveur, ancrage IA sur les champs fiables. **Les trois décisions qui
-  bloquaient du code sont levées.**
-- ⏳ **Restent ouvertes** : les chiffres de quota (Q-1), N fiches (Q-2, recommandé
-  8), Studio Jeu ou HTML→PDF (Q-4), l'ordre des lots (Q-5), et si un événement
-  « fait » génère une ligne d'heures automatiquement (Q-7, second volet).
+- ✅ **Joey a tout tranché le 31 août** — §11 (un seul Worker, santé en
+  sous-document privé, R2 pour les pièces d'incident, C4 en v2 à destinataire
+  serveur, ancrage IA sur les champs fiables) puis §12 (N = 8, quotas, A7 en
+  HTML→PDF, ordre séquentiel, heures sur confirmation).
+- **Aucune question du §9 n'est ouverte. Le prescan est CLOS.**
+- ⛔ **Il ne reste qu'un verrou : G3-STABILISATION et G3-FICHE.** À leur clôture,
+  revalider ce prescan sur le diff (voir l'en-tête), puis commencer par **A1**.
