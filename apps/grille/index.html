@@ -1374,7 +1374,8 @@ function journeeCamp(){return {
     {type:'lunch',label:'Dîner',start:'12:00',end:'13:00'},
     {type:'period',num:4,nom:'Bloc 3',start:'13:00',end:'14:30'},
     {type:'period',num:5,nom:'Bloc 4',start:'14:45',end:'16:00'},
-    {type:'recess',label:'Service de fin',start:'16:00',end:'18:00'}
+    // « Service de fin » n'est ni une recre ni un diner : il porte son nom.
+    {type:'recess',label:'Service de fin',nom:'Service de fin',start:'16:00',end:'18:00'}
   ]}}
 
 /* La journee du gabarit actif, toujours utilisable : un gabarit muet ou
@@ -1388,6 +1389,17 @@ function creneaux(){
 }
 /* Le nom d'un creneau : celui qu'il porte, sinon « P » et son numero. */
 function nomPeriode(pr){return (pr&&pr.nom)?pr.nom:('P'+(pr?pr.num:'?'))}
+/* Le nom d'une BANDE. Par defaut le mot traduit — « Récré », « Recess »,
+   « 课间 » — parce que c'est le meme objet dans les quatre langues. Un
+   gabarit qui donne un `nom` explicite le garde tel quel : « Service de
+   fin » d'un camp n'est ni une recre ni un diner, et l'afficher « Récré »
+   disait faux. `label`, lui, reste ce qu'il a toujours ete : le texte
+   francais du modele d'ecole, qu'on ne veut surtout pas montrer a un
+   anglophone. */
+function nomBande(pr){
+  if(pr&&pr.nom)return pr.nom;
+  return (pr&&pr.type==='lunch')?t('lunch'):t('recess');
+}
 /* Un bloc pedago n'ouvre que les jours coches ; un bloc ordinaire ferme
    ces jours-la, puisque l'ecole est fermee et que la garde couvre tout. */
 function estJourPedago(d){
@@ -2021,7 +2033,7 @@ function renderGrid(){
       // Les bandes de recre et de diner etaient inertes : une couleur, rien
       // d'autre. Elles portent maintenant les surveillances, une case par jour.
       dessinerBande(g,row,cd,p.id,p.type==='recess'?'rec':'lun',
-        (p.type==='recess'?t('recess'):t('lunch')),p.start,p.end);
+        nomBande(p),p.start,p.end);
       row++;return}
     // Time cell
     const tc=document.createElement('div');tc.className='g-time';tc.innerHTML=`<span>${nomPeriode(p)}</span><small>${p.start||''}-${p.end||''}</small>`;tc.style.gridColumn='1';tc.style.gridRow=''+row;g.appendChild(tc);
@@ -2297,7 +2309,10 @@ function useTemplate(){
   S.rooms=dep.lieux();
   S.classes=dep.groupes();
   S.specialists=dep.personnes(S.rooms);
-  S.assignments={};S.verrous={};S.surveillances={};
+  // Un jeu de depart repart de zero, y compris pour les surveillances ET
+  // les gens qui les prennent. Vider les surveillances en gardant leurs
+  // surveillants laissait un titulaire d'ecole dans un camp de jour.
+  S.assignments={};S.verrous={};S.surveillances={};S.surveillants=[];
   // Le modele doit rendre un etat DEJA migre : sinon il lui manque les
   // champs ajoutes depuis, et un simple rechargement les fait apparaitre —
   // deux etats pour un meme horaire.
@@ -2659,7 +2674,7 @@ function construireParPersonne(){
           +`<b>${cl?cl.group:'?'}</b>${lieu?`<small>${lieu.name}</small>`:''}</td>`;
       }).join('');
       const titre=bande
-        ? `<th class="pp-bande">${pr.type==='recess'?t('recess'):t('lunch')}<small>${pr.start||''}</small></th>`
+        ? `<th class="pp-bande">${nomBande(pr)}<small>${pr.start||''}</small></th>`
         : `<th>${nomPeriode(pr)}<small>${pr.start||''}-${pr.end||''}</small></th>`;
       return `<tr>${titre}${cases}</tr>`;
     }).join('');
@@ -2829,7 +2844,7 @@ function creneauxSurveillance(){
   if(S.school.avantP1)l.push({id:SURV_AVANT,type:'avant',libelle:t('avantP1')});
   (S.school.periods||[]).forEach(pr=>{
     if(pr.type==='recess'||pr.type==='lunch')
-      l.push({id:pr.id,type:pr.type,libelle:pr.type==='recess'?t('recess'):t('lunch'),
+      l.push({id:pr.id,type:pr.type,libelle:nomBande(pr),
               start:pr.start,end:pr.end});
   });
   return l;
