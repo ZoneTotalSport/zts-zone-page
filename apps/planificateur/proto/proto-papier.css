@@ -686,3 +686,84 @@ html[data-etroit="1"] .ctx-barre{position:static}
    Défaut ANTÉRIEUR à ce chantier ; il touchait aussi la fenêtre de séance. */
 .tiroir{z-index:210}
 .modale{z-index:220}
+
+/* ==========================================================================
+   G3b — DE GROSSES PORTES, ET DE LA PLACE POUR LES IMAGES (31 août)
+   Joey : « mets de gros boutons visuels pour ma semaine, mon mois, mon année,
+   ma journée — je veux les voir » et « au lieu que ce soit un rectangle mince,
+   mets de la place pour pouvoir afficher les images ».
+   ========================================================================== */
+
+/* ═════ LES CINQ PORTES ═════
+   ⚠ On ne grossit QUE `#nav>button`, jamais `button` en bloc : les ✕, ✎ et
+   pastilles du reste de l'app sont minuscules par dessein. */
+#nav>button{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:19px;letter-spacing:.4px;padding:10px 22px;min-height:92px;min-width:146px;
+  line-height:1.02;white-space:nowrap;border-radius:15px;
+}
+#nav>button .ico{font-size:40px;line-height:1}
+#nav>button .lab{font-family:var(--f-titre)}
+#nav>button[aria-current="true"] .ico{transform:scale(1.06)}
+.ecrans-nav{gap:9px;padding:11px 12px;align-items:stretch}
+
+/* ═════ UNE PÉRIODE = UNE CARTE, PAS UNE BANDE ═════
+   Trois colonnes : QUAND · le cours · ses images. La carte respire — on lit sa
+   journée de loin, une image par cours. Joey accepte de défiler pour ça. */
+.auj-per{
+  grid-template-columns:210px minmax(0,1fr) clamp(300px,26vw,420px);
+  gap:14px;padding:13px 15px;
+}
+.auj-per--plein{min-height:206px}
+.auj-per .quand b{font-size:30px}
+.auj-cours{display:flex;flex-direction:column;justify-content:center;padding:12px 14px}
+.auj-cours .gr{font-size:32px}
+.auj-cours .gr .img{font-size:32px}
+.auj-cours img.img{width:46px;height:46px;border-radius:10px}
+.auj-cours .quoi{font-size:22px;margin-top:6px}
+
+/* la bande d'illustrations — frère du bouton, jamais son enfant (piège n° 13) */
+.auj-illus{
+  display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;cursor:pointer;
+  border:3px dashed rgba(8,19,30,.35);border-radius:12px;padding:7px;
+  background:#F3F8FB;min-height:170px;
+}
+.auj-illus figure{
+  margin:0;flex:1 1 116px;min-width:96px;max-width:150px;display:flex;
+  flex-direction:column;border:3px solid var(--noir);border-radius:10px;
+  overflow:hidden;background:#fff;box-shadow:3px 3px 0 var(--noir);
+}
+.auj-illus img{width:100%;height:100%;min-height:118px;object-fit:cover;display:block}
+.auj-illus .doc{
+  display:flex;align-items:center;justify-content:center;
+  min-height:118px;font-size:46px;background:#E4F8FD;
+}
+.auj-illus figcaption{
+  font-family:var(--f-note);font-size:15px;line-height:1.1;color:var(--ink);
+  padding:3px 6px;border-top:3px solid var(--noir);background:var(--jaune);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.auj-illus--vide{
+  flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  color:var(--ink-soft);
+}
+.auj-illus--vide .emo{font-size:40px;line-height:1;opacity:.55}
+.auj-illus--vide .mot{font-family:var(--f-note);font-size:17px;text-align:center}
+.auj-illus.survol{border-style:solid;border-color:var(--lime);background:#F2FFE2}
+
+/* la période libre : un vrai bouton de dépôt, pas un trait */
+.auj-vide{
+  grid-column:2 / -1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;min-height:104px;
+}
+.auj-vide .plus{font-family:var(--f-titre);font-size:34px;line-height:1}
+.auj-vide small{font-family:var(--f-note);font-size:15px;opacity:.75}
+
+html[data-etroit="1"] .auj-per{grid-template-columns:1fr}
+html[data-etroit="1"] .auj-vide{grid-column:auto}
+html[data-etroit="1"] .auj-illus{min-height:112px}
+html[data-etroit="1"] #nav>button{
+  min-width:0;min-height:62px;font-size:12px;padding:7px 3px;white-space:normal;
+}
+html[data-etroit="1"] #nav>button .ico{font-size:22px}
+html[data-etroit="1"] .ecrans-nav{grid-template-columns:repeat(5,1fr);gap:4px}

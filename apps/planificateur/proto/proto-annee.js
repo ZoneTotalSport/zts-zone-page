@@ -145,7 +145,12 @@ barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOI
    ⚠ LES SEPT ÉCRANS DE ⋯ PLUS EN ONT BESOIN EUX AUSSI : sans porte de retour,
    une tuile mène à un cul-de-sac dont on ne sort qu'en cherchant l'onglet. */
 [['e-carnet','e-groupes','← MES GROUPES'],['e-bulletin','e-groupes','← MES GROUPES'],
- ['e-mois','e-calendrier','← CALENDRIER'],['e-annee','e-calendrier','← CALENDRIER'],
+ /* ⚠ PLUS DE « ← CALENDRIER » : MON MOIS et MON ANNÉE ont leur propre porte
+    dans la barre, ils ne sont plus des sous-écrans du calendrier scolaire.
+    Le lien reste, mais LATÉRAL — on va y régler ses congés, on n'en « revient »
+    pas. */
+ ['e-mois','e-calendrier','📆 CALENDRIER SCOLAIRE'],
+ ['e-annee','e-calendrier','📆 CALENDRIER SCOLAIRE'],
  ['e-tests','e-aujourdhui','← AUJOURD’HUI'],
  ['e-evaluation','e-accueil','← MA SEMAINE'],['e-presences','e-accueil','← MA SEMAINE'],
  ['e-messages','e-accueil','← MA SEMAINE'],['e-jeux','e-accueil','← MA SEMAINE'],

@@ -965,10 +965,19 @@ peindreCahier();
    Le quotidien passe devant — AUJOURD'HUI d'abord, MA SEMAINE ensuite — et
    tout le reste entre derrière ⋯ PLUS, une liste de grosses tuiles. Rien n'est
    perdu : ⋯ PLUS mène aux sept écrans, et chacun garde son chemin de retour. */
+/* ⚠ MON MOIS ET MON ANNÉE ÉTAIENT ENTERRÉS À TROIS TOUCHES — ⋯ PLUS ›
+   CALENDRIER › VOIR PAR MOIS. Joey : « je veux les voir ». Ce sont deux des
+   QUATRE horizons de temps du métier ; les cacher derrière le calendrier
+   scolaire, qui n'est qu'un réglage d'année, était une erreur de rangement.
+   La barre porte donc les quatre horizons dans l'ordre — jour, semaine, mois,
+   année — puis ⋯ PLUS pour tout ce qui n'est pas une durée.
+   Chaque porte est un GROS bouton : une icône par-dessus son nom. */
 const MENUS = [
-  {direct:'e-aujourdhui', lab:'📋 AUJOURD’HUI'},
-  {direct:'e-accueil',    lab:'🗓️ MA SEMAINE'},
-  {direct:'e-plus',       lab:'⋯ PLUS'},
+  {direct:'e-aujourdhui', ico:'📋', lab:'MA JOURNÉE'},
+  {direct:'e-accueil',    ico:'🗓️', lab:'MA SEMAINE'},
+  {direct:'e-mois',       ico:'📅', lab:'MON MOIS'},
+  {direct:'e-annee',      ico:'📚', lab:'MON ANNÉE'},
+  {direct:'e-plus',       ico:'⋯',  lab:'PLUS'},
 ];
 (function barreEnMenus(){
   const n=$('#nav'); if(!n) return;
@@ -977,7 +986,9 @@ const MENUS = [
 
   MENUS.forEach(m=>{
     if (m.direct){
-      const b=el('button',null,m.lab); b.type='button'; b.dataset.va=m.direct;
+      const b=el('button'); b.type='button'; b.dataset.va=m.direct;
+      b.appendChild(el('span','ico', m.ico));
+      b.appendChild(el('span','lab', m.lab));
       b.addEventListener('click',()=>{ fermerTous(); allerA(m.direct); });
       n.appendChild(b); return;
     }

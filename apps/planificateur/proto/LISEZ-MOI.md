@@ -12,16 +12,53 @@ fonction — tout ce qui existe est conservé, seulement déplacé ou fusionné.
 **Tout ce qui suit s'ajoute au reste de ce document, et le corrige là où il
 décrit encore cinq onglets ou une barre de buzzer.**
 
-### La barre : trois onglets, plus cinq
+### La barre : les QUATRE horizons de temps, puis ⋯ PLUS
 
-| Onglet | Ce qu'on y fait | Fréquence |
-|---|---|---|
-| **📋 AUJOURD'HUI** | Sa journée, période par période. Écran d'ouverture. | six fois par jour |
-| **🗓️ MA SEMAINE** | La grille, inchangée. On y glisse ses groupes. | une fois par semaine |
-| **⋯ PLUS** | Calendrier · Mes groupes · Mon temps · Réglages · Partage · Vue coordonnateur · Mes autres outils | trois fois par année |
+*(31 août — Joey : « mets de gros boutons visuels pour ma semaine, mon mois,
+mon année, ma journée : je veux les voir ». Les cinq portes remplacent les
+trois onglets du 29.)*
+
+| Porte | Ce qu'on y fait |
+|---|---|
+| **📋 MA JOURNÉE** | Ses périodes, une carte chacune. Écran d'ouverture. |
+| **🗓️ MA SEMAINE** | La grille. On y glisse ses groupes. |
+| **📅 MON MOIS** | Le mois, jours-cycle et notes. |
+| **📚 MON ANNÉE** | Une ligne par semaine : compétence · moyen d'action · activité. |
+| **⋯ PLUS** | Calendrier scolaire · Mes groupes · Mon temps · Réglages · Partage · Vue coordonnateur · Mes autres outils |
+
+⚠ **MON MOIS et MON ANNÉE étaient à TROIS touches** — ⋯ PLUS › CALENDRIER ›
+VOIR PAR MOIS. Ce sont deux des quatre horizons du métier ; les ranger sous le
+calendrier scolaire, qui n'est qu'un réglage d'année, était une erreur. Ils ont
+leur porte, et un lien LATÉRAL « 📆 CALENDRIER SCOLAIRE » (plus un « ← » : on
+n'en revient pas, on y va).
+⚠ **Ils n'étaient peints QU'UNE FOIS**, au démarrage : maintenant qu'on peut y
+aller à tout moment, ils se repeignent à l'arrivée, sinon on lit des jours-cycle
+périmés.
+
+**Chaque porte est un GROS bouton** — icône de 40 px au-dessus de son nom,
+92 px de haut. On ne grossit que `#nav>button` : les ✕, ✎ et pastilles du reste
+de l'app restent minuscules par dessein (piège n° 19 du journal).
 
 La règle qui décide de la place d'une chose : **à quelle fréquence s'en sert-on ?**
 Rien n'a été coupé : ⋯ PLUS mène aux sept écrans, chacun avec son « ← PLUS ».
+
+### Une période = une CARTE, avec ses images
+
+*(31 août — « au lieu que ce soit un rectangle mince, mets de la place pour
+pouvoir afficher les images ». Joey accepte de défiler pour ça.)*
+
+Trois colonnes : **QUAND** (période et heures, 30 px) · **le cours** (groupe,
+activités, puces) · **ses images**. 206 px de haut au minimum.
+
+⚠ **Les illustrations ne sont PAS une donnée nouvelle** : ce sont les `medias`
+des étapes de la séance, ceux-là mêmes qu'on dépose dans la fiche de cours. La
+journée les MONTRE, gros — c'est ce qu'un prof regarde en entrant au gymnase.
+On peut aussi en lâcher une directement sur la bande : elle rejoint la première
+étape du « pendant », qui naît si elle n'existe pas encore.
+
+⚠ **La bande n'est pas DANS le bouton du cours** — un `<button>` dans un
+`<button>` ne survit pas au navigateur (piège n° 13). C'est un frère, avec ses
+propres gestes.
 
 ### Neuf doublons ramenés à un seul exemplaire
 

@@ -146,11 +146,13 @@ function calerLaBarre(){
   document.documentElement.style.setProperty('--h-nav', n.offsetHeight+'px');
   const z=(parseInt(lire('zoom','200'),10)||100)/100;
   const utile = window.innerWidth / z;
-  /* ⚠ `innerWidth` vaut 0 pendant une réémulation de fenêtre : sans ce garde,
-     l'app se croyait sur un téléphone le temps d'un cadre, et y restait si
-     aucun autre événement ne venait la détromper. */
+  /* ⚠ `innerWidth` vaut 0 pendant une réémulation de fenêtre, et parfois au
+     tout premier cadre : sans ce garde, l'app se croyait sur un téléphone.
+     Et sans le rappel au cadre suivant, elle restait sur la mauvaise mise en
+     page tant que personne ne redimensionnait la fenêtre. */
   if (window.innerWidth > 0)
     document.documentElement.dataset.etroit = utile < 760 ? '1' : '0';
+  else requestAnimationFrame(calerLaBarre);
 }
 calerLaBarre();
 window.addEventListener('resize', calerLaBarre);
@@ -238,6 +240,7 @@ function peindreAujourdhui(){
 
     if (s){
       cours++;
+      r.classList.add('auj-per--plein');
       const g=grpDe(s.gr)||{nom:'Groupe retiré',coul:'#9E9E9E',emo:'❓',img:'',eleves:[]};
       const b=el('button','auj-cours'); b.type='button';
       b.style.background=g.coul; b.style.color=encreSur(g.coul);
@@ -264,8 +267,11 @@ function peindreAujourdhui(){
       /* la planification est ce qu'on vient chercher : on force le volet */
       b.addEventListener('click',()=>{ ecrire('seVolet','cours'); ouvrirSeance(ctxDate, p.n); });
       r.appendChild(b);
+      r.appendChild(illustrationsDuCours(ctxDate, p.n));
     } else {
-      const v=el('button','auj-vide','＋ poser un groupe ici'); v.type='button';
+      const v=el('button','auj-vide'); v.type='button';
+      v.innerHTML='<span class="plus">＋</span><span>poser un groupe ici</span>'
+        +'<small>Ça se glisse dans MA SEMAINE</small>';
       v.title='Ouvre MA SEMAINE : on y glisse un groupe dans la case';
       v.addEventListener('click',()=>{
         agLundi=lundiDe(ctxDate); allerA('e-accueil');
@@ -283,6 +289,84 @@ function peindreAujourdhui(){
       +'<b>🗓️ MA SEMAINE</b> et glisse un groupe dans une case : il apparaîtra ici.';
     h.appendChild(v);
   }
+}
+
+/* ═════ LES IMAGES DU COURS, DANS LA CARTE DE LA JOURNÉE ═════
+   Joey : « au lieu que ce soit un rectangle mince, mets de la place pour
+   pouvoir afficher les images ».
+   Les illustrations ne sont pas une nouvelle donnée : ce sont les `medias` des
+   étapes de la séance, ceux-là mêmes qu'on dépose dans la fiche de cours. La
+   journée les montre, gros, sans qu'on ait à ouvrir quoi que ce soit — c'est
+   ce qu'un prof regarde en entrant dans son gymnase.
+   ⚠ La bande n'est PAS dans le bouton du cours : un `<button>` dans un
+   `<button>` ne survit pas au navigateur (piège n° 13). C'est un frère, avec
+   ses propres gestes. */
+const ILLUS_MAX = 4;
+function imagesDeLaSeance(s){
+  const out=[];
+  (s.etapes||[]).forEach(e=> (e.medias||[]).forEach(m=>{
+    if (out.length<ILLUS_MAX) out.push({m, titre:e.titre||'', id:e.id});
+  }));
+  return out;
+}
+/* L'étape qui accueille une image lâchée sur la bande : la première du
+   « pendant ». S'il n'y en a aucune, on en fait naître une — sinon le geste
+   n'aurait nulle part où aller. */
+function etapeDAccueil(iso, per){
+  const s=seanceDe(iso,per); if(!s) return null;
+  const e=(s.etapes||[]).find(x=>x.phase==='pendant');
+  if (e) return e.id;
+  const nid=Math.max(0,...(s.etapes||[]).map(z=>z.id))+1;
+  s.etapes.push({id:nid,phase:'pendant',piece:'libre',titre:'',desc:'',
+                 duree:0,medias:[],fait:false});
+  ecrire(cleSeance(iso,per), s);
+  return nid;
+}
+function illustrationsDuCours(iso, per){
+  const s=seanceDe(iso,per);
+  const z=el('div','auj-illus');
+  const vues=imagesDeLaSeance(s);
+
+  vues.forEach(({m,titre})=>{
+    const f=document.createElement('figure');
+    if (m.type==='image' && m.data){
+      const im=document.createElement('img'); im.src=m.data;
+      im.alt=titre || m.nom || ''; f.appendChild(im);
+    } else {
+      f.appendChild(el('div','doc', m.type==='pdf'?'📄':m.type==='video'?'🎬':'🖼️'));
+    }
+    if (titre) f.appendChild(el('figcaption',null,titre));
+    f.title=(titre?titre+' — ':'')+(m.nom||'');
+    z.appendChild(f);
+  });
+
+  if (!vues.length){
+    z.classList.add('auj-illus--vide');
+    z.appendChild(el('span','emo','🖼️'));
+    z.appendChild(el('span','mot','Glisse une image de ton cours ici'));
+  }
+
+  /* déposer, ou toucher pour choisir — la même grammaire que partout ailleurs */
+  const avale=fs=>{
+    if (!fs.length) return;
+    const id=etapeDAccueil(iso,per); if (id===null) return;
+    let reste=fs.length;
+    fs.forEach(f=> avaleFichierEtape(id, f, ()=>{ if(!--reste) peindreAujourdhui(); }));
+  };
+  z.addEventListener('dragover', ev=>{
+    if ([...(ev.dataTransfer.types||[])].indexOf('Files')<0) return;
+    ev.preventDefault(); ev.stopPropagation(); z.classList.add('survol'); });
+  z.addEventListener('dragleave', ()=> z.classList.remove('survol'));
+  z.addEventListener('drop', ev=>{
+    ev.preventDefault(); ev.stopPropagation(); z.classList.remove('survol');
+    avale([...(ev.dataTransfer.files||[])]); });
+  z.addEventListener('click', ()=>{
+    const i=document.createElement('input'); i.type='file';
+    i.accept='image/*,video/*,application/pdf'; i.multiple=true;
+    i.addEventListener('change',()=> avale([...i.files]));
+    i.click(); });
+  z.title='Les illustrations de ce cours — glisse-en une, ou touche pour la choisir';
+  return z;
 }
 
 /* le bouton qui ouvre le tiroir des jeux, à côté de LIVE et du TABLEAU BLANC.
@@ -430,6 +514,12 @@ peindreAgenda = window.peindreAgenda = function(){
     if (id==='e-aujourdhui') peindreAujourdhui();
     if (id==='e-groupes' && typeof peindrePlanSession==='function') peindrePlanSession();
     if (id==='e-carnet'){ const h=$('#carJetons'); if (h) jetonsGroupe(h, peindreCarnet); }
+    /* ⚠ MOIS et ANNÉE n'étaient peints QU'UNE FOIS, au démarrage. Tant qu'ils
+       vivaient au fond du calendrier on y arrivait juste après l'avoir réglé ;
+       maintenant qu'ils ont leur porte, on peut y aller à tout moment et
+       lire des jours-cycle périmés. */
+    if (id==='e-mois'  && typeof peindreMois ==='function') peindreMois();
+    if (id==='e-annee' && typeof peindreAnnee==='function') peindreAnnee();
     majBarreContexte();
   };
 })();
