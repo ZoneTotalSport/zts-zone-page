@@ -303,7 +303,8 @@ function peindreAujourdhui(){
 
       b.title='Ouvrir le cours du groupe '+g.nom;
       /* la planification est ce qu'on vient chercher : on force le volet */
-      b.addEventListener('click',()=>{ ecrire('seVolet','cours'); ouvrirSeance(ctxDate, p.n); });
+      /* même raison qu'en semaine : on vient voir SES ÉLÈVES */
+      b.addEventListener('click',()=>{ ecrire('seVolet','presences'); ouvrirSeance(ctxDate, p.n); });
       r.appendChild(b);
       r.appendChild(illustrationsDuCours(ctxDate, p.n));
     } else {
@@ -707,6 +708,108 @@ function ligneDeSessionSurLaSemaine(){
     if (typeof peindrePlanSession==='function') peindrePlanSession();
   });
 }
+
+/* ═════════ 6 bis. LES GROUPES DANS MON MOIS ET MON ANNÉE ═════════
+   Joey, 31 août : « les groupes une fois placés dans l'app servent à afficher
+   les élèves, prendre les présences, évaluer, prendre des notes — et ça
+   s'affiche comme un popup dans ma journée, ma semaine, mon mois. »
+
+   ⚠ MON MOIS ET MON ANNÉE NE CONNAISSAIENT PAS LES GROUPES DU TOUT. Ces deux
+   écrans ne lisaient que le calendrier scolaire — jours-cycle, congés,
+   pédagogiques, la note du jour. Ils ignoraient les séances, donc l'essentiel
+   de ce que le prof a saisi. On y pose maintenant les mêmes pastilles
+   colorées, et elles ouvrent la MÊME fenêtre que dans MA JOURNÉE : une seule
+   façon d'entrer dans un cours, quel que soit l'écran d'où l'on vient.
+
+   ⚠ On lit les clés du stockage plutôt que de parcourir les périodes de
+   l'horaire : une séance posée sur une période supprimée depuis resterait
+   invisible autrement — et elle existe pourtant. */
+function seancesDuJour(iso){
+  const out=[];
+  Object.keys(localStorage).forEach(k=>{
+    const m=new RegExp('^'+P+'se:'+iso+':p(\\d+)$').exec(k);
+    if (!m) return;
+    try { out.push({per:+m[1], s:JSON.parse(localStorage.getItem(k))}); } catch(e){}
+  });
+  return out.sort((a,b)=>a.per-b.per);
+}
+/* une pastille de groupe, la même partout */
+function pastilleSeance(iso, per, s, avecPeriode){
+  const g=grpDe(s && s.gr)||{nom:'?',coul:'#9E9E9E',emo:'❓',img:''};
+  const b=el('button','gr-pastille'); b.type='button';
+  b.style.background=g.coul; b.style.color=encreSur(g.coul);
+  b.textContent=(avecPeriode? 'P'+per+' ' : '')+g.nom;
+  b.title='Groupe '+g.nom+' — '+jourLisible(iso)+', période '+per
+        +'. Ouvre les élèves, les présences et l’évaluation.';
+  b.addEventListener('click', ev=>{
+    ev.stopPropagation();
+    poserContexte(iso);
+    ecrire('seVolet','presences');
+    ouvrirSeance(iso, per);
+  });
+  return b;
+}
+
+function groupesDansLeMois(){
+  $$('#moisGrille .mois-case[data-iso]').forEach(c=>{
+    const iso=c.dataset.iso;
+    const l=seancesDuJour(iso); if (!l.length) return;
+    const z=el('div','mois-grs');
+    l.forEach(({per,s})=> z.appendChild(pastilleSeance(iso, per, s, false)));
+    /* avant la note : ce qu'on a enseigné passe devant ce qu'on s'est écrit */
+    const note=c.querySelector('.note');
+    c.insertBefore(z, note || null);
+  });
+}
+
+function groupesDansLAnnee(){
+  $$('#anneeHote .annee-row[data-sem]').forEach(r=>{
+    const y=+r.dataset.an, mo=+r.dataset.mois, sem=+r.dataset.sem;
+    /* la n-ième rangée de cinq jours ouvrables du mois — la même découpe que
+       `peindreAnnee()`, qui remplit son mini-calendrier cinq colonnes à la fois */
+    const ouvrables=[];
+    const nb=new Date(y,mo+1,0).getDate();
+    const dec=(new Date(y,mo,1).getDay()+6)%7;
+    for (let i=0;i<Math.min(dec,5);i++) ouvrables.push(null);
+    for (let d=1; d<=nb; d++){
+      const j=new Date(y,mo,d).getDay(); if (j===0||j===6) continue;
+      ouvrables.push(y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'));
+    }
+    const jours=ouvrables.slice((sem-1)*5, sem*5).filter(Boolean);
+    const compte={};
+    jours.forEach(iso=> seancesDuJour(iso).forEach(({s})=>{
+      if (s && s.gr) compte[s.gr]=(compte[s.gr]||0)+1; }));
+    const ids=Object.keys(compte); if (!ids.length) return;
+    const z=el('div','annee-grs');
+    ids.forEach(id=>{
+      const g=grpDe(id)||{nom:'?',coul:'#9E9E9E'};
+      const b=el('span','gr-pastille gr-pastille--muet');
+      b.style.background=g.coul; b.style.color=encreSur(g.coul);
+      b.textContent=g.nom+(compte[id]>1 ? ' ×'+compte[id] : '');
+      b.title=compte[id]+' cours du groupe '+g.nom+' cette semaine-là';
+      z.appendChild(b);
+    });
+    /* ⚠ `.annee-row` EST UNE GRILLE À QUATRE COLONNES. Ajoutée à la fin, la
+       bande de pastilles devenait un cinquième enfant et retombait sur une
+       rangée implicite, décalée sous les champs. Elle est posée EN TÊTE et
+       occupe toute la largeur : la semaine s'annonce, puis on lit ce qu'on y
+       a écrit. */
+    r.insertBefore(z, r.firstChild);
+  });
+}
+
+/* ⚠ Les deux écrans se repeignent entièrement à chaque visite : on se greffe
+   APRÈS, sinon les pastilles seraient balayées au premier rafraîchissement. */
+(function groupesDansLesDeuxVues(){
+  if (typeof peindreMois==='function'){
+    const base=peindreMois;
+    window.peindreMois = peindreMois = function(){ base(); groupesDansLeMois(); };
+  }
+  if (typeof peindreAnnee==='function'){
+    const base=peindreAnnee;
+    window.peindreAnnee = peindreAnnee = function(){ base(); groupesDansLAnnee(); };
+  }
+})();
 
 /* ═════════ 7. TOUT SE REPEINT AU BON MOMENT ═════════ */
 const _g3Agenda = peindreAgenda;

@@ -186,6 +186,66 @@ L'import était offert à **deux endroits** (l'écran du calendrier et MES
 DONNÉES). On garde celui du calendrier : c'est là qu'on voit le résultat se
 poser.
 
+### Les groupes — ce qu'ils font, et où (31 août)
+
+Joey : « les groupes, une fois placés dans l'app, servent à afficher les élèves
+du groupe, prendre les présences, évaluer, prendre des notes sur un élève — et
+ça s'affiche comme un popup dans ma journée, ma semaine, mon mois. » Option **B**
+retenue : la fenêtre garde ses huit portes, mais **s'ouvre sur les élèves**, et
+les groupes apparaissent aussi dans MON MOIS et MON ANNÉE.
+
+| Écran | Ce que le groupe y fait |
+|---|---|
+| 🗓️ MA SEMAINE | On l'y glisse → **ça crée la séance** (jour × période × groupe). L'acte fondateur. |
+| 📋 MA JOURNÉE | La séance en carte, avec ses images. Un clic **ouvre la fenêtre sur les élèves**. |
+| 📅 MON MOIS | **Une pastille par cours, dans la case du jour.** Un clic ouvre la même fenêtre. |
+| 📚 MON ANNÉE | Les groupes de la semaine, en tête de sa rangée (`101 ×4`), pour compter. |
+
+⚠ **MON MOIS ET MON ANNÉE NE CONNAISSAIENT PAS LES GROUPES DU TOUT.** Ils ne
+lisaient que le calendrier scolaire — jours-cycle, congés, pédagogiques, la note
+du jour — et ignoraient les séances, c'est-à-dire l'essentiel de ce que le prof
+a saisi.
+⚠ **La fenêtre s'ouvrait sur la PLANIFICATION** (demandé le 28 août). Elle
+s'ouvre sur les **PRÉSENCES** : la planification s'écrit le dimanche soir, les
+présences se prennent six fois par jour. Les huit portes restent à un doigt.
+⚠ On lit les **clés du stockage** (`se:<iso>:p<n>`) plutôt que de parcourir les
+périodes de l'horaire : une séance posée sur une période supprimée depuis
+resterait invisible autrement — et elle existe pourtant.
+⚠ `.annee-row` est une grille à quatre colonnes : ajoutée à la fin, la bande de
+pastilles retombait sur une rangée implicite, décalée sous les champs. Elle est
+posée **en tête**, sur toute la largeur.
+⚠ La case de MON MOIS **porte sa date** (`data-iso`) depuis ce chantier. Sans
+ça, tout ce qui veut s'y greffer doit refaire à l'envers le calcul des cases
+vides de début de mois et des fins de semaine sautées.
+
+### La boîte à outils, à l'horizontale
+
+Joey : « enlève ça et mets à la place les apps qui sont flottantes sur le côté
+de la page d'accueil, ici, à l'horizontal ».
+
+Les **sept outils du rail de zonetotalsport.ca**, en tête de MA JOURNÉE —
+mêmes icônes, mêmes noms, même ordre :
+🎲 Dé · 🎡 Roue · ⏱️ Chrono · ⏲️ Minuteur · 👥 Équipes · 📝 Message · 🏫 Mon école.
+
+⚠ **Deux des sept ne sont pas réécrits, ils OUVRENT ce qui existe** : ⏱️ CHRONO
+va à l'écran TESTS (chronomètre à tours, là depuis toujours) et ⏲️ MINUTEUR
+ouvre le tiroir (minuterie **et** buzzer). Un deuxième chronomètre et un
+troisième compte à rebours auraient été exactement la redondance que tout ce
+chantier retire.
+⚠ **Roue et Équipes se PRÉREMPLISSENT** avec les élèves du groupe courant : sur
+le site la liste est vide et il faut la taper ; ici l'app connaît déjà le groupe.
+⚠ Le dé et la roue portent un **verrou** : sans lui, deux clics lancent deux
+intervalles et l'affichage s'emballe. Et `fermerModale()` coupe l'outil en cours,
+sinon l'intervalle bat sur un noeud détaché.
+
+**Ce que le rail a remplacé n'est pas perdu** : ▶ DÉMARRER LA SÉANCE et
+📺 MODE TABLEAU BLANC vivent dans la **fenêtre de séance** — leur troisième
+adresse, et la bonne : on ne démarre pas « une séance » dans l'abstrait, on
+démarre celle qu'on donne.
+⚠ La fenêtre est reconstruite à chaque ouverture : la barre est fabriquée UNE
+fois, détachée, et `poserLiveTbi()` la replace. Le même noeud voyage, ses
+écouteurs et son minuteur le suivent.
+
 ### Une période = une CARTE, avec ses images
 
 *(31 août — « au lieu que ce soit un rectangle mince, mets de la place pour

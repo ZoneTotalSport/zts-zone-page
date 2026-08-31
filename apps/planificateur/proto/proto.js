@@ -529,6 +529,11 @@ function peindreMois(){
     const jour = new Date(y,m,d).getDay(); if (jour===0||jour===6) continue;
     const k = iso(y,m,d);
     const c = el('div','mois-case');
+    /* ⚠ LA CASE PORTE SA DATE. Sans ça, tout ce qui veut s'y greffer — les
+       groupes du jour, depuis le 31 août — doit refaire à l'envers le calcul
+       des cases vides du début de mois et des fins de semaine sautées. Un
+       attribut vaut mieux qu'une arithmétique à reproduire. */
+    c.dataset.iso = k;
     if (marques[k]==='conge') c.classList.add('conge');
     if (marques[k]==='pedago'||marques[k]==='cssdhr') c.classList.add('pedago');
     c.innerHTML = '<span class="n"></span><span class="rom"></span><span class="spec"></span>'
@@ -592,6 +597,7 @@ function peindreAnnee(){
     for (let s=1; s<=semaines; s++){
       const r = el('div','annee-row');
       const kk = y+'-'+m+'-s'+s;
+      r.dataset.an=y; r.dataset.mois=m; r.dataset.sem=s;   /* voir MON MOIS */
       r.innerHTML = '<span class="fl">➜</span>'
         + '<div class="ch"       contenteditable data-k="an-c-'+kk+'" data-vide="…"></div>'
         + '<div class="ch ch--ma" contenteditable data-k="an-m-'+kk+'" data-vide="…"></div>'

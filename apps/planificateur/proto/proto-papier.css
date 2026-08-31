@@ -1012,3 +1012,22 @@ html[data-etroit="1"] .taille-crans button{width:40px;height:36px;font-size:21px
 html[data-etroit="1"] .outil-carte{flex:1 1 88px;min-height:76px;padding:8px 4px}
 html[data-etroit="1"] .outil-carte .emo{font-size:27px}
 html[data-etroit="1"] .outil-carte .nom{font-size:12px}
+
+/* ═════ LES GROUPES DANS MON MOIS ET MON ANNÉE ═════
+   La même pastille colorée qu'ailleurs, et le même geste : elle ouvre la
+   fenêtre du cours sur ses élèves. */
+.gr-pastille{
+  display:inline-flex;align-items:center;cursor:pointer;
+  font-family:var(--f-display),var(--f-titre);font-size:12px;letter-spacing:.4px;
+  padding:2px 7px;border:2px solid var(--noir);border-radius:8px;
+  box-shadow:2px 2px 0 var(--noir);line-height:1.25;
+}
+.gr-pastille:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--noir)}
+.gr-pastille:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--noir)}
+.gr-pastille--muet{cursor:default}
+.gr-pastille--muet:hover{transform:none;box-shadow:2px 2px 0 var(--noir)}
+.mois-grs{display:flex;flex-wrap:wrap;gap:3px;margin:3px 0 2px}
+.annee-grs{
+  grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:4px;align-items:center;
+  margin:2px 0 1px;
+}

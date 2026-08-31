@@ -1561,11 +1561,15 @@ peindreAgenda = function(){
         if (s.minuterie) pu.appendChild(el('span',null,'⏱️'));
         if (pu.children.length) b.appendChild(pu);
         b.title='Groupe '+gr.nom+' — '+jourLisible(iso)+', période '+p.n;
-        /* ⚠ « L'enseignant clique dessus, la planification est affichée
-           automatiquement. » On force donc le volet, au lieu de rouvrir sur le
-           dernier consulté — c'est la planification qu'on vient chercher. */
+        /* ⚠ ON OUVRE SUR LES ÉLÈVES, PLUS SUR LA PLANIFICATION. Joey, 31 août :
+           « les groupes, une fois placés dans l'app, servent à afficher les
+           élèves du groupe, prendre les présences, évaluer, prendre des notes
+           sur un élève. » Le 28, c'était la planification qu'il voulait voir
+           d'abord — mais la planification s'écrit le dimanche soir, tandis que
+           les présences se prennent six fois par jour. Les huit portes restent
+           là, à un doigt ; c'est le PREMIER écran qui change. */
         b.addEventListener('click', ev=>{ ev.stopPropagation();
-          ecrire('seVolet','cours'); ouvrirSeance(iso,p.n); });
+          ecrire('seVolet','presences'); ouvrirSeance(iso,p.n); });
         c.appendChild(b);
         const x=el('button','ag-vider','✕'); x.type='button'; x.title='Retirer ce groupe de la case';
         x.addEventListener('click', ev=>{ ev.stopPropagation();
