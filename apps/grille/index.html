@@ -232,6 +232,68 @@
        HERO — le langage de l'accueil : eyebrow jaune, titre Luckiest Guy a
        contour noir, personnage EPS. Se replie des qu'une ecole existe.
        ====================================================================== */
+    /* Le choix du metier, en petit, dans les Reglages : trois pastilles. */
+    .zgm-mini{display:flex; gap:6px; flex-wrap:wrap}
+    .zgm-mini button{
+      font-family:var(--f-titre); font-size:13px; letter-spacing:.4px;
+      padding:8px 12px; min-height:40px; cursor:pointer;
+      border:2.5px solid var(--encre); border-radius:var(--r-btn);
+      background:var(--card); color:var(--text); box-shadow:var(--ombre-petite);
+    }
+    .zgm-mini button[aria-pressed="true"]{background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00}
+    .zgm-mini button:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
+
+    /* ======================================================================
+       ECRAN DE CHOIX DU METIER — trois cartes, le langage des tuiles de
+       l'accueil : bordure noire epaisse, ombre portee dure, coins arrondis.
+
+       Il NE REMPLACE PAS le hero, il le precede. Un premier passage lit donc
+       « pour qui » puis « ce que ca fait » ; une ecole qui a deja son horaire
+       ne voit ni l'un ni l'autre. C'est aussi ce qui garde le demarrage
+       identique a celui de la PR 2 : le hero reste le hero.
+       ====================================================================== */
+    .zg-metier{padding:14px 16px 2px; text-align:center}
+    .zg-metier[hidden]{display:none}
+    .zgm-titre{
+      font-family:var(--f-display); font-size:clamp(23px,3.4vw,38px); line-height:1;
+      letter-spacing:1px; color:#fff; margin:0 0 16px;
+      text-shadow:var(--ombre-titre), var(--trait-noir);
+    }
+    .zgm-cartes{display:flex; gap:16px; flex-wrap:wrap; justify-content:center; max-width:1000px; margin:0 auto}
+    .zgm-carte{
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      width:min(290px,86vw); padding:14px 14px 16px; cursor:pointer; text-align:center;
+      border:3px solid var(--encre); border-radius:var(--r-card);
+      background:var(--card); color:var(--text);
+      box-shadow:var(--ombre-carte); transition:.1s;
+    }
+    /* Le personnage flotte comme dans le hero : c'est le meme geste, donc le
+       meme mouvement. Sans l'animation il aurait l'air colle. */
+    .zgm-carte img{
+      width:min(148px,62%); height:auto; display:block;
+      filter:drop-shadow(-6px 8px 0 rgba(0,0,0,.30));
+    }
+    .zgm-nom{font-family:var(--f-titre); font-size:19px; letter-spacing:.6px; line-height:1.1}
+    .zgm-desc{font-family:var(--f-note); font-size:17px; line-height:1.3; color:var(--muted); max-width:24ch}
+    .zgm-carte:hover {transform:translate(-2px,-2px); box-shadow:8px 11px 0 rgba(0,0,0,.45)}
+    .zgm-carte:active{transform:translate(2px,3px);  box-shadow:3px 4px 0 rgba(0,0,0,.45)}
+    .zgm-carte:focus-visible{outline:3px solid var(--yellow); outline-offset:4px}
+    /* Le metier actif se voit : le jaune de l'accueil, comme un bouton primaire. */
+    .zgm-carte[aria-pressed="true"]{
+      background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00;
+      box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35);
+    }
+    .zgm-carte[aria-pressed="true"] .zgm-desc{color:#4A4400}
+    .zgm-aide{
+      font-family:var(--f-note); font-size:17px; color:var(--sur-marine); margin-top:12px;
+      text-shadow:0 1px 2px rgba(6,23,38,.85);
+    }
+    @media(max-width:860px){
+      .zgm-carte{width:min(330px,92vw); flex-direction:row; text-align:left; align-items:center; gap:12px}
+      .zgm-carte img{width:74px}
+      .zgm-desc{max-width:none}
+    }
+
     .hero{display:flex; justify-content:center; padding:10px 16px 4px}
     .hero.hidden{display:none}
     .hero-box{
@@ -746,12 +808,49 @@
 </div>
 
 <!-- ======================================================================
+     CHOIX DU METIER — trois cartes, trois personnages. Cache par defaut :
+     c'est le JS qui l'ouvre, et seulement quand il n'y a encore rien a
+     perdre (aucune ressource, aucun demandeur). Une ecole qui rouvre son
+     horaire ne doit pas retomber sur une question deja repondue.
+     ====================================================================== -->
+<section class="zg-metier" id="metierChoix" hidden aria-labelledby="metierTitre">
+  <h2 class="zgm-titre" id="metierTitre" data-t="metierTitre">Pour qui bâtis-tu l'horaire?</h2>
+  <div class="zgm-cartes">
+      <button type="button" class="zgm-carte" data-m="ep" aria-pressed="false" onclick="choisirMetier('ep')">
+        <picture>
+          <source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp">
+          <img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="eager" decoding="async">
+        </picture>
+        <span class="zgm-nom" data-t="metierEp">Ecole primaire</span>
+        <span class="zgm-desc" data-t="metierEpDesc">Specialistes : EPS, musique, anglais, arts.</span>
+      </button>
+      <button type="button" class="zgm-carte" data-m="sdg" aria-pressed="false" onclick="choisirMetier('sdg')">
+        <picture>
+          <source srcset="../../shared/img/perso/perso-sdg-264.webp" type="image/webp">
+          <img src="../../shared/img/perso/perso-sdg-264.png" alt="" width="264" height="264" loading="eager" decoding="async">
+        </picture>
+        <span class="zgm-nom" data-t="metierSdg">Service de garde</span>
+        <span class="zgm-desc" data-t="metierSdgDesc">Educateurs, groupes, ratios, blocs du midi.</span>
+      </button>
+      <button type="button" class="zgm-carte" data-m="camp" aria-pressed="false" onclick="choisirMetier('camp')">
+        <picture>
+          <source srcset="../../shared/img/perso/perso-camp-264.webp" type="image/webp">
+          <img src="../../shared/img/perso/perso-camp-264.png" alt="" width="264" height="264" loading="eager" decoding="async">
+        </picture>
+        <span class="zgm-nom" data-t="metierCamp">Camp de jour</span>
+        <span class="zgm-desc" data-t="metierCampDesc">Moniteurs, groupes d'age, blocs d'activites.</span>
+      </button>
+  </div>
+  <p class="zgm-aide" data-t="metierAide">Tu pourras en changer en tout temps dans les Réglages.</p>
+</section>
+
+<!-- ======================================================================
      HERO — le langage de l'accueil. Se replie des qu'une ecole existe.
      ====================================================================== -->
 <section class="hero" id="heroSection">
   <div class="hero-box">
     <div class="hb-left">
-      <picture>
+      <picture data-perso>
         <source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp">
         <img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="eager" decoding="async">
       </picture>
@@ -827,6 +926,7 @@ heroTitle:'Ta grille horaire<span>sur mesure!</span>',
 heroDesc:'Fini le casse-tête de la planification! Configure tes périodes en 30 secondes, clique sur un jour pour placer tes spécialistes et groupes-classes. Le % de tâche se calcule en temps réel. Team teaching, multi-gymnases, validation automatique — tout y est. Sauvegarde automatique et exporte en PDF pour ta direction. Les enseignants les plus organisés utilisent déjà cet outil — c\'est ton tour!',
 heroBadge1:'📅 5 à 10 jours/cycle',heroBadge2:'⚙️ 3 à 7 périodes',heroBadge3:'🌍 4 langues',heroBadge5:'🤖 Auto-remplissage',
 heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',
+metierTitre:'Pour qui bâtis-tu l\'horaire?',metierAide:'Tu pourras en changer en tout temps dans les Réglages.',metierLabel:'Métier',metierOk:'Mode',metierEp:'École primaire',metierEpDesc:'Spécialistes : ÉPS, musique, anglais, arts.',metierSdg:'Service de garde',metierSdgDesc:'Éducateurs, groupes, ratios, blocs du midi.',metierCamp:'Camp de jour',metierCampDesc:'Moniteurs, groupes d\'âge, blocs d\'activités.',
 helpTitle:'Comment utiliser<span>la grille horaire</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
 helpValidation:'Validation conflits',helpAutoSave:'Sauvegarde auto',helpGotIt:'Compris!',
@@ -849,6 +949,7 @@ heroTitle:'Your schedule grid<span>made easy!</span>',
 heroDesc:'No more planning headaches! Set up your periods in 30 seconds, click a day to place your specialists and class groups. Task % is calculated in real time. Team teaching, multiple gyms, automatic validation — it\'s all here. Auto-save and export to PDF for your admin. The most organized teachers already use this tool — your turn!',
 heroBadge1:'📅 5 to 10 days/cycle',heroBadge2:'⚙️ 3 to 7 periods',heroBadge3:'🌍 4 languages',heroBadge5:'🤖 Auto-fill',
 heroStart:'🚀 Get started!',heroHelp:'📖 How to use',
+metierTitre:'Who are you building the schedule for?',metierAide:'You can switch any time in Settings.',metierLabel:'Mode',metierOk:'Mode',metierEp:'Elementary school',metierEpDesc:'Specialists: PE, music, English, arts.',metierSdg:'Daycare service',metierSdgDesc:'Educators, groups, ratios, midday blocks.',metierCamp:'Day camp',metierCampDesc:'Counsellors, age groups, activity blocks.',
 helpTitle:'How to use<span>the schedule grid</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
 helpValidation:'Conflict check',helpAutoSave:'Auto-save',helpGotIt:'Got it!',
@@ -871,6 +972,7 @@ heroTitle:'Tu horario escolar<span>a tu medida!</span>',
 heroDesc:'¡Se acabó el rompecabezas de la planificación! Configura tus períodos en 30 segundos, haz clic en un día para colocar tus especialistas y grupos. El % de tarea se calcula en tiempo real. Enseñanza en equipo, múltiples gimnasios, validación automática — todo está aquí. Guardado automático y exporta en PDF para tu dirección. Los docentes más organizados ya usan esta herramienta — ¡es tu turno!',
 heroBadge1:'📅 5 a 10 días/ciclo',heroBadge2:'⚙️ 3 a 7 períodos',heroBadge3:'🌍 4 idiomas',heroBadge5:'🤖 Auto-llenado',
 heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',
+metierTitre:'¿Para quién creas el horario?',metierAide:'Puedes cambiarlo cuando quieras en Configuración.',metierLabel:'Modo',metierOk:'Modo',metierEp:'Escuela primaria',metierEpDesc:'Especialistas: EF, música, inglés, artes.',metierSdg:'Servicio de guardería',metierSdgDesc:'Educadores, grupos, ratios, bloques del mediodía.',metierCamp:'Campamento de día',metierCampDesc:'Monitores, grupos de edad, bloques de actividades.',
 helpTitle:'Cómo usar<span>el horario escolar</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
 helpValidation:'Validación conflictos',helpAutoSave:'Guardado auto',helpGotIt:'¡Entendido!',
@@ -893,13 +995,146 @@ heroTitle:'你的课程表<span>量身定制!</span>',
 heroDesc:'告别排课烦恼！30秒配置课时，点击日期安排专科教师和班级。任务百分比实时计算。协同教学、多体育馆、自动验证——一应俱全。自动保存，导出PDF给校长。最有组织的老师已经在用这个工具了——轮到你了！',
 heroBadge1:'📅 5至10天/周期',heroBadge2:'⚙️ 3至7节课',heroBadge3:'🌍 4种语言',heroBadge5:'🤖 自动填充',
 heroStart:'🚀 开始!',heroHelp:'📖 使用说明',
+metierTitre:'你要为谁编排时间表？',metierAide:'随时可在设置中更改。',metierLabel:'模式',metierOk:'模式',metierEp:'小学',metierEpDesc:'专科教师：体育、音乐、英语、艺术。',metierSdg:'课后托管',metierSdgDesc:'辅导员、班组、师生比、午间时段。',metierCamp:'日间营',metierCampDesc:'营辅导员、年龄组、活动时段。',
 helpTitle:'如何使用<span>课程表</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
 helpValidation:'冲突验证',helpAutoSave:'自动保存',helpGotIt:'明白了!',
 clickToPlace:'点击安排',needsMore:'需要',selectClassFor:'选择班级',addClassesFirst:'⚠️ 请先添加班级！',needMin:'分钟'}
 };
-function t(k){return I[lang]?.[k]||I.fr[k]||k}
-function applyI18n(){document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;if(I[lang]?.[k])el.innerHTML=I[lang][k]})}
+
+/* =======================================================================
+   LE VOCABULAIRE DE CHAQUE GABARIT
+   -----------------------------------------------------------------------
+   Un service de garde n'a pas de « matieres » et un camp n'a pas de
+   « titulaires ». Plutot que de renommer les champs — ce qui casserait les
+   horaires deja enregistres — on ne change QUE les mots affiches.
+
+   La table n'est PAS une traduction de plus : c'est une COUCHE au-dessus de
+   `I`. Une cle absente ici retombe sur le mot d'ecole, dans la langue
+   courante. C'est ce qui permet de n'ecrire que les mots qui different.
+
+   L'ecole, elle, n'a pas d'entree du tout : ses mots SONT les mots de base.
+   `t()` reprend alors exactement le chemin d'avant — c'est la preuve la plus
+   courte que le mode Ecole est inchange.
+   ======================================================================= */
+const MOTS={
+  sdg:{
+    fr:{appTitle:'GRILLE DU SERVICE DE GARDE',schoolName:'Nom du service',tplFait:'Modèle de départ chargé!',specRoom:'Local',heroEyebrow:'Service de garde · Primaire',
+      heroTitle:'Ton horaire<span>de service de garde!</span>',
+      heroDesc:'Fini le casse-tête des tableaux de service! Configure tes blocs en 30 secondes, clique sur un jour pour placer tes éducateurs et tes groupes. Le % de tâche se calcule en temps réel. Ratios, locaux partagés, surveillances du midi — tout y est. Sauvegarde automatique et impression pour ta direction.',
+      cptCours:'Blocs',coursesPlaced:'blocs placés',autoSuccess:'blocs placés!',
+      btnSpecialistes:'Éducateurs',btnClasses:'Groupes',
+      specSubject:'Service',classTitulaire:'Responsable',subjectsTitle:'Services (min/cycle)',
+      noSpec:'Aucun éducateur',noClass:'Aucun groupe — ajoutez des groupes !',
+      typ_spec:'éducateur',typ_titulaire:'responsable',
+      autoAddFirst:'Ajoutez éducateurs et groupes.',
+      survAide:'Les éducateurs sont déjà là. Ajoute le personnel qui prend des surveillances.',
+      helpTitle:'Comment utiliser<span>la grille du service de garde</span>'},
+    en:{appTitle:'DAYCARE SCHEDULE',schoolName:'Service name',tplFait:'Starter template loaded!',specRoom:'Room',heroEyebrow:'Daycare · Elementary',
+      heroTitle:'Your daycare<span>schedule made easy!</span>',
+      heroDesc:'No more staffing-board headaches! Set your blocks up in 30 seconds, click a day to place your educators and groups. Workload % is computed live. Ratios, shared rooms, midday supervision — it is all here. Auto-save and printing for your principal.',
+      cptCours:'Blocks',coursesPlaced:'blocks placed',autoSuccess:'blocks placed!',
+      btnSpecialistes:'Educators',btnClasses:'Groups',
+      specSubject:'Service',classTitulaire:'Lead',subjectsTitle:'Services (min/cycle)',
+      noSpec:'No educator',noClass:'No group — add groups!',
+      typ_spec:'educator',typ_titulaire:'lead',
+      autoAddFirst:'Add educators and groups.',
+      survAide:'Educators are already listed. Add the staff who take supervision duties.',
+      helpTitle:'How to use<span>the daycare schedule</span>'},
+    es:{appTitle:'HORARIO DEL SERVICIO DE GUARDERÍA',schoolName:'Nombre del servicio',tplFait:'¡Plantilla inicial cargada!',specRoom:'Local',heroEyebrow:'Guardería · Primaria',
+      heroTitle:'¡Tu horario<span>de guardería!</span>',
+      heroDesc:'¡Se acabó el rompecabezas de los turnos! Configura tus bloques en 30 segundos, haz clic en un día para colocar a tus educadores y grupos. El % de tarea se calcula en tiempo real. Ratios, locales compartidos, vigilancias del mediodía — todo está aquí. Guardado automático e impresión para tu dirección.',
+      cptCours:'Bloques',coursesPlaced:'bloques colocados',autoSuccess:'¡bloques colocados!',
+      btnSpecialistes:'Educadores',btnClasses:'Grupos',
+      specSubject:'Servicio',classTitulaire:'Responsable',subjectsTitle:'Servicios (min/ciclo)',
+      noSpec:'Ningún educador',noClass:'Ningún grupo — ¡agregue grupos!',
+      typ_spec:'educador',typ_titulaire:'responsable',
+      autoAddFirst:'Agregue educadores y grupos.',
+      survAide:'Los educadores ya están en la lista. Agregue el personal que hace vigilancias.',
+      helpTitle:'Cómo usar<span>el horario de guardería</span>'},
+    zh:{appTitle:'课后托管时间表',schoolName:'服务名称',tplFait:'已加载起始模板！',specRoom:'场地',heroEyebrow:'课后托管 · 小学',
+      heroTitle:'你的课后托管<span>时间表!</span>',
+      heroDesc:'告别排班烦恼！30秒配置时段，点击日期安排辅导员和班组。工作量百分比实时计算。师生比、共用场地、午间值班——一应俱全。自动保存，可打印交给校长。',
+      cptCours:'时段',coursesPlaced:'时段已安排',autoSuccess:'时段已安排！',
+      btnSpecialistes:'辅导员',btnClasses:'班组',
+      specSubject:'服务',classTitulaire:'负责人',subjectsTitle:'服务(分钟/周期)',
+      noSpec:'没有辅导员',noClass:'没有班组——请先添加！',
+      typ_spec:'辅导员',typ_titulaire:'负责人',
+      autoAddFirst:'请先添加辅导员和班组。',
+      survAide:'辅导员已列入。请添加承担值班的其他人员。',
+      helpTitle:'如何使用<span>课后托管时间表</span>'}
+  },
+  camp:{
+    fr:{appTitle:'GRILLE DU CAMP DE JOUR',schoolName:'Nom du camp',tplFait:'Modèle de départ chargé!',specRoom:'Plateau',heroEyebrow:'Camp de jour · Été',
+      heroTitle:'Ton horaire<span>de camp de jour!</span>',
+      heroDesc:'Fini le casse-tête de la programmation! Configure tes blocs en 30 secondes, clique sur un jour pour placer tes moniteurs et tes groupes d\'âge. Le % de tâche se calcule en temps réel. Plateaux partagés, sorties, surveillances du dîner — tout y est. Sauvegarde automatique et impression pour ta coordination.',
+      cptCours:'Activités',coursesPlaced:'activités placées',autoSuccess:'activités placées!',
+      btnSpecialistes:'Moniteurs',btnClasses:'Groupes',btnLocaux:'Plateaux',
+      specSubject:'Activité',classLevel:'Groupe d\'âge',classTitulaire:'Responsable',
+      subjectsTitle:'Activités (min/cycle)',roomName:'Nom du plateau',
+      noSpec:'Aucun moniteur',noClass:'Aucun groupe — ajoutez des groupes !',noRoom:'Aucun plateau',
+      typ_spec:'moniteur',typ_titulaire:'responsable',
+      autoAddFirst:'Ajoutez moniteurs et groupes.',
+      survAide:'Les moniteurs sont déjà là. Ajoute le personnel qui prend des surveillances.',
+      helpTitle:'Comment utiliser<span>la grille du camp de jour</span>'},
+    en:{appTitle:'DAY CAMP SCHEDULE',schoolName:'Camp name',tplFait:'Starter template loaded!',specRoom:'Area',heroEyebrow:'Day camp · Summer',
+      heroTitle:'Your day camp<span>schedule made easy!</span>',
+      heroDesc:'No more programming headaches! Set your blocks up in 30 seconds, click a day to place your counsellors and age groups. Workload % is computed live. Shared areas, outings, lunch supervision — it is all here. Auto-save and printing for your coordinator.',
+      cptCours:'Activities',coursesPlaced:'activities placed',autoSuccess:'activities placed!',
+      btnSpecialistes:'Counsellors',btnClasses:'Groups',btnLocaux:'Areas',
+      specSubject:'Activity',classLevel:'Age group',classTitulaire:'Lead',
+      subjectsTitle:'Activities (min/cycle)',roomName:'Area name',
+      noSpec:'No counsellor',noClass:'No group — add groups!',noRoom:'No area',
+      typ_spec:'counsellor',typ_titulaire:'lead',
+      autoAddFirst:'Add counsellors and groups.',
+      survAide:'Counsellors are already listed. Add the staff who take supervision duties.',
+      helpTitle:'How to use<span>the day camp schedule</span>'},
+    es:{appTitle:'HORARIO DEL CAMPAMENTO',schoolName:'Nombre del campamento',tplFait:'¡Plantilla inicial cargada!',specRoom:'Espacio',heroEyebrow:'Campamento · Verano',
+      heroTitle:'¡Tu horario<span>de campamento!</span>',
+      heroDesc:'¡Se acabó el rompecabezas de la programación! Configura tus bloques en 30 segundos, haz clic en un día para colocar a tus monitores y grupos de edad. El % de tarea se calcula en tiempo real. Espacios compartidos, salidas, vigilancias del almuerzo — todo está aquí. Guardado automático e impresión para tu coordinación.',
+      cptCours:'Actividades',coursesPlaced:'actividades colocadas',autoSuccess:'¡actividades colocadas!',
+      btnSpecialistes:'Monitores',btnClasses:'Grupos',btnLocaux:'Espacios',
+      specSubject:'Actividad',classLevel:'Grupo de edad',classTitulaire:'Responsable',
+      subjectsTitle:'Actividades (min/ciclo)',roomName:'Nombre del espacio',
+      noSpec:'Ningún monitor',noClass:'Ningún grupo — ¡agregue grupos!',noRoom:'Ningún espacio',
+      typ_spec:'monitor',typ_titulaire:'responsable',
+      autoAddFirst:'Agregue monitores y grupos.',
+      survAide:'Los monitores ya están en la lista. Agregue el personal que hace vigilancias.',
+      helpTitle:'Cómo usar<span>el horario del campamento</span>'},
+    zh:{appTitle:'日间营时间表',schoolName:'营地名称',tplFait:'已加载起始模板！',specRoom:'场地',heroEyebrow:'日间营 · 夏季',
+      heroTitle:'你的日间营<span>时间表!</span>',
+      heroDesc:'告别排程烦恼！30秒配置时段，点击日期安排营辅导员和年龄组。工作量百分比实时计算。共用场地、外出活动、午餐值班——一应俱全。自动保存，可打印交给协调人。',
+      cptCours:'活动',coursesPlaced:'活动已安排',autoSuccess:'活动已安排！',
+      btnSpecialistes:'营辅导员',btnClasses:'班组',btnLocaux:'场地',
+      specSubject:'活动',classLevel:'年龄组',classTitulaire:'负责人',
+      subjectsTitle:'活动(分钟/周期)',roomName:'场地名称',
+      noSpec:'没有营辅导员',noClass:'没有班组——请先添加！',noRoom:'没有场地',
+      typ_spec:'营辅导员',typ_titulaire:'负责人',
+      autoAddFirst:'请先添加营辅导员和班组。',
+      survAide:'营辅导员已列入。请添加承担值班的其他人员。',
+      helpTitle:'如何使用<span>日间营时间表</span>'}
+  }
+};
+/* Le vocabulaire du gabarit ACTIF, ou null. Le `try` n'est pas de la
+   prudence decorative : `S` et `GABARITS` sont declares plus bas dans le
+   meme script, et une lecture avant leur ligne leverait une ReferenceError.
+   Aucun appel ne se produit avant le chargement — mais si un jour il s'en
+   glisse un, il doit rendre le mot d'ecole, pas casser la page. */
+function motsGabarit(){
+  try{const g=GABARITS[S.metier];return (g&&g.mots)||null}catch(e){return null}
+}
+/* Chaine de repli, du plus precis au plus general :
+   mot du gabarit dans la langue -> mot du gabarit en francais
+   -> mot de base dans la langue -> mot de base en francais -> la cle.
+   Le gabarit Ecole n'ayant pas de table, il saute les deux premiers crans. */
+function t(k){
+  const M=motsGabarit();
+  if(M){
+    const v=(M[lang]&&M[lang][k]!==undefined)?M[lang][k]:(M.fr?M.fr[k]:undefined);
+    if(v!==undefined&&v!==null)return v;
+  }
+  return I[lang]?.[k]||I.fr[k]||k}
+function applyI18n(){document.querySelectorAll('[data-t]').forEach(el=>{const k=el.dataset.t;const v=t(k);if(v!==k)el.innerHTML=v})}
 
 // STATE
 const DEF_PER=[{type:'period',num:1,start:'08:20',end:'09:10'},{type:'period',num:2,start:'09:15',end:'10:05'},{type:'recess',label:'Récré',start:'10:05',end:'10:20'},{type:'period',num:3,start:'10:20',end:'11:10'},{type:'lunch',label:'Dîner',start:'11:10',end:'12:40'},{type:'period',num:4,start:'12:40',end:'13:30'},{type:'period',num:5,start:'13:35',end:'14:25'}];
@@ -942,8 +1177,31 @@ const GABARITS={
   ep:{
     id:'ep',
     perso:'perso-ep',
+    // L'ecole n'a pas de table de mots : les siens SONT les mots de base.
+    mots: null,
     // Les accesseurs pointent les champs EXISTANTS. Pas une copie, pas un
     // renommage : la meme donnee, lue par un autre chemin.
+    ressources: E=>E.specialists,
+    demandeurs: E=>E.classes,
+    lieux:      E=>E.rooms
+  },
+  /* Etape 2 : les deux autres metiers EXISTENT — ils ont leur personnage et
+     leurs mots — mais ils lisent encore les memes champs que l'ecole. C'est
+     voulu : le moteur ne bouge pas d'une ligne a cette etape. Leurs regles
+     propres (ratio, capacite, contrainte dure) arrivent aux etapes 3 et 4,
+     par les deux points d'extension, pas par une refonte. */
+  sdg:{
+    id:'sdg',
+    perso:'perso-sdg',
+    mots: MOTS.sdg,
+    ressources: E=>E.specialists,
+    demandeurs: E=>E.classes,
+    lieux:      E=>E.rooms
+  },
+  camp:{
+    id:'camp',
+    perso:'perso-camp',
+    mots: MOTS.camp,
     ressources: E=>E.specialists,
     demandeurs: E=>E.classes,
     lieux:      E=>E.rooms
@@ -1320,10 +1578,70 @@ function showWelcome(){
   if(h&&(demandeurs().length||ressources().length))h.classList.add('hidden');
 }
 
+/* =======================================================================
+   LE CHOIX DU METIER
+   -----------------------------------------------------------------------
+   Trois cartes, trois personnages, un seul effet : `S.metier`. Tout le reste
+   — les mots, le personnage du hero, l'attribut lu par les feuilles
+   partagees — en decoule. Aucune donnee n'est convertie : changer de metier
+   change ce qu'on LIT de l'horaire, jamais ce qu'il contient.
+   ======================================================================= */
+
+/* L'attribut que les feuilles partagees lisent pour teinter un accent.
+   Valeurs : 'ep' / 'sdg' / 'camp'. JAMAIS 'eps' — le bug connu de
+   studio-jeu, ou un 's' de trop eteint toutes les regles d'accent. */
+function appliquerMetier(){
+  const g=gabarit();
+  if(document.body)document.body.setAttribute('data-metier',g.id);
+  majPerso();
+  document.querySelectorAll('.zgm-carte,.zgm-mini button').forEach(b=>{
+    b.setAttribute('aria-pressed', b.dataset.m===g.id ? 'true' : 'false')});
+}
+/* Une seule source pour le personnage : `gabarit().perso`. Les cartes du
+   choix, elles, gardent chacune le leur — c'est leur raison d'etre. */
+function majPerso(){
+  const g=gabarit();
+  document.querySelectorAll('picture[data-perso]').forEach(pic=>{
+    const so=pic.querySelector('source'),im=pic.querySelector('img');
+    if(so)so.srcset='../../shared/img/perso/'+g.perso+'-264.webp';
+    if(im)im.src='../../shared/img/perso/'+g.perso+'-264.png';
+  });
+}
+/* Le nom affichable d'un metier — 'ep' -> la cle 'metierEp'. */
+function nomMetier(id){return t('metier'+id.charAt(0).toUpperCase()+id.slice(1))}
+
+function choisirMetier(id){
+  if(!GABARITS[id])return;
+  S.metier=id;
+  // La reponse est donnee : l'ecran ne se reposera plus la question.
+  S.metierChoisi=true;
+  save();
+  const ec=document.getElementById('metierChoix');if(ec)ec.hidden=true;
+  appliquerMetier();applyI18n();renderAll();
+  toast('✅ '+t('metierOk')+' — '+nomMetier(id));
+}
+/* Depuis les Reglages : meme effet, mais la modale doit se redessiner pour
+   afficher les mots du nouveau metier. */
+function changerMetierReglages(id){
+  if(!GABARITS[id]||id===S.metier)return;
+  S.metier=id;S.metierChoisi=true;save();
+  appliquerMetier();applyI18n();renderAll();
+  closeModals();openSetupModal();
+  toast('✅ '+t('metierOk')+' — '+nomMetier(id));
+}
+/* L'ecran ne s'ouvre qu'a un VRAI premier passage : rien de configure, et
+   aucune reponse deja donnee. Une ecole qui rouvre son horaire ne doit pas
+   retomber sur une question a laquelle elle a repondu en aout. */
+function montrerChoixMetier(){
+  const ec=document.getElementById('metierChoix');if(!ec)return;
+  const vide=!ressources().length&&!demandeurs().length;
+  ec.hidden=!(vide&&!S.metierChoisi);
+}
+
 function showHelp(){
   closeModals();const ov=document.createElement('div');ov.className='modal';ov.id='helpOv';
   ov.innerHTML=`<div class="mbox" style="max-width:860px"><div class="hero-box" style="gap:16px">
-    <div class="hb-left"><picture><source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp"><img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="lazy" decoding="async"></picture></div>
+    <div class="hb-left"><picture data-perso><source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp"><img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="lazy" decoding="async"></picture></div>
     <div class="hb-right" style="max-height:80vh;overflow-y:auto">
       <h2>${t('helpTitle')}</h2>
       <div class="hb-desc" style="margin-bottom:10px">${t('helpBody')}</div>
@@ -1337,10 +1655,15 @@ function showHelp(){
         <button class="hb-btn main" onclick="closeModals()">👍 ${t('helpGotIt')}</button>
       </div>
     </div></div></div>`;
-  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
+  document.body.appendChild(ov);majPerso();ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
 function useTemplate(){
-  S.metier='ep';
+  /* Le modele ne CHOISIT pas le metier : il remplit celui qui est choisi.
+     Ecraser a 'ep' ici renverrait un camp a l'ecole des qu'il clique
+     « Commencer ». Les jeux de depart propres a chaque metier viennent a
+     l'etape 4 ; d'ici la, le modele d'ecole sert de point de depart commun. */
+  if(!S.metier||!GABARITS[S.metier])S.metier='ep';
+  S.metierChoisi=true;
   S.school={name:'Mon école',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',periods:JSON.parse(JSON.stringify(DEF_PER))};
   // Une tache pleine, c'est tout le cycle : 9 jours x 5 periodes = 45.
   // L'ancienne valeur en dur (30) ne correspondait a aucune journee reelle.
@@ -1370,6 +1693,7 @@ function openSetupModal(){
   let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);min-width:30px">P${p.num}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
   let sRows=S.subjects.map((su,i)=>`<tr><td><span class="cdot" style="background:${su.color}"></span><input type="text" value="${su.name}" data-si="${i}" data-sf="name" style="border:none;background:transparent;font-weight:600;width:120px"></td>${levs.map(l=>`<td><input type="number" value="${su.min[l]||0}" min="0" data-si="${i}" data-sl="${l}" style="width:42px;text-align:center;border:1px solid #eee;border-radius:3px;padding:2px"></td>`).join('')}<td><button class="btn r sm" data-delsub="${i}">✕</button></td></tr>`).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:720px"><h3>⚙️ ${t('configSchool')}</h3>
+    <div class="fr"><label>${t('metierLabel')}</label><div class="zgm-mini">${Object.keys(GABARITS).map(id=>`<button type="button" data-m="${id}" aria-pressed="${S.metier===id?'true':'false'}" onclick="changerMetierReglages('${id}')">${nomMetier(id)}</button>`).join('')}</div></div>
     <div class="fr"><label>${t('schoolName')}</label><input type="text" id="sN" value="${S.school.name}" style="flex:1"></div>
     <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,7,8,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
     <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||tache100Defaut()}" min="1" max="200" step="1" style="width:70px" oninput="const e=document.getElementById('sT100Note');if(e)e.textContent=t('tache100Manuel')"><button type="button" class="btn o sm" id="sT100R" title="${t('tache100Auto')}">↺</button> <small id="sT100Note" style="color:var(--muted);font-family:var(--f-note);font-size:14px">${S.school.tache100Manuel?t('tache100Manuel'):t('tache100Auto')}</small> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
@@ -1664,7 +1988,7 @@ function importerJSON(input){
       migrer();
       if(p.lang&&I[p.lang]){lang=p.lang;localStorage.setItem('gh_lang',lang);
         const sel=document.getElementById('langSel');if(sel)sel.value=lang}
-      save();showWelcome();renderAll();
+      save();appliquerMetier();showWelcome();montrerChoixMetier();renderAll();
       toast('📂 '+t('importOk')+' — '+demandeurs().length+' / '+ressources().length);
     }catch(e){toast('❌ '+(e.message||t('importErr')),4000)}
   };
@@ -1837,7 +2161,7 @@ function assurerStructures(){
 function renderAll(){assurerStructures();resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
 
 document.addEventListener('DOMContentLoaded',()=>{
-  load();applyI18n();renderAll();showWelcome();calerSousHeader();
+  load();appliquerMetier();applyI18n();renderAll();showWelcome();montrerChoixMetier();calerSousHeader();
   // Le header partage se monte en differe (zts-menu.js) et sa hauteur change
   // au redimensionnement : on remesure plutot que de figer une valeur.
   window.addEventListener('load',calerSousHeader);
