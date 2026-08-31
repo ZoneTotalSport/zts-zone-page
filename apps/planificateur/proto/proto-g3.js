@@ -407,16 +407,192 @@ function illustrationsDuCours(iso, per){
   return z;
 }
 
-/* le bouton qui ouvre le tiroir des jeux, à côté de LIVE et du TABLEAU BLANC.
-   ⚠ Il est posé APRÈS `liveEtTbi()` (proto-fusion.js), qui a déjà rempli
-   `#aujActions` : on ajoute à la même barre plutôt que d'en créer une seconde. */
-(function boutonJeux(){
+/* ═════════ LA BOÎTE À OUTILS, À L'HORIZONTALE ═════════
+   Joey, 31 août : « enlève ça et mets à la place les apps qui sont flottantes
+   sur le côté de la page d'accueil, ici, à l'horizontal ».
+
+   Ce sont les sept outils du rail de zonetotalsport.ca — mêmes icônes, mêmes
+   noms, même ordre : 🎲 Dé · 🎡 Roue · ⏱️ Chrono · ⏲️ Minuteur · 👥 Équipes ·
+   📝 Message · 🏫 Mon école. Ils remplacent ▶ DÉMARRER LA SÉANCE, 📺 MODE
+   TABLEAU BLANC et 🎲 JEUX, qui n'ont pas disparu : les deux premiers vivent
+   maintenant DANS la séance, et le tiroir des jeux s'ouvre par ⏲️ MINUTEUR.
+
+   ⚠ DEUX DES SEPT NE SONT PAS RÉÉCRITS, ILS OUVRENT CE QUI EXISTE DÉJÀ :
+   · ⏱️ CHRONO   → l'écran TESTS, qui a le chronomètre à tours depuis toujours ;
+   · ⏲️ MINUTEUR → le tiroir, qui porte la minuterie ET le buzzer.
+   Écrire un deuxième chronomètre et un troisième compte à rebours aurait été
+   exactement la redondance que tout ce chantier retire.
+
+   ⚠ Roue et Équipes se PRÉREMPLISSENT avec les élèves du groupe courant. Sur
+   le site, la liste est vide et il faut la taper : ici l'app connaît déjà le
+   groupe, ce serait absurde de le redemander. */
+function elevesDuGroupeCourant(){
+  const g=(typeof GRP==='function') ? GRP()[ctxGroupe] : null;
+  if (!g || !Array.isArray(g.eleves)) return [];
+  return g.eleves.map(i=>ELEVES[i]).filter(Boolean);
+}
+function nomGroupeCourant(){
+  const g=(typeof GRP==='function') ? GRP()[ctxGroupe] : null;
+  return g ? g.nom : '';
+}
+
+/* ── 🎲 le dé ── */
+function outilDe(){
+  const c=ouvrirModale('🎲 Dé');
+  c.innerHTML=`
+    <div class="m-champ"><span class="m-lab">Combien de faces&nbsp;?</span>
+      <div class="note-choix" id="deFaces"></div></div>
+    <div class="outil-affiche" id="deVal">–</div>
+    <div class="m-pied"><button type="button" class="m-valider" id="deGo">🎲 LANCER</button>
+      <button type="button" class="mini" data-fermer>FERMER</button></div>`;
+  let faces=lire('deFaces',6);
+  const hf=$('#deFaces');
+  [4,6,10,12,20].forEach(n=>{
+    const b=el('button'); b.type='button';
+    b.innerHTML='<span></span>'; b.firstChild.textContent=n+' faces';
+    b.setAttribute('aria-pressed', String(n===faces));
+    b.addEventListener('click',()=>{ faces=n; ecrire('deFaces',n);
+      $$('#deFaces button').forEach(x=>x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true'); });
+    hf.appendChild(b);
+  });
+  let iv=null;
+  $('#deGo').addEventListener('click',()=>{
+    if (iv) return;                       /* ⚠ sans ce garde, deux clics = deux
+                                             intervalles, et le dé s'emballe */
+    const d=$('#deVal'); d.classList.add('roule');
+    let n=0;
+    iv=setInterval(()=>{
+      d.textContent=Math.floor(Math.random()*faces)+1;
+      if (++n>12){ clearInterval(iv); iv=null; d.classList.remove('roule'); }
+    },80);
+  });
+  surFermetureModale(()=>{ if(iv) clearInterval(iv); iv=null; });
+}
+
+/* ── 🎡 la roue ── */
+function outilRoue(){
+  const c=ouvrirModale('🎡 Roue');
+  const noms=elevesDuGroupeCourant();
+  c.innerHTML=`
+    <div class="aide-un-mot"><span class="emo">🎡</span>
+      Les noms du groupe <b>${nomGroupeCourant()||'?'}</b> sont déjà là. Tu peux en ajouter ou en retirer.</div>
+    <div class="m-champ"><label class="m-lab" for="roueNoms">Un nom par ligne</label>
+      <textarea class="m-saisie" id="roueNoms" rows="6"></textarea></div>
+    <div class="outil-affiche" id="roueVal">–</div>
+    <div class="m-pied"><button type="button" class="m-valider" id="roueGo">🎡 TOURNER</button>
+      <button type="button" class="mini" data-fermer>FERMER</button></div>`;
+  $('#roueNoms').value = noms.join('\n');
+  let iv=null;
+  $('#roueGo').addEventListener('click',()=>{
+    if (iv) return;
+    const l=$('#roueNoms').value.split('\n').map(x=>x.trim()).filter(Boolean);
+    if (!l.length){ $('#roueVal').textContent='Écris au moins un nom.'; return; }
+    const d=$('#roueVal'); d.classList.add('roule');
+    let n=0;
+    iv=setInterval(()=>{
+      d.textContent=l[Math.floor(Math.random()*l.length)];
+      if (++n>18){ clearInterval(iv); iv=null; d.classList.remove('roule'); }
+    },90);
+  });
+  surFermetureModale(()=>{ if(iv) clearInterval(iv); iv=null; });
+}
+
+/* ── 👥 les équipes ── */
+function outilEquipes(){
+  const c=ouvrirModale('👥 Équipes');
+  c.innerHTML=`
+    <div class="aide-un-mot"><span class="emo">👥</span>
+      Les élèves du groupe <b>${nomGroupeCourant()||'?'}</b> sont déjà là.</div>
+    <div class="m-champ"><label class="m-lab" for="eqNoms">Un nom par ligne</label>
+      <textarea class="m-saisie" id="eqNoms" rows="6"></textarea></div>
+    <div class="reg-ligne"><b>Combien d’équipes&nbsp;?</b>
+      <input class="m-saisie" id="eqNb" type="number" min="2" max="8" value="2" style="width:90px"></div>
+    <div class="m-pied"><button type="button" class="m-valider" id="eqGo">👥 FORMER LES ÉQUIPES</button>
+      <button type="button" class="mini" data-fermer>FERMER</button></div>
+    <div class="eq-res" id="eqRes"></div>`;
+  $('#eqNoms').value = elevesDuGroupeCourant().join('\n');
+  $('#eqGo').addEventListener('click',()=>{
+    const noms=$('#eqNoms').value.split('\n').map(x=>x.trim()).filter(Boolean);
+    const n=Math.max(2, Math.min(8, parseInt($('#eqNb').value,10)||2));
+    const h=$('#eqRes'); h.innerHTML='';
+    if (!noms.length){ h.textContent='Écris au moins un nom.'; return; }
+    /* Fisher-Yates, comme sur le site */
+    for (let i=noms.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));
+      [noms[i],noms[j]]=[noms[j],noms[i]]; }
+    const eq=Array.from({length:n},()=>[]);
+    noms.forEach((x,i)=> eq[i%n].push(x));
+    eq.forEach((liste,i)=>{
+      const b=el('div','eq-bloc');
+      b.appendChild(el('h4',null,'Équipe '+(i+1)+' — '+liste.length));
+      const ul=document.createElement('ul');
+      liste.forEach(x=> ul.appendChild(el('li',null,x)));
+      b.appendChild(ul); h.appendChild(b);
+    });
+  });
+}
+
+/* ── 📝 le message ── */
+function outilMessage(){
+  const c=ouvrirModale('📝 Message');
+  c.innerHTML=`
+    <div class="aide-un-mot"><span class="emo">📝</span>
+      Ce qui doit se lire de loin — une consigne, un rappel, le nom d’une équipe.</div>
+    <div class="m-champ"><label class="m-lab" for="msgTxt">Le message</label>
+      <textarea class="m-saisie" id="msgTxt" rows="3"></textarea></div>
+    <div class="reg-ligne"><b>Sa couleur</b><span class="grp" id="msgCouls"></span></div>
+    <div class="outil-message" id="msgVue"></div>
+    <div class="m-pied"><button type="button" class="mini" data-fermer>FERMER</button></div>`;
+  const z=$('#msgTxt'); z.value=lire('outilMsg','');
+  const v=$('#msgVue');
+  let coul=lire('outilMsgCoul','#FFFC00');
+  const maj=()=>{ v.textContent=z.value||'…'; v.style.color=coul; };
+  z.addEventListener('input',()=>{ ecrire('outilMsg', z.value); maj(); });
+  [['#FFFC00','Jaune'],['#00C2E8','Cyan'],['#A3FF00','Lime'],['#FF0061','Rose'],['#FFFFFF','Blanc']]
+    .forEach(([hx,nom])=>{
+      const b=el('button','mini',nom); b.type='button';
+      b.style.background=hx; b.style.color=encreSur(hx);
+      b.setAttribute('aria-pressed', String(hx===coul));
+      b.addEventListener('click',()=>{ coul=hx; ecrire('outilMsgCoul',hx);
+        $$('#msgCouls .mini').forEach(x=>x.setAttribute('aria-pressed','false'));
+        b.setAttribute('aria-pressed','true'); maj(); });
+      $('#msgCouls').appendChild(b);
+    });
+  maj();
+}
+
+/* ⚠ Les outils qui tournent (le dé, la roue) doivent s'arrêter quand on ferme
+   la fenêtre — sinon l'intervalle continue de battre sur un noeud détaché. */
+let _apresFermeture=null;
+function surFermetureModale(f){ _apresFermeture=f; }
+(function couperLesOutils(){
+  const base=fermerModale;
+  window.fermerModale = fermerModale = function(){
+    if (_apresFermeture){ try{ _apresFermeture(); }catch(e){} _apresFermeture=null; }
+    base();
+  };
+})();
+
+const OUTILS = [
+  ['🎲','Dé',        outilDe,      'Un dé de 4 à 20 faces'],
+  ['🎡','Roue',      outilRoue,    'Pige un nom au hasard dans le groupe'],
+  ['⏱️','Chrono',    ()=>allerA('e-tests'), 'Le chronomètre à tours, dans TESTS'],
+  ['⏲️','Minuteur',  ()=>ouvrirTiroir(null), 'La minuterie et le buzzer, dans le tiroir'],
+  ['👥','Équipes',   outilEquipes, 'Partage le groupe en équipes, au hasard'],
+  ['📝','Message',   outilMessage, 'Un mot qui se lit de loin'],
+  ['🏫','Mon école', ()=>allerA('e-reglages'), 'L’horaire, les jours-cycle, les étapes'],
+];
+(function railOutils(){
   const h=$('#aujActions'); if(!h) return;
-  const barre=h.querySelector('div') || h;
-  const b=el('button','mini mini--jaune','🎲 JEUX, MINUTERIE ET BUZZER'); b.type='button';
-  b.title='La banque de jeux, la minuterie et le buzzer — tout dans le même tiroir';
-  b.addEventListener('click',()=> ouvrirTiroir(null));
-  barre.appendChild(b);
+  h.innerHTML='';
+  h.classList.add('outils-rail');
+  OUTILS.forEach(([emo,nom,f,quoi])=>{
+    const b=el('button','outil-carte'); b.type='button'; b.title=quoi;
+    b.appendChild(el('span','emo',emo));
+    b.appendChild(el('span','nom',nom));
+    b.addEventListener('click', f);
+    h.appendChild(b);
+  });
 })();
 
 /* ═════════ 4. LA MINUTERIE DU TIROIR ═════════

@@ -55,14 +55,19 @@ function reduireImage(f, max, q){
   });
 }
 
-/* ── Live et TBI, sur AUJOURD'HUI ── */
-/* ⚠ ILS ÉTAIENT DANS LES RÉGLAGES. Démarrer sa séance et basculer le tableau
-   blanc sont les deux gestes du DÉBUT DU COURS : les chercher dans un écran de
-   configuration, une fois par cours, six fois par jour, n'a aucun sens.
-   Ils vivent maintenant sur l'écran d'ouverture, à portée immédiate. */
+/* ── Live et TBI, dans la SÉANCE ── */
+/* ⚠ DEUXIÈME DÉMÉNAGEMENT. Ils dormaient dans les RÉGLAGES ; ils sont montés
+   sur MA JOURNÉE le 29 août ; Joey a repris cette ligne le 31 pour y mettre la
+   boîte à outils du site. Ils rejoignent donc la SÉANCE — et c'est leur vraie
+   place : on ne démarre pas « une séance » dans l'abstrait, on démarre CELLE
+   qu'on est en train de donner, et le tableau blanc affiche CE cours.
+   `#seLive` est peuplé par `peindreTeteSeance()` (proto-seance.js). */
 (function liveEtTbi(){
-  const hote=$('#aujActions'); if(!hote) return;
-  const barre=el('div'); barre.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px';
+  /* ⚠ LA SÉANCE EST RECONSTRUITE À CHAQUE OUVERTURE : on ne peut pas s'accrocher
+     à un noeud qui n'existe pas encore. La barre est donc fabriquée UNE fois,
+     détachée, et `poserLiveTbi()` la replace dans la fenêtre à chaque fois.
+     Le même noeud voyage — ses écouteurs et son minuteur le suivent. */
+  const barre=el('div','se-live'); barre.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
   const live=el('button','mini mini--rose','▶ DÉMARRER LA SÉANCE'); live.type='button';
   const etat=el('span'); etat.style.cssText='font-family:var(--f-titre);letter-spacing:1px;align-self:center';
   let debut=lire('live',null);
@@ -84,9 +89,8 @@ function reduireImage(f, max, q){
     tbi.setAttribute('aria-pressed',String(on)); tbi.textContent = on?'📺 QUITTER LE TABLEAU BLANC':'📺 MODE TABLEAU BLANC'; };
   tbi.addEventListener('click',()=>{ ecrire('tbi',!lire('tbi',false)); majTbi(); });
   majTbi();
-  barre.style.margin='0';
   barre.appendChild(live); barre.appendChild(etat); barre.appendChild(tbi);
-  hote.appendChild(barre);
+  window.poserLiveTbi = hote => { if (hote) hote.appendChild(barre); };
   peindre();
 })();
 

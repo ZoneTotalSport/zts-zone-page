@@ -689,8 +689,13 @@ function ouvrirSeance(iso, per){
       <div class="se-qui"><h3></h3><div class="quand"></div></div>
       <div class="se-parure" id="seParure"></div>
     </div>
+    <div class="se-live-hote" id="seLiveHote"></div>
     <div class="se-actions" id="seActions"></div>
     <div id="seDetail"></div>`;
+  /* ⚠ « Démarrer la séance » et « mode tableau blanc » vivent ICI depuis le
+     31 août : on ne démarre pas une séance dans l'abstrait, on démarre celle
+     qu'on donne. Voir `liveEtTbi()`, proto-fusion.js. */
+  if (typeof poserLiveTbi==='function') poserLiveTbi($('#seLiveHote'));
   peindreTeteSeance();
   peindreActionsSeance();
 }

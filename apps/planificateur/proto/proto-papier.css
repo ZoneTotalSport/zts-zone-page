@@ -962,3 +962,53 @@ html[data-etroit="1"] #nav .menu--apps>button .ico{font-size:24px}
 html[data-etroit="1"] .nav-fin{margin-left:auto;flex:0 0 auto}
 html[data-etroit="1"] .nav-fin .nav-roue{padding:7px 14px}
 html[data-etroit="1"] .taille-crans button{width:40px;height:36px;font-size:21px}
+
+/* ═════ LA BOÎTE À OUTILS, À L'HORIZONTALE ═════
+   Les sept outils du rail flottant de zonetotalsport.ca, couchés sur une
+   rangée en tête de MA JOURNÉE, à la place de ▶ DÉMARRER LA SÉANCE, 📺 MODE
+   TABLEAU BLANC et 🎲 JEUX. */
+.outils-rail{
+  display:flex;gap:9px;flex-wrap:wrap;align-items:stretch;margin:0 0 16px;
+}
+.outil-carte{
+  flex:1 1 0;min-width:0;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  padding:11px 6px;min-height:88px;
+  background:#0B2438;color:var(--sur-fond);
+  border:3px solid var(--noir);border-radius:15px;box-shadow:4px 4px 0 var(--noir);
+}
+.outil-carte:hover{background:var(--cyan);color:#03323C;transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--noir)}
+.outil-carte:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--noir)}
+.outil-carte .emo{font-size:34px;line-height:1}
+.outil-carte .nom{font-family:var(--f-titre);font-size:15px;letter-spacing:.3px;text-align:center}
+
+/* ce que les outils affichent en gros */
+.outil-affiche{
+  font-family:var(--f-large);font-size:clamp(44px,9vw,88px);letter-spacing:2px;
+  text-align:center;color:var(--ink);background:#F3F8FB;
+  border:3px solid var(--noir);border-radius:14px;padding:14px 10px;margin:12px 0;
+  min-height:96px;display:flex;align-items:center;justify-content:center;
+  word-break:break-word;
+}
+.outil-affiche.roule{background:var(--jaune)}
+.outil-message{
+  font-family:var(--f-large);font-size:clamp(30px,6vw,58px);letter-spacing:1px;
+  text-align:center;background:#08131E;border:3px solid var(--noir);border-radius:14px;
+  padding:18px 12px;margin:12px 0;min-height:110px;
+  display:flex;align-items:center;justify-content:center;word-break:break-word;
+}
+.eq-res{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.eq-bloc{
+  background:#fff;color:var(--ink);border:3px solid var(--noir);border-radius:12px;
+  box-shadow:3px 3px 0 var(--noir);padding:8px 10px;
+}
+.eq-bloc h4{margin:0 0 4px;font-family:var(--f-titre);font-size:16px;letter-spacing:.4px}
+.eq-bloc ul{margin:0;padding-left:18px;font-family:var(--f-note);font-size:18px}
+
+/* ▶ DÉMARRER LA SÉANCE et 📺 MODE TABLEAU BLANC, dans la fenêtre de séance */
+.se-live-hote{margin:0 0 12px}
+.se-live{align-items:center}
+
+html[data-etroit="1"] .outil-carte{flex:1 1 88px;min-height:76px;padding:8px 4px}
+html[data-etroit="1"] .outil-carte .emo{font-size:27px}
+html[data-etroit="1"] .outil-carte .nom{font-size:12px}
