@@ -587,22 +587,25 @@ html[data-zoom="300"]{zoom:3}
    toute l'app, et la ligne de la grille n'existait que sur MA SEMAINE.
    ⚠ Ils restent PETITS — deux crans, pas une barre de réglage. C'est tout
    l'intérêt de les avoir remplacés. */
+/* le coin droit garde sa taille : ce sont deux crans et un réglage, pas des
+   portes. `margin-left:auto` n'est plus nécessaire — les portes remplissent
+   déjà la barre — mais on le garde comme filet si elles venaient à manquer. */
 .nav-fin{
-  display:flex;gap:5px;align-items:stretch;margin-left:auto;flex:0 0 auto;
+  display:flex;gap:6px;align-items:stretch;margin-left:auto;flex:0 0 auto;
 }
 .nav-tbtn{
-  cursor:pointer;width:40px;
-  font-family:var(--f-titre);font-size:24px;line-height:1;
+  cursor:pointer;width:48px;
+  font-family:var(--f-titre);font-size:28px;line-height:1;
   display:flex;align-items:center;justify-content:center;
-  border-radius:12px;
+  border-radius:16px;
 }
 .nav-tbtn:disabled{opacity:.35;cursor:default}
 /* la roue ferme la marche du bloc de droite */
 .nav-fin .nav-roue{
-  cursor:pointer;min-width:0;padding:9px 14px;border-radius:15px;
+  cursor:pointer;min-width:0;padding:9px 17px;border-radius:16px;
   display:flex;align-items:center;justify-content:center;
 }
-.nav-fin .nav-roue .ico{font-size:30px;line-height:1}
+.nav-fin .nav-roue .ico{font-size:36px;line-height:1}
 
 /* ═════ LA LIGNE DE SESSION, SUR LA SEMAINE ═════ */
 .plan-sem{margin:0 0 12px}
@@ -716,15 +719,28 @@ html[data-etroit="1"] .ctx-barre{position:static}
 /* ═════ LES CINQ PORTES ═════
    ⚠ On ne grossit QUE `#nav>button`, jamais `button` en bloc : les ✕, ✎ et
    pastilles du reste de l'app sont minuscules par dessein. */
+/* ⚠ PLEINE LARGEUR. Joey : « mets cela pleine largeur et plus gros. » Les
+   portes étaient en `flex:0 0 auto` : elles gardaient leur largeur naturelle et
+   laissaient un trou entre ⋯ PLUS et le coin droit. Elles se PARTAGENT
+   maintenant la barre — `flex:1 1 auto`, donc chacune grandit à proportion de
+   son nom, sans jamais le couper (`nowrap`). */
 #nav>button{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  font-size:15px;letter-spacing:.1px;padding:9px 9px;min-height:84px;min-width:104px;
-  line-height:1.02;white-space:nowrap;border-radius:15px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  font-size:17px;letter-spacing:.1px;padding:12px 7px;min-height:106px;min-width:0;
+  line-height:1.04;border-radius:16px;
+  /* ⚠ `nowrap` EMPÊCHAIT LA BARRE DE TENIR SUR UNE RANGÉE. Le nom le plus long
+     — MON PARASCOLAIRE — imposait 204 px à lui seul ; les huit portes plus le
+     coin droit réclamaient 1439 px pour 1248 disponibles, et le `− + ⚙️`
+     tombait SEUL sur une deuxième rangée. En laissant les noms passer à la
+     ligne, chaque porte peut se resserrer jusqu'à son mot le plus long, et
+     tout tient. */
+  white-space:normal;overflow-wrap:break-word;
 }
-#nav>button .ico{font-size:32px;line-height:1}
+#nav>button .lab{display:block;text-align:center}
+#nav>button .ico{font-size:40px;line-height:1}
 #nav>button .lab{font-family:var(--f-titre)}
 #nav>button[aria-current="true"] .ico{transform:scale(1.06)}
-.ecrans-nav{gap:5px;padding:10px 12px;align-items:stretch}
+.ecrans-nav{gap:6px;padding:10px clamp(8px,1.4vw,16px);align-items:stretch}
 
 /* ═════ UNE PÉRIODE = UNE CARTE, PAS UNE BANDE ═════
    Trois colonnes : QUAND · le cours · ses images. La carte respire — on lit sa
@@ -796,14 +812,31 @@ html[data-etroit="1"] .ecrans-nav{grid-template-columns:repeat(5,1fr);gap:4px}
    `margin-left:auto` — en `grid`, `auto` ne pousse rien et elle se serait
    rangée sagement à la suite des autres. */
 .ecrans-nav{flex-wrap:wrap;overflow:visible}
-#nav>button, .menu>button{flex:0 0 auto}
+/* ⚠ `flex:1 1 auto` NE SUFFISAIT PAS. Dans un conteneur `flex-wrap:wrap`, les
+   éléments sont d'abord RÉPARTIS SUR DES RANGÉES d'après leur largeur
+   naturelle, et seulement ensuite rétrécis à l'intérieur de chaque rangée :
+   les huit portes réclamaient 1439 px pour 1248 disponibles, donc le coin
+   droit passait à la ligne AVANT que quoi que ce soit ait pu se resserrer.
+   Avec une base de ZÉRO, aucune porte n'a de largeur naturelle à défendre :
+   elles se partagent la barre à parts égales, et leurs noms passent à la ligne
+   dans leur case. C'est ça, « pleine largeur ». */
+#nav>button, #nav>.menu{flex:1 1 0;min-width:0}
+#nav .menu--apps{display:flex}
 #nav .menu--apps>button{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  font-size:15px;letter-spacing:.1px;padding:9px 9px;min-height:84px;min-width:104px;
-  line-height:1.02;white-space:nowrap;border-radius:15px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  width:100%;
+  position:relative;
+  font-size:17px;letter-spacing:.1px;padding:12px 7px;min-height:106px;min-width:0;
+  line-height:1.04;border-radius:16px;white-space:normal;overflow-wrap:break-word;
 }
-#nav .menu--apps>button .ico{font-size:32px;line-height:1}
-#nav .menu--apps>button .fleche{font-size:11px;opacity:.85}
+#nav .menu--apps>button .lab{display:block;text-align:center}
+#nav .menu--apps>button .ico{font-size:40px;line-height:1}
+/* ⚠ La flèche du menu prenait une LIGNE à elle seule dans une porte devenue
+   étroite : « MES AUTRES APPS » s'étalait alors sur quatre lignes. Elle se
+   pose dans le coin, hors du flux. */
+#nav .menu--apps>button .fleche{
+  position:absolute;right:7px;bottom:5px;font-size:11px;opacity:.8;
+}
 /* le menu déroulant : une app par ligne, l'une SOUS l'autre */
 .menu--apps .menu-liste a{
   display:block;width:100%;text-align:left;text-decoration:none;

@@ -1094,6 +1094,13 @@ const MENUS = [
      « complètement à droite » quelle que soit la largeur. */
   {fin:true},
 ];
+/* ⚠ « PLEINE LARGEUR » NE VEUT PAS DIRE « TOUTES DE LA MÊME LARGEUR ». À parts
+   strictement égales, MON MOIS avait autant de place que MON PARASCOLAIRE :
+   le premier flottait dans le vide, le second se cassait en trois lignes.
+   Chaque porte réclame donc la largeur de son NOM — la barre reste pleine, et
+   personne ne se serre pour rien. La base reste zéro (voir proto-papier.css) :
+   sans elle, la rangée déborde avant d'avoir pu se répartir. */
+function partDeBarre(lab){ return Math.max(1, (String(lab||'').length)/8); }
 (function barreEnMenus(){
   const n=$('#nav'); if(!n) return;
   n.innerHTML='';
@@ -1121,6 +1128,7 @@ const MENUS = [
     if (m.apps){
       /* le menu déroulant des autres apps : une par ligne, l'une sous l'autre */
       const box=el('div','menu menu--apps'); box.dataset.ouvert='0';
+      box.style.flexGrow=partDeBarre(m.lab);
       const t=el('button'); t.type='button';
       t.appendChild(el('span','ico', m.ico));
       t.appendChild(el('span','lab', m.lab));
@@ -1148,6 +1156,7 @@ const MENUS = [
     }
     if (m.direct){
       const b=el('button'); b.type='button'; b.dataset.va=m.direct;
+      b.style.flexGrow=partDeBarre(m.lab);
       b.appendChild(el('span','ico', m.ico));
       if (m.lab) b.appendChild(el('span','lab', m.lab));
       b.addEventListener('click',()=>{ fermerTous(); allerA(m.direct); });
