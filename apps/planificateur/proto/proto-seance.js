@@ -448,16 +448,14 @@ function peindrePalette(){
      sélecteur de groupe de l'app, il n'a pas à disparaître selon l'écran.
      Le repli sur l'ancien emplacement reste : si le noeud n'existe pas, la
      palette se replace au-dessus de l'agenda comme avant. */
-  let h=$('#ongletsGr');
-  if (!h){
-    h=$('#palette');
-    if (!h){
-      const hote=$('#agendaHote'); if(!hote) return;
-      const p=el('div','palette'); p.id='palette';
-      hote.parentNode.insertBefore(p, hote);
-      h=p;
-    }
-  }
+  /* ⚠ LA PALETTE N'A PLUS QU'UN SEUL HÔTE : `#horPalette`, dans 🕐 MON HORAIRE.
+     Le repli d'antan la RECRÉAIT au-dessus de l'agenda dès qu'elle ne trouvait
+     pas son conteneur — elle est donc réapparue sur MA SEMAINE à la seconde où
+     on l'a retirée du haut de la page. Un repli qui fabrique ce qu'on vient
+     d'enlever n'est pas un filet, c'est une fuite. Si l'hôte n'est pas à
+     l'écran, on ne peint rien. */
+  const h=$('#horPalette');
+  if (!h) return;
   h.innerHTML='';
   /* ⚠ LA CONSIGNE ÉTAIT ÉCRITE DEUX FOIS SUR MA SEMAINE : ici, au-dessus des
      onglets, et juste dessous en sous-titre de l'écran. Elle ne vit plus qu'à
@@ -1571,12 +1569,31 @@ peindreAgenda = function(){
         b.addEventListener('click', ev=>{ ev.stopPropagation();
           ecrire('seVolet','presences'); ouvrirSeance(iso,p.n); });
         c.appendChild(b);
-        const x=el('button','ag-vider','✕'); x.type='button'; x.title='Retirer ce groupe de la case';
+        const x=el('button','ag-vider','✕'); x.type='button';
+        /* ⚠ DEUX CAS, DEUX PHRASES. Une séance tirée de l'horaire n'a rien de
+           consigné à effacer : lui annoncer une perte serait un mensonge, et
+           ferait renoncer un prof qui veut seulement annuler un cours. */
+        const duPatron = (typeof seanceDuPatron==='function') && seanceDuPatron(iso,p.n);
+        x.title = duPatron ? 'Annuler ce cours, pour cette date seulement'
+                           : 'Retirer ce groupe de la case';
         x.addEventListener('click', ev=>{ ev.stopPropagation();
-          if(!confirm('Retirer '+gr.nom+' de cette case ? Ce qui y est consigné sera effacé.')) return;
+          const q = duPatron
+            ? 'Annuler le cours de '+gr.nom+' le '+jourLisible(iso)+' ?\n\n'
+              +'Ton horaire n’est pas touché : les autres dates gardent ce cours.'
+            : 'Retirer '+gr.nom+' de cette case ? Ce qui y est consigné sera effacé.';
+          if(!confirm(q)) return;
           poserSeance(iso,p.n,null); });
         c.appendChild(x);
       } else {
+        /* ⚠ LA PALETTE A QUITTÉ LE HAUT DE LA PAGE (proto-g4.js) : il n'y a
+           plus de groupe à glisser depuis MA SEMAINE. La case vide offre donc
+           le choix elle-même — c'est le chemin des EXCEPTIONS, l'année se
+           réglant dans MON HORAIRE. */
+        const plus=el('button','ag-plus','＋'); plus.type='button';
+        plus.title='Poser un groupe ici, pour cette date seulement';
+        plus.addEventListener('click', ev=>{ ev.stopPropagation();
+          if (typeof choisirGroupePourCase==='function') choisirGroupePourCase(iso, p.n, peindreAgenda); });
+        c.appendChild(plus);
         /* MON CAHIER a été retiré : la case elle-même s'écrit. */
         const n=el('div','ag-note'); n.contentEditable='true';
         n.dataset.vide='—'; n.dataset.k=cleNoteCase(iso,p.n);

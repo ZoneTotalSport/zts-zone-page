@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=124">
-<link rel="stylesheet" href="proto-fusion.css?v=124">
-<link rel="stylesheet" href="proto-boutons.css?v=124">
-<link rel="stylesheet" href="proto-seance.css?v=124">
-<link rel="stylesheet" href="proto-simple.css?v=124">
-<link rel="stylesheet" href="proto-papier.css?v=124">
+<link rel="stylesheet" href="proto.css?v=128">
+<link rel="stylesheet" href="proto-fusion.css?v=128">
+<link rel="stylesheet" href="proto-boutons.css?v=128">
+<link rel="stylesheet" href="proto-seance.css?v=128">
+<link rel="stylesheet" href="proto-simple.css?v=128">
+<link rel="stylesheet" href="proto-papier.css?v=128">
 </head>
 <body>
 
@@ -29,13 +29,12 @@
 
 <nav class="ecrans-nav" id="nav" aria-label="Écrans du proto"></nav>
 
-<!-- ⚠ LES ONGLETS DE GROUPES — Joey : « place tous les groupes en dessous de
-     ma journée, ma semaine, etc., en angle de 45 degrés comme dans les
-     cahiers ». C'est la MÊME palette qu'avant (glisser-déposer, ✎, compte de
-     cours, + NOUVEAU GROUPE, 🎨 TOUTES DIFFÉRENTES, et le clic qui pose le
-     groupe courant) — elle a seulement quitté MA SEMAINE pour la barre du
-     haut, et pris la forme des intercalaires d'un cahier. -->
-<div class="palette onglets-gr" id="ongletsGr" aria-label="Mes groupes"></div>
+<!-- ⚠ LA BANDE DE GROUPES A QUITTÉ LE HAUT DE LA PAGE. Joey, 31 août :
+     « lorsque c'est placé dans mon horaire, tout se place automatiquement,
+     donc les numéros de groupe en haut ne serviront à rien. » La palette vit
+     désormais DANS 🕐 MON HORAIRE, à côté des cases où on la dépose. Le
+     carnet de notes garde ses propres jetons et MES GROUPES son ✎ : rien de
+     ce qu'elle portait n'est perdu. Voir proto-g4.js. -->
 
 <!-- ⚠ LA BANDE JAUNE A ÉTÉ RETIRÉE. Joey : « enlève la bande jaune et le mot
      AUJOURD'HUI dans le jaune ; garde seulement “aujourd'hui lundi 31 août”,
@@ -82,8 +81,8 @@
       <button type="button" class="taille-plus"  aria-label="Écriture plus grosse">+</button>
     </span>
   </div>
-  <p class="sous">Glisse un groupe dans une case ; un clic dessus ensuite ouvre tout le cours.
-    Le chiffre sur un onglet dit combien de cours il a cette semaine-là.
+  <p class="sous">Ta semaine se remplit d'elle-même à partir de 🕐 MON HORAIRE.
+    Un clic sur un cours l'ouvre ; le ＋ d'une case vide pose une exception pour cette date.
     Touche un en-tête de jour pour l'ouvrir.</p>
 
   <div class="metiers" id="metiers">
@@ -112,6 +111,9 @@
   <p class="sous">Ce qui reste. Le calendrier, le parascolaire, les réglages et le
     partage ont maintenant leur propre bouton en haut.</p>
   <div class="plus-tuiles">
+    <button type="button" class="plus-tuile" data-va="e-horaire">
+      <span class="emo">🕐</span><b>Mon horaire</b>
+      <span class="quoi">Glisse tes groupes dans le patron de la semaine — tout le reste se remplit seul</span></button>
     <button type="button" class="plus-tuile" data-va="e-groupes">
       <span class="emo">👥</span><b>Mes groupes</b>
       <span class="quoi">Les élèves, le carnet de notes, les bulletins, ma façon de noter</span></button>
@@ -119,6 +121,14 @@
       <span class="emo">👑</span><b>Vue coordonnateur</b>
       <span class="quoi">Où en sont les équipes</span></button>
   </div>
+</section>
+
+<!-- ═══════════════ 🕐 MON HORAIRE ═══════════════ -->
+<section class="ecran" id="e-horaire">
+  <h1 class="titre">Mon horaire</h1>
+  <p class="sous">Le patron de ta semaine. Posé une fois, il remplit MA JOURNÉE,
+    MA SEMAINE et MON MOIS pour toute l'année.</p>
+  <div id="horHote"></div>
 </section>
 
 <!-- ═══════════════ VUE COORDONNATEUR ═══════════════ -->
@@ -477,16 +487,17 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=124"></script>
-<script src="proto-fusion.js?v=124"></script>
-<script src="proto-seance.js?v=124"></script>
-<script src="proto-simple.js?v=124"></script>
-<script src="proto-tests.js?v=124"></script>
-<script src="proto-annee.js?v=124"></script>
-<script src="proto-horaire.js?v=124"></script>
-<script src="proto-dossiers.js?v=124"></script>
-<script src="proto-pfeq.js?v=124"></script>
-<script src="proto-portrait.js?v=124"></script>
-<script src="proto-g3.js?v=124"></script>
+<script src="proto.js?v=128"></script>
+<script src="proto-fusion.js?v=128"></script>
+<script src="proto-seance.js?v=128"></script>
+<script src="proto-simple.js?v=128"></script>
+<script src="proto-tests.js?v=128"></script>
+<script src="proto-annee.js?v=128"></script>
+<script src="proto-horaire.js?v=128"></script>
+<script src="proto-dossiers.js?v=128"></script>
+<script src="proto-pfeq.js?v=128"></script>
+<script src="proto-portrait.js?v=128"></script>
+<script src="proto-g3.js?v=128"></script>
+<script src="proto-g4.js?v=128"></script>
 </body>
 </html>

@@ -310,10 +310,12 @@ function peindreAujourdhui(){
     } else {
       const v=el('button','auj-vide'); v.type='button';
       v.innerHTML='<span class="plus">＋</span><span>poser un groupe ici</span>'
-        +'<small>Ça se glisse dans MA SEMAINE</small>';
-      v.title='Ouvre MA SEMAINE : on y glisse un groupe dans la case';
+        +'<small>Juste pour cette date — l’année se règle dans 🕐 MON HORAIRE</small>';
+      v.title='Poser une exception pour cette date seulement';
       v.addEventListener('click',()=>{
-        agLundi=lundiDe(ctxDate); allerA('e-accueil');
+        if (typeof choisirGroupePourCase==='function')
+          choisirGroupePourCase(ctxDate, p.n, ()=> peindreAujourdhui());
+        else { agLundi=lundiDe(ctxDate); allerA('e-accueil'); }
       });
       r.appendChild(v);
     }
@@ -734,7 +736,7 @@ function ouvrirGroupe(id){
   const base = peindrePalette;
   window.peindrePalette = peindrePalette = function(){
     base();
-    const h=$('#ongletsGr') || $('#palette'); if(!h) return;
+    const h=$('#horPalette') || $('#ongletsGr') || $('#palette'); if(!h) return;
     GRP().forEach((g,i)=>{
       const b=h.querySelector('.pastille-gr[data-gr="'+g.id+'"]');
       if (b && i===ctxGroupe) b.dataset.courant='1';
@@ -754,7 +756,9 @@ function ouvrirGroupe(id){
         ctxGroupe=i; ecrire('ctxGroupe', i);
         if (typeof peindreCarnet==='function') peindreCarnet();
       }
-      if (lire('ecran','e-aujourdhui')==='e-accueil') return;   /* MA SEMAINE : on le prend en main */
+      /* MA SEMAINE et MON HORAIRE : on le prend en main pour le poser */
+      const ec=lire('ecran','e-aujourdhui');
+      if (ec==='e-accueil' || ec==='e-horaire') return;
       /* ailleurs, « prendre en main » n'a aucune case où aboutir */
       e.stopPropagation(); e.preventDefault();
       grpEnMain=null;
@@ -826,12 +830,16 @@ function ligneDeSessionSurLaSemaine(){
    l'horaire : une séance posée sur une période supprimée depuis resterait
    invisible autrement — et elle existe pourtant. */
 function seancesDuJour(iso){
+  /* ⚠ ON NE PEUT PLUS SCANNER LES CLÉS. Depuis que l'horaire est un patron
+     (proto-g4.js), une séance peut exister sans avoir jamais été écrite : elle
+     est tirée du patron au moment où on la demande. Un balayage de
+     `localStorage` ne verrait que les journées déjà consignées — c'est-à-dire
+     presque aucune, en début d'année. On passe donc par `seanceDe()`, qui sait
+     rendre les deux. */
   const out=[];
-  Object.keys(localStorage).forEach(k=>{
-    const m=new RegExp('^'+P+'se:'+iso+':p(\\d+)$').exec(k);
-    if (!m) return;
-    try { out.push({per:+m[1], s:JSON.parse(localStorage.getItem(k))}); } catch(e){}
-  });
+  (typeof periodesAgenda==='function' ? periodesAgenda() : [])
+    .filter(p=>!p.pause)
+    .forEach(p=>{ const s=seanceDe(iso, p.n); if (s) out.push({per:p.n, s}); });
   return out.sort((a,b)=>a.per-b.per);
 }
 /* une pastille de groupe, la même partout */

@@ -186,6 +186,72 @@ L'import était offert à **deux endroits** (l'écran du calendrier et MES
 DONNÉES). On garde celui du calendrier : c'est là qu'on voit le résultat se
 poser.
 
+## 🕐 MON HORAIRE — l'horaire est le PATRON, la semaine en est le tirage
+
+*(31 août — le changement de modèle le plus important depuis la séance.)*
+
+Joey : « on va ajouter mon horaire, on va glisser-déposer les groupes dans
+l'horaire, et lorsque c'est placé dans mon horaire, tout dans ma journée, ma
+semaine, mon mois se place automatiquement. »
+
+⚠ **IL A MIS LE DOIGT SUR LE DÉFAUT DE FOND DU MODÈLE.** Jusqu'ici, une séance
+n'existait que si l'on avait glissé un groupe dans SA case, ce jeudi-là. Un
+horaire d'ÉPS ne change pas de l'année : il fallait donc refaire le même geste
+**36 fois par groupe et par période**. Personne ne fait ça.
+
+L'horaire devient un **patron** — (jour × période) → groupe — posé une fois.
+Chaque journée d'école le tire : `seanceDe()` rend la séance du patron quand
+rien n'est consigné à cette date.
+
+⚠ **RIEN N'EST ÉCRIT tant que le prof n'écrit pas.** La séance est virtuelle, et
+le premier mot la matérialise. C'est ce qui permet de poser un horaire pour
+l'année sans remplir le stockage de 1 400 séances vides — mesuré : 11 cases au
+patron produisent 10 cours dans une semaine sans une seule écriture.
+
+### Les trois règles qui tiennent tout
+
+1. **Ce qui est consigné gagne sur le patron.** Un remplacement, un échange, un
+   groupe posé à la main ce jour-là passe devant — sinon le patron écraserait
+   l'exception, et l'exception est justement ce qu'on note.
+2. **Retirer un cours tiré du patron pose une EXCEPTION, pas un vide**
+   (`seSaut:<iso>:p<n>`). Sans ça, le patron le remettrait dans la même
+   repeinture et le ✕ paraîtrait cassé.
+3. **Un jour sans jour-cycle ne tire rien.** Congés, pédagogiques et fins de
+   semaine n'ont pas de cours, quel que soit le patron — et c'est vrai **dans
+   les deux modes** : sans cette garde, un horaire hebdomadaire aurait posé des
+   cours pendant la relâche.
+
+### Deux modes, parce que les écoles ne tournent pas toutes pareil
+
+**Jours-cycle** (défaut — l'app les calcule déjà) ou **jours de la semaine**.
+⚠ Les clés de colonnes changent de forme (`c0…` ↔ `d1…`) : le patron écrit dans
+un mode ne veut plus rien dire dans l'autre. On **prévient avant de vider**,
+plutôt que de le perdre en silence.
+
+### Ce que ça déplace
+
+- **La bande de groupes a quitté le haut de la page.** « Les numéros de groupe
+  en haut ne serviront à rien » — juste. La palette vit dans MON HORAIRE, à côté
+  des cases où on la dépose. Le carnet garde ses propres jetons, MES GROUPES son
+  ✎ : rien de ce qu'elle portait n'est perdu.
+- ⚠ **Le repli de `peindrePalette()` la RECRÉAIT au-dessus de l'agenda** dès
+  qu'elle ne trouvait pas son conteneur : elle est réapparue sur MA SEMAINE à la
+  seconde où on l'a retirée du haut. *Un repli qui fabrique ce qu'on vient
+  d'enlever n'est pas un filet, c'est une fuite.*
+- **Une case vide de MA SEMAINE porte un ＋** qui pose une **exception** pour
+  cette date — c'est le chemin des échanges, le patron s'occupant du reste.
+- ⚠ **`seancesDuJour()` ne peut plus scanner les clés** : une séance peut exister
+  sans avoir jamais été écrite. Elle passe par `seanceDe()`, qui sait rendre les
+  deux. *(Le dossier d'élève, lui, garde son balayage de clés — les absences et
+  les notes n'existent que sur des séances réellement consignées.)*
+- ⚠ **Le ✕ d'une case dit deux phrases différentes.** Une séance tirée de
+  l'horaire n'a rien de consigné à effacer : lui annoncer une perte serait un
+  mensonge, et ferait renoncer un prof qui veut seulement annuler un cours.
+- ⚠ **Pas de drapeau `duPatron` sur l'objet.** Une première version en posait un
+  — et il se retrouvait ÉCRIT dans le stockage à la première modification, sur
+  une séance qui n'avait plus rien de virtuelle. La question se pose au
+  stockage (`seanceDuPatron()`), pas à l'objet.
+
 ### Les groupes — ce qu'ils font, et où (31 août)
 
 Joey : « les groupes, une fois placés dans l'app, servent à afficher les élèves
