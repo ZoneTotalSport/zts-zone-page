@@ -725,7 +725,32 @@
       #zg-print-head b{ font-size:15pt }
       #zg-print-head span{ font-family:var(--f-note); color:#333; font-size:12pt }
     }
-    #zg-print-head, #zg-recaps{ display:none }
+    #zg-print-head, #zg-recaps, #zg-perso{ display:none }
+    @media print{
+      /* Deux sorties, jamais ensemble. En mode « par personne », la grille
+         complete et les recaps s'effacent au profit des fiches. */
+      body.zg-perso-on .grid-area, body.zg-perso-on #zg-recaps,
+      body.zg-perso-on #zg-print-head{ display:none !important }
+      body.zg-perso-on #zg-perso{ display:block !important }
+      .pp-page{ break-after:page; page-break-after:always; break-inside:avoid }
+      .pp-page:last-child{ break-after:auto; page-break-after:auto }
+      .pp-tete{ font-family:var(--f-titre); font-size:16pt; margin-bottom:1mm }
+      .pp-tete span{ font-family:var(--f-note); font-size:13pt; color:#333 }
+      .pp-tete em{ float:right; font-style:normal; font-size:12pt; color:#333 }
+      .pp-chiffres{ font-family:var(--f-note); font-size:12pt; color:#333; margin-bottom:3mm }
+      .pp-grille{ width:100%; border-collapse:collapse; font-size:10pt }
+      .pp-grille th, .pp-grille td{ border:1px solid #999; padding:2px 4px; height:11mm; vertical-align:middle }
+      .pp-grille thead th{ background:#eee; font-family:var(--f-titre); text-align:center }
+      .pp-grille tbody th{ background:#f4f4f4; font-family:var(--f-titre); text-align:left; white-space:nowrap }
+      .pp-grille tbody th small{ display:block; font-family:var(--f-note); font-weight:400; color:#555 }
+      .pp-grille td{ text-align:center }
+      .pp-plein b{ font-family:var(--f-titre); font-size:11pt }
+      .pp-plein small{ display:block; font-family:var(--f-note); font-size:8.5pt; color:#222 }
+      .pp-bande{ font-size:9pt !important; color:#444 }
+      .pp-surv{ font-size:13pt }
+      .pp-ferme{ background:repeating-linear-gradient(135deg,#eee 0 4px,#ddd 4px 8px) }
+      .pp-pied{ margin-top:3mm; font-family:var(--f-note); font-size:10pt; color:#555 }
+    }
     @media print{
       #zg-recaps{ display:block !important; margin-top:8mm; break-inside:avoid }
       #zg-recaps h4{ font-family:var(--f-titre); font-size:13pt; letter-spacing:.4px; margin:4mm 0 2mm }
@@ -784,6 +809,8 @@
 
 <!-- Bandeau d'identification : invisible a l'ecran, imprime en tete de grille. -->
 <div id="zg-print-head"></div>
+<!-- Les fiches individuelles : bâties a la demande, invisibles a l'ecran. -->
+<div id="zg-perso"></div>
 
 <!-- ======================================================================
      BARRE D'ACTIONS — gros boutons picto + un mot.
@@ -810,6 +837,8 @@
     <button class="zg-btn" onclick="exportPDF()" title="Enregistrer en PDF"><span class="zg-ic">📄</span><span data-t="btnPDF">PDF</span></button>
     <button class="zg-btn" onclick="exporterJSON()" title="Enregistrer une copie de securite"><span class="zg-ic">💾</span><span data-t="btnExport">Sauver</span></button>
     <button class="zg-btn" onclick="declencherImport()" title="Recharger une copie de securite"><span class="zg-ic">📂</span><span data-t="btnImport">Ouvrir</span></button>
+    <button class="zg-btn" onclick="imprimerParPersonne()" title="Une page par personne"><span class="zg-ic">🧾</span><span data-t="btnImpPersonne">Par personne</span></button>
+    <button class="zg-btn" onclick="ouvrirDuplicationModal()" title="Copier une journée vers d'autres jours"><span class="zg-ic">⧉</span><span data-t="btnDupliquer">Dupliquer</span></button>
     <button class="zg-btn zg-btn--rose" onclick="clearSchedule()" title="Effacer toute la grille"><span class="zg-ic">🗑️</span><span data-t="btnVider">Vider</span></button>
     <input type="file" id="zgFichier" accept="application/json,.json" hidden onchange="importerJSON(this)">
   </div>
@@ -934,7 +963,7 @@ periodsPerDay:'Périodes/jour',tache100:'Tâche 100%',tache100Unit:'périodes/cy
 heroTitle:'Ta grille horaire<span>sur mesure!</span>',
 heroDesc:'Fini le casse-tête de la planification! Configure tes périodes en 30 secondes, clique sur un jour pour placer tes spécialistes et groupes-classes. Le % de tâche se calcule en temps réel. Team teaching, multi-gymnases, validation automatique — tout y est. Sauvegarde automatique et exporte en PDF pour ta direction. Les enseignants les plus organisés utilisent déjà cet outil — c\'est ton tour!',
 heroBadge1:'📅 5 à 10 jours/cycle',heroBadge2:'⚙️ 3 à 7 périodes',heroBadge3:'🌍 4 langues',heroBadge5:'🤖 Auto-remplissage',
-heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',pedagoConfirm:'Changer cette journée fermera des blocs qui contiennent des blocs placés. Ils seront vidés. Continuer ?',verrou:'Verrouiller',deverrou:'Déverrouiller',verrouAide:'Créneau verrouillé — rien ne s\'y place.',verrouConfirm:'Verrouiller videra cette case. Continuer ?',lieuHS:'Hors service',classEffectif:'Enfants',ratio:'Ratio',ratioAide:'enfants par adulte — 0 pour ne pas l\'appliquer',ratioManque:'places d\'adulte manquantes selon le ratio',journeeType:'Journée du métier',journeeAide:'Remplace la journée par celle du métier choisi',journeeConfirm:'Remplacer la journée par celle du métier ? La grille sera vidée.',journeeFaite:'Journée du métier appliquée',joursPedago:'Journées pédago',uniteCap:'pér.',
+heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',btnImpPersonne:'Par personne',btnDupliquer:'Dupliquer',dupTitre:'Dupliquer une journée',dupSource:'Journée à copier',dupCibles:'Vers',dupFaire:'Dupliquer',dupFait:'journée(s) remplacée(s)',dupAide:'Les journées choisies sont d\'abord vidées. Ce qui ne respecte pas une règle n\'est pas copié.',dupIgnores:'non copié(s)',pedagoConfirm:'Changer cette journée fermera des blocs qui contiennent des blocs placés. Ils seront vidés. Continuer ?',verrou:'Verrouiller',deverrou:'Déverrouiller',verrouAide:'Créneau verrouillé — rien ne s\'y place.',verrouConfirm:'Verrouiller videra cette case. Continuer ?',lieuHS:'Hors service',classEffectif:'Enfants',ratio:'Ratio',ratioAide:'enfants par adulte — 0 pour ne pas l\'appliquer',ratioManque:'places d\'adulte manquantes selon le ratio',journeeType:'Journée du métier',journeeAide:'Remplace la journée par celle du métier choisi',journeeConfirm:'Remplacer la journée par celle du métier ? La grille sera vidée.',journeeFaite:'Journée du métier appliquée',joursPedago:'Journées pédago',uniteCap:'pér.',
 metierTitre:'Pour qui bâtis-tu l\'horaire?',metierAide:'Tu pourras en changer en tout temps dans les Réglages.',metierLabel:'Métier',metierOk:'Mode',metierEp:'École primaire',metierEpDesc:'Spécialistes : ÉPS, musique, anglais, arts.',metierSdg:'Service de garde',metierSdgDesc:'Éducateurs, groupes, ratios, blocs du midi.',metierCamp:'Camp de jour',metierCampDesc:'Moniteurs, groupes d\'âge, blocs d\'activités.',
 helpTitle:'Comment utiliser<span>la grille horaire</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
@@ -957,7 +986,7 @@ periodsPerDay:'Periods/day',tache100:'100% task',tache100Unit:'periods/cycle',co
 heroTitle:'Your schedule grid<span>made easy!</span>',
 heroDesc:'No more planning headaches! Set up your periods in 30 seconds, click a day to place your specialists and class groups. Task % is calculated in real time. Team teaching, multiple gyms, automatic validation — it\'s all here. Auto-save and export to PDF for your admin. The most organized teachers already use this tool — your turn!',
 heroBadge1:'📅 5 to 10 days/cycle',heroBadge2:'⚙️ 3 to 7 periods',heroBadge3:'🌍 4 languages',heroBadge5:'🤖 Auto-fill',
-heroStart:'🚀 Get started!',heroHelp:'📖 How to use',pedagoConfirm:'Switching this day closes blocks that already hold work. They will be cleared. Continue?',verrou:'Lock',deverrou:'Unlock',verrouAide:'Locked slot — nothing can go here.',verrouConfirm:'Locking will clear this cell. Continue?',lieuHS:'Out of service',classEffectif:'Children',ratio:'Ratio',ratioAide:'children per adult — 0 to disable',ratioManque:'adult slots missing under the ratio',journeeType:'Program day',journeeAide:'Replaces the day with the chosen program\'s day',journeeConfirm:'Replace the day with the program\'s day? The grid will be cleared.',journeeFaite:'Program day applied',joursPedago:'PD days',uniteCap:'per.',
+heroStart:'🚀 Get started!',heroHelp:'📖 How to use',btnImpPersonne:'Per person',btnDupliquer:'Duplicate',dupTitre:'Duplicate a day',dupSource:'Day to copy',dupCibles:'Onto',dupFaire:'Duplicate',dupFait:'day(s) replaced',dupAide:'The chosen days are cleared first. Anything breaking a rule is not copied.',dupIgnores:'not copied',pedagoConfirm:'Switching this day closes blocks that already hold work. They will be cleared. Continue?',verrou:'Lock',deverrou:'Unlock',verrouAide:'Locked slot — nothing can go here.',verrouConfirm:'Locking will clear this cell. Continue?',lieuHS:'Out of service',classEffectif:'Children',ratio:'Ratio',ratioAide:'children per adult — 0 to disable',ratioManque:'adult slots missing under the ratio',journeeType:'Program day',journeeAide:'Replaces the day with the chosen program\'s day',journeeConfirm:'Replace the day with the program\'s day? The grid will be cleared.',journeeFaite:'Program day applied',joursPedago:'PD days',uniteCap:'per.',
 metierTitre:'Who are you building the schedule for?',metierAide:'You can switch any time in Settings.',metierLabel:'Mode',metierOk:'Mode',metierEp:'Elementary school',metierEpDesc:'Specialists: PE, music, English, arts.',metierSdg:'Daycare service',metierSdgDesc:'Educators, groups, ratios, midday blocks.',metierCamp:'Day camp',metierCampDesc:'Counsellors, age groups, activity blocks.',
 helpTitle:'How to use<span>the schedule grid</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
@@ -980,7 +1009,7 @@ periodsPerDay:'Períodos/día',tache100:'Tarea 100%',tache100Unit:'períodos/cic
 heroTitle:'Tu horario escolar<span>a tu medida!</span>',
 heroDesc:'¡Se acabó el rompecabezas de la planificación! Configura tus períodos en 30 segundos, haz clic en un día para colocar tus especialistas y grupos. El % de tarea se calcula en tiempo real. Enseñanza en equipo, múltiples gimnasios, validación automática — todo está aquí. Guardado automático y exporta en PDF para tu dirección. Los docentes más organizados ya usan esta herramienta — ¡es tu turno!',
 heroBadge1:'📅 5 a 10 días/ciclo',heroBadge2:'⚙️ 3 a 7 períodos',heroBadge3:'🌍 4 idiomas',heroBadge5:'🤖 Auto-llenado',
-heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',pedagoConfirm:'Cambiar este día cerrará bloques que ya tienen trabajo. Se vaciarán. ¿Continuar?',verrou:'Bloquear',deverrou:'Desbloquear',verrouAide:'Franja bloqueada — no se puede colocar nada.',verrouConfirm:'Bloquear vaciará esta casilla. ¿Continuar?',lieuHS:'Fuera de servicio',classEffectif:'Niños',ratio:'Ratio',ratioAide:'niños por adulto — 0 para no aplicarlo',ratioManque:'puestos de adulto que faltan según el ratio',journeeType:'Jornada del modo',journeeAide:'Reemplaza la jornada por la del modo elegido',journeeConfirm:'¿Reemplazar la jornada por la del modo? Se vaciará la grilla.',journeeFaite:'Jornada aplicada',joursPedago:'Días pedagógicos',uniteCap:'per.',
+heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',btnImpPersonne:'Por persona',btnDupliquer:'Duplicar',dupTitre:'Duplicar una jornada',dupSource:'Jornada a copiar',dupCibles:'Hacia',dupFaire:'Duplicar',dupFait:'jornada(s) reemplazada(s)',dupAide:'Las jornadas elegidas se vacían primero. Lo que incumple una regla no se copia.',dupIgnores:'sin copiar',pedagoConfirm:'Cambiar este día cerrará bloques que ya tienen trabajo. Se vaciarán. ¿Continuar?',verrou:'Bloquear',deverrou:'Desbloquear',verrouAide:'Franja bloqueada — no se puede colocar nada.',verrouConfirm:'Bloquear vaciará esta casilla. ¿Continuar?',lieuHS:'Fuera de servicio',classEffectif:'Niños',ratio:'Ratio',ratioAide:'niños por adulto — 0 para no aplicarlo',ratioManque:'puestos de adulto que faltan según el ratio',journeeType:'Jornada del modo',journeeAide:'Reemplaza la jornada por la del modo elegido',journeeConfirm:'¿Reemplazar la jornada por la del modo? Se vaciará la grilla.',journeeFaite:'Jornada aplicada',joursPedago:'Días pedagógicos',uniteCap:'per.',
 metierTitre:'¿Para quién creas el horario?',metierAide:'Puedes cambiarlo cuando quieras en Configuración.',metierLabel:'Modo',metierOk:'Modo',metierEp:'Escuela primaria',metierEpDesc:'Especialistas: EF, música, inglés, artes.',metierSdg:'Servicio de guardería',metierSdgDesc:'Educadores, grupos, ratios, bloques del mediodía.',metierCamp:'Campamento de día',metierCampDesc:'Monitores, grupos de edad, bloques de actividades.',
 helpTitle:'Cómo usar<span>el horario escolar</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
@@ -1003,7 +1032,7 @@ periodsPerDay:'每天课时',tache100:'100%任务',tache100Unit:'课时/周期',
 heroTitle:'你的课程表<span>量身定制!</span>',
 heroDesc:'告别排课烦恼！30秒配置课时，点击日期安排专科教师和班级。任务百分比实时计算。协同教学、多体育馆、自动验证——一应俱全。自动保存，导出PDF给校长。最有组织的老师已经在用这个工具了——轮到你了！',
 heroBadge1:'📅 5至10天/周期',heroBadge2:'⚙️ 3至7节课',heroBadge3:'🌍 4种语言',heroBadge5:'🤖 自动填充',
-heroStart:'🚀 开始!',heroHelp:'📖 使用说明',pedagoConfirm:'切换这一天会关闭已排班的时段，这些安排将被清空。是否继续？',verrou:'锁定',deverrou:'解锁',verrouAide:'该时段已锁定——无法安排。',verrouConfirm:'锁定将清空此格。是否继续？',lieuHS:'停用',classEffectif:'儿童数',ratio:'师生比',ratioAide:'每位成人负责的儿童数——填0则不启用',ratioManque:'按师生比仍缺的成人岗位',journeeType:'模式日程',journeeAide:'用所选模式的日程替换当前日程',journeeConfirm:'用该模式的日程替换当前日程？课表将被清空。',journeeFaite:'已应用模式日程',joursPedago:'教师培训日',uniteCap:'节',
+heroStart:'🚀 开始!',heroHelp:'📖 使用说明',btnImpPersonne:'按人打印',btnDupliquer:'复制',dupTitre:'复制某一天',dupSource:'要复制的日期',dupCibles:'复制到',dupFaire:'复制',dupFait:'天已被替换',dupAide:'所选日期会先被清空。违反规则的安排不会被复制。',dupIgnores:'未能复制',pedagoConfirm:'切换这一天会关闭已排班的时段，这些安排将被清空。是否继续？',verrou:'锁定',deverrou:'解锁',verrouAide:'该时段已锁定——无法安排。',verrouConfirm:'锁定将清空此格。是否继续？',lieuHS:'停用',classEffectif:'儿童数',ratio:'师生比',ratioAide:'每位成人负责的儿童数——填0则不启用',ratioManque:'按师生比仍缺的成人岗位',journeeType:'模式日程',journeeAide:'用所选模式的日程替换当前日程',journeeConfirm:'用该模式的日程替换当前日程？课表将被清空。',journeeFaite:'已应用模式日程',joursPedago:'教师培训日',uniteCap:'节',
 metierTitre:'你要为谁编排时间表？',metierAide:'随时可在设置中更改。',metierLabel:'模式',metierOk:'模式',metierEp:'小学',metierEpDesc:'专科教师：体育、音乐、英语、艺术。',metierSdg:'课后托管',metierSdgDesc:'辅导员、班组、师生比、午间时段。',metierCamp:'日间营',metierCampDesc:'营辅导员、年龄组、活动时段。',
 helpTitle:'如何使用<span>课程表</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
@@ -1345,7 +1374,8 @@ function journeeCamp(){return {
     {type:'lunch',label:'Dîner',start:'12:00',end:'13:00'},
     {type:'period',num:4,nom:'Bloc 3',start:'13:00',end:'14:30'},
     {type:'period',num:5,nom:'Bloc 4',start:'14:45',end:'16:00'},
-    {type:'recess',label:'Service de fin',start:'16:00',end:'18:00'}
+    // « Service de fin » n'est ni une recre ni un diner : il porte son nom.
+    {type:'recess',label:'Service de fin',nom:'Service de fin',start:'16:00',end:'18:00'}
   ]}}
 
 /* La journee du gabarit actif, toujours utilisable : un gabarit muet ou
@@ -1359,6 +1389,17 @@ function creneaux(){
 }
 /* Le nom d'un creneau : celui qu'il porte, sinon « P » et son numero. */
 function nomPeriode(pr){return (pr&&pr.nom)?pr.nom:('P'+(pr?pr.num:'?'))}
+/* Le nom d'une BANDE. Par defaut le mot traduit — « Récré », « Recess »,
+   « 课间 » — parce que c'est le meme objet dans les quatre langues. Un
+   gabarit qui donne un `nom` explicite le garde tel quel : « Service de
+   fin » d'un camp n'est ni une recre ni un diner, et l'afficher « Récré »
+   disait faux. `label`, lui, reste ce qu'il a toujours ete : le texte
+   francais du modele d'ecole, qu'on ne veut surtout pas montrer a un
+   anglophone. */
+function nomBande(pr){
+  if(pr&&pr.nom)return pr.nom;
+  return (pr&&pr.type==='lunch')?t('lunch'):t('recess');
+}
 /* Un bloc pedago n'ouvre que les jours coches ; un bloc ordinaire ferme
    ces jours-la, puisque l'ecole est fermee et que la garde couvre tout. */
 function estJourPedago(d){
@@ -1992,7 +2033,7 @@ function renderGrid(){
       // Les bandes de recre et de diner etaient inertes : une couleur, rien
       // d'autre. Elles portent maintenant les surveillances, une case par jour.
       dessinerBande(g,row,cd,p.id,p.type==='recess'?'rec':'lun',
-        (p.type==='recess'?t('recess'):t('lunch')),p.start,p.end);
+        nomBande(p),p.start,p.end);
       row++;return}
     // Time cell
     const tc=document.createElement('div');tc.className='g-time';tc.innerHTML=`<span>${nomPeriode(p)}</span><small>${p.start||''}-${p.end||''}</small>`;tc.style.gridColumn='1';tc.style.gridRow=''+row;g.appendChild(tc);
@@ -2268,7 +2309,10 @@ function useTemplate(){
   S.rooms=dep.lieux();
   S.classes=dep.groupes();
   S.specialists=dep.personnes(S.rooms);
-  S.assignments={};S.verrous={};S.surveillances={};
+  // Un jeu de depart repart de zero, y compris pour les surveillances ET
+  // les gens qui les prennent. Vider les surveillances en gardant leurs
+  // surveillants laissait un titulaire d'ecole dans un camp de jour.
+  S.assignments={};S.verrous={};S.surveillances={};S.surveillants=[];
   // Le modele doit rendre un etat DEJA migre : sinon il lui manque les
   // champs ajoutes depuis, et un simple rechargement les fait apparaitre —
   // deux etats pour un meme horaire.
@@ -2426,6 +2470,88 @@ function montrerNonPlaces(filled,liste){
     +`<th>${t('remaining')}</th><th>${t('raison')}</th></tr></thead><tbody>${lignes}</tbody></table></div>`
     +`<div class="macts"><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
+/* =======================================================================
+   DUPLIQUER UNE JOURNEE
+   -----------------------------------------------------------------------
+   Beaucoup d'horaires se repetent : la semaine d'un service de garde est
+   souvent cinq fois la meme journee, et une ecole a des jours jumeaux dans
+   son cycle. Refaire le meme travail cinq fois de suite n'apprend rien a
+   personne.
+
+   Une copie AVEUGLE serait pire que rien : elle poserait des cours dans des
+   creneaux fermes, ferait exploser une capacite, casserait un ratio. On
+   copie donc case par case, en repassant par les MEMES regles que le clic —
+   `creneauFerme`, `canPlace`, `checkH`. Ce qui ne passe pas n'est pas pose,
+   et on DIT combien, sinon la personne croirait sa journee copiee en entier.
+
+   Les surveillances suivent, elles aussi rangees sous l'id du creneau : une
+   journee, c'est ses cours ET ses surveillances.
+   ======================================================================= */
+function dupliquerJournee(src,cibles){
+  src=+src;
+  const liste=(Array.isArray(cibles)?cibles:[cibles]).map(Number)
+    .filter(d=>d>=1&&d<=S.school.cycleDays&&d!==src);
+  if(!liste.length)return {jours:0,poses:0,ignores:0};
+  let poses=0,ignores=0;
+  liste.forEach(dst=>{
+    // On repart d'une journee nette : « dupliquer » veut dire « la meme
+    // journee », pas « les deux journees melangees ».
+    if(S.assignments[dst])delete S.assignments[dst];
+    if(S.surveillances&&S.surveillances[dst])delete S.surveillances[dst];
+    tPer().forEach(pr=>{
+      getA(src,pr.num).forEach(a=>{
+        const sp=ressources().find(x=>x.id===a.specId);
+        const cl=demandeurs().find(x=>x.id===a.classId);
+        if(!sp||!cl){ignores++;return}
+        // Les memes regles que le clic. Pas une copie de ces regles : les
+        // regles elles-memes, sinon elles divergeraient un jour.
+        if(!canPlace(dst,pr.num,sp)){ignores++;return}
+        if(checkH(dst,pr.num,sp.id,cl.id,a.roomId||'').length){ignores++;return}
+        setA(dst,pr.num,sp.id,cl.id,a.roomId||'');poses++;
+      });
+    });
+    // Les surveillances : memes creneaux, memes personnes. Une surveillance
+    // ne consomme pas de periode de contrat, il n'y a donc rien a verifier
+    // sinon le conflit avec un cours — qui vient d'etre pose au meme rythme.
+    creneauxSurveillance().forEach(cr=>{
+      const gens=getSurv(src,cr.id);
+      if(!gens.length)return;
+      gens.forEach(idg=>{
+        if(survConflitCours(dst,cr.id,idg)){ignores++;return}
+        toggleSurv(dst,cr.id,idg);
+      });
+    });
+  });
+  save();
+  return {jours:liste.length,poses,ignores};
+}
+
+function ouvrirDuplicationModal(){
+  if(!demandeurs().length){toast(t('addClassesFirst'));return}
+  closeModals();
+  const jours=Array.from({length:S.school.cycleDays},(_,i)=>i+1);
+  const rempli=j=>tPer().reduce((k,pr)=>k+getA(j,pr.num).length,0);
+  const ov=document.createElement('div');ov.className='modal';
+  ov.innerHTML=`<div class="mbox" style="max-width:480px"><h3>⧉ ${t('dupTitre')}</h3>
+    <div class="fr"><label>${t('dupSource')}</label><select id="dSrc">${jours.map(j=>`<option value="${j}">${t('day')} ${j} — ${rempli(j)}</option>`).join('')}</select></div>
+    <div class="fr" style="align-items:flex-start"><label>${t('dupCibles')}</label><div class="zgm-mini" id="dCib">${jours.map(j=>`<button type="button" data-j="${j}" aria-pressed="false">${j}</button>`).join('')}</div></div>
+    <p style="font-family:var(--f-note);font-size:16px;color:var(--muted);margin-top:6px">${t('dupAide')}</p>
+    <div class="macts"><button class="btn g" id="dGo">⧉ ${t('dupFaire')}</button><button class="btn o" onclick="closeModals()">${t('cancel')}</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelectorAll('#dCib button').forEach(b=>b.onclick=()=>{
+    b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')==='true'?'false':'true')});
+  ov.querySelector('#dGo').onclick=()=>{
+    const src=+ov.querySelector('#dSrc').value;
+    const cibles=[...ov.querySelectorAll('#dCib button[aria-pressed="true"]')].map(b=>+b.dataset.j);
+    if(!cibles.length){toast('⚠️ '+t('dupCibles'));return}
+    const r=dupliquerJournee(src,cibles);
+    closeModals();renderAll();
+    toast((r.poses?'✅ ':'⚠️ ')+r.jours+' '+t('dupFait')+' · '+r.poses
+      +(r.ignores?' · '+r.ignores+' '+t('dupIgnores'):''),r.ignores?5000:2500);
+  };
+  ov.onclick=e=>{if(e.target===ov)closeModals()};
+}
+
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
 function clearSchedule(){if(!confirm(`🗑️ ${t('clearConfirm')}`))return;S.assignments={};save();renderAll()}
 function exportPDF(){html2pdf().set({margin:5,filename:'grille_horaire.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a3',orientation:'landscape'}}).from(document.getElementById('grid')).save()}
@@ -2506,6 +2632,94 @@ function construireRecaps(){
         +`<th>${t('colNb')}</th></tr></thead><tbody>${lignesS}</tbody></table>`
         +(alertes.length?`<p class="ecart-fort">⚠️ ${alertes.join(' · ')}</p>`:'')
       : '');
+}
+
+/* =======================================================================
+   IMPRESSION PAR PERSONNE — une page chacun
+   -----------------------------------------------------------------------
+   La grille complete est le document de la DIRECTION : treize colonnes, sept
+   couleurs, tout le monde dessus. Ce n'est pas ce qu'on epingle au-dessus de
+   son bureau. Une personne veut SA journee : ses groupes, ses surveillances,
+   son compte — et rien du voisin.
+
+   D'ou une seconde sortie imprimable, batie a la demande, une page par
+   personne. Les bandes de recre et de diner y figurent : une surveillance
+   fait partie de la journee de quelqu'un autant qu'un cours.
+
+   Elle ne remplace pas la grille : c'est un deuxieme bouton, et le corps
+   porte une classe le temps de l'impression pour que les deux ne sortent
+   jamais ensemble.
+   ======================================================================= */
+function construireParPersonne(){
+  const hote=document.getElementById('zg-perso');
+  if(!hote)return 0;
+  const jours=Array.from({length:S.school.cycleDays},(_,i)=>i+1);
+  const gens=listeSurveillants();
+  let pages=0;
+  hote.innerHTML=gens.map(g=>{
+    const sp=ressources().find(x=>x.id===g.id)||null;
+    // Les lignes : les creneaux de la journee dans l'ORDRE ou ils arrivent,
+    // periodes et bandes melees. C'est la journee telle qu'elle se vit.
+    const lignes=(S.school.periods||[]).map(pr=>{
+      const bande=pr.type!=='period';
+      const cases=jours.map(d=>{
+        if(bande)
+          return getSurv(d,pr.id).includes(g.id)?'<td class="pp-surv">👁️</td>':'<td></td>';
+        if(creneauFerme(d,pr.num))return '<td class="pp-ferme"></td>';
+        const a=getA(d,pr.num).find(x=>x.specId===g.id);
+        if(!a)return '<td></td>';
+        const cl=demandeurs().find(c=>c.id===a.classId);
+        const lieu=lieux().find(r=>r.id===a.roomId);
+        return `<td class="pp-plein" style="background:${cl?groupColor(cl.id):'#eee'}">`
+          +`<b>${cl?cl.group:'?'}</b>${lieu?`<small>${lieu.name}</small>`:''}</td>`;
+      }).join('');
+      const titre=bande
+        ? `<th class="pp-bande">${nomBande(pr)}<small>${pr.start||''}</small></th>`
+        : `<th>${nomPeriode(pr)}<small>${pr.start||''}-${pr.end||''}</small></th>`;
+      return `<tr>${titre}${cases}</tr>`;
+    }).join('');
+    // La bande « Avant P1 » n'est pas un creneau de la journee : elle vit a
+    // part. Elle a pourtant sa ligne, sinon une surveillance disparait.
+    const avant=S.school.avantP1
+      ? `<tr><th class="pp-bande">${t('avantP1')}</th>`
+        +jours.map(d=>getSurv(d,SURV_AVANT).includes(g.id)?'<td class="pp-surv">👁️</td>':'<td></td>').join('')
+        +'</tr>'
+      : '';
+    const su=sp?S.subjects.find(x=>x.id===sp.subjectId):null;
+    const nbSurv=survCompte(g.id);
+    const chiffres=sp
+      ? `${t('cptCours')} ${specTotalPlaced(sp.id)} / ${specDu(sp)} · `
+        +`${t('capacite')} ${textePlafond(specMaxPeriods(sp))}`
+        +(nbSurv?` · 👁️ ${nbSurv}`:'')
+      : `${t('typ_'+g.type)}${nbSurv?` · 👁️ ${nbSurv}`:''}`;
+    pages++;
+    return `<section class="pp-page">`
+      +`<div class="pp-tete"><b>${g.code}</b> <span>${g.nom||''}</span>`
+      +`<em>${su?su.name:''}</em></div>`
+      +`<div class="pp-chiffres">${chiffres}</div>`
+      +`<table class="pp-grille"><thead><tr><th></th>`
+      +jours.map(d=>`<th>${t('day')} ${d}</th>`).join('')
+      +`</tr></thead><tbody>${avant}${lignes}</tbody></table>`
+      +`<div class="pp-pied">${(S.school.name||'').trim()}${S.school.name?' — ':''}`
+      +`${t('appTitle')} · ${new Date().toLocaleDateString()}</div></section>`;
+  }).join('');
+  return pages;
+}
+
+function imprimerParPersonne(){
+  if(!ressources().length&&!(S.surveillants||[]).length){toast(t('noSpec'));return}
+  const nb=construireParPersonne();
+  if(!nb){toast(t('noSpec'));return}
+  // Le corps porte la classe le temps de l'impression : la grille complete
+  // et les fiches ne doivent jamais sortir dans le meme document.
+  document.body.classList.add('zg-perso-on');
+  const nettoyer=()=>{document.body.classList.remove('zg-perso-on');
+    window.removeEventListener('afterprint',nettoyer)};
+  window.addEventListener('afterprint',nettoyer);
+  // Certains navigateurs n'emettent jamais `afterprint` : on ne laisse pas
+  // l'app coincee dans un etat d'impression.
+  setTimeout(nettoyer,4000);
+  window.print();
 }
 
 function imprimerGrille(){
@@ -2630,7 +2844,7 @@ function creneauxSurveillance(){
   if(S.school.avantP1)l.push({id:SURV_AVANT,type:'avant',libelle:t('avantP1')});
   (S.school.periods||[]).forEach(pr=>{
     if(pr.type==='recess'||pr.type==='lunch')
-      l.push({id:pr.id,type:pr.type,libelle:pr.type==='recess'?t('recess'):t('lunch'),
+      l.push({id:pr.id,type:pr.type,libelle:nomBande(pr),
               start:pr.start,end:pr.end});
   });
   return l;
