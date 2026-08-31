@@ -749,6 +749,11 @@ MON PARASCOLAIRE existe déjà comme porte de la barre (l'ancien « Mon temps tr
 - La Phase 0 (lecture seule) peut démarrer dès que les 14 commits sont poussés.
 - AUCUN code des lots avant que les mandats G3-STABILISATION (bug P0 d'affichage au scroll + build G3 réellement servi sur localhost) et G3-FICHE (fiche de cours en 2 modes) soient CLOS : le P0 rend toute validation visuelle de Joey impossible, et la fiche de cours est un point d'ancrage des lots A et B.
 - Une seule session code à la fois sur proto/g2. Au départ de toute session : git status; s'il y a des fichiers modifiés qu'elle n'a pas écrits elle-même → STOP et rapport à Joey.
+- ✅ **TRANSFERT DU 31 AOÛT** : Joey a confié **G3-FICHE au complet**, **l'addenda
+  G3-FICHE-2** (écran LA PLANIFICATION) et **le P0 du défilement** à la session
+  « Proto suite 31 aout ». **`apps/planificateur/` est à elle seule** jusqu'à la
+  clôture de G3-STABILISATION et G3-FICHE — aucune autre session n'y écrit,
+  même une correction d'une ligne. L'autre session en a été avertie.
 - Les « pièges » se réfèrent par TITRE, jamais par numéro (les numérotations divergent entre sessions).
 
 ---
