@@ -374,9 +374,23 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
 .mini-cal th{background:#CFF1FB;color:var(--ink);border:1px solid var(--noir);font-size:10px;padding:2px}
 .mini-cal td{border:1px solid var(--noir);height:26px;width:14.28%;text-align:center;position:relative;font-weight:800}
 .mini-cal td .r{position:absolute;top:0;right:2px;font-size:8px;color:var(--ink-soft)}
-.annee-rows{display:flex;flex-direction:column;gap:6px}
-.annee-row{display:grid;grid-template-columns:26px 1fr 1.4fr 1.8fr;gap:6px;align-items:center}
+.annee-rows{display:flex;flex-direction:column;gap:0}
+/* l'écart entre deux rangées est un PADDING, pas un `gap` : le `gap` s'ajoute
+   entre les rangées mais pas au-dessus de la première, ce qui décalait toute
+   la colonne d'un demi-cran par rapport au calendrier. */
+.annee-row{display:grid;grid-template-columns:26px 1fr 1.4fr 1.8fr;gap:6px;
+  align-items:center;padding:3px 0;box-sizing:border-box}
 .annee-row .fl{font-size:19px;color:var(--sur-fond-doux);text-align:center}
+/* ⚠ LA BANDE DE PASTILLES N'AVAIT AUCUNE RÈGLE. Posée en tête d'une grille à
+   quatre colonnes (proto-g3.js), elle tombait dans la PREMIÈRE — 26 px de
+   large — et débordait : on lisait des demi-caractères. Elle traverse
+   maintenant toute la rangée, au-dessus des champs, comme une annonce. */
+.annee-grs{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px;
+  align-items:center;margin-bottom:4px;min-width:0}
+.annee-grs .gr-pastille{flex:0 0 auto;max-width:100%}
+/* les lignes du calendrier reçoivent leur hauteur du JS (alignerAnnee) ;
+   26 px n'est plus qu'un plancher pour les mois sans séance */
+.mini-cal td{vertical-align:middle}
 .ch{border:3px solid #6ED11E;border-radius:8px;background:#fff;color:var(--ink);padding:4px 6px;font-size:13px}
 .ch--ma{border-color:var(--orange)}
 .ch--ac{border-color:#25D8C0}

@@ -608,7 +608,67 @@ function peindreAnnee(){
     pan.appendChild(ligne); h.appendChild(pan);
   });
   brancherEditables(h);
+  /* ⚠ L'ALIGNEMENT ATTEND LA FRAME SUIVANTE, ET CE N'EST PAS UN CAPRICE :
+     `groupesDansLAnnee()` (proto-g3.js) se greffe APRÈS `peindreAnnee()` et
+     pose une bande de pastilles en tête de certaines rangées. Mesurer tout de
+     suite donnerait la hauteur d'AVANT les pastilles, et la ligne du calendrier
+     serait trop courte de la hauteur de la bande.
+     ⚠ Et il relit le DOM au lieu de garder `cal`/`rows` sous la main : l'écran
+     se repeint deux fois de suite (visite puis greffe), la seconde jette les
+     nœuds de la première, et une référence capturée pointait sur un calendrier
+     déjà mis à la poubelle — les hauteurs étaient posées sur du vide. */
+  /* Deux frames, puis un filet. La première laisse proto-g3.js poser ses
+     pastilles, la seconde laisse le navigateur refaire la mise en page une
+     fois qu'elles sont là ; le `setTimeout` rattrape les polices qui finissent
+     de charger après coup — un titre en Luckiest Guy qui arrive en retard
+     change la hauteur des rangées, donc l'alignement. */
+  requestAnimationFrame(()=> requestAnimationFrame(alignerToutAnnee));
+  setTimeout(alignerToutAnnee, 250);
 }
+
+function alignerToutAnnee(){
+  $$('#anneeHote .annee-ligne').forEach(l=>
+    alignerAnnee(l.querySelector('.mini-cal'), l.querySelector('.annee-rows')));
+}
+
+/* Le gabarit papier aligne CHAQUE rangée « Compétence · Moyen d'action ·
+   Activité » sur SA ligne du calendrier : une semaine, une rangée, à la même
+   hauteur. Les deux blocs sont deux boîtes distinctes (un tableau et une pile
+   de grilles) — aucune règle CSS ne peut donc les faire coïncider seule, et le
+   nombre de lignes change d'un mois à l'autre.
+   On mesure donc les rangées, puis on étire les LIGNES DU CALENDRIER à leur
+   hauteur — jamais l'inverse : écraser les rangées à 26 px rendrait les champs
+   inutilisables, alors que le papier a justement des cases hautes. */
+function alignerAnnee(cal, rows){
+  if (!cal || !rows || !cal.isConnected) return;
+  const trs = [...cal.querySelectorAll('tbody tr')];
+  const rws = [...rows.querySelectorAll('.annee-row[data-sem]')];
+  const tete = rows.querySelector('.annee-row:not([data-sem])');
+  const cap = cal.querySelector('.caption'), thead = cal.querySelector('thead');
+  const haut = e => e ? e.getBoundingClientRect().height : 0;
+  /* la rangée des titres épouse le bandeau du mois + la ligne L M M J V :
+     sans ça, tout le reste est décalé d'un cran vers le haut */
+  if (tete) tete.style.height = Math.round(haut(cap) + haut(thead)) + 'px';
+  trs.forEach((tr,i)=>{
+    const r = rws[i];
+    tr.style.height = r ? Math.round(r.getBoundingClientRect().height) + 'px' : '';
+  });
+  /* ⚠ PUIS ON CORRIGE PAR LA MESURE, PAS PAR UNE CONSTANTE. Bordures, arrondi
+     du bandeau et `border-collapse` laissaient le tableau quelques pixels plus
+     bas que la première rangée. Un « +4px » écrit en dur aurait tenu jusqu'au
+     prochain changement de bordure ; on relit l'écart réel et on l'absorbe. */
+  if (tete && trs[0] && rws[0]){
+    const ecart = trs[0].getBoundingClientRect().top - rws[0].getBoundingClientRect().top;
+    if (Math.abs(ecart) >= 1)
+      tete.style.height = Math.max(0, Math.round(haut(tete) + ecart)) + 'px';
+  }
+}
+/* Une largeur qui change refait la hauteur des rangées (les champs se
+   replient) : sans ce rappel, l'alignement ne survit pas à une rotation de
+   tablette ni au cran de taille. */
+addEventListener('resize', ()=>{
+  if ($('#e-annee') && $('#e-annee').classList.contains('on')) alignerToutAnnee();
+});
 
 /* ═════════ SEMAINE ═════════ */
 const PERIODES = [
