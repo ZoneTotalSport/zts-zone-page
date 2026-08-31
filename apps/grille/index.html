@@ -378,7 +378,7 @@ let lang='fr',activeSpec=null;
 
 function save(){localStorage.setItem('gh2',JSON.stringify(S))}
 function load(){try{const r=localStorage.getItem('gh2');if(r){S=JSON.parse(r);if(!S.assignments)S.assignments={};if(!S.school.quotaMode)S.school.quotaMode='minutes';if(!S.school.periodsPerDay)S.school.periodsPerDay=tPer().length||5;if(!S.school.tache100)S.school.tache100=S.school.cycleDays*(S.school.periodsPerDay||5)}}catch(e){}
-  lang=localStorage.getItem('gh_lang')||'fr';document.getElementById('langSel').value=lang;
+  lang=localStorage.getItem('gh_lang')||'fr';const _langSel=document.getElementById('langSel');if(_langSel)_langSel.value=lang;
   [...(S.specialists||[]),...(S.classes||[]),...(S.rooms||[])].forEach(x=>{if(x?.id){const n=parseInt(x.id.replace('id_',''));if(!isNaN(n)&&n>=nid)nid=n+1}})}
 function changeLang(l){lang=l;localStorage.setItem('gh_lang',l);applyI18n();renderAll()}
 
