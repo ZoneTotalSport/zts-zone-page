@@ -383,6 +383,30 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
    côte » demandait de mesurer l'un pour étirer l'autre, et ça ne tenait pas
    d'une machine à l'autre. */
 .annee-cal{overflow-x:auto;overflow-y:visible}
+/* Le nom du mois, en gros et dans la police de marque.
+   ⚠ La famille s'appelle 'ZoneTotalSportPROTO', pas 'ZoneTotalSport' : le proto
+   lui donne un nom distinct pour ne pas entrer en collision avec les @font-face
+   des autres apps (voir le commentaire en tête de ce fichier).
+   ⚠ Et elle porte `size-adjust:50%` : une taille en px y rend DEUX FOIS plus
+   petit qu'avec une autre police. D'où 54px pour un rendu d'environ 27.
+   Vérifié : les 12 noms de mois et les chiffres sont tous couverts par ses 145
+   glyphes — accents compris (FÉVRIER, AOÛT, DÉCEMBRE). */
+.annee-cal .caption{
+  font-family:'ZoneTotalSportPROTO',var(--f-titre);
+  /* ⚠ line-height SERRÉ = ACCENTS DÉCAPITÉS. À 1.05, le circonflexe de AOÛT
+     et l'aigu de FÉVRIER sortaient de la boîte et se faisaient rogner par
+     l'`overflow:hidden` du calendrier : on lisait « AOUT ». La casse fautive
+     ne venait pas de la police — elle avait bien le glyphe — mais du cadrage. */
+  font-size:54px;line-height:1.28;letter-spacing:.5px;
+  /* Luckiest Guy ne dessine QUE des capitales : le bandeau affichait donc
+     « AOÛT » sans que personne l'ait demandé. La police de marque, elle, a une
+     vraie casse — sans cette ligne, le mois passait en « Août » au changement
+     de police. On garde l'apparence d'avant ; retirer cette ligne suffit à
+     revenir à la casse naturelle. Les majuscules accentuées sont couvertes
+     (FÉVRIER, AOÛT, DÉCEMBRE : vérifié sur les 145 glyphes). */
+  text-transform:uppercase;
+  padding:10px 4px 8px;background:var(--noir);color:var(--jaune);text-align:center;
+}
 .annee-cal table{table-layout:fixed}
 .annee-cal td:nth-child(-n+5),
 .annee-cal th:nth-child(-n+5){width:46px}

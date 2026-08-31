@@ -565,8 +565,10 @@ function peindreAnnee(){
   ANNEE_MOIS.forEach(([y,m])=>{
     const pan = el('div','pan');
     const cal = el('div','mini-cal annee-cal');
+    /* ⚠ PAS DE STYLE EN LIGNE ICI : il gagnerait sur la feuille, et le bandeau
+       ne pourrait plus changer de police ni de taille depuis le CSS. Tout est
+       dans `.annee-cal .caption` (proto.css). */
     const cap = el('div','caption');
-    cap.style.cssText='font-family:var(--f-titre);letter-spacing:.5px;padding:4px;background:var(--noir);color:var(--jaune);text-align:center';
     cap.textContent = MOIS_NOMS[m]+' '+y;
     cal.appendChild(cap);
 
