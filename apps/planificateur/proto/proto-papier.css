@@ -1087,3 +1087,42 @@ html[data-etroit="1"] .hor-gr{font-size:14px;padding:4px 8px}
 /* ⚠ Le compte des cases du patron s'affiche MÊME À ZÉRO : un badge qui
    n'apparaît que parfois se lit comme un défaut. Gris = pas encore placé. */
 .pastille-nb--zero{background:#C9D4DB;color:#3A4A55;box-shadow:none}
+
+/* ⚠ CE BLOC EST ICI, ET PAS DANS proto.css, POUR UNE RAISON : proto-papier.css
+   est la DERNIÈRE feuille chargée (voir index.html). Les mêmes règles écrites
+   dans proto.css étaient écrasées par `.auj-per .quand b{font-family:var(--f-large)}`
+   quelques lignes plus haut dans CE fichier — à spécificité égale, c'est le
+   dernier qui gagne. La police restait Bangers. */
+/* ══════════════════════════════════════════════════════════════════════════
+   LES JOURS DE LA SEMAINE ET LES PÉRIODES EN POLICE DE MARQUE (31 août)
+   Demande de Joey. Une seule règle groupée plutôt qu'une retouche éparpillée
+   dans quatre fichiers : ce sont les mêmes mots — les jours et les périodes —
+   partout où ils s'affichent.
+
+   ⚠ La famille est 'ZoneTotalSportPROTO' (nom propre au proto, voir le haut de
+   ce fichier) et elle porte `size-adjust:50%` : elle rend deux fois plus petit
+   à taille égale. Chaque taille ci-dessous est donc ROUGHLY DOUBLÉE par rapport
+   à la valeur d'origine, pour un rendu identique — en plus lisible.
+
+   ⚠ Glyphes vérifiés sur les 145 de la police : Lundi→Dimanche, L M M J V,
+   PÉRIODE, Récréation, Dîner, les chiffres et « à ». Aucun manquant.
+   ⚠ `line-height` jamais serré ici : c'est ce qui décapitait le circonflexe de
+   AOÛT dans le bandeau du mois. Î de « Dîner » et É de « Récréation » ont la
+   même exigence.
+   ────────────────────────────────────────────────────────────────────────── */
+.mini-cal th,                 /* L M M J V — calendriers de MON ANNÉE et MON MOIS */
+.ag-jour b,                   /* Lundi… Vendredi — en-tête de MA SEMAINE */
+.ag-per,                      /* le rail des périodes de MA SEMAINE */
+.auj-per .quand b{            /* PÉRIODE 1… — MA JOURNÉE */
+  font-family:'ZoneTotalSportPROTO',var(--f-titre);
+  line-height:1.3;
+}
+.mini-cal th{font-size:20px;padding:5px 2px}
+.annee-cal thead th{font-size:26px}
+.ag-jour b{font-size:26px;line-height:1.25}
+.ag-per{font-size:26px;letter-spacing:.4px}
+.auj-per .quand b{font-size:44px;line-height:1.2}
+
+/* le bandeau « DÉMARRER LA SÉANCE / MODE TABLEAU BLANC » de MA JOURNÉE :
+   sa propre ligne, au-dessus du rail d'outils */
+.auj-live{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}

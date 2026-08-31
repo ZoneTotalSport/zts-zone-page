@@ -589,6 +589,23 @@ const OUTILS = [
   const h=$('#aujActions'); if(!h) return;
   h.innerHTML='';
   h.classList.add('outils-rail');
+  /* ⚠ LA BARRE A SON PROPRE BANDEAU, AU-DESSUS DU RAIL — pas dedans.
+     `#aujActions` est une grille de cartes d'outils : la barre y devenait une
+     8e carte et écrasait les sept autres. Et le bandeau se pose APRÈS le
+     `h.innerHTML=''`, jamais avant : posée d'abord, elle était effacée dans la
+     foulée par le vidage.
+     « DÉMARRER LA SÉANCE / MODE TABLEAU BLANC » est revenue ici le 31 août,
+     retirée de l'écran d'une période que Joey trouvait trop chargé. Elle est
+     fabriquée une seule fois et déplacée (voir `liveEtTbi()`, proto-fusion.js) :
+     son minuteur et ses écouteurs la suivent, la poser ici ne la duplique pas. */
+  if (typeof poserLiveTbi==='function'){
+    let bandeau=$('#aujLive');
+    if (!bandeau){
+      bandeau=el('div','auj-live'); bandeau.id='aujLive';
+      h.parentNode.insertBefore(bandeau, h);
+    }
+    poserLiveTbi(bandeau);
+  }
   OUTILS.forEach(([emo,nom,f,quoi])=>{
     const b=el('button','outil-carte'); b.type='button'; b.title=quoi;
     b.appendChild(el('span','emo',emo));

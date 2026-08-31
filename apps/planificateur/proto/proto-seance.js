@@ -688,13 +688,14 @@ function ouvrirSeance(iso, per){
       <div class="se-qui"><h3></h3><div class="quand"></div></div>
       <div class="se-parure" id="seParure"></div>
     </div>
-    <div class="se-live-hote" id="seLiveHote"></div>
     <div class="se-actions" id="seActions"></div>
     <div id="seDetail"></div>`;
-  /* ⚠ « Démarrer la séance » et « mode tableau blanc » vivent ICI depuis le
-     31 août : on ne démarre pas une séance dans l'abstrait, on démarre celle
-     qu'on donne. Voir `liveEtTbi()`, proto-fusion.js. */
-  if (typeof poserLiveTbi==='function') poserLiveTbi($('#seLiveHote'));
+  /* ⚠ « DÉMARRER LA SÉANCE » et « MODE TABLEAU BLANC » NE SONT PLUS ICI.
+     Ils y avaient été amenés le 31 août ; Joey les a fait retirer le même jour,
+     l'écran d'une période étant devenu trop chargé. Ils ne sont PAS supprimés
+     pour autant — ils reprennent leur place sur MA JOURNÉE, dans la ligne
+     d'outils (`#aujActions`, proto-g3.js). Le mode tableau blanc est un acquis
+     du §1.2 du mandat : il ne doit jamais disparaître du proto. */
   peindreTeteSeance();
   peindreActionsSeance();
 }

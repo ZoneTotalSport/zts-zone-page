@@ -65,14 +65,18 @@
 }
 
 /* ── le panneau de séance ── */
+/* ⚠ BANDEAU VOLONTAIREMENT BAS. Joey : « mets la couleur du rectangle plus
+   petite afin que je puisse mettre plus qu'une image pour l'explication de la
+   période ». Le bandeau coloré prenait 100px de haut avant même la première
+   illustration ; chaque pixel repris ici est un pixel gagné pour les images. */
 .se-tete{
-  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
-  border:3px solid var(--noir);border-radius:13px;padding:10px 12px;margin-bottom:14px;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  border:3px solid var(--noir);border-radius:13px;padding:6px 10px;margin-bottom:10px;
 }
 .se-tete .img{font-size:34px;line-height:1}
 .se-tete img.img{width:52px;height:52px;border-radius:10px;border:3px solid var(--noir);object-fit:cover}
-.se-tete h3{font-family:var(--f-titre);font-size:24px;margin:0;letter-spacing:.3px}
-.se-tete .quand{font-family:var(--f-note);font-size:17px}
+.se-tete h3{font-family:var(--f-titre);font-size:20px;margin:0;letter-spacing:.3px}
+.se-tete .quand{font-family:var(--f-note);font-size:15px}
 .se-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
 .se-action{
   cursor:pointer;text-align:left;padding:12px 12px 10px;
@@ -265,7 +269,7 @@
 
 /* ── l'en-tête de la séance : sa photo, sa couleur ── */
 .se-photo{
-  flex:none;width:62px;height:62px;cursor:pointer;padding:0;overflow:hidden;color:inherit;
+  flex:none;width:46px;height:46px;cursor:pointer;padding:0;overflow:hidden;color:inherit;
   display:flex;align-items:center;justify-content:center;
   border:3px solid var(--noir);border-radius:12px;background:rgba(255,255,255,.55);
   box-shadow:2px 2px 0 var(--noir);
