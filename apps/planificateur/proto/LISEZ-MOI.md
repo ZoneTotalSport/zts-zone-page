@@ -42,6 +42,87 @@ de l'app restent minuscules par dessein (piège n° 19 du journal).
 La règle qui décide de la place d'une chose : **à quelle fréquence s'en sert-on ?**
 Rien n'a été coupé : ⋯ PLUS mène aux sept écrans, chacun avec son « ← PLUS ».
 
+### 31 août (suite) — la barre complète, et le calendrier qui s'importe
+
+**La barre porte maintenant NEUF portes**, dans l'ordre du temps puis du reste :
+
+📋 MA JOURNÉE · 🗓️ MA SEMAINE · 📅 MON MOIS · 📚 MON ANNÉE · 📆 MON CALENDRIER ·
+🏅 MON PARASCOLAIRE · 🔗 MES AUTRES APPS *(menu déroulant)* · ⋯ PLUS · **⚙️** *(petite
+case, poussée complètement à droite)*.
+
+- **📤 Partager** a rejoint **l'en-tête**, en petit, à côté de l'horloge : ce
+  n'est ni un horizon de temps ni un réglage.
+- **MON TEMPS devient MON PARASCOLAIRE** — les heures faites en parascolaire.
+- **🔗 MES AUTRES APPS est un menu**, pas un écran : quatre liens externes ne
+  méritaient pas une page. `AUTRES_APPS` est écrite une fois, plus deux.
+- **⋯ PLUS** ne garde que ce qui n'a pas de porte propre : Mes groupes et Vue
+  coordonnateur.
+- ⚠ **La barre doit rester en `flex`.** `margin-left:auto` ne pousse RIEN dans
+  une grille : en `grid`, la roue n'était plus « complètement à droite », juste
+  neuvième — et à 375 px les cinq colonnes réclamaient 496 px, elle sortait de
+  l'écran de 33 px.
+
+### Les onglets de groupes — les intercalaires d'un cahier
+
+Joey : « place tous les groupes en dessous de ma journée, ma semaine, etc., en
+angle de 45 degrés comme dans les cahiers ».
+
+La palette a quitté MA SEMAINE pour **`#ongletsGr`, sous la barre, visible
+partout** — c'est le seul sélecteur de groupe de l'app, il n'a pas à
+disparaître selon l'écran. **Toutes ses fonctions sont intactes** : glisser dans
+une case, ✎ personnaliser, le compte de cours de la semaine, ＋ NOUVEAU GROUPE,
+🎨 TOUTES DIFFÉRENTES, et le clic qui prend le groupe en main **et** le pose
+comme groupe courant.
+
+Le biseau est **réel** — 45° taillés au `clip-path` dans le coin haut-gauche,
+les languettes se chevauchant comme dans un duo-tang, celle du groupe courant
+relevée avec un liseré jaune.
+⚠ **Le texte, lui, reste droit.** Une languette inclinée se reconnaît ; un nom
+de groupe incliné se déchiffre. Le biseau est dans la forme, pas dans le texte.
+⚠ Les onglets **ne sont pas collants** : ils défilent avec la page. Trois barres
+figées l'une sous l'autre mangeraient la moitié d'un téléphone.
+⚠ La consigne « glisse un groupe dans une case » ne s'affiche que sur MA
+SEMAINE — c'est le seul écran où l'on peut glisser. Elle est pilotée par
+`body[data-ecran]`, posé dans `allerA()`.
+
+### MON CALENDRIER — l'import qui marche vraiment
+
+Joey : « mon calendrier est le calendrier scolaire, donc on peut importer les
+dates importantes ; ça se place automatiquement avec les journées pédagogiques,
+les jours-cycle s'il y en a, les dates scolaires importantes ».
+
+⚠ **Trois défauts empêchaient que ça marche :**
+
+1. **Une semaine de relâche ne posait qu'un lundi.** Un `.ics` l'écrit en UN
+   événement, `DTSTART` au lundi, `DTEND` au samedi ; on ne lisait que
+   `DTSTART`. Les jours sont maintenant dépliés — et `DTEND` est **exclusif**
+   pour une journée entière (RFC 5545), sinon on pose un jour de trop.
+2. **Tout ce qui n'était ni congé, ni pédago, ni force majeure était JETÉ.**
+   La rentrée, les bulletins, la rencontre de parents, la photo scolaire :
+   comptés en « sans catégorie » et perdus. Ils deviennent la **note de leur
+   journée** et s'affichent dans MON CALENDRIER **et** dans MON MOIS.
+3. **Les jours-cycle n'étaient PAS recalculés après l'import.** C'est pourtant
+   l'effet principal : une pédagogique décale tout ce qui suit. Rien ne bougeait
+   jusqu'au prochain rechargement de la page.
+
+Deux défauts de plus, trouvés au passage :
+- ⚠ **Une journée avait DEUX notes qui s'ignoraient** — `caljour:<iso>` pour le
+  calendrier, `ed:mn-<iso>` pour la case du mois. Une seule clé désormais
+  (`ed:mn-`), les anciennes reprises par `migrerNotesDeJour()`.
+- ⚠ **`rafraichirCycles()` gardait sur `#moisHote`, qui n'existe pas** — la
+  grille s'appelle `#moisGrille`. MON MOIS n'a donc jamais été rafraîchi quand
+  on changeait la longueur du cycle, et MON ANNÉE pas du tout. *Piège n° 17
+  encore : un garde qui ne se déclenche jamais ressemble à un garde qui protège.*
+- ⚠ **Les lignes d'un `.ics` se REPLIENT à 75 octets**, la suite commençant par
+  une espace : sans dépliage, un `SUMMARY` long est tronqué au milieu d'un mot.
+- ⚠ Le compte-rendu **annonçait comme « non reconnues » les dates qu'il venait
+  de garder**. Il dit maintenant : journées posées · dates importantes notées ·
+  jours-cycle recalculés · hors année.
+
+L'import était offert à **deux endroits** (l'écran du calendrier et MES
+DONNÉES). On garde celui du calendrier : c'est là qu'on voit le résultat se
+poser.
+
 ### Une période = une CARTE, avec ses images
 
 *(31 août — « au lieu que ce soit un rectangle mince, mets de la place pour

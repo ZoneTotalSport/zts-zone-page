@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=104">
-<link rel="stylesheet" href="proto-fusion.css?v=104">
-<link rel="stylesheet" href="proto-boutons.css?v=104">
-<link rel="stylesheet" href="proto-seance.css?v=104">
-<link rel="stylesheet" href="proto-simple.css?v=104">
-<link rel="stylesheet" href="proto-papier.css?v=104">
+<link rel="stylesheet" href="proto.css?v=108">
+<link rel="stylesheet" href="proto-fusion.css?v=108">
+<link rel="stylesheet" href="proto-boutons.css?v=108">
+<link rel="stylesheet" href="proto-seance.css?v=108">
+<link rel="stylesheet" href="proto-simple.css?v=108">
+<link rel="stylesheet" href="proto-papier.css?v=108">
 </head>
 <body>
 
@@ -19,10 +19,23 @@
   <a class="zts-marque" href="#" aria-label="Zone Total Sport"><span class="w1">ZONE</span> <span class="w2">TOTAL</span> <span class="w3">SPORT</span></a>
   <div class="zts-tete-pied">
     <span class="zts-heure">🕐 <span data-heure>--:--:--</span></span>
+    <!-- Joey : « le partage, mets-le complètement en haut, en petit, dans
+         l'en-tête ». Ce n'est ni un horizon de temps ni un réglage : c'est un
+         geste ponctuel, il vit avec l'horloge. -->
+    <button type="button" class="zts-btn zts-btn--mini" data-va="e-partage"
+            title="Envoyer une semaine, un groupe ou une planification à un collègue">📤 Partager</button>
   </div>
 </header>
 
 <nav class="ecrans-nav" id="nav" aria-label="Écrans du proto"></nav>
+
+<!-- ⚠ LES ONGLETS DE GROUPES — Joey : « place tous les groupes en dessous de
+     ma journée, ma semaine, etc., en angle de 45 degrés comme dans les
+     cahiers ». C'est la MÊME palette qu'avant (glisser-déposer, ✎, compte de
+     cours, + NOUVEAU GROUPE, 🎨 TOUTES DIFFÉRENTES, et le clic qui pose le
+     groupe courant) — elle a seulement quitté MA SEMAINE pour la barre du
+     haut, et pris la forme des intercalaires d'un cahier. -->
+<div class="palette onglets-gr" id="ongletsGr" aria-label="Mes groupes"></div>
 
 <div class="ctx-barre" id="ctxBarre">
   <button type="button" id="ctxPrec" aria-label="Jour précédent">◀</button>
@@ -71,29 +84,15 @@
 <!-- ═══════════════ ⋯ PLUS ═══════════════ -->
 <section class="ecran" id="e-plus">
   <h1 class="titre">Plus</h1>
-  <p class="sous">Tout ce qui ne sert pas tous les jours. Touche une tuile.</p>
+  <p class="sous">Ce qui reste. Le calendrier, le parascolaire, les réglages et le
+    partage ont maintenant leur propre bouton en haut.</p>
   <div class="plus-tuiles">
-    <button type="button" class="plus-tuile" data-va="e-calendrier">
-      <span class="emo">📆</span><b>Calendrier scolaire</b>
-      <span class="quoi">Congés, journées pédagogiques, jours-cycle</span></button>
     <button type="button" class="plus-tuile" data-va="e-groupes">
       <span class="emo">👥</span><b>Mes groupes</b>
       <span class="quoi">Les élèves, le carnet de notes, les bulletins, ma façon de noter</span></button>
-    <button type="button" class="plus-tuile" data-va="e-temps">
-      <span class="emo">⏱️</span><b>Mon temps</b>
-      <span class="quoi">Les heures travaillées, à faire signer</span></button>
-    <button type="button" class="plus-tuile" data-va="e-reglages">
-      <span class="emo">⚙️</span><b>Réglages</b>
-      <span class="quoi">L'horaire, les jours-cycle, les étapes, mes données</span></button>
-    <button type="button" class="plus-tuile" data-va="e-partage">
-      <span class="emo">📤</span><b>Partager avec un collègue</b>
-      <span class="quoi">Un lien ou un code, sans qu'il ait un compte</span></button>
     <button type="button" class="plus-tuile" data-va="e-coordo">
       <span class="emo">👑</span><b>Vue coordonnateur</b>
       <span class="quoi">Où en sont les équipes</span></button>
-    <button type="button" class="plus-tuile" data-va="e-outils">
-      <span class="emo">🔗</span><b>Mes autres outils ZTS</b>
-      <span class="quoi">Musique, coloriage, SAÉ, éducatifs</span></button>
   </div>
 </section>
 
@@ -103,11 +102,10 @@
   <p class="sous">La même app, vue d'en haut. Rien ne change pour les équipes.</p>
 </section>
 
-<!-- ═══════════════ MES AUTRES OUTILS ═══════════════ -->
-<section class="ecran" id="e-outils">
-  <h1 class="titre">Mes autres outils</h1>
-  <p class="sous">Ils vivent dans leur propre app. Le lien les ouvre.</p>
-</section>
+<!-- ⚠ L'ÉCRAN « MES AUTRES OUTILS » A ÉTÉ RETIRÉ. Joey : « affiche le bouton
+     mes autres apps et, quand on clique dessus, je veux un menu déroulant dont
+     les apps sont l'une en dessous de l'autre. » Un écran entier pour quatre
+     liens externes était une porte de trop : le menu EST la liste. -->
 
 <!-- ═══════════════ 5. MOIS ═══════════════ -->
 <section class="ecran" id="e-mois">
@@ -142,7 +140,7 @@
 
 <!-- ═══════════════ 8. CALENDRIER ═══════════════ -->
 <section class="ecran" id="e-calendrier">
-  <h1 class="titre">Calendrier scolaire</h1>
+  <h1 class="titre">Mon calendrier</h1>
   <p class="sous">Choisis une catégorie dans la légende, puis touche les journées. Un deuxième clic annule.</p>
   <div class="pan">
     <h2><span id="calAnnee">2025 – 2026</span> · <span id="calCompte"></span></h2>
@@ -160,8 +158,9 @@
 
 <!-- ═══════════════ 9. MON TEMPS ═══════════════ -->
 <section class="ecran" id="e-temps">
-  <h1 class="titre">Mon temps travaillé</h1>
-  <p class="sous">Le total se calcule tout seul. Accepte «&nbsp;90&nbsp;», «&nbsp;1:30&nbsp;» ou «&nbsp;1h30&nbsp;».</p>
+  <h1 class="titre">Mon parascolaire</h1>
+  <p class="sous">Les heures faites en parascolaire — équipes, midis, surveillances, sorties.
+    Le total se calcule tout seul. Accepte «&nbsp;90&nbsp;», «&nbsp;1:30&nbsp;» ou «&nbsp;1h30&nbsp;».</p>
   <div class="pan pan--jaune">
     <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px">
       <div style="flex:1;min-width:180px"><b>Année&nbsp;:</b><div contenteditable data-k="t-annee" data-vide="2025-2026"></div></div>
@@ -371,11 +370,9 @@
       <button type="button" class="mini mini--rose" id="btnVider">VIDER MA SAISIE</button>
       <span id="viderEtat" style="display:block;margin-top:6px;font-weight:800"></span>
     </div>
-    <div class="don-carte">
-      <h3>📆 Importer un calendrier</h3>
-      <p>Le fichier <code>.ics</code> de ton centre de services. Congés et journées pédagogiques sont reconnus tout seuls.</p>
-      <button type="button" class="mini" id="donIcs">CHOISIR UN FICHIER .ICS</button>
-    </div>
+    <!-- ⚠ « Importer un calendrier » était offert ICI **et** sur l'écran du
+         calendrier, avec la même fonction derrière. On garde celui du
+         calendrier : c'est là qu'on voit le résultat se poser. -->
   </div>
   <pre class="pr-rapport" id="donJournal" hidden></pre>
 </section>
@@ -455,16 +452,16 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=104"></script>
-<script src="proto-fusion.js?v=104"></script>
-<script src="proto-seance.js?v=104"></script>
-<script src="proto-simple.js?v=104"></script>
-<script src="proto-tests.js?v=104"></script>
-<script src="proto-annee.js?v=104"></script>
-<script src="proto-horaire.js?v=104"></script>
-<script src="proto-dossiers.js?v=104"></script>
-<script src="proto-pfeq.js?v=104"></script>
-<script src="proto-portrait.js?v=104"></script>
-<script src="proto-g3.js?v=104"></script>
+<script src="proto.js?v=108"></script>
+<script src="proto-fusion.js?v=108"></script>
+<script src="proto-seance.js?v=108"></script>
+<script src="proto-simple.js?v=108"></script>
+<script src="proto-tests.js?v=108"></script>
+<script src="proto-annee.js?v=108"></script>
+<script src="proto-horaire.js?v=108"></script>
+<script src="proto-dossiers.js?v=108"></script>
+<script src="proto-pfeq.js?v=108"></script>
+<script src="proto-portrait.js?v=108"></script>
+<script src="proto-g3.js?v=108"></script>
 </body>
 </html>

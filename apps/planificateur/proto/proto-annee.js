@@ -12,7 +12,25 @@
 'use strict';
 
 /* ═════════ D. LE CALENDRIER S'ÉCRIT ═════════ */
-function noteJour(iso){ return lire('caljour:'+iso, ''); }
+/* ⚠ UNE JOURNÉE AVAIT DEUX NOTES QUI S'IGNORAIENT. Le calendrier écrivait sous
+   `caljour:<iso>`, la case de MON MOIS sous `ed:mn-<iso>` : on notait « sortie
+   au parc » dans l'un, l'autre restait vide, et personne ne pouvait le deviner.
+   Une seule clé désormais — `ed:mn-<iso>`, celle que `brancherEditables()`
+   utilise déjà pour la case du mois. Les anciennes notes sont reprises. */
+function cleNoteJour(iso){ return 'ed:mn-'+iso; }
+function noteJour(iso){ return lire(cleNoteJour(iso), '') || ''; }
+function poserNoteJour(iso, txt){ ecrire(cleNoteJour(iso), String(txt||'')); }
+(function migrerNotesDeJour(){
+  if (lire('notesJourMigre', false)) return;
+  let n=0;
+  Object.keys(localStorage).forEach(k=>{
+    const m=/^protog2:caljour:(\d{4}-\d{2}-\d{2})$/.exec(k); if(!m) return;
+    const v=lire('caljour:'+m[1], ''); if(!v) return;
+    if (!noteJour(m[1])){ poserNoteJour(m[1], v); n++; }
+  });
+  ecrire('notesJourMigre', true);
+  if (n) console.info('[proto] '+n+' note(s) de journée reprises sous la clé du mois.');
+})();
 
 function ouvrirJour(iso){
   const corps=ouvrirModale(jourLisible(iso));
@@ -43,7 +61,8 @@ function ouvrirJour(iso){
     h.appendChild(b);
   });
   const n=$('#cjNote'); n.textContent=noteJour(iso);
-  n.addEventListener('input',()=> ecrire('caljour:'+iso, n.textContent));
+  n.addEventListener('input',()=>{ poserNoteJour(iso, n.textContent);
+    if (typeof peindreMois==='function') peindreMois(); });
 }
 
 /* le clic sur une case du calendrier ouvre la journée au lieu de peindre */
@@ -79,8 +98,15 @@ function ouvrirJour(iso){
   z.textContent='＋ glisse ici le calendrier scolaire de ton centre de services (.ics) — ou touche pour le choisir';
   const avale=f=>{ const r=new FileReader();
     r.onload=()=>{ const a=appliquerIcs(String(r.result), f.name);
-      z.textContent='✔ '+f.name+' — '+a.trouves.length+' journée(s) posée(s)'
-        +(a.hors?', '+a.hors+' hors année':'')+(a.sansCat?', '+a.sansCat+' non reconnue(s)':'');
+      /* ⚠ LE COMPTE-RENDU DISAIT « NON RECONNUE(S) » CE QUI VENAIT D'ÊTRE GARDÉ.
+         Les dates qui ne sont ni congé ni pédagogique ne sont plus jetées : ce
+         sont les dates scolaires importantes, notées à leur journée. Les
+         annoncer comme un échec faisait croire à une perte. */
+      const bouts=[a.trouves.length+' journée(s) posée(s) au calendrier'];
+      if (a.neuves)  bouts.push(a.neuves+' date(s) importante(s) notée(s)');
+      if (a.cycles)  bouts.push(a.cycles+' jour(s)-cycle recalculé(s)');
+      if (a.hors)    bouts.push(a.hors+' hors année scolaire');
+      z.textContent='✔ '+f.name+' — '+bouts.join(' · ')+'.';
       peindreCalendrier(); };
     r.readAsText(f); };
   z.addEventListener('dragover', e=>{ if(![...(e.dataTransfer.types||[])].includes('Files'))return;
@@ -154,10 +180,13 @@ barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOI
  ['e-tests','e-aujourdhui','← AUJOURD’HUI'],
  ['e-evaluation','e-accueil','← MA SEMAINE'],['e-presences','e-accueil','← MA SEMAINE'],
  ['e-messages','e-accueil','← MA SEMAINE'],['e-jeux','e-accueil','← MA SEMAINE'],
- ['e-calendrier','e-plus','← PLUS'],['e-groupes','e-plus','← PLUS'],
- ['e-temps','e-plus','← PLUS'],['e-reglages','e-plus','← PLUS'],
- ['e-partage','e-plus','← PLUS'],['e-coordo','e-plus','← PLUS'],
- ['e-outils','e-plus','← PLUS'],
+ /* ⚠ SEULS LES ÉCRANS SANS PORTE PROPRE ONT BESOIN D'UN RETOUR. Le calendrier,
+    le parascolaire et les réglages ont désormais leur bouton dans la barre :
+    leur « ← PLUS » mentirait, il ne ramènerait pas d'où l'on vient. Le partage
+    s'ouvre depuis l'en-tête ; sa porte de retour reste, elle est son seul
+    chemin inverse. */
+ ['e-groupes','e-plus','← PLUS'],['e-coordo','e-plus','← PLUS'],
+ ['e-partage','e-aujourdhui','← MA JOURNÉE'],
 ].forEach(([de,vers,lab])=> barreLiens(de,[[vers,lab]]));
 
 /* les tests rejoignent la séance */

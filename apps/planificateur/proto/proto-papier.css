@@ -699,13 +699,13 @@ html[data-etroit="1"] .ctx-barre{position:static}
    pastilles du reste de l'app sont minuscules par dessein. */
 #nav>button{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  font-size:19px;letter-spacing:.4px;padding:10px 22px;min-height:92px;min-width:146px;
+  font-size:16px;letter-spacing:.2px;padding:9px 13px;min-height:84px;min-width:118px;
   line-height:1.02;white-space:nowrap;border-radius:15px;
 }
-#nav>button .ico{font-size:40px;line-height:1}
+#nav>button .ico{font-size:34px;line-height:1}
 #nav>button .lab{font-family:var(--f-titre)}
 #nav>button[aria-current="true"] .ico{transform:scale(1.06)}
-.ecrans-nav{gap:9px;padding:11px 12px;align-items:stretch}
+.ecrans-nav{gap:7px;padding:10px 12px;align-items:stretch}
 
 /* ═════ UNE PÉRIODE = UNE CARTE, PAS UNE BANDE ═════
    Trois colonnes : QUAND · le cours · ses images. La carte respire — on lit sa
@@ -767,3 +767,115 @@ html[data-etroit="1"] #nav>button{
 }
 html[data-etroit="1"] #nav>button .ico{font-size:22px}
 html[data-etroit="1"] .ecrans-nav{grid-template-columns:repeat(5,1fr);gap:4px}
+
+/* ==========================================================================
+   G3c — LA BARRE COMPLÈTE, ET LES INTERCALAIRES DE CAHIER (31 août)
+   ========================================================================== */
+
+/* ═════ LA BARRE : neuf portes, la roue tout à droite ═════
+   ⚠ ELLE DOIT RESTER EN `flex`. La roue est poussée à droite par
+   `margin-left:auto` — en `grid`, `auto` ne pousse rien et elle se serait
+   rangée sagement à la suite des autres. */
+.ecrans-nav{flex-wrap:wrap;overflow:visible}
+#nav>button, .menu>button{flex:0 0 auto}
+#nav .menu--apps>button{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:16px;letter-spacing:.2px;padding:9px 13px;min-height:84px;min-width:118px;
+  line-height:1.02;white-space:nowrap;border-radius:15px;
+}
+#nav .menu--apps>button .ico{font-size:34px;line-height:1}
+#nav .menu--apps>button .fleche{font-size:11px;opacity:.85}
+/* le menu déroulant : une app par ligne, l'une SOUS l'autre */
+.menu--apps .menu-liste a{
+  display:block;width:100%;text-align:left;text-decoration:none;
+  font-family:var(--f-titre);letter-spacing:.4px;font-size:17px;
+  padding:9px 12px;border-radius:10px;color:var(--ink);
+}
+.menu--apps .menu-liste a:hover{background:var(--cyan);color:#03323C}
+.menu--apps .menu-liste a .quoi{
+  display:block;font-family:var(--f-note);font-size:13px;font-weight:400;
+  color:var(--ink-soft);letter-spacing:0;margin-top:1px;
+}
+.menu--apps .menu-liste a:hover .quoi{color:#04414D}
+
+/* la roue : une petite case, complètement à droite */
+#nav>button.nav-roue{
+  margin-left:auto;min-width:0;padding:9px 14px;
+}
+#nav>button.nav-roue .ico{font-size:30px}
+
+/* le partage, petit, dans l'en-tête */
+.zts-btn--mini{font-size:12px;padding:4px 11px;border-width:2px;box-shadow:2px 2px 0 var(--noir)}
+
+/* ═════ LES ONGLETS DE GROUPES — les intercalaires d'un cahier ═════
+   Joey : « en angle de 45 degrés comme dans les cahiers ». Le biseau est donc
+   RÉEL — 45° taillés dans le coin haut-gauche de chaque languette, qui se
+   chevauchent comme les onglets d'un duo-tang.
+   ⚠ Le texte, lui, reste DROIT. Une languette inclinée se reconnaît ; un nom
+   de groupe incliné se déchiffre. Le biseau est dans la forme, pas dans le
+   texte. */
+.onglets-gr{
+  display:flex;align-items:flex-end;gap:0;flex-wrap:wrap;
+  padding:0 clamp(10px,2.2vw,24px);margin:0 0 2px;
+  position:relative;z-index:53;
+}
+.onglets-gr .quoi{display:none}                       /* voir plus bas */
+.onglets-gr .pastille-gr{
+  --gr-coul:#00C2E8;
+  position:relative;margin:0 -6px 0 0;padding:9px 20px 9px 30px;
+  border:none;border-radius:0;box-shadow:none;cursor:grab;
+  font-family:var(--f-large);font-size:24px;letter-spacing:.8px;
+  /* la languette : coin haut-gauche coupé à 45°, base droite */
+  clip-path:polygon(18px 0, 100% 0, 100% 100%, 0 100%);
+  filter:drop-shadow(2px -2px 0 var(--noir)) drop-shadow(-1px 0 0 var(--noir));
+  transition:transform .12s ease;
+}
+.onglets-gr .pastille-gr:hover{transform:translateY(-3px)}
+.onglets-gr .pastille-gr:active{transform:translateY(0);box-shadow:none}
+.onglets-gr .pastille-gr .img{font-size:22px}
+.onglets-gr .pastille-gr img.img{width:28px;height:28px;border-radius:6px;border:2px solid var(--noir)}
+/* le groupe dans lequel on écrit : sa languette monte et passe devant */
+.onglets-gr .pastille-gr[data-courant="1"]{
+  transform:translateY(-7px);z-index:3;outline:none;
+  filter:drop-shadow(2px -2px 0 var(--noir)) drop-shadow(-1px 0 0 var(--noir))
+         drop-shadow(0 -4px 0 var(--jaune));
+}
+.onglets-gr .modif{
+  margin-left:6px;font-size:12px;line-height:19px;border-width:2px;
+}
+.onglets-gr .pastille-nb{position:static;margin-left:6px}
+/* + NOUVEAU GROUPE et 🎨 TOUTES DIFFÉRENTES : deux languettes de service */
+.onglets-gr>button.mini{
+  margin:0 0 0 10px;align-self:flex-end;font-size:13px;padding:6px 13px;
+  border-radius:11px 11px 0 0;
+}
+/* la consigne de glisser-déposer ne vaut que là où l'on peut glisser */
+body[data-ecran="e-accueil"] .onglets-gr{padding-bottom:2px}
+body[data-ecran="e-accueil"] .onglets-gr .quoi{
+  display:block;flex:1 0 100%;order:-1;
+  font-family:var(--f-note);font-size:15px;color:var(--sur-fond-doux);
+  margin:0 0 4px;
+}
+
+html[data-etroit="1"] .onglets-gr .pastille-gr{
+  font-size:18px;padding:7px 13px 7px 22px;clip-path:polygon(13px 0, 100% 0, 100% 100%, 0 100%);
+}
+/* ⚠ SUR PEU DE PLACE, LA BARRE REPASSE EN `flex`. La règle étroite héritée du
+   29 août la mettait en `grid` à cinq colonnes ; avec neuf portes et un
+   `min-width` de 96 px, les cinq colonnes réclamaient 496 px sur un écran de
+   375 — la page débordait à l'horizontale et la roue sortait de l'écran de
+   33 px. En prime, `margin-left:auto` ne pousse RIEN dans une grille : la roue
+   n'était plus « complètement à droite », elle était juste la neuvième.
+   En `flex`, les portes se partagent la largeur, s'enroulent, et la roue
+   reprend sa place au bout. */
+html[data-etroit="1"] .ecrans-nav{
+  display:flex;flex-wrap:wrap;gap:5px;padding:8px 10px;
+}
+html[data-etroit="1"] #nav>button,
+html[data-etroit="1"] #nav>.menu{flex:1 1 86px;min-width:0}
+html[data-etroit="1"] #nav>button, html[data-etroit="1"] #nav .menu--apps>button{
+  min-height:70px;font-size:11.5px;padding:7px 4px;white-space:normal;width:100%;
+}
+html[data-etroit="1"] #nav>button .ico,
+html[data-etroit="1"] #nav .menu--apps>button .ico{font-size:24px}
+html[data-etroit="1"] #nav>button.nav-roue{flex:0 0 auto;margin-left:auto;padding:7px 14px}

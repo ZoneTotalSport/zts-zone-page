@@ -426,7 +426,7 @@ function illustrationsDuCours(iso, per){
   const base = peindrePalette;
   window.peindrePalette = peindrePalette = function(){
     base();
-    const h=$('#palette'); if(!h) return;
+    const h=$('#ongletsGr') || $('#palette'); if(!h) return;
     GRP().forEach((g,i)=>{
       const b=h.querySelector('.pastille-gr[data-gr="'+g.id+'"]');
       if (b && i===ctxGroupe) b.dataset.courant='1';
@@ -511,6 +511,10 @@ peindreAgenda = window.peindreAgenda = function(){
   const baseAller = window.allerA;
   window.allerA = allerA = function(id){
     baseAller(id);
+    /* l'écran courant est publié sur `body` : le CSS peut alors montrer la
+       consigne de glisser-déposer sur MA SEMAINE et la taire ailleurs, sans
+       qu'aucun JS n'ait à savoir de quoi le style a besoin. */
+    document.body.dataset.ecran = id;
     if (id==='e-aujourdhui') peindreAujourdhui();
     if (id==='e-groupes' && typeof peindrePlanSession==='function') peindrePlanSession();
     if (id==='e-carnet'){ const h=$('#carJetons'); if (h) jetonsGroupe(h, peindreCarnet); }

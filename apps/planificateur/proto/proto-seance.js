@@ -442,14 +442,25 @@ function blocFiche(iso, per, et, majTotal, redessine){
 
 /* ═════════ la palette de groupes, au-dessus de l'agenda ═════════ */
 function peindrePalette(){
-  let h=$('#palette');
+  /* ⚠ LA PALETTE A QUITTÉ MA SEMAINE POUR LA BARRE DU HAUT. Joey, 31 août :
+     « place tous les groupes en dessous de ma journée, ma semaine, etc. » Elle
+     s'appelle `#ongletsGr` et vit sous la nav, visible partout : c'est le seul
+     sélecteur de groupe de l'app, il n'a pas à disparaître selon l'écran.
+     Le repli sur l'ancien emplacement reste : si le noeud n'existe pas, la
+     palette se replace au-dessus de l'agenda comme avant. */
+  let h=$('#ongletsGr');
   if (!h){
-    const hote=$('#agendaHote'); if(!hote) return;
-    const p=el('div','palette'); p.id='palette';
-    hote.parentNode.insertBefore(p, hote);
-    h=p;
+    h=$('#palette');
+    if (!h){
+      const hote=$('#agendaHote'); if(!hote) return;
+      const p=el('div','palette'); p.id='palette';
+      hote.parentNode.insertBefore(p, hote);
+      h=p;
+    }
   }
   h.innerHTML='';
+  /* La consigne ne vaut que là où l'on peut glisser : on la garde en info-bulle
+     partout, et en toutes lettres sur MA SEMAINE seulement (voir le CSS). */
   const q=el('div','quoi','Glisse un groupe dans une case de l’agenda. Un clic dessus ensuite ouvre tout le cours. '
     +'Le chiffre sur un groupe dit combien de cours il a dans la semaine affichée.');
   h.appendChild(q);
@@ -457,6 +468,8 @@ function peindrePalette(){
   GRP().forEach(g=>{
     const b=el('div','pastille-gr'); b.draggable=true; b.dataset.gr=g.id;
     b.style.background=g.coul; b.style.color=encreSur(g.coul);
+    /* l'intercalaire de cahier : sa languette prend la couleur du groupe */
+    b.style.setProperty('--gr-coul', g.coul);
     if (g.img){ const im=document.createElement('img'); im.className='img'; im.src=g.img; im.alt=''; b.appendChild(im); }
     else b.appendChild(el('span','img',g.emo));
     b.appendChild(el('span',null,g.nom));

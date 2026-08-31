@@ -440,7 +440,14 @@ function rafraichirCycles(){
   if (typeof peindreCtxBarre==='function') peindreCtxBarre();
   if (typeof peindreAgenda==='function')   peindreAgenda();
   if (typeof peindreCalendrier==='function' && $('#calGrille')) peindreCalendrier();
-  if (typeof peindreMois==='function' && $('#moisHote')) peindreMois();
+  /* ⚠ LE GARDE VISAIT `#moisHote`, QUI N'EXISTE PAS — la grille s'appelle
+     `#moisGrille`. MON MOIS n'a donc JAMAIS été rafraîchi quand on changeait la
+     longueur ou le style du cycle : on y lisait des chiffres périmés. Et MON
+     ANNÉE n'était pas rafraîchie du tout. Piège n° 17, encore : un garde qui
+     ne se déclenche jamais ressemble à un garde qui protège. */
+  if (typeof peindreMois==='function'  && $('#moisGrille')) peindreMois();
+  if (typeof peindreAnnee==='function' && $('#anneeHote'))  peindreAnnee();
+  if (typeof peindreAujourdhui==='function') peindreAujourdhui();
 }
 /* Dire ce que vaut la donnée affichée : décalée = à corriger. */
 (function avisCalendrier(){

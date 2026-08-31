@@ -271,23 +271,79 @@ function journalDon(txt){
 }
 /* Analyse d'un .ics — fonction nommée pour être vérifiable sans dialogue de
    fichier. Même classement par mots-clés que app-v2.js:259-291. */
+/* ═════════ LE CALENDRIER SCOLAIRE S'IMPORTE — ET TOUT SUIT ═════════
+   Joey, 31 août : « mon calendrier est le calendrier scolaire, donc on peut
+   importer les dates importantes ; ça se place automatiquement avec les
+   journées pédagogiques, les jours-cycle s'il y en a, les dates scolaires
+   importantes. »
+
+   ⚠ TROIS DÉFAUTS EMPÊCHAIENT QUE ÇA MARCHE VRAIMENT :
+
+   1. **Une semaine de relâche ne posait qu'un lundi.** Un `.ics` écrit la
+      semaine en UN événement, `DTSTART` au lundi et `DTEND` au samedi ; on ne
+      lisait que `DTSTART`. Les cinq jours sont maintenant dépliés.
+      ⚠ Pour un événement « journée entière », `DTEND` est EXCLUSIF (RFC 5545) :
+      la relâche du 2 au 6 s'écrit DTEND=20260307. Une journée de trop sinon.
+   2. **Tout ce qui n'était ni congé, ni pédago, ni force majeure était JETÉ.**
+      La rentrée, la remise des bulletins, la rencontre de parents, la photo
+      scolaire, les sorties — comptées dans « sans catégorie » et perdues.
+      Elles deviennent la NOTE de leur journée : elles s'affichent dans MON
+      CALENDRIER et dans MON MOIS, à leur date, sans rien ressaisir.
+   3. **Les jours-cycle n'étaient PAS recalculés après l'import.** On posait
+      douze journées pédagogiques et la numérotation ne bougeait pas jusqu'au
+      prochain rechargement de la page. C'est pourtant l'effet principal
+      attendu — une pédagogique décale tout ce qui suit.
+
+   ⚠ Les lignes d'un `.ics` se REPLIENT à 75 octets, la suite commençant par
+   une espace. Sans dépliage, un `SUMMARY` long est tronqué au milieu d'un mot. */
+function deplierIcs(txt){ return String(txt).replace(/\r\n[ \t]/g,'').replace(/\n[ \t]/g,''); }
+function isoDIcs(s){ return s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8); }
+
+function categorieIcs(titre){
+  const t=String(titre||'').toLowerCase();
+  if (/congr[èe]s/.test(t))                                   return 'congres';
+  if (/p[ée]dago/.test(t))                                    return 'pedago';
+  if (/cong[ée]|f[ée]ri|rel[âa]che|vacance|no[ëe]l|p[âa]ques/.test(t)) return 'conge';
+  if (/temp[êe]te|force majeure|ferm/.test(t))                return 'force';
+  if (/(premi[èe]re|rentr[ée]e).*(journ[ée]e|scolaire|classe)|rentr[ée]e scolaire/.test(t)) return 'premiere';
+  if (/derni[èe]re.*(journ[ée]e|jour).*(scolaire|classe|cours)/.test(t)) return 'derniere';
+  return null;
+}
 function analyserIcs(txt){
-  const evs=[...txt.matchAll(/BEGIN:VEVENT([\s\S]*?)END:VEVENT/g)].map(m=>m[1]);
-  const trouves=[]; let hors=0, sansCat=0;
+  const plat=deplierIcs(txt);
+  const evs=[...plat.matchAll(/BEGIN:VEVENT([\s\S]*?)END:VEVENT/g)].map(m=>m[1]);
+  const trouves=[], notes=[]; let hors=0, sansCat=0;
   evs.forEach(ev=>{
-    const d=/DTSTART[^:]*:(\d{8})/.exec(ev); const s=/SUMMARY:(.*)/.exec(ev);
-    if(!d) return;
-    const iso=d[1].slice(0,4)+'-'+d[1].slice(4,6)+'-'+d[1].slice(6,8);
-    const titre=(s?s[1]:'').toLowerCase();
-    let cat=null;
-    if (/p[ée]dago/.test(titre)) cat='pedago';
-    else if (/cong[ée]|f[ée]ri|rel[âa]che|vacance/.test(titre)) cat='conge';
-    else if (/temp[êe]te|force majeure|ferm/.test(titre)) cat='force';
-    if (!cat){ sansCat++; return; }
-    if (iso < DEBUT || iso > FIN){ hors++; return; }
-    trouves.push([iso,cat]);
+    const d=/DTSTART[^:]*:(\d{8})/.exec(ev); if(!d) return;
+    const s=/SUMMARY:(.*)/.exec(ev);
+    const titre=(s?s[1]:'').trim().replace(/\\([,;n])/g,(m,c)=> c==='n'?' ':c);
+    const debut=isoDIcs(d[1]);
+    /* la plage de jours que couvre l'événement */
+    const f=/DTEND[^:]*:(\d{8})/.exec(ev);
+    const jours=[debut];
+    if (f){
+      const finExcl=isoDIcs(f[1]);
+      let k=isoDe(new Date(dateDeIso(debut).getTime()+UN_JOUR));
+      let garde=0;
+      while (k < finExcl && garde++ < 400){       /* garde-fou : un .ics peut mentir */
+        jours.push(k);
+        k=isoDe(new Date(dateDeIso(k).getTime()+UN_JOUR));
+      }
+    }
+    const cat=categorieIcs(titre);
+    let posee=false;
+    jours.forEach(iso=>{
+      if (iso < DEBUT || iso > FIN){ hors++; return; }
+      const j=dateDeIso(iso).getDay();
+      if (j===0 || j===6) return;                /* un congé de fin de semaine ne dit rien */
+      if (cat) trouves.push([iso,cat]);
+      else if (titre) notes.push([iso,titre]);
+      posee=true;
+    });
+    if (!cat && !titre && !posee) sansCat++;
+    else if (!cat) sansCat++;                    /* comptée, mais gardée en note */
   });
-  return {lus:evs.length, trouves, hors, sansCat};
+  return {lus:evs.length, trouves, notes, hors, sansCat};
 }
 function appliquerIcs(txt, nom){
   const a=analyserIcs(txt);
@@ -296,11 +352,35 @@ function appliquerIcs(txt, nom){
      Une copie locale sauvegardait bien, et l'écran ne bougeait pas. */
   a.trouves.forEach(([iso,cat])=>{ marques[iso]=cat; });
   ecrire('cal',marques);
-  if (typeof peindreCalendrier==='function'){ peindreCalendrier(); peindreMois(); peindreAnnee(); }
-  journalDon('📆 '+nom+' — '+a.lus+' événements lus, '+a.trouves.length+' posés au calendrier'
-    + (a.hors?', '+a.hors+' hors année scolaire ignorés':'')
-    + (a.sansCat?', '+a.sansCat+' sans catégorie reconnue':'')+'.');
-  if (!a.trouves.length) journalDon('   ⚠ Aucun n’a été reconnu comme congé, pédagogique ou force majeure.');
+
+  /* ⚠ ON N'ÉCRASE PAS UNE NOTE ÉCRITE À LA MAIN. Le prof a pu noter « apporter
+     les dossards » ; l'import ajoute à la suite au lieu de le remplacer. */
+  let neuves=0;
+  a.notes.forEach(([iso,titre])=>{
+    const avant=noteJour(iso);
+    if (avant.includes(titre)) return;
+    poserNoteJour(iso, avant ? avant+' · '+titre : titre);
+    neuves++;
+  });
+
+  /* ⚠ LE CŒUR DE L'AFFAIRE : une pédagogique décale TOUS les jours-cycle qui
+     suivent. Sans ce recalcul, l'import n'avait aucun effet visible ailleurs
+     qu'au calendrier jusqu'au rechargement de la page. */
+  const nbCycles = (typeof recalculerCycles==='function') ? recalculerCycles() : 0;
+  if (typeof peindreCalendrier==='function') peindreCalendrier();
+  if (typeof peindreMois==='function')       peindreMois();
+  if (typeof peindreAnnee==='function')      peindreAnnee();
+  if (typeof peindreAgenda==='function')     peindreAgenda();
+  if (typeof peindreCtxBarre==='function')   peindreCtxBarre();
+  if (typeof peindreAujourdhui==='function') peindreAujourdhui();
+
+  a.neuves=neuves; a.cycles=nbCycles;
+  journalDon('📆 '+nom+' — '+a.lus+' événement(s) lu(s) · '+a.trouves.length
+    +' journée(s) posée(s) au calendrier · '+neuves+' date(s) importante(s) notée(s) · '
+    +nbCycles+' jour(s)-cycle recalculé(s)'
+    + (a.hors?' · '+a.hors+' hors année scolaire':'')+'.');
+  if (!a.trouves.length && !neuves)
+    journalDon('   ⚠ Rien n’a été reconnu. Ce fichier contient-il bien des journées entières ?');
   return a;
 }
 (function donnees(){
@@ -350,7 +430,9 @@ function appliquerIcs(txt, nom){
     journalDon('📊 Évaluation exportée — '+ELEVES.length+' élèves, '+crits.length+' critère(s) fin(s).');
   });
   /* Import .ics — même classement par mots-clés que app-v2.js:259-291 */
-  $('#donIcs').addEventListener('click',()=>{
+  /* ⚠ Le bouton a quitté MES DONNÉES pour l'écran du calendrier, où l'on voit
+     le résultat se poser. Le garde évite de tuer le fichier s'il revient. */
+  const _ics=$('#donIcs'); if (_ics) _ics.addEventListener('click',()=>{
     const i=document.createElement('input'); i.type='file'; i.accept='.ics,text/calendar';
     i.addEventListener('change',()=>{
       const f=i.files[0]; if(!f) return;
@@ -725,23 +807,10 @@ function semaineLisible(iso){
 })();
 
 /* ── d) Les autres outils du site, à portée de main ── */
-(function autresOutils(){
-  const ecran=$('#e-outils'); if(!ecran) return;      /* était l'accueil */
-  const pan=el('div','pan pan--cyan');
-  pan.innerHTML='<h2>🔗 Mes autres outils Zone Total Sport</h2>'
-    +'<div class="grp-liste" id="autresListe"></div>';
-  ecran.appendChild(pan);
-  const h=pan.querySelector('#autresListe');
-  [['🎵 Musique','https://musique.zonetotalsport.ca'],
-   ['🎨 Coloriage','https://zonetotalsport.ca/apps/colorier/'],
-   ['📚 Banque de SAÉ','https://sae.zonetotalsport.ca'],
-   ['🏃 Éducatifs','https://educatifs.zonetotalsport.ca']].forEach(([lab,url])=>{
-    const a=document.createElement('a');
-    a.className='grp-puce'; a.href=url; a.target='_blank'; a.rel='noopener';
-    a.textContent=lab; a.style.textDecoration='none';
-    h.appendChild(a);
-  });
-})();
+/* ⚠ `autresOutils()` A ÉTÉ RETIRÉ. Il fabriquait un écran entier pour quatre
+   liens externes. Ces liens sont désormais `AUTRES_APPS`, servis par le menu
+   déroulant 🔗 MES AUTRES APPS de la barre du haut — un clic, la liste, l'une
+   sous l'autre. La liste est écrite UNE fois, plus deux. */
 
 /* ═════════ 10. CAHIER DE CONSIGNATION — ce qui relie tout ═════════
    Joey : « comme un cahier de consignation / un agenda pédagogique, le tout
@@ -972,12 +1041,29 @@ peindreCahier();
    La barre porte donc les quatre horizons dans l'ordre — jour, semaine, mois,
    année — puis ⋯ PLUS pour tout ce qui n'est pas une durée.
    Chaque porte est un GROS bouton : une icône par-dessus son nom. */
+/* Les autres apps du site. Elles vivent chacune dans leur propre domaine :
+   ce sont des LIENS, pas des écrans — d'où le menu déroulant plutôt qu'une
+   page de plus. */
+const AUTRES_APPS = [
+  ['🎵','Musique',       'https://musique.zonetotalsport.ca'],
+  ['🎨','Coloriage',     'https://zonetotalsport.ca/apps/colorier/'],
+  ['📚','Banque de SAÉ', 'https://sae.zonetotalsport.ca'],
+  ['🏃','Éducatifs',     'https://educatifs.zonetotalsport.ca'],
+];
 const MENUS = [
   {direct:'e-aujourdhui', ico:'📋', lab:'MA JOURNÉE'},
   {direct:'e-accueil',    ico:'🗓️', lab:'MA SEMAINE'},
   {direct:'e-mois',       ico:'📅', lab:'MON MOIS'},
   {direct:'e-annee',      ico:'📚', lab:'MON ANNÉE'},
+  {direct:'e-calendrier', ico:'📆', lab:'MON CALENDRIER'},
+  {direct:'e-temps',      ico:'🏅', lab:'MON PARASCOLAIRE'},
+  {apps:true,             ico:'🔗', lab:'MES AUTRES APPS'},
   {direct:'e-plus',       ico:'⋯',  lab:'PLUS'},
+  /* ⚠ « La petite roue dentelée réglage dans une petite case complètement à
+     droite de l'écran. » Elle est donc la dernière, sans libellé, poussée par
+     un `margin-left:auto` — ce qui exige que la barre reste en `flex` : en
+     `grid`, `auto` ne pousse rien. */
+  {direct:'e-reglages',   ico:'⚙️', lab:'', roue:true},
 ];
 (function barreEnMenus(){
   const n=$('#nav'); if(!n) return;
@@ -985,10 +1071,39 @@ const MENUS = [
   const fermerTous = sauf => $$('.menu', n).forEach(m=>{ if(m!==sauf) m.dataset.ouvert='0'; });
 
   MENUS.forEach(m=>{
+    if (m.apps){
+      /* le menu déroulant des autres apps : une par ligne, l'une sous l'autre */
+      const box=el('div','menu menu--apps'); box.dataset.ouvert='0';
+      const t=el('button'); t.type='button';
+      t.appendChild(el('span','ico', m.ico));
+      t.appendChild(el('span','lab', m.lab));
+      t.appendChild(el('span','fleche','▾'));
+      t.setAttribute('aria-expanded','false');
+      t.addEventListener('click',e=>{
+        e.stopPropagation();
+        const on = box.dataset.ouvert!=='1';
+        fermerTous(box); box.dataset.ouvert = on?'1':'0';
+        t.setAttribute('aria-expanded', String(on));
+        if (on) placerMenu(box);
+      });
+      const liste=el('div','menu-liste');
+      AUTRES_APPS.forEach(([emo,nom,url])=>{
+        const a=document.createElement('a');
+        a.href=url; a.target='_blank'; a.rel='noopener';
+        a.innerHTML='<span></span><span class="quoi"></span>';
+        a.firstChild.textContent=emo+' '+nom;
+        a.lastChild.textContent='s’ouvre dans un autre onglet';
+        a.addEventListener('click',()=>{ fermerTous(); box.dataset.ouvert='0';
+          t.setAttribute('aria-expanded','false'); });
+        liste.appendChild(a);
+      });
+      box.appendChild(t); box.appendChild(liste); n.appendChild(box); return;
+    }
     if (m.direct){
       const b=el('button'); b.type='button'; b.dataset.va=m.direct;
+      if (m.roue){ b.classList.add('nav-roue'); b.title='Réglages'; b.setAttribute('aria-label','Réglages'); }
       b.appendChild(el('span','ico', m.ico));
-      b.appendChild(el('span','lab', m.lab));
+      if (m.lab) b.appendChild(el('span','lab', m.lab));
       b.addEventListener('click',()=>{ fermerTous(); allerA(m.direct); });
       n.appendChild(b); return;
     }
