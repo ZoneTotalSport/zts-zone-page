@@ -381,13 +381,8 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
 .annee-row{display:grid;grid-template-columns:26px 1fr 1.4fr 1.8fr;gap:6px;
   align-items:center;padding:3px 0;box-sizing:border-box}
 .annee-row .fl{font-size:19px;color:var(--sur-fond-doux);text-align:center}
-/* ⚠ LA BANDE DE PASTILLES N'AVAIT AUCUNE RÈGLE. Posée en tête d'une grille à
-   quatre colonnes (proto-g3.js), elle tombait dans la PREMIÈRE — 26 px de
-   large — et débordait : on lisait des demi-caractères. Elle traverse
-   maintenant toute la rangée, au-dessus des champs, comme une annonce. */
-.annee-grs{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px;
-  align-items:center;margin-bottom:4px;min-width:0}
-.annee-grs .gr-pastille{flex:0 0 auto;max-width:100%}
+/* `.annee-grs` a été retiré avec la bande de pastilles (proto-g3.js) : MON
+   ANNÉE suit le gabarit papier, qui n'en porte pas. Rien à styler ici. */
 /* les lignes du calendrier reçoivent leur hauteur du JS (alignerAnnee) ;
    26 px n'est plus qu'un plancher pour les mois sans séance */
 .mini-cal td{vertical-align:middle}

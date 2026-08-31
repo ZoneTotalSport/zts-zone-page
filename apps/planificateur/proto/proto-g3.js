@@ -871,41 +871,13 @@ function groupesDansLeMois(){
   });
 }
 
-function groupesDansLAnnee(){
-  $$('#anneeHote .annee-row[data-sem]').forEach(r=>{
-    const y=+r.dataset.an, mo=+r.dataset.mois, sem=+r.dataset.sem;
-    /* la n-ième rangée de cinq jours ouvrables du mois — la même découpe que
-       `peindreAnnee()`, qui remplit son mini-calendrier cinq colonnes à la fois */
-    const ouvrables=[];
-    const nb=new Date(y,mo+1,0).getDate();
-    const dec=(new Date(y,mo,1).getDay()+6)%7;
-    for (let i=0;i<Math.min(dec,5);i++) ouvrables.push(null);
-    for (let d=1; d<=nb; d++){
-      const j=new Date(y,mo,d).getDay(); if (j===0||j===6) continue;
-      ouvrables.push(y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'));
-    }
-    const jours=ouvrables.slice((sem-1)*5, sem*5).filter(Boolean);
-    const compte={};
-    jours.forEach(iso=> seancesDuJour(iso).forEach(({s})=>{
-      if (s && s.gr) compte[s.gr]=(compte[s.gr]||0)+1; }));
-    const ids=Object.keys(compte); if (!ids.length) return;
-    const z=el('div','annee-grs');
-    ids.forEach(id=>{
-      const g=grpDe(id)||{nom:'?',coul:'#9E9E9E'};
-      const b=el('span','gr-pastille gr-pastille--muet');
-      b.style.background=g.coul; b.style.color=encreSur(g.coul);
-      b.textContent=g.nom+(compte[id]>1 ? ' ×'+compte[id] : '');
-      b.title=compte[id]+' cours du groupe '+g.nom+' cette semaine-là';
-      z.appendChild(b);
-    });
-    /* ⚠ `.annee-row` EST UNE GRILLE À QUATRE COLONNES. Ajoutée à la fin, la
-       bande de pastilles devenait un cinquième enfant et retombait sur une
-       rangée implicite, décalée sous les champs. Elle est posée EN TÊTE et
-       occupe toute la largeur : la semaine s'annonce, puis on lit ce qu'on y
-       a écrit. */
-    r.insertBefore(z, r.firstChild);
-  });
-}
+/* ⚠ PAS DE PASTILLES DE GROUPES DANS MON ANNÉE — décision de Joey, 31 août.
+   Le gabarit papier « Ma planification annuelle » n'en porte pas : une ligne
+   de calendrier, une rangée « Compétence · Moyen d'action · Activité », rien
+   d'autre. La bande annonçait les groupes de la semaine ; elle cassait
+   l'alignement qu'on venait de poser et n'était pas demandée.
+   `groupesDansLeMois()` reste : MON MOIS garde ses pastilles, elles y sont
+   posées dans la case du jour et n'y gênent rien. */
 
 /* ⚠ Les deux écrans se repeignent entièrement à chaque visite : on se greffe
    APRÈS, sinon les pastilles seraient balayées au premier rafraîchissement. */
@@ -913,10 +885,6 @@ function groupesDansLAnnee(){
   if (typeof peindreMois==='function'){
     const base=peindreMois;
     window.peindreMois = peindreMois = function(){ base(); groupesDansLeMois(); };
-  }
-  if (typeof peindreAnnee==='function'){
-    const base=peindreAnnee;
-    window.peindreAnnee = peindreAnnee = function(){ base(); groupesDansLAnnee(); };
   }
 })();
 

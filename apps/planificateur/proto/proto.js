@@ -646,6 +646,23 @@ function alignerAnnee(cal, rows){
   const tete = rows.querySelector('.annee-row:not([data-sem])');
   const cap = cal.querySelector('.caption'), thead = cal.querySelector('thead');
   const haut = e => e ? e.getBoundingClientRect().height : 0;
+  /* ⚠ EN COLONNE ÉTROITE, ALIGNER N'A PLUS DE SENS — ET FAIT DES DÉGÂTS.
+     Sous 900 px, `.annee-ligne` passe à une seule colonne (proto.css) : le
+     calendrier prend toute la largeur et les rangées descendent DESSOUS. Les
+     hauteurs posées pour l'affichage côte à côte étiraient alors chaque ligne
+     du mois à 100 px et le calendrier devenait un mur. On remet tout à zéro et
+     on laisse le CSS faire. */
+  /* On lit LA MÊME media query que la feuille de style (proto.css, 760 px) au
+     lieu de deviner par la géométrie : une fois les hauteurs posées, le
+     calendrier est si haut que la mesure ne dit plus rien de fiable. Le repli
+     géométrique reste, pour le jour où le point de bascule bougera. */
+  const empile = matchMedia('(max-width:760px)').matches
+    || rows.getBoundingClientRect().top >= cal.getBoundingClientRect().bottom - 5;
+  if (empile){
+    trs.forEach(tr=> tr.style.height='');
+    if (tete) tete.style.height='';
+    return;
+  }
   /* la rangée des titres épouse le bandeau du mois + la ligne L M M J V :
      sans ça, tout le reste est décalé d'un cran vers le haut */
   if (tete) tete.style.height = Math.round(haut(cap) + haut(thead)) + 'px';
