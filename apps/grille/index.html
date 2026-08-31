@@ -912,10 +912,53 @@ const DEF_SUB=[
   {id:'ecr',name:'Éthique',color:'#A5D6A7',roomType:'',min:{pres:0,'1':50,'2':50,'3':50,'4':50,'5':50,'6':50}}
 ];
 let nid=1;function uid(){return'id_'+(nid++)}
-let S={school:{name:'',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',tache100:45,tache100Manuel:false,periods:JSON.parse(JSON.stringify(DEF_PER))},subjects:JSON.parse(JSON.stringify(DEF_SUB)),specialists:[],classes:[],rooms:[],assignments:{},surveillants:[],surveillances:{}};
+let S={metier:'ep',school:{name:'',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',tache100:45,tache100Manuel:false,periods:JSON.parse(JSON.stringify(DEF_PER))},subjects:JSON.parse(JSON.stringify(DEF_SUB)),specialists:[],classes:[],rooms:[],assignments:{},surveillants:[],surveillances:{}};
 let lang='fr',activeSpec=null;
 
 function save(){localStorage.setItem('gh2',JSON.stringify(S))}
+/* =======================================================================
+   LES GABARITS DE METIER
+   -----------------------------------------------------------------------
+   Etape 1 du chantier « trois metiers » : le socle, a vide.
+
+   L'idee qui rend la chose additive : ON NE MIGRE RIEN. Le gabarit Ecole
+   garde les noms de champs actuels, et le moteur cesse simplement de lire
+   `S.specialists` en dur — il passe par des accesseurs que le gabarit
+   fournit. Un horaire enregistre avant cette version ouvre en mode Ecole et
+   ne voit AUCUNE difference : memes champs, memes valeurs, meme rendu.
+
+   Un gabarit declarera sept points (ressources, demandeurs, lieux, creneaux,
+   capacite, hors-cours, contrainte propre). A cette etape, seuls les trois
+   premiers existent, et seul `ep` est declare. Service de garde et Camp de
+   jour viennent aux etapes suivantes, sans que le moteur bouge.
+
+   ⚠ Valeurs de `metier` : 'ep' / 'sdg' / 'camp'. JAMAIS 'eps' — le bug connu
+   de studio-jeu. Et 'camp', pas 'cdj' : c'est ce qu'attendent shared/zts et
+   le shell. Le patron, lui, attend 'cdj' pour le camp ; ses trois regles
+   d'accent ne s'allumeront pas tant que les feuilles ne sont pas alignees.
+   Ticket separe — il touche l'accueil.
+   ======================================================================= */
+const GABARITS={
+  ep:{
+    id:'ep',
+    perso:'perso-ep',
+    // Les accesseurs pointent les champs EXISTANTS. Pas une copie, pas un
+    // renommage : la meme donnee, lue par un autre chemin.
+    ressources: E=>E.specialists,
+    demandeurs: E=>E.classes,
+    lieux:      E=>E.rooms
+  }
+};
+/* Le gabarit actif. Un etat sans `metier` — donc tout horaire d'avant — est
+   un horaire d'ecole ; un `metier` inconnu retombe sur l'ecole plutot que de
+   casser le rendu. */
+function gabarit(){return GABARITS[S.metier]||GABARITS.ep}
+/* Les trois lectures du moteur. Elles renvoient TOUJOURS un tableau : un
+   etat incomplet ne doit jamais faire blanchir la grille. */
+function ressources(){const l=gabarit().ressources(S);return Array.isArray(l)?l:[]}
+function demandeurs(){const l=gabarit().demandeurs(S);return Array.isArray(l)?l:[]}
+function lieux(){const l=gabarit().lieux(S);return Array.isArray(l)?l:[]}
+
 /* =======================================================================
    MIGRATION DES HORAIRES DEJA ENREGISTRES
    Une ecole qui a bati son horaire avant cette version doit le retrouver
@@ -935,9 +978,12 @@ function migrer(){
   if(!Array.isArray(S.school.periods))S.school.periods=JSON.parse(JSON.stringify(DEF_PER));
   if(!S.school.periodsPerDay)S.school.periodsPerDay=tPer().length||5;
   if(!S.school.tache100)S.school.tache100=tache100Defaut();
+  // Un horaire sans metier est un horaire d'ecole : c'est le seul mode qui
+  // existait avant. Aucune donnee ne bouge, on pose une etiquette.
+  if(!S.metier||!GABARITS[S.metier])S.metier='ep';
   if(!Array.isArray(S.surveillants))S.surveillants=[];
   if(!S.surveillances||typeof S.surveillances!=='object')S.surveillances={};
-  (S.specialists||[]).forEach(sp=>{
+  ressources().forEach(sp=>{
     if(sp.taskPercent===undefined||sp.taskPercent===null||isNaN(+sp.taskPercent))sp.taskPercent=100;
   });
   assurerIdsCreneaux();
@@ -959,7 +1005,7 @@ function tache100Defaut(){return (S.school.cycleDays||9)*(S.school.periodsPerDay
 function load(){try{const r=localStorage.getItem('gh2');if(r){S=JSON.parse(r)}}catch(e){}
   migrer();
   lang=localStorage.getItem('gh_lang')||'fr';const _langSel=document.getElementById('langSel');if(_langSel)_langSel.value=lang;
-  [...(S.specialists||[]),...(S.classes||[]),...(S.rooms||[])].forEach(x=>{if(x?.id){const n=parseInt(x.id.replace('id_',''));if(!isNaN(n)&&n>=nid)nid=n+1}})}
+  [...ressources(),...demandeurs(),...lieux()].forEach(x=>{if(x?.id){const n=parseInt(x.id.replace('id_',''));if(!isNaN(n)&&n>=nid)nid=n+1}})}
 function changeLang(l){lang=l;localStorage.setItem('gh_lang',l);applyI18n();renderAll()}
 
 // TOAST
@@ -981,7 +1027,7 @@ const GROUP_COLORS=['#3ADCFA','#FFFC00','#A3FF00','#FFA200','#FF6FA5','#00E676',
 const _gcCache={};
 function groupColor(classId){
   if(_gcCache[classId])return _gcCache[classId];
-  const idx=S.classes.findIndex(c=>c.id===classId);
+  const idx=demandeurs().findIndex(c=>c.id===classId);
   _gcCache[classId]=GROUP_COLORS[idx%GROUP_COLORS.length]||'#ccc';
   return _gcCache[classId]}
 function resetGroupColors(){Object.keys(_gcCache).forEach(k=>delete _gcCache[k])}
@@ -994,8 +1040,8 @@ function getA(d,p){return S.assignments[d]?.[p]||[]}
 function setA(d,p,sid,cid,rid){if(!S.assignments[d])S.assignments[d]={};if(!S.assignments[d][p])S.assignments[d][p]=[];S.assignments[d][p]=S.assignments[d][p].filter(a=>a.specId!==sid);if(cid)S.assignments[d][p].push({specId:sid,classId:cid,roomId:rid||''});save()}
 function removeA(d,p,sid){if(S.assignments[d]?.[p]){S.assignments[d][p]=S.assignments[d][p].filter(a=>a.specId!==sid);save()}}
 function totalA(){let c=0;for(const d in S.assignments)for(const p in S.assignments[d])c+=S.assignments[d][p].length;return c}
-function minUsed(cid,sid){let t=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.classId===cid){const sp=S.specialists.find(s=>s.id===a.specId);if(sp?.subjectId===sid)t+=S.school.periodDuration}})});return t}
-function specShare(sp){const peers=S.specialists.filter(s=>s.subjectId===sp.subjectId);if(peers.length<=1)return 1;
+function minUsed(cid,sid){let t=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.classId===cid){const sp=ressources().find(s=>s.id===a.specId);if(sp?.subjectId===sid)t+=S.school.periodDuration}})});return t}
+function specShare(sp){const peers=ressources().filter(s=>s.subjectId===sp.subjectId);if(peers.length<=1)return 1;
   const totalPct=peers.reduce((s,p)=>s+(p.taskPercent||100),0);return(sp.taskPercent||100)/totalPct}
 // Part ENTIERE de ce specialiste dans le besoin d'une classe, par arrondi
 // cumulatif. La somme des parts des collegues d'une meme matiere vaut
@@ -1004,7 +1050,7 @@ function specShare(sp){const peers=S.specialists.filter(s=>s.subjectId===sp.subj
 function partSpec(sp,cl){
   const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return 0;
   const total=reqToPeriods(su.min[cl.level]||0);if(total<=0)return 0;
-  const peers=S.specialists.filter(s=>s.subjectId===sp.subjectId);
+  const peers=ressources().filter(s=>s.subjectId===sp.subjectId);
   if(peers.length<=1)return total;
   // Deux exigences, pas une :
   //  1. EXACTITUDE — la somme des parts des collegues vaut EXACTEMENT le
@@ -1022,7 +1068,7 @@ function partSpec(sp,cl){
   const exact=poids.map(w=>total*w/somme);
   const parts=exact.map(v=>Math.floor(v));
   let reste=total-parts.reduce((a,b)=>a+b,0);
-  const rang=Math.max(0,S.classes.indexOf(cl));
+  const rang=Math.max(0,demandeurs().indexOf(cl));
   const ordre=peers.map((x,i)=>i).sort((a,b)=>{
     const fa=exact[a]-parts[a],fb=exact[b]-parts[b];
     if(Math.abs(fb-fa)>1e-9)return fb-fa;
@@ -1032,9 +1078,9 @@ function partSpec(sp,cl){
   const moi=peers.findIndex(x=>x.id===sp.id);
   return moi<0?0:parts[moi]}
 function reqToPeriods(req){return S.school.quotaMode==='periods'?req:Math.ceil(req/S.school.periodDuration)}
-function totalNeeded(){let t=0;S.specialists.forEach(sp=>{S.classes.forEach(cl=>{t+=partSpec(sp,cl)})});return t}
+function totalNeeded(){let t=0;ressources().forEach(sp=>{demandeurs().forEach(cl=>{t+=partSpec(sp,cl)})});return t}
 function specDemand(sp){const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return[];const d=[];
-  S.classes.forEach(cl=>{const myNeed=partSpec(sp,cl);if(myNeed<=0)return;const usedByMe=countPlaced(sp.id,cl.id);const need=Math.max(0,myNeed-usedByMe);if(need>0)d.push({cls:cl,need,req:myNeed,used:usedByMe})});
+  demandeurs().forEach(cl=>{const myNeed=partSpec(sp,cl);if(myNeed<=0)return;const usedByMe=countPlaced(sp.id,cl.id);const need=Math.max(0,myNeed-usedByMe);if(need>0)d.push({cls:cl,need,req:myNeed,used:usedByMe})});
   return d.sort((a,b)=>b.need-a.need)}
 function countPlaced(specId,classId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId&&a.classId===classId)c++})});return c}
 function specTotalPlaced(specId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId)c++})});return c}
@@ -1047,14 +1093,14 @@ function specMaxPeriods(sp){
   return Math.max(0,Math.round(pct/100*(S.school.tache100||tache100Defaut())));
 }
 /* Le du : somme des parts de ce specialiste sur toutes les classes. */
-function specDu(sp){let t=0;S.classes.forEach(cl=>{t+=partSpec(sp,cl)});return t}
+function specDu(sp){let t=0;demandeurs().forEach(cl=>{t+=partSpec(sp,cl)});return t}
 /* Groupes distincts ou il a au moins une periode. */
 function specGroupesVus(sp){const vus={};
   for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(pr=>{
     getA(d,pr.num).forEach(a=>{if(a.specId===sp.id&&a.classId)vus[a.classId]=1})});
   return Object.keys(vus).length}
 /* Groupes qu'il doit voir au moins une fois. */
-function specGroupesDus(sp){let c=0;S.classes.forEach(cl=>{if(partSpec(sp,cl)>0)c++});return c}
+function specGroupesDus(sp){let c=0;demandeurs().forEach(cl=>{if(partSpec(sp,cl)>0)c++});return c}
 /* Un pourcentage lisible : 100 et non 100,0 ; 57,5 et non 57,50. */
 /* La capacite se relit a chaque frappe : « 60 % = 27 pér. / 45 ».
    Sans ca, on regle un pourcentage a l'aveugle. */
@@ -1077,25 +1123,25 @@ function canPlace(day,per,sp){
   if(sp.amPm==='am'&&!isAM(per))return false;
   if(sp.amPm==='pm'&&isAM(per))return false;
   return true}
-function checkH(day,per,sid,cid,rid){const v=[];const sp=S.specialists.find(s=>s.id===sid);if(!sp)return v;
-  if(rid){const rm=S.rooms.find(r=>r.id===rid);if(rm&&getA(day,per).filter(a=>a.roomId===rid&&a.specId!==sid).length>=rm.maxSimultaneous)v.push({type:'room'})}
+function checkH(day,per,sid,cid,rid){const v=[];const sp=ressources().find(s=>s.id===sid);if(!sp)return v;
+  if(rid){const rm=lieux().find(r=>r.id===rid);if(rm&&getA(day,per).filter(a=>a.roomId===rid&&a.specId!==sid).length>=rm.maxSimultaneous)v.push({type:'room'})}
   if(getA(day,per).some(a=>a.specId===sid))v.push({type:'specBusy'});
   if(getA(day,per).some(a=>a.classId===cid&&a.specId!==sid))v.push({type:'classBusy'});
   if(sp.isItinerant&&sp.travelDays?.includes(+day))v.push({type:'itin'});
   if(sp.availDays?.length&&!sp.availDays.includes(+day))v.push({type:'avail'});
   if(sp.amPm==='am'&&!isAM(per))v.push({type:'ampm'});if(sp.amPm==='pm'&&isAM(per))v.push({type:'ampm'});return v}
-function checkS(day,per,sid,cid){const w=[];const sp=S.specialists.find(s=>s.id===sid);if(!sp)return w;
-  const cl=S.classes.find(c=>c.id===cid),su=S.subjects.find(s=>s.id===sp.subjectId);
-  if(su&&cl){[+day-1,+day+1].filter(d=>d>=1&&d<=S.school.cycleDays).forEach(adj=>{tPer().forEach(p=>{getA(adj,p.num).forEach(a=>{if(a.classId===cid){const asp=S.specialists.find(s=>s.id===a.specId);if(asp?.subjectId===sp.subjectId)w.push({type:'spacing'})}})})})}
+function checkS(day,per,sid,cid){const w=[];const sp=ressources().find(s=>s.id===sid);if(!sp)return w;
+  const cl=demandeurs().find(c=>c.id===cid),su=S.subjects.find(s=>s.id===sp.subjectId);
+  if(su&&cl){[+day-1,+day+1].filter(d=>d>=1&&d<=S.school.cycleDays).forEach(adj=>{tPer().forEach(p=>{getA(adj,p.num).forEach(a=>{if(a.classId===cid){const asp=ressources().find(s=>s.id===a.specId);if(asp?.subjectId===sp.subjectId)w.push({type:'spacing'})}})})})}
   if(sp.maxConsecutive){const pn=tPer().map(p=>p.num).sort((a,b)=>a-b);const pi=pn.indexOf(+per);let st=1;for(let i=pi-1;i>=0;i--){if(getA(day,pn[i]).some(a=>a.specId===sid))st++;else break}for(let i=pi+1;i<pn.length;i++){if(getA(day,pn[i]).some(a=>a.specId===sid))st++;else break}if(st>sp.maxConsecutive)w.push({type:'consec'})}
   if(sp.maxPerDay){let c=0;tPer().forEach(p=>{if(getA(day,p.num).some(a=>a.specId===sid))c++});if(c>sp.maxPerDay)w.push({type:'maxDay'})}return w}
 
 // PANEL
 function renderPanel(){
   const c=document.getElementById('specList');
-  if(!S.specialists.length){c.innerHTML=`<div style="text-align:center;padding:20px;color:var(--muted);cursor:pointer" onclick="openSpecModal()">${t('noSpec')}</div>`;return}
+  if(!ressources().length){c.innerHTML=`<div style="text-align:center;padding:20px;color:var(--muted);cursor:pointer" onclick="openSpecModal()">${t('noSpec')}</div>`;return}
   c.innerHTML='';
-  S.specialists.forEach(sp=>{
+  ressources().forEach(sp=>{
     const su=S.subjects.find(s=>s.id===sp.subjectId);
     const placed=specTotalPlaced(sp.id);const maxP=specMaxPeriods(sp);
     const du=specDu(sp);
@@ -1128,8 +1174,8 @@ function renderPanel(){
 function renderNext(){
   const c=document.getElementById('nextList');
   if(!activeSpec){c.innerHTML=`<div style="color:var(--muted);padding:10px">← ${t('selectSpec')}</div>`;return}
-  const sp=S.specialists.find(s=>s.id===activeSpec);if(!sp){c.innerHTML='';return}
-  if(!S.classes.length){c.innerHTML=`<div style="color:var(--orange);padding:10px;font-weight:600;cursor:pointer" onclick="openClassesModal()">${t('addClassesFirst')}</div>`;return}
+  const sp=ressources().find(s=>s.id===activeSpec);if(!sp){c.innerHTML='';return}
+  if(!demandeurs().length){c.innerHTML=`<div style="color:var(--orange);padding:10px;font-weight:600;cursor:pointer" onclick="openClassesModal()">${t('addClassesFirst')}</div>`;return}
   const demand=specDemand(sp);
   if(!demand.length){c.innerHTML=`<div style="color:var(--green);padding:10px;text-align:center;font-size:1.2em">✅</div>`;return}
   c.innerHTML=`<div style="color:var(--cyan);font-weight:600;margin-bottom:8px">${t('clickToPlace')}</div>`;
@@ -1140,7 +1186,7 @@ function renderNext(){
 function renderGrid(){
   const g=document.getElementById('grid');g.innerHTML='';
   const periods=S.school.periods,cd=S.school.cycleDays;
-  const sp=activeSpec?S.specialists.find(s=>s.id===activeSpec):null;
+  const sp=activeSpec?ressources().find(s=>s.id===activeSpec):null;
   const cols=cd+1;
   g.style.gridTemplateColumns=`88px repeat(${cd},minmax(112px,1fr))`;
   // Row 0: headers
@@ -1167,9 +1213,9 @@ function renderGrid(){
       if(assigns.length>1)cell.classList.add('multi');
       if(sp){if(canPlace(d,p.num,sp)&&!assigns.some(a=>a.specId===sp.id))cell.classList.add('can-drop');else if(!assigns.some(a=>a.specId===sp.id))cell.classList.add('cant-drop')}
       let hrd=false,sft=false;assigns.forEach(a=>{if(checkH(d,p.num,a.specId,a.classId,a.roomId).filter(v=>v.type!=='specBusy').length)hrd=true;if(checkS(d,p.num,a.specId,a.classId).length)sft=true});
-      const rc={};assigns.forEach(a=>{if(a.roomId)rc[a.roomId]=(rc[a.roomId]||0)+1});Object.entries(rc).forEach(([rid,cnt])=>{const rm=S.rooms.find(r=>r.id===rid);if(rm&&cnt>rm.maxSimultaneous)hrd=true});
+      const rc={};assigns.forEach(a=>{if(a.roomId)rc[a.roomId]=(rc[a.roomId]||0)+1});Object.entries(rc).forEach(([rid,cnt])=>{const rm=lieux().find(r=>r.id===rid);if(rm&&cnt>rm.maxSimultaneous)hrd=true});
       if(hrd)cell.classList.add('hard');else if(sft)cell.classList.add('soft');
-      assigns.forEach(a=>{const asp=S.specialists.find(s=>s.id===a.specId),cl=S.classes.find(c=>c.id===a.classId);if(!asp)return;
+      assigns.forEach(a=>{const asp=ressources().find(s=>s.id===a.specId),cl=demandeurs().find(c=>c.id===a.classId);if(!asp)return;
         const ch=document.createElement('div');ch.className='g-chip';ch.style.background=cl?groupColor(cl.id):'#eee';
         ch.innerHTML=`<span style="overflow:hidden;text-overflow:ellipsis"><b>${cl?.group||'?'}</b> <span class="sp-tag">${asp.shortName}</span></span><span class="x" data-d="${d}" data-p="${p.num}" data-s="${a.specId}">✕</span>`;
         ch.querySelector('.x').onclick=e=>{e.stopPropagation();removeA(d,p.num,a.specId);renderAll()};cell.appendChild(ch)});
@@ -1215,9 +1261,9 @@ function dessinerBande(g,row,cd,idCreneau,classe,libelle,debut,fin){
 
 function cellClick(day,per){
   // BUG FIX: check if classes exist first
-  if(!S.classes.length){toast(t('addClassesFirst'));openClassesModal();return}
+  if(!demandeurs().length){toast(t('addClassesFirst'));openClassesModal();return}
   if(!activeSpec){openQuickAssign(day,per);return}
-  const sp=S.specialists.find(s=>s.id===activeSpec);if(!sp)return;
+  const sp=ressources().find(s=>s.id===activeSpec);if(!sp)return;
   if(specTotalPlaced(sp.id)>=specMaxPeriods(sp)){toast('🚫 '+sp.shortName+' — '+t('taskFull')+' ('+specMaxPeriods(sp)+' pér.)');return}
   if(!canPlace(day,per,sp)){toast('❌ '+t('unavailable'));return}
   if(getA(day,per).some(a=>a.specId===sp.id)){removeA(day,per,sp.id);renderAll();return}
@@ -1241,10 +1287,10 @@ function showClassPicker(day,per,sp,demand){
 function openQuickAssign(day,per){
   closeModals();const assigns=getA(day,per);const ov=document.createElement('div');ov.className='modal';
   let html=`<h3>📅 ${t('day')} ${day} — P${per}</h3>`;
-  if(assigns.length){html+='<div style="margin-bottom:10px">';assigns.forEach(a=>{const sp=S.specialists.find(s=>s.id===a.specId),cl=S.classes.find(c=>c.id===a.classId);
+  if(assigns.length){html+='<div style="margin-bottom:10px">';assigns.forEach(a=>{const sp=ressources().find(s=>s.id===a.specId),cl=demandeurs().find(c=>c.id===a.classId);
     html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${sp?.color||'#eee'};border-radius:8px;margin-bottom:3px;font-size:1em"><strong>${sp?.shortName||'?'}</strong> → ${cl?.group||'?'}<button class="btn r sm" style="margin-left:auto" onclick="removeA(${day},${per},'${a.specId}');closeModals();renderAll()">✕</button></div>`});html+='</div><hr style="border:none;border-top:2px solid #f0f0f0;margin:10px 0">';}
   html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
-  S.specialists.forEach(sp=>{const ok=canPlace(day,per,sp)&&!assigns.some(a=>a.specId===sp.id);
+  ressources().forEach(sp=>{const ok=canPlace(day,per,sp)&&!assigns.some(a=>a.specId===sp.id);
     html+=`<button class="btn ${ok?'c':'o'}" style="font-size:1em;min-height:48px" ${ok?'':'disabled'} onclick="activeSpec='${sp.id}';closeModals();cellClick(${day},${per})"><span class="cdot" style="background:${sp.color}"></span>${sp.shortName}</button>`});
   html+='</div>';
   ov.innerHTML=`<div class="mbox" style="max-width:420px">${html}<div class="macts"><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
@@ -1260,7 +1306,7 @@ function updateProgress(){const placed=totalA(),needed=totalNeeded();const pct=n
 function validateAll(){let hc=0,sc=0;
   for(let d=1;d<=S.school.cycleDays;d++){tPer().forEach(p=>{const assigns=getA(d,p.num);
     assigns.forEach(a=>{if(checkH(d,p.num,a.specId,a.classId,a.roomId).filter(v=>v.type!=='specBusy').length)hc++;if(checkS(d,p.num,a.specId,a.classId).length)sc++});
-    const rc={};assigns.forEach(a=>{if(a.roomId)rc[a.roomId]=(rc[a.roomId]||0)+1});Object.entries(rc).forEach(([rid,cnt])=>{const rm=S.rooms.find(r=>r.id===rid);if(rm&&cnt>rm.maxSimultaneous)hc++})})}
+    const rc={};assigns.forEach(a=>{if(a.roomId)rc[a.roomId]=(rc[a.roomId]||0)+1});Object.entries(rc).forEach(([rid,cnt])=>{const rm=lieux().find(r=>r.id===rid);if(rm&&cnt>rm.maxSimultaneous)hc++})})}
   const ph=document.getElementById('pillH'),ps=document.getElementById('pillS');
   ph.textContent=`🚫 ${hc}`;ph.style.display=hc?'':'none';ps.textContent=`⚠️ ${sc}`;ps.style.display=sc?'':'none';
   if(!hc&&!sc&&totalA()>0)toast('✅ '+t('noViolation'))}
@@ -1271,7 +1317,7 @@ function showWelcome(){
   // configuree, la grille prend toute la place — c'est ce qui la fait
   // commencer juste sous le header au lieu de 825 px plus bas.
   const h=document.getElementById('heroSection');
-  if(h&&(S.classes.length||S.specialists.length))h.classList.add('hidden');
+  if(h&&(demandeurs().length||ressources().length))h.classList.add('hidden');
 }
 
 function showHelp(){
@@ -1294,6 +1340,7 @@ function showHelp(){
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
 function useTemplate(){
+  S.metier='ep';
   S.school={name:'Mon école',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',periods:JSON.parse(JSON.stringify(DEF_PER))};
   // Une tache pleine, c'est tout le cycle : 9 jours x 5 periodes = 45.
   // L'ancienne valeur en dur (30) ne correspondait a aucune journee reelle.
@@ -1362,11 +1409,11 @@ function openSetupModal(){
 
 function openSpecModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
-  let rows=S.specialists.map((sp,i)=>{const su=S.subjects.find(s=>s.id===sp.subjectId);return`<tr><td><span class="cdot" style="background:${sp.color||'#ccc'}"></span></td><td style="font-weight:600">${sp.name}</td><td>${sp.shortName}</td><td>${su?.name||'—'}</td><td style="display:flex;gap:3px"><button class="btn c sm" onclick="closeModals();editSpec(${i})">✏️</button><button class="btn r sm" onclick="S.specialists.splice(${i},1);save();closeModals();openSpecModal()">✕</button></td></tr>`}).join('');
+  let rows=ressources().map((sp,i)=>{const su=S.subjects.find(s=>s.id===sp.subjectId);return`<tr><td><span class="cdot" style="background:${sp.color||'#ccc'}"></span></td><td style="font-weight:600">${sp.name}</td><td>${sp.shortName}</td><td>${su?.name||'—'}</td><td style="display:flex;gap:3px"><button class="btn c sm" onclick="closeModals();editSpec(${i})">✏️</button><button class="btn r sm" onclick="S.specialists.splice(${i},1);save();closeModals();openSpecModal()">✕</button></td></tr>`}).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:600px"><h3>👤 Spécialistes</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th></th><th>${t('specName')}</th><th>${t('specCode')}</th><th>${t('specSubject')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px">${t('noSpec')}</td></tr>`}</tbody></table></div>
   <div class="macts"><button class="btn c" onclick="closeModals();addSpec()">+ ${t('add')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
-function addSpec(){const su=S.subjects[0];S.specialists.push({id:uid(),name:'Nouveau',shortName:'SP'+(S.specialists.length+1),subjectId:su?.id||'',taskPercent:100,isItinerant:false,travelDays:[],roomId:S.rooms[0]?.id||'',amPm:'all',maxPerDay:6,maxConsecutive:4,availDays:[],color:su?.color||'#ccc'});save();editSpec(S.specialists.length-1)}
+function addSpec(){const su=S.subjects[0];S.specialists.push({id:uid(),name:'Nouveau',shortName:'SP'+(ressources().length+1),subjectId:su?.id||'',taskPercent:100,isItinerant:false,travelDays:[],roomId:S.rooms[0]?.id||'',amPm:'all',maxPerDay:6,maxConsecutive:4,availDays:[],color:su?.color||'#ccc'});save();editSpec(ressources().length-1)}
 function editSpec(idx){
   const sp=S.specialists[idx];if(!sp)return;closeModals();const ov=document.createElement('div');ov.className='modal';const cd=S.school.cycleDays;
   ov.innerHTML=`<div class="mbox"><h3>✏️ ${sp.name}</h3>
@@ -1374,7 +1421,7 @@ function editSpec(idx){
     <div class="fr"><label>${t('specCode')}</label><input type="text" id="eC" value="${sp.shortName}" style="width:80px"></div>
     <div class="fr"><label>${t('specSubject')}</label><select id="eSu">${S.subjects.map(s=>`<option value="${s.id}" ${s.id===sp.subjectId?'selected':''}>${s.name}</option>`).join('')}</select></div>
     <div class="fr"><label>${t('specTask')}</label><input type="number" id="eT" value="${sp.taskPercent}" min="0" max="200" step="0.5" oninput="majCapacite()">% <small id="eCap" style="color:var(--ztsp-cyan-dark,#075A6B);font-weight:700">= ${specMaxPeriods(sp)} pér. / ${S.school.tache100||tache100Defaut()}</small></div>
-    <div class="fr"><label>${t('specRoom')}</label><select id="eR"><option value="">—</option>${S.rooms.map(r=>`<option value="${r.id}" ${r.id===sp.roomId?'selected':''}>${r.name}</option>`).join('')}</select></div>
+    <div class="fr"><label>${t('specRoom')}</label><select id="eR"><option value="">—</option>${lieux().map(r=>`<option value="${r.id}" ${r.id===sp.roomId?'selected':''}>${r.name}</option>`).join('')}</select></div>
     <div class="fr"><label>${t('specItinerant')}</label><input type="checkbox" id="eI" ${sp.isItinerant?'checked':''}></div>
     <div class="fr" id="eTR" style="${sp.isItinerant?'':'display:none'};flex-direction:column;align-items:flex-start"><label>${t('specTravelDays')}</label><div class="chips">${Array.from({length:cd},(_,d)=>{const dn=d+1;return`<div class="ck ${sp.travelDays?.includes(dn)?'on':''}" data-td="${dn}" onclick="this.classList.toggle('on')">J${dn}</div>`}).join('')}</div></div>
     <hr style="border:none;border-top:2px solid #f0f0f0;margin:10px 0">
@@ -1396,27 +1443,27 @@ function editSpec(idx){
 
 function openClassesModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
-  let rows=S.classes.map((cl,i)=>`<tr><td><select onchange="S.classes[${i}].level=this.value;save()" style="padding:4px;border:1px solid #ddd;border-radius:4px">${['pres','1','2','3','4','5','6'].map(l=>`<option value="${l}" ${cl.level===l?'selected':''}>${l==='pres'?t('presco'):l+'e'}</option>`).join('')}</select></td><td><input type="text" value="${cl.group}" style="width:55px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:700" onchange="S.classes[${i}].group=this.value;save()"></td><td><input type="text" value="${cl.titulaire||''}" style="width:120px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.classes[${i}].titulaire=this.value;save()"></td><td><button class="btn r sm" onclick="S.classes.splice(${i},1);save();closeModals();openClassesModal()">✕</button></td></tr>`).join('');
+  let rows=demandeurs().map((cl,i)=>`<tr><td><select onchange="S.classes[${i}].level=this.value;save()" style="padding:4px;border:1px solid #ddd;border-radius:4px">${['pres','1','2','3','4','5','6'].map(l=>`<option value="${l}" ${cl.level===l?'selected':''}>${l==='pres'?t('presco'):l+'e'}</option>`).join('')}</select></td><td><input type="text" value="${cl.group}" style="width:55px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:700" onchange="S.classes[${i}].group=this.value;save()"></td><td><input type="text" value="${cl.titulaire||''}" style="width:120px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.classes[${i}].titulaire=this.value;save()"></td><td><button class="btn r sm" onclick="S.classes.splice(${i},1);save();closeModals();openClassesModal()">✕</button></td></tr>`).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:520px"><h3>🎓 Classes</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('classLevel')}</th><th>${t('classGroup')}</th><th>${t('classTitulaire')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">${t('noClass')}</td></tr>`}</tbody></table></div>
-  <div class="macts"><button class="btn c" onclick="S.classes.push({id:uid(),level:'1',group:''+(S.classes.length+1)+'A',titulaire:'',prepQuota:200});save();closeModals();openClassesModal()">+ ${t('add')}</button><button class="btn o" onclick="const d=['MAT','1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B'];const l={MAT:'pres','1A':'1','1B':'1','2A':'2','2B':'2','3A':'3','3B':'3','4A':'4','4B':'4','5A':'5','5B':'5','6A':'6','6B':'6'};d.forEach(g=>{if(!S.classes.find(c=>c.group===g))S.classes.push({id:uid(),level:l[g],group:g,titulaire:'',prepQuota:200})});save();closeModals();openClassesModal()">📋 ${t('default')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
+  <div class="macts"><button class="btn c" onclick="S.classes.push({id:uid(),level:'1',group:''+(demandeurs().length+1)+'A',titulaire:'',prepQuota:200});save();closeModals();openClassesModal()">+ ${t('add')}</button><button class="btn o" onclick="const d=['MAT','1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B'];const l={MAT:'pres','1A':'1','1B':'1','2A':'2','2B':'2','3A':'3','3B':'3','4A':'4','4B':'4','5A':'5','5B':'5','6A':'6','6B':'6'};d.forEach(g=>{if(!demandeurs().find(c=>c.group===g))S.classes.push({id:uid(),level:l[g],group:g,titulaire:'',prepQuota:200})});save();closeModals();openClassesModal()">📋 ${t('default')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
 function openRoomsModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
-  let rows=S.rooms.map((rm,i)=>`<tr><td><input type="text" value="${rm.name}" style="width:130px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:600" onchange="S.rooms[${i}].name=this.value;save()"></td><td><input type="text" value="${rm.type||''}" style="width:70px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.rooms[${i}].type=this.value;save()"></td><td><input type="number" value="${rm.maxSimultaneous||1}" min="1" max="10" style="width:45px;border:1px solid #ddd;border-radius:4px;padding:4px;text-align:center" onchange="S.rooms[${i}].maxSimultaneous=+this.value;save()"></td><td><button class="btn r sm" onclick="S.rooms.splice(${i},1);save();closeModals();openRoomsModal()">✕</button></td></tr>`).join('');
+  let rows=lieux().map((rm,i)=>`<tr><td><input type="text" value="${rm.name}" style="width:130px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:600" onchange="S.rooms[${i}].name=this.value;save()"></td><td><input type="text" value="${rm.type||''}" style="width:70px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.rooms[${i}].type=this.value;save()"></td><td><input type="number" value="${rm.maxSimultaneous||1}" min="1" max="10" style="width:45px;border:1px solid #ddd;border-radius:4px;padding:4px;text-align:center" onchange="S.rooms[${i}].maxSimultaneous=+this.value;save()"></td><td><button class="btn r sm" onclick="S.rooms.splice(${i},1);save();closeModals();openRoomsModal()">✕</button></td></tr>`).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:450px"><h3>🏛️ Locaux</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('roomName')}</th><th>${t('roomType')}</th><th>${t('roomCap')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">${t('noRoom')}</td></tr>`}</tbody></table></div>
-  <div class="macts"><button class="btn c" onclick="S.rooms.push({id:uid(),name:'Nouveau',type:'',maxSimultaneous:1});save();closeModals();openRoomsModal()">+ ${t('add')}</button><button class="btn o" onclick="[{name:'Gymnase principal',type:'gym',maxSimultaneous:2},{name:'Gymnase secondaire',type:'gym',maxSimultaneous:1},{name:'Plateau extérieur',type:'gym',maxSimultaneous:2},{name:'Piscine / Palestre',type:'gym',maxSimultaneous:1},{name:'Local musique',type:'music',maxSimultaneous:1},{name:'Local art',type:'art',maxSimultaneous:1}].forEach(d=>{if(!S.rooms.find(r=>r.name===d.name))S.rooms.push({id:uid(),...d})});save();closeModals();openRoomsModal()">📋 ${t('default')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
+  <div class="macts"><button class="btn c" onclick="S.rooms.push({id:uid(),name:'Nouveau',type:'',maxSimultaneous:1});save();closeModals();openRoomsModal()">+ ${t('add')}</button><button class="btn o" onclick="[{name:'Gymnase principal',type:'gym',maxSimultaneous:2},{name:'Gymnase secondaire',type:'gym',maxSimultaneous:1},{name:'Plateau extérieur',type:'gym',maxSimultaneous:2},{name:'Piscine / Palestre',type:'gym',maxSimultaneous:1},{name:'Local musique',type:'music',maxSimultaneous:1},{name:'Local art',type:'art',maxSimultaneous:1}].forEach(d=>{if(!lieux().find(r=>r.name===d.name))S.rooms.push({id:uid(),...d})});save();closeModals();openRoomsModal()">📋 ${t('default')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
 // AUTO-FILL
-function solveSchedule(){if(!S.classes.length||!S.specialists.length){toast(t('autoAddFirst'));return}
+function solveSchedule(){if(!demandeurs().length||!ressources().length){toast(t('autoAddFirst'));return}
   if(!confirm(t('autoConfirm')))return;const pnums=tPer().map(p=>p.num);let filled=0,rem=0;const demand=[];
-  S.classes.forEach(cl=>{S.subjects.forEach(su=>{const req=su.min[cl.level]||0;if(req<=0)return;const placed=Math.round(minUsed(cl.id,su.id)/S.school.periodDuration);const need=Math.max(0,reqToPeriods(req)-placed);if(need<=0)return;const specs=S.specialists.filter(sp=>sp.subjectId===su.id);if(specs.length)demand.push({cid:cl.id,sid:su.id,need,specs})})});
+  demandeurs().forEach(cl=>{S.subjects.forEach(su=>{const req=su.min[cl.level]||0;if(req<=0)return;const placed=Math.round(minUsed(cl.id,su.id)/S.school.periodDuration);const need=Math.max(0,reqToPeriods(req)-placed);if(need<=0)return;const specs=ressources().filter(sp=>sp.subjectId===su.id);if(specs.length)demand.push({cid:cl.id,sid:su.id,need,specs})})});
   demand.sort((a,b)=>a.specs.length-b.specs.length);
   const nonPlaces=[];
   // Le du de chaque specialiste, calcule UNE fois : il ne bouge pas pendant
   // la passe, et le recalculer dans la boucle couterait cher.
-  const duParSpec={};S.specialists.forEach(sp=>{duParSpec[sp.id]=specDu(sp)});
+  const duParSpec={};ressources().forEach(sp=>{duParSpec[sp.id]=specDu(sp)});
   demand.forEach(d=>{for(let att=0;att<d.need;att++){let best=null,bs=-Infinity;const days=Array.from({length:S.school.cycleDays},(_,i)=>i+1);shuf(days);
   // CONTRAINTE DURE : un specialiste ne depasse JAMAIS sa capacite.
   // Recalculee a CHAQUE tentative : les placements de cette meme passe
@@ -1448,7 +1495,7 @@ function montrerNonPlaces(filled,liste){
   liste.forEach(x=>{const k=x.cid+'|'+x.sid+'|'+x.raison;parCle[k]=(parCle[k]||0)+1});
   const lignes=Object.keys(parCle).sort().map(k=>{
     const [cid,sid,raison]=k.split('|');
-    const cl=S.classes.find(c=>c.id===cid),su=S.subjects.find(x=>x.id===sid);
+    const cl=demandeurs().find(c=>c.id===cid),su=S.subjects.find(x=>x.id===sid);
     return `<tr><td style="font-weight:800">${cl?cl.group:'—'}</td><td>${su?su.name:'—'}</td>`
       +`<td style="text-align:center;font-family:var(--f-titre)">${parCle[k]}</td>`
       +`<td>${raison==='cap'?'🚫 '+t('raisonCapacite'):'📅 '+t('raisonCreneau')}</td></tr>`}).join('');
@@ -1501,7 +1548,7 @@ function construireRecaps(){
   const hote=document.getElementById('zg-recaps');
   if(!hote)return;
   // ---- 1. Les taches ----
-  const lignesT=(S.specialists||[]).map(sp=>{
+  const lignesT=ressources().map(sp=>{
     const su=S.subjects.find(x=>x.id===sp.subjectId);
     const cap=specMaxPeriods(sp),du=specDu(sp),pl=specTotalPlaced(sp.id);
     const ecart=pl-du;
@@ -1543,7 +1590,7 @@ function construireRecaps(){
 }
 
 function imprimerGrille(){
-  if(!S.classes.length){toast(t('addClassesFirst'));return}
+  if(!demandeurs().length){toast(t('addClassesFirst'));return}
   const t0=document.getElementById('zg-print-head');
   if(t0){
     const nom=(S.school.name||'').trim();
@@ -1577,9 +1624,9 @@ function exporterJSON(){
     exportedAt: new Date().toISOString(),
     origin:     location.origin+location.pathname,
     counts:{
-      classes:      (S.classes||[]).length,
-      specialists:  (S.specialists||[]).length,
-      rooms:        (S.rooms||[]).length,
+      classes:      demandeurs().length,
+      specialists:  ressources().length,
+      rooms:        lieux().length,
       subjects:     (S.subjects||[]).length,
       assignments:  totalA(),
       surveillants: listeSurveillants().length,
@@ -1618,7 +1665,7 @@ function importerJSON(input){
       if(p.lang&&I[p.lang]){lang=p.lang;localStorage.setItem('gh_lang',lang);
         const sel=document.getElementById('langSel');if(sel)sel.value=lang}
       save();showWelcome();renderAll();
-      toast('📂 '+t('importOk')+' — '+S.classes.length+' / '+S.specialists.length);
+      toast('📂 '+t('importOk')+' — '+demandeurs().length+' / '+ressources().length);
     }catch(e){toast('❌ '+(e.message||t('importErr')),4000)}
   };
   lect.onerror=()=>toast('❌ '+t('importErr'));
@@ -1645,7 +1692,7 @@ const SURV_AVANT = 'cr_avant';   // id fixe du creneau « Avant P1 »
    personnes qui ne sont pas specialistes : titulaires et non-enseignants. */
 function listeSurveillants(){
   if(!Array.isArray(S.surveillants))S.surveillants=[];
-  const l=(S.specialists||[]).map(sp=>({
+  const l=ressources().map(sp=>({
     id:sp.id, nom:sp.name, code:sp.shortName, type:'spec', couleur:sp.color||'#9FC3D4'
   }));
   (S.surveillants||[]).forEach(x=>{
@@ -1740,7 +1787,7 @@ function ouvrirChoixSurv(jour,idCreneau){
    non-enseignants ajoutables et supprimables. */
 function ouvrirSurveillantsModal(){
   closeModals();
-  const specs=(S.specialists||[]).map(sp=>
+  const specs=ressources().map(sp=>
     `<tr><td><span class="cdot" style="background:${sp.color||'#ccc'}"></span>${sp.shortName}</td>
      <td>${sp.name}</td><td>${t('typ_spec')}</td>
      <td style="text-align:center;font-family:var(--f-titre)">👁️ ${survCompte(sp.id)}</td><td></td></tr>`).join('');
@@ -1780,6 +1827,7 @@ function retirerSurveillant(i){
    ajoutees doivent exister, quoi qu'il soit arrive a `S` entre-temps. */
 function assurerStructures(){
   if(!S.school)S.school={};
+  if(!S.metier||!GABARITS[S.metier])S.metier='ep';
   if(!Array.isArray(S.school.periods))S.school.periods=[];
   if(!S.assignments)S.assignments={};
   if(!Array.isArray(S.surveillants))S.surveillants=[];
