@@ -548,6 +548,7 @@
       cursor:not-allowed;
     }
     .g-cell.ferme .plus{display:none}
+    .g-cell.sous-ratio{box-shadow:inset 0 0 0 3px rgba(255,168,0,.55)}
     .g-cell.hard{box-shadow:0 0 0 3px var(--red), 2px 2px 0 rgba(0,0,0,.18) !important; background:rgba(255,0,97,.07) !important}
     .g-cell.soft{box-shadow:0 0 0 3px var(--orange), 2px 2px 0 rgba(0,0,0,.18) !important; background:rgba(255,162,0,.09) !important}
 
@@ -888,6 +889,7 @@
   <span class="ptxt" id="progPct">0%</span>
   <span class="pill" id="pillH" style="display:none">🚫 0</span>
   <span class="pill" id="pillS" style="display:none">⚠️ 0</span>
+  <span class="pill" id="pillR" style="display:none" title="Places d'adulte manquantes selon le ratio">👶 0</span>
 </div>
 
 <div class="layout">
@@ -932,7 +934,7 @@ periodsPerDay:'Périodes/jour',tache100:'Tâche 100%',tache100Unit:'périodes/cy
 heroTitle:'Ta grille horaire<span>sur mesure!</span>',
 heroDesc:'Fini le casse-tête de la planification! Configure tes périodes en 30 secondes, clique sur un jour pour placer tes spécialistes et groupes-classes. Le % de tâche se calcule en temps réel. Team teaching, multi-gymnases, validation automatique — tout y est. Sauvegarde automatique et exporte en PDF pour ta direction. Les enseignants les plus organisés utilisent déjà cet outil — c\'est ton tour!',
 heroBadge1:'📅 5 à 10 jours/cycle',heroBadge2:'⚙️ 3 à 7 périodes',heroBadge3:'🌍 4 langues',heroBadge5:'🤖 Auto-remplissage',
-heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',journeeType:'Journée du métier',journeeAide:'Remplace la journée par celle du métier choisi',journeeConfirm:'Remplacer la journée par celle du métier ? La grille sera vidée.',journeeFaite:'Journée du métier appliquée',joursPedago:'Journées pédago',uniteCap:'pér.',
+heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',classEffectif:'Enfants',ratio:'Ratio',ratioAide:'enfants par adulte — 0 pour ne pas l\'appliquer',ratioManque:'places d\'adulte manquantes selon le ratio',journeeType:'Journée du métier',journeeAide:'Remplace la journée par celle du métier choisi',journeeConfirm:'Remplacer la journée par celle du métier ? La grille sera vidée.',journeeFaite:'Journée du métier appliquée',joursPedago:'Journées pédago',uniteCap:'pér.',
 metierTitre:'Pour qui bâtis-tu l\'horaire?',metierAide:'Tu pourras en changer en tout temps dans les Réglages.',metierLabel:'Métier',metierOk:'Mode',metierEp:'École primaire',metierEpDesc:'Spécialistes : ÉPS, musique, anglais, arts.',metierSdg:'Service de garde',metierSdgDesc:'Éducateurs, groupes, ratios, blocs du midi.',metierCamp:'Camp de jour',metierCampDesc:'Moniteurs, groupes d\'âge, blocs d\'activités.',
 helpTitle:'Comment utiliser<span>la grille horaire</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
@@ -955,7 +957,7 @@ periodsPerDay:'Periods/day',tache100:'100% task',tache100Unit:'periods/cycle',co
 heroTitle:'Your schedule grid<span>made easy!</span>',
 heroDesc:'No more planning headaches! Set up your periods in 30 seconds, click a day to place your specialists and class groups. Task % is calculated in real time. Team teaching, multiple gyms, automatic validation — it\'s all here. Auto-save and export to PDF for your admin. The most organized teachers already use this tool — your turn!',
 heroBadge1:'📅 5 to 10 days/cycle',heroBadge2:'⚙️ 3 to 7 periods',heroBadge3:'🌍 4 languages',heroBadge5:'🤖 Auto-fill',
-heroStart:'🚀 Get started!',heroHelp:'📖 How to use',journeeType:'Program day',journeeAide:'Replaces the day with the chosen program\'s day',journeeConfirm:'Replace the day with the program\'s day? The grid will be cleared.',journeeFaite:'Program day applied',joursPedago:'PD days',uniteCap:'per.',
+heroStart:'🚀 Get started!',heroHelp:'📖 How to use',classEffectif:'Children',ratio:'Ratio',ratioAide:'children per adult — 0 to disable',ratioManque:'adult slots missing under the ratio',journeeType:'Program day',journeeAide:'Replaces the day with the chosen program\'s day',journeeConfirm:'Replace the day with the program\'s day? The grid will be cleared.',journeeFaite:'Program day applied',joursPedago:'PD days',uniteCap:'per.',
 metierTitre:'Who are you building the schedule for?',metierAide:'You can switch any time in Settings.',metierLabel:'Mode',metierOk:'Mode',metierEp:'Elementary school',metierEpDesc:'Specialists: PE, music, English, arts.',metierSdg:'Daycare service',metierSdgDesc:'Educators, groups, ratios, midday blocks.',metierCamp:'Day camp',metierCampDesc:'Counsellors, age groups, activity blocks.',
 helpTitle:'How to use<span>the schedule grid</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
@@ -978,7 +980,7 @@ periodsPerDay:'Períodos/día',tache100:'Tarea 100%',tache100Unit:'períodos/cic
 heroTitle:'Tu horario escolar<span>a tu medida!</span>',
 heroDesc:'¡Se acabó el rompecabezas de la planificación! Configura tus períodos en 30 segundos, haz clic en un día para colocar tus especialistas y grupos. El % de tarea se calcula en tiempo real. Enseñanza en equipo, múltiples gimnasios, validación automática — todo está aquí. Guardado automático y exporta en PDF para tu dirección. Los docentes más organizados ya usan esta herramienta — ¡es tu turno!',
 heroBadge1:'📅 5 a 10 días/ciclo',heroBadge2:'⚙️ 3 a 7 períodos',heroBadge3:'🌍 4 idiomas',heroBadge5:'🤖 Auto-llenado',
-heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',journeeType:'Jornada del modo',journeeAide:'Reemplaza la jornada por la del modo elegido',journeeConfirm:'¿Reemplazar la jornada por la del modo? Se vaciará la grilla.',journeeFaite:'Jornada aplicada',joursPedago:'Días pedagógicos',uniteCap:'per.',
+heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',classEffectif:'Niños',ratio:'Ratio',ratioAide:'niños por adulto — 0 para no aplicarlo',ratioManque:'puestos de adulto que faltan según el ratio',journeeType:'Jornada del modo',journeeAide:'Reemplaza la jornada por la del modo elegido',journeeConfirm:'¿Reemplazar la jornada por la del modo? Se vaciará la grilla.',journeeFaite:'Jornada aplicada',joursPedago:'Días pedagógicos',uniteCap:'per.',
 metierTitre:'¿Para quién creas el horario?',metierAide:'Puedes cambiarlo cuando quieras en Configuración.',metierLabel:'Modo',metierOk:'Modo',metierEp:'Escuela primaria',metierEpDesc:'Especialistas: EF, música, inglés, artes.',metierSdg:'Servicio de guardería',metierSdgDesc:'Educadores, grupos, ratios, bloques del mediodía.',metierCamp:'Campamento de día',metierCampDesc:'Monitores, grupos de edad, bloques de actividades.',
 helpTitle:'Cómo usar<span>el horario escolar</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
@@ -1001,7 +1003,7 @@ periodsPerDay:'每天课时',tache100:'100%任务',tache100Unit:'课时/周期',
 heroTitle:'你的课程表<span>量身定制!</span>',
 heroDesc:'告别排课烦恼！30秒配置课时，点击日期安排专科教师和班级。任务百分比实时计算。协同教学、多体育馆、自动验证——一应俱全。自动保存，导出PDF给校长。最有组织的老师已经在用这个工具了——轮到你了！',
 heroBadge1:'📅 5至10天/周期',heroBadge2:'⚙️ 3至7节课',heroBadge3:'🌍 4种语言',heroBadge5:'🤖 自动填充',
-heroStart:'🚀 开始!',heroHelp:'📖 使用说明',journeeType:'模式日程',journeeAide:'用所选模式的日程替换当前日程',journeeConfirm:'用该模式的日程替换当前日程？课表将被清空。',journeeFaite:'已应用模式日程',joursPedago:'教师培训日',uniteCap:'节',
+heroStart:'🚀 开始!',heroHelp:'📖 使用说明',classEffectif:'儿童数',ratio:'师生比',ratioAide:'每位成人负责的儿童数——填0则不启用',ratioManque:'按师生比仍缺的成人岗位',journeeType:'模式日程',journeeAide:'用所选模式的日程替换当前日程',journeeConfirm:'用该模式的日程替换当前日程？课表将被清空。',journeeFaite:'已应用模式日程',joursPedago:'教师培训日',uniteCap:'节',
 metierTitre:'你要为谁编排时间表？',metierAide:'随时可在设置中更改。',metierLabel:'模式',metierOk:'模式',metierEp:'小学',metierEpDesc:'专科教师：体育、音乐、英语、艺术。',metierSdg:'课后托管',metierSdgDesc:'辅导员、班组、师生比、午间时段。',metierCamp:'日间营',metierCampDesc:'营辅导员、年龄组、活动时段。',
 helpTitle:'如何使用<span>课程表</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
@@ -1198,6 +1200,11 @@ const GABARITS={
     capacite:         capaciteEcole,
     denominateur:     denominateurEcole,
     creneaux:         journeeEcole,
+    // Un groupe voit UN specialiste a la fois. C'est la reponse de l'ecole,
+    // pas une loi du moteur.
+    capaciteDemandeur: unDemandeur,
+    besoins:           modeleEcole,
+    couvertureTotale:  false,
     contraintesDures: aucuneContrainte
   },
   /* Les deux autres metiers ont leur personnage, leurs mots, et depuis
@@ -1213,6 +1220,11 @@ const GABARITS={
     contraintesDures:(E,ctx)=>creneauFerme(ctx.jour,ctx.per)?[{type:'pedago'}]:[],
     perso:'perso-sdg',
     mots: MOTS.sdg,
+    // Le ratio decide combien d'adultes un groupe peut recevoir a la fois,
+    // et la couverture de tous les blocs ouverts est ce qu'on vise.
+    capaciteDemandeur: capaciteDemandeurRatio,
+    besoins:           modeleCouverture,
+    couvertureTotale:  true,
     ressources: E=>E.specialists,
     demandeurs: E=>E.classes,
     lieux:      E=>E.rooms,
@@ -1227,6 +1239,11 @@ const GABARITS={
     id:'camp',
     perso:'perso-camp',
     mots: MOTS.camp,
+    // Le ratio decide combien d'adultes un groupe peut recevoir a la fois,
+    // et la couverture de tous les blocs ouverts est ce qu'on vise.
+    capaciteDemandeur: capaciteDemandeurRatio,
+    besoins:           modeleCouverture,
+    couvertureTotale:  true,
     ressources: E=>E.specialists,
     demandeurs: E=>E.classes,
     lieux:      E=>E.rooms,
@@ -1353,6 +1370,62 @@ function creneauFerme(jour,num){
   return !!pr.pedago!==estJourPedago(jour);
 }
 
+/* =======================================================================
+   LE RATIO ENFANTS / ADULTE
+   -----------------------------------------------------------------------
+   A l'ecole, un groupe voit UN specialiste a la fois : c'est la regle
+   `classBusy`, vieille comme l'app. Un service de garde ne fonctionne pas
+   ainsi — un groupe de 25 enfants a un ratio de 1 pour 20 demande DEUX
+   educateurs en meme temps. La regle « un seul adulte » n'est donc pas une
+   loi du moteur : c'est la reponse de l'ecole a une question.
+
+   La question : « combien d'adultes ce groupe peut-il recevoir a la fois ? »
+   L'ecole repond 1. Le service de garde et le camp repondent
+   ceil(effectif / ratio). Un groupe sans effectif renseigne repond 1 aussi :
+   tant qu'on n'a pas dit combien d'enfants il y a, on ne peut rien deduire,
+   et on ne doit surtout pas ouvrir la porte a n'importe quoi.
+
+   C'est bien une contrainte DURE : au-dela, `checkH` refuse, le clic refuse,
+   l'auto ne considere meme pas la case. En-deca, la couverture est
+   incomplete — et ca, ca se COMPTE et ca se montre (jauge 👶), parce qu'un
+   trou de couverture n'est pas une faute a interdire, c'est un travail qui
+   reste a faire.
+   ======================================================================= */
+function unDemandeur(){return 1}
+function ratioMetier(){
+  const r=+(S.school&&S.school.ratio);
+  return (isNaN(r)||r<=0)?0:r;
+}
+function capaciteDemandeurRatio(E,cl){
+  const eff=+(cl&&cl.effectif);
+  const r=ratioMetier();
+  if(!r||isNaN(eff)||eff<=0)return 1;   // effectif inconnu : on ne deduit rien
+  return Math.max(1,Math.ceil(eff/r));
+}
+/* Toujours un entier >= 1 : zero fermerait la grille entiere. */
+function capaciteDemandeur(cl){
+  const f=gabarit().capaciteDemandeur;
+  let v;
+  try{v=(typeof f==='function')?f(S,cl):1}catch(e){v=1}
+  const nb=Math.round(+v);
+  return (isNaN(nb)||nb<1)?1:nb;
+}
+/* Le metier compte-t-il une couverture de tous les creneaux ? L'ecole, non :
+   une classe n'a pas un specialiste a chaque periode. */
+function couvertureTotale(){return !!gabarit().couvertureTotale}
+/* Combien d'adultes manquent a ce groupe, sur ce creneau. */
+function manqueRatio(jour,num,cl){
+  if(!couvertureTotale()||creneauFerme(jour,num))return 0;
+  return Math.max(0,capaciteDemandeur(cl)-getA(jour,num).filter(a=>a.classId===cl.id).length);
+}
+function manqueTotal(){
+  if(!couvertureTotale())return 0;
+  let t=0;
+  for(let j=1;j<=S.school.cycleDays;j++)tPer().forEach(pr=>{
+    demandeurs().forEach(cl=>{t+=manqueRatio(j,pr.num,cl)})});
+  return t;
+}
+
 /* Le denominateur d'un plafond : « 27 per. / 45 » a l'ecole, ou 45 est la
    tache pleine du cycle. Un metier qui ne compte PAS contre un total de
    cycle repond null, et la lecture devient « 27 blocs » — sans fraction qui
@@ -1418,6 +1491,9 @@ function migrer(){
   if(!Array.isArray(S.surveillants))S.surveillants=[];
   if(!S.surveillances||typeof S.surveillances!=='object')S.surveillances={};
   if(!Array.isArray(S.school.joursPedago))S.school.joursPedago=[];
+  // Un ratio absent vaut « pas de ratio » : aucune deduction, capacite 1.
+  if(S.school.ratio===undefined||S.school.ratio===null||isNaN(+S.school.ratio))S.school.ratio=0;
+  demandeurs().forEach(cl=>{if(cl.effectif===undefined||cl.effectif===null||isNaN(+cl.effectif))cl.effectif=0});
   ressources().forEach(sp=>{
     if(sp.taskPercent===undefined||sp.taskPercent===null||isNaN(+sp.taskPercent))sp.taskPercent=100;
   });
@@ -1513,10 +1589,87 @@ function partSpec(sp,cl){
   const moi=peers.findIndex(x=>x.id===sp.id);
   return moi<0?0:parts[moi]}
 function reqToPeriods(req){return S.school.quotaMode==='periods'?req:Math.ceil(req/S.school.periodDuration)}
-function totalNeeded(){let t=0;ressources().forEach(sp=>{demandeurs().forEach(cl=>{t+=partSpec(sp,cl)})});return t}
-function specDemand(sp){const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return[];const d=[];
-  demandeurs().forEach(cl=>{const myNeed=partSpec(sp,cl);if(myNeed<=0)return;const usedByMe=countPlaced(sp.id,cl.id);const need=Math.max(0,myNeed-usedByMe);if(need>0)d.push({cls:cl,need,req:myNeed,used:usedByMe})});
-  return d.sort((a,b)=>b.need-a.need)}
+function totalNeeded(){const v=Math.round(+besoinsGabarit().total(S));return (isNaN(v)||v<0)?0:v}
+/* =======================================================================
+   LE MODELE DES BESOINS
+   -----------------------------------------------------------------------
+   L'ecole compte en MINUTES DE MATIERE par niveau : la 3e annee doit 90
+   minutes d'EPS par cycle. Un service de garde ne compte pas comme ca — il
+   doit COUVRIR chaque bloc ouvert, pour chaque groupe, avec autant d'adultes
+   que le ratio l'exige.
+
+   Deux modeles, trois questions chacun, et un solveur qui ne connait ni
+   l'un ni l'autre : il demande la liste, il la place.
+   ======================================================================= */
+/* Les deux modeles sont des `const` declarees ICI, apres GABARITS. Un
+   gabarit ne peut donc pas les nommer directement : sa ligne s'evaluerait
+   avant leur initialisation et la table entiere resterait en zone morte.
+   Il nomme une FONCTION — celles-la sont hissees — qui les rend au moment
+   ou on en a besoin. */
+function modeleEcole(){return BESOINS_ECOLE}
+function modeleCouverture(){return BESOINS_COUVERTURE}
+function besoinsGabarit(){
+  const f=gabarit().besoins;
+  let b=null;
+  try{b=(typeof f==='function')?f():null}catch(e){b=null}
+  return (b&&typeof b.pourSolveur==='function')?b:BESOINS_ECOLE;
+}
+/* --- Modele d'ecole : matieres, niveaux, minutes. Le code d'avant, deplace
+       sans une virgule de changement. --- */
+const BESOINS_ECOLE={
+  pourSolveur(E){
+    const d=[];
+    demandeurs().forEach(cl=>{E.subjects.forEach(su=>{
+      const req=su.min[cl.level]||0;if(req<=0)return;
+      const placed=Math.round(minUsed(cl.id,su.id)/E.school.periodDuration);
+      const need=Math.max(0,reqToPeriods(req)-placed);if(need<=0)return;
+      const specs=ressources().filter(sp=>sp.subjectId===su.id);
+      if(specs.length)d.push({cid:cl.id,sid:su.id,need,specs})})});
+    return d;
+  },
+  total(){let t=0;ressources().forEach(sp=>{demandeurs().forEach(cl=>{t+=partSpec(sp,cl)})});return t},
+  pourRessource(E,sp){
+    const su=E.subjects.find(x=>x.id===sp.subjectId);if(!su)return[];
+    const d=[];
+    demandeurs().forEach(cl=>{const myNeed=partSpec(sp,cl);if(myNeed<=0)return;
+      const usedByMe=countPlaced(sp.id,cl.id);const need=Math.max(0,myNeed-usedByMe);
+      if(need>0)d.push({cls:cl,need,req:myNeed,used:usedByMe})});
+    return d.sort((a,b)=>b.need-a.need);
+  }
+};
+/* --- Modele de couverture : chaque groupe, chaque bloc ouvert, autant
+       d'adultes que le ratio l'exige. N'importe quel adulte fait l'affaire :
+       c'est une garde, pas un cours de musique. --- */
+const BESOINS_COUVERTURE={
+  pourSolveur(E){
+    const specs=ressources().slice();
+    if(!specs.length)return [];
+    const sid=(E.subjects[0]||{}).id||'';
+    const d=[];
+    demandeurs().forEach(cl=>{
+      let need=0;
+      for(let j=1;j<=E.school.cycleDays;j++)tPer().forEach(pr=>{need+=manqueRatio(j,pr.num,cl)});
+      if(need>0)d.push({cid:cl.id,sid,need,specs});
+    });
+    return d;
+  },
+  total(E){
+    let t=0;
+    demandeurs().forEach(cl=>{const k=capaciteDemandeur(cl);
+      for(let j=1;j<=E.school.cycleDays;j++)tPer().forEach(pr=>{if(!creneauFerme(j,pr.num))t+=k})});
+    return t;
+  },
+  pourRessource(E,sp){
+    const d=[];
+    demandeurs().forEach(cl=>{
+      let need=0;
+      for(let j=1;j<=E.school.cycleDays;j++)tPer().forEach(pr=>{need+=manqueRatio(j,pr.num,cl)});
+      if(need>0)d.push({cls:cl,need,req:need,used:0});
+    });
+    return d.sort((a,b)=>b.need-a.need);
+  }
+};
+function specDemand(sp){const l=besoinsGabarit().pourRessource(S,sp);return Array.isArray(l)?l:[]}
 function countPlaced(specId,classId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId&&a.classId===classId)c++})});return c}
 function specTotalPlaced(specId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId)c++})});return c}
 /* Capacite d'un specialiste, en periodes de COURS. Le pourcentage accepte
@@ -1562,7 +1715,10 @@ function canPlace(day,per,sp){
 function checkH(day,per,sid,cid,rid){const v=[];const sp=ressources().find(s=>s.id===sid);if(!sp)return v;
   if(rid){const rm=lieux().find(r=>r.id===rid);if(rm&&getA(day,per).filter(a=>a.roomId===rid&&a.specId!==sid).length>=rm.maxSimultaneous)v.push({type:'room'})}
   if(getA(day,per).some(a=>a.specId===sid))v.push({type:'specBusy'});
-  if(getA(day,per).some(a=>a.classId===cid&&a.specId!==sid))v.push({type:'classBusy'});
+  // Le nombre d'adultes qu'un groupe peut recevoir en meme temps est la
+  // reponse du gabarit. A 1 — l'ecole — c'est exactement l'ancien test.
+  {const cl=demandeurs().find(c=>c.id===cid);
+   if(getA(day,per).filter(a=>a.classId===cid&&a.specId!==sid).length>=capaciteDemandeur(cl))v.push({type:'classBusy'})}
   if(sp.isItinerant&&sp.travelDays?.includes(+day))v.push({type:'itin'});
   if(sp.availDays?.length&&!sp.availDays.includes(+day))v.push({type:'avail'});
   if(sp.amPm==='am'&&!isAM(per))v.push({type:'ampm'});if(sp.amPm==='pm'&&isAM(per))v.push({type:'ampm'});
@@ -1653,6 +1809,9 @@ function renderGrid(){
       // Un creneau ferme se voit meme sans personne selectionnee : sinon on
       // clique dans le vide en se demandant pourquoi rien ne se pose.
       if(creneauFerme(d,p.num))cell.classList.add('ferme');
+      // Un creneau ouvert dont la couverture n'est pas atteinte : un liseré,
+      // pas une alarme. C'est du travail restant, pas une erreur.
+      else if(couvertureTotale()&&demandeurs().some(cl=>manqueRatio(d,p.num,cl)>0))cell.classList.add('sous-ratio');
       if(sp){if(canPlace(d,p.num,sp)&&!assigns.some(a=>a.specId===sp.id))cell.classList.add('can-drop');else if(!assigns.some(a=>a.specId===sp.id))cell.classList.add('cant-drop')}
       let hrd=false,sft=false;assigns.forEach(a=>{if(checkH(d,p.num,a.specId,a.classId,a.roomId).filter(v=>v.type!=='specBusy').length)hrd=true;if(checkS(d,p.num,a.specId,a.classId).length)sft=true});
       const rc={};assigns.forEach(a=>{if(a.roomId)rc[a.roomId]=(rc[a.roomId]||0)+1});Object.entries(rc).forEach(([rid,cnt])=>{const rm=lieux().find(r=>r.id===rid);if(rm&&cnt>rm.maxSimultaneous)hrd=true});
@@ -1711,14 +1870,14 @@ function cellClick(day,per){
   if(getA(day,per).some(a=>a.specId===sp.id)){removeA(day,per,sp.id);renderAll();return}
   const demand=specDemand(sp);
   if(!demand.length){toast('✅ '+sp.shortName+' — complet!');return}
-  if(demand.length===1){const cl=demand[0].cls;if(getA(day,per).some(a=>a.classId===cl.id)){toast('❌ '+cl.group+' '+t('busy'));return}
+  if(demand.length===1){const cl=demand[0].cls;if(getA(day,per).filter(a=>a.classId===cl.id).length>=capaciteDemandeur(cl)){toast('❌ '+cl.group+' '+t('busy'));return}
     setA(day,per,sp.id,cl.id,sp.roomId||'');renderAll();return}
   showClassPicker(day,per,sp,demand);
 }
 
 function showClassPicker(day,per,sp,demand){
   closeModals();const ov=document.createElement('div');ov.className='modal';
-  let btns=demand.map(d=>{const busy=getA(day,per).some(a=>a.classId===d.cls.id);
+  let btns=demand.map(d=>{const busy=getA(day,per).filter(a=>a.classId===d.cls.id).length>=capaciteDemandeur(d.cls);
     return`<button class="cp-btn" ${busy?'disabled':''} data-cid="${d.cls.id}" style="border-left:6px solid ${groupColor(d.cls.id)};background:${groupColor(d.cls.id)}20"><span style="font-weight:700;font-size:1.2em">${d.cls.group}</span><span class="cp-need">${d.need} ${t('remaining')}</span></button>`}).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:400px"><h3>${t('selectClassFor')} ${sp.shortName}</h3><div class="class-picker">${btns}</div><div class="macts"><button class="btn o" onclick="closeModals()">${t('cancel')}</button></div></div>`;
   document.body.appendChild(ov);
@@ -1742,7 +1901,11 @@ function openQuickAssign(day,per){
 // PROGRESS
 function updateProgress(){const placed=totalA(),needed=totalNeeded();const pct=needed?Math.round((placed/needed)*100):0;
   document.getElementById('progLabel').textContent=`${placed} / ${needed} ${t('coursesPlaced')}`;
-  document.getElementById('progBar').style.width=Math.min(100,pct)+'%';document.getElementById('progPct').textContent=pct+'%'}
+  document.getElementById('progBar').style.width=Math.min(100,pct)+'%';document.getElementById('progPct').textContent=pct+'%';
+  // La couverture n'est pas une faute : c'est ce qui reste a faire. On la
+  // compte et on la montre, on ne l'interdit pas.
+  const pr=document.getElementById('pillR');
+  if(pr){const m=manqueTotal();pr.textContent='👶 '+m;pr.style.display=m?'':'none';pr.title=t('ratioManque')}}
 
 // VALIDATION
 function validateAll(){let hc=0,sc=0;
@@ -1893,7 +2056,12 @@ function useTemplate(){
     {id:uid(),name:'Prof. anglais',shortName:'ANG',subjectId:'ang',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#81D4FA'},
     {id:uid(),name:'Prof. art dramatique',shortName:'DRA',subjectId:'dram',taskPercent:100,isItinerant:false,travelDays:[],roomId:artR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#F48FB1'},
     {id:uid(),name:'Prof. ethique',shortName:'ECR',subjectId:'ecr',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#A5D6A7'}];
-  S.assignments={};save();const h=document.getElementById('heroSection');if(h)h.classList.add('hidden');renderAll();toast('✅ '+t('tplFait'))}
+  S.assignments={};
+  // Le modele doit rendre un etat DEJA migre : sinon il lui manque les
+  // champs ajoutes depuis, et un simple rechargement les fait apparaitre —
+  // deux etats pour un meme horaire.
+  migrer();
+  save();const h=document.getElementById('heroSection');if(h)h.classList.add('hidden');renderAll();toast('✅ '+t('tplFait'))}
 
 // MODALS
 function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.remove())}
@@ -1908,6 +2076,7 @@ function openSetupModal(){
     <div class="fr"><label>${t('schoolName')}</label><input type="text" id="sN" value="${S.school.name}" style="flex:1"></div>
     <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,7,8,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
     <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||tache100Defaut()}" min="1" max="200" step="1" style="width:70px" oninput="const e=document.getElementById('sT100Note');if(e)e.textContent=t('tache100Manuel')"><button type="button" class="btn o sm" id="sT100R" title="${t('tache100Auto')}">↺</button> <small id="sT100Note" style="color:var(--muted);font-family:var(--f-note);font-size:14px">${S.school.tache100Manuel?t('tache100Manuel'):t('tache100Auto')}</small> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
+    ${couvertureTotale()?`<div class="fr"><label>${t('ratio')}</label><input type="number" id="sRa" value="${S.school.ratio||0}" min="0" max="60" style="width:60px"> <small style="color:var(--muted);font-family:var(--f-note);font-size:15px">${t('ratioAide')}</small></div>`:''}
     ${tPer().some(x=>x.pedago)?`<div class="fr"><label>${t('joursPedago')}</label><div class="zgm-mini">${Array.from({length:S.school.cycleDays},(_,i)=>i+1).map(d=>`<button type="button" aria-pressed="${estJourPedago(d)?'true':'false'}" onclick="basculerJourPedago(${d})">${d}</button>`).join('')}</div></div>`:''}
     <div class="fr"><label>${t('avantP1')}</label><input type="checkbox" id="sAv" ${S.school.avantP1?'checked':''}> <small style="color:var(--muted);font-family:var(--f-note);font-size:15px">${t('avantP1Aide')}</small></div>
     <div class="fr"><label>${t('quotaMode')}</label><select id="sQM"><option value="periods" ${S.school.quotaMode==='periods'?'selected':''}>${t('quotaPeriods')}</option><option value="minutes" ${S.school.quotaMode==='minutes'?'selected':''}>${t('quotaMinutes')}</option></select></div>
@@ -1939,6 +2108,7 @@ function openSetupModal(){
     if(nSaisi&&nSaisi!==tache100Defaut())S.school.tache100Manuel=true;
     S.school.tache100=S.school.tache100Manuel?nSaisi:tache100Defaut();S.school.quotaMode=document.getElementById('sQM').value;
     S.school.avantP1=document.getElementById('sAv').checked;
+    {const ra=document.getElementById('sRa');if(ra)S.school.ratio=Math.max(0,+ra.value||0)}
     ov.querySelectorAll('[data-pi]').forEach(inp=>{const i=+inp.dataset.pi;S.school.periods[i][inp.dataset.field]=inp.value});
     ov.querySelectorAll('[data-si]').forEach(inp=>{const i=+inp.dataset.si;if(inp.dataset.sf)S.subjects[i][inp.dataset.sf]=inp.value;if(inp.dataset.sl)S.subjects[i].min[inp.dataset.sl]=+inp.value});
     save();closeModals();renderAll()};
@@ -1980,8 +2150,8 @@ function editSpec(idx){
 
 function openClassesModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
-  let rows=demandeurs().map((cl,i)=>`<tr><td><select onchange="S.classes[${i}].level=this.value;save()" style="padding:4px;border:1px solid #ddd;border-radius:4px">${['pres','1','2','3','4','5','6'].map(l=>`<option value="${l}" ${cl.level===l?'selected':''}>${l==='pres'?t('presco'):l+'e'}</option>`).join('')}</select></td><td><input type="text" value="${cl.group}" style="width:55px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:700" onchange="S.classes[${i}].group=this.value;save()"></td><td><input type="text" value="${cl.titulaire||''}" style="width:120px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.classes[${i}].titulaire=this.value;save()"></td><td><button class="btn r sm" onclick="S.classes.splice(${i},1);save();closeModals();openClassesModal()">✕</button></td></tr>`).join('');
-  ov.innerHTML=`<div class="mbox" style="max-width:520px"><h3>🎓 Classes</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('classLevel')}</th><th>${t('classGroup')}</th><th>${t('classTitulaire')}</th><th></th></tr></thead><tbody>${rows||`<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:16px">${t('noClass')}</td></tr>`}</tbody></table></div>
+  let rows=demandeurs().map((cl,i)=>`<tr><td><select onchange="S.classes[${i}].level=this.value;save()" style="padding:4px;border:1px solid #ddd;border-radius:4px">${['pres','1','2','3','4','5','6'].map(l=>`<option value="${l}" ${cl.level===l?'selected':''}>${l==='pres'?t('presco'):l+'e'}</option>`).join('')}</select></td><td><input type="text" value="${cl.group}" style="width:55px;border:1px solid #ddd;border-radius:4px;padding:4px;font-weight:700" onchange="S.classes[${i}].group=this.value;save()"></td><td><input type="text" value="${cl.titulaire||''}" style="width:120px;border:1px solid #ddd;border-radius:4px;padding:4px" onchange="S.classes[${i}].titulaire=this.value;save()"></td>${couvertureTotale()?`<td><input type="number" min="0" max="200" value="${cl.effectif||0}" style="width:55px;border:1px solid #ddd;border-radius:4px;padding:4px;text-align:center" onchange="S.classes[${i}].effectif=+this.value;save();renderAll()"> <small style="color:var(--muted)">→ ${capaciteDemandeur(cl)}</small></td>`:''}<td><button class="btn r sm" onclick="S.classes.splice(${i},1);save();closeModals();openClassesModal()">✕</button></td></tr>`).join('');
+  ov.innerHTML=`<div class="mbox" style="max-width:520px"><h3>🎓 Classes</h3><div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('classLevel')}</th><th>${t('classGroup')}</th><th>${t('classTitulaire')}</th>${couvertureTotale()?`<th>${t('classEffectif')}</th>`:''}<th></th></tr></thead><tbody>${rows||`<tr><td colspan="${couvertureTotale()?5:4}" style="text-align:center;color:var(--muted);padding:16px">${t('noClass')}</td></tr>`}</tbody></table></div>
   <div class="macts"><button class="btn c" onclick="S.classes.push({id:uid(),level:'1',group:''+(demandeurs().length+1)+'A',titulaire:'',prepQuota:200});save();closeModals();openClassesModal()">+ ${t('add')}</button><button class="btn o" onclick="const d=['MAT','1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B'];const l={MAT:'pres','1A':'1','1B':'1','2A':'2','2B':'2','3A':'3','3B':'3','4A':'4','4B':'4','5A':'5','5B':'5','6A':'6','6B':'6'};d.forEach(g=>{if(!demandeurs().find(c=>c.group===g))S.classes.push({id:uid(),level:l[g],group:g,titulaire:'',prepQuota:200})});save();closeModals();openClassesModal()">📋 ${t('default')}</button><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
@@ -1995,7 +2165,7 @@ function openRoomsModal(){
 // AUTO-FILL
 function solveSchedule(){if(!demandeurs().length||!ressources().length){toast(t('autoAddFirst'));return}
   if(!confirm(t('autoConfirm')))return;const pnums=tPer().map(p=>p.num);let filled=0,rem=0;const demand=[];
-  demandeurs().forEach(cl=>{S.subjects.forEach(su=>{const req=su.min[cl.level]||0;if(req<=0)return;const placed=Math.round(minUsed(cl.id,su.id)/S.school.periodDuration);const need=Math.max(0,reqToPeriods(req)-placed);if(need<=0)return;const specs=ressources().filter(sp=>sp.subjectId===su.id);if(specs.length)demand.push({cid:cl.id,sid:su.id,need,specs})})});
+  besoinsGabarit().pourSolveur(S).forEach(x=>demand.push(x));
   demand.sort((a,b)=>a.specs.length-b.specs.length);
   const nonPlaces=[];
   // Le du de chaque specialiste, calcule UNE fois : il ne bouge pas pendant
@@ -2007,7 +2177,7 @@ function solveSchedule(){if(!demandeurs().length||!ressources().length){toast(t(
   // viennent de la faire bouger.
   const dispo=d.specs.filter(sp=>specTotalPlaced(sp.id)<specMaxPeriods(sp));
   if(!dispo.length){nonPlaces.push({cid:d.cid,sid:d.sid,raison:'cap'});rem++;continue}
-  for(const day of days)for(const per of pnums)for(const sp of dispo){if(checkH(day,per,sp.id,d.cid,sp.roomId||'').length)continue;if(getA(day,per).some(a=>a.specId===sp.id||a.classId===d.cid))continue;
+  for(const day of days)for(const per of pnums)for(const sp of dispo){if(checkH(day,per,sp.id,d.cid,sp.roomId||'').length)continue;if(getA(day,per).some(a=>a.specId===sp.id))continue;
   let dc=0;pnums.forEach(pp=>{if(getA(day,pp).some(a=>a.specId===sp.id))dc++});if(dc>=(sp.maxPerDay||6))continue;
   // On sert d'abord le collegue le PLUS EN RETARD sur son du. Sans ce
   // penchant, l'auto repartissait au hasard entre collegues d'une meme
