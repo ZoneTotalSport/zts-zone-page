@@ -672,7 +672,7 @@ function openRoomsModal(){
 // AUTO-FILL
 function solveSchedule(){if(!S.classes.length||!S.specialists.length){toast(t('autoAddFirst'));return}
   if(!confirm(t('autoConfirm')))return;const pnums=tPer().map(p=>p.num);let filled=0,rem=0;const demand=[];
-  S.classes.forEach(cl=>{S.subjects.forEach(su=>{const req=su.min[cl.level]||0;if(req<=0)return;const u=minUsed(cl.id,su.id);const need=Math.max(0,Math.round((req-u)/S.school.periodDuration));if(need<=0)return;const specs=S.specialists.filter(sp=>sp.subjectId===su.id);if(specs.length)demand.push({cid:cl.id,sid:su.id,need,specs})})});
+  S.classes.forEach(cl=>{S.subjects.forEach(su=>{const req=su.min[cl.level]||0;if(req<=0)return;const placed=Math.round(minUsed(cl.id,su.id)/S.school.periodDuration);const need=Math.max(0,reqToPeriods(req)-placed);if(need<=0)return;const specs=S.specialists.filter(sp=>sp.subjectId===su.id);if(specs.length)demand.push({cid:cl.id,sid:su.id,need,specs})})});
   demand.sort((a,b)=>a.specs.length-b.specs.length);
   demand.forEach(d=>{for(let att=0;att<d.need;att++){let best=null,bs=-Infinity;const days=Array.from({length:S.school.cycleDays},(_,i)=>i+1);shuf(days);
   for(const day of days)for(const per of pnums)for(const sp of d.specs){if(checkH(day,per,sp.id,d.cid,sp.roomId||'').length)continue;if(getA(day,per).some(a=>a.specId===sp.id||a.classId===d.cid))continue;
