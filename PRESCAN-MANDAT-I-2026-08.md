@@ -521,9 +521,14 @@ semaine sur le calendrier scolaire.
 
 ## 9. Risques et questions à trancher
 
+> ✅ **JOEY A TRANCHÉ LE 31 AOÛT.** R-1, R-2, R-3, R-4, Q-1 (volet règles), Q-6 et
+> Q-7 sont réglés — décisions au **§11 du mandat**, résumées sous chaque entrée
+> ci-dessous. Les recommandations d'origine sont conservées telles quelles : elles
+> disent *pourquoi* la décision a été prise.
+
 ### Risques
 
-**R-1 — Le filtre par tags du §B0 ne peut pas être écrit tel quel. (ÉLEVÉ)**
+**R-1 — Le filtre par tags du §B0 ne peut pas être écrit tel quel. (ÉLEVÉ)** ✅ **TRANCHÉ — §11.5** : filtres stricts sur `univers`/`dureeMin`/`ageMin`, couche PFEQ par `intentionsC1/C2/C3`, `espace`/`materiel` en **correspondance texte normalisée**. B4 devient une normalisation de l'existant.
 `espace` et `materiel` sont du texte libre non normalisé (§5.1), `energie` et
 `pfeq` n'existent pas dans le catalogue.
 *Recommandation par défaut* : **filtrer sur ce qui est fiable** — `univers`
@@ -532,7 +537,7 @@ au modèle **comme texte**, dans les fiches élaguées, en le laissant juger. Ne
 **pas** lancer une normalisation du catalogue dans ce mandat : c'est un chantier
 de données, pas une fonction, et le §1 gèle le catalogue.
 
-**R-2 — Créer `zts-ia` en second Worker duplique `zts-generateur`. (ÉLEVÉ)**
+**R-2 — Créer `zts-ia` en second Worker duplique `zts-generateur`. (ÉLEVÉ)** ✅ **TRANCHÉ — §11.1** : **un seul Worker**, on étend `cf-worker/generateur/`. Trois conditions : routes existantes intactes (recette de non-régression en PR), **compteur de quota IA distinct**, nom du Worker inchangé.
 `cf-worker/generateur/` a déjà jeton Firebase, quotas, KV, trois environnements,
 route de production et clé API. Un second Worker = une seconde clé à faire
 tourner, un second quota qui ignore le premier, deux journaux de coût.
@@ -543,7 +548,7 @@ conscient. **Attention** : cela fait porter une nouvelle charge à un Worker
 **déjà en production** pour le générateur de SAÉ et la transcription — donc
 `--env dev` d'abord, et jamais de `deploy` sans `--env` (piège n° 1 du §4).
 
-**R-3 — Les pièces jointes d'incident (C2) tomberaient dans la dette localStorage. (ÉLEVÉ)**
+**R-3 — Les pièces jointes d'incident (C2) tomberaient dans la dette localStorage. (ÉLEVÉ)** ✅ **TRANCHÉ — §11.3** : téléversement **R2** sur le Worker existant, jeton Firebase, chemin cloisonné par `uid`, lecture authentifiée. Le chantier général des pièces jointes reste séparé et **n'est pas un prérequis**.
 Le §C2 dit « pièces jointes via le mécanisme de médias existant ». Or ce
 mécanisme **écrit les octets en localStorage** (Firestore ne garde que le nom) —
 dette explicitement consignée au §1.2 et **hors périmètre de ce mandat**. Une
@@ -554,7 +559,7 @@ l'écran ; les pièces jointes attendent le chantier du pont d'export. Sinon,
 router les pièces d'incident vers **R2** (le Worker `zts-fiches-img` est le
 modèle : jeton Firebase + bucket privé).
 
-**R-4 — Le destinataire de C4 est saisi par l'usager, contrairement au patron du Worker. (MOYEN)**
+**R-4 — Le destinataire de C4 est saisi par l'usager, contrairement au patron du Worker. (MOYEN)** ✅ **TRANCHÉ — §11.4** : C4 vise **la v2**, et le courriel du syndicat est **lu côté serveur** dans les réglages Firestore de l'usager. Jamais dans le corps de la requête.
 `zts-notify-coordo` ne laisse **jamais** le client fournir l'adresse (§1.2). Le
 courriel du syndicat, lui, est saisi dans les RÉGLAGES.
 *Recommandation par défaut* : **v1 en `mailto:` comme le mandat le prévoit**
@@ -577,13 +582,13 @@ n'est pas ajouté (ou le proto servi sur 8765).
 
 | # | Question | Recommandation |
 |---|---|---|
-| Q-1 | Palier Cadenas pour l'IA | **Gratuit connecté = 10/mois** (aligné sur `QUOTA_FREE_MONTH`), anonyme = 0. ⚠ **Question liée, non posée au mandat : les règles de `enfants` laissent le coordonnateur LIRE les champs médicaux de A2. À trancher avant d'écrire A2.** |
+| Q-1 | Palier Cadenas pour l'IA | ⏳ chiffres à confirmer : **gratuit connecté = 10/mois**, anonyme = 0 — mais **compteur distinct** de ceux du générateur (§11.1). ✅ **Le volet « règles de `enfants` » est TRANCHÉ (§11.2)** : sous-document privé `enfants/{id}/prive/sante`, coordonnateur exclu |
 | Q-2 | N fiches de contexte | **8 fiches élaguées** (~3 555 tokens) — §5.3 |
 | Q-3 | Studio Jeu ou HTML→PDF | **HTML→PDF (impression navigateur)** pour A1/A5/C4/D4/D6 : aucune dépendance, imprimable en noir et blanc, et A5 en a besoin de toute façon. Studio Jeu reste pour A7 (diplômes illustrés), **s'il sait déjà le faire** — non vérifié dans ce prescan |
 | Q-4 | Ordre des lots | **Celui du mandat** : A1-A2 → C → D → A3-A7 → B. ⚠ **Mais B0 (le Worker) conditionne tout le lot B** : le trancher tôt (R-2), même si le code vient plus tard |
-| Q-5 | `mailto:` v1 ou canal serveur | **`mailto:` en v1**, comme prévu — malgré la découverte du §1. Le canal serveur existe, mais R-4 doit être réglé d'abord |
-| Q-6 | Bande « Après l'école » ou badge | **BANDE.** Le §8.2 le démontre : `agenda-bas` est hors grille et contient déjà Samedi/Dimanche |
-| Q-7 | Où vivent les restrictions médicales | **Dans `enfants`**, comme le §7 le propose, **mais les règles doivent changer** (voir Q-1) — ou dans une sous-collection owner-only si Joey refuse de toucher aux règles de `enfants` |
+| Q-5 | `mailto:` v1 ou canal serveur | ✅ **TRANCHÉ §11.4 — v2 dès le départ.** R-4 est réglé par la lecture serveur du destinataire, donc la raison d'attendre tombe |
+| Q-6 | Bande « Après l'école » ou badge | ✅ **TRANCHÉ — BANDE.** Le §8.2 le démontre : `agenda-bas` est hors grille et contient déjà Samedi/Dimanche |
+| Q-7 | Où vivent les restrictions médicales | ✅ **TRANCHÉ §11.2 — sous-document privé** `enfants/{id}/prive/sante`, propriétaire seul, coordonnateur exclu. Le picto ⚠️ se calcule côté client depuis ce sous-document, donc il n'apparaît que pour l'enseignant |
 
 ---
 
@@ -592,6 +597,10 @@ n'est pas ajouté (ou le proto servi sur 8765).
 Conformément au §3 du mandat et à l'amendement §10.5 :
 
 - **Aucun code des lots** avant la clôture de **G3-STABILISATION** et **G3-FICHE**.
-- Ce prescan attend le **GO** de Joey sur ses recommandations.
-- Trois décisions bloquent du code : **R-2** (un Worker ou deux), **Q-1/Q-7**
-  (les règles de `enfants`), **R-3** (pièces jointes des incidents).
+- ✅ **Joey a tranché le 31 août** (§11 du mandat) : un seul Worker, sous-document
+  privé pour la santé, R2 pour les pièces d'incident, C4 en v2 à destinataire
+  serveur, ancrage IA sur les champs fiables. **Les trois décisions qui
+  bloquaient du code sont levées.**
+- ⏳ **Restent ouvertes** : les chiffres de quota (Q-1), N fiches (Q-2, recommandé
+  8), Studio Jeu ou HTML→PDF (Q-4), l'ordre des lots (Q-5), et si un événement
+  « fait » génère une ligne d'heures automatiquement (Q-7, second volet).

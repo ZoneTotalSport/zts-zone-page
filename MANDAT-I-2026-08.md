@@ -290,6 +290,12 @@ persévérance), autorisation de sortie (camps, zone signature), mot de bienvenu
 ## 5. Lot B — Couche IA (inspirée de Chalkie)
 
 ### B0 — Worker `zts-ia` (prérequis)
+> ⚠ **AMENDÉ LE 31 AOÛT — voir §11.1 et §11.5.** Le Worker `zts-ia` **n'est pas
+> créé** : les actions ci-dessous s'ajoutent à `cf-worker/generateur/`, avec un
+> **compteur de quota distinct** et une recette de non-régression sur ses routes
+> existantes. Le filtre par tags est amendé au §11.5 (l'égalité stricte sur
+> `espace`/`materiel` est impossible : texte libre).
+
 - Endpoint POST `/generer` avec `{ action, contexte, options }`. Actions : `sae`,
   `remix`, `planb`, `etiqueter`, `tbi`, `message`, `quiz`.
 - Vérifie le jeton Firebase, lit le palier Cadenas, applique un **quota mensuel**
@@ -365,7 +371,7 @@ impliquées (rôle élève/parent/collègue/direction/autre + nom ou initiales) 
 témoins · description factuelle (gabarit « ce qui s'est passé / ce que j'ai fait /
 ce qui a suivi ») · conséquences (aucune / blessure / arrêt de travail /
 déclaration CNESST / rencontre direction) · suivi daté (une ligne par étape) ·
-pièces jointes via le mécanisme de médias existant (donc dans le pont d'export) ·
+pièces jointes ⚠ **AMENDÉ §11.3 : téléversement R2 cloisonné par `uid`, PAS le mécanisme de médias existant** ·
 statut (ouvert / en suivi / clos).
 
 ### C3 — Intégrité (valeur de preuve)
@@ -377,6 +383,9 @@ statut (ouvert / en suivi / clos).
 - Compteur visible : « 14 incidents cette année · 3 ouverts ».
 
 ### C4 — Envoi au syndicat
+> ⚠ **AMENDÉ LE 31 AOÛT — voir §11.4.** Le canal serveur existe et tourne : C4
+> vise **la v2 dès le départ**. Le destinataire est lu **côté serveur** dans les
+> réglages Firestore de l'usager, **jamais reçu dans le corps de la requête**.
 - **RÉGLAGES du module** : courriel du syndicat (+ copie optionnelle), nom du
   délégué, numéro de membre (facultatif), signature, école.
 - **Envoyer maintenant** : PDF sobre (densité travail, noir et blanc lisible) avec
@@ -494,7 +503,11 @@ vers l'IA **sauf le contenu pédagogique du cahier** (exercices, objectifs —
 ## 7. Schémas de données (extensions Firestore, à confirmer au prescan)
 
 ```json
-// eleve (extension — champs AJOUTÉS, aucun champ existant renommé)
+// ⚠ AMENDÉ §11.2 : ces champs NE VONT PAS dans `enfants/{id}` (le coordonnateur
+// peut le lire). Ils vivent dans le sous-document PRIVÉ `enfants/{id}/prive/sante`,
+// règle Firestore propriétaire seul — coordonnateur EXCLU. Le picto ⚠️ se calcule
+// côté client depuis ce sous-document.
+// enfants/{id}/prive/sante
 { "restrictions": "", "allergies": "", "pi": { "actif": false, "note": "" },
   "anniversaire": "MM-JJ", "besoins": "aucun|accompagnement|adaptation|autre" }
 
@@ -575,18 +588,27 @@ exclure).**
 
 ## 9. Questions à trancher au prescan (recommandation ; Joey tranche)
 
-1. Palier Cadenas qui débloque l'IA et quota mensuel par palier.
-2. N fiches de contexte par action (pertinence / coût).
-3. Restrictions médicales : dans la collection élève migrée du Carnet, ou
-   sous-document séparé avec règles Firestore plus strictes ?
-4. Modèles familles : Studio Jeu ou gabarits HTML → PDF dans le Planificateur ?
-5. Ordre définitif : A1-A2 → C → D → A3-A7 → B, ou C et D en worktrees parallèles
-   dès le GO ?
-6. Journal syndical : `mailto:` + PDF (v1) suffit au départ, ou attendre le canal
-   serveur ?
-7. Parascolaire : bande « Après l'école » dans MA SEMAINE (si additive) ou badge
-   seulement ? Et les événements parascolaires comptent-ils dans le compteur
-   d'heures automatiquement (D6) ou seulement sur confirmation ?
+> **État au 31 août, après le prescan.** Le détail des recommandations est au
+> §9 de `PRESCAN-MANDAT-I-2026-08.md` ; les décisions sont au §11.
+
+1. ⏳ **OUVERTE** — palier Cadenas et quota mensuel. Recommandation du prescan :
+   anonyme 0, gratuit connecté 10/mois, payant 150/mois, **compteur propre**
+   (§11.1). Chiffres à confirmer par Joey.
+2. ⏳ **OUVERTE** — N fiches de contexte. Recommandation : **8 fiches élaguées**
+   (~3 555 tokens ; une fiche pleine en fait ~2 400 à elle seule).
+3. ✅ **TRANCHÉE §11.2** — sous-document privé `enfants/{id}/prive/sante`,
+   propriétaire seul.
+4. ⏳ **OUVERTE** — modèles familles. Recommandation : **HTML → PDF** pour
+   A1/A5/C4/D4/D6 ; Studio Jeu seulement pour A7, **s'il sait déjà le faire**
+   (non vérifié).
+5. ⏳ **OUVERTE** — ordre des lots. Recommandation : celui du mandat, mais
+   **une seule session code à la fois sur `proto/g2`** (§10.5), donc pas de
+   worktrees parallèles sans nouvelle décision.
+6. ✅ **TRANCHÉE §11.4** — **v2 dès le départ**, destinataire lu côté serveur.
+7. ✅ **TRANCHÉE (bande)** — le prescan §8.2 le démontre : `agenda-bas` est hors
+   grille et porte déjà Samedi/Dimanche/Commentaires. ⏳ **Le second volet reste
+   OUVERT** : un événement « fait » génère-t-il une ligne d'heures
+   automatiquement (§D4) ou sur confirmation ?
 
 ---
 ---
@@ -595,8 +617,8 @@ exclure).**
 
 Le §1.4 décrit le proto tel qu'il était **avant** le chantier G2/G3/G4 des 29-31
 août. Voici l'état réel, sur la branche **`proto/g2`**, dossier
-`apps/planificateur/proto/` — **quatorze commits d'avance sur `origin/proto/g2`,
-tous NON POUSSÉS.**
+`apps/planificateur/proto/`. ✅ **Tout est poussé** : `origin/proto/g2` = local
+(règle permanente §10.4 : jamais plus de 3 commits d'avance).
 
 **Le §1.4 du mandat est donc périmé sur plusieurs points. Le prescan doit partir
 de CE document, pas du §1.4.**
@@ -729,3 +751,104 @@ MON PARASCOLAIRE existe déjà comme porte de la barre (l'ancien « Mon temps tr
 - AUCUN code des lots avant que les mandats G3-STABILISATION (bug P0 d'affichage au scroll + build G3 réellement servi sur localhost) et G3-FICHE (fiche de cours en 2 modes) soient CLOS : le P0 rend toute validation visuelle de Joey impossible, et la fiche de cours est un point d'ancrage des lots A et B.
 - Une seule session code à la fois sur proto/g2. Au départ de toute session : git status; s'il y a des fichiers modifiés qu'elle n'a pas écrits elle-même → STOP et rapport à Joey.
 - Les « pièges » se réfèrent par TITRE, jamais par numéro (les numérotations divergent entre sessions).
+
+---
+
+## 11. DÉCISIONS POST-PRESCAN — 31 août 2026 (tranchées par Joey)
+
+Prises après lecture de `PRESCAN-MANDAT-I-2026-08.md` (`d1627be6`, scan du SHA
+`8ce14d5c`). **Elles priment sur les §4 à §9 et complètent le §10.**
+
+### 11.1 B0 AMENDÉ — un seul Worker, on étend `zts-generateur`
+**Le Worker `zts-ia` n'est pas créé.** Les actions du §B0 s'ajoutent à
+`cf-worker/generateur/` : nouvelles routes `/generer/*` (ou un champ `action`),
+**mêmes jeton Firebase, mêmes environnements, mêmes KV**. C'est « brancher
+plutôt que recréer ».
+
+**Trois conditions, non négociables :**
+1. **Les routes existantes du générateur restent intactes** — la PR porte une
+   **recette de non-régression** sur elles (génération de SAÉ, transcription,
+   comptes rendus de rencontres).
+2. **Les quotas IA ont leur PROPRE compteur**, distinct de `QUOTA_FREE_MONTH`,
+   `QUOTA_ANON_MONTH`, `QUOTA_MINUTES_JOUR` et `QUOTA_IA_JOUR`. Générer une SAÉ
+   dans le Planificateur ne doit jamais vider le quota du générateur, ni
+   l'inverse. (Le Worker tient déjà quatre compteurs indépendants : suivre ce
+   patron, pas le contourner.)
+3. **Le nom du Worker ne change pas.** `zts-generateur` reste `zts-generateur`.
+
+⚠ **Rappel du prescan §4** : le Worker est **déjà en production**. `--env dev`
+d'abord, et **jamais de `wrangler deploy` sans `--env`** — un déploiement aligne
+le remote sur le fichier au lieu de fusionner, et effacerait routes et crons.
+
+### 11.2 A2 AMENDÉ — les données de santé vivent dans un sous-document privé
+Les champs de A2 (`restrictions`, `allergies`, `pi`, `besoins`) **ne vont PAS**
+dans le document `enfants/{id}`, que le coordonnateur peut lire.
+
+Ils vivent dans un **sous-document séparé** — `enfants/{id}/prive/sante` — dont
+la règle Firestore est **propriétaire seul, personne d'autre, coordonnateur
+inclus**. Patron à copier : `performances` ou `users`, jamais celui des groupes.
+
+Le **picto ⚠️** se calcule **côté client** depuis ce sous-document : il n'apparaît
+donc que pour l'enseignant, ce qui est exactement le comportement voulu. Le
+masquage en mode TBI reste exigé par-dessus.
+
+**Cela tranche la question 3 du §9** : sous-document séparé avec règles plus
+strictes.
+
+### 11.3 C2 AMENDÉ — les pièces jointes d'incident vont dans R2, pas en localStorage
+**Le mécanisme de médias existant est écarté pour le lot C.** Un module à valeur
+de preuve ne stocke pas ses octets dans le navigateur.
+
+Le lot C inclut **un petit téléversement R2** : une route sur le **Worker
+existant** (§11.1), **jeton Firebase vérifié**, **chemin cloisonné par `uid`**,
+**lecture authentifiée seulement**. Modèle : `zts-fiches-img` (bucket privé
+derrière un Worker qui valide le jeton).
+
+C'est la règle « **aucun troisième état** » appliquée au sens fort.
+
+⚠ **Le chantier général des pièces jointes** (glisser-déposer des cases,
+`app-v2.js` + `semaine-grid.js`) **reste séparé et n'est PAS un prérequis** du
+lot C. Les deux ne se croisent pas.
+
+### 11.4 C4 AMENDÉ — v2 dès le départ, et le destinataire ne vient jamais de la requête
+C4 vise **la v2** (envoi serveur avec pièce jointe), puisque le prescan a montré
+que le canal existe et tourne.
+
+**Le patron anti-relais est préservé, sans exception** : le courriel du syndicat
+est **enregistré une fois** dans les réglages Firestore de l'usager ; au moment
+de l'envoi, **le Worker lit le destinataire côté serveur** dans ce document, avec
+le jeton de l'appelant. **Le destinataire ne se trouve JAMAIS dans le corps de la
+requête** — sinon le Worker devient un relais de courriel anonyme.
+
+Cela répond à la question 6 du §9 et au risque **R-4** du prescan.
+
+### 11.5 B0/B4 AMENDÉS — l'ancrage filtre sur ce qui est fiable
+Réponse au risque **R-1** du prescan.
+
+- **Filtres stricts** : `univers`, `dureeMin`, `ageMin`/`ageMax` — les trois
+  champs mesurés fiables.
+- **Couche PFEQ** : `intentionsC1`, `intentionsC2`, `intentionsC3` (remplis à
+  100 % dans les 1439). C'est l'ancrage PFEQ réel du catalogue.
+- **`espace` et `materiel`** : **correspondance texte normalisée, jamais
+  d'égalité stricte.** « Gymnase », « Gymnase ou Extérieur », « Gymnase / Extérieur »
+  et « Gymnase ou terrain extérieur » désignent la même chose.
+- **B4 devient une NORMALISATION de l'existant**, pas un étiquetage à partir de
+  rien : moins cher, moins risqué. Joey valide toujours ligne par ligne, et
+  **rien ne s'écrit automatiquement dans les banques**.
+
+### 11.6 Les deux divergences sont des CLARIFICATIONS, pas des correctifs
+**Aucune correction de données.** Elles sont consignées ici pour que personne ne
+« répare » ce qui n'est pas cassé :
+
+1. **`_data/planification/sdg.json` contient 200 JOURNÉES** de service de garde
+   (`{jour, semaine, jourSem, label, theme, blocs}`), **pas des cours**. Le §1.2
+   les comptait avec les 360 cours ÉP : ce sont **deux corpus distincts**, et
+   l'ancrage IA doit les traiter séparément.
+2. **Le « vocabulaire des tags GELÉ » du §1.1 décrit les MINI-BANQUES**, pas le
+   catalogue de 1439. Dans le catalogue, `materiel` et `espace` sont du texte
+   libre et `energie`/`pfeq` n'existent pas. Les deux énoncés sont vrais, chacun
+   pour son corpus.
+
+### 11.7 Le verrou tient
+**Aucun code des lots** avant la clôture de **G3-STABILISATION** et de
+**G3-FICHE** (§10.5). Ces décisions préparent le travail ; elles ne l'ouvrent pas.
