@@ -348,6 +348,35 @@
     .spec-card .sc-bar{height:7px; background:#e8eef1; border:1.5px solid var(--encre); border-radius:4px; margin-top:6px; overflow:hidden}
     .spec-card .sc-bar div{height:100%; transition:width .2s}
 
+    /* Les deux lignes de comptage, sous le nom du specialiste. Une grille
+       etiquette/valeur : ca reste lisible meme quand un chiffre passe a
+       trois caracteres. */
+    .sc-compte{
+      display:grid; grid-template-columns:auto 1fr auto 1fr; gap:2px 6px;
+      align-items:baseline; margin:6px 0 4px; font-size:12px; color:var(--muted);
+    }
+    .sc-compte b{font-family:var(--f-titre); font-size:14px; color:var(--text); letter-spacing:.3px}
+    .spec-card.sc-plein .sc-compte b{color:#8A6A00}
+    .spec-card.sc-trop  .sc-compte b{color:var(--red)}
+    .spec-card.sc-trop{box-shadow:4px 4px 0 rgba(255,0,97,.45)}
+
+    /* SURVEILLANCES — les bandes de recre, de diner et « Avant P1 ». */
+    .g-brk.avant{background:linear-gradient(180deg,#DDEFF7,#BFE0EE); color:#03323C}
+    .g-brk{flex-direction:column; gap:1px; padding:3px}
+    .g-brk small{font-family:var(--f-note); font-size:13px; font-weight:400; opacity:.75}
+    .g-surv{cursor:pointer; flex-wrap:wrap; align-content:center; transition:.1s}
+    .g-surv:hover{transform:translate(-1px,-1px); box-shadow:4px 4px 0 rgba(0,0,0,.28)}
+    .surv-chip{
+      display:inline-flex; align-items:center; gap:3px;
+      font-family:var(--f-titre); font-size:11.5px; letter-spacing:.3px;
+      background:#fff; color:var(--text); border:2px solid var(--encre); border-radius:6px;
+      padding:2px 5px; box-shadow:1.5px 1.5px 0 rgba(0,0,0,.35); white-space:nowrap;
+    }
+    .surv-chip.surv-alerte{background:var(--orange); color:#3D2400}
+    .surv-chip .x{opacity:.45; padding:0 2px; min-width:18px; text-align:center; cursor:pointer}
+    .surv-chip .x:hover{opacity:1; color:#fff; background:var(--red); border-radius:4px}
+    .surv-vide{color:rgba(8,19,30,.28); font-size:18px; font-weight:300}
+
     .panel .p-section{margin-top:14px; padding-top:12px; border-top:3px solid var(--encre)}
     .panel .p-btn{
       display:flex; align-items:center; gap:9px; width:100%;
@@ -593,7 +622,15 @@
       #zg-print-head b{ font-size:15pt }
       #zg-print-head span{ font-family:var(--f-note); color:#333; font-size:12pt }
     }
-    #zg-print-head{ display:none }
+    #zg-print-head, #zg-recaps{ display:none }
+    @media print{
+      #zg-recaps{ display:block !important; margin-top:8mm; break-inside:avoid }
+      #zg-recaps h4{ font-family:'Quicksand',sans-serif; font-size:12pt; margin:4mm 0 2mm }
+      #zg-recaps table{ width:100%; border-collapse:collapse; font-size:9.5pt }
+      #zg-recaps th{ background:#eee; text-align:left; padding:2px 4px; border:1px solid #999 }
+      #zg-recaps td{ padding:2px 4px; border:1px solid #bbb }
+      #zg-recaps .ecart-fort{ font-weight:800 }
+    }
   </style>
   <!-- ZTS Landing Template -->
   <link rel="stylesheet" href="../../zts-ultra.css">
@@ -722,6 +759,7 @@
       <button class="p-btn" onclick="openSpecModal()"><span>👤</span><span data-t="btnSpecialistes">Spécialistes</span></button>
       <button class="p-btn" onclick="openClassesModal()"><span>🎓</span><span data-t="btnClasses">Classes</span></button>
       <button class="p-btn" onclick="openRoomsModal()"><span>🏛️</span><span data-t="btnLocaux">Locaux</span></button>
+      <button class="p-btn" onclick="ouvrirSurveillantsModal()"><span>👁️</span><span data-t="btnSurveillants">Surveillants</span></button>
     </div>
   </div>
   <div class="grid-area"><div class="grid" id="grid"></div></div>
@@ -730,11 +768,15 @@
     <div id="nextList"></div>
   </div>
 </div>
+
+<!-- Récapitulatifs de pied d'horaire : invisibles à l'écran, imprimés
+     sous la grille. Remplis par construireRecaps() au moment d'imprimer. -->
+<div id="zg-recaps"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 // i18n
 const I={
-fr:{btnAide:'Aide',btnConfig:'Réglages',btnAuto:'Auto',btnValider:'Vérifier',btnImprimer:'Imprimer',btnPlus:'Plus',btnPDF:'PDF',btnExport:'Sauver',btnImport:'Ouvrir',btnVider:'Vider',btnSpecialistes:'Spécialistes',btnClasses:'Classes',btnLocaux:'Locaux',heroEyebrow:'Spécialistes · Primaire',heroBadge4:'🖨️ Impression',heroBadge6:'👥 Team teaching',needPer:'période(s) de plus',tplFait:'13 classes, 7 spécialistes, 6 locaux créés!',exportOk:'Copie enregistrée',importOk:'Horaire rechargé',importErr:'Fichier illisible',importAutre:'Ce fichier ne vient pas de la Grille horaire.',importVersion:'Fichier trop récent pour cette page.',importConfirm:'Remplacer l\'horaire actuel ?',appTitle:'GRILLE HORAIRE',selectSpec:'Sélectionnez',toPlace:'À placer',day:'Jour',recess:'Récré',lunch:'Dîner',remaining:'restant',coursesPlaced:'cours placés',
+fr:{cptCours:'Cours',cptGroupes:'Groupes',capacite:'capacité',tache100Auto:'auto',tache100Manuel:'réglé à la main',raison:'Raison',raisonCapacite:'Capacité atteinte',raisonCreneau:'Aucun créneau libre',autoPartielTitre:'Il reste des cours à placer',avantP1:'Avant P1',avantP1Aide:'ajoute une bande de surveillance en début de journée',survTitre:'Surveillants',survAide:'Les spécialistes sont déjà là. Ajoute les titulaires et le personnel non enseignant qui prennent des surveillances.',survType:'Type',survGerer:'Gérer',survAucun:'Ajoute des surveillants d\'abord.',survConflit:'Cette personne donne un cours au même moment',typ_spec:'spécialiste',typ_titulaire:'titulaire',typ_autre:'SDG / autre',btnSurveillants:'Surveillants',recapTaches:'Récapitulatif des tâches',recapSurv:'Répartition des surveillances',colDu:'Dû',colPlace:'Placé',colEcart:'Écart',colNb:'Nombre',survEcart:'écart de plus d\'une surveillance entre enseignants',btnAide:'Aide',btnConfig:'Réglages',btnAuto:'Auto',btnValider:'Vérifier',btnImprimer:'Imprimer',btnPlus:'Plus',btnPDF:'PDF',btnExport:'Sauver',btnImport:'Ouvrir',btnVider:'Vider',btnSpecialistes:'Spécialistes',btnClasses:'Classes',btnLocaux:'Locaux',heroEyebrow:'Spécialistes · Primaire',heroBadge4:'🖨️ Impression',heroBadge6:'👥 Team teaching',needPer:'période(s) de plus',tplFait:'13 classes, 7 spécialistes, 6 locaux créés!',exportOk:'Copie enregistrée',importOk:'Horaire rechargé',importErr:'Fichier illisible',importAutre:'Ce fichier ne vient pas de la Grille horaire.',importVersion:'Fichier trop récent pour cette page.',importConfirm:'Remplacer l\'horaire actuel ?',appTitle:'GRILLE HORAIRE',selectSpec:'Sélectionnez',toPlace:'À placer',day:'Jour',recess:'Récré',lunch:'Dîner',remaining:'restant',coursesPlaced:'cours placés',
 choose:'— Choisir —',confirm:'OK',close:'Fermer',save:'Sauvegarder',cancel:'Annuler',add:'Ajouter',default:'Défaut',
 specName:'Nom',specCode:'Code',specSubject:'Matière',specTask:'Tâche %',specRoom:'Local',specItinerant:'Itinérant',specTravelDays:'Jours autre école',
 specAllDay:'Toute la journée',specAmOnly:'AM seulement',specPmOnly:'PM seulement',specMaxDay:'Max/jour',specMaxConsec:'Max conséc.',specAvailDays:'Disponibilités',specConstraints:'Contraintes',
@@ -756,7 +798,7 @@ helpTitle:'Comment utiliser<span>la grille horaire</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
 helpValidation:'Validation conflits',helpAutoSave:'Sauvegarde auto',helpGotIt:'Compris!',
 clickToPlace:'Cliquez dans la grille',needsMore:'a besoin de',selectClassFor:'Choisissez le groupe',addClassesFirst:'⚠️ Ajoutez des classes d\'abord!',needMin:'min de plus'},
-en:{btnAide:'Help',btnConfig:'Settings',btnAuto:'Auto',btnValider:'Check',btnImprimer:'Print',btnPlus:'More',btnPDF:'PDF',btnExport:'Save',btnImport:'Open',btnVider:'Clear',btnSpecialistes:'Specialists',btnClasses:'Classes',btnLocaux:'Rooms',heroEyebrow:'Specialists · Elementary',heroBadge4:'🖨️ Printing',heroBadge6:'👥 Team teaching',needPer:'more period(s)',tplFait:'13 classes, 7 specialists, 6 rooms created!',exportOk:'Backup saved',importOk:'Schedule restored',importErr:'Unreadable file',importAutre:'This file is not from the Schedule Grid.',importVersion:'File too recent for this page.',importConfirm:'Replace the current schedule?',appTitle:'SCHEDULE GRID',selectSpec:'Select',toPlace:'To place',day:'Day',recess:'Recess',lunch:'Lunch',remaining:'left',coursesPlaced:'lessons placed',
+en:{cptCours:'Lessons',cptGroupes:'Groups',capacite:'capacity',tache100Auto:'auto',tache100Manuel:'set by hand',raison:'Reason',raisonCapacite:'Capacity reached',raisonCreneau:'No free slot',autoPartielTitre:'Some lessons are still unplaced',avantP1:'Before P1',avantP1Aide:'adds a supervision band at the start of the day',survTitre:'Supervisors',survAide:'Specialists are already listed. Add the homeroom teachers and support staff who take supervision duties.',survType:'Type',survGerer:'Manage',survAucun:'Add supervisors first.',survConflit:'This person teaches at the same time',typ_spec:'specialist',typ_titulaire:'homeroom',typ_autre:'support staff',btnSurveillants:'Supervisors',recapTaches:'Workload summary',recapSurv:'Supervision spread',colDu:'Owed',colPlace:'Placed',colEcart:'Gap',colNb:'Count',survEcart:'more than one duty apart between teachers',btnAide:'Help',btnConfig:'Settings',btnAuto:'Auto',btnValider:'Check',btnImprimer:'Print',btnPlus:'More',btnPDF:'PDF',btnExport:'Save',btnImport:'Open',btnVider:'Clear',btnSpecialistes:'Specialists',btnClasses:'Classes',btnLocaux:'Rooms',heroEyebrow:'Specialists · Elementary',heroBadge4:'🖨️ Printing',heroBadge6:'👥 Team teaching',needPer:'more period(s)',tplFait:'13 classes, 7 specialists, 6 rooms created!',exportOk:'Backup saved',importOk:'Schedule restored',importErr:'Unreadable file',importAutre:'This file is not from the Schedule Grid.',importVersion:'File too recent for this page.',importConfirm:'Replace the current schedule?',appTitle:'SCHEDULE GRID',selectSpec:'Select',toPlace:'To place',day:'Day',recess:'Recess',lunch:'Lunch',remaining:'left',coursesPlaced:'lessons placed',
 choose:'— Choose —',confirm:'OK',close:'Close',save:'Save',cancel:'Cancel',add:'Add',default:'Default',
 specName:'Name',specCode:'Code',specSubject:'Subject',specTask:'Task %',specRoom:'Room',specItinerant:'Itinerant',specTravelDays:'Days at other school',
 specAllDay:'All day',specAmOnly:'AM only',specPmOnly:'PM only',specMaxDay:'Max/day',specMaxConsec:'Max consec.',specAvailDays:'Availability',specConstraints:'Constraints',
@@ -778,7 +820,7 @@ helpTitle:'How to use<span>the schedule grid</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
 helpValidation:'Conflict check',helpAutoSave:'Auto-save',helpGotIt:'Got it!',
 clickToPlace:'Click to place',needsMore:'needs',selectClassFor:'Choose class',addClassesFirst:'⚠️ Add classes first!',needMin:'min more'},
-es:{btnAide:'Ayuda',btnConfig:'Ajustes',btnAuto:'Auto',btnValider:'Revisar',btnImprimer:'Imprimir',btnPlus:'Más',btnPDF:'PDF',btnExport:'Guardar',btnImport:'Abrir',btnVider:'Vaciar',btnSpecialistes:'Especialistas',btnClasses:'Clases',btnLocaux:'Aulas',heroEyebrow:'Especialistas · Primaria',heroBadge4:'🖨️ Impresión',heroBadge6:'👥 Codocencia',needPer:'período(s) más',tplFait:'¡13 clases, 7 especialistas, 6 aulas creados!',exportOk:'Copia guardada',importOk:'Horario restaurado',importErr:'Archivo ilegible',importAutre:'Este archivo no viene del Horario.',importVersion:'Archivo demasiado reciente para esta página.',importConfirm:'¿Reemplazar el horario actual?',appTitle:'HORARIO',selectSpec:'Seleccione',toPlace:'Por colocar',day:'Día',recess:'Recreo',lunch:'Almuerzo',remaining:'restante',coursesPlaced:'clases colocadas',
+es:{cptCours:'Clases',cptGroupes:'Grupos',capacite:'capacidad',tache100Auto:'auto',tache100Manuel:'ajustado a mano',raison:'Motivo',raisonCapacite:'Capacidad alcanzada',raisonCreneau:'Sin franja libre',autoPartielTitre:'Quedan clases por colocar',avantP1:'Antes de P1',avantP1Aide:'añade una franja de vigilancia al inicio del día',survTitre:'Vigilantes',survAide:'Los especialistas ya están. Añade los tutores y el personal no docente que hacen vigilancias.',survType:'Tipo',survGerer:'Gestionar',survAucun:'Añade vigilantes primero.',survConflit:'Esta persona da clase al mismo tiempo',typ_spec:'especialista',typ_titulaire:'tutor',typ_autre:'personal',btnSurveillants:'Vigilantes',recapTaches:'Resumen de cargas',recapSurv:'Reparto de vigilancias',colDu:'Debido',colPlace:'Colocado',colEcart:'Diferencia',colNb:'Número',survEcart:'más de una vigilancia de diferencia entre docentes',btnAide:'Ayuda',btnConfig:'Ajustes',btnAuto:'Auto',btnValider:'Revisar',btnImprimer:'Imprimir',btnPlus:'Más',btnPDF:'PDF',btnExport:'Guardar',btnImport:'Abrir',btnVider:'Vaciar',btnSpecialistes:'Especialistas',btnClasses:'Clases',btnLocaux:'Aulas',heroEyebrow:'Especialistas · Primaria',heroBadge4:'🖨️ Impresión',heroBadge6:'👥 Codocencia',needPer:'período(s) más',tplFait:'¡13 clases, 7 especialistas, 6 aulas creados!',exportOk:'Copia guardada',importOk:'Horario restaurado',importErr:'Archivo ilegible',importAutre:'Este archivo no viene del Horario.',importVersion:'Archivo demasiado reciente para esta página.',importConfirm:'¿Reemplazar el horario actual?',appTitle:'HORARIO',selectSpec:'Seleccione',toPlace:'Por colocar',day:'Día',recess:'Recreo',lunch:'Almuerzo',remaining:'restante',coursesPlaced:'clases colocadas',
 choose:'— Elegir —',confirm:'OK',close:'Cerrar',save:'Guardar',cancel:'Cancelar',add:'Agregar',default:'Defecto',
 specName:'Nombre',specCode:'Código',specSubject:'Materia',specTask:'Tarea %',specRoom:'Aula',specItinerant:'Itinerante',specTravelDays:'Días otra escuela',
 specAllDay:'Todo el día',specAmOnly:'Solo AM',specPmOnly:'Solo PM',specMaxDay:'Máx/día',specMaxConsec:'Máx consec.',specAvailDays:'Disponibilidad',specConstraints:'Restricciones',
@@ -800,7 +842,7 @@ helpTitle:'Cómo usar<span>el horario escolar</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
 helpValidation:'Validación conflictos',helpAutoSave:'Guardado auto',helpGotIt:'¡Entendido!',
 clickToPlace:'Clic para colocar',needsMore:'necesita',selectClassFor:'Elija clase',addClassesFirst:'⚠️ ¡Agregue clases primero!',needMin:'min más'},
-zh:{btnAide:'帮助',btnConfig:'设置',btnAuto:'自动',btnValider:'检查',btnImprimer:'打印',btnPlus:'更多',btnPDF:'PDF',btnExport:'保存',btnImport:'打开',btnVider:'清除',btnSpecialistes:'专科教师',btnClasses:'班级',btnLocaux:'教室',heroEyebrow:'专科教师 · 小学',heroBadge4:'🖨️ 打印',heroBadge6:'👥 协同教学',needPer:'节课',tplFait:'已创建13个班级、7位专科教师、6间教室！',exportOk:'备份已保存',importOk:'课程表已恢复',importErr:'文件无法读取',importAutre:'此文件不是来自课程表。',importVersion:'文件版本过新。',importConfirm:'替换当前课程表？',appTitle:'课程表',selectSpec:'选择',toPlace:'待安排',day:'天',recess:'课间',lunch:'午餐',remaining:'剩余',coursesPlaced:'课程已安排',
+zh:{cptCours:'课时',cptGroupes:'班级',capacite:'容量',tache100Auto:'自动',tache100Manuel:'手动设置',raison:'原因',raisonCapacite:'已达上限',raisonCreneau:'无空闲时段',autoPartielTitre:'仍有课时未安排',avantP1:'第一节课前',avantP1Aide:'在一天开始时增加值班时段',survTitre:'值班人员',survAide:'专科教师已列入。请添加承担值班的班主任和非教学人员。',survType:'类型',survGerer:'管理',survAucun:'请先添加值班人员。',survConflit:'此人同一时间在上课',typ_spec:'专科教师',typ_titulaire:'班主任',typ_autre:'其他人员',btnSurveillants:'值班人员',recapTaches:'工作量汇总',recapSurv:'值班分配',colDu:'应排',colPlace:'已排',colEcart:'差额',colNb:'次数',survEcart:'教师之间相差超过一次值班',btnAide:'帮助',btnConfig:'设置',btnAuto:'自动',btnValider:'检查',btnImprimer:'打印',btnPlus:'更多',btnPDF:'PDF',btnExport:'保存',btnImport:'打开',btnVider:'清除',btnSpecialistes:'专科教师',btnClasses:'班级',btnLocaux:'教室',heroEyebrow:'专科教师 · 小学',heroBadge4:'🖨️ 打印',heroBadge6:'👥 协同教学',needPer:'节课',tplFait:'已创建13个班级、7位专科教师、6间教室！',exportOk:'备份已保存',importOk:'课程表已恢复',importErr:'文件无法读取',importAutre:'此文件不是来自课程表。',importVersion:'文件版本过新。',importConfirm:'替换当前课程表？',appTitle:'课程表',selectSpec:'选择',toPlace:'待安排',day:'天',recess:'课间',lunch:'午餐',remaining:'剩余',coursesPlaced:'课程已安排',
 choose:'— 选择 —',confirm:'确定',close:'关闭',save:'保存',cancel:'取消',add:'添加',default:'默认',
 specName:'姓名',specCode:'代码',specSubject:'科目',specTask:'任务%',specRoom:'教室',specItinerant:'巡回',specTravelDays:'其他学校',
 specAllDay:'全天',specAmOnly:'仅上午',specPmOnly:'仅下午',specMaxDay:'每天最多',specMaxConsec:'最大连续',specAvailDays:'可用天数',specConstraints:'约束',
@@ -837,11 +879,52 @@ const DEF_SUB=[
   {id:'ecr',name:'Éthique',color:'#A5D6A7',roomType:'',min:{pres:0,'1':50,'2':50,'3':50,'4':50,'5':50,'6':50}}
 ];
 let nid=1;function uid(){return'id_'+(nid++)}
-let S={school:{name:'',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',tache100:30,periods:JSON.parse(JSON.stringify(DEF_PER))},subjects:JSON.parse(JSON.stringify(DEF_SUB)),specialists:[],classes:[],rooms:[],assignments:{}};
+let S={school:{name:'',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',tache100:45,tache100Manuel:false,periods:JSON.parse(JSON.stringify(DEF_PER))},subjects:JSON.parse(JSON.stringify(DEF_SUB)),specialists:[],classes:[],rooms:[],assignments:{},surveillants:[],surveillances:{}};
 let lang='fr',activeSpec=null;
 
 function save(){localStorage.setItem('gh2',JSON.stringify(S))}
-function load(){try{const r=localStorage.getItem('gh2');if(r){S=JSON.parse(r);if(!S.assignments)S.assignments={};if(!S.school.quotaMode)S.school.quotaMode='minutes';if(!S.school.periodsPerDay)S.school.periodsPerDay=tPer().length||5;if(!S.school.tache100)S.school.tache100=S.school.cycleDays*(S.school.periodsPerDay||5)}}catch(e){}
+/* =======================================================================
+   MIGRATION DES HORAIRES DEJA ENREGISTRES
+   Une ecole qui a bati son horaire avant cette version doit le retrouver
+   INTACT, augmente des nouveaux champs a leur valeur NEUTRE :
+     `taskPercent` absent   -> 100 % (le comportement d'avant)
+     `surveillants` absent  -> liste vide
+     `surveillances` absent -> aucune
+     creneau sans `id`      -> on lui en pose un, stable et unique.
+   L'id des creneaux est la cle de voute des surveillances : range sous un
+   INDEX de tableau, une surveillance se decalerait des qu'on ajoute une
+   recre en Reglages.
+   ======================================================================= */
+function migrer(){
+  if(!S.school)S.school={};
+  if(!S.assignments)S.assignments={};
+  if(!S.school.quotaMode)S.school.quotaMode='minutes';
+  if(!Array.isArray(S.school.periods))S.school.periods=JSON.parse(JSON.stringify(DEF_PER));
+  if(!S.school.periodsPerDay)S.school.periodsPerDay=tPer().length||5;
+  if(!S.school.tache100)S.school.tache100=tache100Defaut();
+  if(!Array.isArray(S.surveillants))S.surveillants=[];
+  if(!S.surveillances||typeof S.surveillances!=='object')S.surveillances={};
+  (S.specialists||[]).forEach(sp=>{
+    if(sp.taskPercent===undefined||sp.taskPercent===null||isNaN(+sp.taskPercent))sp.taskPercent=100;
+  });
+  assurerIdsCreneaux();
+}
+/* Idempotent, et appele partout ou la journee peut changer : migration,
+   modele, ajout ou retrait d'un creneau, et a chaque rendu par securite.
+   Un creneau qui perdrait son id emporterait ses surveillances avec lui. */
+function assurerIdsCreneaux(){
+  const vus={};
+  (S.school.periods||[]).forEach((pr,i)=>{
+    if(!pr.id||vus[pr.id])pr.id='cr_'+pr.type+'_'+(nid++)+'_'+i;
+    vus[pr.id]=1;
+  });
+}
+/* Capacite d'ecole par defaut : une tache pleine, c'est tout le cycle.
+   Modifiable a la main — des conventions retirent des periodes de la tache. */
+function tache100Defaut(){return (S.school.cycleDays||9)*(S.school.periodsPerDay||tPer().length||5)}
+
+function load(){try{const r=localStorage.getItem('gh2');if(r){S=JSON.parse(r)}}catch(e){}
+  migrer();
   lang=localStorage.getItem('gh_lang')||'fr';const _langSel=document.getElementById('langSel');if(_langSel)_langSel.value=lang;
   [...(S.specialists||[]),...(S.classes||[]),...(S.rooms||[])].forEach(x=>{if(x?.id){const n=parseInt(x.id.replace('id_',''));if(!isNaN(n)&&n>=nid)nid=n+1}})}
 function changeLang(l){lang=l;localStorage.setItem('gh_lang',l);applyI18n();renderAll()}
@@ -890,16 +973,31 @@ function partSpec(sp,cl){
   const total=reqToPeriods(su.min[cl.level]||0);if(total<=0)return 0;
   const peers=S.specialists.filter(s=>s.subjectId===sp.subjectId);
   if(peers.length<=1)return total;
-  const poids=peers.map(p=>p.taskPercent||100);
-  const somme=poids.reduce((a,b)=>a+b,0)||1;
-  let cum=0,prec=0;
-  for(let i=0;i<peers.length;i++){
-    cum+=poids[i];
-    const borne=Math.round(total*cum/somme);
-    if(peers[i].id===sp.id)return borne-prec;
-    prec=borne;
-  }
-  return 0}
+  // Deux exigences, pas une :
+  //  1. EXACTITUDE — la somme des parts des collegues vaut EXACTEMENT le
+  //     besoin de la classe (c'est ce qui manquait avant la PR 2).
+  //  2. EQUILIBRE — deux profs a 100 % se partagent la charge egalement SUR
+  //     L'ENSEMBLE des classes. L'arrondi cumulatif seul donnait toujours le
+  //     reste au meme collegue : 18 periodes pour EPS1 contre 13 pour EPS2
+  //     sur le modele d'ecole, alors que les deux sont a temps plein.
+  //     Mesure le 31 aout 2026.
+  // Methode : plus fort reste, avec ROTATION du departage selon le rang de
+  // la classe — les miettes changent de main, les totaux se rejoignent.
+  const poids=peers.map(x=>{const v=(x.taskPercent===undefined||x.taskPercent===null||isNaN(+x.taskPercent))?100:+x.taskPercent;return v>0?v:0});
+  const somme=poids.reduce((a,b)=>a+b,0);
+  if(somme<=0)return peers[0].id===sp.id?total:0;
+  const exact=poids.map(w=>total*w/somme);
+  const parts=exact.map(v=>Math.floor(v));
+  let reste=total-parts.reduce((a,b)=>a+b,0);
+  const rang=Math.max(0,S.classes.indexOf(cl));
+  const ordre=peers.map((x,i)=>i).sort((a,b)=>{
+    const fa=exact[a]-parts[a],fb=exact[b]-parts[b];
+    if(Math.abs(fb-fa)>1e-9)return fb-fa;
+    return ((a+rang)%peers.length)-((b+rang)%peers.length);
+  });
+  for(let k=0;k<ordre.length&&reste>0;k++,reste--)parts[ordre[k]]++;
+  const moi=peers.findIndex(x=>x.id===sp.id);
+  return moi<0?0:parts[moi]}
 function reqToPeriods(req){return S.school.quotaMode==='periods'?req:Math.ceil(req/S.school.periodDuration)}
 function totalNeeded(){let t=0;S.specialists.forEach(sp=>{S.classes.forEach(cl=>{t+=partSpec(sp,cl)})});return t}
 function specDemand(sp){const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return[];const d=[];
@@ -907,7 +1005,36 @@ function specDemand(sp){const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)
   return d.sort((a,b)=>b.need-a.need)}
 function countPlaced(specId,classId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId&&a.classId===classId)c++})});return c}
 function specTotalPlaced(specId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId)c++})});return c}
-function specMaxPeriods(sp){return Math.round((sp.taskPercent||100)/100*S.school.tache100)}
+/* Capacite d'un specialiste, en periodes de COURS. Le pourcentage accepte
+   le decimal (une tache a 57,5 % existe). Les SURVEILLANCES ne sont jamais
+   comptees ici : elles ont leur propre espace et leur propre compteur. */
+function specMaxPeriods(sp){
+  let pct=(sp.taskPercent===undefined||sp.taskPercent===null||isNaN(+sp.taskPercent))?100:+sp.taskPercent;
+  if(pct<0)pct=0;   // un fichier importe ou un vieil etat peut porter n'importe quoi
+  return Math.max(0,Math.round(pct/100*(S.school.tache100||tache100Defaut())));
+}
+/* Le du : somme des parts de ce specialiste sur toutes les classes. */
+function specDu(sp){let t=0;S.classes.forEach(cl=>{t+=partSpec(sp,cl)});return t}
+/* Groupes distincts ou il a au moins une periode. */
+function specGroupesVus(sp){const vus={};
+  for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(pr=>{
+    getA(d,pr.num).forEach(a=>{if(a.specId===sp.id&&a.classId)vus[a.classId]=1})});
+  return Object.keys(vus).length}
+/* Groupes qu'il doit voir au moins une fois. */
+function specGroupesDus(sp){let c=0;S.classes.forEach(cl=>{if(partSpec(sp,cl)>0)c++});return c}
+/* Un pourcentage lisible : 100 et non 100,0 ; 57,5 et non 57,50. */
+/* La capacite se relit a chaque frappe : « 60 % = 27 pér. / 45 ».
+   Sans ca, on regle un pourcentage a l'aveugle. */
+function majCapacite(){
+  const champ=document.getElementById('eT'),sortie=document.getElementById('eCap');
+  if(!champ||!sortie)return;
+  const pct=parseFloat(String(champ.value).replace(',','.'));
+  const N=S.school.tache100||tache100Defaut();
+  const cap=isNaN(pct)?N:Math.round(Math.max(0,pct)/100*N);
+  sortie.textContent='= '+cap+' pér. / '+N;
+}
+function fmtPct(v){const x=(v===undefined||v===null||isNaN(+v))?100:+v;
+  return (Math.round(x*10)/10).toString().replace('.',',')}
 function specTaskPct(sp){const placed=specTotalPlaced(sp.id);return S.school.tache100?Math.round(placed/S.school.tache100*10000)/100:0}
 function canPlace(day,per,sp){
   if(getA(day,per).some(a=>a.specId===sp.id))return false;
@@ -937,11 +1064,29 @@ function renderPanel(){
   c.innerHTML='';
   S.specialists.forEach(sp=>{
     const su=S.subjects.find(s=>s.id===sp.subjectId);
-    const placed=specTotalPlaced(sp.id);const maxP=specMaxPeriods(sp);const calcPct=specTaskPct(sp);
-    const remaining=Math.max(0,maxP-placed);
+    const placed=specTotalPlaced(sp.id);const maxP=specMaxPeriods(sp);
+    const du=specDu(sp);
+    const gVus=specGroupesVus(sp),gDus=specGroupesDus(sp);
+    const remaining=Math.max(0,du-placed);
     const barPct=maxP?Math.min(100,Math.round(placed/maxP*100)):100;
+    // Jauge : vert tant qu'on est SOUS la capacite, jaune quand elle est
+    // PLEINE, rouge si elle est DEPASSEE. C'est la lecture que la direction
+    // fait en premier.
+    const etat=placed>maxP?'trop':(placed>=maxP?'plein':'sous');
+    const teinte={sous:'linear-gradient(90deg,#3ADCFA,#A3FF00)',
+                  plein:'linear-gradient(90deg,#FFFC00,#FFA200)',
+                  trop:'linear-gradient(90deg,#FF6FA5,#FF0061)'}[etat];
+    const nbSurv=survCompte(sp.id);
     const card=document.createElement('div');card.className='spec-card'+(activeSpec===sp.id?' active':'');
-    card.innerHTML=`<div class="sc-top"><div class="sc-dot" style="background:${sp.color||su?.color||'#ccc'}"></div><span class="sc-name">${sp.shortName}</span><span class="sc-remain">${remaining>0?remaining+' '+t('remaining'):'✅'}</span></div><div class="sc-info">${su?.name||'—'} · ${t('contract')} ${sp.taskPercent}% · <b>${placed}/${maxP}</b> pér. · <b>${calcPct}%</b> ${t('taskCalc')}</div><div class="sc-bar"><div style="width:${barPct}%;background:${barPct>=100?'var(--green)':'var(--cyan)'}"></div></div>`;
+    card.innerHTML=`<div class="sc-top"><div class="sc-dot" style="background:${sp.color||su?.color||'#ccc'}"></div>`
+      +`<span class="sc-name">${sp.shortName}</span>`
+      +`<span class="sc-remain">${remaining>0?remaining+' '+t('remaining'):'✅'}</span></div>`
+      +`<div class="sc-compte"><span>${t('cptCours')}</span><b>${placed} / ${du}</b>`
+      +`<span>${t('cptGroupes')}</span><b>${gVus} / ${gDus}</b>`
+      +(nbSurv?`<span>👁️</span><b>${nbSurv}</b>`:'')+`</div>`
+      +`<div class="sc-info">${su?.name||'—'} · ${fmtPct(sp.taskPercent)} % · ${t('capacite')} ${maxP} pér.</div>`
+      +`<div class="sc-bar" title="${placed} / ${maxP}"><div style="width:${barPct}%;background:${teinte}"></div></div>`;
+    card.classList.add('sc-'+etat);
     card.onclick=()=>{activeSpec=activeSpec===sp.id?null:sp.id;renderPanel();renderGrid();renderNext()};
     c.appendChild(card)});
 }
@@ -970,10 +1115,16 @@ function renderGrid(){
   for(let d=1;d<=cd;d++){hdr=document.createElement('div');hdr.className='g-hdr';hdr.textContent=t('day')+' '+d;hdr.style.gridColumn=''+(d+1);hdr.style.gridRow='1';g.appendChild(hdr)}
   // Rows for periods
   let row=2;
+  // « Avant P1 » : une bande de surveillance en tete de journee, seulement
+  // si l'ecole l'a activee. Son id est fixe, donc les surveillances qui y
+  // sont posees survivent a une desactivation puis reactivation.
+  if(S.school.avantP1){dessinerBande(g,row,cd,SURV_AVANT,'avant',t('avantP1'),'','');row++}
   periods.forEach(p=>{
     if(p.type!=='period'){
-      // break row spans all columns
-      for(let c=0;c<=cd;c++){const brk=document.createElement('div');brk.className='g-brk '+(p.type==='recess'?'rec':'lun');brk.textContent=c===0?(p.type==='recess'?t('recess'):t('lunch')):'';brk.style.gridColumn=''+(c+1);brk.style.gridRow=''+row;g.appendChild(brk)}
+      // Les bandes de recre et de diner etaient inertes : une couleur, rien
+      // d'autre. Elles portent maintenant les surveillances, une case par jour.
+      dessinerBande(g,row,cd,p.id,p.type==='recess'?'rec':'lun',
+        (p.type==='recess'?t('recess'):t('lunch')),p.start,p.end);
       row++;return}
     // Time cell
     const tc=document.createElement('div');tc.className='g-time';tc.innerHTML=`<span>P${p.num}</span><small>${p.start||''}-${p.end||''}</small>`;tc.style.gridColumn='1';tc.style.gridRow=''+row;g.appendChild(tc);
@@ -993,6 +1144,40 @@ function renderGrid(){
       cell.style.gridColumn=''+(d+1);cell.style.gridRow=''+row;
       cell.onclick=()=>cellClick(d,p.num);g.appendChild(cell)}
     row++});
+}
+
+/* Une bande de surveillance : le libelle a gauche, puis une case par jour.
+   Meme geste que pour un cours — clic avec un specialiste actif pour le
+   poser, re-clic pour le retirer, clic a vide pour choisir qui. */
+function dessinerBande(g,row,cd,idCreneau,classe,libelle,debut,fin){
+  const tete=document.createElement('div');
+  tete.className='g-brk '+classe;
+  tete.innerHTML=`<span>${libelle}</span>`+(debut?`<small>${debut}-${fin||''}</small>`:'');
+  tete.style.gridColumn='1';tete.style.gridRow=''+row;g.appendChild(tete);
+  for(let d=1;d<=cd;d++){
+    const cell=document.createElement('div');
+    cell.className='g-brk g-surv '+classe;
+    cell.style.gridColumn=''+(d+1);cell.style.gridRow=''+row;
+    const gens=getSurv(d,idCreneau);
+    if(gens.length){
+      gens.forEach(id=>{
+        const g2=surveillantParId(id);
+        const chip=document.createElement('span');
+        chip.className='surv-chip'+(survConflitCours(d,idCreneau,id)?' surv-alerte':'');
+        chip.innerHTML=`👁️ ${g2?g2.code:'?'}<span class="x" title="${t('close')}">✕</span>`;
+        chip.querySelector('.x').onclick=e=>{e.stopPropagation();toggleSurv(d,idCreneau,id);renderAll()};
+        cell.appendChild(chip)});
+    }else{
+      const vide=document.createElement('span');vide.className='surv-vide';vide.textContent='+';
+      cell.appendChild(vide);
+    }
+    cell.onclick=()=>{
+      // Un specialiste actif se pose directement ; sinon on demande qui.
+      if(activeSpec)  {toggleSurv(d,idCreneau,activeSpec);renderAll()}
+      else ouvrirChoixSurv(d,idCreneau);
+    };
+    g.appendChild(cell);
+  }
 }
 
 function cellClick(day,per){
@@ -1076,7 +1261,11 @@ function showHelp(){
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
 function useTemplate(){
-  S.school={name:'Mon école',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',tache100:30,periods:JSON.parse(JSON.stringify(DEF_PER))};
+  S.school={name:'Mon école',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',periods:JSON.parse(JSON.stringify(DEF_PER))};
+  // Une tache pleine, c'est tout le cycle : 9 jours x 5 periodes = 45.
+  // L'ancienne valeur en dur (30) ne correspondait a aucune journee reelle.
+  S.school.tache100=tache100Defaut();S.school.tache100Manuel=false;
+  assurerIdsCreneaux();
   S.subjects=JSON.parse(JSON.stringify(DEF_SUB)).map(su=>{const m={};Object.entries(su.min).forEach(([l,v])=>{m[l]=Math.ceil(v/50)});return{...su,min:m}});
   S.rooms=[{id:uid(),name:'Gymnase principal',type:'gym',maxSimultaneous:2},{id:uid(),name:'Gymnase secondaire',type:'gym',maxSimultaneous:1},{id:uid(),name:'Plateau extérieur',type:'gym',maxSimultaneous:2},{id:uid(),name:'Piscine / Palestre',type:'gym',maxSimultaneous:1},{id:uid(),name:'Local musique',type:'music',maxSimultaneous:1},{id:uid(),name:'Local art',type:'art',maxSimultaneous:1}];
   const groups=[{g:'MAT',l:'pres'},{g:'1A',l:'1'},{g:'1B',l:'1'},{g:'2A',l:'2'},{g:'2B',l:'2'},{g:'3A',l:'3'},{g:'3B',l:'3'},{g:'4A',l:'4'},{g:'4B',l:'4'},{g:'5A',l:'5'},{g:'5B',l:'5'},{g:'6A',l:'6'},{g:'6B',l:'6'}];
@@ -1103,7 +1292,8 @@ function openSetupModal(){
   ov.innerHTML=`<div class="mbox" style="max-width:720px"><h3>⚙️ ${t('configSchool')}</h3>
     <div class="fr"><label>${t('schoolName')}</label><input type="text" id="sN" value="${S.school.name}" style="flex:1"></div>
     <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,7,8,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
-    <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||30}" min="1" max="100" step="0.5" style="width:65px"> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
+    <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||tache100Defaut()}" min="1" max="200" step="1" style="width:70px" oninput="const e=document.getElementById('sT100Note');if(e)e.textContent=t('tache100Manuel')"><button type="button" class="btn o sm" id="sT100R" title="${t('tache100Auto')}">↺</button> <small id="sT100Note" style="color:var(--muted);font-family:var(--f-note);font-size:14px">${S.school.tache100Manuel?t('tache100Manuel'):t('tache100Auto')}</small> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
+    <div class="fr"><label>${t('avantP1')}</label><input type="checkbox" id="sAv" ${S.school.avantP1?'checked':''}> <small style="color:var(--muted);font-family:var(--f-note);font-size:15px">${t('avantP1Aide')}</small></div>
     <div class="fr"><label>${t('quotaMode')}</label><select id="sQM"><option value="periods" ${S.school.quotaMode==='periods'?'selected':''}>${t('quotaPeriods')}</option><option value="minutes" ${S.school.quotaMode==='minutes'?'selected':''}>${t('quotaMinutes')}</option></select></div>
     <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">⏰ ${t('dayStructure')}</div>
     <div id="sP" style="max-height:200px;overflow-y:auto">${pRows}</div>
@@ -1113,13 +1303,25 @@ function openSetupModal(){
     <button class="btn c sm" style="margin-top:5px" id="aSu">${t('addSubject')}</button>
     <div class="macts"><button class="btn g" id="sSv">💾 ${t('save')}</button><button class="btn o" id="sCl">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);
-  ov.querySelector('#aP').onclick=()=>{S.school.periods.push({type:'period',num:tPer().length+1,start:'',end:''});closeModals();save();openSetupModal()};
-  ov.querySelector('#aR').onclick=()=>{S.school.periods.push({type:'recess',label:'Récré',start:'',end:''});closeModals();save();openSetupModal()};
-  ov.querySelector('#aL').onclick=()=>{S.school.periods.push({type:'lunch',label:'Dîner',start:'',end:''});closeModals();save();openSetupModal()};
+  ov.querySelector('#aP').onclick=()=>{S.school.periods.push({type:'period',num:tPer().length+1,start:'',end:''});assurerIdsCreneaux();closeModals();save();openSetupModal()};
+  ov.querySelector('#aR').onclick=()=>{S.school.periods.push({type:'recess',label:'Récré',start:'',end:''});assurerIdsCreneaux();closeModals();save();openSetupModal()};
+  ov.querySelector('#aL').onclick=()=>{S.school.periods.push({type:'lunch',label:'Dîner',start:'',end:''});assurerIdsCreneaux();closeModals();save();openSetupModal()};
   ov.querySelector('#aSu').onclick=()=>{S.subjects.push({id:'s'+Date.now(),name:'Nouvelle',color:`hsl(${Math.random()*360},60%,65%)`,roomType:'',min:{pres:0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0}});closeModals();save();openSetupModal()};
   ov.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{S.school.periods.splice(+b.dataset.del,1);let n=1;S.school.periods.forEach(p=>{if(p.type==='period')p.num=n++});closeModals();save();openSetupModal()});
   ov.querySelectorAll('[data-delsub]').forEach(b=>b.onclick=()=>{S.subjects.splice(+b.dataset.delsub,1);closeModals();save();openSetupModal()});
-  ov.querySelector('#sSv').onclick=()=>{S.school.name=document.getElementById('sN').value;S.school.cycleDays=+document.getElementById('sC').value;S.school.periodDuration=+document.getElementById('sD').value;S.school.periodsPerDay=+document.getElementById('sPD').value;S.school.tache100=+document.getElementById('sT100').value;S.school.quotaMode=document.getElementById('sQM').value;
+  ov.querySelector('#sT100R').onclick=()=>{
+    S.school.cycleDays=+document.getElementById('sC').value||S.school.cycleDays;
+    S.school.periodsPerDay=+document.getElementById('sPD').value||S.school.periodsPerDay;
+    S.school.tache100Manuel=false;
+    document.getElementById('sT100').value=tache100Defaut();
+    document.getElementById('sT100Note').textContent=t('tache100Auto');
+  };
+  ov.querySelector('#sSv').onclick=()=>{S.school.name=document.getElementById('sN').value;S.school.cycleDays=+document.getElementById('sC').value;S.school.periodDuration=+document.getElementById('sD').value;S.school.periodsPerDay=+document.getElementById('sPD').value;
+    // N suit le cycle TANT QUE l'ecole n'y a pas touche a la main.
+    const nSaisi=+document.getElementById('sT100').value;
+    if(nSaisi&&nSaisi!==tache100Defaut())S.school.tache100Manuel=true;
+    S.school.tache100=S.school.tache100Manuel?nSaisi:tache100Defaut();S.school.quotaMode=document.getElementById('sQM').value;
+    S.school.avantP1=document.getElementById('sAv').checked;
     ov.querySelectorAll('[data-pi]').forEach(inp=>{const i=+inp.dataset.pi;S.school.periods[i][inp.dataset.field]=inp.value});
     ov.querySelectorAll('[data-si]').forEach(inp=>{const i=+inp.dataset.si;if(inp.dataset.sf)S.subjects[i][inp.dataset.sf]=inp.value;if(inp.dataset.sl)S.subjects[i].min[inp.dataset.sl]=+inp.value});
     save();closeModals();renderAll()};
@@ -1138,7 +1340,7 @@ function editSpec(idx){
     <div class="fr"><label>${t('specName')}</label><input type="text" id="eN" value="${sp.name}" style="flex:1"></div>
     <div class="fr"><label>${t('specCode')}</label><input type="text" id="eC" value="${sp.shortName}" style="width:80px"></div>
     <div class="fr"><label>${t('specSubject')}</label><select id="eSu">${S.subjects.map(s=>`<option value="${s.id}" ${s.id===sp.subjectId?'selected':''}>${s.name}</option>`).join('')}</select></div>
-    <div class="fr"><label>${t('specTask')}</label><input type="number" id="eT" value="${sp.taskPercent}" min="10" max="100">% <small style="color:var(--cyan);font-weight:700">= ${specMaxPeriods(sp)} pér. / ${S.school.tache100}</small></div>
+    <div class="fr"><label>${t('specTask')}</label><input type="number" id="eT" value="${sp.taskPercent}" min="0" max="200" step="0.5" oninput="majCapacite()">% <small id="eCap" style="color:var(--ztsp-cyan-dark,#075A6B);font-weight:700">= ${specMaxPeriods(sp)} pér. / ${S.school.tache100||tache100Defaut()}</small></div>
     <div class="fr"><label>${t('specRoom')}</label><select id="eR"><option value="">—</option>${S.rooms.map(r=>`<option value="${r.id}" ${r.id===sp.roomId?'selected':''}>${r.name}</option>`).join('')}</select></div>
     <div class="fr"><label>${t('specItinerant')}</label><input type="checkbox" id="eI" ${sp.isItinerant?'checked':''}></div>
     <div class="fr" id="eTR" style="${sp.isItinerant?'':'display:none'};flex-direction:column;align-items:flex-start"><label>${t('specTravelDays')}</label><div class="chips">${Array.from({length:cd},(_,d)=>{const dn=d+1;return`<div class="ck ${sp.travelDays?.includes(dn)?'on':''}" data-td="${dn}" onclick="this.classList.toggle('on')">J${dn}</div>`}).join('')}</div></div>
@@ -1150,7 +1352,10 @@ function editSpec(idx){
     <div class="macts"><button class="btn g" id="eSv">💾 ${t('save')}</button><button class="btn o" id="eX">${t('cancel')}</button></div></div>`;
   document.body.appendChild(ov);
   ov.querySelector('#eI').onchange=function(){document.getElementById('eTR').style.display=this.checked?'':'none'};
-  ov.querySelector('#eSv').onclick=()=>{sp.name=document.getElementById('eN').value;sp.shortName=document.getElementById('eC').value;sp.subjectId=document.getElementById('eSu').value;sp.taskPercent=+document.getElementById('eT').value;sp.roomId=document.getElementById('eR').value;sp.isItinerant=document.getElementById('eI').checked;sp.amPm=document.getElementById('eAP').value;sp.maxPerDay=+document.getElementById('eMD').value;sp.maxConsecutive=+document.getElementById('eMC').value;
+  majCapacite();
+  ov.querySelector('#eSv').onclick=()=>{sp.name=document.getElementById('eN').value;sp.shortName=document.getElementById('eC').value;sp.subjectId=document.getElementById('eSu').value;
+    const pctSaisi=parseFloat(String(document.getElementById('eT').value).replace(',','.'));
+    sp.taskPercent=isNaN(pctSaisi)?100:Math.max(0,pctSaisi);sp.roomId=document.getElementById('eR').value;sp.isItinerant=document.getElementById('eI').checked;sp.amPm=document.getElementById('eAP').value;sp.maxPerDay=+document.getElementById('eMD').value;sp.maxConsecutive=+document.getElementById('eMC').value;
     sp.travelDays=[];ov.querySelectorAll('[data-td]').forEach(c=>{if(c.classList.contains('on'))sp.travelDays.push(+c.dataset.td)});
     const ac=[...ov.querySelectorAll('[data-ad]')];sp.availDays=ac.every(c=>c.classList.contains('on'))?[]:ac.filter(c=>c.classList.contains('on')).map(c=>+c.dataset.ad);
     const su=S.subjects.find(s=>s.id===sp.subjectId);if(su)sp.color=su.color;save();closeModals();renderAll()};
@@ -1175,12 +1380,53 @@ function solveSchedule(){if(!S.classes.length||!S.specialists.length){toast(t('a
   if(!confirm(t('autoConfirm')))return;const pnums=tPer().map(p=>p.num);let filled=0,rem=0;const demand=[];
   S.classes.forEach(cl=>{S.subjects.forEach(su=>{const req=su.min[cl.level]||0;if(req<=0)return;const placed=Math.round(minUsed(cl.id,su.id)/S.school.periodDuration);const need=Math.max(0,reqToPeriods(req)-placed);if(need<=0)return;const specs=S.specialists.filter(sp=>sp.subjectId===su.id);if(specs.length)demand.push({cid:cl.id,sid:su.id,need,specs})})});
   demand.sort((a,b)=>a.specs.length-b.specs.length);
+  const nonPlaces=[];
+  // Le du de chaque specialiste, calcule UNE fois : il ne bouge pas pendant
+  // la passe, et le recalculer dans la boucle couterait cher.
+  const duParSpec={};S.specialists.forEach(sp=>{duParSpec[sp.id]=specDu(sp)});
   demand.forEach(d=>{for(let att=0;att<d.need;att++){let best=null,bs=-Infinity;const days=Array.from({length:S.school.cycleDays},(_,i)=>i+1);shuf(days);
-  for(const day of days)for(const per of pnums)for(const sp of d.specs){if(checkH(day,per,sp.id,d.cid,sp.roomId||'').length)continue;if(getA(day,per).some(a=>a.specId===sp.id||a.classId===d.cid))continue;
+  // CONTRAINTE DURE : un specialiste ne depasse JAMAIS sa capacite.
+  // Recalculee a CHAQUE tentative : les placements de cette meme passe
+  // viennent de la faire bouger.
+  const dispo=d.specs.filter(sp=>specTotalPlaced(sp.id)<specMaxPeriods(sp));
+  if(!dispo.length){nonPlaces.push({cid:d.cid,sid:d.sid,raison:'cap'});rem++;continue}
+  for(const day of days)for(const per of pnums)for(const sp of dispo){if(checkH(day,per,sp.id,d.cid,sp.roomId||'').length)continue;if(getA(day,per).some(a=>a.specId===sp.id||a.classId===d.cid))continue;
   let dc=0;pnums.forEach(pp=>{if(getA(day,pp).some(a=>a.specId===sp.id))dc++});if(dc>=(sp.maxPerDay||6))continue;
-  const sv=checkS(day,per,sp.id,d.cid);const sc=100-sv.length*20-dc*5+Math.random()*10;if(sc>bs){bs=sc;best={day,per,specId:sp.id,roomId:sp.roomId||''}}}
-  if(best){setA(best.day,best.per,best.specId,d.cid,best.roomId);filled++}else rem++}});
-  renderAll();if(!rem&&filled)toast(`✅ ${filled} ${t('autoSuccess')}`);else if(filled)toast(`⚠️ ${filled} ${t('autoPartial')} ${rem} ${t('autoImpossible')}`);else toast(`❌ ${t('autoFailed')}`)}
+  // On sert d'abord le collegue le PLUS EN RETARD sur son du. Sans ce
+  // penchant, l'auto repartissait au hasard entre collegues d'une meme
+  // matiere : le total tombait juste, mais une carte pouvait afficher
+  // 15/16 et l'autre 16/15. Le compteur par prof devient tenable.
+  const retard=Math.max(0,(duParSpec[sp.id]||0)-specTotalPlaced(sp.id));
+  const sv=checkS(day,per,sp.id,d.cid);
+  const sc=100-sv.length*20-dc*5+retard*12+Math.random()*4;
+  if(sc>bs){bs=sc;best={day,per,specId:sp.id,roomId:sp.roomId||''}}}
+  if(best){setA(best.day,best.per,best.specId,d.cid,best.roomId);filled++}
+  else{nonPlaces.push({cid:d.cid,sid:d.sid,raison:'creneau'});rem++}}});
+  renderAll();
+  if(!rem&&filled)toast(`✅ ${filled} ${t('autoSuccess')}`);
+  else if(rem)montrerNonPlaces(filled,nonPlaces);
+  else toast(`❌ ${t('autoFailed')}`)}
+
+/* Quand l'auto n'a pas tout place, un chiffre ne suffit pas : on dit QUOI et
+   POURQUOI. Les deux raisons n'appellent pas la meme correction — l'une se
+   regle en montant un pourcentage de tache, l'autre en ouvrant un creneau. */
+function montrerNonPlaces(filled,liste){
+  const parCle={};
+  liste.forEach(x=>{const k=x.cid+'|'+x.sid+'|'+x.raison;parCle[k]=(parCle[k]||0)+1});
+  const lignes=Object.keys(parCle).sort().map(k=>{
+    const [cid,sid,raison]=k.split('|');
+    const cl=S.classes.find(c=>c.id===cid),su=S.subjects.find(x=>x.id===sid);
+    return `<tr><td style="font-weight:800">${cl?cl.group:'—'}</td><td>${su?su.name:'—'}</td>`
+      +`<td style="text-align:center;font-family:var(--f-titre)">${parCle[k]}</td>`
+      +`<td>${raison==='cap'?'🚫 '+t('raisonCapacite'):'📅 '+t('raisonCreneau')}</td></tr>`}).join('');
+  closeModals();
+  const ov=document.createElement('div');ov.className='modal';
+  ov.innerHTML=`<div class="mbox"><h3>⚠️ ${t('autoPartielTitre')}</h3>`
+    +`<p style="margin-bottom:12px">✅ ${filled} ${t('autoSuccess')} · <b>${liste.length}</b> ${t('autoImpossible')}</p>`
+    +`<div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('classGroup')}</th><th>${t('specSubject')}</th>`
+    +`<th>${t('remaining')}</th><th>${t('raison')}</th></tr></thead><tbody>${lignes}</tbody></table></div>`
+    +`<div class="macts"><button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
 function clearSchedule(){if(!confirm(`🗑️ ${t('clearConfirm')}`))return;S.assignments={};save();renderAll()}
 function exportPDF(){html2pdf().set({margin:5,filename:'grille_horaire.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a3',orientation:'landscape'}}).from(document.getElementById('grid')).save()}
@@ -1213,6 +1459,56 @@ function basculerPlus(){
    bandeau d'identification : sans lui, une grille imprimee ne dit ni de quelle
    ecole ni de quand elle date.
    ======================================================================= */
+/* =======================================================================
+   RECAPS IMPRIMABLES — en pied d'horaire, jamais a l'ecran
+   Une grille seule ne prouve rien a une direction : elle veut voir, ligne
+   par ligne, qui porte quoi. Deux tableaux, construits au moment d'imprimer.
+   ======================================================================= */
+function construireRecaps(){
+  const hote=document.getElementById('zg-recaps');
+  if(!hote)return;
+  // ---- 1. Les taches ----
+  const lignesT=(S.specialists||[]).map(sp=>{
+    const su=S.subjects.find(x=>x.id===sp.subjectId);
+    const cap=specMaxPeriods(sp),du=specDu(sp),pl=specTotalPlaced(sp.id);
+    const ecart=pl-du;
+    return `<tr><td>${sp.shortName}</td><td>${sp.name||''}</td><td>${su?su.name:'—'}</td>`
+      +`<td style="text-align:right">${fmtPct(sp.taskPercent)} %</td>`
+      +`<td style="text-align:right">${cap}</td>`
+      +`<td style="text-align:right">${du}</td>`
+      +`<td style="text-align:right">${pl}</td>`
+      +`<td style="text-align:right" class="${ecart!==0?'ecart-fort':''}">${ecart>0?'+':''}${ecart}</td></tr>`}).join('');
+
+  // ---- 2. Les surveillances ----
+  const gens=listeSurveillants().map(g=>({...g,nb:survCompte(g.id)}));
+  const avec=gens.filter(g=>g.nb>0);
+  const lignesS=gens.filter(g=>g.nb>0||g.type!=='spec').map(g=>
+    `<tr><td>${g.code}</td><td>${g.nom||''}</td><td>${t('typ_'+g.type)}</td>`
+    +`<td style="text-align:right">${g.nb}</td></tr>`).join('');
+  // Signalement : plus d'une surveillance d'ecart ENTRE ENSEIGNANTS d'un
+  // meme type. On ne compare pas un titulaire a un specialiste — leurs
+  // taches n'ont pas la meme forme.
+  const alertes=[];
+  ['spec','titulaire'].forEach(ty=>{
+    const grp=gens.filter(g=>g.type===ty&&(g.nb>0||ty==='titulaire'));
+    if(grp.length<2)return;
+    const nbs=grp.map(g=>g.nb),mn=Math.min(...nbs),mx=Math.max(...nbs);
+    if(mx-mn>1)alertes.push(`${t('typ_'+ty)} : ${mn} → ${mx} — ${t('survEcart')}`);
+  });
+
+  hote.innerHTML=
+     `<h4>${t('recapTaches')}</h4>`
+    +`<table><thead><tr><th>${t('specCode')}</th><th>${t('specName')}</th><th>${t('specSubject')}</th>`
+    +`<th>${t('specTask')}</th><th>${t('capacite')}</th><th>${t('colDu')}</th>`
+    +`<th>${t('colPlace')}</th><th>${t('colEcart')}</th></tr></thead><tbody>${lignesT}</tbody></table>`
+    +(survTotal()||(S.surveillants||[]).length
+      ? `<h4>${t('recapSurv')}</h4>`
+        +`<table><thead><tr><th>${t('specCode')}</th><th>${t('specName')}</th><th>${t('survType')}</th>`
+        +`<th>${t('colNb')}</th></tr></thead><tbody>${lignesS}</tbody></table>`
+        +(alertes.length?`<p class="ecart-fort">⚠️ ${alertes.join(' · ')}</p>`:'')
+      : '');
+}
+
 function imprimerGrille(){
   if(!S.classes.length){toast(t('addClassesFirst'));return}
   const t0=document.getElementById('zg-print-head');
@@ -1223,6 +1519,7 @@ function imprimerGrille(){
       t('schoolDuration')+' : '+S.school.periodDuration+' · '+
       new Date().toLocaleDateString()+'</span>';
   }
+  construireRecaps();
   window.print();
 }
 
@@ -1232,7 +1529,10 @@ function imprimerGrille(){
    doit pouvoir identifier le fichier sans deviner, des mois plus tard.
    Ne pas changer la forme sans monter VERSION_EXPORT.
    ======================================================================= */
-const VERSION_EXPORT=1;
+/* v2 : ajoute le pourcentage de tache, la capacite d'ecole (N), la liste des
+   surveillants et les surveillances. Un fichier v1 reste lisible — ses champs
+   absents prennent la valeur neutre de la migration. */
+const VERSION_EXPORT=2;
 const FORMAT_EXPORT='zts-grille-horaire-export';
 
 function exporterJSON(){
@@ -1248,7 +1548,9 @@ function exporterJSON(){
       specialists:  (S.specialists||[]).length,
       rooms:        (S.rooms||[]).length,
       subjects:     (S.subjects||[]).length,
-      assignments:  totalA()
+      assignments:  totalA(),
+      surveillants: listeSurveillants().length,
+      surveillances: survTotal()
     },
     lang: lang,
     data: S
@@ -1275,12 +1577,11 @@ function importerJSON(input){
       if(p&&p.format!==FORMAT_EXPORT)throw new Error(t('importAutre'));
       if(p.version>VERSION_EXPORT)throw new Error(t('importVersion'));
       if(!p.data||!p.data.school)throw new Error(t('importErr'));
-      if(totalA()&&!confirm(t('importConfirm')))return;
+      if((totalA()||survTotal())&&!confirm(t('importConfirm')))return;
       S=p.data;
-      if(!S.assignments)S.assignments={};
-      if(!S.school.quotaMode)S.school.quotaMode='periods';
-      if(!S.school.periodsPerDay)S.school.periodsPerDay=tPer().length||5;
-      if(!S.school.tache100)S.school.tache100=S.school.cycleDays*(S.school.periodsPerDay||5);
+      // La migration fait tout le travail, y compris pour un fichier v1 :
+      // % a 100, listes de surveillance vides, ids de creneaux poses.
+      migrer();
       if(p.lang&&I[p.lang]){lang=p.lang;localStorage.setItem('gh_lang',lang);
         const sel=document.getElementById('langSel');if(sel)sel.value=lang}
       save();showWelcome();renderAll();
@@ -1291,7 +1592,168 @@ function importerJSON(input){
   lect.readAsText(f);
 }
 
-function renderAll(){resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
+/* =======================================================================
+   SURVEILLANCES
+   -----------------------------------------------------------------------
+   Une surveillance N'EST PAS un cours. Pas de groupe, pas de local, pas de
+   matiere, et surtout : elle ne consomme JAMAIS une periode du contrat
+   d'enseignement. Si elle en consommait une, le % de tache et les quotas
+   par matiere deviendraient faux — c'est la raison d'etre de cet espace
+   separe.
+
+   Rangement : S.surveillances[jour][idCreneau] = [idSurveillant, ...]
+   L'idCreneau est STABLE (assurerIdsCreneaux). Une surveillance ne se
+   decale donc pas quand on ajoute une recre en Reglages.
+   ======================================================================= */
+const SURV_AVANT = 'cr_avant';   // id fixe du creneau « Avant P1 »
+
+/* La liste effective : les specialistes en font partie D'OFFICE, avec leur
+   PROPRE id — pas de doublon possible. `S.surveillants` ne stocke que les
+   personnes qui ne sont pas specialistes : titulaires et non-enseignants. */
+function listeSurveillants(){
+  if(!Array.isArray(S.surveillants))S.surveillants=[];
+  const l=(S.specialists||[]).map(sp=>({
+    id:sp.id, nom:sp.name, code:sp.shortName, type:'spec', couleur:sp.color||'#9FC3D4'
+  }));
+  (S.surveillants||[]).forEach(x=>{
+    if(l.some(y=>y.id===x.id))return;          // garde-fou anti-doublon
+    l.push({id:x.id,nom:x.nom||x.code||'—',code:x.code||x.nom||'—',
+            type:x.type==='titulaire'?'titulaire':'autre',couleur:'#C4E1EE'});
+  });
+  return l;
+}
+function surveillantParId(id){return listeSurveillants().find(x=>x.id===id)||null}
+
+/* Les creneaux surveillables, dans l'ordre de la journee. */
+function creneauxSurveillance(){
+  const l=[];
+  if(!S.school)return l;
+  if(S.school.avantP1)l.push({id:SURV_AVANT,type:'avant',libelle:t('avantP1')});
+  (S.school.periods||[]).forEach(pr=>{
+    if(pr.type==='recess'||pr.type==='lunch')
+      l.push({id:pr.id,type:pr.type,libelle:pr.type==='recess'?t('recess'):t('lunch'),
+              start:pr.start,end:pr.end});
+  });
+  return l;
+}
+/* Toutes les lectures passent par ici, et elles doivent survivre a un `S`
+   pose sans ces champs — un import, un vieil etat, un script tiers. Un
+   rendu ne doit JAMAIS blanchir sur une structure absente : defaut trouve
+   par le banc de la PR 2 le 31 aout. */
+function getSurv(jour,idCreneau){
+  if(!S.surveillances||typeof S.surveillances!=='object')return [];
+  const j=S.surveillances[jour];
+  return (j&&Array.isArray(j[idCreneau]))?j[idCreneau]:[];
+}
+function toggleSurv(jour,idCreneau,idSurv){
+  if(!S.surveillances||typeof S.surveillances!=='object')S.surveillances={};
+  if(!S.surveillances[jour])S.surveillances[jour]={};
+  const l=S.surveillances[jour][idCreneau]||[];
+  const i=l.indexOf(idSurv);
+  if(i>=0)l.splice(i,1); else l.push(idSurv);
+  S.surveillances[jour][idCreneau]=l;
+  save();
+}
+/* Combien de surveillances pour cette personne, sur tout le cycle. */
+function survCompte(idSurv){
+  let c=0;
+  for(let d=1;d<=S.school.cycleDays;d++)creneauxSurveillance().forEach(cr=>{
+    if(getSurv(d,cr.id).indexOf(idSurv)>=0)c++});
+  return c;
+}
+function survTotal(){
+  let c=0;
+  for(let d=1;d<=S.school.cycleDays;d++)creneauxSurveillance().forEach(cr=>{c+=getSurv(d,cr.id).length});
+  return c;
+}
+/* Un surveillant ne peut pas etre a deux endroits au meme creneau. La
+   structure l'interdit deja (un seul tableau par creneau), mais un dineur
+   peut chevaucher une periode de cours sur certaines grilles : on le dit. */
+function survConflitCours(jour,idCreneau,idSurv){
+  const cr=creneauxSurveillance().find(x=>x.id===idCreneau);
+  if(!cr||!cr.start||!cr.end)return false;
+  return (S.school.periods||[]).some(pr=>{
+    if(pr.type!=='period'||!pr.start||!pr.end)return false;
+    if(!(cr.start<pr.end&&pr.start<cr.end))return false;       // pas de chevauchement horaire
+    return getA(jour,pr.num).some(a=>a.specId===idSurv);
+  });
+}
+
+/* Le choix du surveillant, quand on clique une case de recre ou de diner. */
+function ouvrirChoixSurv(jour,idCreneau){
+  const gens=listeSurveillants();
+  if(!gens.length){toast(t('survAucun'));ouvrirSurveillantsModal();return}
+  const deja=getSurv(jour,idCreneau);
+  const cr=creneauxSurveillance().find(x=>x.id===idCreneau);
+  const rangee=g=>{
+    const on=deja.indexOf(g.id)>=0;
+    const conflit=!on&&survConflitCours(jour,g.id===g.id?idCreneau:idCreneau,g.id);
+    return `<button class="cp-btn" data-sid="${g.id}" ${conflit?'title="'+t('survConflit')+'"':''}>
+      <span>${on?'✅ ':''}${g.code} <small style="font-family:var(--f-corps);font-weight:700;color:var(--muted)">${t('typ_'+g.type)}</small></span>
+      <span class="cp-need">${conflit?'⚠️':''} 👁️ ${survCompte(g.id)}</span></button>`};
+  closeModals();
+  const ov=document.createElement('div');ov.className='modal';
+  ov.innerHTML=`<div class="mbox" style="max-width:520px"><h3>👁️ ${cr?cr.libelle:''} — ${t('day')} ${jour}</h3>
+    <div class="class-picker">${gens.map(rangee).join('')}</div>
+    <div class="macts"><button class="btn o" onclick="ouvrirSurveillantsModal()">👥 ${t('survGerer')}</button>
+      <button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelectorAll('[data-sid]').forEach(b=>b.onclick=()=>{
+    toggleSurv(jour,idCreneau,b.dataset.sid);closeModals();renderAll();ouvrirChoixSurv(jour,idCreneau)});
+  ov.onclick=e=>{if(e.target===ov)closeModals()};
+}
+
+/* La liste des surveillants : specialistes en lecture seule, titulaires et
+   non-enseignants ajoutables et supprimables. */
+function ouvrirSurveillantsModal(){
+  closeModals();
+  const specs=(S.specialists||[]).map(sp=>
+    `<tr><td><span class="cdot" style="background:${sp.color||'#ccc'}"></span>${sp.shortName}</td>
+     <td>${sp.name}</td><td>${t('typ_spec')}</td>
+     <td style="text-align:center;font-family:var(--f-titre)">👁️ ${survCompte(sp.id)}</td><td></td></tr>`).join('');
+  const autres=(S.surveillants||[]).map((x,i)=>
+    `<tr><td><input type="text" value="${x.code||''}" style="width:80px;border:2px solid var(--encre);border-radius:6px;padding:4px" onchange="S.surveillants[${i}].code=this.value;save();renderAll()"></td>
+     <td><input type="text" value="${x.nom||''}" style="width:150px;border:2px solid var(--encre);border-radius:6px;padding:4px" onchange="S.surveillants[${i}].nom=this.value;save();renderAll()"></td>
+     <td><select onchange="S.surveillants[${i}].type=this.value;save();renderAll()" style="padding:4px;border:2px solid var(--encre);border-radius:6px">
+       <option value="titulaire" ${x.type==='titulaire'?'selected':''}>${t('typ_titulaire')}</option>
+       <option value="autre" ${x.type!=='titulaire'?'selected':''}>${t('typ_autre')}</option></select></td>
+     <td style="text-align:center;font-family:var(--f-titre)">👁️ ${survCompte(x.id)}</td>
+     <td><button class="btn r sm" onclick="retirerSurveillant(${i})">✕</button></td></tr>`).join('');
+  const ov=document.createElement('div');ov.className='modal';
+  ov.innerHTML=`<div class="mbox"><h3>👥 ${t('survTitre')}</h3>
+    <p style="color:var(--muted);font-family:var(--f-note);font-size:15px;margin-bottom:10px">${t('survAide')}</p>
+    <div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('specCode')}</th><th>${t('specName')}</th>
+      <th>${t('survType')}</th><th>👁️</th><th></th></tr></thead><tbody>${specs}${autres}</tbody></table></div>
+    <div class="macts">
+      <button class="btn c" onclick="ajouterSurveillant('titulaire')">+ ${t('typ_titulaire')}</button>
+      <button class="btn c" onclick="ajouterSurveillant('autre')">+ ${t('typ_autre')}</button>
+      <button class="btn o" onclick="closeModals()">${t('close')}</button></div></div>`;
+  document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()};
+}
+function ajouterSurveillant(type){
+  S.surveillants.push({id:uid(),code:type==='titulaire'?'Tit.':'SDG',nom:'',type:type});
+  save();closeModals();ouvrirSurveillantsModal();
+}
+/* On retire aussi ses surveillances : laisser des references mortes ferait
+   compter des surveillances au nom de personne. */
+function retirerSurveillant(i){
+  const x=S.surveillants[i];if(!x)return;
+  for(const d in S.surveillances)for(const cr in S.surveillances[d]){
+    S.surveillances[d][cr]=S.surveillances[d][cr].filter(id=>id!==x.id)}
+  S.surveillants.splice(i,1);save();closeModals();ouvrirSurveillantsModal();
+}
+
+/* Filet de securite avant chaque rendu : les structures que la PR 3 a
+   ajoutees doivent exister, quoi qu'il soit arrive a `S` entre-temps. */
+function assurerStructures(){
+  if(!S.school)S.school={};
+  if(!Array.isArray(S.school.periods))S.school.periods=[];
+  if(!S.assignments)S.assignments={};
+  if(!Array.isArray(S.surveillants))S.surveillants=[];
+  if(!S.surveillances||typeof S.surveillances!=='object')S.surveillances={};
+  assurerIdsCreneaux();
+}
+function renderAll(){assurerStructures();resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
 
 document.addEventListener('DOMContentLoaded',()=>{
   load();applyI18n();renderAll();showWelcome();calerSousHeader();
