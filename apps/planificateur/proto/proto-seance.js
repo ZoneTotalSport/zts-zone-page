@@ -1495,24 +1495,12 @@ peindreAgenda = function(){
   _agendaBase();
   peindrePalette();
   const tete=$('#agendaHote .agenda-tete');
-  /* ═════ LA TAILLE, SUR LA GRILLE, EN QUATRE DISTANCES ═════
-     ⚠ ICI VIVAIT LE − / 200 % / +. Il faisait doublon avec les quatre paliers
-     nommés des RÉGLAGES, et il parlait en pourcentages : un prof ne se demande
-     pas « 230 ou 260 ? », il se demande « est-ce que je le lis du fond du
-     gymnase ? ». Les quatre distances sont donc remontées ICI, sur ce qu'elles
-     grossissent, et il n'en reste qu'un jeu dans toute l'app. */
-  if (tete && !tete.querySelector('.ag-tailles')){
-    const z=el('div','ag-tailles');
-    z.appendChild(el('span','lab','TAILLE'));
-    TAILLES.forEach(([v,lab])=>{
-      const b=el('button','mini',lab); b.type='button'; b.dataset.z=v;
-      b.title='Écriture lisible : '+lab.toLowerCase();
-      b.setAttribute('aria-pressed', String(String(zoomActuel())===v));
-      b.addEventListener('click',()=> poserTaille(v));
-      z.appendChild(b);
-    });
-    tete.appendChild(z);
-  }
+  /* ⚠ LES QUATRE BOUTONS DE TAILLE ONT ÉTÉ RETIRÉS D'ICI. Joey, 31 août :
+     « je n'aime pas les boutons pour afficher plus gros, enlève cela ; je veux
+     juste un petit + et − complètement à droite. »
+     Ils sont remplacés par deux petits boutons dans la BARRE DU HAUT, juste
+     avant la roue dentelée — la taille vaut pour toute l'app, pas seulement
+     pour la semaine, et cette ligne-ci n'existe que sur MA SEMAINE. */
   if (tete && !tete.querySelector('[data-libre]')){
     const b=el('button','mini','＋ PÉRIODE LIBRE'); b.type='button'; b.dataset.libre='1';
     b.title='Ajouter une ligne à ma semaine — récupération, surveillance, ce que je veux';

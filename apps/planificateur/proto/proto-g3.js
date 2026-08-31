@@ -194,6 +194,9 @@ function calerLaBarre(){
   else requestAnimationFrame(calerLaBarre);
 }
 calerLaBarre();
+/* les deux boutons de taille naissent avec la barre : on leur dit tout de
+   suite où ils en sont, sinon le − reste actif au premier cran. */
+if (typeof majBoutonsTaille==='function') majBoutonsTaille();
 window.addEventListener('resize', calerLaBarre);
 (function calerApresLaTaille(){
   const base = poserTaille;

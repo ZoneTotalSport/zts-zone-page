@@ -35,9 +35,38 @@ n'en revient pas, on y va).
 aller à tout moment, ils se repeignent à l'arrivée, sinon on lit des jours-cycle
 périmés.
 
-**Chaque porte est un GROS bouton** — icône de 40 px au-dessus de son nom,
-92 px de haut. On ne grossit que `#nav>button` : les ✕, ✎ et pastilles du reste
-de l'app restent minuscules par dessein (piège n° 19 du journal).
+**Chaque porte est un GROS bouton** — icône au-dessus de son nom, 84 px de
+haut. On ne grossit que `#nav>button` : les ✕, ✎ et pastilles du reste de
+l'app restent minuscules par dessein (piège n° 19 du journal).
+
+⚠ **Le coin droit de la barre est UN SEUL BLOC** (`.nav-fin`) : `−`, `+`, puis
+la roue dentelée. Séparés, la taille tenait sur la rangée et la roue débordait —
+elle se retrouvait **seule sur une deuxième rangée**. Groupés, ils voyagent
+ensemble et restent « complètement à droite » à toute largeur.
+⚠ `margin-left:auto` exige que la barre reste en `flex` : en `grid`, `auto` ne
+pousse rien.
+
+### La taille — deux petits boutons, et rien d'autre
+
+⚠ **TROISIÈME ÉTAT DE CETTE COMMANDE, ET C'EST LE BON.** Le 29 août, les quatre
+paliers nommés (De près · En classe · 🏀 GYMNASE · 🏀 FOND DU GYMNASE) ont
+remplacé le `− / 200 % / +` ; le 31, Joey les a vus et refusés : « je n'aime pas
+les boutons pour afficher plus gros, enlève cela ; je veux juste un petit + et −
+complètement à droite. »
+
+Il ne reste donc que **deux petits boutons**, dans le coin droit de la barre,
+qui parcourent l'échelle fine d'un cran par clic :
+`100 · 120 · 145 · 170 · 200 · 230 · 260 · 300`.
+Les huit crans ont toujours eu leur règle CSS — rien n'a été à rétablir.
+
+⚠ **Le pourcentage ne s'affiche plus** : il vit dans l'info-bulle, avec la
+distance de lecture (« actuellement 200 %, lisible du gymnase »). Deux petits
+boutons ne doivent pas redevenir une barre de réglage — c'est tout l'intérêt de
+les avoir remplacés.
+⚠ Ils se **désactivent** aux deux bouts de l'échelle : un bouton qui ne fait
+rien doit le dire.
+⚠ Ils sont dans la BARRE, pas sur la grille : la taille vaut pour toute l'app,
+et la ligne où vivaient les quatre paliers n'existait que sur MA SEMAINE.
 
 La règle qui décide de la place d'une chose : **à quelle fréquence s'en sert-on ?**
 Rien n'a été coupé : ⋯ PLUS mène aux sept écrans, chacun avec son « ← PLUS ».

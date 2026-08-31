@@ -646,13 +646,41 @@ const STYLES_CYCLE = {
    l'on voit ce qu'on grossit.
    ⚠ Les paliers intermédiaires (120, 170, 230, 300) gardent leur règle CSS :
    une saisie déjà enregistrée sur l'un d'eux continue de s'afficher. */
-const TAILLES = [['100','De près'],['145','En classe'],
-                 ['200','🏀 GYMNASE'],['260','🏀 FOND DU GYMNASE']];
+/* ⚠ LES QUATRE PALIERS NOMMÉS ONT ÉTÉ RETIRÉS. Joey les a essayés puis
+   refusés : « je n'aime pas les boutons pour afficher plus gros, enlève cela ;
+   je veux juste un petit + et − complètement à droite. »
+   On revient donc à l'échelle fine — huit crans — parcourue d'un cran par
+   clic. Les huit ont gardé leur règle CSS depuis le début, rien à rétablir.
+   ⚠ Le pourcentage ne s'affiche plus : il vit dans l'info-bulle. Deux petits
+   boutons ne doivent pas redevenir une barre de réglage. */
+const ZOOMS = [100,120,145,170,200,230,260,300];
+const DISTANCES = {100:'de près',120:'de près',145:'en classe',170:'en classe',
+                   200:'du gymnase',230:'du gymnase',260:'du fond du gymnase',
+                   300:'du fond du gymnase'};
 function zoomActuel(){ return parseInt(lire('zoom','200'),10) || 200; }
+function crantTaille(){
+  const v=zoomActuel();
+  let i=ZOOMS.indexOf(v);
+  if (i<0){ i=0; ZOOMS.forEach((z,k)=>{ if (Math.abs(z-v) < Math.abs(ZOOMS[i]-v)) i=k; }); }
+  return i;
+}
 function poserTaille(v){
   ecrire('zoom', String(v));
   appliquerZoom();
   if (typeof peindreAgenda==='function') peindreAgenda();
+  majBoutonsTaille();
+}
+function zoomerTaille(sens){
+  const i=Math.max(0, Math.min(ZOOMS.length-1, crantTaille()+sens));
+  poserTaille(ZOOMS[i]);
+}
+function majBoutonsTaille(){
+  const i=crantTaille(), v=ZOOMS[i];
+  const m=$('#tailleMoins'), p=$('#taillePlus');
+  if (m){ m.disabled = i===0;
+          m.title='Plus petit — actuellement '+v+' %, lisible '+DISTANCES[v]; }
+  if (p){ p.disabled = i===ZOOMS.length-1;
+          p.title='Plus gros — actuellement '+v+' %, lisible '+DISTANCES[v]; }
 }
 function appliquerZoom(){
   const z = lire('zoom','200');
@@ -1059,11 +1087,12 @@ const MENUS = [
   {direct:'e-temps',      ico:'🏅', lab:'MON PARASCOLAIRE'},
   {apps:true,             ico:'🔗', lab:'MES AUTRES APPS'},
   {direct:'e-plus',       ico:'⋯',  lab:'PLUS'},
-  /* ⚠ « La petite roue dentelée réglage dans une petite case complètement à
-     droite de l'écran. » Elle est donc la dernière, sans libellé, poussée par
-     un `margin-left:auto` — ce qui exige que la barre reste en `flex` : en
-     `grid`, `auto` ne pousse rien. */
-  {direct:'e-reglages',   ico:'⚙️', lab:'', roue:true},
+  /* ⚠ LE COIN DROIT EST UN SEUL BLOC. La taille (− +) et la roue dentelée
+     étaient deux enfants séparés de la barre : la première tenait sur la
+     rangée, la seconde débordait, et la roue se retrouvait SEULE sur une
+     deuxième rangée. Groupées, elles voyagent ensemble et restent
+     « complètement à droite » quelle que soit la largeur. */
+  {fin:true},
 ];
 (function barreEnMenus(){
   const n=$('#nav'); if(!n) return;
@@ -1071,6 +1100,24 @@ const MENUS = [
   const fermerTous = sauf => $$('.menu', n).forEach(m=>{ if(m!==sauf) m.dataset.ouvert='0'; });
 
   MENUS.forEach(m=>{
+    if (m.fin){
+      const z=el('div','nav-fin');
+      const moins=el('button','nav-tbtn','−'); moins.type='button';
+      moins.id='tailleMoins'; moins.setAttribute('aria-label','Écriture plus petite');
+      const plus=el('button','nav-tbtn','+'); plus.type='button';
+      plus.id='taillePlus'; plus.setAttribute('aria-label','Écriture plus grosse');
+      moins.addEventListener('click',()=> zoomerTaille(-1));
+      plus.addEventListener('click',()=> zoomerTaille(+1));
+      /* « La petite roue dentelée réglage dans une petite case complètement à
+         droite de l'écran. » Elle ferme la marche. */
+      const roue=el('button','nav-roue'); roue.type='button';
+      roue.dataset.va='e-reglages'; roue.title='Réglages';
+      roue.setAttribute('aria-label','Réglages');
+      roue.appendChild(el('span','ico','⚙️'));
+      roue.addEventListener('click',()=>{ fermerTous(); allerA('e-reglages'); });
+      z.appendChild(moins); z.appendChild(plus); z.appendChild(roue);
+      n.appendChild(z); return;
+    }
     if (m.apps){
       /* le menu déroulant des autres apps : une par ligne, l'une sous l'autre */
       const box=el('div','menu menu--apps'); box.dataset.ouvert='0';
@@ -1101,7 +1148,6 @@ const MENUS = [
     }
     if (m.direct){
       const b=el('button'); b.type='button'; b.dataset.va=m.direct;
-      if (m.roue){ b.classList.add('nav-roue'); b.title='Réglages'; b.setAttribute('aria-label','Réglages'); }
       b.appendChild(el('span','ico', m.ico));
       if (m.lab) b.appendChild(el('span','lab', m.lab));
       b.addEventListener('click',()=>{ fermerTous(); allerA(m.direct); });
