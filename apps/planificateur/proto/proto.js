@@ -617,13 +617,32 @@ function peindreAnnee(){
      se repeint deux fois de suite (visite puis greffe), la seconde jette les
      nœuds de la première, et une référence capturée pointait sur un calendrier
      déjà mis à la poubelle — les hauteurs étaient posées sur du vide. */
-  /* Deux frames, puis un filet. La première laisse proto-g3.js poser ses
-     pastilles, la seconde laisse le navigateur refaire la mise en page une
-     fois qu'elles sont là ; le `setTimeout` rattrape les polices qui finissent
-     de charger après coup — un titre en Luckiest Guy qui arrive en retard
-     change la hauteur des rangées, donc l'alignement. */
+  /* Deux frames, puis DEUX SIGNAUX — pas un délai au hasard.
+     ⚠ Un `setTimeout(…, 250)` ne tenait pas : sur une machine où les polices
+     arrivent plus tard, les rangées étaient mesurées HAUTES (texte de repli),
+     les lignes du calendrier étirées à cette hauteur, puis les rangées
+     rétrécissaient une fois Schoolbell posée — et le calendrier restait long.
+     On écoute donc ce qui change vraiment : la fin du chargement des polices,
+     et toute variation de hauteur des rangées elles-mêmes. */
   requestAnimationFrame(()=> requestAnimationFrame(alignerToutAnnee));
-  setTimeout(alignerToutAnnee, 250);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignerToutAnnee);
+  observerLesRangees();
+}
+
+/* Un seul observateur pour toute la vue, reposé à chaque peinture. Il regarde
+   les RANGÉES ; alignerAnnee() ne touche qu'aux lignes du tableau, donc il ne
+   se réveille pas lui-même. Le rAF évite l'avertissement « ResizeObserver loop »
+   quand plusieurs rangées bougent dans la même frame. */
+let obsAnnee = null, obsEnAttente = false;
+function observerLesRangees(){
+  if (typeof ResizeObserver !== 'function') return;
+  if (obsAnnee) obsAnnee.disconnect();
+  obsAnnee = new ResizeObserver(()=>{
+    if (obsEnAttente) return;
+    obsEnAttente = true;
+    requestAnimationFrame(()=>{ obsEnAttente = false; alignerToutAnnee(); });
+  });
+  $$('#anneeHote .annee-row[data-sem]').forEach(r=> obsAnnee.observe(r));
 }
 
 function alignerToutAnnee(){
