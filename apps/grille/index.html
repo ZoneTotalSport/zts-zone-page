@@ -1162,10 +1162,11 @@ function save(){localStorage.setItem('gh2',JSON.stringify(S))}
    fournit. Un horaire enregistre avant cette version ouvre en mode Ecole et
    ne voit AUCUNE difference : memes champs, memes valeurs, meme rendu.
 
-   Un gabarit declarera sept points (ressources, demandeurs, lieux, creneaux,
-   capacite, hors-cours, contrainte propre). A cette etape, seuls les trois
-   premiers existent, et seul `ep` est declare. Service de garde et Camp de
-   jour viennent aux etapes suivantes, sans que le moteur bouge.
+   Un gabarit declare sept points (ressources, demandeurs, lieux, creneaux,
+   capacite, hors-cours, contrainte propre). CINQ existent : les trois
+   accesseurs depuis l'etape 1, la capacite et la contrainte propre depuis
+   l'etape 3. Restent les creneaux et le hors-cours, aux etapes suivantes —
+   sans que le moteur bouge.
 
    ⚠ Valeurs de `metier` : 'ep' / 'sdg' / 'camp'. JAMAIS 'eps' — le bug connu
    de studio-jeu. Et 'camp', pas 'cdj' : c'est ce qu'attendent shared/zts et
@@ -1183,20 +1184,31 @@ const GABARITS={
     // renommage : la meme donnee, lue par un autre chemin.
     ressources: E=>E.specialists,
     demandeurs: E=>E.classes,
-    lieux:      E=>E.rooms
+    lieux:      E=>E.rooms,
+    /* Etape 3 : les deux points d'extension. Les trois metiers repondent
+       encore LA MEME CHOSE — c'est ce qui rend l'etape verifiable : rien ne
+       change a l'ecran, et les 241 tests le prouvent. */
+    capacite:         capaciteEcole,
+    contraintesDures: aucuneContrainte
   },
-  /* Etape 2 : les deux autres metiers EXISTENT — ils ont leur personnage et
-     leurs mots — mais ils lisent encore les memes champs que l'ecole. C'est
-     voulu : le moteur ne bouge pas d'une ligne a cette etape. Leurs regles
-     propres (ratio, capacite, contrainte dure) arrivent aux etapes 3 et 4,
-     par les deux points d'extension, pas par une refonte. */
+  /* Les deux autres metiers ont leur personnage, leurs mots, et depuis
+     l'etape 3 leurs deux points d'extension — qu'ils remplissent encore avec
+     les reponses de l'ecole. C'est a l'etape 4 qu'ils y mettront les leurs :
+     ratio d'encadrement, plafond quotidien, jeux de depart. Le solveur, lui,
+     n'aura pas a bouger : il pose les questions, il ne connait pas les
+     reponses. */
   sdg:{
     id:'sdg',
     perso:'perso-sdg',
     mots: MOTS.sdg,
     ressources: E=>E.specialists,
     demandeurs: E=>E.classes,
-    lieux:      E=>E.rooms
+    lieux:      E=>E.rooms,
+    /* Etape 3 : les deux points d'extension. Les trois metiers repondent
+       encore LA MEME CHOSE — c'est ce qui rend l'etape verifiable : rien ne
+       change a l'ecran, et les 241 tests le prouvent. */
+    capacite:         capaciteEcole,
+    contraintesDures: aucuneContrainte
   },
   camp:{
     id:'camp',
@@ -1204,7 +1216,12 @@ const GABARITS={
     mots: MOTS.camp,
     ressources: E=>E.specialists,
     demandeurs: E=>E.classes,
-    lieux:      E=>E.rooms
+    lieux:      E=>E.rooms,
+    /* Etape 3 : les deux points d'extension. Les trois metiers repondent
+       encore LA MEME CHOSE — c'est ce qui rend l'etape verifiable : rien ne
+       change a l'ecran, et les 241 tests le prouvent. */
+    capacite:         capaciteEcole,
+    contraintesDures: aucuneContrainte
   }
 };
 /* Le gabarit actif. Un etat sans `metier` — donc tout horaire d'avant — est
@@ -1216,6 +1233,61 @@ function gabarit(){return GABARITS[S.metier]||GABARITS.ep}
 function ressources(){const l=gabarit().ressources(S);return Array.isArray(l)?l:[]}
 function demandeurs(){const l=gabarit().demandeurs(S);return Array.isArray(l)?l:[]}
 function lieux(){const l=gabarit().lieux(S);return Array.isArray(l)?l:[]}
+
+/* =======================================================================
+   LES DEUX POINTS D'EXTENSION DU MOTEUR
+   -----------------------------------------------------------------------
+   Etape 3. Le solveur ne change pas de forme : il pose deux QUESTIONS de
+   plus au gabarit, au lieu de porter lui-meme des regles d'ecole.
+
+   1) « Combien cette personne peut-elle en prendre ? »  -> capacite()
+   2) « Cette case-la est-elle interdite chez toi ? »    -> contraintesDures()
+
+   L'ecole repond exactement ce qu'elle repondait avant, ce qui rend
+   l'etape verifiable : les 241 tests passent sans etre touches. Le service
+   de garde et le camp repondront autre chose a l'etape 4 — un ratio, un
+   plafond quotidien — sans qu'une ligne du solveur bouge.
+   ======================================================================= */
+
+/* La regle d'ecole, mot pour mot celle d'avant : un pourcentage de tache
+   applique au plafond du cycle. Elle porte maintenant un nom, parce qu'un
+   autre metier va en poser une differente a cote. */
+function capaciteEcole(E,sp){
+  let pct=(!sp||sp.taskPercent===undefined||sp.taskPercent===null||isNaN(+sp.taskPercent))?100:+sp.taskPercent;
+  if(pct<0)pct=0;   // un fichier importe ou un vieil etat peut porter n'importe quoi
+  return Math.max(0,Math.round(pct/100*((E.school&&E.school.tache100)||tache100Defaut())));
+}
+/* Le plafond du gabarit actif, TOUJOURS un entier positif. Un gabarit qui
+   rendrait NaN ferait disparaitre toute limite — et la contrainte dure de
+   la PR 3 avec elle. On retombe alors sur la regle d'ecole plutot que sur
+   « pas de plafond ». */
+function capacite(sp){
+  const f=gabarit().capacite;
+  const v=(typeof f==='function')?f(S,sp):capaciteEcole(S,sp);
+  const nb=Math.round(+v);
+  return (isNaN(nb)||nb<0)?0:nb;
+}
+
+/* Les regles dures COMMUNES — local plein, personne deja prise, groupe deja
+   pris, itinerance, disponibilites, AM/PM — restent dans checkH : elles
+   valent pour les trois metiers. Un gabarit ajoute les SIENNES ici.
+
+   Le contexte porte `cl:null` quand l'appelant ne sait pas encore quel
+   groupe ira dans la case (le survol d'une case vide, par exemple). Une
+   regle qui a besoin du groupe doit donc le tester et ne rien dire quand il
+   manque, sinon elle interdirait la grille entiere.
+
+   Une regle qui leve une exception ne doit pas figer l'horaire de quelqu'un :
+   on la traite comme silencieuse. Les regles reelles arrivent a l'etape 4,
+   avec leurs tests. */
+function aucuneContrainte(){return []}
+function contraintesDures(ctx){
+  const f=gabarit().contraintesDures;
+  if(typeof f!=='function')return [];
+  let v;
+  try{v=f(S,ctx)}catch(e){return []}
+  return Array.isArray(v)?v.filter(x=>x&&x.type):[];
+}
 
 /* =======================================================================
    MIGRATION DES HORAIRES DEJA ENREGISTRES
