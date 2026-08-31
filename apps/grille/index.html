@@ -243,6 +243,57 @@
     .zgm-mini button[aria-pressed="true"]{background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00}
     .zgm-mini button:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
 
+    /* ======================================================================
+       ECRAN DE CHOIX DU METIER — trois cartes, le langage des tuiles de
+       l'accueil : bordure noire epaisse, ombre portee dure, coins arrondis.
+
+       Il NE REMPLACE PAS le hero, il le precede. Un premier passage lit donc
+       « pour qui » puis « ce que ca fait » ; une ecole qui a deja son horaire
+       ne voit ni l'un ni l'autre. C'est aussi ce qui garde le demarrage
+       identique a celui de la PR 2 : le hero reste le hero.
+       ====================================================================== */
+    .zg-metier{padding:14px 16px 2px; text-align:center}
+    .zg-metier[hidden]{display:none}
+    .zgm-titre{
+      font-family:var(--f-display); font-size:clamp(23px,3.4vw,38px); line-height:1;
+      letter-spacing:1px; color:#fff; margin:0 0 16px;
+      text-shadow:var(--ombre-titre), var(--trait-noir);
+    }
+    .zgm-cartes{display:flex; gap:16px; flex-wrap:wrap; justify-content:center; max-width:1000px; margin:0 auto}
+    .zgm-carte{
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      width:min(290px,86vw); padding:14px 14px 16px; cursor:pointer; text-align:center;
+      border:3px solid var(--encre); border-radius:var(--r-card);
+      background:var(--card); color:var(--text);
+      box-shadow:var(--ombre-carte); transition:.1s;
+    }
+    /* Le personnage flotte comme dans le hero : c'est le meme geste, donc le
+       meme mouvement. Sans l'animation il aurait l'air colle. */
+    .zgm-carte img{
+      width:min(148px,62%); height:auto; display:block;
+      filter:drop-shadow(-6px 8px 0 rgba(0,0,0,.30));
+    }
+    .zgm-nom{font-family:var(--f-titre); font-size:19px; letter-spacing:.6px; line-height:1.1}
+    .zgm-desc{font-family:var(--f-note); font-size:17px; line-height:1.3; color:var(--muted); max-width:24ch}
+    .zgm-carte:hover {transform:translate(-2px,-2px); box-shadow:8px 11px 0 rgba(0,0,0,.45)}
+    .zgm-carte:active{transform:translate(2px,3px);  box-shadow:3px 4px 0 rgba(0,0,0,.45)}
+    .zgm-carte:focus-visible{outline:3px solid var(--yellow); outline-offset:4px}
+    /* Le metier actif se voit : le jaune de l'accueil, comme un bouton primaire. */
+    .zgm-carte[aria-pressed="true"]{
+      background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00;
+      box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35);
+    }
+    .zgm-carte[aria-pressed="true"] .zgm-desc{color:#4A4400}
+    .zgm-aide{
+      font-family:var(--f-note); font-size:17px; color:var(--sur-marine); margin-top:12px;
+      text-shadow:0 1px 2px rgba(6,23,38,.85);
+    }
+    @media(max-width:860px){
+      .zgm-carte{width:min(330px,92vw); flex-direction:row; text-align:left; align-items:center; gap:12px}
+      .zgm-carte img{width:74px}
+      .zgm-desc{max-width:none}
+    }
+
     .hero{display:flex; justify-content:center; padding:10px 16px 4px}
     .hero.hidden{display:none}
     .hero-box{
@@ -757,6 +808,43 @@
 </div>
 
 <!-- ======================================================================
+     CHOIX DU METIER — trois cartes, trois personnages. Cache par defaut :
+     c'est le JS qui l'ouvre, et seulement quand il n'y a encore rien a
+     perdre (aucune ressource, aucun demandeur). Une ecole qui rouvre son
+     horaire ne doit pas retomber sur une question deja repondue.
+     ====================================================================== -->
+<section class="zg-metier" id="metierChoix" hidden aria-labelledby="metierTitre">
+  <h2 class="zgm-titre" id="metierTitre" data-t="metierTitre">Pour qui bâtis-tu l'horaire?</h2>
+  <div class="zgm-cartes">
+      <button type="button" class="zgm-carte" data-m="ep" aria-pressed="false" onclick="choisirMetier('ep')">
+        <picture>
+          <source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp">
+          <img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="eager" decoding="async">
+        </picture>
+        <span class="zgm-nom" data-t="metierEp">Ecole primaire</span>
+        <span class="zgm-desc" data-t="metierEpDesc">Specialistes : EPS, musique, anglais, arts.</span>
+      </button>
+      <button type="button" class="zgm-carte" data-m="sdg" aria-pressed="false" onclick="choisirMetier('sdg')">
+        <picture>
+          <source srcset="../../shared/img/perso/perso-sdg-264.webp" type="image/webp">
+          <img src="../../shared/img/perso/perso-sdg-264.png" alt="" width="264" height="264" loading="eager" decoding="async">
+        </picture>
+        <span class="zgm-nom" data-t="metierSdg">Service de garde</span>
+        <span class="zgm-desc" data-t="metierSdgDesc">Educateurs, groupes, ratios, blocs du midi.</span>
+      </button>
+      <button type="button" class="zgm-carte" data-m="camp" aria-pressed="false" onclick="choisirMetier('camp')">
+        <picture>
+          <source srcset="../../shared/img/perso/perso-camp-264.webp" type="image/webp">
+          <img src="../../shared/img/perso/perso-camp-264.png" alt="" width="264" height="264" loading="eager" decoding="async">
+        </picture>
+        <span class="zgm-nom" data-t="metierCamp">Camp de jour</span>
+        <span class="zgm-desc" data-t="metierCampDesc">Moniteurs, groupes d'age, blocs d'activites.</span>
+      </button>
+  </div>
+  <p class="zgm-aide" data-t="metierAide">Tu pourras en changer en tout temps dans les Réglages.</p>
+</section>
+
+<!-- ======================================================================
      HERO — le langage de l'accueil. Se replie des qu'une ecole existe.
      ====================================================================== -->
 <section class="hero" id="heroSection">
@@ -838,6 +926,7 @@ heroTitle:'Ta grille horaire<span>sur mesure!</span>',
 heroDesc:'Fini le casse-tête de la planification! Configure tes périodes en 30 secondes, clique sur un jour pour placer tes spécialistes et groupes-classes. Le % de tâche se calcule en temps réel. Team teaching, multi-gymnases, validation automatique — tout y est. Sauvegarde automatique et exporte en PDF pour ta direction. Les enseignants les plus organisés utilisent déjà cet outil — c\'est ton tour!',
 heroBadge1:'📅 5 à 10 jours/cycle',heroBadge2:'⚙️ 3 à 7 périodes',heroBadge3:'🌍 4 langues',heroBadge5:'🤖 Auto-remplissage',
 heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',
+metierTitre:'Pour qui bâtis-tu l\'horaire?',metierAide:'Tu pourras en changer en tout temps dans les Réglages.',metierLabel:'Métier',metierOk:'Mode',metierEp:'École primaire',metierEpDesc:'Spécialistes : ÉPS, musique, anglais, arts.',metierSdg:'Service de garde',metierSdgDesc:'Éducateurs, groupes, ratios, blocs du midi.',metierCamp:'Camp de jour',metierCampDesc:'Moniteurs, groupes d\'âge, blocs d\'activités.',
 helpTitle:'Comment utiliser<span>la grille horaire</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
 helpValidation:'Validation conflits',helpAutoSave:'Sauvegarde auto',helpGotIt:'Compris!',
@@ -860,6 +949,7 @@ heroTitle:'Your schedule grid<span>made easy!</span>',
 heroDesc:'No more planning headaches! Set up your periods in 30 seconds, click a day to place your specialists and class groups. Task % is calculated in real time. Team teaching, multiple gyms, automatic validation — it\'s all here. Auto-save and export to PDF for your admin. The most organized teachers already use this tool — your turn!',
 heroBadge1:'📅 5 to 10 days/cycle',heroBadge2:'⚙️ 3 to 7 periods',heroBadge3:'🌍 4 languages',heroBadge5:'🤖 Auto-fill',
 heroStart:'🚀 Get started!',heroHelp:'📖 How to use',
+metierTitre:'Who are you building the schedule for?',metierAide:'You can switch any time in Settings.',metierLabel:'Mode',metierOk:'Mode',metierEp:'Elementary school',metierEpDesc:'Specialists: PE, music, English, arts.',metierSdg:'Daycare service',metierSdgDesc:'Educators, groups, ratios, midday blocks.',metierCamp:'Day camp',metierCampDesc:'Counsellors, age groups, activity blocks.',
 helpTitle:'How to use<span>the schedule grid</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
 helpValidation:'Conflict check',helpAutoSave:'Auto-save',helpGotIt:'Got it!',
@@ -882,6 +972,7 @@ heroTitle:'Tu horario escolar<span>a tu medida!</span>',
 heroDesc:'¡Se acabó el rompecabezas de la planificación! Configura tus períodos en 30 segundos, haz clic en un día para colocar tus especialistas y grupos. El % de tarea se calcula en tiempo real. Enseñanza en equipo, múltiples gimnasios, validación automática — todo está aquí. Guardado automático y exporta en PDF para tu dirección. Los docentes más organizados ya usan esta herramienta — ¡es tu turno!',
 heroBadge1:'📅 5 a 10 días/ciclo',heroBadge2:'⚙️ 3 a 7 períodos',heroBadge3:'🌍 4 idiomas',heroBadge5:'🤖 Auto-llenado',
 heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',
+metierTitre:'¿Para quién creas el horario?',metierAide:'Puedes cambiarlo cuando quieras en Configuración.',metierLabel:'Modo',metierOk:'Modo',metierEp:'Escuela primaria',metierEpDesc:'Especialistas: EF, música, inglés, artes.',metierSdg:'Servicio de guardería',metierSdgDesc:'Educadores, grupos, ratios, bloques del mediodía.',metierCamp:'Campamento de día',metierCampDesc:'Monitores, grupos de edad, bloques de actividades.',
 helpTitle:'Cómo usar<span>el horario escolar</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
 helpValidation:'Validación conflictos',helpAutoSave:'Guardado auto',helpGotIt:'¡Entendido!',
@@ -904,6 +995,7 @@ heroTitle:'你的课程表<span>量身定制!</span>',
 heroDesc:'告别排课烦恼！30秒配置课时，点击日期安排专科教师和班级。任务百分比实时计算。协同教学、多体育馆、自动验证——一应俱全。自动保存，导出PDF给校长。最有组织的老师已经在用这个工具了——轮到你了！',
 heroBadge1:'📅 5至10天/周期',heroBadge2:'⚙️ 3至7节课',heroBadge3:'🌍 4种语言',heroBadge5:'🤖 自动填充',
 heroStart:'🚀 开始!',heroHelp:'📖 使用说明',
+metierTitre:'你要为谁编排时间表？',metierAide:'随时可在设置中更改。',metierLabel:'模式',metierOk:'模式',metierEp:'小学',metierEpDesc:'专科教师：体育、音乐、英语、艺术。',metierSdg:'课后托管',metierSdgDesc:'辅导员、班组、师生比、午间时段。',metierCamp:'日间营',metierCampDesc:'营辅导员、年龄组、活动时段。',
 helpTitle:'如何使用<span>课程表</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
 helpValidation:'冲突验证',helpAutoSave:'自动保存',helpGotIt:'明白了!',
