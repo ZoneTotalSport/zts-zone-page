@@ -541,6 +541,13 @@
     .g-cell:hover{transform:translate(-1px,-1px); box-shadow:4px 4px 0 rgba(0,0,0,.25); background:#EAF8FD}
     .g-cell.can-drop{border-style:dashed; background:rgba(58,220,250,.16)}
     .g-cell.cant-drop{opacity:.32}
+    /* Un creneau ferme — un bloc pedago un jour ordinaire, par exemple.
+       Hachure discrete : la case existe, elle n'est simplement pas ouverte. */
+    .g-cell.ferme{
+      background:repeating-linear-gradient(135deg,rgba(8,19,30,.05) 0 6px,rgba(8,19,30,.11) 6px 12px);
+      cursor:not-allowed;
+    }
+    .g-cell.ferme .plus{display:none}
     .g-cell.hard{box-shadow:0 0 0 3px var(--red), 2px 2px 0 rgba(0,0,0,.18) !important; background:rgba(255,0,97,.07) !important}
     .g-cell.soft{box-shadow:0 0 0 3px var(--orange), 2px 2px 0 rgba(0,0,0,.18) !important; background:rgba(255,162,0,.09) !important}
 
@@ -925,7 +932,7 @@ periodsPerDay:'Périodes/jour',tache100:'Tâche 100%',tache100Unit:'périodes/cy
 heroTitle:'Ta grille horaire<span>sur mesure!</span>',
 heroDesc:'Fini le casse-tête de la planification! Configure tes périodes en 30 secondes, clique sur un jour pour placer tes spécialistes et groupes-classes. Le % de tâche se calcule en temps réel. Team teaching, multi-gymnases, validation automatique — tout y est. Sauvegarde automatique et exporte en PDF pour ta direction. Les enseignants les plus organisés utilisent déjà cet outil — c\'est ton tour!',
 heroBadge1:'📅 5 à 10 jours/cycle',heroBadge2:'⚙️ 3 à 7 périodes',heroBadge3:'🌍 4 langues',heroBadge5:'🤖 Auto-remplissage',
-heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',uniteCap:'pér.',
+heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',journeeType:'Journée du métier',journeeAide:'Remplace la journée par celle du métier choisi',journeeConfirm:'Remplacer la journée par celle du métier ? La grille sera vidée.',journeeFaite:'Journée du métier appliquée',joursPedago:'Journées pédago',uniteCap:'pér.',
 metierTitre:'Pour qui bâtis-tu l\'horaire?',metierAide:'Tu pourras en changer en tout temps dans les Réglages.',metierLabel:'Métier',metierOk:'Mode',metierEp:'École primaire',metierEpDesc:'Spécialistes : ÉPS, musique, anglais, arts.',metierSdg:'Service de garde',metierSdgDesc:'Éducateurs, groupes, ratios, blocs du midi.',metierCamp:'Camp de jour',metierCampDesc:'Moniteurs, groupes d\'âge, blocs d\'activités.',
 helpTitle:'Comment utiliser<span>la grille horaire</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
@@ -948,7 +955,7 @@ periodsPerDay:'Periods/day',tache100:'100% task',tache100Unit:'periods/cycle',co
 heroTitle:'Your schedule grid<span>made easy!</span>',
 heroDesc:'No more planning headaches! Set up your periods in 30 seconds, click a day to place your specialists and class groups. Task % is calculated in real time. Team teaching, multiple gyms, automatic validation — it\'s all here. Auto-save and export to PDF for your admin. The most organized teachers already use this tool — your turn!',
 heroBadge1:'📅 5 to 10 days/cycle',heroBadge2:'⚙️ 3 to 7 periods',heroBadge3:'🌍 4 languages',heroBadge5:'🤖 Auto-fill',
-heroStart:'🚀 Get started!',heroHelp:'📖 How to use',uniteCap:'per.',
+heroStart:'🚀 Get started!',heroHelp:'📖 How to use',journeeType:'Program day',journeeAide:'Replaces the day with the chosen program\'s day',journeeConfirm:'Replace the day with the program\'s day? The grid will be cleared.',journeeFaite:'Program day applied',joursPedago:'PD days',uniteCap:'per.',
 metierTitre:'Who are you building the schedule for?',metierAide:'You can switch any time in Settings.',metierLabel:'Mode',metierOk:'Mode',metierEp:'Elementary school',metierEpDesc:'Specialists: PE, music, English, arts.',metierSdg:'Daycare service',metierSdgDesc:'Educators, groups, ratios, midday blocks.',metierCamp:'Day camp',metierCampDesc:'Counsellors, age groups, activity blocks.',
 helpTitle:'How to use<span>the schedule grid</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
@@ -971,7 +978,7 @@ periodsPerDay:'Períodos/día',tache100:'Tarea 100%',tache100Unit:'períodos/cic
 heroTitle:'Tu horario escolar<span>a tu medida!</span>',
 heroDesc:'¡Se acabó el rompecabezas de la planificación! Configura tus períodos en 30 segundos, haz clic en un día para colocar tus especialistas y grupos. El % de tarea se calcula en tiempo real. Enseñanza en equipo, múltiples gimnasios, validación automática — todo está aquí. Guardado automático y exporta en PDF para tu dirección. Los docentes más organizados ya usan esta herramienta — ¡es tu turno!',
 heroBadge1:'📅 5 a 10 días/ciclo',heroBadge2:'⚙️ 3 a 7 períodos',heroBadge3:'🌍 4 idiomas',heroBadge5:'🤖 Auto-llenado',
-heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',uniteCap:'per.',
+heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',journeeType:'Jornada del modo',journeeAide:'Reemplaza la jornada por la del modo elegido',journeeConfirm:'¿Reemplazar la jornada por la del modo? Se vaciará la grilla.',journeeFaite:'Jornada aplicada',joursPedago:'Días pedagógicos',uniteCap:'per.',
 metierTitre:'¿Para quién creas el horario?',metierAide:'Puedes cambiarlo cuando quieras en Configuración.',metierLabel:'Modo',metierOk:'Modo',metierEp:'Escuela primaria',metierEpDesc:'Especialistas: EF, música, inglés, artes.',metierSdg:'Servicio de guardería',metierSdgDesc:'Educadores, grupos, ratios, bloques del mediodía.',metierCamp:'Campamento de día',metierCampDesc:'Monitores, grupos de edad, bloques de actividades.',
 helpTitle:'Cómo usar<span>el horario escolar</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
@@ -994,7 +1001,7 @@ periodsPerDay:'每天课时',tache100:'100%任务',tache100Unit:'课时/周期',
 heroTitle:'你的课程表<span>量身定制!</span>',
 heroDesc:'告别排课烦恼！30秒配置课时，点击日期安排专科教师和班级。任务百分比实时计算。协同教学、多体育馆、自动验证——一应俱全。自动保存，导出PDF给校长。最有组织的老师已经在用这个工具了——轮到你了！',
 heroBadge1:'📅 5至10天/周期',heroBadge2:'⚙️ 3至7节课',heroBadge3:'🌍 4种语言',heroBadge5:'🤖 自动填充',
-heroStart:'🚀 开始!',heroHelp:'📖 使用说明',uniteCap:'节',
+heroStart:'🚀 开始!',heroHelp:'📖 使用说明',journeeType:'模式日程',journeeAide:'用所选模式的日程替换当前日程',journeeConfirm:'用该模式的日程替换当前日程？课表将被清空。',journeeFaite:'已应用模式日程',joursPedago:'教师培训日',uniteCap:'节',
 metierTitre:'你要为谁编排时间表？',metierAide:'随时可在设置中更改。',metierLabel:'模式',metierOk:'模式',metierEp:'小学',metierEpDesc:'专科教师：体育、音乐、英语、艺术。',metierSdg:'课后托管',metierSdgDesc:'辅导员、班组、师生比、午间时段。',metierCamp:'日间营',metierCampDesc:'营辅导员、年龄组、活动时段。',
 helpTitle:'如何使用<span>课程表</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
@@ -1190,6 +1197,7 @@ const GABARITS={
        change a l'ecran, et les 241 tests le prouvent. */
     capacite:         capaciteEcole,
     denominateur:     denominateurEcole,
+    creneaux:         journeeEcole,
     contraintesDures: aucuneContrainte
   },
   /* Les deux autres metiers ont leur personnage, leurs mots, et depuis
@@ -1200,17 +1208,20 @@ const GABARITS={
      reponses. */
   sdg:{
     id:'sdg',
+    /* Sa regle propre : un bloc pedago n'existe que les journees
+       pedagogiques, et les blocs ordinaires n'existent pas ces jours-la. */
+    contraintesDures:(E,ctx)=>creneauFerme(ctx.jour,ctx.per)?[{type:'pedago'}]:[],
     perso:'perso-sdg',
     mots: MOTS.sdg,
     ressources: E=>E.specialists,
     demandeurs: E=>E.classes,
     lieux:      E=>E.rooms,
+    creneaux:         journeeSdg,
     /* Etape 3 : les deux points d'extension. Les trois metiers repondent
        encore LA MEME CHOSE — c'est ce qui rend l'etape verifiable : rien ne
        change a l'ecran, et les 241 tests le prouvent. */
     capacite:         capaciteEcole,
-    denominateur:     denominateurEcole,
-    contraintesDures: aucuneContrainte
+    denominateur:     denominateurEcole
   },
   camp:{
     id:'camp',
@@ -1219,6 +1230,7 @@ const GABARITS={
     ressources: E=>E.specialists,
     demandeurs: E=>E.classes,
     lieux:      E=>E.rooms,
+    creneaux:         journeeCamp,
     /* Etape 3 : les deux points d'extension. Les trois metiers repondent
        encore LA MEME CHOSE — c'est ce qui rend l'etape verifiable : rien ne
        change a l'ecran, et les 241 tests le prouvent. */
@@ -1269,6 +1281,76 @@ function capacite(sp){
   const v=(typeof f==='function')?f(S,sp):capaciteEcole(S,sp);
   const nb=Math.round(+v);
   return (isNaN(nb)||nb<0)?0:nb;
+}
+
+/* =======================================================================
+   LA JOURNEE DE CHAQUE METIER
+   -----------------------------------------------------------------------
+   Sixieme point du contrat. Une journee, c'est le cycle, le nombre de
+   creneaux par jour, leur duree de reference et leur liste. Chaque gabarit
+   rend une COPIE NEUVE : appliquer une journee type ne doit jamais laisser
+   deux etats partager le meme tableau.
+
+   Le champ `nom` est nouveau et facultatif : une periode qui n'en a pas
+   s'affiche « P1 », comme avant. C'est ce qui permet a un bloc de s'appeler
+   « Matin » sans qu'aucun horaire d'ecole ne bouge.
+
+   Le champ `pedago` marque un bloc qui n'existe QUE les journees
+   pedagogiques — l'ecole est fermee, le service de garde ouvre la journee
+   entiere. Les jours concernes se cochent dans les Reglages.
+   ======================================================================= */
+function journeeEcole(){return {
+  cycleDays:9, periodsPerDay:5, periodDuration:50, quotaMode:'periods',
+  periods:JSON.parse(JSON.stringify(DEF_PER))}}
+
+function journeeSdg(){return {
+  cycleDays:5, periodsPerDay:5, periodDuration:60, quotaMode:'periods',
+  periods:[
+    {type:'period',num:1,nom:'Matin',start:'07:00',end:'08:20'},
+    {type:'period',num:2,nom:'Midi',start:'11:10',end:'12:40'},
+    {type:'period',num:3,nom:'Soir',start:'15:00',end:'18:00'},
+    // Les deux blocs des journees pedagogiques : le reste du temps, l'ecole
+    // a les enfants. Ils restent VISIBLES mais fermes, pour qu'on voie tout
+    // de suite quelle journee est pedagogique.
+    {type:'period',num:4,nom:'Pédago AM',start:'08:20',end:'11:10',pedago:true},
+    {type:'period',num:5,nom:'Pédago PM',start:'12:40',end:'15:00',pedago:true}
+  ]}}
+
+function journeeCamp(){return {
+  cycleDays:5, periodsPerDay:5, periodDuration:75, quotaMode:'periods',
+  periods:[
+    {type:'period',num:1,nom:'Accueil',start:'07:00',end:'09:00'},
+    {type:'period',num:2,nom:'Bloc 1',start:'09:00',end:'10:30'},
+    {type:'period',num:3,nom:'Bloc 2',start:'10:45',end:'12:00'},
+    {type:'lunch',label:'Dîner',start:'12:00',end:'13:00'},
+    {type:'period',num:4,nom:'Bloc 3',start:'13:00',end:'14:30'},
+    {type:'period',num:5,nom:'Bloc 4',start:'14:45',end:'16:00'},
+    {type:'recess',label:'Service de fin',start:'16:00',end:'18:00'}
+  ]}}
+
+/* La journee du gabarit actif, toujours utilisable : un gabarit muet ou
+   casse rend la journee d'ecole plutot qu'une grille vide. */
+function creneaux(){
+  const f=gabarit().creneaux;
+  let j;
+  try{j=(typeof f==='function')?f(S):null}catch(e){j=null}
+  if(!j||!Array.isArray(j.periods)||!j.periods.length)j=journeeEcole();
+  return j;
+}
+/* Le nom d'un creneau : celui qu'il porte, sinon « P » et son numero. */
+function nomPeriode(pr){return (pr&&pr.nom)?pr.nom:('P'+(pr?pr.num:'?'))}
+/* Un bloc pedago n'ouvre que les jours coches ; un bloc ordinaire ferme
+   ces jours-la, puisque l'ecole est fermee et que la garde couvre tout. */
+function estJourPedago(d){
+  const l=S.school&&S.school.joursPedago;
+  return Array.isArray(l)&&l.includes(+d);
+}
+function creneauFerme(jour,num){
+  const pr=tPer().find(x=>x.num===+num);
+  if(!pr)return false;
+  const aDesPedago=tPer().some(x=>x.pedago);
+  if(!aDesPedago)return false;          // l'ecole n'a pas de journee pedago
+  return !!pr.pedago!==estJourPedago(jour);
 }
 
 /* Le denominateur d'un plafond : « 27 per. / 45 » a l'ecole, ou 45 est la
@@ -1335,6 +1417,7 @@ function migrer(){
   if(!S.metier||!GABARITS[S.metier])S.metier='ep';
   if(!Array.isArray(S.surveillants))S.surveillants=[];
   if(!S.surveillances||typeof S.surveillances!=='object')S.surveillances={};
+  if(!Array.isArray(S.school.joursPedago))S.school.joursPedago=[];
   ressources().forEach(sp=>{
     if(sp.taskPercent===undefined||sp.taskPercent===null||isNaN(+sp.taskPercent))sp.taskPercent=100;
   });
@@ -1562,11 +1645,14 @@ function renderGrid(){
         (p.type==='recess'?t('recess'):t('lunch')),p.start,p.end);
       row++;return}
     // Time cell
-    const tc=document.createElement('div');tc.className='g-time';tc.innerHTML=`<span>P${p.num}</span><small>${p.start||''}-${p.end||''}</small>`;tc.style.gridColumn='1';tc.style.gridRow=''+row;g.appendChild(tc);
+    const tc=document.createElement('div');tc.className='g-time';tc.innerHTML=`<span>${nomPeriode(p)}</span><small>${p.start||''}-${p.end||''}</small>`;tc.style.gridColumn='1';tc.style.gridRow=''+row;g.appendChild(tc);
     // Day cells
     for(let d=1;d<=cd;d++){
       const assigns=getA(d,p.num);const cell=document.createElement('div');cell.className='g-cell';
       if(assigns.length>1)cell.classList.add('multi');
+      // Un creneau ferme se voit meme sans personne selectionnee : sinon on
+      // clique dans le vide en se demandant pourquoi rien ne se pose.
+      if(creneauFerme(d,p.num))cell.classList.add('ferme');
       if(sp){if(canPlace(d,p.num,sp)&&!assigns.some(a=>a.specId===sp.id))cell.classList.add('can-drop');else if(!assigns.some(a=>a.specId===sp.id))cell.classList.add('cant-drop')}
       let hrd=false,sft=false;assigns.forEach(a=>{if(checkH(d,p.num,a.specId,a.classId,a.roomId).filter(v=>v.type!=='specBusy').length)hrd=true;if(checkS(d,p.num,a.specId,a.classId).length)sft=true});
       const rc={};assigns.forEach(a=>{if(a.roomId)rc[a.roomId]=(rc[a.roomId]||0)+1});Object.entries(rc).forEach(([rid,cnt])=>{const rm=lieux().find(r=>r.id===rid);if(rm&&cnt>rm.maxSimultaneous)hrd=true});
@@ -1642,7 +1728,7 @@ function showClassPicker(day,per,sp,demand){
 
 function openQuickAssign(day,per){
   closeModals();const assigns=getA(day,per);const ov=document.createElement('div');ov.className='modal';
-  let html=`<h3>📅 ${t('day')} ${day} — P${per}</h3>`;
+  let html=`<h3>📅 ${t('day')} ${day} — ${nomPeriode(tPer().find(x=>x.num===+per))}</h3>`;
   if(assigns.length){html+='<div style="margin-bottom:10px">';assigns.forEach(a=>{const sp=ressources().find(s=>s.id===a.specId),cl=demandeurs().find(c=>c.id===a.classId);
     html+=`<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${sp?.color||'#eee'};border-radius:8px;margin-bottom:3px;font-size:1em"><strong>${sp?.shortName||'?'}</strong> → ${cl?.group||'?'}<button class="btn r sm" style="margin-left:auto" onclick="removeA(${day},${per},'${a.specId}');closeModals();renderAll()">✕</button></div>`});html+='</div><hr style="border:none;border-top:2px solid #f0f0f0;margin:10px 0">';}
   html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
@@ -1688,6 +1774,33 @@ function showWelcome(){
 /* L'attribut que les feuilles partagees lisent pour teinter un accent.
    Valeurs : 'ep' / 'sdg' / 'camp'. JAMAIS 'eps' — le bug connu de
    studio-jeu, ou un 's' de trop eteint toutes les regles d'accent. */
+/* Poser la journee type du metier. Elle REMPLACE la journee courante : les
+   numeros de creneaux changent, donc les cours poses ne pointeraient plus au
+   bon endroit. On le dit, et on vide — plutot que de laisser un horaire
+   silencieusement decale. */
+function appliquerJourneeType(){
+  const j=creneaux();
+  if((totalA()||survTotal())&&!confirm(t('journeeConfirm')))return;
+  S.school.cycleDays=j.cycleDays||S.school.cycleDays;
+  S.school.periodDuration=j.periodDuration||S.school.periodDuration;
+  S.school.quotaMode=j.quotaMode||S.school.quotaMode;
+  S.school.periods=JSON.parse(JSON.stringify(j.periods));
+  S.school.periodsPerDay=S.school.periods.filter(x=>x.type==='period').length;
+  if(!S.school.tache100Manuel)S.school.tache100=tache100Defaut();
+  S.assignments={};S.surveillances={};
+  assurerIdsCreneaux();save();closeModals();renderAll();
+  toast('✅ '+t('journeeFaite'));
+}
+/* Les journees pedagogiques se cochent, jour par jour, dans les Reglages.
+   Elles n'existent que pour un metier qui declare des blocs pedago. */
+function basculerJourPedago(d){
+  if(!Array.isArray(S.school.joursPedago))S.school.joursPedago=[];
+  const i=S.school.joursPedago.indexOf(+d);
+  if(i<0)S.school.joursPedago.push(+d);else S.school.joursPedago.splice(i,1);
+  S.school.joursPedago.sort((a,b)=>a-b);
+  save();closeModals();openSetupModal();renderAll();
+}
+
 function appliquerMetier(){
   const g=gabarit();
   if(document.body)document.body.setAttribute('data-metier',g.id);
@@ -1788,23 +1901,25 @@ function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.remove()
 function openSetupModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
   const levs=['pres','1','2','3','4','5','6'],levL=[t('presco'),'1','2','3','4','5','6'];
-  let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);min-width:30px">P${p.num}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
+  let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);min-width:30px">${nomPeriode(p)}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
   let sRows=S.subjects.map((su,i)=>`<tr><td><span class="cdot" style="background:${su.color}"></span><input type="text" value="${su.name}" data-si="${i}" data-sf="name" style="border:none;background:transparent;font-weight:600;width:120px"></td>${levs.map(l=>`<td><input type="number" value="${su.min[l]||0}" min="0" data-si="${i}" data-sl="${l}" style="width:42px;text-align:center;border:1px solid #eee;border-radius:3px;padding:2px"></td>`).join('')}<td><button class="btn r sm" data-delsub="${i}">✕</button></td></tr>`).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:720px"><h3>⚙️ ${t('configSchool')}</h3>
     <div class="fr"><label>${t('metierLabel')}</label><div class="zgm-mini">${Object.keys(GABARITS).map(id=>`<button type="button" data-m="${id}" aria-pressed="${S.metier===id?'true':'false'}" onclick="changerMetierReglages('${id}')">${nomMetier(id)}</button>`).join('')}</div></div>
     <div class="fr"><label>${t('schoolName')}</label><input type="text" id="sN" value="${S.school.name}" style="flex:1"></div>
     <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,7,8,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
     <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||tache100Defaut()}" min="1" max="200" step="1" style="width:70px" oninput="const e=document.getElementById('sT100Note');if(e)e.textContent=t('tache100Manuel')"><button type="button" class="btn o sm" id="sT100R" title="${t('tache100Auto')}">↺</button> <small id="sT100Note" style="color:var(--muted);font-family:var(--f-note);font-size:14px">${S.school.tache100Manuel?t('tache100Manuel'):t('tache100Auto')}</small> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
+    ${tPer().some(x=>x.pedago)?`<div class="fr"><label>${t('joursPedago')}</label><div class="zgm-mini">${Array.from({length:S.school.cycleDays},(_,i)=>i+1).map(d=>`<button type="button" aria-pressed="${estJourPedago(d)?'true':'false'}" onclick="basculerJourPedago(${d})">${d}</button>`).join('')}</div></div>`:''}
     <div class="fr"><label>${t('avantP1')}</label><input type="checkbox" id="sAv" ${S.school.avantP1?'checked':''}> <small style="color:var(--muted);font-family:var(--f-note);font-size:15px">${t('avantP1Aide')}</small></div>
     <div class="fr"><label>${t('quotaMode')}</label><select id="sQM"><option value="periods" ${S.school.quotaMode==='periods'?'selected':''}>${t('quotaPeriods')}</option><option value="minutes" ${S.school.quotaMode==='minutes'?'selected':''}>${t('quotaMinutes')}</option></select></div>
     <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">⏰ ${t('dayStructure')}</div>
     <div id="sP" style="max-height:200px;overflow-y:auto">${pRows}</div>
-    <div style="display:flex;gap:5px;margin:6px 0"><button class="btn c sm" id="aP">${t('addPeriod')}</button><button class="btn sm" id="aR" style="background:var(--yellow);color:#000">${t('addRecess')}</button><button class="btn sm" id="aL" style="background:var(--orange);color:#fff">${t('addLunch')}</button></div>
+    <div style="display:flex;gap:5px;margin:6px 0"><button class="btn o sm" id="aJ" title="${t('journeeAide')}">🔄 ${t('journeeType')}</button><button class="btn c sm" id="aP">${t('addPeriod')}</button><button class="btn sm" id="aR" style="background:var(--yellow);color:#000">${t('addRecess')}</button><button class="btn sm" id="aL" style="background:var(--orange);color:#fff">${t('addLunch')}</button></div>
     <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">📚 ${t('subjectsTitle')} <small style="font-family:var(--f-corps);font-weight:500;font-size:.7em;color:var(--muted)">(${S.school.quotaMode==='periods'?t('quotaPeriods'):t('quotaMinutes')})</small></div>
     <div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('specSubject')}</th>${levL.map(l=>`<th>${l}</th>`).join('')}<th></th></tr></thead><tbody id="sS">${sRows}</tbody></table></div>
     <button class="btn c sm" style="margin-top:5px" id="aSu">${t('addSubject')}</button>
     <div class="macts"><button class="btn g" id="sSv">💾 ${t('save')}</button><button class="btn o" id="sCl">${t('close')}</button></div></div>`;
   document.body.appendChild(ov);
+  ov.querySelector('#aJ').onclick=()=>appliquerJourneeType();
   ov.querySelector('#aP').onclick=()=>{S.school.periods.push({type:'period',num:tPer().length+1,start:'',end:''});assurerIdsCreneaux();closeModals();save();openSetupModal()};
   ov.querySelector('#aR').onclick=()=>{S.school.periods.push({type:'recess',label:'Récré',start:'',end:''});assurerIdsCreneaux();closeModals();save();openSetupModal()};
   ov.querySelector('#aL').onclick=()=>{S.school.periods.push({type:'lunch',label:'Dîner',start:'',end:''});assurerIdsCreneaux();closeModals();save();openSetupModal()};
@@ -2254,6 +2369,7 @@ function assurerStructures(){
   if(!S.assignments)S.assignments={};
   if(!Array.isArray(S.surveillants))S.surveillants=[];
   if(!S.surveillances||typeof S.surveillances!=='object')S.surveillances={};
+  if(!Array.isArray(S.school.joursPedago))S.school.joursPedago=[];
   assurerIdsCreneaux();
 }
 function renderAll(){assurerStructures();resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
