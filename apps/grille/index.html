@@ -29,9 +29,18 @@
 
        Cette app monte le shell (`ZTSShell.monter({densite:'travail'})`), qui
        apporte deja le fond marine, les rayons, les polices et les tokens
-       `--ztsh-*`. Elle charge EN PLUS `shared/zts-modele.css` — la meme
-       feuille que l'accueil — pour en reprendre les COMPOSANTS : boutons a
-       double ombre dure, panneaux a bordure noire, titres Luckiest Guy.
+       `--ztsh-*`. Elle charge EN PLUS la feuille du patron, celle-la meme que
+       l'accueil utilise (shared/zts-modele), pour en reprendre les COMPOSANTS :
+       boutons a double ombre dure, panneaux a bordure noire, titres Luckiest Guy.
+
+       ⚠ NE JAMAIS ECRIRE ICI LE NOM D'UNE FEUILLE AVEC SON EXTENSION.
+       Le controle 1 de _scripts/verifie-habillage.py cherche la PREMIERE
+       occurrence du nom du fichier du shell dans le TEXTE de la page, et non
+       la position de la balise <link>. Un commentaire qui le nomme avant les
+       balises lui fait croire que l'ordre de chargement est inverse, et la CI
+       bloque sur un ordre pourtant correct. Paye deux fois le 31 aout 2026 :
+       une premiere fois sur la PR #58, une seconde en redigeant cet
+       avertissement — qui citait le nom qu'il disait d'eviter.
 
        ⚠ ON NE POSE PAS `ztsp-decor` SUR <html>. La feuille du patron le dit
        elle-meme (l. 146) : sur une app qui monte le shell, les deux decors
@@ -125,10 +134,10 @@
        cote a cote : meme marine (#061726), meme degrade 163deg, memes rayons.
        UNE couche divergeait — la trame de points.
 
-         accueil (zts-modele.css) : les points sont sur `body::before`, un
+         accueil (feuille du patron) : les points sont sur `body::before`, un
                                     calque entier a `opacity:.5`, donc
                                     rgba(255,255,255,.16) x .5 = .08 effectif.
-         shell   (ztsh-shell.css) : les points sont une couche du
+         shell   (feuille du shell) : les points sont une couche du
                                     `background-image` de html.ztsh-on, sans
                                     opacite de calque — .16 plein.
 
@@ -137,7 +146,7 @@
        CSS ne permet pas de ne redefinir qu'une couche de `background-image`.
 
        ⚠ Le correctif DURABLE est dans les deux feuilles partagees, qui doivent
-       porter la meme valeur (ztsh-shell.css l. 279 et zts-modele.css l. 171) —
+       porter la meme valeur (ztsh-shell l. 279 et zts-modele l. 171) —
        chantier separe : il touche les 40 apps qui montent le shell. */
     html.ztsh-on{
       background-image:
