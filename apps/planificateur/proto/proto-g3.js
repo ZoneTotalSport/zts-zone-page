@@ -183,7 +183,10 @@ function majBarreContexte(){
 function calerLaBarre(){
   const n=$('#nav'); if(!n) return;
   document.documentElement.style.setProperty('--h-nav', n.offsetHeight+'px');
-  const z=(parseInt(lire('zoom','200'),10)||100)/100;
+  /* ⚠ PASSE PAR `zoomActuel()`, JAMAIS PAR `lire('zoom')` EN DIRECT : c'est
+     cette division qui transformait une clé aberrante en « téléphone » sur un
+     écran de 1700 px. La validation vit dans proto-fusion.js. */
+  const z=(typeof zoomActuel==='function' ? zoomActuel() : 200)/100;
   const utile = window.innerWidth / z;
   /* ⚠ `innerWidth` vaut 0 pendant une réémulation de fenêtre, et parfois au
      tout premier cadre : sans ce garde, l'app se croyait sur un téléphone.

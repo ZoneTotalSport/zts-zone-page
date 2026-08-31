@@ -661,15 +661,46 @@ const ZOOMS = [100,120,145,170,200,230,260,300];
 const DISTANCES = {100:'de près',120:'de près',145:'en classe',170:'en classe',
                    200:'du gymnase',230:'du gymnase',260:'du fond du gymnase',
                    300:'du fond du gymnase'};
-function zoomActuel(){ return parseInt(lire('zoom','200'),10) || 200; }
+/* ⚠ LE CRAN DE TAILLE EST BORNÉ, ET CE N'EST PAS DE LA PRUDENCE DÉCORATIVE.
+   Reproduit le 31 août : une valeur aberrante dans `protog2:zoom` — posée à la
+   main, écrite par une version antérieure, ou corrompue — suffit à faire
+   basculer TOUTE la mise en page en colonne étroite sur un écran de 1700 px.
+   Le chemin : `calerLaBarre()` (proto-g3.js) calcule `utile = innerWidth / z`
+   pour publier `html[data-etroit]`. Avec z = 50 (soit « 5000 % »), 1700 px de
+   fenêtre deviennent 34 px de largeur utile, et l'app se croit sur un
+   téléphone. Rien dans l'interface ne permet d'atteindre cet état, mais rien
+   n'empêchait la clé d'y arriver.
+   Trois verrous, tous ici :
+     1. LISTE BLANCHE — seules les huit valeurs de ZOOMS sont acceptées.
+     2. VALIDATION À LA RELECTURE — tout le reste retombe sur le défaut, et la
+        clé fautive est RÉÉCRITE pour qu'un rechargement ne la relise pas.
+     3. AUCUNE ÉCRITURE DEPUIS UN HANDLER — la clé n'est écrite que par
+        `poserTaille()`, appelée uniquement au clic sur les crans. Vérifié le
+        31 août : les seuls écouteurs de `scroll` du proto ferment les menus
+        (`fermerTous`, plus bas) et ne touchent ni au zoom ni à `data-etroit`.
+        Ne jamais brancher l'un sur l'autre. */
+const ZOOM_DEFAUT = 200;
+function zoomValide(v){
+  const n = parseInt(v, 10);
+  return ZOOMS.indexOf(n) >= 0 ? n : null;
+}
+function zoomActuel(){
+  const brut = lire('zoom', String(ZOOM_DEFAUT));
+  const bon = zoomValide(brut);
+  if (bon !== null) return bon;
+  /* la clé est hors liste : on la remet d'aplomb tout de suite, sinon le
+     prochain chargement repart avec la même valeur fautive */
+  ecrire('zoom', String(ZOOM_DEFAUT));
+  return ZOOM_DEFAUT;
+}
 function crantTaille(){
-  const v=zoomActuel();
-  let i=ZOOMS.indexOf(v);
-  if (i<0){ i=0; ZOOMS.forEach((z,k)=>{ if (Math.abs(z-v) < Math.abs(ZOOMS[i]-v)) i=k; }); }
-  return i;
+  const i=ZOOMS.indexOf(zoomActuel());
+  return i<0 ? ZOOMS.indexOf(ZOOM_DEFAUT) : i;
 }
 function poserTaille(v){
-  ecrire('zoom', String(v));
+  /* même par ici, rien d'autre que les huit crans n'entre dans la clé */
+  const bon = zoomValide(v);
+  ecrire('zoom', String(bon === null ? ZOOM_DEFAUT : bon));
   appliquerZoom();
   if (typeof peindreAgenda==='function') peindreAgenda();
   majBoutonsTaille();
@@ -697,7 +728,7 @@ function majBoutonsTaille(){
   });
 })();
 function appliquerZoom(){
-  const z = lire('zoom','200');
+  const z = zoomActuel();
   /* ⚠ LE ZOOM SE POSE SUR <html>, PAS SUR <body> : une mise à l'échelle du
      document entier appartient à la racine. Sur `body`, tout ce qui est
      `sticky` ou `fixed` — le bandeau, la nav, la barre de contexte, les
