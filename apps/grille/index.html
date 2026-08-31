@@ -1200,6 +1200,7 @@ const GABARITS={
     capacite:         capaciteEcole,
     denominateur:     denominateurEcole,
     creneaux:         journeeEcole,
+    depart:           departEcole,
     // Un groupe voit UN specialiste a la fois. C'est la reponse de l'ecole,
     // pas une loi du moteur.
     capaciteDemandeur: unDemandeur,
@@ -1229,6 +1230,7 @@ const GABARITS={
     demandeurs: E=>E.classes,
     lieux:      E=>E.rooms,
     creneaux:         journeeSdg,
+    depart:           departSdg,
     /* Etape 3 : les deux points d'extension. Les trois metiers repondent
        encore LA MEME CHOSE — c'est ce qui rend l'etape verifiable : rien ne
        change a l'ecran, et les 241 tests le prouvent. */
@@ -1248,6 +1250,7 @@ const GABARITS={
     demandeurs: E=>E.classes,
     lieux:      E=>E.rooms,
     creneaux:         journeeCamp,
+    depart:           departCamp,
     /* Etape 3 : les deux points d'extension. Les trois metiers repondent
        encore LA MEME CHOSE — c'est ce qui rend l'etape verifiable : rien ne
        change a l'ecran, et les 241 tests le prouvent. */
@@ -1483,6 +1486,109 @@ function lieuVerrouille(rid){
   return !!(rm&&rm.verrouille);
 }
 
+/* =======================================================================
+   LE JEU DE DEPART DE CHAQUE METIER
+   -----------------------------------------------------------------------
+   Dixieme et dernier point du contrat. « Commencer » doit donner un horaire
+   PLAUSIBLE, pas un squelette : c'est ce qui permet d'essayer l'outil en un
+   clic. Un jeu de depart rend ses pieces — services, lieux, groupes,
+   personnes — et rien d'autre : la journee vient de `creneaux()`, les
+   valeurs neuves viennent de `migrer()`.
+
+   Les personnes sont construites APRES les lieux, parce qu'elles s'y
+   rattachent par identifiant. D'ou la forme : `personnes(lieux)`.
+
+   Les effectifs et le ratio ne sont pas decoratifs. Deux groupes du service
+   de garde depassent 20 : ils demandent DEUX educateurs en meme temps, et
+   c'est la qu'on voit le ratio faire son travail des le premier clic.
+   ======================================================================= */
+function departEcole(){return {
+  nom:'Mon école', ratio:0,
+  // Les minutes du catalogue converties en periodes : c'est le geste
+  // d'origine du modele, garde tel quel.
+  services:()=>JSON.parse(JSON.stringify(DEF_SUB)).map(su=>{
+    const m={};Object.entries(su.min).forEach(([l,v])=>{m[l]=Math.ceil(v/50)});return {...su,min:m}}),
+  lieux:()=>[
+    {id:uid(),name:'Gymnase principal',type:'gym',maxSimultaneous:2},
+    {id:uid(),name:'Gymnase secondaire',type:'gym',maxSimultaneous:1},
+    {id:uid(),name:'Plateau extérieur',type:'gym',maxSimultaneous:2},
+    {id:uid(),name:'Piscine / Palestre',type:'gym',maxSimultaneous:1},
+    {id:uid(),name:'Local musique',type:'music',maxSimultaneous:1},
+    {id:uid(),name:'Local art',type:'art',maxSimultaneous:1}],
+  groupes:()=>[{g:'MAT',l:'pres'},{g:'1A',l:'1'},{g:'1B',l:'1'},{g:'2A',l:'2'},{g:'2B',l:'2'},
+    {g:'3A',l:'3'},{g:'3B',l:'3'},{g:'4A',l:'4'},{g:'4B',l:'4'},{g:'5A',l:'5'},{g:'5B',l:'5'},
+    {g:'6A',l:'6'},{g:'6B',l:'6'}].map(x=>({id:uid(),level:x.l,group:x.g,titulaire:'',prepQuota:200})),
+  personnes:(L)=>{const gymR=L[0].id,musR=L[4].id,artR=L[5].id;return [
+    {id:uid(),name:'Prof. éducation physique 1',shortName:'EPS1',subjectId:'eps',taskPercent:100,isItinerant:false,travelDays:[],roomId:gymR,amPm:'all',maxPerDay:6,maxConsecutive:3,availDays:[],color:'#FF5252'},
+    {id:uid(),name:'Prof. éducation physique 2',shortName:'EPS2',subjectId:'eps',taskPercent:100,isItinerant:false,travelDays:[],roomId:gymR,amPm:'all',maxPerDay:6,maxConsecutive:3,availDays:[],color:'#FF8A80'},
+    {id:uid(),name:'Prof. musique',shortName:'MUS',subjectId:'mus',taskPercent:100,isItinerant:false,travelDays:[],roomId:musR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#4FC3F7'},
+    {id:uid(),name:'Prof. art plastique',shortName:'ART',subjectId:'art',taskPercent:100,isItinerant:false,travelDays:[],roomId:artR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#CE93D8'},
+    {id:uid(),name:'Prof. anglais',shortName:'ANG',subjectId:'ang',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#81D4FA'},
+    {id:uid(),name:'Prof. art dramatique',shortName:'DRA',subjectId:'dram',taskPercent:100,isItinerant:false,travelDays:[],roomId:artR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#F48FB1'},
+    {id:uid(),name:'Prof. ethique',shortName:'ECR',subjectId:'ecr',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#A5D6A7'}]}
+}}
+
+/* Un ADULTE de garde ou de camp : les memes champs qu'un specialiste — le
+   moteur ne connait qu'une forme — avec les valeurs qui ont du sens ici.
+   Pas d'itinerance, pas de demi-journee : on couvre des blocs. */
+function adulte(nom,code,serviceId,couleur){return {
+  id:uid(),name:nom,shortName:code,subjectId:serviceId,taskPercent:100,
+  // Pas de local attitre : un educateur suit son GROUPE, il ne tient pas
+  // une salle. Lui en attribuer un ferait retomber la capacite du local sur
+  // la couverture — et on chercherait longtemps pourquoi des blocs restent
+  // vides. Les locaux existent, ils se posent a la main quand ils comptent.
+  isItinerant:false,travelDays:[],roomId:'',amPm:'all',
+  maxPerDay:9,maxConsecutive:9,availDays:[],color:couleur}}
+
+function departSdg(){return {
+  nom:'Service de garde', ratio:20,
+  services:()=>[
+    {id:'garde',name:'Garde',color:'#4FC3F7',roomType:'',min:{pres:0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0}},
+    {id:'devoirs',name:'Aide aux devoirs',color:'#A5D6A7',roomType:'',min:{pres:0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0}}],
+  lieux:()=>[
+    {id:uid(),name:'Local de garde 1',type:'',maxSimultaneous:2},
+    {id:uid(),name:'Local de garde 2',type:'',maxSimultaneous:2},
+    {id:uid(),name:'Gymnase',type:'gym',maxSimultaneous:2},
+    {id:uid(),name:'Cour extérieure',type:'',maxSimultaneous:4}],
+  // Deux groupes depassent 20 : ils demanderont deux educateurs a la fois.
+  groupes:()=>[
+    {g:'MAT',l:'pres',e:20},{g:'1er A',l:'1',e:18},{g:'1er B',l:'2',e:25},
+    {g:'2e A',l:'3',e:19},{g:'2e B',l:'4',e:20},{g:'3e A',l:'5',e:16},{g:'3e B',l:'6',e:22}
+  ].map(x=>({id:uid(),level:x.l,group:x.g,titulaire:'',prepQuota:0,effectif:x.e})),
+  personnes:()=>{const c=['#FF5252','#4FC3F7','#CE93D8','#A5D6A7','#F48FB1','#81D4FA','#FFB74D','#9FA8DA','#80CBC4'];
+    return c.map((coul,i)=>adulte('Éducateur '+(i+1),'ÉD'+(i+1),'garde',coul))}
+}}
+
+function departCamp(){return {
+  nom:'Camp de jour', ratio:12,
+  services:()=>[
+    {id:'sport',name:'Sport',color:'#FF5252',roomType:'gym',min:{pres:0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0}},
+    {id:'brico',name:'Bricolage',color:'#CE93D8',roomType:'',min:{pres:0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0}},
+    {id:'baign',name:'Baignade',color:'#4FC3F7',roomType:'',min:{pres:0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0}},
+    {id:'grand',name:'Grand jeu',color:'#A5D6A7',roomType:'',min:{pres:0,'1':0,'2':0,'3':0,'4':0,'5':0,'6':0}}],
+  lieux:()=>[
+    {id:uid(),name:'Terrain sportif',type:'gym',maxSimultaneous:2},
+    {id:uid(),name:'Salle de bricolage',type:'',maxSimultaneous:2},
+    {id:uid(),name:'Piscine',type:'',maxSimultaneous:1},
+    {id:uid(),name:'Sous-bois',type:'',maxSimultaneous:3},
+    {id:uid(),name:'Gymnase',type:'gym',maxSimultaneous:2}],
+  groupes:()=>[
+    {g:'Coccinelles',l:'pres',e:12},{g:'Castors',l:'1',e:14},{g:'Renards',l:'2',e:16},
+    {g:'Aigles',l:'3',e:13},{g:'Ados',l:'4',e:11}
+  ].map(x=>({id:uid(),level:x.l,group:x.g,titulaire:'',prepQuota:0,effectif:x.e})),
+  personnes:()=>{const c=['#FF5252','#4FC3F7','#CE93D8','#A5D6A7','#F48FB1','#81D4FA','#FFB74D','#9FA8DA','#80CBC4'];
+    return c.map((coul,i)=>adulte('Moniteur '+(i+1),'MO'+(i+1),'sport',coul))}
+}}
+
+/* Le jeu de depart du gabarit actif. Un gabarit muet rend celui de l'ecole :
+   « Commencer » ne doit jamais rendre une page vide. */
+function departGabarit(){
+  const f=gabarit().depart;
+  let d=null;
+  try{d=(typeof f==='function')?f(S):null}catch(e){d=null}
+  return (d&&typeof d.personnes==='function')?d:departEcole();
+}
+
 /* Le denominateur d'un plafond : « 27 per. / 45 » a l'ecole, ou 45 est la
    tache pleine du cycle. Un metier qui ne compte PAS contre un total de
    cycle repond null, et la lecture devient « 27 blocs » — sans fraction qui
@@ -1686,6 +1792,8 @@ const BESOINS_ECOLE={
     return d;
   },
   total(){let t=0;ressources().forEach(sp=>{demandeurs().forEach(cl=>{t+=partSpec(sp,cl)})});return t},
+  du(E,sp){let t=0;demandeurs().forEach(cl=>{t+=partSpec(sp,cl)});return t},
+  groupesDus(E,sp){let c=0;demandeurs().forEach(cl=>{if(partSpec(sp,cl)>0)c++});return c},
   pourRessource(E,sp){
     const su=E.subjects.find(x=>x.id===sp.subjectId);if(!su)return[];
     const d=[];
@@ -1717,6 +1825,20 @@ const BESOINS_COUVERTURE={
       for(let j=1;j<=E.school.cycleDays;j++)tPer().forEach(pr=>{if(!creneauFerme(j,pr.num))t+=k})});
     return t;
   },
+  /* Le du d'un adulte : sa part EXACTE du travail a couvrir. Repartition
+     au plus grand reste — la somme des dus vaut le total, sans quoi les
+     cartes ne pourraient jamais toutes afficher « ✅ ». */
+  du(E,sp){
+    const l=ressources(),nb=l.length;
+    if(!nb)return 0;
+    const tot=this.total(E),i=l.findIndex(x=>x.id===sp.id);
+    if(i<0)return 0;
+    return Math.floor(tot/nb)+((i<tot%nb)?1:0);
+  },
+  /* Un educateur n'a pas a voir TOUS les groupes : il n'y a pas de cible.
+     Zero veut dire « ce compteur ne s'applique pas », et la carte le cache
+     plutot que d'afficher un rapport qui ne veut rien dire. */
+  groupesDus(){return 0},
   pourRessource(E,sp){
     const d=[];
     demandeurs().forEach(cl=>{
@@ -1735,14 +1857,14 @@ function specTotalPlaced(specId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)t
    comptees ici : elles ont leur propre espace et leur propre compteur. */
 function specMaxPeriods(sp){return capacite(sp)}
 /* Le du : somme des parts de ce specialiste sur toutes les classes. */
-function specDu(sp){let t=0;demandeurs().forEach(cl=>{t+=partSpec(sp,cl)});return t}
+function specDu(sp){const v=Math.round(+besoinsGabarit().du(S,sp));return (isNaN(v)||v<0)?0:v}
 /* Groupes distincts ou il a au moins une periode. */
 function specGroupesVus(sp){const vus={};
   for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(pr=>{
     getA(d,pr.num).forEach(a=>{if(a.specId===sp.id&&a.classId)vus[a.classId]=1})});
   return Object.keys(vus).length}
 /* Groupes qu'il doit voir au moins une fois. */
-function specGroupesDus(sp){let c=0;demandeurs().forEach(cl=>{if(partSpec(sp,cl)>0)c++});return c}
+function specGroupesDus(sp){const v=Math.round(+besoinsGabarit().groupesDus(S,sp));return (isNaN(v)||v<0)?0:v}
 /* Un pourcentage lisible : 100 et non 100,0 ; 57,5 et non 57,50. */
 /* La capacite se relit a chaque frappe : « 60 % = 27 pér. / 45 ».
    Sans ca, on regle un pourcentage a l'aveugle. */
@@ -1805,7 +1927,12 @@ function renderPanel(){
     const placed=specTotalPlaced(sp.id);const maxP=specMaxPeriods(sp);
     const du=specDu(sp);
     const gVus=specGroupesVus(sp),gDus=specGroupesDus(sp);
-    const remaining=Math.max(0,du-placed);
+    // « Restant » veut dire « du travail qui reste a placer ». Quand la
+    // grille est complete, il n'en reste pour personne — meme si une part
+    // individuelle est a plus ou moins un du partage exact. L'ecart de
+    // repartition, lui, se lit dans le recapitulatif imprimable, qui est
+    // fait pour ca.
+    const remaining=Math.min(Math.max(0,du-placed),Math.max(0,totalNeeded()-totalA()));
     const barPct=maxP?Math.min(100,Math.round(placed/maxP*100)):100;
     // Jauge : vert tant qu'on est SOUS la capacite, jaune quand elle est
     // PLEINE, rouge si elle est DEPASSEE. C'est la lecture que la direction
@@ -1820,7 +1947,7 @@ function renderPanel(){
       +`<span class="sc-name">${sp.shortName}</span>`
       +`<span class="sc-remain">${remaining>0?remaining+' '+t('remaining'):'✅'}</span></div>`
       +`<div class="sc-compte"><span>${t('cptCours')}</span><b>${placed} / ${du}</b>`
-      +`<span>${t('cptGroupes')}</span><b>${gVus} / ${gDus}</b>`
+      +(gDus?`<span>${t('cptGroupes')}</span><b>${gVus} / ${gDus}</b>`:'')
       +(nbSurv?`<span>👁️</span><b>${nbSurv}</b>`:'')+`</div>`
       +`<div class="sc-info">${su?.name||'—'} · ${fmtPct(sp.taskPercent)} % · ${t('capacite')} ${maxP} ${t('uniteCap')}</div>`
       +`<div class="sc-bar" title="${placed} / ${maxP}"><div style="width:${barPct}%;background:${teinte}"></div></div>`;
@@ -2110,25 +2237,21 @@ function useTemplate(){
      l'etape 4 ; d'ici la, le modele d'ecole sert de point de depart commun. */
   if(!S.metier||!GABARITS[S.metier])S.metier='ep';
   S.metierChoisi=true;
-  S.school={name:'Mon école',cycleDays:9,periodsPerDay:5,periodDuration:50,quotaMode:'periods',periods:JSON.parse(JSON.stringify(DEF_PER))};
-  // Une tache pleine, c'est tout le cycle : 9 jours x 5 periodes = 45.
-  // L'ancienne valeur en dur (30) ne correspondait a aucune journee reelle.
+  const j=creneaux(),dep=departGabarit();
+  S.school={name:dep.nom||'',cycleDays:j.cycleDays,periodsPerDay:0,
+    periodDuration:j.periodDuration,quotaMode:j.quotaMode||'periods',
+    ratio:dep.ratio||0,joursPedago:[],
+    periods:JSON.parse(JSON.stringify(j.periods))};
+  S.school.periodsPerDay=tPer().length;
+  // Une tache pleine, c'est tout le cycle : 9 jours x 5 periodes = 45 a
+  // l'ecole. L'ancienne valeur en dur (30) ne correspondait a rien de reel.
   S.school.tache100=tache100Defaut();S.school.tache100Manuel=false;
   assurerIdsCreneaux();
-  S.subjects=JSON.parse(JSON.stringify(DEF_SUB)).map(su=>{const m={};Object.entries(su.min).forEach(([l,v])=>{m[l]=Math.ceil(v/50)});return{...su,min:m}});
-  S.rooms=[{id:uid(),name:'Gymnase principal',type:'gym',maxSimultaneous:2},{id:uid(),name:'Gymnase secondaire',type:'gym',maxSimultaneous:1},{id:uid(),name:'Plateau extérieur',type:'gym',maxSimultaneous:2},{id:uid(),name:'Piscine / Palestre',type:'gym',maxSimultaneous:1},{id:uid(),name:'Local musique',type:'music',maxSimultaneous:1},{id:uid(),name:'Local art',type:'art',maxSimultaneous:1}];
-  const groups=[{g:'MAT',l:'pres'},{g:'1A',l:'1'},{g:'1B',l:'1'},{g:'2A',l:'2'},{g:'2B',l:'2'},{g:'3A',l:'3'},{g:'3B',l:'3'},{g:'4A',l:'4'},{g:'4B',l:'4'},{g:'5A',l:'5'},{g:'5B',l:'5'},{g:'6A',l:'6'},{g:'6B',l:'6'}];
-  S.classes=groups.map(x=>({id:uid(),level:x.l,group:x.g,titulaire:'',prepQuota:200}));
-  const gymR=S.rooms[0].id,gym2R=S.rooms[1].id,musR=S.rooms[4].id,artR=S.rooms[5].id;
-  S.specialists=[
-    {id:uid(),name:'Prof. éducation physique 1',shortName:'EPS1',subjectId:'eps',taskPercent:100,isItinerant:false,travelDays:[],roomId:gymR,amPm:'all',maxPerDay:6,maxConsecutive:3,availDays:[],color:'#FF5252'},
-    {id:uid(),name:'Prof. éducation physique 2',shortName:'EPS2',subjectId:'eps',taskPercent:100,isItinerant:false,travelDays:[],roomId:gymR,amPm:'all',maxPerDay:6,maxConsecutive:3,availDays:[],color:'#FF8A80'},
-    {id:uid(),name:'Prof. musique',shortName:'MUS',subjectId:'mus',taskPercent:100,isItinerant:false,travelDays:[],roomId:musR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#4FC3F7'},
-    {id:uid(),name:'Prof. art plastique',shortName:'ART',subjectId:'art',taskPercent:100,isItinerant:false,travelDays:[],roomId:artR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#CE93D8'},
-    {id:uid(),name:'Prof. anglais',shortName:'ANG',subjectId:'ang',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#81D4FA'},
-    {id:uid(),name:'Prof. art dramatique',shortName:'DRA',subjectId:'dram',taskPercent:100,isItinerant:false,travelDays:[],roomId:artR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#F48FB1'},
-    {id:uid(),name:'Prof. ethique',shortName:'ECR',subjectId:'ecr',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#A5D6A7'}];
-  S.assignments={};
+  S.subjects=dep.services();
+  S.rooms=dep.lieux();
+  S.classes=dep.groupes();
+  S.specialists=dep.personnes(S.rooms);
+  S.assignments={};S.verrous={};S.surveillances={};
   // Le modele doit rendre un etat DEJA migre : sinon il lui manque les
   // champs ajoutes depuis, et un simple rechargement les fait apparaitre —
   // deux etats pour un meme horaire.
