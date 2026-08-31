@@ -564,22 +564,24 @@ function peindreAnnee(){
   const h = $('#anneeHote'); h.innerHTML='';
   ANNEE_MOIS.forEach(([y,m])=>{
     const pan = el('div','pan');
-    const ligne = el('div','annee-ligne');
+    const cal = el('div','mini-cal annee-cal');
+    const cap = el('div','caption');
+    cap.style.cssText='font-family:var(--f-titre);letter-spacing:.5px;padding:4px;background:var(--noir);color:var(--jaune);text-align:center';
+    cap.textContent = MOIS_NOMS[m]+' '+y;
+    cal.appendChild(cap);
 
-    const cal = el('div','mini-cal');
-    cal.appendChild(el('div','',''));
-    cal.firstChild.className='caption';
-    cal.firstChild.style.cssText='font-family:var(--f-titre);letter-spacing:.5px;padding:4px;background:var(--noir);color:var(--jaune);text-align:center';
-    cal.firstChild.textContent = MOIS_NOMS[m]+' '+y;
     const t = el('table');
-    t.innerHTML = '<thead><tr><th>L</th><th>M</th><th>M</th><th>J</th><th>V</th></tr></thead>';
+    t.innerHTML = '<thead><tr><th>L</th><th>M</th><th>M</th><th>J</th><th>V</th>'
+      + '<th class="an-th an-th--fl"></th>'
+      + '<th class="an-th an-th--c">Compétence</th>'
+      + '<th class="an-th an-th--m">Moyen d\u2019action</th>'
+      + '<th class="an-th an-th--a">Activité</th></tr></thead>';
     const tb = el('tbody'); const n = new Date(y,m+1,0).getDate();
     let tr = el('tr'), col=0; const dec=(new Date(y,m,1).getDay()+6)%7;
     for(let i=0;i<Math.min(dec,5);i++){ tr.appendChild(el('td')); col++; }
-    let semaines = 1;
     for (let d=1; d<=n; d++){
       const jour=new Date(y,m,d).getDay(); if(jour===0||jour===6) continue;
-      if (col===5){ tb.appendChild(tr); tr=el('tr'); col=0; semaines++; }
+      if (col===5){ tb.appendChild(tr); tr=el('tr'); col=0; }
       const k = iso(y,m,d); const td = el('td');
       td.innerHTML='<span class="r"></span>'+d;
       td.querySelector('.r').textContent = cycles[k]||'';
@@ -587,124 +589,33 @@ function peindreAnnee(){
       tr.appendChild(td); col++;
     }
     while(col<5&&col>0){ tr.appendChild(el('td')); col++; }
-    tb.appendChild(tr); t.appendChild(tb); cal.appendChild(t);
-    ligne.appendChild(cal);
+    tb.appendChild(tr);
 
-    const rows = el('div','annee-rows');
-    const tete = el('div','annee-row');
-    tete.innerHTML = '<span></span><b style="color:#8FE84B">Compétence</b><b style="color:var(--orange)">Moyen d’action</b><b style="color:#4BE8D6">Activité</b>';
-    rows.appendChild(tete);
-    for (let s=1; s<=semaines; s++){
-      const r = el('div','annee-row');
-      const kk = y+'-'+m+'-s'+s;
-      r.dataset.an=y; r.dataset.mois=m; r.dataset.sem=s;   /* voir MON MOIS */
-      r.innerHTML = '<span class="fl">➜</span>'
-        + '<div class="ch"       contenteditable data-k="an-c-'+kk+'" data-vide="…"></div>'
-        + '<div class="ch ch--ma" contenteditable data-k="an-m-'+kk+'" data-vide="…"></div>'
-        + '<div class="ch ch--ac" contenteditable data-k="an-a-'+kk+'" data-vide="…"></div>';
-      rows.appendChild(r);
-    }
-    ligne.appendChild(rows);
-    pan.appendChild(ligne); h.appendChild(pan);
+    /* ⚠ LES TROIS CHAMPS SONT DANS LA MÊME RANGÉE QUE LES CINQ JOURS.
+       C'est ce que montre le gabarit papier « Ma planification annuelle » : une
+       ligne = une semaine, ses jours à gauche, ce qu'on y enseigne à droite.
+       C'est aussi la SEULE façon d'être aligné pour de bon. Les deux blocs ont
+       d'abord été côte à côte — un tableau et une pile de grilles — et il a
+       fallu mesurer l'un pour étirer l'autre : ça tenait sur ma machine et pas
+       sur celle de Joey, parce qu'une mesure dépend du moment où on la prend
+       (polices chargées ou non, cran de taille, largeur utile). Une rangée de
+       tableau n'a pas ce problème : elle est alignée par construction, sans une
+       ligne de JavaScript. */
+    [...tb.children].forEach((ligne,i)=>{
+      const kk = y+'-'+m+'-s'+(i+1);
+      const fl = el('td','an-fl'); fl.textContent='➜'; ligne.appendChild(fl);
+      [['c',''],['m','ch--ma'],['a','ch--ac']].forEach(([lettre,mod])=>{
+        const td = el('td','an-ch');
+        td.innerHTML='<div class="ch '+mod+'" contenteditable data-k="an-'+lettre+'-'+kk+'" data-vide="…"></div>';
+        ligne.appendChild(td);
+      });
+    });
+
+    t.appendChild(tb); cal.appendChild(t);
+    pan.appendChild(cal); h.appendChild(pan);
   });
   brancherEditables(h);
-  /* ⚠ L'ALIGNEMENT ATTEND LA FRAME SUIVANTE, ET CE N'EST PAS UN CAPRICE :
-     `groupesDansLAnnee()` (proto-g3.js) se greffe APRÈS `peindreAnnee()` et
-     pose une bande de pastilles en tête de certaines rangées. Mesurer tout de
-     suite donnerait la hauteur d'AVANT les pastilles, et la ligne du calendrier
-     serait trop courte de la hauteur de la bande.
-     ⚠ Et il relit le DOM au lieu de garder `cal`/`rows` sous la main : l'écran
-     se repeint deux fois de suite (visite puis greffe), la seconde jette les
-     nœuds de la première, et une référence capturée pointait sur un calendrier
-     déjà mis à la poubelle — les hauteurs étaient posées sur du vide. */
-  /* Deux frames, puis DEUX SIGNAUX — pas un délai au hasard.
-     ⚠ Un `setTimeout(…, 250)` ne tenait pas : sur une machine où les polices
-     arrivent plus tard, les rangées étaient mesurées HAUTES (texte de repli),
-     les lignes du calendrier étirées à cette hauteur, puis les rangées
-     rétrécissaient une fois Schoolbell posée — et le calendrier restait long.
-     On écoute donc ce qui change vraiment : la fin du chargement des polices,
-     et toute variation de hauteur des rangées elles-mêmes. */
-  requestAnimationFrame(()=> requestAnimationFrame(alignerToutAnnee));
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(alignerToutAnnee);
-  observerLesRangees();
 }
-
-/* Un seul observateur pour toute la vue, reposé à chaque peinture. Il regarde
-   les RANGÉES ; alignerAnnee() ne touche qu'aux lignes du tableau, donc il ne
-   se réveille pas lui-même. Le rAF évite l'avertissement « ResizeObserver loop »
-   quand plusieurs rangées bougent dans la même frame. */
-let obsAnnee = null, obsEnAttente = false;
-function observerLesRangees(){
-  if (typeof ResizeObserver !== 'function') return;
-  if (obsAnnee) obsAnnee.disconnect();
-  obsAnnee = new ResizeObserver(()=>{
-    if (obsEnAttente) return;
-    obsEnAttente = true;
-    requestAnimationFrame(()=>{ obsEnAttente = false; alignerToutAnnee(); });
-  });
-  $$('#anneeHote .annee-row[data-sem]').forEach(r=> obsAnnee.observe(r));
-}
-
-function alignerToutAnnee(){
-  $$('#anneeHote .annee-ligne').forEach(l=>
-    alignerAnnee(l.querySelector('.mini-cal'), l.querySelector('.annee-rows')));
-}
-
-/* Le gabarit papier aligne CHAQUE rangée « Compétence · Moyen d'action ·
-   Activité » sur SA ligne du calendrier : une semaine, une rangée, à la même
-   hauteur. Les deux blocs sont deux boîtes distinctes (un tableau et une pile
-   de grilles) — aucune règle CSS ne peut donc les faire coïncider seule, et le
-   nombre de lignes change d'un mois à l'autre.
-   On mesure donc les rangées, puis on étire les LIGNES DU CALENDRIER à leur
-   hauteur — jamais l'inverse : écraser les rangées à 26 px rendrait les champs
-   inutilisables, alors que le papier a justement des cases hautes. */
-function alignerAnnee(cal, rows){
-  if (!cal || !rows || !cal.isConnected) return;
-  const trs = [...cal.querySelectorAll('tbody tr')];
-  const rws = [...rows.querySelectorAll('.annee-row[data-sem]')];
-  const tete = rows.querySelector('.annee-row:not([data-sem])');
-  const cap = cal.querySelector('.caption'), thead = cal.querySelector('thead');
-  const haut = e => e ? e.getBoundingClientRect().height : 0;
-  /* ⚠ EN COLONNE ÉTROITE, ALIGNER N'A PLUS DE SENS — ET FAIT DES DÉGÂTS.
-     Sous 900 px, `.annee-ligne` passe à une seule colonne (proto.css) : le
-     calendrier prend toute la largeur et les rangées descendent DESSOUS. Les
-     hauteurs posées pour l'affichage côte à côte étiraient alors chaque ligne
-     du mois à 100 px et le calendrier devenait un mur. On remet tout à zéro et
-     on laisse le CSS faire. */
-  /* On lit LA MÊME media query que la feuille de style (proto.css, 760 px) au
-     lieu de deviner par la géométrie : une fois les hauteurs posées, le
-     calendrier est si haut que la mesure ne dit plus rien de fiable. Le repli
-     géométrique reste, pour le jour où le point de bascule bougera. */
-  const empile = matchMedia('(max-width:760px)').matches
-    || rows.getBoundingClientRect().top >= cal.getBoundingClientRect().bottom - 5;
-  if (empile){
-    trs.forEach(tr=> tr.style.height='');
-    if (tete) tete.style.height='';
-    return;
-  }
-  /* la rangée des titres épouse le bandeau du mois + la ligne L M M J V :
-     sans ça, tout le reste est décalé d'un cran vers le haut */
-  if (tete) tete.style.height = Math.round(haut(cap) + haut(thead)) + 'px';
-  trs.forEach((tr,i)=>{
-    const r = rws[i];
-    tr.style.height = r ? Math.round(r.getBoundingClientRect().height) + 'px' : '';
-  });
-  /* ⚠ PUIS ON CORRIGE PAR LA MESURE, PAS PAR UNE CONSTANTE. Bordures, arrondi
-     du bandeau et `border-collapse` laissaient le tableau quelques pixels plus
-     bas que la première rangée. Un « +4px » écrit en dur aurait tenu jusqu'au
-     prochain changement de bordure ; on relit l'écart réel et on l'absorbe. */
-  if (tete && trs[0] && rws[0]){
-    const ecart = trs[0].getBoundingClientRect().top - rws[0].getBoundingClientRect().top;
-    if (Math.abs(ecart) >= 1)
-      tete.style.height = Math.max(0, Math.round(haut(tete) + ecart)) + 'px';
-  }
-}
-/* Une largeur qui change refait la hauteur des rangées (les champs se
-   replient) : sans ce rappel, l'alignement ne survit pas à une rotation de
-   tablette ni au cran de taille. */
-addEventListener('resize', ()=>{
-  if ($('#e-annee') && $('#e-annee').classList.contains('on')) alignerToutAnnee();
-});
 
 /* ═════════ SEMAINE ═════════ */
 const PERIODES = [

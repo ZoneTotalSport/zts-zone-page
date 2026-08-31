@@ -364,25 +364,43 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
 .mois-bas{display:grid;grid-template-columns:230px 1fr;gap:10px;margin-top:12px}
 
 /* ---------- gabarit ANNÉE ---------- */
-.annee-ligne{display:grid;grid-template-columns:330px 1fr;gap:12px;margin-bottom:14px;align-items:start}
+/* ⚠ CES SIX RÈGLES AVAIENT ÉTÉ EFFACÉES par erreur en refondant la vue : le
+   calendrier perdait ses bordures et son bandeau. Elles décrivent le
+   mini-calendrier lui-même et n'ont rien à voir avec l'alignement. */
 .mini-cal{border:var(--bord);border-radius:10px;overflow:hidden;background:#fff;color:var(--ink)}
 .mini-cal caption{
   font-family:var(--f-titre);letter-spacing:.5px;padding:4px;
-  background:var(--noir);color:var(--jaune);
+  background:var(--noir);color:var(--jaune);text-align:center;
 }
 .mini-cal table{width:100%;border-collapse:collapse;font-size:12px}
 .mini-cal th{background:#CFF1FB;color:var(--ink);border:1px solid var(--noir);font-size:10px;padding:2px}
 .mini-cal td{border:1px solid var(--noir);height:26px;width:14.28%;text-align:center;position:relative;font-weight:800}
 .mini-cal td .r{position:absolute;top:0;right:2px;font-size:8px;color:var(--ink-soft)}
-.annee-rows{display:flex;flex-direction:column;gap:0}
-/* l'écart entre deux rangées est un PADDING, pas un `gap` : le `gap` s'ajoute
-   entre les rangées mais pas au-dessus de la première, ce qui décalait toute
-   la colonne d'un demi-cran par rapport au calendrier. */
-.annee-row{display:grid;grid-template-columns:26px 1fr 1.4fr 1.8fr;gap:6px;
-  align-items:center;padding:3px 0;box-sizing:border-box}
-.annee-row .fl{font-size:19px;color:var(--sur-fond-doux);text-align:center}
-/* `.annee-grs` a été retiré avec la bande de pastilles (proto-g3.js) : MON
-   ANNÉE suit le gabarit papier, qui n'en porte pas. Rien à styler ici. */
+
+/* MON ANNÉE : un seul tableau. Les cinq jours de la semaine, puis la flèche et
+   les trois champs — même rangée, donc alignés par construction. Voir le
+   commentaire de peindreAnnee() dans proto.js : la version « deux blocs côte à
+   côte » demandait de mesurer l'un pour étirer l'autre, et ça ne tenait pas
+   d'une machine à l'autre. */
+.annee-cal{overflow-x:auto;overflow-y:visible}
+.annee-cal table{table-layout:fixed}
+.annee-cal td:nth-child(-n+5),
+.annee-cal th:nth-child(-n+5){width:46px}
+.annee-cal .an-fl{width:26px;text-align:center;font-size:17px;
+  color:var(--ink-soft);border:none;background:transparent}
+.annee-cal .an-th{background:#fff;border:none;font-size:12px;
+  font-family:var(--f-corps);text-align:left;padding:4px 6px 2px}
+.annee-cal .an-th--c{color:#3E9B00}
+.annee-cal .an-th--m{color:#B36A00}
+.annee-cal .an-th--a{color:#008C7A}
+.annee-cal .an-th--fl{width:26px}
+.annee-cal .an-ch{border:none;padding:3px 4px;vertical-align:middle}
+.annee-cal .an-ch .ch{min-height:26px}
+/* les trois colonnes de saisie se partagent ce qui reste, dans les mêmes
+   proportions qu'avant (1 / 1.4 / 1.8) */
+.annee-cal .an-ch:nth-child(7){width:26%}
+.annee-cal .an-ch:nth-child(8){width:31%}
+.annee-cal .an-ch:nth-child(9){width:38%}
 /* les lignes du calendrier reçoivent leur hauteur du JS (alignerAnnee) ;
    26 px n'est plus qu'un plancher pour les mois sans séance */
 .mini-cal td{vertical-align:middle}
@@ -480,7 +498,7 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
   padding:8px 12px;font-size:13px;font-weight:700;margin:0 0 14px;
 }
 @media(max-width:760px){
-  .bloc-cours,.mois-bas,.signatures,.annee-ligne,.cours-tete{grid-template-columns:1fr}
+  .bloc-cours,.mois-bas,.signatures,.cours-tete{grid-template-columns:1fr}
   .tbl{display:block;overflow-x:auto}
   /* la barre proto + la nav collantes mangeaient 600 px de haut sur iPhone :
      sur petit écran elles défilent avec la page. */
@@ -491,7 +509,7 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
   .cal-grille{grid-template-columns:1fr}
   #e-calendrier .pan>div{grid-template-columns:1fr !important}
   .mois-grille{grid-template-columns:repeat(2,1fr)}
-  .annee-row{grid-template-columns:18px 1fr;row-gap:4px}
+  /* MON ANNÉE défile horizontalement en étroit (.annee-cal) : rien à replier */
 }
 
 /* ---------- impression ----------
