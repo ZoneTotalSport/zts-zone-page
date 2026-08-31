@@ -228,6 +228,22 @@ patron produisent 10 cours dans une semaine sans une seule écriture.
 un mode ne veut plus rien dire dans l'autre. On **prévient avant de vider**,
 plutôt que de le perdre en silence.
 
+### Le chiffre sur un groupe compte les cases du PATRON
+
+⚠ **CE COMPTE MENTAIT DEPUIS QUE LA PALETTE A DÉMÉNAGÉ.** Il regardait la
+semaine **affichée dans MA SEMAINE** — ce qui avait du sens tant que la palette
+vivait au-dessus de cet agenda. Depuis qu'elle est dans 🕐 MON HORAIRE, on
+glisse un groupe dans le patron et on attend de voir SON compte monter ; or un
+groupe posé en JOUR 6 n'apparaît pas forcément dans la semaine que MA SEMAINE
+montre au même moment. Résultat vu par Joey : **un chiffre pour certains
+groupes, rien pour d'autres**, sans qu'aucune règle ne l'explique.
+
+Le badge compte désormais les **cases du patron** — ce qui est sous les yeux.
+⚠ Et il s'affiche **même à zéro**, en gris : un badge qui n'apparaît que
+parfois se lit comme un défaut. « 0 » dit *« ce groupe n'est pas encore dans
+ton horaire »*, ce qui est une information ; l'absence de badge n'était qu'un
+silence.
+
 ### Ce que ça déplace
 
 - **La bande de groupes a quitté le haut de la page.** « Les numéros de groupe

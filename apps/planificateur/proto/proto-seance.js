@@ -149,20 +149,19 @@ let pieceEnMain = null;
 /* ── l'image d'un élève : sa photo, ou sa pastille à initiales ── */
 function visageDe(i){ return photoDe(i); }
 
-/* ═════════ combien de cours par groupe, dans la semaine AFFICHÉE ═════════
-   Joey, 28 août : « peux-tu indiquer pour chaque cours dans l'affichage
-   semaine combien chaque groupe a un cours ? »
-   ⚠ On compte la semaine QUI EST À L'ÉCRAN, pas la semaine courante : c'est
-   celle que le prof regarde quand il se pose la question. Le compte se refait
-   donc à chaque repeinture de l'agenda, y compris en changeant de semaine. */
-function coursDeLaSemaine(){
+/* ═════════ combien de fois chaque groupe est-il dans le PATRON ═════════
+   ⚠ CE COMPTE MENTAIT DEPUIS QUE LA PALETTE A DÉMÉNAGÉ. Il regardait la
+   semaine AFFICHÉE dans MA SEMAINE — ce qui avait du sens tant que la palette
+   vivait au-dessus de cet agenda. Depuis qu'elle est dans 🕐 MON HORAIRE, le
+   prof glisse un groupe dans le patron et attend de voir SON compte à lui
+   monter ; or un groupe posé en JOUR 6 n'apparaît pas forcément dans la
+   semaine que MA SEMAINE montre au même moment. Résultat : un chiffre pour
+   certains groupes, rien pour d'autres, sans qu'aucune règle ne l'explique.
+   On compte donc les cases du patron — ce qui est SOUS les yeux. */
+function coursDuPatron(){
   const n={};
-  if (typeof agLundi==='undefined' || !agLundi) return n;
-  const jours=[];
-  for (let i=0;i<5;i++) jours.push(isoDe(new Date(dateDeIso(agLundi).getTime()+i*UN_JOUR)));
-  periodesAgenda().filter(p=>!p.pause).forEach(p=>{
-    jours.forEach(j=>{ const se=seanceDe(j,p.n); if (se && se.gr) n[se.gr]=(n[se.gr]||0)+1; });
-  });
+  if (typeof horGrilleLire !== 'function') return n;
+  Object.values(horGrilleLire()).forEach(id=>{ if(id) n[id]=(n[id]||0)+1; });
   return n;
 }
 
@@ -461,7 +460,7 @@ function peindrePalette(){
      onglets, et juste dessous en sous-titre de l'écran. Elle ne vit plus qu'à
      un endroit — le sous-titre — et chaque onglet garde la sienne en
      info-bulle. */
-  const compte=coursDeLaSemaine();
+  const compte=coursDuPatron();
   GRP().forEach(g=>{
     const b=el('div','pastille-gr'); b.draggable=true; b.dataset.gr=g.id;
     b.style.background=g.coul; b.style.color=encreSur(g.coul);
@@ -471,14 +470,16 @@ function peindrePalette(){
     else b.appendChild(el('span','img',g.emo));
     b.appendChild(el('span',null,g.nom));
     const nb=compte[g.id]||0;
-    if (nb){
-      const c=el('span','pastille-nb',String(nb));
-      c.title=nb+' cours cette semaine-là';
-      b.appendChild(c);
-    }
+    /* ⚠ ON AFFICHE AUSSI LE ZÉRO. Un badge qui n'apparaît que parfois se lit
+       comme un défaut — c'est exactement ce que Joey a vu. Une pastille grise
+       à 0 dit « ce groupe n'est nulle part dans ton horaire », ce qui est une
+       information, et non un silence. */
+    const c=el('span','pastille-nb'+(nb?'':' pastille-nb--zero'), String(nb));
+    c.title = nb ? nb+' case(s) dans ton horaire' : 'Ce groupe n’est pas encore dans ton horaire';
+    b.appendChild(c);
     b.title=g.nom+' — '+g.eleves.length+' élèves · '
-      +(nb ? nb+' cours dans la semaine affichée' : 'aucun cours dans la semaine affichée')
-      +'. Glisse-moi dans l’agenda.';
+      +(nb ? nb+' case(s) dans ton horaire' : 'pas encore dans ton horaire')
+      +'. Glisse-moi dans une case.';
     const m=el('button','modif','✎'); m.type='button'; m.title='Personnaliser ce groupe';
     m.addEventListener('click', e=>{ e.stopPropagation(); modifierGroupe(g.id); });
     b.appendChild(m);
