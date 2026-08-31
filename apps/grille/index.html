@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Grille Horaire — Zone Total Sport</title>
   <!-- ZTS-SEO -->
   <meta name="description" content="Grille horaire pour l&#x27;éducation physique. Organise tes périodes, groupes et locaux. Outil de planification gratuit.">
@@ -22,151 +22,584 @@
   <!-- /ZTS-SEO -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Luckiest+Guy&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{--cyan:#00BCD4;--cyan2:#00E5FF;--green:#43A047;--red:#D32F2F;--orange:#FB8C00;--purple:#7C4DFF;--pink:#FF1493;--yellow:#FFD600;--card:#fff;--border:#ddd;--text:#222;--muted:#888;--radius:12px}
+    /* ======================================================================
+       GRILLE HORAIRE — habillage marine, langage visuel de l'accueil.
+
+       Cette app monte le shell (`ZTSShell.monter({densite:'travail'})`), qui
+       apporte deja le fond marine, les rayons, les polices et les tokens
+       `--ztsh-*`. Elle charge EN PLUS la feuille du patron, celle-la meme que
+       l'accueil utilise (shared/zts-modele), pour en reprendre les COMPOSANTS :
+       boutons a double ombre dure, panneaux a bordure noire, titres Luckiest Guy.
+
+       ⚠ NE JAMAIS ECRIRE ICI LE NOM D'UNE FEUILLE AVEC SON EXTENSION.
+       Le controle 1 de _scripts/verifie-habillage.py cherche la PREMIERE
+       occurrence du nom du fichier du shell dans le TEXTE de la page, et non
+       la position de la balise <link>. Un commentaire qui le nomme avant les
+       balises lui fait croire que l'ordre de chargement est inverse, et la CI
+       bloque sur un ordre pourtant correct. Paye deux fois le 31 aout 2026 :
+       une premiere fois sur la PR #58, une seconde en redigeant cet
+       avertissement — qui citait le nom qu'il disait d'eviter.
+
+       ⚠ ON NE POSE PAS `ztsp-decor` SUR <html>. La feuille du patron le dit
+       elle-meme (l. 146) : sur une app qui monte le shell, les deux decors
+       s'empileraient. On prend les composants, pas le decor.
+
+       REGLE DU CHANTIER : les tokens d'IDENTITE sont rebases sur la charte,
+       les tokens de DIMENSION ne bougent pas. Les anciens noms (--cyan, --card,
+       --border...) survivent en alias pour que les ~200 usages du fichier
+       continuent de resoudre sans etre reecrits un par un.
+       ====================================================================== */
+    :root{
+      /* ---- IDENTITE REBASEE sur la charte de l'accueil ---- */
+      --cyan:   var(--ztsp-cyan,      #00C2E8);
+      --cyan2:  var(--ztsp-cyan-vif,  #3ADCFA);
+      --green:  var(--ztsp-lime,      #A3FF00);
+      --red:    var(--ztsp-rose,      #FF0061);
+      --orange: var(--ztsp-orange,    #FFA200);
+      --purple: #B388FF;
+      --pink:   var(--ztsp-rose,      #FF0061);
+      --yellow: var(--ztsp-jaune,     #FFFC00);
+      --card:   var(--ztsp-surface,   #FFFFFF);
+      --border: var(--ztsp-noir,      #08131E);
+      --text:   var(--ztsp-ink,       #0C1720);
+      --muted:  var(--ztsp-ink-soft,  #5B6773);
+      --encre:  var(--ztsp-noir,      #08131E);
+      --marine: var(--ztsp-marine,    #061726);
+      --sur-marine:      var(--ztsp-sur-fond,      #E6F4FA);
+      --sur-marine-doux: var(--ztsp-sur-fond-doux, #C4E1EE);
+
+      /* ---- DIMENSIONS : inchangees ---- */
+      --radius: 12px;
+      --r-btn:  var(--ztsp-r-btn,  11px);
+      --r-card: var(--ztsp-r-card, 16px);
+
+      /* Ombres dures decalees — les valeurs exactes de l'accueil. */
+      --ombre-carte:   6px 6px 0 rgba(0,0,0,.45);
+      --ombre-panneau: 8px 8px 0 rgba(0,0,0,.45);
+      --ombre-petite:  3px 3px 0 rgba(0,0,0,.45);
+
+      /* Distance entre le bas du header fixe et le contenu.
+         Posee en JS par calerSousHeader() — 12 px, comme sur l'accueil.
+         La valeur ici n'est qu'un repli avant le premier calcul. */
+      --zg-sous-header: 344px;
+
+      --f-titre: var(--ztsp-f-titre, 'LuckiestGuy','Luckiest Guy',system-ui,sans-serif);
+      --f-corps: var(--ztsp-f-corps, 'Quicksand','Helvetica Neue',system-ui,sans-serif);
+      /* La fonte de marque, reservee au titre du hero — le moment ZTS de la page. */
+      --f-display: 'ZoneTotalSportZTSG','LuckiestGuy','Luckiest Guy',system-ui,sans-serif;
+      /* L'ecriture manuscrite, reservee aux annotations. */
+      --f-note: 'AnnieZTSG','Bradley Hand','Segoe Print',cursive;
+    }
+
+    /* ---- LES DEUX FONTES LOCALES ----------------------------------------
+       `ZoneTotalSport.ttf` est la fonte de marque, celle de l'accueil.
+       `size-adjust: 50%` n'est PAS optionnel : sans lui elle rend au double
+       de la taille demandee et le titre deborde de son bloc. Valeur reprise
+       telle quelle du shell et du patron.
+
+       `AnnieUseYourTelescope` est une ecriture manuscrite : elle ne sert
+       qu'aux ANNOTATIONS — les petites notes en marge d'un horaire. Jamais
+       pour un titre, jamais pour une commande. Elle rend petit, d'ou les
+       tailles relevees partout ou elle est posee.
+       -------------------------------------------------------------------- */
+    @font-face{
+      font-family:'ZoneTotalSportZTSG';
+      src:url('/fonts/ZoneTotalSport.ttf') format('truetype');
+      font-display:swap;
+      size-adjust:50%;
+    }
+    @font-face{
+      font-family:'AnnieZTSG';
+      src:url('/fonts/AnnieUseYourTelescope-Regular.ttf') format('truetype');
+      font-display:swap;
+    }
+
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);background:url('img/bg-planification.png') center/cover no-repeat fixed;color:var(--text);min-height:100vh;overflow-x:hidden;
-      font-size:22px}
+    body{
+      font-family:var(--f-corps);
+      color:var(--sur-marine);
+      min-height:100vh;
+      overflow-x:hidden;
+      font-size:17px;          /* etait 22px : trop gros, la grille debordait */
+      line-height:1.45;
+    }
+    /* Le fond marine vient du shell. L'app ne pose plus le sien : l'ancien
+       `background:url(img/bg-planification.png)` chargeait 8,9 Mo pour finir
+       recouvert.
 
-    /* HEADER — gros et tactile */
-    .hdr{position:sticky;top:0;z-index:100;background:linear-gradient(135deg,#00838F,#00ACC1);padding:10px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
-    .hdr img{height:65px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.2))}
-    .hdr .t{font-family:'Luckiest Guy',cursive;font-size:1.8em;color:#fff;letter-spacing:3px;text-shadow:2px 2px 0 rgba(0,0,0,.15)}
-    .hdr .s{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-size:.85em;color:rgba(255,255,255,.75)}
-    .hdr .spacer{flex:1}
-    .hdr select,.hdr button{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-size:.9em;font-weight:600;border:none;border-radius:8px;padding:10px 16px;cursor:pointer;min-height:44px}
-    .hdr select{background:#fff;color:var(--text)}
-    .hdr .hb{background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:1em}
-    .hdr .hb:hover{background:rgba(255,255,255,.35)}
-    .hdr a{color:#fff;font-family:'Luckiest Guy',cursive;font-size:.9em;text-decoration:none;padding:10px 16px;background:rgba(255,255,255,.15);border-radius:8px;border:1px solid rgba(255,255,255,.25)}
+       ---- REALIGNEMENT DE LA TRAME SUR L'ACCUEIL -------------------------
+       Comparaison cote a cote du 31 aout 2026, meme fenetre, les deux rendus
+       cote a cote : meme marine (#061726), meme degrade 163deg, memes rayons.
+       UNE couche divergeait — la trame de points.
 
-    /* PROGRESS */
-    .progress{background:var(--card);border-bottom:2px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:14px;font-size:1em}
-    .progress .pbar{flex:1;height:14px;background:#e8e8e8;border-radius:7px;overflow:hidden}
-    .progress .pbar div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:7px;transition:width .3s}
-    .progress .ptxt{font-weight:700;color:var(--cyan);min-width:80px;text-align:right}
+         accueil (feuille du patron) : les points sont sur `body::before`, un
+                                    calque entier a `opacity:.5`, donc
+                                    rgba(255,255,255,.16) x .5 = .08 effectif.
+         shell   (feuille du shell) : les points sont une couche du
+                                    `background-image` de html.ztsh-on, sans
+                                    opacite de calque — .16 plein.
 
-    /* LAYOUT */
-    .layout{display:flex;height:calc(100vh - 110px);overflow:hidden}
+       La texture etait donc deux fois plus marquee ici que sur l'accueil.
+       On realigne POUR CETTE PAGE. Les trois couches sont recopiees parce que
+       CSS ne permet pas de ne redefinir qu'une couche de `background-image`.
 
-    /* LEFT PANEL */
-    .panel{width:260px;background:var(--card);border-right:2px solid var(--border);overflow-y:auto;padding:14px;flex-shrink:0}
-    .panel h3{font-family:'Bangers',cursive;font-size:1.2em;color:#00838F;margin-bottom:10px;letter-spacing:1px}
-    .spec-card{border:3px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .1s;min-height:50px}
-    .spec-card:hover{border-color:var(--cyan)}
-    .spec-card.active{border-color:#000;box-shadow:0 0 0 3px var(--cyan2),0 3px 10px rgba(0,0,0,.15)}
-    .spec-card .sc-top{display:flex;align-items:center;gap:8px;margin-bottom:5px}
-    .spec-card .sc-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
-    .spec-card .sc-name{font-weight:700;font-size:1em;flex:1}
-    .spec-card .sc-remain{font-family:'Bangers',cursive;font-size:1.1em;color:var(--cyan)}
-    .spec-card .sc-info{font-size:.8em;color:var(--muted)}
-    .spec-card .sc-bar{height:6px;background:#eee;border-radius:3px;margin-top:5px;overflow:hidden}
-    .spec-card .sc-bar div{height:100%;border-radius:3px;transition:width .2s}
+       ⚠ Le correctif DURABLE est dans les deux feuilles partagees, qui doivent
+       porter la meme valeur (ztsh-shell l. 279 et zts-modele l. 171) —
+       chantier separe : il touche les 40 apps qui montent le shell. */
+    html.ztsh-on{
+      background-image:
+        radial-gradient(rgba(255,255,255,.08) 1.3px, transparent 1.4px),
+        radial-gradient(760px 420px at 88% 4%, rgba(255,212,0,.10), transparent 70%),
+        linear-gradient(163deg,#12879E 0%,#0C5C7D 28%,#0A3A5E 58%,#08243D 82%,var(--ztsh-marine,#061726) 100%);
+      background-size:12px 12px,auto,auto;
+      background-repeat:repeat,no-repeat,no-repeat;
+      background-attachment:fixed,fixed,fixed;
+    }
 
-    .panel .p-section{margin-top:16px;padding-top:12px;border-top:2px solid var(--border)}
-    .panel .p-btn{display:block;width:100%;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:600;font-size:.95em;padding:12px;border:2px dashed var(--border);border-radius:10px;background:transparent;cursor:pointer;color:var(--muted);text-align:center;margin-bottom:6px;min-height:48px}
-    .panel .p-btn:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,188,212,.04)}
+    /* ======================================================================
+       BARRE D'ACTIONS — gros boutons picto + un mot, avance sous « Plus ».
+       ====================================================================== */
+    .zg-bar{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center;
+      max-width:1180px; margin:0 auto; padding:14px 16px 6px;
+    }
+    .zg-btn{
+      display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+      font-family:var(--f-titre); letter-spacing:.5px; font-size:13px; line-height:1;
+      min-width:84px; min-height:64px; padding:9px 14px 8px;
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
+      box-shadow:0 5px 0 var(--ztsp-cyan-dark,#075A6B), 5px 9px 0 rgba(0,0,0,.35);
+      cursor:pointer; transition:.09s; text-decoration:none;
+    }
+    .zg-btn .zg-ic{font-size:22px; line-height:1}
+    .zg-btn:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ztsp-cyan-dark,#075A6B), 6px 12px 0 rgba(0,0,0,.35) }
+    .zg-btn:active{ transform:translateY(4px);  box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 2px 4px 0 rgba(0,0,0,.35) }
+    .zg-btn:focus-visible{ outline:3px solid var(--yellow); outline-offset:4px }
+    .zg-btn--jaune {background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00; box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35)}
+    .zg-btn--jaune:hover {box-shadow:0 7px 0 var(--ztsp-jaune-deep,#C4C200), 6px 12px 0 rgba(0,0,0,.35)}
+    .zg-btn--jaune:active{box-shadow:0 1px 0 var(--ztsp-jaune-deep,#C4C200), 2px 4px 0 rgba(0,0,0,.35)}
+    .zg-btn--lime  {background:linear-gradient(180deg,#C9FF6B,var(--green)); color:#1E3300; box-shadow:0 5px 0 #6F9E00, 5px 9px 0 rgba(0,0,0,.35)}
+    .zg-btn--lime:hover  {box-shadow:0 7px 0 #6F9E00, 6px 12px 0 rgba(0,0,0,.35)}
+    .zg-btn--lime:active {box-shadow:0 1px 0 #6F9E00, 2px 4px 0 rgba(0,0,0,.35)}
+    .zg-btn--rose  {background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#fff; box-shadow:0 5px 0 #A3003F, 5px 9px 0 rgba(0,0,0,.35)}
+    .zg-btn--rose:hover  {box-shadow:0 7px 0 #A3003F, 6px 12px 0 rgba(0,0,0,.35)}
+    .zg-btn--rose:active {box-shadow:0 1px 0 #A3003F, 2px 4px 0 rgba(0,0,0,.35)}
 
-    /* ALERT TOAST */
-    .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:10px;font-weight:600;font-size:1em;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.3);animation:toastIn .3s ease-out}
-    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    /* « Plus » — divulgation progressive. Ferme par defaut. */
+    .zg-plus{display:none; width:100%; justify-content:center; flex-wrap:wrap; gap:10px; padding-top:4px}
+    .zg-bar.zg-ouvert .zg-plus{display:flex}
+    .zg-bar.zg-ouvert .zg-btn--plus .zg-ic{transform:rotate(180deg)}
+    .zg-btn--plus .zg-ic{transition:transform .15s}
 
-    /* GRID AREA */
-    .grid-area{flex:1;overflow:auto;padding:12px;background:rgba(244,246,248,.85)}
-    .grid{display:grid;gap:3px;min-width:min-content}
-    .g-hdr{background:linear-gradient(135deg,#00838F,#00ACC1);border-radius:10px;padding:12px;text-align:center;min-height:54px;display:flex;align-items:center;justify-content:center;font-family:'Bangers',cursive;font-size:1.4em;color:#fff;letter-spacing:1px}
-    .g-time{background:var(--card);border:2px solid var(--border);border-radius:10px;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Bangers',cursive;font-size:1.2em;color:#00838F}
-    .g-time small{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-size:.65em;color:var(--muted);font-weight:500}
-    .g-brk{border-radius:10px;min-height:38px;display:flex;align-items:center;justify-content:center;font-family:'Bangers',cursive;font-size:1em;letter-spacing:1px}
-    .g-brk.rec{background:#fff9c4;color:#F9A825}
-    .g-brk.lun{background:#e0f7fa;color:#00838F}
+    /* Selecteur de langue — restaure. Il vit dans la barre, au style de l'app. */
+    .zg-lang{
+      font-family:var(--f-titre); font-size:13px; letter-spacing:.5px;
+      min-height:44px; padding:8px 12px; cursor:pointer;
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      background:var(--card); color:var(--text);
+      box-shadow:var(--ombre-petite);
+    }
+    .zg-lang:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
 
-    .g-cell{border:3px solid var(--border);border-radius:10px;min-height:80px;background:var(--card);display:flex;flex-wrap:wrap;align-content:center;align-items:stretch;justify-content:center;cursor:pointer;padding:4px;transition:all .1s;gap:3px}
-    .g-cell:hover{border-color:var(--cyan);background:#e0f7fa}
-    .g-cell.can-drop{border-color:var(--cyan2);background:rgba(0,229,255,.1);border-style:dashed}
-    .g-cell.cant-drop{opacity:.35}
-    .g-cell.hard{border-color:var(--red)!important;background:rgba(211,47,47,.06)!important}
-    .g-cell.soft{border-color:var(--orange)!important;background:rgba(255,152,0,.05)!important}
-
-    .g-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:8px;font-size:.85em;font-weight:800;justify-content:space-between;color:#000;white-space:nowrap;flex:1 1 auto;min-width:0;border:2px solid rgba(0,0,0,.12);text-shadow:0 1px 0 rgba(255,255,255,.4)}
-    .g-cell.multi .g-chip{font-size:.75em;padding:4px 7px}
-    .g-chip:hover{filter:brightness(.92)}
-    .g-chip .x{font-size:.75em;opacity:.3;padding:2px 4px;cursor:pointer;min-width:24px;min-height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px}
-    .g-chip .x:hover{opacity:1;color:#fff;background:var(--red)}
-    .g-chip .sp-tag{font-size:.7em;opacity:.6;font-weight:600;background:rgba(0,0,0,.1);padding:1px 4px;border-radius:3px}
-    .g-cell .plus{color:rgba(0,0,0,.12);font-size:1.8em;font-weight:300}
-
-    /* RIGHT PANEL */
-    .rpanel{width:240px;background:var(--card);border-left:2px solid var(--border);overflow-y:auto;padding:14px;flex-shrink:0}
-    .rpanel h3{font-family:'Bangers',cursive;font-size:1.2em;color:#00838F;margin-bottom:10px}
-    .next-item{font-size:.85em;padding:8px 10px;border-radius:8px;margin-bottom:4px;border-left:4px solid var(--border);background:rgba(0,0,0,.02)}
-    .next-item .ni-cls{font-weight:700;font-size:1em}
-    .next-item .ni-sub{color:var(--muted);font-size:.85em}
-    .next-item .ni-need{font-family:'Bangers',cursive;color:var(--cyan);float:right;font-size:1.1em}
-
-    /* WELCOME HERO — inline, not overlay */
-    .hero{display:flex;justify-content:center;padding:30px 20px;background:transparent}
+    /* ======================================================================
+       HERO — le langage de l'accueil : eyebrow jaune, titre Luckiest Guy a
+       contour noir, personnage EPS. Se replie des qu'une ecole existe.
+       ====================================================================== */
+    .hero{display:flex; justify-content:center; padding:10px 16px 4px}
     .hero.hidden{display:none}
-    .hero-box{background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(224,247,250,.88));border:3px solid var(--cyan);border-radius:24px;padding:0;max-width:800px;width:100%;display:flex;align-items:stretch;box-shadow:0 8px 40px rgba(0,0,0,.15);overflow:hidden;backdrop-filter:blur(6px)}
-    .hb-left{flex:0 0 200px;display:flex;align-items:flex-end;justify-content:center;padding:20px 10px 0}
-    .hb-left img{width:185px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.2))}
-    .hb-right{flex:1;padding:30px 34px}
-    .hb-right h2{font-family:'Luckiest Guy',cursive;font-size:1.7em;color:#222;letter-spacing:2px;line-height:1.15;margin-bottom:4px}
-    .hb-right h2 span{color:var(--cyan);display:block}
-    .hb-right .hb-desc{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-size:.9em;color:#555;line-height:1.6;margin:12px 0 16px}
-    .hb-badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
-    .hb-badge{font-family:'Bangers',cursive;font-size:.8em;letter-spacing:.5px;padding:5px 12px;border-radius:18px;border:2px solid var(--border);background:#fff;color:#444;display:inline-flex;align-items:center;gap:4px}
-    .hb-actions{display:flex;flex-wrap:wrap;gap:12px}
-    .hb-btn{font-family:'Bangers',cursive;font-weight:700;font-size:1.15em;letter-spacing:1px;padding:14px 26px;border:none;border-radius:14px;cursor:pointer;display:inline-flex;align-items:center;gap:10px;min-height:52px;box-shadow:0 4px 15px rgba(0,0,0,.1);transition:all .15s}
-    .hb-btn:hover{filter:brightness(.93);transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.15)}
-    .hb-btn.main{background:linear-gradient(135deg,#FFD600,#FFB300);color:#222}
-    .hb-btn.sec{background:#fff;color:#00838F;border:2px solid var(--cyan)}
-    @media(max-width:700px){.hb-left{display:none}.hb-right{padding:20px}}
+    .hero-box{
+      display:grid; grid-template-columns:1.06fr .94fr; gap:20px; align-items:center;
+      max-width:1000px; width:100%;
+    }
+    .hb-left{position:relative; display:grid; place-items:center; min-height:180px}
+    .hb-left::before{
+      content:''; position:absolute; width:210px; aspect-ratio:1; border-radius:50%; z-index:0;
+      background:radial-gradient(circle, rgba(0,194,232,.30), transparent 68%);
+    }
+    .hb-left img{
+      position:relative; width:min(200px,80%); height:auto; display:block;
+      filter:drop-shadow(-8px 10px 0 rgba(0,0,0,.42));
+      animation:zg-flotte 6.5s ease-in-out infinite;
+    }
+    @keyframes zg-flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+    .hb-eyebrow{
+      display:inline-block; font-family:var(--f-titre); letter-spacing:1.2px; font-size:14px;
+      background:var(--yellow); color:#2B2A00; padding:5px 13px 3px; border-radius:7px;
+      border:3px solid var(--encre); transform:rotate(-1.6deg); box-shadow:var(--ombre-petite);
+    }
+    .hb-right h2{
+      font-family:var(--f-display); font-size:clamp(34px,5.2vw,58px); line-height:.98;
+      letter-spacing:1px; color:#fff; margin:12px 0 0;
+      /* Contour noir — la technique de `.ztsp-compteur__gros` sur l'accueil. */
+      text-shadow:4px 4px 0 var(--encre), -2px -2px 0 var(--encre),
+                  2px -2px 0 var(--encre), -2px 2px 0 var(--encre);
+    }
+    .hb-right h2 span{display:block; color:var(--yellow)}
+    .hb-desc{font-size:15.5px; font-weight:600; color:var(--sur-marine-doux); margin:12px 0 14px; max-width:48ch}
+    .hb-badges{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px}
+    .hb-badge{
+      font-size:11.5px; font-weight:900; letter-spacing:.4px;
+      background:rgba(255,255,255,.09); border:2.5px solid var(--encre); border-radius:var(--r-btn);
+      padding:6px 11px; box-shadow:var(--ombre-petite); color:var(--sur-marine);
+    }
+    .hb-actions{display:flex; gap:12px; flex-wrap:wrap}
+    .hb-btn{
+      display:inline-flex; align-items:center; gap:9px;
+      font-family:var(--f-titre); letter-spacing:.6px; font-size:16px;
+      padding:14px 26px 12px; border-radius:var(--r-btn);
+      border:3px solid var(--encre); cursor:pointer; transition:.09s;
+      background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00;
+      box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35);
+    }
+    .hb-btn:hover {transform:translateY(-2px); box-shadow:0 7px 0 var(--ztsp-jaune-deep,#C4C200), 6px 12px 0 rgba(0,0,0,.35)}
+    .hb-btn:active{transform:translateY(4px);  box-shadow:0 1px 0 var(--ztsp-jaune-deep,#C4C200), 2px 4px 0 rgba(0,0,0,.35)}
+    .hb-btn.sec{
+      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
+      box-shadow:0 5px 0 var(--ztsp-cyan-dark,#075A6B), 5px 9px 0 rgba(0,0,0,.35);
+    }
+    .hb-btn.sec:hover {box-shadow:0 7px 0 var(--ztsp-cyan-dark,#075A6B), 6px 12px 0 rgba(0,0,0,.35)}
+    .hb-btn.sec:active{box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 2px 4px 0 rgba(0,0,0,.35)}
+    @media(max-width:860px){
+      .hero-box{grid-template-columns:1fr}
+      .hb-left{display:none}
+    }
+    /* Le hero sert aussi de gabarit a la modale d'aide, sur fond BLANC :
+       les couleurs prevues pour le marine y seraient illisibles. */
+    .mbox .hb-right h2{color:var(--text); text-shadow:none; font-size:26px}
+    .mbox .hb-right h2 span{color:var(--ztsp-cyan-dark,#075A6B); display:inline}
+    .mbox .hb-desc{color:var(--text); max-width:none}
+    .mbox .hb-badge{background:#EAF3F7; color:var(--text)}
+    .mbox .hb-left::before{display:none}
 
-    /* MODAL — gros et tactile */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(2px);z-index:5000;display:flex;align-items:center;justify-content:center}
-    .mbox{background:#fff;border:3px solid var(--cyan);border-radius:var(--radius);padding:24px;width:95%;max-width:650px;max-height:88vh;overflow-y:auto;box-shadow:0 6px 30px rgba(0,0,0,.2)}
-    .mbox h3{font-family:'Bangers',cursive;font-size:1.5em;color:#00838F;text-align:center;margin-bottom:14px}
-    .macts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:2px solid #f0f0f0}
-    .fr{display:flex;gap:10px;align-items:center;margin-bottom:9px;flex-wrap:wrap}
-    .fr label{font-weight:600;min-width:95px;font-size:.9em}
-    .fr input,.fr select{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-size:.9em;font-weight:500;border:2px solid var(--border);border-radius:8px;padding:8px 12px;min-height:40px}
-    .fr input:focus,.fr select:focus{outline:none;border-color:var(--cyan);background:#e0f7fa}
-    .fr input[type=number]{width:70px}
-    .fr input[type=checkbox]{width:22px;height:22px;accent-color:var(--cyan)}
-    .chips{display:flex;flex-wrap:wrap;gap:4px}
-    .ck{font-size:.85em;font-weight:700;padding:6px 14px;border-radius:18px;cursor:pointer;border:2px solid var(--border);background:#f5f5f5;color:#999;user-select:none;min-height:36px;display:flex;align-items:center}
-    .ck.on{background:var(--cyan);color:#fff;border-color:#00838F}
-    .dt{width:100%;border-collapse:collapse;font-size:.9em}
-    .dt th{background:#00838F;color:#fff;font-family:'Bangers',cursive;padding:8px;text-align:left;letter-spacing:.5px}
-    .dt td{padding:7px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
-    .dt tr:hover{background:rgba(0,188,212,.04)}
-    .cdot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px}
-    .btn{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:700;font-size:.9em;padding:9px 18px;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;min-height:42px}
-    .btn:hover{filter:brightness(.93)}
-    .btn.g{background:var(--green);color:#fff}
-    .btn.c{background:var(--cyan);color:#fff}
-    .btn.r{background:var(--red);color:#fff}
-    .btn.o{background:#f0f0f0;color:var(--text)}
-    .btn.sm{font-size:.8em;padding:5px 10px;min-height:32px}
+    /* ======================================================================
+       PROGRESSION — une tuile de l'accueil, pas une barre d'outil grise.
+       ====================================================================== */
+    .progress{
+      display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+      max-width:1180px; margin:10px auto 0; padding:10px 16px;
+      background:rgba(255,255,255,.09); border:3px solid var(--encre);
+      border-radius:var(--r-btn); box-shadow:var(--ombre-petite);
+      font-size:14px; color:var(--sur-marine);
+    }
+    .progress .pbar{flex:1; min-width:140px; height:16px; background:rgba(0,0,0,.35);
+      border:2px solid var(--encre); border-radius:9px; overflow:hidden}
+    .progress .pbar div{height:100%; background:linear-gradient(90deg,var(--cyan2),var(--green)); transition:width .3s}
+    .progress .ptxt{font-family:var(--f-titre); font-size:17px; color:var(--yellow); min-width:64px; text-align:right}
+    .progress #progLabel{font-weight:800}
+    .progress .pill{font-family:var(--f-titre); font-size:14px; padding:4px 10px 2px; border-radius:7px;
+      border:2.5px solid var(--encre); box-shadow:2px 2px 0 rgba(0,0,0,.4)}
+    #pillH{background:var(--red); color:#fff}
+    #pillS{background:var(--orange); color:#3D2400}
 
-    /* CLASS PICKER — gros boutons tactiles */
-    .class-picker{display:flex;flex-direction:column;gap:6px}
-    .class-picker .cp-btn{font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:700;font-size:1.1em;padding:14px 18px;border:3px solid var(--border);border-radius:10px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:space-between;min-height:52px;transition:all .1s}
-    .class-picker .cp-btn:hover{border-color:var(--cyan);background:#e0f7fa}
-    .class-picker .cp-btn:disabled{opacity:.3;cursor:default}
-    .class-picker .cp-btn .cp-need{font-family:'Bangers',cursive;color:var(--cyan);font-size:1em}
+    /* ======================================================================
+       MISE EN PAGE
+       --------------------------------------------------------------------
+       L'ancienne regle etait `.layout{height:calc(100vh - 110px); overflow:hidden}`.
+       Les 110 px dataient du header custom de 65 px, supprime le 3 juin. Avec
+       le header partage — fixe, et qui fait reserver ~332 px de padding-top au
+       body — la grille se retrouvait dans une boite de 586 px commencant a
+       825 px du haut : invisible sans defiler.
 
-    @media print{.hdr,.panel,.rpanel,.progress,.hero{display:none!important}.layout{height:auto}.grid-area{padding:0}}
-    @media(max-width:900px){.panel{width:200px}.rpanel{display:none}}
-    @media(max-width:600px){.panel{display:none}.rpanel{display:none}.layout{flex-direction:column;height:auto}.grid-area{min-height:60vh}}
+       On abandonne la boite a hauteur fixe. La page defile normalement, comme
+       les sections de l'accueil, et les deux panneaux collent sous le header.
+       ====================================================================== */
+    .layout{
+      display:flex; align-items:flex-start; gap:14px;
+      max-width:1180px; margin:12px auto 40px; padding:0 16px;
+    }
+    .panel, .rpanel{
+      position:sticky; top:var(--zg-sous-header);
+      max-height:calc(100vh - var(--zg-sous-header) - 16px); overflow-y:auto;
+      flex-shrink:0; padding:14px;
+      background:var(--card); color:var(--text);
+      border:4px solid var(--encre); border-radius:var(--r-card);
+      box-shadow:var(--ombre-panneau);
+    }
+    .panel{width:236px}
+    .rpanel{width:212px}
+    .panel h3, .rpanel h3{
+      font-family:var(--f-titre); font-size:17px; letter-spacing:.4px;
+      color:var(--text); margin-bottom:10px;
+    }
+    .grid-area{
+      flex:1; min-width:0; overflow-x:auto; padding:14px;
+      background:var(--card);
+      border:4px solid var(--encre); border-radius:var(--r-card);
+      box-shadow:var(--ombre-panneau);
+    }
+    .grid{display:grid; gap:3px; min-width:min-content}
+
+    /* Cartes de specialistes — le vocabulaire de `.ztsp-card`. */
+    .spec-card{
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      padding:11px 13px; margin-bottom:9px; cursor:pointer; min-height:52px;
+      background:#fff; box-shadow:3px 3px 0 rgba(0,0,0,.28); transition:.12s;
+    }
+    .spec-card:hover{transform:translate(-2px,-2px); box-shadow:5px 5px 0 rgba(0,0,0,.28)}
+    .spec-card.active{box-shadow:5px 5px 0 var(--cyan), 0 0 0 3px var(--encre)}
+    .spec-card .sc-top{display:flex; align-items:center; gap:8px; margin-bottom:5px}
+    .spec-card .sc-dot{width:14px; height:14px; border-radius:50%; border:2px solid var(--encre); flex-shrink:0}
+    .spec-card .sc-name{font-weight:800; font-size:14px; flex:1; color:var(--text)}
+    .spec-card .sc-remain{font-family:var(--f-titre); font-size:16px; color:var(--ztsp-cyan-dark,#075A6B)}
+    .spec-card .sc-info{font-family:var(--f-note); font-size:15px; line-height:1.15; color:var(--muted)}
+    .spec-card .sc-bar{height:7px; background:#e8eef1; border:1.5px solid var(--encre); border-radius:4px; margin-top:6px; overflow:hidden}
+    .spec-card .sc-bar div{height:100%; transition:width .2s}
+
+    .panel .p-section{margin-top:14px; padding-top:12px; border-top:3px solid var(--encre)}
+    .panel .p-btn{
+      display:flex; align-items:center; gap:9px; width:100%;
+      font-family:var(--f-titre); font-size:13px; letter-spacing:.4px;
+      padding:11px 13px; margin-bottom:8px; min-height:48px; cursor:pointer;
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      background:linear-gradient(180deg,#fff,#E6F4FA); color:var(--text);
+      box-shadow:0 5px 0 #A9BCC5, 5px 9px 0 rgba(0,0,0,.35); transition:.09s; text-align:left;
+    }
+    .panel .p-btn:hover{transform:translateY(-2px); box-shadow:0 7px 0 #A9BCC5, 6px 12px 0 rgba(0,0,0,.35)}
+    .panel .p-btn:active{transform:translateY(4px); box-shadow:0 1px 0 #A9BCC5, 2px 4px 0 rgba(0,0,0,.35)}
+
+    /* ======================================================================
+       TOAST
+       ====================================================================== */
+    /* En bas, et EMPILES.
+       Pose sous le header, le toast recouvrait la barre d'actions. Pose en bas
+       sans pile, deux messages rapproches se superposaient — les deux defauts
+       vus aux captures du 31 aout. La pile regle les deux. */
+    .zg-toasts{
+      position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+      display:flex; flex-direction:column-reverse; align-items:center; gap:8px;
+      z-index:9999; pointer-events:none; max-width:92vw;
+    }
+    .toast{
+      background:var(--encre); color:#fff; padding:12px 22px; border-radius:var(--r-btn);
+      border:3px solid #fff; font-weight:800; font-size:14.5px;
+      box-shadow:5px 5px 0 rgba(0,0,0,.5); animation:toastIn .3s ease-out;
+      text-align:center; pointer-events:auto;
+    }
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(16px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    /* ======================================================================
+       LA GRILLE ELLE-MEME
+       Bordures noires, coins arrondis, ombres dures : le meme traitement que
+       les tuiles de l'accueil, a l'echelle d'une cellule.
+       ====================================================================== */
+    .g-hdr{
+      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      padding:10px; text-align:center; min-height:50px;
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--f-titre); font-size:17px; letter-spacing:.6px;
+      box-shadow:2px 2px 0 rgba(0,0,0,.35);
+    }
+    .g-time{
+      background:#fff; border:3px solid var(--encre); border-radius:var(--r-btn);
+      min-height:78px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      font-family:var(--f-titre); font-size:16px; color:var(--ztsp-cyan-dark,#075A6B);
+      box-shadow:2px 2px 0 rgba(0,0,0,.25);
+    }
+    .g-time small{font-family:var(--f-note); font-size:14px; line-height:1.1; color:var(--muted); font-weight:400}
+    .g-brk{
+      border:3px solid var(--encre); border-radius:var(--r-btn); min-height:36px;
+      display:flex; align-items:center; justify-content:center;
+      font-family:var(--f-titre); font-size:13px; letter-spacing:.6px;
+      box-shadow:2px 2px 0 rgba(0,0,0,.25);
+    }
+    .g-brk.rec{background:var(--yellow); color:#2B2A00}
+    .g-brk.lun{background:#BFE9F6; color:#03323C}
+
+    .g-cell{
+      border:3px solid var(--encre); border-radius:var(--r-btn); min-height:78px;
+      background:#fff; display:flex; flex-wrap:wrap; align-content:center; align-items:stretch;
+      justify-content:center; cursor:pointer; padding:4px; gap:3px; transition:.1s;
+      box-shadow:2px 2px 0 rgba(0,0,0,.18);
+    }
+    .g-cell:hover{transform:translate(-1px,-1px); box-shadow:4px 4px 0 rgba(0,0,0,.25); background:#EAF8FD}
+    .g-cell.can-drop{border-style:dashed; background:rgba(58,220,250,.16)}
+    .g-cell.cant-drop{opacity:.32}
+    .g-cell.hard{box-shadow:0 0 0 3px var(--red), 2px 2px 0 rgba(0,0,0,.18) !important; background:rgba(255,0,97,.07) !important}
+    .g-cell.soft{box-shadow:0 0 0 3px var(--orange), 2px 2px 0 rgba(0,0,0,.18) !important; background:rgba(255,162,0,.09) !important}
+
+    .g-chip{
+      display:inline-flex; align-items:center; justify-content:space-between; gap:4px;
+      padding:6px 9px; border-radius:8px; font-size:13px; font-weight:800; color:#0C1720;
+      white-space:nowrap; flex:1 1 auto; min-width:0;
+      border:2px solid var(--encre); box-shadow:1.5px 1.5px 0 rgba(0,0,0,.35);
+    }
+    .g-cell.multi .g-chip{font-size:11.5px; padding:4px 6px}
+    .g-chip:hover{filter:brightness(.94)}
+    .g-chip .x{font-size:11px; opacity:.45; padding:2px 4px; cursor:pointer; min-width:24px; min-height:24px;
+      display:flex; align-items:center; justify-content:center; border-radius:5px}
+    .g-chip .x:hover{opacity:1; color:#fff; background:var(--red)}
+    .g-chip .sp-tag{font-size:10px; opacity:.7; font-weight:700; background:rgba(0,0,0,.12); padding:1px 4px; border-radius:3px}
+    .g-cell .plus{color:rgba(8,19,30,.14); font-size:26px; font-weight:300}
+
+    .next-item{
+      font-size:13px; padding:9px 11px; border-radius:var(--r-btn); margin-bottom:7px;
+      border:2.5px solid var(--encre); border-left-width:6px; background:#fff; color:var(--text);
+      box-shadow:2px 2px 0 rgba(0,0,0,.25);
+    }
+    .next-item .ni-cls{font-weight:800; font-size:14px}
+    .next-item .ni-sub{font-family:var(--f-note); color:var(--muted); font-size:15px; line-height:1.2}
+    .next-item .ni-need{font-family:var(--f-titre); color:var(--ztsp-cyan-dark,#075A6B); float:right; font-size:16px}
+
+    /* ======================================================================
+       MODALES ET FORMULAIRES
+       ====================================================================== */
+    .modal{position:fixed; inset:0; background:rgba(6,23,38,.62); backdrop-filter:blur(3px);
+      z-index:5000; display:flex; align-items:center; justify-content:center; padding:16px}
+    .mbox{
+      background:#fff; color:var(--text);
+      border:4px solid var(--encre); border-radius:var(--r-card);
+      box-shadow:var(--ombre-panneau);
+      padding:22px; width:100%; max-width:660px; max-height:88vh; overflow-y:auto;
+    }
+    .mbox h3{font-family:var(--f-titre); font-size:24px; letter-spacing:.5px; color:var(--text);
+      text-align:center; margin-bottom:14px}
+    .macts{display:flex; gap:9px; justify-content:flex-end; margin-top:16px; padding-top:13px;
+      border-top:3px solid var(--encre); flex-wrap:wrap}
+    .fr{display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap}
+    .fr label{font-weight:800; min-width:95px; font-size:13.5px}
+    .fr input,.fr select{
+      font-family:var(--f-corps); font-size:14px; font-weight:600; min-height:44px;
+      border:2.5px solid var(--encre); border-radius:9px; padding:8px 12px; background:#fff; color:var(--text);
+    }
+    .fr input:focus,.fr select:focus{outline:3px solid var(--yellow); outline-offset:2px; background:#EAF8FD}
+    .fr input[type=number]{width:78px}
+    .fr input[type=checkbox]{width:24px; height:24px; min-height:0; accent-color:var(--cyan)}
+    .chips{display:flex; flex-wrap:wrap; gap:5px}
+    .ck{font-size:13px; font-weight:800; padding:7px 14px; border-radius:18px; cursor:pointer;
+      border:2.5px solid var(--encre); background:#EDF2F5; color:var(--muted); user-select:none;
+      min-height:40px; display:flex; align-items:center}
+    .ck.on{background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C; box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+    .dt{width:100%; border-collapse:collapse; font-size:13.5px}
+    .dt th{background:var(--encre); color:#fff; font-family:var(--f-titre); letter-spacing:.6px;
+      padding:9px 8px; text-align:left; font-size:13px}
+    .dt td{padding:8px; border-bottom:2px solid #E4EBEF; vertical-align:middle}
+    .dt tr:hover{background:#F2F9FC}
+    .cdot{display:inline-block; width:13px; height:13px; border-radius:50%; border:2px solid var(--encre);
+      vertical-align:middle; margin-right:5px}
+
+    .btn{
+      font-family:var(--f-titre); font-weight:400; font-size:13.5px; letter-spacing:.4px;
+      padding:10px 18px 8px; min-height:44px; cursor:pointer;
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      display:inline-flex; align-items:center; gap:6px; transition:.09s;
+      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
+      box-shadow:0 4px 0 var(--ztsp-cyan-dark,#075A6B), 3px 6px 0 rgba(0,0,0,.3);
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 1px 2px 0 rgba(0,0,0,.3)}
+    .btn.g{background:linear-gradient(180deg,#C9FF6B,var(--green)); color:#1E3300; box-shadow:0 4px 0 #6F9E00, 3px 6px 0 rgba(0,0,0,.3)}
+    .btn.c{background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C}
+    .btn.r{background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#fff; box-shadow:0 4px 0 #A3003F, 3px 6px 0 rgba(0,0,0,.3)}
+    .btn.o{background:linear-gradient(180deg,#fff,#DCE7EC); color:var(--text); box-shadow:0 4px 0 #A9BCC5, 3px 6px 0 rgba(0,0,0,.3)}
+    .btn.sm{font-size:12px; padding:6px 11px 5px; min-height:36px; border-width:2.5px;
+      box-shadow:0 3px 0 rgba(0,0,0,.28), 2px 4px 0 rgba(0,0,0,.22)}
+
+    .class-picker{display:flex; flex-direction:column; gap:8px}
+    .class-picker .cp-btn{
+      font-family:var(--f-titre); font-size:17px; letter-spacing:.4px;
+      padding:14px 18px; min-height:56px; cursor:pointer; transition:.1s;
+      border:3px solid var(--encre); border-radius:var(--r-btn); background:#fff; color:var(--text);
+      display:flex; align-items:center; justify-content:space-between;
+      box-shadow:0 5px 0 #A9BCC5, 5px 9px 0 rgba(0,0,0,.35);
+    }
+    .class-picker .cp-btn:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 7px 0 #A9BCC5, 6px 12px 0 rgba(0,0,0,.35); background:#EAF8FD}
+    .class-picker .cp-btn:active:not(:disabled){transform:translateY(4px); box-shadow:0 1px 0 #A9BCC5, 2px 4px 0 rgba(0,0,0,.35)}
+    .class-picker .cp-btn:disabled{opacity:.3; cursor:default; box-shadow:none}
+    .class-picker .cp-btn .cp-need{font-family:var(--f-titre); color:var(--ztsp-cyan-dark,#075A6B)}
+
+    /* ======================================================================
+       MOBILE — rien d'ampute.
+       --------------------------------------------------------------------
+       L'ancienne regle passait `.panel` ET `.rpanel` en `display:none` sous
+       600 px. On y perdait la selection du specialiste, la progression
+       individuelle, « A placer », et surtout les trois boutons Specialistes /
+       Classes / Locaux — donc TOUTE la configuration depuis un telephone.
+
+       Les deux panneaux restent maintenant dans le flux, empiles au-dessus de
+       la grille, et ne collent plus (un panneau collant sur un ecran de 600 px
+       de haut mange l'ecran).
+       ====================================================================== */
+    @media(max-width:1080px){ .rpanel{width:200px} }
+    @media(max-width:900px){
+      .layout{flex-direction:column; gap:12px}
+      .panel, .rpanel{
+        position:static; width:100%; max-height:none;
+        display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:9px;
+      }
+      .panel h3, .rpanel h3{grid-column:1/-1; margin-bottom:2px}
+      .panel .p-section{grid-column:1/-1; display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:9px}
+      .panel .p-section .p-btn{margin-bottom:0}
+      .spec-card{margin-bottom:0}
+      .grid-area{width:100%}
+      .zg-btn{min-width:76px; min-height:60px; font-size:12px}
+      .zg-btn .zg-ic{font-size:20px}
+    }
+    @media(max-width:560px){
+      body{font-size:16px}
+      .panel, .rpanel{grid-template-columns:1fr 1fr}
+      .hb-right h2{font-size:clamp(26px,7vw,36px)}
+    }
+
+    /* ======================================================================
+       IMPRESSION
+       --------------------------------------------------------------------
+       L'ancienne regle masquait `.hdr` — un element supprime le 3 juin — et
+       laissait passer le header partage fixe, la barre d'actions, le bandeau
+       de cookies, le rail du shell et le mur. Elle ne posait ni
+       `print-color-adjust` (les couleurs de groupes disparaissaient) ni
+       `break-inside` (une journee pouvait se couper en deux pages).
+
+       Ce qu'on imprime : la grille, et un bandeau d'identification. Rien d'autre.
+       ====================================================================== */
+    @media print{
+      @page{ size:landscape; margin:8mm }
+
+      /* Tout le chrome du site s'efface. */
+      [data-zts-header], .zts-header, .zts-menu, .zts-footer,
+      .zg-bar, .hero, .progress, .panel, .rpanel,
+      .ztsh-rail, .ztsh-pause, .ztsh-metiers, [class*="ztsh-rail"],
+      .zts-cookie, #cookie-consent, .ztg-out, .zts-lock-overlay,
+      .toast, .modal{ display:none !important }
+
+      /* Le decor marine du shell ne s'imprime pas. */
+      html, body{
+        background:#fff !important; color:#000 !important;
+        padding-top:0 !important; margin:0 !important; font-size:11pt !important;
+      }
+      .ztsh-page, .ztsh-page.ztsh-fond{ padding:0 !important; background:none !important }
+      .ztsh-page::before, .ztsh-page::after,
+      body::before, body::after{ display:none !important }
+
+      .layout{ display:block !important; max-width:none !important; margin:0 !important; padding:0 !important }
+      .grid-area{
+        overflow:visible !important; padding:0 !important;
+        border:none !important; box-shadow:none !important; background:#fff !important;
+      }
+      .grid{ gap:1px !important }
+
+      /* Les couleurs de groupes SONT l'information : sans elles la grille
+         imprimee est illisible. Les navigateurs les jettent par defaut. */
+      *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important }
+
+      /* Une colonne de jour ne se coupe pas entre deux pages. */
+      .cell, .hd, .chip{ break-inside:avoid !important; page-break-inside:avoid !important }
+
+      /* Bandeau d'identification, injecte par preparerImpression(). */
+      #zg-print-head{ display:block !important; margin-bottom:6mm; font-family:'Quicksand',sans-serif }
+      #zg-print-head b{ font-size:15pt }
+      #zg-print-head span{ font-family:var(--f-note); color:#333; font-size:12pt }
+    }
+    #zg-print-head{ display:none }
   </style>
   <!-- ZTS Landing Template -->
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../zts-ultra.css">
   <link rel="stylesheet" href="../../shared/zts-header.css">
   <link rel="stylesheet" href="../../assets/ztsh-shell.css">
+  <link rel="stylesheet" href="../../shared/zts-modele.css">
   <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
   <script src="/zts-lock-page.js" defer></script>
   <script src="/firebase-auth.js" defer></script>
@@ -205,33 +638,65 @@
 </head>
 <body>
 
-<!-- Header partagé ZTS (identique à la home) -->
+<!-- Header partage ZTS — identique a l'accueil, nav comprise. -->
 <div data-zts-header></div>
   <div class="ztsh-page">
 
-<!-- Barre d'actions de l'app (restaurée du header : contrôles propres à la grille) -->
-<div class="zts-app-actions" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;padding:14px 16px 0;max-width:1100px;margin:0 auto">
-  <button onclick="showHelp()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#fff;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Aide">❓ Aide</button>
-  <button onclick="openSetupModal()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#fff;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Configuration">⚙️ Config</button>
-  <button onclick="solveSchedule()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#00E5FF;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Génération automatique">🤖 Auto</button>
-  <button onclick="validateAll()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#39FF14;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Tout valider">✅ Valider</button>
-  <button onclick="exportPDF()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#FFEA00;color:#0F0F2E;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Exporter en PDF">📄 PDF</button>
-  <button onclick="clearSchedule()" style="font-family:'Luckiest Guy',cursive;font-size:.95rem;padding:9px 16px;border:3px solid #0F0F2E;border-radius:12px;background:#FF2D87;color:#fff;cursor:pointer;box-shadow:3px 3px 0 #0F0F2E" title="Tout vider">🗑️ Vider</button>
+<!-- Bandeau d'identification : invisible a l'ecran, imprime en tete de grille. -->
+<div id="zg-print-head"></div>
+
+<!-- ======================================================================
+     BARRE D'ACTIONS — gros boutons picto + un mot.
+     Cinq gestes courants toujours visibles ; le reste sous « Plus ».
+     ====================================================================== -->
+<div class="zg-bar" id="zgBar">
+  <button class="zg-btn" onclick="showHelp()" title="Comment utiliser la grille"><span class="zg-ic">❓</span><span data-t="btnAide">Aide</span></button>
+  <button class="zg-btn" onclick="openSetupModal()" title="Configurer l'ecole, le cycle et les matieres"><span class="zg-ic">⚙️</span><span data-t="btnConfig">Reglages</span></button>
+  <button class="zg-btn zg-btn--lime" onclick="solveSchedule()" title="Remplir la grille automatiquement"><span class="zg-ic">🤖</span><span data-t="btnAuto">Auto</span></button>
+  <button class="zg-btn zg-btn--jaune" onclick="validateAll()" title="Verifier les conflits"><span class="zg-ic">✅</span><span data-t="btnValider">Verifier</span></button>
+  <button class="zg-btn" onclick="imprimerGrille()" title="Imprimer la grille"><span class="zg-ic">🖨️</span><span data-t="btnImprimer">Imprimer</span></button>
+
+  <button class="zg-btn zg-btn--plus" id="zgPlus" onclick="basculerPlus()" aria-expanded="false" aria-controls="zgAvance" title="Plus d'options"><span class="zg-ic">▾</span><span data-t="btnPlus">Plus</span></button>
+
+  <select class="zg-lang" id="langSel" onchange="changeLang(this.value)" aria-label="Langue">
+    <option value="fr">FR</option>
+    <option value="en">EN</option>
+    <option value="es">ES</option>
+    <option value="zh">中文</option>
+  </select>
+
+  <!-- Divulgation progressive : l'avance ne s'affiche que sur demande. -->
+  <div class="zg-plus" id="zgAvance">
+    <button class="zg-btn" onclick="exportPDF()" title="Enregistrer en PDF"><span class="zg-ic">📄</span><span data-t="btnPDF">PDF</span></button>
+    <button class="zg-btn" onclick="exporterJSON()" title="Enregistrer une copie de securite"><span class="zg-ic">💾</span><span data-t="btnExport">Sauver</span></button>
+    <button class="zg-btn" onclick="declencherImport()" title="Recharger une copie de securite"><span class="zg-ic">📂</span><span data-t="btnImport">Ouvrir</span></button>
+    <button class="zg-btn zg-btn--rose" onclick="clearSchedule()" title="Effacer toute la grille"><span class="zg-ic">🗑️</span><span data-t="btnVider">Vider</span></button>
+    <input type="file" id="zgFichier" accept="application/json,.json" hidden onchange="importerJSON(this)">
+  </div>
 </div>
 
+<!-- ======================================================================
+     HERO — le langage de l'accueil. Se replie des qu'une ecole existe.
+     ====================================================================== -->
 <section class="hero" id="heroSection">
   <div class="hero-box">
-    <div class="hb-left"><img src="img/bucheron-salut.png" alt="Mr Root"></div>
+    <div class="hb-left">
+      <picture>
+        <source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp">
+        <img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="eager" decoding="async">
+      </picture>
+    </div>
     <div class="hb-right">
-      <h2 data-t="heroTitle">Ta grille horaire</h2>
+      <span class="hb-eyebrow" data-t="heroEyebrow">Specialistes · Primaire</span>
+      <h2 data-t="heroTitle">Ta grille horaire<span>sur mesure!</span></h2>
       <div class="hb-desc" data-t="heroDesc"></div>
       <div class="hb-badges">
         <span class="hb-badge" data-t="heroBadge1">📅 5 à 10 jours/cycle</span>
         <span class="hb-badge" data-t="heroBadge2">⚙️ 3 à 7 périodes</span>
         <span class="hb-badge" data-t="heroBadge3">🌍 4 langues</span>
-        <span class="hb-badge">📄 Export PDF</span>
+        <span class="hb-badge" data-t="heroBadge4">🖨️ Impression</span>
         <span class="hb-badge" data-t="heroBadge5">🤖 Auto-remplissage</span>
-        <span class="hb-badge">👥 Team teaching</span>
+        <span class="hb-badge" data-t="heroBadge6">👥 Team teaching</span>
       </div>
       <div class="hb-actions">
         <button class="hb-btn main" onclick="useTemplate()" data-t="heroStart">🚀 Commencer!</button>
@@ -242,11 +707,11 @@
 </section>
 
 <div class="progress">
-  <span id="progLabel" style="font-weight:600">0 / 0</span>
+  <span id="progLabel" style="font-weight:800">0 / 0</span>
   <div class="pbar"><div id="progBar" style="width:0%"></div></div>
   <span class="ptxt" id="progPct">0%</span>
-  <span id="pillH" style="font-weight:700;color:var(--red);display:none">🚫 0</span>
-  <span id="pillS" style="font-weight:700;color:var(--orange);display:none">⚠️ 0</span>
+  <span class="pill" id="pillH" style="display:none">🚫 0</span>
+  <span class="pill" id="pillS" style="display:none">⚠️ 0</span>
 </div>
 
 <div class="layout">
@@ -254,9 +719,9 @@
     <h3>👤 <span data-t="selectSpec">Sélectionnez</span></h3>
     <div id="specList"></div>
     <div class="p-section">
-      <button class="p-btn" onclick="openSpecModal()">👤 Spécialistes</button>
-      <button class="p-btn" onclick="openClassesModal()">🎓 Classes</button>
-      <button class="p-btn" onclick="openRoomsModal()">🏛️ Locaux</button>
+      <button class="p-btn" onclick="openSpecModal()"><span>👤</span><span data-t="btnSpecialistes">Spécialistes</span></button>
+      <button class="p-btn" onclick="openClassesModal()"><span>🎓</span><span data-t="btnClasses">Classes</span></button>
+      <button class="p-btn" onclick="openRoomsModal()"><span>🏛️</span><span data-t="btnLocaux">Locaux</span></button>
     </div>
   </div>
   <div class="grid-area"><div class="grid" id="grid"></div></div>
@@ -265,12 +730,11 @@
     <div id="nextList"></div>
   </div>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 // i18n
 const I={
-fr:{appTitle:'GRILLE HORAIRE',selectSpec:'Sélectionnez',toPlace:'À placer',day:'Jour',recess:'Récré',lunch:'Dîner',remaining:'restant',coursesPlaced:'cours placés',
+fr:{btnAide:'Aide',btnConfig:'Réglages',btnAuto:'Auto',btnValider:'Vérifier',btnImprimer:'Imprimer',btnPlus:'Plus',btnPDF:'PDF',btnExport:'Sauver',btnImport:'Ouvrir',btnVider:'Vider',btnSpecialistes:'Spécialistes',btnClasses:'Classes',btnLocaux:'Locaux',heroEyebrow:'Spécialistes · Primaire',heroBadge4:'🖨️ Impression',heroBadge6:'👥 Team teaching',needPer:'période(s) de plus',tplFait:'13 classes, 7 spécialistes, 6 locaux créés!',exportOk:'Copie enregistrée',importOk:'Horaire rechargé',importErr:'Fichier illisible',importAutre:'Ce fichier ne vient pas de la Grille horaire.',importVersion:'Fichier trop récent pour cette page.',importConfirm:'Remplacer l\'horaire actuel ?',appTitle:'GRILLE HORAIRE',selectSpec:'Sélectionnez',toPlace:'À placer',day:'Jour',recess:'Récré',lunch:'Dîner',remaining:'restant',coursesPlaced:'cours placés',
 choose:'— Choisir —',confirm:'OK',close:'Fermer',save:'Sauvegarder',cancel:'Annuler',add:'Ajouter',default:'Défaut',
 specName:'Nom',specCode:'Code',specSubject:'Matière',specTask:'Tâche %',specRoom:'Local',specItinerant:'Itinérant',specTravelDays:'Jours autre école',
 specAllDay:'Toute la journée',specAmOnly:'AM seulement',specPmOnly:'PM seulement',specMaxDay:'Max/jour',specMaxConsec:'Max conséc.',specAvailDays:'Disponibilités',specConstraints:'Contraintes',
@@ -289,10 +753,10 @@ heroDesc:'Fini le casse-tête de la planification! Configure tes périodes en 30
 heroBadge1:'📅 5 à 10 jours/cycle',heroBadge2:'⚙️ 3 à 7 périodes',heroBadge3:'🌍 4 langues',heroBadge5:'🤖 Auto-remplissage',
 heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',
 helpTitle:'Comment utiliser<span>la grille horaire</span>',
-helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:#00838F;font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:#00838F;font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:#00838F;font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
+helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
 helpValidation:'Validation conflits',helpAutoSave:'Sauvegarde auto',helpGotIt:'Compris!',
 clickToPlace:'Cliquez dans la grille',needsMore:'a besoin de',selectClassFor:'Choisissez le groupe',addClassesFirst:'⚠️ Ajoutez des classes d\'abord!',needMin:'min de plus'},
-en:{appTitle:'SCHEDULE GRID',selectSpec:'Select',toPlace:'To place',day:'Day',recess:'Recess',lunch:'Lunch',remaining:'left',coursesPlaced:'lessons placed',
+en:{btnAide:'Help',btnConfig:'Settings',btnAuto:'Auto',btnValider:'Check',btnImprimer:'Print',btnPlus:'More',btnPDF:'PDF',btnExport:'Save',btnImport:'Open',btnVider:'Clear',btnSpecialistes:'Specialists',btnClasses:'Classes',btnLocaux:'Rooms',heroEyebrow:'Specialists · Elementary',heroBadge4:'🖨️ Printing',heroBadge6:'👥 Team teaching',needPer:'more period(s)',tplFait:'13 classes, 7 specialists, 6 rooms created!',exportOk:'Backup saved',importOk:'Schedule restored',importErr:'Unreadable file',importAutre:'This file is not from the Schedule Grid.',importVersion:'File too recent for this page.',importConfirm:'Replace the current schedule?',appTitle:'SCHEDULE GRID',selectSpec:'Select',toPlace:'To place',day:'Day',recess:'Recess',lunch:'Lunch',remaining:'left',coursesPlaced:'lessons placed',
 choose:'— Choose —',confirm:'OK',close:'Close',save:'Save',cancel:'Cancel',add:'Add',default:'Default',
 specName:'Name',specCode:'Code',specSubject:'Subject',specTask:'Task %',specRoom:'Room',specItinerant:'Itinerant',specTravelDays:'Days at other school',
 specAllDay:'All day',specAmOnly:'AM only',specPmOnly:'PM only',specMaxDay:'Max/day',specMaxConsec:'Max consec.',specAvailDays:'Availability',specConstraints:'Constraints',
@@ -311,10 +775,10 @@ heroDesc:'No more planning headaches! Set up your periods in 30 seconds, click a
 heroBadge1:'📅 5 to 10 days/cycle',heroBadge2:'⚙️ 3 to 7 periods',heroBadge3:'🌍 4 languages',heroBadge5:'🤖 Auto-fill',
 heroStart:'🚀 Get started!',heroHelp:'📖 How to use',
 helpTitle:'How to use<span>the schedule grid</span>',
-helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:#00838F;font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:#00838F;font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:#00838F;font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
+helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
 helpValidation:'Conflict check',helpAutoSave:'Auto-save',helpGotIt:'Got it!',
 clickToPlace:'Click to place',needsMore:'needs',selectClassFor:'Choose class',addClassesFirst:'⚠️ Add classes first!',needMin:'min more'},
-es:{appTitle:'HORARIO',selectSpec:'Seleccione',toPlace:'Por colocar',day:'Día',recess:'Recreo',lunch:'Almuerzo',remaining:'restante',coursesPlaced:'clases colocadas',
+es:{btnAide:'Ayuda',btnConfig:'Ajustes',btnAuto:'Auto',btnValider:'Revisar',btnImprimer:'Imprimir',btnPlus:'Más',btnPDF:'PDF',btnExport:'Guardar',btnImport:'Abrir',btnVider:'Vaciar',btnSpecialistes:'Especialistas',btnClasses:'Clases',btnLocaux:'Aulas',heroEyebrow:'Especialistas · Primaria',heroBadge4:'🖨️ Impresión',heroBadge6:'👥 Codocencia',needPer:'período(s) más',tplFait:'¡13 clases, 7 especialistas, 6 aulas creados!',exportOk:'Copia guardada',importOk:'Horario restaurado',importErr:'Archivo ilegible',importAutre:'Este archivo no viene del Horario.',importVersion:'Archivo demasiado reciente para esta página.',importConfirm:'¿Reemplazar el horario actual?',appTitle:'HORARIO',selectSpec:'Seleccione',toPlace:'Por colocar',day:'Día',recess:'Recreo',lunch:'Almuerzo',remaining:'restante',coursesPlaced:'clases colocadas',
 choose:'— Elegir —',confirm:'OK',close:'Cerrar',save:'Guardar',cancel:'Cancelar',add:'Agregar',default:'Defecto',
 specName:'Nombre',specCode:'Código',specSubject:'Materia',specTask:'Tarea %',specRoom:'Aula',specItinerant:'Itinerante',specTravelDays:'Días otra escuela',
 specAllDay:'Todo el día',specAmOnly:'Solo AM',specPmOnly:'Solo PM',specMaxDay:'Máx/día',specMaxConsec:'Máx consec.',specAvailDays:'Disponibilidad',specConstraints:'Restricciones',
@@ -333,10 +797,10 @@ heroDesc:'¡Se acabó el rompecabezas de la planificación! Configura tus perío
 heroBadge1:'📅 5 a 10 días/ciclo',heroBadge2:'⚙️ 3 a 7 períodos',heroBadge3:'🌍 4 idiomas',heroBadge5:'🤖 Auto-llenado',
 heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',
 helpTitle:'Cómo usar<span>el horario escolar</span>',
-helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:#00838F;font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:#00838F;font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:#00838F;font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
+helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
 helpValidation:'Validación conflictos',helpAutoSave:'Guardado auto',helpGotIt:'¡Entendido!',
 clickToPlace:'Clic para colocar',needsMore:'necesita',selectClassFor:'Elija clase',addClassesFirst:'⚠️ ¡Agregue clases primero!',needMin:'min más'},
-zh:{appTitle:'课程表',selectSpec:'选择',toPlace:'待安排',day:'天',recess:'课间',lunch:'午餐',remaining:'剩余',coursesPlaced:'课程已安排',
+zh:{btnAide:'帮助',btnConfig:'设置',btnAuto:'自动',btnValider:'检查',btnImprimer:'打印',btnPlus:'更多',btnPDF:'PDF',btnExport:'保存',btnImport:'打开',btnVider:'清除',btnSpecialistes:'专科教师',btnClasses:'班级',btnLocaux:'教室',heroEyebrow:'专科教师 · 小学',heroBadge4:'🖨️ 打印',heroBadge6:'👥 协同教学',needPer:'节课',tplFait:'已创建13个班级、7位专科教师、6间教室！',exportOk:'备份已保存',importOk:'课程表已恢复',importErr:'文件无法读取',importAutre:'此文件不是来自课程表。',importVersion:'文件版本过新。',importConfirm:'替换当前课程表？',appTitle:'课程表',selectSpec:'选择',toPlace:'待安排',day:'天',recess:'课间',lunch:'午餐',remaining:'剩余',coursesPlaced:'课程已安排',
 choose:'— 选择 —',confirm:'确定',close:'关闭',save:'保存',cancel:'取消',add:'添加',default:'默认',
 specName:'姓名',specCode:'代码',specSubject:'科目',specTask:'任务%',specRoom:'教室',specItinerant:'巡回',specTravelDays:'其他学校',
 specAllDay:'全天',specAmOnly:'仅上午',specPmOnly:'仅下午',specMaxDay:'每天最多',specMaxConsec:'最大连续',specAvailDays:'可用天数',specConstraints:'约束',
@@ -355,7 +819,7 @@ heroDesc:'告别排课烦恼！30秒配置课时，点击日期安排专科教�
 heroBadge1:'📅 5至10天/周期',heroBadge2:'⚙️ 3至7节课',heroBadge3:'🌍 4种语言',heroBadge5:'🤖 自动填充',
 heroStart:'🚀 开始!',heroHelp:'📖 使用说明',
 helpTitle:'如何使用<span>课程表</span>',
-helpBody:'<b style="color:#00838F;font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:#00838F;font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:#00838F;font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:#00838F;font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
+helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
 helpValidation:'冲突验证',helpAutoSave:'自动保存',helpGotIt:'明白了!',
 clickToPlace:'点击安排',needsMore:'需要',selectClassFor:'选择班级',addClassesFirst:'⚠️ 请先添加班级！',needMin:'分钟'}
 };
@@ -383,10 +847,21 @@ function load(){try{const r=localStorage.getItem('gh2');if(r){S=JSON.parse(r);if
 function changeLang(l){lang=l;localStorage.setItem('gh_lang',l);applyI18n();renderAll()}
 
 // TOAST
-function toast(msg,dur){const d=document.createElement('div');d.className='toast';d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),dur||2500)}
+function toast(msg,dur){
+  let pile=document.getElementById('zgToasts');
+  if(!pile){pile=document.createElement('div');pile.className='zg-toasts';pile.id='zgToasts';
+    pile.setAttribute('role','status');pile.setAttribute('aria-live','polite');document.body.appendChild(pile)}
+  const d=document.createElement('div');d.className='toast';d.textContent=msg;
+  pile.appendChild(d);
+  setTimeout(()=>{d.remove();if(!pile.children.length)pile.remove()},dur||2500)}
 
-// GROUP COLORS — vivid/fluo palette, consistent per class
-const GROUP_COLORS=['#00E5FF','#FF1744','#76FF03','#FF9100','#D500F9','#FFEA00','#00E676','#FF4081','#18FFFF','#FF6D00','#B388FF','#64FFDA','#FF3D00','#C6FF00','#448AFF','#F50057','#69F0AE','#FFD740','#E040FB','#00B0FF','#FF8A80','#B2FF59','#EA80FC','#84FFFF','#FF9E80','#CCFF90','#82B1FF','#FF80AB','#A7FFEB','#FFE57F'];
+// COULEURS DES GROUPES-CLASSES
+// Les cinq neons de la charte en tete, puis 25 teintes distinctes. Toutes
+// verifiees a 4,5:1 au moins contre l'encre `#0C1720` du nom ecrit dessus
+// (minimum mesure : 6,80:1). L'ancienne palette laissait deux couleurs
+// sous le seuil AA — #D500F9 a 4,48:1 et #F50057 a 4,33:1 — et ouvrait sur
+// un cyan `#00E5FF` hors charte.
+const GROUP_COLORS=['#3ADCFA','#FFFC00','#A3FF00','#FFA200','#FF6FA5','#00E676','#FF8A80','#B388FF','#64FFDA','#FFD740','#69F0AE','#FF9E80','#82B1FF','#C6FF00','#EA80FC','#84FFFF','#CCFF90','#FFAB91','#B2FF59','#80D8FF','#F8BBD0','#A7FFEB','#FFE57F','#D1C4E9','#C5E1A5','#FFCCBC','#B3E5FC','#F0F4C3','#E1BEE7','#DCEDC8'];
 const _gcCache={};
 function groupColor(classId){
   if(_gcCache[classId])return _gcCache[classId];
@@ -406,11 +881,29 @@ function totalA(){let c=0;for(const d in S.assignments)for(const p in S.assignme
 function minUsed(cid,sid){let t=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.classId===cid){const sp=S.specialists.find(s=>s.id===a.specId);if(sp?.subjectId===sid)t+=S.school.periodDuration}})});return t}
 function specShare(sp){const peers=S.specialists.filter(s=>s.subjectId===sp.subjectId);if(peers.length<=1)return 1;
   const totalPct=peers.reduce((s,p)=>s+(p.taskPercent||100),0);return(sp.taskPercent||100)/totalPct}
+// Part ENTIERE de ce specialiste dans le besoin d'une classe, par arrondi
+// cumulatif. La somme des parts des collegues d'une meme matiere vaut
+// EXACTEMENT le besoin de la classe — c'est ce qui manquait et qui faisait
+// plafonner la barre de progression a 96 %.
+function partSpec(sp,cl){
+  const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return 0;
+  const total=reqToPeriods(su.min[cl.level]||0);if(total<=0)return 0;
+  const peers=S.specialists.filter(s=>s.subjectId===sp.subjectId);
+  if(peers.length<=1)return total;
+  const poids=peers.map(p=>p.taskPercent||100);
+  const somme=poids.reduce((a,b)=>a+b,0)||1;
+  let cum=0,prec=0;
+  for(let i=0;i<peers.length;i++){
+    cum+=poids[i];
+    const borne=Math.round(total*cum/somme);
+    if(peers[i].id===sp.id)return borne-prec;
+    prec=borne;
+  }
+  return 0}
 function reqToPeriods(req){return S.school.quotaMode==='periods'?req:Math.ceil(req/S.school.periodDuration)}
-function totalNeeded(){let t=0;S.specialists.forEach(sp=>{const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return;const share=specShare(sp);
-  S.classes.forEach(cl=>{const req=su.min[cl.level]||0;if(req>0)t+=Math.max(1,Math.round(reqToPeriods(req)*share))})});return t}
-function specDemand(sp){const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return[];const d=[];const share=specShare(sp);
-  S.classes.forEach(cl=>{const req=su.min[cl.level]||0;if(req<=0)return;const fullNeed=reqToPeriods(req);const myNeed=Math.max(1,Math.round(fullNeed*share));const usedByMe=countPlaced(sp.id,cl.id);const need=Math.max(0,myNeed-usedByMe);if(need>0)d.push({cls:cl,need,req:Math.round(req*share),used:usedByMe})});
+function totalNeeded(){let t=0;S.specialists.forEach(sp=>{S.classes.forEach(cl=>{t+=partSpec(sp,cl)})});return t}
+function specDemand(sp){const su=S.subjects.find(s=>s.id===sp.subjectId);if(!su)return[];const d=[];
+  S.classes.forEach(cl=>{const myNeed=partSpec(sp,cl);if(myNeed<=0)return;const usedByMe=countPlaced(sp.id,cl.id);const need=Math.max(0,myNeed-usedByMe);if(need>0)d.push({cls:cl,need,req:myNeed,used:usedByMe})});
   return d.sort((a,b)=>b.need-a.need)}
 function countPlaced(specId,classId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId&&a.classId===classId)c++})});return c}
 function specTotalPlaced(specId){let c=0;for(let d=1;d<=S.school.cycleDays;d++)tPer().forEach(p=>{getA(d,p.num).forEach(a=>{if(a.specId===specId)c++})});return c}
@@ -462,7 +955,7 @@ function renderNext(){
   const demand=specDemand(sp);
   if(!demand.length){c.innerHTML=`<div style="color:var(--green);padding:10px;text-align:center;font-size:1.2em">✅</div>`;return}
   c.innerHTML=`<div style="color:var(--cyan);font-weight:600;margin-bottom:8px">${t('clickToPlace')}</div>`;
-  demand.forEach(d=>{c.innerHTML+=`<div class="next-item" style="border-left:5px solid ${groupColor(d.cls.id)};background:${groupColor(d.cls.id)}15"><span class="ni-cls">${d.cls.group}</span><span class="ni-need">${d.need}</span><br><span class="ni-sub">${t('needsMore')} ${d.req-d.used} ${t('needMin')}</span></div>`});
+  demand.forEach(d=>{c.innerHTML+=`<div class="next-item" style="border-left:5px solid ${groupColor(d.cls.id)};background:${groupColor(d.cls.id)}15"><span class="ni-cls">${d.cls.group}</span><span class="ni-need">${d.need}</span><br><span class="ni-sub">${t('needsMore')} ${d.need} ${S.school.quotaMode==='periods'?t('needPer'):t('needMin')}</span></div>`});
 }
 
 // GRID
@@ -471,7 +964,7 @@ function renderGrid(){
   const periods=S.school.periods,cd=S.school.cycleDays;
   const sp=activeSpec?S.specialists.find(s=>s.id===activeSpec):null;
   const cols=cd+1;
-  g.style.gridTemplateColumns=`100px repeat(${cd},minmax(150px,1fr))`;
+  g.style.gridTemplateColumns=`88px repeat(${cd},minmax(112px,1fr))`;
   // Row 0: headers
   let hdr=document.createElement('div');hdr.className='g-hdr';hdr.textContent='⏰';hdr.style.gridColumn='1';hdr.style.gridRow='1';g.appendChild(hdr);
   for(let d=1;d<=cd;d++){hdr=document.createElement('div');hdr.className='g-hdr';hdr.textContent=t('day')+' '+d;hdr.style.gridColumn=''+(d+1);hdr.style.gridRow='1';g.appendChild(hdr)}
@@ -555,12 +1048,18 @@ function validateAll(){let hc=0,sc=0;
   if(!hc&&!sc&&totalA()>0)toast('✅ '+t('noViolation'))}
 
 // WELCOME
-function showWelcome(){/* hero is always visible as landing section */}
+function showWelcome(){
+  // Le hero est un accueil, pas un bandeau permanent : des qu'une ecole est
+  // configuree, la grille prend toute la place — c'est ce qui la fait
+  // commencer juste sous le header au lieu de 825 px plus bas.
+  const h=document.getElementById('heroSection');
+  if(h&&(S.classes.length||S.specialists.length))h.classList.add('hidden');
+}
 
 function showHelp(){
   closeModals();const ov=document.createElement('div');ov.className='modal';ov.id='helpOv';
-  ov.innerHTML=`<div class="hero-box" style="max-width:850px;margin:20px">
-    <div class="hb-left"><img src="img/mr-root-logo.png" alt="Mr Root"></div>
+  ov.innerHTML=`<div class="mbox" style="max-width:860px"><div class="hero-box" style="gap:16px">
+    <div class="hb-left"><picture><source srcset="../../shared/img/perso/perso-ep-264.webp" type="image/webp"><img src="../../shared/img/perso/perso-ep-264.png" alt="" width="264" height="264" loading="lazy" decoding="async"></picture></div>
     <div class="hb-right" style="max-height:80vh;overflow-y:auto">
       <h2>${t('helpTitle')}</h2>
       <div class="hb-desc" style="margin-bottom:10px">${t('helpBody')}</div>
@@ -573,7 +1072,7 @@ function showHelp(){
       <div class="hb-actions" style="margin-top:14px">
         <button class="hb-btn main" onclick="closeModals()">👍 ${t('helpGotIt')}</button>
       </div>
-    </div></div>`;
+    </div></div></div>`;
   document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)closeModals()}}
 
 function useTemplate(){
@@ -588,8 +1087,10 @@ function useTemplate(){
     {id:uid(),name:'Prof. éducation physique 2',shortName:'EPS2',subjectId:'eps',taskPercent:100,isItinerant:false,travelDays:[],roomId:gymR,amPm:'all',maxPerDay:6,maxConsecutive:3,availDays:[],color:'#FF8A80'},
     {id:uid(),name:'Prof. musique',shortName:'MUS',subjectId:'mus',taskPercent:100,isItinerant:false,travelDays:[],roomId:musR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#4FC3F7'},
     {id:uid(),name:'Prof. art plastique',shortName:'ART',subjectId:'art',taskPercent:100,isItinerant:false,travelDays:[],roomId:artR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#CE93D8'},
-    {id:uid(),name:'Prof. anglais',shortName:'ANG',subjectId:'ang',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#81D4FA'}];
-  S.assignments={};save();const h=document.getElementById('heroSection');if(h)h.classList.add('hidden');renderAll();toast('✅ 13 classes, 5 spécialistes, 6 locaux créés!')}
+    {id:uid(),name:'Prof. anglais',shortName:'ANG',subjectId:'ang',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#81D4FA'},
+    {id:uid(),name:'Prof. art dramatique',shortName:'DRA',subjectId:'dram',taskPercent:100,isItinerant:false,travelDays:[],roomId:artR,amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#F48FB1'},
+    {id:uid(),name:'Prof. ethique',shortName:'ECR',subjectId:'ecr',taskPercent:100,isItinerant:false,travelDays:[],roomId:'',amPm:'all',maxPerDay:5,maxConsecutive:3,availDays:[],color:'#A5D6A7'}];
+  S.assignments={};save();const h=document.getElementById('heroSection');if(h)h.classList.add('hidden');renderAll();toast('✅ '+t('tplFait'))}
 
 // MODALS
 function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.remove())}
@@ -597,17 +1098,17 @@ function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.remove()
 function openSetupModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
   const levs=['pres','1','2','3','4','5','6'],levL=[t('presco'),'1','2','3','4','5','6'];
-  let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:'Bangers';color:#00838F;min-width:30px">P${p.num}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
+  let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);min-width:30px">P${p.num}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
   let sRows=S.subjects.map((su,i)=>`<tr><td><span class="cdot" style="background:${su.color}"></span><input type="text" value="${su.name}" data-si="${i}" data-sf="name" style="border:none;background:transparent;font-weight:600;width:120px"></td>${levs.map(l=>`<td><input type="number" value="${su.min[l]||0}" min="0" data-si="${i}" data-sl="${l}" style="width:42px;text-align:center;border:1px solid #eee;border-radius:3px;padding:2px"></td>`).join('')}<td><button class="btn r sm" data-delsub="${i}">✕</button></td></tr>`).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:720px"><h3>⚙️ ${t('configSchool')}</h3>
     <div class="fr"><label>${t('schoolName')}</label><input type="text" id="sN" value="${S.school.name}" style="flex:1"></div>
-    <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
+    <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,7,8,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
     <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||30}" min="1" max="100" step="0.5" style="width:65px"> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
     <div class="fr"><label>${t('quotaMode')}</label><select id="sQM"><option value="periods" ${S.school.quotaMode==='periods'?'selected':''}>${t('quotaPeriods')}</option><option value="minutes" ${S.school.quotaMode==='minutes'?'selected':''}>${t('quotaMinutes')}</option></select></div>
-    <div style="font-family:'Bangers';color:#00838F;margin:10px 0 5px">⏰ ${t('dayStructure')}</div>
+    <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">⏰ ${t('dayStructure')}</div>
     <div id="sP" style="max-height:200px;overflow-y:auto">${pRows}</div>
     <div style="display:flex;gap:5px;margin:6px 0"><button class="btn c sm" id="aP">${t('addPeriod')}</button><button class="btn sm" id="aR" style="background:var(--yellow);color:#000">${t('addRecess')}</button><button class="btn sm" id="aL" style="background:var(--orange);color:#fff">${t('addLunch')}</button></div>
-    <div style="font-family:'Bangers';color:#00838F;margin:10px 0 5px">📚 ${t('subjectsTitle')} <small style="font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif);font-weight:500;font-size:.7em;color:var(--muted)">(${S.school.quotaMode==='periods'?t('quotaPeriods'):t('quotaMinutes')})</small></div>
+    <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">📚 ${t('subjectsTitle')} <small style="font-family:var(--f-corps);font-weight:500;font-size:.7em;color:var(--muted)">(${S.school.quotaMode==='periods'?t('quotaPeriods'):t('quotaMinutes')})</small></div>
     <div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('specSubject')}</th>${levL.map(l=>`<th>${l}</th>`).join('')}<th></th></tr></thead><tbody id="sS">${sRows}</tbody></table></div>
     <button class="btn c sm" style="margin-top:5px" id="aSu">${t('addSubject')}</button>
     <div class="macts"><button class="btn g" id="sSv">💾 ${t('save')}</button><button class="btn o" id="sCl">${t('close')}</button></div></div>`;
@@ -642,7 +1143,7 @@ function editSpec(idx){
     <div class="fr"><label>${t('specItinerant')}</label><input type="checkbox" id="eI" ${sp.isItinerant?'checked':''}></div>
     <div class="fr" id="eTR" style="${sp.isItinerant?'':'display:none'};flex-direction:column;align-items:flex-start"><label>${t('specTravelDays')}</label><div class="chips">${Array.from({length:cd},(_,d)=>{const dn=d+1;return`<div class="ck ${sp.travelDays?.includes(dn)?'on':''}" data-td="${dn}" onclick="this.classList.toggle('on')">J${dn}</div>`}).join('')}</div></div>
     <hr style="border:none;border-top:2px solid #f0f0f0;margin:10px 0">
-    <div style="font-family:'Bangers';color:var(--pink);margin-bottom:6px">⚙️ ${t('specConstraints')}</div>
+    <div style="font-family:var(--f-titre);color:var(--red);margin-bottom:6px">⚙️ ${t('specConstraints')}</div>
     <div class="fr"><label>AM/PM</label><select id="eAP"><option value="all" ${sp.amPm==='all'?'selected':''}>${t('specAllDay')}</option><option value="am" ${sp.amPm==='am'?'selected':''}>${t('specAmOnly')}</option><option value="pm" ${sp.amPm==='pm'?'selected':''}>${t('specPmOnly')}</option></select></div>
     <div class="fr"><label>${t('specMaxDay')}</label><input type="number" id="eMD" value="${sp.maxPerDay||6}" min="1" max="8" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('specMaxConsec')}</label><input type="number" id="eMC" value="${sp.maxConsecutive||4}" min="1" max="8" style="width:55px"></div>
     <div class="fr" style="flex-direction:column;align-items:flex-start"><label>${t('specAvailDays')}</label><div class="chips">${Array.from({length:cd},(_,d)=>{const dn=d+1;return`<div class="ck ${!sp.availDays?.length||sp.availDays.includes(dn)?'on':''}" data-ad="${dn}" onclick="this.classList.toggle('on')">J${dn}</div>`}).join('')}</div></div>
@@ -683,9 +1184,123 @@ function solveSchedule(){if(!S.classes.length||!S.specialists.length){toast(t('a
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
 function clearSchedule(){if(!confirm(`🗑️ ${t('clearConfirm')}`))return;S.assignments={};save();renderAll()}
 function exportPDF(){html2pdf().set({margin:5,filename:'grille_horaire.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a3',orientation:'landscape'}}).from(document.getElementById('grid')).save()}
+
+/* =======================================================================
+   MISE EN PAGE — caler le contenu sous le header fixe
+   Le header partage est en `position:fixed` et zts-menu.js pose lui-meme le
+   padding-top de <body> pour lui reserver la place. Les panneaux collants ont
+   besoin de connaitre le bas du header : on le mesure au lieu de le deviner.
+   L'accueil laisse 12 px entre le header et sa premiere section — on reprend
+   la meme valeur, pour que la grille se pose comme une section de l'accueil.
+   ======================================================================= */
+function calerSousHeader(){
+  const h=document.querySelector('.zts-header');
+  const bas=h?Math.round(h.getBoundingClientRect().bottom):0;
+  const px=(bas>0?bas:parseInt(getComputedStyle(document.body).paddingTop)||330)+12;
+  document.documentElement.style.setProperty('--zg-sous-header',px+'px');
+}
+
+/* Divulgation progressive : « Plus » ouvre les gestes avances. */
+function basculerPlus(){
+  const bar=document.getElementById('zgBar'),btn=document.getElementById('zgPlus');
+  const ouvert=bar.classList.toggle('zg-ouvert');
+  btn.setAttribute('aria-expanded',ouvert?'true':'false');
+}
+
+/* =======================================================================
+   IMPRESSION
+   La feuille @media print masque tout le chrome du site. Il reste a poser le
+   bandeau d'identification : sans lui, une grille imprimee ne dit ni de quelle
+   ecole ni de quand elle date.
+   ======================================================================= */
+function imprimerGrille(){
+  if(!S.classes.length){toast(t('addClassesFirst'));return}
+  const t0=document.getElementById('zg-print-head');
+  if(t0){
+    const nom=(S.school.name||'').trim();
+    t0.innerHTML='<b>'+(nom?nom+' — ':'')+t('appTitle')+'</b><br>'+
+      '<span>'+t('schoolCycle')+' : '+S.school.cycleDays+' · '+
+      t('schoolDuration')+' : '+S.school.periodDuration+' · '+
+      new Date().toLocaleDateString()+'</span>';
+  }
+  window.print();
+}
+
+/* =======================================================================
+   EXPORT / IMPORT JSON
+   Meme en-tete de contrat que apps/evaluation/carnet-export.js : un lecteur
+   doit pouvoir identifier le fichier sans deviner, des mois plus tard.
+   Ne pas changer la forme sans monter VERSION_EXPORT.
+   ======================================================================= */
+const VERSION_EXPORT=1;
+const FORMAT_EXPORT='zts-grille-horaire-export';
+
+function exporterJSON(){
+  const paquet={
+    format:     FORMAT_EXPORT,
+    version:    VERSION_EXPORT,
+    source:     'grille',
+    appVersion: 'grille-2026-08',
+    exportedAt: new Date().toISOString(),
+    origin:     location.origin+location.pathname,
+    counts:{
+      classes:      (S.classes||[]).length,
+      specialists:  (S.specialists||[]).length,
+      rooms:        (S.rooms||[]).length,
+      subjects:     (S.subjects||[]).length,
+      assignments:  totalA()
+    },
+    lang: lang,
+    data: S
+  };
+  const txt=JSON.stringify(paquet,null,2);
+  const url=URL.createObjectURL(new Blob([txt],{type:'application/json'}));
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='grille-horaire-'+paquet.exportedAt.slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  toast('💾 '+t('exportOk'));
+}
+
+function declencherImport(){const f=document.getElementById('zgFichier');if(f){f.value='';f.click()}}
+
+function importerJSON(input){
+  const f=input.files&&input.files[0];if(!f)return;
+  const lect=new FileReader();
+  lect.onload=()=>{
+    let p;
+    try{p=JSON.parse(lect.result)}catch(e){toast('❌ '+t('importErr'));return}
+    try{
+      if(p&&p.format!==FORMAT_EXPORT)throw new Error(t('importAutre'));
+      if(p.version>VERSION_EXPORT)throw new Error(t('importVersion'));
+      if(!p.data||!p.data.school)throw new Error(t('importErr'));
+      if(totalA()&&!confirm(t('importConfirm')))return;
+      S=p.data;
+      if(!S.assignments)S.assignments={};
+      if(!S.school.quotaMode)S.school.quotaMode='periods';
+      if(!S.school.periodsPerDay)S.school.periodsPerDay=tPer().length||5;
+      if(!S.school.tache100)S.school.tache100=S.school.cycleDays*(S.school.periodsPerDay||5);
+      if(p.lang&&I[p.lang]){lang=p.lang;localStorage.setItem('gh_lang',lang);
+        const sel=document.getElementById('langSel');if(sel)sel.value=lang}
+      save();showWelcome();renderAll();
+      toast('📂 '+t('importOk')+' — '+S.classes.length+' / '+S.specialists.length);
+    }catch(e){toast('❌ '+(e.message||t('importErr')),4000)}
+  };
+  lect.onerror=()=>toast('❌ '+t('importErr'));
+  lect.readAsText(f);
+}
+
 function renderAll(){resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
 
-document.addEventListener('DOMContentLoaded',()=>{load();applyI18n();renderAll();showWelcome()});
+document.addEventListener('DOMContentLoaded',()=>{
+  load();applyI18n();renderAll();showWelcome();calerSousHeader();
+  // Le header partage se monte en differe (zts-menu.js) et sa hauteur change
+  // au redimensionnement : on remesure plutot que de figer une valeur.
+  window.addEventListener('load',calerSousHeader);
+  window.addEventListener('resize',calerSousHeader);
+  setTimeout(calerSousHeader,400);setTimeout(calerSousHeader,1500);
+});
 </script>
 
   <script src="../../analytics.js"></script>
