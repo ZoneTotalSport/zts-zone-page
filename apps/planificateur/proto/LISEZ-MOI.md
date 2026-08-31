@@ -62,28 +62,62 @@ case, poussée complètement à droite)*.
   neuvième — et à 375 px les cinq colonnes réclamaient 496 px, elle sortait de
   l'écran de 33 px.
 
-### Les onglets de groupes — les intercalaires d'un cahier
+### Les onglets de groupes
 
-Joey : « place tous les groupes en dessous de ma journée, ma semaine, etc., en
-angle de 45 degrés comme dans les cahiers ».
+Joey : « place tous les groupes en dessous de ma journée, ma semaine, etc. »
 
 La palette a quitté MA SEMAINE pour **`#ongletsGr`, sous la barre, visible
 partout** — c'est le seul sélecteur de groupe de l'app, il n'a pas à
 disparaître selon l'écran. **Toutes ses fonctions sont intactes** : glisser dans
-une case, ✎ personnaliser, le compte de cours de la semaine, ＋ NOUVEAU GROUPE,
-🎨 TOUTES DIFFÉRENTES, et le clic qui prend le groupe en main **et** le pose
-comme groupe courant.
+une case, ✎ personnaliser, le compte de cours de la semaine, et le clic qui
+prend le groupe en main **et** le pose comme groupe courant.
 
-Le biseau est **réel** — 45° taillés au `clip-path` dans le coin haut-gauche,
-les languettes se chevauchant comme dans un duo-tang, celle du groupe courant
-relevée avec un liseré jaune.
-⚠ **Le texte, lui, reste droit.** Une languette inclinée se reconnaît ; un nom
-de groupe incliné se déchiffre. Le biseau est dans la forme, pas dans le texte.
+⚠ **LE BISEAU À 45° A ÉTÉ ESSAYÉ PUIS ABANDONNÉ.** Joey, devant l'écran :
+« non, les groupes ne sont pas en angle de 45 degrés ; on va à la place les
+mettre dans ce style-là » — celui des boutons de la barre. Les onglets ont donc
+la grammaire de tout le reste de l'app : coins arrondis, contour noir épais,
+ombre dure — **en plus petit, et colorés selon le groupe**.
+
+⚠ **La police est `--f-display` (ZoneTotalSport.ttf), qui ne porte que
+145 glyphes.** Vérifié : chiffres, MAJUSCULES, minuscules et lettres accentuées
+passent — donc `101`, `202`, `303-403`, `MATERNELLES`. Manquent le tiret
+cadratin, l'apostrophe courbe et les guillemets français ; la pile de repli
+(LuckiestGuy, Bangers) rattrape caractère par caractère. **Ne pas l'employer
+ailleurs pour du texte courant.**
+
+⚠ **Deux boutons de service ont quitté la ligne** — « ＋ NOUVEAU GROUPE » et
+« 🎨 TOUTES DIFFÉRENTES ». Il ne reste qu'un **＋ complètement à droite**, qui
+ouvre une petite fenêtre où l'on nomme le groupe **et** choisit sa couleur, avec
+aperçu en direct : l'ancien bouton demandait le nom par `prompt()` et imposait
+la couleur. 🎨 TOUTES DIFFÉRENTES n'est pas perdu — il rejoint la fenêtre de
+personnalisation d'un groupe, à côté des couleurs, là où l'on se pose la
+question.
+⚠ `margin-left:auto` exige que la ligne reste en `flex`. Même piège que la roue
+dentelée de la barre du haut.
+⚠ **Deux liserés jaunes sur le même objet, c'est un seul signal.** Le liseré
+JAUNE dit « c'est le groupe dans lequel j'écris » ; le groupe qu'on a EN MAIN,
+en train de chercher sa case, porte un liseré **lime** — comme tout ce qui
+attend un dépôt dans ce proto.
 ⚠ Les onglets **ne sont pas collants** : ils défilent avec la page. Trois barres
 figées l'une sous l'autre mangeraient la moitié d'un téléphone.
-⚠ La consigne « glisse un groupe dans une case » ne s'affiche que sur MA
-SEMAINE — c'est le seul écran où l'on peut glisser. Elle est pilotée par
-`body[data-ecran]`, posé dans `allerA()`.
+
+### Le titre EST la commande — plus de bande jaune
+
+Joey : « enlève la bande jaune et le mot AUJOURD'HUI dans le jaune ; garde
+seulement “aujourd'hui lundi 31 août”, centre-le, et mets une flèche à sa droite
+pour aller au mardi et une à sa gauche pour la journée d'avant. »
+
+⚠ **La bande disait, en petit et sur fond jaune, la date que le titre annonçait
+déjà en gros trente pixels plus bas** ; sa pastille de jour-cycle répétait la
+ligne d'explication ; et son bouton AUJOURD'HUI restait allumé même quand on
+ÉTAIT sur aujourd'hui — c'est-à-dire la plupart du temps.
+
+Désormais : **◀ titre ▶**, centré, sur MA JOURNÉE comme sur MA SEMAINE. Le
+retour — « ↩ REVENIR À AUJOURD'HUI », « ↩ REVENIR À CETTE SEMAINE » —
+**n'apparaît que lorsqu'on s'est éloigné**. Un bouton qui ne sert à rien neuf
+fois sur dix apprend à être ignoré.
+⚠ L'en-tête de l'agenda a perdu son `<h2>Semaine du …</h2>` : le titre le disait
+déjà, à trente pixels.
 
 ### MON CALENDRIER — l'import qui marche vraiment
 

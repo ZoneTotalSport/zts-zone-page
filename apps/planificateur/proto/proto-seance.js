@@ -459,11 +459,10 @@ function peindrePalette(){
     }
   }
   h.innerHTML='';
-  /* La consigne ne vaut que là où l'on peut glisser : on la garde en info-bulle
-     partout, et en toutes lettres sur MA SEMAINE seulement (voir le CSS). */
-  const q=el('div','quoi','Glisse un groupe dans une case de l’agenda. Un clic dessus ensuite ouvre tout le cours. '
-    +'Le chiffre sur un groupe dit combien de cours il a dans la semaine affichée.');
-  h.appendChild(q);
+  /* ⚠ LA CONSIGNE ÉTAIT ÉCRITE DEUX FOIS SUR MA SEMAINE : ici, au-dessus des
+     onglets, et juste dessous en sous-titre de l'écran. Elle ne vit plus qu'à
+     un endroit — le sous-titre — et chaque onglet garde la sienne en
+     info-bulle. */
   const compte=coursDeLaSemaine();
   GRP().forEach(g=>{
     const b=el('div','pastille-gr'); b.draggable=true; b.dataset.gr=g.id;
@@ -497,23 +496,26 @@ function peindrePalette(){
       grpEnMain = (grpEnMain===g.id) ? null : g.id;
       peindrePalette(); peindreAgenda();
     });
-    if (grpEnMain===g.id) b.style.boxShadow='3px 3px 0 var(--noir), 0 0 0 4px var(--jaune)';
+    /* ⚠ DEUX SIGNAUX JAUNES SUR LE MÊME OBJET, C'EST UN SEUL SIGNAL. Le
+       liseré JAUNE dit « c'est le groupe dans lequel j'écris » ; celui-ci dit
+       « je l'ai en main, je cherche une case » — un geste en cours, pas un
+       état. Il est donc LIME, comme tout ce qui attend un dépôt dans ce proto. */
+    if (grpEnMain===g.id) b.style.boxShadow='4px 4px 0 var(--noir), 0 0 0 4px var(--lime)';
     h.appendChild(b);
   });
-  const plus=el('button','mini mini--lime','+ NOUVEAU GROUPE'); plus.type='button';
-  plus.addEventListener('click', ()=>{
-    const nom=prompt('Nom du groupe :','301'); if(!nom) return;
-    const l=GRP();
-    l.push({id:'g'+(l.length+1)+'_'+l.length, nom:nom.trim(),
-            coul:couleurLibre(l), emo:emojiLibre(l), img:'',
-            eleves:ELEVES.map((x,i)=>i).slice(0,6)});
-    poserGRP(l); peindrePalette();
-  });
+  /* ⚠ DEUX BOUTONS DE SERVICE ONT QUITTÉ LA LIGNE DES ONGLETS. Joey : « à la
+     place du bouton nouveau groupe et du bouton toutes différentes, enlève-les
+     et mets juste un plus complètement à droite de cette ligne. »
+     · ＋ ouvre une petite fenêtre où l'on nomme le groupe ET on choisit sa
+       couleur, au lieu d'un `prompt()` qui n'en offrait aucune.
+     · 🎨 TOUTES DIFFÉRENTES n'est pas perdu : il rejoint la fenêtre de
+       personnalisation d'un groupe, à côté des couleurs — c'est là qu'on se
+       pose la question. */
+  const plus=el('button','onglet-plus','＋'); plus.type='button';
+  plus.title='Ajouter un groupe — tu choisis son nom et sa couleur';
+  plus.setAttribute('aria-label','Ajouter un groupe');
+  plus.addEventListener('click', nouveauGroupe);
   h.appendChild(plus);
-  const arc=el('button','mini mini--jaune','🎨 TOUTES DIFFÉRENTES'); arc.type='button';
-  arc.title='Donner une couleur bien à lui à chaque groupe qui en partage une';
-  arc.addEventListener('click', couleursToutesDifferentes);
-  h.appendChild(arc);
   if (grpEnMain){
     const a=el('span',null,'👆 touche une case pour y poser '+grpDe(grpEnMain).nom);
     a.style.cssText='font-family:var(--f-note);font-size:16px;color:var(--jaune)';
@@ -546,6 +548,62 @@ function encreSur(hex){
   return '#0C1720';
 }
 
+/* ═════ AJOUTER UN GROUPE — nom ET couleur, du même geste ═════
+   L'ancien bouton demandait le nom par `prompt()` et attribuait la couleur
+   tout seul ; il fallait ensuite rouvrir le groupe pour la changer. Ici, on
+   voit la couleur qu'on choisit pendant qu'on écrit le nom. */
+function nouveauGroupe(){
+  const corps=ouvrirModale('Nouveau groupe');
+  const propose=couleurLibre(GRP());
+  corps.innerHTML=`
+    <div class="m-champ"><label class="m-lab" for="ngNom">Son nom</label>
+      <input class="m-saisie" id="ngNom" placeholder="Ex. : 301" value=""></div>
+    <div class="m-champ"><span class="m-lab">Sa couleur</span>
+      <div class="m-personnes" id="ngCouls"></div></div>
+    <div class="m-champ"><span class="m-lab">Aperçu</span>
+      <div class="onglets-gr" style="padding:0"><span class="pastille-gr" id="ngApercu"></span></div></div>
+    <div class="m-pied">
+      <button type="button" class="m-valider" id="ngOk">✔ AJOUTER</button>
+      <button type="button" class="mini" data-fermer>ANNULER</button>
+    </div>`;
+  let coul=propose;
+  const apercu=$('#ngApercu');
+  const majApercu=()=>{
+    apercu.style.background=coul; apercu.style.color=encreSur(coul);
+    apercu.textContent=($('#ngNom').value.trim()||'Nouveau groupe');
+  };
+  const hc=$('#ngCouls');
+  PALETTE_COUL.forEach(c=>{
+    const b=el('button','m-personne','●'); b.type='button';
+    b.style.background=c; b.style.color=encreSur(c); b.style.minWidth='42px';
+    b.setAttribute('aria-pressed', String(c===coul));
+    b.addEventListener('click',()=>{ coul=c;
+      [...hc.children].forEach(x=>{ if(x.setAttribute) x.setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true'); majApercu(); });
+    hc.appendChild(b);
+  });
+  const libre=document.createElement('input');
+  libre.type='color'; libre.className='m-personne'; libre.value=coul;
+  libre.style.cssText='min-width:46px;height:34px;padding:2px;cursor:pointer';
+  libre.title='N’importe quelle autre couleur';
+  libre.addEventListener('input',()=>{ coul=libre.value;
+    [...hc.children].forEach(x=>{ if(x.setAttribute) x.setAttribute('aria-pressed','false'); });
+    majApercu(); });
+  hc.appendChild(libre);
+  $('#ngNom').addEventListener('input', majApercu);
+  majApercu();
+  $('#ngOk').addEventListener('click',()=>{
+    const nom=$('#ngNom').value.trim();
+    if (!nom){ $('#ngNom').focus(); return; }      /* un groupe sans nom ne se retrouve pas */
+    const l=GRP();
+    l.push({id:'g'+(l.length+1)+'_'+l.length, nom:nom,
+            coul:coul, emo:emojiLibre(l), img:'',
+            eleves:ELEVES.map((x,i)=>i).slice(0,6)});
+    poserGRP(l); fermerModale(); peindrePalette(); peindreAgenda();
+  });
+  $('#ngNom').focus();
+}
+
 function modifierGroupe(id){
   const g=grpDe(id); if(!g) return;
   const corps=ouvrirModale('Personnaliser '+g.nom);
@@ -554,7 +612,9 @@ function modifierGroupe(id){
       <input class="m-saisie" id="gNom" value="${g.nom}"></div>
     <div class="m-champ"><span class="m-lab">Sa couleur</span><div class="m-personnes" id="gCouls"></div></div>
     <div class="m-champ"><span class="m-lab">Son image</span><div class="m-personnes" id="gEmos"></div>
-      <button type="button" class="mini" id="gPhoto" style="margin-top:6px">📷 UTILISER UNE PHOTO</button></div>
+      <button type="button" class="mini" id="gPhoto" style="margin-top:6px">📷 UTILISER UNE PHOTO</button>
+      <button type="button" class="mini mini--jaune" id="gArc" style="margin-top:6px"
+              title="Donner une couleur bien à lui à chaque groupe qui en partage une">🎨 TOUTES DIFFÉRENTES</button></div>
     <div class="m-champ"><span class="m-lab">Ses élèves (${g.eleves.length})</span>
       <div class="m-personnes" id="gEleves"></div></div>
     <div class="m-pied">
@@ -608,6 +668,7 @@ function modifierGroupe(id){
     x.eleves=eleves.sort((a,b)=>a-b);
     poserGRP(l); fermerModale(); peindrePalette(); peindreAgenda();
   });
+  $('#gArc').addEventListener('click', ()=>{ fermerModale(); couleursToutesDifferentes(); });
   $('#gSup').addEventListener('click',()=>{
     if(!confirm('Supprimer le groupe '+g.nom+' ? Les séances déjà posées le garderont.')) return;
     poserGRP(GRP().filter(y=>y.id!==id)); fermerModale(); peindrePalette(); peindreAgenda();

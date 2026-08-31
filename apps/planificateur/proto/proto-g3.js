@@ -54,6 +54,45 @@ migrerPlanDeSession();
        qu'on peut changer ne veut rien dire ; la montrer, c'est mentir. */
 let ctxMode = 'jour';
 
+/* ═════════ 2 ter. LE TITRE EST LA COMMANDE ═════════
+   ⚠ LA BANDE JAUNE A ÉTÉ RETIRÉE. Elle disait, en petit et sur fond jaune, la
+   date que le titre de l'écran annonçait déjà en gros trente pixels plus bas ;
+   sa pastille de jour-cycle répétait la ligne d'explication ; et son bouton
+   AUJOURD'HUI restait allumé même quand on ÉTAIT sur aujourd'hui, c'est-à-dire
+   la plupart du temps.
+   Le titre porte donc ses deux flèches, et le retour n'apparaît QUE lorsqu'on
+   s'est éloigné — un bouton qui ne sert à rien neuf fois sur dix apprend à
+   être ignoré. */
+function majTitresNavigables(){
+  const t=$('#aujTitre');
+  if (t){
+    const est = ctxDate===aujourdhuiISO();
+    t.textContent = (est ? 'Aujourd’hui — ' : '') + jourLisible(ctxDate);
+    const r=$('#aujRetour'); if (r) r.hidden = est;
+  }
+  const s2=$('#semTitre');
+  if (s2){
+    if (typeof agLundi!=='undefined' && !agLundi) agLundi = lundiDe(ctxDate);
+    const est = agLundi===lundiDe(aujourdhuiISO());
+    s2.textContent = 'Semaine du '+jourLisible(agLundi);
+    const r=$('#semRetour'); if (r) r.hidden = est;
+  }
+}
+(function fllechesDesTitres(){
+  const jour = n => poserContexte(isoDe(new Date(dateDeIso(ctxDate).getTime()+n*UN_JOUR)));
+  const semaine = n => {
+    agLundi = isoDe(new Date(dateDeIso(agLundi).getTime()+n*UN_JOUR));
+    peindreAgenda(); majTitresNavigables();
+  };
+  const brancher=(sel,f)=>{ const b=$(sel); if (b) b.addEventListener('click', f); };
+  brancher('#aujPrec', ()=> jour(-1));
+  brancher('#aujSuiv', ()=> jour(+1));
+  brancher('#aujRetour', ()=> poserContexte(aujourdhuiISO()));
+  brancher('#semPrec', ()=> semaine(-7));
+  brancher('#semSuiv', ()=> semaine(+7));
+  brancher('#semRetour', ()=>{ agLundi=lundiDe(aujourdhuiISO()); peindreAgenda(); majTitresNavigables(); });
+})();
+
 function majBarreContexte(){
   const barre=$('#ctxBarre'); if(!barre) return;
   const ecran = lire('ecran','e-aujourdhui');
@@ -187,11 +226,7 @@ function peindreAujourdhui(){
   if (typeof GRP!=='function' || typeof periodesAgenda!=='function') return;
   h.innerHTML='';
 
-  const t=$('#aujTitre');
-  if (t){
-    const est = ctxDate===aujourdhuiISO();
-    t.textContent = (est ? 'Aujourd’hui — ' : '') + jourLisible(ctxDate);
-  }
+  majTitresNavigables();
   const sous=$('#aujSous');
   const cy = (typeof jourCycleLisible==='function') ? jourCycleLisible(ctxDate) : '';
   if (sous) sous.textContent = (cy ? cy+' · ' : '')
@@ -506,6 +541,7 @@ peindreAgenda = window.peindreAgenda = function(){
   window.poserContexte = poserContexte = function(iso, gr){
     basePoser(iso, gr);
     peindreAujourdhui();
+    majTitresNavigables();
     majBarreContexte();
   };
   const baseAller = window.allerA;
@@ -524,6 +560,7 @@ peindreAgenda = window.peindreAgenda = function(){
        lire des jours-cycle périmés. */
     if (id==='e-mois'  && typeof peindreMois ==='function') peindreMois();
     if (id==='e-annee' && typeof peindreAnnee==='function') peindreAnnee();
+    majTitresNavigables();
     majBarreContexte();
   };
 })();
@@ -539,6 +576,7 @@ if (typeof peindrePlanSession==='function') peindrePlanSession();
 peindrePalette();
 peindreAgenda();
 peindreAujourdhui();
+majTitresNavigables();
 /* ⚠ ON OUVRE TOUJOURS SUR AUJOURD'HUI, on ne rouvre PAS le dernier écran.
    Un prof ouvre l'app le matin, dans son gymnase : ce qu'il veut voir, c'est sa
    journée — pas les réglages d'horaire qu'il a fermés vendredi soir. */

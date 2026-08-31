@@ -807,59 +807,75 @@ html[data-etroit="1"] .ecrans-nav{grid-template-columns:repeat(5,1fr);gap:4px}
 /* le partage, petit, dans l'en-tête */
 .zts-btn--mini{font-size:12px;padding:4px 11px;border-width:2px;box-shadow:2px 2px 0 var(--noir)}
 
-/* ═════ LES ONGLETS DE GROUPES — les intercalaires d'un cahier ═════
-   Joey : « en angle de 45 degrés comme dans les cahiers ». Le biseau est donc
-   RÉEL — 45° taillés dans le coin haut-gauche de chaque languette, qui se
-   chevauchent comme les onglets d'un duo-tang.
-   ⚠ Le texte, lui, reste DROIT. Une languette inclinée se reconnaît ; un nom
-   de groupe incliné se déchiffre. Le biseau est dans la forme, pas dans le
-   texte. */
+/* ═════ LES ONGLETS DE GROUPES ═════
+   ⚠ LE BISEAU À 45° A ÉTÉ ABANDONNÉ. Joey, devant l'écran : « non, les groupes
+   ne sont pas en angle de 45 degrés ; on va à la place les mettre dans ce
+   style-là » — celui des boutons de la barre : coins arrondis, contour noir
+   épais, ombre dure. Même grammaire que tout le reste de l'app, en plus petit,
+   et coloré selon le groupe.
+   ⚠ LA POLICE EST `--f-display` (ZoneTotalSport.ttf). Elle ne porte que
+   **145 glyphes** : chiffres, majuscules, minuscules et lettres accentuées
+   passent — donc 101, 202, MATERNELLES, 303-403 — mais PAS le tiret cadratin,
+   l'apostrophe courbe ni les guillemets français. La pile de repli
+   (LuckiestGuy, Bangers) rattrape caractère par caractère si un nom exotique
+   arrive. Ne pas l'employer ailleurs pour du texte courant. */
 .onglets-gr{
-  display:flex;align-items:flex-end;gap:0;flex-wrap:wrap;
-  padding:0 clamp(10px,2.2vw,24px);margin:0 0 2px;
-  position:relative;z-index:53;
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  padding:0 clamp(10px,2.2vw,24px);margin:0 0 10px;
 }
-.onglets-gr .quoi{display:none}                       /* voir plus bas */
 .onglets-gr .pastille-gr{
-  --gr-coul:#00C2E8;
-  position:relative;margin:0 -6px 0 0;padding:9px 20px 9px 30px;
-  border:none;border-radius:0;box-shadow:none;cursor:grab;
-  font-family:var(--f-large);font-size:24px;letter-spacing:.8px;
-  /* la languette : coin haut-gauche coupé à 45°, base droite */
-  clip-path:polygon(18px 0, 100% 0, 100% 100%, 0 100%);
-  filter:drop-shadow(2px -2px 0 var(--noir)) drop-shadow(-1px 0 0 var(--noir));
-  transition:transform .12s ease;
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 14px;cursor:grab;user-select:none;
+  border:3px solid var(--noir);border-radius:12px;
+  box-shadow:4px 4px 0 var(--noir);
+  font-family:var(--f-display);font-size:17px;letter-spacing:.6px;line-height:1.05;
+  clip-path:none;filter:none;transition:transform .12s ease, box-shadow .12s ease;
 }
-.onglets-gr .pastille-gr:hover{transform:translateY(-3px)}
-.onglets-gr .pastille-gr:active{transform:translateY(0);box-shadow:none}
-.onglets-gr .pastille-gr .img{font-size:22px}
-.onglets-gr .pastille-gr img.img{width:28px;height:28px;border-radius:6px;border:2px solid var(--noir)}
-/* le groupe dans lequel on écrit : sa languette monte et passe devant */
+.onglets-gr .pastille-gr:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--noir)}
+.onglets-gr .pastille-gr:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--noir)}
+.onglets-gr .pastille-gr .img{font-size:19px}
+.onglets-gr .pastille-gr img.img{width:26px;height:26px;border-radius:7px;border:2px solid var(--noir)}
+/* le groupe dans lequel on écrit : un liseré, pas un déplacement */
 .onglets-gr .pastille-gr[data-courant="1"]{
-  transform:translateY(-7px);z-index:3;outline:none;
-  filter:drop-shadow(2px -2px 0 var(--noir)) drop-shadow(-1px 0 0 var(--noir))
-         drop-shadow(0 -4px 0 var(--jaune));
+  outline:none;box-shadow:4px 4px 0 var(--noir), 0 0 0 3px var(--jaune);
 }
-.onglets-gr .modif{
-  margin-left:6px;font-size:12px;line-height:19px;border-width:2px;
-}
-.onglets-gr .pastille-nb{position:static;margin-left:6px}
-/* + NOUVEAU GROUPE et 🎨 TOUTES DIFFÉRENTES : deux languettes de service */
-.onglets-gr>button.mini{
-  margin:0 0 0 10px;align-self:flex-end;font-size:13px;padding:6px 13px;
-  border-radius:11px 11px 0 0;
-}
-/* la consigne de glisser-déposer ne vaut que là où l'on peut glisser */
-body[data-ecran="e-accueil"] .onglets-gr{padding-bottom:2px}
-body[data-ecran="e-accueil"] .onglets-gr .quoi{
-  display:block;flex:1 0 100%;order:-1;
-  font-family:var(--f-note);font-size:15px;color:var(--sur-fond-doux);
-  margin:0 0 4px;
-}
+.onglets-gr .modif{margin-left:2px;font-size:12px;line-height:19px;border-width:2px}
+.onglets-gr .pastille-nb{position:static;margin-left:2px}
 
-html[data-etroit="1"] .onglets-gr .pastille-gr{
-  font-size:18px;padding:7px 13px 7px 22px;clip-path:polygon(13px 0, 100% 0, 100% 100%, 0 100%);
+/* ⚠ « Mets juste un plus complètement à droite de cette ligne. » `margin-left:
+   auto` exige que la ligne reste en `flex` — même piège que la roue dentelée
+   de la barre du haut. */
+.onglet-plus{
+  margin-left:auto;cursor:pointer;
+  font-family:var(--f-titre);font-size:26px;line-height:1;
+  width:52px;height:44px;display:flex;align-items:center;justify-content:center;
+  background:var(--lime);color:#1E3300;
+  border:3px solid var(--noir);border-radius:12px;box-shadow:4px 4px 0 var(--noir);
 }
+.onglet-plus:hover{background:#C8FF5E}
+.onglet-plus:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--noir)}
+
+/* ═════ LE TITRE EST LA COMMANDE ═════
+   ⚠ Plus de bande jaune : ◀ titre ▶, centré, et le retour n'apparaît que
+   lorsqu'on s'est éloigné de la journée — ou de la semaine — courante. */
+.titre-nav{
+  display:flex;align-items:center;justify-content:center;gap:clamp(10px,2vw,24px);
+  margin:0 0 2px;
+}
+.titre-nav .titre{margin:0;text-align:center}
+.tn-fleche{
+  flex:0 0 auto;cursor:pointer;
+  font-size:24px;line-height:1;width:58px;height:52px;
+  display:flex;align-items:center;justify-content:center;
+  background:#fff;color:var(--ink);
+  border:3px solid var(--noir);border-radius:14px;box-shadow:4px 4px 0 var(--noir);
+}
+.tn-fleche:hover{background:var(--cyan-vif)}
+.tn-fleche:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--noir)}
+.tn-retour{display:flex;justify-content:center;margin:0 0 4px;min-height:0}
+.tn-retour button[hidden]{display:none}
+
+
 /* ⚠ SUR PEU DE PLACE, LA BARRE REPASSE EN `flex`. La règle étroite héritée du
    29 août la mettait en `grid` à cinq colonnes ; avec neuf portes et un
    `min-width` de 96 px, les cinq colonnes réclamaient 496 px sur un écran de
@@ -873,9 +889,18 @@ html[data-etroit="1"] .ecrans-nav{
 }
 html[data-etroit="1"] #nav>button,
 html[data-etroit="1"] #nav>.menu{flex:1 1 86px;min-width:0}
+html[data-etroit="1"] .onglets-gr .pastille-gr{font-size:14px;padding:6px 10px;gap:5px}
+html[data-etroit="1"] .onglet-plus{width:44px;height:38px;font-size:22px}
+html[data-etroit="1"] .titre-nav{gap:8px}
+html[data-etroit="1"] .tn-fleche{width:46px;height:44px;font-size:19px}
 html[data-etroit="1"] #nav>button, html[data-etroit="1"] #nav .menu--apps>button{
   min-height:70px;font-size:11.5px;padding:7px 4px;white-space:normal;width:100%;
 }
 html[data-etroit="1"] #nav>button .ico,
 html[data-etroit="1"] #nav .menu--apps>button .ico{font-size:24px}
-html[data-etroit="1"] #nav>button.nav-roue{flex:0 0 auto;margin-left:auto;padding:7px 14px}
+/* ⚠ SUR UN TÉLÉPHONE, LA ROUE NE PREND PAS UNE RANGÉE À ELLE SEULE.
+   Deux causes, l'une après l'autre : `margin-left:auto` la poussait sur sa
+   propre rangée ; puis, une fois `auto` retiré, ses voisines en `flex:1 1 86px`
+   s'étiraient pour remplir la rangée et ne lui laissaient plus la place. Elle
+   partage donc la même souplesse qu'elles et se range au bout de la rangée. */
+html[data-etroit="1"] #nav>button.nav-roue{flex:1 1 86px;margin-left:0;padding:7px 14px}

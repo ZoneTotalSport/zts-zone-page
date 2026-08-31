@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=108">
-<link rel="stylesheet" href="proto-fusion.css?v=108">
-<link rel="stylesheet" href="proto-boutons.css?v=108">
-<link rel="stylesheet" href="proto-seance.css?v=108">
-<link rel="stylesheet" href="proto-simple.css?v=108">
-<link rel="stylesheet" href="proto-papier.css?v=108">
+<link rel="stylesheet" href="proto.css?v=112">
+<link rel="stylesheet" href="proto-fusion.css?v=112">
+<link rel="stylesheet" href="proto-boutons.css?v=112">
+<link rel="stylesheet" href="proto-seance.css?v=112">
+<link rel="stylesheet" href="proto-simple.css?v=112">
+<link rel="stylesheet" href="proto-papier.css?v=112">
 </head>
 <body>
 
@@ -37,20 +37,26 @@
      haut, et pris la forme des intercalaires d'un cahier. -->
 <div class="palette onglets-gr" id="ongletsGr" aria-label="Mes groupes"></div>
 
-<div class="ctx-barre" id="ctxBarre">
-  <button type="button" id="ctxPrec" aria-label="Jour précédent">◀</button>
-  <span class="jour" id="ctxJour">—</span>
-  <span class="ctx-cyc" id="ctxCycle"></span>
-  <button type="button" id="ctxSuiv" aria-label="Jour suivant">▶</button>
-  <button type="button" id="ctxAuj">AUJOURD'HUI</button>
-  <span style="flex:1"></span>
-</div>
+<!-- ⚠ LA BANDE JAUNE A ÉTÉ RETIRÉE. Joey : « enlève la bande jaune et le mot
+     AUJOURD'HUI dans le jaune ; garde seulement “aujourd'hui lundi 31 août”,
+     centre-le, et mets une flèche à sa droite pour aller au mardi et une à sa
+     gauche pour la journée d'avant. »
+     Elle répétait, en petit et sur fond jaune, la date que le TITRE de l'écran
+     annonçait déjà en gros juste dessous — et sa pastille de jour-cycle
+     répétait la ligne d'explication. Le titre EST maintenant la commande :
+     ◀ titre ▶. Tous les gardes `if (!$('#ctxBarre')) return;` la laissent
+     partir sans bruit. -->
 
 <div class="wrap">
 
 <!-- ═══════════════ 0. AUJOURD'HUI ═══════════════ -->
 <section class="ecran on" id="e-aujourdhui">
-  <h1 class="titre" id="aujTitre">Aujourd'hui</h1>
+  <div class="titre-nav">
+    <button type="button" class="tn-fleche" id="aujPrec" aria-label="Jour précédent" title="La journée d'avant">◀</button>
+    <h1 class="titre" id="aujTitre">Aujourd'hui</h1>
+    <button type="button" class="tn-fleche" id="aujSuiv" aria-label="Jour suivant" title="La journée d'après">▶</button>
+  </div>
+  <div class="tn-retour"><button type="button" class="mini mini--jaune" id="aujRetour" hidden>↩ REVENIR À AUJOURD'HUI</button></div>
   <p class="sous" id="aujSous">Tes périodes de la journée. Touche-en une pour ouvrir le cours.</p>
   <div class="auj-actions" id="aujActions"></div>
   <div id="aujHote"></div>
@@ -58,8 +64,15 @@
 
 <!-- ═══════════════ 1. MA SEMAINE ═══════════════ -->
 <section class="ecran" id="e-accueil">
-  <h1 class="titre">Ma semaine</h1>
-  <p class="sous">Glisse un groupe dans une case. Touche un en-tête de jour pour l'ouvrir.</p>
+  <div class="titre-nav">
+    <button type="button" class="tn-fleche" id="semPrec" aria-label="Semaine précédente" title="La semaine d'avant">◀</button>
+    <h1 class="titre" id="semTitre">Ma semaine</h1>
+    <button type="button" class="tn-fleche" id="semSuiv" aria-label="Semaine suivante" title="La semaine d'après">▶</button>
+  </div>
+  <div class="tn-retour"><button type="button" class="mini mini--jaune" id="semRetour" hidden>↩ REVENIR À CETTE SEMAINE</button></div>
+  <p class="sous">Glisse un groupe dans une case ; un clic dessus ensuite ouvre tout le cours.
+    Le chiffre sur un onglet dit combien de cours il a cette semaine-là.
+    Touche un en-tête de jour pour l'ouvrir.</p>
 
   <div class="metiers" id="metiers">
     <button type="button" class="metier" data-metier="eps"  aria-pressed="true">
@@ -452,16 +465,16 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=108"></script>
-<script src="proto-fusion.js?v=108"></script>
-<script src="proto-seance.js?v=108"></script>
-<script src="proto-simple.js?v=108"></script>
-<script src="proto-tests.js?v=108"></script>
-<script src="proto-annee.js?v=108"></script>
-<script src="proto-horaire.js?v=108"></script>
-<script src="proto-dossiers.js?v=108"></script>
-<script src="proto-pfeq.js?v=108"></script>
-<script src="proto-portrait.js?v=108"></script>
-<script src="proto-g3.js?v=108"></script>
+<script src="proto.js?v=112"></script>
+<script src="proto-fusion.js?v=112"></script>
+<script src="proto-seance.js?v=112"></script>
+<script src="proto-simple.js?v=112"></script>
+<script src="proto-tests.js?v=112"></script>
+<script src="proto-annee.js?v=112"></script>
+<script src="proto-horaire.js?v=112"></script>
+<script src="proto-dossiers.js?v=112"></script>
+<script src="proto-pfeq.js?v=112"></script>
+<script src="proto-portrait.js?v=112"></script>
+<script src="proto-g3.js?v=112"></script>
 </body>
 </html>

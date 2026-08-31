@@ -1340,8 +1340,10 @@ function peindreAgenda(){
      remontées DANS la barre jaune, qui devient contextuelle : elle parle du
      jour sur AUJOURD'HUI, de la semaine sur MA SEMAINE, et disparaît ailleurs.
      Voir `majBarreContexte()`, proto-g3.js. */
+  /* ⚠ PLUS DE `<h2>Semaine du …</h2>` ICI : depuis que le TITRE de l'écran
+     porte la semaine et ses deux flèches, cette ligne la répétait à trente
+     pixels de distance. L'en-tête ne garde que ses commandes. */
   const tete=el('div','agenda-tete');
-  tete.appendChild(el('h2',null,'Semaine du '+jourLisible(agLundi)));
   boite.appendChild(tete);
 
   const jours=[];
