@@ -142,3 +142,67 @@ vérifiés par émulation**. Deux défauts trouvés et corrigés en cours de rou
 
 **G3-FICHE reste OUVERT** jusqu'à ce que Joey ait joué les trois gestes tactiles
 ci-dessus sur sa tablette et confirmé.
+
+---
+---
+
+# COMPLÉMENT QA — les cinq captures du 31 août
+
+**Version testée** : `?v=161`, commit de la passe : voir le dernier commit de
+`proto/g2`. Même méthode : mesures DOM, aucune conclusion tirée d'une capture.
+
+Cinq demandes livrées après le premier rapport, plus deux ajouts (A et B).
+
+## Zones changées et leur verdict
+
+| Zone | Verdict | Preuve |
+|---|---|---|
+| **Menu 🔗 MES AUTRES APPS** | ✅ | 7 outils (Dé, Roue, Chrono, Minuteur, Équipes, Message, Mon école) + séparateur + 4 apps du site. 0 outil resté sur MA JOURNÉE |
+| **Porte 🕐 MON HORAIRE** | ✅ | 9 portes dans l'ordre voulu, juste après MON CALENDRIER. ⋯ PLUS ne garde que Mes groupes et Vue coordonnateur |
+| **Barre à 768 px** | ✅ | `data-etroit=1`, la barre ne défile pas (`scrollWidth = clientWidth`), la page ne déborde pas |
+| **Feuille « Planification journalière »** | ✅ | bandeau à 5 champs, 3 boutons de cycle, un bloc par activité avec Titre · Descriptif · Illustration · Durée, ▶ par bloc |
+| **Feuille — persistance** | ✅ | Semaine « 3 », Cours « Basketball », cycle « 2e », titre de bloc « Passes en mouvement », durée 12 min : **tout survit au rechargement**, et la Durée calculée du bandeau affiche « 12 min » |
+| **LA PLANIFICATION = la feuille seule** | ✅ | ordre réel : ◀ RETOUR → `.feuille` → `.feuille-enmots` (repliée) → pied. **0 consigne, 0 palette, 0 badge** |
+| **Écran de composition supprimé** | ✅ | ~9000 caractères retirés du fichier ; `peindrePlanification` n'existe plus |
+| **Case du groupe — 6 fonctions** | ✅ | Présences · Linge · Mot · Évaluation · Voir la planification · Démarrer la séance |
+| **Crochets d'usage** | ✅ | 2 crochets allumés sur des données de test ; ils suivent l'état réel de la séance |
+| **Menu des gabarits** | ✅ | 4 gabarits + « Mes propres critères », déroulés sous le bouton, sans écran intermédiaire |
+| **Libellés qui suivent l'état** | ✅ | hors séance : « Voir la planification » + « Démarrer la séance ». En séance : « Suivre mon cours » + « Arrêter la séance ». Retour à l'état initial vérifié |
+| **`liveOu`** | ✅ | la séance appartient à une case (`2026-09-01|1`), pas à la journée |
+| **Zone d'illustrations retirée de la case** | ✅ | 0 `.auj-illus` ; les images vivent dans les blocs de la feuille |
+| **Lien « l'année se règle dans 🕐 MON HORAIRE »** | ✅ | cliquable, ouvre la porte |
+| **Console** | ✅ | écouteur `error` + `unhandledrejection`, parcours Présences → Mot → fermeture : **0 erreur** |
+| **Non-régression** | ✅ | tiroir JEUX, minuterie, 3 boutons de buzzer intacts à 768 px |
+
+## Ce qui n'a pas changé de statut
+
+Les **trois gestes tactiles** restent **à vérifier par Joey** et ne sont
+toujours pas comptés comme validés. Ils portent maintenant sur des cibles
+différentes — c'est la feuille et la case du groupe qu'il faut éprouver au
+doigt, plus la palette de pièces qui n'existe plus :
+
+1. **Les six boutons de la case du groupe**, serrés sur une ligne : les
+   atteindre au pouce sans ouvrir le cours par mégarde (la case entière est
+   cliquable juste au-dessus).
+2. **Le menu des gabarits d'évaluation** : il s'ouvre sous le bouton et se
+   referme au second tap ; à confirmer qu'il ne se ferme pas tout seul sur
+   tablette.
+3. **Les champs de la feuille** : les zones `contenteditable` du bandeau et des
+   blocs, et le champ de durée à côté du ▶.
+
+## Limites inchangées
+
+**L-2** — 320 et 375 px toujours non testables ; largeurs réellement éprouvées :
+**768** et **1440**.
+**L-3** — Safari iOS non testé.
+**L-5 (nouvelle)** — après un redimensionnement de fenêtre, l'émulation n'émet
+pas d'événement `resize` : `data-etroit` reste sur sa valeur précédente jusqu'au
+prochain chargement. C'est l'artefact déjà consigné en **F-03** ; il fausse
+uniquement les mesures prises après un `resize`, pas celles prises après un
+chargement. Toutes les valeurs de ce complément sont relevées après chargement.
+
+## Verdict
+
+Les cinq captures et les deux ajouts sont **livrés et vérifiés par émulation**.
+Aucun défaut nouveau. **La fiche est FIGÉE jusqu'au lot A1** : plus aucune
+modification de `apps/planificateur/proto/` sans nouvelle demande de Joey.

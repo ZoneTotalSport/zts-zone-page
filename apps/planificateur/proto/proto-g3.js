@@ -671,14 +671,22 @@ function fonctionsDuCours(iso, per, s, g){
   ev.setAttribute('aria-expanded','false');
   z.appendChild(menu);
 
-  bouton('fonc--large', '📋', 'Voir la planification',
+  /* ⚠ CET ÉTAT SE LIT AVANT LES BOUTONS : deux d'entre eux changent de nom
+     selon que CE cours-ci est démarré ou non. */
+  const ici=(lire('liveOu','')===iso+'|'+per);
+  const enCours=!!lire('live',null) && ici;
+
+  /* ⚠ LE LIBELLÉ DIT CE QU'ON VA VOIR, et il change avec l'état — comme
+     Démarrer / Arrêter. Hors séance, la porte ouvre la feuille de
+     planification ; pendant le cours, elle ouvre le déroulement à suivre. Le
+     comportement était déjà celui-là ; c'est le mot qui mentait. */
+  bouton('fonc--large', '📋', enCours ? 'Suivre mon cours' : 'Voir la planification',
          (s.etapes||[]).some(e=>e.titre||e.desc),
-         'La feuille de planification journalière', ()=>ouvrir('cours'));
+         enCours ? 'Le déroulement, étape par étape'
+                 : 'La feuille de planification journalière', ()=>ouvrir('cours'));
 
   /* ▶ DÉMARRER LA SÉANCE vit ici depuis le 31 août : il a quitté le haut de
      MA JOURNÉE, et c'est lui qui fait basculer la fiche en mode « suivre ». */
-  const ici=(lire('liveOu','')===iso+'|'+per);
-  const enCours=!!lire('live',null) && ici;
   const live=bouton('fonc--live'+(enCours?' fonc--live-on':''), enCours?'■':'▶',
                     enCours?'Arrêter la séance':'Démarrer la séance', false,
                     enCours?'Arrêter le cours en cours':'Commencer ce cours', ()=>{
