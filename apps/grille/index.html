@@ -96,6 +96,11 @@
          shell ne sont jamais rebases : c'est la regle du chantier depuis la
          PR 2, et elle tient ici aussi.
          ====================================================================== */
+      /* La marge laissee de chaque cote du plan de travail. C'est tout ce
+         qui separe desormais le travail du bord de l'ecran : 16 px sur un
+         telephone, 32 px sur un grand ecran. */
+      --zg-marge: clamp(16px, 1.6vw, 32px);
+
       --zg-e: 1;
       /* Au cran Normal, la geometrie est EXACTEMENT celle de la PR 2 : 88 px
          pour la colonne des heures, 112 px par jour. C'etait une promesse —
@@ -228,7 +233,7 @@
        ====================================================================== */
     .zg-bar{
       display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center;
-      max-width:1180px; margin:0 auto; padding:14px 16px 6px;
+      margin:0; padding:14px var(--zg-marge) 6px;
     }
     .zg-btn{
       display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
@@ -273,7 +278,7 @@
          epingle 250 px trop bas. Le repli sert avant le premier calcul. */
       position:sticky; top:var(--zg-fil-top, var(--zg-sous-header)); z-index:7;
       display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-      max-width:1180px; margin:10px auto 0; padding:12px 16px;
+      margin:10px var(--zg-marge) 0; padding:12px 16px;
       border:3px solid var(--encre); border-radius:var(--r-btn);
       background:linear-gradient(180deg,#FFFFFF,#E7F6FB);
       box-shadow:0 5px 0 rgba(7,90,107,.35), 5px 9px 0 rgba(0,0,0,.28);
@@ -288,7 +293,7 @@
     }
     .zgf-pas i.fait{background:var(--green)}
     .zgf-pas i.ici{background:var(--yellow); transform:scale(1.35)}
-    .zgf-texte{display:flex; flex-direction:column; gap:1px; flex:1 1 220px; min-width:0}
+    .zgf-texte{display:flex; flex-direction:column; gap:1px; flex:1 1 220px; min-width:0; max-width:920px}
     .zgf-num{
       font-family:var(--f-titre); font-size:16px; letter-spacing:.5px;
       color:var(--ztsp-cyan-dark,#075A6B);
@@ -476,7 +481,7 @@
     .progress{
       font-size:16px;
       display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-      max-width:1180px; margin:10px auto 0; padding:10px 16px;
+      margin:10px var(--zg-marge) 0; padding:10px 16px;
       background:rgba(255,255,255,.09); border:3px solid var(--encre);
       border-radius:var(--r-btn); box-shadow:var(--ombre-petite);
       font-size:14px; color:var(--sur-marine);
@@ -503,9 +508,13 @@
        On abandonne la boite a hauteur fixe. La page defile normalement, comme
        les sections de l'accueil, et les deux panneaux collent sous le header.
        ====================================================================== */
+    /* LE PLAN DE TRAVAIL prend la largeur de l'ecran, moins ses marges.
+       C'est ici que vivait le `max-width:1180px` qui laissait 690 px de fond
+       vide de chaque cote sur un ecran de 2560 — et qui gardait la boite de
+       grille a 672 px pendant que la grille en demandait 1123. */
     .layout{
       display:flex; align-items:flex-start; gap:14px;
-      max-width:1180px; margin:12px auto 40px; padding:0 16px;
+      margin:12px 0 40px; padding:0 var(--zg-marge);
     }
     .panel, .rpanel{
       position:sticky; top:var(--zg-sous-header);
@@ -515,8 +524,8 @@
       border:4px solid var(--encre); border-radius:var(--r-card);
       box-shadow:var(--ombre-panneau);
     }
-    .panel{width:236px}
-    .rpanel{width:212px}
+    .panel{width:clamp(236px, 17vw, 300px)}
+    .rpanel{width:clamp(212px, 15vw, 280px)}
     .panel h3, .rpanel h3{
       font-family:var(--f-titre); font-size:17px; letter-spacing:.4px;
       color:var(--text); margin-bottom:10px;
