@@ -1133,6 +1133,13 @@ const MENUS = [
   {direct:'e-mois',       ico:'📅', lab:'MON MOIS'},
   {direct:'e-annee',      ico:'📚', lab:'MON ANNÉE'},
   {direct:'e-calendrier', ico:'📆', lab:'MON CALENDRIER'},
+  /* ⚠ MON HORAIRE EST UNE PORTE DEPUIS LE 31 AOÛT (décision de Joey, hors
+     Mandat I). C'est l'horaire-patron : il remplit MA JOURNÉE, MA SEMAINE et
+     MON MOIS pour toute l'année, et les périodes y renvoient (« l'année se
+     règle dans 🕐 MON HORAIRE »). Le ranger sous ⋯ PLUS demandait deux taps
+     pour l'écran dont tout le reste dépend. Sa tuile a été retirée de PLUS :
+     une porte, un chemin. */
+  {direct:'e-horaire',    ico:'🕐', lab:'MON HORAIRE'},
   {direct:'e-temps',      ico:'🏅', lab:'MON PARASCOLAIRE'},
   {apps:true,             ico:'🔗', lab:'MES AUTRES APPS'},
   {direct:'e-plus',       ico:'⋯',  lab:'PLUS'},

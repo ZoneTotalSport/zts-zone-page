@@ -1692,180 +1692,21 @@ function fermerPlanification(){
   ecrire('seVolet', null);
 }
 
-function peindrePlanification(d, s, iso, per){
-  if (!s.etapes){ majSeance(x=>{ const v=seanceVide(x.gr); x.etapes=v.etapes; x.seq=v.seq; }); return; }
-  if (migrerPieces(s)) majSeanceSansRedessin(x=>migrerPieces(x));
-  const total=(s.etapes||[]).reduce((a,e)=>a+(e.duree||0),0);
-  const faits=(s.etapes||[]).filter(e=>e.fait).length;
+/* ⚠ L'ÉCRAN DE COMPOSITION À PIÈCES A ÉTÉ RETIRÉ (31 août, décision de Joey).
+   Il vivait ici : consigne « glisse une pièce dans une phase », grand bloc « ma
+   planification en mots », palette des six pièces, badges « durées à remplir »
+   et « n/3 terminée », phases avec glisser-déposer. La feuille
+   « Planification journalière » (`peindreFeuille`) le remplace entièrement.
 
-  /* ── ◀ RETOUR : la seule sortie, et elle est en haut (addenda §1 et §5) ── */
-  const retour=el('button','mini mini--jaune plan-retour');
-  retour.type='button'; retour.textContent='◀ RETOUR';
-  retour.title='Revenir aux cartes du cours';
-  retour.addEventListener('click', fermerPlanification);
-  d.appendChild(retour);
+   OÙ SONT PASSÉES LES PIÈCES — aucune fonction perdue :
+     PRÉSENCES · ÉVALUATION · UN MOT · UN TEST → les petites icônes de la case
+       du groupe, dans MA JOURNÉE, chacune ouvrant sa fenêtre.
+     UN JEU → le tiroir Jeux, épinglable depuis un bloc d'activité.
+     ACTIVITÉ → c'est le bloc lui-même : « + AJOUTER UNE ACTIVITÉ » sur la feuille.
+     LE TEMPS → la Durée de chaque bloc, et son ▶.
+   `PIECES` et `pieceDe()` restent : le mode « suivre » et les séances déjà
+   composées les lisent encore. */
 
-  /* ── la consigne, dégraissée (addenda §4) ──
-     Une ligne, le reste sous un ⓘ. Elle s'affiche en entier la PREMIÈRE fois
-     seulement : un enfant de 10 ans lit une consigne une fois, pas à chaque
-     ouverture d'écran. */
-  const premiere = !lire('aideCompose', false);
-  const chapeau=el('div','aide-un-mot');
-  const ligne=el('div','aide-ligne');
-  ligne.innerHTML='<span class="emo">👆</span><b>Glisse une pièce dans une phase.</b>';
-  const plus=el('button','aide-plus'); plus.type='button';
-  plus.setAttribute('aria-expanded', String(premiere));
-  plus.textContent='ⓘ'; plus.title='En savoir plus';
-  ligne.appendChild(plus);
-  chapeau.appendChild(ligne);
-  const detail=el('div','aide-detail');
-  detail.innerHTML='Une étape se glisse pour changer de place, se touche pour '
-    +'s’ouvrir. Pour enlever une pièce, ouvre-la et touche ✕.';
-  detail.hidden = !premiere;
-  chapeau.appendChild(detail);
-  plus.addEventListener('click', ()=>{
-    detail.hidden = !detail.hidden;
-    plus.setAttribute('aria-expanded', String(!detail.hidden));
-  });
-  if (premiere) ecrire('aideCompose', true);
-  d.appendChild(chapeau);
-
-  /* Ce que le prof a écrit pour ce cours, modifiable ici aussi. Le même texte
-     qu'à l'écran « planification de la semaine » — une seule vérité. */
-  const libre=el('div','pap-cadre pap-cadre--jaune');
-  libre.style.marginBottom='12px';
-  libre.appendChild(el('h4',null,'✍️ MA PLANIFICATION, EN MOTS'));
-  const z=el('div','ps-zone'); z.contentEditable='true';
-  z.dataset.vide='Écris ici ce que tu veux pour ce cours…';
-  z.textContent=s.plan||'';
-  z.addEventListener('blur',()=> ecrirePlan(iso, per, z.textContent));
-  libre.appendChild(z);
-  d.appendChild(libre);
-
-  const pal=el('div','plan-palette');
-  ORDRE_PIECES.forEach(k=>{
-    const P=PIECES[k], n=etapesDeLaPiece(s,k).length;
-    const c=el('div','plan-piece'+(pieceEnMain===k?' plan-piece--main':'')+(n?' plan-piece--dedans':''));
-    c.draggable=true; c.dataset.piece=k;
-    c.innerHTML='<span class="emo"></span><b></b><small></small>';
-    c.querySelector('.emo').textContent=P.emo;
-    c.querySelector('b').textContent=P.lab+(n>1?' ×'+n:'');
-    c.querySelector('small').textContent=P.quoi;
-    c.title=P.lab+' — glisse-moi dans une phase, ou touche-moi puis touche la phase.';
-    c.addEventListener('dragstart', ev=>{ c.classList.add('drag');
-      ev.dataTransfer.setData('text/zts-piece',k); ev.dataTransfer.effectAllowed='copy'; });
-    c.addEventListener('dragend', ()=> c.classList.remove('drag'));
-    /* sans souris : on touche la pièce, puis la phase. */
-    c.addEventListener('click', ()=>{ pieceEnMain=(pieceEnMain===k)?null:k; volet('cours'); });
-    pal.appendChild(c);
-  });
-  d.appendChild(pal);
-
-  /* ⚠ COLLÉ AUX PHASES, pas flottant entre la palette et le texte (addenda §5) */
-  const cpt=el('div','pres-compte pres-compte--colle');
-  cpt.innerHTML='<span></span><span class="l"></span>';
-  cpt.children[0].textContent = total ? '⏱️ '+Math.round(total/60)+' min au total' : '⏱️ durées à remplir';
-  cpt.children[1].textContent='✔ '+faits+' / '+s.etapes.length+' terminée'+(faits>1?'s':'');
-  d.appendChild(cpt);
-
-  PHASES.forEach(([ph,lab,quoi])=>{
-    const box=el('div','se-cours plan-phase'); box.style.marginBottom='12px';
-    box.appendChild(el('h4',null,lab));
-    const sq=el('div'); sq.style.cssText='font-family:var(--f-note);font-size:15px;color:var(--ink-soft);margin:-4px 0 8px';
-    sq.textContent=quoi; box.appendChild(sq);
-    accepterDepot(box, ph, null);
-
-    const liste=s.etapes.filter(e=>e.phase===ph);
-    if (!liste.length) box.appendChild(el('div','cahier-vide','Rien pour l’instant.'));
-    liste.forEach(e=>{
-      const k=pieceDe(e), P=PIECES[k];
-      const l=el('div','etape'+(e.fait?' etape--faite':'')+(k!=='libre'?' etape--piece':''));
-      l.draggable=true; l.dataset.et=e.id;
-      l.addEventListener('dragstart', ev=>{ l.classList.add('drag');
-        ev.dataTransfer.setData('text/zts-etape',String(e.id)); ev.dataTransfer.effectAllowed='move'; });
-      l.addEventListener('dragend', ()=> l.classList.remove('drag'));
-      accepterDepot(l, ph, e.id, e.id);
-
-      const chk=el('button','etape-chk', e.fait?'✔':'○'); chk.type='button';
-      chk.title=e.fait?'Marquer non terminée':'Marquer terminée';
-      chk.addEventListener('click', ev=>{ ev.stopPropagation();
-        majSeance(x=>{ const y=etapeDe(x,e.id); y.fait=!y.fait; }); });
-      l.appendChild(chk);
-
-      const lien=el('button','etape-lien'); lien.type='button';
-      lien.innerHTML='<span class="ti"></span><span class="du"></span>';
-      lien.querySelector('.ti').textContent=(k!=='libre' ? P.emo+' ' : '')
-        + (e.titre || (k!=='libre' ? P.lab : '(sans titre — touche pour le nommer)'));
-      lien.querySelector('.du').textContent=(e.duree ? Math.round(e.duree/60)+' min'
-                                             : (k==='libre' ? 'durée à toi' : P.quoi))
-        + ((e.medias||[]).length ? ' · 🖼️ '+e.medias.length : '');
-      /* ── LE COIN ⏱ DE L'ÉTAPE (addenda §3) ──
-         Un seul endroit pour le temps, toujours à la même place : le coin de la
-         pièce, comme l'image du groupe dans la période. Le champ accepte ce
-         qu'on veut y écrire — 7, 2:30, 1h30 — et ▶ lance la minuterie du tiroir
-         Jeux, buzzer compris, préremplie avec cette durée. */
-      const coin=el('div','etape-coin');
-      const dur=document.createElement('input');
-      dur.className='etape-duree'; dur.type='text';
-      dur.value = e.duree ? Math.round(e.duree/60)+'' : '';
-      dur.placeholder='min'; dur.title='Combien de temps ? 7, 2:30, 1h30';
-      dur.setAttribute('aria-label','Durée de l’étape en minutes');
-      dur.addEventListener('click', ev=> ev.stopPropagation());
-      dur.addEventListener('change', ()=>{
-        const sec=lireDuree(dur.value);
-        majSeance(x=>{ const y=etapeDe(x,e.id); y.duree=sec; });
-      });
-      coin.appendChild(dur);
-      const go=el('button','etape-go','▶'); go.type='button';
-      go.title='Lancer cette durée dans la minuterie du tiroir Jeux';
-      go.setAttribute('aria-label','Partir la minuterie');
-      go.addEventListener('click', ev=>{ ev.stopPropagation(); lancerMinuterieEtape(e); });
-      coin.appendChild(go);
-      l.appendChild(coin);
-
-      /* ⚠ LES IMAGES SE VOIENT ICI, pas seulement dans le détail de l'étape.
-         Une planification illustrée ne sert à rien si l'illustration est à un
-         clic de distance : c'est la feuille qu'on regarde en donnant le cours. */
-      if ((e.medias||[]).length){
-        const vig=el('span','vig');
-        e.medias.slice(0,6).forEach(m=>{
-          if (m.type==='image' && m.data){
-            const im=document.createElement('img'); im.src=m.data; im.alt=m.nom||''; vig.appendChild(im);
-          } else {
-            const d=el('span','doc', m.type==='pdf'?'📄':m.type==='video'?'🎬':'🖼️');
-            d.title=m.nom||''; vig.appendChild(d);
-          }
-        });
-        if ((e.medias||[]).length>6) vig.appendChild(el('span','doc','+'+((e.medias.length)-6)));
-        lien.appendChild(vig);
-      }
-      lien.title = ((k==='libre') ? 'Ouvrir cette activité' : 'Ouvrir ' + P.lab.toLowerCase())
-                 + ' — ou lâche une image dessus';
-      lien.addEventListener('click', ()=> (k==='libre') ? ouvrirEtape(e.id) : ouvrirPiece(k, e.id));
-      l.appendChild(lien);
-
-      if (k!=='libre'){
-        const reg=el('button','etape-reg','✎'); reg.type='button';
-        reg.title='Son titre, son explication, sa durée, ses images';
-        reg.addEventListener('click', ev=>{ ev.stopPropagation(); ouvrirEtape(e.id); });
-        l.appendChild(reg);
-      }
-      const sup=el('button','etape-sup','✕'); sup.type='button'; sup.title='Retirer de la planification';
-      sup.addEventListener('click', ev=>{ ev.stopPropagation(); retirerEtape(e.id); });
-      l.appendChild(sup);
-      box.appendChild(l);
-    });
-
-    const dep=el('div','plan-depot'+(pieceEnMain?' plan-depot--pret':''));
-    dep.textContent = pieceEnMain ? '👆 touche ici pour poser '+PIECES[pieceEnMain].lab
-                                  : '＋ glisse une pièce ici';
-    accepterDepot(dep, ph, null);
-    dep.addEventListener('click', ()=>{ if(!pieceEnMain) return;
-      const k=pieceEnMain; pieceEnMain=null; ajouterPiece(k, ph, null); });
-    box.appendChild(dep);
-    d.appendChild(box);
-  });
-}
 
 /* ── le détail d'une étape, en second niveau de la modale ── */
 function ouvrirEtape(id){
