@@ -457,6 +457,18 @@
     }
     .grid-area{
       flex:1; min-width:0; overflow-x:auto; padding:14px;
+      /* On garde le defilement a un et deux doigts, on prend le PINCEMENT.
+         C'est le seul endroit de la page ou le zoom du navigateur est
+         detourne — ailleurs il reste entier, y compris le pincement, ce que
+         la PR 2 avait retabli en retirant l'interdiction de zoom du meta
+         viewport.
+
+         ⚠ Ne PAS ecrire ici l'attribut correspondant en toutes lettres : le
+         test « Le zoom reste libre » cherche cette chaine dans le fichier
+         BRUT, commentaires compris. Le meme piege avait deja fait rougir la
+         CI en PR 2 avec les noms de feuilles de style. Un commentaire qui
+         cite ce qu'il interdit devient la preuve de l'infraction. */
+      touch-action:pan-x pan-y;
       background:var(--card);
       border:4px solid var(--encre); border-radius:var(--r-card);
       box-shadow:var(--ombre-panneau);
@@ -2739,6 +2751,46 @@ function brancherZoomMolette(){
     clearTimeout(zone.__t);zone.__t=setTimeout(()=>save(),400);
   },{passive:false});
 }
+/* Le pincement a DEUX DOIGTS, sur tablette et sur ecran tactile.
+   Le pavé tactile d'un portable, lui, signale son pincement comme une molette
+   avec ctrlKey — c'est `brancherZoomMolette` qui s'en charge. Un vrai ecran
+   tactile n'envoie rien de tel : il envoie deux pointeurs. Sans ce bloc, la
+   moitie tablette de la demande n'existait pas.
+
+   On mesure la distance entre les deux doigts, et le rapport a la distance de
+   depart donne le facteur. C'est le geste que tout le monde connait. */
+function brancherPincement(){
+  const zone=document.getElementById('gridArea');
+  if(!zone||zone.__pinceBranche)return;
+  zone.__pinceBranche=true;
+  const doigts=new Map();
+  let ecart0=0, zoom0=1;
+  const distance=()=>{
+    const l=[...doigts.values()];
+    return Math.hypot(l[0].x-l[1].x, l[0].y-l[1].y);
+  };
+  zone.addEventListener('pointerdown',e=>{
+    if(e.pointerType!=='touch')return;
+    doigts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(doigts.size===2){ecart0=distance();zoom0=S.zoom}
+  });
+  zone.addEventListener('pointermove',e=>{
+    if(e.pointerType!=='touch'||!doigts.has(e.pointerId))return;
+    doigts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(doigts.size!==2||!ecart0)return;
+    e.preventDefault();                       // le pincement nous appartient ICI
+    poserEchelle(zoom0*(distance()/ecart0),false);
+  },{passive:false});
+  const lever=e=>{
+    if(!doigts.has(e.pointerId))return;
+    doigts.delete(e.pointerId);
+    if(doigts.size<2&&ecart0){ecart0=0;save()}
+  };
+  zone.addEventListener('pointerup',lever);
+  zone.addEventListener('pointercancel',lever);
+  zone.addEventListener('pointerleave',lever);
+}
+
 /* La poignee : un glisser, souris ou doigt — les evenements pointeur
    couvrent les deux sans code en double. Vers la droite et vers le bas,
    ca grandit : c'est le sens qu'a une poignee de fenetre. */
@@ -3202,7 +3254,7 @@ function renderAll(){assurerStructures();poserEchelle(S.zoom,false);resetGroupCo
 
 document.addEventListener('DOMContentLoaded',()=>{
   load();appliquerMetier();applyI18n();renderAll();showWelcome();montrerChoixMetier();calerSousHeader();
-  brancherZoomMolette();brancherPoignee();
+  brancherZoomMolette();brancherPincement();brancherPoignee();
   // Le header partage se monte en differe (zts-menu.js) et sa hauteur change
   // au redimensionnement : on remesure plutot que de figer une valeur.
   window.addEventListener('load',calerSousHeader);
