@@ -1126,3 +1126,41 @@ html[data-etroit="1"] .hor-gr{font-size:14px;padding:4px 8px}
 /* le bandeau « DÉMARRER LA SÉANCE / MODE TABLEAU BLANC » de MA JOURNÉE :
    sa propre ligne, au-dessus du rail d'outils */
 .auj-live{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+
+/* ══ LES FONCTIONS DU COURS, DANS LA CASE (31 août, capture 3) ══
+   Petites, alignées, toujours au même endroit. Le crochet dit ce qui a servi. */
+.auj-fonc{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;position:relative}
+.auj-fonc .fonc{
+  position:relative;cursor:pointer;display:flex;align-items:center;gap:6px;
+  border:3px solid var(--noir);border-radius:10px;background:#fff;color:var(--ink);
+  padding:6px 10px;font-family:var(--f-titre);font-size:14px;letter-spacing:.2px;
+  box-shadow:2px 2px 0 var(--noir);
+}
+.auj-fonc .fonc .e{font-size:16px;line-height:1}
+.auj-fonc .fonc:hover,.auj-fonc .fonc:focus-visible{background:#EAF8FD}
+/* ✔ : cette fonction a déjà servi pour ce cours */
+.auj-fonc .fonc--fait{background:#E8FBE8}
+.auj-fonc .fonc-ok{
+  position:absolute;top:-8px;right:-8px;background:var(--lime);color:#1E3300;
+  border:3px solid var(--noir);border-radius:50%;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;
+}
+.auj-fonc .fonc--large{flex:1 0 auto}
+.auj-fonc .fonc--live{background:var(--jaune)}
+.auj-fonc .fonc--live-on{background:#FF2D6F;color:#fff}
+/* le menu des gabarits d'évaluation */
+.auj-fonc .fonc-menu{
+  position:absolute;top:100%;left:0;z-index:40;margin-top:6px;min-width:240px;
+  background:#fff;border:3px solid var(--noir);border-radius:12px;
+  box-shadow:5px 5px 0 var(--noir);padding:6px;
+}
+.auj-fonc .fonc-menu[hidden]{display:none}
+.auj-fonc .fonc-menu button{
+  display:block;width:100%;text-align:left;cursor:pointer;background:none;border:none;
+  padding:8px 10px;border-radius:8px;font-family:var(--f-titre);font-size:14px;color:var(--ink);
+}
+.auj-fonc .fonc-menu button:hover{background:#EAF8FD}
+.auj-fonc .fonc-menu button small{display:block;font-family:var(--f-note);font-size:13px;opacity:.7}
+.auj-fonc .fonc-menu-perso{border-top:2px dashed rgba(8,19,30,.25);margin-top:4px}
+/* le lien vers la porte MON HORAIRE */
+.auj-vide .vers-horaire{cursor:pointer;text-decoration:underline}

@@ -930,6 +930,22 @@ apparue toute seule dans un document signé est un problème, pas une commodité
    `request.auth.uid`, owner-only. **Jamais le patron des groupes** : c'est lui
    qui donne la lecture au coordonnateur, et c'est précisément ce qu'on ferme.
 
+### 12.8 Décisions du 31 août HORS MANDAT I (proto seulement)
+Prises pendant le chantier G3-FICHE, elles touchent le proto et **ne modifient
+aucune ligne du Mandat I** — consignées ici pour que personne ne les prenne pour
+des acquis du §1 ni pour des lots :
+- **🕐 MON HORAIRE est une porte de la barre**, juste après MON CALENDRIER ; sa
+  tuile a quitté ⋯ PLUS. C'est l'horaire-patron dont MA JOURNÉE, MA SEMAINE et
+  MON MOIS dépendent : deux taps pour l'atteindre était un tap de trop.
+- **Les sept outils** (Dé, Roue, Chrono, Minuteur, Équipes, Message, Mon école)
+  sont passés du rail de MA JOURNÉE au menu 🔗 MES AUTRES APPS.
+- **La feuille « Planification journalière »** remplace l'écran de composition à
+  pièces livré le matin même. Le modèle de données ne bouge pas : les blocs SONT
+  les étapes.
+- **Les fonctions du cours** (présences, linge, mot, évaluation, la feuille,
+  démarrer la séance) vivent dans la case du groupe, avec un crochet ✓ par
+  fonction déjà utilisée.
+
 ### 12.7 Le verrou G3 tient
 **Aucun code des lots** avant la clôture de **G3-STABILISATION** et de
 **G3-FICHE**. Toutes les décisions sont prises ; **il ne manque que ça.**

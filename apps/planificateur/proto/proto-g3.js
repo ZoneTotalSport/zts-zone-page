@@ -325,11 +325,21 @@ function peindreAujourdhui(){
       /* même raison qu'en semaine : on vient voir SES ÉLÈVES */
       b.addEventListener('click',()=>{ ecrire('seVolet','presences'); ouvrirSeance(ctxDate, p.n); });
       r.appendChild(b);
-      r.appendChild(illustrationsDuCours(ctxDate, p.n));
+      /* ⚠ LA ZONE D'ILLUSTRATIONS A CÉDÉ LA PLACE (31 août, capture 3 de Joey).
+         Le grand carré « glisse une image ici » occupait la moitié de la case
+         pour un geste qu'on fait en préparant, pas en enseignant. Les images
+         vivent maintenant dans les blocs de la feuille « Planification
+         journalière », chacune à côté de son activité. À sa place : les
+         fonctions du cours, en petit, chacune ouvrant sa fenêtre. */
+      r.appendChild(fonctionsDuCours(ctxDate, p.n, s, g));
     } else {
       const v=el('button','auj-vide'); v.type='button';
       v.innerHTML='<span class="plus">＋</span><span>poser un groupe ici</span>'
-        +'<small>Juste pour cette date — l’année se règle dans 🕐 MON HORAIRE</small>';
+        +'<small>Juste pour cette date — l’année se règle dans '
+        +'<b class="vers-horaire" role="link" tabindex="0">🕐 MON HORAIRE</b></small>';
+      /* ⚠ le lien ouvre la porte d'un tap : il la NOMMAIT sans y mener */
+      v.querySelector('.vers-horaire').addEventListener('click', ev=>{
+        ev.stopPropagation(); allerA('e-horaire'); });
       v.title='Poser une exception pour cette date seulement';
       v.addEventListener('click',()=>{
         if (typeof choisirGroupePourCase==='function')
@@ -604,6 +614,83 @@ const OUTILS = [
   ['📝','Message',   outilMessage, 'Un mot qui se lit de loin'],
   ['🏫','Mon école', ()=>allerA('e-reglages'), 'L’horaire, les jours-cycle, les étapes'],
 ];
+/* ══════════════════════════════════════════════════════════════════════════
+   LES FONCTIONS DU COURS, DANS LA CASE DU GROUPE (31 août, capture 3)
+   Six petits boutons sous le cours : présences, linge, mot, évaluation, la
+   feuille, et démarrer la séance. Chacun ouvre SA fenêtre — on ne traverse plus
+   la fiche pour prendre les présences.
+   ⚠ Un crochet ✓ s'allume dès qu'une fonction a servi pour ce cours-là : d'un
+   coup d'œil sur sa journée, le prof voit ce qu'il a déjà fait.
+   ⚠ La case elle-même est un <button> : ces boutons ne peuvent pas vivre
+   DEDANS (un bouton dans un bouton n'est pas du HTML valide et le clic
+   remonterait au mauvais). Ils sont donc posés à côté, dans la ligne de la
+   période. */
+function fonctionsDuCours(iso, per, s, g){
+  const z=el('div','auj-fonc');
+  const pres=Object.values(s.pres||{});
+  const ouvrir=(volet)=>{ ecrire('seVolet', volet); ouvrirSeance(iso, per); };
+
+  const bouton=(cls, emo, lab, fait, quoi, action)=>{
+    const b=el('button','fonc'+(fait?' fonc--fait':'')+(cls?' '+cls:'')); b.type='button';
+    b.innerHTML='<span class="e"></span><span class="l"></span>';
+    b.querySelector('.e').textContent=emo;
+    b.querySelector('.l').textContent=lab;
+    if (fait) b.appendChild(el('span','fonc-ok','✔'));
+    b.title=quoi+(fait?' — déjà fait pour ce cours':'');
+    b.addEventListener('click', ev=>{ ev.stopPropagation(); action(); });
+    z.appendChild(b); return b;
+  };
+
+  bouton('', '✅', 'Présences', pres.length>0,
+         'Qui est là', ()=>ouvrir('presences'));
+  bouton('', '👕', 'Linge', pres.some(x=>x==='sans'),
+         'Qui a son linge', ()=>ouvrir('presences'));
+  bouton('', '💬', 'Mot', !!(s.message||'').trim(),
+         'Un mot sur ce cours', ()=>ouvrir('message'));
+
+  /* ⚠ ÉVALUATION EST UN MENU, PAS UNE PORTE : Joey veut choisir son gabarit et
+     se mettre à noter, sans écran intermédiaire. */
+  const ev=bouton('fonc--menu', '📝', 'Évaluation', (s.evalCrits||[]).length>0,
+                  'Choisir un gabarit et noter', ()=>{});
+  const menu=el('div','fonc-menu'); menu.hidden=true;
+  (typeof GABARITS!=='undefined' ? GABARITS : []).forEach(x=>{
+    const b=el('button'); b.type='button';
+    b.innerHTML='<span></span><small></small>';
+    b.firstChild.textContent=x.nom; b.lastChild.textContent=x.quoi;
+    b.addEventListener('click', e2=>{ e2.stopPropagation();
+      ecrire('seVolet','evaluation'); ouvrirSeance(iso, per);
+      if (typeof majSeance==='function') majSeance(y=>y.evalCrits=[...x.crits]);
+    });
+    menu.appendChild(b);
+  });
+  const perso=el('button','fonc-menu-perso','✎ Mes propres critères'); perso.type='button';
+  perso.addEventListener('click', e2=>{ e2.stopPropagation(); ouvrir('evaluation'); });
+  menu.appendChild(perso);
+  ev.addEventListener('click', e2=>{ e2.stopPropagation();
+    menu.hidden=!menu.hidden; ev.setAttribute('aria-expanded', String(!menu.hidden)); });
+  ev.setAttribute('aria-expanded','false');
+  z.appendChild(menu);
+
+  bouton('fonc--large', '📋', 'Voir la planification',
+         (s.etapes||[]).some(e=>e.titre||e.desc),
+         'La feuille de planification journalière', ()=>ouvrir('cours'));
+
+  /* ▶ DÉMARRER LA SÉANCE vit ici depuis le 31 août : il a quitté le haut de
+     MA JOURNÉE, et c'est lui qui fait basculer la fiche en mode « suivre ». */
+  const ici=(lire('liveOu','')===iso+'|'+per);
+  const enCours=!!lire('live',null) && ici;
+  const live=bouton('fonc--live'+(enCours?' fonc--live-on':''), enCours?'■':'▶',
+                    enCours?'Arrêter la séance':'Démarrer la séance', false,
+                    enCours?'Arrêter le cours en cours':'Commencer ce cours', ()=>{
+    if (enCours){ ecrire('live', null); ecrire('liveOu',''); }
+    else { ecrire('live', Date.now()); ecrire('liveOu', iso+'|'+per); }
+    if (typeof majModeSeance==='function') majModeSeance();
+    peindreAujourdhui();
+  });
+  if (enCours) live.classList.add('fonc--fait');
+  return z;
+}
+
 /* ⚠ LE RAIL D'OUTILS A QUITTÉ MA JOURNÉE (31 août, demande de Joey). Les sept
    outils — Dé, Roue, Chrono, Minuteur, Équipes, Message, Mon école — vivent
    maintenant dans le menu déroulant 🔗 MES AUTRES APPS de la barre du haut, à
