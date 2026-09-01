@@ -82,6 +82,10 @@ function reduireImage(f, max, q){
     if (debut){ debut=null; clearInterval(tic); tic=null; }
     else { debut=Date.now(); if(!tic) tic=setInterval(peindre,1000); }
     ecrire('live',debut); peindre();
+    /* ⚠ LA FICHE SE LIT SUR CET ÉTAT (G3-FICHE) : si elle est ouverte quand on
+       démarre ou arrête, elle doit changer de mode TOUT DE SUITE, pas au
+       prochain aller-retour. */
+    if (typeof majModeSeance==='function') majModeSeance();
   });
   if (debut && !tic) tic=setInterval(peindre,1000);
   const tbi=el('button','mini','📺 MODE TABLEAU BLANC'); tbi.type='button';

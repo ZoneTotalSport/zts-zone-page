@@ -715,6 +715,25 @@ function ouvrirSeance(iso, per){
    ici, elles changent AUSSI dans la palette et dans les cases de l'agenda.
    C'est exactement le but — on reconnaît son groupe à un visage, pas à un
    ballon générique. */
+/* ⚠ UN SEUL ÉTAT, UN SEUL BOUTON (G3-FICHE). Le mode de la fiche n'a pas son
+   commutateur : il se LIT sur « la séance est-elle démarrée ? », l'état qu'écrit
+   le bouton DÉMARRER / ARRÊTER LA SÉANCE de MA JOURNÉE (`liveEtTbi`,
+   proto-fusion.js, clé `live`). Deux boutons pour un seul état, c'est deux
+   vérités qui finissent par diverger. */
+function seanceEnCours(){ return !!lire('live', null); }
+function modeSeance(){ return seanceEnCours() ? 'seance' : 'planif'; }
+
+/* Repeint la fiche quand la séance démarre ou s'arrête pendant qu'elle est
+   ouverte : le passage d'un mode à l'autre doit être instantané, pas au
+   prochain aller-retour. Appelée par `liveEtTbi` (proto-fusion.js). */
+function majModeSeance(){
+  if (typeof seanceOuverte==='undefined' || !seanceOuverte) return;
+  const m=$('#modale'); if (!m || m.hidden) return;
+  peindreTeteSeance();
+  peindreActionsSeance();
+}
+window.majModeSeance = majModeSeance;
+
 function peindreTeteSeance(){
   if (typeof seanceOuverte==='undefined' || !seanceOuverte) return;
   const {iso,per}=seanceOuverte; const s=seanceDe(iso,per); if(!s) return;
@@ -723,8 +742,14 @@ function peindreTeteSeance(){
   const coul = g ? g.coul : '#9E9E9E';
   tete.style.background=coul; tete.style.color=encreSur(coul);
   tete.querySelector('h3').textContent = g ? 'Groupe '+g.nom : 'Groupe retiré';
+  /* ⚠ L'EN-TÊTE DIT LE MODE. Sans ça, rien à l'écran ne distingue « je prépare
+     ce cours » de « je suis en train de le donner » — et les deux fiches n'ont
+     pas les mêmes cartes. Le compteur de minutes vient du même état `live`. */
+  const debut=lire('live', null);
+  const enCours = debut ? ' · ● en cours depuis '+Math.floor((Date.now()-debut)/60000)+' min' : '';
   tete.querySelector('.quand').textContent =
-    jourLisible(iso)+' · période '+per+' · '+((g&&g.eleves.length)||0)+' élèves';
+    jourLisible(iso)+' · période '+per+' · '+((g&&g.eleves.length)||0)+' élèves'+enCours;
+  tete.dataset.mode = modeSeance();
 
   /* ⚠ L'EN-TÊTE EST LA PORTE DU PORTRAIT (G3-FICHE). Une carte « PORTRAIT DU
      GROUPE » de plus dans la rangée disait la même chose que le nom du groupe
@@ -748,12 +773,30 @@ function peindreTeteSeance(){
   ph.className='se-photo'+((g&&g.img)?'':' vide');
   if (g && g.img){ const im=document.createElement('img'); im.src=g.img; im.alt=''; ph.appendChild(im); }
   else ph.appendChild(el('span','emo', g?g.emo:'❓'));
-  const par=$('#seParure'); par.innerHTML='';
+  /* `let`, pas `const` : la cible bascule vers le tiroir 🎨 quelques lignes
+     plus bas, une fois le bouton d'ouverture posé dans l'en-tête. */
+  let par=$('#seParure'); par.innerHTML='';
   if (!g){ ph.title='Ce groupe a été retiré.'; return; }
 
   ph.title='Glisse ici une photo de l’enseignant·e ou du groupe — ou touche pour la choisir.';
   ph.addEventListener('click', ()=> choisirPhotoGroupe(g.id));
   photoDeposable(ph, g.id);
+
+  /* ⚠ LES PASTILLES SORTENT DE L'EN-TÊTE (G3-FICHE). Neuf pastilles, un
+     sélecteur de couleur et un bouton photo occupaient une bande entière de la
+     fiche, au-dessus du cours — pour un réglage qu'on touche une fois par
+     année. Elles vivent derrière 🎨, au même endroit, à un tap. */
+  const bascule=el('button','se-coul se-coul--ouvre','🎨'); bascule.type='button';
+  bascule.title='Changer la couleur ou la photo du groupe';
+  bascule.setAttribute('aria-expanded','false');
+  par.appendChild(bascule);
+  const tiroirCoul=el('div','se-parure-tiroir'); tiroirCoul.hidden=true;
+  bascule.addEventListener('click',()=>{
+    tiroirCoul.hidden=!tiroirCoul.hidden;
+    bascule.setAttribute('aria-expanded', String(!tiroirCoul.hidden));
+  });
+  par.appendChild(tiroirCoul);
+  par=tiroirCoul;   /* tout ce qui suit se range dans le tiroir */
 
   par.appendChild(el('span','se-parure-lab','SA COULEUR'));
   PALETTE_COUL.forEach(c=>{
@@ -850,7 +893,22 @@ function peindreActionsSeance(){
         : 'critères, cotes, tests',
      faite: (s.evalCrits||[]).length>0},
   ];
-  act.forEach(a=>{
+  /* ⚠ CHAQUE MODE SA RANGÉE (G3-FICHE) :
+       ✏️ PLANIFIER  → LA PLANIFICATION · JEUX · ÉVALUER
+          PRÉSENCES est masquée : on ne prend pas les présences la veille.
+       ▶ EN SÉANCE  → PRÉSENCES · LA PLANIFICATION (mode suivre) · JEUX
+          ÉVALUER descend en bouton secondaire : poser une cote en plein cours
+          arrive, mais c'est rare — ce n'est pas une carte pleine.
+     Rien n'est supprimé : ce qui n'est pas en carte reste joignable. */
+  const mode=modeSeance();
+  const enCarte = mode==='seance'
+    ? ['presences','cours','jeux']
+    : ['cours','jeux','evaluation'];
+  const secondaires = mode==='seance' ? ['evaluation'] : [];
+  const parCle={}; act.forEach(a=> parCle[a.k]=a);
+  const acte = enCarte.map(k=>parCle[k]).filter(Boolean);
+
+  acte.forEach(a=>{
     const b=el('button','se-action'+(a.faite?' faite':'')); b.type='button';
     b.dataset.k=a.k;
     b.innerHTML='<span class="emo"></span><span class="lab"></span><span class="etat"></span>';
@@ -860,7 +918,23 @@ function peindreActionsSeance(){
     b.addEventListener('click',()=>volet(a.k));
     h.appendChild(b);
   });
-  volet(lire('seVolet','cours'));
+
+  /* les boutons secondaires : nommés, joignables, mais pas au premier rang */
+  secondaires.map(k=>parCle[k]).filter(Boolean).forEach(a=>{
+    const b=el('button','mini se-secondaire'); b.type='button';
+    b.dataset.k=a.k;
+    b.textContent=a.emo+' '+a.lab;
+    b.title=a.lab+' — '+a.etat;
+    b.addEventListener('click',()=>volet(a.k));
+    h.appendChild(b);
+  });
+
+  /* ⚠ Le volet retenu peut ne plus avoir sa carte après un changement de mode
+     (PRÉSENCES en planification, par exemple) : on retombe alors sur le cours. */
+  const retenu=lire('seVolet','cours');
+  const joignable = enCarte.indexOf(retenu)>=0 || secondaires.indexOf(retenu)>=0
+                    || retenu==='portrait' || retenu==='message';
+  volet(joignable ? retenu : 'cours');
   decorerPortes();
 }
 
@@ -897,6 +971,17 @@ function volet(quoi){
     const pied=el('div','se-pied'); pied.appendChild(b); d.appendChild(pied);
   };
   setTimeout(finirVolet, 0);
+
+  if (quoi==='cours' && modeSeance()==='seance'){
+    /* ⚠ PENDANT LA SÉANCE, ON NE COMPOSE PLUS : ON SUIT (G3-FICHE).
+       L'écran de composition — palette, phases, glisser-déposer — est l'outil du
+       dimanche soir. En plein cours, on veut la liste de ce qu'on a prévu, dans
+       l'ordre, cochable d'un doigt, avec le ⏱ de chaque étape à portée. Les
+       cartes restent affichées : suivre son cours n'est pas une destination
+       dont il faut revenir. */
+    peindreSuivre(d, s, iso, per);
+    return;
+  }
 
   if (quoi==='cours'){
     /* ⚠ PLEIN ÉCRAN, PAS EMPILÉ (addenda G3-FICHE-2, §1). La rangée des neuf
@@ -1363,6 +1448,57 @@ function aideRepliee(emo, ligne, detailHtml, cle){
     plus.setAttribute('aria-expanded', String(!det.hidden)); });
   if (premiere) ecrire(cle, true);
   return box;
+}
+
+/* LE DÉROULEMENT, PENDANT LE COURS. Mêmes étapes, mêmes durées, même case à
+   cocher que dans la composition — mais rien à glisser et rien à ranger : on
+   lit, on coche, on lance le temps. */
+function peindreSuivre(d, s, iso, per){
+  d.appendChild(aideRepliee('▶', 'Coche ce qui est fait.',
+    'Le ⏱ de chaque étape lance la minuterie du tiroir Jeux avec sa durée. '
+    +'Pour changer le cours lui-même, arrête la séance : la fiche revient en '
+    +'mode planification.', 'aideSuivre'));
+
+  const etapes=(s.etapes||[]).filter(e=> e.titre || pieceDe(e)!=='libre');
+  if (!etapes.length){
+    d.appendChild(el('div','cahier-vide',
+      'Rien n’a été composé pour ce cours. Arrête la séance pour le préparer.'));
+    return;
+  }
+  const total=etapes.reduce((a,e)=>a+(e.duree||0),0);
+  const faits=etapes.filter(e=>e.fait).length;
+  const cpt=el('div','pres-compte pres-compte--colle');
+  cpt.innerHTML='<span></span><span class="l"></span>';
+  cpt.children[0].textContent = total ? '⏱️ '+Math.round(total/60)+' min prévues' : '⏱️ sans durée';
+  cpt.children[1].textContent='✔ '+faits+' / '+etapes.length+' fait'+(faits>1?'s':'');
+  d.appendChild(cpt);
+
+  PHASES.forEach(([ph,lab])=>{
+    const liste=etapes.filter(e=>e.phase===ph);
+    if (!liste.length) return;
+    const box=el('div','se-cours plan-phase'); box.style.marginBottom='12px';
+    box.appendChild(el('h4',null,lab));
+    liste.forEach(e=>{
+      const k=pieceDe(e), P=PIECES[k];
+      const l=el('div','etape etape--suivre'+(e.fait?' etape--faite':''));
+      const chk=el('button','etape-chk', e.fait?'✔':'○'); chk.type='button';
+      chk.title=e.fait?'Pas encore fait':'C’est fait';
+      chk.addEventListener('click',()=> majSeance(x=>{ const y=etapeDe(x,e.id); y.fait=!y.fait; }));
+      l.appendChild(chk);
+
+      const t=el('div','etape-suivre-t');
+      t.appendChild(el('b',null,(k!=='libre'?P.emo+' ':'')+(e.titre || (k!=='libre'?P.lab:'(sans titre)'))));
+      if (e.duree) t.appendChild(el('small',null,Math.round(e.duree/60)+' min'));
+      l.appendChild(t);
+
+      const go=el('button','etape-go etape-go--suivre','⏱ '+(e.duree?Math.round(e.duree/60)+' min':'—'));
+      go.type='button'; go.title='Lancer cette durée dans la minuterie du tiroir Jeux';
+      go.addEventListener('click',()=> lancerMinuterieEtape(e));
+      l.appendChild(go);
+      box.appendChild(l);
+    });
+    d.appendChild(box);
+  });
 }
 
 /* Referme l'écran de composition et rend la main aux cartes du cours. Une seule
