@@ -984,8 +984,8 @@ function volet(quoi){
   }
 
   if (quoi==='cours'){
-    /* ⚠ PLEIN ÉCRAN, PAS EMPILÉ (addenda G3-FICHE-2, §1). La rangée des neuf
-       cartes reste affichée sous l'écran de composition : on y retrouvait
+    /* ⚠ PLEIN ÉCRAN, PAS EMPILÉ (addenda G3-FICHE-2, §1). La rangée de cartes
+       restait affichée sous l'écran de composition : on y retrouvait
        PRÉSENCES, JEUX, ÉVALUATION, UN MOT et UN TEST une deuxième fois, en plus
        des pièces de la palette. Une seule chose à l'écran à la fois. */
     const cartes=$('#seActions'); if (cartes) cartes.hidden=true;

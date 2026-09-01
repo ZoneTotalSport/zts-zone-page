@@ -58,12 +58,13 @@ débordement.** Le vrai navigateur émet `resize` ; le code y est branché
 
 ---
 
-## Correspondance avant / après — les cartes d'origine
+## Correspondance avant / après — les 8 cartes d'origine
 
-> ⚠ **Note de comptage** : le mandat parle de « 9 cartes d'origine ». Le dépôt
-> au commit `c4be61b0` en produisait **8** — six dans `act[]`
-> (proto-seance.js), plus TESTS (proto-annee.js) et PORTRAIT DU GROUPE
-> (proto-portrait.js). Si une neuvième existait, elle n'est pas dans le code.
+> **Comptage réglé le 31 août** : la fiche portait **8 cartes**, pas 9 —
+> Planification, Minuterie, Présences, Jeux, Message, Évaluation, Tests,
+> Portrait. Six venaient de `act[]` (proto-seance.js), TESTS de proto-annee.js
+> et PORTRAIT DU GROUPE de proto-portrait.js. La « neuvième » était une erreur
+> de comptage, confirmée par Joey ; il n'y en a jamais eu.
 
 | Carte d'origine | Après | Fonction perdue ? |
 |---|---|---|
