@@ -693,6 +693,7 @@ function ouvrirSeance(iso, per){
       <div class="se-qui"><h3></h3><div class="quand"></div></div>
       <div class="se-parure" id="seParure"></div>
     </div>
+    <div class="se-mot" id="seMot"></div>
     <div class="se-actions" id="seActions"></div>
     <div id="seDetail"></div>`;
   /* ⚠ « DÉMARRER LA SÉANCE » et « MODE TABLEAU BLANC » NE SONT PLUS ICI.
@@ -702,6 +703,7 @@ function ouvrirSeance(iso, per){
      d'outils (`#aujActions`, proto-g3.js). Le mode tableau blanc est un acquis
      du §1.2 du mandat : il ne doit jamais disparaître du proto. */
   peindreTeteSeance();
+  ligneMessage();
   peindreActionsSeance();
 }
 
@@ -723,6 +725,19 @@ function peindreTeteSeance(){
   tete.querySelector('h3').textContent = g ? 'Groupe '+g.nom : 'Groupe retiré';
   tete.querySelector('.quand').textContent =
     jourLisible(iso)+' · période '+per+' · '+((g&&g.eleves.length)||0)+' élèves';
+
+  /* ⚠ L'EN-TÊTE EST LA PORTE DU PORTRAIT (G3-FICHE). Une carte « PORTRAIT DU
+     GROUPE » de plus dans la rangée disait la même chose que le nom du groupe
+     écrit juste au-dessus. On touche le groupe pour voir son portrait. */
+  const qui=tete.querySelector('.se-qui');
+  if (qui && !qui.dataset.porte){
+    qui.dataset.porte='1';
+    qui.setAttribute('role','button'); qui.tabIndex=0;
+    qui.title='Voir le portrait du groupe — tout ce qui a été consigné';
+    const ouvrir=()=>{ if (typeof volet==='function') volet('portrait'); };
+    qui.addEventListener('click', ouvrir);
+    qui.addEventListener('keydown', ev=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); ouvrir(); } });
+  }
 
   /* ⚠ ON REMPLACE LE BOUTON, on ne le vide pas. `peindreTeteSeance()` est
      rappelée à chaque changement de couleur ou de photo : rebrancher `click`
@@ -820,16 +835,19 @@ function peindreActionsSeance(){
     {k:'jeux', emo:'🎲', lab:'JEUX',
      etat:'piger dans la banque',
      faite:false},
-    {k:'message', emo:'💬', lab:'MESSAGE',
-     etat: (s.message||'').trim() ? s.message.slice(0,34) : 'rien à signaler',
-     faite: !!(s.message||'').trim()},
-    {k:'evaluation', emo:'📝', lab:'ÉVALUATION',
+    /* ⚠ PAS DE CARTE « MESSAGE » (G3-FICHE). Un mot sur le cours n'est pas une
+       destination : c'est une ligne qu'on lit d'un coup d'œil et qu'on touche
+       pour écrire. Elle vit sous l'en-tête — voir `ligneMessage()`. */
+    {k:'evaluation', emo:'📝', lab:'ÉVALUER',
      /* « posée(s) », pas « à revoir » : une cote au maximum s'enregistre
         depuis que rien n'est coloré d'avance. Ce qui est SOUS le maximum se
         compte avec `cotesSousMax()`, dans le portrait. */
+     /* ⚠ ÉVALUER RÉUNIT L'ÉVALUATION ET LES TESTS (G3-FICHE). C'était deux
+        cartes voisines pour un seul geste : juger où en est l'élève. Les tests
+        restent entiers, ils s'ouvrent depuis le volet. */
      etat: (s.evalCrits||[]).length
         ? (s.evalCrits.length+' critère(s) · '+Object.keys(s.notes||{}).length+' cote(s) posée(s)')
-        : 'rien de configuré',
+        : 'critères, cotes, tests',
      faite: (s.evalCrits||[]).length>0},
   ];
   act.forEach(a=>{
@@ -846,11 +864,39 @@ function peindreActionsSeance(){
   decorerPortes();
 }
 
+/* Le mot sur le cours, en une ligne discrète sous l'en-tête (G3-FICHE) : on le
+   LIT sans ouvrir quoi que ce soit, on le touche pour l'écrire. */
+function ligneMessage(){
+  const h=$('#seMot'); if(!h) return;
+  const {iso,per}=seanceOuverte; const s=seanceDe(iso,per); if(!s) return;
+  h.innerHTML='';
+  const txt=(s.message||'').trim();
+  const b=el('button','se-mot-btn'+(txt?'':' se-mot-btn--vide')); b.type='button';
+  b.innerHTML='<span class="emo">💬</span><span class="t"></span>';
+  b.querySelector('.t').textContent = txt || 'Un mot sur ce cours…';
+  b.title = txt ? 'Modifier le mot sur ce cours' : 'Écrire un mot sur ce cours';
+  b.addEventListener('click',()=> volet('message'));
+  h.appendChild(b);
+}
+
 function volet(quoi){
   ecrire('seVolet', quoi);
   const {iso,per}=seanceOuverte; const s=seanceDe(iso,per);
   const g=grpDe(s.gr)||{eleves:[]};
   const d=$('#seDetail'); if(!d) return; d.innerHTML='';
+
+  /* ⚠ LE BOUTON D'EFFACEMENT VIT ICI, plus dans le coin des cartes (G3-FICHE).
+     ⚠ ET IL EST PROGRAMMÉ EN TÊTE DE FONCTION, PAS EN BAS : chaque volet se
+     termine par son propre `return`, si bien qu'un `setTimeout` placé plus bas
+     n'était jamais atteint pour « message », « présences » ni « cours ». Le
+     minuteur à 0 ms s'exécute après la peinture synchrone du volet, donc le
+     pied se pose bien en dernier, quel que soit le chemin pris. */
+  const finirVolet = ()=>{
+    if (typeof boutonEffacer!=='function') return;
+    const b=boutonEffacer(quoi); if (!b) return;
+    const pied=el('div','se-pied'); pied.appendChild(b); d.appendChild(pied);
+  };
+  setTimeout(finirVolet, 0);
 
   if (quoi==='cours'){
     /* ⚠ PLEIN ÉCRAN, PAS EMPILÉ (addenda G3-FICHE-2, §1). La rangée des neuf
@@ -934,11 +980,12 @@ function volet(quoi){
     c.children[1].textContent='🚫 '+cpt.sans+' sans linge';
     c.children[2].textContent='✗ '+cpt.absent+' absent'+(cpt.absent>1?'s':'');
     d.appendChild(c);
-    const aide=el('div','aide-un-mot');
-    aide.innerHTML='<span class="emo">👕</span>Tout le monde a son linge. <b>Touche seulement ceux qui manquent</b> : '
-      +'une fois pour « pas de linge », deux fois pour « absent ». '
-      +'Le <b>✎</b> d’une carte note l’élève pour cette période — la note se range dans le portrait du groupe.';
-    d.appendChild(aide);
+    /* consigne repliée (G3-FICHE) : une ligne, le reste sous le ⓘ */
+    d.appendChild(aideRepliee('👕',
+      'Touche seulement ceux qui manquent.',
+      'Une fois pour « pas de linge », deux fois pour « absent ». Le <b>✎</b> '
+      +'d’une carte note l’élève pour cette période — la note se range dans le '
+      +'portrait du groupe.', 'aideLinge'));
     const tout=el('button','mini','↺ TOUT LE MONDE A SON LINGE'); tout.type='button';
     tout.style.marginBottom='10px';
     tout.addEventListener('click',()=>{ majSeance(x=>x.pres={}); volet('presences'); });
@@ -980,6 +1027,15 @@ function volet(quoi){
   }
 
   if (quoi==='evaluation'){
+    /* ⚠ LES TESTS SONT ICI (G3-FICHE) : ÉVALUER a absorbé la carte TESTS, mais
+       l'écran `e-tests` est intact — il s'ouvre par ce bouton. C'est le même
+       geste, juger où en est l'élève ; ce n'était pas deux destinations. */
+    const versTests=el('button','mini mini--lime','🏃 LES TESTS — chrono, navette, Léger-Boucher');
+    versTests.type='button'; versTests.style.marginBottom='12px';
+    versTests.title='Ouvrir l’écran des tests';
+    versTests.addEventListener('click',()=>{ fermerModale(); allerA('e-tests'); });
+    d.appendChild(versTests);
+
     const crits=s.evalCrits||[];
     if (!crits.length){
       const aide=el('div','aide-un-mot');
@@ -1289,6 +1345,24 @@ function decorerPortes(){
     c.title = (dedans?'Retirer ':'Mettre ')+PIECES[k].lab+(dedans?' de':' dans')+' la planification';
     b.classList.toggle('dans-plan', dedans);
   });
+}
+
+/* Une consigne = une ligne + un ⓘ. Dépliée la première fois seulement, puis
+   repliée : on lit une consigne une fois. Même patron partout (G3-FICHE §4). */
+function aideRepliee(emo, ligne, detailHtml, cle){
+  const premiere = !lire(cle, false);
+  const box=el('div','aide-un-mot');
+  const l=el('div','aide-ligne');
+  l.innerHTML='<span class="emo">'+emo+'</span><b>'+ligne+'</b>';
+  const plus=el('button','aide-plus','ⓘ'); plus.type='button';
+  plus.title='En savoir plus'; plus.setAttribute('aria-expanded', String(premiere));
+  l.appendChild(plus); box.appendChild(l);
+  const det=el('div','aide-detail'); det.innerHTML=detailHtml; det.hidden=!premiere;
+  box.appendChild(det);
+  plus.addEventListener('click',()=>{ det.hidden=!det.hidden;
+    plus.setAttribute('aria-expanded', String(!det.hidden)); });
+  if (premiere) ecrire(cle, true);
+  return box;
 }
 
 /* Referme l'écran de composition et rend la main aux cartes du cours. Une seule

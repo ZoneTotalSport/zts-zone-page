@@ -189,24 +189,12 @@ barreLiens('e-calendrier', [['e-mois','📅 VOIR PAR MOIS'],['e-annee','📚 VOI
  ['e-partage','e-aujourdhui','← MA JOURNÉE'],
 ].forEach(([de,vers,lab])=> barreLiens(de,[[vers,lab]]));
 
-/* les tests rejoignent la séance */
-(function testsDansSeance(){
-  if (typeof peindreActionsSeance !== 'function') return;
-  const base=peindreActionsSeance;
-  window.peindreActionsSeance=function(){
-    base();
-    const h=$('#seActions'); if(!h) return;
-    if (h.querySelector('[data-tests]')) return;
-    const b=el('button','se-action'); b.type='button'; b.dataset.tests='1';
-    b.dataset.k='tests';   /* pour la case à cocher de la planification */
-    b.innerHTML='<span class="emo">🏃</span><span class="lab">TESTS</span>'
-      +'<span class="etat">chrono, navette, Léger-Boucher</span>';
-    b.addEventListener('click',()=>{ fermerModale(); allerA('e-tests'); });
-    h.appendChild(b);
-    /* la tuile arrive APRÈS le passage de decorerPortes() : on le rappelle. */
-    if (typeof decorerPortes==='function') decorerPortes();
-  };
-})();
+/* ⚠ PLUS DE CARTE « TESTS » DANS LA FICHE (G3-FICHE). Elle était voisine
+   d'ÉVALUATION et disait le même geste : juger où en est l'élève. Les deux ont
+   fusionné en une seule carte ÉVALUER, et l'écran des tests s'ouvre depuis son
+   volet (proto-seance.js, volet('evaluation')). Rien n'est perdu : `e-tests`
+   reste un écran à part entière, et la PIÈCE « UN TEST » reste dans la palette
+   de la planification. */
 
 /* contrôle : aucun écran ne doit rester sans porte */
 (function verifierAcces(){

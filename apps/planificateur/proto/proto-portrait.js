@@ -162,29 +162,32 @@ const EFFACABLE = {
   portrait:   {quoi:'les notes d’élèves de cette période',
                plein:s=>Object.keys(s.notesEl||{}).length>0, vide:s=>{ s.notesEl={}; }},
 };
+/* ⚠ UN SEUL LANGAGE DANS LE COIN D'UNE CARTE (G3-FICHE). Le coin portait DEUX
+   symboles selon les cartes : ☐/☑ (« est-ce dans ma planification ? », posé par
+   `decorerPortes`) et ✕ (« effacer ce qui est consigné »). Deux gestes opposés
+   au même endroit, dont un destructeur — pour un enfant de 10 ans, c'est un
+   piège. Le coin ne garde que ☐/☑ ; effacer devient un bouton nommé, en bas du
+   volet concerné, là où l'on voit ce qu'on s'apprête à perdre.
+   Cette fonction ne fait plus que NETTOYER les ✕ d'une version antérieure. */
 function decorerEffacables(){
-  if (typeof seanceOuverte==='undefined' || !seanceOuverte) return;
-  const {iso,per}=seanceOuverte; const s=seanceDe(iso,per); if(!s) return;
-  $$('.se-action[data-k]').forEach(b=>{
-    const k=b.dataset.k, E=EFFACABLE[k];
-    const vieux=b.querySelector('.se-vider'); if (vieux) vieux.remove();
-    if (!E || !E.plein(s)) return;
-    const x=el('button','se-vider','✕');
-    x.setAttribute('role','button'); x.tabIndex=0;
-    x.title='Effacer '+E.quoi;
-    const jeter=ev=>{ ev.stopPropagation(); ev.preventDefault();
-      if (!confirm('Effacer '+E.quoi+' ?\n\nCe qui a été consigné le '
-                   +jourLisible(iso)+' à la période '+per+' sera perdu.')) return;
-      majSeance(y=>E.vide(y));
-    };
-    x.addEventListener('click', jeter);
-    x.addEventListener('keydown', ev=>{ if(ev.key===' '||ev.key==='Enter') jeter(ev); });
-    /* le ✕ est posé en bas à droite : on creuse la place, sinon il s'assoit
-       sur la dernière ligne de l'état. */
-    b.style.paddingBottom='24px';
-    b.appendChild(x);
-  });
+  $$('.se-action .se-vider').forEach(x=> x.remove());
 }
+
+/* Le bouton d'effacement, à poser en bas d'un volet. `null` si rien à effacer. */
+function boutonEffacer(k){
+  if (typeof seanceOuverte==='undefined' || !seanceOuverte) return null;
+  const {iso,per}=seanceOuverte; const s=seanceDe(iso,per); if(!s) return null;
+  const E=EFFACABLE[k]; if (!E || !E.plein(s)) return null;
+  const b=el('button','mini mini--rose se-effacer','✕ EFFACER '+E.quoi.toUpperCase());
+  b.type='button'; b.title='Effacer '+E.quoi;
+  b.addEventListener('click',()=>{
+    if (!confirm('Effacer '+E.quoi+' ?\n\nCe qui a été consigné le '
+                 +jourLisible(iso)+' à la période '+per+' sera perdu.')) return;
+    majSeance(y=>E.vide(y));
+  });
+  return b;
+}
+window.boutonEffacer = boutonEffacer;
 
 /* ═════════ LE VOLET PORTRAIT ═════════ */
 function voletPortrait(d){
@@ -358,11 +361,10 @@ function voletPortrait(d){
     const {iso,per}=seanceOuverte; const s=seanceDe(iso,per); if(!s) return;
     const hist=seancesDuGroupe(s.gr);
     const nn=hist.reduce((a,x)=>a+Object.keys(x.s.notesEl||{}).length,0);
-    const b=el('button','se-action'); b.type='button'; b.dataset.k='portrait';
-    b.innerHTML='<span class="emo">📔</span><span class="lab">PORTRAIT DU GROUPE</span><span class="etat"></span>';
-    b.querySelector('.etat').textContent=hist.length+' période(s) · '+nn+' note(s) d’élève';
-    b.addEventListener('click',()=> volet('portrait'));
-    h.appendChild(b);
+    /* ⚠ PLUS DE CARTE « PORTRAIT DU GROUPE » (G3-FICHE) : on touche le nom du
+       groupe dans l'en-tête de la fiche, qui est déjà écrit là. La carte
+       répétait ce que l'en-tête disait. `volet('portrait')` est inchangé.
+       (`hist` et `nn` restent calculés : ils servent aux suivis ci-dessous.) */
     peindreSuivis();
     decorerEffacables();
   };
