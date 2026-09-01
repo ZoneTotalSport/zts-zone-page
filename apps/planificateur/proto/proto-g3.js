@@ -604,35 +604,12 @@ const OUTILS = [
   ['📝','Message',   outilMessage, 'Un mot qui se lit de loin'],
   ['🏫','Mon école', ()=>allerA('e-reglages'), 'L’horaire, les jours-cycle, les étapes'],
 ];
-(function railOutils(){
-  const h=$('#aujActions'); if(!h) return;
-  h.innerHTML='';
-  h.classList.add('outils-rail');
-  /* ⚠ LA BARRE A SON PROPRE BANDEAU, AU-DESSUS DU RAIL — pas dedans.
-     `#aujActions` est une grille de cartes d'outils : la barre y devenait une
-     8e carte et écrasait les sept autres. Et le bandeau se pose APRÈS le
-     `h.innerHTML=''`, jamais avant : posée d'abord, elle était effacée dans la
-     foulée par le vidage.
-     « DÉMARRER LA SÉANCE / MODE TABLEAU BLANC » est revenue ici le 31 août,
-     retirée de l'écran d'une période que Joey trouvait trop chargé. Elle est
-     fabriquée une seule fois et déplacée (voir `liveEtTbi()`, proto-fusion.js) :
-     son minuteur et ses écouteurs la suivent, la poser ici ne la duplique pas. */
-  if (typeof poserLiveTbi==='function'){
-    let bandeau=$('#aujLive');
-    if (!bandeau){
-      bandeau=el('div','auj-live'); bandeau.id='aujLive';
-      h.parentNode.insertBefore(bandeau, h);
-    }
-    poserLiveTbi(bandeau);
-  }
-  OUTILS.forEach(([emo,nom,f,quoi])=>{
-    const b=el('button','outil-carte'); b.type='button'; b.title=quoi;
-    b.appendChild(el('span','emo',emo));
-    b.appendChild(el('span','nom',nom));
-    b.addEventListener('click', f);
-    h.appendChild(b);
-  });
-})();
+/* ⚠ LE RAIL D'OUTILS A QUITTÉ MA JOURNÉE (31 août, demande de Joey). Les sept
+   outils — Dé, Roue, Chrono, Minuteur, Équipes, Message, Mon école — vivent
+   maintenant dans le menu déroulant 🔗 MES AUTRES APPS de la barre du haut, à
+   côté des apps du site. MA JOURNÉE ne montre plus que la journée elle-même.
+   `OUTILS` reste défini ci-dessus : c'est proto-fusion.js qui le lit pour
+   garnir le menu. Aucun outil n'est perdu. */
 
 /* ═════════ 4. LA MINUTERIE DU TIROIR ═════════
    ⚠ LE BUZZER VIVAIT DANS UNE BARRE COLLÉE AU BAS DE CHAQUE ÉCRAN. Trois

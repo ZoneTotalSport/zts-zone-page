@@ -1181,11 +1181,39 @@ function partDeBarre(lab){ return Math.max(1, (String(lab||'').length)/8); }
       t.addEventListener('click',e=>{
         e.stopPropagation();
         const on = box.dataset.ouvert!=='1';
+        if (on) garnirOutils();
         fermerTous(box); box.dataset.ouvert = on?'1':'0';
         t.setAttribute('aria-expanded', String(on));
         if (on) placerMenu(box);
       });
       const liste=el('div','menu-liste');
+      /* ⚠ LES SEPT OUTILS SE POSENT À L'OUVERTURE DU MENU, PAS ICI (31 août).
+         `OUTILS` vit dans proto-g3.js, chargé APRÈS ce fichier : au moment où
+         le menu se construit, la liste n'existe pas encore et le test échouait
+         en silence — menu sans outils, sans erreur. On garnit au premier clic,
+         quand tout est chargé.
+         Ils occupaient une pleine rangée sur MA JOURNÉE, sous la date, alors
+         qu'on les ouvre quelques fois par semaine. Ils sont ici, au-dessus des
+         apps du site — ce sont des outils DE l'app, pas des liens vers
+         ailleurs, d'où le séparateur. */
+      const garnirOutils = ()=>{
+        if (liste.querySelector('.menu-outil')) return;         /* déjà fait */
+        if (typeof OUTILS==='undefined' || !Array.isArray(OUTILS)) return;
+        const avant=liste.firstChild;
+        OUTILS.forEach(([emo,nom,fn,quoi])=>{
+          const b=el('button','menu-outil'); b.type='button';
+          b.innerHTML='<span></span><span class="quoi"></span>';
+          b.firstChild.textContent=emo+' '+nom;
+          b.lastChild.textContent=quoi||'';
+          b.addEventListener('click',()=>{
+            fermerTous(); box.dataset.ouvert='0';
+            t.setAttribute('aria-expanded','false');
+            if (typeof fn==='function') fn();
+          });
+          liste.insertBefore(b, avant);
+        });
+        liste.insertBefore(el('div','menu-separateur','· les apps du site ·'), avant);
+      };
       AUTRES_APPS.forEach(([emo,nom,url])=>{
         const a=document.createElement('a');
         a.href=url; a.target='_blank'; a.rel='noopener';
