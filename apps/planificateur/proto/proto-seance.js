@@ -989,7 +989,7 @@ function volet(quoi){
        PRÉSENCES, JEUX, ÉVALUATION, UN MOT et UN TEST une deuxième fois, en plus
        des pièces de la palette. Une seule chose à l'écran à la fois. */
     const cartes=$('#seActions'); if (cartes) cartes.hidden=true;
-    peindrePlanification(d, s, iso, per);
+    peindreFeuille(d, s, iso, per);
     return;
   }
 
@@ -1448,6 +1448,170 @@ function aideRepliee(emo, ligne, detailHtml, cle){
     plus.setAttribute('aria-expanded', String(!det.hidden)); });
   if (premiere) ecrire(cle, true);
   return box;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LA FEUILLE « PLANIFICATION JOURNALIÈRE » (31 août)
+   Joey a tranché : cette feuille REMPLACE l'écran de composition à pièces livré
+   le matin même. Elle reprend son gabarit papier, case pour case — Semaine,
+   Cours, cycle, Début du cours, puis un bloc par activité : Titre, Descriptif,
+   Illustration, Durée — et tout s'écrit sur place.
+
+   ⚠ AUCUNE DONNÉE N'EST PERDUE AU CHANGEMENT. Les blocs SONT les étapes
+   (`s.etapes`) : `titre` → Titre, `desc` → Descriptif, `duree` → Durée,
+   `medias` → Illustration. Une séance composée avec les pièces s'affiche donc
+   telle quelle dans la feuille, et l'inverse est vrai. Ce qui disparaît, c'est
+   l'ÉCRAN, pas le modèle.
+   ⚠ `s.plan` (« ma planification en mots ») n'a pas de case au papier : il est
+   conservé, replié en bas, pour ne pas rendre inaccessible ce qui a été écrit.
+   ══════════════════════════════════════════════════════════════════════════ */
+const CYCLES = [['1er','1er cycle'],['2e','2e cycle'],['3e','3e cycle']];
+
+function feuilleDe(s){ return s.feuille || {}; }
+function ecrireFeuille(champ, val){
+  majSeanceSansRedessin(x=>{ x.feuille = x.feuille || {}; x.feuille[champ]=val; });
+}
+
+function peindreFeuille(d, s, iso, per){
+  const g=grpDe(s.gr)||{nom:'?'};
+  const F=feuilleDe(s);
+
+  const retour=el('button','mini mini--jaune plan-retour','◀ RETOUR');
+  retour.type='button'; retour.title='Revenir aux cartes du cours';
+  retour.addEventListener('click', fermerPlanification);
+  d.appendChild(retour);
+
+  const feuille=el('div','feuille');
+  feuille.appendChild(el('h3','feuille-titre','Planification journalière'));
+
+  /* ── la bande du haut : semaine · cours · cycle · début · durée ── */
+  const haut=el('div','feuille-haut');
+  const champ=(cle, lab, vide, cls)=>{
+    const b=el('label','fch'+(cls?' '+cls:''));
+    b.appendChild(el('span','fch-lab',lab));
+    const z=el('div','fch-z'); z.contentEditable='true'; z.dataset.vide=vide||'';
+    z.textContent=F[cle]||'';
+    z.addEventListener('blur',()=> ecrireFeuille(cle, z.textContent.trim()));
+    b.appendChild(z); return b;
+  };
+  haut.appendChild(champ('semaine','Semaine','1'));
+  haut.appendChild(champ('cours','Cours', g.nom, 'fch--large'));
+
+  const zc=el('div','fch fch--cycles');
+  zc.appendChild(el('span','fch-lab','Cycle'));
+  const boites=el('div','fch-cycles');
+  CYCLES.forEach(([k,lab])=>{
+    const b=el('button','fcyc'); b.type='button'; b.dataset.cyc=k;
+    b.setAttribute('aria-pressed', String(F.cycle===k));
+    b.textContent=lab;
+    b.addEventListener('click',()=>{
+      /* on recoche pour décocher : le cours d'un seul cycle, ou d'aucun */
+      const nouveau = F.cycle===k ? '' : k;
+      ecrireFeuille('cycle', nouveau);
+      volet('cours');
+    });
+    boites.appendChild(b);
+  });
+  zc.appendChild(boites); haut.appendChild(zc);
+  haut.appendChild(champ('debut','Début du cours','8:00'));
+
+  /* ⚠ LA DURÉE DU HAUT SE CALCULE, elle ne se saisit pas : au papier c'est une
+     case à remplir, mais ici les durées des blocs existent déjà. Deux endroits
+     pour le même nombre, c'est deux nombres qui finissent par différer. */
+  const tot=(s.etapes||[]).reduce((a,e)=>a+(e.duree||0),0);
+  const zd=el('div','fch fch--duree');
+  zd.appendChild(el('span','fch-lab','Durée'));
+  zd.appendChild(el('div','fch-tot', tot ? Math.round(tot/60)+' min' : '—'));
+  haut.appendChild(zd);
+  feuille.appendChild(haut);
+
+  /* ── un bloc par activité, dans l'ordre des phases ── */
+  PHASES.forEach(([ph,lab])=>{
+    (s.etapes||[]).filter(e=>e.phase===ph).forEach(e=>{
+      feuille.appendChild(blocFeuille(e, lab, iso, per));
+    });
+  });
+
+  /* ajouter une activité : le papier en a trois, l'écran n'a pas cette limite */
+  const plus=el('button','mini mini--lime','+ AJOUTER UNE ACTIVITÉ'); plus.type='button';
+  plus.addEventListener('click',()=>{
+    majSeance(x=>{ x.seq=(x.seq||0)+1;
+      x.etapes.push({id:1000+x.seq, phase:'pendant', piece:'libre',
+                     titre:'', desc:'', duree:0, medias:[], fait:false}); });
+  });
+  feuille.appendChild(plus);
+  d.appendChild(feuille);
+
+  /* ── ce qui n'a pas de case au papier, gardé pour ne rien perdre ── */
+  const enMots=el('details','feuille-enmots');
+  const som=document.createElement('summary'); som.textContent='✍️ Ma planification, en mots';
+  enMots.appendChild(som);
+  const z=el('div','ps-zone'); z.contentEditable='true';
+  z.dataset.vide='Écris ici ce que tu veux pour ce cours…';
+  z.textContent=s.plan||'';
+  z.addEventListener('blur',()=> ecrirePlan(iso, per, z.textContent));
+  enMots.appendChild(z);
+  d.appendChild(enMots);
+}
+
+/* Un bloc du gabarit : Titre · Descriptif · Illustration · Durée. */
+function blocFeuille(e, labPhase, iso, per){
+  const b=el('div','fbloc');
+  b.appendChild(el('div','fbloc-phase', labPhase));
+
+  const t=el('label','fbloc-titre');
+  t.appendChild(el('span','fch-lab','Titre'));
+  const zt=el('div','fch-z'); zt.contentEditable='true'; zt.dataset.vide='…';
+  zt.textContent=e.titre||'';
+  zt.addEventListener('blur',()=> majSeanceSansRedessin(x=>{ const y=etapeDe(x,e.id); if(y) y.titre=zt.textContent.trim(); }));
+  t.appendChild(zt); b.appendChild(t);
+
+  const corps=el('div','fbloc-corps');
+  const de=el('label','fbloc-desc');
+  de.appendChild(el('span','fch-lab','Descriptif'));
+  const zd=el('div','fch-z fch-z--haut'); zd.contentEditable='true'; zd.dataset.vide='…';
+  zd.textContent=e.desc||'';
+  zd.addEventListener('blur',()=> majSeanceSansRedessin(x=>{ const y=etapeDe(x,e.id); if(y) y.desc=zd.textContent.trim(); }));
+  de.appendChild(zd); corps.appendChild(de);
+
+  const il=el('div','fbloc-illus');
+  il.appendChild(el('span','fch-lab','Illustration'));
+  const zone=el('div','fillus');
+  (e.medias||[]).forEach(m=>{
+    if (m.type==='image' && m.data){ const im=document.createElement('img'); im.src=m.data; im.alt=m.nom||''; zone.appendChild(im); }
+    else zone.appendChild(el('div','doc', m.type==='pdf'?'📄':m.type==='video'?'🎬':'🖼️'));
+  });
+  if (!(e.medias||[]).length) zone.appendChild(el('span','fillus-vide','Touche pour ajouter une image'));
+  zone.title='Glisse une image ici, ou touche pour la choisir';
+  zone.addEventListener('click',()=>{
+    const i=document.createElement('input'); i.type='file';
+    i.accept='image/*,video/*,application/pdf'; i.multiple=true;
+    i.addEventListener('change',()=>{ let n=i.files.length;
+      [...i.files].forEach(f=> avaleFichierEtape(e.id, f, ()=>{ if(!--n) volet('cours'); })); });
+    i.click();
+  });
+  zone.addEventListener('dragover', ev=>{ if([...(ev.dataTransfer.types||[])].indexOf('Files')<0) return;
+    ev.preventDefault(); zone.classList.add('survol'); });
+  zone.addEventListener('dragleave', ()=> zone.classList.remove('survol'));
+  zone.addEventListener('drop', ev=>{ ev.preventDefault(); zone.classList.remove('survol');
+    let n=(ev.dataTransfer.files||[]).length; if(!n) return;
+    [...ev.dataTransfer.files].forEach(f=> avaleFichierEtape(e.id, f, ()=>{ if(!--n) volet('cours'); })); });
+  il.appendChild(zone); corps.appendChild(il);
+  b.appendChild(corps);
+
+  const du=el('label','fbloc-duree');
+  du.appendChild(el('span','fch-lab','Durée'));
+  const zu=document.createElement('input'); zu.type='text'; zu.className='fch-duree';
+  zu.value = e.duree ? Math.round(e.duree/60)+'' : '';
+  zu.placeholder='min'; zu.title='7, 2:30, 1h30';
+  zu.addEventListener('change',()=> majSeanceSansRedessin(x=>{ const y=etapeDe(x,e.id); if(y) y.duree=lireDuree(zu.value); }));
+  du.appendChild(zu);
+  const go=el('button','etape-go','▶'); go.type='button';
+  go.title='Lancer cette durée dans la minuterie du tiroir Jeux';
+  go.addEventListener('click',()=> lancerMinuterieEtape(e));
+  du.appendChild(go);
+  b.appendChild(du);
+  return b;
 }
 
 /* LE DÉROULEMENT, PENDANT LE COURS. Mêmes étapes, mêmes durées, même case à

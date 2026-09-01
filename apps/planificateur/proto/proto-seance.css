@@ -506,6 +506,15 @@
   padding:7px 12px;font-family:var(--f-note);font-size:17px;box-shadow:3px 3px 0 var(--noir);
 }
 .se-mot-btn .emo{flex:none;font-size:19px}
+/* ⚠ UNE LIGNE, VRAIMENT UNE. Sans ces trois règles, un mot un peu long
+   s'enroulait sur dix lignes et poussait tout le cours vers le bas — le
+   contraire d'une ligne discrète. Le texte entier reste lisible en ouvrant.
+   ⚠ Et `min-width:0` sur l'enfant d'un flex : sans lui, `text-overflow` ne
+   s'applique jamais, l'élément refusant de descendre sous sa largeur de
+   contenu. C'est le piège classique de la troncature en flexbox. */
+.se-mot-btn .t{
+  flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
 .se-mot-btn--vide{opacity:.72;font-style:italic}
 /* l'en-tête est une porte : on doit le voir */
 .se-tete .se-qui[role="button"]{cursor:pointer;border-radius:10px;padding:2px 6px}
@@ -528,3 +537,69 @@
 .etape-suivre-t b{font-family:var(--f-titre);font-size:18px;letter-spacing:.2px}
 .etape-suivre-t small{font-family:var(--f-note);font-size:15px;color:var(--ink-soft)}
 .etape-go--suivre{position:static;font-size:14px;padding:6px 10px;white-space:nowrap}
+
+/* ══ LA FEUILLE « PLANIFICATION JOURNALIÈRE » (31 août) ══
+   Calquée sur le gabarit papier de Joey : bandeau du haut, puis un bloc par
+   activité avec Titre, Descriptif, Illustration et Durée. Le papier est en
+   cyan et jaune ; ici c'est une STRUCTURE, pas une palette — la charte marine
+   reste celle de l'app (règle du §1.1 du mandat). */
+.feuille{
+  background:#fff;color:var(--ink);border:3px solid var(--noir);border-radius:14px;
+  box-shadow:5px 5px 0 var(--noir);padding:14px;margin-bottom:14px;
+}
+.feuille-titre{
+  font-family:var(--f-titre);font-size:26px;text-align:center;margin:0 0 12px;
+  letter-spacing:.5px;
+}
+.feuille-haut{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;
+  border:3px solid var(--noir);border-radius:12px;padding:10px;margin-bottom:12px;
+  background:#F7FBFD;
+}
+.fch{display:flex;flex-direction:column;gap:3px;min-width:120px}
+.fch--large{flex:1;min-width:200px}
+.fch-lab{font-family:var(--f-titre);font-size:13px;letter-spacing:.4px;color:var(--ink-soft)}
+.fch-z{
+  border:3px solid var(--noir);border-radius:9px;background:#fff;
+  padding:6px 9px;font-family:var(--f-note);font-size:17px;min-height:34px;
+}
+.fch-z:focus{outline:3px solid var(--cyan)}
+.fch-z:empty:before{content:attr(data-vide);opacity:.45}
+.fch-z--haut{min-height:96px}
+.fch-cycles{display:flex;gap:5px;flex-wrap:wrap}
+.fcyc{
+  cursor:pointer;border:3px solid var(--noir);border-radius:9px;background:#fff;
+  color:var(--ink);font-family:var(--f-titre);font-size:13px;padding:6px 9px;
+  box-shadow:2px 2px 0 var(--noir);
+}
+.fcyc[aria-pressed="true"]{background:var(--jaune);box-shadow:2px 2px 0 var(--noir),0 0 0 3px var(--noir) inset}
+.fch-tot{
+  font-family:var(--f-titre);font-size:19px;padding:6px 9px;
+  border:3px dashed rgba(8,19,30,.35);border-radius:9px;background:#fff;min-height:34px;
+}
+/* un bloc = une activité */
+.fbloc{border:3px solid var(--noir);border-radius:12px;padding:10px;margin-bottom:10px;background:#fff}
+.fbloc-phase{font-family:var(--f-titre);font-size:14px;letter-spacing:.4px;color:var(--ink-soft);margin-bottom:6px}
+.fbloc-titre{display:flex;flex-direction:column;gap:3px;margin-bottom:8px}
+.fbloc-corps{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fbloc-desc,.fbloc-illus{display:flex;flex-direction:column;gap:3px;min-width:0}
+.fillus{
+  border:3px dashed rgba(8,19,30,.35);border-radius:10px;background:#F3F8FB;
+  min-height:96px;padding:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  justify-content:center;cursor:pointer;
+}
+.fillus.survol{border-color:var(--cyan);background:#E6F7FD}
+.fillus img{max-height:84px;border:3px solid var(--noir);border-radius:8px}
+.fillus .doc{font-size:30px}
+.fillus-vide{font-family:var(--f-note);font-size:15px;opacity:.55;text-align:center}
+.fbloc-duree{display:flex;align-items:center;gap:8px;margin-top:8px}
+.fch-duree{
+  width:80px;border:3px solid var(--noir);border-radius:9px;padding:6px 9px;
+  font-family:var(--f-titre);font-size:16px;text-align:right;
+}
+.feuille-enmots{
+  border:3px solid var(--noir);border-radius:12px;background:#FFFEE0;color:var(--ink);
+  padding:8px 12px;margin-bottom:14px;
+}
+.feuille-enmots summary{font-family:var(--f-titre);font-size:15px;cursor:pointer;letter-spacing:.3px}
+@media(max-width:760px){ .fbloc-corps{grid-template-columns:1fr} }
