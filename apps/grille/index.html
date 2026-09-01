@@ -76,6 +76,47 @@
       --sur-marine:      var(--ztsp-sur-fond,      #E6F4FA);
       --sur-marine-doux: var(--ztsp-sur-fond-doux, #C4E1EE);
 
+      /* ======================================================================
+         L'ECHELLE DE LA GRILLE
+         ----------------------------------------------------------------------
+         `--zg-e` est un multiplicateur sans unite. Toutes les dimensions de la
+         grille en decoulent : largeur des colonnes, hauteur des lignes, taille
+         des jetons, taille des textes. Le rendre plus grand ne grossit pas une
+         image — tout se REMET EN PAGE : les colonnes s'elargissent, le jeton
+         passe de une a deux lignes, la grille finit par defiler dans sa boite.
+
+         Ce n'est deliberement PAS un `transform:scale`. Une mise a l'echelle
+         rendrait le texte flou et garderait les memes retours a la ligne ; ici
+         chaque niveau est une mise en page nette, calculee par le navigateur.
+
+         Bornes : 0,8 — tout le cycle sous les yeux — a 2,6, ou une case se lit
+         a trois metres. Trois crans preregles : Normal 1, Grand 1,45, TNI 2.
+
+         ⚠ Ces tokens-la appartiennent a l'APP. Les tokens de dimension du
+         shell ne sont jamais rebases : c'est la regle du chantier depuis la
+         PR 2, et elle tient ici aussi.
+         ====================================================================== */
+      --zg-e: 1;
+      /* Au cran Normal, la geometrie est EXACTEMENT celle de la PR 2 : 88 px
+         pour la colonne des heures, 112 px par jour. C'etait une promesse —
+         « un cycle de 9 jours tient sur un portable » — et l'agrandir par
+         defaut l'aurait rompue en silence. La lisibilite au cran Normal vient
+         du jeton sur deux lignes et du plancher de 16 px, pas d'une case plus
+         large ; c'est le zoom qui elargit, quand on le demande. */
+      --zg-col:   calc(112px * var(--zg-e));   /* largeur d'une colonne de jour */
+      --zg-heure: calc(88px  * var(--zg-e));   /* colonne des heures */
+      --zg-hcase: calc(96px  * var(--zg-e));   /* hauteur d'une case */
+      --zg-hbande:calc(44px  * var(--zg-e));   /* hauteur d'une bande */
+
+      /* LE PLANCHER. Aucun texte de travail ne descend sous 16 px, a aucun
+         niveau de zoom — c'est la cible posee par Joey, et `max()` la rend
+         impossible a franchir par accident. */
+      --zg-t-groupe: max(17px, calc(16px * var(--zg-e)));
+      --zg-t-code:   max(16px, calc(13px * var(--zg-e)));
+      --zg-t-heure:  max(16px, calc(15px * var(--zg-e)));
+      --zg-t-jour:   max(17px, calc(16px * var(--zg-e)));
+      --zg-t-bande:  max(16px, calc(14px * var(--zg-e)));
+
       /* ---- DIMENSIONS : inchangees ---- */
       --radius: 12px;
       --r-btn:  var(--ztsp-r-btn,  11px);
@@ -191,14 +232,14 @@
     }
     .zg-btn{
       display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-      font-family:var(--f-titre); letter-spacing:.5px; font-size:13px; line-height:1;
-      min-width:84px; min-height:64px; padding:9px 14px 8px;
+      font-family:var(--f-titre); letter-spacing:.5px; font-size:16px; line-height:1.05;
+      min-width:96px; min-height:72px; padding:10px 16px 9px;
       border:3px solid var(--encre); border-radius:var(--r-btn);
       background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
       box-shadow:0 5px 0 var(--ztsp-cyan-dark,#075A6B), 5px 9px 0 rgba(0,0,0,.35);
       cursor:pointer; transition:.09s; text-decoration:none;
     }
-    .zg-btn .zg-ic{font-size:22px; line-height:1}
+    .zg-btn .zg-ic{font-size:26px; line-height:1}
     .zg-btn:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ztsp-cyan-dark,#075A6B), 6px 12px 0 rgba(0,0,0,.35) }
     .zg-btn:active{ transform:translateY(4px);  box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 2px 4px 0 rgba(0,0,0,.35) }
     .zg-btn:focus-visible{ outline:3px solid var(--yellow); outline-offset:4px }
@@ -416,11 +457,70 @@
     }
     .grid-area{
       flex:1; min-width:0; overflow-x:auto; padding:14px;
+      /* On garde le defilement a un et deux doigts, on prend le PINCEMENT.
+         C'est le seul endroit de la page ou le zoom du navigateur est
+         detourne — ailleurs il reste entier, y compris le pincement, ce que
+         la PR 2 avait retabli en retirant l'interdiction de zoom du meta
+         viewport.
+
+         ⚠ Ne PAS ecrire ici l'attribut correspondant en toutes lettres : le
+         test « Le zoom reste libre » cherche cette chaine dans le fichier
+         BRUT, commentaires compris. Le meme piege avait deja fait rougir la
+         CI en PR 2 avec les noms de feuilles de style. Un commentaire qui
+         cite ce qu'il interdit devient la preuve de l'infraction. */
+      touch-action:pan-x pan-y;
       background:var(--card);
       border:4px solid var(--encre); border-radius:var(--r-card);
       box-shadow:var(--ombre-panneau);
     }
     .grid{display:grid; gap:3px; min-width:min-content}
+
+    /* ======================================================================
+       LA POIGNEE DE REDIMENSIONNEMENT
+       ----------------------------------------------------------------------
+       Au coin inferieur droit de la grille, grosse, avec son picto. C'est le
+       geste evident : on tire, ca grandit. Elle reste COLLEE au coin visible
+       meme quand la grille defile — sinon elle partirait hors de l'ecran des
+       le premier agrandissement, c'est-a-dire exactement quand on en a besoin.
+       ====================================================================== */
+    .grid-area{position:relative}
+    /* POURQUOI `fixed` ET NON `sticky`. La poignee vit au coin inferieur droit
+       de la grille — mais `.grid-area` porte `overflow-x:auto`, ce qui en fait
+       un conteneur de defilement dont la hauteur EPOUSE son contenu. Un enfant
+       `position:sticky` n'y a donc aucune course verticale : il reste a sa
+       place naturelle, tout en bas de la grille. Mesure du 1er septembre : la
+       poignee se posait a 1178 px, hors d'un ecran de 950. Une poignee qu'il
+       faut aller chercher n'est pas une poignee.
+
+       Elle est donc ancree au coin de la FENETRE, et ne se montre que quand la
+       grille est a l'ecran — c'est la convention de toutes les poignees de
+       redimensionnement, et c'est ce qu'un enfant de dix ans trouve du premier
+       coup. */
+    .zg-poignee{
+      position:fixed; right:18px; bottom:18px; z-index:600;
+      width:56px; height:56px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:26px; line-height:1; cursor:nwse-resize; user-select:none;
+      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      box-shadow:0 4px 0 var(--ztsp-cyan-dark,#075A6B), 4px 7px 0 rgba(0,0,0,.3);
+      touch-action:none;                 /* le glisser au doigt nous appartient */
+    }
+    .zg-poignee[hidden]{display:none}
+    .zg-poignee:hover{transform:translate(-1px,-1px)}
+    .zg-poignee:active{transform:translate(2px,3px); box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 2px 3px 0 rgba(0,0,0,.3)}
+    .zg-poignee:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
+
+    /* Les trois crans : le meme curseur, a trois positions. */
+    .zg-crans{display:inline-flex; gap:6px; align-items:center}
+    .zg-crans button{
+      font-family:var(--f-titre); font-size:16px; letter-spacing:.4px;
+      min-height:44px; padding:9px 14px; cursor:pointer;
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      background:var(--card); color:var(--text); box-shadow:var(--ombre-petite);
+    }
+    .zg-crans button[aria-pressed="true"]{background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00}
+    .zg-crans button:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
 
     /* Cartes de specialistes — le vocabulaire de `.ztsp-card`. */
     .spec-card{
@@ -434,7 +534,7 @@
     .spec-card .sc-dot{width:14px; height:14px; border-radius:50%; border:2px solid var(--encre); flex-shrink:0}
     .spec-card .sc-name{font-family:var(--f-titre); font-size:16px; letter-spacing:.4px; flex:1; color:var(--text)}
     .spec-card .sc-remain{font-family:var(--f-titre); font-size:16px; color:var(--ztsp-cyan-dark,#075A6B)}
-    .spec-card .sc-info{font-family:var(--f-note); font-size:15px; line-height:1.15; color:var(--muted)}
+    .spec-card .sc-info{font-family:var(--f-note); font-size:16px; line-height:1.2; color:var(--muted)}
     .spec-card .sc-bar{height:7px; background:#e8eef1; border:1.5px solid var(--encre); border-radius:4px; margin-top:6px; overflow:hidden}
     .spec-card .sc-bar div{height:100%; transition:width .2s}
 
@@ -446,10 +546,10 @@
        etages — vu a la capture du 31 aout. */
     .sc-compte{
       display:grid; grid-template-columns:auto 1fr; gap:1px 8px;
-      align-items:baseline; margin:6px 0 5px; font-size:15px; color:var(--muted);
+      align-items:baseline; margin:7px 0 6px; font-size:16px; color:var(--muted);
     }
     .sc-compte b{justify-self:end; white-space:nowrap}
-    .sc-compte b{font-family:var(--f-titre); font-size:14px; color:var(--text); letter-spacing:.3px}
+    .sc-compte b{font-family:var(--f-titre); font-size:18px; color:var(--text); letter-spacing:.3px}
     .spec-card.sc-plein .sc-compte b{color:#8A6A00}
     .spec-card.sc-trop  .sc-compte b{color:var(--red)}
     .spec-card.sc-trop{box-shadow:4px 4px 0 rgba(255,0,97,.45)}
@@ -457,7 +557,7 @@
     /* SURVEILLANCES — les bandes de recre, de diner et « Avant P1 ». */
     .g-brk.avant{background:linear-gradient(180deg,#DDEFF7,#BFE0EE); color:#03323C}
     .g-brk{flex-direction:column; gap:1px; padding:3px}
-    .g-brk small{font-family:var(--f-note); font-size:13px; font-weight:400; opacity:.75}
+    .g-brk small{font-family:var(--f-note); font-size:max(16px,calc(13px * var(--zg-e))); font-weight:400; opacity:.75}
     .g-surv{cursor:pointer; flex-wrap:wrap; align-content:center; transition:.1s}
     .g-surv:hover{transform:translate(-1px,-1px); box-shadow:4px 4px 0 rgba(0,0,0,.28)}
     .surv-chip{
@@ -474,7 +574,7 @@
     .panel .p-section{margin-top:14px; padding-top:12px; border-top:3px solid var(--encre)}
     .panel .p-btn{
       display:flex; align-items:center; gap:9px; width:100%;
-      font-family:var(--f-titre); font-size:13px; letter-spacing:.4px;
+      font-family:var(--f-titre); font-size:16px; letter-spacing:.4px;
       padding:11px 13px; margin-bottom:8px; min-height:48px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
       background:linear-gradient(180deg,#fff,#E6F4FA); color:var(--text);
@@ -513,27 +613,27 @@
       border:3px solid var(--encre); border-radius:var(--r-btn);
       padding:10px; text-align:center; min-height:50px;
       display:flex; align-items:center; justify-content:center;
-      font-family:var(--f-titre); font-size:17px; letter-spacing:.6px;
+      font-family:var(--f-titre); font-size:var(--zg-t-jour); letter-spacing:.6px;
       box-shadow:2px 2px 0 rgba(0,0,0,.35);
     }
     .g-time{
       background:#fff; border:3px solid var(--encre); border-radius:var(--r-btn);
-      min-height:78px; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      font-family:var(--f-titre); font-size:16px; color:var(--ztsp-cyan-dark,#075A6B);
-      box-shadow:2px 2px 0 rgba(0,0,0,.25);
+      min-height:var(--zg-hcase); display:flex; flex-direction:column; align-items:center; justify-content:center;
+      font-family:var(--f-titre); font-size:var(--zg-t-heure); color:var(--ztsp-cyan-dark,#075A6B);
+      box-shadow:2px 2px 0 rgba(0,0,0,.25); padding:4px; text-align:center;
     }
-    .g-time small{font-family:var(--f-note); font-size:14px; line-height:1.1; color:var(--muted); font-weight:400}
+    .g-time small{font-family:var(--f-note); font-size:max(16px,calc(14px * var(--zg-e))); line-height:1.15; color:var(--muted); font-weight:400}
     .g-brk{
-      border:3px solid var(--encre); border-radius:var(--r-btn); min-height:36px;
+      border:3px solid var(--encre); border-radius:var(--r-btn); min-height:var(--zg-hbande);
       display:flex; align-items:center; justify-content:center;
-      font-family:var(--f-titre); font-size:13px; letter-spacing:.6px;
+      font-family:var(--f-titre); font-size:var(--zg-t-bande); letter-spacing:.6px;
       box-shadow:2px 2px 0 rgba(0,0,0,.25);
     }
     .g-brk.rec{background:var(--yellow); color:#2B2A00}
     .g-brk.lun{background:#BFE9F6; color:#03323C}
 
     .g-cell{
-      border:3px solid var(--encre); border-radius:var(--r-btn); min-height:78px;
+      border:3px solid var(--encre); border-radius:var(--r-btn); min-height:var(--zg-hcase);
       background:#fff; display:flex; flex-wrap:wrap; align-content:center; align-items:stretch;
       justify-content:center; cursor:pointer; padding:4px; gap:3px; transition:.1s;
       box-shadow:2px 2px 0 rgba(0,0,0,.18);
@@ -552,23 +652,42 @@
     .g-cell.hard{box-shadow:0 0 0 3px var(--red), 2px 2px 0 rgba(0,0,0,.18) !important; background:rgba(255,0,97,.07) !important}
     .g-cell.soft{box-shadow:0 0 0 3px var(--orange), 2px 2px 0 rgba(0,0,0,.18) !important; background:rgba(255,162,0,.09) !important}
 
+    /* LE JETON. Il portait trois informations sur une ligne de 98 px : le nom
+       du groupe, le code de la personne et la croix. Le nom tombait a 23 px de
+       large — une lettre et des points de suspension.
+
+       Il passe donc sur DEUX LIGNES quand la place manque, et c'est le
+       navigateur qui decide : le nom prend toute la largeur disponible, le
+       couple code + croix s'enroule dessous des qu'il ne rentre plus a cote.
+       Aucune mesure en JavaScript, aucun palier arbitraire — le retour a la
+       ligne suit exactement l'echelle. */
     .g-chip{
-      display:inline-flex; align-items:center; justify-content:space-between; gap:4px;
-      padding:6px 9px; border-radius:8px; font-family:var(--f-titre); font-size:13.5px;
-      letter-spacing:.3px; color:#0C1720;
-      white-space:nowrap; flex:1 1 auto; min-width:0;
+      display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between;
+      gap:2px 6px; padding:6px 8px; border-radius:8px;
+      font-family:var(--f-titre); letter-spacing:.3px; color:#0C1720;
+      flex:1 1 100%; min-width:0;
       border:2px solid var(--encre); box-shadow:1.5px 1.5px 0 rgba(0,0,0,.35);
     }
-    .g-cell.multi .g-chip{font-size:11.5px; padding:4px 6px}
+    /* Le nom du groupe : la ligne qui doit se lire de loin. Il exige une
+       largeur minimale — c'est ce qui FORCE le retour a la ligne du reste
+       plutot que de se laisser reduire a une initiale. */
+    .g-chip .g-grp{
+      font-size:var(--zg-t-groupe); line-height:1.1;
+      flex:1 1 auto; min-width:5ch;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .g-chip .g-fin{display:flex; align-items:center; gap:4px; flex:0 0 auto}
     .g-chip:hover{filter:brightness(.94)}
-    .g-chip .x{font-size:11px; opacity:.45; padding:2px 4px; cursor:pointer; min-width:24px; min-height:24px;
-      display:flex; align-items:center; justify-content:center; border-radius:5px}
+    .g-chip .x{font-size:max(16px,calc(13px * var(--zg-e))); opacity:.5; cursor:pointer;
+      min-width:30px; min-height:30px;
+      display:flex; align-items:center; justify-content:center; border-radius:6px}
     .g-chip .x:hover{opacity:1; color:#fff; background:var(--red)}
-    .g-chip .sp-tag{font-size:10px; opacity:.7; font-weight:700; background:rgba(0,0,0,.12); padding:1px 4px; border-radius:3px}
-    .g-cell .plus{color:rgba(8,19,30,.14); font-size:26px; font-weight:300}
+    .g-chip .sp-tag{font-size:var(--zg-t-code); opacity:.85; font-weight:700;
+      background:rgba(0,0,0,.13); padding:1px 6px; border-radius:4px; white-space:nowrap}
+    .g-cell .plus{color:rgba(8,19,30,.18); font-size:calc(26px * var(--zg-e)); font-weight:300}
 
     .next-item{
-      font-size:13px; padding:9px 11px; border-radius:var(--r-btn); margin-bottom:7px;
+      font-size:16px; padding:11px 13px; border-radius:var(--r-btn); margin-bottom:8px;
       border:2.5px solid var(--encre); border-left-width:6px; background:#fff; color:var(--text);
       box-shadow:2px 2px 0 rgba(0,0,0,.25);
     }
@@ -667,8 +786,10 @@
       .panel .p-section .p-btn{margin-bottom:0}
       .spec-card{margin-bottom:0}
       .grid-area{width:100%}
-      .zg-btn{min-width:76px; min-height:60px; font-size:12px}
-      .zg-btn .zg-ic{font-size:20px}
+      /* Le petit ecran resserre la boite, jamais le mot : 16 px est un
+         plancher, pas une valeur de bureau. */
+      .zg-btn{min-width:84px; min-height:68px; font-size:16px; padding:9px 12px 8px}
+      .zg-btn .zg-ic{font-size:23px}
     }
     @media(max-width:560px){
       body{font-size:16px}
@@ -688,6 +809,11 @@
        Ce qu'on imprime : la grille, et un bandeau d'identification. Rien d'autre.
        ====================================================================== */
     @media print{
+      /* Le zoom est un confort d'ECRAN. Une grille reglee pour un TNI ne
+         rentrerait sur aucune feuille, et les fiches par personne ont leur
+         propre mise en page. On revient a l'echelle 1 pour imprimer. */
+      :root{ --zg-e:1 !important }
+      .zg-poignee, .zg-crans{ display:none !important }
       @page{ size:landscape; margin:8mm }
 
       /* Tout le chrome du site s'efface. */
@@ -823,6 +949,11 @@
   <button class="zg-btn zg-btn--jaune" onclick="validateAll()" title="Verifier les conflits"><span class="zg-ic">✅</span><span data-t="btnValider">Verifier</span></button>
   <button class="zg-btn" onclick="imprimerGrille()" title="Imprimer la grille"><span class="zg-ic">🖨️</span><span data-t="btnImprimer">Imprimer</span></button>
 
+  <span class="zg-crans" id="zgCrans" role="group" aria-label="Taille de la grille">
+    <button type="button" data-e="1" aria-pressed="true" onclick="poserEchelle(1,true)" data-t="zoomNormal">Normal</button>
+    <button type="button" data-e="1.45" aria-pressed="false" onclick="poserEchelle(1.45,true)" data-t="zoomGrand">Grand</button>
+    <button type="button" data-e="2" aria-pressed="false" onclick="poserEchelle(2,true)" data-t="zoomTni">TNI</button>
+  </span>
   <button class="zg-btn zg-btn--plus" id="zgPlus" onclick="basculerPlus()" aria-expanded="false" aria-controls="zgAvance" title="Plus d'options"><span class="zg-ic">▾</span><span data-t="btnPlus">Plus</span></button>
 
   <select class="zg-lang" id="langSel" onchange="changeLang(this.value)" aria-label="Langue">
@@ -932,7 +1063,11 @@
       <button class="p-btn" onclick="ouvrirSurveillantsModal()"><span>👁️</span><span data-t="btnSurveillants">Surveillants</span></button>
     </div>
   </div>
-  <div class="grid-area"><div class="grid" id="grid"></div></div>
+  <div class="grid-area" id="gridArea"><div class="grid" id="grid"></div>
+    <div class="zg-poignee" id="zgPoignee" role="slider" tabindex="0"
+         aria-label="Taille de la grille" aria-valuemin="80" aria-valuemax="260" aria-valuenow="100"
+         title="Glisse pour agrandir · double-clic pour revenir à Normal">⤡</div>
+  </div>
   <div class="rpanel" id="rpanel">
     <h3>📋 <span data-t="toPlace">À placer</span></h3>
     <div id="nextList"></div>
@@ -963,7 +1098,7 @@ periodsPerDay:'Périodes/jour',tache100:'Tâche 100%',tache100Unit:'périodes/cy
 heroTitle:'Ta grille horaire<span>sur mesure!</span>',
 heroDesc:'Fini le casse-tête de la planification! Configure tes périodes en 30 secondes, clique sur un jour pour placer tes spécialistes et groupes-classes. Le % de tâche se calcule en temps réel. Team teaching, multi-gymnases, validation automatique — tout y est. Sauvegarde automatique et exporte en PDF pour ta direction. Les enseignants les plus organisés utilisent déjà cet outil — c\'est ton tour!',
 heroBadge1:'📅 5 à 10 jours/cycle',heroBadge2:'⚙️ 3 à 7 périodes',heroBadge3:'🌍 4 langues',heroBadge5:'🤖 Auto-remplissage',
-heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',btnImpPersonne:'Par personne',btnDupliquer:'Dupliquer',dupTitre:'Dupliquer une journée',dupSource:'Journée à copier',dupCibles:'Vers',dupFaire:'Dupliquer',dupFait:'journée(s) remplacée(s)',dupAide:'Les journées choisies sont d\'abord vidées. Ce qui dépasse le programme d\'un groupe, ou casse une règle, n\'est pas copié — le compte te le dit.',dupIgnores:'non copié(s)',pedagoConfirm:'Changer cette journée fermera des blocs qui contiennent des blocs placés. Ils seront vidés. Continuer ?',verrou:'Verrouiller',deverrou:'Déverrouiller',verrouAide:'Créneau verrouillé — rien ne s\'y place.',verrouConfirm:'Verrouiller videra cette case. Continuer ?',lieuHS:'Hors service',classEffectif:'Enfants',ratio:'Ratio',ratioAide:'enfants par adulte — 0 pour ne pas l\'appliquer',ratioManque:'places d\'adulte manquantes selon le ratio',journeeType:'Journée du métier',journeeAide:'Remplace la journée par celle du métier choisi',journeeConfirm:'Remplacer la journée par celle du métier ? La grille sera vidée.',journeeFaite:'Journée du métier appliquée',joursPedago:'Journées pédago',uniteCap:'pér.',
+heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',zoomNormal:'Normal',zoomGrand:'Grand',zoomTni:'TNI',zoomAide:'Taille de la grille',btnImpPersonne:'Par personne',btnDupliquer:'Dupliquer',dupTitre:'Dupliquer une journée',dupSource:'Journée à copier',dupCibles:'Vers',dupFaire:'Dupliquer',dupFait:'journée(s) remplacée(s)',dupAide:'Les journées choisies sont d\'abord vidées. Ce qui dépasse le programme d\'un groupe, ou casse une règle, n\'est pas copié — le compte te le dit.',dupIgnores:'non copié(s)',pedagoConfirm:'Changer cette journée fermera des blocs qui contiennent des blocs placés. Ils seront vidés. Continuer ?',verrou:'Verrouiller',deverrou:'Déverrouiller',verrouAide:'Créneau verrouillé — rien ne s\'y place.',verrouConfirm:'Verrouiller videra cette case. Continuer ?',lieuHS:'Hors service',classEffectif:'Enfants',ratio:'Ratio',ratioAide:'enfants par adulte — 0 pour ne pas l\'appliquer',ratioManque:'places d\'adulte manquantes selon le ratio',journeeType:'Journée du métier',journeeAide:'Remplace la journée par celle du métier choisi',journeeConfirm:'Remplacer la journée par celle du métier ? La grille sera vidée.',journeeFaite:'Journée du métier appliquée',joursPedago:'Journées pédago',uniteCap:'pér.',
 metierTitre:'Pour qui bâtis-tu l\'horaire?',metierAide:'Tu pourras en changer en tout temps dans les Réglages.',metierLabel:'Métier',metierOk:'Mode',metierEp:'École primaire',metierEpDesc:'Spécialistes : ÉPS, musique, anglais, arts.',metierSdg:'Service de garde',metierSdgDesc:'Éducateurs, groupes, ratios, blocs du midi.',metierCamp:'Camp de jour',metierCampDesc:'Moniteurs, groupes d\'âge, blocs d\'activités.',
 helpTitle:'Comment utiliser<span>la grille horaire</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
@@ -986,7 +1121,7 @@ periodsPerDay:'Periods/day',tache100:'100% task',tache100Unit:'periods/cycle',co
 heroTitle:'Your schedule grid<span>made easy!</span>',
 heroDesc:'No more planning headaches! Set up your periods in 30 seconds, click a day to place your specialists and class groups. Task % is calculated in real time. Team teaching, multiple gyms, automatic validation — it\'s all here. Auto-save and export to PDF for your admin. The most organized teachers already use this tool — your turn!',
 heroBadge1:'📅 5 to 10 days/cycle',heroBadge2:'⚙️ 3 to 7 periods',heroBadge3:'🌍 4 languages',heroBadge5:'🤖 Auto-fill',
-heroStart:'🚀 Get started!',heroHelp:'📖 How to use',btnImpPersonne:'Per person',btnDupliquer:'Duplicate',dupTitre:'Duplicate a day',dupSource:'Day to copy',dupCibles:'Onto',dupFaire:'Duplicate',dupFait:'day(s) replaced',dupAide:'The chosen days are cleared first. Anything beyond a group\'s programme, or breaking a rule, is not copied — the count tells you.',dupIgnores:'not copied',pedagoConfirm:'Switching this day closes blocks that already hold work. They will be cleared. Continue?',verrou:'Lock',deverrou:'Unlock',verrouAide:'Locked slot — nothing can go here.',verrouConfirm:'Locking will clear this cell. Continue?',lieuHS:'Out of service',classEffectif:'Children',ratio:'Ratio',ratioAide:'children per adult — 0 to disable',ratioManque:'adult slots missing under the ratio',journeeType:'Program day',journeeAide:'Replaces the day with the chosen program\'s day',journeeConfirm:'Replace the day with the program\'s day? The grid will be cleared.',journeeFaite:'Program day applied',joursPedago:'PD days',uniteCap:'per.',
+heroStart:'🚀 Get started!',heroHelp:'📖 How to use',zoomNormal:'Normal',zoomGrand:'Large',zoomTni:'Board',zoomAide:'Grid size',btnImpPersonne:'Per person',btnDupliquer:'Duplicate',dupTitre:'Duplicate a day',dupSource:'Day to copy',dupCibles:'Onto',dupFaire:'Duplicate',dupFait:'day(s) replaced',dupAide:'The chosen days are cleared first. Anything beyond a group\'s programme, or breaking a rule, is not copied — the count tells you.',dupIgnores:'not copied',pedagoConfirm:'Switching this day closes blocks that already hold work. They will be cleared. Continue?',verrou:'Lock',deverrou:'Unlock',verrouAide:'Locked slot — nothing can go here.',verrouConfirm:'Locking will clear this cell. Continue?',lieuHS:'Out of service',classEffectif:'Children',ratio:'Ratio',ratioAide:'children per adult — 0 to disable',ratioManque:'adult slots missing under the ratio',journeeType:'Program day',journeeAide:'Replaces the day with the chosen program\'s day',journeeConfirm:'Replace the day with the program\'s day? The grid will be cleared.',journeeFaite:'Program day applied',joursPedago:'PD days',uniteCap:'per.',
 metierTitre:'Who are you building the schedule for?',metierAide:'You can switch any time in Settings.',metierLabel:'Mode',metierOk:'Mode',metierEp:'Elementary school',metierEpDesc:'Specialists: PE, music, English, arts.',metierSdg:'Daycare service',metierSdgDesc:'Educators, groups, ratios, midday blocks.',metierCamp:'Day camp',metierCampDesc:'Counsellors, age groups, activity blocks.',
 helpTitle:'How to use<span>the schedule grid</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
@@ -1009,7 +1144,7 @@ periodsPerDay:'Períodos/día',tache100:'Tarea 100%',tache100Unit:'períodos/cic
 heroTitle:'Tu horario escolar<span>a tu medida!</span>',
 heroDesc:'¡Se acabó el rompecabezas de la planificación! Configura tus períodos en 30 segundos, haz clic en un día para colocar tus especialistas y grupos. El % de tarea se calcula en tiempo real. Enseñanza en equipo, múltiples gimnasios, validación automática — todo está aquí. Guardado automático y exporta en PDF para tu dirección. Los docentes más organizados ya usan esta herramienta — ¡es tu turno!',
 heroBadge1:'📅 5 a 10 días/ciclo',heroBadge2:'⚙️ 3 a 7 períodos',heroBadge3:'🌍 4 idiomas',heroBadge5:'🤖 Auto-llenado',
-heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',btnImpPersonne:'Por persona',btnDupliquer:'Duplicar',dupTitre:'Duplicar una jornada',dupSource:'Jornada a copiar',dupCibles:'Hacia',dupFaire:'Duplicar',dupFait:'jornada(s) reemplazada(s)',dupAide:'Las jornadas elegidas se vacían primero. Lo que excede el programa de un grupo, o incumple una regla, no se copia — el recuento lo indica.',dupIgnores:'sin copiar',pedagoConfirm:'Cambiar este día cerrará bloques que ya tienen trabajo. Se vaciarán. ¿Continuar?',verrou:'Bloquear',deverrou:'Desbloquear',verrouAide:'Franja bloqueada — no se puede colocar nada.',verrouConfirm:'Bloquear vaciará esta casilla. ¿Continuar?',lieuHS:'Fuera de servicio',classEffectif:'Niños',ratio:'Ratio',ratioAide:'niños por adulto — 0 para no aplicarlo',ratioManque:'puestos de adulto que faltan según el ratio',journeeType:'Jornada del modo',journeeAide:'Reemplaza la jornada por la del modo elegido',journeeConfirm:'¿Reemplazar la jornada por la del modo? Se vaciará la grilla.',journeeFaite:'Jornada aplicada',joursPedago:'Días pedagógicos',uniteCap:'per.',
+heroStart:'🚀 ¡Empezar!',heroHelp:'📖 Cómo usar',zoomNormal:'Normal',zoomGrand:'Grande',zoomTni:'Pizarra',zoomAide:'Tamaño de la grilla',btnImpPersonne:'Por persona',btnDupliquer:'Duplicar',dupTitre:'Duplicar una jornada',dupSource:'Jornada a copiar',dupCibles:'Hacia',dupFaire:'Duplicar',dupFait:'jornada(s) reemplazada(s)',dupAide:'Las jornadas elegidas se vacían primero. Lo que excede el programa de un grupo, o incumple una regla, no se copia — el recuento lo indica.',dupIgnores:'sin copiar',pedagoConfirm:'Cambiar este día cerrará bloques que ya tienen trabajo. Se vaciarán. ¿Continuar?',verrou:'Bloquear',deverrou:'Desbloquear',verrouAide:'Franja bloqueada — no se puede colocar nada.',verrouConfirm:'Bloquear vaciará esta casilla. ¿Continuar?',lieuHS:'Fuera de servicio',classEffectif:'Niños',ratio:'Ratio',ratioAide:'niños por adulto — 0 para no aplicarlo',ratioManque:'puestos de adulto que faltan según el ratio',journeeType:'Jornada del modo',journeeAide:'Reemplaza la jornada por la del modo elegido',journeeConfirm:'¿Reemplazar la jornada por la del modo? Se vaciará la grilla.',journeeFaite:'Jornada aplicada',joursPedago:'Días pedagógicos',uniteCap:'per.',
 metierTitre:'¿Para quién creas el horario?',metierAide:'Puedes cambiarlo cuando quieras en Configuración.',metierLabel:'Modo',metierOk:'Modo',metierEp:'Escuela primaria',metierEpDesc:'Especialistas: EF, música, inglés, artes.',metierSdg:'Servicio de guardería',metierSdgDesc:'Educadores, grupos, ratios, bloques del mediodía.',metierCamp:'Campamento de día',metierCampDesc:'Monitores, grupos de edad, bloques de actividades.',
 helpTitle:'Cómo usar<span>el horario escolar</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
@@ -1032,7 +1167,7 @@ periodsPerDay:'每天课时',tache100:'100%任务',tache100Unit:'课时/周期',
 heroTitle:'你的课程表<span>量身定制!</span>',
 heroDesc:'告别排课烦恼！30秒配置课时，点击日期安排专科教师和班级。任务百分比实时计算。协同教学、多体育馆、自动验证——一应俱全。自动保存，导出PDF给校长。最有组织的老师已经在用这个工具了——轮到你了！',
 heroBadge1:'📅 5至10天/周期',heroBadge2:'⚙️ 3至7节课',heroBadge3:'🌍 4种语言',heroBadge5:'🤖 自动填充',
-heroStart:'🚀 开始!',heroHelp:'📖 使用说明',btnImpPersonne:'按人打印',btnDupliquer:'复制',dupTitre:'复制某一天',dupSource:'要复制的日期',dupCibles:'复制到',dupFaire:'复制',dupFait:'天已被替换',dupAide:'所选日期会先被清空。超出班组课时或违反规则的安排不会被复制——数量会告诉你。',dupIgnores:'未能复制',pedagoConfirm:'切换这一天会关闭已排班的时段，这些安排将被清空。是否继续？',verrou:'锁定',deverrou:'解锁',verrouAide:'该时段已锁定——无法安排。',verrouConfirm:'锁定将清空此格。是否继续？',lieuHS:'停用',classEffectif:'儿童数',ratio:'师生比',ratioAide:'每位成人负责的儿童数——填0则不启用',ratioManque:'按师生比仍缺的成人岗位',journeeType:'模式日程',journeeAide:'用所选模式的日程替换当前日程',journeeConfirm:'用该模式的日程替换当前日程？课表将被清空。',journeeFaite:'已应用模式日程',joursPedago:'教师培训日',uniteCap:'节',
+heroStart:'🚀 开始!',heroHelp:'📖 使用说明',zoomNormal:'标准',zoomGrand:'大',zoomTni:'白板',zoomAide:'课表大小',btnImpPersonne:'按人打印',btnDupliquer:'复制',dupTitre:'复制某一天',dupSource:'要复制的日期',dupCibles:'复制到',dupFaire:'复制',dupFait:'天已被替换',dupAide:'所选日期会先被清空。超出班组课时或违反规则的安排不会被复制——数量会告诉你。',dupIgnores:'未能复制',pedagoConfirm:'切换这一天会关闭已排班的时段，这些安排将被清空。是否继续？',verrou:'锁定',deverrou:'解锁',verrouAide:'该时段已锁定——无法安排。',verrouConfirm:'锁定将清空此格。是否继续？',lieuHS:'停用',classEffectif:'儿童数',ratio:'师生比',ratioAide:'每位成人负责的儿童数——填0则不启用',ratioManque:'按师生比仍缺的成人岗位',journeeType:'模式日程',journeeAide:'用所选模式的日程替换当前日程',journeeConfirm:'用该模式的日程替换当前日程？课表将被清空。',journeeFaite:'已应用模式日程',joursPedago:'教师培训日',uniteCap:'节',
 metierTitre:'你要为谁编排时间表？',metierAide:'随时可在设置中更改。',metierLabel:'模式',metierOk:'模式',metierEp:'小学',metierEpDesc:'专科教师：体育、音乐、英语、艺术。',metierSdg:'课后托管',metierSdgDesc:'辅导员、班组、师生比、午间时段。',metierCamp:'日间营',metierCampDesc:'营辅导员、年龄组、活动时段。',
 helpTitle:'如何使用<span>课程表</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 快速开始</b><br>点击"开始"一键创建典型学校（13个班、5位专科教师、6间教室）。或用⚙️手动配置。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 安排课程</b><br>1. 在左侧选择一位专科教师<br>2. 点击网格中的绿色虚线格子<br>3. 选择班级——以独特颜色显示！<br>4. 删除：点击标签上的✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ 任务与合同</b><br>系统实时计算任务百分比！100%任务=每周期最大课时数（如30）。80%合同×30=最多24节课。达到上限自动阻止。<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 协同教学</b><br>在教室设置中，将容量设为2+即可让多位教师同时在同一体育馆授课！',
@@ -1699,6 +1834,9 @@ function migrer(){
   if(!S.surveillances||typeof S.surveillances!=='object')S.surveillances={};
   if(!Array.isArray(S.school.joursPedago))S.school.joursPedago=[];
   if(!S.verrous||typeof S.verrous!=='object')S.verrous={};
+  // Le zoom voyage avec l'horaire : on retrouve sa grille comme on l'a
+  // laissee, et l'export l'emporte sans code dedie.
+  S.zoom=bornerZoom(S.zoom===undefined?ZOOM_DEF:S.zoom);
   // Un ratio absent vaut « pas de ratio » : aucune deduction, capacite 1.
   if(S.school.ratio===undefined||S.school.ratio===null||isNaN(+S.school.ratio))S.school.ratio=0;
   demandeurs().forEach(cl=>{if(cl.effectif===undefined||cl.effectif===null||isNaN(+cl.effectif))cl.effectif=0});
@@ -2018,7 +2156,9 @@ function renderGrid(){
   const periods=S.school.periods,cd=S.school.cycleDays;
   const sp=activeSpec?ressources().find(s=>s.id===activeSpec):null;
   const cols=cd+1;
-  g.style.gridTemplateColumns=`88px repeat(${cd},minmax(112px,1fr))`;
+  // Les colonnes suivent l'echelle. `min-content` sur la grille garde le
+  // defilement horizontal quand la somme depasse la boite.
+  g.style.gridTemplateColumns=`var(--zg-heure) repeat(${cd},minmax(var(--zg-col),1fr))`;
   // Row 0: headers
   let hdr=document.createElement('div');hdr.className='g-hdr';hdr.textContent='⏰';hdr.style.gridColumn='1';hdr.style.gridRow='1';g.appendChild(hdr);
   for(let d=1;d<=cd;d++){hdr=document.createElement('div');hdr.className='g-hdr';hdr.textContent=t('day')+' '+d;hdr.style.gridColumn=''+(d+1);hdr.style.gridRow='1';g.appendChild(hdr)}
@@ -2057,7 +2197,11 @@ function renderGrid(){
         // C'est LUI qu'on tronque, jamais le code de la personne : sans le
         // code, la case ne dit plus qui est la. Les deux etaient dans la meme
         // boite tronquee, et le code disparaissait le premier.
-        ch.innerHTML=`<span style="overflow:hidden;text-overflow:ellipsis;min-width:0"><b>${cl?.group||'?'}</b></span><span class="sp-tag" style="flex:none">${asp.shortName}</span><span class="x" data-d="${d}" data-p="${p.num}" data-s="${a.specId}">✕</span>`;
+        // Deux blocs : le nom du groupe, puis le couple code + croix. C'est
+        // ce second bloc qui s'enroule sous le premier quand la place manque.
+        ch.innerHTML=`<span class="g-grp">${cl?.group||'?'}</span>`
+          +`<span class="g-fin"><span class="sp-tag">${asp.shortName}</span>`
+          +`<span class="x" data-d="${d}" data-p="${p.num}" data-s="${a.specId}">✕</span></span>`;
         ch.querySelector('.x').onclick=e=>{e.stopPropagation();removeA(d,p.num,a.specId);renderAll()};cell.appendChild(ch)});
       if(!cell.children.length)cell.innerHTML='<span class="plus">+</span>';
       cell.style.gridColumn=''+(d+1);cell.style.gridRow=''+row;
@@ -2559,6 +2703,135 @@ function ouvrirDuplicationModal(){
   ov.onclick=e=>{if(e.target===ov)closeModals()};
 }
 
+/* =======================================================================
+   LE ZOOM DE LA GRILLE
+   -----------------------------------------------------------------------
+   Une seule valeur, `S.zoom`, et trois facons de la bouger : la molette avec
+   Ctrl (ou le pincement, que les navigateurs signalent de la meme facon), le
+   glisser de la poignee, et les trois crans.
+
+   Le `preventDefault` n'est pose QUE sur le geste au-dessus de la grille.
+   Ailleurs, Ctrl+molette continue de zoomer la page comme le navigateur
+   l'entend — on ne confisque pas un raccourci systeme a quelqu'un qui lit un
+   panneau.
+
+   L'impression ignore tout : les fiches ont leur propre mise en page, et une
+   grille reglee pour un TNI ne rentrerait sur aucune feuille.
+   ======================================================================= */
+const ZOOM_MIN=0.8, ZOOM_MAX=2.6, ZOOM_DEF=1;
+const ZOOM_CRANS=[1,1.45,2];
+
+function bornerZoom(v){
+  const x=+v;
+  if(isNaN(x))return ZOOM_DEF;
+  return Math.min(ZOOM_MAX,Math.max(ZOOM_MIN,Math.round(x*100)/100));
+}
+/* Poser l'echelle. `garder` dit s'il faut l'enregistrer — un glisser en cours
+   ne sauve pas a chaque pixel, il sauve en lachant. */
+function poserEchelle(v,garder){
+  S.zoom=bornerZoom(v);
+  document.documentElement.style.setProperty('--zg-e',S.zoom);
+  const po=document.getElementById('zgPoignee');
+  if(po)po.setAttribute('aria-valuenow',Math.round(S.zoom*100));
+  document.querySelectorAll('#zgCrans button').forEach(b=>{
+    b.setAttribute('aria-pressed', Math.abs(+b.dataset.e-S.zoom)<0.02 ? 'true':'false')});
+  if(garder)save();
+}
+/* La molette et le pincement, au-dessus de la grille seulement. */
+function brancherZoomMolette(){
+  const zone=document.getElementById('gridArea');
+  if(!zone||zone.__zoomBranche)return;
+  zone.__zoomBranche=true;
+  zone.addEventListener('wheel',function(e){
+    // Les navigateurs signalent le pincement du pave tactile comme une
+    // molette avec ctrlKey : le meme test couvre les deux gestes.
+    if(!e.ctrlKey&&!e.metaKey)return;
+    e.preventDefault();
+    poserEchelle(S.zoom+(e.deltaY<0?0.08:-0.08),false);
+    clearTimeout(zone.__t);zone.__t=setTimeout(()=>save(),400);
+  },{passive:false});
+}
+/* Le pincement a DEUX DOIGTS, sur tablette et sur ecran tactile.
+   Le pavé tactile d'un portable, lui, signale son pincement comme une molette
+   avec ctrlKey — c'est `brancherZoomMolette` qui s'en charge. Un vrai ecran
+   tactile n'envoie rien de tel : il envoie deux pointeurs. Sans ce bloc, la
+   moitie tablette de la demande n'existait pas.
+
+   On mesure la distance entre les deux doigts, et le rapport a la distance de
+   depart donne le facteur. C'est le geste que tout le monde connait. */
+function brancherPincement(){
+  const zone=document.getElementById('gridArea');
+  if(!zone||zone.__pinceBranche)return;
+  zone.__pinceBranche=true;
+  const doigts=new Map();
+  let ecart0=0, zoom0=1;
+  const distance=()=>{
+    const l=[...doigts.values()];
+    return Math.hypot(l[0].x-l[1].x, l[0].y-l[1].y);
+  };
+  zone.addEventListener('pointerdown',e=>{
+    if(e.pointerType!=='touch')return;
+    doigts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(doigts.size===2){ecart0=distance();zoom0=S.zoom}
+  });
+  zone.addEventListener('pointermove',e=>{
+    if(e.pointerType!=='touch'||!doigts.has(e.pointerId))return;
+    doigts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(doigts.size!==2||!ecart0)return;
+    e.preventDefault();                       // le pincement nous appartient ICI
+    poserEchelle(zoom0*(distance()/ecart0),false);
+  },{passive:false});
+  const lever=e=>{
+    if(!doigts.has(e.pointerId))return;
+    doigts.delete(e.pointerId);
+    if(doigts.size<2&&ecart0){ecart0=0;save()}
+  };
+  zone.addEventListener('pointerup',lever);
+  zone.addEventListener('pointercancel',lever);
+  zone.addEventListener('pointerleave',lever);
+}
+
+/* La poignee : un glisser, souris ou doigt — les evenements pointeur
+   couvrent les deux sans code en double. Vers la droite et vers le bas,
+   ca grandit : c'est le sens qu'a une poignee de fenetre. */
+function brancherPoignee(){
+  const po=document.getElementById('zgPoignee');
+  if(!po||po.__branchee)return;
+  po.__branchee=true;
+  /* Elle ne s'affiche que quand la grille est a l'ecran : sur le hero, elle
+     n'aurait rien a redimensionner. */
+  const zone=document.getElementById('gridArea');
+  if(zone&&window.IntersectionObserver){
+    new IntersectionObserver(es=>{po.hidden=!es[0].isIntersecting},{threshold:0})
+      .observe(zone);
+  }
+  let depart=null;
+  po.addEventListener('pointerdown',e=>{
+    depart={x:e.clientX,y:e.clientY,e:S.zoom};
+    po.setPointerCapture(e.pointerId);e.preventDefault();
+  });
+  po.addEventListener('pointermove',e=>{
+    if(!depart)return;
+    // La diagonale : on prend la somme des deux deplacements, 200 px de
+    // course pour un doublement. Assez court pour un geste, assez long
+    // pour viser.
+    const d=((e.clientX-depart.x)+(e.clientY-depart.y))/200;
+    poserEchelle(depart.e+d,false);
+  });
+  const fin=e=>{ if(!depart)return; depart=null;
+    try{po.releasePointerCapture(e.pointerId)}catch(x){}
+    save(); };
+  po.addEventListener('pointerup',fin);
+  po.addEventListener('pointercancel',fin);
+  po.addEventListener('dblclick',()=>poserEchelle(ZOOM_DEF,true));
+  // Au clavier : les fleches, comme tout curseur.
+  po.addEventListener('keydown',e=>{
+    const pas={ArrowRight:0.1,ArrowUp:0.1,ArrowLeft:-0.1,ArrowDown:-0.1}[e.key];
+    if(pas===undefined)return;
+    e.preventDefault();poserEchelle(S.zoom+pas,true);
+  });
+}
+
 function shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}}
 function clearSchedule(){if(!confirm(`🗑️ ${t('clearConfirm')}`))return;S.assignments={};save();renderAll()}
 function exportPDF(){html2pdf().set({margin:5,filename:'grille_horaire.pdf',image:{type:'jpeg',quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a3',orientation:'landscape'}}).from(document.getElementById('grid')).save()}
@@ -2974,12 +3247,14 @@ function assurerStructures(){
   if(!S.surveillances||typeof S.surveillances!=='object')S.surveillances={};
   if(!Array.isArray(S.school.joursPedago))S.school.joursPedago=[];
   if(!S.verrous||typeof S.verrous!=='object')S.verrous={};
+  S.zoom=bornerZoom(S.zoom===undefined?ZOOM_DEF:S.zoom);
   assurerIdsCreneaux();
 }
-function renderAll(){assurerStructures();resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
+function renderAll(){assurerStructures();poserEchelle(S.zoom,false);resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
 
 document.addEventListener('DOMContentLoaded',()=>{
   load();appliquerMetier();applyI18n();renderAll();showWelcome();montrerChoixMetier();calerSousHeader();
+  brancherZoomMolette();brancherPincement();brancherPoignee();
   // Le header partage se monte en differe (zts-menu.js) et sa hauteur change
   // au redimensionnement : on remesure plutot que de figer une valeur.
   window.addEventListener('load',calerSousHeader);
