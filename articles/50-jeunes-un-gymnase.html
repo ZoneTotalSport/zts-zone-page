@@ -15,9 +15,9 @@
   <!-- Open Graph -->
   <meta property="og:title" content="Grands groupes en gymnase : 21 stratégies EPS | ZTS">
   <meta property="og:description" content="21 stratégies concrètes pour gérer 50 jeunes au gymnase : enseignement EPS, animation camps de jour et service de garde. Tout testé sur le terrain.">
-  <meta property="og:image" content="https://zonetotalsport.ca/articles/images/Images%20article%2050%20jeunes%20gymnase%20/image%201%20article%20blig%2050%20jeunes%201%20gymnase.png">
-  <meta property="og:image:width" content="2752">
-  <meta property="og:image:height" content="1536">
+  <meta property="og:image" content="https://zonetotalsport.ca/articles/images/heroes/50-jeunes-un-gymnase.jpg">
+  <meta property="og:image:width" content="1600">
+  <meta property="og:image:height" content="893">
   <meta property="og:url" content="https://zonetotalsport.ca/articles/50-jeunes-un-gymnase.html">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Zone Total Sport">
@@ -30,7 +30,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Grands groupes en gymnase : 21 stratégies EPS | ZTS">
   <meta name="twitter:description" content="21 stratégies concrètes pour gérer 50 jeunes au gymnase : enseignement EPS, animation camps de jour et service de garde. Tout testé sur le terrain.">
-  <meta name="twitter:image" content="https://zonetotalsport.ca/articles/images/Images%20article%2050%20jeunes%20gymnase%20/image%201%20article%20blig%2050%20jeunes%201%20gymnase.png">
+  <meta name="twitter:image" content="https://zonetotalsport.ca/articles/images/heroes/50-jeunes-un-gymnase.jpg">
 
   <!-- Canonical -->
   <link rel="canonical" href="https://zonetotalsport.ca/articles/50-jeunes-un-gymnase.html">
@@ -307,7 +307,7 @@
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": "50 jeunes, un gymnase : L'art de maitriser l'enseignement et l'animation sans perdre le controle",
-    "image": "https://zonetotalsport.ca/articles/images/Images%20article%2050%20jeunes%20gymnase%20/image%201%20article%20blig%2050%20jeunes%201%20gymnase.png",
+    "image": "https://zonetotalsport.ca/articles/images/heroes/50-jeunes-un-gymnase.jpg",
     "datePublished": "2026-04-29",
     "dateModified": "2026-04-29",
     "author": {
@@ -1126,6 +1126,16 @@
         if (window.ztsTrackFunnel) {
           window.ztsTrackFunnel('locked_click_signup', { source: 'article', slug: '50-jeunes-un-gymnase' });
         }
+        // MEME PROVENANCE QUE LE DEMI-MUR STANDARD. Cet onglet est un
+        // QUATRIEME emetteur, en ligne dans la page : zts-lock-page.js ne le
+        // voit pas, donc le correctif d'attribution ne l'atteignait pas. Sans
+        // ces deux lignes, l'article le plus lu du blogue continuerait de
+        // verser ses inscriptions dans 'direct'.
+        // La consommation des cles reste chez fireSignupComplete().
+        try {
+          sessionStorage.setItem('zts_signup_source', 'demi_mur_article');
+          sessionStorage.setItem('zts_signup_slug', '50-jeunes-un-gymnase');
+        } catch (e) {}
         if (window.ztsShowSignup) { window.ztsShowSignup(); return; }
         // Pas de modale disponible : on laisse au moins le lecteur ou il etait.
         return;

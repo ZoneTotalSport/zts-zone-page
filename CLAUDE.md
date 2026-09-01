@@ -59,6 +59,89 @@
 - Rapatriement du 5 juil 2026 (`f88abfa`) : repo aligné sur le ruleset actif du 2 juil
   (bloc `budget/*` + slice semaines/messages/évaluations déjà commité les 23-26 juin).
 
+## Recette — tester sans écrire dans la production
+
+**⚠️ `firebaseConfig` pointe le projet de PRODUCTION, même servi depuis
+`localhost`.** Une page de test qui tourne sur un port local écrit dans la vraie
+base. Il n'y a pas d'environnement de recette.
+
+**⚠️ `zts-funnel.js` écrit AU CHARGEMENT de la page, pas seulement au clic.**
+`locked_view` part dès que le mur est observé, `newsletter_view` dès que le
+pop-up s'affiche. **Stubber `window.ztsTrackFunnel` depuis la console arrive
+toujours trop tard** : au moment où la console répond, les documents sont déjà
+partis.
+
+> **La règle complète : toute ouverture de page prod-like écrit dans le tunnel.
+> Le stub se pose AVANT le premier chargement, peu importe qui déclenche le
+> chargement.** Jamais depuis la console.
+
+**⚠️ `preview_start` ouvre `http://localhost:<port>/` AVANT toute navigation.**
+Si le `cwd` est la racine du dépôt, c'est la page d'accueil ZTS complète qui se
+charge — `zts-cadenas.js` et `zts-newsletter.js` compris — et deux documents
+partent en production avant que la moindre commande soit tapée. Naviguer vers la
+bonne page **ensuite** n'annule rien. Servir depuis un sous-dossier, ou accepter
+le coût et le déclarer.
+
+Trois prises le 28 août 2026, par trois portes différentes : un stub console posé
+trop tard, une recette de production où le fichier servi n'est pas modifiable, et
+l'ouverture automatique de la racine par `preview_start`. **Ce n'est pas de la
+malchance, c'est un motif** — la page écrit toute seule, l'outil n'a rien à
+demander. Bilan : 7 documents parasites, tous des `locked_view` /
+`newsletter_view`, aucun `signup_complete`. Bénin en août sur un tunnel presque
+vide ; **en septembre, avec le trafic de la campagne, ces parasites deviennent
+indiscernables du vrai signal.**
+
+Recette qui fonctionne, vérifiée le 28 août 2026 (PR #53) :
+
+```js
+// zts-funnel.js — remplacer les DEUX occurrences de `var db = firebase.firestore();`
+var db = (window.__ZTS_TEST_DB || (window.__ZTS_TEST_DB = {
+  collection: function () {
+    return { add: function (o) {
+      (window.__writes = window.__writes || []).push(o);
+      // persister : /bienvenue.html rebondit vers / et emporte le contexte
+      try { var a = JSON.parse(localStorage.getItem('__writes') || '[]');
+            a.push(o); localStorage.setItem('__writes', JSON.stringify(a)); } catch (e) {}
+      return Promise.resolve({ id: 'stub' });
+    } };
+  }
+}));
+```
+
+Pour un parcours d'inscription, stuber aussi **l'authentification** — sinon un
+vrai compte est créé :
+
+```js
+firebase.auth().createUserWithEmailAndPassword = function (email) {
+  return Promise.resolve({
+    user: { uid: 'TEST_UID_STUB', email: email,
+            updateProfile: function () { return Promise.resolve(); },
+            metadata: { creationTime: 'a', lastSignInTime: 'a' } },
+    additionalUserInfo: { isNewUser: true }
+  });
+};
+window.ztsTrackSignup = function () {};   // GA4
+window.ztsNotifySignup = function () {};  // Worker notify
+```
+
+Deux pièges de plus, constatés le même jour :
+
+- **`/bienvenue.html` rebondit vers `/`** pour un utilisateur non réellement
+  authentifié. Impossible d'y observer l'écriture : persister les captures dans
+  `localStorage`, ou réinjecter `zts_signup_pending` sur une page stable.
+- **Port neuf à chaque campagne de test**, cache vidé : les scripts ZTS sont
+  servis depuis le cache navigateur, et une modification du fichier servi ne
+  sera pas relue sinon.
+
+**Prix payé pour cette leçon** : trois documents parasites écrits en production
+le 28 août 2026 avant que le stub soit en place — deux `locked_view`, un
+`newsletter_view`, horodatés au §7.7 de `RAPPORT-METRIQUES-2026-08-28.md` pour
+être soustraits des lectures futures. Aucun n'était un `signup_complete`.
+
+**Règle du LOT 2, toujours en vigueur** : tout test qui traverse une écriture
+Firestore doit la stuber. Deux faux documents vivent déjà dans les données
+(§6 de `LOT2-PRESCAN.md`) ; il n'y en aura pas d'autres.
+
 ## Audience
 Trois corps de métier visés équitablement :
 1. **ÉPS** — Enseignants éducation physique primaire (Québec, alignement PFEQ)

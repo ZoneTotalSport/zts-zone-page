@@ -209,10 +209,85 @@
     if (vieille) el.replaceChild(build(el.__ztsOpts), vieille);
   });
 
+
+  /* =====================================================================
+     VERROU CLAVIER — le calque arretait la souris, PAS le clavier
+     ---------------------------------------------------------------------
+     Mesure du 31 aout 2026, navigation anonyme, /apps/grille/ en prod :
+     le calque etait bien la (position:fixed, inset:0, z-index 99998,
+     body en overflow:hidden), et pourtant VINGT-NEUF elements focalisables
+     restaient hors de lui. Un Tab menait au bouton « Reglages » de l'app,
+     Entree l'activait, et la modale de configuration s'ouvrait — verrou
+     toujours affiche. Le mur tenait la porte et laissait la fenetre ouverte.
+
+     Trois verrous, parce qu'aucun ne suffit seul :
+
+     1. `inert` sur tout ce qui n'est pas le calque. C'est la bonne reponse :
+        l'element sort du parcours de tabulation ET cesse de recevoir les
+        evenements. Disponible dans tous les navigateurs courants depuis
+        2023 ; la ou il manque, les deux suivants prennent le relais.
+
+     2. Un observateur : l'app CONTINUE DE VIVRE derriere le calque et
+        ajoute ses propres modales au <body>. Sans ca, chaque nouvelle
+        arrivante serait focalisable.
+
+     3. Un rattrapage sur `focusin`, en capture : si un focus atterrit
+        malgre tout hors du calque, on le ramene dedans. C'est le filet des
+        navigateurs sans `inert`.
+
+     Le tout est annule proprement a la fermeture : un verrou « closable »
+     doit rendre la page au visiteur, pas la laisser inerte.
+     ===================================================================== */
+  var __ztsVerrou = null;
+
+  function ztsPoserVerrouClavier(calque) {
+    ztsLeverVerrouClavier();
+    var etat = { calque: calque, inertes: [], obs: null, surFocus: null };
+
+    function inerter(el) {
+      if (!el || el === calque || el.nodeType !== 1) return;
+      if (el.hasAttribute('inert')) return;      // deja inerte pour une autre raison
+      try { el.inert = true; } catch (e) { return; }
+      etat.inertes.push(el);
+    }
+    for (var i = 0; i < document.body.children.length; i++) inerter(document.body.children[i]);
+
+    if (window.MutationObserver) {
+      etat.obs = new MutationObserver(function (muts) {
+        for (var m = 0; m < muts.length; m++) {
+          var aj = muts[m].addedNodes;
+          for (var k = 0; k < aj.length; k++) inerter(aj[k]);
+        }
+      });
+      etat.obs.observe(document.body, { childList: true });
+    }
+
+    etat.surFocus = function (e) {
+      if (calque.contains(e.target)) return;
+      var premier = calque.querySelector('button,a[href],input,select,textarea,[tabindex]');
+      if (premier) premier.focus(); else calque.focus();
+    };
+    document.addEventListener('focusin', etat.surFocus, true);
+
+    if (!calque.hasAttribute('tabindex')) calque.setAttribute('tabindex', '-1');
+    try { calque.focus(); } catch (e) {}
+    __ztsVerrou = etat;
+  }
+
+  function ztsLeverVerrouClavier() {
+    if (!__ztsVerrou) return;
+    var e = __ztsVerrou;
+    for (var i = 0; i < e.inertes.length; i++) { try { e.inertes[i].inert = false; } catch (x) {} }
+    if (e.obs) e.obs.disconnect();
+    if (e.surFocus) document.removeEventListener('focusin', e.surFocus, true);
+    __ztsVerrou = null;
+  }
+
   function close() {
     var el = document.getElementById(OVERLAY_ID);
     if (el) el.remove();
     document.body.style.overflow = '';
+    ztsLeverVerrouClavier();
   }
 
   window.ztsShowLockedFullscreen = function (opts) {
@@ -229,7 +304,13 @@
     overlay.__ztsOpts = opts;      // pour redessiner au changement de langue
     overlay.appendChild(build(opts));
     document.body.appendChild(overlay);
-    if (!opts.closable) document.body.style.overflow = 'hidden';
+    // Un verrou NON refermable doit fermer la page pour de bon : la souris
+    // par le calque, le clavier par le garde ci-dessus. Un verrou refermable
+    // (l'apercu d'un article, par exemple) laisse la page vivre.
+    if (!opts.closable) {
+      document.body.style.overflow = 'hidden';
+      ztsPoserVerrouClavier(overlay);
+    }
 
     overlay.addEventListener('click', function (e) {
       var act = e.target && e.target.getAttribute && e.target.getAttribute('data-action');

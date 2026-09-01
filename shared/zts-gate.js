@@ -16,8 +16,16 @@
     projectId: "zone-total-sport",
     storageBucket: "zone-total-sport.firebasestorage.app",
     messagingSenderId: "681359040455",
-    appId: "1:681359040455:web:80c9f584583824cc8cc3e2",
-    measurementId: "G-09S9R1HJ94"
+    appId: "1:681359040455:web:80c9f584583824cc8cc3e2"
+    // PROPRIETE GA4 INERTE — ne pas reactiver sans decider laquelle porte
+    // l'historique. G-09S9R1HJ94 n'existe que comme measurementId dans ce
+    // firebaseConfig : aucun analytics-compat n'est charge, aucun
+    // firebase.analytics(), aucun getAnalytics() nulle part dans le depot
+    // (verifie le 28 aout 2026). C'est G-C2L5PD388L, via analytics.js
+    // injecte par le chrome partage, qui recoit tout le trafic.
+    // Commente plutot que supprime : un firebaseConfig ampute souleve une
+    // question a la prochaine copie depuis la console Firebase.
+    // measurementId: "G-09S9R1HJ94"
   };
 
   // chemin racine relatif (les apps sont à /apps/<nom>/ → ../../)
@@ -211,11 +219,15 @@
     if (leaving) return;
     var g = el('zts-gate');
     if (user) {
+      // Le calque se cache ET le garde se leve : sans la seconde ligne, un
+      // membre connecte aurait la page devant lui et ne pourrait pas y
+      // toucher — le remede serait pire que le mal.
       if (g) g.hidden = true;
+      ztsLeverVerrouClavier();
       addLogout(user);
       document.dispatchEvent(new CustomEvent('zts:auth', { detail: { user: user } }));
     } else {
-      if (g) { g.hidden = false; render(); }
+      if (g) { g.hidden = false; render(); ztsPoserVerrouClavier(g); }
       removeLogout();
     }
   }
@@ -239,6 +251,80 @@
     });
     document.body.appendChild(b);
   }
+
+  /* =====================================================================
+     VERROU CLAVIER — le calque arretait la souris, PAS le clavier
+     ---------------------------------------------------------------------
+     Mesure du 31 aout 2026, navigation anonyme, /apps/grille/ en prod :
+     le calque etait bien la (position:fixed, inset:0, z-index 99998,
+     body en overflow:hidden), et pourtant VINGT-NEUF elements focalisables
+     restaient hors de lui. Un Tab menait au bouton « Reglages » de l'app,
+     Entree l'activait, et la modale de configuration s'ouvrait — verrou
+     toujours affiche. Le mur tenait la porte et laissait la fenetre ouverte.
+
+     Trois verrous, parce qu'aucun ne suffit seul :
+
+     1. `inert` sur tout ce qui n'est pas le calque. C'est la bonne reponse :
+        l'element sort du parcours de tabulation ET cesse de recevoir les
+        evenements. Disponible dans tous les navigateurs courants depuis
+        2023 ; la ou il manque, les deux suivants prennent le relais.
+
+     2. Un observateur : l'app CONTINUE DE VIVRE derriere le calque et
+        ajoute ses propres modales au <body>. Sans ca, chaque nouvelle
+        arrivante serait focalisable.
+
+     3. Un rattrapage sur `focusin`, en capture : si un focus atterrit
+        malgre tout hors du calque, on le ramene dedans. C'est le filet des
+        navigateurs sans `inert`.
+
+     Le tout est annule proprement a la fermeture : un verrou « closable »
+     doit rendre la page au visiteur, pas la laisser inerte.
+     ===================================================================== */
+  var __ztsVerrou = null;
+
+  function ztsPoserVerrouClavier(calque) {
+    ztsLeverVerrouClavier();
+    var etat = { calque: calque, inertes: [], obs: null, surFocus: null };
+
+    function inerter(el) {
+      if (!el || el === calque || el.nodeType !== 1) return;
+      if (el.hasAttribute('inert')) return;      // deja inerte pour une autre raison
+      try { el.inert = true; } catch (e) { return; }
+      etat.inertes.push(el);
+    }
+    for (var i = 0; i < document.body.children.length; i++) inerter(document.body.children[i]);
+
+    if (window.MutationObserver) {
+      etat.obs = new MutationObserver(function (muts) {
+        for (var m = 0; m < muts.length; m++) {
+          var aj = muts[m].addedNodes;
+          for (var k = 0; k < aj.length; k++) inerter(aj[k]);
+        }
+      });
+      etat.obs.observe(document.body, { childList: true });
+    }
+
+    etat.surFocus = function (e) {
+      if (calque.contains(e.target)) return;
+      var premier = calque.querySelector('button,a[href],input,select,textarea,[tabindex]');
+      if (premier) premier.focus(); else calque.focus();
+    };
+    document.addEventListener('focusin', etat.surFocus, true);
+
+    if (!calque.hasAttribute('tabindex')) calque.setAttribute('tabindex', '-1');
+    try { calque.focus(); } catch (e) {}
+    __ztsVerrou = etat;
+  }
+
+  function ztsLeverVerrouClavier() {
+    if (!__ztsVerrou) return;
+    var e = __ztsVerrou;
+    for (var i = 0; i < e.inertes.length; i++) { try { e.inertes[i].inert = false; } catch (x) {} }
+    if (e.obs) e.obs.disconnect();
+    if (e.surFocus) document.removeEventListener('focusin', e.surFocus, true);
+    __ztsVerrou = null;
+  }
+
   function removeLogout() { var b = el('ztg-out'); if (b) b.remove(); }
 
   function boot() {
@@ -247,6 +333,10 @@
     g.id = 'zts-gate';
     g.innerHTML = '<div class="ztg-card"><h2>' + t().loading + '</h2></div>';
     document.body.appendChild(g);
+    // Le meme trou existait ici : le calque arretait la souris, pas le
+    // clavier. Vingt apps passent par zts-locked-fullscreen.js, vingt-sept
+    // par ce fichier — le mur du site n'est ferme que si les deux le sont.
+    ztsPoserVerrouClavier(g);
 
     // re-render overlay si la langue change
     document.addEventListener('zts:langchange', function () { if (!ready || (firebase && !firebase.auth().currentUser)) render(); });

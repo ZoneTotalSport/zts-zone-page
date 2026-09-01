@@ -251,6 +251,26 @@
     // verrouillee ni pop-up plein ecran).
     d.querySelector('[data-act=signup]').addEventListener('click', function () {
       if (window.ztsTrackFunnel) window.ztsTrackFunnel('locked_click_signup', { source: info.kind, slug: info.slug });
+      // PROVENANCE DE L'INSCRIPTION — deux cles, deux roles, deux cardinalites.
+      // Sans elles, fireSignupComplete() ne trouvait rien et ecrivait
+      // `signup_source: 'direct'` : l'inscription etait comptee, son origine
+      // perdue. Le defaut touchait les 27 articles autant que les 1440 fiches.
+      //
+      //   zts_signup_source : 'demi_mur_jeu' | 'demi_mur_article'  (2 valeurs)
+      //     -> part vers GA4. Reste plat et snake_case comme les trois autres
+      //        emetteurs ('locked_card', 'popup', 'newsletter_popup').
+      //   zts_signup_slug   : le slug exact                        (cardinalite elevee)
+      //     -> reste dans Firestore. NE PAS le concatener a la source : avec
+      //        1440 fiches et 27 articles, GA4 plafonnerait la dimension et
+      //        noierait le surplus dans (other).
+      //
+      // La consommation des deux cles appartient a fireSignupComplete()
+      // (firebase-auth.js), pas ici : c'est lui l'unique point de verite, et
+      // c'est lui qui sait ignorer un slug orphelin.
+      try {
+        sessionStorage.setItem('zts_signup_source', 'demi_mur_' + info.kind);
+        sessionStorage.setItem('zts_signup_slug', info.slug || '');
+      } catch (e) {}
       if (window.ztsShowSignup) window.ztsShowSignup();
     });
     // Le lien porte son href : on trace, on ne bloque pas la navigation.
