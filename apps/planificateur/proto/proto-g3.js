@@ -188,12 +188,28 @@ function calerLaBarre(){
      écran de 1700 px. La validation vit dans proto-fusion.js. */
   const z=(typeof zoomActuel==='function' ? zoomActuel() : 200)/100;
   const utile = window.innerWidth / z;
+  /* ⚠ LE P0 DU 31 AOÛT ÉTAIT ICI, ET C'ÉTAIT `utile < 760`.
+     Le zoom par défaut du proto est 200 % (« lisible du gymnase »). La place
+     utile valait donc innerWidth / 2 : sur une fenêtre de 1300 px, 650 — sous
+     le seuil. Résultat : TOUTE fenêtre de moins de 1520 px basculait en mise en
+     page téléphone, contenu comprimé dans une colonne étroite et fond vide à
+     droite. Constaté par Joey deux fois dans son Chrome, entre 1200 et 1450 px.
+     Le scroll n'était pas la cause : `data-etroit` valait déjà 1 au chargement.
+     Il déclenchait seulement un `resize` — l'apparition de la barre de
+     défilement — qui recalait la mise en page et rendait l'effondrement visible.
+
+     Le seuil se compare maintenant à la LARGEUR RÉELLE DE LA FENÊTRE : un grand
+     écran reste un grand écran, quel que soit le grossissement du texte.
+     ⚠ Le second terme n'est pas décoratif — il garde le piège n° 18 fermé :
+     une vraie tablette étroite doit rester en mise en page étroite même si le
+     navigateur annonce une largeur confortable, et un zoom extrême (300 % sur
+     1200 px = 400 px de place réelle) mérite aussi la colonne unique. */
+  if (window.innerWidth > 0)
+    document.documentElement.dataset.etroit = (window.innerWidth < 760 || utile < 420) ? '1' : '0';
   /* ⚠ `innerWidth` vaut 0 pendant une réémulation de fenêtre, et parfois au
      tout premier cadre : sans ce garde, l'app se croyait sur un téléphone.
      Et sans le rappel au cadre suivant, elle restait sur la mauvaise mise en
      page tant que personne ne redimensionnait la fenêtre. */
-  if (window.innerWidth > 0)
-    document.documentElement.dataset.etroit = utile < 760 ? '1' : '0';
   else requestAnimationFrame(calerLaBarre);
 }
 calerLaBarre();

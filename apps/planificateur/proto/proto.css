@@ -562,7 +562,11 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
   .tbl{display:block;overflow-x:auto}
   /* la barre proto + la nav collantes mangeaient 600 px de haut sur iPhone :
      sur petit écran elles défilent avec la page. */
-  .proto-bar,.ecrans-nav{position:static}
+  /* ⚠ LA BARRE DES NEUF PORTES RESTE COLLÉE, MÊME EN ÉTROIT. En `static` elle
+     défilait hors de l'écran : sur tablette, on descendait dans sa journée et
+     on n'avait plus aucun moyen de changer d'écran sans tout remonter. C'est
+     précisément l'écran où l'on descend le plus. `.proto-bar` n'existe plus. */
+  .ecrans-nav{position:sticky;top:0}
   .ecrans-nav{padding:8px 10px}
   .ecrans-nav button{font-size:12px;padding:4px 9px}
   .proto-bar{font-size:12px;gap:8px}
