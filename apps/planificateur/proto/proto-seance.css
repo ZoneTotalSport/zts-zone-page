@@ -463,3 +463,37 @@
   width:44px;height:44px;font-size:20px;
   border:2px solid var(--noir);border-radius:7px;background:#F1F7FA;
 }
+
+/* ══ ÉCRAN DE COMPOSITION — PLEIN ÉCRAN (addenda G3-FICHE-2) ══ */
+.plan-retour{margin:0 0 12px;font-size:16px}
+/* la consigne tient sur une ligne ; le reste attend derrière le ⓘ */
+.aide-un-mot .aide-ligne{display:flex;align-items:center;gap:8px}
+.aide-un-mot .aide-ligne b{font-weight:700}
+.aide-plus{
+  margin-left:auto;flex:none;cursor:pointer;width:28px;height:28px;line-height:1;
+  border:3px solid var(--noir);border-radius:50%;background:#fff;color:var(--ink);
+  font-size:15px;font-weight:800;box-shadow:2px 2px 0 var(--noir);
+}
+.aide-un-mot .aide-detail{margin-top:8px;font-size:16px}
+.aide-un-mot .aide-detail[hidden]{display:none}
+/* les badges se collent aux phases : ils décrivent ce qui suit, pas ce qui précède */
+.pres-compte--colle{margin-bottom:4px}
+
+/* le coin ⏱ d'une étape — même patron que le coin de bloc de l'image du groupe :
+   petit, dans le coin, toujours à la même place */
+.etape{position:relative}
+.etape-coin{
+  position:absolute;top:6px;right:6px;display:flex;gap:4px;align-items:center;
+  background:rgba(255,255,255,.92);border:3px solid var(--noir);border-radius:10px;
+  padding:2px 4px;box-shadow:2px 2px 0 var(--noir);
+}
+.etape-duree{
+  width:52px;border:none;background:transparent;text-align:right;
+  font-family:var(--f-titre);font-size:15px;color:var(--ink);padding:2px;
+}
+.etape-duree:focus{outline:2px solid var(--cyan);border-radius:6px}
+.etape-go{
+  cursor:pointer;border:3px solid var(--noir);border-radius:8px;
+  background:var(--lime);color:#1E3300;font-size:13px;line-height:1;
+  padding:4px 7px;box-shadow:2px 2px 0 var(--noir);
+}

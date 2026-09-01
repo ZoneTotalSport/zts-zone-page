@@ -135,14 +135,19 @@ const PHASES = [
    `ouvrirPiece()` en silence. */
 const PIECES = {
   libre:      {emo:'✏️', lab:'ACTIVITÉ',   titre:'',                     quoi:'À écrire soi-même',        ph:'pendant'},
-  minuterie:  {emo:'⏱️', lab:'LE TEMPS',   titre:'Le temps',             quoi:'Une durée qu’on lance',      ph:'pendant'},
   presences:  {emo:'✅', lab:'PRÉSENCES',  titre:'Prendre les présences', quoi:'Qui est là, qui a son linge', ph:'arrivee'},
   jeux:       {emo:'🎲', lab:'UN JEU',     titre:'Un jeu',               quoi:'Pigé dans la banque',       ph:'pendant'},
   evaluation: {emo:'📝', lab:'ÉVALUATION', titre:'Évaluer',              quoi:'Les critères, la grille',    ph:'pendant'},
   message:    {emo:'💬', lab:'UN MOT',     titre:'Un mot sur le cours',  quoi:'Ce qu’on retient',           ph:'fin'},
   tests:      {emo:'🏃', lab:'UN TEST',    titre:'Un test',              quoi:'Navette, Léger-Boucher',     ph:'pendant'},
 };
-const ORDRE_PIECES = ['libre','minuterie','presences','jeux','evaluation','message','tests'];
+/* ⚠ PAS DE PIÈCE « LE TEMPS » (addenda G3-FICHE-2, §3). Le temps existait en
+   TROIS langages : la carte MINUTERIE de la fiche, cette pièce, et la durée de
+   chaque étape. Une pièce « temps » ne représente rien qu'une étape n'ait déjà —
+   toute étape a une durée. Il reste UN seul endroit : le coin ⏱ de l'étape.
+   ⚠ Les séances déjà composées qui portent `piece:'minuterie'` ne cassent pas :
+   `pieceDe()` retombe sur 'libre', l'étape garde son titre et sa durée. */
+const ORDRE_PIECES = ['libre','presences','jeux','evaluation','message','tests'];
 function pieceDe(e){ return (e && e.piece && PIECES[e.piece]) ? e.piece : 'libre'; }
 let pieceEnMain = null;
 
@@ -807,9 +812,6 @@ function peindreActionsSeance(){
               +' — '+tot+' min · '+e.filter(x=>x.fait).length+'/'+e.length+' fait';
      })(),
      faite: (s.etapes||[]).some(x=>x.phase==='pendant'&&x.titre)},
-    {k:'minuterie', emo:'⏱️', lab:'MINUTERIE',
-     etat: s.minuterie ? mmss(s.minuterie)+' consignées' : 'aucune',
-     faite: !!s.minuterie},
     {k:'presences', emo:'✅', lab:'PRÉSENCES',
      etat: nPres.length ? nPres.filter(x=>x==='linge').length+' avec linge · '
            +nPres.filter(x=>x==='sans').length+' sans · '+nPres.filter(x=>x==='absent').length+' absents'
@@ -850,7 +852,15 @@ function volet(quoi){
   const g=grpDe(s.gr)||{eleves:[]};
   const d=$('#seDetail'); if(!d) return; d.innerHTML='';
 
-  if (quoi==='cours'){ peindrePlanification(d, s, iso, per); return; }
+  if (quoi==='cours'){
+    /* ⚠ PLEIN ÉCRAN, PAS EMPILÉ (addenda G3-FICHE-2, §1). La rangée des neuf
+       cartes reste affichée sous l'écran de composition : on y retrouvait
+       PRÉSENCES, JEUX, ÉVALUATION, UN MOT et UN TEST une deuxième fois, en plus
+       des pièces de la palette. Une seule chose à l'écran à la fois. */
+    const cartes=$('#seActions'); if (cartes) cartes.hidden=true;
+    peindrePlanification(d, s, iso, per);
+    return;
+  }
 
   if (quoi==='jeux'){
     cibleSeance={iso,per};
@@ -1281,16 +1291,69 @@ function decorerPortes(){
   });
 }
 
+/* Referme l'écran de composition et rend la main aux cartes du cours. Une seule
+   porte de sortie, toujours au même endroit — c'est ce que « plein écran » veut
+   dire : on ne quitte pas un écran en devinant où cliquer. */
+/* Lance la durée d'une étape dans LA minuterie du tiroir Jeux — celle qui porte
+   déjà le buzzer et les raccourcis. On n'en fabrique pas une deuxième : c'est
+   tout l'objet de l'addenda §3, un seul langage pour le temps. */
+function lancerMinuterieEtape(e){
+  const sec = e && e.duree ? e.duree : 0;
+  if (!sec){
+    alert('Écris d’abord une durée dans le coin de cette étape (7, 2:30, 1h30…).');
+    return;
+  }
+  fermerModale();
+  ouvrirTiroir(null);
+  const m = minuteries.get('tiroir');
+  if (!m) return;
+  poserTemps('tiroir', sec);
+  m.finA = Date.now() + sec*1000; m.tourne = true;
+  verrou('tiroir', true); demarrerHorloge(); peindreMinuterie('tiroir');
+}
+
+function fermerPlanification(){
+  const cartes=$('#seActions'); if (cartes) cartes.hidden=false;
+  const d=$('#seDetail'); if (d) d.innerHTML='';
+  ecrire('seVolet', null);
+}
+
 function peindrePlanification(d, s, iso, per){
   if (!s.etapes){ majSeance(x=>{ const v=seanceVide(x.gr); x.etapes=v.etapes; x.seq=v.seq; }); return; }
   if (migrerPieces(s)) majSeanceSansRedessin(x=>migrerPieces(x));
   const total=(s.etapes||[]).reduce((a,e)=>a+(e.duree||0),0);
   const faits=(s.etapes||[]).filter(e=>e.fait).length;
 
+  /* ── ◀ RETOUR : la seule sortie, et elle est en haut (addenda §1 et §5) ── */
+  const retour=el('button','mini mini--jaune plan-retour');
+  retour.type='button'; retour.textContent='◀ RETOUR';
+  retour.title='Revenir aux cartes du cours';
+  retour.addEventListener('click', fermerPlanification);
+  d.appendChild(retour);
+
+  /* ── la consigne, dégraissée (addenda §4) ──
+     Une ligne, le reste sous un ⓘ. Elle s'affiche en entier la PREMIÈRE fois
+     seulement : un enfant de 10 ans lit une consigne une fois, pas à chaque
+     ouverture d'écran. */
+  const premiere = !lire('aideCompose', false);
   const chapeau=el('div','aide-un-mot');
-  chapeau.innerHTML='<span class="emo">👆</span>Compose ton cours : <b>glisse une pièce</b> dans une phase, '
-    +'ou <b>coche-la</b> dans les cases du haut — <b>décoche</b> pour l’enlever. '
-    +'Une étape se glisse pour changer de place, se touche pour s’ouvrir.';
+  const ligne=el('div','aide-ligne');
+  ligne.innerHTML='<span class="emo">👆</span><b>Glisse une pièce dans une phase.</b>';
+  const plus=el('button','aide-plus'); plus.type='button';
+  plus.setAttribute('aria-expanded', String(premiere));
+  plus.textContent='ⓘ'; plus.title='En savoir plus';
+  ligne.appendChild(plus);
+  chapeau.appendChild(ligne);
+  const detail=el('div','aide-detail');
+  detail.innerHTML='Une étape se glisse pour changer de place, se touche pour '
+    +'s’ouvrir. Pour enlever une pièce, ouvre-la et touche ✕.';
+  detail.hidden = !premiere;
+  chapeau.appendChild(detail);
+  plus.addEventListener('click', ()=>{
+    detail.hidden = !detail.hidden;
+    plus.setAttribute('aria-expanded', String(!detail.hidden));
+  });
+  if (premiere) ecrire('aideCompose', true);
   d.appendChild(chapeau);
 
   /* Ce que le prof a écrit pour ce cours, modifiable ici aussi. Le même texte
@@ -1324,7 +1387,8 @@ function peindrePlanification(d, s, iso, per){
   });
   d.appendChild(pal);
 
-  const cpt=el('div','pres-compte');
+  /* ⚠ COLLÉ AUX PHASES, pas flottant entre la palette et le texte (addenda §5) */
+  const cpt=el('div','pres-compte pres-compte--colle');
   cpt.innerHTML='<span></span><span class="l"></span>';
   cpt.children[0].textContent = total ? '⏱️ '+Math.round(total/60)+' min au total' : '⏱️ durées à remplir';
   cpt.children[1].textContent='✔ '+faits+' / '+s.etapes.length+' terminée'+(faits>1?'s':'');
@@ -1361,6 +1425,30 @@ function peindrePlanification(d, s, iso, per){
       lien.querySelector('.du').textContent=(e.duree ? Math.round(e.duree/60)+' min'
                                              : (k==='libre' ? 'durée à toi' : P.quoi))
         + ((e.medias||[]).length ? ' · 🖼️ '+e.medias.length : '');
+      /* ── LE COIN ⏱ DE L'ÉTAPE (addenda §3) ──
+         Un seul endroit pour le temps, toujours à la même place : le coin de la
+         pièce, comme l'image du groupe dans la période. Le champ accepte ce
+         qu'on veut y écrire — 7, 2:30, 1h30 — et ▶ lance la minuterie du tiroir
+         Jeux, buzzer compris, préremplie avec cette durée. */
+      const coin=el('div','etape-coin');
+      const dur=document.createElement('input');
+      dur.className='etape-duree'; dur.type='text';
+      dur.value = e.duree ? Math.round(e.duree/60)+'' : '';
+      dur.placeholder='min'; dur.title='Combien de temps ? 7, 2:30, 1h30';
+      dur.setAttribute('aria-label','Durée de l’étape en minutes');
+      dur.addEventListener('click', ev=> ev.stopPropagation());
+      dur.addEventListener('change', ()=>{
+        const sec=lireDuree(dur.value);
+        majSeance(x=>{ const y=etapeDe(x,e.id); y.duree=sec; });
+      });
+      coin.appendChild(dur);
+      const go=el('button','etape-go','▶'); go.type='button';
+      go.title='Lancer cette durée dans la minuterie du tiroir Jeux';
+      go.setAttribute('aria-label','Partir la minuterie');
+      go.addEventListener('click', ev=>{ ev.stopPropagation(); lancerMinuterieEtape(e); });
+      coin.appendChild(go);
+      l.appendChild(coin);
+
       /* ⚠ LES IMAGES SE VOIENT ICI, pas seulement dans le détail de l'étape.
          Une planification illustrée ne sert à rien si l'illustration est à un
          clic de distance : c'est la feuille qu'on regarde en donnant le cours. */
