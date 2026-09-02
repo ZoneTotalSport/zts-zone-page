@@ -142,6 +142,34 @@ le 28 août 2026 avant que le stub soit en place — deux `locked_view`, un
 Firestore doit la stuber. Deux faux documents vivent déjà dans les données
 (§6 de `LOT2-PRESCAN.md`) ; il n'y en aura pas d'autres.
 
+## GitHub Pages fait tourner Jekyll — deux pièges qui ne se voient pas ici
+
+Il n'y a ni `_config.yml` ni `.nojekyll` dans le dépôt : **Jekyll tourne quand même**,
+avec ses réglages par défaut. Deux conséquences invisibles en local :
+
+1. **Tout fichier ou dossier de PREMIER NIVEAU dont le nom commence par `_` est exclu
+   du site publié.** `_data/`, `_scripts/`, `_patches/`, `_campagne/` sont dans git et
+   répondent **404 en production**. Un asset qui atterrit là-dedans disparaît du site
+   sans qu'aucun lien, localement, ne paraisse cassé.
+2. **`_data/` est en plus un dossier RÉSERVÉ.** Jekyll lit chacun de ses fichiers comme
+   une source de données et exige du YAML, du JSON ou du CSV valide. Y déposer du
+   `.html`, du `.md` ou du `.csv` mal formé **fait échouer le build**. Pages continue
+   alors de servir l'ancien déploiement — le site paraît « en ligne » tout en étant
+   figé sur une version périmée.
+
+**Prix payé** : la vague 1 du chantier SITE IMPECCABLE a déplacé `campagne/` vers
+`_data/campagne/` le 2 septembre 2026. Dépôt cohérent, liens internes tous valides,
+trois contrôles au vert, PR fusionnée — et le site cassé en production. Correctif à la
+main (`c11b4409`, `_data/campagne` → `_campagne`).
+
+**Garde-fou depuis** : `_scripts/verifie-assets-jekyll.py`, au hook et à ajouter en CI.
+Il refuse tout `href`/`src` qui se résout sous un dossier `_*`. Il ne voit pas les
+chemins construits en JavaScript par concaténation — limite connue.
+
+⚠ **Un asset destiné au site va sous `assets/`, jamais sous un dossier `_*`.** Les
+dossiers `_*` sont pour ce qui ne doit PAS être servi : données de travail, scripts,
+archives.
+
 ## Audience
 Trois corps de métier visés équitablement :
 1. **ÉPS** — Enseignants éducation physique primaire (Québec, alignement PFEQ)

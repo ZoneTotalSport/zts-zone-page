@@ -496,6 +496,17 @@
         window.addEventListener('load', function() { setTimeout(sendHeight, 500); setTimeout(sendHeight, 2000); });
     })();
     </script>
-<script type="module" src="../wix-auth.js"></script>
+<!-- 2026-09-02 : <script type="module" src="../wix-auth.js"> retire. Le fichier
+     n'existe pas dans le depot et repond 404 en production — verifie sur
+     zonetotalsport.ca/wix-auth.js. Ce n'est pas une regression de la vague 1,
+     la reference etait deja morte ; mais depuis que /404.html existe, GitHub
+     Pages sert une PAGE HTML COMPLETE en reponse a cette requete .js, que le
+     navigateur tente ensuite de parser comme du JavaScript. Resultat : une
+     SyntaxError dans la console de la page de dons, plus le telechargement
+     inutile de la 404 entiere (polices, en-tete, pied de page, GA4) a chaque
+     visite. Cette page est liee depuis 34 pages du site.
+     Rien ne remplace ce script : c'est un vestige de l'integration Wix, et la
+     page de dons fonctionne sans lui — verifie en production, elle s'affiche
+     et se comporte normalement. -->
 </body>
 </html>
