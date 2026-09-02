@@ -23,6 +23,32 @@ dans une main ne sert pas.
 - [ ] Les modales se ferment au pouce, sans viser une croix de 12 px.
 - [ ] Testé en orientation portrait **et** paysage.
 
+### 1 bis. Grille à 390 px — **contrôle mesurable, sans émulateur**
+
+Ajouté le 2 septembre 2026, après que `apps/jeux` soit parti en production avec des cartes
+qui **se chevauchaient** sur iPhone. Ce contrôle se calcule, il ne s'observe pas : il ne
+demande ni téléphone ni émulateur de viewport.
+
+```
+python3 _scripts/verifie-grille-mobile.py apps/<pilier>
+```
+
+- [ ] **Somme des colonnes + gaps + paddings ≤ 390 px.** Une grille de cartes à deux
+      colonnes sur 390 px donne 159 px par carte : c'est trop étroit, et ça déborde.
+      **Une seule colonne sous 640 px.**
+- [ ] **Aucune piste en `1fr` nu dans une grille multi-colonnes.** `1fr` vaut
+      `minmax(auto,1fr)` : la piste ne descend **jamais** sous la largeur min-content de
+      son contenu, donc la grille déborde du conteneur au lieu de faire enrouler le texte.
+      Écrire **`minmax(0,1fr)`**.
+- [ ] **`overflow-x` interdit sur le body.** Aucun élément ne dépasse `100vw`. Masquer le
+      débordement avec `overflow-x:hidden` ne compte pas : ça cache le symptôme.
+- [ ] **Aucun identifiant interne visible.** Pas d'`id` de base de données sur une carte
+      (`AAO_005`, `COLL_jeux-par-theme_01`), pas d'étiquette technique brute. Ce qui
+      s'affiche est un libellé humain, ou rien.
+- [ ] **Aucune valeur nulle affichée comme une donnée.** « 0 min » sur un jeu sans durée
+      affirme une durée nulle au lieu d'avouer qu'on ne la connaît pas. Un champ absent se
+      tait — même règle que l'âge.
+
 ## 2. Aucune perte de données
 
 La règle qui ne se négocie pas. Un utilisateur qui perd une planification ne revient pas.

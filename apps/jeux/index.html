@@ -67,10 +67,28 @@
     .sidebar,.menu-toggle,.sidebar-overlay{display:none!important}
     .main-layout{grid-template-columns:1fr!important;display:block!important;margin-top:0!important;min-height:0!important}
     .content{margin-left:0!important;max-width:100%!important;padding:0!important;flex:none!important}
-    .game-grid{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:24px!important;padding:24px!important;max-width:1700px!important;margin:0 auto!important}
-    @media(min-width:640px){.game-grid{grid-template-columns:repeat(3,1fr)!important}}
-    @media(min-width:1024px){.game-grid{grid-template-columns:repeat(4,1fr)!important}}
-    @media(min-width:1280px){.game-grid{grid-template-columns:repeat(5,1fr)!important}}
+    /* ⚠ minmax(0,1fr) ET NON 1fr — c'est la cause du chevauchement du 2 sept.
+       `1fr` vaut `minmax(auto,1fr)` : une piste ne descend jamais sous la
+       largeur MIN-CONTENT de ce qu'elle porte. A 390px, deux colonnes de
+       159px recevaient des cartes dont le titre en Luckiest Guy mesurait
+       plus : les pistes debordaient du conteneur et les cartes se
+       recouvraient. `minmax(0,1fr)` autorise la piste a retrecir, donc le
+       contenu s'enroule au lieu de pousser. Pose a TOUS les paliers : le
+       defaut existait a chacun, il ne se voyait qu'au plus etroit. */
+    .game-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px!important;padding:24px!important;max-width:1700px!important;margin:0 auto!important}
+    @media(min-width:640px){.game-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+    @media(min-width:1024px){.game-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+    @media(min-width:1280px){.game-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+    /* Telephone portrait : UNE colonne, carte pleine largeur.
+       390 - 32 (padding) = 358px de carte, aucun gap horizontal a payer. */
+    @media(max-width:639px){
+      .game-grid{grid-template-columns:1fr!important;gap:16px!important;padding:16px!important}
+      /* Le carre 1:1 ecrasait le texte sur une carte pleine largeur. */
+      .game-card{aspect-ratio:auto!important;min-height:150px!important}
+    }
+    /* Filet de securite : aucune carte ne peut depasser sa piste. */
+    .game-card{min-width:0!important;max-width:100%!important}
+    .game-card,.game-card *{overflow-wrap:anywhere}
     .game-card{aspect-ratio:1/1!important;min-height:0!important}
     .game-card .card-number{font-size:16px!important;padding:5px 14px!important}
     .game-card .card-title{font-size:24px!important;line-height:1.05!important;margin:8px 0 12px!important}

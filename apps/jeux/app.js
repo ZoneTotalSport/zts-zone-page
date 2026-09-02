@@ -78,6 +78,7 @@ const i18n = {
     inCollection: 'Dans cette collection',
     wideCollection: 'Collection très large — les filtres sont ouverts pour t’aider à trancher.',
     gamesIn: 'jeux',
+    freeDuration: 'Durée libre',
   },
   en: {
     games: 'games',
@@ -117,6 +118,7 @@ const i18n = {
     inCollection: 'In this collection',
     wideCollection: 'Very wide collection — filters are open to help you narrow it down.',
     gamesIn: 'games',
+    freeDuration: 'Open-ended',
   }
 };
 
@@ -130,6 +132,19 @@ const i18n = {
 function slugJeu(titre) {
   return String(titre || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70);
+}
+
+/* « 0 min » n'existe pas. 81 jeux du catalogue n'ont ni `duree` ni
+   `dureeMin` — l'ancien `game.duree || game.dureeMin + ' min'` rendait donc
+   la chaine « 0 min », qui affirme une duree nulle au lieu d'avouer qu'on ne
+   la connait pas. Meme famille que la regle de l'age : un champ absent se
+   tait, il ne se devine pas. */
+function dureeLisible(game, suffixe) {
+  if (!game) return '';
+  if (game.duree) return String(game.duree);
+  const d = game.dureeMin;
+  if (Number.isFinite(d) && d > 0) return d + ' ' + (suffixe || 'min');
+  return '';
 }
 
 function urlFiche(game) {
@@ -888,14 +903,16 @@ function createGameCard(game, index) {
   card.innerHTML = `
     <div class="card-top">
       <div class="card-category-bar ${game.category}"></div>
-      <div class="card-number">${game.id}</div>
+      <!-- L'identifiant interne ne s'affiche JAMAIS. Il rendait « AAO_005 »
+           sur les anciens jeux et « COLL_JEUX-PAR-THEME_01 » sur les 101 de
+           la PR A — de la plomberie exposee a l'utilisateur. -->
       <div class="card-title">${escapeHtml(title)}</div>
       <div class="card-but">${escapeHtml(but)}</div>
     </div>
     <div class="card-bottom">
       <div class="card-tags">
         <span class="card-tag category ${game.category}">${catName}</span>
-        <span class="card-tag duration">${game.duree || game.dureeMin + ' min'}</span>
+        ${dureeLisible(game) ? `<span class="card-tag duration">${dureeLisible(game)}</span>` : ''}
       </div>
       <button class="card-fav ${isFav ? 'is-fav' : ''}" onclick="event.stopPropagation(); toggleFavorite('${game.id}')" title="${isFav ? t('removeFav') : t('addToFav')}">
         ${isFav ? '⭐' : '☆'}
@@ -988,7 +1005,7 @@ function openGameDetail(game) {
       <!-- Durée -->
       <div class="detail-section section-third" data-section="duration">
         <div class="detail-section-title">${t('durationTitle')}</div>
-        <p>${escapeHtml(game.duree || game.dureeMin + ' ' + t('minutes'))}</p>
+        <p>${escapeHtml(dureeLisible(game, t('minutes')) || t('freeDuration'))}</p>
       </div>
 
       <!-- Déroulement -->
@@ -1311,7 +1328,7 @@ function printGame(gameId) {
     </head>
     <body>
       <h1>${state.lang === 'fr' ? 'Jeu' : 'Game'} #${game.id} : ${escapeHtml(g(game, 'title'))}</h1>
-      <div class="meta"><span class="badge">${game.categoryIcon || ''} ${catName}</span> &nbsp; ⏱️ ${game.duree || game.dureeMin + ' min'}</div>
+      <div class="meta"><span class="badge">${game.categoryIcon || ''} ${catName}</span> &nbsp; ${dureeLisible(game) ? '⏱️ ' + dureeLisible(game) : ''}</div>
 
       <h2>${t('goalTitle')}</h2>
       <p>${escapeHtml(g(game, 'but'))}</p>
