@@ -914,8 +914,14 @@ let trameInterval=null, trameTime=0, trameTotal=0, trameRunning=false, trameAC=n
 const tramePresets = [45,75,90];
 const trameTracks = [
   {id:'beat', label:'🥁 Beat synthé', url:''},
-  {id:'fh1', label:'🎧 RetroVision — Puzzle', url:'../../RetroVision%20Puzzle%20Future%20House%20NCS%20.mp3'},
-  {id:'fh2', label:'🎧 Domastic — Weird Dream', url:'../../Domastic%20Weird%20Dream%20Future%20House%20NCS%20.mp3'}
+  // Pistes NCS (NoCopyrightSounds) — l'attribution vit dans le libelle du bouton.
+  // 2026-09-02 : les deux fichiers ont quitte la racine pour assets/audio/, et
+  // leurs noms ont perdu leurs espaces (l'ancien portait meme un espace AVANT
+  // le « .mp3 »). Chemin absolu depuis la racine : l'app peut etre servie
+  // depuis /apps/transitions/ comme depuis un sous-domaine, et un chemin
+  // relatif casse dans le second cas.
+  {id:'fh1', label:'🎧 RetroVision — Puzzle', url:'/assets/audio/retrovision-puzzle.mp3'},
+  {id:'fh2', label:'🎧 Domastic — Weird Dream', url:'/assets/audio/domastic-weird-dream.mp3'}
 ];
 let trameTrackId = 'beat';
 function renderTrameTracks(){
@@ -936,7 +942,19 @@ function trameSelectTrack(id){
   document.querySelectorAll('[data-ttrack]').forEach(b=>b.classList.toggle('selected', b.dataset.ttrack===id));
   const tr = trameTracks.find(x=>x.id===id);
   const a = document.getElementById('trame-audio');
-  if(tr.url){ if(a.src!==tr.url) a.src = tr.url; } else { a.pause(); a.src=''; }
+  if(!tr || !a) return;
+  if(tr.url){
+    // BOGUE 1 — `a.src` rend l'URL ABSOLUE resolue par le navigateur ; la
+    // comparer a une URL relative etait donc TOUJOURS vrai, et la piste se
+    // rechargeait a chaque clic. getAttribute rend ce qui est ecrit dans le
+    // HTML : la comparaison redevient juste.
+    if(a.getAttribute('src') !== tr.url) a.src = tr.url;
+  } else {
+    // BOGUE 2 — `a.src=''` ne vide pas la source : le navigateur resout la
+    // chaine vide vers l'URL de la PAGE et tente de charger le HTML comme
+    // media. Erreur console a chaque retour sur « Beat synthe ».
+    a.pause(); a.removeAttribute('src'); a.load();
+  }
 }
 function renderTramePresets(){
   document.getElementById('trame-presets').innerHTML = tramePresets.map(s=>{
@@ -962,10 +980,17 @@ function trameStart(){
   const tr = trameTracks.find(x=>x.id===trameTrackId);
   if(tr && tr.url){
     const a = document.getElementById('trame-audio');
-    if(a.src!==tr.url) a.src = tr.url;
-    a.currentTime = 0;
     const vSlider = document.getElementById('trame-volume');
     a.volume = vSlider ? parseFloat(vSlider.value) : 0.7;
+    // BOGUE 1, meme cause qu'au-dessus.
+    if(a.getAttribute('src') !== tr.url){ a.src = tr.url; a.load(); }
+    // BOGUE 3 — `currentTime = 0` pose juste apres un changement de src, avant
+    // que les metadonnees soient chargees, jette InvalidStateError. L'erreur
+    // etait avalee et la piste ne repartait pas du debut : au deuxieme depart
+    // du minuteur, la musique reprenait la ou elle s'etait arretee.
+    const remetAZero = () => { try { a.currentTime = 0; } catch(e){} };
+    if(a.readyState >= 1) remetAZero();
+    else a.addEventListener('loadedmetadata', remetAZero, { once:true });
     a.play().then(()=>console.log('[trame] playing',tr.url)).catch(err=>{ console.warn('[trame] audio failed, fallback to beat:', err, tr.url); startPercussion(); });
   } else {
     startPercussion();

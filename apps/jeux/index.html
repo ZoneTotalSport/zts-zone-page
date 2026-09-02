@@ -21,7 +21,13 @@
   <meta name="twitter:card" content="summary">
   <!-- /ZTS-SEO -->
   <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
-  <link rel="apple-touch-icon" href="favicon.png">
+  <!-- 2026-09-02 : la cible etait ecrite en RELATIF (le nom du fichier seul),
+       donc resolue vers /apps/jeux/favicon.png, qui n'existe pas — le favicon
+       du site vit a la racine. C'est l'icone que iOS affiche quand la banque
+       de jeux est ajoutee a l'ecran d'accueil : elle etait vide.
+       Ecrit sans citer l'ancien attribut : une chaine `href=` en commentaire
+       se fait relever comme un vrai lien par les scans du depot. -->
+  <link rel="apple-touch-icon" href="https://zonetotalsport.ca/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
