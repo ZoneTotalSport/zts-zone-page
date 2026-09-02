@@ -17,6 +17,11 @@ const state = {
   activePfeq: 'all',
   activeMaterial: 'all',
   activeCycle: 'all',
+  // Vague 2 — les trois filtres croises ajoutes, plus la collection active.
+  activeUnivers: 'all',
+  activeAge: 'all',
+  activeCollection: null,
+  collections: [],
   searchQuery: '',
   sortBy: 'id',
   viewMode: 'grid',
@@ -63,6 +68,16 @@ const i18n = {
     allCycles: 'Tous les cycles',
     printFooter: 'Répertoire de jeux EPS – PFEQ Primaire – 449 jeux',
     gameSheet: 'Fiche de jeu EPS',
+    share: 'Partager ce jeu',
+    shareCopied: 'Lien copié !',
+    shareFailed: 'Copie impossible — voici le lien : ',
+    seeSheet: '📄 Voir la fiche complète',
+    collections: 'Collections',
+    collectionsIntro: 'Des sélections prêtes à ouvrir, par moment et par métier.',
+    backToAll: '← Tous les jeux',
+    inCollection: 'Dans cette collection',
+    wideCollection: 'Collection très large — les filtres sont ouverts pour t’aider à trancher.',
+    gamesIn: 'jeux',
   },
   en: {
     games: 'games',
@@ -92,8 +107,150 @@ const i18n = {
     allCycles: 'All cycles',
     printFooter: 'PE Game Repertoire – Quebec Curriculum – 449 games',
     gameSheet: 'PE Game Sheet',
+    share: 'Share this game',
+    shareCopied: 'Link copied!',
+    shareFailed: 'Could not copy — here is the link: ',
+    seeSheet: '📄 See the full sheet',
+    collections: 'Collections',
+    collectionsIntro: 'Ready-made picks, by moment and by job.',
+    backToAll: '← All games',
+    inCollection: 'In this collection',
+    wideCollection: 'Very wide collection — filters are open to help you narrow it down.',
+    gamesIn: 'games',
   }
 };
+
+// ============================================================
+// VAGUE 2 — COLLECTIONS, FILTRES CROISÉS, PARTAGE
+// ============================================================
+
+// Le MÊME slug que le Worker et que scripts/gen-jeux-fiches.js. Les trois
+// doivent rester identiques : c'est lui qui fait correspondre un jeu de la
+// SPA à sa fiche statique /jeux/<slug>.html. Vérifié sur les 1540.
+function slugJeu(titre) {
+  return String(titre || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70);
+}
+
+function urlFiche(game) {
+  return '/jeux/' + slugJeu(game && game.title) + '.html';
+}
+
+/* Au-delà de ce nombre de jeux, une collection s'ouvre AVEC les filtres
+   croisés déjà déployés. Décision de Joey : une rangée de 448 jeux n'est pas
+   une sélection, c'est un catalogue — autant donner tout de suite de quoi le
+   trancher. Vaut pour Plan B météo et Jeux rapides, et pour toute collection
+   qui franchira le seuil après l'enrichissement des étiquettes. */
+const SEUIL_COLLECTION_LARGE = 200;
+
+async function chargerCollections() {
+  try {
+    const r = await fetch('/assets/collections-jeux.json', { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    state.collections = Array.isArray(d.collections) ? d.collections : [];
+  } catch (e) {
+    // Une rangée absente n'empêche pas de chercher un jeu : on dégrade sans
+    // page blanche, et on le dit dans la console plutôt que dans l'écran.
+    console.warn('[jeux] collections indisponibles :', e.message);
+    state.collections = [];
+  }
+  renderCollections();
+}
+
+function compteCollection(id) {
+  return state.games.filter(g => Array.isArray(g.collections) && g.collections.includes(id)).length;
+}
+
+function renderCollections() {
+  const hote = document.getElementById('ztsCollections');
+  if (!hote) return;
+  if (!state.collections.length) { hote.innerHTML = ''; return; }
+  const lang = state.lang === 'en' ? 'en' : 'fr';
+
+  hote.innerHTML =
+    '<h2 class="zc-titre">' + t('collections') + '</h2>' +
+    '<p class="zc-intro">' + t('collectionsIntro') + '</p>' +
+    '<div class="zc-rangee">' +
+    state.collections.map(c => {
+      const n = compteCollection(c.id);
+      if (!n) return '';   // une collection vide ne s'affiche pas
+      const actif = state.activeCollection === c.id ? ' est-actif' : '';
+      return '<button class="zc-carte' + actif + '" data-collection="' + c.id + '">' +
+             '<span class="zc-icone">' + (c.icon || '🎯') + '</span>' +
+             '<span class="zc-nom">' + escapeHtml(c.titre[lang] || c.titre.fr) + '</span>' +
+             '<span class="zc-intro-carte">' + escapeHtml(c.intro[lang] || c.intro.fr) + '</span>' +
+             '<span class="zc-compte">' + n + ' ' + t('gamesIn') + '</span>' +
+             '</button>';
+    }).join('') +
+    '</div>';
+
+  hote.querySelectorAll('[data-collection]').forEach(b => {
+    b.addEventListener('click', () => choisirCollection(b.dataset.collection));
+  });
+}
+
+function choisirCollection(id) {
+  state.activeCollection = (state.activeCollection === id) ? null : id;
+  const n = state.activeCollection ? compteCollection(state.activeCollection) : 0;
+
+  // Collection très large : on ouvre les filtres au lieu de laisser
+  // l'utilisateur devant 448 cartes sans prise.
+  if (state.activeCollection && n > SEUIL_COLLECTION_LARGE) {
+    const sb = document.getElementById('sidebar');
+    if (sb) sb.classList.add('open');
+    const av = document.getElementById('ztsAvisCollection');
+    if (av) { av.textContent = t('wideCollection'); av.hidden = false; }
+  } else {
+    const av = document.getElementById('ztsAvisCollection');
+    if (av) av.hidden = true;
+  }
+
+  renderCollections();
+  applyFilters();
+  const g = document.getElementById('gameGrid');
+  if (g) g.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* Partage — Web Share API quand elle existe (c'est le geste natif sur
+   téléphone, et le téléphone est le terrain réel), repli sur la copie du
+   lien. Le repli du repli est un prompt : sur iOS hors HTTPS et dans
+   certains navigateurs en vue intégrée, `clipboard` est refusé sans erreur
+   utile, et un bouton qui ne fait RIEN est pire qu'un bouton qui montre le
+   lien à copier à la main. */
+async function partagerJeu(id) {
+  const game = state.games.find(x => String(x.id) === String(id));
+  if (!game) return;
+  const url = location.origin + urlFiche(game);
+  const titre = g(game, 'title') || 'Zone Total Sport';
+
+  if (navigator.share) {
+    try { await navigator.share({ title: titre, text: g(game, 'but') || titre, url: url }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }   // l'utilisateur a annulé
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    toastPartage(t('shareCopied'));
+  } catch (e) {
+    window.prompt(t('shareFailed'), url);
+  }
+}
+
+function toastPartage(msg) {
+  let el = document.getElementById('ztsToast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'ztsToast';
+    el.className = 'zts-toast';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.classList.add('visible');
+  clearTimeout(toastPartage._t);
+  toastPartage._t = setTimeout(() => el.classList.remove('visible'), 2200);
+}
+
+window.partagerJeu = partagerJeu;
 
 function t(key) {
   return i18n[state.lang][key] || key;
@@ -242,6 +399,10 @@ function init() {
   // Create random overlay div
   createRandomOverlay();
 
+  // Vague 2 — la rangee de collections. Asynchrone et non bloquante : la
+  // grille est deja rendue quand elle arrive.
+  chargerCollections();
+
   console.log(`✅ Répertoire EPS v2.0 chargé : ${state.games.length} jeux | Lang: ${state.lang}`);
 }
 
@@ -299,6 +460,16 @@ function setupEventListeners() {
   // Cycle filter
   $$('#cycleFilter .chip').forEach(chip => {
     chip.addEventListener('click', () => handleFilterClick(chip, 'cycle'));
+  });
+
+  // Vague 2 — univers et age. `#cycleFilter` n'existe plus dans le HTML :
+  // la boucle ci-dessus ne trouve rien et ne casse rien, elle est laissee
+  // le temps que le retrait du filtre mort soit valide en prod.
+  $$('#universFilter .chip').forEach(chip => {
+    chip.addEventListener('click', () => handleFilterClick(chip, 'univers'));
+  });
+  $$('#ageFilter .chip').forEach(chip => {
+    chip.addEventListener('click', () => handleFilterClick(chip, 'age'));
   });
 
   // Sort
@@ -476,6 +647,12 @@ function handleFilterClick(chip, filterType) {
     case 'cycle':
       state.activeCycle = chip.dataset.cycle;
       break;
+    case 'univers':
+      state.activeUnivers = chip.dataset.univers;
+      break;
+    case 'age':
+      state.activeAge = chip.dataset.age;
+      break;
   }
 
   applyFilters();
@@ -489,18 +666,49 @@ function applyFilters() {
     filtered = filtered.filter(g => g.category === state.activeCategory);
   }
 
-  // Duration filter
+  // Collection active (vague 2) — l'etiquette posee par PR A.
+  if (state.activeCollection) {
+    filtered = filtered.filter(g =>
+      Array.isArray(g.collections) && g.collections.includes(state.activeCollection));
+  }
+
+  // Univers (vague 2) — eps / camps / sdg. Un jeu sans univers passe : meme
+  // regle que l'age, un champ absent ne cache jamais un jeu.
+  if (state.activeUnivers !== 'all') {
+    filtered = filtered.filter(g =>
+      !Array.isArray(g.univers) || !g.univers.length || g.univers.includes(state.activeUnivers));
+  }
+
+  /* Duree — bornes REECRITES. Les anciennes se chevauchaient (« ≤ 15 min »
+     rendait aussi 15-20) et, comme 1165 jeux sur 1540 sont a exactement
+     15 min, le premier bouton rendait presque tout le catalogue. Bornes
+     disjointes, et un jeu sans duree passe toujours. */
   if (state.activeDuration !== 'all') {
-    const dur = parseInt(state.activeDuration);
-    if (dur === 10) {
-      filtered = filtered.filter(g => g.dureeMin <= 15);
-    } else if (dur === 15) {
-      filtered = filtered.filter(g => g.dureeMin >= 15 && g.dureeMin <= 20);
-    } else if (dur === 20) {
-      filtered = filtered.filter(g => g.dureeMin >= 20 && g.dureeMin <= 30);
-    } else if (dur === 30) {
-      filtered = filtered.filter(g => g.dureeMin >= 30);
-    }
+    const dur = parseInt(state.activeDuration, 10);
+    filtered = filtered.filter(g => {
+      const d = g.dureeMin;
+      if (!Number.isFinite(d) || d <= 0) return true;   // non renseigne = passe
+      if (dur === 10) return d < 15;
+      if (dur === 15) return d >= 15 && d < 20;
+      if (dur === 20) return d >= 20 && d < 30;
+      if (dur === 30) return d >= 30;
+      return true;
+    });
+  }
+
+  /* AGE — la regle signee par Joey : un age NON RENSEIGNE passe toujours le
+     filtre. 721 des 1540 jeux n'ont pas d'age ; sans cette regle, filtrer par
+     age escamoterait la moitie du catalogue en silence, et l'ecran dirait
+     « il n'y a rien » au lieu de « on ne sait pas ». */
+  if (state.activeAge !== 'all') {
+    const cible = parseInt(state.activeAge, 10);
+    filtered = filtered.filter(g => {
+      const min = parseInt(g.ageMin, 10), max = parseInt(g.ageMax, 10);
+      if (!Number.isFinite(min) && !Number.isFinite(max)) return true;   // absent = passe
+      const bas = Number.isFinite(min) ? min : 0;
+      const haut = Number.isFinite(max) ? max : 99;
+      return cible >= bas && cible <= haut;
+    });
   }
 
   // PFEQ filter
@@ -514,23 +722,19 @@ function applyFilters() {
     }
   }
 
-  // Material filter
+  /* MATERIEL — sur `materielCat`, le champ derive pose par PR A, et plus sur
+     une recherche de sous-chaine dans le texte libre. L'ancienne version
+     cherchait « cône » dans la phrase de materiel : elle ratait « cones »
+     sans accent, et matchait a l'interieur d'autres mots. Dix categories
+     fermees, un jeu sans materiel renseigne passe toujours. */
   if (state.activeMaterial !== 'all') {
-    const mat = state.activeMaterial.toLowerCase();
-    filtered = filtered.filter(g => {
-      const materielStr = (Array.isArray(g.materiel) ? g.materiel.join(' ') : g.materiel).toLowerCase();
-      return materielStr.includes(mat);
-    });
+    filtered = filtered.filter(g => !g.materielCat || g.materielCat === state.activeMaterial);
   }
 
-  // Cycle filter (heuristic based on game complexity)
-  if (state.activeCycle !== 'all') {
-    // All games work for all cycles, but we filter subtly
-    // Cycle 1 (6-8): simpler games, cycle 3 (10-12): more complex
-    const cycle = parseInt(state.activeCycle);
-    // Keep all games but we could add game.cycles property later
-    // For now, show all as all games are adaptable
-  }
+  /* Le filtre « cycle scolaire » a ete RETIRE de l'interface, pas desactive
+     ici : son code ne filtrait rien (« Keep all games ») tout en affichant
+     quatre boutons qui se cochaient. Un filtre qui ment est pire qu'un
+     filtre absent. Le filtre AGE le remplace, avec de vraies bornes. */
 
   // Search (bilingual – searches both FR and EN fields)
   if (state.searchQuery) {
@@ -693,9 +897,10 @@ function createGameCard(game, index) {
         <span class="card-tag category ${game.category}">${catName}</span>
         <span class="card-tag duration">${game.duree || game.dureeMin + ' min'}</span>
       </div>
-      <button class="card-fav ${isFav ? 'is-fav' : ''}" onclick="event.stopPropagation(); toggleFavorite(${game.id})" title="${isFav ? t('removeFav') : t('addToFav')}">
+      <button class="card-fav ${isFav ? 'is-fav' : ''}" onclick="event.stopPropagation(); toggleFavorite('${game.id}')" title="${isFav ? t('removeFav') : t('addToFav')}">
         ${isFav ? '⭐' : '☆'}
       </button>
+      <button class="card-partage" onclick="event.stopPropagation(); partagerJeu('${game.id}')" title="${t('share')}" aria-label="${t('share')}">🔗</button>
     </div>
   `;
 
@@ -740,7 +945,7 @@ function openGameDetail(game) {
       <div class="detail-meta">
         <div class="detail-number">${game.id}</div>
         <span class="detail-cat-badge ${game.category}">${game.categoryIcon || ''} ${catName}</span>
-        <button class="detail-fav-btn ${isFav ? 'is-fav' : ''}" onclick="toggleFavorite(${game.id}); refreshModal(${game.id});">
+        <button class="detail-fav-btn ${isFav ? 'is-fav' : ''}" onclick="toggleFavorite('${game.id}'); refreshModal('${game.id}');">
           ${isFav ? t('isFav') : t('addFav')}
         </button>
       </div>
@@ -805,10 +1010,18 @@ function openGameDetail(game) {
       ` : ''}
 
       <!-- Print button -->
-      <button class="detail-print-btn" onclick="printGame(${game.id})">
+      <button class="detail-print-btn" onclick="printGame('${game.id}')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         ${t('printBtn')}
       </button>
+
+      <!-- Vague 2 — la fiche statique. C'est l'URL propre et partageable du
+           jeu : /jeux/<slug>.html, une page par jeu, indexée. Les 1540 en ont
+           une (scripts/gen-jeux-fiches.js). Le mur ne bouge pas : la fiche
+           applique le même verrou d'item que la modale. -->
+      <a class="detail-fiche-lien" href="${urlFiche(game)}">${t('seeSheet')}</a>
+      <button class="detail-fiche-lien" style="background:#FFF000;margin-left:8px;border:3px solid #111;cursor:pointer"
+              onclick="partagerJeu('${game.id}')">🔗 ${t('share')}</button>
     </div>
   `;
 
@@ -1199,6 +1412,9 @@ function resetAll() {
   state.activePfeq = 'all';
   state.activeMaterial = 'all';
   state.activeCycle = 'all';
+  state.activeUnivers = 'all';
+  state.activeAge = 'all';
+  state.activeCollection = null;
   state.searchQuery = '';
   state.sortBy = 'id';
 
@@ -1211,6 +1427,11 @@ function resetAll() {
   $$('#pfeqFilter .chip').forEach((c, i) => c.classList.toggle('active', i === 0));
   $$('#materialFilter .chip').forEach((c, i) => c.classList.toggle('active', i === 0));
   $$('#cycleFilter .chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+  $$('#universFilter .chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+  $$('#ageFilter .chip').forEach((c, i) => c.classList.toggle('active', i === 0));
+  const avis = document.getElementById('ztsAvisCollection');
+  if (avis) avis.hidden = true;
+  renderCollections();
 
   if (state.showFavorites) hideFavorites();
 
