@@ -36,13 +36,13 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 |---|---|---|
 | **V0 — Inventaire** | ✅ Fait, **⚠ jamais poussé** | `82ef43dc` sur la branche locale `inventaire/vague-0`. **`INVENTAIRE-SITE.md` n'est pas sur `main`** : il vit sur une branche locale, jamais poussée. Si ce Mac tombe, l'inventaire est perdu. |
 | **V1 — Contrat, kills, bogues** | ✅ Fusionnée | PR **#72** (`a4e4c6d3`) → correctif Jekyll `c11b4409` → PR **#75** (`892d2b17`). |
-| **V2 — Pilier Jeux** | 🟢 PR A prête, non poussée | Branche `vague-2/jeux-donnees`, 2 commits. |
+| **V2 — Pilier Jeux** | 🟢 PR **#76** ouverte, en attente de test | Branche `vague-2/jeux-donnees`, 3 commits, poussée le 2 sept. |
 
 **V2, les trois PR :**
 
 | PR | Contenu | État |
 |---|---|---|
-| **A — Données** | 113 items extraits, 19 doublons, 94 inédits, catalogue 1439 → **1533**, 111 jeux étiquetés | 🟢 **Prête** — `aa9dac7a` (contrat + grille) et `27c1d457` (données) |
+| **A — Données** | 113 items extraits, 19 doublons, 94 inédits, catalogue 1439 → **1533**, 111 jeux étiquetés | 🟢 **PR #76 ouverte** — `aa9dac7a` (contrat + grille), `27c1d457` (données), `b1e11bd0` (tableau de bord) |
 | **B — UI** | Recherche, filtres croisés, rangées de collections, partage par jeu | 🟡 **Bloquée** — attend la fusion de A |
 | **C — Bascule** | Les 14 dossiers deviennent des relais, hubs et sitemap à jour | 🟡 **Bloquée** — attend la fusion de B |
 
@@ -89,20 +89,13 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 
 ## Prochain geste
 
-**Pousser et ouvrir la PR A.** Elle est prête, contrôles au vert, et elle bloque B puis C.
+**Tester et fusionner la PR #76.** Elle bloque B, qui bloque C.
 
-```
-cd ~/dev/"Remotion 2"/wix-deploy
-git push -u origin vague-2/jeux-donnees
-gh pr create --base main --head vague-2/jeux-donnees \
-  --title "Vague 2 PR A — les 14 mini-apps absorbées en collections" \
-  --body-file PR-vague2-A.md
-rm PR-vague2-A.md
-```
+https://github.com/ZoneTotalSport/zts-zone-page/pull/76
 
 ## Prochaines actions Joey
 
-1. **Pousser et fusionner la PR A** après lecture de `RAPPORT-COLLECTIONS-JEUX.md` — les
+1. **Tester et fusionner la PR #76** après lecture de `RAPPORT-COLLECTIONS-JEUX.md` — les
    19 doublons, un par un : est-ce que chacun désigne bien le même jeu ?
 2. **Trancher les deux décisions du pilier Jeux** — largeur des collections, vocabulaire
    du filtre matériel. La PR B en dépend.
