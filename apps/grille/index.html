@@ -410,30 +410,40 @@
       .zgm-desc{max-width:none}
     }
 
-    .hero{display:flex; justify-content:center; padding:10px 16px 4px}
+    /* Le hero s'aligne sur le plan de travail : memes marges, meme bord.
+       Son ancien `max-width:1000px` datait d'avant la pleine largeur — il
+       ramenait la boite a 1000 px et laissait 1560 px de vide sur un ecran
+       de 2560, avec un paragraphe qui lisait sur 334 px. */
+    .hero{display:block; padding:10px var(--zg-marge) 4px}
     .hero.hidden{display:none}
     .hero-box{
-      display:grid; grid-template-columns:1.06fr .94fr; gap:20px; align-items:center;
-      max-width:1000px; width:100%;
+      display:grid;
+      /* L'image est bornee — un personnage de 700 px ne raconte rien de
+         plus qu'un de 340. Le texte prend TOUT le reste. */
+      grid-template-columns:clamp(200px, 20vw, 360px) 1fr;
+      gap:clamp(20px, 2.6vw, 52px); align-items:center;
+      width:100%;
     }
     .hb-left{position:relative; display:grid; place-items:center; min-height:180px}
     .hb-left::before{
-      content:''; position:absolute; width:210px; aspect-ratio:1; border-radius:50%; z-index:0;
+      content:''; position:absolute; width:clamp(210px, 19vw, 380px); aspect-ratio:1;
+      border-radius:50%; z-index:0;
       background:radial-gradient(circle, rgba(0,194,232,.30), transparent 68%);
     }
     .hb-left img{
-      position:relative; width:min(200px,80%); height:auto; display:block;
+      position:relative; width:min(clamp(200px, 18vw, 340px), 92%); height:auto; display:block;
       filter:drop-shadow(-8px 10px 0 rgba(0,0,0,.42));
       animation:zg-flotte 6.5s ease-in-out infinite;
     }
     @keyframes zg-flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
     .hb-eyebrow{
-      display:inline-block; font-family:var(--f-titre); letter-spacing:1.2px; font-size:14px;
+      display:inline-block; font-family:var(--f-titre); letter-spacing:1.2px;
+      font-size:clamp(16px, .95vw, 20px);
       background:var(--yellow); color:#2B2A00; padding:5px 13px 3px; border-radius:7px;
       border:3px solid var(--encre); transform:rotate(-1.6deg); box-shadow:var(--ombre-petite);
     }
     .hb-right h2{
-      font-family:var(--f-display); font-size:clamp(34px,5.2vw,58px); line-height:.98;
+      font-family:var(--f-display); font-size:clamp(38px, 4.4vw, 88px); line-height:.98;
       letter-spacing:1px; color:#fff; margin:12px 0 0;
       /* Contour noir — la technique de `.ztsp-compteur__gros` sur l'accueil. */
       text-shadow:var(--ombre-titre), var(--trait-noir);
@@ -442,19 +452,26 @@
         /* Annie sur le marine : traits fins, et les rayons passent derriere. On
        prend l'encre CLAIRE (pas la douce) et une ombre portee d'un pixel pour
        detacher le texte du fond. Sans ca la prose flotte. */
-    .hb-desc{font-size:18px; line-height:1.55; color:var(--sur-marine); margin:12px 0 16px; max-width:46ch;
+    /* Le paragraphe. `46ch` etait une bonne mesure de lecture pour une
+       colonne de 460 px ; sur un plan de travail large c'etait un carcan.
+       On garde une longueur de ligne lisible — au-dela de ~75 caracteres
+       l'oeil perd sa ligne — mais on la calcule sur la vraie largeur. */
+    .hb-desc{
+      font-size:clamp(19px, 1.15vw, 25px); line-height:1.5; color:var(--sur-marine);
+      margin:14px 0 18px; max-width:min(74ch, 100%);
       text-shadow:0 1px 2px rgba(6,23,38,.85)}
-    .hb-badges{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px}
+    .hb-badges{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px}
     .hb-badge{
-      font-family:var(--f-titre); font-size:13px; letter-spacing:.4px;
+      font-family:var(--f-titre); font-size:clamp(16px, .92vw, 19px); letter-spacing:.4px;
       background:rgba(255,255,255,.09); border:2.5px solid var(--encre); border-radius:var(--r-btn);
-      padding:6px 11px; box-shadow:var(--ombre-petite); color:var(--sur-marine);
+      padding:8px 14px; box-shadow:var(--ombre-petite); color:var(--sur-marine);
     }
     .hb-actions{display:flex; gap:12px; flex-wrap:wrap}
     .hb-btn{
       display:inline-flex; align-items:center; gap:9px;
-      font-family:var(--f-titre); letter-spacing:.6px; font-size:16px;
-      padding:14px 26px 12px; border-radius:var(--r-btn);
+      font-family:var(--f-titre); letter-spacing:.6px; font-size:clamp(17px, 1.02vw, 22px);
+      padding:clamp(14px, .9vw, 19px) clamp(26px, 1.8vw, 38px) clamp(12px, .8vw, 17px);
+      border-radius:var(--r-btn); min-height:56px;
       border:3px solid var(--encre); cursor:pointer; transition:.09s;
       background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00;
       box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35);
