@@ -8,48 +8,92 @@
 | | |
 |---|---|
 | Items extraits des 14 apps | **113** |
-| Doublons du catalogue | **19** |
-| Inédits ajoutés au catalogue | **94** |
-| Catalogue | 1439 → **1533** jeux |
-| Jeux portant au moins une collection | **111** |
+| Doublons du catalogue | **12** |
+| Inédits ajoutés au catalogue | **101** |
+| Catalogue | 1439 → **1540** jeux |
+| Jeux portant au moins une collection | **887** |
 
 ## Par collection
 
 | Collection | Extraits | Doublons | Inédits | Jeux étiquetés |
 |---|---|---|---|---|
 | 🎭 Jeux par thème | 8 | 1 | 7 | **8** |
-| ⚡ Jeux rapides | 10 | 4 | 6 | **10** |
-| 🧘 Jeux calmes | 8 | 0 | 8 | **8** |
+| ⚡ Jeux rapides | 10 | 3 | 7 | **214** |
+| 🧘 Jeux calmes | 8 | 0 | 8 | **164** |
 | ⏳ Activités par durée | 9 | 0 | 9 | **9** |
-| 🔥 Échauffements | 8 | 1 | 7 | **8** |
-| 🧩 Énigmes & devinettes | 10 | 1 | 9 | **9** |
-| ⛅ Plan B météo | 8 | 1 | 7 | **8** |
-| 🌧️ Plan B jours de pluie | 8 | 0 | 8 | **8** |
+| 🔥 Échauffements | 8 | 1 | 7 | **14** |
+| 🧩 Énigmes & devinettes | 10 | 0 | 10 | **10** |
+| ⛅ Plan B météo | 8 | 1 | 7 | **448** |
+| 🌧️ Plan B jours de pluie | 8 | 0 | 8 | **62** |
 | 😄 Brise-glace | 8 | 1 | 7 | **8** |
-| 🏴 Grands jeux | 8 | 3 | 5 | **8** |
-| 💦 Jeux d'eau | 8 | 0 | 8 | **8** |
+| 🏴 Grands jeux | 8 | 1 | 7 | **37** |
+| 💦 Jeux d'eau | 8 | 0 | 8 | **55** |
 | 🗺️ Rallyes & chasses au trésor | 4 | 0 | 4 | **4** |
-| 🔥 Veillée & feu de camp | 8 | 1 | 7 | **8** |
-| 🥇 Olympiades scolaires | 8 | 6 | 2 | **8** |
+| 🔥 Veillée & feu de camp | 8 | 0 | 8 | **8** |
+| 🥇 Olympiades scolaires | 8 | 4 | 4 | **67** |
 
-## ⚠ Ce que ces chiffres veulent dire pour la PR B
+## Largeur des collections — étiquettes + règle
 
-Une collection compte **entre 4 et 10 jeux**, sur un catalogue de 1533.
-C'est le contenu réel des mini-apps, ni plus ni moins : l'étiquette n'est posée
-que sur ce que la source contenait vraiment — les inédits, et les jeux du
-catalogue que ses doublons désignaient. **Rien n'a été étiqueté au jugé.**
+> Décision de Joey : une collection est une **règle**, pas seulement les étiquettes
+> héritées de la mini-app. Cible 20-60 jeux. Une règle sous 15 est **signalée**,
+> jamais forcée.
 
-Une rangée de 8 jeux, c'est une rangée honnête, pas une rangée vide. Mais si la
-PR B les présente comme « la » collection de jeux calmes du site, elle promet
-plus que ce qu'il y a derrière — alors que le catalogue contient sûrement des
-dizaines d'autres jeux calmes, simplement jamais étiquetés comme tels.
+| Collection | Étiquettes | Règle | Total | |
+|---|---|---|---|---|
+| 🎭 Jeux par thème | 8 | — | **8** | ⚪ thématique — aucune règle tenable |
+| ⚡ Jeux rapides | 10 | 212 | **214** | ⚠️ très large — la règle est quasi un filtre |
+| 🧘 Jeux calmes | 8 | 157 | **164** | 🟡 hors cible, mais honnête |
+| ⏳ Activités par durée | 9 | — | **9** | ⚪ thématique — aucune règle tenable |
+| 🔥 Échauffements | 8 | 7 | **14** | ⚠️ règle sous 15 (7) — reste thématique |
+| 🧩 Énigmes & devinettes | 10 | — | **10** | ⚪ thématique — aucune règle tenable |
+| ⛅ Plan B météo | 8 | 441 | **448** | ⚠️ très large — la règle est quasi un filtre |
+| 🌧️ Plan B jours de pluie | 8 | 54 | **62** | 🟡 hors cible, mais honnête |
+| 😄 Brise-glace | 8 | — | **8** | ⚪ thématique — aucune règle tenable |
+| 🏴 Grands jeux | 8 | 29 | **37** | ✅ dans la cible |
+| 💦 Jeux d'eau | 8 | 54 | **55** | ✅ dans la cible |
+| 🗺️ Rallyes & chasses au trésor | 4 | — | **4** | ⚪ thématique — aucune règle tenable |
+| 🔥 Veillée & feu de camp | 8 | — | **8** | ⚪ thématique — aucune règle tenable |
+| 🥇 Olympiades scolaires | 8 | 64 | **67** | 🟡 hors cible, mais honnête |
 
-Deux sorties, et c'est un choix de Joey, pas du script :
+**Ce qui n'a pas de règle, et pourquoi.** Aucun champ du catalogue ne porte leur
+critère ; le deviner reviendrait à étiqueter au jugé.
 
-1. **Garder tel quel** — la collection est une sélection, courte et assumée.
-2. **Élargir par règle** — poser aussi l'étiquette selon un critère du catalogue
-   (durée courte → jeux rapides, catégorie → grands jeux…). Déterministe, mais
-   c'est une règle par collection, à écrire et à arbitrer une par une.
+- `activites-duree` — `dureeMin <= 20` ramène **1434 des 1540** jeux (1165 sont
+  à 15 min). Le filtre par durée fait déjà ce travail, mieux et sans mentir.
+- `jeux-par-theme` — « thème » n'est pas un champ du catalogue.
+- `enigmes`, `brise-glace`, `rallyes`, `veillee-feu-de-camp` — règles testées,
+  toutes sous 15 jeux. Elles restent thématiques.
+
+**Dette de fond, hors PR B** : l'enrichissement IA des étiquettes sur les
+1540 jeux, validé par Joey. Il élargira les collections thématiques sans
+règle. Ce n'est **pas** un préalable à la PR B.
+
+
+## Filtre matériel — 10 catégories normalisées
+
+> Pas de texte libre. Le premier mot-clé qui matche gagne, et « Sans matériel »
+> passe en premier : c'est le filtre le plus demandé sur le terrain.
+
+Champ dérivé `materielCat`, posé sur les **1429** jeux dont le matériel est
+renseigné. Un jeu sans matériel renseigné n'en reçoit pas — absent laisse passer le
+filtre, comme pour l'âge.
+
+| Catégorie | Jeux | Part |
+|---|---|---|
+| Ballons | 418 | 29.3 % |
+| Cônes / dossards | 279 | 19.5 % |
+| Petit matériel varié | 169 | 11.8 % |
+| Sans matériel | 161 | 11.3 % |
+| Cerceaux | 133 | 9.3 % |
+| Gros matériel de gym | 98 | 6.9 % |
+| Cordes | 90 | 6.3 % |
+| Eau / extérieur | 45 | 3.1 % |
+| Papier / crayons | 24 | 1.7 % |
+| Parachute | 12 | 0.8 % |
+
+**Couverture : 95.4 %** rangés par un mot-clé explicite. Les
+66 restants (4.6 %) tombent dans « Petit matériel varié »
+faute de mieux — sous le seuil de 5 % fixé par Joey.
 
 
 ## Doublons écartés
@@ -61,13 +105,12 @@ Deux sorties, et c'est un choix de Joey, pas du script :
 
 | Item extrait | ≈ Jeu du catalogue | id | Règle |
 |---|---|---|---|
-| La queue du dragon | Attraper la queue du dragon | `AAO_005` | inclusion de titre (0.79) |
+| La queue du dragon | Attraper la queue du dragon | `AAO_005` | arbitrage — Joey : vrai doublon, ecarte confirme. (1) |
 
-### Jeux rapides — 4
+### Jeux rapides — 3
 
 | Item extrait | ≈ Jeu du catalogue | id | Règle |
 |---|---|---|---|
-| Statues musicales | STATUES MUSICALES COOPÉRATIVES | `pfeq_122` | inclusion de titre (0.75) |
 | Le nœud humain | LE NŒUD HUMAIN | `pfeq_120` | titre identique (1) |
 | Salade de fruits | La Salade de Fruits | `PRESC_030` | ratio >= 0.90 (0.93) |
 | Le miroir | Le Miroir | `COOP_002` | titre identique (1) |
@@ -77,12 +120,6 @@ Deux sorties, et c'est un choix de Joey, pas du script :
 | Item extrait | ≈ Jeu du catalogue | id | Règle |
 |---|---|---|---|
 | Hélicoptères | HÉLICOPTÈRES (HELICOPTERS) | `pfeq_411` | ratio >= 0.84 + mot « helicopteres » (0.88) |
-
-### Énigmes & devinettes — 1
-
-| Item extrait | ≈ Jeu du catalogue | id | Règle |
-|---|---|---|---|
-| Devinette du gym | Devinette du gym | `COLL_enigmes_03` | titre identique (1) |
 
 ### Plan B météo — 1
 
@@ -96,28 +133,18 @@ Deux sorties, et c'est un choix de Joey, pas du script :
 |---|---|---|---|
 | Le nœud humain | LE NŒUD HUMAIN | `pfeq_120` | titre identique (1) |
 
-### Grands jeux — 3
+### Grands jeux — 1
 
 | Item extrait | ≈ Jeu du catalogue | id | Règle |
 |---|---|---|---|
-| Capture du drapeau | Capture du drapeau 4 bases | `MO1_010` | inclusion de titre (0.81) |
-| Poule, renard, vipère | POULE-RENARD-VIPÈRE AVEC BALLON | `pfeq_187` | inclusion de titre (0.76) |
 | Le volcan | LE VOLCAN | `pfeq_146` | titre identique (1) |
 
-### Veillée & feu de camp — 1
+### Olympiades scolaires — 4
 
 | Item extrait | ≈ Jeu du catalogue | id | Règle |
 |---|---|---|---|
-| Téléphone arabe | LE TÉLÉPHONE ARABE PHYSIQUE | `pfeq_145` | inclusion de titre (0.78) |
-
-### Olympiades scolaires — 6
-
-| Item extrait | ≈ Jeu du catalogue | id | Règle |
-|---|---|---|---|
-| Saut en longueur | Grand Saut en Longueur | `OLYM_002` | inclusion de titre (0.83) |
-| Lancer de précision | Kolap (Lancer de précision polynésien) | `AAO_056` | inclusion de titre (0.73) |
-| Course en sac | Le Carreras de Sacos (Course en sac — Amérique du Sud) | `AM-EU-042` | inclusion de titre (0.49) |
-| Saut en hauteur (élastique) | Saut en hauteur | `IND_005` | inclusion de titre (0.73) |
+| Saut en longueur | Grand Saut en Longueur | `OLYM_002` | arbitrage — Revue : meme epreuve (elan-impulsion-reception). (1) |
+| Course en sac | Le Carreras de Sacos (Course en sac — Amérique du Sud) | `AM-EU-042` | arbitrage — Revue : meme mecanique, habillage culturel different. (1) |
 | Lancer dans le cerceau | Le Lancé dans le Cerceau | `PRESC_024` | ratio >= 0.90 (0.97) |
-| Tir à la corde | Kéo Co (Tir à la corde vietnamien) | `AAO_050` | inclusion de titre (0.63) |
+| Tir à la corde | Kéo Co (Tir à la corde vietnamien) | `AAO_050` | arbitrage — Revue : meme mecanique, habillage culturel different. (1) |
 

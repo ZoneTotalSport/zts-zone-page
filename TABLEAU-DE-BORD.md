@@ -5,23 +5,41 @@
 >
 > Dernière mise à jour : **2026-09-02** · `main` @ `892d2b17`
 
-**1 clos · 1 actif · 2 en attente · 2 à préciser**
+**1 clos · 1 actif · 2 en attente**
 
 ---
 
-## ⚠ Deux sections que je ne peux pas remplir
+## Ligne directrice v2
 
-La convention du tableau de bord interdit d'inventer un statut. Deux sections demandées
-reposent sur de l'information qui **n'existe nulle part dans le dépôt** — elles viennent
-du travail de stratégie mené ailleurs.
+*Inscrite telle que dictée par Joey, 2026-09-02.*
 
-| Section | Ce qui manque |
-|---|---|
-| **Ligne directrice v2** | Aucune occurrence de « ligne directrice » dans les 40+ `.md` du dépôt. Je ne sais pas ce que v2 dit, ni en quoi elle diffère de v1. |
-| **Phases 0-6 du démarrage** | Le dépôt ne connaît que des « Phase 1 » / « Phase 2 » éparses et sans rapport entre elles (Phase 1 = cohérence du site, livrée le 12 juin ; Phase 2 = Remotion ; Phase 3 = sélecteur biblio). **Aucun cadre en 7 phases numérotées 0 à 6.** |
+> Zone Total Sport est une plateforme **100 % en ligne et à distance** qui remplace le
+> papier des trois métiers (ÉPS, SDG, camps).
+>
+> **Séquence** : site impeccable → période gratuite à date de fin annoncée → abonnements
+> individuels payants → licences établissements vendues par courriel/visio.
+>
+> **Aucun déplacement, aucun inventaire physique.**
+>
+> **Objectif** : 3 organismes signés en 12 mois, 100 k$ brut en année 2, 100 % entreprise
+> en année 3.
+>
+> **Signal d'arrêt** : zéro organisme au 30 juin 2027 → on refait l'offre.
 
-**Statut incertain — à préciser par Joey.** Colle-moi les deux listes et je les inscris
-telles quelles, sans les reformuler.
+## Phases
+
+| | Phase | Fenêtre | Cible | Statut |
+|---|---|---|---|---|
+| **P0** | **Cadre légal** — REQ/NEQ, TPS-TVQ, compte affaires, CGU-confidentialité-remboursement | — | — | 🔴 **À faire, rien d'entamé** |
+| **P1** | **SITE IMPECCABLE** | sept. → 15 nov. 2026 | — | 🟢 **EN COURS** — V0 faite, V1 en prod, V2 pilier Jeux en cours |
+| **P2** | **Période gratuite et audience** — date de fin annoncée dès le jour 1 | nov. 2026 → janv. 2027 | ~500 inscrits | ⚪ à venir |
+| **P3** | **Bascule payante** — Stripe, tarif fondateur | févr. 2027 | 100 payants ou 8 % de conversion | ⚪ à venir |
+| **P4** | **Licences établissements** | mars → juin 2027 | 3 organismes payants au 30 juin | ⚪ à venir |
+| **P5** | **Année 2** | sept. 2027 → août 2028 | 100 k$ brut, 15 sites | ⚪ à venir |
+| **P6** | **Sortie** | année 3 | si 70 k$+ brut deux ans de suite **ET** récurrent ≥ 40 k$/an | ⚪ à venir |
+
+⚠ **P0 n'est pas entamé et ne dépend d'aucune autre phase.** Il conditionne P3 : pas de
+Stripe sans cadre légal. C'est la seule phase qui peut avancer en parallèle de P1.
 
 ---
 
@@ -42,7 +60,7 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 
 | PR | Contenu | État |
 |---|---|---|
-| **A — Données** | 113 items extraits, 19 doublons, 94 inédits, catalogue 1439 → **1533**, 111 jeux étiquetés | 🟢 **PR #76 ouverte** — `aa9dac7a` (contrat + grille), `27c1d457` (données), `b1e11bd0` (tableau de bord) |
+| **A — Données** | 113 items, **12** doublons, **101** inédits, catalogue 1439 → **1540**. Collections = règles : **887** jeux étiquetés. Filtre matériel : 10 catégories, **95,9 %** de couverture | 🟢 **PR #76** — décisions de Joey du 2 sept. appliquées |
 | **B — UI** | Recherche, filtres croisés, rangées de collections, partage par jeu | 🟡 **Bloquée** — attend la fusion de A |
 | **C — Bascule** | Les 14 dossiers deviennent des relais, hubs et sitemap à jour | 🟡 **Bloquée** — attend la fusion de B |
 
@@ -52,8 +70,8 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 
 | Chantier | Ce qui bloque |
 |---|---|
-| **Deux décisions du pilier Jeux** | **(1)** Les collections font 4 à 10 jeux sur 1533 — garder cette sélection courte, ou élargir par règle déterministe ? **(2)** Le filtre « matériel » demande un vocabulaire court et fermé (`aucun`, `ballons`, `cônes`…) que je ne dériverai pas sans arbitrage. |
-| **Deux gestes de déploiement de la PR A** | `bash _scripts/publie-banques-r2.sh` (la prod lit R2, pas le dépôt) et `wrangler deploy` dans `cf-worker/jeux-data/`. Sans eux, la PR B ne verra ni les 94 jeux ni les nouveaux champs d'index. Peuvent attendre la PR B. |
+| **P0 — cadre légal** | Rien d'entamé, et il conditionne la bascule payante (P3). Seule phase qui peut avancer en parallèle du site. |
+| **Deux gestes de déploiement de la PR A** | `bash _scripts/publie-banques-r2.sh` (la prod lit R2, pas le dépôt) et `wrangler deploy` dans `cf-worker/jeux-data/`. Sans eux, la PR B ne verra ni les 101 nouveaux jeux, ni `collections`, ni `materielCat`. Peuvent attendre la PR B. |
 
 ---
 
@@ -82,6 +100,7 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 | Dette | Quand |
 |---|---|
 | Combler `ageMin`/`ageMax` sur les **721 jeux** qui en manquent (718/1439 seulement sont renseignés) | tâche de fond, hors vague |
+| **Enrichissement IA des étiquettes** sur les 1540 jeux, validé par Joey — élargira les 6 collections thématiques sans règle. **Pas un préalable à la PR B.** | tâche de fond |
 | Choix du **lecteur unique** — SPA `apps/jeux` vs `fiches/` vs les 1440 statiques | après la bascule payante |
 | `moyens-action` absorbé par le **Planificateur** (Fusion #3) | après la bascule payante |
 
@@ -96,11 +115,11 @@ https://github.com/ZoneTotalSport/zts-zone-page/pull/76
 ## Prochaines actions Joey
 
 1. **Tester et fusionner la PR #76** après lecture de `RAPPORT-COLLECTIONS-JEUX.md` — les
-   19 doublons, un par un : est-ce que chacun désigne bien le même jeu ?
-2. **Trancher les deux décisions du pilier Jeux** — largeur des collections, vocabulaire
-   du filtre matériel. La PR B en dépend.
+   **12** doublons restants, et surtout les **2 collections très larges** (Plan B météo à
+   448, Jeux rapides à 214) : leur règle est-elle une rangée, ou juste un filtre ?
+2. **Ouvrir P0 — le cadre légal.** Rien n'est entamé, et sans lui pas de Stripe en
+   février 2027. C'est la seule phase qui avance en parallèle du site.
 3. **Pousser `inventaire/vague-0`**, ou accepter que `INVENTAIRE-SITE.md` n'existe que sur
    ce Mac.
 4. **Tester `/apps/transitions/` connecté** — minuteur au bout, relance : la musique doit
    repartir du début. C'est le seul point de la vague 1 jamais vérifié.
-5. **Me donner la ligne directrice v2 et les phases 0-6** pour compléter ce tableau.

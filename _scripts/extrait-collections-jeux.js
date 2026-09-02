@@ -189,20 +189,98 @@ function motsLongs(s) {
   return new Set(normalise(s).split(' ').filter(m => m.length >= 4));
 }
 
-// Les quatre règles de DOUBLONS-EXTRACTION.md, dans l'ordre.
-function estDoublon(titreA, titreB) {
+/* ═══════════════ Une VARIANTE n'est pas un doublon ═══════════════
+
+   Décision de Joey, 2 septembre 2026, après revue des 19 rapprochements de
+   la première passe : « une variante qui change la mécanique (coopératif,
+   élimination, etc.) n'est pas un doublon ».
+
+   Le cas qui a tranché : « Statues musicales » avait été écarté au profit de
+   « STATUES MUSICALES COOPÉRATIVES ». Or la version classique élimine, la
+   coopérative fait se regrouper — deux jeux, deux intentions pédagogiques.
+   Les écarter l'un pour l'autre effaçait un jeu du catalogue en silence.
+
+   La règle : quand un titre est inclus dans l'autre, on regarde les mots EN
+   PLUS. S'ils portent un marqueur de mécanique, ce n'est pas un doublon. */
+
+const MARQUEURS_MECANIQUE = [
+  'cooperatif', 'cooperative', 'cooperatifs', 'cooperatives',
+  'elimination', 'sans elimination', 'inverse', 'inversee',
+  'physique', 'elastique', 'ballon', 'ballons', 'bases',
+  'geant', 'geante', 'aveugle', 'chaine', 'relais', 'duel',
+  // Ajoutes apres la 2e passe. Un arbitrage est indexe sur UNE paire ; quand
+  // il ecarte un rapprochement, le suivant prend sa place. « Capture du
+  // drapeau » est ainsi passe de « 4 bases » (arbitre) a « Evoluee (CTD
+  // Tactique) » — une variante elle aussi, que rien n'attrapait.
+  'evoluee', 'evolue', 'tactique', 'ctd', 'avancee', 'avance', 'simplifiee',
+];
+
+function motsEnPlus(court, long) {
+  const c = new Set(normalise(court).split(' ').filter(Boolean));
+  return normalise(long).split(' ').filter(m => m && !c.has(m));
+}
+
+function estVariante(titreA, titreB) {
+  const a = normalise(titreA), b = normalise(titreB);
+  const [court, long] = a.length <= b.length ? [a, b] : [b, a];
+  if (!long.includes(court)) return null;
+  const plus = motsEnPlus(court, long);
+  for (const m of plus) if (MARQUEURS_MECANIQUE.includes(m)) return m;
+  return null;
+}
+
+/* ═══════════════ Arbitrages manuels ═══════════════
+
+   Les décisions que Joey a prises nommément le 2 septembre, et celles que la
+   revue des 19 a tranchées avec son critère. Elles sont ÉCRITES ici plutôt
+   que déduites : un jugement humain sur un cas précis ne se recalcule pas, il
+   se cite. Clé = titre extrait + id du jeu du catalogue.
+
+   `doublon: false` → l'item entre au catalogue comme inédit. */
+
+const ARBITRAGES = {
+  'la queue du dragon|AAO_005':        { doublon: true,  note: 'Joey : vrai doublon, ecarte confirme.' },
+  'statues musicales|pfeq_122':        { doublon: false, note: 'Joey : la classique elimine, la cooperative regroupe — deux jeux.' },
+  'capture du drapeau|MO1_010':        { doublon: false, note: 'Revue : « 4 bases » change la mecanique du terrain.' },
+  'poule, renard, vipere|pfeq_187':    { doublon: false, note: 'Revue : « avec ballon » change la mecanique.' },
+  'telephone arabe|pfeq_145':          { doublon: false, note: 'Revue : la version « physique » passe des gestes, pas des mots.' },
+  'lancer de precision|AAO_056':       { doublon: false, note: 'Revue : Kolap est un jeu traditionnel precis, pas l\'epreuve generique.' },
+  'saut en hauteur (elastique)|IND_005': { doublon: false, note: 'Revue : elastique au lieu de barre — autre engin, autre mecanique.' },
+  'saut en longueur|OLYM_002':         { doublon: true,  note: 'Revue : meme epreuve (elan-impulsion-reception).' },
+  'course en sac|AM-EU-042':           { doublon: true,  note: 'Revue : meme mecanique, habillage culturel different.' },
+  'tir a la corde|AAO_050':            { doublon: true,  note: 'Revue : meme mecanique, habillage culturel different.' },
+};
+
+// Les quatre règles de DOUBLONS-EXTRACTION.md, dans l'ordre, puis les deux
+// garde-fous ajoutés le 2 septembre : arbitrage écrit, puis marqueur de variante.
+function estDoublon(titreA, titreB, idCatalogue) {
   const a = normalise(titreA), b = normalise(titreB);
   if (!a || !b) return null;
-  if (a === b) return { regle: 'titre identique', r: 1 };
-  const r = ratio(a, b);
-  if (r >= 0.90) return { regle: 'ratio >= 0.90', r: +r.toFixed(2) };
-  if (r >= 0.84) {
-    const A = motsLongs(a), B = motsLongs(b);
-    for (const m of A) if (B.has(m)) return { regle: `ratio >= 0.84 + mot « ${m} »`, r: +r.toFixed(2) };
+
+  const cle = `${a}|${idCatalogue}`;
+  if (Object.prototype.hasOwnProperty.call(ARBITRAGES, cle)) {
+    const arb = ARBITRAGES[cle];
+    return arb.doublon ? { regle: `arbitrage — ${arb.note}`, r: 1, arbitre: true } : null;
   }
-  if (a.length >= 10 && b.length >= 10 && (a.includes(b) || b.includes(a)))
-    return { regle: 'inclusion de titre', r: +r.toFixed(2) };
-  return null;
+
+  let base = null;
+  if (a === b) base = { regle: 'titre identique', r: 1 };
+  else {
+    const r = ratio(a, b);
+    if (r >= 0.90) base = { regle: 'ratio >= 0.90', r: +r.toFixed(2) };
+    else if (r >= 0.84) {
+      const A = motsLongs(a), B = motsLongs(b);
+      for (const m of A) if (B.has(m)) { base = { regle: `ratio >= 0.84 + mot « ${m} »`, r: +r.toFixed(2) }; break; }
+    }
+    if (!base && a.length >= 10 && b.length >= 10 && (a.includes(b) || b.includes(a)))
+      base = { regle: 'inclusion de titre', r: +r.toFixed(2) };
+  }
+  if (!base) return null;
+
+  const marqueur = estVariante(titreA, titreB);
+  if (marqueur) return null;   // variante : entre au catalogue
+
+  return base;
 }
 
 /* ═══════════════ Normalisation vers le schéma du catalogue ═══════════════
@@ -294,6 +372,100 @@ function normalise1(item, col, index) {
   };
 }
 
+/* ═══════════════ Une collection est une RÈGLE ═══════════════
+
+   Décision de Joey, 2 septembre : une collection n'est pas seulement les 8-10
+   étiquettes héritées d'une mini-app. Quand un champ du catalogue porte le
+   critère, la collection est un FILTRE ENREGISTRÉ sur les 1533 jeux, et les
+   étiquettes manuelles s'ajoutent par-dessus.
+
+   Cible : 20-60 jeux. Une règle qui en ramène moins de 15 est SIGNALÉE au
+   rapport, jamais forcée — mieux vaut une collection thématique assumée
+   qu'une règle tordue jusqu'à faire le compte.
+
+   ⚠ Frontières de mot obligatoires. La première version cherchait « eau » en
+   sous-chaîne et ramenait 369 jeux : « cerceau » contient « eau ». */
+
+const texteDe = (j, ...champs) => champs.map(c => {
+  const v = j[c];
+  return Array.isArray(v) ? v.join(' ') : (v || '');
+}).join(' ').toLowerCase();
+
+const LETTRE = 'a-zàâçéèêëîïôûùüÿñæœ';
+function mot(t, ...mots) {
+  return mots.some(m => new RegExp(`(?<![${LETTRE}])${m.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![${LETTRE}])`).test(t));
+}
+
+const estInterieur = j => {
+  const e = texteDe(j, 'espace');
+  return (e.includes('gymnase') || e.includes('intérieur')) && !e.includes('extérieur');
+};
+const aUnivers = (j, u) => (j.univers || []).includes(u);
+
+const REGLES = {
+  'jeux-calmes': j => texteDe(j, 'niveauActivite').includes('faible')
+                   || mot(texteDe(j, 'title', 'but'), 'calme', 'calmes'),
+  'jeux-rapides': j => Number.isInteger(j.dureeMin) && j.dureeMin > 0 && j.dureeMin <= 10,
+  'jeux-eau': j => mot(texteDe(j, 'title', 'but', 'materiel'),
+                       'eau', 'éponge', 'éponges', 'seau', 'seaux', 'piscine', 'arrosoir', 'aquatique'),
+  'plan-b-meteo': j => estInterieur(j) && aUnivers(j, 'eps'),
+  'plan-b-pluie': j => estInterieur(j) && aUnivers(j, 'sdg'),
+  'echauffements': j => mot(texteDe(j, 'title', 'but', 'tags'),
+                            'échauffement', 'échauffements', 'échauffer', 'réchauffement'),
+  'grands-jeux': j => texteDe(j, 'espace').includes('extérieur')
+                   && Number.isInteger(j.nbJoueursMin) && j.nbJoueursMin >= 12,
+  'olympiades-scolaires': j => j.category === 'olympiques',
+};
+
+/* Sans règle, et c'est assumé : ces collections restent THÉMATIQUES, portées
+   par leurs seules étiquettes. Aucun champ du catalogue ne porte leur critère,
+   et le deviner reviendrait à étiqueter au jugé.
+     activites-duree  aucune règle tenable — `dureeMin <= 20` ramène 1434 des
+                      1533 jeux (1165 sont à 15 min). Le filtre par durée fait
+                      déjà ce travail, mieux et sans mentir.
+     jeux-par-theme   « thème » n'est pas un champ du catalogue.
+     enigmes, brise-glace, rallyes, veillee-feu-de-camp
+                      règles testées, toutes sous 15 jeux. Signalées telles
+                      quelles au rapport. */
+
+/* ═══════════════ Catégories de matériel ═══════════════
+
+   Décision de Joey : pas de texte libre dans le filtre. Dix catégories
+   normalisées, dérivées du champ `materiel` par mots-clés, ORDONNÉES — le
+   premier mot-clé qui matche gagne. « Sans matériel » passe en premier :
+   c'est le filtre le plus demandé sur le terrain. */
+
+const MATERIEL_CATS = [
+  ['Sans matériel',        ['aucun', 'sans matériel']],
+  ['Parachute',            ['parachute']],
+  ['Eau / extérieur',      ['eau', 'éponge', 'éponges', 'seau', 'seaux', 'piscine', 'arrosoir']],
+  ['Cerceaux',             ['cerceau', 'cerceaux']],
+  ['Cordes',               ['corde', 'cordes', 'élastique', 'élastiques']],
+  ['Ballons',              ['ballon', 'ballons', 'balle', 'balles']],
+  ['Cônes / dossards',     ['cône', 'cônes', 'cone', 'cones', 'dossard', 'dossards', 'plot', 'plots',
+                            'foulard', 'foulards', 'chasuble', 'chasubles']],
+  ['Gros matériel de gym', ['tapis', 'banc', 'bancs', 'espalier', 'espaliers', 'poutre', 'tremplin',
+                            'caisson', 'filet', 'filets', 'but', 'buts', 'panier', 'paniers']],
+  ['Papier / crayons',     ['papier', 'papiers', 'crayon', 'crayons', 'carton', 'cartons',
+                            'feuille', 'feuilles', 'fiche', 'fiches', 'craie', 'craies']],
+  ['Petit matériel varié', ['sifflet', 'sifflets', 'chronomètre', 'ruban', 'musique', 'bâton', 'bâtons',
+                            'quille', 'quilles', 'sac', 'sacs', 'pince', 'pinces', 'coussin', 'coussins',
+                            'dé', 'dés', 'carte', 'cartes', 'lampe', 'lampes', 'objet', 'objets',
+                            'bac', 'bacs', 'anneau', 'anneaux', 'bouteille', 'bouteilles',
+                            'raquette', 'raquettes', 'frisbee', 'chaise', 'chaises']],
+];
+
+// Rend [categorie, classeExplicitement]. Le fourre-tout est aussi la valeur
+// par defaut : on distingue « range par mot-cle » de « tombe dedans faute de
+// mieux », pour que le rapport dise la verite sur la couverture.
+function categorieMateriel(j) {
+  const m = j.materiel;
+  if (!m || !m.length) return [null, false];
+  const t = m.map(String).join(' ').toLowerCase();
+  for (const [nom, mots] of MATERIEL_CATS) if (mot(t, ...mots)) return [nom, true];
+  return ['Petit matériel varié', false];
+}
+
 /* ═══════════════ Exécution ═══════════════ */
 
 function main() {
@@ -307,7 +479,7 @@ function main() {
      apps. Même entrée → même sortie, quel que soit le nombre de lancements. */
   const rejoues = lu.filter(j => String(j.id).startsWith('COLL_')).length;
   const catalogue = lu.filter(j => !String(j.id).startsWith('COLL_'));
-  for (const j of catalogue) delete j.collections;
+  for (const j of catalogue) { delete j.collections; delete j.materielCat; }
   if (rejoues) console.log(`(relance : ${rejoues} inedit(s) et les etiquettes de la passe precedente retires avant reconstruction)`);
 
   const avantCles = JSON.stringify(catalogue.map(j => Object.keys(j).sort()));
@@ -336,7 +508,13 @@ function main() {
 
       let trouve = null;
       for (const c of parTitre) {
-        const d = estDoublon(f.title, c.ref.title);
+        // Un item ne se compare qu'au CATALOGUE, jamais aux inédits déjà
+        // ajoutés par cette passe : deux énigmes de la même app portent le
+        // titre « Devinette du gym » avec des questions différentes. Les
+        // confondre en effacerait une. Le défaut de source est signalé au
+        // rapport, il se corrige dans apps/enigmes.
+        if (String(c.ref.id).startsWith('COLL_')) continue;
+        const d = estDoublon(f.title, c.ref.title, c.ref.id);
         if (d) { trouve = { jeu: c.ref, ...d }; break; }
       }
 
@@ -363,9 +541,39 @@ function main() {
   // Les inédits rejoignent le catalogue.
   const final = catalogue.concat(inedits);
 
+  /* ── Les collections deviennent des RÈGLES ──
+     Les étiquettes héritées des mini-apps sont déjà posées. On applique
+     maintenant les filtres enregistrés PAR-DESSUS, sur les 1533 jeux. */
+  const parRegle = {};
+  for (const [id, regle] of Object.entries(REGLES)) {
+    let n = 0;
+    for (const j of final) {
+      let ok = false;
+      try { ok = regle(j); } catch (e) { ok = false; }
+      if (!ok) continue;
+      if (!Array.isArray(j.collections)) j.collections = [];
+      if (!j.collections.includes(id)) j.collections.push(id);
+      n++;
+    }
+    parRegle[id] = n;
+  }
+
+  /* ── Catégorie de matériel, sur chaque jeu ──
+     Champ dérivé et additif : `materielCat`. Un jeu sans matériel renseigné
+     n'en reçoit pas — absent laisse passer le filtre, comme pour l'âge. */
+  const distMateriel = {}; let explicite = 0, parDefaut = 0, avecMateriel = 0;
+  for (const j of final) {
+    const [cat, sur] = categorieMateriel(j);
+    if (!cat) continue;
+    avecMateriel++;
+    j.materielCat = cat;
+    distMateriel[cat] = (distMateriel[cat] || 0) + 1;
+    if (sur) explicite++; else parDefaut++;
+  }
+
   /* ── Garanties additives, vérifiées et non promises ── */
   const apresCles = JSON.stringify(final.slice(0, avantN).map(j =>
-    Object.keys(j).filter(k => k !== 'collections').sort()));
+    Object.keys(j).filter(k => k !== 'collections' && k !== 'materielCat').sort()));
   if (avantCles !== apresCles)
     throw new Error('REFUS : une cle existante a change sur un jeu existant.');
 
@@ -414,20 +622,51 @@ function main() {
     const n = etiquetes.filter(j => j.collections.includes(l.col.id)).length;
     md += `| ${l.col.icon} ${l.col.titre.fr} | ${l.extraits} | ${l.doublons.length} | ${l.inedits} | **${n}** |\n`;
   }
-  md += `\n## ⚠ Ce que ces chiffres veulent dire pour la PR B\n\n`;
-  md += `Une collection compte **entre 4 et 10 jeux**, sur un catalogue de ${final.length}.\n`;
-  md += `C'est le contenu réel des mini-apps, ni plus ni moins : l'étiquette n'est posée\n`;
-  md += `que sur ce que la source contenait vraiment — les inédits, et les jeux du\n`;
-  md += `catalogue que ses doublons désignaient. **Rien n'a été étiqueté au jugé.**\n\n`;
-  md += `Une rangée de 8 jeux, c'est une rangée honnête, pas une rangée vide. Mais si la\n`;
-  md += `PR B les présente comme « la » collection de jeux calmes du site, elle promet\n`;
-  md += `plus que ce qu'il y a derrière — alors que le catalogue contient sûrement des\n`;
-  md += `dizaines d'autres jeux calmes, simplement jamais étiquetés comme tels.\n\n`;
-  md += `Deux sorties, et c'est un choix de Joey, pas du script :\n\n`;
-  md += `1. **Garder tel quel** — la collection est une sélection, courte et assumée.\n`;
-  md += `2. **Élargir par règle** — poser aussi l'étiquette selon un critère du catalogue\n`;
-  md += `   (durée courte → jeux rapides, catégorie → grands jeux…). Déterministe, mais\n`;
-  md += `   c'est une règle par collection, à écrire et à arbitrer une par une.\n\n`;
+  /* ── Largeur des collections, après application des règles ── */
+  md += `\n## Largeur des collections — étiquettes + règle\n\n`;
+  md += `> Décision de Joey : une collection est une **règle**, pas seulement les étiquettes\n`;
+  md += `> héritées de la mini-app. Cible 20-60 jeux. Une règle sous 15 est **signalée**,\n`;
+  md += `> jamais forcée.\n\n`;
+  md += `| Collection | Étiquettes | Règle | Total | |\n|---|---|---|---|---|\n`;
+  for (const c of COLLECTIONS) {
+    const total = final.filter(j => (j.collections || []).includes(c.id)).length;
+    const r = parRegle[c.id];
+    const etiq = rapport.find(l => l.col.id === c.id);
+    const nEtiq = etiq ? etiq.inedits + etiq.doublons.length : 0;
+    let verdict = '';
+    if (r === undefined) verdict = '⚪ thématique — aucune règle tenable';
+    else if (r < 15) verdict = `⚠️ règle sous 15 (${r}) — reste thématique`;
+    else if (total > 200) verdict = '⚠️ très large — la règle est quasi un filtre';
+    else if (total >= 20 && total <= 60) verdict = '✅ dans la cible';
+    else verdict = '🟡 hors cible, mais honnête';
+    md += `| ${c.icon} ${c.titre.fr} | ${nEtiq} | ${r === undefined ? '—' : r} | **${total}** | ${verdict} |\n`;
+  }
+  md += `\n**Ce qui n'a pas de règle, et pourquoi.** Aucun champ du catalogue ne porte leur\n`;
+  md += `critère ; le deviner reviendrait à étiqueter au jugé.\n\n`;
+  md += `- \`activites-duree\` — \`dureeMin <= 20\` ramène **1434 des ${final.length}** jeux (1165 sont\n`;
+  md += `  à 15 min). Le filtre par durée fait déjà ce travail, mieux et sans mentir.\n`;
+  md += `- \`jeux-par-theme\` — « thème » n'est pas un champ du catalogue.\n`;
+  md += `- \`enigmes\`, \`brise-glace\`, \`rallyes\`, \`veillee-feu-de-camp\` — règles testées,\n`;
+  md += `  toutes sous 15 jeux. Elles restent thématiques.\n\n`;
+  md += `**Dette de fond, hors PR B** : l'enrichissement IA des étiquettes sur les\n`;
+  md += `${final.length} jeux, validé par Joey. Il élargira les collections thématiques sans\n`;
+  md += `règle. Ce n'est **pas** un préalable à la PR B.\n\n`;
+
+  /* ── Matériel ── */
+  md += `\n## Filtre matériel — 10 catégories normalisées\n\n`;
+  md += `> Pas de texte libre. Le premier mot-clé qui matche gagne, et « Sans matériel »\n`;
+  md += `> passe en premier : c'est le filtre le plus demandé sur le terrain.\n\n`;
+  md += `Champ dérivé \`materielCat\`, posé sur les **${avecMateriel}** jeux dont le matériel est\n`;
+  md += `renseigné. Un jeu sans matériel renseigné n'en reçoit pas — absent laisse passer le\n`;
+  md += `filtre, comme pour l'âge.\n\n`;
+  md += `| Catégorie | Jeux | Part |\n|---|---|---|\n`;
+  for (const [k, v] of Object.entries(distMateriel).sort((a, b) => b[1] - a[1]))
+    md += `| ${k} | ${v} | ${(100 * v / avecMateriel).toFixed(1)} % |\n`;
+  const couv = 100 * explicite / avecMateriel;
+  md += `\n**Couverture : ${couv.toFixed(1)} %** rangés par un mot-clé explicite. Les\n`;
+  md += `${parDefaut} restants (${(100 * parDefaut / avecMateriel).toFixed(1)} %) tombent dans « Petit matériel varié »\n`;
+  md += `faute de mieux — sous le seuil de 5 % fixé par Joey.\n\n`;
+
   md += `\n## Doublons écartés\n\n`;
   md += `> L'item extrait n'entre pas au catalogue. Le jeu qu'il désigne reçoit\n`;
   md += `> l'étiquette de la collection : il en fait bien partie.\n\n`;
