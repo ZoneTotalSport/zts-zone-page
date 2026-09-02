@@ -373,7 +373,7 @@
 
     /* Selecteur de langue — restaure. Il vit dans la barre, au style de l'app. */
     .zg-lang{
-      font-family:var(--f-titre); font-size:13px; letter-spacing:.5px;
+      font-family:var(--f-titre); font-size:16px; letter-spacing:.5px;
       min-height:44px; padding:8px 12px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
       background:var(--card); color:var(--text);
@@ -388,12 +388,13 @@
     /* Le choix du metier, en petit, dans les Reglages : trois pastilles. */
     .zgm-mini{display:flex; gap:6px; flex-wrap:wrap}
     .zgm-mini button{
-      font-family:var(--f-titre); font-size:13px; letter-spacing:.4px;
-      padding:8px 12px; min-height:40px; cursor:pointer;
+      font-family:var(--f-titre); font-size:16px; letter-spacing:.4px;
+      padding:10px 15px; min-height:44px; cursor:pointer;
       border:2.5px solid var(--encre); border-radius:var(--r-btn);
-      background:var(--card); color:var(--text); box-shadow:var(--ombre-petite);
+      background:var(--zg-repos); color:var(--zg-repos-txt); box-shadow:var(--ombre-petite);
     }
-    .zgm-mini button[aria-pressed="true"]{background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00}
+    .zgm-mini button:hover{filter:brightness(1.3)}
+    .zgm-mini button[aria-pressed="true"]{background:var(--zg-actif); color:var(--zg-actif-txt)}
     .zgm-mini button:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
 
     /* ======================================================================
@@ -546,14 +547,14 @@
       margin:10px var(--zg-marge) 0; padding:10px 16px;
       background:rgba(255,255,255,.09); border:3px solid var(--encre);
       border-radius:var(--r-btn); box-shadow:var(--ombre-petite);
-      font-size:14px; color:var(--sur-marine);
+      font-size:16px; color:var(--sur-marine);
     }
     .progress .pbar{flex:1; min-width:140px; height:16px; background:rgba(0,0,0,.35);
       border:2px solid var(--encre); border-radius:9px; overflow:hidden}
     .progress .pbar div{height:100%; background:linear-gradient(90deg,var(--cyan2),var(--green)); transition:width .3s}
     .progress .ptxt{font-family:var(--f-titre); font-size:17px; color:var(--yellow); min-width:64px; text-align:right}
     .progress #progLabel{font-family:var(--f-titre); font-size:16px; letter-spacing:.4px}
-    .progress .pill{font-family:var(--f-titre); font-size:14px; padding:4px 10px 2px; border-radius:7px;
+    .progress .pill{font-family:var(--f-titre); font-size:16px; padding:5px 11px 3px; border-radius:7px;
       border:2.5px solid var(--encre); box-shadow:2px 2px 0 rgba(0,0,0,.4)}
     #pillH{background:var(--red); color:#fff}
     #pillS{background:var(--orange); color:#3D2400}
@@ -735,9 +736,12 @@
     .g-surv:hover{transform:translate(-1px,-1px); box-shadow:4px 4px 0 rgba(0,0,0,.28)}
     .surv-chip{
       display:inline-flex; align-items:center; gap:3px;
-      font-family:var(--f-titre); font-size:11.5px; letter-spacing:.3px;
+      /* Le jeton de surveillance vit dans la grille : il suit l'echelle du
+         zoom comme les autres, avec le meme plancher de 16 px. Il etait
+         reste a 11,5 px — le plus petit texte de l'app. */
+      font-family:var(--f-titre); font-size:var(--zg-t-code); letter-spacing:.3px;
       background:#fff; color:var(--text); border:2px solid var(--encre); border-radius:6px;
-      padding:2px 5px; box-shadow:1.5px 1.5px 0 rgba(0,0,0,.35); white-space:nowrap;
+      padding:3px 7px; box-shadow:1.5px 1.5px 0 rgba(0,0,0,.35); white-space:nowrap;
     }
     .surv-chip.surv-alerte{background:var(--orange); color:#3D2400}
     .surv-chip .x{opacity:.45; padding:0 2px; min-width:18px; text-align:center; cursor:pointer}
@@ -773,7 +777,7 @@
     }
     .toast{
       background:var(--encre); color:#fff; padding:12px 22px; border-radius:var(--r-btn);
-      border:3px solid #fff; font-family:var(--f-titre); font-size:15px; letter-spacing:.3px;
+      border:3px solid #fff; font-family:var(--f-titre); font-size:16px; letter-spacing:.3px;
       box-shadow:5px 5px 0 rgba(0,0,0,.5); animation:toastIn .3s ease-out;
       text-align:center; pointer-events:auto;
     }
@@ -868,7 +872,7 @@
       box-shadow:2px 2px 0 rgba(0,0,0,.25);
     }
     .next-item .ni-cls{font-family:var(--f-titre); font-size:16px; letter-spacing:.4px}
-    .next-item .ni-sub{font-family:var(--f-note); color:var(--muted); font-size:15px; line-height:1.2}
+    .next-item .ni-sub{font-family:var(--f-note); color:var(--muted); font-size:16px; line-height:1.25}
     .next-item .ni-need{font-family:var(--f-titre); color:var(--ztsp-cyan-dark,#075A6B); float:right; font-size:16px}
 
     /* ======================================================================
@@ -887,7 +891,12 @@
     .macts{display:flex; gap:9px; justify-content:flex-end; margin-top:16px; padding-top:13px;
       border-top:3px solid var(--encre); flex-wrap:wrap}
     .fr{display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap}
-    .fr label{font-family:var(--f-titre); min-width:100px; font-size:14px; letter-spacing:.3px}
+    .fr label{font-family:var(--f-titre); min-width:112px; font-size:17px; letter-spacing:.3px}
+    /* Le plancher de 16 px de la #68 s'arretait a la porte des modales.
+       Il entre : etiquettes, notes, aides, en-tetes de tableau, champs. */
+    .mbox small{font-size:16px; line-height:1.35}
+    .mbox p{font-size:17px; line-height:1.45}
+    .mbox label{font-size:17px}
     .fr input,.fr select{
       font-family:var(--f-corps); font-size:17px; min-height:46px;
       border:2.5px solid var(--encre); border-radius:9px; padding:8px 12px; background:#fff; color:var(--text);
@@ -896,47 +905,73 @@
     .fr input[type=number]{width:78px}
     .fr input[type=checkbox]{width:24px; height:24px; min-height:0; accent-color:var(--cyan)}
     .chips{display:flex; flex-wrap:wrap; gap:5px}
-    .ck{font-family:var(--f-titre); font-size:13.5px; letter-spacing:.3px; padding:7px 14px; border-radius:18px; cursor:pointer;
-      border:2.5px solid var(--encre); background:#EDF2F5; color:var(--muted); user-select:none;
-      min-height:40px; display:flex; align-items:center}
-    .ck.on{background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C; box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+    .ck{font-family:var(--f-titre); font-size:17px; letter-spacing:.3px; padding:9px 16px; border-radius:22px; cursor:pointer;
+      border:2.5px solid var(--encre); background:var(--zg-repos); color:var(--zg-repos-txt); user-select:none;
+      min-height:44px; display:flex; align-items:center}
+    .ck:hover{filter:brightness(1.3)}
+    /* Un jour coche est un jour SELECTIONNE : cyan, comme partout ailleurs.
+       Il etait deja le seul controle de modale conforme a la regle. */
+    .ck.on{background:var(--zg-actif); color:var(--zg-actif-txt); box-shadow:2px 2px 0 rgba(0,0,0,.3)}
     .dt{width:100%; border-collapse:collapse; font-size:16px}
     .dt th{background:var(--encre); color:#fff; font-family:var(--f-titre); letter-spacing:.6px;
-      padding:9px 8px; text-align:left; font-size:13px}
-    .dt td{padding:8px; border-bottom:2px solid #E4EBEF; vertical-align:middle}
+      padding:10px 9px; text-align:left; font-size:16px}
+    .dt td{padding:9px 8px; border-bottom:2px solid #E4EBEF; vertical-align:middle; font-size:16px}
+    /* Les champs poses dans les cellules n'heritaient d'aucune regle : ils
+       tombaient a la taille par defaut du navigateur, 13,3 px. */
+    .dt input, .dt select{
+      font-family:var(--f-corps); font-size:16px; min-height:40px;
+      border:2px solid var(--encre); border-radius:8px; padding:6px 9px;
+      background:#fff; color:var(--text);
+    }
+    .dt input:focus, .dt select:focus{outline:3px solid var(--yellow); outline-offset:2px}
+    .dt small{font-size:16px}
     .dt tr:hover{background:#F2F9FC}
     .cdot{display:inline-block; width:13px; height:13px; border-radius:50%; border:2px solid var(--encre);
       vertical-align:middle; margin-right:5px}
 
+    /* LA MEME REGLE QUE PARTOUT. Au repos : marine. Dans une modale,
+       l'« actif » est le geste que la boite DEMANDE — celui de droite,
+       Sauvegarder / Ajouter / Dupliquer : il est cyan, et il est seul.
+       Les petits boutons de ligne (✏️ ✕) restent au repos : sept crayons
+       cyan dans un tableau, ce n'est plus une designation. */
     .btn{
-      font-family:var(--f-titre); font-weight:400; font-size:13.5px; letter-spacing:.4px;
-      padding:10px 18px 8px; min-height:44px; cursor:pointer;
+      font-family:var(--f-titre); font-weight:400; font-size:17px; letter-spacing:.4px;
+      padding:11px 20px 9px; min-height:46px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
-      display:inline-flex; align-items:center; gap:6px; transition:.09s;
-      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
-      box-shadow:0 4px 0 var(--ztsp-cyan-dark,#075A6B), 3px 6px 0 rgba(0,0,0,.3);
+      display:inline-flex; align-items:center; gap:7px; transition:.09s;
+      --zg-ombre: var(--zg-repos-ombre);
+      background:var(--zg-repos); color:var(--zg-repos-txt);
+      box-shadow:0 4px 0 var(--zg-ombre), 3px 6px 0 rgba(0,0,0,.3);
     }
-    .btn:hover{transform:translateY(-2px)}
-    .btn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 1px 2px 0 rgba(0,0,0,.3)}
-    .btn.g{background:linear-gradient(180deg,#C9FF6B,var(--green)); color:#1E3300; box-shadow:0 4px 0 #6F9E00, 3px 6px 0 rgba(0,0,0,.3)}
-    .btn.c{background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C}
-    .btn.r{background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#fff; box-shadow:0 4px 0 #A3003F, 3px 6px 0 rgba(0,0,0,.3)}
-    .btn.o{background:linear-gradient(180deg,#fff,#DCE7EC); color:var(--text); box-shadow:0 4px 0 #A9BCC5, 3px 6px 0 rgba(0,0,0,.3)}
-    .btn.sm{font-size:12px; padding:6px 11px 5px; min-height:36px; border-width:2.5px;
-      box-shadow:0 3px 0 rgba(0,0,0,.28), 2px 4px 0 rgba(0,0,0,.22)}
+    .btn:hover{transform:translateY(-2px); filter:brightness(1.28)}
+    .btn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--zg-ombre), 1px 2px 0 rgba(0,0,0,.3)}
+    .btn:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
+    /* Le geste demande par la boite. */
+    .macts .btn.g, .macts .btn.c{
+      --zg-ombre: var(--zg-actif-ombre);
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+    }
+    /* Supprimer une ligne. Comme « Vider » : le fond suit la regle, et
+       l'avertissement passe au trait et au mot, qui tiennent le contraste.
+       Le rose plein revient au survol, au moment ou le doigt s'engage. */
+    .btn.r{--zg-ombre:#5C0026; border-color:var(--red); color:#FFB3C9}
+    .btn.r:hover{background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#2B0011}
+    .btn.sm{font-size:16px; padding:8px 13px 7px; min-height:44px; border-width:2.5px;
+      box-shadow:0 3px 0 var(--zg-ombre), 2px 4px 0 rgba(0,0,0,.22)}
 
     .class-picker{display:flex; flex-direction:column; gap:8px}
     .class-picker .cp-btn{
       font-family:var(--f-titre); font-size:17px; letter-spacing:.4px;
       padding:14px 18px; min-height:56px; cursor:pointer; transition:.1s;
-      border:3px solid var(--encre); border-radius:var(--r-btn); background:#fff; color:var(--text);
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      background:var(--zg-repos); color:var(--zg-repos-txt);
       display:flex; align-items:center; justify-content:space-between;
-      box-shadow:0 5px 0 #A9BCC5, 5px 9px 0 rgba(0,0,0,.35);
+      box-shadow:0 5px 0 var(--zg-repos-ombre), 5px 9px 0 rgba(0,0,0,.35);
     }
-    .class-picker .cp-btn:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 7px 0 #A9BCC5, 6px 12px 0 rgba(0,0,0,.35); background:#EAF8FD}
-    .class-picker .cp-btn:active:not(:disabled){transform:translateY(4px); box-shadow:0 1px 0 #A9BCC5, 2px 4px 0 rgba(0,0,0,.35)}
-    .class-picker .cp-btn:disabled{opacity:.3; cursor:default; box-shadow:none}
-    .class-picker .cp-btn .cp-need{font-family:var(--f-titre); color:var(--ztsp-cyan-dark,#075A6B)}
+    .class-picker .cp-btn:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 7px 0 var(--zg-repos-ombre), 6px 12px 0 rgba(0,0,0,.35); filter:brightness(1.35)}
+    .class-picker .cp-btn:active:not(:disabled){transform:translateY(4px); box-shadow:0 1px 0 var(--zg-repos-ombre), 2px 4px 0 rgba(0,0,0,.35)}
+    .class-picker .cp-btn:disabled{opacity:.35; cursor:default; box-shadow:none}
+    .class-picker .cp-btn .cp-need{font-family:var(--f-titre); color:var(--cyan2)}
 
     /* ======================================================================
        MOBILE — rien d'ampute.
@@ -2686,21 +2721,21 @@ function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.remove()
 function openSetupModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
   const levs=['pres','1','2','3','4','5','6'],levL=[t('presco'),'1','2','3','4','5','6'];
-  let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);min-width:30px">${nomPeriode(p)}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
+  let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);min-width:30px">${nomPeriode(p)}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:16px;min-height:40px;padding:6px 8px;border:2px solid var(--encre);border-radius:8px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:16px;min-height:40px;padding:6px 8px;border:2px solid var(--encre);border-radius:8px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
   let sRows=S.subjects.map((su,i)=>`<tr><td><span class="cdot" style="background:${su.color}"></span><input type="text" value="${su.name}" data-si="${i}" data-sf="name" style="border:none;background:transparent;font-weight:600;width:120px"></td>${levs.map(l=>`<td><input type="number" value="${su.min[l]||0}" min="0" data-si="${i}" data-sl="${l}" style="width:42px;text-align:center;border:1px solid #eee;border-radius:3px;padding:2px"></td>`).join('')}<td><button class="btn r sm" data-delsub="${i}">✕</button></td></tr>`).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:720px"><h3>⚙️ ${t('configSchool')}</h3>
     <div class="fr"><label>${t('metierLabel')}</label><div class="zgm-mini">${Object.keys(GABARITS).map(id=>`<button type="button" data-m="${id}" aria-pressed="${S.metier===id?'true':'false'}" onclick="changerMetierReglages('${id}')">${nomMetier(id)}</button>`).join('')}</div></div>
     <div class="fr"><label>${t('schoolName')}</label><input type="text" id="sN" value="${S.school.name}" style="flex:1"></div>
     <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,7,8,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
-    <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||tache100Defaut()}" min="1" max="200" step="1" style="width:70px" oninput="const e=document.getElementById('sT100Note');if(e)e.textContent=t('tache100Manuel')"><button type="button" class="btn o sm" id="sT100R" title="${t('tache100Auto')}">↺</button> <small id="sT100Note" style="color:var(--muted);font-family:var(--f-note);font-size:14px">${S.school.tache100Manuel?t('tache100Manuel'):t('tache100Auto')}</small> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
-    ${couvertureTotale()?`<div class="fr"><label>${t('ratio')}</label><input type="number" id="sRa" value="${S.school.ratio||0}" min="0" max="60" style="width:60px"> <small style="color:var(--muted);font-family:var(--f-note);font-size:15px">${t('ratioAide')}</small></div>`:''}
+    <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||tache100Defaut()}" min="1" max="200" step="1" style="width:70px" oninput="const e=document.getElementById('sT100Note');if(e)e.textContent=t('tache100Manuel')"><button type="button" class="btn o sm" id="sT100R" title="${t('tache100Auto')}">↺</button> <small id="sT100Note" style="color:var(--muted);font-family:var(--f-note);font-size:16px">${S.school.tache100Manuel?t('tache100Manuel'):t('tache100Auto')}</small> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
+    ${couvertureTotale()?`<div class="fr"><label>${t('ratio')}</label><input type="number" id="sRa" value="${S.school.ratio||0}" min="0" max="60" style="width:60px"> <small style="color:var(--muted);font-family:var(--f-note);font-size:16px">${t('ratioAide')}</small></div>`:''}
     ${tPer().some(x=>x.pedago)?`<div class="fr"><label>${t('joursPedago')}</label><div class="zgm-mini">${Array.from({length:S.school.cycleDays},(_,i)=>i+1).map(d=>`<button type="button" aria-pressed="${estJourPedago(d)?'true':'false'}" onclick="basculerJourPedago(${d})">${d}</button>`).join('')}</div></div>`:''}
-    <div class="fr"><label>${t('avantP1')}</label><input type="checkbox" id="sAv" ${S.school.avantP1?'checked':''}> <small style="color:var(--muted);font-family:var(--f-note);font-size:15px">${t('avantP1Aide')}</small></div>
+    <div class="fr"><label>${t('avantP1')}</label><input type="checkbox" id="sAv" ${S.school.avantP1?'checked':''}> <small style="color:var(--muted);font-family:var(--f-note);font-size:16px">${t('avantP1Aide')}</small></div>
     <div class="fr"><label>${t('quotaMode')}</label><select id="sQM"><option value="periods" ${S.school.quotaMode==='periods'?'selected':''}>${t('quotaPeriods')}</option><option value="minutes" ${S.school.quotaMode==='minutes'?'selected':''}>${t('quotaMinutes')}</option></select></div>
     <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">⏰ ${t('dayStructure')}</div>
     <div id="sP" style="max-height:200px;overflow-y:auto">${pRows}</div>
-    <div style="display:flex;gap:5px;margin:6px 0"><button class="btn o sm" id="aJ" title="${t('journeeAide')}">🔄 ${t('journeeType')}</button><button class="btn c sm" id="aP">${t('addPeriod')}</button><button class="btn sm" id="aR" style="background:var(--yellow);color:#000">${t('addRecess')}</button><button class="btn sm" id="aL" style="background:var(--orange);color:#fff">${t('addLunch')}</button></div>
-    <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">📚 ${t('subjectsTitle')} <small style="font-family:var(--f-corps);font-weight:500;font-size:.7em;color:var(--muted)">(${S.school.quotaMode==='periods'?t('quotaPeriods'):t('quotaMinutes')})</small></div>
+    <div style="display:flex;gap:5px;margin:6px 0"><button class="btn o sm" id="aJ" title="${t('journeeAide')}">🔄 ${t('journeeType')}</button><button class="btn c sm" id="aP">${t('addPeriod')}</button><button class="btn sm" id="aR" style="border-color:var(--yellow)">${t('addRecess')}</button><button class="btn sm" id="aL" style="border-color:var(--orange)">${t('addLunch')}</button></div>
+    <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">📚 ${t('subjectsTitle')} <small style="font-family:var(--f-corps);font-weight:500;font-size:16px;color:var(--muted)">(${S.school.quotaMode==='periods'?t('quotaPeriods'):t('quotaMinutes')})</small></div>
     <div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('specSubject')}</th>${levL.map(l=>`<th>${l}</th>`).join('')}<th></th></tr></thead><tbody id="sS">${sRows}</tbody></table></div>
     <button class="btn c sm" style="margin-top:5px" id="aSu">${t('addSubject')}</button>
     <div class="macts"><button class="btn g" id="sSv">💾 ${t('save')}</button><button class="btn o" id="sCl">${t('close')}</button></div></div>`;
@@ -3555,7 +3590,7 @@ function ouvrirSurveillantsModal(){
      <td><button class="btn r sm" onclick="retirerSurveillant(${i})">✕</button></td></tr>`).join('');
   const ov=document.createElement('div');ov.className='modal';
   ov.innerHTML=`<div class="mbox"><h3>👥 ${t('survTitre')}</h3>
-    <p style="color:var(--muted);font-family:var(--f-note);font-size:15px;margin-bottom:10px">${t('survAide')}</p>
+    <p style="color:var(--muted);font-family:var(--f-note);font-size:16px;margin-bottom:10px">${t('survAide')}</p>
     <div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('specCode')}</th><th>${t('specName')}</th>
       <th>${t('survType')}</th><th>👁️</th><th></th></tr></thead><tbody>${specs}${autres}</tbody></table></div>
     <div class="macts">
