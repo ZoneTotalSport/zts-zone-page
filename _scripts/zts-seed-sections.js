@@ -28,7 +28,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const SOURCE = path.join(__dirname, '..', 'apps', 'jeux', 'data', 'jeux-merged.json');
+// 2026-09-02, vague 1 : le catalogue a quitte apps/jeux/data/ pour _data/.
+// Ce chemin pointait un fichier absent — le script plantait au premier
+// readFileSync. C'est le seul chemin EXECUTABLE encore mort ; les autres
+// occurrences du vieux chemin dans le depot sont de la prose de commentaire.
+const SOURCE = path.join(__dirname, '..', '_data', 'jeux-merged.json');
 const simulation = process.argv.includes('--simulation');
 
 function extraire() {
