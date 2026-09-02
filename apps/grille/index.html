@@ -237,7 +237,7 @@
        ====================================================================== */
     .zg-bar{
       display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center;
-      margin:0; padding:14px var(--zg-marge) 6px;
+      margin:0; padding:12px var(--zg-marge) 10px;
     }
     .zg-btn{
       display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
@@ -1057,43 +1057,6 @@
 <!-- Les fiches individuelles : bâties a la demande, invisibles a l'ecran. -->
 <div id="zg-perso"></div>
 
-<!-- ======================================================================
-     BARRE D'ACTIONS — gros boutons picto + un mot.
-     Cinq gestes courants toujours visibles ; le reste sous « Plus ».
-     ====================================================================== -->
-<div class="zg-bar" id="zgBar">
-  <button class="zg-btn" onclick="showHelp()" title="Comment utiliser la grille"><span class="zg-ic">❓</span><span data-t="btnAide">Aide</span></button>
-  <button class="zg-btn" onclick="openSetupModal()" title="Configurer l'ecole, le cycle et les matieres"><span class="zg-ic">⚙️</span><span data-t="btnConfig">Reglages</span></button>
-  <button class="zg-btn zg-btn--lime" onclick="solveSchedule()" title="Remplir la grille automatiquement"><span class="zg-ic">🤖</span><span data-t="btnAuto">Remplir</span></button>
-  <button class="zg-btn zg-btn--jaune" onclick="validateAll()" title="Verifier les conflits"><span class="zg-ic">✅</span><span data-t="btnValider">Verifier</span></button>
-  <button class="zg-btn" onclick="imprimerGrille()" title="Imprimer la grille"><span class="zg-ic">🖨️</span><span data-t="btnImprimer">Imprimer</span></button>
-
-  <span class="zg-crans" id="zgCrans" role="group" aria-label="Taille de la grille">
-    <button type="button" data-e="1" aria-pressed="true" onclick="poserEchelle(1,true)" data-t="zoomNormal">Normal</button>
-    <button type="button" data-e="1.45" aria-pressed="false" onclick="poserEchelle(1.45,true)" data-t="zoomGrand">Grand</button>
-    <button type="button" data-e="2" aria-pressed="false" onclick="poserEchelle(2,true)" data-t="zoomTni">Tableau</button>
-  </span>
-  <button class="zg-btn zg-btn--plus" id="zgPlus" onclick="basculerPlus()" aria-expanded="false" aria-controls="zgAvance" title="Plus d'options"><span class="zg-ic">▾</span><span data-t="btnPlus">Plus</span></button>
-
-  <select class="zg-lang" id="langSel" onchange="changeLang(this.value)" aria-label="Langue">
-    <option value="fr">FR</option>
-    <option value="en">EN</option>
-    <option value="es">ES</option>
-    <option value="zh">中文</option>
-  </select>
-
-  <!-- Divulgation progressive : l'avance ne s'affiche que sur demande. -->
-  <div class="zg-plus" id="zgAvance">
-    <button class="zg-btn" onclick="exportPDF()" title="Enregistrer en PDF"><span class="zg-ic">📄</span><span data-t="btnPDF">PDF</span></button>
-    <button class="zg-btn" onclick="exporterJSON()" title="Enregistrer une copie de securite"><span class="zg-ic">💾</span><span data-t="btnExport">Sauver</span></button>
-    <button class="zg-btn" onclick="declencherImport()" title="Recharger une copie de securite"><span class="zg-ic">📂</span><span data-t="btnImport">Ouvrir</span></button>
-    <button class="zg-btn" onclick="imprimerParPersonne()" title="Une page par personne"><span class="zg-ic">🧾</span><span data-t="btnImpPersonne">Par personne</span></button>
-    <button class="zg-btn" onclick="ouvrirDuplicationModal()" title="Copier une journée vers d'autres jours"><span class="zg-ic">⧉</span><span data-t="btnDupliquer">Dupliquer</span></button>
-    <button class="zg-btn" id="zgBtnFil" onclick="basculerFil()" title="Afficher ou masquer le guide"><span class="zg-ic">🧭</span><span data-t="btnGuide">Guide</span></button>
-    <button class="zg-btn zg-btn--rose" onclick="clearSchedule()" title="Effacer toute la grille"><span class="zg-ic">🗑️</span><span data-t="btnVider">Vider</span></button>
-    <input type="file" id="zgFichier" accept="application/json,.json" hidden onchange="importerJSON(this)">
-  </div>
-</div>
 
 <!-- ======================================================================
      LE FIL — bati vide, rempli par majFil() a chaque rendu.
@@ -1188,6 +1151,51 @@
   <span class="pill" id="pillH" style="display:none">🚫 0</span>
   <span class="pill" id="pillS" style="display:none">⚠️ 0</span>
   <span class="pill" id="pillR" style="display:none" title="Places d'adulte manquantes selon le ratio">👶 0</span>
+</div>
+
+<!-- ======================================================================
+     BARRE D'ACTIONS — gros boutons picto + un mot.
+     Cinq gestes courants toujours visibles ; le reste sous « Plus ».
+
+     Elle vit JUSTE au-dessus du plan de travail depuis le 2 septembre :
+     en haut de page, 186 px et deux bandes la separaient de la grille, et
+     l'outil qu'on cherche en travaillant dans le tableau etait derriere
+     tout le reste. Elle reste `static` — elle ne collait pas avant, et
+     deux bandes collantes empilees (le fil, puis elle) mangeraient 200 px
+     d'ecran en permanence.
+     ====================================================================== -->
+<div class="zg-bar" id="zgBar">
+  <button class="zg-btn" onclick="showHelp()" title="Comment utiliser la grille"><span class="zg-ic">❓</span><span data-t="btnAide">Aide</span></button>
+  <button class="zg-btn" onclick="openSetupModal()" title="Configurer l'ecole, le cycle et les matieres"><span class="zg-ic">⚙️</span><span data-t="btnConfig">Reglages</span></button>
+  <button class="zg-btn zg-btn--lime" onclick="solveSchedule()" title="Remplir la grille automatiquement"><span class="zg-ic">🤖</span><span data-t="btnAuto">Remplir</span></button>
+  <button class="zg-btn zg-btn--jaune" onclick="validateAll()" title="Verifier les conflits"><span class="zg-ic">✅</span><span data-t="btnValider">Verifier</span></button>
+  <button class="zg-btn" onclick="imprimerGrille()" title="Imprimer la grille"><span class="zg-ic">🖨️</span><span data-t="btnImprimer">Imprimer</span></button>
+
+  <span class="zg-crans" id="zgCrans" role="group" aria-label="Taille de la grille">
+    <button type="button" data-e="1" aria-pressed="true" onclick="poserEchelle(1,true)" data-t="zoomNormal">Normal</button>
+    <button type="button" data-e="1.45" aria-pressed="false" onclick="poserEchelle(1.45,true)" data-t="zoomGrand">Grand</button>
+    <button type="button" data-e="2" aria-pressed="false" onclick="poserEchelle(2,true)" data-t="zoomTni">Tableau</button>
+  </span>
+  <button class="zg-btn zg-btn--plus" id="zgPlus" onclick="basculerPlus()" aria-expanded="false" aria-controls="zgAvance" title="Plus d'options"><span class="zg-ic">▾</span><span data-t="btnPlus">Plus</span></button>
+
+  <select class="zg-lang" id="langSel" onchange="changeLang(this.value)" aria-label="Langue">
+    <option value="fr">FR</option>
+    <option value="en">EN</option>
+    <option value="es">ES</option>
+    <option value="zh">中文</option>
+  </select>
+
+  <!-- Divulgation progressive : l'avance ne s'affiche que sur demande. -->
+  <div class="zg-plus" id="zgAvance">
+    <button class="zg-btn" onclick="exportPDF()" title="Enregistrer en PDF"><span class="zg-ic">📄</span><span data-t="btnPDF">PDF</span></button>
+    <button class="zg-btn" onclick="exporterJSON()" title="Enregistrer une copie de securite"><span class="zg-ic">💾</span><span data-t="btnExport">Sauver</span></button>
+    <button class="zg-btn" onclick="declencherImport()" title="Recharger une copie de securite"><span class="zg-ic">📂</span><span data-t="btnImport">Ouvrir</span></button>
+    <button class="zg-btn" onclick="imprimerParPersonne()" title="Une page par personne"><span class="zg-ic">🧾</span><span data-t="btnImpPersonne">Par personne</span></button>
+    <button class="zg-btn" onclick="ouvrirDuplicationModal()" title="Copier une journée vers d'autres jours"><span class="zg-ic">⧉</span><span data-t="btnDupliquer">Dupliquer</span></button>
+    <button class="zg-btn" id="zgBtnFil" onclick="basculerFil()" title="Afficher ou masquer le guide"><span class="zg-ic">🧭</span><span data-t="btnGuide">Guide</span></button>
+    <button class="zg-btn zg-btn--rose" onclick="clearSchedule()" title="Effacer toute la grille"><span class="zg-ic">🗑️</span><span data-t="btnVider">Vider</span></button>
+    <input type="file" id="zgFichier" accept="application/json,.json" hidden onchange="importerJSON(this)">
+  </div>
 </div>
 
 <div class="layout">
