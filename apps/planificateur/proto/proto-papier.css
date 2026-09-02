@@ -751,19 +751,46 @@ html[data-etroit="1"] .ctx-barre{position:static}
 .ecrans-nav{gap:6px;padding:10px clamp(8px,1.4vw,16px);align-items:stretch}
 
 /* ═════ UNE PÉRIODE = UNE CARTE, PAS UNE BANDE ═════
-   Trois colonnes : QUAND · le cours · ses images. La carte respire — on lit sa
-   journée de loin, une image par cours. Joey accepte de défiler pour ça. */
+   ⚠ REFAIT LE 2 SEPTEMBRE (v162). La carte tenait sur TROIS colonnes —
+   QUAND · le cours · ses images — depuis le temps où la troisième portait la
+   bande d'illustrations. Cette bande est partie le 31 août ; les six boutons
+   ont pris sa place, et une colonne de 300 px les a mis EN COLONNE VERTICALE à
+   droite du cours. Mesuré à 1024 px : la piste du milieu tombait à 0, le
+   rectangle du groupe était écrasé à 68 px de large sur 633 de haut, .quand
+   débordait sa piste à 420 px et le document partait à 1167 px pour une fenêtre
+   de 1024 — un débordement horizontal.
+
+   La structure voulue par Joey, de haut en bas : le rectangle de couleur du
+   groupe sur toute la largeur, PUIS les six boutons en dessous, côte à côte,
+   qui retournent à la ligne au besoin. Jamais en colonne à droite.
+   Donc DEUX colonnes et DEUX rangées : QUAND tient la première colonne, étroite
+   et bornée ; le cours et ses boutons s'empilent dans la seconde.
+   La case grandit autant qu'il faut — pas de hauteur imposée. */
 .auj-per{
-  grid-template-columns:210px minmax(0,1fr) clamp(300px,26vw,420px);
-  gap:14px;padding:13px 15px;
+  grid-template-columns:140px minmax(0,1fr);
+  gap:12px 14px;padding:13px 15px;
 }
-.auj-per--plein{min-height:206px}
-.auj-per .quand b{font-size:30px}
-.auj-cours{display:flex;flex-direction:column;justify-content:center;padding:12px 14px}
-.auj-cours .gr{font-size:32px}
-.auj-cours .gr .img{font-size:32px}
-.auj-cours img.img{width:46px;height:46px;border-radius:10px}
-.auj-cours .quoi{font-size:22px;margin-top:6px}
+.auj-per--plein{
+  grid-template-rows:auto auto;
+  align-items:start;
+}
+/* ⚠ .quand est BORNÉE À 140 px : sans `min-width:0`, une piste de grille prend
+   la largeur minimale de son contenu, et « PÉRIODE 1 » en police de marque
+   mesurait 420 px d'un seul tenant — c'est lui qui poussait tout le reste
+   dehors. La borne et le retour à la ligne vont ensemble. */
+.auj-per .quand{
+  grid-column:1;grid-row:1 / -1;
+  min-width:0;max-width:140px;overflow-wrap:anywhere;
+}
+.auj-per--plein .auj-cours{grid-column:2;grid-row:1}
+.auj-per--plein .auj-fonc {grid-column:2;grid-row:2}
+/* la carte : le texte à gauche, la vignette à droite sur toute la hauteur.
+   Une grille plutôt qu'un placement absolu — rien ne peut se chevaucher. */
+.auj-cours{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 14px;
+  align-content:center;padding:12px 15px;
+}
+.auj-cours>*{grid-column:1;min-width:0}
 
 /* la bande d'illustrations — frère du bouton, jamais son enfant (piège n° 13) */
 .auj-illus{
@@ -1121,7 +1148,7 @@ html[data-etroit="1"] .hor-gr{font-size:14px;padding:4px 8px}
 .annee-cal thead th{font-size:26px}
 .ag-jour b{font-size:26px;line-height:1.25}
 .ag-per{font-size:26px;letter-spacing:.4px}
-.auj-per .quand b{font-size:44px;line-height:1.2}
+.auj-per .quand b{font-size:24px;line-height:1.15}
 
 /* le bandeau « DÉMARRER LA SÉANCE / MODE TABLEAU BLANC » de MA JOURNÉE :
    sa propre ligne, au-dessus du rail d'outils */
@@ -1164,3 +1191,81 @@ html[data-etroit="1"] .hor-gr{font-size:14px;padding:4px 8px}
 .auj-fonc .fonc-menu-perso{border-top:2px dashed rgba(8,19,30,.25);margin-top:4px}
 /* le lien vers la porte MON HORAIRE */
 .auj-vide .vers-horaire{cursor:pointer;text-decoration:underline}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LA CARTE DU GROUPE — CE QUI SE LIT DU FOND DU GYMNASE (2 septembre, v162)
+   Joey : l'emoji du sport très gros, le numéro du groupe ÉNORME en Luckiest
+   Guy. Sous eux, le titre qu'on écrit, puis une seule ligne d'infos. La carte
+   informe ; les six boutons en dessous agissent.
+   ⚠ TAILLES EN PIXELS, JAMAIS EN `vw`. Le proto tourne sous `html{zoom}` (2
+   par défaut) : `vw` se calcule sur la fenêtre NON zoomée, donc une taille en
+   `vw` sort doublée par rapport à la place réellement disponible. Un `clamp()`
+   en vw donnait ici un numéro de groupe de 151 px à l'écran. Les pixels, eux,
+   sont grossis par le zoom comme tout le reste — c'est la règle de ce fichier.
+   ────────────────────────────────────────────────────────────────────────── */
+.auj-cours .gr{
+  display:flex;align-items:center;gap:12px;line-height:.95;
+  font-family:var(--f-titre);letter-spacing:.5px;
+}
+.auj-cours .gr .img{font-size:40px;line-height:1}
+.auj-cours img.img{
+  width:56px;height:56px;
+  border-radius:12px;border:3px solid var(--noir);object-fit:cover;
+}
+.auj-cours .gr .num{font-size:46px;line-height:.9}
+
+/* le titre du cours : c'est CE QU'ON ÉCRIT, donc la police d'écriture.
+   ⚠ le trait pointillé dit « ça s'écrit ici » sans ajouter un mot. */
+.auj-cours .crs-titre{
+  font-family:var(--f-main);font-size:22px;line-height:1.15;
+  border-bottom:3px dashed rgba(0,0,0,.28);padding:1px 2px;margin-top:2px;
+  cursor:text;outline:none;
+}
+.auj-cours .crs-titre:hover{background:rgba(255,255,255,.22)}
+.auj-cours .crs-titre:focus{background:rgba(255,255,255,.34);border-bottom-style:solid}
+/* le repère d'invite hérite de l'encre de la carte : le gris global de
+   proto.css devenait illisible sur le cyan comme sur l'orange. */
+.auj-cours .crs-titre:empty::before{
+  content:attr(data-vide);color:currentColor;opacity:.62;font-style:italic;
+}
+.auj-cours .crs-infos{
+  font-family:var(--f-note);font-size:15px;line-height:1.2;opacity:.9;
+}
+/* la vignette de l'illustration — colonne de droite, jamais par-dessus le texte */
+.auj-cours .crs-vue{
+  grid-column:2;grid-row:1 / -1;align-self:center;margin:0;
+  width:78px;border:3px solid var(--noir);border-radius:10px;
+  overflow:hidden;background:#fff;box-shadow:3px 3px 0 var(--noir);
+}
+.auj-cours .crs-vue img{display:block;width:100%;height:100%;
+  aspect-ratio:4/3;object-fit:cover}
+/* pendant la séance : le temps qui court, et la suite */
+.auj-cours .crs-live{
+  display:flex;flex-wrap:wrap;gap:6px;margin-top:3px;
+}
+.auj-cours .crs-live span{
+  font-family:var(--f-titre);font-size:14px;letter-spacing:.3px;
+  border:3px solid var(--noir);border-radius:9px;padding:2px 9px;background:#fff;color:var(--ink);
+}
+.auj-cours .crs-live .crs-live-etat{background:#FF2D6F;color:#fff}
+
+/* ⚠ À 768 px la case passe sur UNE colonne : « PÉRIODE 1 » et son heure
+   reviennent en ligne au-dessus du cours, et la borne de 140 px n'a plus lieu
+   d'être — elle couperait le libellé en deux pour rien.
+
+   ⚠ IL FAUT REMETTRE `grid-row:auto` SUR LES TROIS, PAS SUR LA SEULE .quand.
+   Mesuré à 384 px de place réelle : en ne libérant que .quand, le cours gardait
+   sa rangée 1 et les boutons leur rangée 2 — .quand, en `auto`, se faisait
+   pousser en rangée 3 et « PÉRIODE 1 » se retrouvait SOUS les boutons, au bas
+   de la case. Les trois en `auto` : l'ordre du HTML reprend la main, et c'est
+   le bon — quand, puis le cours, puis les boutons. */
+html[data-etroit="1"] .auj-per .quand,
+html[data-etroit="1"] .auj-per--plein .auj-cours,
+html[data-etroit="1"] .auj-per--plein .auj-fonc{grid-column:1;grid-row:auto}
+html[data-etroit="1"] .auj-per .quand{max-width:none}
+@media(max-width:760px){
+  .auj-per .quand,.auj-per--plein .auj-cours,.auj-per--plein .auj-fonc{
+    grid-column:1;grid-row:auto;
+  }
+  .auj-per .quand{max-width:none}
+}

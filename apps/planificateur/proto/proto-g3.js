@@ -299,32 +299,7 @@ function peindreAujourdhui(){
       cours++;
       r.classList.add('auj-per--plein');
       const g=grpDe(s.gr)||{nom:'Groupe retiré',coul:'#9E9E9E',emo:'❓',img:'',eleves:[]};
-      const b=el('button','auj-cours'); b.type='button';
-      b.style.background=g.coul; b.style.color=encreSur(g.coul);
-      const tete=el('div','gr');
-      if (g.img){ const im=document.createElement('img'); im.className='img'; im.src=g.img; im.alt=''; tete.appendChild(im); }
-      else tete.appendChild(el('span','img', g.emo));
-      tete.appendChild(el('span',null, g.nom));
-      tete.appendChild(el('span','nb', (g.eleves||[]).length+' élèves'));
-      b.appendChild(tete);
-
-      const et=(s.etapes||[]).filter(e=>e.phase==='pendant'&&e.titre).map(e=>e.titre);
-      b.appendChild(el('span','quoi', et.length ? et.join(' · ')
-                                    : ((s.plan||'').trim() || 'rien d’écrit — touche pour planifier')));
-      const pu=el('div','puces');
-      const faits=(s.etapes||[]).filter(e=>e.fait).length, tot=(s.etapes||[]).length;
-      if (tot) pu.appendChild(el('span',null,'✔ '+faits+'/'+tot));
-      const np=Object.values(s.pres||{}).length;
-      if (np) pu.appendChild(el('span',null,'✅ '+np));
-      if ((s.evalCrits||[]).length) pu.appendChild(el('span',null,'📝 '+Object.keys(s.notes||{}).length));
-      if (s.minuterie) pu.appendChild(el('span',null,'⏱️ '+mmss(s.minuterie)));
-      if (pu.children.length) b.appendChild(pu);
-
-      b.title='Ouvrir le cours du groupe '+g.nom;
-      /* la planification est ce qu'on vient chercher : on force le volet */
-      /* même raison qu'en semaine : on vient voir SES ÉLÈVES */
-      b.addEventListener('click',()=>{ ecrire('seVolet','presences'); ouvrirSeance(ctxDate, p.n); });
-      r.appendChild(b);
+      r.appendChild(carteDuGroupe(ctxDate, p.n, s, g));
       /* ⚠ LA ZONE D'ILLUSTRATIONS A CÉDÉ LA PLACE (31 août, capture 3 de Joey).
          Le grand carré « glisse une image ici » occupait la moitié de la case
          pour un geste qu'on fait en préparant, pas en enseignant. Les images
@@ -614,6 +589,125 @@ const OUTILS = [
   ['📝','Message',   outilMessage, 'Un mot qui se lit de loin'],
   ['🏫','Mon école', ()=>allerA('e-reglages'), 'L’horaire, les jours-cycle, les étapes'],
 ];
+/* ══════════════════════════════════════════════════════════════════════════
+   LA CARTE DU GROUPE, DANS LA CASE DE LA PÉRIODE (2 septembre, lot v162)
+   Joey : « lisible du fond du gymnase ». La carte INFORME, les boutons AGISSENT
+   — c'est toute la règle de partage entre ce rectangle et la rangée en dessous.
+
+   Ce qu'elle porte, et rien d'autre :
+     · l'emoji du sport, très gros, et le NUMÉRO du groupe en Luckiest Guy
+     · le titre du cours du jour, ÉCRIVABLE SUR PLACE
+     · une ligne d'infos : X élèves · X activités · durée totale calculée
+     · la vignette de l'illustration du cours, s'il y en a une
+     · pendant la séance : « 🔴 en cours · X min » et la prochaine activité
+
+   ⚠ CE N'EST PLUS UN <button> — ET C'EST OBLIGATOIRE. Le titre est un
+   `contenteditable` : dans un <button>, le navigateur refuse l'édition et
+   avale le curseur. Même piège que le bouton dans un bouton (piège n° 13).
+   La carte est donc un <div role="button" tabindex="0"> — même patron que le
+   nom du groupe dans l'en-tête de la fiche, clavier compris.
+
+   ⚠ LE TITRE EST LA MÊME DONNÉE QUE LE CHAMP « Cours » DE LA FEUILLE
+   (`s.feuille.cours`). Une seule source : ce qu'on écrit ici s'affiche là-bas,
+   et l'inverse. On n'écrit PAS par `ecrireFeuille()`, qui vise la séance
+   OUVERTE : ici la fiche est fermée, on écrit la case directement.
+
+   ⚠ LES PUCES ONT DISPARU (✔ n/m, ✅, 📝, ⏱️) : Joey a tranché « rien
+   d'autre ». Aucune information n'est perdue de vue — les crochets ✓ des six
+   boutons disent déjà ce qui a servi, et « X activités » remplace ✔ n/m.
+   ────────────────────────────────────────────────────────────────────────── */
+function titreDuCours(s){ return ((s.feuille||{}).cours||'').trim(); }
+
+/* La première image posée dans une activité de la feuille — la vignette. */
+function vignetteDuCours(s){
+  let v=null;
+  (s.etapes||[]).forEach(e=> (e.medias||[]).forEach(m=>{
+    if (!v && m && m.type==='image' && m.data) v={data:m.data, nom:e.titre||m.nom||''};
+  }));
+  return v;
+}
+
+/* La prochaine activité à faire : la première non cochée, dans l'ordre des
+   phases. C'est ce qu'un prof cherche des yeux quand son cours est parti. */
+function prochaineActivite(s){
+  const rang={arrivee:0, pendant:1, fin:2};
+  return (s.etapes||[])
+    .filter(e=> !e.fait && (e.titre||'').trim())
+    .sort((a,b)=> (rang[a.phase]??9)-(rang[b.phase]??9))[0] || null;
+}
+
+function carteDuGroupe(iso, per, s, g){
+  const b=el('div','auj-cours');
+  b.setAttribute('role','button'); b.tabIndex=0;
+  b.style.background=g.coul; b.style.color=encreSur(g.coul);
+
+  /* ── l'emoji du sport + le numéro, énormes ── */
+  const tete=el('div','gr');
+  if (g.img){ const im=document.createElement('img'); im.className='img'; im.src=g.img; im.alt=''; tete.appendChild(im); }
+  else tete.appendChild(el('span','img', g.emo));
+  tete.appendChild(el('span','num', g.nom));
+  b.appendChild(tete);
+
+  /* ── le titre du cours, écrit ICI, gros ── */
+  const t=el('div','crs-titre');
+  t.contentEditable='true'; t.dataset.vide='Nomme ton cours…';
+  t.textContent=titreDuCours(s);
+  t.title='Le nom de ton cours — c’est le même que « Cours » sur la feuille';
+  t.setAttribute('aria-label','Titre du cours');
+  /* ⚠ le titre ne doit PAS ouvrir le portrait : on écrit dedans. */
+  ['click','keydown','keyup','pointerdown','mousedown']
+    .forEach(ev=> t.addEventListener(ev, e=> e.stopPropagation()));
+  /* Entrée valide et sort, plutôt que d'insérer une ligne dans un titre. */
+  t.addEventListener('keydown', e=>{ if (e.key==='Enter'){ e.preventDefault(); t.blur(); } });
+  t.addEventListener('blur',()=>{
+    const v=t.textContent.trim();
+    const cur=seanceDe(iso,per); if(!cur) return;
+    cur.feuille=cur.feuille||{};
+    if (cur.feuille.cours===v) return;      /* rien changé : on ne redessine pas */
+    cur.feuille.cours=v;
+    ecrire(cleSeance(iso,per), cur);
+    peindreAujourdhui();
+  });
+  b.appendChild(t);
+
+  /* ── la ligne d'infos : élèves · activités · durée ── */
+  const act=(s.etapes||[]).filter(e=>(e.titre||'').trim()||(e.desc||'').trim()).length;
+  const sec=(s.etapes||[]).reduce((a,e)=>a+(e.duree||0),0);
+  const bouts=[(g.eleves||[]).length+' élève'+((g.eleves||[]).length>1?'s':''),
+               act+' activité'+(act>1?'s':'')];
+  if (sec) bouts.push(Math.round(sec/60)+' min en tout');
+  b.appendChild(el('div','crs-infos', bouts.join(' · ')));
+
+  /* ── la vignette de l'illustration, s'il y en a une ── */
+  const v=vignetteDuCours(s);
+  if (v){
+    const f=document.createElement('figure'); f.className='crs-vue';
+    const im=document.createElement('img'); im.src=v.data; im.alt=v.nom||'';
+    f.appendChild(im); b.appendChild(f);
+  }
+
+  /* ── pendant la séance : le temps écoulé et la suite ── */
+  const debut=lire('live',null);
+  if (debut && lire('liveOu','')===iso+'|'+per){
+    const min=Math.max(0, Math.floor((Date.now()-debut)/60000));
+    const z=el('div','crs-live');
+    z.appendChild(el('span','crs-live-etat','🔴 en cours · '+min+' min'));
+    const n=prochaineActivite(s);
+    if (n) z.appendChild(el('span','crs-live-suite','➡️ '+n.titre
+            +(n.duree ? ', '+Math.round(n.duree/60)+' min' : '')));
+    b.appendChild(z);
+  }
+
+  /* ⚠ TOUCHER LA CARTE AILLEURS QUE SUR LE TITRE OUVRE LE PORTRAIT DU GROUPE
+     (décision de Joey, 2 septembre). La planification garde sa seule porte :
+     le bouton 📋 en dessous. On venait ici pour ses élèves, pas pour sa feuille. */
+  b.title='Voir le groupe '+g.nom;
+  const ouvrirPortrait=()=>{ ecrire('seVolet','portrait'); ouvrirSeance(iso, per); };
+  b.addEventListener('click', ouvrirPortrait);
+  b.addEventListener('keydown', e=>{
+    if (e.key==='Enter'||e.key===' '){ e.preventDefault(); ouvrirPortrait(); } });
+  return b;
+}
 /* ══════════════════════════════════════════════════════════════════════════
    LES FONCTIONS DU COURS, DANS LA CASE DU GROUPE (31 août, capture 3)
    Six petits boutons sous le cours : présences, linge, mot, évaluation, la
