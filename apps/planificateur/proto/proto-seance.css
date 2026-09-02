@@ -603,3 +603,90 @@
 }
 .feuille-enmots summary{font-family:var(--f-titre);font-size:15px;cursor:pointer;letter-spacing:.3px}
 @media(max-width:760px){ .fbloc-corps{grid-template-columns:1fr} }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LA FEUILLE EN GRAND (2 septembre, v163)
+   Joey, dicté : « tout est trop petit, on ne voit pas les cycles ».
+   « En grand » veut dire DES TAILLES, pas du plein écran : la feuille garde sa
+   structure, son bandeau et son ◀ RETOUR. Elle enfle sur place.
+
+   ⚠ TOUT EST EN PIXELS DE MISE EN PAGE, jamais en `vw`. Le proto tourne sous
+   `html{zoom}` (2 par défaut) et `vw` se calcule sur la fenêtre NON zoomée :
+   une taille en vw sortirait au double. Chaque valeur ci-dessous est donc à
+   multiplier par le zoom pour savoir ce que l'œil verra — 28 px de titre de
+   bloc font 56 px à l'écran au réglage courant.
+
+   ⚠ CE BLOC EST APRÈS la media query ci-dessus, donc après tout le reste de la
+   feuille : à spécificité égale c'est le dernier qui gagne. C'est voulu — on
+   surcharge les tailles sans toucher aux règles d'origine, et un retour en
+   arrière consiste à retirer ce bloc, rien d'autre.
+   ────────────────────────────────────────────────────────────────────────── */
+.feuille{padding:18px}
+.feuille-titre{font-size:34px;margin:0 0 16px}
+
+/* ── le bandeau du haut ── */
+.feuille-haut{gap:14px;padding:14px;margin-bottom:16px}
+.fch{gap:5px;min-width:150px}
+.fch--large{min-width:280px}
+.fch-lab{font-size:18px}
+/* ⚠ `.feuille` DEVANT, ET CE N'EST PAS DE LA COQUETTERIE. proto-papier.css est
+   la dernière feuille chargée et y pose `[contenteditable]{font-size:20px}` :
+   même spécificité qu'un `.fch-z` tout seul (0-1-0), donc c'est lui qui gagnait
+   et les champs restaient à 20 px au lieu de 23. Le piège est déjà consigné au
+   bas de proto-papier.css ; on le contourne en nommant le parent, plutôt qu'en
+   déménageant la règle loin de la feuille à laquelle elle appartient. */
+.feuille .fch-z{font-size:23px;min-height:48px;padding:9px 12px;border-radius:10px}
+.feuille .fch-z--haut{min-height:190px}
+.fch-tot{font-size:26px;min-height:48px;padding:9px 12px}
+
+/* ⚠ LES CYCLES ÉTAIENT LE POINT DE DÉPART DE LA DEMANDE : « on ne voit pas les
+   cycles ». Trois vraies plaques qu'on frappe du pouce, plus des cases. */
+.fch-cycles{gap:9px}
+.fcyc{
+  font-size:22px;padding:14px 22px;border-radius:12px;min-width:118px;
+  box-shadow:3px 3px 0 var(--noir);
+}
+.fcyc[aria-pressed="true"]{
+  background:var(--jaune);
+  box-shadow:3px 3px 0 var(--noir),0 0 0 4px var(--noir) inset;
+}
+
+/* ── un bloc = une activité, et il occupe la page ──
+   Cible de Joey : la largeur et une bonne part de la hauteur d'un écran de
+   tablette. On accepte de défiler — un bloc lisible vaut mieux que trois
+   comprimés. Le bloc est une colonne flex pour que le descriptif et
+   l'illustration se PARTAGENT la hauteur restante au lieu de la subir. */
+.fbloc{
+  display:flex;flex-direction:column;gap:12px;
+  border-width:4px;border-radius:16px;padding:18px;margin-bottom:18px;
+  min-height:560px;
+}
+.fbloc-phase{font-size:24px;color:var(--ink);margin-bottom:0}
+.fbloc-titre{gap:5px;margin-bottom:0}
+.fbloc-titre .fch-z{font-size:28px;min-height:60px}
+.fbloc-corps{flex:1;gap:14px;min-height:0}
+.fbloc-desc,.fbloc-illus{gap:5px}
+.fbloc-desc .fch-z--haut{flex:1}
+.fillus{flex:1;min-height:220px;border-radius:12px;padding:9px}
+.fillus img{max-height:none;height:100%;max-width:100%;object-fit:contain}
+.fillus .doc{font-size:44px}
+.fillus-vide{font-size:19px}
+.fbloc-duree{gap:12px;margin-top:0}
+.fch-duree{width:118px;font-size:24px;padding:9px 12px;border-radius:10px}
+.fbloc-duree .etape-go{font-size:20px;padding:9px 14px;border-radius:10px}
+
+.feuille-enmots{padding:12px 16px}
+.feuille-enmots summary{font-size:20px}
+
+/* ⚠ EN ÉTROIT, LA HAUTEUR IMPOSÉE TOMBE. Le descriptif et l'illustration
+   passent l'un sous l'autre : leur somme dépasse déjà les 560 px, et les
+   imposer en plus ferait une case à moitié vide en haut de chaque bloc.
+   On garde les tailles de police — c'est là qu'est la demande. */
+html[data-etroit="1"] .fbloc-corps{grid-template-columns:1fr}
+html[data-etroit="1"] .fbloc{min-height:0}
+html[data-etroit="1"] .fillus{min-height:170px}
+@media(max-width:760px){
+  .fbloc{min-height:0}
+  .fillus{min-height:170px}
+}
+

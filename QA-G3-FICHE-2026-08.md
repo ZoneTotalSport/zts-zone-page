@@ -206,3 +206,186 @@ chargement. Toutes les valeurs de ce complément sont relevées après chargemen
 Les cinq captures et les deux ajouts sont **livrés et vérifiés par émulation**.
 Aucun défaut nouveau. **La fiche est FIGÉE jusqu'au lot A1** : plus aucune
 modification de `apps/planificateur/proto/` sans nouvelle demande de Joey.
+
+---
+---
+
+# COMPLÉMENT QA — le lot CASE-DU-GROUPE + FEUILLE (2 septembre)
+
+**Versions testées** : `?v=162` (case du groupe) puis `?v=163` (feuille en
+grand + crochet). Branche `proto/g2`, worktree dédié servi sur le port 8789.
+Même méthode : mesures DOM et styles calculés, **aucune conclusion tirée d'une
+capture** — la limite **L-1** tient toujours, le panneau revient marine uni.
+
+⚠ **Toutes les largeurs de ce complément sont EFFECTIVES** — largeur de fenêtre
+÷ zoom. Le proto tourne sous `html{zoom}` (2 par défaut) : « 768 px » se
+mesure donc dans une fenêtre de 1536 px. `getBoundingClientRect()` rend du
+pixel zoomé, `getComputedStyle()` du pixel de mise en page ; les deux sont
+ramenés ici en pixels de mise en page.
+
+---
+
+## 1. La case période — le défaut de v161, mesuré puis corrigé
+
+La case tenait sur **trois** colonnes depuis que la troisième portait la bande
+d'illustrations. Cette bande est partie le 31 août ; les six boutons ont pris
+sa place, et une colonne de 300 px les a rangés en colonne verticale.
+
+| Mesure (px de mise en page) | v161 | v162 à 768 · 840 · 1024 |
+|---|---|---|
+| pistes de la grille | `210px 0px 300px` | `140px 1fr` |
+| `.quand` | **420** (débordait sa piste de 210) | **140 · 140 · 140** |
+| `.auj-cours` | **68 × 633** — écrasé | **510 · 576 · 754**, pleine largeur |
+| `.auj-fonc` | 615 × 633, **en colonne à droite** | même largeur que la carte, **en dessous** |
+| les 6 boutons | 6 lignes = une colonne | **2 lignes** aux trois largeurs |
+| largeur du document | **1167** pour une fenêtre de 1024 | = la fenêtre, **aucun débordement** |
+
+Vérifié aussi à **384 px effectifs** (`data-etroit=1`) : une seule colonne, dans
+l'ordre `QUAND` → carte → boutons, sans débordement.
+
+## 2. La carte du groupe — contenu et gestes
+
+| Point | Verdict | Preuve |
+|---|---|---|
+| Emoji du sport très gros | ✅ | 40 px de mise en page — 80 px à l'écran au zoom courant |
+| Numéro du groupe énorme, Luckiest Guy | ✅ | 46 px, famille calculée `LuckiestGuy` — 92 px à l'écran |
+| Titre du cours du jour | ✅ | champ à 22 px, invite `Nomme ton cours…` mesurée dans le `::before` |
+| Ligne d'infos | ✅ | « 6 élèves · 4 activités · 33 min en tout » — la durée est calculée, pas saisie |
+| Vignette de l'illustration | ✅ | présente quand une activité porte une image, absente sinon |
+| « 🔴 en cours · X min » | ✅ | mesuré **« 🔴 en cours · 7 min »** sur une séance démarrée 7 min plus tôt |
+| La prochaine activité | ✅ | **« ➡️ Relais navette, 10 min »** — la première non cochée, dans l'ordre des phases |
+| Rien d'autre | ✅ | `.puces` : **0** dans le DOM |
+| La case voisine, hors séance | ✅ | aucun `.crs-live` |
+| Titre ↔ champ « Cours » de la feuille | ✅ | écrit dans la carte → lu dans la feuille ; écrit dans la feuille → lu dans la carte. **Une seule donnée**, `s.feuille.cours` |
+| Toucher le titre n'ouvre rien | ✅ | `seVolet` inchangé, aucune fiche ouverte |
+| Toucher ailleurs → portrait | ✅ | `seVolet='portrait'`, et `#seDetail` affiche « Tout ce qui a été consigné pour 101… » |
+| Au clavier | ✅ | `Entrée` sur la carte ouvre le portrait ; `role=button`, `tabindex=0` |
+| Infobulle | ✅ | **« Voir le groupe 101 »** |
+
+## 3. La feuille en grand (v163)
+
+Demande dictée : « tout est trop petit, on ne voit pas les cycles ».
+**« En grand » = des tailles, pas du plein écran** : la structure de l'addenda
+§5 est intacte — ordre réel mesuré aux trois largeurs :
+`◀ RETOUR` → `.feuille` → `.feuille-enmots`.
+
+| Élément | Avant | Après | Rapport |
+|---|---|---|---|
+| Titre de la feuille | 26 px | **34 px** | 1,31× |
+| Étiquettes de champ | 13 px | **18 px** | 1,38× |
+| **Champs de saisie du bandeau** | 17 px | **23 px** | **1,35×** ✅ (cible ≥ 1,3×) |
+| Titre d'un bloc | 17 px | **28 px** | 1,65× |
+| Libellé de phase (Luckiest Guy) | 14 px | **24 px** | 1,71× |
+| Champ Durée | 16 px | **24 px** | 1,50× |
+| Bouton ▶ de l'étape | 13 px | **20 px** | 1,54× |
+| Total du bandeau | 19 px | **26 px** | 1,37× |
+
+**Les cycles** — c'était le point de départ de la demande. Les trois cases sont
+devenues des plaques de **146 × 56 px** de mise en page (soit **292 × 112 px à
+l'écran**), texte à 22 px, aux trois largeurs. Bascule vérifiée :
+un clic sur « 3e cycle » écrit `feuille.cycle='3e'` et `aria-pressed` passe à
+`false · false · true`.
+
+**Les blocs d'activité**, cible « la largeur et une bonne part de la hauteur
+d'un écran de tablette » :
+
+| Largeur effective | Bloc | Descriptif | Illustration | Débordement |
+|---|---|---|---|---|
+| **768** | 644 × 560 | 293 × 270 | 293 × 270 | aucun |
+| **840** | 716 × 560 | 329 × 270 | 329 × 270 | aucun |
+| **1024** | 900 × 560 | 421 × 270 | 421 × 270 | aucun |
+| **384** (étroit) | 279 × 695 | pleine largeur | 235 × 170 | aucun |
+
+À 384 px la hauteur imposée de 560 px tombe et le corps passe sur une colonne :
+le descriptif et l'illustration l'un sous l'autre dépassent déjà cette hauteur,
+et l'imposer aurait laissé du vide en haut de chaque bloc. **Les tailles de
+police, elles, sont conservées** — c'est là qu'était la demande.
+
+## 4. Le crochet de « 📋 Voir la planification » (v163)
+
+Il testait `titre || desc`. Or **deux des trois étapes semées portent déjà un
+titre** — « Arrivée » et « Fin du cours » : le crochet était donc allumé sur une
+séance neuve, avant toute saisie. Il ne disait plus rien.
+
+La règle vit maintenant dans `planificationSaisie()`, **écrite juste à côté de
+la semence** pour que les deux ne divergent pas.
+
+| Cas | Attendu | Mesuré |
+|---|---|---|
+| Séance neuve (les 3 étapes semées) | éteint | **éteint** ✅ *(v162 : allumé)* |
+| Un titre saisi | allumé | **allumé** ✅ |
+| Une durée seule | allumé | **allumé** ✅ *(l'ancien test la ratait)* |
+| Un descriptif seul | allumé | **allumé** ✅ |
+| Des espaces seulement | éteint | **éteint** ✅ |
+
+## 5. Correspondance avant / après — ce que la carte portait
+
+| Avant (v161) | Après (v162-163) | Fonction perdue ? |
+|---|---|---|
+| Le nom du groupe, 32 px, à côté de l'emoji | **le numéro à 46 px en Luckiest Guy**, l'emoji à 40 px | non — c'est la demande |
+| `.quoi` : les titres des étapes « pendant », ou `s.plan`, ou « rien d'écrit — touche pour planifier » | **le titre du cours, écrit sur place**, invite « Nomme ton cours… » | non — remplacé par une donnée qu'on peut modifier là où on la lit. Les titres d'étapes restent lisibles dans la feuille et, en séance, dans « ➡️ prochaine activité » |
+| `.puces` **✔ faits/total** | **« X activités »** dans la ligne d'infos, et la progression se lit dans la feuille | non |
+| `.puces` **✅ présences** | **le crochet ✓ du bouton ✅ Présences** | non |
+| `.puces` **📝 notes** | **le crochet ✓ du bouton 📝 Évaluation** | non |
+| `.puces` **⏱️ minuterie** | **la durée totale** dans la ligne d'infos, et le ▶ de chaque étape dans la feuille | non |
+| Clic sur la carte → **fiche, volet Présences** | clic → **portrait du groupe** ; les présences ont leur propre bouton ✅ juste en dessous | non — un geste de moins pour les présences |
+| Infobulle « Ouvrir le cours du groupe 101 » | **« Voir le groupe 101 »** | non |
+| `.auj-cours` = `<button>` | `<div role="button" tabindex="0">` | non — clavier vérifié |
+
+**Deux règles CSS deviennent orphelines** : `.auj-cours .quoi` et
+`.auj-cours .puces`. Elles sont **laissées en place, volontairement** — les
+retirer sortirait du périmètre de ce lot, et Joey peut vouloir revoir les puces.
+Elles ne s'appliquent à rien et ne coûtent rien.
+
+## 6. Non-régression et console
+
+| Point | Verdict |
+|---|---|
+| 9 portes de la barre | ✅ 8 boutons + le menu 🔗 MES AUTRES APPS |
+| Tiroir JEUX, minuterie, buzzers | ✅ intacts |
+| ◀ RETOUR de la feuille | ✅ vide bien `#seDetail` |
+| Persistance du cycle et des champs | ✅ écrits dans `s.feuille`, relus au rechargement |
+| Console | ✅ écouteurs `error` + `unhandledrejection`, parcours complet : **0 erreur** |
+
+## 7. Deux pièges payés dans ce lot — à ne pas repayer
+
+**`vw` est un mensonge sous `html{zoom}`.** Les unités `vw` se calculent sur la
+fenêtre NON zoomée : un premier jet en `clamp(…vw…)` sortait le numéro du groupe
+à 151 px à l'écran. **Écrire les tailles du proto en pixels**, que le zoom
+grossit comme le reste.
+
+**`[contenteditable]{font-size:20px}` de proto-papier.css gagne sur `.fch-z`.**
+Même spécificité (0-1-0), et proto-papier.css est la **dernière** feuille
+chargée : les champs restaient à 20 px au lieu de 23. Nommer le parent
+(`.feuille .fch-z`) plutôt que déménager la règle. C'est le piège déjà consigné
+au bas de proto-papier.css, rencontré une deuxième fois.
+
+## 8. Limites — inchangées
+
+**L-1** — aucune conclusion tirée d'une capture : le panneau ne peint pas quand
+il est masqué, les captures reviennent marine uni.
+**L-2** — 320 et 375 px toujours non testables ; largeurs réellement éprouvées
+ici : **384, 768, 840 et 1024 px effectifs**.
+**L-3** — Safari iOS non testé.
+**L-5** — mesures prises après chargement, jamais après un `resize`.
+
+## 9. Verdict et statut
+
+Les cinq points du lot sont **livrés et vérifiés par émulation**. Un défaut
+trouvé et corrigé en cours de route : en mode étroit, ne libérer que `.quand`
+de sa rangée la faisait passer **sous** les boutons, au bas de la case — les
+trois enfants repassent maintenant en `grid-row:auto` ensemble.
+
+**La fiche et la case du groupe sont FIGÉES jusqu'au lot A1.** Plus aucune
+modification de `apps/planificateur/proto/` sans nouvelle demande de Joey.
+
+**G3-FICHE reste OUVERT** : les gestes tactiles ne sont toujours pas validés, et
+ce lot en ajoute. À éprouver au doigt sur la tablette :
+
+1. **Le titre du cours dans la carte** — écrire dedans sans ouvrir le portrait,
+   et ouvrir le portrait sans tomber dans le champ. C'est le geste neuf le plus
+   exposé du lot : deux cibles superposées dans le même rectangle.
+2. **Les six boutons de la case**, maintenant sur deux lignes sous la carte.
+3. **Les trois plaques de cycle** — 292 × 112 px à l'écran, elles devraient
+   enfin se frapper du pouce ; c'est à confirmer.
+4. **Les champs de la feuille** agrandis, et le champ de durée à côté du ▶.

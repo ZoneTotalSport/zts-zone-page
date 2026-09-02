@@ -105,6 +105,28 @@ function poserSeance(iso, per, s){
 }
 /* Une séance neuve part de la structure d'une vraie planification :
    ARRIVÉE → ce qu'on fait pendant → FIN DU COURS. */
+/* ⚠ LES TITRES QUE LA SÉANCE PORTE EN NAISSANT. Ils sont écrits ici, une fois,
+   parce que deux endroits en dépendent : `seanceVide()` qui les pose, et
+   `planificationSaisie()` qui doit savoir les IGNORER. Séparés, ils auraient
+   fini par diverger — et le crochet se serait rallumé tout seul. */
+const TITRES_SEMENCE = ['Arrivée','Fin du cours'];
+
+/* A-T-ON VRAIMENT PLANIFIÉ QUELQUE CHOSE ? (2 septembre — demande de Joey)
+   Le crochet de « 📋 Voir la planification » s'allumait sur une séance neuve :
+   il testait `titre || desc`, et deux des trois étapes semées portent DÉJÀ un
+   titre (« Arrivée », « Fin du cours »). Un crochet qui s'allume tout seul ne
+   dit plus rien.
+   Compte donc pour une saisie : un descriptif, une durée, ou un titre qui n'est
+   pas celui de la semence. */
+function planificationSaisie(s){
+  return (s && s.etapes || []).some(e=>{
+    const t=(e.titre||'').trim();
+    return (e.desc||'').trim() !== ''
+        || (e.duree||0) > 0
+        || (t !== '' && TITRES_SEMENCE.indexOf(t) < 0);
+  });
+}
+
 function seanceVide(grId){
   /* ⚠ AUCUNE DURÉE IMPOSÉE. Joey : « le temps, c'est à la discrétion de
      l'internaute ». Les étapes naissent sans durée ; il met la sienne. */

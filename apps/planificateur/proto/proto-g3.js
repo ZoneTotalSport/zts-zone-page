@@ -774,8 +774,11 @@ function fonctionsDuCours(iso, per, s, g){
      Démarrer / Arrêter. Hors séance, la porte ouvre la feuille de
      planification ; pendant le cours, elle ouvre le déroulement à suivre. Le
      comportement était déjà celui-là ; c'est le mot qui mentait. */
+  /* ⚠ LE CROCHET NE S'ALLUME QUE SUR UNE VRAIE SAISIE — titre, descriptif ou
+     durée — et jamais sur les trois étapes semées, dont deux naissent avec un
+     titre. La règle vit dans `planificationSaisie()`, à côté de la semence. */
   bouton('fonc--large', '📋', enCours ? 'Suivre mon cours' : 'Voir la planification',
-         (s.etapes||[]).some(e=>e.titre||e.desc),
+         planificationSaisie(s),
          enCours ? 'Le déroulement, étape par étape'
                  : 'La feuille de planification journalière', ()=>ouvrir('cours'));
 
