@@ -54,15 +54,17 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 |---|---|---|
 | **V0 — Inventaire** | ✅ Fait, **⚠ jamais poussé** | `82ef43dc` sur la branche locale `inventaire/vague-0`. **`INVENTAIRE-SITE.md` n'est pas sur `main`** : il vit sur une branche locale, jamais poussée. Si ce Mac tombe, l'inventaire est perdu. |
 | **V1 — Contrat, kills, bogues** | ✅ Fusionnée | PR **#72** (`a4e4c6d3`) → correctif Jekyll `c11b4409` → PR **#75** (`892d2b17`). |
-| **V2 — Pilier Jeux** | 🟢 PR **#76** ouverte, en attente de test | Branche `vague-2/jeux-donnees`, 3 commits, poussée le 2 sept. |
+| **V2 — Pilier Jeux** | 🟢 PR A **fusionnée** (`cf1ab3da`), PR B prête | Branche `vague-2/jeux-ui`. |
 
 **V2, les trois PR :**
 
 | PR | Contenu | État |
 |---|---|---|
-| **A — Données** | 113 items, **12** doublons, **101** inédits, catalogue 1439 → **1540**. Collections = règles : **887** jeux étiquetés. Filtre matériel : 10 catégories, **95,9 %** de couverture | 🟢 **PR #76** — décisions de Joey du 2 sept. appliquées |
-| **B — UI** | Recherche, filtres croisés, rangées de collections, partage par jeu | 🟡 **Bloquée** — attend la fusion de A |
+| **A — Données** | 113 items, 12 doublons, 101 inédits, catalogue 1439 → **1540**, 887 jeux étiquetés, 10 catégories de matériel | ✅ **Fusionnée** (PR #76) |
+| **B — UI** | Filtres croisés (univers, durée, âge, matériel), rangée de 14 collections, partage + lien fiche par jeu. **2 bogues préexistants corrigés** : favoris et impression cassés sur les 1540, filtre « cycle » qui ne filtrait rien | 🟢 **Prête** — `RAPPORT-QA-JEUX.md`, 0 blocage |
 | **C — Bascule** | Les 14 dossiers deviennent des relais, hubs et sitemap à jour | 🟡 **Bloquée** — attend la fusion de B |
+
+**Dettes ouvertes par la PR B** : `unpkg.com/lucide@latest` non épinglé dans `apps/jeux` (préexistant) ; `.zc-intro-carte` à 13,5 px sous le seuil de 14 px de la grille.
 
 ---
 
@@ -114,9 +116,9 @@ https://github.com/ZoneTotalSport/zts-zone-page/pull/76
 
 ## Prochaines actions Joey
 
-1. **Tester et fusionner la PR #76** après lecture de `RAPPORT-COLLECTIONS-JEUX.md` — les
-   **12** doublons restants, et surtout les **2 collections très larges** (Plan B météo à
-   448, Jeux rapides à 214) : leur règle est-elle une rangée, ou juste un filtre ?
+1. **Tester et fusionner la PR B** — les trois gestes sont écrits en §8 de
+   `RAPPORT-QA-JEUX.md` : Jeux calmes + SDG doit donner 46 jeux, Plan B météo doit ouvrir
+   les filtres tout seul, et l'étoile d'un jeu doit marcher pour la première fois.
 2. **Ouvrir P0 — le cadre légal.** Rien n'est entamé, et sans lui pas de Stripe en
    février 2027. C'est la seule phase qui avance en parallèle du site.
 3. **Pousser `inventaire/vague-0`**, ou accepter que `INVENTAIRE-SITE.md` n'existe que sur

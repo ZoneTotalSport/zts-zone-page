@@ -69,7 +69,7 @@ const BANQUES = {
     // c'est du texte de fiche, donc de la valeur (voir RAPPORT-COLLECTIONS-JEUX.md).
     liste: ["id", "title", "titleEn", "category", "categoryName", "categoryIcon",
             "categoryColor", "ageMin", "ageMax", "duree", "niveauActivite",
-            "collections", "univers", "dureeMin"],
+            "collections", "univers", "dureeMin", "materielCat"],
     vitrines: "jeux",
     public: true,
   },
