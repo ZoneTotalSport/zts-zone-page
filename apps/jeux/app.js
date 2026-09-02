@@ -598,8 +598,8 @@ function applyLanguage() {
 
   // Update page title
   document.title = lang === 'fr'
-    ? 'Répertoire de Jeux EPS | 1439 Jeux - Banque mondiale'
-    : 'PE Game Library | 1439 Games - World Library';
+    ? 'Répertoire de Jeux EPS | 1540 Jeux - Banque mondiale'
+    : 'PE Game Library | 1540 Games - World Library';
 }
 
 // ============================================================

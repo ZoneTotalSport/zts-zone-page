@@ -3,7 +3,7 @@
 > **LE fichier de pilotage unique.** Chaque PR le met à jour ; si un état change ailleurs
 > sans passer ici, c'est ici qui a tort et il faut le corriger.
 >
-> Dernière mise à jour : **2026-09-02** · `main` @ `892d2b17`
+> Dernière mise à jour : **2026-09-02** · `main` @ `cbe357c1`
 
 **1 clos · 1 actif · 2 en attente**
 
@@ -54,17 +54,18 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 |---|---|---|
 | **V0 — Inventaire** | ✅ Fait, **⚠ jamais poussé** | `82ef43dc` sur la branche locale `inventaire/vague-0`. **`INVENTAIRE-SITE.md` n'est pas sur `main`** : il vit sur une branche locale, jamais poussée. Si ce Mac tombe, l'inventaire est perdu. |
 | **V1 — Contrat, kills, bogues** | ✅ Fusionnée | PR **#72** (`a4e4c6d3`) → correctif Jekyll `c11b4409` → PR **#75** (`892d2b17`). |
-| **V2 — Pilier Jeux** | 🟢 PR A **fusionnée** (`cf1ab3da`), PR B prête | Branche `vague-2/jeux-ui`. |
+| **V2 — Pilier Jeux** | 🟢 PR A et B **fusionnées et déployées**, correctif mobile prêt | Branche `fix/jeux-ui-mobile`. |
 
 **V2, les trois PR :**
 
 | PR | Contenu | État |
 |---|---|---|
 | **A — Données** | 113 items, 12 doublons, 101 inédits, catalogue 1439 → **1540**, 887 jeux étiquetés, 10 catégories de matériel | ✅ **Fusionnée** (PR #76) |
-| **B — UI** | Filtres croisés (univers, durée, âge, matériel), rangée de 14 collections, partage + lien fiche par jeu. **2 bogues préexistants corrigés** : favoris et impression cassés sur les 1540, filtre « cycle » qui ne filtrait rien | 🟢 **Prête** — `RAPPORT-QA-JEUX.md`, 0 blocage |
+| **B — UI** | Filtres croisés, 14 collections, partage + lien fiche | ✅ **Fusionnée** (PR #78), Worker `e284133f`, 43/43 banques R2 |
+| **B bis — correctif mobile** | Les filtres de la PR B étaient dans une barre latérale en `display:none` : jamais atteignables. Barre visible reconstruite, dock escamoté sur téléphone (décision Joey), compteur 1439 → 1540. **La mise en page mobile reste non diagnostiquée** — le navigateur refuse d'émuler 390×844 | 🟢 **Prête** — branche `fix/jeux-ui-mobile` |
 | **C — Bascule** | Les 14 dossiers deviennent des relais, hubs et sitemap à jour | 🟡 **Bloquée** — attend la fusion de B |
 
-**Dettes ouvertes par la PR B** : `unpkg.com/lucide@latest` non épinglé dans `apps/jeux` (préexistant) ; `.zc-intro-carte` à 13,5 px sous le seuil de 14 px de la grille.
+**Dettes ouvertes par la PR B** : `unpkg.com/lucide@latest` non épinglé dans `apps/jeux` (préexistant) ; `.zc-intro-carte` à 13,5 px sous le seuil de 14 px de la grille ; **`apps/jeux` porte deux jeux de filtres**, une barre latérale morte et la barre visible — à unifier, c'est ce qui a causé le correctif mobile.
 
 ---
 
@@ -101,7 +102,7 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 
 | Dette | Quand |
 |---|---|
-| Combler `ageMin`/`ageMax` sur les **721 jeux** qui en manquent (718/1439 seulement sont renseignés) | tâche de fond, hors vague |
+| Combler `ageMin`/`ageMax` sur les **767 jeux** qui en manquent (773/1540 renseignés) | tâche de fond, hors vague |
 | **Enrichissement IA des étiquettes** sur les 1540 jeux, validé par Joey — élargira les 6 collections thématiques sans règle. **Pas un préalable à la PR B.** | tâche de fond |
 | Choix du **lecteur unique** — SPA `apps/jeux` vs `fiches/` vs les 1440 statiques | après la bascule payante |
 | `moyens-action` absorbé par le **Planificateur** (Fusion #3) | après la bascule payante |
@@ -110,15 +111,16 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 
 ## Prochain geste
 
-**Tester et fusionner la PR #76.** Elle bloque B, qui bloque C.
-
-https://github.com/ZoneTotalSport/zts-zone-page/pull/76
+**Tester le correctif mobile sur ton téléphone.** C'est la seule chose que je ne peux pas
+vérifier : le viewport du navigateur refuse de descendre à 390×844.
 
 ## Prochaines actions Joey
 
-1. **Tester et fusionner la PR B** — les trois gestes sont écrits en §8 de
-   `RAPPORT-QA-JEUX.md` : Jeux calmes + SDG doit donner 46 jeux, Plan B météo doit ouvrir
-   les filtres tout seul, et l'étoile d'un jeu doit marcher pour la première fois.
+1. **Tester `fix/jeux-ui-mobile` sur ton iPhone, portrait ET paysage** — le filtre
+   **Matériel** doit exister avec « Sans matériel » en tête, **Univers** et **Âge** doivent
+   apparaître, et le dock du bas doit avoir **disparu** sur téléphone.
+   **Envoie-moi une capture si la mise en page casse encore** : je n'ai pas pu émuler le
+   viewport iPhone, donc le constat 1 est le seul que je n'ai pas pu diagnostiquer.
 2. **Ouvrir P0 — le cadre légal.** Rien n'est entamé, et sans lui pas de Stripe en
    février 2027. C'est la seule phase qui avance en parallèle du site.
 3. **Pousser `inventaire/vague-0`**, ou accepter que `INVENTAIRE-SITE.md` n'existe que sur
