@@ -105,6 +105,27 @@
          calerPied() ; la valeur ici n'est qu'un repli. */
       --zg-pied: 96px;
 
+      /* ======================================================================
+         LA REGLE DE COULEUR — une seule, pour toute l'app.
+         ----------------------------------------------------------------------
+         AU REPOS : marine, le fond du site. Le bouton existe, il attend.
+         ACTIF / SELECTIONNE : cyan. Le cyan ne dit plus qu'une chose, et il
+         la dit partout pareil : « c'est celui-la ».
+
+         Avant, neuf couleurs se partageaient deux etats — le cyan servait de
+         couleur de repos, le jaune disait tantot « selectionne » tantot
+         « vas-y ». Rien ne se lisait.
+
+         Les accents neon par metier restent au DECOR (halo, eyebrow, bandes) :
+         ils ne disent jamais l'etat d'un bouton.
+         ====================================================================== */
+      --zg-repos:       linear-gradient(180deg,#12293D,var(--marine,#061726));
+      --zg-repos-txt:   var(--sur-marine,#E6F4FA);
+      --zg-repos-ombre: #00080F;
+      --zg-actif:       linear-gradient(180deg,var(--cyan2),var(--ztsp-cyan,#00C2E8));
+      --zg-actif-txt:   #03323C;
+      --zg-actif-ombre: var(--ztsp-cyan-dark,#075A6B);
+
       --zg-e: 1;
       /* Au cran Normal, la geometrie est EXACTEMENT celle de la PR 2 : 88 px
          pour la colonne des heures, 112 px par jour. C'etait une promesse —
@@ -244,23 +265,35 @@
       font-family:var(--f-titre); letter-spacing:.5px; font-size:16px; line-height:1.05;
       min-width:96px; min-height:72px; padding:10px 16px 9px;
       border:3px solid var(--encre); border-radius:var(--r-btn);
-      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
-      box-shadow:0 5px 0 var(--ztsp-cyan-dark,#075A6B), 5px 9px 0 rgba(0,0,0,.35);
+      /* Au repos. `--zg-ombre` suit l'etat : une seule regle d'ombre pour
+         les deux, au lieu d'une paire par couleur. */
+      --zg-ombre: var(--zg-repos-ombre);
+      background:var(--zg-repos); color:var(--zg-repos-txt);
+      box-shadow:0 5px 0 var(--zg-ombre), 5px 9px 0 rgba(0,0,0,.35);
       cursor:pointer; transition:.09s; text-decoration:none;
     }
     .zg-btn .zg-ic{font-size:26px; line-height:1}
-    .zg-btn:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ztsp-cyan-dark,#075A6B), 6px 12px 0 rgba(0,0,0,.35) }
-    .zg-btn:active{ transform:translateY(4px);  box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 2px 4px 0 rgba(0,0,0,.35) }
+    /* ACTIF : le tiroir « Plus » ouvert, ou tout bouton qui se declare
+       enfonce. Le cyan ne sert plus qu'a ca. */
+    .zg-btn[aria-expanded="true"], .zg-btn[aria-pressed="true"], .zg-btn.est-actif{
+      --zg-ombre: var(--zg-actif-ombre);
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+    }
+    .zg-btn:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--zg-ombre), 6px 12px 0 rgba(0,0,0,.35) }
+    .zg-btn:active{ transform:translateY(4px);  box-shadow:0 1px 0 var(--zg-ombre), 2px 4px 0 rgba(0,0,0,.35) }
     .zg-btn:focus-visible{ outline:3px solid var(--yellow); outline-offset:4px }
-    .zg-btn--jaune {background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00; box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35)}
-    .zg-btn--jaune:hover {box-shadow:0 7px 0 var(--ztsp-jaune-deep,#C4C200), 6px 12px 0 rgba(0,0,0,.35)}
-    .zg-btn--jaune:active{box-shadow:0 1px 0 var(--ztsp-jaune-deep,#C4C200), 2px 4px 0 rgba(0,0,0,.35)}
-    .zg-btn--lime  {background:linear-gradient(180deg,#C9FF6B,var(--green)); color:#1E3300; box-shadow:0 5px 0 #6F9E00, 5px 9px 0 rgba(0,0,0,.35)}
-    .zg-btn--lime:hover  {box-shadow:0 7px 0 #6F9E00, 6px 12px 0 rgba(0,0,0,.35)}
-    .zg-btn--lime:active {box-shadow:0 1px 0 #6F9E00, 2px 4px 0 rgba(0,0,0,.35)}
-    .zg-btn--rose  {background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#fff; box-shadow:0 5px 0 #A3003F, 5px 9px 0 rgba(0,0,0,.35)}
-    .zg-btn--rose:hover  {box-shadow:0 7px 0 #A3003F, 6px 12px 0 rgba(0,0,0,.35)}
-    .zg-btn--rose:active {box-shadow:0 1px 0 #A3003F, 2px 4px 0 rgba(0,0,0,.35)}
+    /* `--jaune` et `--lime` ne peignent plus rien : la couleur d'un bouton
+       vient de son ETAT, pas de son nom. Les classes restent declarees et
+       neutres pour ne rien casser dans le balisage existant. */
+    .zg-btn--jaune, .zg-btn--lime{ /* la regle s'applique : marine au repos */ }
+    /* « Vider » detruit du travail : il doit se distinguer. Mais le rose
+       plein portait un texte blanc a 2,6:1 — sous le seuil AA, donc hors
+       du contrat. La regle s'applique DONC comme partout : marine au repos.
+       L'avertissement passe au trait et au mot, qui eux tiennent le
+       contraste (9,1:1). Au survol, le rose prend toute la place — on voit
+       ce qu'on s'apprete a faire au moment ou on le fait. */
+    .zg-btn--rose{ --zg-ombre:#5C0026; border-color:var(--red); color:#FFB3C9 }
+    .zg-btn--rose:hover{ background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#2B0011 }
 
     /* « Plus » — divulgation progressive. Ferme par defaut. */
     .zg-plus{display:none; width:100%; justify-content:center; flex-wrap:wrap; gap:10px; padding-top:4px}
@@ -311,13 +344,17 @@
       font-family:var(--f-titre); font-size:21px; letter-spacing:.6px;
       min-height:72px; padding:12px 22px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
-      background:linear-gradient(180deg,#C9FF6B,var(--green)); color:#1E3300;
-      box-shadow:0 5px 0 #6F9E00, 5px 9px 0 rgba(0,0,0,.35);
+      /* CYAN, et c'est voulu : le fil ne propose pas une fonction au repos,
+         il designe le geste ACTIF — celui que l'app demande maintenant.
+         C'est le seul bouton cyan de l'ecran tant qu'aucun autre n'est
+         enfonce, et c'est exactement ce qu'on veut lire. */
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+      box-shadow:0 5px 0 var(--zg-actif-ombre), 5px 9px 0 rgba(0,0,0,.35);
       transition:.09s;
     }
     .zgf-go .zgf-ic{font-size:30px; line-height:1}
-    .zgf-go:hover { transform:translateY(-2px); box-shadow:0 7px 0 #6F9E00, 6px 12px 0 rgba(0,0,0,.35) }
-    .zgf-go:active{ transform:translateY(4px);  box-shadow:0 1px 0 #6F9E00, 2px 4px 0 rgba(0,0,0,.35) }
+    .zgf-go:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--zg-actif-ombre), 6px 12px 0 rgba(0,0,0,.35) }
+    .zgf-go:active{ transform:translateY(4px);  box-shadow:0 1px 0 var(--zg-actif-ombre), 2px 4px 0 rgba(0,0,0,.35) }
     .zgf-go:focus-visible{ outline:3px solid var(--yellow); outline-offset:4px }
     .zgf-cacher{
       flex:0 0 auto; min-width:44px; min-height:44px; cursor:pointer;
@@ -394,12 +431,15 @@
     .zgm-carte:hover {transform:translate(-2px,-2px); box-shadow:8px 11px 0 rgba(0,0,0,.45)}
     .zgm-carte:active{transform:translate(2px,3px);  box-shadow:3px 4px 0 rgba(0,0,0,.45)}
     .zgm-carte:focus-visible{outline:3px solid var(--yellow); outline-offset:4px}
-    /* Le metier actif se voit : le jaune de l'accueil, comme un bouton primaire. */
+    /* Trois cartes, un seul choix : marine tant qu'on n'a pas choisi, cyan
+       des qu'on a choisi. La meme regle que partout ailleurs. */
+    .zgm-carte{background:var(--zg-repos); color:var(--zg-repos-txt)}
+    .zgm-carte .zgm-desc{color:rgba(230,244,250,.84)}
     .zgm-carte[aria-pressed="true"]{
-      background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00;
-      box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35);
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+      box-shadow:0 5px 0 var(--zg-actif-ombre), 5px 9px 0 rgba(0,0,0,.35);
     }
-    .zgm-carte[aria-pressed="true"] .zgm-desc{color:#4A4400}
+    .zgm-carte[aria-pressed="true"] .zgm-desc{color:rgba(3,50,60,.88)}
     .zgm-aide{
       font-family:var(--f-note); font-size:17px; color:var(--sur-marine); margin-top:12px;
       text-shadow:0 1px 2px rgba(6,23,38,.85);
@@ -473,17 +513,18 @@
       padding:clamp(14px, .9vw, 19px) clamp(26px, 1.8vw, 38px) clamp(12px, .8vw, 17px);
       border-radius:var(--r-btn); min-height:56px;
       border:3px solid var(--encre); cursor:pointer; transition:.09s;
-      background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00;
-      box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35);
+      /* « Commencer! » est le geste que l'ecran demande : cyan.
+         « Comment utiliser » attend qu'on en ait besoin : marine. */
+      --zg-ombre: var(--zg-actif-ombre);
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+      box-shadow:0 5px 0 var(--zg-ombre), 5px 9px 0 rgba(0,0,0,.35);
     }
-    .hb-btn:hover {transform:translateY(-2px); box-shadow:0 7px 0 var(--ztsp-jaune-deep,#C4C200), 6px 12px 0 rgba(0,0,0,.35)}
-    .hb-btn:active{transform:translateY(4px);  box-shadow:0 1px 0 var(--ztsp-jaune-deep,#C4C200), 2px 4px 0 rgba(0,0,0,.35)}
+    .hb-btn:hover {transform:translateY(-2px); box-shadow:0 7px 0 var(--zg-ombre), 6px 12px 0 rgba(0,0,0,.35)}
+    .hb-btn:active{transform:translateY(4px);  box-shadow:0 1px 0 var(--zg-ombre), 2px 4px 0 rgba(0,0,0,.35)}
     .hb-btn.sec{
-      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
-      box-shadow:0 5px 0 var(--ztsp-cyan-dark,#075A6B), 5px 9px 0 rgba(0,0,0,.35);
+      --zg-ombre: var(--zg-repos-ombre);
+      background:var(--zg-repos); color:var(--zg-repos-txt);
     }
-    .hb-btn.sec:hover {box-shadow:0 7px 0 var(--ztsp-cyan-dark,#075A6B), 6px 12px 0 rgba(0,0,0,.35)}
-    .hb-btn.sec:active{box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 2px 4px 0 rgba(0,0,0,.35)}
     @media(max-width:860px){
       .hero-box{grid-template-columns:1fr}
       .hb-left{display:none}
@@ -636,24 +677,37 @@
       font-family:var(--f-titre); font-size:16px; letter-spacing:.4px;
       min-height:44px; padding:9px 14px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
-      background:var(--card); color:var(--text); box-shadow:var(--ombre-petite);
+      background:var(--zg-repos); color:var(--zg-repos-txt); box-shadow:var(--ombre-petite);
     }
-    .zg-crans button[aria-pressed="true"]{background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00}
+    .zg-crans button:hover{filter:brightness(1.25)}
+    /* Le cran choisi est le seul cyan des trois : on lit la taille courante
+       d'un coup d'oeil, sans avoir a comparer trois nuances de blanc. */
+    .zg-crans button[aria-pressed="true"]{background:var(--zg-actif); color:var(--zg-actif-txt)}
     .zg-crans button:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
 
     /* Cartes de specialistes — le vocabulaire de `.ztsp-card`. */
     .spec-card{
       border:3px solid var(--encre); border-radius:var(--r-btn);
       padding:11px 13px; margin-bottom:9px; cursor:pointer; min-height:52px;
-      background:#fff; box-shadow:3px 3px 0 rgba(0,0,0,.28); transition:.12s;
+      /* Au repos comme le reste. Une seule carte est cyan a la fois : celle
+         dont on place les cours. Avant, sept cartes blanches et un lisere
+         cyan sur l'une d'elles — invisible depuis le fond de la classe. */
+      background:var(--zg-repos); color:var(--zg-repos-txt);
+      box-shadow:3px 3px 0 rgba(0,0,0,.28); transition:.12s;
     }
     .spec-card:hover{transform:translate(-2px,-2px); box-shadow:5px 5px 0 rgba(0,0,0,.28)}
-    .spec-card.active{box-shadow:5px 5px 0 var(--cyan), 0 0 0 3px var(--encre)}
+    .spec-card.active{
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+      box-shadow:5px 5px 0 var(--zg-actif-ombre), 0 0 0 3px var(--encre);
+    }
+    .spec-card.active .sc-name, .spec-card.active .sc-remain,
+    .spec-card.active .sc-info, .spec-card.active .sc-compte b,
+    .spec-card.active .sc-compte span{color:var(--zg-actif-txt)}
     .spec-card .sc-top{display:flex; align-items:center; gap:8px; margin-bottom:5px}
     .spec-card .sc-dot{width:14px; height:14px; border-radius:50%; border:2px solid var(--encre); flex-shrink:0}
-    .spec-card .sc-name{font-family:var(--f-titre); font-size:16px; letter-spacing:.4px; flex:1; color:var(--text)}
-    .spec-card .sc-remain{font-family:var(--f-titre); font-size:16px; color:var(--ztsp-cyan-dark,#075A6B)}
-    .spec-card .sc-info{font-family:var(--f-note); font-size:16px; line-height:1.2; color:var(--muted)}
+    .spec-card .sc-name{font-family:var(--f-titre); font-size:16px; letter-spacing:.4px; flex:1; color:var(--zg-repos-txt)}
+    .spec-card .sc-remain{font-family:var(--f-titre); font-size:16px; color:var(--cyan2)}
+    .spec-card .sc-info{font-family:var(--f-note); font-size:16px; line-height:1.2; color:rgba(230,244,250,.80)}
     .spec-card .sc-bar{height:7px; background:#e8eef1; border:1.5px solid var(--encre); border-radius:4px; margin-top:6px; overflow:hidden}
     .spec-card .sc-bar div{height:100%; transition:width .2s}
 
@@ -696,11 +750,14 @@
       font-family:var(--f-titre); font-size:16px; letter-spacing:.4px;
       padding:11px 13px; margin-bottom:8px; min-height:48px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
-      background:linear-gradient(180deg,#fff,#E6F4FA); color:var(--text);
-      box-shadow:0 5px 0 #A9BCC5, 5px 9px 0 rgba(0,0,0,.35); transition:.09s; text-align:left;
+      /* La regle vaut aussi ici : ces quatre-la ouvrent une liste, ils ne
+         sont jamais « choisis ». Marine, donc, toujours. */
+      background:var(--zg-repos); color:var(--zg-repos-txt);
+      box-shadow:0 5px 0 var(--zg-repos-ombre), 5px 9px 0 rgba(0,0,0,.35); transition:.09s; text-align:left;
     }
-    .panel .p-btn:hover{transform:translateY(-2px); box-shadow:0 7px 0 #A9BCC5, 6px 12px 0 rgba(0,0,0,.35)}
-    .panel .p-btn:active{transform:translateY(4px); box-shadow:0 1px 0 #A9BCC5, 2px 4px 0 rgba(0,0,0,.35)}
+    .panel .p-btn:hover{transform:translateY(-2px); filter:brightness(1.3); box-shadow:0 7px 0 var(--zg-repos-ombre), 6px 12px 0 rgba(0,0,0,.35)}
+    .panel .p-btn:active{transform:translateY(4px); box-shadow:0 1px 0 var(--zg-repos-ombre), 2px 4px 0 rgba(0,0,0,.35)}
+    .panel .p-btn:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
 
     /* ======================================================================
        TOAST
