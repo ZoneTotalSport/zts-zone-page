@@ -313,6 +313,17 @@
       /* `--zg-fil-top` est recalcule au defilement : l'en-tete du site se
          replie, et une valeur figee au chargement laisserait le fil
          epingle 250 px trop bas. Le repli sert avant le premier calcul. */
+      /* IL SE COLLE TANT QU'IL A QUELQUE CHOSE A OBTENIR, ET PAS APRES.
+         Mesure du 3 septembre, grille remplie, page defilee jusqu'en bas :
+         la bande recouvrait une rangee entiere de cases — visibles, et
+         pas cliquables a cette position. Je l'avais signale sans le
+         corriger ; le mandat de la #74 dit « rien ne recouvre une case ».
+
+         Des qu'il y a du travail dans la grille, le guide cesse de
+         flotter au-dessus : il reste dans la page, a sa place, et on
+         remonte le voir si on veut. Tant que la grille est vide, il colle
+         — c'est le moment ou l'on cherche par quoi commencer, et il n'y a
+         aucune case a recouvrir. */
       position:sticky; top:var(--zg-fil-top, var(--zg-sous-header)); z-index:7;
       display:flex; align-items:center; gap:14px; flex-wrap:wrap;
       margin:10px var(--zg-marge) 0; padding:12px 16px;
@@ -321,6 +332,7 @@
       box-shadow:0 5px 0 rgba(7,90,107,.35), 5px 9px 0 rgba(0,0,0,.28);
     }
     .zg-fil[hidden]{display:none}
+    .zg-fil.zgf-pose{position:static}
     /* Les crans franchis. Un point par etape : on voit d'un coup d'oeil
        d'ou on part et combien il en reste. */
     .zgf-pas{display:flex; gap:7px; flex:0 0 auto; align-items:center}
@@ -3706,6 +3718,9 @@ function majFil(){
   const ec=document.getElementById('metierChoix');
   if(S.filCache||(ec&&!ec.hidden)){f.hidden=true;return}
   f.hidden=false;
+  // Colle tant que la grille est vide ; repose des qu'on y travaille.
+  let rien=true; try{rien=totalA()===0}catch(err){rien=true}
+  f.classList.toggle('zgf-pose', !rien);
   const i=etapeFil(), e=FIL[i];
   const pas=document.getElementById('zgfPas');
   if(pas)pas.innerHTML=FIL.map((x,k)=>`<i class="${k<i?'fait':(k===i?'ici':'')}"></i>`).join('');
