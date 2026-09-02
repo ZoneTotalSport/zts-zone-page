@@ -9,13 +9,36 @@
 
 ---
 
-## Règle gelée
+## Règles gelées
 
-> **Aucune nouvelle app pendant la Phase 1.**
+> **1. Aucune nouvelle app pendant la Phase 1.**
 
 Toute idée d'outil nouveau se range dans un carnet et attend la fin de la Phase 1. La
 réponse par défaut à un besoin non couvert est : *fonctionnalité d'un pilier existant*.
 Aucune exception, aucune « petite app vite faite ».
+
+> **2. Aucune fusion de PR par Cowork. Jamais.**
+
+Ouvrir la PR, oui. La fusionner, non — **la fusion est un geste de Joey, après test**.
+Une PR fusionnée sans test part en production : c'est ce qui a coûté la panne du
+2 septembre. Même si la demande est explicite dans le fil, la réponse est de rendre la
+PR prête et de laisser le bouton à Joey.
+
+> **3. Les dossiers `_*` sont privés.**
+
+GitHub Pages fait tourner Jekyll : aucun dossier de premier niveau commençant par `_`
+n'est publié, et `_data/` fait en plus échouer le build s'il contient autre chose que
+des données valides. **Aucun asset servi ne vit dans un `_*`.** Détail et prix payé dans
+`CLAUDE.md` ; garde-fou : `_scripts/verifie-assets-jekyll.py`.
+
+---
+
+## Dette inscrite
+
+| Dette | Détail | Quand |
+|---|---|---|
+| **Âge manquant sur la moitié du catalogue** | `ageMin`/`ageMax` ne sont remplis que sur **718 des 1439 jeux**. Le filtre par âge applique donc la règle « non renseigné passe toujours » — sans quoi il escamoterait 721 jeux en silence. Combler les 721 est une **tâche de fond, hors vague**. | après la Phase 1 |
+| **Trois lecteurs pour un même catalogue** | La SPA `apps/jeux`, le lecteur `fiches/` et les 1440 fiches statiques `jeux/*.html` lisent la même banque. Le choix du **lecteur unique reste reporté après la bascule payante** — l'amélioration 3 se contente de pointer vers la fiche statique existante. | après la bascule payante |
 
 ---
 
@@ -55,7 +78,7 @@ maximum par pilier, et ce qui n'y est pas écrit ne se fait pas.
 | **Absorbe** | `jeux-par-theme`, `jeux-rapides`, `jeux-calmes`, `activites-duree`, `echauffements`, `enigmes`, `plan-b-meteo`, `plan-b-pluie`, `brise-glace`, `grands-jeux`, `jeux-eau`, `rallyes`, `veillee-feu-de-camp`, `olympiades-scolaires` — **14 apps, en collections** |
 | **Mur** | `libre` (whitelist) — la liste reste ouverte, les **fiches** restent murées |
 | **Forme des collections** | titre + paragraphe d'intro + filtre sur `jeux-merged.json`. Les items en dur des 14 apps sont dédoublonnés (cf. `DOUBLONS-EXTRACTION.md`, 12 doublons déjà identifiés) puis intégrés au catalogue avec étiquette. |
-| **3 améliorations max** | |
+| **3 améliorations — SIGNÉES PAR JOEY, 2026-09-02** | **1.** Collections — les 14 mini-apps absorbées, chacune un titre, une intro et une étiquette sur les jeux concernés.<br>**2.** Recherche + filtres croisés — univers, durée, âge, matériel. **Règle : un âge non renseigné passe toujours le filtre.**<br>**3.** Partage — la SPA pointe vers la fiche statique `/jeux/<slug>.html`, plus un bouton Partager par jeu. |
 
 ---
 
