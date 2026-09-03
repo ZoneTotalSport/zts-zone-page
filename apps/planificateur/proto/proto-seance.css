@@ -330,6 +330,14 @@
 /* ── noter un élève ── */
 .pres-case{position:relative;display:flex}
 .pres-case>.pres-el{flex:1;width:100%}
+/* ⚠ PLUS DE VARIANTE EN COLONNE POUR LE LINGE, et c'est le signe que la
+   deuxième version est la bonne. La première posait les trois pièces DANS le
+   flux de la case : la carte, qui vaut `flex:1`, se partageait la largeur avec
+   elles et tombait à 17 px sur 143 — le visage disparaissait. Il fallait donc
+   empiler la case pour réparer. Depuis que le choix des pièces s'ouvre EN
+   SURIMPRESSION au toucher de la photo (`.linge-choix`, proto-papier.css), la
+   case n'a plus qu'un enfant dans le flux : la règle d'origine, deux lignes
+   plus haut, suffit et les deux écrans ont exactement la même grille. */
 .pres-note{
   position:absolute;top:4px;right:4px;z-index:2;cursor:pointer;line-height:1;
   font-size:12px;padding:2px 5px;

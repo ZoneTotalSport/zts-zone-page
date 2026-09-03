@@ -1602,7 +1602,26 @@ html[data-etroit="1"] .auj-cours--image{min-height:118px}
    Joey : « présence et linge c'est 2 choses différentes », et « quand l'élève
    n'avait pas son linge : soulier, short, t-shirt ».
    ────────────────────────────────────────────────────────────────────────── */
-.linge-pieces{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:5px}
+/* ⚠ LE PANNEAU S'OUVRE SOUS LA CARTE QU'ON VIENT DE TOUCHER, en `absolute`
+   dans `.pres-case`. Joey : « je veux les images des élèves comme dans
+   présences, et c'est en cliquant sur l'image pour sélectionner. » La première
+   version posait les trois pièces en permanence sous chaque carte : dix-huit
+   boutons pour six élèves, et une grille qui ne ressemblait plus à celle des
+   présences. La carte redevient une carte ; le choix vient par-dessus.
+   ⚠ `z-index` AU-DESSUS DES CARTES VOISINES, sinon le panneau passe DERRIÈRE
+   la carte de la rangée suivante et devient inutilisable sur les rangées du
+   haut. Même patron que le mini-sélecteur d'émojis d'une période. */
+.linge-choix{
+  /* ⚠ IL SE POSE SUR LE BAS DE LA CARTE, PAS EN DESSOUS. Ouvert sous la carte
+     (`top:100%`), il sortait du panneau dès la dernière rangée de la grille et
+     pendait dans le vide — mesuré à l'écran. Par-dessus, il ne peut jamais
+     s'échapper, quelle que soit la rangée, et le visage reste visible au-dessus
+     de lui : on n'oublie pas de qui on parle pendant qu'on coche. */
+  position:absolute;left:0;right:0;bottom:0;z-index:40;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+  background:#fff;border:3px solid var(--noir);border-radius:12px;
+  box-shadow:0 -4px 0 rgba(8,19,30,.18);padding:5px;
+}
 /* ⚠ 44 px DE HAUT, ET C'EST LE MINIMUM NON NÉGOCIABLE : trois cibles côte à
    côte sous une carte d'élève, frappées au pouce, en gymnase, parfois debout. */
 .linge-piece{
@@ -1641,4 +1660,62 @@ html[data-etroit="1"] .auj-cours--image{min-height:118px}
   .linge-nom{font-size:10px}
   .pt-quand{min-width:150px}
   .pt-quand-l{font-size:13px}
+}
+/* ⚠ LA CASE DOIT POUVOIR ANCRER LE PANNEAU. `.pres-case` est déjà
+   `position:relative` (proto-seance.css) pour le ✎ ; le panneau s'y accroche
+   sans qu'on y touche. On le rappelle ici parce que c'est de cela que dépend
+   tout le reste de ce bloc. */
+.pres-case{position:relative}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LE PANNEAU DES ÉLÈVES — PRÉSENCES ET LINGE (3 septembre, v170)
+   Joey : « la zone des élèves vit sur un panneau à dégradé cyan → jaune,
+   bordure noire épaisse, ombre dure décalée, coins 14 px. »
+   Il réunit les trois gestes de l'écran — le raccourci du haut, la grille des
+   cartes, le bouton d'effacement — et les détache du compte et de la consigne,
+   qui se lisent une fois et ne se touchent pas.
+
+   ⚠ DÉGRADÉ EN DIAGONALE DOUCE (`115deg`), pas horizontal : la grille des
+   élèves fait plusieurs rangées, et un dégradé horizontal aurait donné à toutes
+   la même bande de couleur, sans jamais laisser voir le passage du cyan au
+   jaune. En diagonale, chaque rangée traverse le dégradé.
+   ⚠ LES DEUX TEINTES SONT ADOUCIES À 88 % DE BLANC (`#00E5FF` → `#D6F9FF`,
+   `#FFEA00` → `#FFF9C4`), ET C'EST UNE DÉCISION DE LISIBILITÉ, PAS DE GOÛT.
+   Les cartes d'élèves portent déjà leurs propres fonds pâles — `#DFFCA8` pour
+   « a son linge », `#FFE9C2` pour « sans », `#F2F5F7` pour « absent ». Sur le
+   cyan et le jaune PURS, ces trois-là se noient : le lime sur le jaune, en
+   particulier, ne se distingue plus d'un jaune un peu sale, et c'est justement
+   l'état qu'on doit reconnaître d'un coup d'œil. Le panneau doit rester un
+   FOND, pas entrer en concurrence avec ce qu'il porte. Les teintes de marque
+   restent reconnaissables, et le contraste des cartes est préservé.
+   ⚠ AUCUN TEXTE NE POSE DIRECTEMENT SUR CE DÉGRADÉ : le raccourci du haut, les
+   cartes d'élèves et le bouton rose portent tous leur propre fond. C'est ce qui
+   garantit les 4,5:1 sans avoir à choisir une encre en fonction de l'endroit
+   où l'on se trouve dans le dégradé.
+   ⚠ TAILLES EN PIXELS, JAMAIS EN `vw` NI `vh` — règle de ce fichier.
+   ────────────────────────────────────────────────────────────────────────── */
+.se-zone-eleves{
+  background:linear-gradient(115deg, #D6F9FF 0%, #EAFBEF 48%, #FFF9C4 100%);
+  border:4px solid var(--noir);
+  border-radius:14px;
+  box-shadow:6px 6px 0 var(--noir);
+  padding:14px;
+  margin-bottom:14px;
+}
+/* le raccourci du haut garde son fond blanc : c'est ce qui le détache du
+   dégradé sans lui inventer une couleur de plus */
+.se-zone-eleves>.mini{background:#fff}
+.se-zone-eleves>.mini:hover{background:var(--cyan-vif)}
+/* ⚠ LES CARTES GAGNENT UN LISERÉ BLANC EXTÉRIEUR. Le bord noir de 3 px les
+   séparait déjà du fond ; sur un dégradé, un trait clair entre le noir et la
+   couleur les détache franchement, quelle que soit la teinte traversée. */
+.se-zone-eleves .pres-el{box-shadow:0 0 0 3px rgba(255,255,255,.9), 3px 3px 0 var(--noir)}
+/* le pied d'effacement vit maintenant DANS le panneau : il se sépare de la
+   grille par un trait, pas par du vide */
+.se-zone-eleves .se-pied{
+  margin-top:12px;padding-top:12px;
+  border-top:3px dashed rgba(8,19,30,.35);
+}
+@media(max-width:760px){
+  .se-zone-eleves{padding:10px;border-width:3px;box-shadow:4px 4px 0 var(--noir)}
 }

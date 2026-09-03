@@ -1078,7 +1078,11 @@ function volet(quoi){
     if (monTour !== voletTour) return;            /* un volet plus récent a pris la main */
     if (typeof boutonEffacer!=='function') return;
     const b=boutonEffacer(quoi); if (!b) return;
-    const pied=el('div','se-pied'); pied.appendChild(b); d.appendChild(pied);
+    const pied=el('div','se-pied'); pied.appendChild(b);
+    /* ⚠ DANS LE PANNEAU DES ÉLÈVES S'IL EXISTE, sinon au bas du volet comme
+       avant. « Effacer les absences » agit sur ce que le panneau montre : le
+       poser dessous l'aurait détaché de ce qu'il efface. */
+    (d.querySelector('#seZoneEleves') || d).appendChild(pied);
   };
   setTimeout(finirVolet, 0);
 
@@ -1179,18 +1183,26 @@ function volet(quoi){
        ────────────────────────────────────────────────────────────────────── */
     const estLinge = (quoi==='linge');
 
-    const cpt={linge:0,sans:0,absent:0};
-    g.eleves.forEach(i=>{ cpt[(s.pres||{})[i]||'linge']++; });
     const c=el('div','pres-compte');
-    if (estLinge){
-      c.innerHTML='<span class="l"></span><span class="s"></span>';
-      c.children[0].textContent='👕 '+cpt.linge+' au complet';
-      c.children[1].textContent='🚫 '+cpt.sans+' à qui il manque quelque chose';
-    } else {
-      c.innerHTML='<span class="l"></span><span class="a"></span>';
-      c.children[0].textContent='✅ '+(cpt.linge+cpt.sans)+' présent'+((cpt.linge+cpt.sans)>1?'s':'');
-      c.children[1].textContent='✗ '+cpt.absent+' absent'+(cpt.absent>1?'s':'');
-    }
+    c.innerHTML='<span class="l"></span><span class="'+(estLinge?'s':'a')+'"></span>';
+    /* ⚠ LE COMPTE SE RECALCULE, IL N'EST PAS FIGÉ À LA PEINTURE. Le panneau du
+       linge coche plusieurs pièces sans repeindre le volet — c'est ce qui
+       permet d'en cocher deux d'affilée. Sans cette fonction, l'en-tête
+       annonçait « 0 à qui il manque quelque chose » pendant qu'une carte
+       affichait déjà 🚫 : deux vérités à dix centimètres l'une de l'autre. */
+    const majCompte=()=>{
+      const x=seanceDe(iso,per)||s;
+      const n={linge:0,sans:0,absent:0};
+      g.eleves.forEach(i=>{ n[(x.pres||{})[i]||'linge']++; });
+      if (estLinge){
+        c.children[0].textContent='👕 '+n.linge+' au complet';
+        c.children[1].textContent='🚫 '+n.sans+' à qui il manque quelque chose';
+      } else {
+        c.children[0].textContent='✅ '+(n.linge+n.sans)+' présent'+((n.linge+n.sans)>1?'s':'');
+        c.children[1].textContent='✗ '+n.absent+' absent'+(n.absent>1?'s':'');
+      }
+    };
+    majCompte();
     d.appendChild(c);
 
     d.appendChild(estLinge
@@ -1204,6 +1216,22 @@ function volet(quoi){
           'Une touche marque l’élève absent, une deuxième le ramène présent. '
           +'Le <b>✎</b> d’une carte note l’élève pour cette période — la note se '
           +'range dans le portrait du groupe.', 'aidePresence2'));
+
+    /* ══ LE PANNEAU DES ÉLÈVES (3 septembre, v170) ══
+       Joey : « la zone des élèves — bouton “Tout le monde est là”, la grille
+       des cartes, “Effacer les absences” — vit sur un panneau à dégradé
+       cyan → jaune, bordure noire épaisse, ombre dure décalée, coins 14 px. »
+       ⚠ IL PORTE UN `id` PARCE QUE LE BOUTON ROSE ARRIVE PLUS TARD. Le pied
+       d'effacement est posé par `finirVolet()`, dans un `setTimeout` — donc
+       APRÈS que cette branche a fini de construire l'écran. Sans un point de
+       rendez-vous nommé, il se serait posé sous le panneau au lieu d'y entrer,
+       et les trois pièces que Joey demande de réunir seraient restées deux plus
+       une. `volet()` sait chercher `#seZoneEleves` avant de retomber sur
+       `#seDetail` : le jour où un autre volet veut la même chose, il lui suffit
+       de nommer sa zone pareil.
+       ⚠ LE COMPTE ET LA CONSIGNE RESTENT DEHORS : ce sont des choses qu'on LIT
+       une fois, pas des choses qu'on TOUCHE. Le panneau réunit les gestes. */
+    const zone=el('div','se-zone-eleves'); zone.id='seZoneEleves';
 
     const tout=el('button','mini'); tout.type='button'; tout.style.marginBottom='10px';
     tout.textContent = estLinge ? '↺ TOUT LE MONDE A SON LINGE' : '↺ TOUT LE MONDE EST LÀ';
@@ -1224,7 +1252,7 @@ function volet(quoi){
       });
       volet(quoi);
     });
-    d.appendChild(tout);
+    zone.appendChild(tout);
 
     const gr=el('div','pres-grille');
     g.eleves.forEach(i=>{
@@ -1238,17 +1266,29 @@ function volet(quoi){
       b.appendChild(el('div','nom', ELEVES[i]));
 
       if (estLinge){
+        /* ⚠ ON TOUCHE LA PHOTO, PAS UNE RANGÉE DE BOUTONS. Joey, 3 septembre :
+           « c'est ces drôles de boutons — je veux les images des élèves comme
+           dans présences, et c'est en cliquant sur l'image pour sélectionner
+           espadrille etc. »
+           La première version posait les trois pièces SOUS chaque carte : ça
+           faisait dix-huit petits boutons à l'écran pour six élèves, et la
+           grille ne ressemblait plus à celle des présences alors que c'est la
+           même liste de visages. La carte redevient donc une carte, et elle
+           OUVRE le choix des pièces — même geste que la case émoji d'une
+           période (proto-sports.js) : on touche, un petit panneau s'ouvre, on
+           coche ce qui manque, on touche ailleurs pour fermer.
+           ⚠ ET ELLE DIT DÉJÀ CE QUI MANQUE, en émojis, sans qu'on l'ouvre :
+           « 🚫 👟 👕 » se lit d'un coup d'œil sur toute la grille. C'est ce qui
+           permet de garder le choix multiple — un élève peut oublier deux
+           pièces — sans faire payer un panneau ouvert pour le savoir. */
+        const emos = manque.map(k=>{ const P=PIECES_LINGE.find(x=>x[0]===k); return P?P[1]:''; }).join(' ');
         b.appendChild(el('div','etat', absent ? '✗ absent'
-          : manque.length ? '🚫 il manque '+manque.length : '👕 au complet'));
+          : manque.length ? '🚫 '+emos : '👕 au complet'));
         b.title = absent ? ELEVES[i]+' était absent — rien à marquer'
           : manque.length ? ELEVES[i]+' — il manque : '+nomsDesPieces(manque).join(', ')
-                          : ELEVES[i]+' a tout son linge';
-        /* ⚠ LA CARTE ELLE-MÊME NE FAIT RIEN DANS L'ÉCRAN DU LINGE : ce sont les
-           trois pièces, en dessous, qui se touchent. Un clic sur la carte qui
-           bascule un état en plus des pièces, c'est deux vérités pour une seule
-           question. On la neutralise plutôt que de la laisser mentir. */
-        b.disabled = true;
-        b.classList.add('pres-el--muet');
+                          : ELEVES[i]+' a tout son linge — touche pour marquer ce qui manque';
+        b.disabled = absent;                    /* un absent n'a rien oublié */
+        if (absent) b.classList.add('pres-el--muet');
       } else {
         b.appendChild(el('div','etat', absent ? '✗ absent' : '✅ présent'));
         b.title = ELEVES[i]+(absent ? ' — absent, touche pour le ramener présent'
@@ -1263,36 +1303,69 @@ function volet(quoi){
         });
       }
 
+      /* ⚠ LA CASE CHANGE DE SENS QUAND ELLE PORTE LES TROIS PIÈCES. `.pres-case`
+         est un flex EN LIGNE : la carte de l'élève y vaut `flex:1`, et le ✎ est
+         en `position:absolute`, donc hors du flux. En ajoutant les trois pièces
+         au v169, j'y ai glissé un SECOND enfant dans le flux — la carte s'est
+         donc partagé la largeur avec lui et s'est réduite à 17 px sur 143.
+         Mesuré, pas supposé. La classe dit à la case de s'empiler ; l'écran des
+         présences, qui n'a qu'un enfant, garde sa disposition d'origine. */
       const cel=el('div','pres-case'); cel.appendChild(b);
 
-      /* ── les trois pièces, sous la carte, dans l'écran du linge ── */
-      if (estLinge){
-        const rangee=el('div','linge-pieces');
-        PIECES_LINGE.forEach(([cle,emo,nom])=>{
-          const p=el('button','linge-piece'); p.type='button';
-          const absentIci=absent;
-          const manquant=manque.indexOf(cle)>=0;
-          p.setAttribute('aria-pressed', String(manquant));
-          p.disabled = absentIci;
-          p.appendChild(el('span','linge-emo', emo));
-          p.appendChild(el('span','linge-nom', nom));
-          p.title = absentIci ? ELEVES[i]+' était absent'
-            : manquant ? nom+' manque à '+ELEVES[i]+' — touche pour dire qu’il l’a'
-                       : ELEVES[i]+' a son '+nom.toLowerCase()+' — touche s’il manque';
-          p.addEventListener('click',()=>{
-            majSeance(x=>{
-              x.linge=x.linge||{};
-              const l=lingeDe(x, i);
-              const k=l.indexOf(cle);
-              if (k>=0) l.splice(k,1); else l.push(cle);
-              if (l.length) x.linge[i]=l; else delete x.linge[i];
-              majPresDepuisLinge(x, i);
+      /* ── toucher la photo ouvre le choix des trois pièces ──
+         ⚠ LE PANNEAU VIT DANS LA CASE, en `position:absolute`, pour s'ouvrir
+         SOUS la carte qu'on vient de toucher. Un panneau unique posé en bas de
+         l'écran aurait obligé à retrouver de qui on parle après l'avoir ouvert.
+         ⚠ ON NE REPEINT PAS LE VOLET À CHAQUE PIÈCE : le panneau resterait
+         ouvert sur une carte détruite. On met à jour la donnée, puis la carte
+         et le panneau, et on laisse le prof cocher ses deux pièces d'affilée. */
+      if (estLinge && !absent){
+        b.addEventListener('click', ev=>{
+          ev.stopPropagation();
+          const dejaOuvert = cel.querySelector('.linge-choix');
+          $$('.linge-choix').forEach(x=>x.remove());
+          if (dejaOuvert) return;               /* deuxième touche : on referme */
+
+          const boite=el('div','linge-choix');
+          boite.setAttribute('role','dialog');
+          boite.setAttribute('aria-label','Ce qui manque à '+ELEVES[i]);
+          const redessine=()=>{
+            const m=lingeDe(seanceDe(iso,per), i);
+            [...boite.querySelectorAll('.linge-piece')].forEach(p=>
+              p.setAttribute('aria-pressed', String(m.indexOf(p.dataset.piece)>=0)));
+            const emos=m.map(k=>{ const P=PIECES_LINGE.find(x=>x[0]===k); return P?P[1]:''; }).join(' ');
+            const et=b.querySelector('.etat');
+            if (et) et.textContent = m.length ? '🚫 '+emos : '👕 au complet';
+            b.className='pres-el pres-el--'+((seanceDe(iso,per).pres||{})[i]||'linge');
+            majCompte();
+          };
+          PIECES_LINGE.forEach(([cle,emo,nom])=>{
+            const p=el('button','linge-piece'); p.type='button'; p.dataset.piece=cle;
+            p.appendChild(el('span','linge-emo', emo));
+            p.appendChild(el('span','linge-nom', nom));
+            p.title=nom+' — touche s’il manque à '+ELEVES[i];
+            p.addEventListener('click', e2=>{
+              e2.stopPropagation();
+              majSeanceSansRedessin(x=>{
+                x.linge=x.linge||{};
+                const l=lingeDe(x, i);
+                const k=l.indexOf(cle);
+                if (k>=0) l.splice(k,1); else l.push(cle);
+                if (l.length) x.linge[i]=l; else delete x.linge[i];
+                majPresDepuisLinge(x, i);
+              });
+              redessine();
             });
-            volet('linge');
+            boite.appendChild(p);
           });
-          rangee.appendChild(p);
+          boite.addEventListener('click', e2=> e2.stopPropagation());
+          cel.appendChild(boite);
+          redessine();
+          const dehors = e3=>{ if (!boite.contains(e3.target)){ boite.remove();
+            document.removeEventListener('click', dehors, true);
+            volet('linge'); } };          /* on repeint UNE fois, à la fermeture */
+          setTimeout(()=> document.addEventListener('click', dehors, true), 0);
         });
-        cel.appendChild(rangee);
       }
 
       /* ✎ noter CET élève, à CETTE période. La note file au PORTRAIT, et si
@@ -1309,7 +1382,8 @@ function volet(quoi){
       cel.appendChild(no);
       gr.appendChild(cel);
     });
-    d.appendChild(gr);
+    zone.appendChild(gr);
+    d.appendChild(zone);
     return;
   }
 
@@ -1991,7 +2065,15 @@ function lancerMinuterieEtape(e){
 }
 
 function fermerPlanification(){
-  const cartes=$('#seActions'); if (cartes) cartes.hidden=false;
+  /* ⚠ ON NE RÉAFFICHE PLUS LES TROIS TUILES (v170). Elles étaient la
+     destination de ce retour : on refermait la feuille pour retomber sur
+     LA PLANIFICATION / JEUX / ÉVALUER. Depuis que Joey les a renvoyées à la
+     carte de MA JOURNÉE — « leur seule place » —, les redonner ici ferait
+     reparaître dans la fenêtre ce que le lot vient d'en retirer.
+     Le retour rend donc la main à l'en-tête du groupe et au mot sur le cours,
+     et la sortie de la fenêtre reste le ✕ de la modale, qui ne défile plus
+     depuis v168. Aucun geste n'est perdu : les six boutons de la case du
+     groupe rouvrent tout, un par un. */
   const d=$('#seDetail'); if (d) d.innerHTML='';
   ecrire('seVolet', null);
 }

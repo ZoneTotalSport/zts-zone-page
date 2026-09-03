@@ -552,16 +552,37 @@ function voletPortrait(d){
      à deux centimètres de distance.
      ⚠ ON RÉ-AFFICHE AVANT D'APPELER LA SUITE, jamais après : `volet('cours')`
      re-masque `#seActions` de son côté, et il doit avoir le dernier mot. */
-  const CACHES_DU_PORTRAIT = ['#seTete', '#seMot', '#seActions', '#seSuivis'];
-  function carteDePeriode(visible){
-    CACHES_DU_PORTRAIT.forEach(sel=>{ const n=$(sel); if (n) n.hidden = !visible; });
+  /* ⚠ LES TROIS TUILES NE PARAISSENT PLUS DANS AUCUN VOLET (3 sept, v170).
+     Joey : « dans TOUS les volets ouverts depuis la carte, masquer les 3 tuiles
+     LA PLANIFICATION / JEUX / ÉVALUER. Elles restent sur la carte de
+     MA JOURNÉE, leur seule place. »
+     Elles ne servaient qu'à naviguer d'un volet à l'autre — or on arrive
+     TOUJOURS ici par l'un des six boutons de la case du groupe, qui font déjà
+     ce travail. Les garder, c'était offrir deux navigations pour un seul
+     besoin, et occuper le haut de chaque écran avec la porte qu'on vient de
+     franchir.
+     ⚠ MASQUÉES, JAMAIS RETIRÉES : `hidden`, comme le portrait le fait depuis
+     v167. `peindreActionsSeance()` continue de les peindre — leurs crochets,
+     leurs états, le menu des gabarits d'évaluation restent calculés et prêts.
+     Rétablir la rangée tient en une ligne ici.
+     ⚠ `#seTete` ET `#seMot` RESTENT dans les volets ordinaires : l'en-tête dit
+     de quel groupe et de quelle période on parle — c'est le contexte de ce
+     qu'on est en train de saisir. Seul le PORTRAIT les masque aussi, parce
+     qu'il regarde le groupe sur toute l'année et porte son propre en-tête. */
+  function poserLeHaut(quoi){
+    const portrait = (quoi === 'portrait');
+    ['#seTete', '#seMot', '#seSuivis'].forEach(sel=>{
+      const n=$(sel); if (n) n.hidden = portrait;
+    });
+    /* les tuiles : masquées dans TOUS les volets, portrait compris */
+    const a=$('#seActions'); if (a) a.hidden = true;
   }
   const _voletAvant = volet;
   volet = function(quoi){
     if (quoi==='portrait'){
       ecrire('seVolet','portrait');
       const d=$('#seDetail'); if(!d) return;
-      carteDePeriode(false);
+      poserLeHaut('portrait');
       /* ⚠ LE TITRE DE LA FENÊTRE DISAIT « Période 1 ». Le portrait regarde un
          GROUPE sur toute son année : annoncer une période au-dessus de son
          historique complet, c'est nommer la fenêtre d'après ce qu'elle ne
@@ -573,7 +594,7 @@ function voletPortrait(d){
       if (t) t.textContent = g ? ('Portrait de '+g.nom) : 'Portrait du groupe';
       d.innerHTML=''; voletPortrait(d); return;
     }
-    carteDePeriode(true);
+    poserLeHaut(quoi);
     const t=$('#modaleTitre');
     if (t && seanceOuverte) t.textContent = 'Période '+seanceOuverte.per;
     _voletAvant(quoi);
@@ -600,6 +621,6 @@ function voletPortrait(d){
        `#seTete`, `#seMot` et `#seActions` masqués, `#seSuivis` visible.
        Un seul appel suffit, et il vaut pour les quatre : c'est l'état du volet
        courant qui décide, pas l'endroit d'où l'on vient. */
-    carteDePeriode(lire('seVolet','') !== 'portrait');
+    poserLeHaut(lire('seVolet',''));
   };
 })();
