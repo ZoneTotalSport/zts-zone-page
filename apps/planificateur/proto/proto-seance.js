@@ -1334,6 +1334,8 @@ function volet(quoi){
             [...boite.querySelectorAll('.linge-piece')].forEach(p=>
               p.setAttribute('aria-pressed', String(m.indexOf(p.dataset.piece)>=0)));
             const emos=m.map(k=>{ const P=PIECES_LINGE.find(x=>x[0]===k); return P?P[1]:''; }).join(' ');
+            const bt=boite.querySelector('.linge-tout');
+            if (bt) bt.disabled = !m.length;      /* rien à effacer : rien à toucher */
             const et=b.querySelector('.etat');
             if (et) et.textContent = m.length ? '🚫 '+emos : '👕 au complet';
             b.className='pres-el pres-el--'+((seanceDe(iso,per).pres||{})[i]||'linge');
@@ -1343,7 +1345,10 @@ function volet(quoi){
             const p=el('button','linge-piece'); p.type='button'; p.dataset.piece=cle;
             p.appendChild(el('span','linge-emo', emo));
             p.appendChild(el('span','linge-nom', nom));
+            /* le mot disparaît du panneau (voir proto-papier.css) : il doit
+               rester atteignable au clavier et au lecteur d'écran */
             p.title=nom+' — touche s’il manque à '+ELEVES[i];
+            p.setAttribute('aria-label', nom+' — '+ELEVES[i]);
             p.addEventListener('click', e2=>{
               e2.stopPropagation();
               majSeanceSansRedessin(x=>{
@@ -1358,6 +1363,34 @@ function volet(quoi){
             });
             boite.appendChild(p);
           });
+
+          /* ⚠ « IL A TOUT SON LINGE » EN UN GESTE, PAR ÉLÈVE. Joey :
+             « et dans linge ajoute tout son linge par défaut. » Le défaut de la
+             SÉANCE l'était déjà — `s.linge` naît vide, donc tout le monde est au
+             complet, et le raccourci du haut remet le groupe entier d'aplomb.
+             Ce qui manquait, c'est de revenir en arrière pour UN élève : après
+             avoir coché souliers et t-shirt, il fallait décocher les deux un par
+             un. Un prof qui s'est trompé d'enfant, ou dont l'élève revient avec
+             son sac, doit pouvoir le dire d'une touche.
+             ⚠ IL PREND TOUTE LA LARGEUR (`grid-column:1/-1`) : en quatrième
+             colonne, les quatre cibles seraient tombées à 31 px dans une carte
+             de 143. Sur sa propre rangée, il garde sa hauteur et porte son mot
+             en clair — c'est le seul bouton du panneau qui n'a pas d'émoji
+             évident pour se passer de texte. */
+          const tout=el('button','linge-piece linge-tout'); tout.type='button';
+          tout.appendChild(el('span','linge-tout-lab','✅ IL A TOUT'));
+          tout.title=ELEVES[i]+' a tout son linge — efface les pièces cochées';
+          tout.setAttribute('aria-label','Tout son linge — '+ELEVES[i]);
+          tout.addEventListener('click', e2=>{
+            e2.stopPropagation();
+            majSeanceSansRedessin(x=>{
+              if (x.linge) delete x.linge[i];
+              majPresDepuisLinge(x, i);
+            });
+            redessine();
+          });
+          boite.appendChild(tout);
+
           boite.addEventListener('click', e2=> e2.stopPropagation());
           cel.appendChild(boite);
           redessine();

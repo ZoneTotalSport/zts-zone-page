@@ -1618,10 +1618,44 @@ html[data-etroit="1"] .auj-cours--image{min-height:118px}
      s'échapper, quelle que soit la rangée, et le visage reste visible au-dessus
      de lui : on n'oublie pas de qui on parle pendant qu'on coche. */
   position:absolute;left:0;right:0;bottom:0;z-index:40;
-  display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+  /* ⚠ `minmax(0,1fr)` ET NON `1fr`. Joey : « cela empiète sur l'autre case. »
+     Un `1fr` porte `min-width:auto` : la colonne refuse de descendre sous la
+     largeur de son CONTENU, et « SOULIERS » est plus long que le tiers d'une
+     carte de 143 px. Les trois colonnes s'élargissaient donc, la grille
+     débordait de son conteneur malgré `left:0; right:0`, et le panneau mordait
+     sur la carte voisine. `minmax(0,…)` autorise la colonne à se réduire ; le
+     libellé, lui, se serre par sa propre règle plus bas. C'est le piège
+     classique des grilles CSS, et il ne se voit que sur le mot le plus long. */
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
   background:#fff;border:3px solid var(--noir);border-radius:12px;
   box-shadow:0 -4px 0 rgba(8,19,30,.18);padding:5px;
 }
+/* ⚠ DANS LE PANNEAU, L'ÉMOJI SEUL — ET C'EST UNE QUESTION DE CIBLE, PAS DE
+   PLACE PERDUE. Une carte fait 143 px ; trois colonnes avec bordures, marge
+   interne et gouttières laissent 40 px chacune, mesuré. Sous les 44 px que
+   toute cible tactile de ce proto respecte. En retirant le mot, chaque pièce
+   passe à 44×48 et l'émoji monte à 26 px : il se frappe au pouce, en gymnase,
+   sans viser.
+   ⚠ LE MOT N'EST PAS PERDU POUR AUTANT. Il vit dans l'infobulle et dans
+   `aria-label` — donc lu par un lecteur d'écran —, et surtout la carte ELLE-MÊME
+   affiche déjà ce qui manque en clair sous le visage. On ne nomme pas deux fois
+   la même chose à trois centimètres d'écart. */
+.linge-choix{padding:3px;gap:2px}
+.linge-choix .linge-piece{min-height:48px;padding:0}
+.linge-choix .linge-emo{font-size:26px}
+.linge-choix .linge-nom{display:none}
+/* ⚠ SUR SA PROPRE RANGÉE, PAS EN QUATRIÈME COLONNE : à quatre, les cibles
+   tombaient à 31 px dans une carte de 143. Pleine largeur, il garde 38 px de
+   haut et porte son mot — c'est le seul bouton du panneau qu'un émoji seul ne
+   désignerait pas sans ambiguïté. */
+.linge-choix .linge-tout{
+  grid-column:1 / -1;min-height:38px;
+  background:#DFFCA8;
+  font-family:var(--f-titre);font-size:12px;letter-spacing:.3px;
+}
+.linge-choix .linge-tout:hover:not(:disabled){background:#CBF288}
+.linge-choix .linge-tout:disabled{background:#F2F5F7;opacity:.5;cursor:default}
+.linge-tout-lab{line-height:1}
 /* ⚠ 44 px DE HAUT, ET C'EST LE MINIMUM NON NÉGOCIABLE : trois cibles côte à
    côte sous une carte d'élève, frappées au pouce, en gymnase, parfois debout. */
 .linge-piece{
