@@ -286,8 +286,36 @@
     ztsLeverVerrouClavier();
     var etat = { calque: calque, inertes: [], obs: null, surFocus: null };
 
+    /* ---------------------------------------------------------------------
+       EXEMPTION — la modale d'authentification n'est PAS dans le calque.
+       `firebase-auth.js` l.528 fait `document.body.appendChild(overlay)` :
+       l'overlay #ztsAuthOverlay est un FRERE du calque, pas un enfant. Le
+       verrou pose le 1er septembre (PR #67) l'inertait donc comme le reste
+       du <body> : formulaire visible, clavier mort, bouton Google inerte.
+       Zero inscription du 1er au 3 septembre 2026, pour six comptes au
+       total. C'est le seul noeud exempte, et il l'est aux TROIS endroits :
+       premier passage, MutationObserver, rattrapage focusin.
+       --------------------------------------------------------------------- */
+    var SEL_AUTH = '#ztsAuthOverlay,.zts-auth-overlay';
+
+    function estModaleAuth(el) {
+      if (!el || el.nodeType !== 1) return false;
+      if (el.id === 'ztsAuthOverlay') return true;
+      return !!(el.classList && el.classList.contains('zts-auth-overlay'));
+    }
+
+    // On ne leve que ce que CE verrou a pose : un `inert` venu d'ailleurs
+    // reste ou il est.
+    function desinerter(el) {
+      var i = etat.inertes.indexOf(el);
+      if (i === -1) return;
+      try { el.inert = false; } catch (x) {}
+      etat.inertes.splice(i, 1);
+    }
+
     function inerter(el) {
       if (!el || el === calque || el.nodeType !== 1) return;
+      if (estModaleAuth(el)) return;             // la porte d'entree reste ouverte
       if (el.hasAttribute('inert')) return;      // deja inerte pour une autre raison
       try { el.inert = true; } catch (e) { return; }
       etat.inertes.push(el);
@@ -298,7 +326,11 @@
       etat.obs = new MutationObserver(function (muts) {
         for (var m = 0; m < muts.length; m++) {
           var aj = muts[m].addedNodes;
-          for (var k = 0; k < aj.length; k++) inerter(aj[k]);
+          for (var k = 0; k < aj.length; k++) {
+            // Chemin reel du bogue : la modale arrive APRES la pose du verrou.
+            if (estModaleAuth(aj[k])) { desinerter(aj[k]); continue; }
+            inerter(aj[k]);
+          }
         }
       });
       etat.obs.observe(document.body, { childList: true });
@@ -306,6 +338,11 @@
 
     etat.surFocus = function (e) {
       if (calque.contains(e.target)) return;
+      // Le focus a le droit d'etre dans la modale d'authentification : sans
+      // cette ligne, le premier caractere tape dans le champ courriel
+      // renvoyait le focus au calque et la saisie etait impossible.
+      if (estModaleAuth(e.target)) return;
+      if (e.target && e.target.closest && e.target.closest(SEL_AUTH)) return;
       var premier = calque.querySelector('button,a[href],input,select,textarea,[tabindex]');
       if (premier) premier.focus(); else calque.focus();
     };
