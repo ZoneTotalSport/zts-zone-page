@@ -18,25 +18,54 @@
    ========================================================================== */
 'use strict';
 
-/* ═════════ LES NEUF SPORTS ═════════
+/* ═════════ LES TRENTE SPORTS ═════════
    ⚠ LES SLUGS SONT DES NOMS DE FICHIERS, DONC DES CLÉS STABLES. Un groupe
    enregistre `sport:'hockey-cosom'` dans sa fiche ; renommer un slug rendrait
    muette la carte de tous les groupes qui l'avaient choisi. Même règle que le
    `slug` de la bibliothèque de jeux (voir CLAUDE.md).
-   ⚠ L'ORDRE EST CELUI DU SÉLECTEUR, et il n'est pas alphabétique : les sports
-   de gymnase d'abord — c'est là qu'un prof d'ÉPS au primaire passe ses
-   journées — puis l'extérieur. Athlétisme ferme la liste parce que c'est le
-   DÉFAUT : on le trouve sans le chercher. */
+   ⚠ L'ORDRE EST CELUI DU SÉLECTEUR, et il n'est pas alphabétique : les seize
+   sports de GYMNASE d'abord — c'est là qu'un prof d'ÉPS au primaire passe ses
+   journées —, puis le PLATEAU et la cour d'école, puis ce qui se fait HORS LES
+   MURS. Athlétisme ferme la liste parce que c'est le DÉFAUT : on le trouve
+   sans le chercher, en bout de grille, toujours à la même place.
+   ⚠ TROIS ÉMOJIS SE RÉPÈTENT (🏃 pour athlétisme et jeux de poursuite) et ce
+   n'est pas grave : depuis l'extension à trente, le sélecteur montre la VRAIE
+   IMAGE de chaque sport. L'émoji n'est plus qu'un repli — pour l'infobulle et
+   pour la tuile dont la photo n'a pas encore chargé. */
 const SPORTS = [
-  ['basket',          '🏀', 'Basketball'],
-  ['volley',          '🏐', 'Volleyball'],
-  ['badminton',       '🏸', 'Badminton'],
-  ['tennis-de-table', '🏓', 'Tennis de table'],
-  ['hockey-cosom',    '🏒', 'Hockey cosom'],
-  ['soccer',          '⚽', 'Soccer'],
-  ['baseball',        '⚾', 'Baseball'],
-  ['crosse',          '🥍', 'Crosse'],
-  ['athletisme',      '🏃', 'Athlétisme'],
+  /* ── gymnase ── */
+  ['basket',            '🏀', 'Basketball'],
+  ['volley',            '🏐', 'Volleyball'],
+  ['badminton',         '🏸', 'Badminton'],
+  ['tennis-de-table',   '🏓', 'Tennis de table'],
+  ['hockey-cosom',      '🏒', 'Hockey cosom'],
+  ['handball',          '🤾', 'Handball'],
+  ['kin-ball',          '🎈', 'Kin-ball'],
+  ['tchoukball',        '🥎', 'Tchoukball'],
+  ['gymnastique',       '🤸', 'Gymnastique'],
+  ['escalade',          '🧗', 'Escalade'],
+  ['danse',             '💃', 'Danse'],
+  ['cirque',            '🤹', 'Cirque'],
+  ['yoga',              '🧘', 'Yoga'],
+  ['parachute',         '🪂', 'Parachute'],
+  ['corde-a-sauter',    '🪢', 'Corde à sauter'],
+  ['jeux-poursuite',    '🏃', 'Jeux de poursuite'],
+  /* ── plateau et cour d'école ── */
+  ['soccer',            '⚽', 'Soccer'],
+  ['baseball',          '⚾', 'Baseball'],
+  ['crosse',            '🥍', 'Crosse'],
+  ['ultimate',          '🥏', 'Ultimate'],
+  ['pickleball',        '🎾', 'Pickleball'],
+  ['disque-golf',       '⛳', 'Disque-golf'],
+  ['velo',              '🚲', 'Vélo'],
+  /* ── hors les murs ── */
+  ['natation',          '🏊', 'Natation'],
+  ['patinage',          '⛸️', 'Patinage'],
+  ['ski-de-fond',       '🎿', 'Ski de fond'],
+  ['raquette',          '🥾', 'Raquette'],
+  ['course-orientation','🧭', "Course d'orientation"],
+  ['plein-air',         '🌲', 'Plein air'],
+  ['athletisme',        '🏃', 'Athlétisme'],
 ];
 const SPORT_DEFAUT = 'athletisme';
 const SPORTS_DOSSIER = 'img/sports/';
@@ -294,15 +323,49 @@ function blocApparenceDuGroupe(g){
   ch.appendChild(inp);
   box.appendChild(ch);
 
-  /* ── le sport ── */
+  /* ── le sport : UNE GRILLE DE TUILES, PAS UNE LISTE DE MOTS ──
+     ⚠ À NEUF SPORTS, UN NOM SUFFISAIT ; À TRENTE, NON. « Tchoukball » et
+     « Kin-ball » ne disent rien à qui ne les a jamais vus, et trente lignes de
+     texte se lisent une par une. Chaque tuile montre donc L'IMAGE que la carte
+     portera : on choisit ce qu'on voit, pas ce qu'on décode.
+
+     ⚠ CHARGEMENT À LA DEMANDE, ET C'EST UNE EXIGENCE, PAS UNE OPTIMISATION.
+     Trente images à 20–90 ko font près d'un mégaoctet ; les charger toutes à
+     l'ouverture du portrait, sur le réseau d'une école, pour un prof qui vient
+     y lire des absences, serait indéfendable.
+       · `loading="lazy"` — le navigateur ne demande une vignette que lorsqu'elle
+         approche de l'écran. La grille défile dans le portrait : les tuiles du
+         bas ne coûtent rien tant qu'on n'y descend pas.
+       · `decoding="async"` — le décodage ne bloque pas la peinture du volet.
+       · AUCUN préchargement nulle part : pas de `<link rel=preload>`, pas de
+         `new Image()`. La CARTE, elle, ne demande QUE le sport de son groupe —
+         c'est une `url()` unique dans son `background-image`, jamais une liste.
+     ⚠ ET LA VIGNETTE EST LA MÊME IMAGE QUE LE FOND, pas une miniature séparée :
+     le fichier est déjà en cache dès qu'un groupe l'a choisi, et le sport
+     courant s'affiche donc sans une seule requête de plus. */
   const cs=el('div','m-champ pt-champ');
-  cs.appendChild(el('span','m-lab','Son sport — l’image de fond de la carte'));
+  cs.appendChild(el('span','m-lab','Son sport — l’image de fond de la carte ('+SPORTS.length+' au choix)'));
   const grille=el('div','pt-sports');
   const courant=sportDuGroupe(g);
   SPORTS.forEach(([slug,emo,nom])=>{
     const b=el('button','pt-sport'); b.type='button';
     b.setAttribute('aria-pressed', String(slug===courant));
-    b.appendChild(el('span','pt-sport-emo', emo));
+
+    const vue=el('span','pt-sport-vue');
+    /* l'émoji reste DERRIÈRE la vignette : il tient la place le temps du
+       chargement, et il reste visible si le fichier venait à manquer. */
+    vue.appendChild(el('span','pt-sport-emo', emo));
+    const im=document.createElement('img');
+    im.className='pt-sport-img';
+    im.loading='lazy'; im.decoding='async';
+    im.src=SPORTS_DOSSIER + slug + '.webp';
+    im.alt='';
+    /* une image absente ne laisse pas de cadre cassé : on la retire et l'émoji
+       reprend la tuile. Le sélecteur reste utilisable avec un lot incomplet. */
+    im.addEventListener('error', ()=> im.remove());
+    vue.appendChild(im);
+    b.appendChild(vue);
+
     b.appendChild(el('span','pt-sport-nom', nom));
     b.title = nom + (slug===SPORT_DEFAUT ? ' — le sport par défaut' : '');
     b.addEventListener('click',()=>{
