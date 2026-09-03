@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page introuvable — Zone Total Sport</title>
+  <meta name="robots" content="noindex, follow">
+  <meta name="description" content="Cette page n'existe pas ou plus. Repars de l'accueil ou de ta page métier : éducation physique, service de garde, camp de jour.">
+
+  <!-- ⚠ TOUS LES CHEMINS SONT ABSOLUS DEPUIS LA RACINE, ET C'EST OBLIGATOIRE.
+       GitHub Pages sert ce fichier pour n'importe quelle URL inconnue :
+       /truc, /apps/truc/, /articles/a/b/c. Un chemin relatif se résoudrait
+       depuis l'URL demandée, pas depuis la racine — la page arriverait nue,
+       sans CSS ni en-tête, exactement le jour où le visiteur est déjà perdu.
+       `shared/zts.js` déduit sa racine de sa propre balise <script> : servi
+       en /shared/zts.js, il calcule ROOT correctement à n'importe quelle
+       profondeur, et l'en-tête, le pied de page et GA4 suivent. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared/zts.css">
+  <link rel="stylesheet" href="/assets/ztsh-shell.css">
+  <style>
+    /* Le shell attend un métier ; une 404 n'en a pas. On neutralise l'accent
+       plutôt que d'en choisir un au hasard : le visiteur n'a pas encore dit
+       qui il est, c'est justement ce que la page lui demande. */
+    .e404-code { font-family:'Luckiest Guy', cursive; font-size:clamp(64px,18vw,140px);
+      line-height:.9; margin:0; color:#FFEA00; -webkit-text-stroke:3px #111; text-shadow:6px 6px 0 #111; }
+    .e404-titre { font-family:'Luckiest Guy', cursive; font-size:clamp(24px,5vw,40px);
+      line-height:1.1; margin:14px 0 10px; }
+    .e404-txt { font-family:var(--font-body); font-weight:700; font-size:var(--fs-2); max-width:56ch; margin:0 auto; }
+    .e404-cartes { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      margin:var(--space-5) auto 0; max-width:820px; text-align:left; }
+    .e404-cartes a { text-decoration:none; display:block; }
+    .e404-retour { margin-top:var(--space-5); display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  </style>
+</head>
+<body>
+
+  <div data-zts-header></div>
+
+  <div class="ztsh-page">
+    <main class="zts-container" style="padding-top:var(--space-5); padding-bottom:var(--space-7); text-align:center;">
+
+      <p class="e404-code">404</p>
+      <h1 class="e404-titre">Cette page a pris le champ</h1>
+      <p class="e404-txt">
+        L'adresse que tu as suivie n'existe pas, ou plus. Rien n'est perdu :
+        tout le matériel est encore là, une porte plus loin.
+      </p>
+
+      <div class="e404-cartes">
+        <a href="/ep.html">
+          <div class="ztsh-carte ztsh-carte--jaune">
+            <h2 class="ztsh-carte__titre">Éducation physique</h2>
+            <p class="ztsh-carte__txt">Jeux, SAÉ, éducatifs, planification et évaluation pour le gymnase.</p>
+          </div>
+        </a>
+        <a href="/service-de-garde.html">
+          <div class="ztsh-carte ztsh-carte--lime">
+            <h2 class="ztsh-carte__titre">Service de garde</h2>
+            <p class="ztsh-carte__txt">Jeux calmes, plans B, transitions et activités courtes sans matériel.</p>
+          </div>
+        </a>
+        <a href="/camps-de-jour.html">
+          <div class="ztsh-carte ztsh-carte--orange">
+            <h2 class="ztsh-carte__titre">Camp de jour</h2>
+            <p class="ztsh-carte__txt">Grands jeux, rallyes, jeux d'eau, veillées et olympiades.</p>
+          </div>
+        </a>
+      </div>
+
+      <div class="e404-retour">
+        <a class="zts-action zts-action--neutre" href="/">Retour à l'accueil</a>
+        <a class="zts-action zts-action--eps" href="/blog.html">Voir le blogue</a>
+      </div>
+
+    </main>
+  </div>
+
+  <div data-zts-footer></div>
+
+  <script src="/shared/zts.js"></script>
+</body>
+</html>

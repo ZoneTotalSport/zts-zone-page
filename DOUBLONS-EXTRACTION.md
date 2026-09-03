@@ -1,7 +1,7 @@
 # DOUBLONS D'EXTRACTION — mini-banques camp vs catalogue 1439
 
 > Activités NON ajoutées à `apps/planificateur/data/mini-banques-camp.json` car un jeu
-> au titre fortement similaire existe déjà dans `apps/jeux/data/jeux-merged.json`.
+> au titre fortement similaire existe déjà dans `_data/jeux-merged.json`.
 > **Arbitrage Joey** : pour chaque ligne — garder le jeu du catalogue (rien à faire),
 > ou considérer la version mini-banque comme distincte (me le dire, je l'ajoute).
 > Règles de détection : titre normalisé identique, ratio ≥ 0.90, ratio ≥ 0.84 + mot

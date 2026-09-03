@@ -37,3 +37,9 @@ apps/decodage/src/node_modules/
 # Fichiers de travail du générateur de mini-banques (voir MINI-BANQUES-SCHEMA.md)
 apps/planificateur/data/_a-arbitrer.json
 apps/planificateur/data/_estimations-duree.json
+
+# Dependances npm de la racine. La regle existait pour cf-worker/ et pour
+# apps/decodage/src/ mais PAS pour la racine : un `npm install` a la racine
+# aurait pousse ~60 Mo de dependances dans un depot PUBLIC.
+node_modules/
+**/node_modules/

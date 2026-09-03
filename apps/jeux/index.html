@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Répertoire de Jeux EPS | 1439 Jeux - Banque mondiale</title>
+  <title>Répertoire de Jeux EPS | 1540 Jeux - Banque mondiale</title>
   <!-- ZTS-SEO -->
-  <meta name="description" content="Répertoire mondial de 1439 jeux d&#x27;éducation physique. Filtre par catégorie, âge et matériel. Banque gratuite pour profs d&#x27;ÉPS.">
+  <meta name="description" content="Répertoire mondial de 1540 jeux d&#x27;éducation physique. Filtre par catégorie, âge et matériel. Banque gratuite pour profs d&#x27;ÉPS.">
   <link rel="canonical" href="https://zonetotalsport.ca/apps/jeux/">
   <link rel="alternate" hreflang="fr-CA" href="https://zonetotalsport.ca/apps/jeux/">
   <link rel="alternate" hreflang="fr" href="https://zonetotalsport.ca/apps/jeux/">
   <link rel="alternate" hreflang="en" href="https://zonetotalsport.ca/apps/jeux/?lang=en">
   <link rel="alternate" hreflang="x-default" href="https://zonetotalsport.ca/apps/jeux/">
-  <meta property="og:title" content="Répertoire de Jeux EPS | 1439 Jeux - Banque mondiale">
-  <meta property="og:description" content="Répertoire mondial de 1439 jeux d&#x27;éducation physique. Filtre par catégorie, âge et matériel. Banque gratuite pour profs d&#x27;ÉPS.">
+  <meta property="og:title" content="Répertoire de Jeux EPS | 1540 Jeux - Banque mondiale">
+  <meta property="og:description" content="Répertoire mondial de 1540 jeux d&#x27;éducation physique. Filtre par catégorie, âge et matériel. Banque gratuite pour profs d&#x27;ÉPS.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://zonetotalsport.ca/apps/jeux/">
   <meta property="og:image" content="https://zonetotalsport.ca/favicon.png">
@@ -21,7 +21,13 @@
   <meta name="twitter:card" content="summary">
   <!-- /ZTS-SEO -->
   <link rel="icon" type="image/png" href="https://zonetotalsport.ca/favicon.png">
-  <link rel="apple-touch-icon" href="favicon.png">
+  <!-- 2026-09-02 : la cible etait ecrite en RELATIF (le nom du fichier seul),
+       donc resolue vers /apps/jeux/favicon.png, qui n'existe pas — le favicon
+       du site vit a la racine. C'est l'icone que iOS affiche quand la banque
+       de jeux est ajoutee a l'ecran d'accueil : elle etait vide.
+       Ecrit sans citer l'ancien attribut : une chaine `href=` en commentaire
+       se fait relever comme un vrai lien par les scans du depot. -->
+  <link rel="apple-touch-icon" href="https://zonetotalsport.ca/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Bangers&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -61,10 +67,28 @@
     .sidebar,.menu-toggle,.sidebar-overlay{display:none!important}
     .main-layout{grid-template-columns:1fr!important;display:block!important;margin-top:0!important;min-height:0!important}
     .content{margin-left:0!important;max-width:100%!important;padding:0!important;flex:none!important}
-    .game-grid{display:grid!important;grid-template-columns:repeat(2,1fr)!important;gap:24px!important;padding:24px!important;max-width:1700px!important;margin:0 auto!important}
-    @media(min-width:640px){.game-grid{grid-template-columns:repeat(3,1fr)!important}}
-    @media(min-width:1024px){.game-grid{grid-template-columns:repeat(4,1fr)!important}}
-    @media(min-width:1280px){.game-grid{grid-template-columns:repeat(5,1fr)!important}}
+    /* ⚠ minmax(0,1fr) ET NON 1fr — c'est la cause du chevauchement du 2 sept.
+       `1fr` vaut `minmax(auto,1fr)` : une piste ne descend jamais sous la
+       largeur MIN-CONTENT de ce qu'elle porte. A 390px, deux colonnes de
+       159px recevaient des cartes dont le titre en Luckiest Guy mesurait
+       plus : les pistes debordaient du conteneur et les cartes se
+       recouvraient. `minmax(0,1fr)` autorise la piste a retrecir, donc le
+       contenu s'enroule au lieu de pousser. Pose a TOUS les paliers : le
+       defaut existait a chacun, il ne se voyait qu'au plus etroit. */
+    .game-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:24px!important;padding:24px!important;max-width:1700px!important;margin:0 auto!important}
+    @media(min-width:640px){.game-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+    @media(min-width:1024px){.game-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+    @media(min-width:1280px){.game-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+    /* Telephone portrait : UNE colonne, carte pleine largeur.
+       390 - 32 (padding) = 358px de carte, aucun gap horizontal a payer. */
+    @media(max-width:639px){
+      .game-grid{grid-template-columns:1fr!important;gap:16px!important;padding:16px!important}
+      /* Le carre 1:1 ecrasait le texte sur une carte pleine largeur. */
+      .game-card{aspect-ratio:auto!important;min-height:150px!important}
+    }
+    /* Filet de securite : aucune carte ne peut depasser sa piste. */
+    .game-card{min-width:0!important;max-width:100%!important}
+    .game-card,.game-card *{overflow-wrap:anywhere}
     .game-card{aspect-ratio:1/1!important;min-height:0!important}
     .game-card .card-number{font-size:16px!important;padding:5px 14px!important}
     .game-card .card-title{font-size:24px!important;line-height:1.05!important;margin:8px 0 12px!important}
@@ -115,6 +139,10 @@
 
     /* Filter bar en haut — XL pour TBI */
     #ztsFilterBar{margin:0;padding:0;display:grid;grid-template-columns:repeat(2,1fr);gap:18px;border-top:2px dashed #e2e8f0;padding-top:20px}
+    /* 2026-09-02 — six filtres a 390px, deux colonnes font ~170px chacune :
+       « Competence PFEQ » et « Service de garde » se coupaient. Une seule
+       colonne sous 480px. */
+    @media(max-width:480px){#ztsFilterBar{grid-template-columns:1fr;gap:12px}}
     @media(min-width:640px){#ztsFilterBar{grid-template-columns:repeat(3,1fr)}}
     @media(min-width:1024px){#ztsFilterBar{grid-template-columns:repeat(5,1fr)}}
     .zts-filter{display:flex;flex-direction:column;gap:10px}
@@ -270,6 +298,55 @@
     .category-btn.active[data-category="opposition"]{background:#8B2FC9!important}
     .category-btn.active[data-category="duels"]{background:#FFD000!important;color:#004A61!important}
     .duration-btn.active,.competence-btn.active,.cycle-btn.active{background:#00C4FF!important}
+
+    /* ═══ VAGUE 2 — collections, partage, note de filtre ═══
+       Charte : bordure noire épaisse, ombre BD décalée, Luckiest Guy sur les
+       titres, Bangers sur les étiquettes. Aucune pilule 999px sur une action. */
+    .zts-collections{margin:0 auto 28px;max-width:1700px;padding:0 16px}
+    .zc-titre{font-family:'Luckiest Guy',cursive;font-size:clamp(22px,3vw,32px);
+      color:#004A61;letter-spacing:.04em;margin:0 0 4px}
+    .zc-intro{font-family:'Quicksand',system-ui,sans-serif;font-weight:700;
+      color:#33627a;margin:0 0 16px;font-size:15px}
+    .zc-rangee{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+    .zc-carte{text-align:left;cursor:pointer;background:#fff;color:#111;
+      border:3px solid #111;border-radius:14px;box-shadow:5px 5px 0 #111;
+      padding:16px;display:flex;flex-direction:column;gap:6px;
+      transition:transform .14s,box-shadow .14s;min-height:44px}
+    .zc-carte:hover{transform:translate(-3px,-3px);box-shadow:8px 8px 0 #111}
+    .zc-carte:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #111}
+    .zc-carte.est-actif{background:#FFF000;box-shadow:8px 8px 0 #111}
+    .zc-icone{font-size:28px;line-height:1}
+    .zc-nom{font-family:'Luckiest Guy',cursive;font-size:19px;letter-spacing:.03em;line-height:1.15}
+    .zc-intro-carte{font-family:'Quicksand',system-ui,sans-serif;font-weight:600;
+      font-size:13.5px;color:#3a3a3a;line-height:1.35}
+    .zc-compte{font-family:'Bangers',cursive;font-size:15px;letter-spacing:.06em;
+      color:#004A61;margin-top:auto}
+    .zts-avis-collection{max-width:1700px;margin:0 auto 18px;padding:12px 16px;
+      font-family:'Quicksand',system-ui,sans-serif;font-weight:700;color:#111;
+      background:#FFF000;border:3px solid #111;border-radius:12px;box-shadow:4px 4px 0 #111}
+    .filter-note{font-family:'Quicksand',system-ui,sans-serif;font-size:12.5px;
+      font-weight:600;color:#5b7c8d;margin:8px 0 0;line-height:1.3}
+    /* Bouton Partager de la carte — 44px de cible tactile, comme le favori. */
+    .card-partage{background:none;border:none;cursor:pointer;font-size:20px;
+      line-height:1;padding:8px;min-width:44px;min-height:44px;
+      display:inline-flex;align-items:center;justify-content:center;
+      border-radius:10px;transition:transform .12s,background .12s}
+    .card-partage:hover{transform:scale(1.15);background:rgba(0,0,0,.06)}
+    .zts-toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);
+      background:#004A61;color:#fff;font-family:'Bangers',cursive;letter-spacing:.06em;
+      font-size:18px;padding:12px 22px;border:3px solid #111;border-radius:12px;
+      box-shadow:5px 5px 0 #111;opacity:0;pointer-events:none;
+      transition:opacity .18s,transform .18s;z-index:9999}
+    .zts-toast.visible{opacity:1;transform:translate(-50%,0)}
+    .detail-fiche-lien{display:inline-block;margin:14px 0 0;font-family:'Bangers',cursive;
+      letter-spacing:.05em;font-size:18px;background:#00E5FF;color:#111;
+      border:3px solid #111;border-radius:10px;box-shadow:4px 4px 0 #111;
+      padding:10px 18px;text-decoration:none;transition:transform .12s,box-shadow .12s}
+    .detail-fiche-lien:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #111}
+    @media (max-width:600px){
+      .zc-rangee{grid-template-columns:1fr}
+      .zts-collections{padding:0 12px}
+    }
   </style>
   <script>
   // Set --cat var on modal when opening, based on game category
@@ -299,8 +376,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Répertoire de Jeux EPS | 1439 Jeux - Banque mondiale",
-  "description": "Répertoire mondial de 1439 jeux d'éducation physique. Filtre par catégorie, âge et matériel. Banque gratuite pour profs d'ÉPS.",
+  "name": "Répertoire de Jeux EPS | 1540 Jeux - Banque mondiale",
+  "description": "Répertoire mondial de 1540 jeux d'éducation physique. Filtre par catégorie, âge et matériel. Banque gratuite pour profs d'ÉPS.",
   "url": "https://zonetotalsport.ca/apps/jeux/",
   "applicationCategory": "EducationApplication",
   "operatingSystem": "Web",
@@ -337,11 +414,11 @@
       <div class="lg:w-1/2 text-white z-10 text-center lg:text-left">
         <span class="inline-block bg-ztsYellow text-ztsDeep font-lucky px-5 py-1.5 rounded-xl text-sm mb-6 -rotate-2 shadow-lg" data-fr="RÉPERTOIRE PFEQ" data-en="PFEQ LIBRARY">RÉPERTOIRE PFEQ</span>
         <h2 class="text-5xl md:text-7xl lg:text-8xl font-lucky mb-6 leading-[1] text-outline m-0" data-fr="RÉPERTOIRE<br><span class=&quot;text-ztsYellow&quot;>JEUX EPS</span>" data-en="PE GAME<br><span class=&quot;text-ztsYellow&quot;>LIBRARY</span>">RÉPERTOIRE<br><span class="text-ztsYellow">JEUX EPS</span></h2>
-        <p class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0" data-fr="1439 jeux classés par catégorie, cycle, durée et matériel. Recherche instantanée, favoris, minuteur intégré." data-en="1439 games sorted by category, grade, duration and equipment. Instant search, favorites, built-in timer.">1439 jeux classés par catégorie, cycle, durée et matériel. Recherche instantanée, favoris, minuteur intégré.</p>
+        <p class="text-cyan-50 text-lg md:text-xl mb-10 leading-relaxed font-medium max-w-xl mx-auto lg:mx-0" data-fr="1540 jeux classés par catégorie, cycle, durée et matériel. Recherche instantanée, favoris, minuteur intégré." data-en="1540 games sorted by category, grade, duration and equipment. Instant search, favorites, built-in timer.">1540 jeux classés par catégorie, cycle, durée et matériel. Recherche instantanée, favoris, minuteur intégré.</p>
         <div class="flex flex-wrap justify-center lg:justify-start items-center gap-5">
           <a href="#gameGrid" class="bg-ztsYellow text-ztsDeep px-10 py-5 rounded-3xl font-lucky text-2xl md:text-3xl hover:bg-white hover:scale-105 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.15)] uppercase no-underline" data-fr="EXPLORER" data-en="EXPLORE">EXPLORER</a>
           <span class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl text-cyan-100 font-bold">
-            <i data-lucide="gamepad-2" class="w-5 h-5"></i> <span data-fr="1439 jeux" data-en="1439 games">1439 jeux</span>
+            <i data-lucide="gamepad-2" class="w-5 h-5"></i> <span data-fr="1540 jeux" data-en="1540 games">1540 jeux</span>
           </span>
         </div>
       </div>
@@ -373,7 +450,7 @@
         <span class="logo-icon">🏃</span>
         <div class="logo-text">
           <h1 data-fr="Répertoire EPS" data-en="PE Game Library">Répertoire EPS</h1>
-          <span class="logo-subtitle" data-fr="1439 jeux &bull; PFEQ Primaire" data-en="1439 games &bull; Quebec Curriculum">1439 jeux &bull; PFEQ Primaire</span>
+          <span class="logo-subtitle" data-fr="1540 jeux &bull; PFEQ Primaire" data-en="1540 games &bull; Quebec Curriculum">1540 jeux &bull; PFEQ Primaire</span>
         </div>
       </div>
     </div>
@@ -436,7 +513,15 @@
   <!-- MAIN LAYOUT -->
   <div class="main-layout">
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
+    <!-- ⚠ CETTE BARRE LATERALE N'EST PAS AFFICHEE. `.sidebar` est en
+     `display:none!important` (voir le bloc <style> plus haut, « Sidebar
+     masquee — filtres deplaces en haut »). Le SEUL filtre visible est
+     `#ztsFilterBar`, construit en dur par le script en bas de page.
+     Modifier un filtre ICI ne change RIEN a l'ecran : c'est l'erreur de
+     la PR B du 2 septembre, ou univers, age et materiel ont ete ajoutes
+     dans ce bloc mort et n'ont jamais ete atteignables. Les deux listes
+     doivent rester d'accord, ou celle du bas gagne. -->
+      <aside class="sidebar" id="sidebar">
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <div class="sidebar-content">
         <!-- Categories -->
@@ -446,7 +531,7 @@
             <button class="category-btn active" data-category="all">
               <span class="cat-icon">📋</span>
               <span class="cat-name" data-fr="Toutes les catégories" data-en="All categories">Toutes les catégories</span>
-              <span class="cat-count" id="countAll">1439</span>
+              <span class="cat-count" id="countAll">1540</span>
             </button>
             <button class="category-btn" data-category="ballons-chasseurs">
               <span class="cat-icon">🔴</span>
@@ -504,31 +589,54 @@
           </div>
         </div>
 
-        <!-- Cycle Filter -->
+        <!-- Univers — vague 2 -->
         <div class="sidebar-section">
-          <h3 class="sidebar-title" data-fr="Cycle scolaire" data-en="Grade level">Cycle scolaire</h3>
-          <div class="filter-chips" id="cycleFilter">
-            <button class="chip active" data-cycle="all" data-fr="Tous" data-en="All">Tous</button>
-            <button class="chip" data-cycle="1" data-fr="Cycle 1 (6-8)" data-en="Cycle 1 (6-8)">Cycle 1 (6-8)</button>
-            <button class="chip" data-cycle="2" data-fr="Cycle 2 (8-10)" data-en="Cycle 2 (8-10)">Cycle 2 (8-10)</button>
-            <button class="chip" data-cycle="3" data-fr="Cycle 3 (10-12)" data-en="Cycle 3 (10-12)">Cycle 3 (10-12)</button>
+          <h3 class="sidebar-title" data-fr="Univers" data-en="Audience">Univers</h3>
+          <div class="filter-chips" id="universFilter">
+            <button class="chip active" data-univers="all" data-fr="Tous" data-en="All">Tous</button>
+            <button class="chip" data-univers="eps" data-fr="ÉPS" data-en="PE">ÉPS</button>
+            <button class="chip" data-univers="sdg" data-fr="Service de garde" data-en="Daycare">Service de garde</button>
+            <button class="chip" data-univers="camps" data-fr="Camp de jour" data-en="Day camp">Camp de jour</button>
           </div>
+        </div>
+
+        <!-- Âge — vague 2. Remplace l'ancien filtre « Cycle scolaire », qui
+             affichait quatre boutons et ne filtrait rien.
+             ⚠ Un jeu sans âge renseigné passe TOUJOURS : 721 des 1540 n'en
+             ont pas, et les cacher ferait mentir l'écran. -->
+        <div class="sidebar-section">
+          <h3 class="sidebar-title" data-fr="Âge" data-en="Age">Âge</h3>
+          <div class="filter-chips" id="ageFilter">
+            <button class="chip active" data-age="all" data-fr="Tous" data-en="All">Tous</button>
+            <button class="chip" data-age="5">5-6</button>
+            <button class="chip" data-age="7">7-8</button>
+            <button class="chip" data-age="9">9-10</button>
+            <button class="chip" data-age="11">11-12</button>
+          </div>
+          <p class="filter-note" data-fr="Un jeu sans âge indiqué reste affiché." data-en="Games with no age listed stay visible.">Un jeu sans âge indiqué reste affiché.</p>
         </div>
 
         <!-- Material Filter -->
         <div class="sidebar-section">
           <h3 class="sidebar-title" data-fr="Matériel" data-en="Equipment">Matériel</h3>
+          <!-- Vague 2 — les dix categories normalisees de `materielCat`, et non
+               plus une recherche de sous-chaine dans le texte libre. Les
+               libelles DOIVENT correspondre exactement aux valeurs ecrites par
+               _scripts/extrait-collections-jeux.js : c'est une egalite stricte,
+               pas un « contient ». « Sans materiel » vient en premier, c'est le
+               filtre le plus demande sur le terrain. -->
           <div class="filter-chips wrap" id="materialFilter">
             <button class="chip active" data-material="all" data-fr="Tout" data-en="All">Tout</button>
-            <button class="chip" data-material="ballon" data-fr="Ballon" data-en="Ball">Ballon</button>
-            <button class="chip" data-material="frite" data-fr="Frite" data-en="Noodle">Frite</button>
-            <button class="chip" data-material="cône" data-fr="Cônes" data-en="Cones">Cônes</button>
-            <button class="chip" data-material="foulard" data-fr="Foulard" data-en="Scarf">Foulard</button>
-            <button class="chip" data-material="tapis" data-fr="Tapis" data-en="Mat">Tapis</button>
-            <button class="chip" data-material="cerceau" data-fr="Cerceaux" data-en="Hoops">Cerceaux</button>
-            <button class="chip" data-material="dossard" data-fr="Dossards" data-en="Pinnies">Dossards</button>
-            <button class="chip" data-material="corde" data-fr="Corde" data-en="Rope">Corde</button>
-            <button class="chip" data-material="raquette" data-fr="Raquette" data-en="Racket">Raquette</button>
+            <button class="chip" data-material="Sans matériel" data-fr="Sans matériel" data-en="No equipment">Sans matériel</button>
+            <button class="chip" data-material="Ballons" data-fr="Ballons" data-en="Balls">Ballons</button>
+            <button class="chip" data-material="Cônes / dossards" data-fr="Cônes / dossards" data-en="Cones / pinnies">Cônes / dossards</button>
+            <button class="chip" data-material="Cerceaux" data-fr="Cerceaux" data-en="Hoops">Cerceaux</button>
+            <button class="chip" data-material="Cordes" data-fr="Cordes" data-en="Ropes">Cordes</button>
+            <button class="chip" data-material="Gros matériel de gym" data-fr="Gros matériel de gym" data-en="Large gym equipment">Gros matériel de gym</button>
+            <button class="chip" data-material="Petit matériel varié" data-fr="Petit matériel varié" data-en="Assorted small equipment">Petit matériel varié</button>
+            <button class="chip" data-material="Eau / extérieur" data-fr="Eau / extérieur" data-en="Water / outdoor">Eau / extérieur</button>
+            <button class="chip" data-material="Papier / crayons" data-fr="Papier / crayons" data-en="Paper / pencils">Papier / crayons</button>
+            <button class="chip" data-material="Parachute" data-fr="Parachute" data-en="Parachute">Parachute</button>
           </div>
         </div>
 
@@ -547,7 +655,7 @@
       <!-- Stats Bar -->
       <div class="stats-bar" id="statsBar">
         <div class="stats-left">
-          <span class="results-count" id="resultsCount">1439 jeux</span>
+          <span class="results-count" id="resultsCount">1540 jeux</span>
           <span class="active-filters" id="activeFilters"></span>
         </div>
         <div class="stats-right">
@@ -569,6 +677,12 @@
       </div>
 
       <!-- Game Grid -->
+      <!-- Vague 2 — rangée de collections. Remplie par renderCollections().
+           Vide et silencieuse si assets/collections-jeux.json ne charge pas :
+           une rangée absente n'empêche jamais de chercher un jeu. -->
+      <section class="zts-collections" id="ztsCollections" aria-label="Collections"></section>
+      <p class="zts-avis-collection" id="ztsAvisCollection" hidden></p>
+
       <div class="game-grid" id="gameGrid"></div>
 
       <!-- Empty State -->
@@ -615,7 +729,7 @@
   <script>
     // La banque vient du Worker depuis le 2026-08-17 (LOT 1 vague D) :
     // /jeux/full.json pour un membre, /jeux/public.json pour un anonyme (les
-    // 3 jeux vitrine complets + les champs de liste des 1439). zts-banques.js
+    // 3 jeux vitrine complets + les champs de liste des 1540). zts-banques.js
     // choisit la portee et gere le jeton expire.
     // La liste reste navigable sans compte : c'est un outil de vente.
     window.__GAMES_LOAD__ = window.ZTSBanques.jeux()
@@ -659,8 +773,9 @@
         <div class="zts-filter"><label data-fr="Catégorie" data-en="Category">Catégorie</label><select id="ztsCat"><option value="all" data-fr="Toutes les catégories" data-en="All categories">Toutes les catégories</option>${cats.map(([k,v])=>`<option value="${k}" data-fr="${v.icon||''} ${v.name||k}" data-en="${v.icon||''} ${v.nameEn||v.name||k}">${v.icon||''} ${v.name||k}</option>`).join('')}</select></div>
         <div class="zts-filter"><label data-fr="Durée" data-en="Duration">Durée</label><select id="ztsDur"><option value="all" data-fr="Toutes" data-en="All">Toutes</option><option value="10">≤ 15 min</option><option value="15">15-20 min</option><option value="20">20-30 min</option><option value="30">30+ min</option></select></div>
         <div class="zts-filter"><label data-fr="Compétence PFEQ" data-en="PFEQ Competency">Compétence PFEQ</label><select id="ztsPfeq"><option value="all" data-fr="Toutes" data-en="All">Toutes</option><option value="C1" data-fr="C1 — Agir" data-en="C1 — Act">C1 — Agir</option><option value="C2" data-fr="C2 — Interagir" data-en="C2 — Interact">C2 — Interagir</option><option value="C3" data-fr="C3 — Mode de vie" data-en="C3 — Lifestyle">C3 — Mode de vie</option></select></div>
-        <div class="zts-filter"><label data-fr="Cycle" data-en="Grade">Cycle</label><select id="ztsCyc"><option value="all" data-fr="Tous les cycles" data-en="All grades">Tous les cycles</option><option value="1" data-fr="Cycle 1 (6-8 ans)" data-en="Cycle 1 (6-8)">Cycle 1 (6-8 ans)</option><option value="2" data-fr="Cycle 2 (8-10 ans)" data-en="Cycle 2 (8-10)">Cycle 2 (8-10 ans)</option><option value="3" data-fr="Cycle 3 (10-12 ans)" data-en="Cycle 3 (10-12)">Cycle 3 (10-12 ans)</option></select></div>
-        <div class="zts-filter"><label data-fr="Matériel" data-en="Equipment">Matériel</label><select id="ztsMat"><option value="all" data-fr="Tout" data-en="All">Tout</option><option value="ballon" data-fr="Ballon" data-en="Ball">Ballon</option><option value="frite" data-fr="Frite" data-en="Noodle">Frite</option><option value="cône" data-fr="Cônes" data-en="Cones">Cônes</option><option value="foulard" data-fr="Foulard" data-en="Scarf">Foulard</option><option value="tapis" data-fr="Tapis" data-en="Mat">Tapis</option><option value="cerceau" data-fr="Cerceaux" data-en="Hoops">Cerceaux</option><option value="dossard" data-fr="Dossards" data-en="Pinnies">Dossards</option><option value="corde" data-fr="Corde" data-en="Rope">Corde</option><option value="raquette" data-fr="Raquette" data-en="Racket">Raquette</option></select></div>
+        <div class="zts-filter"><label data-fr="Univers" data-en="Audience">Univers</label><select id="ztsUniv"><option value="all" data-fr="Tous les univers" data-en="All audiences">Tous les univers</option><option value="eps" data-fr="ÉPS" data-en="PE">ÉPS</option><option value="sdg" data-fr="Service de garde" data-en="Daycare">Service de garde</option><option value="camps" data-fr="Camp de jour" data-en="Day camp">Camp de jour</option></select></div>
+        <div class="zts-filter"><label data-fr="Âge" data-en="Age">Âge</label><select id="ztsAge"><option value="all" data-fr="Tous les âges" data-en="All ages">Tous les âges</option><option value="5">5-6 ans</option><option value="7">7-8 ans</option><option value="9">9-10 ans</option><option value="11">11-12 ans</option></select></div>
+        <div class="zts-filter"><label data-fr="Matériel" data-en="Equipment">Matériel</label><select id="ztsMat"><option value="all" data-fr="Tout le matériel" data-en="All equipment">Tout le matériel</option><option value="Sans matériel" data-fr="Sans matériel" data-en="No equipment">Sans matériel</option><option value="Ballons" data-fr="Ballons" data-en="Balls">Ballons</option><option value="Cônes / dossards" data-fr="Cônes / dossards" data-en="Cones / pinnies">Cônes / dossards</option><option value="Cerceaux" data-fr="Cerceaux" data-en="Hoops">Cerceaux</option><option value="Cordes" data-fr="Cordes" data-en="Ropes">Cordes</option><option value="Gros matériel de gym" data-fr="Gros matériel de gym" data-en="Large gym equipment">Gros matériel de gym</option><option value="Petit matériel varié" data-fr="Petit matériel varié" data-en="Assorted small equipment">Petit matériel varié</option><option value="Eau / extérieur" data-fr="Eau / extérieur" data-en="Water / outdoor">Eau / extérieur</option><option value="Papier / crayons" data-fr="Papier / crayons" data-en="Paper / pencils">Papier / crayons</option><option value="Parachute" data-fr="Parachute" data-en="Parachute">Parachute</option></select></div>
       `;
       grid.parentNode.insertBefore(bar,grid);
 
@@ -668,7 +783,8 @@
       document.getElementById('ztsCat').addEventListener('change',e=>setAndApply('activeCategory',e.target.value));
       document.getElementById('ztsDur').addEventListener('change',e=>setAndApply('activeDuration',e.target.value));
       document.getElementById('ztsPfeq').addEventListener('change',e=>setAndApply('activePfeq',e.target.value));
-      document.getElementById('ztsCyc').addEventListener('change',e=>setAndApply('activeCycle',e.target.value));
+      document.getElementById('ztsUniv').addEventListener('change',e=>setAndApply('activeUnivers',e.target.value));
+      document.getElementById('ztsAge').addEventListener('change',e=>setAndApply('activeAge',e.target.value));
       document.getElementById('ztsMat').addEventListener('change',e=>setAndApply('activeMaterial',e.target.value));
       // Re-apply language after dynamic injection
       if(typeof applyLanguage==='function')applyLanguage();

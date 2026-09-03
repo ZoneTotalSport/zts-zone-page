@@ -57,8 +57,19 @@ const BANQUES = {
     source: "jeux-merged.json",
     forme: "tableau",
     slugDe: (x) => slugify(x.title),
+    // Vague 2, PR A — trois champs ajoutes a la liste publique, et pas un de
+    // plus. `apps/jeux` est LIBRE : l'anonyme est le cas normal, pas
+    // l'exception. Sans eux, les filtres et les rangees de collections de la
+    // PR B ne fonctionneraient que pour un membre connecte.
+    //   collections  l'etiquette de rangee — 14 valeurs closes
+    //   univers      eps / camps / sdg — 3 valeurs closes
+    //   dureeMin     un entier
+    // Ce sont des cles d'INDEX, pas du contenu : elles disent ou ranger un
+    // jeu, jamais comment il se joue. `materiel` reste volontairement dehors —
+    // c'est du texte de fiche, donc de la valeur (voir RAPPORT-COLLECTIONS-JEUX.md).
     liste: ["id", "title", "titleEn", "category", "categoryName", "categoryIcon",
-            "categoryColor", "ageMin", "ageMax", "duree", "niveauActivite"],
+            "categoryColor", "ageMin", "ageMax", "duree", "niveauActivite",
+            "collections", "univers", "dureeMin", "materielCat"],
     vitrines: "jeux",
     public: true,
   },

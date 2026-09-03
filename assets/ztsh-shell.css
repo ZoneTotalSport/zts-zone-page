@@ -236,7 +236,21 @@
 
    Volontairement sans padding, sans largeur, sans fond : tout ça appartient
    à l'app. */
-.ztsh-page { padding-right: var(--ztsh-marge-droite, 0px); }
+/* Le rail réserve sa place. Verticalement à droite, c'est --ztsh-marge-droite.
+   COUCHÉ EN RUBAN, il fallait l'équivalent en bas, et il n'existait pas :
+   `.ztsh-casier` passe en `flex-direction:row` posé à `bottom:16px` sur 73px
+   de haut dès la densité « travail » — donc il RECOUVRAIT les 89 derniers
+   pixels de la page, sur toutes les largeurs. Constaté par Joey le 2 sept :
+   dans apps/jeux, le bouton Partager de la dernière rangée de cartes était
+   sous le ruban, intouchable. Mesuré : casier 73px + 16px de garde, contre
+   `padding-bottom: 0px` sur `.ztsh-page`.
+   La réservation est posée ICI plutôt que dans apps/jeux : le défaut vient du
+   shell et vaut pour toutes les apps qui couchent le rail, pas pour une. */
+:root { --ztsh-marge-bas: 0px; }
+.ztsh-page {
+  padding-right: var(--ztsh-marge-droite, 0px);
+  padding-bottom: var(--ztsh-marge-bas, 0px);
+}
 
 
 /* ==========================================================================
@@ -1088,6 +1102,9 @@ body[data-ztsh-densite="travail"] .ztsh-panneau,
 body[data-ztsh-densite="travail"] .ztsh-panneau--droite { transform: none; }
 body[data-ztsh-densite="travail"] .ztsh-etiquette { transform: none; }
 
+/* Le rail est couché : sa place se réserve en BAS, plus à droite.
+   73px de ruban + 16px de garde + 12px de respiration = 101px. */
+body[data-ztsh-densite="travail"] { --ztsh-marge-bas: 101px; }
 body[data-ztsh-densite="travail"] .ztsh-casier {
   bottom: 16px;
   right: auto;
@@ -1100,6 +1117,27 @@ body[data-ztsh-densite="travail"] .ztsh-casier {
   box-shadow: 5px 5px 0 rgba(0, 194, 232, .5);
 }
 body[data-ztsh-densite="travail"] .ztsh-casier__cle { display: none; }
+
+/* ==========================================================================
+   TELEPHONE — le rail s'efface. Decision de Joey, 2 septembre 2026.
+   --------------------------------------------------------------------------
+   Sur un petit ecran, le ruban de navigation croisee mange 89px du bas et
+   recouvre le contenu : sur iPhone, le bouton Partager de la derniere rangee
+   de cartes etait carrement intouchable. Le contenu passe avant la
+   navigation croisee — le rail est retire, pas retreci.
+
+   DEUX SEUILS, PAS UN. La largeur seule ne suffit pas : un iPhone COUCHE
+   fait 844 x 390, donc large mais tres bas, et c'est justement l'orientation
+   ou un ruban horizontal coute le plus cher. `max-height` attrape ce cas.
+
+   Au-dessus de ces seuils — tablette, ordinateur — le rail ne bouge pas :
+   il reste tel quel, et c'est `--ztsh-marge-bas` qui lui reserve sa place.
+   ========================================================================== */
+@media (max-width: 600px), (max-height: 480px) {
+  .ztsh-casier { display: none !important; }
+  body[data-ztsh-densite="travail"],
+  body[data-ztsh-densite="vitrine"] { --ztsh-marge-bas: 0px; }
+}
 /* L'infobulle s'ouvre vers le haut : à droite elle sortirait de l'écran. */
 body[data-ztsh-densite="travail"] .ztsh-outil__info {
   right: auto;
@@ -1131,7 +1169,7 @@ body[data-ztsh-densite="projection"] .ztsh-metiers { display: none; }
    assez de largeur pour une colonne de 70px sans manger le contenu.
    ========================================================================== */
 @media (max-width: 1200px) {
-  body[data-ztsh-densite="vitrine"] { --ztsh-marge-droite: 0px; }
+  body[data-ztsh-densite="vitrine"] { --ztsh-marge-droite: 0px; --ztsh-marge-bas: 101px; }
   body[data-ztsh-densite="vitrine"] .ztsh-casier {
     bottom: 16px; right: auto; left: 16px;
     flex-direction: row; flex-wrap: wrap;

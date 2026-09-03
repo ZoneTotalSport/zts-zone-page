@@ -23,6 +23,16 @@ python3 "$racine/_scripts/verifie-habillage.py" || {
   exit 1
 }
 
+echo "→ assets sous un dossier _* (invisibles en prod)…"
+python3 "$racine/_scripts/verifie-assets-jekyll.py" || {
+  echo
+  echo "COMMIT REFUSÉ — voir ci-dessus."
+  echo "Jekyll ne publie aucun dossier de premier niveau commençant par « _ »."
+  echo "Ajouté le 2 sept 2026 : la vague 1 avait déplacé campagne/ vers"
+  echo "_data/campagne/ — dépôt cohérent, contrôles au vert, site cassé en prod."
+  exit 1
+}
+
 echo "→ glyphes de la police de marque…"
 python3 "$racine/_scripts/verifie-glyphes-ztsh.py" || {
   echo

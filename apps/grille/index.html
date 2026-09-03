@@ -96,6 +96,36 @@
          shell ne sont jamais rebases : c'est la regle du chantier depuis la
          PR 2, et elle tient ici aussi.
          ====================================================================== */
+      /* La marge laissee de chaque cote du plan de travail. C'est tout ce
+         qui separe desormais le travail du bord de l'ecran : 16 px sur un
+         telephone, 32 px sur un grand ecran. */
+      --zg-marge: clamp(16px, 1.6vw, 32px);
+      /* La hauteur de ce qui flotte en bas de l'ecran et n'est pas a nous :
+         la navette d'apps du shell, et notre propre poignee. Mesuree par
+         calerPied() ; la valeur ici n'est qu'un repli. */
+      --zg-pied: 96px;
+
+      /* ======================================================================
+         LA REGLE DE COULEUR — une seule, pour toute l'app.
+         ----------------------------------------------------------------------
+         AU REPOS : marine, le fond du site. Le bouton existe, il attend.
+         ACTIF / SELECTIONNE : cyan. Le cyan ne dit plus qu'une chose, et il
+         la dit partout pareil : « c'est celui-la ».
+
+         Avant, neuf couleurs se partageaient deux etats — le cyan servait de
+         couleur de repos, le jaune disait tantot « selectionne » tantot
+         « vas-y ». Rien ne se lisait.
+
+         Les accents neon par metier restent au DECOR (halo, eyebrow, bandes) :
+         ils ne disent jamais l'etat d'un bouton.
+         ====================================================================== */
+      --zg-repos:       linear-gradient(180deg,#12293D,var(--marine,#061726));
+      --zg-repos-txt:   var(--sur-marine,#E6F4FA);
+      --zg-repos-ombre: #00080F;
+      --zg-actif:       linear-gradient(180deg,var(--cyan2),var(--ztsp-cyan,#00C2E8));
+      --zg-actif-txt:   #03323C;
+      --zg-actif-ombre: var(--ztsp-cyan-dark,#075A6B);
+
       --zg-e: 1;
       /* Au cran Normal, la geometrie est EXACTEMENT celle de la PR 2 : 88 px
          pour la colonne des heures, 112 px par jour. C'etait une promesse —
@@ -228,40 +258,134 @@
        ====================================================================== */
     .zg-bar{
       display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:center;
-      max-width:1180px; margin:0 auto; padding:14px 16px 6px;
+      margin:0; padding:12px var(--zg-marge) 10px;
     }
     .zg-btn{
       display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
       font-family:var(--f-titre); letter-spacing:.5px; font-size:16px; line-height:1.05;
       min-width:96px; min-height:72px; padding:10px 16px 9px;
       border:3px solid var(--encre); border-radius:var(--r-btn);
-      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
-      box-shadow:0 5px 0 var(--ztsp-cyan-dark,#075A6B), 5px 9px 0 rgba(0,0,0,.35);
+      /* Au repos. `--zg-ombre` suit l'etat : une seule regle d'ombre pour
+         les deux, au lieu d'une paire par couleur. */
+      --zg-ombre: var(--zg-repos-ombre);
+      background:var(--zg-repos); color:var(--zg-repos-txt);
+      box-shadow:0 5px 0 var(--zg-ombre), 5px 9px 0 rgba(0,0,0,.35);
       cursor:pointer; transition:.09s; text-decoration:none;
     }
     .zg-btn .zg-ic{font-size:26px; line-height:1}
-    .zg-btn:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--ztsp-cyan-dark,#075A6B), 6px 12px 0 rgba(0,0,0,.35) }
-    .zg-btn:active{ transform:translateY(4px);  box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 2px 4px 0 rgba(0,0,0,.35) }
+    /* ACTIF : le tiroir « Plus » ouvert, ou tout bouton qui se declare
+       enfonce. Le cyan ne sert plus qu'a ca. */
+    .zg-btn[aria-expanded="true"], .zg-btn[aria-pressed="true"], .zg-btn.est-actif{
+      --zg-ombre: var(--zg-actif-ombre);
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+    }
+    .zg-btn:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--zg-ombre), 6px 12px 0 rgba(0,0,0,.35) }
+    .zg-btn:active{ transform:translateY(4px);  box-shadow:0 1px 0 var(--zg-ombre), 2px 4px 0 rgba(0,0,0,.35) }
     .zg-btn:focus-visible{ outline:3px solid var(--yellow); outline-offset:4px }
-    .zg-btn--jaune {background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00; box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35)}
-    .zg-btn--jaune:hover {box-shadow:0 7px 0 var(--ztsp-jaune-deep,#C4C200), 6px 12px 0 rgba(0,0,0,.35)}
-    .zg-btn--jaune:active{box-shadow:0 1px 0 var(--ztsp-jaune-deep,#C4C200), 2px 4px 0 rgba(0,0,0,.35)}
-    .zg-btn--lime  {background:linear-gradient(180deg,#C9FF6B,var(--green)); color:#1E3300; box-shadow:0 5px 0 #6F9E00, 5px 9px 0 rgba(0,0,0,.35)}
-    .zg-btn--lime:hover  {box-shadow:0 7px 0 #6F9E00, 6px 12px 0 rgba(0,0,0,.35)}
-    .zg-btn--lime:active {box-shadow:0 1px 0 #6F9E00, 2px 4px 0 rgba(0,0,0,.35)}
-    .zg-btn--rose  {background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#fff; box-shadow:0 5px 0 #A3003F, 5px 9px 0 rgba(0,0,0,.35)}
-    .zg-btn--rose:hover  {box-shadow:0 7px 0 #A3003F, 6px 12px 0 rgba(0,0,0,.35)}
-    .zg-btn--rose:active {box-shadow:0 1px 0 #A3003F, 2px 4px 0 rgba(0,0,0,.35)}
+    /* `--jaune` et `--lime` ne peignent plus rien : la couleur d'un bouton
+       vient de son ETAT, pas de son nom. Les classes restent declarees et
+       neutres pour ne rien casser dans le balisage existant. */
+    .zg-btn--jaune, .zg-btn--lime{ /* la regle s'applique : marine au repos */ }
+    /* « Vider » detruit du travail : il doit se distinguer. Mais le rose
+       plein portait un texte blanc a 2,6:1 — sous le seuil AA, donc hors
+       du contrat. La regle s'applique DONC comme partout : marine au repos.
+       L'avertissement passe au trait et au mot, qui eux tiennent le
+       contraste (9,1:1). Au survol, le rose prend toute la place — on voit
+       ce qu'on s'apprete a faire au moment ou on le fait. */
+    .zg-btn--rose{ --zg-ombre:#5C0026; border-color:var(--red); color:#FFB3C9 }
+    .zg-btn--rose:hover{ background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#2B0011 }
 
     /* « Plus » — divulgation progressive. Ferme par defaut. */
     .zg-plus{display:none; width:100%; justify-content:center; flex-wrap:wrap; gap:10px; padding-top:4px}
     .zg-bar.zg-ouvert .zg-plus{display:flex}
+    /* ======================================================================
+       LE FIL
+       ----------------------------------------------------------------------
+       Une bande, une phrase, un bouton. Elle se colle sous l'en-tete : le
+       prochain geste ne quitte jamais l'ecran, meme quand on defile au bas
+       d'un cycle de dix jours.
+
+       Elle ne remplace aucun bouton. La barre d'actions garde ses cinq
+       gestes et son tiroir « Plus » ; le fil se contente de DESIGNER, parmi
+       tout ce qui est possible, celui qui vient maintenant.
+       ====================================================================== */
+    .zg-fil{
+      /* `--zg-fil-top` est recalcule au defilement : l'en-tete du site se
+         replie, et une valeur figee au chargement laisserait le fil
+         epingle 250 px trop bas. Le repli sert avant le premier calcul. */
+      /* IL SE COLLE TANT QU'IL A QUELQUE CHOSE A OBTENIR, ET PAS APRES.
+         Mesure du 3 septembre, grille remplie, page defilee jusqu'en bas :
+         la bande recouvrait une rangee entiere de cases — visibles, et
+         pas cliquables a cette position. Je l'avais signale sans le
+         corriger ; le mandat de la #74 dit « rien ne recouvre une case ».
+
+         Des qu'il y a du travail dans la grille, le guide cesse de
+         flotter au-dessus : il reste dans la page, a sa place, et on
+         remonte le voir si on veut. Tant que la grille est vide, il colle
+         — c'est le moment ou l'on cherche par quoi commencer, et il n'y a
+         aucune case a recouvrir. */
+      position:sticky; top:var(--zg-fil-top, var(--zg-sous-header)); z-index:7;
+      display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+      margin:10px var(--zg-marge) 0; padding:12px 16px;
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      background:linear-gradient(180deg,#FFFFFF,#E7F6FB);
+      box-shadow:0 5px 0 rgba(7,90,107,.35), 5px 9px 0 rgba(0,0,0,.28);
+    }
+    .zg-fil[hidden]{display:none}
+    .zg-fil.zgf-pose{position:static}
+    /* Les crans franchis. Un point par etape : on voit d'un coup d'oeil
+       d'ou on part et combien il en reste. */
+    .zgf-pas{display:flex; gap:7px; flex:0 0 auto; align-items:center}
+    .zgf-pas i{
+      width:15px; height:15px; border-radius:50%; display:block;
+      border:3px solid var(--encre); background:#fff;
+    }
+    .zgf-pas i.fait{background:var(--green)}
+    .zgf-pas i.ici{background:var(--yellow); transform:scale(1.35)}
+    .zgf-texte{display:flex; flex-direction:column; gap:1px; flex:1 1 220px; min-width:0; max-width:920px}
+    .zgf-num{
+      font-family:var(--f-titre); font-size:16px; letter-spacing:.5px;
+      color:var(--ztsp-cyan-dark,#075A6B);
+    }
+    /* La phrase. C'est le texte le plus important de la page : il est le
+       plus gros. */
+    .zgf-quoi{font-family:var(--f-corps); font-size:21px; line-height:1.2; color:var(--text)}
+    /* LE geste. Un seul, et il est le plus voyant de l'ecran. */
+    .zgf-go{
+      display:inline-flex; align-items:center; gap:10px; flex:0 0 auto;
+      font-family:var(--f-titre); font-size:21px; letter-spacing:.6px;
+      min-height:72px; padding:12px 22px; cursor:pointer;
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      /* CYAN, et c'est voulu : le fil ne propose pas une fonction au repos,
+         il designe le geste ACTIF — celui que l'app demande maintenant.
+         C'est le seul bouton cyan de l'ecran tant qu'aucun autre n'est
+         enfonce, et c'est exactement ce qu'on veut lire. */
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+      box-shadow:0 5px 0 var(--zg-actif-ombre), 5px 9px 0 rgba(0,0,0,.35);
+      transition:.09s;
+    }
+    .zgf-go .zgf-ic{font-size:30px; line-height:1}
+    .zgf-go:hover { transform:translateY(-2px); box-shadow:0 7px 0 var(--zg-actif-ombre), 6px 12px 0 rgba(0,0,0,.35) }
+    .zgf-go:active{ transform:translateY(4px);  box-shadow:0 1px 0 var(--zg-actif-ombre), 2px 4px 0 rgba(0,0,0,.35) }
+    .zgf-go:focus-visible{ outline:3px solid var(--yellow); outline-offset:4px }
+    .zgf-cacher{
+      flex:0 0 auto; min-width:44px; min-height:44px; cursor:pointer;
+      font-size:18px; line-height:1; color:var(--muted);
+      background:transparent; border:3px solid transparent; border-radius:var(--r-btn);
+    }
+    .zgf-cacher:hover{color:var(--text); border-color:var(--encre); background:#fff}
+    .zgf-cacher:focus-visible{ outline:3px solid var(--yellow); outline-offset:2px }
+    @media (max-width:760px){
+      .zg-fil{gap:10px; padding:10px 12px}
+      .zgf-go{width:100%; justify-content:center}
+    }
+
     .zg-bar.zg-ouvert .zg-btn--plus .zg-ic{transform:rotate(180deg)}
     .zg-btn--plus .zg-ic{transition:transform .15s}
 
     /* Selecteur de langue — restaure. Il vit dans la barre, au style de l'app. */
     .zg-lang{
-      font-family:var(--f-titre); font-size:13px; letter-spacing:.5px;
+      font-family:var(--f-titre); font-size:16px; letter-spacing:.5px;
       min-height:44px; padding:8px 12px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
       background:var(--card); color:var(--text);
@@ -276,12 +400,13 @@
     /* Le choix du metier, en petit, dans les Reglages : trois pastilles. */
     .zgm-mini{display:flex; gap:6px; flex-wrap:wrap}
     .zgm-mini button{
-      font-family:var(--f-titre); font-size:13px; letter-spacing:.4px;
-      padding:8px 12px; min-height:40px; cursor:pointer;
+      font-family:var(--f-titre); font-size:16px; letter-spacing:.4px;
+      padding:10px 15px; min-height:44px; cursor:pointer;
       border:2.5px solid var(--encre); border-radius:var(--r-btn);
-      background:var(--card); color:var(--text); box-shadow:var(--ombre-petite);
+      background:var(--zg-repos); color:var(--zg-repos-txt); box-shadow:var(--ombre-petite);
     }
-    .zgm-mini button[aria-pressed="true"]{background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00}
+    .zgm-mini button:hover{filter:brightness(1.3)}
+    .zgm-mini button[aria-pressed="true"]{background:var(--zg-actif); color:var(--zg-actif-txt)}
     .zgm-mini button:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
 
     /* ======================================================================
@@ -319,12 +444,15 @@
     .zgm-carte:hover {transform:translate(-2px,-2px); box-shadow:8px 11px 0 rgba(0,0,0,.45)}
     .zgm-carte:active{transform:translate(2px,3px);  box-shadow:3px 4px 0 rgba(0,0,0,.45)}
     .zgm-carte:focus-visible{outline:3px solid var(--yellow); outline-offset:4px}
-    /* Le metier actif se voit : le jaune de l'accueil, comme un bouton primaire. */
+    /* Trois cartes, un seul choix : marine tant qu'on n'a pas choisi, cyan
+       des qu'on a choisi. La meme regle que partout ailleurs. */
+    .zgm-carte{background:var(--zg-repos); color:var(--zg-repos-txt)}
+    .zgm-carte .zgm-desc{color:rgba(230,244,250,.84)}
     .zgm-carte[aria-pressed="true"]{
-      background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00;
-      box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35);
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+      box-shadow:0 5px 0 var(--zg-actif-ombre), 5px 9px 0 rgba(0,0,0,.35);
     }
-    .zgm-carte[aria-pressed="true"] .zgm-desc{color:#4A4400}
+    .zgm-carte[aria-pressed="true"] .zgm-desc{color:rgba(3,50,60,.88)}
     .zgm-aide{
       font-family:var(--f-note); font-size:17px; color:var(--sur-marine); margin-top:12px;
       text-shadow:0 1px 2px rgba(6,23,38,.85);
@@ -335,30 +463,40 @@
       .zgm-desc{max-width:none}
     }
 
-    .hero{display:flex; justify-content:center; padding:10px 16px 4px}
+    /* Le hero s'aligne sur le plan de travail : memes marges, meme bord.
+       Son ancien `max-width:1000px` datait d'avant la pleine largeur — il
+       ramenait la boite a 1000 px et laissait 1560 px de vide sur un ecran
+       de 2560, avec un paragraphe qui lisait sur 334 px. */
+    .hero{display:block; padding:10px var(--zg-marge) 4px}
     .hero.hidden{display:none}
     .hero-box{
-      display:grid; grid-template-columns:1.06fr .94fr; gap:20px; align-items:center;
-      max-width:1000px; width:100%;
+      display:grid;
+      /* L'image est bornee — un personnage de 700 px ne raconte rien de
+         plus qu'un de 340. Le texte prend TOUT le reste. */
+      grid-template-columns:clamp(200px, 20vw, 360px) 1fr;
+      gap:clamp(20px, 2.6vw, 52px); align-items:center;
+      width:100%;
     }
     .hb-left{position:relative; display:grid; place-items:center; min-height:180px}
     .hb-left::before{
-      content:''; position:absolute; width:210px; aspect-ratio:1; border-radius:50%; z-index:0;
+      content:''; position:absolute; width:clamp(210px, 19vw, 380px); aspect-ratio:1;
+      border-radius:50%; z-index:0;
       background:radial-gradient(circle, rgba(0,194,232,.30), transparent 68%);
     }
     .hb-left img{
-      position:relative; width:min(200px,80%); height:auto; display:block;
+      position:relative; width:min(clamp(200px, 18vw, 340px), 92%); height:auto; display:block;
       filter:drop-shadow(-8px 10px 0 rgba(0,0,0,.42));
       animation:zg-flotte 6.5s ease-in-out infinite;
     }
     @keyframes zg-flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
     .hb-eyebrow{
-      display:inline-block; font-family:var(--f-titre); letter-spacing:1.2px; font-size:14px;
+      display:inline-block; font-family:var(--f-titre); letter-spacing:1.2px;
+      font-size:clamp(16px, .95vw, 20px);
       background:var(--yellow); color:#2B2A00; padding:5px 13px 3px; border-radius:7px;
       border:3px solid var(--encre); transform:rotate(-1.6deg); box-shadow:var(--ombre-petite);
     }
     .hb-right h2{
-      font-family:var(--f-display); font-size:clamp(34px,5.2vw,58px); line-height:.98;
+      font-family:var(--f-display); font-size:clamp(38px, 4.4vw, 88px); line-height:.98;
       letter-spacing:1px; color:#fff; margin:12px 0 0;
       /* Contour noir — la technique de `.ztsp-compteur__gros` sur l'accueil. */
       text-shadow:var(--ombre-titre), var(--trait-noir);
@@ -367,31 +505,39 @@
         /* Annie sur le marine : traits fins, et les rayons passent derriere. On
        prend l'encre CLAIRE (pas la douce) et une ombre portee d'un pixel pour
        detacher le texte du fond. Sans ca la prose flotte. */
-    .hb-desc{font-size:18px; line-height:1.55; color:var(--sur-marine); margin:12px 0 16px; max-width:46ch;
+    /* Le paragraphe. `46ch` etait une bonne mesure de lecture pour une
+       colonne de 460 px ; sur un plan de travail large c'etait un carcan.
+       On garde une longueur de ligne lisible — au-dela de ~75 caracteres
+       l'oeil perd sa ligne — mais on la calcule sur la vraie largeur. */
+    .hb-desc{
+      font-size:clamp(19px, 1.15vw, 25px); line-height:1.5; color:var(--sur-marine);
+      margin:14px 0 18px; max-width:min(74ch, 100%);
       text-shadow:0 1px 2px rgba(6,23,38,.85)}
-    .hb-badges{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px}
+    .hb-badges{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px}
     .hb-badge{
-      font-family:var(--f-titre); font-size:13px; letter-spacing:.4px;
+      font-family:var(--f-titre); font-size:clamp(16px, .92vw, 19px); letter-spacing:.4px;
       background:rgba(255,255,255,.09); border:2.5px solid var(--encre); border-radius:var(--r-btn);
-      padding:6px 11px; box-shadow:var(--ombre-petite); color:var(--sur-marine);
+      padding:8px 14px; box-shadow:var(--ombre-petite); color:var(--sur-marine);
     }
     .hb-actions{display:flex; gap:12px; flex-wrap:wrap}
     .hb-btn{
       display:inline-flex; align-items:center; gap:9px;
-      font-family:var(--f-titre); letter-spacing:.6px; font-size:16px;
-      padding:14px 26px 12px; border-radius:var(--r-btn);
+      font-family:var(--f-titre); letter-spacing:.6px; font-size:clamp(17px, 1.02vw, 22px);
+      padding:clamp(14px, .9vw, 19px) clamp(26px, 1.8vw, 38px) clamp(12px, .8vw, 17px);
+      border-radius:var(--r-btn); min-height:56px;
       border:3px solid var(--encre); cursor:pointer; transition:.09s;
-      background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00;
-      box-shadow:0 5px 0 var(--ztsp-jaune-deep,#C4C200), 5px 9px 0 rgba(0,0,0,.35);
+      /* « Commencer! » est le geste que l'ecran demande : cyan.
+         « Comment utiliser » attend qu'on en ait besoin : marine. */
+      --zg-ombre: var(--zg-actif-ombre);
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+      box-shadow:0 5px 0 var(--zg-ombre), 5px 9px 0 rgba(0,0,0,.35);
     }
-    .hb-btn:hover {transform:translateY(-2px); box-shadow:0 7px 0 var(--ztsp-jaune-deep,#C4C200), 6px 12px 0 rgba(0,0,0,.35)}
-    .hb-btn:active{transform:translateY(4px);  box-shadow:0 1px 0 var(--ztsp-jaune-deep,#C4C200), 2px 4px 0 rgba(0,0,0,.35)}
+    .hb-btn:hover {transform:translateY(-2px); box-shadow:0 7px 0 var(--zg-ombre), 6px 12px 0 rgba(0,0,0,.35)}
+    .hb-btn:active{transform:translateY(4px);  box-shadow:0 1px 0 var(--zg-ombre), 2px 4px 0 rgba(0,0,0,.35)}
     .hb-btn.sec{
-      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
-      box-shadow:0 5px 0 var(--ztsp-cyan-dark,#075A6B), 5px 9px 0 rgba(0,0,0,.35);
+      --zg-ombre: var(--zg-repos-ombre);
+      background:var(--zg-repos); color:var(--zg-repos-txt);
     }
-    .hb-btn.sec:hover {box-shadow:0 7px 0 var(--ztsp-cyan-dark,#075A6B), 6px 12px 0 rgba(0,0,0,.35)}
-    .hb-btn.sec:active{box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 2px 4px 0 rgba(0,0,0,.35)}
     @media(max-width:860px){
       .hero-box{grid-template-columns:1fr}
       .hb-left{display:none}
@@ -410,17 +556,17 @@
     .progress{
       font-size:16px;
       display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-      max-width:1180px; margin:10px auto 0; padding:10px 16px;
+      margin:10px var(--zg-marge) 0; padding:10px 16px;
       background:rgba(255,255,255,.09); border:3px solid var(--encre);
       border-radius:var(--r-btn); box-shadow:var(--ombre-petite);
-      font-size:14px; color:var(--sur-marine);
+      font-size:16px; color:var(--sur-marine);
     }
     .progress .pbar{flex:1; min-width:140px; height:16px; background:rgba(0,0,0,.35);
       border:2px solid var(--encre); border-radius:9px; overflow:hidden}
     .progress .pbar div{height:100%; background:linear-gradient(90deg,var(--cyan2),var(--green)); transition:width .3s}
     .progress .ptxt{font-family:var(--f-titre); font-size:17px; color:var(--yellow); min-width:64px; text-align:right}
     .progress #progLabel{font-family:var(--f-titre); font-size:16px; letter-spacing:.4px}
-    .progress .pill{font-family:var(--f-titre); font-size:14px; padding:4px 10px 2px; border-radius:7px;
+    .progress .pill{font-family:var(--f-titre); font-size:16px; padding:5px 11px 3px; border-radius:7px;
       border:2.5px solid var(--encre); box-shadow:2px 2px 0 rgba(0,0,0,.4)}
     #pillH{background:var(--red); color:#fff}
     #pillS{background:var(--orange); color:#3D2400}
@@ -437,20 +583,29 @@
        On abandonne la boite a hauteur fixe. La page defile normalement, comme
        les sections de l'accueil, et les deux panneaux collent sous le header.
        ====================================================================== */
+    /* LE PLAN DE TRAVAIL prend la largeur de l'ecran, moins ses marges.
+       C'est ici que vivait le `max-width:1180px` qui laissait 690 px de fond
+       vide de chaque cote sur un ecran de 2560 — et qui gardait la boite de
+       grille a 672 px pendant que la grille en demandait 1123. */
     .layout{
       display:flex; align-items:flex-start; gap:14px;
-      max-width:1180px; margin:12px auto 40px; padding:0 16px;
+      /* La marge du bas reserve la place de ce qui flotte : la page defile
+         assez loin pour sortir la derniere rangee de dessous. */
+      margin:12px 0 calc(40px + var(--zg-pied)); padding:0 var(--zg-marge);
     }
     .panel, .rpanel{
       position:sticky; top:var(--zg-sous-header);
-      max-height:calc(100vh - var(--zg-sous-header) - 16px); overflow-y:auto;
+      /* Le `--zg-pied` en plus : sans lui, un panneau collant descend
+         jusqu'au bas de la fenetre et ses derniers boutons finissent sous
+         la navette d'apps du shell. */
+      max-height:calc(100vh - var(--zg-sous-header) - 16px - var(--zg-pied)); overflow-y:auto;
       flex-shrink:0; padding:14px;
       background:var(--card); color:var(--text);
       border:4px solid var(--encre); border-radius:var(--r-card);
       box-shadow:var(--ombre-panneau);
     }
-    .panel{width:236px}
-    .rpanel{width:212px}
+    .panel{width:clamp(236px, 17vw, 300px)}
+    .rpanel{width:clamp(212px, 15vw, 280px)}
     .panel h3, .rpanel h3{
       font-family:var(--f-titre); font-size:17px; letter-spacing:.4px;
       color:var(--text); margin-bottom:10px;
@@ -475,6 +630,19 @@
     }
     .grid{display:grid; gap:3px; min-width:min-content}
 
+    /* Colle au bord GAUCHE de la boite pendant qu'elle defile — sinon le mot
+       partirait avec la grille, c'est-a-dire exactement la ou on ne le lit
+       plus. `position:sticky; left:0` dans un defilement horizontal fait
+       precisement ca. */
+    .zg-defile{
+      position:sticky; left:0; width:max-content; max-width:100%;
+      margin:10px 0 0; padding:8px 12px;
+      font-family:var(--f-corps); font-size:16px; color:var(--muted);
+      border:2px dashed var(--encre); border-radius:var(--r-btn);
+      background:rgba(255,255,255,.55);
+    }
+    .zg-defile[hidden]{display:none}
+
     /* ======================================================================
        LA POIGNEE DE REDIMENSIONNEMENT
        ----------------------------------------------------------------------
@@ -497,7 +665,12 @@
        redimensionnement, et c'est ce qu'un enfant de dix ans trouve du premier
        coup. */
     .zg-poignee{
-      position:fixed; right:18px; bottom:18px; z-index:600;
+      /* `--zg-plancher` monte la poignee au-dessus du bandeau de temoins
+         tant qu'il est affiche. Sans ca, le bandeau — 100 px de haut sur
+         un bureau, 197 px sur un telephone, z-index 99990 — recouvrait
+         la poignee, et le clic partait sur son lien. */
+      position:fixed; right:18px; bottom:var(--zg-plancher, 18px); z-index:600;
+      transition:bottom .18s;
       width:56px; height:56px;
       display:flex; align-items:center; justify-content:center;
       font-size:26px; line-height:1; cursor:nwse-resize; user-select:none;
@@ -517,24 +690,37 @@
       font-family:var(--f-titre); font-size:16px; letter-spacing:.4px;
       min-height:44px; padding:9px 14px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
-      background:var(--card); color:var(--text); box-shadow:var(--ombre-petite);
+      background:var(--zg-repos); color:var(--zg-repos-txt); box-shadow:var(--ombre-petite);
     }
-    .zg-crans button[aria-pressed="true"]{background:linear-gradient(180deg,#FFFF7A,var(--yellow)); color:#2B2A00}
+    .zg-crans button:hover{filter:brightness(1.25)}
+    /* Le cran choisi est le seul cyan des trois : on lit la taille courante
+       d'un coup d'oeil, sans avoir a comparer trois nuances de blanc. */
+    .zg-crans button[aria-pressed="true"]{background:var(--zg-actif); color:var(--zg-actif-txt)}
     .zg-crans button:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
 
     /* Cartes de specialistes — le vocabulaire de `.ztsp-card`. */
     .spec-card{
       border:3px solid var(--encre); border-radius:var(--r-btn);
       padding:11px 13px; margin-bottom:9px; cursor:pointer; min-height:52px;
-      background:#fff; box-shadow:3px 3px 0 rgba(0,0,0,.28); transition:.12s;
+      /* Au repos comme le reste. Une seule carte est cyan a la fois : celle
+         dont on place les cours. Avant, sept cartes blanches et un lisere
+         cyan sur l'une d'elles — invisible depuis le fond de la classe. */
+      background:var(--zg-repos); color:var(--zg-repos-txt);
+      box-shadow:3px 3px 0 rgba(0,0,0,.28); transition:.12s;
     }
     .spec-card:hover{transform:translate(-2px,-2px); box-shadow:5px 5px 0 rgba(0,0,0,.28)}
-    .spec-card.active{box-shadow:5px 5px 0 var(--cyan), 0 0 0 3px var(--encre)}
+    .spec-card.active{
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+      box-shadow:5px 5px 0 var(--zg-actif-ombre), 0 0 0 3px var(--encre);
+    }
+    .spec-card.active .sc-name, .spec-card.active .sc-remain,
+    .spec-card.active .sc-info, .spec-card.active .sc-compte b,
+    .spec-card.active .sc-compte span{color:var(--zg-actif-txt)}
     .spec-card .sc-top{display:flex; align-items:center; gap:8px; margin-bottom:5px}
     .spec-card .sc-dot{width:14px; height:14px; border-radius:50%; border:2px solid var(--encre); flex-shrink:0}
-    .spec-card .sc-name{font-family:var(--f-titre); font-size:16px; letter-spacing:.4px; flex:1; color:var(--text)}
-    .spec-card .sc-remain{font-family:var(--f-titre); font-size:16px; color:var(--ztsp-cyan-dark,#075A6B)}
-    .spec-card .sc-info{font-family:var(--f-note); font-size:16px; line-height:1.2; color:var(--muted)}
+    .spec-card .sc-name{font-family:var(--f-titre); font-size:16px; letter-spacing:.4px; flex:1; color:var(--zg-repos-txt)}
+    .spec-card .sc-remain{font-family:var(--f-titre); font-size:16px; color:var(--cyan2)}
+    .spec-card .sc-info{font-family:var(--f-note); font-size:16px; line-height:1.2; color:rgba(230,244,250,.80)}
     .spec-card .sc-bar{height:7px; background:#e8eef1; border:1.5px solid var(--encre); border-radius:4px; margin-top:6px; overflow:hidden}
     .spec-card .sc-bar div{height:100%; transition:width .2s}
 
@@ -562,9 +748,12 @@
     .g-surv:hover{transform:translate(-1px,-1px); box-shadow:4px 4px 0 rgba(0,0,0,.28)}
     .surv-chip{
       display:inline-flex; align-items:center; gap:3px;
-      font-family:var(--f-titre); font-size:11.5px; letter-spacing:.3px;
+      /* Le jeton de surveillance vit dans la grille : il suit l'echelle du
+         zoom comme les autres, avec le meme plancher de 16 px. Il etait
+         reste a 11,5 px — le plus petit texte de l'app. */
+      font-family:var(--f-titre); font-size:var(--zg-t-code); letter-spacing:.3px;
       background:#fff; color:var(--text); border:2px solid var(--encre); border-radius:6px;
-      padding:2px 5px; box-shadow:1.5px 1.5px 0 rgba(0,0,0,.35); white-space:nowrap;
+      padding:3px 7px; box-shadow:1.5px 1.5px 0 rgba(0,0,0,.35); white-space:nowrap;
     }
     .surv-chip.surv-alerte{background:var(--orange); color:#3D2400}
     .surv-chip .x{opacity:.45; padding:0 2px; min-width:18px; text-align:center; cursor:pointer}
@@ -577,11 +766,14 @@
       font-family:var(--f-titre); font-size:16px; letter-spacing:.4px;
       padding:11px 13px; margin-bottom:8px; min-height:48px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
-      background:linear-gradient(180deg,#fff,#E6F4FA); color:var(--text);
-      box-shadow:0 5px 0 #A9BCC5, 5px 9px 0 rgba(0,0,0,.35); transition:.09s; text-align:left;
+      /* La regle vaut aussi ici : ces quatre-la ouvrent une liste, ils ne
+         sont jamais « choisis ». Marine, donc, toujours. */
+      background:var(--zg-repos); color:var(--zg-repos-txt);
+      box-shadow:0 5px 0 var(--zg-repos-ombre), 5px 9px 0 rgba(0,0,0,.35); transition:.09s; text-align:left;
     }
-    .panel .p-btn:hover{transform:translateY(-2px); box-shadow:0 7px 0 #A9BCC5, 6px 12px 0 rgba(0,0,0,.35)}
-    .panel .p-btn:active{transform:translateY(4px); box-shadow:0 1px 0 #A9BCC5, 2px 4px 0 rgba(0,0,0,.35)}
+    .panel .p-btn:hover{transform:translateY(-2px); filter:brightness(1.3); box-shadow:0 7px 0 var(--zg-repos-ombre), 6px 12px 0 rgba(0,0,0,.35)}
+    .panel .p-btn:active{transform:translateY(4px); box-shadow:0 1px 0 var(--zg-repos-ombre), 2px 4px 0 rgba(0,0,0,.35)}
+    .panel .p-btn:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
 
     /* ======================================================================
        TOAST
@@ -597,7 +789,7 @@
     }
     .toast{
       background:var(--encre); color:#fff; padding:12px 22px; border-radius:var(--r-btn);
-      border:3px solid #fff; font-family:var(--f-titre); font-size:15px; letter-spacing:.3px;
+      border:3px solid #fff; font-family:var(--f-titre); font-size:16px; letter-spacing:.3px;
       box-shadow:5px 5px 0 rgba(0,0,0,.5); animation:toastIn .3s ease-out;
       text-align:center; pointer-events:auto;
     }
@@ -692,7 +884,7 @@
       box-shadow:2px 2px 0 rgba(0,0,0,.25);
     }
     .next-item .ni-cls{font-family:var(--f-titre); font-size:16px; letter-spacing:.4px}
-    .next-item .ni-sub{font-family:var(--f-note); color:var(--muted); font-size:15px; line-height:1.2}
+    .next-item .ni-sub{font-family:var(--f-note); color:var(--muted); font-size:16px; line-height:1.25}
     .next-item .ni-need{font-family:var(--f-titre); color:var(--ztsp-cyan-dark,#075A6B); float:right; font-size:16px}
 
     /* ======================================================================
@@ -711,7 +903,12 @@
     .macts{display:flex; gap:9px; justify-content:flex-end; margin-top:16px; padding-top:13px;
       border-top:3px solid var(--encre); flex-wrap:wrap}
     .fr{display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap}
-    .fr label{font-family:var(--f-titre); min-width:100px; font-size:14px; letter-spacing:.3px}
+    .fr label{font-family:var(--f-titre); min-width:112px; font-size:17px; letter-spacing:.3px}
+    /* Le plancher de 16 px de la #68 s'arretait a la porte des modales.
+       Il entre : etiquettes, notes, aides, en-tetes de tableau, champs. */
+    .mbox small{font-size:16px; line-height:1.35}
+    .mbox p{font-size:17px; line-height:1.45}
+    .mbox label{font-size:17px}
     .fr input,.fr select{
       font-family:var(--f-corps); font-size:17px; min-height:46px;
       border:2.5px solid var(--encre); border-radius:9px; padding:8px 12px; background:#fff; color:var(--text);
@@ -720,47 +917,73 @@
     .fr input[type=number]{width:78px}
     .fr input[type=checkbox]{width:24px; height:24px; min-height:0; accent-color:var(--cyan)}
     .chips{display:flex; flex-wrap:wrap; gap:5px}
-    .ck{font-family:var(--f-titre); font-size:13.5px; letter-spacing:.3px; padding:7px 14px; border-radius:18px; cursor:pointer;
-      border:2.5px solid var(--encre); background:#EDF2F5; color:var(--muted); user-select:none;
-      min-height:40px; display:flex; align-items:center}
-    .ck.on{background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C; box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+    .ck{font-family:var(--f-titre); font-size:17px; letter-spacing:.3px; padding:9px 16px; border-radius:22px; cursor:pointer;
+      border:2.5px solid var(--encre); background:var(--zg-repos); color:var(--zg-repos-txt); user-select:none;
+      min-height:44px; display:flex; align-items:center}
+    .ck:hover{filter:brightness(1.3)}
+    /* Un jour coche est un jour SELECTIONNE : cyan, comme partout ailleurs.
+       Il etait deja le seul controle de modale conforme a la regle. */
+    .ck.on{background:var(--zg-actif); color:var(--zg-actif-txt); box-shadow:2px 2px 0 rgba(0,0,0,.3)}
     .dt{width:100%; border-collapse:collapse; font-size:16px}
     .dt th{background:var(--encre); color:#fff; font-family:var(--f-titre); letter-spacing:.6px;
-      padding:9px 8px; text-align:left; font-size:13px}
-    .dt td{padding:8px; border-bottom:2px solid #E4EBEF; vertical-align:middle}
+      padding:10px 9px; text-align:left; font-size:16px}
+    .dt td{padding:9px 8px; border-bottom:2px solid #E4EBEF; vertical-align:middle; font-size:16px}
+    /* Les champs poses dans les cellules n'heritaient d'aucune regle : ils
+       tombaient a la taille par defaut du navigateur, 13,3 px. */
+    .dt input, .dt select{
+      font-family:var(--f-corps); font-size:16px; min-height:40px;
+      border:2px solid var(--encre); border-radius:8px; padding:6px 9px;
+      background:#fff; color:var(--text);
+    }
+    .dt input:focus, .dt select:focus{outline:3px solid var(--yellow); outline-offset:2px}
+    .dt small{font-size:16px}
     .dt tr:hover{background:#F2F9FC}
     .cdot{display:inline-block; width:13px; height:13px; border-radius:50%; border:2px solid var(--encre);
       vertical-align:middle; margin-right:5px}
 
+    /* LA MEME REGLE QUE PARTOUT. Au repos : marine. Dans une modale,
+       l'« actif » est le geste que la boite DEMANDE — celui de droite,
+       Sauvegarder / Ajouter / Dupliquer : il est cyan, et il est seul.
+       Les petits boutons de ligne (✏️ ✕) restent au repos : sept crayons
+       cyan dans un tableau, ce n'est plus une designation. */
     .btn{
-      font-family:var(--f-titre); font-weight:400; font-size:13.5px; letter-spacing:.4px;
-      padding:10px 18px 8px; min-height:44px; cursor:pointer;
+      font-family:var(--f-titre); font-weight:400; font-size:17px; letter-spacing:.4px;
+      padding:11px 20px 9px; min-height:46px; cursor:pointer;
       border:3px solid var(--encre); border-radius:var(--r-btn);
-      display:inline-flex; align-items:center; gap:6px; transition:.09s;
-      background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C;
-      box-shadow:0 4px 0 var(--ztsp-cyan-dark,#075A6B), 3px 6px 0 rgba(0,0,0,.3);
+      display:inline-flex; align-items:center; gap:7px; transition:.09s;
+      --zg-ombre: var(--zg-repos-ombre);
+      background:var(--zg-repos); color:var(--zg-repos-txt);
+      box-shadow:0 4px 0 var(--zg-ombre), 3px 6px 0 rgba(0,0,0,.3);
     }
-    .btn:hover{transform:translateY(-2px)}
-    .btn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--ztsp-cyan-dark,#075A6B), 1px 2px 0 rgba(0,0,0,.3)}
-    .btn.g{background:linear-gradient(180deg,#C9FF6B,var(--green)); color:#1E3300; box-shadow:0 4px 0 #6F9E00, 3px 6px 0 rgba(0,0,0,.3)}
-    .btn.c{background:linear-gradient(180deg,var(--cyan2),var(--cyan)); color:#03323C}
-    .btn.r{background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#fff; box-shadow:0 4px 0 #A3003F, 3px 6px 0 rgba(0,0,0,.3)}
-    .btn.o{background:linear-gradient(180deg,#fff,#DCE7EC); color:var(--text); box-shadow:0 4px 0 #A9BCC5, 3px 6px 0 rgba(0,0,0,.3)}
-    .btn.sm{font-size:12px; padding:6px 11px 5px; min-height:36px; border-width:2.5px;
-      box-shadow:0 3px 0 rgba(0,0,0,.28), 2px 4px 0 rgba(0,0,0,.22)}
+    .btn:hover{transform:translateY(-2px); filter:brightness(1.28)}
+    .btn:active{transform:translateY(3px); box-shadow:0 1px 0 var(--zg-ombre), 1px 2px 0 rgba(0,0,0,.3)}
+    .btn:focus-visible{outline:3px solid var(--yellow); outline-offset:3px}
+    /* Le geste demande par la boite. */
+    .macts .btn.g, .macts .btn.c{
+      --zg-ombre: var(--zg-actif-ombre);
+      background:var(--zg-actif); color:var(--zg-actif-txt);
+    }
+    /* Supprimer une ligne. Comme « Vider » : le fond suit la regle, et
+       l'avertissement passe au trait et au mot, qui tiennent le contraste.
+       Le rose plein revient au survol, au moment ou le doigt s'engage. */
+    .btn.r{--zg-ombre:#5C0026; border-color:var(--red); color:#FFB3C9}
+    .btn.r:hover{background:linear-gradient(180deg,#FF6FA5,var(--red)); color:#2B0011}
+    .btn.sm{font-size:16px; padding:8px 13px 7px; min-height:44px; border-width:2.5px;
+      box-shadow:0 3px 0 var(--zg-ombre), 2px 4px 0 rgba(0,0,0,.22)}
 
     .class-picker{display:flex; flex-direction:column; gap:8px}
     .class-picker .cp-btn{
       font-family:var(--f-titre); font-size:17px; letter-spacing:.4px;
       padding:14px 18px; min-height:56px; cursor:pointer; transition:.1s;
-      border:3px solid var(--encre); border-radius:var(--r-btn); background:#fff; color:var(--text);
+      border:3px solid var(--encre); border-radius:var(--r-btn);
+      background:var(--zg-repos); color:var(--zg-repos-txt);
       display:flex; align-items:center; justify-content:space-between;
-      box-shadow:0 5px 0 #A9BCC5, 5px 9px 0 rgba(0,0,0,.35);
+      box-shadow:0 5px 0 var(--zg-repos-ombre), 5px 9px 0 rgba(0,0,0,.35);
     }
-    .class-picker .cp-btn:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 7px 0 #A9BCC5, 6px 12px 0 rgba(0,0,0,.35); background:#EAF8FD}
-    .class-picker .cp-btn:active:not(:disabled){transform:translateY(4px); box-shadow:0 1px 0 #A9BCC5, 2px 4px 0 rgba(0,0,0,.35)}
-    .class-picker .cp-btn:disabled{opacity:.3; cursor:default; box-shadow:none}
-    .class-picker .cp-btn .cp-need{font-family:var(--f-titre); color:var(--ztsp-cyan-dark,#075A6B)}
+    .class-picker .cp-btn:hover:not(:disabled){transform:translateY(-2px); box-shadow:0 7px 0 var(--zg-repos-ombre), 6px 12px 0 rgba(0,0,0,.35); filter:brightness(1.35)}
+    .class-picker .cp-btn:active:not(:disabled){transform:translateY(4px); box-shadow:0 1px 0 var(--zg-repos-ombre), 2px 4px 0 rgba(0,0,0,.35)}
+    .class-picker .cp-btn:disabled{opacity:.35; cursor:default; box-shadow:none}
+    .class-picker .cp-btn .cp-need{font-family:var(--f-titre); color:var(--cyan2)}
 
     /* ======================================================================
        MOBILE — rien d'ampute.
@@ -813,7 +1036,7 @@
          rentrerait sur aucune feuille, et les fiches par personne ont leur
          propre mise en page. On revient a l'echelle 1 pour imprimer. */
       :root{ --zg-e:1 !important }
-      .zg-poignee, .zg-crans{ display:none !important }
+      .zg-poignee, .zg-crans, .zg-fil, .zg-defile{ display:none !important }
       @page{ size:landscape; margin:8mm }
 
       /* Tout le chrome du site s'efface. */
@@ -938,42 +1161,24 @@
 <!-- Les fiches individuelles : bâties a la demande, invisibles a l'ecran. -->
 <div id="zg-perso"></div>
 
+
 <!-- ======================================================================
-     BARRE D'ACTIONS — gros boutons picto + un mot.
-     Cinq gestes courants toujours visibles ; le reste sous « Plus ».
+     LE FIL — bati vide, rempli par majFil() a chaque rendu.
+     `aria-live="polite"` : quand l'etape change, un lecteur d'ecran
+     l'annonce sans qu'on ait a aller la chercher.
      ====================================================================== -->
-<div class="zg-bar" id="zgBar">
-  <button class="zg-btn" onclick="showHelp()" title="Comment utiliser la grille"><span class="zg-ic">❓</span><span data-t="btnAide">Aide</span></button>
-  <button class="zg-btn" onclick="openSetupModal()" title="Configurer l'ecole, le cycle et les matieres"><span class="zg-ic">⚙️</span><span data-t="btnConfig">Reglages</span></button>
-  <button class="zg-btn zg-btn--lime" onclick="solveSchedule()" title="Remplir la grille automatiquement"><span class="zg-ic">🤖</span><span data-t="btnAuto">Auto</span></button>
-  <button class="zg-btn zg-btn--jaune" onclick="validateAll()" title="Verifier les conflits"><span class="zg-ic">✅</span><span data-t="btnValider">Verifier</span></button>
-  <button class="zg-btn" onclick="imprimerGrille()" title="Imprimer la grille"><span class="zg-ic">🖨️</span><span data-t="btnImprimer">Imprimer</span></button>
-
-  <span class="zg-crans" id="zgCrans" role="group" aria-label="Taille de la grille">
-    <button type="button" data-e="1" aria-pressed="true" onclick="poserEchelle(1,true)" data-t="zoomNormal">Normal</button>
-    <button type="button" data-e="1.45" aria-pressed="false" onclick="poserEchelle(1.45,true)" data-t="zoomGrand">Grand</button>
-    <button type="button" data-e="2" aria-pressed="false" onclick="poserEchelle(2,true)" data-t="zoomTni">TNI</button>
+<section class="zg-fil" id="zgFil" hidden aria-live="polite" aria-label="Prochaine etape">
+  <span class="zgf-pas" id="zgfPas" aria-hidden="true"></span>
+  <span class="zgf-texte">
+    <b class="zgf-num" id="zgfNum"></b>
+    <span class="zgf-quoi" id="zgfQuoi"></span>
   </span>
-  <button class="zg-btn zg-btn--plus" id="zgPlus" onclick="basculerPlus()" aria-expanded="false" aria-controls="zgAvance" title="Plus d'options"><span class="zg-ic">▾</span><span data-t="btnPlus">Plus</span></button>
-
-  <select class="zg-lang" id="langSel" onchange="changeLang(this.value)" aria-label="Langue">
-    <option value="fr">FR</option>
-    <option value="en">EN</option>
-    <option value="es">ES</option>
-    <option value="zh">中文</option>
-  </select>
-
-  <!-- Divulgation progressive : l'avance ne s'affiche que sur demande. -->
-  <div class="zg-plus" id="zgAvance">
-    <button class="zg-btn" onclick="exportPDF()" title="Enregistrer en PDF"><span class="zg-ic">📄</span><span data-t="btnPDF">PDF</span></button>
-    <button class="zg-btn" onclick="exporterJSON()" title="Enregistrer une copie de securite"><span class="zg-ic">💾</span><span data-t="btnExport">Sauver</span></button>
-    <button class="zg-btn" onclick="declencherImport()" title="Recharger une copie de securite"><span class="zg-ic">📂</span><span data-t="btnImport">Ouvrir</span></button>
-    <button class="zg-btn" onclick="imprimerParPersonne()" title="Une page par personne"><span class="zg-ic">🧾</span><span data-t="btnImpPersonne">Par personne</span></button>
-    <button class="zg-btn" onclick="ouvrirDuplicationModal()" title="Copier une journée vers d'autres jours"><span class="zg-ic">⧉</span><span data-t="btnDupliquer">Dupliquer</span></button>
-    <button class="zg-btn zg-btn--rose" onclick="clearSchedule()" title="Effacer toute la grille"><span class="zg-ic">🗑️</span><span data-t="btnVider">Vider</span></button>
-    <input type="file" id="zgFichier" accept="application/json,.json" hidden onchange="importerJSON(this)">
-  </div>
-</div>
+  <button type="button" class="zgf-go" id="zgfGo" onclick="filGeste()">
+    <span class="zgf-ic" id="zgfIc" aria-hidden="true"></span><span id="zgfMot"></span>
+  </button>
+  <button type="button" class="zgf-cacher" id="zgfCacher" onclick="basculerFil()"
+          title="Masquer le guide" aria-label="Masquer le guide">✕</button>
+</section>
 
 <!-- ======================================================================
      CHOIX DU METIER — trois cartes, trois personnages. Cache par defaut :
@@ -1052,9 +1257,54 @@
   <span class="pill" id="pillR" style="display:none" title="Places d'adulte manquantes selon le ratio">👶 0</span>
 </div>
 
+<!-- ======================================================================
+     BARRE D'ACTIONS — gros boutons picto + un mot.
+     Cinq gestes courants toujours visibles ; le reste sous « Plus ».
+
+     Elle vit JUSTE au-dessus du plan de travail depuis le 2 septembre :
+     en haut de page, 186 px et deux bandes la separaient de la grille, et
+     l'outil qu'on cherche en travaillant dans le tableau etait derriere
+     tout le reste. Elle reste `static` — elle ne collait pas avant, et
+     deux bandes collantes empilees (le fil, puis elle) mangeraient 200 px
+     d'ecran en permanence.
+     ====================================================================== -->
+<div class="zg-bar" id="zgBar">
+  <button class="zg-btn" onclick="showHelp()" title="Comment utiliser la grille"><span class="zg-ic">❓</span><span data-t="btnAide">Aide</span></button>
+  <button class="zg-btn" onclick="openSetupModal()" title="Configurer l'ecole, le cycle et les matieres"><span class="zg-ic">⚙️</span><span data-t="btnConfig">Reglages</span></button>
+  <button class="zg-btn zg-btn--lime" onclick="solveSchedule()" title="Remplir la grille automatiquement"><span class="zg-ic">🤖</span><span data-t="btnAuto">Remplir</span></button>
+  <button class="zg-btn zg-btn--jaune" onclick="validateAll()" title="Verifier les conflits"><span class="zg-ic">✅</span><span data-t="btnValider">Verifier</span></button>
+  <button class="zg-btn" onclick="imprimerGrille()" title="Imprimer la grille"><span class="zg-ic">🖨️</span><span data-t="btnImprimer">Imprimer</span></button>
+
+  <span class="zg-crans" id="zgCrans" role="group" aria-label="Taille de la grille">
+    <button type="button" data-e="1" aria-pressed="true" onclick="poserEchelle(1,true)" data-t="zoomNormal">Normal</button>
+    <button type="button" data-e="1.45" aria-pressed="false" onclick="poserEchelle(1.45,true)" data-t="zoomGrand">Grand</button>
+    <button type="button" data-e="2" aria-pressed="false" onclick="poserEchelle(2,true)" data-t="zoomTni">Tableau</button>
+  </span>
+  <button class="zg-btn zg-btn--plus" id="zgPlus" onclick="basculerPlus()" aria-expanded="false" aria-controls="zgAvance" title="Plus d'options"><span class="zg-ic">▾</span><span data-t="btnPlus">Plus</span></button>
+
+  <select class="zg-lang" id="langSel" onchange="changeLang(this.value)" aria-label="Langue">
+    <option value="fr">FR</option>
+    <option value="en">EN</option>
+    <option value="es">ES</option>
+    <option value="zh">中文</option>
+  </select>
+
+  <!-- Divulgation progressive : l'avance ne s'affiche que sur demande. -->
+  <div class="zg-plus" id="zgAvance">
+    <button class="zg-btn" onclick="exportPDF()" title="Enregistrer en PDF"><span class="zg-ic">📄</span><span data-t="btnPDF">PDF</span></button>
+    <button class="zg-btn" onclick="exporterJSON()" title="Enregistrer une copie de securite"><span class="zg-ic">💾</span><span data-t="btnExport">Sauver</span></button>
+    <button class="zg-btn" onclick="declencherImport()" title="Recharger une copie de securite"><span class="zg-ic">📂</span><span data-t="btnImport">Ouvrir</span></button>
+    <button class="zg-btn" onclick="imprimerParPersonne()" title="Une page par personne"><span class="zg-ic">🧾</span><span data-t="btnImpPersonne">Par personne</span></button>
+    <button class="zg-btn" onclick="ouvrirDuplicationModal()" title="Copier une journée vers d'autres jours"><span class="zg-ic">⧉</span><span data-t="btnDupliquer">Dupliquer</span></button>
+    <button class="zg-btn" id="zgBtnFil" onclick="basculerFil()" title="Afficher ou masquer le guide"><span class="zg-ic">🧭</span><span data-t="btnGuide">Guide</span></button>
+    <button class="zg-btn zg-btn--rose" onclick="clearSchedule()" title="Effacer toute la grille"><span class="zg-ic">🗑️</span><span data-t="btnVider">Vider</span></button>
+    <input type="file" id="zgFichier" accept="application/json,.json" hidden onchange="importerJSON(this)">
+  </div>
+</div>
+
 <div class="layout">
   <div class="panel" id="panel">
-    <h3>👤 <span data-t="selectSpec">Sélectionnez</span></h3>
+    <h3>👤 <span data-t="selectSpec">Clique sur une personne</span></h3>
     <div id="specList"></div>
     <div class="p-section">
       <button class="p-btn" onclick="openSpecModal()"><span>👤</span><span data-t="btnSpecialistes">Spécialistes</span></button>
@@ -1064,6 +1314,7 @@
     </div>
   </div>
   <div class="grid-area" id="gridArea"><div class="grid" id="grid"></div>
+    <div class="zg-defile" id="zgDefile" hidden data-t="defileAide">← Fais glisser pour voir les autres jours →</div>
     <div class="zg-poignee" id="zgPoignee" role="slider" tabindex="0"
          aria-label="Taille de la grille" aria-valuemin="80" aria-valuemax="260" aria-valuenow="100"
          title="Glisse pour agrandir · double-clic pour revenir à Normal">⤡</div>
@@ -1081,7 +1332,7 @@
 <script>
 // i18n
 const I={
-fr:{cptCours:'Cours',cptGroupes:'Groupes',capacite:'capacité',tache100Auto:'auto',tache100Manuel:'réglé à la main',raison:'Raison',raisonCapacite:'Capacité atteinte',raisonCreneau:'Aucun créneau libre',autoPartielTitre:'Il reste des cours à placer',avantP1:'Avant P1',avantP1Aide:'ajoute une bande de surveillance en début de journée',survTitre:'Surveillants',survAide:'Les spécialistes sont déjà là. Ajoute les titulaires et le personnel non enseignant qui prennent des surveillances.',survType:'Type',survGerer:'Gérer',survAucun:'Ajoute des surveillants d\'abord.',survConflit:'Cette personne donne un cours au même moment',typ_spec:'spécialiste',typ_titulaire:'titulaire',typ_autre:'SDG / autre',btnSurveillants:'Surveillants',recapTaches:'Récapitulatif des tâches',recapSurv:'Répartition des surveillances',colDu:'Dû',colPlace:'Placé',colEcart:'Écart',colNb:'Nombre',survEcart:'écart de plus d\'une surveillance entre enseignants',btnAide:'Aide',btnConfig:'Réglages',btnAuto:'Auto',btnValider:'Vérifier',btnImprimer:'Imprimer',btnPlus:'Plus',btnPDF:'PDF',btnExport:'Sauver',btnImport:'Ouvrir',btnVider:'Vider',btnSpecialistes:'Spécialistes',btnClasses:'Classes',btnLocaux:'Locaux',heroEyebrow:'Spécialistes · Primaire',heroBadge4:'🖨️ Impression',heroBadge6:'👥 Team teaching',needPer:'période(s) de plus',tplFait:'13 classes, 7 spécialistes, 6 locaux créés!',exportOk:'Copie enregistrée',importOk:'Horaire rechargé',importErr:'Fichier illisible',importAutre:'Ce fichier ne vient pas de la Grille horaire.',importVersion:'Fichier trop récent pour cette page.',importConfirm:'Remplacer l\'horaire actuel ?',appTitle:'GRILLE HORAIRE',selectSpec:'Sélectionnez',toPlace:'À placer',day:'Jour',recess:'Récré',lunch:'Dîner',remaining:'restant',coursesPlaced:'cours placés',
+fr:{cptCours:'Cours',cptGroupes:'Groupes',capacite:'capacité',tache100Auto:'auto',tache100Manuel:'réglé à la main',raison:'Raison',raisonCapacite:'Capacité atteinte',raisonCreneau:'Aucun créneau libre',autoPartielTitre:'Il reste des cours à placer',avantP1:'Avant P1',avantP1Aide:'ajoute une bande de surveillance en début de journée',survTitre:'Surveillants',survAide:'Les spécialistes sont déjà là. Ajoute les titulaires et le personnel non enseignant qui prennent des surveillances.',survType:'Type',survGerer:'Gérer',survAucun:'Ajoute des surveillants d\'abord.',survConflit:'Cette personne donne un cours au même moment',typ_spec:'spécialiste',typ_titulaire:'titulaire',typ_autre:'SDG / autre',btnSurveillants:'Surveillants',recapTaches:'Récapitulatif des tâches',recapSurv:'Répartition des surveillances',colDu:'Dû',colPlace:'Placé',colEcart:'Écart',colNb:'Nombre',survEcart:'écart de plus d\'une surveillance entre enseignants',btnAide:'Aide',btnConfig:'Réglages',btnAuto:'Remplir',btnValider:'Vérifier',btnImprimer:'Imprimer',btnPlus:'Plus',btnPDF:'PDF',btnExport:'Sauver',btnImport:'Ouvrir',btnVider:'Vider',btnSpecialistes:'Spécialistes',btnClasses:'Classes',btnLocaux:'Locaux',heroEyebrow:'Spécialistes · Primaire',heroBadge4:'🖨️ Impression',heroBadge6:'👥 Team teaching',needPer:'période(s) de plus',tplFait:'13 classes, 7 spécialistes, 6 locaux créés!',exportOk:'Copie enregistrée',importOk:'Horaire rechargé',importErr:'Fichier illisible',importAutre:'Ce fichier ne vient pas de la Grille horaire.',importVersion:'Fichier trop récent pour cette page.',importConfirm:'Remplacer l\'horaire actuel ?',appTitle:'GRILLE HORAIRE',selectSpec:'Clique sur une personne',toPlace:'À placer',day:'Jour',recess:'Récré',lunch:'Dîner',remaining:'restant',coursesPlaced:'cours placés',defileAide:'← Fais glisser pour voir les autres jours →',filEtape:'Étape',filSur:'sur',btnGuide:'Guide',filMotPartir:'Commencer',filPartir:'Je te monte un horaire de départ. Tu changeras tout après.',filGens:'Qui travaille? Ajoute les personnes.',filGroupes:'Quels groupes? Ajoute-les.',filRemplir:'Je remplis la grille pour toi.',filRegler:'{n} case(s) se cognent. Clique dessus pour les séparer.',filSortir:'Ton horaire est prêt. Imprime-le!',filReste:'Il reste {n} à placer. Clique dans la grille — ou imprime tel quel.',
 choose:'— Choisir —',confirm:'OK',close:'Fermer',save:'Sauvegarder',cancel:'Annuler',add:'Ajouter',default:'Défaut',
 specName:'Nom',specCode:'Code',specSubject:'Matière',specTask:'Tâche %',specRoom:'Local',specItinerant:'Itinérant',specTravelDays:'Jours autre école',
 specAllDay:'Toute la journée',specAmOnly:'AM seulement',specPmOnly:'PM seulement',specMaxDay:'Max/jour',specMaxConsec:'Max conséc.',specAvailDays:'Disponibilités',specConstraints:'Contraintes',
@@ -1098,13 +1349,13 @@ periodsPerDay:'Périodes/jour',tache100:'Tâche 100%',tache100Unit:'périodes/cy
 heroTitle:'Ta grille horaire<span>sur mesure!</span>',
 heroDesc:'Fini le casse-tête de la planification! Configure tes périodes en 30 secondes, clique sur un jour pour placer tes spécialistes et groupes-classes. Le % de tâche se calcule en temps réel. Team teaching, multi-gymnases, validation automatique — tout y est. Sauvegarde automatique et exporte en PDF pour ta direction. Les enseignants les plus organisés utilisent déjà cet outil — c\'est ton tour!',
 heroBadge1:'📅 5 à 10 jours/cycle',heroBadge2:'⚙️ 3 à 7 périodes',heroBadge3:'🌍 4 langues',heroBadge5:'🤖 Auto-remplissage',
-heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',zoomNormal:'Normal',zoomGrand:'Grand',zoomTni:'TNI',zoomAide:'Taille de la grille',btnImpPersonne:'Par personne',btnDupliquer:'Dupliquer',dupTitre:'Dupliquer une journée',dupSource:'Journée à copier',dupCibles:'Vers',dupFaire:'Dupliquer',dupFait:'journée(s) remplacée(s)',dupAide:'Les journées choisies sont d\'abord vidées. Ce qui dépasse le programme d\'un groupe, ou casse une règle, n\'est pas copié — le compte te le dit.',dupIgnores:'non copié(s)',pedagoConfirm:'Changer cette journée fermera des blocs qui contiennent des blocs placés. Ils seront vidés. Continuer ?',verrou:'Verrouiller',deverrou:'Déverrouiller',verrouAide:'Créneau verrouillé — rien ne s\'y place.',verrouConfirm:'Verrouiller videra cette case. Continuer ?',lieuHS:'Hors service',classEffectif:'Enfants',ratio:'Ratio',ratioAide:'enfants par adulte — 0 pour ne pas l\'appliquer',ratioManque:'places d\'adulte manquantes selon le ratio',journeeType:'Journée du métier',journeeAide:'Remplace la journée par celle du métier choisi',journeeConfirm:'Remplacer la journée par celle du métier ? La grille sera vidée.',journeeFaite:'Journée du métier appliquée',joursPedago:'Journées pédago',uniteCap:'pér.',
+heroStart:'🚀 Commencer!',heroHelp:'📖 Comment utiliser',zoomNormal:'Normal',zoomGrand:'Grand',zoomTni:'Tableau',zoomAide:'Taille de la grille',btnImpPersonne:'Par personne',btnDupliquer:'Dupliquer',dupTitre:'Dupliquer une journée',dupSource:'Journée à copier',dupCibles:'Vers',dupFaire:'Dupliquer',dupFait:'journée(s) remplacée(s)',dupAide:'Les journées choisies sont d\'abord vidées. Ce qui dépasse le programme d\'un groupe, ou casse une règle, n\'est pas copié — le compte te le dit.',dupIgnores:'non copié(s)',pedagoConfirm:'Changer cette journée fermera des blocs qui contiennent des blocs placés. Ils seront vidés. Continuer ?',verrou:'Verrouiller',deverrou:'Déverrouiller',verrouAide:'Créneau verrouillé — rien ne s\'y place.',verrouConfirm:'Verrouiller videra cette case. Continuer ?',lieuHS:'Hors service',classEffectif:'Enfants',ratio:'Ratio',ratioAide:'enfants par adulte — 0 pour ne pas l\'appliquer',ratioManque:'places d\'adulte manquantes selon le ratio',journeeType:'Journée du métier',journeeAide:'Remplace la journée par celle du métier choisi',journeeConfirm:'Remplacer la journée par celle du métier ? La grille sera vidée.',journeeFaite:'Journée du métier appliquée',joursPedago:'Journées pédago',uniteCap:'pér.',
 metierTitre:'Pour qui bâtis-tu l\'horaire?',metierAide:'Tu pourras en changer en tout temps dans les Réglages.',metierLabel:'Métier',metierOk:'Mode',metierEp:'École primaire',metierEpDesc:'Spécialistes : ÉPS, musique, anglais, arts.',metierSdg:'Service de garde',metierSdgDesc:'Éducateurs, groupes, ratios, blocs du midi.',metierCamp:'Camp de jour',metierCampDesc:'Moniteurs, groupes d\'âge, blocs d\'activités.',
 helpTitle:'Comment utiliser<span>la grille horaire</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Démarrage rapide</b><br>Clique « Commencer » pour créer une école typique (13 classes, 5 spécialistes, 6 locaux) en 1 clic. Ou configure manuellement avec ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Placer des cours</b><br>1. Sélectionne un spécialiste à gauche<br>2. Clique une case verte pointillée dans la grille<br>3. Choisis le groupe-classe — il apparaît avec sa couleur unique!<br>4. Pour retirer : clique le ✕ sur le chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tâche & contrat</b><br>Le système calcule le % de tâche en temps réel! Tâche 100% = plafond de périodes par cycle (ex: 30). Un contrat à 80% × 30 = 24 périodes max. Le système bloque automatiquement quand c\'est plein.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>Dans Locaux, mets Capacité 2+ pour permettre plusieurs profs en même temps dans le même gymnase!',
 helpValidation:'Validation conflits',helpAutoSave:'Sauvegarde auto',helpGotIt:'Compris!',
 clickToPlace:'Cliquez dans la grille',needsMore:'a besoin de',selectClassFor:'Choisissez le groupe',addClassesFirst:'⚠️ Ajoutez des classes d\'abord!',needMin:'min de plus'},
-en:{cptCours:'Lessons',cptGroupes:'Groups',capacite:'capacity',tache100Auto:'auto',tache100Manuel:'set by hand',raison:'Reason',raisonCapacite:'Capacity reached',raisonCreneau:'No free slot',autoPartielTitre:'Some lessons are still unplaced',avantP1:'Before P1',avantP1Aide:'adds a supervision band at the start of the day',survTitre:'Supervisors',survAide:'Specialists are already listed. Add the homeroom teachers and support staff who take supervision duties.',survType:'Type',survGerer:'Manage',survAucun:'Add supervisors first.',survConflit:'This person teaches at the same time',typ_spec:'specialist',typ_titulaire:'homeroom',typ_autre:'support staff',btnSurveillants:'Supervisors',recapTaches:'Workload summary',recapSurv:'Supervision spread',colDu:'Owed',colPlace:'Placed',colEcart:'Gap',colNb:'Count',survEcart:'more than one duty apart between teachers',btnAide:'Help',btnConfig:'Settings',btnAuto:'Auto',btnValider:'Check',btnImprimer:'Print',btnPlus:'More',btnPDF:'PDF',btnExport:'Save',btnImport:'Open',btnVider:'Clear',btnSpecialistes:'Specialists',btnClasses:'Classes',btnLocaux:'Rooms',heroEyebrow:'Specialists · Elementary',heroBadge4:'🖨️ Printing',heroBadge6:'👥 Team teaching',needPer:'more period(s)',tplFait:'13 classes, 7 specialists, 6 rooms created!',exportOk:'Backup saved',importOk:'Schedule restored',importErr:'Unreadable file',importAutre:'This file is not from the Schedule Grid.',importVersion:'File too recent for this page.',importConfirm:'Replace the current schedule?',appTitle:'SCHEDULE GRID',selectSpec:'Select',toPlace:'To place',day:'Day',recess:'Recess',lunch:'Lunch',remaining:'left',coursesPlaced:'lessons placed',
+en:{cptCours:'Lessons',cptGroupes:'Groups',capacite:'capacity',tache100Auto:'auto',tache100Manuel:'set by hand',raison:'Reason',raisonCapacite:'Capacity reached',raisonCreneau:'No free slot',autoPartielTitre:'Some lessons are still unplaced',avantP1:'Before P1',avantP1Aide:'adds a supervision band at the start of the day',survTitre:'Supervisors',survAide:'Specialists are already listed. Add the homeroom teachers and support staff who take supervision duties.',survType:'Type',survGerer:'Manage',survAucun:'Add supervisors first.',survConflit:'This person teaches at the same time',typ_spec:'specialist',typ_titulaire:'homeroom',typ_autre:'support staff',btnSurveillants:'Supervisors',recapTaches:'Workload summary',recapSurv:'Supervision spread',colDu:'Owed',colPlace:'Placed',colEcart:'Gap',colNb:'Count',survEcart:'more than one duty apart between teachers',btnAide:'Help',btnConfig:'Settings',btnAuto:'Fill',btnValider:'Check',btnImprimer:'Print',btnPlus:'More',btnPDF:'PDF',btnExport:'Save',btnImport:'Open',btnVider:'Clear',btnSpecialistes:'Specialists',btnClasses:'Classes',btnLocaux:'Rooms',heroEyebrow:'Specialists · Elementary',heroBadge4:'🖨️ Printing',heroBadge6:'👥 Team teaching',needPer:'more period(s)',tplFait:'13 classes, 7 specialists, 6 rooms created!',exportOk:'Backup saved',importOk:'Schedule restored',importErr:'Unreadable file',importAutre:'This file is not from the Schedule Grid.',importVersion:'File too recent for this page.',importConfirm:'Replace the current schedule?',appTitle:'SCHEDULE GRID',selectSpec:'Click a person',toPlace:'To place',day:'Day',recess:'Recess',lunch:'Lunch',remaining:'left',coursesPlaced:'lessons placed',defileAide:'← Drag to see the other days →',filEtape:'Step',filSur:'of',btnGuide:'Guide',filMotPartir:'Start',filPartir:'I\'ll set up a starter schedule. You can change it all after.',filGens:'Who works here? Add the people.',filGroupes:'Which groups? Add them.',filRemplir:'I\'ll fill the grid for you.',filRegler:'{n} cell(s) clash. Click them to pull them apart.',filSortir:'Your schedule is ready. Print it!',filReste:'{n} still to place. Click in the grid — or print it as is.',
 choose:'— Choose —',confirm:'OK',close:'Close',save:'Save',cancel:'Cancel',add:'Add',default:'Default',
 specName:'Name',specCode:'Code',specSubject:'Subject',specTask:'Task %',specRoom:'Room',specItinerant:'Itinerant',specTravelDays:'Days at other school',
 specAllDay:'All day',specAmOnly:'AM only',specPmOnly:'PM only',specMaxDay:'Max/day',specMaxConsec:'Max consec.',specAvailDays:'Availability',specConstraints:'Constraints',
@@ -1127,7 +1378,7 @@ helpTitle:'How to use<span>the schedule grid</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Quick start</b><br>Click "Get started" to create a typical school (13 classes, 5 specialists, 6 rooms) in 1 click. Or set up manually with ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Place lessons</b><br>1. Select a specialist on the left panel<br>2. Click a green dashed cell in the grid<br>3. Choose the class group — it appears with its unique color!<br>4. To remove: click the ✕ on the chip<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Task & contract</b><br>The system calculates task % in real time! Task 100% = max periods per cycle (e.g., 30). A contract at 80% × 30 = 24 periods max. The system blocks automatically when full.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Team teaching</b><br>In Rooms, set Capacity 2+ to allow multiple teachers in the same gym at once!',
 helpValidation:'Conflict check',helpAutoSave:'Auto-save',helpGotIt:'Got it!',
 clickToPlace:'Click to place',needsMore:'needs',selectClassFor:'Choose class',addClassesFirst:'⚠️ Add classes first!',needMin:'min more'},
-es:{cptCours:'Clases',cptGroupes:'Grupos',capacite:'capacidad',tache100Auto:'auto',tache100Manuel:'ajustado a mano',raison:'Motivo',raisonCapacite:'Capacidad alcanzada',raisonCreneau:'Sin franja libre',autoPartielTitre:'Quedan clases por colocar',avantP1:'Antes de P1',avantP1Aide:'añade una franja de vigilancia al inicio del día',survTitre:'Vigilantes',survAide:'Los especialistas ya están. Añade los tutores y el personal no docente que hacen vigilancias.',survType:'Tipo',survGerer:'Gestionar',survAucun:'Añade vigilantes primero.',survConflit:'Esta persona da clase al mismo tiempo',typ_spec:'especialista',typ_titulaire:'tutor',typ_autre:'personal',btnSurveillants:'Vigilantes',recapTaches:'Resumen de cargas',recapSurv:'Reparto de vigilancias',colDu:'Debido',colPlace:'Colocado',colEcart:'Diferencia',colNb:'Número',survEcart:'más de una vigilancia de diferencia entre docentes',btnAide:'Ayuda',btnConfig:'Ajustes',btnAuto:'Auto',btnValider:'Revisar',btnImprimer:'Imprimir',btnPlus:'Más',btnPDF:'PDF',btnExport:'Guardar',btnImport:'Abrir',btnVider:'Vaciar',btnSpecialistes:'Especialistas',btnClasses:'Clases',btnLocaux:'Aulas',heroEyebrow:'Especialistas · Primaria',heroBadge4:'🖨️ Impresión',heroBadge6:'👥 Codocencia',needPer:'período(s) más',tplFait:'¡13 clases, 7 especialistas, 6 aulas creados!',exportOk:'Copia guardada',importOk:'Horario restaurado',importErr:'Archivo ilegible',importAutre:'Este archivo no viene del Horario.',importVersion:'Archivo demasiado reciente para esta página.',importConfirm:'¿Reemplazar el horario actual?',appTitle:'HORARIO',selectSpec:'Seleccione',toPlace:'Por colocar',day:'Día',recess:'Recreo',lunch:'Almuerzo',remaining:'restante',coursesPlaced:'clases colocadas',
+es:{cptCours:'Clases',cptGroupes:'Grupos',capacite:'capacidad',tache100Auto:'auto',tache100Manuel:'ajustado a mano',raison:'Motivo',raisonCapacite:'Capacidad alcanzada',raisonCreneau:'Sin franja libre',autoPartielTitre:'Quedan clases por colocar',avantP1:'Antes de P1',avantP1Aide:'añade una franja de vigilancia al inicio del día',survTitre:'Vigilantes',survAide:'Los especialistas ya están. Añade los tutores y el personal no docente que hacen vigilancias.',survType:'Tipo',survGerer:'Gestionar',survAucun:'Añade vigilantes primero.',survConflit:'Esta persona da clase al mismo tiempo',typ_spec:'especialista',typ_titulaire:'tutor',typ_autre:'personal',btnSurveillants:'Vigilantes',recapTaches:'Resumen de cargas',recapSurv:'Reparto de vigilancias',colDu:'Debido',colPlace:'Colocado',colEcart:'Diferencia',colNb:'Número',survEcart:'más de una vigilancia de diferencia entre docentes',btnAide:'Ayuda',btnConfig:'Ajustes',btnAuto:'Rellenar',btnValider:'Revisar',btnImprimer:'Imprimir',btnPlus:'Más',btnPDF:'PDF',btnExport:'Guardar',btnImport:'Abrir',btnVider:'Vaciar',btnSpecialistes:'Especialistas',btnClasses:'Clases',btnLocaux:'Aulas',heroEyebrow:'Especialistas · Primaria',heroBadge4:'🖨️ Impresión',heroBadge6:'👥 Codocencia',needPer:'período(s) más',tplFait:'¡13 clases, 7 especialistas, 6 aulas creados!',exportOk:'Copia guardada',importOk:'Horario restaurado',importErr:'Archivo ilegible',importAutre:'Este archivo no viene del Horario.',importVersion:'Archivo demasiado reciente para esta página.',importConfirm:'¿Reemplazar el horario actual?',appTitle:'HORARIO',selectSpec:'Haz clic en una persona',toPlace:'Por colocar',day:'Día',recess:'Recreo',lunch:'Almuerzo',remaining:'restante',coursesPlaced:'clases colocadas',defileAide:'← Arrastra para ver los demás días →',filEtape:'Paso',filSur:'de',btnGuide:'Guía',filMotPartir:'Empezar',filPartir:'Te preparo un horario inicial. Luego lo cambias todo.',filGens:'¿Quién trabaja? Añade a las personas.',filGroupes:'¿Qué grupos? Añádelos.',filRemplir:'Relleno la cuadrícula por ti.',filRegler:'{n} casilla(s) chocan. Haz clic para separarlas.',filSortir:'Tu horario está listo. ¡Imprímelo!',filReste:'Quedan {n} por colocar. Haz clic en la cuadrícula — o imprímelo así.',
 choose:'— Elegir —',confirm:'OK',close:'Cerrar',save:'Guardar',cancel:'Cancelar',add:'Agregar',default:'Defecto',
 specName:'Nombre',specCode:'Código',specSubject:'Materia',specTask:'Tarea %',specRoom:'Aula',specItinerant:'Itinerante',specTravelDays:'Días otra escuela',
 specAllDay:'Todo el día',specAmOnly:'Solo AM',specPmOnly:'Solo PM',specMaxDay:'Máx/día',specMaxConsec:'Máx consec.',specAvailDays:'Disponibilidad',specConstraints:'Restricciones',
@@ -1150,7 +1401,7 @@ helpTitle:'Cómo usar<span>el horario escolar</span>',
 helpBody:'<b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🚀 Inicio rápido</b><br>Haz clic en "Empezar" para crear una escuela típica (13 clases, 5 especialistas, 6 aulas) en 1 clic. O configura manualmente con ⚙️.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">🎨 Colocar clases</b><br>1. Selecciona un especialista a la izquierda<br>2. Haz clic en una celda verde punteada<br>3. Elige el grupo — ¡aparece con su color único!<br>4. Para quitar: haz clic en la ✕<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">⚙️ Tarea y contrato</b><br>¡El sistema calcula el % de tarea en tiempo real! Tarea 100% = máximo de períodos por ciclo (ej: 30). Un contrato al 80% × 30 = 24 períodos máx. El sistema bloquea automáticamente cuando está lleno.<br><br><b style="color:var(--ztsp-cyan-dark,#075A6B);font-size:1.1em">👥 Enseñanza en equipo</b><br>En Aulas, pon Capacidad 2+ para permitir varios profesores en el mismo gimnasio al mismo tiempo!',
 helpValidation:'Validación conflictos',helpAutoSave:'Guardado auto',helpGotIt:'¡Entendido!',
 clickToPlace:'Clic para colocar',needsMore:'necesita',selectClassFor:'Elija clase',addClassesFirst:'⚠️ ¡Agregue clases primero!',needMin:'min más'},
-zh:{cptCours:'课时',cptGroupes:'班级',capacite:'容量',tache100Auto:'自动',tache100Manuel:'手动设置',raison:'原因',raisonCapacite:'已达上限',raisonCreneau:'无空闲时段',autoPartielTitre:'仍有课时未安排',avantP1:'第一节课前',avantP1Aide:'在一天开始时增加值班时段',survTitre:'值班人员',survAide:'专科教师已列入。请添加承担值班的班主任和非教学人员。',survType:'类型',survGerer:'管理',survAucun:'请先添加值班人员。',survConflit:'此人同一时间在上课',typ_spec:'专科教师',typ_titulaire:'班主任',typ_autre:'其他人员',btnSurveillants:'值班人员',recapTaches:'工作量汇总',recapSurv:'值班分配',colDu:'应排',colPlace:'已排',colEcart:'差额',colNb:'次数',survEcart:'教师之间相差超过一次值班',btnAide:'帮助',btnConfig:'设置',btnAuto:'自动',btnValider:'检查',btnImprimer:'打印',btnPlus:'更多',btnPDF:'PDF',btnExport:'保存',btnImport:'打开',btnVider:'清除',btnSpecialistes:'专科教师',btnClasses:'班级',btnLocaux:'教室',heroEyebrow:'专科教师 · 小学',heroBadge4:'🖨️ 打印',heroBadge6:'👥 协同教学',needPer:'节课',tplFait:'已创建13个班级、7位专科教师、6间教室！',exportOk:'备份已保存',importOk:'课程表已恢复',importErr:'文件无法读取',importAutre:'此文件不是来自课程表。',importVersion:'文件版本过新。',importConfirm:'替换当前课程表？',appTitle:'课程表',selectSpec:'选择',toPlace:'待安排',day:'天',recess:'课间',lunch:'午餐',remaining:'剩余',coursesPlaced:'课程已安排',
+zh:{cptCours:'课时',cptGroupes:'班级',capacite:'容量',tache100Auto:'自动',tache100Manuel:'手动设置',raison:'原因',raisonCapacite:'已达上限',raisonCreneau:'无空闲时段',autoPartielTitre:'仍有课时未安排',avantP1:'第一节课前',avantP1Aide:'在一天开始时增加值班时段',survTitre:'值班人员',survAide:'专科教师已列入。请添加承担值班的班主任和非教学人员。',survType:'类型',survGerer:'管理',survAucun:'请先添加值班人员。',survConflit:'此人同一时间在上课',typ_spec:'专科教师',typ_titulaire:'班主任',typ_autre:'其他人员',btnSurveillants:'值班人员',recapTaches:'工作量汇总',recapSurv:'值班分配',colDu:'应排',colPlace:'已排',colEcart:'差额',colNb:'次数',survEcart:'教师之间相差超过一次值班',btnAide:'帮助',btnConfig:'设置',btnAuto:'自动排课',btnValider:'检查',btnImprimer:'打印',btnPlus:'更多',btnPDF:'PDF',btnExport:'保存',btnImport:'打开',btnVider:'清除',btnSpecialistes:'专科教师',btnClasses:'班级',btnLocaux:'教室',heroEyebrow:'专科教师 · 小学',heroBadge4:'🖨️ 打印',heroBadge6:'👥 协同教学',needPer:'节课',tplFait:'已创建13个班级、7位专科教师、6间教室！',exportOk:'备份已保存',importOk:'课程表已恢复',importErr:'文件无法读取',importAutre:'此文件不是来自课程表。',importVersion:'文件版本过新。',importConfirm:'替换当前课程表？',appTitle:'课程表',selectSpec:'点击一位人员',toPlace:'待安排',day:'天',recess:'课间',lunch:'午餐',remaining:'剩余',coursesPlaced:'课程已安排',defileAide:'← 左右拖动查看其他日子 →',filEtape:'第',filSur:'步，共',btnGuide:'向导',filMotPartir:'开始',filPartir:'我先搭一个初始课表，之后都可以改。',filGens:'谁在这里工作？把人加进来。',filGroupes:'有哪些班级？加进来。',filRemplir:'我来帮你排满课表。',filRegler:'有 {n} 格发生冲突，点击它们分开安排。',filSortir:'课表做好了，打印吧！',filReste:'还有 {n} 项未安排。可以在课表里点击安排，也可以就这样打印。',
 choose:'— 选择 —',confirm:'确定',close:'关闭',save:'保存',cancel:'取消',add:'添加',default:'默认',
 specName:'姓名',specCode:'代码',specSubject:'科目',specTask:'任务%',specRoom:'教室',specItinerant:'巡回',specTravelDays:'其他学校',
 specAllDay:'全天',specAmOnly:'仅上午',specPmOnly:'仅下午',specMaxDay:'每天最多',specMaxConsec:'最大连续',specAvailDays:'可用天数',specConstraints:'约束',
@@ -1837,6 +2088,8 @@ function migrer(){
   // Le zoom voyage avec l'horaire : on retrouve sa grille comme on l'a
   // laissee, et l'export l'emporte sans code dedie.
   S.zoom=bornerZoom(S.zoom===undefined?ZOOM_DEF:S.zoom);
+  // Le guide ferme le reste — c'est un choix, pas un reglage de session.
+  S.filCache=!!S.filCache;
   // Un ratio absent vaut « pas de ratio » : aucune deduction, capacite 1.
   if(S.school.ratio===undefined||S.school.ratio===null||isNaN(+S.school.ratio))S.school.ratio=0;
   demandeurs().forEach(cl=>{if(cl.effectif===undefined||cl.effectif===null||isNaN(+cl.effectif))cl.effectif=0});
@@ -2299,13 +2552,20 @@ function updateProgress(){const placed=totalA(),needed=totalNeeded();const pct=n
   if(pr){const m=manqueTotal();pr.textContent='👶 '+m;pr.style.display=m?'':'none';pr.title=t('ratioManque')}}
 
 // VALIDATION
-function validateAll(){let hc=0,sc=0;
+/* Le compte seul : aucune pastille, aucun toast. Le fil s'en sert pour
+   savoir s'il reste quelque chose a regler ; validateAll() s'en sert pour
+   afficher. Une seule regle, deux lecteurs. */
+function compterConflits(){let hc=0,sc=0;
   for(let d=1;d<=S.school.cycleDays;d++){tPer().forEach(p=>{const assigns=getA(d,p.num);
     assigns.forEach(a=>{if(checkH(d,p.num,a.specId,a.classId,a.roomId).filter(v=>v.type!=='specBusy').length)hc++;if(checkS(d,p.num,a.specId,a.classId).length)sc++});
     const rc={};assigns.forEach(a=>{if(a.roomId)rc[a.roomId]=(rc[a.roomId]||0)+1});Object.entries(rc).forEach(([rid,cnt])=>{const rm=lieux().find(r=>r.id===rid);if(rm&&cnt>rm.maxSimultaneous)hc++})})}
+  return {durs:hc,doux:sc,total:hc+sc}}
+
+function validateAll(){const {durs:hc,doux:sc}=compterConflits();
   const ph=document.getElementById('pillH'),ps=document.getElementById('pillS');
   ph.textContent=`🚫 ${hc}`;ph.style.display=hc?'':'none';ps.textContent=`⚠️ ${sc}`;ps.style.display=sc?'':'none';
-  if(!hc&&!sc&&totalA()>0)toast('✅ '+t('noViolation'))}
+  if(!hc&&!sc&&totalA()>0)toast('✅ '+t('noViolation'));
+  majFil()}
 
 // WELCOME
 function showWelcome(){
@@ -2392,7 +2652,7 @@ function choisirMetier(id){
   S.metierChoisi=true;
   save();
   const ec=document.getElementById('metierChoix');if(ec)ec.hidden=true;
-  appliquerMetier();applyI18n();renderAll();
+  appliquerMetier();applyI18n();renderAll();majFil();
   toast('✅ '+t('metierOk')+' — '+nomMetier(id));
 }
 /* Depuis les Reglages : meme effet, mais la modale doit se redessiner pour
@@ -2411,6 +2671,10 @@ function montrerChoixMetier(){
   const ec=document.getElementById('metierChoix');if(!ec)return;
   const vide=!ressources().length&&!demandeurs().length;
   ec.hidden=!(vide&&!S.metierChoisi);
+  // Au demarrage, cette fonction passe APRES renderAll() : sans ce rappel,
+  // le fil s'affichait a cote de l'ecran des metiers, deux appels a
+  // l'action pour un ecran qui n'en veut qu'un.
+  majFil();
 }
 
 function showHelp(){
@@ -2469,21 +2733,21 @@ function closeModals(){document.querySelectorAll('.modal').forEach(m=>m.remove()
 function openSetupModal(){
   closeModals();const ov=document.createElement('div');ov.className='modal';
   const levs=['pres','1','2','3','4','5','6'],levL=[t('presco'),'1','2','3','4','5','6'];
-  let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);min-width:30px">${nomPeriode(p)}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:.85em;padding:4px;border:1px solid #ddd;border-radius:4px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
+  let pRows=S.school.periods.map((p,i)=>`<div style="display:flex;gap:5px;align-items:center;padding:3px 0">${p.type==='period'?`<span style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);min-width:30px">${nomPeriode(p)}</span>`:`<span style="min-width:30px">${p.type==='recess'?'☀️':'🍽️'}</span>`}<input type="time" value="${p.start||''}" data-pi="${i}" data-field="start" style="font-size:16px;min-height:40px;padding:6px 8px;border:2px solid var(--encre);border-radius:8px"><span>→</span><input type="time" value="${p.end||''}" data-pi="${i}" data-field="end" style="font-size:16px;min-height:40px;padding:6px 8px;border:2px solid var(--encre);border-radius:8px"><button class="btn r sm" data-del="${i}">✕</button></div>`).join('');
   let sRows=S.subjects.map((su,i)=>`<tr><td><span class="cdot" style="background:${su.color}"></span><input type="text" value="${su.name}" data-si="${i}" data-sf="name" style="border:none;background:transparent;font-weight:600;width:120px"></td>${levs.map(l=>`<td><input type="number" value="${su.min[l]||0}" min="0" data-si="${i}" data-sl="${l}" style="width:42px;text-align:center;border:1px solid #eee;border-radius:3px;padding:2px"></td>`).join('')}<td><button class="btn r sm" data-delsub="${i}">✕</button></td></tr>`).join('');
   ov.innerHTML=`<div class="mbox" style="max-width:720px"><h3>⚙️ ${t('configSchool')}</h3>
     <div class="fr"><label>${t('metierLabel')}</label><div class="zgm-mini">${Object.keys(GABARITS).map(id=>`<button type="button" data-m="${id}" aria-pressed="${S.metier===id?'true':'false'}" onclick="changerMetierReglages('${id}')">${nomMetier(id)}</button>`).join('')}</div></div>
     <div class="fr"><label>${t('schoolName')}</label><input type="text" id="sN" value="${S.school.name}" style="flex:1"></div>
     <div class="fr"><label>${t('schoolCycle')}</label><select id="sC">${[5,6,7,8,9,10].map(n=>`<option value="${n}" ${S.school.cycleDays===n?'selected':''}>${n}</option>`).join('')}</select><label style="min-width:auto;margin-left:12px">${t('schoolDuration')}</label><input type="number" id="sD" value="${S.school.periodDuration}" min="30" max="90"></div>
-    <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||tache100Defaut()}" min="1" max="200" step="1" style="width:70px" oninput="const e=document.getElementById('sT100Note');if(e)e.textContent=t('tache100Manuel')"><button type="button" class="btn o sm" id="sT100R" title="${t('tache100Auto')}">↺</button> <small id="sT100Note" style="color:var(--muted);font-family:var(--f-note);font-size:14px">${S.school.tache100Manuel?t('tache100Manuel'):t('tache100Auto')}</small> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
-    ${couvertureTotale()?`<div class="fr"><label>${t('ratio')}</label><input type="number" id="sRa" value="${S.school.ratio||0}" min="0" max="60" style="width:60px"> <small style="color:var(--muted);font-family:var(--f-note);font-size:15px">${t('ratioAide')}</small></div>`:''}
+    <div class="fr"><label>${t('periodsPerDay')}</label><input type="number" id="sPD" value="${S.school.periodsPerDay||5}" min="1" max="10" style="width:55px"><label style="min-width:auto;margin-left:12px">${t('tache100')}</label><input type="number" id="sT100" value="${S.school.tache100||tache100Defaut()}" min="1" max="200" step="1" style="width:70px" oninput="const e=document.getElementById('sT100Note');if(e)e.textContent=t('tache100Manuel')"><button type="button" class="btn o sm" id="sT100R" title="${t('tache100Auto')}">↺</button> <small id="sT100Note" style="color:var(--muted);font-family:var(--f-note);font-size:16px">${S.school.tache100Manuel?t('tache100Manuel'):t('tache100Auto')}</small> <small style="color:var(--muted)">${t('tache100Unit')}</small></div>
+    ${couvertureTotale()?`<div class="fr"><label>${t('ratio')}</label><input type="number" id="sRa" value="${S.school.ratio||0}" min="0" max="60" style="width:60px"> <small style="color:var(--muted);font-family:var(--f-note);font-size:16px">${t('ratioAide')}</small></div>`:''}
     ${tPer().some(x=>x.pedago)?`<div class="fr"><label>${t('joursPedago')}</label><div class="zgm-mini">${Array.from({length:S.school.cycleDays},(_,i)=>i+1).map(d=>`<button type="button" aria-pressed="${estJourPedago(d)?'true':'false'}" onclick="basculerJourPedago(${d})">${d}</button>`).join('')}</div></div>`:''}
-    <div class="fr"><label>${t('avantP1')}</label><input type="checkbox" id="sAv" ${S.school.avantP1?'checked':''}> <small style="color:var(--muted);font-family:var(--f-note);font-size:15px">${t('avantP1Aide')}</small></div>
+    <div class="fr"><label>${t('avantP1')}</label><input type="checkbox" id="sAv" ${S.school.avantP1?'checked':''}> <small style="color:var(--muted);font-family:var(--f-note);font-size:16px">${t('avantP1Aide')}</small></div>
     <div class="fr"><label>${t('quotaMode')}</label><select id="sQM"><option value="periods" ${S.school.quotaMode==='periods'?'selected':''}>${t('quotaPeriods')}</option><option value="minutes" ${S.school.quotaMode==='minutes'?'selected':''}>${t('quotaMinutes')}</option></select></div>
     <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">⏰ ${t('dayStructure')}</div>
     <div id="sP" style="max-height:200px;overflow-y:auto">${pRows}</div>
-    <div style="display:flex;gap:5px;margin:6px 0"><button class="btn o sm" id="aJ" title="${t('journeeAide')}">🔄 ${t('journeeType')}</button><button class="btn c sm" id="aP">${t('addPeriod')}</button><button class="btn sm" id="aR" style="background:var(--yellow);color:#000">${t('addRecess')}</button><button class="btn sm" id="aL" style="background:var(--orange);color:#fff">${t('addLunch')}</button></div>
-    <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">📚 ${t('subjectsTitle')} <small style="font-family:var(--f-corps);font-weight:500;font-size:.7em;color:var(--muted)">(${S.school.quotaMode==='periods'?t('quotaPeriods'):t('quotaMinutes')})</small></div>
+    <div style="display:flex;gap:5px;margin:6px 0"><button class="btn o sm" id="aJ" title="${t('journeeAide')}">🔄 ${t('journeeType')}</button><button class="btn c sm" id="aP">${t('addPeriod')}</button><button class="btn sm" id="aR" style="border-color:var(--yellow)">${t('addRecess')}</button><button class="btn sm" id="aL" style="border-color:var(--orange)">${t('addLunch')}</button></div>
+    <div style="font-family:var(--f-titre);color:var(--ztsp-cyan-dark,#075A6B);margin:10px 0 5px">📚 ${t('subjectsTitle')} <small style="font-family:var(--f-corps);font-weight:500;font-size:16px;color:var(--muted)">(${S.school.quotaMode==='periods'?t('quotaPeriods'):t('quotaMinutes')})</small></div>
     <div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('specSubject')}</th>${levL.map(l=>`<th>${l}</th>`).join('')}<th></th></tr></thead><tbody id="sS">${sRows}</tbody></table></div>
     <button class="btn c sm" style="margin-top:5px" id="aSu">${t('addSubject')}</button>
     <div class="macts"><button class="btn g" id="sSv">💾 ${t('save')}</button><button class="btn o" id="sCl">${t('close')}</button></div></div>`;
@@ -2844,6 +3108,130 @@ function exportPDF(){html2pdf().set({margin:5,filename:'grille_horaire.pdf',imag
    L'accueil laisse 12 px entre le header et sa premiere section — on reprend
    la meme valeur, pour que la grille se pose comme une section de l'accueil.
    ======================================================================= */
+/* =======================================================================
+   CE QUI EST EPINGLE EN HAUT, ET CE QUI EST POSE EN BAS
+   -----------------------------------------------------------------------
+   Deux mesures qui ne tiennent pas en place : l'en-tete du site se replie
+   au defilement, et le bandeau de temoins disparait des que le visiteur a
+   repondu. On les relit au lieu de les deviner.
+   ======================================================================= */
+function calerFil(){
+  let bas=0;
+  ['.zts-topbar','.zts-header'].forEach(sel=>{
+    const el=document.querySelector(sel); if(!el)return;
+    const cs=getComputedStyle(el);
+    if(cs.position!=='fixed'&&cs.position!=='sticky')return;
+    if(cs.display==='none'||cs.visibility==='hidden')return;
+    const r=el.getBoundingClientRect();
+    if(r.height>4&&r.bottom>bas)bas=r.bottom;
+  });
+  // Un garde-fou : jamais plus du tiers de l'ecran, sinon un en-tete
+  // inhabituel pousserait le fil hors de vue.
+  const plafond=Math.round((window.innerHeight||800)/3);
+  document.documentElement.style.setProperty('--zg-fil-top',
+    Math.min(plafond,Math.max(8,Math.round(bas)+8))+'px');
+}
+/* Ce qui flotte en bas et ne nous appartient pas. On les cherche une fois
+   — c'est le balayage couteux — puis on relit leur taille, qui change avec
+   la largeur de la fenetre : la navette du shell fait 74 px sur un bureau
+   et 133 px sur un telephone, ou elle passe sur deux rangees. */
+let PIEDS=null;
+function trouverPieds(){
+  PIEDS=[];
+  const H=window.innerHeight||800;
+  document.querySelectorAll('body *').forEach(el=>{
+    if(el.closest('.zg-poignee,.zg-toasts,.modal,.zg-fil'))return;
+    if(el.id==='ztsCookieBanner')return;              // il a sa propre mesure
+    const cs=getComputedStyle(el);
+    if(cs.position!=='fixed')return;
+    const r=el.getBoundingClientRect();
+    if(r.height<20||r.width<40||r.height>H*0.6)return;
+    if(r.bottom<H-48||r.top>H)return;                 // ancre en bas, vraiment
+    PIEDS.push(el);
+  });
+}
+function hauteurFlottante(){
+  if(!PIEDS)trouverPieds();
+  const H=window.innerHeight||800;
+  let h=0;
+  PIEDS.forEach(el=>{
+    const cs=getComputedStyle(el);
+    if(cs.display==='none'||cs.visibility==='hidden')return;
+    const r=el.getBoundingClientRect();
+    if(r.height<20)return;
+    h=Math.max(h,Math.round(H-r.top));                // du haut de l'objet au bas de l'ecran
+  });
+  return h;
+}
+/* Le plancher de la poignee : elle se pose au-dessus de TOUT ce qui flotte
+   — le bandeau de temoins comme la navette d'apps. Sur un telephone les
+   deux existent, et la navette prend 133 px. */
+function calerPlancher(){
+  const b=document.getElementById('ztsCookieBanner');
+  let h=0;
+  if(b){
+    const cs=getComputedStyle(b);
+    if(cs.display!=='none'&&cs.visibility!=='hidden'&&b.classList.contains('show'))
+      h=Math.round(b.getBoundingClientRect().height);
+  }
+  const flot=hauteurFlottante();
+  const plus=Math.max(h,flot);
+  document.documentElement.style.setProperty('--zg-plancher',(plus?plus+12:18)+'px');
+}
+/* Le pied reserve par le plan de travail : ce qui flotte, plus la poignee
+   elle-meme, qui se pose au-dessus. */
+function calerPied(){
+  const po=document.getElementById('zgPoignee');
+  const hp=po&&!po.hidden?Math.round(po.getBoundingClientRect().height)+18:74;
+  const px=Math.max(hauteurFlottante(),hp)+16;
+  document.documentElement.style.setProperty('--zg-pied',Math.max(24,px)+'px');
+}
+/* Le bandeau est injecte apres le chargement, puis retire d'un clic : on
+   surveille son arrivee, puis ses changements d'etat. */
+function surveillerPlancher(){
+  calerPlancher();
+  if(!window.MutationObserver)return;
+  let suivi=null;
+  const prendre=()=>{
+    const b=document.getElementById('ztsCookieBanner');
+    if(!b||suivi===b)return;
+    suivi=b;
+    new MutationObserver(calerPlancher).observe(b,{attributes:true,attributeFilter:['class','style']});
+    calerPlancher();
+  };
+  prendre();
+  new MutationObserver(()=>{prendre();calerPlancher()}).observe(document.body,{childList:true});
+}
+/* Un seul ecouteur pour les deux, au rythme de l'affichage. */
+function brancherCalages(){
+  let attend=false;
+  // `requestAnimationFrame` doit etre appelee SUR window : detachee, Chrome
+  // leve « Illegal invocation » et l'ecouteur meurt en silence. C'est
+  // exactement ce qui s'est passe au premier essai — le fil restait epingle
+  // 238 px trop bas sans qu'aucune erreur ne remonte.
+  const planifier = window.requestAnimationFrame
+    ? f=>window.requestAnimationFrame(f) : f=>setTimeout(f,16);
+  // Deux temps, et il en faut deux. L'en-tete du site ne se replie pas au
+  // moment ou l'evenement part : il GLISSE, avec une transition. Une seule
+  // mesure a l'image suivante le trouve encore deploye et cale le fil 230 px
+  // trop bas — puis plus rien ne bouge si le doigt s'est arrete. On mesure
+  // donc tout de suite, et une seconde fois quand le mouvement s'est tu.
+  let trainee=null;
+  const relire=()=>{
+    if(!attend){attend=true;planifier(()=>{attend=false;calerFil();calerPlancher();calerPied();majDefile()})}
+    clearTimeout(trainee);
+    trainee=setTimeout(()=>{calerFil();calerPlancher();calerPied();majDefile()},320);
+  };
+  window.addEventListener('scroll',relire,{passive:true});
+  window.addEventListener('resize',()=>{PIEDS=null;relire()},{passive:true});
+  // Et si l'en-tete annonce lui-meme la fin de son mouvement, on l'ecoute.
+  const en=document.querySelector('.zts-header');
+  if(en)en.addEventListener('transitionend',()=>{calerFil();calerPlancher();calerPied()});
+  // La boite de grille defile pour son propre compte : le mot suit.
+  const zone=document.getElementById('gridArea');
+  if(zone)zone.addEventListener('scroll',()=>majDefile(),{passive:true});
+}
+
 function calerSousHeader(){
   const h=document.querySelector('.zts-header');
   const bas=h?Math.round(h.getBoundingClientRect().bottom):0;
@@ -3214,7 +3602,7 @@ function ouvrirSurveillantsModal(){
      <td><button class="btn r sm" onclick="retirerSurveillant(${i})">✕</button></td></tr>`).join('');
   const ov=document.createElement('div');ov.className='modal';
   ov.innerHTML=`<div class="mbox"><h3>👥 ${t('survTitre')}</h3>
-    <p style="color:var(--muted);font-family:var(--f-note);font-size:15px;margin-bottom:10px">${t('survAide')}</p>
+    <p style="color:var(--muted);font-family:var(--f-note);font-size:16px;margin-bottom:10px">${t('survAide')}</p>
     <div style="overflow-x:auto"><table class="dt"><thead><tr><th>${t('specCode')}</th><th>${t('specName')}</th>
       <th>${t('survType')}</th><th>👁️</th><th></th></tr></thead><tbody>${specs}${autres}</tbody></table></div>
     <div class="macts">
@@ -3248,13 +3636,118 @@ function assurerStructures(){
   if(!Array.isArray(S.school.joursPedago))S.school.joursPedago=[];
   if(!S.verrous||typeof S.verrous!=='object')S.verrous={};
   S.zoom=bornerZoom(S.zoom===undefined?ZOOM_DEF:S.zoom);
+  S.filCache=!!S.filCache;
   assurerIdsCreneaux();
 }
-function renderAll(){assurerStructures();poserEchelle(S.zoom,false);resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress()}
+/* =======================================================================
+   LE FIL
+   -----------------------------------------------------------------------
+   Six etapes, dans l'ordre ou on les vit. Chacune sait DIRE si elle est
+   faite ; l'etape courante est la premiere qui ne l'est pas. Rien n'est
+   memorise : l'etat de l'horaire suffit a repondre. Vider la grille fait
+   donc reculer le fil tout seul, ce qui est exactement ce qu'on veut.
+
+   Les mots passent tous par `t()` : le vocabulaire du gabarit s'applique
+   sans une ligne de plus — « Specialistes » devient « Moniteurs » au camp,
+   et le fil suit.
+
+   Aucune etape n'est obligatoire. Qui veut tout faire a la main ignore la
+   bande, ou la ferme d'une croix ; les six boutons qu'elle designe existent
+   ailleurs, comme avant.
+   ======================================================================= */
+const FIL=[
+  {id:'partir',  ic:'🚀', mot:()=>t('filMotPartir'),      quoi:()=>t('filPartir'),
+                 fait:()=>ressources().length>0||demandeurs().length>0, geste:()=>useTemplate()},
+  {id:'gens',    ic:'👤', mot:()=>t('btnSpecialistes'),   quoi:()=>t('filGens'),
+                 fait:()=>ressources().length>0,          geste:()=>openSpecModal()},
+  {id:'groupes', ic:'🎓', mot:()=>t('btnClasses'),        quoi:()=>t('filGroupes'),
+                 fait:()=>demandeurs().length>0,          geste:()=>openClassesModal()},
+  {id:'remplir', ic:'🤖', mot:()=>t('btnAuto'),           quoi:()=>t('filRemplir'),
+                 fait:()=>totalA()>0,                     geste:()=>solveSchedule()},
+  /* Elle ne parle que des conflits DURS : un avertissement doux est une
+     remarque, et la garde comme le camp en ont par construction. Et elle
+     se retire une fois qu'elle a dit son compte — « Verifier » montre,
+     il ne repare pas ; une etape que son propre geste ne peut pas
+     franchir est un piege. Si le compte change, elle revient. */
+  {id:'regler',  ic:'✅', mot:()=>t('btnValider'),        quoi:()=>filRegleQuoi(),
+                 fait:()=>{const d=compterConflits().durs; return d===0||filVu===d},
+                 geste:()=>{filVu=compterConflits().durs;validateAll()}},
+  /* La derniere. Elle ne se declare jamais faite — imprimer, on peut
+     toujours le refaire — et sa phrase compte ce qui reste avant de
+     feliciter qui que ce soit. */
+  {id:'sortir',  ic:'🖨️', mot:()=>t('btnImprimer'),       quoi:()=>resteAPlacer(),
+                 fait:()=>false,                          geste:()=>imprimerGrille()}
+];
+/* Le nombre de conflits durs deja montre. Volontairement HORS de `S` : ce
+   n'est pas une propriete de l'horaire, c'est le souvenir d'une phrase
+   dite dans cette seance. Un horaire rouvert redit ce qu'il a a dire. */
+let filVu=-1;
+function filRegleQuoi(){
+  let d=0; try{d=compterConflits().durs}catch(e){d=0}
+  return t('filRegler').replace('{n}',d);
+}
+/* Ce que dit la derniere etape : « c'est pret » seulement si ca l'est. */
+function resteAPlacer(){
+  let manque=0;
+  try{const b=totalNeeded(); if(b>0)manque=Math.max(0,b-totalA())}catch(e){manque=0}
+  if(!manque)return t('filSortir');
+  return t('filReste').replace('{n}',manque);
+}
+/* L'etape courante : la premiere qui n'est pas faite. La derniere ne se
+   declare jamais faite — imprimer, on peut toujours le refaire. */
+function etapeFil(){
+  for(let i=0;i<FIL.length;i++){
+    let f=false; try{f=!!FIL[i].fait()}catch(e){f=false}
+    if(!f)return i;
+  }
+  return FIL.length-1;
+}
+function filGeste(){
+  const e=FIL[etapeFil()]; if(!e)return;
+  try{e.geste()}catch(x){}
+}
+/* La croix, et le bouton « Guide » sous « Plus » : le meme interrupteur. */
+function basculerFil(){
+  S.filCache=!S.filCache; save(); majFil();
+  const b=document.getElementById('zgfGo'); if(!S.filCache&&b)b.focus();
+}
+function majFil(){
+  const f=document.getElementById('zgFil'); if(!f)return;
+  // Une question a la fois : tant que l'ecran des metiers est ouvert, le
+  // fil se tait — sinon deux appels a l'action se disputent l'ecran.
+  const ec=document.getElementById('metierChoix');
+  if(S.filCache||(ec&&!ec.hidden)){f.hidden=true;return}
+  f.hidden=false;
+  // Colle tant que la grille est vide ; repose des qu'on y travaille.
+  let rien=true; try{rien=totalA()===0}catch(err){rien=true}
+  f.classList.toggle('zgf-pose', !rien);
+  const i=etapeFil(), e=FIL[i];
+  const pas=document.getElementById('zgfPas');
+  if(pas)pas.innerHTML=FIL.map((x,k)=>`<i class="${k<i?'fait':(k===i?'ici':'')}"></i>`).join('');
+  const num=document.getElementById('zgfNum');
+  if(num)num.textContent=`${t('filEtape')} ${i+1} ${t('filSur')} ${FIL.length}`;
+  const q=document.getElementById('zgfQuoi'); if(q)q.textContent=e.quoi();
+  const ic=document.getElementById('zgfIc');  if(ic)ic.textContent=e.ic;
+  const m=document.getElementById('zgfMot');  if(m)m.textContent=e.mot();
+  const go=document.getElementById('zgfGo');
+  if(go)go.setAttribute('aria-label',e.quoi()+' — '+e.mot());
+}
+
+/* Neuf jours ne tiennent pas sur un ecran de 1280 a taille Normale : la
+   boite defile. Encore faut-il que ca se VOIE — la barre de defilement est
+   tout en bas d'une grille de 1200 px, et personne ne la trouve. */
+function majDefile(){
+  const zone=document.getElementById('gridArea'), mot=document.getElementById('zgDefile');
+  if(!zone||!mot)return;
+  mot.hidden = zone.scrollWidth <= zone.clientWidth + 4;
+}
+
+function renderAll(){assurerStructures();poserEchelle(S.zoom,false);resetGroupColors();applyI18n();renderPanel();renderGrid();renderNext();updateProgress();majFil();majDefile()}
 
 document.addEventListener('DOMContentLoaded',()=>{
   load();appliquerMetier();applyI18n();renderAll();showWelcome();montrerChoixMetier();calerSousHeader();
   brancherZoomMolette();brancherPincement();brancherPoignee();
+  calerFil();surveillerPlancher();calerPied();brancherCalages();majDefile();
   // Le header partage se monte en differe (zts-menu.js) et sa hauteur change
   // au redimensionnement : on remesure plutot que de figer une valeur.
   window.addEventListener('load',calerSousHeader);

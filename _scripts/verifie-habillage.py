@@ -83,6 +83,27 @@ CSS_AVANT = ["shared/zts.css", "zts-header.css", "zts-ultra.css"]
 # nommer la decision et sa date — pas de ligne muette.
 REFONDUES = {
     "grille": "refonte PR 2, 31 aout 2026",
+    # Vague 1 du chantier SITE IMPECCABLE, 2 septembre 2026, decision de Joey.
+    #
+    # Ces deux-la ne sont pas des refontes : ce sont des CORRECTIFS FONCTIONNELS
+    # qui, pour reparer, doivent remplacer une ligne existante. Le controle
+    # additif compte toute ligne remplacee comme une ligne perdue — il ne sait
+    # pas distinguer « on a supprime du contenu d'app » de « on a corrige une
+    # URL cassee ». C'est la meme mecanique que pour grille : l'exemption porte
+    # sur le NOMBRE DE LIGNES, pas sur le contrat fonctionnel, qui reste entier.
+    #
+    #   jeux        — l.24, apple-touch-icon en chemin relatif : il resolvait
+    #                 vers /apps/jeux/favicon.png, qui n'existe pas. L'icone de
+    #                 l'ecran d'accueil iOS etait cassee depuis toujours.
+    #   transitions — trame sonore : deux MP3 deplaces vers assets/audio/ (leurs
+    #                 noms portaient un espace avant « .mp3 ») et trois bogues
+    #                 de lecture audio corriges. Detail dans le commit.
+    #
+    # Comme pour grille, l'exemption tombe d'elle-meme des que ces correctifs
+    # atteignent `main` : le diff contre main se vide. La laisser en place ne
+    # rouvre donc aucune porte.
+    "jeux": "correctif favicon apple-touch-icon, vague 1, 2 sept 2026",
+    "transitions": "reparation de la trame sonore, vague 1, 2 sept 2026",
 }
 DENSITES = ["vitrine", "travail", "projection"]
 
