@@ -1272,3 +1272,135 @@ html[data-etroit="1"] .auj-per .quand{max-width:none}
   }
   .auj-per .quand{max-width:none}
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LA CARTE DU GROUPE PORTE UNE IMAGE (3 septembre, v164)
+   Joey : l'image de sport couvre toute la carte, la couleur du groupe passe
+   par-dessus en dégradé — opaque à gauche, légère à droite — et le numéro
+   comme le titulaire vivent dans une petite pastille blanche.
+
+   ⚠ LE FOND EST POSÉ EN JS, PAS ICI. La couleur d'un groupe est une donnée
+   (`g.coul`, choisie au sélecteur libre) : elle ne peut pas vivre dans une
+   feuille de style. `proto-sports.js` écrit `background-image` avec ses deux
+   couches — le dégradé, puis la photo. Ce bloc ne règle que ce qui NE dépend
+   PAS du groupe : la place, les pastilles, la case émoji.
+   ⚠ TAILLES EN PIXELS, JAMAIS EN `vw` NI EN `vh` — règle de ce fichier, et
+   payée deux fois : le numéro de groupe à 151 px le 2 septembre, la modale
+   inatteignable le 3 (voir proto.css §modale).
+   ────────────────────────────────────────────────────────────────────────── */
+.auj-cours--image{
+  position:relative;
+  /* la carte doit avoir de la hauteur, sinon l'image n'a pas de place où
+     s'étendre et le dégradé se réduit à une bande */
+  min-height:150px;
+  /* ⚠ L'IMAGE PEUT ÊTRE SOMBRE. Le titre et la ligne d'infos héritent de
+     `encreSur(g.coul)`, calculée sur la COULEUR, pas sur la photo. Une ombre
+     portée discrète leur garde leur lisibilité quel que soit ce qui passe
+     dessous — sans toucher à l'encre, donc sans défaire le calcul de
+     contraste du groupe. */
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+}
+/* les pastilles n'héritent pas de cette ombre : elles ont leur propre fond */
+.auj-cours--image .gr-pastille-num,
+.auj-cours--image .gr-pastille-tit{text-shadow:none}
+
+/* ── le numéro du groupe, dans sa plaque ──
+   ⚠ FOND BLANC ET ENCRE `--ink`, PAS L'ENCRE DU GROUPE. Contraste 17:1, et
+   surtout INDÉPENDANT de la couleur du groupe : c'est ce qui garantit les
+   4,5:1 même sur un jaune choisi à la main par-dessus une photo claire. */
+.auj-cours .gr-pastille-num{
+  display:inline-block;background:#fff;color:var(--ink);
+  border:3px solid var(--noir);border-radius:12px;
+  padding:2px 14px 4px;box-shadow:3px 3px 0 var(--noir);
+}
+/* ── le titulaire, une plaque plus discrète, jamais un bandeau ──
+   Elle ne prend que la largeur de ses mots (`display:inline-block` + `width:auto`
+   par défaut) : posée dans `.gr`, qui est un flex, elle ne s'étire pas. */
+.auj-cours .gr-pastille-tit{
+  display:inline-block;background:#fff;color:var(--ink);
+  font-family:var(--f-note);font-size:17px;line-height:1.15;letter-spacing:0;
+  border:3px solid var(--noir);border-radius:10px;
+  padding:2px 10px;box-shadow:2px 2px 0 var(--noir);
+  max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+/* ── la vignette masquée quand elle redoublerait le fond ──
+   `hidden` est posé en JS ; cette règle ne fait que le rendre effectif malgré
+   le `display` que `.crs-vue` porte par ailleurs. */
+.auj-cours .crs-vue[hidden]{display:none}
+
+/* ══ LA CASE ÉMOJI DE LA PÉRIODE ══
+   Dans le coin haut droit de la carte, petite et discrète tant qu'elle est
+   vide. ⚠ ELLE EST EN `position:absolute` DANS LA CARTE, donc hors du flux :
+   elle ne pousse ni le titre ni la ligne d'infos, quel que soit son état. */
+.emo-case-hote{position:absolute;top:6px;right:6px;z-index:2}
+.emo-case{
+  cursor:pointer;width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;line-height:1;
+  background:rgba(255,255,255,.88);color:var(--ink);
+  border:3px solid var(--noir);border-radius:12px;box-shadow:2px 2px 0 var(--noir);
+}
+.emo-case:hover{background:#fff}
+.emo-case--mise{background:#fff}
+/* le mini-sélecteur : deux rangées de quatre, plus « effacer » */
+.emo-choix{
+  position:absolute;top:100%;right:0;z-index:60;margin-top:6px;
+  display:grid;grid-template-columns:repeat(4,44px);gap:6px;
+  background:#fff;border:3px solid var(--noir);border-radius:14px;
+  box-shadow:5px 5px 0 var(--noir);padding:8px;
+}
+.emo-opt{
+  cursor:pointer;width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;line-height:1;
+  background:#F3F8FB;color:var(--ink);
+  border:3px solid var(--noir);border-radius:10px;
+}
+.emo-opt:hover:not(:disabled){background:var(--cyan-vif)}
+.emo-opt[aria-pressed="true"]{background:var(--jaune);box-shadow:0 0 0 3px var(--noir) inset}
+.emo-opt--vider{
+  grid-column:1 / -1;width:auto;height:38px;
+  font-family:var(--f-titre);font-size:15px;letter-spacing:.3px;
+}
+.emo-opt--vider:disabled{opacity:.45;cursor:default}
+
+/* ══ LE CALQUE SUR MA SEMAINE ET MON MOIS ══
+   ⚠ UN CALQUE, PAS UNE COLONNE. La marque se POSE sur la case existante sans
+   rien y déplacer : sur la semaine en coin absolu, sur le mois en une ligne
+   insérée avant la note. Les cases n'ont pas été retouchées pour l'accueillir. */
+.ag-case .emo-calque{
+  position:absolute;bottom:2px;right:3px;z-index:3;
+  font-size:19px;line-height:1;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));
+}
+.mois-case .emo-calque-jour{display:flex;gap:3px;flex-wrap:wrap;margin:2px 0}
+.mois-case .emo-jour{font-size:16px;line-height:1}
+
+/* ══ LE RÉGLAGE DANS LE PORTRAIT ══ */
+.pt-apparence{margin-bottom:12px}
+.pt-apparence-dit{
+  font-family:var(--f-note);font-size:16px;color:var(--ink-soft);
+  margin:-4px 0 10px;line-height:1.25;
+}
+.pt-champ{margin-bottom:12px}
+.pt-sports{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.pt-sport{
+  cursor:pointer;display:flex;align-items:center;gap:8px;text-align:left;
+  background:#fff;color:var(--ink);
+  border:3px solid var(--noir);border-radius:12px;box-shadow:3px 3px 0 var(--noir);
+  padding:8px 10px;
+}
+.pt-sport:hover{background:#EAF8FD}
+.pt-sport[aria-pressed="true"]{background:var(--lime);color:#1E3300}
+.pt-sport-emo{font-size:24px;line-height:1;flex:none}
+.pt-sport-nom{font-family:var(--f-titre);font-size:15px;letter-spacing:.2px;line-height:1.1}
+
+/* ⚠ EN ÉTROIT LA CARTE PERD SA HAUTEUR IMPOSÉE. Sur 375 px, 150 px de carte
+   plus les six boutons de fonction ne laissent plus voir la période suivante.
+   L'image reste — c'est le dégradé qui porte l'identité, pas la photo. */
+html[data-etroit="1"] .auj-cours--image{min-height:118px}
+@media(max-width:760px){
+  .auj-cours--image{min-height:118px}
+  .auj-cours .gr-pastille-tit{max-width:150px}
+  .emo-choix{grid-template-columns:repeat(4,40px)}
+}
