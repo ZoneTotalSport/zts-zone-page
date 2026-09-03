@@ -214,6 +214,55 @@
     }
     #ztsFiltresPanneau #ztsFilterBar{border-top:none;padding-top:0;margin:0}
 
+    /* ============ LE BUDGET DU PREMIER ECRAN (<= 639 px) ============
+       Mesure sur un 390x844 reel : bandeau ZTS 146 px, hero 293, titre et
+       intro des collections 96, rangee 125, barre d'outils 215 — la premiere
+       carte tombait a 1040 px, soit 196 px sous la ligne de flottaison.
+       Un enfant de 10 ans doit voir UN JEU sans defiler.
+
+       Ce qui cede ici, dans l'ordre du moins utile au plus utile :
+       la phrase d'intro des collections (le titre suffit), la hauteur des
+       tuiles, les marges du hero, et le serrage de la barre d'outils.
+       Rien ne disparait : l'intro reste dans le DOM et revient au-dessus de
+       640 px. Les cibles tactiles restent a 44 px. */
+    @media(max-width:639px){
+      .zts-hero-compact{padding:10px 0 8px!important}
+      .zts-hero-titre{font-size:clamp(30px,8vw,40px)}
+      #ztsHeroRecherche{margin-top:8px}
+      #ztsCollections{margin-bottom:10px}
+      #ztsCollections .zc-titre{font-size:20px;margin-bottom:6px}
+      #ztsCollections .zc-intro{display:none}
+      #ztsCollections .zc-rangee{padding-bottom:6px;gap:8px}
+      #ztsCollections .zc-carte{min-height:84px;min-width:96px;padding:8px 10px}
+      #ztsCollections .zc-icone{font-size:26px}
+      #ztsCollections .zc-nom{font-size:17px}
+      #ztsCollections .zc-compte{font-size:18px}
+      #ztsBarreOutils{margin-bottom:10px}
+      #ztsOutilsTete{gap:8px}
+      #ztsBtnFiltres{min-height:48px;padding:10px 16px;font-size:17px}
+      #ztsOutilsTete .stats-bar{gap:8px!important;padding:0!important}
+      /* .stats-right faisait 610 px de large sur un ecran de 390 : les six
+         boutons d'action ne se repliaient pas. Ils tiennent en une rangee
+         une fois autorises a passer a la ligne (6 x 44 + gouttieres = 294). */
+      /* `flex-wrap:wrap` ne suffisait pas : avec `flex:0 0 auto` et
+         `min-width:auto`, la boite se dimensionne sur son max-content et
+         refuse de retrecir — 610 px de large sur un ecran de 390. Il faut
+         lui donner la rangee entiere ET l'autoriser a passer sous sa
+         largeur intrinseque. */
+      #ztsOutilsTete .stats-right{gap:6px!important;flex-wrap:wrap!important;flex:1 1 100%!important;min-width:0!important}
+      /* La recherche : 75 px, c'etait la hauteur d'un bouton et demi pour un
+         champ. 56 reste au-dessus de la cible de 44. */
+      /* Le raccourci `padding` de la regle d'origine, plus bas dans la meme
+         feuille, ecrasait les proprietes longues : il faut repondre avec un
+         raccourci, pas avec des morceaux. */
+      #ztsSearchHost .search-input{padding:12px 24px 12px 58px!important;font-size:19px!important}
+      /* Le mot « Collections » sort de l'ecran mais pas du document : la
+         section garde son aria-label, et quatorze tuiles a emoji se
+         presentent toutes seules. Il revient au-dessus de 640 px. */
+      #ztsCollections .zc-titre{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0}
+      #ztsCollections .zc-carte{min-height:80px}
+    }
+
     /* ============ GRILLE ET CARTES ============
        Paliers demandes : une colonne sous 480, deux jusqu'a 900, trois puis
        quatre au-dela. minmax(0,1fr) partout — la lecon de la PR #81 : `1fr`
