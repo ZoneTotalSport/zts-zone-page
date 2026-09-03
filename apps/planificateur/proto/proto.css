@@ -781,9 +781,64 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
 }
 
 /* ── modale ── */
+/* ══════════════════════════════════════════════════════════════════════════
+   LES POPUPS PORTENT LE DÉCOR DE L'ACCUEIL (3 septembre, v165)
+   Joey : « pour planification journalière j'aime beaucoup voir mon background
+   de la page d'accueil ; peux-tu appliquer cela pour tous les popups, au lieu
+   que ce soit fond blanc ? »
+
+   ⚠ LE DÉCOR EST POSÉ SUR `.modale`, PAS SUR `.modale-boite`, ET C'EST TOUTE
+   L'ASTUCE. La boîte DÉFILE (`overflow:auto`) : les trois couches du décor y
+   auraient défilé avec le contenu, et les rayons — 150 vmax de trame conique —
+   auraient débordé d'un conteneur qu'on ne peut pas passer en `overflow:hidden`
+   sans casser le défilement. `.modale`, elle, est `position:fixed; inset:0` :
+   c'est exactement le cadre de la fenêtre, il ne bouge jamais, et ses deux
+   pseudo-éléments s'y découpent tout seuls. La boîte n'a plus qu'à devenir
+   TRANSPARENTE pour laisser voir à travers.
+
+   ⚠ POURQUOI PAS UNE BOÎTE SEMI-TRANSPARENTE SUR LE VRAI DÉCOR DE LA PAGE :
+   les trois couches de `html`/`body` sont en `z-index` négatif, donc DERRIÈRE
+   le contenu de la page. Une boîte translucide aurait laissé voir la grille de
+   l'agenda et les cartes à travers le popup, pas le décor. Le voile
+   `.modale-fond` reprend donc le marine et ses dégradés, opaque : il masque la
+   page et REDEVIENT le fond de l'accueil.
+
+   ⚠ LES TROIS COUCHES SONT RECOPIÉES DE `html` ET `body` CI-DESSUS, valeurs
+   identiques — même marine, même trame de 12 px, mêmes rayons à 140 s. Si l'une
+   change là-haut, elle doit changer ici : c'est le prix d'un décor qui existe
+   en deux endroits, et il est assumé plutôt que de tordre le `z-index` de toute
+   l'app pour n'en garder qu'un.
+   ────────────────────────────────────────────────────────────────────────── */
 .modale{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:16px}
 .modale[hidden]{display:none}
-.modale-fond{position:absolute;inset:0;background:rgba(4,14,24,.72)}
+/* couche 1 — le marine et ses dégradés, opaques : ils masquent la page */
+.modale-fond{
+  position:absolute;inset:0;z-index:0;
+  background-color:var(--marine);
+  background-image:
+    radial-gradient(760px 420px at 88% 4%, rgba(255,212,0,.10), transparent 70%),
+    linear-gradient(163deg,#12879E 0%,#0C5C7D 28%,#0A3A5E 58%,#08243D 82%,var(--marine) 100%);
+  background-repeat:no-repeat;
+}
+/* couche 2 — la trame de points */
+.modale::before{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.16) 1.3px,transparent 1.4px);
+  background-size:12px 12px;
+}
+/* couche 3 — les rayons jaunes en rotation lente, ceux qu'on remarque */
+.modale::after{
+  content:'';position:absolute;
+  top:-46vh;left:50%;width:150vmax;height:150vmax;
+  z-index:2;pointer-events:none;opacity:.20;
+  transform:translateX(-50%);
+  background:repeating-conic-gradient(from 0deg at 50% 50%,
+             rgba(255,212,0,.85) 0deg 5deg, transparent 5deg 15deg);
+  -webkit-mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 62%);
+          mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 62%);
+  animation:proto-rayons 140s linear infinite;
+}
+@media (prefers-reduced-motion:reduce){ .modale::after{animation:none} }
 .modale-boite{
   /* Joey : « le popup n'est pas assez large ». Il porte maintenant toute la
      séance — planification, présences, évaluation — il lui faut la place. */
@@ -802,11 +857,36 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
      `.modale` est `position:fixed; inset:0` : son bloc de contenu EST la
      fenêtre de mise en page, dans le même repère que la boîte. `100%` y
      mesure donc juste, à n'importe quel zoom, sans rien avoir à calculer. */
-  position:relative;z-index:1;width:min(1320px,100%);max-height:100%;overflow:auto;
-  background:#fff;color:var(--ink);border:var(--bord);border-radius:18px;
+  /* ⚠ TRANSPARENTE, ET L'ENCRE PASSE AU CLAIR. Le décor vit sur `.modale`
+     (voir plus haut) ; la boîte ne fait plus que cadrer. `z-index:3` la place
+     au-dessus des trois couches — voile 0, points 1, rayons 2.
+     ⚠ ELLE GARDE SON CADRE ET SON OMBRE : sans eux, un popup sur le décor de
+     l'accueil ne se distinguerait plus de la page, et on ne saurait plus ce
+     qu'on est en train de refermer. */
+  position:relative;z-index:3;width:min(1320px,100%);max-height:100%;overflow:auto;
+  background:transparent;color:var(--sur-fond);border:var(--bord);border-radius:18px;
   box-shadow:8px 10px 0 rgba(0,0,0,.45);padding:18px;
 }
-.modale-boite h2{font-family:var(--f-titre);font-size:22px;margin:0 0 12px;letter-spacing:.4px;color:var(--ink);padding-right:56px}
+/* ⚠ LE TITRE DU POPUP EST PASSÉ AU CLAIR DANS SA PROPRE RÈGLE, plus bas, et
+   non ici. `.modale-boite>h2` pèse autant que `.modale-boite h2` (0-1-1) : à
+   spécificité égale c'est la dernière écrite qui gagne, et c'était la sienne.
+   Mesuré en navigateur — le titre restait à #0C1720 sur le marine. On corrige à
+   la source plutôt que d'empiler une règle qui dépendrait de l'ordre du fichier.
+
+   ⚠ LES TROIS AUTRES TEXTES QUI VIVAIENT À MÊME LA BOÎTE — audités un par un
+   sur les huit popups (séance et ses cinq volets, personnaliser un groupe,
+   dossier d'élève, détail d'une étape). Tout le reste du contenu pose son
+   PROPRE fond clair et garde donc son encre sombre ; ces quatre-là n'en avaient
+   pas et se retrouvaient sombre-sur-sombre.
+   ⚠ `.m-lab` ET `.jr-depot` SONT SÛRS EN GLOBAL : compté sur les huit popups,
+   11 occurrences de `.m-lab` et 1 de `.jr-depot`, TOUTES à même la boîte, zéro
+   sur un panneau clair. `.cahier-vide`, lui, vit AUSSI dans `.se-cours` et dans
+   une cellule de tableau, tous deux blancs — il est donc borné à `.m-champ`,
+   qui ne se pose jamais sur un panneau. */
+.modale-boite .m-lab,
+.modale-boite .jr-depot,
+.modale-boite .m-champ .cahier-vide{color:var(--sur-fond-doux)}
+.modale-boite h2{font-family:var(--f-titre);font-size:22px;margin:0 0 12px;letter-spacing:.4px;color:var(--sur-fond);padding-right:56px}
 /* ⚠ LE ✕ EST ANCRÉ À `.modale`, PAS À `.modale-boite` — ET C'EST TOUT L'OBJET
    DU CORRECTIF DU 3 SEPTEMBRE. Il était `position:absolute` DANS la boîte, or
    c'est la boîte qui défile (`overflow:auto`) : il se calait donc sur le haut
@@ -821,7 +901,7 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
    ⚠ IL EST DONC HORS DE `.modale-boite` DANS index.html. Le déplacer là-bas
    le remettrait dans ce qui défile. */
 .modale-x{
-  position:absolute;top:10px;right:10px;z-index:3;cursor:pointer;
+  position:absolute;top:10px;right:10px;z-index:4;cursor:pointer;
   min-width:44px;min-height:44px;padding:0 10px;
   display:flex;align-items:center;justify-content:center;
   border:3px solid var(--noir);border-radius:12px;background:var(--rose);color:#2A0010;
