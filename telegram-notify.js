@@ -34,7 +34,11 @@
           'Priority': priority || '3',
           'Tags': tags || ''
         },
-        body: message
+        body: message,
+        // Repli du meme envoi : il part sur le meme chemin, juste avant la
+        // meme navigation. Sans keepalive il serait annule pour la meme
+        // raison, et le repli ne replierait rien.
+        keepalive: true
       }).catch(function(){});
     } catch(e) {}
   }
@@ -54,7 +58,21 @@
     return fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: title, message: message, priority: priority || 3, tags: tags || '' })
+      body: JSON.stringify({ title: title, message: message, priority: priority || 3, tags: tags || '' }),
+      // MEME PATRON QUE LA l.382, ET POUR LA MEME RAISON.
+      // `finaliserInscription` (firebase-auth.js l.874-875) appelle
+      // ztsNotifySignup PUIS `window.location.href` a la ligne suivante.
+      // Sans `keepalive`, le navigateur annule la requete au dechargement :
+      // elle ne quitte jamais l'onglet. Le compte etait cree, le
+      // signup_complete ecrit, et aucune notification n'arrivait — mesure du
+      // 3 septembre 2026 sur une inscription reelle de Joey a 17:51 UTC.
+      // L'ordre des deux lignes de firebase-auth.js n'est pas touche : c'est
+      // la requete qui doit survivre a la navigation, pas la navigation qui
+      // doit attendre.
+      // Firefox n'a `keepalive` que depuis la 121 ; en dessous la requete
+      // part quand meme et sera peut-etre coupee — soit exactement l'etat
+      // d'avant, en moins pire.
+      keepalive: true
     });
   }
 

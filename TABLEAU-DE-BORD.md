@@ -95,6 +95,7 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 | **Les 3 améliorations du pilier Jeux** — collections ; recherche + filtres croisés ; partage vers la fiche statique | 2026-09-02 | `CATALOGUE-CIBLE.md` |
 | **Règle de l'âge** : un âge non renseigné **passe toujours** le filtre | 2026-09-02 | `CATALOGUE-CIBLE.md` |
 | **Aucune fusion de PR par Cowork, jamais** — la fusion est un geste de Joey après test | 2026-09-02 | `CATALOGUE-CIBLE.md`, règle gelée n°2 |
+| **Aucune recette d'inscription sans preuve que le stub d'authentification intercepte** — la recette pose le stub, vérifie que la méthode installée est bien la sienne, et ne soumet rien tant que ce drapeau est faux | 2026-09-03 | `CLAUDE.md` §recette, `TABLEAU-DE-BORD.md` |
 | **Dossiers `_*` privés** — aucun asset servi n'y vit | 2026-09-02 | `CLAUDE.md` + `_scripts/verifie-assets-jekyll.py` |
 | **Aucune nouvelle app pendant la Phase 1** | 2026-09-01 | `CATALOGUE-CIBLE.md`, règle gelée n°1 |
 | **La grille de sortie clôt chaque pilier** — 8 sections, identiques aux 18 | 2026-09-02 | `GRILLE-SORTIE-APP.md` |
@@ -108,6 +109,7 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 | Choix du **lecteur unique** — SPA `apps/jeux` vs `fiches/` vs les 1440 statiques | après la bascule payante |
 | `moyens-action` absorbé par le **Planificateur** (Fusion #3) | après la bascule payante |
 | **`unicode-range` périmé** dans `apps/grille/index.html` l.207 : le découpage `U+0020-007E` renvoie tous les accents à Luckiest Guy alors que `ZoneTotalSport.ttf` les a. Mesure de la table `cmap` le 2026-09-03 : **144 points de code**, tous les accents français courants présents ; ne manquent que Á Ù á ÿ Ÿ Æ æ Œ œ, l'apostrophe courbe, « », le tiret cadratin et le degré. Même correctif que la PR `fix/modale-auth-annie`. | tâche de fond |
+| **Compte parasite dans Firebase Auth** : `recette.annie@example.invalid`, créé le 2026-09-03 à 13:47:22 UTC par la recette de la PR #83. Le stub d'authentification n'avait pas tenu — `firebase.auth()` lève tant que `initializeApp` n'a pas tourné, et l'exception mourait dans le `setTimeout` sans que la rustine soit posée. **Joey le supprime dans la console Firebase.** | à faire, Joey |
 
 ---
 
