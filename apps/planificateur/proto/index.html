@@ -4,13 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<!-- ⚠ LA COQUILLE NE SE MET PAS EN CACHE, ET C'EST UN CORRECTIF, PAS UNE
+     PRÉCAUTION. Le 3 septembre, Joey voyait une carte de groupe sans image et
+     sans pastille — l'affichage EXACT d'une page chargée sans proto-sports.js.
+     Le `?v=` protège les CSS et les JS ; il ne protège pas CE fichier, qui est
+     pourtant celui qui porte la liste des scripts. Un index.html gardé en cache
+     rejoue donc l'ancienne liste — et un fichier ajouté depuis n'existe tout
+     simplement pas pour le navigateur, sans la moindre erreur.
+     Le proto est une maquette servie en local : rien à gagner à la mettre en
+     cache, et un lot entier à perdre à chaque fois. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=167">
-<link rel="stylesheet" href="proto-fusion.css?v=167">
-<link rel="stylesheet" href="proto-boutons.css?v=167">
-<link rel="stylesheet" href="proto-seance.css?v=167">
-<link rel="stylesheet" href="proto-simple.css?v=167">
-<link rel="stylesheet" href="proto-papier.css?v=167">
+<link rel="stylesheet" href="proto.css?v=168">
+<link rel="stylesheet" href="proto-fusion.css?v=168">
+<link rel="stylesheet" href="proto-boutons.css?v=168">
+<link rel="stylesheet" href="proto-seance.css?v=168">
+<link rel="stylesheet" href="proto-simple.css?v=168">
+<link rel="stylesheet" href="proto-papier.css?v=168">
 </head>
 <body>
 
@@ -492,21 +504,21 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=167"></script>
-<script src="proto-fusion.js?v=167"></script>
-<script src="proto-seance.js?v=167"></script>
-<script src="proto-simple.js?v=167"></script>
-<script src="proto-tests.js?v=167"></script>
-<script src="proto-annee.js?v=167"></script>
-<script src="proto-horaire.js?v=167"></script>
-<script src="proto-dossiers.js?v=167"></script>
-<script src="proto-pfeq.js?v=167"></script>
-<script src="proto-portrait.js?v=167"></script>
-<script src="proto-g3.js?v=167"></script>
-<script src="proto-g4.js?v=167"></script>
+<script src="proto.js?v=168"></script>
+<script src="proto-fusion.js?v=168"></script>
+<script src="proto-seance.js?v=168"></script>
+<script src="proto-simple.js?v=168"></script>
+<script src="proto-tests.js?v=168"></script>
+<script src="proto-annee.js?v=168"></script>
+<script src="proto-horaire.js?v=168"></script>
+<script src="proto-dossiers.js?v=168"></script>
+<script src="proto-pfeq.js?v=168"></script>
+<script src="proto-portrait.js?v=168"></script>
+<script src="proto-g3.js?v=168"></script>
+<script src="proto-g4.js?v=168"></script>
 <!-- ⚠ EN DERNIER, ET C'EST NÉCESSAIRE. proto-sports.js enveloppe carteDuGroupe,
      voletPortrait, peindreAgenda et peindreMois — dont proto-g3.js a DÉJÀ posé ses
      propres enveloppes. Chargé avant lui, ses calques seraient écrasés par les siens. -->
-<script src="proto-sports.js?v=167"></script>
+<script src="proto-sports.js?v=168"></script>
 </body>
 </html>

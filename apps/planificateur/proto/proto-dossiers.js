@@ -63,8 +63,13 @@ function peindreMesGroupes(){
   plus.addEventListener('click',()=>{
     const nom=prompt('Nom du groupe :','301'); if(!nom) return;
     const l=GRP();
+    /* ⚠ `sport` COMME `coul` ET `emo` : à la naissance, distinct des autres.
+       Le rattrapage de proto-sports.js ne passe qu'une fois au premier
+       chargement ; sans cette ligne, tout groupe créé ensuite retombait sur
+       athlétisme, et l'image cessait de distinguer les groupes. */
     l.push({id:'g'+Date.now().toString(36), nom:nom.trim(),
             coul:couleurLibre(l), emo:emojiLibre(l), img:'',
+            sport:(typeof sportLibre==='function' ? sportLibre(l) : ''),
             eleves:[]});
     poserGRP(l); peindreMesGroupes(); peindrePalette();
   });

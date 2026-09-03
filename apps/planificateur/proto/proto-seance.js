@@ -622,8 +622,16 @@ function nouveauGroupe(){
     const nom=$('#ngNom').value.trim();
     if (!nom){ $('#ngNom').focus(); return; }      /* un groupe sans nom ne se retrouve pas */
     const l=GRP();
+    /* ⚠ `sport` SE POSE À LA NAISSANCE, comme la couleur et l'émoji. Le
+       rattrapage de proto-sports.js ne passe QU'UNE FOIS, au premier
+       chargement : un groupe créé après lui n'avait pas de sport et retombait
+       sur athlétisme — et tous les suivants avec lui. Six cartes identiques,
+       exactement ce que « chaque groupe arrive avec son sport » devait écarter.
+       Le `typeof` est le même garde que partout ailleurs : proto-sports.js est
+       chargé après ce fichier, et le proto doit rester démontable. */
     l.push({id:'g'+(l.length+1)+'_'+l.length, nom:nom,
             coul:coul, emo:emojiLibre(l), img:'',
+            sport:(typeof sportLibre==='function' ? sportLibre(l) : ''),
             eleves:ELEVES.map((x,i)=>i).slice(0,6)});
     poserGRP(l); fermerModale(); peindrePalette(); peindreAgenda();
   });
@@ -951,12 +959,28 @@ function peindreActionsSeance(){
     h.appendChild(b);
   });
 
-  /* ⚠ Le volet retenu peut ne plus avoir sa carte après un changement de mode
-     (PRÉSENCES en planification, par exemple) : on retombe alors sur le cours. */
+  /* ⚠ CE GARDE-FOU CONFONDAIT « N'A PAS DE CARTE ICI » ET « N'EXISTE PAS »,
+     ET C'ÉTAIT LE BUG DU 3 SEPTEMBRE. Joey : « les fonctionnalités sont
+     branchées sur planification et non sur ce qu'elles doivent faire. »
+     Il testait l'appartenance du volet retenu à la RANGÉE DE CARTES du mode
+     courant. Or en mode planification cette rangée vaut
+     ['cours','jeux','evaluation'] : `presences` n'y figure pas, et toute
+     demande d'ouvrir les présences retombait sur `cours`. Les boutons
+     PRÉSENCES et LINGE de la case du groupe (MA JOURNÉE) ouvraient donc la
+     planification — deux portes nommées qui menaient ailleurs.
+
+     La rangée de cartes est un choix d'AFFICHAGE : elle dit ce qu'on met en
+     avant selon qu'on prépare ou qu'on enseigne. Elle ne dit pas ce qui est
+     ATTEIGNABLE. Une demande explicite venue d'ailleurs — les six boutons de
+     la case, la ligne du mot, le portrait — doit être honorée telle quelle.
+     On ne rejette donc plus que ce qui n'est pas un volet du tout : une clé
+     laissée par une version antérieure, ou écrite à la main dans le stockage.
+     ⚠ `jeux` est dans la liste bien qu'il n'ouvre aucun volet — il referme la
+     fenêtre et ouvre le tiroir. C'est `volet()` qui le sait ; ce n'est pas à ce
+     garde-fou de le deviner. */
+  const VOLETS = ['cours','presences','jeux','evaluation','message','portrait'];
   const retenu=lire('seVolet','cours');
-  const joignable = enCarte.indexOf(retenu)>=0 || secondaires.indexOf(retenu)>=0
-                    || retenu==='portrait' || retenu==='message';
-  volet(joignable ? retenu : 'cours');
+  volet(VOLETS.indexOf(retenu)>=0 ? retenu : 'cours');
   decorerPortes();
 }
 
