@@ -110,6 +110,7 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 | `moyens-action` absorbé par le **Planificateur** (Fusion #3) | après la bascule payante |
 | **`unicode-range` périmé** dans `apps/grille/index.html` l.207 : le découpage `U+0020-007E` renvoie tous les accents à Luckiest Guy alors que `ZoneTotalSport.ttf` les a. Mesure de la table `cmap` le 2026-09-03 : **144 points de code**, tous les accents français courants présents ; ne manquent que Á Ù á ÿ Ÿ Æ æ Œ œ, l'apostrophe courbe, « », le tiret cadratin et le degré. Même correctif que la PR `fix/modale-auth-annie`. | tâche de fond |
 | **Compte parasite dans Firebase Auth** : `recette.annie@example.invalid`, créé le 2026-09-03 à 13:47:22 UTC par la recette de la PR #83. Le stub d'authentification n'avait pas tenu — `firebase.auth()` lève tant que `initializeApp` n'a pas tourné, et l'exception mourait dans le `setTimeout` sans que la rustine soit posée. **Joey le supprime dans la console Firebase.** | à faire, Joey |
+| **ntfy est mort par quota** : le Worker `zts-notify` répond `"ntfy":"echec: ntfy 429 — daily message quota reached"`. Le canal de repli de `sendTelegram` ne replie plus rien ; Telegram répond `ok` et compense seul. Mesuré le 2026-09-03. À arbitrer : plan payant ntfy, autre canal, ou repli assumé comme mort. | à arbitrer |
 
 ---
 
