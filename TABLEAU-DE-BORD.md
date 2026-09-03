@@ -107,6 +107,7 @@ Découpé en 3 PR que Joey teste et fusionne l'une après l'autre.
 | **Enrichissement IA des étiquettes** sur les 1540 jeux, validé par Joey — élargira les 6 collections thématiques sans règle. **Pas un préalable à la PR B.** | tâche de fond |
 | Choix du **lecteur unique** — SPA `apps/jeux` vs `fiches/` vs les 1440 statiques | après la bascule payante |
 | `moyens-action` absorbé par le **Planificateur** (Fusion #3) | après la bascule payante |
+| **`unicode-range` périmé** dans `apps/grille/index.html` l.207 : le découpage `U+0020-007E` renvoie tous les accents à Luckiest Guy alors que `ZoneTotalSport.ttf` les a. Mesure de la table `cmap` le 2026-09-03 : **144 points de code**, tous les accents français courants présents ; ne manquent que Á Ù á ÿ Ÿ Æ æ Œ œ, l'apostrophe courbe, « », le tiret cadratin et le degré. Même correctif que la PR `fix/modale-auth-annie`. | tâche de fond |
 
 ---
 

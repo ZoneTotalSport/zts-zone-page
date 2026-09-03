@@ -130,7 +130,46 @@
       '.ztg-err{color:#c8102e;font-weight:700;font-size:14px;margin:6px 0 0;min-height:1.2em;}',
       '.ztg-busy{opacity:.6;pointer-events:none;}',
       '.ztg-out{position:fixed;right:12px;bottom:12px;z-index:9998;font-family:var(--font-fun,system-ui);font-weight:700;',
-      'font-size:13px;background:#fff;border:2px solid #1a1a1a;border-radius:999px;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 #1a1a1a;}'
+      'font-size:13px;background:#fff;border:2px solid #1a1a1a;border-radius:999px;padding:6px 12px;cursor:pointer;box-shadow:2px 2px 0 #1a1a1a;}',
+      /* ---------------------------------------------------------------
+         HABILLAGE ANNIE — meme regle que le calque plein ecran : Annie
+         partout sauf les titres et les boutons, qui gardent Luckiest Guy.
+         Plancher 20 px, champs et boutons >= 56 px, cibles >= 44 px.
+         Que des declarations : aucun id, aucun handler, aucune structure
+         touches. Rollback = retirer ce bloc.
+         --------------------------------------------------------------- */
+      '@font-face{font-family:"AnnieZTS";src:url("/fonts/AnnieUseYourTelescope-Regular.ttf") format("truetype");font-display:swap;}',
+      '#zts-gate,#zts-gate *{font-family:"AnnieZTS","Annie Use Your Telescope",cursive;}',
+      '#zts-gate{font-size:20px;}',
+      /* Titre en ZoneTotalSport.ttf, meme montage que le calque plein ecran. */
+      '@font-face{font-family:\"ZTSDisplay\";src:url(\"/fonts/ZoneTotalSport.ttf\") format(\"truetype\");font-display:swap;size-adjust:50%}',
+      '@font-face{font-family:\"ZTSDisplay\";src:local(\"Luckiest Guy\"),url(\"/fonts/LuckiestGuy-Regular.ttf\") format(\"truetype\");font-display:swap;unicode-range:U+00C1,U+00D9,U+00E1,U+00FF,U+0178,U+00C6,U+00E6,U+0152,U+0153,U+2019,U+00AB,U+00BB,U+2014,U+00B0}',
+      '.ztg-card h2{font-family:"ZTSDisplay","Luckiest Guy",system-ui !important;line-height:1.12;font-size:clamp(24px,5.5vw,34px);}',
+      /* Boutons en ZoneTotalSport.ttf. 18 px sur TOUS les boutons, decision du 3 septembre 2026 : l'ecran
+         de connexion (« Content de te revoir ») debordait a 22-24 px. Seule
+         exception au plancher de 20 px, et elle est assumee — la hauteur de
+         bouton (>= 56 px) et la cible tactile ne bougent pas. Contour noir en text-shadow
+         multidirectionnel par defaut — `-webkit-text-stroke` seul est centre sur
+         le contour du glyphe et RONGE la lettre. La ou `paint-order` existe, le
+         stroke passe DERRIERE le remplissage : on le reprend, l'ombre dure
+         decalee 3px reste dans les deux cas. */
+      '.ztg-g,.ztg-sub-btn,.ztg-out{font-family:"ZTSDisplay","Luckiest Guy",system-ui !important;line-height:1.15;}',
+      '.ztg-sub-btn{color:#FFFEF7;text-shadow:-1.5px -1.5px 0 #1A1A2E,1.5px -1.5px 0 #1A1A2E,-1.5px 1.5px 0 #1A1A2E,1.5px 1.5px 0 #1A1A2E,0 -1.5px 0 #1A1A2E,0 1.5px 0 #1A1A2E,-1.5px 0 0 #1A1A2E,1.5px 0 0 #1A1A2E,3px 3px 0 #1A1A2E;}',
+      /* Fond blanc : un libelle clair y serait illisible meme cerne. Il reste fonce. */
+      '.ztg-g{color:#1a1a1a;}',
+      '@supports(paint-order:stroke){.ztg-sub-btn{-webkit-text-stroke:1.5px #1A1A2E;paint-order:stroke fill;text-shadow:3px 3px 0 #1A1A2E;}}',
+      '.ztg-badge{font-size:20px;padding:5px 14px;}',
+      '.ztg-sub{font-size:20px;}',
+      /* #777 sur blanc = 4,48:1 : sous 4,5. #4A4A55 = 8,3:1. */
+      '.ztg-or{font-size:20px;color:#4A4A55;}',
+      '.ztg-in{font-size:22px;min-height:56px;padding:14px 16px;}',
+      '.ztg-g,.ztg-sub-btn{font-size:18px;min-height:56px;}',
+      /* Boutons legerement arrondis, pas des pilules : c'est la forme du reste du site. */
+      '.ztg-g,.ztg-sub-btn,.ztg-out{border-radius:14px;}',
+      '.ztg-toggle{font-size:20px;min-height:44px;padding:10px 6px;}',
+      '.ztg-home{font-size:20px;min-height:44px;padding:10px 6px;color:#4A4A55;}',
+      '.ztg-err{font-size:20px;}',
+      '.ztg-out{font-size:18px;min-height:44px;padding:8px 16px;line-height:1.15;}'
     ].join('');
     document.head.appendChild(s);
   }
