@@ -88,21 +88,59 @@ function nomDuSport(g){
   return s ? s[2] : '';
 }
 
+/* ═════════ CHAQUE GROUPE ARRIVE AVEC SON SPORT ═════════
+   Joey, 3 septembre : « c'est toi qui vas attribuer ça au groupe, dans le fond
+   aléatoirement. » Sans ça, les six groupes d'une journée retombaient TOUS sur
+   athlétisme : six cartes identiques, et l'image cessait d'aider à reconnaître
+   son groupe — c'est-à-dire tout ce qu'on lui demande.
+
+   ⚠ « ALÉATOIREMENT » VEUT DIRE « DISTINCT », PAS « AU HASARD ». Un vrai tirage
+   donnerait deux fois le même sport un jour sur trois, et le prof verrait deux
+   cartes jumelles sans comprendre pourquoi. On prend donc le premier sport
+   ENCORE LIBRE, exactement comme `couleurLibre()` et `emojiLibre()` le font
+   déjà pour la couleur et l'émoji (proto-seance.js) — même patron, même raison.
+   Trente sports pour une poignée de groupes : la liste ne s'épuise jamais en
+   pratique, et le modulo n'est là que par acquit de conscience. */
+function sportLibre(liste){
+  const pris=new Set((liste||[]).map(g=>g.sport).filter(Boolean));
+  const dispo=SPORTS.find(s=>!pris.has(s[0]));
+  return dispo ? dispo[0] : SPORTS[(liste||[]).length % SPORTS.length][0];
+}
+
+/* ⚠ RATTRAPAGE UNE SEULE FOIS, POUR LES GROUPES DÉJÀ CRÉÉS. Ceux qui existaient
+   avant ce lot n'ont pas de champ `sport` : ils s'afficheraient tous en
+   athlétisme, ce que le point précédent vient justement d'écarter. On leur en
+   donne un, distinct, au premier chargement — et on pose un drapeau pour ne
+   jamais repasser : un prof qui a CHOISI athlétisme pour son 202 doit le
+   garder, et un second passage le lui reprendrait.
+   ⚠ ON N'ÉCRIT QUE SI QUELQUE CHOSE MANQUE : sans groupe à corriger, pas une
+   seule écriture en localStorage au démarrage. */
+(function sportPourLesAnciensGroupes(){
+  if (lire('sportsSemes', false)) return;
+  if (typeof GRP !== 'function') return;
+  const l=GRP();
+  if (!l.length) return;                    /* rien à semer, et rien à marquer :
+                                               les groupes à venir passeront par
+                                               `sportLibre()` à leur création */
+  let n=0;
+  l.forEach(g=>{ if (!sportValide(g.sport)){ g.sport=sportLibre(l); n++; } });
+  if (n) poserGRP(l);
+  ecrire('sportsSemes', true);
+})();
+
 /* ═════════ LE DÉGRADÉ ═════════
-   La couleur du groupe reste ce qui identifie la carte de loin ; l'image ne
-   fait que la meubler. D'où le sens du dégradé : OPAQUE À GAUCHE (85 %), où
-   vivent les pastilles et le titre, LÉGER À DROITE (25 %), où l'image respire.
+   La couleur du groupe reste ce qui identifie le groupe de loin ; l'image ne
+   fait que la meubler. D'où le sens du dégradé : OPAQUE À GAUCHE, où vivent les
+   pastilles et le titre, LÉGER À DROITE, où l'image respire.
    ⚠ LE DÉGRADÉ EST DANS `background-image`, EMPILÉ AU-DESSUS DE LA PHOTO, et
    non en pseudo-élément. Un `::before` en `position:absolute` aurait demandé un
    `z-index` sur chaque enfant de la carte pour ne pas les recouvrir — le titre
    est un `contenteditable`, on ne l'enterre pas sous un calque. Deux couches
-   dans une seule propriété : rien à empiler, rien à remonter. */
-function fondDeCarte(g, urlImage){
-  const c=g.coul;
-  return 'linear-gradient(100deg, ' + melange(c,.85) + ' 0%, '
-       + melange(c,.62) + ' 38%, ' + melange(c,.25) + ' 100%), '
-       + 'url("' + urlImage + '")';
-}
+   dans une seule propriété : rien à empiler, rien à remonter.
+   ⚠ LA FONCTION QUI POSE CE FOND EST `poserFondDeGroupe()`, PLUS BAS, et les
+   TROIS écrans l'appellent — carte de MA JOURNÉE, case de MA SEMAINE, pastille
+   de MON MOIS. C'est là qu'est l'uniformité que Joey demande, et non dans trois
+   réglages qu'il faudrait tenir d'accord à la main. */
 /* `color-mix` ferait la même chose, mais la couleur d'un groupe peut être
    n'importe quel `#rrggbb` choisi au sélecteur : on convertit à la main plutôt
    que de dépendre du support de `color-mix` sur l'iPad de l'école. */
@@ -195,10 +233,9 @@ function caseEmoji(iso, per){
     const illus = (typeof vignetteDuCours==='function') ? vignetteDuCours(s) : null;
     const url = illus ? illus.data : imageDuSport(g);
     b.classList.add('auj-cours--image');
-    b.style.backgroundImage = fondDeCarte(g, url);
-    b.style.backgroundSize = 'auto, cover';
-    b.style.backgroundPosition = 'center, center right';
-    b.style.backgroundRepeat = 'no-repeat, no-repeat';
+    /* la carte est la plus grande des trois surfaces : c'est elle qui laisse le
+       plus de place à l'image (85 % de couleur à gauche, 25 % à droite). */
+    poserFondDeGroupe(b, g, url, .85, .25);
     b.title = 'Voir le groupe ' + g.nom
             + (illus ? ' — fond : l’illustration de son cours' : ' — ' + nomDuSport(g));
 
@@ -278,7 +315,13 @@ function emojisSurLeMois(){
 (function emojisDansLesDeuxVues(){
   if (typeof peindreAgenda==='function'){
     const base=peindreAgenda;
-    window.peindreAgenda = peindreAgenda = function(){ base(); emojisSurLaSemaine(); };
+    /* ⚠ LES FONDS AVANT LES ÉMOJIS. Les deux touchent la même case ; poser le
+       fond réécrit `style.backgroundImage`, jamais les enfants, donc l'ordre
+       n'a pas d'incidence — mais on garde le fond d'abord pour que la marque
+       soit toujours la DERNIÈRE chose posée sur une case, comme sur la carte. */
+    window.peindreAgenda = peindreAgenda = function(){
+      base(); sportsSurLaSemaine(); emojisSurLaSemaine();
+    };
   }
   if (typeof peindreMois==='function'){
     const base=peindreMois;
@@ -286,70 +329,68 @@ function emojisSurLeMois(){
   }
 })();
 
-/* ═════════ LE SPORT ET LE TITULAIRE SE CHOISISSENT DANS LE PORTRAIT ═════════
-   ⚠ POURQUOI LÀ ET PAS DANS `modifierGroupe` (le ✎ de MES GROUPES) : c'est la
-   carte du groupe qui ouvre le portrait, et c'est la carte qu'on vient
-   d'habiller. On règle l'apparence là où on la voit. Le ✎ garde ses réglages —
-   nom, couleur, image, élèves — rien ne lui est retiré. */
-function blocApparenceDuGroupe(g){
-  const box=el('div','se-cours pt-apparence');
-  box.appendChild(el('h4',null,'🖼 LA CARTE DE '+g.nom));
-  const dit=el('div','pt-apparence-dit');
-  dit.textContent='Ce que la case de ce groupe montre dans MA JOURNÉE : '
-    + 'son sport en image de fond, et le nom de son titulaire.';
-  box.appendChild(dit);
+/* ═════════ LE SPORT ET LE TITULAIRE SE CHOISISSENT AVEC LA COULEUR ═════════
+   Joey, 3 septembre : « en haut, on choisit sa couleur, puis en même temps,
+   mets un autre bouton, choisir son sport. »
+
+   ⚠ ILS ÉTAIENT DANS LE PORTRAIT, ET C'ÉTAIT LA MAUVAISE PORTE. Joey : « tu as
+   mis trente images dans la section “la carte de 202”. Ce n'est pas ce que je
+   veux. » Il avait raison sur le fond : le portrait est un RELEVÉ — présences,
+   cotes, notes d'élèves, période par période, et son propre bandeau dit « rien
+   ne s'écrit ici ». Un sélecteur de trente tuiles y contredisait la promesse du
+   volet et repoussait le fil des périodes de plusieurs écrans.
+   Ils rejoignent donc « Personnaliser ce groupe » (`modifierGroupe`), où vivent
+   déjà le nom, la couleur, l'image et les élèves. Une seule fenêtre pour tout
+   ce qui EST le groupe ; le portrait ne fait plus que raconter ce qu'il a vécu.
+
+   ⚠ ON SE GREFFE SUR `modifierGroupe`, ON NE LA RÉÉCRIT PAS — même patron que
+   partout dans ce fichier. Elle reste intacte dans proto-seance.js. */
+
+/* Les deux champs, posés dans la fenêtre de personnalisation. `etat` est
+   l'objet de STAGING : on n'écrit rien tant que ✔ ENREGISTRER n'est pas touché,
+   exactement comme les variables `coul`, `emo`, `img` et `eleves` de la
+   fonction d'origine. C'est ce qui fait qu'ANNULER annule vraiment. */
+function champsSportEtTitulaire(g, etat){
+  const frag=document.createDocumentFragment();
 
   /* ── le titulaire ── */
-  const ch=el('label','m-champ pt-champ');
+  const ch=el('div','m-champ');
   ch.appendChild(el('span','m-lab','Titulaire du groupe'));
   const inp=document.createElement('input');
-  inp.className='m-saisie'; inp.id='ptTitulaire';
-  inp.value=(g.titulaire||'');
+  inp.className='m-saisie'; inp.id='gTitulaire';
+  inp.value=etat.titulaire;
   inp.placeholder='Ex. : Mme Tremblay — laisse vide pour ne rien afficher';
-  /* ⚠ ÉCRITURE À LA SORTIE DU CHAMP, PAS À CHAQUE TOUCHE. `poserGRP` écrit tout
-     le tableau des groupes en localStorage ; le faire à chaque frappe, c'est
-     une écriture par lettre. La pastille se masque d'elle-même si le champ est
-     vide — d'où le repère qui le dit dans l'invite. */
-  const enregistrer=()=>{
-    const l=GRP(), x=l.find(y=>y.id===g.id); if(!x) return;
-    const v=inp.value.trim();
-    if ((x.titulaire||'')===v) return;
-    x.titulaire=v; poserGRP(l);
-    if (typeof peindreAujourdhui==='function') peindreAujourdhui();
-    if (typeof peindrePalette==='function') peindrePalette();
-  };
-  inp.addEventListener('blur', enregistrer);
-  inp.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); inp.blur(); } });
+  inp.title='Son nom s’affiche dans une pastille sur la carte du groupe';
+  inp.addEventListener('input',()=> etat.titulaire=inp.value);
   ch.appendChild(inp);
-  box.appendChild(ch);
+  frag.appendChild(ch);
 
-  /* ── le sport : UNE GRILLE DE TUILES, PAS UNE LISTE DE MOTS ──
+  /* ── le sport : une grille de tuiles, pas une liste de mots ──
      ⚠ À NEUF SPORTS, UN NOM SUFFISAIT ; À TRENTE, NON. « Tchoukball » et
      « Kin-ball » ne disent rien à qui ne les a jamais vus, et trente lignes de
-     texte se lisent une par une. Chaque tuile montre donc L'IMAGE que la carte
+     texte se lisent une par une. Chaque tuile montre L'IMAGE que le groupe
      portera : on choisit ce qu'on voit, pas ce qu'on décode.
 
      ⚠ CHARGEMENT À LA DEMANDE, ET C'EST UNE EXIGENCE, PAS UNE OPTIMISATION.
-     Trente images à 20–90 ko font près d'un mégaoctet ; les charger toutes à
-     l'ouverture du portrait, sur le réseau d'une école, pour un prof qui vient
-     y lire des absences, serait indéfendable.
+     Trente images à 20–108 ko font 1,4 Mo ; les charger toutes à l'ouverture
+     d'une fenêtre de réglage, sur le réseau d'une école, serait indéfendable.
        · `loading="lazy"` — le navigateur ne demande une vignette que lorsqu'elle
-         approche de l'écran. La grille défile dans le portrait : les tuiles du
-         bas ne coûtent rien tant qu'on n'y descend pas.
-       · `decoding="async"` — le décodage ne bloque pas la peinture du volet.
-       · AUCUN préchargement nulle part : pas de `<link rel=preload>`, pas de
-         `new Image()`. La CARTE, elle, ne demande QUE le sport de son groupe —
-         c'est une `url()` unique dans son `background-image`, jamais une liste.
-     ⚠ ET LA VIGNETTE EST LA MÊME IMAGE QUE LE FOND, pas une miniature séparée :
-     le fichier est déjà en cache dès qu'un groupe l'a choisi, et le sport
-     courant s'affiche donc sans une seule requête de plus. */
-  const cs=el('div','m-champ pt-champ');
-  cs.appendChild(el('span','m-lab','Son sport — l’image de fond de la carte ('+SPORTS.length+' au choix)'));
+         approche de son conteneur de défilement ;
+       · `decoding="async"` — le décodage ne bloque pas la peinture ;
+       · la grille est BORNÉE ET DÉFILE (proto-papier.css), et c'est CE
+         `max-height` qui fait marcher le `lazy` : sans borne, les trente tuiles
+         seraient « à l'écran » d'un coup et partiraient ensemble.
+     ⚠ AUCUN PRÉCHARGEMENT NULLE PART. Une carte, une case de semaine, une
+     pastille de mois ne demandent QUE le sport de LEUR groupe — une `url()`
+     unique dans leur `background-image`, jamais une liste. Et la vignette est
+     LE MÊME FICHIER que ces fonds : dès qu'un groupe l'a choisi, il est en
+     cache, et le sport courant s'affiche sans une requête de plus. */
+  const cs=el('div','m-champ');
+  cs.appendChild(el('span','m-lab','Son sport — l’image de fond du groupe ('+SPORTS.length+' au choix)'));
   const grille=el('div','pt-sports');
-  const courant=sportDuGroupe(g);
   SPORTS.forEach(([slug,emo,nom])=>{
     const b=el('button','pt-sport'); b.type='button';
-    b.setAttribute('aria-pressed', String(slug===courant));
+    b.setAttribute('aria-pressed', String(slug===etat.sport));
 
     const vue=el('span','pt-sport-vue');
     /* l'émoji reste DERRIÈRE la vignette : il tient la place le temps du
@@ -361,38 +402,121 @@ function blocApparenceDuGroupe(g){
     im.src=SPORTS_DOSSIER + slug + '.webp';
     im.alt='';
     /* une image absente ne laisse pas de cadre cassé : on la retire et l'émoji
-       reprend la tuile. Le sélecteur reste utilisable avec un lot incomplet. */
+       reprend la tuile. Le sélecteur reste utilisable sur un lot incomplet. */
     im.addEventListener('error', ()=> im.remove());
     vue.appendChild(im);
     b.appendChild(vue);
 
     b.appendChild(el('span','pt-sport-nom', nom));
     b.title = nom + (slug===SPORT_DEFAUT ? ' — le sport par défaut' : '');
-    b.addEventListener('click',()=>{
-      const l=GRP(), x=l.find(y=>y.id===g.id); if(!x) return;
-      x.sport=slug; poserGRP(l);
-      if (typeof peindreAujourdhui==='function') peindreAujourdhui();
-      volet('portrait');
+    b.addEventListener('click', ev=>{
+      ev.preventDefault();
+      etat.sport=slug;
+      [...grille.children].forEach(x=> x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true');
     });
     grille.appendChild(b);
   });
   cs.appendChild(grille);
-  box.appendChild(cs);
-  return box;
+  frag.appendChild(cs);
+  return frag;
 }
 
-(function apparenceDansLePortrait(){
-  if (typeof voletPortrait !== 'function') return;
-  const base = voletPortrait;
-  window.voletPortrait = voletPortrait = function(d){
-    base(d);
-    if (typeof seanceOuverte==='undefined' || !seanceOuverte) return;
-    const {iso,per}=seanceOuverte; const s=seanceDe(iso,per); if(!s) return;
+(function apparenceDansPersonnaliser(){
+  if (typeof modifierGroupe !== 'function') return;
+  const base = modifierGroupe;
+  window.modifierGroupe = modifierGroupe = function(id){
+    base(id);
+    const g = (typeof grpDe==='function') ? grpDe(id) : null;
+    if (!g) return;
+    const corps = $('#modaleCorps'); if (!corps) return;
+    const etat = {sport: sportDuGroupe(g), titulaire: (g.titulaire||'')};
+
+    /* ⚠ APRÈS « Son image », AVANT « Ses élèves ». L'ordre de la fenêtre suit
+       ce qu'on voit sur la carte, du plus gros au plus fin : la couleur, puis
+       l'image du groupe, puis son sport, puis qui l'enseigne. La liste des
+       élèves ferme, comme avant — c'est la plus longue. */
+    const eleves = corps.querySelector('#gEleves');
+    const ancre = eleves ? eleves.closest('.m-champ') : null;
+    const champs = champsSportEtTitulaire(g, etat);
+    if (ancre && ancre.parentNode) ancre.parentNode.insertBefore(champs, ancre);
+    else corps.appendChild(champs);
+
+    /* ⚠ ON COMMET EN PHASE DE CAPTURE, SUR UN ANCÊTRE. La fonction d'origine a
+       son propre écouteur sur `#gOk`, qui termine par `fermerModale()` — donc
+       vide `#modaleCorps`. Un écouteur ajouté sur `#gOk` lui-même ne servirait
+       à rien : sur l'élément CIBLE, capture et bulle partent dans l'ordre
+       d'INSCRIPTION, pas dans l'ordre des phases, et le nôtre passerait après
+       la fermeture. Sur un ancêtre, la capture précède la cible : on écrit nos
+       deux champs, puis la fonction d'origine relit `GRP()` — qui les contient
+       déjà — et pose le reste. Aucun des deux n'écrase l'autre. */
+    corps.addEventListener('click', ev=>{
+      if (!ev.target.closest('#gOk')) return;
+      const l=GRP(), x=l.find(y=>y.id===id); if(!x) return;
+      x.sport = sportValide(etat.sport) || SPORT_DEFAUT;
+      x.titulaire = etat.titulaire.trim();
+      poserGRP(l);
+    }, true);
+  };
+})();
+
+/* ═════════ LE MÊME SPORT PARTOUT — SEMAINE ET MOIS ═════════
+   Joey : « dans ma semaine, si admettons c'est marqué 202 dans le jeudi, je
+   veux aussi l'image. Dans mon mois, les boutons rectangles un petit peu plus
+   gros, puis mets l'image aussi. On va essayer de garder une uniformité. »
+
+   ⚠ UNE SEULE FONCTION POSE LE FOND, ET LES TROIS ÉCRANS L'APPELLENT. La carte
+   de MA JOURNÉE, la case de MA SEMAINE et la pastille de MON MOIS partagent
+   `fondDeGroupe()` : même dégradé, même sens, même image. C'est là qu'est
+   l'uniformité demandée — pas dans trois réglages qu'il faudrait tenir
+   d'accord à la main.
+   ⚠ LE DÉGRADÉ EST PLUS OPAQUE SUR LES PETITES SURFACES. Sur une pastille de
+   mois, un numéro de groupe se lit sur 30 px de haut : à 25 % de couleur, la
+   photo passe à travers le chiffre. L'opacité est donc un paramètre, et non une
+   constante — 85→25 % sur la carte, 92→55 % sur la case, 95→70 % sur la
+   pastille. Plus c'est petit, plus la couleur reprend la main : l'image devient
+   une texture qui rappelle le sport, et le numéro reste le sujet. */
+function fondDeGroupe(g, urlImage, aGauche, aDroite){
+  const c=g.coul;
+  return 'linear-gradient(100deg, ' + melange(c,aGauche) + ' 0%, '
+       + melange(c,(aGauche+aDroite)/2) + ' 45%, ' + melange(c,aDroite) + ' 100%), '
+       + 'url("' + urlImage + '")';
+}
+function poserFondDeGroupe(n, g, urlImage, aGauche, aDroite){
+  n.style.backgroundImage = fondDeGroupe(g, urlImage, aGauche, aDroite);
+  n.style.backgroundSize = 'auto, cover';
+  n.style.backgroundPosition = 'center, center right';
+  n.style.backgroundRepeat = 'no-repeat, no-repeat';
+}
+
+/* ── MA SEMAINE : la case du cours ──
+   ⚠ ON DÉCORE APRÈS COUP, DEPUIS NOTRE ENVELOPPE DE `peindreAgenda`. Les cases
+   sont bâties par l'enveloppe que proto-seance.js pose sur ce même peintre ;
+   la nôtre étant la dernière chargée, elle passe en dernier et trouve les
+   boutons déjà là, avec leur `data-iso` et leur `data-per`. */
+function sportsSurLaSemaine(){
+  $$('#agendaHote .ag-case[data-iso][data-per] .ag-seance').forEach(b=>{
+    const c=b.closest('.ag-case');
+    const s=seanceDe(c.dataset.iso, +c.dataset.per); if(!s) return;
     const g=grpDe(s.gr); if(!g) return;
-    /* ⚠ EN TÊTE DU VOLET, JUSTE APRÈS LA CONSIGNE. Le portrait est un long fil
-       chronologique : posé en bas, ce réglage ne serait jamais trouvé. Il vient
-       donc après le mot d'explication et avant les cumuls. */
-    const aide=d.querySelector('.aide-un-mot');
-    d.insertBefore(blocApparenceDuGroupe(g), aide ? aide.nextSibling : d.firstChild);
+    const illus=(typeof vignetteDuCours==='function') ? vignetteDuCours(s) : null;
+    poserFondDeGroupe(b, g, illus ? illus.data : imageDuSport(g), .92, .55);
+    b.classList.add('ag-seance--image');
+  });
+}
+
+/* ── MON MOIS : la pastille du groupe ── */
+(function sportSurLesPastilles(){
+  if (typeof pastilleSeance !== 'function') return;
+  const base = pastilleSeance;
+  window.pastilleSeance = pastilleSeance = function(iso, per, s, avecPeriode){
+    const b = base(iso, per, s, avecPeriode);
+    if (!b) return b;
+    const g = grpDe(s && s.gr); if (!g) return b;
+    const illus=(typeof vignetteDuCours==='function') ? vignetteDuCours(s) : null;
+    poserFondDeGroupe(b, g, illus ? illus.data : imageDuSport(g), .95, .70);
+    b.classList.add('gr-pastille--image');
+    b.title = b.title + ' Sport : ' + nomDuSport(g) + '.';
+    return b;
   };
 })();

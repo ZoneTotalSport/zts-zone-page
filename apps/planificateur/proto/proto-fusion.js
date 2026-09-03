@@ -1284,8 +1284,21 @@ function placerMenu(box){
   const vw=window.innerWidth/z;
   const large=Math.min(280, vw-26);
   l.style.width=large+'px';
-  l.style.top=((t.bottom+7)/z)+'px';
+  const haut=(t.bottom+7)/z;
+  l.style.top=haut+'px';
   l.style.left=Math.max(12, Math.min(t.left/z, vw-large-12))+'px';
+  /* ⚠ LA HAUTEUR EST BORNÉE ICI, PAS EN CSS, parce que seule cette fonction
+     connaît le `top` retenu. Joey, 3 septembre : « dans autres apps je ne peux
+     pas scroller vers le bas. » MES AUTRES APPS porte sept outils plus les apps
+     du site ; à 200 % de zoom la liste dépasse la fenêtre, et un élément
+     `position:fixed` dont le contenu déborde ne défile pas — il sort de
+     l'écran, sans barre et sans recours.
+     ⚠ ON DIVISE PAR LE MÊME `z` QUE LE `top` CI-DESSUS. La borne doit être dans
+     le repère où le `top` est écrit, sinon elle vaudrait le double ou la moitié
+     de la place réelle. Le 14 est la marge qu'on laisse au bas de la fenêtre :
+     un menu qui touche le bord donne l'impression d'être coupé. */
+  const vh=window.innerHeight/z;
+  l.style.maxHeight=Math.max(120, vh-haut-14)+'px';
 }
 
 /* `allerA` marque l'écran courant : on reporte la marque sur la porte du menu

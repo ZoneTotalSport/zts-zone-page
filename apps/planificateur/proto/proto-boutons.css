@@ -109,9 +109,21 @@ code, kbd, samp{ font-family:var(--f-note); font-size:1em }
 .menu>button .fleche{font-size:10px;transition:transform .12s}
 .menu[data-ouvert="1"]>button .fleche{transform:rotate(180deg)}
 .menu[data-ouvert="1"]>button{background:var(--cyan);color:#03323C}
+/* ⚠ LA LISTE DÉFILE, ET SANS CELA ELLE ÉTAIT AMPUTÉE. Joey, 3 septembre :
+   « dans autres apps je ne peux pas scroller vers le bas. » Le menu MES AUTRES
+   APPS porte sept outils, un séparateur et les apps du site — plus haut que la
+   fenêtre dès que le zoom passe à 200 %. Or il est `position:fixed` avec un
+   `top` calculé : ce qui dépassait sortait simplement de l'écran, sans barre de
+   défilement et sans rien pour y accéder. La borne est posée EN JS par
+   `placerMenu()` (proto-fusion.js), qui seule connaît le `top` retenu et le
+   facteur de zoom ; ici on ne fait qu'autoriser le défilement.
+   ⚠ `overscroll-behavior:contain` — sans lui, arriver au bas de la liste
+   transmet la roulette à la page derrière, qui se met à défiler sous un menu
+   ouvert. */
 .menu-liste{
   display:none;position:fixed;z-index:200;
   min-width:230px;padding:7px;
+  overflow-y:auto;overscroll-behavior:contain;
   background:#fff;border:3px solid var(--noir);border-radius:13px;
   box-shadow:5px 6px 0 var(--noir);
 }

@@ -1441,3 +1441,55 @@ html[data-etroit="1"] .auj-cours--image{min-height:118px}
   .pt-sports{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));max-height:300px}
   .pt-sport-nom{font-size:12px}
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LE SPORT SUIT LE GROUPE PARTOUT (3 septembre, v165)
+   Joey : « dans ma semaine, si c'est marqué 202 dans le jeudi, je veux aussi
+   l'image. Dans mon mois, les boutons rectangles un petit peu plus gros, puis
+   mets l'image aussi. On va essayer de garder une uniformité dans tout ça. »
+
+   ⚠ LE FOND EST POSÉ EN JS PAR `poserFondDeGroupe()`, UNE SEULE FONCTION POUR
+   LES TROIS ÉCRANS. La couleur d'un groupe est une donnée, pas une classe : elle
+   ne peut pas vivre dans une feuille de style. Ce bloc ne règle que ce qui NE
+   dépend PAS du groupe — la taille, et la lisibilité du texte par-dessus.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ── MA SEMAINE : la case du cours ── */
+.ag-seance--image{
+  /* de la hauteur, sinon l'image n'a pas de place où s'étendre et le dégradé
+     se réduit à une bande */
+  min-height:62px;
+  /* ⚠ MÊME OMBRE PORTÉE QUE SUR LA CARTE, ET POUR LA MÊME RAISON. L'encre est
+     calculée sur la COULEUR du groupe (`encreSur`), jamais sur la photo : une
+     image claire sous une encre claire passerait au travers. L'ombre rattrape
+     ce que le calcul de contraste ne peut pas voir, sans toucher à l'encre —
+     donc sans défaire ce calcul. */
+  text-shadow:0 1px 2px rgba(0,0,0,.4);
+}
+/* les puces gardent leur plaque blanche : pas d'ombre à l'intérieur */
+.ag-seance--image .puces span{text-shadow:none}
+
+/* ── MON MOIS : la pastille du groupe, « un petit peu plus gros » ──
+   ⚠ ELLE PASSE DE 12 À 15 px ET DE 2 À 5 px DE MARGE INTERNE. En dessous, le
+   numéro du groupe n'a pas la place de se poser sur une texture : la photo lui
+   passe à travers. C'est aussi pourquoi `poserFondDeGroupe` l'appelle avec
+   95→70 % de couleur — plus la surface est petite, plus la couleur reprend la
+   main, et l'image n'est plus qu'un rappel du sport. */
+.gr-pastille--image{
+  font-size:15px;padding:5px 10px;border-radius:9px;
+  min-height:30px;
+  text-shadow:0 1px 2px rgba(0,0,0,.45);
+}
+/* ⚠ LES PASTILLES SONT DANS UNE CASE DE CALENDRIER, PAS SUR UNE PAGE. Une
+   rangée de trois pastilles plus grosses dans une case de mois la ferait
+   grandir et déformerait la grille : elles s'étirent donc sur toute la largeur
+   de la case, une par ligne. C'est plus lisible qu'un alignement en trois
+   colonnes de 40 px, et ça ne coûte pas un pixel de hauteur de grille en plus
+   que ce que la ligne prenait déjà. */
+.mois-grs .gr-pastille--image{
+  display:flex;width:100%;justify-content:flex-start;
+}
+@media(max-width:760px){
+  .ag-seance--image{min-height:52px}
+  .gr-pastille--image{font-size:13px;padding:4px 8px;min-height:26px}
+}
