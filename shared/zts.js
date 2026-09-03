@@ -374,6 +374,18 @@
       cad.defer = true;
       document.body.appendChild(cad);
     }
+
+    // Bloc « Administration » du pied de page — raccourcis vers les outils de
+    // creation. Le module ne construit RIEN tant que l'identite administrateur
+    // n'est pas confirmee : sur une page de visiteur ou de membre, il n'ajoute
+    // ni balise, ni style, ni requete. Voir shared/zts-admin.js.
+    if (!document.getElementById('zts-admin-loader')) {
+      var adm = document.createElement('script');
+      adm.id = 'zts-admin-loader';
+      adm.src = SHARED + 'zts-admin.js';
+      adm.defer = true;
+      document.body.appendChild(adm);
+    }
   }
 
   // API publique
