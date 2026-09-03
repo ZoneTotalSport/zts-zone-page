@@ -95,6 +95,18 @@ h1,h2,h3,.tab-title{font-family:'Luckiest Guy',cursive;letter-spacing:1px}
 :root{--bg:#f8f9fa}
 body{background:#f8f9fa!important;color:#0f172a!important;font-family:var(--font-body, 'Quicksand', 'Helvetica Neue', sans-serif) !important;font-size:1.1rem!important}
 body::before{background:#f8f9fa!important;background-image:linear-gradient(to right,rgba(0,0,0,.04) 2px,transparent 2px),linear-gradient(to bottom,rgba(0,0,0,.04) 2px,transparent 2px)!important;background-size:40px 40px!important;opacity:1!important}
+/* ------------------------------------------------------------------
+   LE FOND MARINE VIT SUR <html class="ztsh-on">, PAS SUR <body>.
+   Ici c'etait pire qu'ailleurs : en plus du fond opaque sur body, le
+   `body::before` est un calque fixe en `inset:0` qui couvrait tout
+   l'ecran, quadrillage compris. Le marine n'avait aucune chance.
+   Les deux regles restent pour une page servie hors shell ; sous le
+   shell elles sont neutralisees, et la seulement. Le quadrillage part
+   avec le fond : c'est le decor du shell qui prend le relais.
+   Aucun token de dimension touche.
+   ------------------------------------------------------------------ */
+html.ztsh-on body{background:transparent!important}
+html.ztsh-on body::before{background:none!important;background-image:none!important;opacity:0!important}
 
 /* HEADER XXL — match generateur */
 .zts-app-header{border-bottom:6px solid #000!important;box-shadow:0 8px 0 rgba(0,0,0,.15)!important;padding-top:env(safe-area-inset-top,0)}

@@ -62,6 +62,117 @@
     /* === Body white + chunky colored game cards (style omnigroupe) === */
     body{background:#f8fafc!important}
     .main-layout{background:#f8fafc}
+    /* ------------------------------------------------------------------
+       LE FOND MARINE VIT SUR <html class="ztsh-on">, PAS SUR <body>.
+       `assets/ztsh-shell.css` l.270 le dit noir sur blanc : « Le fond va
+       sur <html>, PAS sur <body> » — un `background` opaque sur body
+       repeint tout par-dessus. Les deux lignes ci-dessus faisaient
+       exactement ça : un bloc blanc au milieu de la page, marine visible
+       seulement en haut et en bas. Diagnostiqué le 3 septembre 2026.
+
+       Elles ne sont pas retirées : une page servie hors shell garde son
+       fond clair. Elles sont neutralisées SOUS le shell, et là seulement.
+       Aucun token de dimension touché.
+       ------------------------------------------------------------------ */
+    html.ztsh-on body{background:transparent!important}
+    html.ztsh-on .main-layout{background:transparent!important}
+    /* #ztsControlCard (barre de stats + filtres de la PR #78/#79) est une
+       carte BLANCHE, et c'est bien ainsi : la charte pose des cartes claires
+       sur le marine. Mais son texte n'a pas de couleur propre : il heritait
+       du creme que le shell pose sur <body>, soit 1,1:1 sur du blanc — le
+       compteur « 1540 jeux » et les filtres etaient illisibles.
+       Pas de var(--text) ici : styles.css l.89 le definit a #E6EDF3, un ton
+       clair prevu pour un fond sombre. C'est l'encre litterale qu'il faut. */
+    html.ztsh-on #ztsControlCard{color:#1A1A2E}
+    /* Le bloc « Collections » etait ecrit pour un fond clair : son titre
+       #004A61 tombe a 1,9:1 sur le marine et son intro a 2,7:1. Sur marine,
+       ce sont les tons du shell qui s'appliquent (--ztsh-sur-marine et sa
+       version douce). */
+    html.ztsh-on .zc-titre{color:#FFFEF7}
+    html.ztsh-on .zc-intro,html.ztsh-on .zc-intro-carte{color:#C4E1EE}
+    /* Meme cause, meme remede : .lang-label est une pastille blanche dont le
+       texte prend var(--text) = #E6EDF3, soit 1,2:1. */
+    html.ztsh-on .lang-label{color:#1A1A2E}
+
+    /* ==================================================================
+       RETOUR A LA CHARTE — 3 septembre 2026, apres relecture de Joey.
+       Tout est scope sous html.ztsh-on : rollback = retirer ce bloc.
+       ================================================================== */
+
+    /* Police de marque, absente de cette page. Meme montage que la PR #83 :
+       ZoneTotalSport.ttf couvre 144 points de code, tous les accents francais
+       courants compris ; seuls les 14 caracteres qu'elle n'a pas retombent
+       sur Luckiest Guy. */
+    @font-face{font-family:"ZTSDisplay";src:url("/fonts/ZoneTotalSport.ttf") format("truetype");font-display:swap;size-adjust:50%}
+    @font-face{font-family:"ZTSDisplay";src:local("Luckiest Guy"),url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");font-display:swap;unicode-range:U+00C1,U+00D9,U+00E1,U+00FF,U+0178,U+00C6,U+00E6,U+0152,U+0153,U+2019,U+00AB,U+00BB,U+2014,U+00B0}
+
+    /* 1. LA BANDE BLEUE DU HERO PART. Le hero vit sur le marine et les rayons
+       du shell, comme l'accueil. Le padding ne bouge pas : la carte de
+       controle empiete dessus et en depend. */
+    html.ztsh-on section.hero-gradient{background:transparent!important}
+
+    /* 2. LE PERSONNAGE, SANS SA CARTE. Le PNG est en RGBA (verifie : type de
+       couleur 6), il a donc une vraie transparence — c'etaient l'encadrement
+       blanc de 10px, les coins de 3rem, l'ombre, la rotation et un degrade
+       pose EN LIGNE sur l'image qui la transformaient en vignette. On garde
+       la taille. `object-fit:contain` remplace `cover` : sans carte, un
+       recadrage couperait le personnage. */
+    html.ztsh-on section.hero-gradient div:has(> img[alt="Mr Root jeux EPS"]){
+      border:none!important;border-radius:0!important;box-shadow:none!important;
+      transform:none!important;background:transparent!important;overflow:visible!important
+    }
+    html.ztsh-on section.hero-gradient img[alt="Mr Root jeux EPS"]{
+      background:none!important;object-fit:contain!important;
+      filter:drop-shadow(0 12px 24px rgba(0,0,0,.45))
+    }
+
+    /* 3. LA CARTE DES FILTRES, AU GABARIT DES CARTES DE L'ACCUEIL.
+       Creme sur le marine, bordure noire epaisse, ombre dure decalee, coins
+       14px. Les bordures grises de 14px et le liesere bleu flou sous les
+       selecteurs disparaissent : ce n'est pas le langage du site. */
+    /* Cyan plein, decision de Joey du 3 septembre. Les champs restent
+       clairs par-dessus : du texte saisi sur du cyan vif fatigue, et les
+       selecteurs doivent rester la partie la plus lisible de la carte.
+       Titres de filtres en marine #061726 sur le cyan : 11,4:1. */
+    html.ztsh-on #ztsControlCard{
+      background:#00E5FF;
+      color:#061726;
+      border:4px solid #1A1A2E;
+      border-radius:14px;
+      box-shadow:8px 8px 0 #1A1A2E;
+    }
+    html.ztsh-on #ztsFilterBar{border-top:2px dashed rgba(6,23,38,.45)}
+    /* Titres de filtres en ZoneTotalSport.ttf. */
+    html.ztsh-on .zts-filter label{
+      font-family:"ZTSDisplay","Luckiest Guy",cursive;
+      color:#061726;text-shadow:none
+    }
+    html.ztsh-on .zts-filter select,
+    html.ztsh-on #ztsSearchHost .search-input,
+    html.ztsh-on .stats-right .sort-select{
+      background:#FFFEF7!important;color:#1A1A2E!important;
+      border:3px solid #1A1A2E!important;
+      border-radius:14px!important;
+      box-shadow:4px 4px 0 #1A1A2E!important;
+      transition:transform .15s,box-shadow .15s,border-color .15s!important
+    }
+    /* La derniere case n'a plus a se retenir : plus d'ombre droite a rogner. */
+    html.ztsh-on #ztsFilterBar .zts-filter:last-child select{
+      border-right-width:3px!important;box-shadow:4px 4px 0 #1A1A2E!important
+    }
+    /* Actif = cyan, comme le bouton principal du site. */
+    html.ztsh-on .zts-filter select:focus,
+    html.ztsh-on .zts-filter select:focus-visible,
+    html.ztsh-on #ztsSearchHost .search-input:focus,
+    html.ztsh-on .stats-right .sort-select:focus{
+      border-color:#00E5FF!important;
+      box-shadow:4px 4px 0 #1A1A2E,0 0 0 4px rgba(0,229,255,.35)!important;
+      outline:none!important
+    }
+    html.ztsh-on .zts-filter select:hover,
+    html.ztsh-on #ztsSearchHost .search-input:hover{
+      transform:translate(-2px,-2px)!important;box-shadow:6px 6px 0 #1A1A2E!important
+    }
     .content,.stats-bar{background:transparent!important}
     /* Sidebar masquée — filtres déplacés en haut */
     .sidebar,.menu-toggle,.sidebar-overlay{display:none!important}
