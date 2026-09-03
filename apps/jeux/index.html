@@ -120,6 +120,54 @@
     /* La recherche, pleine largeur, juste sous le titre. */
     #ztsHeroRecherche{max-width:1200px;margin:12px auto 0;padding:0 16px}
 
+    /* ============ COLLECTIONS — tuiles a defilement ============
+       Premier bloc apres le hero : c'est la porte d'entree la plus rapide
+       vers un jeu. Une tuile = un emoji, un mot, un nombre. Sur telephone
+       elles defilent horizontalement ; sur desktop elles se rangent en
+       grille. L'intro de chaque collection reste dans le DOM (rien n'est
+       retire) mais ne s'affiche plus sur la tuile. */
+    #ztsCollections{margin:0 0 18px}
+    /* Prefixe par #ztsCollections a dessein : la PR #78 pose plus bas dans
+       cette meme feuille un `.zc-rangee{display:grid;auto-fill minmax(240px,1fr)}`
+       qui, a specificite egale, gagnait par l'ordre — les 14 tuiles
+       s'empilaient sur 14 rangees et repoussaient la premiere carte a 2760 px.
+       L'ancienne regle n'est pas retiree : elle sert encore si la rangee est
+       rendue hors de cet hote. */
+    #ztsCollections .zc-titre{font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:24px;margin:0 0 2px}
+    #ztsCollections .zc-intro{font-family:"AnnieZTS","Annie Use Your Telescope",cursive;font-size:20px;margin:0 0 12px}
+    #ztsCollections .zc-rangee{
+      display:flex;gap:10px;overflow-x:auto;padding:4px 4px 12px;
+      scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;
+    }
+    #ztsCollections .zc-rangee::-webkit-scrollbar{height:8px}
+    #ztsCollections .zc-rangee::-webkit-scrollbar-thumb{background:#1A1A2E;border-radius:999px}
+    #ztsCollections .zc-carte{
+      flex:0 0 auto;scroll-snap-align:start;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+      min-width:104px;min-height:96px;padding:10px 12px;
+      background:#FFFEF7;color:#1A1A2E;
+      border:3px solid #1A1A2E;border-radius:14px;
+      box-shadow:4px 4px 0 #1A1A2E;cursor:pointer;
+      transition:transform .15s,box-shadow .15s,background .15s;
+    }
+    #ztsCollections .zc-carte:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #1A1A2E}
+    #ztsCollections .zc-carte:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #1A1A2E}
+    #ztsCollections .zc-carte.est-actif{background:#00E5FF}
+    #ztsCollections .zc-icone{font-size:30px;line-height:1}
+    #ztsCollections .zc-nom{font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:18px;line-height:1.15;
+      text-align:center;white-space:nowrap}
+    #ztsCollections .zc-compte{font-family:"AnnieZTS","Annie Use Your Telescope",cursive;font-size:20px;line-height:1}
+    /* L'intro par tuile reste dans le DOM pour les lecteurs d'ecran. */
+    #ztsCollections .zc-intro-carte{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+    /* Desktop : la rangee devient une grille de 4 a 6. */
+    @media(min-width:900px){
+      #ztsCollections .zc-rangee{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible}
+    }
+    @media(min-width:1200px){
+      #ztsCollections .zc-rangee{grid-template-columns:repeat(6,minmax(0,1fr))}
+    }
+    @media(min-width:900px){ #ztsCollections .zc-carte{min-width:0;width:100%} }
+
     /* ==================================================================
        RETOUR A LA CHARTE — 3 septembre 2026, apres relecture de Joey.
        Tout est scope sous html.ztsh-on : rollback = retirer ce bloc.

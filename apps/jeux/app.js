@@ -173,6 +173,44 @@ async function chargerCollections() {
   renderCollections();
 }
 
+/* UN MOT PAR TUILE. « Jeux par theme », « Plan B jours de pluie » ou
+   « Veillee & feu de camp » ne tiennent pas sur un bouton de telephone, et
+   un enfant de 10 ans ne lit pas une phrase sur une tuile. La table est
+   explicite plutot que derivee du titre : « Plan B meteo » et « Plan B jours
+   de pluie » donneraient le meme premier mot. Une collection absente de la
+   table garde son titre complet — rien ne casse si on en ajoute une. */
+const COLLECTION_COURT = {
+  'jeux-par-theme':      { fr: 'Thème',      en: 'Theme' },
+  'jeux-rapides':        { fr: 'Rapides',    en: 'Quick' },
+  'jeux-calmes':         { fr: 'Calmes',     en: 'Calm' },
+  'activites-duree':     { fr: 'Durée',      en: 'Duration' },
+  'echauffements':       { fr: 'Échauffement', en: 'Warm-up' },
+  'enigmes':             { fr: 'Énigmes',    en: 'Riddles' },
+  'plan-b-meteo':        { fr: 'Météo',      en: 'Weather' },
+  'plan-b-pluie':        { fr: 'Pluie',      en: 'Rain' },
+  'brise-glace':         { fr: 'Brise-glace', en: 'Icebreaker' },
+  'grands-jeux':         { fr: 'Grands',     en: 'Big' },
+  'jeux-eau':            { fr: 'Eau',        en: 'Water' },
+  'rallyes':             { fr: 'Rallyes',    en: 'Rally' },
+  'veillee-feu-de-camp': { fr: 'Veillée',    en: 'Campfire' },
+  'olympiades-scolaires':{ fr: 'Olympiades', en: 'Olympics' }
+};
+
+/* LIMITE CONNUE, ANTERIEURE A CE LOT. La tuile est construite AVEC la
+   langue du moment ; une bascule FR/EN ne la rebatit pas. Avant les mots
+   courts le defaut se voyait a peine — les titres complets des 14
+   collections sont proches dans les deux langues — il saute aux yeux
+   avec « Thème » et « Theme ». Deux tentatives ont echoue : un appel a
+   renderCollections() en fin de applyLanguage() (jamais atteint, la
+   fonction sort tot) et le meme appel dans toggleLanguage() (sans effet,
+   l'ordre reste a comprendre). A reprendre dans un lot dedie : le reste
+   de la traduction, lui, bascule bien. */
+function nomCourtCollection(c, lang) {
+  const court = COLLECTION_COURT[c.id];
+  if (court && court[lang]) return court[lang];
+  return c.titre[lang] || c.titre.fr;
+}
+
 function compteCollection(id) {
   return state.games.filter(g => Array.isArray(g.collections) && g.collections.includes(id)).length;
 }
@@ -193,7 +231,7 @@ function renderCollections() {
       const actif = state.activeCollection === c.id ? ' est-actif' : '';
       return '<button class="zc-carte' + actif + '" data-collection="' + c.id + '">' +
              '<span class="zc-icone">' + (c.icon || '🎯') + '</span>' +
-             '<span class="zc-nom">' + escapeHtml(c.titre[lang] || c.titre.fr) + '</span>' +
+             '<span class="zc-nom">' + escapeHtml(nomCourtCollection(c, lang)) + '</span>' +
              '<span class="zc-intro-carte">' + escapeHtml(c.intro[lang] || c.intro.fr) + '</span>' +
              '<span class="zc-compte">' + n + ' ' + t('gamesIn') + '</span>' +
              '</button>';
