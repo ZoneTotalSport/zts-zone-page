@@ -70,134 +70,182 @@
   // ── CSS ──
   var CSS = [
     /* Polices auto-hebergees */
+    /* Mesure du 3 septembre 2026 sur /fonts/ZoneTotalSport.ttf : 144 points de code,
+       tous les accents francais courants compris. Le decoupage ASCII precedent
+       renvoyait donc TOUS les accents a Luckiest Guy pour rien. Ne manquent
+       vraiment que A-aigu, U-grave, a-aigu, y-trema, Y-trema, AE, ae, OE, oe,
+       l apostrophe courbe, les guillemets, le tiret cadratin et le degre. */
     '@font-face{font-family:"ZTSDisplay";src:url("/fonts/ZoneTotalSport.ttf") format("truetype");',
-    '  font-display:swap;size-adjust:50%;unicode-range:U+0020-007E;}',
+    '  font-display:swap;size-adjust:50%;}',
     '@font-face{font-family:"ZTSDisplay";src:local("Luckiest Guy"),url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");',
-    '  font-display:swap;unicode-range:U+00A0-024F,U+1E00-1EFF,U+2000-206F,U+2C60-2C7F,U+A720-A7FF;}',
+    '  font-display:swap;unicode-range:U+00C1,U+00D9,U+00E1,U+00FF,U+0178,U+00C6,U+00E6,U+0152,U+0153,U+2019,U+00AB,U+00BB,U+2014,U+00B0;}',
     '@font-face{font-family:"ZTSLucky";src:local("Luckiest Guy"),url("/fonts/LuckiestGuy-Regular.ttf") format("truetype");',
     '  font-display:swap;}',
+    /* Annie Use Your Telescope — meme famille "AnnieZTS" et meme fichier que
+       apps/inventaire/styles.css l.74. OFL dans /fonts/OFL-AnnieUseYourTelescope.txt.
+       Elle n'etait pas declaree ici : la modale tombait sur system-ui. */
+    '@font-face{font-family:"AnnieZTS";src:url("/fonts/AnnieUseYourTelescope-Regular.ttf") format("truetype");',
+    '  font-display:swap;}',
 
-    /* Overlay : fond floute translucide — le contenu reste visible derriere */
+    /* =================================================================
+       HABILLAGE MARINE — la modale est la premiere page que voit un
+       visiteur non inscrit, et la seule qui decide s'il s'inscrit.
+       Elle etait blanche, en system-ui, a 16 px : etrangere au site et
+       illisible a bout de bras dans un gymnase.
+       Plancher 20 px, champs et boutons >= 56 px, cibles >= 44 px.
+       Le titre garde Luckiest Guy, comme avant. Bangers nulle part.
+       ================================================================= */
+
+    /* Overlay : voile marine, et Annie posee des la racine */
     '.zts-auth-overlay{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;',
-    '  justify-content:center;background:rgba(15,15,46,.55);backdrop-filter:blur(14px);',
+    '  justify-content:center;background:rgba(6,23,38,.74);backdrop-filter:blur(14px);',
     '  -webkit-backdrop-filter:blur(14px);opacity:0;visibility:hidden;',
-    '  transition:opacity .25s,visibility .25s;padding:20px;overflow-y:auto;}',
+    '  transition:opacity .25s,visibility .25s;padding:20px;overflow-y:auto;',
+    '  font-family:"AnnieZTS","Annie Use Your Telescope",cursive;font-size:20px;}',
     '.zts-auth-overlay.zts-open{opacity:1;visibility:visible}',
+    /* input, button et select ne HERITENT pas de la police : il faut les
+       nommer, sinon la moitie de la modale reste en system-ui. */
+    '.zts-auth-overlay,.zts-auth-overlay *{font-family:"AnnieZTS","Annie Use Your Telescope",cursive;}',
+    '.zts-auth-title,.zts-auth-cta,.zts-auth-btn-primary,.zts-auth-btn-google{',
+    '  font-family:"ZTSDisplay","Luckiest Guy",cursive !important;}',
 
-    /* Card : blanc, pop art, ombres BD */
-    '.zts-auth-modal{position:relative;width:100%;max-width:480px;background:#fff;',
-    '  border:4px solid #0F0F2E;border-radius:24px;box-shadow:8px 8px 0 #0F0F2E;',
-    '  padding:28px 24px;text-align:center;overflow-y:auto;max-height:95vh;',
+    /* Carte : marine en degrade, bordure noire epaisse, ombre dure decalee */
+    '.zts-auth-modal{position:relative;width:100%;max-width:520px;',
+    '  background:linear-gradient(163deg,#12879E 0%,#0C5C7D 28%,#0A3A5E 58%,#08243D 82%,#061726 100%);',
+    '  border:4px solid #1A1A2E;border-radius:24px;box-shadow:8px 8px 0 #1A1A2E;',
+    '  padding:32px 26px;text-align:center;overflow-y:auto;max-height:95vh;color:#E6F4FA;',
     '  transform:scale(.92);opacity:0;',
-    '  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .25s;',
-    '  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;}',
+    '  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .25s;}',
     '.zts-auth-overlay.zts-open .zts-auth-modal{transform:scale(1);opacity:1}',
 
-    /* Close */
-    '.zts-auth-close{position:absolute;top:12px;right:12px;z-index:10;width:36px;height:36px;',
-    '  border-radius:50%;border:3px solid #0F0F2E;background:#FFD700;color:#0F0F2E;',
-    '  font-size:1.2rem;line-height:1;cursor:pointer;display:flex;align-items:center;',
-    '  justify-content:center;transition:transform .15s;font-family:sans-serif;',
-    '  box-shadow:2px 2px 0 #0F0F2E;}',
+    /* Close — 48px, au-dessus de la cible de 44 */
+    '.zts-auth-close{position:absolute;top:12px;right:12px;z-index:10;width:48px;height:48px;',
+    '  border-radius:50%;border:3px solid #1A1A2E;background:#FFEA00;color:#1A1A2E;',
+    '  font-size:26px;line-height:1;cursor:pointer;display:flex;align-items:center;',
+    '  justify-content:center;transition:transform .15s;box-shadow:3px 3px 0 #1A1A2E;}',
     '.zts-auth-close:hover{transform:rotate(-10deg) scale(1.1)}',
     '.zts-auth-overlay.zts-wall .zts-auth-close{display:none}',
 
-    /* Mascot */
+    /* Mascotte */
     '.zts-auth-header{padding:0 0 4px;}',
     '.zts-auth-header picture{display:inline-block;line-height:0;}',
     '.zts-auth-mascot{height:130px;width:auto;object-fit:contain;border:none;box-shadow:none;',
-    '  filter:drop-shadow(0 4px 16px rgba(0,0,0,.25));margin-bottom:4px;}',
+    '  filter:drop-shadow(0 4px 16px rgba(0,0,0,.35));margin-bottom:4px;}',
 
-    /* Title */
-    '.zts-auth-title{font-family:"ZTSDisplay","Luckiest Guy",cursive;',
-    '  font-size:clamp(1.5rem,4.5vw,2rem);color:#0F0F2E;margin:4px 0 6px;',
+    /* Titre — blanc creme sur marine, ~15:1 */
+    /* px et non rem : les apps hotes rebasent la taille racine (grille est a 10,75px), le titre tombait a 21px. */
+    /* !important : l'ecran 2 porte un font-size en ligne (l.658) qui gagnait sur la feuille et ramenait le titre a 21px. Le style en ligne n'est pas touche : rien n'est retire du gabarit. */
+    '.zts-auth-title{font-size:clamp(30px,6vw,42px) !important;color:#FFFEF7;margin:6px 0 10px;',
     '  line-height:1.15;letter-spacing:.5px;}',
 
-    /* Subtitle */
-    '.zts-auth-sub{font-size:1rem;color:#374151;margin:0 0 14px;line-height:1.45;font-weight:500;}',
+    /* Sous-titre */
+    '.zts-auth-sub{font-size:21px;color:#E6F4FA;margin:0 0 18px;line-height:1.5;}',
 
-    /* Stats row */
-    '.zts-auth-stats{display:flex;justify-content:center;gap:8px;margin:0 0 18px;flex-wrap:wrap;}',
-    '.zts-auth-stat{background:#E8F9FF;border:2px solid #0F0F2E;border-radius:12px;padding:6px 12px;text-align:center;}',
-    '.zts-auth-stat-num{font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:1.25rem;color:#0F0F2E;display:block;}',
-    '.zts-auth-stat-label{font-size:.7rem;color:#4B5563;display:block;font-weight:600;}',
+    /* Chiffres — cartes creme posees sur le marine, comme l accueil */
+    '.zts-auth-stats{display:flex;justify-content:center;gap:10px;margin:0 0 20px;flex-wrap:wrap;}',
+    '.zts-auth-stat{background:#FFFBE8;border:3px solid #1A1A2E;border-radius:12px;',
+    '  padding:8px 14px;text-align:center;box-shadow:3px 3px 0 #1A1A2E;}',
+    '.zts-auth-stat-num{font-size:24px;color:#1A1A2E;display:block;font-weight:700;}',
+    '.zts-auth-stat-label{font-size:20px;color:#1A1A2E;display:block;}',
 
-    /* CTA button (step 1) */
-    '.zts-auth-cta{width:100%;padding:16px;font-family:"ZTSDisplay","Luckiest Guy",cursive;',
-    '  font-size:1.2rem;letter-spacing:.5px;background:#00E5FF;color:#0F0F2E;',
-    '  border:3px solid #0F0F2E;border-radius:14px;box-shadow:5px 5px 0 #0F0F2E;',
+    /* CTA principal — cyan plein */
+    /* Boutons en ZoneTotalSport.ttf. 18 px sur TOUS les boutons, decision du 3 septembre 2026 : l'ecran
+       de connexion (« Content de te revoir ») debordait a 22-24 px. Seule
+       exception au plancher de 20 px, et elle est assumee — la hauteur de
+       bouton (>= 56 px) et la cible tactile ne bougent pas. Contour noir en text-shadow
+       multidirectionnel par defaut — `-webkit-text-stroke` seul est centre sur
+       le contour du glyphe et RONGE la lettre. La ou `paint-order` existe, le
+       stroke passe DERRIERE le remplissage et ne ronge plus : on le reprend, et
+       l'ombre dure decalee 3px reste dans les deux cas. */
+    '.zts-auth-cta{width:100%;min-height:56px;padding:14px 18px;font-size:18px;',
+    '  font-family:"ZTSDisplay","Luckiest Guy",cursive;color:#FFFEF7;text-shadow:-1.5px -1.5px 0 #1A1A2E,1.5px -1.5px 0 #1A1A2E,-1.5px 1.5px 0 #1A1A2E,1.5px 1.5px 0 #1A1A2E,0 -1.5px 0 #1A1A2E,0 1.5px 0 #1A1A2E,-1.5px 0 0 #1A1A2E,1.5px 0 0 #1A1A2E,3px 3px 0 #1A1A2E;',
+    '  line-height:1.15;',
+    '  letter-spacing:.3px;background:#00E5FF;',
+    '  border:3px solid #1A1A2E;border-radius:14px;box-shadow:5px 5px 0 #1A1A2E;',
     '  cursor:pointer;transition:transform .15s,box-shadow .15s;}',
-    '.zts-auth-cta:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #0F0F2E}',
-    '.zts-auth-cta:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E}',
+    '.zts-auth-cta:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #1A1A2E}',
+    '.zts-auth-cta:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #1A1A2E}',
 
-    /* Login link */
-    '.zts-auth-login-link{display:block;margin-top:14px;color:#4B5563;font-size:.92rem;}',
-    '.zts-auth-login-link a,.zts-auth-login-link button{color:#1e3a8a;font-weight:700;',
-    '  text-decoration:underline;cursor:pointer;background:none;border:none;font-size:inherit;padding:0;}',
+    /* Lien de connexion */
+    '.zts-auth-login-link{display:block;margin-top:16px;color:#E6F4FA;font-size:20px;}',
+    '.zts-auth-login-link a,.zts-auth-login-link button{color:#00E5FF;font-weight:700;',
+    '  text-decoration:underline;cursor:pointer;background:none;border:none;font-size:inherit;',
+    '  padding:10px 6px;min-height:44px;display:inline-block;}',
 
-    /* Social proof */
-    '.zts-auth-proof{margin-top:12px;font-size:.85rem;color:#6B7280;font-style:italic;}',
+    /* Preuve sociale */
+    '.zts-auth-proof{margin-top:14px;font-size:20px;color:#C4E1EE;font-style:italic;}',
 
-    /* Back button (step 2) */
-    '.zts-auth-back{background:none;border:none;color:#4B5563;font-size:.9rem;cursor:pointer;',
-    '  padding:0;margin-bottom:10px;font-weight:600;}',
-    '.zts-auth-back:hover{color:#0F0F2E}',
+    /* Retour */
+    '.zts-auth-back{background:none;border:none;color:#C4E1EE;font-size:20px;cursor:pointer;',
+    '  padding:10px 6px;margin-bottom:8px;min-height:44px;font-weight:700;}',
+    '.zts-auth-back:hover{color:#FFEA00}',
 
-    /* Google button */
-    '.zts-auth-btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;',
-    '  padding:14px;border:3px solid #0F0F2E;border-radius:14px;background:#fff;color:#0F0F2E;',
-    '  font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:1rem;letter-spacing:.3px;',
-    '  cursor:pointer;box-shadow:4px 4px 0 #0F0F2E;transition:transform .15s,box-shadow .15s;}',
-    '.zts-auth-btn-google:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #0F0F2E}',
-    '.zts-auth-btn-google:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E}',
-    '.zts-auth-btn-google svg{width:20px;height:20px;}',
+    /* Google — carte creme sur marine, >= 56px */
+    '.zts-auth-btn-google{width:100%;min-height:56px;display:flex;align-items:center;',
+    '  justify-content:center;gap:12px;padding:12px 16px;border:3px solid #1A1A2E;',
+    '  border-radius:14px;background:#FFFEF7;color:#1A1A2E;font-size:18px;',
+    /* Fond creme : un libelle clair y serait illisible meme cerne. Il reste
+       fonce, sans contour, mais passe a la meme police que les autres. */
+    '  font-family:"ZTSDisplay","Luckiest Guy",cursive;line-height:1.15;',
+    '  letter-spacing:.2px;cursor:pointer;box-shadow:4px 4px 0 #1A1A2E;',
+    '  transition:transform .15s,box-shadow .15s;}',
+    '.zts-auth-btn-google:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #1A1A2E}',
+    '.zts-auth-btn-google:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #1A1A2E}',
+    '.zts-auth-btn-google svg{width:26px;height:26px;flex:none;}',
     '.zts-auth-btn-google:disabled{opacity:.5;pointer-events:none}',
 
-    /* Or divider */
-    '.zts-auth-or{display:flex;align-items:center;gap:10px;margin:14px 0;color:#9CA3AF;font-weight:700;font-size:.8rem;}',
-    '.zts-auth-or::before,.zts-auth-or::after{content:"";flex:1;height:2px;background:#E5E7EB;}',
+    /* Separateur — clair, sinon il disparait sur le marine */
+    '.zts-auth-or{display:flex;align-items:center;gap:12px;margin:16px 0;color:#C4E1EE;',
+    '  font-weight:700;font-size:20px;}',
+    '.zts-auth-or::before,.zts-auth-or::after{content:"";flex:1;height:3px;background:rgba(230,244,250,.35);}',
 
-    /* Form fields */
-    '.zts-auth-field{margin-bottom:12px;text-align:left;}',
-    '.zts-auth-field label{display:block;font-family:"ZTSLucky","Luckiest Guy",cursive;font-size:.85rem;',
-    '  color:#0F0F2E;margin-bottom:4px;letter-spacing:.3px;}',
-    '.zts-auth-field input{width:100%;padding:12px 14px;border-radius:12px;border:2px solid #D1D5DB;',
-    '  background:#F9FAFB;color:#0F0F2E;font-family:system-ui;font-size:1rem;outline:none;',
-    '  transition:border-color .2s;box-sizing:border-box;}',
-    '.zts-auth-field input:focus{border-color:#00E5FF;background:#fff;box-shadow:0 0 0 3px rgba(0,229,255,.15)}',
-    '.zts-auth-field input::placeholder{color:#9CA3AF}',
-    '.zts-auth-row{display:flex;gap:10px;}',
-    '.zts-auth-row .zts-auth-field{flex:1;}',
+    /* Champs — creme sur marine : le texte saisi doit etre le plus lisible de la modale */
+    '.zts-auth-field{margin-bottom:14px;text-align:left;}',
+    '.zts-auth-field label{display:block;font-size:20px;color:#E6F4FA;margin-bottom:6px;',
+    '  font-weight:700;letter-spacing:.2px;}',
+    '.zts-auth-field input{width:100%;min-height:56px;padding:14px 16px;border-radius:12px;',
+    '  border:3px solid #1A1A2E;background:#FFFEF7;color:#1A1A2E;font-size:22px;outline:none;',
+    '  transition:border-color .2s,box-shadow .2s;box-sizing:border-box;}',
+    '.zts-auth-field input:focus{border-color:#00E5FF;box-shadow:0 0 0 4px rgba(0,229,255,.35)}',
+    '.zts-auth-field input::placeholder{color:#5A6B7A}',
+    '.zts-auth-row{display:flex;gap:12px;}',
+    '.zts-auth-row .zts-auth-field{flex:1;min-width:0;}',
 
-    /* Submit */
-    '.zts-auth-btn-primary{width:100%;padding:14px;font-family:"ZTSDisplay","Luckiest Guy",cursive;',
-    '  font-size:1.15rem;letter-spacing:.5px;background:linear-gradient(135deg,#00E5FF,#39FF14);',
-    '  color:#0F0F2E;border:3px solid #0F0F2E;border-radius:14px;box-shadow:5px 5px 0 #0F0F2E;',
+    /* Soumettre — cyan plein, pas de degrade */
+    '.zts-auth-btn-primary{width:100%;min-height:56px;padding:14px 18px;font-size:18px;',
+    '  font-family:"ZTSDisplay","Luckiest Guy",cursive;color:#FFFEF7;text-shadow:-1.5px -1.5px 0 #1A1A2E,1.5px -1.5px 0 #1A1A2E,-1.5px 1.5px 0 #1A1A2E,1.5px 1.5px 0 #1A1A2E,0 -1.5px 0 #1A1A2E,0 1.5px 0 #1A1A2E,-1.5px 0 0 #1A1A2E,1.5px 0 0 #1A1A2E,3px 3px 0 #1A1A2E;',
+    '  line-height:1.15;letter-spacing:.3px;background:#00E5FF;',
+    '  border:3px solid #1A1A2E;border-radius:14px;box-shadow:5px 5px 0 #1A1A2E;',
     '  cursor:pointer;transition:transform .15s,box-shadow .15s;',
-    '  display:flex;align-items:center;justify-content:center;gap:8px;}',
-    '.zts-auth-btn-primary:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #0F0F2E}',
-    '.zts-auth-btn-primary:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #0F0F2E}',
+    '  display:flex;align-items:center;justify-content:center;gap:10px;}',
+    '.zts-auth-btn-primary:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 #1A1A2E}',
+    '.zts-auth-btn-primary:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #1A1A2E}',
     '.zts-auth-btn-primary:disabled{opacity:.5;pointer-events:none}',
 
-    /* Links */
-    '.zts-auth-links{display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:6px;}',
-    '.zts-auth-link{color:#1e3a8a;font-size:.85rem;cursor:pointer;text-decoration:underline;',
-    '  background:none;border:none;font-weight:600;padding:0;}',
-    '.zts-auth-link:hover{color:#0F0F2E}',
+    /* Liens secondaires */
+    '.zts-auth-links{display:flex;justify-content:space-between;align-items:center;',
+    '  margin-top:14px;flex-wrap:wrap;gap:8px;}',
+    '.zts-auth-link{color:#00E5FF;font-size:20px;cursor:pointer;text-decoration:underline;',
+    '  background:none;border:none;font-weight:700;padding:10px 6px;min-height:44px;}',
+    '.zts-auth-link:hover{color:#FFEA00}',
 
-    /* Error / Success */
-    '.zts-auth-error{background:#FEE2E2;border:2px solid #EF4444;color:#991B1B;border-radius:12px;',
-    '  padding:10px 14px;margin-bottom:12px;font-size:.9rem;display:none;text-align:center;font-weight:600;}',
+    /* Erreur / succes — chips claires bordees de noir, texte fonce */
+    '.zts-auth-error{background:#FFE4E6;border:3px solid #1A1A2E;color:#8A1020;border-radius:12px;',
+    '  padding:12px 16px;margin-bottom:14px;font-size:21px;display:none;text-align:center;',
+    '  font-weight:700;box-shadow:3px 3px 0 #1A1A2E;}',
     '.zts-auth-error.show{display:block;animation:ztsShake .5s ease}',
     '@keyframes ztsShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}',
-    '.zts-auth-success{background:#D1FAE5;border:2px solid #10B981;color:#065F46;border-radius:12px;',
-    '  padding:10px 14px;margin-bottom:12px;font-size:.9rem;display:none;text-align:center;font-weight:600;}',
+    '.zts-auth-success{background:#D1FAE5;border:3px solid #1A1A2E;color:#0B5138;border-radius:12px;',
+    '  padding:12px 16px;margin-bottom:14px;font-size:21px;display:none;text-align:center;',
+    '  font-weight:700;box-shadow:3px 3px 0 #1A1A2E;}',
     '.zts-auth-success.show{display:block}',
 
     /* Spinner */
-    '.zts-auth-spinner{display:inline-block;width:20px;height:20px;border:3px solid #D1D5DB;',
-    '  border-top-color:#0F0F2E;border-radius:50%;animation:ztsSpin .7s linear infinite;}',
+    '.zts-auth-spinner{display:inline-block;width:24px;height:24px;border:3px solid rgba(26,26,46,.25);',
+    '  border-top-color:#1A1A2E;border-radius:50%;animation:ztsSpin .7s linear infinite;}',
     '@keyframes ztsSpin{to{transform:rotate(360deg)}}',
+    '@supports(paint-order:stroke){.zts-auth-cta,.zts-auth-btn-primary{',
+    '  -webkit-text-stroke:1.5px #1A1A2E;paint-order:stroke fill;text-shadow:3px 3px 0 #1A1A2E}}',
 
     /* User dropdown (header) */
     '.zts-user-dropdown{position:relative;display:inline-flex;}',
@@ -217,14 +265,16 @@
     '.zts-user-menu-item:hover{background:rgba(255,255,255,.1)}',
     '.zts-user-menu-item.logout{color:#FF2A7A}',
 
-    /* Responsive */
+    /* Responsive — 390px. Le plancher de 20px et la cible de 44px tiennent :
+       seule la mascotte et le titre retrecissent. */
     '@media(max-width:500px){',
-    '  .zts-auth-modal{padding:22px 16px;max-width:100%;border-radius:18px;box-shadow:5px 5px 0 #0F0F2E;}',
-    '  .zts-auth-mascot{height:100px;}',
-    '  .zts-auth-title{font-size:1.4rem;}',
+    '  .zts-auth-modal{padding:26px 16px;max-width:100%;border-radius:18px;box-shadow:5px 5px 0 #1A1A2E;}',
+    '  .zts-auth-mascot{height:104px;}',
+    '  .zts-auth-title{font-size:30px !important;}',
     '  .zts-auth-row{flex-direction:column;gap:0;}',
-    '  .zts-auth-cta{font-size:1.05rem;padding:14px;}',
-    '  .zts-auth-btn-primary{font-size:1rem;padding:12px;}',
+    /* 18px partout, y compris sous 500px : la coherence prime sur le confort de lecture d'un libelle de bouton, dont la hauteur ne bouge pas. */
+    '  .zts-auth-cta,.zts-auth-btn-primary,.zts-auth-btn-google{font-size:18px;}',
+    '  .zts-auth-close{top:8px;right:8px;}',
     '}'
   ].join('\n');
 

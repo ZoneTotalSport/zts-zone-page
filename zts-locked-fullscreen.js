@@ -43,6 +43,44 @@
     '.zts-lf-genia{font-size:.92rem;color:#1e3a8a;background:#EEF6FF;border:2px dashed #93c5fd;' +
     'border-radius:11px;padding:8px 12px;margin:2px 0 10px}' +
     '.zts-lf-genia a{color:#1e3a8a;font-weight:bold;text-decoration:underline}' +
+    /* ---------------------------------------------------------------
+       HABILLAGE ANNIE — le calque est ce qu'on lit AVANT la modale.
+       Annie sur tout le texte, sauf les titres et les boutons qui
+       gardent Luckiest Guy. Plancher 20 px, boutons >= 56 px, cibles
+       >= 44 px. Que des declarations : aucun id, aucun handler, aucune
+       structure touches. Rollback = retirer ce bloc.
+       --------------------------------------------------------------- */
+    '@font-face{font-family:"AnnieZTS";src:url("/fonts/AnnieUseYourTelescope-Regular.ttf") format("truetype");font-display:swap}' +
+    '#' + OVERLAY_ID + ',#' + OVERLAY_ID + ' *{font-family:"AnnieZTS","Annie Use Your Telescope",cursive}' +
+    '#' + OVERLAY_ID + '{font-size:20px}' +
+    /* Titres en ZoneTotalSport.ttf (police de marque). size-adjust:50% oblige
+       a doubler la taille, et la plage ASCII seule : les accents tombent sur
+       Luckiest Guy, la police de marque n'a ni E accent aigu ni oe lie.
+       line-height 1.1 minimum : les capitales accentuees debordent sinon. */
+    '@font-face{font-family:\"ZTSDisplay\";src:url(\"/fonts/ZoneTotalSport.ttf\") format(\"truetype\");font-display:swap;size-adjust:50%}' +
+    '@font-face{font-family:\"ZTSDisplay\";src:local(\"Luckiest Guy\"),url(\"/fonts/LuckiestGuy-Regular.ttf\") format(\"truetype\");font-display:swap;unicode-range:U+00C1,U+00D9,U+00E1,U+00FF,U+0178,U+00C6,U+00E6,U+0152,U+0153,U+2019,U+00AB,U+00BB,U+2014,U+00B0}' +
+    '.zts-lf-title{font-family:"ZTSDisplay","Luckiest Guy",system-ui,sans-serif !important;line-height:1.12;font-size:clamp(26px,5.5vw,38px)}' +
+    /* Boutons en ZoneTotalSport.ttf. 18 px sur TOUS les boutons, decision du 3 septembre 2026 : l'ecran
+       de connexion (« Content de te revoir ») debordait a 22-24 px. Seule
+       exception au plancher de 20 px, et elle est assumee — la hauteur de
+       bouton (>= 56 px) et la cible tactile ne bougent pas. Contour noir en text-shadow
+       multidirectionnel par defaut — `-webkit-text-stroke` seul est centre sur
+       le contour du glyphe et RONGE la lettre. La ou `paint-order` existe, le
+       stroke passe DERRIERE le remplissage et ne ronge plus : on le reprend, et
+       l'ombre dure decalee 3px reste dans les deux cas. */
+    '.zts-lf-btn{font-family:"ZTSDisplay","Luckiest Guy",system-ui,sans-serif !important;font-size:18px;line-height:1.15}' +
+    '.zts-lf-btn-email{color:#FFFEF7;text-shadow:-1.5px -1.5px 0 #1A1A2E,1.5px -1.5px 0 #1A1A2E,-1.5px 1.5px 0 #1A1A2E,1.5px 1.5px 0 #1A1A2E,0 -1.5px 0 #1A1A2E,0 1.5px 0 #1A1A2E,-1.5px 0 0 #1A1A2E,1.5px 0 0 #1A1A2E,3px 3px 0 #1A1A2E}' +
+    /* Fond blanc : libelle fonce, sans contour, meme police. */
+    '.zts-lf-btn-google{color:#1f2937}' +
+    '@supports(paint-order:stroke){.zts-lf-btn-email{-webkit-text-stroke:1.5px #1A1A2E;paint-order:stroke fill;text-shadow:3px 3px 0 #1A1A2E}}' +
+    '.zts-lf-sub,.zts-lf-perks li,.zts-lf-bonus,.zts-lf-login,.zts-lf-social,.zts-lf-genia{font-size:20px}' +
+    '.zts-lf-btn{min-height:56px;display:inline-flex;align-items:center;justify-content:center}' +
+    '.zts-lf-close{width:48px;height:48px;font-size:26px}' +
+    /* 1,15rem = 18,4px : seul texte sous le plancher de 20 */
+    '.zts-lf-bonus strong{font-size:22px}' +
+    '.zts-lf-login a,.zts-lf-genia a{display:inline-block;padding:8px 6px;min-height:44px}' +
+    /* #6b7280 sur blanc = 4,83:1, sous la marge de securite une fois en Annie (traits fins) */
+    '.zts-lf-social{color:#4b5563}' +
     '@media(max-width:480px){.zts-lf-box{padding:24px 18px}.zts-lf-btn{flex:1 1 100%;max-width:100%}}';
 
   function injectStyles() {
