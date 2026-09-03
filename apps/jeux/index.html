@@ -168,6 +168,52 @@
     }
     @media(min-width:900px){ #ztsCollections .zc-carte{min-width:0;width:100%} }
 
+    /* ============ BARRE D'OUTILS — filtres replies ============
+       Six selecteurs deplies en permanence, c'etait six murs entre le
+       visiteur et un jeu. Ils passent derriere un bouton, et ce qui est
+       ACTIF se lit d'un coup d'oeil en pastilles, chacune avec sa croix.
+       « Sans materiel » est mis en tete de liste : c'est le filtre qu'un
+       enseignant sans gymnase cherche en premier. */
+    #ztsBarreOutils{margin:0 0 16px}
+    #ztsOutilsTete{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    #ztsBtnFiltres{
+      font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:18px;
+      min-height:52px;padding:12px 20px;
+      background:#FFFEF7;color:#1A1A2E;
+      border:3px solid #1A1A2E;border-radius:14px;
+      box-shadow:4px 4px 0 #1A1A2E;cursor:pointer;
+      transition:transform .15s,box-shadow .15s,background .15s;
+    }
+    #ztsBtnFiltres:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #1A1A2E}
+    #ztsBtnFiltres:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #1A1A2E}
+    #ztsBtnFiltres.a-des-filtres{background:#00E5FF}
+    /* La barre de stats (compteur, tri, vue, boutons d'action) prend le
+       reste de la ligne. */
+    #ztsOutilsTete .stats-bar{flex:1 1 320px;min-width:0;margin:0!important;background:transparent!important}
+
+    #ztsPastilles{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+    .zts-pastille{
+      display:inline-flex;align-items:center;gap:8px;
+      font-family:"AnnieZTS","Annie Use Your Telescope",cursive;font-size:20px;
+      min-height:44px;padding:8px 14px;
+      background:#FFEA00;color:#1A1A2E;
+      border:3px solid #1A1A2E;border-radius:14px;
+      box-shadow:3px 3px 0 #1A1A2E;cursor:pointer;
+      transition:transform .15s,box-shadow .15s;
+    }
+    .zts-pastille:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 #1A1A2E}
+    .zts-pastille:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #1A1A2E}
+
+    /* Le panneau : la carte cyan de la PR precedente, qui vivait sur
+       #ztsControlCard — l'enveloppe a disparu avec les trois IIFE. */
+    #ztsFiltresPanneau{
+      margin:12px 0 0;padding:20px 18px;
+      background:#00E5FF;color:#061726;
+      border:4px solid #1A1A2E;border-radius:14px;
+      box-shadow:8px 8px 0 #1A1A2E;
+    }
+    #ztsFiltresPanneau #ztsFilterBar{border-top:none;padding-top:0;margin:0}
+
     /* ==================================================================
        RETOUR A LA CHARTE — 3 septembre 2026, apres relecture de Joey.
        Tout est scope sous html.ztsh-on : rollback = retirer ce bloc.
