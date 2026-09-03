@@ -214,6 +214,47 @@
     }
     #ztsFiltresPanneau #ztsFilterBar{border-top:none;padding-top:0;margin:0}
 
+    /* ============ GRILLE ET CARTES ============
+       Paliers demandes : une colonne sous 480, deux jusqu'a 900, trois puis
+       quatre au-dela. minmax(0,1fr) partout — la lecon de la PR #81 : `1fr`
+       vaut `minmax(auto,1fr)` et une piste ne descend jamais sous la largeur
+       min-content de ce qu'elle porte, d'ou le chevauchement du 2 septembre. */
+    /* Prefixe par html.ztsh-on : la PR #81 pose plus bas dans cette meme
+       feuille des paliers 2/3/4/5 en !important. A specificite egale c'est
+       l'ordre qui tranche, et elle gagnait — cinq colonnes au lieu de
+       quatre au-dela de 1280. Une classe de plus suffit a reprendre la main. */
+    html.ztsh-on .game-grid{display:grid!important;gap:16px!important;padding:0!important;
+      grid-template-columns:repeat(1,minmax(0,1fr))!important;max-width:1700px!important;margin:0 auto!important}
+    @media(min-width:480px){ html.ztsh-on .game-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important} }
+    @media(min-width:900px){ html.ztsh-on .game-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important} }
+    @media(min-width:1280px){ html.ztsh-on .game-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important} }
+
+    .game-card{min-width:0!important;max-width:100%!important;min-height:190px!important;
+      border:3px solid #1A1A2E!important;border-radius:14px!important;
+      box-shadow:5px 5px 0 #1A1A2E!important;padding:16px!important;
+      display:flex!important;flex-direction:column!important;justify-content:space-between!important;
+      aspect-ratio:auto!important;transition:transform .15s,box-shadow .15s!important}
+    .game-card:hover{transform:translate(-2px,-2px)!important;box-shadow:7px 7px 0 #1A1A2E!important}
+    .game-card,.game-card *{overflow-wrap:anywhere}
+    .card-title{font-family:"ZTSDisplay","Luckiest Guy",cursive!important;font-size:20px!important;
+      line-height:1.15!important;margin:0 0 6px!important}
+    .card-but{font-family:"AnnieZTS","Annie Use Your Telescope",cursive!important;font-size:20px!important;
+      line-height:1.35!important}
+    .card-tags{display:flex!important;flex-wrap:wrap!important;gap:6px!important}
+    .card-tag{font-family:"AnnieZTS","Annie Use Your Telescope",cursive!important;font-size:18px!important;
+      border:2px solid #1A1A2E!important;border-radius:999px!important;padding:3px 12px!important;
+      background:#FFFEF7!important;color:#1A1A2E!important}
+    /* Etoile et chrono : visibles en permanence, pas au survol — sur un
+       telephone il n'y a pas de survol. Cible tactile de 44 px. */
+    .card-fav,.card-chrono{opacity:1!important;min-width:44px!important;min-height:44px!important;
+      display:inline-flex!important;align-items:center!important;justify-content:center!important;
+      font-size:22px!important;background:#FFFEF7!important;color:#1A1A2E!important;
+      border:2px solid #1A1A2E!important;border-radius:12px!important;
+      box-shadow:2px 2px 0 #1A1A2E!important;cursor:pointer!important}
+    .card-bottom{display:flex!important;align-items:center!important;gap:8px!important;
+      flex-wrap:wrap!important;margin-top:12px!important}
+    .card-bottom .card-tags{flex:1 1 auto!important}
+
     /* ==================================================================
        RETOUR A LA CHARTE — 3 septembre 2026, apres relecture de Joey.
        Tout est scope sous html.ztsh-on : rollback = retirer ce bloc.
@@ -577,6 +618,43 @@
     @media (max-width:600px){
       .zc-rangee{grid-template-columns:1fr}
       .zts-collections{padding:0 12px}
+    }
+
+    /* ============ DERNIER MOT SUR LA CARTE ============
+       Les regles de carte des PR #78/#81 vivent PLUS BAS dans cette meme
+       feuille, et l'une d'elles est `.game-card .card-title` — deux classes,
+       donc plus specifique que la mienne a une classe. Ecrire tot ne suffit
+       pas : il faut ecrire en dernier ET plus specifiquement. Ce bloc ferme
+       la feuille, c'est sa seule raison d'etre. */
+    html.ztsh-on .game-card .card-title{
+      font-family:"ZTSDisplay","Luckiest Guy",cursive!important;
+      font-size:20px!important;line-height:1.15!important;
+      letter-spacing:.02em!important;text-transform:none!important;
+      text-shadow:2px 2px 0 rgba(0,0,0,.25)!important;margin:0 0 6px!important;
+    }
+    html.ztsh-on .game-card .card-but{
+      font-family:"AnnieZTS","Annie Use Your Telescope",cursive!important;
+      font-size:20px!important;line-height:1.35!important;
+    }
+    html.ztsh-on .game-card .card-tag{
+      font-family:"AnnieZTS","Annie Use Your Telescope",cursive!important;
+      font-size:18px!important;border:2px solid #1A1A2E!important;
+      border-radius:999px!important;padding:3px 12px!important;
+      background:#FFFEF7!important;color:#1A1A2E!important;text-transform:none!important;
+    }
+    html.ztsh-on .game-card .card-fav,
+    html.ztsh-on .game-card .card-chrono{
+      opacity:1!important;min-width:44px!important;min-height:44px!important;
+      display:inline-flex!important;align-items:center!important;justify-content:center!important;
+      font-size:22px!important;background:#FFFEF7!important;color:#1A1A2E!important;
+      border:2px solid #1A1A2E!important;border-radius:12px!important;
+      box-shadow:2px 2px 0 #1A1A2E!important;cursor:pointer!important;
+    }
+    html.ztsh-on .game-card{
+      min-height:190px!important;border:3px solid #1A1A2E!important;
+      border-radius:14px!important;box-shadow:5px 5px 0 #1A1A2E!important;
+      padding:16px!important;aspect-ratio:auto!important;
+      display:flex!important;flex-direction:column!important;justify-content:space-between!important;
     }
   </style>
   <script>

@@ -147,6 +147,17 @@ function dureeLisible(game, suffixe) {
   return '';
 }
 
+/* L'age sur la carte. Meme regle que la duree et que le filtre : un age
+   absent se tait, il ne se devine pas — la regle de l'age du 2 septembre. */
+function ageLisible(game) {
+  if (!game) return '';
+  const a = game.ageMin, b = game.ageMax;
+  const suffixe = (state.lang === 'en') ? ' y' : ' ans';
+  if (Number.isFinite(a) && Number.isFinite(b)) return a + '-' + b + suffixe;
+  if (Number.isFinite(a)) return a + '+' + suffixe;
+  return '';
+}
+
 function urlFiche(game) {
   return '/jeux/' + slugJeu(game && game.title) + '.html';
 }
@@ -948,10 +959,16 @@ function createGameCard(game, index) {
       <div class="card-but">${escapeHtml(but)}</div>
     </div>
     <div class="card-bottom">
+      <!-- TROIS PASTILLES AU MAXIMUM : duree, age, materiel. La categorie
+           n'y est plus — elle est deja portee par la barre de couleur en haut
+           de la carte et par la teinte de la carte elle-meme, et une
+           quatrieme pastille faisait deborder la carte sur telephone. -->
       <div class="card-tags">
-        <span class="card-tag category ${game.category}">${catName}</span>
         ${dureeLisible(game) ? `<span class="card-tag duration">${dureeLisible(game)}</span>` : ''}
+        ${ageLisible(game) ? `<span class="card-tag age">${ageLisible(game)}</span>` : ''}
+        ${game.materielCat ? `<span class="card-tag materiel">${escapeHtml(game.materielCat)}</span>` : ''}
       </div>
+      <button class="card-chrono" onclick="event.stopPropagation(); openTimer()" title="${t('timer')}" aria-label="${t('timer')}">&#9201;</button>
       <button class="card-fav ${isFav ? 'is-fav' : ''}" onclick="event.stopPropagation(); toggleFavorite('${game.id}')" title="${isFav ? t('removeFav') : t('addToFav')}">
         ${isFav ? '⭐' : '☆'}
       </button>
