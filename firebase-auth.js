@@ -249,11 +249,21 @@
 
     /* User dropdown (header) */
     '.zts-user-dropdown{position:relative;display:inline-flex;}',
-    '.zts-user-btn{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:30px;',
-    '  background:linear-gradient(135deg,#39FF14,#00E5FF);color:#1a1a2e;',
-    '  font-family:"ZTSDisplay","Luckiest Guy",cursive;font-size:.95rem;letter-spacing:1px;',
-    '  border:2px solid rgba(255,255,255,.3);cursor:pointer;transition:all .3s;text-decoration:none;}',
-    '.zts-user-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(57,255,20,.4)}',
+    /* PASTILLE MEMBRE — 3 septembre 2026.
+       Elle etait une gelule (30px de rayon) en degrade VERT->cyan, avec un
+       halo vert au survol : la seule forme et la seule couleur de l'en-tete
+       a ne ressembler a rien d'autre. Elle prend la forme des boutons
+       voisins — coins 14px, bordure noire epaisse, ombre dure decalee — et
+       un degrade horizontal cyan -> jaune du site. Plus aucun vert dans
+       l'en-tete. La police ne change pas ; la taille s'aligne sur les
+       18px de la bande. */
+    '.zts-user-btn{display:flex;align-items:center;gap:8px;padding:12px 17px;border-radius:14px;',
+    '  min-height:52px;font-size:18px;border:3px solid #1A1A2E;box-shadow:4px 4px 0 #1A1A2E;',
+    '  background:linear-gradient(90deg,#00E5FF 0%,#FFEA00 100%);color:#061726;',
+    '  font-family:"ZTSDisplay","Luckiest Guy",cursive;letter-spacing:1px;',
+    '  cursor:pointer;transition:transform .15s,box-shadow .15s;text-decoration:none;}',
+    '.zts-user-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #1A1A2E}',
+    '.zts-user-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 #1A1A2E}',
     '.zts-user-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:180px;',
     '  background:rgba(15,15,46,.95);border-radius:14px;border:2px solid rgba(255,215,0,.3);',
     '  backdrop-filter:blur(12px);padding:8px;opacity:0;visibility:hidden;transform:translateY(-8px);',

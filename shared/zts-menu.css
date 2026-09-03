@@ -15,25 +15,52 @@
 .zts-topbar {
   position:fixed; top:0; left:0; right:0; z-index:210;
   display:flex; justify-content:center;
-  padding:9px clamp(10px,2.5vw,28px);
+  /* 28px de marge laterale coutaient 56px de largeur utile — de quoi
+     faire passer les huit entrees sur deux rangees a 1150px. */
+  padding:9px clamp(10px,1.3vw,14px);
   background:#0F0F2E;
   border-bottom:3px solid #000;
   -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
 }
-.zts-topbar .zts-header__nav { width:100%; max-width:1400px; gap:6px; }
+.zts-topbar .zts-header__nav { width:100%; max-width:1400px; gap:5px; }
 /* Dans une bande fine, les boutons penchés se font rogner : on les redresse. */
 .zts-topbar .zts-header__nav > * { rotate:0; }
 
 /* Version compacte des boutons : au gabarit d'origine, les 8 éléments
-   passaient sur trois lignes et la bande faisait 141px de haut. */
+   passaient sur trois lignes et la bande faisait 141px de haut.
+
+   ⚠ RÉVISÉ LE 3 SEPTEMBRE 2026 — la compacité était allée trop loin.
+   Mesuré sur l'accueil en 1280px : 14px de texte, 7px 12px de padding,
+   44px de haut pile — la cible tactile passait tout juste, et le texte
+   était illisible à bout de bras. Ces boutons sont la navigation de
+   1500 pages.
+
+   Hauteur ≥ 52px, texte 16px, padding horizontal +25% (12 → 15px).
+   Le padding des boutons ne se negocie pas : ce qui cede, c'est tout le
+   reste. Gouttiere de la nav 6 -> 5px, gouttiere interne emoji/texte
+   7 -> 4px, marge laterale de la bande 28 -> 14px. Mesure a 1150px :
+   1109px demandes pour 1122px disponibles, une seule rangee. Sous 1024px
+   les six entrees de menu passent dans le burger (règle
+   `.zts-header__nav > .ztsm-item{display:none}` plus bas) et il ne reste
+   que le burger, la connexion et FR/EN. */
 .zts-topbar .zts-btn {
-  padding:7px 12px; font-size:14px; gap:6px; border-radius:12px;
+  padding:12px 15px; font-size:16px; gap:4px; border-radius:12px;
+  min-height:52px;
   box-shadow:0 3px 0 var(--zts-noir, #111);
 }
 .zts-topbar .zts-btn:hover  { transform:translateY(-2px); box-shadow:0 5px 0 var(--zts-noir, #111); }
 .zts-topbar .zts-btn:active { transform:translateY(1px);  box-shadow:0 2px 0 var(--zts-noir, #111); }
 .zts-topbar .zts-btn .em { font-size:1em; }
-.zts-topbar .zts-lang button { padding:5px 10px; font-size:13px; }
+.zts-topbar .zts-lang { min-height:52px; }
+.zts-topbar .zts-lang button { padding:12px 13px; font-size:16px; min-height:52px; }
+
+/* 390px : le texte reste à 18px, c'est le padding qui cède. La cible
+   descend à 48px, toujours au-dessus des 44px exigés. */
+@media (max-width:640px){
+  .zts-topbar .zts-btn { padding:9px 12px; min-height:48px; font-size:16px; gap:6px; }
+  .zts-topbar .zts-lang { min-height:48px; }
+  .zts-topbar .zts-lang button { padding:9px 11px; min-height:48px; font-size:16px; }
+}
 
 /* Le bandeau descend sous la bande. --zts-topbar-h est publiée par zts-menu.js. */
 .zts-header { top:var(--zts-topbar-h, 62px); }
@@ -123,7 +150,15 @@
 
 /* ---------- Bascule mobile ---------- */
 .ztsm-burger { display:none; }
-@media (max-width:767px) {
+/* Seuil porté de 767px à 1127px le 3 septembre 2026, calé au pixel sur la
+   mesure. À 18px et +40% de padding les huit entrées demandaient 1314px et
+   il aurait fallu un seuil à 1399px — refusé : ça enlevait la navigation à
+   tous les portables de 13 pouces. Le texte est descendu à 16px, le padding
+   à +25%, les gouttières et la marge de la bande ont rendu 105px : les huit
+   entrées demandent maintenant 1100px, soit 1128px de fenêtre. Le seuil est
+   posé exactement là. Au-dessus de 1127px : les huit entrées, une rangée.
+   À 1127px et en dessous : le tiroir, une rangée. Jamais deux. */
+@media (max-width:1127px) {
   .zts-header__nav > .ztsm-item { display:none; }   /* les 6 entrées passent dans le tiroir */
   .ztsm-burger { display:inline-flex; }
 }
