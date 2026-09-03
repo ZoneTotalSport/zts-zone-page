@@ -196,11 +196,76 @@ function voletPortrait(d){
   if (!g){ d.appendChild(el('div','cahier-vide','Ce groupe a été retiré ; son portrait est parti avec lui.')); return; }
   const hist=seancesDuGroupe(g.id);
 
-  const aide=el('div','aide-un-mot');
-  aide.innerHTML='<span class="emo">📔</span>Tout ce qui a été consigné pour <b>'+g.nom+'</b>, '
-    +'période par période — présences, linge, cotes, mots et notes d’élèves. '
-    +'<b>Rien ne s’écrit ici</b> : le portrait se remplit tout seul à mesure que tu travailles.';
-  d.appendChild(aide);
+  /* ══════════════════════════════════════════════════════════════════════
+     ZONE 1 — L'EN-TÊTE DU GROUPE (3 septembre, v167)
+     Joey : « la page empile deux choses — en haut la carte de la période, en
+     dessous le vrai portrait. Elle ne dit pas une seule chose. »
+
+     ⚠ NI DATE, NI PÉRIODE, NI TUILES DE FONCTION. Elles restent sur la carte
+     de MA JOURNÉE, là où l'on travaille une période. Le portrait, lui, regarde
+     un GROUPE sur toute son année : y afficher « jeudi 3 septembre · période 1 »
+     donnait à lire une date au moment précis où l'on veut en oublier une.
+     Elles ne sont pas supprimées : les blocs `#seTete`, `#seMot` et `#seActions`
+     sont simplement MASQUÉS par l'enveloppe de `volet()`, au bas de ce fichier,
+     et réapparaissent dans tous les autres volets.
+
+     ⚠ LE FOND PASSE PAR `poserFondDeGroupe()`, la même fonction que la carte de
+     MA JOURNÉE, la case de MA SEMAINE et la pastille de MON MOIS. C'est le
+     quatrième écran à s'en servir, et c'est tout l'objet de cette fonction :
+     un groupe se reconnaît au même dégradé et à la même image, partout.
+     Opacités 88→30 % — entre celles de la carte (85→25) et de la case de
+     semaine (92→55) : l'en-tête est large, l'image a la place de respirer.
+
+     ⚠ LA PORTE « couleur ou photo » VIVAIT DANS `#seParure`, QUI PART AVEC
+     `#seTete`. Rien n'est perdu, au contraire : le bouton « Personnaliser »
+     ouvre `modifierGroupe()`, qui porte la couleur, la photo, ET le sport et le
+     titulaire depuis v165. Une porte de plus qu'avant, pas une de moins. */
+  const tete=el('div','pt-tete');
+  if (typeof poserFondDeGroupe==='function' && typeof imageDuSport==='function'){
+    poserFondDeGroupe(tete, g, imageDuSport(g), .88, .30);
+  } else {
+    tete.style.background=g.coul;                 /* proto-sports.js absent */
+  }
+  tete.style.color=encreSur(g.coul);
+
+  const ident=el('div','pt-tete-ident');
+  /* ⚠ PASTILLES BLANCHES À ENCRE `--ink`, jamais l'encre du groupe : 17:1 de
+     contraste, et surtout INDÉPENDANT de `g.coul`, qui peut être n'importe quel
+     `#rrggbb` venu du sélecteur libre. Même règle que sur la carte. */
+  ident.appendChild(el('span','pt-tete-num', g.nom));
+  const tit=(g.titulaire||'').trim();
+  if (tit){
+    const pt=el('span','pt-tete-tit', tit);
+    pt.title='Titulaire du groupe '+g.nom;
+    ident.appendChild(pt);
+  }
+  tete.appendChild(ident);
+
+  const nEl=(g.eleves||[]).length;
+  tete.appendChild(el('div','pt-tete-nb', nEl+' élève'+(nEl>1?'s':'')));
+
+  const perso=el('button','mini pt-tete-perso','✎ PERSONNALISER'); perso.type='button';
+  perso.title='Le nom, la couleur, l’image, le sport, le titulaire et les élèves de '+g.nom;
+  /* ⚠ ON REFERME LA FICHE AVANT D'OUVRIR L'AUTRE FENÊTRE : les deux passent par
+     `ouvrirModale()`, qui écrase `#modaleCorps`. Sans le `fermerModale()`, la
+     séance resterait « ouverte » dans `seanceOuverte` au-dessus d'un DOM qui ne
+     lui appartient plus. */
+  perso.addEventListener('click',()=>{ const id=g.id; fermerModale(); modifierGroupe(id); });
+  tete.appendChild(perso);
+  d.appendChild(tete);
+
+  /* ── la note explicative, repliée derrière un ⓘ ──
+     ⚠ MÊME PATRON QUE LA LIGNE DE CONSIGNE DE LA FEUILLE (`aideRepliee`,
+     proto-seance.js) : dépliée la toute première fois, repliée ensuite. On lit
+     une consigne une fois ; la garder ouverte à chaque visite repoussait le
+     tableau des élèves — ce qu'on vient vraiment voir — sous le premier écran. */
+  if (typeof aideRepliee==='function'){
+    d.appendChild(aideRepliee('📔', 'Le portrait de '+g.nom+' se remplit tout seul',
+      'Tout ce qui a été consigné pour <b>'+g.nom+'</b>, période par période — '
+      +'présences, linge, cotes, mots et notes d’élèves. <b>Rien ne s’écrit ici</b> : '
+      +'le portrait se remplit à mesure que tu travailles dans tes séances.',
+      'aidePortrait'));
+  }
 
   /* ── ce qu'on a cumulé, en un coup d'œil ── */
   const st={}; g.eleves.forEach(i=> st[i]={abs:0, sans:0, sous:0, notes:[]});
@@ -220,14 +285,25 @@ function voletPortrait(d){
       if (st[i] && n && n.t) st[i].notes.push({t:n.t, suivi:n.suivi, regle:n.regle, iso:x.iso, per:x.per});
     });
   });
-  const cpt=el('div','pres-compte');
-  [['🗓 '+hist.length+' période'+(hist.length>1?'s':''),''],
-   ['✗ '+Object.keys(st).reduce((a,i)=>a+st[i].abs,0)+' absence(s)','a'],
-   ['🚫 '+Object.keys(st).reduce((a,i)=>a+st[i].sans,0)+' oubli(s) de linge','s'],
-   ['📝 '+nCotes+' cote(s) à revoir',''],
-   ['💬 '+nMots+' mot(s) de cours',''],
-  ].forEach(([txt,cls])=> cpt.appendChild(el('span',cls,txt)));
-  d.appendChild(cpt);
+  /* ⚠ LES CINQ COMPTEURS NE SONT PLUS EN TÊTE — ILS DESCENDENT EN PIED DE
+     TABLEAU. Joey : « les 5 compteurs deviennent une ligne de totaux. » Posés en
+     haut, ils repoussaient le tableau des élèves sous le premier écran alors
+     qu'ils ne font que TOTALISER ses colonnes : la ligne de totaux est leur
+     place naturelle, sous ce qu'ils additionnent.
+     ⚠ AUCUN CHIFFRE NE CHANGE, ET AUCUNE DONNÉE N'EST TOUCHÉE. Les cinq sont
+     RELUS des séances (`hist`, `st`, `nCotes`, `nMots`, calculés juste au-dessus
+     et inchangés) ; seul le moment où on les dessine se déplace. `totaux` est
+     donc une fonction, appelée plus bas quand le tableau existe.
+     ⚠ CLASSE PROPRE, PAS `.pres-compte` : la même classe sert au dossier
+     d'élève (proto-dossiers.js) et à la fiche de séance. La retoucher pour le
+     pied d'un tableau déplacerait deux écrans qui n'ont rien demandé. */
+  const totaux = ()=>[
+    ['🗓', hist.length, 'période'+(hist.length>1?'s':''), ''],
+    ['✗',  Object.keys(st).reduce((a,i)=>a+st[i].abs,0),  'absence(s)', 'a'],
+    ['🚫', Object.keys(st).reduce((a,i)=>a+st[i].sans,0), 'oubli(s) de linge', 's'],
+    ['📝', nCotes, 'cote(s) à revoir', ''],
+    ['💬', nMots,  'mot(s) de cours',  ''],
+  ];
 
   /* ── les suivis encore ouverts, tous confondus ── */
   const ouverts=[];
@@ -235,9 +311,15 @@ function voletPortrait(d){
     const n=x.s.notesEl[i];
     if (n && n.t && n.suivi && !n.regle) ouverts.push({iso:x.iso, per:x.per, i:+i, n:n});
   }));
+  /* ⚠ LE BLOC N'APPARAÎT QUE S'IL Y A QUELQUE CHOSE À SUIVRE. Joey : « sinon
+     rien. » Il affichait « ⚑ À SUIVRE (0) — Rien en attente. Tout est réglé »,
+     soit deux lignes et un cadre pour dire qu'il n'y a rien à dire, juste
+     au-dessus du tableau qu'on vient consulter. Un drapeau qui se lève quand
+     tout va bien, on cesse de le regarder — et le jour où il compte, on ne le
+     voit plus. L'information n'est pas perdue : quand le compte est à zéro, il
+     n'y a rien à perdre. */
   const bs=el('div','se-cours'); bs.style.marginBottom='12px';
   bs.appendChild(el('h4',null,'⚑ À SUIVRE ('+ouverts.length+')'));
-  if (!ouverts.length) bs.appendChild(el('div','cahier-vide','Rien en attente. Tout est réglé.'));
   ouverts.forEach(x=>{
     const li=el('div','suivi');
     const im=document.createElement('img'); im.src=photoDe(x.i); im.alt=''; li.appendChild(im);
@@ -251,7 +333,7 @@ function voletPortrait(d){
     li.appendChild(ok);
     bs.appendChild(li);
   });
-  d.appendChild(bs);
+  if (ouverts.length) d.appendChild(bs);
 
   /* ── les élèves, un par ligne ── */
   const be=el('div','se-cours'); be.style.marginBottom='12px';
@@ -304,14 +386,65 @@ function voletPortrait(d){
     ta.appendChild(b); tr.appendChild(ta);
     tb.appendChild(tr);
   });
-  t.appendChild(tb);
+  /* ── LA LIGNE DE TOTAUX, en pied de tableau ──
+     ⚠ DANS UN VRAI `<tfoot>`, PAS DANS UNE DIV POSÉE DESSOUS. Le tableau défile
+     horizontalement (`overflowX` juste en dessous) : une ligne de totaux hors
+     du tableau resterait immobile pendant que les colonnes glissent sous elle,
+     et un total finirait sous la mauvaise colonne. Dans le tableau, elle glisse
+     avec lui.
+     ⚠ ELLE OCCUPE TOUTE LA LARGEUR EN UNE SEULE CELLULE (`colspan`), et ce
+     n'est pas un renoncement : trois des cinq compteurs — périodes, cotes à
+     revoir, mots de cours — ne totalisent AUCUNE colonne du tableau. Les poser
+     sous « Absences » ou « Linge oublié » ferait lire des chiffres qui ne s'y
+     rapportent pas. Ce sont les totaux DU GROUPE, pas ceux des colonnes. */
+  const pied=el('tfoot');
+  const trT=el('tr','pt-totaux');
+  const tdT=el('td'); tdT.colSpan=6;
+  const zone=el('div','pt-totaux-zone');
+  zone.appendChild(el('span','pt-totaux-lab','EN TOUT'));
+  totaux().forEach(([emo,n,mot,cls])=>{
+    const sp=el('span','pt-total'+(cls?' pt-total--'+cls:''));
+    sp.appendChild(el('b',null, emo+' '+n));
+    sp.appendChild(el('span',null, ' '+mot));
+    zone.appendChild(sp);
+  });
+  tdT.appendChild(zone); trT.appendChild(tdT); pied.appendChild(trT);
+  t.appendChild(pied);
+
   const env=el('div'); env.style.overflowX='auto'; env.appendChild(t);
+  /* ⚠ UN GROUPE SANS ÉLÈVES NE DOIT PAS RENDRE UN TABLEAU VIDE. Il n'en disait
+     rien : une ligne d'en-tête, une ligne de totaux à zéro, et le prof devant
+     une grille sans savoir si son groupe est vide ou si l'app a échoué. La
+     porte est nommée, et c'est la même que celle de l'en-tête. */
+  if (!g.eleves.length){
+    const vide=el('div','cahier-vide pt-vide');
+    vide.textContent='Ce groupe n’a pas encore d’élèves. ';
+    const b=el('button','mini','✎ EN AJOUTER'); b.type='button';
+    b.title='Ouvrir « Personnaliser » pour choisir les élèves de '+g.nom;
+    b.addEventListener('click',()=>{ const id=g.id; fermerModale(); modifierGroupe(id); });
+    vide.appendChild(b);
+    be.appendChild(vide);
+  }
   be.appendChild(env);
   d.appendChild(be);
 
   /* ── le fil des périodes, de la plus récente à la plus ancienne ── */
-  const bp=el('div','se-cours');
-  bp.appendChild(el('h4',null,'🗓 PÉRIODE PAR PÉRIODE'));
+  /* ⚠ REPLIÉ PAR DÉFAUT, ET C'EST LE PLUS LONG BLOC DE L'ÉCRAN. Une année de
+     cours fait des dizaines de cartes ; déplié, il enterrait tout ce qui le
+     précède. Joey : « replié par défaut, un tap ouvre, compteur N périodes sur
+     la ligne repliée. »
+     ⚠ UN `<details>`, PAS UN BOUTON ET UNE CLASSE. Le navigateur sait déjà
+     ouvrir et fermer, au clavier comme au doigt, et l'annonce aux lecteurs
+     d'écran ; le patron est déjà celui de « ✍️ Ma planification, en mots » au
+     bas de la feuille. Rien n'est perdu : tout l'historique est là, à un tap.
+     ⚠ IL N'EST PAS `open` MÊME QUAND IL EST VIDE : « 0 période » sur la ligne
+     repliée dit déjà tout ce qu'il y a à savoir, sans rien ouvrir. */
+  const bp=el('details','se-cours pt-fil');
+  const som=document.createElement('summary');
+  som.className='pt-fil-som';
+  som.appendChild(el('span','pt-fil-titre','🗓 PÉRIODE PAR PÉRIODE'));
+  som.appendChild(el('span','pt-fil-n', hist.length+' période'+(hist.length>1?'s':'')));
+  bp.appendChild(som);
   if (!hist.length) bp.appendChild(el('div','cahier-vide','Aucune période encore consignée.'));
   hist.slice().reverse().forEach(x=>{
     const c=el('div','pt-per'+(x.iso===iso && x.per===per ? ' pt-per--ici' : ''));
@@ -344,13 +477,44 @@ function voletPortrait(d){
 (function brancherPortrait(){
   if (typeof volet !== 'function' || typeof peindreActionsSeance !== 'function') return;
 
+  /* ⚠ LA CARTE DE PÉRIODE SE RETIRE DANS LE PORTRAIT, ET REVIENT PARTOUT
+     AILLEURS (3 septembre, v167). `ouvrirSeance()` pose quatre blocs dans la
+     fenêtre : `#seTete` (photo, nom, DATE ET PÉRIODE), `#seMot`, `#seActions`
+     (les tuiles LA PLANIFICATION / JEUX / ÉVALUER) et `#seDetail`, qui seul
+     porte le volet. Le portrait n'écrivait donc que le dernier, et héritait des
+     trois autres — d'où l'empilement que Joey décrit.
+     On les MASQUE, on ne les supprime pas : `hidden`, exactement comme
+     `volet('cours')` le fait déjà pour `#seActions` en plein écran.
+     ⚠ `#seSuivis` AUSSI, et ce n'est pas un oubli inversé : `peindreSuivis()`
+     insère ce bandeau AVANT `#seActions`, si bien qu'il survivrait au masquage
+     des trois autres et ferait DOUBLON avec le bloc « À suivre » du portrait,
+     à deux centimètres de distance.
+     ⚠ ON RÉ-AFFICHE AVANT D'APPELER LA SUITE, jamais après : `volet('cours')`
+     re-masque `#seActions` de son côté, et il doit avoir le dernier mot. */
+  const CACHES_DU_PORTRAIT = ['#seTete', '#seMot', '#seActions', '#seSuivis'];
+  function carteDePeriode(visible){
+    CACHES_DU_PORTRAIT.forEach(sel=>{ const n=$(sel); if (n) n.hidden = !visible; });
+  }
   const _voletAvant = volet;
   volet = function(quoi){
     if (quoi==='portrait'){
       ecrire('seVolet','portrait');
       const d=$('#seDetail'); if(!d) return;
+      carteDePeriode(false);
+      /* ⚠ LE TITRE DE LA FENÊTRE DISAIT « Période 1 ». Le portrait regarde un
+         GROUPE sur toute son année : annoncer une période au-dessus de son
+         historique complet, c'est nommer la fenêtre d'après ce qu'elle ne
+         montre plus. Il redevient « Période N » dans tous les autres volets,
+         juste en dessous. */
+      const s=seanceDe(seanceOuverte.iso, seanceOuverte.per);
+      const g=s && grpDe(s.gr);
+      const t=$('#modaleTitre');
+      if (t) t.textContent = g ? ('Portrait de '+g.nom) : 'Portrait du groupe';
       d.innerHTML=''; voletPortrait(d); return;
     }
+    carteDePeriode(true);
+    const t=$('#modaleTitre');
+    if (t && seanceOuverte) t.textContent = 'Période '+seanceOuverte.per;
     _voletAvant(quoi);
   };
 
@@ -367,5 +531,14 @@ function voletPortrait(d){
        (`hist` et `nn` restent calculés : ils servent aux suivis ci-dessous.) */
     peindreSuivis();
     decorerEffacables();
+    /* ⚠ ON REMASQUE APRÈS COUP, ET C'EST OBLIGATOIRE. `peindreSuivis()` vient
+       de CRÉER `#seSuivis` : il n'existait pas encore quand `volet('portrait')`
+       a masqué la carte de période, et il revenait donc à l'écran par-dessus
+       l'en-tête du groupe — le doublon exact qu'on cherchait à éviter, à deux
+       centimètres du bloc « À suivre » du portrait. Mesuré avant correctif :
+       `#seTete`, `#seMot` et `#seActions` masqués, `#seSuivis` visible.
+       Un seul appel suffit, et il vaut pour les quatre : c'est l'état du volet
+       courant qui décide, pas l'endroit d'où l'on vient. */
+    carteDePeriode(lire('seVolet','') !== 'portrait');
   };
 })();

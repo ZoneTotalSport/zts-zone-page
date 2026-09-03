@@ -1493,3 +1493,106 @@ html[data-etroit="1"] .auj-cours--image{min-height:118px}
   .ag-seance--image{min-height:52px}
   .gr-pastille--image{font-size:13px;padding:4px 8px;min-height:26px}
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LE PORTRAIT DU GROUPE EN TROIS ZONES (3 septembre, v167)
+   Joey : « la page empile deux choses — en haut la carte de la période, en
+   dessous le vrai portrait. Elle ne dit pas une seule chose, et le tableau
+   arrive sous le premier écran. »
+   Trois zones, dans l'ordre de ce qu'on vient chercher : QUI est ce groupe,
+   QUI sont ses élèves, PUIS ce qui s'est passé période par période.
+   ⚠ TAILLES EN PIXELS, JAMAIS EN `vw` NI EN `vh` — règle de ce fichier, payée
+   deux fois : le numéro de groupe à 151 px le 2 septembre, la modale
+   inatteignable le 3 (proto.css §modale).
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* ── ZONE 1 : l'en-tête du groupe ──
+   Le fond est posé en JS par `poserFondDeGroupe()`, la même fonction que la
+   carte de MA JOURNÉE, la case de MA SEMAINE et la pastille de MON MOIS. */
+.pt-tete{
+  position:relative;
+  display:flex;align-items:center;flex-wrap:wrap;gap:12px;
+  border:3px solid var(--noir);border-radius:15px;
+  box-shadow:4px 4px 0 var(--noir);
+  padding:14px 16px;margin-bottom:12px;
+  /* l'image a besoin de hauteur pour s'étendre, sinon le dégradé se réduit à
+     une bande et la photo n'est plus qu'une texture */
+  min-height:110px;
+  /* même ombre portée que la carte, et pour la même raison : l'encre est
+     calculée sur la COULEUR du groupe, jamais sur la photo */
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+}
+.pt-tete-ident{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+/* ⚠ FOND BLANC ET ENCRE `--ink`, PAS L'ENCRE DU GROUPE. 17:1 de contraste, et
+   surtout INDÉPENDANT de `g.coul`, qui peut être n'importe quel `#rrggbb` venu
+   du sélecteur libre. C'est ce qui tient les 4,5:1 sur un jaune choisi à la
+   main par-dessus une photo claire. */
+.pt-tete-num,.pt-tete-tit{
+  display:inline-block;background:#fff;color:var(--ink);
+  border:3px solid var(--noir);text-shadow:none;
+}
+.pt-tete-num{
+  font-family:var(--f-titre);font-size:38px;line-height:1;letter-spacing:.5px;
+  border-radius:13px;padding:5px 16px 8px;box-shadow:3px 3px 0 var(--noir);
+}
+.pt-tete-tit{
+  font-family:var(--f-note);font-size:19px;line-height:1.15;
+  border-radius:10px;padding:4px 12px;box-shadow:2px 2px 0 var(--noir);
+  max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.pt-tete-nb{font-family:var(--f-titre);font-size:20px;letter-spacing:.3px}
+/* ⚠ `margin-left:auto` POUSSE LE BOUTON À DROITE SANS ESPACEUR. Un enfant vide
+   de plus serait un enfant que le clavier peut atteindre pour rien. */
+.pt-tete-perso{margin-left:auto;font-size:16px;min-height:44px}
+
+/* ── ZONE 2 : la ligne de totaux, en pied du tableau des élèves ── */
+.pt-totaux td{background:#F7FBFD;border:3px solid var(--noir)}
+.pt-totaux-zone{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:3px 2px}
+.pt-totaux-lab{
+  font-family:var(--f-titre);font-size:14px;letter-spacing:1px;color:var(--ink-soft);
+}
+.pt-total{
+  font-family:var(--f-note);font-size:16px;line-height:1.2;color:var(--ink);
+  background:#fff;border:2px solid var(--noir);border-radius:9px;padding:3px 10px;
+}
+.pt-total b{font-family:var(--f-titre);font-size:17px;letter-spacing:.2px}
+.pt-total--a{background:#FFD0DE}
+.pt-total--s{background:#FFE9C2}
+.pt-vide{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-family:var(--f-note);font-size:18px;margin-bottom:10px;
+}
+
+/* ── ZONE 3 : le fil des périodes, replié ──
+   ⚠ 44 px DE HAUT SUR LA LIGNE REPLIÉE : c'est la cible que le pouce trouve
+   sans viser, et c'est le seul geste de toute la zone. */
+.pt-fil>.pt-fil-som{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  cursor:pointer;min-height:44px;list-style:none;
+}
+.pt-fil>.pt-fil-som::-webkit-details-marker{display:none}
+/* le chevron dit l'état ; il tourne à l'ouverture */
+.pt-fil>.pt-fil-som::before{
+  content:'▸';font-size:22px;line-height:1;color:var(--ink);
+  transition:transform .12s linear;
+}
+.pt-fil[open]>.pt-fil-som::before{transform:rotate(90deg)}
+.pt-fil-titre{font-family:var(--f-titre);font-size:19px;letter-spacing:.3px}
+.pt-fil-n{
+  font-family:var(--f-note);font-size:16px;color:var(--ink);
+  background:var(--jaune);border:2px solid var(--noir);border-radius:9px;padding:2px 10px;
+}
+.pt-fil[open]>.pt-fil-som{margin-bottom:10px}
+
+/* ⚠ À 390 px, L'EN-TÊTE PASSE EN COLONNE. Le numéro à 38 px, le titulaire et
+   « 6 élèves » sur une seule rangée dépassent la largeur d'un téléphone : le
+   bouton PERSONNALISER partait hors du cadre, poussé par `margin-left:auto`. */
+@media(max-width:760px){
+  .pt-tete{gap:9px;padding:12px;min-height:0}
+  .pt-tete-num{font-size:30px;padding:4px 12px 6px}
+  .pt-tete-tit{font-size:17px;max-width:none}
+  .pt-tete-nb{font-size:18px}
+  .pt-tete-perso{margin-left:0;width:100%}
+  .pt-totaux-zone{gap:6px}
+  .pt-total{font-size:15px}
+}
