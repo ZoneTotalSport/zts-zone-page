@@ -118,6 +118,47 @@ const TITRES_SEMENCE = ['Arrivée','Fin du cours'];
    dit plus rien.
    Compte donc pour une saisie : un descriptif, une durée, ou un titre qui n'est
    pas celui de la semence. */
+/* ══════════════════════════════════════════════════════════════════════════
+   LE LINGE D'ÉDUCATION PHYSIQUE — TROIS PIÈCES, PAS UN OUI/NON (3 sept, v169)
+   Joey : « présence et linge c'est 2 choses différentes », et « quand l'élève
+   n'avait pas son linge : soulier, short, t-shirt ».
+
+   ⚠ `s.pres` N'EST PAS TOUCHÉ, ET C'EST DÉLIBÉRÉ. Quatre fichiers le lisent —
+   la carte du groupe (proto-g3.js), la case de MA SEMAINE et le compte de la
+   fiche (proto-seance.js), les cumuls du portrait (proto-portrait.js), le
+   dossier d'élève (proto-dossiers.js). En changer le sens aurait demandé de
+   toucher aux quatre, et de se tromper une fois quelque part. Il garde donc ses
+   trois valeurs — absent de la table = a son linge, 'sans', 'absent' — et le
+   DÉTAIL vient à côté, dans `s.linge`.
+
+   ⚠ L'INVARIANT EST TENU EN UN SEUL ENDROIT, `majPresDepuisLinge()` : dès qu'il
+   manque une pièce, `pres` passe à 'sans' ; dès qu'il n'en manque plus aucune,
+   la clé disparaît. Deux écrans écrivent le linge — la grille et le raccourci
+   « tout le monde a son linge » — et aucun ne recalcule cet état lui-même.
+   ⚠ L'ABSENCE PRIME. Un élève absent n'a pas oublié son linge, il n'était pas
+   là : `pres` reste 'absent' quoi qu'il arrive au détail, et la grille du linge
+   le montre grisé plutôt que de le faire disparaître — un prof qui cherche
+   Malik doit le trouver, même absent. */
+const PIECES_LINGE = [
+  ['souliers', '👟', 'Souliers'],
+  ['short',    '🩳', 'Short'],
+  ['tshirt',   '👕', 'T-shirt'],
+];
+function lingeDe(s, i){
+  const l=(s && s.linge || {})[i];
+  return Array.isArray(l) ? l.filter(k=>PIECES_LINGE.some(p=>p[0]===k)) : [];
+}
+function nomsDesPieces(cles){
+  return cles.map(k=>{ const p=PIECES_LINGE.find(x=>x[0]===k); return p?p[2].toLowerCase():k; });
+}
+/* La seule fonction qui décide de `pres` à partir du linge. */
+function majPresDepuisLinge(x, i){
+  x.pres = x.pres || {};
+  if (x.pres[i]==='absent') return;              /* l'absence prime */
+  if (lingeDe(x, i).length) x.pres[i]='sans';
+  else delete x.pres[i];
+}
+
 function planificationSaisie(s){
   return (s && s.etapes || []).some(e=>{
     const t=(e.titre||'').trim();
@@ -891,9 +932,17 @@ function peindreActionsSeance(){
     /* L'état lit les ÉTAPES : `s.jeu` était l'ancien modèle, d'avant la
        planification en arrivée / pendant / fin. */
     {k:'cours', emo:'📋', lab:'LA PLANIFICATION',
+     /* ⚠ LA CARTE DISAIT « arrivée et fin seulement — 0 min · 0/3 fait » SUR UNE
+        SÉANCE VIDE, et Joey a demandé « la planification, elle fait quoi au
+        juste ? ». C'était une description de contenu là où il n'y a PAS de
+        contenu : les trois étapes semées portent deux titres d'origine, si bien
+        que le résumé décrivait la semence comme si le prof l'avait écrite.
+        Tant que rien n'est vraiment saisi — `planificationSaisie()` le sait
+        déjà —, la carte dit ce qu'elle SERT À FAIRE. Dès qu'il y a du contenu,
+        elle le résume comme avant. */
      etat: (function(){
-       const e=(s.etapes||[]); const nommees=e.filter(x=>x.titre);
-       if (!nommees.length) return 'à remplir';
+       if (!planificationSaisie(s)) return 'écris ce que tu fais, étape par étape';
+       const e=(s.etapes||[]);
        const act=e.filter(x=>x.phase==='pendant'&&x.titre).map(x=>x.titre);
        const tot=Math.round(e.reduce((a,x)=>a+(x.duree||0),0)/60);
        return (act.length?act.join(' · '):'arrivée et fin seulement')
@@ -978,7 +1027,7 @@ function peindreActionsSeance(){
      ⚠ `jeux` est dans la liste bien qu'il n'ouvre aucun volet — il referme la
      fenêtre et ouvre le tiroir. C'est `volet()` qui le sait ; ce n'est pas à ce
      garde-fou de le deviner. */
-  const VOLETS = ['cours','presences','jeux','evaluation','message','portrait'];
+  const VOLETS = ['cours','presences','linge','jeux','evaluation','message','portrait'];
   const retenu=lire('seVolet','cours');
   volet(VOLETS.indexOf(retenu)>=0 ? retenu : 'cours');
   decorerPortes();
@@ -999,6 +1048,8 @@ function ligneMessage(){
   h.appendChild(b);
 }
 
+/* Le numéro du dernier appel à `volet()` — voir `finirVolet` plus bas. */
+let voletTour = 0;
 function volet(quoi){
   ecrire('seVolet', quoi);
   const {iso,per}=seanceOuverte; const s=seanceDe(iso,per);
@@ -1011,7 +1062,20 @@ function volet(quoi){
      n'était jamais atteint pour « message », « présences » ni « cours ». Le
      minuteur à 0 ms s'exécute après la peinture synchrone du volet, donc le
      pied se pose bien en dernier, quel que soit le chemin pris. */
+  /* ⚠ LE PIED SE POSAIT DEUX FOIS, ET LE MINUTEUR EN ÉTAIT LA CAUSE. Joey,
+     3 septembre : « les boutons roses en bas dans prise présence s'affichent
+     2 fois. » Quand `volet()` est appelé DEUX FOIS dans le même tick — ce qui
+     arrive dès qu'on rappelle `peindreActionsSeance()` après `ouvrirSeance()` —
+     les deux `d.innerHTML=''` passent AVANT que le premier minuteur ne se
+     réveille. Les deux `finirVolet` s'exécutent ensuite, sur un `#seDetail`
+     déjà nettoyé une seule fois : deux pieds, deux boutons roses identiques.
+     Reproduit : `volet('presences')` deux fois d'affilée → 2 `.se-pied`.
+     ⚠ UN JETON, PAS UN `removeChild` DÉFENSIF. Retirer les pieds existants
+     avant d'ajouter le sien masquerait le problème sans le dire ; le jeton
+     énonce la règle — seul le DERNIER appel à `volet()` a le droit de finir. */
+  const monTour = ++voletTour;
   const finirVolet = ()=>{
+    if (monTour !== voletTour) return;            /* un volet plus récent a pris la main */
     if (typeof boutonEffacer!=='function') return;
     const b=boutonEffacer(quoi); if (!b) return;
     const pied=el('div','se-pied'); pied.appendChild(b); d.appendChild(pied);
@@ -1098,51 +1162,143 @@ function volet(quoi){
     return;
   }
 
-  if (quoi==='presences'){
-    /* ⚠ TOUT LE MONDE A SON LINGE PAR DÉFAUT. `pres` ne garde que les
-       EXCEPTIONS : un élève absent de la table a son linge. C'est le geste
-       réel d'un prof — il pointe ceux qui manquent, pas les autres. */
-    const ETATS=[['linge','👕','a son linge'],['sans','🚫','pas de linge'],['absent','✗','absent']];
+  if (quoi==='presences' || quoi==='linge'){
+    /* ══════════════════════════════════════════════════════════════════════
+       DEUX ÉCRANS, PAS UN (3 septembre, v169)
+       Joey : « présence et linge c'est 2 choses différentes ».
+       C'était UN seul bouton qui faisait tourner trois états — a son linge →
+       pas de linge → absent — et il fallait le toucher deux fois pour marquer
+       une absence, en passant par « pas de linge » au passage. Deux questions
+       sans rapport dans un seul geste : « est-il là ? » et « a-t-il ses
+       affaires ? ». Elles ont maintenant chacune leur écran, et la carte du
+       groupe a déjà deux boutons distincts pour les ouvrir.
+       ⚠ LE CODE EST COMMUN parce que les deux écrans partagent la même grille
+       de visages, le même ✎ de note et le même compte en tête. Ce qui change,
+       c'est la QUESTION posée à chaque carte — d'où le `estLinge` plutôt que
+       deux fonctions qui divergeraient au premier correctif.
+       ────────────────────────────────────────────────────────────────────── */
+    const estLinge = (quoi==='linge');
+
     const cpt={linge:0,sans:0,absent:0};
     g.eleves.forEach(i=>{ cpt[(s.pres||{})[i]||'linge']++; });
     const c=el('div','pres-compte');
-    c.innerHTML='<span class="l"></span><span class="s"></span><span class="a"></span>';
-    c.children[0].textContent='👕 '+cpt.linge+' avec linge';
-    c.children[1].textContent='🚫 '+cpt.sans+' sans linge';
-    c.children[2].textContent='✗ '+cpt.absent+' absent'+(cpt.absent>1?'s':'');
+    if (estLinge){
+      c.innerHTML='<span class="l"></span><span class="s"></span>';
+      c.children[0].textContent='👕 '+cpt.linge+' au complet';
+      c.children[1].textContent='🚫 '+cpt.sans+' à qui il manque quelque chose';
+    } else {
+      c.innerHTML='<span class="l"></span><span class="a"></span>';
+      c.children[0].textContent='✅ '+(cpt.linge+cpt.sans)+' présent'+((cpt.linge+cpt.sans)>1?'s':'');
+      c.children[1].textContent='✗ '+cpt.absent+' absent'+(cpt.absent>1?'s':'');
+    }
     d.appendChild(c);
-    /* consigne repliée (G3-FICHE) : une ligne, le reste sous le ⓘ */
-    d.appendChild(aideRepliee('👕',
-      'Touche seulement ceux qui manquent.',
-      'Une fois pour « pas de linge », deux fois pour « absent ». Le <b>✎</b> '
-      +'d’une carte note l’élève pour cette période — la note se range dans le '
-      +'portrait du groupe.', 'aideLinge'));
-    const tout=el('button','mini','↺ TOUT LE MONDE A SON LINGE'); tout.type='button';
-    tout.style.marginBottom='10px';
-    tout.addEventListener('click',()=>{ majSeance(x=>x.pres={}); volet('presences'); });
+
+    d.appendChild(estLinge
+      ? aideRepliee('👕', 'Touche la pièce qui manque.',
+          'Une carte par élève, et sous chacune les trois pièces : '
+          +'<b>👟 souliers · 🩳 short · 👕 t-shirt</b>. Touche celles qui manquent '
+          +'aujourd’hui. Ce que tu marques ici se retrouve dans le portrait du '
+          +'groupe, avec la date — c’est ce qui te permet de dire à un parent '
+          +'quel jour et quelle pièce.', 'aideLinge2')
+      : aideRepliee('✅', 'Touche seulement ceux qui manquent.',
+          'Une touche marque l’élève absent, une deuxième le ramène présent. '
+          +'Le <b>✎</b> d’une carte note l’élève pour cette période — la note se '
+          +'range dans le portrait du groupe.', 'aidePresence2'));
+
+    const tout=el('button','mini'); tout.type='button'; tout.style.marginBottom='10px';
+    tout.textContent = estLinge ? '↺ TOUT LE MONDE A SON LINGE' : '↺ TOUT LE MONDE EST LÀ';
+    tout.title = estLinge ? 'Effacer toutes les pièces manquantes de cette période'
+                          : 'Ramener tout le monde présent pour cette période';
+    tout.addEventListener('click',()=>{
+      majSeance(x=>{
+        if (estLinge){
+          /* ⚠ ON N'EFFACE PAS `pres` EN BLOC : une absence n'est pas un oubli
+             de linge, et « tout le monde a son linge » ne doit pas faire
+             revenir en classe un élève qu'on a marqué absent. */
+          x.linge={};
+          g.eleves.forEach(i=> majPresDepuisLinge(x, i));
+        } else {
+          g.eleves.forEach(i=>{ if ((x.pres||{})[i]==='absent'){ delete x.pres[i];
+            majPresDepuisLinge(x, i); } });
+        }
+      });
+      volet(quoi);
+    });
     d.appendChild(tout);
+
     const gr=el('div','pres-grille');
     g.eleves.forEach(i=>{
       const et=(s.pres||{})[i]||'linge';
+      const absent=(et==='absent');
+      const manque=lingeDe(s, i);
+
       const b=el('button','pres-el pres-el--'+et); b.type='button';
       const im=document.createElement('img'); im.src=visageDe(i); im.alt='';
       b.appendChild(im);
       b.appendChild(el('div','nom', ELEVES[i]));
-      const e=ETATS.find(x=>x[0]===et);
-      b.appendChild(el('div','etat', e[1]+' '+e[2]));
-      b.title=ELEVES[i]+' — '+e[2];
-      b.addEventListener('click',()=>{
-        const ordre=['linge','sans','absent'];
-        const k=ordre.indexOf(et);
-        majSeance(x=>{ x.pres=x.pres||{}; const n=ordre[(k+1)%3];
-          if (n==='linge') delete x.pres[i]; else x.pres[i]=n; });
-        volet('presences');
-      });
+
+      if (estLinge){
+        b.appendChild(el('div','etat', absent ? '✗ absent'
+          : manque.length ? '🚫 il manque '+manque.length : '👕 au complet'));
+        b.title = absent ? ELEVES[i]+' était absent — rien à marquer'
+          : manque.length ? ELEVES[i]+' — il manque : '+nomsDesPieces(manque).join(', ')
+                          : ELEVES[i]+' a tout son linge';
+        /* ⚠ LA CARTE ELLE-MÊME NE FAIT RIEN DANS L'ÉCRAN DU LINGE : ce sont les
+           trois pièces, en dessous, qui se touchent. Un clic sur la carte qui
+           bascule un état en plus des pièces, c'est deux vérités pour une seule
+           question. On la neutralise plutôt que de la laisser mentir. */
+        b.disabled = true;
+        b.classList.add('pres-el--muet');
+      } else {
+        b.appendChild(el('div','etat', absent ? '✗ absent' : '✅ présent'));
+        b.title = ELEVES[i]+(absent ? ' — absent, touche pour le ramener présent'
+                                    : ' — présent, touche pour le marquer absent');
+        b.addEventListener('click',()=>{
+          majSeance(x=>{
+            x.pres=x.pres||{};
+            if (absent){ delete x.pres[i]; majPresDepuisLinge(x, i); }
+            else x.pres[i]='absent';
+          });
+          volet('presences');
+        });
+      }
+
+      const cel=el('div','pres-case'); cel.appendChild(b);
+
+      /* ── les trois pièces, sous la carte, dans l'écran du linge ── */
+      if (estLinge){
+        const rangee=el('div','linge-pieces');
+        PIECES_LINGE.forEach(([cle,emo,nom])=>{
+          const p=el('button','linge-piece'); p.type='button';
+          const absentIci=absent;
+          const manquant=manque.indexOf(cle)>=0;
+          p.setAttribute('aria-pressed', String(manquant));
+          p.disabled = absentIci;
+          p.appendChild(el('span','linge-emo', emo));
+          p.appendChild(el('span','linge-nom', nom));
+          p.title = absentIci ? ELEVES[i]+' était absent'
+            : manquant ? nom+' manque à '+ELEVES[i]+' — touche pour dire qu’il l’a'
+                       : ELEVES[i]+' a son '+nom.toLowerCase()+' — touche s’il manque';
+          p.addEventListener('click',()=>{
+            majSeance(x=>{
+              x.linge=x.linge||{};
+              const l=lingeDe(x, i);
+              const k=l.indexOf(cle);
+              if (k>=0) l.splice(k,1); else l.push(cle);
+              if (l.length) x.linge[i]=l; else delete x.linge[i];
+              majPresDepuisLinge(x, i);
+            });
+            volet('linge');
+          });
+          rangee.appendChild(p);
+        });
+        cel.appendChild(rangee);
+      }
+
       /* ✎ noter CET élève, à CETTE période. La note file au PORTRAIT, et si
          elle est marquée « à suivre », elle remonte d'elle-même à la prochaine
          séance du groupe. Le bouton est un frère de la carte, pas un enfant :
          un <button> dans un <button> ne survit pas au navigateur. */
-      const cel=el('div','pres-case'); cel.appendChild(b);
       const nte=(s.notesEl||{})[i];
       const no=el('button','pres-note'+(nte?' pres-note--pleine':''),
                   nte ? ((nte.suivi&&!nte.regle) ? '⚑' : '📌') : '✎');

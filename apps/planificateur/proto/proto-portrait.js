@@ -152,8 +152,18 @@ const EFFACABLE = {
                plein:s=>(s.etapes||[]).some(e=>e.titre||e.desc||e.duree||(e.medias||[]).length||e.fait),
                vide:s=>{ const v=seanceVide(s.gr); s.etapes=v.etapes; s.seq=v.seq; }},
   minuterie:  {quoi:'le temps consigné', plein:s=>!!s.minuterie, vide:s=>{ s.minuterie=0; }},
-  presences:  {quoi:'les présences et le linge',
-               plein:s=>Object.keys(s.pres||{}).length>0, vide:s=>{ s.pres={}; }},
+  /* ⚠ DEUX ENTRÉES DEPUIS QUE LES DEUX ÉCRANS SONT SÉPARÉS. Effacer les
+     présences ne doit pas emporter le linge, ni l'inverse : ce sont deux
+     consignations distinctes, et le bouton d'un écran ne parle que de lui. */
+  presences:  {quoi:'les absences de cette période',
+               plein:s=>Object.values(s.pres||{}).some(v=>v==='absent'),
+               vide:s=>{ Object.keys(s.pres||{}).forEach(i=>{
+                 if (s.pres[i]==='absent') delete s.pres[i]; }); }},
+  linge:      {quoi:'les pièces de linge manquantes',
+               plein:s=>Object.keys(s.linge||{}).length>0,
+               vide:s=>{ s.linge={};
+                 Object.keys(s.pres||{}).forEach(i=>{
+                   if (s.pres[i]==='sans') delete s.pres[i]; }); }},
   evaluation: {quoi:'les critères et toutes les cotes',
                plein:s=>(s.evalCrits||[]).length>0 || Object.keys(s.notes||{}).length>0,
                vide:s=>{ s.evalCrits=[]; s.notes={}; }},
@@ -268,13 +278,27 @@ function voletPortrait(d){
   }
 
   /* ── ce qu'on a cumulé, en un coup d'œil ── */
-  const st={}; g.eleves.forEach(i=> st[i]={abs:0, sans:0, sous:0, notes:[]});
+  /* ⚠ ON RETIENT LES DATES, PLUS SEULEMENT DES COMPTEURS. Joey, 3 septembre :
+     « mes attentes sont de me dire l'historique des élèves étant absent, QUAND,
+     et quand l'élève n'avait pas son linge — souliers, short, t-shirt. »
+     « 3 absences » ne permet pas de répondre à un parent ; « les 8, 15 et
+     22 septembre » oui. Rien n'est calculé en plus : on parcourait déjà toutes
+     les séances pour incrémenter `abs` et `sans`, on garde simplement ce qu'on
+     avait sous la main au lieu de le jeter. */
+  const st={}; g.eleves.forEach(i=> st[i]={abs:0, sans:0, sous:0, notes:[],
+                                            quandAbs:[], quandSans:[]});
   let nCotes=0, nMots=0;
   hist.forEach(x=>{
     Object.keys(x.s.pres||{}).forEach(i=>{
       if(!st[i]) return;
-      if (x.s.pres[i]==='absent') st[i].abs++;
-      if (x.s.pres[i]==='sans')   st[i].sans++;
+      if (x.s.pres[i]==='absent'){ st[i].abs++; st[i].quandAbs.push({iso:x.iso, per:x.per}); }
+      if (x.s.pres[i]==='sans'){
+        st[i].sans++;
+        /* les pièces manquantes de CE jour-là — vide pour une séance d'avant le
+           détail par pièce, et la date reste alors seule, ce qui est honnête */
+        const pieces=(typeof lingeDe==='function') ? lingeDe(x.s, i) : [];
+        st[i].quandSans.push({iso:x.iso, per:x.per, pieces:pieces});
+      }
     });
     cotesSousMax(x.s).forEach(k=>{
       nCotes++; const i=k.split('|')[0]; if (st[i]) st[i].sous++;
@@ -351,8 +375,8 @@ function voletPortrait(d){
      porte maintenant un nom qu'on lit sans traduire, et son explication en
      infobulle. */
   [['Élève',''],
-   ['Absences','Combien de fois cet élève a été marqué absent, toutes périodes confondues'],
-   ['Linge oublié','Combien de fois il ou elle est arrivé sans son linge d’éducation physique'],
+   ['Absences','Combien de fois cet élève a été marqué absent, et à quelles dates'],
+   ['Linge oublié','Combien de fois il ou elle est arrivé sans son linge, à quelles dates, et quelle pièce manquait'],
    ['À revoir','Combien de fois tu lui as donné autre chose que le meilleur niveau, tous critères et toutes périodes confondus'],
    ['Ce que j’ai noté','Tes notes écrites sur cet élève, avec leur date'],
    ['','']].forEach(([x,quoi])=>{
@@ -367,8 +391,37 @@ function voletPortrait(d){
     const im=document.createElement('img'); im.src=photoDe(i); im.alt='';
     v.appendChild(im); v.appendChild(el('b',null,ELEVES[i]));
     td.appendChild(v); tr.appendChild(td);
-    tr.appendChild(el('td',null, String(st[i].abs)));
-    tr.appendChild(el('td',null, String(st[i].sans)));
+    /* ── Absences : le compte, puis les dates ──
+       ⚠ LES PLUS RÉCENTES D'ABORD, et bornées à quatre avec un « +n ». Un élève
+       absent douze fois ferait une colonne de douze lignes qui écrase la
+       rangée ; les quatre dernières répondent à la question qu'on se pose
+       vraiment, et le fil complet est deux blocs plus bas. */
+    const cellDates=(n, liste, rendu)=>{
+      const td=el('td','pt-quand');
+      td.appendChild(el('div','pt-quand-n', String(n)));
+      if (!n) return td;
+      const rec=liste.slice().reverse();
+      rec.slice(0,4).forEach(x=> td.appendChild(rendu(x)));
+      if (rec.length>4) td.appendChild(el('div','pt-quand-plus','+'+(rec.length-4)+' autre(s)'));
+      return td;
+    };
+    tr.appendChild(cellDates(st[i].abs, st[i].quandAbs, x=>{
+      const d=el('div','pt-quand-l');
+      d.textContent=jourLisible(x.iso)+' · p'+x.per;
+      return d;
+    }));
+    tr.appendChild(cellDates(st[i].sans, st[i].quandSans, x=>{
+      const d=el('div','pt-quand-l');
+      d.appendChild(el('span','pt-quand-d', jourLisible(x.iso)+' · p'+x.per));
+      if (x.pieces.length){
+        const q=el('span','pt-quand-p',
+          x.pieces.map(k=>{ const P=(typeof PIECES_LINGE!=='undefined'
+            ? PIECES_LINGE.find(y=>y[0]===k) : null); return P ? P[1]+' '+P[2] : k; }).join(' · '));
+        q.title='Ce qui manquait ce jour-là';
+        d.appendChild(q);
+      }
+      return d;
+    }));
     tr.appendChild(el('td',null, String(st[i].sous)));
     const tn=el('td');
     if (!st[i].notes.length) tn.appendChild(el('span','cahier-vide','—'));
@@ -397,6 +450,14 @@ function voletPortrait(d){
      revoir, mots de cours — ne totalisent AUCUNE colonne du tableau. Les poser
      sous « Absences » ou « Linge oublié » ferait lire des chiffres qui ne s'y
      rapportent pas. Ce sont les totaux DU GROUPE, pas ceux des colonnes. */
+  /* ⚠ LE CORPS AVANT LE PIED, ET IL AVAIT DISPARU. En insérant le `<tfoot>`
+     des totaux j'ai emporté le `t.appendChild(tb)` qui le précédait : le
+     tableau ne portait plus que sa ligne de totaux, sans en-tête ni élèves —
+     et sans la moindre erreur, puisqu'un `<tbody>` détaché reste un objet
+     parfaitement valide. Mesuré dans le navigateur : 1 `tr`, 1 `td`,
+     0 visage, pour un groupe de 6. */
+  t.appendChild(tb);
+
   const pied=el('tfoot');
   const trT=el('tr','pt-totaux');
   const tdT=el('td'); tdT.colSpan=6;

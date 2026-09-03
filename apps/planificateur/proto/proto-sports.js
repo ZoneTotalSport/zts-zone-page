@@ -107,26 +107,6 @@ function sportLibre(liste){
   return dispo ? dispo[0] : SPORTS[(liste||[]).length % SPORTS.length][0];
 }
 
-/* ⚠ RATTRAPAGE UNE SEULE FOIS, POUR LES GROUPES DÉJÀ CRÉÉS. Ceux qui existaient
-   avant ce lot n'ont pas de champ `sport` : ils s'afficheraient tous en
-   athlétisme, ce que le point précédent vient justement d'écarter. On leur en
-   donne un, distinct, au premier chargement — et on pose un drapeau pour ne
-   jamais repasser : un prof qui a CHOISI athlétisme pour son 202 doit le
-   garder, et un second passage le lui reprendrait.
-   ⚠ ON N'ÉCRIT QUE SI QUELQUE CHOSE MANQUE : sans groupe à corriger, pas une
-   seule écriture en localStorage au démarrage. */
-(function sportPourLesAnciensGroupes(){
-  if (lire('sportsSemes', false)) return;
-  if (typeof GRP !== 'function') return;
-  const l=GRP();
-  if (!l.length) return;                    /* rien à semer, et rien à marquer :
-                                               les groupes à venir passeront par
-                                               `sportLibre()` à leur création */
-  let n=0;
-  l.forEach(g=>{ if (!sportValide(g.sport)){ g.sport=sportLibre(l); n++; } });
-  if (n) poserGRP(l);
-  ecrire('sportsSemes', true);
-})();
 
 /* ═════════ LE DÉGRADÉ ═════════
    La couleur du groupe reste ce qui identifie le groupe de loin ; l'image ne
@@ -520,3 +500,74 @@ function sportsSurLaSemaine(){
     return b;
   };
 })();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LE RATTRAPAGE DES ANCIENS GROUPES — EN DERNIER, ET SOUS FILET (v169)
+   Il donne un sport aux groupes créés avant ce lot : sans lui, ils
+   s'afficheraient tous en athlétisme, ce que « chaque groupe arrive avec son
+   sport » doit écarter. Une seule fois, avec un drapeau — un prof qui a CHOISI
+   athlétisme pour son 202 doit le garder.
+
+   ⚠ IL ÉTAIT EN TÊTE DE FICHIER, ET C'ÉTAIT UN DÉFAUT GRAVE. Joey, 3 septembre :
+   « la carte 202 reste rose plein, sans image ni pastille. » Placé avant les
+   quatre greffes — `carteDuGroupe`, `peindreAgenda`/`peindreMois`,
+   `modifierGroupe`, `pastilleSeance` —, la moindre exception levée par ce
+   rattrapage arrêtait le script AVANT elles. Aucune greffe ne s'installait, et
+   la carte retombait sur son rendu d'origine : fond plat, numéro sans pastille,
+   émoji au lieu de l'image. Le reste de l'app continuait normalement, donc rien
+   ne signalait la panne. Ce sont exactement les symptômes rapportés, et je ne
+   les avais pas reproduits parce que MES données ne faisaient pas lever
+   l'exception — c'est tout l'intérêt de ne pas dépendre de la chance.
+
+   DEUX VERROUS PLUTÔT QU'UN :
+     1. IL PASSE EN DERNIER. Une migration de données ne doit jamais précéder ce
+        qui fait marcher l'affichage ; si elle échoue, l'écran doit tenir debout.
+     2. IL EST SOUS `try`. Une donnée biscornue — un trou dans le tableau des
+        groupes, une entrée nulle — ne peut plus rien emporter, et elle se
+        SIGNALE au lieu de disparaître en silence.
+   ⚠ ET IL NE POSE SON DRAPEAU QU'EN CAS DE SUCCÈS : un rattrapage interrompu
+   doit pouvoir se rejouer au prochain chargement, pas se croire fait. */
+(function sportPourLesAnciensGroupes(){
+  try {
+    if (lire('sportsSemes', false)) return;
+    if (typeof GRP !== 'function' || typeof poserGRP !== 'function') return;
+    const l = GRP();
+    if (!Array.isArray(l) || !l.length) return;   /* rien à semer, et rien à marquer */
+    let n = 0;
+    l.forEach(g => {
+      if (!g || typeof g !== 'object') return;    /* une entrée nulle ne fait plus tomber le lot */
+      if (!sportValide(g.sport)){ g.sport = sportLibre(l); n++; }
+    });
+    if (n) poserGRP(l);
+    ecrire('sportsSemes', true);
+  } catch (e) {
+    /* ⚠ ON PARLE. Le silence est ce qui a coûté deux allers-retours : la carte
+       était fausse et la console vide. */
+    console.error('[proto-sports] le rattrapage des sports a échoué — '
+                + 'les greffes d\'affichage, elles, sont posées.', e);
+  }
+})();
+
+/* ═════════ DIRE SI LES GREFFES SONT EN PLACE ═════════
+   ⚠ UN SEUL ENDROIT À REGARDER QUAND LA CARTE N'A PAS SON IMAGE. Sans ça, la
+   seule façon de savoir si ce fichier a fini de s'exécuter était de comparer
+   des captures d'écran. `window.protoSportsEtat()` répond en une ligne, depuis
+   n'importe quelle console. */
+window.protoSportsEtat = function(){
+  const g = (typeof GRP==='function' ? GRP() : []);
+  return {
+    fichierTerminé: true,
+    sports: (typeof SPORTS!=='undefined' ? SPORTS.length : 'ABSENT'),
+    greffes: {
+      carte:       typeof carteDuGroupe==='function'  && /poserFondDeGroupe/.test(String(carteDuGroupe)),
+      semaine:     typeof peindreAgenda==='function'  && /sportsSurLaSemaine/.test(String(peindreAgenda)),
+      mois:        typeof peindreMois==='function'    && /emojisSurLeMois/.test(String(peindreMois)),
+      personnaliser: typeof modifierGroupe==='function' && /champsSportEtTitulaire/.test(String(modifierGroupe)),
+      pastilles:   typeof pastilleSeance==='function' && /poserFondDeGroupe/.test(String(pastilleSeance)),
+    },
+    rattrapageFait: lire('sportsSemes', false),
+    groupes: g.map(x => ({nom:x && x.nom, sport:(x && x.sport) || 'AUCUN',
+                          coul:x && x.coul, aUneImage: !!(x && x.img)})),
+  };
+};
+console.log('[proto-sports] greffes posées — `protoSportsEtat()` pour le détail.');

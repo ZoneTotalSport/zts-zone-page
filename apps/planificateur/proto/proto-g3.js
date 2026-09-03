@@ -737,8 +737,11 @@ function fonctionsDuCours(iso, per, s, g){
 
   bouton('', '✅', 'Présences', pres.length>0,
          'Qui est là', ()=>ouvrir('presences'));
+  /* ⚠ IL OUVRAIT L'ÉCRAN DES PRÉSENCES. Joey : « présence et linge c'est
+     2 choses différentes. » Deux boutons nommés qui menaient au même endroit,
+     et un seul geste qui répondait à deux questions sans rapport. */
   bouton('', '👕', 'Linge', pres.some(x=>x==='sans'),
-         'Qui a son linge', ()=>ouvrir('presences'));
+         'Qui a ses souliers, son short, son t-shirt', ()=>ouvrir('linge'));
   bouton('', '💬', 'Mot', !!(s.message||'').trim(),
          'Un mot sur ce cours', ()=>ouvrir('message'));
 
