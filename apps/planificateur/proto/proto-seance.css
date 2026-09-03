@@ -605,10 +605,70 @@
 @media(max-width:760px){ .fbloc-corps{grid-template-columns:1fr} }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   LA FEUILLE EN GRAND (2 septembre, v163)
+   LE BANDEAU DE LA FEUILLE (3 septembre, v164)
+   Joey : « la feuille prend tout l'écran sans moyen de sortir ni d'ajuster la
+   taille. » Les deux sorties EXISTAIENT — le ◀ RETOUR en tête du volet et le
+   ✕ de la modale — mais aucune ne tenait à l'écran : la première défilait avec
+   le fil, la seconde est en `position:absolute` dans `.modale-boite`, qui est
+   `overflow:auto`. Le bandeau les rassemble et COLLE EN HAUT.
+
+   ⚠ `top:0` SANS DÉCALAGE : le conteneur qui défile est `#modaleCorps` (voir
+   proto.css §modale — la boîte est devenue une colonne, chrome fixe en haut,
+   corps défilant en dessous). Un `top` calculé sur la barre du haut de l'app
+   viserait le mauvais repère et laisserait le bandeau flotter dans le vide.
+   ⚠ ET CE BANDEAU N'EST PAS LA SEULE SORTIE — c'est délibéré. Le ✕ de la boîte
+   ne défile plus du tout depuis que la modale est une colonne : il tient par
+   la MISE EN PAGE, sans `position:sticky`, donc sans rien devoir au zoom.
+   Le bandeau est la sortie qu'on a sous les yeux ; le ✕ de la boîte est celle
+   qui reste même si `sticky` venait à céder.
+   ⚠ FOND OPAQUE ET OBLIGATOIRE. Sans lui, les blocs d'activité défilent en
+   transparence DERRIÈRE les trois boutons et le ✕ devient illisible juste au
+   moment où l'on en a besoin.
+   ────────────────────────────────────────────────────────────────────────── */
+.feuille-barre{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  background:#fff;border-bottom:3px solid var(--noir);
+  padding:8px 0;margin:0 0 12px;
+}
+/* le ◀ RETOUR perd sa marge du bas : c'est le bandeau qui la porte maintenant */
+.feuille-barre .plan-retour{margin:0}
+/* ⚠ LE ✕ EST POUSSÉ À DROITE PAR `margin-left:auto`, PAS PAR UN ESPACEUR.
+   Un enfant vide de plus serait un enfant que le clavier peut atteindre. */
+.feuille-x{
+  margin-left:auto;cursor:pointer;
+  min-width:44px;min-height:44px;padding:0 10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-titre);font-size:24px;line-height:1;
+  background:var(--rose);color:#2A0010;
+  border:3px solid var(--noir);border-radius:12px;box-shadow:3px 3px 0 var(--noir);
+}
+.feuille-x:hover{background:#FF5C93}
+.feuille-x:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--noir)}
+/* le bouton de taille : « Aa » puis le nom du cran où l'on est */
+.feuille-aa{
+  display:inline-flex;align-items:center;gap:8px;
+  min-height:44px;padding:0 14px;margin:0;
+}
+.feuille-aa-aa{font-family:var(--f-titre);font-size:22px;line-height:1}
+.feuille-aa-cran{font-family:var(--f-titre);font-size:15px;letter-spacing:.4px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LA FEUILLE EN GRAND (2 septembre, v163 — mise au cran le 3, v164)
    Joey, dicté : « tout est trop petit, on ne voit pas les cycles ».
    « En grand » veut dire DES TAILLES, pas du plein écran : la feuille garde sa
    structure, son bandeau et son ◀ RETOUR. Elle enfle sur place.
+
+   ⚠ CE BLOC ÉTAIT INCONDITIONNEL, ET C'EST LÀ QU'ÉTAIT LA MOITIÉ DE LA PLAINTE
+   DU 3 SEPTEMBRE : la feuille avait UNE taille, celle-ci, sans retour possible.
+   Il est maintenant porté par `html[data-feuille="grand"]`, qui reste le
+   DÉFAUT — pour qui ne touche pas au bouton Aa, rien ne change de v163. Le cran
+   « Normal » n'a besoin d'aucune règle : ce sont celles du haut de ce fichier,
+   qui n'ont jamais bougé. Le cran « Tableau » les pousse d'un rang, plus bas.
+   ⚠ LA SPÉCIFICITÉ MONTE DE 0-1-0 À 0-2-1 EN PRÉFIXANT `html[data-feuille]`.
+   C'est un gain, pas un risque : le `.feuille .fch-z` d'origine n'existait que
+   pour passer devant le `[contenteditable]{font-size:20px}` de proto-papier.css
+   (0-1-0) ; le préfixe fait le même travail partout, d'un coup.
 
    ⚠ TOUT EST EN PIXELS DE MISE EN PAGE, jamais en `vw`. Le proto tourne sous
    `html{zoom}` (2 par défaut) et `vw` se calcule sur la fenêtre NON zoomée :
@@ -621,32 +681,32 @@
    surcharge les tailles sans toucher aux règles d'origine, et un retour en
    arrière consiste à retirer ce bloc, rien d'autre.
    ────────────────────────────────────────────────────────────────────────── */
-.feuille{padding:18px}
-.feuille-titre{font-size:34px;margin:0 0 16px}
+html[data-feuille="grand"] .feuille{padding:18px}
+html[data-feuille="grand"] .feuille-titre{font-size:34px;margin:0 0 16px}
 
 /* ── le bandeau du haut ── */
-.feuille-haut{gap:14px;padding:14px;margin-bottom:16px}
-.fch{gap:5px;min-width:150px}
-.fch--large{min-width:280px}
-.fch-lab{font-size:18px}
+html[data-feuille="grand"] .feuille-haut{gap:14px;padding:14px;margin-bottom:16px}
+html[data-feuille="grand"] .fch{gap:5px;min-width:150px}
+html[data-feuille="grand"] .fch--large{min-width:280px}
+html[data-feuille="grand"] .fch-lab{font-size:18px}
 /* ⚠ `.feuille` DEVANT, ET CE N'EST PAS DE LA COQUETTERIE. proto-papier.css est
    la dernière feuille chargée et y pose `[contenteditable]{font-size:20px}` :
    même spécificité qu'un `.fch-z` tout seul (0-1-0), donc c'est lui qui gagnait
    et les champs restaient à 20 px au lieu de 23. Le piège est déjà consigné au
    bas de proto-papier.css ; on le contourne en nommant le parent, plutôt qu'en
    déménageant la règle loin de la feuille à laquelle elle appartient. */
-.feuille .fch-z{font-size:23px;min-height:48px;padding:9px 12px;border-radius:10px}
-.feuille .fch-z--haut{min-height:190px}
-.fch-tot{font-size:26px;min-height:48px;padding:9px 12px}
+html[data-feuille="grand"] .feuille .fch-z{font-size:23px;min-height:48px;padding:9px 12px;border-radius:10px}
+html[data-feuille="grand"] .feuille .fch-z--haut{min-height:190px}
+html[data-feuille="grand"] .fch-tot{font-size:26px;min-height:48px;padding:9px 12px}
 
 /* ⚠ LES CYCLES ÉTAIENT LE POINT DE DÉPART DE LA DEMANDE : « on ne voit pas les
    cycles ». Trois vraies plaques qu'on frappe du pouce, plus des cases. */
-.fch-cycles{gap:9px}
-.fcyc{
+html[data-feuille="grand"] .fch-cycles{gap:9px}
+html[data-feuille="grand"] .fcyc{
   font-size:22px;padding:14px 22px;border-radius:12px;min-width:118px;
   box-shadow:3px 3px 0 var(--noir);
 }
-.fcyc[aria-pressed="true"]{
+html[data-feuille="grand"] .fcyc[aria-pressed="true"]{
   background:var(--jaune);
   box-shadow:3px 3px 0 var(--noir),0 0 0 4px var(--noir) inset;
 }
@@ -656,36 +716,112 @@
    tablette. On accepte de défiler — un bloc lisible vaut mieux que trois
    comprimés. Le bloc est une colonne flex pour que le descriptif et
    l'illustration se PARTAGENT la hauteur restante au lieu de la subir. */
-.fbloc{
+html[data-feuille="grand"] .fbloc{
   display:flex;flex-direction:column;gap:12px;
   border-width:4px;border-radius:16px;padding:18px;margin-bottom:18px;
   min-height:560px;
 }
-.fbloc-phase{font-size:24px;color:var(--ink);margin-bottom:0}
-.fbloc-titre{gap:5px;margin-bottom:0}
-.fbloc-titre .fch-z{font-size:28px;min-height:60px}
-.fbloc-corps{flex:1;gap:14px;min-height:0}
-.fbloc-desc,.fbloc-illus{gap:5px}
-.fbloc-desc .fch-z--haut{flex:1}
-.fillus{flex:1;min-height:220px;border-radius:12px;padding:9px}
-.fillus img{max-height:none;height:100%;max-width:100%;object-fit:contain}
-.fillus .doc{font-size:44px}
-.fillus-vide{font-size:19px}
-.fbloc-duree{gap:12px;margin-top:0}
-.fch-duree{width:118px;font-size:24px;padding:9px 12px;border-radius:10px}
-.fbloc-duree .etape-go{font-size:20px;padding:9px 14px;border-radius:10px}
+html[data-feuille="grand"] .fbloc-phase{font-size:24px;color:var(--ink);margin-bottom:0}
+html[data-feuille="grand"] .fbloc-titre{gap:5px;margin-bottom:0}
+html[data-feuille="grand"] .fbloc-titre .fch-z{font-size:28px;min-height:60px}
+html[data-feuille="grand"] .fbloc-corps{flex:1;gap:14px;min-height:0}
+html[data-feuille="grand"] .fbloc-desc, html[data-feuille="grand"] .fbloc-illus{gap:5px}
+html[data-feuille="grand"] .fbloc-desc .fch-z--haut{flex:1}
+html[data-feuille="grand"] .fillus{flex:1;min-height:220px;border-radius:12px;padding:9px}
+html[data-feuille="grand"] .fillus img{max-height:none;height:100%;max-width:100%;object-fit:contain}
+html[data-feuille="grand"] .fillus .doc{font-size:44px}
+html[data-feuille="grand"] .fillus-vide{font-size:19px}
+html[data-feuille="grand"] .fbloc-duree{gap:12px;margin-top:0}
+html[data-feuille="grand"] .fch-duree{width:118px;font-size:24px;padding:9px 12px;border-radius:10px}
+html[data-feuille="grand"] .fbloc-duree .etape-go{font-size:20px;padding:9px 14px;border-radius:10px}
 
-.feuille-enmots{padding:12px 16px}
-.feuille-enmots summary{font-size:20px}
+html[data-feuille="grand"] .feuille-enmots{padding:12px 16px}
+html[data-feuille="grand"] .feuille-enmots summary{font-size:20px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LE CRAN « TABLEAU » (3 septembre, v164)
+   Un rang au-dessus de « Grand » : la feuille projetée au mur du gymnase, ou
+   posée sur la tablette au bout du banc. C'est le cran du §1.2 du mandat — le
+   mode tableau blanc — appliqué à la feuille elle-même.
+
+   ⚠ IL EST BÂTI SUR « GRAND », PAS À CÔTÉ : chaque règle ci-dessous surcharge
+   une règle de même nom du bloc précédent, à spécificité égale (0-2-1) et plus
+   bas dans le fichier. Ce qui n'est pas répété reste donc celui de « Grand ».
+   Le jour où l'on retire ce cran, il suffit d'ôter ce bloc et sa valeur de la
+   liste blanche dans proto-seance.js.
+   ⚠ TOUJOURS EN PIXELS, JAMAIS EN `vw` — même règle que partout ici : sous
+   `html{zoom}` (2 par défaut), une taille en `vw` sortirait au double.
+   ────────────────────────────────────────────────────────────────────────── */
+html[data-feuille="tableau"] .feuille{padding:24px}
+html[data-feuille="tableau"] .feuille-titre{font-size:46px;margin:0 0 22px}
+
+html[data-feuille="tableau"] .feuille-haut{gap:18px;padding:18px;margin-bottom:22px}
+html[data-feuille="tableau"] .fch{gap:7px;min-width:200px}
+html[data-feuille="tableau"] .fch--large{min-width:360px}
+html[data-feuille="tableau"] .fch-lab{font-size:24px}
+html[data-feuille="tableau"] .feuille .fch-z{font-size:31px;min-height:64px;padding:12px 16px;border-radius:12px}
+html[data-feuille="tableau"] .feuille .fch-z--haut{min-height:250px}
+html[data-feuille="tableau"] .fch-tot{font-size:34px;min-height:64px;padding:12px 16px}
+
+html[data-feuille="tableau"] .fch-cycles{gap:12px}
+html[data-feuille="tableau"] .fcyc{
+  font-size:29px;padding:18px 28px;border-radius:14px;min-width:158px;
+  box-shadow:4px 4px 0 var(--noir);
+}
+html[data-feuille="tableau"] .fcyc[aria-pressed="true"]{
+  background:var(--jaune);
+  box-shadow:4px 4px 0 var(--noir),0 0 0 5px var(--noir) inset;
+}
+
+html[data-feuille="tableau"] .fbloc{
+  display:flex;flex-direction:column;gap:16px;
+  border-width:5px;border-radius:20px;padding:24px;margin-bottom:24px;
+  min-height:740px;
+}
+html[data-feuille="tableau"] .fbloc-phase{font-size:32px;color:var(--ink);margin-bottom:0}
+html[data-feuille="tableau"] .fbloc-titre{gap:7px;margin-bottom:0}
+html[data-feuille="tableau"] .fbloc-titre .fch-z{font-size:38px;min-height:80px}
+html[data-feuille="tableau"] .fbloc-corps{flex:1;gap:18px;min-height:0}
+html[data-feuille="tableau"] .fbloc-desc,
+html[data-feuille="tableau"] .fbloc-illus{gap:7px}
+html[data-feuille="tableau"] .fbloc-desc .fch-z--haut{flex:1}
+html[data-feuille="tableau"] .fillus{flex:1;min-height:290px;border-radius:16px;padding:12px}
+html[data-feuille="tableau"] .fillus .doc{font-size:58px}
+html[data-feuille="tableau"] .fillus-vide{font-size:25px}
+html[data-feuille="tableau"] .fbloc-duree{gap:16px;margin-top:0}
+html[data-feuille="tableau"] .fch-duree{width:158px;font-size:32px;padding:12px 16px;border-radius:12px}
+html[data-feuille="tableau"] .fbloc-duree .etape-go{font-size:27px;padding:12px 18px;border-radius:12px}
+
+html[data-feuille="tableau"] .feuille-enmots{padding:16px 20px}
+html[data-feuille="tableau"] .feuille-enmots summary{font-size:27px}
+
+/* le bandeau suit le cran : la sortie doit rester la chose la plus visible */
+html[data-feuille="tableau"] .feuille-x{min-width:58px;min-height:58px;font-size:32px}
+html[data-feuille="tableau"] .feuille-aa{min-height:58px;padding:0 18px}
+html[data-feuille="tableau"] .feuille-aa-aa{font-size:29px}
+html[data-feuille="tableau"] .feuille-aa-cran{font-size:20px}
 
 /* ⚠ EN ÉTROIT, LA HAUTEUR IMPOSÉE TOMBE. Le descriptif et l'illustration
    passent l'un sous l'autre : leur somme dépasse déjà les 560 px, et les
    imposer en plus ferait une case à moitié vide en haut de chaque bloc.
-   On garde les tailles de police — c'est là qu'est la demande. */
-html[data-etroit="1"] .fbloc-corps{grid-template-columns:1fr}
-html[data-etroit="1"] .fbloc{min-height:0}
-html[data-etroit="1"] .fillus{min-height:170px}
+   On garde les tailles de police — c'est là qu'est la demande.
+   ⚠ LES DEUX CRANS SONT NOMMÉS, PAS SEULEMENT « GRAND ». Un sélecteur qui ne
+   viserait que `grand` laisserait « Tableau » imposer ses 740 px sur un
+   téléphone — la case à moitié vide, en pire. */
+html[data-etroit="1"][data-feuille="grand"] .fbloc-corps,
+html[data-etroit="1"][data-feuille="tableau"] .fbloc-corps{grid-template-columns:1fr}
+html[data-etroit="1"][data-feuille="grand"] .fbloc,
+html[data-etroit="1"][data-feuille="tableau"] .fbloc{min-height:0}
+html[data-etroit="1"][data-feuille="grand"] .fillus,
+html[data-etroit="1"][data-feuille="tableau"] .fillus{min-height:170px}
+/* ⚠ MÊME RAISON, ET IL FAUT LA SPÉCIFICITÉ POUR LA DIRE : `.fbloc` tout seul
+   (0-1-0) perdait contre `html[data-feuille="tableau"] .fbloc` (0-2-1), quel
+   que soit l'ordre — une media query ne pèse rien dans ce calcul. */
 @media(max-width:760px){
+  html[data-feuille="grand"] .fbloc,
+  html[data-feuille="tableau"] .fbloc{min-height:0}
+  html[data-feuille="grand"] .fillus,
+  html[data-feuille="tableau"] .fillus{min-height:170px}
   .fbloc{min-height:0}
   .fillus{min-height:170px}
 }

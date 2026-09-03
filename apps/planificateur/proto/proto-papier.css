@@ -127,7 +127,10 @@
    restait vide pendant que la grille de la semaine se serrait. La marge suit
    maintenant la largeur au lieu d'être un mur. */
 .wrap{max-width:none;padding:18px clamp(10px,2.2vw,40px)}
-.modale-boite{width:min(1600px,97vw);padding:clamp(12px,1.6vw,22px)}
+/* ⚠ `100%`, PAS `97vw` — même piège que dans proto.css : sous `html{zoom}`,
+   une largeur en `vw` se calcule sur la fenêtre non zoomée puis se peint au
+   double, et les deux bords de la boîte sortent de l'écran avec le ✕. */
+.modale-boite{width:min(1600px,100%);padding:clamp(12px,1.6vw,22px)}
 
 /* ── iPad, en portrait comme en paysage ── */
 @media(max-width:1024px){
@@ -147,7 +150,7 @@
   .agenda{overflow-x:auto;-webkit-overflow-scrolling:touch}
   .agenda-grille{min-width:660px}
   .agenda-bas{grid-template-columns:1fr;padding:0 8px 10px}
-  .modale-boite{width:100vw;max-height:100vh;border-radius:0;border-left:0;border-right:0}
+  .modale-boite{width:100%;max-height:100%;border-radius:0;border-left:0;border-right:0}
   .se-actions{grid-template-columns:1fr 1fr}
   .plan-palette{grid-template-columns:1fr 1fr}
   .gril{display:block;overflow-x:auto}

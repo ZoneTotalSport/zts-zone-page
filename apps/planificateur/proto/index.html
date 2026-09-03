@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Proto G2 — Planificateur simplicité</title>
-<link rel="stylesheet" href="proto.css?v=163">
-<link rel="stylesheet" href="proto-fusion.css?v=163">
-<link rel="stylesheet" href="proto-boutons.css?v=163">
-<link rel="stylesheet" href="proto-seance.css?v=163">
-<link rel="stylesheet" href="proto-simple.css?v=163">
-<link rel="stylesheet" href="proto-papier.css?v=163">
+<link rel="stylesheet" href="proto.css?v=164">
+<link rel="stylesheet" href="proto-fusion.css?v=164">
+<link rel="stylesheet" href="proto-boutons.css?v=164">
+<link rel="stylesheet" href="proto-seance.css?v=164">
+<link rel="stylesheet" href="proto-simple.css?v=164">
+<link rel="stylesheet" href="proto-papier.css?v=164">
 </head>
 <body>
 
@@ -477,8 +477,13 @@
 <!-- ═══════════════ MODALE ═══════════════ -->
 <div class="modale" id="modale" hidden>
   <div class="modale-fond" data-fermer></div>
+  <!-- ⚠ LE ✕ EST ICI, HORS DE `.modale-boite`, ET IL DOIT Y RESTER. La boîte
+       défile (`overflow:auto`) : un bouton posé dedans en `position:absolute`
+       se cale sur le haut du CONTENU et disparaît au premier défilement — le
+       « aucun moyen de sortir » du 3 septembre. `.modale` est `position:fixed`
+       et ne défile jamais ; le ✕ y est immobile sans autre mécanique. -->
+  <button type="button" class="modale-x" data-fermer aria-label="Fermer">✕</button>
   <div class="modale-boite" role="dialog" aria-modal="true" aria-labelledby="modaleTitre">
-    <button type="button" class="modale-x" data-fermer aria-label="Fermer">✕</button>
     <h2 id="modaleTitre"></h2>
     <div id="modaleCorps"></div>
   </div>
@@ -487,17 +492,17 @@
 <audio id="sonNba"   src="son/buzzer-nba.mp3"   preload="auto"></audio>
 <audio id="sonArena" src="son/buzzer-arena.mp3" preload="auto"></audio>
 
-<script src="proto.js?v=163"></script>
-<script src="proto-fusion.js?v=163"></script>
-<script src="proto-seance.js?v=163"></script>
-<script src="proto-simple.js?v=163"></script>
-<script src="proto-tests.js?v=163"></script>
-<script src="proto-annee.js?v=163"></script>
-<script src="proto-horaire.js?v=163"></script>
-<script src="proto-dossiers.js?v=163"></script>
-<script src="proto-pfeq.js?v=163"></script>
-<script src="proto-portrait.js?v=163"></script>
-<script src="proto-g3.js?v=163"></script>
-<script src="proto-g4.js?v=163"></script>
+<script src="proto.js?v=164"></script>
+<script src="proto-fusion.js?v=164"></script>
+<script src="proto-seance.js?v=164"></script>
+<script src="proto-simple.js?v=164"></script>
+<script src="proto-tests.js?v=164"></script>
+<script src="proto-annee.js?v=164"></script>
+<script src="proto-horaire.js?v=164"></script>
+<script src="proto-dossiers.js?v=164"></script>
+<script src="proto-pfeq.js?v=164"></script>
+<script src="proto-portrait.js?v=164"></script>
+<script src="proto-g3.js?v=164"></script>
+<script src="proto-g4.js?v=164"></script>
 </body>
 </html>

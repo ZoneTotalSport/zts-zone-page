@@ -1494,14 +1494,116 @@ function ecrireFeuille(champ, val){
   majSeanceSansRedessin(x=>{ x.feuille = x.feuille || {}; x.feuille[champ]=val; });
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   LA TAILLE DE LA FEUILLE — TROIS CRANS (3 septembre, v164)
+   Joey : « la feuille prend tout l'écran sans moyen de sortir ni d'ajuster la
+   taille. » Le v163 avait tout grossi d'un coup et SANS RETOUR possible : les
+   tailles étaient écrites en dur dans proto-seance.css. Elles deviennent un
+   cran, et « Grand » reste le défaut — l'affichage de v163 ne bouge pas pour
+   qui ne touche à rien.
+
+   ⚠ MÊME PATRON QUE `protog2:zoom`, TROIS VERROUS COMPRIS (proto-fusion.js) :
+     1. LISTE BLANCHE — seules les trois valeurs de FEUILLE_TAILLES entrent.
+     2. VALIDATION À LA RELECTURE — tout le reste retombe sur le défaut, et la
+        clé fautive est RÉÉCRITE pour qu'un rechargement ne la relise pas.
+     3. AUCUNE ÉCRITURE DEPUIS UN HANDLER AUTRE QUE LE CLIC sur le bouton Aa.
+   ⚠ CLÉ DISTINCTE : `feuilleTaille`, jamais `zoom`. Le zoom vaut pour toute
+   l'app et se règle depuis la barre du haut ; celui-ci ne vaut que pour la
+   feuille. Les mêler ferait grossir le calendrier en voulant lire une activité.
+   ⚠ L'ATTRIBUT SE POSE SUR <html>, comme `data-etroit` : les règles de taille
+   vivent dans proto-seance.css, qui est chargé AVANT proto-papier.css. Le
+   sélecteur `html[data-feuille=…] .fch-z` pèse 0-2-1 et passe donc devant le
+   `[contenteditable]{font-size:20px}` de proto-papier.css (0-1-0) — le piège
+   déjà consigné au bas de ce fichier-là.
+   ────────────────────────────────────────────────────────────────────────── */
+const FEUILLE_TAILLES = ['normal','grand','tableau'];
+const FEUILLE_TAILLE_NOMS = {normal:'Normal', grand:'Grand', tableau:'Tableau'};
+const FEUILLE_TAILLE_A_QUI = {
+  normal:  'la feuille de près, sur un portable',
+  grand:   'la feuille sur une tablette, à bout de bras',
+  tableau: 'la feuille projetée, lue du fond du gymnase',
+};
+const FEUILLE_TAILLE_DEFAUT = 'grand';
+
+function feuilleTailleValide(v){
+  return FEUILLE_TAILLES.indexOf(v) >= 0 ? v : null;
+}
+function feuilleTailleActuelle(){
+  const bon = feuilleTailleValide(lire('feuilleTaille', FEUILLE_TAILLE_DEFAUT));
+  if (bon !== null) return bon;
+  /* la clé est hors liste : on la remet d'aplomb tout de suite, sinon le
+     prochain chargement repart avec la même valeur fautive */
+  ecrire('feuilleTaille', FEUILLE_TAILLE_DEFAUT);
+  return FEUILLE_TAILLE_DEFAUT;
+}
+function appliquerTailleFeuille(){
+  document.documentElement.dataset.feuille = feuilleTailleActuelle();
+}
+function poserTailleFeuille(v){
+  const bon = feuilleTailleValide(v);
+  ecrire('feuilleTaille', bon === null ? FEUILLE_TAILLE_DEFAUT : bon);
+  appliquerTailleFeuille();
+  majBoutonTailleFeuille();
+}
+function tailleFeuilleSuivante(){
+  const i = FEUILLE_TAILLES.indexOf(feuilleTailleActuelle());
+  return FEUILLE_TAILLES[(i + 1) % FEUILLE_TAILLES.length];
+}
+/* ⚠ UN SEUL BOUTON, PAS TROIS PLAQUES. Le bandeau porte déjà la sortie et le
+   retour ; trois boutons de plus en feraient une barre de réglage, ce que Joey
+   a refusé pour le zoom le 31 août. Le bouton DIT le cran où l'on est —
+   « Aa Grand » — et son infobulle dit où mène le prochain appui : rien n'est
+   caché, et il n'y a qu'une chose à frapper. */
+function majBoutonTailleFeuille(){
+  const cran = feuilleTailleActuelle(), suiv = tailleFeuilleSuivante();
+  $$('.feuille-aa').forEach(b=>{
+    b.querySelector('.feuille-aa-cran').textContent = FEUILLE_TAILLE_NOMS[cran];
+    b.title = 'Taille de la feuille — ' + FEUILLE_TAILLE_A_QUI[cran]
+            + '. Toucher pour passer à « ' + FEUILLE_TAILLE_NOMS[suiv] + ' ».';
+    b.setAttribute('aria-label', 'Taille de la feuille : ' + FEUILLE_TAILLE_NOMS[cran]
+            + '. Toucher pour ' + FEUILLE_TAILLE_NOMS[suiv] + '.');
+  });
+}
+function boutonTailleFeuille(){
+  const b=el('button','mini feuille-aa'); b.type='button';
+  b.appendChild(el('span','feuille-aa-aa','Aa'));
+  b.appendChild(el('span','feuille-aa-cran',''));
+  b.addEventListener('click', ()=> poserTailleFeuille(tailleFeuilleSuivante()));
+  return b;
+}
+
 function peindreFeuille(d, s, iso, per){
   const g=grpDe(s.gr)||{nom:'?'};
   const F=feuilleDe(s);
 
+  /* ══ LE BANDEAU DE LA FEUILLE — LA SORTIE, ET LA TAILLE (3 septembre, v164)
+     ⚠ CE BANDEAU EST `position:sticky`, ET C'EST TOUT SON OBJET. Le ◀ RETOUR
+     vivait ici même, mais posé à plat dans le fil : dès qu'on défilait d'un
+     bloc — 560 px de haut au cran « Grand », multipliés par le zoom — il
+     sortait de l'écran. Le ✕ de la modale (`.modale-x`, index.html) souffrait
+     du même mal : il est en `position:absolute` DANS `.modale-boite`, qui est
+     `overflow:auto`, donc ancré au haut du CONTENU et non de la fenêtre.
+     Deux sorties existaient, et aucune n'était atteignable une fois la feuille
+     déroulée. Le bandeau colle en haut : elles ne peuvent plus s'échapper.
+     ⚠ LES DEUX FERMENT LA MÊME CHOSE — la feuille, pas la fiche. On revient
+     aux cartes du cours, là d'où l'on est venu. Le ✕ de la modale, lui, garde
+     son rôle : quitter la période entière. */
+  const barre=el('div','feuille-barre');
   const retour=el('button','mini mini--jaune plan-retour','◀ RETOUR');
   retour.type='button'; retour.title='Revenir aux cartes du cours';
   retour.addEventListener('click', fermerPlanification);
-  d.appendChild(retour);
+  barre.appendChild(retour);
+
+  appliquerTailleFeuille();
+  barre.appendChild(boutonTailleFeuille());
+
+  const fermer=el('button','feuille-x','✕'); fermer.type='button';
+  fermer.title='Fermer la feuille et revenir aux cartes du cours';
+  fermer.setAttribute('aria-label','Fermer la feuille');
+  fermer.addEventListener('click', fermerPlanification);
+  barre.appendChild(fermer);
+  d.appendChild(barre);
+  majBoutonTailleFeuille();
 
   const feuille=el('div','feuille');
   feuille.appendChild(el('h3','feuille-titre','Planification journalière'));

@@ -787,16 +787,48 @@ p.sous{margin:0 0 18px;color:var(--sur-fond-doux);font-size:15px}
 .modale-boite{
   /* Joey : « le popup n'est pas assez large ». Il porte maintenant toute la
      séance — planification, présences, évaluation — il lui faut la place. */
-  position:relative;z-index:1;width:min(1320px,98vw);max-height:94vh;overflow:auto;
+  /* ⚠ `100%`, PAS `98vw` / `94vh` — ET C'EST LA VRAIE CAUSE DU « on ne peut
+     pas sortir » DU 3 SEPTEMBRE. La règle « jamais de vw » est écrite deux
+     fois dans ce dépôt (proto-papier.css §carte du groupe, proto-seance.css
+     §feuille en grand) ; elle vaut pour `vh` exactement pareil, et c'est ici
+     qu'elle manquait. Sous `html{zoom:2}`, `94vh` se calcule sur la fenêtre
+     NON zoomée — 677 px de mise en page — puis se peint au double : 1354 px
+     de boîte dans une fenêtre de 720. Mesuré : la boîte débordait de 317 px
+     PAR LE HAUT, `align-items:center` la centrant sur un conteneur deux fois
+     trop petit. Le ✕ de la boîte se trouvait donc à −3291 px : hors de
+     l'écran, à tout moment, quel que soit le défilement. Il n'était pas
+     « peu visible », il était INATTEIGNABLE — et la largeur en `98vw`
+     emportait de la même façon ses bords gauche et droit.
+     `.modale` est `position:fixed; inset:0` : son bloc de contenu EST la
+     fenêtre de mise en page, dans le même repère que la boîte. `100%` y
+     mesure donc juste, à n'importe quel zoom, sans rien avoir à calculer. */
+  position:relative;z-index:1;width:min(1320px,100%);max-height:100%;overflow:auto;
   background:#fff;color:var(--ink);border:var(--bord);border-radius:18px;
   box-shadow:8px 10px 0 rgba(0,0,0,.45);padding:18px;
 }
-.modale-boite h2{font-family:var(--f-titre);font-size:22px;margin:0 0 12px;letter-spacing:.4px;color:var(--ink)}
+.modale-boite h2{font-family:var(--f-titre);font-size:22px;margin:0 0 12px;letter-spacing:.4px;color:var(--ink);padding-right:56px}
+/* ⚠ LE ✕ EST ANCRÉ À `.modale`, PAS À `.modale-boite` — ET C'EST TOUT L'OBJET
+   DU CORRECTIF DU 3 SEPTEMBRE. Il était `position:absolute` DANS la boîte, or
+   c'est la boîte qui défile (`overflow:auto`) : il se calait donc sur le haut
+   du CONTENU et montait hors de vue dès le premier écran de défilement. Sur la
+   feuille de planification, dont un seul bloc d'activité fait 560 px de haut
+   avant le zoom, plus aucune sortie n'était visible — la plainte de Joey.
+   `.modale` est `position:fixed; inset:0` et ne défile jamais : le ✕ y devient
+   immobile par simple mise en page. Aucun `position:sticky`, aucune colonne
+   flex — donc rien qui dépende du comportement de `zoom`, et rien qui puisse
+   faire s'effondrer le corps de la modale (essayé, mesuré : la colonne flex
+   réduisait `#modaleCorps` à zéro).
+   ⚠ IL EST DONC HORS DE `.modale-boite` DANS index.html. Le déplacer là-bas
+   le remettrait dans ce qui défile. */
 .modale-x{
-  position:absolute;top:10px;right:10px;cursor:pointer;
-  border:2px solid var(--noir);border-radius:9px;background:var(--rose);color:#2A0010;
-  font-family:var(--f-titre);font-size:14px;padding:2px 9px;
+  position:absolute;top:10px;right:10px;z-index:3;cursor:pointer;
+  min-width:44px;min-height:44px;padding:0 10px;
+  display:flex;align-items:center;justify-content:center;
+  border:3px solid var(--noir);border-radius:12px;background:var(--rose);color:#2A0010;
+  font-family:var(--f-titre);font-size:22px;line-height:1;
 }
+.modale-x:hover{background:#FF5C93}
+.modale-x:active{transform:translate(2px,2px)}
 .m-champ{margin-bottom:12px}
 .m-lab{display:block;font-family:var(--f-titre);letter-spacing:1px;font-size:12px;color:var(--ink-soft);margin-bottom:4px}
 .m-saisie{
