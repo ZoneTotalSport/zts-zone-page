@@ -871,16 +871,36 @@
     });
   </script>
   <script>
-  // Inject ZTS dropdown filter bar at top of content
-  (function(){
-    function inject(){
-      const grid=document.getElementById('gameGrid');
-      if(!grid||document.getElementById('ztsFilterBar'))return;
-      const C=(typeof CATEGORIES!=='undefined')?CATEGORIES:{'ballons-chasseurs':{name:'Ballons chasseurs',icon:'🔴'},'poursuites':{name:'Jeux de poursuites',icon:'🏃'},'ludiques':{name:'Jeux ludiques',icon:'🎮'},'collectifs':{name:'Jeux collectifs',icon:'⚽'},'opposition':{name:"Jeux d'opposition",icon:'🤼'},'duels':{name:'Jeux de duels',icon:'⚔️'}};
-      const cats=Object.entries(C);
-      const bar=document.createElement('div');
-      bar.id='ztsFilterBar';
-      bar.innerHTML=`
+  /* ====================================================================
+     CONSTRUCTEUR DE MISE EN PAGE — un seul, et ordonne.
+
+     Il remplace les TROIS IIFE des PR #78/#79 qui se marchaient dessus :
+     l'une injectait la barre de filtres, l'autre l'enveloppait dans une
+     carte, la troisieme demenageait la recherche dans la barre de stats.
+     Trois horloges (150ms, 250ms, 350ms) et trois idees de l'ordre des
+     blocs. La recherche devait monter dans le hero : impossible sans les
+     reunir.
+
+     Ordre pose, de haut en bas :
+       hero (titre + compteur + RECHERCHE)
+       -> collections
+       -> barre d'outils (FILTRES (n) + pastilles + tri + vue)
+       -> grille
+
+     CE QUI NE BOUGE PAS. Le dock de la PR #79 : `header.header` reste
+     sticky (CSS l.59) et les cinq boutons d'action (langue, aleatoire,
+     minuteur, favoris, theme) rejoignent `.stats-right` exactement comme
+     avant. La sidebar masquee et ses `.filter-chips` ne sont pas touchees :
+     `setupEventListeners()` continue de les ecouter, la dette reste ouverte.
+     ==================================================================== */
+  (function ztsMiseEnPage(){
+    var pose = false;
+
+    function construireBarreFiltres(){
+      var bar = document.createElement('div');
+      bar.id = 'ztsFilterBar';
+      var cats = Object.entries(typeof CATEGORIES !== 'undefined' ? CATEGORIES : {});
+      bar.innerHTML = `
         <div class="zts-filter"><label data-fr="Catégorie" data-en="Category">Catégorie</label><select id="ztsCat"><option value="all" data-fr="Toutes les catégories" data-en="All categories">Toutes les catégories</option>${cats.map(([k,v])=>`<option value="${k}" data-fr="${v.icon||''} ${v.name||k}" data-en="${v.icon||''} ${v.nameEn||v.name||k}">${v.icon||''} ${v.name||k}</option>`).join('')}</select></div>
         <div class="zts-filter"><label data-fr="Durée" data-en="Duration">Durée</label><select id="ztsDur"><option value="all" data-fr="Toutes" data-en="All">Toutes</option><option value="10">≤ 15 min</option><option value="15">15-20 min</option><option value="20">20-30 min</option><option value="30">30+ min</option></select></div>
         <div class="zts-filter"><label data-fr="Compétence PFEQ" data-en="PFEQ Competency">Compétence PFEQ</label><select id="ztsPfeq"><option value="all" data-fr="Toutes" data-en="All">Toutes</option><option value="C1" data-fr="C1 — Agir" data-en="C1 — Act">C1 — Agir</option><option value="C2" data-fr="C2 — Interagir" data-en="C2 — Interact">C2 — Interagir</option><option value="C3" data-fr="C3 — Mode de vie" data-en="C3 — Lifestyle">C3 — Mode de vie</option></select></div>
@@ -888,59 +908,170 @@
         <div class="zts-filter"><label data-fr="Âge" data-en="Age">Âge</label><select id="ztsAge"><option value="all" data-fr="Tous les âges" data-en="All ages">Tous les âges</option><option value="5">5-6 ans</option><option value="7">7-8 ans</option><option value="9">9-10 ans</option><option value="11">11-12 ans</option></select></div>
         <div class="zts-filter"><label data-fr="Matériel" data-en="Equipment">Matériel</label><select id="ztsMat"><option value="all" data-fr="Tout le matériel" data-en="All equipment">Tout le matériel</option><option value="Sans matériel" data-fr="Sans matériel" data-en="No equipment">Sans matériel</option><option value="Ballons" data-fr="Ballons" data-en="Balls">Ballons</option><option value="Cônes / dossards" data-fr="Cônes / dossards" data-en="Cones / pinnies">Cônes / dossards</option><option value="Cerceaux" data-fr="Cerceaux" data-en="Hoops">Cerceaux</option><option value="Cordes" data-fr="Cordes" data-en="Ropes">Cordes</option><option value="Gros matériel de gym" data-fr="Gros matériel de gym" data-en="Large gym equipment">Gros matériel de gym</option><option value="Petit matériel varié" data-fr="Petit matériel varié" data-en="Assorted small equipment">Petit matériel varié</option><option value="Eau / extérieur" data-fr="Eau / extérieur" data-en="Water / outdoor">Eau / extérieur</option><option value="Papier / crayons" data-fr="Papier / crayons" data-en="Paper / pencils">Papier / crayons</option><option value="Parachute" data-fr="Parachute" data-en="Parachute">Parachute</option></select></div>
       `;
-      grid.parentNode.insertBefore(bar,grid);
-
-      function setAndApply(key,val){if(typeof state==='undefined')return;state[key]=val;if(typeof applyFilters==='function')applyFilters();}
-      document.getElementById('ztsCat').addEventListener('change',e=>setAndApply('activeCategory',e.target.value));
-      document.getElementById('ztsDur').addEventListener('change',e=>setAndApply('activeDuration',e.target.value));
-      document.getElementById('ztsPfeq').addEventListener('change',e=>setAndApply('activePfeq',e.target.value));
-      document.getElementById('ztsUniv').addEventListener('change',e=>setAndApply('activeUnivers',e.target.value));
-      document.getElementById('ztsAge').addEventListener('change',e=>setAndApply('activeAge',e.target.value));
-      document.getElementById('ztsMat').addEventListener('change',e=>setAndApply('activeMaterial',e.target.value));
-      // Re-apply language after dynamic injection
-      if(typeof applyLanguage==='function')applyLanguage();
-    }
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(inject,150));
-    else setTimeout(inject,150);
-  })();
-  // Wrap stats-bar + filter-bar into ONE control card straddling the hero
-  (function(){
-    function wrap(){
-      const stats=document.querySelector('.stats-bar');
-      const filt=document.getElementById('ztsFilterBar');
-      if(!stats||!filt||document.getElementById('ztsControlCard'))return;
-      const card=document.createElement('div');card.id='ztsControlCard';
-      stats.parentNode.insertBefore(card,stats);
-      card.appendChild(stats);card.appendChild(filt);
-    }
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(wrap,250));
-    else setTimeout(wrap,250);
-  })();
-  // Relocate search + action buttons from hidden header into stats-bar
-  (function(){
-    function move(){
-      const statsLeft=document.querySelector('.stats-bar .stats-left');
-      const statsRight=document.querySelector('.stats-bar .stats-right');
-      const searchSrc=document.querySelector('header.header .search-container')  /* le 'body>' est tombe avec l'enveloppe du shell */;
-      const lang=document.getElementById('langToggle');
-      const rand=document.getElementById('randomBtn');
-      const tim=document.getElementById('timerBtn');
-      const fav=document.getElementById('favoritesBtn');
-      const theme=document.getElementById('themeToggle');
-      if(!statsLeft||!statsRight)return;
-      // Insert search after stats-left
-      if(searchSrc&&!document.getElementById('ztsSearchHost')){
-        const host=document.createElement('div');host.id='ztsSearchHost';
-        searchSrc.querySelectorAll(':scope > *').forEach(c=>host.appendChild(c));
-        statsLeft.after(host);
+      function poserEtAppliquer(cle, val){
+        if (typeof state === 'undefined') return;
+        state[cle] = val;
+        if (typeof applyFilters === 'function') applyFilters();
       }
-      // Move action buttons to right (before view-toggle)
-      const firstViewBtn=statsRight.querySelector('.view-toggle')||statsRight.firstChild;
-      [lang,rand,tim,fav,theme].forEach(b=>{if(b&&firstViewBtn)statsRight.insertBefore(b,firstViewBtn);});
+      var paires = [['ztsCat','activeCategory'],['ztsDur','activeDuration'],
+                    ['ztsPfeq','activePfeq'],['ztsUniv','activeUnivers'],
+                    ['ztsAge','activeAge'],['ztsMat','activeMaterial']];
+      paires.forEach(function(pr){
+        var el = bar.querySelector('#'+pr[0]);
+        if (el) el.addEventListener('change', function(e){ poserEtAppliquer(pr[1], e.target.value); });
+      });
+      return bar;
     }
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(move,200));
-    else setTimeout(move,200);
+
+    /* Les six filtres, dans l'ordre d'affichage des pastilles. « Sans
+       materiel » passe devant : c'est le filtre qu'un enseignant sans
+       gymnase cherche en premier. */
+    var FILTRES = [
+      { cle:'activeMaterial', select:'ztsMat'  },
+      { cle:'activeCategory', select:'ztsCat'  },
+      { cle:'activeDuration', select:'ztsDur'  },
+      { cle:'activeAge',      select:'ztsAge'  },
+      { cle:'activeUnivers',  select:'ztsUniv' },
+      { cle:'activePfeq',     select:'ztsPfeq' }
+    ];
+
+    function actifs(){
+      if (typeof state === 'undefined') return [];
+      return FILTRES.filter(function(f){ return state[f.cle] && state[f.cle] !== 'all'; });
+    }
+
+    /* Le libelle vient de l'option choisie : il suit donc la langue sans
+       qu'on ait a le traduire une deuxieme fois. */
+    function libelle(f){
+      var sel = document.getElementById(f.select);
+      if (!sel) return state[f.cle];
+      var opt = sel.options[sel.selectedIndex];
+      return opt ? opt.textContent.trim() : state[f.cle];
+    }
+
+    function majOutils(){
+      var btn = document.getElementById('ztsBtnFiltres');
+      var host = document.getElementById('ztsPastilles');
+      if (!btn || !host) return;
+      var n = actifs().length;
+      var mot = (typeof state !== 'undefined' && state.lang === 'en') ? 'FILTERS' : 'FILTRES';
+      btn.textContent = n ? (mot + ' (' + n + ')') : mot;
+      btn.classList.toggle('a-des-filtres', n > 0);
+
+      host.innerHTML = '';
+      actifs().forEach(function(f){
+        var p = document.createElement('button');
+        p.type = 'button';
+        p.className = 'zts-pastille';
+        p.dataset.cle = f.cle;
+        p.innerHTML = '<span>' + libelle(f) + '</span><span aria-hidden="true">&#10005;</span>';
+        p.setAttribute('aria-label', 'Retirer ' + libelle(f));
+        p.addEventListener('click', function(){
+          state[f.cle] = 'all';
+          var sel = document.getElementById(f.select);
+          if (sel) sel.value = 'all';
+          if (typeof applyFilters === 'function') applyFilters();
+        });
+        host.appendChild(p);
+      });
+      host.hidden = !n;
+    }
+
+    function construire(){
+      if (pose) return;
+      var contenu = document.getElementById('content');
+      var grille  = document.getElementById('gameGrid');
+      var stats   = document.querySelector('.stats-bar');
+      var collec  = document.getElementById('ztsCollections');
+      /* `#gameGrid` est dans le balisage statique : sa presence ne dit RIEN
+         sur app.js, qui n'est charge qu'apres les donnees. Sans la ligne
+         suivante le constructeur passait AVANT app.js, l'enveloppe de
+         `applyFilters` n'etait jamais posee, et les pastilles ne
+         s'affichaient pas — le filtre marchait, mais rien ne le disait. */
+      if (typeof window.applyFilters !== 'function') return;
+      if (!contenu || !grille || !stats) return;
+      pose = true;
+
+      /* 1. La recherche monte dans le hero. */
+      var src = document.querySelector('header.header .search-container');
+      var hote = document.getElementById('ztsHeroRecherche');
+      if (src && hote && !document.getElementById('ztsSearchHost')) {
+        var box = document.createElement('div');
+        box.id = 'ztsSearchHost';
+        while (src.firstElementChild) box.appendChild(src.firstElementChild);
+        hote.appendChild(box);
+      }
+
+      /* 2. Le dock, inchange : les cinq boutons rejoignent .stats-right. */
+      var droite = stats.querySelector('.stats-right');
+      var premiereVue = droite ? (droite.querySelector('.view-toggle') || droite.firstChild) : null;
+      ['langToggle','randomBtn','timerBtn','favoritesBtn','themeToggle'].forEach(function(id){
+        var b = document.getElementById(id);
+        if (b && droite && premiereVue) droite.insertBefore(b, premiereVue);
+      });
+
+      /* 3. Les collections passent en premier dans le contenu. */
+      if (collec) contenu.insertBefore(collec, contenu.firstChild);
+
+      /* 4. La barre d'outils, juste avant la grille. */
+      var outils = document.createElement('div');
+      outils.id = 'ztsBarreOutils';
+
+      var btn = document.createElement('button');
+      btn.id = 'ztsBtnFiltres';
+      btn.type = 'button';
+      btn.textContent = 'FILTRES';
+      btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-controls', 'ztsFiltresPanneau');
+
+      var panneau = document.createElement('div');
+      panneau.id = 'ztsFiltresPanneau';
+      panneau.hidden = true;
+      panneau.appendChild(construireBarreFiltres());
+
+      btn.addEventListener('click', function(){
+        var ouvert = !panneau.hidden;
+        panneau.hidden = ouvert;
+        btn.setAttribute('aria-expanded', String(!ouvert));
+      });
+
+      var pastilles = document.createElement('div');
+      pastilles.id = 'ztsPastilles';
+      pastilles.hidden = true;
+
+      var tete = document.createElement('div');
+      tete.id = 'ztsOutilsTete';
+      tete.appendChild(btn);
+      tete.appendChild(stats);          /* compteur, tri, vue, boutons d'action */
+
+      outils.appendChild(tete);
+      outils.appendChild(pastilles);
+      outils.appendChild(panneau);
+      contenu.insertBefore(outils, grille);
+
+      /* 5. Les pastilles suivent l'etat : on enveloppe applyFilters plutot
+            que de le modifier. */
+      if (typeof window.applyFilters === 'function' && !window.applyFilters.__ztsEnveloppe) {
+        var origine = window.applyFilters;
+        window.applyFilters = function(){
+          var r = origine.apply(this, arguments);
+          try { majOutils(); } catch (e) {}
+          return r;
+        };
+        window.applyFilters.__ztsEnveloppe = true;
+      }
+      majOutils();
+    }
+
+    /* app.js est charge APRES les donnees : on attend qu'il ait rendu sa
+       premiere grille plutot que de parier sur un delai. */
+    var essais = 0;
+    (function attendre(){
+      construire();
+      if (!pose && essais++ < 200) setTimeout(attendre, 100);
+    })();
   })();
+
   </script>
   </div><!-- /.ztsh-page -->
 
