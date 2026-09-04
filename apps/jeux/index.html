@@ -768,6 +768,78 @@
     /* Le rouge ne reste que pour une erreur reelle. Le bouton « vider la
        recherche » n'en est pas une : il passe a l'encre du site. */
     html.ztsh-on #ztsSearchHost .search-clear{background:#1A1A2E!important;color:#FFFEF7!important}
+
+    /* ============ LA MODALE SUR LE MARINE ============
+       Elle etait blanche sur blanc : un panneau blanc sur un voile blanc,
+       avec des boutons blancs dedans. Elle prend le voile marine du shell et
+       une carte creme bordee de noir, le meme geste que les cartes de la
+       grille. Les couleurs viennent des tokens : --ztsh-marine-voile,
+       --paper, --zts-noir, --cyan. */
+    html.ztsh-on .modal-overlay{background:var(--ztsh-marine-voile)!important}
+    html.ztsh-on .modal{
+      background:var(--paper)!important;color:var(--ink)!important;
+      border:3px solid var(--zts-noir)!important;border-radius:14px!important;
+      box-shadow:5px 5px 0 var(--zts-noir)!important;overflow:hidden!important;
+    }
+    /* Bandeau de titre a l'accent de la collection, pose par openGameDetail. */
+    html.ztsh-on .modal .modal-header{
+      border-bottom:3px solid var(--zts-noir)!important;
+      border-top:10px solid var(--accent,var(--cyan))!important;
+      background:var(--paper)!important;color:var(--ink)!important;
+    }
+    html.ztsh-on .modal .modal-body{background:var(--paper)!important;color:var(--ink)!important}
+    /* Croix de fermeture : 44 px, marine au repos, cyan actif. */
+    html.ztsh-on .modal-close{
+      min-width:44px!important;min-height:44px!important;
+      display:inline-flex!important;align-items:center!important;justify-content:center!important;
+      background:var(--zts-noir)!important;color:var(--paper)!important;
+      border:2px solid var(--zts-noir)!important;border-radius:12px!important;
+      box-shadow:2px 2px 0 var(--zts-noir)!important;opacity:1!important;
+    }
+    html.ztsh-on .modal-close:hover,
+    html.ztsh-on .modal-close:focus-visible{background:var(--cyan)!important;color:var(--ink)!important}
+    /* Les boutons de la fiche ouverte suivent la meme regle : marine au
+       repos, cyan actif. Jamais de blanc sur blanc. */
+    html.ztsh-on .modal-body button,
+    html.ztsh-on .modal-body .detail-fav-btn,
+    html.ztsh-on .modal-body .detail-print-btn{
+      min-height:44px!important;
+      background:var(--zts-noir)!important;color:var(--paper)!important;
+      border:2px solid var(--zts-noir)!important;border-radius:12px!important;
+      box-shadow:2px 2px 0 var(--zts-noir)!important;
+    }
+    html.ztsh-on .modal-body button:hover,
+    html.ztsh-on .modal-body button:focus-visible,
+    html.ztsh-on .modal-body .detail-fav-btn:hover,
+    html.ztsh-on .modal-body .detail-print-btn:hover{background:var(--cyan)!important;color:var(--ink)!important}
+    /* Les sections de la fiche : cartes claires, pas des aplats blancs. */
+    html.ztsh-on .modal-body .detail-section{
+      /* --cream n'existe que dans la feuille partagee du site, que cette page
+         pas : la declaration serait invalide et tomberait. */
+      background:var(--paper)!important;color:var(--ink)!important;
+      border:2px solid var(--zts-noir)!important;border-radius:14px!important;
+      box-shadow:3px 3px 0 var(--zts-noir)!important;
+    }
+    /* La grille garde ses gouttieres : le marine se voit entre les cartes. */
+    html.ztsh-on #gameGrid,
+    html.ztsh-on .content,
+    html.ztsh-on .main-layout{background:transparent!important}
+
+    /* ============ DERNIER MOT SUR LA MODALE ============
+       Les feuilles de l'app posent `.modal{background:...!important}` plus
+       bas et par theme. A importance egale c'est la specificite qui tranche :
+       un `body` de plus suffit, et evite d'aller reecrire des regles que
+       d'autres pages partagent. */
+    html.ztsh-on body .modal,
+    html.ztsh-on body .modal .modal-header,
+    html.ztsh-on body .modal .modal-body{
+      background:var(--paper)!important;color:var(--ink)!important;
+    }
+    html.ztsh-on body .modal .detail-section{
+      background:var(--paper)!important;color:var(--ink)!important;
+      border:2px solid var(--zts-noir)!important;
+      box-shadow:3px 3px 0 var(--zts-noir)!important;
+    }
   </style>
   <script>
   // Set --cat var on modal when opening, based on game category

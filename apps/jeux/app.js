@@ -1067,6 +1067,10 @@ function openGameDetail(game) {
     return;
   }
 
+  /* La modale prend l'accent de la collection du jeu, comme sa carte. */
+  const modale = document.getElementById('gameModal');
+  if (modale) modale.style.setProperty('--accent', accentJeu(game));
+
   const isFav = state.favorites.includes(game.id);
   const catName = getCatName(game.category);
 
