@@ -182,6 +182,28 @@ async function chargerCollections() {
     state.collections = [];
   }
   renderCollections();
+  /* Les collections arrivent par le reseau ; selon la vitesse du serveur
+     la grille est rendue avant ou apres, et une carte rendue trop tot
+     calcule son accent sur une liste vide — toutes cyan. On repeint les
+     cartes deja posees dans la tache suivante, sans rien reconstruire. */
+  setTimeout(majAccents, 0);
+}
+
+/* Repeinte des accents sur les cartes deja dans la page. Elle relit les
+   collections gardees sur la carte et corrige la variable ; aucun rendu,
+   donc aucun risque de se faire ecraser par celui d'init(). */
+function majAccents() {
+  document.querySelectorAll('.game-card[data-cols]').forEach(function (carte) {
+    var cols = (carte.dataset.cols || '').split(',').filter(Boolean);
+    var accent = ACCENTS[0];
+    for (var i = 0; i < cols.length; i++) {
+      if (state.collections.some(function (c) { return c.id === cols[i]; })) {
+        accent = accentCollection(cols[i]); break;
+      }
+    }
+    carte.style.setProperty('--accent', accent);
+    carte.style.setProperty('--cat', accent);
+  });
 }
 
 /* UN MOT PAR TUILE. « Jeux par theme », « Plan B jours de pluie » ou
@@ -216,6 +238,39 @@ const COLLECTION_COURT = {
    fonction sort tot) et le meme appel dans toggleLanguage() (sans effet,
    l'ordre reste a comprendre). A reprendre dans un lot dedie : le reste
    de la traduction, lui, bascule bien. */
+/* ============ DEUX ACCENTS, PAS DIX-HUIT ============
+   Les cartes prenaient la couleur de leur CATEGORIE : dix-huit teintes,
+   dont trois rouges (#FF2D2D, #FF8C00, #FF2D87). Une grille de 1540 jeux
+   devenait un nuancier, et le rouge — la seule couleur qui doit vouloir
+   dire « erreur » — servait a dire « ballons chasseurs ».
+
+   Deux accents seulement, pris aux tokens de shared/zts.css : --cyan et
+   --jaune. L'attribution suit la COLLECTION, en alternance dans l'ordre
+   d'affichage : la 1re cyan, la 2e jaune, la 3e cyan. Un jeu porte la
+   couleur de sa collection ; s'il en a plusieurs, celle de la premiere qui
+   existe. Sans collection, cyan.
+
+   L'accent ne va JAMAIS sur du texte : il tient le bandeau de titre de la
+   carte et le lisere de la tuile. Bordures noires et ombres dures ne
+   bougent pas. Sur le jaune l'encre reste #1A1A2E — du blanc y serait
+   illisible. */
+const ACCENTS = ['#00E5FF', '#FFEA00'];   /* --cyan, --jaune */
+const ENCRE_ACCENT = '#1A1A2E';
+
+function accentCollection(id) {
+  const i = state.collections.findIndex(c => c.id === id);
+  if (i === -1) return ACCENTS[0];
+  return ACCENTS[i % ACCENTS.length];
+}
+
+function accentJeu(game) {
+  const cols = Array.isArray(game && game.collections) ? game.collections : [];
+  for (let i = 0; i < cols.length; i++) {
+    if (state.collections.some(c => c.id === cols[i])) return accentCollection(cols[i]);
+  }
+  return ACCENTS[0];
+}
+
 function nomCourtCollection(c, lang) {
   const court = COLLECTION_COURT[c.id];
   if (court && court[lang]) return court[lang];
@@ -240,7 +295,8 @@ function renderCollections() {
       const n = compteCollection(c.id);
       if (!n) return '';   // une collection vide ne s'affiche pas
       const actif = state.activeCollection === c.id ? ' est-actif' : '';
-      return '<button class="zc-carte' + actif + '" data-collection="' + c.id + '">' +
+      return '<button class="zc-carte' + actif + '" data-collection="' + c.id + '"' +
+             ' style="--accent:' + accentCollection(c.id) + '">' +
              '<span class="zc-icone">' + (c.icon || '🎯') + '</span>' +
              '<span class="zc-nom">' + escapeHtml(nomCourtCollection(c, lang)) + '</span>' +
              '<span class="zc-intro-carte">' + escapeHtml(c.intro[lang] || c.intro.fr) + '</span>' +
@@ -873,6 +929,8 @@ function handleViewToggle(btn) {
 // RENDER GAME GRID
 // ============================================================
 function renderGameGrid() {
+  /* Un filtre ou un tri reconstruit les cartes : l'accent suit. */
+  setTimeout(majAccents, 0);
   const games = state.filteredGames;
 
   if (games.length === 0) {
@@ -932,8 +990,20 @@ function createGameCard(game, index) {
   const card = document.createElement('div');
   card.className = 'game-card';
   card.style.animationDelay = `${Math.min(index * 0.03, 0.3)}s`;
+  /* L'accent vient de la collection, plus de la categorie : voir la table
+     ACCENTS plus haut. `--cat` est reecrite avec la meme valeur pour que les
+     regles anterieures qui la lisent suivent, au lieu de laisser du rouge
+     derriere elles. CATEGORIES n'est pas touche : la couleur de categorie
+     sert encore ailleurs. */
+  const accent = accentJeu(game);
+  /* Gardees sur la carte : c'est ce qui permet a majAccents() de repeindre
+     sans reconstruire. */
+  card.dataset.cols = (Array.isArray(game.collections) ? game.collections : []).join(',');
+  card.style.setProperty('--accent', accent);
+  card.style.setProperty('--cat', accent);
+  card.style.setProperty('--cat-encre', ENCRE_ACCENT);
   const catCfg = CATEGORIES[game.category] || {};
-  if (catCfg.color) {
+  if (false && catCfg.color) {
     card.style.setProperty('--cat', catCfg.color);
     // Le CSS lit ces deux-la : voir `.game-card` dans index.html.
     const lis = encreLisible(catCfg.color);
