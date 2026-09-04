@@ -229,7 +229,7 @@
       .zts-hero-compact{padding:10px 0 8px!important}
       .zts-hero-titre{font-size:clamp(30px,8vw,40px)}
       #ztsHeroRecherche{margin-top:8px}
-      #ztsCollections{margin-bottom:10px}
+      #ztsCollections{margin-bottom:6px}
       #ztsCollections .zc-titre{font-size:20px;margin-bottom:6px}
       #ztsCollections .zc-intro{display:none}
       #ztsCollections .zc-rangee{padding-bottom:6px;gap:8px}
@@ -237,8 +237,12 @@
       #ztsCollections .zc-icone{font-size:26px}
       #ztsCollections .zc-nom{font-size:17px}
       #ztsCollections .zc-compte{font-size:18px}
-      #ztsBarreOutils{margin-bottom:10px}
-      #ztsOutilsTete{gap:8px}
+      /* Le repli des cinq actions a rendu 55 px et pose la premiere carte
+         a 844 px pile — la ligne de flottaison, au pixel pres. Ces trois
+         marges rendent la douzaine qui manque pour que le jeu soit
+         VISIBLE et non tangent. */
+      #ztsBarreOutils{margin-bottom:6px}
+      #ztsOutilsTete{gap:6px}
       #ztsBtnFiltres{min-height:48px;padding:10px 16px;font-size:17px}
       #ztsOutilsTete .stats-bar{gap:8px!important;padding:0!important}
       /* .stats-right faisait 610 px de large sur un ecran de 390 : les six
@@ -705,6 +709,30 @@
       padding:16px!important;aspect-ratio:auto!important;
       display:flex!important;flex-direction:column!important;justify-content:space-between!important;
     }
+
+    /* ============ LE « ... » DES CINQ ACTIONS (< 480 px) ============ */
+    #ztsPlusAncre{position:relative;display:inline-flex}
+    #ztsPlusAncre[hidden]{display:none!important}
+    #ztsBtnPlus{
+      min-width:44px;min-height:44px;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:24px;line-height:1;
+      background:#FFFEF7;color:#1A1A2E;
+      border:2px solid #1A1A2E;border-radius:12px;
+      box-shadow:2px 2px 0 #1A1A2E;cursor:pointer;
+    }
+    #ztsBtnPlus[aria-expanded="true"]{background:#00E5FF}
+    #ztsPlusMenu{
+      position:absolute;top:calc(100% + 8px);left:0;z-index:60;
+      display:flex;flex-direction:column;gap:8px;
+      min-width:212px;padding:10px;
+      background:#FFFEF7;color:#1A1A2E;
+      border:3px solid #1A1A2E;border-radius:14px;
+      box-shadow:6px 6px 0 #1A1A2E;
+    }
+    #ztsPlusMenu[hidden]{display:none!important}
+    /* Les cinq boutons reprennent la largeur de la feuille et la cible de 44. */
+    #ztsPlusMenu > *{width:100%!important;min-height:44px!important;margin:0!important}
   </style>
   <script>
   // Set --cat var on modal when opening, based on game category
@@ -1248,6 +1276,89 @@
         var b = document.getElementById(id);
         if (b && droite && premiereVue) droite.insertBefore(b, premiereVue);
       });
+
+      /* 2 bis. LE REPLI DES CINQ ACTIONS SOUS 480 px.
+         Mesure : a 390 px, compteur + cinq boutons + tri + vue ne tiennent
+         pas sur une ligne — la barre d'outils faisait trois rangees, 219 px,
+         et repoussait la premiere carte de jeu a 899 px pour un ecran de
+         844. Les cinq actions passent derriere un « ... » de 44 px ; le
+         compteur, le tri et la vue restent en ligne.
+
+         Les boutons sont DEPLACES, jamais recrees : ils gardent leurs id,
+         leurs ecouteurs poses par setupEventListeners(), et leurs libelles
+         bilingues. Au-dessus de 480 px ils reviennent a leur place et le
+         « ... » disparait — le desktop ne change pas d'un pixel. */
+      var ACTIONS = ['langToggle','randomBtn','timerBtn','favoritesBtn','themeToggle'];
+      var ancrePlus, btnPlus, feuillePlus;
+
+      function basculerPlus(ouvrir){
+        if (!feuillePlus) return;
+        feuillePlus.hidden = !ouvrir;
+        btnPlus.setAttribute('aria-expanded', String(!!ouvrir));
+      }
+
+      function construirePlus(droite){
+        ancrePlus = document.createElement('div');
+        ancrePlus.id = 'ztsPlusAncre';
+        btnPlus = document.createElement('button');
+        btnPlus.id = 'ztsBtnPlus';
+        btnPlus.type = 'button';
+        btnPlus.innerHTML = '&#8943;';
+        btnPlus.setAttribute('aria-haspopup', 'true');
+        btnPlus.setAttribute('aria-expanded', 'false');
+        btnPlus.setAttribute('aria-controls', 'ztsPlusMenu');
+        btnPlus.setAttribute('aria-label', 'Plus d\u2019actions');
+        btnPlus.setAttribute('title', 'Plus d\u2019actions');
+        feuillePlus = document.createElement('div');
+        feuillePlus.id = 'ztsPlusMenu';
+        feuillePlus.hidden = true;
+        ancrePlus.appendChild(btnPlus);
+        ancrePlus.appendChild(feuillePlus);
+        droite.insertBefore(ancrePlus, droite.firstChild);
+
+        btnPlus.addEventListener('click', function (e) {
+          e.stopPropagation();
+          basculerPlus(feuillePlus.hidden);
+        });
+        /* Fermeture au tap dehors et a Echap. */
+        document.addEventListener('click', function (e) {
+          if (feuillePlus && !feuillePlus.hidden && !ancrePlus.contains(e.target)) basculerPlus(false);
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && feuillePlus && !feuillePlus.hidden) {
+            basculerPlus(false);
+            btnPlus.focus();
+          }
+        });
+      }
+
+      function appliquerRepli(droite){
+        var etroit = window.matchMedia('(max-width:479px)').matches;
+        if (etroit) {
+          ACTIONS.forEach(function (id) {
+            var b = document.getElementById(id);
+            if (b && b.parentElement !== feuillePlus) feuillePlus.appendChild(b);
+          });
+          ancrePlus.hidden = false;
+        } else {
+          var ref = droite.querySelector('.view-toggle') || null;
+          ACTIONS.forEach(function (id) {
+            var b = document.getElementById(id);
+            if (b) droite.insertBefore(b, ref);
+          });
+          basculerPlus(false);
+          ancrePlus.hidden = true;
+        }
+      }
+
+      if (droite) {
+        construirePlus(droite);
+        appliquerRepli(droite);
+        var mq = window.matchMedia('(max-width:479px)');
+        var surChangement = function () { appliquerRepli(droite); };
+        if (mq.addEventListener) mq.addEventListener('change', surChangement);
+        else if (mq.addListener) mq.addListener(surChangement);
+      }
 
       /* 3. Les collections passent en premier dans le contenu. */
       if (collec) contenu.insertBefore(collec, contenu.firstChild);
